@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <prefs.h>
 #include <epan/report_err.h>
+#include <epan/emem.h>
 
 static int proto_k12 = -1;
 
@@ -44,6 +45,7 @@ static int hf_k12_stack_file = -1;
 static int hf_k12_port_type = -1;
 static int hf_k12_atm_vp = -1;
 static int hf_k12_atm_vc = -1;
+static int hf_k12_atm_cid = -1;
 
 static int hf_k12_ts = -1;
 
@@ -93,9 +95,20 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 			proto_tree_add_uint(k12_tree, hf_k12_ts, tvb, 0,0,pinfo->pseudo_header->k12.input_info.ds0mask);
 			break;
 		case K12_PORT_ATMPVC:
+        {
+            gchar* circuit_str = ep_strdup_printf("%u:%u:%u",
+                                                  (guint)pinfo->pseudo_header->k12.input_info.atm.vp,
+                                                  (guint)pinfo->pseudo_header->k12.input_info.atm.vc,
+                                                  (guint)pinfo->pseudo_header->k12.input_info.atm.cid);
+            
+            pinfo->circuit_id = g_str_hash(circuit_str);
+            
 			proto_tree_add_uint(k12_tree, hf_k12_atm_vp, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.vp);
 			proto_tree_add_uint(k12_tree, hf_k12_atm_vc, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.vc);
+            if (pinfo->pseudo_header->k12.input_info.atm.cid) 
+                proto_tree_add_uint(k12_tree, hf_k12_atm_cid, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.cid);
 			break;
+        }
 		default:
 			break;
 	}
@@ -151,7 +164,7 @@ static GHashTable* k12_load_config(const gchar* filename) {
 
 			curr = g_strsplit(lines[i]," ",0);
 
-			if (! (curr[0] != NULL && *curr[0] != '\0' && curr[1] != NULL  && *curr[1] != '\0' ) ) {
+			if (! (curr[0] != NULL && *(curr[0]) != '\0' && curr[1] != NULL  && *(curr[1]) != '\0' ) ) {
 				report_failure("K12xx: Format error in line %u",i+1);
 				g_strfreev(curr);
 				g_strfreev(lines);
@@ -216,7 +229,8 @@ proto_register_k12(void)
 		{ &hf_k12_port_type, { "Port type", "k12.input_type", FT_UINT32, BASE_HEX, VALS(k12_port_types), 0x0,"", HFILL }},
 		{ &hf_k12_ts, { "Timeslot mask", "k12.ds0.ts", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_k12_atm_vp, { "ATM VPI", "atm.vpi", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_k12_atm_vc, { "ATM VCI", "atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }}
+        { &hf_k12_atm_vc, { "ATM VCI", "atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_k12_atm_cid, { "AAL2 CID", "aal2.cid", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }}
 	};
 
   static gint *ett[] = {

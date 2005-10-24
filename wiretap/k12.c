@@ -25,22 +25,67 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* #define DEBUG_K12 NULL */
+/*#define DEBUG_K12*/
 
 #ifdef DEBUG_K12
 #include <stdio.h>
 #include <stdarg.h>
 
-FILE* dbg_out;
+FILE* dbg_out = NULL;
+char* env_file = NULL;
 
-void k12_dbg(char* fmt, ...) {
+static unsigned debug_level = 0;
+
+void k12_dbg(unsigned  level, char* fmt, ...) {
     va_list ap;
+    
+    if (level > debug_level) return;
     
     va_start(ap,fmt);
     vfprintf(dbg_out, fmt, ap);
     va_end(ap);
+    
+    fprintf(dbg_out,"\n");
+    
 }
 
+
+void k12_hexdump(unsigned offset, char* label, unsigned char* b, unsigned len) {
+    static const char* c2t[] = {
+        "00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f", 
+        "10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f", 
+        "20","21","22","23","24","25","26","27","28","29","2a","2b","2c","2d","2e","2f", 
+        "30","31","32","33","34","35","36","37","38","39","3a","3b","3c","3d","3e","3f", 
+        "40","41","42","43","44","45","46","47","48","49","4a","4b","4c","4d","4e","4f", 
+        "50","51","52","53","54","55","56","57","58","59","5a","5b","5c","5d","5e","5f", 
+        "60","61","62","63","64","65","66","67","68","69","6a","6b","6c","6d","6e","6f", 
+        "70","71","72","73","74","75","76","77","78","79","7a","7b","7c","7d","7e","7f", 
+        "80","81","82","83","84","85","86","87","88","89","8a","8b","8c","8d","8e","8f", 
+        "90","91","92","93","94","95","96","97","98","99","9a","9b","9c","9d","9e","9f", 
+        "a0","a1","a2","a3","a4","a5","a6","a7","a8","a9","aa","ab","ac","ad","ae","af", 
+        "b0","b1","b2","b3","b4","b5","b6","b7","b8","b9","ba","bb","bc","bd","be","bf", 
+        "c0","c1","c2","c3","c4","c5","c6","c7","c8","c9","ca","cb","cc","cd","ce","cf", 
+        "d0","d1","d2","d3","d4","d5","d6","d7","d8","d9","da","db","dc","dd","de","df", 
+        "e0","e1","e2","e3","e4","e5","e6","e7","e8","e9","ea","eb","ec","ed","ee","ef", 
+        "f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"
+    };
+    unsigned i;
+    
+    if (debug_level < 2) return;
+    
+    fprintf(dbg_out,"%s(%.4x,%.4x): ",label,offset,len);
+    
+    for (i=0 ; i<len ; i++) {
+        if (!(i%64))
+            fprintf(dbg_out,"\n");
+        else if (!(i%4))
+            fprintf(dbg_out,"  ");
+        
+        fprintf(dbg_out,c2t[b[i]]);
+    }
+    fprintf(dbg_out,"\n");
+    
+}
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -106,6 +151,10 @@ typedef struct _k12_src_desc_t {
 #define K12_PACKET_TIMESTAMP  0x18
 #define K12_PACKET_FRAME      0x20
 
+#define K12_PACKET_OFFSET_VP  0x08
+#define K12_PACKET_OFFSET_VC  0x0a
+#define K12_PACKET_OFFSET_CID 0x0c
+
 #define K12_SRCDESC_EXTRALEN   0x1e
 #define K12_SRCDESC_NAMELEN    0x20
 #define K12_SRCDESC_STACKLEN   0x22
@@ -114,7 +163,6 @@ typedef struct _k12_src_desc_t {
 #define K12_SRCDESC_ATM_VPI    0x38
 #define K12_SRCDESC_ATM_VCI    0x3a
 #define K12_SRCDESC_DS0_MASK   0x3c
-
 
 
 /*
@@ -131,9 +179,9 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 	long len;
 	int i;
 	long junky_offset = 0x2000 - ( (file_offset - 0x200) % 0x2000 );
-
+    
 #ifdef DEBUG_K12
-    k12_dbg("k12:get_record: ENTER offset=%u",file_offset);
+    k12_dbg(5,"k12:get_record: ENTER offset=%u",file_offset);
 #endif
     
 	if  ( junky_offset != 0x2000 ) {
@@ -143,13 +191,13 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 		
 		if (read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: EOF");
+            k12_dbg(1,"k12:get_record: EOF");
 #endif
             
 			return 0;
 		} else if ( read != 0x4 ) {
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: SHORT READ");
+            k12_dbg(1,"k12:get_record: SHORT READ");
 #endif
             
 			return -1;
@@ -161,20 +209,20 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 			/* safe body */
 			if (len - 0x4 <= 0) {
 #ifdef DEBUG_K12
-                k12_dbg("k12:get_record: TOO SHORT");
+                k12_dbg(1,"k12:get_record: TOO SHORT");
 #endif                
 				return -1;
 			}
 			
 			if ( file_read(buffer+0x4, 1, len - 0x4, fh) < len - 0x4 ) {
 #ifdef DEBUG_K12
-                k12_dbg("k12:get_record: SHORT READ");
+                k12_dbg(1,"k12:get_record: SHORT READ");
 #endif
                 
 				return -1;
 			} else {
 #ifdef DEBUG_K12
-                k12_dbg("k12:get_record: GOT len=%u",len);
+                k12_hexdump(file_offset, "GOT record", buffer, len);
 #endif
                 
 				return len;
@@ -188,7 +236,7 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 				buffer[i] = buffer[i+0x10];
 			}
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: GOT stuffed_len=%u",len + 0x10);
+            k12_hexdump(file_offset, "GOT record", buffer, len);
 #endif
             
 			return len + 0x10;
@@ -200,13 +248,13 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 		
 		if (read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: EOF",len + 0x10);
+            k12_dbg(1,"k12:get_record: EOF");
 #endif
             
 			return 0;
 		} else if ( read < 0x14 ){
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: SHORT READ",len + 0x10);
+            k12_dbg(1,"k12:get_record: SHORT READ");
 #endif
             
 			return -1;
@@ -220,20 +268,20 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 		
 		if (len - 0x4 <= 0) {
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: TOO SHORT");
+            k12_dbg(1,"k12:get_record: SHORT RECORD");
 #endif
 			return -1;
         }
 		/* safe body */
 		if ( file_read(buffer + 0x4, 1, len - 0x4,fh) < len - 0x4 ) {
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: READ ERROR");
+            k12_dbg(1,"k12:get_record: READ ERROR");
 #endif
 			return -1;
 		} else {
-
+            
 #ifdef DEBUG_K12
-            k12_dbg("k12:get_record: GOT stuffed_len=%u",len + 0x10);
+            k12_hexdump(file_offset, "GOT stuffed record", buffer, len);
 #endif
             
 			return len + 0x10;
@@ -250,9 +298,9 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 	guint64 ts;
 	
 	offset = wth->data_offset;
-
+    
 #ifdef DEBUG_K12
-    k12_dbg("k12_read: offset=%i",offset);
+    k12_dbg(5,"k12_read: offset=%i",offset);
 #endif
     
 	/* ignore the record if it isn't a packet */	
@@ -270,9 +318,9 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 		}
 		
 		type = pntohl(buffer + K12_RECORD_TYPE);
-
+        
 #ifdef DEBUG_K12
-        k12_dbg("k12_read: record type=%i",offset);
+        k12_dbg(5,"k12_read: record type=%i",offset);
 #endif
         
 		offset += len;
@@ -283,9 +331,14 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 	
 	ts = pntohll(buffer + K12_PACKET_TIMESTAMP);
 	
-	wth->phdr.ts.secs = (guint32) ( (ts % 2000000) / 2);
-	wth->phdr.ts.nsecs = (guint32) ((ts / 2000000) + 631152000) * 1000;
-	    
+    
+	wth->phdr.ts.secs = (guint32) ((ts / 2000000) + 631152000);
+	wth->phdr.ts.nsecs = (guint32) ( (ts % 2000000) * 500 );
+    
+#ifdef DEBUG_K12
+    k12_dbg(5,"k12_read: secs=%u nsecs=%u", wth->phdr.ts.secs,wth->phdr.ts.nsecs);
+#endif
+    
 	wth->phdr.len = wth->phdr.caplen = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
 	
 	/* the frame */
@@ -293,27 +346,37 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 	memcpy(buffer_start_ptr(wth->frame_buffer), buffer + K12_PACKET_FRAME, wth->phdr.caplen);
 	
 	wth->pseudo_header.k12.input = pntohl(buffer + K12_RECORD_INPUT);
-
+    
 #ifdef DEBUG_K12
-    k12_dbg("k12_read: wth->pseudo_header.k12.input=%x wth->phdr.len=%i",wth->pseudo_header.k12.input,wth->phdr.len);
+    k12_dbg(5,"k12_read: wth->pseudo_header.k12.input=%x wth->phdr.len=%i",wth->pseudo_header.k12.input,wth->phdr.len);
 #endif
     
     src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(wth->pseudo_header.k12.input));
 	
 	if (src_desc) {
-
+        
 #ifdef DEBUG_K12
-        k12_dbg("k12_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type);
+        k12_dbg(5,"k12_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type);
 #endif
         wth->pseudo_header.k12.input_name = src_desc->input_name;
 		wth->pseudo_header.k12.stack_file = src_desc->stack_file;
 		wth->pseudo_header.k12.input_type = src_desc->input_type;
-	
-		memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+        
+        switch(src_desc->input_type) {
+            case K12_PORT_ATMPVC:
+                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
+                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
+                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
+                break;
+            default:
+                memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+                break;
+                
+        }
 	} else {
         
 #ifdef DEBUG_K12
-        k12_dbg("k12_read: NO RECORD FOUND");
+        k12_dbg(5,"k12_read: NO RECORD FOUND");
 #endif
         
 		memset(&(wth->pseudo_header),0,sizeof(wth->pseudo_header));
@@ -322,7 +385,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 	}
 	
 	wth->pseudo_header.k12.stuff = wth->capture.k12;
-
+    
 	return TRUE;
 }
 
@@ -330,62 +393,101 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
 	k12_src_desc_t* src_desc;
 	guint8 buffer[0x2000];
-
+    guint32 input;
+    
 #ifdef DEBUG_K12
-    k12_dbg("k12_seek_read: ENTER");
+    k12_dbg(5,"k12_seek_read: ENTER");
 #endif
     
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 #ifdef DEBUG_K12
-        k12_dbg("k12_seek_read: SEEK ERROR");
+        k12_dbg(5,"k12_seek_read: SEEK ERROR");
 #endif
 		return FALSE;
 	}
 	
 	if (get_record(buffer, wth->random_fh, seek_off) < 1) {
 #ifdef DEBUG_K12
-        k12_dbg("k12_seek_read: READ ERROR");
+        k12_dbg(5,"k12_seek_read: READ ERROR");
 #endif
 		return FALSE;
 	}
 	
 	memcpy(pd, buffer + K12_PACKET_FRAME, length);
 	
-	wth->pseudo_header.k12.input = pseudo_header->k12.input = pntohl(buffer + K12_RECORD_INPUT);
-	
+    input = pntohl(buffer + K12_RECORD_INPUT);
 #ifdef DEBUG_K12
-    k12_dbg("k12_seek_read: input=%.8x",pseudo_header->k12.input);
+    k12_dbg(5,"k12_seek_read: input=%.8x",input);
 #endif
     
-	src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(pseudo_header->k12.input));
+	src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input));
     
 	if (src_desc) {
-
+        
 #ifdef DEBUG_K12
-        k12_dbg("k12_seek_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type);
+        k12_dbg(5,"k12_seek_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type);
 #endif
-        wth->pseudo_header.k12.input_name = pseudo_header->k12.input_name = src_desc->input_name;
-		wth->pseudo_header.k12.stack_file = pseudo_header->k12.stack_file = src_desc->stack_file;
-		wth->pseudo_header.k12.input_type = pseudo_header->k12.input_type = src_desc->input_type;
+        if (pseudo_header) {
+            pseudo_header->k12.input_name = src_desc->input_name;
+            pseudo_header->k12.stack_file = src_desc->stack_file;
+            pseudo_header->k12.input_type = src_desc->input_type;
+            
+            switch(src_desc->input_type) {
+                case K12_PORT_ATMPVC:
+                    pseudo_header->k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
+                    pseudo_header->k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
+                    pseudo_header->k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+                    break;
+                default:
+                    memcpy(&(pseudo_header->k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+                    break;
+            }
+            
+        }
+        
+        wth->pseudo_header.k12.input_name = src_desc->input_name;
+		wth->pseudo_header.k12.stack_file = src_desc->stack_file;
+		wth->pseudo_header.k12.input_type = src_desc->input_type;
 		
-		memcpy(&(pseudo_header->k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
-		memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+        switch(src_desc->input_type) {
+            case K12_PORT_ATMPVC:
+                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
+                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
+                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+                break;
+            default:
+                memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+                break;
+        }
+        
 	} else {
         
 #ifdef DEBUG_K12
-        k12_dbg("k12_seek_read: NO SRC_RECORD FOUND");
+        k12_dbg(5,"k12_seek_read: NO SRC_RECORD FOUND");
 #endif
         
-		memset(&(wth->pseudo_header),0,sizeof(wth->pseudo_header));
-		memset(&(pseudo_header),0,sizeof(pseudo_header));
-		wth->pseudo_header.k12.input_name = pseudo_header->k12.input_name = "unknown port";
-		wth->pseudo_header.k12.stack_file = pseudo_header->k12.stack_file = "unknown stack file";
-	}
+        if (pseudo_header) {
+            memset(&(pseudo_header->k12),0,sizeof(pseudo_header->k12));
+            pseudo_header->k12.input_name = "unknown port";
+            pseudo_header->k12.stack_file = "unknown stack file";
+        }
+        
+		memset(&(wth->pseudo_header.k12),0,sizeof(wth->pseudo_header.k12));
+		wth->pseudo_header.k12.input_name = "unknown port";
+		wth->pseudo_header.k12.stack_file = "unknown stack file";
+        
+    }
 	
-	wth->pseudo_header.k12.stuff = pseudo_header->k12.stuff = wth->capture.k12;
-
+    if (pseudo_header) {
+        pseudo_header->k12.input = input;
+        pseudo_header->k12.stuff = wth->capture.k12;
+    }
+    
+    wth->pseudo_header.k12.input = input;
+	wth->pseudo_header.k12.stuff = wth->capture.k12;
+    
 #ifdef DEBUG_K12
-    k12_dbg("k12_seek_read: DONE OK");
+    k12_dbg(5,"k12_seek_read: DONE OK");
 #endif
     
 	return TRUE;
@@ -425,16 +527,11 @@ static void destroy_k12_file_data(k12_t* fd) {
 }
 
 static void k12_close(wtap *wth) {
-#ifdef DEBUG_K12
-    k12_dbg("k12_close: ENTER");
-    
-    if (DEBUG_K12) {
-        fclose(dbg_out);
-    }
-    
-#endif
-
 	destroy_k12_file_data(wth->capture.k12);
+#ifdef DEBUG_K12
+    k12_dbg(5,"k12_close: CLOSED");
+    if (env_file) fclose(dbg_out);
+#endif
 }
 
 
@@ -450,41 +547,41 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	guint32 stack_len;
 	guint i;
 	k12_t* file_data;
-	
     
 #ifdef DEBUG_K12
-    if (DEBUG_K12) {
-        dbg_out = fopen(DEBUG_K12,"w");
-    } else {
-        dbg_out = stderr;
-    }
-    
-    k12_dbg("k12_open: ENTER");
+    gchar* env_level = getenv("K12_DEBUG_LEVEL");
+    env_file = getenv("K12_DEBUG_FILENAME");
+    if ( env_file ) dbg_out = fopen(env_file,"w");
+    else dbg_out = stderr;
+    if ( env_level ) debug_level = strtoul(env_level,NULL,10);
+    k12_dbg(1,"k12_open: ENTER debug_level=%u",debug_level);
 #endif
     
 	if ( file_read(read_buffer,1,0x200,wth->fh) != 0x200 ) {
+        
 #ifdef DEBUG_K12
-        k12_dbg("k12_open: FILE HEADER TOO SHORT");
+        k12_dbg(1,"k12_open: FILE HEADER TOO SHORT");
 #endif
+        
 		return 0;
 	} else {
 		if ( memcmp(read_buffer,k12_file_magic,8) != 0 ) {
 #ifdef DEBUG_K12
-            k12_dbg("k12_open: BAD MAGIC");
+            k12_dbg(1,"k12_open: BAD MAGIC");
 #endif
 			return 0;
 		}
 	}
 	
 	offset = 0x200;
-	    
+    
 	file_data = new_k12_file_data();
 	
 	file_data->file_len = pntohl( read_buffer + 0x8);
 	file_data->num_of_records = pntohl( read_buffer + 0xC );
-
+    
 #ifdef DEBUG_K12
-    k12_dbg("k12_open: FILE_HEADER OK: offset=%x file_len=%i records=%i",
+    k12_dbg(5,"k12_open: FILE_HEADER OK: offset=%x file_len=%i records=%i",
             offset,
             file_data->file_len,
             file_data->num_of_records );
@@ -493,17 +590,17 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	do {
 		
 		len = get_record(read_buffer, wth->fh, offset);
-	
+        
 		if ( len <= 0 ) {
 #ifdef DEBUG_K12
-            k12_dbg("k12_open: BAD HEADER RECORD");
+            k12_dbg(1,"k12_open: BAD HEADER RECORD");
 #endif            
 			return -1;
 		}
-
-
+        
+        
 		type = pntohl( read_buffer + K12_RECORD_TYPE );
-
+        
 		if ( (type & K12_MASK_PACKET) == K12_REC_PACKET) {
 			/*
 			 * we are at the first packet record, rewind and leave.
@@ -513,7 +610,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 				return -1;
 			}
 #ifdef DEBUG_K12
-    k12_dbg("k12_open: FIRST PACKET offset=%x",offset);
+            k12_dbg(5,"k12_open: FIRST PACKET offset=%x",offset);
 #endif            			
 			break;
 		} else if (type == K12_REC_SRCDSC) {
@@ -523,18 +620,18 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 			extra_len = pntohs( read_buffer + K12_SRCDESC_EXTRALEN );
 			name_len = pntohs( read_buffer + K12_SRCDESC_NAMELEN );
 			stack_len = pntohs( read_buffer + K12_SRCDESC_STACKLEN );
-
+            
             rec->input = pntohl( read_buffer + K12_RECORD_INPUT );
-
+            
 #ifdef DEBUG_K12
-            k12_dbg("k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input);
+            k12_dbg(5,"k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input);
 #endif
             
 			if (extra_len == 0 || name_len == 0 || stack_len == 0
 				|| 0x20 + extra_len + name_len + stack_len > rec_len ) {
 				g_free(rec);
 #ifdef DEBUG_K12
-                k12_dbg("k12_open: failed (extra_len == 0 || name_len == 0 || stack_len == 0 "
+                k12_dbg(5,"k12_open: failed (extra_len == 0 || name_len == 0 || stack_len == 0 "
                         "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i");
 #endif
                 
@@ -562,7 +659,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 			rec->stack_file = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
 			
 			g_strdown(rec->stack_file);
-				
+            
 			g_hash_table_insert(file_data->src_by_id,GUINT_TO_POINTER(rec->input),rec);
 			g_hash_table_insert(file_data->src_by_name,rec->stack_file,rec);
 			
@@ -582,12 +679,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	wth->subtype_seek_read = k12_seek_read;
 	wth->subtype_close = k12_close;
 	wth->capture.k12 = file_data;
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
-	
-	/* if we use just one encapsulation for all the file
-		we will use that for the whole file so we can
-		use more formats to save to */
-	
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	
 	
 	return 1;
 }
@@ -679,11 +771,11 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 	obj.record.unk32_2 = g_htonl(0x0000060f);
 	obj.record.unk32_3 = g_htonl(0x00000003);
 	obj.record.unk32_4 = g_htonl(0x01000100);
-
+    
 	obj.record.unk16_1 = g_htons(0x0000);
 	obj.record.name_len = strlen(src_desc->input_name) + 1;
 	obj.record.stack_len = strlen(src_desc->stack_file) + 1;
-
+    
 	obj.record.extra.type = g_htonl(src_desc->input_type);
 	
 	switch (src_desc->input_type) {
@@ -697,9 +789,9 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 			obj.record.extra_len = g_htons(0x18);
 			for( i=0; i<32; i++ ) {
 				obj.record.extra.desc.ds0mask.mask[i] =
-					(src_desc->input_info.ds0mask & (1 << i)) ? 0xff : 0x00;
+                (src_desc->input_info.ds0mask & (1 << i)) ? 0xff : 0x00;
 			}
-			offset = 0x3c;
+                offset = 0x3c;
 			break;
 		default:
 			obj.record.extra_len = g_htons(0x08);
@@ -721,13 +813,13 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 	obj.record.len = g_htonl(len);
 	obj.record.name_len =  g_htons(obj.record.name_len);
 	obj.record.stack_len = g_htons(obj.record.stack_len);
-
+    
 	k12_dump_record(wdh,len,obj.buffer);
 }
 
 static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-							const union wtap_pseudo_header *pseudo_header,
-							const guchar *pd, int *err _U_) {
+                         const union wtap_pseudo_header *pseudo_header,
+                         const guchar *pd, int *err _U_) {
 	long len;
 	union {
 		guint8 buffer[0x2000];
@@ -752,17 +844,17 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	
 	obj.record.len = 0x20 + phdr->len;
 	obj.record.len += (obj.record.len % 4) ? 4 - obj.record.len % 4 : 0;
-
+    
 	len = obj.record.len;
 	
 	obj.record.len = g_htonl(obj.record.len);
-
+    
 	obj.record.type = g_htonl(K12_REC_PACKET);
 	obj.record.frame_len = g_htonl(phdr->len);
 	obj.record.input = g_htonl(pseudo_header->k12.input);
 	
 	obj.record.ts = GUINT64_TO_BE((((guint64)phdr->ts.secs - 631152000) * 2000000) + (phdr->ts.nsecs / 1000 * 2));
-
+    
 	memcpy(obj.record.frame,pd,phdr->len);
 	
 	k12_dump_record(wdh,len,obj.buffer);
@@ -780,7 +872,7 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
 	} d;
 	
 	fwrite(k12_eof, 1, 2, wdh->fh);
-
+    
 	if (fseek(wdh->fh, 8, SEEK_SET) == -1) {
 		*err = errno;
 		return FALSE;
@@ -789,11 +881,11 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
 	d.u = g_htonl(wdh->dump.k12->file_len);
 	
 	fwrite(d.b, 1, 4, wdh->fh);
-
+    
 	d.u = g_htonl(wdh->dump.k12->num_of_records);
 	
 	fwrite(d.b, 1, 4, wdh->fh);
-
+    
 	return TRUE;
 }
 
@@ -814,7 +906,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
 		*err = errno;
 		return FALSE;
 	}
-
+    
 	wdh->subtype_write = k12_dump;
 	wdh->subtype_close = k12_dump_close;
 	
