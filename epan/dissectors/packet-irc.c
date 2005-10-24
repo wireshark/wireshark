@@ -86,6 +86,17 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Find the end of the line.
 			 */
 			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+			if (next_offset == offset) {
+				/*
+				 * XXX - we really want the "show data a
+				 * line at a time" loops in various
+				 * dissectors to do reassembly and to
+				 * throw an exception if there's no
+				 * line ending in the current packet
+				 * and we're not doing reassembly.
+				 */
+				break;
+			}
 
 			if (linelen != 0)
 			{
