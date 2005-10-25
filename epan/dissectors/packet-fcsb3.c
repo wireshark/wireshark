@@ -72,7 +72,6 @@ static int hf_sbccs_dib_qtu           = -1;
 static int hf_sbccs_dib_dtuf          = -1;
 static int hf_sbccs_dib_dtu           = -1;
 static int hf_sbccs_dib_ctlfn         = -1;
-static int hf_sbccs_dib_ctlparam      = -1;
 static int hf_sbccs_lrc               = -1;
 static int hf_sbccs_dib_iupacing      = -1;
 static int hf_sbccs_dev_xcp_code      = -1;
@@ -120,6 +119,10 @@ static int hf_sbccs_dib_status_channelend = -1;
 static int hf_sbccs_dib_status_deviceend = -1;
 static int hf_sbccs_dib_status_unit_check = -1;
 static int hf_sbccs_dib_status_unit_exception = -1;
+static int hf_sbccs_dib_ctlparam = -1;
+static int hf_sbccs_dib_ctlparam_rc = -1;
+static int hf_sbccs_dib_ctlparam_ru = -1;
+static int hf_sbccs_dib_ctlparam_ro = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fc_sbccs = -1;
@@ -129,6 +132,7 @@ static gint ett_sbccs_dib_ccw_flags = -1;
 static gint ett_sbccs_dib_cmdflags = -1;
 static gint ett_sbccs_dib_statusflags = -1;
 static gint ett_sbccs_dib_status = -1;
+static gint ett_sbccs_dib_ctlparam = -1;
 
 static dissector_handle_t data_handle;
 
@@ -656,25 +660,48 @@ dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int 
 
 }
 
-static gchar *get_sel_rst_param_string (guint8 ctlparam, gchar *buffer)
+static const true_false_string tfs_sbccs_ctlparam_rc = {
+	"RC is SET",
+	"rc is NOT set"
+};
+static const true_false_string tfs_sbccs_ctlparam_ru = {
+	"RU is SET",
+	"ru is NOT set"
+};
+static const true_false_string tfs_sbccs_ctlparam_ro = {
+	"RO is SET",
+	"ro is NOT set"
+};
+
+static void
+dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags)
 {
-    guint pos = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ctlparam, 
+				tvb, offset, 3, flags);
+		tree=proto_item_add_subtree(item, ett_sbccs_dib_ctlparam);
+	}
 
-    buffer[0] = '\0';
+	proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_rc, tvb, offset, 3, flags);
+	if (flags&0x80){
+		proto_item_append_text(item, "  RC");
+	}
+	flags&=(~( 0x80 ));
 
-    if (ctlparam & 0x80) {
-        strcpy (&buffer[pos], "RC, ");
-        pos += 4;
-    }
-    if (ctlparam & 0x10) {
-        strcpy (&buffer[pos], "RU, ");
-        pos += 4;
-    }
-    if (ctlparam & 0x8) {
-        strcpy (&buffer[pos], "RO");
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ru, tvb, offset, 3, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "  RU");
+	}
+	flags&=(~( 0x10 ));
 
-    return (buffer);
+	proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ro, tvb, offset, 3, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "  RO");
+	}
+	flags&=(~( 0x08 ));
 }
 
 static void get_fc_sbccs_conv_data (tvbuff_t *tvb, guint offset,
@@ -828,7 +855,6 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                           proto_tree *tree, guint offset)
 {
     guint8 ctlfn;
-    gchar buffer[128];
 
     ctlfn = tvb_get_guint8 (tvb, offset);
     if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -844,13 +870,7 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
         /* Control Function Parameter is to be interpreted in some cases */
         switch (ctlfn) {
         case FC_SBCCS_CTL_FN_SEL_RST:
-            proto_tree_add_uint_format (tree, hf_sbccs_dib_ctlparam, tvb,
-                                        offset+1, 3,
-                                        tvb_get_ntoh24 (tvb, offset+1),
-                                        "Control Parameter: 0x%x(%s)",
-                                        tvb_get_ntoh24 (tvb, offset+1),
-                                        get_sel_rst_param_string (ctlfn,
-                                                                  buffer));
+            dissect_sel_rst_param(tree, tvb, offset+1, tvb_get_ntoh24 (tvb, offset+1));
             break;
         case FC_SBCCS_CTL_FN_DEV_XCP:
             proto_tree_add_item (tree, hf_sbccs_dev_xcp_code, tvb, offset+1,
@@ -1124,9 +1144,6 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_ctlfn,
           {"Control Function", "sbccs.ctlfn", FT_UINT8, BASE_HEX,
            VALS (fc_sbccs_dib_ctl_fn_val), 0x0, "", HFILL}},
-        { &hf_sbccs_dib_ctlparam,
-          {"Control Parameters", "sbccs.ctlparam", FT_UINT24, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
         { &hf_sbccs_dib_linkctlfn,
           {"Link Control Function", "sbccs.linkctlfn", FT_UINT8, BASE_HEX,
            VALS (fc_sbccs_dib_link_ctl_fn_val), 0x0, "", HFILL}},
@@ -1253,6 +1270,18 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_status_unit_exception,
           {"Unit Exception", "sbccs.status.unitexception", FT_BOOLEAN, 8,
            TFS(&tfs_sbccs_status_unitexception), 0x01, "", HFILL}},
+        { &hf_sbccs_dib_ctlparam,
+          {"Control Parameters", "sbccs.ctlparam", FT_UINT24, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_sbccs_dib_ctlparam_rc,
+          {"RC", "sbccs.ctlparam.rc", FT_BOOLEAN, 24,
+           TFS(&tfs_sbccs_ctlparam_rc), 0x80, "", HFILL}},
+        { &hf_sbccs_dib_ctlparam_ru,
+          {"RU", "sbccs.ctlparam.ru", FT_BOOLEAN, 24,
+           TFS(&tfs_sbccs_ctlparam_ru), 0x10, "", HFILL}},
+        { &hf_sbccs_dib_ctlparam_ro,
+          {"RO", "sbccs.ctlparam.ro", FT_BOOLEAN, 24,
+           TFS(&tfs_sbccs_ctlparam_ro), 0x08, "", HFILL}},
     };
 
 
@@ -1265,6 +1294,7 @@ proto_register_fcsbccs (void)
         &ett_sbccs_dib_cmdflags,
         &ett_sbccs_dib_statusflags,
         &ett_sbccs_dib_status,
+        &ett_sbccs_dib_ctlparam,
     };
 
     /* Register the protocol name and description */
