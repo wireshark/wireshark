@@ -83,7 +83,6 @@ static int hf_sbccs_dib_tin_imgid_cnt = -1;
 static int hf_sbccs_dib_lrjcode       = -1;
 static int hf_sbccs_dib_ioprio        = -1;
 static int hf_sbccs_dib_linkctlfn     = -1;
-static int hf_sbccs_dib_linkctlinfo   = -1;
 static int hf_sbccs_iui = -1;
 static int hf_sbccs_iui_as = -1;
 static int hf_sbccs_iui_es = -1;
@@ -123,6 +122,9 @@ static int hf_sbccs_dib_ctlparam = -1;
 static int hf_sbccs_dib_ctlparam_rc = -1;
 static int hf_sbccs_dib_ctlparam_ru = -1;
 static int hf_sbccs_dib_ctlparam_ro = -1;
+static int hf_sbccs_dib_linkctlinfo = -1;
+static int hf_sbccs_dib_linkctlinfo_ctcconn = -1;
+static int hf_sbccs_dib_linkctlinfo_ecrcg = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fc_sbccs = -1;
@@ -133,6 +135,7 @@ static gint ett_sbccs_dib_cmdflags = -1;
 static gint ett_sbccs_dib_statusflags = -1;
 static gint ett_sbccs_dib_status = -1;
 static gint ett_sbccs_dib_ctlparam = -1;
+static gint ett_sbccs_dib_linkctlinfo = -1;
 
 static dissector_handle_t data_handle;
 
@@ -300,6 +303,41 @@ dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 	proto_item_append_text(item, val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
 	flags&=(~( 0x07 ));
 }
+
+static const true_false_string tfs_sbccs_linkctlinfo_ctcconn = {
+	"CTC Conn supported",
+	"Ctc conn NOT supported"
+};
+static const true_false_string tfs_sbccs_linkctlinfo_ecrcg = {
+	"Enhanced CRC Generation supported",
+	"Enhanced crc generation NOT supported"
+};
+
+static void
+dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_linkctlinfo, 
+				tvb, offset, 2, flags);
+		tree=proto_item_add_subtree(item, ett_sbccs_dib_linkctlinfo);
+	}
+
+	proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ctcconn, tvb, offset, 2, flags);
+	if (flags&0x80){
+		proto_item_append_text(item, "  CTC Conn");
+	}
+	flags&=(~( 0x80 ));
+
+	proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ecrcg, tvb, offset, 2, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, "  Enhanced CRC Gen");
+	}
+	flags&=(~( 0x01 ));
+}
+
 
 static const true_false_string tfs_sbccs_dhflags_end = {
 	"END bit is set",
@@ -903,7 +941,6 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8 link_ctl;
     guint16 ctl_info;
-    gchar buffer[128];
     guint link_payload_len, i;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -922,18 +959,7 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
         switch (link_ctl) {
         case FC_SBCCS_LINK_CTL_FN_ELP:
         case FC_SBCCS_LINK_CTL_FN_LPE:
-            buffer[0] = '\0';
-            if (ctl_info & 0x1) {
-                strcpy (buffer, "Enhanced CRC Gen, ");
-            }
-            if (ctl_info & 0x80) {
-                strcpy (&buffer[18], "CTC Conn");
-            }
-
-            proto_tree_add_uint_format (tree, hf_sbccs_dib_linkctlinfo, tvb,
-                                        offset+2, 2, ctl_info,
-                                        "Link Control Info: 0x%x(%s)", ctl_info,
-                                        buffer);
+            dissect_linkctlinfo(tree, tvb, offset+2, ctl_info);
             break;
         case FC_SBCCS_LINK_CTL_FN_LPR:
             proto_tree_add_item (tree, hf_sbccs_dib_lprcode, tvb, offset+2, 1,
@@ -1147,9 +1173,6 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_linkctlfn,
           {"Link Control Function", "sbccs.linkctlfn", FT_UINT8, BASE_HEX,
            VALS (fc_sbccs_dib_link_ctl_fn_val), 0x0, "", HFILL}},
-        { &hf_sbccs_dib_linkctlinfo,
-          {"Link Control Information", "sbccs.linkctlinfo", FT_UINT16,
-           BASE_HEX, NULL, 0x0, "", HFILL}},
         { &hf_sbccs_dib_ctccntr,
           {"CTC Counter", "sbccs.ctccntr", FT_UINT16, BASE_DEC, NULL, 0x0,
            "", HFILL}},
@@ -1282,6 +1305,15 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_ctlparam_ro,
           {"RO", "sbccs.ctlparam.ro", FT_BOOLEAN, 24,
            TFS(&tfs_sbccs_ctlparam_ro), 0x08, "", HFILL}},
+        { &hf_sbccs_dib_linkctlinfo,
+          {"Link Control Information", "sbccs.linkctlinfo", FT_UINT16,
+           BASE_HEX, NULL, 0x0, "", HFILL}},
+        { &hf_sbccs_dib_linkctlinfo_ctcconn,
+          {"CTC Conn", "sbccs.linkctlinfo.ctc_conn", FT_BOOLEAN, 16,
+           TFS(&tfs_sbccs_linkctlinfo_ctcconn), 0x80, "", HFILL}},
+        { &hf_sbccs_dib_linkctlinfo_ecrcg,
+          {"Enhanced CRC Generation", "sbccs.linkctlinfo.ecrcg", FT_BOOLEAN, 16,
+           TFS(&tfs_sbccs_linkctlinfo_ecrcg), 0x01, "", HFILL}},
     };
 
 
@@ -1295,6 +1327,7 @@ proto_register_fcsbccs (void)
         &ett_sbccs_dib_statusflags,
         &ett_sbccs_dib_status,
         &ett_sbccs_dib_ctlparam,
+        &ett_sbccs_dib_linkctlinfo,
     };
 
     /* Register the protocol name and description */
