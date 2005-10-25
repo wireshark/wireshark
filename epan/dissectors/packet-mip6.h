@@ -3,7 +3,10 @@
  * $Id$
  *
  * Definitions for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
+ * and Fast Handover for Mobile IPv6 (FMIPv6, draft-ietf-mipshop-fast-mipv6-03.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
+ *
+ * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +42,10 @@ typedef enum {
     COT  = 4,
     BU   = 5,
     BA   = 6,
-    BE   = 7
+    BE    = 7,
+	FBU   = 8,
+	FBACK = 9,
+	FNA   = 10
 } mhTypes;
 
 static const value_string mip6_mh_types[] = {
@@ -51,6 +57,9 @@ static const value_string mip6_mh_types[] = {
     {BU,   "Binding Update"},
     {BA,   "Binding Acknowledgement"},
     {BE,   "Binding Error"},
+    {FBU,   "Fast Binding Update"},
+    {FBACK, "Fast Binding Acknowledgment"},
+    {FNA,   "Fast Neighbor Advertisement"},
     {0,    NULL}
 };
 
@@ -62,7 +71,8 @@ typedef enum {
     ACOA = 3,
     NI   = 4,
     BAD  = 5,
-    MNP  = 6
+    MNP  = 6,
+ 	LLA  = 7
 } optTypes;
 
 /* Binding Update flag description */
@@ -126,6 +136,44 @@ static const value_string mip6_be_status_value[] = {
     { 0, NULL }
 };
 
+/* Fast Binding Update flag description */
+static const true_false_string fmip6_fbu_a_flag_value = {
+    "Fast Binding Acknowledgement requested",
+    "Fast Binding Acknowledgement not requested"
+};
+
+static const true_false_string fmip6_fbu_h_flag_value = {
+    "Home Registration",
+    "No Home Registration"
+};
+
+static const true_false_string fmip6_fbu_l_flag_value = {
+    "Link-Local Address Compatibility",
+    "No Link-Local Address Compatibility"
+};
+
+static const true_false_string fmip6_fbu_k_flag_value = {
+    "Key Management Mobility Compatibility",
+    "No Key Management Mobility Compatibility"
+};
+
+/* Fast Binding Acknowledgement status values */
+static const value_string fmip6_fback_status_value[] = {
+    {   0, "Fast Binding Update accepted" },
+    {   1, "Accepted but use supplied NCoA" },
+    { 128, "Reason unspecified" },
+    { 129, "Administratively prohibited" },
+    { 130, "Insufficient resources" },
+    { 131, "Incorrect interface identifier length" },
+    {   0, NULL }
+};
+
+/* MH LLA Option code */
+static const value_string fmip6_lla_optcode_value[] = {
+    {   2, "Link Layer Address of the MN" },
+    {   0, NULL }
+};
+
 /* Message lengths */
 #define MIP6_BRR_LEN          2
 #define MIP6_HOTI_LEN        10
@@ -135,6 +183,9 @@ static const value_string mip6_be_status_value[] = {
 #define MIP6_BU_LEN           6
 #define MIP6_BA_LEN           6
 #define MIP6_BE_LEN          18
+#define FMIP6_FBU_LEN         6
+#define FMIP6_FBACK_LEN       6
+#define FMIP6_FNA_LEN         2
 
 /* Field offsets & lengths for mobility headers */
 #define MIP6_PROTO_OFF        0
@@ -209,6 +260,29 @@ static const value_string mip6_be_status_value[] = {
 #define MIP6_BE_RES_LEN       1
 #define MIP6_BE_HOA_LEN      16
 
+#define FMIP6_FBU_SEQNR_OFF     6
+#define FMIP6_FBU_FLAGS_OFF     8
+#define FMIP6_FBU_RES_OFF       9
+#define FMIP6_FBU_LIFETIME_OFF 10
+#define FMIP6_FBU_OPTS_OFF     12
+#define FMIP6_FBU_SEQNR_LEN     2
+#define FMIP6_FBU_FLAGS_LEN     1
+#define FMIP6_FBU_RES_LEN       1
+#define FMIP6_FBU_LIFETIME_LEN  2
+
+#define FMIP6_FBACK_STATUS_OFF    6
+#define FMIP6_FBACK_FLAGS_OFF     7
+#define FMIP6_FBACK_SEQNR_OFF     8
+#define FMIP6_FBACK_LIFETIME_OFF 10
+#define FMIP6_FBACK_OPTS_OFF     12
+#define FMIP6_FBACK_STATUS_LEN    1
+#define FMIP6_FBACK_FLAGS_LEN     1
+#define FMIP6_FBACK_SEQNR_LEN     2
+#define FMIP6_FBACK_LIFETIME_LEN  2
+
+#define FMIP6_FNA_RES_OFF     6
+#define FMIP6_FNA_OPTS_OFF    8
+#define FMIP6_FNA_RES_LEN     2
 /* Field offsets & field and option lengths for mobility options */
 #define MIP6_BRA_LEN          2
 #define MIP6_BRA_RI_OFF       2
@@ -229,5 +303,9 @@ static const value_string mip6_be_status_value[] = {
 #define MIP6_NI_CNI_LEN       2
 
 #define MIP6_BAD_AUTH_OFF     2
+
+#define FMIP6_LLA_OPTCODE_OFF 2
+#define FMIP6_LLA_LLA_OFF     4
+#define FMIP6_LLA_OPTCODE_LEN 1
 
 #endif /* __PACKET_MIP6_H_DEFINED__ */

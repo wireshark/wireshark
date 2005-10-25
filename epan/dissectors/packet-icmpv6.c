@@ -11,6 +11,8 @@
  *
  * HMIPv6 support added by Martti Kuparinen <martti.kuparinen@iki.fi>
  *
+ * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -65,6 +67,10 @@
  * and
  *
  *	draft-ietf-mobileip-hmipv6-05.txt
+ * 
+ * and
+ * 
+ * 	rfc4068.txt
  */
 
 static int proto_icmpv6 = -1;
@@ -113,6 +119,59 @@ static const value_string names_router_pref[] = {
 	{ 0, NULL}
 };
 
+static const value_string names_fmip6_prrtadv_code[] = {
+	{ FMIP6_PRRTADV_MNTUP,	"MN should use AP-ID, AR-info tuple" },
+	{ FMIP6_PRRTADV_NI_HOVER,	"Network Initiated Handover trigger" },
+	{ FMIP6_PRRTADV_NORTINFO,	"No new router information" },
+	{ FMIP6_PRRTADV_LIMRTINFO,	"Limited new router information" },
+	{ FMIP6_PRRTADV_UNSOL,	"Unsolicited" },
+	{ 0,			NULL }
+};
+
+static const value_string names_fmip6_hi_code[] = {
+	{ FMIP6_HI_PCOA,	"FBU sent from previous link" },
+	{ FMIP6_HI_NOTPCOA,	"FBU sent from new link" },
+	{ 0,			NULL }
+};
+
+static const value_string names_fmip6_hack_code[] = {
+	{ FMIP6_HACK_VALID,	"Handover Accepted, NCoA valid" },
+	{ FMIP6_HACK_INVALID,	"Handover Accepted, NCoA not valid" },
+	{ FMIP6_HACK_INUSE,	"Handover Accepted, NCoA in use" },
+	{ FMIP6_HACK_ASSIGNED,	"Handover Accepted, NCoA assigned" },
+	{ FMIP6_HACK_NOTASSIGNED,	"Handover Accepted, NCoA not assigned" },
+	{ FMIP6_HACK_NOTACCEPTED,	"Handover Not Accepted, reason unspecified" },
+	{ FMIP6_HACK_PROHIBITED,	"Administratively prohibited" },
+	{ FMIP6_HACK_INSUFFICIENT,	"Insufficient resources" },
+	{ 0,			NULL }
+};
+
+static const value_string names_fmip6_ip_addr_opt_code[] = {
+	{ FMIP6_OPT_IP_ADDRESS_OPTCODE_PCOA,	"Old Care-of Address" },
+	{ FMIP6_OPT_IP_ADDRESS_OPTCODE_NCOA,	"New Care-of Address" },
+	{ FMIP6_OPT_IP_ADDRESS_OPTCODE_NAR,	"NAR's IP address" },
+	{ 0,			NULL }
+};
+
+static const value_string names_fmip6_lla_opt_code[] = {
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_WILDCARD,	"Wildcard" },
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NAP,	"Link-layer Address of the New Access Point" },
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_MN,	"Link-layer Address of the MN" },
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NAR,	"Link-layer Address of the NAR" },
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_SRC,	"Link-layer Address of the source" },
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_CURROUTER,	"The AP belongs to the current interface of the router" },
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NOPREFIX,	"No prefix information available" },
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NOSUPPORT,	"No fast handovers support available" },
+	{ 0,			NULL }
+};
+
+static const value_string names_fmip6_naack_opt_status[] = {
+	{ FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID,	"New CoA is invalid" },
+	{ FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID_NEW,	"New CoA is invalid, use the supplied CoA" },
+	{ FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_UNRECOGNIZED,	"LLA is unrecognized" },
+	{ 0,			NULL }
+};
+
 static void
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -140,7 +199,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static void
-dissect_icmpv6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6opt_tree, *field_tree;
     proto_item *ti, *tf;
@@ -197,6 +256,9 @@ again:
 	break;
     case ND_OPT_MAP:
 	typename = "HMIPv6 MAP option";
+	break;
+    case FMIP6_OPT_NEIGHBOR_ADV_ACK:
+	typename = "Neighbor Advertisement Acknowledgment";
 	break;
     default:
 	typename = "Unknown";
@@ -414,10 +476,159 @@ again:
 	}
 	break;
       }
+
+    case FMIP6_OPT_NEIGHBOR_ADV_ACK:
+      {
+	struct fmip6_opt_neighbor_advertisement_ack fmip6_opt_neighbor_advertisement_ack, *opt_naack;
+	struct e_in6_addr in6;
+
+	opt_naack = &fmip6_opt_neighbor_advertisement_ack;
+	tvb_memcpy(tvb, (guint8 *)opt_naack, offset, sizeof *opt_naack);
+
+	proto_tree_add_text(icmp6opt_tree, tvb,
+			offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_optcode),
+			1, "Option-Code: %u",
+			opt_naack->fmip6_opt_optcode);
+
+	proto_tree_add_text(icmp6opt_tree, tvb,
+			offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_status),
+			1, "Status: %s",
+			val_to_str(opt_naack->fmip6_opt_status, names_fmip6_naack_opt_status, "Unknown"));
+
+	if (opt_naack->fmip6_opt_len == 3) 
+	{
+		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*opt_naack), 16);
+		proto_tree_add_text(icmp6opt_tree, tvb,
+			offset + sizeof(*opt_naack), 
+			16, "New Care-of Address: %s",
+			ip6_to_str(&in6));
+	}
+
+	break;
+      }
     }
 
     offset += (opt->nd_opt_len << 3);
     goto again;
+}
+
+	static void
+dissect_icmpv6fmip6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree *icmp6opt_tree;
+	proto_item *ti;
+	struct fmip6_opt_hdr fmip6_opt_hdr, *opt;
+	int len;
+	char *typename;
+
+	if (!tree)
+		return;
+
+again:
+	if ((int)tvb_reported_length(tvb) <= offset)
+		return; /* No more options left */
+
+	opt = &fmip6_opt_hdr;
+	tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
+	len = opt->fmip6_opt_len << 3;
+
+	/* !!! specify length */
+	ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
+	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+
+	if (len == 0) {
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_len), 1,
+				"Invalid option length: %u",
+				opt->fmip6_opt_len);
+		return; /* we must not try to decode this */
+	}
+
+	switch (opt->fmip6_opt_type) {
+		case FMIP6_OPT_IP_ADDRESS:
+			typename = "IP Address";
+			break;
+		case FMIP6_OPT_NEW_ROUTER_PREFIX_INFO:
+			typename = "New Router Prefix Information";
+			break;
+		case FMIP6_OPT_LINK_LAYER_ADDRESS:
+			typename = "Link-layer Address";
+			break;
+		default:
+			typename = "Unknown";
+			break;
+	}
+
+	proto_tree_add_text(icmp6opt_tree, tvb,
+			offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_type), 1,
+			"Type: %u (%s)", opt->fmip6_opt_type, typename);
+	proto_tree_add_text(icmp6opt_tree, tvb,
+			offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_len), 1,
+			"Length: %u bytes (%u)", opt->fmip6_opt_len << 3, opt->fmip6_opt_len);
+
+	/* decode... */
+	switch (opt->fmip6_opt_type) {
+		case FMIP6_OPT_IP_ADDRESS:
+			{
+				struct fmip6_opt_ip_address fmip6_opt_ip_address, *opt_ip;
+
+				opt_ip = &fmip6_opt_ip_address;
+				tvb_memcpy(tvb, (guint8 *)opt_ip, offset, sizeof *opt_ip);
+
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %s",
+						val_to_str(opt->fmip6_opt_optcode, names_fmip6_ip_addr_opt_code, "Unknown"));
+
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_prefix_len),
+						1, "Prefix length: %u", opt_ip->fmip6_opt_prefix_len);
+
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_ip6_address), 
+						16, "IPv6 Address: %s",
+						ip6_to_str(&opt_ip->fmip6_opt_ip6_address));
+				break;
+			}
+		case FMIP6_OPT_NEW_ROUTER_PREFIX_INFO:
+			{
+				struct fmip6_opt_new_router_prefix_info fmip6_opt_new_router_prefix_info, *opt_nr;
+
+				opt_nr = &fmip6_opt_new_router_prefix_info;
+				tvb_memcpy(tvb, (guint8 *)opt_nr, offset, sizeof *opt_nr);
+
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %u",
+						opt->fmip6_opt_optcode);
+
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix_len),
+						1, "Prefix length: %u", opt_nr->fmip6_opt_prefix_len);
+
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix), 
+						16, "Prefix: %s",
+						ip6_to_str(&opt_nr->fmip6_opt_prefix));
+				break;
+			}
+			break;
+		case FMIP6_OPT_LINK_LAYER_ADDRESS:
+			{
+				int len, p;
+
+				p = offset + sizeof(*opt);
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %s",
+						val_to_str(opt->fmip6_opt_optcode, names_fmip6_lla_opt_code, "Unknown"));
+				len = (opt->fmip6_opt_len << 3) - sizeof(*opt);
+				proto_tree_add_text(icmp6opt_tree, tvb,
+						offset + sizeof(*opt), len, "Link-layer address: %s",
+						bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
+				break;
+			}
+	}
+
+	offset += (opt->fmip6_opt_len << 3);
+	goto again;
 }
 
 /*
@@ -1197,6 +1408,31 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	codename = "Should always be zero";
 	colcodename = NULL;
 	break;
+		case ICMP6_EXPERIMENTAL_MOBILITY:
+			typename = coltypename ="Experimental Mobility";
+			switch (dp->icmp6_data8[0]) {
+				case FMIP6_SUBTYPE_RTSOLPR:
+					typename = coltypename ="RtSolPr (ICMPv6 Experimental Mobility)";
+					codename = "Should always be zero";
+					colcodename = NULL;
+					break;
+				case FMIP6_SUBTYPE_PRRTADV:
+					typename = coltypename ="PrRtAdv (ICMPv6 Experimental Mobility)";
+					codename = val_to_str(dp->icmp6_code, names_fmip6_prrtadv_code, "Unknown");
+					colcodename = NULL;
+					break;
+				case FMIP6_SUBTYPE_HI:
+					typename = coltypename ="HI (ICMPv6 Experimental Mobility)";
+					codename = val_to_str(dp->icmp6_code, names_fmip6_hi_code, "Unknown");
+					colcodename = NULL;
+					break;
+				case FMIP6_SUBTYPE_HACK:
+					typename = coltypename ="HAck (ICMPv6 Experimental Mobility)";
+					codename = val_to_str(dp->icmp6_code, names_fmip6_hack_code, "Unknown");
+					colcodename = NULL;
+					break;
+			}
+			break;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1375,7 +1611,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ip6_to_str((const struct e_in6_addr *)(tvb_get_ptr(tvb, offset + sizeof *dp, sizeof (struct e_in6_addr)))));
 	    break;
 	case ND_ROUTER_SOLICIT:
-	    dissect_icmpv6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+	    dissect_icmpv6ndopt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
 	    break;
 	case ICMP6_MLDV2_REPORT: {
 	  guint16 nbRecords;
@@ -1423,7 +1659,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_retransmit), 4,
 		"Retrans time: %u", pntohl(&ra->nd_ra_retransmit));
-	    dissect_icmpv6opt(tvb, offset + sizeof(struct nd_router_advert), pinfo, icmp6_tree);
+	    dissect_icmpv6ndopt(tvb, offset + sizeof(struct nd_router_advert), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ND_NEIGHBOR_SOLICIT:
@@ -1442,7 +1678,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 			ip6_to_str(&ns->nd_ns_target));
 
-	    dissect_icmpv6opt(tvb, offset + sizeof(*ns), pinfo, icmp6_tree);
+	    dissect_icmpv6ndopt(tvb, offset + sizeof(*ns), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ND_NEIGHBOR_ADVERT:
@@ -1477,7 +1713,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 			ip6_to_str(&na_target));
 
-	    dissect_icmpv6opt(tvb, offset + sizeof(struct nd_neighbor_advert), pinfo, icmp6_tree);
+	    dissect_icmpv6ndopt(tvb, offset + sizeof(struct nd_neighbor_advert), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ND_REDIRECT:
@@ -1506,7 +1742,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 			ip6_to_str(&rd->nd_rd_dst));
 
-	    dissect_icmpv6opt(tvb, offset + sizeof(*rd), pinfo, icmp6_tree);
+	    dissect_icmpv6ndopt(tvb, offset + sizeof(*rd), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ICMP6_ROUTER_RENUMBERING:
@@ -1583,7 +1819,76 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset + 7, 1, "Reserved: %d",
 		tvb_get_guint8(tvb, offset + 7));
 	    /* Show all options */
-	    dissect_icmpv6opt(tvb, offset + 8, pinfo, icmp6_tree);
+	    dissect_icmpv6ndopt(tvb, offset + 8, pinfo, icmp6_tree);
+	    break;
+			case ICMP6_EXPERIMENTAL_MOBILITY:
+		switch (dp->icmp6_data8[0]) {
+			case FMIP6_SUBTYPE_RTSOLPR:
+				{
+					struct fmip6_rtsolpr *rtsolpr;
+					rtsolpr = (struct fmip6_rtsolpr*) dp;
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 4, 1,
+							"Subtype: Router Solicitation for Proxy Advertisement");
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 6, 2,
+							"Identifier: %d", pntohs(&rtsolpr->fmip6_rtsolpr_id));
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					break;
+				}
+			case FMIP6_SUBTYPE_PRRTADV:
+				{
+					struct fmip6_prrtadv *prrtadv;
+					prrtadv = (struct fmip6_prrtadv*) dp;
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 4, 1,
+							"Subtype: Proxy Router Advertisement");
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 6, 2,
+							"Identifier: %d", pntohs(&prrtadv->fmip6_prrtadv_id));
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					break;
+				}
+			case FMIP6_SUBTYPE_HI:
+				{
+					struct fmip6_hi *hi;
+					int flagoff;
+					guint8 hi_flags;
+					hi = (struct fmip6_hi*) dp;
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 4, 1,
+							"Subtype: Handover Initiate");
+
+					flagoff = offset + offsetof(struct fmip6_hi, fmip6_hi_flags_reserved);
+					hi_flags = tvb_get_guint8(tvb, flagoff);
+					tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 1, "Flags: 0x%02x", hi_flags);
+					field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+					proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+							decode_boolean_bitfield(hi_flags,
+								FMIP_HI_FLAG_ASSIGNED, 8, "Assigned", "Not assigned"));
+					proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+							decode_boolean_bitfield(hi_flags,
+								FMIP_HI_FLAG_BUFFER, 8, "Buffered", "Not buffered"));
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 6, 2,
+							"Identifier: %d", pntohs(&hi->fmip6_hi_id));
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					break;
+				}
+			case FMIP6_SUBTYPE_HACK:
+				{
+					struct fmip6_hack *hack;
+					hack = (struct fmip6_hack*) dp;
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 4, 1,
+							"Subtype: Handover Acknowledge");
+					proto_tree_add_text(icmp6_tree, tvb,
+							offset + 6, 2,
+							"Identifier: %d", pntohs(&hack->fmip6_hack_id));
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					break;
+				}
+		}
 	    break;
 	default:
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);

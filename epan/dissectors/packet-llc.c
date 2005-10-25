@@ -73,8 +73,14 @@ static int hf_llc_type = -1;
 static int hf_llc_oui = -1;
 static int hf_llc_pid = -1;
 
+static int proto_basicxid = -1;
+static int hf_llc_xid_format = -1;
+static int hf_llc_xid_types = -1;
+static int hf_llc_xid_wsize = -1;
+
 static gint ett_llc = -1;
 static gint ett_llc_ctrl = -1;
+static gint ett_llc_basicxid = -1;
 
 static dissector_table_t subdissector_table;
 static dissector_table_t xid_subdissector_table;
@@ -145,6 +151,7 @@ const value_string sap_vals[] = {
 	{ SAP_NESTAR,         "Nestar" },
 	{ SAP_PROWAY_ASLM,    "PROWAY (IEC955) Active Station List Maintenance" },
 	{ SAP_ARP,            "ARP" },	/* XXX - hand to "dissect_arp()"? */
+	{ SAP_HPJD,           "HP JetDirect Printer" },
 	{ SAP_SNAP,           "SNAP" },
 	{ SAP_VINES1,         "Banyan Vines" },
 	{ SAP_VINES2,         "Banyan Vines" },
@@ -187,6 +194,27 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_HP,          "Hewlett-Packard" },
 	{ OUI_NORTEL,      "Nortel Networks SONMP" },
 	{ 0,               NULL }
+};
+
+const value_string format_vals[] = {
+	{ 0x81,        "LLC basic format" },
+	{ 0,           NULL }
+};
+
+/*
+ * Mask to extract the type from XID frame.
+ */
+#define	TYPES_MASK	0x1F
+
+const value_string type_vals[] = {
+	{ 1,           "Type 1 LLC (Class I LLC)" },
+	{ 2,           "Type 2 LLC" },
+	{ 3,           "Type 1 and Type 2 LLCs (Class II LLC)" },
+	{ 4,           "Type 3 LLC" },
+	{ 5,           "Type 1 and Type 3 LLCs (Class III LLC)" },
+	{ 6,           "Type 2 and Type 3 LLCs" },
+	{ 7,           "Type 1 and Type 2 and Type 3 LLCs (Class IV LLC)" },
+	{ 0,           NULL }
 };
 
 /*
@@ -353,6 +381,54 @@ static const xdlc_cf_items llc_cf_items_ext = {
 };
 
 static void
+dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree	*xid_tree = NULL;
+	proto_item	*ti = NULL;
+	guint8		format, types, wsize;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "XID");
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
+	}
+
+	format = tvb_get_guint8(tvb, 0);
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_basicxid, tvb, 0, -1, FALSE);
+		xid_tree = proto_item_add_subtree(ti, ett_llc_basicxid);
+		proto_tree_add_uint(xid_tree, hf_llc_xid_format, tvb, 0,
+			1, format);
+	} else
+		xid_tree = NULL;
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		    "Basic Format");
+	}
+
+	types = tvb_get_guint8(tvb, 1);
+	if (tree) {
+		proto_tree_add_uint(xid_tree, hf_llc_xid_types, tvb, 1,
+			1, types & TYPES_MASK);
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		    "; %s", val_to_str(types & TYPES_MASK, type_vals, "0x%02x")
+		);
+	}
+	wsize = tvb_get_guint8(tvb, 2);
+	if (tree) {
+		proto_tree_add_uint(xid_tree, hf_llc_xid_wsize, tvb, 2,
+			1, (wsize & 0xFE) >> 1);
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		    "; Window Size %d", (wsize & 0xFE) >> 1);
+	}
+}
+
+static void
 dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*llc_tree = NULL;
@@ -360,7 +436,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		is_snap;
 	guint16		control;
 	int		llc_header_len;
-	guint8		dsap, ssap;
+	guint8		dsap, ssap, format;
 	tvbuff_t	*next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
@@ -444,13 +520,22 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    == (XDLC_XID|XDLC_U)) {
 				/*
 				 * Non-SNAP XID frame.
+				 * Test for LLC basic format first
+				 */
+				format = tvb_get_guint8(next_tvb, 0);
+				if (format == 0x81) {
+				    dissect_basicxid(next_tvb, pinfo, tree);
+				} else {
+				/*
 				 * Try the XID LLC subdissector table
 				 * with the DSAP.
 				 */
-				if (!dissector_try_port(xid_subdissector_table,
-				    dsap, next_tvb, pinfo, tree)) {
-					call_dissector(data_handle, next_tvb,
-					    pinfo, tree);
+				    if (!dissector_try_port(
+					xid_subdissector_table, dsap, next_tvb,
+					pinfo, tree)) {
+					    call_dissector(data_handle,
+						next_tvb, pinfo, tree);
+				    }
 				}
 			} else {
 				call_dissector(data_handle, next_tvb, pinfo,
@@ -708,7 +793,7 @@ proto_register_llc(void)
 
 		{ &hf_llc_pid,
 		{ "Protocol ID", "llc.pid", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "", HFILL }}
+			NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_llc,
@@ -726,6 +811,33 @@ proto_register_llc(void)
 	  "LLC XID SAP", FT_UINT8, BASE_HEX);
 
 	register_dissector("llc", dissect_llc, proto_llc);
+}
+
+void
+proto_register_basicxid(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_llc_xid_format,
+		{ "XID Format", "llc.xid.format", FT_UINT8, BASE_HEX,
+			VALS(format_vals), 0x0, "", HFILL }},
+
+		{ &hf_llc_xid_types,
+		{ "LLC Types/Classes", "llc.xid.types", FT_UINT8, BASE_HEX,
+			VALS(type_vals), 0x0, "", HFILL }},
+
+		{ &hf_llc_xid_wsize,
+		{ "Receive Window Size", "llc.xid.wsize", FT_UINT8, BASE_DEC,
+			NULL, 0x0, "", HFILL }},
+	};
+	static gint *ett[] = {
+		&ett_llc_basicxid,
+	};
+
+	proto_basicxid = proto_register_protocol("Logical-Link Control Basic Format XID", "Basic Format XID", "basicxid");
+	proto_register_field_array(proto_basicxid, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("basicxid", dissect_basicxid, proto_basicxid);
 }
 
 static void

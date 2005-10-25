@@ -5,6 +5,8 @@
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
  *
+ * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -77,6 +79,18 @@ static int hf_mip6_ba_lifetime = -1;
 static int hf_mip6_be_status = -1;
 static int hf_mip6_be_haddr = -1;
 
+static int hf_fmip6_fbu_seqnr = -1;
+static int hf_fmip6_fbu_a_flag = -1;
+static int hf_fmip6_fbu_h_flag = -1;
+static int hf_fmip6_fbu_l_flag = -1;
+static int hf_fmip6_fbu_k_flag = -1;
+static int hf_fmip6_fbu_lifetime = -1;
+
+static int hf_fmip6_fback_status = -1;
+static int hf_fmip6_fback_k_flag = -1;
+static int hf_fmip6_fback_seqnr = -1;
+static int hf_fmip6_fback_lifetime = -1;
+
 static int hf_mip6_bra_interval = -1;
 
 static int hf_mip6_acoa_acoa = -1;
@@ -88,6 +102,8 @@ static int hf_mip6_ni_cni = -1;
 
 static int hf_mip6_bad_auth = -1;
 
+static int hf_fmip6_lla_optcode = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_mip6 = -1;
 static gint ett_mip6_opt_padn = -1;
@@ -96,6 +112,7 @@ static gint ett_mip6_opt_acoa = -1;
 static gint ett_mip6_opt_ni = -1;
 static gint ett_mip6_opt_bad = -1;
 static gint ett_nemo_opt_mnp = -1;
+static gint ett_fmip6_opt_lla = -1;
 
 /* Functions to dissect the mobility headers */
 
@@ -335,6 +352,101 @@ dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     return MIP6_DATA_OFF+1;
 }
 
+static int
+dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+{
+    proto_tree *data_tree = NULL;
+    proto_item *ti;
+    int lifetime;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Update");
+
+    if (mip6_tree) {
+        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
+                                 MIP6_BU_LEN, "Fast Binding Update");
+        data_tree = proto_item_add_subtree(ti, ett_mip6);
+
+        proto_tree_add_item(data_tree, hf_fmip6_fbu_seqnr, tvb,
+                            FMIP6_FBU_SEQNR_OFF, FMIP6_FBU_SEQNR_LEN, FALSE);
+
+        proto_tree_add_item(data_tree, hf_fmip6_fbu_a_flag, tvb, 
+                            FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+        proto_tree_add_item(data_tree, hf_fmip6_fbu_h_flag, tvb, 
+                            FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+        proto_tree_add_item(data_tree, hf_fmip6_fbu_l_flag, tvb, 
+                            FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+        proto_tree_add_item(data_tree, hf_fmip6_fbu_k_flag, tvb, 
+                            FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+
+        lifetime = tvb_get_ntohs(tvb, FMIP6_FBU_LIFETIME_OFF);
+        proto_tree_add_uint_format(data_tree, hf_fmip6_fbu_lifetime, tvb,
+                                   FMIP6_FBU_LIFETIME_OFF, 
+                                   FMIP6_FBU_LIFETIME_LEN, lifetime,
+                                   "Lifetime: %d (%ld seconds)",
+                                   lifetime, (long)lifetime * 4);
+    }
+
+    return MIP6_DATA_OFF+FMIP6_FBU_LEN;
+}
+
+static int
+dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+{
+    proto_tree *data_tree = NULL;
+    proto_item *ti;
+    int lifetime;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgement");
+
+    if (mip6_tree) {
+        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
+                                 FMIP6_FBACK_LEN, "Fast Binding Acknowledgement");
+        data_tree = proto_item_add_subtree(ti, ett_mip6);
+
+        proto_tree_add_item(data_tree, hf_fmip6_fback_status, tvb,
+                            FMIP6_FBACK_STATUS_OFF, FMIP6_FBACK_STATUS_LEN, FALSE);
+        proto_tree_add_item(data_tree, hf_fmip6_fback_k_flag, tvb, 
+                            FMIP6_FBACK_FLAGS_OFF, FMIP6_FBACK_FLAGS_LEN, FALSE);
+        proto_tree_add_item(data_tree, hf_fmip6_fback_seqnr, tvb,
+                            FMIP6_FBACK_SEQNR_OFF, FMIP6_FBACK_SEQNR_LEN, FALSE);
+        lifetime = tvb_get_ntohs(tvb, FMIP6_FBACK_LIFETIME_OFF);
+        proto_tree_add_uint_format(data_tree, hf_fmip6_fback_lifetime, tvb,
+                                   FMIP6_FBACK_LIFETIME_OFF, 
+                                   FMIP6_FBACK_LIFETIME_LEN, lifetime,
+                                   "Lifetime: %d (%ld seconds)",
+                                   lifetime, (long)lifetime * 4);
+    }
+
+    return MIP6_DATA_OFF+FMIP6_FBACK_LEN;
+}
+
+static int
+dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+{
+    proto_tree *data_tree = NULL;
+    proto_item *ti;
+/*    tvbuff_t *ipv6_tvb;*/
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement");
+
+    if (mip6_tree) {
+        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
+                                 FMIP6_FNA_LEN, "Fast Neighbor Advertisement");
+        data_tree = proto_item_add_subtree(ti, ett_mip6);
+    }
+
+	/* Create the tvbuffer for the next dissector */
+/*    ipv6_tvb = tvb_new_subset(tvb, FMIP6_FNA_LEN, -1, -1);*/
+
+	/* Call the IPv6 dissector */
+/*    dissect_ipv6(ipv6_tvb, pinfo, mip6_tree);*/
+
+	return MIP6_DATA_OFF+FMIP6_FNA_LEN;
+}
+
 /* Functions to dissect the mobility options */
 
 static void
@@ -419,6 +531,29 @@ dissect_mip6_opt_bad(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                         optlen - MIP6_BAD_AUTH_OFF, FALSE);
 }
 
+static void
+dissect_fmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_,
+                     proto_tree *opt_tree)
+{
+    proto_tree *field_tree = NULL;
+    proto_item *tf;
+	int len, p;
+
+	tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s", optp->name);
+	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+	proto_tree_add_item(field_tree, hf_fmip6_lla_optcode, tvb,
+						offset + FMIP6_LLA_OPTCODE_OFF, FMIP6_LLA_OPTCODE_LEN, FALSE);
+	
+	p = offset + FMIP6_LLA_LLA_OFF;
+	len = optlen - FMIP6_LLA_LLA_OFF;
+
+	proto_tree_add_text(field_tree, tvb,
+			p, len, "Link-layer address: %s",
+			bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
+}
+
 static const ip_tcp_opt mip6_opts[] = {
   {
     PAD1,
@@ -476,9 +611,116 @@ static const ip_tcp_opt mip6_opts[] = {
     0,
     dissect_mip6_opt_bad
   },
+  {
+    LLA,
+    "Link-Layer Address",
+    &ett_fmip6_opt_lla,
+    VARIABLE_LENGTH,
+    1,
+    dissect_fmip6_opt_lla
+  },
 };
 
 #define N_MIP6_OPTS	(sizeof mip6_opts / sizeof mip6_opts[0])
+
+/* Like "dissect_ip_tcp_options()", but assumes the length of an option
+ *doesn't* include the type and length bytes. And opt-code too for LLA option */
+	void
+dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
+		const ip_tcp_opt *opttab, int nopts, int eol,
+		packet_info *pinfo, proto_tree *opt_tree)
+{
+	guchar            opt;
+	const ip_tcp_opt *optp;
+	opt_len_type      len_type;
+	unsigned int      optlen;
+	const char        *name;
+	char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
+	void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
+			int, guint, packet_info *, proto_tree *);
+	guint             len;
+	guint             uncount = 2;
+
+	while (length > 0) {
+		opt = tvb_get_guint8(tvb, offset);
+		if (opt == LLA) ++uncount; /* let's omit opt-code */
+		for (optp = &opttab[0]; optp < &opttab[nopts]; optp++) {
+			if (optp->optcode == opt)
+				break;
+		}
+		if (optp == &opttab[nopts]) {
+			/* We assume that the only NO_LENGTH options are Pad1 options,
+			   so that we can treat unknown options as VARIABLE_LENGTH with a
+			   minimum of 0, and at least be able to move on to the next option
+			   by using the length in the option. */
+			optp = NULL;	/* indicate that we don't know this option */
+			len_type = VARIABLE_LENGTH;
+			optlen = 0;
+			snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
+			name = name_str;
+			dissect = NULL;
+		} else {
+			len_type = optp->len_type;
+			optlen = optp->optlen;
+			name = optp->name;
+			dissect = optp->dissect;
+		}
+		--length;      /* account for type byte */
+		if (len_type != NO_LENGTH) {
+			/* Option has a length. Is it in the packet? */
+			if (length < uncount - 1) {
+				/* Bogus - packet must at least include omited bytes! */
+				proto_tree_add_text(opt_tree, tvb, offset,      1,
+						"%s (length byte past end of options)", name);
+				return;
+			}
+			len = tvb_get_guint8(tvb, offset + 1);  /* Size specified in option */
+			--length;    /* account for length byte */
+			if (opt == LLA) --length;    /* account for opt-code byte */
+			if (len > length) {
+				/* Bogus - option goes past the end of the header. */
+				proto_tree_add_text(opt_tree, tvb, offset,      length,
+						"%s (option length = %u byte%s says option goes past end of options)",
+						name, len, plurality(len, "", "s"));
+				return;
+			} else if (len_type == FIXED_LENGTH && len != optlen) {
+				/* Bogus - option length isn't what it's supposed to be for this
+				   option. */
+				proto_tree_add_text(opt_tree, tvb, offset,      uncount + len,
+						"%s (with option length = %u byte%s; should be %u)", name,
+						len, plurality(len, "", "s"), optlen);
+				return;
+			} else if (len_type == VARIABLE_LENGTH && len < optlen) {
+				/* Bogus - option length is less than what it's supposed to be for
+				   this option. */
+				proto_tree_add_text(opt_tree, tvb, offset,      uncount + len,
+						"%s (with option length = %u byte%s; should be >= %u)", name,
+						len, plurality(len, "", "s"), optlen);
+				return;
+			} else {
+				if (optp == NULL) {
+					proto_tree_add_text(opt_tree, tvb, offset,    uncount + len, "%s (%u byte%s)",
+							name, len, plurality(len, "", "s"));
+				} else {
+					if (dissect != NULL) {
+						/* Option has a dissector. */
+						(*dissect)(optp, tvb, offset,          uncount + len, pinfo, opt_tree);
+					} else {
+						/* Option has no data, hence no dissector. */
+						proto_tree_add_text(opt_tree, tvb, offset,  uncount + len, "%s", name);
+					}
+				}
+				offset += uncount + len;
+			}
+			length -= len;
+		} else {
+			proto_tree_add_text(opt_tree, tvb, offset,      1, "%s", name);
+			offset += 1;
+		}
+		if (opt == eol)
+			break;
+	}
+}
 
 /* Function to dissect mobility options */
 static int
@@ -495,7 +737,7 @@ dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len,
                              "Mobility Options");
     opts_tree = proto_item_add_subtree(ti, ett_mip6);
 
-    dissect_ipv6_options(tvb, offset, len,
+    dissect_mipv6_options(tvb, offset, len,
        mip6_opts, N_MIP6_OPTS, -1, pinfo, opts_tree);
 
     return len;
@@ -583,6 +825,15 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case BE:
         offset = dissect_mip6_be(tvb, mip6_tree, pinfo);
+        break;
+    case FBU:
+        offset = dissect_fmip6_fbu(tvb, mip6_tree, pinfo);
+        break;
+    case FBACK:
+        offset = dissect_fmip6_fback(tvb, mip6_tree, pinfo);
+        break;
+    case FNA:
+        offset = dissect_fmip6_fna(tvb, mip6_tree, pinfo);
         break;
     default:
         dissect_mip6_unknown(tvb, mip6_tree, pinfo);
@@ -715,6 +966,46 @@ proto_register_mip6(void)
                                    FT_IPv6, BASE_HEX, NULL, 0,
                                    "Home Address", HFILL }},
         
+        { &hf_fmip6_fbu_seqnr,     { "Sequence number", "fmip6.fbu.seqnr",
+                                   FT_UINT16, BASE_DEC, NULL, 0,
+                                   "Sequence number", HFILL }},
+        { &hf_fmip6_fbu_a_flag,    { "Acknowledge (A) flag", "fmip6.fbu.a_flag",
+                                   FT_BOOLEAN, 8, TFS(&fmip6_fbu_a_flag_value),
+                                   0x80, "Acknowledge (A) flag", HFILL }},
+        { &hf_fmip6_fbu_h_flag,    { "Home Registration (H) flag", 
+                                   "fmip6.fbu.h_flag",
+                                   FT_BOOLEAN, 8, TFS(&fmip6_fbu_h_flag_value),
+                                   0x40, "Home Registration (H) flag", HFILL }},
+        { &hf_fmip6_fbu_l_flag,    { "Link-Local Compatibility (L) flag", 
+                                   "fmip6.fbu.l_flag",
+                                   FT_BOOLEAN, 8, TFS(&fmip6_fbu_l_flag_value),
+                                   0x20, "Home Registration (H) flag", HFILL }},
+        { &hf_fmip6_fbu_k_flag,    { "Key Management Compatibility (K) flag", 
+                                   "fmip6.fbu.k_flag",
+                                   FT_BOOLEAN, 8, TFS(&fmip6_fbu_k_flag_value),
+                                   0x10, "Key Management Compatibility (K) flag", 
+                                   HFILL }},
+        { &hf_fmip6_fbu_lifetime,  { "Lifetime", "fmip6.fbu.lifetime",
+                                   FT_UINT16, BASE_DEC, NULL, 0,
+                                   "Lifetime", HFILL }},
+        
+        { &hf_fmip6_fback_status,  { "Status", "fmip6.fback.status",
+                                   FT_UINT8, BASE_DEC,
+                                   VALS(&fmip6_fback_status_value), 0,
+                                   "Fast Binding Acknowledgement status", HFILL }},
+        { &hf_fmip6_fback_k_flag,  { "Key Management Compatibility (K) flag", 
+                                   "fmip6.fback.k_flag",
+                                   FT_BOOLEAN, 8, TFS(&fmip6_fbu_k_flag_value),
+                                   0x80, "Key Management Compatibility (K) flag", 
+                                   HFILL }},
+        { &hf_fmip6_fback_seqnr,   { "Sequence number", "fmip6.fback.seqnr",
+                                   FT_UINT16, BASE_DEC, NULL, 0,
+                                   "Sequence number", HFILL }},
+        { &hf_fmip6_fback_lifetime, { "Lifetime", "fmip6.fback.lifetime",
+                                   FT_UINT16, BASE_DEC, NULL, 0,
+                                   "Lifetime", HFILL }},
+        
+        
         { &hf_mip6_bra_interval, { "Refresh interval", "mip6.bra.interval",
                                    FT_UINT16, BASE_DEC, NULL, 0,
                                    "Refresh interval", HFILL }},
@@ -732,15 +1023,19 @@ proto_register_mip6(void)
 
         { &hf_mip6_bad_auth,     { "Authenticator", "mip6.bad.auth",
                                    FT_BYTES, BASE_HEX, NULL, 0,
-                                   "Care-of nonce index", HFILL }},
+                                   "Authenticator", HFILL }},
+ 
+		{ &hf_fmip6_lla_optcode, { "Option-Code", "mip6.lla.optcode",
+									FT_UINT8, BASE_DEC, VALS(&fmip6_lla_optcode_value), 0,
+									"Option-Code", HFILL }},
 
-	{ &hf_nemo_mnp_pfl,      { "Mobile Network Prefix Length", "nemo.mnp.pfl",
-				   FT_UINT8, BASE_DEC, NULL, 0,
-				   "Mobile Network Prefix Length", HFILL }},
+		{ &hf_nemo_mnp_pfl,      { "Mobile Network Prefix Length", "nemo.mnp.pfl",
+									FT_UINT8, BASE_DEC, NULL, 0,
+									"Mobile Network Prefix Length", HFILL }},
 
-	{ &hf_nemo_mnp_mnp,      { "Mobile Network Prefix", "nemo.mnp.mnp",
-				   FT_IPv6, BASE_HEX, NULL, 0,
-				   "Mobile Network Prefix", HFILL }}
+		{ &hf_nemo_mnp_mnp,      { "Mobile Network Prefix", "nemo.mnp.mnp",
+									FT_IPv6, BASE_HEX, NULL, 0,
+									"Mobile Network Prefix", HFILL }}
     };
 
     /* Setup protocol subtree array */
@@ -751,7 +1046,8 @@ proto_register_mip6(void)
         &ett_mip6_opt_acoa,
         &ett_mip6_opt_ni,
         &ett_mip6_opt_bad,
-	&ett_nemo_opt_mnp
+		&ett_fmip6_opt_lla,
+		&ett_nemo_opt_mnp
     };
     
     /* Register the protocol name and description */

@@ -12,6 +12,8 @@
  *
  * HMIPv6 support added by Martti Kuparinen <martti.kuparinen@iki.fi>
  *
+ * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -533,6 +535,168 @@ struct rr_result {		/* router renumbering result message */
 /* network endian */
 #define ICMP6_RR_RESULT_FLAGS_OOB		0x0002
 #define ICMP6_RR_RESULT_FLAGS_FORBIDDEN		0x0001
+
+
+/*
+ * FMIPv6
+ */
+
+#define ICMP6_EXPERIMENTAL_MOBILITY	150	/* ICMP Experimental Mobility Protocol Type */
+
+#define FMIP6_SUBTYPE_RTSOLPR   2   /* Router Solicitation for Proxy Advertisement                  */
+#define FMIP6_RTSOLPR_CODE      0   /* Currently the only code for RTSOLPR                          */
+
+#define FMIP6_SUBTYPE_PRRTADV   3   /* Proxy Router Advertisement                                   */
+#define FMIP6_PRRTADV_MNTUP     0   /* MN should use AP-ID, AR-info tuple                           */
+#define FMIP6_PRRTADV_NI_HOVER  1   /* LLA of the AP is present, Network Initiated Handover trigger */
+#define FMIP6_PRRTADV_NORTINFO  2   /* No new router information is present                         */
+#define FMIP6_PRRTADV_LIMRTINFO 3   /* Limited new router information is present                    */
+#define FMIP6_PRRTADV_UNSOL     4   /* Subnet info for neighbor Access Points are sent unsolicited  */
+
+#define FMIP6_SUBTYPE_HI        4   /* Handover Initiate                                            */
+#define FMIP6_HI_PCOA           0   /* PAR receives FBU with PCoA as source IP address              */
+#define FMIP6_HI_NOTPCOA        1   /* PAR receives FBU whose source IP address is not PCoA         */
+
+#define FMIP6_SUBTYPE_HACK      5   /* Handover Acknowledge                                         */
+#define FMIP6_HACK_VALID        0   /* Handover Accepted, NCoA valid                                */
+#define FMIP6_HACK_INVALID      1   /* Handover Accepted, NCoA not valid                            */
+#define FMIP6_HACK_INUSE        2   /* Handover Accepted, NCoA in use                               */
+#define FMIP6_HACK_ASSIGNED     3   /* Handover Accepted, NCoA assigned                             */
+#define FMIP6_HACK_NOTASSIGNED  4   /* Handover Accepted, NCoA not assigned                         */
+#define FMIP6_HACK_NOTACCEPTED  128 /* Handover Not Accepted, reason unspecified                    */
+#define FMIP6_HACK_PROHIBITED   129 /* Administratively prohibited                                  */
+#define FMIP6_HACK_INSUFFICIENT 130 /* Insufficient resources                                       */
+
+/* Fast Handover Mobile IPv6 extension: Router Solicitation for Proxy Advertisement (RtSolPr).  */
+struct fmip6_rtsolpr {
+	struct icmp6_hdr fmip6_rtsolpr_hdr;
+};
+#define fmip6_rtsolpr_type     fmip6_rtsolpr_hdr.icmp6_type
+#define fmip6_rtsolpr_code     fmip6_rtsolpr_hdr.icmp6_code
+#define fmip6_rtsolpr_cksum    fmip6_rtsolpr_hdr.icmp6_cksum
+#define fmip6_rtsolpr_subtype  fmip6_rtsolpr_hdr.icmp6_data8[0]
+#define fmip6_rtsolpr_reserved fmip6_rtsolpr_hdr.icmp6_data8[1]
+#define fmip6_rtsolpr_id       fmip6_rtsolpr_hdr.icmp6_data16[1]
+
+/* Fast Handover Mobile IPv6 extension: Proxy Router Advertisement (PrRtAdv).  */
+struct fmip6_prrtadv {
+	struct icmp6_hdr fmip6_prrtadv_hdr;
+};
+
+#define fmip6_prrtadv_type     fmip6_prrtadv_hdr.icmp6_type
+#define fmip6_prrtadv_code     fmip6_prrtadv_hdr.icmp6_code
+#define fmip6_prrtadv_cksum    fmip6_prrtadv_hdr.icmp6_cksum
+#define fmip6_prrtadv_subtype  fmip6_prrtadv_hdr.icmp6_data8[0]
+#define fmip6_prrtadv_reserved fmip6_prrtadv_hdr.icmp6_data8[1]
+#define fmip6_prrtadv_id       fmip6_prrtadv_hdr.icmp6_data16[1]
+
+/* Fast Handover Mobile IPv6 extension: Handover Initiate (HI).  */
+struct fmip6_hi {
+	struct icmp6_hdr fmip6_hi_hdr;
+};
+
+#define fmip6_hi_type           fmip6_hi_hdr.icmp6_type
+#define fmip6_hi_code           fmip6_hi_hdr.icmp6_code
+#define fmip6_hi_cksum          fmip6_hi_hdr.icmp6_cksum
+#define fmip6_hi_subtype        fmip6_hi_hdr.icmp6_data8[0]
+#define fmip6_hi_flags_reserved fmip6_hi_hdr.icmp6_data8[1]
+#define fmip6_hi_id             fmip6_hi_hdr.icmp6_data16[1]
+
+#if BYTE_ORDER == BIG_ENDIAN
+#define FMIP_HI_FLAG_ASSIGNED 0x8000
+#define FMIP_HI_FLAG_BUFFER   0x4000
+#endif /* BIG_ENDIAN */
+#if BYTE_ORDER == LITTLE_ENDIAN
+#define FMIP_HI_FLAG_ASSIGNED 0x0080
+#define FMIP_HI_FLAG_BUFFER   0x0040
+#endif /* LITTLE_ENDIAN */
+
+/* Fast Handover Mobile IPv6 extension: Handover Acknowledge (HAck).  */
+struct fmip6_hack {
+	struct icmp6_hdr fmip6_hack_hdr;
+};
+
+#define fmip6_hack_type		fmip6_hack_hdr.icmp6_type
+#define fmip6_hack_code		fmip6_hack_hdr.icmp6_code
+#define fmip6_hack_cksum	fmip6_hack_hdr.icmp6_cksum
+#define fmip6_hack_subtype	fmip6_hack_hdr.icmp6_data8[0]
+#define fmip6_hack_reserved	fmip6_hack_hdr.icmp6_data8[1]
+#define fmip6_hack_id		fmip6_hack_hdr.icmp6_data16[1]
+
+#define FMIP6_OPT_IP_ADDRESS             17 /* IP Address Option                            */
+#define FMIP6_OPT_NEW_ROUTER_PREFIX_INFO 18 /* New Router Prefix Information Option         */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS     19 /* Link-Layer Address Option                    */
+#define FMIP6_OPT_NEIGHBOR_ADV_ACK       20 /* Neighbor Advertisement Acknowledgment Option */
+
+struct fmip6_opt_hdr {
+    guint8 fmip6_opt_type;
+    guint8 fmip6_opt_len;     /* size of this option in 8 octets including opt_hdr */
+    guint8 fmip6_opt_optcode; /* Option-Code see the definition below              */
+};
+
+/* IP Address Option */
+struct fmip6_opt_ip_address {
+    guint8 fmip6_opt_type;                   /* Type = 17                                         */
+    guint8 fmip6_opt_len;                    /* size of this option in 8 octets including opt_hdr */
+    guint8 fmip6_opt_optcode;                /* Option-Code see the definition below              */
+    guint8 fmip6_opt_prefix_len;             /* Prefix length for the address                     */
+    guint32 fmip6_opt_reserved;              /* Reserved                                          */
+    struct e_in6_addr fmip6_opt_ip6_address; /* IP address                                        */
+};
+
+#define FMIP6_OPT_IP_ADDRESS_OPTCODE_PCOA 1 /* Old Care-of Address                                 */
+#define FMIP6_OPT_IP_ADDRESS_OPTCODE_NCOA 2 /* New Care-of Address                                 */
+#define FMIP6_OPT_IP_ADDRESS_OPTCODE_NAR  3 /* NAR's IP address                                    */
+#define FMIP6_OPT_IP_ADDRESS_LEN          3 /* Length of this option in 8 octets including opt_hdr */
+
+/* New Router Prefix Information Option */
+struct fmip6_opt_new_router_prefix_info {
+	guint8 fmip6_opt_type;              /* Type = 18 */
+	guint8 fmip6_opt_len;               /* size of this option in 8 octets including opt_hdr */
+	guint8 fmip6_opt_optcode;           /* Opt-Code see the definition below */
+	guint8 fmip6_opt_prefix_len;        /* Prefix length for the address */
+	guint32 fmip6_opt_reserved;         /* Reserved */	
+	struct e_in6_addr fmip6_opt_prefix; /* Could be either IPaddr or Prefix, if prefix left should be zero cleared */
+};
+
+#define FMIP6_OPT_NEW_ROUTER_PREFIX_INFO_OPTCODE 0 /* Currently no other sub-type                         */
+#define FMIP6_OPT_NEW_ROUTER_PREFIX_INFO_LEN     3 /* Length of this option in 8 octets including opt_hdr */
+
+/* Link-layer Address (LLA) Option */
+struct fmip6_opt_link_layer_address {
+    guint8 fmip6_opt_type;    /* Type = 19                                         */
+    guint8 fmip6_opt_len;     /* size of this option in 8 octets including opt_hdr */
+    guint8 fmip6_opt_optcode; /* Opt-Code see the definition below                 */
+    guchar fmip6_opt_lla[6];  /* The variable length link-layer address            */
+};
+
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_WILDCARD	0	/* wildcard requesting resolution for all nearby access points */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NAP	1	/* Link-layer Address of the New Access Point */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_MN		2	/* Link-layer Address of the MN */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NAR	3	/* Link-layer Address of the NAR (i.e., Proxied Originator) */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_SRC	4	/* Link-layer Address of the source of RtSolPr or PrRtAdv message */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_CURROUTER	5	/* The access point identified by the LLA belongs to the current interface of the router */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NOPREFIX	6	/* No prefix information available for the access point identified by the LLA */
+#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NOSUPPORT	7	/* No fast handovers support available for the access point identified by the LLA */
+/* Length of this option in 8 octets including opt_hdr, is variable */
+
+/* Neighbor Advertisement Acknowledgment (NAACK) */
+struct fmip6_opt_neighbor_advertisement_ack {
+	guint8 fmip6_opt_type; 	/* Type = 20 */
+	guint8 fmip6_opt_len;		/* size of this option in 8 octets including opt_hdr (1 or 3), because NAACK is caried in a RA (ICMP, not MH) */
+	guint8 fmip6_opt_optcode;	/* Sub-types see the definition below */
+	guint8 fmip6_opt_status;	/* See the below definitions */
+	guint32 fmip6_opt_reserved;	/* Reserved */
+	/* could be followed by New CoA */
+};
+
+#define FMIP6_OPT_NEIGHBOR_ADV_ACK_OPTCODE		0	/* Currently no other sub-type */
+#define	FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID 	1	/* New CoA is invalid */
+#define	FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID_NEW 	2	/* New CoA is invalid, use the supplied CoA in reserved field */
+#define	FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_UNRECOGNIZED 	128	/* LLA is unrecognized */
+#define FMIP6_OPT_NEIGHBOR_ADV_ACK_LEN_NO_COA		1	/* No CoA included */
+#define FMIP6_OPT_NEIGHBOR_ADV_ACK_LEN_COA		3	/* CoA included */
+
 
 void capture_ipv6(const guchar *, int, int, packet_counts *);
 
