@@ -786,7 +786,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mrdisc.h	\
 	packet-msnip.h	\
 	packet-mtp3.h	\
-	packet-nbap.c	\
+	packet-nbap.h	\
 	packet-ncp-int.h	\
 	packet-ncp-nmas.h	\
 	packet-ncp-sss.h \
