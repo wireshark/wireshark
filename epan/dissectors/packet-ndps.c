@@ -1946,7 +1946,6 @@ static int
 print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
     guint32     address_type=0;
-    guint32     address=0;
     guint32     address_len=0;
 
     address_type = tvb_get_ntohl(tvb, foffset); 
@@ -1955,27 +1954,29 @@ print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     address_len = tvb_get_ntohl(tvb, foffset);
     proto_tree_add_item(ndps_tree, hf_address_len, tvb, foffset, 4, FALSE);
     foffset += 4;
+    /*
+     * XXX - are these address types the same as the NDS_PTYPE_ #defines
+     * in packet-ncp2222.inc?
+     *
+     * XXX - should this code - and the code in packet-ncp2222.inc to
+     * dissect addresses - check the length for the types it supports?
+     */
     switch(address_type)
     {
     case 0x00000000:
-            proto_tree_add_item(ndps_tree, hf_ndps_net, tvb, foffset, 4, FALSE);
-            proto_tree_add_item(ndps_tree, hf_ndps_node, tvb, foffset+4, 6, FALSE);
-            proto_tree_add_item(ndps_tree, hf_ndps_socket, tvb, foffset+10, 2, FALSE);
-            tvb_ensure_bytes_exist(tvb, foffset, address_len);
-            foffset += address_len;
-            break;
+        proto_tree_add_item(ndps_tree, hf_ndps_net, tvb, foffset, 4, FALSE);
+        proto_tree_add_item(ndps_tree, hf_ndps_node, tvb, foffset+4, 6, FALSE);
+        proto_tree_add_item(ndps_tree, hf_ndps_socket, tvb, foffset+10, 2, FALSE);
+        break;
     case 0x00000001:
-            proto_tree_add_item(ndps_tree, hf_ndps_port, tvb, foffset, 2, FALSE);
-            address = tvb_get_letohl(tvb, foffset+2);
-            proto_tree_add_ipv4(ndps_tree, hf_ndps_ip, tvb, foffset+2, 4, address);
-            tvb_ensure_bytes_exist(tvb, foffset, address_len);
-            foffset += address_len;
-            break;
+        proto_tree_add_item(ndps_tree, hf_ndps_port, tvb, foffset, 2, FALSE);
+        proto_tree_add_item(ndps_tree, hf_ndps_ip, tvb, foffset+2, 4, FALSE);
+        break;
     default:
-        tvb_ensure_bytes_exist(tvb, foffset, tvb_get_ntohl(tvb, foffset -4));
-        foffset += tvb_get_ntohl(tvb, foffset -4);
         break;
     }
+    tvb_ensure_bytes_exist(tvb, foffset, address_len);
+    foffset += address_len;
     return foffset+(address_len%4);
 }
 
@@ -2214,9 +2215,9 @@ cardinal_seq(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         foffset += 4;
         if (length==4)
         {
-            tvb_ensure_bytes_exist(tvb, foffset, length);
             proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
         }
+        tvb_ensure_bytes_exist(tvb, foffset, length);
         foffset += length;
         foffset += (length%2);
         if ((int) foffset <= 0)
@@ -2425,9 +2426,9 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             if (length==4)
             {
-                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_info_int32, tvb, foffset, length, FALSE);
             }
+            tvb_ensure_bytes_exist(tvb, foffset, length);
             foffset += length;
             break;
         case 16:         /* Integer Range */
