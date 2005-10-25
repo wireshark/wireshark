@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-rtse.c                                                            */
+/* ./packet-rtse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -66,9 +66,6 @@ static proto_tree *top_tree=NULL;
 
 static  dissector_handle_t rtse_handle = NULL;
 static  dissector_handle_t ros_handle = NULL;
-
-static int dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
-
 
 
 /*--- Included file: packet-rtse-hf.c ---*/
