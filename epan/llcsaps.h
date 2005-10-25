@@ -48,7 +48,7 @@
 #define	SAP_PROWAY_ASLM		0x8E
 #define	SAP_ARP			0x98
 #define	SAP_SNAP		0xAA
-#define	SAP_ARP			0x98
+#define	SAP_HPJD		0xB4
 #define	SAP_VINES1		0xBA
 #define	SAP_VINES2		0xBC
 #define	SAP_NETWARE2		0xE0
