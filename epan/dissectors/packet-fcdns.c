@@ -118,10 +118,18 @@ static int hf_fcdns_cos_2 = -1;
 static int hf_fcdns_cos_3 = -1;
 static int hf_fcdns_cos_4 = -1;
 static int hf_fcdns_cos_6 = -1;
+static int hf_fcdns_fc4type_llcsnap = -1;
+static int hf_fcdns_fc4type_ip = -1;
+static int hf_fcdns_fc4type_fcp = -1;
+static int hf_fcdns_fc4type_swils = -1;
+static int hf_fcdns_fc4type_snmp = -1;
+static int hf_fcdns_fc4type_gs3 = -1;
+static int hf_fcdns_fc4type_vi = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcdns = -1;
 static gint ett_cos_flags = -1;
+static gint ett_fc4flags = -1;
 
 typedef struct _fcdns_conv_key {
     guint32 conv_idx;
@@ -297,60 +305,98 @@ fc4ftrs_to_str (tvbuff_t *tvb, int offset, gchar *str)
     return (str);
 }
 
+static const true_false_string tfs_fcdns_fc4type_llcsnap = {
+	"LLC/SNAP is SET",
+	"Llc/snap is NOT set"
+};
+static const true_false_string tfs_fcdns_fc4type_ip = {
+	"IP is SET",
+	"Ip is NOT set"
+};
+static const true_false_string tfs_fcdns_fc4type_fcp = {
+	"FCP is SET",
+	"Fcp is NOT set"
+};
+static const true_false_string tfs_fcdns_fc4type_swils = {
+	"SW_ILS is SET",
+	"Sw_ils is NOT set"
+};
+static const true_false_string tfs_fcdns_fc4type_snmp = {
+	"SNMP is SET",
+	"Snmp is NOT set"
+};
+static const true_false_string tfs_fcdns_fc4type_gs3 = {
+	"GS3 is SET",
+	"Gs3 is NOT set"
+};
+static const true_false_string tfs_fcdns_fc4type_vi = {
+	"VI is SET",
+	"Vi is NOT set"
+};
+
 /* Decodes LLC/SNAP, IP, FCP, VI, GS, SW_ILS types only */
-/* Max len of str to be allocated by caller is 40 */
-static gchar *
-fc4type_to_str (tvbuff_t *tvb, int offset, gchar *str)
+static void
+dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex)
 {
-    guint32 fc4tword;
-    int stroff = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint32 flags;
 
-    if (str == NULL) {
-        return NULL;
-    }
+	if(parent_tree){
+                item=proto_tree_add_item(parent_tree, hfindex, tvb, offset,
+                                       32, TRUE);
+		tree=proto_item_add_subtree(item, ett_fc4flags);
+	}
 
-    *str = '\0';
+	flags = tvb_get_ntohl (tvb, offset);
 
-    fc4tword = tvb_get_ntohl (tvb, offset);
+	proto_tree_add_boolean(tree, hf_fcdns_fc4type_fcp, tvb, offset, 4, flags);
+	if (flags&0x0100){
+		proto_item_append_text(item, "  FCP");
+	}
+	flags&=(~( 0x0100 ));
+
+	proto_tree_add_boolean(tree, hf_fcdns_fc4type_ip, tvb, offset, 4, flags);
+	if (flags&0x0020){
+		proto_item_append_text(item, "  IP");
+	}
+	flags&=(~( 0x0020 ));
+
+	proto_tree_add_boolean(tree, hf_fcdns_fc4type_llcsnap, tvb, offset, 4, flags);
+	if (flags&0x0010){
+		proto_item_append_text(item, "  LLC/SNAP");
+	}
+	flags&=(~( 0x0010 ));
+
+
+	flags = tvb_get_ntohl (tvb, offset+4);
         
-    if (fc4tword & 0x10) {
-        strcpy (str, "LLC/SNAP, ");
-        stroff += 10;
-    }
-    
-    if (fc4tword & 0x20) {
-        strcpy (&str[stroff], "IP, ");
-        stroff += 4;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_fc4type_swils, tvb, offset+4, 4, flags);
+	if (flags&0x0010){
+		proto_item_append_text(item, "  SW_ILS");
+	}
+	flags&=(~( 0x0010 ));
 
-    if (fc4tword & 0x0100) {
-        strcpy (&str[stroff], "FCP, ");
-        stroff += 5;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_fc4type_snmp, tvb, offset+4, 4, flags);
+	if (flags&0x0004){
+		proto_item_append_text(item, "  SNMP");
+	}
+	flags&=(~( 0x0004 ));
 
-    fc4tword = tvb_get_ntohl (tvb, offset+4);
-    
-    if (fc4tword & 0x1) {
-        strcpy (&str[stroff], "GS3, ");
-        stroff += 5;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_fc4type_gs3, tvb, offset+4, 4, flags);
+	if (flags&0x0001){
+		proto_item_append_text(item, "  GS3");
+	}
+	flags&=(~( 0x0001 ));
 
-    if (fc4tword & 0x4) {
-        strcpy (&str[stroff], "SNMP, ");
-        stroff += 6;
-    }
 
-    if (fc4tword & 0x10) {
-        strcpy (&str[stroff], "SW_ILS, ");
-        stroff += 8;
-    }
+	flags = tvb_get_ntohl (tvb, offset+8);
 
-    fc4tword = tvb_get_ntohl (tvb, offset+8);
-    if (fc4tword & 0x1) {
-        strcpy (&str[stroff], "VI, ");
-        stroff += 3;
-    }
-    return (str);
+	proto_tree_add_boolean(tree, hf_fcdns_fc4type_vi, tvb, offset+8, 4, flags);
+	if (flags&0x0001){
+		proto_item_append_text(item, "  VI");
+	}
+	flags&=(~( 0x0001 ));
 }
 
 /* Code to actually dissect the packets */
@@ -371,7 +417,6 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     guint8 len;
-    gchar str[128];
 
     if (req_tree) {
         if (isreq) {
@@ -426,9 +471,7 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 		dissect_cos_flags(req_tree, tvb, offset+556, hf_fcdns_reply_cos);
             }
             if (tvb_offset_exists (tvb, 608)) {
-                proto_tree_add_string (req_tree, hf_fcdns_rply_gft, tvb, offset+560,
-                                       32,
-                                       fc4type_to_str (tvb, offset+560, str));
+                dissect_fc4type(req_tree, tvb, offset+560, hf_fcdns_rply_gft);
             }
             if (tvb_offset_exists (tvb, 624)) {
                 proto_tree_add_item (req_tree, hf_fcdns_rply_ipport, tvb,
@@ -504,16 +547,13 @@ static void
 dissect_fcdns_gftid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar fc4str[64];
 
     if (req_tree) {
         if (isreq) {
             dissect_fcdns_req_portid (tvb, req_tree, offset+1);
         }
         else {
-            proto_tree_add_string (req_tree, hf_fcdns_rply_gft, tvb,
-                                   offset, 32,
-                                   fc4type_to_str (tvb, offset, fc4str));
+            dissect_fc4type(req_tree, tvb, offset, hf_fcdns_rply_gft);
         }
     }
 }
@@ -578,15 +618,12 @@ static void
 dissect_fcdns_gfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar fc4str[128];
     int tot_len, desclen;
 
     if (req_tree) {
         if (isreq) {
             dissect_fcdns_req_portid (tvb, req_tree, offset+1);
-            proto_tree_add_string (req_tree, hf_fcdns_fc4type, tvb, offset+4,
-                                   32,
-                                   fc4type_to_str (tvb, offset+4, fc4str));
+            dissect_fc4type(req_tree, tvb, offset+4, hf_fcdns_fc4type);
         }
         else {
             tot_len = tvb_length (tvb) - offset; /* excluding CT header */
@@ -1010,16 +1047,13 @@ static void
 dissect_fcdns_rftid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar fc4str[128];
 
     if (req_tree && isreq) {
         proto_tree_add_string (req_tree, hf_fcdns_req_portid, tvb,
                                offset+1, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+1,
                                                        3)));
-        proto_tree_add_string (req_tree, hf_fcdns_req_fc4types, tvb,
-                               offset+4, 32,
-                               fc4type_to_str (tvb, offset+4, fc4str));
+        dissect_fc4type(req_tree, tvb, offset+4, hf_fcdns_req_fc4types);
     }
 }
 
@@ -1063,16 +1097,13 @@ dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int len, dlen;
-    gchar fc4str[128];
 
     if (req_tree && isreq) {
         proto_tree_add_string (req_tree, hf_fcdns_req_portid, tvb,
                                offset+1, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+1,
                                                        3)));
-        proto_tree_add_string (req_tree, hf_fcdns_req_fc4types, tvb,
-                               offset+4, 32,
-                               fc4type_to_str (tvb, offset+4, fc4str));
+        dissect_fc4type(req_tree, tvb, offset+4, hf_fcdns_req_fc4types);
 
         len = tvb_length (tvb) - offset - 36;
         offset += 36;
@@ -1260,9 +1291,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
             proto_tree_add_item (tree, hf_fcdns_rply_ipnode, tvb, offset+8, 16,
                                  0);
             dissect_cos_flags(tree, tvb, offset+24, hf_fcdns_reply_cos);
-            proto_tree_add_string (tree, hf_fcdns_rply_gft, tvb, offset+28,
-                                   32,
-                                   fc4type_to_str (tvb, offset+28, str));
+            dissect_fc4type(tree, tvb, offset+28, hf_fcdns_rply_gft);
             proto_tree_add_item (tree, hf_fcdns_rply_ipport, tvb, offset+60,
                                  16, 0);
             proto_tree_add_string (tree, hf_fcdns_rply_fpname, tvb, offset+76,
@@ -1365,12 +1394,10 @@ static void
 dissect_fcdns_geft (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar str[128];
 
     if (isreq) {
         if (req_tree) {
-            proto_tree_add_string (req_tree, hf_fcdns_fc4type, tvb, offset, 32,
-                                   fc4type_to_str (tvb, offset, str));
+            dissect_fc4type(req_tree, tvb, offset, hf_fcdns_fc4type);
         }
     }
     else {
@@ -1785,9 +1812,6 @@ proto_register_fcdns (void)
         { &hf_fcdns_rply_nname,
           {"Node Name", "fcdns.rply.nname", FT_STRING, BASE_HEX, NULL, 0x0, "",
            HFILL}},
-        { &hf_fcdns_rply_gft,
-          {"FC-4 Types Supported", "fcdns.rply.fc4type", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
         { &hf_fcdns_rply_snamelen,
           {"Symbolic Node Name Length", "fcdns.rply.snamelen", FT_UINT8, BASE_DEC,
            NULL, 0x0, "", HFILL}},
@@ -1800,9 +1824,6 @@ proto_register_fcdns (void)
         { &hf_fcdns_rply_fpname,
           {"Fabric Port Name", "fcdns.rply.fpname", FT_STRING, BASE_HEX, NULL,
            0x0, "", HFILL}},
-        { &hf_fcdns_fc4type,
-          {"FC-4 Type", "fcdns.req.fc4type", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
         { &hf_fcdns_rply_fc4feat,
           {"FC-4 Features", "fcdns.rply.fc4features", FT_STRING, BASE_HEX,
            NULL, 0x0, "", HFILL}},
@@ -1832,9 +1853,6 @@ proto_register_fcdns (void)
            "", HFILL}},
         { &hf_fcdns_req_fc4feature,
           {"FC-4 Feature Bits", "fcdns.req.fc4feature", FT_STRING,
-           BASE_HEX, NULL, 0x0, "", HFILL}},
-        { &hf_fcdns_req_fc4types,
-          {"FC-4 TYPEs Supported", "fcdns.req.fc4types", FT_STRING,
            BASE_HEX, NULL, 0x0, "", HFILL}},
         { &hf_fcdns_rply_fc4type,
           {"FC-4 Descriptor Type", "fcdns.rply.fc4type", FT_UINT8, BASE_HEX,
@@ -1938,11 +1956,42 @@ proto_register_fcdns (void)
         { &hf_fcdns_cos_6,
           {"6", "fcdns.cos.6", FT_BOOLEAN, 32,
            TFS(&tfs_fcdns_cos_6), 0x40, "", HFILL}},
+        { &hf_fcdns_fc4type_llcsnap,
+          {"LLC/SNAP", "fcdns.fc4types.llc_snap", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_fc4type_llcsnap), 0x0010, "", HFILL}},
+        { &hf_fcdns_fc4type_ip,
+          {"IP", "fcdns.fc4types.ip", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_fc4type_ip), 0x0020, "", HFILL}},
+        { &hf_fcdns_fc4type_fcp,
+          {"FCP", "fcdns.fc4types.fcp", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_fc4type_fcp), 0x0100, "", HFILL}},
+        { &hf_fcdns_fc4type_swils,
+          {"SW_ILS", "fcdns.fc4types.swils", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_fc4type_swils), 0x0010, "", HFILL}},
+        { &hf_fcdns_fc4type_snmp,
+          {"SNMP", "fcdns.fc4types.snmp", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_fc4type_snmp), 0x0004, "", HFILL}},
+        { &hf_fcdns_fc4type_gs3,
+          {"GS3", "fcdns.fc4types.gs3", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_fc4type_gs3), 0x0001, "", HFILL}},
+        { &hf_fcdns_fc4type_vi,
+          {"VI", "fcdns.fc4types.vi", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_fc4type_vi), 0x0001, "", HFILL}},
+        { &hf_fcdns_rply_gft,
+          {"FC-4 Types Supported", "fcdns.rply.fc4type", FT_NONE, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_fcdns_req_fc4types,
+          {"FC-4 Types Supported", "fcdns.req.fc4types", FT_NONE, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_fcdns_fc4type,
+          {"FC-4 Types", "fcdns.req.fc4type", FT_NONE, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
     };
 
     static gint *ett[] = {
         &ett_fcdns,
         &ett_cos_flags,
+        &ett_fc4flags,
     };
     
     /* Register the protocol name and description */
