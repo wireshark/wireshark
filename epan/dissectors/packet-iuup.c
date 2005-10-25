@@ -457,7 +457,7 @@ static guint dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tr
         c++;
     } while ( ! (oct & 0x80) );
     
-    return c;
+    return c - 1;
 }
 
 static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
@@ -502,11 +502,6 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     
     offset++;
 
-    if (tree) {
-        pi = proto_tree_add_item(tree,hf_iuup_mode_versions,tvb,offset,2,FALSE);
-        support_tree = proto_item_add_subtree(pi,ett_support);
-    }
-    
     rfcis = dissect_rfcis(tvb, pinfo, tree, &offset, iuup_circuit);
 
     if (!tree) return;
@@ -517,15 +512,26 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
         
         for (i = 0; i <= rfcis; i++) {
             proto_tree_add_item(iptis_tree,hf_iuup_init_ipti[i],tvb,offset,1,FALSE);
-            if (!(i%2)) {
+            if ((i%2)) {
                 offset++;
             }
         }
+        
+        if ((i%2)) {
+            offset++;
+        }
     }
     
-    for (i = 0; i <= 15; i++) {
-        proto_tree_add_item(support_tree,hf_iuup_mode_versions_a[i],tvb,offset,2,FALSE);
+    if (tree) {
+        pi = proto_tree_add_item(tree,hf_iuup_mode_versions,tvb,offset,2,FALSE);
+        support_tree = proto_item_add_subtree(pi,ett_support);
+        
+        for (i = 0; i < 16; i++) {
+            proto_tree_add_item(support_tree,hf_iuup_mode_versions_a[i],tvb,offset,2,FALSE);
+        }
+        
     }
+        
     offset += 2;
     
     proto_tree_add_item(tree,hf_iuup_data_pdu_type,tvb,offset,1,FALSE);
@@ -604,7 +610,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
     switch(pdutype) {
         case PDUTYPE_DATA_WITH_CRC:
             if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO,"FrameNumber: %u RFCI: %u", (guint)(first_octet & 0x0f) ,(guint)(second_octet & 0x3f));
+                col_append_fstr(pinfo->cinfo, COL_INFO,"FN: %x RFCI: %u", (guint)(first_octet & 0x0f) ,(guint)(second_octet & 0x3f));
             }
                 
             if (!tree) return;
@@ -782,7 +788,7 @@ static void init_iuup(void) {
 void proto_register_iuup(void) {
     static hf_register_info hf[] = {
         { &hf_iuup_direction, { "Frame Direction", "iuup.direction", FT_UINT16, BASE_DEC, NULL,0x8000,"",HFILL}},
-        { &hf_iuup_circuit_id, { "Frame Number", "iuup.circuit_id", FT_UINT16, BASE_DEC, NULL,0x7fff,"",HFILL}},
+        { &hf_iuup_circuit_id, { "Circuit ID", "iuup.circuit_id", FT_UINT16, BASE_DEC, NULL,0x7fff,"",HFILL}},
         { &hf_iuup_pdu_type, { "PDU Type", "iuup.pdu_type", FT_UINT8, BASE_DEC, VALS(iuup_pdu_types),0xf0,"",HFILL}},
         { &hf_iuup_frame_number, { "Frame Number", "iuup.framenum", FT_UINT8, BASE_DEC, NULL,0x0F,"",HFILL}},
         { &hf_iuup_fqc, { "FQC", "iuup.fqc", FT_UINT8, BASE_DEC, VALS(iuup_fqcs),0xc0,"Frame Quality Classification",HFILL}},
@@ -818,22 +824,22 @@ void proto_register_iuup(void) {
 
         { &hf_iuup_mode_versions, { "Iu UP Mode Versions Supported", "iuup.support_mode", FT_UINT16, BASE_HEX, NULL,0x0,"",HFILL}},
         
-        { &hf_iuup_mode_versions_a[ 0], { "Version 15", "iuup.support_mode.version15", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x8000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 1], { "Version 14", "iuup.support_mode.version14", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x4000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 2], { "Version 13", "iuup.support_mode.version13", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x2000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 3], { "Version 12", "iuup.support_mode.version12", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x1000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 4], { "Version 11", "iuup.support_mode.version11", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0800,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 5], { "Version 10", "iuup.support_mode.version10", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0400,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 6], { "Version  9", "iuup.support_mode.version9", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0200,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 7], { "Version  8", "iuup.support_mode.version8", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0100,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 8], { "Version  7", "iuup.support_mode.version7", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0080,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 9], { "Version  6", "iuup.support_mode.version6", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0040,"",HFILL}},
-        { &hf_iuup_mode_versions_a[10], { "Version  5", "iuup.support_mode.version5", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0020,"",HFILL}},
-        { &hf_iuup_mode_versions_a[11], { "Version  4", "iuup.support_mode.version4", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0010,"",HFILL}},
-        { &hf_iuup_mode_versions_a[12], { "Version  3", "iuup.support_mode.version3", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0008,"",HFILL}},
-        { &hf_iuup_mode_versions_a[13], { "Version  2", "iuup.support_mode.version2", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0004,"",HFILL}},
-        { &hf_iuup_mode_versions_a[14], { "Version  1", "iuup.support_mode.version1", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0002,"",HFILL}},
-        { &hf_iuup_mode_versions_a[15], { "Version  0", "iuup.support_mode.version0", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0001,"",HFILL}}, 
+        { &hf_iuup_mode_versions_a[ 0], { "Version 16", "iuup.support_mode.version16", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x8000,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 1], { "Version 15", "iuup.support_mode.version15", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x4000,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 2], { "Version 14", "iuup.support_mode.version14", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x2000,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 3], { "Version 13", "iuup.support_mode.version13", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x1000,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 4], { "Version 12", "iuup.support_mode.version12", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0800,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 5], { "Version 11", "iuup.support_mode.version11", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0400,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 6], { "Version 10", "iuup.support_mode.version10", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0200,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 7], { "Version  9", "iuup.support_mode.version9", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0100,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 8], { "Version  8", "iuup.support_mode.version8", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0080,"",HFILL}},
+        { &hf_iuup_mode_versions_a[ 9], { "Version  7", "iuup.support_mode.version7", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0040,"",HFILL}},
+        { &hf_iuup_mode_versions_a[10], { "Version  6", "iuup.support_mode.version6", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0020,"",HFILL}},
+        { &hf_iuup_mode_versions_a[11], { "Version  5", "iuup.support_mode.version5", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0010,"",HFILL}},
+        { &hf_iuup_mode_versions_a[12], { "Version  4", "iuup.support_mode.version4", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0008,"",HFILL}},
+        { &hf_iuup_mode_versions_a[13], { "Version  3", "iuup.support_mode.version3", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0004,"",HFILL}},
+        { &hf_iuup_mode_versions_a[14], { "Version  2", "iuup.support_mode.version2", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0002,"",HFILL}},
+        { &hf_iuup_mode_versions_a[15], { "Version  1", "iuup.support_mode.version1", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0001,"",HFILL}}, 
 
         { &hf_iuup_num_rfci_ind, { "Number of RFCI Indicators", "iuup.p", FT_UINT8, BASE_HEX, NULL,0x3f,"",HFILL}},
         { &hf_iuup_init_rfci_ind, { "RFCI Initialization", "iuup.rfci.init", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}},
