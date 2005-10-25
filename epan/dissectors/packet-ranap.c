@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-ranap.c                                                           */
+/* .\packet-ranap.c                                                           */
 /* ../../tools/asn2eth.py -X -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
 
 /* Input file: packet-ranap-template.c */
@@ -59,7 +59,8 @@
 		offset=(offset&0xfffffff8)+8;	\
 	}
 
-
+/* Higest Ranap_ProcedureCode_value, use in heuristics */
+#define RANAP_MAX_PC  42
 
 /* Initialize the protocol and registered fields */
 int proto_ranap = -1;
@@ -10732,7 +10733,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_length(tvb) < 4) { return FALSE; }
     if (tvb_get_guint8(tvb, LENGTH_OFFSET) != (tvb_length(tvb) - 4)) { return FALSE; }
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
-    if (temp > 28) { return FALSE; }
+    if (temp > RANAP_MAX_PC) { return FALSE; }
 
     dissect_ranap(tvb, pinfo, tree);
 
