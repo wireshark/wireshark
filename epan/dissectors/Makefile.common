@@ -288,6 +288,7 @@ DISSECTOR_SRC =	\
 	packet-fr.c	\
 	packet-frame.c	\
 	packet-ftam.c	\
+	packet-ftbp.c	\
 	packet-ftp.c	\
 	packet-fw1.c	\
 	packet-g723.c	\
@@ -730,6 +731,7 @@ DISSECTOR_INCLUDES =	\
 	packet-fr.h	\
 	packet-frame.h	\
 	packet-ftam.h	\
+	packet-ftbp.h	\
 	packet-giop.h	\
 	packet-gnm.h	\
 	packet-gnutella.h	\
