@@ -70,10 +70,10 @@ static int ett_ranap;
 
 
 /* Global variables */
-proto_tree *top_tree;
-guint type_of_message;
-guint32 ProcedureCode;
-guint32 ProtocolIE_ID;
+static proto_tree *top_tree;
+static guint type_of_message;
+static guint32 ProcedureCode;
+static guint32 ProtocolIE_ID;
 
 static int dissect_ranap_ies(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);

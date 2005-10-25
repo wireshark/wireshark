@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ranap.c                                                           */
+/* ./packet-ranap.c                                                           */
 /* ../../tools/asn2eth.py -X -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
 
 /* Input file: packet-ranap-template.c */
@@ -859,10 +859,10 @@ static gint ett_ranap_PrivateIE_Field = -1;
 
 
 /* Global variables */
-proto_tree *top_tree;
-guint type_of_message;
-guint32 ProcedureCode;
-guint32 ProtocolIE_ID;
+static proto_tree *top_tree;
+static guint type_of_message;
+static guint32 ProcedureCode;
+static guint32 ProtocolIE_ID;
 
 static int dissect_ranap_ies(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);

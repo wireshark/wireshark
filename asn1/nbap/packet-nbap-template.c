@@ -66,10 +66,10 @@ static int ett_nbap_UnsuccessfulOutcomeValue = -1;
 #include "packet-nbap-ett.c"
 
 /* Global variables */
-proto_tree *top_tree;
-guint32 ProcedureCode;
-guint32 ProtocolIE_ID;
-guint32 ddMode;
+static proto_tree *top_tree;
+static guint32 ProcedureCode;
+static guint32 ProtocolIE_ID;
+static guint32 ddMode;
 
 #define BYTE_ALIGN_OFFSET(offset)		\
 	if(offset&0x07){			\
