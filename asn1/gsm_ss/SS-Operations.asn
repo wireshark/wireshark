@@ -6,7 +6,7 @@ SS-Operations{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Acces
 
 DEFINITIONS
 
-::=
+IMPLICIT TAGS ::=
 
 BEGIN
 
@@ -76,20 +76,20 @@ SS-UserData ::= IA5String (SIZE (1.. 200))
 -- notifySS   OPERATION  ::=  {
 --   ARGUMENT     SEQUENCE {
 NotifySS-Arg ::= SEQUENCE{
-	ss-Code 			[1] SS-Code OPTIONAL,
-	ss-Status 			[4] SS-Status OPTIONAL,
+	ss-Code 				[1] SS-Code OPTIONAL,
+	ss-Status 				[4] SS-Status OPTIONAL,
 	ss-Notification 		[5] SS-Notification OPTIONAL,
-	callIsWaiting-Indicator 	[14] NULL OPTIONAL,
-	callOnHold-Indicator 		[15] CallOnHold-Indicator OPTIONAL,
+	callIsWaiting-Indicator [14] NULL OPTIONAL,
+	callOnHold-Indicator 	[15] CallOnHold-Indicator OPTIONAL,
 	mpty-Indicator 			[16] NULL OPTIONAL,
-	cug-Index 			[17] CUG-Index OPTIONAL,
-	clirSuppressionRejected 	[18] NULL OPTIONAL,
+	cug-Index 				[17] CUG-Index OPTIONAL,
+	clirSuppressionRejected [18] NULL OPTIONAL,
 	... ,
 	ect-Indicator 			[19] ECT-Indicator OPTIONAL,
 	nameIndicator 			[20] NameIndicator OPTIONAL,
 	ccbs-Feature 			[21] CCBS-Feature OPTIONAL,
 	alertingPattern 		[22] AlertingPattern OPTIONAL,
-	multicall-Indicator 		[23] Multicall-Indicator OPTIONAL}
+	multicall-Indicator 	[23] Multicall-Indicator OPTIONAL}
 --   CODE     local      : 16
 --   }
 -- The nameIndicator is defined because of CNAP.
@@ -179,7 +179,7 @@ ForwardCUG-InfoArg ::= SEQUENCE {
 
 ECT-Indicator ::= SEQUENCE {
 	ect-CallState 		[0] ECT-CallState,
-	rdn 			[1] RDN OPTIONAL,
+	rdn 				[1] RDN OPTIONAL,
 	...}
 
 ECT-CallState ::= ENUMERATED {
@@ -193,13 +193,13 @@ NameIndicator ::= SEQUENCE {
 Name ::= CHOICE {
 	namePresentationAllowed 	[0] NameSet,
 	presentationRestricted 		[1] NULL,
-	nameUnavailable 		[2] NULL,
+	nameUnavailable 			[2] NULL,
 	namePresentationRestricted 	[3] NameSet}
 
 NameSet ::= SEQUENCE {
 	dataCodingScheme 		[0] USSD-DataCodingScheme,
 	lengthInCharacters 		[1] INTEGER,
-	nameString 			[2] USSD-String,
+	nameString 				[2] USSD-String,
 ...}
 
 -- NameIndicator, Name and NameSet are defined because of CNAP.
@@ -209,13 +209,13 @@ NameSet ::= SEQUENCE {
 -- | 0 0 0 0 | 1 1 1 1|
 
 RDN ::= CHOICE {
-	presentationAllowedAddress 		[0] RemotePartyNumber,
-	presentationRestricted 			[1] NULL,
+	presentationAllowedAddress 				[0] RemotePartyNumber,
+	presentationRestricted 					[1] NULL,
 	numberNotAvailableDueToInterworking 	[2] NULL,
-	presentationRestrictedAddress 		[3] RemotePartyNumber}
+	presentationRestrictedAddress 			[3] RemotePartyNumber}
 
 RemotePartyNumber ::= SEQUENCE {
-	partyNumber 				[0] ISDN-AddressString,
+	partyNumber 					[0] ISDN-AddressString,
 	partyNumberSubaddress 			[1] ISDN-SubaddressString OPTIONAL,
 ...}
 
@@ -233,8 +233,8 @@ AccessRegisterCCEntryArg ::= SEQUENCE {
 --         b-subscriberNumber       [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
 --         b-subscriberSubaddress   [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 21 ) ) OPTIONAL, 
 --         basicServiceGroup        [3] CHOICE {
---            bearerService     [2] IMPLICIT OCTET STRING ( SIZE( 1 ) ), 
---            teleservice       [3] IMPLICIT OCTET STRING ( SIZE( 1 ) )} OPTIONAL, 
+--            bearerService			[2] IMPLICIT OCTET STRING ( SIZE( 1 ) ), 
+--            teleservice			[3] IMPLICIT OCTET STRING ( SIZE( 1 ) )} OPTIONAL, 
 --         ... } OPTIONAL, 
 --      ... }
 --   ERRORS     {
@@ -255,7 +255,7 @@ AccessRegisterCCEntryArg ::= SEQUENCE {
 --   ARGUMENT     SEQUENCE {
 
 CallDeflectionArg ::= SEQUENCE {
-	deflectedToNumber 		[0] AddressString,
+	deflectedToNumber 			[0] AddressString,
 	deflectedToSubaddress 		[1] ISDN-SubaddressString OPTIONAL,
 ...}
 
@@ -316,7 +316,7 @@ UUS-Service ::= ENUMERATED {
 LocationNotificationArg ::= SEQUENCE {
 	notificationType 		[0] NotificationToMSUser,
 	locationType 			[1] LocationType,
-	lcsClientExternalID 		[2] LCSClientExternalID OPTIONAL,
+	lcsClientExternalID 	[2] LCSClientExternalID OPTIONAL,
 	lcsClientName 			[3] LCSClientName OPTIONAL,
 	... ,
 	lcsRequestorID 			[4] LCSRequestorID OPTIONAL,
@@ -352,11 +352,11 @@ VerificationResponse::= ENUMERATED {
 --   RESULT     SEQUENCE {
 
 LCS-MOLRArg ::= SEQUENCE {
-	molr-Type 			[0] MOLR-Type,
+	molr-Type 				[0] MOLR-Type,
 	locationMethod 			[1] LocationMethod OPTIONAL,
-	lcs-QoS 			[2] LCS-QoS OPTIONAL,
-	lcsClientExternalID 		[3] LCSClientExternalID OPTIONAL,
-	mlc-Number 			[4] ISDN-AddressString OPTIONAL,
+	lcs-QoS 				[2] LCS-QoS OPTIONAL,
+	lcsClientExternalID 	[3] LCSClientExternalID OPTIONAL,
+	mlc-Number 				[4] ISDN-AddressString OPTIONAL,
 	gpsAssistanceData 		[5] GPSAssistanceData OPTIONAL,
 	...,
 	supportedGADShapes 		[6] SupportedGADShapes OPTIONAL,
@@ -404,7 +404,7 @@ LCS-MOLRRes::= SEQUENCE {
 	locationEstimate 		[0] Ext-GeographicalInformation OPTIONAL,
 	decipheringKeys 		[1] DecipheringKeys OPTIONAL,
 	...,
-	add-LocationEstimate 		[2] Add-GeographicalInformation OPTIONAL}
+	add-LocationEstimate 	[2] Add-GeographicalInformation OPTIONAL}
 
 --   ERRORS     {
 --      systemFailure | 
@@ -440,10 +440,10 @@ DecipheringKeys::= OCTET STRING (SIZE (15))
 --   ARGUMENT     SEQUENCE {
 
 LCS-AreaEventRequestArg ::= SEQUENCE {
-	referenceNumber 		[0] LCS-ReferenceNumber,
-	h-gmlc-address 			[1] GSN-Address,
+	referenceNumber 			[0] LCS-ReferenceNumber,
+	h-gmlc-address 				[1] GSN-Address,
 	deferredLocationEventType 	[3] DeferredLocationEventType,
-	areaEventInfo 			[4] AreaEventInfo,
+	areaEventInfo 				[4] AreaEventInfo,
 ... }
 --   RETURN  RESULT     TRUE
 --   ERRORS     {
