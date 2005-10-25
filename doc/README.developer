@@ -3011,6 +3011,66 @@ protocol tree. Unfortunately since there is no way to guess the size of C String
 without seeing the entire string this dissector can never request more than one
 additional byte.
 
+2.8 ptvcursors
+
+The ptvcursor API allows a simpler approach to writing dissectors for
+simple protocols. The ptvcursor API works best for protocols whose fields
+are static and whose format does not depend on the value of other fields.
+However, even if only a portion of your protocol is statically defined,
+then that portion could make use of ptvcursors.
+
+The ptvcursor API lets you extract data from a tvbuff, and add it to a
+protocol tree in one step. It also keeps track of the position in the
+tvbuff so that you can extract data again without having to compute any
+offsets --- hence the "cursor" name of the API.
+
+The three steps for a simple protocol are:
+    1. Create a new ptvcursor with ptvcursor_new()
+    2. Add fields with multiple calls of ptvcursor_add()
+    3. Delete the ptvcursor with ptvcursor_free()
+
+To use the ptvcursor API, include the "ptvcursor.h" file. The NCP dissector
+is an overly-complicated example of how to use it. I don't recommend
+looking at it as a guide; instead, the API description here should be good
+enough.
+
+2.8.1 API
+
+ptvcursor_t*
+ptvcursor_new(proto_tree*, tvbuff_t*, gint offset)
+    This creates a new ptvcursor_t object for iterating over a tvbuff.
+You must call this and use this ptvbcursor_t object so you can use the
+ptvcursor API.
+
+proto_item*
+ptvcursor_add(ptvcursor_t*, int hf, gint length, gboolean endianness)
+    This will extract 'length' bytes from the tvbuff and place it in
+the proto_tree as field 'hf', which is a registered header_field. The
+pointer to the proto_item that is created is passed back to you. Internally,
+the ptvcursor advances its cursor so the next call to ptvcursor_add
+starts where this call finished. The 'endianness' parameter matters for
+FT_UINT* and FT_INT* fields.
+
+proto_item*
+ptvcursor_add_no_advance(ptvcursor_t*, int hf, gint length, gboolean endianness)
+    Like ptvcursor_add, but does not advance the internal cursor.
+
+void
+ptvcursor_advance(ptvcursor_t*, gint length)
+    Advances the internal cursor without adding anything to the proto_tree.
+
+void
+ptvcursor_free(ptvcursor_t*)
+    Frees the memory associated with the ptvcursor. You must call this
+after your dissection with the ptvcursor API is completed.
+
+2.8.2 Miscellaneous functions
+    ptvcursor_tvbuff - returns the tvbuff associated with the ptvcursor
+    ptvcursor_current_offset - returns the current offset
+    ptvcursor_tree - returns the proto_tree associated with the ptvcursor
+    ptvcursor_set_tree - sets a new proto_tree for the ptvcursor
+
+
 3. Plugins
 
 See the README.plugins for more information on how to "pluginize" 
