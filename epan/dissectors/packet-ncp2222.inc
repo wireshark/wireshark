@@ -6174,38 +6174,50 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                         dissect_nds_reply(tvb, pinfo, ncp_tree, nds_error_code,
                             nds_error_string, request_value, conversation);
                 }
-        }
-        length = tvb_length(tvb);
-        if (!ncp_rec && length > 8) {
-                expert_item = proto_tree_add_text(ncp_tree, tvb, 8, length - 8,
-                    "No request record found. Parsing is impossible.");
-                expert_add_info_format(pinfo, expert_item, PI_SEQUENCE, PI_NOTE, "Original Request Packet not Found, Maybe normal at beginning of trace.");
-        }
-        else if (ncp_rec && ncp_rec->reply_ptvc) {
-                /* If a non-zero completion code was found, it is
-                 * legal to not have any fields, even if the packet
-                 * type is defined as having fields.
-                 *
-                 * XXX - we already know that the completion code is 0,
-                 * as we checked it above.  Is there any reason why we'd
-                 * want to do a full dissection if the completion code
-                 * isn't 0? */
-                if (completion_code != 0 && tvb_length(tvb) == 8) {
-                        return;
-                }
+                if (ncp_rec->reply_ptvc) {
+                        /* If we're not building a protocol tree, quit;
+                         * "process_ptvc_record()" assumes we're building
+                         * a protocol tree, and we don't support putting
+                         * stuff in the Info column in replies, and no
+                         * state information is currently updated for
+                         * replies by "process_ptvc_record()", so we
+                         * can't, and don't have a reason to, dissect
+                         * any further if we're not building a protocol
+                         * tree. */
+                        if (!ncp_tree)
+                                return;
 
-                /* Any request condition results? */
-                if (request_value) {
-                        req_cond_results = request_value->req_cond_results;
+                        /* If a non-zero completion code was found, it is
+                         * legal to not have any fields, even if the packet
+                         * type is defined as having fields.
+                         *
+                         * XXX - we already know that the completion code
+                         * is 0, as we checked it above.  Is there any
+                         * reason why we'd want to do a full dissection
+                         * if the completion code isn't 0? */
+                        if (completion_code != 0 && tvb_length(tvb) == 8) {
+                                return;
+                        }
+
+                        /* Any request condition results? */
+                        if (request_value) {
+                                req_cond_results = request_value->req_cond_results;
+                        }
+                        else {
+                                req_cond_results = NULL;
+                        }
+                        clear_repeat_vars();
+                        ptvc = ptvcursor_new(ncp_tree, tvb, 8);
+                        process_ptvc_record(ptvc, ncp_rec->reply_ptvc,
+                                req_cond_results, TRUE, ncp_rec);
+                        ptvcursor_free(ptvc);
                 }
-                else {
-                        req_cond_results = NULL;
+        } else {
+                if (tvb_length(tvb) > 8) {
+                        expert_item = proto_tree_add_text(ncp_tree, tvb, 8, -1,
+                            "No request record found. Parsing is impossible.");
+                        expert_add_info_format(pinfo, expert_item, PI_SEQUENCE, PI_NOTE, "Original Request Packet not Found, Maybe normal at beginning of trace.");
                 }
-                clear_repeat_vars();
-                ptvc = ptvcursor_new(ncp_tree, tvb, 8);
-                process_ptvc_record(ptvc, ncp_rec->reply_ptvc, req_cond_results,
-                                TRUE, ncp_rec);
-                ptvcursor_free(ptvc);
         }
 }
 
