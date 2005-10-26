@@ -6264,6 +6264,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         
         /* Get NDS Verb */
         if (nds_frag == 0xffffffff) {
+                /* First fragment or only fragment. */
                 nds_verb = tvb_get_guint8(tvb, 24);
                 if (nds_verb == 0xfe) 
                 {
