@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-nbap.c                                                            */
+/* .\packet-nbap.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p nbap -c nbap.cnf -s packet-nbap-template nbap.asn */
 
 /* Input file: packet-nbap-template.c */
@@ -35998,244 +35998,705 @@ static int dissect_nbap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_i
 		offset = dissect_id_TimeSlot(tvb, offset, pinfo, value_tree);
 		break;
 	case NBAP_IE_ID_TIMESLOTCONFIGURATIONLIST_LCR_CELL_RECONFRQSTTDD:       /*  466 */
+		offset = dissect_id_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TIMESLOTCONFIGURATIONLIST_LCR_CELL_SETUPRQSTTDD:        /*  467 */
+		offset = dissect_id_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TIMESLOTISCP_LCR_INFOLIST_RL_SETUPRQSTTDD:              /*	468 */
+		offset = dissect_id_TimeslotISCP_LCR_InfoList_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TIMESLOTLCR_CM_RQST:                   					/*	469 */
+		offset = dissect_id_TimeSlotLCR_CM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_DPCH_LCR_INFORMATION_RL_SETUPRQSTTDD:                /*	470 */
+		offset = dissect_id_UL_DPCH_LCR_Information_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_DPCH_INFORMATIONITEM_LCR_RL_ADDITIONRQSTTDD:			/*	472 */
+		offset = dissect_id_DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_DPCH_INFORMATIONITEM_LCR_RL_ADDITIONRQSTTDD:			/*	473 */
+		offset = dissect_id_UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TIMESLOTISCP_INFORMATIONLIST_LCR_RL_ADDITIONRQSTTDD:	/*	474 */
+		offset = dissect_id_TimeslotISCP_InformationList_LCR_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_DPCH_LCR_INFORMATIONADDLIST_RL_RECONFPREPTDD:		/*	475 */
+		offset = dissect_id_DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_DPCH_LCR_INFORMATIONMODIFY_ADDLIST_RL_RECONFPREPTDD:			/*	477 */
+		offset = dissect_id_DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_TIMESLOT_LCR_INFORMATIONMODIFY_MODIFYLIST_RL_RECONFPREPTDD:	/*	479 */
+		offset = dissect_id_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TIMESLOTISCPINFOLIST_LCR_DL_PC_RQSTTDD:							/*	480 */
+		offset = dissect_id_TimeslotISCPInfoList_LCR_DL_PC_RqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_DPCH_LCR_INFORMATIONADDLISTIE_RL_RECONFPREPTDD:				/*	481 */
+		offset = dissect_id_UL_DPCH_LCR_InformationAddListIE_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_DPCH_LCR_INFORMATIONMODIFY_ADDLIST:							/*	483 */
+		offset = dissect_id_UL_DPCH_LCR_InformationModify_AddList(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_TIMESLOTLCR_INFORMATION_RL_RECONFPREPTDD:					/*	485 */
+		offset = dissect_id_UL_TimeslotLCR_Information_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_SIRTARGET:													/*	510 */
+		offset = dissect_id_UL_SIRTarget(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PDSCH_ADDINFORMATION_LCR_PSCH_RECONFRQST:						/*	486 */
+		offset = dissect_id_PDSCH_AddInformation_LCR_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PDSCH_ADDINFORMATION_LCR_ADDLISTIE_PSCH_RECONFRQST:				/*	487 */
+		offset = dissect_id_PDSCH_ModifyInformation_LCR_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UNUSED_PROTOCOLIE_ID_26:										/*	 26 */
 	case NBAP_IE_ID_UNUSED_PROTOCOLIE_ID_27:										/*	 27 */
+		break;
 	case NBAP_IE_ID_PDSCH_MODIFYINFORMATION_LCR_PSCH_RECONFRQST:					/*	488 */
+		offset = dissect_id_PUSCH_AddInformation_LCR_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PDSCH_MODIFYINFORMATION_LCR_MODIFYLISTIE_PSCH_RECONFRQST:		/*	489 */
+		offset = dissect_id_PUSCH_ModifyInformation_LCR_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PUSCH_ADDINFORMATION_LCR_PSCH_RECONFRQST:						/*	490 */
+		break;
 	case NBAP_IE_ID_PUSCH_ADDINFORMATION_LCR_ADDLISTIE_PSCH_RECONFRQST:				/*	491 */
+		break;
 	case NBAP_IE_ID_PUSCH_MODIFYINFORMATION_LCR_PSCH_RECONFRQST:					/*	492 */
+		break;
 	case NBAP_IE_ID_PUSCH_MODIFYINFORMATION_LCR_MODIFYLISTIE_PSCH_RECONFRQST:		/*	493 */
+		break;
 	case NBAP_IE_ID_TIMESLOTINFO_CELLSYNCINITIATIONRQSTTDD:							/*	496 */
+		offset = dissect_id_timeslotInfo_CellSyncInitiationRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCREPORTTYPE_CELLSYNCREPRTTDD:								/*	497 */
+		offset = dissect_id_SyncReportType_CellSyncReprtTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_INFORMATIONITEM_AUDITRSP:				/*	498 */
+		offset = dissect_id_Power_Local_Cell_Group_InformationItem_AuditRsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_INFORMATIONITEM_RESOURCESTATUSIND:		/*	499 */
+		offset = dissect_id_Power_Local_Cell_Group_InformationItem_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_INFORMATIONITEM2_RESOURCESTATUSIND:		/*	500 */
+		offset = dissect_id_Power_Local_Cell_Group_InformationItem2_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_INFORMATIONLIST_AUDITRSP:				/*	501 */
+		offset = dissect_id_Power_Local_Cell_Group_InformationList_AuditRsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_INFORMATIONLIST_RESOURCESTATUSIND:		/*	502 */
+		offset = dissect_id_Power_Local_Cell_Group_InformationList_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_INFORMATIONLIST2_RESOURCESTATUSIND:		/*	503 */
+		offset = dissect_id_Power_Local_Cell_Group_InformationList2_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_ID:										/*	504 */
+		offset = dissect_id_Power_Local_Cell_Group_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PUSCH_INFO_DM_RQST:												/*	505 */
+		offset = dissect_id_PUSCH_Info_DM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PUSCH_INFO_DM_RSP:												/*	506 */
+		offset = dissect_id_PUSCH_Info_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PUSCH_INFO_DM_RPRT:												/*	507 */
+		offset = dissect_id_PUSCH_Info_DM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_INITDL_POWER:													/*	509 */
+		offset = dissect_id_InitDL_Power(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CELLSYNCBURSTREPETITIONPERIOD:									/*	511 */
+		offset = dissect_id_cellSyncBurstRepetitionPeriod(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_REPORTCHARACTERISTICSTYPE_ONMODIFICATION:						/*	512 */
+		offset = dissect_id_ReportCharacteristicsType_OnModification(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SFNSFNMEASUREMENTVALUEINFORMATION:								/*	513 */
+		offset = dissect_id_SFNSFNMeasurementValueInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SFNSFNMEASUREMENTTHRESHOLDINFORMATION:							/*	514 */
+		offset = dissect_id_SFNSFNMeasurementThresholdInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TUTRANGPSMEASUREMENTVALUEINFORMATION:							/*	515 */
+		offset = dissect_id_TUTRANGPSMeasurementValueInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TUTRANGPSMEASUREMENTTHRESHOLDINFORMATION:						/*	516 */
+		offset = dissect_id_TUTRANGPSMeasurementThresholdInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_RX_TIMING_DEVIATION_VALUE_LCR:									/*	520 */
+		offset = dissect_id_Rx_Timing_Deviation_Value_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_RL_INFORMATIONRESPONSE_LCR_RL_ADDITIONRSPTDD:					/*	51	*/
+		offset = dissect_id_RL_InformationResponse_LCR_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_POWERBALANCING_INFORMATION:									/*  28	*/
+		offset = dissect_id_DL_PowerBalancing_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_POWERBALANCING_ACTIVATIONINDICATOR:							/*	29	*/
+		offset = dissect_id_DL_PowerBalancing_ActivationIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_POWERBALANCING_UPDATEDINDICATOR:								/*	30	*/
+		offset = dissect_id_DL_PowerBalancing_UpdatedIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_INITIAL_DL_POWER_RL_SETUPRQSTTDD:						/*	517	*/
+		offset = dissect_id_CCTrCH_Initial_DL_Power_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_INITIAL_DL_POWER_RL_ADDITIONRQSTTDD:						/*	518	*/
+		offset = dissect_id_CCTrCH_Initial_DL_Power_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_INITIAL_DL_POWER_RL_RECONFPREPTDD:						/*	519	*/
+		offset = dissect_id_CCTrCH_Initial_DL_Power_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_IPDLPARAMETER_INFORMATION_LCR_CELL_SETUPRQSTTDD:				/*	41	*/
+		offset = dissect_id_IPDLParameter_Information_LCR_Cell_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_IPDLPARAMETER_INFORMATION_LCR_CELL_RECONFRQSTTDD: 				/*	42	*/
+		offset = dissect_id_IPDLParameter_Information_LCR_Cell_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_PDSCH_HS_SCCH_E_AGCH_E_RGCH_E_HICH_MAXPOWER_PSCH_RECONFRQST:	/*	522	*/
+		offset = dissect_id_HS_PDSCH_HS_SCCH_E_AGCH_E_RGCH_E_HICH_MaxPower_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_PDSCH_HS_SCCH_SCRAMBLINGCODE_PSCH_RECONFRQST:				/*	523	*/
+		offset = dissect_id_HS_PDSCH_HS_SCCH_ScramblingCode_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_PDSCH_FDD_CODE_INFORMATION_PSCH_RECONFRQST:					/*	524	*/
+		offset = dissect_id_HS_PDSCH_FDD_Code_Information_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_SCCH_FDD_CODE_INFORMATION_PSCH_RECONFRQST:					/*	525	*/
+		offset = dissect_id_HS_SCCH_FDD_Code_Information_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_PDSCH_TDD_INFORMATION_PSCH_RECONFRQST:						/*	526	*/
+		offset = dissect_id_HS_PDSCH_TDD_Information_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_ADD_TO_HS_SCCH_RESOURCE_POOL_PSCH_RECONFRQST:					/*	527	*/
+		offset = dissect_id_Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MODIFY_HS_SCCH_RESOURCE_POOL_PSCH_RECONFRQST:					/*	528	*/
+		offset = dissect_id_Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DELETE_FROM_HS_SCCH_RESOURCE_POOL_PSCH_RECONFRQST:				/*	529	*/
+		offset = dissect_id_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_BINDINGID:														/*	102	*/
+		offset = dissect_id_bindingID(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_RL_SPECIFIC_DCH_INFO:											/*	103	*/
+		offset = dissect_id_RL_Specific_DCH_Info(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TRANSPORTLAYERADDRESS: 											/*	104	*/
+		offset = dissect_id_transportlayeraddress(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DELAYEDACTIVATION:												/*	231	*/
+		offset = dissect_id_DelayedActivation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DELAYEDACTIVATIONLIST_RL_ACTIVATIONCMDFDD:						/*	232	*/
+		offset = dissect_id_DelayedActivationList_RL_ActivationCmdFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DELAYEDACTIVATIONINFORMATION_RL_ACTIVATIONCMDFDD:				/*	233	*/
+		offset = dissect_id_DelayedActivationInformation_RL_ActivationCmdFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DELAYEDACTIVATIONLIST_RL_ACTIVATIONCMDTDD:						/*	234	*/
+		offset = dissect_id_DelayedActivationList_RL_ActivationCmdTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DELAYEDACTIVATIONINFORMATION_RL_ACTIVATIONCMDTDD:				/*	235	*/
+		offset = dissect_id_DelayedActivationInformation_RL_ActivationCmdTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_NEIGHBOURINGTDDCELLMEASUREMENTINFORMATIONLCR:					/*	58	*/
+		offset = dissect_id_neighbouringTDDCellMeasurementInformationLCR(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCDLCODEID_TRANSINITLCR_CELLSYNCINITIATIONRQSTTDD:			/*	543	*/
+		offset = dissect_id_SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCDLCODEID_MEASUREINITLCR_CELLSYNCINITIATIONRQSTTDD:			/*	544	*/
+		offset = dissect_id_SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCDLCODEIDTRANSRECONFINFOLCR_CELLSYNCRECONFRQSTTDD:			/*	545	*/
+		offset = dissect_id_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCDLCODEIDMEASRECONFIGURATIONLCR_CELLSYNCRECONFRQSTTDD:		/*	546	*/
+		offset = dissect_id_SYNCDlCodeIdMeasReconfigurationLCR_CellSyncReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCDLCODEIDMEASINFOLIST_CELLSYNCRECONFRQSTTDD:					/*	547	*/
+		offset = dissect_id_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCDLCODEIDSMEASINFOLIST_CELLSYNCREPRTTDD:						/*	548	*/
+		offset = dissect_id_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCDLCODEIDTHREINFOLCR:										/*	549	*/
+		offset = dissect_id_SyncDLCodeIdThreInfoLCR(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_NSUBCYCLESPERCYCLEPERIOD_CELLSYNCRECONFRQSTTDD:					/*	550	*/
+		offset = dissect_id_NSubCyclesPerCyclePeriod_CellSyncReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DWPCH_POWER:													/*	551	*/
+		offset = dissect_id_DwPCH_Power(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_ACCUMULATEDCLOCKUPDATE_CELLSYNCREPRTTDD:						/*	552	*/
+		offset = dissect_id_AccumulatedClockupdate_CellSyncReprtTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_ANGLE_OF_ARRIVAL_VALUE_LCR:										/*	521	*/
+		offset = dissect_id_Angle_Of_Arrival_Value_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_FDD_INFORMATION:											/*	530	*/
+		offset = dissect_id_HSDSCH_FDD_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_FDD_INFORMATION_RESPONSE:								/*	531	*/
+		offset = dissect_id_HSDSCH_FDD_Information_Response(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_INFORMATION_TO_MODIFY:									/*	534	*/
+		offset = dissect_id_HSDSCH_Information_to_Modify(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_RNTI:													/*	535	*/
+		offset = dissect_id_HSDSCH_RNTI(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_TDD_INFORMATION:											/*	536	*/
+		offset = dissect_id_HSDSCH_TDD_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_TDD_INFORMATION_RESPONSE:								/*	537	*/
+		offset = dissect_id_HSDSCH_TDD_Information_Response(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSPDSCH_RL_ID:													/*	541	*/
+		offset = dissect_id_HSPDSCH_RL_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PRIMCCPCH_RSCP_DL_PC_RQSTTDD:									/*	542	*/
+		offset = dissect_id_PrimCCPCH_RSCP_DL_PC_RqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UNUSED_PROTOCOLIE_ID_64:										/*	64	*/
+		break;
 	case NBAP_IE_ID_PDSCH_RL_ID:													/*	66	*/
+		offset = dissect_id_PDSCH_RL_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_REARRANGELIST_BEARER_REARRANGEIND:						/*	553	*/
+		offset = dissect_id_HSDSCH_RearrangeList_Bearer_RearrangeInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_SYNCHRONISATION_PARAMETERS_LCR:								/*	554	*/
+		offset = dissect_id_UL_Synchronisation_Parameters_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_FDD_UPDATE_INFORMATION:									/*	555	*/
+		offset = dissect_id_HSDSCH_FDD_Update_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_TDD_UPDATE_INFORMATION:									/*	556	*/
+		offset = dissect_id_HSDSCH_TDD_Update_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_DPCH_TIMESLOTFORMAT_LCR_MODIFYITEM_RL_RECONFPREPTDD:			/*	558	*/
+		offset = dissect_id_DL_DPCH_TimeSlotFormat_LCR_ModifyItem_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_DPCH_TIMESLOTFORMAT_LCR_MODIFYITEM_RL_RECONFPREPTDD:			/*	559	*/
+		offset = dissect_id_UL_DPCH_TimeSlotFormat_LCR_ModifyItem_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TDD_TPC_UPLINKSTEPSIZE_LCR_RL_SETUPRQSTTDD:						/*	560	*/
+		offset = dissect_id_TDD_TPC_UplinkStepSize_LCR_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TDD_TPC_UPLINKSTEPSIZE_LCR_RL_ADDITIONRQSTTDD:					/*	561	*/
+		offset = dissect_id_TDD_TPC_UplinkStepSize_LCR_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TDD_TPC_DOWNLINKSTEPSIZE_RL_ADDITIONRQSTTDD:					/*	562	*/
+		offset = dissect_id_TDD_TPC_DownlinkStepSize_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TDD_TPC_UPLINKSTEPSIZE_INFORMATIONADD_LCR_RL_RECONFPREPTDD:		/*	563	*/
+		offset = dissect_id_TDD_TPC_UplinkStepSize_InformationAdd_LCR_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TDD_TPC_UPLINKSTEPSIZE_INFORMATIONMODIFY_LCR_RL_RECONFPREPTDD:	/*	564	*/
+		offset = dissect_id_TDD_TPC_UplinkStepSize_InformationModify_LCR_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TDD_TPC_DOWNLINKSTEPSIZE_INFORMATIONMODIFY_RL_RECONFPREPTDD:	/*	565	*/
+		offset = dissect_id_TDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TDD_TPC_DOWNLINKSTEPSIZE_INFORMATIONADD_RL_RECONFPREPTDD:		/*	566	*/
+		offset = dissect_id_TDD_TPC_DownlinkStepSize_InformationAdd_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MAXIMUM_DL_POWER_RL_SETUPRQSTTDD:						/*	567	*/
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MINIMUM_DL_POWER_RL_SETUPRQSTTDD:						/*	568	*/
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MAXIMUM_DL_POWER_RL_ADDITIONRQSTTDD:						/*	569	*/
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MINIMUM_DL_POWER_RL_ADDITIONRQSTTDD:						/*	570	*/
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MAXIMUM_DL_POWER_INFORMATIONADD_RL_RECONFPREPTDD:		/*	571	*/
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MINIMUM_DL_POWER_INFORMATIONADD_RL_RECONFPREPTDD:		/*	572	*/
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MAXIMUM_DL_POWER_INFORMATIONMODIFY_RL_RECONFPREPTDD:		/*	573	*/
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MINIMUM_DL_POWER_INFORMATIONMODIFY_RL_RECONFPREPTDD:		/*	574	*/
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MAXIMUM_DL_POWER_MODIFY_LCR_INFORMATIONMODIFY_RL_RECONFPREPTDD:	/*	575	*/
+		offset = dissect_id_Maximum_DL_Power_Modify_LCR_InformationModify_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MINIMUM_DL_POWER_MODIFY_LCR_INFORMATIONMODIFY_RL_RECONFPREPTDD:	/*	576	*/
+		offset = dissect_id_Minimum_DL_Power_Modify_LCR_InformationModify_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_DPCH_LCR_INFORMATIONMODIFY_MODIFYLIST_RL_RECONFRQSTTDD:		/*	577	*/
+		offset = dissect_id_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MAXIMUM_DL_POWER_INFORMATIONMODIFY_RL_RECONFRQSTTDD:		/*	578	*/
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CCTRCH_MINIMUM_DL_POWER_INFORMATIONMODIFY_RL_RECONFRQSTTDD:		/*	579	*/
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_INITIAL_DL_POWER_TIMESLOTLCR_INFORMATIONITEM:					/*	580	*/
+		offset = dissect_id_Initial_DL_Power_TimeslotLCR_InformationItem(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MAXIMUM_DL_POWER_TIMESLOTLCR_INFORMATIONITEM:					/*	581	*/
+		offset = dissect_id_Maximum_DL_Power_TimeslotLCR_InformationItem(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MINIMUM_DL_POWER_TIMESLOTLCR_INFORMATIONITEM:					/*	582	*/
+		offset = dissect_id_Minimum_DL_Power_TimeslotLCR_InformationItem(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_DSCHPROVIDEDBITRATEVALUEINFORMATION:							/*	583	*/
+		offset = dissect_id_HS_DSCHProvidedBitRateValueInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_DSCHREQUIREDPOWERVALUEINFORMATION:							/*	585	*/
+		offset = dissect_id_HS_DSCHRequiredPowerValueInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_DSCHREQUIREDPOWERVALUE:										/*	586	*/
+		offset = dissect_id_HS_DSCHRequiredPowerValue(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TRANSMITTEDCARRIERPOWEROFALLCODESNOTUSEDFORHSTRANSMISSION:		/*	587	*/
+		offset = dissect_id_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmission(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_SICH_RECEPTION_QUALITY: 										/*	588	*/
+		offset = dissect_id_HS_SICH_Reception_Quality(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_SICH_RECEPTION_QUALITY_MEASUREMENT_VALUE: 					/*	589	*/
+		offset = dissect_id_HS_SICH_Reception_Quality_Measurement_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSSICH_INFO_DM_RPRT: 											/*	590	*/
+		offset = dissect_id_HSSICH_Info_DM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSSICH_INFO_DM_RQST:											/*	591	*/
+		offset = dissect_id_HSSICH_Info_DM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSSICH_INFO_DM_RSP:												/*	592	*/
+		offset = dissect_id_HSSICH_Info_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_BEST_CELL_PORTIONS_VALUE:										/*	593	*/
+		offset = dissect_id_Best_Cell_Portions_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PRIMARY_CPICH_USAGE_FOR_CHANNEL_ESTIMATION:						/*	594	*/
+		offset = dissect_id_Primary_CPICH_Usage_for_Channel_Estimation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SECONDARY_CPICH_INFORMATION_CHANGE:								/*	595	*/
+		offset = dissect_id_Secondary_CPICH_Information_Change(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_NUMBEROFREPORTEDCELLPORTIONS:									/*	596	*/
+		offset = dissect_id_NumberOfReportedCellPortions(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CELLPORTION_INFORMATIONITEM_CELL_SETUPRQSTFDD:					/*	597	*/
+		offset = dissect_id_CellPortion_InformationItem_Cell_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CELLPORTION_INFORMATIONLIST_CELL_SETUPRQSTFDD:					/*	598	*/
+		offset = dissect_id_CellPortion_InformationList_Cell_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TIMESLOTISCP_LCR_INFOLIST_RL_RECONFPREPTDD:						/*	599	*/
+		offset = dissect_id_TimeslotISCP_LCR_InfoList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SECONDARY_CPICH_INFORMATION:									/*	600	*/
+		offset = dissect_id_Secondary_CPICH_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_RECEIVED_TOTAL_WIDE_BAND_POWER_FOR_CELLPORTION:					/*	601	*/
+		offset = dissect_id_Received_total_wide_band_power_For_CellPortion(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UNIDIRECTIONAL_DCH_INDICATOR:									/*	602	*/
+		offset = dissect_id_Unidirectional_DCH_Indicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TIMINGADJUSTMENTVALUELCR:										/*	603	*/
+		offset = dissect_id_TimingAdjustmentValueLCR(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLERL_DL_DPCH_INFORMATIONLIST:								/*	604	*/
+		break;
 	case NBAP_IE_ID_MULTIPLERL_DL_DPCH_INFORMATIONMODIFYLIST:						/*	605	*/
+		break;
 	case NBAP_IE_ID_MULTIPLERL_UL_DPCH_INFORMATIONLIST:								/*	606	*/
+		offset = dissect_id_multipleRL_ul_DPCH_InformationList(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLERL_UL_DPCH_INFORMATIONMODIFYLIST:						/*	607	*/
+		offset = dissect_id_multipleRL_ul_DPCH_InformationModifyList(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_RL_ID:															/*	608	*/
+		offset = dissect_id_RL_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SAT_INFO_ALMANAC_EXTITEM:										/*	609	*/
+		offset = dissect_id_SAT_Info_Almanac_ExtItem(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDPA_CAPABILITY:												/*	610	*/
+		offset = dissect_id_HSDPA_Capability(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_RESOURCES_INFORMATION_AUDITRSP:							/*	611	*/
+		offset = dissect_id_HSDSCH_Resources_Information_AuditRsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_RESOURCES_INFORMATION_RESOURCESTATUSIND:					/*	612	*/
+		offset = dissect_id_HSDSCH_Resources_Information_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_MACDFLOWS_TO_ADD:										/*	613	*/
+		offset = dissect_id_HSDSCH_MACdFlows_to_Add(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_MACDFLOWS_TO_DELETE:										/*	614	*/
+		offset = dissect_id_HSDSCH_MACdFlows_to_Delete(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDSCH_INFORMATION_TO_MODIFY_UNSYNCHRONISED:					/*	615	*/
+		offset = dissect_id_HSDSCH_Information_to_Modify_Unsynchronised(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TNLQOS:															/*	616	*/
+		offset = dissect_id_TnlQos(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_RECEIVED_TOTAL_WIDE_BAND_POWER_FOR_CELLPORTION_VALUE:			/*	617	*/
+		offset = dissect_id_Received_total_wide_band_power_For_CellPortion_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TRANSMITTED_CARRIER_POWER_FOR_CELLPORTION:						/*	618	*/
+		offset = dissect_id_Transmitted_Carrier_Power_For_CellPortion(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TRANSMITTED_CARRIER_POWER_FOR_CELLPORTION_VALUE :				/*	619	*/
+		offset = dissect_id_Transmitted_Carrier_Power_For_CellPortion_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TRANSMITTEDCARRIERPOWEROFALLCODESNOTUSEDFORHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHORE_HICHTRANSMISSIONCELLPORTION:		/*620*/
+		offset = dissect_id_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortion(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TRANSMITTEDCARRIERPOWEROFALLCODESNOTUSEDFORHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHORE_HICHTRANSMISSIONCELLPORTIONVALUE:	/*621*/
+		offset = dissect_id_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UPPTSINTERFERENCEVALUE:											/*	622	*/
+		offset = dissect_id_UpPTSInterferenceValue(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_PRIMARYCCPCH_RSCP_DELTA:										/*	623	*/
+		offset = dissect_id_PrimaryCCPCH_RSCP_Delta(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MEASUREMENTRECOVERYBEHAVIOR:									/*	624	*/
+		offset = dissect_id_MeasurementRecoveryBehavior(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MEASUREMENTRECOVERYREPORTINGINDICATOR:							/*	625	*/
+		offset = dissect_id_MeasurementRecoveryReportingIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MEASUREMENTRECOVERYSUPPORTINDICATOR:							/*	626	*/
+		offset = dissect_id_MeasurementRecoverySupportIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TSTD_INDICATOR:													/*	627	*/
+		offset = dissect_id_Tstd_indicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLE_RL_INFORMATION_RL_RECONFPREPTDD:						/*	628	*/
+		offset = dissect_id_multiple_RL_Information_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLE_RL_INFORMATION_RL_RECONFRQSTTDD:						/*	629	*/
+		offset = dissect_id_multiple_RL_Information_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DL_DPCH_POWER_INFORMATION_RL_RECONFPREPFDD:						/*	630	*/
+		offset = dissect_id_DL_DPCH_Power_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_F_DPCH_INFORMATION_RL_RECONFPREPFDD:							/*	631	*/
+		offset = dissect_id_F_DPCH_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_F_DPCH_INFORMATION_RL_SETUPRQSTFDD:								/*	632	*/
+		offset = dissect_id_F_DPCH_Information_RL_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_ADDITIONAL_S_CCPCH_PARAMETERS_CTCH_RECONFRQSTTDD:				/*	633	*/
+		offset = dissect_id_Additional_S_CCPCH_Parameters_CTCH_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_ADDITIONAL_S_CCPCH_PARAMETERS_CTCH_SETUPRQSTTDD:				/*	634	*/
+		offset = dissect_id_Additional_S_CCPCH_Parameters_CTCH_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_ADDITIONAL_S_CCPCH_LCR_PARAMETERS_CTCH_RECONFRQSTTDD:			/*	635	*/
+		offset = dissect_id_Additional_S_CCPCH_LCR_Parameters_CTCH_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_ADDITIONAL_S_CCPCH_LCR_PARAMETERS_CTCH_SETUPRQSTTDD:			/*	636	*/
+		offset = dissect_id_Additional_S_CCPCH_LCR_Parameters_CTCH_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MICH_CFN:														/*	637	*/
+		offset = dissect_id_MICH_CFN(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MICH_INFORMATION_AUDITRSP:										/*	638	*/
+		offset = dissect_id_MICH_Information_AuditRsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MICH_INFORMATION_RESOURCESTATUSIND:								/*	639	*/
+		offset = dissect_id_MICH_Information_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MICH_PARAMETERS_CTCH_RECONFRQSTFDD:								/*	640	*/
+		offset = dissect_id_MICH_Parameters_CTCH_ReconfRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MICH_PARAMETERS_CTCH_RECONFRQSTTDD:								/*	641	*/
+		offset = dissect_id_MICH_Parameters_CTCH_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MICH_PARAMETERS_CTCH_SETUPRQSTFDD:								/*	642	*/
+		offset = dissect_id_MICH_Parameters_CTCH_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MICH_PARAMETERS_CTCH_SETUPRQSTTDD:								/*	643	*/
+		offset = dissect_id_MICH_Parameters_CTCH_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MODIFICATION_PERIOD:											/*	644	*/
+		offset = dissect_id_Modification_Period(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_NI_INFORMATION_NOTIFUPDATECMD:									/*	645	*/
+		offset = dissect_id_NI_Information_NotifUpdateCmd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_S_CCPCH_INFORMATIONLISTEXT_AUDITRSP:							/*	646	*/
+		offset = dissect_id_S_CCPCH_InformationListExt_AuditRsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_S_CCPCH_INFORMATIONLISTEXT_RESOURCESTATUSIND:					/*	647	*/
+		offset = dissect_id_S_CCPCH_InformationListExt_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_S_CCPCH_LCR_INFORMATIONLISTEXT_AUDITRSP:						/*	648	*/
+		offset = dissect_id_S_CCPCH_LCR_InformationListExt_AuditRsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_S_CCPCH_LCR_INFORMATIONLISTEXT_RESOURCESTATUSIND:				/*	649	*/
+		offset = dissect_id_S_CCPCH_LCR_InformationListExt_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HARQ_PREAMBLE_MODE:												/*	650	*/
+		offset = dissect_id_HARQ_Preamble_Mode(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_INITIAL_DL_DPCH_TIMINGADJUSTMENT:								/*	651	*/
+		offset = dissect_id_Initial_DL_DPCH_TimingAdjustment(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_INITIAL_DL_DPCH_TIMINGADJUSTMENT_ALLOWED:						/*	652	*/
+		offset = dissect_id_Initial_DL_DPCH_TimingAdjustment_Allowed(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_DLTRANSMISSIONBRANCHLOADVALUE:									/*	653	*/
+		offset = dissect_id_DLTransmissionBranchLoadValue(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_CHOICE_CM_RQST:							/*	654	*/
+		offset = dissect_id_Power_Local_Cell_Group_choice_CM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_CHOICE_CM_RSP:							/*	655	*/
+		offset = dissect_id_Power_Local_Cell_Group_choice_CM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_POWER_LOCAL_CELL_GROUP_CHOICE_CM_RPRT:							/*	656	*/
+		offset = dissect_id_Power_Local_Cell_Group_choice_CM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SYNCHRONISATIONINDICATOR:										/*	657	*/
+		offset = dissect_id_SynchronisationIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDPA_AND_EDCH_CELLPORTION_INFORMATION_PSCH_RECONFRQST:			/*	658	*/
+		offset = dissect_id_HSDPA_And_EDCH_CellPortion_Information_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDPA_AND_EDCH_CELLPORTION_INFORMATIONLIST_PSCH_RECONFRQST:		/*	659	*/
+		offset = dissect_id_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_DSCHREQUIREDPOWERVALUE_FOR_CELL_PORTION:						/*	660	*/
+		offset = dissect_id_HS_DSCHRequiredPowerValue_For_Cell_Portion(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_DSCHREQUIREDPOWERVALUEINFORMATION_FOR_CELLPORTION:			/*	661	*/
+		offset = dissect_id_HS_DSCHRequiredPowerValueInformation_For_CellPortion(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HS_DSCHPROVIDEDBITRATEVALUEINFORMATION_FOR_CELLPORTION:			/*	662	*/
+		offset = dissect_id_HS_DSCHProvidedBitRateValueInformation_For_CellPortion(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_AGCH_AND_E_RGCH_E_HICH_FDD_SCRAMBLING_CODE:					/*	663	*/
+		offset = dissect_id_E_AGCH_And_E_RGCH_E_HICH_FDD_Scrambling_Code(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_AGCH_FDD_CODE_INFORMATION:									/*	664	*/
+		offset = dissect_id_E_AGCH_FDD_Code_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_CAPABILITY:												/*	665	*/
+		offset = dissect_id_E_DCH_Capability(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_FDD_DL_CONTROL_CHANNEL_INFORMATION:						/*	666	*/
+		offset = dissect_id_E_DCH_FDD_DL_Control_Channel_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_FDD_INFORMATION:											/*	667	*/
+		offset = dissect_id_E_DCH_FDD_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_FDD_INFORMATION_RESPONSE:									/*	668	*/
+		offset = dissect_id_E_DCH_FDD_Information_Response(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_FDD_INFORMATION_TO_MODIFY:								/*	669	*/
+		offset = dissect_id_E_DCH_FDD_Information_to_Modify(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_MACDFLOWS_TO_ADD:											/*	670	*/
+		offset = dissect_id_E_DCH_MACdFlows_to_Add(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_MACDFLOWS_TO_DELETE:										/*	671	*/
+		offset = dissect_id_E_DCH_MACdFlows_to_Delete(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_RESOURCES_INFORMATION_AUDITRSP:							/*	672	*/
+		offset = dissect_id_E_DCH_Resources_Information_AuditRsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_RESOURCES_INFORMATION_RESOURCESTATUSIND:					/*	673	*/
+		offset = dissect_id_E_DCH_Resources_Information_ResourceStatusInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_RL_INDICATION:											/*	674	*/
+		offset = dissect_id_E_DCH_RL_Indication(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_RL_SET_ID:												/*	675	*/
+		offset = dissect_id_E_DCH_RL_Set_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DPCH_INFORMATION_RL_RECONFPREPFDD:							/*	676	*/
+		offset = dissect_id_E_DPCH_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DPCH_INFORMATION_RL_SETUPRQSTFDD:								/*	677	*/
+		offset = dissect_id_E_DPCH_Information_RL_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_RGCH_E_HICH_FDD_CODE_INFORMATION:								/*	678	*/
+		offset = dissect_id_E_RGCH_E_HICH_FDD_Code_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_SERVING_E_DCH_RL_ID:											/*	679	*/
+		offset = dissect_id_Serving_E_DCH_RL_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_UL_DPDCH_INDICATOR_FOR_E_DCH_OPERATION:							/*	680	*/
+		offset = dissect_id_UL_DPDCH_Indicator_For_E_DCH_Operation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_FDD_S_CCPCH_FRAMEOFFSET_CTCH_SETUPRQSTFDD:						/*	681	*/
+		offset = dissect_id_FDD_S_CCPCH_FrameOffset_CTCH_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DPCH_INFORMATION_RL_RECONFRQSTFDD:							/*	682	*/
+		offset = dissect_id_E_DPCH_Information_RL_ReconfRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MAXIMUM_TARGET_RECEIVEDTOTALWIDEBANDPOWER:						/*	683	*/
+		offset = dissect_id_Maximum_Target_ReceivedTotalWideBandPower(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCHPROVIDEDBITRATEVALUEINFORMATION:							/*	684	*/
+		offset = dissect_id_E_DCHProvidedBitRateValueInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HARQ_PREAMBLE_MODE_ACTIVATION_INDICATOR:						/*	685	*/
+		offset = dissect_id_HARQ_Preamble_Mode_Activation_Indicator(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_RL_SPECIFIC_E_DCH_INFO:											/*	686	*/
+		offset = dissect_id_RL_Specific_E_DCH_Info(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_CAPACITYCONSUMPTIONLAW:									/*	687	*/
+		offset = dissect_id_E_DCH_CapacityConsumptionLaw(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLE_DEDICATEDMEASUREMENTVALUELIST_TDD_DM_RSP:				/*	688	*/
+		offset = dissect_id_multiple_DedicatedMeasurementValueList_TDD_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLE_DEDICATEDMEASUREMENTVALUELIST_LCR_TDD_DM_RSP:			/*	689	*/
+		offset = dissect_id_multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_E_DCH_REARRANGELIST_BEARER_REARRANGEIND:						/*	690	*/
+		offset = dissect_id_E_DCH_RearrangeList_Bearer_RearrangeInd(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_HSDPA_AND_EDCH_CELLPORTION_INFORMATIONLISTIE_PSCH_RECONFRQST:	/*	691	*/
+		break;
 	case NBAP_IE_ID_MULTIPLERL_DL_CCTRCH_INFORMATIONMODIFYLIST_RL_RECONFRQSTTDD:	/*	692	*/
+		offset = dissect_id_multipleRL_dl_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_TARGET_NONSERVING_EDCH_TO_TOTAL_EDCH_POWER_RATIO:				/*	693	*/
+		offset = dissect_id_Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CELLPORTION_INFORMATIONITEM_CELL_RECONFRQSTFDD:					/*	694	*/
+		offset = dissect_id_CellPortion_InformationItem_Cell_ReconfRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_CELLPORTION_INFORMATIONLIST_CELL_RECONFRQSTFDD:					/*	695	*/
+		offset = dissect_id_CellPortion_InformationList_Cell_ReconfRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLE_PUSCH_INFOLIST_DM_RSP:									/*	696	*/
+		offset = dissect_id_multiple_PUSCH_InfoList_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_MULTIPLE_PUSCH_INFOLIST_DM_RPRT:								/*	697	*/
+		offset = dissect_id_multiple_PUSCH_InfoList_DM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case NBAP_IE_ID_REFERENCE_RECEIVEDTOTALWIDEBANDPOWER:							/*	698	*/
-
-
+		offset = dissect_id_Reference_ReceivedTotalWideBandPower(tvb, offset, pinfo, value_tree);
+		break;
 	default:
 		offset = offset + length;
 		break;
