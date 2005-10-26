@@ -807,16 +807,18 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     mtp3_addr_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_STRINGZ:
-    strcpy(buf, addr->data);
+    g_snprintf(buf, buf_len, "%s", addr->data);
     break;
   case AT_EUI64:
     g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
             addr->data[0], addr->data[1], addr->data[2], addr->data[3],
             addr->data[4], addr->data[5], addr->data[6], addr->data[7]);
     break;
-  case AT_URI:
-    memmove(buf, addr->data, addr->len);
-    buf[addr->len] = '\0';
+  case AT_URI: {
+    int copy_len = addr->len < buf_len ? addr->len : buf_len;
+    memmove(buf, addr->data, copy_len );
+    buf[copy_len] = '\0';
+    }
     break;
   default:
     g_assert_not_reached();
