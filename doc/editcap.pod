@@ -16,7 +16,7 @@ S<[ B<-T> encapsulation type ]>
 S<[ B<-v> ]>
 I<infile>
 I<outfile>
-S<[ I<record#> ... ]>
+S<[ [-]I<record#>[-I<record#>] ... ]>
 
 =head1 DESCRIPTION
 
@@ -208,6 +208,68 @@ Sets the time adjustment to use on selected frames.
 =item -h
 
 Prints the version and options and exits.
+
+=back
+
+=head1 EXAMPLES
+
+To see more detailed description of the options use:
+
+=over 4
+
+  editcap -h
+
+=back
+
+To shrink the capture file by truncating the packets at 64 bytes and writing it as Sun snoop file use:
+
+=over 4
+
+  editcap -s 64 -F snoop capture.pcap shortcapture.snoop
+
+=back
+
+To delete packet 1000 from the capture file use:
+
+=over 4
+
+  editcap capture.pcap sans1000.pcap 1000
+
+=back
+
+To limit a capture file to packets from number 200 to 750 (inclusive) use:
+
+=over 4
+
+  editcap -r capture.pcap small.pcap 200-750
+
+=back
+
+To get all packets from number 1-500 (inclusive) use:
+
+=over 4
+
+  editcap -r capture.pcap 500.pcap 1-500
+
+or
+
+  editcap capture.pcap 500.pcap 501-9999999
+
+=back
+
+To filter out packets 10 to 20 and 30 to 40 into a new file use:
+
+=over 4
+
+  editcap capture.pcap selection.pcap 10-20 30-40
+
+=back
+
+To introduce 5% random errors in a capture file use:
+
+=over 4
+
+  editcap -E 0.05 capture.pcap capture_error.pcap
 
 =back
 
