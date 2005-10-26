@@ -72,8 +72,14 @@ Gnu info
       <ulink url="http://www.ethereal.com/appnotes/enpa-sa-00022.html">application
       advisory</ulink> for more details.
       <itemizedlist>
+
         <listitem><para>
+	  The IRC dissector could go into an infinite loop.
+	  <!-- Fixed in r16290 -->
+	  <!-- Bug IDs: 548 -->
+	  Versions affected: 0.10.13.
         </para></listitem>
+
       </itemizedlist>
     </para>
     </section>
