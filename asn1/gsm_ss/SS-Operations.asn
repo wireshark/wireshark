@@ -62,7 +62,28 @@ IMPORTS
 	;
 
 
+DummySS-operationsArg::= CHOICE {
+	notifySS						NotifySS-Arg,
+	processUnstructuredSS-Data		SS-UserData,
+	forwardCUG-Info					ForwardCUG-InfoArg,
+	accessRegisterCCEntry			AccessRegisterCCEntryArg,
+	forwardChargeAdvice				ForwardChargeAdviceArg,
+	callDeflection					CallDeflectionArg,
+	lcs-LocationNotification		LocationNotificationArg,
+	lcs-MOLR						LCS-MOLRArg,
+	lcs-AreaEventRequest			LCS-AreaEventRequestArg,
+	lcs-AreaEventReport				LCS-AreaEventReportArg,
+	lcs-AreaEventCancellation		LCS-AreaEventCancellationArg,
+	...
+	}
 
+
+DummySS-operationsRes::= CHOICE {
+	registerCC-EntryRes				RegisterCC-EntryRes,
+	lcs-LocationNotification-res	LocationNotificationRes,
+	lcs-MOLR-res					LCS-MOLRRes,
+	...
+	}
 -- processUnstructuredSS-Data OPERATION  ::=  {
 --   ARGUMENT     IA5String  ( SIZE( 1 .. 200 ) )
 --   RESULT     IA5String  ( SIZE( 1 .. 200 ) )
@@ -226,17 +247,18 @@ RemotePartyNumber ::= SEQUENCE {
 AccessRegisterCCEntryArg ::= SEQUENCE {
 	...}
 
--- RegisterCC-EntryRes ::= 
+RegisterCC-EntryRes ::= 
 --   RESULT     SEQUENCE {
---      ccbs-Feature   [0] IMPLICIT SEQUENCE {
---         ccbs-Index               [0] IMPLICIT INTEGER ( 1 .. 5 ) OPTIONAL, 
---         b-subscriberNumber       [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
---         b-subscriberSubaddress   [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 21 ) ) OPTIONAL, 
---         basicServiceGroup        [3] CHOICE {
---            bearerService			[2] IMPLICIT OCTET STRING ( SIZE( 1 ) ), 
---            teleservice			[3] IMPLICIT OCTET STRING ( SIZE( 1 ) )} OPTIONAL, 
---         ... } OPTIONAL, 
---      ... }
+		SEQUENCE {
+      ccbs-Feature   [0] IMPLICIT SEQUENCE {
+         ccbs-Index               [0] IMPLICIT INTEGER ( 1 .. 5 ) OPTIONAL, 
+         b-subscriberNumber       [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+         b-subscriberSubaddress   [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 21 ) ) OPTIONAL, 
+         basicServiceGroup        [3] CHOICE {
+            bearerService			[2] IMPLICIT OCTET STRING ( SIZE( 1 ) ), 
+            teleservice			[3] IMPLICIT OCTET STRING ( SIZE( 1 ) )} OPTIONAL, 
+         ... } OPTIONAL, 
+      ... }
 --   ERRORS     {
 --      systemFailure | 
 --      dataMissing | 

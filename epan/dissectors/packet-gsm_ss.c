@@ -171,6 +171,20 @@ static int hf_gsm_ss_SS_Code = -1;
 
 /*--- Included file: packet-gsm_ss-hf.c ---*/
 
+static int hf_gsm_ss_notifySS = -1;               /* NotifySS_Arg */
+static int hf_gsm_ss_processUnstructuredSS_Data = -1;  /* SS_UserData */
+static int hf_gsm_ss_forwardCUG_Info = -1;        /* ForwardCUG_InfoArg */
+static int hf_gsm_ss_accessRegisterCCEntry = -1;  /* AccessRegisterCCEntryArg */
+static int hf_gsm_ss_forwardChargeAdvice = -1;    /* ForwardChargeAdviceArg */
+static int hf_gsm_ss_callDeflection = -1;         /* CallDeflectionArg */
+static int hf_gsm_ss_lcs_LocationNotification = -1;  /* LocationNotificationArg */
+static int hf_gsm_ss_lcs_MOLR = -1;               /* LCS_MOLRArg */
+static int hf_gsm_ss_lcs_AreaEventRequest = -1;   /* LCS_AreaEventRequestArg */
+static int hf_gsm_ss_lcs_AreaEventReport = -1;    /* LCS_AreaEventReportArg */
+static int hf_gsm_ss_lcs_AreaEventCancellation = -1;  /* LCS_AreaEventCancellationArg */
+static int hf_gsm_ss_registerCC_EntryRes = -1;    /* RegisterCC_EntryRes */
+static int hf_gsm_ss_lcs_LocationNotification_res = -1;  /* LocationNotificationRes */
+static int hf_gsm_ss_lcs_MOLR_res = -1;           /* LCS_MOLRRes */
 static int hf_gsm_ss_ss_Code = -1;                /* SS_Code */
 static int hf_gsm_ss_ss_Status = -1;              /* SS_Status */
 static int hf_gsm_ss_ss_Notification = -1;        /* SS_Notification */
@@ -209,6 +223,13 @@ static int hf_gsm_ss_numberNotAvailableDueToInterworking = -1;  /* NULL */
 static int hf_gsm_ss_presentationRestrictedAddress = -1;  /* RemotePartyNumber */
 static int hf_gsm_ss_partyNumber = -1;            /* ISDN_AddressString */
 static int hf_gsm_ss_partyNumberSubaddress = -1;  /* ISDN_SubaddressString */
+static int hf_gsm_ss_ccbs_Feature1 = -1;          /* T_ccbs_Feature */
+static int hf_gsm_ss_ccbs_Index = -1;             /* INTEGER_1_5 */
+static int hf_gsm_ss_b_subscriberNumber = -1;     /* T_b_subscriberNumber */
+static int hf_gsm_ss_b_subscriberSubaddress = -1;  /* OCTET_STRING_SIZE_1_21 */
+static int hf_gsm_ss_basicServiceGroup = -1;      /* T_basicServiceGroup */
+static int hf_gsm_ss_bearerService = -1;          /* OCTET_STRING_SIZE_1 */
+static int hf_gsm_ss_teleservice = -1;            /* OCTET_STRING_SIZE_1 */
 static int hf_gsm_ss_deflectedToNumber = -1;      /* AddressString */
 static int hf_gsm_ss_deflectedToSubaddress = -1;  /* ISDN_SubaddressString */
 static int hf_gsm_ss_uUS_Service = -1;            /* UUS_Service */
@@ -244,6 +265,8 @@ static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 
 /*--- Included file: packet-gsm_ss-ett.c ---*/
 
+static gint ett_gsm_ss_DummySS_operationsArg = -1;
+static gint ett_gsm_ss_DummySS_operationsRes = -1;
 static gint ett_gsm_ss_NotifySS_Arg = -1;
 static gint ett_gsm_ss_ForwardChargeAdviceArg = -1;
 static gint ett_gsm_ss_ChargingInformation = -1;
@@ -255,6 +278,9 @@ static gint ett_gsm_ss_NameSet = -1;
 static gint ett_gsm_ss_RDN = -1;
 static gint ett_gsm_ss_RemotePartyNumber = -1;
 static gint ett_gsm_ss_AccessRegisterCCEntryArg = -1;
+static gint ett_gsm_ss_RegisterCC_EntryRes = -1;
+static gint ett_gsm_ss_T_ccbs_Feature = -1;
+static gint ett_gsm_ss_T_basicServiceGroup = -1;
 static gint ett_gsm_ss_CallDeflectionArg = -1;
 static gint ett_gsm_ss_UserUserServiceArg = -1;
 static gint ett_gsm_ss_LocationNotificationArg = -1;
@@ -363,17 +389,6 @@ static int dissect_deferredLocationEventType_impl(packet_info *pinfo, proto_tree
 }
 static int dissect_areaEventInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_AreaEventInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_areaEventInfo);
-}
-
-
-
-static int
-dissect_gsm_ss_SS_UserData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
 }
 
 
@@ -656,6 +671,58 @@ dissect_gsm_ss_NotifySS_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
+static int dissect_notifySS(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_NotifySS_Arg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_notifySS);
+}
+
+
+
+static int
+dissect_gsm_ss_SS_UserData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_processUnstructuredSS_Data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_processUnstructuredSS_Data);
+}
+
+
+static const ber_sequence_t ForwardCUG_InfoArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cug_Index_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_suppressPrefCUG_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_suppressOA_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_ForwardCUG_InfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ForwardCUG_InfoArg_sequence, hf_index, ett_gsm_ss_ForwardCUG_InfoArg);
+
+  return offset;
+}
+static int dissect_forwardCUG_Info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_ForwardCUG_InfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_forwardCUG_Info);
+}
+
+
+static const ber_sequence_t AccessRegisterCCEntryArg_sequence[] = {
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_AccessRegisterCCEntryArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   AccessRegisterCCEntryArg_sequence, hf_index, ett_gsm_ss_AccessRegisterCCEntryArg);
+
+  return offset;
+}
+static int dissect_accessRegisterCCEntry(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_AccessRegisterCCEntryArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_accessRegisterCCEntry);
+}
 
 
 
@@ -785,34 +852,8 @@ dissect_gsm_ss_ForwardChargeAdviceArg(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
   return offset;
 }
-
-
-static const ber_sequence_t ForwardCUG_InfoArg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cug_Index_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_suppressPrefCUG_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_suppressOA_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_ss_ForwardCUG_InfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   ForwardCUG_InfoArg_sequence, hf_index, ett_gsm_ss_ForwardCUG_InfoArg);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AccessRegisterCCEntryArg_sequence[] = {
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_ss_AccessRegisterCCEntryArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   AccessRegisterCCEntryArg_sequence, hf_index, ett_gsm_ss_AccessRegisterCCEntryArg);
-
-  return offset;
+static int dissect_forwardChargeAdvice(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_ForwardChargeAdviceArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_forwardChargeAdvice);
 }
 
 
@@ -829,52 +870,8 @@ dissect_gsm_ss_CallDeflectionArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
-
-
-static const value_string gsm_ss_UUS_Service_vals[] = {
-  {   1, "uUS1" },
-  {   2, "uUS2" },
-  {   3, "uUS3" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gsm_ss_UUS_Service(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_uUS_Service_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_ss_UUS_Service(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_uUS_Service);
-}
-
-
-
-static int
-dissect_gsm_ss_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-static int dissect_uUS_Required_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_ss_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_uUS_Required);
-}
-
-
-static const ber_sequence_t UserUserServiceArg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_uUS_Service_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_uUS_Required_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_ss_UserUserServiceArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   UserUserServiceArg_sequence, hf_index, ett_gsm_ss_UserUserServiceArg);
-
-  return offset;
+static int dissect_callDeflection(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_CallDeflectionArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_callDeflection);
 }
 
 
@@ -896,38 +893,8 @@ dissect_gsm_ss_LocationNotificationArg(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
   return offset;
 }
-
-
-static const value_string gsm_ss_VerificationResponse_vals[] = {
-  {   0, "permissionDenied" },
-  {   1, "permissionGranted" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gsm_ss_VerificationResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_verificationResponse_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_ss_VerificationResponse(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_verificationResponse);
-}
-
-
-static const ber_sequence_t LocationNotificationRes_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_verificationResponse_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_ss_LocationNotificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   LocationNotificationRes_sequence, hf_index, ett_gsm_ss_LocationNotificationRes);
-
-  return offset;
+static int dissect_lcs_LocationNotification(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_LocationNotificationArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_lcs_LocationNotification);
 }
 
 
@@ -1007,6 +974,258 @@ dissect_gsm_ss_LCS_MOLRArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+static int dissect_lcs_MOLR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_LCS_MOLRArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_lcs_MOLR);
+}
+
+
+static const ber_sequence_t LCS_AreaEventRequestArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_referenceNumber_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h_gmlc_address_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_deferredLocationEventType_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_areaEventInfo_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_LCS_AreaEventRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   LCS_AreaEventRequestArg_sequence, hf_index, ett_gsm_ss_LCS_AreaEventRequestArg);
+
+  return offset;
+}
+static int dissect_lcs_AreaEventRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_LCS_AreaEventRequestArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_lcs_AreaEventRequest);
+}
+
+
+static const ber_sequence_t LCS_AreaEventReportArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_referenceNumber_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h_gmlc_address_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_LCS_AreaEventReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   LCS_AreaEventReportArg_sequence, hf_index, ett_gsm_ss_LCS_AreaEventReportArg);
+
+  return offset;
+}
+static int dissect_lcs_AreaEventReport(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_LCS_AreaEventReportArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_lcs_AreaEventReport);
+}
+
+
+static const ber_sequence_t LCS_AreaEventCancellationArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_referenceNumber_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h_gmlc_address_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_LCS_AreaEventCancellationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   LCS_AreaEventCancellationArg_sequence, hf_index, ett_gsm_ss_LCS_AreaEventCancellationArg);
+
+  return offset;
+}
+static int dissect_lcs_AreaEventCancellation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_LCS_AreaEventCancellationArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_lcs_AreaEventCancellation);
+}
+
+
+static const value_string gsm_ss_DummySS_operationsArg_vals[] = {
+  {   0, "notifySS" },
+  {   1, "processUnstructuredSS-Data" },
+  {   2, "forwardCUG-Info" },
+  {   3, "accessRegisterCCEntry" },
+  {   4, "forwardChargeAdvice" },
+  {   5, "callDeflection" },
+  {   6, "lcs-LocationNotification" },
+  {   7, "lcs-MOLR" },
+  {   8, "lcs-AreaEventRequest" },
+  {   9, "lcs-AreaEventReport" },
+  {  10, "lcs-AreaEventCancellation" },
+  { 0, NULL }
+};
+
+static const ber_choice_t DummySS_operationsArg_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_notifySS },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_IA5String, BER_FLAGS_NOOWNTAG, dissect_processUnstructuredSS_Data },
+  {   2, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardCUG_Info },
+  {   3, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_accessRegisterCCEntry },
+  {   4, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardChargeAdvice },
+  {   5, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_callDeflection },
+  {   6, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_LocationNotification },
+  {   7, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_MOLR },
+  {   8, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_AreaEventRequest },
+  {   9, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_AreaEventReport },
+  {  10, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_AreaEventCancellation },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_DummySS_operationsArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 DummySS_operationsArg_choice, hf_index, ett_gsm_ss_DummySS_operationsArg,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_INTEGER_1_5(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_ccbs_Index_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_INTEGER_1_5(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_ccbs_Index);
+}
+
+
+
+static int
+dissect_gsm_ss_T_b_subscriberNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_b_subscriberNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_T_b_subscriberNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_b_subscriberNumber);
+}
+
+
+
+static int
+dissect_gsm_ss_OCTET_STRING_SIZE_1_21(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_b_subscriberSubaddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_OCTET_STRING_SIZE_1_21(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_b_subscriberSubaddress);
+}
+
+
+
+static int
+dissect_gsm_ss_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_bearerService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_bearerService);
+}
+static int dissect_teleservice_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_teleservice);
+}
+
+
+static const value_string gsm_ss_T_basicServiceGroup_vals[] = {
+  {   2, "bearerService" },
+  {   3, "teleservice" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_basicServiceGroup_choice[] = {
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_bearerService_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_teleservice_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_T_basicServiceGroup(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 T_basicServiceGroup_choice, hf_index, ett_gsm_ss_T_basicServiceGroup,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_basicServiceGroup_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_T_basicServiceGroup(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_basicServiceGroup);
+}
+
+
+static const ber_sequence_t T_ccbs_Feature_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Index_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberNumber_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberSubaddress_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceGroup_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_T_ccbs_Feature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_ccbs_Feature_sequence, hf_index, ett_gsm_ss_T_ccbs_Feature);
+
+  return offset;
+}
+static int dissect_ccbs_Feature1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_T_ccbs_Feature(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_ccbs_Feature1);
+}
+
+
+static const ber_sequence_t RegisterCC_EntryRes_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Feature1_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_RegisterCC_EntryRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RegisterCC_EntryRes_sequence, hf_index, ett_gsm_ss_RegisterCC_EntryRes);
+
+  return offset;
+}
+static int dissect_registerCC_EntryRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_RegisterCC_EntryRes(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_registerCC_EntryRes);
+}
+
+
+static const value_string gsm_ss_VerificationResponse_vals[] = {
+  {   0, "permissionDenied" },
+  {   1, "permissionGranted" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_VerificationResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_verificationResponse_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_VerificationResponse(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_verificationResponse);
+}
+
+
+static const ber_sequence_t LocationNotificationRes_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_verificationResponse_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_LocationNotificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   LocationNotificationRes_sequence, hf_index, ett_gsm_ss_LocationNotificationRes);
+
+  return offset;
+}
+static int dissect_lcs_LocationNotification_res(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_LocationNotificationRes(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_lcs_LocationNotification_res);
+}
 
 
 
@@ -1036,50 +1255,77 @@ dissect_gsm_ss_LCS_MOLRRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+static int dissect_lcs_MOLR_res(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_LCS_MOLRRes(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_lcs_MOLR_res);
+}
 
 
-static const ber_sequence_t LCS_AreaEventRequestArg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_referenceNumber_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h_gmlc_address_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_deferredLocationEventType_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_areaEventInfo_impl },
-  { 0, 0, 0, NULL }
+static const value_string gsm_ss_DummySS_operationsRes_vals[] = {
+  {   0, "registerCC-EntryRes" },
+  {   1, "lcs-LocationNotification-res" },
+  {   2, "lcs-MOLR-res" },
+  { 0, NULL }
+};
+
+static const ber_choice_t DummySS_operationsRes_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_registerCC_EntryRes },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_LocationNotification_res },
+  {   2, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_MOLR_res },
+  { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_gsm_ss_LCS_AreaEventRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   LCS_AreaEventRequestArg_sequence, hf_index, ett_gsm_ss_LCS_AreaEventRequestArg);
+dissect_gsm_ss_DummySS_operationsRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 DummySS_operationsRes_choice, hf_index, ett_gsm_ss_DummySS_operationsRes,
+                                 NULL);
 
   return offset;
 }
 
 
-static const ber_sequence_t LCS_AreaEventReportArg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_referenceNumber_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h_gmlc_address_impl },
-  { 0, 0, 0, NULL }
+static const value_string gsm_ss_UUS_Service_vals[] = {
+  {   1, "uUS1" },
+  {   2, "uUS2" },
+  {   3, "uUS3" },
+  { 0, NULL }
 };
 
+
 static int
-dissect_gsm_ss_LCS_AreaEventReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   LCS_AreaEventReportArg_sequence, hf_index, ett_gsm_ss_LCS_AreaEventReportArg);
+dissect_gsm_ss_UUS_Service(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
+static int dissect_uUS_Service_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_UUS_Service(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_uUS_Service);
+}
 
 
-static const ber_sequence_t LCS_AreaEventCancellationArg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_referenceNumber_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h_gmlc_address_impl },
+
+static int
+dissect_gsm_ss_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+static int dissect_uUS_Required_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_ss_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_gsm_ss_uUS_Required);
+}
+
+
+static const ber_sequence_t UserUserServiceArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_uUS_Service_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_uUS_Required_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_gsm_ss_LCS_AreaEventCancellationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_ss_UserUserServiceArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   LCS_AreaEventCancellationArg_sequence, hf_index, ett_gsm_ss_LCS_AreaEventCancellationArg);
+                                   UserUserServiceArg_sequence, hf_index, ett_gsm_ss_UserUserServiceArg);
 
   return offset;
 }
@@ -1111,7 +1357,7 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 					offset=dissect_gsm_map_SS_ForBS_Code(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 16: /*Notify SS */
-					dissect_gsm_ss_NotifySS_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_notifySS(pinfo, tree, tvb, offset);
 					break;
 				case 17: /*Register Password -- imports operations from MAP-SupplementaryServiceOperations*/
 					offset=dissect_gsm_map_SS_Code(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1120,7 +1366,7 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 					 offset=dissect_gsm_map_GetPasswordArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_getPassword);
 					break;
 				case 19: /*Process Unstructured SS Data */
-					dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_processUnstructuredSS_Data(pinfo, tree, tvb, offset);
 					break;
 				case 38: /*Forward Check SS Indication -- imports operation from MAP-MobileServiceOperations*/
 					break;
@@ -1137,30 +1383,31 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 					offset=dissect_gsm_map_EraseCC_EntryArg(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 112: /*lcs-AreaEventCancellation */
-					dissect_gsm_ss_LCS_AreaEventCancellationArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_AreaEventCancellation(pinfo, tree, tvb, offset);
 					break;
 				case 113: /*lcs-AreaEventReport */
-					dissect_gsm_ss_LCS_AreaEventReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_AreaEventReport(pinfo, tree, tvb, offset);
 					break;
 				case 114: /*LCS-AreaEventRequest */
-					dissect_gsm_ss_LCS_AreaEventRequestArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_AreaEventRequest(pinfo, tree, tvb, offset);
 					break;
 				case 115: /*LCS MOLR */
-					dissect_gsm_ss_LCS_MOLRArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_MOLR(pinfo, tree, tvb, offset);
 					break;
 				case 116: /*LCS Location Notification */
-					dissect_gsm_ss_LocationNotificationArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_LocationNotification(pinfo, tree, tvb,offset);
 					break;
 				case 117: /*Call Deflection */
-					dissect_gsm_ss_CallDeflectionArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_callDeflection(pinfo, tree, tvb,offset);
 					break;
 				case 118: /*User User Service */
-					dissect_gsm_ss_UserUserServiceArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_gsm_ss_UserUserServiceArg(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 119: /* Access Register CC Entry */
-					dissect_gsm_ss_AccessRegisterCCEntryArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_gsm_ss_AccessRegisterCCEntryArg(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 120: /*Forward CUG Info */
+					offset = dissect_forwardCUG_Info(pinfo, tree, tvb,offset);
 					break;
 				case 121: /*Split MPTY */
 					break;
@@ -1171,7 +1418,7 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 				case 124: /*Build MPTY */
 					break;
 				case 125: /*Forward Charge Advice */
-					dissect_gsm_ss_ForwardChargeAdviceArg(FALSE, tvb, offset, pinfo, tree, -1);
+					dissect_forwardChargeAdvice(pinfo, tree, tvb,offset);
 					break;
 				case 126: /*Explicit CT */
 					break;
@@ -1305,6 +1552,62 @@ void proto_register_gsm_ss(void) {
 
 /*--- Included file: packet-gsm_ss-hfarr.c ---*/
 
+    { &hf_gsm_ss_notifySS,
+      { "notifySS", "gsm_ss.notifySS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/notifySS", HFILL }},
+    { &hf_gsm_ss_processUnstructuredSS_Data,
+      { "processUnstructuredSS-Data", "gsm_ss.processUnstructuredSS_Data",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/processUnstructuredSS-Data", HFILL }},
+    { &hf_gsm_ss_forwardCUG_Info,
+      { "forwardCUG-Info", "gsm_ss.forwardCUG_Info",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/forwardCUG-Info", HFILL }},
+    { &hf_gsm_ss_accessRegisterCCEntry,
+      { "accessRegisterCCEntry", "gsm_ss.accessRegisterCCEntry",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/accessRegisterCCEntry", HFILL }},
+    { &hf_gsm_ss_forwardChargeAdvice,
+      { "forwardChargeAdvice", "gsm_ss.forwardChargeAdvice",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/forwardChargeAdvice", HFILL }},
+    { &hf_gsm_ss_callDeflection,
+      { "callDeflection", "gsm_ss.callDeflection",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/callDeflection", HFILL }},
+    { &hf_gsm_ss_lcs_LocationNotification,
+      { "lcs-LocationNotification", "gsm_ss.lcs_LocationNotification",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/lcs-LocationNotification", HFILL }},
+    { &hf_gsm_ss_lcs_MOLR,
+      { "lcs-MOLR", "gsm_ss.lcs_MOLR",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/lcs-MOLR", HFILL }},
+    { &hf_gsm_ss_lcs_AreaEventRequest,
+      { "lcs-AreaEventRequest", "gsm_ss.lcs_AreaEventRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/lcs-AreaEventRequest", HFILL }},
+    { &hf_gsm_ss_lcs_AreaEventReport,
+      { "lcs-AreaEventReport", "gsm_ss.lcs_AreaEventReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/lcs-AreaEventReport", HFILL }},
+    { &hf_gsm_ss_lcs_AreaEventCancellation,
+      { "lcs-AreaEventCancellation", "gsm_ss.lcs_AreaEventCancellation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsArg/lcs-AreaEventCancellation", HFILL }},
+    { &hf_gsm_ss_registerCC_EntryRes,
+      { "registerCC-EntryRes", "gsm_ss.registerCC_EntryRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsRes/registerCC-EntryRes", HFILL }},
+    { &hf_gsm_ss_lcs_LocationNotification_res,
+      { "lcs-LocationNotification-res", "gsm_ss.lcs_LocationNotification_res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsRes/lcs-LocationNotification-res", HFILL }},
+    { &hf_gsm_ss_lcs_MOLR_res,
+      { "lcs-MOLR-res", "gsm_ss.lcs_MOLR_res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DummySS-operationsRes/lcs-MOLR-res", HFILL }},
     { &hf_gsm_ss_ss_Code,
       { "ss-Code", "gsm_ss.ss_Code",
         FT_UINT8, BASE_DEC, VALS(ssCode_vals), 0,
@@ -1457,6 +1760,34 @@ void proto_register_gsm_ss(void) {
       { "partyNumberSubaddress", "gsm_ss.partyNumberSubaddress",
         FT_BYTES, BASE_HEX, NULL, 0,
         "RemotePartyNumber/partyNumberSubaddress", HFILL }},
+    { &hf_gsm_ss_ccbs_Feature1,
+      { "ccbs-Feature", "gsm_ss.ccbs_Feature",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RegisterCC-EntryRes/ccbs-Feature", HFILL }},
+    { &hf_gsm_ss_ccbs_Index,
+      { "ccbs-Index", "gsm_ss.ccbs_Index",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RegisterCC-EntryRes/ccbs-Feature/ccbs-Index", HFILL }},
+    { &hf_gsm_ss_b_subscriberNumber,
+      { "b-subscriberNumber", "gsm_ss.b_subscriberNumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RegisterCC-EntryRes/ccbs-Feature/b-subscriberNumber", HFILL }},
+    { &hf_gsm_ss_b_subscriberSubaddress,
+      { "b-subscriberSubaddress", "gsm_ss.b_subscriberSubaddress",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RegisterCC-EntryRes/ccbs-Feature/b-subscriberSubaddress", HFILL }},
+    { &hf_gsm_ss_basicServiceGroup,
+      { "basicServiceGroup", "gsm_ss.basicServiceGroup",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_T_basicServiceGroup_vals), 0,
+        "RegisterCC-EntryRes/ccbs-Feature/basicServiceGroup", HFILL }},
+    { &hf_gsm_ss_bearerService,
+      { "bearerService", "gsm_ss.bearerService",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RegisterCC-EntryRes/ccbs-Feature/basicServiceGroup/bearerService", HFILL }},
+    { &hf_gsm_ss_teleservice,
+      { "teleservice", "gsm_ss.teleservice",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RegisterCC-EntryRes/ccbs-Feature/basicServiceGroup/teleservice", HFILL }},
     { &hf_gsm_ss_deflectedToNumber,
       { "deflectedToNumber", "gsm_ss.deflectedToNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -1575,6 +1906,8 @@ void proto_register_gsm_ss(void) {
 
 /*--- Included file: packet-gsm_ss-ettarr.c ---*/
 
+    &ett_gsm_ss_DummySS_operationsArg,
+    &ett_gsm_ss_DummySS_operationsRes,
     &ett_gsm_ss_NotifySS_Arg,
     &ett_gsm_ss_ForwardChargeAdviceArg,
     &ett_gsm_ss_ChargingInformation,
@@ -1586,6 +1919,9 @@ void proto_register_gsm_ss(void) {
     &ett_gsm_ss_RDN,
     &ett_gsm_ss_RemotePartyNumber,
     &ett_gsm_ss_AccessRegisterCCEntryArg,
+    &ett_gsm_ss_RegisterCC_EntryRes,
+    &ett_gsm_ss_T_ccbs_Feature,
+    &ett_gsm_ss_T_basicServiceGroup,
     &ett_gsm_ss_CallDeflectionArg,
     &ett_gsm_ss_UserUserServiceArg,
     &ett_gsm_ss_LocationNotificationArg,

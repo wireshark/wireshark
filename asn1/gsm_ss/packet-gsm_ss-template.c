@@ -198,7 +198,7 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 					offset=dissect_gsm_map_SS_ForBS_Code(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 16: /*Notify SS */
-					dissect_gsm_ss_NotifySS_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_notifySS(pinfo, tree, tvb, offset);
 					break;
 				case 17: /*Register Password -- imports operations from MAP-SupplementaryServiceOperations*/
 					offset=dissect_gsm_map_SS_Code(FALSE, tvb, offset, pinfo, tree, -1);
@@ -207,7 +207,7 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 					 offset=dissect_gsm_map_GetPasswordArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_ss_getPassword);
 					break;
 				case 19: /*Process Unstructured SS Data */
-					dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_processUnstructuredSS_Data(pinfo, tree, tvb, offset);
 					break;
 				case 38: /*Forward Check SS Indication -- imports operation from MAP-MobileServiceOperations*/
 					break;
@@ -224,30 +224,31 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 					offset=dissect_gsm_map_EraseCC_EntryArg(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 112: /*lcs-AreaEventCancellation */
-					dissect_gsm_ss_LCS_AreaEventCancellationArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_AreaEventCancellation(pinfo, tree, tvb, offset);
 					break;
 				case 113: /*lcs-AreaEventReport */
-					dissect_gsm_ss_LCS_AreaEventReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_AreaEventReport(pinfo, tree, tvb, offset);
 					break;
 				case 114: /*LCS-AreaEventRequest */
-					dissect_gsm_ss_LCS_AreaEventRequestArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_AreaEventRequest(pinfo, tree, tvb, offset);
 					break;
 				case 115: /*LCS MOLR */
-					dissect_gsm_ss_LCS_MOLRArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_MOLR(pinfo, tree, tvb, offset);
 					break;
 				case 116: /*LCS Location Notification */
-					dissect_gsm_ss_LocationNotificationArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_lcs_LocationNotification(pinfo, tree, tvb,offset);
 					break;
 				case 117: /*Call Deflection */
-					dissect_gsm_ss_CallDeflectionArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_callDeflection(pinfo, tree, tvb,offset);
 					break;
 				case 118: /*User User Service */
-					dissect_gsm_ss_UserUserServiceArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_gsm_ss_UserUserServiceArg(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 119: /* Access Register CC Entry */
-					dissect_gsm_ss_AccessRegisterCCEntryArg(FALSE, tvb, offset, pinfo, tree, -1);
+					offset = dissect_gsm_ss_AccessRegisterCCEntryArg(FALSE, tvb, offset, pinfo, tree, -1);
 					break;
 				case 120: /*Forward CUG Info */
+					offset = dissect_forwardCUG_Info(pinfo, tree, tvb,offset);
 					break;
 				case 121: /*Split MPTY */
 					break;
@@ -258,7 +259,7 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 				case 124: /*Build MPTY */
 					break;
 				case 125: /*Forward Charge Advice */
-					dissect_gsm_ss_ForwardChargeAdviceArg(FALSE, tvb, offset, pinfo, tree, -1);
+					dissect_forwardChargeAdvice(pinfo, tree, tvb,offset);
 					break;
 				case 126: /*Explicit CT */
 					break;
