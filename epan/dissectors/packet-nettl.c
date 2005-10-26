@@ -65,8 +65,10 @@ static gint ett_nettl = -1;
 static const value_string trace_kind[] = {
 	{ 0x80000000, "Incoming Header" },
 	{ 0x40000000, "Outgoing Header" },
-	{ 0x20000000, "Incoming PDU" },
-	{ 0x10000000, "Outgoing PDU" },
+	{ 0x20000000, "Incoming PDU - PDUIN" },
+	{ 0x20000000, "PDUIN" },
+	{ 0x10000000, "Outgoing PDU - PDUOUT" },
+	{ 0x10000000, "PDUOUT" },
 	{ 0x08000000, "Procedure" },
 	{ 0x04000000, "State" },
 	{ 0x02000000, "Error" },
@@ -212,7 +214,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		val_to_str(pinfo->pseudo_header->nettl.kind, trace_kind, "Unknown"));
             proto_tree_add_int(nettl_tree, hf_nettl_pid, tvb,
 		0, 0, pinfo->pseudo_header->nettl.pid);
-            proto_tree_add_int(nettl_tree, hf_nettl_uid, tvb,
+            proto_tree_add_uint(nettl_tree, hf_nettl_uid, tvb,
 		0, 0, pinfo->pseudo_header->nettl.uid);
 
       }
@@ -289,7 +291,7 @@ proto_register_nettl(void)
 		"HP-UX Process/thread id", HFILL}},
 
 	{ &hf_nettl_uid,
-	{ "User ID (uid)", "nettl.uid", FT_INT16, BASE_DEC, NULL, 0x0,
+	{ "User ID (uid)", "nettl.uid", FT_UINT16, BASE_DEC, NULL, 0x0,
 		"HP-UX User ID", HFILL}},
 
   };

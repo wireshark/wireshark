@@ -456,7 +456,7 @@ struct nettl_phdr {
 	guint32 devid;
 	guint32 kind;
 	gint32  pid;
-	gint16  uid;
+	guint16 uid;
 };
 
 /* Packet "pseudo-header" for MTP2 files. */
