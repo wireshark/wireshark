@@ -208,6 +208,17 @@ ph_stats_new(void)
 	tot_bytes = 0;
 
 	for (frame = cfile.plist; frame != NULL; frame = frame->next) {
+		/* Create the progress bar if necessary.
+		   We check on every iteration of the loop, so that
+		   it takes no longer than the standard time to create
+		   it (otherwise, for a large file, we might take
+		   considerably longer than that standard time in order
+		   to get to the next progress bar step). */
+		if (progbar == NULL)
+			progbar = delayed_create_progress_dlg(
+			    "Computing", "protocol hierarchy statistics", 
+			    &stop_flag, &start_time, prog_val);
+
 		/* Update the progress bar, but do it only N_PROGBAR_UPDATES
 		   times; when we update it, we have to run the GTK+ main
 		   loop to get it to repaint what's pending, and doing so
@@ -221,12 +232,6 @@ ph_stats_new(void)
 			g_assert(cfile.count > 0);
 
 			prog_val = (gfloat) count / cfile.count;
-
-			if (progbar == NULL)
-				/* Create the progress bar if necessary */
-				progbar = delayed_create_progress_dlg(
-				    "Computing", "protocol hierarchy statistics", 
-				    &stop_flag, &start_time, prog_val);
 
 			if (progbar != NULL) {
 				g_snprintf(status_str, sizeof(status_str),

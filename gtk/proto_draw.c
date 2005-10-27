@@ -1080,6 +1080,17 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
   g_get_current_time(&progbar_start_time);
 
   while (i < len) {
+    /* Create the progress bar if necessary.
+       We check on every iteration of the loop, so that it takes no
+       longer than the standard time to create it (otherwise, for a
+       large packet, we might take considerably longer than that standard
+       time in order to get to the next progress bar step). */
+    if (progbar == NULL)
+      progbar = delayed_create_progress_dlg("Processing", "Packet Details",
+                                            &progbar_stop_flag,
+                                            &progbar_start_time,
+                                            progbar_val);
+
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -1091,13 +1102,6 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
        */
       g_assert(len > 0);
       progbar_val = (gfloat) i / len;
-
-      if (progbar == NULL)
-        /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg("Processing", "Packet Details",
-                                              &progbar_stop_flag,
-                                              &progbar_start_time,
-                                              progbar_val);
 
       if (progbar != NULL) {
         g_snprintf(progbar_status_str, sizeof(progbar_status_str),

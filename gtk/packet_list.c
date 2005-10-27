@@ -633,6 +633,15 @@ packet_list_resize_columns(void) {
     main_window_update();
 
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
+      /* Create the progress bar if necessary.
+         We check on every iteration of the loop, so that it takes no
+         longer than the standard time to create it (otherwise, for a
+         large file, we might take considerably longer than that standard
+         time in order to get to the next progress bar step). */
+      if (progbar == NULL)
+         progbar = delayed_create_progress_dlg("Resizing", "Resize Columns", 
+           &stop_flag, &start_time, prog_val);
+
       if (i >= progbar_nextstep) {
         /* let's not divide by zero. I should never be started
          * with count == 0, so let's assert that
@@ -640,11 +649,6 @@ packet_list_resize_columns(void) {
         g_assert(cfile.cinfo.num_cols > 0);
 
         prog_val = (gfloat) i / cfile.cinfo.num_cols;
-
-        /* Create the progress bar if necessary */
-        if (progbar == NULL)
-           progbar = delayed_create_progress_dlg("Resizing", "Resize Columns", 
-             &stop_flag, &start_time, prog_val);
 
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
@@ -660,12 +664,12 @@ packet_list_resize_columns(void) {
         break;
       }
 
-        /* auto resize the current column */
-        eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, TRUE);
+      /* auto resize the current column */
+      eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, TRUE);
 
-        /* the current column should be resizeable by the user again */
-        /* (will turn off auto resize again) */
-        eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
+      /* the current column should be resizeable by the user again */
+      /* (will turn off auto resize again) */
+      eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
     }
 
     /* We're done resizing the columns; destroy the progress bar if it

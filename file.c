@@ -409,6 +409,16 @@ cf_read(capture_file *cf)
 
   while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
     if (size >= 0) {
+      /* Create the progress bar if necessary.
+         We check on every iteration of the loop, so that it takes no
+         longer than the standard time to create it (otherwise, for a
+         large file, we might take considerably longer than that standard
+         time in order to get to the next progress bar step). */
+      if (progbar == NULL) {
+        progbar = delayed_create_progress_dlg("Loading", name_ptr,
+          &stop_flag, &start_time, prog_val);
+      }
+
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
          when we update it, we have to run the GTK+ main loop to get it
          to repaint what's pending, and doing so may involve an "ioctl()"
@@ -429,11 +439,6 @@ cf_read(capture_file *cf)
                it); just clip the progress value at 1.0. */
             if (prog_val > 1.0)
               prog_val = 1.0;
-          }
-          if (progbar == NULL) {
-            /* Create the progress bar if necessary */
-            progbar = delayed_create_progress_dlg("Loading", name_ptr,
-              &stop_flag, &start_time, prog_val);
           }
           if (progbar != NULL) {
             g_snprintf(status_str, sizeof(status_str),
@@ -1044,6 +1049,21 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     for (i = 0; i < in_file_count; i++)
       data_offset += in_files[i].data_offset;
 
+    /* Create the progress bar if necessary.
+       We check on every iteration of the loop, so that it takes no
+       longer than the standard time to create it (otherwise, for a
+       large file, we might take considerably longer than that standard
+       time in order to get to the next progress bar step). */
+    if (progbar == NULL) {
+      progbar = delayed_create_progress_dlg("Merging", "files",
+        &stop_flag, &start_time, prog_val);
+    }
+
+    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+       when we update it, we have to run the GTK+ main loop to get it
+       to repaint what's pending, and doing so may involve an "ioctl()"
+       to see if there's any pending input from an X server, and doing
+       that for every packet can be costly, especially on a big file. */
     if (data_offset >= progbar_nextstep) {
         /* Get the sum of the seek positions in all of the files. */
         file_pos = 0;
@@ -1055,11 +1075,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
              That "shouldn't happen", so we'll just clip the progress
              value at 1.0. */
           prog_val = 1.0;
-        }
-        if (progbar == NULL) {
-          /* Create the progress bar if necessary */
-          progbar = delayed_create_progress_dlg("Merging", "files",
-            &stop_flag, &start_time, prog_val);
         }
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
@@ -1327,6 +1342,15 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   selected_frame_seen = FALSE;
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+    /* Create the progress bar if necessary.
+       We check on every iteration of the loop, so that it takes no
+       longer than the standard time to create it (otherwise, for a
+       large file, we might take considerably longer than that standard
+       time in order to get to the next progress bar step). */
+    if (progbar == NULL)
+      progbar = delayed_create_progress_dlg(action, action_item, &stop_flag,
+        &start_time, prog_val);
+
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -1338,11 +1362,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        */
       g_assert(cf->count > 0);
       prog_val = (gfloat) count / cf->count;
-
-      if (progbar == NULL)
-        /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg(action, action_item, &stop_flag,
-          &start_time, prog_val);
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
@@ -1545,6 +1564,17 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+    /* Create the progress bar if necessary.
+       We check on every iteration of the loop, so that it takes no
+       longer than the standard time to create it (otherwise, for a
+       large file, we might take considerably longer than that standard
+       time in order to get to the next progress bar step). */
+    if (progbar == NULL)
+      progbar = delayed_create_progress_dlg(string1, string2,
+                                            &progbar_stop_flag,
+                                            &progbar_start_time,
+                                            progbar_val);
+
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -1556,13 +1586,6 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
        */
       g_assert(cf->count > 0);
       progbar_val = (gfloat) progbar_count / cf->count;
-
-      if (progbar == NULL)
-        /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg(string1, string2,
-                                              &progbar_stop_flag,
-                                              &progbar_start_time,
-                                              progbar_val);
 
       if (progbar != NULL) {
         g_snprintf(progbar_status_str, sizeof(progbar_status_str),
@@ -2253,6 +2276,15 @@ cf_change_time_formats(capture_file *cf)
      any columns that show the time in the "command-line-specified"
      format and, if so, update that row. */
   for (fdata = cf->plist, row = -1; fdata != NULL; fdata = fdata->next) {
+    /* Create the progress bar if necessary.
+       We check on every iteration of the loop, so that it takes no
+       longer than the standard time to create it (otherwise, for a
+       large file, we might take considerably longer than that standard
+       time in order to get to the next progress bar step). */
+    if (progbar == NULL)
+      progbar = delayed_create_progress_dlg("Changing", "time display", 
+        &stop_flag, &start_time, prog_val);
+
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -2265,11 +2297,6 @@ cf_change_time_formats(capture_file *cf)
       g_assert(cf->count > 0);
 
       prog_val = (gfloat) count / cf->count;
-
-      if (progbar == NULL)
-        /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg("Changing", "time display", 
-          &stop_flag, &start_time, prog_val);
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
@@ -2699,6 +2726,15 @@ find_packet(capture_file *cf,
 
     fdata = start_fd;
     for (;;) {
+      /* Create the progress bar if necessary.
+         We check on every iteration of the loop, so that it takes no
+         longer than the standard time to create it (otherwise, for a
+         large file, we might take considerably longer than that standard
+         time in order to get to the next progress bar step). */
+      if (progbar == NULL)
+         progbar = delayed_create_progress_dlg("Searching", cf->sfilter, 
+           &stop_flag, &start_time, prog_val);
+
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
          when we update it, we have to run the GTK+ main loop to get it
          to repaint what's pending, and doing so may involve an "ioctl()"
@@ -2711,11 +2747,6 @@ find_packet(capture_file *cf,
         g_assert(cf->count > 0);
 
         prog_val = (gfloat) count / cf->count;
-
-        /* Create the progress bar if necessary */
-        if (progbar == NULL)
-           progbar = delayed_create_progress_dlg("Searching", cf->sfilter, 
-             &stop_flag, &start_time, prog_val);
 
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
