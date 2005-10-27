@@ -2081,7 +2081,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		}
 
 		/* Fill in key and value details */
-		strcpy(p_key->call_id, call_id);
+		g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
 		COPY_ADDRESS(&(p_key->dest_address), &pinfo->net_dst);
 		COPY_ADDRESS(&(p_key->source_address), &pinfo->net_src);
 		p_key->dest_port = pinfo->destport;
