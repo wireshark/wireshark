@@ -299,8 +299,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 			break;		/* scope ID follows */
 		if (cname < 'A' || cname > 'Z') {
 			/* Not legal. */
-			strcpy(nbname,
-			    "Illegal NetBIOS name (character not between A and Z in first-level encoding)");
+			nbname="Illegal NetBIOS name (character not between A and Z in first-level encoding)";
 			goto bad;
 		}
 		cname -= 'A';
@@ -311,14 +310,12 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		if (cname == '\0' || cname == '.') {
 			/* No more characters in the name - but we're in
 			 * the middle of a pair.  Not legal. */
-			strcpy(nbname,
-			    "Illegal NetBIOS name (odd number of bytes)");
+			nbname="Illegal NetBIOS name (odd number of bytes)";
 			goto bad;
 		}
 		if (cname < 'A' || cname > 'Z') {
 			/* Not legal. */
-			strcpy(nbname,
-			    "Illegal NetBIOS name (character not between A and Z in first-level encoding)");
+			nbname="Illegal NetBIOS name (character not between A and Z in first-level encoding)";
 			goto bad;
 		}
 		cname -= 'A';
@@ -351,7 +348,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	if (cname == '.') {
 		/* We have a scope ID, starting at "pname"; append that to
 		 * the decoded host name. */
-		strcpy(pname_ret, pname);
+		pname_ret += g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", pname);
 	}
 	if (name_type_ret != NULL)
 		*name_type_ret = name_type;
@@ -360,7 +357,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 bad:
 	if (name_type_ret != NULL)
 		*name_type_ret = -1;
-	strcpy (pname_ret, nbname);
+	pname_ret += g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", nbname);
 	return name_len;
 }
 
@@ -463,9 +460,10 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 	proto_tree *field_tree;
 	proto_item *tf;
 
-	buf=ep_alloc(128+1);
+#define MAX_BUF_SIZE (128+1)
+	buf=ep_alloc(MAX_BUF_SIZE);
 	opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
-	strcpy(buf, val_to_str(opcode, opcode_vals, "Unknown operation"));
+	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(opcode, opcode_vals, "Unknown operation"));
 	if (flags & F_RESPONSE && !is_wack) {
 		strcat(buf, " response");
 		strcat(buf, ", ");
@@ -518,8 +516,8 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
 		  { 0,                   NULL     }
 	};
 
-	buf=ep_alloc(128+1);
-	strcpy(buf, val_to_str(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
+	buf=ep_alloc(MAX_BUF_SIZE);
+	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
 	    "Unknown"));
 	strcat(buf, ", ");
 	if (flags & NB_FLAGS_G)
@@ -553,8 +551,8 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
 		  { 0,                     NULL     }
 	};
 
-	buf=ep_alloc(128+1);
-	strcpy(buf, val_to_str(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
+	buf=ep_alloc(MAX_BUF_SIZE);
+	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
 	    "Unknown"));
 	strcat(buf, ", ");
 	if (flags & NAME_FLAGS_G)
