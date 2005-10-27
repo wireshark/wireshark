@@ -755,7 +755,8 @@ static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 			if (p_conv_data) {
 				/* Save this conversation info into packet info */
 				p_conv_packet_data = se_alloc(sizeof(struct _rtp_conversation_info));
-				strcpy(p_conv_packet_data->method, p_conv_data->method);
+				g_snprintf(p_conv_packet_data->method, MAX_RTP_SETUP_METHOD_SIZE, "%s", p_conv_data->method);
+				p_conv_packet_data->method[MAX_RTP_SETUP_METHOD_SIZE]=0;
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
 				p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
 				p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
