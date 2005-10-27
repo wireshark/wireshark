@@ -168,7 +168,7 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   msg_len = tvb_ensure_length_remaining(tvb, msg_off);
   if (msg_len >= COL_INFO_LEN) {
     tvb_memcpy(tvb, msg_str, msg_off, ellipsis_len);
-    strcpy (msg_str + ellipsis_len, ELLIPSIS);
+    g_snprintf(msg_str + ellipsis_len, COL_INFO_LEN-ellipsis_len, "%s", ELLIPSIS);
   } else {
     tvb_memcpy(tvb, msg_str, msg_off, msg_len);
     msg_str[msg_len] = '\0';
