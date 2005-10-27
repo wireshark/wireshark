@@ -614,20 +614,22 @@ packet_list_resize_columns(void) {
     int         i;
     int         progbar_nextstep;
     int         progbar_quantum;
-    gboolean    stop_flag;
-    GTimeVal    start_time;
-    float       prog_val;
+    gboolean    progbar_stop_flag;
+    GTimeVal    progbar_start_time;
+    float       progbar_val;
     progdlg_t  *progbar = NULL;
     gchar       status_str[100];
 
-
+    /* Update the progress bar when it gets to this value. */
     progbar_nextstep = 0;
     /* When we reach the value that triggers a progress bar update,
        bump that value by this amount. */
     progbar_quantum = cfile.cinfo.num_cols/N_PROGBAR_UPDATES;
+    /* Progress so far. */
+    progbar_val = 0.0;
 
-    stop_flag = FALSE;
-    g_get_current_time(&start_time);
+    progbar_stop_flag = FALSE;
+    g_get_current_time(&progbar_start_time);
 
 
     main_window_update();
@@ -640,7 +642,7 @@ packet_list_resize_columns(void) {
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
          progbar = delayed_create_progress_dlg("Resizing", "Resize Columns", 
-           &stop_flag, &start_time, prog_val);
+           &progbar_stop_flag, &progbar_start_time, progbar_val);
 
       if (i >= progbar_nextstep) {
         /* let's not divide by zero. I should never be started
@@ -648,18 +650,18 @@ packet_list_resize_columns(void) {
          */
         g_assert(cfile.cinfo.num_cols > 0);
 
-        prog_val = (gfloat) i / cfile.cinfo.num_cols;
+        progbar_val = (gfloat) i / cfile.cinfo.num_cols;
 
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
                      "%u of %u columns (%s)", i+1, cfile.cinfo.num_cols, cfile.cinfo.col_title[i]);
-          update_progress_dlg(progbar, prog_val, status_str);
+          update_progress_dlg(progbar, progbar_val, status_str);
         }
 
         progbar_nextstep += progbar_quantum;
       }
 
-      if (stop_flag) {
+      if (progbar_stop_flag) {
         /* Well, the user decided to abort the resizing... */
         break;
       }

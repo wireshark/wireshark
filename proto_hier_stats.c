@@ -179,7 +179,7 @@ ph_stats_new(void)
 	progdlg_t	*progbar = NULL;
 	gboolean	stop_flag;
 	int		count;
-	float		prog_val;
+	float		progbar_val;
 	GTimeVal	start_time;
 	gchar		status_str[100];
 	int		progbar_nextstep;
@@ -200,6 +200,8 @@ ph_stats_new(void)
 	progbar_quantum = cfile.count/N_PROGBAR_UPDATES;
 	/* Count of packets at which we've looked. */
 	count = 0;
+	/* Progress so far. */
+	progbar_val = 0.0;
 
 	stop_flag = FALSE;
 	g_get_current_time(&start_time);
@@ -217,7 +219,7 @@ ph_stats_new(void)
 		if (progbar == NULL)
 			progbar = delayed_create_progress_dlg(
 			    "Computing", "protocol hierarchy statistics", 
-			    &stop_flag, &start_time, prog_val);
+			    &stop_flag, &start_time, progbar_val);
 
 		/* Update the progress bar, but do it only N_PROGBAR_UPDATES
 		   times; when we update it, we have to run the GTK+ main
@@ -231,12 +233,12 @@ ph_stats_new(void)
 			 */
 			g_assert(cfile.count > 0);
 
-			prog_val = (gfloat) count / cfile.count;
+			progbar_val = (gfloat) count / cfile.count;
 
 			if (progbar != NULL) {
 				g_snprintf(status_str, sizeof(status_str),
 					"%4u of %u frames", count, cfile.count);
-				update_progress_dlg(progbar, prog_val, status_str);
+				update_progress_dlg(progbar, progbar_val, status_str);
 			}
 
 			progbar_nextstep += progbar_quantum;

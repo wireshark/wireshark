@@ -1075,6 +1075,8 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
   progbar_quantum = len/N_PROGBAR_UPDATES;
+  /* Progress so far. */
+  progbar_val = 0.0;
 
   progbar_stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);

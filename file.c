@@ -375,7 +375,7 @@ cf_read(capture_file *cf)
   progdlg_t   *progbar = NULL;
   gboolean     stop_flag;
   gint64       size, file_pos;
-  float        prog_val;
+  float        progbar_val;
   GTimeVal     start_time;
   gchar        status_str[100];
   gint64       progbar_nextstep;
@@ -401,6 +401,8 @@ cf_read(capture_file *cf)
     progbar_quantum = size/N_PROGBAR_UPDATES;
   else
     progbar_quantum = 0;
+  /* Progress so far. */
+  progbar_val = 0.0;
 
   packet_list_freeze();
 
@@ -416,7 +418,7 @@ cf_read(capture_file *cf)
          time in order to get to the next progress bar step). */
       if (progbar == NULL) {
         progbar = delayed_create_progress_dlg("Loading", name_ptr,
-          &stop_flag, &start_time, prog_val);
+          &stop_flag, &start_time, progbar_val);
       }
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -426,25 +428,25 @@ cf_read(capture_file *cf)
          that for every packet can be costly, especially on a big file. */
       if (data_offset >= progbar_nextstep) {
           file_pos = wtap_read_so_far(cf->wth, NULL);
-          prog_val = (gfloat) file_pos / (gfloat) size;
-          if (prog_val > 1.0) {
+          progbar_val = (gfloat) file_pos / (gfloat) size;
+          if (progbar_val > 1.0) {
             /* The file probably grew while we were reading it.
                Update file size, and try again. */
             size = wtap_file_size(cf->wth, NULL);
             if (size >= 0)
-              prog_val = (gfloat) file_pos / (gfloat) size;
+              progbar_val = (gfloat) file_pos / (gfloat) size;
             /* If it's still > 1, either "wtap_file_size()" failed (in which
                case there's not much we can do about it), or the file
                *shrank* (in which case there's not much we can do about
                it); just clip the progress value at 1.0. */
-            if (prog_val > 1.0)
-              prog_val = 1.0;
+            if (progbar_val > 1.0)
+              progbar_val = 1.0;
           }
           if (progbar != NULL) {
             g_snprintf(status_str, sizeof(status_str),
                        "%" PRId64 "KB of %" PRId64 "KB",
                        file_pos / 1024, size / 1024);
-            update_progress_dlg(progbar, prog_val, status_str);
+            update_progress_dlg(progbar, progbar_val, status_str);
           }
          progbar_nextstep += progbar_quantum;
       }
@@ -968,7 +970,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   progdlg_t        *progbar = NULL;
   gboolean          stop_flag;
   gint64            f_len, file_pos;
-  float             prog_val;
+  float             progbar_val;
   GTimeVal          start_time;
   gchar             status_str[100];
   gint64            progbar_nextstep;
@@ -1026,6 +1028,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
   progbar_quantum = f_len/N_PROGBAR_UPDATES;
+  /* Progress so far. */
+  progbar_val = 0.0;
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -1056,7 +1060,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
        time in order to get to the next progress bar step). */
     if (progbar == NULL) {
       progbar = delayed_create_progress_dlg("Merging", "files",
-        &stop_flag, &start_time, prog_val);
+        &stop_flag, &start_time, progbar_val);
     }
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -1069,18 +1073,18 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         file_pos = 0;
         for (i = 0; i < in_file_count; i++)
           file_pos += wtap_read_so_far(in_files[i].wth, NULL);
-        prog_val = (gfloat) file_pos / (gfloat) f_len;
-        if (prog_val > 1.0) {
+        progbar_val = (gfloat) file_pos / (gfloat) f_len;
+        if (progbar_val > 1.0) {
           /* Some file probably grew while we were reading it.
              That "shouldn't happen", so we'll just clip the progress
              value at 1.0. */
-          prog_val = 1.0;
+          progbar_val = 1.0;
         }
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
                      "%" PRId64 "KB of %" PRId64 "KB",
                      file_pos / 1024, f_len / 1024);
-          update_progress_dlg(progbar, prog_val, status_str);
+          update_progress_dlg(progbar, progbar_val, status_str);
         }
         progbar_nextstep += progbar_quantum;
     }
@@ -1271,7 +1275,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   int         selected_row, prev_row, preceding_row, following_row;
   gboolean    selected_frame_seen;
   int         row;
-  float       prog_val;
+  float       progbar_val;
   GTimeVal    start_time;
   gchar       status_str[100];
   int         progbar_nextstep;
@@ -1326,6 +1330,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
+  /* Progress so far. */
+  progbar_val = 0.0;
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -1349,7 +1355,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg(action, action_item, &stop_flag,
-        &start_time, prog_val);
+        &start_time, progbar_val);
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
@@ -1361,12 +1367,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
-      prog_val = (gfloat) count / cf->count;
+      progbar_val = (gfloat) count / cf->count;
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
                   "%4u of %u frames", count, cf->count);
-        update_progress_dlg(progbar, prog_val, status_str);
+        update_progress_dlg(progbar, progbar_val, status_str);
       }
 
       progbar_nextstep += progbar_quantum;
@@ -1555,6 +1561,8 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   progbar_count = 0;
+  /* Progress so far. */
+  progbar_val = 0.0;
 
   progbar_stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);
@@ -2208,7 +2216,7 @@ cf_change_time_formats(capture_file *cf)
   int         count;
   int         row;
   int         i;
-  float       prog_val;
+  float       progbar_val;
   GTimeVal    start_time;
   gchar       status_str[100];
   int         progbar_nextstep;
@@ -2246,6 +2254,8 @@ cf_change_time_formats(capture_file *cf)
   progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
+  /* Progress so far. */
+  progbar_val = 0.0;
 
   /*  If the rows are currently sorted by the frame column then we know
    *  the row number of each packet: it's the row number of the previously
@@ -2283,7 +2293,7 @@ cf_change_time_formats(capture_file *cf)
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg("Changing", "time display", 
-        &stop_flag, &start_time, prog_val);
+        &stop_flag, &start_time, progbar_val);
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
@@ -2296,12 +2306,12 @@ cf_change_time_formats(capture_file *cf)
        */
       g_assert(cf->count > 0);
 
-      prog_val = (gfloat) count / cf->count;
+      progbar_val = (gfloat) count / cf->count;
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
                    "%4u of %u packets", count, cf->count);
-        update_progress_dlg(progbar, prog_val, status_str);
+        update_progress_dlg(progbar, progbar_val, status_str);
       }
 
       progbar_nextstep += progbar_quantum;
@@ -2702,7 +2712,7 @@ find_packet(capture_file *cf,
   int         err;
   gchar      *err_info;
   int         row;
-  float       prog_val;
+  float       progbar_val;
   GTimeVal    start_time;
   gchar       status_str[100];
   int         progbar_nextstep;
@@ -2716,10 +2726,13 @@ find_packet(capture_file *cf,
     count = 0;
     fdata = start_fd;
 
+    /* Update the progress bar when it gets to this value. */
     progbar_nextstep = 0;
     /* When we reach the value that triggers a progress bar update,
        bump that value by this amount. */
     progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+    /* Progress so far. */
+    progbar_val = 0.0;
 
     stop_flag = FALSE;
     g_get_current_time(&start_time);
@@ -2733,7 +2746,7 @@ find_packet(capture_file *cf,
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
          progbar = delayed_create_progress_dlg("Searching", cf->sfilter, 
-           &stop_flag, &start_time, prog_val);
+           &stop_flag, &start_time, progbar_val);
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
          when we update it, we have to run the GTK+ main loop to get it
@@ -2746,12 +2759,12 @@ find_packet(capture_file *cf,
          */
         g_assert(cf->count > 0);
 
-        prog_val = (gfloat) count / cf->count;
+        progbar_val = (gfloat) count / cf->count;
 
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
                      "%4u of %u packets", count, cf->count);
-          update_progress_dlg(progbar, prog_val, status_str);
+          update_progress_dlg(progbar, progbar_val, status_str);
         }
 
         progbar_nextstep += progbar_quantum;
