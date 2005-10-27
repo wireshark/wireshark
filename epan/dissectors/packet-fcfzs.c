@@ -59,7 +59,6 @@
 static int proto_fcfzs              = -1;
 static int hf_fcfzs_opcode          = -1;
 static int hf_fcfzs_gzc_vendor      = -1;
-static int hf_fcfzs_zone_state      = -1;
 static int hf_fcfzs_gest_vendor     = -1;
 static int hf_fcfzs_numzoneattrs    = -1;
 static int hf_fcfzs_zonesetnmlen    = -1;
@@ -82,11 +81,14 @@ static int hf_fcfzs_gzc_flags = -1;
 static int hf_fcfzs_gzc_flags_hard_zones = -1;
 static int hf_fcfzs_gzc_flags_soft_zones = -1;
 static int hf_fcfzs_gzc_flags_zoneset_db = -1;
-
+static int hf_fcfzs_zone_state = -1;
+static int hf_fcfzs_soft_zone_set_enforced = -1;
+static int hf_fcfzs_hard_zone_set_enforced = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcfzs = -1;
 static gint ett_fcfzs_gzc_flags = -1;
+static gint ett_fcfzs_zone_state = -1;
 
 typedef struct _fcfzs_conv_key {
     guint32 conv_idx;
@@ -294,36 +296,46 @@ dissect_fcfzs_gzc (tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint8 is
 	}
 }
 
+static const true_false_string tfs_fc_fcfzs_soft_zone_set_enforced = {
+	"Soft Zone Set is ENFORCED",
+	"Soft zone set is NOT enforced"
+};
+static const true_false_string tfs_fc_fcfzs_hard_zone_set_enforced = {
+	"Hard Zone Set is ENFORCED",
+	"Hard zone set is NOT enforced"
+};
+
 static void
-dissect_fcfzs_gest (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
+dissect_fcfzs_gest (tvbuff_t *tvb, proto_tree *parent_tree, guint8 isreq)
 {
-    guint8 flags;
-    gchar str[128];
-    int offset = 16;            /* past the fc_ct header */
-    int stroff = 0;
+	int offset = 16;            /* past the fc_ct header */
 
-    if (tree) {
-        if (!isreq) {
-            flags = tvb_get_guint8 (tvb, offset);
-            str[0] = '\0';
+	if (!isreq) {
+		guint8 flags;
+		proto_item *item=NULL;
+		proto_tree *tree=NULL;
+   
+		flags = tvb_get_guint8 (tvb, offset);
+		if(parent_tree){
+			item=proto_tree_add_uint(parent_tree, hf_fcfzs_zone_state, tvb, offset, 1, flags);
+			tree=proto_item_add_subtree(item, ett_fcfzs_zone_state);
+		}
 
-            /* dissect the flags field */
-            if (flags & 0x80) {
-                strcpy (str, "Soft Zone Set Enforced, ");
-                stroff += 24;
-            }
+		proto_tree_add_boolean(tree, hf_fcfzs_soft_zone_set_enforced, tvb, offset, 1, flags);
+		if (flags&0x80){
+			proto_item_append_text(item, "  Soft Zone Set Enforced");
+		}
+		flags&=(~( 0x80 ));
 
-            if (flags & 0x40) {
-                 strcpy (str, "Hard Zone Set Enforced");
-                stroff += 24;
-            }
+		proto_tree_add_boolean(tree, hf_fcfzs_hard_zone_set_enforced, tvb, offset, 1, flags);
+		if (flags&0x40){
+			proto_item_append_text(item, "  Hard Zone Set Enforced");
+		}
+		flags&=(~( 0x40 ));
 
-            proto_tree_add_uint_format (tree, hf_fcfzs_zone_state, tvb, offset,
-                                        1, flags, "Zone State: 0x%x (%s)",
-                                        flags, str);
-            proto_tree_add_item (tree, hf_fcfzs_gest_vendor, tvb, offset+4, 4, 0);
-        }
-    }
+
+		proto_tree_add_item (parent_tree, hf_fcfzs_gest_vendor, tvb, offset+4, 4, 0);
+	}
 }
 
 static void
@@ -825,9 +837,6 @@ proto_register_fcfzs(void)
         { &hf_fcfzs_gzc_vendor,
           {"Vendor Specific Flags", "fcfzs.gzc.vendor", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
-        { &hf_fcfzs_zone_state,
-          {"Zone State", "fcfzs.zone.state", FT_UINT8, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
         { &hf_fcfzs_gest_vendor,
           {"Vendor Specific State", "fcfzs.gest.vendor", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
@@ -894,12 +903,22 @@ proto_register_fcfzs(void)
         { &hf_fcfzs_gzc_flags_zoneset_db,
           {"ZoneSet Database", "fcfzs.gzc.flags.zoneset_db", FT_BOOLEAN, 8,
            TFS(&tfs_fc_fcfzs_gzc_flags_zoneset_db), 0x01, "", HFILL}},
+        { &hf_fcfzs_zone_state,
+          {"Zone State", "fcfzs.zone.state", FT_UINT8, BASE_HEX, NULL, 0x0,
+           "", HFILL}},
+        { &hf_fcfzs_soft_zone_set_enforced,
+          {"Soft Zone Set", "fcfzs.soft_zone_set.enforced", FT_BOOLEAN, 8,
+           TFS(&tfs_fc_fcfzs_soft_zone_set_enforced), 0x80, "", HFILL}},
+        { &hf_fcfzs_hard_zone_set_enforced,
+          {"Hard Zone Set", "fcfzs.hard_zone_set.enforced", FT_BOOLEAN, 8,
+           TFS(&tfs_fc_fcfzs_hard_zone_set_enforced), 0x40, "", HFILL}},
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fcfzs,
         &ett_fcfzs_gzc_flags,
+        &ett_fcfzs_zone_state,
     };
 
     /* Register the protocol name and description */
