@@ -57,6 +57,7 @@ static int hf_crmf_type_oid = -1;
 
 /*--- Included file: packet-crmf-hf.c ---*/
 
+static int hf_crmf_PBMParameter_PDU = -1;         /* PBMParameter */
 static int hf_crmf_utcTime = -1;                  /* UTCTime */
 static int hf_crmf_generalTime = -1;              /* GeneralizedTime */
 static int hf_crmf_CertReqMessages_item = -1;     /* CertReqMsg */
@@ -992,6 +993,12 @@ dissect_crmf_CertReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_PBMParameter_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_crmf_PBMParameter(FALSE, tvb, 0, pinfo, tree, hf_crmf_PBMParameter_PDU);
+}
+
 
 /*--- End of included file: packet-crmf-fn.c ---*/
 
@@ -1009,6 +1016,10 @@ void proto_register_crmf(void) {
 
 /*--- Included file: packet-crmf-hfarr.c ---*/
 
+    { &hf_crmf_PBMParameter_PDU,
+      { "PBMParameter", "crmf.PBMParameter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PBMParameter", HFILL }},
     { &hf_crmf_utcTime,
       { "utcTime", "crmf.utcTime",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1303,6 +1314,13 @@ void proto_register_crmf(void) {
 
 /*--- proto_reg_handoff_crmf -------------------------------------------*/
 void proto_reg_handoff_crmf(void) {
-/*#include "packet-crmf-dis-tab.c"*/
+
+/*--- Included file: packet-crmf-dis-tab.c ---*/
+
+  register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
+
+
+/*--- End of included file: packet-crmf-dis-tab.c ---*/
+
 }
 

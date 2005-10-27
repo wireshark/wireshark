@@ -86,6 +86,6 @@ void proto_register_crmf(void) {
 
 /*--- proto_reg_handoff_crmf -------------------------------------------*/
 void proto_reg_handoff_crmf(void) {
-/*#include "packet-crmf-dis-tab.c"*/
+#include "packet-crmf-dis-tab.c"
 }
 
