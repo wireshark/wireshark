@@ -215,55 +215,31 @@ Prints the version and options and exits.
 
 To see more detailed description of the options use:
 
-=over 4
-
-  editcap -h
-
-=back
+    editcap -h
 
 To shrink the capture file by truncating the packets at 64 bytes and writing it as Sun snoop file use:
 
-=over 4
-
-  editcap -s 64 -F snoop capture.pcap shortcapture.snoop
-
-=back
+    editcap -s 64 -F snoop capture.pcap shortcapture.snoop
 
 To delete packet 1000 from the capture file use:
 
-=over 4
-
-  editcap capture.pcap sans1000.pcap 1000
-
-=back
+    editcap capture.pcap sans1000.pcap 1000
 
 To limit a capture file to packets from number 200 to 750 (inclusive) use:
 
-=over 4
-
-  editcap -r capture.pcap small.pcap 200-750
-
-=back
+    editcap -r capture.pcap small.pcap 200-750
 
 To get all packets from number 1-500 (inclusive) use:
 
-=over 4
-
-  editcap -r capture.pcap 500.pcap 1-500
+    editcap -r capture.pcap 500.pcap 1-500
 
 or
 
-  editcap capture.pcap 500.pcap 501-9999999
-
-=back
+    editcap capture.pcap 500.pcap 501-9999999
 
 To filter out packets 10 to 20 and 30 to 40 into a new file use:
 
-=over 4
-
-  editcap capture.pcap selection.pcap 10-20 30-40
-
-=back
+    editcap capture.pcap selection.pcap 10-20 30-40
 
 To introduce 5% random errors in a capture file use:
 
