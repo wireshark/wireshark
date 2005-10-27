@@ -661,19 +661,9 @@ static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length
   *filter_length += 2 + strlen(operation) + string_length + string2_length;
   *filter = g_realloc(*filter, *filter_length);
   filterp = *filter + strlen(*filter);
-  *filterp++ = '(';
-  if (string_length != 0) {
-  	memcpy(filterp, string, string_length);
-  	filterp += string_length;
-  }
-  strcpy(filterp, operation);
-  filterp += strlen(operation);
-  if (string2_length != 0) {
-  	memcpy(filterp, string2, string2_length);
-  	filterp += string2_length;
-  }
-  *filterp++ = ')';
-  *filterp = '\0';
+
+  filterp += g_snprintf(filterp, (*filter_length)-(filterp-*filter), "(%s%s%s)", string, operation, string2);
+
   g_free(string);
   g_free(string2);
   return ASN1_ERR_NOERROR;
