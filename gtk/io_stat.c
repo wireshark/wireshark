@@ -197,12 +197,9 @@ io_stat_reset(io_stat_t *io)
 			ioi->int_max=0;
 			ioi->int_min=0;
 			ioi->int_tot=0;
-			ioi->time_max.secs=0;
-			ioi->time_max.nsecs=0;
-			ioi->time_min.secs=0;
-			ioi->time_min.nsecs=0;
-			ioi->time_tot.secs=0;
-			ioi->time_tot.nsecs=0;
+			nstime_set_zero(&ioi->time_max);
+			nstime_set_zero(&ioi->time_min);
+			nstime_set_zero(&ioi->time_tot);
 		}
 	}
 	io->last_interval=0xffffffff;
@@ -356,22 +353,15 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					||( (new_time->secs==it->time_max.secs)
 					  &&(new_time->nsecs>it->time_max.nsecs))
 					||(it->frames==0)){
-						it->time_max.secs=new_time->secs;
-						it->time_max.nsecs=new_time->nsecs;
+						it->time_max=*new_time;
 					}
 					if( (new_time->secs<it->time_min.secs)
 					||( (new_time->secs==it->time_min.secs)
 					  &&(new_time->nsecs<it->time_min.nsecs))
 					||(it->frames==0)){
-						it->time_min.secs=new_time->secs;
-						it->time_min.nsecs=new_time->nsecs;
+						it->time_min=*new_time;
 					}
-					it->time_tot.secs+=new_time->secs;
-					it->time_tot.nsecs+=new_time->nsecs;
-					if(it->time_tot.nsecs>=1000000000){
-						it->time_tot.nsecs-=1000000000;
-						it->time_tot.secs++;
-					}
+					nstime_add(&it->time_tot, new_time);
 				}
 
 			}
@@ -1538,7 +1528,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		/* warn and bail out if the field could not be found */
 		hfi=proto_registrar_get_byname(field);
 		if(hfi==NULL){
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "'%s' isn't a valid field name.", field);
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There is no field named '%s'.", field);
 			disable_graph(gio);
 			io_stat_redraw(gio->io);
 			return 0;

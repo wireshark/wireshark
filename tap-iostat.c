@@ -429,43 +429,30 @@ iostat_draw(void *arg)
 }
 
 
-static int
-get_calc_field(const char *filter, const char **flt)
-{
-	char field[256];
-	int i;
-	header_field_info *hfi;
+typedef struct {
+	const char *func_name;
+	int calc_type;
+} calc_type_ent_t;
 
-	*flt="";
-	for(i=0;filter[i];i++){
-		if(i>=255){
-			fprintf(stderr,"get_calc_field(): Too long field name: %s\n", filter);
-			exit(10);
-		}
-		if(filter[i]==')'){
-			break;
-		}
-		field[i]=filter[i];
-		field[i+1]=0;
-	}
-	if(filter[i]==')'){
-		*flt=&filter[i+1];
-	}
-
-	hfi=proto_registrar_get_byname(field);
-	if(!hfi){
-		fprintf(stderr, "get_calc_field(): No such field %s\n", field);
-		exit(10);
-	}
-	
-	return hfi->id;
-}
+static calc_type_ent_t calc_type_table[] = {
+	{ "COUNT", CALC_TYPE_COUNT },
+	{ "SUM", CALC_TYPE_SUM },
+	{ "MIN", CALC_TYPE_MIN },
+	{ "MAX", CALC_TYPE_MAX },
+	{ "AVG", CALC_TYPE_AVG },
+	{ NULL, 0 }
+};
 
 static void
 register_io_tap(io_stat_t *io, int i, const char *filter)
 {
 	GString *error_string;
 	const char *flt;
+	int j;
+	size_t namelen;
+	const char *p, *parenp;
+	char *field;
+	header_field_info *hfi;
 
 	io->items[i].prev=&io->items[i];
 	io->items[i].next=NULL;
@@ -481,30 +468,50 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 	if(!filter){
 		filter="";
 	}
-	if(!strncmp("COUNT(", filter, 6)){
-		io->items[i].calc_type=CALC_TYPE_COUNT;
-		io->items[i].hf_index=get_calc_field(filter+6, &flt);
-	} else if (!strncmp("SUM(", filter, 4)){
-		io->items[i].calc_type=CALC_TYPE_SUM;
-		io->items[i].hf_index=get_calc_field(filter+4, &flt);
-		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
+	field=NULL;
+	hfi=NULL;
+	for(j=0; calc_type_table[j].func_name; j++){
+		namelen=strlen(calc_type_table[j].func_name);
+		if(strncmp(filter, calc_type_table[j].func_name, namelen) == 0
+		    && *(filter+namelen)=='('){
+			io->items[i].calc_type=calc_type_table[j].calc_type;
+
+			p=filter+namelen+1;
+			parenp=strchr(p, ')');
+			if(!parenp){
+				fprintf(stderr, "tethereal: Closing parenthesis missing from calculated expression.\n");
+				exit(10);
+			}
+			/* bail out if there was no field specified */
+			if(parenp==p){
+				fprintf(stderr, "tethereal: You didn't specify a field name for %s(*).\n",
+				    calc_type_table[j].func_name);
+				exit(10);
+			}
+			field=malloc(parenp-p+1);
+			if(!field){
+				fprintf(stderr, "tethereal: Out of memory.\n");
+				exit(10);
+			}
+			memcpy(field, p, parenp-p);
+			field[parenp-p] = '\0';
+			flt=parenp + 1;
+
+			hfi=proto_registrar_get_byname(field);
+			if(!hfi){
+				fprintf(stderr, "tethereal: There is no field named '%s'.\n",
+				    field);
+				free(field);
+				exit(10);
+			}
+	
+			io->items[i].hf_index=hfi->id;
 			break;
-		default:
-			fprintf(stderr, "register_io_tap(): Invalid field type. SUM(x) only supports 8,16,24 and 32 byte integer fields\n");
-			exit(10);
 		}
-	} else if (!strncmp("MIN(", filter, 4)){
-		io->items[i].calc_type=CALC_TYPE_MIN;
-		io->items[i].hf_index=get_calc_field(filter+4, &flt);
-		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
+	}
+	if(io->items[i].calc_type!=CALC_TYPE_BYTES){
+		/* check that the type is compatible */
+		switch(hfi->type){
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
@@ -513,48 +520,54 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+			/* these types support all calculations */
+			break;
 		case FT_RELATIVE_TIME:
+			/* this type only supports SUM, COUNT, MAX, MIN, AVG */
+			switch(io->items[i].calc_type){
+			case CALC_TYPE_SUM:
+			case CALC_TYPE_COUNT:
+			case CALC_TYPE_MAX:
+			case CALC_TYPE_MIN:
+			case CALC_TYPE_AVG:
+				break;
+			default:
+				fprintf(stderr,
+				    "tethereal: %s is a relative-time field, so %s(*) calculations are not supported on it.",
+				    field,
+				    calc_type_table[j].func_name);
+				exit(10);
+			}
+			break;
+		case FT_UINT64:
+		case FT_INT64:
+			/*
+			 * XXX - support this if gint64/guint64 are
+			 * available?
+			 */
+			if(io->items[i].calc_type!=CALC_TYPE_COUNT){
+				fprintf(stderr,
+				    "tethereal: %s is a 64-bit integer, so %s(*) calculations are not supported on it.",
+				    field,
+				    calc_type_table[j].func_name);
+				exit(10);
+			}
 			break;
 		default:
-			fprintf(stderr, "register_io_tap(): Invalid field type. MIN(x) only supports 8,16,24 and 32 byte integer fields and relative time fields\n");
-			exit(10);
-		}
-	} else if (!strncmp("MAX(", filter, 4)){
-		io->items[i].calc_type=CALC_TYPE_MAX;
-		io->items[i].hf_index=get_calc_field(filter+4, &flt);
-		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-		case FT_RELATIVE_TIME:
+			/*
+			 * XXX - support all operations on floating-point
+			 * numbers?
+			 */
+			if(io->items[i].calc_type!=CALC_TYPE_COUNT){
+				fprintf(stderr,
+				    "tethereal: %s doesn't have integral values, so %s(*) calculations are not supported on it.\n",
+				    field,
+				    calc_type_table[j].func_name);
+				exit(10);
+			}
 			break;
-		default:
-			fprintf(stderr, "register_io_tap(): Invalid field type. MAX(x) only supports 8,16,24 and 32 byte integer fields and relative time fields\n");
-			exit(10);
 		}
-	} else if (!strncmp("AVG(", filter, 4)){
-		io->items[i].calc_type=CALC_TYPE_AVG;
-		io->items[i].hf_index=get_calc_field(filter+4, &flt);
-		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-		case FT_RELATIVE_TIME:
-			break;
-		default:
-			fprintf(stderr, "register_io_tap(): Invalid field type. AVG(x) only supports 8,16,24 and 32 byte integer fields and relative time fields\n");
-			exit(10);
-		}
+		free(field);
 	}
 
 /*
@@ -599,7 +612,7 @@ iostat_init(const char *optarg)
 	/* make interval be number of ms */
 	interval=(gint32)(interval_float*1000.0+0.9);	
 	if(interval<1){
-		fprintf(stderr, "tethereal:iostat_init()  interval must be >=0.001 seconds\n");
+		fprintf(stderr, "tethereal: \"-z\" interval must be >=0.001 seconds.\n");
 		exit(10);
 	}
 	
