@@ -87,11 +87,14 @@ static gint hf_ber_id_tag_ext = -1;
 static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_unknown_OID = -1;
+static gint hf_ber_unknown_BOOLEAN = -1;
 static gint hf_ber_unknown_OCTETSTRING = -1;
 static gint hf_ber_unknown_GraphicString = -1;
 static gint hf_ber_unknown_NumericString = -1;
 static gint hf_ber_unknown_PrintableString = -1;
 static gint hf_ber_unknown_IA5String = -1;
+static gint hf_ber_unknown_UTF8String = -1;
+static gint hf_ber_unknown_GeneralizedTime = -1;
 static gint hf_ber_unknown_INTEGER = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
 
@@ -268,6 +271,18 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			break;
 		case BER_UNI_TAG_IA5String:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_IA5String, NULL);
+			break;
+		case BER_UNI_TAG_NULL:
+			proto_tree_add_text(tree, tvb, offset, len, "NULL tag");
+			break;
+		case BER_UNI_TAG_UTF8String:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_UTF8String, NULL);
+			break;
+		case BER_UNI_TAG_GeneralizedTime:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_GeneralizedTime, NULL);
+			break;
+		case BER_UNI_TAG_BOOLEAN:
+			offset = dissect_ber_boolean(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_BOOLEAN);
 			break;
 		default:
 			proto_tree_add_text(tree, tvb, offset, len, "BER: Error can not handle universal tag:%d",tag);
@@ -2205,9 +2220,18 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_IA5String, {
 	    "IA5String", "ber.unknown.IA5String", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown IA5String", HFILL }},
+	{ &hf_ber_unknown_UTF8String, {
+	    "UTF8String", "ber.unknown.UTF8String", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown UTF8String", HFILL }},
+	{ &hf_ber_unknown_GeneralizedTime, {
+	    "GeneralizedTime", "ber.unknown.GeneralizedTime", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown GeneralizedTime", HFILL }},
 	{ &hf_ber_unknown_INTEGER, {
 	    "INTEGER", "ber.unknown.INTEGER", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown INTEGER", HFILL }},
+	{ &hf_ber_unknown_BOOLEAN, {
+	    "BOOLEAN", "ber.unknown.BOOLEAN", FT_UINT8, BASE_HEX,
+	    NULL, 0, "This is an unknown BOOLEAN", HFILL }},
 	{ &hf_ber_unknown_ENUMERATED, {
 	    "ENUMERATED", "ber.unknown.ENUMERATED", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown ENUMERATED", HFILL }},
