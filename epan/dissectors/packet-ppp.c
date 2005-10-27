@@ -1637,14 +1637,13 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 			proto_tree *tree)
 {
   guint32 map;
-  const char *mapstr;
+  char *mapstr;
   static const char *ctrlchars[32] = {
     "NUL", "SOH",       "STX", "ETX",        "EOT",      "ENQ", "ACK", "BEL",
     "BS",  "HT",        "NL",  "VT",         "NP (FF)",  "CR",  "SO",  "SI",
     "DLE", "DC1 (XON)", "DC2", "DC3 (XOFF)", "DC4",      "NAK", "SYN", "ETB",
     "CAN", "EM",        "SUB", "ESC",        "FS",       "GS",  "RS",  "US"
   };
-  char mapbuf[32*(10+2)+1];
   char *mapp;
   int i;
 
@@ -1659,21 +1658,17 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   else if (map == 0xffffffff)
     mapstr = "All";	/* map all control characters */
   else {
+#define MAX_MAPSTR_LEN (32*(10+2)+1)
+    mapstr=ep_alloc(MAX_MAPSTR_LEN);
     /*
      * Show the names of the control characters being mapped.
      */
-    mapp = &mapbuf[0];
+    mapp = mapstr;
     for (i = 0; i < 32; i++) {
       if (map & (1 << i)) {
-      	if (mapp != &mapbuf[0]) {
-      	  strcpy(mapp, ", ");
-      	  mapp += 2;
-        }
-        strcpy(mapp, ctrlchars[i]);
-        mapp += strlen(ctrlchars[i]);
+        mapp+=g_snprintf(mapp, MAX_MAPSTR_LEN-(mapp-mapstr), "%s%s", (mapp==mapstr)?"":", ", ctrlchars[i]);
       }
     }
-    mapstr = mapbuf;
   }
   proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%08x (%s)", optp->name,
 		      map, mapstr);
