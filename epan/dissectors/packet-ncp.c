@@ -529,7 +529,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *	4: Write error
 		 */
 		flags = tvb_get_guint8(tvb, commhdr + 2);
-		strcpy(flags_str, "");
+		flags_str[0]=0;
 		sep = " (";
 		if (flags & ABT) {
 			strcat(flags_str, sep);
