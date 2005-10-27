@@ -77,15 +77,12 @@ static int hf_fcdns_rply_fpname     = -1;
 static int hf_fcdns_fc4type         = -1;
 static int hf_fcdns_rply_fc4type    = -1;
 static int hf_fcdns_rply_fc4desc    = -1;
-static int hf_fcdns_rply_fc4feat    = -1;
 static int hf_fcdns_req_pname       = -1;
 static int hf_fcdns_rply_portid     = -1;
 static int hf_fcdns_req_nname       = -1;
 static int hf_fcdns_req_domainscope = -1;
 static int hf_fcdns_req_areascope   = -1;
-static int hf_fcdns_req_fc4type     = -1;
 static int hf_fcdns_req_ptype       = -1;
-static int hf_fcdns_req_fc4feature  = -1;
 static int hf_fcdns_req_cos         = -1;
 static int hf_fcdns_req_fc4types    = -1;
 static int hf_fcdns_req_snamelen    = -1;
@@ -125,11 +122,16 @@ static int hf_fcdns_fc4type_swils = -1;
 static int hf_fcdns_fc4type_snmp = -1;
 static int hf_fcdns_fc4type_gs3 = -1;
 static int hf_fcdns_fc4type_vi = -1;
+static int hf_fcdns_fc4features = -1;
+static int hf_fcdns_fc4features_i = -1;
+static int hf_fcdns_fc4features_t = -1;
+static int hf_fcdns_req_fc4type     = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcdns = -1;
 static gint ett_cos_flags = -1;
 static gint ett_fc4flags = -1;
+static gint ett_fc4features = -1;
 
 typedef struct _fcdns_conv_key {
     guint32 conv_idx;
@@ -256,54 +258,79 @@ dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfind
 }
 
 
-/* The feature routines just decode FCP's FC-4 features field */
-static gchar *
-fc4feature_to_str (guint8 fc4feature, guint8 fc4type, gchar *str, int len)
-{
-    int stroff = 0;
-    
-    *str = '\0';
+static const true_false_string tfs_fcdns_fc4features_i = {
+	"I is set",
+	"i is NOT set"
+};
+static const true_false_string tfs_fcdns_fc4features_t = {
+	"T is set",
+	"t is NOT set"
+};
 
-    if (fc4type == FC_TYPE_SCSI) {
-        if (fc4feature & 0x1) {
-            strcpy (str, "T, ");
-            stroff += 3;
-        }
-        
-        if (fc4feature & 0x2) {
-            strcpy (&str[stroff], "I");
-        }
-    }
-    else {
-        g_snprintf (str, len, "0x%x", fc4feature);
-    }
-    return (str);
+/* The feature routines just decode FCP's FC-4 features field 
+ * based on the flahs in offset and the type in offset+1
+ */
+static void
+dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint8 flags, type;
+
+	flags = tvb_get_guint8(tvb, offset);
+	type = tvb_get_guint8(tvb, offset+1);
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_fcdns_fc4features, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_fc4features);
+	}
+
+	if(type==FC_TYPE_SCSI){
+		proto_tree_add_boolean(tree, hf_fcdns_fc4features_i, tvb, offset, 1, flags);
+		if (flags&0x02){
+			proto_item_append_text(item, "  I");
+		}
+		flags&=(~( 0x02 ));
+
+		proto_tree_add_boolean(tree, hf_fcdns_fc4features_t, tvb, offset, 1, flags);
+		if (flags&0x01){
+			proto_item_append_text(item, "  T");
+		}
+		flags&=(~( 0x01 ));
+	}
+
+        proto_tree_add_item (tree, hf_fcdns_req_fc4type, tvb, offset+1, 1, 0);
 }
 
-static gchar *
-fc4ftrs_to_str (tvbuff_t *tvb, int offset, gchar *str)
+/* The feature routines just decode FCP's FC-4 features field 
+ */
+static void
+dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    guint8 fc4feature;
-    int stroff = 0;
-    
-    if (str == NULL) {
-        return NULL;
-    }
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint8 flags;
 
-    *str = '\0';
-    fc4feature = tvb_get_guint8 (tvb, offset+7);
+	flags = tvb_get_guint8(tvb, offset);
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_fcdns_fc4features, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_fc4features);
+	}
 
-    if (fc4feature & 0x1) {
-        strcpy (str, "T, ");
-        stroff += 3;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_fc4features_i, tvb, offset, 1, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, "  I");
+	}
+	flags&=(~( 0x02 ));
 
-    if (fc4feature & 0x2) {
-        strcpy (&str[stroff], "I");
-    }
-
-    return (str);
+	proto_tree_add_boolean(tree, hf_fcdns_fc4features_t, tvb, offset, 1, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, "  T");
+	}
+	flags&=(~( 0x01 ));
 }
+
 
 static const true_false_string tfs_fcdns_fc4type_llcsnap = {
 	"LLC/SNAP is SET",
@@ -644,16 +671,13 @@ static void
 dissect_fcdns_gffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar fc4fstr[128];
 
     if (req_tree) {
         if (isreq) {
             dissect_fcdns_req_portid (tvb, req_tree, offset+1);
         }
         else {
-            proto_tree_add_string (req_tree, hf_fcdns_rply_fc4feat, tvb,
-                                   offset, 128,
-                                   fc4ftrs_to_str (tvb, offset, fc4fstr));
+            dissect_fc4features(req_tree, tvb, offset);
         }
     }
 }
@@ -946,22 +970,14 @@ dissect_fcdns_gidff (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     guint8 islast;
-    gchar *str;
 
-    str=ep_alloc(64);
     if (req_tree) {
         if (isreq) {
             proto_tree_add_item (req_tree, hf_fcdns_req_domainscope, tvb,
                                  offset+1, 1, 0);
             proto_tree_add_item (req_tree, hf_fcdns_req_areascope, tvb,
                                  offset+2, 1, 0);
-            proto_tree_add_string (req_tree, hf_fcdns_req_fc4feature, tvb,
-                                   offset+6, 1,
-                                   fc4feature_to_str (tvb_get_guint8 (tvb, offset+6),
-                                                      tvb_get_guint8 (tvb, offset+7),
-                                                      str, 64));
-            proto_tree_add_item (req_tree, hf_fcdns_req_fc4type, tvb,
-                                 offset+7, 1, 0);
+            dissect_fc4features_and_type(req_tree, tvb, offset+6);
         }
         else {
             do {
@@ -1124,21 +1140,11 @@ static void
 dissect_fcdns_rffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar *fc4str;
 
-    fc4str=ep_alloc(64);
     if (req_tree && isreq) {
         proto_tree_add_string (req_tree, hf_fcdns_req_portid, tvb, offset+1, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+1, 3)));
-        proto_tree_add_string (req_tree, hf_fcdns_req_fc4feature, tvb,
-                               offset+6, 1,
-                               fc4feature_to_str (tvb_get_guint8 (tvb,
-                                                                  offset+6),
-                                                  tvb_get_guint8 (tvb,
-                                                                  offset+7),
-                                                  fc4str, 64));
-        proto_tree_add_item (req_tree, hf_fcdns_req_fc4type, tvb, offset+7,
-                             1, 0);
+        dissect_fc4features_and_type(req_tree, tvb, offset+6);
     }
 }
 
@@ -1244,7 +1250,6 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     int numrec, i, len;
     guint8 objfmt;
-    gchar str[512];
 
     numrec = tvb_get_ntohl (tvb, offset);
 
@@ -1303,9 +1308,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
                                                               3)));
             offset += 88;
             if (objfmt & 0x2) {
-                proto_tree_add_string (tree, hf_fcdns_rply_fc4feat, tvb,
-                                       offset, 128,
-                                       fc4ftrs_to_str (tvb, offset, str));
+                dissect_fc4features(tree, tvb, offset);
                 if (tvb_get_guint8 (tvb, offset+129)) {
                     proto_tree_add_item (tree, hf_fcdns_rply_fc4type, tvb,
                                          offset+128, 1, 0);
@@ -1475,12 +1478,10 @@ static void
 dissect_fcdns_geff (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar str[256];
 
     if (isreq) {
         if (req_tree) {
-            proto_tree_add_string (req_tree, hf_fcdns_req_fc4feature, tvb, offset,
-                                   128, fc4ftrs_to_str (tvb, offset, str));
+            dissect_fc4features(req_tree, tvb, offset);
         }
     }
     else {
@@ -1824,9 +1825,6 @@ proto_register_fcdns (void)
         { &hf_fcdns_rply_fpname,
           {"Fabric Port Name", "fcdns.rply.fpname", FT_STRING, BASE_HEX, NULL,
            0x0, "", HFILL}},
-        { &hf_fcdns_rply_fc4feat,
-          {"FC-4 Features", "fcdns.rply.fc4features", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
         { &hf_fcdns_req_pname,
           {"Port Name", "fcdns.req.portname", FT_STRING, BASE_HEX, NULL, 0x0,
            "", HFILL}},
@@ -1851,9 +1849,6 @@ proto_register_fcdns (void)
         { &hf_fcdns_req_ip,
           {"IP Address", "fcdns.req.ip", FT_IPv6, BASE_DEC, NULL, 0x0,
            "", HFILL}},
-        { &hf_fcdns_req_fc4feature,
-          {"FC-4 Feature Bits", "fcdns.req.fc4feature", FT_STRING,
-           BASE_HEX, NULL, 0x0, "", HFILL}},
         { &hf_fcdns_rply_fc4type,
           {"FC-4 Descriptor Type", "fcdns.rply.fc4type", FT_UINT8, BASE_HEX,
            VALS (fc_fc4_val), 0x0, "", HFILL}},
@@ -1986,12 +1981,22 @@ proto_register_fcdns (void)
         { &hf_fcdns_fc4type,
           {"FC-4 Types", "fcdns.req.fc4type", FT_NONE, BASE_HEX, 
            NULL, 0x0, "", HFILL}},
+        { &hf_fcdns_fc4features,
+          {"FC-4 Feature Bits", "fcdns.fc4features", FT_UINT8,
+           BASE_HEX, NULL, 0x0, "", HFILL}},
+        { &hf_fcdns_fc4features_i,
+          {"I", "fcdns.fc4features.i", FT_BOOLEAN, 8,
+           TFS(&tfs_fcdns_fc4features_i), 0x02, "", HFILL}},
+        { &hf_fcdns_fc4features_t,
+          {"T", "fcdns.fc4features.t", FT_BOOLEAN, 8,
+           TFS(&tfs_fcdns_fc4features_t), 0x01, "", HFILL}},
     };
 
     static gint *ett[] = {
         &ett_fcdns,
         &ett_cos_flags,
         &ett_fc4flags,
+        &ett_fc4features,
     };
     
     /* Register the protocol name and description */
