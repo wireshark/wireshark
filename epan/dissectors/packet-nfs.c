@@ -744,8 +744,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, unsigned char **name, unsig
 		*name = g_malloc((*len)+1);
 		*pos = *name;
 
-		strcpy(*pos, nns->name);
-		*pos += nns->name_len;
+		*pos += g_snprintf(*pos, (*len)+1, "%s", nns->name);
 		return;
 	}
 
@@ -759,13 +758,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, unsigned char **name, unsig
 		nfs_full_name_snoop(parent_nns, len, name, pos);
 		if(*name){
 			/* make sure components are '/' separated */
-			if( (*pos)[-1] != '/'){
-				**pos='/';
-				(*pos)++;
-				**pos=0;
-			}
-			strcpy(*pos, nns->name);
-			*pos += nns->name_len;
+			*pos += g_snprintf(*pos, (*len)+1, "%s%s", ((*pos)[-1]!='/')?"/":"", nns->name);
 		}
 		return;
 	}
