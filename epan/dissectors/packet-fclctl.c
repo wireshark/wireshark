@@ -42,6 +42,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fclctl.h"
@@ -126,8 +127,6 @@ static const value_string fc_lctl_rjt_val[] = {
     {0, NULL},
 };
 
-static gchar errstr[64];
-
 const gchar *
 fclctl_get_typestr (guint8 linkctl_type, guint8 type)
 {
@@ -141,31 +140,22 @@ fclctl_get_typestr (guint8 linkctl_type, guint8 type)
 gchar *
 fclctl_get_paramstr (guint32 linkctl_type, guint32 param)
 {
-    int len;
-    
+    gchar *errstr;
+
+#define MAX_ERRSTR_LEN 64
+    errstr=ep_alloc(MAX_ERRSTR_LEN);    
     errstr[0] = '\0';
     
     if (linkctl_type == FC_LCTL_PBSY) {
-        strcpy (errstr, val_to_str (((param & 0xFF000000) >> 24),
-                                    fc_lctl_pbsy_acode_val, "0x%x"));
-        len = strlen (errstr);
-        strcpy (&errstr[len], ", ");
-        len = strlen (errstr);
-        strcpy (&errstr[len],
-                val_to_str (((param & 0x00FF0000) >> 16),
-                            fc_lctl_pbsy_rjt_val, "0x%x"));
+      g_snprintf(errstr, MAX_ERRSTR_LEN, "%s, %s", 
+                 val_to_str (((param & 0xFF000000) >> 24), fc_lctl_pbsy_acode_val, "0x%x"),
+		 val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_pbsy_rjt_val, "0x%x"));
     }
     else if ((linkctl_type == FC_LCTL_FRJT) ||
              (linkctl_type == FC_LCTL_PRJT)) {
-        strcpy (errstr,
-                val_to_str (((param & 0xFF000000) >> 24),
-                            fc_lctl_rjt_acode_val, "0x%x"));
-        len = strlen (errstr);
-        strcpy (&errstr[len], ", ");
-        len = strlen (errstr);
-        strcpy (&errstr[len],
-                val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_rjt_val,
-                            "%x"));
+      g_snprintf(errstr, MAX_ERRSTR_LEN, "%s, %s", 
+                 val_to_str (((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
+                 val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_rjt_val, "%x"));
     }
 
     return (errstr);
