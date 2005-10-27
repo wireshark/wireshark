@@ -16,7 +16,7 @@ S<[ B<-T> encapsulation type ]>
 S<[ B<-v> ]>
 I<infile>
 I<outfile>
-S<[ [-]I<record#>[-I<record#>] ... ]>
+S<[ I<record#>[-I<record#>] ... ]>
 
 =head1 DESCRIPTION
 
