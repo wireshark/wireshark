@@ -76,7 +76,7 @@ gchar *
 bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
   gchar *buf;
   gchar        *p;
-  int          i;
+  int          i = (int) len - 1;
   guint32      octet;
   size_t       buflen;
   /* At least one version of Apple's C compiler/linker is buggy, causing
@@ -89,22 +89,24 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
       { '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-  g_assert(len > 0);
-
   if (punct)
     buflen=len*3;
   else
     buflen=len*2 + 1;
+
+  if (buflen < 3 || i < 0) {
+    return "";
+  }
+
   buf=ep_alloc(buflen);
   p = &buf[buflen - 1];
   *p = '\0';
-  i = len - 1;
   for (;;) {
     octet = ad[i];
     *--p = hex_digits[octet&0xF];
     octet >>= 4;
     *--p = hex_digits[octet&0xF];
-    if (i == 0)
+    if (i <= 0)
       break;
     if (punct)
       *--p = punct;
@@ -116,8 +118,8 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
 /* Wrapper for the most common case of asking
  * for a string using a colon as the hex-digit separator.
  */
-/* XXX FIXME   
-remove this one later when every call has been converted to address_to_str() 
+/* XXX FIXME
+remove this one later when every call has been converted to address_to_str()
 */
 gchar *
 ether_to_str(const guint8 *ad)
@@ -125,7 +127,7 @@ ether_to_str(const guint8 *ad)
 	return bytestring_to_str(ad, 6, ':');
 }
 
-/* 
+/*
  This function is very fast and this function is called a lot.
  XXX update the address_to_str stuff to use this function.
 */
@@ -138,42 +140,42 @@ ip_to_str(const guint8 *ad) {
   return buf;
 }
 
-/* 
+/*
  This function is very fast and this function is called a lot.
  XXX update the address_to_str stuff to use this function.
 */
 static const char * const fast_strings[] = {
-"0", "1", "2", "3", "4", "5", "6", "7", 
-"8", "9", "10", "11", "12", "13", "14", "15", 
-"16", "17", "18", "19", "20", "21", "22", "23", 
-"24", "25", "26", "27", "28", "29", "30", "31", 
-"32", "33", "34", "35", "36", "37", "38", "39", 
-"40", "41", "42", "43", "44", "45", "46", "47", 
-"48", "49", "50", "51", "52", "53", "54", "55", 
-"56", "57", "58", "59", "60", "61", "62", "63", 
-"64", "65", "66", "67", "68", "69", "70", "71", 
-"72", "73", "74", "75", "76", "77", "78", "79", 
-"80", "81", "82", "83", "84", "85", "86", "87", 
-"88", "89", "90", "91", "92", "93", "94", "95", 
-"96", "97", "98", "99", "100", "101", "102", "103", 
-"104", "105", "106", "107", "108", "109", "110", "111", 
-"112", "113", "114", "115", "116", "117", "118", "119", 
-"120", "121", "122", "123", "124", "125", "126", "127", 
-"128", "129", "130", "131", "132", "133", "134", "135", 
-"136", "137", "138", "139", "140", "141", "142", "143", 
-"144", "145", "146", "147", "148", "149", "150", "151", 
-"152", "153", "154", "155", "156", "157", "158", "159", 
-"160", "161", "162", "163", "164", "165", "166", "167", 
-"168", "169", "170", "171", "172", "173", "174", "175", 
-"176", "177", "178", "179", "180", "181", "182", "183", 
-"184", "185", "186", "187", "188", "189", "190", "191", 
-"192", "193", "194", "195", "196", "197", "198", "199", 
-"200", "201", "202", "203", "204", "205", "206", "207", 
-"208", "209", "210", "211", "212", "213", "214", "215", 
-"216", "217", "218", "219", "220", "221", "222", "223", 
-"224", "225", "226", "227", "228", "229", "230", "231", 
-"232", "233", "234", "235", "236", "237", "238", "239", 
-"240", "241", "242", "243", "244", "245", "246", "247", 
+"0", "1", "2", "3", "4", "5", "6", "7",
+"8", "9", "10", "11", "12", "13", "14", "15",
+"16", "17", "18", "19", "20", "21", "22", "23",
+"24", "25", "26", "27", "28", "29", "30", "31",
+"32", "33", "34", "35", "36", "37", "38", "39",
+"40", "41", "42", "43", "44", "45", "46", "47",
+"48", "49", "50", "51", "52", "53", "54", "55",
+"56", "57", "58", "59", "60", "61", "62", "63",
+"64", "65", "66", "67", "68", "69", "70", "71",
+"72", "73", "74", "75", "76", "77", "78", "79",
+"80", "81", "82", "83", "84", "85", "86", "87",
+"88", "89", "90", "91", "92", "93", "94", "95",
+"96", "97", "98", "99", "100", "101", "102", "103",
+"104", "105", "106", "107", "108", "109", "110", "111",
+"112", "113", "114", "115", "116", "117", "118", "119",
+"120", "121", "122", "123", "124", "125", "126", "127",
+"128", "129", "130", "131", "132", "133", "134", "135",
+"136", "137", "138", "139", "140", "141", "142", "143",
+"144", "145", "146", "147", "148", "149", "150", "151",
+"152", "153", "154", "155", "156", "157", "158", "159",
+"160", "161", "162", "163", "164", "165", "166", "167",
+"168", "169", "170", "171", "172", "173", "174", "175",
+"176", "177", "178", "179", "180", "181", "182", "183",
+"184", "185", "186", "187", "188", "189", "190", "191",
+"192", "193", "194", "195", "196", "197", "198", "199",
+"200", "201", "202", "203", "204", "205", "206", "207",
+"208", "209", "210", "211", "212", "213", "214", "215",
+"216", "217", "218", "219", "220", "221", "222", "223",
+"224", "225", "226", "227", "228", "229", "230", "231",
+"232", "233", "234", "235", "236", "237", "238", "239",
+"240", "241", "242", "243", "244", "245", "246", "247",
 "248", "249", "250", "251", "252", "253", "254", "255"
 };
 void
@@ -212,8 +214,8 @@ ip_to_str_buf(const guint8 *ad, gchar *buf)
 }
 
 
-/* XXX FIXME   
-remove this one later when every call has been converted to address_to_str() 
+/* XXX FIXME
+remove this one later when every call has been converted to address_to_str()
 */
 gchar *
 ip6_to_str(const struct e_in6_addr *ad) {
@@ -593,8 +595,8 @@ rel_time_to_secs_str(nstime_t *rel_time)
 }
 
 
-/* XXX FIXME   
-remove this one later when every call has been converted to address_to_str() 
+/* XXX FIXME
+remove this one later when every call has been converted to address_to_str()
 */
 gchar *
 fc_to_str(const guint8 *ad)
@@ -622,8 +624,8 @@ fcwwn_to_str (const guint8 *ad)
     gchar *ethstr;
 
     if (ad == NULL) return NULL;
-    
-    ethstr=ep_alloc(512);    
+
+    ethstr=ep_alloc(512);
 
     fmt = (ad[0] & 0xF0) >> 4;
 
@@ -632,7 +634,7 @@ fcwwn_to_str (const guint8 *ad)
     case FC_NH_NAA_IEEE:
     case FC_NH_NAA_IEEE_E:
         memcpy (oui, &ad[2], 6);
-        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0], 
+        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
                  get_manuf_name (oui));
         break;
@@ -756,7 +758,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
    that "col_set_addr()" need know nothing whatsoever about particular
    address types */
 /* convert an address struct into a printable string */
-gchar*	
+gchar*
 address_to_str(const address *addr)
 {
   gchar *str;
@@ -873,7 +875,7 @@ gchar* guid_to_str_buf(const guint8 *guid, gchar *buf, int buf_len) {
           guid[0], guid[1], guid[2], guid[3],
           guid[4], guid[5],
           guid[6], guid[7],
-          guid[8], guid[9], 
+          guid[8], guid[9],
           guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
   return buf;
 }
