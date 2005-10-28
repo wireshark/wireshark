@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
+#include "packet-e164.h"
 
 typedef struct _alcap_msg_data_t {
     guint msg_type;
@@ -36,7 +36,8 @@ typedef struct _alcap_leg_info_t  {
 	guint32 pathid;
 	guint32 cid;
 	guint32 sugr;
-	gchar* nsap;
+	gchar* orig_nsap;
+	gchar* dest_nsap;
     alcap_msg_data_t* msgs;
     guint release_cause;
 } alcap_leg_info_t;
@@ -49,7 +50,8 @@ typedef struct _alcap_message_info_t {
 	guint32 pathid;
 	guint32 cid;
 	guint32 sugr;
-	gchar* nsap;
+	gchar* orig_nsap;
+	gchar* dest_nsap;
     guint release_cause;
 } alcap_message_info_t;
 
