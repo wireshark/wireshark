@@ -484,6 +484,7 @@ DISSECTOR_SRC =	\
 	packet-pres.c	\
 	packet-prism.c	\
 	packet-ptp.c		\
+	packet-pvfs2.c	\
 	packet-q2931.c	\
 	packet-q931.c	\
 	packet-q933.c	\

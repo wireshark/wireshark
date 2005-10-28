@@ -582,6 +582,7 @@ Mike Frisch             <mfrisch[AT]isurfer.ca> {
 	RPCSEC_GSS fixes
 	PCNFSD updates
 	NFS_ACL support
+	PVFS2 support
 }
 
 Burke Lau               <burke_lau[AT]agilent.com> {
