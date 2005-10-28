@@ -4,7 +4,7 @@
  *
  * Copyright 2003-2005 Philips Medical Systems
  * Copyright 2003-2005 Fred Hoekstra, Philips Medical Systems.
- *                (fred.hoekstra@philips.com) 
+ *                (fred.hoekstra@philips.com)
  *
  * $Id$
  *
@@ -125,12 +125,12 @@ static int hf_dec_rt_test_data = -1;
 static int hf_dec_rt_segment = -1;
 static int hf_dec_rt_id = -1;
 static int hf_dec_rt_iinfo = -1;
-static int hf_dec_rt_iinfo_node_type = -1; 
+static int hf_dec_rt_iinfo_node_type = -1;
 static int hf_dec_rt_iinfo_vrf = -1;
-static int hf_dec_rt_iinfo_rej = -1;        
-static int hf_dec_rt_iinfo_verf = -1;        
+static int hf_dec_rt_iinfo_rej = -1;
+static int hf_dec_rt_iinfo_verf = -1;
 static int hf_dec_rt_iinfo_mta = -1;
-static int hf_dec_rt_iinfo_blkreq = -1;       
+static int hf_dec_rt_iinfo_blkreq = -1;
 static int hf_dec_rt_iprio = -1;
 static int hf_dec_rt_neighbor = -1;
 static int hf_dec_rt_seed = -1;
@@ -142,11 +142,11 @@ static int hf_dec_rt_seg_size = -1;
 static int hf_dec_rt_acknum = -1;
 static int hf_dec_rt_segnum = -1;
 static int hf_dec_rt_delay = -1;
-static int hf_dec_flow_control = -1;        
-static int hf_dec_rt_fc_val = -1;        
+static int hf_dec_flow_control = -1;
+static int hf_dec_rt_fc_val = -1;
 static int hf_dec_rt_services = -1;
-static int hf_dec_rt_info = -1;        
-static int hf_dec_disc_reason = -1;                 
+static int hf_dec_rt_info = -1;
+static int hf_dec_disc_reason = -1;
 static int hf_dec_conn_contents = -1;
 static int hf_dec_sess_obj_type = -1;
 static int hf_dec_sess_grp_code = -1;
@@ -212,62 +212,62 @@ static const value_string nsp_msg_type_vals[] = {
 };
 
 static const value_string routing_flags[] = {
-    {0x02,  "Short data packet format"},    
-    {0x06,  "Long data packet format"},    
-    {0x08,  "Return to sender request"},    
-    {0x10,  "Packet on return trip"},    
-    {0x20,  "Intra-Ethernet packet"},    
-    {0x40,  "Discarded packet"},    
+    {0x02,  "Short data packet format"},
+    {0x06,  "Long data packet format"},
+    {0x08,  "Return to sender request"},
+    {0x10,  "Packet on return trip"},
+    {0x20,  "Intra-Ethernet packet"},
+    {0x40,  "Discarded packet"},
     {0x0,  NULL}
-};    
+};
 
 static const value_string rt_iinfo_flags[] = {
-    {0x01,  "Level 2 router"},    
-    {0x02,  "Level 1 router"},    
-    {0x04,  "Verification required"},    
-    {0x08,  "Rejected"},    
-    {0x10,  "Verification failed"},    
-    {0x20,  "Does not accept multicast"},    
-    {0x40,  "Blocking requested"},    
+    {0x01,  "Level 2 router"},
+    {0x02,  "Level 1 router"},
+    {0x04,  "Verification required"},
+    {0x08,  "Rejected"},
+    {0x10,  "Verification failed"},
+    {0x20,  "Does not accept multicast"},
+    {0x40,  "Blocking requested"},
     {0x0,  NULL}
-};   
+};
 
 static const value_string rt_tiinfo_vals[] = {
-    {0x01,  "Level 2 router"},    
-    {0x02,  "Level 1 router"},    
-    {0x03,  "End node"},    
-    {0x04,  "Routing layer verification required"},    
-    {0x08,  "Blocking requested"},    
+    {0x01,  "Level 2 router"},
+    {0x02,  "Level 1 router"},
+    {0x03,  "End node"},
+    {0x04,  "Routing layer verification required"},
+    {0x08,  "Blocking requested"},
     {0x0,  NULL}
-};    
+};
 
 static const value_string rt_iinfo_node_type_vals[] = {
-    {0x01,  "Level 2 router"},    
-    {0x02,  "Level 1 router"},    
-    {0x03,  "End node"},    
+    {0x01,  "Level 2 router"},
+    {0x02,  "Level 1 router"},
+    {0x03,  "End node"},
     {0x0,  NULL}
 };
 
 static const value_string rt_flow_control_vals[] = {
-    {0x00,  "no change"},    
-    {0x01,  "do not send data"},    
-    {0x02,  "send data"},    
-    {0x03,  "reserved"},    
+    {0x00,  "no change"},
+    {0x01,  "do not send data"},
+    {0x02,  "send data"},
+    {0x03,  "reserved"},
     {0x0,  NULL}
 };
 
-static const value_string rt_services_vals[] = {        
-    {0x00,  "none"},    
-    {0x04,  "segment request count"},    
-    {0x08,  "Session control message request count"},    
-    {0x0c,  "reserved"},    
+static const value_string rt_services_vals[] = {
+    {0x00,  "none"},
+    {0x04,  "segment request count"},
+    {0x08,  "Session control message request count"},
+    {0x0c,  "reserved"},
     {0x0,   NULL}
 };
 
 static const value_string rt_info_version_vals[] = {
-    {0x00,  "version 3.2"},    
-    {0x01,  "version 3.1"},    
-    {0x02,  "version 4.0"},    
+    {0x00,  "version 3.2"},
+    {0x01,  "version 3.1"},
+    {0x02,  "version 4.0"},
     {0x03,   "reserved"},
     {0x0,   NULL}
 };
@@ -312,58 +312,58 @@ static const char cont_sep[] = ", ";
 
 static int
 handle_nsp_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
     proto_tree *tree,
     guint offset,
     guint8 nsp_msg_type);
-        
-    
-static int  
+
+
+static int
 do_initialization_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
-    proto_tree *ctl_msg_tree, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    proto_tree *ctl_msg_tree,
     guint offset);
 
-static int  
+static int
 do_verification_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
-    proto_tree *ctl_msg_tree, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    proto_tree *ctl_msg_tree,
     guint offset);
 
-static int  
+static int
 do_hello_test_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
-    proto_tree *ctl_msg_tree, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    proto_tree *ctl_msg_tree,
     guint offset);
 
-static int  
+static int
 do_routing_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
-    proto_tree *ctl_msg_tree, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    proto_tree *ctl_msg_tree,
     guint offset,
     guint msg);
 
-static int  
+static int
 do_hello_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
-    proto_tree *ctl_msg_tree, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    proto_tree *ctl_msg_tree,
     guint offset,
     guint msg);
 
 static int
 handle_connect_contents(
-    tvbuff_t *tvb, 
-    proto_tree *tree, 
+    tvbuff_t *tvb,
+    proto_tree *tree,
     guint offset);
 
 static int
-handle_disc_init_contents( 
+handle_disc_init_contents(
     guint offset);
 
 static void
@@ -476,7 +476,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset, 1, rt_zero);
             offset++;
         } else {
-            /* Now the short message format 
+            /* Now the short message format
                Increment offset to get past the flags field
              */
             offset++;
@@ -493,13 +493,13 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset, 1, forward);
             offset++;
         }
-    } 
+    }
     msg_flags = tvb_get_guint8(tvb, offset);
     /* This gives us either the routing control msg flag or the
-       NSP message identifier 
+       NSP message identifier
     */
     if (msg_flags & 0x01) {
-        /* This is a control message 
+        /* This is a control message
            Documentation is somewhat confusing at this point
            Data messages have a short or long header prepended,
            however, the Routing Layer control messages do not have
@@ -584,26 +584,26 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             nsp_msg_tree, hf_dec_rt_src_node, tvb, offset, 2, TRUE);
         offset += 2;
 
-        offset = 
-            handle_nsp_msg(tvb, 
-                           pinfo, 
-                           nsp_msg_tree, 
-                           offset, 
+        offset =
+            handle_nsp_msg(tvb,
+                           pinfo,
+                           nsp_msg_tree,
+                           offset,
                            nsp_msg_type);
     }
 }
 
 static int
 do_initialization_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
     proto_tree *tree,
     guint offset)
 {
     guint   my_offset = offset;
     guint8  version, eco_nr, user_eco;
     guint8  remainder_count;
-    
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_add_str(pinfo->cinfo, COL_INFO,
 		  "Routing control, initialization message");
@@ -620,7 +620,7 @@ do_initialization_msg(
     version = tvb_get_guint8(tvb, my_offset);
     eco_nr = tvb_get_guint8(tvb, my_offset + 1);
     user_eco = tvb_get_guint8(tvb, my_offset + 2);
-	proto_tree_add_none_format(tree, hf_dec_rt_version, tvb, 
+	proto_tree_add_none_format(tree, hf_dec_rt_version, tvb,
         my_offset, 3, "Routing Layer version: %d.%d.%d.",
             version, eco_nr, user_eco);
     my_offset +=3;
@@ -629,7 +629,7 @@ do_initialization_msg(
     my_offset += 2;
     remainder_count = tvb_get_guint8(tvb, my_offset);
     if (remainder_count != 0) {
-        proto_tree_add_bytes(tree, hf_dec_rt_reserved, tvb, 
+        proto_tree_add_bytes(tree, hf_dec_rt_reserved, tvb,
             my_offset, remainder_count,
             tvb_get_ptr(tvb, my_offset, remainder_count));
         my_offset += remainder_count;
@@ -639,14 +639,14 @@ do_initialization_msg(
 
 static int
 do_verification_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
     proto_tree *tree,
     guint offset)
 {
     guint   my_offset = offset;
     guint8  remainder_count;
-    
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	  col_add_str(pinfo->cinfo, COL_INFO,
 		  "Routing control, verification message");
@@ -656,7 +656,7 @@ do_verification_msg(
     offset += 2;
     remainder_count = tvb_get_guint8(tvb, my_offset);
     if (remainder_count != 0) {
-        proto_tree_add_bytes(tree, hf_dec_rt_fcnval, tvb, 
+        proto_tree_add_bytes(tree, hf_dec_rt_fcnval, tvb,
             my_offset, remainder_count,
             tvb_get_ptr(tvb, my_offset, remainder_count));
         my_offset += remainder_count;
@@ -666,14 +666,14 @@ do_verification_msg(
 
 static int
 do_hello_test_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
     proto_tree *tree,
     guint offset)
 {
     guint   my_offset = offset;
     guint8  remainder_count;
-    
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	  col_add_str(pinfo->cinfo, COL_INFO,
 		  "Routing control, hello/test message");
@@ -683,7 +683,7 @@ do_hello_test_msg(
     my_offset += 2;
     remainder_count = tvb_length_remaining(tvb, my_offset);
     if (remainder_count != 0) {
-        proto_tree_add_bytes(tree, hf_dec_rt_test_data, tvb, 
+        proto_tree_add_bytes(tree, hf_dec_rt_test_data, tvb,
             my_offset, remainder_count,
             tvb_get_ptr(tvb, my_offset, remainder_count));
         my_offset += remainder_count;
@@ -693,8 +693,8 @@ do_hello_test_msg(
 
 static int
 do_routing_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
     proto_tree *tree,
     guint offset,
     guint msg)
@@ -703,7 +703,7 @@ do_routing_msg(
     guint16 checksum = 1;
     guint16 count, startid, rtginfo;
     guint8  remainder_count;
-    
+
 	proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
 		my_offset, 2, TRUE);
     /* Skip the 1-byte reserved field */
@@ -720,27 +720,27 @@ do_routing_msg(
 	          col_add_str(pinfo->cinfo, COL_INFO,
 		          "Routing control, Level 1 routing message");
             }
-	        proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb, 
-                my_offset, 6, 
-                "Segment: count:%d, start Id: %d, hops:%d, cost: %d", 
+	        proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb,
+                my_offset, 6,
+                "Segment: count:%d, start Id: %d, hops:%d, cost: %d",
                 count, startid, (rtginfo & 0x7c00) >> 10, rtginfo & 0x3ff);
         } else {
             if (check_col(pinfo->cinfo, COL_INFO)) {
 	          col_add_str(pinfo->cinfo, COL_INFO,
 		          "Routing control, Level 2 routing message");
             }
-	        proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb, 
-                my_offset, 6, 
-                "Segment: count:%d, start area: %d, hops:%d, cost: %d", 
+	        proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb,
+                my_offset, 6,
+                "Segment: count:%d, start area: %d, hops:%d, cost: %d",
                 count, startid, (rtginfo & 0x7c00) >> 10, rtginfo & 0x3ff);
         };
         checksum += (count + startid + rtginfo);
         remainder_count -= 6;
-    } while (remainder_count > 1); 
-    if (checksum != tvb_get_letohs(tvb, my_offset)) { 
-	    proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb, 
-            my_offset, 2, 
-            "Segment: checksum mismatch(computed 0x%x != received 0x%x)", 
+    } while (remainder_count > 1);
+    if (checksum != tvb_get_letohs(tvb, my_offset)) {
+	    proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb,
+            my_offset, 2,
+            "Segment: checksum mismatch(computed 0x%x != received 0x%x)",
             checksum, tvb_get_letohs(tvb, my_offset));
     }
     my_offset += 2;
@@ -749,8 +749,8 @@ do_routing_msg(
 
 static int
 do_hello_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
     proto_tree *tree,
     guint offset,
     guint msg)
@@ -761,12 +761,12 @@ do_hello_msg(
     proto_item *ti;
     proto_tree *iinfo_tree;
     const char *sep;
-    
+
     version = tvb_get_guint8(tvb, my_offset);
     eco_nr = tvb_get_guint8(tvb, my_offset + 1);
     user_eco = tvb_get_guint8(tvb, my_offset + 2);
-	proto_tree_add_none_format(tree, hf_dec_rt_version, tvb, 
-        my_offset, 3, "Routing Layer Version: %d.%d.%d", 
+	proto_tree_add_none_format(tree, hf_dec_rt_version, tvb,
+        my_offset, 3, "Routing Layer Version: %d.%d.%d",
         version, eco_nr, user_eco);
     my_offset +=3;
 	proto_tree_add_item(tree, hf_dec_rt_id, tvb,
@@ -808,7 +808,7 @@ do_hello_msg(
 		my_offset, 2, TRUE);
     my_offset += 2;
     if (msg == 5) {
-        /* Ethernet router hello message 
+        /* Ethernet router hello message
            Has a 'priority' field in this position */
         if (check_col(pinfo->cinfo, COL_INFO)) {
 	      col_add_str(pinfo->cinfo, COL_INFO,
@@ -824,7 +824,7 @@ do_hello_msg(
     if (msg == 6) {
         /* The endnode hello message has 'seed' and 'neighbor' fields */
         guint8  seed;
-        
+
         if (check_col(pinfo->cinfo, COL_INFO)) {
 	      col_add_str(pinfo->cinfo, COL_INFO,
 		      "Routing control, Endnode Hello message");
@@ -837,7 +837,7 @@ do_hello_msg(
 			my_offset, 6, TRUE);
         my_offset += 6;
     }
-    /*'Timer' and 'mpd' fields are common 
+    /*'Timer' and 'mpd' fields are common
       'mpd' field is reserved */
     timer = tvb_get_letohs(tvb, my_offset);
     proto_tree_add_item(tree, hf_dec_rt_timer, tvb,
@@ -852,41 +852,41 @@ do_hello_msg(
          */
         proto_item  *ti;
         proto_tree *list_tree;
-        
+
         ti = proto_tree_add_item(tree, hf_dec_rt_elist, tvb,
 			my_offset, 7, TRUE);
         my_offset += 7;
         list_tree = proto_item_add_subtree(ti, ett_dec_rt_list);
-        remainder_count = 
-            tvb_reported_length_remaining(tvb, my_offset); 
+        remainder_count =
+            tvb_reported_length_remaining(tvb, my_offset);
         do {
             /* if the remainder_count < 7, there are
                no more router/state items */
             guint8  pristate;
             proto_item  *ti;
             proto_tree *pstate_tree;
-            
-	        ti = proto_tree_add_item(list_tree, hf_dec_rt_router_id, 
+
+	        ti = proto_tree_add_item(list_tree, hf_dec_rt_router_id,
 			    tvb, my_offset, 6, TRUE);
             my_offset += 6;
             pstate_tree = proto_item_add_subtree(ti, ett_dec_rt_state);
             pristate = tvb_get_guint8(tvb, my_offset);
-            proto_tree_add_string(list_tree, hf_dec_rt_router_state, 
-                tvb, my_offset, 1, 
-                ((pristate & 0x80) ? "known 2-way": "unknown"));          
-            proto_tree_add_uint(list_tree, hf_dec_rt_router_prio, 
+            proto_tree_add_string(list_tree, hf_dec_rt_router_state,
+                tvb, my_offset, 1,
+                ((pristate & 0x80) ? "known 2-way": "unknown"));
+            proto_tree_add_uint(list_tree, hf_dec_rt_router_prio,
                 tvb, my_offset, 1, pristate);
             my_offset++;
             remainder_count -= 7;
-        } while (remainder_count >= 7); 
-    } 
-    return (my_offset); 
+        } while (remainder_count >= 7);
+    }
+    return (my_offset);
 }
 
-static int        
+static int
 handle_nsp_msg(
-    tvbuff_t *tvb, 
-    packet_info *pinfo, 
+    tvbuff_t *tvb,
+    packet_info *pinfo,
     proto_tree *tree,
     guint offset,
     guint8 nsp_msg_type)
@@ -898,7 +898,7 @@ handle_nsp_msg(
     guint8     ls_flags, fc_val, services, info;
     proto_item  *ti;
     proto_tree *flow_control_tree;
-    
+
     /* 'tree' is now the subtree for the NSP message */
     switch (nsp_msg_type) {
         case DATA_SEGMENT_MSG:     /* "Data segment" */
@@ -907,8 +907,8 @@ handle_nsp_msg(
         case BOM_EOM_MSG:          /* "BOM / EOM message" */
             ack_num = tvb_get_letohs(tvb, my_offset);
             if (ack_num & 0x8000) {
-                proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                    tvb, my_offset, 2, 
+                proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                    tvb, my_offset, 2,
                     "Last data segment %s acknowledged: %d",
                     (ack_num & 0x1000) ? "negatively" : "positively",
                     ack_num & 0xfff);
@@ -917,17 +917,17 @@ handle_nsp_msg(
                 ack_oth = tvb_get_letohs(tvb, my_offset);
                 if (ack_oth & 0x8000) {
                     /* There is an ack_oth field */
-                    proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                        tvb, my_offset, 2, 
+                    proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                        tvb, my_offset, 2,
                         "Cross sub-channel %s of other data msg %d",
                         ((ack_oth & 0x3000) == 0x2000) ? "ACK" : "NAK",
                         ack_oth & 0xfff);
                     my_offset += 2;
                 }
-            } 
-            /* 
+            }
+            /*
              * The optional ACKNUM and ACKOTH  fields are not present
-             * There is still the segnum field 
+             * There is still the segnum field
              */
             seg_num = tvb_get_letohs(tvb, my_offset);
             if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -958,7 +958,7 @@ handle_nsp_msg(
                 tvb, my_offset, 2, seg_num);
             my_offset += 2;
             /* Compute the number of bytes in this data segment */
-            data_length =             
+            data_length =
                 tvb_reported_length_remaining(tvb, my_offset);
             dec_dna_previous_total = dec_dna_total_bytes_this_segment;
             dec_dna_total_bytes_this_segment += data_length;
@@ -976,8 +976,8 @@ handle_nsp_msg(
             }
             ack_num = tvb_get_letohs(tvb, my_offset);
             if (ack_num & 0x8000) {
-                proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                    tvb, my_offset, 2, 
+                proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                    tvb, my_offset, 2,
                     "Last interrupt/link service msg %s acknowledged: %d",
                     (ack_num & 0x1000) ? "negatively" : "positively",
                     ack_num & 0xfff);
@@ -996,8 +996,8 @@ handle_nsp_msg(
             ack_dat = tvb_get_letohs(tvb, my_offset);
             if (ack_dat & 0x8000) {
                 /* There is an ack_dat field */
-                proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                    tvb, my_offset, 2, 
+                proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                    tvb, my_offset, 2,
                     "Cross sub-channel %s of data segment msg: %d",
                     ((ack_dat & 0x3000) == 0x2000) ? "ACK" : "NAK",
                    ack_dat & 0xfff);
@@ -1019,8 +1019,8 @@ handle_nsp_msg(
             }
             ack_num = tvb_get_letohs(tvb, my_offset);
             if (ack_num & 0x8000) {
-                proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                    tvb, my_offset, 2, 
+                proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                    tvb, my_offset, 2,
                     "Last interrupt/link service msg %s acknowledged: %d",
                     (ack_num & 0x1000) ? "negatively" : "positively",
                     ack_num & 0xfff);
@@ -1039,8 +1039,8 @@ handle_nsp_msg(
             ack_dat = tvb_get_letohs(tvb, my_offset);
             if (ack_dat & 0x8000) {
                 /* There is an ack_dat field */
-                proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                    tvb, my_offset, 2, 
+                proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                    tvb, my_offset, 2,
                     "Cross sub-channel %s of data segment msg: %d",
                     ((ack_dat & 0x3000) == 0x2000) ? "ACK" : "NAK",
                    ack_dat & 0xfff);
@@ -1075,18 +1075,18 @@ handle_nsp_msg(
             fc_val = tvb_get_guint8(tvb, my_offset + 1);
 	        ti = proto_tree_add_uint(tree, hf_dec_flow_control, tvb,
 				         my_offset, 1, ls_flags);
-	        flow_control_tree = 
+	        flow_control_tree =
                 proto_item_add_subtree(ti, ett_dec_flow_control);
             proto_tree_add_none_format(flow_control_tree, hf_dec_rt_fc_val,
-                tvb, my_offset, 2, 
+                tvb, my_offset, 2,
                 "Request for additional %d %s msgs",
                 fc_val, ((ls_flags & 0x04) ? "interrupt" : "data"));
             my_offset += 2;
             break;
         case DATA_ACK_MSG:         /* "Data acknowledgement message" */
             ack_num = tvb_get_letohs(tvb, my_offset);
-            proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                tvb, my_offset, 2, 
+            proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                tvb, my_offset, 2,
                 "Last data segment %s acknowledged: %d",
                 (ack_num & 0x1000) ? "negatively" : "positively",
                 ack_num & 0xfff);
@@ -1102,8 +1102,8 @@ handle_nsp_msg(
                 ack_oth = tvb_get_letohs(tvb, my_offset);
                 if (ack_oth & 0x8000) {
                     /* There is an ack_oth field */
-                    proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                        tvb, my_offset, 2, 
+                    proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                        tvb, my_offset, 2,
                         "Cross sub-channel %s of other data msg %d",
                         ((ack_oth & 0x3000) == 0x2000) ? "ACK" : "NAK",
                         ack_oth & 0xfff);
@@ -1118,8 +1118,8 @@ handle_nsp_msg(
 		          "NSP other data ACK message");
             }
             ack_num = tvb_get_letohs(tvb, my_offset);
-            proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                tvb, my_offset, 2, 
+            proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                tvb, my_offset, 2,
                 "Last interrupt/link service msg %s acknowledged: %d",
                 (ack_num & 0x1000) ? "negatively" : "positively",
                 ack_num & 0xfff);
@@ -1129,8 +1129,8 @@ handle_nsp_msg(
                 ack_dat = tvb_get_letohs(tvb, my_offset);
                 if (ack_dat & 0x8000) {
                     /* There is an ack_dat field */
-                    proto_tree_add_none_format(tree, hf_dec_rt_acknum, 
-                        tvb, my_offset, 2, 
+                    proto_tree_add_none_format(tree, hf_dec_rt_acknum,
+                        tvb, my_offset, 2,
                         "Cross sub-channel %s of data msg %d",
                         ((ack_dat & 0x3000) == 0x2000) ? "ACK" : "NAK",
                         ack_dat & 0xfff);
@@ -1153,11 +1153,11 @@ handle_nsp_msg(
 	        proto_tree_add_uint(tree, hf_dec_rt_info, tvb,
 				         my_offset, 1, info);
             my_offset++;
-            seg_size = tvb_get_letohs(tvb, my_offset);            
+            seg_size = tvb_get_letohs(tvb, my_offset);
 	        proto_tree_add_item(tree, hf_dec_rt_seg_size, tvb,
 				         my_offset, 2, TRUE);
             my_offset += 2;
-            my_offset = 
+            my_offset =
                 handle_connect_contents(
                     tvb, tree, my_offset);
             break;
@@ -1172,7 +1172,7 @@ handle_nsp_msg(
 				 my_offset, 2, TRUE);
             my_offset += 2;
             if (nsp_msg_type == DISCONN_INITIATE_MSG) {
-                my_offset = 
+                my_offset =
                     handle_disc_init_contents( my_offset);
             }
             break;
@@ -1184,8 +1184,8 @@ handle_nsp_msg(
 
 static int
 handle_connect_contents(
-    tvbuff_t *tvb, 
-    proto_tree *tree, 
+    tvbuff_t *tvb,
+    proto_tree *tree,
     guint offset)
 {
     guint my_offset = offset;
@@ -1193,8 +1193,8 @@ handle_connect_contents(
     proto_tree   *contents_tree;
     guint8       dst_format, src_format, obj_type, image_len, menu_ver;
     guint16      grp_code, usr_code;
-    
-    ti = proto_tree_add_item(tree, hf_dec_conn_contents, 
+
+    ti = proto_tree_add_item(tree, hf_dec_conn_contents,
         tvb, my_offset, -1, TRUE);
     contents_tree = proto_item_add_subtree(ti, ett_dec_sess_contents);
     /* The destination end user */
@@ -1253,7 +1253,7 @@ handle_connect_contents(
         case 1:
         case 3:
             proto_tree_add_string(contents_tree, hf_dec_sess_menu_ver,
-                tvb, my_offset, 1, 
+                tvb, my_offset, 1,
                 "Version 1.0: RQSTRID, PASSWRD and ACCOUNT fields included");
             my_offset++;
             image_len = tvb_get_guint8(tvb, my_offset);
@@ -1277,12 +1277,12 @@ handle_connect_contents(
         case 2:
             /* A USRDATA field is handled by dissect_data */
             proto_tree_add_string(contents_tree, hf_dec_sess_menu_ver,
-                tvb, my_offset, 1, 
+                tvb, my_offset, 1,
                 "Version 1.0: USRDATA field included");
             break;
         default:
             proto_tree_add_string(contents_tree, hf_dec_sess_menu_ver,
-                tvb, my_offset, 1, 
+                tvb, my_offset, 1,
                 "Session control version 1.0");
             break;
     }
@@ -1290,11 +1290,11 @@ handle_connect_contents(
 }
 
 static int
-handle_disc_init_contents( 
+handle_disc_init_contents(
     guint offset)
 {
     guint my_offset = offset;
-    
+
     return (my_offset);
 }
 
@@ -1505,7 +1505,7 @@ proto_register_dec_rt(void)
       	"Router ID", HFILL }},
     { &hf_dec_rt_router_state,
       { "Router state",	"dec_dna.ctl.router_state",
-	    FT_STRING,	BASE_NONE,	NULL, 0x80,
+	    FT_STRING,	BASE_NONE,	NULL, 0x00,
       	"Router state", HFILL }},
     { &hf_dec_conn_contents,
       { "Session connect data",	"dec_dna.sess.conn",
@@ -1543,7 +1543,7 @@ proto_register_dec_rt(void)
       { "Session Requestor ID",	"dec_dna.sess.rqstr_id",
 	    FT_STRING,	BASE_NONE,	NULL, 0x0,
       	"Session requestor ID", HFILL }},
-    
+
 
   };
   static gint *ett[] = {
