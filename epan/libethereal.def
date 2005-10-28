@@ -359,6 +359,7 @@ is_tpkt
 list_stat_cmd_args
 llc_add_oui
 LocationRejectReason_vals       DATA
+make_printable_string
 match_strval
 match_strval_idx
 mkstemp

@@ -2100,7 +2100,7 @@ for (i_@seqname@=0; i_@seqname@ < u_octet4_loop_@seqname@; i_@seqname@++) {
 """
 
     template_get_CDR_sequence_octet = """\
-if (u_octet4_loop_@seqname@ > 0 and tree) {
+if (u_octet4_loop_@seqname@ > 0 && tree) {
     get_CDR_octet_seq(tvb, &binary_seq_@seqname@, offset,
         u_octet4_loop_@seqname@);
     text_seq_@seqname@ = make_printable_string(binary_seq_@seqname@,
