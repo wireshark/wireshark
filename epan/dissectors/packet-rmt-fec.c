@@ -181,7 +181,10 @@ void fec_dissector(struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *of
 		ti = proto_tree_add_item(tree, f.hf->header, tvb, *offset, -1, FALSE);
 		fec_tree = proto_item_add_subtree(ti, f.ett->main);
 	} else
+	{
+		ti = NULL;
 		fec_tree = NULL;
+	}
 
 	/* FEC Encoding ID and FEC Instance ID processing */
 	if (f.fec->encoding_id_present)
