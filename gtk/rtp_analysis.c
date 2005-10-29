@@ -271,6 +271,9 @@ struct _info_direction {
 
 #define TMPNAMSIZE 100
 
+#define SILENCE_PCMU	(guint8)0xFF
+#define SILENCE_PCMA	(guint8)0x55
+
 /* structure that holds general information about the connection 
 * and structures for both directions */
 typedef struct _user_data_t {
@@ -827,7 +830,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 {
 	guint i;
 	const guint8 *data;
-	gint16 tmp;
+	guint8 tmp;
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -871,8 +874,18 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		* XXX not done yet */
 		for(i=0; i < (statinfo->delta_timestamp - rtpinfo->info_payload_len -
 			rtpinfo->info_padding_count); i++) {
-			tmp = (gint16 )ulaw2linear((unsigned char)(0x55));
-			fwrite(&tmp, 2, 1, saveinfo->fp);
+			switch (statinfo->reg_pt) {
+			case PT_PCMU:
+				tmp = SILENCE_PCMU;
+				break;
+			case PT_PCMA:
+				tmp = SILENCE_PCMA;
+				break;
+			default:
+				tmp = 0;
+				break;
+			}
+			fwrite(&tmp, 1, 1, saveinfo->fp);
 			saveinfo->count++;
 		}
 		fflush(saveinfo->fp);
@@ -2395,7 +2408,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		user_data->dlg.save_csv_as_w);
 	
 	window_set_cancel_button(user_data->dlg.save_csv_as_w, 
-		GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, NULL);
+		GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, window_cancel_button_cb);
 	
 	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "destroy",
@@ -2485,7 +2498,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	
 		switch (channels) {
 			/* only forward direction */
-			case 1: {
+			case SAVE_FORWARD_DIRECTION_MASK: {
 				progbar_count = user_data->forward.saveinfo.count;
 				progbar_quantum = user_data->forward.saveinfo.count/100;
 				while ((fread = read(forw_fd, f_pd, 1)) > 0) {
@@ -2499,8 +2512,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->forward.statinfo.pt == PT_PCMU){
-						tmp = (gint16 )ulaw2linear(*f_pd);
-						*pd = (unsigned char)linear2ulaw(tmp);
+						*pd = *f_pd;
 					}
 					else if(user_data->forward.statinfo.pt == PT_PCMA){
 						tmp = (gint16 )alaw2linear(*f_pd);
@@ -2526,7 +2538,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 				break;
 			}
 			/* only reversed direction */
-			case 2: {
+			case SAVE_REVERSE_DIRECTION_MASK: {
 				progbar_count = user_data->reversed.saveinfo.count;
 				progbar_quantum = user_data->reversed.saveinfo.count/100;
 				while ((rread = read(rev_fd, r_pd, 1)) > 0) {
@@ -2540,8 +2552,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->forward.statinfo.pt == PT_PCMU){
-						tmp = (gint16 )ulaw2linear(*r_pd);
-						*pd = (unsigned char)linear2ulaw(tmp);
+						*pd = *r_pd;
 					}
 					else if(user_data->forward.statinfo.pt == PT_PCMA){
 						tmp = (gint16 )alaw2linear(*r_pd);
@@ -2567,7 +2578,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 				break;
 			}
 			/* both directions */
-			default: {
+			case SAVE_BOTH_DIRECTION_MASK: {
 				(user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) ? 
 						(progbar_count = user_data->forward.saveinfo.count) : 
 							(progbar_count = user_data->reversed.saveinfo.count);
@@ -2593,13 +2604,27 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 					if(f_write_silence > 0) {
 						rread = read(rev_fd, r_pd, 1);
-						*f_pd = 0;
+						switch (user_data->forward.statinfo.reg_pt) {
+						case PT_PCMU:
+							*f_pd = SILENCE_PCMU;
+							break;
+						case PT_PCMA:
+							*f_pd = SILENCE_PCMA;
+							break;
+						}							
 						fread = 1;
 						f_write_silence--;
 					}
 					else if(r_write_silence > 0) {
 						fread = read(forw_fd, f_pd, 1);
-						*r_pd = 0;
+						switch (user_data->forward.statinfo.reg_pt) {
+						case PT_PCMU:
+							*r_pd = SILENCE_PCMU;
+							break;
+						case PT_PCMA:
+							*r_pd = SILENCE_PCMA;
+							break;
+						}							
 						rread = 1;
 						r_write_silence--;
 					}
@@ -2646,14 +2671,14 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		int fd;
 		switch (channels) {
 			/* only forward direction */
-			case 1: {
+			case SAVE_FORWARD_DIRECTION_MASK: {
 				progbar_count = user_data->forward.saveinfo.count;
 				progbar_quantum = user_data->forward.saveinfo.count/100;
 				fd = forw_fd;
 				break;
 			}
 			/* only reversed direction */
-			case 2: {
+			case SAVE_REVERSE_DIRECTION_MASK: {
 				progbar_count = user_data->reversed.saveinfo.count;
 				progbar_quantum = user_data->reversed.saveinfo.count/100;
 				fd = rev_fd;
@@ -2707,7 +2732,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 {
 	gchar *g_dest;
-	/*GtkWidget *wav, *au, *sw;*/
+	/*GtkWidget *wav, *sw;*/
 	GtkWidget *au, *raw;
 	GtkWidget *rev, *forw, *both;
 	user_data_t *user_data;
@@ -2842,7 +2867,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 			return;
 		}
 		/* make sure pt's don't differ */
-		if ((channels == SAVE_REVERSE_DIRECTION_MASK) && (user_data->forward.statinfo.pt != user_data->forward.statinfo.pt)){
+		if ((channels == SAVE_BOTH_DIRECTION_MASK) && (user_data->forward.statinfo.pt != user_data->reversed.statinfo.pt)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Forward and reverse direction differ in type");
 			return;
@@ -2851,7 +2876,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	else if (format == SAVE_RAW_FORMAT)
 	{
 		/* can't save raw in both directions */
-		if (channels == SAVE_REVERSE_DIRECTION_MASK){
+		if (channels == SAVE_BOTH_DIRECTION_MASK){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Unable to save raw data in both directions");
 			return;
@@ -2969,6 +2994,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	  (GtkAttachOptions) (GTK_FILL),
 	  (GtkAttachOptions) (0), 0, 0);
 	*/ 
+
 	
 	channels_label = gtk_label_new ("Channels:");
 	gtk_widget_show (channels_label);
