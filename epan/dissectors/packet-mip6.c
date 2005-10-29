@@ -2,10 +2,13 @@
  *
  * $Id$
  *
- * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
+ * Routines for Mobile IPv6 dissection (RFC 3775)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
  *
- * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ * FMIPv6 (RFC 4068) support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ *
+ * Modifications for NEMO packets (RFC 3963): Bruno Deniaud
+ * (bdeniaud@irisa.fr, nono@chez.com) 12 Oct 2005
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +27,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- * Modifications for NEMO packets : Bruno Deniaud (bdeniaud@irisa.fr, nono@chez.com)
- * 12 Oct 2005
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -492,10 +491,10 @@ dissect_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   proto_tree_add_item(field_tree, hf_nemo_mnp_pfl, tvb,
-		      offset + NEMO_MNP_MNP_OFF + 3, 1, FALSE);
+		      offset + NEMO_MNP_PL_OFF, 1, FALSE);
 
   proto_tree_add_item(field_tree, hf_nemo_mnp_mnp, tvb,
-		      offset + NEMO_MNP_MNP_OFF + 4, NEMO_MNP_MNP_LEN, FALSE);
+		      offset + NEMO_MNP_MNP_OFF, NEMO_MNP_MNP_LEN, FALSE);
 }
 
 static void
@@ -538,20 +537,47 @@ dissect_fmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 {
     proto_tree *field_tree = NULL;
     proto_item *tf;
-	int len, p;
+    int len, p;
 
-	tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s", optp->name);
-	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
-	proto_tree_add_item(field_tree, hf_fmip6_lla_optcode, tvb,
-						offset + FMIP6_LLA_OPTCODE_OFF, FMIP6_LLA_OPTCODE_LEN, FALSE);
-	
-	p = offset + FMIP6_LLA_LLA_OFF;
-	len = optlen - FMIP6_LLA_LLA_OFF;
+    proto_tree_add_item(field_tree, hf_fmip6_lla_optcode, tvb,
+                        offset + FMIP6_LLA_OPTCODE_OFF, FMIP6_LLA_OPTCODE_LEN, FALSE);
+    
+    p = offset + FMIP6_LLA_LLA_OFF;
+    len = optlen - FMIP6_LLA_LLA_OFF;
 
-	proto_tree_add_text(field_tree, tvb,
-			p, len, "Link-layer address: %s",
-			bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
+    if (len > 0) {
+        /*
+         * I'm not sure what "The format of the option when the LLA is 6
+         * bytes is shown in Figure 15.  When the LLA size is different,
+         * the option MUST be aligned appropriately.  See Section 6.2 in
+         * [3]." in RFC 4068 says should be done with an LLA size other
+         * than 6 bytes; section 6.2 in RFC 3775 (reference 3 in RFC 4068)
+         * says "Mobility options may have alignment requirements.  Following
+         * the convention in IPv6, these options are aligned in a packet so
+         * that multi-octet values within the Option Data field of each
+         * option fall on natural boundaries (i.e., fields of width n octets
+         * are placed at an integer multiple of n octets from the start of
+         * the header, for n = 1, 2, 4, or 8) [11]."
+         *
+         * Reference 11 in RFC 3775 is RFC 2460, the IPv6 spec; nothing
+         * in there seems to talk about inserting padding *inside* the
+         * data value of an option, so I'm not sure what the extra pad0
+         * is doing there, unless the idea is to arrange that the LLA is
+         * at least aligned on a 2-byte boundary, in which case presumably
+         * it's always present.  We'll assume that.
+         */
+        if (len > 1) {
+            /* Skip padding. */
+            p += 1;
+            len -= 1;
+            proto_tree_add_text(field_tree, tvb,
+                                p, len, "Link-layer address: %s",
+                                bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
+        }
+    }
 }
 
 static const ip_tcp_opt mip6_opts[] = {
@@ -616,7 +642,7 @@ static const ip_tcp_opt mip6_opts[] = {
     "Link-Layer Address",
     &ett_fmip6_opt_lla,
     VARIABLE_LENGTH,
-    1,
+    FMIP6_LLA_MINLEN,
     dissect_fmip6_opt_lla
   },
 };
@@ -624,8 +650,9 @@ static const ip_tcp_opt mip6_opts[] = {
 #define N_MIP6_OPTS	(sizeof mip6_opts / sizeof mip6_opts[0])
 
 /* Like "dissect_ip_tcp_options()", but assumes the length of an option
- *doesn't* include the type and length bytes. And opt-code too for LLA option */
-	void
+   *doesn't* include the type and length bytes.  The option parsers,
+   however, are passed a length that *does* include them. */
+static void
 dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
 		const ip_tcp_opt *opttab, int nopts, int eol,
 		packet_info *pinfo, proto_tree *opt_tree)
@@ -639,11 +666,9 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
 	void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
 			int, guint, packet_info *, proto_tree *);
 	guint             len;
-	guint             uncount = 2;
 
 	while (length > 0) {
 		opt = tvb_get_guint8(tvb, offset);
-		if (opt == LLA) ++uncount; /* let's omit opt-code */
 		for (optp = &opttab[0]; optp < &opttab[nopts]; optp++) {
 			if (optp->optcode == opt)
 				break;
@@ -668,15 +693,15 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
 		--length;      /* account for type byte */
 		if (len_type != NO_LENGTH) {
 			/* Option has a length. Is it in the packet? */
-			if (length < uncount - 1) {
-				/* Bogus - packet must at least include omited bytes! */
+			if (length == 0) {
+				/* Bogus - packet must at least include
+				   option code byte and length byte! */
 				proto_tree_add_text(opt_tree, tvb, offset,      1,
 						"%s (length byte past end of options)", name);
 				return;
 			}
 			len = tvb_get_guint8(tvb, offset + 1);  /* Size specified in option */
 			--length;    /* account for length byte */
-			if (opt == LLA) --length;    /* account for opt-code byte */
 			if (len > length) {
 				/* Bogus - option goes past the end of the header. */
 				proto_tree_add_text(opt_tree, tvb, offset,      length,
@@ -686,31 +711,31 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
 			} else if (len_type == FIXED_LENGTH && len != optlen) {
 				/* Bogus - option length isn't what it's supposed to be for this
 				   option. */
-				proto_tree_add_text(opt_tree, tvb, offset,      uncount + len,
+				proto_tree_add_text(opt_tree, tvb, offset, len + 2,
 						"%s (with option length = %u byte%s; should be %u)", name,
 						len, plurality(len, "", "s"), optlen);
 				return;
 			} else if (len_type == VARIABLE_LENGTH && len < optlen) {
 				/* Bogus - option length is less than what it's supposed to be for
 				   this option. */
-				proto_tree_add_text(opt_tree, tvb, offset,      uncount + len,
+				proto_tree_add_text(opt_tree, tvb, offset, len + 2,
 						"%s (with option length = %u byte%s; should be >= %u)", name,
 						len, plurality(len, "", "s"), optlen);
 				return;
 			} else {
 				if (optp == NULL) {
-					proto_tree_add_text(opt_tree, tvb, offset,    uncount + len, "%s (%u byte%s)",
+					proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s (%u byte%s)",
 							name, len, plurality(len, "", "s"));
 				} else {
 					if (dissect != NULL) {
 						/* Option has a dissector. */
-						(*dissect)(optp, tvb, offset,          uncount + len, pinfo, opt_tree);
+						(*dissect)(optp, tvb, offset, len + 2, pinfo, opt_tree);
 					} else {
 						/* Option has no data, hence no dissector. */
-						proto_tree_add_text(opt_tree, tvb, offset,  uncount + len, "%s", name);
+						proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s", name);
 					}
 				}
-				offset += uncount + len;
+				offset += len + 2;
 			}
 			length -= len;
 		} else {

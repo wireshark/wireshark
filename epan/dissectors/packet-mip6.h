@@ -2,11 +2,14 @@
  *
  * $Id$
  *
- * Definitions for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
- * and Fast Handover for Mobile IPv6 (FMIPv6, draft-ietf-mipshop-fast-mipv6-03.txt)
+ * Definitions for Mobile IPv6 dissection (RFC 3775)
+ * and Fast Handover for Mobile IPv6 (FMIPv6, RFC 4068)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
  *
  * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
+ *
+ * Modifications for NEMO packets (RFC 3963): Bruno Deniaud
+ * (bdeniaud@irisa.fr, nono@chez.com) 12 Oct 2005
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +28,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- * Modifications for NEMO packets : Bruno Deniaud (bdeniaud@irisa.fr, nono@chez.com)
- * 12 Oct 2005
- * */
+ */
 
 #ifndef __PACKET_MIP6_H_DEFINED__
 #define __PACKET_MIP6_H_DEFINED__
@@ -43,9 +43,9 @@ typedef enum {
     BU   = 5,
     BA   = 6,
     BE    = 7,
-	FBU   = 8,
-	FBACK = 9,
-	FNA   = 10
+    FBU   = 8,
+    FBACK = 9,
+    FNA   = 10
 } mhTypes;
 
 static const value_string mip6_mh_types[] = {
@@ -72,7 +72,7 @@ typedef enum {
     NI   = 4,
     BAD  = 5,
     MNP  = 6,
- 	LLA  = 7
+    LLA  = 7
 } optTypes;
 
 /* Binding Update flag description */
@@ -283,7 +283,11 @@ static const value_string fmip6_lla_optcode_value[] = {
 #define FMIP6_FNA_RES_OFF     6
 #define FMIP6_FNA_OPTS_OFF    8
 #define FMIP6_FNA_RES_LEN     2
-/* Field offsets & field and option lengths for mobility options */
+
+/* Field offsets & field and option lengths for mobility options.
+ * The option length does *not* include the option type and length
+ * fields.  The field offsets, however, do include the type and
+ * length fields. */
 #define MIP6_BRA_LEN          2
 #define MIP6_BRA_RI_OFF       2
 #define MIP6_BRA_RI_LEN       2
@@ -292,9 +296,10 @@ static const value_string fmip6_lla_optcode_value[] = {
 #define MIP6_ACOA_ACOA_OFF    2
 #define MIP6_ACOA_ACOA_LEN   16
 
-#define NEMO_MNP_LEN        18
-#define NEMO_MNP_MNP_OFF    0
-#define NEMO_MNP_MNP_LEN   16
+#define NEMO_MNP_LEN         16
+#define NEMO_MNP_PL_OFF       3
+#define NEMO_MNP_MNP_OFF      4
+#define NEMO_MNP_MNP_LEN     16
 
 #define MIP6_NI_LEN           4
 #define MIP6_NI_HNI_OFF       2
@@ -304,6 +309,7 @@ static const value_string fmip6_lla_optcode_value[] = {
 
 #define MIP6_BAD_AUTH_OFF     2
 
+#define FMIP6_LLA_MINLEN      1
 #define FMIP6_LLA_OPTCODE_OFF 2
 #define FMIP6_LLA_LLA_OFF     4
 #define FMIP6_LLA_OPTCODE_LEN 1
