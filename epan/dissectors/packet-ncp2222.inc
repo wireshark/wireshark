@@ -5975,7 +5975,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	const ncp_record		*ncp_rec = NULL;
 	int				*req_cond_results;
 	guint8				completion_code=0;
-	guint				length;
 	ptvcursor_t			*ptvc = NULL;
 	const char			*error_string;
         guint32                         nds_offset = 0;
