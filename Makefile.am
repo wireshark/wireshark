@@ -482,7 +482,6 @@ EXTRA_DIST = \
 	capture_wpcap_packet.c  \
 	capture_wpcap_packet.h  \
 	cfilters 		\
-	cleanbld.bat		\
 	colorfilters 		\
 	config.h.win32		\
 	config.nmake		\
