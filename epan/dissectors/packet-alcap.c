@@ -1288,7 +1288,7 @@ static alcap_msg_type_info_t msg_types[] = {
     { "MOA ", PI_CHAT },
     { "MOR ", PI_CHAT },
     { "MOD ", PI_CHAT },
-    { 0, NULL }
+    { NULL, 0 }
 };
 
 #define GET_MSG_TYPE(id) ( array_length(msg_types) < id ? &(msg_types[0]) : &(msg_types[id]) )
@@ -1586,7 +1586,7 @@ proto_register_alcap(void)
     { &hf_alcap_ssisu_max_sssar_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisu.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_alcap_ssisu_ted, { "Transmission Error Detection", "alcap.ssisu.ted", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, "", HFILL }},
         
-    { &hf_alcap_pt, { "QoS Codepoint", "alcap.pt.codepoint", FT_UINT8, BASE_DEC, 0, NULL, "", HFILL }},
+    { &hf_alcap_pt, { "QoS Codepoint", "alcap.pt.codepoint", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         
     { &hf_alcap_plc_max_br_fw, { "Maximum Forward Bit Rate", "alcap.plc.bitrate.max.fw", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_alcap_plc_max_br_bw, { "Maximum Backwards Bit Rate", "alcap.plc.bitrate.max.bw", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
