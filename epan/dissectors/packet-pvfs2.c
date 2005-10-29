@@ -46,6 +46,8 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
+#include <epan/prefs.h>
+#include "packet-tcp.h"
 
 #define TCP_PORT_PVFS2 3334
 
@@ -53,6 +55,9 @@
 
 /* Header incl. magic number, mode, tag, size */
 #define BMI_HEADER_SIZE 24
+
+/* desegmentation of PVFS over TCP */
+static gboolean pvfs_desegment = TRUE;
 
 /* Forward declaration we need below */
 void proto_reg_handoff_pvfs(void);
@@ -237,26 +242,68 @@ static gboolean
 dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean dissect_other_as_continuation);
 
-static int
-dissect_pvfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+
+static void dissect_pvfs_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PVFS");
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
-
 	dissect_pvfs_common(tvb, pinfo, tree, FALSE);
 
-	return tvb_length(tvb);
 }
 
-static gboolean
+static guint get_pvfs_pdu_len(tvbuff_t *tvb, int offset)
+{
+  guint32 plen;
+
+  /*
+   * Get the length of the PVFS-over-TCP packet. Ignore top 32 bits
+   */
+  plen = tvb_get_letohl(tvb, offset + 16);
+
+  return plen+24;
+}
+
+static int
 dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	/* TODO: determine if this is a PVFS packet using heuristics */
+	guint32 magic_nr, mode;
+	guint64 size;
 
-	return dissect_pvfs_common(tvb, pinfo, tree, FALSE);
+	/* verify that this is indeed PVFS and that it looks sane */
+	if(tvb_length_remaining(tvb,0)<24){
+		/* too few bytes remaining to verify the header */
+		return 0;
+	}
+
+	/* validate the magic number */
+	magic_nr = tvb_get_letohl(tvb, 0);
+	if(magic_nr!=BMI_MAGIC_NR){
+		return 0;
+	}
+
+	/* Validate the TCP message mode (32-bit) */
+	mode = tvb_get_letohl(tvb, 4);
+	switch(mode){
+	case TCP_MODE_IMMED:
+	case TCP_MODE_UNEXP:
+	case TCP_MODE_EAGER:
+	case TCP_MODE_REND:
+		break;
+	default:
+		/* invalid mode, not a PVFS packet */
+		return 0;
+	}
+
+	/* validate the size : assume size must be >0 and less than 1000000 */
+	size=tvb_get_letohl(tvb, 20);
+	size<<=32;
+	size|=tvb_get_letohl(tvb, 16);
+	if((size>1000000)||(size==0)){
+		return 0;
+	}
+
+	tcp_dissect_pdus(tvb, pinfo, tree, pvfs_desegment, 24, get_pvfs_pdu_len,
+		dissect_pvfs_pdu);
+
+	return tvb_length(tvb);
 }
 
 static const value_string names_pvfs_server_op[] =
@@ -3061,13 +3108,19 @@ static gboolean
 dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		gboolean dissect_other_as_continuation _U_)
 {
-	guint32 magic_nr = 0, mode = 0;
+	guint32 mode = 0;
 	proto_item *item = NULL, *hitem = NULL;
 	proto_tree *pvfs_tree = NULL, *pvfs_htree = NULL;
 	int offset = 0;
 	guint64 tag;
 	guint32 server_op;
 	pvfs2_io_tracking_value_t *val = NULL;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PVFS");
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (parent_tree) 
 	{
@@ -3079,21 +3132,6 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	proto_tree_add_text(pvfs_tree, tvb, 0, -1, "Version: 2");
 
-	/*
-	 * Validate magic number.  For the time being, assume that an invalid
-	 * magic number is an indication of a continuation packet.
-	 */
-
-	if ((magic_nr = tvb_get_letohl(tvb, offset)) != BMI_MAGIC_NR)
-	{
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-
-		proto_tree_add_text(pvfs_tree, tvb, 0, -1, "<data>");
-
-		return TRUE;
-	}
-
 	/* PVFS packet header is 24 bytes */
 	hitem = proto_tree_add_text(pvfs_tree, tvb, 0, BMI_HEADER_SIZE, 
 			"BMI Header");
@@ -3101,7 +3139,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		pvfs_htree = proto_item_add_subtree(hitem, ett_pvfs_hdr);
 
 	/* Magic number */
-	proto_tree_add_uint(pvfs_htree, hf_pvfs_magic_nr, tvb, offset, 4, magic_nr);
+	proto_tree_add_item(pvfs_htree, hf_pvfs_magic_nr, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* TCP message mode (32-bit) */
@@ -3210,7 +3248,7 @@ proto_register_pvfs(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_pvfs_magic_nr, 
-			{ "Magic Number", "pvfs.magic_nr", FT_UINT32, BASE_DEC, 
+			{ "Magic Number", "pvfs.magic_nr", FT_UINT32, BASE_HEX, 
 				NULL, 0, "Magic Number", HFILL }},
 
 		{ &hf_pvfs_mode,
@@ -3555,6 +3593,7 @@ proto_register_pvfs(void)
 		&ett_pvfs_attr,
 		&ett_pvfs_fh
 	};
+	module_t *pvfs_module;
 
 	/* Register the protocol name and description */
 	proto_pvfs = proto_register_protocol("Parallel Virtual File System",
@@ -3569,6 +3608,13 @@ proto_register_pvfs(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_init_routine(pvfs2_io_tracking_init);
+
+	pvfs_module = prefs_register_protocol(proto_pvfs, NULL);
+	prefs_register_bool_preference(pvfs_module, "desegment",
+	    "Reassemble PVFS messages spanning multiple TCP segments",
+	    "Whether the PVFS dissector should reassemble messages spanning multiple TCP segments. "
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	    &pvfs_desegment);
 }
 
 void
@@ -3576,9 +3622,9 @@ proto_reg_handoff_pvfs(void)
 {
 	dissector_handle_t pvfs_handle;
 
-	pvfs_handle = new_create_dissector_handle(dissect_pvfs, proto_pvfs);
+	pvfs_handle = new_create_dissector_handle(dissect_pvfs_heur, proto_pvfs);
 	dissector_add("tcp.port", TCP_PORT_PVFS2, pvfs_handle);
 
-/*	heur_dissector_add("tcp", dissect_pvfs_heur, proto_pvfs);*/
+	heur_dissector_add("tcp", dissect_pvfs_heur, proto_pvfs);
 }
 
