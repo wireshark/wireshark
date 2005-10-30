@@ -537,6 +537,7 @@ static int ff_cf_imm_blk_ack = -1;
 static int tag_number = -1;
 static int tag_length = -1;
 static int tag_interpretation = -1;
+static int tag_oui = -1;
 
 static int tim_length = -1;
 static int tim_dtim_count = -1;
@@ -936,14 +937,14 @@ wpa_keymgmt_idx2str(guint idx)
   return "UNKNOWN";
 }
 
-static void 
-dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
-		guint32 tag_len, const guint8 *tag_val)
+static void
+dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tvb,
+	int offset, guint32 tag_len, const guint8 *tag_val)
 {
       guint32 tag_val_off = 0;
       char out_buff[SHORT_STR], *pos;
       guint i;
-	
+
       /* Wi-Fi Protected Access (WPA) Information Element */
       if (tag_val_off + 6 <= tag_len && !memcmp(tag_val, WPA_OUI"\x01", 4)) {
         g_snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
@@ -1006,12 +1007,14 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
         if (tag_val_off < tag_len)
           proto_tree_add_string(tree, tag_interpretation, tvb,
                                  offset, tag_len - tag_val_off, "Not interpreted");
+	proto_item_append_text(ietree, ": WPA");
       } else if (tag_val_off + 7 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x00", 5)) {
       /* Wireless Multimedia Enhancements (WME) Information Element */
         g_snprintf(out_buff, SHORT_STR, "WME IE: type %u, subtype %u, version %u, parameter set %u",
 		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5],
 		 tag_val[tag_val_off + 6]);
         proto_tree_add_string(tree, tag_interpretation, tvb, offset, 7, out_buff);
+	proto_item_append_text(ietree, ": WME");
       } else if (tag_val_off + 24 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x01", 5)) {
       /* Wireless Multimedia Enhancements (WME) Parameter Element */
         g_snprintf(out_buff, SHORT_STR, "WME PE: type %u, subtype %u, version %u, parameter set %u",
@@ -1033,6 +1036,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	  offset += 4;
 	  tag_val_off += 4;
 	}
+	proto_item_append_text(ietree, ": WME");
       } else if (tag_val_off + 56 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x02", 5)) {
       /* Wireless Multimedia Enhancements (WME) TSPEC Element */
 	guint16 ts_info, msdu_size, surplus_bandwidth;
@@ -1097,30 +1101,39 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	g_snprintf(out_buff, SHORT_STR, "WME TSPEC: Medium Time %u", tvb_get_letohs(tvb, offset));
 	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
 	offset += 2;
-	tag_val_off += 2;		 
-      } else if (tag_val_off + 4 <= tag_len && !memcmp(tag_val, RSN_OUI"\x04", 4)) {
-	/* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
-	 * This is only used within EAPOL-Key frame Key Data. */
-	pos = out_buff;
-	pos += snprintf(pos, out_buff + SHORT_STR - pos, "RSN PMKID: ");
+	tag_val_off += 2;
+	proto_item_append_text(ietree, ": WME");
+      }
+}
+
+static void
+dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tvb,
+	int offset, guint32 tag_len, const guint8 *tag_val)
+{
+	guint32 tag_val_off = 0;
+	char out_buff[SHORT_STR], *pos;
+	guint i;
+
+	if (tag_val_off + 4 <= tag_len && !memcmp(tag_val, RSN_OUI"\x04", 4)) {
+		/* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
+		 * This is only used within EAPOL-Key frame Key Data. */
+		pos = out_buff;
+		pos += snprintf(pos, out_buff + SHORT_STR - pos, "RSN PMKID: ");
 	if (tag_len - 4 != PMKID_LEN) {
-	  pos += snprintf(pos, out_buff + SHORT_STR - pos,
+		pos += snprintf(pos, out_buff + SHORT_STR - pos,
 			  "(invalid PMKID len=%d, expected 16) ", tag_len - 4);
 	}
 	for (i = 0; i < tag_len - 4; i++) {
-	  pos += snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
-			  tag_val[tag_val_off + 4 + i]);
+		pos += snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
+			tag_val[tag_val_off + 4 + i]);
 	}
 	proto_tree_add_string(tree, tag_interpretation, tvb, offset,
-			      tag_len, out_buff);
-      } else
-	proto_tree_add_string_format(tree, tag_interpretation,
-		tvb, offset, tag_len, "",
-		"Tag interpretation: Vendor \"%s\" not interpreted",
-		get_manuf_name(tag_val));
+	      tag_len, out_buff);
+	}
+	proto_item_append_text(ietree, ": RSN");
 }
 
-static void 
+static void
 dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	       guint32 tag_len, const guint8 *tag_val)
 {
@@ -1307,6 +1320,8 @@ static int beacon_padding = 0; /* beacon padding bug */
 static int
 add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
 {
+  guint32 oui;
+  guint8 *tag_val;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
   unsigned int i;
@@ -1634,8 +1649,29 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_VENDOR_SPECIFIC_IE:
-      dissect_vendor_specific_ie(tree, tvb, offset + 2, tag_len,
-				 tvb_get_ptr (tvb, offset + 2, tag_len));
+      tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
+      if (tag_len >= 3) {
+		oui = tvb_get_ntoh24(tvb, offset + 2);
+		tag_val = tvb_get_ptr(tvb, offset + 2, tag_len);
+#define WPAWME_OUI	0x0050F2
+#define RSNOUI_VAL	0x000FAC
+		switch (oui) {
+		case WPAWME_OUI:
+			dissect_vendor_ie_wpawme(ti, tree, tvb, offset + 2, tag_len, tag_val);
+			break;
+		case RSNOUI_VAL:
+			dissect_vendor_ie_rsn(ti, tree, tvb, offset + 2, tag_len, tag_val);
+			break;
+		default:
+			proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
+				"", "Vendor: %s", get_manuf_name(tag_val));
+			proto_item_append_text(ti, ": %s", get_manuf_name(tag_val));
+			proto_tree_add_string (tree, tag_interpretation, tvb, offset + 5,
+				tag_len - 3, "Not interpreted");
+			break;
+		}
+
+      }
       break;
 
     case TAG_RSN_IE:
@@ -3682,6 +3718,10 @@ proto_register_ieee80211 (void)
     {&tag_interpretation,
      {"Tag interpretation", "wlan_mgt.tag.interpretation",
       FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag", HFILL }},
+
+    {&tag_oui,
+     {"OUI", "wlan_mgt.tag.oui",
+      FT_BYTES, BASE_NONE, NULL, 0, "OUI of vendor specific IE", HFILL }},
 
     {&tim_length,
      {"TIM length", "wlan_mgt.tim.length",
