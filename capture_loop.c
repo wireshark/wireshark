@@ -762,6 +762,10 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
     }
     if (pcap_compile(ld->pcap_h, &fcode, cfilter, 1, netmask) < 0) {
       dfilter_t   *rfcode = NULL;
+      gchar *safe_cfilter = simple_dialog_format_message(cfilter);
+      gchar *safe_cfilter_error_msg = simple_dialog_format_message(
+	  pcap_geterr(ld->pcap_h));
+
       /* filter string invalid, did the user tried a display filter? */
       if (dfilter_compile(cfilter, &rfcode) && rfcode != NULL) {
         g_snprintf(errmsg, errmsg_len,
@@ -774,8 +778,8 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
           "so you can't use most display filter expressions as capture filters.\n"
           "\n"
           "See the help for a description of the capture filter syntax.",
-          simple_dialog_primary_start(), cfilter, simple_dialog_primary_end(),
-          pcap_geterr(ld->pcap_h));
+          simple_dialog_primary_start(), safe_cfilter,
+          simple_dialog_primary_end(), safe_cfilter_error_msg);
 	dfilter_free(rfcode);
       } else {
         g_snprintf(errmsg, errmsg_len,
@@ -783,9 +787,11 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
           "\n"
           "That string isn't a valid capture filter (%s).\n"
           "See the help for a description of the capture filter syntax.",
-          simple_dialog_primary_start(), cfilter, simple_dialog_primary_end(),
-          pcap_geterr(ld->pcap_h));
+          simple_dialog_primary_start(), safe_cfilter,
+          simple_dialog_primary_end(), safe_cfilter_error_msg);
       }
+      g_free(safe_cfilter_error_msg);
+      g_free(safe_cfilter);
       return FALSE;
     }
     if (pcap_setfilter(ld->pcap_h, &fcode) < 0) {
