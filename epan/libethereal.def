@@ -273,6 +273,7 @@ fvalue_from_unparsed
 fvalue_get
 fvalue_get_floating
 fvalue_get_integer
+fvalue_get_integer64
 fvalue_to_string_repr
 GatekeeperRejectReason_vals     DATA
 get_addr_name
