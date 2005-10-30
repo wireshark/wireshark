@@ -29,22 +29,22 @@ filter fields.
 =head2 Check whether a field or protocol exists
 
 The simplest filter allows you to check for the existence of a protocol or
-field.  If you want to see all packets which contain the IPX protocol, the
-filter would be "ipx" (without the quotation marks). To see all packets
+field.  If you want to see all packets which contain the IP protocol, the
+filter would be "ip" (without the quotation marks). To see all packets
 that contain a Token-Ring RIF field, use "tr.rif".
 
 Think of a protocol or field in a filter as implicitly having the "exists"
 operator.
 
 Note: all protocol and field names that are available in B<Ethereal> and
-B<Tethereal> filters are listed in the B<FILTER PROTOCOL REFERENCE> (see
-below).
+B<Tethereal> filters are listed in the comprehensive B<FILTER PROTOCOL 
+REFERENCE> (see below).
 
 =head2 Comparison operators
 
 Fields can also be compared against values.  The comparison operators
-can be expressed either through C-like symbols or through English-like
-abbreviations:
+can be expressed either through English-like abbreviations or through 
+C-like symbols:
 
     eq, ==    Equal
     ne, !=    Not Equal
@@ -55,7 +55,7 @@ abbreviations:
 
 =head2 Search and match operators
 
-Additional operators exist expressed only in English, not punctuation:
+Additional operators exist expressed only in English, not C-like:
 
     contains  Does the protocol, field or slice contain a value
     matches   Does the text string match the given Perl regular expression
