@@ -151,7 +151,7 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define FLAG_RETRY		0x08
 #define FLAG_POWER_MGT		0x10
 #define FLAG_MORE_DATA		0x20
-#define FLAG_WEP		0x40
+#define FLAG_PROTECTED		0x40
 #define FLAG_ORDER		0x80
 #define FLAG_DATA_NULL		0x24
 #define FLAG_DATA_QOS		0x28
@@ -164,7 +164,7 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define IS_RETRY(x)            ((x) & FLAG_RETRY)
 #define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
 #define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
-#define IS_WEP(x)              (!wlan_ignore_wep && ((x) & FLAG_WEP))
+#define IS_PROTECTED(x)              (!wlan_ignore_wep && ((x) & FLAG_PROTECTED))
 #define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
 #define IS_DATA_NULL(x)	       (((x) & 0xf4) == FLAG_DATA_NULL)
 #define IS_DATA_QOS(x)	       (((x) & 0xf8) == FLAG_DATA_QOS)
@@ -432,7 +432,7 @@ static int hf_fc_more_frag = -1;
 static int hf_fc_retry = -1;
 static int hf_fc_pwr_mgt = -1;
 static int hf_fc_more_data = -1;
-static int hf_fc_wep = -1;
+static int hf_fc_protected = -1;
 static int hf_fc_order = -1;
 
 
@@ -639,7 +639,7 @@ find_header_length (guint16 fcf)
       return len + 2;
     else
       return len;
-  
+
   default:
     return 4;	/* XXX */
   }
@@ -662,7 +662,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 
   fcf = pletohs (&pd[0]);
 
-  if (IS_WEP(COOK_FLAGS(fcf)))
+  if (IS_PROTECTED(COOK_FLAGS(fcf)))
     {
       ld->other++;
       return;
@@ -844,7 +844,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       proto_tree_add_boolean (cap_tree, ff_cf_apsd, tvb, offset, 2,
 			      capability);
       proto_tree_add_boolean (cap_tree, ff_dsss_ofdm, tvb, offset, 2,
-			      capability);     
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_del_blk_ack, tvb, offset, 2,
 			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_imm_blk_ack, tvb, offset, 2,
@@ -872,7 +872,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       break;
 
     case FIELD_ASSOC_ID:
-      proto_tree_add_uint(tree, ff_assoc_id, tvb, offset, 2, 
+      proto_tree_add_uint(tree, ff_assoc_id, tvb, offset, 2,
 			  COOK_ASSOC_ID(tvb_get_letohs(tvb,offset)));
       /* proto_tree_add_item (tree, ff_assoc_id, tvb, offset, 2, TRUE); */
       break;
@@ -903,7 +903,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     }
 }
 
-static const char *wpa_cipher_str[] = 
+static const char *wpa_cipher_str[] =
 {
   "NONE",
   "WEP (40-bit)",
@@ -921,7 +921,7 @@ wpa_cipher_idx2str(guint idx)
   return "UNKNOWN";
 }
 
-static const char *wpa_keymgmt_str[] = 
+static const char *wpa_keymgmt_str[] =
 {
   "NONE",
   "WPA",
@@ -954,7 +954,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
         if (tag_val_off + 4 <= tag_len) {
           /* multicast cipher suite */
           if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
-            g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
+            g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s",
                       wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
             proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
             offset += 4;
@@ -969,7 +969,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
               i = 1;
               while (tag_val_off + 4 <= tag_len) {
                 if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
-                  g_snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s", 
+                  g_snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s",
                             i, wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
                   proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
                   offset += 4;
@@ -989,7 +989,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
                 i = 1;
                 while (tag_val_off + 4 <= tag_len) {
                   if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
-                    g_snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
+                    g_snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s",
                               i, wpa_keymgmt_idx2str(tag_val[tag_val_off + 3]));
                     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
                     offset += 4;
@@ -1149,7 +1149,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* multicast cipher suite */
   if (!memcmp(&tag_val[tag_val_off], RSN_OUI, 3)) {
-    g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
+    g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s",
 	     wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
     offset += 4;
@@ -1190,7 +1190,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   while (tag_val_off + 4 <= tag_len && i <= count) {
     if (memcmp(&tag_val[tag_val_off], RSN_OUI, 3) != 0)
       goto done;
-    g_snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
+    g_snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s",
 	     i, wpa_keymgmt_idx2str(tag_val[tag_val_off + 3]));
     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
     offset += 4;
@@ -1321,7 +1321,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
   ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+2,"%s",
                          val_to_str(tag_no, tag_num_vals,
-                         (tag_no >= 17 && tag_no <= 31) ? 
+                         (tag_no >= 17 && tag_no <= 31) ?
                          "Reserved for challenge text" : "Reserved tag number" ));
   tree=proto_item_add_subtree(ti,ett_80211_mgt_ie);
 
@@ -1445,7 +1445,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 6,
                                    2, out_buff, "%s", out_buff);
       proto_item_append_text(ti, ": CFP count %u, CFP period %u, CFP max duration %u, "
-                             "CFP Remaining %u", 
+                             "CFP Remaining %u",
                              tvb_get_guint8(tvb, offset + 2),
                              tvb_get_guint8(tvb, offset + 3),
                              tvb_get_letohs(tvb, offset + 4),
@@ -1538,14 +1538,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         tvb_memcpy(tvb, ccode, offset + 2, 2);
         ccode[2] = '\0';
         g_snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
-                 format_text(ccode, 2), 
+                 format_text(ccode, 2),
                  val_to_str(tvb_get_guint8(tvb, offset + 4), environment_vals,"Unknown (0x%02x)"));
         out_buff[SHORT_STR-1] = '\0';
         proto_item_append_text(ti, ": %s", out_buff);
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,3, out_buff);
 
         for (i = 3; (i + 3) <= tag_len; i += 3)
-        { 
+        {
 	  guint8 val1, val2, val3;
 	  val1 = tvb_get_guint8(tvb, offset + 2 + i);
 	  val2 = tvb_get_guint8(tvb, offset + 3 + i);
@@ -1571,7 +1571,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
-      g_snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u", 
+      g_snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u",
                 tvb_get_guint8(tvb, offset + 2),
                 tvb_get_guint8(tvb, offset + 3));
       out_buff[SHORT_STR-1] = '\0';
@@ -1614,7 +1614,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_CISCO_UNKNOWN_1:
-      /* The Name of the sending device starts at offset 10 and is up to 
+      /* The Name of the sending device starts at offset 10 and is up to
          15 or 16 bytes in length, \0 padded */
       if (tag_len < 26)
       {
@@ -1996,11 +1996,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     hdr_len = find_header_length (fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
-  /*if (check_col (pinfo->cinfo, COL_INFO))
-      col_set_str (pinfo->cinfo, COL_INFO,
-          val_to_str(frame_type_subtype, frame_type_subtype_vals,
-              "Unrecognized (Reserved frame)"));*/
-
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
       col_set_str (pinfo->cinfo, COL_PROTOCOL,
           val_to_str(frame_type_subtype, frame_type_subtype_vals,
@@ -2042,11 +2037,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       }
 
       proto_tree_add_uint (hdr_tree, hf_fc_frame_type_subtype,
-			   tvb, 
+			   tvb,
 	  	    	   wlan_broken_fc?1:0, 1,
 			   frame_type_subtype);
 
-      fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 
+      fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb,
 		      			    0, 2,
 					    fcf,
 					    "Frame Control: 0x%04X (%s)",
@@ -2055,52 +2050,52 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       fc_tree = proto_item_add_subtree (fc_item, ett_fc_tree);
 
 
-      proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb, 
+      proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb,
 		           wlan_broken_fc?1:0, 1,
 			   COOK_PROT_VERSION (fcf));
 
-      proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb, 
+      proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb,
 		           wlan_broken_fc?1:0, 1,
 			   COOK_FRAME_TYPE (fcf));
 
       proto_tree_add_uint (fc_tree, hf_fc_frame_subtype,
-			   tvb, 
+			   tvb,
 			   wlan_broken_fc?1:0, 1,
 			   COOK_FRAME_SUBTYPE (fcf));
 
       flag_item =
-	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb, 
+	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb,
 			            wlan_broken_fc?0:1, 1,
 				    flags, "Flags: 0x%X", flags);
 
       flag_tree = proto_item_add_subtree (flag_item, ett_proto_flags);
 
-      proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb, 
+      proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb,
 		           wlan_broken_fc?0:1, 1,
 			   COOK_DS_STATUS (flags));
-      proto_tree_add_boolean_hidden (flag_tree, hf_fc_to_ds, tvb, 1, 1, 
+      proto_tree_add_boolean_hidden (flag_tree, hf_fc_to_ds, tvb, 1, 1,
 				     flags);
-      proto_tree_add_boolean_hidden (flag_tree, hf_fc_from_ds, tvb, 1, 1, 
+      proto_tree_add_boolean_hidden (flag_tree, hf_fc_from_ds, tvb, 1, 1,
 				     flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb, 
+      proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb,
 		              wlan_broken_fc?0:1, 1,
 			      flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_retry, tvb, 
+      proto_tree_add_boolean (flag_tree, hf_fc_retry, tvb,
 		              wlan_broken_fc?0:1, 1, flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_pwr_mgt, tvb, 
+      proto_tree_add_boolean (flag_tree, hf_fc_pwr_mgt, tvb,
 		              wlan_broken_fc?0:1, 1, flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_more_data, tvb, 
+      proto_tree_add_boolean (flag_tree, hf_fc_more_data, tvb,
 		              wlan_broken_fc?0:1, 1,
 			      flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_wep, tvb,
+      proto_tree_add_boolean (flag_tree, hf_fc_protected, tvb,
 		              wlan_broken_fc?0:1, 1, flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, 
+      proto_tree_add_boolean (flag_tree, hf_fc_order, tvb,
 		              wlan_broken_fc?0:1, 1, flags);
 
       if (frame_type_subtype == CTRL_PS_POLL)
@@ -2261,7 +2256,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    }
 	  break;
 
-	case CTRL_BLOCK_ACK_REQ:  
+	case CTRL_BLOCK_ACK_REQ:
 	  {
 	    src = tvb_get_ptr (tvb, 10, 6);
 	    dst = tvb_get_ptr (tvb, 4, 6);
@@ -2278,7 +2273,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	  /* TODO BAR */
 	  break;
 	  }
-	  
+
 	case CTRL_BLOCK_ACK:
 	  {
 	    src = tvb_get_ptr (tvb, 10, 6);
@@ -2358,7 +2353,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   	col_append_fstr(pinfo->cinfo, COL_INFO,
           ",FN=%d",frag_number);
       }
-      
+
       /* Now if we have a tree we start adding stuff */
       if (tree)
 	{
@@ -2526,7 +2521,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     case DATA_FRAME:
       {
 	if (tree && IS_DATA_QOS(frame_type_subtype)) {
-    
+
 	  proto_item *qos_fields;
 	  proto_tree *qos_tree;
 
@@ -2552,14 +2547,14 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      qos_priority, qos_tags[qos_priority], qos_acs[qos_priority]);
 
     	  if(flags & FLAG_FROM_DS)	{
-	    proto_tree_add_boolean (qos_tree, hf_qos_eosp, tvb, 
+	    proto_tree_add_boolean (qos_tree, hf_qos_eosp, tvb,
 	      hdr_len - 2, 1, qos_eosp);
 
 	    if(IS_DATA_CF_POLL(frame_type_subtype)) {
 	      /* txop limit */
 	      proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
       		  hdr_len - 1, 1, qos_field_content, "TXOP Limit: %d ", qos_field_content);
-	      
+
 	    }else {
 	      /* qap ps buffer state */
 	      proto_item *qos_ps_buf_state_fields;
@@ -2577,16 +2572,16 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     	      qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
 /*	FIXME: hf_ values not defined
-	      proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state, tvb, 
+	      proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state, tvb,
     		  1, 1, buf_state);
-	      
+
 	      proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_ac, tvb,
 		  hdr_len - 1, 1, buf_ac, "Priority: %d (%s)",
 		  buf_ac, wme_acs[buf_ac]);
-	      
+
 	      proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_load, tvb,
       		  hdr_len - 1, 1, buf_load, "Buffered load: %d ", (buf_load * 4096));
-*/	      
+*/
 
 	    }
 	  } else  if(qos_eosp)  {
@@ -2598,18 +2593,18 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
 		  hdr_len - 1, 1, qos_field_content, "TXOP Limit Requested: %d ", qos_field_content);
 	  }
-	  
+
 	  proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, hdr_len - 2, 1,
-	      qos_ack_policy); 
+	      qos_ack_policy);
 
       	} /* end of qos control field */
-	  
+
       /*
        * No-data frames don't have a body.
        */
       if( IS_DATA_NULL(frame_type_subtype))
 	return;
- 
+
       break;
       }
 
@@ -2620,7 +2615,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       return;
     }
 
-  if (IS_WEP(COOK_FLAGS(fcf))) {
+  if (IS_PROTECTED(COOK_FLAGS(fcf))) {
     /*
      * It's a WEP-encrypted frame; dissect the WEP parameters and decrypt
      * the data, if we have a matching key.  Otherwise display it as data.
@@ -2651,7 +2646,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		   tvb_get_guint8(tvb, hdr_len + 2));
 	  proto_tree_add_string(wep_tree, hf_tkip_extiv, tvb, hdr_len,
 				EXTIV_LEN, out_buff);
-	} 
+	}
 	if (tvb_get_guint8(tvb, hdr_len + 2) == 0) {
 	  g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
 		   tvb_get_letohl(tvb, hdr_len + 4),
@@ -2754,10 +2749,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       next_tvb = tvb_new_subset(tvb, hdr_len + ivlen, len, reported_len);
 
       if (tree && can_decrypt)
-	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb, 
-				    hdr_len + ivlen + len, 4, 
+	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
+				    hdr_len + ivlen + len, 4,
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len),
-				    "WEP ICV: 0x%08x (not verified)", 
+				    "WEP ICV: 0x%08x (not verified)",
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
       if (pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC)
@@ -2769,10 +2764,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     } else {
 
       if (tree)
-	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb, 
-				    hdr_len + ivlen + len, 4, 
+	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
+				    hdr_len + ivlen + len, 4,
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len),
-				    "WEP ICV: 0x%08x (correct)", 
+				    "WEP ICV: 0x%08x (correct)",
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
       add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
@@ -3051,9 +3046,9 @@ proto_register_ieee80211 (void)
     "No data buffered"
   };
 
-  static const true_false_string wep_flags = {
-    "WEP is enabled",
-    "WEP is disabled"
+  static const true_false_string protected_flags = {
+    "Data is protected",
+    "Data is not protected"
   };
 
   static const true_false_string order_flags = {
@@ -3101,7 +3096,7 @@ proto_register_ieee80211 (void)
     "dot11SpectrumManagementRequired TRUE",
     "dot11SpectrumManagementRequired FALSE",
   };
- 
+
   static const true_false_string cf_apsd_flags = {
     "apsd implemented",
     "apsd not implemented",
@@ -3111,11 +3106,11 @@ proto_register_ieee80211 (void)
     "delayed block ack implemented",
     "delayed block ack not implented",
   };
-  
+
   static const true_false_string cf_imm_blk_ack_flags = {
     "immediate block ack implemented",
     "immediate block ack not implented",
-  };  
+  };
   static const true_false_string cf_ibss_flags = {
     "Transmitter belongs to an IBSS",
     "Transmitter belongs to a BSS"
@@ -3125,7 +3120,7 @@ proto_register_ieee80211 (void)
     "End of service period",
     "Service period"
   };
-  
+
   static const value_string sta_cf_pollable[] = {
     {0x00, "Station is not CF-Pollable"},
     {0x02, "Station is CF-Pollable, "
@@ -3248,13 +3243,14 @@ proto_register_ieee80211 (void)
       "poor conditions on current operating channel"},
     {0x23, "Association (with QBSS) denied due to requesting station not "
       "supporting the QoS facility"},
+    {0x24, "Association denied due to requesting station not supporting "
+      "Block Ack"},
     {0x25, "The request has been declined."},
     {0x26, "The request has not been successful as one or more parameters "
       "have invalid values."},
     {0x27, "The TS has not been created because the request cannot be honored. "
       "However, a suggested TSPEC is provided so that the initiating QSTA may "
 	"attempt to set another TS with the suggested changes to the TSPEC."},
-    
     {0x28, "Invalid Information Element"},
     {0x29, "Group Cipher is not valid"},
     {0x2A, "Pairwise Cipher is not valid"},
@@ -3287,7 +3283,7 @@ proto_register_ieee80211 (void)
     {SM_ACTION_CHAN_SWITCH_ANNC, "Channel Switch Announcement"},
     {0, NULL}
   };
-    
+
   static const value_string wme_action_codes[] = {
     {0x00, "Setup request"},
     {0x01, "Setup response"},
@@ -3375,9 +3371,9 @@ proto_register_ieee80211 (void)
      {"More Data", "wlan.fc.moredata", FT_BOOLEAN, 8, TFS (&md_flags), FLAG_MORE_DATA,
       "More data flag", HFILL }},
 
-    {&hf_fc_wep,
-     {"WEP flag", "wlan.fc.wep", FT_BOOLEAN, 8, TFS (&wep_flags), FLAG_WEP,
-      "WEP flag", HFILL }},
+    {&hf_fc_protected,
+     {"Protected flag", "wlan.fc.protected", FT_BOOLEAN, 8, TFS (&protected_flags), FLAG_PROTECTED,
+      "Protected flag", HFILL }},
 
     {&hf_fc_order,
      {"Order flag", "wlan.fc.order", FT_BOOLEAN, 8, TFS (&order_flags), FLAG_ORDER,
@@ -3426,7 +3422,7 @@ proto_register_ieee80211 (void)
     {&hf_qos_priority,
      {"Priority", "wlan.qos.priority", FT_UINT16, BASE_DEC, NULL, 0,
       "802.1D Tag", HFILL }},
-    
+
     {&hf_qos_eosp,
      {"EOSP", "wlan.qos.eosp", FT_BOOLEAN, 8, TFS (&eosp_flag), FLAG_EOSP,
       "EOSP Field", HFILL }},
@@ -3438,19 +3434,19 @@ proto_register_ieee80211 (void)
     {&hf_qos_field_content,
      {"Content", "wlan.qos.fc_content", FT_UINT16, BASE_DEC, NULL, 0,
       "Content1", HFILL }},
-    
+
 /*    {&hf_qos_buffer_state,
      {"QAP PS buffer State", "wlan.qos.ps_buf_state", FT_UINT16, BASE_DEC, NULL, 0,
       "QAP PS buffer State", HFILL }},
-      
+
     {&hf_qos_txop_dur_req,
      {"TXOP Duration Requested", "wlan.qos.txop_dur_req", FT_UINT16, BASE_DEC, NULL, 0,
       "TXOP Duration Requested", HFILL }},
-    
+
     {&hf_qos_queue_size,
      {"Queue Size", "wlan.qos.queue_size", FT_UINT16, BASE_DEC, NULL, 0,
       "Queue Size", HFILL }},*/
-      
+
     {&hf_fcs,
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
       NULL, 0, "FCS", HFILL }},
@@ -3608,7 +3604,7 @@ proto_register_ieee80211 (void)
      {"Automatic Power Save Delivery", "wlan_mgt.fixed.capabilities.apsd",
       FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800, "Automatic Power Save "
 	"Delivery", HFILL }},
-    
+
     {&ff_dsss_ofdm,
      {"DSSS-OFDM", "wlan_mgt.fixed.capabilities.dsss_ofdm",
       FT_BOOLEAN, 16, TFS (&dsss_ofdm_flags), 0x2000, "DSSS-OFDM Modulation",
@@ -3618,12 +3614,12 @@ proto_register_ieee80211 (void)
      {"Delayed Block Ack", "wlan_mgt.fixed.capabilities.del_blk_ack",
       FT_BOOLEAN, 16, TFS (&cf_del_blk_ack_flags), 0x4000, "Delayed Block "
 	"Ack", HFILL }},
-    
+
     {&ff_cf_imm_blk_ack,
      {"Immediate Block Ack", "wlan_mgt.fixed.capabilities.imm_blk_ack",
       FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000, "Immediate Block "
 	"Ack", HFILL }},
-    
+
     {&ff_auth_seq,
      {"Authentication SEQ", "wlan_mgt.fixed.auth_seq",
       FT_UINT16, BASE_HEX, NULL, 0, "Authentication sequence number", HFILL }},
