@@ -126,9 +126,9 @@ static int
 val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 {
 	/*
-	 * 14 characters for "XXX.XXX.XXX.XXX".
+	 * 15 characters for "XXX.XXX.XXX.XXX".
 	 */
-	return 14;
+	return 15;
 }
 
 static void
