@@ -942,7 +942,7 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tvb,
 	int offset, guint32 tag_len, const guint8 *tag_val)
 {
       guint32 tag_val_off = 0;
-      char out_buff[SHORT_STR], *pos;
+      char out_buff[SHORT_STR];
       guint i;
 
       /* Wi-Fi Protected Access (WPA) Information Element */
@@ -1321,7 +1321,7 @@ static int
 add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
 {
   guint32 oui;
-  guint8 *tag_val;
+  const guint8 *tag_val;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
   unsigned int i;
