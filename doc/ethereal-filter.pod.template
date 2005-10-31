@@ -55,13 +55,15 @@ C-like symbols:
 
 =head2 Search and match operators
 
-Additional operators exist expressed only in English, not C-like:
+Additional operators exist expressed only in English, not C-like syntax:
 
     contains  Does the protocol, field or slice contain a value
-    matches   Does the text string match the given Perl regular expression
+    matches   Does the protocol or text string match the given Perl
+              regular expression
 
 The "contains" operator allows a filter to search for a sequence of
-characters or bytes.  For example, to search for a given HTTP
+characters, expressed as a string (quoted or unquoted), or bytes,
+expressed as a byte array.  For example, to search for a given HTTP
 URL in a capture, the following filter can be used:
 
     http contains "http://www.ethereal.com"
