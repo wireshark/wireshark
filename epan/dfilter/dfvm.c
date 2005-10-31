@@ -93,6 +93,8 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 	dfvm_value_t	*arg3;
 	dfvm_value_t	*arg4;
 	char		*value_str;
+	GSList		*range_list;
+	drange_node	*range_item;
 
 	length = insns->len;
 
@@ -127,9 +129,41 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 				break;
 
 			case MK_RANGE:
-				fprintf(f, "%05d MK_RANGE\t\treg#%u[?] -> reg#%u\n",
+				arg3 = insn->arg3;
+				fprintf(f, "%05d MK_RANGE\t\treg#%u[",
 					id,
-					arg1->value.numeric,
+					arg1->value.numeric);
+				for (range_list = arg3->value.drange->range_list;
+				     range_list != NULL;
+				     range_list = range_list->next) {
+					range_item = range_list->data;
+					switch (range_item->ending) {
+
+					case UNINITIALIZED:
+						fprintf(f, "?");
+						break;
+
+					case LENGTH:
+						fprintf(f, "%d:%d",
+						    range_item->start_offset,
+						    range_item->length);
+						break;
+
+					case OFFSET:
+						fprintf(f, "%d-%d",
+						    range_item->start_offset,
+						    range_item->end_offset);
+						break;
+
+					case TO_THE_END:
+						fprintf(f, "%d:",
+						    range_item->start_offset);
+						break;
+					}
+					if (range_list->next != NULL)
+						fprintf(f, ",");
+				}
+				fprintf(f, "] -> reg#%u\n",
 					arg2->value.numeric);
 				break;
 
