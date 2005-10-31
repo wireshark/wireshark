@@ -4683,7 +4683,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 }
 
 /* This function returns a string allocated with packet lifetime scope.
- * You do not need to [g_]free() this string since it willb e automatically 
+ * You do not need to [g_]free() this string since it will be automatically 
  * freed once the next packet is dissected.
  */
 char*
@@ -4703,17 +4703,14 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 	abbrev_len = strlen(hfinfo->abbrev);
 
 	/*
-	 * XXX - we should add "val_to_string_repr" and "string_repr_len"
-	 * functions for more types, and use them whenever possible.
-	 *
-	 * The FT_UINT and FT_INT types are the only tricky ones, as
-	 * we choose the base in the string expression based on the
-	 * display base of the field.
+	 * XXX - we can't use the "val_to_string_repr" and "string_repr_len"
+	 * functions for FT_UINT and FT_INT types, as we choose the base in
+	 * the string expression based on the display base of the field.
 	 *
 	 * Note that the base does matter, as this is also used for
 	 * the protocolinfo tap.
 	 *
-	 * It might be nice to use that in "proto_item_fill_label()"
+	 * It might be nice to use them in "proto_item_fill_label()"
 	 * as well, although, there, you'd have to deal with the base
 	 * *and* with resolved values for addresses.
 	 *
@@ -4782,33 +4779,8 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer64(&finfo->value));
 			break;
 
-		case FT_IPXNET:
-			/*
-			 * 4 bytes for " == ".
-			 * 2 bytes for "0x".
-			 * 8 bytes for 8 digits of 32-bit hex number.
-			 * 1 byte for the trailing '\0'.
-			 */
-			dfilter_len = abbrev_len + 4 + 2 + 8 + 1;
-			buf = ep_alloc0(dfilter_len);
-			g_snprintf(buf, dfilter_len, "%s == 0x%08x", hfinfo->abbrev,
-					fvalue_get_integer(&finfo->value));
-			break;
-
-		case FT_IPv6:
-			/*
-			 * 4 bytes for " == ".
-			 * N bytes for the string for the address.
-			 * 1 byte for the trailing '\0'.
-			 */
-			stringified = ip6_to_str((struct e_in6_addr*) fvalue_get(&finfo->value));
-			dfilter_len = abbrev_len + 4 + strlen(stringified) + 1;
-			buf = ep_alloc0(dfilter_len);
-			g_snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
-					stringified);
-			break;
-
 		/* These use the fvalue's "to_string_repr" method. */
+		case FT_IPXNET:
 		case FT_BOOLEAN:
 		case FT_STRING:
 		case FT_ETHER:
@@ -4819,6 +4791,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_IPv4:
+		case FT_IPv6:
 		case FT_GUID:
 			/* Figure out the string length needed.
 			 * 	The ft_repr length.

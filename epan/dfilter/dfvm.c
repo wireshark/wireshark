@@ -2,9 +2,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -93,6 +92,7 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 	dfvm_value_t	*arg2;
 	dfvm_value_t	*arg3;
 	dfvm_value_t	*arg4;
+	char		*value_str;
 
 	length = insns->len;
 
@@ -111,66 +111,70 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 				break;
 
 			case READ_TREE:
-				fprintf(f, "%05d READ_TREE\t\t%s -> reg#%d\n",
+				fprintf(f, "%05d READ_TREE\t\t%s -> reg#%u\n",
 					id, arg1->value.hfinfo->abbrev,
 					arg2->value.numeric);
 				break;
 
 			case PUT_FVALUE:
-				fprintf(f, "%05d PUT_FVALUE\t<%s> -> reg#%d\n",
-					id, fvalue_type_name(arg1->value.fvalue),
+				value_str = fvalue_to_string_repr(arg1->value.fvalue,
+					FTREPR_DFILTER, NULL);
+				fprintf(f, "%05d PUT_FVALUE\t%s <%s> -> reg#%u\n",
+					id, value_str,
+					fvalue_type_name(arg1->value.fvalue),
 					arg2->value.numeric);
+				g_free(value_str);
 				break;
 
 			case MK_RANGE:
-				fprintf(f, "%05d MK_RANGE\t\treg#%d[?] -> reg#%d\n",
+				fprintf(f, "%05d MK_RANGE\t\treg#%u[?] -> reg#%u\n",
 					id,
 					arg1->value.numeric,
 					arg2->value.numeric);
 				break;
 
 			case ANY_EQ:
-				fprintf(f, "%05d ANY_EQ\t\treg#%d == reg#%d\n",
+				fprintf(f, "%05d ANY_EQ\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_NE:
-				fprintf(f, "%05d ANY_NE\t\treg#%d == reg#%d\n",
+				fprintf(f, "%05d ANY_NE\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_GT:
-				fprintf(f, "%05d ANY_GT\t\treg#%d == reg#%d\n",
+				fprintf(f, "%05d ANY_GT\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_GE:
-				fprintf(f, "%05d ANY_GE\t\treg#%d == reg#%d\n",
+				fprintf(f, "%05d ANY_GE\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_LT:
-				fprintf(f, "%05d ANY_LT\t\treg#%d == reg#%d\n",
+				fprintf(f, "%05d ANY_LT\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_LE:
-				fprintf(f, "%05d ANY_LE\t\treg#%d == reg#%d\n",
+				fprintf(f, "%05d ANY_LE\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_BITWISE_AND:
-				fprintf(f, "%05d ANY_BITWISE_AND\t\treg#%d == reg#%d\n",
+				fprintf(f, "%05d ANY_BITWISE_AND\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_CONTAINS:
-				fprintf(f, "%05d ANY_CONTAINS\treg#%d contains reg#%d\n",
+				fprintf(f, "%05d ANY_CONTAINS\treg#%u contains reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_MATCHES:
-				fprintf(f, "%05d ANY_MATCHES\treg#%d matches reg#%d\n",
+				fprintf(f, "%05d ANY_MATCHES\treg#%u matches reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 

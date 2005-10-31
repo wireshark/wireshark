@@ -5,7 +5,6 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -35,6 +34,9 @@
 #include <ftypes-int.h>
 
 #ifdef HAVE_LIBPCRE
+
+#include <string.h>
+
 #include <pcre.h>
 
 /* Create a pcre_tuple_t object based on the given string pattern */ 
@@ -138,6 +140,20 @@ val_from_unparsed(fvalue_t *fv, char *pattern, gboolean allow_partial_value _U_,
 	return TRUE;
 }
 
+static int
+pcre_repr_len(fvalue_t *fv, ftrepr_t rtype)
+{
+	g_assert(rtype == FTREPR_DFILTER);
+	return strlen(fv->value.re->string);
+}
+
+static void
+pcre_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+{
+	g_assert(rtype == FTREPR_DFILTER);
+	strcpy(buf, fv->value.re->string);
+}
+
 /* BEHOLD - value contains the string representation of the regular expression,
  * and we want to store the compiled PCRE RE object into the value. */
 static void
@@ -167,8 +183,8 @@ ftype_register_pcre(void)
 		pcre_fvalue_free,	/* free_value */
 		val_from_unparsed,	/* val_from_unparsed */
 		val_from_string,	/* val_from_string */
-		NULL,			/* val_to_string_repr */
-		NULL,			/* len_string_repr */
+		pcre_to_repr,		/* val_to_string_repr */
+		pcre_repr_len,		/* len_string_repr */
 
 		pcre_fvalue_set,	/* set_value */
 		NULL,			/* set_value_integer */

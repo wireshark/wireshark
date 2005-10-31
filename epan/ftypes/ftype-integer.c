@@ -108,6 +108,30 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	return TRUE;
 }
 
+static int
+integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return 11;	/* enough for 12^31-1, in decimal */
+}
+
+static void
+integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, "%d", fv->value.integer);
+}
+
+static int
+uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return 10;	/* enough for 2^32-1, in decimal */
+}
+
+static void
+uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, "%u", fv->value.integer);
+}
+
 static gboolean
 ipxnet_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
@@ -131,6 +155,18 @@ ipxnet_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 
 	logfunc("\"%s\" is not a valid IPX network name or address.", s);
 	return FALSE;
+}
+
+static int
+ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return 2+8;	/* 0xXXXXXXXX */
+}
+
+static void
+ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, "0x%08x", fv->value.integer);
 }
 
 static gboolean
@@ -262,6 +298,30 @@ val64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Log
 	return TRUE;
 }
 
+static int
+integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return 20;	/* enough for -2^63-1, in decimal */
+}
+
+static void
+integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, PRId64, fv->value.integer64);
+}
+
+static int
+uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return 20;	/* enough for 2^64-1, in decimal */
+}
+
+static void
+uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, PRIu64, fv->value.integer64);
+}
+
 static gboolean
 cmp_eq64(fvalue_t *a, fvalue_t *b)
 {
@@ -391,8 +451,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		uinteger_to_repr,		/* val_to_string_repr */
+		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -425,8 +485,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		uinteger_to_repr,		/* val_to_string_repr */
+		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -459,8 +519,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		uinteger_to_repr,		/* val_to_string_repr */
+		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -493,8 +553,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		uinteger_to_repr,		/* val_to_string_repr */
+		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -527,8 +587,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		uinteger64_to_repr,		/* val_to_string_repr */
+		uinteger64_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		NULL,				/* set_value_integer */
@@ -561,8 +621,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		integer_to_repr,		/* val_to_string_repr */
+		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -595,8 +655,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		integer_to_repr,		/* val_to_string_repr */
+		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -629,8 +689,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		integer_to_repr,		/* val_to_string_repr */
+		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -663,8 +723,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		integer_to_repr,		/* val_to_string_repr */
+		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -697,8 +757,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		integer64_to_repr,		/* val_to_string_repr */
+		integer64_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		NULL,				/* set_value_integer */
@@ -766,8 +826,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		ipxnet_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		ipxnet_to_repr,			/* val_to_string_repr */
+		ipxnet_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
@@ -801,8 +861,8 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		uinteger_to_repr,		/* val_to_string_repr */
+		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */

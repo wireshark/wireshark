@@ -342,8 +342,8 @@ ftype_register_string(void)
 		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		string_to_repr,			/* val_to_string_repr */
+		string_repr_len,		/* len_string_repr */
 
 		string_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
@@ -376,8 +376,8 @@ ftype_register_string(void)
 		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		string_to_repr,			/* val_to_string_repr */
+		string_repr_len,		/* len_string_repr */
 
 		string_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */

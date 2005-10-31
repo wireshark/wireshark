@@ -237,22 +237,6 @@ gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 	return scs_subscribe(c,buf);
 }
 
-static gchar* scs_subscribe_int(SCS_collection* c, int i) {
-	static gchar buf[SCS_SMALL_SIZE];
-	
-	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%i", i);
-	
-	return scs_subscribe(c,buf);
-}
-
-static gchar* scs_subscribe_float(SCS_collection* c, float f) {
-	static gchar buf[SCS_SMALL_SIZE];
-	
-	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%f", f);
-	
-	return scs_subscribe(c,buf);
-}
-
 /***************************************************************************
 *  AVPs & Co.
 ***************************************************************************
@@ -353,20 +337,10 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 	
 	new->n = scs_subscribe(avp_strings, name);
 
-	if (finfo->value.ftype->get_value_integer) {
-		value = scs_subscribe_int(avp_strings, fvalue_get_integer(&finfo->value));
-#ifdef _AVP_DEBUGGING
-		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from integer: %s",value);
-#endif
-	} else if (finfo->value.ftype->val_to_string_repr) {
+	if (finfo->value.ftype->val_to_string_repr) {
 		value = scs_subscribe(avp_strings, fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL));
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from string: %s",value);
-#endif
-	} else if (finfo->value.ftype->get_value_floating) {
-		value = scs_subscribe_float(avp_strings, (float) fvalue_get_floating(&finfo->value));
-#ifdef _AVP_DEBUGGING
-		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from float: %s",value);
 #endif
 	} else {
 #ifdef _AVP_DEBUGGING

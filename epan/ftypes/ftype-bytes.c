@@ -238,6 +238,21 @@ ipv6_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 	return TRUE;
 }
 
+static int
+ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	/*
+	 * 39 characters for "XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX".
+	 */
+	return 39;
+}
+
+static void
+ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	ip6_to_str_buf((struct e_in6_addr *)fv->value.bytes->data, buf);
+}
+
 static gboolean
 get_guid(char *s, guint8 *buf)
 {
@@ -603,8 +618,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_free,		/* free_value */
 		ipv6_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		ipv6_to_repr,			/* val_to_string_repr */
+		ipv6_repr_len,			/* len_string_repr */
 
 		ipv6_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
@@ -638,8 +653,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_free,		/* free_value */
 		guid_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		guid_to_repr,		/* val_to_string_repr */
-		guid_repr_len,		/* len_string_repr */
+		guid_to_repr,			/* val_to_string_repr */
+		guid_repr_len,			/* len_string_repr */
 
 		guid_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */

@@ -127,6 +127,43 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	g_assert_not_reached();
 }
 
+static int
+val_repr_len(fvalue_t *fv, ftrepr_t rtype)
+{
+	guint length;
+
+	g_assert(rtype == FTREPR_DFILTER);
+	length = tvb_length(fv->value.tvb);
+	/* 3 bytes for each byte of the byte "NN:" minus 1 byte
+	 * as there's no trailing ":". */
+	return length * 3 - 1;
+}
+
+static void
+val_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+{
+	guint length;
+	const guint8 *c;
+	char *write_cursor;
+	unsigned int i;
+
+	g_assert(rtype == FTREPR_DFILTER);
+	length = tvb_length(fv->value.tvb);
+	c = tvb_get_ptr(fv->value.tvb, 0, length);
+	write_cursor = buf;
+
+	for (i = 0; i < length; i++) {
+		if (i == 0) {
+			sprintf(write_cursor, "%02x", *c++);
+			write_cursor += 2;
+		}
+		else {
+			sprintf(write_cursor, ":%02x", *c++);
+			write_cursor += 3;
+		}
+	}
+}
+
 static gpointer
 value_get(fvalue_t *fv)
 {
@@ -178,7 +215,7 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	tvbuff_t *tvb = fv_a->value.tvb;
 	pcre_tuple_t *pcre = fv_b->value.re;
 	int options = 0;
-	int rc;
+	volatile int rc = 1;
 	const char *data = NULL; /* tvb data */
 	guint32 tvb_len; /* tvb length */
 
@@ -200,10 +237,10 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 			pcre->ex,	/* PCRE extra from pcre_study() */
 			data,		/* The data to check for the pattern... */
 			tvb_len,	/* ... and its length */
-			0,			/* Start offset within data */
+			0,		/* Start offset within data */
 			options,	/* PCRE options */
 			NULL,		/* We are not interested in the matched string */
-			0			/* of the pattern; only in success or failure. */
+			0		/* of the pattern; only in success or failure. */
 			);
 		/* NOTE - DO NOT g_free(data) */
 	}
@@ -230,8 +267,8 @@ ftype_register_tvbuff(void)
 		value_free,			/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		val_to_repr,			/* val_to_string_repr */
+		val_repr_len,			/* len_string_repr */
 
 		value_set,			/* set_value */
 		NULL,				/* set_value_integer */
