@@ -149,6 +149,7 @@ static const gchar* default_media_types[] = {
 	"application/mathml+xml", 
 	"image/svg+xml", 
 	"application/vnd.wv.csp.xml",
+	"application/resource-lists+xml",
 };
 
 
