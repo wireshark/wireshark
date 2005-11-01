@@ -38,14 +38,17 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-ber.h"
+#include <epan/dissectors/packet-ber.h>
 #include "packet-h248.h"
-#include "packet-isup.h"
-#include "packet-q931.h"
+#include <epan/dissectors/packet-isup.h>
+#include <epan/dissectors/packet-q931.h>
 
 #include <epan/sctpppids.h>
 #define PNAME  "H.248 MEGACO"
@@ -76,8 +79,25 @@ static int hf_h248_package_3GUP_UPversions = -1;
 static int hf_h248_package_3GUP_delerrsdu = -1;
 static int hf_h248_package_3GUP_interface = -1;
 static int hf_h248_package_3GUP_initdir = -1;
-static int hf_h248_contextId_64			= -1;
-static int hf_h248_transactionId_64		= -1;
+static int hf_h248_context_id = -1;
+static int hf_h248_error_code = -1;
+
+static int hf_h248_cmd_trx = -1;
+static int hf_h248_cmd_request = -1;
+static int hf_h248_cmd_reply = -1;
+static int hf_h248_cmd_dup_request = -1;
+static int hf_h248_cmd_dup_reply = -1;
+static int hf_h248_cmd_start = -1;
+static int hf_h248_cmd_error = -1;
+static int hf_h248_cmd_ctx = -1;
+static int hf_h248_ctx_start = -1;
+static int hf_h248_ctx_last = -1;
+static int hf_h248_ctx_cmd = -1;
+static int hf_h248_ctx_cmd_type = -1;
+static int hf_h248_ctx_cmd_request = -1;
+static int hf_h248_ctx_cmd_reply = -1;
+static int hf_h248_ctx_cmd_error = -1;
+
 
 
 /*--- Included file: packet-h248-hf.c ---*/
@@ -117,7 +137,7 @@ static int hf_h248_actionReplies_item = -1;       /* ActionReply */
 static int hf_h248_TransactionResponseAck_item = -1;  /* TransactionAck */
 static int hf_h248_firstAck = -1;                 /* TransactionId */
 static int hf_h248_lastAck = -1;                  /* TransactionId */
-static int hf_h248_errorCode = -1;                /* ErrorCode */
+static int hf_h248_errorCode = -1;                /* T_errorCode */
 static int hf_h248_errorText = -1;                /* ErrorText */
 static int hf_h248_contextId = -1;                /* contextId */
 static int hf_h248_contextRequest = -1;           /* ContextRequest */
@@ -353,6 +373,13 @@ static gint ett_packagename = -1;
 static gint ett_codec = -1;
 
 
+static gint ett_cmd = -1;
+static gint ett_ctx = -1;
+static gint ett_ctx_cmd = -1;
+static gint ett_ctx_cmds = -1;
+static gint ett_debug = -1;
+
+
 /*--- Included file: packet-h248-ett.c ---*/
 
 static gint ett_h248_MegacoMessage = -1;
@@ -487,12 +514,31 @@ static gint ett_h248_Value = -1;
 /*--- End of included file: packet-h248-ett.c ---*/
 
 
-static const gchar* command_string;
-static gboolean it_is_wildcard;
+static dissector_handle_t h248_term_handle;
+
+#if 0
+static GHashTable* h248_package_signals = NULL;
+static GHashTable* h248_package_events = NULL;
+static GHashTable* h248_package_properties = NULL;
+
+static dissector_table_t h248_package_bin_dissector_table=NULL;
+#endif
+
+static GHashTable* transactions = NULL;
+static GHashTable* transactions_by_framenum = NULL;
+static GHashTable* contexts_creating = NULL;
+static GHashTable* contexts = NULL;
+
+static gboolean keep_persistent_data = FALSE;
+
+static h248_cmdmsg_info_t* h248_cmdmsg;
+static guint32 transaction_id;
+static guint32 context_id;
+
+static proto_tree *h248_tree;
 
 static dissector_handle_t h248_term_handle;
 
-static dissector_table_t h248_package_bin_dissector_table=NULL;
 
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
@@ -695,14 +741,140 @@ static const true_false_string h248_tdmc_ec_vals = {
 };
 
 
+
+
+#define NULL_CONTEXT 0
+#define CHOOSE_CONTEXT 0xFFFFFFFE
+#define ALL_CONTEXTS 0xFFFFFFFF
+
 #if 0
 static const value_string context_id_type[] = {
-	{0x00000000,"0 (Null Context)"},
-	{0xFFFFFFFE,"$ (Choose Context)"},
-	{0xFFFFFFFF,"* (All Contexts)"},
+	{NULL_CONTEXT,"0 (Null Context)"},
+	{CHOOSE_CONTEXT,"$ (Choose Context)"},
+	{ALL_CONTEXTS,"* (All Contexts)"},
 	{0,NULL}
 };
 #endif
+
+static const value_string h248_reasons[] = {
+    { 400, "Syntax error in message"},
+    { 401, "Protocol Error"},
+    { 402, "Unauthorized"},
+    { 403, "Syntax error in transaction request"},
+    { 406, "Version Not Supported"},
+    { 410, "Incorrect identifier"},
+    { 411, "The transaction refers to an unknown ContextId"},
+    { 412, "No ContextIDs available"},
+    { 421, "Unknown action or illegal combination of actions"},
+    { 422, "Syntax Error in Action"},
+    { 430, "Unknown TerminationID"},
+    { 431, "No TerminationID matched a wildcard"},
+    { 432, "Out of TerminationIDs or No TerminationID available"},
+    { 433, "TerminationID is already in a Context"},
+    { 434, "Max number of Terminations in a Context exceeded"},
+    { 435, "Termination ID is not in specified Context"},
+    { 440, "Unsupported or unknown Package"},
+    { 441, "Missing Remote or Local Descriptor"},
+    { 442, "Syntax Error in Command"},
+    { 443, "Unsupported or Unknown Command"},
+    { 444, "Unsupported or Unknown Descriptor"},
+    { 445, "Unsupported or Unknown Property"},
+    { 446, "Unsupported or Unknown Parameter"},
+    { 447, "Descriptor not legal in this command"},
+    { 448, "Descriptor appears twice in a command"},
+    { 449, "Unsupported or Unknown Parameter or Property Value"},
+    { 450, "No such property in this package"},
+    { 451, "No such event in this package"},
+    { 452, "No such signal in this package"},
+    { 453, "No such statistic in this package"},
+    { 454, "No such parameter value in this package"},
+    { 455, "Property illegal in this Descriptor"},
+    { 456, "Property appears twice in this Descriptor"},
+    { 457, "Missing parameter in signal or event"},
+    { 458, "Unexpected Event/Request ID"},
+    { 459, "Unsupported or Unknown Profile"},
+    { 460, "Unable to set statistic on stream"},
+    { 471, "Implied Add for Multiplex failure"},
+    { 500, "Internal software Failure in MG"},
+    { 501, "Not Implemented"},
+    { 502, "Not ready"},
+    { 503, "Service Unavailable"},
+    { 504, "Command Received from unauthorized entity"},
+    { 505, "Transaction Request Received before a Service Change Reply has been received"},
+    { 506, "Number of Transaction Pendings Exceeded"},
+    { 510, "Insufficient resources"},
+    { 512, "Media Gateway unequipped to detect requested Event"},
+    { 513, "Media Gateway unequipped to generate requested Signals"},
+    { 514, "Media Gateway cannot send the specified announcement"},
+    { 515, "Unsupported Media Type"},
+    { 517, "Unsupported or invalid mode"},
+    { 518, "Event buffer full"},
+    { 519, "Out of space to store digit map"},
+    { 520, "Digit Map undefined in the MG"},
+    { 521, "Termination is ServiceChangeing"},
+    { 522, "Functionality Requested in Topology Triple Not Supported"},
+    { 526, "Insufficient bandwidth"},
+    { 529, "Internal hardware failure in MG"},
+    { 530, "Temporary Network failure"},
+    { 531, "Permanent Network failure"},
+    { 532, "Audited Property, Statistic, Event or Signal does not exist"},
+    { 533, "Response exceeds maximum transport PDU size"},
+    { 534, "Illegal write or read only property"},
+    { 540, "Unexpected initial hook state"},
+    { 542, "Command is not allowed on this termination"},
+    { 581, "Does Not Exist"},
+    { 600, "Illegal syntax within an announcement specification"},
+    { 601, "Variable type not supported"},
+    { 602, "Variable value out of range"},
+    { 603, "Category not supported"},
+    { 604, "Selector type not supported"},
+    { 605, "Selector value not supported"},
+    { 606, "Unknown segment ID"},
+    { 607, "Mismatch between play specification and provisioned data"},
+    { 608, "Provisioning error"},
+    { 609, "Invalid offset"},
+    { 610, "No free segment IDs"},
+    { 611, "Temporary segment not found"},
+    { 612, "Segment in use"},
+    { 613, "ISP port limit overrun"},
+    { 614, "No modems available"},
+    { 615, "Calling number unacceptable"},
+    { 616, "Called number unacceptable"},
+    { 900, "Service Restored"},
+    { 901, "Cold Boot"},
+    { 902, "Warm Boot"},
+    { 903, "MGC Directed Change"},
+    { 904, "Termination malfunctioning"},
+    { 905, "Termination taken out of service"},
+    { 906, "Loss of lower layer connectivity (e.g. downstream sync)"},
+    { 907, "Transmission Failure"},
+    { 908, "MG Impending Failure"},
+    { 909, "MGC Impending Failure"},
+    { 910, "Media Capability Failure"},
+    { 911, "Modem Capability Failure"},
+    { 912, "Mux Capability Failure"},
+    { 913, "Signal Capability Failure"},
+    { 914, "Event Capability Failure"},
+    { 915, "State Loss"},
+    { 916, "Packages Change"},
+    { 917, "Capabilities Change"},
+    { 918, "Cancel Graceful"},
+    { 919, "Warm Failover"},
+    { 920, "Cold Failover"},
+	{0,NULL}
+};
+
+static const value_string request_types[] = {
+    { 0, "unknown" },
+    { 1, "add" },
+    { 2, "move" },
+    { 3, "mod" },
+    { 4, "subtract" },
+    { 5, "auditCap" },
+    { 6, "auditValue" },
+    { 7, "notify" },
+    { 8, "serviceChange" }
+};
 
 static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 	guint64 trx_id = 0;
@@ -728,18 +900,18 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			offset++;
 		}
 		if (trx_id > 0xffffffff) {
-			proto_tree_add_uint64_format(tree, hf_h248_transactionId_64, tvb, offset-len, len,
-									 trx_id,"transactionId %" PRIu64, trx_id);
+			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,"transactionId %" PRIu64, trx_id);
+            proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
+
+            transaction_id = 0;
+
 		} else {
-			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);			
+			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);
+            transaction_id = (guint32)trx_id;
 		}
 	}	
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Trx %" PRIu64 " { ", trx_id);
-	}
-	
-	return offset;	
+
+    return offset;
 }
 
 static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -747,10 +919,8 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
-	guint64 context_id = 0;
+	guint64 ctx_id = 0;
 	guint32 i;
-	static gchar context_string[64];
-	static gchar context_string_long[64];
 	
 	if(!implicit_tag){
 		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -764,37 +934,22 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 		THROW(BoundsError);
 	} else {
 		for(i=1;i<=len;i++){
-			context_id=(context_id<<8)|tvb_get_guint8(tvb, offset);
+			ctx_id=(ctx_id<<8)|tvb_get_guint8(tvb, offset);
 			offset++;
 		}
-		
-		if (context_id == 0x0000000 ) {
-			strncpy(context_string,"Ctx 0",sizeof(context_string));
-			strncpy(context_string_long,"0 (Null Context)",sizeof(context_string));
-		} else if (context_id == 0xFFFFFFFF ) {
-			strncpy(context_string,"Ctx *",sizeof(context_string));
-			strncpy(context_string_long,"* (All Contexts)",sizeof(context_string));
-		} else if (context_id == 0xFFFFFFFE ) {
-			strncpy(context_string,"Ctx $",sizeof(context_string));
-			strncpy(context_string_long,"$ (Choose One)",sizeof(context_string));
+		if (ctx_id > 0xffffffff) {
+			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,
+                                                 "contextId: %" PRIu64, ctx_id);
+            proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
+
+            context_id = 0xfffffffd;
+            
 		} else {
-			g_snprintf(context_string,sizeof(context_string),"Ctx 0x%" PRIx64, context_id);
-			g_snprintf(context_string_long,sizeof(context_string),"0x%" PRIx64, context_id);
-		}
-		
-		if (context_id > 0xffffffff) {
-			proto_tree_add_uint64_format(tree, hf_h248_contextId_64,
-										  tvb, offset-len, len,
-										  context_id, "contextId: %s", context_string_long);
-		} else {
-			proto_tree_add_uint_format(tree, hf_h248_contextId, tvb, offset-len, len,
-									   (guint32)context_id, "contextId: %s", context_string_long);
+			proto_tree_add_uint(tree, hf_h248_context_id, tvb, offset-len, len, (guint32)ctx_id);
+            
+            context_id = (guint32) ctx_id;
 		}
 	}	
-	
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s { ", context_string);
-	}
 	
 	return offset;
 }
@@ -1110,9 +1265,355 @@ dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
     proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_ni, tvb, old_offset, offset-old_offset, val&0x03);
     proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_pc, tvb, old_offset, offset-old_offset, val>>2);
   }
-
-
+  
   return offset;
+}
+
+static gchar* cmd_str(h248_cmdmsg_info_t* cmdmsg) {
+    static gchar* command_strings[][2] = {
+    { "unkReq", "unkReply" },
+    { "addReq", "addReply" },
+    { "moveReq", "moveReply" },
+    { "modReq", "modReply" },
+    { "subtractReq", "subtractReply" },
+    { "auditCapRequest", "auditCapReply" },
+    { "auditValueRequest", "auditValueReply" },
+    { "notifyReq", "notifyReply" },
+    { "serviceChangeReq", "serviceChangeReply" }
+    };
+    
+    gchar* ctx_str;
+    gchar* cmd_str;
+    gchar* param_str;
+    
+    switch (cmdmsg->msg_type) {
+        case H248_TRX_REQUEST:
+            cmd_str = command_strings[cmdmsg->cmd_type][0];
+            
+            if (cmdmsg->term_is_wildcard) {
+                param_str = "Term *";
+            } else {
+                param_str = ep_strdup_printf("Term %s",cmdmsg->term_id);
+            }
+                
+                break;
+        case H248_TRX_REPLY:
+            cmd_str = command_strings[cmdmsg->cmd_type][1];
+            
+            if ( cmdmsg->error_code ) {
+                param_str = ep_strdup_printf("Error %u",cmdmsg->error_code);
+            } else {
+                if (cmdmsg->term_is_wildcard) {
+                    param_str = "Term *";
+                } else {
+                    param_str = ep_strdup_printf("Term %s",cmdmsg->term_id);
+                }
+            }
+                break;
+        case H248_TRX_PENDING:
+            return ep_strdup_printf("T %x { Pending }", cmdmsg->transaction_id);
+        case H248_TRX_ACK:
+            return ep_strdup_printf("T %x { Ack }", cmdmsg->transaction_id);
+        default:
+            return "[ Bad Command ]";
+    };
+    
+    switch (cmdmsg->context_id) {
+        case NULL_CONTEXT: ctx_str = "0"; break;
+        case CHOOSE_CONTEXT: ctx_str = "$"; break;
+        case ALL_CONTEXTS: ctx_str = "*"; break;
+        default: ctx_str = ep_strdup_printf("%u",cmdmsg->context_id); break;
+    }
+    
+    return ep_strdup_printf("T %x { C %s { %s { %s }}} ",
+                            cmdmsg->transaction_id, ctx_str, cmd_str, param_str );
+    
+}
+
+static proto_tree* cmdmsg_tree(h248_cmdmsg_info_t* cmdmsg) {
+    proto_item* pi = proto_tree_add_text(h248_tree,NULL,0,0,"cmd msg");
+    proto_tree* debug_tree = proto_item_add_subtree(pi,ett_debug);
+    
+    proto_tree_add_text(debug_tree,NULL,0,0,"transaction_id = %x",cmdmsg->transaction_id);
+    proto_tree_add_text(debug_tree,NULL,0,0,"context_id = %x",cmdmsg->context_id);
+    proto_tree_add_text(debug_tree,NULL,0,0,"cmd_type = %u",cmdmsg->cmd_type);
+    proto_tree_add_text(debug_tree,NULL,0,0,"msg_type = %u",cmdmsg->msg_type);
+    proto_tree_add_text(debug_tree,NULL,0,0,"error_code = %u",cmdmsg->error_code);
+    proto_tree_add_text(debug_tree,NULL,0,0,"term_is_wildcard = %x", cmdmsg->term_is_wildcard);
+    proto_tree_add_text(debug_tree,NULL,0,0,"term_id = %s", cmdmsg->term_id);
+    
+    return debug_tree;
+}
+
+static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
+    h248_cmd_info_t* cmd_info;
+    static h248_cmd_info_t no_cmd_info = {NULL,0,H248_CMD_NONE,0,0,FALSE,0,NULL,NULL,NULL};
+    gchar* low_addr;
+    gchar* high_addr;
+    guint framenum = pinfo->fd->num;
+    gchar* cmd_key;
+
+
+    cmd_info = g_hash_table_lookup(transactions_by_framenum,GUINT_TO_POINTER(framenum));
+    
+    if (cmd_info == &no_cmd_info) {
+        cmdmsg->cmd_info = NULL;
+        return;
+    } else if ( cmd_info == NULL ) {
+        gboolean dup = FALSE;
+
+        if (CMP_ADDRESS(&(pinfo->net_src), &(pinfo->net_dst)) < 0) {
+            low_addr = address_to_str(&(pinfo->net_src));
+            high_addr = address_to_str(&(pinfo->net_dst));
+        } else {
+            low_addr = address_to_str(&(pinfo->net_dst));
+            high_addr = address_to_str(&(pinfo->net_src));
+        }
+        
+        cmd_key = ep_strdup_printf("%s <-> %s : %x",low_addr,high_addr,cmdmsg->transaction_id);
+        
+        cmd_info = g_hash_table_lookup(transactions,cmd_key);
+        
+        if ( cmd_info ) {
+            switch (cmdmsg->msg_type) {
+                case H248_TRX_REQUEST:
+                    dup = TRUE;
+                    break;
+                case H248_TRX_REPLY:
+                    if (cmd_info->response_frame) {
+                        dup = TRUE;
+                    } else {
+                        cmd_info->response_frame = framenum;
+                        cmd_info->error_code = cmdmsg->error_code;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            
+            switch (cmdmsg->msg_type) {
+                case H248_TRX_REQUEST:
+                    cmd_info = se_alloc(sizeof(h248_cmd_info_t));
+                    cmd_info->key = se_strdup(cmd_key);
+                    cmd_info->trx_id = cmdmsg->transaction_id;
+                    cmd_info->type = cmdmsg->cmd_type;
+                    cmd_info->request_frame = framenum;
+                    cmd_info->response_frame = 0;
+                    cmd_info->choose_ctx = (cmdmsg->context_id == CHOOSE_CONTEXT);
+                    cmd_info->error_code = 0;
+                    cmd_info->context = NULL;
+                    cmd_info->next = NULL;
+                    cmd_info->last = NULL;
+                    
+                    g_hash_table_insert(transactions,cmd_info->key,cmd_info);
+                    break;
+                default:
+                    cmd_info = &no_cmd_info;
+                    break;
+            }
+            
+        }
+
+        g_hash_table_insert(transactions_by_framenum,GUINT_TO_POINTER(framenum),cmd_info);
+        
+        cmdmsg->cmd_info = cmd_info;
+        
+        if ( cmd_info && (! cmd_info->context || cmd_info->context->ctx_id == 0 ) ) {
+            h248_context_info_t** ctx_ptr;
+            gchar* ctx_key;
+            
+            if (cmd_info->choose_ctx) {
+                /* the fisrt transaction of a new context */
+                
+                ctx_key = ep_strdup_printf("%s-%s-%i",low_addr,high_addr,cmdmsg->transaction_id);
+
+                switch (cmdmsg->msg_type) {
+                    case H248_TRX_REQUEST: {
+                        cmd_info->context = se_alloc(sizeof(h248_context_info_t));
+                        cmd_info->context->key = NULL;
+                        cmd_info->context->ctx_id = 0;
+                        cmd_info->context->creation_frame = framenum;
+                        cmd_info->context->cmds = cmd_info;
+                        cmd_info->context->prior = NULL;
+                        
+                        cmd_info->next = NULL;
+                        cmd_info->last = cmd_info;
+                        
+                        /*
+                         * XXX: leak: the "transaction key" of a context should be freed
+                         * as we get the context_id one, there's no need for it afterwards.
+                         *
+                         * We're no using an ep_allocated one because g_hashtables do not
+                         * behave propperly if the key changes.
+                         *
+                         * g_strdup/g_free should be used instead of se_strdup.
+                         */
+                        
+                        g_hash_table_insert(contexts_creating,se_strdup(ctx_key),cmd_info->context);
+                        
+                    }
+                        break;
+                    case H248_TRX_REPLY: {
+
+                        /* XXX: former leak: this one should be an extended lookup to g_free the key */
+                        if (( cmd_info->context = g_hash_table_lookup(contexts_creating,ctx_key) )) {
+                            
+                            ctx_key = ep_strdup_printf("%s<->%s : %.8x",low_addr,high_addr,cmdmsg->context_id);
+                            
+                            cmd_info->context->ctx_id = cmdmsg->context_id;
+                            
+                            if ((ctx_ptr = g_hash_table_lookup(contexts,ctx_key))) {
+                                cmd_info->context->prior = *ctx_ptr;
+                                cmd_info->context->key = cmd_info->context->prior->key;
+                                *ctx_ptr = cmd_info->context;
+                            } else {
+                                ctx_ptr = se_alloc(sizeof(void*));
+                                *ctx_ptr = cmd_info->context;
+                                cmd_info->context->key = se_strdup(ctx_key);
+                                
+                                g_hash_table_insert(contexts,cmd_info->context->key,ctx_ptr);
+                            }
+                        }
+                    }
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                ctx_key = ep_strdup_printf("%s<->%s : %.8x",low_addr,high_addr,cmdmsg->context_id);
+                
+                if (( ctx_ptr = g_hash_table_lookup(contexts,ctx_key) )) {
+                    cmd_info->context = *ctx_ptr;
+                    cmd_info->context->cmds->last->next = cmd_info;
+                    cmd_info->context->cmds->last = cmd_info;
+                }
+            }
+            
+            if (cmd_info && cmd_info->context) {
+                cmd_info->context->last_frame = framenum;
+            }
+        }
+    } else {
+        cmdmsg->cmd_info = cmd_info;
+        return;
+    }
+    
+}
+
+static void analysis_tree(packet_info* pinfo, tvbuff_t *tvb, proto_tree* tree, h248_cmdmsg_info_t* cmdmsg) {
+    h248_cmd_info_t* cmd_info = cmdmsg->cmd_info;
+    guint framenum = pinfo->fd->num;
+
+    if (cmd_info) {
+        proto_item* pi = proto_tree_add_string(tree,hf_h248_cmd_trx,tvb,0,0,cmd_info->key);
+        proto_tree* cmd_tree = proto_item_add_subtree(pi, ett_cmd);
+        PROTO_ITEM_SET_GENERATED(pi);
+        
+        switch (cmdmsg->msg_type) {
+            case H248_TRX_REQUEST:
+                if (cmd_info->response_frame) {
+                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_reply,tvb,0,0,cmd_info->response_frame);
+                } else {
+                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No response");
+                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
+                }
+                PROTO_ITEM_SET_GENERATED(pi);
+
+                if (cmd_info->request_frame != framenum) {
+                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_dup_request,tvb,0,0,cmd_info->request_frame);
+                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
+                    PROTO_ITEM_SET_GENERATED(pi);
+                }
+                break;
+            case H248_TRX_REPLY:
+                
+                if (cmd_info->request_frame) {
+                    proto_tree_add_uint(cmd_tree,hf_h248_cmd_request,tvb,0,0,cmd_info->request_frame);
+                } else {
+                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No request");
+                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);                    
+                }
+                
+                if (cmd_info->response_frame != framenum) {
+                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_dup_reply,tvb,0,0,cmd_info->response_frame);
+                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
+                }
+                break;
+            default:
+                /*
+                 * XXX: TODO Pending and Ack
+                 * We need a list of frames or at least a counter of Pendings; these can be many.
+                 * Pendings are known to be synthoms of problems.
+                 */
+                return;
+        }
+        
+        if (cmd_info->choose_ctx) {
+            pi = proto_tree_add_boolean(cmd_tree,hf_h248_cmd_start,tvb,0,0,TRUE);
+            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
+        }
+        
+        if (cmd_info->error_code) {
+            pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_error,tvb,0,0,cmd_info->error_code);
+            PROTO_ITEM_SET_GENERATED(pi);
+            expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
+        }
+        
+        
+        if (cmd_info->context) {
+            proto_tree* ctx_tree;
+            proto_tree* cmds_tree;
+            h248_cmd_info_t* cmd;
+            
+            if (cmd_info->context->key) {
+                pi = proto_tree_add_string(tree,hf_h248_cmd_ctx,tvb,0,0,cmd_info->context->key);
+            } else {
+                pi = proto_tree_add_text(tree,tvb,0,0,"Embryonic Context");
+            }
+            ctx_tree = proto_item_add_subtree(pi, ett_ctx);
+            PROTO_ITEM_SET_GENERATED(pi);
+            
+            pi = proto_tree_add_uint(ctx_tree,hf_h248_ctx_start,tvb,0,0,cmd_info->context->creation_frame);
+            PROTO_ITEM_SET_GENERATED(pi);
+            
+            pi = proto_tree_add_uint(ctx_tree,hf_h248_ctx_last,tvb,0,0,cmd_info->context->last_frame);
+            PROTO_ITEM_SET_GENERATED(pi);
+            
+            pi = proto_tree_add_text(ctx_tree,tvb,0,0,"[ Commands ]");
+            cmds_tree = proto_item_add_subtree(pi, ett_ctx_cmds);
+            
+            for(cmd = cmd_info->context->cmds; cmd; cmd = cmd->next) {
+                proto_tree* ctx_cmd_tree;
+                
+                pi = proto_tree_add_uint(cmds_tree,hf_h248_ctx_cmd_type,tvb,0,0,cmd->type);
+                PROTO_ITEM_SET_GENERATED(pi);
+                ctx_cmd_tree = proto_item_add_subtree(pi,ett_ctx_cmd);
+                
+                if (cmd == cmd_info ) {
+                    pi = proto_tree_add_uint_format(ctx_cmd_tree,hf_h248_ctx_cmd,tvb,0,0,cmd->trx_id,"This Transaction: %u",cmd->trx_id);
+                } else {
+                    pi = proto_tree_add_uint_format(ctx_cmd_tree,hf_h248_ctx_cmd,tvb,0,0,cmd->trx_id,"Transaction: %u",cmd->trx_id);
+                }
+                PROTO_ITEM_SET_GENERATED(pi);
+                
+                pi = proto_tree_add_uint(ctx_cmd_tree,hf_h248_ctx_cmd_request,tvb,0,0,cmd->request_frame);
+                PROTO_ITEM_SET_GENERATED(pi);
+                
+                pi = proto_tree_add_uint(ctx_cmd_tree,hf_h248_ctx_cmd_reply,tvb,0,0,cmd->response_frame);
+                PROTO_ITEM_SET_GENERATED(pi);
+                
+                if (cmd->error_code) {
+                    pi = proto_tree_add_uint(ctx_cmd_tree,hf_h248_ctx_cmd_error,tvb,0,0,cmd->error_code);
+                    PROTO_ITEM_SET_GENERATED(pi);
+                    expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "Errored Context");
+                }
+                
+            }
+            
+        }
+    }
 }
 
 
@@ -1386,15 +1887,21 @@ static int dissect_serviceChangeMgcId(packet_info *pinfo, proto_tree *tree, tvbu
 
 
 
+
 static int
-dissect_h248_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+    guint32 val;
+    
+    val = 0;
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_h248_error_code, &val);
+    h248_cmdmsg->error_code = val;
+    
+    return offset;
 
   return offset;
 }
 static int dissect_errorCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_ErrorCode(TRUE, tvb, offset, pinfo, tree, hf_h248_errorCode);
+  return dissect_h248_T_errorCode(TRUE, tvb, offset, pinfo, tree, hf_h248_errorCode);
 }
 
 
@@ -1523,8 +2030,7 @@ static int dissect_keepActive_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, "*");
-	  it_is_wildcard = TRUE;
+    h248_cmdmsg->term_is_wildcard = TRUE;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1557,8 +2063,7 @@ dissect_h248_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_i
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 	
-	  if (command_string != NULL  && ! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
-		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
+    h248_cmdmsg->term_id = bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length);
 
 	if (new_tvb && h248_term_handle) {
 		call_dissector(h248_term_handle, new_tvb, pinfo, tree);
@@ -1580,13 +2085,9 @@ static const ber_sequence_t TerminationID_sequence[] = {
 
 static int
 dissect_h248_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, command_string);
-	  it_is_wildcard = FALSE;
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    TerminationID_sequence, hf_index, ett_h248_TerminationID);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, "}");
-	it_is_wildcard = FALSE;
   return offset;
 }
 static int dissect_terminationFrom_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -3483,7 +3984,7 @@ dissect_h248_AmmRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 static int
 dissect_h248_T_addReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string = "addReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_ADD;
   offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -3496,7 +3997,7 @@ static int dissect_addReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_h248_T_moveReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "moveReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOVE;
   offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -3509,7 +4010,7 @@ static int dissect_moveReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_h248_T_modReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "modReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOD;
   offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -3537,7 +4038,7 @@ dissect_h248_SubtractRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 static int
 dissect_h248_T_subtractReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "subtractReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_SUB;
   offset = dissect_h248_SubtractRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -3565,7 +4066,7 @@ dissect_h248_AuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_h248_T_auditCapRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "auditCapRequest {";
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITCAP;
   offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -3578,7 +4079,7 @@ static int dissect_auditCapRequest_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_h248_T_auditValueRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "auditValueRequest {";
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITVAL;
   offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -3685,7 +4186,7 @@ dissect_h248_NotifyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 static int
 dissect_h248_T_notifyReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "notifyReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_NOTIFY;
   offset = dissect_h248_NotifyRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -3865,10 +4366,24 @@ static const ber_choice_t Command_choice[] = {
 
 static int
 dissect_h248_Command(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+    h248_cmdmsg = ep_alloc0(sizeof(h248_cmdmsg_info_t));
+    h248_cmdmsg->offset = offset;
+    h248_cmdmsg->transaction_id = transaction_id;
+    h248_cmdmsg->context_id = context_id;
+    h248_cmdmsg->cmd_type = H248_CMD_NONE;
+    h248_cmdmsg->msg_type = H248_TRX_REQUEST;
+    h248_cmdmsg->term_is_wildcard = FALSE;
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Command_choice, hf_index, ett_h248_Command,
                                  NULL);
 
+    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, cmd_str(h248_cmdmsg));
+    
+    if (keep_persistent_data) {
+        cmdmsg_tree(h248_cmdmsg);
+        analyze_h248_cmd(pinfo,h248_cmdmsg);
+        analysis_tree(pinfo, tvb, h248_tree, h248_cmdmsg);
+    }
   return offset;
 }
 static int dissect_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -3958,7 +4473,6 @@ dissect_h248_TransactionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    TransactionRequest_sequence, hf_index, ett_h248_TransactionRequest);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
   return offset;
 }
 static int dissect_transactionRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -3976,7 +4490,6 @@ dissect_h248_TransactionPending(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    TransactionPending_sequence, hf_index, ett_h248_TransactionPending);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
   return offset;
 }
 static int dissect_transactionPending_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -4134,8 +4647,7 @@ dissect_h248_AmmsReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
 static int
 dissect_h248_T_addReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "addReply {";
-	  command_string =  "addReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_ADD;
   offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -4148,7 +4660,7 @@ static int dissect_addReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_h248_T_moveReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "moveReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOVE;
   offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -4161,7 +4673,7 @@ static int dissect_moveReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_h248_T_modReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "modReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOD;
   offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -4174,7 +4686,7 @@ static int dissect_modReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_h248_T_subtractReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "subtractReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_SUB;
   offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -4229,7 +4741,7 @@ dissect_h248_AuditReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 static int
 dissect_h248_T_auditCapReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "auditCapReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITCAP;
   offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -4242,7 +4754,7 @@ static int dissect_auditCapReply(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_h248_T_auditValueReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "auditValueReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITVAL;
   offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -4270,7 +4782,7 @@ dissect_h248_NotifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_h248_T_notifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  command_string =  "notifyReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_NOTIFY;
   offset = dissect_h248_NotifyReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -4370,10 +4882,23 @@ static const ber_choice_t CommandReply_choice[] = {
 
 static int
 dissect_h248_CommandReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+    h248_cmdmsg = ep_alloc0(sizeof(h248_cmdmsg_info_t));
+    h248_cmdmsg->offset = offset;
+    h248_cmdmsg->transaction_id = transaction_id;
+    h248_cmdmsg->context_id = context_id;
+    h248_cmdmsg->cmd_type = H248_CMD_NONE;
+    h248_cmdmsg->msg_type = H248_TRX_REPLY;
+    h248_cmdmsg->term_is_wildcard = FALSE;
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  CommandReply_choice, hf_index, ett_h248_CommandReply,
                                  NULL);
 
+    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, cmd_str(h248_cmdmsg));    
+    if (keep_persistent_data) {
+        cmdmsg_tree(h248_cmdmsg);
+        analyze_h248_cmd(pinfo,h248_cmdmsg);
+        analysis_tree(pinfo, tvb, h248_tree, h248_cmdmsg);
+    }
   return offset;
 }
 static int dissect_commandReply_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -4488,7 +5013,6 @@ dissect_h248_TransactionAck(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    TransactionAck_sequence, hf_index, ett_h248_TransactionAck);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
   return offset;
 }
 static int dissect_TransactionResponseAck_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -4619,43 +5143,56 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 /*--- End of included file: packet-h248-fn.c ---*/
 
 
-
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *h248_item;
-  proto_tree *h248_tree = NULL;
-
-  /* Check if it is actually a text based h248 encoding, which we call
-     megaco in ehtereal.
-  */
-  if(tvb_length(tvb)>=6){
-    if(!tvb_strneql(tvb, 0, "MEGACO", 6)){
-      static dissector_handle_t megaco_handle=NULL;
-      if(!megaco_handle){
-        megaco_handle = find_dissector("megaco");
-      }
-      if(megaco_handle){
-        call_dissector(megaco_handle, tvb, pinfo, tree);
-        return;
-      }
+    proto_item *h248_item;
+    
+    h248_tree = NULL;
+    
+    /* Check if it is actually a text based h248 encoding, which we call
+        megaco in ehtereal.
+        */
+    if(tvb_length(tvb)>=6){
+        if(!tvb_strneql(tvb, 0, "MEGACO", 6)){
+            static dissector_handle_t megaco_handle=NULL;
+            if(!megaco_handle){
+                megaco_handle = find_dissector("megaco");
+            }
+            if(megaco_handle){
+                call_dissector(megaco_handle, tvb, pinfo, tree);
+                return;
+            }
+        }
     }
-  }
-
-  /* Make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
-
-  if (tree) {
-    h248_item = proto_tree_add_item(tree, proto_h248, tvb, 0, -1, FALSE);
-    h248_tree = proto_item_add_subtree(h248_item, ett_h248);
-  }
-
-  dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
-
+    
+    /* Make entry in the Protocol column on summary display */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
+    
+    if (tree) {
+        h248_item = proto_tree_add_item(tree, proto_h248, tvb, 0, -1, FALSE);
+        h248_tree = proto_item_add_subtree(h248_item, ett_h248);
+    }
+    
+    dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
+    
 }
 
 
+static void h248_init(void)  {
+    
+    if (transactions) g_hash_table_destroy(transactions);
+    if (transactions_by_framenum) g_hash_table_destroy(transactions_by_framenum);
+    if (contexts_creating) g_hash_table_destroy(contexts_creating);
+    if (contexts) g_hash_table_destroy(contexts);
+    
+    transactions = g_hash_table_new(g_str_hash,g_str_equal);
+    transactions_by_framenum = g_hash_table_new(g_direct_hash,g_direct_equal);
+    contexts_creating = g_hash_table_new(g_str_hash,g_str_equal);
+    contexts = g_hash_table_new(g_str_hash,g_str_equal);
+    
+}
 
 /*--- proto_register_h248 ----------------------------------------------*/
 void proto_register_h248(void) {
@@ -4668,19 +5205,13 @@ void proto_register_h248(void) {
     { &hf_h248_mtpaddress_pc, {
       "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
       NULL, 0, "PC", HFILL }},
-    { &hf_h248_transactionId_64, {
-	  "transactionId", "h248.transactionId",
-	  FT_UINT64, BASE_HEX, NULL, 0,"", HFILL }}, 
-    { &hf_h248_contextId_64, {
-	  "contextId", "h248.contextId",
-	  FT_UINT64, BASE_HEX, NULL, 0,"", HFILL }}, 
     { &hf_h248_package_name, {
       "Package", "h248.package_name", FT_UINT16, BASE_HEX,
       VALS(package_name_vals), 0, "Package", HFILL }},
     { &hf_h248_event_name, {
       "Package and Event name", "h248.event_name", FT_UINT32, BASE_HEX,
       VALS(event_name_vals), 0, "Package", HFILL }},
-    { &hf_h248_signal_name, {
+  { &hf_h248_signal_name, {
       "Package and Signal name", "h248.signal_name", FT_UINT32, BASE_HEX,
       VALS(signal_name_vals), 0, "Package", HFILL }},
 	{ &hf_h248_package_bcp_BNCChar_PDU,
@@ -4739,6 +5270,30 @@ void proto_register_h248(void) {
       { "Initialisation Direction", "h248.package_3GUP.initdir",
         FT_UINT32, BASE_DEC, VALS(h248_3GUP_initdir_vals), 0,
         "Initialisation Direction", HFILL }},
+  { &hf_h248_error_code,
+  { "errorCode", "h248.errorCode",
+      FT_UINT32, BASE_DEC, VALS(h248_reasons), 0,
+      "ErrorDescriptor/errorCode", HFILL }},
+  { &hf_h248_context_id,
+  { "contextId", "h248.contextId",
+      FT_UINT32, BASE_DEC, VALS(h248_reasons), 0,
+      "Context ID", HFILL }},
+      
+  { &hf_h248_cmd_trx, { "Transaction", "h248.trx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_cmd_request, { "Request for this Reply", "h248.cmd.request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_cmd_reply, { "Reply to this Request", "h248.cmd.reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_cmd_dup_request, { "This Request is a Duplicate of", "h248.cmd.dup_request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_cmd_dup_reply, { "This Reply is a Duplicate of", "h248.cmd.dup_reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_cmd_start, { "This Transaction Starts a New Context", "h248.cmd.start", FT_BOOLEAN, BASE_NONE, NULL, 0, "", HFILL }},
+  { &hf_h248_cmd_error, { "Error", "h248.cmd.error", FT_UINT32, BASE_DEC, VALS(h248_reasons), 0, "", HFILL }},
+  { &hf_h248_cmd_ctx, { "Context", "h248.ctx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_start, { "Start", "h248.ctx.start", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_last, { "Last", "h248.ctx.last", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_cmd, { "Command", "h248.ctx.cmd", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_cmd_type, { "Command Type", "h248.ctx.cmd.type", FT_UINT32, BASE_DEC, VALS(request_types), 0, "", HFILL }},
+  { &hf_h248_ctx_cmd_request, { "Request", "h248.ctx.cmd.request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_cmd_reply, { "Reply", "h248.ctx.cmd.reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_cmd_error, { "Error", "h248.ctx.cmd.error", FT_UINT32, BASE_DEC, VALS(h248_reasons), 0, "", HFILL }},
 
 
 /*--- Included file: packet-h248-hfarr.c ---*/
@@ -5789,7 +6344,13 @@ void proto_register_h248(void) {
     &ett_h248,
     &ett_mtpaddress,
     &ett_packagename,
-	&ett_codec,
+    &ett_codec,
+    &ett_cmd,
+    &ett_ctx,
+    &ett_ctx_cmd,
+    &ett_ctx_cmds,
+    &ett_debug,
+      
 
 /*--- Included file: packet-h248-ettarr.c ---*/
 
@@ -5925,6 +6486,9 @@ void proto_register_h248(void) {
 /*--- End of included file: packet-h248-ettarr.c ---*/
 
   };
+  
+  module_t *h248_module;
+
 
   /* Register protocol */
   proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -5934,11 +6498,23 @@ void proto_register_h248(void) {
   proto_register_field_array(proto_h248, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+#if 0
   /* register a dissector table packages can attach to */
-  h248_package_bin_dissector_table = register_dissector_table("h248.package.bin", "Binary H.248 Package Dissectors", FT_UINT16,BASE_HEX);
+  h248_package_signals = g_hash_table_new(g_hash_direct,g_direct_equal);
+  h248_package_events = g_hash_table_new(g_hash_direct,g_direct_equal);
+  h248_package_properties = g_hash_table_new(g_hash_direct,g_direct_equal);
+#endif
   
-}
+  h248_module = prefs_register_protocol(proto_h248, h248_init);
+  
+  prefs_register_bool_preference(h248_module, "ctx_info",
+                                 "Keep Context Information",
+                                 "Whether persistent context information is to be kept",
+                                 &keep_persistent_data);
+  
+  register_init_routine( &h248_init );
 
+}
 
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
 void proto_reg_handoff_h248(void) {
@@ -5951,4 +6527,26 @@ void proto_reg_handoff_h248(void) {
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
 }
+
+#ifndef ENABLE_STATIC
+
+#include <gmodule.h>
+
+G_MODULE_EXPORT const gchar version[] = "0.0.0";
+
+G_MODULE_EXPORT void
+plugin_register(void)
+{
+	/* register the new protocol, protocol fields, and subtrees */
+	if (proto_h248 == -1) { /* execute protocol initialization only once */
+		proto_register_h248();
+	}
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+	proto_reg_handoff_h248();
+}
+
+#endif
 

@@ -28,5 +28,80 @@
 
 /*#include "packet-h248-exp.h"*/
 
-#endif  /* PACKET_H248_H */
+typedef enum {
+    H248_CMD_NONE,
+    H248_CMD_ADD,
+    H248_CMD_MOVE,
+    H248_CMD_MOD,
+    H248_CMD_SUB,
+    H248_CMD_AUDITCAP,
+    H248_CMD_AUDITVAL,
+    H248_CMD_NOTIFY,
+    H248_CMD_SVCCHG,
+} h248_cmd_type_t;
 
+typedef enum {
+    H248_TRX_NONE,
+    H248_TRX_REQUEST,
+    H248_TRX_PENDING,
+    H248_TRX_REPLY,
+    H248_TRX_ACK,
+} h248_msg_type_t;
+
+/* per command info */
+typedef struct _h248_cmd_info_t h248_cmd_info_t;
+
+/* per context info */
+typedef struct _h248_context_info_t h248_context_info_t;
+
+/* per command message info */
+typedef struct _h248_cmdmsg_info_t {
+    guint32 transaction_id;
+    guint32 context_id;
+    guint offset;
+    h248_cmd_type_t cmd_type;
+    h248_msg_type_t msg_type;
+    guint error_code;
+    gboolean term_is_wildcard;
+    gchar* term_id;
+    h248_cmd_info_t* cmd_info;
+} h248_cmdmsg_info_t;
+
+
+struct _h248_cmd_info_t {
+    gchar* key;
+    
+    guint32 trx_id;
+    h248_cmd_type_t type;
+
+    guint request_frame;
+    guint response_frame;
+    
+    gboolean choose_ctx;
+    guint error_code;
+     
+    h248_context_info_t* context;
+    
+    h248_cmd_info_t* next;
+    h248_cmd_info_t* last;
+};
+
+struct _h248_context_info_t {
+    gchar* key;
+
+    guint32 ctx_id;
+
+    guint creation_frame;
+    guint last_frame;
+
+    h248_cmd_info_t* cmds;
+    h248_context_info_t* prior;
+};
+
+typedef void (*h248_dissect_pkg_item_t)(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+extern void h248_add_package_property(guint package, guint property, h248_dissect_pkg_item_t);
+extern void h248_add_package_event(guint package, guint property, h248_dissect_pkg_item_t);
+extern void h248_add_package_signal(guint package, guint property, h248_dissect_pkg_item_t);
+
+#endif  /* PACKET_H248_H */

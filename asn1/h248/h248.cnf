@@ -16,6 +16,7 @@ PropertyID
 SignalName
 EventName
 ContextID
+ErrorCode
 
 #.TYPE_RENAME
 IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
@@ -75,20 +76,51 @@ ServiceChangeReply/terminationID			terminationIDList
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
 #.END
 
-#.FN_BODY transactionReply/transactionId
+#.FN_BODY TransactionReply/transactionId
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
 #.END
 
-#.FN_FTR TransactionRequest
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
+#.FN_BODY TransactionResponseAck/transactionId
+	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
 #.END
 
-#.FN_FTR TransactionPending
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
+#.FN_HDR Command
+    h248_cmdmsg = ep_alloc0(sizeof(h248_cmdmsg_info_t));
+    h248_cmdmsg->offset = offset;
+    h248_cmdmsg->transaction_id = transaction_id;
+    h248_cmdmsg->context_id = context_id;
+    h248_cmdmsg->cmd_type = H248_CMD_NONE;
+    h248_cmdmsg->msg_type = H248_TRX_REQUEST;
+    h248_cmdmsg->term_is_wildcard = FALSE;
 #.END
 
-#.FN_FTR TransactionAck
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
+#.FN_FTR Command
+    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, cmd_str(h248_cmdmsg));
+    
+    if (keep_persistent_data) {
+        cmdmsg_tree(h248_cmdmsg);
+        analyze_h248_cmd(pinfo,h248_cmdmsg);
+        analysis_tree(pinfo, tvb, h248_tree, h248_cmdmsg);
+    }
+#.END
+
+#.FN_HDR CommandReply
+    h248_cmdmsg = ep_alloc0(sizeof(h248_cmdmsg_info_t));
+    h248_cmdmsg->offset = offset;
+    h248_cmdmsg->transaction_id = transaction_id;
+    h248_cmdmsg->context_id = context_id;
+    h248_cmdmsg->cmd_type = H248_CMD_NONE;
+    h248_cmdmsg->msg_type = H248_TRX_REPLY;
+    h248_cmdmsg->term_is_wildcard = FALSE;
+#.END
+
+#.FN_FTR CommandReply
+    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, cmd_str(h248_cmdmsg));    
+    if (keep_persistent_data) {
+        cmdmsg_tree(h248_cmdmsg);
+        analyze_h248_cmd(pinfo,h248_cmdmsg);
+        analysis_tree(pinfo, tvb, h248_tree, h248_cmdmsg);
+    }
 #.END
 
 #.FN_BODY ActionRequest/contextId
@@ -100,90 +132,88 @@ ServiceChangeReply/terminationID			terminationIDList
 #.END
 
 #.FN_HDR Command/addReq
-	  command_string = "addReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_ADD;
 #.END
 
 #.FN_HDR Command/moveReq
-	  command_string =  "moveReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOVE;
 #.END
 
 #.FN_HDR Command/modReq
-	  command_string =  "modReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOD;
 #.END
 
 #.FN_HDR Command/subtractReq
-	  command_string =  "subtractReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_SUB;
 #.END
 
 #.FN_HDR Command/auditCapRequest
-	  command_string =  "auditCapRequest {";
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITCAP;
 #.END
 
 #.FN_HDR Command/auditValueRequest
-	  command_string =  "auditValueRequest {";
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITVAL;
 #.END
 
 #.FN_HDR Command/notifyReq
-	  command_string =  "notifyReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_NOTIFY;
 #.END
 
 #.FN_HDR Command/ServiceChangeRequest
-	  command_string =  "serviceChangeReq {";
+	  h248_cmdmsg->cmd_type = H248_CMD_SVCCHG;
 #.END
 
 #.FN_HDR CommandReply/addReply
-	  command_string =  "addReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_ADD;
 #.END
 
 #.FN_HDR CommandReply/moveReply
-	  command_string =  "moveReply {";
-#.END
-
-#.FN_HDR CommandReply/addReply
-	  command_string =  "addReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOVE;
 #.END
 
 #.FN_HDR CommandReply/modReply
-	  command_string =  "modReply {";
-#.END
-
-#.FN_HDR CommandReply/notifyReply
-	  command_string =  "notifyReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_MOD;
 #.END
 
 #.FN_HDR CommandReply/subtractReply
-	  command_string =  "subtractReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_SUB;
+#.END
+
+#.FN_HDR CommandReply/notifyReply
+	  h248_cmdmsg->cmd_type = H248_CMD_NOTIFY;
+#.END
+
+#.FN_HDR CommandReply/ServiceChangeReply
+	  h248_cmdmsg->cmd_type = H248_CMD_SVCCHG;
 #.END
 
 #.FN_HDR CommandReply/auditCapReply
-	  command_string =  "auditCapReply {";
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITCAP;
 #.END
 
 #.FN_HDR CommandReply/auditValueReply
-	  command_string =  "auditValueReply {";
-#.END
-
-#.FN_HDR TerminationID
-	  if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, command_string);
-	  it_is_wildcard = FALSE;
-#.END
-
-#.FN_FTR TerminationID
-	if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, "}");
-	it_is_wildcard = FALSE;
+	  h248_cmdmsg->cmd_type = H248_CMD_AUDITVAL;
 #.END
 
 #.FN_HDR WildcardField
-	  if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, "*");
-	  it_is_wildcard = TRUE;
+    h248_cmdmsg->term_is_wildcard = TRUE;
+#.END
+
+#.FN_BODY ErrorDescriptor/errorCode
+    guint32 val;
+    
+    val = 0;
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_h248_error_code, &val);
+    h248_cmdmsg->error_code = val;
+    
+    return offset;
 #.END
 
 #.FN_BODY TerminationID/id
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 	
-	  if (command_string != NULL  && ! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
-		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
+    h248_cmdmsg->term_id = bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length);
 
 	if (new_tvb && h248_term_handle) {
 		call_dissector(h248_term_handle, new_tvb, pinfo, tree);
