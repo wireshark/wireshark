@@ -67,9 +67,8 @@
  */
 #ifdef DEBUG_wsp
 #define DebugLog(x) \
-	printf("%s:%u: ", __FILE__, __LINE__); \
-	printf x; \
-	fflush(stdout)
+	g_print("%s:%u: ", __FILE__, __LINE__); \
+	g_print x
 #else
 #define DebugLog(x) ;
 #endif
