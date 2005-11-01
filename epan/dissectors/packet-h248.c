@@ -85,6 +85,7 @@ static int hf_h248_error_code = -1;
 static int hf_h248_cmd_trx = -1;
 static int hf_h248_cmd_request = -1;
 static int hf_h248_cmd_reply = -1;
+static int hf_h248_cmd_pending = -1;
 static int hf_h248_cmd_dup_request = -1;
 static int hf_h248_cmd_dup_reply = -1;
 static int hf_h248_cmd_start = -1;
@@ -1347,7 +1348,7 @@ static proto_tree* cmdmsg_tree(h248_cmdmsg_info_t* cmdmsg) {
 
 static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
     h248_cmd_info_t* cmd_info;
-    static h248_cmd_info_t no_cmd_info = {NULL,0,H248_CMD_NONE,0,0,FALSE,0,NULL,NULL,NULL};
+    static h248_cmd_info_t no_cmd_info = {NULL,0,H248_CMD_NONE,0,0,0,FALSE,0,NULL,NULL,NULL};
     gchar* low_addr;
     gchar* high_addr;
     guint framenum = pinfo->fd->num;
@@ -1387,6 +1388,8 @@ static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
                         cmd_info->error_code = cmdmsg->error_code;
                     }
                     break;
+                case H248_TRX_PENDING:
+                    cmd_info->pendings++;
                 default:
                     break;
             }
@@ -1400,6 +1403,7 @@ static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
                     cmd_info->type = cmdmsg->cmd_type;
                     cmd_info->request_frame = framenum;
                     cmd_info->response_frame = 0;
+                    cmd_info->pendings = 0;
                     cmd_info->choose_ctx = (cmdmsg->context_id == CHOOSE_CONTEXT);
                     cmd_info->error_code = 0;
                     cmd_info->context = NULL;
@@ -1541,12 +1545,13 @@ static void analysis_tree(packet_info* pinfo, tvbuff_t *tvb, proto_tree* tree, h
                 }
                 break;
             default:
-                /*
-                 * XXX: TODO Pending and Ack
-                 * We need a list of frames or at least a counter of Pendings; these can be many.
-                 * Pendings are known to be synthoms of problems.
-                 */
-                return;
+                break;
+        }
+        
+        if (cmd_info->pendings) {
+            pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_pending,tvb,0,0,cmd_info->pendings);
+            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);            
         }
         
         if (cmd_info->choose_ctx) {
@@ -5276,7 +5281,7 @@ void proto_register_h248(void) {
       "ErrorDescriptor/errorCode", HFILL }},
   { &hf_h248_context_id,
   { "contextId", "h248.contextId",
-      FT_UINT32, BASE_DEC, VALS(h248_reasons), 0,
+      FT_UINT32, BASE_DEC, NULL, 0,
       "Context ID", HFILL }},
       
   { &hf_h248_cmd_trx, { "Transaction", "h248.trx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
@@ -5284,6 +5289,7 @@ void proto_register_h248(void) {
   { &hf_h248_cmd_reply, { "Reply to this Request", "h248.cmd.reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_cmd_dup_request, { "This Request is a Duplicate of", "h248.cmd.dup_request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_cmd_dup_reply, { "This Reply is a Duplicate of", "h248.cmd.dup_reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+  { &hf_h248_cmd_pending, { "Pendings", "h248.cmd.pending", FT_UINT32, BASE_DEC, NULL, 0, "Number Of Pending Messages", HFILL }},
   { &hf_h248_cmd_start, { "This Transaction Starts a New Context", "h248.cmd.start", FT_BOOLEAN, BASE_NONE, NULL, 0, "", HFILL }},
   { &hf_h248_cmd_error, { "Error", "h248.cmd.error", FT_UINT32, BASE_DEC, VALS(h248_reasons), 0, "", HFILL }},
   { &hf_h248_cmd_ctx, { "Context", "h248.ctx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
@@ -6527,26 +6533,4 @@ void proto_reg_handoff_h248(void) {
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
 }
-
-#ifndef ENABLE_STATIC
-
-#include <gmodule.h>
-
-G_MODULE_EXPORT const gchar version[] = "0.0.0";
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_h248 == -1) { /* execute protocol initialization only once */
-		proto_register_h248();
-	}
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-	proto_reg_handoff_h248();
-}
-
-#endif
 

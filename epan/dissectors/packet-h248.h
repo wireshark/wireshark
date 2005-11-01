@@ -83,6 +83,7 @@ struct _h248_cmd_info_t {
 
     guint request_frame;
     guint response_frame;
+    guint pendings;
     
     gboolean choose_ctx;
     guint error_code;
