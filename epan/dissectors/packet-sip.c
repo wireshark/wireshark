@@ -1080,6 +1080,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		 * Just dissect it as a continuation.
 		 */
 	} else if (use_reassembly) {
+		
 		/*
 		 * Yes, it's a request or response.
 		 * Do header desegmentation if we've been told to,
@@ -2752,6 +2753,6 @@ proto_reg_handoff_sip(void)
 	dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
 
 	heur_dissector_add("udp", dissect_sip_heur, proto_sip);
-	heur_dissector_add("tcp", dissect_sip_heur, proto_sip);
+	heur_dissector_add("tcp", dissect_sip_tcp_heur, proto_sip);
 	heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
 }
