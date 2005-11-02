@@ -195,7 +195,14 @@ ServiceChangeReply/terminationID			terminationIDList
 	  h248_cmdmsg->cmd_type = H248_CMD_AUDITVAL;
 #.END
 
-#.FN_HDR WildcardField
+#.FN_BODY WildcardField
+    tvbuff_t* new_tvb;
+    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,&new_tvb);
+    tree = proto_item_add_subtree(get_ber_last_created_item(),ett_wildcard);
+    proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,FALSE);
+    proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,FALSE);
+    proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,FALSE);
+    
     h248_cmdmsg->term_is_wildcard = TRUE;
 #.END
 

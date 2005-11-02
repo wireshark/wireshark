@@ -81,6 +81,10 @@ static int hf_h248_package_3GUP_interface = -1;
 static int hf_h248_package_3GUP_initdir = -1;
 static int hf_h248_context_id = -1;
 static int hf_h248_error_code = -1;
+static int hf_h248_term_wild_type = -1;
+static int hf_h248_term_wild_level = -1;
+static int hf_h248_term_wild_position = -1;
+
 
 static int hf_h248_cmd_trx = -1;
 static int hf_h248_cmd_request = -1;
@@ -372,7 +376,7 @@ static gint ett_h248 = -1;
 static gint ett_mtpaddress = -1;
 static gint ett_packagename = -1;
 static gint ett_codec = -1;
-
+static gint ett_wildcard = -1;
 
 static gint ett_cmd = -1;
 static gint ett_ctx = -1;
@@ -865,6 +869,19 @@ static const value_string h248_reasons[] = {
 	{0,NULL}
 };
 
+static const value_string wildcard_modes[] = {
+    { 0, "All" },
+    { 1, "Choose" },
+    { 0, NULL }
+};
+
+static const value_string wildcard_levels[] = {
+    { 0, "This One Level" },
+    { 1, "This Level and those bellow" },
+    { 0, NULL }
+};
+
+
 static const value_string request_types[] = {
     { 0, "unknown" },
     { 1, "add" },
@@ -874,7 +891,8 @@ static const value_string request_types[] = {
     { 5, "auditCap" },
     { 6, "auditValue" },
     { 7, "notify" },
-    { 8, "serviceChange" }
+    { 8, "serviceChange" },
+    { 0, NULL }
 };
 
 static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1363,12 +1381,18 @@ static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
     } else if ( cmd_info == NULL ) {
         gboolean dup = FALSE;
 
-        if (CMP_ADDRESS(&(pinfo->net_src), &(pinfo->net_dst)) < 0) {
-            low_addr = address_to_str(&(pinfo->net_src));
-            high_addr = address_to_str(&(pinfo->net_dst));
+        if (pinfo->net_src.type == AT_NONE) {
+            low_addr = "-";
+            high_addr = "-";
         } else {
-            low_addr = address_to_str(&(pinfo->net_dst));
-            high_addr = address_to_str(&(pinfo->net_src));
+                
+            if (CMP_ADDRESS(&(pinfo->net_src), &(pinfo->net_dst)) < 0) {
+                low_addr = address_to_str(&(pinfo->net_src));
+                high_addr = address_to_str(&(pinfo->net_dst));
+            } else {
+                low_addr = address_to_str(&(pinfo->net_dst));
+                high_addr = address_to_str(&(pinfo->net_src));
+            }
         }
         
         cmd_key = ep_strdup_printf("%s <-> %s : %x",low_addr,high_addr,cmdmsg->transaction_id);
@@ -1545,6 +1569,20 @@ static void analysis_tree(packet_info* pinfo, tvbuff_t *tvb, proto_tree* tree, h
                 }
                 break;
             default:
+                if (cmd_info->request_frame) {
+                    proto_tree_add_uint(cmd_tree,hf_h248_cmd_request,tvb,0,0,cmd_info->request_frame);
+                } else {
+                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No request");
+                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);                    
+                }
+                
+                if (cmd_info->response_frame) {
+                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_reply,tvb,0,0,cmd_info->response_frame);
+                } else {
+                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No response");
+                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
+                }
+                
                 break;
         }
         
@@ -2035,9 +2073,14 @@ static int dissect_keepActive_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+    tvbuff_t* new_tvb;
+    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,&new_tvb);
+    tree = proto_item_add_subtree(get_ber_last_created_item(),ett_wildcard);
+    proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,FALSE);
+    proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,FALSE);
+    proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,FALSE);
+    
     h248_cmdmsg->term_is_wildcard = TRUE;
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
 
   return offset;
 }
@@ -5283,6 +5326,18 @@ void proto_register_h248(void) {
   { "contextId", "h248.contextId",
       FT_UINT32, BASE_DEC, NULL, 0,
       "Context ID", HFILL }},
+  { &hf_h248_term_wild_type,
+  { "Wildcard Mode", "h248.term.wildcard.mode",
+      FT_UINT8, BASE_DEC, VALS(wildcard_modes), 0x80,
+      "", HFILL }},
+  { &hf_h248_term_wild_level,
+  { "Wildcarding Level", "h248.term.wildcard.level",
+      FT_UINT8, BASE_DEC, VALS(wildcard_levels), 0x40,
+      "", HFILL }},
+  { &hf_h248_term_wild_position,
+  { "Wildcarding Position", "h248.term.wildcard.pos",
+      FT_UINT8, BASE_DEC, NULL, 0x3F,
+      "", HFILL }},
       
   { &hf_h248_cmd_trx, { "Transaction", "h248.trx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_cmd_request, { "Request for this Reply", "h248.cmd.request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
@@ -6351,6 +6406,7 @@ void proto_register_h248(void) {
     &ett_mtpaddress,
     &ett_packagename,
     &ett_codec,
+      &ett_wildcard,
     &ett_cmd,
     &ett_ctx,
     &ett_ctx_cmd,
