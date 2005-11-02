@@ -7,7 +7,7 @@
 --
 --***********************************************
 
--- $Id:$
+-- $Id$
 
 
 
@@ -49,7 +49,7 @@ PBIPSSPCapabilities ::= SEQUENCE {
    genOfVoiceAnn    INTEGER,
    voiceInfo2       INTEGER,
    voiceInfo1       INTEGER,
-   voiceBack        INTEGER,
+   voiceBack1        INTEGER,
    iPRoutAdd        INTEGER,
    bilateralPart    OCTET STRING (SIZE(0..3))
 }
@@ -65,7 +65,7 @@ PBAddressString ::= SEQUENCE {
        extension                 INTEGER(1),
        natureOfAddressIndicator  INTEGER,
        numberingPlanInd          INTEGER,
-       digits                   
+       digits1                   
                                 
                                 OCTET STRING (SIZE(0..19))
 }
@@ -74,14 +74,14 @@ PBISDNAddressString ::= SEQUENCE {
        extension                 INTEGER(1),
        natureOfAddressIndicator  INTEGER,
        numberingPlanInd          INTEGER,
-       digits                   
+       digits2                   
                                 
                                 OCTET STRING (SIZE(0..8))
 }
 
 PBGeographicalInformation ::= SEQUENCE {
         typeOfShape                 INTEGER,
-        spare                       INTEGER,
+        spare3                       INTEGER,
         degreesOfLatitude           OCTET STRING (SIZE(3)),
         degreesOfLongitude          OCTET STRING (SIZE(3)),
         uncertaintyCode             OCTET STRING (SIZE(1))
@@ -110,7 +110,7 @@ BEGIN
 
 PBRedirectionInformation ::= SEQUENCE {
         originalReasons          INTEGER,
-        spare                    INTEGER(0),
+        spare4                    INTEGER(0),
         indicator                INTEGER,
         reason                   INTEGER,
         spare2                   INTEGER(0),
@@ -133,9 +133,9 @@ PBCalledPartyNumber ::= SEQUENCE {
         natureOfAddressIndicator   INTEGER,
         innInd                     INTEGER,
         numberingPlanInd           INTEGER,
-        spare                      INTEGER(0),
+        spare5                      INTEGER(0),
    -- 2-32 bcdDigits
-        digits          
+        digits3          
                          OCTET STRING (SIZE(0..16))
         }
 -- the Destination Address Field is not present if the destination address length is set to zero.
@@ -151,7 +151,7 @@ PBCallingPartyNumber ::= SEQUENCE {
         presentInd                 INTEGER,
         screening                  INTEGER,
     -- 0-16 bcdDigits
-        digits          
+        digits4          
                          OCTET STRING (SIZE(0..8))
         }
 
@@ -160,9 +160,9 @@ PBRedirectingNumber ::= SEQUENCE {
         natureOfAddressIndicator   INTEGER,
         innInd                     INTEGER,
         numberingPlanInd           INTEGER,
-        spare                      INTEGER(0),
+        spare6                      INTEGER(0),
    -- 2-20 bcdDigits
-        digits          
+        digits5          
                          OCTET STRING (SIZE(1..10))
         }
 
@@ -170,7 +170,7 @@ PBRedirectingNumber ::= SEQUENCE {
 PBCause ::= SEQUENCE {
         o1ext                      INTEGER(1),
         codingStandard             INTEGER,
-        spare                      INTEGER(0),
+        spare77                      INTEGER(0),
         location                   INTEGER,
         o2ext                      INTEGER(1),
         causeValue                 INTEGER,
@@ -186,7 +186,7 @@ PBGenericNumber ::= SEQUENCE {
         numberingPlanInd           INTEGER,
         presentInd                 INTEGER,
         screening                  INTEGER,
-        digits          
+        digits6          
                          OCTET STRING (SIZE(0..8))
         }
 
@@ -198,7 +198,7 @@ PBLocationNumber ::= SEQUENCE {
         numberingPlanInd           INTEGER,
         presentInd                 INTEGER,
         screening                  INTEGER,
-        digits          
+        digits7          
                          OCTET STRING (SIZE(0..8))
         }
 
@@ -223,7 +223,7 @@ PBCalledPartyBCDNumber ::= SEQUENCE {
                         reservedExt     (7)
                         },
         numberingPlanInd          INTEGER,
-        digits                   
+        digits8                   
                                  
                                  OCTET STRING (SIZE(0..40))
 }
@@ -265,12 +265,12 @@ OCTET STRING (SIZE (cAPSpecificBoundSetminAccessPointNameLength .. cAPSpecificBo
 -- locally refd 2 times, import refd 0 times
 AChBillingChargingCharacteristics ::= CHOICE
 {
-    timeDurationCharging [0]   SEQUENCE
+    actimeDurationCharging [0]   SEQUENCE
     {
         maxCallPeriodDuration     [0] INTEGER (1..864000),
         releaseIfdurationExceeded [1] BOOLEAN               DEFAULT FALSE,
         tariffSwitchInterval      [2] INTEGER (1..86400)    OPTIONAL,
-        tone                      [3] BOOLEAN               DEFAULT FALSE,
+        actone                      [3] BOOLEAN               DEFAULT FALSE,
         extensions                [4] ExtensionsArray       OPTIONAL
     }
 }
@@ -290,7 +290,7 @@ OCTET STRING (SIZE (3))
 -- Because I added a new Errortypes section at the end.
 
 --CancelFailedPARAM ::= SEQUENCE 
---{
+--{ 
   --  operation [1] InvokeID
 --}
 
@@ -371,7 +371,7 @@ BCSMEvent ::= SEQUENCE
 {
     eventTypeBCSM       [0]  EventTypeBCSM,
     monitorMode         [1]  MonitorMode,
-    legID               [2]  LegID              OPTIONAL,
+    legID6               [2]  LegID              OPTIONAL,
     dpSpecificCriteria  [30] DpSpecificCriteria OPTIONAL
 }
 
@@ -434,7 +434,7 @@ CamelAChBillingChargingCharacteristics ::=  CHOICE
         maxCallPeriodDuration     [0] INTEGER (1..864000),
         releaseIfdurationExceeded [1] BOOLEAN               DEFAULT FALSE,
         tariffSwitchInterval      [2] INTEGER (1..86400)    OPTIONAL,
-        tone                      [3] BOOLEAN               DEFAULT FALSE,
+        actone                      [3] BOOLEAN               DEFAULT FALSE,
         extensions                [4] ExtensionsArray       OPTIONAL
     }
 }
@@ -445,7 +445,7 @@ CamelCallResult ::=  CHOICE
 {
     timeDurationChargingResult [0]   SEQUENCE
     {
-        partyToCharge           [0] ReceivingSideID,
+        partyToCharge3           [0] ReceivingSideID,
         timeInformation         [1] TimeInformation,
         callActive              [2] BOOLEAN DEFAULT TRUE,
         callReleasedAtTcpExpiry [3] NULL OPTIONAL,
@@ -461,7 +461,7 @@ CamelFCIBillingChargingCharacteristics ::=  CHOICE
     fCIBCCCAMELsequence1 [0] SEQUENCE
     {
         freeFormatData       [0] FreeFormatData,
-        partyToCharge        [1] SendingSideID        DEFAULT '01'H,
+        partyToCharge4        [1] SendingSideID        DEFAULT '01'H,
         appendFreeFormatData [2] AppendFreeFormatData DEFAULT overwrite
     }
 }
@@ -473,7 +473,7 @@ CamelFCIGPRSBillingChargingCharacteristics ::=
 
 SEQUENCE
 {
-    fCIBCCCAMELsequence1 [0]  SEQUENCE
+    fCIBCCCAMELsequence2 [0]  SEQUENCE
     {
         freeFormatData       [0] FreeFormatData,
         pDPID                [1] PDPId OPTIONAL,
@@ -486,7 +486,7 @@ SEQUENCE
 -- locally refd 1 times, import refd 0 times
 CamelFCISMSBillingChargingCharacteristics ::=  CHOICE
 {
-    fCIBCCCAMELsequence1 [0] SEQUENCE
+    fCIBCCCAMELsequence3 [0] SEQUENCE
     {
         freeFormatData       [0] FreeFormatData,
         appendFreeFormatData [1] AppendFreeFormatData DEFAULT overwrite
@@ -737,7 +737,7 @@ EventSpecificInformationSMS ::= CHOICE
 {
     o-smsFailureSpecificInfo [0]   SEQUENCE
     {
-        failureCause [0] SMSCause OPTIONAL
+        smsfailureCause [0] SMSCause OPTIONAL
     },
     o-smsSubmittedSpecificInfo [1]   SEQUENCE
     {
@@ -822,7 +822,7 @@ GapCriteria ::= CHOICE
 -- locally refd 1 times, import refd 0 times
 GapIndicators ::=   SEQUENCE
 {
-    duration    [0] Duration,
+    duration1    [0] Duration,
     gapInterval [1] Interval
 }
 
@@ -964,7 +964,7 @@ InbandInfo ::=   SEQUENCE
 {
     messageID           [0] MessageID,
     numberOfRepetitions [1] INTEGER (1..127)   OPTIONAL,
-    duration            [2] INTEGER (0..32767) OPTIONAL,
+    duration2            [2] INTEGER (0..32767) OPTIONAL,
     interval            [3] INTEGER (0..32767) OPTIONAL
 }
 
@@ -1280,7 +1280,7 @@ TimeIfNoTariffSwitch ::= INTEGER (0..864000)
 TimeIfTariffSwitch ::= SEQUENCE
 {
     timeSinceTariffSwitch [0] INTEGER (0..864000),
-    tariffSwitchInterval  [1] INTEGER (1..864000) OPTIONAL
+    tttariffSwitchInterval  [1] INTEGER (1..864000) OPTIONAL
 }
 
 -- TimerID notes: not recursive, exported,
@@ -1304,7 +1304,7 @@ TimeAndTimezone ::=
 Tone ::=   SEQUENCE
 {
     toneID [0] Integer4,
-    duration [1] Integer4 OPTIONAL
+    duration3 [1] Integer4 OPTIONAL
 }
 
 -- TPDataCodingScheme notes: not recursive, exported,
@@ -1913,7 +1913,7 @@ ApplyChargingArg ::=
  SEQUENCE
 {
     aChBillingChargingCharacteristics [0] AChBillingChargingCharacteristics,
-    partyToCharge                     [2] SendingSideID DEFAULT '01'H,
+    partyToCharge1                     [2] SendingSideID DEFAULT '01'H,
     extensions                        [3] ExtensionsArray OPTIONAL
 }
 
@@ -1943,7 +1943,7 @@ CallInformationRequestArg ::=
 {
     requestedInformationTypeList [0] RequestedInformationTypeList,
     extensions                   [2] ExtensionsArray OPTIONAL,
-    legID                        [3] SendingSideID OPTIONAL
+    legID3                        [3] SendingSideID OPTIONAL
 }
 
 
@@ -2038,7 +2038,7 @@ EventReportBCSMArg ::=
 {
     eventTypeBCSM                [0] EventTypeBCSM,
     eventSpecificInformationBCSM [2] EventSpecificInformationBCSM OPTIONAL,
-    legID                        [3] ReceivingSideID            OPTIONAL,
+    legID4                        [3] ReceivingSideID            OPTIONAL,
     miscCallInfo                 [4] MiscCallInfo               OPTIONAL,
     extensions                   [5] ExtensionsArray            OPTIONAL
 }
@@ -2065,7 +2065,7 @@ SendChargingInformationArg ::=
  SEQUENCE
 {
     sCIBillingChargingCharacteristics [0] SCIBillingChargingCharacteristics,
-    partyToCharge                     [1] SendingSideID,
+    partyToCharge2                     [1] SendingSideID,
     extensions                        [2] ExtensionsArray OPTIONAL
 }
 
@@ -2154,7 +2154,7 @@ CallInformationReportArg ::=
 {
     requestedInformationList [0] RequestedInformationList,
     extensions               [2] ExtensionsArray OPTIONAL,
-    legID                    [3] ReceivingSideID OPTIONAL
+    legID5                    [3] ReceivingSideID OPTIONAL
 }
 
 
@@ -2278,7 +2278,7 @@ InitialDPSMSArg ::=
 {
     serviceKey                          [0]  ServiceKey,
     destinationSubscriberNumber         [1]  CalledPartyBCDNumber         OPTIONAL,
-    callingPartyNumber                  [2]  ISDN-AddressString           OPTIONAL,
+    callingPartyNumberas                  [2]  ISDN-AddressString           OPTIONAL,
     eventTypeSMS                        [3]  EventTypeSMS                 OPTIONAL,
     iMSI                                [4]  Imsi                         OPTIONAL,
     locationInformationMSC              [5]  LocationInformation          OPTIONAL,

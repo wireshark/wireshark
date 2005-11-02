@@ -60,6 +60,7 @@ int date_format = 1; /*assume european date format */
 static int hf_digit = -1; 
 static int hf_camel_invokeCmd = -1;             /* Opcode */
 static int hf_camel_invokeid = -1;              /* INTEGER */
+static int hf_camel_linkedID = -1;              /* INTEGER */
 static int hf_camel_absent = -1;                /* NULL */
 static int hf_camel_invokeId = -1;              /* InvokeId */
 static int hf_camel_invoke = -1;                /* InvokePDU */
@@ -280,7 +281,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_camel_ApplyChargingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 36: /*ApplyChargingReport*/
-    offset=dissect_camel_ApplyChargingReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ApplyChargingReportArg(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 41: /*CallGap*/
     offset=dissect_camel_CallGapArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -433,9 +434,13 @@ dissect_camel_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 static int dissect_invokeId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_InvokeId(FALSE, tvb, offset, pinfo, tree, hf_camel_invokeId);
 }
+static int dissect_linkedID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+	return dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_camel_linkedID, NULL);
+}
 
 static const ber_sequence_t InvokePDU_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_linkedID_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeCmd },
   { BER_CLASS_UNI, -1/*depends on Cmd*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeData },
   { 0, 0, 0, NULL }
@@ -601,6 +606,11 @@ void proto_register_camel(void) {
       { "invokeid", "camel.invokeid",
         FT_INT32, BASE_DEC, NULL, 0,
         "InvokeId/invokeid", HFILL }},
+    { &hf_camel_linkedID,
+      { "linkedid", "camel.linkedid",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "LinkedId/linkedid", HFILL }},
+    
     { &hf_camel_absent,
       { "absent", "camel.absent",
         FT_NONE, BASE_NONE, NULL, 0,
