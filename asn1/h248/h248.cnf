@@ -25,6 +25,7 @@ ActionReply/contextId					contextId
 TransactionRequest/transactionId		transactionId
 TransactionPending/transactionId		transactionId
 TransactionReply/transactionId			transactionId
+TransactionResponseAck/transactionId    transactionId
 
 #.FIELD_RENAME
 IP4Address/address		iP4Address
@@ -72,6 +73,37 @@ ServiceChangeReply/terminationID			terminationIDList
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
 #.END
 
+#.FN_FTR TransactionRequest
+    expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_RESPONSE_CODE, PI_CHAT, "TransactionRequest");
+#.END
+
+#.FN_FTR TransactionReply
+    expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_RESPONSE_CODE, PI_CHAT, "TransactionReply");
+#.END
+
+#.FN_FTR TransactionResponseAck
+    expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_RESPONSE_CODE, PI_CHAT, "TransactionResponseAck");
+#.END
+
+#.FN_HDR TransactionPending
+	h248_cmdmsg = ep_alloc0(sizeof(h248_cmdmsg_info_t));
+    h248_cmdmsg->cmd_type = H248_CMD_NONE;
+    h248_cmdmsg->msg_type = H248_TRX_PENDING;
+#.END
+
+#.FN_FTR TransactionPending
+    expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_RESPONSE_CODE, PI_WARN, "TransactionPending");
+
+    h248_cmdmsg->transaction_id = transaction_id;
+
+    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, cmd_str(h248_cmdmsg));
+    
+    if (keep_persistent_data) {
+        analyze_h248_cmd(pinfo,h248_cmdmsg);
+        analysis_tree(pinfo, tvb, h248_tree, h248_cmdmsg);
+    }
+#.END
+
 #.FN_BODY TransactionPending/transactionId
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
 #.END
@@ -81,8 +113,9 @@ ServiceChangeReply/terminationID			terminationIDList
 #.END
 
 #.FN_BODY TransactionResponseAck/transactionId
-	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
+    offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
 #.END
+
 
 #.FN_HDR Command
     h248_cmdmsg = ep_alloc0(sizeof(h248_cmdmsg_info_t));
@@ -98,7 +131,6 @@ ServiceChangeReply/terminationID			terminationIDList
     if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, cmd_str(h248_cmdmsg));
     
     if (keep_persistent_data) {
-        cmdmsg_tree(h248_cmdmsg);
         analyze_h248_cmd(pinfo,h248_cmdmsg);
         analysis_tree(pinfo, tvb, h248_tree, h248_cmdmsg);
     }
@@ -117,7 +149,6 @@ ServiceChangeReply/terminationID			terminationIDList
 #.FN_FTR CommandReply
     if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, cmd_str(h248_cmdmsg));    
     if (keep_persistent_data) {
-        cmdmsg_tree(h248_cmdmsg);
         analyze_h248_cmd(pinfo,h248_cmdmsg);
         analysis_tree(pinfo, tvb, h248_tree, h248_cmdmsg);
     }
@@ -212,7 +243,7 @@ ServiceChangeReply/terminationID			terminationIDList
     val = 0;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_h248_error_code, &val);
     h248_cmdmsg->error_code = val;
-    
+    expert_add_info_format(pinfo, get_ber_last_created_item(), PI_RESPONSE_CODE, PI_WARN, "Errored Command");
     return offset;
 #.END
 

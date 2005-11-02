@@ -551,6 +551,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			ctx_id=(ctx_id<<8)|tvb_get_guint8(tvb, offset);
 			offset++;
 		}
+        
 		if (ctx_id > 0xffffffff) {
 			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,
                                                  "contextId: %" PRIu64, ctx_id);
@@ -559,7 +560,15 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
             context_id = 0xfffffffd;
             
 		} else {
-			proto_tree_add_uint(tree, hf_h248_context_id, tvb, offset-len, len, (guint32)ctx_id);
+			proto_item* pi = proto_tree_add_uint(tree, hf_h248_context_id, tvb, offset-len, len, (guint32)ctx_id);
+
+            if ( ctx_id ==  NULL_CONTEXT ) {
+                proto_item_set_text(pi,"contextId: Null Context(0)");
+            } else if ( ctx_id ==  CHOOSE_CONTEXT ) {
+                proto_item_set_text(pi,"contextId: $ (Choose Context = 0xfffffffe)");
+            } else if ( ctx_id ==  ALL_CONTEXTS ) {
+                proto_item_set_text(pi,"contextId: * (All Contexts = 0xffffffff)");
+            }
             
             context_id = (guint32) ctx_id;
 		}
@@ -962,8 +971,7 @@ static proto_tree* cmdmsg_tree(h248_cmdmsg_info_t* cmdmsg) {
 static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
     h248_cmd_info_t* cmd_info;
     static h248_cmd_info_t no_cmd_info = {NULL,0,H248_CMD_NONE,0,0,0,FALSE,0,NULL,NULL,NULL};
-    gchar* low_addr;
-    gchar* high_addr;
+    gchar* addr_label;
     guint framenum = pinfo->fd->num;
     gchar* cmd_key;
 
@@ -977,20 +985,17 @@ static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
         gboolean dup = FALSE;
 
         if (pinfo->net_src.type == AT_NONE) {
-            low_addr = "-";
-            high_addr = "-";
+            addr_label = "";
         } else {
                 
             if (CMP_ADDRESS(&(pinfo->net_src), &(pinfo->net_dst)) < 0) {
-                low_addr = address_to_str(&(pinfo->net_src));
-                high_addr = address_to_str(&(pinfo->net_dst));
+                addr_label = ep_strdup_printf("%s<->%s:", address_to_str(&(pinfo->net_src)), address_to_str(&(pinfo->net_dst)));
             } else {
-                low_addr = address_to_str(&(pinfo->net_dst));
-                high_addr = address_to_str(&(pinfo->net_src));
+                addr_label = ep_strdup_printf("%s<->%s:", address_to_str(&(pinfo->net_dst)), address_to_str(&(pinfo->net_src)));
             }
         }
         
-        cmd_key = ep_strdup_printf("%s <-> %s : %x",low_addr,high_addr,cmdmsg->transaction_id);
+        cmd_key = ep_strdup_printf("%s%x",addr_label,cmdmsg->transaction_id);
         
         cmd_info = g_hash_table_lookup(transactions,cmd_key);
         
@@ -1049,7 +1054,7 @@ static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
             if (cmd_info->choose_ctx) {
                 /* the fisrt transaction of a new context */
                 
-                ctx_key = ep_strdup_printf("%s-%s-%i",low_addr,high_addr,cmdmsg->transaction_id);
+                ctx_key = ep_strdup_printf("%s%i",addr_label,cmdmsg->transaction_id);
 
                 switch (cmdmsg->msg_type) {
                     case H248_TRX_REQUEST: {
@@ -1082,7 +1087,7 @@ static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
                         /* XXX: former leak: this one should be an extended lookup to g_free the key */
                         if (( cmd_info->context = g_hash_table_lookup(contexts_creating,ctx_key) )) {
                             
-                            ctx_key = ep_strdup_printf("%s<->%s : %.8x",low_addr,high_addr,cmdmsg->context_id);
+                            ctx_key = ep_strdup_printf("%s%.8x",addr_label,cmdmsg->context_id);
                             
                             cmd_info->context->ctx_id = cmdmsg->context_id;
                             
@@ -1104,7 +1109,7 @@ static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
                         break;
                 }
             } else {
-                ctx_key = ep_strdup_printf("%s<->%s : %.8x",low_addr,high_addr,cmdmsg->context_id);
+                ctx_key = ep_strdup_printf("%s%.8x",addr_label,cmdmsg->context_id);
                 
                 if (( ctx_ptr = g_hash_table_lookup(contexts,ctx_key) )) {
                     cmd_info->context = *ctx_ptr;
@@ -1190,13 +1195,13 @@ static void analysis_tree(packet_info* pinfo, tvbuff_t *tvb, proto_tree* tree, h
         if (cmd_info->choose_ctx) {
             pi = proto_tree_add_boolean(cmd_tree,hf_h248_cmd_start,tvb,0,0,TRUE);
             PROTO_ITEM_SET_GENERATED(pi);
-            proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
+            expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "Context Created");
         }
         
         if (cmd_info->error_code) {
             pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_error,tvb,0,0,cmd_info->error_code);
             PROTO_ITEM_SET_GENERATED(pi);
-            expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
+            proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
         }
         
         
@@ -1245,7 +1250,7 @@ static void analysis_tree(packet_info* pinfo, tvbuff_t *tvb, proto_tree* tree, h
                 if (cmd->error_code) {
                     pi = proto_tree_add_uint(ctx_cmd_tree,hf_h248_ctx_cmd_error,tvb,0,0,cmd->error_code);
                     PROTO_ITEM_SET_GENERATED(pi);
-                    expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "Errored Context");
+                    proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
                 }
                 
             }
@@ -1389,7 +1394,7 @@ void proto_register_h248(void) {
       "ErrorDescriptor/errorCode", HFILL }},
   { &hf_h248_context_id,
   { "contextId", "h248.contextId",
-      FT_UINT32, BASE_DEC, NULL, 0,
+      FT_UINT32, BASE_HEX, NULL, 0,
       "Context ID", HFILL }},
   { &hf_h248_term_wild_type,
   { "Wildcard Mode", "h248.term.wildcard.mode",
