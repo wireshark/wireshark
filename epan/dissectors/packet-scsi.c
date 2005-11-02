@@ -1868,7 +1868,7 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_text (tree, tvb, offset+6, 1,
                              "BQue: %u, SES: %u, MultiP: %u, Addr16: %u",
                              ((flags & 0x80) >> 7), (flags & 0x40) >> 6,
-                             (flags & 10) >> 4, (flags & 0x01));
+                             (flags & 0x10) >> 4, (flags & 0x01));
         flags = tvb_get_guint8 (tvb, offset+7);
         proto_tree_add_text (tree, tvb, offset+7, 1,
                              "RelAdr: %u, Linked: %u, CmdQue: %u",
