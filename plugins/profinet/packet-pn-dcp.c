@@ -74,6 +74,7 @@ static int hf_pn_dcp_suboption_device_id = -1;
 static int hf_pn_dcp_suboption_device_role = -1;
 
 static int hf_pn_dcp_suboption_dhcp = -1;
+static int hf_pn_dcp_suboption_dhcp_device_id = -1;
 
 static int hf_pn_dcp_suboption_lldp = -1;
 
@@ -202,13 +203,15 @@ static const value_string pn_dcp_suboption_device[] = {
     { 0, NULL }
 };
 
+#define PNDCP_SUBOPTION_DHCP_CLIENT_ID	61
+
 static const value_string pn_dcp_suboption_dhcp[] = {
     {  12, "Host name" },
     {  43, "Vendor specific" },
     {  54, "Server identifier" },
     {  55, "Parameter request list" },
     {  60, "Class identifier" },
-    {  61, "DHCP client identifier" },
+    {  PNDCP_SUBOPTION_DHCP_CLIENT_ID, "DHCP client identifier" },
     {  81, "FQDN, Fully Qualified Domain Name" },
     {  97, "UUID/GUID-based Client" },
 	{ 255, "Control DHCP for address resolution" },
@@ -558,6 +561,43 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
+/* dissect the "DHCP" suboption */
+static int
+dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                                proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
+								int length)
+{
+    /*guint8 result;*/
+    guint8 suboption;
+    guint16 block_length;
+    /*gchar *info_str;*/
+    /*guint16 status;*/
+
+
+    offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp, &suboption);
+    length--;
+
+    if(length) {
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
+    }
+
+    switch(suboption) {
+	case(PNDCP_SUBOPTION_DHCP_CLIENT_ID):
+        pn_append_info(pinfo, dcp_item, ", DHCP client identifier");
+        proto_item_append_text(block_item, "DHCP/Client-ID");
+        proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_device_id, tvb, offset, block_length, FALSE);
+        offset += block_length;
+		break;
+    default:
+        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+            "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_DHCP, suboption, block_length);
+        offset += block_length;
+    }
+
+    return offset;
+}
+
+
 /* dissect the "control" suboption */
 static int
 dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo, 
@@ -713,8 +753,7 @@ dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_PNDCP_Suboption_Device(tvb, offset, pinfo, block_tree, block_item, dcp_item, length, is_response);
         break;
     case(PNDCP_OPTION_DHCP):
-        /* XXX - improve this */
-        offset = dissect_pn_uint8(tvb, offset, pinfo, block_tree, hf_pn_dcp_suboption_dhcp, &suboption);
+        offset = dissect_PNDCP_Suboption_DHCP(tvb, offset, pinfo, block_tree, block_item, dcp_item, length);
         break;
     case(PNDCP_OPTION_LLDP):
         /* XXX - improve this */
@@ -918,6 +957,8 @@ proto_register_pn_dcp (void)
 
     { &hf_pn_dcp_suboption_dhcp,
 		{ "Suboption", "pn_dcp.suboption_dhcp", FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_dhcp), 0x0, "", HFILL }},
+    { &hf_pn_dcp_suboption_dhcp_device_id,
+		{ "Device ID", "pn_dcp.suboption_dhcp_device_id", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_dcp_suboption_lldp,
 		{ "Suboption", "pn_dcp.suboption_lldp", FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_lldp), 0x0, "", HFILL }},

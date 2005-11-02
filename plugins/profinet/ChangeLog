@@ -17,3 +17,7 @@ Version 0.1.0:
 Version 0.1.1:
 
 * fixed some bugs in the PN-IO dissection found with fuzz-test.sh
+
+Version 0.1.2:
+
+* PN-DCP: dissection of "DHCP/DHCP client identifier" suboption was added
