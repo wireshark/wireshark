@@ -4691,7 +4691,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 {
 	header_field_info	*hfinfo;
 	int			abbrev_len;
-	char			*buf, *stringified, *ptr;
+	char			*buf, *ptr;
 	int			buf_len;
 	const char		*format;
 	int			dfilter_len, i;
