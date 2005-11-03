@@ -4615,10 +4615,10 @@ fReadRangeAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 static guint fAccessMethod(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    guint32 lvt;
+	guint32 lvt;
 	guint8 tag_no, tag_info;
-    proto_item* tt;
-    proto_tree* subtree;
+	proto_item* tt;
+	proto_tree* subtree = NULL;
 
 	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
