@@ -2160,11 +2160,12 @@ sub FunctionTable($)
 		pidl "\t\tsizeof(struct $d->{NAME}),";
 		pidl "\t\t(ndr_push_flags_fn_t) ndr_push_$d->{NAME},";
 		pidl "\t\t(ndr_pull_flags_fn_t) ndr_pull_$d->{NAME},";
-		pidl "\t\t(ndr_print_function_t) ndr_print_$d->{NAME}";
+		pidl "\t\t(ndr_print_function_t) ndr_print_$d->{NAME},";
+		pidl "\t\t".($d->{ASYNC}?"True":"False").",";
 		pidl "\t},";
 		$count++;
 	}
-	pidl "\t{ NULL, 0, NULL, NULL, NULL }";
+	pidl "\t{ NULL, 0, NULL, NULL, NULL, False }";
 	pidl "};";
 	pidl "";
 

@@ -10,7 +10,7 @@
 
 - auto-alloc [ref] pointers for Samba4 during pull if they were NULL
  
-- better replacement for subcontext()
+- replace subcontext() with represent_as()
 
 - --explain-ndr option that dumps out parse tree
 
