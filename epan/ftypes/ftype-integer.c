@@ -307,7 +307,7 @@ integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, PRId64, fv->value.integer64);
+	sprintf(buf, "%" PRId64, fv->value.integer64);
 }
 
 static int
@@ -319,7 +319,7 @@ uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, PRIu64, fv->value.integer64);
+	sprintf(buf, "%" PRIu64, fv->value.integer64);
 }
 
 static gboolean
