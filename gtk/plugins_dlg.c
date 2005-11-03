@@ -37,18 +37,6 @@
 
 #ifdef HAVE_PLUGINS
 
-static void plugins_destroy_cb(GtkWidget *, gpointer);
-
-/*
- * Keep a static pointer to the current "Plugins" window, if any, so that
- * if somebody tries to do "Help->About Plugins" while there's already a
- * "Plugins" window up, we just pop up the existing one, rather than
- * creating a new one.
-*/
-static GtkWidget *plugins_window = NULL;
-
-
-
 /*
  * Fill the list widget with a list of the plugin modules.
  */
@@ -105,60 +93,5 @@ about_plugins_page_new(void)
 
     return scrolledwindow;
 }
-
-static void
-tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-    GtkWidget *main_vbox;
-    GtkWidget *main_frame;
-    GtkWidget *frame_hbox;
-    GtkWidget *page;
-    GtkWidget *bbox;
-    GtkWidget *ok_bt;
-
-    if (plugins_window != NULL) {
-        /* There's already a "Plugins" dialog box; reactivate it. */
-        reactivate_window(plugins_window);
-        return;
-    }
-
-    plugins_window = dlg_window_new("Ethereal: Plugins");
-    gtk_window_set_default_size(GTK_WINDOW(plugins_window), 250, 200);
-
-    main_vbox = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(plugins_window), main_vbox);
-
-    main_frame = gtk_frame_new("Plugins List");
-    gtk_box_pack_start(GTK_BOX(main_vbox), main_frame, TRUE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(main_frame), 5);
-
-    frame_hbox = gtk_hbox_new(FALSE,0);
-    gtk_container_add(GTK_CONTAINER(main_frame), frame_hbox);
-    gtk_container_set_border_width(GTK_CONTAINER(frame_hbox), 5);
-
-    page = about_plugins_page_new();
-    gtk_box_pack_start(GTK_BOX(frame_hbox), page, TRUE, TRUE, 0);
-
-    /* button row */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-    gtk_box_pack_end(GTK_BOX(main_vbox), bbox, FALSE, FALSE, 3);
-
-    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-    window_set_cancel_button(plugins_window, ok_bt, window_cancel_button_cb);
-
-    SIGNAL_CONNECT(plugins_window, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(plugins_window, "destroy", plugins_destroy_cb, NULL);
-
-    gtk_widget_show_all(plugins_window);
-    window_present(plugins_window);
-}
-
-static void
-plugins_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
-{
-    /* Note that we no longer have a Plugins window. */
-    plugins_window = NULL;
-}
-
 
 #endif /* HAVE_PLUGINS */
