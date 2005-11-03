@@ -18472,9 +18472,9 @@ proto_register_gsm_a(void)
 		"Time difference value", HFILL }
 	},
 	{ &hf_gsm_a_rr_tlli,
-		{ "Start Mode","gsm_a.rr.tlli",
-		FT_UINT32,BASE_DEC,  NULL, 0x0,          
-		"Start Mode", HFILL }
+		{ "TLLI","gsm_a.rr.tlli",
+		FT_UINT32,BASE_HEX,  NULL, 0x0,          
+		"TLLI", HFILL }
 	},
 	{ &hf_gsm_a_rr_target_mode,
 		{ "Target mode","gsm_a.rr.target_mode",
