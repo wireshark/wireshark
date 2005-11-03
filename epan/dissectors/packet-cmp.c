@@ -1466,7 +1466,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	return tvb_length(tvb);
 }
 
-static int
+static void
 dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
@@ -2028,7 +2028,7 @@ void proto_reg_handoff_cmp(void) {
 	dissector_handle_t cmp_http_handle;
 	dissector_handle_t cmp_tcp_handle;
 
-	cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);
+	cmp_http_handle = create_dissector_handle(dissect_cmp_http, proto_cmp);
 	dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
 
 	cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);
