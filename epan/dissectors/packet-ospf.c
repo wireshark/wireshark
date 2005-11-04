@@ -214,6 +214,10 @@ static int hf_ospf_options_v3_mc = -1;
 static int hf_ospf_options_v3_n = -1;
 static int hf_ospf_options_v3_r = -1;
 static int hf_ospf_options_v3_dc = -1;
+static int hf_ospf_dbd = -1;
+static int hf_ospf_dbd_i = -1;
+static int hf_ospf_dbd_m = -1;
+static int hf_ospf_dbd_ms = -1;
 
 static gint ett_ospf = -1;
 static gint ett_ospf_hdr = -1;
@@ -225,6 +229,7 @@ static gint ett_ospf_lsa_router_link = -1;
 static gint ett_ospf_lsa_upd = -1;
 static gint ett_ospf_options_v2 = -1;
 static gint ett_ospf_options_v3 = -1;
+static gint ett_ospf_dbd = -1;
 
 /* Trees for opaque LSAs */
 static gint ett_ospf_lsa_mpls = -1;
@@ -289,6 +294,18 @@ static const true_false_string tfs_options_v3_r = {
 static const true_false_string tfs_options_v3_dc = {
 	"DC is SET",
 	"DC is NOT set"
+};
+static const true_false_string tfs_dbd_i = {
+	"I is SET",
+	"I is NOT set"
+};
+static const true_false_string tfs_dbd_m = {
+	"M is SET",
+	"M is NOT set"
+};
+static const true_false_string tfs_dbd_ms = {
+	"MS is SET",
+	"MS is NOT set"
 };
 
 /*-----------------------------------------------------------------------
@@ -491,7 +508,18 @@ static hf_register_info ospff_info[] = {
     {&hf_ospf_options_v3_dc,
      { "DC", "ospf.options.v3.dc", FT_BOOLEAN, 24, 
        TFS(&tfs_options_v3_dc), OSPF_V3_OPTIONS_DC, "", HFILL }},
-
+    {&hf_ospf_dbd,
+     { "DB Description", "ospf.dbd", FT_UINT8, BASE_HEX,
+       NULL, 0x0, "", HFILL }},
+    {&hf_ospf_dbd_i,
+     { "I", "ospf.dbd.i", FT_BOOLEAN, 8, 
+       TFS(&tfs_dbd_i), OSPF_DBD_FLAG_I, "", HFILL }},
+    {&hf_ospf_dbd_m,
+     { "M", "ospf.dbd.m", FT_BOOLEAN, 8, 
+       TFS(&tfs_dbd_m), OSPF_DBD_FLAG_M, "", HFILL }},
+    {&hf_ospf_dbd_ms,
+     { "MS", "ospf.dbd.ms", FT_BOOLEAN, 8, 
+       TFS(&tfs_dbd_ms), OSPF_DBD_FLAG_MS, "", HFILL }},
 
 
 };
@@ -860,13 +888,45 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 }
 
 static void
+dissect_ospf_dbd (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint8 flags;
+
+	flags = tvb_get_guint8 (tvb, offset);
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_ospf_dbd, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_ospf_dbd);
+	}
+
+	proto_tree_add_boolean(tree, hf_ospf_dbd_i, tvb, offset, 1, flags);
+	if (flags&OSPF_DBD_FLAG_I){
+		proto_item_append_text(item, "  I");
+	}
+	flags&=(~( OSPF_DBD_FLAG_I ));
+
+	proto_tree_add_boolean(tree, hf_ospf_dbd_m, tvb, offset, 1, flags);
+	if (flags&OSPF_DBD_FLAG_M){
+		proto_item_append_text(item, "  M");
+	}
+	flags&=(~( OSPF_DBD_FLAG_M ));
+
+	proto_tree_add_boolean(tree, hf_ospf_dbd_ms, tvb, offset, 1, flags);
+	if (flags&OSPF_DBD_FLAG_MS){
+		proto_item_append_text(item, "  MS");
+	}
+	flags&=(~( OSPF_DBD_FLAG_MS ));
+}
+
+
+static void
 dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 {
     proto_tree *ospf_db_desc_tree=NULL;
     proto_item *ti;
-    guint8 flags;
     guint8 reserved;
-    char flags_string[20] = "";
 
     if (tree) {
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF DB Description");
@@ -875,27 +935,13 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
         switch (version ) {
 
 	    case OSPF_VERSION_2:
-
                 proto_tree_add_text(ospf_db_desc_tree, tvb, offset, 2, "Interface MTU: %u",
 			    tvb_get_ntohs(tvb, offset));
 
 	        dissect_ospf_options(tvb, offset + 2, ospf_db_desc_tree, version);
 
-	        flags = tvb_get_guint8(tvb, offset + 3);
-	        if (flags & OSPF_DBD_FLAG_MS)
-	            strcat(flags_string, "MS");
-	        if (flags & OSPF_DBD_FLAG_M) {
-	            if (flags_string[0] != '\0')
-		        strcat(flags_string, "/");
-	            strcat(flags_string, "M");
-	        }
-	        if (flags & OSPF_DBD_FLAG_I) {
-	            if (flags_string[0] != '\0')
-		        strcat(flags_string, "/");
-	            strcat(flags_string, "I");
-	        }
-	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 3, 1, "Flags: 0x%x (%s)",
-			    flags, flags_string);
+                dissect_ospf_dbd(ospf_db_desc_tree, tvb, offset+3);
+
 	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 4, 4, "DD Sequence: %u",
 			    tvb_get_ntohl(tvb, offset + 4));
 
@@ -917,21 +963,7 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 6, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),
 				reserved);
 
-	        flags = tvb_get_guint8(tvb, offset + 7);
-	        if (flags & OSPF_DBD_FLAG_MS)
-	            strcat(flags_string, "MS");
-	        if (flags & OSPF_DBD_FLAG_M) {
-	            if (flags_string[0] != '\0')
-		        strcat(flags_string, "/");
-	            strcat(flags_string, "M");
-	        }
-	        if (flags & OSPF_DBD_FLAG_I) {
-	            if (flags_string[0] != '\0')
-		        strcat(flags_string, "/");
-	            strcat(flags_string, "I");
-	        }
-	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 7, 1, "Flags: 0x%x (%s)",
-			    flags, flags_string);
+                dissect_ospf_dbd(ospf_db_desc_tree, tvb, offset+7);
 
 	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 8, 4, "DD Sequence: %u",
 			    tvb_get_ntohl(tvb, offset + 8));
@@ -2521,7 +2553,8 @@ proto_register_ospf(void)
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv,
         &ett_ospf_options_v2,
-        &ett_ospf_options_v3
+        &ett_ospf_options_v3,
+        &ett_ospf_dbd
     };
 
     proto_ospf = proto_register_protocol("Open Shortest Path First",
