@@ -528,6 +528,7 @@ DISSECTOR_SRC =	\
 	packet-rwall.c	\
 	packet-rx.c		\
 	packet-s4406.c	\
+	packet-s5066.c	\
 	packet-sadmind.c	\
 	packet-sap.c	\
 	packet-sccp.c	\

@@ -2406,6 +2406,11 @@ William Fiveash		<William.Fiveash [AT] sun.com> {
 	Kerberos PA_ENCTYPE_INFO2 and aes crypto defines
 }
 
+Menno Andriesse		<s5066 [AT] nc3a.nato.int> {
+	http://s5066.nc3a.nato.int
+	STANAG 5066 support
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
