@@ -207,6 +207,13 @@ static int hf_ospf_options_v2_ea = -1;
 static int hf_ospf_options_v2_dc = -1;
 static int hf_ospf_options_v2_o = -1;
 static int hf_ospf_options_v2_dn = -1;
+static int hf_ospf_options_v3 = -1;
+static int hf_ospf_options_v3_v6 = -1;
+static int hf_ospf_options_v3_e = -1;
+static int hf_ospf_options_v3_mc = -1;
+static int hf_ospf_options_v3_n = -1;
+static int hf_ospf_options_v3_r = -1;
+static int hf_ospf_options_v3_dc = -1;
 
 static gint ett_ospf = -1;
 static gint ett_ospf_hdr = -1;
@@ -217,6 +224,7 @@ static gint ett_ospf_lsa = -1;
 static gint ett_ospf_lsa_router_link = -1;
 static gint ett_ospf_lsa_upd = -1;
 static gint ett_ospf_options_v2 = -1;
+static gint ett_ospf_options_v3 = -1;
 
 /* Trees for opaque LSAs */
 static gint ett_ospf_lsa_mpls = -1;
@@ -256,6 +264,31 @@ static const true_false_string tfs_options_v2_o = {
 static const true_false_string tfs_options_v2_dn = {
 	"DN-bit is SET",
 	"DN-bit is CLEAR"
+};
+
+static const true_false_string tfs_options_v3_v6 = {
+	"V6 is SET",
+	"V6 is NOT set"
+};
+static const true_false_string tfs_options_v3_e = {
+	"E is SET",
+	"E is NOT set"
+};
+static const true_false_string tfs_options_v3_mc = {
+	"MC is SET",
+	"MC is NOT set"
+};
+static const true_false_string tfs_options_v3_n = {
+	"N is SET",
+	"N is NOT set"
+};
+static const true_false_string tfs_options_v3_r = {
+	"R is SET",
+	"R is NOT set"
+};
+static const true_false_string tfs_options_v3_dc = {
+	"DC is SET",
+	"DC is NOT set"
 };
 
 /*-----------------------------------------------------------------------
@@ -437,6 +470,27 @@ static hf_register_info ospff_info[] = {
     {&hf_ospf_options_v2_dn,
      { "DN", "ospf.options.v2.dn", FT_BOOLEAN, 8, 
        TFS(&tfs_options_v2_dn), OSPF_V2_OPTIONS_DN, "", HFILL }},
+    {&hf_ospf_options_v3,
+     { "Options", "ospf.options.v3", FT_UINT24, BASE_HEX,
+       NULL, 0x0, "", HFILL }},
+    {&hf_ospf_options_v3_v6,
+     { "V6", "ospf.options.v3.v6", FT_BOOLEAN, 24, 
+       TFS(&tfs_options_v3_v6), OSPF_V3_OPTIONS_V6, "", HFILL }},
+    {&hf_ospf_options_v3_e,
+     { "E", "ospf.options.v3.e", FT_BOOLEAN, 24, 
+       TFS(&tfs_options_v3_e), OSPF_V3_OPTIONS_E, "", HFILL }},
+    {&hf_ospf_options_v3_mc,
+     { "MC", "ospf.options.v3.mc", FT_BOOLEAN, 24, 
+       TFS(&tfs_options_v3_mc), OSPF_V3_OPTIONS_MC, "", HFILL }},
+    {&hf_ospf_options_v3_n,
+     { "N", "ospf.options.v3.n", FT_BOOLEAN, 24, 
+       TFS(&tfs_options_v3_n), OSPF_V3_OPTIONS_N, "", HFILL }},
+    {&hf_ospf_options_v3_r,
+     { "R", "ospf.options.v3.r", FT_BOOLEAN, 24, 
+       TFS(&tfs_options_v3_r), OSPF_V3_OPTIONS_R, "", HFILL }},
+    {&hf_ospf_options_v3_dc,
+     { "DC", "ospf.options.v3.dc", FT_BOOLEAN, 24, 
+       TFS(&tfs_options_v3_dc), OSPF_V3_OPTIONS_DC, "", HFILL }},
 
 
 
@@ -2286,15 +2340,62 @@ dissect_ospf_v2_options (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	flags&=(~( OSPF_V2_OPTIONS_DN ));
 }
 
+static void
+dissect_ospf_v3_options (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint32 flags;
+
+	flags = tvb_get_ntoh24 (tvb, offset);
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_ospf_options_v3, 
+				tvb, offset, 3, flags);
+		tree=proto_item_add_subtree(item, ett_ospf_options_v3);
+	}
+
+	proto_tree_add_boolean(tree, hf_ospf_options_v3_dc, tvb, offset, 3, flags);
+	if (flags&OSPF_V3_OPTIONS_DC){
+		proto_item_append_text(item, "  DC");
+	}
+	flags&=(~( OSPF_V3_OPTIONS_DC ));
+
+	proto_tree_add_boolean(tree, hf_ospf_options_v3_r, tvb, offset, 3, flags);
+	if (flags&OSPF_V3_OPTIONS_R){
+		proto_item_append_text(item, "  R");
+	}
+	flags&=(~( OSPF_V3_OPTIONS_R ));
+
+	proto_tree_add_boolean(tree, hf_ospf_options_v3_n, tvb, offset, 3, flags);
+	if (flags&OSPF_V3_OPTIONS_N){
+		proto_item_append_text(item, "  N");
+	}
+	flags&=(~( OSPF_V3_OPTIONS_N ));
+
+	proto_tree_add_boolean(tree, hf_ospf_options_v3_mc, tvb, offset, 3, flags);
+	if (flags&OSPF_V3_OPTIONS_MC){
+		proto_item_append_text(item, "  MC");
+	}
+	flags&=(~( OSPF_V3_OPTIONS_MC ));
+
+	proto_tree_add_boolean(tree, hf_ospf_options_v3_e, tvb, offset, 3, flags);
+	if (flags&OSPF_V3_OPTIONS_E){
+		proto_item_append_text(item, "  E");
+	}
+	flags&=(~( OSPF_V3_OPTIONS_E ));
+
+	proto_tree_add_boolean(tree, hf_ospf_options_v3_v6, tvb, offset, 3, flags);
+	if (flags&OSPF_V3_OPTIONS_V6){
+		proto_item_append_text(item, "  V6");
+	}
+	flags&=(~( OSPF_V3_OPTIONS_V6 ));
+
+}
+
 
 static void
 dissect_ospf_options(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 {
-    guint32 options_ospfv3;
-    char options_string[20] = "";
-
-    /* ATTENTION !!! no check for length of options string  - with OSPFv3 maximum length is 14 characters */
-
     switch ( version ) {
 
         case OSPF_VERSION_2:
@@ -2303,44 +2404,7 @@ dissect_ospf_options(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 
 
         case OSPF_VERSION_3:
-
-            options_ospfv3 = tvb_get_ntoh24(tvb, offset);
-
-            if (options_ospfv3 & OSPF_V3_OPTIONS_V6)
-	        strcat(options_string, "V6");
-
-            if (options_ospfv3 & OSPF_V3_OPTIONS_E) {
-	        if (options_string[0] != '\0')
-	            strcat(options_string, "/");
-	        strcat(options_string, "E");
-	    }
-
-            if (options_ospfv3 & OSPF_V3_OPTIONS_MC) {
-	        if (options_string[0] != '\0')
-	            strcat(options_string, "/");
-	        strcat(options_string, "MC");
-            }
-
-            if (options_ospfv3 & OSPF_V3_OPTIONS_N) {
-	        if (options_string[0] != '\0')
-	            strcat(options_string, "/");
-	        strcat(options_string, "N");
-            }
-
-            if (options_ospfv3 & OSPF_V3_OPTIONS_R) {
-	        if (options_string[0] != '\0')
-	            strcat(options_string, "/");
-	        strcat(options_string, "R");
-            }
-
-            if (options_ospfv3 & OSPF_V3_OPTIONS_DC) {
-	        if (options_string[0] != '\0')
-	            strcat(options_string, "/");
-	        strcat(options_string, "DC");
-            }
-
-            proto_tree_add_text(tree, tvb, offset, 3, "Options: 0x%x (%s)",
-			options_ospfv3, options_string);
+            dissect_ospf_v3_options (tree, tvb, offset);
             break;
     }
 
@@ -2456,7 +2520,8 @@ proto_register_ospf(void)
 	&ett_ospf_lsa_mpls_link_stlv_admingrp,
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv,
-        &ett_ospf_options_v2
+        &ett_ospf_options_v2,
+        &ett_ospf_options_v3
     };
 
     proto_ospf = proto_register_protocol("Open Shortest Path First",
