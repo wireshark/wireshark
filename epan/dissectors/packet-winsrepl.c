@@ -81,11 +81,11 @@ static int hf_winsrepl_name_len = -1;
 static int hf_winsrepl_name_flags = -1;
 static int hf_winsrepl_name_flags_rectype = -1;
 static int hf_winsrepl_name_flags_recstate = -1;
-static int hf_winsrepl_name_flags_remote = -1;
+static int hf_winsrepl_name_flags_local = -1;
 static int hf_winsrepl_name_flags_hosttype = -1;
-static int hf_winsrepl_name_flags_dynamic = -1;
+static int hf_winsrepl_name_flags_static = -1;
 static int hf_winsrepl_name_group_flag = -1;
-static int hf_winsrepl_name_id = -1;
+static int hf_winsrepl_name_version_id = -1;
 static int hf_winsrepl_name_unknown = -1;
 
 static int hf_winsrepl_reply_num_names = -1;
@@ -118,9 +118,9 @@ enum wrepl_replication_cmd {
 	WREPL_REPL_SEND_REQUEST=2,
 	WREPL_REPL_SEND_REPLY=3,
 	WREPL_REPL_UPDATE=4,
-	WREPL_REPL_5=5,
+	WREPL_REPL_UPDATE2=5,
 	WREPL_REPL_INFORM=8,
-	WREPL_REPL_9=9
+	WREPL_REPL_INFORM2=9
 };
 
 enum wrepl_mess_type {
@@ -138,7 +138,9 @@ static const value_string replication_cmd_vals[] = {
 	{WREPL_REPL_SEND_REQUEST,	"WREPL_REPL_SEND_REQUEST"},
 	{WREPL_REPL_SEND_REPLY,		"WREPL_REPL_SEND_REPLY"},
 	{WREPL_REPL_UPDATE,		"WREPL_REPL_UPDATE"},
+	{WREPL_REPL_UPDATE2,		"WREPL_REPL_UPDATE2"},
 	{WREPL_REPL_INFORM,		"WREPL_REPL_INFORM"},
+	{WREPL_REPL_INFORM2,		"WREPL_REPL_INFORM2"},
 	{0, NULL}
 };
 
@@ -444,9 +446,9 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	flags_tree = proto_item_add_subtree(flags_item, ett_winsrepl_flags);
 	proto_tree_add_uint(flags_tree, hf_winsrepl_name_flags_rectype, winsrepl_tvb, winsrepl_offset, 4, flags);
 	proto_tree_add_uint(flags_tree, hf_winsrepl_name_flags_recstate, winsrepl_tvb, winsrepl_offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_winsrepl_name_flags_remote, winsrepl_tvb, winsrepl_offset, 4, flags);
+	proto_tree_add_boolean(flags_tree, hf_winsrepl_name_flags_local, winsrepl_tvb, winsrepl_offset, 4, flags);
 	proto_tree_add_uint(flags_tree, hf_winsrepl_name_flags_hosttype, winsrepl_tvb, winsrepl_offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_winsrepl_name_flags_dynamic, winsrepl_tvb, winsrepl_offset, 4, flags);
+	proto_tree_add_boolean(flags_tree, hf_winsrepl_name_flags_static, winsrepl_tvb, winsrepl_offset, 4, flags);
 	winsrepl_offset += 4;
 
 	/* GROUP_FLAG */
@@ -454,8 +456,8 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	proto_tree_add_item(name_tree, hf_winsrepl_name_group_flag, winsrepl_tvb, winsrepl_offset, 4, TRUE);
 	winsrepl_offset += 4;
 
-	/* ID */
-	proto_tree_add_item(name_tree, hf_winsrepl_name_id, winsrepl_tvb, winsrepl_offset, 8, FALSE);
+	/* Version ID */
+	proto_tree_add_item(name_tree, hf_winsrepl_name_version_id, winsrepl_tvb, winsrepl_offset, 8, FALSE);
 	winsrepl_offset += 8;
 
 	switch (flags & WREPL_NAME_TYPE_MASK) {
@@ -525,6 +527,15 @@ dissect_winsrepl_update(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 }
 
 static int
+dissect_winsrepl_update2(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
+			 int winsrepl_offset, proto_tree *winsrepl_tree)
+{
+	winsrepl_offset = dissect_winsrepl_table_reply(winsrepl_tvb, pinfo,
+						       winsrepl_offset, winsrepl_tree);
+	return winsrepl_offset;
+}
+
+static int
 dissect_winsrepl_inform(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 			int winsrepl_offset, proto_tree *winsrepl_tree)
 {
@@ -534,8 +545,8 @@ dissect_winsrepl_inform(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 }
 
 static int
-dissect_winsrepl_5_or_9(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
-			int winsrepl_offset, proto_tree *winsrepl_tree)
+dissect_winsrepl_inform2(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
+			 int winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	winsrepl_offset = dissect_winsrepl_table_reply(winsrepl_tvb, pinfo,
 						       winsrepl_offset, winsrepl_tree);
@@ -606,14 +617,14 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 			winsrepl_offset = dissect_winsrepl_update(winsrepl_tvb, pinfo,
 								  winsrepl_offset, repl_tree);
 			break;
-		case WREPL_REPL_5:
+		case WREPL_REPL_UPDATE2:
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "WREPL_REPL_5");
+				col_add_fstr(pinfo->cinfo, COL_INFO, "WREPL_REPL_UPDATE2");
 			}
-			proto_item_append_text(winsrepl_item, ",WREPL_REPL_5");
-			proto_item_append_text(repl_item, ",WREPL_REPL_5");
-			winsrepl_offset = dissect_winsrepl_5_or_9(winsrepl_tvb, pinfo,
-								  winsrepl_offset, repl_tree);
+			proto_item_append_text(winsrepl_item, ",WREPL_REPL_UPDATE2");
+			proto_item_append_text(repl_item, ",WREPL_REPL_UPDATE2");
+			winsrepl_offset = dissect_winsrepl_update2(winsrepl_tvb, pinfo,
+								   winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_INFORM:
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -624,14 +635,14 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 			winsrepl_offset = dissect_winsrepl_inform(winsrepl_tvb, pinfo,
 								  winsrepl_offset, repl_tree);
 			break;
-		case WREPL_REPL_9:
+		case WREPL_REPL_INFORM2:
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "WREPL_REPL_9");
+				col_add_fstr(pinfo->cinfo, COL_INFO, "WREPL_REPL_INFORM2");
 			}
-			proto_item_append_text(winsrepl_item, ", WREPL_REPL_9");
-			proto_item_append_text(repl_item, ", WREPL_REPL_9");
-			winsrepl_offset = dissect_winsrepl_5_or_9(winsrepl_tvb, pinfo,
-								  winsrepl_offset, repl_tree);
+			proto_item_append_text(winsrepl_item, ", WREPL_REPL_INFORM2");
+			proto_item_append_text(repl_item, ", WREPL_REPL_INFORM2");
+			winsrepl_offset = dissect_winsrepl_inform2(winsrepl_tvb, pinfo,
+								   winsrepl_offset, repl_tree);
 			break;
 	}
 
@@ -833,30 +844,30 @@ proto_register_winsrepl(void)
 			FT_UINT32, BASE_HEX, VALS(recstate_vals), 0x0000000C,
 			"WINS Replication Name Flags Record State", HFILL }},
 
-		{ &hf_winsrepl_name_flags_remote, {
-			"Remote", "winsrepl.name_flags.remote",
+		{ &hf_winsrepl_name_flags_local, {
+			"Local", "winsrepl.name_flags.local",
 			FT_BOOLEAN, 32, NULL, 0x00000010,
-			"WINS Replication Name Flags Remote Flag", HFILL }},
+			"WINS Replication Name Flags Local Flag", HFILL }},
 
 		{ &hf_winsrepl_name_flags_hosttype, {
 			"Host Type", "winsrepl.name_flags.hosttype",
 			FT_UINT32, BASE_HEX, VALS(hosttype_vals), 0x00000060,
 			"WINS Replication Name Flags Host Type", HFILL }},
 
-		{ &hf_winsrepl_name_flags_dynamic, {
-			"Dynamic", "winsrepl.name_flags.dynamic",
+		{ &hf_winsrepl_name_flags_static, {
+			"Static", "winsrepl.name_flags.static",
 			FT_BOOLEAN, 32, NULL, 0x00000080,
-			"WINS Replication Name Flags Dynamic Flag", HFILL }},
+			"WINS Replication Name Flags Static Flag", HFILL }},
 
 		{ &hf_winsrepl_name_group_flag, {
 			"Name Group Flag", "winsrepl.name_group_flag",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
 			"WINS Replication Name Group Flag", HFILL }},
 
-		{ &hf_winsrepl_name_id, {
-			"Name Id", "winsrepl.name_id",
+		{ &hf_winsrepl_name_version_id, {
+			"Name Version Id", "winsrepl.name_version_id",
 			FT_UINT64, BASE_DEC, NULL, 0x0,
-			"WINS Replication Name Id", HFILL }},
+			"WINS Replication Name Version Id", HFILL }},
 
 		{ &hf_winsrepl_name_unknown, {
 			"Unknown IP", "winsrepl.unknown",
