@@ -410,8 +410,7 @@ static gboolean is_all_printable(const guchar *stringtocheck, int length)
 static gchar *print_tsap(const guchar *tsap, int length)
 {
 
-  gchar *cur;
-  gchar tmp[3];
+  gchar *cur, *tmp;
   gboolean allprintable;
 
   cur=ep_alloc(MAX_TSAP_LEN * 2 + 3);
@@ -420,14 +419,14 @@ static gchar *print_tsap(const guchar *tsap, int length)
     g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
   else {
     allprintable = is_all_printable(tsap,length);
+    tmp=cur;
     if (!allprintable)
-      strcat(cur,"0x");
+      tmp+=g_snprintf(tmp, (MAX_TSAP_LEN * 2 + 3)-(tmp-cur), "0x");
     while (length != 0) {
       if (allprintable)
-	g_snprintf(tmp, sizeof(tmp), "%c", *tsap ++);
+        tmp+=g_snprintf(tmp, (MAX_TSAP_LEN * 2 + 3)-(tmp-cur), "%c", *tsap ++);
       else
-	g_snprintf(tmp, sizeof(tmp), "%02x", *tsap ++);
-      strcat(cur, tmp);
+        tmp+=g_snprintf(tmp, (MAX_TSAP_LEN * 2 + 3)-(tmp-cur), "%02x", *tsap ++);
       length --;
     }
   }
