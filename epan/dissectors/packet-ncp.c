@@ -286,8 +286,6 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	struct ncp_ip_rqhdr		ncpiphrq;
 	guint16				ncp_burst_seqno, ncp_ack_seqno;
 	guint16				flags = 0;
-	char				flags_str[2+3+1+3+1+3+1+3+1+3+1+1];
-	const char			*sep;
 	proto_tree			*flags_tree = NULL;
 	int				hdr_offset = 0;
 	int				commhdr;
@@ -529,48 +527,46 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *	4: Write error
 		 */
 		flags = tvb_get_guint8(tvb, commhdr + 2);
-		flags_str[0]=0;
-		sep = " (";
-		if (flags & ABT) {
-			strcat(flags_str, sep);
-			strcat(flags_str, "ABT");
-			sep = ",";
-		}
-		if (flags & BSY) {
-			strcat(flags_str, sep);
-			strcat(flags_str, "BSY");
-			sep = ",";
-		}
-		if (flags & EOB) {
-			strcat(flags_str, sep);
-			strcat(flags_str, "EOB");
-			sep = ",";
-		}
-		if (flags & LST) {
-			strcat(flags_str, sep);
-			strcat(flags_str, "LST");
-			sep = ",";
-		}
-		if (flags & SYS) {
-			strcat(flags_str, sep);
-			strcat(flags_str, "SYS");
-		}
-		if (flags_str[0] != '\0')
-			strcat(flags_str, ")");
-		ti = proto_tree_add_uint_format(ncp_tree, hf_ncp_system_flags,
-		    tvb, commhdr + 2, 1, flags, "Flags: 0x%04x%s", flags,
-		    flags_str);
+
+		ti = proto_tree_add_uint(ncp_tree, hf_ncp_system_flags,
+		    tvb, commhdr + 2, 1, flags);
 		flags_tree = proto_item_add_subtree(ti, ett_ncp_system_flags);
+
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_abt,
 		    tvb, commhdr + 2, 1, FALSE);
+		if (flags & ABT) {
+			proto_item_append_text(ti, "  ABT");
+		}
+		flags&=(~( ABT ));
+
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_bsy,
 		    tvb, commhdr + 2, 1, FALSE);
+		if (flags & BSY) {
+			proto_item_append_text(ti, "  BSY");
+		}
+		flags&=(~( BSY ));
+
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_eob,
 		    tvb, commhdr + 2, 1, FALSE);
+		if (flags & EOB) {
+			proto_item_append_text(ti, "  EOB");
+		}
+		flags&=(~( EOB ));
+
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_lst,
 		    tvb, commhdr + 2, 1, FALSE);
+		if (flags & LST) {
+			proto_item_append_text(ti, "  LST");
+		}
+		flags&=(~( LST ));
+
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_sys,
 		    tvb, commhdr + 2, 1, FALSE);
+		if (flags & SYS) {
+			proto_item_append_text(ti, "  SYS");
+		}
+		flags&=(~( SYS ));
+
 
 		proto_tree_add_item(ncp_tree, hf_ncp_stream_type,
 		    tvb, commhdr + 3, 1, FALSE);
