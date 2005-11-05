@@ -239,6 +239,62 @@ get_clock_rate(guint32 key)
 	return 1;
 }
 
+typedef struct _mimetype_and_clock {
+	const gchar   *pt_mime_name_str;
+	guint32 value;
+} mimetype_and_clock;
+/*	RTP sampling clock rates for 
+	"In addition to the RTP payload formats (encodings) listed in the RTP
+	Payload Types table, there are additional payload formats that do not
+	have static RTP payload types assigned but instead use dynamic payload
+	type number assignment.  Each payload format is named by a registered
+	MIME subtype"
+	http://www.iana.org/assignments/rtp-parameters.
+*/
+static const mimetype_and_clock mimetype_and_clock_map[] = {
+	{"AMR",		8000},			/* [RFC3267] */
+	{"AMR-WB",	16000},			/* [RFC3267] */
+	{"EVRC",	8000},			/* [RFC3558] */
+	{"EVRC0",	8000},			/* [RFC3558] */
+	{"G7221",	16000},			/* [RFC3047] */
+	{"G726-16",	8000},			/* [RFC3551] */
+	{"G726-24",	8000},			/* [RFC3551] */
+	{"G726-32",	8000},			/* [RFC3551] */
+	{"G726-40",	8000},			/* [RFC3551] */
+	{"G729D",	8000},			/* [RFC3551] */
+	{"G729E",	8000},			/* [RFC3551] */
+	{"GSM-EFR",	8000},			/* [RFC3551] */
+	{"mpa-robust",	90000},		/* [RFC3119] */
+	{"SMV",		8000},			/* [RFC3558] */
+	{"SMV0",	8000},			/* [RFC3558] */
+	{"red",		1000},			/* [RFC4102] */
+	{"t140",	1000},			/* [RFC4103] */
+	{"BMPEG",	90000},			/* [RFC2343],[RFC3555] */
+	{"BT656",	90000},			/* [RFC2431],[RFC3555] */
+	{"DV",		90000},			/* [RFC3189] */
+	{"H263-1998",	90000},		/* [RFC2429],[RFC3555] */
+	{"H263-2000",	90000},		/* [RFC2429],[RFC3555] */
+	{"MP1S",	90000},			/* [RFC2250],[RFC3555] */
+	{"MP2P",	90000},			/* [RFC2250],[RFC3555] */
+	{"MP4V-ES",	90000},			/* [RFC3016] */
+	{"pointer",	90000},			/* [RFC2862] */
+	{"raw",		90000},			/* [RFC4175] */
+};
+
+#define NUM_DYN_CLOCK_VALUES	(sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])
+
+static guint32
+get_dyn_pt_clock_rate(gchar *payload_type_str)
+{
+	size_t i;
+
+	for (i = 0; i < NUM_DYN_CLOCK_VALUES; i++) {
+		if (strncasecmp(mimetype_and_clock_map[i].pt_mime_name_str,payload_type_str,(strlen(mimetype_and_clock_map[i].pt_mime_name_str))) == 0)
+			return clock_map[i].value;
+	}
+
+	return 1;
+}
 
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
@@ -592,7 +648,12 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	 * payload types, presumably meaning that we should
 	 * just ignore this packet?
 	 */
-	clock_rate = get_clock_rate(statinfo->pt);
+	if (statinfo->pt < 96 ){
+		clock_rate = get_clock_rate(statinfo->pt);
+	}else{ /* dynamic PT */
+		if ( rtpinfo->info_payload_type_str != NULL )
+			clock_rate = get_dyn_pt_clock_rate(rtpinfo-> info_payload_type_str);
+	}
 
 	/* store the current time and calculate the current jitter */
 	current_time = nstime_to_sec(&pinfo->fd->rel_ts);

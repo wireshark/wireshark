@@ -307,7 +307,7 @@ proto_reg_handoff_amr(void)
 	if ( dynamic_payload_type > 95 ){
 		dissector_add("rtp.pt", dynamic_payload_type, amr_handle);
 	}
-	dissector_add_string("rtp_dyn_payload_type","amr", amr_handle);
+	dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
 
 }
 

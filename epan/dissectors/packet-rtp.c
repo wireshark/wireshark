@@ -492,6 +492,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_info->info_timestamp = timestamp;
 	rtp_info->info_sync_src = sync_src;
 	rtp_info->info_setup_frame_num = 0;
+	rtp_info->info_payload_type_str = NULL;
 
 	/*
 	 * Do we have all the data?
@@ -537,8 +538,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( (payload_type>95) && (payload_type<128) ) {
 		/* Use existing packet info if available */
 		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
-		if (p_conv_data && p_conv_data->rtp_dyn_payload)
+		if (p_conv_data && p_conv_data->rtp_dyn_payload){
 			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
+			rtp_info->info_payload_type_str = payload_type_str;
+		}
 	}
 
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
