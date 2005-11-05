@@ -97,9 +97,18 @@ static int hf_brdwlk_vsan = -1;
 static int hf_brdwlk_pktcnt = -1;
 static int hf_brdwlk_drop = -1;
 static int hf_brdwlk_plen = -1;
+static int hf_brdwlk_error_plp = -1;
+static int hf_brdwlk_error_ef = -1;
+static int hf_brdwlk_error_nd = -1;
+static int hf_brdwlk_error_tr = -1;
+static int hf_brdwlk_error_badcrc = -1;
+static int hf_brdwlk_error_ff = -1;
+static int hf_brdwlk_error_jumbo = -1;
+static int hf_brdwlk_error_ctrl = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_brdwlk = -1;
+static gint ett_brdwlk_error = -1;
 
 static gint proto_brdwlk = -1;
 
@@ -109,46 +118,102 @@ static gboolean first_pkt = TRUE;                /* start of capture */
 static dissector_handle_t data_handle;
 static dissector_handle_t fc_dissector_handle;
 
-static gchar *
-brdwlk_err_to_str (guint8 error, char *str)
+
+static const true_false_string tfs_error_plp = {
+	"Packet Length is PRESENT",
+	"Packet length is NOT present"
+};
+static const true_false_string tfs_error_ef = {
+	"This is an Empty Frame",
+	"Frame is NOT empty"
+};
+static const true_false_string tfs_error_nd = {
+	"This Frame has NO Data",
+	"This frame carriues data"
+};
+static const true_false_string tfs_error_tr = {
+	"This frame is TRUNCATED",
+	"This frame is NOT truncated"
+};
+static const true_false_string tfs_error_crc = {
+	"This Frame has a BAD FC CRC",
+	"This frame has a valid crc"
+};
+static const true_false_string tfs_error_ff = {
+	"Fifo is Full",
+	"Fifo is NOT full"
+};
+static const true_false_string tfs_error_jumbo = {
+	"This is a JUMBO FC Frame",
+	"This is a NORMAL FC Frame"
+};
+static const true_false_string tfs_error_ctrl = {
+	"Ctrl Characters inside the frame",
+	"No ctrl chars inside the frame"
+};
+
+static void
+dissect_brdwlk_err(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    if (str != NULL) {
-        str[0] = '\0';
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint8 flags;
 
-        if (error & 0x1) {
-            strcat (str, "Packet Length Present");
-        }
-        
-        if (error & 0x2) {
-            strcat (str, "Empty Frame, ");
-        }
+	flags = tvb_get_guint8 (tvb, offset);
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_brdwlk_error, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_brdwlk_error);
+	}
 
-        if (error & 0x4) {
-            strcat (str, "No Data, ");
-        }
 
-        if (error & 0x8) {
-            strcat (str, "Truncated, ");
-        }
+	proto_tree_add_boolean(tree, hf_brdwlk_error_plp, tvb, offset, 1, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, "  Packet Length Present");
+	}
+	flags&=(~( 0x01 ));
 
-        if (error & 0x10) {
-            strcat (str, "Bad FC CRC, ");
-        }
+	proto_tree_add_boolean(tree, hf_brdwlk_error_ef, tvb, offset, 1, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, "  Empty Frame");
+	}
+	flags&=(~( 0x02 ));
 
-        if (error & 0x20) {
-            strcat (str, "Fifo Full, ");
-        }
+	proto_tree_add_boolean(tree, hf_brdwlk_error_nd, tvb, offset, 1, flags);
+	if (flags&0x04){
+		proto_item_append_text(item, "  No Data");
+	}
+	flags&=(~( 0x04 ));
 
-        if (error & 0x40) {
-            strcat (str, "Jumbo FC Frame, ");
-        }
+	proto_tree_add_boolean(tree, hf_brdwlk_error_tr, tvb, offset, 1, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "  Truncated");
+	}
+	flags&=(~( 0x08 ));
 
-        if (error & 0x80) {
-            strcat (str, "Ctrl Char Inside Frame");
-        }
-    }
+	proto_tree_add_boolean(tree, hf_brdwlk_error_badcrc, tvb, offset, 1, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "  Bad FC CRC");
+	}
+	flags&=(~( 0x10 ));
 
-    return (str);
+	proto_tree_add_boolean(tree, hf_brdwlk_error_ff, tvb, offset, 1, flags);
+	if (flags&0x20){
+		proto_item_append_text(item, "  Fifo Full");
+	}
+	flags&=(~( 0x20 ));
+
+	proto_tree_add_boolean(tree, hf_brdwlk_error_jumbo, tvb, offset, 1, flags);
+	if (flags&0x40){
+		proto_item_append_text(item, "  Jumbo FC Frame");
+	}
+	flags&=(~( 0x40 ));
+
+	proto_tree_add_boolean(tree, hf_brdwlk_error_ctrl, tvb, offset, 1, flags);
+	if (flags&0x80){
+		proto_item_append_text(item, "  Ctrl Char Inside Frame");
+	}
+	flags&=(~( 0x80 ));
 }
 
 /* Code to actually dissect the packets */
@@ -166,7 +231,6 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint len, reported_len, plen;
     guint16 pkt_cnt;
     gboolean dropped_packets;
-    gchar errstr[512];
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -275,14 +339,9 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         packet_count = pkt_cnt;
-            
-        error = tvb_get_guint8 (tvb, offset+2);
-        if (tree) {
-            proto_tree_add_uint_format (brdwlk_tree, hf_brdwlk_error, tvb,
-                                        offset+2, 1, error, "Error: 0x%x (%s)",
-                                        error,
-                                        brdwlk_err_to_str (error, errstr));
-        }
+
+	error=tvb_get_guint8(tvb, offset+2);           
+	dissect_brdwlk_err(brdwlk_tree, tvb, offset+2);
 
         eof = tvb_get_guint8 (tvb, offset+3);
         if (eof != FCM_DELIM_EOFN) {
@@ -350,7 +409,7 @@ proto_register_brdwlk (void)
           {"EOF", "brdwlk.eof", FT_UINT8, BASE_HEX, VALS (brdwlk_eof_vals),
            0x0F, "EOF", HFILL}},
         { &hf_brdwlk_error,
-          {"Error", "brdwlk.error", FT_UINT8, BASE_DEC, NULL, 0x0, "Error",
+          {"Error", "brdwlk.error", FT_UINT8, BASE_HEX, NULL, 0x0, "Error",
            HFILL}},
         { &hf_brdwlk_pktcnt,
           {"Packet Count", "brdwlk.pktcnt", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -364,11 +423,36 @@ proto_register_brdwlk (void)
         { &hf_brdwlk_plen,
           {"Original Packet Length", "brdwlk.plen", FT_UINT32, BASE_DEC, NULL, 0x0, "",
            HFILL}},
+        { &hf_brdwlk_error_plp,
+          {"Packet Length Present", "brdwlk.error.plp", FT_BOOLEAN, 8, TFS(&tfs_error_plp), 0x01, "",
+           HFILL}},
+        { &hf_brdwlk_error_ef,
+          {"Empty Frame", "brdwlk.error.ef", FT_BOOLEAN, 8, TFS(&tfs_error_ef), 0x02, "",
+           HFILL}},
+        { &hf_brdwlk_error_nd,
+          {"No Data", "brdwlk.error.nd", FT_BOOLEAN, 8, TFS(&tfs_error_nd), 0x04, "",
+           HFILL}},
+        { &hf_brdwlk_error_tr,
+          {"Truncated", "brdwlk.error.tr", FT_BOOLEAN, 8, TFS(&tfs_error_tr), 0x08, "",
+           HFILL}},
+        { &hf_brdwlk_error_badcrc,
+          {"CRC", "brdwlk.error.crc", FT_BOOLEAN, 8, TFS(&tfs_error_crc), 0x10, "",
+           HFILL}},
+        { &hf_brdwlk_error_ff,
+          {"Fifo Full", "brdwlk.error.ff", FT_BOOLEAN, 8, TFS(&tfs_error_ff), 0x20, "",
+           HFILL}},
+        { &hf_brdwlk_error_jumbo,
+          {"Jumbo FC Frame", "brdwlk.error.jumbo", FT_BOOLEAN, 8, TFS(&tfs_error_jumbo), 0x40, "",
+           HFILL}},
+        { &hf_brdwlk_error_ctrl,
+          {"Ctrl Char Inside Frame", "brdwlk.error.ctrl", FT_BOOLEAN, 8, TFS(&tfs_error_ctrl), 0x80, "",
+           HFILL}},
     };
 
 /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_brdwlk,
+        &ett_brdwlk_error,
     };
 
 /* Register the protocol name and description */
