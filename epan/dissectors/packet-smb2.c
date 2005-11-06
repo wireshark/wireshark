@@ -42,11 +42,19 @@ static int proto_smb2 = -1;
 static int hf_smb2_cmd = -1;
 static int hf_smb2_mpxid = -1;
 static int hf_smb2_tid = -1;
+static int hf_smb2_flags_response = -1;
 static int hf_smb2_unknown = -1;
 
 
 static gint ett_smb2 = -1;
 
+
+#define SMB2_FLAGS_RESPONSE	0x01
+
+static const true_false_string tfs_flags_response = {
+	"This is a RESPONSE",
+	"This is a REQUEST"
+};
 
 /* names here are just until we find better names for these functions */
 const value_string smb2_cmd_vals[] = {
@@ -322,7 +330,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	int offset=0;
-	int cmd;
+	int cmd, response;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
@@ -352,8 +360,17 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 1;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 11, FALSE);
-	offset += 11;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 3, FALSE);
+	offset += 3;
+
+	/* flags */
+	response=tvb_get_guint8(tvb, offset)&SMB2_FLAGS_RESPONSE;
+	proto_tree_add_item(tree, hf_smb2_flags_response, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 7, FALSE);
+	offset += 7;
 
 	/* Multiplex ID either 1 2 or 4 bytes*/
 	proto_tree_add_item(tree, hf_smb2_mpxid, tvb, offset, 1, FALSE);
@@ -368,8 +385,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 1;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-			  decode_smb2_name(cmd));
+	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+			decode_smb2_name(cmd),
+			response?"Response":"Request");
 	}
 
 	/* Decode the payload */
@@ -407,6 +425,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_tid,
 		{ "Tree Id", "smb2.tid", FT_UINT8, BASE_DEC,
 		NULL, 0, "SMB2 Tree Id", HFILL }},
+	{ &hf_smb2_flags_response,
+		{ "Response", "smb2.flags.response", FT_BOOLEAN, 8,
+		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
 		NULL, 0, "Unknown bytes", HFILL }},
