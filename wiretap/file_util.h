@@ -1,7 +1,7 @@
 /* file_util.h
  * File utility definitions
  *
- * $Id: file_util.h 15244 2005-08-06 14:03:14Z jmayer $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
