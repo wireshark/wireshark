@@ -41,6 +41,7 @@
 static int proto_smb2 = -1;
 static int hf_smb2_cmd = -1;
 static int hf_smb2_mpxid = -1;
+static int hf_smb2_tid = -1;
 static int hf_smb2_unknown = -1;
 
 
@@ -358,6 +359,14 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_item(tree, hf_smb2_mpxid, tvb, offset, 1, FALSE);
 	offset += 1;
 
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 11, FALSE);
+	offset += 11;
+
+	/* Tree ID either 1 2 or 4 bytes*/
+	proto_tree_add_item(tree, hf_smb2_tid, tvb, offset, 1, FALSE);
+	offset += 1;
+
 	if (check_col(pinfo->cinfo, COL_INFO)){
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
 			  decode_smb2_name(cmd));
@@ -395,6 +404,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_mpxid,
 		{ "Multiplex Id", "smb2.mpxid", FT_UINT8, BASE_DEC,
 		NULL, 0, "SMB2 Multiplex Id", HFILL }},
+	{ &hf_smb2_tid,
+		{ "Tree Id", "smb2.tid", FT_UINT8, BASE_DEC,
+		NULL, 0, "SMB2 Tree Id", HFILL }},
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
 		NULL, 0, "Unknown bytes", HFILL }},
