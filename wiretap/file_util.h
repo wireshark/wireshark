@@ -30,7 +30,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <glib.h>
-#include <glib/gstdio.h>	/* XXX - is this file GLib 2.6 only? */
 
 #ifdef _WIN32
 #include <io.h>
@@ -44,6 +43,7 @@ extern "C" {
 /* Since GLib2.6, wrappers were added around functions which provides filenames to library functions, 
 	like open() does. */
 #if GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)
+#include <glib/gstdio.h>	/* available since GLib 2.6 only! */
 
 /* GLib2.6 or above, using new wrapper functions */
 #define eth_mkstemp g_mkstemp
