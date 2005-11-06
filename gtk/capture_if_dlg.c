@@ -28,10 +28,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#ifdef HAVE_SYS_STAT_H
-# include <sys/stat.h>
-#endif
-
 #ifdef HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif

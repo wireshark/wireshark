@@ -33,18 +33,10 @@
 
 #include "svnversion.h"
 #include "merge.h"
-
-#ifdef HAVE_IO_H
-# include <io.h>
-#endif
+#include "file_util.h"
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
-#endif
-
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY 	0
 #endif
 
 static int
@@ -292,7 +284,7 @@ main(int argc, char *argv[])
     out_fd = 1 /*stdout*/;
   } else {
     /* open the outfile */
-    out_fd = open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+    out_fd = eth_open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
     if (out_fd == -1) {
       fprintf(stderr, "mergecap: Couldn't open output file %s: %s\n",
               out_filename, strerror(errno));

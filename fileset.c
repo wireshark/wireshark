@@ -30,10 +30,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -55,6 +51,7 @@
 
 #include <glib.h>
 
+#include "file_util.h"
 #include "globals.h"
 
 #include <epan/filesystem.h>
@@ -183,7 +180,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 
     path = g_strdup_printf("%s%s", dirname, fname);
 
-    fh = open( path, O_RDONLY );
+    fh = eth_open( path, O_RDONLY, 0000 /* no creation so don't matter */);
     if(fh !=  -1) {
 
         /* Get statistics */
@@ -203,7 +200,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
             set.entries = g_list_append(set.entries, entry);
         }
 
-        close(fh);
+        eth_close(fh);
     }
 
     g_free(path);
@@ -242,15 +239,9 @@ void fileset_update_dlg(void)
 void
 fileset_add_dir(const char *fname)
 {
-#if GLIB_MAJOR_VERSION < 2
-    DIR           *dir;             /* scanned directory */
-    struct dirent *file;            /* current file */
-    gchar         *name;
-#else /* GLIB 2 */
-    GDir          *dir;             /* scanned directory */
-    GError        **dummy;
+    ETH_DIR       *dir;             /* scanned directory */
+    ETH_DIRENT    *file;            /* current file */
     const char    *name;
-#endif
     fileset_entry *entry;
     GString       *dirname;
     gchar         *fname_dup;
@@ -268,31 +259,16 @@ fileset_add_dir(const char *fname)
     /* is the current file probably a part of any fileset? */
     if(fileset_filename_match_pattern(fname)) {
         /* yes, go through the files in the directory and check if the file in question is part of the current file set */
-#if GLIB_MAJOR_VERSION < 2
-        if ((dir = opendir(dirname->str)) != NULL) {
-	        while ((file = readdir(dir)) != NULL) {
-	            name = (gchar *)file->d_name;
-#else
-        dummy = g_malloc(sizeof(GError *));
-        *dummy = NULL;
-
-        if ((dir = g_dir_open(dirname->str, 0, dummy)) != NULL) {
-            while ((name = g_dir_read_name(dir)) != NULL) {
-#endif
+        if ((dir = g_dir_open(dirname->str, 0, NULL)) != NULL) {
+	        while ((file = eth_dir_read_name(dir)) != NULL) {
+	            name = eth_dir_get_name(file);
                 if(fileset_filename_match_pattern(name) && fileset_is_file_in_set(name, get_basename(fname))) {
                     fileset_add_file(dirname->str, name, strcmp(name, get_basename(fname))== 0 /* current */);
                 }
             } /* while */
 
-#if GLIB_MAJOR_VERSION < 2
-            closedir(dir);
-#else
-            g_dir_close(dir);
-#endif
+            eth_dir_close(dir);
         } /* if */
-#if GLIB_MAJOR_VERSION >= 2
-        g_free(dummy);
-#endif
     } else {
         /* no, this is a "standalone file", just add this one */
         entry = fileset_add_file(dirname->str, get_basename(fname), TRUE /* current */);

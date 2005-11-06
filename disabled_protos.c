@@ -41,6 +41,7 @@
 #include <epan/proto.h>
 
 #include "disabled_protos.h"
+#include "file_util.h"
 
 #define GLOBAL_PROTOCOLS_FILE_NAME	"disabled_protos"
 #define PROTOCOLS_FILE_NAME		"disabled_protos"
@@ -81,7 +82,7 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
 
   /* Read the global disabled protocols file, if it exists. */
   *gpath_return = NULL;
-  if ((ff = fopen(gff_path, "r")) != NULL) {
+  if ((ff = eth_fopen(gff_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     err = read_disabled_protos_list_file(gff_path, ff,
 					 &global_disabled_protos);
@@ -111,7 +112,7 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
 
   /* Read the user's disabled protocols file, if it exists. */
   *path_return = NULL;
-  if ((ff = fopen(ff_path, "r")) != NULL) {
+  if ((ff = eth_fopen(ff_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     err = read_disabled_protos_list_file(ff_path, ff, &disabled_protos);
     if (err != 0) {
@@ -335,7 +336,7 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
      completely. */
   ff_path_new = g_strdup_printf("%s.new", ff_path);
 
-  if ((ff = fopen(ff_path_new, "w")) == NULL) {
+  if ((ff = eth_fopen(ff_path_new, "w")) == NULL) {
     *pref_path_return = ff_path;
     *errno_return = errno;
     g_free(ff_path_new);
@@ -363,7 +364,7 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
   if (fclose(ff) == EOF) {
     *pref_path_return = ff_path;
     *errno_return = errno;
-    unlink(ff_path_new);
+    eth_unlink(ff_path_new);
     g_free(ff_path_new);
     return;
   }
@@ -373,22 +374,22 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
      exists; the Win32 call to rename files doesn't do so, which I
      infer is the reason why the MSVC++ "rename()" doesn't do so.
      We must therefore remove the target file first, on Windows. */
-  if (remove(ff_path) < 0 && errno != ENOENT) {
+  if (eth_remove(ff_path) < 0 && errno != ENOENT) {
     /* It failed for some reason other than "it's not there"; if
        it's not there, we don't need to remove it, so we just
        drive on. */
     *pref_path_return = ff_path;
     *errno_return = errno;
-    unlink(ff_path_new);
+    eth_unlink(ff_path_new);
     g_free(ff_path_new);
     return;
   }
 #endif
 
-  if (rename(ff_path_new, ff_path) < 0) {
+  if (eth_rename(ff_path_new, ff_path) < 0) {
     *pref_path_return = ff_path;
     *errno_return = errno;
-    unlink(ff_path_new);
+    eth_unlink(ff_path_new);
     g_free(ff_path_new);
     return;
   }

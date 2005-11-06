@@ -551,7 +551,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 #ifdef DEBUG_K12
     gchar* env_level = getenv("K12_DEBUG_LEVEL");
     env_file = getenv("K12_DEBUG_FILENAME");
-    if ( env_file ) dbg_out = fopen(env_file,"w");
+    if ( env_file ) dbg_out = eth_fopen(env_file,"w");
     else dbg_out = stderr;
     if ( env_level ) debug_level = strtoul(env_level,NULL,10);
     k12_dbg(1,"k12_open: ENTER debug_level=%u",debug_level);

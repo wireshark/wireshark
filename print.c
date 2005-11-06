@@ -39,6 +39,7 @@
 #include "packet-range.h"
 #include "print.h"
 #include "ps.h"
+#include "file_util.h"
 #include <epan/charsets.h>
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-frame.h>
@@ -83,7 +84,7 @@ open_print_dest(int to_file, const char *dest)
 
 	/* Open the file or command for output */
 	if (to_file)
-		fh = fopen(dest, "w");
+		fh = eth_fopen(dest, "w");
 	else
 		fh = popen(dest, "w");
 

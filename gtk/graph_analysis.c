@@ -57,6 +57,7 @@
 #include "compat_macros.h"
 #include "../color.h"
 #include "epan/filesystem.h"
+#include "file_util.h"
 
 #include <string.h>
 
@@ -294,7 +295,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 	FILE *of;
 
-	of = fopen(user_data->dlg.save_file,"w");
+	of = eth_fopen(user_data->dlg.save_file,"w");
 	if (of==NULL){
 		return FALSE;
 	}
@@ -526,7 +527,7 @@ static void save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 
 
 	/* check whether the file exists */
-	file_test = fopen(user_data_p->dlg.save_file,"r");
+	file_test = eth_fopen(user_data_p->dlg.save_file,"r");
 	if (file_test!=NULL){
 
 		dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,

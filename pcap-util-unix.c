@@ -243,7 +243,7 @@ get_interface_list(int *err, char *err_str)
 #endif
 
 	g_free(ifc.ifc_buf);
-	close(sock);
+	eth_close(sock);
 
 	if (il == NULL) {
 		/*
@@ -257,7 +257,7 @@ fail:
 	if (il != NULL)
 		free_interface_list(il);
 	g_free(ifc.ifc_buf);
-	close(sock);
+	eth_close(sock);
 	*err = CANT_GET_INTERFACE_LIST;
 	return NULL;
 #endif /* HAVE_PCAP_FINDALLDEVS */

@@ -45,9 +45,6 @@
 #define VERSION "@VERSION@"
 
 #define HAVE_WINSOCK2_H		1
-#define HAVE_IO_H		1
-#define open                    _open
-#define close                   _close
 #define HAVE_PCAP_H     1
 
 /* Needed for zlib, according to http://www.winimage.com/zLibDll/ */

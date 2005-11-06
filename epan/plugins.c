@@ -44,15 +44,12 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
 #include "filesystem.h"
+#include "file_util.h"
 #include "report_err.h"
 
 /* linked list of all plugins */
@@ -129,16 +126,12 @@ static void
 plugins_scan_dir(const char *dirname)
 {
 #define FILENAME_LEN	1024
+    ETH_DIR       *dir;             /* scanned directory */
+    ETH_DIRENT    *file;            /* current file */
+    const char    *name;
 #if GLIB_MAJOR_VERSION < 2
     gchar         *hack_path;       /* pathname used to construct lt_lib_ext */
     gchar         *lt_lib_ext;      /* extension for loadable modules */
-    DIR           *dir;             /* scanned directory */
-    struct dirent *file;            /* current file */
-    gchar         *name;
-#else /* GLIB 2 */
-    GDir          *dir;             /* scanned directory */
-    GError        **dummy;
-    const gchar   *name;
 #endif
     gchar          filename[FILENAME_LEN];   /* current file name */
     GModule       *handle;          /* handle returned by dlopen */
@@ -170,40 +163,34 @@ plugins_scan_dir(const char *dirname)
 	 */
 	lt_lib_ext = "";
     }
+#endif
 
-    if ((dir = opendir(dirname)) != NULL)
+    if ((dir = g_dir_open(dirname, 0, NULL)) != NULL)
     {
-	while ((file = readdir(dir)) != NULL)
+    while ((file = eth_dir_read_name(dir)) != NULL)
 	{
+	    name = eth_dir_get_name(file);
+#if GLIB_MAJOR_VERSION < 2
 	    /* don't try to open "." and ".." */
-	    if (!(strcmp(file->d_name, "..") &&
-		  strcmp(file->d_name, "."))) continue;
+	    if (!(strcmp(name, "..") &&
+		  strcmp(name, "."))) continue;
 
             /* skip anything but files with lt_lib_ext */
-            dot = strrchr(file->d_name, '.');
+            dot = strrchr(name, '.');
             if (dot == NULL || strcmp(dot, lt_lib_ext) != 0) continue;
 
-	    g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
-	        dirname, file->d_name);
-	    name = (gchar *)file->d_name;
 #else /* GLIB 2 */
     /*
      * GLib 2.x defines G_MODULE_SUFFIX as the extension used on this
      * platform for loadable modules.
      */
-    dummy = g_malloc(sizeof(GError *));
-    *dummy = NULL;
-    if ((dir = g_dir_open(dirname, 0, dummy)) != NULL)
-    {
-    	while ((name = g_dir_read_name(dir)) != NULL)
-	{
 	    /* skip anything but files with G_MODULE_SUFFIX */
             dot = strrchr(name, '.');
             if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0) continue;
 
+#endif
 	    g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
 	        dirname, name);
-#endif
 	    if ((handle = g_module_open(filename, 0)) == NULL)
 	    {
 		report_failure("Couldn't load module %s: %s", filename,
@@ -343,15 +330,10 @@ plugins_scan_dir(const char *dirname)
 		    register_protoinfo();
 
 	}
+	eth_dir_close(dir);
+	}
 #if GLIB_MAJOR_VERSION < 2
-	closedir(dir);
-    }
     g_free(hack_path);
-#else /* GLIB 2 */
-	g_dir_close(dir);
-    }
-    g_clear_error(dummy);
-    g_free(dummy);
 #endif
 }
 

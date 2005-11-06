@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include <epan/filesystem.h>
+#include "file_util.h"
 
 #include <epan/packet.h>
 #include "color.h"
@@ -365,7 +366,7 @@ read_filters(void)
 
 	/* decide what file to open (from dfilter code) */
 	path = get_persconffile_path("colorfilters", FALSE);
-	if ((f = fopen(path, "r")) == NULL) {
+	if ((f = eth_fopen(path, "r")) == NULL) {
 		if (errno != ENOENT) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			    "Could not open filter file\n\"%s\": %s.", path,
@@ -392,7 +393,7 @@ read_global_filters(void)
 
 	/* decide what file to open (from dfilter code) */
 	path = get_datafile_path("colorfilters");
-	if ((f = fopen(path, "r")) == NULL) {
+	if ((f = eth_fopen(path, "r")) == NULL) {
 		if (errno != ENOENT) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			    "Could not open global filter file\n\"%s\": %s.", path,
@@ -416,7 +417,7 @@ color_filters_import(gchar *path, gpointer arg)
 	FILE *f;
 	gboolean ret;
 
-	if ((f = fopen(path, "r")) == NULL) {
+	if ((f = eth_fopen(path, "r")) == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor reading: %s.",
 		    path, strerror(errno));
@@ -488,7 +489,7 @@ color_filters_write(void)
 	}
 
 	path = get_persconffile_path("colorfilters", TRUE);
-	if ((f = fopen(path, "w+")) == NULL) {
+	if ((f = eth_fopen(path, "w+")) == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor writing: %s.",
 		    path, strerror(errno));
@@ -525,7 +526,7 @@ color_filters_export(gchar *path, gboolean only_marked)
 {
 	FILE *f;
 
-	if ((f = fopen(path, "w+")) == NULL) {
+	if ((f = eth_fopen(path, "w+")) == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor writing: %s.",
 		    path, strerror(errno));

@@ -1923,7 +1923,7 @@ capture(char *save_file, int out_file_type)
 
 #ifndef _WIN32
   if (ld.from_pipe && pipe_fd >= 0)
-    close(pipe_fd);
+    eth_close(pipe_fd);
   else
 #endif
   {
@@ -1956,7 +1956,7 @@ error:
 #ifndef _WIN32
   if (ld.from_pipe) {
     if (pipe_fd >= 0)
-      close(pipe_fd);
+      eth_close(pipe_fd);
   } else
 #endif
   {
@@ -3100,7 +3100,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
   if (strcmp(pipename, "-") == 0)
     fd = 0; /* read from stdin */
   else {
-    if (stat(pipename, &pipe_stat) < 0) {
+    if (eth_stat(pipename, &pipe_stat) < 0) {
       if (errno == ENOENT || errno == ENOTDIR)
         ldat->pipe_err = PIPNEXIST;
       else {
@@ -3126,7 +3126,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
       }
       return -1;
     }
-    fd = open(pipename, O_RDONLY);
+    fd = eth_open(pipename, O_RDONLY, 0000 /* no creation so don't matter */);
     if (fd == -1) {
       g_snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
@@ -3221,7 +3221,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
 
 error:
   ldat->pipe_err = PIPERR;
-  close(fd);
+  eth_close(fd);
   return -1;
 
 }

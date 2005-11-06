@@ -87,19 +87,11 @@
 #include "capture-wpcap.h"
 #endif
 #include "ui_util.h"
+#include "file_util.h"
 #include "log.h"
-
-#ifdef HAVE_IO_H
-# include <io.h>
-#endif
 
 #ifdef _WIN32
 #include <process.h>    /* For spawning child process */
-#endif
-
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
 #endif
 
 
@@ -435,8 +427,8 @@ sync_pipe_start(capture_options *capture_opts) {
       /* Couldn't create the signal pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create signal pipe: %s",
                         strerror(errno));
-      close(sync_pipe[PIPE_READ]);
-      close(sync_pipe[PIPE_WRITE]);
+      eth_close(sync_pipe[PIPE_READ]);
+      eth_close(sync_pipe[PIPE_WRITE]);
       g_free( (gpointer) argv);
       return FALSE;
     }
@@ -489,7 +481,7 @@ sync_pipe_start(capture_options *capture_opts) {
     }
 
     /* child own's the read side now, close our handle */
-    close(signal_pipe[PIPE_READ]);
+    eth_close(signal_pipe[PIPE_READ]);
 #else
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
@@ -526,9 +518,9 @@ sync_pipe_start(capture_options *capture_opts) {
        * -m / -b fonts
        * -f "filter expression"
        */
-      close(1);
+      eth_close(1);
       dup(sync_pipe[PIPE_WRITE]);
-      close(sync_pipe[PIPE_READ]);
+      eth_close(sync_pipe[PIPE_READ]);
       execvp(ethereal_path, argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		ethereal_path, strerror(errno));
@@ -550,15 +542,15 @@ sync_pipe_start(capture_options *capture_opts) {
        open, and thus it completely closes, and thus returns to us
        an EOF indication, if the child closes it (either deliberately
        or by exiting abnormally). */
-    close(sync_pipe[PIPE_WRITE]);
+    eth_close(sync_pipe[PIPE_WRITE]);
 
     if (capture_opts->fork_child == -1) {
       /* We couldn't even create the child process. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Couldn't create child process: %s", strerror(errno));
-      close(sync_pipe[PIPE_READ]);
+      eth_close(sync_pipe[PIPE_READ]);
 #ifdef _WIN32
-      close(signal_pipe[PIPE_WRITE]);
+      eth_close(signal_pipe[PIPE_WRITE]);
 #endif
       return FALSE;
     }
@@ -601,7 +593,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     sync_pipe_wait_for_child(capture_opts);
 
 #ifdef _WIN32
-    close(capture_opts->signal_pipe_fd);
+    eth_close(capture_opts->signal_pipe_fd);
 #endif
     capture_input_closed(capture_opts);
     return FALSE;
@@ -615,7 +607,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         /* We weren't able to open the new capture file; user has been
            alerted. Close the sync pipe. */
         /* XXX - is it safe to close the pipe inside this callback? */
-        close(source);
+        eth_close(source);
 
         /* the child has send us a filename which we couldn't open.
            this probably means, the child is creating files faster than we can handle it.

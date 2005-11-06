@@ -87,6 +87,7 @@
 #include "util.h"
 #include "alert_box.h"
 #include "log.h"
+#include "file_util.h"
 
 
 #include <epan/dissectors/packet-ap1394.h>
@@ -106,11 +107,6 @@
 #include <epan/dissectors/packet-prism.h>
 #include <epan/dissectors/packet-ipfc.h>
 #include <epan/dissectors/packet-arcnet.h>
-
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
-#endif
 
 
 
@@ -251,7 +247,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   if (strcmp(pipename, "-") == 0)
     fd = 0; /* read from stdin */
   else {
-    if (stat(pipename, &pipe_stat) < 0) {
+    if (eth_stat(pipename, &pipe_stat) < 0) {
       if (errno == ENOENT || errno == ENOTDIR)
         ld->cap_pipe_err = PIPNEXIST;
       else {
@@ -277,7 +273,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       }
       return -1;
     }
-    fd = open(pipename, O_RDONLY | O_NONBLOCK);
+    fd = eth _open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
     if (fd == -1) {
       g_snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
@@ -394,7 +390,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 error:
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: error %s", errmsg);
   ld->cap_pipe_err = PIPERR;
-  close(fd);
+  eth_close(fd);
   return -1;
 
 }
@@ -719,7 +715,7 @@ static void capture_loop_close_input(loop_data *ld) {
   /* if open, close the capture pipe "input file" */
   if (ld->cap_pipe_fd >= 0) {
     g_assert(ld->from_cap_pipe);
-    close(ld->cap_pipe_fd);
+    eth_close(ld->cap_pipe_fd);
   }
 #endif
 
@@ -1523,11 +1519,11 @@ error:
   } else {
     /* We can't use the save file, and we have no wtap_dump stream
        to close in order to close it, so close the FD directly. */
-    close(save_file_fd);
+    eth_close(save_file_fd);
 
     /* We couldn't even start the capture, so get rid of the capture
        file. */
-    unlink(capture_opts->save_file); /* silently ignore error */
+    eth_unlink(capture_opts->save_file); /* silently ignore error */
     g_free(capture_opts->save_file);
   }
   capture_opts->save_file = NULL;

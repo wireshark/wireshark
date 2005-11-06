@@ -34,13 +34,11 @@
 #include <windows.h>
 #endif
 
-#ifdef HAVE_IO_H
-# include <io.h>
-#endif
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#include "file_util.h"
 #include "gtkglobals.h"
 #include "gui_utils.h"
 #include <epan/prefs.h>

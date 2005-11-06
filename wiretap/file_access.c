@@ -32,19 +32,13 @@
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
 #include <errno.h>
 
-#ifdef HAVE_IO_H
-#include <io.h>	/* open/close on win32 */
-#endif
+#include "file_util.h"
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -179,7 +173,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 	} else {
-		if (stat(filename, &statb) < 0) {
+		if (eth_stat(filename, &statb) < 0) {
 			*err = errno;
 			return NULL;
 		}
@@ -233,11 +227,6 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		return NULL;
 	}
 
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
-#endif
-
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
 	if (use_stdin) {
@@ -246,12 +235,12 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		 * an fclose or gzclose of wth->fh closing the standard
 		 * input of the process.
 		 */
-		wth->fd = dup(0);
+		wth->fd = eth_dup(0);
 #ifdef _WIN32
 		_setmode(wth->fd, O_BINARY);
 #endif
 	} else
-		wth->fd = open(filename, O_RDONLY|O_BINARY);
+		wth->fd = eth_open(filename, O_RDONLY|O_BINARY, 0000 /* no creation so don't matter */);
 	if (wth->fd < 0) {
 		*err = errno;
 		g_free(wth);
@@ -259,13 +248,13 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	}
 	if (!(wth->fh = filed_open(wth->fd, "rb"))) {
 		*err = errno;
-		close(wth->fd);
+		eth_close(wth->fd);
 		g_free(wth);
 		return NULL;
 	}
 
 	if (do_random) {
-		if (!(wth->random_fh = file_open(filename, "rb"))) {
+		if (!(wth->random_fh = file_open(filename, O_RDONLY|O_BINARY, "rb"))) {
 			*err = errno;
 			file_close(wth->fh);
 			g_free(wth);
@@ -631,7 +620,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 		   opening it. */
 		if (wdh->fh != stdout) {
 			wtap_dump_file_close(wdh);
-			unlink(filename);
+			eth_unlink(filename);
 		}
 		g_free(wdh);
 		return NULL;
@@ -820,7 +809,7 @@ static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 	} else 
 #endif
 	{
-		return fopen(filename, "wb");
+		return eth_fopen(filename, "wb");
 	}
 }
 

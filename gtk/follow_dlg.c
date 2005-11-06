@@ -30,9 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef HAVE_IO_H
-#include <io.h>			/* open/close on win32 */
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -42,6 +39,7 @@
 
 #include "isprint.h"
 
+#include "file_util.h"
 #include "color.h"
 #include "colors.h"
 #include "file.h"
@@ -203,7 +201,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
 			  follow_info->data_out_filename, strerror(errno));
-	    close(tmp_fd);
+	    eth_close(tmp_fd);
 	    unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    return;
@@ -601,7 +599,7 @@ follow_read_stream(follow_info_t *follow_info,
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
-    data_out_file = fopen(follow_info->data_out_filename, "rb");
+    data_out_file = eth_fopen(follow_info->data_out_filename, "rb");
     if (data_out_file == NULL) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Could not open temporary file %s: %s", follow_info->data_out_filename,
@@ -931,7 +929,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
         print_mswin(print_dest);
 
         /* trash temp file */
-        remove(print_dest);
+        eth_remove(print_dest);
     }
 #endif
     return;
@@ -949,7 +947,7 @@ print_error:
 #ifdef _WIN32
     if (win_printer) {
         /* trash temp file */
-        remove(print_dest);
+        eth_remove(print_dest);
     }
 #endif
 }
@@ -1138,10 +1136,10 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
     if (follow_info->show_type == SHOW_RAW) {
         /* Write the data out as raw binary data */
-        fh = fopen(to_name, "wb");
+        fh = eth_fopen(to_name, "wb");
     } else {
         /* Write it out as text */
-        fh = fopen(to_name, "w");
+        fh = eth_fopen(to_name, "w");
     }
     if (fh == NULL) {
         open_failure_alert_box(to_name, errno, TRUE);

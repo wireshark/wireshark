@@ -37,20 +37,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
-#ifdef NEED_MKSTEMP
-#include "mkstemp.h"
-#endif
-
-#ifdef HAVE_IO_H
-#include <io.h>
-#ifndef __MINGW32__
-typedef int mode_t;	/* for win32 */
-#endif /* __MINGW32__ */
-#endif /* HAVE_IO_H */
+#include "file_util.h"
 
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
@@ -130,7 +117,7 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 {
 	static const char suffix[] = "XXXXXXXXXX";
 	int namelen = strlen(dir) + strlen(pfx) + sizeof suffix;
-	mode_t old_umask;
+	int old_umask;
 	int tmp_fd;
 
 	if (namebuflen < namelen) {
@@ -152,7 +139,7 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	   permissions, attempt to create the file, and then put
 	   the umask back. */
 	old_umask = umask(0077);
-	tmp_fd = mkstemp(namebuf);
+	tmp_fd = eth_mkstemp(namebuf);
 	umask(old_umask);
 	return tmp_fd;
 }

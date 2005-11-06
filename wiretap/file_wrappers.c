@@ -101,6 +101,28 @@
 #include <stdio.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
+#include "file_util.h"
+
+FILE_T
+file_open(const char *path, int oflag, const char *mode)
+{
+	int fd;
+	FILE_T ft;
+
+	/* open file and do correct filename conversions */
+	if( (fd = eth_open( path, oflag, 0000 /* no creation so don't matter */)) == NULL )
+      return NULL;
+
+	/* open zlib file handle */
+	ft = gzdopen(fd, mode );
+	if(ft == NULL) {
+		eth_close(fd);
+		return NULL;
+	}
+
+	return ft;
+}
+
 
 #ifdef HAVE_LIBZ
 long

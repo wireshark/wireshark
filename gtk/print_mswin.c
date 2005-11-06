@@ -38,6 +38,7 @@
 #endif
 
 #include "print_mswin.h"
+#include "file_util.h"
 
 /*
 Some thoughts about a GTK win32 printer dialog:
@@ -187,7 +188,7 @@ void print_file( char *file_name, HDC hdc) {
     SetMapMode (hdc, MM_TEXT);
 
 
-    fh1 = fopen( file_name, "r" );
+    fh1 = eth_fopen( file_name, "r" );
     if( !fh1 )
         perror( "open failed on input file" );
 

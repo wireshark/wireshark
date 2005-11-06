@@ -200,7 +200,6 @@
 #define HAVE_WINDOWS_H		1
 #define HAVE_WINSOCK2_H		1
 #define HAVE_DIRECT_H		1
-#define HAVE_IO_H		1
 #define NEED_INET_ATON_H	1
 #define NEED_INET_V6DEFS_H	1
 #define NEED_GETOPT_H		1
@@ -208,8 +207,6 @@
 #define snprintf 		_snprintf
 #define strcasecmp		stricmp
 #define strncasecmp		strnicmp
-#define open			_open
-#define close			_close
 #define popen			_popen
 #define pclose			_pclose
 

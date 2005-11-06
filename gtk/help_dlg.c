@@ -42,6 +42,7 @@
 #include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "webbrowser.h"
+#include "file_util.h"
 
 #define HELP_DIR	"help"
 
@@ -116,7 +117,7 @@ void help_dialog(void)
   }
 
   help_toc_file_path = get_datafile_path(HELP_DIR G_DIR_SEPARATOR_S "toc");
-  help_toc_file = fopen(help_toc_file_path, "r");
+  help_toc_file = eth_fopen(help_toc_file_path, "r");
   if (help_toc_file == NULL) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open file \"%s\": %s",
                   help_toc_file_path, strerror(errno));

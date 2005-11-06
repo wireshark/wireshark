@@ -27,6 +27,7 @@
 
 #include "mate.h"
 #include "mate_util.h"
+#include "file_util.h"
 
 /***************************************************************************
 *  dbg_print
@@ -1668,7 +1669,7 @@ extern LoAL* loal_from_file(gchar* filename) {
 
 	state = START;
 
-	if (( fp = fopen(filename,"r") )) {
+	if (( fp = eth_fopen(filename,"r") )) {
 		while(( c = (gchar) fgetc(fp) )){
 
 			if ( feof(fp) ) {

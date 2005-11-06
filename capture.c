@@ -40,10 +40,6 @@
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_IO_H
-# include <io.h>
-#endif
-
 #include <signal.h>
 #include <errno.h>
 
@@ -69,6 +65,7 @@
 #include "capture-wpcap.h"
 #endif
 #include "ui_util.h"
+#include "file_util.h"
 #include "log.h"
 
 
@@ -404,7 +401,7 @@ capture_input_closed(capture_options *capture_opts)
     if(capture_opts->restart) {
         capture_opts->restart = FALSE;
 
-        unlink(capture_opts->save_file);
+        eth_unlink(capture_opts->save_file);
 
         /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
         if(cf_is_tempfile(capture_opts->cf)) {

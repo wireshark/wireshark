@@ -43,6 +43,7 @@
 #include "dlg_utils.h"
 #include "cfilter_combo_utils.h"
 #include "simple_dialog.h"
+#include "file_util.h"
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
@@ -121,7 +122,7 @@ write_recent(void)
   }
 
   rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE);
-  if ((rf = fopen(rf_path, "w")) == NULL) {
+  if ((rf = eth_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
       strerror(errno));
@@ -522,7 +523,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
-  if ((rf = fopen(rf_path, "r")) != NULL) {
+  if ((rf = eth_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_static);
     fclose(rf);
@@ -554,7 +555,7 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
-  if ((rf = fopen(rf_path, "r")) != NULL) {
+  if ((rf = eth_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_dynamic);
 	/* set dfilter combobox to have an empty line */

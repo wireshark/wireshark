@@ -37,16 +37,8 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
-#endif
-
-#ifdef HAVE_DIRECT_H
-#include <direct.h>		/* to declare "mkdir()" on Windows */
 #endif
 
 #ifndef _WIN32
@@ -54,6 +46,7 @@
 #endif
 
 #include "filesystem.h"
+#include "file_util.h"
 
 /*
  * Given a pathname, return a pointer to the last pathname separator
@@ -184,7 +177,7 @@ test_for_directory(const char *path)
 {
 	struct stat statb;
 
-	if (stat(path, &statb) < 0)
+	if (eth_stat(path, &statb) < 0)
 		return errno;
 
 	if (S_ISDIR(statb.st_mode))
@@ -198,7 +191,7 @@ test_for_fifo(const char *path)
 {
 	struct stat statb;
 
-	if (stat(path, &statb) < 0)
+	if (eth_stat(path, &statb) < 0)
 		return errno;
 
 	if (S_ISFIFO(statb.st_mode))
@@ -439,7 +432,7 @@ create_persconffile_dir(char **pf_dir_path_return)
 	int ret;
 
 	pf_dir_path = get_persconffile_dir();
-	if (stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+	if (eth_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
 #ifdef _WIN32
 		/*
 		 * Does the parent directory of that directory
@@ -457,20 +450,20 @@ create_persconffile_dir(char **pf_dir_path_return)
 		pf_dir_parent_path_len = strlen(pf_dir_parent_path);
 		if (pf_dir_parent_path_len > 0
 		    && pf_dir_parent_path[pf_dir_parent_path_len - 1] != ':'
-		    && stat(pf_dir_parent_path, &s_buf) != 0) {
+		    && eth_stat(pf_dir_parent_path, &s_buf) != 0) {
 			/*
 			 * No, it doesn't exist - make it first.
 			 */
-			ret = mkdir(pf_dir_parent_path);
+			ret = eth_mkdir(pf_dir_parent_path, 0755);
 			if (ret == -1) {
 				*pf_dir_path_return = pf_dir_parent_path;
 				return -1;
 			}
 		}
 		g_free(pf_dir_path_copy);
-		ret = mkdir(pf_dir_path);
+		ret = eth_mkdir(pf_dir_path, 0755);
 #else
-		ret = mkdir(pf_dir_path, 0755);
+		ret = eth_mkdir(pf_dir_path, 0755);
 #endif
 	} else {
 		/*
@@ -572,7 +565,7 @@ get_persconffile_path(const char *filename, gboolean for_writing
 	    filename);
 #ifdef _WIN32
 	if (!for_writing) {
-		if (stat(path, &s_buf) != 0 && errno == ENOENT) {
+		if (eth_stat(path, &s_buf) != 0 && errno == ENOENT) {
 			/*
 			 * OK, it's not in the personal configuration file
 			 * directory; is it in the ".ethereal" subdirectory
@@ -581,7 +574,7 @@ get_persconffile_path(const char *filename, gboolean for_writing
 			old_path = g_strdup_printf(
 			    "%s" G_DIR_SEPARATOR_S ".ethereal" G_DIR_SEPARATOR_S "%s",
 			    get_home_dir(), filename);
-			if (stat(old_path, &s_buf) == 0) {
+			if (eth_stat(old_path, &s_buf) == 0) {
 				/*
 				 * OK, it exists; return it instead.
 				 */
@@ -611,7 +604,7 @@ get_datafile_path(const char *filename)
 gboolean
 deletefile(const char *path)
 {
-	return unlink(path) == 0;
+	return eth_unlink(path) == 0;
 }
 
 /*
@@ -721,7 +714,7 @@ file_exists(const char *fname)
    * so this is working, but maybe not quite the way expected. ULFL
    */
    file_stat.st_ino = 1;   /* this will make things work if an error occured */
-   stat(fname, &file_stat);
+   eth_stat(fname, &file_stat);
    if (file_stat.st_ino == 0) {
        return TRUE;
    } else {
@@ -774,8 +767,8 @@ files_identical(const char *fname1, const char *fname2)
    */
    infile.st_ino = 1;   /* These prevent us from getting equality         */
    outfile.st_ino = 2;  /* If one or other of the files is not accessible */
-   stat(fname1, &infile);
-   stat(fname2, &outfile);
+   eth_stat(fname1, &infile);
+   eth_stat(fname2, &outfile);
    if (infile.st_ino == outfile.st_ino) {
        return TRUE;
    } else {

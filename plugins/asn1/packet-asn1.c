@@ -83,6 +83,7 @@
 #include <epan/report_err.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>
+#include "file_util.h"
 
 #ifdef DISSECTOR_WITH_GUI
 #include <gtk/gtk.h>
@@ -2729,7 +2730,7 @@ static char eol[] = "\r\n";
 	(void) log_domain; (void) log_level; (void) user_data; /* make references */
 
 	if (logf == NULL && asn1_logfile) {
-		logf = fopen(asn1_logfile, "w");
+		logf = eth_fopen(asn1_logfile, "w");
 	}
 	if (logf) {
 	fputs(message, logf);
@@ -2749,7 +2750,7 @@ read_asn1_type_table(const char *filename)
 	if ((filename == 0) || (strlen(filename) == 0))
 		return;		/* no filename provided */
 
-	f = fopen(filename, "rb");
+	f = eth_fopen(filename, "rb");
 	if (f == 0) {
 		/*
 		 * Ignore "file not found" errors if it's the old default
@@ -3858,7 +3859,7 @@ create_message_window(void)
 	model = gtk_tree_store_new(N_COLUMNS, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT,
 				   G_TYPE_STRING, G_TYPE_STRING);
 
-	namelist = fopen("namelist.txt", "w");
+	namelist = eth_fopen("namelist.txt", "w");
 	build_tree_view(model, PDUtree, NULL);
 	fclose(namelist);
 	namelist = 0;

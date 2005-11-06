@@ -45,6 +45,7 @@
 #include <epan/proto.h>
 #include <epan/column.h>
 #include "print.h"
+#include "file_util.h"
 
 #include <epan/prefs-int.h>
 
@@ -1084,19 +1085,19 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
      * file doesn't exist, try the old path.
      */
     gpf_path = get_datafile_path(PF_NAME);
-    if ((pf = fopen(gpf_path, "r")) == NULL && errno == ENOENT) {
+    if ((pf = eth_fopen(gpf_path, "r")) == NULL && errno == ENOENT) {
       /*
        * It doesn't exist by the new name; try the old name.
        */
       g_free(gpf_path);
       gpf_path = get_datafile_path(OLD_GPF_NAME);
-      pf = fopen(gpf_path, "r");
+      pf = eth_fopen(gpf_path, "r");
     }
   } else {
     /*
      * We have the path; try it.
      */
-    pf = fopen(gpf_path, "r");
+    pf = eth_fopen(gpf_path, "r");
   }
 
   /*
@@ -1139,7 +1140,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 
   /* Read the user's preferences file, if it exists. */
   *pf_path_return = NULL;
-  if ((pf = fopen(pf_path, "r")) != NULL) {
+  if ((pf = eth_fopen(pf_path, "r")) != NULL) {
     /*
      * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
      * seen.
@@ -2235,7 +2236,7 @@ write_prefs(char **pf_path_return)
 
   if (pf_path_return != NULL) {
     pf_path = get_persconffile_path(PF_NAME, TRUE);
-    if ((pf = fopen(pf_path, "w")) == NULL) {
+    if ((pf = eth_fopen(pf_path, "w")) == NULL) {
       *pf_path_return = pf_path;
       return errno;
     }

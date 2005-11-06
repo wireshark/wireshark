@@ -26,10 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_IO_H
-#include <io.h> /* open/close on win32 */
-#endif
-
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
 #endif

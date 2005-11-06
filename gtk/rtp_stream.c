@@ -41,6 +41,7 @@
 
 #include "alert_box.h"
 #include "simple_dialog.h"
+#include "file_util.h"
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -337,7 +338,7 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 {
 	gboolean was_registered = the_tapinfo_struct.is_registered;
 	/* open file for saving */
-	the_tapinfo_struct.save_file = fopen(filename, "wb");
+	the_tapinfo_struct.save_file = eth_fopen(filename, "wb");
 	if (the_tapinfo_struct.save_file==NULL) {
 		open_failure_alert_box(filename, errno, TRUE);
 		return FALSE;

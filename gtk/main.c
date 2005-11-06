@@ -39,10 +39,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_IO_H
-#include <io.h> /* open/close on win32 */
-#endif
-
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
 #endif
@@ -140,6 +136,7 @@
 #include "capture_ui_utils.h"
 #include "log.h"
 #include "../epan/emem.h"
+#include "file_util.h"
 
 
 
@@ -2690,9 +2687,9 @@ create_console(void)
        create one and make it the standard input, output, and error. */
     if (!AllocConsole())
       return;   /* couldn't create console */
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
+    eth_freopen("CONIN$", "r", stdin);
+    eth_freopen("CONOUT$", "w", stdout);
+    eth_freopen("CONOUT$", "w", stderr);
 
     /* Well, we have a console now. */
     has_console = TRUE;

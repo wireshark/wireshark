@@ -117,6 +117,7 @@
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
 #include "filesystem.h"
+#include "file_util.h"
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
@@ -764,7 +765,7 @@ static void set_ethent(char *path)
   if (eth_p)
     rewind(eth_p);
   else
-    eth_p = fopen(path, "r");
+    eth_p = eth_fopen(path, "r");
 }
 
 static void end_ethent(void)
@@ -1330,7 +1331,7 @@ static void set_ipxnetent(char *path)
   if (ipxnet_p)
     rewind(ipxnet_p);
   else
-    ipxnet_p = fopen(path, "r");
+    ipxnet_p = eth_fopen(path, "r");
 }
 
 static void end_ipxnetent(void)
@@ -1557,7 +1558,7 @@ read_hosts_file (const char *hostspath)
    *  See the hosts(4) or hosts(5) man page for hosts file format
    *  (not available on all systems).
    */
-  if ((hf = fopen(hostspath, "r")) == NULL)
+  if ((hf = eth_fopen(hostspath, "r")) == NULL)
     return FALSE;
 
   while (fgetline(&line, &size, hf) >= 0) {

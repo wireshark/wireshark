@@ -31,10 +31,6 @@
 
 #include <ctype.h>
 
-#ifdef HAVE_IO_H
-#include <io.h>			/* open/close on win32 */
-#endif
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -73,11 +69,7 @@
 #include "font_utils.h"
 
 #include "../ui_util.h"
-
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
-#endif
+#include "file_util.h"
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
@@ -886,17 +878,17 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 		return;
 	}
 
-	fd = open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+	fd = eth_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
 	if (fd == -1) {
 		open_failure_alert_box(file, errno, TRUE);
 		return;
 	}
-	if (write(fd, data_p + start, end - start) < 0) {
+	if (eth_write(fd, data_p + start, end - start) < 0) {
 		write_failure_alert_box(file, errno);
-		close(fd);
+		eth_close(fd);
 		return;
 	}
-	if (close(fd) < 0) {
+	if (eth_close(fd) < 0) {
 		write_failure_alert_box(file, errno);
 		return;
 	}

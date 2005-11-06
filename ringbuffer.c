@@ -48,10 +48,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -67,11 +63,8 @@
 
 #include <wiretap/wtap.h>
 #include "ringbuffer.h"
+#include "file_util.h"
 
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
-#endif
 
 /* Ringbuffer file structure */
 typedef struct _rb_file {
@@ -109,7 +102,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
   if (rfile->name != NULL) {
     if (rb_data.unlimited == FALSE) {
       /* remove old file (if any, so ignore error) */
-      unlink(rfile->name);
+      eth_unlink(rfile->name);
     }
     g_free(rfile->name);
   }
@@ -129,7 +122,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
     return -1;
   }
 
-  rb_data.fd = open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+  rb_data.fd = eth_open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
 
   if (rb_data.fd == -1 && err != NULL) {
     *err = errno;
@@ -258,7 +251,7 @@ ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int
   /* close current file */
 
   if (!wtap_dump_close(rb_data.pdh, err)) {
-    close(rb_data.fd);	/* XXX - the above should have closed this already */
+    eth_close(rb_data.fd);	/* XXX - the above should have closed this already */
     rb_data.pdh = NULL;	/* it's still closed, we just got an error while closing */
     rb_data.fd = -1;
     return FALSE;
@@ -301,7 +294,7 @@ ringbuf_wtap_dump_close(gchar **save_file, int *err)
   /* close current file, if it's open */
   if (rb_data.pdh != NULL) {
     if (!wtap_dump_close(rb_data.pdh, err)) {
-      close(rb_data.fd);
+      eth_close(rb_data.fd);
       ret_val = FALSE;
     }
 
@@ -362,14 +355,14 @@ ringbuf_error_cleanup(void)
   /* XXX - it shouldn't still be open; "wtap_dump_close()" should leave the
      file closed even if it fails */
   if (rb_data.fd != -1) {
-    close(rb_data.fd);
+    eth_close(rb_data.fd);
     rb_data.fd = -1;
   }
 
   if (rb_data.files != NULL) {
     for (i=0; i < rb_data.num_files; i++) {
       if (rb_data.files[i].name != NULL) {
-        unlink(rb_data.files[i].name);
+        eth_unlink(rb_data.files[i].name);
       }
     }
   }

@@ -26,7 +26,7 @@
 
 #ifdef HAVE_LIBZ
 
-#define file_open gzopen
+extern FILE_T file_open(const char *path, int oflag, const char *mode);
 #define filed_open gzdopen
 extern long file_seek(void *stream, long offset, int whence, int *err);
 #define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
@@ -39,7 +39,7 @@ extern int file_error(void *fh);
 #define file_eof gzeof
 
 #else /* No zLib */
-#define file_open fopen
+#define file_open(path, oflag, mode) fopen(path, mode)
 #define filed_open fdopen
 extern long file_seek(void *stream, long offset, int whence, int *err);
 #define file_read fread

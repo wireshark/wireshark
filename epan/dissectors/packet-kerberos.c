@@ -679,7 +679,7 @@ read_keytab_file(const char *service_key_file)
 			}
 		}
 
-		skf = fopen(service_key_file, "rb");
+		skf = eth_fopen(service_key_file, "rb");
 		if (! skf) return;
 
 		while (fread(buf, SERVICE_KEY_SIZE, 1, skf) == 1) {

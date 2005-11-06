@@ -63,10 +63,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_IO_H
-#include <io.h> /* open/close on win32 */
-#endif
-
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_merge_ok_cb(GtkWidget *w, gpointer fs);

@@ -38,6 +38,7 @@
 #include "compat_macros.h"
 #include "simple_dialog.h"
 #include "font_utils.h"
+#include "file_util.h"
 
 #define TEXT_KEY        "txt_key"
 
@@ -129,7 +130,7 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
   gtk_text_freeze(txt);
 #endif
 
-  text_file = fopen(absolute_path, "r");
+  text_file = eth_fopen(absolute_path, "r");
   if (text_file != NULL) {
     while (fgets(line, sizeof line, text_file) != NULL) {
       text_page_insert(page, line, strlen(line));

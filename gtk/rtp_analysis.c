@@ -91,14 +91,7 @@
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_IO_H
-#include <io.h> /* open/close on win32 */
-#endif
-
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
+#include "file_util.h"
 
 /****************************************************************************/
 
@@ -477,10 +470,10 @@ rtp_reset(void *user_data_arg)
 		fclose(user_data->forward.saveinfo.fp); 
 	if (user_data->reversed.saveinfo.fp != NULL)
 		fclose(user_data->reversed.saveinfo.fp); 
-	user_data->forward.saveinfo.fp = fopen(user_data->f_tempname, "wb"); 
+	user_data->forward.saveinfo.fp = eth_fopen(user_data->f_tempname, "wb"); 
 	if (user_data->forward.saveinfo.fp == NULL)
 		user_data->forward.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
-	user_data->reversed.saveinfo.fp = fopen(user_data->r_tempname, "wb");
+	user_data->reversed.saveinfo.fp = eth_fopen(user_data->r_tempname, "wb");
 	if (user_data->reversed.saveinfo.fp == NULL)
 		user_data->reversed.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
 	return;
@@ -1006,8 +999,8 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 	if (user_data->reversed.saveinfo.fp != NULL)
 		fclose(user_data->reversed.saveinfo.fp);
 	/*XXX: test for error **/
-	remove(user_data->f_tempname);
-	remove(user_data->r_tempname);
+	eth_remove(user_data->f_tempname);
+	eth_remove(user_data->r_tempname);
 
 	/* destroy save_voice_as window if open */
 	if (user_data->dlg.save_voice_as_w != NULL)
@@ -2274,7 +2267,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	user_data = (user_data_t*)OBJECT_GET_DATA(bt, "user_data");
 	
 	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
-		fp = fopen(g_dest, "w");
+		fp = eth_fopen(g_dest, "w");
 		if (fp == NULL) {
 			open_failure_alert_box(g_dest, errno, TRUE);
 			return;
@@ -2328,7 +2321,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	if (GTK_TOGGLE_BUTTON(rev)->active || GTK_TOGGLE_BUTTON(both)->active) {
 		
 		if (GTK_TOGGLE_BUTTON(both)->active) {
-			fp = fopen(g_dest, "a");
+			fp = eth_fopen(g_dest, "a");
 			if (fp == NULL) {
 				open_failure_alert_box(g_dest, errno, TRUE);
 				return;
@@ -2340,7 +2333,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				return;
 			}
 		} else {
-			fp = fopen(g_dest, "w");
+			fp = eth_fopen(g_dest, "w");
 			if (fp == NULL) {
 				open_failure_alert_box(g_dest, errno, TRUE);
 				return;
@@ -2503,20 +2496,20 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	guint32 progbar_count, progbar_quantum, progbar_nextstep = 0, count = 0;
 	gboolean stop_flag = FALSE;
 
-	forw_fd = open(user_data->f_tempname, O_RDONLY | O_BINARY);
+	forw_fd = eth_open(user_data->f_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
 	if (forw_fd < 0) 
 		return FALSE;
-	rev_fd = open(user_data->r_tempname, O_RDONLY | O_BINARY);
+	rev_fd = eth_open(user_data->r_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
 	if (rev_fd < 0) {
-		close(forw_fd); 
+		eth_close(forw_fd); 
 		return FALSE;
 	}
 
 	/* open file for saving */
-	to_fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+	to_fd = eth_open(dest, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
 	if (to_fd < 0) {
-		close(forw_fd);
-		close(rev_fd);
+		eth_close(forw_fd);
+		eth_close(rev_fd);
 		return FALSE;
 	}
 
@@ -2526,35 +2519,35 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	{
 		/* First we write the .au header. XXX Hope this is endian independant */
 		/* the magic word 0x2e736e64 == .snd */
-		*pd = (unsigned char)0x2e; write(to_fd, pd, 1);
-		*pd = (unsigned char)0x73; write(to_fd, pd, 1);
-		*pd = (unsigned char)0x6e; write(to_fd, pd, 1);
-		*pd = (unsigned char)0x64; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x2e; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x73; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x6e; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x64; eth_write(to_fd, pd, 1);
 		/* header offset == 24 bytes */
-		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-		write(to_fd, pd, 1);
-		write(to_fd, pd, 1);
-		*pd = (unsigned char)0x18; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		eth_write(to_fd, pd, 1);
+		eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x18; eth_write(to_fd, pd, 1);
 		/* total length, it is permited to set this to 0xffffffff */
-		*pd = (unsigned char)0xff; write(to_fd, pd, 1); 
-		write(to_fd, pd, 1); 
-		write(to_fd, pd, 1); 
-		write(to_fd, pd, 1);
+		*pd = (unsigned char)0xff; eth_write(to_fd, pd, 1); 
+		eth_write(to_fd, pd, 1); 
+		eth_write(to_fd, pd, 1); 
+		eth_write(to_fd, pd, 1);
 		/* encoding format == 8 bit ulaw */
-		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-		write(to_fd, pd, 1);
-		write(to_fd, pd, 1);
-		*pd = (unsigned char)0x01; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		eth_write(to_fd, pd, 1);
+		eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x01; eth_write(to_fd, pd, 1);
 		/* sample rate == 8000 Hz */
-		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-		write(to_fd, pd, 1);
-		*pd = (unsigned char)0x1f; write(to_fd, pd, 1);
-		*pd = (unsigned char)0x40; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x1f; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x40; eth_write(to_fd, pd, 1);
 		/* channels == 1 */
-		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-		write(to_fd, pd, 1);
-		write(to_fd, pd, 1);
-		*pd = (unsigned char)0x01; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		eth_write(to_fd, pd, 1);
+		eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x01; eth_write(to_fd, pd, 1);
 	
 	
 		switch (channels) {
@@ -2580,18 +2573,18 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						*pd = (unsigned char)linear2ulaw(tmp);
 					}
 					else{
-						close(forw_fd);
-						close(rev_fd);
-						close(to_fd);
+						eth_close(forw_fd);
+						eth_close(rev_fd);
+						eth_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 					
-					fwritten = write(to_fd, pd, 1);
+					fwritten = eth_write(to_fd, pd, 1);
 					if ((fwritten < fread) || (fwritten < 0) || (fread < 0)) {
-						close(forw_fd);
-						close(rev_fd);
-						close(to_fd);
+						eth_close(forw_fd);
+						eth_close(rev_fd);
+						eth_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2620,18 +2613,18 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						*pd = (unsigned char)linear2ulaw(tmp);
 					}
 					else{
-						close(forw_fd);
-						close(rev_fd);
-						close(to_fd);
+						eth_close(forw_fd);
+						eth_close(rev_fd);
+						eth_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 					
-					rwritten = write(to_fd, pd, 1);
+					rwritten = eth_write(to_fd, pd, 1);
 					if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
-						close(forw_fd);
-						close(rev_fd);
-						close(to_fd);
+						eth_close(forw_fd);
+						eth_close(rev_fd);
+						eth_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2707,19 +2700,19 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					else
 					{
-						close(forw_fd);
-						close(rev_fd);
-						close(to_fd);
+						eth_close(forw_fd);
+						eth_close(rev_fd);
+						eth_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 					
 					
-					rwritten = write(to_fd, pd, 1);
+					rwritten = eth_write(to_fd, pd, 1);
 					if ((rwritten < 0) || (rread < 0) || (fread < 0)) {
-						close(forw_fd);
-						close(rev_fd);
-						close(to_fd);
+						eth_close(forw_fd);
+						eth_close(rev_fd);
+						eth_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2746,9 +2739,9 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 				break;
 			}
 			default: {
-				close(forw_fd);
-				close(rev_fd);
-				close(to_fd);
+				eth_close(forw_fd);
+				eth_close(rev_fd);
+				eth_close(to_fd);
 				destroy_progress_dlg(progbar);
 				return FALSE;
 			}
@@ -2767,12 +2760,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			}
 			count++;
 
-			rwritten = write(to_fd, pd, 1);
+			rwritten = eth_write(to_fd, pd, 1);
 
 			if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
-				close(forw_fd);
-				close(rev_fd);
-				close(to_fd);
+				eth_close(forw_fd);
+				eth_close(rev_fd);
+				eth_close(to_fd);
 				destroy_progress_dlg(progbar);
 				return FALSE;
 			}
@@ -2780,9 +2773,9 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	}
 
 	destroy_progress_dlg(progbar);
-	close(forw_fd);
-	close(rev_fd);
-	close(to_fd);
+	eth_close(forw_fd);
+	eth_close(rev_fd);
+	eth_close(to_fd);
 	return TRUE;
 }
 
@@ -3687,10 +3680,10 @@ void rtp_analysis(
 	/*XXX: check for errors*/
 	fd = create_tempfile(user_data->f_tempname, sizeof(user_data->f_tempname),
 		"ether_rtp_f");
-	close(fd);
+	eth_close(fd);
 	fd = create_tempfile(user_data->r_tempname, sizeof(user_data->r_tempname),
 		"ether_rtp_r");
-	close(fd);
+	eth_close(fd);
 	user_data->forward.saveinfo.fp = NULL;
 	user_data->reversed.saveinfo.fp = NULL;
 	user_data->dlg.save_voice_as_w = NULL;

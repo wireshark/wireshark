@@ -43,12 +43,12 @@
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #ifdef _WIN32
-#include <io.h>
 #include "print_mswin.h"
 #endif
 #include "compat_macros.h"
 #include "range_utils.h"
 #include "help_dlg.h"
+#include "file_util.h"
 
 
 /* dialog output action */
@@ -988,7 +988,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     print_mswin(args->file);
 
     /* trash temp file */
-    remove(args->file);
+    eth_remove(args->file);
   }
 #endif
 }

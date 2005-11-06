@@ -29,7 +29,6 @@
  * "Capture Filter" / "Display Filter" / "Add expression" dialog boxes.
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
- * @todo rename this and the corresponding .c file to filter_dlg to reflect current implementation
  * @ingroup dialog_group
  */
 

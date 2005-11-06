@@ -32,10 +32,6 @@
 
 #include <time.h>
 
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,12 +73,9 @@
 #include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
 #include <epan/timestamp.h>
+#include "file_util.h"
 
 
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
-#endif
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
@@ -301,7 +294,7 @@ cf_reset_state(capture_file *cf)
   if (cf->filename != NULL) {
     /* If it's a temporary file, remove it. */
     if (cf->is_tempfile)
-      unlink(cf->filename);
+      eth_unlink(cf->filename);
     g_free(cf->filename);
     cf->filename = NULL;
   }
@@ -987,7 +980,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
   if (*out_filenamep != NULL) {
     out_filename = *out_filenamep;
-    out_fd = open(out_filename, O_CREAT|O_TRUNC|O_BINARY, 0600);
+    out_fd = eth_open(out_filename, O_CREAT|O_TRUNC|O_BINARY, 0600);
     if (out_fd == -1)
       open_err = errno;
   } else {
@@ -1010,7 +1003,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       merge_max_snapshot_length(in_file_count, in_files), 
 	  FALSE /* compressed */, &open_err);
   if (pdh == NULL) {
-    close(out_fd);
+    eth_close(out_fd);
     merge_close_in_files(in_file_count, in_files);
     free(in_files);
     cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
@@ -2018,7 +2011,7 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
   FILE        *fh;
   psp_return_t ret;
 
-  fh = fopen(print_args->file, "w");
+  fh = eth_fopen(print_args->file, "w");
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR;	/* attempt to open destination failed */
 
@@ -2089,7 +2082,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   FILE        *fh;
   psp_return_t ret;
 
-  fh = fopen(print_args->file, "w");
+  fh = eth_fopen(print_args->file, "w");
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR;	/* attempt to open destination failed */
 
@@ -2160,7 +2153,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
   FILE        *fh;
   psp_return_t ret;
 
-  fh = fopen(print_args->file, "w");
+  fh = eth_fopen(print_args->file, "w");
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
@@ -3175,7 +3168,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
          capture, so it doesn't need to stay around under that name;
 	 first, try renaming the capture buffer file to the new name. */
 #ifndef _WIN32
-      if (rename(cf->filename, fname) == 0) {
+      if (eth_rename(cf->filename, fname) == 0) {
       	/* That succeeded - there's no need to copy the source file. */
       	from_filename = NULL;
 	do_copy = FALSE;
@@ -3605,7 +3598,7 @@ copy_binary_file(const char *from_filename, const char *to_filename)
   guint8        pd[65536];
 
   /* Copy the raw bytes of the file. */
-  from_fd = open(from_filename, O_RDONLY | O_BINARY);
+  from_fd = eth_open(from_filename, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
   if (from_fd < 0) {
     open_failure_alert_box(from_filename, errno, FALSE);
     goto done;
@@ -3616,23 +3609,23 @@ copy_binary_file(const char *from_filename, const char *to_filename)
      may open the file in text mode, not binary mode, but we want
      to copy the raw bytes of the file, so we need the output file
      to be open in binary mode. */
-  to_fd = open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+  to_fd = eth_open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
   if (to_fd < 0) {
     open_failure_alert_box(to_filename, errno, TRUE);
-    close(from_fd);
+    eth_close(from_fd);
     goto done;
   }
 
-  while ((nread = read(from_fd, pd, sizeof pd)) > 0) {
-    nwritten = write(to_fd, pd, nread);
+  while ((nread = eth_read(from_fd, pd, sizeof pd)) > 0) {
+    nwritten = eth_write(to_fd, pd, nread);
     if (nwritten < nread) {
       if (nwritten < 0)
 	err = errno;
       else
 	err = WTAP_ERR_SHORT_WRITE;
       write_failure_alert_box(to_filename, err);
-      close(from_fd);
-      close(to_fd);
+      eth_close(from_fd);
+      eth_close(to_fd);
       goto done;
     }
   }
@@ -3641,12 +3634,12 @@ copy_binary_file(const char *from_filename, const char *to_filename)
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "An error occurred while reading from the file \"%s\": %s.",
 		  from_filename, strerror(err));
-    close(from_fd);
-    close(to_fd);
+    eth_close(from_fd);
+    eth_close(to_fd);
     goto done;
   }
-  close(from_fd);
-  if (close(to_fd) < 0) {
+  eth_close(from_fd);
+  if (eth_close(to_fd) < 0) {
     write_failure_alert_box(to_filename, errno);
     goto done;
   }

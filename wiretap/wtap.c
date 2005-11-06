@@ -31,22 +31,15 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef HAVE_IO_H
-#include <io.h>
 #endif
 
 #include "wtap-int.h"
 #include "wtap.h"
 
 #include "file_wrappers.h"
+#include "file_util.h"
 #include "buffer.h"
 
 /*
@@ -520,7 +513,7 @@ wtap_read_so_far(wtap *wth, int *err)
 {
 	off_t file_pos;
 
-	file_pos = lseek(wth->fd, 0, SEEK_CUR);
+	file_pos = eth_lseek(wth->fd, 0, SEEK_CUR);
 	if (file_pos == -1) {
 		if (err != NULL)
 			*err = errno;
