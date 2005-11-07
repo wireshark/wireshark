@@ -57,9 +57,7 @@
 #include <string.h>
 
 #include "packet-rtcp.h"
-#if 0
 #include "packet-ntp.h"
-#endif
 #include <epan/conversation.h>
 
 #include <epan/prefs.h>
@@ -93,6 +91,8 @@ static const value_string rtcp_version_vals[] =
 #define RTCP_SDES 202
 #define RTCP_BYE  203
 #define RTCP_APP  204
+#define RTCP_RTPFB  205
+#define RTCP_PSFB  206
 #define RTCP_XR	  207
 /* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
 #define RTCP_FIR  192
@@ -107,6 +107,8 @@ static const value_string rtcp_packet_type_vals[] =
 	{ RTCP_APP,  "Application specific" },
 	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
 	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
+	{ RTCP_RTPFB, "Generic RTP Feedback" },
+	{ RTCP_PSFB, "Payload-specific" },
 	{ RTCP_XR,   "Extended report (RFC 3611)"},
 	{ 0,         NULL },
 };
@@ -1376,14 +1378,17 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	/* Retreive the NTP timestamp. Using the NTP dissector for this */
 	buff=ntp_fmt_ts(ptime);
 	proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) buff, "NTP timestamp: %s", buff );
-	free( ptime ); ??????????????????????????????????????????????????????????????????
+	free( ptime ); /*??????????????????????????????????????????????????????????????????*/
 	offset += 8;
 #else
 	/*
 	 * XXX - RFC 1889 says this is an NTP timestamp, but that appears
 	 * not to be the case.
 	 */
+	proto_item* item;
 	guint32 ts_msw, ts_lsw;
+	gchar *buff;
+	char* ptime = tvb_get_ptr( tvb, offset, 8 );
 
 	ts_msw = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, MSW: %u", ts_msw);
@@ -1391,6 +1396,12 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	ts_lsw = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, LSW: %u", ts_lsw);
 	offset += 4;
+
+	buff=ntp_fmt_ts(ptime);
+	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset-8, 8, ( const char* ) buff, "MSW and LSW as NTP timestamp: %s", buff );
+	PROTO_ITEM_SET_GENERATED(item);
+	free( ptime ); /*??????????????????????????????????????????????????????????????????*/
+
 #endif
 	/* RTP timestamp, 32 bits */
 	proto_tree_add_uint( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
