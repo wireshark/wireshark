@@ -95,21 +95,21 @@ extern "C" {
 #endif
 
 #if GLIB_MAJOR_VERSION >= 2
-#define ETH_DIR							GDir
-#define ETH_DIRENT						const char
-#define eth_dir_open					g_dir_open
-#define eth_dir_read_name				g_dir_read_name
-#define eth_dir_get_name(dirent)		dirent
-#define eth_dir_rewind					g_dir_rewind
-#define eth_dir_close					g_dir_close
+#define ETH_DIR				GDir
+#define ETH_DIRENT			const char
+#define eth_dir_open			g_dir_open
+#define eth_dir_read_name		g_dir_read_name
+#define eth_dir_get_name(dirent)	dirent
+#define eth_dir_rewind			g_dir_rewind
+#define eth_dir_close			g_dir_close
 #else
-#define ETH_DIR							DIR
-#define ETH_DIRENT						struct dirent
+#define ETH_DIR				DIR
+#define ETH_DIRENT			struct dirent
 #define eth_dir_open(name,flags,error)	opendir(name)
-#define eth_dir_read_name				readdir
-#define eth_dir_get_name(dirent)		(gchar *)file->d_name
-#define eth_dir_rewind					g_dir_rewind
-#define eth_dir_close					close_dir
+#define eth_dir_read_name		readdir
+#define eth_dir_get_name(dirent)	(gchar *)file->d_name
+#define eth_dir_rewind			rewinddir
+#define eth_dir_close			closedir
 #endif
 
 /* XXX - remove include "dirent.h" */
