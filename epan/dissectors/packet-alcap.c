@@ -40,6 +40,7 @@
 #include <epan/prefs.h>
 #include "packet-alcap.h"
 #include "packet-e164.h"
+#include "packet-isup.h"
 #include <epan/expert.h>
 #include <epan/strutil.h>
 
@@ -594,6 +595,7 @@ static gchar* dissect_fields_dnsea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
     msg_info->dest_nsap[len] = '\0';
     
     proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, FALSE);
+	dissect_nsap(tvb, offset,20, tree);
     
     return NULL;
 }
@@ -615,6 +617,7 @@ static gchar* dissect_fields_onsea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
     msg_info->orig_nsap[len] = '\0';
     
     proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, FALSE);
+	dissect_nsap(tvb, offset,20, tree);
     
     return NULL;
 }
