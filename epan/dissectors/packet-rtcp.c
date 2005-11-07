@@ -1373,12 +1373,10 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 {
 #if 0
 	gchar *buff;
-	char* ptime = tvb_get_ptr( tvb, offset, 8 );
 
 	/* Retreive the NTP timestamp. Using the NTP dissector for this */
-	buff=ntp_fmt_ts(ptime);
+	buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset, 8 ));
 	proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) buff, "NTP timestamp: %s", buff );
-	free( ptime ); /*??????????????????????????????????????????????????????????????????*/
 	offset += 8;
 #else
 	/*
@@ -1388,7 +1386,6 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_item* item;
 	guint32 ts_msw, ts_lsw;
 	gchar *buff;
-	char* ptime = tvb_get_ptr( tvb, offset, 8 );
 
 	ts_msw = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, MSW: %u", ts_msw);
@@ -1397,11 +1394,9 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, LSW: %u", ts_lsw);
 	offset += 4;
 
-	buff=ntp_fmt_ts(ptime);
+	buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset, 8 ));
 	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset-8, 8, ( const char* ) buff, "MSW and LSW as NTP timestamp: %s", buff );
 	PROTO_ITEM_SET_GENERATED(item);
-	free( ptime ); /*??????????????????????????????????????????????????????????????????*/
-
 #endif
 	/* RTP timestamp, 32 bits */
 	proto_tree_add_uint( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
