@@ -1545,7 +1545,7 @@ proto_register_dec_rt(void)
           "Router ID", HFILL }},
     { &hf_dec_rt_router_state,
       { "Router state",    "dec_dna.ctl.router_state",
-        FT_STRING,    BASE_NONE,    NULL, 0x80,
+        FT_STRING,    BASE_NONE,    NULL, 0x0,
           "Router state", HFILL }},
     { &hf_dec_conn_contents,
       { "Session connect data",    "dec_dna.sess.conn",
