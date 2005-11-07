@@ -42,6 +42,9 @@
 static int proto_smb2 = -1;
 static int hf_smb2_cmd = -1;
 static int hf_smb2_nt_status = -1;
+static int hf_smb2_response_to = -1;
+static int hf_smb2_response_in = -1;
+static int hf_smb2_time = -1;
 static int hf_smb2_header_len = -1;
 static int hf_smb2_seqnum = -1;
 static int hf_smb2_pid = -1;
@@ -61,9 +64,70 @@ static gint ett_smb2_secblob = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
+typedef struct _smb2_saved_info_t {
+	guint64 seqnum;
+	gboolean response; /* is this a response ? */
+	guint32 frame_req, frame_res;
+	nstime_t req_time;
+} smb2_saved_info_t;
+
+/* structure to keep track of conversations and the hash tables. */
+typedef struct _smb2_info_t {
+	/* these two tables are used to match requests with responses */
+	GHashTable *unmatched;
+	GHashTable *matched;
+} smb2_info_t;
+
+/* unmatched smb_saved_info structures.
+   For unmatched smb_saved_info structures we store the smb_saved_info
+   structure using the SEQNUM field.
+*/
+static gint
+smb2_saved_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
+{
+	smb2_saved_info_t *key1 = (smb2_saved_info_t *)k1;
+	smb2_saved_info_t *key2 = (smb2_saved_info_t *)k2;
+	return key1->seqnum==key2->seqnum;
+}
+static guint
+smb2_saved_info_hash_unmatched(gconstpointer k)
+{
+	smb2_saved_info_t *key = (smb2_saved_info_t *)k;
+	guint32 hash;
+
+	hash=key->seqnum&0xffffffff;
+	return hash;
+}
+
+/* matched smb_saved_info structures.
+   For matched smb_saved_info structures we store the smb_saved_info
+   structure using the SEQNUM field.
+*/
+static gint
+smb2_saved_info_equal_matched(gconstpointer k1, gconstpointer k2)
+{
+	smb2_saved_info_t *key1 = (smb2_saved_info_t *)k1;
+	smb2_saved_info_t *key2 = (smb2_saved_info_t *)k2;
+	return key1->seqnum==key2->seqnum;
+}
+static guint
+smb2_saved_info_hash_matched(gconstpointer k)
+{
+	smb2_saved_info_t *key = (smb2_saved_info_t *)k;
+	guint32 hash;
+
+	hash=key->seqnum&0xffffffff;
+	return hash;
+}
+
+
+
+
+
+
 typedef struct _smb2_function {
-       int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
-       int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+       int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi);
+       int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi);
 } smb2_function;
 
 #define SMB2_FLAGS_RESPONSE	0x01
@@ -75,7 +139,7 @@ static const true_false_string tfs_flags_response = {
 
 
 static int
-dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	proto_item *blob_item;
 	proto_tree *blob_tree;
@@ -103,7 +167,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	proto_item *blob_item;
 	proto_tree *blob_tree;
@@ -130,12 +194,24 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	return offset;
 }
 
+static int
+dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, FALSE);
+	offset += 8;
+
+/*qqq*/
+	return offset;
+}
+
+
 /* names here are just until we find better names for these functions */
 const value_string smb2_cmd_vals[] = {
   { 0x00, "NegotiateProtocol" },
   { 0x01, "SessionSetupAndX" },
   { 0x02, "unknown-0x02" },
-  { 0x03, "TreeConnectAndX" },
+  { 0x03, "TreeConnect" },
   { 0x04, "TreeDisconnect" },
   { 0x05, "Create" },
   { 0x06, "Close" },
@@ -401,7 +477,9 @@ static smb2_function smb2_dissector[256] = {
 	{dissect_smb2_session_setup_request, 
 	 dissect_smb2_session_setup_response},
   /* 0x02 */  {NULL, NULL},
-  /* 0x03 */  {NULL, NULL},
+  /* 0x03 TreeConnect*/  
+	{dissect_smb2_tree_connect_request,
+	 NULL},
   /* 0x04 */  {NULL, NULL},
   /* 0x05 */  {NULL, NULL},
   /* 0x06 */  {NULL, NULL},
@@ -658,9 +736,9 @@ static smb2_function smb2_dissector[256] = {
 
 
 static int
-dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 cmd, guint8 response)
+dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 cmd, guint8 response, smb2_saved_info_t *ssi)
 {
-	int (*cmd_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+	int (*cmd_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi);
 	proto_item *cmd_item;
 	proto_tree *cmd_tree;
 
@@ -677,7 +755,7 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 		smb2_dissector[cmd&0xff].response:
 		smb2_dissector[cmd&0xff].request;
 	if(cmd_dissector){
-		offset=(*cmd_dissector)(tvb, pinfo, cmd_tree, offset);
+		offset=(*cmd_dissector)(tvb, pinfo, cmd_tree, offset, ssi);
 	} else {
 		proto_tree_add_item(cmd_tree, hf_smb2_unknown, tvb, offset, -1, FALSE);
 		offset=tvb_length(tvb);
@@ -698,6 +776,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint8 cmd, response;
 	guint16 header_len;
 	guint32 nt_status;
+	conversation_t *conversation;
+	smb2_info_t *si;
+	smb2_saved_info_t *ssi, ssi_key;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
@@ -756,6 +837,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 7;
 
 	/* command sequence number*/
+	ssi_key.seqnum=tvb_get_letoh64(tvb, offset);
 	proto_tree_add_item(header_tree, hf_smb2_seqnum, tvb, offset, 8, TRUE);
 	offset += 8;
 
@@ -799,8 +881,98 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
+
+	/* find which conversation we are part of and get the tables for that
+	 * conversation
+	 */
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+	if(!conversation){
+		/* OK this is a new conversation so lets create it */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	si=conversation_get_proto_data(conversation, proto_smb2);
+	if(!si){
+		/* no smb2_into_t structure for this conversation yet,
+		 * create it.
+		 */
+		si=se_alloc(sizeof(smb2_info_t));
+		/* qqq this leaks memory for now since we never free
+		   the hashtables */
+		si->matched= g_hash_table_new(smb2_saved_info_hash_matched,
+			smb2_saved_info_equal_matched);
+		si->unmatched= g_hash_table_new(smb2_saved_info_hash_unmatched,
+			smb2_saved_info_equal_unmatched);
+
+		conversation_add_proto_data(conversation, proto_smb2, si);
+	}
+	if(!pinfo->fd->flags.visited){
+		/* see if we can find this seqnum in the unmatched table */
+		ssi=g_hash_table_lookup(si->unmatched, &ssi_key);
+
+		if(!response){
+			/* This is a request */
+			if(ssi){
+				/* this is a request and we already found 
+				 * an older ssi so just delete the previous 
+				 * one 
+				 */
+				g_hash_table_remove(si->unmatched, ssi);
+				ssi=NULL;
+			}
+
+			if(!ssi){
+				/* no we couldnt find it, so just add it then
+				 * if was a request we are decoding 
+				 */
+				ssi=se_alloc(sizeof(smb2_saved_info_t));
+				ssi->seqnum=ssi_key.seqnum;
+				ssi->frame_req=pinfo->fd->num;
+				ssi->frame_res=0;
+				ssi->req_time=pinfo->fd->abs_ts;
+				g_hash_table_insert(si->unmatched, ssi, ssi);
+			}
+		} else {
+			/* This is a response */
+			if(ssi){
+				/* just  set the response frame and move it to the matched table */
+				ssi->frame_res=pinfo->fd->num;
+				g_hash_table_remove(si->unmatched, ssi);
+				g_hash_table_insert(si->matched, ssi, ssi);
+			}
+		}
+	} else {
+		/* see if we can find this seqnum in the matched table */
+		ssi=g_hash_table_lookup(si->matched, &ssi_key);
+	}
+
+	if(ssi){
+		if(!response){
+			if(ssi->frame_res){
+				proto_item *tmp_item;
+				tmp_item=proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0, ssi->frame_res);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
+			}
+		} else {
+			if(ssi->frame_req){
+				proto_item *tmp_item;
+				nstime_t t, deltat;
+
+				tmp_item=proto_tree_add_uint(header_tree, hf_smb2_response_to, tvb, 0, 0, ssi->frame_req);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
+				t = pinfo->fd->abs_ts;
+				nstime_delta(&deltat, &t, &ssi->req_time);
+				tmp_item=proto_tree_add_time(header_tree, hf_smb2_time, tvb,
+				    0, 0, &deltat);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
+			}
+		}
+	}
+	/* if we dont have ssi yet we must fake it */
+	/*qqq*/
+
 	/* Decode the payload */
-	dissect_smb2_command(pinfo, tree, tvb, offset, cmd, response);
+	dissect_smb2_command(pinfo, tree, tvb, offset, cmd, response, ssi);
 }
 
 static gboolean
@@ -828,6 +1000,15 @@ proto_register_smb2(void)
 	{ &hf_smb2_cmd,
 		{ "Command", "smb2.cmd", FT_UINT16, BASE_DEC,
 		VALS(smb2_cmd_vals), 0, "SMB2 Command Opcode", HFILL }},
+	{ &hf_smb2_response_to,
+		{ "Response to", "smb2.response_to", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
+	{ &hf_smb2_response_in,
+		{ "Response in", "smb2.response_in", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "The response to this packet is in this packet", HFILL }},
+	{ &hf_smb2_time,
+		{ "Time from request", "smb2.time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0, "Time between Request and Response for SMB2 cmds", HFILL }},
 	{ &hf_smb2_header_len,
 		{ "Header Length", "smb2.header_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "SMB2 Size of Header", HFILL }},
