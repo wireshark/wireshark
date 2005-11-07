@@ -36,6 +36,7 @@
 #include "packet-dcerpc.h"
 #include "packet-ntlmssp.h"
 #include "packet-windows-common.h"
+#include "packet-smb-common.h"
 
 
 
@@ -55,7 +56,8 @@ static int hf_smb2_flags_response = -1;
 static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
 static int hf_smb2_unknown = -1;
-
+static int hf_smb2_tree_len = -1;
+static int hf_smb2_tree = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
@@ -197,11 +199,36 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int
 dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, FALSE);
-	offset += 8;
+	int tree_len;
+	const char *name;
+	guint16 bc;
 
-/*qqq*/
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
+	offset += 6;
+
+	/* tree name length */
+	tree_len=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_tree_len, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* tree name */
+	bc=tvb_length_remaining(tvb, offset);
+	name = get_unicode_or_ascii_string(tvb, &offset,
+		TRUE, &tree_len, TRUE, TRUE, &bc);
+	if(name){
+		proto_tree_add_string(tree, hf_smb2_tree, tvb,
+			offset, tree_len, name);
+	}
+	offset += tree_len;
+
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree:%s",
+			name);
+	}
+
+
 	return offset;
 }
 
@@ -1033,6 +1060,14 @@ proto_register_smb2(void)
 	{ &hf_smb2_flags_response,
 		{ "Response", "smb2.flags.response", FT_BOOLEAN, 8,
 		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
+	{ &hf_smb2_tree_len,
+		{ "Tree Name Length", "smb2.tree.name_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of the Tree name", HFILL }},
+
+	{ &hf_smb2_tree,
+		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of the Tree/Share", HFILL }},
+
 	{ &hf_smb2_security_blob_len,
 		{ "Security Blob Length", "smb2.security_blob_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Security blob length", HFILL }},
