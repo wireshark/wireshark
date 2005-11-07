@@ -42,6 +42,15 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 
+#if GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)
+#include <glib/gstdio.h>	/* available since GLib 2.6 only! */
+
+/* GLib2.6 or above, using new wrapper functions */
+#define eth_mkstemp g_mkstemp
+#else
+#define eth_mkstemp mkstemp
+#endif
+
 /*
  * This has to come after the include of <pcap.h>, as the include of
  * <pcap.h> might cause <winsock2.h> to be included, and if we've

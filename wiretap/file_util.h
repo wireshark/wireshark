@@ -46,7 +46,6 @@ extern "C" {
 #include <glib/gstdio.h>	/* available since GLib 2.6 only! */
 
 /* GLib2.6 or above, using new wrapper functions */
-#define eth_mkstemp g_mkstemp
 #define eth_open	g_open
 #define eth_rename	g_rename
 #define eth_mkdir	g_mkdir
@@ -69,8 +68,6 @@ extern "C" {
 #define eth_unlink	unlink
 #endif
 
-#include "mkstemp.h"
-#define eth_mkstemp mkstemp
 #define eth_rename	rename
 #define eth_mkdir	mkdir
 #define eth_remove	remove
