@@ -165,7 +165,7 @@ plugins_scan_dir(const char *dirname)
     }
 #endif
 
-    if ((dir = g_dir_open(dirname, 0, NULL)) != NULL)
+    if ((dir = eth_dir_open(dirname, 0, NULL)) != NULL)
     {
     while ((file = eth_dir_read_name(dir)) != NULL)
 	{

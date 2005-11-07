@@ -51,7 +51,7 @@
 
 #include <glib.h>
 
-#include "file_util.h"
+#include <wiretap/file_util.h>
 #include "globals.h"
 
 #include <epan/filesystem.h>
@@ -259,7 +259,7 @@ fileset_add_dir(const char *fname)
     /* is the current file probably a part of any fileset? */
     if(fileset_filename_match_pattern(fname)) {
         /* yes, go through the files in the directory and check if the file in question is part of the current file set */
-        if ((dir = g_dir_open(dirname->str, 0, NULL)) != NULL) {
+        if ((dir = eth_dir_open(dirname->str, 0, NULL)) != NULL) {
 	        while ((file = eth_dir_read_name(dir)) != NULL) {
 	            name = eth_dir_get_name(file);
                 if(fileset_filename_match_pattern(name) && fileset_is_file_in_set(name, get_basename(fname))) {
