@@ -696,8 +696,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int offset=0;
 	int old_offset;
 	guint8 cmd, response;
-	guint32 header_len;
-	guint16 nt_status;
+	guint16 header_len;
+	guint32 nt_status;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
@@ -788,9 +788,15 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			decode_smb2_name(cmd),
 			response?"Response":"Request");
+		if(nt_status){
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, ", Error: %s",
+				val_to_str(nt_status, NT_errors,
+				"Unknown (0x%08X)"));
+		}
 	}
 
 	/* Decode the payload */
