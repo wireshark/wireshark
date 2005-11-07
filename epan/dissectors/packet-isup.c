@@ -2009,7 +2009,8 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 
 			switch ( cc & 0x0f00 ) {
 		
-			case 0x0 : cc_length = 1;	
+			case 0x0 :
+				cc_length = 1;	
 				break;
 
 			case 0x0100 : cc_length = 1;	
@@ -2017,55 +2018,65 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 
 			case 0x0200 : 
 				switch ( cc & 0x00f0 ) {
-				case 0 : 
-				case 7 : cc_length = 2;	
-					break;
-				default : cc_length = 3;
-				}
+					case 0 : 
+					case 7 : 
+						cc_length = 2;	
+						break;
+					default : 
+						cc_length = 3;
+						break;
+					}
 				break;
 				
-			case 0x0300 : 
+			case 0x0300 :
 				switch ( cc & 0x00f0 ) {
-				case 0 : 
-				case 1 : 
-				case 2 : 
-				case 3 : 
-				case 4 : 
-				case 6 : 
-				case 9 : cc_length = 2;
-					break;	
-				default : cc_length = 3;
-					break;
+					case 0 : 
+					case 0x10 : 
+					case 0x20 : 
+					case 0x30 : 
+					case 0x40 : 
+					case 0x60 : 
+					case 0x90 : 
+						cc_length = 2;
+						break;	
+					default :
+						cc_length = 3;
+						break;
 				}
 				break;
-
 			case 0x0400 : 
 				switch ( cc & 0x00f0 ) {
-				case 2 : cc_length = 3;
-					break;	
-				default : cc_length = 2;
+					case 0x20 :
+						cc_length = 3;
+						break;	
+				default :
+					cc_length = 2;
 					break;
 				}
 				break;
 
 			case 0x0500 : 
 				switch ( cc & 0x00f0 ) {
-				case 0 : 
-				case 9 : cc_length = 3;
-					break;	
-				default : cc_length = 2;
+					case 0 : 
+					case 0x90 :
+						cc_length = 3;
+						break;	
+				default :
+					cc_length = 2;
 					break;
 				}
 				break;
 
 			case 0x0600 : 
 				switch ( cc & 0x00f0 ) {
-				case 7 : 
-				case 8 : 
-				case 9 : cc_length = 3; 
-					break;	
-				default : cc_length = 2;
-					break;
+					case 0x70 : 
+					case 0x80 : 
+					case 0x90 :
+						cc_length = 3; 
+						break;	
+					default :
+						cc_length = 2;
+						break;
 				}
 				break;
 
@@ -2074,41 +2085,47 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 
 			case 0x0800 : 
 				switch ( cc & 0x00f0 ) {
-				case 1 : 
-				case 2 : 
-				case 4 :  
-				case 6 : cc_length = 2; 
-					break;	
-				default : cc_length = 3;
+					case 0x10: 
+					case 0x20: 
+					case 0x40: 
+					case 0x60:
+						cc_length = 2; 
+						break;	
+				default :
+					cc_length = 3;
 					break;
 				}
 				break;
 
 			case 0x0900 : 
 				switch ( cc & 0x00f0 ) {
-				case 0 : 
-				case 1 : 
-				case 2 :  
-				case 3 :  
-				case 4 :  
-				case 5 :  
-				case 8 : cc_length = 2; 
-					break;	
-				default : cc_length = 3;
-					break;
+					case 0 : 
+					case 0x10 : 
+					case 0x20 :  
+					case 0x30 :  
+					case 0x40 :  
+					case 0x50 :  
+					case 0x80 : 
+						cc_length = 2; 
+						break;	
+					default : 
+						cc_length = 3;
+						break;
 				}
 				break;
 
-			default: ;
+			default: 
+				break;
 			}/* End switch cc */
 			switch ( cc_length ) {
 			case 0x1 :	cc = cc >> 8;
-					length = 1;
+				length = 1;
 				break;
 			case 0x2 :	cc = cc >> 4;
-					length = 1;
+				length = 1;
 				break;
-			default:	length = 2;
+			default:
+				length = 2;
 				break;
 			}/* end switch cc_length */
 			proto_tree_add_text(parameter_tree,parameter_tvb, cc_offset, length,"Country Code: %x %s length %u",cc,
