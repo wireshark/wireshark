@@ -99,23 +99,54 @@
 
 #include <errno.h>
 #include <stdio.h>
+#ifdef HAVE_LIBZ
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif /* HAVE_FCNTL_H */
+#include <string.h>
+#endif /* HAVE_LIBZ */
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "file_util.h"
 
+#ifdef HAVE_LIBZ
 FILE_T
-file_open(const char *path, int oflag, const char *mode)
+file_open(const char *path, const char *mode)
 {
 	int fd;
 	FILE_T ft;
+	int oflag;
 
+	if (*mode == 'r') {
+		if (strchr(mode + 1, '+') != NULL)
+			oflag = O_RDWR;
+		else
+			oflag = O_RDONLY;
+	} else if (*mode == 'w') {
+		if (strchr(mode + 1, '+') != NULL)
+			oflag = O_RDWR|O_CREAT|O_TRUNC;
+		else
+			oflag = O_RDONLY|O_CREAT|O_TRUNC;
+	} else if (*mode == 'a') {
+		if (strchr(mode + 1, '+') != NULL)
+			oflag = O_RDWR|O_APPEND;
+		else
+			oflag = O_RDONLY|O_APPEND;
+	} else {
+		errno = EINVAL;
+		return NULL;
+	}
+#ifdef _WIN32
+	if (strchr(mode + 1, 'b') != NULL)
+		oflag |= O_BINARY;
+#endif
 	/* open file and do correct filename conversions */
-	if( (fd = eth_open( path, oflag, 0000 /* no creation so don't matter */)) == NULL )
-      return NULL;
+	if ((fd = eth_open(path, oflag, 0666)) == -1)
+		return NULL;
 
 	/* open zlib file handle */
-	ft = gzdopen(fd, mode );
-	if(ft == NULL) {
+	ft = gzdopen(fd, mode);
+	if (ft == NULL) {
 		eth_close(fd);
 		return NULL;
 	}
@@ -123,8 +154,6 @@ file_open(const char *path, int oflag, const char *mode)
 	return ft;
 }
 
-
-#ifdef HAVE_LIBZ
 long
 file_seek(void *stream, long offset, int whence, int *err)
 {

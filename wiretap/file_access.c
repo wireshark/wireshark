@@ -254,7 +254,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	}
 
 	if (do_random) {
-		if (!(wth->random_fh = file_open(filename, O_RDONLY|O_BINARY, "rb"))) {
+		if (!(wth->random_fh = file_open(filename, "rb"))) {
 			*err = errno;
 			file_close(wth->fh);
 			g_free(wth);
