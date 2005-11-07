@@ -273,7 +273,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       }
       return -1;
     }
-    fd = eth _open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
+    fd = eth_open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
     if (fd == -1) {
       g_snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
