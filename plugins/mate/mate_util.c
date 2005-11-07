@@ -27,7 +27,7 @@
 
 #include "mate.h"
 #include "mate_util.h"
-#include "file_util.h"
+#include <wiretap/file_util.h>
 
 /***************************************************************************
 *  dbg_print

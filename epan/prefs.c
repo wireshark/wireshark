@@ -45,7 +45,7 @@
 #include <epan/proto.h>
 #include <epan/column.h>
 #include "print.h"
-#include "file_util.h"
+#include <wiretap/file_util.h>
 
 #include <epan/prefs-int.h>
 

@@ -117,7 +117,7 @@
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
 #include "filesystem.h"
-#include "file_util.h"
+#include <wiretap/file_util.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
 

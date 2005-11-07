@@ -49,7 +49,7 @@
 #endif
 
 #include "filesystem.h"
-#include "file_util.h"
+#include <wiretap/file_util.h>
 #include "report_err.h"
 
 /* linked list of all plugins */

@@ -37,6 +37,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
@@ -46,7 +50,7 @@
 #endif
 
 #include "filesystem.h"
-#include "file_util.h"
+#include <wiretap/file_util.h>
 
 /*
  * Given a pathname, return a pointer to the last pathname separator

@@ -83,7 +83,7 @@
 #include <epan/report_err.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>
-#include "file_util.h"
+#include <wiretap/file_util.h>
 
 #ifdef DISSECTOR_WITH_GUI
 #include <gtk/gtk.h>
