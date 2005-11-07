@@ -35,13 +35,19 @@
 
 #include "packet-dcerpc.h"
 #include "packet-ntlmssp.h"
+#include "packet-windows-common.h"
 
 
 
 static int proto_smb2 = -1;
 static int hf_smb2_cmd = -1;
-static int hf_smb2_mpxid = -1;
+static int hf_smb2_nt_status = -1;
+static int hf_smb2_header_len = -1;
+static int hf_smb2_seqnum = -1;
+static int hf_smb2_pid = -1;
 static int hf_smb2_tid = -1;
+static int hf_smb2_uid = -1;
+static int hf_smb2_suid = -1;
 static int hf_smb2_flags_response = -1;
 static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
@@ -49,6 +55,7 @@ static int hf_smb2_unknown = -1;
 
 
 static gint ett_smb2 = -1;
+static gint ett_smb2_header = -1;
 static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
 
@@ -129,9 +136,9 @@ const value_string smb2_cmd_vals[] = {
   { 0x01, "SessionSetupAndX" },
   { 0x02, "unknown-0x02" },
   { 0x03, "TreeConnectAndX" },
-  { 0x04, "unknown-0x04" },
-  { 0x05, "unknown-0x05" },
-  { 0x06, "unknown-0x06" },
+  { 0x04, "TreeDisconnect" },
+  { 0x05, "Create" },
+  { 0x06, "Close" },
   { 0x07, "unknown-0x07" },
   { 0x08, "unknown-0x08" },
   { 0x09, "unknown-0x09" },
@@ -139,10 +146,10 @@ const value_string smb2_cmd_vals[] = {
   { 0x0B, "unknown-0x0B" },
   { 0x0C, "unknown-0x0C" },
   { 0x0D, "unknown-0x0D" },
-  { 0x0E, "unknown-0x0E" },
+  { 0x0E, "Find" },
   { 0x0F, "unknown-0x0F" },
-  { 0x10, "unknown-0x10" },
-  { 0x11, "unknown-0x11" },
+  { 0x10, "GetFileInfo" },
+  { 0x11, "SetFileInfo" },
   { 0x12, "unknown-0x12" },
   { 0x13, "unknown-0x13" },
   { 0x14, "unknown-0x14" },
@@ -684,8 +691,13 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	proto_item *header_item=NULL;
+	proto_tree *header_tree=NULL;
 	int offset=0;
+	int old_offset;
 	guint8 cmd, response;
+	guint32 header_len;
+	guint16 nt_status;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
@@ -700,52 +712,80 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_smb2);
 	}
 
+	if (tree) {
+		header_item = proto_tree_add_text(tree, tvb, offset, -1, "SMB2 Header");
+		header_tree = proto_item_add_subtree(header_item, ett_smb2_header);
+	}
+	old_offset=offset;
+
 	/* Decode the header */
 	/* SMB2 marker */
-	proto_tree_add_text(tree, tvb, offset, 4, "Server Component: SMB2");
-	offset += 4;  /* Skip the marker */
+	proto_tree_add_text(header_tree, tvb, offset, 4, "Server Component: SMB2");
+	offset += 4;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, FALSE);
-	offset += 8;
+	/* header length */
+	header_len=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(header_tree, hf_smb2_header_len, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* padding */
+	offset += 2;
+
+	/* Status Code */
+	nt_status=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, TRUE);
+	offset += 4;
+
 
 	/* CMD either 1 or two bytes*/
 	cmd=tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_cmd, tvb, offset, 1, FALSE);
-	offset += 1;
+	proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, TRUE);
+	offset += 2;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 3, FALSE);
-	offset += 3;
+	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 2, FALSE);
+	offset += 2;
 
 	/* flags */
 	response=tvb_get_guint8(tvb, offset)&SMB2_FLAGS_RESPONSE;
-	proto_tree_add_item(tree, hf_smb2_flags_response, tvb, offset, 1, FALSE);
+	proto_tree_add_item(header_tree, hf_smb2_flags_response, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 7, FALSE);
+	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 7, FALSE);
 	offset += 7;
 
-	/* Multiplex ID either 1 2 or 4 bytes*/
-	proto_tree_add_item(tree, hf_smb2_mpxid, tvb, offset, 1, FALSE);
-	offset += 1;
+	/* command sequence number*/
+	proto_tree_add_item(header_tree, hf_smb2_seqnum, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* Process ID */
+	proto_tree_add_item(header_tree, hf_smb2_pid, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* Tree ID */
+	proto_tree_add_item(header_tree, hf_smb2_tid, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* User ID */
+	proto_tree_add_item(header_tree, hf_smb2_uid, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* Secondary User ID */
+	proto_tree_add_item(header_tree, hf_smb2_suid, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 11, FALSE);
-	offset += 11;
-
-	/* Tree ID either 1 2 or 4 bytes*/
-	proto_tree_add_item(tree, hf_smb2_tid, tvb, offset, 1, FALSE);
-	offset += 1;
+	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
+	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 15, FALSE);
-	offset += 15;
-
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 12, FALSE);
+	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 12, FALSE);
 	offset += 12;
+
+	proto_item_set_len(header_item, offset-old_offset);
+
+
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
@@ -780,14 +820,29 @@ proto_register_smb2(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_smb2_cmd,
-		{ "Command", "smb2.cmd", FT_UINT8, BASE_DEC,
+		{ "Command", "smb2.cmd", FT_UINT16, BASE_DEC,
 		VALS(smb2_cmd_vals), 0, "SMB2 Command Opcode", HFILL }},
-	{ &hf_smb2_mpxid,
-		{ "Multiplex Id", "smb2.mpxid", FT_UINT8, BASE_DEC,
-		NULL, 0, "SMB2 Multiplex Id", HFILL }},
+	{ &hf_smb2_header_len,
+		{ "Header Length", "smb2.header_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "SMB2 Size of Header", HFILL }},
+	{ &hf_smb2_nt_status,
+		{ "NT Status", "smb2.nt_status", FT_UINT32, BASE_HEX,
+		VALS(NT_errors), 0, "NT Status code", HFILL }},
+	{ &hf_smb2_seqnum,
+		{ "Command Sequence Number", "smb2.seq_num", FT_UINT64, BASE_DEC,
+		NULL, 0, "SMB2 Command Sequence Number", HFILL }},
 	{ &hf_smb2_tid,
-		{ "Tree Id", "smb2.tid", FT_UINT8, BASE_DEC,
+		{ "Tree Id", "smb2.tid", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Tree Id", HFILL }},
+	{ &hf_smb2_uid,
+		{ "User Id", "smb2.uid", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 User Id", HFILL }},
+	{ &hf_smb2_suid,
+		{ "Secondary User Id", "smb2.suid", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 Secondary User Id", HFILL }},
+	{ &hf_smb2_pid,
+		{ "Process Id", "smb2.pid", FT_UINT32, BASE_HEX,
+		NULL, 0, "SMB2 Process Id", HFILL }},
 	{ &hf_smb2_flags_response,
 		{ "Response", "smb2.flags.response", FT_BOOLEAN, 8,
 		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
@@ -806,6 +861,7 @@ proto_register_smb2(void)
 
 	static gint *ett[] = {
 		&ett_smb2,
+		&ett_smb2_header,
 		&ett_smb2_command,
 		&ett_smb2_secblob,
 	};
