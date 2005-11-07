@@ -62,6 +62,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <epan/filesystem.h>
+#include <wiretap/file_util.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
