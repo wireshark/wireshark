@@ -58,6 +58,9 @@ static int hf_smb2_security_blob = -1;
 static int hf_smb2_unknown = -1;
 static int hf_smb2_tree_len = -1;
 static int hf_smb2_tree = -1;
+static int hf_smb2_search_len = -1;
+static int hf_smb2_search = -1;
+static int hf_smb2_find_response_size = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
@@ -197,7 +200,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 static int
-dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	int tree_len;
 	const char *name;
@@ -229,6 +232,69 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	}
 
 
+	return offset;
+}
+
+
+static int
+dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	int search_len;
+	const char *name;
+	guint16 bc;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 10, TRUE);
+	offset += 10;
+
+	/* search name length */
+	search_len=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_search_len, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* search pattern */
+	bc=tvb_length_remaining(tvb, offset);
+	name = get_unicode_or_ascii_string(tvb, &offset,
+		TRUE, &search_len, TRUE, TRUE, &bc);
+	if(name){
+		proto_tree_add_string(tree, hf_smb2_search, tvb,
+			offset, search_len, name);
+	}
+	offset += search_len;
+
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Pattern:%s",
+			name);
+	}
+
+
+	return offset;
+}
+
+static int
+dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	guint32 len;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* length of response data */
+	len=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_find_response_size, tvb, offset, 4, TRUE);
+	offset += 4;
+
+/*qqq*/
 	return offset;
 }
 
@@ -517,7 +583,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x0b */  {NULL, NULL},
   /* 0x0c */  {NULL, NULL},
   /* 0x0d */  {NULL, NULL},
-  /* 0x0e */  {NULL, NULL},
+  /* 0x0e Find*/  
+	{dissect_smb2_find_request,
+	 dissect_smb2_find_response},
   /* 0x0f */  {NULL, NULL},
   /* 0x10 */  {NULL, NULL},
   /* 0x11 */  {NULL, NULL},
@@ -1067,10 +1135,21 @@ proto_register_smb2(void)
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the Tree/Share", HFILL }},
+	{ &hf_smb2_search_len,
+		{ "Search Name Length", "smb2.search.name_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of the search pattern", HFILL }},
+
+	{ &hf_smb2_search,
+		{ "Search", "smb2.search", FT_STRING, BASE_NONE,
+		NULL, 0, "Search pattern", HFILL }},
 
 	{ &hf_smb2_security_blob_len,
 		{ "Security Blob Length", "smb2.security_blob_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Security blob length", HFILL }},
+
+	{ &hf_smb2_find_response_size,
+		{ "Size of Find Data", "smb2.find.response_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "Size of returned Find data", HFILL }},
 
 	{ &hf_smb2_security_blob,
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
