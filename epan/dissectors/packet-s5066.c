@@ -1,7 +1,7 @@
 /* packet-s5066.c
  * Routines for STANAG 5066 SIS layer packet disassembly
  *
- * $Id: $
+ * $Id$
  *
  * Copyright (c) 2005 by Menno Andriesse <s5066 [AT] nc3a.nato.int>
  *
@@ -82,7 +82,7 @@ static gboolean s5066_desegment = TRUE;
 /* Dissect old 'edition 1' of STANAG 5066 (It lacks the 'version' field.) */
 static gboolean s5066_edition_one = FALSE;
 /* This port is registered with IANA */
-static gint global_s5066_port = 5066; 
+static gint global_s5066_port = 5066;
 /* Size of header outside 'size' field */
 static gint s5066_header_size = 5;
 /* Offset of 'size' field */
@@ -131,14 +131,14 @@ static const value_string s5066_pdu_type[] = {
 /* STANAG 5066 Address */
 /* Size is defined in nibbles (4 bits) */
 static gint hf_s5066_ad_size = -1;
-/* Group flag: 0 = false, 1 = true */ 
-static gint hf_s5066_ad_group = -1; 
+/* Group flag: 0 = false, 1 = true */
+static gint hf_s5066_ad_group = -1;
 /* The remainder of the 4 bytes form the address */
-static gint hf_s5066_ad_address = -1; 
+static gint hf_s5066_ad_address = -1;
 
 /* Service type */
 /* Transmission mode: */
-static gint hf_s5066_st_txmode = -1; 
+static gint hf_s5066_st_txmode = -1;
 static const value_string s5066_st_txmode[] = {
 	{ 0, "Ignore service type field"},
 	{ 1, "ARQ"},
@@ -159,7 +159,7 @@ static const value_string s5066_st_txmode[] = {
 	{ 0, NULL },
 };
 /* Delivery confirmation: */
-static gint hf_s5066_st_delivery_confirmation = -1; 
+static gint hf_s5066_st_delivery_confirmation = -1;
 static const value_string s5066_st_delivery_confirmation[] = {
 	{ 0, "No confirmation"},
 	{ 1, "Node delivery confirmation"},
@@ -168,21 +168,21 @@ static const value_string s5066_st_delivery_confirmation[] = {
 	{ 0, NULL },
 };
 /* Delivery order: */
-static gint hf_s5066_st_delivery_order = -1; 
+static gint hf_s5066_st_delivery_order = -1;
 static const value_string s5066_st_delivery_order[] = {
 	{ 0, "In-order delivery"},
 	{ 1, "As-they-arrive"},
 	{ 0, NULL },
 };
 /* Extended field present: (Never in the current version.) */
-static gint hf_s5066_st_extended = -1; 
+static gint hf_s5066_st_extended = -1;
 static const value_string s5066_st_extended[] = {
 	{ 0, "No extended field"},
 	{ 1, "Extended field follows"},
 	{ 0, NULL },
 };
 /* Number of retransmissions when in Non-ARQ: */
-static gint hf_s5066_st_retries = -1; 
+static gint hf_s5066_st_retries = -1;
 
 /* Type  1: S_BIND_REQUEST */
 static gint hf_s5066_01_sapid = -1;
@@ -333,7 +333,7 @@ static const value_string s5066_14_reason[] = {
 
 /* Type 18: S_MANAGEMENT_MESSAGE_REQUEST */
 static gint hf_s5066_18_type = -1;
-static gint hf_s5066_18_body = -1; 
+static gint hf_s5066_18_body = -1;
 
 /* Type 19: S_MANAGEMENT_MESSAGE_INDICATION */
 static gint hf_s5066_19_type = -1;
@@ -354,7 +354,7 @@ static gint hf_s5066_21_tx_mode = -1;
 static gint hf_s5066_21_src_sapid = -1;
 static gint hf_s5066_21_size = -1;
 static gint hf_s5066_21_err_blocks = -1;
-static gint hf_s5066_21_nrx_blocks = -1; 
+static gint hf_s5066_21_nrx_blocks = -1;
 
 
 /* Type 22: S_UNIDATA_REQUEST_CONFIRM */
@@ -393,7 +393,7 @@ static gint hf_s5066_25_tx_mode = -1;
 static gint hf_s5066_25_src_sapid = -1;
 static gint hf_s5066_25_size = -1;
 static gint hf_s5066_25_err_blocks = -1;
-static gint hf_s5066_25_nrx_blocks = -1; 
+static gint hf_s5066_25_nrx_blocks = -1;
 
 /* Type 26: S_EXPEDITED_UNIDATA_REQUEST_CONFIRM */
 static gint hf_s5066_26_unused = -1;
@@ -446,7 +446,7 @@ proto_register_s5066(void)
 			{ "Group address", "s5066.address.group", FT_UINT8, BASE_HEX, NULL, 0x10, "", HFILL }
 		},
 		{ &hf_s5066_ad_address,
-			{ "Address", "s5066.address.address", FT_IPv4, BASE_NONE, NULL, 0x1FFFFFFF, "", HFILL }
+			{ "Address", "s5066.address.address", FT_IPv4, BASE_NONE, NULL, 0, "", HFILL }
 		},
 		/* Service type */
 		{ &hf_s5066_st_txmode,
@@ -686,7 +686,7 @@ proto_register_s5066(void)
 		{ &hf_s5066_25_unused,
 			{ "(Unused)", "s5066.25.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
 		},
-		{ &hf_s5066_25_dest_sapid, 
+		{ &hf_s5066_25_dest_sapid,
 			{ "Destination Sap ID", "s5066.25.dest_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
 		},
 		{ &hf_s5066_25_tx_mode,
@@ -749,7 +749,7 @@ proto_register_s5066(void)
 			"STANAG 5066",			/* short name*/
 			"s5066"				/* abbrev */
 		);
-		proto_register_field_array(proto_s5066, hf, array_length(hf));	
+		proto_register_field_array(proto_s5066, hf, array_length(hf));
 		proto_register_subtree_array(ett, array_length(ett));
 	}
 
@@ -788,7 +788,7 @@ proto_reg_handoff_s5066(void)
 	}
 }
 
-static guint 
+static guint
 dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source)
 {
         proto_item *ti = NULL;
@@ -811,7 +811,7 @@ dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source
 	return offset += 4;
 }
 
-static guint 
+static guint
 dissect_s5066_servicetype(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
         proto_item *ti = NULL;
@@ -830,7 +830,7 @@ dissect_s5066_servicetype(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_BIND_REQUEST */
-static guint 
+static guint
 dissect_s5066_01(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_01_sapid, tvb, offset, 1, FALSE);
@@ -844,7 +844,7 @@ dissect_s5066_01(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 /* S_UNBIND_REQUEST */
 /* Commented out: does nothing and causes <variable not used> messages.
-static guint 
+static guint
 dissect_s5066_02(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	return offset;
@@ -852,7 +852,7 @@ dissect_s5066_02(tvbuff_t *tvb, guint offset, proto_tree *tree)
 */
 
 /* S_BIND_ACCEPTED */
-static guint 
+static guint
 dissect_s5066_03(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_03_sapid, tvb, offset, 1, FALSE);
@@ -862,7 +862,7 @@ dissect_s5066_03(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_BIND_REJECTED */
-static guint 
+static guint
 dissect_s5066_04(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_04_reason, tvb, offset, 1, FALSE); offset++;
@@ -870,7 +870,7 @@ dissect_s5066_04(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_UNBIND_INDICATION */
-static guint 
+static guint
 dissect_s5066_05(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_05_reason, tvb, offset, 1, FALSE); offset++;
@@ -878,7 +878,7 @@ dissect_s5066_05(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_ESTABLISH */
-static guint 
+static guint
 dissect_s5066_06(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_06_link_type, tvb, offset, 1, FALSE);
@@ -889,7 +889,7 @@ dissect_s5066_06(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_TERMINATE */
-static guint 
+static guint
 dissect_s5066_07(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	offset = dissect_s5066_address(tvb, offset, tree, FALSE);
@@ -897,7 +897,7 @@ dissect_s5066_07(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_ESTABLISHED */
-static guint 
+static guint
 dissect_s5066_08(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_08_remote_status, tvb, offset, 1, FALSE); offset++;
@@ -909,7 +909,7 @@ dissect_s5066_08(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_REJECTED */
-static guint 
+static guint
 dissect_s5066_09(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_09_reason, tvb, offset, 1, FALSE); offset++;
@@ -921,7 +921,7 @@ dissect_s5066_09(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_TERMINATED */
-static guint 
+static guint
 dissect_s5066_10(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_10_reason, tvb, offset, 1, FALSE); offset++;
@@ -933,7 +933,7 @@ dissect_s5066_10(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_INDICATION */
-static guint 
+static guint
 dissect_s5066_11(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_11_remote_status, tvb, offset, 1, FALSE); offset++;
@@ -945,7 +945,7 @@ dissect_s5066_11(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_ACCEPT */
-static guint 
+static guint
 dissect_s5066_12(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_12_link_type, tvb, offset, 1, FALSE);
@@ -956,7 +956,7 @@ dissect_s5066_12(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_HARD_LINK_REJECT */
-static guint 
+static guint
 dissect_s5066_13(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_13_reason, tvb, offset, 1, FALSE); offset++;
@@ -968,7 +968,7 @@ dissect_s5066_13(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_SUBNET_AVAILABILITY */
-static guint 
+static guint
 dissect_s5066_14(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_14_status, tvb, offset, 1, FALSE); offset++;
@@ -979,7 +979,7 @@ dissect_s5066_14(tvbuff_t *tvb, guint offset, proto_tree *tree)
 /* Following three commented out: do nothing and cause <variable not used> messages. */
 /* S_DATA_FLOW_ON */
 /*
-static guint 
+static guint
 dissect_s5066_15(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	return offset;
@@ -988,7 +988,7 @@ dissect_s5066_15(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 /* S_DATA_FLOW_OFF */
 /*
-static guint 
+static guint
 dissect_s5066_16(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	return offset;
@@ -997,7 +997,7 @@ dissect_s5066_16(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 /* S_KEEP_ALIVE */
 /*
-static guint 
+static guint
 dissect_s5066_17(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	return offset;
@@ -1005,29 +1005,30 @@ dissect_s5066_17(tvbuff_t *tvb, guint offset, proto_tree *tree)
 */
 
 /* S_MANAGEMENT_MESSAGE_REQUEST */
-static guint 
+static guint
 dissect_s5066_18(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 {
 	guint body_size = 0;
 	proto_tree_add_item(tree, hf_s5066_18_type, tvb, offset, 1, FALSE); offset++;
 	body_size = pdu_size - offset;
-	proto_tree_add_bytes(tree, hf_s5066_18_body, tvb, offset, body_size, FALSE); offset += body_size; 
+	proto_tree_add_bytes(tree, hf_s5066_18_body, tvb, offset, body_size, tvb_get_ptr(tvb, offset, body_size)); offset += body_size;
 	return offset;
 }
 
 /* S_MANAGEMENT_MESSAGE_INDICATION */
-static guint 
+static guint
 dissect_s5066_19(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 {
 	guint body_size = 0;
+	guint avail_length = tvb_length(tvb);
 	proto_tree_add_item(tree, hf_s5066_19_type, tvb, offset, 1, FALSE); offset++;
 	body_size = pdu_size - offset;
-	proto_tree_add_bytes(tree, hf_s5066_19_body, tvb, offset, body_size, FALSE); offset += body_size;
+	proto_tree_add_bytes(tree, hf_s5066_19_body, tvb, offset, body_size, tvb_get_ptr(tvb, offset, body_size)); offset += body_size;
 	return offset;
 }
 
 /* S_UNIDATA_REQUEST */
-static guint 
+static guint
 dissect_s5066_20(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_20_priority, tvb, offset, 1, FALSE);
@@ -1041,7 +1042,7 @@ dissect_s5066_20(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_UNIDATA_INDICATION */
-static guint 
+static guint
 dissect_s5066_21(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 {
 	proto_item *ti = NULL;
@@ -1072,7 +1073,7 @@ dissect_s5066_21(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 }
 
 /* S_UNIDATA_REQUEST_CONFIRM */
-static guint 
+static guint
 dissect_s5066_22(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint pdu_size = 0;
@@ -1087,7 +1088,7 @@ dissect_s5066_22(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_UNIDATA_REQUEST_REJECTED */
-static guint 
+static guint
 dissect_s5066_23(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint pdu_size = 0;
@@ -1102,7 +1103,7 @@ dissect_s5066_23(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_EXPEDITED_UNIDATA_REQUEST */
-static guint 
+static guint
 dissect_s5066_24(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_s5066_24_unused, tvb, offset, 1, FALSE);
@@ -1116,7 +1117,7 @@ dissect_s5066_24(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_EXPEDITED_UNIDATA_INDICATION */
-static guint 
+static guint
 dissect_s5066_25(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 {
 	proto_item *ti = NULL;
@@ -1149,7 +1150,7 @@ dissect_s5066_25(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 }
 
 /* S_EXPEDITED_UNIDATA_REQUEST_CONFIRM */
-static guint 
+static guint
 dissect_s5066_26(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint pdu_size = 0;
@@ -1164,7 +1165,7 @@ dissect_s5066_26(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* S_EXPEDITED_UNIDATA_REQUEST_REJECTED */
-static guint 
+static guint
 dissect_s5066_27(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint pdu_size = 0;
@@ -1215,7 +1216,8 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti_s5066 = NULL;
 	proto_item *ti_pdu = NULL;
 	tvbuff_t *next_tvb;
-	gint available_length, reported_length;
+	gint available_length = 0;
+	gint reported_length = 0;
 
 	/* Determine PDU type to display in INFO column */
 	guint8 pdu_type = tvb_get_guint8(tvb, s5066_header_size);
@@ -1225,7 +1227,7 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	/* Clear out stuff in the info column, the add PDU type */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO); 
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "PDU type %s", val_to_str(pdu_type, s5066_pdu_type, "Unknown (0x%02x)"));
@@ -1285,8 +1287,8 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	available_length = tvb_length(tvb) - offset;
 
 	next_tvb = tvb_new_subset(tvb, offset, MIN(available_length, reported_length), reported_length);
-	call_dissector(data_handle, next_tvb, pinfo, tree); 
-	
+	call_dissector(data_handle, next_tvb, pinfo, tree);
+
 	return;
 }
 
