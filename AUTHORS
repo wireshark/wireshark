@@ -2411,6 +2411,11 @@ Menno Andriesse		<s5066 [AT] nc3a.nato.int> {
 	STANAG 5066 support
 }
 
+Stig Bjørlykke		<stig [AT] bjorlykke.org> {
+	http://www.jcs.mil/j6/cceb/acps/Acp142.pdf
+	 P_Mul (ACP142) packet disassembly
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
