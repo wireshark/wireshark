@@ -1011,7 +1011,7 @@ dissect_s5066_18(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 	guint body_size = 0;
 	proto_tree_add_item(tree, hf_s5066_18_type, tvb, offset, 1, FALSE); offset++;
 	body_size = pdu_size - offset;
-	proto_tree_add_bytes(tree, hf_s5066_18_body, tvb, offset, body_size, tvb_get_ptr(tvb, offset, body_size)); offset += body_size;
+	proto_tree_add_item(tree, hf_s5066_18_body, tvb, offset, body_size, FALSE); offset += body_size;
 	return offset;
 }
 
@@ -1020,10 +1020,9 @@ static guint
 dissect_s5066_19(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 {
 	guint body_size = 0;
-	guint avail_length = tvb_length(tvb);
 	proto_tree_add_item(tree, hf_s5066_19_type, tvb, offset, 1, FALSE); offset++;
 	body_size = pdu_size - offset;
-	proto_tree_add_bytes(tree, hf_s5066_19_body, tvb, offset, body_size, tvb_get_ptr(tvb, offset, body_size)); offset += body_size;
+	proto_tree_add_item(tree, hf_s5066_19_body, tvb, offset, body_size, FALSE); offset += body_size;
 	return offset;
 }
 
@@ -1082,7 +1081,7 @@ dissect_s5066_22(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset = dissect_s5066_address(tvb, offset, tree, FALSE);
 	pdu_size = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_s5066_22_size, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_bytes(tree, hf_s5066_22_data, tvb, offset, pdu_size, tvb_get_ptr(tvb, offset, pdu_size)); offset += pdu_size;
+	proto_tree_add_item(tree, hf_s5066_22_data, tvb, offset, pdu_size, FALSE); offset += pdu_size;
 
 	return offset;
 }
@@ -1097,7 +1096,7 @@ dissect_s5066_23(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset = dissect_s5066_address(tvb, offset, tree, FALSE);
 	pdu_size = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_s5066_23_size, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_bytes(tree, hf_s5066_23_data, tvb, offset, pdu_size, tvb_get_ptr(tvb, offset, pdu_size)); offset += pdu_size;
+	proto_tree_add_item(tree, hf_s5066_23_data, tvb, offset, pdu_size, FALSE); offset += pdu_size;
 
 	return offset;
 }
@@ -1159,7 +1158,7 @@ dissect_s5066_26(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset = dissect_s5066_address(tvb, offset, tree, FALSE);
 	pdu_size = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_s5066_26_size, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_bytes(tree, hf_s5066_26_data, tvb, offset, pdu_size, tvb_get_ptr(tvb, offset, pdu_size)); offset += pdu_size;
+	proto_tree_add_item(tree, hf_s5066_26_data, tvb, offset, pdu_size, FALSE); offset += pdu_size;
 
 	return offset;
 }
@@ -1174,7 +1173,7 @@ dissect_s5066_27(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset = dissect_s5066_address(tvb, offset, tree, FALSE);
 	pdu_size = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_s5066_27_size, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_bytes(tree, hf_s5066_27_data, tvb, offset, pdu_size, tvb_get_ptr(tvb, offset, pdu_size)); offset += pdu_size;
+	proto_tree_add_item(tree, hf_s5066_27_data, tvb, offset, pdu_size, FALSE); offset += pdu_size;
 
 	return offset;
 }
