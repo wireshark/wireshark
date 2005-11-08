@@ -1,6 +1,9 @@
 /* packet-smb2.c
  * Routines for smb2 packet dissection
  *
+ * See http://wiki.ethereal.com/SMB2  for documentation of
+ * this protocol.
+ *
  * $Id: packet-smb2.c 16113 2005-10-04 10:23:40Z guy $
  *
  * Ethereal - Network traffic analyzer
