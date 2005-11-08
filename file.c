@@ -446,14 +446,12 @@ cf_read(capture_file *cf)
     }
 
     if (stop_flag) {
-      /* Well, the user decided to abort the read.  Destroy the progress
-         bar, close the capture file, and return CF_READ_ABORTED so our caller
-	 can do whatever is appropriate when that happens. */
-      destroy_progress_dlg(progbar);
-      cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
-      packet_list_thaw();		/* undo our freeze */
-      cf_close(cf);
-      return CF_READ_ABORTED;
+      /* Well, the user decided to abort the read. He/She will be warned and 
+	    it might be enough for him/her to work with the already loaded packets. 
+		This is especially true for very large capture files, where you don't 
+		want to wait loading the whole file (which may last minutes or even 
+		hours even on fast machines) just to see that it was the wrong file. */
+      break;
     }
     read_packet(cf, data_offset);
   }
@@ -487,6 +485,18 @@ cf_read(capture_file *cf)
      packets by making the first row the selected row. */
   if (cf->first_displayed != NULL)
     packet_list_select_row(0);
+
+  if(stop_flag) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+          "%sFile loading was cancelled!%s\n"
+          "\n"
+		  "The remaining packets in the file were discarded.\n"
+          "\n"
+          "As a lot of packets from the original file will be missing,\n"
+		  "remember to be careful when saving the current content to a file.\n",
+          simple_dialog_primary_start(), simple_dialog_primary_end());
+    return CF_READ_ERROR;
+  }
 
   if (err != 0) {
     /* Put up a message box noting that the read failed somewhere along
