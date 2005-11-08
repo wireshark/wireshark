@@ -69,6 +69,10 @@ static int hf_smb2_search_len = -1;
 static int hf_smb2_search = -1;
 static int hf_smb2_find_response_size = -1;
 static int hf_smb2_server_guid = -1;
+static int hf_smb2_class = -1;
+static int hf_smb2_infolevel = -1;
+static int hf_smb2_max_response_size = -1;
+static int hf_smb2_response_size = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
@@ -78,6 +82,8 @@ static gint ett_smb2_secblob = -1;
 static dissector_handle_t gssapi_handle = NULL;
 
 typedef struct _smb2_saved_info_t {
+	guint8 class;
+	guint8 infolevel;
 	guint64 seqnum;
 	gboolean response; /* is this a response ? */
 	guint32 frame_req, frame_res;
@@ -351,6 +357,82 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 
 	offset += MIN(sbloblen,tvb_length_remaining(tvb, offset));
+	return offset;
+}
+
+static int
+dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	guint8 class, infolevel;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* class */
+	class=tvb_get_guint8(tvb, offset);
+	if(ssi){
+		ssi->class=class;
+	}
+	proto_tree_add_item(tree, hf_smb2_class, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* infolevel */
+	infolevel=tvb_get_guint8(tvb, offset);
+	if(ssi){
+		ssi->infolevel=infolevel;
+	}
+	proto_tree_add_item(tree, hf_smb2_infolevel, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* max response size */
+	proto_tree_add_item(tree, hf_smb2_max_response_size, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	return offset;
+}
+static int
+dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	guint8 class=0;
+	guint8 infolevel=0;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* class/infolevel */
+	if(ssi){
+		proto_item *item;
+
+		class=ssi->class;
+		item=proto_tree_add_uint(tree, hf_smb2_class, tvb, 0, 0, class);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		infolevel=ssi->infolevel;
+		item=proto_tree_add_uint(tree, hf_smb2_infolevel, tvb, 0, 0, infolevel);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+
+	/* response size */
+	proto_tree_add_item(tree, hf_smb2_response_size, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	switch(class){
+	default:
+		/* we dont handle this class yet */
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+		offset += tvb_length_remaining(tvb, offset);
+	}
+
 	return offset;
 }
 
@@ -645,7 +727,9 @@ static smb2_function smb2_dissector[256] = {
 	{dissect_smb2_find_request,
 	 dissect_smb2_find_response},
   /* 0x0f */  {NULL, NULL},
-  /* 0x10 */  {NULL, NULL},
+  /* 0x10 GetInfo*/  
+	{dissect_smb2_getinfo_request,
+	 dissect_smb2_getinfo_response},
   /* 0x11 */  {NULL, NULL},
   /* 0x12 */  {NULL, NULL},
   /* 0x13 */  {NULL, NULL},
@@ -1079,6 +1163,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				 * if was a request we are decoding 
 				 */
 				ssi=se_alloc(sizeof(smb2_saved_info_t));
+				ssi->class=0;
+				ssi->infolevel=0;
 				ssi->seqnum=ssi_key.seqnum;
 				ssi->frame_req=pinfo->fd->num;
 				ssi->frame_res=0;
@@ -1180,6 +1266,12 @@ proto_register_smb2(void)
 	{ &hf_smb2_suid,
 		{ "Secondary User Id", "smb2.suid", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Secondary User Id", HFILL }},
+	{ &hf_smb2_max_response_size,
+		{ "Max Response Size", "smb2.max_response_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 Maximum response size", HFILL }},
+	{ &hf_smb2_response_size,
+		{ "Response Size", "smb2.response_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 response size", HFILL }},
 	{ &hf_smb2_pid,
 		{ "Process Id", "smb2.pid", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Process Id", HFILL }},
@@ -1208,6 +1300,14 @@ proto_register_smb2(void)
 	{ &hf_smb2_find_response_size,
 		{ "Size of Find Data", "smb2.find.response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "Size of returned Find data", HFILL }},
+
+	{ &hf_smb2_class,
+		{ "Class", "smb2.class", FT_UINT8, BASE_HEX,
+		NULL, 0, "Info class", HFILL }},
+
+	{ &hf_smb2_infolevel,
+		{ "InfoLevel", "smb2.infolevel", FT_UINT8, BASE_HEX,
+		NULL, 0, "Infolevel", HFILL }},
 
 	{ &hf_smb2_security_blob,
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
