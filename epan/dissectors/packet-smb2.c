@@ -22,6 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#define MIN(x,y) ((x)<(y)?(x):(y))
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -56,11 +58,13 @@ static int hf_smb2_flags_response = -1;
 static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
 static int hf_smb2_unknown = -1;
+static int hf_smb2_unknown_timestamp = -1;
 static int hf_smb2_tree_len = -1;
 static int hf_smb2_tree = -1;
 static int hf_smb2_search_len = -1;
 static int hf_smb2_search = -1;
 static int hf_smb2_find_response_size = -1;
+static int hf_smb2_server_guid = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
@@ -295,6 +299,54 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 4;
 
 /*qqq*/
+	return offset;
+}
+
+static int
+dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	tvbuff_t *gssapi_tvb;
+	guint16 sbloblen;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* server GUID */
+	proto_tree_add_item(tree, hf_smb2_server_guid, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* unknown timestamp */
+	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_unknown_timestamp);
+	offset += 8;
+
+	/* unknown timestamp */
+	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_unknown_timestamp);
+	offset += 8;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* sec blob length */
+	sbloblen = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb2_security_blob_len, tvb, offset, 2, sbloblen);
+	offset += 2;
+	
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* security blob */
+	gssapi_tvb = tvb_new_subset(tvb, offset, MIN(sbloblen,tvb_length_remaining(tvb, offset)), sbloblen);
+	call_dissector(gssapi_handle, gssapi_tvb, pinfo, tree);
+
+
+	offset += MIN(sbloblen,tvb_length_remaining(tvb, offset));
 	return offset;
 }
 
@@ -565,7 +617,9 @@ static const char *decode_smb2_name(guint8 cmd)
 }
 
 static smb2_function smb2_dissector[256] = {
-  /* 0x00 */  {NULL, NULL},
+  /* 0x00 NegotiateProtocol*/  
+	{NULL,
+	 dissect_smb2_negotiate_protocol_response},
   /* 0x01 SessionSetup*/  
 	{dissect_smb2_session_setup_request, 
 	 dissect_smb2_session_setup_response},
@@ -1155,9 +1209,17 @@ proto_register_smb2(void)
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
 		NULL, 0, "Security blob", HFILL }},
 
+	{ &hf_smb2_server_guid, 
+	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE, 
+		NULL, 0, "Server GUID", HFILL }},
+
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
 		NULL, 0, "Unknown bytes", HFILL }},
+
+	{ &hf_smb2_unknown_timestamp,
+		{ "Timestamp", "smb2.unknown.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Unknown timestamp", HFILL }},
 	};
 
 	static gint *ett[] = {
