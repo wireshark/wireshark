@@ -63,6 +63,10 @@ static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
 static int hf_smb2_unknown = -1;
 static int hf_smb2_unknown_timestamp = -1;
+static int hf_smb2_create_timestamp = -1;
+static int hf_smb2_last_access_timestamp = -1;
+static int hf_smb2_last_write_timestamp = -1;
+static int hf_smb2_last_change_timestamp = -1;
 static int hf_smb2_tree_len = -1;
 static int hf_smb2_tree = -1;
 static int hf_smb2_search_len = -1;
@@ -73,13 +77,20 @@ static int hf_smb2_class = -1;
 static int hf_smb2_infolevel = -1;
 static int hf_smb2_max_response_size = -1;
 static int hf_smb2_response_size = -1;
+static int hf_smb2_file_info_12 = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
 static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
+static gint ett_smb2_file_info_12 = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
+
+#define SMB2_CLASS_FILE_INFO	0x01
+#define SMB2_CLASS_FS_INFO	0x02
+
+#define SMB2_FILE_INFO_12	0x12
 
 typedef struct _smb2_saved_info_t {
 	guint8 class;
@@ -155,6 +166,38 @@ static const true_false_string tfs_flags_response = {
 	"This is a RESPONSE",
 	"This is a REQUEST"
 };
+
+
+
+static int
+dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_12, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_info_12);
+	}
+
+	/* create time */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+
+	/* last access */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+
+	/* last write */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+
+	/* last change */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+	offset += tvb_length_remaining(tvb, offset);
+
+	return offset;
+}
 
 
 static int
@@ -404,6 +447,7 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
 	guint8 class=0;
 	guint8 infolevel=0;
+	guint32 response_size;
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
@@ -423,15 +467,28 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	}
 
 	/* response size */
+	response_size=tvb_get_letohl(tvb,offset);
 	proto_tree_add_item(tree, hf_smb2_response_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	switch(class){
+	case SMB2_CLASS_FILE_INFO:
+		switch(infolevel){
+		case SMB2_FILE_INFO_12:
+			dissect_smb2_file_info_12(tvb, pinfo, tree, offset, ssi);
+			break;
+		default:
+			/* we dont handle this infolevel yet */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+			offset += tvb_length_remaining(tvb, offset);
+		}
+		break;
 	default:
 		/* we dont handle this class yet */
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
-		offset += tvb_length_remaining(tvb, offset);
 	}
+
+	offset += response_size;
 
 	return offset;
 }
@@ -1317,6 +1374,26 @@ proto_register_smb2(void)
 	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE, 
 		NULL, 0, "Server GUID", HFILL }},
 
+	{ &hf_smb2_create_timestamp,
+		{ "Create", "smb2.create.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when this object was created", HFILL }},
+
+	{ &hf_smb2_last_access_timestamp,
+		{ "Last Access", "smb2.last_access.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when this object was last accessed", HFILL }},
+
+	{ &hf_smb2_last_write_timestamp,
+		{ "Last Write", "smb2.last_write.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when this object was last written to", HFILL }},
+
+	{ &hf_smb2_last_change_timestamp,
+		{ "Last Change", "smb2.last_change.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when this object was last changed", HFILL }},
+
+	{ &hf_smb2_file_info_12,
+		{ "SMB2_FILE_INFO_12", "smb2.smb2_file_info_12", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_INFO_12 structure", HFILL }},
+
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
 		NULL, 0, "Unknown bytes", HFILL }},
@@ -1331,6 +1408,7 @@ proto_register_smb2(void)
 		&ett_smb2_header,
 		&ett_smb2_command,
 		&ett_smb2_secblob,
+		&ett_smb2_file_info_12,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
