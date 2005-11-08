@@ -121,7 +121,7 @@ AC_ARG_WITH(extra-gcc-checks,
 ],)
 AC_MSG_CHECKING(to see if we can add '-Wall -W $ethereal_extra_gcc_flags' to CFLAGS)
 if test x$GCC != x ; then
-  CFLAGS="-D_U_=\"__attribute__((unused))\" -Wall -W $ethereal_extra_gcc_flags $CFLAGS"
+  CFLAGS="-D_U_=\"__attribute__((unused))\" -Wall -Wpointer-arith -W $ethereal_extra_gcc_flags $CFLAGS"
   AC_MSG_RESULT(yes)
 else
   CFLAGS="-D_U_=\"\" $CFLAGS"
