@@ -3,6 +3,7 @@
  *
  * See http://wiki.ethereal.com/SMB2  for documentation of
  * this protocol.
+ * If you edit this file, keep the wiki updated as well.
  *
  * $Id: packet-smb2.c 16113 2005-10-04 10:23:40Z guy $
  *
@@ -372,8 +373,8 @@ const value_string smb2_cmd_vals[] = {
   { 0x0D, "unknown-0x0D" },
   { 0x0E, "Find" },
   { 0x0F, "unknown-0x0F" },
-  { 0x10, "GetFileInfo" },
-  { 0x11, "SetFileInfo" },
+  { 0x10, "GetInfo" },
+  { 0x11, "SetInfo" },
   { 0x12, "unknown-0x12" },
   { 0x13, "unknown-0x13" },
   { 0x14, "unknown-0x14" },
