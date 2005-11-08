@@ -83,7 +83,7 @@ Gnu info
 
         <listitem><para>
 	  The GTP dissector could go into an infinite loop.
-	  <!-- Fixed in r16435 -->
+	  <!-- Fixed in r16436 -->
 	  <!-- Bug IDs: 576 -->
           <!-- CVE: None -->
 	  Versions affected: 0.9.1 to 0.10.13.
