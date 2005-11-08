@@ -624,7 +624,7 @@ static const value_string pdp_org_type[] = {
 };
 
 static const value_string qos_delay_type[] = {
-	{ 0x00, "Subsribed delay class (in MS to network direction)" },
+	{ 0x00, "Subscribed delay class (in MS to network direction)" },
 	{ 0x01, "Delay class 1" },
 	{ 0x02, "Delay class 2" },
 	{ 0x03, "Delay class 3" },
