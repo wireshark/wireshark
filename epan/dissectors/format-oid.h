@@ -25,6 +25,37 @@
 #ifndef __FORMAT_OID_H__
 #define __FORMAT_OID_H__
 
+/*
+ * Oh, this is hellish.
+ *
+ * The CMU SNMP library defines an OID as a sequence of "u_int"s,
+ * unless EIGHTBIT_SUBIDS is defined, in which case it defines
+ * an OID as a sequence of "u_char"s.  None of its header files
+ * define EIGHTBIT_SUBIDS, and if a program defines it, that's
+ * not going to change the library to treat OIDs as sequences
+ * of "u_chars", so I'll assume that it'll be "u_int"s.
+ *
+ * The UCD SNMP library does the same, except it defines an OID
+ * as a sequence of "u_long"s, by default.
+ *
+ * "libsmi" defines it as a sequence of "unsigned int"s.
+ *
+ * I don't want to oblige all users of ASN.1 to include the SNMP
+ * library header files, so I'll assume none of the SNMP libraries
+ * will rudely surprise me by changing the definition; if they
+ * do, there will be compiler warnings, so we'll at least be able
+ * to catch it.
+ *
+ * This requires that, if you're going to use "asn1_subid_decode()",
+ * "asn1_oid_value_decode()", or "asn1_oid_decode()", you include
+ * "config.h", to get the right #defines defined, so that we properly
+ * typedef "subid_t".
+ */
+#if defined(HAVE_SOME_SNMP)
+typedef gulong	subid_t;	/* Net-SNMP or UCD SNMP */
+#else
+typedef guint	subid_t;	/* CMU SNMP, libsmi, or nothing */
+#endif
 
 extern int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len);
 extern gchar *format_oid(subid_t *oid, guint oid_length);
