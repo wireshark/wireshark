@@ -43,6 +43,7 @@
 #include "packet-ntlmssp.h"
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
+#include "packet-dcerpc-nt.h"
 
 
 
@@ -79,6 +80,8 @@ static int hf_smb2_max_response_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_file_info_12 = -1;
 static int hf_smb2_fid = -1;
+static int hf_smb2_write_length = -1;
+static int hf_smb2_write_data = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
@@ -177,7 +180,7 @@ static const true_false_string tfs_flags_response = {
  * if we want to do those things in the future.
  */
 static int
-dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
 	dcerpc_info di;	/* fake dcerpc_info struct */
@@ -197,7 +200,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
 
 static int
-dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
+dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -537,7 +540,7 @@ dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static int
-dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
@@ -562,6 +565,58 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	return offset;
 }
 
+
+
+static int
+dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	guint32 length;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* length  might even be 64bits if they are ambitious*/
+	length=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_write_length, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* data */
+	proto_tree_add_item(tree, hf_smb2_write_data, tvb, offset, length, TRUE);
+	offset += MIN(length,(guint32)tvb_length_remaining(tvb, offset));
+
+	return offset;
+}
+
+
+static int
+dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* length  might even be 64bits if they are ambitious*/
+	proto_tree_add_item(tree, hf_smb2_write_length, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 9, TRUE);
+	offset += 9;
+
+	return offset;
+}
 
 
 static int
@@ -890,7 +945,9 @@ static smb2_function smb2_dissector[256] = {
 	 dissect_smb2_close_response},
   /* 0x07 */  {NULL, NULL},
   /* 0x08 */  {NULL, NULL},
-  /* 0x09 */  {NULL, NULL},
+  /* 0x09 Writew*/  
+	{dissect_smb2_write_request,
+	 dissect_smb2_write_response},
   /* 0x0a */  {NULL, NULL},
   /* 0x0b */  {NULL, NULL},
   /* 0x0c */  {NULL, NULL},
@@ -1480,6 +1537,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_infolevel,
 		{ "InfoLevel", "smb2.infolevel", FT_UINT8, BASE_HEX,
 		NULL, 0, "Infolevel", HFILL }},
+	{ &hf_smb2_write_length,
+		{ "Write Length", "smb2.write_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Amount of data to write", HFILL }},
 
 	{ &hf_smb2_security_blob,
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
@@ -1496,6 +1556,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_fid,
 		{ "File Id", "smb2.fid", FT_BYTES, BASE_HEX, 
 		NULL, 0, "SMB2 File Id", HFILL }},
+
+	{ &hf_smb2_write_data,
+		{ "Write Data", "smb2.write_data", FT_BYTES, BASE_HEX, 
+		NULL, 0, "SMB2 Data to be written", HFILL }},
 
 	{ &hf_smb2_last_access_timestamp,
 		{ "Last Access", "smb2.last_access.time", FT_ABSOLUTE_TIME, BASE_NONE,
