@@ -1757,8 +1757,10 @@ main(int argc, char *argv[])
   get_runtime_version_info(runtime_info_str);
 
 
-  /*** "pre-scan" the command line parameters, if we have "console only" parameters ***/
-  /* (e.g. don't start GTK+, if we only have to show the command line help) */
+  /* "pre-scan" the command line parameters, if we have "console only"
+     parameters.  We do this so we don't start GTK+ if we're only showing
+     command-line help information, version information, or "-G"
+     information. */
   optind_initial = optind;
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -1771,34 +1773,12 @@ main(int argc, char *argv[])
         exit(0);
         break;
       case 'G':        /* dump various field or other infos, see handle_dashG_option() */
-  /* If invoked with the "-G" flag, we dump out information based on
-     the argument to the "-G" flag; if no argument is specified,
-     for backwards compatibility we dump out a glossary of display
-     filter symbols.
-
-     We must do this before calling "gtk_init()", because "gtk_init()"
-     tries to open an X display, and we don't want to have to do any X
-     stuff just to do a build.
-
-     Given that we call "gtk_init()" before doing the regular argument
-     list processing, so that it can handle X and GTK+ arguments and
-     remove them from the list at which we look, this means we must do
-     this before doing the regular argument list processing, as well.
-
-     This means that:
-
-	you must give the "-G" flag as the first flag on the command line;
-
-	you must give it as "-G", nothing more, nothing less;
-
-	the first argument after the "-G" flag, if present, will be used
-	to specify the information to dump;
-
-	arguments after that will not be used. */        
         handle_dashG_option(argc, argv, "ethereal");
         /* will never return! */
         exit(0);
         break;
+      case '?':        /* argument-parsing error - quit now */
+        exit(0);
     }
   }
 
@@ -2203,7 +2183,7 @@ main(int argc, char *argv[])
         break;
       default:
       case '?':        /* Bad flag - print usage message */
-	    g_warning("Bad flag");
+        g_warning("Bad flag");
         arg_error = TRUE;
         break;
     }
