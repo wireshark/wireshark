@@ -328,12 +328,15 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	guint16 bc;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 10, TRUE);
-	offset += 10;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
 
 	/* search name length */
 	search_len=tvb_get_letohs(tvb, offset);
@@ -555,6 +558,48 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 20, TRUE);
 	offset += 20;
+
+	return offset;
+}
+
+
+
+static int
+dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+/*qqq*/
+	return offset;
+}
+
+static int
+dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* create time */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+
+	/* last access */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+
+	/* last write */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+
+	/* last change */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 20, TRUE);
+	offset += 20;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 40, TRUE);
+	offset += 40;
 
 	return offset;
 }
@@ -837,7 +882,9 @@ static smb2_function smb2_dissector[256] = {
 	{dissect_smb2_tree_connect_request,
 	 NULL},
   /* 0x04 */  {NULL, NULL},
-  /* 0x05 */  {NULL, NULL},
+  /* 0x05 Create*/  
+	{dissect_smb2_create_request,
+	 dissect_smb2_create_response},
   /* 0x06 Close*/  
 	{dissect_smb2_close_request,
 	 dissect_smb2_close_response},
