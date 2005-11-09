@@ -4,7 +4,7 @@
  * A protocol for reliable multicast messaging in bandwidth constrained
  * and delayed acknowledgement (EMCON) environments.
  *
- * Copyright 2005, Stig Bj›rlykke <stig@bjorlykke.org>, Thales Norway AS
+ * Copyright 2005, Stig Bjørlykke <stig@bjorlykke.org>, Thales Norway AS
  *
  * $Id$
  *
@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
+#include <epan/reassemble.h>
 
 
 /* Recommended UDP Port Numbers */
@@ -85,22 +86,56 @@ static int hf_dest_entry = -1;
 static int hf_dest_id = -1;
 static int hf_msg_seq_no = -1;
 static int hf_sym_key = -1;
-static int hf_fragment = -1;
-static int hf_error = -1;
+static int hf_data_fragment = -1;
+
+static int hf_msg_fragments = -1;
+static int hf_msg_fragment = -1;
+static int hf_msg_fragment_overlap = -1;
+static int hf_msg_fragment_overlap_conflicts = -1;
+static int hf_msg_fragment_multiple_tails = -1;
+static int hf_msg_fragment_too_long_fragment = -1;
+static int hf_msg_fragment_error = -1;
+static int hf_msg_reassembled_in = -1;
+
 
 static gint ett_p_mul = -1;
 static gint ett_pdu_type = -1;
 static gint ett_entry = -1;
+static gint ett_msg_fragment = -1;
+static gint ett_msg_fragments = -1;
 
-/* User definable port numbers to use for dissection */
+/* User definable values to use for dissection */
+static gboolean p_mul_reassemble = TRUE;
 static guint global_p_mul_tport = P_MUL_TPORT;
 static guint global_p_mul_rport = P_MUL_RPORT;
 static guint global_p_mul_dport = P_MUL_DPORT;
 static guint global_p_mul_aport = P_MUL_APORT;
+
 static guint p_mul_tport = 0;
 static guint p_mul_rport = 0;
 static guint p_mul_dport = 0;
 static guint p_mul_aport = 0;
+
+static GHashTable *p_mul_fragment_table = NULL;
+static GHashTable *p_mul_reassembled_table = NULL;
+
+static const fragment_items p_mul_frag_items = {
+    /* Fragment subtrees */
+    &ett_msg_fragment,
+    &ett_msg_fragments,
+    /* Fragment fields */
+    &hf_msg_fragments,
+    &hf_msg_fragment,
+    &hf_msg_fragment_overlap,
+    &hf_msg_fragment_overlap_conflicts,
+    &hf_msg_fragment_multiple_tails,
+    &hf_msg_fragment_too_long_fragment,
+    &hf_msg_fragment_error,
+    /* Reassembled in field */
+    &hf_msg_reassembled_in,
+    /* Tag */
+    "Message fragments"
+};
 
 static const value_string pdu_vals[] = {
   { Data_PDU,             "Data PDU"            },
@@ -117,7 +152,7 @@ static const true_false_string yes_no = {
   "No", "Yes"
 };
 
-static const gchar *get_type (guint8 value) 
+static const gchar *get_type (guint8 value)
 {
    return val_to_str (value, pdu_vals, "Unknown");
 }
@@ -128,34 +163,46 @@ static guint16 checksum (guint8 *buffer, gint len, gint offset)
   guint16 c0 = 0, c1 = 0, ret, ctmp;
   gint16 cs;
   guint8 *hpp, *pls;
-  
+
   buffer[offset] = 0;
   buffer[offset+1] = 0;
   ctmp = len - offset - 1;
-  
+
   pls = buffer + len;
   hpp = buffer;
-  
+
   while (hpp < pls) {
     if ((c0 += *hpp++) > 254) { c0 -= 255; }
     if ((c1 += c0) > 254) { c1 -= 255; }
   }
-  
+
   if ((cs = ((ctmp * c0) - c1) % 255L) < 0) { cs += 255; }
   ret = cs << 8;
   if ((cs = (c1 - ((ctmp + 1L) * c0)) % 255L) < 0) { cs += 255; }
   ret |= cs;
-  
+
   return ret;
+}
+
+static void dissect_reassembled_data (tvbuff_t *tvb, proto_tree *tree)
+{
+   if (tvb == NULL || tree == NULL) {
+      return;
+   }
+
+   /* TBD: Dissection of reassembled data */
 }
 
 static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
                            proto_tree *tree)
 {
   proto_tree *p_mul_tree = NULL, *field_tree = NULL;
-  proto_item *ti = NULL, *en = NULL;
+  proto_item *ti = NULL, *en = NULL, *len_en = NULL;
+  gboolean    save_fragmented;
+  fragment_data *frag_msg = NULL;
   guint32     message_id = 0, no_pdus = 0, seq_no = 0;
-  guint16     no_dest = 0, count = 0, len = 0, checksum1, checksum2;
+  guint16     no_dest = 0, count = 0, len = 0, data_len = 0;
+  guint16     checksum1, checksum2, pdu_length = 0;
   guint8      pdu_type = 0, *value = NULL, map = 0;
   gint        i, no_missing = 0, offset = 0;
   nstime_t    ts;
@@ -168,22 +215,18 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   /* First fetch PDU Type */
   pdu_type = tvb_get_guint8 (tvb, offset + 3) & 0x3F;
-  
-  proto_item_append_text (ti, ", %s", get_type (pdu_type));
-  
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", get_type (pdu_type));
-  }
-  
+
   ti = proto_tree_add_item (tree, proto_p_mul, tvb, offset, -1, FALSE);
+  proto_item_append_text (ti, ", %s", get_type (pdu_type));
   p_mul_tree = proto_item_add_subtree (ti, ett_p_mul);
-  
+
   /* Length of PDU */
-  proto_tree_add_item (p_mul_tree, hf_length, tvb, offset, 2, FALSE);
+  pdu_length = tvb_get_ntohs (tvb, offset);
+  len_en = proto_tree_add_item (p_mul_tree, hf_length, tvb, offset, 2, FALSE);
   offset += 2;
-  
+
   switch (pdu_type) {
-    
+
   case Data_PDU:
   case Ack_PDU:
   case Address_PDU:
@@ -191,69 +234,69 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     /* Priority */
     proto_tree_add_item (p_mul_tree, hf_priority, tvb, offset, 1, FALSE);
     break;
-    
+
   default:
     /* Unused */
     proto_tree_add_item (p_mul_tree, hf_unused8, tvb, offset, 1, FALSE);
   }
   offset += 1;
-  
+
   /* MAP / PDU_Type */
   en = proto_tree_add_uint_format (p_mul_tree, hf_pdu_type, tvb, offset, 1,
                                    pdu_type, "PDU Type: %s (0x%02x)",
                                    get_type (pdu_type), pdu_type);
   field_tree = proto_item_add_subtree (en, ett_pdu_type);
-  
+
   switch (pdu_type) {
-    
+
   case Address_PDU:
   case Announce_PDU:
     map = tvb_get_guint8 (tvb, offset);
     proto_tree_add_item (field_tree, hf_map_first, tvb, offset, 1, FALSE);
     proto_tree_add_item (field_tree, hf_map_last, tvb, offset, 1, FALSE);
     if ((map & 0x80) || (map & 0x40)) {
-      proto_item_append_text (en, ", %s / %s", 
+      proto_item_append_text (en, ", %s / %s",
                               (map & 0x80) ? "Not first" : "First",
                               (map & 0x40) ? "Not last" : "Last");
     } else {
       proto_item_append_text (en, ", Only one PDU");
     }
     break;
-    
+
   default:
     proto_tree_add_item (field_tree, hf_map_unused, tvb, offset, 1, FALSE);
     break;
   }
   proto_tree_add_item (field_tree, hf_pdu_type, tvb, offset, 1, FALSE);
   offset += 1;
-  
+
   switch (pdu_type) {
-    
+
   case Address_PDU:
     /* Total Number of PDUs */
     no_pdus = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_no_pdus, tvb, offset, 2, FALSE);
     break;
-    
+
   case Data_PDU:
     /* Sequence Number of PDUs */
     seq_no = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_seq_no, tvb, offset, 2, FALSE);
     break;
-    
+
   case Announce_PDU:
     /* Count of Destination Entries */
     count = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_count_of_dest, tvb, offset, 2,FALSE);
     break;
-    
+
   default:
     /* Unused */
     proto_tree_add_item (p_mul_tree, hf_unused16, tvb, offset, 2, FALSE);
     break;
   }
   offset += 2;
-  
+
   /* Checksum */
   len = tvb_length (tvb);
   value = tvb_get_string (tvb, 0, len);
@@ -261,18 +304,18 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   checksum2 = tvb_get_ntohs (tvb, offset);
   g_free (value);
   en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, FALSE);
-  if (checksum1 == checksum2) {  
+  if (checksum1 == checksum2) {
     proto_item_append_text (en, " (correct)");
   } else {
     proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum1);
   }
   offset += 2;
-  
+
   if (pdu_type == Ack_PDU) {
     /* Source ID of Ack Sender */
     proto_tree_add_item (p_mul_tree, hf_source_id_ack, tvb, offset, 4, FALSE);
     offset += 4;
-    
+
     /* Count of Ack Info Entries */
     count = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_ack_count, tvb, offset, 2, FALSE);
@@ -281,13 +324,13 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     /* Source Id */
     proto_tree_add_item (p_mul_tree, hf_source_id, tvb, offset, 4, FALSE);
     offset += 4;
-    
+
     /* Message Id */
     message_id = tvb_get_ntohl (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, FALSE);
     offset += 4;
   }
-  
+
   if (pdu_type == Address_PDU || pdu_type == Announce_PDU) {
     /* Expiry Time */
     ts.secs = tvb_get_ntohl (tvb, offset);
@@ -295,15 +338,17 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_time (p_mul_tree, hf_expiry_time, tvb, offset, 4, &ts);
     offset += 4;
   }
-  
+
+  save_fragmented = pinfo->fragmented;
+
   switch (pdu_type) {
-    
+
   case Address_PDU:
     /* Count of Destination Entries */
     no_dest = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_count_of_dest, tvb, offset, 2, FALSE);
     offset += 2;
-    
+
     /* Length of Reserved Field */
     len = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_length_of_res, tvb, offset, 2, FALSE);
@@ -311,19 +356,19 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     for (i = 0; i < no_dest; i++) {
       /* Destination Entry */
-      en = proto_tree_add_none_format (p_mul_tree, hf_dest_entry, tvb, 
-                                       offset, no_dest * (8 + len), 
+      en = proto_tree_add_none_format (p_mul_tree, hf_dest_entry, tvb,
+                                       offset, no_dest * (8 + len),
                                        "Destination Entry #%d", i + 1);
       field_tree = proto_item_add_subtree (en, ett_entry);
-      
+
       /* Destination Id */
       proto_tree_add_item (field_tree, hf_dest_id, tvb, offset, 4, FALSE);
       offset += 4;
-      
+
       /* Message Sequence Number */
       proto_tree_add_item (field_tree, hf_msg_seq_no, tvb, offset, 4, FALSE);
       offset += 4;
-      
+
       if (len > 0) {
         /* Reserved Field (variable length) */
         proto_tree_add_none_format (field_tree, hf_sym_key, tvb, offset,
@@ -332,42 +377,65 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
         offset += len;
       }
     }
+
+    if (p_mul_reassemble) {
+      /* Add fragment to fragment table */
+      frag_msg = fragment_add_seq_check (tvb, offset, pinfo, message_id,
+                                         p_mul_fragment_table,
+                                         p_mul_reassembled_table, 0, 0, TRUE);
+      fragment_set_tot_len (pinfo, message_id, p_mul_fragment_table, no_pdus);
+    }
     break;
-    
+
   case Data_PDU:
     /* Fragment of Data (variable length) */
-    len = tvb_length_remaining (tvb, offset);
-    if (len > 0) {
-      proto_tree_add_none_format (tree, hf_fragment, tvb, offset, 
-                                  len, "Fragment of Data (%d byte%s)",
-                                  len, plurality (len, "", "s"));
-      proto_item_set_len (ti, offset);
+    data_len = tvb_length_remaining (tvb, offset);
+    proto_tree_add_none_format (tree, hf_data_fragment, tvb, offset,
+                                data_len, "Fragment %d of Data (%d byte%s)",
+                                seq_no, data_len,
+                                plurality (data_len, "", "s"));
+
+    if (p_mul_reassemble) {
+      tvbuff_t *new_tvb = NULL;
+
+      pinfo->fragmented = TRUE;
+
+      /* Add fragment to fragment table */
+      frag_msg = fragment_add_seq_check (tvb, offset, pinfo, message_id,
+                                         p_mul_fragment_table,
+                                         p_mul_reassembled_table, seq_no,
+                                         data_len, TRUE);
+      new_tvb = process_reassembled_data (tvb, offset, pinfo,
+                                          "Reassembled Data", frag_msg,
+                                          &p_mul_frag_items, NULL, tree);
+      if (new_tvb) {
+        dissect_reassembled_data (new_tvb, tree);
+      }
     }
-    offset += len;
     break;
-    
+
   case Ack_PDU:
     for (i = 0; i < count; i++) {
       /* Ack Info Entry */
       len = tvb_get_ntohs (tvb, offset);
 
-      en = proto_tree_add_none_format (p_mul_tree, hf_ack_entry, tvb, 
+      en = proto_tree_add_none_format (p_mul_tree, hf_ack_entry, tvb,
                                        offset, count * len,
                                        "Ack Info Entry #%d", i + 1);
       field_tree = proto_item_add_subtree (en, ett_entry);
-      
+
       /* Length of Ack Info Entry */
       proto_tree_add_item (field_tree, hf_ack_length, tvb, offset, 2, FALSE);
       offset += 2;
-      
+
       /* Source Id */
       proto_tree_add_item (field_tree, hf_source_id, tvb, offset, 4, FALSE);
       offset += 4;
-      
+
       /* Message Id */
       proto_tree_add_item (field_tree, hf_message_id, tvb, offset, 4, FALSE);
       offset += 4;
-      
+
       for (no_missing = 0; no_missing < (len - 10) / 2; no_missing++) {
         /* Missing Data PDU Seq Number */
         proto_tree_add_item (field_tree, hf_miss_seq_no, tvb,offset, 2, FALSE);
@@ -375,7 +443,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       }
     }
     break;
-    
+
   case Announce_PDU:
     /* Announced Multicast Group */
     proto_tree_add_item (p_mul_tree, hf_ann_mc_group, tvb, offset, 4, FALSE);
@@ -387,7 +455,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       offset += 4;
     }
     break;
-    
+
   case Request_PDU:
   case Reject_PDU:
   case Release_PDU:
@@ -395,13 +463,25 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item (p_mul_tree, hf_mc_group, tvb, offset, 4, FALSE);
     offset += 4;
     break;
-    
+
   default:
     /* Nothing */
     break;
   }
-  
+
+  pinfo->fragmented = save_fragmented;
+
+  /* Update length of P_Mul packet and check length values */
+  proto_item_set_len (ti, offset);
+  if (pdu_length != (offset + data_len)) {
+    proto_item_append_text (len_en, " (incorrect, should be: %d)",
+                            offset + data_len);
+  } else if ((len = tvb_length_remaining (tvb, pdu_length)) > 0) {
+    proto_item_append_text (len_en, " (more data in packet: %d)", len);
+  }
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr (pinfo->cinfo, COL_INFO, "%s", get_type (pdu_type));
     if (seq_no) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
     } else if (no_pdus) {
@@ -417,14 +497,23 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (message_id) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
     }
+    if (frag_msg) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+    }
   }
+}
+
+static void p_mul_reassemble_init (void)
+{
+    fragment_table_init (&p_mul_fragment_table);
+    reassembled_table_init (&p_mul_reassembled_table);
 }
 
 void proto_register_p_mul (void)
 {
   static hf_register_info hf[] = {
     { &hf_length,
-      { "Length of PDU", "p_mul.length", FT_UINT16, BASE_DEC, 
+      { "Length of PDU", "p_mul.length", FT_UINT16, BASE_DEC,
         NULL, 0x0, "Length of PDU", HFILL } },
     { &hf_priority,
       { "Priority", "p_mul.priority", FT_UINT8, BASE_DEC,
@@ -453,7 +542,7 @@ void proto_register_p_mul (void)
     { &hf_unused16,
       { "Unused", "p_mul.unused", FT_UINT16, BASE_DEC,
         NULL, 0x0, "Unused", HFILL } },
-    { &hf_checksum, 
+    { &hf_checksum,
       { "Checksum", "p_mul.checksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, "Checksum", HFILL } },
     { &hf_source_id_ack,
@@ -490,7 +579,7 @@ void proto_register_p_mul (void)
       { "Length of Ack Info Entry", "p_mul.ack_length", FT_UINT16, BASE_DEC,
         NULL, 0x0, "Length of Ack Info Entry", HFILL } },
     { &hf_miss_seq_no,
-      { "Missing Data PDU Seq Number", "p_mul.missing_seq_no", FT_UINT16, 
+      { "Missing Data PDU Seq Number", "p_mul.missing_seq_no", FT_UINT16,
         BASE_DEC, NULL, 0x0, "Missing Data PDU Seq Number", HFILL } },
     { &hf_dest_entry,
       { "Destination Entry", "p_mul.dest_entry", FT_NONE, BASE_NONE,
@@ -504,31 +593,62 @@ void proto_register_p_mul (void)
     { &hf_sym_key,
       { "Symmetric Key", "p_mul.sym_key", FT_NONE, BASE_NONE,
         NULL, 0x0, "Symmetric Key", HFILL } },
-    { &hf_fragment,
-      { "Fragment of Data", "p_mul.fragment", FT_NONE, BASE_NONE,
+    { &hf_data_fragment,
+      { "Fragment of Data", "p_mul.data_fragment", FT_NONE, BASE_NONE,
         NULL, 0x0, "Fragment of Data", HFILL } },
-    { &hf_error,
-      { "Error reading data", "p_mul.error", FT_NONE, BASE_NONE,
-        NULL, 0x0, "Error reading data", HFILL } },
+
+    { &hf_msg_fragments,
+      { "Message fragments", "p_mul.fragments", FT_NONE, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_fragment,
+      { "Message fragment", "p_mul.fragment", FT_FRAMENUM, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_fragment_overlap,
+      { "Message fragment overlap", "p_mul.fragment.overlap", FT_BOOLEAN,
+        BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_fragment_overlap_conflicts,
+      { "Message fragment overlapping with conflicting data",
+        "p_mul.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_fragment_multiple_tails,
+      { "Message has multiple tail fragments",
+        "p_mul.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_fragment_too_long_fragment,
+      { "Message fragment too long", "p_mul.fragment.too_long_fragment",
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_fragment_error,
+      { "Message defragmentation error", "p_mul.fragment.error",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_reassembled_in,
+      { "Reassembled in", "p_mul.reassembled.in", FT_FRAMENUM, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
   };
-  
+
   static gint *ett[] = {
     &ett_p_mul,
     &ett_pdu_type,
-    &ett_entry
+    &ett_entry,
+    &ett_msg_fragment,
+    &ett_msg_fragments
   };
 
   module_t *p_mul_module;
-  
+
   proto_p_mul = proto_register_protocol ("P_Mul (ACP142)", "P_MUL", "p_mul");
-  
+
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  register_init_routine (&p_mul_reassemble_init);
 
   /* Register our configuration options */
   p_mul_module = prefs_register_protocol (proto_p_mul,
                                           proto_reg_handoff_p_mul);
 
+  prefs_register_bool_preference (p_mul_module, "reassemble",
+                                  "Reassemble fragmented P_Mul packets",
+                                  "Reassemble fragmented P_Mul packets",
+                                  &p_mul_reassemble);
   prefs_register_uint_preference (p_mul_module, "tport", "TPORT",
                                   "Used for transmission of Request_PDUs, "
                                   "Reject_PDUs and Release_PDUs between"
