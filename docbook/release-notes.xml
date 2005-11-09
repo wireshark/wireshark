@@ -100,6 +100,15 @@ Gnu info
 
       <itemizedlist>
         <listitem><para>
+		When cancelling a file load operation, Ethereal will keep
+		displaying the loaded packets now, instead of simply discarding the 
+		whole load attempt. 
+		</para>
+		<para>
+		This can be very helpful to detect wether a specific (huge) capture 
+		file is the expected file or not. Remember: 
+		The complete load of a huge capture file (>100MB) can take even 
+		minutes!
         </para></listitem>
       </itemizedlist>
     </para>
