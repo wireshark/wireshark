@@ -68,6 +68,8 @@ static int hf_smb2_create_timestamp = -1;
 static int hf_smb2_last_access_timestamp = -1;
 static int hf_smb2_last_write_timestamp = -1;
 static int hf_smb2_last_change_timestamp = -1;
+static int hf_smb2_filename_len = -1;
+static int hf_smb2_filename = -1;
 static int hf_smb2_tree_len = -1;
 static int hf_smb2_tree = -1;
 static int hf_smb2_search_len = -1;
@@ -664,7 +666,70 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
 {
-/*qqq*/
+	int length;
+	const char *name;
+	guint16 bc;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 14, TRUE);
+	offset += 14;
+
+	/* file name length */
+	length=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* file name */
+	if(length){
+		bc=tvb_length_remaining(tvb, offset);
+		name = get_unicode_or_ascii_string(tvb, &offset,
+			TRUE, &length, TRUE, TRUE, &bc);
+		if(name){
+			proto_tree_add_string(tree, hf_smb2_filename, tvb,
+				offset, length, name);
+		}
+
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " File:%s",
+			name);
+		}
+	} else {
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " File:/");
+		}
+	}
+	offset += length;
+
+	/* strange,   maybe this buffer here is minimum 8 bytes? 
+	 * we have to do this and the padding below to ensure the deterministic
+	 * tail is exactly 24 bytes.
+	 *
+	 * assume the filename is stored in a buffer that is
+	 * minimum 8 bytes and that is padded to 8 bytes.
+	 * this has to be wrong,   but will do for now.
+         */
+	if(!length){
+		offset += 8;
+	}
+	/* pad to 8 bytes */
+	offset=(offset+7)&(~0x00000007);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 24, TRUE);
+	offset += 24;
+
 	return offset;
 }
 
@@ -1600,10 +1665,16 @@ proto_register_smb2(void)
 	{ &hf_smb2_tree_len,
 		{ "Tree Name Length", "smb2.tree.name_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of the Tree name", HFILL }},
+	{ &hf_smb2_filename_len,
+		{ "File Name Length", "smb2.filename_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of the file name", HFILL }},
 
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the Tree/Share", HFILL }},
+	{ &hf_smb2_filename,
+		{ "Filename", "smb2.filename", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of the file", HFILL }},
 	{ &hf_smb2_search_len,
 		{ "Search Name Length", "smb2.search.name_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of the search pattern", HFILL }},
