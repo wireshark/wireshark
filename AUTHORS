@@ -2411,7 +2411,7 @@ Menno Andriesse		<s5066 [AT] nc3a.nato.int> {
 	STANAG 5066 support
 }
 
-Stig Bjørlykke		<stig [AT] bjorlykke.org> {
+Stig Bjrlykke		<stig [AT] bjorlykke.org> {
 	http://www.jcs.mil/j6/cceb/acps/Acp142.pdf
 	 P_Mul (ACP142) packet disassembly
 }
@@ -2537,6 +2537,7 @@ Manu Pathak		<mapathak [AT] cisco.com>
 Kaul			<mykaul [AT] gmail.com>
 John Sullivan		<john [AT] kanargh.force9.co.uk>
 Martin AndrÃ©		<andre [AT] clarinet.u-strasbg.fr>
+Andrei Emeltchenko	<Andrei.Emeltchenko [AT] nokia.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
