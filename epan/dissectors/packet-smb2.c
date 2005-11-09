@@ -78,6 +78,7 @@ static int hf_smb2_infolevel = -1;
 static int hf_smb2_max_response_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_file_info_12 = -1;
+static int hf_smb2_fid = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
@@ -167,6 +168,32 @@ static const true_false_string tfs_flags_response = {
 	"This is a REQUEST"
 };
 
+
+
+/* fake the dce/rpc support structures so we can piggy back on
+ * dissect_nt_policy_hnd()   since this will allow us
+ * a cheap way to track where FIDs are opened, closed
+ * and fid->filename mappings
+ * if we want to do those things in the future.
+ */
+static int
+dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
+	dcerpc_info di;	/* fake dcerpc_info struct */
+	void *old_private_data;
+
+	di.conformant_run=0;
+	di.call_data=NULL;
+	old_private_data=pinfo->private_data;
+	pinfo->private_data=&di;
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, 0, 0);
+
+	pinfo->private_data=old_private_data;
+
+	return offset;
+}
 
 
 static int
@@ -493,6 +520,45 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	return offset;
 }
 
+static int
+dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+
+	return offset;
+}
+
+static int
+dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* create time */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+
+	/* last access */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+
+	/* last write */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+
+	/* last change */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 20, TRUE);
+	offset += 20;
+
+	return offset;
+}
+
 
 /* names here are just until we find better names for these functions */
 const value_string smb2_cmd_vals[] = {
@@ -504,8 +570,8 @@ const value_string smb2_cmd_vals[] = {
   { 0x05, "Create" },
   { 0x06, "Close" },
   { 0x07, "unknown-0x07" },
-  { 0x08, "unknown-0x08" },
-  { 0x09, "unknown-0x09" },
+  { 0x08, "Read" },
+  { 0x09, "Write" },
   { 0x0A, "unknown-0x0A" },
   { 0x0B, "unknown-0x0B" },
   { 0x0C, "unknown-0x0C" },
@@ -772,7 +838,9 @@ static smb2_function smb2_dissector[256] = {
 	 NULL},
   /* 0x04 */  {NULL, NULL},
   /* 0x05 */  {NULL, NULL},
-  /* 0x06 */  {NULL, NULL},
+  /* 0x06 Close*/  
+	{dissect_smb2_close_request,
+	 dissect_smb2_close_response},
   /* 0x07 */  {NULL, NULL},
   /* 0x08 */  {NULL, NULL},
   /* 0x09 */  {NULL, NULL},
@@ -1377,6 +1445,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_create_timestamp,
 		{ "Create", "smb2.create.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time when this object was created", HFILL }},
+
+	{ &hf_smb2_fid,
+		{ "File Id", "smb2.fid", FT_BYTES, BASE_HEX, 
+		NULL, 0, "SMB2 File Id", HFILL }},
 
 	{ &hf_smb2_last_access_timestamp,
 		{ "Last Access", "smb2.last_access.time", FT_ABSOLUTE_TIME, BASE_NONE,
