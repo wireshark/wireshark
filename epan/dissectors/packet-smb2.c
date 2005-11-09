@@ -79,22 +79,31 @@ static int hf_smb2_infolevel = -1;
 static int hf_smb2_max_response_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_file_info_12 = -1;
+static int hf_smb2_file_info_0d = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
 static int hf_smb2_write_data = -1;
+static int hf_smb2_disposition_delete_on_close = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
 static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
 static gint ett_smb2_file_info_12 = -1;
+static gint ett_smb2_file_info_0d = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
 #define SMB2_CLASS_FILE_INFO	0x01
 #define SMB2_CLASS_FS_INFO	0x02
+static const value_string smb2_class_vals[] = {
+	{ SMB2_CLASS_FILE_INFO,	"FILE_INFO"},
+	{ SMB2_CLASS_FS_INFO,	"FS_INFO"},
+	{ 0, NULL }
+};
 
 #define SMB2_FILE_INFO_12	0x12
+#define SMB2_FILE_INFO_0d	0x0d
 
 typedef struct _smb2_saved_info_t {
 	guint8 class;
@@ -225,6 +234,28 @@ dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
 	offset += tvb_length_remaining(tvb, offset);
+
+	return offset;
+}
+
+static const true_false_string tfs_disposition_delete_on_close = {
+	"DELETE this file when closed",
+	"Normal access, do not delete on close"
+};
+
+static int
+dissect_smb2_file_info_0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_0d, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_info_0d);
+	}
+
+	/* file disposition */
+	proto_tree_add_item(tree, hf_smb2_disposition_delete_on_close, tvb, offset, 1, TRUE);
 
 	return offset;
 }
@@ -466,17 +497,43 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 12, TRUE);
+	offset += 12;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
 
 	return offset;
 }
+
+static void
+dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi, guint8 class, guint8 infolevel)
+{
+
+	switch(class){
+	case SMB2_CLASS_FILE_INFO:
+		switch(infolevel){
+		case SMB2_FILE_INFO_0d:
+			dissect_smb2_file_info_0d(tvb, pinfo, tree, offset, ssi);
+			break;
+		case SMB2_FILE_INFO_12:
+			dissect_smb2_file_info_12(tvb, pinfo, tree, offset, ssi);
+			break;
+		default:
+			/* we dont handle this infolevel yet */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+			offset += tvb_length_remaining(tvb, offset);
+		}
+		break;
+	default:
+		/* we dont handle this class yet */
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+	}
+}
+
+
 static int
-dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
 {
 	guint8 class=0;
 	guint8 infolevel=0;
@@ -504,23 +561,8 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	proto_tree_add_item(tree, hf_smb2_response_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	switch(class){
-	case SMB2_CLASS_FILE_INFO:
-		switch(infolevel){
-		case SMB2_FILE_INFO_12:
-			dissect_smb2_file_info_12(tvb, pinfo, tree, offset, ssi);
-			break;
-		default:
-			/* we dont handle this infolevel yet */
-			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
-			offset += tvb_length_remaining(tvb, offset);
-		}
-		break;
-	default:
-		/* we dont handle this class yet */
-		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
-	}
-
+	/* data */
+	dissect_smb2_infolevel(tvb, pinfo, tree, offset, ssi, class, infolevel);
 	offset += response_size;
 
 	return offset;
@@ -655,6 +697,52 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 40, TRUE);
 	offset += 40;
+
+	return offset;
+}
+
+
+static int
+dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
+{
+	guint8 class, infolevel;
+	guint32 response_size;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* class */
+	class=tvb_get_guint8(tvb, offset);
+	if(ssi){
+		ssi->class=class;
+	}
+	proto_tree_add_item(tree, hf_smb2_class, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* infolevel */
+	infolevel=tvb_get_guint8(tvb, offset);
+	if(ssi){
+		ssi->infolevel=infolevel;
+	}
+	proto_tree_add_item(tree, hf_smb2_infolevel, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* response size */
+	response_size=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_response_size, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+
+	/* data */
+	dissect_smb2_infolevel(tvb, pinfo, tree, offset, ssi, class, infolevel);
+	offset += response_size;
 
 	return offset;
 }
@@ -959,7 +1047,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x10 GetInfo*/  
 	{dissect_smb2_getinfo_request,
 	 dissect_smb2_getinfo_response},
-  /* 0x11 */  {NULL, NULL},
+  /* 0x11 SetInfo*/  
+	{dissect_smb2_setinfo_request,
+	 NULL},
   /* 0x12 */  {NULL, NULL},
   /* 0x13 */  {NULL, NULL},
   /* 0x14 */  {NULL, NULL},
@@ -1532,7 +1622,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_class,
 		{ "Class", "smb2.class", FT_UINT8, BASE_HEX,
-		NULL, 0, "Info class", HFILL }},
+		VALS(smb2_class_vals), 0, "Info class", HFILL }},
 
 	{ &hf_smb2_infolevel,
 		{ "InfoLevel", "smb2.infolevel", FT_UINT8, BASE_HEX,
@@ -1577,6 +1667,15 @@ proto_register_smb2(void)
 		{ "SMB2_FILE_INFO_12", "smb2.smb2_file_info_12", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INFO_12 structure", HFILL }},
 
+	{ &hf_smb2_file_info_0d,
+		{ "SMB2_FILE_INFO_0d", "smb2.smb2_file_info_0d", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_INFO_0d structure", HFILL }},
+
+	{ &hf_smb2_disposition_delete_on_close,
+	  { "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
+		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
+
+
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
 		NULL, 0, "Unknown bytes", HFILL }},
@@ -1592,6 +1691,7 @@ proto_register_smb2(void)
 		&ett_smb2_command,
 		&ett_smb2_secblob,
 		&ett_smb2_file_info_12,
+		&ett_smb2_file_info_0d,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
