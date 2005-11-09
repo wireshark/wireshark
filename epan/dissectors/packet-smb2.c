@@ -70,6 +70,8 @@ static int hf_smb2_last_write_timestamp = -1;
 static int hf_smb2_last_change_timestamp = -1;
 static int hf_smb2_filename_len = -1;
 static int hf_smb2_filename = -1;
+static int hf_smb2_fstype_len = -1;
+static int hf_smb2_fstype = -1;
 static int hf_smb2_tree_len = -1;
 static int hf_smb2_tree = -1;
 static int hf_smb2_search_len = -1;
@@ -82,6 +84,7 @@ static int hf_smb2_max_response_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_file_info_12 = -1;
 static int hf_smb2_file_info_0d = -1;
+static int hf_smb2_fs_info_05 = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
 static int hf_smb2_write_data = -1;
@@ -93,6 +96,7 @@ static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
 static gint ett_smb2_file_info_12 = -1;
 static gint ett_smb2_file_info_0d = -1;
+static gint ett_smb2_fs_info_05 = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
@@ -106,6 +110,8 @@ static const value_string smb2_class_vals[] = {
 
 #define SMB2_FILE_INFO_12	0x12
 #define SMB2_FILE_INFO_0d	0x0d
+
+#define SMB2_FS_INFO_05		0x05 
 
 typedef struct _smb2_saved_info_t {
 	guint8 class;
@@ -258,6 +264,43 @@ dissect_smb2_file_info_0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 
 	/* file disposition */
 	proto_tree_add_item(tree, hf_smb2_disposition_delete_on_close, tvb, offset, 1, TRUE);
+
+	return offset;
+}
+
+static int
+dissect_smb2_fs_info_05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int name_len;
+	const char *name;
+	guint16 bc;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_fs_info_05, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_fs_info_05);
+	}
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, FALSE);
+	offset += 8;
+
+	/* fstype name length */
+	name_len=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_fstype_len, tvb, offset, 2, TRUE);
+	offset += 4;
+
+	/* fstype name */
+	bc=tvb_length_remaining(tvb, offset);
+	name = get_unicode_or_ascii_string(tvb, &offset,
+		TRUE, &name_len, TRUE, TRUE, &bc);
+	if(name){
+		proto_tree_add_string(tree, hf_smb2_fstype, tvb,
+			offset, name_len, name);
+	}
+	offset += name_len;
+
 
 	return offset;
 }
@@ -520,6 +563,17 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			break;
 		case SMB2_FILE_INFO_12:
 			dissect_smb2_file_info_12(tvb, pinfo, tree, offset, ssi);
+			break;
+		default:
+			/* we dont handle this infolevel yet */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+			offset += tvb_length_remaining(tvb, offset);
+		}
+		break;
+	case SMB2_CLASS_FS_INFO:
+		switch(infolevel){
+		case SMB2_FS_INFO_05:
+			dissect_smb2_fs_info_05(tvb, pinfo, tree, offset, ssi);
 			break;
 		default:
 			/* we dont handle this infolevel yet */
@@ -1665,6 +1719,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_tree_len,
 		{ "Tree Name Length", "smb2.tree.name_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of the Tree name", HFILL }},
+	{ &hf_smb2_fstype_len,
+		{ "FS Type Length", "smb2.fstype.name_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of the fs type", HFILL }},
 	{ &hf_smb2_filename_len,
 		{ "File Name Length", "smb2.filename_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of the file name", HFILL }},
@@ -1672,6 +1729,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the Tree/Share", HFILL }},
+	{ &hf_smb2_fstype,
+		{ "FS Type", "smb2.fstype", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of the FS Type", HFILL }},
 	{ &hf_smb2_filename,
 		{ "Filename", "smb2.filename", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the file", HFILL }},
@@ -1742,6 +1802,10 @@ proto_register_smb2(void)
 		{ "SMB2_FILE_INFO_0d", "smb2.smb2_file_info_0d", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INFO_0d structure", HFILL }},
 
+	{ &hf_smb2_fs_info_05,
+		{ "SMB2_FS_INFO_05", "smb2.smb2_fs_info_05", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FS_INFO_05 structure", HFILL }},
+
 	{ &hf_smb2_disposition_delete_on_close,
 	  { "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
 		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
@@ -1763,6 +1827,7 @@ proto_register_smb2(void)
 		&ett_smb2_secblob,
 		&ett_smb2_file_info_12,
 		&ett_smb2_file_info_0d,
+		&ett_smb2_fs_info_05,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
