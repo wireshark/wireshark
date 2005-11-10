@@ -2804,6 +2804,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     char *existing_name;
     gint *key;
     guint i;
+    guchar c;
     gboolean found_invalid;
 
     /*
@@ -2843,11 +2844,8 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 
     found_invalid = FALSE;
     for (i = 0; i < strlen(filter_name); i++) {
-        if (! (islower(filter_name[i]) ||
-               isdigit(filter_name[i]) ||
-               filter_name[i] == '-'   ||
-               filter_name[i] == '_'   ||
-               filter_name[i] == '.'   )) {
+        c = filter_name[i];
+        if (!(islower(c) || isdigit(c) || c == '-' || c == '_' || c == '.')) {
             found_invalid = TRUE;
         }
     }

@@ -164,6 +164,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 {
 	module_t *module;
 	const char *p;
+	guchar c;
 
 	module = g_malloc(sizeof (module_t));
 	module->name = name;
@@ -190,10 +191,10 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		 * on the command line, and shouldn't require quoting,
 		 * shifting, etc.
 		 */
-		for (p = name; *p != '\0'; p++)
-			g_assert(isascii(*p) &&
-			    (islower(*p) || isdigit(*p) || *p == '_' ||
-			     *p == '-' || *p == '.'));
+		for (p = name; (c = *p) != '\0'; p++)
+			g_assert(isascii(c) &&
+			    (islower(c) || isdigit(c) || c == '_' ||
+			     c == '-' || c == '.'));
 
 		/*
 		 * Make sure there's not already a module with that
