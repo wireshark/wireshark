@@ -698,7 +698,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					
 				default:
 					/* DCCP runs only atop IPv4 and IPv6.... */
-					//DISSECTOR_ASSERT_NOT_REACHED();
+				  /*DISSECTOR_ASSERT_NOT_REACHED();*/
 					break;
 				}
 				cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
