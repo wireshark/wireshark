@@ -25,12 +25,20 @@
 #endif
 
 /*
+ * Do this now, to get close() defined, before we muck with the definition
+ * of HAVE_UNISTD_H.  See below for the full sad story of why we do that.
+ */
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif /* HAVE_UNISTD_H */
+
+/*
  * OK, now this is tricky.
  *
  * At least on FreeBSD 3.2, "/usr/include/zlib.h" includes
  * "/usr/include/zconf.h", which, if HAVE_UNISTD_H is defined,
  * #defines "z_off_t" to be "off_t", and if HAVE_UNISTD_H is
- * not defines, #defines "z_off_t" to be "long" if it's not
+ * not defined, #defines "z_off_t" to be "long" if it's not
  * already #defined.
  *
  * In 4.4-Lite-derived systems such as FreeBSD, "off_t" is
@@ -63,12 +71,12 @@
  * the Makefile for zlib defines HAVE_UNISTD_H.
  *
  * So what we do is, on all OSes other than OpenBSD, *undefine* HAVE_UNISTD_H
- * before including "wtap.h" (we need "wtap.h" to get the WTAP_ERR_ZLIB
- * values, and it also includes "zlib.h" if HAVE_ZLIB" is defined), and,
- * if we have zlib, make "file_seek()" and "file_tell()" subroutines, so
- * that the only calls to "gzseek()" and "gztell()" are in this file, which,
- * by dint of the hackery described above, manages to correctly declare
- * "gzseek()" and "gztell()".
+ * before including "wtap-int.h" (it handles including "zlib.h" if HAVE_ZLIB
+ * is defined, and it includes "wtap.h", which we include to get the
+ * WTAP_ERR_ZLIB values), and, if we have zlib, make "file_seek()" and
+ * "file_tell()" subroutines, so that the only calls to "gzseek()" and
+ * "gztell()" are in this file, which, by dint of the hackery described
+ * above, manages to correctly declare "gzseek()" and "gztell()".
  *
  * On OpenBSD, we forcibly *define* HAVE_UNISTD_H if it's not defined.
  *
@@ -79,15 +87,13 @@
  * about making sure it's defined or not defined.
  *
  * DO NOT, UNDER ANY CIRCUMSTANCES, REMOVE THE FOLLOWING LINES, OR MOVE
- * THEM AFTER THE INCLUDE OF "wtap.h"!  Doing so will cause any program
+ * THEM AFTER THE INCLUDE OF "wtap-int.h"!  Doing so will cause any program
  * using Wiretap to read capture files to fail miserably on a FreeBSD
  * 3.2 or 3.3 system - and possibly some other BSD systems - if zlib is
- * installed.  If you *must* include <unistd.h> here, do so *before*
- * including "wtap.h", and before undefining HAVE_UNISTD_H.  If you
- * *must* have HAVE_UNISTD_H defined before including "wtap.h", put
- * "file_error()" into a file by itself, which can cheerfully include
- * "wtap.h" and get "gzseek()" misdeclared, and include just "zlib.h"
- * in this file - *after* undefining HAVE_UNISTD_H.
+ * installed.  If you *must* have HAVE_UNISTD_H defined before including
+ * "wtap-int.h", put "file_error()" into a file by itself, which can
+ * cheerfully include "wtap.h" and get "gzseek()" misdeclared, and include
+ * just "zlib.h" in this file - *after* undefining HAVE_UNISTD_H.
  */
 #ifdef __OpenBSD__
 #ifndef HAVE_UNISTD_H
