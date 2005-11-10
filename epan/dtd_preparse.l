@@ -52,7 +52,7 @@ GHashTable* entities;
 gchar* entity_name;
 GString* error;
 
-const gchar* dirname;
+const gchar* dtd_dirname;
 const gchar* filename;
 guint linenum;
 
@@ -163,7 +163,7 @@ static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
 extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* err) {
 	gchar* fullname = g_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
     
-	dirname = dname;
+	dtd_dirname = dname;
 	filename = fname;
 	linenum = 1;
 
