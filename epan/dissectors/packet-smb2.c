@@ -120,6 +120,7 @@ typedef struct _smb2_saved_info_t {
 	guint8 class;
 	guint8 infolevel;
 	guint64 seqnum;
+	char *create_name;
 	gboolean response; /* is this a response ? */
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
@@ -199,19 +200,48 @@ static const true_false_string tfs_flags_response = {
  * and fid->filename mappings
  * if we want to do those things in the future.
  */
+#define FID_MODE_OPEN		0
+#define FID_MODE_CLOSE		1
+#define FID_MODE_USE		2
 static int
-dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi, int mode)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
 	dcerpc_info di;	/* fake dcerpc_info struct */
 	void *old_private_data;
+	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	char *fid_name;
 
 	di.conformant_run=0;
 	di.call_data=NULL;
 	old_private_data=pinfo->private_data;
 	pinfo->private_data=&di;
 
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, 0, 0);
+	switch(mode){
+	case FID_MODE_OPEN:
+		offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
+		if(!pinfo->fd->flags.visited && ssi){
+			if(ssi->create_name){
+				fid_name = se_strdup_printf("File:%s", ssi->create_name);
+			} else {
+				fid_name = se_strdup_printf("File: ");
+			}
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+						  fid_name);
+		}
+/*
+		if (hnd_item && ssi)
+			proto_item_append_text(hnd_item, "%s", ssi->create_name);
+*/
+		break;
+	case FID_MODE_CLOSE:
+		offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, TRUE);
+		break;
+	case FID_MODE_USE:
+		offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, FALSE);
+		break;
+	}
 
 	pinfo->private_data=old_private_data;
 
@@ -435,7 +465,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 4;
 
 	/* fid */
-	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -570,7 +600,7 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 12;
 
 	/* fid */
-	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
 
 	return offset;
 }
@@ -659,7 +689,7 @@ dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* fid */
-	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_CLOSE);
 
 	return offset;
 }
@@ -711,7 +741,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* fid */
-	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
@@ -748,7 +778,7 @@ static int
 dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
 {
 	int length;
-	const char *name;
+	const char *name="";
 	guint16 bc;
 
 	/* some unknown bytes */
@@ -788,10 +818,22 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " File:/");
+			col_append_fstr(pinfo->cinfo, COL_INFO, " File:");
 		}
 	}
 	offset += length;
+
+	/* save the name if it looks sane */
+	if(!pinfo->fd->flags.visited){
+		if(ssi->create_name){
+			g_free(ssi->create_name);
+			ssi->create_name=NULL;
+		}
+		if(length && (length<256)){
+			ssi->create_name=g_malloc(length+1);
+			g_snprintf(ssi->create_name, length+1, "%s", name);
+		}
+	}
 
 	/* strange,   maybe this buffer here is minimum 8 bytes? 
 	 * we have to do this and the padding below to ensure the deterministic
@@ -838,7 +880,13 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 20;
 
 	/* fid */
-	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_OPEN);
+
+	/* free ssi->create_name   we dont need it any more */
+	if(ssi->create_name){
+		g_free(ssi->create_name);
+		ssi->create_name=NULL;
+	}
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 40, TRUE);
@@ -884,7 +932,7 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 4;
 
 	/* fid */
-	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi);
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
 
 	/* data */
 	dissect_smb2_infolevel(tvb, pinfo, tree, offset, ssi, class, infolevel);
@@ -1631,6 +1679,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				ssi->class=0;
 				ssi->infolevel=0;
 				ssi->seqnum=ssi_key.seqnum;
+				ssi->create_name=NULL;
 				ssi->frame_req=pinfo->fd->num;
 				ssi->frame_res=0;
 				ssi->req_time=pinfo->fd->abs_ts;
