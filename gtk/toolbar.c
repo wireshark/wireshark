@@ -120,11 +120,12 @@
 #include "../image/toolbar/stock_preferences_24.xpm"
 #if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_properties_24.xpm"
-#endif
 #include "../image/eicon3d16.xpm"
+#endif
 #include "../image/toolbar/colorize_24.xpm"
 #include "../image/toolbar/autoscroll_24.xpm"
 #include "../image/toolbar/resize_columns_24.xpm"
+#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/time_24.xpm"
 #include "../image/toolbar/internet_24.xpm"
 #include "../image/toolbar/web_support_24.xpm"
@@ -138,6 +139,7 @@
 #include "../image/toolbar/file_set_list_16.xpm"
 #include "../image/toolbar/file_set_next_16.xpm"
 #include "../image/toolbar/file_set_previous_16.xpm"
+#endif
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
