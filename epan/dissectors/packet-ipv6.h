@@ -602,14 +602,8 @@ struct fmip6_hi {
 #define fmip6_hi_flags_reserved fmip6_hi_hdr.icmp6_data8[1]
 #define fmip6_hi_id             fmip6_hi_hdr.icmp6_data16[1]
 
-#if BYTE_ORDER == BIG_ENDIAN
-#define FMIP_HI_FLAG_ASSIGNED 0x8000
-#define FMIP_HI_FLAG_BUFFER   0x4000
-#endif /* BIG_ENDIAN */
-#if BYTE_ORDER == LITTLE_ENDIAN
-#define FMIP_HI_FLAG_ASSIGNED 0x0080
-#define FMIP_HI_FLAG_BUFFER   0x0040
-#endif /* LITTLE_ENDIAN */
+#define FMIP_HI_FLAG_ASSIGNED 0x80
+#define FMIP_HI_FLAG_BUFFER   0x40
 
 /* Fast Handover Mobile IPv6 extension: Handover Acknowledge (HAck).  */
 struct fmip6_hack {
