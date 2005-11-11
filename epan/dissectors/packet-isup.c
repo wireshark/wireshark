@@ -1,6 +1,7 @@
 /* packet-isup.c
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
+ *
  * Copyright 2004-2005, Anders Broman <anders.broman@ericsson.com>
  * Modified 2003-09-10 by Anders Broman
  *		<anders.broman@ericsson.com>
@@ -215,8 +216,8 @@ const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_IDENT_RSP,             "IDS"},
   { MESSAGE_TYPE_SEGMENTATION,          "SGM"},
   { MESSAGE_TYPE_LOOP_PREVENTION,       "LOP"},
-  { MESSAGE_TYPE_APPLICATION_TRANS,	"APM"},
-  { MESSAGE_TYPE_PRE_RELEASE_INFO,	"PRI"}, 	
+  { MESSAGE_TYPE_APPLICATION_TRANS,		"APM"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,		"PRI"}, 	
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"SDN"},
 
   { 0,                                  NULL}};
@@ -313,7 +314,7 @@ const value_string isup_parameter_type_value[] = {
 #define COMMON_HEADER_LENGTH                   (CIC_LENGTH + MESSAGE_TYPE_LENGTH)
 #define BICC_COMMON_HEADER_LENGTH              (BICC_CIC_LENGTH + MESSAGE_TYPE_LENGTH)
 
-#define MAXDIGITS                              15 /* Max number of address digits */
+#define MAXDIGITS                              32 /* Max number of address digits */
 
 #define PARAMETER_TYPE_LENGTH                  1
 #define PARAMETER_POINTER_LENGTH               1
@@ -1011,14 +1012,14 @@ static const value_string isup_conference_acceptance_ind_value[] = {
 
 static const value_string isup_application_transport_parameter_value[] = {
   /* according 3.82/Q.763 */
-  {  0,        "Unidentified Context and Error Handling (UCEH) ASE"},
-  {  1,        "PSS1 ASE (VPN)"},
-  {  2,        "spare"},
-  {  3,        "Charging ASE"},
-  {  4,        "GAT"},
-  {  5,	   "BAT ASE"},
-  {  6,	   "Enhanced Unidentified Context and Error Handling ASE (EUCEH ASE)"},
-  {  0,         NULL}};
+  {  0,		"Unidentified Context and Error Handling (UCEH) ASE"},
+  {  1,		"PSS1 ASE (VPN)"},
+  {  2,		"spare"},
+  {  3,		"Charging ASE"},
+  {  4,		"GAT"},
+  {  5,		"BAT ASE"},
+  {  6,		"Enhanced Unidentified Context and Error Handling ASE (EUCEH ASE)"},
+  {  0,		NULL}};
 
 static const true_false_string isup_Release_call_indicator_value = {
   "release call",
@@ -1256,10 +1257,11 @@ static int hf_isup_Broadband_narrowband_interworking_ind	= -1;
 static int hf_isup_Broadband_narrowband_interworking_ind2	= -1;
 
 static int hf_isup_app_cont_ident					= -1;
-static int hf_isup_app_Send_notification_ind				= -1;
-static int hf_isup_apm_segmentation_ind					= -1;
+static int hf_isup_app_Send_notification_ind		= -1;
+static int hf_isup_apm_segmentation_ind				= -1;
 static int hf_isup_apm_si_ind						= -1;
-static int hf_isup_app_Release_call_ind					= -1;
+static int hf_isup_apm_slr							= -1;
+static int hf_isup_app_Release_call_ind				= -1;
 static int hf_length_indicator						= -1;
 static int hf_afi									= -1;
 static int hf_bicc_nsap_dsp							= -1;
@@ -1267,13 +1269,13 @@ static int hf_bat_ase_identifier					= -1;
 	
 static int hf_Action_Indicator						= -1;
 
-static int hf_Instruction_ind_for_general_action			= -1;	
+static int hf_Instruction_ind_for_general_action				= -1;	
 
 static int hf_Send_notification_ind_for_general_action			= -1;
 
 static int hf_Instruction_ind_for_pass_on_not_possible			= -1;
 
-static int hf_Send_notification_ind_for_pass_on_not_possible		= -1;
+static int hf_Send_notification_ind_for_pass_on_not_possible	= -1;
 static int hf_BCTP_Version_Indicator					= -1;
 static int hf_Tunnelled_Protocol_Indicator				= -1;
 static int hf_TPEI							= -1;
@@ -1457,41 +1459,41 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
 					    "Called Party Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
-  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
-    address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
-    proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
-    if (i > MAXDIGITS)
-      THROW(ReportedBoundsError);
-    if ((length - 1) > 0 ){
-      proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
-      if (i > MAXDIGITS)
-        THROW(ReportedBoundsError);
-    }
-    offset++;
+  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 1){
+	  address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
+	  proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
+	  called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+		if (i > MAXDIGITS)
+			THROW(ReportedBoundsError);
+		if ((length - 1) > 0 ){
+			proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
+			called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+			if (i > MAXDIGITS)
+				THROW(ReportedBoundsError);
+			}
+		offset++;
+		}
+  if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
+		proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
+		called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+		if (i > MAXDIGITS)
+			THROW(ReportedBoundsError);
   }
 
-  if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
-      proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
-      if (i > MAXDIGITS)
-	THROW(ReportedBoundsError);
-  }
   called_number[i++] = '\0';
   proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number);
   proto_item_set_text(parameter_item, "Called Party Number: %s", called_number);
   if ( number_plan == 1 ) {
-    e164_info.e164_number_type = CALLED_PARTY_NUMBER;
-    e164_info.nature_of_address = indicators1 & 0x7f;
-    e164_info.E164_number_str = called_number;
-    e164_info.E164_number_length = i - 1;
-    dissect_e164_number(parameter_tvb, address_digits_tree, 2, (offset - 2), e164_info);
-    proto_tree_add_string_hidden(address_digits_tree, hf_isup_called, parameter_tvb,
-	  offset - length, length, called_number);
+		e164_info.e164_number_type = CALLED_PARTY_NUMBER;
+		e164_info.nature_of_address = indicators1 & 0x7f;
+		e164_info.E164_number_str = called_number;
+		e164_info.E164_number_length = i - 1;
+		dissect_e164_number(parameter_tvb, address_digits_tree, 2, (offset - 2), e164_info);
+		proto_tree_add_string_hidden(address_digits_tree, hf_isup_called, parameter_tvb,
+		offset - length, length, called_number);
   } else {
-    proto_tree_add_string(address_digits_tree, hf_isup_called, parameter_tvb, 
-	  offset - length, length, called_number);
+		proto_tree_add_string(address_digits_tree, hf_isup_called, parameter_tvb, 
+			offset - length, length, called_number);
   }
   tap_called_number = ep_strdup(called_number);
 }
@@ -2269,28 +2271,28 @@ static const value_string bat_ase_organization_identifier_subfield_vals[] = {
 #define	G_711_64_U						0x02
 #define	G_711_56_A						0x03
 #define	G_711_56_U						0x04
-#define	G_722_SB_ADPCM						0x05
+#define	G_722_SB_ADPCM					0x05
 #define	G_723_1							0x06
-#define	G_723_1_Annex_A						0x07
+#define	G_723_1_Annex_A					0x07
 #define	G_726_ADPCM						0x08
-#define	G_727_Embedded_ADPCM					0x09
+#define	G_727_Embedded_ADPCM			0x09
 #define	G_728							0x0a
-#define	G_729_CS_ACELP						0x0b
-#define	G_729_Annex_B						0x0c
+#define	G_729_CS_ACELP					0x0b
+#define	G_729_Annex_B					0x0c
 
 static const value_string ITU_T_codec_type_subfield_vals[] = {
 
-	{ 0x00,				"no indication"},
+	{ 0x00,					"no indication"},
 	{ G_711_64_A,			"G.711 64 kbit/s A-law"},
 	{ G_711_64_U,			"G.711 64 kbit/s -law"},
 	{ G_711_56_A,			"G.711 56 kbit/s A-law"},
 	{ G_711_56_U,			"G.711 56 kbit/s -law"},
 	{ G_722_SB_ADPCM,		"G.722 (SB-ADPCM)"},
-	{ G_723_1,			"G.723.1"},
+	{ G_723_1,				"G.723.1"},
 	{ G_723_1_Annex_A,		"G.723.1 Annex A (silence suppression)"},
 	{ G_726_ADPCM,			"G.726 (ADPCM)"},
-	{ G_727_Embedded_ADPCM,		"G.727 (Embedded ADPCM)"},
-	{ G_728,			"G.728"},
+	{ G_727_Embedded_ADPCM,	"G.727 (Embedded ADPCM)"},
+	{ G_728,				"G.728"},
 	{ G_729_CS_ACELP,		"G.729 (CS-ACELP)"},
 	{ G_729_Annex_B,		"G.729 Annex B (silence suppression)"},
 	{ 0,	NULL }
@@ -2467,7 +2469,7 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
 			offset = offset + 1;
 			tempdata = tvb_get_guint8(tvb, offset);
 			proto_tree_add_uint(tree, hf_etsi_codec_type , tvb, offset, 1, tempdata );
-			if ( len > 1 )	{
+			if ( len > 2 )	{
 				offset = offset + 1;
 				tempdata = tvb_get_guint8(tvb, offset);
 
@@ -2483,7 +2485,7 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
 				proto_tree_add_item(acs_tree, hf_active_code_set_4_75, tvb, offset, 1, TRUE);
 				
 			}
-			if ( len > 2 )	{
+			if ( len > 3 )	{
 				offset = offset + 1;
 				tempdata = tvb_get_guint8(tvb, offset);
 				
@@ -2498,7 +2500,7 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
 				proto_tree_add_item(scs_tree, hf_supported_code_set_5_15, tvb, offset, 1, TRUE);
 				proto_tree_add_item(scs_tree, hf_supported_code_set_4_75, tvb, offset, 1, TRUE);
 			}
-			if ( len > 3 )	{
+			if ( len > 4 )	{
 				offset = offset + 1;
 				proto_tree_add_item(tree, hf_initial_codec_mode, tvb, offset, 1, TRUE);
 				proto_tree_add_item(tree, hf_max_codec_modes, tvb, offset, 1, TRUE);
@@ -2538,17 +2540,18 @@ guint8 compatibility_info;
 return offset;
 }
 
-/* Dissect BAT ASE message according to Q.765.5 200006 and Amendment 1 200107	*/
-/* Layout of message								*/
-/*	Element name			Octet					*/			
-/*	Identifier 1 			1					*/
-/*	Length indicator 1 		2					*/
-/*	Compatibility information 1 	3					*/
-/*	Contents 1				4					*/
-/*	Identifier n 			m					*/
-/*	Length indicator n							*/
-/*	Compatibility information n						*/
-/*	Contents n				p					*/
+/* Dissect BAT ASE message according to Q.765.5 200006 and Amendment 1 200107	
+ * Layout of message		Length			Octet	
+ *	Element name										
+ *	Identifier					1 			1
+ *	Length indicator			1			2
+ *	Compatibility information	1 			3
+ *	Contents					1			4
+ *	Identifier					n 			m
+ *	Length indicator			n			
+ *	Compatibility information	n			
+ *	Contents					n			p				
+ */
 
 static void
 dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, gint offset)
@@ -2557,7 +2560,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 	tvbuff_t	*next_tvb;
 	proto_tree	*bat_ase_tree, *bat_ase_element_tree, *bat_ase_iwfa_tree;
 	proto_item	*bat_ase_item, *bat_ase_element_item, *bat_ase_iwfa_item;
-	guint8 identifier,compatibility_info,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
+	guint8 identifier,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
 	guint8 sdp_length, tempdata, element_no, number_of_indicators;
 	guint8 diagnostic_len;
 	guint8 length_ind_len;
@@ -2568,9 +2571,8 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 	guint32 bncid, Local_BCU_ID;
 	element_no = 0;
 
-	bat_ase_item = proto_tree_add_text(parameter_tree,parameter_tvb,
-					   offset, -1,
-"Bearer Association Transport (BAT) Application Service Element (ASE) Encapsulated Application Information:");
+	bat_ase_item = proto_tree_add_text(parameter_tree,parameter_tvb, offset, -1,
+		"Bearer Association Transport (BAT) Application Service Element (ASE) Encapsulated Application Information:");
 	bat_ase_tree = proto_item_add_subtree(bat_ase_item , ett_bat_ase);
 
 	proto_tree_add_text(bat_ase_tree, parameter_tvb, offset, -1, 
@@ -2581,6 +2583,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 		/* length indicator may be 11 bits long 			*/
 		offset = offset + 1;
+		proto_tree_add_item( bat_ase_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
 		tempdata = tvb_get_guint8(parameter_tvb, offset);
 		if ( tempdata & 0x80 ) {
 			length_indicator = tempdata & 0x7f;
@@ -2609,12 +2612,11 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 			offset - length_ind_len + 1, length_ind_len, length_indicator );
 		
 		offset = offset + 1;
-		compatibility_info = tvb_get_guint8(parameter_tvb, offset);
-		proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info );
-		proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info );
-		proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
-		proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
-		proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info );
+		proto_tree_add_item( bat_ase_element_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+		proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, FALSE );
+		proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, FALSE );
+		proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_general_action, parameter_tvb, offset, 1, FALSE );
+		proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_general_action, parameter_tvb, offset, 1, FALSE );
 		offset = offset + 1;
 		}
 		content_len = length_indicator - 1 ; /* exclude the treated Compatibility information */
@@ -2831,63 +2833,71 @@ static void
 dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 { 
 
-  guint8 application_context_identifier;
-  guint8 application_transport_instruction_ind;
-  guint8 si_and_apm_segmentation_indicator;
-  guint8 apm_Segmentation_local_ref;
-  guint8 pointer_to_transparent_data;
-  guint16 application_context_identifier16;
-  gint offset = 0;
-  guint length = tvb_reported_length(parameter_tvb);
+	guint8 aci;			/* application context identifier */
+	guint8 application_transport_instruction_ind;
+	guint8 si_and_apm_segmentation_indicator;
+	guint8 apm_Segmentation_local_ref;
+	guint8 pointer_to_transparent_data;
+	guint16 aci16;
+	gint offset = 0;
+	guint length = tvb_reported_length(parameter_tvb);
   
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Application transport parameter fields:");
-  proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
-  application_context_identifier = tvb_get_guint8(parameter_tvb, 0);
+	proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Application transport parameter fields:");
+	proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
+	aci = tvb_get_guint8(parameter_tvb, 0);
  
-  if ( (application_context_identifier & H_8BIT_MASK) == 0x80) {
-    proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident, parameter_tvb,offset, 1, (application_context_identifier & GFEDCBA_8BIT_MASK));
-    offset = offset + 1;
-    if ((application_context_identifier & 0x7f) > 6)
-      return;
-  }
-  else {
-    application_context_identifier16 = tvb_get_letohs(parameter_tvb,offset); 
-    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 2, "Application context identifier: 0x%x", application_context_identifier16);
-    offset = offset + 2;
-    return; /* no further decoding of this element */
-  }
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport instruction indicators: ");
-  application_transport_instruction_ind = tvb_get_guint8(parameter_tvb, offset);	
-  proto_tree_add_boolean(parameter_tree, hf_isup_app_Release_call_ind, parameter_tvb, offset, 1, application_transport_instruction_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_app_Send_notification_ind, parameter_tvb, offset, 1, application_transport_instruction_ind);
-  offset = offset + 1; 
-  if ( (application_transport_instruction_ind & H_8BIT_MASK) == 0x80) {
-        proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "APM segmentation indicator:");
+	if ( (aci & H_8BIT_MASK) == 0x80) {
+		/* Octet 1 */
+		proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+		proto_tree_add_item( parameter_tree, hf_isup_app_cont_ident, parameter_tvb, offset, 1, FALSE );
+		offset = offset + 1;
+		if ((aci & 0x7f) > 6)
+			return;
+		}
+	else {
+		aci16 = tvb_get_letohs(parameter_tvb,offset);
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 2, "Application context identifier: 0x%x", aci16);
+		offset = offset + 2;
+		return; /* no further decoding of this element */
+	}
+
+	/* Octet 2 */
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport instruction indicators: ");
+	application_transport_instruction_ind = tvb_get_guint8(parameter_tvb, offset);	
+	proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+	proto_tree_add_item( parameter_tree, hf_isup_app_Send_notification_ind, parameter_tvb, offset, 1, FALSE );
+	proto_tree_add_item( parameter_tree, hf_isup_app_Release_call_ind, parameter_tvb, offset, 1, FALSE );
+	offset = offset + 1; 
+
+	/* Octet 3*/
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "APM segmentation indicator:");
 	si_and_apm_segmentation_indicator  = tvb_get_guint8(parameter_tvb, offset);
-	proto_tree_add_uint(parameter_tree, hf_isup_apm_segmentation_ind , parameter_tvb, offset, 1, si_and_apm_segmentation_indicator  );
-	proto_tree_add_boolean(parameter_tree, hf_isup_apm_si_ind , parameter_tvb, offset, 1, si_and_apm_segmentation_indicator  );
+	proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+	proto_tree_add_item( parameter_tree, hf_isup_apm_si_ind, parameter_tvb, offset, 1, FALSE );
+	proto_tree_add_item( parameter_tree, hf_isup_apm_segmentation_ind, parameter_tvb, offset, 1, FALSE );
 	offset = offset + 1;
 
-	if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x80) {
-	  apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
-	  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Segmentation local reference (SLR): 0x%x", apm_Segmentation_local_ref  );
-	  offset = offset + 1;
-  	}
-  }	
+	/* Octet 3a */
+	/*if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x00) {*/
+		apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
+		proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+		proto_tree_add_item( parameter_tree, hf_isup_apm_slr, parameter_tvb, offset, 1, FALSE );
+		offset = offset + 1;
+	/*}*/
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "APM-user information field"  );
-  /* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
-  if ((application_context_identifier & 0x7f) != 5) {
-    proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "No further dissection of APM-user information field");
-    return;
-  }
-  pointer_to_transparent_data = tvb_get_guint8(parameter_tvb, offset);
-  if (pointer_to_transparent_data != 0)
-    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x Don't know how to dissect further", pointer_to_transparent_data  );
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x No transparent data", pointer_to_transparent_data  );
-  offset = offset + 1;
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "APM-user information field"  );
+	/* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
+	if ((aci & 0x7f) != 5) {
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "No further dissection of APM-user information field");
+		return;
+	}
+	pointer_to_transparent_data = tvb_get_guint8(parameter_tvb, offset);
+	if (pointer_to_transparent_data != 0)
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x Don't know how to dissect further", pointer_to_transparent_data  );
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x No transparent data", pointer_to_transparent_data  );
+	offset = offset + 1;
  
-  dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb, pinfo, parameter_tree, offset);
+	dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb, pinfo, parameter_tree, offset);
 }
 
 
@@ -6237,7 +6247,7 @@ proto_register_isup(void)
 
 		{ &hf_isup_app_cont_ident,
 			{ "Application context identifier",  "isup.app_context_identifier",
-			FT_UINT8, BASE_DEC, VALS(isup_application_transport_parameter_value),0x0,
+			FT_UINT8, BASE_DEC, VALS(isup_application_transport_parameter_value),GFEDCBA_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_app_Release_call_ind, 
@@ -6260,6 +6270,11 @@ proto_register_isup(void)
 			FT_BOOLEAN, 8, TFS(&isup_Sequence_ind_value), G_8BIT_MASK,
 			"", HFILL }},
 		
+		{ &hf_isup_apm_slr, 
+			{ "Segmentation local reference (SLR)",  "isup.APM_slr",
+			FT_UINT8, BASE_DEC, NULL,GFEDCBA_8BIT_MASK,
+			"", HFILL }},
+
 		{ &hf_bat_ase_identifier,
 			{ "BAT ASE Identifiers",  "bicc.bat_ase_identifier",
 			FT_UINT8, BASE_HEX, VALS(bat_ase_list_of_Identifiers_vals),0x0,	
@@ -6267,7 +6282,7 @@ proto_register_isup(void)
   
 		{ &hf_length_indicator,
 			{ "BAT ASE Element length indicator",  "bicc.bat_ase_length_indicator",
-			FT_UINT8, BASE_DEC, NULL,0x0,
+			FT_UINT16, BASE_DEC, NULL,0x0,
 			"", HFILL }},
 
 		{ &hf_Action_Indicator,
