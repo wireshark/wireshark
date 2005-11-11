@@ -166,14 +166,19 @@ static void init_stream_hash( void ) {
 /* lookup function, returns null if not found */
 static stream_t *stream_hash_lookup_circ( const struct circuit *circuit, int p2p_dir )
 {
-    stream_key_t key = {TRUE,{circuit}, p2p_dir};
+    stream_key_t key;
+    key.is_circuit=TRUE;
+    key.circ.circuit=circuit;
+    key.p2p_dir=p2p_dir;
     return (stream_t *)g_hash_table_lookup(stream_hash, &key);
 }
 
 static stream_t *stream_hash_lookup_conv( const struct conversation *conv, int p2p_dir )
 {
-    stream_key_t key = {FALSE,{NULL}, p2p_dir};
+    stream_key_t key;
+    key.is_circuit=FALSE;
     key.circ.conv = conv;
+    key.p2p_dir=p2p_dir;
     return (stream_t *)g_hash_table_lookup(stream_hash, &key);
 }
 
@@ -327,8 +332,13 @@ static void init_fragment_hash( void ) {
 /* lookup function, returns null if not found */
 static stream_pdu_fragment_t *fragment_hash_lookup( const stream_t *stream, guint32 framenum, guint32 offset )
 {
-    fragment_key_t key = {stream, framenum, offset};
-    stream_pdu_fragment_t *val = g_hash_table_lookup(fragment_hash, &key);
+    fragment_key_t key;
+    stream_pdu_fragment_t *val;
+
+    key.stream = stream;
+    key.framenum = framenum;
+    key.offset = offset;
+    val = g_hash_table_lookup(fragment_hash, &key);
 
     return val;
 }
