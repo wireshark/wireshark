@@ -207,8 +207,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	switch(mode){
 	case FID_MODE_OPEN:
 		offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
-		if(!pinfo->fd->flags.visited && ssi){
-			if(ssi->create_name){
+		if(!pinfo->fd->flags.visited){
+			if(ssi && ssi->create_name){
 				fid_name = se_strdup_printf("File:%s", ssi->create_name);
 			} else {
 				fid_name = se_strdup_printf("File: ");
@@ -217,7 +217,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 						  fid_name);
 		}
 /*
-		if (hnd_item && ssi)
+		if (hnd_item && ssi && ssi->create_name)
 			proto_item_append_text(hnd_item, "%s", ssi->create_name);
 */
 		break;
@@ -848,11 +848,11 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* save the name if it looks sane */
 	if(!pinfo->fd->flags.visited){
-		if(ssi->create_name){
+		if(ssi && ssi->create_name){
 			g_free(ssi->create_name);
 			ssi->create_name=NULL;
 		}
-		if(length && (length<256)){
+		if(ssi && length && (length<256)){
 			ssi->create_name=g_malloc(length+1);
 			g_snprintf(ssi->create_name, length+1, "%s", name);
 		}
@@ -906,7 +906,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_OPEN);
 
 	/* free ssi->create_name   we dont need it any more */
-	if(ssi->create_name){
+	if(ssi && ssi->create_name){
 		g_free(ssi->create_name);
 		ssi->create_name=NULL;
 	}
