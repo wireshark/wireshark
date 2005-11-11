@@ -221,7 +221,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
 	switch(mode){
 	case FID_MODE_OPEN:
-		offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
 		if(!pinfo->fd->flags.visited){
 			if(ssi && ssi->create_name){
 				fid_name = se_strdup_printf("File:%s", ssi->create_name);
@@ -237,10 +237,10 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 */
 		break;
 	case FID_MODE_CLOSE:
-		offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, TRUE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, TRUE);
 		break;
 	case FID_MODE_USE:
-		offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, FALSE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, FALSE);
 		break;
 	}
 
@@ -574,8 +574,8 @@ static int
 dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
@@ -595,8 +595,8 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	guint16 bc;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
@@ -730,8 +730,8 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 12, TRUE);
-	offset += 12;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
@@ -836,8 +836,8 @@ static int
 dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi)
 {
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_CLOSE);
@@ -889,8 +889,8 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* offset */
 	off=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_write_offset, tvb, offset, 4, TRUE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_smb2_write_offset, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
@@ -940,8 +940,8 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 4;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb2_read_offset, tvb, offset, 4, TRUE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_smb2_read_offset, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
@@ -1087,8 +1087,8 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 20, TRUE);
-	offset += 20;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 24, TRUE);
+	offset += 24;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_OPEN);
@@ -1147,8 +1147,8 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
@@ -2086,7 +2086,7 @@ proto_register_smb2(void)
 		NULL, 0, "Time when this object was created", HFILL }},
 
 	{ &hf_smb2_fid,
-		{ "File Id", "smb2.fid", FT_BYTES, BASE_HEX, 
+		{ "File Id", "smb2.fid", FT_GUID, BASE_NONE, 
 		NULL, 0, "SMB2 File Id", HFILL }},
 
 	{ &hf_smb2_write_data,

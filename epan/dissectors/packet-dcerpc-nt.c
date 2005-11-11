@@ -801,11 +801,20 @@ static int hf_nt_policy_close_frame = -1;
 
 static gint ett_nt_policy_hnd = -1;
 
+/* this function is used to dissect a "handle".
+ * it will keep track of which frame a handle is opened from and in which 
+ * frame it is closed.
+ * normally, this function would be used for tracking 20 byte policy handles
+ * as used in dcerpc  but it has shown VERY useful to also use it for tracking
+ * GUIDs such as for the file ids in smb2.
+ */
+#define HND_TYPE_CTX_HANDLE	0
+#define HND_TYPE_GUID		1
 int
-dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
-		      gboolean is_open, gboolean is_close)
+		      gboolean is_open, gboolean is_close, int type)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -828,13 +837,26 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* Add to proto tree */
 
-	item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
-				   "Policy Handle");
+	switch(type){
+	case HND_TYPE_CTX_HANDLE:
+		item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
+					   "Policy Handle");
 
-	subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
+		subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
 
-	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep,
-				     hfindex, &hnd);
+		offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep,
+					     hfindex, &hnd);
+		break;
+	case HND_TYPE_GUID:
+		item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
+					   "GUID handle");
+
+		subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
+
+		hnd.attributes=0;
+		offset=dissect_ndr_uuid_t(tvb, offset, pinfo, subtree, drep, hfindex, &hnd.uuid);
+		break;
+	}
 
 	/*
 	 * Create a new entry for this handle if it's not a null handle
@@ -878,6 +900,36 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (pitem)
 		*pitem = item;
+
+	return offset;
+}
+
+
+int
+dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		      proto_tree *tree, guint8 *drep, int hfindex,
+		      e_ctx_hnd *pdata, proto_item **pitem,
+		      gboolean is_open, gboolean is_close)
+{
+	offset=dissect_nt_hnd(tvb, offset, pinfo,
+		      tree, drep, hfindex,
+		      pdata, pitem,
+		      is_open, is_close, HND_TYPE_CTX_HANDLE);
+
+	return offset;
+}
+
+/* this function must be called with   hfindex being HF_GUID */
+int
+dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		      proto_tree *tree, guint8 *drep, int hfindex,
+		      e_ctx_hnd *pdata, proto_item **pitem,
+		      gboolean is_open, gboolean is_close)
+{
+	offset=dissect_nt_hnd(tvb, offset, pinfo,
+		      tree, drep, hfindex,
+		      pdata, pitem,
+		      is_open, is_close, HND_TYPE_GUID);
 
 	return offset;
 }
