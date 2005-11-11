@@ -88,6 +88,7 @@ static int hf_smb2_file_info_0a = -1;
 static int hf_smb2_file_info_0d = -1;
 static int hf_smb2_fs_info_01 = -1;
 static int hf_smb2_fs_info_05 = -1;
+static int hf_smb2_sec_info_00 = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
 static int hf_smb2_write_data = -1;
@@ -103,14 +104,17 @@ static gint ett_smb2_file_info_0a = -1;
 static gint ett_smb2_file_info_0d = -1;
 static gint ett_smb2_fs_info_01 = -1;
 static gint ett_smb2_fs_info_05 = -1;
+static gint ett_smb2_sec_info_00 = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
 #define SMB2_CLASS_FILE_INFO	0x01
 #define SMB2_CLASS_FS_INFO	0x02
+#define SMB2_CLASS_SEC_INFO	0x03
 static const value_string smb2_class_vals[] = {
 	{ SMB2_CLASS_FILE_INFO,	"FILE_INFO"},
 	{ SMB2_CLASS_FS_INFO,	"FS_INFO"},
+	{ SMB2_CLASS_SEC_INFO,	"SEC_INFO"},
 	{ 0, NULL }
 };
 
@@ -121,6 +125,8 @@ static const value_string smb2_class_vals[] = {
 
 #define SMB2_FS_INFO_01		0x01 
 #define SMB2_FS_INFO_05		0x05 
+
+#define SMB2_SEC_INFO_00	0x00
 
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info
@@ -377,6 +383,23 @@ dissect_smb2_file_info_0a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 }
 
 static int
+dissect_smb2_sec_info_00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_sec_info_00, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_sec_info_00);
+	}
+
+	/* security descriptor */
+	offset = dissect_nt_sec_desc(tvb, offset, pinfo, tree, NULL, TRUE, tvb_length_remaining(tvb, offset), NULL);
+
+	return offset;
+}
+
+static int
 dissect_smb2_fs_info_05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	proto_item *item=NULL;
@@ -412,6 +435,7 @@ dissect_smb2_fs_info_05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 
 	return offset;
 }
+
 static int
 dissect_smb2_fs_info_01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
 {
@@ -712,6 +736,17 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			break;
 		case SMB2_FS_INFO_05:
 			dissect_smb2_fs_info_05(tvb, pinfo, tree, offset, ssi);
+			break;
+		default:
+			/* we dont handle this infolevel yet */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+			offset += tvb_length_remaining(tvb, offset);
+		}
+		break;
+	case SMB2_CLASS_SEC_INFO:
+		switch(infolevel){
+		case SMB2_SEC_INFO_00:
+			dissect_smb2_sec_info_00(tvb, pinfo, tree, offset, ssi);
 			break;
 		default:
 			/* we dont handle this infolevel yet */
@@ -1968,6 +2003,10 @@ proto_register_smb2(void)
 		{ "SMB2_FS_INFO_05", "smb2.smb2_fs_info_05", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_05 structure", HFILL }},
 
+	{ &hf_smb2_sec_info_00,
+		{ "SMB2_FS_INFO_00", "smb2.smb2_sec_info_00", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FS_INFO_00 structure", HFILL }},
+
 	{ &hf_smb2_disposition_delete_on_close,
 	  { "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
 		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
@@ -1993,6 +2032,7 @@ proto_register_smb2(void)
 		&ett_smb2_file_info_0d,
 		&ett_smb2_fs_info_01,
 		&ett_smb2_fs_info_05,
+		&ett_smb2_sec_info_00,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
