@@ -70,6 +70,7 @@ static int hf_smb2_last_write_timestamp = -1;
 static int hf_smb2_last_change_timestamp = -1;
 static int hf_smb2_filename_len = -1;
 static int hf_smb2_filename = -1;
+static int hf_smb2_end_of_file = -1;
 static int hf_smb2_fstype_len = -1;
 static int hf_smb2_fstype = -1;
 static int hf_smb2_tree_len = -1;
@@ -266,6 +267,14 @@ dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 
 	/* last change */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, FALSE);
+	offset += 16;
+
+	/* end of file */
+	proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
@@ -1889,6 +1898,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_uid,
 		{ "User Id", "smb2.uid", FT_UINT64, BASE_HEX,
 		NULL, 0, "SMB2 User Id", HFILL }},
+	{ &hf_smb2_end_of_file,
+		{ "End Of File", "smb2.eof", FT_UINT64, BASE_DEC,
+		NULL, 0, "SMB2 End Of File/File size", HFILL }},
 	{ &hf_smb2_max_response_size,
 		{ "Max Response Size", "smb2.max_response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Maximum response size", HFILL }},
@@ -2004,8 +2016,8 @@ proto_register_smb2(void)
 		NULL, 0, "SMB2_FS_INFO_05 structure", HFILL }},
 
 	{ &hf_smb2_sec_info_00,
-		{ "SMB2_FS_INFO_00", "smb2.smb2_sec_info_00", FT_NONE, BASE_NONE,
-		NULL, 0, "SMB2_FS_INFO_00 structure", HFILL }},
+		{ "SMB2_SEC_INFO_00", "smb2.smb2_sec_info_00", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_SEC_INFO_00 structure", HFILL }},
 
 	{ &hf_smb2_disposition_delete_on_close,
 	  { "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
