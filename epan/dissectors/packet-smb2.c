@@ -70,6 +70,7 @@ static int hf_smb2_last_write_timestamp = -1;
 static int hf_smb2_last_change_timestamp = -1;
 static int hf_smb2_filename_len = -1;
 static int hf_smb2_filename = -1;
+static int hf_smb2_allocation_size = -1;
 static int hf_smb2_end_of_file = -1;
 static int hf_smb2_fstype_len = -1;
 static int hf_smb2_fstype = -1;
@@ -269,8 +270,12 @@ dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, FALSE);
-	offset += 16;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, FALSE);
+	offset += 8;
+
+	/* allocation size */
+	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* end of file */
 	proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, TRUE);
@@ -1014,8 +1019,16 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 40, TRUE);
-	offset += 40;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
 
 	return offset;
 }
@@ -1901,6 +1914,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_end_of_file,
 		{ "End Of File", "smb2.eof", FT_UINT64, BASE_DEC,
 		NULL, 0, "SMB2 End Of File/File size", HFILL }},
+	{ &hf_smb2_allocation_size,
+		{ "Allocation Size", "smb2.allocation_size", FT_UINT64, BASE_DEC,
+		NULL, 0, "SMB2 Allocation Size for this object", HFILL }},
 	{ &hf_smb2_max_response_size,
 		{ "Max Response Size", "smb2.max_response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Maximum response size", HFILL }},
