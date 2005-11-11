@@ -571,6 +571,23 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static int
+dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, ssi, FID_MODE_USE);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	return offset;
+}
+
+static int
 dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_saved_info_t *ssi _U_)
 {
 	int search_len;
@@ -1441,7 +1458,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x0e Find*/  
 	{dissect_smb2_find_request,
 	 dissect_smb2_find_response},
-  /* 0x0f */  {NULL, NULL},
+  /* 0x0f Notify*/  
+	{dissect_smb2_notify_request,
+	 NULL},
   /* 0x10 GetInfo*/  
 	{dissect_smb2_getinfo_request,
 	 dissect_smb2_getinfo_response},
