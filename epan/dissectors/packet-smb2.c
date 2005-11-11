@@ -1040,7 +1040,7 @@ const value_string smb2_cmd_vals[] = {
   { 0x0C, "unknown-0x0C" },
   { 0x0D, "unknown-0x0D" },
   { 0x0E, "Find" },
-  { 0x0F, "unknown-0x0F" },
+  { 0x0F, "Notify" },
   { 0x10, "GetInfo" },
   { 0x11, "SetInfo" },
   { 0x12, "unknown-0x12" },
