@@ -59,7 +59,6 @@ static int hf_smb2_seqnum = -1;
 static int hf_smb2_pid = -1;
 static int hf_smb2_tid = -1;
 static int hf_smb2_uid = -1;
-static int hf_smb2_suid = -1;
 static int hf_smb2_flags_response = -1;
 static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
@@ -1624,12 +1623,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 4;
 
 	/* User ID */
-	proto_tree_add_item(header_tree, hf_smb2_uid, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* Secondary User ID */
-	proto_tree_add_item(header_tree, hf_smb2_suid, tvb, offset, 4, TRUE);
-	offset += 4;
+	proto_tree_add_item(header_tree, hf_smb2_uid, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* some unknown bytes */
 	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
@@ -1799,11 +1794,8 @@ proto_register_smb2(void)
 		{ "Tree Id", "smb2.tid", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Tree Id", HFILL }},
 	{ &hf_smb2_uid,
-		{ "User Id", "smb2.uid", FT_UINT32, BASE_DEC,
+		{ "User Id", "smb2.uid", FT_UINT64, BASE_HEX,
 		NULL, 0, "SMB2 User Id", HFILL }},
-	{ &hf_smb2_suid,
-		{ "Secondary User Id", "smb2.suid", FT_UINT32, BASE_DEC,
-		NULL, 0, "SMB2 Secondary User Id", HFILL }},
 	{ &hf_smb2_max_response_size,
 		{ "Max Response Size", "smb2.max_response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Maximum response size", HFILL }},
