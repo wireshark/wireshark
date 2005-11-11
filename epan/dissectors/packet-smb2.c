@@ -84,6 +84,7 @@ static int hf_smb2_max_response_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_file_info_12 = -1;
 static int hf_smb2_file_info_22 = -1;
+static int hf_smb2_file_info_0a = -1;
 static int hf_smb2_file_info_0d = -1;
 static int hf_smb2_fs_info_01 = -1;
 static int hf_smb2_fs_info_05 = -1;
@@ -98,6 +99,7 @@ static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
 static gint ett_smb2_file_info_12 = -1;
 static gint ett_smb2_file_info_22 = -1;
+static gint ett_smb2_file_info_0a = -1;
 static gint ett_smb2_file_info_0d = -1;
 static gint ett_smb2_fs_info_01 = -1;
 static gint ett_smb2_fs_info_05 = -1;
@@ -114,6 +116,7 @@ static const value_string smb2_class_vals[] = {
 
 #define SMB2_FILE_INFO_22	0x22
 #define SMB2_FILE_INFO_12	0x12
+#define SMB2_FILE_INFO_0a	0x0a
 #define SMB2_FILE_INFO_0d	0x0d
 
 #define SMB2_FS_INFO_01		0x01 
@@ -317,6 +320,58 @@ dissect_smb2_file_info_0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 
 	/* file disposition */
 	proto_tree_add_item(tree, hf_smb2_disposition_delete_on_close, tvb, offset, 1, TRUE);
+
+	return offset;
+}
+
+static int
+dissect_smb2_file_info_0a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_saved_info_t *ssi _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int length;
+	const char *name="";
+	guint16 bc;
+
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_0a, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_info_0a);
+	}
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, FALSE);
+	offset += 16;
+
+	/* file name length */
+	length=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	/* file name */
+	if(length){
+		bc=tvb_length_remaining(tvb, offset);
+		name = get_unicode_or_ascii_string(tvb, &offset,
+			TRUE, &length, TRUE, TRUE, &bc);
+		if(name){
+			proto_tree_add_string(tree, hf_smb2_filename, tvb,
+				offset, length, name);
+		}
+
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " NewName:%s",
+			name);
+		}
+	}
+	offset += length;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
+	offset += 4;
 
 	return offset;
 }
@@ -632,6 +687,9 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	switch(class){
 	case SMB2_CLASS_FILE_INFO:
 		switch(infolevel){
+		case SMB2_FILE_INFO_0a:
+			dissect_smb2_file_info_0a(tvb, pinfo, tree, offset, ssi);
+			break;
 		case SMB2_FILE_INFO_0d:
 			dissect_smb2_file_info_0d(tvb, pinfo, tree, offset, ssi);
 			break;
@@ -1898,6 +1956,10 @@ proto_register_smb2(void)
 		{ "SMB2_FILE_INFO_0d", "smb2.smb2_file_info_0d", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INFO_0d structure", HFILL }},
 
+	{ &hf_smb2_file_info_0a,
+		{ "SMB2_FILE_INFO_0a", "smb2.smb2_file_info_0a", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_INFO_0a structure", HFILL }},
+
 	{ &hf_smb2_fs_info_01,
 		{ "SMB2_FS_INFO_01", "smb2.smb2_fs_info_01", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_01 structure", HFILL }},
@@ -1927,6 +1989,7 @@ proto_register_smb2(void)
 		&ett_smb2_secblob,
 		&ett_smb2_file_info_22,
 		&ett_smb2_file_info_12,
+		&ett_smb2_file_info_0a,
 		&ett_smb2_file_info_0d,
 		&ett_smb2_fs_info_01,
 		&ett_smb2_fs_info_05,
