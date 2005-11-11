@@ -853,6 +853,7 @@ DISSECTOR_INCLUDES =	\
 	packet-sip.h	\
 	packet-sll.h	\
 	packet-smb.h	\
+	packet-smb2.h	\
 	packet-smb-browse.h	\
 	packet-smb-common.h	\
 	packet-smb-mailslot.h	\

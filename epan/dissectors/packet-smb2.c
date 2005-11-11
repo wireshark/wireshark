@@ -39,6 +39,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 
+#include "packet-smb2.h"
 #include "packet-dcerpc.h"
 #include "packet-ntlmssp.h"
 #include "packet-windows-common.h"
@@ -118,23 +119,6 @@ static const value_string smb2_class_vals[] = {
 
 #define SMB2_FS_INFO_01		0x01 
 #define SMB2_FS_INFO_05		0x05 
-
-typedef struct _smb2_saved_info_t {
-	guint8 class;
-	guint8 infolevel;
-	guint64 seqnum;
-	char *create_name;
-	gboolean response; /* is this a response ? */
-	guint32 frame_req, frame_res;
-	nstime_t req_time;
-} smb2_saved_info_t;
-
-/* structure to keep track of conversations and the hash tables. */
-typedef struct _smb2_info_t {
-	/* these two tables are used to match requests with responses */
-	GHashTable *unmatched;
-	GHashTable *matched;
-} smb2_info_t;
 
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info
