@@ -5,7 +5,7 @@
  * this protocol.
  * If you edit this file, keep the wiki updated as well.
  *
- * $Id: packet-smb2.c 16113 2005-10-04 10:23:40Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

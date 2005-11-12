@@ -1,7 +1,7 @@
 /* packet-smb2.h
  * Defines for SMB2 packet dissection
  *
- * $Id: packet-smb2.h 15845 2005-09-17 00:31:15Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
