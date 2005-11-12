@@ -31,10 +31,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef HAVE_IO_H
-# include <io.h>
-#endif
-
 #include <pcap.h>
 
 #include <glib.h>
