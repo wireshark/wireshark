@@ -39,7 +39,7 @@
 
 #include "packet-tcp.h"
 
-#define TCP_PORT_RLOGIN 513
+#define RLOGIN_PORT 513
 
 static int proto_rlogin = -1;
 
@@ -52,127 +52,160 @@ static int ett_rlogin_window_x_pixels = -1;
 static int ett_rlogin_window_y_pixels = -1;
 
 static int hf_user_info = -1;
+static int hf_client_startup_flag = -1;
+static int hf_startup_info_received_flag = -1;
+static int hf_user_info_client_user_name = -1;
+static int hf_user_info_server_user_name = -1;
+static int hf_user_info_terminal_type = -1;
+static int hf_user_info_terminal_speed = -1;
+static int hf_control_message = -1;
 static int hf_window_info = -1;
+static int hf_window_info_ss = -1;
 static int hf_window_info_rows = -1;
 static int hf_window_info_cols = -1;
 static int hf_window_info_x_pixels = -1;
 static int hf_window_info_y_pixels = -1;
+static int hf_data = -1;
 
-#define RLOGIN_PORT 513
+static const value_string control_message_vals[] =
+{
+    { 0x02,     "Clear buffer"        },
+    { 0x10,     "Raw mode"            },
+    { 0x20,     "Cooked mode"         },
+    { 0x80,     "Window size request" },
+    { 0, NULL }
+};
+
+
+typedef enum  {
+	NONE=0,
+	USER_INFO_WAIT=1,
+	DONE=2
+} session_state_t;
 
 #define NAME_LEN 32
-
 typedef struct {
-	int	state;
-	guint32	info_framenum;
-	char  	name[ NAME_LEN];
-
+	session_state_t  state;
+	guint32          info_framenum;
+	char             user_name[NAME_LEN];
 } rlogin_hash_entry_t;
 
-#define NONE		0
-#define USER_INFO_WAIT	1
-#define DONE		2
-#define BAD		2
 
-static nstime_t last_abs_ts = { 0, 0 };
 
+/* Decoder State Machine.  Currently only used to snoop on
+   client-user-name as sent by the client up connection establishment.
+*/
 static void
-rlogin_init(void)
-{
-
-/* Routine to initialize rlogin protocol before each capture or filter pass. */
-
-	nstime_set_zero(&last_abs_ts);
-}
-
-
-/**************** Decoder State Machine ******************/
-
-static void
-rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
-	packet_info *pinfo)
+rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info *pinfo)
 {
 	guint length;
 	gint stringlen;
 
-/* rlogin stream decoder */
-/* Just watched for second packet from client with the user name and 	*/
-/* terminal type information.						*/
-
-
-	if ( pinfo->destport != RLOGIN_PORT)   /* not from client */
+	/* Won't change state if already seen this packet */
+	if (pinfo->fd->flags.visited)
+	{
 		return;
-						/* exit if not needed */
-	if (( hash_info->state == DONE) || (  hash_info->state == BAD))
+	}
+
+	/* rlogin stream decoder */
+	/* Just watch for the second packet from client with the user name and */
+	/* terminal type information. */
+
+	if (pinfo->destport != RLOGIN_PORT)
+	{
 		return;
+	}
+	
+	/* exit if already passed username in conversation */
+	if (hash_info->state == DONE)
+	{
+		return;
+	}
 
-						/* test timestamp */
-	if (( last_abs_ts.secs > pinfo->fd->abs_ts.secs) ||
-	    (( last_abs_ts.secs == pinfo->fd->abs_ts.secs) &&
-	     ( last_abs_ts.nsecs >= pinfo->fd->abs_ts.nsecs)))
-	    	return;
-
-	last_abs_ts = pinfo->fd->abs_ts;		/* save timestamp */
-
+	/* exit if no data */
 	length = tvb_length(tvb);
-	if ( length == 0)				/* exit if no data */
+	if (length == 0)
+	{
 		return;
+	}
 
-	if ( hash_info->state == NONE){      		/* new connection*/
-		if (tvb_get_guint8(tvb, 0) != '\0') {
-			/*
-			 * We expected a NUL, but didn't get one; quit.
-			 */
+	if (hash_info->state == NONE)
+	{
+		/* new connection*/
+		if (tvb_get_guint8(tvb, 0) != '\0')
+		{
+			/* We expected a null, but didn't get one; quit. */
 			hash_info->state = DONE;
 			return;
 		}
-		else {
-			if (length <= 1)		/* if no data	*/
+		else 
+		{
+			if (length <= 1)
+			{
+				/* Still waiting for data */
 				hash_info->state = USER_INFO_WAIT;
-			else {
+			}
+			else
+			{
+				/* Have info, store frame number */
 				hash_info->state = DONE;
 				hash_info->info_framenum = pinfo->fd->num;
 			}
 		}
-	}					/* expect user data here */
-/*$$$ may need to do more checking here */
-	else if ( hash_info->state == USER_INFO_WAIT) {
+	}
+	/* expect user data here */
+	/* TODO: may need to do more checking here? */
+	else
+	if (hash_info->state == USER_INFO_WAIT)
+	{
+		/* Store frame number here */
 		hash_info->state = DONE;
 		hash_info->info_framenum = pinfo->fd->num;
-							/* save name for later*/
+
+		/* Work out length of string to copy */
 		stringlen = tvb_strnlen(tvb, 0, NAME_LEN);
 		if (stringlen == -1)
-			stringlen = NAME_LEN - 1;	/* no '\0' found */
+			stringlen = NAME_LEN - 1;   /* no '\0' found */
 		else if (stringlen > NAME_LEN - 1)
-			stringlen = NAME_LEN - 1;	/* name too long */
-		tvb_memcpy(tvb, (guint8 *)hash_info->name, 0, stringlen);
-		hash_info->name[stringlen] = '\0';
+			stringlen = NAME_LEN - 1;   /* name too long */
 
-		if (check_col(pinfo->cinfo, COL_INFO))	/* update summary */
-			col_append_str(pinfo->cinfo, COL_INFO,
-			    ", User information");
+		/* Copy and terminate string into hash name */
+		tvb_memcpy(tvb, (guint8 *)hash_info->user_name, 0, stringlen);
+		hash_info->user_name[stringlen] = '\0';
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, ", (User information)");
+		}
 	}
 }
 
-static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
-	packet_info *pinfo, proto_tree *tree, struct tcpinfo *tcpinfo)
+/* Dissect details of packet */
+static void rlogin_display(rlogin_hash_entry_t *hash_info,
+                           tvbuff_t *tvb,
+                           packet_info *pinfo,
+                           proto_tree *tree,
+                           struct tcpinfo *tcpinfo)
 {
-/* Display the proto tree */
+	/* Display the proto tree */
 	int             offset = 0;
 	proto_tree      *rlogin_tree, *user_info_tree, *window_tree;
 	proto_item      *ti;
 	guint           length;
-	int		str_len;
-	gint		ti_offset;
-	proto_item      *user_info_item,  *window_info_item;
+	int             str_len;
+	gint            ti_offset;
+	proto_item      *user_info_item, *window_info_item;
 
- 	ti = proto_tree_add_item( tree, proto_rlogin, tvb, 0, -1, FALSE);
-
+	/* Create rlogin subtree */
+	ti = proto_tree_add_item(tree, proto_rlogin, tvb, 0, -1, FALSE);
 	rlogin_tree = proto_item_add_subtree(ti, ett_rlogin);
 
+	/* Return if data empty */
 	length = tvb_length(tvb);
-	if ( length == 0)			/* exit if no captured data */
+	if (length == 0)
+	{
 		return;
+	}
 
 	/*
 	 * XXX - this works only if the urgent pointer points to something
@@ -180,139 +213,180 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 	 * to something past this segment, we'd have to remember the urgent
 	 * pointer setting for this conversation.
 	 */
-	if ( tcpinfo->urgent &&			/* if urgent pointer set */
-	     length >= tcpinfo->urgent_pointer) {	/* and it's in this frame */
-
+	if (tcpinfo->urgent &&                 /* if urgent pointer set */
+	    length >= tcpinfo->urgent_pointer) /* and it's in this frame */
+	{
+		/* Get urgent byte into Temp */
 		int urgent_offset = tcpinfo->urgent_pointer - 1;
-		guint8 Temp = tvb_get_guint8(tvb, urgent_offset);
+		guint8 control_byte;
 
-		if (urgent_offset > offset)	/* check for data in front */
-			proto_tree_add_text( rlogin_tree, tvb, offset,
-			    urgent_offset, "Data");
+		/* Check for text data in front */
+		if (urgent_offset > offset)
+		{
+			proto_tree_add_item(rlogin_tree, hf_data, tvb, offset, urgent_offset, FALSE);
+		}
 
-		proto_tree_add_text( rlogin_tree, tvb, urgent_offset, 1,
-				"Control byte: %u (%s)",
-				Temp,
-				(Temp == 0x02) ? "Clear buffer" :
-				(Temp == 0x10) ? "Raw mode" :
-				(Temp == 0x20) ? "Cooked mode" :
-				(Temp == 0x80) ? "Window size request" :
-				"Unknown");
-		offset = urgent_offset + 1;	/* adjust offset */
+		/* Show control byte */
+		proto_tree_add_item(rlogin_tree, hf_control_message, tvb,
+		                    urgent_offset, 1, FALSE);
+		control_byte = tvb_get_guint8(tvb, urgent_offset);
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			               " (%s)", val_to_str(control_byte, control_message_vals, "Unknown"));
+		}
+
+		offset = urgent_offset + 1; /* adjust offset */
 	}
-	else if ( tvb_get_guint8(tvb, offset) == '\0'){   /* startup */
-		if ( pinfo->srcport== RLOGIN_PORT)   /* from server */
-	   		proto_tree_add_text(rlogin_tree, tvb, offset, 1,
-					"Startup info received flag (0x00)");
-
+	else
+	if (tvb_get_guint8(tvb, offset) == '\0')
+	{
+		/* Startup */
+		if (pinfo->srcport == RLOGIN_PORT)   /* from server */
+		{
+			proto_tree_add_item(rlogin_tree, hf_startup_info_received_flag,
+			                    tvb, offset, 1, FALSE);
+		}
 		else
-	   		proto_tree_add_text(rlogin_tree, tvb, offset, 1,
-					"Client Startup Flag (0x00)");
+		{
+			proto_tree_add_item(rlogin_tree, hf_client_startup_flag,
+			                    tvb, offset, 1, FALSE);
+		}
 		++offset;
 	}
 
 	if (!tvb_offset_exists(tvb, offset))
-		return;	/* No more data to check */
+	{
+		/* No more data to check */
+		return;
+	}
 
-	if ( hash_info->info_framenum == pinfo->fd->num){
-		/*
-		 * First frame of conversation, hence user info?
-		 */
-		user_info_item = proto_tree_add_item( rlogin_tree, hf_user_info, tvb,
-			offset, -1, FALSE);
+	if (hash_info->info_framenum == pinfo->fd->num)
+	{
+		gint info_len;
+		gint slash_offset;
 
-		/*
-		 * Do server user name.
-		 */
+		/* First frame of conversation, assume user info... */
+		
+		info_len = tvb_length_remaining(tvb, offset);
+
+		/* User info tree */
+		user_info_item = proto_tree_add_string_format(rlogin_tree, hf_user_info, tvb,
+		                                              offset, info_len, FALSE,
+		                                              "User info (%s)",
+		                                              tvb_format_text(tvb, offset, info_len));
+		user_info_tree = proto_item_add_subtree(user_info_item,
+		                                        ett_rlogin_user_info);
+
+		/* Client user name. */
 		str_len = tvb_strsize(tvb, offset);
-		user_info_tree = proto_item_add_subtree( user_info_item,
-			ett_rlogin_user_info);
-		proto_tree_add_text(user_info_tree, tvb, offset, str_len,
-				"Server User Name: %.*s", str_len - 1,
-				tvb_get_ptr(tvb, offset, str_len - 1));
+		proto_tree_add_item(user_info_tree, hf_user_info_client_user_name,
+		                    tvb, offset, str_len, FALSE);
 		offset += str_len;
 
-		/*
-		 * Do client user name.
-		 */
+		/* Server user name. */
 		str_len = tvb_strsize(tvb, offset);
-		proto_tree_add_text(user_info_tree, tvb, offset, str_len,
-				"Client User Name: %.*s", str_len - 1,
-				tvb_get_ptr(tvb, offset, str_len - 1));
+		proto_tree_add_item(user_info_tree, hf_user_info_server_user_name,
+		                    tvb, offset, str_len, FALSE);
 		offset += str_len;
 
-		/*
-		 * Do terminal type/speed.
-		 */
-		str_len = tvb_strsize(tvb, offset);
-		proto_tree_add_text(user_info_tree, tvb, offset, str_len,
-				"Terminal Type/Speed: %.*s", str_len - 1,
-				tvb_get_ptr(tvb, offset, str_len - 1));
-		offset += str_len;
+		/* Terminal type/speed. */
+		slash_offset = tvb_find_guint8(tvb, offset, -1, '/');
+		if (slash_offset != -1)
+		{
+			/* Terminal type */
+			proto_tree_add_item(user_info_tree, hf_user_info_terminal_type,
+			                    tvb, offset, slash_offset-offset, FALSE);
+			offset = slash_offset + 1;
+			
+			/* Terminal speed */
+			str_len = tvb_strsize(tvb, offset);
+			proto_tree_add_uint(user_info_tree, hf_user_info_terminal_speed,
+			                    tvb, offset, str_len,
+			                    atoi(tvb_format_text(tvb, offset, str_len)));
+			offset += str_len;
+		}
 	}
 
 	if (!tvb_offset_exists(tvb, offset))
-		return;	/* No more data to check */
-
-/* test for terminal information, the data will have 2 0xff bytes */
-
-						/* look for first 0xff byte */
-	ti_offset = tvb_find_guint8(tvb, offset, -1, 0xff);
-
-	if (ti_offset != -1 &&
-	    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
-	    tvb_get_guint8(tvb, ti_offset + 1) == 0xff) {
-	        /*
-		 * Found terminal info.
-		 */
-		if (ti_offset > offset) {
-			/*
-			 * There's data before the terminal info.
-			 */
-	                proto_tree_add_text( rlogin_tree, tvb, offset,
-	                	(ti_offset - offset), "Data");
-	                offset = ti_offset;
-	        }
-
-		window_info_item = proto_tree_add_item(rlogin_tree,
-				hf_window_info, tvb, offset, 12, FALSE );
-
-		window_tree = proto_item_add_subtree(window_info_item,
-			                 ett_rlogin_window);
-
-	        proto_tree_add_text(window_tree, tvb, offset, 2,
-			"Magic Cookie: (0xff, 0xff)");
-		offset += 2;
-
-	      	proto_tree_add_text(window_tree, tvb, offset, 2,
-			"Window size marker: 'ss'");
-		offset += 2;
-
-	 	proto_tree_add_item(window_tree, hf_window_info_rows, tvb,
-	 		offset, 2, FALSE);
-		offset += 2;
-
- 		proto_tree_add_item(window_tree, hf_window_info_cols, tvb,
- 			offset, 2, FALSE);
-		offset += 2;
-
- 		proto_tree_add_item(window_tree, hf_window_info_x_pixels, tvb,
- 			offset, 2, FALSE);
-		offset += 2;
-
-		proto_tree_add_item(window_tree, hf_window_info_y_pixels, tvb,
-			offset, 2, FALSE);
-		offset += 2;
+	{
+		/* No more data to check */
+		return;
 	}
 
-	if (tvb_offset_exists(tvb, offset)) {
-		/*
-		 * There's more data in the frame.
-		 */
-		proto_tree_add_text(rlogin_tree, tvb, offset, -1, "Data");
+	/* Test for terminal information, the data will have 2 0xff bytes */
+	/* look for first 0xff byte */
+	ti_offset = tvb_find_guint8(tvb, offset, -1, 0xff);
+
+	/* Next byte must also be 0xff */
+	if (ti_offset != -1 &&
+	    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
+	    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
+	{
+		guint16 rows, columns;
+		
+		/* Have found terminal info. */
+		if (ti_offset > offset)
+		{
+			/* There's data before the terminal info. */
+			proto_tree_add_item(rlogin_tree, hf_data, tvb,
+			                    offset, ti_offset - offset, FALSE);
+		}
+
+		/* Create window info tree */
+		window_info_item =
+			proto_tree_add_item(rlogin_tree, hf_window_info, tvb, offset, 12, FALSE);
+		window_tree = proto_item_add_subtree(window_info_item, ett_rlogin_window);
+
+		/* Cookie */
+		proto_tree_add_text(window_tree, tvb, offset, 2, "Magic Cookie: (0xff, 0xff)");
+		offset += 2;
+
+		/* These bytes should be "ss" */
+		proto_tree_add_item(window_tree, hf_window_info_ss, tvb, offset, 2, FALSE);
+		offset += 2;
+
+		/* Character rows */
+		rows = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(window_tree, hf_window_info_rows, tvb,
+		                    offset, 2, FALSE);
+		offset += 2;
+
+		/* Characters per row */
+		columns = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(window_tree, hf_window_info_cols, tvb,
+		                    offset, 2, FALSE);
+		offset += 2;
+
+		/* x pixels */
+		proto_tree_add_item(window_tree, hf_window_info_x_pixels, tvb,
+		                    offset, 2, FALSE);
+		offset += 2;
+
+		/* y pixels */
+		proto_tree_add_item(window_tree, hf_window_info_y_pixels, tvb,
+		                    offset, 2, FALSE);
+		offset += 2;
+		
+		/* Show setting highlights in info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (rows=%u, cols=%u)",
+			                rows, columns);
+		}
+	}
+
+	if (tvb_offset_exists(tvb, offset))
+	{
+		/* There's more data in the frame. */
+		proto_tree_add_item(rlogin_tree, hf_data, tvb, offset, -1, FALSE);
 	}
 }
 
+
+/****************************************************************
+ * Main dissection function
+ ****************************************************************/
 static void
 dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -322,80 +396,111 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint length;
 	gint ti_offset;
 
-						/* Lookup this connection*/
-	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	/* Get conversation */
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	                                 pinfo->ptype, pinfo->srcport, pinfo->destport,
+                                     0);
 
-	if ( !conversation) {
-		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	/* Create if didn't previously exist */
+	if (!conversation)
+	{
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+		                                pinfo->ptype, pinfo->srcport, pinfo->destport,
+		                                0);
 	}
+
+	/* Get or create data associated with this conversation */
 	hash_info = conversation_get_proto_data(conversation, proto_rlogin);
-	if ( !hash_info) {
-		hash_info = se_alloc(sizeof( rlogin_hash_entry_t));
+	if (!hash_info)
+	{
+		/* Populate new data struct... */
+		hash_info = se_alloc(sizeof(rlogin_hash_entry_t));
 		hash_info->state = NONE;
-		hash_info->info_framenum = 0;	/* no frame has the number 0 */
-		hash_info->name[ 0] = 0;
-		conversation_add_proto_data(conversation, proto_rlogin,
-			hash_info);
+		hash_info->info_framenum = 0;  /* no frame has the number 0 */
+		hash_info->user_name[0] = '\0';
+
+		/* ... and store in conversation */
+		conversation_add_proto_data(conversation, proto_rlogin, hash_info);
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))		/* update protocol  */
+	/* Set protocol column text */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	{
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Rlogin");
+	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)){		/* display packet info*/
-		if ( hash_info->name[0]) {
+	/* Set info column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		/* Show user-name if available */
+		if (hash_info->user_name[0])
+		{
 			col_add_fstr(pinfo->cinfo, COL_INFO,
-			    "User name: %s, ", hash_info->name);
+			              "User name: %s, ", hash_info->user_name);
 		}
 		else
+		{
 			col_clear(pinfo->cinfo, COL_INFO);
+		}
 
+		/* Work out packet content summary for display */
 		length = tvb_length(tvb);
-		if (length != 0) {
-			if ( tvb_get_guint8(tvb, 0) == '\0') {
+		if (length != 0)
+		{
+			/* Initial NULL byte represents part of connection handshake */
+			if (tvb_get_guint8(tvb, 0) == '\0')
+			{
 				col_append_str(pinfo->cinfo, COL_INFO,
-				    "Start Handshake");
+				               (pinfo->destport == RLOGIN_PORT) ?
+				                   "Start Handshake" :
+				                   "Startup info received");
 			}
-			else if ( tcpinfo->urgent &&
-				  length >= tcpinfo->urgent_pointer ) {
-				col_append_str(pinfo->cinfo, COL_INFO,
-				    "Control Message");
+			else
+			if (tcpinfo->urgent && length >= tcpinfo->urgent_pointer)
+			{
+				/* Urgent pointer inside current data represents a control message */
+				col_append_str(pinfo->cinfo, COL_INFO, "Control Message");
 			}
-			else {			/* check for terminal info */
+			else
+			{
+				/* Search for 2 consecutive ff bytes
+				  (signifies window change control message) */
 				ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
 				if (ti_offset != -1 &&
 				    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
-				    tvb_get_guint8(tvb, ti_offset + 1) == 0xff) {
-					col_append_str(pinfo->cinfo, COL_INFO,
-					    "Terminal Info");
+				    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
+				{
+					col_append_str(pinfo->cinfo, COL_INFO, "Terminal Info");
 				}
-				else {
-					int bytes_to_copy;
-
-					bytes_to_copy = tvb_length(tvb);
+				else
+				{
+					/* Show any text data in the frame */
+					int bytes_to_copy = tvb_length(tvb);
 					if (bytes_to_copy > 128)
+					{
+						/* Truncate to 128 bytes for display */
 						bytes_to_copy = 128;
+					}
+	
+					/* Add data into info column */
 					col_append_fstr(pinfo->cinfo, COL_INFO,
-					    "Data: %s",
-					    tvb_format_text(tvb, 0, bytes_to_copy));
+					                "Data: %s",
+					                 tvb_format_text(tvb, 0, bytes_to_copy));
 				}
 			}
 		}
 	}
 
-	rlogin_state_machine( hash_info, tvb, pinfo);
+	/* See if conversation state needs to be updated */
+	rlogin_state_machine(hash_info, tvb, pinfo);
 
-	if ( tree) 				/* if proto tree, decode data */
- 		rlogin_display( hash_info, tvb, pinfo, tree, tcpinfo);
+	/* Dissect in detail */
+	rlogin_display(hash_info, tvb, pinfo, tree, tcpinfo);
 }
 
 
-void
-proto_register_rlogin( void){
-
-/* Prep the rlogin protocol, for now, just register it	*/
-
+void proto_register_rlogin(void)
+{
 	static gint *ett[] = {
 		&ett_rlogin,
 		&ett_rlogin_window,
@@ -406,18 +511,58 @@ proto_register_rlogin( void){
 		&ett_rlogin_user_info
 	};
 
-	static hf_register_info hf[] = {
-
+	static hf_register_info hf[] =
+	{
 		{ &hf_user_info,
-			{ "User Info", "rlogin.user_info", FT_NONE, BASE_NONE,
+			{ "User Info", "rlogin.user_info", FT_STRING, BASE_NONE,
 				 NULL, 0x0, "", HFILL
 			}
 		},
+		{ &hf_client_startup_flag,
+			{ "Client startup flag", "rlogin.client_startup_flag", FT_UINT8, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_startup_info_received_flag,
+			{ "Startup info received flag", "rlogin.startup_info_received_flag", FT_UINT8, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_user_info_client_user_name,
+			{ "Client-user-name", "rlogin.client_user_name", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_user_info_server_user_name,
+			{ "Server-user-name", "rlogin.server_user_name", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_user_info_terminal_type,
+			{ "Terminal-type", "rlogin.terminal_type", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_user_info_terminal_speed,
+			{ "Terminal-speed", "rlogin.terminal_speed", FT_UINT32, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_control_message,
+			{ "Control message", "rlogin.control_message", FT_UINT8, BASE_HEX,
+				 VALS(control_message_vals), 0x0, "", HFILL
+			}
+		},		
 		{ &hf_window_info,
 			{ "Window Info", "rlogin.window_size", FT_NONE, BASE_NONE,
 				 NULL, 0x0, "", HFILL
 			}
 		},
+		{ &hf_window_info_ss,
+			{ "Window size marker", "rlogin.window_size.ss", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},		
 		{ &hf_window_info_rows,
 			{ "Rows", "rlogin.window_size.rows", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, "", HFILL
@@ -437,25 +582,23 @@ proto_register_rlogin( void){
 			{ "Y Pixels", "rlogin.window_size.y_pixels", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, "", HFILL
 			}
+		},
+		{ &hf_data,
+			{ "Data", "rlogin.data", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
 		}
 	};
 
-	proto_rlogin = proto_register_protocol (
-		"Rlogin Protocol", "Rlogin", "rlogin");
+	proto_rlogin = proto_register_protocol("Rlogin Protocol", "Rlogin", "rlogin");
 
 	proto_register_field_array(proto_rlogin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_init_routine( &rlogin_init);	/* register re-init routine */
 }
 
-void
-proto_reg_handoff_rlogin(void) {
-
-	/* dissector install routine */
-
-	dissector_handle_t rlogin_handle;
-
-	rlogin_handle = create_dissector_handle(dissect_rlogin, proto_rlogin);
-	dissector_add("tcp.port", TCP_PORT_RLOGIN, rlogin_handle);
+void proto_reg_handoff_rlogin(void)
+{
+	/* Dissector install routine */
+	dissector_handle_t rlogin_handle = create_dissector_handle(dissect_rlogin,proto_rlogin);
+	dissector_add("tcp.port", RLOGIN_PORT, rlogin_handle);
 }
