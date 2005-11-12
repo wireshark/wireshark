@@ -87,6 +87,7 @@ static int hf_smb2_server_guid = -1;
 static int hf_smb2_class = -1;
 static int hf_smb2_infolevel = -1;
 static int hf_smb2_max_response_size = -1;
+static int hf_smb2_required_buffer_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_file_info_12 = -1;
 static int hf_smb2_file_info_22 = -1;
@@ -903,6 +904,16 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	response_size=tvb_get_letohl(tvb,offset);
 	proto_tree_add_item(tree, hf_smb2_response_size, tvb, offset, 4, TRUE);
 	offset += 4;
+
+	/* if we get BUFFET_TOO_SMALL there will not be any data there, only
+	 * a guin32 specifying how big the buffer needs to be
+	 */
+	if(si->status==0xc0000023){
+		proto_tree_add_item(tree, hf_smb2_required_buffer_size, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		return offset;
+	}
 
 	/* data */
 	dissect_smb2_infolevel(tvb, pinfo, tree, offset, si, class, infolevel);
@@ -2221,6 +2232,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_response_size,
 		{ "Response Size", "smb2.response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 response size", HFILL }},
+	{ &hf_smb2_required_buffer_size,
+		{ "Required Buffer Size", "smb2.required_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 required buffer size", HFILL }},
 	{ &hf_smb2_pid,
 		{ "Process Id", "smb2.pid", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Process Id", HFILL }},
