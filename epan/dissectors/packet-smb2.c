@@ -44,6 +44,7 @@
 #include "packet-ntlmssp.h"
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
+#include "packet-smb.h"
 #include "packet-dcerpc-nt.h"
 #include <string.h>
 
@@ -100,6 +101,10 @@ static int hf_smb2_read_length = -1;
 static int hf_smb2_read_offset = -1;
 static int hf_smb2_read_data = -1;
 static int hf_smb2_disposition_delete_on_close = -1;
+static int hf_smb2_create_disposition = -1;
+static int hf_smb2_next_buffer_offset = -1;
+static int hf_smb2_next_buffer_length = -1;
+static int hf_smb2_create_action = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_header = -1;
@@ -1103,27 +1108,58 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int length;
 	const char *name="";
 	guint16 bc;
+	guint16 next_buffer_offset, next_buffer_length;
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
 	offset += 16;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* access mask */
+	offset = dissect_smb_access_mask(tvb, tree, offset);
+
+	/* File Attributes */
+	offset = dissect_file_attributes(tvb, tree, offset, 4);
+
+	/* share access */
+	offset = dissect_nt_share_access(tvb, tree, offset);
+
+	/* create disposition */
+	proto_tree_add_item(tree, hf_smb2_create_disposition, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* create options */
+	offset = dissect_nt_create_options(tvb, tree, offset);
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 14, TRUE);
-	offset += 14;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
 
 	/* file name length */
 	length=tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 2, TRUE);
 	offset += 2;
 
+	/* next buffer offset */
+	next_buffer_offset=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_next_buffer_offset, tvb, offset, 2, TRUE);
+	offset += 2;
+
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* next buffer offset */
+	next_buffer_length=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_next_buffer_length, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
 
 	/* file name */
 	if(length){
@@ -1158,23 +1194,17 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	/* strange,   maybe this buffer here is minimum 8 bytes? 
-	 * we have to do this and the padding below to ensure the deterministic
-	 * tail is exactly 24 bytes.
-	 *
-	 * assume the filename is stored in a buffer that is
-	 * minimum 8 bytes and that is padded to 8 bytes.
-	 * this has to be wrong,   but will do for now.
-         */
-	if(!length){
-		offset += 8;
-	}
-	/* pad to 8 bytes */
-	offset=(offset+7)&(~0x00000007);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 24, TRUE);
-	offset += 24;
+	/* If next_buffer_offset is non-null then this points to another 
+	 * buffer. The offset is relative to the start of the smb packet
+	 */
+	if(next_buffer_offset){
+		offset=next_buffer_offset;
+
+		/* some unknown bytes */
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, next_buffer_length, TRUE);
+		offset += next_buffer_length;
+	}
 
 	return offset;
 }
@@ -1182,9 +1212,15 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	guint16 next_buffer_offset, next_buffer_length;
+
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* create action */
+	proto_tree_add_item(tree, hf_smb2_create_action, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	/* create time */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
@@ -1198,9 +1234,19 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* last change */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 24, TRUE);
-	offset += 24;
+	/* allocation size */
+	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* end of file */
+	proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* File Attributes */
+	offset = dissect_file_attributes(tvb, tree, offset, 4);
+
+	/* padding */
+	offset += 4;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_OPEN);
@@ -1211,17 +1257,34 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		si->saved->private_data=NULL;
 	}
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	/* next buffer offset */
+	next_buffer_offset=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_next_buffer_offset, tvb, offset, 2, TRUE);
+	offset += 2;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* next buffer offset */
+	next_buffer_length=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_next_buffer_length, tvb, offset, 2, TRUE);
+	offset += 2;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* If next_buffer_offset is non-null then this points to another 
+	 * buffer. The offset is relative to the start of the smb packet
+	 */
+	if(next_buffer_offset){
+		offset=next_buffer_offset;
+
+		/* some unknown bytes */
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, next_buffer_length, TRUE);
+		offset += next_buffer_length;
+	}
 
 	return offset;
 }
@@ -2289,6 +2352,22 @@ proto_register_smb2(void)
 	  { "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
 		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
 
+
+	{ &hf_smb2_create_disposition,
+		{ "Disposition", "smb2.create.disposition", FT_UINT32, BASE_DEC,
+		VALS(create_disposition_vals), 0, "Create disposition, what to do if the file does/does not exist", HFILL }},
+
+	{ &hf_smb2_create_action,
+		{ "Create Action", "smb2.create.action", FT_UINT32, BASE_DEC,
+		VALS(oa_open_vals), 0, "Create Action", HFILL }},
+
+	{ &hf_smb2_next_buffer_length,
+		{ "Next Buffer Length", "smb2.create.next_buffer_length", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of next command buffer or 0", HFILL }},
+
+	{ &hf_smb2_next_buffer_offset,
+		{ "Next Buffer Offset", "smb2.create.next_buffer_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "Offset to next command buffer or 0", HFILL }},
 
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,

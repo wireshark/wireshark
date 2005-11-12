@@ -285,4 +285,14 @@ extern gboolean smb_dcerpc_reassembly;
 
 extern int dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bytes);
 
+extern const value_string create_disposition_vals[];
+
+extern int dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
+
+extern int dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
+
+extern int dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
+
+extern const value_string oa_open_vals[];
+
 #endif

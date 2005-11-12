@@ -4894,7 +4894,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 
-static const value_string oa_open_vals[] = {
+const value_string oa_open_vals[] = {
 	{ 0,		"No action taken?"},
 	{ 1,		"The file existed and was opened"},
 	{ 2,		"The file did not exist but was created"},
@@ -6594,7 +6594,7 @@ static const true_false_string tfs_nt_notify_file_name = {
 	"Do NOT notify on changes to file name",
 };
 
-static const value_string create_disposition_vals[] = {
+const value_string create_disposition_vals[] = {
 	{0,	"Supersede (supersede existing file (if it exists))"},
 	{1,	"Open (if file exists open it, else fail)"},
 	{2,	"Create (if file exists fail, else create it)"},
@@ -6835,7 +6835,7 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	return offset;
 }
 
-static int
+int
 dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
@@ -6864,7 +6864,7 @@ dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 /* FIXME: need to call dissect_nt_access_mask() instead */
 
-static int
+int
 dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
@@ -7032,7 +7032,7 @@ static const true_false_string tfs_nt_create_options_delete_on_close = {
 	"The file should not be deleted when it is closed"
 };
 
-static int
+int
 dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
