@@ -610,7 +610,7 @@ sub ParseInterface($)
 
 	return { 
 		NAME => $idl->{NAME},
-		UUID => has_property($idl, "uuid"),
+		UUID => lc(has_property($idl, "uuid")),
 		VERSION => $version,
 		TYPE => "INTERFACE",
 		PROPERTIES => $idl->{PROPERTIES},

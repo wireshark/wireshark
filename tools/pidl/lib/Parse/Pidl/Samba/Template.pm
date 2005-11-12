@@ -46,6 +46,7 @@ sub Template($)
 #include \"includes.h\"
 #include \"rpc_server/dcerpc_server.h\"
 #include \"librpc/gen_ndr/ndr_$name.h\"
+#include \"rpc_server/common/common.h\"
 
 ";
 
@@ -60,8 +61,15 @@ sub Template($)
 static $d->{RETURN_TYPE} $fname(struct dcesrv_call_state *dce_call, TALLOC_CTX *mem_ctx,
 		       struct $fname *r)
 {
-	DCESRV_FAULT(DCERPC_FAULT_OP_RNG_ERROR);
-}
+";
+
+	if ($d->{RETURN_TYPE} eq "void") {
+		$res .= "\tDCESRV_FAULT_VOID(DCERPC_FAULT_OP_RNG_ERROR);\n";
+	} else {
+		$res .= "\tDCESRV_FAULT(DCERPC_FAULT_OP_RNG_ERROR);\n";
+	}
+
+	$res .= "}
 
 ";
 		}

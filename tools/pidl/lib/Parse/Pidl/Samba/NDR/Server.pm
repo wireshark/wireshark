@@ -76,7 +76,7 @@ sub Boilerplate_Iface($)
 	my($interface) = shift;
 	my $name = $interface->{NAME}; 
 	my $uname = uc $name;
-	my $uuid = Parse::Pidl::Util::make_str($interface->{PROPERTIES}->{uuid});
+	my $uuid = Parse::Pidl::Util::make_str(lc($interface->{PROPERTIES}->{uuid}));
 	my $if_version = $interface->{PROPERTIES}->{version};
 
 	pidl "

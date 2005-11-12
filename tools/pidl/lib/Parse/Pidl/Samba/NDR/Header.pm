@@ -99,7 +99,7 @@ sub HeaderInterface($)
 	if (defined $interface->{PROPERTIES}->{uuid}) {
 		my $name = uc $interface->{NAME};
 		pidl "#define DCERPC_$name\_UUID " . 
-		Parse::Pidl::Util::make_str($interface->{PROPERTIES}->{uuid}) . "\n";
+		Parse::Pidl::Util::make_str(lc($interface->{PROPERTIES}->{uuid})) . "\n";
 
 		if(!defined $interface->{PROPERTIES}->{version}) { $interface->{PROPERTIES}->{version} = "0.0"; }
 		pidl "#define DCERPC_$name\_VERSION $interface->{PROPERTIES}->{version}\n";

@@ -1,3 +1,5 @@
+- allow more then one identifier for types (unsigned char, struct foo)
+
 - true multiple dimension array / strings in arrays support
 
 - compatibility mode for generating MIDL-readable data:
