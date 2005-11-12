@@ -642,7 +642,7 @@ packet_list_resize_columns(void) {
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
          progbar = delayed_create_progress_dlg("Resizing", "Resize Columns", 
-           &progbar_stop_flag, &progbar_start_time, progbar_val);
+           TRUE, &progbar_stop_flag, &progbar_start_time, progbar_val);
 
       if (i >= progbar_nextstep) {
         /* let's not divide by zero. I should never be started

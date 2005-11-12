@@ -44,12 +44,15 @@ typedef struct progdlg progdlg_t;
  *
  * @param task_title the task to do, e.g. "Loading"
  * @param item_title the item to do, e.g. "capture.cap"
+ * @param terminate_is_stop TRUE if the operation can't be cancelled, just
+ *   stopped (i.e., it has a "Stop" button and clicking it doesn't undo
+ *   anything already done), FALSE if it can
  * @param stop_flag a pointer to a Boolean variable that will be
  *   set to TRUE if the user hits that button
  * @return the newly created progress dialog
  */
 progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
-    gboolean *stop_flag);
+    gboolean terminate_is_stop, gboolean *stop_flag);
 
 /**
  * Create a progress dialog, but only if it's not likely to disappear
@@ -57,6 +60,9 @@ progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
  *
  * @param task_title the task to do, e.g. "Loading"
  * @param item_title the item to do, e.g. "capture.cap"
+ * @param terminate_is_stop TRUE if the operation can't be cancelled, just
+ *   stopped (i.e., it has a "Stop" button and clicking it doesn't undo
+ *   anything already done), FALSE if it can
  * @param stop_flag a pointer to a Boolean variable that will be
  *   set to TRUE if the user hits that button
  * @param start_time a pointer to a GTimeVal structure which holds
@@ -66,7 +72,8 @@ progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
  */
 progdlg_t *
 delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
-    gboolean *stop_flag, const GTimeVal *start_time, gfloat progress);
+    gboolean terminate_is_stop, gboolean *stop_flag,
+    const GTimeVal *start_time, gfloat progress);
 
 /**
  * Update the progress information of the progress dialog box.

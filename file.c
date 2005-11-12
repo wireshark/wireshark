@@ -411,7 +411,7 @@ cf_read(capture_file *cf)
          time in order to get to the next progress bar step). */
       if (progbar == NULL) {
         progbar = delayed_create_progress_dlg("Loading", name_ptr,
-          &stop_flag, &start_time, progbar_val);
+          TRUE, &stop_flag, &start_time, progbar_val);
       }
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -447,10 +447,11 @@ cf_read(capture_file *cf)
 
     if (stop_flag) {
       /* Well, the user decided to abort the read. He/She will be warned and 
-	    it might be enough for him/her to work with the already loaded packets. 
-		This is especially true for very large capture files, where you don't 
-		want to wait loading the whole file (which may last minutes or even 
-		hours even on fast machines) just to see that it was the wrong file. */
+         it might be enough for him/her to work with the already loaded
+         packets.
+         This is especially true for very large capture files, where you don't 
+         want to wait loading the whole file (which may last minutes or even 
+         hours even on fast machines) just to see that it was the wrong file. */
       break;
     }
     read_packet(cf, data_offset);
@@ -1063,7 +1064,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
        time in order to get to the next progress bar step). */
     if (progbar == NULL) {
       progbar = delayed_create_progress_dlg("Merging", "files",
-        &stop_flag, &start_time, progbar_val);
+        FALSE, &stop_flag, &start_time, progbar_val);
     }
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -1090,6 +1091,11 @@ cf_merge_files(char **out_filenamep, int in_file_count,
           update_progress_dlg(progbar, progbar_val, status_str);
         }
         progbar_nextstep += progbar_quantum;
+    }
+
+    if (stop_flag) {
+      /* Well, the user decided to abort the merge. */
+      break;
     }
 
     if (!wtap_dump(pdh, wtap_phdr(wth), wtap_pseudoheader(wth),
@@ -1164,7 +1170,13 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     cf_write_failure_alert_box(out_filename, write_err);
   }
 
-  return (!got_read_error && !got_write_error) ? CF_OK : CF_ERROR;
+  if (got_read_error || got_write_error || stop_flag) {
+    /* Callers aren't expected to treat an error or an explicit abort
+       differently - we put up error dialogs ourselves, so they don't
+       have to. */
+    return CF_ERROR;
+  } else
+    return CF_READ_OK;
 }
 
 cf_status_t
@@ -1357,8 +1369,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        large file, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
-      progbar = delayed_create_progress_dlg(action, action_item, &stop_flag,
-        &start_time, progbar_val);
+      progbar = delayed_create_progress_dlg(action, action_item, TRUE,
+                                            &stop_flag, &start_time,
+                                            progbar_val);
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
@@ -1535,7 +1548,7 @@ typedef enum {
 
 static psp_return_t
 process_specified_packets(capture_file *cf, packet_range_t *range,
-    const char *string1, const char *string2,
+    const char *string1, const char *string2, gboolean terminate_is_stop,
     gboolean (*callback)(capture_file *, frame_data *,
                          union wtap_pseudo_header *, const guint8 *, void *),
     void *callback_args)
@@ -1582,6 +1595,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg(string1, string2,
+                                            terminate_is_stop,
                                             &progbar_stop_flag,
                                             &progbar_start_time,
                                             progbar_val);
@@ -1609,8 +1623,8 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 
     if (progbar_stop_flag) {
       /* Well, the user decided to abort the operation.  Just stop,
-         and arrange to return TRUE to our caller, so they know it
-         was stopped explicitly. */
+         and arrange to return PSP_STOPPED to our caller, so they know
+         it was stopped explicitly. */
       ret = PSP_STOPPED;
       break;
     }
@@ -1685,7 +1699,7 @@ cf_retap_packets(capture_file *cf, gboolean do_columns)
   packet_range_init(&range);
   packet_range_process_init(&range);
   switch (process_specified_packets(cf, &range, "Refiltering statistics on",
-                                    "all packets", retap_packet,
+                                    "all packets", TRUE, retap_packet,
                                     do_columns ? &cf->cinfo : NULL)) {
   case PSP_FINISHED:
     /* Completed successfully. */
@@ -1948,7 +1962,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Printing",
-                                  "selected packets", print_packet,
+                                  "selected packets", TRUE, print_packet,
                                   &callback_args);
 
   if (callback_args.header_line_buf != NULL)
@@ -2034,8 +2048,8 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Writing PDML",
-                                  "selected packets", write_pdml_packet,
-                                  fh);
+                                  "selected packets", TRUE,
+                                  write_pdml_packet, fh);
 
   switch (ret) {
 
@@ -2105,8 +2119,8 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Writing PSML",
-                                  "selected packets", write_psml_packet,
-                                  fh);
+                                  "selected packets", TRUE,
+                                  write_psml_packet, fh);
 
   switch (ret) {
 
@@ -2176,8 +2190,8 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Writing CSV",
-                                  "selected packets", write_csv_packet,
-                                  fh);
+                                  "selected packets", TRUE,
+                                  write_csv_packet, fh);
 
   switch (ret) {
 
@@ -2296,7 +2310,7 @@ cf_change_time_formats(capture_file *cf)
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg("Changing", "time display", 
-        &stop_flag, &start_time, progbar_val);
+        TRUE, &stop_flag, &start_time, progbar_val);
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
@@ -2749,7 +2763,7 @@ find_packet(capture_file *cf,
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
          progbar = delayed_create_progress_dlg("Searching", cf->sfilter, 
-           &stop_flag, &start_time, progbar_val);
+           FALSE, &stop_flag, &start_time, progbar_val);
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
          when we update it, we have to run the GTK+ main loop to get it
@@ -3243,9 +3257,8 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        "range" since we initialized it. */
     callback_args.pdh = pdh;
     callback_args.fname = fname;
-    switch (process_specified_packets(cf, range, "Saving",
-                                      "selected packets", save_packet,
-                                      &callback_args)) {
+    switch (process_specified_packets(cf, range, "Saving", "selected packets",
+                                      TRUE, save_packet, &callback_args)) {
 
     case PSP_FINISHED:
       /* Completed successfully. */

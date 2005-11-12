@@ -2513,7 +2513,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		return FALSE;
 	}
 
-	progbar = create_progress_dlg("Saving voice in a file", dest, &stop_flag);
+	progbar = create_progress_dlg("Saving voice in a file", dest, TRUE,
+	    &stop_flag);
 
 	if	(format == SAVE_AU_FORMAT) /* au format */
 	{

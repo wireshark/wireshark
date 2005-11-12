@@ -219,7 +219,7 @@ ph_stats_new(void)
 		if (progbar == NULL)
 			progbar = delayed_create_progress_dlg(
 			    "Computing", "protocol hierarchy statistics", 
-			    &stop_flag, &start_time, progbar_val);
+			    TRUE, &stop_flag, &start_time, progbar_val);
 
 		/* Update the progress bar, but do it only N_PROGBAR_UPDATES
 		   times; when we update it, we have to run the GTK+ main

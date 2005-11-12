@@ -1081,6 +1081,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg("Processing", "Packet Details",
+                                            TRUE,
                                             &progbar_stop_flag,
                                             &progbar_start_time,
                                             progbar_val);
