@@ -249,6 +249,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	char *fid_name;
+	guint32 open_frame = 0, close_frame = 0;
 
 	di.conformant_run=0;
 	di.call_data=NULL;
@@ -273,14 +274,23 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 */
 		break;
 	case FID_MODE_CLOSE:
-		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, TRUE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, TRUE);
 		break;
 	case FID_MODE_USE:
-		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, NULL, NULL, FALSE, FALSE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, FALSE);
 		break;
 	}
 
 	pinfo->private_data=old_private_data;
+
+
+	/* put the filename in col_info */
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		if (dcerpc_smb_fetch_pol(&policy_hnd, &fid_name, &open_frame, &close_frame, pinfo->fd->num)) {
+
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fid_name);
+		}
+	}
 
 	return offset;
 }
@@ -805,6 +815,10 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree_add_item(tree, hf_smb2_infolevel, tvb, offset, 1, TRUE);
 	offset += 1;
 
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Class:0x%02x Level:0x%02x", class, infolevel);
+	}
+
 	/* max response size */
 	proto_tree_add_item(tree, hf_smb2_max_response_size, tvb, offset, 4, TRUE);
 	offset += 4;
@@ -1328,6 +1342,10 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 	proto_tree_add_item(tree, hf_smb2_infolevel, tvb, offset, 1, TRUE);
 	offset += 1;
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Class:0x%02x Level:0x%02x", class, infolevel);
+	}
 
 	/* response size */
 	response_size=tvb_get_letohl(tvb, offset);
