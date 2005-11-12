@@ -84,6 +84,15 @@ static int hf_org_spc_oui = -1;
 static int hf_ieee_802_1_subtype = -1;
 static int hf_ieee_802_3_subtype = -1;
 static int hf_media_tlv_subtype = -1;
+static int hf_profinet_tlv_subtype = -1;
+static int hf_profinet_class2_port_status = -1;
+static int hf_profinet_class3_port_status = -1;
+static int hf_profinet_port_rx_delay_local = -1;
+static int hf_profinet_port_rx_delay_remote = -1;
+static int hf_profinet_port_tx_delay_local = -1;
+static int hf_profinet_port_tx_delay_remote = -1;
+static int hf_profinet_cable_delay_local = -1;
+static int hf_unknown_subtype = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_lldp = -1;
@@ -184,6 +193,7 @@ const value_string tlv_oui_subtype_vals[] = {
 	{ OUI_IEEE_802_1,     	"IEEE 802.1" },
 	{ OUI_IEEE_802_3,     	"IEEE 802.3" },
 	{ OUI_MEDIA_ENDPOINT,	"TIA" },
+	{ OUI_PROFINET,         "PROFINET" },
 	{ 0, NULL }
 };
 
@@ -242,6 +252,14 @@ const value_string media_application_type[] = {
 	{ 6,	"Video Conferencing" },
 	{ 7,	"Streaming Video" },
 	{ 8,	"Video Signaling" },
+	{ 0, NULL }
+};
+
+/* PROFINET subtypes */
+const value_string profinet_subtypes[] = {
+	{ 1, "Measured Delay Values" },
+	{ 2, "Port Status" },
+	{ 3, "Alias" },
 	{ 0, NULL }
 };
 
@@ -415,6 +433,16 @@ const value_string operational_mau_type_values[] = {
 #define AUTONEG_1000BASE_TFD	0x0001 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
 
 #define MAX_MAC_LEN	6
+
+
+const value_string profinet_port_status_vals[] = {
+	{ 0,	"Not used" },
+	{ 1,	"Mode configured" },
+	{ 2,	"Mode enabled" },
+	{ 3,	"Reserved" },
+	/* all other bits reserved */
+	{ 0,	NULL }
+};
 
 /* Calculate Latitude and Longitude string */
 /*
@@ -1997,6 +2025,92 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	return;
 }
 
+
+
+/* Dissect PROFINET TLVs */
+static void
+dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 tlvLen2)
+{
+	guint8 subType;
+	proto_item 	*tf = NULL;
+	guint16 class2_PortStatus;
+	guint16 class3_PortStatus;
+	guint32 port_rx_delay_local;
+	guint32 port_rx_delay_remote;
+	guint32 port_tx_delay_local;
+	guint32 port_tx_delay_remote;
+	guint32 cable_delay_local;
+
+	
+	/* Get subtype */
+	subType = tvb_get_guint8(tvb, offset);
+	if (tree)
+		proto_tree_add_uint(tree, hf_profinet_tlv_subtype, tvb, offset, 1, subType);
+	offset++;
+	
+	switch (subType)
+	{
+	case 1:		/* Measured delay values */
+	{
+		port_rx_delay_local = tvb_get_ntohl(tvb, offset);
+		tf = proto_tree_add_uint(tree, hf_profinet_port_rx_delay_local, tvb, offset, 4, port_rx_delay_local);
+		if(port_rx_delay_local) {
+			proto_item_append_text(tf, "ns");
+		} else {
+			proto_item_append_text(tf, " (unknown)");
+		}
+		offset+=4;
+		port_rx_delay_remote = tvb_get_ntohl(tvb, offset);
+		tf = proto_tree_add_uint(tree, hf_profinet_port_rx_delay_remote, tvb, offset, 4, port_rx_delay_remote);
+		if(port_rx_delay_remote) {
+			proto_item_append_text(tf, "ns");
+		} else {
+			proto_item_append_text(tf, " (unknown)");
+		}
+		offset+=4;
+		port_tx_delay_local = tvb_get_ntohl(tvb, offset);
+		tf = proto_tree_add_uint(tree, hf_profinet_port_tx_delay_local, tvb, offset, 4, port_tx_delay_local);
+		if(port_tx_delay_local) {
+			proto_item_append_text(tf, "ns");
+		} else {
+			proto_item_append_text(tf, " (unknown)");
+		}
+		offset+=4;
+		port_tx_delay_remote = tvb_get_ntohl(tvb, offset);
+		tf = proto_tree_add_uint(tree, hf_profinet_port_tx_delay_remote, tvb, offset, 4, port_tx_delay_remote);
+		if(port_tx_delay_remote) {
+			proto_item_append_text(tf, "ns");
+		} else {
+			proto_item_append_text(tf, " (unknown)");
+		}
+		offset+=4;
+		cable_delay_local = tvb_get_ntohl(tvb, offset);
+		tf = proto_tree_add_uint(tree, hf_profinet_cable_delay_local, tvb, offset, 4, cable_delay_local);
+		if(cable_delay_local) {
+			proto_item_append_text(tf, "ns");
+		} else {
+			proto_item_append_text(tf, " (unknown)");
+		}
+		offset+=4;
+		break;
+	}
+	case 2:		/* Port status */
+	{
+		class2_PortStatus = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_profinet_class2_port_status, tvb, offset, 2, class2_PortStatus);
+		offset+=2;
+		class3_PortStatus = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_profinet_class3_port_status, tvb, offset, 2, class3_PortStatus);
+		offset+=2;
+		break;
+	}
+	/*case 3:*/		/* XXX - Alias */
+	default:
+		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2, FALSE);
+	}
+}
+
+
 /* Dissect Organizational Specific TLV */
 static gint32
 dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
@@ -2025,13 +2139,16 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	switch(oui)
 	{
 	case OUI_IEEE_802_1:
-		subTypeStr = val_to_str(subType, ieee_802_1_subtypes, "Unknown");
+		subTypeStr = val_to_str(subType, ieee_802_1_subtypes, "Unknown subtype 0x%x");
 		break;
 	case OUI_IEEE_802_3:
-		subTypeStr = val_to_str(subType, ieee_802_3_subtypes, "Unknown");
+		subTypeStr = val_to_str(subType, ieee_802_3_subtypes, "Unknown subtype 0x%x");
 		break;
 	case OUI_MEDIA_ENDPOINT:
-		subTypeStr = val_to_str(subType, media_subtypes, "Unknown");
+		subTypeStr = val_to_str(subType, media_subtypes, "Unknown subtype 0x%x");
+		break;
+	case OUI_PROFINET:
+		subTypeStr = val_to_str(subType, profinet_subtypes, "Reserved (0x%x)");
 		break;
 	default:
 		subTypeStr = "Unknown";
@@ -2073,6 +2190,11 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_MEDIA_ENDPOINT:
 		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
 		break;
+	case OUI_PROFINET:
+		dissect_profinet_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
+		break;
+	default:
+		proto_tree_add_item(org_tlv_tree, hf_unknown_subtype, tvb, (offset+5), (guint16) (tempLen-3), FALSE);
 	}
 	
 	return (tempLen + 2);
@@ -2313,6 +2435,42 @@ proto_register_lldp(void)
 		{ &hf_media_tlv_subtype,
 			{ "Media Subtype",	"lldp.media.subtype", FT_UINT8, BASE_HEX,
 	   		VALS(media_subtypes), 0x0, "", HFILL }
+		},
+		{ &hf_profinet_tlv_subtype,
+			{ "Subtype",	"lldp.profinet.subtype", FT_UINT8, BASE_HEX,
+	   		VALS(profinet_subtypes), 0x0, "PROFINET Subtype", HFILL }
+		},
+		{ &hf_profinet_port_rx_delay_local,
+			{ "Port RX Delay Local",	"lldp.profinet.port_rx_delay_local", FT_UINT32, BASE_DEC,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_port_rx_delay_remote,
+			{ "Port RX Delay Remote",	"lldp.profinet.port_rx_delay_remote", FT_UINT32, BASE_DEC,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_port_tx_delay_local,
+			{ "Port TX Delay Local",	"lldp.profinet.port_tx_delay_local", FT_UINT32, BASE_DEC,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_port_tx_delay_remote,
+			{ "Port TX Delay Remote",	"lldp.profinet.port_tx_delay_remote", FT_UINT32, BASE_DEC,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_cable_delay_local,
+			{ "Port Cable Delay Local",	"lldp.profinet.cable_delay_local", FT_UINT32, BASE_DEC,
+	   		NULL, 0x0, "", HFILL }
+		},
+		{ &hf_profinet_class2_port_status,
+			{ "RTClass2 Port Status",	"lldp.profinet.rtc2_port_status", FT_UINT16, BASE_HEX,
+	   		VALS(profinet_port_status_vals), 0x0, "", HFILL }
+		},
+		{ &hf_profinet_class3_port_status,
+			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
+	   		VALS(profinet_port_status_vals), 0x0, "", HFILL }
+		},
+		{ &hf_unknown_subtype,
+			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_HEX,
+	   		NULL, 0x0, "", HFILL }
 		},
 	};
 	

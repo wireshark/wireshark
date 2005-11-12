@@ -42,6 +42,7 @@
 #define OUI_IEEE_802_1		0x0080C2	/* IEEE 802.1 Committee */
 #define OUI_IEEE_802_3		0x00120F	/* IEEE 802.3 */
 #define OUI_MEDIA_ENDPOINT	0x0012BB	/* Media (TIA TR-41 Committee) */
+#define OUI_PROFINET		0x000ECF	/* PROFIBUS Nutzerorganisation e.V. */
 
 extern const value_string oui_vals[];
 
