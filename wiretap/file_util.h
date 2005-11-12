@@ -62,14 +62,15 @@ extern "C" {
 #define eth_open	_open
 #define eth_stat	_stat
 #define eth_unlink	_unlink
+#define eth_mkdir(dir,mode)	_mkdir(dir)
 #else
 #define eth_open	open
 #define eth_stat	stat
 #define eth_unlink	unlink
+#define eth_mkdir(dir,mode)	mkdir(dir,mode)
 #endif
 
 #define eth_rename	rename
-#define eth_mkdir	mkdir
 #define eth_remove	remove
 #define eth_fopen	fopen
 #define eth_freopen	freopen
@@ -115,7 +116,7 @@ extern "C" {
 /* XXX - remove include "dirent.h" */
 /* XXX - remove include "direct.h" */
 /* XXX - remove include "sys/stat.h" */
-/* XXX - remove O_BINARY */
+/* XXX - update docs (e.g. README.developer) */
 
 #ifdef __cplusplus
 }
