@@ -848,7 +848,7 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					     hfindex, &hnd);
 		break;
 	case HND_TYPE_GUID:
-		item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
+		item = proto_tree_add_text(tree, tvb, offset, 16,
 					   "GUID handle");
 
 		subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
