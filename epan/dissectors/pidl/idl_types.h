@@ -13,17 +13,6 @@
 #define STR_LARGE_SIZE	LIBNDR_FLAG_STR_LARGE_SIZE
 
 /*
-  a UCS2 string prefixed with [size] [offset] [length], all 32 bits
-  not null terminated
-*/
-#define unistr_noterm	[flag(STR_NOTERM|STR_SIZE4|STR_LEN4)] string
-
-/*
-  a UCS2 string prefixed with [size] [offset] [length], all 32 bits
-*/
-#define unistr		[flag(STR_SIZE4|STR_LEN4)] string
-
-/*
   a UCS2 string prefixed with [size], 32 bits
 */
 #define lstring		[flag(STR_SIZE4)] string
@@ -42,12 +31,6 @@
   fixed length 16 character ascii string
 */
 #define astring15       [flag(STR_ASCII|STR_FIXLEN15)] string
-
-/*
-  an ascii string prefixed with [size] [offset] [length], all 32 bits
-  null terminated
-*/
-#define ascstr		[flag(STR_ASCII|STR_SIZE4|STR_LEN4)] string
 
 /*
   an ascii string prefixed with [offset] [length], both 32 bits
