@@ -1431,7 +1431,7 @@ static const true_false_string tfs_file_attribute_encrypted = {
  * bytes to consume.
  */
 
-static int
+int
 dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 			int bytes)
 {

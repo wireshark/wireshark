@@ -908,8 +908,11 @@ static int
 dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* padding */
+	offset += 4;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_CLOSE);
@@ -936,9 +939,16 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	/* last change */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 20, TRUE);
-	offset += 20;
+	/* allocation size */
+	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* end of file */
+	proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* File Attributes */
+	offset = dissect_file_attributes(tvb, tree, offset, 4);
 
 	return offset;
 }
