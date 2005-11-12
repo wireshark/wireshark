@@ -111,6 +111,7 @@ static gint ett_smb2_file_info_0d = -1;
 static gint ett_smb2_fs_info_01 = -1;
 static gint ett_smb2_fs_info_05 = -1;
 static gint ett_smb2_sec_info_00 = -1;
+static gint ett_smb2_tid_tree = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
@@ -176,6 +177,30 @@ smb2_saved_info_hash_matched(gconstpointer k)
 	return hash;
 }
 
+/* For Tids of a specific conversation.
+   This keeps track of tid->sharename mappings and other information about the
+   tid.
+   qqq
+   We might need to refine this if it occurs that tids are reused on a single
+   conversation.   we dont worry about that yet for simplicity
+*/
+static gint
+smb2_tid_info_equal(gconstpointer k1, gconstpointer k2)
+{
+	smb2_tid_info_t *key1 = (smb2_tid_info_t *)k1;
+	smb2_tid_info_t *key2 = (smb2_tid_info_t *)k2;
+	return key1->tid==key2->tid;
+}
+static guint
+smb2_tid_info_hash(gconstpointer k)
+{
+	smb2_tid_info_t *key = (smb2_tid_info_t *)k;
+	guint32 hash;
+
+	hash=key->tid;
+	return hash;
+}
+
 
 
 
@@ -223,8 +248,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	case FID_MODE_OPEN:
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
 		if(!pinfo->fd->flags.visited){
-			if(si->saved && si->saved->create_name){
-				fid_name = se_strdup_printf("File:%s", si->saved->create_name);
+			if(si->saved && si->saved->private_data){
+				fid_name = se_strdup_printf("File:%s", (char *)si->saved->private_data);
 			} else {
 				fid_name = se_strdup_printf("File: ");
 			}
@@ -232,8 +257,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 						  fid_name);
 		}
 /*
-		if (hnd_item && si->saved && si->saved->create_name)
-			proto_item_append_text(hnd_item, "%s", si->saved->create_name);
+		if (hnd_item && si->saved && si->saved->private_data)
+			proto_item_append_text(hnd_item, "%s", si->saved->private_data);
 */
 		break;
 	case FID_MODE_CLOSE:
@@ -559,12 +584,46 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 	offset += tree_len;
 
+	/* tree_len  +1 is overkill here if the string is unicode,   
+	 * but who ever has more than a handful of TCON in a trace anyways
+	 */
+	if(!pinfo->fd->flags.visited && si->saved && name && tree_len){
+		si->saved->private_data=se_alloc(tree_len+1);
+		g_snprintf((char *)si->saved->private_data,tree_len+1,"%s",name);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree:%s",
 			name);
 	}
 
+
+	return offset;
+}
+static int
+dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+{
+	if(!pinfo->fd->flags.visited && si->saved && si->saved->private_data) {
+		smb2_tid_info_t *tid, tid_key;
+
+
+		tid_key.tid=si->tid;
+		tid=g_hash_table_lookup(si->conv->tids, &tid_key);
+		if(tid){
+			g_hash_table_remove(si->conv->tids, &tid_key);
+		}
+		tid=se_alloc(sizeof(smb2_tid_info_t));
+		tid->tid=si->tid;
+		tid->flags=0;
+		tid->name=(char *)si->saved->private_data;
+		g_hash_table_insert(si->conv->tids, tid, tid);
+
+		si->saved->private_data=NULL;
+	}
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
 
 	return offset;
 }
@@ -1034,13 +1093,13 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* save the name if it looks sane */
 	if(!pinfo->fd->flags.visited){
-		if(si->saved && si->saved->create_name){
-			g_free(si->saved->create_name);
-			si->saved->create_name=NULL;
+		if(si->saved && si->saved->private_data){
+			g_free(si->saved->private_data);
+			si->saved->private_data=NULL;
 		}
 		if(si->saved && length && (length<256)){
-			si->saved->create_name=g_malloc(length+1);
-			g_snprintf(si->saved->create_name, length+1, "%s", name);
+			si->saved->private_data=g_malloc(length+1);
+			g_snprintf(si->saved->private_data, length+1, "%s", name);
 		}
 	}
 
@@ -1091,10 +1150,10 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_OPEN);
 
-	/* free si->saved->create_name   we dont need it any more */
-	if(si->saved && si->saved->create_name){
-		g_free(si->saved->create_name);
-		si->saved->create_name=NULL;
+	/* free si->saved->private_data   we dont need it any more */
+	if(si->saved && si->saved->private_data){
+		g_free(si->saved->private_data);
+		si->saved->private_data=NULL;
 	}
 
 	/* some unknown bytes */
@@ -1434,7 +1493,7 @@ static smb2_function smb2_dissector[256] = {
   /* 0x02 */  {NULL, NULL},
   /* 0x03 TreeConnect*/  
 	{dissect_smb2_tree_connect_request,
-	 NULL},
+	 dissect_smb2_tree_connect_response},
   /* 0x04 */  {NULL, NULL},
   /* 0x05 Create*/  
 	{dissect_smb2_create_request,
@@ -1735,6 +1794,32 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 	return offset;
 }
 
+static int
+dissect_smb2_tid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
+{
+	proto_item *tid_item=NULL;
+	proto_tree *tid_tree=NULL;
+	smb2_tid_info_t *tid, tid_key;
+
+	/* Tree ID */
+	si->tid=tvb_get_letohl(tvb, offset);
+	tid_item=proto_tree_add_item(tree, hf_smb2_tid, tvb, offset, 4, TRUE);
+	if(tree){
+		tid_tree=proto_item_add_subtree(tid_item, ett_smb2_tid_tree);
+	}
+
+	/* see if we can find the name for this tid */
+	tid_key.tid=si->tid;
+	tid=g_hash_table_lookup(si->conv->tids, &tid_key);
+	if(tid){
+		proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, offset, 4, tid->name);
+	}
+
+	offset += 4;
+
+	return offset;
+}
+
 static void
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -1746,13 +1831,41 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int old_offset;
 	guint16 header_len;
 	conversation_t *conversation;
-	smb2_conv_info_t *sci;
 	smb2_saved_info_t *ssi=NULL, ssi_key;
 	smb2_info_t *si;
 
 	si=ep_alloc(sizeof(smb2_info_t));
 	si->conv=NULL;
 	si->saved=NULL;
+
+
+	/* find which conversation we are part of and get the data for that
+	 * conversation
+	 */
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+	if(!conversation){
+		/* OK this is a new conversation so lets create it */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	si->conv=conversation_get_proto_data(conversation, proto_smb2);
+	if(!si->conv){
+		/* no smb2_into_t structure for this conversation yet,
+		 * create it.
+		 */
+		si->conv=se_alloc(sizeof(smb2_conv_info_t));
+		/* qqq this leaks memory for now since we never free
+		   the hashtables */
+		si->conv->matched= g_hash_table_new(smb2_saved_info_hash_matched,
+			smb2_saved_info_equal_matched);
+		si->conv->unmatched= g_hash_table_new(smb2_saved_info_hash_unmatched,
+			smb2_saved_info_equal_unmatched);
+		si->conv->tids= g_hash_table_new(smb2_tid_info_hash,
+			smb2_tid_info_equal);
+
+		conversation_add_proto_data(conversation, proto_smb2, si->conv);
+	}
+
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
@@ -1766,6 +1879,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			-1, FALSE);
 		tree = proto_item_add_subtree(item, ett_smb2);
 	}
+
 
 	if (tree) {
 		header_item = proto_tree_add_text(tree, tvb, offset, -1, "SMB2 Header");
@@ -1821,8 +1935,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 4;
 
 	/* Tree ID */
-	proto_tree_add_item(header_tree, hf_smb2_tid, tvb, offset, 4, TRUE);
-	offset += 4;
+	offset = dissect_smb2_tid(pinfo, header_tree, tvb, offset, si);
 
 	/* User ID */
 	proto_tree_add_item(header_tree, hf_smb2_uid, tvb, offset, 8, TRUE);
@@ -1853,33 +1966,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 
-	/* find which conversation we are part of and get the tables for that
-	 * conversation
-	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-	if(!conversation){
-		/* OK this is a new conversation so lets create it */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-	sci=conversation_get_proto_data(conversation, proto_smb2);
-	if(!sci){
-		/* no smb2_into_t structure for this conversation yet,
-		 * create it.
-		 */
-		sci=se_alloc(sizeof(smb2_conv_info_t));
-		/* qqq this leaks memory for now since we never free
-		   the hashtables */
-		sci->matched= g_hash_table_new(smb2_saved_info_hash_matched,
-			smb2_saved_info_equal_matched);
-		sci->unmatched= g_hash_table_new(smb2_saved_info_hash_unmatched,
-			smb2_saved_info_equal_unmatched);
-
-		conversation_add_proto_data(conversation, proto_smb2, sci);
-	}
 	if(!pinfo->fd->flags.visited){
 		/* see if we can find this seqnum in the unmatched table */
-		ssi=g_hash_table_lookup(sci->unmatched, &ssi_key);
+		ssi=g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 
 		if(!si->response){
 			/* This is a request */
@@ -1888,7 +1977,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				 * an older ssi so just delete the previous 
 				 * one 
 				 */
-				g_hash_table_remove(sci->unmatched, ssi);
+				g_hash_table_remove(si->conv->unmatched, ssi);
 				ssi=NULL;
 			}
 
@@ -1900,24 +1989,24 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				ssi->class=0;
 				ssi->infolevel=0;
 				ssi->seqnum=ssi_key.seqnum;
-				ssi->create_name=NULL;
+				ssi->private_data=NULL;
 				ssi->frame_req=pinfo->fd->num;
 				ssi->frame_res=0;
 				ssi->req_time=pinfo->fd->abs_ts;
-				g_hash_table_insert(sci->unmatched, ssi, ssi);
+				g_hash_table_insert(si->conv->unmatched, ssi, ssi);
 			}
 		} else {
 			/* This is a response */
 			if(ssi){
 				/* just  set the response frame and move it to the matched table */
 				ssi->frame_res=pinfo->fd->num;
-				g_hash_table_remove(sci->unmatched, ssi);
-				g_hash_table_insert(sci->matched, ssi, ssi);
+				g_hash_table_remove(si->conv->unmatched, ssi);
+				g_hash_table_insert(si->conv->matched, ssi, ssi);
 			}
 		}
 	} else {
 		/* see if we can find this seqnum in the matched table */
-		ssi=g_hash_table_lookup(sci->matched, &ssi_key);
+		ssi=g_hash_table_lookup(si->conv->matched, &ssi_key);
 	}
 
 	if(ssi){
@@ -2166,6 +2255,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_info_01,
 		&ett_smb2_fs_info_05,
 		&ett_smb2_sec_info_00,
+		&ett_smb2_tid_tree,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",

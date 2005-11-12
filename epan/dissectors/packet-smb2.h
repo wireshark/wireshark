@@ -37,15 +37,25 @@ ETH_VAR_IMPORT const value_string smb2_cmd_vals[];
  * There is no guarantee we will have this structure available for all
  * SMB2 packets so a dissector must check this pointer for NULL
  * before dereferencing it.
+ *
+ * private data is set to NULL when the structure is created.  It is used
+ * for communications between the Request and the Response packets.
  */
 typedef struct _smb2_saved_info_t {
 	guint8 class;
 	guint8 infolevel;
 	guint64 seqnum;
-	char *create_name;
+	void *private_data;	
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
 } smb2_saved_info_t;
+
+#define SMB2_FLAGS_TID_IS_IPC	0x00000001
+typedef struct _smb2_tid_info_t {
+	guint32 tid;
+	guint32 flags;
+	char *name;
+} smb2_tid_info_t;
 
 /* Structure to keep track of conversations and the hash tables.
  * There is one such structure for each conversation.
@@ -54,6 +64,7 @@ typedef struct _smb2_conv_info_t {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
+	GHashTable *tids;
 } smb2_conv_info_t;
 
 /* This structure contains information from the SMB2 header
@@ -63,6 +74,7 @@ typedef struct _smb2_conv_info_t {
 typedef struct _smb2_info_t {
 	guint16 opcode;
 	guint32 status;
+	guint32 tid;
 	guint64 seqnum;
 	gboolean response; /* is this a response ? */
 	smb2_conv_info_t	*conv;
