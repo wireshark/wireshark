@@ -70,6 +70,8 @@ static int hf_smb2_create_timestamp = -1;
 static int hf_smb2_last_access_timestamp = -1;
 static int hf_smb2_last_write_timestamp = -1;
 static int hf_smb2_last_change_timestamp = -1;
+static int hf_smb2_current_time = -1;
+static int hf_smb2_boot_time = -1;
 static int hf_smb2_filename_len = -1;
 static int hf_smb2_filename = -1;
 static int hf_smb2_allocation_size = -1;
@@ -747,12 +749,12 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
 	offset += 16;
 
-	/* unknown timestamp */
-	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_unknown_timestamp);
+	/* current time */
+	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_current_time);
 	offset += 8;
 
-	/* unknown timestamp */
-	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_unknown_timestamp);
+	/* boot time */
+	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_boot_time);
 	offset += 8;
 
 	/* some unknown bytes */
@@ -2368,6 +2370,14 @@ proto_register_smb2(void)
 	{ &hf_smb2_next_buffer_offset,
 		{ "Next Buffer Offset", "smb2.create.next_buffer_offset", FT_UINT16, BASE_DEC,
 		NULL, 0, "Offset to next command buffer or 0", HFILL }},
+
+	{ &hf_smb2_current_time,
+		{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Current Time at server", HFILL }},
+
+	{ &hf_smb2_boot_time,
+		{ "Boot Time", "smb2.boot_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Boot Time at server", HFILL }},
 
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
