@@ -150,6 +150,11 @@ static const value_string pn_dcp_req_status[] = {
 #define PNDCP_OPTION_CONTROL        0x05
 #define PNDCP_OPTION_MANUF_X80      0x80
 #define PNDCP_OPTION_MANUF_X81      0x81
+#define PNDCP_OPTION_MANUF_X82      0x82
+#define PNDCP_OPTION_MANUF_X83      0x83
+#define PNDCP_OPTION_MANUF_X84      0x84
+#define PNDCP_OPTION_MANUF_X85      0x85
+#define PNDCP_OPTION_MANUF_X86      0x86
 #define PNDCP_OPTION_ALLSELECTOR    0xff
 
 static const value_string pn_dcp_option[] = {
@@ -163,6 +168,11 @@ static const value_string pn_dcp_option[] = {
     /*0x80 - 0xfe manufacturer specific */
 	{ PNDCP_OPTION_MANUF_X80,   "Manufacturer specific" },
 	{ PNDCP_OPTION_MANUF_X81,   "Manufacturer specific" },
+	{ PNDCP_OPTION_MANUF_X82,   "Manufacturer specific" },
+	{ PNDCP_OPTION_MANUF_X83,   "Manufacturer specific" },
+	{ PNDCP_OPTION_MANUF_X84,   "Manufacturer specific" },
+	{ PNDCP_OPTION_MANUF_X85,   "Manufacturer specific" },
+	{ PNDCP_OPTION_MANUF_X86,   "Manufacturer specific" },
 	{ PNDCP_OPTION_ALLSELECTOR, "All Selector" },
     { 0, NULL }
 };
@@ -520,7 +530,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, "Device/Device ID");
         if(is_response)
             proto_item_append_text(block_item, ", Status: %u", status);
-        proto_item_append_text(block_item, ", 0x%04x/0x%04x", vendor_id, device_id);
+        proto_item_append_text(block_item, ", VendorID: 0x%04x / DeviceID: 0x%04x", vendor_id, device_id);
         break;
     case(PNDCP_SUBOPTION_DEVICE_DEV_ROLE):
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device_role, &device_role);
