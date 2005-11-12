@@ -3871,6 +3871,32 @@ dissect_write_and_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	return offset;
 }
 
+/* Timeout is defined on page 117 of SMB Protocol Extensions version 2.0
+   available at http://us1.samba.org/samba/ftp/SMB-info/DOSEXTP.TXT
+*/
+static gchar *
+smbext20_timeout_msecs_to_str(gint32 time)
+{
+        gchar *buf;
+#define SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN 60
+
+	if (time <= 0) {
+	        buf=ep_alloc(SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
+		if (time == 0) {
+		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
+		} else if (time == -1) {
+		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
+		} else if (time == -2) {
+		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
+		} else {
+		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", time);
+		}
+		return buf;
+	}
+
+	return time_msecs_to_str(time);
+}
+
 static int
 dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
@@ -3899,7 +3925,7 @@ dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", time_msecs_to_str(to));
+	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* 2 reserved bytes */
@@ -4134,7 +4160,7 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", time_msecs_to_str(to));
+	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* mode */
@@ -4212,7 +4238,7 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", time_msecs_to_str(to));
+	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* mode */
@@ -4308,7 +4334,7 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* file name */
 	fn_len = 11;
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(tvb, &offset, FALSE/*never Unicode*/, &fn_len,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
@@ -4679,12 +4705,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	if (to == 0)
-		proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: Return immediately (0)");
-	else if (to == 0xffffffff)
-		proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: Wait indefinitely (-1)");
-	else
-		proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", time_msecs_to_str(to));
+	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* number of unlocks */
@@ -4998,6 +5019,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc;
+	guint32 to;
 	smb_info_t *si = pinfo->private_data;
 	int fn_len;
 	const char *fn;
@@ -5046,9 +5068,14 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* 8 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, TRUE);
-	offset += 8;
+	/* timeout, described at http://us1.samba.org/samba/ftp/SMB-info/DOSEXTP.TXT */
+	to = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
+	offset += 4;
+
+	/* 4 reserved bytes */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	BYTE_COUNT;
 
@@ -6500,6 +6527,72 @@ const value_string nt_cmd_vals[] = {
 	{NT_TRANS_QSD,			"NT QUERY SECURITY DESC"},
 	{NT_TRANS_GET_USER_QUOTA,	"NT GET USER QUOTA"},
 	{NT_TRANS_SET_USER_QUOTA,	"NT SET USER QUOTA"},
+	{0, NULL}
+};
+
+/* These IOCTL function values come from Visual 6.0 winioctl.h, and
+   are described in MSDN.
+   They are only FSCTLs (they all start with 0x0009). If we were
+   pedantic, we could check if ioctl_isfsctl boolean is set, but
+   this is redundant.
+*/
+static const value_string nt_ioctl_function_vals[] = {
+       {0x00090000, "FSCTL_REQUEST_OPLOCK_LEVEL_1"},
+	{0x00090004, "FSCTL_REQUEST_OPLOCK_LEVEL_2"},
+	{0x00090008, "FSCTL_REQUEST_BATCH_OPLOCK"},
+	{0x0009000C, "FSCTL_OPLOCK_BREAK_ACKNOWLEDGE"},
+	{0x00090010, "FSCTL_OPBATCH_ACK_CLOSE_PENDING"},
+	{0x00090014, "FSCTL_OPLOCK_BREAK_NOTIFY"},
+	{0x00090018, "FSCTL_LOCK_VOLUME"},
+	{0x0009001C, "FSCTL_UNLOCK_VOLUME"},
+	{0x00090020, "FSCTL_DISMOUNT_VOLUME"},
+	{0x00090028, "FSCTL_IS_VOLUME_MOUNTED"},
+	{0x0009002C, "FSCTL_IS_PATHNAME_VALID"},
+	{0x00090030, "FSCTL_MARK_VOLUME_DIRTY"},
+	{0x0009003B, "FSCTL_QUERY_RETRIEVAL_POINTERS"},
+	{0x0009003C, "FSCTL_GET_COMPRESSION"},
+	{0x0009C040, "FSCTL_SET_COMPRESSION"},
+	{0x0009004F, "FSCTL_MARK_AS_SYSTEM_HIVE"},
+	{0x00090050, "FSCTL_OPLOCK_BREAK_ACK_NO_2"},
+	{0x00090054, "FSCTL_INVALIDATE_VOLUMES"},
+	{0x00090058, "FSCTL_QUERY_FAT_BPB"},
+	{0x0009005C, "FSCTL_REQUEST_FILTER_OPLOCK"},
+	{0x00090060, "FSCTL_FILESYSTEM_GET_STATISTICS"},
+	{0x00090064, "FSCTL_GET_NTFS_VOLUME_DATA"},
+	{0x00090068, "FSCTL_GET_NTFS_FILE_RECORD"},
+	{0x0009006F, "FSCTL_GET_VOLUME_BITMAP"},
+	{0x00090073, "FSCTL_GET_RETRIEVAL_POINTERS"},
+	{0x00090074, "FSCTL_MOVE_FILE"},
+	{0x00090078, "FSCTL_IS_VOLUME_DIRTY"},
+	{0x0009007C, "FSCTL_GET_HFS_INFORMATION"},
+	{0x00090083, "FSCTL_ALLOW_EXTENDED_DASD_IO"},
+	{0x00090087, "FSCTL_READ_PROPERTY_DATA"},
+	{0x0009008B, "FSCTL_WRITE_PROPERTY_DATA"},
+	{0x0009008F, "FSCTL_FIND_FILES_BY_SID"},
+	{0x00090097, "FSCTL_DUMP_PROPERTY_DATA"},
+	{0x00098098, "FSCTL_SET_OBJECT_ID"},
+	{0x0009009C, "FSCTL_GET_OBJECT_ID"},
+	{0x000980A0, "FSCTL_DELETE_OBJECT_ID"},
+	{0x000980A4, "FSCTL_SET_REPARSE_POINT"},
+	{0x000900A8, "FSCTL_GET_REPARSE_POINT"},
+	{0x000980AC, "FSCTL_DELETE_REPARSE_POINT"},
+	{0x000940B3, "FSCTL_ENUM_USN_DATA"},
+	{0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
+	{0x000940BB, "FSCTL_READ_USN_JOURNAL"},
+	{0x000980BC, "FSCTL_SET_OBJECT_ID_EXTENDED"},
+	{0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},
+	{0x000980C4, "FSCTL_SET_SPARSE"},
+	{0x000980C8, "FSCTL_SET_ZERO_DATA"},
+	{0x000940CF, "FSCTL_QUERY_ALLOCATED_RANGES"},
+	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
+	{0x000900D4, "FSCTL_SET_ENCRYPTION"},
+	{0x000900DB, "FSCTL_ENCRYPTION_FSCTL_IO"},
+	{0x000900DF, "FSCTL_WRITE_RAW_ENCRYPTED"},
+	{0x000900E3, "FSCTL_READ_RAW_ENCRYPTED"},
+	{0x000940E7, "FSCTL_CREATE_USN_JOURNAL"},
+	{0x000940EB, "FSCTL_READ_FILE_USN_DATA"},
+	{0x000940EF, "FSCTL_WRITE_USN_CLOSE_RECORD"},
+	{0x000900F0, "FSCTL_EXTEND_VOLUME"},
 	{0, NULL}
 };
 
@@ -10486,6 +10579,46 @@ dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
+/* This dissects the SMB_QUERY_FILE_ALL_INFO
+   BUT NOT as described in 4.2.16.8.
+   All SMB_QUERY_FILE_ALL_INFO packets I captured were only correctly
+   decoded using this function. As you can see, this is very different
+   from function dissect_4_2_16_8() which implements the documented
+   format.
+   XXX I don't know which one we should use. Does someone have
+   a valid decoding with dissect_4_2_16_8() ?
+*/
+static int
+dissect_4_2_16_8_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+
+	offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc) {
+		return offset;
+	}
+
+	/* 4 pad bytes */
+	offset+=4;
+
+	offset = dissect_4_2_16_5(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc) {
+		return offset;
+	}
+
+	/* 2 pad bytes */
+	offset+=2;
+
+	offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc) {
+		return offset;
+	}
+
+	offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp, trunc);
+
+	return offset;
+}
+
 /* this dissects the SMB_QUERY_FILE_STREAM_INFO
    as described in 4.2.16.10
 */
@@ -10936,8 +11069,14 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x0107:	/*Query File All Info*/
 	case 1018:	/* SMB_FILE_ALL_INFORMATION */
+#if 1
 		offset = dissect_4_2_16_8(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
+#else
+		/* see comments before function definition */
+		offset = dissect_4_2_16_8_unsure(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+#endif
 		break;
 	case 0x0108:	/*Query File Alt File Info*/
 	case 1021:	/* SMB_FILE_ALTERNATE_NAME_INFORMATION */
@@ -11441,12 +11580,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* timeout */
 		to = tvb_get_letohl(tvb, offset);
-		if (to == 0)
-			proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: Return immediately (0)");
-		else if (to == 0xffffffff)
-			proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: Wait indefinitely (-1)");
-		else
-			proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", time_msecs_to_str(to));
+		proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
 		offset += 4;
 
 		/* 2 reserved bytes */
@@ -16330,7 +16464,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_ioctl_function_code,
 		{ "Function", "smb.nt.ioctl.function", FT_UINT32, BASE_HEX,
-		NULL, 0, "NT IOCTL function code", HFILL }},
+		VALS(nt_ioctl_function_vals), 0, "NT IOCTL function code", HFILL }},
 
 	{ &hf_smb_nt_ioctl_isfsctl,
 		{ "IsFSctl", "smb.nt.ioctl.isfsctl", FT_UINT8, BASE_DEC,
