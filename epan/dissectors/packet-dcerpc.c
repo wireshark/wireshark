@@ -4209,6 +4209,13 @@ dissect_dcerpc_cn_smbpipe (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 
+static gboolean
+dissect_dcerpc_cn_smb2 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	pinfo->dcetransporttype=DCE_TRANSPORT_UNKNOWN;
+	return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
+}
+
 
 
 static void
@@ -5415,6 +5422,7 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("netbios", dissect_dcerpc_cn_pk, proto_dcerpc);
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
     heur_dissector_add ("smb_transact", dissect_dcerpc_cn_smbpipe, proto_dcerpc);
+    heur_dissector_add ("smb2_heur_subdissectors", dissect_dcerpc_cn_smb2, proto_dcerpc);
     heur_dissector_add ("http", dissect_dcerpc_cn_bs, proto_dcerpc);
     dcerpc_smb_init(proto_dcerpc);
 }

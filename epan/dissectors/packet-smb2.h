@@ -50,7 +50,15 @@ typedef struct _smb2_saved_info_t {
 	nstime_t req_time;
 } smb2_saved_info_t;
 
-#define SMB2_FLAGS_TID_IS_IPC	0x00000001
+/* at most one of these two bits may be set.
+ * if ipc$ status is unknown none is set.
+ *
+ * if the tid name ends with "IPC$" we assume that all files on this tid
+ * are dcerpc pipes.
+ */
+#define SMB2_FLAGS_TID_IS_IPC		0x00000001
+#define SMB2_FLAGS_TID_IS_NOT_IPC	0x00000002
+
 typedef struct _smb2_tid_info_t {
 	guint32 tid;
 	guint32 flags;
@@ -79,6 +87,8 @@ typedef struct _smb2_info_t {
 	gboolean response; /* is this a response ? */
 	smb2_conv_info_t	*conv;
 	smb2_saved_info_t	*saved;
+	smb2_tid_info_t		*tree;
+	proto_tree *top_tree;	
 } smb2_info_t;
 
 #endif

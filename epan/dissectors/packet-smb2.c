@@ -45,6 +45,7 @@
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
 #include "packet-dcerpc-nt.h"
+#include <string.h>
 
 
 
@@ -114,6 +115,8 @@ static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_tid_tree = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
+
+static heur_dissector_list_t smb2_heur_subdissector_list;
 
 #define SMB2_CLASS_FILE_INFO	0x01
 #define SMB2_CLASS_FS_INFO	0x02
@@ -614,8 +617,18 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		}
 		tid=se_alloc(sizeof(smb2_tid_info_t));
 		tid->tid=si->tid;
-		tid->flags=0;
 		tid->name=(char *)si->saved->private_data;
+		tid->flags=0;
+		if(strlen(tid->name)>=4){
+			if(!strcmp(tid->name+strlen(tid->name)-4, "IPC$")){
+				tid->flags|=SMB2_FLAGS_TID_IS_IPC;
+			} else {
+				tid->flags|=SMB2_FLAGS_TID_IS_NOT_IPC;
+			}
+		} else {
+			tid->flags|=SMB2_FLAGS_TID_IS_NOT_IPC;
+		}
+
 		g_hash_table_insert(si->conv->tids, tid, tid);
 
 		si->saved->private_data=NULL;
@@ -931,7 +944,26 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 
+static int
+dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 datalen, smb2_info_t *si)
+{
+	int tvblen;
+	int result;
 
+	tvbuff_t *dcerpc_tvb;
+	tvblen = tvb_length_remaining(tvb, offset);
+	dcerpc_tvb = tvb_new_subset(tvb, offset, MIN(datalen, tvb_length_remaining(tvb, offset)), datalen);
+
+	/* dissect the full PDU */
+	result = dissector_try_heuristic(smb2_heur_subdissector_list, dcerpc_tvb, pinfo, si->top_tree);
+
+
+	offset += datalen;
+
+	return offset;
+}
+
+	
 static int
 dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
@@ -958,7 +990,14 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
 	offset += 16;
 
-	/* data */
+
+	/* data or dcerpc ?*/
+	if(length && si->tree && si->tree->flags&SMB2_FLAGS_TID_IS_IPC ){
+		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si);
+		return offset;
+	}
+
+	/* just ordinary data */
 	proto_tree_add_item(tree, hf_smb2_write_data, tvb, offset, length, TRUE);
 	offset += MIN(length,(guint32)tvb_length_remaining(tvb, offset));
 
@@ -1032,6 +1071,12 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
 	offset += 8;
+
+	/* data or dcerpc ?*/
+	if(length && si->tree && si->tree->flags&SMB2_FLAGS_TID_IS_IPC ){
+		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si);
+		return offset;
+	}
 
 	/* data */
 	proto_tree_add_item(tree, hf_smb2_read_data, tvb, offset, length, TRUE);
@@ -1799,7 +1844,7 @@ dissect_smb2_tid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 {
 	proto_item *tid_item=NULL;
 	proto_tree *tid_tree=NULL;
-	smb2_tid_info_t *tid, tid_key;
+	smb2_tid_info_t tid_key;
 
 	/* Tree ID */
 	si->tid=tvb_get_letohl(tvb, offset);
@@ -1810,9 +1855,9 @@ dissect_smb2_tid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
 	/* see if we can find the name for this tid */
 	tid_key.tid=si->tid;
-	tid=g_hash_table_lookup(si->conv->tids, &tid_key);
-	if(tid){
-		proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, offset, 4, tid->name);
+	si->tree=g_hash_table_lookup(si->conv->tids, &tid_key);
+	if(si->tree){
+		proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, offset, 4, si->tree->name);
 	}
 
 	offset += 4;
@@ -1837,7 +1882,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	si=ep_alloc(sizeof(smb2_info_t));
 	si->conv=NULL;
 	si->saved=NULL;
-
+	si->tree=NULL;
+	si->top_tree=parent_tree;
 
 	/* find which conversation we are part of and get the data for that
 	 * conversation
@@ -2262,6 +2308,8 @@ proto_register_smb2(void)
 	    "SMB2", "smb2");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb2, hf, array_length(hf));
+
+	register_heur_dissector_list("smb2_heur_subdissectors", &smb2_heur_subdissector_list);
 }
 
 void
