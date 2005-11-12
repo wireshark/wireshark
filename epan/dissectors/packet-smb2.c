@@ -1009,7 +1009,8 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static int
 dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
-	guint32 length, off;
+	guint32 length;
+	guint64 off;
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
@@ -1021,9 +1022,13 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* offset */
-	off=tvb_get_letohl(tvb, offset);
+	off=tvb_get_letoh64(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_write_offset, tvb, offset, 8, TRUE);
 	offset += 8;
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" PRIu64, length, off);
+	}
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -1069,17 +1074,26 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	guint32 len;
+	guint64 off;
+
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* length */
+	len=tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_read_length, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* offset */
+	off=tvb_get_letoh64(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_read_offset, tvb, offset, 8, TRUE);
 	offset += 8;
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" PRIu64, len, off);
+	}
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
