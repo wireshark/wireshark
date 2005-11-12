@@ -30,21 +30,43 @@
  */
 ETH_VAR_IMPORT const value_string smb2_cmd_vals[];
 
+/* Structure to keep track of information specific to a single
+ * SMB2 transaction. Here we store things we need to remember between
+ * a specific request and a specific response.
+ * 
+ * There is no guarantee we will have this structure available for all
+ * SMB2 packets so a dissector must check this pointer for NULL
+ * before dereferencing it.
+ */
 typedef struct _smb2_saved_info_t {
 	guint8 class;
 	guint8 infolevel;
 	guint64 seqnum;
 	char *create_name;
-	gboolean response; /* is this a response ? */
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
 } smb2_saved_info_t;
 
-/* structure to keep track of conversations and the hash tables. */
-typedef struct _smb2_info_t {
+/* Structure to keep track of conversations and the hash tables.
+ * There is one such structure for each conversation.
+ */
+typedef struct _smb2_conv_info_t {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
+} smb2_conv_info_t;
+
+/* This structure contains information from the SMB2 header
+ * as well as pointers to the conversation and the transaction specific
+ * structures.
+ */
+typedef struct _smb2_info_t {
+	guint16 opcode;
+	guint32 status;
+	guint64 seqnum;
+	gboolean response; /* is this a response ? */
+	smb2_conv_info_t	*conv;
+	smb2_saved_info_t	*saved;
 } smb2_info_t;
 
 #endif
