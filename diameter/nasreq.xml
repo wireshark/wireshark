@@ -287,5 +287,17 @@
 		<avp name="Tunnel-Assignment-Id" code="82">
 			<type type-name="OctetString"/>
 		</avp>
-
+		<avp name="Accounting-Auth-Method" code="406">
+			<type type-name="Unsigned32"/>
+			<enum name="PAP" code="1"/>
+			<enum name="CHAP" code="2"/>
+			<enum name="MS-CHAP-1" code="3"/>
+			<enum name="MS-CHAP-2" code="4"/>
+			<enum name="EAP" code="5"/>
+			<enum name="None" code="7"/>
+		</avp>
+		<avp name="Origin-AAA-Protocol" code="408
+			<type type-name="Unsigned32"/>
+			<enum name="RADIUS" code="1"/>
+		</avp>
 	</application>

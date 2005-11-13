@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id:$ -->
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
 	<!ENTITY nasreq SYSTEM "nasreq.xml">
 	<!ENTITY mobileipv4 SYSTEM "mobileipv4.xml">
 	<!ENTITY sunping SYSTEM "sunping.xml">
 	<!ENTITY imscxdx SYSTEM "imscxdx.xml">
+	<!ENTITY 3GPPSh SYSTEM "3GPPSh.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -482,6 +484,13 @@
 		<avp name="Accounting-Multi-Session-Id" code="50" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="Accounting-Realtime-Required" code="483 mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Reserved" code="0">
+			<enum name="DELIVER_AND_GRANT" code="1"/>
+			<enum name="GRANT_AND_STORE" code="2">
+			<enum name="GRANT_AND_LOSE" code="3"
+		</avp>
 		<avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -509,6 +518,12 @@
 			<enum name="3GPP Zh" code="16777221"/>
 			<enum name="3GPP Gq" code="16777222"/>
 			<enum name="3GPP Gmb" code="16777223"/>
+			<enum name="3GPP Gx" code="16777224/>
+			<enum name="3GPP Gx over Gy" code="16777225/>
+			<enum name="3GPP MM10" code="16777226/>
+			<enum name="Ericsson MSI" code="16777227/>
+			<enum name="Ericsson Zx" code="16777228/>
+			<enum name="3GPP Rx" code="16777229/>
 		</avp>
 		<avp name="Alternate-Peer" code="275" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -530,13 +545,13 @@
 		</avp>
 		<avp name="Auth-Session-State" code="277" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="State Maintained" code="0"/>
-			<enum name="No State Maintained" code="1"/>
+			<enum name="STATE_MAINTAINED" code="0"/>
+			<enum name="NO_STATE_MAINTAINED" code="1"/>
 		</avp>
 		<avp name="Re-Auth-Request-Type" code="285" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="Authorize Only" code="0"/>
-			<enum name="Authorize Authenticate" code="1"/>
+			<enum name="AUTHORIZE_ONLY" code="0"/>
+			<enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
 		</avp>
 		<avp name="Destination-Host" code="293" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -546,9 +561,9 @@
 		</avp>
 		<avp name="Disconnect-Cause" code="273" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="Rebooting" code="0"/>
-			<enum name="Busy" code="1"/>
-			<enum name="Do not want to talk to you" code="2"/>
+			<enum name="REBOOTING" code="0"/>
+			<enum name="BUSY" code="1"/>
+			<enum name="DO_NOT_WANT_TO_TALK_TO_YOU" code="2"/>
 		</avp>
 		<avp name="Error-Message" code="281" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
@@ -654,24 +669,42 @@
 				<gavp name="Experimental-Result-Code"/>
 			</grouped>
 		</avp>
+		<!-- 3GPP TS 29.230 version 6.5.0 Release 6, ETSI TS 129 230 V6.5.0 (2005-09) -->
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="First Registration" code="2001"/>
-			<enum name="Subsequent Registration" code="2002"/>
-			<enum name="Unregistered Service" code="2003"/>
-			<enum name="Success Server Name Not Stored" code="2004"/>
-			<enum name="Server Selection" code="2005"/>
-			<enum name="Error User Unknown" code="5001"/>
-			<enum name="Error Identities Dont Match" code="5002"/>
-			<enum name="Error Identity Not Registered" code="5003"/>
-			<enum name="Error Roaming Not Allowed" code="5004"/>
-			<enum name="Error Roaming Identity Already Registered" code="5005"/>
-			<enum name="Error Roaming Auth Scheme Not Supported" code="5006"/>
-			<enum name="Error In Assignment Type" code="5007"/>
-			<enum name="Error Too Much Data" code="5008"/>
-			<enum name="Error Not Supported User Data" code="5009"/>
+			<enum name="DIAMETER_FIRST_REGISTRATION" code="2001"/>
+			<enum name="DIAMETER_SUBSEQUENT_REGISTRATION" code="2002"/>
+			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2003"/>
+			<enum name="DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED" code="2004"/>
+			<enum name="SDIAMETER_SERVER_SELECTION" code="2005"/>
+			<enum name="DIAMETER_USER_DATA_NOT_AVAILABLE" code="4100"/>
+			<enum name="DIAMETER_PRIOR_UPDATE_IN_PROGRESS" code="4101"/>
+			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5001"/>
+			<enum name="DIAMETER_ERROR_IDENTITIES_DONT_MATCH" code="5002"/>
+			<enum name="DIAMETER_ERROR_IDENTITY_NOT_REGISTERED" code="5003"/>
+			<enum name="DIAMETER_ERROR_ROAMING_NOT_ALLOWED" code="5004"/>
+			<enum name="DIAMETER_ERROR_IDENTITY_ALREADY_REGISTERED" code="5005"/>
+			<enum name="DIAMETER_ERROR_AUTH_SCHEME_NOT_SUPPORTED" code="5006"/>
+			<enum name="DIAMETER_ERROR_IN_ASSIGNMENT_TYPE" code="5007"/>
+			<enum name="DIAMETER_ERROR_TOO_MUCH_DATA" code="5008"/>
+			<enum name="DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA" code="5009"/>
 			<enum name="DIAMETER_MISSING_USER_ID" code="5010"/>
 			<enum name="DIAMETER_ERROR_FEATURE_UNSUPPORTED" code="5011"/>
+			<enum name="DIAMETER_ERROR_USER_NO_WLAN_SUBSCRIPTION" code="5041"/>
+			<enum name="DIAMETER_ERROR_W-APN_UNUSED_BY_USER" code="5042"/>
+			<enum name="DIAMETER_ERROR_W-DIAMETER_ERROR_NO_ACCESS_INDEPENDENT_SUBSCRIPTION" code="5043"/>
+			<enum name="DIAMETER_ERROR_USER_NO_W-APN_SUBSCRIPTION" code="5044"/>
+			<enum name="DIAMETER_ERROR_USER_DATA_NOT_RECOGNIZED" code="5100"/>
+			<enum name="DIAMETER_ERROR_OPERATION_NOT_ALLOWED" code="5101"/>
+			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_READ" code="5102"/>
+			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_MODIFIED" code="5103"/>
+			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_NOTIFIED" code="5104"/>
+			<enum name="DIAMETER_ERROR_TRANSPARENT_DATA_OUT_OF_SYNC" code="5105"/>
+			<enum name="DIAMETER_ERROR_START_INDICATION" code="5120"/>
+			<enum name="DIAMETER_ERROR_STOP_INDICATION" code="5121"/>
+			<enum name="DIAMETER_ERROR_UNKNOWN_MBMS_BEARER_SERVICE" code="5122"/>
+			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
+			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
 		</avp>
 		<avp name="Route-Record" code="282" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -681,13 +714,17 @@
 		</avp>
 		<avp name="Session-Binding" code="270" mandatory="must" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
+			<enum name="RE_AUTH" code="1"/>
+			<enum name="STR" code="2"/>
+			<enum name="Unallocated" code="3"/>
+			<enum name="ACCOUNTING" code="4"/>
 		</avp>
 		<avp name="Session-Server-Failover" code="271" mandatory="must" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="Refuse Service" code="0"/>
-			<enum name="Try Again" code="1"/>
-			<enum name="Allow Service" code="2"/>
-			<enum name="Try Again / Allow Service" code="3"/>
+			<enum name="REFUSE_SERVICE" code="0"/>
+			<enum name="TRY_AGAIN" code="1"/>
+			<enum name="ALLOW_SERVICE" code="2"/>
+			<enum name="TRY_AGAIN_ALLOW_SERVICE" code="3"/>
 		</avp>
 		<avp name="Source-Route" code="286" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -697,11 +734,14 @@
 		</avp>
 		<avp name="Termination-Cause" code="295" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="Logout" code="1"/>
-			<enum name="Service Not Provided" code="2"/>
-			<enum name="Bad Answer" code="3"/>
-			<enum name="Administrative" code="4"/>
-			<enum name="Link Broken" code="5"/>
+			<enum name="DIAMETER_LOGOUT" code="1"/>
+			<enum name="DIAMETER_SERVICE_NOT_PROVIDED" code="2"/>
+			<enum name="DIAMETER_BAD_ANSWER" code="3"/>
+			<enum name="DIAMETER_ADMINISTRATIVE" code="4"/>
+			<enum name="DIAMETER_LINK_BROKEN" code="5"/>
+			<enum name="DIAMETER_AUTH_EXPIRED" code="6"/>
+			<enum name="DIAMETER_USER_MOVED" code="7"/>
+			<enum name="DIAMETER_SESSION_TIMEOUT" code="8"/>
 		</avp>
 		<avp name="Vendor-Id" code="266" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="VendorId"/>
@@ -838,4 +878,5 @@
 	&mobileipv4;
 	&sunping;
 	&imscxdx;
+	&3GPPSh;
 </dictionary>

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id:$ -->
 
 	<application id="4" name="Mobile IPv4 Application" uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-07.txt">
 
@@ -9,6 +10,10 @@
 		<!-- ************************** Mobile-IPv4 AVPS ********************* -->
 		<avp name="MIP-Filter-Rule" code="347" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="IPFilterRule"/>
+		</avp>
+		<avp name="MIP-Algorithm-Type" code="345" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+			<enum name="HMAC-SHA-1" code="2"/>
 		</avp>
 		<avp name="MIP-Auth-Input-Data-Length" code="338" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
@@ -56,6 +61,12 @@
 		</avp>
 		<avp name="MIP-Reg-Reply" code="321" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MIP-Replay-Mode" code="346" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+			<enum name="None" code="1"/>
+			<enum name="Timestamps" code="2"/>
+			<enum name="Nonces" code="3"/>
 		</avp>
 		<!-- ************************ END Mobile-IPv4 AVPS ******************* -->
 
