@@ -551,6 +551,7 @@ static int dissect_ranap_ies(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			offset = dissect_id_E_DCH_MAC_d_Flow_ID(tvb, offset, pinfo, tree);
 			break;
 		default:
+			offset = offset + (length<<3);
 			break;
 			
 	}
@@ -569,6 +570,7 @@ static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, packet_info *
 			offset = dissect_id_RAB_SetupOrModifyItem1(tvb, offset, pinfo, tree);
 			break;
 		default:
+			offset = offset + (length<<3);
 			break;
 	}
 	/* We might not stop on a byte boundary */
@@ -587,6 +589,7 @@ static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, packet_info 
 			offset = dissect_id_RAB_SetupOrModifyItem2(tvb, offset, pinfo, tree);
 			break;
 		default:
+			offset = offset + (length<<3);
 			break;
 	}
 	/* We might not stop on a byte boundary */
@@ -728,6 +731,7 @@ static int dissect_ranap_messages(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					offset = dissect_mBMSRABReleaseRequest(tvb, offset, pinfo, tree);
 					break;
 				default:
+					offset = offset + (length<<3);
 					break;
 			}	
 			break;
@@ -843,6 +847,7 @@ static int dissect_ranap_messages(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					offset = dissect_mBMSRABRelease(tvb, offset, pinfo, tree);
 					break;
 				default:
+					offset = offset + (length<<3);
 					break;
 			}
 			break;
@@ -944,6 +949,7 @@ static int dissect_ranap_messages(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					offset = dissect_mBMSRABReleaseFailure(tvb, offset, pinfo, tree);
 					break;
 				default:
+					offset = offset + (length<<3);
 					break;
 			}
 			break;
@@ -1038,6 +1044,7 @@ static int dissect_ranap_messages(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				case 42: /* id-MBMSRABRelease*/
 					break;
 				default:
+					offset = offset + (length<<3);
 					break;
 			}
 			break;
