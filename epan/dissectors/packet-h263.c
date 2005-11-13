@@ -367,7 +367,7 @@ proto_register_h263(void)
 			&hf_h263_ftype,
 			{
 				"F",
-				"h263.sbit",
+				"h263.ftype",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
