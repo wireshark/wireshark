@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x411.c                                                            */
+/* ./packet-x411.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.c */
@@ -35,7 +35,6 @@
 #endif
 
 #include <glib.h>
-#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
@@ -53,6 +52,7 @@
 #include "packet-x509sat.h"
 
 #include "packet-x411.h"
+#include <epan/emem.h>
 
 #define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "X411"
