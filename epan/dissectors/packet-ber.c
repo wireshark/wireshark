@@ -201,7 +201,7 @@ register_ber_oid_name(const char *oid, const char *name)
 
 /* Get oid name from hash table to get translation in proto dissection(packet-per.c) */
 char *
-get_ber_oid_name(char *oid)
+get_ber_oid_name(const char *oid)
 {
 	return g_hash_table_lookup(oid_table, oid);
 }
@@ -1716,16 +1716,17 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
  * if value_string is non-NULL it must point to a buffer of at least
  * MAX_OID_STR_LEN bytes.
  */
-int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string) {
+int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **value_tvb) 
+{
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
 	int eoffset;
 	char *str, *name;
-	proto_item *item;
+	proto_item *item = NULL;
+  header_field_info *hfi;
 
-	str=ep_alloc(MAX_OID_STR_LEN);
 #ifdef DEBUG_BER
 {
 char *name;
@@ -1744,10 +1745,6 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 }
 #endif
 
-	if(value_string) {
-		value_string[0] = '\0';
-	}
-
 	if(!implicit_tag) {
 		/* sanity check */
 		offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -1764,26 +1761,49 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
-	oid_to_str_buf(tvb_get_ptr(tvb, offset, len), len, str, MAX_OID_STR_LEN);
-	offset += len;
+  str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
 
-	if(hf_id >= 0) {
-		item=proto_tree_add_string(tree, hf_id, tvb, offset - len, len, str);
-		/* see if we know the name of this oid */
-		if(item){
-			name=g_hash_table_lookup(oid_table, str);
-			if(name){
-				proto_item_append_text(item, " (%s)", name);
-			}
+  hfi = proto_registrar_get_nth(hf_id);
+  /*if (hfi->type == FT_OID) {
+    item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+  } else*/ if (IS_FT_STRING(hfi->type)) {
+    item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
+  } else {
+    DISSECTOR_ASSERT_NOT_REACHED();
+  }
+
+  if (value_tvb)
+    *value_tvb = tvb_new_subset(tvb, offset, len, len);
+
+	/* see if we know the name of this oid */
+	if(item){
+		name=g_hash_table_lookup(oid_table, str);
+		if(name){
+			proto_item_append_text(item, " (%s)", name);
 		}
-	}
-
-	if(value_string) {
-		g_snprintf(value_string, MAX_OID_STR_LEN, "%s", str);
 	}
 
 	return eoffset;
 }
+
+int dissect_ber_object_identifier_str(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, const char **value_string)
+{
+  tvbuff_t *value_tvb = NULL;
+  guint length;
+
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_id, (value_string) ? &value_tvb : NULL);
+
+  if (value_string) {
+    if (value_tvb && (length = tvb_length(value_tvb))) {
+      *value_string = oid_to_str(tvb_get_ptr(value_tvb, 0, length), length);
+    } else {
+      *value_string = "";
+    }
+  }
+
+  return offset;
+}
+
 
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 class;

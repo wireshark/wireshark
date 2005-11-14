@@ -63,7 +63,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 
 
 #.FN_PARS Abstract_syntax_name
- VAL_PTR = abstract_syntax_name_oid
+  FN_VARIANT = _str  VAL_PTR = &abstract_syntax_name_oid
 
 #.FN_PARS Presentation_context_identifier
  VAL_PTR = &presentation_context_identifier

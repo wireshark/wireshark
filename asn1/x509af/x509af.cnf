@@ -66,16 +66,15 @@ IssuerSerial/issuer			issuerName
 CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate		revokedUserCertificate
 #.END
 
-#.FN_BODY AlgorithmIdentifier/algorithmId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_x509af_algorithm_id, algorithm_id);
+#.FN_PARS AlgorithmIdentifier/algorithmId
+  FN_VARIANT = _str  HF_INDEX = hf_x509af_algorithm_id  VAL_PTR = &algorithm_id
+
 
 #.FN_BODY AlgorithmIdentifier/parameters
   offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY Extension/extnId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_x509af_extension_id, extension_id);
+#.FN_PARS Extension/extnId
+  FN_VARIANT = _str  HF_INDEX = hf_x509af_extension_id  VAL_PTR = &extension_id
 
 #.FN_BODY Extension/extnValue
   gint8 class;

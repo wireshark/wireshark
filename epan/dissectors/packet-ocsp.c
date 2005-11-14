@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-ocsp.c                                                            */
+/* .\packet-ocsp.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
 
 /* Input file: packet-ocsp-template.c */
@@ -139,7 +139,7 @@ static gint ett_ocsp_CrlID = -1;
 /*--- End of included file: packet-ocsp-ett.c ---*/
 
 
-static char responseType_id[BER_MAX_OID_STR_LEN];
+static const char *responseType_id;
 
 
 
@@ -389,9 +389,7 @@ static int dissect_responseStatus(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ocsp_T_responseType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_ocsp_responseType_id, responseType_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_ocsp_responseType_id, &responseType_id);
 
   return offset;
 }
@@ -671,8 +669,7 @@ dissect_ocsp_ArchiveCutoff(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 static int
 dissect_ocsp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

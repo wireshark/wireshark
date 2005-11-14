@@ -17,7 +17,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
 
 #.FN_PARS MechType
 
-  VAL_PTR = MechType_oid
+  FN_VARIANT = _str  VAL_PTR = &MechType_oid
 
 #.FN_BODY MechType
 

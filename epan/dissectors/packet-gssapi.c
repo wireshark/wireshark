@@ -101,7 +101,7 @@ gssapi_init_oid(const char *oid, int proto, int ett, dissector_handle_t handle,
  * an argument.
  */
 gssapi_oid_value *
-gssapi_lookup_oid_str(gchar *oid_key)
+gssapi_lookup_oid_str(const char *oid_key)
 {
 	gssapi_oid_value *value;
 	value = g_hash_table_lookup(gssapi_oids, oid_key);
@@ -124,7 +124,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean pc, ind_field;
 	gint32 tag;
 	guint32 len1;
-	gchar oid[MAX_OID_STR_LEN];
+	const char *oid;
 
 	start_offset=0;
 	offset=start_offset;
@@ -234,7 +234,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Read oid */
 		oid_start_offset=offset;
-		offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_gssapi_oid, oid);
+		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, tvb, offset, hf_gssapi_oid, &oid);
 
 		/*
 		 * Hand off to subdissector.

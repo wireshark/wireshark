@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509af.c                                                          */
+/* .\packet-x509af.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
@@ -170,10 +170,10 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 /*--- End of included file: packet-x509af-ett.c ---*/
 
 
-static char algorithm_id[BER_MAX_OID_STR_LEN];
+static const char *algorithm_id;
 
 
-static char extension_id[BER_MAX_OID_STR_LEN];
+static const char *extension_id;
 
 
 
@@ -261,9 +261,7 @@ static int dissect_serial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_x509af_algorithm_id, algorithm_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_algorithm_id, &algorithm_id);
 
   return offset;
 }
@@ -437,9 +435,7 @@ static int dissect_subjectPublicKeyInfo(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_x509af_extension_id, extension_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_extension_id, &extension_id);
 
   return offset;
 }
@@ -525,9 +521,9 @@ static const ber_sequence_t T_signedCertificate_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_validity },
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_subject },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_subject },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subjectPublicKeyInfo },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuerUniqueIdentifier_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subjectUniqueIdentifier_impl },
@@ -712,7 +708,7 @@ static int dissect_revokedCertificates(packet_info *pinfo, proto_tree *tree, tvb
 static const ber_sequence_t T_signedCertificateList_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_thisUpdate },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_nextUpdate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_revokedCertificates },

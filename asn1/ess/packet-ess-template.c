@@ -51,7 +51,7 @@ static int hf_ess_SecurityCategory_type_OID = -1;
 /* Initialize the subtree pointers */
 #include "packet-ess-ett.c"
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 #include "packet-ess-fn.c"
 

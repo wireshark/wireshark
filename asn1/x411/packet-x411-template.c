@@ -28,6 +28,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
@@ -55,7 +56,7 @@ int proto_x411 = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = 0; /* integer extension id */
-static char object_identifier_id[BER_MAX_OID_STR_LEN]; /* content type identifier */
+static const char *object_identifier_id; /* content type identifier */
 
 static proto_tree *top_tree=NULL;
 

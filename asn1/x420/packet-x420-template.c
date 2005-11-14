@@ -50,7 +50,7 @@
 /* Initialize the protocol and registered fields */
 int proto_x420 = -1;
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN]; /* content type identifier */
+static const char *object_identifier_id; /* content type identifier */
 
 #include "packet-x420-hf.c"
 

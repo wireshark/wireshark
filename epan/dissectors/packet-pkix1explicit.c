@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-pkix1explicit.c                                                   */
+/* .\packet-pkix1explicit.c                                                   */
 /* ../../tools/asn2eth.py -e -X -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn */
 
 /* Input file: packet-pkix1explicit-template.c */
@@ -98,7 +98,7 @@ static gint ett_pkix1explicit_TeletexDomainDefinedAttribute = -1;
 
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 int
 dissect_pkix1explicit_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
@@ -159,9 +159,7 @@ dissect_pkix1explicit_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_pkix1explicit_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_pkix1explicit_object_identifier_id, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_pkix1explicit_object_identifier_id, &object_identifier_id);
 
   return offset;
 }
@@ -313,8 +311,7 @@ dissect_pkix1explicit_DomainParameters(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
 static int
 dissect_pkix1explicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -326,9 +323,6 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_pkix1explicit_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_pkix1explicit_object_identifier_id, object_identifier_id);
-
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 

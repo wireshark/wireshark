@@ -31,16 +31,14 @@ DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
 #.FN_BODY DirectoryString
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
-#.FN_BODY AttributeTypeAndValue/value
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_pkix1explicit_object_identifier_id, object_identifier_id);
+#.FN_PARS AttributeTypeAndValue/value
+  FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_object_identifier_id  VAL_PTR = &object_identifier_id
 
 #.FN_BODY AttributeTypeAndValue/value
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY Extension/extnId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_pkix1explicit_object_identifier_id, object_identifier_id);
+#.FN_PARS Extension/extnId
+  FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_object_identifier_id  VAL_PTR = &object_identifier_id
 
 #.FN_BODY Extension/extnValue
   gint8 class;

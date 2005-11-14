@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-cmp.c                                                             */
+/* .\packet-cmp.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
 
 /* Input file: packet-cmp-template.c */
@@ -227,7 +227,7 @@ static gint ett_cmp_ErrorMsgContent = -1;
 /*--- End of included file: packet-cmp-ett.c ---*/
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 
 
@@ -456,9 +456,7 @@ static int dissect_errorDetails(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmp_type_oid, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmp_type_oid, &object_identifier_id);
 
   return offset;
 }
@@ -1466,7 +1464,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	return tvb_length(tvb);
 }
 
-static void
+static int
 dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
@@ -2028,7 +2026,7 @@ void proto_reg_handoff_cmp(void) {
 	dissector_handle_t cmp_http_handle;
 	dissector_handle_t cmp_tcp_handle;
 
-	cmp_http_handle = create_dissector_handle(dissect_cmp_http, proto_cmp);
+	cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);
 	dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
 
 	cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);

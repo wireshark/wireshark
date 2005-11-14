@@ -59,9 +59,8 @@ RevReqContent
 #.FIELD_RENAME
 
 
-#.FN_BODY InfoTypeAndValue/infoType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmp_type_oid, object_identifier_id);
+#.FN_PARS InfoTypeAndValue/infoType
+  FN_VARIANT = _str  HF_INDEX = hf_cmp_type_oid  VAL_PTR = &object_identifier_id
 
 #.FN_BODY InfoTypeAndValue/infoValue
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);

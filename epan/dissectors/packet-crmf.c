@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-crmf.c                                                            */
+/* .\packet-crmf.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn */
 
 /* Input file: packet-crmf-template.c */
@@ -154,7 +154,7 @@ static gint ett_crmf_CertId = -1;
 /*--- End of included file: packet-crmf-ett.c ---*/
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 
 /*--- Included file: packet-crmf-fn.c ---*/
@@ -374,9 +374,7 @@ static int dissect_certTemplate(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_crmf_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_crmf_type_oid, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_crmf_type_oid, &object_identifier_id);
 
   return offset;
 }

@@ -197,7 +197,7 @@ static gint ett_cms_ExtendedCertificateInfo = -1;
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2eth stops generating these silly wrappers */
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 
 /*--- Included file: packet-cms-fn.c ---*/
@@ -239,8 +239,8 @@ static int dissect_contentType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_cms_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, &object_identifier_id);
 
 
   return offset;
@@ -337,8 +337,8 @@ static int dissect_digestAlgorithms(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_cms_T_eContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, &object_identifier_id);
 
 
   return offset;
@@ -393,10 +393,7 @@ static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_attrType, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
 
   return offset;
 }
@@ -950,9 +947,7 @@ static int dissect_generalTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cms_ci_contentType, &object_identifier_id);
 
   return offset;
 }

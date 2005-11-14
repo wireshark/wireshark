@@ -226,7 +226,7 @@ static gint ett_acse_Authentication_value = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
-static char object_identifier_id[MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
 static guint32 indir_ref=0;
@@ -308,10 +308,7 @@ find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
 
 static int
 dissect_acse_T_direct_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
-
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -330,7 +327,7 @@ dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
-    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "%s", oid);
+    object_identifier_id = ep_strdup(oid);
   }
 
   if(session)
@@ -498,8 +495,8 @@ static int dissect_ASO_context_name_list_item(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_acse_T_AARQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 
   return offset;
@@ -764,9 +761,7 @@ static int dissect_charstring_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_acse_T_other_mechanism_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -1164,8 +1159,8 @@ static int dissect_aARE_protocol_version_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_acse_T_AARE_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 
   return offset;
@@ -1672,8 +1667,8 @@ static int dissect_adt_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_acse_T_ACRQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 
   return offset;
@@ -1708,8 +1703,8 @@ static int dissect_acrq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_acse_T_ACRP_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 
   return offset;

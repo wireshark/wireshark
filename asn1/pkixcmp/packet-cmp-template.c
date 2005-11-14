@@ -66,7 +66,7 @@ static int hf_cmp_ttcb = -1;
 static gint ett_cmp = -1;
 #include "packet-cmp-ett.c"
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 
 #include "packet-cmp-fn.c"

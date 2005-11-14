@@ -50,7 +50,7 @@ static int hf_x509if_object_identifier_id = -1;
 /* Initialize the subtree pointers */
 #include "packet-x509if-ett.c"
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 #include "packet-x509if-fn.c"
 

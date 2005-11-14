@@ -35,9 +35,8 @@ SigningCertificate B "1.2.840.113549.1.9.16.2.12" "id-aa-signingCertificate"
 
 #.FIELD_RENAME
 
-#.FN_BODY SecurityCategory/type
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_ess_SecurityCategory_type_OID, object_identifier_id);
+#.FN_PARS SecurityCategory/type
+  FN_VARIANT = _str  HF_INDEX = hf_ess_SecurityCategory_type_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY SecurityCategory/value
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);

@@ -50,7 +50,7 @@
 /* Initialize the protocol and registered fields */
 int proto_ftam = -1;
 
-static char object_identifier_id[MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 /* Declare the function to avoid a compiler warning */
 static int dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 

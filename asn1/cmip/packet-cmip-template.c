@@ -75,16 +75,16 @@ static int opcode_type;
 static int attributeform;
 #define ATTRIBUTE_LOCAL_FORM  0
 #define ATTRIBUTE_GLOBAL_FORM 1
-static char attribute_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *attribute_identifier_id;
 
-static char attributevalueassertion_id[BER_MAX_OID_STR_LEN];
+static const char *attributevalueassertion_id;
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 static int objectclassform;
 #define OBJECTCLASS_LOCAL_FORM  0
 #define OBJECTCLASS_GLOBAL_FORM 1
-static char objectclass_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *objectclass_identifier_id;
 
 #include "packet-cmip-fn.c"
 

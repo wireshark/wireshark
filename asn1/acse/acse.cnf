@@ -1,3 +1,8 @@
+# asce.cnf
+# ACSE conformation file
+
+# $Id$
+
 #.MODULE_IMPORT
 InformationFramework x509if
 
@@ -52,9 +57,8 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNAL_sequence, hf_index, ett_acse_EXTERNAL);
 
-#.FN_BODY Authentication-value-other/other-mechanism-name
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+#.FN_PARS Authentication-value-other/other-mechanism-name  
+  FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY Authentication-value-other/other-mechanism-value
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
@@ -63,20 +67,20 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 /*XXX not implemented yet */
 
 #.FN_BODY AARQ-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 #.FN_BODY AARE-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 #.FN_BODY ACRQ-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 #.FN_BODY ACRP-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_index, &object_identifier_id);
 
 #.FN_BODY EXTERNAL/indirect-reference
   char *oid;
@@ -86,16 +90,14 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
-    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "%%s", oid);
+    object_identifier_id = ep_strdup(oid);
   }
 
   if(session)
 	session->pres_ctx_id = indir_ref;
 
-#.FN_BODY EXTERNAL/direct-reference
-
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
-
+#.FN_PARS EXTERNAL/direct-reference
+  FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY EXTERNAL/encoding/single-ASN1-type
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree ? top_tree : tree);

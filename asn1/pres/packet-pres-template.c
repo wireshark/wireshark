@@ -58,7 +58,7 @@ packet_info *global_pinfo = NULL;
 /* dissector for data */
 static dissector_handle_t data_handle;
 
-static char abstract_syntax_name_oid[BER_MAX_OID_STR_LEN];
+static const char *abstract_syntax_name_oid;
 static guint32 presentation_context_identifier;
 
 /* to keep track of presentation context identifiers and protocol-oids */
@@ -111,7 +111,7 @@ pres_init(void)
 }
 
 static void
-register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
+register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 {
 	pres_ctx_oid_t *pco, *tmppco;
 	pco=se_alloc(sizeof(pres_ctx_oid_t));

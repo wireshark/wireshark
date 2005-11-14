@@ -53,7 +53,7 @@ static int hf_ocsp_responseType_id = -1;
 static gint ett_ocsp = -1;
 #include "packet-ocsp-ett.c"
 
-static char responseType_id[BER_MAX_OID_STR_LEN];
+static const char *responseType_id;
 
 
 #include "packet-ocsp-fn.c"

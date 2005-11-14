@@ -57,7 +57,7 @@
 /* Initialize the protocol and registered fields */
 int proto_x420 = -1;
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN]; /* content type identifier */
+static const char *object_identifier_id; /* content type identifier */
 
 
 /*--- Included file: packet-x420-hf.c ---*/
@@ -487,7 +487,7 @@ static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   char *name = NULL;
 
-    offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   
   name = get_ber_oid_name(object_identifier_id);

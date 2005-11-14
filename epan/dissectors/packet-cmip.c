@@ -303,16 +303,16 @@ static int opcode_type;
 static int attributeform;
 #define ATTRIBUTE_LOCAL_FORM  0
 #define ATTRIBUTE_GLOBAL_FORM 1
-static char attribute_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *attribute_identifier_id;
 
-static char attributevalueassertion_id[BER_MAX_OID_STR_LEN];
+static const char *attributevalueassertion_id;
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 static int objectclassform;
 #define OBJECTCLASS_LOCAL_FORM  0
 #define OBJECTCLASS_GLOBAL_FORM 1
-static char objectclass_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *objectclass_identifier_id;
 
 
 /*--- Included file: packet-cmip-fn.c ---*/
@@ -371,9 +371,7 @@ static int dissect_modifyOperator_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_cmip_T_attributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_attributeId_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_attributeId_OID, &object_identifier_id);
 
   return offset;
 }
@@ -386,7 +384,6 @@ static int dissect_attributeId(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int
 dissect_cmip_T_attributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
 
 
   return offset;
@@ -419,9 +416,7 @@ static int dissect_modificationList_item(packet_info *pinfo, proto_tree *tree, t
 static int
 dissect_cmip_T_ocglobalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   objectclassform = OBJECTCLASS_GLOBAL_FORM;
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_cmip_ocglobalForm, objectclass_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &objectclass_identifier_id);
 
   return offset;
 }
@@ -434,8 +429,9 @@ static int dissect_ocglobalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 static int
 dissect_cmip_T_oclocalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   objectclassform = OBJECTCLASS_LOCAL_FORM;
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_oclocalForm, NULL);
 
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -475,8 +471,7 @@ static int dissect_baseManagedObjectClass(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_cmip_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            attributevalueassertion_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &attributevalueassertion_id);
 
   return offset;
 }
@@ -650,8 +645,7 @@ static int dissect_errorStatus(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int
 dissect_cmip_T_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   attributeform = ATTRIBUTE_GLOBAL_FORM;
-    offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            attribute_identifier_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &attribute_identifier_id);
 
 
 
@@ -877,9 +871,7 @@ static int dissect_errorStatus2(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_cmip_T_attributeId1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_attributeId_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_attributeId_OID, &object_identifier_id);
 
   return offset;
 }
@@ -892,7 +884,6 @@ static int dissect_attributeId2(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 static int
 dissect_cmip_T_attributeValue1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
 
 
   return offset;
@@ -1007,9 +998,7 @@ static int dissect_errorStatus1(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_cmip_T_actionType1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1021,9 +1010,7 @@ static int dissect_actionType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cmip_T_actionType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1053,9 +1040,7 @@ static int dissect_actionId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_cmip_T_eventType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1110,9 +1095,7 @@ static int dissect_actionArgument(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_cmip_T_actionType3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1158,9 +1141,7 @@ static int dissect_actionInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_cmip_T_eventType1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1173,7 +1154,6 @@ static int dissect_eventType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 static int
 dissect_cmip_T_eventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
 
 
   return offset;
@@ -1294,9 +1274,7 @@ static int dissect_actionError_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_cmip_T_errorId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_errorId_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_errorId_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1707,9 +1685,7 @@ static int dissect_getResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_cmip_T_actionType2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1827,9 +1803,7 @@ dissect_cmip_LinkedReplyArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 static int
 dissect_cmip_T_eventType2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1889,9 +1863,7 @@ dissect_cmip_EventReportResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 static int
 dissect_cmip_T_eventType3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1904,7 +1876,6 @@ static int dissect_eventType3(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 static int
 dissect_cmip_T_eventInfo1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
 
 
   return offset;
@@ -2107,8 +2078,7 @@ static int dissect_ae_title_form1(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_cmip_AE_title_form2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2202,8 +2172,7 @@ dissect_cmip_OperationalState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 static int
 dissect_cmip_NameBinding(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

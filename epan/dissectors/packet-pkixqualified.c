@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-pkixqualified.c                                                   */
+/* .\packet-pkixqualified.c                                                   */
 /* ../../tools/asn2eth.py -X -b -e -p pkixqualified -c pkixqualified.cnf -s packet-pkixqualified-template PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.c */
@@ -94,7 +94,7 @@ static gint ett_pkixqualified_NameRegistrationAuthorities = -1;
 /*--- End of included file: packet-pkixqualified-ett.c ---*/
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 
 /*--- Included file: packet-pkixqualified-fn.c ---*/
@@ -160,8 +160,7 @@ static int dissect_predefinedBiometricType(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_pkixqualified_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -261,9 +260,7 @@ dissect_pkixqualified_BiometricSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
 static int
 dissect_pkixqualified_T_statementId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_pkixqualified_statementId, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_pkixqualified_statementId, &object_identifier_id);
 
   return offset;
 }
@@ -317,7 +314,7 @@ dissect_pkixqualified_QCStatements(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
 static const ber_sequence_t NameRegistrationAuthorities_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_NameRegistrationAuthorities_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_NameRegistrationAuthorities_item },
 };
 
 static int

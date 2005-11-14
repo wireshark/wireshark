@@ -48,15 +48,15 @@ SignerInfo/signature	signatureValue
 RecipientEncryptedKey/rid	rekRid
 
 #.FN_BODY ContentInfo/contentType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, &object_identifier_id);
 
 #.FN_BODY ContentInfo/content
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 #.FN_BODY EncapsulatedContentInfo/eContentType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, &object_identifier_id);
 
 #.FN_BODY EncapsulatedContentInfo/eContent
   gint8 class;
@@ -72,17 +72,14 @@ RecipientEncryptedKey/rid	rekRid
   pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
   pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, tree);
 
-#.FN_BODY OtherKeyAttribute/keyAttrId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, object_identifier_id);
+#.FN_PARS OtherKeyAttribute/keyAttrId
+  FN_VARIANT = _str  HF_INDEX = hf_cms_ci_contentType  VAL_PTR = &object_identifier_id
 
 #.FN_BODY OtherKeyAttribute/keyAttr
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY Attribute/attrType
-
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_attrType, object_identifier_id);
+#.FN_PARS Attribute/attrType
+  FN_VARIANT = _str  HF_INDEX = hf_cms_attrType  VAL_PTR = &object_identifier_id
 
 #.FN_BODY AttributeValue
 

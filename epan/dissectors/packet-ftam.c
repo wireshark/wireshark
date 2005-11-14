@@ -57,7 +57,7 @@
 /* Initialize the protocol and registered fields */
 int proto_ftam = -1;
 
-static char object_identifier_id[MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 /* Declare the function to avoid a compiler warning */
 static int dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 
@@ -936,8 +936,8 @@ dissect_ftam_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+
 
 
   return offset;
@@ -2698,7 +2698,7 @@ static int dissect_extension_set_identifier_impl(packet_info *pinfo, proto_tree 
 
 static int
 dissect_ftam_T_extension_attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -4816,7 +4816,7 @@ static int dissect_object_availabiiity_Pattern_impl(packet_info *pinfo, proto_tr
 
 static int
 dissect_ftam_T_extension_attribute_identifier1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509ce.c                                                          */
+/* .\packet-x509ce.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
@@ -260,7 +260,7 @@ static gint ett_x509ce_PkiPathMatchSyntax = -1;
 /*--- End of included file: packet-x509ce-ett.c ---*/
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 
 /*--- Included file: packet-x509ce-fn.c ---*/
@@ -379,8 +379,7 @@ static int dissect_iPAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_x509ce_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -530,8 +529,7 @@ static int dissect_keyUsage_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 int
 dissect_x509ce_KeyPurposeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -604,8 +602,7 @@ dissect_x509ce_PrivateKeyUsagePeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
 static int
 dissect_x509ce_CertPolicyId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -626,9 +623,7 @@ static int dissect_CertPolicySet_item(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_x509ce_PolicyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509ce_object_identifier_id, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509ce_object_identifier_id, &object_identifier_id);
 
   return offset;
 }
@@ -975,8 +970,7 @@ dissect_x509ce_CRLReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 int
 dissect_x509ce_HoldInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1329,7 +1323,7 @@ dissect_x509ce_BaseCRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 static const ber_sequence_t CertificateExactAssertion_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { 0, 0, 0, NULL }
 };
 
@@ -1476,7 +1470,7 @@ dissect_x509ce_CertificatePairAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static const ber_sequence_t CertificateListExactAssertion_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_distributionPoint },
   { 0, 0, 0, NULL }
 };
@@ -1491,7 +1485,7 @@ dissect_x509ce_CertificateListExactAssertion(gboolean implicit_tag _U_, tvbuff_t
 
 
 static const ber_sequence_t CertificateListAssertion_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_minCRLNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_maxCRLNumber_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_reasonFlags },
@@ -1510,8 +1504,8 @@ dissect_x509ce_CertificateListAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static const ber_sequence_t PkiPathMatchSyntax_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_firstIssuer },
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_lastSubject },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_firstIssuer },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_lastSubject },
   { 0, 0, 0, NULL }
 };
 

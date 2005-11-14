@@ -35,6 +35,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
@@ -62,7 +63,7 @@ int proto_x411 = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = 0; /* integer extension id */
-static char object_identifier_id[BER_MAX_OID_STR_LEN]; /* content type identifier */
+static const char *object_identifier_id; /* content type identifier */
 
 static proto_tree *top_tree=NULL;
 
@@ -1920,10 +1921,10 @@ dissect_x411_BuiltInContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   /* convert integer content type to oid for dispatch when the content is found */
   switch(ict) {
 	case 2:
-	g_snprintf(object_identifier_id, BER_MAX_OID_STR_LEN, "2.6.1.10.0");
+	object_identifier_id = ep_strdup("2.6.1.10.0");
 	break;
 	case 22:
-	g_snprintf(object_identifier_id, BER_MAX_OID_STR_LEN, "2.6.1.10.1");
+	object_identifier_id = ep_strdup("2.6.1.10.1");
 	break;
 	default:
 	break;
@@ -1943,7 +1944,7 @@ static int dissect_built_in_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }

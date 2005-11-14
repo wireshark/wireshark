@@ -31,9 +31,8 @@ ServiceLocator		B	"1.3.6.1.5.5.7.48.1.7"	"id-pkix-ocsp-service-locator"
 
 #.FIELD_RENAME
 
-#.FN_BODY ResponseBytes/responseType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                 hf_ocsp_responseType_id, responseType_id);
+#.FN_PARS ResponseBytes/responseType
+  FN_VARIANT = _str  HF_INDEX = hf_ocsp_responseType_id  VAL_PTR = &responseType_id
 
 #.FN_BODY ResponseBytes/response
   gint8 class;

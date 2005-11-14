@@ -124,19 +124,13 @@ else
 	 dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree);
 return offset+len;
 
-#.FN_BODY Applicationcontext
-	static char buffer[128];
-	cur_oid = buffer;
-	pinfo->private_data = buffer;
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, cur_oid);
+#.FN_BODY Applicationcontext  FN_VARIANT = _str  VAL_PTR = &cur_oid
+%(DEFAULT_BODY)s
+	pinfo->private_data = cur_oid;
 
-#.FN_BODY UserInfoOID
-	static char buffer[128];
-	tcapext_oid = buffer;
-	pinfo->private_data = buffer;
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, tcapext_oid);
+#.FN_BODY UserInfoOID  FN_VARIANT = _str  VAL_PTR = &tcapext_oid
+%(DEFAULT_BODY)s
+	pinfo->private_data = tcapext_oid;
 
 #.FN_BODY ExternUserInfo
 tvbuff_t	*next_tvb;

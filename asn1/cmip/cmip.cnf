@@ -38,11 +38,7 @@ RDNSequence
   }
 #.END
 
-#.FN_PARS CMIPAbortSource
-
-VAL_PTR = &value
-
-#.FN_BODY CMIPAbortSource
+#.FN_BODY CMIPAbortSource  VAL_PTR = &value
   guint32 value;
 
   %(DEFAULT_BODY)s
@@ -50,10 +46,8 @@ VAL_PTR = &value
     col_append_fstr(pinfo->cinfo, COL_INFO, " AbortSource:%%s", val_to_str(value, cmip_CMIPAbortSource_vals, " Unknown AbortSource:%%d"));
   }
 #.END
-#.FN_PARS Opcode
-	VAL_PTR = &opcode
 
-#.FN_BODY Opcode
+#.FN_BODY Opcode  VAL_PTR = &opcode
   %(DEFAULT_BODY)s
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%%s", val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%%d"));
@@ -88,10 +82,7 @@ VAL_PTR = &value
   }
 #.END
 
-#.FN_PARS AttributeId/globalForm
-	VAL_PTR = attribute_identifier_id
-
-#.FN_BODY AttributeId/globalForm
+#.FN_BODY AttributeId/globalForm  FN_VARIANT = _str  VAL_PTR = &attribute_identifier_id
   attributeform = ATTRIBUTE_GLOBAL_FORM;
   %(DEFAULT_BODY)s
 
@@ -105,7 +96,7 @@ VAL_PTR = &value
     offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, pinfo, tree);
   }
 #.FN_PARS AttributeValueAssertion/id
-	VAL_PTR = attributevalueassertion_id
+	FN_VARIANT = _str  VAL_PTR = &attributevalueassertion_id
 
 #.FN_BODY AttributeValueAssertion/value
     offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, pinfo, tree);
@@ -184,86 +175,70 @@ VAL_PTR = &value
   /*XXX add more types here */
   }
 
-#.FN_BODY ObjectClass/ocglobalForm
+#.FN_HDR ObjectClass/ocglobalForm
   objectclassform = OBJECTCLASS_GLOBAL_FORM;
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_cmip_ocglobalForm, objectclass_identifier_id);
+#.FN_PARS ObjectClass/ocglobalForm
+  FN_VARIANT = _str  VAL_PTR = &objectclass_identifier_id
 
-#.FN_BODY ObjectClass/oclocalForm
+#.FN_HDR ObjectClass/oclocalForm
   objectclassform = OBJECTCLASS_LOCAL_FORM;
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_oclocalForm, NULL);
 
-#.FN_BODY ActionInfo/actionType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
+#.FN_PARS ActionInfo/actionType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_actionType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ActionInfo/actionInfoArg
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY ActionReply/actionType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
+#.FN_PARS ActionReply/actionType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_actionType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ActionReply/actionReplyInfo
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY EventReportArgument/eventType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
+#.FN_PARS EventReportArgument/eventType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_eventType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY EventReportArgument/eventInfo
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-
-#.FN_BODY EventReply/eventType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
+#.FN_PARS EventReply/eventType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_eventType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY EventReply/eventReplyInfo
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY ModificationItem/attributeId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_attributeId_OID, object_identifier_id);
+#.FN_PARS ModificationItem/attributeId
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_attributeId_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ModificationItem/attributeValue
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-
-#.FN_BODY SpecificErrorInfo/errorId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_errorId_OID, object_identifier_id);
+#.FN_PARS SpecificErrorInfo/errorId
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_errorId_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY SpecificErrorInfo/errorInfo
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY AttributeError/attributeId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_attributeId_OID, object_identifier_id);
+#.FN_PARS AttributeError/attributeId
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_attributeId_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY AttributeError/attributeValue
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
+#.FN_PARS ErrorInfo/actionType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_actionType_OID  VAL_PTR = &object_identifier_id
 
-#.FN_BODY ErrorInfo/actionType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
+#.FN_PARS NoSuchArgumentAction/actionType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_actionType_OID  VAL_PTR = &object_identifier_id
 
-#.FN_BODY NoSuchArgumentAction/actionType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
+#.FN_PARS NoSuchArgumentEvent/eventType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_eventType_OID  VAL_PTR = &object_identifier_id
 
-#.FN_BODY NoSuchArgumentEvent/eventType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
-
-#.FN_BODY InvalidArgumentValueEventValue/eventType
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_eventType_OID, object_identifier_id);
+#.FN_PARS InvalidArgumentValueEventValue/eventType
+  FN_VARIANT = _str  HF_INDEX = hf_cmip_eventType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY InvalidArgumentValueEventValue/eventInfo
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
 
 #.END
 

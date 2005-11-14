@@ -138,7 +138,7 @@ static gint ett_ess_IssuerSerial = -1;
 /*--- End of included file: packet-ess-ett.c ---*/
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 
 /*--- Included file: packet-ess-fn.c ---*/
@@ -458,9 +458,7 @@ static int dissect_privacy_mark(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_ess_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_ess_SecurityCategory_type_OID, object_identifier_id);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_ess_SecurityCategory_type_OID, &object_identifier_id);
 
   return offset;
 }

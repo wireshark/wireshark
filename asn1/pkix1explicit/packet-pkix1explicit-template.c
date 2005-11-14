@@ -54,7 +54,7 @@ static int hf_pkix1explicit_object_identifier_id = -1;
 #include "packet-pkix1explicit-ett.c"
 
 
-static char object_identifier_id[BER_MAX_OID_STR_LEN];
+static const char *object_identifier_id;
 
 int
 dissect_pkix1explicit_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {

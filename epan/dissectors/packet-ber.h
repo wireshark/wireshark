@@ -135,10 +135,9 @@ extern int dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 /* this function dissects a BER Object Identifier
- * IF you pass a pointer for value_string to this one, MAKE SURE it is declared
- * as char foo[MAX_OID_STR_LEN]
  */
-extern int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string);
+extern int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **value_tvb);
+extern int dissect_ber_object_identifier_str(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, const char **value_string);
 
 /* this function dissects a BER sequence of
  */
@@ -171,7 +170,7 @@ void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t disse
 void register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
 void register_ber_oid_name(const char *oid, const char *name);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-char * get_ber_oid_name(char *str);
+char * get_ber_oid_name(const char *str);
 
 #endif  /* __PACKET_BER_H__ */
 

@@ -73,7 +73,7 @@ static int hf_spnego_krb5_confounder = -1;
 #include "packet-spnego-hf.c"
 
 /* Global variables */
-gchar MechType_oid[MAX_OID_STR_LEN];
+static const char *MechType_oid;
 gssapi_oid_value *next_level_value;
 gboolean saw_mechanism = FALSE;
 
@@ -163,7 +163,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *subtree;
 	int offset = 0;
 	guint16 token_id;
-	gchar oid[MAX_OID_STR_LEN];
+	const char *oid;
 	gssapi_oid_value *value;
 	tvbuff_t *krb5_tvb;
 	gint8 class;
@@ -222,7 +222,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 
 		/* Next, the OID */
-		offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_spnego_krb5_oid, oid);
+		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, tvb, offset, hf_spnego_krb5_oid, &oid);
 
 		value = gssapi_lookup_oid_str(oid);
 

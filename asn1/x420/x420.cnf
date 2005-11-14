@@ -46,7 +46,7 @@ ChangeOfAddressAdvice	B "2.6.1.19.1"  "id-on-change-of-address-advice"
 IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
 
 #.FN_PARS IPMSExtension/type
-	VAL_PTR = object_identifier_id
+	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY IPMSExtension/type
   char *name = NULL;

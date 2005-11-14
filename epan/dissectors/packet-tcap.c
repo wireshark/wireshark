@@ -264,8 +264,8 @@ static gboolean g_tcap_ends_def_len = FALSE;
 
 dissector_handle_t	tcap_handle;
 static dissector_table_t ber_oid_dissector_table=NULL;
-static char * cur_oid;
-static char * tcapext_oid;
+static const char * cur_oid;
+static const char * tcapext_oid;
 static proto_tree	*tcap_top_tree=NULL;
 static dissector_handle_t data_handle;
 static dissector_table_t tcap_itu_ssn_dissector_table; /* map use ssn in sccp */
@@ -303,11 +303,9 @@ static int dissect_protocol_versionrq_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	static char buffer[128];
-	cur_oid = buffer;
-	pinfo->private_data = buffer;
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, cur_oid);
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &cur_oid);
+
+	pinfo->private_data = cur_oid;
 
 
   return offset;
@@ -551,8 +549,7 @@ dissect_tcap_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -612,11 +609,9 @@ dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	static char buffer[128];
-	tcapext_oid = buffer;
-	pinfo->private_data = buffer;
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, tcapext_oid);
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &tcapext_oid);
+
+	pinfo->private_data = tcapext_oid;
 
 
   return offset;
@@ -1569,8 +1564,7 @@ static int dissect_integerApplicationId(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_tcap_ObjectIDApplicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

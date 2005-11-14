@@ -74,8 +74,8 @@ static gboolean g_tcap_ends_def_len = FALSE;
 
 dissector_handle_t	tcap_handle;
 static dissector_table_t ber_oid_dissector_table=NULL;
-static char * cur_oid;
-static char * tcapext_oid;
+static const char * cur_oid;
+static const char * tcapext_oid;
 static proto_tree	*tcap_top_tree=NULL;
 static dissector_handle_t data_handle;
 static dissector_table_t tcap_itu_ssn_dissector_table; /* map use ssn in sccp */

@@ -104,9 +104,8 @@ CRLReferral/issuer	crlr_issuer
 CertificatePairExactAssertion/issuedToThisCAAssertion	cpea_issuedToThisCAAssertion
 CertificatePairExactAssertion/issuedByThisCAAssertion	cpea_issuedByThisCAAssertion
 	
-#.FN_BODY PolicyQualifierId
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509ce_object_identifier_id, object_identifier_id);
+#.FN_PARS PolicyQualifierId
+  FN_VARIANT = _str  HF_INDEX = hf_x509ce_object_identifier_id  VAL_PTR = &object_identifier_id
 
 #.FN_BODY PolicyQualifierValue
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
