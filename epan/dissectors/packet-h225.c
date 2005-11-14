@@ -2193,7 +2193,7 @@ dissect_h225_T_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &next_tvb);
+                                       NO_BOUND, NO_BOUND, &next_tvb);
 
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
@@ -2752,7 +2752,7 @@ static int dissect_routeCalltoSCN_item(tvbuff_t *tvb, int offset, packet_info *p
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
-                                                      -1, -1, "0123456789#*abc", strlen("0123456789#*abc"),
+                                                      NO_BOUND, NO_BOUND, "0123456789#*abc", strlen("0123456789#*abc"),
                                                       NULL);
 
   return offset;
@@ -4410,7 +4410,7 @@ dissect_h225_FastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 	char codec_str[50];
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &value_tvb);
+                                       NO_BOUND, NO_BOUND, &value_tvb);
 
 	if (value_tvb && tvb_length(value_tvb)) {
 		dissect_h245_OpenLogicalChannelCodec(value_tvb, pinfo, tree, codec_str);
@@ -4658,7 +4658,7 @@ static int dissect_url(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_h225_H248SignalsDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -5231,7 +5231,7 @@ static int dissect_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 dissect_h225_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -5250,7 +5250,7 @@ static int dissect_messageNotUnderstood(tvbuff_t *tvb, int offset, packet_info *
 static int
 dissect_h225_IA5String(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                          -1, -1);
+                                          NO_BOUND, NO_BOUND);
 
   return offset;
 }
@@ -5263,7 +5263,7 @@ static int dissect_text(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 static int
 dissect_h225_BMPString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                          -1, -1);
+                                          NO_BOUND, NO_BOUND);
 
   return offset;
 }
@@ -5465,7 +5465,7 @@ dissect_h225_ParallelH245Control_item(tvbuff_t *tvb, int offset, packet_info *pi
 	tvbuff_t *h245_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &h245_tvb);
+                                       NO_BOUND, NO_BOUND, &h245_tvb);
 
   next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
@@ -6255,7 +6255,7 @@ dissect_h225_T_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_
 	tvbuff_t *h4501_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &h4501_tvb);
+                                       NO_BOUND, NO_BOUND, &h4501_tvb);
 
 	if (h4501_tvb && tvb_length(h4501_tvb)) {
 		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
@@ -6303,7 +6303,7 @@ dissect_h225_H245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	tvbuff_t *h245_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &h245_tvb);
+                                       NO_BOUND, NO_BOUND, &h245_tvb);
 
   next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
@@ -6376,7 +6376,7 @@ dissect_h225_T_messageContent_item(tvbuff_t *tvb, int offset, packet_info *pinfo
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &next_tvb);
+                                       NO_BOUND, NO_BOUND, &next_tvb);
 
   next_tvb_add(&tp_list, next_tvb, (h225_tp_in_tree)?tree:NULL, tp_handle);
 
@@ -6800,7 +6800,7 @@ static int dissect_timeToLive(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int
 dissect_h225_H248PackagesDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -6899,7 +6899,7 @@ static int dissect_integrity_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_h225_BIT_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                     -1, -1, FALSE);
+                                     NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }
@@ -7202,7 +7202,7 @@ static int dissect_callCreditCapability(tvbuff_t *tvb, int offset, packet_info *
 static int
 dissect_h225_PrintableString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_PrintableString(tvb, offset, pinfo, tree, hf_index,
-                                          -1, -1);
+                                          NO_BOUND, NO_BOUND);
 
   return offset;
 }

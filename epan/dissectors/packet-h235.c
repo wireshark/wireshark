@@ -276,7 +276,7 @@ static int dissect_keyDerivationOID(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 dissect_h235_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -681,7 +681,7 @@ static int dissect_sharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 static int
 dissect_h235_BIT_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                     -1, -1, FALSE);
+                                     NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }

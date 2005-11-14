@@ -699,7 +699,7 @@ static int
 dissect_t38_fec_data_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset=dissect_per_octet_string(tvb, offset, pinfo,
-        tree, hf_t38_fec_data_item, -1, -1,
+        tree, hf_t38_fec_data_item, NO_BOUND, NO_BOUND,
         NULL);
 	return offset;
 }

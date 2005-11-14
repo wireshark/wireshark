@@ -311,7 +311,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	}
 
 
-	if(min_len==-1){
+	if (min_len == NO_BOUND) {
 		min_len=0;
 	}
 
@@ -352,13 +352,13 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	if((min_len==max_len)&&(max_len<=2)){
 		byte_aligned=FALSE;
 	}
-	if((max_len!=-1)&&(max_len<2)){
+	if ((max_len != NO_BOUND) && (max_len < 2)) {
 		byte_aligned=FALSE;
 	}
 
 	/* xx.x */
 	length=max_len;
-	if(max_len==-1){
+	if (max_len == NO_BOUND) {
 		offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
 		/* the unconstrained strings are always byte aligned (27.6.3)*/
 		byte_aligned=TRUE;
@@ -488,8 +488,8 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 	}
 
 
-	if(min_len==-1){
-		min_len=0;
+	if (min_len == NO_BOUND) {
+		min_len = 0;
 	}
 
 
@@ -1275,7 +1275,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 /* 15 Encoding the bitstring type
 
-   max_len or min_len == -1 means there is no lower/upper constraint
+   max_len or min_len == NO_BOUND means there is no lower/upper constraint
 
 */
 guint32
@@ -1292,8 +1292,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		return offset;
 	}
 
-	if(min_len==-1) {
-		min_len=0;
+	if (min_len == NO_BOUND) {
+		min_len = 0;
 	}
 
 	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
@@ -1339,7 +1339,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	}
 
 	/* 15.11 */
-	if(max_len>0){
+	if (max_len != NO_BOUND) {
 		proto_item *pi;
 
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
@@ -1372,7 +1372,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	16.7
 	16.8
 
-   max_len or min_len == -1 means there is no lower/upper constraint
+   max_len or min_len == NO_BOUND means there is no lower/upper constraint
 
    hf_index can either be a FT_BYTES or an FT_STRING
 */
@@ -1391,8 +1391,8 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, prot
 
 DEBUG_ENTRY("dissect_per_octet_string");
 
-	if(min_len==-1){
-		min_len=0;
+	if (min_len == NO_BOUND) {
+		min_len = 0;
 	}
 	if (max_len==0) {  /* 16.5 if the length is 0 bytes there will be no encoding */
 		val_start = offset>>3; 

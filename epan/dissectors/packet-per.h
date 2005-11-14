@@ -40,6 +40,10 @@ typedef int (*per_callback)(tvbuff_t *, int, packet_info *, proto_tree *);
    byteposition<<3 + bitposition
 */
 
+/* value for value and size constraints */
+#define NO_BOUND -1
+
+
 /* values for extensions */
 #define ASN1_NO_EXTENSIONS	0
 #define ASN1_EXTENSION_ROOT	1

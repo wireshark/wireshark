@@ -1820,9 +1820,9 @@ class Type (Node):
     self.eth_reg_sub(nm, ectx)
 
   def eth_get_size_constr(self):
-    (minv, maxv, ext) = ('-1', '-1', 'FALSE')
+    (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
     if not self.HasConstraint():
-      (minv, maxv, ext) = ('-1', '-1', 'FALSE')
+      (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
     elif self.constr.IsSize():
       (minv, maxv, ext) = self.constr.GetSize()
     elif (self.constr.type == 'Intersection'):
@@ -1830,6 +1830,14 @@ class Type (Node):
         (minv, maxv, ext) = self.constr.subtype[0].GetSize()
       elif self.constr.subtype[1].IsSize():
         (minv, maxv, ext) = self.constr.subtype[1].GetSize()
+    return (minv, maxv, ext)
+
+  def eth_get_value_constr(self):
+    (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
+    if not self.HasConstraint():
+      (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
+    elif self.constr.IsValue():
+      (minv, maxv, ext) = self.constr.GetValue()
     return (minv, maxv, ext)
 
   def eth_type_vals(self, tname, ectx):
@@ -1908,8 +1916,8 @@ class Constraint (Node):
     return self.type == 'Size' and (self.subtype.type == 'SingleValue' or self.subtype.type == 'ValueRange')
 
   def GetSize(self):
-    minv = '-1'
-    maxv = '-1'
+    minv = 'NO_BOUND'
+    maxv = 'NO_BOUND'
     ext = 'FALSE'
     if self.IsSize():
       if self.subtype.type == 'SingleValue':
@@ -1923,6 +1931,44 @@ class Constraint (Node):
       else:
         ext = 'FALSE'
     return (minv, maxv, ext)
+
+  def IsValue(self):
+    return self.type == 'SingleValue' or self.type == 'ValueRange'
+
+  def GetValue(self):
+    minv = 'NO_BOUND'
+    maxv = 'NO_BOUND'
+    ext = 'FALSE'
+    if self.IsValue():
+      if self.type == 'SingleValue':
+        minv = self.subtype
+        maxv = self.subtype
+      else:
+        if self.subtype[0] == 'MIN':
+          minv = 'NO_BOUND'
+        else:
+          minv = self.subtype[0]
+        if self.subtype[1] == 'MAX':
+          maxv = 'NO_BOUND'
+        else:
+          maxv = self.subtype[1]
+      if str(minv).isdigit(): minv += 'U'
+      if str(maxv).isdigit(): maxv += 'U'
+      if hasattr(self, 'ext') and self.ext:
+        ext = 'TRUE'
+      else:
+        ext = 'FALSE'
+    return (minv, maxv, ext)
+
+  def IsNegativ(self):
+    def is_neg(sval):
+      return sval[0] == '-'
+    if self.type == 'SingleValue':
+      return is_neg(self.subtype)
+    elif self.type == 'ValueRange':
+      if self.subtype[0] == 'MIN': return True
+      return is_neg(self.subtype[0])
+    return FALSE
 
   def IsPermAlph(self):
     return self.type == 'From' and self.subtype.type == 'SingleValue'
@@ -3109,12 +3155,8 @@ class IntegerType (Type):
 
   def eth_ftype(self, ectx):
     if self.HasConstraint():
-      if self.constr.type == 'SingleValue':
-        if self.constr.subtype >= 0:
-          return ('FT_UINT32', 'BASE_DEC')
-      elif self.constr.type == 'ValueRange':
-        if self.constr.subtype[0] >= 0:
-          return ('FT_UINT32', 'BASE_DEC')
+      if not self.constr.IsNegativ():
+        return ('FT_UINT32', 'BASE_DEC')
     return ('FT_INT32', 'BASE_DEC')
 
   def eth_strings(self):
@@ -3140,22 +3182,8 @@ class IntegerType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    if self.HasConstraint() and ((self.constr.type == 'SingleValue') or (self.constr.type == 'ValueRange')):
-      if self.constr.type == 'SingleValue':
-        minv = self.constr.subtype
-        maxv = self.constr.subtype
-      else:
-        minv = self.constr.subtype[0]
-        maxv = self.constr.subtype[1]
-      if str(minv).isdigit(): minv += 'U'
-      if str(maxv).isdigit(): maxv += 'U'
-      if hasattr(self.constr, 'ext') and self.constr.ext:
-        ext = 'TRUE'
-      else:
-        ext = 'FALSE'
-      pars['MIN_VAL'] = minv
-      pars['MAX_VAL'] = maxv
-      pars['EXT'] = ext
+    if self.HasConstraint() and self.constr.IsValue():
+      (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_value_constr()
     return pars
 
   def eth_type_default_body(self, ectx, tname):

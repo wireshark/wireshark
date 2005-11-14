@@ -2344,7 +2344,7 @@ dissect_h245_T_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &next_tvb);
+                                       NO_BOUND, NO_BOUND, &next_tvb);
 
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
@@ -5077,7 +5077,7 @@ static int dissect_t84(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_h245_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -18983,11 +18983,11 @@ void proto_register_h245(void) {
         "TransparencyParameters/presentationOrder", HFILL }},
     { &hf_h245_offset_x,
       { "offset-x", "h245.offset_x",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "TransparencyParameters/offset-x", HFILL }},
     { &hf_h245_offset_y,
       { "offset-y", "h245.offset_y",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "TransparencyParameters/offset-y", HFILL }},
     { &hf_h245_scale_x,
       { "scale-x", "h245.scale_x",

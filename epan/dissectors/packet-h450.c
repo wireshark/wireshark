@@ -987,7 +987,7 @@ dissect_h450_H4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info *p
 static int
 dissect_h450_Notassignedlocalopcode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -1418,7 +1418,7 @@ static int dissect_extensionId(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_h450_ExtensionArgument(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -1579,7 +1579,7 @@ static int dissect_nominatedInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 dissect_h450_H225InformationElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -4179,7 +4179,7 @@ dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
    tvbuff_t *result_tvb = NULL;
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &result_tvb);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, NO_BOUND, NO_BOUND, &result_tvb);
 
    if(tvb_length(result_tvb)){
       switch (localOpcode) {
@@ -4268,7 +4268,7 @@ static int
 dissect_h4501_parameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
    /* TODO - decode return error parameter based on localErrorCode */
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_parameter, -1, -1, NULL);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_parameter, NO_BOUND, NO_BOUND, NULL);
    return offset;
 }
 static const value_string localErrorCode_vals[] = {
@@ -4481,13 +4481,13 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	  /* TODO call oid dissector
 	   * call_ber_oid_callback isn't realy apropriate ?
 	   */
-	  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_globalargument, -1, -1, NULL);
+	  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_globalargument, NO_BOUND, NO_BOUND, NULL);
 	  is_globalcode = FALSE;
 	  return offset;
 
   }
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &argument_tvb);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, NO_BOUND, NO_BOUND, &argument_tvb);
 
    if(tvb_length(argument_tvb)){
       switch (localOpcode) {
