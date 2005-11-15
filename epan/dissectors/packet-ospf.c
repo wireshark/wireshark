@@ -2496,39 +2496,28 @@ static void dissect_ospf_v3_prefix_options(tvbuff_t *tvb, int offset, proto_tree
 static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix_length, proto_tree *tree)
 {
 
-    guint8 value;
-    guint8 position;
-    guint8 bufpos;
-    gchar  *buffer;
-    gchar  *bytebuf;
-    guint8 bytes_to_process;
-    int start_offset;
+    int bytes_to_process;
+    struct e_in6_addr prefix;
 
-    start_offset=offset;
-    position=0;
-    bufpos=0;
     bytes_to_process=((prefix_length+31)/32)*4;
 
-    buffer=ep_alloc(32+7);
-    while (bytes_to_process > 0 ) {
-
-        value=tvb_get_guint8(tvb, offset);
-
-        if ( (position > 0) && ( (position%2) == 0 ) )
-	    buffer[bufpos++]=':';
-
-	bytebuf=ep_alloc(3);
-        g_snprintf(bytebuf, 3, "%02x",value);
-        buffer[bufpos++]=bytebuf[0];
-        buffer[bufpos++]=bytebuf[1];
-
-	position++;
-	offset++;
-        bytes_to_process--;
+    if (prefix_length > 128) {
+        proto_tree_add_text(tree, tvb, offset, bytes_to_process,
+            "Address Prefix: length is invalid (%d, should be <= 128)",
+            prefix_length);
+        return;
     }
 
-    buffer[bufpos]=0;
-    proto_tree_add_text(tree, tvb, start_offset, ((prefix_length+31)/32)*4, "Address Prefix: %s",buffer);
+    memset(prefix.bytes, 0, sizeof prefix.bytes);
+    if (bytes_to_process != 0) {
+        tvb_memcpy(tvb, prefix.bytes, offset, bytes_to_process);
+        if (prefix_length % 8) {
+            prefix.bytes[bytes_to_process - 1] &=
+                ((0xff00 >> (prefix_length % 8)) & 0xff);
+        }
+    }
+    proto_tree_add_text(tree, tvb, offset, bytes_to_process,
+        "Address Prefix: %s", ip6_to_str(&prefix));
 
 }
 
