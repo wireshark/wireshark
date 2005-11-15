@@ -96,6 +96,7 @@ static int hf_smb2_file_info_05 = -1;
 static int hf_smb2_file_info_08 = -1;
 static int hf_smb2_file_info_0a = -1;
 static int hf_smb2_file_info_0d = -1;
+static int hf_smb2_file_info_0f = -1;
 static int hf_smb2_file_info_12 = -1;
 static int hf_smb2_file_info_15 = -1;
 static int hf_smb2_file_info_22 = -1;
@@ -114,8 +115,15 @@ static int hf_smb2_create_disposition = -1;
 static int hf_smb2_next_buffer_offset = -1;
 static int hf_smb2_next_buffer_length = -1;
 static int hf_smb2_create_action = -1;
+static int hf_smb2_next_offset = -1;
+static int hf_smb2_ea_flags = -1;
+static int hf_smb2_ea_name_len = -1;
+static int hf_smb2_ea_data_len = -1;
+static int hf_smb2_ea_name = -1;
+static int hf_smb2_ea_data = -1;
 
 static gint ett_smb2 = -1;
+static gint ett_smb2_ea = -1;
 static gint ett_smb2_header = -1;
 static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
@@ -127,6 +135,7 @@ static gint ett_smb2_file_info_15 = -1;
 static gint ett_smb2_file_info_22 = -1;
 static gint ett_smb2_file_info_0a = -1;
 static gint ett_smb2_file_info_0d = -1;
+static gint ett_smb2_file_info_0f = -1;
 static gint ett_smb2_fs_info_01 = -1;
 static gint ett_smb2_fs_info_05 = -1;
 static gint ett_smb2_sec_info_00 = -1;
@@ -151,6 +160,7 @@ static const value_string smb2_class_vals[] = {
 #define SMB2_FILE_INFO_08	0x08
 #define SMB2_FILE_INFO_0a	0x0a
 #define SMB2_FILE_INFO_0d	0x0d
+#define SMB2_FILE_INFO_0f	0x0f
 #define SMB2_FILE_INFO_12	0x12
 #define SMB2_FILE_INFO_15	0x15
 #define SMB2_FILE_INFO_22	0x22
@@ -523,6 +533,105 @@ dissect_smb2_file_info_0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 
 	/* file disposition */
 	proto_tree_add_item(tree, hf_smb2_disposition_delete_on_close, tvb, offset, 1, TRUE);
+
+	return offset;
+}
+
+static int
+dissect_smb2_file_info_0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint32 next_offset;
+	guint8 ea_name_len, ea_data_len;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_0f, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_info_0f);
+	}
+
+	while(1){
+		int length;
+		const char *name="";
+		const char *data="";
+		guint16 bc;
+		int start_offset=offset;
+		proto_item *ea_item=NULL;
+		proto_tree *ea_tree=NULL;
+
+		if(tree){
+			ea_item = proto_tree_add_text(tree, tvb, offset, -1, "EA:");
+			ea_tree = proto_item_add_subtree(ea_item, ett_smb2_ea);
+		}
+
+		/* next offset */
+		next_offset=tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(ea_tree, hf_smb2_next_offset, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* EA flags */
+		proto_tree_add_item(ea_tree, hf_smb2_ea_flags, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* EA Name Length */
+		ea_name_len=tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(ea_tree, hf_smb2_ea_name_len, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* EA Data Length */
+		ea_data_len=tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(ea_tree, hf_smb2_ea_data_len, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* some unknown bytes */
+		proto_tree_add_item(ea_tree, hf_smb2_unknown, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* ea name */
+		length=ea_name_len;
+		if(length){
+			bc=tvb_length_remaining(tvb, offset);
+			name = get_unicode_or_ascii_string(tvb, &offset,
+				FALSE, &length, TRUE, TRUE, &bc);
+			if(name){
+				proto_tree_add_string(ea_tree, hf_smb2_ea_name, tvb,
+					offset, length, name);
+			}
+		}
+		offset += ea_name_len;
+
+		/* separator byte */
+		offset += 1;
+
+		/* ea data */
+		length=ea_data_len;
+		if(length){
+			bc=tvb_length_remaining(tvb, offset);
+			data = get_unicode_or_ascii_string(tvb, &offset,
+				FALSE, &length, TRUE, TRUE, &bc);
+			if(data){
+				proto_tree_add_string(ea_tree, hf_smb2_ea_data, tvb,
+					offset, length, data);
+			}
+		}
+		offset += ea_data_len;
+
+
+		if(ea_item){
+			proto_item_append_text(ea_item, " %s := %s", name, data);
+		}
+		proto_item_set_len(ea_item, offset-start_offset);
+
+
+		if(!next_offset){
+			break;
+		}
+		if(next_offset>256){
+			break;
+		}
+
+		offset = start_offset+next_offset;
+	}
 
 	return offset;
 }
@@ -987,6 +1096,9 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			break;
 		case SMB2_FILE_INFO_0d:
 			dissect_smb2_file_info_0d(tvb, pinfo, tree, offset, si);
+			break;
+		case SMB2_FILE_INFO_0f:
+			dissect_smb2_file_info_0f(tvb, pinfo, tree, offset, si);
 			break;
 		case SMB2_FILE_INFO_12:
 			dissect_smb2_file_info_12(tvb, pinfo, tree, offset, si);
@@ -2548,6 +2660,10 @@ proto_register_smb2(void)
 		{ "SMB2_FILE_INFO_0d", "smb2.smb2_file_info_0d", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INFO_0d structure", HFILL }},
 
+	{ &hf_smb2_file_info_0f,
+		{ "SMB2_FILE_INFO_0f", "smb2.smb2_file_info_0f", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_INFO_0f structure", HFILL }},
+
 	{ &hf_smb2_file_info_0a,
 		{ "SMB2_FILE_INFO_0a", "smb2.smb2_file_info_0a", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INFO_0a structure", HFILL }},
@@ -2585,6 +2701,10 @@ proto_register_smb2(void)
 		{ "Next Buffer Offset", "smb2.create.next_buffer_offset", FT_UINT16, BASE_DEC,
 		NULL, 0, "Offset to next command buffer or 0", HFILL }},
 
+	{ &hf_smb2_next_offset,
+		{ "Next Offset", "smb2.next_offset", FT_UINT32, BASE_DEC,
+		NULL, 0, "Offset to next buffer or 0", HFILL }},
+
 	{ &hf_smb2_current_time,
 		{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Current Time at server", HFILL }},
@@ -2592,6 +2712,26 @@ proto_register_smb2(void)
 	{ &hf_smb2_boot_time,
 		{ "Boot Time", "smb2.boot_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Boot Time at server", HFILL }},
+
+	{ &hf_smb2_ea_flags,
+		{ "EA Flags", "smb2.ea.flags", FT_UINT8, BASE_HEX,
+		NULL, 0, "EA Flags", HFILL }},
+
+	{ &hf_smb2_ea_name_len,
+		{ "EA Name Length", "smb2.ea.name_len", FT_UINT8, BASE_DEC,
+		NULL, 0, "EA Name Length", HFILL }},
+
+	{ &hf_smb2_ea_data_len,
+		{ "EA Data Length", "smb2.ea.data_len", FT_UINT8, BASE_DEC,
+		NULL, 0, "EA Data Length", HFILL }},
+
+	{ &hf_smb2_ea_data,
+		{ "EA Data", "smb2.ea.data", FT_STRING, BASE_NONE,
+		NULL, 0, "EA Data", HFILL }},
+
+	{ &hf_smb2_ea_name,
+		{ "EA Name", "smb2.ea.name", FT_STRING, BASE_NONE,
+		NULL, 0, "EA Name", HFILL }},
 
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
@@ -2604,6 +2744,7 @@ proto_register_smb2(void)
 
 	static gint *ett[] = {
 		&ett_smb2,
+		&ett_smb2_ea,
 		&ett_smb2_header,
 		&ett_smb2_command,
 		&ett_smb2_secblob,
@@ -2612,6 +2753,7 @@ proto_register_smb2(void)
 		&ett_smb2_file_info_08,
 		&ett_smb2_file_info_0a,
 		&ett_smb2_file_info_0d,
+		&ett_smb2_file_info_0f,
 		&ett_smb2_file_info_12,
 		&ett_smb2_file_info_15,
 		&ett_smb2_file_info_22,
