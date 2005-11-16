@@ -154,6 +154,7 @@ DISSECTOR_SRC =	\
 	packet-csm-encaps.c	\
 	packet-cups.c	\
 	packet-daap.c	\
+	packet-dap.c	\
 	packet-data.c	\
 	packet-dccp.c	\
 	packet-dcp.c	\
@@ -247,11 +248,13 @@ DISSECTOR_SRC =	\
 	packet-dis-fields.c	\
 	packet-dis-pdus.c	\
 	packet-diffserv-mpls-common.c	\
+	packet-disp.c	\
 	packet-distcc.c	\
 	packet-dlsw.c	\
 	packet-dnp.c	\
 	packet-dns.c	\
 	packet-dsi.c	\
+	packet-dsp.c	\
 	packet-dtp.c	\
 	packet-dua.c	\
 	packet-dvmrp.c	\
@@ -628,6 +631,7 @@ DISSECTOR_SRC =	\
 	packet-x29.c	\
 	packet-x411.c	\
 	packet-x420.c	\
+	packet-x501.c	\
 	packet-x509af.c	\
 	packet-x509ce.c	\
 	packet-x509if.c	\
@@ -676,6 +680,7 @@ DISSECTOR_INCLUDES =	\
 	packet-cmp.h	\
 	packet-cms.h	\
 	packet-crmf.h	\
+	packet-dap.h	\
 	packet-data.h	\
 	packet-dccp.h	\
 	packet-dcp.h	\
@@ -710,10 +715,12 @@ DISSECTOR_INCLUDES =	\
 	packet-ddtp.h	\
 	packet-diameter-defs.h	\
 	packet-diffserv-mpls-common.h	\
+	packet-disp.h	\
 	packet-dis-enums.h	\
 	packet-dis-fields.h	\
 	packet-dis-pdus.h	\
 	packet-dns.h	\
+	packet-dsp.h	\
 	packet-dvmrp.h	\
 	packet-e164.h   \
 	packet-edonkey.h	\
@@ -887,6 +894,7 @@ DISSECTOR_INCLUDES =	\
 	packet-x11-keysymdef.h	\
 	packet-x411.h	\
 	packet-x420.h	\
+	packet-x501.h	\
 	packet-x509af.h	\
 	packet-x509ce.h	\
 	packet-x509if.h	\

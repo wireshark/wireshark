@@ -46,6 +46,7 @@
 
 #include "packet-dsp.h"
 #include "packet-dap.h"
+#include <epan/strutil.h>
 
 
 /* we don't have a separate dissector for X519 - 
