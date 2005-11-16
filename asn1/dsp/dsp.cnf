@@ -1,0 +1,40 @@
+#.MODULE_IMPORT
+DirectoryAbstractService	dap
+DirectoryAccessProtocol		dap
+ACSE-1				acse
+InformationFramework		x509if
+ServiceAdministration		x509if
+AuthenticationFramework		x509af
+
+SelectedAttributeTypes		x509sat
+
+#.INCLUDE	../dap/dap-exp.cnf
+#.INCLUDE	../x509if/x509if-exp.cnf
+#.INCLUDE	../x509af/x509af-exp.cnf
+#.INCLUDE	../x509sat/x509sat-exp.cnf
+#.INCLUDE	../acse/acse-exp.cnf
+
+#.EXPORTS
+OperationProgress
+ReferenceType
+ContinuationReference
+AccessPoint
+
+#.TYPE_RENAME
+
+MasterOrShadowAccessPoint/category	APCategory
+
+#.FIELD_RENAME
+MasterOrShadowAccessPoint/category	access-point-category
+
+ChainingArguments/targetObject	targetObjectDN
+
+#.PDU
+AccessPoint
+MasterAndShadowAccessPoints
+
+#.REGISTER
+AccessPoint 			B "2.5.12.1" "id-doa-myAccessPoint"
+AccessPoint 			B "2.5.12.2" "id-doa-superiorKnowledge"
+MasterAndShadowAccessPoints 	B "2.5.12.3" "id-doa-specificKnowledge"
+MasterAndShadowAccessPoints 	B "2.5.12.4" "id-doa-nonSpecificKnowledge"

@@ -1,0 +1,14 @@
+#.IMPORT_TAG
+OperationProgress        BER_CLASS_UNI BER_UNI_TAG_SET
+ReferenceType            BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
+AccessPoint              BER_CLASS_UNI BER_UNI_TAG_SET
+ContinuationReference    BER_CLASS_UNI BER_UNI_TAG_SET
+#.END
+
+#.TYPE_ATTR
+OperationProgress        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ReferenceType            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dsp_ReferenceType_vals)  BITMASK = 0
+AccessPoint              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ContinuationReference    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

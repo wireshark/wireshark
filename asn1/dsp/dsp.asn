@@ -1,0 +1,480 @@
+-- Module DistributedOperations (X.518:02/2001)
+DistributedOperations {joint-iso-itu-t ds(5) module(1) distributedOperations(3)
+  4} DEFINITIONS ::=
+BEGIN
+
+-- EXPORTS All 
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
+-- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- Directory services. Other applications may use them for their own purposes, but this will not constrain
+-- extensions and modifications needed to maintain or improve the Directory service.
+IMPORTS
+  -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
+  basicAccessControl, dap, directoryAbstractService, enhancedSecurity,
+    informationFramework, selectedAttributeTypes, serviceAdministration
+    FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
+      usefulDefinitions(0) 4}
+  DistinguishedName, Name, RDNSequence, Attribute
+    FROM InformationFramework {joint-iso-itu-t ds(5) module(1)
+      informationFramework(1) 4}
+  MRMapping, SearchRuleId
+    FROM ServiceAdministration {joint-iso-itu-t ds(5) module(1)
+      serviceAdministration(33) 4}
+--  AuthenticationLevel
+--    FROM BasicAccessControl {joint-iso-itu-t ds(5) module(1)
+--      basicAccessControl(24) 4}
+  OPTIONALLY-PROTECTED{}
+    FROM EnhancedSecurity {joint-iso-itu-t ds(5) module(1) enhancedSecurity(28)
+      4}
+  -- from ITU-T Rec. X.511 | ISO/IEC 9594-3
+  abandon, addEntry, CommonResults, compare, directoryBind, directoryUnbind,
+    list, modifyDN, modifyEntry, read, referral, removeEntry, search,
+    SecurityParameters,
+    AbandonArgument, AbandonResult, AddEntryArgument, AddEntryResult, 
+    CompareArgument, CompareResult, ListArgument, ListResult,
+    ModifyDNArgument, ModifyDNResult, ModifyEntryArgument, ModifyEntryResult, 
+    ReadArgument, ReadResult, RemoveEntryArgument, RemoveEntryResult, 
+    SearchArgument, SearchResult, 
+    DirectoryBindArgument, DirectoryBindResult, DirectoryBindError
+    FROM DirectoryAbstractService {joint-iso-itu-t ds(5) module(1)
+      directoryAbstractService(2) 4}
+  -- from ITU-T Rec. X.519 | ISO/IEC 9594-5
+  id-errcode-dsaReferral
+    FROM DirectoryAccessProtocol {joint-iso-itu-t ds(5) module(1) dap(11) 4}
+  -- from ITU-T Rec. X.520 | ISO/IEC 9594-6
+  PresentationAddress, ProtocolInformation, UniqueIdentifier
+    FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
+      selectedAttributeTypes(5) 4}
+  -- from ITU-T Rec. X.880 | ISO/IEC 13712-1
+  ERROR, OPERATION
+    FROM Remote-Operations-Information-Objects {joint-iso-itu-t
+      remote-operations(4) informationObjects(5) version1(0)}--;
+  EXTERNAL 
+    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)}
+  AlgorithmIdentifier
+    FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
+      authenticationFramework(7) 4};
+
+
+
+-- parameterized type for deriving chained operations 
+--chained{OPERATION:operation} OPERATION ::= {
+--  ARGUMENT OPTIONALLY-PROTECTED
+--    {SET {chainedArgument  ChainingArguments,
+--          argument         [0]  operation.&ArgumentType}}
+--  RESULT OPTIONALLY-PROTECTED
+--    {SET {chainedResult  ChainingResults,
+--          result         [0]  operation.&ResultType}}
+--  ERRORS
+--    {operation.&Errors EXCEPT referral | dsaReferral}
+--  CODE                           operation.&operationCode
+--}
+
+--  bind and unbind operations 
+--dSABind OPERATION ::= directoryBind
+DSASystemBindArgument ::= DirectoryBindArgument
+DSASystemBindResult ::= DirectoryBindArgument
+DSASystemBindError ::= DirectoryBindError
+
+
+--dSAUnbind OPERATION ::= directoryUnbind
+
+--  chained operations 
+--chainedRead OPERATION ::= chained{read}
+
+-- expand chained{} macro
+ChainedReadArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  readArgument		[0] ReadArgument
+}
+
+ChainedReadArgument ::= CHOICE {
+  unsignedChainedReadArgument ChainedReadArgumentData,
+  signedChainedReadArgument SEQUENCE {
+    chainedReadArgument	ChainedReadArgumentData,
+    algorithmIdentifier	AlgorithmIdentifier,
+    encrypted		BIT STRING
+    }
+}
+
+ChainedReadResultData ::= SET {
+  chainedResults	ChainingResults,
+  readResult		[0] ReadResult
+}
+
+ChainedReadResult ::= CHOICE {
+  unsignedChainedReadResult ChainedReadResultData,
+  signedChainedReadResult SEQUENCE {
+    chainedReadResult	ChainedReadResultData,
+    algorithmIdentifier	AlgorithmIdentifier,
+    encrypted		BIT STRING
+    }
+}
+
+--chainedCompare OPERATION ::= chained{compare}
+
+-- expand chained{} macro
+ChainedCompareArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  compareArgument	[0] CompareArgument
+}
+
+ChainedCompareArgument ::= CHOICE {
+  unsignedChainedCompareArgument ChainedCompareArgumentData,
+  signedChainedCompareArgument SEQUENCE {
+    chainedCompareArgument	ChainedCompareArgumentData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+ChainedCompareResultData ::= SET {
+  chainedResults	ChainingResults,
+  compareResult		[0] CompareResult
+}
+
+ChainedCompareResult ::= CHOICE {
+  unsignedChainedCompareResult ChainedCompareResultData,
+  signedChainedCompareResult SEQUENCE {
+    chainedCompareResult	ChainedCompareResultData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+--chainedAbandon OPERATION ::= abandon
+
+ChainedAbandonArgument ::= AbandonArgument
+ChainedAbandonResult ::= AbandonResult
+
+--chainedList OPERATION ::= chained{list}
+
+-- expand chained{} macro
+ChainedListArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  listArgument		[0] ListArgument
+}
+
+ChainedListArgument ::= CHOICE {
+  unsignedChainedListArgument ChainedListArgumentData,
+  signedChainedListArgument SEQUENCE {
+    chainedListArgument	ChainedListArgumentData,
+    algorithmIdentifier	AlgorithmIdentifier,
+    encrypted		BIT STRING
+    }
+}
+
+ChainedListResultData ::= SET {
+  chainedResults	ChainingResults,
+  listResult		[0] ListResult
+}
+
+ChainedListResult ::= CHOICE {
+  unsignedChainedListResult ChainedListResultData,
+  signedChainedListResult SEQUENCE {
+    chainedListResult	ChainedListResultData,
+    algorithmIdentifier	AlgorithmIdentifier,
+    encrypted		BIT STRING
+    }
+}
+
+--chainedSearch OPERATION ::= chained{search}
+
+-- expand chained{} macro
+ChainedSearchArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  searchArgument	[0] SearchArgument
+}
+
+ChainedSearchArgument ::= CHOICE {
+  unsignedChainedSearchArgument ChainedSearchArgumentData,
+  signedChainedSearchArgument SEQUENCE {
+    chainedSearchArgument	ChainedSearchArgumentData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+ChainedSearchResultData ::= SET {
+  chainedResults	ChainingResults,
+  searchResult		[0] SearchResult
+}
+
+ChainedSearchResult ::= CHOICE {
+  unsignedChainedSearchResult ChainedSearchResultData,
+  signedChainedSearchResult SEQUENCE {
+    chainedSearchResult	ChainedSearchResultData,
+    algorithmIdentifier	AlgorithmIdentifier,
+    encrypted		BIT STRING
+    }
+}
+
+--chainedAddEntry OPERATION ::= chained{addEntry}
+
+-- expand chained{} macro
+ChainedAddEntryArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  addEntryArgument	[0] AddEntryArgument
+}
+
+ChainedAddEntryArgument ::= CHOICE {
+  unsignedChainedAddEntryArgument ChainedAddEntryArgumentData,
+  signedChainedAddEntryArgument SEQUENCE {
+    chainedAddEntryArgument	ChainedAddEntryArgumentData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+ChainedAddEntryResultData ::= SET {
+  chainedResults	ChainingResults,
+  addEntryResult	[0] AddEntryResult
+}
+
+ChainedAddEntryResult ::= CHOICE {
+  unsignedChainedAddEntryResult ChainedAddEntryResultData,
+  signedChainedAddEntryResult SEQUENCE {
+    chainedAddEntryResult	ChainedAddEntryResultData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+--chainedRemoveEntry OPERATION ::= chained{removeEntry}
+
+-- expand chained{} macro
+
+ChainedRemoveEntryArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  removeEntryArgument	[0] RemoveEntryArgument
+}
+
+ChainedRemoveEntryArgument ::= CHOICE {
+  unsignedChainedRemoveEntryArgument ChainedRemoveEntryArgumentData,
+  signedChainedRemoveEntryArgument SEQUENCE {
+    chainedRemoveEntryArgument	ChainedRemoveEntryArgumentData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+ChainedRemoveEntryResultData ::= SET {
+  chainedResults	ChainingResults,
+  removeEntryResult	[0] RemoveEntryResult
+}
+
+ChainedRemoveEntryResult ::= CHOICE {
+  unsignedChainedRemoveEntryResult ChainedRemoveEntryResultData,
+  signedChainedRemoveEntryResult SEQUENCE {
+    chainedRemoveEntryResult	ChainedRemoveEntryResultData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+--chainedModifyEntry OPERATION ::= chained{modifyEntry}
+
+-- expand chained{} macro
+
+ChainedModifyEntryArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  modifyEntryArgument	[0] ModifyEntryArgument
+}
+
+ChainedModifyEntryArgument ::= CHOICE {
+  unsignedChainedModifyEntryArgument ChainedModifyEntryArgumentData,
+  signedChainedModifyEntryArgument SEQUENCE {
+    chainedModifyEntryArgument	ChainedModifyEntryArgumentData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+ChainedModifyEntryResultData ::= SET {
+  chainedResults	ChainingResults,
+  modifyEntryResult	[0] ModifyEntryResult
+}
+
+ChainedModifyEntryResult ::= CHOICE {
+  unsignedChainedModifyEntryResult ChainedModifyEntryResultData,
+  signedChainedModifyEntryResult SEQUENCE {
+    chainedModifyEntryResult	ChainedModifyEntryResultData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+--chainedModifyDN OPERATION ::= chained{modifyDN}
+
+-- expand chained{} macro
+
+ChainedModifyDNArgumentData ::= SET {
+  chainedArgument	ChainingArguments,
+  modifyDNArgument	[0] ModifyDNArgument
+}
+
+ChainedModifyDNArgument ::= CHOICE {
+  unsignedChainedModifyDNArgument ChainedModifyDNArgumentData,
+  signedChainedModifyDNArgument SEQUENCE {
+    chainedModifyDNArgument	ChainedModifyDNArgumentData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+ChainedModifyDNResultData ::= SET {
+  chainedResults	ChainingResults,
+  modifyDNResult	[0] ModifyDNResult
+}
+
+ChainedModifyDNResult ::= CHOICE {
+  unsignedChainedModifyDNResult ChainedModifyDNResultData,
+  signedChainedModifyDNResult SEQUENCE {
+    chainedModifyDNResult	ChainedModifyDNResultData,
+    algorithmIdentifier		AlgorithmIdentifier,
+    encrypted			BIT STRING
+    }
+}
+
+-- errors and parameters 
+DSAReferralData -- ERROR--  ::= -- {
+--  PARAMETER OPTIONALLY-PROTECTED
+--    {--SET {reference      [0]  ContinuationReference,
+          contextPrefix  [1]  DistinguishedName OPTIONAL,
+--          COMPONENTS OF CommonResults}}
+	  securityParameters  [30]  SecurityParameters OPTIONAL,
+	  performer           [29]  DistinguishedName OPTIONAL,
+	  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
+	  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+--  CODE                            id-errcode-dsaReferral
+}
+
+-- expand OPTIONALLY-PROTECTED macro
+DSAReferral ::= CHOICE {
+  unsignedDSAReferral DSAReferralData,
+  signedDSAReferral SEQUENCE {
+    dsaReferral		DSAReferralData,
+    algorithmIdentifier	AlgorithmIdentifier,
+    encrypted		BIT STRING
+    }
+}
+
+
+--  common arguments and results 
+ChainingArguments ::= SET {
+  originator           [0]  DistinguishedName OPTIONAL,
+  targetObject         [1]  DistinguishedName OPTIONAL,
+  operationProgress
+    [2]  OperationProgress DEFAULT {nameResolutionPhase notStarted},
+  traceInformation     [3]  TraceInformation,
+  aliasDereferenced    [4]  BOOLEAN DEFAULT FALSE,
+  aliasedRDNs          [5]  INTEGER OPTIONAL,
+  -- only present in 1988 systems
+  returnCrossRefs      [6]  BOOLEAN DEFAULT FALSE,
+  referenceType        [7]  ReferenceType DEFAULT superior,
+  info                 [8]  DomainInfo OPTIONAL,
+  timeLimit            [9]  Time OPTIONAL,
+  securityParameters   [10]  SecurityParameters DEFAULT {},
+  entryOnly            [11]  BOOLEAN DEFAULT FALSE,
+  uniqueIdentifier     [12]  UniqueIdentifier OPTIONAL,
+  authenticationLevel  [13]  AuthenticationLevel OPTIONAL,
+  exclusions           [14]  Exclusions OPTIONAL,
+  excludeShadows       [15]  BOOLEAN DEFAULT FALSE,
+  nameResolveOnMaster  [16]  BOOLEAN DEFAULT FALSE,
+  operationIdentifier  [17]  INTEGER OPTIONAL,
+  searchRuleId         [18]  SearchRuleId OPTIONAL,
+  chainedRelaxation    [19]  MRMapping OPTIONAL,
+  relatedEntry         [20]  INTEGER OPTIONAL
+}
+
+Time ::= CHOICE {utcTime          UTCTime,
+                 generalizedTime  GeneralizedTime
+}
+
+DomainInfo ::= --ABSTRACT-SYNTAX.&Type-- OBJECT IDENTIFIER
+
+ChainingResults ::= SET {
+  info                [0]  DomainInfo OPTIONAL,
+  crossReferences     [1]  SEQUENCE --SIZE (1..MAX)-- OF CrossReference OPTIONAL,
+  securityParameters  [2]  SecurityParameters DEFAULT {},
+  alreadySearched     [3]  Exclusions OPTIONAL
+}
+
+CrossReference ::= SET {
+  contextPrefix  [0]  DistinguishedName,
+  accessPoint    [1]  AccessPointInformation
+}
+
+OperationProgress ::= SET {
+  nameResolutionPhase
+    [0]  ENUMERATED {notStarted(1), proceeding(2), completed(3)},
+  nextRDNToBeResolved  [1]  INTEGER OPTIONAL
+}
+
+TraceInformation ::= SEQUENCE OF TraceItem
+
+TraceItem ::= SET {
+  dsa                [0]  Name,
+  targetObject       [1]  Name OPTIONAL,
+  operationProgress  [2]  OperationProgress
+}
+
+ReferenceType ::= ENUMERATED {
+  superior(1), subordinate(2), cross(3), nonSpecificSubordinate(4),
+  supplier(5), master(6), immediateSuperior(7), self(8)}
+
+AccessPoint ::= SET {
+  ae-title             [0]  Name,
+  address              [1]  PresentationAddress,
+  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL
+}
+
+MasterOrShadowAccessPoint ::= SET {
+--  COMPONENTS OF AccessPoint,
+  ae-title             [0]  Name,
+  address              [1]  PresentationAddress,
+  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
+  category          [3]  ENUMERATED {master(0), shadow(1)} DEFAULT master,
+  chainingRequired  [5]  BOOLEAN DEFAULT FALSE
+}
+
+MasterAndShadowAccessPoints ::= SET --SIZE (1..MAX)-- OF MasterOrShadowAccessPoint
+
+AccessPointInformation ::= SET {
+--  COMPONENTS OF MasterOrShadowAccessPoint,
+  ae-title             [0]  Name,
+  address              [1]  PresentationAddress,
+  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
+  category          [3]  ENUMERATED {master(0), shadow(1)} DEFAULT master,
+  chainingRequired  [5]  BOOLEAN DEFAULT FALSE,
+  additionalPoints  [4]  MasterAndShadowAccessPoints OPTIONAL
+}
+
+Exclusions ::= SET --SIZE (1..MAX)-- OF RDNSequence
+
+ContinuationReference ::= SET {
+  targetObject         [0]  Name,
+  aliasedRDNs          [1]  INTEGER OPTIONAL, -- only present in 1988 systems
+  operationProgress    [2]  OperationProgress,
+  rdnsResolved         [3]  INTEGER OPTIONAL,
+  referenceType        [4]  ReferenceType,
+  accessPoints         [5]  SET OF AccessPointInformation,
+  entryOnly            [6]  BOOLEAN DEFAULT FALSE,
+  exclusions           [7]  Exclusions OPTIONAL,
+  returnToDUA          [8]  BOOLEAN DEFAULT FALSE,
+  nameResolveOnMaster  [9]  BOOLEAN DEFAULT FALSE
+}
+
+AuthenticationLevel ::= CHOICE {
+  basicLevels 	SEQUENCE {
+    level		ENUMERATED { none(0), simple(1), strong (2) },
+    localQualifier	INTEGER OPTIONAL,
+    signed		BOOLEAN DEFAULT FALSE
+  },
+  other	EXTERNAL
+}
+
+END -- DistributedOperations
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

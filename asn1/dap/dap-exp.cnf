@@ -1,0 +1,72 @@
+#.IMPORT_TAG
+CommonResults            BER_CLASS_UNI BER_UNI_TAG_SET
+ContextSelection         BER_CLASS_ANY/*choice*/ -1/*choice*/
+SecurityParameters       BER_CLASS_UNI BER_UNI_TAG_SET
+DirectoryBindArgument    BER_CLASS_UNI BER_UNI_TAG_SET
+DirectoryBindError       BER_CLASS_ANY/*choice*/ -1/*choice*/
+ReadArgument             BER_CLASS_ANY/*choice*/ -1/*choice*/
+ReadResult               BER_CLASS_ANY/*choice*/ -1/*choice*/
+CompareArgument          BER_CLASS_ANY/*choice*/ -1/*choice*/
+CompareResult            BER_CLASS_ANY/*choice*/ -1/*choice*/
+AbandonArgument          BER_CLASS_ANY/*choice*/ -1/*choice*/
+AbandonResult            BER_CLASS_ANY/*choice*/ -1/*choice*/
+ListArgument             BER_CLASS_ANY/*choice*/ -1/*choice*/
+ListResult               BER_CLASS_ANY/*choice*/ -1/*choice*/
+SearchArgument           BER_CLASS_ANY/*choice*/ -1/*choice*/
+SearchResult             BER_CLASS_ANY/*choice*/ -1/*choice*/
+AddEntryArgument         BER_CLASS_ANY/*choice*/ -1/*choice*/
+AddEntryResult           BER_CLASS_ANY/*choice*/ -1/*choice*/
+RemoveEntryArgument      BER_CLASS_ANY/*choice*/ -1/*choice*/
+RemoveEntryResult        BER_CLASS_ANY/*choice*/ -1/*choice*/
+ModifyEntryArgument      BER_CLASS_ANY/*choice*/ -1/*choice*/
+ModifyEntryResult        BER_CLASS_ANY/*choice*/ -1/*choice*/
+EntryModification        BER_CLASS_ANY/*choice*/ -1/*choice*/
+ModifyDNArgument         BER_CLASS_UNI BER_UNI_TAG_SET
+ModifyDNResult           BER_CLASS_ANY/*choice*/ -1/*choice*/
+Abandoned                BER_CLASS_ANY/*choice*/ -1/*choice*/
+AbandonFailedError       BER_CLASS_ANY/*choice*/ -1/*choice*/
+AttributeError           BER_CLASS_ANY/*choice*/ -1/*choice*/
+NameError                BER_CLASS_ANY/*choice*/ -1/*choice*/
+Referral                 BER_CLASS_ANY/*choice*/ -1/*choice*/
+SecurityError            BER_CLASS_ANY/*choice*/ -1/*choice*/
+ServiceError             BER_CLASS_ANY/*choice*/ -1/*choice*/
+UpdateError              BER_CLASS_ANY/*choice*/ -1/*choice*/
+OperationalBindingID     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+CommonResults            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ContextSelection         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ContextSelection_vals)  BITMASK = 0
+SecurityParameters       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+DirectoryBindArgument    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+DirectoryBindError       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_DirectoryBindError_vals)  BITMASK = 0
+ReadArgument             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ReadArgument_vals)  BITMASK = 0
+ReadResult               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ReadResult_vals)  BITMASK = 0
+CompareArgument          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_CompareArgument_vals)  BITMASK = 0
+CompareResult            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_CompareResult_vals)  BITMASK = 0
+AbandonArgument          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_AbandonArgument_vals)  BITMASK = 0
+AbandonResult            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_AbandonResult_vals)  BITMASK = 0
+ListArgument             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ListArgument_vals)  BITMASK = 0
+ListResult               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ListResult_vals)  BITMASK = 0
+SearchArgument           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_SearchArgument_vals)  BITMASK = 0
+SearchResult             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_SearchResult_vals)  BITMASK = 0
+AddEntryArgument         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_AddEntryArgument_vals)  BITMASK = 0
+AddEntryResult           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_AddEntryResult_vals)  BITMASK = 0
+RemoveEntryArgument      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_RemoveEntryArgument_vals)  BITMASK = 0
+RemoveEntryResult        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_RemoveEntryResult_vals)  BITMASK = 0
+ModifyEntryArgument      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ModifyEntryArgument_vals)  BITMASK = 0
+ModifyEntryResult        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ModifyEntryResult_vals)  BITMASK = 0
+EntryModification        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_EntryModification_vals)  BITMASK = 0
+ModifyDNArgument         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ModifyDNResult           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ModifyDNResult_vals)  BITMASK = 0
+Abandoned                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_Abandoned_vals)  BITMASK = 0
+AbandonFailedError       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_AbandonFailedError_vals)  BITMASK = 0
+AttributeError           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_AttributeError_vals)  BITMASK = 0
+NameError                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_NameError_vals)  BITMASK = 0
+Referral                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_Referral_vals)  BITMASK = 0
+SecurityError            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_SecurityError_vals)  BITMASK = 0
+ServiceError             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ServiceError_vals)  BITMASK = 0
+UpdateError              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_UpdateError_vals)  BITMASK = 0
+OperationalBindingID     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

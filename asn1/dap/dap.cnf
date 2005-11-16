@@ -1,0 +1,277 @@
+#.MODULE_IMPORT
+InformationFramework	x509if
+ServiceAdministration	x509if
+
+AuthenticationFramework	x509af
+AttributeCertificateDefinitions	x509af
+
+BasicAccessControl	crmf
+
+Remote-Operations-Generic-ROS-PDUs	ros
+Remote-Operations-Information-Objects	ros
+
+ACSE-1			acse
+DistributedOperations	dsp
+
+#.INCLUDE	../x509if/x509if-exp.cnf
+#.INCLUDE	../x509af/x509af-exp.cnf
+#.INCLUDE	../pkixcrmf/crmf-exp.cnf
+#.INCLUDE	../dsp/dsp-exp.cnf
+#.INCLUDE	../ros/ros-exp.cnf
+#.INCLUDE	../acse/acse-exp.cnf
+
+#.EXPORTS
+CommonResults
+Referral
+SecurityParameters
+EntryModification
+ContextSelection
+OperationalBindingID
+DirectoryBindArgument
+DirectoryBindError
+ReadArgument
+ReadResult
+ListArgument
+ListResult
+SearchArgument
+SearchResult
+AddEntryArgument
+AddEntryResult
+CompareArgument
+CompareResult
+RemoveEntryArgument
+RemoveEntryResult
+ModifyEntryArgument
+ModifyEntryResult
+ModifyDNArgument
+ModifyDNResult
+AbandonArgument
+AbandonResult
+AttributeError
+NameError
+ServiceError
+Abandoned
+SecurityError
+AbandonFailedError
+UpdateError
+
+
+#.TYPE_RENAME
+FamilyEntry/information		FamilyInformation
+AbandonResult/information	AbandonInformation
+AddEntryResult/information	AddEntryInformation
+RemoveEntryResult/information	RemoveEntryInformation
+ModifyEntryResult/information	ModifyEntryInformation
+ModifyDNResult/information	ModifyDNInformation
+
+EntryInformation/information/_item	EntryInformationItem
+
+#.FIELD_RENAME
+
+ModifyRights/_item/item/attribute	attribute-type
+
+ModifyRights/_item/item/entry	item-entry
+AddEntryArgumentData/entry	add-entry
+
+EntryInformation/information	entry-information
+FamilyEntry/information		family-information
+AbandonResult/information	abandon-information
+AddEntryResult/information	add-entry-information
+RemoveEntryResult/information	remove-entry-information
+ModifyEntryResult/information	modify-entry-information
+ModifyDNResult/information	modify-dn-information
+
+EntryInformation/information/_item	entry-information-item
+
+Filter/item	filter-item
+
+NameErrorData/matched	matched-name
+
+SecurityParameters/name		distinguished-name
+SimpleCredentials/name		distinguished-name
+StrongCredentials/name		distinguished-name
+
+ModifyDNArgument/object		distinguished-name
+
+AbandonFailedErrorData/problem		abandon-failed-problem
+ServiceErrorData/problem		service-error-problem
+AttributeErrorData/problems/_item/problem	attribute-error-problem
+NameErrorData/problem			name-error-problem
+SecurityErrorData/problem		security-error-problem
+UpdateErrorData/problem			update-error-problem
+
+DirectoryBindErrorData/error/securityError	securityProblem
+SecurityError/signedSecurityError/securityError	securityErrorData
+
+DirectoryBindErrorData/error/serviceError	serviceProblem
+
+FilterItem/substrings/type			sunstringType
+
+ModifyRights/_item/item/value			value-assertion
+
+#.FN_BODY	T_initial
+	proto_item *it;
+	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
+	proto_item_append_text(it," XXX: Not yet implemented!");
+
+#.FN_BODY	T_any
+	/* XXX: not yet implemented */
+
+#.FN_BODY	T_final
+	/* XXX: not yet implemented */
+
+#.FN_BODY	T_matchValue
+	/* XXX: not yet implemented */
+
+#.FN_BODY	T_bind_token
+	/* XXX: not yet implemented */
+
+#.FN_BODY	T_req
+	/* XXX: not yet implemented */
+
+#.FN_BODY	T_rep
+	/* XXX: not yet implemented */
+
+#.FN_BODY	T_spkmInfo
+	/* XXX: not yet implemented */
+
+#.FN_BODY 	DirectoryBindArgument
+
+	guint32 len;
+
+	/* check and see if this is an empty set */
+	dissect_ber_length(pinfo, tree, tvb, offset+1, &len, NULL);
+
+	if(len == 0) {
+		/* its an empty set - i.e anonymous  (assuming version is DEFAULTed) */
+		proto_tree_add_text(tree, tvb, offset, -1,"Anonymous");
+
+		if(check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, " anonymous");
+
+	}
+	/* do the default thing */
+
+	%(DEFAULT_BODY)s	
+
+#.FN_BODY	SimpleCredentials
+
+	%(DEFAULT_BODY)s
+
+	if(check_col(pinfo->cinfo, COL_INFO))	
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", x509if_get_last_dn());
+
+#.FN_PARS INTEGER
+	VAL_PTR	= &value
+
+#.FN_BODY INTEGER
+	guint32	value;
+
+	%(DEFAULT_BODY)s
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		if(hf_index == hf_dap_identifier) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, " id=%%d", value);
+		} else if (hf_index == hf_dap_version) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ",%%d", value);
+		}
+  	}
+
+#.FN_PARS OCTET_STRING
+	VAL_PTR=&out_tvb
+	
+#.FN_BODY OCTET_STRING
+	tvbuff_t *out_tvb;
+	int 	i;
+	int	len;
+	proto_item	*oct_item;
+
+    	%(DEFAULT_BODY)s
+
+	len = tvb_length(out_tvb);
+	/* now see if we can add a string representation */
+	for(i=0; i<len; i++)
+		if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
+			break;
+	
+	if(i == len) {
+		if((oct_item = get_ber_last_created_item())) {
+
+			proto_item_append_text(oct_item," (");
+			for(i=0; i<len; i++)
+				proto_item_append_text(oct_item,"%%c",tvb_get_guint8(out_tvb,i));
+			proto_item_append_text(oct_item,")");
+		}
+	}
+	
+#.FN_PARS SecurityProblem
+	VAL_PTR = &problem
+
+#.FN_BODY SecurityProblem
+  guint32 problem;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%%d)"));
+  }
+
+#.FN_PARS ServiceProblem
+	VAL_PTR = &problem
+
+#.FN_BODY ServiceProblem
+  guint32 problem;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%%d)"));
+  }
+
+#.FN_PARS UpdateProblem
+	VAL_PTR = &problem
+
+#.FN_BODY UpdateProblem
+  guint32 problem;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%%d)"));
+  }
+
+#.FN_PARS LimitProblem
+	VAL_PTR = &problem
+
+#.FN_BODY LimitProblem
+  guint32 problem;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%%d)"));
+  }
+
+#.FN_PARS T_subset
+	VAL_PTR = &subset
+
+#.FN_BODY T_subset
+  guint32 subset;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(subset, dap_T_subset_vals, "Subset(%%d)"));
+  }
+
+
+#.FN_BODY Name
+	const char *dn;
+
+	%(DEFAULT_BODY)s
+
+	if(check_col(pinfo->cinfo, COL_INFO)) {
+		dn = x509if_get_last_dn();
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", (dn && *dn) ? dn : "(root)");
+	}
+

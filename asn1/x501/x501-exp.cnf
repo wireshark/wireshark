@@ -1,0 +1,10 @@
+#.IMPORT_TAG
+DSEType                  BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+SupplierAndConsumers     BER_CLASS_UNI BER_UNI_TAG_SET
+#.END
+
+#.TYPE_ATTR
+DSEType                  TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+SupplierAndConsumers     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

@@ -1,0 +1,113 @@
+#.TYPE_ATTR
+Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
+
+#.MODULE_IMPORT
+InformationFramework	x509if
+AuthenticationFramework	x509af
+ACSE-1			acse
+DirectoryAbstractService	dap
+DistributedOperations		dsp
+DSAOperationalAttributeTypes	x501
+OperationalBindingManagement	dap
+
+#.INCLUDE ../x501/x501-exp.cnf
+#.INCLUDE ../x509if/x509if-exp.cnf
+#.INCLUDE ../x509af/x509af-exp.cnf
+#.INCLUDE ../dap/dap-exp.cnf
+#.INCLUDE ../dsp/dsp-exp.cnf
+#.INCLUDE ../acse/acse-exp.cnf
+
+#.TYPE_RENAME
+CoordinateShadowUpdateArgumentData/updateStrategy/standard	StandardUpdate
+
+#.FIELD_RENAME
+UnitOfReplication/attributes	replication-attributes
+SubordinateChanges/changes	subordinate-changes
+ModificationParameter/secondaryShadows	modifiedSecondaryShadows
+CoordinateShadowUpdateArgumentData/updateStrategy/standard	standardUpdate
+Information/signedInformation/information	information-data
+
+#.FN_PARS T_standard
+	VAL_PTR = &update
+
+#.FN_BODY T_standard
+  guint32 update;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_T_standard_vals, "standard(%%d"));
+  }
+
+#.FN_PARS RefreshInformation
+	VAL_PTR = &update
+
+#.FN_BODY RefreshInformation
+  guint32 update;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RefreshInformation_vals, "unknown(%%d)"));
+  }
+
+#.FN_PARS StandardUpdate
+	VAL_PTR = &update
+
+#.FN_BODY StandardUpdate
+  guint32 update;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_StandardUpdate_vals, "unknown(%%d)"));
+  }
+
+#.FN_PARS CoordinateShadowUpdateResult
+	VAL_PTR = &update
+
+#.FN_BODY CoordinateShadowUpdateResult
+  guint32 update;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_CoordinateShadowUpdateResult_vals, "unknown(%%d)"));
+  }
+
+#.FN_PARS RequestShadowUpdateResult
+	VAL_PTR = &update
+
+#.FN_BODY RequestShadowUpdateResult
+  guint32 update;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RequestShadowUpdateResult_vals, "unknown(%%d)"));
+  }
+
+#.FN_PARS UpdateShadowResult
+	VAL_PTR = &update
+
+#.FN_BODY UpdateShadowResult
+  guint32 update;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_UpdateShadowResult_vals, "unknown(%%d)"));
+  }
+
+#.FN_PARS ShadowProblem
+	VAL_PTR = &problem
+
+#.FN_BODY ShadowProblem
+  guint32 problem;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, disp_ShadowProblem_vals, "ShadowProblem(%%d)"));
+  }
+
