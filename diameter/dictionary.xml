@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id:$ -->
+<!-- $Id$ -->
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
 	<!ENTITY nasreq SYSTEM "nasreq.xml">
 	<!ENTITY mobileipv4 SYSTEM "mobileipv4.xml">
 	<!ENTITY sunping SYSTEM "sunping.xml">
 	<!ENTITY imscxdx SYSTEM "imscxdx.xml">
-	<!ENTITY 3GPPSh SYSTEM "3GPPSh.xml">
+	<!ENTITY TGPPSh SYSTEM "TGPPSh.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -484,12 +484,12 @@
 		<avp name="Accounting-Multi-Session-Id" code="50" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Accounting-Realtime-Required" code="483 mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="Reserved" code="0">
+			<enum name="Reserved" code="0"/>
 			<enum name="DELIVER_AND_GRANT" code="1"/>
-			<enum name="GRANT_AND_STORE" code="2">
-			<enum name="GRANT_AND_LOSE" code="3"
+			<enum name="GRANT_AND_STORE" code="2"/>
+			<enum name="GRANT_AND_LOSE" code="3"/>
 		</avp>
 		<avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
@@ -518,12 +518,12 @@
 			<enum name="3GPP Zh" code="16777221"/>
 			<enum name="3GPP Gq" code="16777222"/>
 			<enum name="3GPP Gmb" code="16777223"/>
-			<enum name="3GPP Gx" code="16777224/>
-			<enum name="3GPP Gx over Gy" code="16777225/>
-			<enum name="3GPP MM10" code="16777226/>
-			<enum name="Ericsson MSI" code="16777227/>
-			<enum name="Ericsson Zx" code="16777228/>
-			<enum name="3GPP Rx" code="16777229/>
+			<enum name="3GPP Gx" code="16777224"/>
+			<enum name="3GPP Gx over Gy" code="16777225"/>
+			<enum name="3GPP MM10" code="16777226"/>
+			<enum name="Ericsson MSI" code="16777227"/>
+			<enum name="Ericsson Zx" code="16777228"/>
+			<enum name="3GPP Rx" code="16777229"/>
 		</avp>
 		<avp name="Alternate-Peer" code="275" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -878,5 +878,5 @@
 	&mobileipv4;
 	&sunping;
 	&imscxdx;
-	&3GPPSh;
+	&TGPPSh;
 </dictionary>
