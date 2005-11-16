@@ -144,4 +144,16 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
  */
 char * convert_string_case(const char *string, gboolean case_insensitive);
 
+/* g_strlcat() does not exist in gtk 1 */
+#if GTK_MAJOR_VERSION < 2
+#define g_strlcat(dst, src, size)					\
+	{								\
+	int strl;							\
+	strl=strlen(dst);						\
+	if(strl<size)							\
+		g_snprintf(dst+strl, size-strl, "%s", src);		\
+	dst[size-1]=0;							\
+	}
+#endif
+
 #endif /* __STRUTIL_H__ */

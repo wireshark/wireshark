@@ -46,6 +46,7 @@
 
 #include "packet-x411.h"
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "X411"

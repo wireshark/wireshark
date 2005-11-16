@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x509if.c                                                          */
+/* ./packet-x509if.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
@@ -44,6 +44,7 @@
 #include "packet-x509if.h"
 #include "packet-ber.h"
 #include "packet-x509sat.h"
+#include <epan/strutil.h>
 
 #define PNAME  "X.509 Information Framework"
 #define PSNAME "X509IF"
