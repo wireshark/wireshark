@@ -1780,8 +1780,8 @@ main(int argc, char *argv[])
       case '?':        /* argument-parsing error - quit now if we're a normal Ethereal */
                        /* (a capture child uses a slightly different options pattern, */
                        /* so don't quit here as this error is only meaningful in the "real" run later) */
-        if(!capture_child)
-          exit(0);
+        /*if(!capture_child)
+          exit(0);*/
         break;
     }
   }
