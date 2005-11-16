@@ -67,6 +67,7 @@ typedef enum {
   DIAMETER_INTEGER32,
   DIAMETER_INTEGER64,
   DIAMETER_UNSIGNED32,
+  DIAMETER_UNSIGNED32ENUM,
   DIAMETER_UNSIGNED64,
   DIAMETER_FLOAT32,
   DIAMETER_FLOAT64,
@@ -96,6 +97,7 @@ static const value_string TypeValues[]={
   {  DIAMETER_INTEGER32,       "Integer32" },
   {  DIAMETER_INTEGER64,       "Integer64" },
   {  DIAMETER_UNSIGNED32,      "Unsigned32" },
+  {  DIAMETER_UNSIGNED32ENUM,	"Unsigned32" }, /* This is needed to get value translation for Uint32:s with a value*/
   {  DIAMETER_UNSIGNED64,      "Unsigned64" },
   {  DIAMETER_FLOAT32,         "Float32" },
   {  DIAMETER_FLOAT64,         "Float64" },
@@ -397,8 +399,13 @@ addStaticAVP(int code, const gchar *name, diameterDataType type, const value_str
   entry->vendorName = NULL;
   entry->type = type;
   entry->values = vEntry;
-  if (vEntry)
-	entry->type = DIAMETER_ENUMERATED;
+  /* Unsigned32 might have values to ( Result-code 268 ) */
+  if (vEntry){
+	  if (type != DIAMETER_ENUMERATED){
+		  entry->type = DIAMETER_UNSIGNED32ENUM;
+	  }
+  }
+
 
   /* And, add it to the list */
   entry->next = avpListHead;
@@ -444,8 +451,13 @@ addVendorAVP(int code, const gchar *name, diameterDataType type, const value_str
   else
 	entry->vendorName = NULL;  entry->type = type;
   entry->values = vEntry;
-  if (vEntry)
-	entry->type = DIAMETER_ENUMERATED;
+
+  /* Unsigned32 might have values to ( Result-code 268 ) */
+  if (vEntry){
+	  if (type != DIAMETER_ENUMERATED){
+		  entry->type = DIAMETER_UNSIGNED32ENUM;
+	  }
+  }
 
   /* And, add it to the list */
   entry->next = avpListHead;
@@ -545,8 +557,12 @@ xmlParseAVP(xmlNodePtr cur)
 	entry->vendorName = NULL;
   entry->type = avpType;
   entry->values = vEntry;
-  if (vEntry)
-	entry->type = DIAMETER_ENUMERATED;
+  /* Unsigned32 might have values to ( Result-code 268 ) */
+  if (vEntry){
+	  if (avpType != DIAMETER_ENUMERATED){
+		  entry->type = DIAMETER_UNSIGNED32ENUM;
+	  }
+  }
 
   /* And, add it to the list */
   entry->next = avpListHead;
@@ -1824,6 +1840,24 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 					      tvb, offset, avpDataLength,
 					      tvb_get_ptr(tvb, offset, avpDataLength),
 					      "Error!  Bad Unsigned32 Length");
+		}
+		break;
+
+	  case DIAMETER_UNSIGNED32ENUM:
+		if (avpDataLength == 4) {
+		  guint32 data;
+
+		  data = tvb_get_ntohl(tvb, offset);
+		  valstr = diameter_avp_get_value(avph.avp_code, vendorId, data);
+		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
+					     tvb, offset, avpDataLength, data,
+					     "Value: 0x%08x (%u): %s", data,
+					     data, valstr);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Enumerated Length");
 		}
 		break;
 

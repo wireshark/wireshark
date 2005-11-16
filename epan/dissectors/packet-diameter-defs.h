@@ -886,7 +886,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 265, "Supported-Vendor-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  sminmpec_values},
     { 267, "Firmware-Revision",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 268, "Result-Code",                 DIAMETER_ENUMERATED,  diameter_result_code_vals},
+    { 268, "Result-Code",                 DIAMETER_UNSIGNED32,  diameter_result_code_vals},
     { 269, "Product-Name",                DIAMETER_UTF8STRING,  (value_string *)NULL},
     { 270, "Session-Binding",             DIAMETER_UNSIGNED32,  diameter_session_binding_vals},
     { 271, "Session-Server-Failover",     DIAMETER_ENUMERATED,  diameter_session_server_failover_vals},
