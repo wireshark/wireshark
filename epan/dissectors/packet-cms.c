@@ -46,6 +46,9 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 
+#include <epan/sha1.h>
+#include <epan/crypt-md5.h>
+
 #define PNAME  "Cryptographic Message Syntax"
 #define PSNAME "CMS"
 #define PFNAME "cms"
@@ -97,7 +100,7 @@ static int hf_cms_encryptedContentInfo = -1;      /* EncryptedContentInfo */
 static int hf_cms_unprotectedAttrs = -1;          /* UnprotectedAttributes */
 static int hf_cms_certs = -1;                     /* CertificateSet */
 static int hf_cms_RecipientInfos_item = -1;       /* RecipientInfo */
-static int hf_cms_contentType1 = -1;              /* ContentType */
+static int hf_cms_encryptedContentType = -1;      /* ContentType */
 static int hf_cms_contentEncryptionAlgorithm = -1;  /* ContentEncryptionAlgorithmIdentifier */
 static int hf_cms_encryptedContent = -1;          /* EncryptedContent */
 static int hf_cms_UnprotectedAttributes_item = -1;  /* Attribute */
@@ -198,6 +201,78 @@ static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
 
 static const char *object_identifier_id;
+static tvbuff_t *content_tvb = NULL;
+
+static proto_tree *top_tree=NULL;
+
+#define HASH_SHA1 "1.3.14.3.2.26"
+#define SHA1_BUFFER_SIZE  20
+
+#define HASH_MD5 "1.2.840.113549.2.5"
+#define MD5_BUFFER_SIZE  16
+
+
+/* SHA-2 variants */
+#define HASH_SHA224 "2.16.840.1.101.3.4.2.4"
+#define SHA224_BUFFER_SIZE  32 /* actually 28 */
+#define HASH_SHA256 "2.16.840.1.101.3.4.2.1"
+#define SHA256_BUFFER_SIZE  32
+
+unsigned char digest_buf[MAX(SHA1_BUFFER_SIZE, MD5_BUFFER_SIZE)];
+
+static void
+cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, char *alg, tvbuff_t *tvb, int offset)
+{
+  sha1_context sha1_ctx;
+  md5_state_t md5_ctx;
+  int i= 0, buffer_size = 0;
+
+  /* we only support two algorithms at the moment  - if we do add SHA2
+     we should add a registration process to use a registration process */
+
+  if(strcmp(alg, HASH_SHA1) == 0) {
+
+    sha1_starts(&sha1_ctx);
+
+    sha1_update(&sha1_ctx, 
+		(guint8*)tvb_get_ptr(content, 0, tvb_length(content)), 
+		tvb_length(content));
+
+    sha1_finish(&sha1_ctx, digest_buf);
+
+    buffer_size = SHA1_BUFFER_SIZE;
+
+  } else if(strcmp(alg, HASH_MD5) == 0) {
+
+    md5_init(&md5_ctx);
+
+    md5_append(&md5_ctx, 
+	       (const guint8*) tvb_get_ptr(content, 0, tvb_length(content)), 
+	       tvb_length(content));
+    
+    md5_finish(&md5_ctx, digest_buf);
+
+    buffer_size = MD5_BUFFER_SIZE;
+  }
+
+  if(buffer_size) {
+    /* compare our computed hash with what we have received */  
+
+    if(tvb_bytes_exist(tvb, offset, buffer_size) &&
+       (memcmp(tvb_get_ptr(tvb, offset, buffer_size), digest_buf, buffer_size) != 0)) { 
+      proto_item_append_text(pi, " [incorrect, should be ");
+      for(i = 0; i < buffer_size; i++)
+	proto_item_append_text(pi, "%02X", digest_buf[i]);
+
+      proto_item_append_text(pi, "]");
+    }
+    else
+      proto_item_append_text(pi, " [correct]");
+  } else {
+    proto_item_append_text(pi, " [unable to verify]");
+  }
+
+}
 
 
 /*--- Included file: packet-cms-fn.c ---*/
@@ -231,8 +306,8 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
-static int dissect_contentType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_ContentType(FALSE, tvb, offset, pinfo, tree, hf_cms_contentType1);
+static int dissect_encryptedContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_ContentType(FALSE, tvb, offset, pinfo, tree, hf_cms_encryptedContentType);
 }
 
 
@@ -271,8 +346,13 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 int
 dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+  top_tree = tree;
+    offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
+
+  content_tvb = NULL;
+  top_tree = NULL;
+
 
   return offset;
 }
@@ -356,13 +436,16 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   gint32 tag;
   guint32 len;
   int pdu_offset = offset;
+  int content_offset;
 
   /* XXX Do we care about printing out the octet string? */
-  offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
+  offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, NULL, hf_cms_eContent);
 
   pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
-  pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
-  pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, tree);
+  content_offset = pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
+  pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, top_tree ? top_tree : tree);
+  
+  content_tvb = tvb_new_subset(tvb, content_offset, len, -1);
 
 
   return offset;
@@ -393,7 +476,16 @@ static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
+  char *name = NULL;
+
+    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
+
+
+  if(object_identifier_id) {
+    name = get_ber_oid_name(object_identifier_id);
+    proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
+  }
+
 
   return offset;
 }
@@ -962,6 +1054,7 @@ dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
+
   return offset;
 }
 static int dissect_keyAttr(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1207,7 +1300,7 @@ static int dissect_encryptedContent_impl(packet_info *pinfo, proto_tree *tree, t
 
 
 static const ber_sequence_t EncryptedContentInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_encryptedContentType },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_contentEncryptionAlgorithm },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryptedContent_impl },
   { 0, 0, 0, NULL }
@@ -1371,8 +1464,22 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 static int
 dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+  proto_item *pi;
+  int old_offset = offset;
+
+    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
+
+ 
+  pi = get_ber_last_created_item();
+
+  /* move past TLV */
+  old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
+  old_offset = get_ber_length(tree, tvb, old_offset, NULL, NULL);
+
+  if(content_tvb) 
+    cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
+
 
   return offset;
 }
@@ -1466,7 +1573,6 @@ static void dissect_Countersignature_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
-
 
 
 /*--- proto_register_cms ----------------------------------------------*/
@@ -1645,7 +1751,7 @@ void proto_register_cms(void) {
       { "Item", "cms.RecipientInfos_item",
         FT_UINT32, BASE_DEC, VALS(cms_RecipientInfo_vals), 0,
         "RecipientInfos/_item", HFILL }},
-    { &hf_cms_contentType1,
+    { &hf_cms_encryptedContentType,
       { "contentType", "cms.contentType",
         FT_STRING, BASE_NONE, NULL, 0,
         "EncryptedContentInfo/contentType", HFILL }},

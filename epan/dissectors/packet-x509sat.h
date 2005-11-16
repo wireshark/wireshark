@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509sat.h                                                         */
+/* .\packet-x509sat.h                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.h */

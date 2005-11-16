@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509sat.c                                                         */
+/* .\packet-x509sat.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
@@ -55,9 +55,26 @@ int proto_x509sat = -1;
 /*--- Included file: packet-x509sat-hf.c ---*/
 
 static int hf_x509sat_DirectoryString_PDU = -1;   /* DirectoryString */
+static int hf_x509sat_UniqueIdentifier_PDU = -1;  /* UniqueIdentifier */
 static int hf_x509sat_CountryName_PDU = -1;       /* CountryName */
+static int hf_x509sat_Guide_PDU = -1;             /* Guide */
+static int hf_x509sat_Criteria_PDU = -1;          /* Criteria */
+static int hf_x509sat_EnhancedGuide_PDU = -1;     /* EnhancedGuide */
+static int hf_x509sat_PostalAddress_PDU = -1;     /* PostalAddress */
 static int hf_x509sat_TelephoneNumber_PDU = -1;   /* TelephoneNumber */
 static int hf_x509sat_TelexNumber_PDU = -1;       /* TelexNumber */
+static int hf_x509sat_FacsimileTelephoneNumber_PDU = -1;  /* FacsimileTelephoneNumber */
+static int hf_x509sat_X121Address_PDU = -1;       /* X121Address */
+static int hf_x509sat_InternationalISDNNumber_PDU = -1;  /* InternationalISDNNumber */
+static int hf_x509sat_DestinationIndicator_PDU = -1;  /* DestinationIndicator */
+static int hf_x509sat_PreferredDeliveryMethod_PDU = -1;  /* PreferredDeliveryMethod */
+static int hf_x509sat_PresentationAddress_PDU = -1;  /* PresentationAddress */
+static int hf_x509sat_NameAndOptionalUID_PDU = -1;  /* NameAndOptionalUID */
+static int hf_x509sat_CaseIgnoreListMatch_PDU = -1;  /* CaseIgnoreListMatch */
+static int hf_x509sat_DayTimeBand_PDU = -1;       /* DayTimeBand */
+static int hf_x509sat_DayTime_PDU = -1;           /* DayTime */
+static int hf_x509sat_objectClass = -1;           /* OBJECT_IDENTIFIER */
+static int hf_x509sat_criteria = -1;              /* Criteria */
 static int hf_x509sat_type = -1;                  /* CriteriaItem */
 static int hf_x509sat_and = -1;                   /* SET_OF_Criteria */
 static int hf_x509sat_and_item = -1;              /* Criteria */
@@ -69,8 +86,6 @@ static int hf_x509sat_substrings = -1;            /* AttributeType */
 static int hf_x509sat_greaterOrEqual = -1;        /* AttributeType */
 static int hf_x509sat_lessOrEqual = -1;           /* AttributeType */
 static int hf_x509sat_approximateMatch = -1;      /* AttributeType */
-static int hf_x509sat_objectClass = -1;           /* OBJECT_IDENTIFIER */
-static int hf_x509sat_criteria = -1;              /* Criteria */
 static int hf_x509sat_subset = -1;                /* T_subset */
 static int hf_x509sat_PostalAddress_item = -1;    /* DirectoryString */
 static int hf_x509sat_telexNumber = -1;           /* PrintableString */
@@ -187,6 +202,7 @@ static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- Included file: packet-x509sat-ett.c ---*/
 
+static gint ett_x509sat_Guide = -1;
 static gint ett_x509sat_Criteria = -1;
 static gint ett_x509sat_SET_OF_Criteria = -1;
 static gint ett_x509sat_CriteriaItem = -1;
@@ -245,6 +261,9 @@ static gint ett_x509sat_LocaleContextSyntax = -1;
 /* Criteria -> Criteria */
 int dissect_x509sat_Criteria(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
+static int dissect_criteria(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_Criteria(FALSE, tvb, offset, pinfo, tree, hf_x509sat_criteria);
+}
 static int dissect_and_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_Criteria(FALSE, tvb, offset, pinfo, tree, hf_x509sat_and_item);
 }
@@ -253,9 +272,6 @@ static int dissect_or_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 static int dissect_not(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_Criteria(FALSE, tvb, offset, pinfo, tree, hf_x509sat_not);
-}
-static int dissect_criteria(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_Criteria(FALSE, tvb, offset, pinfo, tree, hf_x509sat_criteria);
 }
 
 
@@ -343,6 +359,27 @@ dissect_x509sat_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 }
 
 
+
+static int
+dissect_x509sat_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_objectClass(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_objectClass);
+}
+static int dissect_profiles_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_profiles_item);
+}
+static int dissect_matchingRuleUsed(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_matchingRuleUsed);
+}
+static int dissect_localeID1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_localeID1);
+}
+
+
 static const value_string x509sat_CriteriaItem_vals[] = {
   {   0, "equality" },
   {   1, "substrings" },
@@ -419,25 +456,18 @@ dissect_x509sat_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
+static const ber_sequence_t Guide_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_objectClass },
+  { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_criteria },
+  { 0, 0, 0, NULL }
+};
 
 static int
-dissect_x509sat_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+dissect_x509sat_Guide(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              Guide_set, hf_index, ett_x509sat_Guide);
 
   return offset;
-}
-static int dissect_objectClass(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_objectClass);
-}
-static int dissect_profiles_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_profiles_item);
-}
-static int dissect_matchingRuleUsed(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_matchingRuleUsed);
-}
-static int dissect_localeID1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_localeID1);
 }
 
 
@@ -1559,14 +1589,59 @@ dissect_x509sat_LocaleContextSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 static void dissect_DirectoryString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_DirectoryString_PDU);
 }
+static void dissect_UniqueIdentifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_UniqueIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509sat_UniqueIdentifier_PDU);
+}
 static void dissect_CountryName_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509sat_CountryName(FALSE, tvb, 0, pinfo, tree, hf_x509sat_CountryName_PDU);
+}
+static void dissect_Guide_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_Guide(FALSE, tvb, 0, pinfo, tree, hf_x509sat_Guide_PDU);
+}
+static void dissect_Criteria_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_Criteria(FALSE, tvb, 0, pinfo, tree, hf_x509sat_Criteria_PDU);
+}
+static void dissect_EnhancedGuide_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_EnhancedGuide(FALSE, tvb, 0, pinfo, tree, hf_x509sat_EnhancedGuide_PDU);
+}
+static void dissect_PostalAddress_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_PostalAddress(FALSE, tvb, 0, pinfo, tree, hf_x509sat_PostalAddress_PDU);
 }
 static void dissect_TelephoneNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_TelephoneNumber_PDU);
 }
 static void dissect_TelexNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_TelexNumber_PDU);
+}
+static void dissect_FacsimileTelephoneNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_FacsimileTelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_FacsimileTelephoneNumber_PDU);
+}
+static void dissect_X121Address_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_X121Address(FALSE, tvb, 0, pinfo, tree, hf_x509sat_X121Address_PDU);
+}
+static void dissect_InternationalISDNNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_InternationalISDNNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_InternationalISDNNumber_PDU);
+}
+static void dissect_DestinationIndicator_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_DestinationIndicator(FALSE, tvb, 0, pinfo, tree, hf_x509sat_DestinationIndicator_PDU);
+}
+static void dissect_PreferredDeliveryMethod_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_PreferredDeliveryMethod(FALSE, tvb, 0, pinfo, tree, hf_x509sat_PreferredDeliveryMethod_PDU);
+}
+static void dissect_PresentationAddress_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_PresentationAddress(FALSE, tvb, 0, pinfo, tree, hf_x509sat_PresentationAddress_PDU);
+}
+static void dissect_NameAndOptionalUID_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_NameAndOptionalUID(FALSE, tvb, 0, pinfo, tree, hf_x509sat_NameAndOptionalUID_PDU);
+}
+static void dissect_CaseIgnoreListMatch_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_CaseIgnoreListMatch(FALSE, tvb, 0, pinfo, tree, hf_x509sat_CaseIgnoreListMatch_PDU);
+}
+static void dissect_DayTimeBand_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_DayTimeBand(FALSE, tvb, 0, pinfo, tree, hf_x509sat_DayTimeBand_PDU);
+}
+static void dissect_DayTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_DayTime(FALSE, tvb, 0, pinfo, tree, hf_x509sat_DayTime_PDU);
 }
 
 
@@ -1586,10 +1661,30 @@ void proto_register_x509sat(void) {
       { "DirectoryString", "x509sat.DirectoryString",
         FT_STRING, BASE_NONE, NULL, 0,
         "DirectoryString", HFILL }},
+    { &hf_x509sat_UniqueIdentifier_PDU,
+      { "UniqueIdentifier", "x509sat.UniqueIdentifier",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "UniqueIdentifier", HFILL }},
     { &hf_x509sat_CountryName_PDU,
       { "CountryName", "x509sat.CountryName",
         FT_STRING, BASE_NONE, NULL, 0,
         "CountryName", HFILL }},
+    { &hf_x509sat_Guide_PDU,
+      { "Guide", "x509sat.Guide",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Guide", HFILL }},
+    { &hf_x509sat_Criteria_PDU,
+      { "Criteria", "x509sat.Criteria",
+        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
+        "Criteria", HFILL }},
+    { &hf_x509sat_EnhancedGuide_PDU,
+      { "EnhancedGuide", "x509sat.EnhancedGuide",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EnhancedGuide", HFILL }},
+    { &hf_x509sat_PostalAddress_PDU,
+      { "PostalAddress", "x509sat.PostalAddress",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PostalAddress", HFILL }},
     { &hf_x509sat_TelephoneNumber_PDU,
       { "TelephoneNumber", "x509sat.TelephoneNumber",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1598,6 +1693,54 @@ void proto_register_x509sat(void) {
       { "TelexNumber", "x509sat.TelexNumber",
         FT_NONE, BASE_NONE, NULL, 0,
         "TelexNumber", HFILL }},
+    { &hf_x509sat_FacsimileTelephoneNumber_PDU,
+      { "FacsimileTelephoneNumber", "x509sat.FacsimileTelephoneNumber",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "FacsimileTelephoneNumber", HFILL }},
+    { &hf_x509sat_X121Address_PDU,
+      { "X121Address", "x509sat.X121Address",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "X121Address", HFILL }},
+    { &hf_x509sat_InternationalISDNNumber_PDU,
+      { "InternationalISDNNumber", "x509sat.InternationalISDNNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "InternationalISDNNumber", HFILL }},
+    { &hf_x509sat_DestinationIndicator_PDU,
+      { "DestinationIndicator", "x509sat.DestinationIndicator",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DestinationIndicator", HFILL }},
+    { &hf_x509sat_PreferredDeliveryMethod_PDU,
+      { "PreferredDeliveryMethod", "x509sat.PreferredDeliveryMethod",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PreferredDeliveryMethod", HFILL }},
+    { &hf_x509sat_PresentationAddress_PDU,
+      { "PresentationAddress", "x509sat.PresentationAddress",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PresentationAddress", HFILL }},
+    { &hf_x509sat_NameAndOptionalUID_PDU,
+      { "NameAndOptionalUID", "x509sat.NameAndOptionalUID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NameAndOptionalUID", HFILL }},
+    { &hf_x509sat_CaseIgnoreListMatch_PDU,
+      { "CaseIgnoreListMatch", "x509sat.CaseIgnoreListMatch",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CaseIgnoreListMatch", HFILL }},
+    { &hf_x509sat_DayTimeBand_PDU,
+      { "DayTimeBand", "x509sat.DayTimeBand",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DayTimeBand", HFILL }},
+    { &hf_x509sat_DayTime_PDU,
+      { "DayTime", "x509sat.DayTime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DayTime", HFILL }},
+    { &hf_x509sat_objectClass,
+      { "objectClass", "x509sat.objectClass",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_x509sat_criteria,
+      { "criteria", "x509sat.criteria",
+        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
+        "", HFILL }},
     { &hf_x509sat_type,
       { "type", "x509sat.type",
         FT_UINT32, BASE_DEC, VALS(x509sat_CriteriaItem_vals), 0,
@@ -1642,14 +1785,6 @@ void proto_register_x509sat(void) {
       { "approximateMatch", "x509sat.approximateMatch",
         FT_STRING, BASE_NONE, NULL, 0,
         "CriteriaItem/approximateMatch", HFILL }},
-    { &hf_x509sat_objectClass,
-      { "objectClass", "x509sat.objectClass",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "EnhancedGuide/objectClass", HFILL }},
-    { &hf_x509sat_criteria,
-      { "criteria", "x509sat.criteria",
-        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
-        "EnhancedGuide/criteria", HFILL }},
     { &hf_x509sat_subset,
       { "subset", "x509sat.subset",
         FT_INT32, BASE_DEC, VALS(x509sat_T_subset_vals), 0,
@@ -2088,6 +2223,7 @@ void proto_register_x509sat(void) {
 
 /*--- Included file: packet-x509sat-ettarr.c ---*/
 
+    &ett_x509sat_Guide,
     &ett_x509sat_Criteria,
     &ett_x509sat_SET_OF_Criteria,
     &ett_x509sat_CriteriaItem,

@@ -38,19 +38,16 @@ EXTERNAL
 
   if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
-
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
-                              RTORQapdu_set, hf_index, ett_rtse_RTORQapdu);
-
+  open_request=TRUE;
+  %(DEFAULT_BODY)s
+  open_request=FALSE;
 
 #.FN_BODY RTOACapdu
 
   if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
-                              RTOACapdu_set, hf_index, ett_rtse_RTOACapdu);
-
+  %(DEFAULT_BODY)s
 
 #.FN_BODY T_open
 
@@ -134,5 +131,34 @@ EXTERNAL
 #.FN_BODY T_applicationProtocol
 
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index, &app_proto);
+
+#.FN_BODY SessionConnectionIdentifier
+  if(open_request && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Recover");
+  %(DEFAULT_BODY)s
+
+#.FN_PARS T61String
+  VAL_PTR=&string
+#.FN_BODY T61String
+  tvbuff_t *string = NULL;
+  %(DEFAULT_BODY)s
+  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+
+#.FN_PARS CommonReference
+  VAL_PTR=&string
+#.FN_BODY CommonReference
+  tvbuff_t *string = NULL;
+  %(DEFAULT_BODY)s
+  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+
+#.FN_PARS OCTET_STRING
+  VAL_PTR=&string
+#.FN_BODY OCTET_STRING
+  tvbuff_t *string = NULL;
+  %(DEFAULT_BODY)s
+  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.END

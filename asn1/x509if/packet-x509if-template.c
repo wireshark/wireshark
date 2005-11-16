@@ -45,15 +45,32 @@
 /* Initialize the protocol and registered fields */
 int proto_x509if = -1;
 static int hf_x509if_object_identifier_id = -1;
+static int hf_x509if_any_string = -1;
 #include "packet-x509if-hf.c"
 
 /* Initialize the subtree pointers */
 #include "packet-x509if-ett.c"
 
 static const char *object_identifier_id;
+static proto_tree *top_of_dn = NULL;
+static proto_tree *top_of_rdn = NULL;
+
+static gboolean rdn_one_value = FALSE; /* have we seen one value in an RDN yet */
+static gboolean dn_one_rdn = FALSE; /* have we seen one RDN in a DN yet */
+static gboolean doing_dn = TRUE;
+
+#define MAX_RDN_STR_LEN   64
+#define MAX_DN_STR_LEN    (20 * MAX_RDN_STR_LEN)
+
+static char *last_dn = NULL;
+static char *last_rdn = NULL;
 
 #include "packet-x509if-fn.c"
 
+const char * x509if_get_last_dn()
+{
+  return last_dn;
+}
 
 /*--- proto_register_x509if ----------------------------------------------*/
 void proto_register_x509if(void) {
@@ -63,6 +80,9 @@ void proto_register_x509if(void) {
     { &hf_x509if_object_identifier_id, 
       { "Id", "x509if.id", FT_STRING, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
+    { &hf_x509if_any_string, 
+      { "AnyString", "x509if.any.String", FT_BYTES, BASE_HEX,
+	    NULL, 0, "This is any String", HFILL }},
 			 
 #include "packet-x509if-hfarr.c"
   };
@@ -84,5 +104,6 @@ void proto_register_x509if(void) {
 
 /*--- proto_reg_handoff_x509if -------------------------------------------*/
 void proto_reg_handoff_x509if(void) {
+
 }
 

@@ -641,7 +641,7 @@ proto_register_s5066(void)
 			{ "Number of errored blocks", "s5066.21.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
 		{ &hf_s5066_21_nrx_blocks,
-			{ "Number of non-received blocks", "s5066.21.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Number of non-received blocks", "s5066.21.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
 		/* Type 22: S_UNIDATA_REQUEST_CONFIRM */
 		{ &hf_s5066_22_unused,
@@ -702,7 +702,7 @@ proto_register_s5066(void)
 			{ "Number of errored blocks", "s5066.25.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
 		{ &hf_s5066_25_nrx_blocks,
-			{ "Number of non-received blocks", "s5066.25.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Number of non-received blocks", "s5066.25.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
 		/* Type 26: S_EXPEDITED_UNIDATA_REQUEST_CONFIRM */
 		{ &hf_s5066_26_unused,

@@ -52,7 +52,7 @@
 #include "packet-pres.h"
 #include "packet-x509if.h"
 
-#define PNAME  "ACSE"
+#define PNAME  "ISO 8650-1 OSI Association Control Service"
 #define PSNAME "ACSE"
 #define PFNAME "acse"
 
@@ -154,8 +154,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree    *tree=NULL;
 	char *oid;
 
-	/* save parent_tree so subdissectors can create new top nodes */
-	top_tree=parent_tree;
 
 	/* first, try to check length   */
 	/* do we have at least 2 bytes  */
@@ -181,6 +179,9 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 	}
+	/* save parent_tree so subdissectors can create new top nodes */
+	top_tree=parent_tree;
+
 	/*  ACSE has only AARQ,AARE,RLRQ,RLRE,ABRT type of pdu */
 	/*  reject everything else                              */
 	/*  data pdu is not ACSE pdu and has to go directly to app dissector */
@@ -205,8 +206,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 			    "dissector is not available");
 		}
+		top_tree = NULL;
 		return;
 	default:
+		top_tree = NULL;
 		return;
 	}
 
@@ -232,7 +235,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 		}
 	}
-
+	
+top_tree = NULL;
 }
 
 /*--- proto_register_acse ----------------------------------------------*/

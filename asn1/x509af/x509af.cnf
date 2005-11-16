@@ -47,6 +47,7 @@ CertificatePair      B "2.5.4.40" "id-at-crossCertificatePair"
 AttributeCertificate B "2.5.4.58" "id-at-attributeCertificate"
 CertificateList      B "2.5.4.59" "id-at-attributeCertificateRevocationList"
 
+DSS-Params	     B "1.2.840.10040.4.1" "id-dsa"
 #.NO_EMIT
 
 #.TYPE_RENAME
@@ -69,12 +70,33 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 #.FN_PARS AlgorithmIdentifier/algorithmId
   FN_VARIANT = _str  HF_INDEX = hf_x509af_algorithm_id  VAL_PTR = &algorithm_id
 
+#.FN_BODY AlgorithmIdentifier/algorithmId
+  char *name;
+
+  %(DEFAULT_BODY)s
+
+  if(algorithm_id) {
+    name = get_ber_oid_name(algorithm_id);
+
+    proto_item_append_text(tree, " (%%s)", name ? name : algorithm_id); 
+  }
 
 #.FN_BODY AlgorithmIdentifier/parameters
   offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
 
 #.FN_PARS Extension/extnId
   FN_VARIANT = _str  HF_INDEX = hf_x509af_extension_id  VAL_PTR = &extension_id
+
+#.FN_BODY Extension/extnId
+  char *name;
+
+  %(DEFAULT_BODY)s
+
+  if(extension_id) {
+    name = get_ber_oid_name(extension_id);
+
+    proto_item_append_text(tree, " (%%s)", name ? name : extension_id);
+  }
 
 #.FN_BODY Extension/extnValue
   gint8 class;
@@ -86,3 +108,10 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
   offset=call_ber_oid_callback(extension_id, tvb, offset, pinfo, tree);
 
+#.FN_BODY SubjectName
+
+  %(DEFAULT_BODY)s
+
+  proto_item_append_text(proto_item_get_parent(tree), " (%%s)", x509if_get_last_dn());
+
+#.END

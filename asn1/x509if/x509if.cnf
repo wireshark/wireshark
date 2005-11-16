@@ -16,6 +16,7 @@ AttributeType
 AttributeTypeAndDistinguishedValue
 AttributeTypeAssertion
 AttributeUsage
+AttributeValue
 AttributeValueAssertion
 BaseDistance
 ChopSpecification
@@ -48,6 +49,10 @@ SearchRule
 SearchRuleDescription
 SearchRuleId
 SubtreeSpecification
+
+#.PDU
+DistinguishedName
+Name
 
 #.NO_EMIT
 
@@ -93,8 +98,47 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
 #.FN_PARS AttributeId
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
 
+#.FN_BODY AttributeId
+  char *name;
+
+  %(DEFAULT_BODY)s
+
+  if(object_identifier_id) {
+    /* see if we can find a nice name */
+    name = get_ber_oid_name(object_identifier_id);
+    if(!name) name = object_identifier_id;    
+
+    if(doing_dn) { /* append it to the RDN */
+      g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
+      g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
+
+     /* append it to the tree */
+     proto_item_append_text(tree, " (%%s=", name);
+    }
+  }
+
 #.FN_BODY AttributeValue
+  int old_offset = offset;
+  tvbuff_t	*out_tvb;
+  char *value = NULL;
+ 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+  /* try and dissect as a string */
+  dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
+  
+  if(out_tvb) {
+    /* it was a string - format it */
+    value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
+
+    if(doing_dn) {
+      g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
+
+      /* append it to the tree*/
+      proto_item_append_text(tree, "%%s)", value);
+    }
+
+  }
 
 #.FN_BODY SelectedValues
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
@@ -107,6 +151,69 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
 
 #.FN_BODY ValuesWithContextValue
   offset=call_ber_oid_callback("unknown", tvb, offset, pinfo, tree);
+
+#.FN_BODY RelativeDistinguishedName
+  char *temp_dn;
+
+  rdn_one_value = FALSE;
+  top_of_rdn = tree;
+  last_rdn = ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
+  doing_dn = TRUE;
+
+  %(DEFAULT_BODY)s
+
+  /* we've finished - close the bracket */
+  proto_item_append_text(top_of_rdn, " (%%s)", last_rdn);
+
+  /* now append this to the DN */
+  if(*last_dn) {
+     temp_dn = ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
+     g_snprintf(temp_dn, MAX_DN_STR_LEN, "%%s,%%s", last_rdn, last_dn);
+     last_dn[0] = '\0';
+     g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
+  } else
+     g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
+
+  doing_dn = FALSE;
+  last_rdn = NULL; /* it will get freed when the next packet is dissected */
+
+#.FN_BODY RelativeDistinguishedName/_item
+
+  if(!rdn_one_value) {
+    top_of_rdn = tree;
+  } else {
+
+   if(doing_dn)  
+     /* this is an additional value - delimit */
+     g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
+  }
+
+  %(DEFAULT_BODY)s
+
+  rdn_one_value = TRUE;
+
+#.FN_BODY RDNSequence
+
+  dn_one_rdn = FALSE; /* reset */
+  last_dn = ep_alloc(MAX_RDN_STR_LEN); *last_dn = '\0';
+  top_of_dn = NULL;
+
+  %(DEFAULT_BODY)s
+
+  /* we've finished - append the dn */
+  proto_item_append_text(top_of_dn, " (%%s)", last_dn);
+
+
+#.FN_BODY RDNSequence/_item
+
+  if(!dn_one_rdn)  {
+    /* this is the first element - record the top */
+    top_of_dn = tree;
+  } 
+
+  %(DEFAULT_BODY)s
+
+  dn_one_rdn = TRUE;
 
 #.END
 

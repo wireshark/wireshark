@@ -15,7 +15,8 @@ MessageType/type		message_type_type
 OtherRecipientDesignator/type	other_recipient_type
 
 #.PDU
-MMHSPrecedence
+PrimaryPrecedence
+CopyPrecedence
 MessageType
 AddressListDesignator
 ExemptedAddress
@@ -32,8 +33,8 @@ OriginatorPlad
 SecurityInformationLabels
 
 #.REGISTER
-MMHSPrecedence 			B "1.3.26.0.4406.0.2.0" "primary-precedence"
-MMHSPrecedence 			B "1.3.26.0.4406.0.2.1" "copy-precedence"
+PrimaryPrecedence 		B "1.3.26.0.4406.0.2.0" "primary-precedence"
+CopyPrecedence 			B "1.3.26.0.4406.0.2.1" "copy-precedence"
 MessageType 			B "1.3.26.0.4406.0.2.2" "message-type"
 AddressListDesignator 		B "1.3.26.0.4406.0.2.3" "address-list-indicator"
 ExemptedAddress 		B "1.3.26.0.4406.0.2.4" "exempted-address"
@@ -49,5 +50,23 @@ Acp127MessageIdentifier 	B "1.3.26.0.4406.0.2.13" "acp127-message-identifierr"
 OriginatorPlad 			B "1.3.26.0.4406.0.2.14" "originator-plad"
 SecurityInformationLabels 	B "1.3.26.0.4406.0.2.17" "information-labels"
 
+PriorityLevelQualifier		B "1.3.26.0.4406.0.8.0"	 "priority-level-qualifier"
+
 #.FN_BODY T_dist_value
 /* XXX: not implemented */
+
+#.FN_PARS PrimaryPrecedence
+  VAL_PTR=&precedence
+#.FN_BODY PrimaryPrecedence
+  int precedence = -1;
+  %(DEFAULT_BODY)s
+  if((precedence != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " (primary=%%s)", val_to_str(precedence, s4406_PrimaryPrecedence_vals, "precedence(%%d)"));
+
+#.FN_PARS CopyPrecedence
+  VAL_PTR=&precedence
+#.FN_BODY CopyPrecedence
+  int precedence = -1;
+  %(DEFAULT_BODY)s
+  if((precedence != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " (copy=%%s)", val_to_str(precedence, s4406_CopyPrecedence_vals, "precedence(%%d)"));

@@ -130,7 +130,7 @@ OriginatorReference ::= MilitaryString
 --	VALUE MMHSPrecedence
 --	::= id-nato-mmhs-mm-primary-precedence
 
-MMHSPrecedence ::= INTEGER {deferred (0), routine (1), priority (2), immediate (3),
+PrimaryPrecedence ::= INTEGER {deferred (0), routine (1), priority (2), immediate (3),
 	flash (4), override (5), 
 -- these are used by some National systems XXX need to verify
 	ecp(16), critic(17), override(18)}
@@ -144,6 +144,13 @@ MMHSPrecedence ::= INTEGER {deferred (0), routine (1), priority (2), immediate (
 --copy-precedence IPMS-EXTENSION
 --	VALUE MMHSPrecedence 
 --	::= id-nato-mmhs-mm-copy-precedence
+
+-- we have expanded MMHSPrecedence to PrimaryPrecedence and CopyPrecedence to
+-- all rules to be written to highlight high priority messages.
+CopyPrecedence ::= INTEGER {deferred (0), routine (1), priority (2), immediate (3),
+	flash (4), override (5), 
+-- these are used by some National systems XXX need to verify
+	ecp(16), critic(17), override(18)}
 
 -- Note: Values 0 to 15 are reserved for NATO defined precedence levels. 
 -- Values 16 to 31 are reserved for national user.
@@ -200,12 +207,18 @@ OtherRecipientDesignator ::= SET {
 --	::= id-nato-mmhs-mm-pilot-forwarding-info
 
 PilotInformation ::= SEQUENCE {
-	pilotPrecedence	[0]	MMHSPrecedence OPTIONAL,
+	pilotPrecedence	[0]	PilotPrecedence OPTIONAL,
 		-- Note: Values 0 to 15 are reserved for NATO defined precedence levels.
 		-- Values 16 to 31 are reserved for national use.
 	pilotRecipient	[1]	SEQUENCE OF ORDescriptor OPTIONAL,
 	pilotSecurity	[2]	--Message--SecurityLabel OPTIONAL,
 	pilotHandling	[3]	SEQUENCE OF MilitaryString OPTIONAL}
+
+PilotPrecedence ::= INTEGER {deferred (0), routine (1), priority (2), immediate (3),
+	flash (4), override (5), 
+-- these are used by some National systems XXX need to verify
+	ecp(16), critic(17), override(18)}
+
 
 
 -- Acp127 message identifier
@@ -260,5 +273,9 @@ BodyPartSequenceNumber ::= INTEGER
 -- deprecated. Its use is, therefore, discouraged. See STANAG 4406
 -- Annex B for instruction on the use of its replacement, the
 -- ESSSecurityLabel.
+
+PriorityLevelQualifier ::= ENUMERATED {
+  low(0),
+  high(1) }
 
 END -- of Military heading extensions used in MMS

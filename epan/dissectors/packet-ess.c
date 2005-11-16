@@ -63,6 +63,10 @@ static int hf_ess_ContentHints_PDU = -1;          /* ContentHints */
 static int hf_ess_MsgSigDigest_PDU = -1;          /* MsgSigDigest */
 static int hf_ess_ContentReference_PDU = -1;      /* ContentReference */
 static int hf_ess_ESSSecurityLabel_PDU = -1;      /* ESSSecurityLabel */
+static int hf_ess_RestrictiveTag_PDU = -1;        /* RestrictiveTag */
+static int hf_ess_EnumeratedTag_PDU = -1;         /* EnumeratedTag */
+static int hf_ess_PermissiveTag_PDU = -1;         /* PermissiveTag */
+static int hf_ess_InformativeTag_PDU = -1;        /* InformativeTag */
 static int hf_ess_EquivalentLabels_PDU = -1;      /* EquivalentLabels */
 static int hf_ess_MLExpansionHistory_PDU = -1;    /* MLExpansionHistory */
 static int hf_ess_SigningCertificate_PDU = -1;    /* SigningCertificate */
@@ -86,6 +90,14 @@ static int hf_ess_utf8String = -1;                /* UTF8String */
 static int hf_ess_SecurityCategories_item = -1;   /* SecurityCategory */
 static int hf_ess_type = -1;                      /* T_type */
 static int hf_ess_value = -1;                     /* T_value */
+static int hf_ess_tagName = -1;                   /* OBJECT_IDENTIFIER */
+static int hf_ess_attributeFlags = -1;            /* BIT_STRING */
+static int hf_ess_attributeList = -1;             /* SET_OF_SecurityAttribute */
+static int hf_ess_attributeList_item = -1;        /* SecurityAttribute */
+static int hf_ess_attributes = -1;                /* FreeFormField */
+static int hf_ess_bitSetAttributes = -1;          /* BIT_STRING */
+static int hf_ess_securityAttributes = -1;        /* SET_OF_SecurityAttribute */
+static int hf_ess_securityAttributes_item = -1;   /* SecurityAttribute */
 static int hf_ess_EquivalentLabels_item = -1;     /* ESSSecurityLabel */
 static int hf_ess_MLExpansionHistory_item = -1;   /* MLData */
 static int hf_ess_mailListIdentifier = -1;        /* EntityIdentifier */
@@ -124,6 +136,12 @@ static gint ett_ess_ESSSecurityLabel = -1;
 static gint ett_ess_ESSPrivacyMark = -1;
 static gint ett_ess_SecurityCategories = -1;
 static gint ett_ess_SecurityCategory = -1;
+static gint ett_ess_RestrictiveTag = -1;
+static gint ett_ess_EnumeratedTag = -1;
+static gint ett_ess_SET_OF_SecurityAttribute = -1;
+static gint ett_ess_PermissiveTag = -1;
+static gint ett_ess_InformativeTag = -1;
+static gint ett_ess_FreeFormField = -1;
 static gint ett_ess_EquivalentLabels = -1;
 static gint ett_ess_MLExpansionHistory = -1;
 static gint ett_ess_MLData = -1;
@@ -534,6 +552,155 @@ static int dissect_EquivalentLabels_item(packet_info *pinfo, proto_tree *tree, t
 }
 
 
+
+static int
+dissect_ess_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_tagName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_ess_tagName);
+}
+
+
+
+static int
+dissect_ess_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_attributeFlags(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_ess_attributeFlags);
+}
+static int dissect_bitSetAttributes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_ess_bitSetAttributes);
+}
+
+
+static const ber_sequence_t RestrictiveTag_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tagName },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_attributeFlags },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ess_RestrictiveTag(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RestrictiveTag_sequence, hf_index, ett_ess_RestrictiveTag);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_attributeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_SecurityAttribute(FALSE, tvb, offset, pinfo, tree, hf_ess_attributeList_item);
+}
+static int dissect_securityAttributes_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_SecurityAttribute(FALSE, tvb, offset, pinfo, tree, hf_ess_securityAttributes_item);
+}
+
+
+static const ber_sequence_t SET_OF_SecurityAttribute_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_attributeList_item },
+};
+
+static int
+dissect_ess_SET_OF_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_SecurityAttribute_set_of, hf_index, ett_ess_SET_OF_SecurityAttribute);
+
+  return offset;
+}
+static int dissect_attributeList(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_SET_OF_SecurityAttribute(FALSE, tvb, offset, pinfo, tree, hf_ess_attributeList);
+}
+static int dissect_securityAttributes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_SET_OF_SecurityAttribute(FALSE, tvb, offset, pinfo, tree, hf_ess_securityAttributes);
+}
+
+
+static const ber_sequence_t EnumeratedTag_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tagName },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_attributeList },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ess_EnumeratedTag(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   EnumeratedTag_sequence, hf_index, ett_ess_EnumeratedTag);
+
+  return offset;
+}
+
+
+static const ber_sequence_t PermissiveTag_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tagName },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_attributeFlags },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ess_PermissiveTag(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   PermissiveTag_sequence, hf_index, ett_ess_PermissiveTag);
+
+  return offset;
+}
+
+
+static const value_string ess_FreeFormField_vals[] = {
+  {   0, "bitSetAttributes" },
+  {   1, "securityAttributes" },
+  { 0, NULL }
+};
+
+static const ber_choice_t FreeFormField_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_bitSetAttributes },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_securityAttributes },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ess_FreeFormField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 FreeFormField_choice, hf_index, ett_ess_FreeFormField,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_attributes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_FreeFormField(FALSE, tvb, offset, pinfo, tree, hf_ess_attributes);
+}
+
+
+static const ber_sequence_t InformativeTag_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tagName },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_attributes },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ess_InformativeTag(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   InformativeTag_sequence, hf_index, ett_ess_InformativeTag);
+
+  return offset;
+}
+
+
 static const ber_sequence_t EquivalentLabels_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_EquivalentLabels_item },
 };
@@ -773,6 +940,18 @@ static void dissect_ContentReference_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 static void dissect_ESSSecurityLabel_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_ess_ESSSecurityLabel(FALSE, tvb, 0, pinfo, tree, hf_ess_ESSSecurityLabel_PDU);
 }
+static void dissect_RestrictiveTag_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_ess_RestrictiveTag(FALSE, tvb, 0, pinfo, tree, hf_ess_RestrictiveTag_PDU);
+}
+static void dissect_EnumeratedTag_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_ess_EnumeratedTag(FALSE, tvb, 0, pinfo, tree, hf_ess_EnumeratedTag_PDU);
+}
+static void dissect_PermissiveTag_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_ess_PermissiveTag(FALSE, tvb, 0, pinfo, tree, hf_ess_PermissiveTag_PDU);
+}
+static void dissect_InformativeTag_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_ess_InformativeTag(FALSE, tvb, 0, pinfo, tree, hf_ess_InformativeTag_PDU);
+}
 static void dissect_EquivalentLabels_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_ess_EquivalentLabels(FALSE, tvb, 0, pinfo, tree, hf_ess_EquivalentLabels_PDU);
 }
@@ -827,6 +1006,22 @@ void proto_register_ess(void) {
       { "ESSSecurityLabel", "ess.ESSSecurityLabel",
         FT_NONE, BASE_NONE, NULL, 0,
         "ESSSecurityLabel", HFILL }},
+    { &hf_ess_RestrictiveTag_PDU,
+      { "RestrictiveTag", "ess.RestrictiveTag",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RestrictiveTag", HFILL }},
+    { &hf_ess_EnumeratedTag_PDU,
+      { "EnumeratedTag", "ess.EnumeratedTag",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EnumeratedTag", HFILL }},
+    { &hf_ess_PermissiveTag_PDU,
+      { "PermissiveTag", "ess.PermissiveTag",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PermissiveTag", HFILL }},
+    { &hf_ess_InformativeTag_PDU,
+      { "InformativeTag", "ess.InformativeTag",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InformativeTag", HFILL }},
     { &hf_ess_EquivalentLabels_PDU,
       { "EquivalentLabels", "ess.EquivalentLabels",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -919,6 +1114,38 @@ void proto_register_ess(void) {
       { "value", "ess.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "SecurityCategory/value", HFILL }},
+    { &hf_ess_tagName,
+      { "tagName", "ess.tagName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_ess_attributeFlags,
+      { "attributeFlags", "ess.attributeFlags",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_ess_attributeList,
+      { "attributeList", "ess.attributeList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "EnumeratedTag/attributeList", HFILL }},
+    { &hf_ess_attributeList_item,
+      { "Item", "ess.attributeList_item",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "EnumeratedTag/attributeList/_item", HFILL }},
+    { &hf_ess_attributes,
+      { "attributes", "ess.attributes",
+        FT_UINT32, BASE_DEC, VALS(ess_FreeFormField_vals), 0,
+        "InformativeTag/attributes", HFILL }},
+    { &hf_ess_bitSetAttributes,
+      { "bitSetAttributes", "ess.bitSetAttributes",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FreeFormField/bitSetAttributes", HFILL }},
+    { &hf_ess_securityAttributes,
+      { "securityAttributes", "ess.securityAttributes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "FreeFormField/securityAttributes", HFILL }},
+    { &hf_ess_securityAttributes_item,
+      { "Item", "ess.securityAttributes_item",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "FreeFormField/securityAttributes/_item", HFILL }},
     { &hf_ess_EquivalentLabels_item,
       { "Item", "ess.EquivalentLabels_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1019,6 +1246,12 @@ void proto_register_ess(void) {
     &ett_ess_ESSPrivacyMark,
     &ett_ess_SecurityCategories,
     &ett_ess_SecurityCategory,
+    &ett_ess_RestrictiveTag,
+    &ett_ess_EnumeratedTag,
+    &ett_ess_SET_OF_SecurityAttribute,
+    &ett_ess_PermissiveTag,
+    &ett_ess_InformativeTag,
+    &ett_ess_FreeFormField,
     &ett_ess_EquivalentLabels,
     &ett_ess_MLExpansionHistory,
     &ett_ess_MLData,
@@ -1059,6 +1292,11 @@ void proto_reg_handoff_ess(void) {
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.9", dissect_EquivalentLabels_PDU, proto_ess, "id-aa-equivalentLabels");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.3", dissect_MLExpansionHistory_PDU, proto_ess, "id-aa-mlExpandHistory");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.12", dissect_SigningCertificate_PDU, proto_ess, "id-aa-signingCertificate");
+  register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.0", dissect_RestrictiveTag_PDU, proto_ess, "id-restrictiveAttributes");
+  register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.1", dissect_EnumeratedTag_PDU, proto_ess, "id-enumeratedPermissiveAttributes");
+  register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.2", dissect_PermissiveTag_PDU, proto_ess, "id-restrictiveAttributes");
+  register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.3", dissect_InformativeTag_PDU, proto_ess, "id-informativeAttributes");
+  register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.4", dissect_EnumeratedTag_PDU, proto_ess, "id-enumeratedRestrictiveAttributes");
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/

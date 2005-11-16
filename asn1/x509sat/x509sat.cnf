@@ -40,6 +40,27 @@ XDayOf
 ZonalResult
 ZonalSelect
 
+#.PDU
+CaseIgnoreListMatch
+CountryName
+Criteria
+DayTime
+DayTimeBand
+DestinationIndicator
+DirectoryString
+EnhancedGuide
+FacsimileTelephoneNumber
+Guide
+InternationalISDNNumber
+NameAndOptionalUID
+PostalAddress
+PreferredDeliveryMethod
+PresentationAddress
+TelephoneNumber
+TelexNumber
+UniqueIdentifier
+X121Address
+
 #.REGISTER
 CountryName     B "2.5.4.6"    "id-at-countryName"
 DirectoryString B "2.5.4.2"    "id-at-knowledgeInformation"

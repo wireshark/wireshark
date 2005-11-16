@@ -52,9 +52,12 @@
 /* Initialize the protocol and registered fields */
 int proto_x509if = -1;
 static int hf_x509if_object_identifier_id = -1;
+static int hf_x509if_any_string = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
 
+static int hf_x509if_Name_PDU = -1;               /* Name */
+static int hf_x509if_DistinguishedName_PDU = -1;  /* DistinguishedName */
 static int hf_x509if_type = -1;                   /* AttributeId */
 static int hf_x509if_values = -1;                 /* SET_OF_AttributeValue */
 static int hf_x509if_values_item = -1;            /* AttributeValue */
@@ -78,8 +81,8 @@ static int hf_x509if_ca_contextValues_item = -1;  /* ContextValue */
 static int hf_x509if_ata_assertedContexts = -1;   /* SEQUENCE_OF_ContextAssertion */
 static int hf_x509if_assertedContexts_item = -1;  /* ContextAssertion */
 static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
-static int hf_x509if_RDNSequence_item = -1;       /* RelativeDistinguishedName */
-static int hf_x509if_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndDistinguishedValue */
+static int hf_x509if_RDNSequence_item = -1;       /* RDNSequence_item */
+static int hf_x509if_RelativeDistinguishedName_item = -1;  /* RelativeDistinguishedName_item */
 static int hf_x509if_atadv_value = -1;            /* AttributeValue */
 static int hf_x509if_primaryDistinguished = -1;   /* BOOLEAN */
 static int hf_x509if_valueswithContext = -1;      /* T_valWithContext */
@@ -277,6 +280,18 @@ static gint ett_x509if_MRSubstitution = -1;
 
 
 static const char *object_identifier_id;
+static proto_tree *top_of_dn = NULL;
+static proto_tree *top_of_rdn = NULL;
+
+static gboolean rdn_one_value = FALSE; /* have we seen one value in an RDN yet */
+static gboolean dn_one_rdn = FALSE; /* have we seen one RDN in a DN yet */
+static gboolean doing_dn = TRUE;
+
+#define MAX_RDN_STR_LEN   64
+#define MAX_DN_STR_LEN    (20 * MAX_RDN_STR_LEN)
+
+static char *last_dn = NULL;
+static char *last_rdn = NULL;
 
 
 /*--- Included file: packet-x509if-fn.c ---*/
@@ -348,7 +363,25 @@ static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
+  char *name;
+
+    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
+
+
+  if(object_identifier_id) {
+    /* see if we can find a nice name */
+    name = get_ber_oid_name(object_identifier_id);
+    if(!name) name = object_identifier_id;    
+
+    if(doing_dn) { /* append it to the RDN */
+      g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
+      g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
+
+     /* append it to the tree */
+     proto_item_append_text(tree, " (%s=", name);
+    }
+  }
+
 
   return offset;
 }
@@ -376,9 +409,29 @@ static int dissect_restrictionType(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 
 
-static int
+int
 dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  int old_offset = offset;
+  tvbuff_t	*out_tvb;
+  char *value = NULL;
+ 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+  /* try and dissect as a string */
+  dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
+  
+  if(out_tvb) {
+    /* it was a string - format it */
+    value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
+
+    if(doing_dn) {
+      g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
+
+      /* append it to the tree*/
+      proto_item_append_text(tree, "%s)", value);
+    }
+
+  }
 
 
   return offset;
@@ -776,8 +829,31 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
+
+
+
+static int
+dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  if(!rdn_one_value) {
+    top_of_rdn = tree;
+  } else {
+
+   if(doing_dn)  
+     /* this is an additional value - delimit */
+     g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
+  }
+
+    offset = dissect_x509if_AttributeTypeAndDistinguishedValue(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+
+  rdn_one_value = TRUE;
+
+
+  return offset;
+}
 static int dissect_RelativeDistinguishedName_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_AttributeTypeAndDistinguishedValue(FALSE, tvb, offset, pinfo, tree, hf_x509if_RelativeDistinguishedName_item);
+  return dissect_x509if_RelativeDistinguishedName_item(FALSE, tvb, offset, pinfo, tree, hf_x509if_RelativeDistinguishedName_item);
 }
 
 
@@ -787,13 +863,56 @@ static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 int
 dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+  char *temp_dn;
+
+  rdn_one_value = FALSE;
+  top_of_rdn = tree;
+  last_rdn = ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
+  doing_dn = TRUE;
+
+    offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                                  RelativeDistinguishedName_set_of, hf_index, ett_x509if_RelativeDistinguishedName);
+
+
+  /* we've finished - close the bracket */
+  proto_item_append_text(top_of_rdn, " (%s)", last_rdn);
+
+  /* now append this to the DN */
+  if(*last_dn) {
+     temp_dn = ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
+     g_snprintf(temp_dn, MAX_DN_STR_LEN, "%s,%s", last_rdn, last_dn);
+     last_dn[0] = '\0';
+     g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
+  } else
+     g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
+
+  doing_dn = FALSE;
+  last_rdn = NULL; /* it will get freed when the next packet is dissected */
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  if(!dn_one_rdn)  {
+    /* this is the first element - record the top */
+    top_of_dn = tree;
+  } 
+
+    offset = dissect_x509if_RelativeDistinguishedName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+
+  dn_one_rdn = TRUE;
+
 
   return offset;
 }
 static int dissect_RDNSequence_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_RelativeDistinguishedName(FALSE, tvb, offset, pinfo, tree, hf_x509if_RDNSequence_item);
+  return dissect_x509if_RDNSequence_item(FALSE, tvb, offset, pinfo, tree, hf_x509if_RDNSequence_item);
 }
 
 
@@ -803,8 +922,19 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+
+  dn_one_rdn = FALSE; /* reset */
+  last_dn = ep_alloc(MAX_RDN_STR_LEN); *last_dn = '\0';
+  top_of_dn = NULL;
+
+    offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                       RDNSequence_sequence_of, hf_index, ett_x509if_RDNSequence);
+
+
+  /* we've finished - append the dn */
+  proto_item_append_text(top_of_dn, " (%s)", last_dn);
+
+
 
   return offset;
 }
@@ -2020,10 +2150,23 @@ dissect_x509if_OutputValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_Name_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509if_Name(FALSE, tvb, 0, pinfo, tree, hf_x509if_Name_PDU);
+}
+static void dissect_DistinguishedName_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509if_DistinguishedName(FALSE, tvb, 0, pinfo, tree, hf_x509if_DistinguishedName_PDU);
+}
+
 
 /*--- End of included file: packet-x509if-fn.c ---*/
 
 
+const char * x509if_get_last_dn()
+{
+  return last_dn;
+}
 
 /*--- proto_register_x509if ----------------------------------------------*/
 void proto_register_x509if(void) {
@@ -2033,10 +2176,21 @@ void proto_register_x509if(void) {
     { &hf_x509if_object_identifier_id, 
       { "Id", "x509if.id", FT_STRING, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
+    { &hf_x509if_any_string, 
+      { "AnyString", "x509if.any.String", FT_BYTES, BASE_HEX,
+	    NULL, 0, "This is any String", HFILL }},
 			 
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
 
+    { &hf_x509if_Name_PDU,
+      { "Name", "x509if.Name",
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
+        "Name", HFILL }},
+    { &hf_x509if_DistinguishedName_PDU,
+      { "DistinguishedName", "x509if.DistinguishedName",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DistinguishedName", HFILL }},
     { &hf_x509if_type,
       { "type", "x509if.type",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -2689,5 +2843,6 @@ void proto_register_x509if(void) {
 
 /*--- proto_reg_handoff_x509if -------------------------------------------*/
 void proto_reg_handoff_x509if(void) {
+
 }
 

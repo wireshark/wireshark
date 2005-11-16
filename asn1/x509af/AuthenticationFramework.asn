@@ -14,7 +14,7 @@ IMPORTS
     basicAccessControl, certificateExtensions
     FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
       usefulDefinitions(0) 3}
-  Name, ATTRIBUTE, AttributeType, MATCHING-RULE, Attribute
+  Name, ATTRIBUTE, AttributeType, MATCHING-RULE, Attribute, RDNSequence
     FROM InformationFramework informationFramework
   ub-user-password
     FROM UpperBounds upperBounds
@@ -32,9 +32,9 @@ Certificate ::= SEQUENCE {
                version                  [0]  Version DEFAULT v1,
                serialNumber             CertificateSerialNumber,
                signature                AlgorithmIdentifier,
-               issuer                   Name,
+               issuer                   Name, 
                validity                 Validity,
-               subject                  Name,
+               subject                  SubjectName,
                subjectPublicKeyInfo     SubjectPublicKeyInfo,
                issuerUniqueIdentifier   [1] IMPLICIT UniqueIdentifier OPTIONAL,
                --  if present, version must be v2 or v3
@@ -44,6 +44,11 @@ Certificate ::= SEQUENCE {
                --  If present, version must be v3 -- },
   algorithmIdentifier  AlgorithmIdentifier,
   encrypted            BIT STRING
+}
+
+-- imported to allow labelling
+SubjectName ::= CHOICE {
+   rdnSequence  RDNSequence
 }
 
 Version ::= INTEGER {v1(0), v2(1), v3(2)}
@@ -122,7 +127,7 @@ CertificateList ::= SEQUENCE {
                version              Version OPTIONAL,
                --  if present, version must be v2
                signature            AlgorithmIdentifier,
-               issuer               Name,
+               issuer               Name, 
                thisUpdate           Time,
                nextUpdate           Time OPTIONAL,
                revokedCertificates
@@ -192,7 +197,7 @@ AttCertValidityPeriod ::= SEQUENCE {
 AttributeCertificateAssertion ::= SEQUENCE {
   subject
     [0]  CHOICE {baseCertificateID  [0]  IssuerSerial,
-                 subjectName        [1]  Name} OPTIONAL,
+                 subjectName        [1]  SubjectName} OPTIONAL,
   issuer           [1]  Name OPTIONAL,
   attCertValidity  [2]  GeneralizedTime OPTIONAL,
   attType          [3]  SET OF AttributeType OPTIONAL
@@ -263,6 +268,14 @@ id-at-attributeCertificate OBJECT IDENTIFIER ::= {id-at 58}
 id-at-attributeCertificateRevocationList OBJECT IDENTIFIER ::= {id-at 59}
 
 --id-mr-attributeCertificateMatch OBJECT IDENTIFIER ::= {id-mr 42}
+
+-- these are sneaked in from DSS - a separate dissector seems OTT
+
+DSS-Params ::= SEQUENCE {
+  p INTEGER,
+  q INTEGER,
+  g INTEGER
+}
 
 END
 

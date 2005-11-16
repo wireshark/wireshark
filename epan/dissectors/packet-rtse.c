@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-rtse.c                                                            */
+/* .\packet-rtse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -57,6 +57,7 @@ int proto_rtse = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 static char object_identifier_id[MAX_OID_STR_LEN];
+static gboolean open_request=FALSE;
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
 static guint32 indir_ref=0;
@@ -260,9 +261,14 @@ static int dissect_open(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_rtse_T61String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+  tvbuff_t *string = NULL;
+    offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &string);
+
+  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_format_text(string, 0, tvb_length(string)));
+
 
   return offset;
 }
@@ -274,8 +280,13 @@ static int dissect_t61String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_rtse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+  tvbuff_t *string = NULL;
+    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &string);
+
+  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_format_text(string, 0, tvb_length(string)));
+
 
   return offset;
 }
@@ -315,9 +326,14 @@ static int dissect_callingSSuserReference(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_rtse_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
+  tvbuff_t *string = NULL;
+    offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &string);
+
+  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_format_text(string, 0, tvb_length(string)));
+
 
   return offset;
 }
@@ -349,8 +365,12 @@ static const ber_sequence_t SessionConnectionIdentifier_sequence[] = {
 
 static int
 dissect_rtse_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+  if(open_request && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Recover");
+    offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SessionConnectionIdentifier_sequence, hf_index, ett_rtse_SessionConnectionIdentifier);
+
+
 
   return offset;
 }
@@ -421,10 +441,11 @@ dissect_rtse_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
-
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+  open_request=TRUE;
+    offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               RTORQapdu_set, hf_index, ett_rtse_RTORQapdu);
 
+  open_request=FALSE;
 
 
   return offset;
@@ -447,7 +468,7 @@ dissect_rtse_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+    offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               RTOACapdu_set, hf_index, ett_rtse_RTOACapdu);
 
 

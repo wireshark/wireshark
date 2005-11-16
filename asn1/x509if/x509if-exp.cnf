@@ -1,4 +1,5 @@
 #.IMPORT_TAG
+AttributeValue           BER_CLASS_ANY 0
 Attribute                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributeType            BER_CLASS_UNI BER_UNI_TAG_OID
 Context                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -41,6 +42,7 @@ MRSubstitution           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
 
 #.TYPE_ATTR
+AttributeValue           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Attribute                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AttributeType            TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Context                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0

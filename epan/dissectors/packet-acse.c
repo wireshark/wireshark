@@ -59,7 +59,7 @@
 #include "packet-pres.h"
 #include "packet-x509if.h"
 
-#define PNAME  "ACSE"
+#define PNAME  "ISO 8650-1 OSI Association Control Service"
 #define PSNAME "ACSE"
 #define PFNAME "acse"
 
@@ -1398,8 +1398,16 @@ static const value_string acse_Release_request_reason_vals[] = {
 
 static int
 dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+  int reason = -1;
+ 
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &reason);
+
+
+  if((reason != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, "Release-Request (%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%d)"));
+
+
 
   return offset;
 }
@@ -1438,8 +1446,18 @@ static const value_string acse_Release_response_reason_vals[] = {
 
 static int
 dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+  int reason = -1;
+ 
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &reason);
+
+
+  if((reason != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, "Release-Response (%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%d)"));
+
+
+
+
 
   return offset;
 }
@@ -1848,8 +1866,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree    *tree=NULL;
 	char *oid;
 
-	/* save parent_tree so subdissectors can create new top nodes */
-	top_tree=parent_tree;
 
 	/* first, try to check length   */
 	/* do we have at least 2 bytes  */
@@ -1875,6 +1891,9 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 	}
+	/* save parent_tree so subdissectors can create new top nodes */
+	top_tree=parent_tree;
+
 	/*  ACSE has only AARQ,AARE,RLRQ,RLRE,ABRT type of pdu */
 	/*  reject everything else                              */
 	/*  data pdu is not ACSE pdu and has to go directly to app dissector */
@@ -1899,8 +1918,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 			    "dissector is not available");
 		}
+		top_tree = NULL;
 		return;
 	default:
+		top_tree = NULL;
 		return;
 	}
 
@@ -1926,7 +1947,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 		}
 	}
-
+	
+top_tree = NULL;
 }
 
 /*--- proto_register_acse ----------------------------------------------*/

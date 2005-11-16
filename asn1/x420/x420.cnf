@@ -62,22 +62,34 @@ IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
 
 #.FN_BODY IPM
 
-  %(DEFAULT_BODY)s
  if((hf_index == hf_x420_ipm) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " Message");
+
+  %(DEFAULT_BODY)s
 
 
 #.FN_BODY IPN
 
-  %(DEFAULT_BODY)s
  if((hf_index == hf_x420_ipn) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " Notification");
 
+  %(DEFAULT_BODY)s
+
+#.FN_PARS SubjectField
+  VAL_PTR=&subject
+
+#.FN_BODY SubjectField
+  tvbuff_t *subject=NULL;
+
+  %(DEFAULT_BODY)s
+
+  if(subject && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " (%%s)", tvb_format_text(subject, 0, tvb_length(subject)));
+
+
 #.FN_BODY Interchange_Data_Element
-/*ARGSUSED*/
 /* XXX Not implemented yet */
 
 #.FN_BODY NationallyDefinedBodyPart
-/*ARGSUSED*/
 /* XXX Not implemented yet */
 

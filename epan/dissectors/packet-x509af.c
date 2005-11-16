@@ -62,19 +62,21 @@ static int hf_x509af_Certificate_PDU = -1;        /* Certificate */
 static int hf_x509af_CertificatePair_PDU = -1;    /* CertificatePair */
 static int hf_x509af_CertificateList_PDU = -1;    /* CertificateList */
 static int hf_x509af_AttributeCertificate_PDU = -1;  /* AttributeCertificate */
+static int hf_x509af_DSS_Params_PDU = -1;         /* DSS_Params */
 static int hf_x509af_signedCertificate = -1;      /* T_signedCertificate */
 static int hf_x509af_version = -1;                /* Version */
 static int hf_x509af_serialNumber = -1;           /* CertificateSerialNumber */
 static int hf_x509af_signature = -1;              /* AlgorithmIdentifier */
 static int hf_x509af_issuer = -1;                 /* Name */
 static int hf_x509af_validity = -1;               /* Validity */
-static int hf_x509af_subject = -1;                /* Name */
+static int hf_x509af_subject = -1;                /* SubjectName */
 static int hf_x509af_subjectPublicKeyInfo = -1;   /* SubjectPublicKeyInfo */
 static int hf_x509af_issuerUniqueIdentifier = -1;  /* UniqueIdentifier */
 static int hf_x509af_subjectUniqueIdentifier = -1;  /* UniqueIdentifier */
 static int hf_x509af_extensions = -1;             /* Extensions */
 static int hf_x509af_algorithmIdentifier = -1;    /* AlgorithmIdentifier */
 static int hf_x509af_encrypted = -1;              /* BIT_STRING */
+static int hf_x509af_rdnSequence = -1;            /* RDNSequence */
 static int hf_x509af_algorithmId = -1;            /* T_algorithmId */
 static int hf_x509af_parameters = -1;             /* T_parameters */
 static int hf_x509af_notBefore = -1;              /* Time */
@@ -122,11 +124,14 @@ static int hf_x509af_issuerUID = -1;              /* UniqueIdentifier */
 static int hf_x509af_notBeforeTime = -1;          /* GeneralizedTime */
 static int hf_x509af_notAfterTime = -1;           /* GeneralizedTime */
 static int hf_x509af_assertion_subject = -1;      /* AssertionSubject */
-static int hf_x509af_assertionSubjectName = -1;   /* Name */
+static int hf_x509af_assertionSubjectName = -1;   /* SubjectName */
 static int hf_x509af_assertionIssuer = -1;        /* Name */
 static int hf_x509af_attCertValidity = -1;        /* GeneralizedTime */
 static int hf_x509af_attType = -1;                /* SET_OF_AttributeType */
 static int hf_x509af_attType_item = -1;           /* AttributeType */
+static int hf_x509af_p = -1;                      /* INTEGER */
+static int hf_x509af_q = -1;                      /* INTEGER */
+static int hf_x509af_g = -1;                      /* INTEGER */
 
 /*--- End of included file: packet-x509af-hf.c ---*/
 
@@ -138,6 +143,7 @@ static gint ett_pkix_crl = -1;
 
 static gint ett_x509af_Certificate = -1;
 static gint ett_x509af_T_signedCertificate = -1;
+static gint ett_x509af_SubjectName = -1;
 static gint ett_x509af_AlgorithmIdentifier = -1;
 static gint ett_x509af_Validity = -1;
 static gint ett_x509af_SubjectPublicKeyInfo = -1;
@@ -166,15 +172,13 @@ static gint ett_x509af_AttCertValidityPeriod = -1;
 static gint ett_x509af_AttributeCertificateAssertion = -1;
 static gint ett_x509af_AssertionSubject = -1;
 static gint ett_x509af_SET_OF_AttributeType = -1;
+static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
 
 
 static const char *algorithm_id;
-
-
 static const char *extension_id;
-
 
 
 /*--- Included file: packet-x509af-fn.c ---*/
@@ -184,14 +188,14 @@ static const char *extension_id;
 static int dissect_issuer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509af_issuer);
 }
-static int dissect_subject(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509af_subject);
-}
 static int dissect_issuerUniqueIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_UniqueIdentifier(TRUE, tvb, offset, pinfo, tree, hf_x509af_issuerUniqueIdentifier);
 }
 static int dissect_subjectUniqueIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_UniqueIdentifier(TRUE, tvb, offset, pinfo, tree, hf_x509af_subjectUniqueIdentifier);
+}
+static int dissect_rdnSequence(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_RDNSequence(FALSE, tvb, offset, pinfo, tree, hf_x509af_rdnSequence);
 }
 static int dissect_infoSubjectName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_GeneralNames(FALSE, tvb, offset, pinfo, tree, hf_x509af_infoSubjectName);
@@ -207,9 +211,6 @@ static int dissect_issuerUniqueID(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 static int dissect_issuerUID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_UniqueIdentifier(FALSE, tvb, offset, pinfo, tree, hf_x509af_issuerUID);
-}
-static int dissect_assertionSubjectName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509af_assertionSubjectName);
 }
 static int dissect_assertionIssuer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509af_assertionIssuer);
@@ -261,7 +262,17 @@ static int dissect_serial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_algorithm_id, &algorithm_id);
+  char *name;
+
+    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_algorithm_id, &algorithm_id);
+
+
+  if(algorithm_id) {
+    name = get_ber_oid_name(algorithm_id);
+
+    proto_item_append_text(tree, " (%s)", name ? name : algorithm_id); 
+  }
+
 
   return offset;
 }
@@ -397,6 +408,37 @@ static int dissect_validity(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
+static const value_string x509af_SubjectName_vals[] = {
+  {   0, "rdnSequence" },
+  { 0, NULL }
+};
+
+static const ber_choice_t SubjectName_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_rdnSequence },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+    offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 SubjectName_choice, hf_index, ett_x509af_SubjectName,
+                                 NULL);
+
+
+  proto_item_append_text(proto_item_get_parent(tree), " (%s)", x509if_get_last_dn());
+
+
+  return offset;
+}
+static int dissect_subject(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_SubjectName(FALSE, tvb, offset, pinfo, tree, hf_x509af_subject);
+}
+static int dissect_assertionSubjectName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_SubjectName(FALSE, tvb, offset, pinfo, tree, hf_x509af_assertionSubjectName);
+}
+
+
 
 static int
 dissect_x509af_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -435,7 +477,17 @@ static int dissect_subjectPublicKeyInfo(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_extension_id, &extension_id);
+  char *name;
+
+    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509af_extension_id, &extension_id);
+
+
+  if(extension_id) {
+    name = get_ber_oid_name(extension_id);
+
+    proto_item_append_text(tree, " (%s)", name ? name : extension_id);
+  }
+
 
   return offset;
 }
@@ -523,7 +575,7 @@ static const ber_sequence_t T_signedCertificate_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_validity },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_subject },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_subject },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subjectPublicKeyInfo },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuerUniqueIdentifier_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subjectUniqueIdentifier_impl },
@@ -972,6 +1024,41 @@ dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag _U_, tvbuff_t
   return offset;
 }
 
+
+
+static int
+dissect_x509af_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_p(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509af_p);
+}
+static int dissect_q(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509af_q);
+}
+static int dissect_g(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509af_g);
+}
+
+
+static const ber_sequence_t DSS_Params_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_q },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_g },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509af_DSS_Params(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   DSS_Params_sequence, hf_index, ett_x509af_DSS_Params);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_Certificate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -986,10 +1073,17 @@ static void dissect_CertificateList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto
 static void dissect_AttributeCertificate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509af_AttributeCertificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_AttributeCertificate_PDU);
 }
+static void dissect_DSS_Params_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509af_DSS_Params(FALSE, tvb, 0, pinfo, tree, hf_x509af_DSS_Params_PDU);
+}
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
 
+
+char *x509af_get_last_algorithm_id() {
+  return algorithm_id;
+}
 
 
 static int
@@ -1048,6 +1142,10 @@ void proto_register_x509af(void) {
       { "AttributeCertificate", "x509af.AttributeCertificate",
         FT_NONE, BASE_NONE, NULL, 0,
         "AttributeCertificate", HFILL }},
+    { &hf_x509af_DSS_Params_PDU,
+      { "DSS-Params", "x509af.DSS_Params",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DSS-Params", HFILL }},
     { &hf_x509af_signedCertificate,
       { "signedCertificate", "x509af.signedCertificate",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1074,7 +1172,7 @@ void proto_register_x509af(void) {
         "Certificate/signedCertificate/validity", HFILL }},
     { &hf_x509af_subject,
       { "subject", "x509af.subject",
-        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_SubjectName_vals), 0,
         "Certificate/signedCertificate/subject", HFILL }},
     { &hf_x509af_subjectPublicKeyInfo,
       { "subjectPublicKeyInfo", "x509af.subjectPublicKeyInfo",
@@ -1100,6 +1198,10 @@ void proto_register_x509af(void) {
       { "encrypted", "x509af.encrypted",
         FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
+    { &hf_x509af_rdnSequence,
+      { "rdnSequence", "x509af.rdnSequence",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SubjectName/rdnSequence", HFILL }},
     { &hf_x509af_algorithmId,
       { "algorithmId", "x509af.algorithmId",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1290,7 +1392,7 @@ void proto_register_x509af(void) {
         "AttributeCertificateAssertion/subject", HFILL }},
     { &hf_x509af_assertionSubjectName,
       { "subjectName", "x509af.subjectName",
-        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_SubjectName_vals), 0,
         "AttributeCertificateAssertion/subject/subjectName", HFILL }},
     { &hf_x509af_assertionIssuer,
       { "issuer", "x509af.issuer",
@@ -1308,6 +1410,18 @@ void proto_register_x509af(void) {
       { "Item", "x509af.attType_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "AttributeCertificateAssertion/attType/_item", HFILL }},
+    { &hf_x509af_p,
+      { "p", "x509af.p",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "DSS-Params/p", HFILL }},
+    { &hf_x509af_q,
+      { "q", "x509af.q",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "DSS-Params/q", HFILL }},
+    { &hf_x509af_g,
+      { "g", "x509af.g",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "DSS-Params/g", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
 
@@ -1321,6 +1435,7 @@ void proto_register_x509af(void) {
 
     &ett_x509af_Certificate,
     &ett_x509af_T_signedCertificate,
+    &ett_x509af_SubjectName,
     &ett_x509af_AlgorithmIdentifier,
     &ett_x509af_Validity,
     &ett_x509af_SubjectPublicKeyInfo,
@@ -1349,6 +1464,7 @@ void proto_register_x509af(void) {
     &ett_x509af_AttributeCertificateAssertion,
     &ett_x509af_AssertionSubject,
     &ett_x509af_SET_OF_AttributeType,
+    &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
 
@@ -1381,6 +1497,7 @@ void proto_reg_handoff_x509af(void) {
   register_ber_oid_dissector("2.5.4.40", dissect_CertificatePair_PDU, proto_x509af, "id-at-crossCertificatePair");
   register_ber_oid_dissector("2.5.4.58", dissect_AttributeCertificate_PDU, proto_x509af, "id-at-attributeCertificate");
   register_ber_oid_dissector("2.5.4.59", dissect_CertificateList_PDU, proto_x509af, "id-at-attributeCertificateRevocationList");
+  register_ber_oid_dissector("1.2.840.10040.4.1", dissect_DSS_Params_PDU, proto_x509af, "id-dsa");
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/

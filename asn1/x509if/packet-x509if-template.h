@@ -28,5 +28,7 @@
 
 #include "packet-x509if-exp.h"
 
+extern const char * x509if_get_last_dn();
+
 #endif  /* PACKET_X509IF_H */
 

@@ -55,12 +55,13 @@ static gint ett_pkix_crl = -1;
 #include "packet-x509af-ett.c"
 
 static const char *algorithm_id;
-
-
 static const char *extension_id;
 
-
 #include "packet-x509af-fn.c"
+
+char *x509af_get_last_algorithm_id() {
+  return algorithm_id;
+}
 
 
 static int

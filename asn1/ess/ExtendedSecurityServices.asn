@@ -191,6 +191,35 @@ SecurityCategory ::= SEQUENCE {
 --VALUE NOTATION ::= value (VALUE OBJECT IDENTIFIER)
 --END
 
+-- this is a commonly used definition of security categories
+
+RestrictiveTag ::= SEQUENCE {
+  tagName		OBJECT IDENTIFIER,
+  attributeFlags	BIT STRING
+}
+
+EnumeratedTag ::= SEQUENCE {
+  tagName		OBJECT IDENTIFIER,
+  attributeList		SET OF SecurityAttribute
+}
+
+PermissiveTag ::= SEQUENCE {
+  tagName		OBJECT IDENTIFIER,
+  attributeFlags	BIT STRING
+}
+
+SecurityAttribute ::= INTEGER
+
+InformativeTag ::= SEQUENCE {
+  tagName		OBJECT IDENTIFIER,
+  attributes		FreeFormField
+}
+
+FreeFormField ::= CHOICE {
+  bitSetAttributes 	BIT STRING,
+  securityAttributes	SET OF SecurityAttribute
+}
+
 -- Section 3.4
 
 

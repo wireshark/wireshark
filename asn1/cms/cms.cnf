@@ -46,6 +46,13 @@ Countersignature  B "1.2.840.113549.1.9.6"	"id-counterSignature"
 #.FIELD_RENAME
 SignerInfo/signature	signatureValue
 RecipientEncryptedKey/rid	rekRid
+EncryptedContentInfo/contentType	encryptedContentType
+
+#.FN_BODY ContentInfo
+  top_tree = tree;
+  %(DEFAULT_BODY)s
+  content_tvb = NULL;
+  top_tree = NULL;
 
 #.FN_BODY ContentInfo/contentType
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
@@ -64,13 +71,16 @@ RecipientEncryptedKey/rid	rekRid
   gint32 tag;
   guint32 len;
   int pdu_offset = offset;
+  int content_offset;
 
   /* XXX Do we care about printing out the octet string? */
-  offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
+  offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, NULL, hf_cms_eContent);
 
   pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
-  pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
-  pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, tree);
+  content_offset = pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
+  pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, top_tree ? top_tree : tree);
+  
+  content_tvb = tvb_new_subset(tvb, content_offset, len, -1);
 
 #.FN_PARS OtherKeyAttribute/keyAttrId
   FN_VARIANT = _str  HF_INDEX = hf_cms_ci_contentType  VAL_PTR = &object_identifier_id
@@ -78,12 +88,38 @@ RecipientEncryptedKey/rid	rekRid
 #.FN_BODY OtherKeyAttribute/keyAttr
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
+
 #.FN_PARS Attribute/attrType
   FN_VARIANT = _str  HF_INDEX = hf_cms_attrType  VAL_PTR = &object_identifier_id
+
+#.FN_BODY Attribute/attrType
+  char *name = NULL;
+
+  %(DEFAULT_BODY)s
+
+  if(object_identifier_id) {
+    name = get_ber_oid_name(object_identifier_id);
+    proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
+  }
 
 #.FN_BODY AttributeValue
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_BODY MessageDigest
+  proto_item *pi;
+  int old_offset = offset;
+
+  %(DEFAULT_BODY)s
+ 
+  pi = get_ber_last_created_item();
+
+  /* move past TLV */
+  old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
+  old_offset = get_ber_length(tree, tvb, old_offset, NULL, NULL);
+
+  if(content_tvb) 
+    cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
 
 #.END
 

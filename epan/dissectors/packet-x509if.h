@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509if.h                                                          */
+/* .\packet-x509if.h                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.h */
@@ -43,6 +43,7 @@ extern const value_string x509if_ImposedSubset_vals[];
 extern const value_string x509if_ContextCombination_vals[];
 extern const value_string x509if_AttributeCombination_vals[];
 extern const value_string x509if_OutputValues_vals[];
+int dissect_x509if_AttributeValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509if_AttributeType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509if_Context(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -85,6 +86,8 @@ int dissect_x509if_MRSubstitution(gboolean implicit_tag, tvbuff_t *tvb, int offs
 
 /*--- End of included file: packet-x509if-exp.h ---*/
 
+
+extern const char * x509if_get_last_dn();
 
 #endif  /* PACKET_X509IF_H */
 

@@ -37,6 +37,6 @@ fix_eol: generate_dissector
 	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
 
 copy_files: generate_dissector fix_eol
-	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d
-	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d
+	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
+	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
 

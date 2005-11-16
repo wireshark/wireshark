@@ -102,4 +102,30 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 #.FN_BODY EXTERNAL/encoding/single-ASN1-type
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree ? top_tree : tree);
 
+#.FN_PARS Release-request-reason
+  VAL_PTR=&reason
+
+#.FN_BODY Release-request-reason
+  int reason = -1;
+ 
+  %(DEFAULT_BODY)s
+
+  if((reason != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, "Release-Request (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
+
+
+#.FN_PARS Release-response-reason
+  VAL_PTR=&reason
+
+#.FN_BODY Release-response-reason
+  int reason = -1;
+ 
+  %(DEFAULT_BODY)s
+
+  if((reason != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, "Release-Response (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
+
+
+
+
 #.END

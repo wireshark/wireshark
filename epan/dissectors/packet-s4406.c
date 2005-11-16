@@ -66,7 +66,8 @@ static int hf_s4406_HandlingInstructions_PDU = -1;  /* HandlingInstructions */
 static int hf_s4406_MessageInstructions_PDU = -1;  /* MessageInstructions */
 static int hf_s4406_CodressMessage_PDU = -1;      /* CodressMessage */
 static int hf_s4406_OriginatorReference_PDU = -1;  /* OriginatorReference */
-static int hf_s4406_MMHSPrecedence_PDU = -1;      /* MMHSPrecedence */
+static int hf_s4406_PrimaryPrecedence_PDU = -1;   /* PrimaryPrecedence */
+static int hf_s4406_CopyPrecedence_PDU = -1;      /* CopyPrecedence */
 static int hf_s4406_MessageType_PDU = -1;         /* MessageType */
 static int hf_s4406_AddressListDesignator_PDU = -1;  /* AddressListDesignator */
 static int hf_s4406_OtherRecipientDesignator_PDU = -1;  /* OtherRecipientDesignator */
@@ -74,6 +75,7 @@ static int hf_s4406_PilotInformation_PDU = -1;    /* PilotInformation */
 static int hf_s4406_Acp127MessageIdentifier_PDU = -1;  /* Acp127MessageIdentifier */
 static int hf_s4406_OriginatorPlad_PDU = -1;      /* OriginatorPlad */
 static int hf_s4406_SecurityInformationLabels_PDU = -1;  /* SecurityInformationLabels */
+static int hf_s4406_PriorityLevelQualifier_PDU = -1;  /* PriorityLevelQualifier */
 static int hf_s4406_sics = -1;                    /* SEQUENCE_OF_Sic */
 static int hf_s4406_sics_item = -1;               /* Sic */
 static int hf_s4406_dist_Extensions = -1;         /* SEQUENCE_OF_DistributionExtensionField */
@@ -90,7 +92,7 @@ static int hf_s4406_notificationRequest = -1;     /* AddressListRequest */
 static int hf_s4406_replyRequest = -1;            /* AddressListRequest */
 static int hf_s4406_other_recipient_type = -1;    /* OtherRecipientType */
 static int hf_s4406_designator = -1;              /* MilitaryString */
-static int hf_s4406_pilotPrecedence = -1;         /* MMHSPrecedence */
+static int hf_s4406_pilotPrecedence = -1;         /* PilotPrecedence */
 static int hf_s4406_pilotRecipient = -1;          /* SEQUENCE_OF_ORDescriptor */
 static int hf_s4406_pilotRecipient_item = -1;     /* ORDescriptor */
 static int hf_s4406_pilotSecurity = -1;           /* SecurityLabel */
@@ -222,6 +224,7 @@ static int
 dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 /* XXX: not implemented */
 
+
   return offset;
 }
 static int dissect_dist_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -346,7 +349,7 @@ dissect_s4406_OriginatorReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 }
 
 
-static const value_string s4406_MMHSPrecedence_vals[] = {
+static const value_string s4406_PrimaryPrecedence_vals[] = {
   {   0, "deferred" },
   {   1, "routine" },
   {   2, "priority" },
@@ -361,14 +364,43 @@ static const value_string s4406_MMHSPrecedence_vals[] = {
 
 
 static int
-dissect_s4406_MMHSPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  int precedence = -1;
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &precedence);
+
+  if((precedence != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " (primary=%s)", val_to_str(precedence, s4406_PrimaryPrecedence_vals, "precedence(%d)"));
+
 
   return offset;
 }
-static int dissect_pilotPrecedence_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_s4406_MMHSPrecedence(TRUE, tvb, offset, pinfo, tree, hf_s4406_pilotPrecedence);
+
+
+static const value_string s4406_CopyPrecedence_vals[] = {
+  {   0, "deferred" },
+  {   1, "routine" },
+  {   2, "priority" },
+  {   3, "immediate" },
+  {   4, "flash" },
+  {   5, "override" },
+  {  16, "ecp" },
+  {  17, "critic" },
+  {  18, "override" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  int precedence = -1;
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &precedence);
+
+  if((precedence != -1) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " (copy=%s)", val_to_str(precedence, s4406_CopyPrecedence_vals, "precedence(%d)"));
+
+  return offset;
 }
 
 
@@ -513,6 +545,32 @@ dissect_s4406_OtherRecipientDesignator(gboolean implicit_tag _U_, tvbuff_t *tvb,
 }
 
 
+static const value_string s4406_PilotPrecedence_vals[] = {
+  {   0, "deferred" },
+  {   1, "routine" },
+  {   2, "priority" },
+  {   3, "immediate" },
+  {   4, "flash" },
+  {   5, "override" },
+  {  16, "ecp" },
+  {  17, "critic" },
+  {  18, "override" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s4406_PilotPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_pilotPrecedence_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_s4406_PilotPrecedence(TRUE, tvb, offset, pinfo, tree, hf_s4406_pilotPrecedence);
+}
+
+
 static const ber_sequence_t SEQUENCE_OF_ORDescriptor_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_pilotRecipient_item },
 };
@@ -642,6 +700,22 @@ dissect_s4406_SecurityInformationLabels(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
+
+static const value_string s4406_PriorityLevelQualifier_vals[] = {
+  {   0, "low" },
+  {   1, "high" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s4406_PriorityLevelQualifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_ExemptedAddress_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -665,8 +739,11 @@ static void dissect_CodressMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_
 static void dissect_OriginatorReference_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_OriginatorReference(FALSE, tvb, 0, pinfo, tree, hf_s4406_OriginatorReference_PDU);
 }
-static void dissect_MMHSPrecedence_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  dissect_s4406_MMHSPrecedence(FALSE, tvb, 0, pinfo, tree, hf_s4406_MMHSPrecedence_PDU);
+static void dissect_PrimaryPrecedence_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_PrimaryPrecedence(FALSE, tvb, 0, pinfo, tree, hf_s4406_PrimaryPrecedence_PDU);
+}
+static void dissect_CopyPrecedence_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_CopyPrecedence(FALSE, tvb, 0, pinfo, tree, hf_s4406_CopyPrecedence_PDU);
 }
 static void dissect_MessageType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_MessageType(FALSE, tvb, 0, pinfo, tree, hf_s4406_MessageType_PDU);
@@ -688,6 +765,9 @@ static void dissect_OriginatorPlad_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 static void dissect_SecurityInformationLabels_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_SecurityInformationLabels(FALSE, tvb, 0, pinfo, tree, hf_s4406_SecurityInformationLabels_PDU);
+}
+static void dissect_PriorityLevelQualifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_PriorityLevelQualifier(FALSE, tvb, 0, pinfo, tree, hf_s4406_PriorityLevelQualifier_PDU);
 }
 
 
@@ -757,10 +837,14 @@ void proto_register_s4406(void) {
       { "OriginatorReference", "s4406.OriginatorReference",
         FT_STRING, BASE_NONE, NULL, 0,
         "OriginatorReference", HFILL }},
-    { &hf_s4406_MMHSPrecedence_PDU,
-      { "MMHSPrecedence", "s4406.MMHSPrecedence",
-        FT_INT32, BASE_DEC, VALS(s4406_MMHSPrecedence_vals), 0,
-        "MMHSPrecedence", HFILL }},
+    { &hf_s4406_PrimaryPrecedence_PDU,
+      { "PrimaryPrecedence", "s4406.PrimaryPrecedence",
+        FT_INT32, BASE_DEC, VALS(s4406_PrimaryPrecedence_vals), 0,
+        "PrimaryPrecedence", HFILL }},
+    { &hf_s4406_CopyPrecedence_PDU,
+      { "CopyPrecedence", "s4406.CopyPrecedence",
+        FT_INT32, BASE_DEC, VALS(s4406_CopyPrecedence_vals), 0,
+        "CopyPrecedence", HFILL }},
     { &hf_s4406_MessageType_PDU,
       { "MessageType", "s4406.MessageType",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -789,6 +873,10 @@ void proto_register_s4406(void) {
       { "SecurityInformationLabels", "s4406.SecurityInformationLabels",
         FT_NONE, BASE_NONE, NULL, 0,
         "SecurityInformationLabels", HFILL }},
+    { &hf_s4406_PriorityLevelQualifier_PDU,
+      { "PriorityLevelQualifier", "s4406.PriorityLevelQualifier",
+        FT_UINT32, BASE_DEC, VALS(s4406_PriorityLevelQualifier_vals), 0,
+        "PriorityLevelQualifier", HFILL }},
     { &hf_s4406_sics,
       { "sics", "s4406.sics",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -855,7 +943,7 @@ void proto_register_s4406(void) {
         "OtherRecipientDesignator/designator", HFILL }},
     { &hf_s4406_pilotPrecedence,
       { "pilotPrecedence", "s4406.pilotPrecedence",
-        FT_INT32, BASE_DEC, VALS(s4406_MMHSPrecedence_vals), 0,
+        FT_INT32, BASE_DEC, VALS(s4406_PilotPrecedence_vals), 0,
         "PilotInformation/pilotPrecedence", HFILL }},
     { &hf_s4406_pilotRecipient,
       { "pilotRecipient", "s4406.pilotRecipient",
@@ -947,8 +1035,8 @@ void proto_reg_handoff_s4406(void) {
 
 /*--- Included file: packet-s4406-dis-tab.c ---*/
 
-  register_ber_oid_dissector("1.3.26.0.4406.0.2.0", dissect_MMHSPrecedence_PDU, proto_s4406, "primary-precedence");
-  register_ber_oid_dissector("1.3.26.0.4406.0.2.1", dissect_MMHSPrecedence_PDU, proto_s4406, "copy-precedence");
+  register_ber_oid_dissector("1.3.26.0.4406.0.2.0", dissect_PrimaryPrecedence_PDU, proto_s4406, "primary-precedence");
+  register_ber_oid_dissector("1.3.26.0.4406.0.2.1", dissect_CopyPrecedence_PDU, proto_s4406, "copy-precedence");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.2", dissect_MessageType_PDU, proto_s4406, "message-type");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.3", dissect_AddressListDesignator_PDU, proto_s4406, "address-list-indicator");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.4", dissect_ExemptedAddress_PDU, proto_s4406, "exempted-address");
@@ -963,6 +1051,7 @@ void proto_reg_handoff_s4406(void) {
   register_ber_oid_dissector("1.3.26.0.4406.0.2.13", dissect_Acp127MessageIdentifier_PDU, proto_s4406, "acp127-message-identifierr");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.14", dissect_OriginatorPlad_PDU, proto_s4406, "originator-plad");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.17", dissect_SecurityInformationLabels_PDU, proto_s4406, "information-labels");
+  register_ber_oid_dissector("1.3.26.0.4406.0.8.0", dissect_PriorityLevelQualifier_PDU, proto_s4406, "priority-level-qualifier");
 
 
 /*--- End of included file: packet-s4406-dis-tab.c ---*/

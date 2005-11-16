@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x411.c                                                            */
+/* .\packet-x411.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.c */
@@ -62,8 +62,14 @@
 int proto_x411 = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
-static int extension_id = 0; /* integer extension id */
-static const char *object_identifier_id; /* content type identifier */
+static int extension_id = -1; /* integer extension id */
+static char *object_identifier_id; /* extensions identifier */
+static char *content_type_id; /* content type identifier */
+
+#define MAX_ORA_STR_LEN     256
+static char *oraddress = NULL;
+static gboolean doing_address=FALSE;
+static proto_item *address_item;
 
 static proto_tree *top_tree=NULL;
 
@@ -720,15 +726,23 @@ static int dissect_empty_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_x411_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	tvbuff_t	*mtaname;
+	tvbuff_t	*mtaname = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             pinfo, tree, tvb, offset, hf_index,
                                             &mtaname);
 
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_get_string(mtaname, 0, tvb_length(mtaname)));
+	if(doing_address) {
+
+		proto_item_append_text(address_item, " %s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
+
+	} else {
+
+	if (check_col(pinfo->cinfo, COL_INFO) && mtaname) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
+	}
+
 	}
 
 
@@ -905,7 +919,11 @@ static int dissect_privacy_mark(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_x411_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+	  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+
+	extension_id = -1;
+
 
   return offset;
 }
@@ -1112,8 +1130,14 @@ static const value_string x411_MTABindError_vals[] = {
 
 static int
 dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+  int error = -1;
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &error);
+
+  if((error != -1) && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(error, x411_MTABindError_vals, "error(%d)"));
+
+
 
   return offset;
 }
@@ -1122,9 +1146,16 @@ dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_x411_NumericString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
+	tvbuff_t	*nstring = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &nstring);
+
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
 
   return offset;
 }
@@ -1151,9 +1182,29 @@ static int dissect_sub_address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_x411_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+	tvbuff_t	*pstring = NULL;
+	char 		*fmt = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &pstring);
+
+
+	if(doing_address && pstring) {
+  	  if(hf_index == hf_x411_printable_surname)			fmt = "/S=";
+	  else if(hf_index == hf_x411_printable_given_name)		fmt = "/G=";
+	  else if(hf_index == hf_x411_printable_initials)		fmt = "/I=";
+	  else if(hf_index == hf_x411_printable_generation_qualifier)	fmt = "/GQ=";
+	  else if(hf_index == hf_x411_printable_type)			fmt = "/DD.";
+	  else if(hf_index == hf_x411_printable_value)			fmt = "=";
+		
+	  if(fmt)
+	    g_strlcat(oraddress, fmt, MAX_ORA_STR_LEN);
+
+	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+
+	}
+
 
   return offset;
 }
@@ -1224,8 +1275,14 @@ dissect_x411_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
+
+ if(doing_address)
+    g_strlcat(oraddress, "/C=", MAX_ORA_STR_LEN);
+
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               CountryName_choice, hf_index, ett_x411_CountryName, NULL);
+
+
 
 
   return offset;
@@ -1262,6 +1319,9 @@ dissect_x411_AdministrationDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb, 
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
 
+  if(doing_address)
+    g_strlcat(oraddress, "/A=", MAX_ORA_STR_LEN);
+
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName, NULL);
 
@@ -1290,9 +1350,15 @@ static const ber_choice_t PrivateDomainIdentifier_choice[] = {
 
 static int
 dissect_x411_PrivateDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+
+	if(doing_address)
+		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
+
+	  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  PrivateDomainIdentifier_choice, hf_index, ett_x411_PrivateDomainIdentifier,
                                  NULL);
+
+
 
   return offset;
 }
@@ -1313,8 +1379,18 @@ static const ber_sequence_t GlobalDomainIdentifier_sequence[] = {
 
 static int
 dissect_x411_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+	
+	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	address_item = tree;
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    GlobalDomainIdentifier_sequence, hf_index, ett_x411_GlobalDomainIdentifier);
+
+
+	if(*oraddress)
+		proto_item_append_text(address_item, " (%s/", oraddress);
+
+
 
   return offset;
 }
@@ -1332,9 +1408,16 @@ static int dissect_attempted_domain(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_x411_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+	tvbuff_t 	*id = NULL;
+	
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &id);
+
+	
+	if(doing_address && id)
+	  proto_item_append_text(address_item, " $ %s)", tvb_format_text(id, 0, tvb_length(id)));
+
 
   return offset;
 }
@@ -1351,8 +1434,15 @@ static const ber_sequence_t MTSIdentifier_sequence[] = {
 
 static int
 dissect_x411_MTSIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+
+	doing_address = TRUE;
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    MTSIdentifier_sequence, hf_index, ett_x411_MTSIdentifier);
+
+
+	doing_address = FALSE;
+
 
   return offset;
 }
@@ -1373,9 +1463,19 @@ static int dissect_message_identifier(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_x411_X121Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
+	tvbuff_t	*string = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &string);
+
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/X121=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+
 
   return offset;
 }
@@ -1396,9 +1496,18 @@ static int dissect_network_address_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_x411_TerminalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+	tvbuff_t	*string = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &string);
+
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/UA-ID=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
 
   return offset;
 }
@@ -1421,9 +1530,15 @@ static const ber_choice_t PrivateDomainName_choice[] = {
 
 static int
 dissect_x411_PrivateDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+
+	if(doing_address)
+		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
+
+	  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  PrivateDomainName_choice, hf_index, ett_x411_PrivateDomainName,
                                  NULL);
+
+
 
   return offset;
 }
@@ -1435,9 +1550,18 @@ static int dissect_private_domain_name_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_x411_OrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+	tvbuff_t	*string = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &string);
+
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/O=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
 
   return offset;
 }
@@ -1525,8 +1649,13 @@ static const ber_sequence_t BuiltInStandardAttributes_sequence[] = {
 
 static int
 dissect_x411_BuiltInStandardAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+
+	address_item = tree;	
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    BuiltInStandardAttributes_sequence, hf_index, ett_x411_BuiltInStandardAttributes);
+
+
 
   return offset;
 }
@@ -1649,8 +1778,20 @@ static const ber_sequence_t ORName_sequence[] = {
 
 int
 dissect_x411_ORName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+	
+	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	address_item = NULL;
+	doing_address = TRUE;
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    ORName_sequence, hf_index, ett_x411_ORName);
+
+
+	if(*oraddress && address_item)
+		proto_item_append_text(address_item, " (%s/)", oraddress);
+
+	doing_address = FALSE;
+
 
   return offset;
 }
@@ -1768,9 +1909,17 @@ static int dissect_g3_facsimile_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x411_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+	tvbuff_t	*tstring = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                             pinfo, tree, tvb, offset, hf_index,
                                             NULL);
+
+
+	if(doing_address && tstring) 
+		g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+
+
 
   return offset;
 }
@@ -1944,7 +2093,19 @@ static int dissect_built_in_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+	char *name = NULL;
+
+	  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &content_type_id);
+
+
+	if(content_type_id) {
+	  name = get_ber_oid_name(content_type_id);
+
+  	  if(!name) name = content_type_id;
+
+	  proto_item_append_text(tree, " (%s)", name);
+	}
+
 
   return offset;
 }
@@ -2071,9 +2232,16 @@ static int dissect_per_message_indicators(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_x411_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
+	tvbuff_t *arrival = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &arrival);
+
+
+	if(arrival)
+		proto_item_append_text(address_item, " %s", tvb_format_text(arrival, 0, tvb_length(arrival)));
+
 
   return offset;
 }
@@ -2198,8 +2366,14 @@ static const value_string x411_RoutingAction_vals[] = {
 
 static int
 dissect_x411_RoutingAction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+	int action = 0;
+
+	  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &action);
+
+
+	proto_item_append_text(address_item, " %s", val_to_str(action, x411_RoutingAction_vals, "action(%d)"));
+
 
   return offset;
 }
@@ -2266,8 +2440,16 @@ static const ber_sequence_t DomainSuppliedInformation_set[] = {
 
 static int
 dissect_x411_DomainSuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+
+	doing_address = FALSE;
+
+	  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               DomainSuppliedInformation_set, hf_index, ett_x411_DomainSuppliedInformation);
+
+
+	doing_address = TRUE;
+	proto_item_append_text(tree, ")");
+
 
   return offset;
 }
@@ -2284,8 +2466,15 @@ static const ber_sequence_t TraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_TraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+
+	doing_address = TRUE;
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    TraceInformationElement_sequence, hf_index, ett_x411_TraceInformationElement);
+
+
+	doing_address = FALSE;
+
 
   return offset;
 }
@@ -2358,8 +2547,16 @@ static int dissect_criticality_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	char *name;
 
-	offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
+	if(extension_id != -1) 
+		offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
+	else if(object_identifier_id) {
+		call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+		name = get_ber_oid_name(object_identifier_id);
+		proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
+	}
+		
 
 
   return offset;
@@ -2555,10 +2752,10 @@ dissect_x411_Content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
   tvbuff_t *next_tvb;
 
   /* we can do this now constructed octet strings are supported */
-  offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, offset, hf_index, &next_tvb);
 
-  if (next_tvb)
-    (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
+  if (next_tvb && content_type_id)
+    (void) call_ber_oid_callback(content_type_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
 
 
   return offset;
@@ -3226,8 +3423,16 @@ static const ber_sequence_t MTASuppliedInformation_set[] = {
 
 static int
 dissect_x411_MTASuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+
+	doing_address = FALSE;
+
+	  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               MTASuppliedInformation_set, hf_index, ett_x411_MTASuppliedInformation);
+
+
+	doing_address = TRUE;
+	proto_item_append_text(tree, ")");
+
 
   return offset;
 }
@@ -3245,8 +3450,16 @@ static const ber_sequence_t InternalTraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_InternalTraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+
+	doing_address = TRUE;
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    InternalTraceInformationElement_sequence, hf_index, ett_x411_InternalTraceInformationElement);
+
+
+	doing_address = FALSE;
+
+
 
   return offset;
 }
@@ -5142,8 +5355,20 @@ static const ber_sequence_t ORAddress_sequence[] = {
 
 static int
 dissect_x411_ORAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+	
+	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	doing_address = TRUE;
+	address_item = NULL;
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    ORAddress_sequence, hf_index, ett_x411_ORAddress);
+
+
+	if(*oraddress && address_item)
+		proto_item_append_text(address_item, " %s/", oraddress);
+
+	doing_address = FALSE;
+
 
   return offset;
 }
@@ -5637,9 +5862,20 @@ dissect_x411_CertificateSelectors(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 static int
 dissect_x411_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+	tvbuff_t	*string = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &string);
+
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/CN=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+
+
 
   return offset;
 }

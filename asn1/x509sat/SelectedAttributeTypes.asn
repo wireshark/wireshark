@@ -218,11 +218,11 @@ CountryName ::= PrintableString
 --                            ID           id-at-searchGuide
 -- }
 
--- XXX Asn2eth bug   it can not handle SET for BER, only for PER
--- Guide ::= SET {
---   objectClass  [0]  OBJECT IDENTIFIER OPTIONAL,
---   criteria     [1]  Criteria
--- }
+
+Guide ::= SET {
+  objectClass  [0]  OBJECT IDENTIFIER OPTIONAL,
+  criteria     [1]  Criteria
+}
 
 Criteria ::= CHOICE {
   type  [0]  CriteriaItem,

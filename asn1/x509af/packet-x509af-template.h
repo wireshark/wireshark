@@ -28,5 +28,7 @@
 
 #include "packet-x509af-exp.h"
 
+extern char* x509af_get_last_algorithm_id();
+
 #endif  /* PACKET_X509AF_H */
 

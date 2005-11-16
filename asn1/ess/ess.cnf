@@ -28,6 +28,11 @@ EquivalentLabels   B "1.2.840.113549.1.9.16.2.9"  "id-aa-equivalentLabels"
 MLExpansionHistory B "1.2.840.113549.1.9.16.2.3"  "id-aa-mlExpandHistory"
 SigningCertificate B "1.2.840.113549.1.9.16.2.12" "id-aa-signingCertificate"
 
+RestrictiveTag	   B "2.16.840.1.101.2.1.8.3.0"	  "id-restrictiveAttributes"
+EnumeratedTag	   B "2.16.840.1.101.2.1.8.3.1"	  "id-enumeratedPermissiveAttributes"
+PermissiveTag	   B "2.16.840.1.101.2.1.8.3.2"	  "id-restrictiveAttributes"
+InformativeTag	   B "2.16.840.1.101.2.1.8.3.3"	  "id-informativeAttributes"
+EnumeratedTag	   B "2.16.840.1.101.2.1.8.3.4"	  "id-enumeratedRestrictiveAttributes"
 
 #.NO_EMIT
 

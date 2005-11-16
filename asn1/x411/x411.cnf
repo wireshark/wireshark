@@ -192,8 +192,16 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
 /*XXX not implemented yet */
 
 #.FN_BODY ExtensionValue
+	char *name;
 
-	offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
+	if(extension_id != -1) 
+		offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
+	else if(object_identifier_id) {
+		call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+		name = get_ber_oid_name(object_identifier_id);
+		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
+	}
+		
 
 #.FN_BODY CategoryValue
 
@@ -219,8 +227,14 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
+
+ if(doing_address)
+    g_strlcat(oraddress, "/C=", MAX_ORA_STR_LEN);
+
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               CountryName_choice, hf_index, ett_x411_CountryName, NULL);
+
+
 
 #.FN_BODY AdministrationDomainName
  gint8 class;
@@ -235,6 +249,9 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
+
+  if(doing_address)
+    g_strlcat(oraddress, "/A=", MAX_ORA_STR_LEN);
 
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName, NULL);
@@ -262,8 +279,29 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
 #.FN_PARS INTEGER
 	VAL_PTR = &extension_id
 
-#.FN_PARS ExtendedContentType
+#.FN_PARS OBJECT_IDENTIFIER
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
+
+#.FN_BODY OBJECT_IDENTIFIER
+
+	%(DEFAULT_BODY)s
+	extension_id = -1;
+
+#.FN_PARS ExtendedContentType
+	FN_VARIANT = _str  VAL_PTR = &content_type_id
+
+#.FN_BODY ExtendedContentType
+	char *name = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(content_type_id) {
+	  name = get_ber_oid_name(content_type_id);
+
+  	  if(!name) name = content_type_id;
+
+	  proto_item_append_text(tree, " (%%s)", name);
+	}
 
 #.FN_PARS BuiltInContentType
 	VAL_PTR = &ict
@@ -289,22 +327,272 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
   tvbuff_t *next_tvb;
 
   /* we can do this now constructed octet strings are supported */
-  offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, offset, hf_index, &next_tvb);
 
-  if (next_tvb)
-    (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
+  if (next_tvb && content_type_id)
+    (void) call_ber_oid_callback(content_type_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
 
 #.FN_PARS MTAName
 	VAL_PTR = &mtaname
 
 #.FN_BODY MTAName
-	tvbuff_t	*mtaname;
+	tvbuff_t	*mtaname = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_get_string(mtaname, 0, tvb_length(mtaname)));
+	if(doing_address) {
+
+		proto_item_append_text(address_item, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
+
+	} else {
+
+	if (check_col(pinfo->cinfo, COL_INFO) && mtaname) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
 	}
 
-#.END
+	}
 
+#.FN_PARS X121Address
+	VAL_PTR=&string
+
+#.FN_BODY X121Address
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/X121=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+
+#.FN_PARS TerminalIdentifier
+	VAL_PTR=&string
+
+#.FN_BODY TerminalIdentifier
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/UA-ID=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_BODY PrivateDomainName
+
+	if(doing_address)
+		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
+
+	%(DEFAULT_BODY)s
+
+#.FN_BODY PrivateDomainIdentifier
+
+	if(doing_address)
+		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
+
+	%(DEFAULT_BODY)s
+
+#.FN_PARS OrganizationName
+	VAL_PTR=&string
+
+#.FN_BODY OrganizationName
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/O=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_PARS CommonName
+	VAL_PTR=&string
+
+#.FN_BODY CommonName
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/CN=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+
+
+#.FN_PARS NumericString
+	VAL_PTR=&nstring
+
+#.FN_BODY NumericString
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_PARS TeletexString
+
+#.FN_BODY TeletexString
+	tvbuff_t	*tstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && tstring) 
+		g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+
+
+#.FN_PARS PrintableString
+	VAL_PTR=&pstring
+
+#.FN_BODY PrintableString
+	tvbuff_t	*pstring = NULL;
+	char 		*fmt = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && pstring) {
+  	  if(hf_index == hf_x411_printable_surname)			fmt = "/S=";
+	  else if(hf_index == hf_x411_printable_given_name)		fmt = "/G=";
+	  else if(hf_index == hf_x411_printable_initials)		fmt = "/I=";
+	  else if(hf_index == hf_x411_printable_generation_qualifier)	fmt = "/GQ=";
+	  else if(hf_index == hf_x411_printable_type)			fmt = "/DD.";
+	  else if(hf_index == hf_x411_printable_value)			fmt = "=";
+		
+	  if(fmt)
+	    g_strlcat(oraddress, fmt, MAX_ORA_STR_LEN);
+
+	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+
+	}
+
+#.FN_BODY ORAddress
+	
+	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	doing_address = TRUE;
+	address_item = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(*oraddress && address_item)
+		proto_item_append_text(address_item, " %%s/", oraddress);
+
+	doing_address = FALSE;
+
+#.FN_BODY ORName
+	
+	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	address_item = NULL;
+	doing_address = TRUE;
+
+	%(DEFAULT_BODY)s
+
+	if(*oraddress && address_item)
+		proto_item_append_text(address_item, " (%%s/)", oraddress);
+
+	doing_address = FALSE;
+
+#.FN_BODY GlobalDomainIdentifier
+	
+	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	address_item = tree;
+
+	%(DEFAULT_BODY)s
+
+	if(*oraddress)
+		proto_item_append_text(address_item, " (%%s/", oraddress);
+
+
+#.FN_PARS LocalIdentifier
+	VAL_PTR=&id
+
+#.FN_BODY LocalIdentifier
+	tvbuff_t 	*id = NULL;
+	
+	%(DEFAULT_BODY)s
+	
+	if(doing_address && id)
+	  proto_item_append_text(address_item, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+
+#.FN_BODY MTSIdentifier
+
+	doing_address = TRUE;
+
+	%(DEFAULT_BODY)s
+
+	doing_address = FALSE;
+
+#.FN_BODY BuiltInStandardAttributes
+
+	address_item = tree;	
+
+	%(DEFAULT_BODY)s
+
+#.FN_BODY TraceInformationElement
+
+	doing_address = TRUE;
+
+	%(DEFAULT_BODY)s
+
+	doing_address = FALSE;
+
+#.FN_BODY InternalTraceInformationElement
+
+	doing_address = TRUE;
+
+	%(DEFAULT_BODY)s
+
+	doing_address = FALSE;
+
+
+#.FN_BODY DomainSuppliedInformation
+
+	doing_address = FALSE;
+
+	%(DEFAULT_BODY)s
+
+	doing_address = TRUE;
+	proto_item_append_text(tree, ")");
+
+#.FN_BODY MTASuppliedInformation
+
+	doing_address = FALSE;
+
+	%(DEFAULT_BODY)s
+
+	doing_address = TRUE;
+	proto_item_append_text(tree, ")");
+
+#.FN_PARS Time
+	VAL_PTR = &arrival
+
+#.FN_BODY Time
+	tvbuff_t *arrival = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(arrival)
+		proto_item_append_text(address_item, " %%s", tvb_format_text(arrival, 0, tvb_length(arrival)));
+
+#.FN_PARS RoutingAction
+	VAL_PTR = &action
+
+#.FN_BODY RoutingAction
+	int action = 0;
+
+	%(DEFAULT_BODY)s
+
+	proto_item_append_text(address_item, " %%s", val_to_str(action, x411_RoutingAction_vals, "action(%%d)"));
+
+#.FN_PARS MTABindError
+  VAL_PTR=&error
+
+#.FN_BODY MTABindError
+  int error = -1;
+  %(DEFAULT_BODY)s
+  if((error != -1) && check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(error, x411_MTABindError_vals, "error(%%d)"));
+
+
+#.END
