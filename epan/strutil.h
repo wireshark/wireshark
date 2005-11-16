@@ -156,4 +156,12 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
 	}
 #endif
 
+/* g_ascii_isprint() does not exist in gtk 1
+ * assume all codes >=0x20 and <0x80 are ascii printables.
+ */
+#if GTK_MAJOR_VERSION < 2
+#define g_ascii_isprint(c)						\
+	(((c<0x20)||(c>=0x80))?FALSE:TRUE)
+#endif
+
 #endif /* __STRUTIL_H__ */
