@@ -35,6 +35,7 @@
  * ISUP:
  * http://www.itu.int/rec/recommendation.asp?type=products&lang=e&parent=T-REC-Q
  * Q.763-199912, Q.763-200212Amd2 
+ * ITU-T Q.763/Amd.1 (03/2001)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1261,6 +1262,8 @@ static int hf_isup_app_Send_notification_ind		= -1;
 static int hf_isup_apm_segmentation_ind				= -1;
 static int hf_isup_apm_si_ind						= -1;
 static int hf_isup_apm_slr							= -1;
+static int hf_isup_orig_addr_len					= -1;
+static int hf_isup_dest_addr_len					= -1;
 static int hf_isup_app_Release_call_ind				= -1;
 static int hf_length_indicator						= -1;
 static int hf_afi									= -1;
@@ -2829,36 +2832,56 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 }
 
+
+
+/*
+Octet
+	-------------------------------------------
+1	| ext. Application context identifier lsb
+	-------------------------------------------
+1a	| ext. msb
+	-------------------------------------------
+2	| ext. spare						SNI RCI
+	-------------------------------------------
+3	| ext. SI APM segmentation indicator
+	-------------------------------------------
+3a	| ext. Segmentation local reference
+	-------------------------------------------
+4a	|
+:	|	APM-user information
+4n	|
+	+-------------------------------------------
+	
+	Figure 77/Q.763 . Application transport parameter field
+  */
 static void
 dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 { 
 
-	guint8 aci;			/* application context identifier */
 	guint8 application_transport_instruction_ind;
 	guint8 si_and_apm_segmentation_indicator;
 	guint8 apm_Segmentation_local_ref;
-	guint8 pointer_to_transparent_data;
 	guint16 aci16;
 	gint offset = 0;
+	guint8 octet;
 	guint length = tvb_reported_length(parameter_tvb);
   
-	proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Application transport parameter fields:");
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport parameter fields:");
 	proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
-	aci = tvb_get_guint8(parameter_tvb, 0);
+	aci16 = tvb_get_guint8(parameter_tvb, offset);
  
-	if ( (aci & H_8BIT_MASK) == 0x80) {
+	if ( (aci16 & H_8BIT_MASK) == 0x80) {
 		/* Octet 1 */
+		aci16 = aci16 & 0x7f;
 		proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
-		proto_tree_add_item( parameter_tree, hf_isup_app_cont_ident, parameter_tvb, offset, 1, FALSE );
+		proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident , parameter_tvb, offset, 1, aci16);
 		offset = offset + 1;
-		if ((aci & 0x7f) > 6)
-			return;
 		}
+	/* Octet 1a */
 	else {
-		aci16 = tvb_get_letohs(parameter_tvb,offset);
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 2, "Application context identifier: 0x%x", aci16);
+		aci16 = (aci16<<8) | (tvb_get_guint8(parameter_tvb, offset) & 0x7f);
+		proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident , parameter_tvb, offset, 2, aci16);
 		offset = offset + 2;
-		return; /* no further decoding of this element */
 	}
 
 	/* Octet 2 */
@@ -2878,26 +2901,56 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 	offset = offset + 1;
 
 	/* Octet 3a */
-	/*if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x00) {*/
+	if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x00) {
 		apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
 		proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
 		proto_tree_add_item( parameter_tree, hf_isup_apm_slr, parameter_tvb, offset, 1, FALSE );
 		offset = offset + 1;
-	/*}*/
+	}
+	/* For APM’98’-user applications. ( aci 0 - 3 ), APM-user information field starts at octet 4 */
+	if (aci16 > 3) {
+		/* Octet 4 Originating Address length */
+		octet = tvb_get_guint8(parameter_tvb,offset);
+		proto_tree_add_item( parameter_tree, hf_isup_orig_addr_len, parameter_tvb, offset, 1, FALSE );
+		offset++;
+		if ( octet != 0){
+			/* 4b */
+			proto_tree_add_item( parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, FALSE );
+			/* nature of address indicator */
+			offset++;
+			proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, FALSE );
+			proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, FALSE );
+			offset++;
+			/* Address digits */
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset, octet - 2, "Address digits");
+			offset = offset + octet - 2;
+		}
+		/* Octet 5 Destination Address length */
+		octet = tvb_get_guint8(parameter_tvb,offset);
+		proto_tree_add_item( parameter_tree, hf_isup_dest_addr_len, parameter_tvb, offset, 1, FALSE );
+		offset++;
+		if ( octet != 0){
+			/* 4b */
+			proto_tree_add_item( parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, FALSE );
+			/* nature of address indicator */
+			offset++;
+			proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, FALSE );
+			proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, FALSE );
+			offset++;
+			/* Address digits */
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset, octet - 2, "Address digits");
+			offset = offset + octet - 2;
+		}
+	}
 
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "APM-user information field"  );
 	/* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
-	if ((aci & 0x7f) != 5) {
+	if ((aci16 & 0x7fff) != 5) {
 		proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "No further dissection of APM-user information field");
 		return;
 	}
-	pointer_to_transparent_data = tvb_get_guint8(parameter_tvb, offset);
-	if (pointer_to_transparent_data != 0)
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x Don't know how to dissect further", pointer_to_transparent_data  );
-	proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x No transparent data", pointer_to_transparent_data  );
-	offset = offset + 1;
- 
-	dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb, pinfo, parameter_tree, offset);
+
+ 	dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb, pinfo, parameter_tree, offset);
 }
 
 
@@ -6247,7 +6300,7 @@ proto_register_isup(void)
 
 		{ &hf_isup_app_cont_ident,
 			{ "Application context identifier",  "isup.app_context_identifier",
-			FT_UINT8, BASE_DEC, VALS(isup_application_transport_parameter_value),GFEDCBA_8BIT_MASK,
+			FT_UINT16, BASE_DEC, VALS(isup_application_transport_parameter_value),GFEDCBA_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_app_Release_call_ind, 
@@ -6270,6 +6323,16 @@ proto_register_isup(void)
 			FT_BOOLEAN, 8, TFS(&isup_Sequence_ind_value), G_8BIT_MASK,
 			"", HFILL }},
 		
+		{ &hf_isup_orig_addr_len, 
+			{ "Originating Address length",  "isup.orig_addr_len",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Originating Address length", HFILL }},
+
+		{ &hf_isup_dest_addr_len, 
+			{ "Destination Address length",  "isup.orig_addr_len",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Destination Address length", HFILL }},
+
 		{ &hf_isup_apm_slr, 
 			{ "Segmentation local reference (SLR)",  "isup.APM_slr",
 			FT_UINT8, BASE_DEC, NULL,GFEDCBA_8BIT_MASK,
