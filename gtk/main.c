@@ -1777,8 +1777,12 @@ main(int argc, char *argv[])
         /* will never return! */
         exit(0);
         break;
-      case '?':        /* argument-parsing error - quit now */
-        exit(0);
+      case '?':        /* argument-parsing error - quit now if we're a normal Ethereal */
+                       /* (a capture child uses a slightly different options pattern, */
+                       /* so don't quit here as this error is only meaningful in the "real" run later) */
+        if(!capture_child)
+          exit(0);
+        break;
     }
   }
 
