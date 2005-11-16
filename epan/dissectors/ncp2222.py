@@ -2681,6 +2681,7 @@ MaxNumOfSpoolPr			= uint32("max_num_of_spool_pr", "Maximum Number Of Spool Print
 MaxNumOfStacks			= uint32("max_num_of_stacks", "Maximum Number Of Stacks")
 MaxNumOfUsers			= uint32("max_num_of_users", "Maximum Number Of Users")
 MaxNumOfVol			= uint32("max_num_of_vol", "Maximum Number of Volumes")
+MaxReadDataReplySize    = uint16("max_read_data_reply_size", "Max Read Data Reply Size")
 MaxSpace			= uint32("maxspace", "Maximum Space")
 MaxUsedDynamicSpace 		= uint32("max_used_dynamic_space", "Max Used Dynamic Space")
 MediaList                       = uint32("media_list", "Media List")
@@ -11914,7 +11915,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8001, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9400, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
 	pkt = NCP(0x5702, "Initialize Search", 'file', has_length=0)
 	pkt.Request( (18,272), [
@@ -11933,7 +11934,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5703, 87/03
 	pkt = NCP(0x5703, "Search for File or Subdirectory", 'file', has_length=0)
 	pkt.Request((26, 280), [
@@ -11999,7 +12000,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5704, 87/04
 	pkt = NCP(0x5704, "Rename Or Move a File or Subdirectory", 'file', has_length=0)
 	pkt.Request((28, 536), [
@@ -12020,7 +12021,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9200, 0x9600,
-			     0x9804, 0x9a00, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9a00, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5705, 87/05
 	pkt = NCP(0x5705, "Scan File or Subdirectory for Trustees", 'file', has_length=0)
 	pkt.Request((24, 278), [
@@ -12041,7 +12042,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5706, 87/06
 	pkt = NCP(0x5706, "Obtain File or SubDirectory Information", 'file', has_length=0)
 	pkt.Request((24,278), [
@@ -12111,7 +12112,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8700, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa802, 0xbf00, 0xfd00, 0xff16])
+			     0x9802, 0x9b03, 0x9c03, 0xa802, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5707, 87/07
 	pkt = NCP(0x5707, "Modify File or Subdirectory DOS Information", 'file', has_length=0)
 	pkt.Request((62,316), [
@@ -12145,7 +12146,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8c01, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5708, 87/08
 	pkt = NCP(0x5708, "Delete a File or Subdirectory", 'file', has_length=0)
 	pkt.Request((20,274), [
@@ -12161,7 +12162,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5709, 87/09
 	pkt = NCP(0x5709, "Set Short Directory Handle", 'file', has_length=0)
 	pkt.Request((20,274), [
@@ -12178,7 +12179,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/570A, 87/10
 	pkt = NCP(0x570A, "Add Trustee Set to File or Subdirectory", 'file', has_length=0)
 	pkt.Request((31,285), [
@@ -12197,7 +12198,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfc01, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfc01, 0xfd00, 0xff16])
 	# 2222/570B, 87/11
 	pkt = NCP(0x570B, "Delete Trustee Set from File or SubDirectory", 'file', has_length=0)
 	pkt.Request((27,281), [
@@ -12234,7 +12235,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5710, 87/16
 	pkt = NCP(0x5710, "Scan Salvageable Files", 'file', has_length=0)
 	pkt.Request((26,280), [
@@ -12394,13 +12395,13 @@ def define_ncp2222():
             srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
             srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
             srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
-            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
-            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
-            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
-            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
-            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
             srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
             srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
             srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
             srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
             srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
@@ -12420,7 +12421,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5715, 87/21
 	pkt = NCP(0x5715, "Get Path String from Short Directory Handle", 'file', has_length=0)
 	pkt.Request(10, [
@@ -14395,14 +14396,15 @@ def define_ncp2222():
 			     0xd203, 0xa901, 0xaa00, 0xd301, 0xd402])
 	# 2222/5935, 89/53
 	pkt = NCP(0x5935, "Enhanced Read Extended Attribute", 'file', has_length=0 )
-	pkt.Request((29,539), [
+	pkt.Request((31,541), [
 		rec( 8, 2, EAFlags ),
 		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
 		rec( 14, 4, ReservedOrDirectoryNumber ),
 		rec( 18, 4, FileOffset ),
 		rec( 22, 4, InspectSize ),
         rec( 26, 1, DataTypeFlag ),
-		rec( 27, (2,512), EAKey ),
+        rec( 27, 2, MaxReadDataReplySize ),
+		rec( 29, (2,512), EAKey ),
 	], info_str=(EAKey, "Enhanced Read Extended Attribute: %s", ", %s"))
 	pkt.Reply((26,536), [
 		rec( 8, 4, EAErrorCodes ),
