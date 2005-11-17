@@ -144,8 +144,8 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
  */
 char * convert_string_case(const char *string, gboolean case_insensitive);
 
-/* g_strlcat() does not exist in gtk 1 */
-#if GTK_MAJOR_VERSION < 2
+/* g_strlcat() does not exist in GLib 1.2[.x] */
+#if GLIB_MAJOR_VERSION < 2
 #define g_strlcat(dst, src, size)					\
 	{								\
 	int strl;							\
@@ -156,10 +156,10 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
 	}
 #endif
 
-/* g_ascii_isprint() does not exist in gtk 1
- * assume all codes >=0x20 and <0x80 are ascii printables.
+/* g_ascii_isprint() does not exist in GLib 1.2[.x].
+ * assume all codes >=0x20 and <0x80 are ASCII printables.
  */
-#if GTK_MAJOR_VERSION < 2
+#if GLIB_MAJOR_VERSION < 2
 #define g_ascii_isprint(c)						\
 	(((c<0x20)||(c>=0x80))?FALSE:TRUE)
 #endif
