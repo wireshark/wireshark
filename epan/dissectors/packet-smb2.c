@@ -1184,6 +1184,44 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	return offset;
 }
 
+static void
+dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
+{
+	switch(si->saved->class){
+	case SMB2_CLASS_FILE_INFO:
+		switch(si->saved->infolevel){
+		default:
+			/* we dont handle this infolevel yet */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+			offset += tvb_length_remaining(tvb, offset);
+		}
+		break;
+	case SMB2_CLASS_FS_INFO:
+		switch(si->saved->infolevel){
+		default:
+			/* we dont handle this infolevel yet */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+			offset += tvb_length_remaining(tvb, offset);
+		}
+		break;
+	case SMB2_CLASS_SEC_INFO:
+		switch(si->saved->infolevel){
+		case SMB2_SEC_INFO_00:
+			dissect_security_information_mask(tvb, tree, offset+8);
+			break;
+		default:
+			/* we dont handle this infolevel yet */
+			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+			offset += tvb_length_remaining(tvb, offset);
+		}
+		break;
+	default:
+		/* we dont handle this class yet */
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+	}
+}
+
+
 static int
 dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
@@ -1213,8 +1251,13 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree_add_item(tree, hf_smb2_max_response_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	/* parameters */
+	if(si->saved){
+		dissect_smb2_getinfo_parameters(tvb, pinfo, tree, offset, si);
+	} else {
+		/* some unknown bytes */
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	}
 	offset += 16;
 
 	/* fid */

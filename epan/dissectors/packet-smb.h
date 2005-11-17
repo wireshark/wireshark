@@ -295,4 +295,6 @@ extern int dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int o
 
 extern const value_string oa_open_vals[];
 
+extern int dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
+
 #endif

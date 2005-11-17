@@ -7266,7 +7266,7 @@ static const true_false_string tfs_nt_qsd_sacl = {
 #define NT_QSD_DACL	0x00000004
 #define NT_QSD_SACL	0x00000008
 
-static int
+int
 dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
