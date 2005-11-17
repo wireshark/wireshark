@@ -199,7 +199,6 @@ typedef struct _tcp_unacked_t {
  */
 SLAB_ITEM_TYPE_DEFINE(tcp_unacked_t)
 static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
-static field_info *field_info_tmp=NULL;
 #define TCP_UNACKED_NEW(fi)					\
 	SLAB_ALLOC(fi, tcp_unacked_t)
 #define TCP_UNACKED_FREE(fi)					\
