@@ -364,7 +364,7 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        if( ! ( f = eth_fopen( argv[1], "rb" ) ) )
+        if( ! ( f = fopen( argv[1], "rb" ) ) )
         {
             perror( "fopen" );
             return( 1 );
