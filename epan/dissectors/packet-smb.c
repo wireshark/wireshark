@@ -12918,6 +12918,66 @@ dissect_qfsi_FS_ATTRIBUTE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 	return offset;
 }
 
+int
+dissect_qfsi_FS_OBJECTID_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp)
+{
+	e_uuid_t fs_id;
+	char uuid_str[DCERPC_UUID_STR_LEN]; 
+	guint8 drep = 0x10;
+		
+	CHECK_BYTE_COUNT_TRANS_SUBR(16);
+
+	dcerpc_tvb_get_uuid (tvb, offset, &drep, &fs_id);
+
+	g_snprintf(
+		uuid_str, DCERPC_UUID_STR_LEN, 
+		"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		fs_id.Data1, fs_id.Data2, fs_id.Data3,
+		fs_id.Data4[0], fs_id.Data4[1],
+		fs_id.Data4[2], fs_id.Data4[3],
+		fs_id.Data4[4], fs_id.Data4[5],
+		fs_id.Data4[6], fs_id.Data4[7]);
+
+	proto_tree_add_string_format(
+		tree, hf_smb_fs_guid, tvb,
+		offset, 16, uuid_str, "GUID: %s", uuid_str);
+
+	COUNT_BYTES_TRANS_SUBR(16);
+
+	return offset;
+}
+
+int
+dissect_qfsi_FS_FULL_SIZE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp)
+{
+	/* allocation size */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* caller free allocation units */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_caller_free_alloc_units64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* actual free allocation units */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_actual_free_alloc_units64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* sectors per unit */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* bytes per sector */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	return offset;
+}
+
 static int
 dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int offset, guint16 *bcp)
@@ -13137,54 +13197,10 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_nt_quota(tvb, tree, offset, bcp);
 		break;
 	case 1007:	/* SMB_FS_FULL_SIZE_INFORMATION */
-		/* allocation size */
-		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
-		COUNT_BYTES_TRANS_SUBR(8);
-
-		/* caller free allocation units */
-		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_caller_free_alloc_units64, tvb, offset, 8, TRUE);
-		COUNT_BYTES_TRANS_SUBR(8);
-
-		/* actual free allocation units */
-		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_actual_free_alloc_units64, tvb, offset, 8, TRUE);
-		COUNT_BYTES_TRANS_SUBR(8);
-
-		/* sectors per unit */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* bytes per sector */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
+		offset = dissect_qfsi_FS_FULL_SIZE_INFO(tvb, pinfo, tree, offset, bcp);
 		break;
 	case 1008: /* Query Object ID is GUID plus unknown data */ {
-		e_uuid_t fs_id;
-		char uuid_str[DCERPC_UUID_STR_LEN]; 
-		guint8 drep = 0x10;
-		
-		CHECK_BYTE_COUNT_TRANS_SUBR(16);
-
-		dcerpc_tvb_get_uuid (tvb, offset, &drep, &fs_id);
-
-		g_snprintf(
-			uuid_str, DCERPC_UUID_STR_LEN, 
-			"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			fs_id.Data1, fs_id.Data2, fs_id.Data3,
-			fs_id.Data4[0], fs_id.Data4[1],
-			fs_id.Data4[2], fs_id.Data4[3],
-			fs_id.Data4[4], fs_id.Data4[5],
-			fs_id.Data4[6], fs_id.Data4[7]);
-
-		proto_tree_add_string_format(
-			tree, hf_smb_fs_guid, tvb,
-			offset, 16, uuid_str, "GUID: %s", uuid_str);
-
-		COUNT_BYTES_TRANS_SUBR(16);
+		offset = dissect_qfsi_FS_OBJECTID_INFO(tvb, pinfo, tree, offset, bcp);
 		break;
 	    }
 	}
