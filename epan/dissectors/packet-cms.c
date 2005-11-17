@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-cms.c                                                             */
+/* ./packet-cms.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
@@ -221,7 +221,7 @@ static proto_tree *top_tree=NULL;
 unsigned char digest_buf[MAX(SHA1_BUFFER_SIZE, MD5_BUFFER_SIZE)];
 
 static void
-cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, char *alg, tvbuff_t *tvb, int offset)
+cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff_t *tvb, int offset)
 {
   sha1_context sha1_ctx;
   md5_state_t md5_ctx;
@@ -234,8 +234,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, char *alg, tvbuff_t *tv
 
     sha1_starts(&sha1_ctx);
 
-    sha1_update(&sha1_ctx, 
-		(guint8*)tvb_get_ptr(content, 0, tvb_length(content)), 
+    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_length(content)), 
 		tvb_length(content));
 
     sha1_finish(&sha1_ctx, digest_buf);
@@ -246,8 +245,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, char *alg, tvbuff_t *tv
 
     md5_init(&md5_ctx);
 
-    md5_append(&md5_ctx, 
-	       (const guint8*) tvb_get_ptr(content, 0, tvb_length(content)), 
+    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_length(content)), 
 	       tvb_length(content));
     
     md5_finish(&md5_ctx, digest_buf);
