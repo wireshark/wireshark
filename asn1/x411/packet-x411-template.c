@@ -57,8 +57,8 @@ int proto_x411 = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = -1; /* integer extension id */
-static char *object_identifier_id; /* extensions identifier */
-static char *content_type_id; /* content type identifier */
+static const char *object_identifier_id; /* extensions identifier */
+static const char *content_type_id; /* content type identifier */
 
 #define MAX_ORA_STR_LEN     256
 static char *oraddress = NULL;
