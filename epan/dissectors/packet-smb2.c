@@ -70,7 +70,11 @@ static int hf_smb2_security_blob = -1;
 static int hf_smb2_unknown = -1;
 static int hf_smb2_unknown_timestamp = -1;
 static int hf_smb2_create_timestamp = -1;
-static int hf_smb2_oplock_flags = -1;
+static int hf_smb2_create_flags = -1;
+static int hf_smb2_create_flags_request_oplock = -1;
+static int hf_smb2_create_flags_request_exclusive_oplock = -1;
+static int hf_smb2_create_flags_grant_oplock = -1;
+static int hf_smb2_create_flags_grant_exclusive_oplock = -1;
 static int hf_smb2_close_flags = -1;
 static int hf_smb2_last_access_timestamp = -1;
 static int hf_smb2_last_write_timestamp = -1;
@@ -150,6 +154,7 @@ static gint ett_smb2_fs_info_01 = -1;
 static gint ett_smb2_fs_info_05 = -1;
 static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_tid_tree = -1;
+static gint ett_smb2_create_flags = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
@@ -771,6 +776,27 @@ dissect_smb2_fs_info_01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 10, FALSE);
 	offset += 10;
 
+	return offset;
+}
+
+static int
+dissect_smb2_create_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_create_flags, tvb, offset, 2, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_create_flags);
+	}
+
+	proto_tree_add_item(tree, hf_smb2_create_flags_request_exclusive_oplock, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb2_create_flags_request_oplock, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb2_create_flags_grant_exclusive_oplock, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb2_create_flags_grant_oplock, tvb, offset, 2, TRUE);
+
+
+	offset += 2;
 	return offset;
 }
 
@@ -1556,9 +1582,8 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset);
 
-	/* oplock flags */
-	proto_tree_add_item(tree, hf_smb2_oplock_flags, tvb, offset, 2, TRUE);
-	offset += 2;
+	/* create flags */
+	offset = dissect_smb2_create_flags(tree, tvb, offset);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 12, TRUE);
@@ -1679,9 +1704,8 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset);
 
-	/* oplock flags */
-	proto_tree_add_item(tree, hf_smb2_oplock_flags, tvb, offset, 2, TRUE);
-	offset += 2;
+	/* create flags */
+	offset = dissect_smb2_create_flags(tree, tvb, offset);
 
 	/* create action */
 	proto_tree_add_item(tree, hf_smb2_create_action, tvb, offset, 4, TRUE);
@@ -2919,9 +2943,25 @@ proto_register_smb2(void)
 		{ "EA Data Length", "smb2.ea.data_len", FT_UINT8, BASE_DEC,
 		NULL, 0, "EA Data Length", HFILL }},
 
-	{ &hf_smb2_oplock_flags,
-		{ "OpLock Flags", "smb2.oplock.flags", FT_UINT16, BASE_HEX,
-		NULL, 0, "Oplock flags", HFILL }},
+	{ &hf_smb2_create_flags,
+		{ "Create Flags", "smb2.create.flags", FT_UINT16, BASE_HEX,
+		NULL, 0, "Create flags", HFILL }},
+
+	{ &hf_smb2_create_flags_request_oplock,
+		{ "Request Oplock", "smb2.create_flags.request_oplock", FT_BOOLEAN, 16,
+		NULL, 0x0100, "", HFILL }},
+
+	{ &hf_smb2_create_flags_request_exclusive_oplock,
+		{ "Request Exclusive Oplock", "smb2.create_flags.request_exclusive_oplock", FT_BOOLEAN, 16,
+		NULL, 0x0800, "", HFILL }},
+
+	{ &hf_smb2_create_flags_grant_oplock,
+		{ "Grant Oplock", "smb2.create_flags.grant_oplock", FT_BOOLEAN, 16,
+		NULL, 0x0001, "", HFILL }},
+
+	{ &hf_smb2_create_flags_grant_exclusive_oplock,
+		{ "Grant Exclusive Oplock", "smb2.create_flags.grant_exclusive_oplock", FT_BOOLEAN, 16,
+		NULL, 0x0008, "", HFILL }},
 
 	{ &hf_smb2_close_flags,
 		{ "Close Flags", "smb2.close.flags", FT_UINT16, BASE_HEX,
@@ -2971,6 +3011,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_info_05,
 		&ett_smb2_sec_info_00,
 		&ett_smb2_tid_tree,
+		&ett_smb2_create_flags,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
