@@ -37,7 +37,7 @@ typedef struct
 sha1_context;
 
 void sha1_starts( sha1_context *ctx );
-void sha1_update( sha1_context *ctx, guint8 *input, guint32 length );
+void sha1_update( sha1_context *ctx, const guint8 *input, guint32 length );
 void sha1_finish( sha1_context *ctx, guint8 digest[20] );
 
 #endif /* sha1.h */

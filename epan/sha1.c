@@ -57,7 +57,7 @@ void sha1_starts( sha1_context *ctx )
     ctx->state[4] = 0xC3D2E1F0;
 }
 
-static void sha1_process( sha1_context *ctx, guint8 data[64] )
+static void sha1_process( sha1_context *ctx, const guint8 data[64] )
 {
     guint32 temp, W[16], A, B, C, D, E;
 
@@ -213,7 +213,7 @@ static void sha1_process( sha1_context *ctx, guint8 data[64] )
     ctx->state[4] += E;
 }
 
-void sha1_update( sha1_context *ctx, guint8 *input, guint32 length )
+void sha1_update( sha1_context *ctx, const guint8 *input, guint32 length )
 {
     guint32 left, fill;
 
@@ -231,7 +231,7 @@ void sha1_update( sha1_context *ctx, guint8 *input, guint32 length )
     if( left && length >= fill )
     {
         memcpy( (void *) (ctx->buffer + left),
-                (void *) input, fill );
+                (const void *) input, fill );
         sha1_process( ctx, ctx->buffer );
         length -= fill;
         input  += fill;
@@ -248,7 +248,7 @@ void sha1_update( sha1_context *ctx, guint8 *input, guint32 length )
     if( length )
     {
         memcpy( (void *) (ctx->buffer + left),
-                (void *) input, length );
+                (const void *) input, length );
     }
 }
 
