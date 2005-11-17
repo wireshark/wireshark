@@ -83,6 +83,7 @@
 #include <epan/stat_cmd_args.h>
 #include "util.h"
 #include "clopts_common.h"
+#include "cmdarg_err.h"
 #include "version_info.h"
 #include "merge.h"
 
@@ -1124,6 +1125,47 @@ show_version(void)
 #endif
 }
 
+/*
+ * Report an error in command-line arguments.
+ * Creates a console on Windows.
+ * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
+ * terminal isn't the standard error?
+ */
+void
+cmdarg_err(const char *fmt, ...)
+{
+  va_list ap;
+
+#ifdef _WIN32
+  create_console();
+#endif
+  va_start(ap, fmt);
+  fprintf(stderr, "ethereal: ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
+}
+
+/*
+ * Report additional information for an error in command-line arguments.
+ * Creates a console on Windows.
+ * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
+ * terminal isn't the standard error?
+ */
+void
+cmdarg_err_cont(const char *fmt, ...)
+{
+  va_list ap;
+
+#ifdef _WIN32
+  create_console();
+#endif
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
+}
+
 #if defined(_WIN32) || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
 /* 
    Once every 3 seconds we get a callback here which we use to update
@@ -1758,8 +1800,7 @@ main(int argc, char *argv[])
 
   /* "pre-scan" the command line parameters, if we have "console only"
      parameters.  We do this so we don't start GTK+ if we're only showing
-     command-line help information, version information, or "-G"
-     information.
+     command-line help or version information.
 
      XXX - this pre-scan is doen before we start GTK+, so we haven't
      run gtk_init() on the arguments.  That means that GTK+ arguments
@@ -1778,11 +1819,6 @@ main(int argc, char *argv[])
         break;
       case 'v':        /* Show version and exit */
         show_version();
-        exit(0);
-        break;
-      case 'G':        /* dump various field or other infos, see handle_dashG_option() */
-        handle_dashG_option(argc, argv, "ethereal");
-        /* will never return! */
         exit(0);
         break;
       case '?':        /* Ignore errors - the "real" scan will catch them. */
@@ -2091,7 +2127,7 @@ main(int argc, char *argv[])
       case 'Z':        /* Write to pipe FD XXX */
 #endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
-        capture_opts_add_opt(capture_opts, "ethereal", opt, optarg, &start_capture);
+        capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2102,13 +2138,13 @@ main(int argc, char *argv[])
        * the error flags for the user in the non-libpcap case.
        */
       case 'W':        /* Write to capture file FD xxx */
-        capture_opts_add_opt(capture_opts, "ethereal", opt, optarg, &start_capture);
+        capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
 	break;
 #endif
 
       /*** all non capture option specific ***/
       case 'g':        /* Go to packet */
-        go_to_packet = get_positive_int("Ethereal", optarg, "go to packet");
+        go_to_packet = get_positive_int(optarg, "go to packet");
         break;
       case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
@@ -2139,7 +2175,7 @@ main(int argc, char *argv[])
           g_resolv_flags = RESOLV_NONE;
         badopt = string_to_name_resolve(optarg, &g_resolv_flags);
         if (badopt != '\0') {
-          g_warning("ethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
+          cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
 			badopt);
           exit(1);
         }
@@ -2149,7 +2185,7 @@ main(int argc, char *argv[])
         case PREFS_SET_OK:
           break;
         case PREFS_SET_SYNTAX_ERR:
-          g_warning("ethereal: Invalid -o flag \"%s\"", optarg);
+          cmdarg_err("Invalid -o flag \"%s\"", optarg);
           exit(1);
           break;
         case PREFS_SET_NO_SUCH_PREF:
@@ -2159,12 +2195,12 @@ main(int argc, char *argv[])
               break;
             case PREFS_SET_SYNTAX_ERR:
               /* shouldn't happen, checked already above */
-              g_warning("ethereal: Invalid -o flag \"%s\"", optarg);
+              cmdarg_err("Invalid -o flag \"%s\"", optarg);
               exit(1);
               break;
             case PREFS_SET_NO_SUCH_PREF:
             case PREFS_SET_OBSOLETE:
-              g_warning("ethereal: -o flag \"%s\" specifies unknown preference/recent value",
+              cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
 	            optarg);
               exit(1);
               break;
@@ -2173,7 +2209,7 @@ main(int argc, char *argv[])
             }
           break;
         case PREFS_SET_OBSOLETE:
-          g_warning("ethereal: -o flag \"%s\" specifies obsolete preference",
+          cmdarg_err("-o flag \"%s\" specifies obsolete preference",
 			optarg);
           exit(1);
           break;
@@ -2200,10 +2236,9 @@ main(int argc, char *argv[])
         else if (strcmp(optarg, "d") == 0)
           timestamp_set_type(TS_DELTA);
         else {
-          g_warning("ethereal: Invalid time stamp type \"%s\"",
-            optarg);
-          g_warning("It must be \"r\" for relative, \"a\" for absolute,");
-          g_warning("\"ad\" for absolute with date, or \"d\" for delta.");
+          cmdarg_err("Invalid time stamp type \"%s\"", optarg);
+          cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
+          cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
           exit(1);
         }
         break;
@@ -2214,15 +2249,14 @@ main(int argc, char *argv[])
            part of a tap filter.  Instead, we just add the argument
            to a list of stat arguments. */
         if (!process_stat_cmd_arg(optarg)) {
-	  g_warning("ethereal: invalid -z argument.");
-	  g_warning("  -z argument must be one of :");
+	  cmdarg_err("Invalid -z argument.");
+	  cmdarg_err_cont("  -z argument must be one of :");
 	  list_stat_cmd_args();
 	  exit(1);
 	}
         break;
       default:
       case '?':        /* Bad flag - print usage message */
-        g_warning("Bad flag");
         arg_error = TRUE;
         break;
     }
@@ -2235,7 +2269,7 @@ main(int argc, char *argv[])
        * Input file name specified with "-r" *and* specified as a regular
        * command-line argument.
        */
-	  g_warning("File name specified both with -r and regular argument");
+      cmdarg_err("File name specified both with -r and regular argument");
       arg_error = TRUE;
     } else {
       /*
@@ -2260,14 +2294,14 @@ main(int argc, char *argv[])
     /*
      * Extra command line arguments were specified; complain.
      */
-    g_warning("Invalid argument: %s", argv[0]);
+    cmdarg_err("Invalid argument: %s", argv[0]);
     arg_error = TRUE;
   }
 
   if (arg_error) {
 #ifndef HAVE_LIBPCAP
     if (capture_option_specified) {
-      g_warning("This version of Ethereal was not built with support for capturing packets.");
+      cmdarg_err("This version of Ethereal was not built with support for capturing packets.");
     }
 #endif
     print_usage(FALSE);
@@ -2277,7 +2311,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   if (start_capture && list_link_layer_types) {
     /* Specifying *both* is bogus. */
-    g_warning("ethereal: You can't specify both -L and a live capture.");
+    cmdarg_err("You can't specify both -L and a live capture.");
     exit(1);
   }
 
@@ -2286,12 +2320,12 @@ main(int argc, char *argv[])
        did the user also specify a capture file to be read? */
     if (cf_name) {
       /* Yes - that's bogus. */
-      g_warning("ethereal: You can't specify -L and a capture file to be read.");
+      cmdarg_err("You can't specify -L and a capture file to be read.");
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
     if (capture_opts->multi_files_on) {
-      g_warning("ethereal: Ring buffer requested, but a capture isn't being done.");
+      cmdarg_err("Ring buffer requested, but a capture isn't being done.");
       exit(1);
     }
   } else {
@@ -2299,7 +2333,7 @@ main(int argc, char *argv[])
        a capture file to be read? */
     if (start_capture && cf_name) {
       /* Yes - that's bogus. */
-      g_warning("ethereal: You can't specify both a live capture and a capture file to be read.");
+      cmdarg_err("You can't specify both a live capture and a capture file to be read.");
       exit(1);
     }
 
@@ -2313,15 +2347,15 @@ main(int argc, char *argv[])
 	 c) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
       if (capture_opts->save_file == NULL) {
-	g_warning("ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.");
+	cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
 	capture_opts->multi_files_on = FALSE;
       }
 /*      if (capture_opts->real_time_mode) {
-	g_warning("ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.");
+	cmdarg_err("Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.");
 	capture_opts->multi_files_on = FALSE;
       }*/
       if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
-	g_warning("ethereal: Ring buffer requested, but no maximum capture file size or duration were specified.");
+	cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
 /* XXX - this must be redesigned as the conditions changed */
 /*	capture_opts->multi_files_on = FALSE;*/
       }
@@ -2343,12 +2377,12 @@ main(int argc, char *argv[])
 
           case CANT_GET_INTERFACE_LIST:
               cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-              g_warning("%s", cant_get_if_list_errstr);
+              cmdarg_err("%s", cant_get_if_list_errstr);
               g_free(cant_get_if_list_errstr);
               break;
 
           case NO_INTERFACES_FOUND:
-              g_warning("ethereal: There are no interfaces on which a capture can be done");
+              cmdarg_err("There are no interfaces on which a capture can be done");
               break;
           }
           exit(2);
@@ -2365,11 +2399,11 @@ main(int argc, char *argv[])
     lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
     if (lt_list == NULL) {
       if (err_str[0] != '\0') {
-	g_warning("ethereal: The list of data link types for the capture device could not be obtained (%s)."
+	cmdarg_err("The list of data link types for the capture device could not be obtained (%s)."
 	  "Please check to make sure you have sufficient permissions, and that\n"
 	  "you have the proper interface or pipe specified.\n", err_str);
       } else
-	g_warning("ethereal: The capture device has no data link types.");
+	cmdarg_err("The capture device has no data link types.");
       exit(2);
     }
     g_warning("Data link types (use option -y to set):");

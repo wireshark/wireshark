@@ -1,5 +1,5 @@
-/* clopts_common.h
- * Handle command-line arguments common to Ethereal and Tethereal
+/* cmdarg_err.h
+ * Declarations of routines to report command-line errors.
  *
  * $Id$
  *
@@ -22,19 +22,25 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PROTO_DUMPOPTS_H__
-#define __PROTO_DUMPOPTS_H__
+#ifndef __CMDARG_ERR_H__
+#define __CMDARG_ERR_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-int get_natural_int(const char *string, const char *name);
+/*
+ * Report an error in command-line arguments.
+ */
+extern void cmdarg_err(const char *fmt, ...);
 
-int get_positive_int(const char *string, const char *name);
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+extern void cmdarg_err_cont(const char *fmt, ...);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __PROTO_DUMPOPTS_H__ */
+#endif /* __CMDARG_ERR_H__ */

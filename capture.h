@@ -104,7 +104,7 @@ extern void
 capture_opts_init(capture_options *capture_opts, void *cfile);
 
 extern void
-capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt, const char *optarg, gboolean *start_capture);
+capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);
 
 /* log content of capture_opts */
 extern void

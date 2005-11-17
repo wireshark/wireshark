@@ -71,6 +71,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	capture_ui_utils.h	\
 	cfile.h	\
 	clopts_common.h	\
+	cmdarg_err.h	\
 	color.h	\
 	conditions.h	\
 	disabled_protos.h	\

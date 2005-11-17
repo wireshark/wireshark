@@ -40,6 +40,7 @@
 #include "capture.h"
 #include "ringbuffer.h"
 #include "clopts_common.h"
+#include "cmdarg_err.h"
 
 void
 capture_opts_init(capture_options *capture_opts, void *cfile)
@@ -125,7 +126,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
  * in some fashion.
  */
 static gboolean
-set_autostop_criterion(capture_options *capture_opts, const char *appname, const char *autostoparg)
+set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
 {
   gchar *p, *colonp;
 
@@ -154,14 +155,14 @@ set_autostop_criterion(capture_options *capture_opts, const char *appname, const
   }
   if (strcmp(autostoparg,"duration") == 0) {
     capture_opts->has_autostop_duration = TRUE;
-    capture_opts->autostop_duration = get_positive_int(appname, p,"autostop duration");
+    capture_opts->autostop_duration = get_positive_int(p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
     capture_opts->has_autostop_filesize = TRUE;
-    capture_opts->autostop_filesize = get_positive_int(appname, p,"autostop filesize");
+    capture_opts->autostop_filesize = get_positive_int(p,"autostop filesize");
   } else if (strcmp(autostoparg,"files") == 0) {
     capture_opts->multi_files_on = TRUE;
     capture_opts->has_autostop_files = TRUE;
-    capture_opts->autostop_files = get_positive_int(appname, p,"autostop files");
+    capture_opts->autostop_files = get_positive_int(p,"autostop files");
   } else {
     return FALSE;
   }
@@ -176,7 +177,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *appname, const
  * in some fashion.
  */
 static gboolean
-get_ring_arguments(capture_options *capture_opts, const char *appname, const char *arg)
+get_ring_arguments(capture_options *capture_opts, const char *arg)
 {
   gchar *p = NULL, *colonp;
 
@@ -206,13 +207,13 @@ get_ring_arguments(capture_options *capture_opts, const char *appname, const cha
 
   if (strcmp(arg,"files") == 0) {
     capture_opts->has_ring_num_files = TRUE;
-    capture_opts->ring_num_files = get_natural_int(appname, p, "number of ring buffer files");
+    capture_opts->ring_num_files = get_natural_int(p, "number of ring buffer files");
   } else if (strcmp(arg,"filesize") == 0) {
     capture_opts->has_autostop_filesize = TRUE;
-    capture_opts->autostop_filesize = get_positive_int(appname, p, "ring buffer filesize");
+    capture_opts->autostop_filesize = get_positive_int(p, "ring buffer filesize");
   } else if (strcmp(arg,"duration") == 0) {
     capture_opts->has_file_duration = TRUE;
-    capture_opts->file_duration = get_positive_int(appname, p, "ring buffer duration");
+    capture_opts->file_duration = get_positive_int(p, "ring buffer duration");
   }
 
   *colonp = ':';	/* put the colon back */
@@ -228,7 +229,7 @@ get_ring_arguments(capture_options *capture_opts, const char *appname, const cha
  * in some fashion.
  */
 static gboolean
-get_pipe_arguments(capture_options *capture_opts, const char *appname, const char *arg)
+get_pipe_arguments(capture_options *capture_opts, const char *arg)
 {
   gchar *p = NULL, *colonp;
   int pipe_fd;
@@ -260,16 +261,16 @@ get_pipe_arguments(capture_options *capture_opts, const char *appname, const cha
 
   if (strcmp(arg,"sync") == 0) {
     /* associate stdout with sync pipe */
-    pipe_fd = get_natural_int(appname, p, "sync pipe file descriptor");
+    pipe_fd = get_natural_int(p, "sync pipe file descriptor");
     if (dup2(pipe_fd, 1) < 0) {
-      fprintf(stderr, "%s: Unable to dup sync pipe handle\n", appname);
+      cmdarg_err("Unable to dup sync pipe handle");
       return FALSE;
     }
   } else if (strcmp(arg,"signal") == 0) {
     /* associate stdin with signal pipe */
-    pipe_fd = get_natural_int(appname, p, "signal pipe file descriptor");
+    pipe_fd = get_natural_int(p, "signal pipe file descriptor");
     if (dup2(pipe_fd, 0) < 0) {
-      fprintf(stderr, "%s: Unable to dup signal pipe handle\n", appname);
+      cmdarg_err("Unable to dup signal pipe handle");
       return FALSE;
     }
   }
@@ -281,30 +282,30 @@ get_pipe_arguments(capture_options *capture_opts, const char *appname, const cha
 
 
 void
-capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt, const char *optarg, gboolean *start_capture)
+capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture)
 {
     switch(opt) {
     case 'a':        /* autostop criteria */
-        if (set_autostop_criterion(capture_opts, appname, optarg) == FALSE) {
-          fprintf(stderr, "%s: Invalid or unknown -a flag \"%s\"\n", appname, optarg);
+        if (set_autostop_criterion(capture_opts, optarg) == FALSE) {
+          cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg);
           exit(1);
         }
         break;
     case 'b':        /* Ringbuffer option */
         capture_opts->multi_files_on = TRUE;
-        if (get_ring_arguments(capture_opts, appname, optarg) == FALSE) {
-          fprintf(stderr, "%s: Invalid or unknown -b arg \"%s\"\n", appname, optarg);
+        if (get_ring_arguments(capture_opts, optarg) == FALSE) {
+          cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg);
           exit(1);
         }
         break;
 #ifdef _WIN32
     case 'B':        /* Buffer size */
-        capture_opts->buffer_size = get_positive_int(appname, optarg, "buffer size");
+        capture_opts->buffer_size = get_positive_int(optarg, "buffer size");
         break;
 #endif
     case 'c':        /* Capture xxx packets */
         capture_opts->has_autostop_packets = TRUE;
-        capture_opts->autostop_packets = get_positive_int(appname, optarg, "packet count");
+        capture_opts->autostop_packets = get_positive_int(optarg, "packet count");
         break;
     case 'f':        /* capture filter */
         if (capture_opts->cfilter)
@@ -330,7 +331,7 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
         break;
     case 's':        /* Set the snapshot (capture) length */
         capture_opts->has_snaplen = TRUE;
-        capture_opts->snaplen = get_positive_int(appname, optarg, "snapshot length");
+        capture_opts->snaplen = get_positive_int(optarg, "snapshot length");
         break;
     case 'S':        /* "Real-Time" mode: used for following file ala tail -f */
         capture_opts->real_time_mode = TRUE;
@@ -342,20 +343,20 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts->linktype = pcap_datalink_name_to_val(optarg);
         if (capture_opts->linktype == -1) {
-          fprintf(stderr, "%s: The specified data link type \"%s\" isn't valid\n",
-                  appname, optarg);
+          cmdarg_err("The specified data link type \"%s\" isn't valid",
+                  optarg);
           exit(1);
         }
 #else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         /* XXX - just treat it as a number */
-        capture_opts->linktype = get_natural_int(appname, optarg, "data link type");
+        capture_opts->linktype = get_natural_int(optarg, "data link type");
 #endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         break;
 #ifdef _WIN32
       /* Hidden option supporting Sync mode */
     case 'Z':        /* Write to pipe FD XXX */
-       if (get_pipe_arguments(capture_opts, appname, optarg) == FALSE) {
-          fprintf(stderr, "%s: Invalid or unknown -Z flag \"%s\"\n", appname, optarg);
+       if (get_pipe_arguments(capture_opts, optarg) == FALSE) {
+          cmdarg_err("Invalid or unknown -Z flag \"%s\"", optarg);
           exit(1);
         }
         break;

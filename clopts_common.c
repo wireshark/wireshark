@@ -34,70 +34,26 @@
 #include <epan/prefs.h>
 
 #include "clopts_common.h"
-
-/*
- * Handle the "-G" option, to cause protocol field, etc. information
- * to be printed.
- */
-void
-handle_dashG_option(int argc, char **argv, const char *progname)
-{
-  char *gpf_path, *pf_path;
-  int   gpf_open_errno, gpf_read_errno;
-  int   pf_open_errno, pf_read_errno;
-
-  if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    if (argc == 2)
-      proto_registrar_dump_fields(1);
-    else {
-      if (strcmp(argv[2], "fields") == 0)
-        proto_registrar_dump_fields(1);
-      else if (strcmp(argv[2], "fields2") == 0)
-        proto_registrar_dump_fields(2);
-      else if (strcmp(argv[2], "fields3") == 0)
-        proto_registrar_dump_fields(3);
-      else if (strcmp(argv[2], "protocols") == 0)
-        proto_registrar_dump_protocols();
-      else if (strcmp(argv[2], "values") == 0)
-        proto_registrar_dump_values();
-      else if (strcmp(argv[2], "decodes") == 0)
-        dissector_dump_decodes();
-      else if (strcmp(argv[2], "defaultprefs") == 0)
-        write_prefs(NULL);
-      else if (strcmp(argv[2], "currentprefs") == 0) {
-        read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-            &pf_open_errno, &pf_read_errno, &pf_path);
-        write_prefs(NULL);
-      } else {
-        fprintf(stderr, "%s: Invalid \"%s\" option for -G flag\n", progname,
-                argv[2]);
-        exit(1);
-      }
-    }
-    exit(0);
-  }
-}
+#include "cmdarg_err.h"
 
 int
-get_natural_int(const char *appname, const char *string, const char *name)
+get_natural_int(const char *string, const char *name)
 {
   long number;
   char *p;
 
   number = strtol(string, &p, 10);
   if (p == string || *p != '\0') {
-    fprintf(stderr, "%s: The specified %s \"%s\" isn't a decimal number\n",
-	    appname, name, string);
+    cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
     exit(1);
   }
   if (number < 0) {
-    fprintf(stderr, "%s: The specified %s \"%s\" is a negative number\n",
-	    appname, name, string);
+    cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
     exit(1);
   }
   if (number > INT_MAX) {
-    fprintf(stderr, "%s: The specified %s \"%s\" is too large (greater than %d)\n",
-	    appname, name, string, INT_MAX);
+    cmdarg_err("The specified %s \"%s\" is too large (greater than %d)",
+	       name, string, INT_MAX);
     exit(1);
   }
   return number;
@@ -105,15 +61,14 @@ get_natural_int(const char *appname, const char *string, const char *name)
 
 
 int
-get_positive_int(const char *appname, const char *string, const char *name)
+get_positive_int(const char *string, const char *name)
 {
   long number;
 
-  number = get_natural_int(appname, string, name);
+  number = get_natural_int(string, name);
 
   if (number == 0) {
-    fprintf(stderr, "%s: The specified %s is zero\n",
-	    appname, name);
+    cmdarg_err("The specified %s is zero", name);
     exit(1);
   }
 

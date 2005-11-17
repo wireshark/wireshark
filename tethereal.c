@@ -75,6 +75,7 @@
 #include <epan/addr_resolv.h>
 #include "util.h"
 #include "clopts_common.h"
+#include "cmdarg_err.h"
 #include "version_info.h"
 #include <epan/conversation.h>
 #include <epan/plugins.h>
@@ -689,9 +690,38 @@ main(int argc, char *argv[])
      for backwards compatibility we dump out a glossary of display
      filter symbols.
 
-     We do this here to mirror what happens in the GTK+ version, although
-     it's not necessary here. */
-  handle_dashG_option(argc, argv, "tethereal");
+     XXX - we do this here, for now, to support "-G" with no arguments.
+     If none of our build or other processes uses "-G" with no arguments,
+     we can just process it with the other arguments. */
+  if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
+    if (argc == 2)
+      proto_registrar_dump_fields(1);
+    else {
+      if (strcmp(argv[2], "fields") == 0)
+        proto_registrar_dump_fields(1);
+      else if (strcmp(argv[2], "fields2") == 0)
+        proto_registrar_dump_fields(2);
+      else if (strcmp(argv[2], "fields3") == 0)
+        proto_registrar_dump_fields(3);
+      else if (strcmp(argv[2], "protocols") == 0)
+        proto_registrar_dump_protocols();
+      else if (strcmp(argv[2], "values") == 0)
+        proto_registrar_dump_values();
+      else if (strcmp(argv[2], "decodes") == 0)
+        dissector_dump_decodes();
+      else if (strcmp(argv[2], "defaultprefs") == 0)
+        write_prefs(NULL);
+      else if (strcmp(argv[2], "currentprefs") == 0) {
+        read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+            &pf_open_errno, &pf_read_errno, &pf_path);
+        write_prefs(NULL);
+      } else {
+        cmdarg_err("Invalid \"%s\" option for -G flag", argv[2]);
+        exit(1);
+      }
+    }
+    exit(0);
+  }
 
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
@@ -783,7 +813,7 @@ main(int argc, char *argv[])
       case 's':        /* Set the snapshot (capture) length */
       case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_LIBPCAP
-        capture_opts_add_opt(&capture_opts, "tethereal", opt, optarg, &start_capture);
+        capture_opts_add_opt(&capture_opts, opt, optarg, &start_capture);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -3354,4 +3384,33 @@ read_failure_message(const char *filename, int err)
 {
   fprintf(stderr, "tethereal: An error occurred while reading from the file \"%s\": %s.\n",
           filename, strerror(err));
+}
+
+/*
+ * Report an error in command-line arguments.
+ */
+void
+cmdarg_err(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  fprintf(stderr, "tethereal: ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
+}
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+void
+cmdarg_err_cont(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
 }
