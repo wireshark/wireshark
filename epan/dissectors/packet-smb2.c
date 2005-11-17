@@ -114,6 +114,7 @@ static int hf_smb2_fs_info_01 = -1;
 static int hf_smb2_fs_info_03 = -1;
 static int hf_smb2_fs_info_04 = -1;
 static int hf_smb2_fs_info_05 = -1;
+static int hf_smb2_fs_info_06 = -1;
 static int hf_smb2_sec_info_00 = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
@@ -154,6 +155,7 @@ static gint ett_smb2_fs_info_01 = -1;
 static gint ett_smb2_fs_info_03 = -1;
 static gint ett_smb2_fs_info_04 = -1;
 static gint ett_smb2_fs_info_05 = -1;
+static gint ett_smb2_fs_info_06 = -1;
 static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_tid_tree = -1;
 static gint ett_smb2_create_flags = -1;
@@ -186,6 +188,7 @@ static const value_string smb2_class_vals[] = {
 #define SMB2_FS_INFO_03		0x03 
 #define SMB2_FS_INFO_04		0x04 
 #define SMB2_FS_INFO_05		0x05 
+#define SMB2_FS_INFO_06		0x06 
 
 #define SMB2_SEC_INFO_00	0x00
 
@@ -738,6 +741,24 @@ dissect_smb2_fs_info_05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 
 	bc=tvb_length_remaining(tvb, offset);
 	offset=dissect_qfsi_FS_ATTRIBUTE_INFO(tvb, pinfo, tree, offset, &bc, TRUE);
+
+	return offset;
+}
+
+static int
+dissect_smb2_fs_info_06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint16 bc;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_fs_info_06, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_fs_info_06);
+	}
+
+	bc=tvb_length_remaining(tvb, offset);
+	offset=dissect_nt_quota(tvb, tree, offset, &bc);
 
 	return offset;
 }
@@ -1339,6 +1360,9 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			break;
 		case SMB2_FS_INFO_05:
 			dissect_smb2_fs_info_05(tvb, pinfo, tree, offset, si);
+			break;
+		case SMB2_FS_INFO_06:
+			dissect_smb2_fs_info_06(tvb, pinfo, tree, offset, si);
 			break;
 		default:
 			/* we dont handle this infolevel yet */
@@ -2965,6 +2989,10 @@ proto_register_smb2(void)
 		{ "SMB2_FS_INFO_05", "smb2.smb2_fs_info_05", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_05 structure", HFILL }},
 
+	{ &hf_smb2_fs_info_06,
+		{ "SMB2_FS_INFO_06", "smb2.smb2_fs_info_06", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FS_INFO_06 structure", HFILL }},
+
 	{ &hf_smb2_sec_info_00,
 		{ "SMB2_SEC_INFO_00", "smb2.smb2_sec_info_00", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_SEC_INFO_00 structure", HFILL }},
@@ -3082,6 +3110,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_info_03,
 		&ett_smb2_fs_info_04,
 		&ett_smb2_fs_info_05,
+		&ett_smb2_fs_info_06,
 		&ett_smb2_sec_info_00,
 		&ett_smb2_tid_tree,
 		&ett_smb2_create_flags,

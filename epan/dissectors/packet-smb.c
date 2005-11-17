@@ -11246,7 +11246,7 @@ dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 }
 
-static int
+int
 dissect_nt_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 {
 	/* first 24 bytes are unknown */
