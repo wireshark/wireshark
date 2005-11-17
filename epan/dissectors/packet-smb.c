@@ -10472,8 +10472,8 @@ dissect_4_2_16_5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /* this dissects the SMB_QUERY_FILE_EA_INFO
    as described in 4.2.16.6
 */
-static int
-dissect_4_2_16_6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+int
+dissect_qfi_SMB_FILE_EA_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* ea length */
@@ -10545,7 +10545,7 @@ dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
 	COUNT_BYTES_SUBR(8);
 
-	offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_qfi_SMB_FILE_EA_INFO(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc)
 		return offset;
 
@@ -10609,7 +10609,7 @@ dissect_4_2_16_8_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* 2 pad bytes */
 	offset+=2;
 
-	offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_qfi_SMB_FILE_EA_INFO(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 		return offset;
 	}
@@ -10622,20 +10622,18 @@ dissect_4_2_16_8_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* this dissects the SMB_QUERY_FILE_STREAM_INFO
    as described in 4.2.16.10
 */
-static int
-dissect_4_2_16_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
-    int offset, guint16 *bcp, gboolean *trunc)
+int
+dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc, int unicode)
 {
 	proto_item *item;
 	proto_tree *tree;
 	int old_offset;
 	guint32 neo;
-	smb_info_t *si = pinfo->private_data;
 	int fn_len;
 	const char *fn;
 	int padcnt;
 
-	DISSECTOR_ASSERT(si);
 
 	for (;;) {
 		old_offset = offset;
@@ -10672,7 +10670,7 @@ dissect_4_2_16_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		COUNT_BYTES_SUBR(8);
 
 		/* stream name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
+		fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, FALSE, TRUE, bcp);
 		CHECK_STRING_SUBR(fn);
 		proto_tree_add_string(tree, hf_smb_t2_stream_name, tvb, offset, fn_len,
 			fn);
@@ -11059,7 +11057,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x0103:	/*Query File EA Info*/
 	case 1007:	/* SMB_FILE_EA_INFORMATION */
-		offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_EA_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0104:	/*Query File Name Info*/
@@ -11084,10 +11082,10 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 1022:	/* SMB_FILE_STREAM_INFORMATION */
-	        ((smb_info_t *)(pinfo->private_data))->unicode = TRUE;
+	        si->unicode = TRUE;
 	case 0x0109:	/*Query File Stream Info*/
-		offset = dissect_4_2_16_10(tvb, pinfo, tree, offset, bcp,
-		    &trunc);
+		offset = dissect_qfi_SMB_FILE_STREAM_INFO(tvb, pinfo, tree, offset, bcp,
+		    &trunc, si->unicode);
 		break;
 	case 0x010b:	/*Query File Compression Info*/
 	case 1028:	/* SMB_FILE_COMPRESSION_INFORMATION */
