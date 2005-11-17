@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x509af.h                                                          */
+/* ./packet-x509af.h                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.h */
@@ -64,7 +64,7 @@ int dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag, tvbuff_t
 /*--- End of included file: packet-x509af-exp.h ---*/
 
 
-extern char* x509af_get_last_algorithm_id();
+extern const char* x509af_get_last_algorithm_id(void);
 
 #endif  /* PACKET_X509AF_H */
 

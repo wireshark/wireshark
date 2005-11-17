@@ -59,7 +59,7 @@ static const char *extension_id;
 
 #include "packet-x509af-fn.c"
 
-char *x509af_get_last_algorithm_id() {
+const char *x509af_get_last_algorithm_id(void) {
   return algorithm_id;
 }
 
