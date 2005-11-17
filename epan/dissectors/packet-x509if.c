@@ -365,7 +365,7 @@ static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  char *name;
+  const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
 

@@ -291,7 +291,7 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
 	FN_VARIANT = _str  VAL_PTR = &content_type_id
 
 #.FN_BODY ExtendedContentType
-	char *name = NULL;
+	const char *name = NULL;
 
 	%(DEFAULT_BODY)s
 

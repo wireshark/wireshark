@@ -2094,7 +2094,7 @@ static int dissect_built_in_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	char *name = NULL;
+	const char *name = NULL;
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &content_type_id);
 
