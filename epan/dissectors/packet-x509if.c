@@ -44,6 +44,7 @@
 #include "packet-x509if.h"
 #include "packet-ber.h"
 #include "packet-x509sat.h"
+#include <epan/emem.h>
 #include <epan/strutil.h>
 
 #define PNAME  "X.509 Information Framework"
