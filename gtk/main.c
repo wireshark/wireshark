@@ -1088,21 +1088,20 @@ print_usage(gboolean print_ver) {
 #ifdef HAVE_LIBPCAP
   fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
   fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
-  fprintf(output, "\t[ -B capture buffer size (Win32 only) ]\n"); 
+#ifdef _WIN32
+  fprintf(output, "\t[ -B <capture buffer size> ]\n");
+#endif
   fprintf(output, "\t[ -c <capture packet count> ] [ -f <capture filter> ]\n");
-  fprintf(output, "\t[ -g <packet number> ]\n");
-  fprintf(output, "\t[ -i <capture interface> ] [ -m <font> ] [ -N <name resolving flags> ]\n");
-  fprintf(output, "\t[ -o <preference/recent setting> ] ...\n");
+  fprintf(output, "\t[ -g <packet number> ] [ -i <capture interface> ] [ -m <font> ]\n");
+  fprintf(output, "\t[ -N <name resolving flags> ] [ -o <preference/recent setting> ] ...\n");
   fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ] [ -s <capture snaplen> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ]\n");
-  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ] [ -z <statistics> ]\n");
-  fprintf(output, "\t[ <infile> ]\n");
+  fprintf(output, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -y <capture link type> ]\n");
+  fprintf(output, "\t[ -z <statistics> ] [ <infile> ]\n");
 #else
   fprintf(output, "\n%s [ -vh ] [ -n ] [ -g <packet number> ] [ -m <font> ]\n", PACKAGE);
   fprintf(output, "\t[ -N <resolving flags> ] [ -o <preference/recent setting> ...\n");
   fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ]\n");
-  fprintf(output, "\t[ -z <statistics ] [ <infile> ]\n");
+  fprintf(output, "\t[ -t <time stamp format> ] [ -z <statistics ] [ <infile> ]\n");
 #endif
 
 #ifdef _WIN32
@@ -1760,7 +1759,16 @@ main(int argc, char *argv[])
   /* "pre-scan" the command line parameters, if we have "console only"
      parameters.  We do this so we don't start GTK+ if we're only showing
      command-line help information, version information, or "-G"
-     information. */
+     information.
+
+     XXX - this pre-scan is doen before we start GTK+, so we haven't
+     run gtk_init() on the arguments.  That means that GTK+ arguments
+     have not been removed from the argument list; those arguments
+     begin with "--", and will be treated as an error by getopt().
+
+     We thus ignore errors - *and* set "opterr" to 0 to suppress the
+     error messages. */
+  opterr = 0;
   optind_initial = optind;
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -1777,19 +1785,46 @@ main(int argc, char *argv[])
         /* will never return! */
         exit(0);
         break;
-      case '?':        /* argument-parsing error - quit now if we're a normal Ethereal */
-                       /* (a capture child uses a slightly different options pattern, */
-                       /* so don't quit here as this error is only meaningful in the "real" run later) */
-        /*if(!capture_child)
-          exit(0);*/
+      case '?':        /* Ignore errors - the "real" scan will catch them. */
         break;
     }
   }
 
-  /* set getopt index back to initial value, so it will start with the first command line parameter again */
-  /* (XXX - this seems to be portable, but time will tell) */
-  optind = optind_initial;
+  /* Set getopt index back to initial value, so it will start with the
+     first command line parameter again.  Also reset opterr to 1, so that
+     error messages are printed by getopt().
 
+     XXX - this seems to work on most platforms, but time will tell.
+     The Single UNIX Specification says "The getopt() function need
+     not be reentrant", so this isn't guaranteed to work.  The Mac
+     OS X 10.4[.x] getopt() man page says
+
+       In order to use getopt() to evaluate multiple sets of arguments, or to
+       evaluate a single set of arguments multiple times, the variable optreset
+       must be set to 1 before the second and each additional set of calls to
+       getopt(), and the variable optind must be reinitialized.
+
+           ...             
+
+       The optreset variable was added to make it possible to call the getopt()
+       function multiple times.  This is an extension to the IEEE Std 1003.2
+       (``POSIX.2'') specification.
+
+     which I think comes from one of the other BSDs.
+
+     XXX - if we want to control all the command-line option errors, so
+     that we can display them where we choose (e.g., in a window), we'd
+     want to leave opterr as 0, and produce our own messages using optopt.
+     We'd have to check the value of optopt to see if it's a valid option
+     letter, in which case *presumably* the error is "this option requires
+     an argument but none was specified", or not a valid option letter,
+     in which case *presumably* the error is "this option isn't valid".
+     Some versions of getopt() let you supply a option string beginning
+     with ':', which means that getopt() will return ':' rather than '?'
+     for "this option requires an argument but none was specified", but
+     not all do. */
+  optind = optind_initial;
+  opterr = 1;
 
   /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized
