@@ -12804,6 +12804,120 @@ static const true_false_string tfs_smb_mac_streams = {
   "Macintosh and Streams Extensions Supported"
 };
 
+int
+dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp, int unicode)
+{
+	int fn_len, vll;
+	const char *fn;
+
+	/* create time */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset,
+		hf_smb_create_time);
+	*bcp -= 8;
+
+	/* volume serial number */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* volume label length */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	vll = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_volume_label_len, tvb, offset, 4, vll);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* 2 reserved bytes */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* label */
+	fn_len = vll;
+	fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_TRANS_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_TRANS_SUBR(fn_len);
+
+	return offset;
+}
+
+int
+dissect_qfsi_FS_SIZE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp)
+{
+	/* allocation size */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* free allocation units */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_free_alloc_units64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* sectors per unit */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* bytes per sector */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	return offset;
+}
+
+int
+dissect_qfsi_FS_DEVICE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp)
+{
+	/* device type */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* device characteristics */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	offset = dissect_device_characteristics(tvb, tree, offset);
+	*bcp -= 4;
+
+	return offset;
+}
+
+int
+dissect_qfsi_FS_ATTRIBUTE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp, int unicode)
+{
+	int fn_len, fnl;
+	const char *fn;
+
+	/* FS attributes */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	offset = dissect_fs_attributes(tvb, tree, offset);
+	*bcp -= 4;
+
+	/* max name len */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_max_name_len, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* fs name length */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	fnl = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_fs_name_len, tvb, offset, 4, fnl);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* label */
+	fn_len = fnl;
+	fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_TRANS_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_fs_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_TRANS_SUBR(fn_len);
+
+	return offset;
+}
+
 static int
 dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int offset, guint16 *bcp)
@@ -12888,99 +13002,19 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x0102:	/* SMB_QUERY_FS_VOLUME_INFO */
 	case 1001:	/* SMB_FS_VOLUME_INFORMATION */
-		/* create time */
-		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		offset = dissect_nt_64bit_time(tvb, tree, offset,
-			hf_smb_create_time);
-		*bcp -= 8;
-
-		/* volume serial number */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* volume label length */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		vll = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_volume_label_len, tvb, offset, 4, vll);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* 2 reserved bytes */
-		CHECK_BYTE_COUNT_TRANS_SUBR(2);
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
-		COUNT_BYTES_TRANS_SUBR(2);
-
-		/* label */
-		fn_len = vll;
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
-		CHECK_STRING_TRANS_SUBR(fn);
-		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
-			fn);
-		COUNT_BYTES_TRANS_SUBR(fn_len);
-
+		offset = dissect_qfsi_FS_VOLUME_INFO(tvb, pinfo, tree, offset, bcp, si->unicode);
 		break;
 	case 0x0103:	/* SMB_QUERY_FS_SIZE_INFO */
 	case 1003:	/* SMB_FS_SIZE_INFORMATION */
-		/* allocation size */
-		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
-		COUNT_BYTES_TRANS_SUBR(8);
-
-		/* free allocation units */
-		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_free_alloc_units64, tvb, offset, 8, TRUE);
-		COUNT_BYTES_TRANS_SUBR(8);
-
-		/* sectors per unit */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* bytes per sector */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
-
+		offset = dissect_qfsi_FS_SIZE_INFO(tvb, pinfo, tree, offset, bcp);
 		break;
 	case 0x0104:	/* SMB_QUERY_FS_DEVICE_INFO */
 	case 1004:	/* SMB_FS_DEVICE_INFORMATION */
-		/* device type */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* device characteristics */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		offset = dissect_device_characteristics(tvb, tree, offset);
-		*bcp -= 4;
-
+		offset = dissect_qfsi_FS_DEVICE_INFO(tvb, pinfo, tree, offset, bcp);
 		break;
 	case 0x0105:	/* SMB_QUERY_FS_ATTRIBUTE_INFO */
 	case 1005:	/* SMB_FS_ATTRIBUTE_INFORMATION */
-		/* FS attributes */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		offset = dissect_fs_attributes(tvb, tree, offset);
-		*bcp -= 4;
-
-		/* max name len */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_max_name_len, tvb, offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* fs name length */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		fnl = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_fs_name_len, tvb, offset, 4, fnl);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* label */
-		fn_len = fnl;
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
-		CHECK_STRING_TRANS_SUBR(fn);
-		proto_tree_add_string(tree, hf_smb_fs_name, tvb, offset, fn_len,
-			fn);
-		COUNT_BYTES_TRANS_SUBR(fn_len);
-
+		offset = dissect_qfsi_FS_ATTRIBUTE_INFO(tvb, pinfo, tree, offset, bcp, si->unicode);
 		break;
 	case 0x200: {	/* SMB_QUERY_CIFS_UNIX_INFO */
 		proto_item *item = NULL;
