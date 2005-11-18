@@ -10436,8 +10436,8 @@ dissect_4_2_16_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /* this dissects the SMB_QUERY_FILE_STANDARD_INFO
    as described in 4.2.16.5
 */
-static int
-dissect_4_2_16_5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+int
+dissect_qfi_SMB_FILE_STANDARD_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* allocation size */
@@ -10490,8 +10490,8 @@ dissect_qfi_SMB_FILE_EA_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
    this is the same as SMB_QUERY_FILE_ALT_NAME_INFO
    as described in 4.2.16.9
 */
-static int
-dissect_4_2_16_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+int
+dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	smb_info_t *si = pinfo->private_data;
@@ -10520,7 +10520,7 @@ dissect_4_2_16_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    as described in 4.2.16.8
 */
 static int
-dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 
@@ -10532,7 +10532,7 @@ dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* 4 pad bytes */
 	offset+=4;
 
-	offset = dissect_4_2_16_5(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_qfi_SMB_FILE_STANDARD_INFO(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 		return offset;
 	}
@@ -10574,7 +10574,7 @@ dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb_t2_alignment, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp, trunc);
 
 	return offset;
 }
@@ -10583,13 +10583,13 @@ dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    BUT NOT as described in 4.2.16.8.
    All SMB_QUERY_FILE_ALL_INFO packets I captured were only correctly
    decoded using this function. As you can see, this is very different
-   from function dissect_4_2_16_8() which implements the documented
+   from function dissect_qfi_SMB_FILE_ALL_INFO() which implements the documented
    format.
    XXX I don't know which one we should use. Does someone have
-   a valid decoding with dissect_4_2_16_8() ?
+   a valid decoding with dissect_qfi_SMB_FILE_ALL_INFO() ?
 */
 static int
-dissect_4_2_16_8_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_qfi_SMB_FILE_ALL_INFO_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 
@@ -10601,7 +10601,7 @@ dissect_4_2_16_8_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* 4 pad bytes */
 	offset+=4;
 
-	offset = dissect_4_2_16_5(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_qfi_SMB_FILE_STANDARD_INFO(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 		return offset;
 	}
@@ -10614,7 +10614,7 @@ dissect_4_2_16_8_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return offset;
 	}
 
-	offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp, trunc);
 
 	return offset;
 }
@@ -10703,8 +10703,8 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 /* this dissects the SMB_QUERY_FILE_COMPRESSION_INFO
    as described in 4.2.16.11
 */
-static int
-dissect_4_2_16_11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+int
+dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* compressed file size */
@@ -11052,7 +11052,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x0102:	/*Query File Standard Info*/
 	case 1005:	/* SMB_FILE_STANDARD_INFORMATION */
-		offset = dissect_4_2_16_5(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_STANDARD_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0103:	/*Query File EA Info*/
@@ -11062,23 +11062,23 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x0104:	/*Query File Name Info*/
 	case 1009:	/* SMB_FILE_NAME_INFORMATION */
-		offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0107:	/*Query File All Info*/
 	case 1018:	/* SMB_FILE_ALL_INFORMATION */
 #if 1
-		offset = dissect_4_2_16_8(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_ALL_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 #else
 		/* see comments before function definition */
-		offset = dissect_4_2_16_8_unsure(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_ALL_INFO_unsure(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 #endif
 		break;
 	case 0x0108:	/*Query File Alt File Info*/
 	case 1021:	/* SMB_FILE_ALTERNATE_NAME_INFORMATION */
-		offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 1022:	/* SMB_FILE_STREAM_INFORMATION */
@@ -11089,7 +11089,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x010b:	/*Query File Compression Info*/
 	case 1028:	/* SMB_FILE_COMPRESSION_INFORMATION */
-		offset = dissect_4_2_16_11(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
         case 1034:     /* SMB_FILE_NETWORK_OPEN_INFO */
