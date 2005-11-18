@@ -317,11 +317,15 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 	tvbuff_t *next_tvb;
 
 	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	if(!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
+	if(oid == NULL ||
+	    !dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 
-		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
+		if (oid == NULL)
+			item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: No OID supplied to call_ber_oid_callback");
+		else
+			item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
 		if(item){
 			next_tree=proto_item_add_subtree(item, ett_ber_unknown);
 		}
