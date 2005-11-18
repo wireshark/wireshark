@@ -233,7 +233,11 @@ print_usage(gboolean print_ver)
 #ifdef HAVE_LIBPCAP
   fprintf(output, "\nt%s [ -vh ] [ -DlLnpqSVx ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(output, "\t[ -b <capture ring buffer option> ] ... [ -c <capture packet count> ]\n");
+  fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
+#ifdef _WIN32
+  fprintf(output, "\t[ -B <capture buffer size> ]\n");
+#endif
+  fprintf(output, "\t[ -c <capture packet count> ]\n");
   fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
   fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ]\n");
   fprintf(output, "\t[ -i <capture interface> ] [ -N <name resolving flags> ]\n");
@@ -652,6 +656,19 @@ main(int argc, char *argv[])
   e_prefs             *prefs;
   char                 badopt;
 
+#define OPTSTRING_INIT "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vw:Vxy:z:"
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+#define OPTSTRING_WIN32 "B:"
+#else
+#define OPTSTRING_WIN32 ""
+#endif  /* _WIN32 */
+#else
+#define OPTSTRING_WIN32 ""
+#endif  /* HAVE_LIBPCAP */
+
+  static const char    optstring[] = OPTSTRING_INIT OPTSTRING_WIN32;
+
   /* initialize memory allocation subsystem */
   ep_init_chunk();
   se_init_chunk();
@@ -803,7 +820,7 @@ main(int argc, char *argv[])
   print_format = PR_FMT_TEXT;
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vw:Vxy:z:")) != -1) {
+  while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
       case 'b':        /* Ringbuffer option */
@@ -812,6 +829,9 @@ main(int argc, char *argv[])
       case 'p':        /* Don't capture in promiscuous mode */
       case 's':        /* Set the snapshot (capture) length */
       case 'y':        /* Set the pcap data link type */
+#ifdef _WIN32
+      case 'B':        /* Buffer size */
+#endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
         capture_opts_add_opt(&capture_opts, opt, optarg, &start_capture);
 #else
@@ -1555,6 +1575,20 @@ capture(char *save_file, int out_file_type)
 			  capture_opts.promisc_mode, 1000, open_err_str);
 
   if (ld.pch != NULL) {
+    /* we've opened "iface" as a network device */
+#ifdef _WIN32
+    /* try to set the capture buffer size */
+    if (pcap_setbuff(ld.pch, capture_opts.buffer_size * 1024 * 1024) != 0) {
+        fprintf(stderr, "tethereal: Couldn't set the capture buffer size!\n"
+          "\n"
+          "The capture buffer size of %luMB seems to be too high for your machine,\n"
+          "the default of 1MB will be used.\n"
+          "\n"
+          "Nonetheless, the capture is started.\n",
+          capture_opts.buffer_size);
+    }
+#endif
+
     /* setting the data link type only works on real interfaces */
     if (capture_opts.linktype != -1) {
       set_linktype_err_str = set_pcap_linktype(ld.pch, capture_opts.iface,

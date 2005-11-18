@@ -8,6 +8,7 @@ tethereal - Dump and analyze network traffic
 B<tethereal>
 S<[ B<-a> capture autostop condition ] ...>
 S<[ B<-b> capture ring buffer option] ...>
+S<[ B<-B> capture buffer size (Win32 only) ] >
 S<[ B<-c> capture packet count ]>
 S<[ B<-d> <layer type>==<selector>,<decode-as protocol> ]>
 S<[ B<-D> ]>
@@ -279,6 +280,12 @@ I<value> kilobytes (where a kilobyte is 1024 bytes).
 
 B<files>:I<value> begin again with the first file after I<value> number of 
 files were written (form a ring buffer).
+
+=item -B
+
+Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
+the capture driver to buffer packet data until that data can be written to 
+disk. If you encounter packet drops while capturing, try to increase this size.
 
 =item -c
 
