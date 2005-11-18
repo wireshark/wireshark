@@ -103,6 +103,15 @@ static const char *sync_pipe_signame(int);
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static void sync_pipe_wait_for_child(capture_options *capture_opts);
 
+/*
+ * Maximum length of sync pipe message data.  Must be < 2^24, as the
+ * message length is 3 bytes.
+ * XXX - this must be large enough to handle a Really Big Filter
+ * Expression, as the error message for an incorrect filter expression
+ * is a bit larger than the filter expression.
+ */
+#define SP_MAX_MSG_LEN	4096
+
 /* Size of buffer to hold decimal representation of
    signed/unsigned 64-bit int */
 #define SP_DECISIZE 20
@@ -110,10 +119,10 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts);
 /*
  * Indications sent out on the sync pipe.
  */
-#define SP_FILE	        'F'	    /* the name of the recently opened file */
+#define SP_FILE         'F'     /* the name of the recently opened file */
 #define SP_ERROR_MSG    'E'     /* error message */
 #define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
-#define SP_DROPS        'D'	    /* count of packets dropped in capture */
+#define SP_DROPS        'D'     /* count of packets dropped in capture */
 #define SP_QUIT         'Q'     /* capture quit message (from parent to child) */
 
 
@@ -123,18 +132,21 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts);
 static void
 pipe_write_block(int pipe, char indicator, int len, const char *msg)
 {
-    char lenbuf[3+1+1]; /* 3 digit len + indicator + zero terminator */
+    guchar header[3+1]; /* indicator + 3-byte len */
     int ret;
 
     /*g_warning("write %d enter", pipe);*/
 
-    g_assert(len < 1000);
     g_assert(indicator < '0' || indicator > '9');
+    g_assert(len <= SP_MAX_MSG_LEN);
 
-    /* write header (3 digit len + indicator) */
-    g_snprintf(lenbuf, 5, "%03u%c", len, indicator);
+    /* write header (indicator + 3-byte len) */
+    header[0] = indicator;
+    header[1] = (len >> 16) & 0xFF;
+    header[2] = (len >> 8) & 0xFF;
+    header[3] = (len >> 0) & 0xFF;
 
-    ret = write(pipe, lenbuf, strlen(lenbuf));
+    ret = write(pipe, header, sizeof header);
     if(ret == -1) {
         return;
     }
@@ -155,17 +167,17 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 
 
 /* read a message from the sending pipe in the standard format 
-   (3 digit message length (excluding length and indicator field), 
-   1 byte message indicator and the rest is the message) */
+   (1-byte message indicator, 3-byte message length (excluding length
+   and indicator field), and the rest is the message) */
 static int
 pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     int required;
     int newly;
-    char header[4];
+    guchar header[4];
     int offset;
 
 
-    /* read header (3 digit len and indicator) */
+    /* read header (indicator and 3-byte length) */
     required = 4;
     offset = 0;
     while(required) {
@@ -186,8 +198,8 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     }
 
     /* convert header values */
-    *indicator = header[3];
-    required = atoi(header);
+    *indicator = header[0];
+    required = header[1]<<16 | header[2]<<8 | header[3];
 
     /* only indicator with no value? */
     if(required == 0) {
@@ -247,7 +259,7 @@ sync_pipe_errmsg_to_parent(const char *errmsg)
 void
 sync_pipe_drops_to_parent(int drops)
 {
-	char tmp[SP_DECISIZE+1+1];
+    char tmp[SP_DECISIZE+1+1];
 
 
     g_snprintf(tmp, sizeof(tmp), "%d", drops);
@@ -577,13 +589,12 @@ static gboolean
 sync_pipe_input_cb(gint source, gpointer user_data)
 {
   capture_options *capture_opts = (capture_options *)user_data;
-#define BUFSIZE	4096
-  char buffer[BUFSIZE+1];
+  char buffer[SP_MAX_MSG_LEN+1];
   int  nread;
   char indicator;
 
 
-  nread = pipe_read_block(source, &indicator, BUFSIZE, buffer);
+  nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer);
   if(nread <= 0) {
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: child has closed sync_pipe");
 
@@ -624,7 +635,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     break;
   case SP_ERROR_MSG:
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\"", buffer);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, buffer);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", buffer);
     /* the capture child will close the sync_pipe, nothing to do for now */
     break;
   case SP_DROPS:
