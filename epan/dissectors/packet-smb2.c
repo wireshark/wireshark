@@ -128,7 +128,7 @@ static int hf_smb2_read_data = -1;
 static int hf_smb2_disposition_delete_on_close = -1;
 static int hf_smb2_create_disposition = -1;
 static int hf_smb2_chain_offset = -1;
-static int hf_smb2_chain_exta = -1;
+static int hf_smb2_chain_data = -1;
 static int hf_smb2_data_offset = -1;
 static int hf_smb2_data_length = -1;
 static int hf_smb2_extrainfo_offset = -1;
@@ -1948,7 +1948,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset += 2;
 	
 	/* data  offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &data_olb, OLB_SIZE_UINT16, hf_smb2_chain_exta);
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &data_olb, OLB_SIZE_UINT16, hf_smb2_chain_data);
 
 	/* padding */
 	offset += 2;
@@ -2046,7 +2046,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* If extrainfo_offset is non-null then this points to another 
 	 * buffer. The offset is relative to the start of the smb packet
 	 */
-	if(extrainfo_offset){
+	if(extrainfo_offset && extrainfo_length){
 		tvbuff_t *chain_tvb;
 
 		/* sanity check */
@@ -2137,7 +2137,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* If extrainfo_offset is non-null then this points to another 
 	 * buffer. The offset is relative to the start of the smb packet
 	 */
-	if(extrainfo_offset){
+	if(extrainfo_offset && extrainfo_length){
 		tvbuff_t *chain_tvb;
 
 		/* sanity check */
@@ -3313,9 +3313,9 @@ proto_register_smb2(void)
 		{ "Chain Offset", "smb2.create.chain_offset", FT_UINT32, BASE_HEX,
 		NULL, 0, "Offset to next entry in chain or 0", HFILL }},
 
-	{ &hf_smb2_chain_exta,
-		{ "ExtA Data", "smb2.create.chain_exta", FT_NONE, BASE_NONE,
-		NULL, 0, "ExtA data", HFILL }},
+	{ &hf_smb2_chain_data,
+		{ "Data", "smb2.create.chain_data", FT_NONE, BASE_NONE,
+		NULL, 0, "Extra data", HFILL }},
 
 	{ &hf_smb2_data_length,
 		{ "Data Length", "smb2.create.data_length", FT_UINT32, BASE_DEC,
