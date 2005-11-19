@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id:$ -->
+<!-- $Id$ -->
 
-	<application id="4" name="Mobile IPv4 Application" uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-07.txt">
+	<application id="2" name="Mobile IPv4 Application" uri="http://www.ietf.org/rfc/rfc4004.txt">
 
 		<!-- Mobile-IPv4 Application -->
 		<command name="AA-Mobile-Node" code="260" vendor-id="None"/>

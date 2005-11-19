@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-	<application id="1" name="NASREQ Application" uri="ftp://ftp.ietf.org/internet-drafts/draft-calhoun-diameter-nasreq-06.txt">
+	<application id="1" name="NASREQ Application" uri="http://www.ietf.org/rfc/rfc4004.txt">
 
 		<command name="AA" code="265" vendor-id="None"/>
 		<command name="Diameter-EAP" code="268" vendor-id="None"/>
@@ -296,7 +296,7 @@
 			<enum name="EAP" code="5"/>
 			<enum name="None" code="7"/>
 		</avp>
-		<avp name="Origin-AAA-Protocol" code="408
+		<avp name="Origin-AAA-Protocol" code="408">
 			<type type-name="Unsigned32"/>
 			<enum name="RADIUS" code="1"/>
 		</avp>

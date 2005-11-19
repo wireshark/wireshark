@@ -874,6 +874,10 @@
 			<enum name="UE" code="7"/>
 		</avp>
 	</base>
+	<application id="0" name="Diameter Common Messages" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+	</application>
+	<application id="3" name="Diameter Base Accounting" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+	</application>
 	&nasreq;
 	&mobileipv4;
 	&sunping;
