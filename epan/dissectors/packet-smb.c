@@ -6157,7 +6157,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
 
-	if(wc==3) {
+	if((wc==3)||(wc==4)) {
 		/* Primary domain */
 		an = get_unicode_or_ascii_string(tvb, &offset,
 			si->unicode, &an_len, FALSE, FALSE, &bc);
