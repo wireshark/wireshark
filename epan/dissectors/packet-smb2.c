@@ -420,7 +420,7 @@ dissect_smb2_olb_buffer(proto_tree *parent_tree, tvbuff_t *tvb, offset_length_bu
 	case OLB_TYPE_MXAC:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
 		offset += 4;
-		offset = dissect_file_attributes(tvb, tree, offset, 4);
+		offset = dissect_smb_access_mask(tvb, tree, offset);
 		break;
 	}
 
