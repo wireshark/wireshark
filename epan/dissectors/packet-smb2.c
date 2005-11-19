@@ -337,7 +337,7 @@ dissect_smb2_olb_length_offset(tvbuff_t *tvb, int offset, offset_length_buffer_t
 #define OLB_TYPE_EXTA			0x03
 #define OLB_TYPE_MXAC			0x04
 static const char *
-dissect_smb2_olb_buffer(proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int type)
+dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int type)
 {
 	int len, off;
 	proto_item *item=NULL;
@@ -356,9 +356,13 @@ dissect_smb2_olb_buffer(proto_tree *parent_tree, tvbuff_t *tvb, offset_length_bu
 	tvb_ensure_bytes_exist(tvb, off, len);
 	if(((off+len)<off)
 	|| ((off+len)>(off+tvb_reported_length_remaining(tvb, off)))){
-		char str[256];
-		g_snprintf(str, 256, "The SMB2 decoder might be wrong here : treeoff:%d treelen:%d offset:%d trlr:%d",off,len,off,tvb_reported_length_remaining(tvb, off));
-		REPORT_DISSECTOR_BUG(str);
+		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Invalid offset/length. Malformed packet");
+		if (check_col(pinfo->cinfo, COL_INFO)){
+
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+		}
+
+		return NULL;
 	}
 
 
@@ -1179,9 +1183,13 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	if((sbloboff<offset)
 	|| ((sbloboff+sbloblen)<=offset)
 	|| ((sbloboff+sbloblen)>(offset+tvb_reported_length_remaining(tvb, offset)))){
-		char str[256];
-		g_snprintf(str, 256, "The SMB2 decoder might be wrong here : sbloboff:%d sbloblen:%d offset:%d trlr:%d",sbloboff,sbloblen,offset,tvb_reported_length_remaining(tvb, offset));
-		REPORT_DISSECTOR_BUG(str);
+		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Invalid offset/length. Malformed packet");
+		if (check_col(pinfo->cinfo, COL_INFO)){
+
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+		}
+
+		return tvb_length(tvb);
 	}
 
 	/* the security blob itself */
@@ -1224,9 +1232,13 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	if((sbloboff<offset)
 	|| ((sbloboff+sbloblen)<=offset)
 	|| ((sbloboff+sbloblen)>(offset+tvb_reported_length_remaining(tvb, offset)))){
-		char str[256];
-		g_snprintf(str, 256, "The SMB2 decoder might be wrong here : sbloboff:%d sbloblen:%d offset:%d trlr:%d",sbloboff,sbloblen,offset,tvb_reported_length_remaining(tvb, offset));
-		REPORT_DISSECTOR_BUG(str);
+		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Invalid offset/length. Malformed packet");
+		if (check_col(pinfo->cinfo, COL_INFO)){
+
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+		}
+
+		return tvb_length(tvb);
 	}
 
 	/* the security blob itself */
@@ -1257,7 +1269,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb, OLB_SIZE_UINT16, hf_smb2_tree);
 
 	/* tree string */
-	buf = dissect_smb2_olb_buffer(tree, tvb, &olb, OLB_TYPE_UNICODE_STRING);
+	buf = dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, OLB_TYPE_UNICODE_STRING);
 
 
 	/* treelen  +1 is overkill here if the string is unicode,   
@@ -1373,7 +1385,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 4;
 
 	/* search pattern */
-	buf = dissect_smb2_olb_buffer(tree, tvb, &olb, OLB_TYPE_UNICODE_STRING);
+	buf = dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, OLB_TYPE_UNICODE_STRING);
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Pattern:%s",buf);
 	}
@@ -1403,7 +1415,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static int
-dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *blob_item;
 	proto_tree *blob_tree;
@@ -1453,9 +1465,13 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	if((sbloboff<offset)
 	|| ((sbloboff+sbloblen)<=offset)
 	|| ((sbloboff+sbloblen)>(offset+tvb_reported_length_remaining(tvb, offset)))){
-		char str[256];
-		g_snprintf(str, 256, "The SMB2 decoder might be wrong here : sbloboff:%d sbloblen:%d offset:%d trlr:%d",sbloboff,sbloblen,offset,tvb_reported_length_remaining(tvb, offset));
-		REPORT_DISSECTOR_BUG(str);
+		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Invalid offset/length. Malformed packet");
+		if (check_col(pinfo->cinfo, COL_INFO)){
+
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+		}
+
+		return tvb_length(tvb);
 	}
 
 	/* some unknown bytes */
@@ -1954,13 +1970,13 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset += 2;
 
 	/* tag string */
-	tag = dissect_smb2_olb_buffer(tree, tvb, &tag_olb, OLB_TYPE_ASCII_STRING);
+	tag = dissect_smb2_olb_buffer(pinfo, tree, tvb, &tag_olb, OLB_TYPE_ASCII_STRING);
 
 	/* data */
 	if(!strcmp(tag, "ExtA")){
-		dissect_smb2_olb_buffer(tree, tvb, &data_olb, OLB_TYPE_EXTA);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &data_olb, OLB_TYPE_EXTA);
 	} else if(!strcmp(tag, "MxAc")){
-		dissect_smb2_olb_buffer(tree, tvb, &data_olb, OLB_TYPE_MXAC);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &data_olb, OLB_TYPE_MXAC);
 	}
 
 	if(chain_offset){
@@ -2025,7 +2041,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
 	/* filename string */
-	buf = dissect_smb2_olb_buffer(tree, tvb, &olb, OLB_TYPE_UNICODE_STRING);
+	buf = dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, OLB_TYPE_UNICODE_STRING);
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, " File:%s",buf);
 	}
@@ -2053,9 +2069,13 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if((extrainfo_offset<offset)
 		|| ((extrainfo_offset+extrainfo_length)<=offset)
 		|| ((extrainfo_offset+extrainfo_length)>(offset+tvb_reported_length_remaining(tvb, offset)))){
-			char str[256];
-			g_snprintf(str, 256, "The SMB2 decoder might be wrong here : extrainfo_offset:%d extrainfo_length:%d offset:%d trlr:%d",extrainfo_offset,extrainfo_length,offset,tvb_reported_length_remaining(tvb, offset));
-			REPORT_DISSECTOR_BUG(str);
+			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Invalid offset/length. Malformed packet");
+			if (check_col(pinfo->cinfo, COL_INFO)){
+	
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+			}
+
+			return tvb_length(tvb);
 		}
 
 		offset=extrainfo_offset;
@@ -2144,9 +2164,13 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		if((extrainfo_offset<offset)
 		|| ((extrainfo_offset+extrainfo_length)<=offset)
 		|| ((extrainfo_offset+extrainfo_length)>(offset+tvb_reported_length_remaining(tvb, offset)))){
-			char str[256];
-			g_snprintf(str, 256, "The SMB2 decoder might be wrong here : extrainfo_offset:%d extrainfo_length:%d offset:%d trlr:%d",extrainfo_offset,extrainfo_length,offset,tvb_reported_length_remaining(tvb, offset));
-			REPORT_DISSECTOR_BUG(str);
+			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Invalid offset/length. Malformed packet");
+			if (check_col(pinfo->cinfo, COL_INFO)){
+	
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+			}
+
+			return tvb_length(tvb);
 		}
 
 		offset=extrainfo_offset;
