@@ -241,7 +241,7 @@ static guint gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 static gboolean gbl_diameter_desegment = TRUE;
 
 /* Allow zero as a valid application ID */
-static gboolean allow_zero_as_app_id = FALSE;
+static gboolean allow_zero_as_app_id = TRUE;
 
 /* Supress console output at unknown AVP:s,Flags etc */
 static gboolean suppress_console_output = TRUE;
@@ -401,9 +401,16 @@ addStaticAVP(int code, const gchar *name, diameterDataType type, const value_str
   entry->values = vEntry;
   /* Unsigned32 might have values to ( Result-code 268 ) */
   if (vEntry){
-	  if (type != DIAMETER_ENUMERATED){
-		  entry->type = DIAMETER_UNSIGNED32ENUM;
-	  }
+		switch(type){
+		case DIAMETER_UNSIGNED32:
+			entry->type = DIAMETER_UNSIGNED32ENUM;
+			break;
+		case DIAMETER_VENDOR_ID:
+			/* Ignore data from the xml file, use sminmpec.h vals */
+			break;
+		default:
+			entry->type = DIAMETER_ENUMERATED;
+	}
   }
 
 
@@ -449,14 +456,22 @@ addVendorAVP(int code, const gchar *name, diameterDataType type, const value_str
   if (vendorName)
 	entry->vendorName = g_strdup(vendorName);
   else
-	entry->vendorName = NULL;  entry->type = type;
+	entry->vendorName = NULL;  
+  entry->type = type;
   entry->values = vEntry;
 
   /* Unsigned32 might have values to ( Result-code 268 ) */
   if (vEntry){
-	  if (type != DIAMETER_ENUMERATED){
-		  entry->type = DIAMETER_UNSIGNED32ENUM;
-	  }
+		switch(type){
+		case DIAMETER_UNSIGNED32:
+			entry->type = DIAMETER_UNSIGNED32ENUM;
+			break;
+		case DIAMETER_VENDOR_ID:
+			/* Ignore data from the xml file, use sminmpec.h vals */
+			break;
+		default:
+			entry->type = DIAMETER_ENUMERATED;
+	}
   }
 
   /* And, add it to the list */
@@ -558,13 +573,19 @@ xmlParseAVP(xmlNodePtr cur)
   entry->type = avpType;
   entry->values = vEntry;
   /* Unsigned32 might have values to ( Result-code 268 ) */
-  if (vEntry){
-	  if (avpType != DIAMETER_ENUMERATED){
-		  entry->type = DIAMETER_UNSIGNED32ENUM;
-	  }
-  }
+    if (vEntry)
+		switch(avpType){
+		case DIAMETER_UNSIGNED32:
+			entry->type = DIAMETER_UNSIGNED32ENUM;
+			break;
+		case DIAMETER_VENDOR_ID:
+			/* Ignore data from the xml file, use sminmpec.h vals */
+			break;
+		default:
+			entry->type = DIAMETER_ENUMERATED;
+	}
 
-  /* And, add it to the list */
+	/* And, add it to the list */
   entry->next = avpListHead;
   avpListHead = entry;
 
@@ -621,6 +642,9 @@ xmlParseCommand(xmlNodePtr cur)
    */
   name = XmlStub.xmlGetProp(cur, "name");
   code = XmlStub.xmlGetProp(cur, "code");
+  /*
+  g_warning("xmlParseCommand Name: %s code %s",name,code);
+  */
   if (!name || !code) {
 	report_failure("Invalid command.  Name or code missing!");
 	return -1;
@@ -1379,8 +1403,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           case DIAMETER_V16:
 
 			/* Vendor Id */
-			proto_tree_add_uint_format(diameter_tree,hf_diameter_vendor_id,
-							   tvb, offset, 4,	dh.vendorId, "Vendor-Id: %s", vendorName);
+			proto_tree_add_item(diameter_tree, hf_diameter_vendor_id, tvb, offset, 4, FALSE);
 			offset += 4;
 			/* Hop-by-hop Identifier */
 			proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
@@ -1938,14 +1961,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	  case DIAMETER_VENDOR_ID:
 		if (avpDataLength == 4) {
-		  guint32 data;
-
-		  data = tvb_get_ntohl(tvb, offset);
-		  valstr = diameter_vendor_to_str(data, TRUE);
-		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-					     tvb, offset, avpDataLength, data,
-					     "Vendor ID: %s (0x%08x)", valstr,
-					     data);
+		  proto_tree_add_item(avpi_tree, hf_diameter_vendor_id, tvb, offset, avpDataLength, FALSE);
 		} else {
 		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 					      tvb, offset, avpDataLength,
@@ -2093,7 +2109,7 @@ proto_register_diameter(void)
 		  { "Command Code","diameter.code", FT_UINT24, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_vendor_id,
-		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC, NULL,
+		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC, VALS(sminmpec_values),
 			0x0,"", HFILL }},
 		{ &hf_diameter_application_id,
 		  { "ApplicationId",	"diameter.applicationId", FT_UINT32, BASE_DEC, VALS(diameter_application_id_vals),
@@ -2197,7 +2213,7 @@ proto_register_diameter(void)
 	module_t *diameter_module;
 	gchar *default_diameterDictionary;
 
-	proto_diameter = proto_register_protocol ("Diameter Protocol", "Diameter", "diameter");
+	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
 	proto_register_field_array(proto_diameter, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
