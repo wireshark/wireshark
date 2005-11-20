@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-pres.c                                                            */
+/* ./packet-pres.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
 
 /* Input file: packet-pres-template.c */
@@ -245,6 +245,12 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	pres_ctx_oid_t *pco, *tmppco;
 	pco=se_alloc(sizeof(pres_ctx_oid_t));
 	pco->ctx_id=idx;
+
+	if(!oid){
+		/* we did not get any oid name, malformed packet? */
+		return;
+	}
+
 	pco->oid=se_strdup(oid);
 
 	/* if this ctx already exists, remove the old one first */
@@ -461,6 +467,7 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	abstract_syntax_name_oid=NULL;
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 

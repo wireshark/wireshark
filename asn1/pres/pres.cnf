@@ -75,6 +75,9 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
   if(session)
 	session->pres_ctx_id = presentation_context_identifier;
 
+#.FN_HDR Context-list/_item
+	abstract_syntax_name_oid=NULL;
+#.END
 #.FN_FTR Context-list/_item
 	register_ctx_id_and_oid(pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 #.END

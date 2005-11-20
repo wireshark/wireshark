@@ -116,6 +116,12 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	pres_ctx_oid_t *pco, *tmppco;
 	pco=se_alloc(sizeof(pres_ctx_oid_t));
 	pco->ctx_id=idx;
+
+	if(!oid){
+		/* we did not get any oid name, malformed packet? */
+		return;
+	}
+
 	pco->oid=se_strdup(oid);
 
 	/* if this ctx already exists, remove the old one first */
