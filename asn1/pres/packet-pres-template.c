@@ -63,7 +63,7 @@ static guint32 presentation_context_identifier;
 
 /* to keep track of presentation context identifiers and protocol-oids */
 typedef struct _pres_ctx_oid_t {
-	/* XXX here we should keep track of ADDRESS/PORT as well */
+	/* XXX here we should keep track of conversation as well */
 	guint32 ctx_id;
 	char *oid;
 } pres_ctx_oid_t;
@@ -119,6 +119,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 
 	if(!oid){
 		/* we did not get any oid name, malformed packet? */
+		pco->oid=NULL;
 		return;
 	}
 
