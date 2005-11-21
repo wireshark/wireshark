@@ -268,6 +268,10 @@
 #define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
 #endif
 
+#ifndef ETHERTYPE_TIPC
+#define ETHERTYPE_TIPC	0x88ca  /* TIPC  (Transparent Inter Process Communication, */
+#endif							/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
+
 #ifndef ETHERTYPE_LLDP
 #define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1 Link Layer Discovery Protocol (LLDP) */
 #endif
