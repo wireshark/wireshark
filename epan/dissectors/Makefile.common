@@ -595,6 +595,7 @@ DISSECTOR_SRC =	\
 	packet-text-media.c	\
 	packet-tftp.c	\
 	packet-time.c	\
+	packet-tipc.c	\
 	packet-tns.c	\
 	packet-tpkt.c	\
 	packet-tr.c	\
