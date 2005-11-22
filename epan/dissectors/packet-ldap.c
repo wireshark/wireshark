@@ -27,7 +27,6 @@
 /*
  * This is not a complete implementation. It doesn't handle the full version 3, more specifically,
  * it handles only the commands of version 2, but any additional characteristics of the ver3 command are supported.
- * It's also missing extensible search filters.
  *
  * There should probably be alot more error checking, I simply assume that if we have a full packet, it will be a complete
  * and correct packet.
@@ -781,7 +780,6 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
     int ret;
     guint length;
     char *filterp;
-    static const char extensibleMatch[] = "(extensibleMatch not decoded)";
     guint seq_len;
     guint header_bytes;
     guint string_length;
