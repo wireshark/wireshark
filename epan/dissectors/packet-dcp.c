@@ -184,7 +184,8 @@ static gboolean try_heuristic_first = FALSE;
 static gboolean dccp_check_checksum = TRUE;
 
 
-void decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int sport, int dport)
+static void
+decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int sport, int dport)
 {
 	tvbuff_t *next_tvb;
 	int low_port, high_port;

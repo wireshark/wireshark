@@ -52,7 +52,7 @@ typedef enum _tvbparse_wanted_type_t {
 	TVBPARSE_WANTED_SET_ONEOF, /* one of the given types */
 	TVBPARSE_WANTED_SET_SEQ, /* an exact sequence of tokens of the given types */
 	TVBPARSE_WANTED_CARDINALITY, /* one or more tokens of the given type */ 
-    TVBPARSE_WANTED_HANDLE,  /* a handle to another one */
+    TVBPARSE_WANTED_HANDLE  /* a handle to another one */
     
 } tvbparse_type_t;
 

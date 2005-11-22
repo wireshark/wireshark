@@ -61,7 +61,7 @@ typedef enum {
 	al2WithSequenceNumbers,
 	al3,
 	/*...*/
-	// al?M: unimplemented annex C adaptation layers
+	/* al?M: unimplemented annex C adaptation layers */
 	al1M,
 	al2M,
 	al3M

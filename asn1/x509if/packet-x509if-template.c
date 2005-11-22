@@ -69,7 +69,7 @@ static char *last_rdn = NULL;
 
 #include "packet-x509if-fn.c"
 
-const char * x509if_get_last_dn()
+const char * x509if_get_last_dn(void)
 {
   return last_dn;
 }

@@ -499,7 +499,7 @@ voip_calls_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	char *text1 = NULL;
 	char *text2 = NULL;
-	int i1, i2, i3, i4;
+	guint i1, i2, i3, i4;
 
 	const GtkCListRow *row1 = (const GtkCListRow *) ptr1;
 	const GtkCListRow *row2 = (const GtkCListRow *) ptr2;

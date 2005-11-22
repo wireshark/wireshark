@@ -229,7 +229,7 @@ void proto_register_srp (void)
 
 	/* register our init routine to be called at the start of a capture,
 	   to clear out our hash tables etc */
-	// register_init_routine(&srp_init_protocol);
+	/* register_init_routine(&srp_init_protocol); */
 
     }
 }

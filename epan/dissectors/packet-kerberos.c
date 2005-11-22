@@ -1960,7 +1960,7 @@ dissect_krb5_etype_info_salt(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 	return offset;
 }
 
-int
+static int
 dissect_krb5_etype_info2_salt(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_etype_info2_salt, NULL, 0);

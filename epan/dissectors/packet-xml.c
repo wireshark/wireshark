@@ -348,7 +348,7 @@ static void after_closed_tag(void* tvbparse_data, const void* wanted_data _U_, t
 	}	
 }
 
-void after_untag(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok){
+static void after_untag(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok){
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 
@@ -444,7 +444,7 @@ static void unrecognized_token(void* tvbparse_data, const void* wanted_data _U_,
 
 
 
-void init_xml_parser(void) {	
+static void init_xml_parser(void) {	
 	tvbparse_wanted_t* want_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ",NULL,NULL,NULL);
 	tvbparse_wanted_t* want_attr_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ:",NULL,NULL,NULL);
     
@@ -572,7 +572,7 @@ void init_xml_parser(void) {
 }
 
 
-xml_ns_t* xml_new_namespace(GHashTable* hash, gchar* name, ...) {
+static xml_ns_t* xml_new_namespace(GHashTable* hash, gchar* name, ...) {
 	xml_ns_t* ns = g_malloc(sizeof(xml_ns_t));
 	va_list ap;
 	gchar* attr_name;
@@ -600,7 +600,7 @@ xml_ns_t* xml_new_namespace(GHashTable* hash, gchar* name, ...) {
 }
 
 
-void add_xml_field(GArray* hfs, int* p_id, gchar* name, gchar* fqn) {
+static void add_xml_field(GArray* hfs, int* p_id, gchar* name, gchar* fqn) {
 	hf_register_info hfri;
 	
 	hfri.p_id = p_id;
@@ -621,14 +621,14 @@ void add_xml_field(GArray* hfs, int* p_id, gchar* name, gchar* fqn) {
 	g_array_append_val(hfs,hfri);	
 }
 
-void add_xml_attribute_names(gpointer k, gpointer v, gpointer p) {
+static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p) {
 	struct _attr_reg_data* d = p;
 	gchar* basename = g_strdup_printf("%s.%s",d->basename,(gchar*)k);
 	add_xml_field(d->hf, (int*) v, (gchar*)k, basename);
 }
 
 
-void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p) {
+static void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p) {
 	xml_ns_t* ns = v;
 	gchar* basename = g_strdup_printf("%s.%s",(gchar*)p,ns->name);
 	gint* ett_p = &(ns->ett);
@@ -1058,7 +1058,7 @@ next_attribute:
 #  define CLOSEDIR_OP(dir) g_dir_close(dir)
 #endif
 
-void init_xml_names(void) {
+static void init_xml_names(void) {
 	xml_ns_t* xmlpi_xml_ns;
 	guint i;
     DIRECTORY_T* dir;
@@ -1187,7 +1187,7 @@ proto_register_xml(void) {
     
 }
 
-void add_dissector_media(gpointer k, gpointer v _U_, gpointer p _U_) {
+static void add_dissector_media(gpointer k, gpointer v _U_, gpointer p _U_) {
 	dissector_add_string("media_type", (gchar*)k, xml_handle);
 }
 

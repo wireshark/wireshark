@@ -87,7 +87,7 @@ int dissect_x509if_MRSubstitution(gboolean implicit_tag, tvbuff_t *tvb, int offs
 /*--- End of included file: packet-x509if-exp.h ---*/
 
 
-extern const char * x509if_get_last_dn();
+extern const char * x509if_get_last_dn(void);
 
 #endif  /* PACKET_X509IF_H */
 

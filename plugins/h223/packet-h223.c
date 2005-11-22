@@ -146,7 +146,7 @@ static const fragment_items h223_al_frag_items = {
 	"fragments"
 };
 
-static guint32 pdu_offset; // offset of the last pdu to start being dissected in the last packet to start being dissected
+static guint32 pdu_offset; /* offset of the last pdu to start being dissected in the last packet to start being dissected */
 
 /***************************************************************************
  *
@@ -302,8 +302,8 @@ static void add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h2
         if( framenum < old_li->first_frame || (framenum == old_li->first_frame && pdu_offset < old_li->pdu_offset)  )
             return;
         else if ( framenum == old_li->first_frame && pdu_offset == old_li->pdu_offset )
-            *old_li_ptr = li; // replace the tail of the list with the new item, since
-                              // a single h223 pdu has just set the same MC twice..
+            *old_li_ptr = li; /* replace the tail of the list with the new item, since */
+                              /* a single h223 pdu has just set the same MC twice.. */
         else
             old_li->next = li;
     }
@@ -430,10 +430,10 @@ static h223_call_info *find_or_create_call_info ( packet_info * pinfo )
     conversation_t *conv = NULL;
     h223_call_info *data;
 
-    // look for a circuit (eg, IAX call) first
+    /* look for a circuit (eg, IAX call) first */
     circ = find_circuit( pinfo->ctype, pinfo->circuit_id, pinfo->fd->num );
     if( circ == NULL ) {
-	// assume we're running atop TCP; use the converstion support
+	/* assume we're running atop TCP; use the converstion support */
 	conv = find_conversation( pinfo->fd->num,
                                   &pinfo->src,&pinfo->dst,
 				  pinfo->ptype,
@@ -558,7 +558,7 @@ static guint8 h223_al2_crc8bit( tvbuff_t *tvb ) {
 static void dissect_mux_al_pdu( tvbuff_t *tvb,
                                 packet_info *pinfo,
                                 proto_tree *vc_tree,
-//                                circuit_t* vc_circuit,
+/*                                circuit_t* vc_circuit, */
                                 h223_lc_params* lc_params )
 {
     proto_tree *al_tree = NULL;

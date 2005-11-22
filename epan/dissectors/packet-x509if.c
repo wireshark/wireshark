@@ -2165,7 +2165,7 @@ static void dissect_DistinguishedName_PDU(tvbuff_t *tvb, packet_info *pinfo, pro
 /*--- End of included file: packet-x509if-fn.c ---*/
 
 
-const char * x509if_get_last_dn()
+const char * x509if_get_last_dn(void)
 {
   return last_dn;
 }

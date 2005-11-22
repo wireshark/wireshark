@@ -229,7 +229,7 @@ static guint dissect_norm_hdrext(struct _norm *norm, struct _fec_ptr *f, proto_t
 			struct _ext *e = &g_array_index(ext, struct _ext, i);
 
 			lct_ext_decode(e, &lctp, tvb, ext_tree, ett.hdrext, *f);
-//			fec_decode_ext_fti(e, tvb, ext_tree, ett.hdrext, *f);
+			/* fec_decode_ext_fti(e, tvb, ext_tree, ett.hdrext, *f); */
 		}
 	}
 	g_array_free(ext, TRUE);

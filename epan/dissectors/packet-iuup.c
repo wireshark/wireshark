@@ -314,7 +314,8 @@ static const value_string iuup_fqcs[] = {
     {0,NULL}
 };
 
-proto_item* proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, int bit_offset, guint bits, gchar** buf) {
+static proto_item*
+proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, int bit_offset, guint bits, gchar** buf) {
     static const guint8 masks[] = {0x00,0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe};
     int len = (bits + bit_offset)/8 + ((bits + bit_offset)%8 ? 0 : 1);
     guint8* shifted_buffer;

@@ -37,7 +37,7 @@ typedef enum {
     H248_CMD_AUDITCAP,
     H248_CMD_AUDITVAL,
     H248_CMD_NOTIFY,
-    H248_CMD_SVCCHG,
+    H248_CMD_SVCCHG
 } h248_cmd_type_t;
 
 typedef enum {
@@ -45,7 +45,7 @@ typedef enum {
     H248_TRX_REQUEST,
     H248_TRX_PENDING,
     H248_TRX_REPLY,
-    H248_TRX_ACK,
+    H248_TRX_ACK
 } h248_msg_type_t;
 
 /* per command info */

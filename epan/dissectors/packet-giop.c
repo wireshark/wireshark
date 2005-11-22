@@ -3973,7 +3973,8 @@ dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 	    get_giop_pdu_len, dissect_giop_common);
 }
 
-gboolean dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static gboolean
+dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   guint tot_len;
 

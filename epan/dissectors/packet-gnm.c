@@ -3378,7 +3378,7 @@ dissect_gnm_attribute_ObjectInstance(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 }
 
-void
+static void
 dissect_gnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   /* Dymmy function */

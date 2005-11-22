@@ -810,7 +810,7 @@ static gint ett_nt_policy_hnd = -1;
  */
 #define HND_TYPE_CTX_HANDLE	0
 #define HND_TYPE_GUID		1
-int
+static int
 dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,

@@ -746,7 +746,7 @@ dissect_pvfs2_ds_type(tvbuff_t *tvb, proto_tree *tree, int offset,
 #define roundup4(x) (((x) + 3) & ~3)
 #define roundup8(x) (((x) + 7) & ~7)
 
-int
+static int
 dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
     proto_tree *tree,
     packet_info *pinfo _U_,
