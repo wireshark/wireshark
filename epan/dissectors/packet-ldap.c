@@ -769,6 +769,184 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
   return ASN1_ERR_NOERROR;
 }
 
+/*
+ * Richard Sharpe: Add parsing of extensibleMatch filters.
+ * It's real easy to provoke ldapsearch into producing requests that allow us
+ * to see what is being produced:
+ * ldapsearch '(departmentNumber:2.16.840.1.113730.3.3.2.46.1:=>=N4709)' -x \ 
+ * cn sn telephoneNumber
+ */
+static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filter_length, guint byte_length)
+{
+    int ret;
+    guint length;
+    char *filterp;
+    static const char extensibleMatch[] = "(extensibleMatch not decoded)";
+    guint seq_len;
+    guint header_bytes;
+    guint string_length;
+    guint end;
+    guchar *matchingRule, *type, *matchValue;
+    gboolean dnAttributes;
+
+    /* ASN.1 parsing vars ... */
+    guint cls;
+    guint con;
+    guint tag;
+    gboolean def;
+    
+    /*
+     *  MatchingRuleAssertion ::= SEQUENCE {
+     *    matchingRule [1] MatchingRuleId OPTIONAL,
+     *    type         [2] AttributeDescription OPTIONAL,
+     *    matchValue   [3] AssertionValue,
+     *    dnAttributes [4] BOOLEAN DEFAULT FALSE
+     *  }
+     *  Of course, SEQUENCE is merged with the filter
+     *  so there is no separate 30 ...
+     */
+
+    /*
+    * Decode byte_length of stuff ... as per above
+    * But we assemble the strings and the boolean
+    * if present, and then assemble the filter
+    * expression
+    */
+    matchingRule = type = matchValue = NULL;
+    dnAttributes = 0;
+    end = a->offset + byte_length;
+
+    filterp = *filter + strlen(*filter);
+    *filter_length += 1; /* For the ( */
+    *filter = g_realloc(*filter, *filter_length);
+    *filterp++ = '(';
+
+    while (a->offset < end) {
+        /*
+         * Now, parse out each of those items
+         * There will be up to four of them.
+         */
+        ret = asn1_header_decode(a, &cls, &con, &tag, &def, &string_length);
+        if (ret != ASN1_ERR_NOERROR) {
+            return ret;
+        }
+
+        /*
+         * Now, check the tag ...
+         */
+        if (cls != ASN1_CTX || con != ASN1_PRI) {
+            return ASN1_ERR_WRONG_TYPE;
+        }
+        if (!def) {
+            return ASN1_ERR_LENGTH_NOT_DEFINITE;
+        }
+
+        switch (tag) {
+        case 0x01:  /* Parse Matching Rule Id */
+            ret = asn1_string_value_decode(a, (int) string_length, &matchingRule);
+            if (ret != ASN1_ERR_NOERROR) {
+                return ret;
+            }
+            /* NULL Terminate that string */
+            matchingRule = g_realloc(matchingRule, string_length + 1);
+            matchingRule[string_length] = '\0';
+            break;
+
+        case 0x02:  /* Parse attributeDescription */
+            ret = asn1_string_value_decode(a, (int) string_length, &type);
+            if (ret != ASN1_ERR_NOERROR) {
+                return ret;
+            }
+            type = g_realloc(type, string_length + 1);
+            type[string_length] = '\0';
+            break;
+
+        case 0x03:  /* Parse the matchValue */
+            ret = asn1_string_value_decode(a, (int) string_length, &matchValue);
+            if (ret != ASN1_ERR_NOERROR) {
+                return ret;
+            }
+            matchValue = g_realloc(matchValue, string_length);
+            matchValue[string_length] = '\0';
+            break;
+
+        case 0x04:  /* Parse dnAttributes boolean */
+            ret = asn1_bool_decode(a, (int)string_length, &dnAttributes);
+            if (ret != ASN1_ERR_NOERROR) {
+                return ret;
+            }
+            break;
+
+        default:
+            return ASN1_ERR_WRONG_TYPE;
+        }
+
+    }
+    
+    /*
+     * Now, fill in the filter string
+     */
+   
+    if (type) {
+        if (strlen(type) > 0) {
+            *filter_length += 1 + strlen(type);
+            *filter = g_realloc(*filter, *filter_length);
+            filterp = *filter + strlen(*filter);
+            memcpy(filterp, type, strlen(type));
+            filterp += strlen(type);
+            *filterp++ = ':';
+            *filterp = '\0';
+
+            /*
+             * Add in dn if needed ...
+             */
+            if (dnAttributes) {
+                static char *dnString = "dn";
+                *filter_length += 1 + strlen(dnString);
+                *filter = g_realloc(*filter, *filter_length);
+                filterp = *filter + strlen(*filter);
+                memcpy(filterp, dnString, strlen(dnString));
+                filterp += strlen(dnString);
+                *filterp++ = ':';
+                *filterp = '\0';
+            }
+        }
+        g_free(type);
+    }
+
+    if (matchingRule) {
+        if (strlen(matchingRule) > 0) {
+            *filter_length += 1 + strlen(matchingRule);
+            *filter = g_realloc(*filter, *filter_length);
+            filterp = *filter + strlen(*filter);
+            memcpy(filterp, matchingRule, strlen(matchingRule));
+            filterp += strlen(matchingRule);
+            *filterp++ = ':';
+            *filterp = '\0';
+        }
+        g_free(matchingRule);
+    }
+
+    if (matchValue) {
+        if (strlen(matchValue) > 0) {
+            *filter_length += strlen(matchValue);
+            *filter = g_realloc(*filter, *filter_length);
+            filterp = *filter + strlen(*filter);
+            memcpy(filterp, matchValue, strlen(matchValue));
+            filterp += strlen(matchValue);
+            *filterp = '\0';
+        }
+        g_free(matchValue);
+    }
+   
+    *filter_length +=1;
+    *filter = g_realloc(*filter, *filter_length);
+    *filterp++ = ')';
+    *filterp = '\0';   /* There had better be space */
+    
+    return ASN1_ERR_NOERROR;
+}
+
 /* Returns -1 if we're at the end, returns an ASN1_ERR value otherwise. */
 static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
 			int *end)
@@ -777,7 +955,6 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
   guint length;
   gboolean def;
   int ret;
-  static const char extensibleMatch[] = "(extensibleMatch not decoded)";
 
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret != ASN1_ERR_NOERROR)
@@ -910,13 +1087,10 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
      case LDAP_FILTER_EXTENSIBLE:
       if (con != ASN1_CON)
         return ASN1_ERR_WRONG_TYPE;
-      /* XXX - put a real decoder in here */
-      ret = asn1_null_decode(a, length);
-      if (ret != ASN1_ERR_NOERROR)
+      ret = parse_filter_extensibleMatch(a, filter, filter_length, length);
+      if (ret != ASN1_ERR_NOERROR) {
         return ret;
-      *filter_length += sizeof extensibleMatch - 1;
-      *filter = g_realloc(*filter, *filter_length);
-      strcat(*filter, extensibleMatch);
+      }
       break;
      default:
       return ASN1_ERR_WRONG_TYPE;
@@ -1589,9 +1763,9 @@ static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree,
 
     mscldap_rpc=0;
     if(is_mscldap){
-	if(str && !strncmp(str, "netlogon", 8)){
+	  if(str && !strncmp(str, "netlogon", 8)){
 		mscldap_rpc=MSCLDAP_RPC_NETLOGON;
-	}
+	  }
     }
     g_free(str);
     str=NULL;
