@@ -845,9 +845,6 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
             if (ret != ASN1_ERR_NOERROR) {
                 return ret;
             }
-            /* NULL Terminate that string */
-            matchingRule = g_realloc(matchingRule, string_length + 1);
-            matchingRule[string_length] = '\0';
             break;
 
         case 0x02:  /* Parse attributeDescription */
@@ -855,8 +852,6 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
             if (ret != ASN1_ERR_NOERROR) {
                 return ret;
             }
-            type = g_realloc(type, string_length + 1);
-            type[string_length] = '\0';
             break;
 
         case 0x03:  /* Parse the matchValue */
@@ -864,8 +859,6 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
             if (ret != ASN1_ERR_NOERROR) {
                 return ret;
             }
-            matchValue = g_realloc(matchValue, string_length);
-            matchValue[string_length] = '\0';
             break;
 
         case 0x04:  /* Parse dnAttributes boolean */
