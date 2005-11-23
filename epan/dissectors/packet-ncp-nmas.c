@@ -278,7 +278,6 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
         }
         proto_tree_add_string(nmas_tree, hfinfo, tvb, offset+4,
                 str_length, buffer);
-        /*foffset += align_4(tvb, foffset);*/
         return foffset;
 }
 
@@ -319,7 +318,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     case 2:
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
         /* Check for Fragment packet */
-        if (tvb_get_letohl(tvb, foffset)==0) {
+        if (tvb_get_letohl(tvb, foffset)!=0xffffffff) {
             break;
         }
         foffset += 4;
@@ -517,7 +516,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         foffset +=4;
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
         /* Check for a fragment packet */
-        if (tvb_get_letohl(tvb, foffset)==0) {
+        if (tvb_get_letohl(tvb, foffset)!=0xffffffff) {
             break;
         }
         foffset += 4;
@@ -642,7 +641,6 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 }
             }
         }
-        /*if (return_code == 0 && msgverb!=7) {*/
 
         if (return_code == 0) {
             proto_tree_add_text(atree, tvb, roffset, 4, "Return Code: Success (0x00000000)");
