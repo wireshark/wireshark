@@ -264,8 +264,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	user = (dword>>25) & 0xf;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "User %s", val_to_str(user, tipc_user_values, "unknown"));
-
+		col_add_fstr(pinfo->cinfo, COL_INFO, "User: %s", val_to_str(user, tipc_user_values, "unknown"));
 
 	/* If "tree" is NULL, not necessary to generate protocol tree items. */
 	if (tree) {
