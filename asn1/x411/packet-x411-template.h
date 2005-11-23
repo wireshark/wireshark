@@ -26,6 +26,7 @@
 #ifndef PACKET_X411_H
 #define PACKET_X411_H
 
+int dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 #include "packet-x411-exp.h"
 
 #endif  /* PACKET_X411_H */
