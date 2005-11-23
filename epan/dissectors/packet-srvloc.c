@@ -51,7 +51,10 @@
 #include "packet-tcp.h"
 #include <epan/reassemble.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
+static proto_item *expert_item = NULL;
+static guint16 expert_status = 0;
 static gboolean srvloc_desegment = TRUE;
 static int proto_srvloc = -1;
 static int hf_srvloc_version = -1;
@@ -785,6 +788,10 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val_to_str(encoding, charsets, "Unknown"));
 	    proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
 				tvb_get_ntohs(tvb, offset + 10));
+        /* added echo of XID to info colomn by Greg Morris 0ct 14, 2005 */
+        if (check_col(pinfo->cinfo, COL_INFO)) 
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", V1 Transaction ID - %u", tvb_get_ntohs(tvb, offset + 10));
+
 	    offset += 12;
 
 	    switch (function) {
@@ -802,7 +809,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 		
             case SRVRPLY:
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
                 count = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, count);
@@ -850,7 +861,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
             case SRVACK:
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
             break;
 
@@ -878,7 +893,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
             case ATTRRPLY:
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
@@ -892,7 +911,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
             case DAADVERT:
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
@@ -933,7 +956,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
             case SRVTYPERPLY:
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
                 count = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Service Type Count: %u",
@@ -950,7 +977,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
             default:
-                proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
+                expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
 	    };
 	}
 	else { /* Version 2 */
@@ -973,6 +1001,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				next_ext_off);
 	    proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2,
 				tvb_get_ntohs(tvb, offset + 10));
+        if (check_col(pinfo->cinfo, COL_INFO)) 
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
 	    lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
 	    proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2,	lang_tag_len);
 	    proto_tree_add_item(srvloc_tree, hf_srvloc_langtag, tvb, offset + 14, lang_tag_len,	TRUE);
@@ -1008,7 +1038,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 		
             case SRVRPLY: /* RFC2608 8.2 */
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
                 count = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, count);
@@ -1060,7 +1094,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
             
             case SRVACK: /* RFC2608 8.4 */
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
             break;
 
@@ -1093,7 +1131,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
             case ATTRRPLY: /* RFC2608 10.4 */
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
@@ -1112,7 +1154,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
             
             case DAADVERT: /* RCC 2608 8.5 */
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
 		ts.nsecs = 0;
 		ts.secs = tvb_get_ntohl(tvb, offset);
@@ -1172,7 +1218,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
 	    case SRVTYPERPLY: /* rfc2608 10.2 */
-                proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+                expert_status = tvb_get_ntohs(tvb, offset);
+                if (expert_status!=0) {
+                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+                }
                 offset += 2;
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtyperply_srvtypelistlen, tvb, offset, 2, length);
@@ -1207,7 +1257,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
             default:
-                proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
+                expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
 	    };
 	};
     }
