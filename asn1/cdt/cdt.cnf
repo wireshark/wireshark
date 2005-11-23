@@ -1,0 +1,97 @@
+# cdt.cnf
+# Compressed Data Type conformation file
+
+# $Id$
+
+#.EXPORTS
+CompressedData
+
+#.REGISTER
+CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
+
+#.FN_PARS AlgorithmID_ShortForm
+  VAL_PTR = &value
+
+#.FN_BODY AlgorithmID_ShortForm
+  guint32 value;
+
+  %(DEFAULT_BODY)s
+  proto_item_append_text (cdt_item, ", %%s",
+                          val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
+                                      "unknown"));
+
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_append_fstr (pinfo->cinfo, COL_INFO, "%%s ", 
+                     val_to_str (value, cdt_AlgorithmID_ShortForm_vals, 
+                                 "unknown"));
+
+#.FN_PARS ContentType_ShortForm
+  VAL_PTR = &value
+
+#.FN_BODY ContentType_ShortForm
+  guint32 value;
+
+  %(DEFAULT_BODY)s
+  proto_item_append_text (cdt_item, ", %%s",
+                          val_to_str (value, cdt_ContentType_ShortForm_vals, 
+                                      "unknown"));
+
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_append_fstr (pinfo->cinfo, COL_INFO, "%%s ", 
+                     val_to_str (value, cdt_ContentType_ShortForm_vals, 
+                                 "unknown"));
+
+#.FN_PARS OBJECT_IDENTIFIER
+  FN_VARIANT = _str  VAL_PTR = &obj_id
+
+#.FN_BODY OBJECT_IDENTIFIER
+  const char *obj_id = NULL;
+
+  %(DEFAULT_BODY)s
+  if (obj_id) {
+    const char *name = get_ber_oid_name (obj_id);
+
+    if (!name) {
+      name = obj_id;
+    }
+
+    proto_item_append_text (cdt_item, ", %%s", name);
+
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, "%%s ", name);
+  }
+
+#.FN_PARS CompressedContent
+  VAL_PTR = &compr_tvb
+
+#.FN_BODY CompressedContent
+  tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
+  int         save_offset = offset;
+
+  %(DEFAULT_BODY)s
+  if (compr_tvb == NULL) {
+    proto_tree_add_text (top_tree, tvb, save_offset, -1,
+                         "[Error: Unable to get compressed content]");
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, 
+                       "[Error: Unable to get compressed content]");
+    return offset;
+  }
+  
+  next_tvb = tvb_uncompress (compr_tvb, 0, tvb_length (compr_tvb));
+
+  if (next_tvb == NULL) {
+    proto_tree_add_text (top_tree, tvb, save_offset, -1,
+                         "[Error: Unable to uncompress content]");
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, 
+                       "[Error: Unable to uncompress content]");
+    return offset;
+  }
+
+  tvb_set_child_real_data_tvbuff (tvb, next_tvb);
+  add_new_data_source (pinfo, next_tvb, "Uncompressed Content");
+
+  dissect_x411_mts_apdu (next_tvb, pinfo, top_tree);
+  
+#.END
