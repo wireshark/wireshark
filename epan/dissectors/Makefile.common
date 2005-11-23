@@ -674,7 +674,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bssap.h	\
 	packet-camel.h	\
 	packet-chdlc.h	\
-	packet-cdt.c	\
+	packet-cdt.h	\
 	packet-cimd.h	\
 	packet-cip.h	\
 	packet-clearcase.h	\
