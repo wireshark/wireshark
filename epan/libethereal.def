@@ -141,6 +141,7 @@ dissect_ber_integer
 dissect_ber_length
 dissect_ber_null
 dissect_ber_object_identifier
+dissect_ber_object_identifier_str
 dissect_ber_octet_string
 dissect_ber_restricted_string
 dissect_ber_sequence
@@ -166,6 +167,7 @@ dissect_per_integer
 dissect_per_null
 dissect_per_NumericString
 dissect_per_object_identifier
+dissect_per_object_identifier_str
 dissect_per_octet_string
 dissect_per_PrintableString
 dissect_per_restricted_character_string
