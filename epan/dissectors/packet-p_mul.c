@@ -38,6 +38,11 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 
+#include "packet-cdt.h"
+
+#define PNAME  "P_Mul (ACP142)"
+#define PSNAME "P_MUL"
+#define PFNAME "p_mul"
 
 /* Recommended UDP Port Numbers */
 #define P_MUL_TPORT 2751
@@ -54,6 +59,10 @@
 #define Request_PDU          0x05
 #define Reject_PDU           0x06
 #define Release_PDU          0x07
+
+/* Type of content to decode from Data_PDU */
+#define DECODE_NONE      0
+#define DECODE_CDT       1
 
 void proto_reg_handoff_p_mul (void);
 
@@ -97,15 +106,17 @@ static int hf_msg_fragment_too_long_fragment = -1;
 static int hf_msg_fragment_error = -1;
 static int hf_msg_reassembled_in = -1;
 
-
 static gint ett_p_mul = -1;
 static gint ett_pdu_type = -1;
 static gint ett_entry = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
+
 /* User definable values to use for dissection */
 static gboolean p_mul_reassemble = TRUE;
+static gint decode_option = DECODE_NONE;
+
 static guint global_p_mul_tport = P_MUL_TPORT;
 static guint global_p_mul_rport = P_MUL_RPORT;
 static guint global_p_mul_dport = P_MUL_DPORT;
@@ -120,21 +131,21 @@ static GHashTable *p_mul_fragment_table = NULL;
 static GHashTable *p_mul_reassembled_table = NULL;
 
 static const fragment_items p_mul_frag_items = {
-    /* Fragment subtrees */
-    &ett_msg_fragment,
-    &ett_msg_fragments,
-    /* Fragment fields */
-    &hf_msg_fragments,
-    &hf_msg_fragment,
-    &hf_msg_fragment_overlap,
-    &hf_msg_fragment_overlap_conflicts,
-    &hf_msg_fragment_multiple_tails,
-    &hf_msg_fragment_too_long_fragment,
-    &hf_msg_fragment_error,
-    /* Reassembled in field */
-    &hf_msg_reassembled_in,
-    /* Tag */
-    "Message fragments"
+  /* Fragment subtrees */
+  &ett_msg_fragment,
+  &ett_msg_fragments,
+  /* Fragment fields */
+  &hf_msg_fragments,
+  &hf_msg_fragment,
+  &hf_msg_fragment_overlap,
+  &hf_msg_fragment_overlap_conflicts,
+  &hf_msg_fragment_multiple_tails,
+  &hf_msg_fragment_too_long_fragment,
+  &hf_msg_fragment_error,
+  /* Reassembled in field */
+  &hf_msg_reassembled_in,
+  /* Tag */
+  "Message fragments"
 };
 
 static const value_string pdu_vals[] = {
@@ -146,7 +157,14 @@ static const value_string pdu_vals[] = {
   { Request_PDU,          "Request PDU"         },
   { Reject_PDU,           "Reject PDU"          },
   { Release_PDU,          "Release PDU"         },
-  { 0, NULL } };
+  { 0,                    NULL                  } 
+};
+
+static enum_val_t decode_options[] = {
+  { "none", "No decoding",          DECODE_NONE },
+  { "cdt",  "Compressed Data Type", DECODE_CDT  },
+  { NULL,   NULL,                   0           }
+};
 
 static const true_false_string yes_no = {
   "No", "Yes"
@@ -154,8 +172,9 @@ static const true_false_string yes_no = {
 
 static const gchar *get_type (guint8 value)
 {
-   return val_to_str (value, pdu_vals, "Unknown");
+  return val_to_str (value, pdu_vals, "Unknown");
 }
+
 
 /*Function checksum, found in ACP142 annex B-3 */
 static guint16 checksum (guint8 *buffer, gint len, gint offset)
@@ -184,13 +203,16 @@ static guint16 checksum (guint8 *buffer, gint len, gint offset)
   return ret;
 }
 
-static void dissect_reassembled_data (tvbuff_t *tvb, proto_tree *tree)
+static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo _U_,
+                                      proto_tree *tree)
 {
-   if (tvb == NULL || tree == NULL) {
-      return;
-   }
+  if (tvb == NULL || tree == NULL) {
+    return;
+  }
 
-   /* TBD: Dissection of reassembled data */
+  if (decode_option == DECODE_CDT) {
+    dissect_cdt (tvb, pinfo, tree);
+  }
 }
 
 static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -207,11 +229,11 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   gint        i, no_missing = 0, offset = 0;
   nstime_t    ts;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "P_MUL");
+  if (check_col (pinfo->cinfo, COL_PROTOCOL))
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_clear (pinfo->cinfo, COL_INFO);
 
   /* First fetch PDU Type */
   pdu_type = tvb_get_guint8 (tvb, offset + 3) & 0x3F;
@@ -219,6 +241,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   ti = proto_tree_add_item (tree, proto_p_mul, tvb, offset, -1, FALSE);
   proto_item_append_text (ti, ", %s", get_type (pdu_type));
   p_mul_tree = proto_item_add_subtree (ti, ett_p_mul);
+
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_append_fstr (pinfo->cinfo, COL_INFO, "%s", get_type (pdu_type));
 
   /* Length of PDU */
   pdu_length = tvb_get_ntohs (tvb, offset);
@@ -276,12 +301,18 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     /* Total Number of PDUs */
     no_pdus = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_no_pdus, tvb, offset, 2, FALSE);
+    proto_item_append_text (ti, ", No PDUs: %u", no_pdus);
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", No PDUs: %u", no_pdus);
     break;
 
   case Data_PDU:
     /* Sequence Number of PDUs */
     seq_no = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_seq_no, tvb, offset, 2, FALSE);
+    proto_item_append_text (ti, ", Seq no: %u", seq_no);
+    if (check_col (pinfo->cinfo, COL_INFO))
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
     break;
 
   case Announce_PDU:
@@ -329,6 +360,10 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     message_id = tvb_get_ntohl (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, FALSE);
     offset += 4;
+    
+    proto_item_append_text (ti, ", MSID: %u", message_id);
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
   }
 
   if (pdu_type == Address_PDU || pdu_type == Announce_PDU) {
@@ -378,6 +413,10 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       }
     }
 
+    proto_item_append_text (ti, ", Count of Dest: %u", no_dest);
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Dest: %u", no_dest);
+
     if (p_mul_reassemble) {
       /* Add fragment to fragment table */
       frag_msg = fragment_add_seq_check (tvb, offset, pinfo, message_id,
@@ -408,8 +447,12 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       new_tvb = process_reassembled_data (tvb, offset, pinfo,
                                           "Reassembled Data", frag_msg,
                                           &p_mul_frag_items, NULL, tree);
+
+      if (check_col (pinfo->cinfo, COL_INFO) && frag_msg)
+        col_append_fstr (pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+
       if (new_tvb) {
-        dissect_reassembled_data (new_tvb, tree);
+        dissect_reassembled_data (new_tvb, pinfo, tree);
       }
     }
     break;
@@ -440,6 +483,13 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
         /* Missing Data PDU Seq Number */
         proto_tree_add_item (field_tree, hf_miss_seq_no, tvb,offset, 2, FALSE);
         offset += 2;
+      }
+
+      if (no_missing) {
+        proto_item_append_text (ti, ", Missing seq numbers: %u", no_missing);
+        if (check_col (pinfo->cinfo, COL_INFO))
+          col_append_fstr (pinfo->cinfo, COL_INFO, ", Missing seq numbers: %u",
+                           no_missing);
       }
     }
     break;
@@ -478,28 +528,6 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
                             offset + data_len);
   } else if ((len = tvb_length_remaining (tvb, pdu_length)) > 0) {
     proto_item_append_text (len_en, " (more data in packet: %d)", len);
-  }
-
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr (pinfo->cinfo, COL_INFO, "%s", get_type (pdu_type));
-    if (seq_no) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
-    } else if (no_pdus) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", No PDUs: %u", no_pdus);
-    }
-    if (no_missing) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Missing seq numbers: %u",
-                       no_missing);
-    } else if (pdu_type == Address_PDU) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Dest: %u",
-                       no_dest);
-    }
-    if (message_id) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
-    }
-    if (frag_msg) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-    }
   }
 }
 
@@ -597,6 +625,7 @@ void proto_register_p_mul (void)
       { "Fragment of Data", "p_mul.data_fragment", FT_NONE, BASE_NONE,
         NULL, 0x0, "Fragment of Data", HFILL } },
 
+    /* Fragment entries */
     { &hf_msg_fragments,
       { "Message fragments", "p_mul.fragments", FT_NONE, BASE_NONE,
         NULL, 0x00, "Message fragments", HFILL } },
@@ -608,18 +637,19 @@ void proto_register_p_mul (void)
         BASE_NONE, NULL, 0x00, "Message fragment overlap", HFILL } },
     { &hf_msg_fragment_overlap_conflicts,
       { "Message fragment overlapping with conflicting data",
-        "p_mul.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x00, "Message fragment overlapping with conflicting data", HFILL } },
+        "p_mul.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL,
+        0x00, "Message fragment overlapping with conflicting data", HFILL } },
     { &hf_msg_fragment_multiple_tails,
       { "Message has multiple tail fragments",
         "p_mul.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
         NULL, 0x00, "Message has multiple tail fragments", HFILL } },
     { &hf_msg_fragment_too_long_fragment,
       { "Message fragment too long", "p_mul.fragment.too_long_fragment",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Message fragment too long", HFILL } },
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Message fragment too long",
+        HFILL } },
     { &hf_msg_fragment_error,
-      { "Message defragmentation error", "p_mul.fragment.error",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
+      { "Message defragmentation error", "p_mul.fragment.error", FT_FRAMENUM,
+        BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
     { &hf_msg_reassembled_in,
       { "Reassembled in", "p_mul.reassembled.in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x00, "Reassembled in", HFILL } },
@@ -635,7 +665,7 @@ void proto_register_p_mul (void)
 
   module_t *p_mul_module;
 
-  proto_p_mul = proto_register_protocol ("P_Mul (ACP142)", "P_MUL", "p_mul");
+  proto_p_mul = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -649,6 +679,10 @@ void proto_register_p_mul (void)
                                   "Reassemble fragmented P_Mul packets",
                                   "Reassemble fragmented P_Mul packets",
                                   &p_mul_reassemble);
+  prefs_register_enum_preference (p_mul_module, "decode",
+                                  "Decode Data PDU as",
+                                  "Type of content in Data_PDU",
+                                  &decode_option, decode_options, FALSE);
   prefs_register_uint_preference (p_mul_module, "tport", "TPORT",
                                   "Used for transmission of Request_PDUs, "
                                   "Reject_PDUs and Release_PDUs between"

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x411.c                                                            */
+/* .\packet-x411.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.c */
@@ -6707,6 +6707,14 @@ call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *p
 
 }
 
+
+/*
+ * Dissect X411 MTS APDU
+ */
+int dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	return dissect_x411_MTS_APDU (FALSE, tvb, 0, pinfo, parent_tree, hf_x411_MTS_APDU_PDU);
+}
 
 /*
 * Dissect X411 PDUs inside a PPDU.

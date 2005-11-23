@@ -134,6 +134,7 @@ DISSECTOR_SRC =	\
 	packet-cast.c	\
 	packet-ccsds.c	\
 	packet-cdp.c	\
+	packet-cdt.c	\
 	packet-cgmp.c	\
 	packet-chdlc.c	\
 	packet-cimd.c	\
@@ -673,6 +674,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bssap.h	\
 	packet-camel.h	\
 	packet-chdlc.h	\
+	packet-cdt.c	\
 	packet-cimd.h	\
 	packet-cip.h	\
 	packet-clearcase.h	\
