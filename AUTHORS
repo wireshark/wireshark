@@ -1595,6 +1595,7 @@ Brad Hards              <bhards[AT]bigpond.net.au> {
 
 cjs 2895                <cjs2895[AT]hotmail.com> {
 	Compile fixes for IBM's C compiler for AIX
+	Fix configure check for pcap_version
 }
 
 Lutz Jaenicke           <Lutz.Jaenicke [AT] aet.TU-Cottbus.DE> {
@@ -1716,10 +1717,6 @@ Christian Falckenberg   <christian.falckenberg [AT] nortelnetworks.com> {
 Huagang Xie             <xie [AT] lids.org> {
 	MySQL support
 	SSH support
-}
-
-cfs 2895                <cjs2895 [AT] hotmail.com> {
-	Fix configure check for pcap_version
 }
 
 Pasi Kovanen            <Pasi.Kovanen [AT] tahoenetworks.fi> {
@@ -2342,7 +2339,7 @@ Francisco Alcoba	<francisco.alcoba [AT] ericsson.com> {
 	ASCII art version of VOIP call analysis
 }
 
-Nils O. SelÃ¥sdal	<noselasd [AT] asgaard.homelinux.org> {
+Nils O. Selåsdal	<noselasd [AT] asgaard.homelinux.org> {
 	9P support
 }
 
@@ -2422,7 +2419,7 @@ Menno Andriesse		<s5066 [AT] nc3a.nato.int> {
 	STANAG 5066 support
 }
 
-Stig Bjrlykke		<stig [AT] bjorlykke.org> {
+Stig Bjørlykke		<stig [AT] bjorlykke.org> {
 	http://www.jcs.mil/j6/cceb/acps/Acp142.pdf
 	 P_Mul (ACP142) packet disassembly
 }
