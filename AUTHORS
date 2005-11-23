@@ -2420,8 +2420,8 @@ Menno Andriesse		<s5066 [AT] nc3a.nato.int> {
 }
 
 Stig Bjørlykke		<stig [AT] bjorlykke.org> {
-	http://www.jcs.mil/j6/cceb/acps/Acp142.pdf
 	 P_Mul (ACP142) packet disassembly
+	 CDT (CompressedDataType) support
 }
 
 And assorted fixes and enhancements by the people listed above
