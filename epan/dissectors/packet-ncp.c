@@ -448,7 +448,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
 	}
 
-	nw_connection = (header.conn_high << 8) + header.conn_low;
+	nw_connection = (header.conn_high*256)+header.conn_low;
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
@@ -830,8 +830,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    "%s packets not supported yet",
 			    val_to_str(header.type, ncp_type_vals,
 				"Unknown type (0x%04x)"));
-		    expert_add_info_format(pinfo, expert_item, PI_UNDECODED, PI_NOTE, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals,
-				"Unknown type (0x%04x)"));
+            if (ncp_echo_err) {
+                expert_add_info_format(pinfo, expert_item, PI_UNDECODED, PI_NOTE, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals,
+                    "Unknown type (0x%04x)"));
+            }
 		}
 		break;
  	}
@@ -1065,9 +1067,25 @@ proto_register_ncp(void)
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ncp_desegment);
   prefs_register_bool_preference(ncp_module, "defragment_nds",
-    "Reassemble fragmented NDS messages spanning multiple packets",
-    "Whether the NCP dissector should defragment NDS messages spanning multiple packets.",
-    &nds_defragment);
+    "Reassemble fragmented NDS messages spanning multiple reply packets",
+    "Whether the NCP dissector should defragment NDS messages spanning multiple reply packets.",
+     &nds_defragment);
+  prefs_register_bool_preference(ncp_module, "eid_2_expert",
+    "Expert: EID to Name lookups?",
+    "Whether the NCP dissector should echo the NDS Entry ID to name resolves to the expert table.",
+    &nds_echo_eid);
+  prefs_register_bool_preference(ncp_module, "connection_2_expert",
+    "Expert: NCP Connections?",
+    "Whether the NCP dissector should echo NCP connection information to the expert table.",
+    &ncp_echo_conn);
+  prefs_register_bool_preference(ncp_module, "error_2_expert",
+    "Expert: NCP Errors?",
+    "Whether the NCP dissector should echo protocol errors to the expert table.",
+    &ncp_echo_err);
+  prefs_register_bool_preference(ncp_module, "server_2_expert",
+    "Expert: Server Information?",
+    "Whether the NCP dissector should echo server information to the expert table.",
+    &ncp_echo_server);
   register_init_routine(&mncp_init_protocol);
   ncp_tap.stat=register_tap("ncp_srt");
   ncp_tap.hdr=register_tap("ncp_hdr");

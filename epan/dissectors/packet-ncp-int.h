@@ -63,6 +63,10 @@ struct ncp_common_header {
 #define NCP_FMT_UNICODE         3
 
 extern gboolean nds_defragment;
+extern gboolean nds_echo_eid;
+extern gboolean ncp_echo_err;
+extern gboolean ncp_echo_conn;
+extern gboolean ncp_echo_server;
 
 struct _sub_ptvc_record {
 	gint			*ett;
@@ -122,19 +126,19 @@ typedef struct {
     guint32         nds_frag_num;
 } ncp_req_hash_value;
 
-void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
-		guint8, guint16, proto_tree*);
+void dissect_ncp_request(tvbuff_t*, packet_info*, guint32,
+		guint8, guint16, proto_tree *volatile);
 
-void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16, guint8,
+void dissect_ncp_reply(tvbuff_t *, packet_info*, guint32, guint8,
 		guint16, proto_tree*, struct novell_tap*);
 
-void dissect_ping_req(tvbuff_t *, packet_info*, guint16, guint8,
+void dissect_ping_req(tvbuff_t *, packet_info*, guint32, guint8,
 		guint16, proto_tree*);
 
-void dissect_nds_request(tvbuff_t*, packet_info*, guint16,
+void dissect_nds_request(tvbuff_t*, packet_info*, guint32,
 		guint8, guint16, proto_tree*);
 
-void nds_defrag(tvbuff_t*, packet_info*, guint16,
+void nds_defrag(tvbuff_t*, packet_info*, guint32,
 		guint8, guint16, proto_tree*, struct novell_tap*);
 
 extern int proto_ncp;

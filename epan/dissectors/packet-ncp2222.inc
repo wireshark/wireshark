@@ -44,6 +44,11 @@
 #define PROTO_LENGTH_UNTIL_END -1
 
 gboolean        nds_defragment = TRUE;
+gboolean        nds_echo_eid = TRUE;
+gboolean        ncp_echo_err = TRUE;
+gboolean        ncp_echo_conn = TRUE;
+gboolean        ncp_echo_server = TRUE;
+
 extern dissector_handle_t nds_data_handle;
 typedef struct {
         guint32         nds_frag_verb;
@@ -55,6 +60,7 @@ typedef struct {
 } frag_info;        
 
 frag_info           frags[100];
+char    mv_resolve_name_string[128];
 
 const fragment_items nds_frag_items = {
 	&ett_nds_segment,
@@ -76,6 +82,14 @@ const fragment_items nds_frag_items = {
 #define NDS_TAG_ALIAS_ENTRY		0x00000003
 #define NDS_TAG_REFERRAL_INFORMATION	0x00000004
 #define NDS_TAG_ENTRY_AND_REFERRALS	0x00000006
+
+static const value_string zensearchenum[] = {
+    { 0, "[Root]" },
+    { 1, "Object Container" },
+    { 2, "Associated Container" },
+    { 3, "Selected Container" },
+    {0, NULL }
+};
 
 static const value_string nds_tags[] = {
         { NDS_TAG_NO_SUCH_ENTRY,        "No Such Entry" },
@@ -1756,6 +1770,67 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         }
 }
 
+/* NCP data from python code can't be accessed directly. Parse the ncp tree and find the items
+ * and their associated values. Store results in passed buffer.
+ */
+static void
+build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer)
+{
+	proto_tree		*tree_pointer;
+	proto_tree		*tree_loc;
+
+	tree_loc = ncp_tree->first_child;
+	for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
+	{
+		if (strcmp(tree_pointer->finfo->hfinfo->abbrev, hf_name)==0)
+		{
+			switch (tree_pointer->finfo->hfinfo->type)
+			{
+            case 3:				/* uint8 */
+                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo)+1, "%i",get_finfo_value_integer(tree_pointer->finfo));
+				return;
+            case 4:				/* uint16 */
+                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo), "%d",get_finfo_value_integer(tree_pointer->finfo));
+				return;
+			case 17:			/* string */
+		        uni_to_string(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo), buffer);
+				return;
+			default:			/* Dont currently handle. Only need string and integers */
+				buffer = NULL;
+				return;
+			}				
+		}
+	}
+    return;
+}
+
+/* Some NCP data may be desirable to echo to the expert table.
+ * But to extract we must have visability to the tree
+ * This means that to extract the data we can only perform
+ * this code path on the first dissection or a redissect.
+ */
+static void
+trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record *ncp_rec)
+{
+    /* The following allows for specific NCP server info to be echoed to the expert tap. */
+    if (ncp_rec->func == 23 && ncp_rec->subfunc == 17 && ncp_echo_server) {
+        char fsname[50]="\0";
+        char p_maj_ver[3]="\0";
+        char p_min_ver[3]="\0";
+        char p_rev[3]="\0";
+        char p_lang[3]="\0";
+
+        /* Get Server name and version info */
+        build_expert_data(ncp_tree, "ncp.server_name", fsname);
+        build_expert_data(ncp_tree, "ncp.product_major_version", p_maj_ver);
+        build_expert_data(ncp_tree, "ncp.product_minor_version", p_min_ver);
+        build_expert_data(ncp_tree, "ncp.product_revision_version", p_rev);
+        build_expert_data(ncp_tree, "ncp.os_language_id", p_lang);
+        expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server %s, Version %s.%s, Support Pack %s, Language %s", fsname, 
+                               p_maj_ver, p_min_ver, p_rev, p_lang);
+    }
+}
+
 
 static void
 print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val *vvalues)
@@ -1872,8 +1947,15 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset = voffset+4;
                                value2 = tvb_get_letohl(tvb, voffset); /* Value */
                                tvb_ensure_bytes_exist(tvb, voffset, value1);
-                               proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
-                                        value1, value2, "Value %d", value2);
+                               if (strcmp(vvalues->vstring, "zendmSearchType")==0) {
+                                   proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
+                                            value1, value2, "Value (%d) = %s", value2, match_strval(value2, zensearchenum));
+                               }
+                               else
+                               {
+                                   proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
+                                            value1, value2, "Value %d", value2);
+                               }
                                voffset = voffset+4;
                                break;
                        case 0x0000000b:        /* Fax Number */
@@ -2155,7 +2237,31 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                        default:
                                value1 = tvb_get_letohl(tvb, voffset);
                                voffset = voffset + 4;
-                               get_string(tvb, voffset, value1, vvalues->vstring);
+                               if (strcmp(vvalues->vstring, "zendmSearchOrder")==0) {
+                                   get_string(tvb, voffset, value1, vvalues->vstring);
+                                   if (strcmp(vvalues->vstring, "012")==0) {
+                                       vvalues->vstring = "Value (012) = Object, Group, Container";
+                                   }
+                                   if (strcmp(vvalues->vstring, "021")==0) {
+                                       vvalues->vstring = "Value (021) = Object, Container, Group";
+                                   }
+                                   if (strcmp(vvalues->vstring, "102")==0) {
+                                       vvalues->vstring = "Value (102) = Group, Object, Container";
+                                   }
+                                   if (strcmp(vvalues->vstring, "120")==0) {
+                                       vvalues->vstring = "Value (120) = Group, Container, Object";
+                                   }
+                                   if (strcmp(vvalues->vstring, "201")==0) {
+                                       vvalues->vstring = "Value (201) = Container, Object, Group";
+                                   }
+                                   if (strcmp(vvalues->vstring, "210")==0) {
+                                       vvalues->vstring = "Value (210) = Container, Group, Object";
+                                   }
+                               }
+                               else
+                               {
+                                   get_string(tvb, voffset, value1, vvalues->vstring);
+                               }
                                proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
                                    value1, vvalues->vstring);
                                voffset = voffset + value1;    
@@ -2627,6 +2733,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 	gint		length_remaining;
                
        	strcpy(mval_buf.buffer, "");
+        strcpy(mv_resolve_name_string, "");
         
         if(values->mvtype != MVTYPE_LIST_PARTITIONS)
         {
@@ -3311,6 +3418,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         estree = proto_item_add_subtree(esitem, ett_nds);
                         ioffset = ioffset + 4;
                         ioffset = print_es_type(estree, tvb, values, value3, ioffset);
+                        /* values.vstring is being overwritten. So store the resolve name to a global value */
+                        strcpy(mv_resolve_name_string, values->vstring);
                         value4 = tvb_get_letohl(tvb, ioffset);
 		        aitem = proto_tree_add_uint_format(ntree, hf_referral_record, tvb, ioffset, 4,
 		                value4, "Referral Protocols - %d", value4);
@@ -4158,7 +4267,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
  * fragment. We only do this on the first dissection.
  */         
 void
-nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequence, guint16 type, proto_tree *tree, struct novell_tap *ncp_tap)
+nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequence, guint16 type, proto_tree *tree, struct novell_tap *ncp_tap)
 {
     int                 i, frag_count=0;
     guint		        len=0;
@@ -4399,7 +4508,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
 
 void
 dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
-		guint16 nw_connection, guint8 sequence,
+		guint32 nw_connection, guint8 sequence,
 		guint16 type, proto_tree *volatile ncp_tree)
 {
 	guint8			func, subfunc = 0;
@@ -4432,12 +4541,18 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 else
                                 {
-        			        ncp_rec = &ncp1111_request;
+        			                ncp_rec = &ncp1111_request;
+                                    if (ncp_echo_conn) {
+                                        expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection Request");
+                                    }
                                 }        
                         }        
                         else
                         {
-			        ncp_rec = &ncp1111_request;
+        			        ncp_rec = &ncp1111_request;
+                            if (ncp_echo_conn) {
+                                expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection Request");
+                            }
                         }        
 			break;
 		case NCP_SERVICE_REQUEST:
@@ -4455,6 +4570,9 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 		case NCP_DEALLOCATE_SLOT:
 			ncp_rec = &ncp5555_request;
+            if (ncp_echo_conn) {
+                expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Destroy Connection %d Request", nw_connection);
+            }
 			break;
 		case NCP_BROADCAST_SLOT:
 			ncp_rec = &ncpbbbb_request;
@@ -5154,7 +5272,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                         4, nds_error_code, "NDS Completion Code: 0x%08x, %s",
                         nds_error_code, nds_error_string);
 
-                if (nds_error_code != 0) {
+                if (nds_error_code != 0 && ncp_echo_err) {
                         expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NDS Error: 0x%08x %s", nds_error_code, nds_error_string);
                 }
         }
@@ -5903,6 +6021,12 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                         }
                                 }
                         }
+                        /* Echo EID data to expert Chat window */
+                        if (add_eid && nds_echo_eid) {
+                            expert_add_info_format(pinfo, NULL,
+                                PI_RESPONSE_CODE, PI_CHAT,
+                                "EID (%08x) = %s", global_eid, global_object_name);
+                        }
                         /* For NDS requests with just an EID, resolve name
                          * from hash table. */
                         if(resolve_eid)
@@ -5967,7 +6091,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
-	guint16 nw_connection, guint8 sequence, guint16 type,
+	guint32 nw_connection, guint8 sequence, guint16 type,
 	proto_tree *ncp_tree, struct novell_tap *ncp_tap)
 {
 	conversation_t			*conversation = NULL;
@@ -6005,7 +6129,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		/* else... we haven't seen an NCP Request for that conversation
 		   and sequence.
 		   Create Service request packets do not contain nw_connection.
-		   The initial value is set to 65535. The reply packet has the
+		   The initial value is set to 65535 or 0. The reply packet has the
 		   valid connection. So, we can't find the request packet in
 		   our conversation list. To trap for this we can just perform
 		   the search again with 65535 to see if we can locate the
@@ -6024,8 +6148,23 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 				p_add_proto_data(pinfo->fd, proto_ncp,
 				    (void*) request_value);
 			}
-			/* else... we haven't seen an NCP Request for that
-			   conversation and sequence. */
+            else {
+                conversation = find_conversation(pinfo->fd->num,
+                    &pinfo->src, &pinfo->dst, PT_NCP, 0, 0, 0);
+                if (conversation != NULL) {
+                    /* find the record telling us the request made
+                       that caused this reply */
+                    request_value = ncp_hash_lookup(conversation,
+                        sequence);
+                    if (request_value) {
+                        ncp_rec = request_value->ncp_rec;
+                    }
+                    p_add_proto_data(pinfo->fd, proto_ncp,
+                        (void*) request_value);
+                }
+                /* else... we haven't seen an NCP Request for that
+                   conversation and sequence. */
+            }
 		}
 	}
 	else {
@@ -6131,7 +6270,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	expert_item = proto_tree_add_uint_format(ncp_tree, hf_ncp_completion_code, tvb, 6, 1,
 		completion_code, "Completion Code: %d (0x89%02x), %s",
 		completion_code, completion_code, error_string);
-	if (completion_code != 0 || type == NCP_POSITIVE_ACK) {
+	if ((completion_code != 0 || type == NCP_POSITIVE_ACK) && ncp_echo_err) {
 		expert_add_info_format(pinfo, expert_item,
 		    PI_RESPONSE_CODE, PI_ERROR,
 		    "Error: %d (0x89%02x) %s", completion_code,
@@ -6142,7 +6281,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb,
 		    7, 1, FALSE);
 	}
-
 	/*
 	 * Unless this is a successful reply, that's all there
 	 * is to parse.
@@ -6172,6 +6310,13 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 {
                         dissect_nds_reply(tvb, pinfo, ncp_tree, nds_error_code,
                             nds_error_string, request_value, conversation);
+                }
+                /* Echo expert data for connection request/reply */
+                if (ncp_rec->func == 241 && ncp_echo_conn) {
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection %d Established", nw_connection);
+                }
+                if (ncp_rec->func == 245 && ncp_echo_conn) {
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection Destroyed");
                 }
                 if (ncp_rec->reply_ptvc) {
                         /* If we're not building a protocol tree, quit;
@@ -6211,18 +6356,22 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 req_cond_results, TRUE, ncp_rec);
                         ptvcursor_free(ptvc);
                 }
+                /* Check to see if we need to report to the expert table */
+                trap_for_expert_event(ncp_tree, pinfo, ncp_rec);
         } else {
                 if (tvb_length(tvb) > 8) {
                         expert_item = proto_tree_add_text(ncp_tree, tvb, 8, -1,
                             "No request record found. Parsing is impossible.");
-                        expert_add_info_format(pinfo, expert_item, PI_SEQUENCE, PI_NOTE, "Original Request Packet not Found, Maybe normal at beginning of trace.");
+                        if (ncp_echo_err) {
+                            expert_add_info_format(pinfo, expert_item, PI_SEQUENCE, PI_NOTE, "No request record found.");
+                        }
                 }
         }
 }
 
 void
 dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
-		guint16 nw_connection, guint8 sequence,
+		guint32 nw_connection, guint8 sequence,
 		guint16 type, proto_tree *ncp_tree)
 {
 	guint8			func, subfunc = 0;
@@ -8536,7 +8685,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * The "vstring" value is set to the input ES type
 								 * by "process_multivalues()".
 								 */
-								strcpy(global_object_name, pvalues[i].vstring);
+								strcpy(global_object_name, mv_resolve_name_string);
 							}
 							if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST || pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS) {
 								/*
@@ -8546,11 +8695,12 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * by "process_multivalues()".
 								 */
 								if (check_col(pinfo->cinfo, COL_INFO)) {
+									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
 									if (!added_arrow) {
 										col_append_str(pinfo->cinfo, COL_INFO, " -> ");
 										added_arrow = TRUE;
 									}
-									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
+									col_append_str(pinfo->cinfo, COL_INFO, mv_resolve_name_string);
 								}
 							}
 							break;
@@ -8612,7 +8762,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
  */
 void
 dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
-		guint16 nw_connection, guint8 sequence,
+		guint32 nw_connection, guint8 sequence,
 		guint16 type, proto_tree *ncp_tree)
 {
 	guint8			func, subfunc = 0;

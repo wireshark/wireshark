@@ -13671,20 +13671,20 @@ def define_ncp2222():
 			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/590A, 89/10
 	pkt = NCP(0x590A, "Enhanced Add Trustee Set to File or Subdirectory", 'file', has_length=0)
-	pkt.Request((38,291), [
+	pkt.Request((37,290), [
 		rec( 8, 1, NameSpace ),
 		rec( 9, 1, Reserved ),
 		rec( 10, 2, SearchAttributesLow ),
 		rec( 12, 2, AccessRightsMaskWord ),
 		rec( 14, 2, ObjectIDCount, var="y" ),
-		rec( 16, 4, DirectoryBase ),
-		rec( 20, 1, VolumeNumber ),
-		rec( 21, 1, HandleFlag ),
-        rec( 22, 1, DataTypeFlag ),
-        rec( 23, 5, Reserved5 ),
-		rec( 28, 1, PathCount, var="x" ),
-		rec( 29, (2,255), Path16, repeat="x" ),
-		rec( -1, 7, TrusteeStruct, repeat="y" ),
+		rec( -1, 6, TrusteeStruct, repeat="y" ),
+		rec( -1, 4, DirectoryBase ),
+		rec( -1, 1, VolumeNumber ),
+		rec( -1, 1, HandleFlag ),
+        rec( -1, 1, DataTypeFlag ),
+        rec( -1, 5, Reserved5 ),
+		rec( -1, 1, PathCount, var="x" ),
+		rec( -1, (2,255), Path16, repeat="x" ),
 	], info_str=(Path16, "Enhanced Add Trustee Set to: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
