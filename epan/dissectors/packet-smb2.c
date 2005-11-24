@@ -1222,7 +1222,7 @@ dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	guint16 buffer_code;
 
-	/* dissect the first 4 bytes of the command PDU */
+	/* dissect the first 2 bytes of the command PDU */
 	buffer_code = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb2_buffer_code_len, tvb, offset, 2, buffer_code&0xfffe);
 	proto_tree_add_item(tree, hf_smb2_buffer_code_flags_dyn, tvb, offset, 2, TRUE);
@@ -1875,6 +1875,63 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
+dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+{
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
+	offset += 6;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+
+	/* only used for dcerpc ?*/
+	offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_length_remaining(tvb, offset), si);
+
+	return offset;
+}
+
+static int
+dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+{
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
+	offset += 6;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
+
+
+	/* only used for dcerpc ?*/
+	offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_length_remaining(tvb, offset), si);
+
+	return offset;
+}
+
+
+static int
 dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	guint32 len;
@@ -2252,7 +2309,7 @@ const value_string smb2_cmd_vals[] = {
   { 0x08, "Read" },
   { 0x09, "Write" },
   { 0x0A, "unknown-0x0A" },
-  { 0x0B, "unknown-0x0B" },
+  { 0x0B, "Transaction" },
   { 0x0C, "Cancel" },
   { 0x0D, "unknown-0x0D" },
   { 0x0E, "Find" },
@@ -2530,7 +2587,9 @@ static smb2_function smb2_dissector[256] = {
 	{dissect_smb2_write_request,
 	 dissect_smb2_write_response},
   /* 0x0a */  {NULL, NULL},
-  /* 0x0b */  {NULL, NULL},
+  /* 0x0b Transaction*/
+	{dissect_smb2_transaction_request,
+	 dissect_smb2_transaction_response},
   /* 0x0c */  {NULL, NULL},
   /* 0x0d */  {NULL, NULL},
   /* 0x0e Find*/  
