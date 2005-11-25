@@ -110,6 +110,8 @@ static int hf_smb2_file_info_0a = -1;
 static int hf_smb2_file_info_0d = -1;
 static int hf_smb2_file_position_info = -1;
 static int hf_smb2_file_info_0f = -1;
+static int hf_smb2_file_mode_info = -1;
+static int hf_smb2_file_alignment_info = -1;
 static int hf_smb2_file_info_12 = -1;
 static int hf_smb2_file_info_15 = -1;
 static int hf_smb2_file_info_16 = -1;
@@ -167,6 +169,8 @@ static gint ett_smb2_file_internal_info = -1;
 static gint ett_smb2_file_ea_info = -1;
 static gint ett_smb2_file_access_info = -1;
 static gint ett_smb2_file_position_info = -1;
+static gint ett_smb2_file_mode_info = -1;
+static gint ett_smb2_file_alignment_info = -1;
 static gint ett_smb2_file_info_12 = -1;
 static gint ett_smb2_file_info_15 = -1;
 static gint ett_smb2_file_info_16 = -1;
@@ -211,6 +215,8 @@ static const value_string smb2_class_vals[] = {
 #define SMB2_FILE_INFO_0d	0x0d
 #define SMB2_FILE_POSITION_INFO	0x0e
 #define SMB2_FILE_INFO_0f	0x0f
+#define SMB2_FILE_MODE_INFO	0x10
+#define SMB2_FILE_ALIGNMENT_INFO	0x11
 #define SMB2_FILE_INFO_12	0x12
 #define SMB2_FILE_INFO_15	0x15
 #define SMB2_FILE_INFO_16	0x16
@@ -792,6 +798,42 @@ dissect_smb2_file_internal_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	bc=tvb_length_remaining(tvb, offset);
 	offset = dissect_qfi_SMB_FILE_INTERNAL_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+
+	return offset;
+}
+static int
+dissect_smb2_file_mode_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint16 bc;
+	gboolean trunc;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_mode_info, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_mode_info);
+	}
+
+	bc=tvb_length_remaining(tvb, offset);
+	offset = dissect_qfi_SMB_FILE_MODE_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+
+	return offset;
+}
+static int
+dissect_smb2_file_alignment_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint16 bc;
+	gboolean trunc;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_alignment_info, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_alignment_info);
+	}
+
+	bc=tvb_length_remaining(tvb, offset);
+	offset = dissect_qfi_SMB_FILE_ALIGNMENT_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
 
 	return offset;
 }
@@ -1662,6 +1704,12 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			break;
 		case SMB2_FILE_INFO_0f:
 			dissect_smb2_file_info_0f(tvb, pinfo, tree, offset, si);
+			break;
+		case SMB2_FILE_MODE_INFO:
+			dissect_smb2_file_mode_info(tvb, pinfo, tree, offset, si);
+			break;
+		case SMB2_FILE_ALIGNMENT_INFO:
+			dissect_smb2_file_alignment_info(tvb, pinfo, tree, offset, si);
 			break;
 		case SMB2_FILE_INFO_12:
 			dissect_smb2_file_info_12(tvb, pinfo, tree, offset, si);
@@ -3419,6 +3467,14 @@ proto_register_smb2(void)
 		{ "SMB2_FILE_INTERNAL_INFO", "smb2.smb2_file_internal_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INTERNAL_INFO structure", HFILL }},
 
+	{ &hf_smb2_file_mode_info,
+		{ "SMB2_FILE_MODE_INFO", "smb2.smb2_file_mode_info", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_MODE_INFO structure", HFILL }},
+
+	{ &hf_smb2_file_alignment_info,
+		{ "SMB2_FILE_ALIGNMENT_INFO", "smb2.smb2_file_alignment_info", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_ALIGNMENT_INFO structure", HFILL }},
+
 	{ &hf_smb2_file_position_info,
 		{ "SMB2_FILE_POSITION_INFO", "smb2.smb2_file_position_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_POSITION_INFO structure", HFILL }},
@@ -3617,6 +3673,8 @@ proto_register_smb2(void)
 		&ett_smb2_file_info_0d,
 		&ett_smb2_file_position_info,
 		&ett_smb2_file_info_0f,
+		&ett_smb2_file_mode_info,
+		&ett_smb2_file_alignment_info,
 		&ett_smb2_file_info_12,
 		&ett_smb2_file_info_15,
 		&ett_smb2_file_info_16,
