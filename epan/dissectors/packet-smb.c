@@ -620,6 +620,8 @@ static int hf_smb_unix_find_file_resumekey = -1;
 static int hf_smb_network_unknown = -1;
 static int hf_smb_disposition_delete_on_close = -1;
 static int hf_smb_mode = -1;
+static int hf_smb_attribute = -1;
+static int hf_smb_reparse_tag = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -10921,8 +10923,8 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 /* this dissects the SMB_QUERY_FILE_NETWORK_OPEN_INFO
 */
-static int
-dissect_smb_query_file_network_open_info(tvbuff_t *tvb, 
+int
+dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb, 
     packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
@@ -10950,6 +10952,27 @@ dissect_smb_query_file_network_open_info(tvbuff_t *tvb,
         /* Unknown, possibly count of network accessors ... */
         CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_network_unknown, tvb, offset, 4, TRUE);
+        COUNT_BYTES_SUBR(4);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_NETWORK_OPEN_INFO
+*/
+int
+dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvbuff_t *tvb, 
+    packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* attribute */
+        CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_attribute, tvb, offset, 4, TRUE);
+        COUNT_BYTES_SUBR(4);
+
+	/* reparse tag */
+        CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_reparse_tag, tvb, offset, 4, TRUE);
         COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -11171,7 +11194,10 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
         case 1034:     /* SMB_FILE_NETWORK_OPEN_INFO */
-                offset = dissect_smb_query_file_network_open_info(tvb, pinfo, tree, offset, bcp, &trunc);
+                offset = dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvb, pinfo, tree, offset, bcp, &trunc);
+                break;
+        case 1035:     /* SMB_FILE_ATTRIBUTE_TAG_INFO */
+                offset = dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvb, pinfo, tree, offset, bcp, &trunc);
                 break;
 	case 0x0200:	/* Query File Unix Basic*/
 		offset = dissect_4_2_16_12(tvb, pinfo, tree, offset, bcp, 
@@ -17651,6 +17677,14 @@ proto_register_smb(void)
 
         { &hf_smb_mode,
           { "Mode", "smb.mode", FT_UINT32, BASE_HEX,
+            NULL, 0, "", HFILL }},
+
+        { &hf_smb_attribute,
+          { "Attribute", "smb.attribute", FT_UINT32, BASE_HEX,
+            NULL, 0, "", HFILL }},
+
+        { &hf_smb_reparse_tag,
+          { "Reparse Tag", "smb.reparse_tag", FT_UINT32, BASE_HEX,
             NULL, 0, "", HFILL }},
 
 	{ &hf_smb_disposition_delete_on_close,
