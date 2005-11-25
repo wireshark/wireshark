@@ -4,6 +4,11 @@
 # $Id$
 
 #.MODULE_IMPORT
+MAP-CommonDataTypes gsm_map
+MAP-MS-DataTypes gsm_map
+MAP-CH-DataTypes gsm_map
+
+#.INCLUDE ../gsmmap/gsm_map-exp.cnf
 
 #.EXPORTS
 
@@ -97,7 +102,7 @@ tvbuff_t	*parameter_tvb;
 
  if (!parameter_tvb)
 	return offset;
- dissect_camel_CamelCallResult(implicit_tag, parameter_tvb, 0, pinfo, tree, -1);
+ dissect_camel_CAMEL_CallResult(implicit_tag, parameter_tvb, 0, pinfo, tree, -1);
  
 #.END
 
@@ -210,6 +215,7 @@ tvbuff_t	*parameter_tvb;
 		      time);
 
   return 7; /* 7  octets eaten*/
+
 
 #.END
 

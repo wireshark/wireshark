@@ -3,6 +3,8 @@
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
  * Copyright 2005, Javier Acu«Òa <javier.acuna@sixbell.com>
+ * Updated to ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
+ * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
@@ -168,7 +170,7 @@ static const value_string camel_number_plan_values[] = {
 
 const value_string camel_opr_code_strings[] = {
 
-  {0, "InitialDP"},
+  {0,	"InitialDP"},
   {16, "AssistRequestInstructions"},
   {17, "EstablishTemporaryConnection"},
   {18, "DisconnectForwardConnection"},
@@ -178,6 +180,7 @@ const value_string camel_opr_code_strings[] = {
   {23, "RequestReportBCSMEvent"},
   {24, "EventReportBCSM"},
   {31, "Continue"},
+  {32, "InitiateCallAttempt"},
   {33, "ResetTimer"},
   {34, "FurnishChargingInformation"},
   {35, "ApplyCharging"},
@@ -214,6 +217,13 @@ const value_string camel_opr_code_strings[] = {
   {81, "RequestReportGPRSEvent"},
   {82, "ResetTimerGPRS"},
   {83, "SendChargingInformationGPRS"},
+  {86,	"DFCWithArgument"},
+  {88,	"ContinueWithArgument"},
+  {90,	"DisconnectLeg"},
+  {93,	"MoveLeg"},
+  {95,	"SplitLeg"},
+  {96,	"EntityReleased"},
+  {97,	"PlayTone"},
   {0, NULL}
 };
 
@@ -270,6 +280,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 31: /*Continue*/
     /* Continue: no arguments - do nothing */
+    break;
+  case 32: /*initiateCallAttempt*/
+    offset=dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 33: /*ResetTimer*/
     offset=dissect_camel_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -364,6 +377,28 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 83: /*SendChargingInformationGPRS*/
     offset=dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 86: /*DFCWithArgument*/
+    offset= dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 88: /*ContinueWithArgument*/
+	  /* XXX Same as opcode 56 ??? */
+    offset= dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 90: /*DisconnectLeg*/
+    offset= dissect_camel_DisconnectLegArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 93: /*MoveLeg*/
+    offset= dissect_camel_MoveLegArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 95: /*SplitLeg*/
+    offset= dissect_camel_SplitLegArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 96: /*EntityReleased*/
+    offset= dissect_camel_EntityReleasedArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 97: /*PlayTone*/
+    offset= dissect_camel_PlayToneArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     /* todo call the asn.1 dissector */
@@ -374,6 +409,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
+  case 32: /*initiateCallAttempt*/
+    offset=dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 48: /*PromptAndCollectUserInformation*/
     offset=dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
