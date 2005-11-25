@@ -2007,7 +2007,7 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
 
 	/* in buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_in_data);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
