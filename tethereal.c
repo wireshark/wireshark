@@ -1610,24 +1610,28 @@ capture(char *save_file, int out_file_type)
        Do, however, warn about the lack of 64-bit support, and warn that
        WAN devices aren't supported. */
     g_snprintf(errmsg, sizeof errmsg,
-"The capture session could not be initiated (%s).\n"
+"The capture session could not be initiated!\n"
+"\n"
+"(%s)\n"
+"\n"
 "Please check that you have the proper interface specified.\n"
 "\n"
-"Help can be found at: http://wiki.ethereal.com/CaptureSetup\n"
 "\n"
-"WinPcap does not support 64-bit Windows, so you will not be able to capture\n"
-"traffic with Tethereal on 64-bit Windows.  You will have to use some other\n"
-"tool to capture traffic, such as netcap; see\n"
+"Help can be found at:\n"
 "\n"
-"       http://support.microsoft.com/?id=310875\n"
+"       http://wiki.ethereal.com/CaptureSetup\n"
 "\n"
-"for information about netcap.\n"
+"64-bit Windows:\n"
+"WinPcap does not support 64-bit Windows, you will have to use some other\n"
+"tool to capture traffic, such as netcap.\n"
+"For netcap details see: http://support.microsoft.com/?id=310875\n"
 "\n"
+"Modem (PPP/WAN):\n"
 "Note that version 3.0 of WinPcap, and earlier versions of WinPcap, don't\n"
 "support capturing on PPP/WAN interfaces on Windows NT 4.0 / 2000 / XP /\n"
 "Server 2003.\n"
 "WinPcap 3.1 has support for it on Windows 2000 / XP / Server 2003, but has no\n"
-"support for it on Windows NT 4.0 or Windows Vista (Beta 1).\n",
+"support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
 	open_err_str);
     goto error;
 #else
