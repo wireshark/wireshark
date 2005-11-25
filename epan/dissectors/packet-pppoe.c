@@ -31,53 +31,76 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/etypes.h>
+#include <epan/prefs.h>
 
 static int proto_pppoed = -1;
+
+/* Common to session and discovery protocols */
+static gint hf_pppoe_version = -1;
+static gint hf_pppoe_type = -1;
+static gint hf_pppoe_code = -1;
+static gint hf_pppoe_session_id = -1;
+static gint hf_pppoe_payload_length = -1;
+
+/* Discovery protocol fields */
+static gint hf_pppoed_tags = -1;
+static gint hf_pppoed_tag = -1;
+static gint hf_pppoed_tag_length = -1;
+static gint hf_pppoed_tag_unknown_data = -1;
+static gint hf_pppoed_tag_service_name = -1;
+static gint hf_pppoed_tag_ac_name = -1;
+static gint hf_pppoed_tag_host_uniq = -1;
+static gint hf_pppoed_tag_ac_cookie = -1;
+static gint hf_pppoed_tag_vendor_id = -1;
+static gint hf_pppoed_tag_vendor_unspecified = -1;
+static gint hf_pppoed_tag_relay_session_id = -1;
+static gint hf_pppoed_tag_service_name_error = -1;
+static gint hf_pppoed_tag_ac_system_error = -1;
+static gint hf_pppoed_tag_generic_error = -1;
 
 static gint ett_pppoed = -1;
 static gint ett_pppoed_tags = -1;
 
 static int proto_pppoes = -1;
 
+/* Handle for calling for ppp dissector to handle session data */
 static dissector_handle_t ppp_handle;
 
-/* For lack of a better source, I made up the following defines. -jsj */
 
-#define PPPOE_CODE_SESSION 0x00
-#define PPPOE_CODE_PADO 0x7
-#define PPPOE_CODE_PADI 0x9
-#define PPPOE_CODE_PADR 0x19
-#define PPPOE_CODE_PADS 0x65
-#define PPPOE_CODE_PADT 0xa7
+/* Preference for showing discovery tag values and lengths */
+static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 
-#define PPPOE_TAG_EOL 0x0000
-#define PPPOE_TAG_SVC_NAME 0x0101
-#define PPPOE_TAG_AC_NAME 0x0102
-#define PPPOE_TAG_HOST_UNIQ 0x0103
-#define PPPOE_TAG_AC_COOKIE 0x0104
-#define PPPOE_TAG_VENDOR 0x0105
-#define PPPOE_TAG_RELAY_ID 0x0110
-#define PPPOE_TAG_SVC_ERR 0x0201
-#define PPPOE_TAG_AC_ERR 0x0202
+
+#define PPPOE_CODE_SESSION    0x00
+#define PPPOE_CODE_PADO       0x7
+#define PPPOE_CODE_PADI       0x9
+#define PPPOE_CODE_PADR       0x19
+#define PPPOE_CODE_PADS       0x65
+#define PPPOE_CODE_PADT       0xa7
+
+#define PPPOE_TAG_EOL         0x0000
+#define PPPOE_TAG_SVC_NAME    0x0101
+#define PPPOE_TAG_AC_NAME     0x0102
+#define PPPOE_TAG_HOST_UNIQ   0x0103
+#define PPPOE_TAG_AC_COOKIE   0x0104
+#define PPPOE_TAG_VENDOR      0x0105
+#define PPPOE_TAG_RELAY_ID    0x0110
+#define PPPOE_TAG_SVC_ERR     0x0201
+#define PPPOE_TAG_AC_ERR      0x0202
 #define PPPOE_TAG_GENERIC_ERR 0x0203
 
-static const gchar *
-pppoecode_to_str(guint8 codetype, const char *fmt) {
-	static const value_string code_vals[] = {
+static const value_string code_vals[] = {
 		{PPPOE_CODE_SESSION, "Session Data"                             },
 		{PPPOE_CODE_PADO, "Active Discovery Offer (PADO)"               },
 		{PPPOE_CODE_PADI, "Active Discovery Initiation (PADI)"          },
 		{PPPOE_CODE_PADR, "Active Discovery Request (PADR)"             },
 		{PPPOE_CODE_PADS, "Active Discovery Session-confirmation (PADS)"},
 		{PPPOE_CODE_PADT, "Active Discovery Terminate (PADT)"           },
-		{0,	NULL                                                        } };
+		{0,               NULL                                          }
+};
 
-		return val_to_str(codetype, code_vals, fmt);
-}
 
-static const gchar *
-pppoetag_to_str(guint16 tag_type, const char *fmt) {
-	static const value_string code_vals[] = {
+static const value_string tag_vals[] = {
 		{PPPOE_TAG_EOL,        "End-Of-List"       },
 		{PPPOE_TAG_SVC_NAME,   "Service-Name"      },
 		{PPPOE_TAG_AC_NAME,    "AC-Name"           },
@@ -88,15 +111,18 @@ pppoetag_to_str(guint16 tag_type, const char *fmt) {
 		{PPPOE_TAG_SVC_ERR,    "Service-Name-Error"},
 		{PPPOE_TAG_AC_ERR,     "AC-System-Error"   },
 		{PPPOE_TAG_GENERIC_ERR,"Generic-Error"     },
-		{0,                    NULL                } };
+		{0,                    NULL                }
+};
 
-		return val_to_str(tag_type, code_vals, fmt);
-}
+/* Forward declare discovery protocol handoff function */
+void proto_reg_handoff_pppoed(void);
 
 
+/* Dissect discovery protocol tags */
 static void
-dissect_pppoe_tags(tvbuff_t *tvb, int offset, proto_tree *tree, int payload_length) {
-
+dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
+                   int payload_length)
+{
 	guint16 poe_tag;
 	guint16 poe_tag_length;
 	int tagstart;
@@ -105,114 +131,277 @@ dissect_pppoe_tags(tvbuff_t *tvb, int offset, proto_tree *tree, int payload_leng
 	proto_item  *ti;
 
 	/* Start Decoding Here. */
-
-	if (tree) {
-		ti = proto_tree_add_text(tree, tvb,offset,payload_length,"PPPoE Tags");
+	if (tree)
+	{
+		/* Create tags subtree */
+		ti = proto_tree_add_item(tree, hf_pppoed_tags, tvb, offset, payload_length-6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed_tags);
 
 		tagstart = offset;
-		while(tagstart <= payload_length-2 ) {
-
+		
+		/* Loop until all data seen or End-Of-List tag found */
+		while (tagstart <= payload_length-2 )
+		{
 			poe_tag = tvb_get_ntohs(tvb, tagstart);
 			poe_tag_length = tvb_get_ntohs(tvb, tagstart + 2);
 
-			proto_tree_add_text(pppoe_tree, tvb,tagstart,4,
-				"Tag: %s", pppoetag_to_str(poe_tag,"Unknown (0x%02x)"));
+			/* Tag value and data length */
+			if (global_pppoe_show_tags_and_lengths)
+			{
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
+			}
+			
+			/* Show tag data */
+			switch (poe_tag)
+			{
+				case PPPOE_TAG_SVC_NAME:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_AC_NAME:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_name, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					/* Show AC-Name in info column */
+					if (check_col(pinfo->cinfo,COL_INFO))
+					{
+						col_append_fstr(pinfo->cinfo, COL_INFO, "  AC-Name='%s'",
+						               tvb_get_string(tvb, tagstart+4, poe_tag_length));
+					}
+					break;
+				case PPPOE_TAG_HOST_UNIQ:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_host_uniq, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_AC_COOKIE:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_cookie, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_VENDOR:
+					if (poe_tag_length >= 4)
+					{
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vendor_id, tvb,
+											tagstart+4, 4, FALSE);
+					}
+					if (poe_tag_length > 4)
+					{
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vendor_unspecified, tvb,
+						                    tagstart+4+4, poe_tag_length-4, FALSE);
+					}
+					break;
+				case PPPOE_TAG_RELAY_ID:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_relay_session_id, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
 
-			switch(poe_tag) {
-			case PPPOE_TAG_SVC_NAME:
-			case PPPOE_TAG_AC_NAME:
-			case PPPOE_TAG_SVC_ERR:
-			case PPPOE_TAG_AC_ERR:
-			case PPPOE_TAG_GENERIC_ERR:
-				/* tag value should be interpreted as a utf-8 unterminated string.*/
-				if(poe_tag_length > 0 ) {
-					/* really should do some limit checking here.  :( */
-					proto_tree_add_text(pppoe_tree, tvb,tagstart+4,poe_tag_length,
-						"  String Data: %s",
-						tvb_format_text(tvb, tagstart+4,poe_tag_length ));
-				}
-				break;
-			default:
-				if(poe_tag_length > 0 ) {
-				 proto_tree_add_text(pppoe_tree, tvb,tagstart+4,poe_tag_length,
-						"  Binary Data: (%d bytes)", poe_tag_length );
-				}
+				/* These error tag values should be interpreted as a utf-8 unterminated
+				   strings. */
+				case PPPOE_TAG_SVC_ERR:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name_error, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_AC_ERR:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_system_error, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_GENERIC_ERR:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_generic_error, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+
+				/* Get out if see end-of-list tag */
+				case PPPOE_TAG_EOL:
+					return;
+
+				default:
+					if (poe_tag_length > 0 )
+					{
+						/* Presumably unknown tag */
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
+						                    tagstart+4, poe_tag_length, FALSE);
+					}
 			}
 
-			if (poe_tag == PPPOE_TAG_EOL) break;
-
-			tagstart += 4 + poe_tag_length;
+			tagstart += (4 + poe_tag_length);
 		}
 	}
 }
 
-static void
-dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	guint8 pppoe_ver_type;
-	guint8 pppoe_ver;
-	guint8 pppoe_type;
-	guint8	pppoe_code;
-	guint16	pppoe_session_id;
-	guint16	pppoe_length;
+
+/* Discovery protocol, i.e. PPP session not yet established */
+static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8  pppoe_code;
+	guint16 pppoe_length;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	{
 		col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPPoED");
 	}
-	if (check_col(pinfo->cinfo,COL_INFO)) {
+	if (check_col(pinfo->cinfo,COL_INFO))
+	{
 		col_clear(pinfo->cinfo,COL_INFO);
 	}
 
 	/* Start Decoding Here. */
-	pppoe_ver_type = tvb_get_guint8(tvb, 0);
-	pppoe_ver = (pppoe_ver_type >> 4) & 0x0f;
-	pppoe_type = pppoe_ver_type & 0x0f;
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_add_fstr(pinfo->cinfo,COL_INFO,pppoecode_to_str(pppoe_code,"Unknown code (0x%02x)"));
+	if (check_col(pinfo->cinfo,COL_INFO))
+	{
+		col_add_fstr(pinfo->cinfo,COL_INFO, val_to_str(pppoe_code, code_vals, "Unknown"));
 	}
 
-	pppoe_session_id = tvb_get_ntohs(tvb, 2);
+	/* Read length of payload */
 	pppoe_length = tvb_get_ntohs(tvb, 4);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_pppoed, tvb,0,
-			pppoe_length+6, FALSE);
+	if (tree)
+	{
+		ti = proto_tree_add_item(tree, proto_pppoed, tvb,0, pppoe_length+6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
-		proto_tree_add_text(pppoe_tree, tvb,0,1,
-			"Version: %u", pppoe_ver);
-		proto_tree_add_text(pppoe_tree, tvb,0,1,
-			"Type: %u", pppoe_type);
-		proto_tree_add_text(pppoe_tree, tvb,1,1,
-			"Code: %s", pppoecode_to_str(pppoe_code,"Unknown (0x%02x)"));
-		proto_tree_add_text(pppoe_tree, tvb,2,2,
-			"Session ID: %04x", pppoe_session_id);
-		proto_tree_add_text(pppoe_tree, tvb,4,2,
-			"Payload Length: %u", pppoe_length);
+
+		/* Dissect fixed fields */
+		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
 	}
-	dissect_pppoe_tags(tvb,6,tree,6+pppoe_length);
+	
+	/* Now dissect tags */
+	dissect_pppoe_tags(tvb, pinfo, 6, tree, 6+pppoe_length);
+
 }
 
-void
-proto_register_pppoed(void)
+void proto_register_pppoed(void)
 {
+	static hf_register_info hf[] =
+	{
+		/* These fields common to discovery and session protocols */
+		{ &hf_pppoe_version,
+			{ "Version", "pppoe.version", FT_UINT8, BASE_DEC,
+				 NULL, 0xf0, "", HFILL
+			}
+		},
+		{ &hf_pppoe_type,
+			{ "Type", "pppoe.type", FT_UINT8, BASE_DEC,
+				 NULL, 0x0f, "", HFILL
+			}
+		},
+		{ &hf_pppoe_code,
+			{ "Code", "pppoe.code", FT_UINT8, BASE_HEX,
+				 VALS(code_vals), 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoe_session_id,
+			{ "Session ID", "pppoe.session_id", FT_UINT16, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoe_payload_length,
+			{ "Payload Length", "pppoe.payload_length", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		
+		/* Discovery tag fields */
+		{ &hf_pppoed_tags,
+			{ "PPPoE Tags", "pppoed.tags", FT_NONE, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag,
+			{ "Tag", "pppoed.tag", FT_UINT16, BASE_HEX,
+				 VALS(tag_vals), 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_length,
+			{ "Tag Length", "pppoed.tag_length", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_unknown_data,
+			{ "Unknown Data", "pppoed.tag.unknown_data", FT_STRING, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_service_name,
+			{ "Service-Name", "pppoed.tags.service_name", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_ac_name,
+			{ "AC-Name", "pppoed.tags.ac_name", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_host_uniq,
+			{ "Host-Uniq", "pppoed.tags.host_uniq", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_ac_cookie,
+			{ "AC-Cookie", "pppoed.tags.ac_cookie", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_vendor_id,
+			{ "Vendor id", "pppoed.tags.vendor_id", FT_UINT32, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_vendor_unspecified,
+			{ "Vendor unspecified", "pppoed.tags.vendor_unspecified", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_relay_session_id,
+			{ "Relay-Session-Id", "pppoed.tags.relay_session_id", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_service_name_error,
+			{ "Service-Name-Error", "pppoed.tags.service_name_error", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_ac_system_error,
+			{ "AC-System-Error", "pppoed.tags.ac_system_error", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_generic_error,
+			{ "Generic-Error", "pppoed.tags.generic_error", FT_STRING, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+	};
+
 	static gint *ett[] = {
 		&ett_pppoed,
 		&ett_pppoed_tags,
 	};
 
-	proto_pppoed = proto_register_protocol("PPP-over-Ethernet Discovery",
-	    "PPPoED", "pppoed");
+	module_t *pppoed_module;
 
+	/* Register protocol and fields */
+	proto_pppoed = proto_register_protocol("PPP-over-Ethernet Discovery",
+	                                       "PPPoED", "pppoed");
 	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_pppoed, hf, array_length(hf));
+
+	/* Preference setting */
+	pppoed_module = prefs_register_protocol(proto_pppoed, proto_reg_handoff_pppoed);
+	prefs_register_bool_preference(pppoed_module, "show_tags_and_lengths",
+	                               "Show tag values and lengths",
+	                               "Show values of tags and lengths of data fields",
+	                               &global_pppoe_show_tags_and_lengths);
 }
 
-void
-proto_reg_handoff_pppoed(void)
+void proto_reg_handoff_pppoed(void)
 {
 	dissector_handle_t pppoed_handle;
 
@@ -220,56 +409,52 @@ proto_reg_handoff_pppoed(void)
 	dissector_add("ethertype", ETHERTYPE_PPPOED, pppoed_handle);
 }
 
-static void
-dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	guint8 pppoe_ver_type;
-	guint8 pppoe_ver;
-	guint8 pppoe_type;
-	guint8	pppoe_code;
-	guint16	pppoe_session_id;
-	guint16	pppoe_length;
-	gint length, reported_length;
+
+/* Session protocol, i.e. PPP session established */
+static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8  pppoe_code;
+	guint16 pppoe_session_id;
+	guint16 pppoe_length;
+	gint    length, reported_length;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
 	tvbuff_t    *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	{
 		col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPPoES");
 	}
-	if (check_col(pinfo->cinfo,COL_INFO)) {
+	if (check_col(pinfo->cinfo,COL_INFO))
+	{
 		col_clear(pinfo->cinfo,COL_INFO);
 	}
 
 	/* Start Decoding Here. */
-	pppoe_ver_type = tvb_get_guint8(tvb, 0);
-	pppoe_ver = (pppoe_ver_type >> 4) & 0x0f;
-	pppoe_type = pppoe_ver_type & 0x0f;
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_add_fstr(pinfo->cinfo,COL_INFO,
-		    pppoecode_to_str(pppoe_code,"Unknown code (0x%02x)"));
+	if (check_col(pinfo->cinfo,COL_INFO))
+	{
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+		             val_to_str(pppoe_code, code_vals, "Unknown"));
 	}
 
 	pppoe_session_id = tvb_get_ntohs(tvb, 2);
 	pppoe_length = tvb_get_ntohs(tvb, 4);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_pppoes, tvb,0,
-			6, FALSE);
+	if (tree)
+	{
+		ti = proto_tree_add_item(tree, proto_pppoes, tvb, 0, 6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
-		proto_tree_add_text(pppoe_tree, tvb,0,1,
-			"Version: %u", pppoe_ver);
-		proto_tree_add_text(pppoe_tree, tvb,0,1,
-			"Type: %u", pppoe_type);
-		proto_tree_add_text(pppoe_tree, tvb,1,1,
-			"Code: %s", pppoecode_to_str(pppoe_code,"Unknown (0x%02x)"));
-		proto_tree_add_text(pppoe_tree, tvb,2,2,
-			"Session ID: %04x", pppoe_session_id);
-		proto_tree_add_text(pppoe_tree, tvb,4,2,
-			"Payload Length: %u", pppoe_length);
+
+		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
 	}
+
 	/* dissect_ppp is apparently done as a 'top level' dissector,
 	 * so this doesn't work:
 	 * dissect_ppp(pd,offset+6,pinfo->fd,tree);
@@ -288,23 +473,19 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	next_tvb = tvb_new_subset(tvb,6,length,reported_length);
 	call_dissector(ppp_handle,next_tvb,pinfo,tree);
 }
-void
-proto_register_pppoes(void)
+
+void proto_register_pppoes(void)
 {
-	proto_pppoes = proto_register_protocol("PPP-over-Ethernet Session",
-	    "PPPoES", "pppoes");
+	/* Register protocol */
+	proto_pppoes = proto_register_protocol("PPP-over-Ethernet Session", "PPPoES", "pppoes");
 }
 
-void
-proto_reg_handoff_pppoes(void)
+void proto_reg_handoff_pppoes(void)
 {
-	dissector_handle_t pppoes_handle;
-
-	pppoes_handle = create_dissector_handle(dissect_pppoes, proto_pppoes);
+	dissector_handle_t pppoes_handle  =
+	    create_dissector_handle(dissect_pppoes, proto_pppoes);
 	dissector_add("ethertype", ETHERTYPE_PPPOES, pppoes_handle);
 
-	/*
-	 * Get a handle for the PPP dissector.
-	 */
+	/* Get a handle for the PPP dissector */
 	ppp_handle = find_dissector("ppp");
 }
