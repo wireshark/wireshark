@@ -506,6 +506,7 @@ static int hf_smb_qfsi_information_level = -1;
 static int hf_smb_number_of_links = -1;
 static int hf_smb_delete_pending = -1;
 static int hf_smb_index_number = -1;
+static int hf_smb_position = -1;
 static int hf_smb_current_offset = -1;
 static int hf_smb_t2_alignment = -1;
 static int hf_smb_t2_stream_name_length = -1;
@@ -10469,6 +10470,36 @@ dissect_qfi_SMB_FILE_STANDARD_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	return offset;
 }
 
+/* this dissects the SMB_QUERY_FILE_INTERNAL_INFO
+*/
+int
+dissect_qfi_SMB_FILE_INTERNAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* file id */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_POSITION_INFO
+*/
+int
+dissect_qfi_SMB_FILE_POSITION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* file id */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_position, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	*trunc = FALSE;
+	return offset;
+}
+
 /* this dissects the SMB_QUERY_FILE_EA_INFO
    as described in 4.2.16.6
 */
@@ -11055,6 +11086,10 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_qfi_SMB_FILE_STANDARD_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
+	case 1006:	/* SMB_FILE_INTERNAL_INFORMATION */
+		offset = dissect_qfi_SMB_FILE_INTERNAL_INFO(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
 	case 0x0103:	/*Query File EA Info*/
 	case 1007:	/* SMB_FILE_EA_INFORMATION */
 		offset = dissect_qfi_SMB_FILE_EA_INFO(tvb, pinfo, tree, offset, bcp,
@@ -11063,6 +11098,10 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 0x0104:	/*Query File Name Info*/
 	case 1009:	/* SMB_FILE_NAME_INFORMATION */
 		offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 1014:	/* SMB_FILE_POSITION_INFORMATION */
+		offset = dissect_qfi_SMB_FILE_POSITION_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0107:	/*Query File All Info*/
@@ -17128,8 +17167,12 @@ proto_register_smb(void)
 		VALS(delete_pending_vals), 0, "Is this object about to be deleted?", HFILL }},
 
 	{ &hf_smb_index_number,
-		{ "Index Number", "smb.index_number", FT_UINT64, BASE_DEC,
+		{ "Index Number", "smb.index_number", FT_UINT64, BASE_HEX,
 		NULL, 0, "File system unique identifier", HFILL }},
+
+	{ &hf_smb_position,
+		{ "Position", "smb.position", FT_UINT64, BASE_DEC,
+		NULL, 0, "File position", HFILL }},
 
 	{ &hf_smb_current_offset,
 		{ "Current Offset", "smb.offset", FT_UINT64, BASE_DEC,
