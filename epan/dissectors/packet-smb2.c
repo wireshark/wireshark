@@ -1499,6 +1499,70 @@ dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 
 static int
+dissect_smb2_logoff_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+{
+	offset_length_buffer_t olb;
+	const char *buf;
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return offset;
+}
+
+static int
+dissect_smb2_logoff_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+{
+	offset_length_buffer_t olb;
+	const char *buf;
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return offset;
+}
+
+static int
+dissect_smb2_keepalive_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+{
+	offset_length_buffer_t olb;
+	const char *buf;
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return offset;
+}
+
+static int
+dissect_smb2_keepalive_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+{
+	offset_length_buffer_t olb;
+	const char *buf;
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return offset;
+}
+
+static int
 dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
@@ -2504,18 +2568,18 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 const value_string smb2_cmd_vals[] = {
   { 0x00, "NegotiateProtocol" },
   { 0x01, "SessionSetupAndX" },
-  { 0x02, "unknown-0x02" },
+  { 0x02, "Logoff" },
   { 0x03, "TreeConnect" },
   { 0x04, "TreeDisconnect" },
   { 0x05, "Create" },
   { 0x06, "Close" },
-  { 0x07, "unknown-0x07" },
+  { 0x07, "Flush" },
   { 0x08, "Read" },
   { 0x09, "Write" },
-  { 0x0A, "unknown-0x0A" },
+  { 0x0A, "Lock" },
   { 0x0B, "Transaction" },
   { 0x0C, "Cancel" },
-  { 0x0D, "unknown-0x0D" },
+  { 0x0D, "KeepAlive" },
   { 0x0E, "Find" },
   { 0x0F, "Notify" },
   { 0x10, "GetInfo" },
@@ -2772,7 +2836,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x01 SessionSetup*/  
 	{dissect_smb2_session_setup_request, 
 	 dissect_smb2_session_setup_response},
-  /* 0x02 */  {NULL, NULL},
+  /* 0x02 Logoff*/
+	{dissect_smb2_logoff_request, 
+	 dissect_smb2_logoff_response},
   /* 0x03 TreeConnect*/  
 	{dissect_smb2_tree_connect_request,
 	 dissect_smb2_tree_connect_response},
@@ -2797,7 +2863,9 @@ static smb2_function smb2_dissector[256] = {
 	{dissect_smb2_transaction_request,
 	 dissect_smb2_transaction_response},
   /* 0x0c */  {NULL, NULL},
-  /* 0x0d */  {NULL, NULL},
+  /* 0x0d KeepAlive*/
+	{dissect_smb2_keepalive_request,
+	 dissect_smb2_keepalive_response},
   /* 0x0e Find*/  
 	{dissect_smb2_find_request,
 	 dissect_smb2_find_response},
