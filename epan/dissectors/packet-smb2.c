@@ -1466,6 +1466,37 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	return offset;
 }
 
+static int
+dissect_smb2_tree_disconnect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+{
+	offset_length_buffer_t olb;
+	const char *buf;
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return offset;
+}
+
+static int
+dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+{
+	offset_length_buffer_t olb;
+	const char *buf;
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return offset;
+}
 
 static int
 dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
@@ -2721,7 +2752,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x03 TreeConnect*/  
 	{dissect_smb2_tree_connect_request,
 	 dissect_smb2_tree_connect_response},
-  /* 0x04 */  {NULL, NULL},
+  /* 0x04 TreeDisconnect*/
+	{dissect_smb2_tree_disconnect_request,
+	 dissect_smb2_tree_disconnect_response},
   /* 0x05 Create*/  
 	{dissect_smb2_create_request,
 	 dissect_smb2_create_response},
