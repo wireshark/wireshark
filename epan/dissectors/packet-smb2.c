@@ -67,6 +67,8 @@ static int hf_smb2_response_buffer_offset = -1;
 static int hf_smb2_security_blob_offset = -1;
 static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
+static int hf_smb2_transaction_out_data = -1;
+static int hf_smb2_transaction_in_data = -1;
 static int hf_smb2_unknown = -1;
 static int hf_smb2_unknown_timestamp = -1;
 static int hf_smb2_create_timestamp = -1;
@@ -1878,10 +1880,19 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	return offset;
 }
 
+static void
+dissect_smb2_transaction_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si)
+{
+	dissect_file_data_dcerpc(tvb, pinfo, parent_tree, 0, tvb_length(tvb), si);
+
+	return;
+}
+
+
 static int
 dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
-	guint32 length;
+	offset_length_buffer_t o_olb;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset);
@@ -1893,14 +1904,8 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
-	/* out offset */
-	proto_tree_add_item(tree, hf_smb2_transaction_out_offset, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* out length */
-	length=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_transaction_out_length, tvb, offset, 4, TRUE);
-	offset += 4;
+	/* out buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
@@ -1910,11 +1915,8 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
 	offset += 16;
 
-
-	/* only used for dcerpc ?*/
-	if(length){
-		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si);
-	}
+	/* out buffer */
+	dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
 
 	return offset;
 }
@@ -1922,7 +1924,8 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static int
 dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
-	guint32 ilength, olength;
+	offset_length_buffer_t o_olb;
+	offset_length_buffer_t i_olb;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset);
@@ -1934,33 +1937,23 @@ dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
-	/* out offset */
-	proto_tree_add_item(tree, hf_smb2_transaction_out_offset, tvb, offset, 4, TRUE);
-	offset += 4;
+	/* out buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
 
-	/* out length */
-	olength=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_transaction_out_length, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* in offset */
-	proto_tree_add_item(tree, hf_smb2_transaction_in_offset, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* in length */
-	ilength=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_transaction_in_length, tvb, offset, 4, TRUE);
-	offset += 4;
+	/* in buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_in_data);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
 	offset += 8;
 
 
-	/* only used for dcerpc ?*/
-	if(ilength || olength){
-		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, ilength+olength, si);
-	}
+	/* out buffer */
+	dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+
+	/* in buffer */
+	dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_transaction_data);
+
 
 	return offset;
 }
@@ -3302,6 +3295,14 @@ proto_register_smb2(void)
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
 		NULL, 0, "Security blob", HFILL }},
 
+	{ &hf_smb2_transaction_out_data,
+		{ "Out Data", "smb2.transaction.out", FT_NONE, BASE_NONE,
+		NULL, 0, "Transaction Out", HFILL }},
+
+	{ &hf_smb2_transaction_in_data,
+		{ "In Data", "smb2.transaction.in", FT_NONE, BASE_NONE,
+		NULL, 0, "Transaction In", HFILL }},
+
 	{ &hf_smb2_server_guid, 
 	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE, 
 		NULL, 0, "Server GUID", HFILL }},
@@ -3510,22 +3511,6 @@ proto_register_smb2(void)
 	{ &hf_smb2_olb_offset,
 		{ "Offset", "smb2.olb.offset", FT_UINT32, BASE_HEX,
 		NULL, 0, "Offset to the buffer", HFILL }},
-
-	{ &hf_smb2_transaction_out_length,
-		{ "Out Length", "smb2.transaction.out.length", FT_UINT32, BASE_DEC,
-		NULL, 0, "Bytes written in the transaction", HFILL }},
-
-	{ &hf_smb2_transaction_in_length,
-		{ "In Length", "smb2.transaction.in.length", FT_UINT32, BASE_DEC,
-		NULL, 0, "Bytes read in the transaction", HFILL }},
-
-	{ &hf_smb2_transaction_out_offset,
-		{ "Out Offset", "smb2.transaction.out.offset", FT_UINT32, BASE_HEX,
-		NULL, 0, "Offset to transaction out data", HFILL }},
-
-	{ &hf_smb2_transaction_in_offset,
-		{ "In Offset", "smb2.transaction.in.offset", FT_UINT32, BASE_HEX,
-		NULL, 0, "Offset to transaction in data", HFILL }},
 
 	{ &hf_smb2_buffer_code_flags_dyn,
 		{ "Dynamic Part", "smb2.buffer_code.dynamic", FT_BOOLEAN, 16,
