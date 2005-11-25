@@ -294,6 +294,7 @@ extern int dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int o
 extern int dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
 
 extern const value_string oa_open_vals[];
+extern const value_string impersonation_level_vals[];
 
 extern int dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
 

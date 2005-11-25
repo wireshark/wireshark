@@ -156,6 +156,7 @@ static int hf_smb2_transaction_out_length = -1;
 static int hf_smb2_transaction_in_length = -1;
 static int hf_smb2_transaction_out_offset = -1;
 static int hf_smb2_transaction_in_offset = -1;
+static int hf_smb2_impersonation_level = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -2253,9 +2254,13 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* create flags */
 	offset = dissect_smb2_create_flags(tree, tvb, offset);
 
+	/* impersonation level */
+	proto_tree_add_item(tree, hf_smb2_impersonation_level, tvb, offset, 4, TRUE);
+	offset += 4;
+
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 12, TRUE);
-	offset += 12;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
@@ -3643,6 +3648,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_ea_name,
 		{ "EA Name", "smb2.ea.name", FT_STRING, BASE_NONE,
 		NULL, 0, "EA Name", HFILL }},
+
+	{ &hf_smb2_impersonation_level,
+		{ "Impersonation", "smb2.impersonation.level", FT_UINT32, BASE_DEC,
+		VALS(impersonation_level_vals), 0, "Impersonation level", HFILL }},
 
 	{ &hf_smb2_tag,
 		{ "Tag", "smb2.tag", FT_STRING, BASE_NONE,

@@ -6699,7 +6699,7 @@ const value_string create_disposition_vals[] = {
 	{0, NULL}
 };
 
-static const value_string impersonation_level_vals[] = {
+const value_string impersonation_level_vals[] = {
 	{0,	"Anonymous"},
 	{1,	"Identification"},
 	{2,	"Impersonation"},
