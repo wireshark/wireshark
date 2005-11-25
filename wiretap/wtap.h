@@ -225,9 +225,11 @@
 #define WTAP_FILE_AIROPEEK_V9			39
 #define WTAP_FILE_EYESDN			40
 #define WTAP_FILE_K12				41
+#define WTAP_FILE_ISERIES			42
+#define WTAP_FILE_ISERIES_UNICODE		43
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			42
+#define WTAP_NUM_FILE_TYPES			44
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC		0

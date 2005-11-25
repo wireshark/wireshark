@@ -53,6 +53,12 @@ typedef struct {
 } ngsniffer_comp_stream_t;
 
 typedef struct {
+  guint8 *sdate;          /* Packet start date        */	
+  gboolean tcp_formatted; /* TCP/IP data formated Y/N */
+  int format;             /* Trace format type        */
+} iseries_t;
+
+typedef struct {
 	guint	maj_vers;
 	guint	min_vers;
 	double	timeunit;
@@ -157,6 +163,7 @@ struct wtap {
 		libpcap_t		*pcap;
 		lanalyzer_t		*lanalyzer;
 		ngsniffer_t		*ngsniffer;
+		iseries_t		*iseries;
 		i4btrace_t		*i4btrace;
 		nettl_t			*nettl;
 		netmon_t		*netmon;

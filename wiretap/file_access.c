@@ -52,6 +52,7 @@
 #include "libpcap.h"
 #include "snoop.h"
 #include "iptrace.h"
+#include "iseries.h"
 #include "netmon.h"
 #include "netxray.h"
 #include "toshiba.h"
@@ -115,6 +116,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	 */
 	etherpeek_open,
 	pppdump_open,
+	iseries_open,
 	ascend_open,
 	eyesdn_open,
 	toshiba_open,
@@ -498,6 +500,15 @@ static const struct file_type_info {
 	/* WTAP_FILE_K12 */
 	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", FALSE,
 		k12_dump_can_write_encap, k12_dump_open },
+
+	/* WTAP_FILE_ISERIES */
+	{ "IBM iSeries communications trace (ASCII)", NULL, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_ISERIES_UNICODE */
+	{ "IBM iSeries communications trace (UNICODE)", NULL, FALSE,
+	  NULL, NULL },
+
 };
 
 /* Name that should be somewhat descriptive. */
