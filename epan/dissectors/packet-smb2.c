@@ -2045,12 +2045,12 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* out buffer offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
 
-	/* in buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_in_data);
-
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
 	offset += 4;
+
+	/* in buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_in_data);
 
 	/* max transaction in size */
 	proto_tree_add_item(tree, hf_smb2_max_transaction_in_size, tvb, offset, 4, TRUE);
@@ -2060,11 +2060,24 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
 	offset += 8;
 
-	/* out buffer */
-	dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+	/* try to decode these blobs in the order they were encoded
+	 * so that for "short" packets we will dissect as much as possible
+	 * before aborting with "short packet"
+	 */
+	if(i_olb.off>o_olb.off){
+		/* out buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+		/* in buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
+	} else {
+		/* in buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
+		/* out buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+	}
 
-	/* in buffer */
-	dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
+	offset = dissect_smb2_olb_tvb_max_offset(offset, &o_olb);
+	offset = dissect_smb2_olb_tvb_max_offset(offset, &i_olb);
 
 	return offset;
 }
@@ -2085,23 +2098,34 @@ dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
-	/* out buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
-
 	/* in buffer offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_in_data);
+
+	/* out buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
 	offset += 8;
 
+	/* try to decode these blobs in the order they were encoded
+	 * so that for "short" packets we will dissect as much as possible
+	 * before aborting with "short packet"
+	 */
+	if(i_olb.off>o_olb.off){
+		/* out buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+		/* in buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_transaction_data);
+	} else {
+		/* in buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_transaction_data);
+		/* out buffer */
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+	}
 
-	/* out buffer */
-	dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
-
-	/* in buffer */
-	dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_transaction_data);
-
+	offset = dissect_smb2_olb_tvb_max_offset(offset, &i_olb);
+	offset = dissect_smb2_olb_tvb_max_offset(offset, &o_olb);
 
 	return offset;
 }

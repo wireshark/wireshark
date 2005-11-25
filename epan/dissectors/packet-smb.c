@@ -10958,7 +10958,7 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 	return offset;
 }
 
-/* this dissects the SMB_QUERY_FILE_NETWORK_OPEN_INFO
+/* this dissects the SMB_FILE_ATTRIBUTE_TAG_INFO
 */
 int
 dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvbuff_t *tvb, 
