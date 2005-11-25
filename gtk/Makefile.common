@@ -57,6 +57,7 @@ ETHEREAL_GTK_SRC = \
 	dlg_utils.c	\
 	drag_and_drop.c 	\
 	ethereal-tap-register.c	\
+	expert_comp_table.c    \
 	file_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
@@ -120,9 +121,10 @@ ETHEREAL_TAP_SRC = \
 	conversations_tr.c	\
 	conversations_udpip.c	\
 	conversations_wlan.c	\
-        conversations_ncp.c     \
+	conversations_ncp.c     \
 	conversations_rsvp.c	\
 	dcerpc_stat.c	\
+	expert_comp_dlg.c     \
 	expert_dlg.c	\
 	fc_stat.c	\
 	flow_graph.c	\
@@ -147,7 +149,7 @@ ETHEREAL_TAP_SRC = \
 	mgcp_stat.c	\
 	mtp3_stat.c	\
 	mtp3_summary.c	\
-        ncp_stat.c  \
+	ncp_stat.c  \
 	rpc_progs.c	\
 	rpc_stat.c	\
 	rtp_analysis.c	\

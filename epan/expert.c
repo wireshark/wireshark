@@ -92,9 +92,11 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	ei->severity	= severity;
 	ei->protocol	= se_strdup(pinfo->current_proto);
 	ei->summary		= se_strdup(formatted);
+    ei->pitem       = NULL;
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
 	if(pi != NULL && pi->finfo != NULL) {	
+        ei->pitem       = pi;
 		expert_set_item_flags(pi, group, severity);
 	}
 

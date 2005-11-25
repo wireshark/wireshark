@@ -52,6 +52,7 @@ noinst_HEADERS = \
 	decode_as_dcerpc.h \
 	dfilter_expr_dlg.h \
 	dlg_utils.h	\
+	expert_comp_table.h	\
 	file_dlg.h	\
 	fileset_dlg.h	\
 	filter_dlg.h	\

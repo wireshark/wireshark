@@ -28,6 +28,7 @@
 #define __EXPERT_H__
 
 #include "gnuc_format_check.h"
+#include <epan/proto.h>
 
 
 /** only for internal and display use */
@@ -37,6 +38,7 @@ typedef struct expert_info_s {
 	int severity;
 	gchar * protocol;
 	gchar * summary;
+    proto_item *pitem;
 } expert_info_t;
 
 
