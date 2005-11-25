@@ -1991,6 +1991,7 @@ static int
 dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t o_olb;
+	offset_length_buffer_t i_olb;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset);
@@ -2005,9 +2006,12 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* out buffer offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
 
+	/* in buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
+
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 12, TRUE);
-	offset += 12;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	/* max transaction in size */
 	proto_tree_add_item(tree, hf_smb2_max_transaction_in_size, tvb, offset, 4, TRUE);
@@ -2019,6 +2023,9 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* out buffer */
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+
+	/* in buffer */
+	dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
 
 	return offset;
 }
