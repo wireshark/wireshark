@@ -215,8 +215,20 @@ guint32 drops)
   /* if we didn't captured even a single packet, close the file again */
   if(cf_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
-    "%sNo packets captured!%s\n\n"
-    "As no data was captured, closing the %scapture file!",
+"%sNo packets captured!%s\n"
+"\n"
+"As no data was captured, closing the %scapture file!\n"
+"\n"
+"\n"
+"Help about capturing can be found at:\n"
+"\n"
+"       http://wiki.ethereal.com/CaptureSetup"
+#ifdef _WIN32
+"\n\n"
+"Wireless (Wi-Fi/WLAN):\n"
+"Try to switch off promiscuous mode in the Capture Options!"
+#endif
+"",
     simple_dialog_primary_start(), simple_dialog_primary_end(),
     (cf_is_tempfile(capture_opts->cf)) ? "temporary " : "");
     cf_close(capture_opts->cf);
@@ -358,9 +370,21 @@ capture_input_closed(capture_options *capture_opts)
 
         case CF_READ_OK:
             if(cf_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
-              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
-              "%sNo packets captured!%s\n\n"
-              "As no data was captured, closing the %scapture file!",
+                simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+"%sNo packets captured!%s\n"
+"\n"
+"As no data was captured, closing the %scapture file!\n"
+"\n"
+"\n"
+"Help about capturing can be found at:\n"
+"\n"
+"       http://wiki.ethereal.com/CaptureSetup"
+#ifdef _WIN32
+"\n\n"
+"Wireless (Wi-Fi/WLAN):\n"
+"Try to switch off promiscuous mode in the Capture Options!"
+#endif
+"",
               simple_dialog_primary_start(), simple_dialog_primary_end(),
               cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
               cf_close(capture_opts->cf);
