@@ -451,7 +451,10 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
 	GdkBitmap *ascend_bm, *descend_bm;
 	GdkPixmap *ascend_pm, *descend_pm;
 	GtkStyle *win_style;
-	GtkWidget *column_lb, *copy_bt;
+	GtkWidget *column_lb;
+#if (GTK_MAJOR_VERSION >= 2)
+    GtkWidget *copy_bt;
+#endif
     GtkTooltips *tooltips = gtk_tooltips_new();
 	const char *default_titles[] = { "Group", "Protocol", "Summary", "Count"};
 
