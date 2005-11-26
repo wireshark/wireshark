@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-tcap.c                                                            */
+/* ./packet-tcap.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -256,11 +256,6 @@ static gint ett_tcap_ErrorCode = -1;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-
-static packet_info *g_pinfo = NULL;
-static proto_tree *g_tcap_tree = NULL;
-static gboolean g_tcap_ends_def_len = FALSE;
-
 
 dissector_handle_t	tcap_handle;
 static dissector_table_t ber_oid_dissector_table=NULL;
@@ -2488,11 +2483,11 @@ proto_register_tcap(void)
         "Component/returnResultNotLast", HFILL }},
     { &hf_tcap_invokeID,
       { "invokeID", "tcap.invokeID",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_tcap_linkedID,
       { "linkedID", "tcap.linkedID",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "Invoke/linkedID", HFILL }},
     { &hf_tcap_opCode,
       { "opCode", "tcap.opCode",
@@ -2516,7 +2511,7 @@ proto_register_tcap(void)
         "Reject/invokeIDRej", HFILL }},
     { &hf_tcap_derivable,
       { "derivable", "tcap.derivable",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "Reject/invokeIDRej/derivable", HFILL }},
     { &hf_tcap_not_derivable,
       { "not-derivable", "tcap.not_derivable",
@@ -2768,7 +2763,7 @@ proto_register_tcap(void)
         "RejectPDU/parameterrj", HFILL }},
     { &hf_tcap_national,
       { "national", "tcap.national",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "OperationCode/national", HFILL }},
     { &hf_tcap_private,
       { "private", "tcap.private",
@@ -2776,7 +2771,7 @@ proto_register_tcap(void)
         "OperationCode/private", HFILL }},
     { &hf_tcap_nationaler,
       { "nationaler", "tcap.nationaler",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "ErrorCode/nationaler", HFILL }},
     { &hf_tcap_privateer,
       { "privateer", "tcap.privateer",

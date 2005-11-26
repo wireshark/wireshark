@@ -67,11 +67,6 @@ static gint ett_dtid = -1;
 static range_t *global_ssn_range;
 static range_t *ssn_range;
 
-static packet_info *g_pinfo = NULL;
-static proto_tree *g_tcap_tree = NULL;
-static gboolean g_tcap_ends_def_len = FALSE;
-
-
 dissector_handle_t	tcap_handle;
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
