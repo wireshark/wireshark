@@ -321,10 +321,6 @@ extern int stats_tree_packet(void* p, packet_info* pinfo, epan_dissect_t *edt, c
 		return 0;
 }
 
-static GHashTable* stat_tree_registry(void) {
-	return registry;
-}
-
 extern stats_tree_cfg* stats_tree_get_cfg_by_abbr(guint8* abbr) {
 	return g_hash_table_lookup(registry,abbr);
 }
