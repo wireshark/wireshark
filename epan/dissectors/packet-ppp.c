@@ -166,6 +166,16 @@ static gint ett_chap_value		= -1;
 static gint ett_chap_name		= -1;
 static gint ett_chap_message		= -1;
 
+
+static gint hf_chap_code		= -1;
+static gint hf_chap_identifier		= -1;
+static gint hf_chap_length		= -1;
+static gint hf_chap_value_size	= -1;
+static gint hf_chap_value	= -1;
+static gint hf_chap_name	= -1;
+static gint hf_chap_message	= -1;
+
+
 static int proto_ipv6cp = -1;  /* IPv6CP vars */
 
 static gint ett_ipv6cp = -1;
@@ -3534,8 +3544,6 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_tree *fh_tree = NULL;
   proto_item *tf;
   proto_tree *field_tree;
-  proto_item *tv;
-  proto_tree *value_tree;
 
   guint8 code, id, value_size;
   gint32 length;
@@ -3549,89 +3557,114 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
-	col_add_str(pinfo->cinfo, COL_INFO,
-		val_to_str(code, chap_vals, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO,
+                val_to_str(code, chap_vals, "Unknown"));
 
   if(tree) {
+    /* Create CHAP protocol tree */
     ti = proto_tree_add_item(tree, proto_chap, tvb, 0, length, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_chap);
-    proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
-      val_to_str(code, chap_vals, "Unknown"), code);
-    proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
-			id);
-  }
-  if(length < 4) {
-    if(tree) {
+
+    /* Code */
+    proto_tree_add_item(fh_tree, hf_chap_code, tvb, 0, 1, FALSE);
+
+    /* Identifier */
+    proto_tree_add_item(fh_tree, hf_chap_identifier, tvb, 1, 1, FALSE);
+    
+    /* Show length if valid */
+    if(length < 4)
+    {
       proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u (invalid, must be >= 4)",
-			  length);
+                          length);
       return;
     }
+    proto_tree_add_item(fh_tree, hf_chap_length, tvb, 2, 2, FALSE);    
   }
-  if(tree) {
-    proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
-			length);
-  }
+
+  /* Offset moved to after length field */
   offset = 4;
+  /* Length includes previous 4 bytes, subtract */ 
   length -= 4;
 
   switch (code) {
+    /* Challenge or Response data */
     case CHAP_CHAL:
     case CHAP_RESP:
       if(tree) {
         if (length > 0) {
+          guint value_offset=0;
+          guint name_offset=0, name_size = 0;
+
+          /* Create data subtree */
           tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-				   "Data (%d byte%s)", length,
-				   plurality(length, "", "s"));
+                                   "Data (%d byte%s)", length,
+                                   plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, ett_chap_data);
-	  value_size = tvb_get_guint8(tvb, offset);
-	  length--;
-	  if (value_size > length) {
-	    proto_tree_add_text(field_tree, tvb, offset, 1,
-				"Value Size: %d byte%s (invalid, must be <= %u)",
-				value_size, plurality(value_size, "", "s"),
-				length);
-	    return;
-	  }
-	  tv = proto_tree_add_text(field_tree, tvb, offset, 1,
-				  "Value Size: %u byte%s",
-				  value_size, plurality(value_size, "", "s"));
-	  offset++;
-	  if (length > 0) {
-	    value_tree = proto_item_add_subtree(tv, ett_chap_value);
-	    proto_tree_add_text(value_tree, tvb, offset, value_size,
-				"Value (%u byte%s)",
-				value_size, plurality(value_size, "", "s"));
-	    offset+=value_size;
-	    length-=value_size;
-	    if (length > 0) {
-		  tvb_ensure_bytes_exist(tvb, offset, length);
-	      proto_tree_add_text(field_tree, tvb, offset, length,
-				  "Name (%u byte%s)", length,
-				  plurality(length, "", "s"));
-	    }
-	  }
+          length--;
+
+          /* Value size */
+          value_size = tvb_get_guint8(tvb, offset);
+          if (value_size > length) {
+            proto_tree_add_text(field_tree, tvb, offset, 1,
+                                "Value Size: %d byte%s (invalid, must be <= %u)",
+                                value_size, plurality(value_size, "", "s"),
+                                length);
+            return;
+          }
+          proto_tree_add_item(field_tree, hf_chap_value_size, tvb, offset, 1, FALSE);
+          offset++;
+
+          /* Value */
+          if (length > 0) {
+            value_offset = offset;
+            proto_tree_add_item(field_tree, hf_chap_value, tvb, offset, value_size, FALSE);
+
+            /* Move along value_size bytes */
+            offset+=value_size;
+            length-=value_size;
+
+            /* Find name in remaining bytes */
+            if (length > 0) {
+              tvb_ensure_bytes_exist(tvb, offset, length);
+              proto_tree_add_item(field_tree, hf_chap_name, tvb, offset, length, FALSE);
+              name_offset = offset;
+              name_size = length;
+            }
+
+            /* Show name and value in info column */
+            if(check_col(pinfo->cinfo, COL_INFO)){
+              col_append_fstr(pinfo->cinfo, COL_INFO, " (NAME='0x%s%s', VALUE=0x%s)",
+                              tvb_get_ephemeral_string(tvb, name_offset,
+                                                       (name_size > 20) ? 20 : name_size),
+                              (name_size > 20) ? "..." : "",
+                              tvb_bytes_to_str(tvb, value_offset, value_size));
+            }
+          }
         }
       }
       break;
 
+    /* Success or Failure data */
     case CHAP_SUCC:
     case CHAP_FAIL:
       if(tree) {
         if (length > 0) {
-          tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-				   "Data (%u byte%s)", length,
-				   plurality(length, "", "s"));
-          field_tree = proto_item_add_subtree(tf, ett_chap_data);
-	  tv = proto_tree_add_text(field_tree, tvb, offset, length,
-				   "Message: %u byte%s",
-				   length, plurality(length, "", "s"));
-	}
+          proto_tree_add_item(fh_tree, hf_chap_message, tvb, offset, length, FALSE);
+        }
+      }
+      
+      /* Show message in info column */
+      if(check_col(pinfo->cinfo, COL_INFO)){
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (MESSAGE='%s')",
+                        tvb_get_ephemeral_string(tvb, offset, length));
       }
       break;
+
+    /* Code from unknown code type... */
     default:
       if (length > 0)
         proto_tree_add_text(fh_tree, tvb, offset, length, "Stuff (%u byte%s)",
-				length, plurality(length, "", "s"));
+                            length, plurality(length, "", "s"));
       break;
   }
 }
@@ -4092,17 +4125,84 @@ proto_register_chap(void)
     &ett_chap_message,
   };
 
+  static hf_register_info hf[] =
+  {
+    {
+      &hf_chap_code,
+      {
+        "Code", "chap.code",
+        FT_UINT8, BASE_DEC,
+        VALS(chap_vals), 0x0,
+        "CHAP code", HFILL
+      }
+    },
+    {
+      &hf_chap_identifier,
+      {
+        "Identifier", "chap.identifier",
+        FT_UINT8, BASE_DEC,
+        NULL, 0x0,
+        "CHAP identifier", HFILL
+      }
+    },
+    {
+      &hf_chap_length,
+      {
+        "Length", "chap.length",
+        FT_UINT16, BASE_DEC,
+        NULL, 0x0,
+        "CHAP length", HFILL
+      }
+    },
+    {
+      &hf_chap_value_size,
+      {
+        "Value Size", "chap.value_size",
+        FT_UINT8, BASE_DEC,
+        NULL, 0x0,
+        "CHAP value size", HFILL
+      }
+    },
+    {
+      &hf_chap_value,
+      {
+        "Value", "chap.value",
+        FT_BYTES, BASE_HEX,
+        NULL, 0x0,
+        "CHAP value data", HFILL
+      }
+    },
+    {
+      &hf_chap_name,
+      {
+        "Name", "chap.value",
+        FT_STRING, BASE_NONE,
+        NULL, 0x0,
+        "CHAP name", HFILL
+      }
+    },
+    {
+      &hf_chap_message,
+      {
+        "Message", "chap.message",
+        FT_STRING, BASE_NONE,
+        NULL, 0x0,
+        "CHAP message", HFILL
+      }
+    }
+  };
+
+
   proto_chap = proto_register_protocol("PPP Challenge Handshake Authentication Protocol", "PPP CHAP",
-				      "chap");
+                                       "chap");
+  proto_register_field_array(proto_chap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_chap(void)
 {
-  dissector_handle_t chap_handle;
-
-  chap_handle = create_dissector_handle(dissect_chap, proto_chap);
+  dissector_handle_t chap_handle = create_dissector_handle(dissect_chap, proto_chap);
   dissector_add("ppp.protocol", PPP_CHAP, chap_handle);
 
   /*

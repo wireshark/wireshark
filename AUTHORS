@@ -2088,6 +2088,7 @@ Martin Mathieson        <martin [AT] arca-technologies.com> {
 	Show setupframe in RTP and RTCP
 	H.225.0 updates
 	MMS support (MS Media Server protocol)
+	PPP Chap updates
 }
 
 Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
