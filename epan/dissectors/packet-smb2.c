@@ -112,7 +112,7 @@ static int hf_smb2_file_position_info = -1;
 static int hf_smb2_file_info_0f = -1;
 static int hf_smb2_file_mode_info = -1;
 static int hf_smb2_file_alignment_info = -1;
-static int hf_smb2_file_info_12 = -1;
+static int hf_smb2_file_all_info = -1;
 static int hf_smb2_file_info_15 = -1;
 static int hf_smb2_file_info_16 = -1;
 static int hf_smb2_file_info_1c = -1;
@@ -169,7 +169,7 @@ static gint ett_smb2_file_access_info = -1;
 static gint ett_smb2_file_position_info = -1;
 static gint ett_smb2_file_mode_info = -1;
 static gint ett_smb2_file_alignment_info = -1;
-static gint ett_smb2_file_info_12 = -1;
+static gint ett_smb2_file_all_info = -1;
 static gint ett_smb2_file_info_15 = -1;
 static gint ett_smb2_file_info_16 = -1;
 static gint ett_smb2_file_info_1c = -1;
@@ -216,7 +216,7 @@ static const value_string smb2_class_vals[] = {
 #define SMB2_FILE_INFO_0f	0x0f
 #define SMB2_FILE_MODE_INFO	0x10
 #define SMB2_FILE_ALIGNMENT_INFO	0x11
-#define SMB2_FILE_INFO_12	0x12
+#define SMB2_FILE_ALL_INFO	0x12
 #define SMB2_FILE_INFO_15	0x15
 #define SMB2_FILE_INFO_16	0x16
 #define SMB2_FILE_INFO_1c	0x1c
@@ -484,9 +484,15 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		return;
 	}
 
-	if(parent_tree){
-		sub_item = proto_tree_add_item(parent_tree, olb->hfindex, tvb, offset, len, TRUE);
-		sub_tree = proto_item_add_subtree(sub_item, ett_smb2_olb);
+	/* if we dont want/need a subtree */
+	if(olb->hfindex==-1){
+		sub_item=parent_tree;
+		sub_tree=parent_tree;
+	} else {
+		if(parent_tree){
+			sub_item = proto_tree_add_item(parent_tree, olb->hfindex, tvb, offset, len, TRUE);
+			sub_tree = proto_item_add_subtree(sub_item, ett_smb2_olb);
+		}
 	}
 
 	switch(olb->offset_size){
@@ -517,7 +523,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		return;
 	}
 
-	sub_tvb=tvb_new_subset(tvb, off, len, len);
+	sub_tvb=tvb_new_subset(tvb, off, MIN((int)len, tvb_length_remaining(tvb, off)), len);
 
 	dissector(sub_tvb, pinfo, sub_tree, si);
 
@@ -615,7 +621,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
  * SMB_FILE_ALL_INFO in SMB
  */
 static int
-dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -624,8 +630,8 @@ dissect_smb2_file_info_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	guint16 bc;
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_12, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_smb2_file_info_12);
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_all_info, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_all_info);
 	}
 
 	/* create time */
@@ -1311,7 +1317,7 @@ dissect_smb2_create_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 *length)
 {
 	guint16 buffer_code;
 
@@ -1320,6 +1326,10 @@ dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset)
 	proto_tree_add_uint(tree, hf_smb2_buffer_code_len, tvb, offset, 2, buffer_code&0xfffe);
 	proto_tree_add_item(tree, hf_smb2_buffer_code_flags_dyn, tvb, offset, 2, TRUE);
 	offset += 2;
+
+	if(length){
+		*length=buffer_code&0xfffe;
+	}
 	
 	return offset;
 }
@@ -1337,7 +1347,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	offset_length_buffer_t s_olb;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -1363,7 +1373,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	offset_length_buffer_t s_olb;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -1386,7 +1396,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	const char *buf;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1419,7 +1429,7 @@ static int
 dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -1466,7 +1476,7 @@ static int
 dissect_smb2_tree_disconnect_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1479,7 +1489,7 @@ static int
 dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1492,7 +1502,7 @@ static int
 dissect_smb2_logoff_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1505,7 +1515,7 @@ static int
 dissect_smb2_logoff_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1518,7 +1528,7 @@ static int
 dissect_smb2_keepalive_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1531,7 +1541,7 @@ static int
 dissect_smb2_keepalive_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1544,7 +1554,7 @@ static int
 dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -1570,7 +1580,7 @@ static int
 dissect_smb2_notify_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -1607,7 +1617,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	const char *buf;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -1643,7 +1653,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	guint32 len;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* response buffer offset */
 	proto_tree_add_item(tree, hf_smb2_response_buffer_offset, tvb, offset, 2, TRUE);
@@ -1664,7 +1674,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	offset_length_buffer_t s_olb;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -1747,7 +1757,7 @@ static int
 dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* class */
 	if(si->saved){
@@ -1827,8 +1837,8 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		case SMB2_FILE_ALIGNMENT_INFO:
 			dissect_smb2_file_alignment_info(tvb, pinfo, tree, offset, si);
 			break;
-		case SMB2_FILE_INFO_12:
-			dissect_smb2_file_info_12(tvb, pinfo, tree, offset, si);
+		case SMB2_FILE_ALL_INFO:
+			dissect_smb2_file_all_info(tvb, pinfo, tree, offset, si);
 			break;
 		case SMB2_FILE_INFO_15:
 			dissect_smb2_file_info_15(tvb, pinfo, tree, offset, si);
@@ -1897,20 +1907,28 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 }
 
+static void
+dissect_smb2_getinfo_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	/* data */
+	if(si->saved){
+		dissect_smb2_infolevel(tvb, pinfo, tree, 0, si, si->saved->class, si->saved->infolevel);
+	} else {
+		/* some unknown bytes */
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), FALSE);
+	}
+
+	return;
+}
+
 
 static int
 dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	guint8 class=0;
 	guint8 infolevel=0;
-	guint32 response_size;
-
-	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
-
-	/* response buffer offset */
-	proto_tree_add_item(tree, hf_smb2_response_buffer_offset, tvb, offset, 2, TRUE);
-	offset += 2;
+	guint16 len;
+	offset_length_buffer_t olb;
 
 	/* class/infolevel */
 	if(si->saved){
@@ -1925,12 +1943,13 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	/* response size */
-	response_size=tvb_get_letohl(tvb,offset);
-	proto_tree_add_item(tree, hf_smb2_response_size, tvb, offset, 4, TRUE);
-	offset += 4;
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset, &len);
 
-	/* if we get BUFFET_TOO_SMALL there will not be any data there, only
+	/* response buffer offset  and size */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb, OLB_O_UINT16_S_UINT32, -1);
+
+	/* if we get BUFFER_TOO_SMALL there will not be any data there, only
 	 * a guin32 specifying how big the buffer needs to be
 	 */
 	if(si->status==0xc0000023){
@@ -1940,9 +1959,9 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		return offset;
 	}
 
-	/* data */
-	dissect_smb2_infolevel(tvb, pinfo, tree, offset, si, class, infolevel);
-	offset += response_size;
+
+	/* response data*/
+	dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, si, dissect_smb2_getinfo_response_data);
 
 	return offset;
 }
@@ -1951,7 +1970,7 @@ static int
 dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* close flags */
 	proto_tree_add_item(tree, hf_smb2_close_flags, tvb, offset, 2, TRUE);
@@ -1969,8 +1988,10 @@ dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
+	guint16 len;
+
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, &len);
 
 	/* close flags */
 	proto_tree_add_item(tree, hf_smb2_close_flags, tvb, offset, 2, TRUE);
@@ -1979,6 +2000,12 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
 	offset += 4;
+
+	/* If there was an error, the response will be just 8 bytes */
+	if((len==8)&&(si->status)){
+		return offset;
+	}
+
 
 	/* create time */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
@@ -2010,7 +2037,7 @@ static int
 dissect_smb2_flush_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
@@ -2026,7 +2053,7 @@ static int
 dissect_smb2_flush_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -2040,7 +2067,7 @@ static int
 dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
@@ -2064,7 +2091,7 @@ static int
 dissect_smb2_lock_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -2076,7 +2103,7 @@ static int
 dissect_smb2_cancel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
@@ -2113,7 +2140,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint64 off;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* data offset */
 	proto_tree_add_item(tree, hf_smb2_data_offset, tvb, offset, 2, TRUE);
@@ -2159,7 +2186,7 @@ static int
 dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -2191,7 +2218,7 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	offset_length_buffer_t i_olb;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
@@ -2245,13 +2272,20 @@ dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
 	offset_length_buffer_t o_olb;
 	offset_length_buffer_t i_olb;
+	guint16 len;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, &len);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
 	offset += 6;
+
+	/* If there was an error, the response will be just 8 bytes */
+	if((len==8)&&(si->status)){
+		return offset;
+	}
+
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -2296,7 +2330,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	guint64 off;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -2336,7 +2370,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint32 length;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* data offset */
 	proto_tree_add_item(tree, hf_smb2_data_offset, tvb, offset, 2, TRUE);
@@ -2477,7 +2511,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	const char *fname;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* create flags */
 	offset = dissect_smb2_create_flags(tree, tvb, offset);
@@ -2550,9 +2584,10 @@ static int
 dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t e_olb;
+	guint16 len;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, &len);
 
 	/* create flags */
 	offset = dissect_smb2_create_flags(tree, tvb, offset);
@@ -2560,6 +2595,12 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* create action */
 	proto_tree_add_item(tree, hf_smb2_create_action, tvb, offset, 4, TRUE);
 	offset += 4;
+
+	/* If there was an error, the response will be just 8 bytes */
+	if((len==8)&&(si->status)){
+		return offset;
+	}
+
 
 	/* create time */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
@@ -2616,7 +2657,7 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint32 response_size;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* class/level only meaningful in requests */
 	if(!si->response){
@@ -3684,9 +3725,9 @@ proto_register_smb2(void)
 		{ "Last Change", "smb2.last_change.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time when this object was last changed", HFILL }},
 
-	{ &hf_smb2_file_info_12,
-		{ "SMB2_FILE_INFO_12", "smb2.smb2_file_info_12", FT_NONE, BASE_NONE,
-		NULL, 0, "SMB2_FILE_INFO_12 structure", HFILL }},
+	{ &hf_smb2_file_all_info,
+		{ "SMB2_FILE_ALL_INFO", "smb2.smb2_file_all_info", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_ALL_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_info_15,
 		{ "SMB2_FILE_INFO_15", "smb2.smb2_file_info_15", FT_NONE, BASE_NONE,
@@ -3928,7 +3969,7 @@ proto_register_smb2(void)
 		&ett_smb2_file_info_0f,
 		&ett_smb2_file_mode_info,
 		&ett_smb2_file_alignment_info,
-		&ett_smb2_file_info_12,
+		&ett_smb2_file_all_info,
 		&ett_smb2_file_info_15,
 		&ett_smb2_file_info_16,
 		&ett_smb2_file_info_1c,
