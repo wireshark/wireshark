@@ -49,6 +49,7 @@
 #include "range_utils.h"
 #include "help_dlg.h"
 #include "file_util.h"
+#include "util.h"
 
 
 /* dialog output action */
@@ -823,6 +824,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gboolean          export_as_csv = FALSE;
 #ifdef _WIN32
   gboolean          win_printer = FALSE;
+  int               tmp_fd;
+  char              tmp_namebuf[128+1];    /* XXX - length was used elsewhere too, why? */
 #endif
   cf_print_status_t status;
 
@@ -857,9 +860,22 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   } else {
 #ifdef _WIN32
     win_printer = TRUE;
-    /*XXX should use temp file stuff in util routines */
+    /* We currently don't have a function in util.h to create just a tempfile */
+    /* name, so simply create a tempfile using the "official" function, */
+    /* then delete this file again. After this, the name MUST be available. */
+    /* */
+    /* Don't use tmpnam() or such, as this will fail under some ACL */
+    /* circumstances: http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=358 */
+
+    tmp_fd = create_tempfile(tmp_namebuf, sizeof(tmp_namebuf), "ethprint");
+    if(tmp_fd == -1) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Couldn't create a temporary file for printing.");
+        return;
+    }
     g_free(args->file);
-    args->file = g_strdup(tmpnam(NULL));
+    args->file = g_strdup(tmp_namebuf);
+    eth_unlink(args->file);
     args->to_file = TRUE;
 #else
     g_free(args->cmd);
