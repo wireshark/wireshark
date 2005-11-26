@@ -16,7 +16,7 @@
  * coordination among senders and receivers.
  *
  * References:
- *     RFC 3490, Negative-acknowledgment (NACK)-Oriented Reliable Multicast (NORM) Protocol
+ *     RFC 3940, Negative-acknowledgment (NACK)-Oriented Reliable Multicast (NORM) Protocol
  *
  * $Id$
  *
@@ -188,7 +188,8 @@ static guint dissect_feccode(struct _norm *norm, struct _fec_ptr *f, proto_tree 
 	}
 	proto_tree_add_item(tree, hf.object_transport_id, tvb, offset, 2, FALSE); offset+=2;
 
-	if (norm->fec.encoding_id_present && tvb_length(tvb) > offset) {
+	if (norm->fec.encoding_id_present &&
+	    tvb_reported_length_remaining(tvb, offset) > 0) {
 		fec_dissector(*f, tvb, tree, &offset);
 		if (check_col(pinfo->cinfo, COL_INFO))
 			fec_info_column(f->fec, pinfo);
@@ -197,7 +198,7 @@ static guint dissect_feccode(struct _norm *norm, struct _fec_ptr *f, proto_tree 
 }
 
 static guint dissect_norm_hdrext(struct _norm *norm, struct _fec_ptr *f, proto_tree *tree,
-							 tvbuff_t *tvb, guint offset, packet_info *pinfo)
+							 tvbuff_t *tvb, guint offset, packet_info *pinfo _U_)
 {
 	guint i;
 	proto_item *ti;
@@ -241,9 +242,8 @@ static guint dissect_nack_data(struct _norm *norm, proto_tree *tree,
 {
 	proto_item *ti, *tif;
 	proto_tree *nack_tree, *flag_tree;
-	guint orig_offset = offset;
 	guint16 len;
-	ti = proto_tree_add_text(tree, tvb, offset, 8, "NACK Data");
+	ti = proto_tree_add_text(tree, tvb, offset, -1, "NACK Data");
 	nack_tree = proto_item_add_subtree(ti, ett.nackdata);
 	proto_tree_add_item(nack_tree, hf.nack_form, tvb, offset, 1, FALSE); offset += 1;
 
@@ -303,14 +303,14 @@ static void dissect_norm_data(struct _norm *norm, proto_tree *tree,
 		proto_tree_add_item(flag_tree, hf.payload_offset, tvb, offset, 4, FALSE); offset+=4;
 
 	}
-	if (tvb_length(tvb) > offset)
-		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
+		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_reported_length_remaining(tvb, offset));
 
 }
 
 /* code to dissect NORM info packets */
 static void dissect_norm_info(struct _norm *norm, proto_tree *tree,
-	tvbuff_t *tvb, guint offset, packet_info *pinfo)
+	tvbuff_t *tvb, guint offset, packet_info *pinfo _U_)
 {
 	guint8 flags;
 	proto_item *ti;
@@ -344,8 +344,8 @@ static void dissect_norm_info(struct _norm *norm, proto_tree *tree,
 		f.prefs = &preferences.fec;
 		offset = dissect_norm_hdrext(norm, &f, tree, tvb, offset, pinfo);
 	}
-	if (tvb_length(tvb) > offset)
-		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
+		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_reported_length_remaining(tvb, offset));
 
 }
 /* code to dissect NORM cmd(flush) packets */
@@ -376,7 +376,7 @@ static guint dissect_norm_cmd_repairadv(struct _norm *norm, proto_tree *tree,
 		f.prefs = &preferences.fec;
 		offset = dissect_norm_hdrext(norm, &f, tree, tvb, offset, pinfo);
 	}
-	while (offset < tvb_length(tvb)) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_nack_data(norm, tree, tvb, offset, pinfo);
 	}
 	return offset;
@@ -384,7 +384,7 @@ static guint dissect_norm_cmd_repairadv(struct _norm *norm, proto_tree *tree,
 
 /* code to dissect NORM cmd(cc) packets */
 static guint dissect_norm_cmd_cc(struct _norm *norm, proto_tree *tree,
-	tvbuff_t *tvb, guint offset, packet_info *pinfo)
+	tvbuff_t *tvb, guint offset, packet_info *pinfo _U_)
 {
 	proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, FALSE); offset ++;
 	proto_tree_add_item(tree, hf.cc_sequence, tvb, offset, 2, FALSE); offset += 2;
@@ -400,7 +400,7 @@ static guint dissect_norm_cmd_cc(struct _norm *norm, proto_tree *tree,
 		f.prefs = &preferences.fec;
 		offset = dissect_norm_hdrext(norm, &f, tree, tvb, offset, pinfo);
 	}
-	while (offset + 8 <= tvb_length(tvb)) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_item *ti, *tif;
 		proto_tree *cc_tree, *flag_tree;
 		double grtt;
@@ -430,15 +430,15 @@ static guint dissect_norm_cmd_squelch(struct _norm *norm, proto_tree *tree,
 	struct _fec_ptr f;
 	offset = dissect_feccode(norm, &f, tree, tvb, offset, pinfo, 0);
 
-	while (offset + 2 <= tvb_length(tvb)) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree_add_item(tree, hf.cc_transport_id, tvb, offset, 4, FALSE); offset += 2;
 	}
 	return offset;
 }
 
 /* code to dissect NORM cmd(squelch) packets */
-static guint dissect_norm_cmd_ackreq(struct _norm *norm, proto_tree *tree,
-	tvbuff_t *tvb, guint offset, packet_info *pinfo)
+static guint dissect_norm_cmd_ackreq(struct _norm *norm _U_, proto_tree *tree,
+	tvbuff_t *tvb, guint offset, packet_info *pinfo _U_)
 {
 	proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, FALSE); offset ++;
 	proto_tree_add_item(tree, hf.ack_type, tvb, offset, 1, FALSE); offset += 1;
@@ -475,8 +475,8 @@ static void dissect_norm_cmd(struct _norm *norm, proto_tree *tree,
 		offset = dissect_norm_cmd_ackreq(norm, tree, tvb, offset, pinfo);
 		break;
 	}
-	if (tvb_length(tvb) > offset)
-		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
+		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_reported_length_remaining(tvb, offset));
 }
 
 /* code to dissect NORM ack packets */
@@ -505,8 +505,8 @@ static void dissect_norm_ack(struct _norm *norm, proto_tree *tree,
 		offset = dissect_norm_hdrext(norm, &f, tree, tvb, offset, pinfo);
 	}
 
-	if (tvb_length(tvb) > offset)
-		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
+		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_reported_length_remaining(tvb, offset));
 
 }
 
@@ -531,11 +531,11 @@ static void dissect_norm_nack(struct _norm *norm, proto_tree *tree,
 		offset = dissect_norm_hdrext(norm, &f, tree, tvb, offset, pinfo);
 	}
 
-	while (offset < tvb_length(tvb)) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_nack_data(norm, tree, tvb, offset, pinfo);
 	}
-	if (tvb_length(tvb) > offset)
-		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
+		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_reported_length_remaining(tvb, offset));
 
 }
 /* Code to actually dissect the packets */
@@ -632,8 +632,8 @@ static void dissect_norm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:
 			/* Add the Payload item */
-			if (tvb_length(tvb) > offset)
-				proto_tree_add_none_format(norm_tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+			if (tvb_reported_length_remaining(tvb, offset) > 0)
+				proto_tree_add_none_format(norm_tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_reported_length_remaining(tvb, offset));
 			break;
 		}
 
@@ -654,6 +654,8 @@ dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 byte1;
 	if (!global_norm_heur)
 		return FALSE;
+	if (!tvb_bytes_exist(tvb, 0, 2))
+		return FALSE;	/* not enough to check */
 	byte1 = tvb_get_guint8(tvb, 0);
 
 	if (hi_nibble(byte1) != 1) return FALSE;
@@ -662,7 +664,7 @@ dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_length_remaining(tvb, 0) < 12)
 		return FALSE;
 	dissect_norm(tvb, pinfo, tree);
-    return TRUE; /* could be a NORM packet */
+	return TRUE; /* appears to be a NORM packet */
 }
 
 void proto_reg_handoff_norm(void)
