@@ -101,6 +101,8 @@ static int hf_smb2_max_response_size = -1;
 static int hf_smb2_max_transaction_in_size = -1;
 static int hf_smb2_required_buffer_size = -1;
 static int hf_smb2_response_size = -1;
+static int hf_smb2_setinfo_size = -1;
+static int hf_smb2_setinfo_offset = -1;
 static int hf_smb2_file_basic_info = -1;
 static int hf_smb2_file_standard_info = -1;
 static int hf_smb2_file_internal_info = -1;
@@ -2654,7 +2656,8 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
-	guint32 response_size;
+	guint32 setinfo_size;
+	guint16 setinfo_offset;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -2678,26 +2681,54 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Class:0x%02x Level:0x%02x", si->saved->class, si->saved->infolevel);
 	}
 
-	/* response size */
-	response_size=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_response_size, tvb, offset, 4, TRUE);
+	/* size */
+	setinfo_size=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_setinfo_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
+	/* offset */
+	setinfo_offset=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_setinfo_offset, tvb, offset, 2, TRUE);
+	offset += 2;
+
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
+	offset += 6;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
 	/* data */
 	if(si->saved)
-	  dissect_smb2_infolevel(tvb, pinfo, tree, offset, si, si->saved->class, si->saved->infolevel);
-	offset += response_size;
+	  dissect_smb2_infolevel(tvb, pinfo, tree, setinfo_offset, si, si->saved->class, si->saved->infolevel);
+	offset = setinfo_offset + setinfo_size;
 
 	return offset;
 }
 
+static int
+dissect_smb2_setinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
+{
+	/* class/infolevel */
+	if(si->saved){
+		guint8 class=0;
+		guint8 infolevel=0;
+		proto_item *item;
+
+		class=si->saved->class;
+		item=proto_tree_add_uint(tree, hf_smb2_class, tvb, 0, 0, class);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		infolevel=si->saved->infolevel;
+		item=proto_tree_add_uint(tree, hf_smb2_infolevel, tvb, 0, 0, infolevel);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+
+	return offset;
+}
 
 /* names here are just until we find better names for these functions */
 const value_string smb2_cmd_vals[] = {
@@ -3018,7 +3049,7 @@ static smb2_function smb2_dissector[256] = {
 	 dissect_smb2_getinfo_response},
   /* 0x11 SetInfo*/  
 	{dissect_smb2_setinfo_request,
-	 NULL},
+	 dissect_smb2_setinfo_response},
   /* 0x12 */  {NULL, NULL},
   /* 0x13 */  {NULL, NULL},
   /* 0x14 */  {NULL, NULL},
@@ -3604,6 +3635,12 @@ proto_register_smb2(void)
 	{ &hf_smb2_max_response_size,
 		{ "Max Response Size", "smb2.max_response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Maximum response size", HFILL }},
+	{ &hf_smb2_setinfo_size,
+		{ "Setinfo Size", "smb2.setinfo_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 setinfo size", HFILL }},
+	{ &hf_smb2_setinfo_offset,
+		{ "Setinfo Offset", "smb2.setinfo_offset", FT_UINT16, BASE_HEX,
+		NULL, 0, "SMB2 setinfo offset", HFILL }},
 	{ &hf_smb2_max_transaction_in_size,
 		{ "Max Transaction In Size", "smb2.max_transaction_in_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Maximum transaction in size", HFILL }},
