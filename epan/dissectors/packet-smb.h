@@ -317,6 +317,7 @@ extern int dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvbuff_t *tvb, packet_info *pin
 extern int dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
 extern int dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
 extern int dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
+extern int dissect_qfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
 extern int dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
 
 #endif

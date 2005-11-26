@@ -116,6 +116,7 @@ static int hf_smb2_file_mode_info = -1;
 static int hf_smb2_file_alignment_info = -1;
 static int hf_smb2_file_all_info = -1;
 static int hf_smb2_file_allocation_info = -1;
+static int hf_smb2_file_endoffile_info = -1;
 static int hf_smb2_file_info_15 = -1;
 static int hf_smb2_file_info_16 = -1;
 static int hf_smb2_file_info_1c = -1;
@@ -174,6 +175,7 @@ static gint ett_smb2_file_mode_info = -1;
 static gint ett_smb2_file_alignment_info = -1;
 static gint ett_smb2_file_all_info = -1;
 static gint ett_smb2_file_allocation_info = -1;
+static gint ett_smb2_file_endoffile_info = -1;
 static gint ett_smb2_file_info_15 = -1;
 static gint ett_smb2_file_info_16 = -1;
 static gint ett_smb2_file_info_1c = -1;
@@ -222,6 +224,7 @@ static const value_string smb2_class_vals[] = {
 #define SMB2_FILE_ALIGNMENT_INFO	0x11
 #define SMB2_FILE_ALL_INFO	0x12
 #define SMB2_FILE_ALLOCATION_INFO	0x13
+#define SMB2_FILE_ENDOFFILE_INFO	0x14
 #define SMB2_FILE_INFO_15	0x15
 #define SMB2_FILE_INFO_16	0x16
 #define SMB2_FILE_INFO_1c	0x1c
@@ -738,6 +741,25 @@ dissect_smb2_file_allocation_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	bc=tvb_length_remaining(tvb, offset);
 	offset = dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+
+	return offset;
+}
+
+static int
+dissect_smb2_file_endoffile_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint16 bc;
+	gboolean trunc;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_endoffile_info, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_endoffile_info);
+	}
+
+	bc=tvb_length_remaining(tvb, offset);
+	offset = dissect_qfi_SMB_FILE_ENDOFFILE_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
 
 	return offset;
 }
@@ -1866,6 +1888,9 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			break;
 		case SMB2_FILE_ALLOCATION_INFO:
 			dissect_smb2_file_allocation_info(tvb, pinfo, tree, offset, si);
+			break;
+		case SMB2_FILE_ENDOFFILE_INFO:
+			dissect_smb2_file_endoffile_info(tvb, pinfo, tree, offset, si);
 			break;
 		case SMB2_FILE_INFO_15:
 			dissect_smb2_file_info_15(tvb, pinfo, tree, offset, si);
@@ -3795,6 +3820,10 @@ proto_register_smb2(void)
 		{ "SMB2_FILE_ALLOCATION_INFO", "smb2.smb2_file_allocation_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ALLOCATION_INFO structure", HFILL }},
 
+	{ &hf_smb2_file_endoffile_info,
+		{ "SMB2_FILE_ENDOFFILE_INFO", "smb2.smb2_file_endoffile_info", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_ENDOFFILE_INFO structure", HFILL }},
+
 	{ &hf_smb2_file_info_15,
 		{ "SMB2_FILE_INFO_15", "smb2.smb2_file_info_15", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INFO_15 structure", HFILL }},
@@ -4037,6 +4066,7 @@ proto_register_smb2(void)
 		&ett_smb2_file_alignment_info,
 		&ett_smb2_file_all_info,
 		&ett_smb2_file_allocation_info,
+		&ett_smb2_file_endoffile_info,
 		&ett_smb2_file_info_15,
 		&ett_smb2_file_info_16,
 		&ett_smb2_file_info_1c,
