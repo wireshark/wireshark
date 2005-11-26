@@ -9,7 +9,7 @@
  * Routines for X.518 (X.500 Distributed Operations)  packet dissection
  * Graeme Lunt 2005
  *
- * $Id: packet-dsp-template.c 14773 2005-06-26 10:59:15Z etxrab $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

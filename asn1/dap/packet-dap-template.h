@@ -2,7 +2,7 @@
  * Routines for X.511 (X.500 Directory Access Protocol) packet dissection
  * Graeme Lunt 2005
  *
- * $Id: packet-dap-template.h 14773 2005-06-26 10:59:15Z etxrab $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

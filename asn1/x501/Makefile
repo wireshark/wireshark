@@ -1,4 +1,4 @@
-# $Id: Makefile 13071 2005-01-16 10:19:21Z guy $
+# $Id$
 
 DISSECTOR_FILES=packet-x501.c packet-x501.h
 

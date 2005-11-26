@@ -2,7 +2,7 @@
  * Routines for X.501 (DSA Operational Attributes)  packet dissection
  * Graeme Lunt 2005
  *
- * $Id: packet-x501-template.c 14773 2005-06-26 10:59:15Z etxrab $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

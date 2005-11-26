@@ -9,7 +9,7 @@
  * Routines for X.525 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
  *
- * $Id: packet-disp-template.h 14773 2005-06-26 10:59:15Z etxrab $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
