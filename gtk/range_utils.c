@@ -297,7 +297,19 @@ range_entry(GtkWidget *widget _U_, gpointer data)
 static void
 range_entry_in_event(GtkWidget *widget, GdkEventFocus *event _U_, gpointer user_data)
 {
-    range_entry(widget, user_data);
+    /* This event is called, if the "enter" key is pressed while the key focus (right name?) */
+    /* is in the range entry field. */
+
+    /* Calling range_entry() isn't necessary as all changes are already done while the */
+    /* entry was edited. Calling it here will cause a NULL pointer exception, */
+    /* so don't do: <range_entry(widget, user_data); as we did before. */
+
+    /* What we could do here is to cause the "hosting" dialog box do whatever it */
+    /* needs to do when the default button was pressed. This is difficult as we currently */
+    /* don't have a concept to call the hosting dialog this way. */
+
+    /* XXX - As we might want to put the whole range thing in it's own dialog, this would be */
+    /* a much easier task than it would be today as we could simply close our own dialog. */
 }
 
 
