@@ -10549,6 +10549,21 @@ dissect_qfi_SMB_FILE_EA_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	return offset;
 }
 
+/* this dissects the SMB_QUERY_FILE_ALLOCATION_INFO
+*/
+int
+dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	*trunc = FALSE;
+	return offset;
+}
+
 /* this dissects the SMB_QUERY_FILE_NAME_INFO
    as described in 4.2.16.7
    this is the same as SMB_QUERY_FILE_ALT_NAME_INFO
@@ -11176,6 +11191,10 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_qfi_SMB_FILE_ALL_INFO_unsure(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 #endif
+		break;
+	case 1019:	/* SMB_FILE_ALLOCATION_INFORMATION */
+		offset = dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
 		break;
 	case 0x0108:	/*Query File Alt File Info*/
 	case 1021:	/* SMB_FILE_ALTERNATE_NAME_INFORMATION */
