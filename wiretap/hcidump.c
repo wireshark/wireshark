@@ -133,7 +133,8 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info _U_)
 		return (*err != 0) ? -1 : 0;
 	}
 
-	if (dh.in != 0 && dh.in != 1 && dh.pad != 0 && GUINT16_FROM_LE(dh.len) < 1)
+	if ((dh.in != 0 && dh.in != 1) || dh.pad != 0
+	    || GUINT16_FROM_LE(dh.len) < 1)
 		return 0;
 
 	bytes_read = file_read(&type, 1, 1, wth->fh);
