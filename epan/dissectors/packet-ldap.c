@@ -811,13 +811,8 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
     * expression
     */
     matchingRule = type = matchValue = NULL;
-    dnAttributes = 0;
+    dnAttributes = FALSE;
     end = a->offset + byte_length;
-
-    filterp = *filter + strlen(*filter);
-    *filter_length += 1; /* For the ( */
-    *filter = g_realloc(*filter, *filter_length);
-    *filterp++ = '(';
 
     while (a->offset < end) {
         /*
@@ -841,6 +836,10 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
 
         switch (tag) {
         case 0x01:  /* Parse Matching Rule Id */
+            if (matchingRule != NULL) {
+                g_free(matchingRule);
+                matchingRule = NULL;
+            }
             ret = asn1_string_value_decode(a, (int) string_length, &matchingRule);
             if (ret != ASN1_ERR_NOERROR) {
                 return ret;
@@ -848,6 +847,10 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
             break;
 
         case 0x02:  /* Parse attributeDescription */
+            if (type != NULL) {
+                g_free(type);
+                type = NULL;
+            }
             ret = asn1_string_value_decode(a, (int) string_length, &type);
             if (ret != ASN1_ERR_NOERROR) {
                 return ret;
@@ -855,6 +858,10 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
             break;
 
         case 0x03:  /* Parse the matchValue */
+            if (matchValue != NULL) {
+                g_free(matchValue);
+                matchValue = NULL;
+            }
             ret = asn1_string_value_decode(a, (int) string_length, &matchValue);
             if (ret != ASN1_ERR_NOERROR) {
                 return ret;
@@ -877,7 +884,12 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
     /*
      * Now, fill in the filter string
      */
-   
+    filterp = *filter + strlen(*filter);
+    *filter_length += 1; /* For the ( */
+    *filter = g_realloc(*filter, *filter_length);
+    *filterp++ = '(';
+    *filterp = '\0';
+
     if (type) {
         if (strlen(type) > 0) {
             *filter_length += 1 + strlen(type);
