@@ -944,6 +944,7 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
    
     *filter_length +=1;
     *filter = g_realloc(*filter, *filter_length);
+    filterp = *filter + strlen(*filter);
     *filterp++ = ')';
     *filterp = '\0';   /* There had better be space */
     
