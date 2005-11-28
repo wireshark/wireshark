@@ -282,8 +282,8 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	npdu_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Acknowledged mode, N-PDU %d", npdu_field1 );
 	npdu_field_tree = proto_item_add_subtree(npdu_field_item, ett_sndcp_npdu_field);
 	proto_tree_add_uint(npdu_field_tree, hf_sndcp_npdu1, tvb, offset, 1, npdu_field1 );
-	offset++;
       }
+      offset++;
     }
   }
 
