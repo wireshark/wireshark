@@ -339,12 +339,12 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_host_uniq,
-			{ "Host-Uniq", "pppoed.tags.host_uniq", FT_STRING, BASE_NONE,
+			{ "Host-Uniq", "pppoed.tags.host_uniq", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_pppoed_tag_ac_cookie,
-			{ "AC-Cookie", "pppoed.tags.ac_cookie", FT_BYTES, BASE_HEX,
+			{ "AC-Cookie", "pppoed.tags.ac_cookie", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, "", HFILL
 			}
 		},
@@ -359,7 +359,7 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_relay_session_id,
-			{ "Relay-Session-Id", "pppoed.tags.relay_session_id", FT_BYTES, BASE_HEX,
+			{ "Relay-Session-Id", "pppoed.tags.relay_session_id", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, "", HFILL
 			}
 		},
