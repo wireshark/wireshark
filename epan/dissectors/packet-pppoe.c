@@ -216,8 +216,11 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 				default:
 					if (poe_tag_length > 0 )
 					{
-						/* Presumably unknown tag */
-						proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
+						/* Presumably unknown tag;
+						   show tag value if we didn't
+						   do it above */
+						if (!global_pppoe_show_tags_and_lengths)
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
 						                    tagstart+4, poe_tag_length, FALSE);
 					}
