@@ -765,6 +765,7 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
 	  pcap_geterr(ld->pcap_h));
 
       /* filter string invalid, did the user tried a display filter? */
+#ifndef DUMPCAP
       if (dfilter_compile(cfilter, &rfcode) && rfcode != NULL) {
         g_snprintf(errmsg, errmsg_len,
           "%sInvalid capture filter: \"%s\"!%s\n"
@@ -779,7 +780,9 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
           simple_dialog_primary_start(), safe_cfilter,
           simple_dialog_primary_end(), safe_cfilter_error_msg);
 	dfilter_free(rfcode);
-      } else {
+      } else 
+#endif
+      {
         g_snprintf(errmsg, errmsg_len,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
@@ -1312,7 +1315,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           if(!result || avail > 0) {
             /* XXX - doesn't work with dumpcap as a command line tool */
             /* as we have no input pipe, need to find a way to circumvent this */
+#ifndef DUMPCAP
             ld.go = FALSE;
+#endif
             /*g_warning("loop closing");*/
           }
       }
@@ -1653,6 +1658,7 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
     }
   }
 
+#ifndef DUMPCAP
   switch (ld->wtap_linktype) {
     case WTAP_ENCAP_ETHERNET:
       capture_eth(pd, 0, whdr.caplen, &ld->counts);
@@ -1715,6 +1721,7 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;
        we might have to implement that at some point. */
   }
+#endif
 }
 
 #endif /* HAVE_LIBPCAP */

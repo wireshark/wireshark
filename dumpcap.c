@@ -34,29 +34,16 @@
 #include <unistd.h>
 #endif
 
-#ifdef NEED_STRERROR_H
-#include "strerror.h"
-#endif
-
 #ifdef NEED_GETOPT_H
 #include "getopt.h"
 #endif
 
 #ifdef _WIN32 /* Needed for console I/O */
-#include <fcntl.h>
 #include <conio.h>
 #endif
 
-#include <epan/packet.h>
-#include <epan/strutil.h>
-
-#include "file.h"
-#include "summary.h"
-#include "filters.h"
-#include "color.h"
 #include "simple_dialog.h"
 #include "ringbuffer.h"
-#include "../ui_util.h"
 #include "util.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
@@ -64,6 +51,8 @@
 
 #include <pcap.h>
 #include "pcap-util.h"
+
+#include "capture.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -75,7 +64,6 @@
 
 
 
-capture_file cfile;
 GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 
@@ -176,7 +164,7 @@ cmdarg_err_cont(const char *fmt, ...)
 #ifdef _WIN32
 BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 {
-    //printf("Event: %u", dwCtrlType);
+    /*printf("Event: %u", dwCtrlType);*/
     capture_loop_stop();
 
     return TRUE;
@@ -282,12 +270,10 @@ main(int argc, char *argv[])
 
   /* Set the initial values in the capture_opts. This might be overwritten 
      by preference settings and then again by the command line parameters. */
-  capture_opts_init(capture_opts, &cfile);
+  capture_opts_init(capture_opts, NULL);
 
   capture_opts->snaplen             = MIN_PACKET_SIZE;
   capture_opts->has_ring_num_files  = TRUE;
-
-  init_cap_file(&cfile);
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -571,9 +557,9 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   today = localtime(&curr);    
 
 #ifdef _WIN32
-//  if (prefs.gui_console_open != console_open_never) {
+/*  if (prefs.gui_console_open != console_open_never) {*/
     create_console();
-//  }
+/*  }*/
   if (has_console) {
     /* For some unknown reason, the above doesn't appear to actually cause
        anything to be sent to the standard output, so we'll just splat the
@@ -642,7 +628,7 @@ sync_pipe_packet_count_to_parent(int packet_count)
 
     g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
 
-    //g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);
+    /*g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);*/
 
     pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
@@ -679,34 +665,12 @@ sync_pipe_drops_to_parent(int drops)
 
 
 /****************************************************************************************************************/
-/* link dummies */
+/* link "dummies" */
+
 
 void main_window_update(void) {}
 
-/* exit the main window */
-void main_window_exit(void)
-{
-//  gtk_exit(0);
-}
 
-/* quit a nested main window */
-void main_window_nested_quit(void)
-{
-//  if (gtk_main_level() > 0)
-  //  gtk_main_quit();
-}
-
-/* quit the main window */
-void main_window_quit(void)
-{
-  //gtk_main_quit();
-}
-
-void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
-{
-    /* we don't use a pipe input for */
-assert(0);
-}
 
 void capture_info_create(capture_info    *cinfo, gchar           *iface) {}
 
@@ -803,43 +767,22 @@ simple_dialog_format_message(const char *msg)
 }
 
 
-
-#include "fileset.h"
-
-void fileset_file_opened(const char *fname) {}
-void fileset_file_closed(void) {}
-void fileset_dlg_add_file(fileset_entry *entry) {}
-
-void packet_list_thaw(void) {}
-void packet_list_clear(void) {}
-void packet_list_freeze(void) {}
-void packet_list_select_row(gint row) {}
-void packet_list_moveto_end(void) {}
-gint packet_list_find_row_from_data(gpointer data) { return 1; }
-void packet_list_set_text(gint row, gint column, const gchar *text) {}
-void packet_list_set_cls_time_width(gint column) {}
-void packet_list_set_selected_row(gint row) {}
-gint packet_list_append(const gchar *text[], gpointer data) { return 1; }
-gint packet_list_get_sort_column(void) { return 1; }
-gpointer packet_list_get_row_data(gint row) { return NULL; }
-void packet_list_set_colors(gint row, color_t *fg, color_t *bg) {}
-
-
-#include "progress_dlg.h"
-
-void destroy_progress_dlg(progdlg_t *dlg) {}
-void update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status) {}
-progdlg_t *
-delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
-    gboolean terminate_is_stop, gboolean *stop_flag,
-    const GTimeVal *start_time, gfloat progress) { return NULL; }
-
-void tap_dfilter_dlg_update (void) {}
-
-
-#include "color_filters.h"
-
-color_filter_t * color_filters_colorize_packet(gint row, epan_dissect_t *edt) { return NULL; }
-void color_filters_prime_edt(epan_dissect_t *edt) {}
-gboolean color_filters_used(void) { return FALSE; }
+/*
+ * Find out whether a hostname resolves to an ip or ipv6 address
+ * Return "ip6" if it is IPv6, "ip" otherwise (including the case
+ * that we don't know)
+ */
+const char* host_ip_af(const char *host
+#ifndef HAVE_GETHOSTBYNAME2
+_U_
+#endif
+)
+{
+#ifdef HAVE_GETHOSTBYNAME2
+	struct hostent *h;
+	return (h = gethostbyname2(host, AF_INET6)) && h->h_addrtype == AF_INET6 ? "ip6" : "ip";
+#else
+	return "ip";
+#endif
+}
 
