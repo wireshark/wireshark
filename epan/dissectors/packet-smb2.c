@@ -117,9 +117,9 @@ static int hf_smb2_file_alignment_info = -1;
 static int hf_smb2_file_all_info = -1;
 static int hf_smb2_file_allocation_info = -1;
 static int hf_smb2_file_endoffile_info = -1;
-static int hf_smb2_file_info_15 = -1;
-static int hf_smb2_file_info_16 = -1;
-static int hf_smb2_file_info_1c = -1;
+static int hf_smb2_file_alternate_name_info = -1;
+static int hf_smb2_file_stream_info = -1;
+static int hf_smb2_file_compression_info = -1;
 static int hf_smb2_file_network_open_info = -1;
 static int hf_smb2_file_attribute_tag_info = -1;
 static int hf_smb2_fs_info_01 = -1;
@@ -176,9 +176,9 @@ static gint ett_smb2_file_alignment_info = -1;
 static gint ett_smb2_file_all_info = -1;
 static gint ett_smb2_file_allocation_info = -1;
 static gint ett_smb2_file_endoffile_info = -1;
-static gint ett_smb2_file_info_15 = -1;
-static gint ett_smb2_file_info_16 = -1;
-static gint ett_smb2_file_info_1c = -1;
+static gint ett_smb2_file_alternate_name_info = -1;
+static gint ett_smb2_file_stream_info = -1;
+static gint ett_smb2_file_compression_info = -1;
 static gint ett_smb2_file_network_open_info = -1;
 static gint ett_smb2_file_attribute_tag_info = -1;
 static gint ett_smb2_file_rename_info = -1;
@@ -225,9 +225,9 @@ static const value_string smb2_class_vals[] = {
 #define SMB2_FILE_ALL_INFO	0x12
 #define SMB2_FILE_ALLOCATION_INFO	0x13
 #define SMB2_FILE_ENDOFFILE_INFO	0x14
-#define SMB2_FILE_INFO_15	0x15
-#define SMB2_FILE_INFO_16	0x16
-#define SMB2_FILE_INFO_1c	0x1c
+#define SMB2_FILE_ALTERNATE_NAME_INFO	0x15
+#define SMB2_FILE_STREAM_INFO	0x16
+#define SMB2_FILE_COMPRESSION_INFO	0x1c
 #define SMB2_FILE_NETWORK_OPEN_INFO	0x22
 #define SMB2_FILE_ATTRIBUTE_TAG_INFO	0x23
 
@@ -765,7 +765,7 @@ dissect_smb2_file_endoffile_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_smb2_file_info_15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_alternate_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -773,8 +773,8 @@ dissect_smb2_file_info_15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	gboolean trunc;
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_15, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_smb2_file_info_15);
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_alternate_name_info, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_alternate_name_info);
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
@@ -945,7 +945,7 @@ dissect_smb2_file_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 }
 
 static int
-dissect_smb2_file_info_16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_stream_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -953,8 +953,8 @@ dissect_smb2_file_info_16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	gboolean trunc;
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_16, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_smb2_file_info_16);
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_stream_info, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_stream_info);
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
@@ -964,7 +964,7 @@ dissect_smb2_file_info_16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 }
 
 static int
-dissect_smb2_file_info_1c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_compression_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -972,8 +972,8 @@ dissect_smb2_file_info_1c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	gboolean trunc;
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_smb2_file_info_1c, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_smb2_file_info_1c);
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_compression_info, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_file_compression_info);
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
@@ -1892,14 +1892,14 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		case SMB2_FILE_ENDOFFILE_INFO:
 			dissect_smb2_file_endoffile_info(tvb, pinfo, tree, offset, si);
 			break;
-		case SMB2_FILE_INFO_15:
-			dissect_smb2_file_info_15(tvb, pinfo, tree, offset, si);
+		case SMB2_FILE_ALTERNATE_NAME_INFO:
+			dissect_smb2_file_alternate_name_info(tvb, pinfo, tree, offset, si);
 			break;
-		case SMB2_FILE_INFO_16:
-			dissect_smb2_file_info_16(tvb, pinfo, tree, offset, si);
+		case SMB2_FILE_STREAM_INFO:
+			dissect_smb2_file_stream_info(tvb, pinfo, tree, offset, si);
 			break;
-		case SMB2_FILE_INFO_1c:
-			dissect_smb2_file_info_1c(tvb, pinfo, tree, offset, si);
+		case SMB2_FILE_COMPRESSION_INFO:
+			dissect_smb2_file_compression_info(tvb, pinfo, tree, offset, si);
 			break;
 		case SMB2_FILE_NETWORK_OPEN_INFO:
 			dissect_smb2_file_network_open_info(tvb, pinfo, tree, offset, si);
@@ -3824,17 +3824,17 @@ proto_register_smb2(void)
 		{ "SMB2_FILE_ENDOFFILE_INFO", "smb2.smb2_file_endoffile_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ENDOFFILE_INFO structure", HFILL }},
 
-	{ &hf_smb2_file_info_15,
-		{ "SMB2_FILE_INFO_15", "smb2.smb2_file_info_15", FT_NONE, BASE_NONE,
-		NULL, 0, "SMB2_FILE_INFO_15 structure", HFILL }},
+	{ &hf_smb2_file_alternate_name_info,
+		{ "SMB2_FILE_ALTERNATE_NAME_INFO", "smb2.smb2_file_alternate_name_info", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_ALTERNATE_NAME_INFO structure", HFILL }},
 
-	{ &hf_smb2_file_info_16,
-		{ "SMB2_FILE_INFO_16", "smb2.smb2_file_info_16", FT_NONE, BASE_NONE,
-		NULL, 0, "SMB2_FILE_INFO_16 structure", HFILL }},
+	{ &hf_smb2_file_stream_info,
+		{ "SMB2_FILE_STREAM_INFO", "smb2.smb2_file_stream_info", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_STREAM_INFO structure", HFILL }},
 
-	{ &hf_smb2_file_info_1c,
-		{ "SMB2_FILE_INFO_1c", "smb2.smb2_file_info_1c", FT_NONE, BASE_NONE,
-		NULL, 0, "SMB2_FILE_INFO_1c structure", HFILL }},
+	{ &hf_smb2_file_compression_info,
+		{ "SMB2_FILE_COMPRESSION_INFO", "smb2.smb2_file_compression_info", FT_NONE, BASE_NONE,
+		NULL, 0, "SMB2_FILE_COMPRESSION_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_basic_info,
 		{ "SMB2_FILE_BASIC_INFO", "smb2.smb2_file_basic_info", FT_NONE, BASE_NONE,
@@ -4067,9 +4067,9 @@ proto_register_smb2(void)
 		&ett_smb2_file_all_info,
 		&ett_smb2_file_allocation_info,
 		&ett_smb2_file_endoffile_info,
-		&ett_smb2_file_info_15,
-		&ett_smb2_file_info_16,
-		&ett_smb2_file_info_1c,
+		&ett_smb2_file_alternate_name_info,
+		&ett_smb2_file_stream_info,
+		&ett_smb2_file_compression_info,
 		&ett_smb2_file_network_open_info,
 		&ett_smb2_file_attribute_tag_info,
 		&ett_smb2_fs_info_01,
