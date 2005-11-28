@@ -1310,6 +1310,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
           if(!result || avail > 0) {
+            /* XXX - doesn't work with dumpcap as a command line tool */
+            /* as we have no input pipe, need to find a way to circumvent this */
             ld.go = FALSE;
             /*g_warning("loop closing");*/
           }

@@ -519,6 +519,7 @@ EXTRA_DIST = \
 	doc/text2pcap.pod	\
 	docbook/Makefile.auto.am	\
 	doxygen.cfg.in		\
+	dumpcap.c	\
 	editcap.c		\
 	epan/libethereal.def	\
 	ethereal_be.py		\
@@ -534,6 +535,7 @@ EXTRA_DIST = \
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
 	image/dn_arrow.xpm	\
+	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
 	image/eexcl3d64.xpm	\
 	image/eicon3d16.xpm	\

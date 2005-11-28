@@ -31,6 +31,8 @@ ethereal_OBJECTS = $(ethereal_SOURCES:.c=.obj)
 tethereal_OBJECTS = $(tethereal_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 
+dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
+
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 
 command_line_OBJECTS = setargv.obj
@@ -83,6 +85,18 @@ mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS)
 
+dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib shell32.lib \
+	$(GLIB_LIBS) \
+	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
+!IFDEF ENABLE_LIBETHEREAL
+	epan\libethereal.lib \
+!ELSE
+	epan\dissectors\dissectors.lib \
+	epan\ethereal.lib \
+	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib
+!ENDIF
+
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
@@ -104,11 +118,11 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 
 EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe \
-	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe
+	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
 
 RESOURCES=image\ethereal.res image\libethereal.res image\tethereal.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
-	image\text2pcap.res image\wiretap.res
+	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
 all: config.h tools image wiretap epan $(EXECUTABLES) $(RESOURCES) doc
 
@@ -194,6 +208,13 @@ randpkt.exe	: $(randpkt_OBJECTS)
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) $(command_line_OBJECTS)
 <<
+
+dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) epan image\dumpcap.res wiretap\wiretap-$(WTAP_VERSION).lib
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) image\dumpcap.res
+<<
+
 
 config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \

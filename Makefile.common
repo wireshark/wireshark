@@ -201,6 +201,31 @@ dftest_SOURCES =	\
 randpkt_SOURCES = \
 	randpkt.c
 
+# dumpcap specifics
+dumpcap_SOURCES =	\
+	$(PLATFORM_SRC) \
+	capture_errs.c	\
+	capture_stop_conditions.c	\
+	capture_ui_utils.c	\
+	cfile.c	\
+	clopts_common.c	\
+	conditions.c	\
+	packet-range.c	\
+	pcap-util.c	\
+	print.c	\
+	ps.c	\
+	ringbuffer.c	\
+	util.c	\
+	version_info.c \
+	alert_box.c	\
+	capture_opts.c \
+	capture_loop.c	\
+	dumpcap.c	\
+	file.c	\
+	fileset.c	\
+	merge.c
+
+
 # this target needed for distribution only
 noinst_HEADERS =	\
 	$(ETHEREAL_COMMON_INCLUDES) \
