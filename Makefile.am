@@ -60,14 +60,14 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
+bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
 bin_SCRIPTS = @idl2eth_bin@
 man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
 man4_MANS = @etherealfilter_man@
 man_MANS =
 
 EXTRA_PROGRAMS = ethereal tethereal capinfos editcap mergecap dftest \
-	randpkt text2pcap
+	randpkt text2pcap dumpcap
 EXTRA_SCRIPTS = idl2eth
 
 #
@@ -422,6 +422,22 @@ dftest_LDADD = \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
 
 dftest_LDFLAGS = -export-dynamic
+
+dumpcap_additional_libs = \
+	wiretap/libwiretap.la	\
+	epan/libethereal.la
+
+dumpcap_DEPENDENCIES = \
+	$(dumpcap_additional_libs)	\
+	$(plugin_libs)
+
+dumpcap_LDADD = \
+	$(dumpcap_additional_libs)	\
+	@SNMP_LIBS@ @SSL_LIBS@ 		\
+	$(plugin_ldadd)			\
+	@PCRE_LIBS@			\
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
 
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should

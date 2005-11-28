@@ -541,6 +541,22 @@ AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
 
 
+# Enable/disable dumpcap
+
+AC_ARG_ENABLE(dumpcap,
+[  --enable-dumpcap        build dumpcap.  [default=no]],enable_dumpcap=$enableval,enable_dumpcap=no)
+
+if test "x$enable_dumpcap" = "xyes" ; then
+	dumpcap_bin="dumpcap\$(EXEEXT)"
+	dumpcap_man="dumpcap.1"
+else
+	dumpcap_bin=""
+	dumpcap_man=""
+fi
+AC_SUBST(dumpcap_bin)
+AC_SUBST(dumpcap_man)
+
+
 # Enable/disable capinfos
 
 AC_ARG_ENABLE(capinfos,
@@ -1310,6 +1326,7 @@ echo "                    Build ethereal : $enable_ethereal"
 echo "                   Build tethereal : $enable_tethereal"
 echo "                    Build capinfos : $enable_capinfos"
 echo "                     Build editcap : $enable_editcap"
+echo "                     Build dumpcap : $enable_dumpcap"
 echo "                    Build mergecap : $enable_mergecap"
 echo "                   Build text2pcap : $enable_text2pcap"
 echo "                     Build idl2eth : $enable_idl2eth"

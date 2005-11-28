@@ -6,7 +6,6 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -474,9 +473,9 @@ if (capture_opts->iface == NULL) {
 #ifdef _WIN32
   /* Shutdown windows sockets */
   WSACleanup();
-#endif
 
   destroy_console();
+#endif
 
   return err;
 }
