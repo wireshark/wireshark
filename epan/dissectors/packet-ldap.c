@@ -777,6 +777,7 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
  */
 static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filter_length, guint byte_length)
 {
+    static char *dnString = "dn";
     int ret;
     guint length;
     char *filterp;
@@ -814,7 +815,7 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
     dnAttributes = FALSE;
     end = a->offset + byte_length;
 
-    while (a->offset < end) {
+    while ((guint)a->offset < end) {
         /*
          * Now, parse out each of those items
          * There will be up to four of them.
@@ -882,36 +883,33 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
     }
     
     /*
-     * Now, fill in the filter string
+     * Now, fill in the filter string.
+     * First, calc how much space is needed and then realloc.
      */
-    filterp = *filter + strlen(*filter);
     *filter_length += 1; /* For the ( */
+    if (type) *filter_length += strlen(type) + 1;
+    if (dnAttributes) *filter_length += strlen(dnString) + 1;
+    if (matchingRule) *filter_length += strlen(matchingRule) + 1;
+    if (matchValue) *filter_length += strlen(matchValue) + 1;
+    *filter_length += 1; /* for the ) */
+    
     *filter = g_realloc(*filter, *filter_length);
+    filterp = *filter + strlen(*filter);
     *filterp++ = '(';
-    *filterp = '\0';
 
     if (type) {
         if (strlen(type) > 0) {
-            *filter_length += 1 + strlen(type);
-            *filter = g_realloc(*filter, *filter_length);
-            filterp = *filter + strlen(*filter);
             memcpy(filterp, type, strlen(type));
             filterp += strlen(type);
             *filterp++ = ':';
-            *filterp = '\0';
 
             /*
              * Add in dn if needed ...
              */
             if (dnAttributes) {
-                static char *dnString = "dn";
-                *filter_length += 1 + strlen(dnString);
-                *filter = g_realloc(*filter, *filter_length);
-                filterp = *filter + strlen(*filter);
                 memcpy(filterp, dnString, strlen(dnString));
                 filterp += strlen(dnString);
                 *filterp++ = ':';
-                *filterp = '\0';
             }
         }
         g_free(type);
@@ -919,32 +917,21 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
 
     if (matchingRule) {
         if (strlen(matchingRule) > 0) {
-            *filter_length += 1 + strlen(matchingRule);
-            *filter = g_realloc(*filter, *filter_length);
-            filterp = *filter + strlen(*filter);
             memcpy(filterp, matchingRule, strlen(matchingRule));
             filterp += strlen(matchingRule);
             *filterp++ = ':';
-            *filterp = '\0';
         }
         g_free(matchingRule);
     }
 
     if (matchValue) {
         if (strlen(matchValue) > 0) {
-            *filter_length += strlen(matchValue);
-            *filter = g_realloc(*filter, *filter_length);
-            filterp = *filter + strlen(*filter);
             memcpy(filterp, matchValue, strlen(matchValue));
             filterp += strlen(matchValue);
-            *filterp = '\0';
         }
         g_free(matchValue);
     }
    
-    *filter_length +=1;
-    *filter = g_realloc(*filter, *filter_length);
-    filterp = *filter + strlen(*filter);
     *filterp++ = ')';
     *filterp = '\0';   /* There had better be space */
     
