@@ -213,7 +213,7 @@ dumpcap_SOURCES =	\
 	version_info.c \
 	capture_opts.c \
 	capture_loop.c	\
-	dumpcap.c	\
+	dumpcap.c
 
 
 # this target needed for distribution only
