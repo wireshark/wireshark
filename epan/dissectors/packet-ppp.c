@@ -3536,23 +3536,21 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 }
 
 /*
+ * RFC 1994
  * Handles CHAP just as a protocol field
  */
 static void
 dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
-  proto_item *ti;
+  proto_item *ti = NULL;
   proto_tree *fh_tree = NULL;
   proto_item *tf;
   proto_tree *field_tree;
 
-  guint8 code, id, value_size;
-  gint32 length;
+  guint8 code, value_size;
+  guint32 length;
   int offset;
 
   code = tvb_get_guint8(tvb, 0);
-  id = tvb_get_guint8(tvb, 1);
-  length = tvb_get_ntohs(tvb, 2);
-
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
 
@@ -3562,7 +3560,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
   if(tree) {
     /* Create CHAP protocol tree */
-    ti = proto_tree_add_item(tree, proto_chap, tvb, 0, length, FALSE);
+    ti = proto_tree_add_item(tree, proto_chap, tvb, 0, -1, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_chap);
 
     /* Code */
@@ -3570,14 +3568,20 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
     /* Identifier */
     proto_tree_add_item(fh_tree, hf_chap_identifier, tvb, 1, 1, FALSE);
+  }
     
-    /* Show length if valid */
-    if(length < 4)
-    {
-      proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u (invalid, must be >= 4)",
-                          length);
-      return;
+  /* Length - make sure it's valid */
+  length = tvb_get_ntohs(tvb, 2);
+  if(length < 4) {
+    if(tree) {
+      proto_tree_add_uint_format(fh_tree, hf_chap_length, tvb, 2, 2, length,
+                                 "Length: %u (invalid, must be >= 4)",
+                                 length);
     }
+    return;
+  }
+  proto_item_set_len(ti, length);
+  if(tree) {
     proto_tree_add_item(fh_tree, hf_chap_length, tvb, 2, 2, FALSE);    
   }
 
@@ -3633,9 +3637,9 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
             /* Show name and value in info column */
             if(check_col(pinfo->cinfo, COL_INFO)){
-              col_append_fstr(pinfo->cinfo, COL_INFO, " (NAME='0x%s%s', VALUE=0x%s)",
-                              tvb_get_ephemeral_string(tvb, name_offset,
-                                                       (name_size > 20) ? 20 : name_size),
+              col_append_fstr(pinfo->cinfo, COL_INFO, " (NAME='%s%s', VALUE=0x%s)",
+                              tvb_format_text(tvb, name_offset,
+                                              (name_size > 20) ? 20 : name_size),
                               (name_size > 20) ? "..." : "",
                               tvb_bytes_to_str(tvb, value_offset, value_size));
             }
@@ -3656,7 +3660,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
       /* Show message in info column */
       if(check_col(pinfo->cinfo, COL_INFO)){
         col_append_fstr(pinfo->cinfo, COL_INFO, " (MESSAGE='%s')",
-                        tvb_get_ephemeral_string(tvb, offset, length));
+                        tvb_format_text(tvb, offset, length));
       }
       break;
 
