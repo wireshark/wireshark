@@ -1,6 +1,6 @@
 /* DO NOT EDIT
 	This filter was automatically generated
-	from librpc/idl/winreg.idl and librpc/idl/winreg.cnf.
+	from winreg.idl and winreg.cnf.
 	
 	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
 	It is maintained by the Samba team, not the Ethereal team.
@@ -32,137 +32,106 @@ static gint ett_winreg_QueryMultipleValue = -1;
 
 
 /* Header field declarations */
-static gint hf_winreg_winreg_OpenHKCC_access_required = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_string2 = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_message = -1;
-static gint hf_winreg_winreg_String_name = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_message = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_reboot = -1;
-static gint hf_winreg_winreg_OpenHKPN_access_required = -1;
-static gint hf_winreg_winreg_EnumValue_enum_index = -1;
-static gint hf_winreg_winreg_CreateKey_options = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_timeout = -1;
-static gint hf_winreg_winreg_QueryValue_size = -1;
-static gint hf_winreg_winreg_QueryInfoKey_max_valnamelen = -1;
-static gint hf_winreg_winreg_SecBuf_length = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_reboot = -1;
-static gint hf_winreg_winreg_OpenHKCC_handle = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_buffer_size = -1;
-static gint hf_winreg_winreg_OpenHKCU_handle = -1;
-static gint hf_winreg_winreg_CreateKey_new_handle = -1;
-static gint hf_winreg_winreg_OpenHKPT_handle = -1;
-static gint hf_winreg_winreg_EnumKey_class = -1;
-static gint hf_winreg_winreg_GetKeySecurity_handle = -1;
-static gint hf_winreg_winreg_OpenHKCR_handle = -1;
-static gint hf_winreg_winreg_OpenHKLM_access_required = -1;
-static gint hf_winreg_winreg_OpenHKPN_system_name = -1;
-static gint hf_winreg_winreg_OpenHKU_access_required = -1;
-static gint hf_winreg_QueryMultipleValue_name = -1;
-static gint hf_winreg_winreg_GetKeySecurity_sec_info = -1;
-static gint hf_winreg_winreg_StringBuf_size = -1;
-static gint hf_winreg_winreg_OpenHKCR_access_required = -1;
-static gint hf_winreg_winreg_SecBuf_sd = -1;
-static gint hf_winreg_winreg_CreateKey_class = -1;
-static gint hf_winreg_winreg_QueryInfoKey_secdescsize = -1;
-static gint hf_winreg_winreg_SetValue_name = -1;
-static gint hf_winreg_winreg_OpenHKPT_system_name = -1;
-static gint hf_winreg_winreg_CreateKey_secdesc = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_force_apps = -1;
-static gint hf_winreg_winreg_SetValue_type = -1;
-static gint hf_winreg_winreg_EnumValue_handle = -1;
-static gint hf_winreg_winreg_DeleteValue_handle = -1;
-static gint hf_winreg_opnum = -1;
-static gint hf_winreg_winreg_EnumValue_name = -1;
-static gint hf_winreg_winreg_LoadKey_filename = -1;
-static gint hf_winreg_winreg_DeleteValue_value = -1;
-static gint hf_winreg_winreg_OpenHKCU_access_required = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_handle = -1;
-static gint hf_winreg_winreg_OpenHKDD_handle = -1;
-static gint hf_winreg_winreg_QueryInfoKey_num_subkeys = -1;
-static gint hf_winreg_winreg_QueryInfoKey_last_changed_time = -1;
-static gint hf_winreg_winreg_AbortSystemShutdown_server = -1;
-static gint hf_winreg_winreg_QueryValue_type = -1;
-static gint hf_winreg_winreg_CloseKey_handle = -1;
-static gint hf_winreg_winreg_OpenHKU_system_name = -1;
-static gint hf_winreg_winreg_OpenHKDD_system_name = -1;
-static gint hf_winreg_winreg_DeleteKey_handle = -1;
+static gint hf_winreg_winreg_QueryInfoKey_max_valbufsize = -1;
 static gint hf_winreg_winreg_SecBuf_inherit = -1;
-static gint hf_winreg_winreg_SetValue_size = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_values = -1;
-static gint hf_winreg_winreg_OpenHKCC_system_name = -1;
-static gint hf_winreg_winreg_GetVersion_version = -1;
-static gint hf_winreg_winreg_CreateKey_action_taken = -1;
-static gint hf_winreg_winreg_QueryInfoKey_num_values = -1;
-static gint hf_winreg_winreg_SetKeySecurity_data = -1;
-static gint hf_winreg_winreg_EnumKey_enum_index = -1;
-static gint hf_winreg_winreg_SetValue_data = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_force_apps = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_string1 = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_buffer = -1;
-static gint hf_winreg_winreg_SetValue_handle = -1;
-static gint hf_winreg_winreg_CreateKey_access_required = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_notify_filter = -1;
-static gint hf_winreg_winreg_OpenHKCU_system_name = -1;
-static gint hf_winreg_KeySecurityData_size = -1;
-static gint hf_winreg_winreg_OpenHKU_handle = -1;
-static gint hf_winreg_winreg_OpenHKPD_handle = -1;
-static gint hf_winreg_winreg_EnumKey_name = -1;
-static gint hf_winreg_winreg_LoadKey_keyname = -1;
 static gint hf_winreg_winreg_QueryMultipleValues_key_handle = -1;
-static gint hf_winreg_winreg_EnumValue_type = -1;
-static gint hf_winreg_winreg_EnumKey_last_changed_time = -1;
-static gint hf_winreg_winreg_GetVersion_handle = -1;
-static gint hf_winreg_winreg_EnumValue_size = -1;
-static gint hf_winreg_winreg_OpenKey_handle = -1;
-static gint hf_winreg_winreg_OpenHKPN_handle = -1;
-static gint hf_winreg_winreg_QueryValue_data = -1;
+static gint hf_winreg_winreg_CreateKey_options = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_reboot = -1;
+static gint hf_winreg_winreg_String_name = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_notify_filter = -1;
 static gint hf_winreg_winreg_QueryInfoKey_max_subkeysize = -1;
-static gint hf_winreg_winreg_OpenHKPD_system_name = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_hostname = -1;
+static gint hf_winreg_winreg_OpenKey_unknown = -1;
+static gint hf_winreg_winreg_OpenHKCC_access_mask = -1;
+static gint hf_winreg_winreg_SetValue_data = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_values = -1;
+static gint hf_winreg_winreg_QueryInfoKey_last_changed_time = -1;
+static gint hf_winreg_QueryMultipleValue_name = -1;
+static gint hf_winreg_winreg_EnumValue_type = -1;
+static gint hf_winreg_winreg_CreateKey_class = -1;
+static gint hf_winreg_winreg_OpenHKCR_access_mask = -1;
+static gint hf_winreg_winreg_SetValue_type = -1;
+static gint hf_winreg_winreg_EnumKey_class = -1;
+static gint hf_winreg_winreg_CreateKey_secdesc = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_buffer = -1;
+static gint hf_winreg_winreg_GetVersion_version = -1;
+static gint hf_winreg_winreg_SetKeySecurity_access_mask = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown = -1;
+static gint hf_winreg_winreg_LoadKey_filename = -1;
+static gint hf_winreg_winreg_EnumValue_enum_index = -1;
+static gint hf_winreg_winreg_CreateKey_action_taken = -1;
+static gint hf_winreg_winreg_QueryValue_size = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_buffer_size = -1;
+static gint hf_winreg_access_required = -1;
+static gint hf_winreg_winreg_CreateKey_access_mask = -1;
+static gint hf_winreg_system_name = -1;
+static gint hf_winreg_KeySecurityData_size = -1;
+static gint hf_winreg_winreg_EnumValue_value = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_message = -1;
+static gint hf_winreg_winreg_QueryInfoKey_secdescsize = -1;
+static gint hf_winreg_winreg_QueryValue_data = -1;
+static gint hf_winreg_winreg_EnumValue_length = -1;
+static gint hf_winreg_winreg_SecBuf_length = -1;
+static gint hf_winreg_winreg_QueryValue_value_name = -1;
+static gint hf_winreg_winreg_QueryInfoKey_num_values = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_reboot = -1;
+static gint hf_winreg_winreg_CreateKey_new_handle = -1;
+static gint hf_winreg_winreg_OpenHKPT_access_mask = -1;
+static gint hf_winreg_winreg_QueryValue_type = -1;
 static gint hf_winreg_KeySecurityData_data = -1;
-static gint hf_winreg_winreg_OpenKey_access_mask = -1;
-static gint hf_winreg_winreg_QueryValue_handle = -1;
-static gint hf_winreg_winreg_OpenKey_keyname = -1;
-static gint hf_winreg_QueryMultipleValue_type = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree = -1;
-static gint hf_winreg_winreg_SetKeySecurity_handle = -1;
-static gint hf_winreg_winreg_OpenHKDD_access_required = -1;
-static gint hf_winreg_KeySecurityData_len = -1;
-static gint hf_winreg_winreg_CreateKey_name = -1;
-static gint hf_winreg_winreg_OpenHKPD_access_required = -1;
-static gint hf_winreg_winreg_String_name_len = -1;
-static gint hf_winreg_winreg_DeleteKey_key = -1;
 static gint hf_winreg_QueryMultipleValue_length = -1;
-static gint hf_winreg_winreg_OpenHKPT_access_required = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_num_values = -1;
-static gint hf_winreg_winreg_QueryInfoKey_handle = -1;
+static gint hf_winreg_winreg_LoadKey_keyname = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_hostname = -1;
 static gint hf_winreg_winreg_StringBuf_name = -1;
 static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown2 = -1;
-static gint hf_winreg_winreg_FlushKey_handle = -1;
-static gint hf_winreg_winreg_OpenHKLM_system_name = -1;
-static gint hf_winreg_winreg_CreateKey_handle = -1;
-static gint hf_winreg_winreg_StringBuf_length = -1;
-static gint hf_winreg_winreg_OpenHKCR_system_name = -1;
-static gint hf_winreg_winreg_OpenHKLM_handle = -1;
-static gint hf_winreg_winreg_String_name_size = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown = -1;
-static gint hf_winreg_winreg_QueryValue_length = -1;
-static gint hf_winreg_winreg_OpenKey_unknown = -1;
-static gint hf_winreg_winreg_QueryInfoKey_max_valbufsize = -1;
+static gint hf_winreg_winreg_OpenHKDD_access_mask = -1;
+static gint hf_winreg_winreg_EnumValue_name = -1;
 static gint hf_winreg_winreg_InitiateSystemShutdownEx_reason = -1;
-static gint hf_winreg_winreg_EnumValue_length = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_message = -1;
+static gint hf_winreg_winreg_DeleteValue_value = -1;
+static gint hf_winreg_winreg_SetValue_name = -1;
+static gint hf_winreg_winreg_GetKeySecurity_sd = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree = -1;
+static gint hf_winreg_winreg_EnumKey_name = -1;
+static gint hf_winreg_winreg_QueryValue_length = -1;
+static gint hf_winreg_QueryMultipleValue_offset = -1;
+static gint hf_winreg_winreg_SetKeySecurity_data = -1;
+static gint hf_winreg_winreg_SecBuf_sd = -1;
+static gint hf_winreg_werror = -1;
+static gint hf_winreg_QueryMultipleValue_type = -1;
+static gint hf_winreg_winreg_String_name_len = -1;
+static gint hf_winreg_opnum = -1;
+static gint hf_winreg_winreg_QueryInfoKey_num_subkeys = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_timeout = -1;
+static gint hf_winreg_handle = -1;
+static gint hf_winreg_winreg_GetKeySecurity_sec_info = -1;
+static gint hf_winreg_winreg_DeleteKey_key = -1;
+static gint hf_winreg_winreg_EnumKey_last_changed_time = -1;
 static gint hf_winreg_winreg_QueryInfoKey_max_subkeylen = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_timeout = -1;
+static gint hf_winreg_winreg_AbortSystemShutdown_server = -1;
+static gint hf_winreg_winreg_OpenHKU_access_mask = -1;
+static gint hf_winreg_winreg_EnumKey_enum_index = -1;
 static gint hf_winreg_winreg_QueryInfoKey_class = -1;
 static gint hf_winreg_winreg_InitiateSystemShutdownEx_hostname = -1;
-static gint hf_winreg_werror = -1;
-static gint hf_winreg_winreg_EnumValue_value = -1;
-static gint hf_winreg_winreg_SetKeySecurity_access_mask = -1;
-static gint hf_winreg_winreg_GetKeySecurity_sd = -1;
-static gint hf_winreg_winreg_QueryValue_value_name = -1;
-static gint hf_winreg_winreg_LoadKey_handle = -1;
-static gint hf_winreg_winreg_EnumKey_handle = -1;
-static gint hf_winreg_QueryMultipleValue_offset = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_force_apps = -1;
+static gint hf_winreg_winreg_CreateKey_name = -1;
+static gint hf_winreg_winreg_OpenHKLM_access_mask = -1;
+static gint hf_winreg_winreg_StringBuf_size = -1;
+static gint hf_winreg_winreg_OpenKey_keyname = -1;
+static gint hf_winreg_KeySecurityData_len = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_force_apps = -1;
+static gint hf_winreg_winreg_OpenHKPD_access_mask = -1;
+static gint hf_winreg_winreg_EnumValue_size = -1;
+static gint hf_winreg_winreg_SetValue_size = -1;
+static gint hf_winreg_winreg_OpenKey_access_mask = -1;
+static gint hf_winreg_winreg_OpenHKPN_access_mask = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_timeout = -1;
+static gint hf_winreg_winreg_QueryInfoKey_max_valnamelen = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_num_values = -1;
+static gint hf_winreg_winreg_OpenHKCU_access_mask = -1;
+static gint hf_winreg_winreg_String_name_size = -1;
+static gint hf_winreg_winreg_StringBuf_length = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_string1 = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_string2 = -1;
 
 static gint proto_dcerpc_winreg = -1;
 /* Version information */
@@ -219,27 +188,27 @@ static int winreg_dissect_element_QueryMultipleValue_offset(tvbuff_t *tvb, int o
 static int winreg_dissect_element_QueryMultipleValue_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCR_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCR_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKCR_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKCR_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCR_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCR_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCU_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCU_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKCU_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKCU_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCU_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCU_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKLM_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKLM_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKLM_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKLM_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKLM_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKLM_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPD_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPD_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKPD_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKPD_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPD_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPD_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKU_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKU_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKU_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKU_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKU_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKU_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_CloseKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -249,7 +218,7 @@ static int winreg_dissect_element_CreateKey_handle_(tvbuff_t *tvb, int offset, p
 static int winreg_dissect_element_CreateKey_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_CreateKey_class(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_CreateKey_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_CreateKey_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_CreateKey_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_CreateKey_secdesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_CreateKey_secdesc_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_CreateKey_new_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -361,12 +330,12 @@ static int winreg_dissect_element_GetVersion_handle_(tvbuff_t *tvb, int offset, 
 static int winreg_dissect_element_GetVersion_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCC_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCC_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKCC_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKCC_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCC_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKCC_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKDD_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKDD_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKDD_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKDD_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKDD_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKDD_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_QueryMultipleValues_key_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -390,12 +359,12 @@ static int winreg_dissect_element_InitiateSystemShutdownEx_reboot(tvbuff_t *tvb,
 static int winreg_dissect_element_InitiateSystemShutdownEx_reason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPT_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPT_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKPT_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKPT_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPT_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPT_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPN_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPN_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int winreg_dissect_element_OpenHKPN_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int winreg_dissect_element_OpenHKPN_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPN_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 static int winreg_dissect_element_OpenHKPN_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
@@ -424,7 +393,7 @@ winreg_dissect_enum_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* IDL: typedef struct { */
 /* IDL: 	[value(strlen_m_term(name)*2)] uint16 name_len; */
 /* IDL: 	[value(strlen_m_term(name)*2)] uint16 name_size; */
-/* IDL: 	[unique(1)] [flag(LIBNDR_FLAG_STR_SIZE4|LIBNDR_FLAG_STR_LEN4)] string *name; */
+/* IDL: 	[charset(UTF16)] [unique(1)] uint16 *name; */
 /* IDL: } winreg_String; */
 
 static int
@@ -446,7 +415,7 @@ winreg_dissect_element_String_name_size(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_String_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_String_name_, NDR_POINTER_UNIQUE, "Pointer to Name (string)",hf_winreg_winreg_String_name);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_String_name_, NDR_POINTER_UNIQUE, "Pointer to Name (uint16)",hf_winreg_winreg_String_name);
 
 	return offset;
 }
@@ -456,7 +425,7 @@ winreg_dissect_element_String_name_(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, 2, hf_winreg_winreg_String_name, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_winreg_winreg_String_name, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -491,7 +460,7 @@ winreg_dissect_struct_String(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 /* IDL: typedef struct { */
-/* IDL: 	[unique(1)] [length_is(len)] [size_is(size)] uint8 *data; */
+/* IDL: 	[size_is(size)] [length_is(len)] [unique(1)] uint8 *data; */
 /* IDL: 	uint32 size; */
 /* IDL: 	uint32 len; */
 /* IDL: } KeySecurityData; */
@@ -636,9 +605,9 @@ winreg_dissect_enum_CreateAction(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 /* IDL: typedef struct { */
-/* IDL: 	uint16 length; */
+/* IDL: 	[value(strlen_m(name)*2)] uint16 length; */
 /* IDL: 	uint16 size; */
-/* IDL: 	[unique(1)] [length_is(length/2)] [charset(UTF16)] [size_is(size/2)] uint16 *name; */
+/* IDL: 	[charset(UTF16)] [size_is(size/2)] [length_is(length/2)] [unique(1)] uint16 *name; */
 /* IDL: } winreg_StringBuf; */
 
 static int
@@ -789,7 +758,7 @@ winreg_dissect_struct_QueryMultipleValue(tvbuff_t *tvb, int offset, packet_info 
 static int
 winreg_dissect_element_OpenHKCR_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCR_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKCR_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCR_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -797,15 +766,15 @@ winreg_dissect_element_OpenHKCR_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKCR_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCR_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKCR_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKCR_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCR_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCR_access_mask,NULL);
 
 	return offset;
 }
@@ -813,7 +782,7 @@ winreg_dissect_element_OpenHKCR_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKCR_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCR_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKCR_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCR_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -821,24 +790,30 @@ winreg_dissect_element_OpenHKCR_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKCR_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCR_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKCR( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKCR_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKCR_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -847,7 +822,7 @@ winreg_dissect_OpenHKCR_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKCR_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKCR_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKCR_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -855,7 +830,7 @@ winreg_dissect_OpenHKCR_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_OpenHKCU_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCU_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKCU_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCU_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -863,15 +838,15 @@ winreg_dissect_element_OpenHKCU_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKCU_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCU_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKCU_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKCU_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCU_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCU_access_mask,NULL);
 
 	return offset;
 }
@@ -879,7 +854,7 @@ winreg_dissect_element_OpenHKCU_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKCU_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCU_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKCU_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCU_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -887,24 +862,30 @@ winreg_dissect_element_OpenHKCU_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKCU_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCU_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKCU( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKCU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKCU_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -913,7 +894,7 @@ winreg_dissect_OpenHKCU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKCU_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKCU_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKCU_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -921,7 +902,7 @@ winreg_dissect_OpenHKCU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_OpenHKLM_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKLM_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKLM_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKLM_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -929,15 +910,15 @@ winreg_dissect_element_OpenHKLM_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKLM_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKLM_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKLM_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKLM_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKLM_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKLM_access_mask,NULL);
 
 	return offset;
 }
@@ -945,7 +926,7 @@ winreg_dissect_element_OpenHKLM_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKLM_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKLM_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKLM_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKLM_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -953,24 +934,30 @@ winreg_dissect_element_OpenHKLM_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKLM_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKLM_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKLM( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKLM_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKLM_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -979,7 +966,7 @@ winreg_dissect_OpenHKLM_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKLM_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKLM_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKLM_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -987,7 +974,7 @@ winreg_dissect_OpenHKLM_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_OpenHKPD_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPD_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKPD_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPD_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -995,15 +982,15 @@ winreg_dissect_element_OpenHKPD_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKPD_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPD_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKPD_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKPD_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPD_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPD_access_mask,NULL);
 
 	return offset;
 }
@@ -1011,7 +998,7 @@ winreg_dissect_element_OpenHKPD_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKPD_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPD_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKPD_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPD_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1019,24 +1006,30 @@ winreg_dissect_element_OpenHKPD_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKPD_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPD_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKPD( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKPD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKPD_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1045,7 +1038,7 @@ winreg_dissect_OpenHKPD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKPD_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKPD_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKPD_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -1053,7 +1046,7 @@ winreg_dissect_OpenHKPD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_OpenHKU_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKU_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKU_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKU_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -1061,15 +1054,15 @@ winreg_dissect_element_OpenHKU_system_name(tvbuff_t *tvb, int offset, packet_inf
 static int
 winreg_dissect_element_OpenHKU_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKU_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKU_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKU_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKU_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKU_access_mask,NULL);
 
 	return offset;
 }
@@ -1077,7 +1070,7 @@ winreg_dissect_element_OpenHKU_access_required(tvbuff_t *tvb, int offset, packet
 static int
 winreg_dissect_element_OpenHKU_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKU_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKU_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKU_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1085,24 +1078,30 @@ winreg_dissect_element_OpenHKU_handle(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 winreg_dissect_element_OpenHKU_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKU_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKU( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKU_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1111,7 +1110,7 @@ winreg_dissect_OpenHKU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	offset = winreg_dissect_element_OpenHKU_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKU_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKU_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -1119,7 +1118,7 @@ winreg_dissect_OpenHKU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 winreg_dissect_element_CloseKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_CloseKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_CloseKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_CloseKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1127,7 +1126,7 @@ winreg_dissect_element_CloseKey_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_CloseKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CloseKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1139,10 +1138,16 @@ winreg_dissect_element_CloseKey_handle_(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_CloseKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_CloseKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1157,7 +1162,7 @@ winreg_dissect_CloseKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_CreateKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_CreateKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_CreateKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_CreateKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1165,7 +1170,7 @@ winreg_dissect_element_CreateKey_handle(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_CreateKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1195,9 +1200,9 @@ winreg_dissect_element_CreateKey_options(tvbuff_t *tvb, int offset, packet_info 
 }
 
 static int
-winreg_dissect_element_CreateKey_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_CreateKey_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_access_mask,NULL);
 
 	return offset;
 }
@@ -1255,22 +1260,28 @@ winreg_dissect_element_CreateKey_action_taken_(tvbuff_t *tvb, int offset, packet
 /* IDL: [in] winreg_String name, */
 /* IDL: [in] winreg_String class, */
 /* IDL: [in] uint32 options, */
-/* IDL: [in] uint32 access_required, */
-/* IDL: [unique(1)] [in] winreg_SecBuf *secdesc, */
+/* IDL: [in] uint32 access_mask, */
+/* IDL: [in] [unique(1)] winreg_SecBuf *secdesc, */
 /* IDL: [out] [ref] policy_handle *new_handle, */
-/* IDL: [out] [unique(1)] [in] winreg_CreateAction *action_taken */
+/* IDL: [out] [in] [unique(1)] winreg_CreateAction *action_taken */
 /* IDL: ); */
 
 static int
 winreg_dissect_CreateKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_CreateKey_new_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = winreg_dissect_element_CreateKey_action_taken(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1285,7 +1296,7 @@ winreg_dissect_CreateKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_CreateKey_options(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_CreateKey_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_CreateKey_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_CreateKey_secdesc(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
@@ -1297,7 +1308,7 @@ winreg_dissect_CreateKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 winreg_dissect_element_DeleteKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_DeleteKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_DeleteKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_DeleteKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1305,7 +1316,7 @@ winreg_dissect_element_DeleteKey_handle(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_DeleteKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_DeleteKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1326,7 +1337,13 @@ winreg_dissect_element_DeleteKey_key(tvbuff_t *tvb, int offset, packet_info *pin
 static int
 winreg_dissect_DeleteKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1343,7 +1360,7 @@ winreg_dissect_DeleteKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 winreg_dissect_element_DeleteValue_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_DeleteValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_DeleteValue_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_DeleteValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1351,7 +1368,7 @@ winreg_dissect_element_DeleteValue_handle(tvbuff_t *tvb, int offset, packet_info
 static int
 winreg_dissect_element_DeleteValue_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_DeleteValue_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1372,7 +1389,13 @@ winreg_dissect_element_DeleteValue_value(tvbuff_t *tvb, int offset, packet_info 
 static int
 winreg_dissect_DeleteValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1389,7 +1412,7 @@ winreg_dissect_DeleteValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 winreg_dissect_element_EnumKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_EnumKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_EnumKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_EnumKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1397,7 +1420,7 @@ winreg_dissect_element_EnumKey_handle(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 winreg_dissect_element_EnumKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_EnumKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1462,13 +1485,15 @@ winreg_dissect_element_EnumKey_last_changed_time_(tvbuff_t *tvb, int offset, pac
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 enum_index, */
 /* IDL: [out] [in] [ref] winreg_StringBuf *name, */
-/* IDL: [out] [unique(1)] [in] winreg_StringBuf *class, */
-/* IDL: [out] [unique(1)] [in] NTTIME *last_changed_time */
+/* IDL: [out] [in] [unique(1)] winreg_StringBuf *class, */
+/* IDL: [out] [in] [unique(1)] NTTIME *last_changed_time */
 /* IDL: ); */
 
 static int
 winreg_dissect_EnumKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_EnumKey_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1478,7 +1503,11 @@ winreg_dissect_EnumKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	offset = winreg_dissect_element_EnumKey_last_changed_time(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1501,7 +1530,7 @@ winreg_dissect_EnumKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 winreg_dissect_element_EnumValue_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_EnumValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_EnumValue_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_EnumValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1509,7 +1538,7 @@ winreg_dissect_element_EnumValue_handle(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_EnumValue_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_EnumValue_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1614,15 +1643,17 @@ winreg_dissect_element_EnumValue_length_(tvbuff_t *tvb, int offset, packet_info 
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 enum_index, */
 /* IDL: [out] [in] [ref] winreg_StringBuf *name, */
-/* IDL: [out] [unique(1)] [in] winreg_Type *type, */
-/* IDL: [out] [unique(1)] [in] [length_is(*length)] [size_is(*size)] uint8 *value, */
-/* IDL: [out] [unique(1)] [in] uint32 *size, */
-/* IDL: [out] [unique(1)] [in] uint32 *length */
+/* IDL: [out] [in] [unique(1)] winreg_Type *type, */
+/* IDL: [size_is(*size)] [length_is(*length)] [out] [in] [unique(1)] uint8 *value, */
+/* IDL: [out] [in] [unique(1)] uint32 *size, */
+/* IDL: [out] [in] [unique(1)] uint32 *length */
 /* IDL: ); */
 
 static int
 winreg_dissect_EnumValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_EnumValue_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1638,7 +1669,11 @@ winreg_dissect_EnumValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = winreg_dissect_element_EnumValue_length(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1665,7 +1700,7 @@ winreg_dissect_EnumValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 winreg_dissect_element_FlushKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_FlushKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_FlushKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_FlushKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1673,7 +1708,7 @@ winreg_dissect_element_FlushKey_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_FlushKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_FlushKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1685,7 +1720,13 @@ winreg_dissect_element_FlushKey_handle_(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_FlushKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1700,7 +1741,7 @@ winreg_dissect_FlushKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_GetKeySecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_GetKeySecurity_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_GetKeySecurity_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_GetKeySecurity_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1708,7 +1749,7 @@ winreg_dissect_element_GetKeySecurity_handle(tvbuff_t *tvb, int offset, packet_i
 static int
 winreg_dissect_element_GetKeySecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_GetKeySecurity_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1746,10 +1787,16 @@ winreg_dissect_element_GetKeySecurity_sd_(tvbuff_t *tvb, int offset, packet_info
 static int
 winreg_dissect_GetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_GetKeySecurity_sd(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1768,7 +1815,7 @@ winreg_dissect_GetKeySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 winreg_dissect_element_LoadKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_LoadKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_LoadKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_LoadKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1776,7 +1823,7 @@ winreg_dissect_element_LoadKey_handle(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 winreg_dissect_element_LoadKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_LoadKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1822,7 +1869,13 @@ winreg_dissect_element_LoadKey_filename_(tvbuff_t *tvb, int offset, packet_info 
 static int
 winreg_dissect_LoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1841,7 +1894,7 @@ winreg_dissect_LoadKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 winreg_dissect_element_NotifyChangeKeyValue_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_NotifyChangeKeyValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_NotifyChangeKeyValue_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_NotifyChangeKeyValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1849,7 +1902,7 @@ winreg_dissect_element_NotifyChangeKeyValue_handle(tvbuff_t *tvb, int offset, pa
 static int
 winreg_dissect_element_NotifyChangeKeyValue_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_NotifyChangeKeyValue_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1915,7 +1968,13 @@ winreg_dissect_element_NotifyChangeKeyValue_unknown2(tvbuff_t *tvb, int offset, 
 static int
 winreg_dissect_NotifyChangeKeyValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -1942,7 +2001,7 @@ winreg_dissect_NotifyChangeKeyValue_request(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 winreg_dissect_element_OpenKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -1950,7 +2009,7 @@ winreg_dissect_element_OpenKey_handle(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 winreg_dissect_element_OpenKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -1990,10 +2049,16 @@ winreg_dissect_element_OpenKey_access_mask(tvbuff_t *tvb, int offset, packet_inf
 static int
 winreg_dissect_OpenKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2014,7 +2079,7 @@ winreg_dissect_OpenKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 winreg_dissect_element_QueryInfoKey_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_QueryInfoKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_QueryInfoKey_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_QueryInfoKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -2022,7 +2087,7 @@ winreg_dissect_element_QueryInfoKey_handle(tvbuff_t *tvb, int offset, packet_inf
 static int
 winreg_dissect_element_QueryInfoKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_QueryInfoKey_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -2116,6 +2181,8 @@ winreg_dissect_element_QueryInfoKey_last_changed_time(tvbuff_t *tvb, int offset,
 static int
 winreg_dissect_QueryInfoKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_QueryInfoKey_class(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -2143,7 +2210,11 @@ winreg_dissect_QueryInfoKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	offset = winreg_dissect_element_QueryInfoKey_last_changed_time(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2160,7 +2231,7 @@ winreg_dissect_QueryInfoKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 winreg_dissect_element_QueryValue_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_QueryValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_QueryValue_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_QueryValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -2168,7 +2239,7 @@ winreg_dissect_element_QueryValue_handle(tvbuff_t *tvb, int offset, packet_info 
 static int
 winreg_dissect_element_QueryValue_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_QueryValue_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -2256,15 +2327,17 @@ winreg_dissect_element_QueryValue_length_(tvbuff_t *tvb, int offset, packet_info
 /* IDL: WERROR winreg_QueryValue( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] winreg_String value_name, */
-/* IDL: [unique(1)] [out] [in] winreg_Type *type, */
-/* IDL: [unique(1)] [out] [in] [length_is(*length)] [size_is(*size)] uint8 *data, */
-/* IDL: [unique(1)] [out] [in] uint32 *size, */
-/* IDL: [unique(1)] [out] [in] uint32 *length */
+/* IDL: [out] [unique(1)] [in] winreg_Type *type, */
+/* IDL: [size_is(*size)] [length_is(*length)] [out] [unique(1)] [in] uint8 *data, */
+/* IDL: [out] [unique(1)] [in] uint32 *size, */
+/* IDL: [out] [unique(1)] [in] uint32 *length */
 /* IDL: ); */
 
 static int
 winreg_dissect_QueryValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_QueryValue_type(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -2277,7 +2350,11 @@ winreg_dissect_QueryValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	offset = winreg_dissect_element_QueryValue_length(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2306,7 +2383,13 @@ winreg_dissect_QueryValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 winreg_dissect_ReplaceKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2323,7 +2406,13 @@ winreg_dissect_ReplaceKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 winreg_dissect_RestoreKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2340,7 +2429,13 @@ winreg_dissect_RestoreKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 winreg_dissect_SaveKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2353,7 +2448,7 @@ winreg_dissect_SaveKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 winreg_dissect_element_SetKeySecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_SetKeySecurity_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_SetKeySecurity_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_SetKeySecurity_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -2361,7 +2456,7 @@ winreg_dissect_element_SetKeySecurity_handle(tvbuff_t *tvb, int offset, packet_i
 static int
 winreg_dissect_element_SetKeySecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_SetKeySecurity_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -2399,10 +2494,16 @@ winreg_dissect_element_SetKeySecurity_data_(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_SetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_SetKeySecurity_data(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2421,7 +2522,7 @@ winreg_dissect_SetKeySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 winreg_dissect_element_SetValue_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_SetValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_SetValue_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_SetValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -2429,7 +2530,7 @@ winreg_dissect_element_SetValue_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_SetValue_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_SetValue_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -2486,14 +2587,20 @@ winreg_dissect_element_SetValue_size(tvbuff_t *tvb, int offset, packet_info *pin
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] winreg_String name, */
 /* IDL: [in] winreg_Type type, */
-/* IDL: [in] [ref] [size_is(size)] uint8 *data, */
+/* IDL: [size_is(size)] [in] [ref] uint8 *data, */
 /* IDL: [in] uint32 size */
 /* IDL: ); */
 
 static int
 winreg_dissect_SetValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2520,7 +2627,13 @@ winreg_dissect_SetValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_UnLoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2597,7 +2710,13 @@ winreg_dissect_element_InitiateSystemShutdown_reboot(tvbuff_t *tvb, int offset, 
 static int
 winreg_dissect_InitiateSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2640,7 +2759,13 @@ winreg_dissect_element_AbortSystemShutdown_server_(tvbuff_t *tvb, int offset, pa
 static int
 winreg_dissect_AbortSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2655,7 +2780,7 @@ winreg_dissect_AbortSystemShutdown_request(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 winreg_dissect_element_GetVersion_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_GetVersion_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_GetVersion_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_GetVersion_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -2663,7 +2788,7 @@ winreg_dissect_element_GetVersion_handle(tvbuff_t *tvb, int offset, packet_info 
 static int
 winreg_dissect_element_GetVersion_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_GetVersion_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -2684,10 +2809,16 @@ winreg_dissect_element_GetVersion_version(tvbuff_t *tvb, int offset, packet_info
 static int
 winreg_dissect_GetVersion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_GetVersion_version(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2702,7 +2833,7 @@ winreg_dissect_GetVersion_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 winreg_dissect_element_OpenHKCC_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCC_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKCC_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCC_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -2710,15 +2841,15 @@ winreg_dissect_element_OpenHKCC_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKCC_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCC_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKCC_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKCC_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCC_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCC_access_mask,NULL);
 
 	return offset;
 }
@@ -2726,7 +2857,7 @@ winreg_dissect_element_OpenHKCC_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKCC_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCC_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKCC_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKCC_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -2734,24 +2865,30 @@ winreg_dissect_element_OpenHKCC_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKCC_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKCC_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKCC( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKCC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKCC_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2760,7 +2897,7 @@ winreg_dissect_OpenHKCC_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKCC_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKCC_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKCC_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -2768,7 +2905,7 @@ winreg_dissect_OpenHKCC_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_OpenHKDD_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKDD_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKDD_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKDD_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -2776,15 +2913,15 @@ winreg_dissect_element_OpenHKDD_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKDD_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKDD_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKDD_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKDD_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKDD_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKDD_access_mask,NULL);
 
 	return offset;
 }
@@ -2792,7 +2929,7 @@ winreg_dissect_element_OpenHKDD_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKDD_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKDD_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKDD_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKDD_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -2800,24 +2937,30 @@ winreg_dissect_element_OpenHKDD_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKDD_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKDD_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKDD( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKDD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKDD_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -2826,7 +2969,7 @@ winreg_dissect_OpenHKDD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKDD_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKDD_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKDD_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -2921,15 +3064,17 @@ winreg_dissect_element_QueryMultipleValues_buffer_size_(tvbuff_t *tvb, int offse
 
 /* IDL: WERROR winreg_QueryMultipleValues( */
 /* IDL: [in] [ref] policy_handle *key_handle, */
-/* IDL: [out] [in] [ref] [length_is(num_values)] [size_is(num_values)] QueryMultipleValue *values, */
+/* IDL: [size_is(num_values)] [length_is(num_values)] [out] [in] [ref] QueryMultipleValue *values, */
 /* IDL: [in] uint32 num_values, */
-/* IDL: [unique(1)] [out] [in] [length_is(*buffer_size)] [size_is(*buffer_size)] uint8 *buffer, */
+/* IDL: [size_is(*buffer_size)] [length_is(*buffer_size)] [out] [unique(1)] [in] uint8 *buffer, */
 /* IDL: [out] [in] [ref] uint32 *buffer_size */
 /* IDL: ); */
 
 static int
 winreg_dissect_QueryMultipleValues_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_QueryMultipleValues_values(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -2939,7 +3084,11 @@ winreg_dissect_QueryMultipleValues_response(tvbuff_t *tvb _U_, int offset _U_, p
 	offset = winreg_dissect_element_QueryMultipleValues_buffer_size(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -3035,7 +3184,13 @@ winreg_dissect_element_InitiateSystemShutdownEx_reason(tvbuff_t *tvb, int offset
 static int
 winreg_dissect_InitiateSystemShutdownEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -3064,7 +3219,13 @@ winreg_dissect_InitiateSystemShutdownEx_request(tvbuff_t *tvb _U_, int offset _U
 static int
 winreg_dissect_SaveKeyEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -3077,7 +3238,7 @@ winreg_dissect_SaveKeyEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 winreg_dissect_element_OpenHKPT_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPT_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKPT_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPT_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -3085,15 +3246,15 @@ winreg_dissect_element_OpenHKPT_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKPT_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPT_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKPT_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKPT_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPT_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPT_access_mask,NULL);
 
 	return offset;
 }
@@ -3101,7 +3262,7 @@ winreg_dissect_element_OpenHKPT_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKPT_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPT_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKPT_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPT_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -3109,24 +3270,30 @@ winreg_dissect_element_OpenHKPT_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKPT_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPT_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKPT( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKPT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKPT_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -3135,7 +3302,7 @@ winreg_dissect_OpenHKPT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKPT_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKPT_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKPT_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -3143,7 +3310,7 @@ winreg_dissect_OpenHKPT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_element_OpenHKPN_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPN_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_winreg_OpenHKPN_system_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPN_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_winreg_system_name);
 
 	return offset;
 }
@@ -3151,15 +3318,15 @@ winreg_dissect_element_OpenHKPN_system_name(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_OpenHKPN_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPN_system_name,NULL);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_winreg_system_name,NULL);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_OpenHKPN_access_required(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_OpenHKPN_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPN_access_required,NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPN_access_mask,NULL);
 
 	return offset;
 }
@@ -3167,7 +3334,7 @@ winreg_dissect_element_OpenHKPN_access_required(tvbuff_t *tvb, int offset, packe
 static int
 winreg_dissect_element_OpenHKPN_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPN_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_OpenHKPN_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_OpenHKPN_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_handle);
 
 	return offset;
 }
@@ -3175,24 +3342,30 @@ winreg_dissect_element_OpenHKPN_handle(tvbuff_t *tvb, int offset, packet_info *p
 static int
 winreg_dissect_element_OpenHKPN_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_OpenHKPN_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
 
 /* IDL: WERROR winreg_OpenHKPN( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] uint32 access_required, */
+/* IDL: [in] uint32 access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
 winreg_dissect_OpenHKPN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = winreg_dissect_element_OpenHKPN_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -3201,7 +3374,7 @@ winreg_dissect_OpenHKPN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	offset = winreg_dissect_element_OpenHKPN_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_OpenHKPN_access_required(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_OpenHKPN_access_mask(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -3213,7 +3386,13 @@ winreg_dissect_OpenHKPN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 winreg_dissect_QueryMultipleValues2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, NULL);
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+
 	return offset;
 }
 
@@ -3301,268 +3480,206 @@ static dcerpc_sub_dissector winreg_dissectors[] = {
 void proto_register_dcerpc_winreg(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_winreg_winreg_OpenHKCC_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKCC.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_string2, 
-	  { "String2", "winreg.winreg_NotifyChangeKeyValue.string2", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_message, 
-	  { "Message", "winreg.winreg_InitiateSystemShutdown.message", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_valbufsize, 
+	  { "Max Valbufsize", "winreg.winreg_QueryInfoKey.max_valbufsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SecBuf_inherit, 
+	  { "Inherit", "winreg.winreg_SecBuf.inherit", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_key_handle, 
+	  { "Key Handle", "winreg.winreg_QueryMultipleValues.key_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_options, 
+	  { "Options", "winreg.winreg_CreateKey.options", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reboot, 
+	  { "Reboot", "winreg.winreg_InitiateSystemShutdownEx.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_String_name, 
-	  { "Name", "winreg.winreg_String.name", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Name", "winreg.winreg_String.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_notify_filter, 
+	  { "Notify Filter", "winreg.winreg_NotifyChangeKeyValue.notify_filter", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_subkeysize, 
+	  { "Max Subkeysize", "winreg.winreg_QueryInfoKey.max_subkeysize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenKey_unknown, 
+	  { "Unknown", "winreg.winreg_OpenKey.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKCC_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKCC.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_data, 
+	  { "Data", "winreg.winreg_SetValue.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_values, 
+	  { "Values", "winreg.winreg_QueryMultipleValues.values", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_last_changed_time, 
+	  { "Last Changed Time", "winreg.winreg_QueryInfoKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_QueryMultipleValue_name, 
+	  { "Name", "winreg.QueryMultipleValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_type, 
+	  { "Type", "winreg.winreg_EnumValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_class, 
+	  { "Class", "winreg.winreg_CreateKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKCR_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKCR.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_type, 
+	  { "Type", "winreg.winreg_SetValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumKey_class, 
+	  { "Class", "winreg.winreg_EnumKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_secdesc, 
+	  { "Secdesc", "winreg.winreg_CreateKey.secdesc", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_buffer, 
+	  { "Buffer", "winreg.winreg_QueryMultipleValues.buffer", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_GetVersion_version, 
+	  { "Version", "winreg.winreg_GetVersion.version", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetKeySecurity_access_mask, 
+	  { "Access Mask", "winreg.winreg_SetKeySecurity.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown, 
+	  { "Unknown", "winreg.winreg_NotifyChangeKeyValue.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_LoadKey_filename, 
+	  { "Filename", "winreg.winreg_LoadKey.filename", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_enum_index, 
+	  { "Enum Index", "winreg.winreg_EnumValue.enum_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_action_taken, 
+	  { "Action Taken", "winreg.winreg_CreateKey.action_taken", FT_UINT32, BASE_DEC, VALS(winreg_winreg_CreateAction_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_size, 
+	  { "Size", "winreg.winreg_QueryValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_buffer_size, 
+	  { "Buffer Size", "winreg.winreg_QueryMultipleValues.buffer_size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_access_required, 
+	  { "Access Required", "winreg.access_required", FT_UINT32, BASE_HEX, NULL, 0, " ", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_access_mask, 
+	  { "Access Mask", "winreg.winreg_CreateKey.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_system_name, 
+	  { "System Name", "winreg.system_name", FT_UINT16, BASE_DEC, NULL, 0, " ", HFILL }},
+	{ &hf_winreg_KeySecurityData_size, 
+	  { "Size", "winreg.KeySecurityData.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_value, 
+	  { "Value", "winreg.winreg_EnumValue.value", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_InitiateSystemShutdownEx_message, 
 	  { "Message", "winreg.winreg_InitiateSystemShutdownEx.message", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_reboot, 
-	  { "Reboot", "winreg.winreg_InitiateSystemShutdown.reboot", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPN_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKPN.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_enum_index, 
-	  { "Enum Index", "winreg.winreg_EnumValue.enum_index", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_options, 
-	  { "Options", "winreg.winreg_CreateKey.options", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_timeout, 
-	  { "Timeout", "winreg.winreg_InitiateSystemShutdownEx.timeout", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_size, 
-	  { "Size", "winreg.winreg_QueryValue.size", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_max_valnamelen, 
-	  { "Max Valnamelen", "winreg.winreg_QueryInfoKey.max_valnamelen", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SecBuf_length, 
-	  { "Length", "winreg.winreg_SecBuf.length", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reboot, 
-	  { "Reboot", "winreg.winreg_InitiateSystemShutdownEx.reboot", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCC_handle, 
-	  { "Handle", "winreg.winreg_OpenHKCC.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_buffer_size, 
-	  { "Buffer Size", "winreg.winreg_QueryMultipleValues.buffer_size", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCU_handle, 
-	  { "Handle", "winreg.winreg_OpenHKCU.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_new_handle, 
-	  { "New Handle", "winreg.winreg_CreateKey.new_handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPT_handle, 
-	  { "Handle", "winreg.winreg_OpenHKPT.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_class, 
-	  { "Class", "winreg.winreg_EnumKey.class", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_GetKeySecurity_handle, 
-	  { "Handle", "winreg.winreg_GetKeySecurity.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCR_handle, 
-	  { "Handle", "winreg.winreg_OpenHKCR.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKLM_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKLM.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPN_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKPN.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKU_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKU.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_QueryMultipleValue_name, 
-	  { "Name", "winreg.QueryMultipleValue.name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_GetKeySecurity_sec_info, 
-	  { "Sec Info", "winreg.winreg_GetKeySecurity.sec_info", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_StringBuf_size, 
-	  { "Size", "winreg.winreg_StringBuf.size", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCR_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKCR.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SecBuf_sd, 
-	  { "Sd", "winreg.winreg_SecBuf.sd", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_class, 
-	  { "Class", "winreg.winreg_CreateKey.class", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryInfoKey_secdescsize, 
-	  { "Secdescsize", "winreg.winreg_QueryInfoKey.secdescsize", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_name, 
-	  { "Name", "winreg.winreg_SetValue.name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPT_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKPT.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_secdesc, 
-	  { "Secdesc", "winreg.winreg_CreateKey.secdesc", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_force_apps, 
-	  { "Force Apps", "winreg.winreg_InitiateSystemShutdownEx.force_apps", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_type, 
-	  { "Type", "winreg.winreg_SetValue.type", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_handle, 
-	  { "Handle", "winreg.winreg_EnumValue.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_DeleteValue_handle, 
-	  { "Handle", "winreg.winreg_DeleteValue.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_opnum, 
-	  { "Operation", "winreg.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_name, 
-	  { "Name", "winreg.winreg_EnumValue.name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_LoadKey_filename, 
-	  { "Filename", "winreg.winreg_LoadKey.filename", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_DeleteValue_value, 
-	  { "Value", "winreg.winreg_DeleteValue.value", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCU_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKCU.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_handle, 
-	  { "Handle", "winreg.winreg_NotifyChangeKeyValue.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKDD_handle, 
-	  { "Handle", "winreg.winreg_OpenHKDD.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_num_subkeys, 
-	  { "Num Subkeys", "winreg.winreg_QueryInfoKey.num_subkeys", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_last_changed_time, 
-	  { "Last Changed Time", "winreg.winreg_QueryInfoKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_AbortSystemShutdown_server, 
-	  { "Server", "winreg.winreg_AbortSystemShutdown.server", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_type, 
-	  { "Type", "winreg.winreg_QueryValue.type", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CloseKey_handle, 
-	  { "Handle", "winreg.winreg_CloseKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKU_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKU.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKDD_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKDD.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_DeleteKey_handle, 
-	  { "Handle", "winreg.winreg_DeleteKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SecBuf_inherit, 
-	  { "Inherit", "winreg.winreg_SecBuf.inherit", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_size, 
-	  { "Size", "winreg.winreg_SetValue.size", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_values, 
-	  { "Values", "winreg.winreg_QueryMultipleValues.values", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCC_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKCC.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_GetVersion_version, 
-	  { "Version", "winreg.winreg_GetVersion.version", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_action_taken, 
-	  { "Action Taken", "winreg.winreg_CreateKey.action_taken", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_num_values, 
-	  { "Num Values", "winreg.winreg_QueryInfoKey.num_values", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetKeySecurity_data, 
-	  { "Data", "winreg.winreg_SetKeySecurity.data", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_enum_index, 
-	  { "Enum Index", "winreg.winreg_EnumKey.enum_index", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_data, 
-	  { "Data", "winreg.winreg_SetValue.data", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_force_apps, 
-	  { "Force Apps", "winreg.winreg_InitiateSystemShutdown.force_apps", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_string1, 
-	  { "String1", "winreg.winreg_NotifyChangeKeyValue.string1", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_buffer, 
-	  { "Buffer", "winreg.winreg_QueryMultipleValues.buffer", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_handle, 
-	  { "Handle", "winreg.winreg_SetValue.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_access_required, 
-	  { "Access Required", "winreg.winreg_CreateKey.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_notify_filter, 
-	  { "Notify Filter", "winreg.winreg_NotifyChangeKeyValue.notify_filter", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCU_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKCU.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_KeySecurityData_size, 
-	  { "Size", "winreg.KeySecurityData.size", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKU_handle, 
-	  { "Handle", "winreg.winreg_OpenHKU.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPD_handle, 
-	  { "Handle", "winreg.winreg_OpenHKPD.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_name, 
-	  { "Name", "winreg.winreg_EnumKey.name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_LoadKey_keyname, 
-	  { "Keyname", "winreg.winreg_LoadKey.keyname", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_key_handle, 
-	  { "Key Handle", "winreg.winreg_QueryMultipleValues.key_handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_type, 
-	  { "Type", "winreg.winreg_EnumValue.type", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_last_changed_time, 
-	  { "Last Changed Time", "winreg.winreg_EnumKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_GetVersion_handle, 
-	  { "Handle", "winreg.winreg_GetVersion.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_size, 
-	  { "Size", "winreg.winreg_EnumValue.size", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenKey_handle, 
-	  { "Handle", "winreg.winreg_OpenKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPN_handle, 
-	  { "Handle", "winreg.winreg_OpenHKPN.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Secdescsize", "winreg.winreg_QueryInfoKey.secdescsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryValue_data, 
-	  { "Data", "winreg.winreg_QueryValue.data", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_max_subkeysize, 
-	  { "Max Subkeysize", "winreg.winreg_QueryInfoKey.max_subkeysize", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPD_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKPD.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_hostname, 
-	  { "Hostname", "winreg.winreg_InitiateSystemShutdown.hostname", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_KeySecurityData_data, 
-	  { "Data", "winreg.KeySecurityData.data", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenKey_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenKey.access_mask", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_handle, 
-	  { "Handle", "winreg.winreg_QueryValue.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenKey_keyname, 
-	  { "Keyname", "winreg.winreg_OpenKey.keyname", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_QueryMultipleValue_type, 
-	  { "Type", "winreg.QueryMultipleValue.type", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree, 
-	  { "Watch Subtree", "winreg.winreg_NotifyChangeKeyValue.watch_subtree", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetKeySecurity_handle, 
-	  { "Handle", "winreg.winreg_SetKeySecurity.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKDD_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKDD.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_KeySecurityData_len, 
-	  { "Len", "winreg.KeySecurityData.len", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_name, 
-	  { "Name", "winreg.winreg_CreateKey.name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPD_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKPD.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_String_name_len, 
-	  { "Name Len", "winreg.winreg_String.name_len", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_DeleteKey_key, 
-	  { "Key", "winreg.winreg_DeleteKey.key", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_QueryMultipleValue_length, 
-	  { "Length", "winreg.QueryMultipleValue.length", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPT_access_required, 
-	  { "Access Required", "winreg.winreg_OpenHKPT.access_required", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_num_values, 
-	  { "Num Values", "winreg.winreg_QueryMultipleValues.num_values", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_handle, 
-	  { "Handle", "winreg.winreg_QueryInfoKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_StringBuf_name, 
-	  { "Name", "winreg.winreg_StringBuf.name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown2, 
-	  { "Unknown2", "winreg.winreg_NotifyChangeKeyValue.unknown2", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_FlushKey_handle, 
-	  { "Handle", "winreg.winreg_FlushKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKLM_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKLM.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_handle, 
-	  { "Handle", "winreg.winreg_CreateKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_StringBuf_length, 
-	  { "Length", "winreg.winreg_StringBuf.length", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCR_system_name, 
-	  { "System Name", "winreg.winreg_OpenHKCR.system_name", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKLM_handle, 
-	  { "Handle", "winreg.winreg_OpenHKLM.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_String_name_size, 
-	  { "Name Size", "winreg.winreg_String.name_size", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown, 
-	  { "Unknown", "winreg.winreg_NotifyChangeKeyValue.unknown", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_length, 
-	  { "Length", "winreg.winreg_QueryValue.length", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenKey_unknown, 
-	  { "Unknown", "winreg.winreg_OpenKey.unknown", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_max_valbufsize, 
-	  { "Max Valbufsize", "winreg.winreg_QueryInfoKey.max_valbufsize", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reason, 
-	  { "Reason", "winreg.winreg_InitiateSystemShutdownEx.reason", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Data", "winreg.winreg_QueryValue.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_EnumValue_length, 
-	  { "Length", "winreg.winreg_EnumValue.length", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_max_subkeylen, 
-	  { "Max Subkeylen", "winreg.winreg_QueryInfoKey.max_subkeylen", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_timeout, 
-	  { "Timeout", "winreg.winreg_InitiateSystemShutdown.timeout", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_class, 
-	  { "Class", "winreg.winreg_QueryInfoKey.class", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_hostname, 
-	  { "Hostname", "winreg.winreg_InitiateSystemShutdownEx.hostname", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Length", "winreg.winreg_EnumValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SecBuf_length, 
+	  { "Length", "winreg.winreg_SecBuf.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_value_name, 
+	  { "Value Name", "winreg.winreg_QueryValue.value_name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_num_values, 
+	  { "Num Values", "winreg.winreg_QueryInfoKey.num_values", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_reboot, 
+	  { "Reboot", "winreg.winreg_InitiateSystemShutdown.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_new_handle, 
+	  { "New Handle", "winreg.winreg_CreateKey.new_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKPT_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKPT.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_type, 
+	  { "Type", "winreg.winreg_QueryValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityData_data, 
+	  { "Data", "winreg.KeySecurityData.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_QueryMultipleValue_length, 
+	  { "Length", "winreg.QueryMultipleValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_LoadKey_keyname, 
+	  { "Keyname", "winreg.winreg_LoadKey.keyname", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_hostname, 
+	  { "Hostname", "winreg.winreg_InitiateSystemShutdown.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_StringBuf_name, 
+	  { "Name", "winreg.winreg_StringBuf.name", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown2, 
+	  { "Unknown2", "winreg.winreg_NotifyChangeKeyValue.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKDD_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKDD.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_name, 
+	  { "Name", "winreg.winreg_EnumValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reason, 
+	  { "Reason", "winreg.winreg_InitiateSystemShutdownEx.reason", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_message, 
+	  { "Message", "winreg.winreg_InitiateSystemShutdown.message", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_DeleteValue_value, 
+	  { "Value", "winreg.winreg_DeleteValue.value", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_name, 
+	  { "Name", "winreg.winreg_SetValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_GetKeySecurity_sd, 
+	  { "Sd", "winreg.winreg_GetKeySecurity.sd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree, 
+	  { "Watch Subtree", "winreg.winreg_NotifyChangeKeyValue.watch_subtree", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumKey_name, 
+	  { "Name", "winreg.winreg_EnumKey.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_length, 
+	  { "Length", "winreg.winreg_QueryValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_QueryMultipleValue_offset, 
+	  { "Offset", "winreg.QueryMultipleValue.offset", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetKeySecurity_data, 
+	  { "Data", "winreg.winreg_SetKeySecurity.data", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SecBuf_sd, 
+	  { "Sd", "winreg.winreg_SecBuf.sd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_werror, 
 	  { "Windows Error", "winreg.werror", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_value, 
-	  { "Value", "winreg.winreg_EnumValue.value", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetKeySecurity_access_mask, 
-	  { "Access Mask", "winreg.winreg_SetKeySecurity.access_mask", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_GetKeySecurity_sd, 
-	  { "Sd", "winreg.winreg_GetKeySecurity.sd", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_value_name, 
-	  { "Value Name", "winreg.winreg_QueryValue.value_name", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_LoadKey_handle, 
-	  { "Handle", "winreg.winreg_LoadKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_handle, 
-	  { "Handle", "winreg.winreg_EnumKey.handle", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_QueryMultipleValue_offset, 
-	  { "Offset", "winreg.QueryMultipleValue.offset", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_winreg_QueryMultipleValue_type, 
+	  { "Type", "winreg.QueryMultipleValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_String_name_len, 
+	  { "Name Len", "winreg.winreg_String.name_len", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_opnum, 
+	  { "Operation", "winreg.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_num_subkeys, 
+	  { "Num Subkeys", "winreg.winreg_QueryInfoKey.num_subkeys", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_timeout, 
+	  { "Timeout", "winreg.winreg_InitiateSystemShutdownEx.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_handle, 
+	  { "Handle", "winreg.handle", FT_BYTES, BASE_NONE, NULL, 0, " ", HFILL }},
+	{ &hf_winreg_winreg_GetKeySecurity_sec_info, 
+	  { "Sec Info", "winreg.winreg_GetKeySecurity.sec_info", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_DeleteKey_key, 
+	  { "Key", "winreg.winreg_DeleteKey.key", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumKey_last_changed_time, 
+	  { "Last Changed Time", "winreg.winreg_EnumKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_subkeylen, 
+	  { "Max Subkeylen", "winreg.winreg_QueryInfoKey.max_subkeylen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_AbortSystemShutdown_server, 
+	  { "Server", "winreg.winreg_AbortSystemShutdown.server", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKU_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKU.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumKey_enum_index, 
+	  { "Enum Index", "winreg.winreg_EnumKey.enum_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_class, 
+	  { "Class", "winreg.winreg_QueryInfoKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_hostname, 
+	  { "Hostname", "winreg.winreg_InitiateSystemShutdownEx.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_force_apps, 
+	  { "Force Apps", "winreg.winreg_InitiateSystemShutdownEx.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_name, 
+	  { "Name", "winreg.winreg_CreateKey.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKLM_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKLM.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_StringBuf_size, 
+	  { "Size", "winreg.winreg_StringBuf.size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenKey_keyname, 
+	  { "Keyname", "winreg.winreg_OpenKey.keyname", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityData_len, 
+	  { "Len", "winreg.KeySecurityData.len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_force_apps, 
+	  { "Force Apps", "winreg.winreg_InitiateSystemShutdown.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKPD_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKPD.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_size, 
+	  { "Size", "winreg.winreg_EnumValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_size, 
+	  { "Size", "winreg.winreg_SetValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenKey_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenKey.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKPN_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKPN.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_timeout, 
+	  { "Timeout", "winreg.winreg_InitiateSystemShutdown.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_valnamelen, 
+	  { "Max Valnamelen", "winreg.winreg_QueryInfoKey.max_valnamelen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_num_values, 
+	  { "Num Values", "winreg.winreg_QueryMultipleValues.num_values", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKCU_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKCU.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_String_name_size, 
+	  { "Name Size", "winreg.winreg_String.name_size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_StringBuf_length, 
+	  { "Length", "winreg.winreg_StringBuf.length", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_string1, 
+	  { "String1", "winreg.winreg_NotifyChangeKeyValue.string1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_string2, 
+	  { "String2", "winreg.winreg_NotifyChangeKeyValue.string2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	};
 
 

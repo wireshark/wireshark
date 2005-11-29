@@ -2,7 +2,7 @@
 
 /* DO NOT EDIT
 	This filter was automatically generated
-	from librpc/idl/winreg.idl and librpc/idl/winreg.cnf.
+	from winreg.idl and winreg.cnf.
 	
 	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
 	It is maintained by the Samba team, not the Ethereal team.

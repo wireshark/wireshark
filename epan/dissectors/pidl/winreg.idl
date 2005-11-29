@@ -34,14 +34,14 @@
 	typedef [public,noejs] struct {
 		[value(strlen_m_term(name)*2)] uint16 name_len;
 		[value(strlen_m_term(name)*2)] uint16 name_size;
-		unistr *name;
+		[string,charset(UTF16)] uint16 *name;
 	} winreg_String;
 
 	/******************/
 	/* Function: 0x00 */
 	WERROR winreg_OpenHKCR(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -49,7 +49,7 @@
 	/* Function: 0x01 */
 	WERROR winreg_OpenHKCU(
 	        [in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -57,7 +57,7 @@
 	/* Function: 0x02 */
 	WERROR winreg_OpenHKLM(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -65,7 +65,7 @@
 	/* Function: 0x03 */
 	WERROR winreg_OpenHKPD(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -73,7 +73,7 @@
 	/* Function: 0x04 */
 	WERROR winreg_OpenHKU(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -109,7 +109,7 @@
 		[in] winreg_String name,
 		[in] winreg_String class,
 		[in] uint32 options,
-		[in] uint32 access_required,
+		[in] uint32 access_mask,
 		[in,unique] winreg_SecBuf *secdesc,
 		[out,ref] policy_handle *new_handle,
 		[in,out,unique] winreg_CreateAction *action_taken
@@ -130,10 +130,10 @@
 	);
 
 	typedef struct {
-		/* we can't use value(strlen_m(name)*2) here as it
-		   doesn't propogate to the length_is() property
-		   below. Jelmer, can this be fixed? */
-		uint16 length; 
+		[value(strlen_m(name)*2)] uint16 length; 
+		/* size cannot be auto-set by value() as it is the
+		   amount of space the server is allowed to use for this
+		   string in the reply, not its current size */
 		uint16 size;
 		[size_is(size/2),length_is(length/2),charset(UTF16)] uint16 *name;
 	} winreg_StringBuf;
@@ -295,7 +295,7 @@
 	/* Function: 0x1b */
 	WERROR winreg_OpenHKCC(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -303,7 +303,7 @@
 	/* Function: 0x1c */
 	WERROR winreg_OpenHKDD(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -344,7 +344,7 @@
 	/* Function: 0x20 */
 	WERROR winreg_OpenHKPT(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
@@ -352,7 +352,7 @@
 	/* Function: 0x21 */
 	WERROR winreg_OpenHKPN(
 		[in]      uint16 *system_name,
-		[in]      uint32 access_required,
+		[in]      uint32 access_mask,
 		[out,ref] policy_handle *handle
 	);
 
