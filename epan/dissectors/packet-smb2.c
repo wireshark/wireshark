@@ -612,12 +612,13 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
 	/* put the filename in col_info */
 	if (dcerpc_smb_fetch_pol(&policy_hnd, &fid_name, &open_frame, &close_frame, pinfo->fd->num)) {
-		if(hnd_item){
-			proto_item_append_text(hnd_item, " %s", fid_name);
-		}
-		if (check_col(pinfo->cinfo, COL_INFO)){
-
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fid_name);
+		if(fid_name){
+			if(hnd_item){
+				proto_item_append_text(hnd_item, " %s", fid_name);
+			}
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fid_name);
+			}
 		}
 	}
 
