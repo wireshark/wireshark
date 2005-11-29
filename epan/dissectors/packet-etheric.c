@@ -163,7 +163,7 @@ static const true_false_string isup_ISDN_originating_access_ind_value = {
   "originating access ISDN",
   "originating access non-ISDN"
 };
-static const value_string isup_calling_partys_category_value[] = {
+static const value_string etheric_calling_partys_category_value[] = {
   { 0,	"Reserved"},
   { 1,	"Reserved"},
   { 2,	"Reserved"},
@@ -390,7 +390,7 @@ dissect_etheric_calling_partys_category_parameter(tvbuff_t *parameter_tvb,proto_
 	  0, 1, calling_partys_category);
 
   proto_item_set_text(parameter_item, "Calling Party's category: 0x%x (%s)", calling_partys_category,
-	  val_to_str(calling_partys_category, isup_calling_partys_category_value, "reserved/spare"));
+	  val_to_str(calling_partys_category, etheric_calling_partys_category_value, "reserved/spare"));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Transmission medium requirement
@@ -1067,7 +1067,7 @@ proto_register_etheric(void)
 
 		{ &hf_etheric_calling_partys_category,
 			{ "Calling Party's category",  "etheric.calling_partys_category",
-			FT_UINT8, BASE_HEX, VALS(isup_calling_partys_category_value), 0x0,
+			FT_UINT8, BASE_HEX, VALS(etheric_calling_partys_category_value), 0x0,
 			"", HFILL }},
 
 		{ &hf_etheric_mandatory_variable_parameter_pointer,
