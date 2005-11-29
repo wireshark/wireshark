@@ -440,10 +440,11 @@ BCSM-Failure  ::= SEQUENCE {
 -- locally refd 2 times, import refd 0 times
 BearerCapability ::= CHOICE
 {
-    bearerCap [0]
-
-OCTET STRING (SIZE (2..cAPSpecificBoundSetmaxBearerCapabilityLength ))
+    bearerCap  [0] BearerCap 
 }
+
+BearerCap ::= OCTET STRING (SIZE (2..cAPSpecificBoundSetmaxBearerCapabilityLength ))
+ 
 -- Indicates the type of bearer capability connection to the user. For bearerCap, the ISUP User
 -- Service Information, ETSI EN 300 356-1 [23]
 -- encoding shall be used.

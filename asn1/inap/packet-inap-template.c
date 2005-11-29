@@ -22,6 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * References: ETSI 300 374
+ * ITU Q.1218
  */
 
 #ifdef HAVE_CONFIG_H
@@ -40,8 +41,9 @@
 #include "packet-inap.h"
 #include "packet-q931.h"
 #include "packet-e164.h"
+#include "packet-isup.h"
 
-#define PNAME  "INAP"
+#define PNAME  "Intelligent Network Application Protocol"
 #define PSNAME "INAP"
 #define PFNAME "inap"
 
@@ -53,8 +55,8 @@ static int hf_inap_linkedid = -1;              /* INTEGER */
 static int hf_inap_absent = -1;                /* NULL */
 static int hf_inap_invokeId = -1;              /* InvokeId */
 static int hf_inap_invoke = -1;                /* InvokePDU */
-static int hf_inap_ReturnError = -1;                /* InvokePDU */
-static int hf_inap_returnResult = -1;                /* InvokePDU */
+static int hf_inap_ReturnError = -1;           /* InvokePDU */
+static int hf_inap_returnResult = -1;          /* InvokePDU */
 static int hf_inap_returnResult_result = -1;
 static int hf_inap_getPassword = -1;  
 static int hf_inap_currentPassword = -1;  
@@ -86,25 +88,61 @@ static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 const value_string inap_opr_code_strings[] = {
 
-{16, "AssistRequestInstructions"},
-{44, "CallInformationReport"},
-{45, "CallInformationRequest"},
-{53, "Cancel"},
-{20, "Connect"},
-{18, "DisconnectForwardConnection"},
-	{19,"ConnectToResource"},
-	{17,"EstablishTemporaryConnection"},
-	{24,"EventReportBCSM"},
-	{34,"FurnishChargingInformation"},
 	{0,"InitialDP"},
+	{1, "OriginationAttemptAuthorized"},
+	{2, "CollectedInformation"},
+	{3, "AnalysedInformation"},
+	{4, "RouteSelectFailure"},
+	{5, "oCalledPartyBusy"},
+	{6, "oNoAnswer"},
+	{7, "oAnswer"},
+	{8, "oDisconnect"},
+	{9, "TermAttemptAuthorized"},
+	{10, "tBusy"},
+	{11, "tNoAnswer"},
+	{12, "tAnswer"},
+	{13, "tDisconnect"},
+	{14, "oMidCall"},
+	{15, "tMidCall"},
+	{16, "AssistRequestInstructions"},
+	{17,"EstablishTemporaryConnection"},
+	{18, "DisconnectForwardConnection"},
+	{19,"ConnectToResource"},
+	{20, "Connect"},
+	{21,"HoldCallInNetwork"},
+	{22, "ReleaseCall"},
+	{23, "RequestReportBCSMEven"},
+	{23,"RequestReportBCSMEvent"},
+	{24,"EventReportBCSM"},
+	{25, "RequestNotificationChargingEvent"},
+	{26, "EventNotificationCharging"},
+	{27, "CollectInformation"},
+	{28, "AnalyseInformation"},
+	{29, "SelectRoute"},
+	{30, "SelectFacility"},
+	{31, "Continue"},
+	{32, "InitiateCallAttempt"},
+	{33,"ResetTimer"},
+	{34,"FurnishChargingInformation"},
+	{35, "ApplyCharging"},
+	{36, "ApplyChargingReport"},
+	{37, "RequestCurrentStatusReport"},
+	{38, "RequestEveryStatusChangeReport"},
+	{39, "RequestFirstStatusMatchReport"},
+	{40, "StatusReport"},
+	{41, "CallGap"},
+	{42, "ActivateServiceFiltering"},
+	{43, "ServiceFilteringResponse"},
+	{44, "CallInformationReport"},
+	{45, "CallInformationRequest"},
+	{46, "SendChargingInformation"},
 	{47,"PlayAnnouncement"},
 	{48,"PromptAndCollectUserInformation"},
-	{99,"ReceivedInformation"}, /*???????*/
-	{33,"ResetTimer"},
-	{23,"RequestReportBCSMEvent"},
 	{49,"SpecializedResourceReport"},
-	{22,"ReleaseCall"},
-{0, NULL}
+	{53, "Cancel"},
+	{55, "ActivityTest"},
+	{99,"ReceivedInformation"}, /*???????*/
+	{0, NULL}
 };
 
 const value_string inap_error_code_strings[] = {
@@ -124,6 +162,7 @@ const value_string inap_error_code_strings[] = {
 {15,"UnexpectedDataValue"},
 {16,"UnexpectedParameter"},
 {17,"UnknownLegID"},
+{18,"UnknownResource"},
 {0, NULL}
 };
 
@@ -162,59 +201,114 @@ dissect_inap_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
+/*
+TC-Invokable OPERATION ::=
+  {activateServiceFiltering | activityTest | analysedInformation |
+   analyseInformation | applyCharging | applyChargingReport |
+   assistRequestInstructions | callGap | callInformationReport |
+   callInformationRequest | cancel | cancelStatusReportRequest |
+   collectedInformation | collectInformation | connect | connectToResource |
+   continue | disconnectForwardConnection | establishTemporaryConnection |
+   eventNotificationCharging | eventReportBCSM | furnishChargingInformation |
+   holdCallInNetwork | initialDP | initiateCallAttempt | oAnswer |
+   oCalledPartyBusy | oDisconnect | oMidCall | oNoAnswer |
+   originationAttemptAuthorized | releaseCall | requestCurrentStatusReport |
+   requestEveryStatusChangeReport | requestFirstStatusMatchReport |
+   requestNotificationChargingEvent | requestReportBCSMEvent | resetTimer |
+   routeSelectFailure | selectFacility | selectRoute | sendChargingInformation
+   | serviceFilteringResponse | statusReport | tAnswer | tBusy | tDisconnect |
+   termAttemptAuthorized | tMidCall | tNoAnswer | playAnnouncement |
+   promptAndCollectUserInformation}
+*/
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
+  case 0: /*InitialDP*/
+    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	 /*1 OriginationAttemptAuthorized */
+	 /*2 CollectedInformation */
+	 /*3 AnalysedInformation */
+	 /*4 RouteSelectFailure */
+	 /*5 oCalledPartyBusy */
+	 /*6 oNoAnswer */
+	 /*7 oAnswer */
+	 /*8 oDisconnect */
+	 /*9 TermAttemptAuthorized */
+	 /*10 tBusy */
+	 /*11 tNoAnswer */
+	 /*12 tAnswer */
+	 /*13 tDisconnect */
+	 /*14 oMidCall */
+	 /*15 tMidCall */
   case  16: /*AssistRequestInstructions*/
-    offset=dissect_inap_AssistRequestInstructionsarg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case  44: /*CallInformationReport*/
-    offset=dissect_inap_CallInformationReportarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case  45: /*CallInformationRequest*/
-    offset=dissect_inap_CallInformationRequestarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case  53: /*Cancel*/
-    offset=dissect_inap_Cancelarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case  20: /*Connect*/
-    offset=dissect_inap_Connectarg(FALSE, tvb, offset, pinfo, tree, -1);
+  case  17: /*EstablishTemporaryConnection*/
+    offset=dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  18: /*DisconnectForwardConnections*/
     proto_tree_add_text(tree, tvb, offset, -1, "Disconnect Forward Connection");
     break;
   case  19: /*ConnectToResource*/
-    offset=dissect_inap_ConnectToResource(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case  17: /*EstablishTemporaryConnection*/
-    offset=dissect_inap_EstablishTemporaryConnection(FALSE, tvb, offset, pinfo, tree, -1);
+  case  20: /*Connect*/
+    offset=dissect_inap_ConnectArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case  24: /*EventReportBCSM*/
-    offset=dissect_inap_EventReportBCSM(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 34: /*FurnishChargingInformation*/
-    offset=dissect_inap_FurnishChargingInformationarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 0: /*InitialDP*/
-    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-    
-    case 23: /*InitialDP*/
-    offset=dissect_inap_RequestReportBCSMEvent(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
- 
-  case 47: /*PlayAnnouncement*/
-    offset=dissect_inap_PlayAnnouncement(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_inap_PromptAndCollectUserInformationarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 33: /*ResetTimer*/
-    offset=dissect_inap_ResetTimer(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-   case 22: /*ResetTimer*/
+	/* 21 HoldCallInNetwork */
+
+   case 22: /*ReleaseCall*/
     offset=dissect_inap_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+    case 23: /*InitialDP*/
+    offset=dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case  24: /*EventReportBCSM*/
+    offset=dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/*24,"EventReportBCSM */
+	/*25, "RequestNotificationChargingEvent */
+	/*26, "EventNotificationCharging */
+	/*27, "CollectInformation */
+	/*28, "AnalyseInformation */
+	/*29, "SelectRoute */
+	/*30, "SelectFacility */
+	/*31, "Continue */
+	/*32, "InitiateCallAttempt*/
+  case 33: /*ResetTimer*/
+    offset=dissect_inap_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 34: /*FurnishChargingInformation*/
+    offset=dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/*35, "ApplyCharging */
+	/*36, "ApplyChargingReport */
+	/*37, "RequestCurrentStatusReport */
+	/*38, "RequestEveryStatusChangeReport */
+	/*39, "RequestFirstStatusMatchReport */
+	/*40, "StatusReport */
+	/*41, "CallGap */
+	/*42, "ActivateServiceFiltering */
+	/*43, "ServiceFilteringResponse */
+    
+  case  44: /*CallInformationReport*/
+    offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case  45: /*CallInformationRequest*/
+    offset=dissect_inap_CallInformationRequestArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 47: /*PlayAnnouncement*/
+    offset=dissect_inap_PlayAnnouncementArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 48: /*PromptAndCollectUserInformation*/
+    offset=dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/* 49 SpecializedResourceReport */
+  case  53: /*Cancel*/
+    offset=dissect_inap_CancelArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/*55 ActivityTest*/
    default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     /* todo call the asn.1 dissector */
@@ -222,11 +316,27 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return offset;
 }
 
+/*
+TC-Returnable OPERATION ::=
+  {activateServiceFiltering | activityTest | requestCurrentStatusReport |
+   requestEveryStatusChangeReport | requestFirstStatusMatchReport |
+   promptAndCollectUserInformation}
 
+   activateServiceFiltering			- No arg
+   activityTest						- No Arg
+   requestCurrentStatusReport		- RESULT         RequestCurrentStatusReportResultArg
+   requestEveryStatusChangeReport	- No arg
+   requestFirstStatusMatchReport	- No Arg 
+   promptAndCollectUserInformation	- RESULT         ReceivedInformationArg
+	
+*/
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
+   case 37: /*requestCurrentStatusReport*/
+    offset=dissect_inap_RequestCurrentStatusReportResultArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
    case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_inap_PromptAndCollectUserInformationres(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ReceivedInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");

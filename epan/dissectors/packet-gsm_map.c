@@ -1563,7 +1563,7 @@ static const asn_namedbit SupportedCamelPhases_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
+int
 dissect_gsm_map_SupportedCamelPhases(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                     SupportedCamelPhases_bits, hf_index, ett_gsm_map_SupportedCamelPhases,
@@ -1595,7 +1595,7 @@ static int dissect_supportedCAMELPhases_impl(packet_info *pinfo, proto_tree *tre
 
 
 
-static int
+int
 dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
  tvbuff_t	*parameter_tvb;
@@ -2322,7 +2322,7 @@ dissect_gsm_map_TBCD_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 
 
-static int
+int
 dissect_gsm_map_IMEI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_gsm_map_TBCD_STRING(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
@@ -4610,7 +4610,7 @@ static int dissect_SS_EventList_item(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
-static const value_string gsm_map_Ext_BasicServiceCode_vals[] = {
+const value_string gsm_map_Ext_BasicServiceCode_vals[] = {
   {   2, "ext-BearerService" },
   {   3, "ext-Teleservice" },
   { 0, NULL }
@@ -4622,7 +4622,7 @@ static const ber_choice_t Ext_BasicServiceCode_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_gsm_map_Ext_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Ext_BasicServiceCode_choice, hf_index, ett_gsm_map_Ext_BasicServiceCode,
@@ -4934,7 +4934,7 @@ static int dissect_preferentialCUG_Indicator(packet_info *pinfo, proto_tree *tre
 
 
 
-static int
+int
 dissect_gsm_map_CUG_Interlock(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -5075,7 +5075,7 @@ static const ber_sequence_t CUG_Info_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_gsm_map_CUG_Info(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    CUG_Info_sequence, hf_index, ett_gsm_map_CUG_Info);
@@ -6197,7 +6197,7 @@ static int dissect_pdp_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 
-static int
+int
 dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
 	tvbuff_t	*parameter_tvb;
@@ -6242,7 +6242,7 @@ static int dissect_lcsAPN_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 
 
-static int
+int
 dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
 	tvbuff_t	*parameter_tvb;
@@ -6290,7 +6290,7 @@ static int dissect_pdp_ChargingCharacteristics_impl(packet_info *pinfo, proto_tr
 
 
 
-static int
+int
 dissect_gsm_map_Ext2_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -6412,7 +6412,7 @@ static int dissect_lsaOnlyAccessIndicator_impl(packet_info *pinfo, proto_tree *t
 
 
 
-static int
+int
 dissect_gsm_map_LSAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -8206,7 +8206,7 @@ static int dissect_ageOfLocationEstimate_impl(packet_info *pinfo, proto_tree *tr
 
 
 
-static int
+int
 dissect_gsm_map_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -8235,7 +8235,7 @@ static int dissect_locationNumber_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 
 
-static int
+int
 dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -8309,7 +8309,7 @@ static const ber_sequence_t LocationInformation_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_gsm_map_LocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    LocationInformation_sequence, hf_index, ett_gsm_map_LocationInformation);
@@ -8321,7 +8321,7 @@ static int dissect_locationInformation_impl(packet_info *pinfo, proto_tree *tree
 }
 
 
-static const value_string gsm_map_SubscriberState_vals[] = {
+const value_string gsm_map_SubscriberState_vals[] = {
   {   0, "assumedIdle" },
   {   1, "camelBusy" },
   {   2, "notProvidedFromVLR" },
@@ -8335,7 +8335,7 @@ static const ber_choice_t SubscriberState_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_gsm_map_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  SubscriberState_choice, hf_index, ett_gsm_map_SubscriberState,
@@ -8349,7 +8349,7 @@ static int dissect_subscriberState(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 
 
-static int
+int
 dissect_gsm_map_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -8433,7 +8433,7 @@ static int dissect_teid_ForIu_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 
 
-static int
+int
 dissect_gsm_map_GPRSChargingID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -8558,7 +8558,7 @@ static int dissect_ps_SubscriberState_impl(packet_info *pinfo, proto_tree *tree,
 
 
 
-static int
+int
 dissect_gsm_map_MS_Classmark2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -8991,7 +8991,7 @@ static const ber_sequence_t UU_Data_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_gsm_map_UU_Data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    UU_Data_sequence, hf_index, ett_gsm_map_UU_Data);
@@ -10858,7 +10858,7 @@ static const asn_namedbit OfferedCamel4Functionalities_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
+int
 dissect_gsm_map_OfferedCamel4Functionalities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                     OfferedCamel4Functionalities_bits, hf_index, ett_gsm_map_OfferedCamel4Functionalities,

@@ -17,35 +17,95 @@
 
 #.FIELD_RENAME
 
-#.FN_BODY Connectarg/redirectingPartyIDXX
+#.FN_PARS CalledPartyNumber
+VAL_PTR = &parameter_tvb
 
-proto_item* parameter_item;
- guint8 class;
- gboolean pc, ind;
- guint32 tag;
- guint32 len;
-tvbuff_t *cgpn_tvb;
+#.FN_BODY CalledPartyNumber
+  tvbuff_t *parameter_tvb;
 
-offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
-cgpn_tvb = tvb_new_subset(tvb, 2, len, len );
-parameter_item = proto_tree_add_text(tree, cgpn_tvb, offset,-1,"");
- dissect_isup_called_party_number_parameter(cgpn_tvb, tree, parameter_item);
- offset+=len;
+%(DEFAULT_BODY)s
 
-#.FN_BODY InitialDP/dialledDigitsxxx
- proto_item* parameter_item;
- proto_item* parameter_tree;
- guint8 class;
-  tvbuff_t *cgpn_tvb;
-parameter_item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
-parameter_tree = proto_item_add_subtree(parameter_item, ett_inapisup_parameter);
-cgpn_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
-dissect_isup_called_party_number_parameter(cgpn_tvb, parameter_tree, parameter_item);
+ if (!parameter_tvb)
+	return offset;
+
+dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
+
+#.FN_PARS CallingPartyNumber
+
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY CallingPartyNumber
+  tvbuff_t *parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+	dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
+
+
+#.FN_PARS  BearerCap
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY BearerCap
+
+ tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+ dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+
+#.FN_PARS  RedirectionInformation
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY RedirectionInformation
+
+ tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+ dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+
+#.FN_PARS  OriginalCalledPartyID
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY OriginalCalledPartyID
+
+ tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
+
+#.FN_PARS  RedirectingPartyID 
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY RedirectingPartyID 
+
+ tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+
 
 #.TYPE_ATTR
-#Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
-#Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
+CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
 
 #.END
 

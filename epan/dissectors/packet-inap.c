@@ -29,6 +29,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * References: ETSI 300 374
+ * ITU Q.1218
  */
 
 #ifdef HAVE_CONFIG_H
@@ -47,8 +48,9 @@
 #include "packet-inap.h"
 #include "packet-q931.h"
 #include "packet-e164.h"
+#include "packet-isup.h"
 
-#define PNAME  "INAP"
+#define PNAME  "Intelligent Network Application Protocol"
 #define PSNAME "INAP"
 #define PFNAME "inap"
 
@@ -60,8 +62,8 @@ static int hf_inap_linkedid = -1;              /* INTEGER */
 static int hf_inap_absent = -1;                /* NULL */
 static int hf_inap_invokeId = -1;              /* InvokeId */
 static int hf_inap_invoke = -1;                /* InvokePDU */
-static int hf_inap_ReturnError = -1;                /* InvokePDU */
-static int hf_inap_returnResult = -1;                /* InvokePDU */
+static int hf_inap_ReturnError = -1;           /* InvokePDU */
+static int hf_inap_returnResult = -1;          /* InvokePDU */
 static int hf_inap_returnResult_result = -1;
 static int hf_inap_getPassword = -1;  
 static int hf_inap_currentPassword = -1;  
@@ -79,174 +81,118 @@ static int hf_inap_targetCallID = -1;             /* CallID */
 static int hf_inap_legToBeConnectedID = -1;       /* OCTET_STRING */
 static int hf_inap_legToBeDetached = -1;          /* OCTET_STRING */
 static int hf_inap_legID = -1;                    /* LegID */
-static int hf_inap_sendingSideID = -1;            /* OCTET_STRING_SIZE_1 */
-static int hf_inap_receivingSideID = -1;          /* OCTET_STRING_SIZE_1 */
 static int hf_inap_heldLegID = -1;                /* LegID */
 static int hf_inap_legToBeReleased = -1;          /* LegID */
 static int hf_inap_releaseCause = -1;             /* Cause */
 static int hf_inap_legStatus = -1;                /* LegStatus */
-static int hf_inap_VariableParts_item = -1;       /* VariableParts_item */
-static int hf_inap_integer = -1;                  /* INTEGER_0_2147483647 */
-static int hf_inap_number = -1;                   /* OCTET_STRING */
-static int hf_inap_time = -1;                     /* OCTET_STRING */
-static int hf_inap_date = -1;                     /* OCTET_STRING */
-static int hf_inap_price = -1;                    /* OCTET_STRING */
-static int hf_inap_elementaryMessageID = -1;      /* INTEGER_0_2147483647 */
-static int hf_inap_variableParts = -1;            /* VariableParts */
-static int hf_inap_toneID = -1;                   /* INTEGER_0_2147483647 */
-static int hf_inap_tduration = -1;                /* INTEGER_0_2147483647 */
-static int hf_inap_messageContent = -1;           /* IA5String */
-static int hf_inap_attributes = -1;               /* OCTET_STRING */
-static int hf_inap_text = -1;                     /* Text */
-static int hf_inap_elementaryMessageIDs = -1;     /* T_elementaryMessageIDs */
-static int hf_inap_elementaryMessageIDs_item = -1;  /* INTEGER_0_2147483647 */
-static int hf_inap_variableMessage = -1;          /* VariableMessage */
-static int hf_inap_inbandInfo = -1;               /* T_inbandInfo */
-static int hf_inap_messageID = -1;                /* MessageID */
-static int hf_inap_numberOfRepetitions = -1;      /* INTEGER_1_127 */
-static int hf_inap_mduration = -1;                /* INTEGER_0_32767 */
-static int hf_inap_interval = -1;                 /* INTEGER_0_32767 */
-static int hf_inap_tone = -1;                     /* Tone */
-static int hf_inap_displayInformation = -1;       /* IA5String */
-static int hf_inap_dialledNumber = -1;            /* OCTET_STRING */
-static int hf_inap_callingLineID = -1;            /* OCTET_STRING */
-static int hf_inap_serviceKey = -1;               /* INTEGER_0_2147483647 */
-static int hf_inap_addressAndService = -1;        /* T_addressAndService */
-static int hf_inap_calledAddressValue = -1;       /* OCTET_STRING */
-static int hf_inap_callingAddressValue = -1;      /* OCTET_STRING */
-static int hf_inap_locationNumber = -1;           /* OCTET_STRING */
 static int hf_inap_Extensions_item = -1;          /* Extensions_item */
 static int hf_inap_type = -1;                     /* INTEGER */
 static int hf_inap_criticality = -1;              /* T_criticality */
 static int hf_inap_value = -1;                    /* OCTET_STRING */
-static int hf_inap_filteredCallTreatment = -1;    /* T_filteredCallTreatment */
-static int hf_inap_sFBillingChargingCharacteristics = -1;  /* OCTET_STRING */
-static int hf_inap_informationToSend = -1;        /* InformationToSend */
-static int hf_inap_maximumNumberOfCounters = -1;  /* INTEGER */
-static int hf_inap_filteringCharacteristics = -1;  /* T_filteringCharacteristics */
-static int hf_inap_numberOfCalls = -1;            /* INTEGER_0_2147483647 */
-static int hf_inap_filteringTimeOut = -1;         /* T_filteringTimeOut */
-static int hf_inap_aduration = -1;                /* INTEGER_M2_86400 */
-static int hf_inap_stopTime = -1;                 /* OCTET_STRING_SIZE_6 */
+static int hf_inap_filteredCallTreatment = -1;    /* FilteredCallTreatment */
+static int hf_inap_filteringCharacteristics = -1;  /* FilteringCharacteristics */
+static int hf_inap_filteringTimeOut = -1;         /* FilteringTimeOut */
 static int hf_inap_filteringCriteria = -1;        /* FilteringCriteria */
-static int hf_inap_startTime = -1;                /* OCTET_STRING_SIZE_6 */
+static int hf_inap_startTime = -1;                /* DateAndTime */
 static int hf_inap_extensions = -1;               /* Extensions */
-static int hf_inap_messageType = -1;              /* T_messageType */
-static int hf_inap_dpAssignment = -1;             /* T_dpAssignment */
-static int hf_inap_miscCallInfo = -1;             /* MiscCallInfo */
-static int hf_inap_triggerType = -1;              /* TriggerType */
-static int hf_inap_RouteList_item = -1;           /* OCTET_STRING */
-static int hf_inap_bearerCap = -1;                /* OCTET_STRING */
-static int hf_inap_tmr = -1;                      /* OCTET_STRING_SIZE_1 */
+static int hf_inap_dpSpecificCommonParameters = -1;  /* DpSpecificCommonParameters */
+static int hf_inap_dialledDigits = -1;            /* CalledPartyNumber */
+static int hf_inap_callingPartyBusinessGroupID = -1;  /* CallingPartyBusinessGroupID */
+static int hf_inap_callingPartySubaddress = -1;   /* CallingPartySubaddress */
+static int hf_inap_callingFacilityGroup = -1;     /* FacilityGroup */
+static int hf_inap_callingFacilityGroupMember = -1;  /* FacilityGroupMember */
+static int hf_inap_originalCalledPartyID = -1;    /* OriginalCalledPartyID */
+static int hf_inap_prefix = -1;                   /* Digits */
+static int hf_inap_redirectingPartyID = -1;       /* RedirectingPartyID */
+static int hf_inap_redirectionInformation = -1;   /* RedirectionInformation */
+static int hf_inap_routeList = -1;                /* RouteList */
+static int hf_inap_travellingClassMark = -1;      /* TravellingClassMark */
+static int hf_inap_featureCode = -1;              /* FeatureCode */
+static int hf_inap_accessCode = -1;               /* AccessCode */
+static int hf_inap_carrier = -1;                  /* Carrier */
+static int hf_inap_destinationRoutingAddress = -1;  /* DestinationRoutingAddress */
+static int hf_inap_alertingPattern = -1;          /* AlertingPattern */
+static int hf_inap_iSDNAccessRelatedInformation = -1;  /* ISDNAccessRelatedInformation */
+static int hf_inap_callingPartyNumber = -1;       /* CallingPartyNumber */
+static int hf_inap_callingPartysCategory = -1;    /* CallingPartysCategory */
+static int hf_inap_calledPartyNumber = -1;        /* CalledPartyNumber */
+static int hf_inap_chargeNumber = -1;             /* ChargeNumber */
+static int hf_inap_aChBillingChargingCharacteristics = -1;  /* AChBillingChargingCharacteristics */
+static int hf_inap_partyToCharge = -1;            /* LegID */
+static int hf_inap_correlationID = -1;            /* CorrelationID */
+static int hf_inap_iPAvailable = -1;              /* IPAvailable */
+static int hf_inap_iPSSPCapabilities = -1;        /* IPSSPCapabilities */
+static int hf_inap_gapCriteria = -1;              /* GapCriteria */
+static int hf_inap_gapIndicators = -1;            /* GapIndicators */
+static int hf_inap_controlType = -1;              /* ControlType */
+static int hf_inap_gapTreatment = -1;             /* GapTreatment */
+static int hf_inap_requestedInformationTypeList = -1;  /* RequestedInformationTypeList */
+static int hf_inap_invokeID = -1;                 /* InvokeID */
+static int hf_inap_allRequests = -1;              /* NULL */
+static int hf_inap_resourceID = -1;               /* ResourceID */
+static int hf_inap_numberingPlan = -1;            /* NumberingPlan */
+static int hf_inap_cutAndPaste = -1;              /* CutAndPaste */
+static int hf_inap_forwardingCondition = -1;      /* ForwardingCondition */
+static int hf_inap_scfID = -1;                    /* ScfID */
+static int hf_inap_serviceInteractionIndicators = -1;  /* ServiceInteractionIndicators */
+static int hf_inap_resourceAddress = -1;          /* T_resourceAddress */
+static int hf_inap_ipRoutingAddress = -1;         /* IPRoutingAddress */
+static int hf_inap_both2 = -1;                    /* T_both2 */
+static int hf_inap_none = -1;                     /* NULL */
 static int hf_inap_serviceAddressInformation = -1;  /* ServiceAddressInformation */
 static int hf_inap_bearerCapability = -1;         /* BearerCapability */
-static int hf_inap_calledPartyNumber = -1;        /* OCTET_STRING */
-static int hf_inap_callingPartyNumber = -1;       /* OCTET_STRING */
-static int hf_inap_callingPartysCategory = -1;    /* OCTET_STRING_SIZE_1 */
-static int hf_inap_iPSSPCapabilities = -1;        /* OCTET_STRING */
-static int hf_inap_iPAvailable = -1;              /* OCTET_STRING */
-static int hf_inap_iSDNAccessRelatedInformation = -1;  /* OCTET_STRING */
 static int hf_inap_cGEncountered = -1;            /* CGEncountered */
-static int hf_inap_serviceProfileIdentifier = -1;  /* OCTET_STRING */
+static int hf_inap_locationNumber = -1;           /* LocationNumber */
+static int hf_inap_serviceProfileIdentifier = -1;  /* ServiceProfileIdentifier */
 static int hf_inap_terminalType = -1;             /* TerminalType */
-static int hf_inap_chargeNumber = -1;             /* OCTET_STRING */
-static int hf_inap_servingAreaID = -1;            /* OCTET_STRING */
-static int hf_inap_trunkGroupID = -1;             /* INTEGER */
-static int hf_inap_privateFacilityID = -1;        /* INTEGER */
-static int hf_inap_huntGroup = -1;                /* OCTET_STRING */
-static int hf_inap_routeIndex = -1;               /* OCTET_STRING */
-static int hf_inap_dpSpecificCommonParameters = -1;  /* DpSpecificCommonParameters */
-static int hf_inap_dialledDigits = -1;            /* OCTET_STRING */
-static int hf_inap_callingPartyBusinessGroupID = -1;  /* OCTET_STRING */
-static int hf_inap_callingPartySubaddress = -1;   /* OCTET_STRING */
-static int hf_inap_callingFacilityGroup = -1;     /* CallingFacilityGroup */
-static int hf_inap_callingFacilityGroupMember = -1;  /* INTEGER */
-static int hf_inap_originalCalledPartyID = -1;    /* OCTET_STRING */
-static int hf_inap_prefix = -1;                   /* OCTET_STRING */
-static int hf_inap_redirectingPartyID = -1;       /* OCTET_STRING */
-static int hf_inap_redirectionInformation = -1;   /* OCTET_STRING_SIZE_2 */
-static int hf_inap_routeList = -1;                /* RouteList */
-static int hf_inap_travellingClassMark = -1;      /* OCTET_STRING */
-static int hf_inap_featureCode = -1;              /* OCTET_STRING */
-static int hf_inap_accessCode = -1;               /* OCTET_STRING */
-static int hf_inap_carrier = -1;                  /* OCTET_STRING */
-static int hf_inap_destinationRoutingAddress = -1;  /* SEQUENCE_SIZE_1_3_OF_DestinationAddress */
-static int hf_inap_destinationRoutingAddress_item = -1;  /* DestinationAddress */
-static int hf_inap_alertingPattern = -1;          /* OCTET_STRING_SIZE_3 */
-static int hf_inap_aChBillingChargingCharacteristics = -1;  /* OCTET_STRING */
-static int hf_inap_partyToCharge = -1;            /* PartyToCharge */
-static int hf_inap_correlationID = -1;            /* OCTET_STRING */
-static int hf_inap_gapCriteria = -1;              /* T_gapCriteria */
-static int hf_inap_gapOnService = -1;             /* T_gapOnService */
-static int hf_inap_dpCriteria = -1;               /* T_dpCriteria */
-static int hf_inap_calledAddressAndService = -1;  /* T_calledAddressAndService */
-static int hf_inap_callingAddressAndService = -1;  /* T_callingAddressAndService */
-static int hf_inap_gapIndicators = -1;            /* T_gapIndicators */
-static int hf_inap_cgduration = -1;               /* INTEGER_M2_86400 */
-static int hf_inap_gapInterval = -1;              /* INTEGER_M1_60000 */
-static int hf_inap_controlType = -1;              /* T_controlType */
-static int hf_inap_gapTreatment = -1;             /* T_gapTreatment */
-static int hf_inap_both = -1;                     /* Both */
-static int hf_inap_requestedInformationList = -1;  /* T_requestedInformationList */
-static int hf_inap_requestedInformationList_item = -1;  /* T_requestedInformationList_item */
-static int hf_inap_requestedInformationType = -1;  /* T_requestedInformationType */
-static int hf_inap_requestedInformationValue = -1;  /* T_requestedInformationValue */
-static int hf_inap_callAttemptElapsedTimeValue = -1;  /* INTEGER_0_255 */
-static int hf_inap_callStopTimeValue = -1;        /* OCTET_STRING_SIZE_6 */
-static int hf_inap_callConnectedElapsedTimeValue = -1;  /* INTEGER_0_2147483647 */
-static int hf_inap_releaseCauseValue = -1;        /* Cause */
-static int hf_inap_requestedInformationTypeList = -1;  /* T_requestedInformationTypeList */
-static int hf_inap_requestedInformationTypeList_item = -1;  /* T_requestedInformationTypeList_item */
-static int hf_inap_invokeID = -1;                 /* INTEGER_M128_127 */
-static int hf_inap_allRequests = -1;              /* NULL */
-static int hf_inap_lineID = -1;                   /* OCTET_STRING */
-static int hf_inap_facilityGroupID = -1;          /* FacilityGroupID */
-static int hf_inap_facilityGroupMemberID = -1;    /* INTEGER */
-static int hf_inap_resourceID = -1;               /* ResourceID */
-static int hf_inap_numberingPlan = -1;            /* OCTET_STRING_SIZE_1 */
-static int hf_inap_cutAndPaste = -1;              /* INTEGER_0_22 */
-static int hf_inap_forwardingCondition = -1;      /* T_forwardingCondition */
-static int hf_inap_scfID = -1;                    /* OCTET_STRING */
-static int hf_inap_serviceInteractionIndicators = -1;  /* OCTET_STRING */
-static int hf_inap_resourceAddress = -1;          /* T_resourceAddress */
-static int hf_inap_ipRoutingAddress = -1;         /* OCTET_STRING */
-static int hf_inap_none = -1;                     /* NULL */
-static int hf_inap_assistingSSPIPRoutingAddress = -1;  /* OCTET_STRING */
-static int hf_inap_eventTypeCharging = -1;        /* OCTET_STRING */
-static int hf_inap_eventSpecificInformationCharging = -1;  /* OCTET_STRING */
+static int hf_inap_servingAreaID = -1;            /* ServingAreaID */
+static int hf_inap_assistingSSPIPRoutingAddress = -1;  /* AssistingSSPIPRoutingAddress */
+static int hf_inap_eventTypeCharging = -1;        /* EventTypeCharging */
+static int hf_inap_eventSpecificInformationCharging = -1;  /* EventSpecificInformationCharging */
 static int hf_inap_monitorMode = -1;              /* MonitorMode */
 static int hf_inap_eventTypeBCSM = -1;            /* EventTypeBCSM */
-static int hf_inap_bcsmEventCorrelationID = -1;   /* OCTET_STRING */
-static int hf_inap_eventSpecificInformationBCSM = -1;  /* T_eventSpecificInformationBCSM */
-static int hf_inap_collectedInfoSpecificInfo = -1;  /* T_collectedInfoSpecificInfo */
-static int hf_inap_calledPartynumber = -1;        /* OCTET_STRING */
-static int hf_inap_analyzedInfoSpecificInfo = -1;  /* T_analyzedInfoSpecificInfo */
-static int hf_inap_routeSelectFailureSpecificInfo = -1;  /* T_routeSelectFailureSpecificInfo */
-static int hf_inap_failureCause = -1;             /* OCTET_STRING_SIZE_2_10 */
-static int hf_inap_oCalledPartyBusySpecificInfo = -1;  /* T_oCalledPartyBusySpecificInfo */
-static int hf_inap_busyCause = -1;                /* OCTET_STRING_SIZE_2_10 */
-static int hf_inap_oNoAnswerSpecificInfo = -1;    /* T_oNoAnswerSpecificInfo */
-static int hf_inap_oAnswerSpecificInfo = -1;      /* T_oAnswerSpecificInfo */
-static int hf_inap_oMidCallSpecificInfo = -1;     /* T_oMidCallSpecificInfo */
-static int hf_inap_connectTime = -1;              /* INTEGER_0_2147483647 */
-static int hf_inap_oDisconnectSpecificInfo = -1;  /* T_oDisconnectSpecificInfo */
-static int hf_inap_tBusySpecificInfo = -1;        /* T_tBusySpecificInfo */
-static int hf_inap_tNoAnswerSpecificInfo = -1;    /* T_tNoAnswerSpecificInfo */
-static int hf_inap_tAnswerSpecificInfo = -1;      /* T_tAnswerSpecificInfo */
-static int hf_inap_tMidCallSpecificInfo = -1;     /* T_tMidCallSpecificInfo */
-static int hf_inap_tDisconnectSpecificInfo = -1;  /* T_tDisconnectSpecificInfo */
-static int hf_inap_holdcause = -1;                /* OCTET_STRING */
+static int hf_inap_bcsmEventCorrelationID = -1;   /* CorrelationID */
+static int hf_inap_eventSpecificInformationBCSM = -1;  /* EventSpecificInformationBCSM */
+static int hf_inap_miscCallInfo = -1;             /* MiscCallInfo */
+static int hf_inap_holdcause = -1;                /* HoldCause */
 static int hf_inap_empty = -1;                    /* NULL */
-static int hf_inap_highLayerCompatibility = -1;   /* OCTET_STRING_SIZE_2 */
-static int hf_inap_additionalCallingPartyNumber = -1;  /* OCTET_STRING */
-static int hf_inap_forwardCallIndicators = -1;    /* OCTET_STRING_SIZE_2 */
-static int hf_inap_calledPartyBusinessGroupID = -1;  /* OCTET_STRING */
-static int hf_inap_calledPartySubaddress = -1;    /* OCTET_STRING */
+static int hf_inap_serviceKey = -1;               /* ServiceKey */
+static int hf_inap_triggerType = -1;              /* TriggerType */
+static int hf_inap_highLayerCompatibility = -1;   /* HighLayerCompatibility */
+static int hf_inap_additionalCallingPartyNumber = -1;  /* AdditionalCallingPartyNumber */
+static int hf_inap_forwardCallIndicators = -1;    /* ForwardCallIndicators */
+static int hf_inap_calledPartyBusinessGroupID = -1;  /* CalledPartyBusinessGroupID */
+static int hf_inap_calledPartySubaddress = -1;    /* CalledPartySubaddress */
 static int hf_inap_featureRequestIndicator = -1;  /* FeatureRequestIndicator */
+static int hf_inap_busyCause = -1;                /* Cause */
+static int hf_inap_connectTime = -1;              /* Integer4 */
+static int hf_inap_informationToSend = -1;        /* InformationToSend */
 static int hf_inap_disconnectFromIPForbidden = -1;  /* BOOLEAN */
 static int hf_inap_requestAnnouncementComplete = -1;  /* BOOLEAN */
-static int hf_inap_collectedInfo = -1;            /* T_collectedInfo */
-static int hf_inap_collectedDigits = -1;          /* T_collectedDigits */
+static int hf_inap_collectedInfo = -1;            /* CollectedInfo */
+static int hf_inap_digitsResponse = -1;           /* Digits */
+static int hf_inap_iA5Response = -1;              /* IA5String */
+static int hf_inap_initialCallSegment = -1;       /* Cause */
+static int hf_inap_allCallSegments = -1;          /* T_allCallSegments */
+static int hf_inap_resourceStatus = -1;           /* ResourceStatus */
+static int hf_inap_monitorDuration = -1;          /* Duration */
+static int hf_inap_RequestNotificationChargingEvent_item = -1;  /* RequestNotificationChargingEvent_item */
+static int hf_inap_eventTypeCharging2 = -1;       /* OCTET_STRING */
+static int hf_inap_bcsmEvents = -1;               /* SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent */
+static int hf_inap_bcsmEvents_item = -1;          /* BCSMEvent */
+static int hf_inap_timerID = -1;                  /* TimerID */
+static int hf_inap_timervalue = -1;               /* TimerValue */
+static int hf_inap_failureCause = -1;             /* Cause */
+static int hf_inap_destinationNumberRoutingAddress = -1;  /* CalledPartyNumber */
+static int hf_inap_calledFacilityGroup = -1;      /* FacilityGroup */
+static int hf_inap_calledFacilityGroupMember = -1;  /* FacilityGroupMember */
+static int hf_inap_sCIBillingChargingCharacteristics = -1;  /* SCIBillingChargingCharacteristics */
+static int hf_inap_countersValue = -1;            /* CountersValue */
+static int hf_inap_responseCondition = -1;        /* ResponseCondition */
+static int hf_inap_reportCondition = -1;          /* ReportCondition */
+static int hf_inap_dpSpecificCriteria = -1;       /* DpSpecificCriteria */
+static int hf_inap_bearerCap = -1;                /* BearerCap */
+static int hf_inap_tmr = -1;                      /* OCTET_STRING_SIZE_1 */
 static int hf_inap_minimumNbOfDigits = -1;        /* INTEGER_1_127 */
 static int hf_inap_maximumNbOfDigits = -1;        /* INTEGER_1_127 */
 static int hf_inap_endOfReplyDigit = -1;          /* OCTET_STRING_SIZE_1_2 */
@@ -254,35 +200,92 @@ static int hf_inap_cancelDigit = -1;              /* OCTET_STRING_SIZE_1_2 */
 static int hf_inap_startDigit = -1;               /* OCTET_STRING_SIZE_1_2 */
 static int hf_inap_firstDigitTimeOut = -1;        /* INTEGER_1_127 */
 static int hf_inap_interDigitTimeOut = -1;        /* INTEGER_1_127 */
-static int hf_inap_errorTreatment = -1;           /* T_errorTreatment */
+static int hf_inap_errorTreatment = -1;           /* ErrorTreatment */
 static int hf_inap_interruptableAnnInd = -1;      /* BOOLEAN */
 static int hf_inap_voiceInformation = -1;         /* BOOLEAN */
 static int hf_inap_voiceBack = -1;                /* BOOLEAN */
+static int hf_inap_collectedDigits = -1;          /* CollectedDigits */
 static int hf_inap_iA5Information = -1;           /* BOOLEAN */
-static int hf_inap_digitsResponse = -1;           /* OCTET_STRING */
-static int hf_inap_iA5Response = -1;              /* IA5String */
-static int hf_inap_initialCallSegment = -1;       /* Cause */
-static int hf_inap_allCallSegments = -1;          /* T_allCallSegments */
-static int hf_inap_resourceStatus = -1;           /* ResourceStatus */
-static int hf_inap_monitorDuration = -1;          /* INTEGER_M2_86400 */
-static int hf_inap_RequestNotificationChargingEvent_item = -1;  /* RequestNotificationChargingEvent_item */
-static int hf_inap_bcsmEvents = -1;               /* T_bcsmEvents */
-static int hf_inap_bcsmEvents_item = -1;          /* T_bcsmEvents_item */
-static int hf_inap_dpSpecificCriteria = -1;       /* T_dpSpecificCriteria */
-static int hf_inap_numberOfDigits = -1;           /* INTEGER_1_255 */
-static int hf_inap_applicationTimer = -1;         /* INTEGER_0_2047 */
-static int hf_inap_timerID = -1;                  /* T_timerID */
-static int hf_inap_timervalue = -1;               /* INTEGER_0_2147483647 */
-static int hf_inap_destinationNumberRoutingAddress = -1;  /* OCTET_STRING */
-static int hf_inap_calledFacilityGroup = -1;      /* CalledFacilityGroup */
-static int hf_inap_calledFacilityGroupMember = -1;  /* INTEGER */
-static int hf_inap_sCIBillingChargingCharacteristics = -1;  /* OCTET_STRING */
-static int hf_inap_countersValue = -1;            /* T_countersValue */
-static int hf_inap_countersValue_item = -1;       /* T_countersValue_item */
-static int hf_inap_counterID = -1;                /* INTEGER_0_99 */
-static int hf_inap_counterValue = -1;             /* INTEGER_0_2147483647 */
-static int hf_inap_responseCondition = -1;        /* T_responseCondition */
-static int hf_inap_reportCondition = -1;          /* T_reportCondition */
+static int hf_inap_counterID = -1;                /* CounterID */
+static int hf_inap_counterValue = -1;             /* Integer4 */
+static int hf_inap_CountersValue_item = -1;       /* CounterAndValue */
+static int hf_inap_DestinationRoutingAddress_item = -1;  /* CalledPartyNumber */
+static int hf_inap_numberOfDigits = -1;           /* NumberOfDigits */
+static int hf_inap_applicationTimer = -1;         /* ApplicationTimer */
+static int hf_inap_collectedInfoSpecificInfo = -1;  /* T_collectedInfoSpecificInfo */
+static int hf_inap_calledPartynumber = -1;        /* CalledPartyNumber */
+static int hf_inap_analyzedInfoSpecificInfo = -1;  /* T_analyzedInfoSpecificInfo */
+static int hf_inap_routeSelectFailureSpecificInfo = -1;  /* T_routeSelectFailureSpecificInfo */
+static int hf_inap_oCalledPartyBusySpecificInfo = -1;  /* T_oCalledPartyBusySpecificInfo */
+static int hf_inap_oNoAnswerSpecificInfo = -1;    /* T_oNoAnswerSpecificInfo */
+static int hf_inap_oAnswerSpecificInfo = -1;      /* T_oAnswerSpecificInfo */
+static int hf_inap_oMidCallSpecificInfo = -1;     /* T_oMidCallSpecificInfo */
+static int hf_inap_oDisconnectSpecificInfo = -1;  /* T_oDisconnectSpecificInfo */
+static int hf_inap_tBusySpecificInfo = -1;        /* T_tBusySpecificInfo */
+static int hf_inap_tNoAnswerSpecificInfo = -1;    /* T_tNoAnswerSpecificInfo */
+static int hf_inap_tAnswerSpecificInfo = -1;      /* T_tAnswerSpecificInfo */
+static int hf_inap_tMidCallSpecificInfo = -1;     /* T_tMidCallSpecificInfo */
+static int hf_inap_tDisconnectSpecificInfo = -1;  /* T_tDisconnectSpecificInfo */
+static int hf_inap_trunkGroupID = -1;             /* INTEGER */
+static int hf_inap_privateFacilityID = -1;        /* INTEGER */
+static int hf_inap_huntGroup = -1;                /* OCTET_STRING */
+static int hf_inap_routeIndex = -1;               /* OCTET_STRING */
+static int hf_inap_sFBillingChargingCharacteristics = -1;  /* SFBillingChargingCharacteristics */
+static int hf_inap_maximumNumberOfCounters = -1;  /* MaximumNumberOfCounters */
+static int hf_inap_interval1 = -1;                /* INTEGER_M1_32000 */
+static int hf_inap_numberOfCalls = -1;            /* Integer4 */
+static int hf_inap_dialledNumber = -1;            /* Digits */
+static int hf_inap_callingLineID = -1;            /* Digits */
+static int hf_inap_addressAndService = -1;        /* T_addressAndService */
+static int hf_inap_calledAddressValue = -1;       /* Digits */
+static int hf_inap_callingAddressValue = -1;      /* Digits */
+static int hf_inap_duration = -1;                 /* Duration */
+static int hf_inap_stopTime = -1;                 /* DateAndTime */
+static int hf_inap_gapOnService = -1;             /* GapOnService */
+static int hf_inap_calledAddressAndService = -1;  /* T_calledAddressAndService */
+static int hf_inap_callingAddressAndService = -1;  /* T_callingAddressAndService */
+static int hf_inap_dpCriteria = -1;               /* EventTypeBCSM */
+static int hf_inap_gapInterval = -1;              /* Interval */
+static int hf_inap_both = -1;                     /* T_both */
+static int hf_inap_messageID = -1;                /* MessageID */
+static int hf_inap_numberOfRepetitions = -1;      /* INTEGER_1_127 */
+static int hf_inap_duration3 = -1;                /* INTEGER_0_32767 */
+static int hf_inap_interval = -1;                 /* INTEGER_0_32767 */
+static int hf_inap_inbandInfo = -1;               /* InbandInfo */
+static int hf_inap_tone = -1;                     /* Tone */
+static int hf_inap_displayInformation = -1;       /* DisplayInformation */
+static int hf_inap_sendingSideID = -1;            /* LegType */
+static int hf_inap_receivingSideID = -1;          /* LegType */
+static int hf_inap_elementaryMessageID = -1;      /* Integer4 */
+static int hf_inap_text = -1;                     /* T_text */
+static int hf_inap_messageContent = -1;           /* IA5String_SIZE_minMessageContentLength_maxMessageContentLength */
+static int hf_inap_attributes = -1;               /* OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength */
+static int hf_inap_elementaryMessageIDs = -1;     /* SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4 */
+static int hf_inap_elementaryMessageIDs_item = -1;  /* Integer4 */
+static int hf_inap_variableMessage = -1;          /* T_variableMessage */
+static int hf_inap_variableParts = -1;            /* SEQUENCE_SIZE_1_5_OF_VariablePart */
+static int hf_inap_variableParts_item = -1;       /* VariablePart */
+static int hf_inap_messageType = -1;              /* T_messageType */
+static int hf_inap_dpAssignment = -1;             /* T_dpAssignment */
+static int hf_inap_RequestedInformationList_item = -1;  /* RequestedInformation */
+static int hf_inap_RequestedInformationTypeList_item = -1;  /* RequestedInformationType */
+static int hf_inap_requestedInformationType = -1;  /* RequestedInformationType */
+static int hf_inap_requestedInformationValue = -1;  /* RequestedInformationValue */
+static int hf_inap_callAttemptElapsedTimeValue = -1;  /* INTEGER_0_255 */
+static int hf_inap_callStopTimeValue = -1;        /* DateAndTime */
+static int hf_inap_callConnectedElapsedTimeValue = -1;  /* Integer4 */
+static int hf_inap_releaseCauseValue = -1;        /* Cause */
+static int hf_inap_lineID = -1;                   /* Digits */
+static int hf_inap_facilityGroupID = -1;          /* FacilityGroup */
+static int hf_inap_facilityGroupMemberID = -1;    /* INTEGER */
+static int hf_inap_RouteList_item = -1;           /* OCTET_STRING */
+static int hf_inap_toneID = -1;                   /* Integer4 */
+static int hf_inap_tone_duration = -1;            /* Integer4 */
+static int hf_inap_integer = -1;                  /* Integer4 */
+static int hf_inap_number = -1;                   /* Digits */
+static int hf_inap_time = -1;                     /* OCTET_STRING_SIZE_2 */
+static int hf_inap_date2 = -1;                    /* OCTET_STRING_SIZE_3 */
+static int hf_inap_price = -1;                    /* OCTET_STRING_SIZE_4 */
 static int hf_inap_problem = -1;                  /* T_problem */
 static int hf_inap_operation = -1;                /* INTEGER_M128_127 */
 static int hf_inap_rinvokeID = -1;                /* T_rinvokeID */
@@ -322,66 +325,74 @@ static gint ett_inap_CallPartyHandlingResultsArg = -1;
 static gint ett_inap_ChangePartiesArg = -1;
 static gint ett_inap_DetachArg = -1;
 static gint ett_inap_HoldCallPartyConnectionArg = -1;
-static gint ett_inap_LegID = -1;
 static gint ett_inap_ReconnectArg = -1;
 static gint ett_inap_ReleaseCallPartyConnectionArg = -1;
 static gint ett_inap_LegInformation = -1;
-static gint ett_inap_VariableParts = -1;
-static gint ett_inap_VariableParts_item = -1;
-static gint ett_inap_VariableMessage = -1;
-static gint ett_inap_Tone = -1;
-static gint ett_inap_Text = -1;
-static gint ett_inap_MessageID = -1;
-static gint ett_inap_T_elementaryMessageIDs = -1;
-static gint ett_inap_InformationToSend = -1;
-static gint ett_inap_T_inbandInfo = -1;
-static gint ett_inap_FilteringCriteria = -1;
-static gint ett_inap_T_addressAndService = -1;
 static gint ett_inap_Extensions = -1;
 static gint ett_inap_Extensions_item = -1;
-static gint ett_inap_ActivateServiceFilteringarg = -1;
-static gint ett_inap_T_filteredCallTreatment = -1;
-static gint ett_inap_T_filteringCharacteristics = -1;
-static gint ett_inap_T_filteringTimeOut = -1;
-static gint ett_inap_MiscCallInfo = -1;
-static gint ett_inap_ServiceAddressInformation = -1;
-static gint ett_inap_RouteList = -1;
-static gint ett_inap_BearerCapability = -1;
-static gint ett_inap_DpSpecificCommonParameters = -1;
-static gint ett_inap_CallingFacilityGroup = -1;
+static gint ett_inap_ActivateServiceFilteringArg = -1;
 static gint ett_inap_AnalysedInformationarg = -1;
 static gint ett_inap_AnalyseInformationarg = -1;
-static gint ett_inap_SEQUENCE_SIZE_1_3_OF_DestinationAddress = -1;
-static gint ett_inap_PartyToCharge = -1;
-static gint ett_inap_ApplyChargingarg = -1;
-static gint ett_inap_AssistRequestInstructionsarg = -1;
-static gint ett_inap_CallGaparg = -1;
-static gint ett_inap_T_gapCriteria = -1;
-static gint ett_inap_T_gapOnService = -1;
-static gint ett_inap_T_calledAddressAndService = -1;
-static gint ett_inap_T_callingAddressAndService = -1;
-static gint ett_inap_T_gapIndicators = -1;
-static gint ett_inap_T_gapTreatment = -1;
-static gint ett_inap_Both = -1;
-static gint ett_inap_CallInformationReportarg = -1;
-static gint ett_inap_T_requestedInformationList = -1;
-static gint ett_inap_T_requestedInformationList_item = -1;
-static gint ett_inap_T_requestedInformationValue = -1;
-static gint ett_inap_CallInformationRequestarg = -1;
-static gint ett_inap_T_requestedInformationTypeList = -1;
-static gint ett_inap_Cancelarg = -1;
-static gint ett_inap_FacilityGroupID = -1;
-static gint ett_inap_ResourceID = -1;
-static gint ett_inap_CancelStatusReportRequestarg = -1;
-static gint ett_inap_CollectedInformationarg = -1;
-static gint ett_inap_CollectInformationarg = -1;
-static gint ett_inap_Connectarg = -1;
-static gint ett_inap_ConnectToResource = -1;
+static gint ett_inap_ApplyChargingArg = -1;
+static gint ett_inap_AssistRequestInstructionsArg = -1;
+static gint ett_inap_CallGapArg = -1;
+static gint ett_inap_CallInformationReportArg = -1;
+static gint ett_inap_CallInformationRequestArg = -1;
+static gint ett_inap_CancelArg = -1;
+static gint ett_inap_CancelStatusReportRequestArg = -1;
+static gint ett_inap_CollectedInformationArg = -1;
+static gint ett_inap_CollectInformationArg = -1;
+static gint ett_inap_ConnectArg = -1;
+static gint ett_inap_ConnectToResourceArg = -1;
 static gint ett_inap_T_resourceAddress = -1;
-static gint ett_inap_EstablishTemporaryConnection = -1;
-static gint ett_inap_EventNotificationChargingarg = -1;
-static gint ett_inap_EventReportBCSM = -1;
-static gint ett_inap_T_eventSpecificInformationBCSM = -1;
+static gint ett_inap_T_both2 = -1;
+static gint ett_inap_DpSpecificCommonParameters = -1;
+static gint ett_inap_EstablishTemporaryConnectionArg = -1;
+static gint ett_inap_EventNotificationChargingArg = -1;
+static gint ett_inap_EventReportBCSMArg = -1;
+static gint ett_inap_HoldCallInNetworkArg = -1;
+static gint ett_inap_InitialDP = -1;
+static gint ett_inap_InitiateCallAttemptArg = -1;
+static gint ett_inap_MidCallArg = -1;
+static gint ett_inap_OAnswerArg = -1;
+static gint ett_inap_OCalledPartyBusyArg = -1;
+static gint ett_inap_ODisconnectArg = -1;
+static gint ett_inap_ONoAnswer = -1;
+static gint ett_inap_OriginationAttemptAuthorizedArg = -1;
+static gint ett_inap_PlayAnnouncementArg = -1;
+static gint ett_inap_PromptAndCollectUserInformationArg = -1;
+static gint ett_inap_ReceivedInformationArg = -1;
+static gint ett_inap_ReleaseCallArg = -1;
+static gint ett_inap_T_allCallSegments = -1;
+static gint ett_inap_RequestCurrentStatusReportResultArg = -1;
+static gint ett_inap_RequestEveryStatusChangeReportArg = -1;
+static gint ett_inap_RequestFirstStatusMatchReportArg = -1;
+static gint ett_inap_RequestNotificationChargingEvent = -1;
+static gint ett_inap_RequestNotificationChargingEvent_item = -1;
+static gint ett_inap_RequestReportBCSMEventArg = -1;
+static gint ett_inap_SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent = -1;
+static gint ett_inap_ResetTimerArg = -1;
+static gint ett_inap_RouteSelectFailureArg = -1;
+static gint ett_inap_SelectFacilityArg = -1;
+static gint ett_inap_SelectRouteArg = -1;
+static gint ett_inap_SendChargingInformationArg = -1;
+static gint ett_inap_ServiceFilteringResponseArg = -1;
+static gint ett_inap_StatusReportArg = -1;
+static gint ett_inap_TAnswerArg = -1;
+static gint ett_inap_TTBusyArg = -1;
+static gint ett_inap_TDisconnectArg = -1;
+static gint ett_inap_TermAttemptAuthorizedArg = -1;
+static gint ett_inap_TNoAnswerArg = -1;
+static gint ett_inap_BCSMEvent = -1;
+static gint ett_inap_BearerCapability = -1;
+static gint ett_inap_ChargingEvent = -1;
+static gint ett_inap_CollectedDigits = -1;
+static gint ett_inap_CollectedInfo = -1;
+static gint ett_inap_CounterAndValue = -1;
+static gint ett_inap_CountersValue = -1;
+static gint ett_inap_DestinationRoutingAddress = -1;
+static gint ett_inap_DpSpecificCriteria = -1;
+static gint ett_inap_EventSpecificInformationBCSM = -1;
 static gint ett_inap_T_collectedInfoSpecificInfo = -1;
 static gint ett_inap_T_analyzedInfoSpecificInfo = -1;
 static gint ett_inap_T_routeSelectFailureSpecificInfo = -1;
@@ -395,48 +406,37 @@ static gint ett_inap_T_tNoAnswerSpecificInfo = -1;
 static gint ett_inap_T_tAnswerSpecificInfo = -1;
 static gint ett_inap_T_tMidCallSpecificInfo = -1;
 static gint ett_inap_T_tDisconnectSpecificInfo = -1;
-static gint ett_inap_HoldCallInNetworkarg = -1;
-static gint ett_inap_InitialDP = -1;
-static gint ett_inap_InitiateCallAttempt = -1;
-static gint ett_inap_OAnswer = -1;
-static gint ett_inap_OCalledPartyBusy = -1;
-static gint ett_inap_ODisconnect = -1;
-static gint ett_inap_OMidCall = -1;
-static gint ett_inap_ONoAnswer = -1;
-static gint ett_inap_OriginationAttemptAuthorized = -1;
-static gint ett_inap_PlayAnnouncement = -1;
-static gint ett_inap_PromptAndCollectUserInformationarg = -1;
-static gint ett_inap_T_collectedInfo = -1;
-static gint ett_inap_T_collectedDigits = -1;
-static gint ett_inap_PromptAndCollectUserInformationres = -1;
-static gint ett_inap_ReleaseCallArg = -1;
-static gint ett_inap_T_allCallSegments = -1;
-static gint ett_inap_RequestCurrentStatusReportarg = -1;
-static gint ett_inap_RequestCurrentStatusReportres = -1;
-static gint ett_inap_RequestEveryStatusChangeReport = -1;
-static gint ett_inap_RequestFirstStatusMatchReport = -1;
-static gint ett_inap_RequestNotificationChargingEvent = -1;
-static gint ett_inap_RequestNotificationChargingEvent_item = -1;
-static gint ett_inap_RequestReportBCSMEvent = -1;
-static gint ett_inap_T_bcsmEvents = -1;
-static gint ett_inap_T_bcsmEvents_item = -1;
-static gint ett_inap_T_dpSpecificCriteria = -1;
-static gint ett_inap_ResetTimer = -1;
-static gint ett_inap_RouteSelectFailure = -1;
-static gint ett_inap_CalledFacilityGroup = -1;
-static gint ett_inap_SelectFacility = -1;
-static gint ett_inap_SelectRoute = -1;
-static gint ett_inap_SendChargingInformation = -1;
-static gint ett_inap_ServiceFilteringResponse = -1;
-static gint ett_inap_T_countersValue = -1;
-static gint ett_inap_T_countersValue_item = -1;
-static gint ett_inap_StatusReport = -1;
-static gint ett_inap_TAnswer = -1;
-static gint ett_inap_TBusy = -1;
-static gint ett_inap_TDisconnect = -1;
-static gint ett_inap_TermAttemptAuthorized = -1;
-static gint ett_inap_TMidCall = -1;
-static gint ett_inap_TNoAnswer = -1;
+static gint ett_inap_FacilityGroup = -1;
+static gint ett_inap_FilteredCallTreatment = -1;
+static gint ett_inap_FilteringCharacteristics = -1;
+static gint ett_inap_FilteringCriteria = -1;
+static gint ett_inap_T_addressAndService = -1;
+static gint ett_inap_FilteringTimeOut = -1;
+static gint ett_inap_GapCriteria = -1;
+static gint ett_inap_T_calledAddressAndService = -1;
+static gint ett_inap_T_callingAddressAndService = -1;
+static gint ett_inap_GapOnService = -1;
+static gint ett_inap_GapIndicators = -1;
+static gint ett_inap_GapTreatment = -1;
+static gint ett_inap_T_both = -1;
+static gint ett_inap_InbandInfo = -1;
+static gint ett_inap_InformationToSend = -1;
+static gint ett_inap_LegID = -1;
+static gint ett_inap_MessageID = -1;
+static gint ett_inap_T_text = -1;
+static gint ett_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4 = -1;
+static gint ett_inap_T_variableMessage = -1;
+static gint ett_inap_SEQUENCE_SIZE_1_5_OF_VariablePart = -1;
+static gint ett_inap_MiscCallInfo = -1;
+static gint ett_inap_RequestedInformationList = -1;
+static gint ett_inap_RequestedInformationTypeList = -1;
+static gint ett_inap_RequestedInformation = -1;
+static gint ett_inap_RequestedInformationValue = -1;
+static gint ett_inap_ResourceID = -1;
+static gint ett_inap_RouteList = -1;
+static gint ett_inap_ServiceAddressInformation = -1;
+static gint ett_inap_Tone = -1;
+static gint ett_inap_VariablePart = -1;
 static gint ett_inap_CancelFailed = -1;
 static gint ett_inap_RejectPDU = -1;
 static gint ett_inap_T_rinvokeID = -1;
@@ -511,71 +511,11 @@ static int dissect_legToBeConnectedID_impl(packet_info *pinfo, proto_tree *tree,
 static int dissect_legToBeDetached_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_legToBeDetached);
 }
-static int dissect_number_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_number);
-}
-static int dissect_time_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_time);
-}
-static int dissect_date_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_date);
-}
-static int dissect_price_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_price);
-}
-static int dissect_attributes_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_attributes);
-}
-static int dissect_dialledNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_dialledNumber);
-}
-static int dissect_callingLineID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_callingLineID);
-}
-static int dissect_calledAddressValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_calledAddressValue);
-}
-static int dissect_callingAddressValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_callingAddressValue);
-}
-static int dissect_locationNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_locationNumber);
-}
 static int dissect_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_value);
 }
-static int dissect_sFBillingChargingCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_sFBillingChargingCharacteristics);
-}
-static int dissect_RouteList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_inap_RouteList_item);
-}
-static int dissect_bearerCap_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_bearerCap);
-}
-static int dissect_calledPartyNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartyNumber);
-}
-static int dissect_callingPartyNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartyNumber);
-}
-static int dissect_iPSSPCapabilities_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_iPSSPCapabilities);
-}
-static int dissect_iPAvailable_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_iPAvailable);
-}
-static int dissect_iSDNAccessRelatedInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_iSDNAccessRelatedInformation);
-}
-static int dissect_serviceProfileIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_serviceProfileIdentifier);
-}
-static int dissect_chargeNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_chargeNumber);
-}
-static int dissect_servingAreaID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_servingAreaID);
+static int dissect_eventTypeCharging2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_eventTypeCharging2);
 }
 static int dissect_huntGroup_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_huntGroup);
@@ -583,89 +523,8 @@ static int dissect_huntGroup_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 static int dissect_routeIndex_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_routeIndex);
 }
-static int dissect_dialledDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_dialledDigits);
-}
-static int dissect_callingPartyBusinessGroupID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartyBusinessGroupID);
-}
-static int dissect_callingPartySubaddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartySubaddress);
-}
-static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_originalCalledPartyID);
-}
-static int dissect_prefix_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_prefix);
-}
-static int dissect_redirectingPartyID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_redirectingPartyID);
-}
-static int dissect_travellingClassMark_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_travellingClassMark);
-}
-static int dissect_featureCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_featureCode);
-}
-static int dissect_accessCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_accessCode);
-}
-static int dissect_carrier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_carrier);
-}
-static int dissect_aChBillingChargingCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_aChBillingChargingCharacteristics);
-}
-static int dissect_correlationID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_correlationID);
-}
-static int dissect_lineID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_lineID);
-}
-static int dissect_scfID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_scfID);
-}
-static int dissect_serviceInteractionIndicators_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_serviceInteractionIndicators);
-}
-static int dissect_ipRoutingAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_ipRoutingAddress);
-}
-static int dissect_assistingSSPIPRoutingAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_assistingSSPIPRoutingAddress);
-}
-static int dissect_eventTypeCharging_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_eventTypeCharging);
-}
-static int dissect_eventSpecificInformationCharging_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_eventSpecificInformationCharging);
-}
-static int dissect_bcsmEventCorrelationID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_bcsmEventCorrelationID);
-}
-static int dissect_calledPartynumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartynumber);
-}
-static int dissect_holdcause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_holdcause);
-}
-static int dissect_additionalCallingPartyNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_additionalCallingPartyNumber);
-}
-static int dissect_calledPartyBusinessGroupID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartyBusinessGroupID);
-}
-static int dissect_calledPartySubaddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartySubaddress);
-}
-static int dissect_digitsResponse_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_digitsResponse);
-}
-static int dissect_destinationNumberRoutingAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_destinationNumberRoutingAddress);
-}
-static int dissect_sCIBillingChargingCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_sCIBillingChargingCharacteristics);
+static int dissect_RouteList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_inap_RouteList_item);
 }
 
 
@@ -686,26 +545,17 @@ dissect_inap_AttachArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
 
 static int
-dissect_inap_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_LegType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
 static int dissect_sendingSideID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_inap_sendingSideID);
+  return dissect_inap_LegType(TRUE, tvb, offset, pinfo, tree, hf_inap_sendingSideID);
 }
 static int dissect_receivingSideID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_inap_receivingSideID);
-}
-static int dissect_tmr_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_inap_tmr);
-}
-static int dissect_callingPartysCategory_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartysCategory);
-}
-static int dissect_numberingPlan_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_inap_numberingPlan);
+  return dissect_inap_LegType(TRUE, tvb, offset, pinfo, tree, hf_inap_receivingSideID);
 }
 
 
@@ -716,8 +566,8 @@ static const value_string inap_LegID_vals[] = {
 };
 
 static const ber_choice_t LegID_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sendingSideID_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_receivingSideID_impl },
+  {   0, BER_CLASS_CON, 0, 0, dissect_sendingSideID_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_receivingSideID_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -737,6 +587,9 @@ static int dissect_heldLegID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 static int dissect_legToBeReleased_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_LegID(TRUE, tvb, offset, pinfo, tree, hf_inap_legToBeReleased);
+}
+static int dissect_partyToCharge_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_LegID(TRUE, tvb, offset, pinfo, tree, hf_inap_partyToCharge);
 }
 
 
@@ -864,11 +717,17 @@ dissect_inap_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 static int dissect_releaseCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_Cause(TRUE, tvb, offset, pinfo, tree, hf_inap_releaseCause);
 }
-static int dissect_releaseCauseValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_Cause(TRUE, tvb, offset, pinfo, tree, hf_inap_releaseCauseValue);
+static int dissect_busyCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Cause(TRUE, tvb, offset, pinfo, tree, hf_inap_busyCause);
 }
 static int dissect_initialCallSegment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_Cause(FALSE, tvb, offset, pinfo, tree, hf_inap_initialCallSegment);
+}
+static int dissect_failureCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Cause(TRUE, tvb, offset, pinfo, tree, hf_inap_failureCause);
+}
+static int dissect_releaseCauseValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Cause(TRUE, tvb, offset, pinfo, tree, hf_inap_releaseCauseValue);
 }
 
 
@@ -890,388 +749,6 @@ dissect_inap_ReleaseCallPartyConnectionArg(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static int
-dissect_inap_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_integer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_integer);
-}
-static int dissect_elementaryMessageID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_elementaryMessageID);
-}
-static int dissect_toneID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_toneID);
-}
-static int dissect_tduration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_tduration);
-}
-static int dissect_elementaryMessageIDs_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_inap_elementaryMessageIDs_item);
-}
-static int dissect_serviceKey_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_serviceKey);
-}
-static int dissect_numberOfCalls_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_numberOfCalls);
-}
-static int dissect_callConnectedElapsedTimeValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_callConnectedElapsedTimeValue);
-}
-static int dissect_connectTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_connectTime);
-}
-static int dissect_timervalue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_timervalue);
-}
-static int dissect_counterValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2147483647(TRUE, tvb, offset, pinfo, tree, hf_inap_counterValue);
-}
-
-
-static const value_string inap_VariableParts_item_vals[] = {
-  {   0, "integer" },
-  {   1, "number" },
-  {   2, "time" },
-  {   3, "date" },
-  {   4, "price" },
-  { 0, NULL }
-};
-
-static const ber_choice_t VariableParts_item_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_integer_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_number_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_time_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_date_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_price_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_VariableParts_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 VariableParts_item_choice, hf_index, ett_inap_VariableParts_item,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_VariableParts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_VariableParts_item(FALSE, tvb, offset, pinfo, tree, hf_inap_VariableParts_item);
-}
-
-
-static const ber_sequence_t VariableParts_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_VariableParts_item },
-};
-
-static int
-dissect_inap_VariableParts(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      VariableParts_sequence_of, hf_index, ett_inap_VariableParts);
-
-  return offset;
-}
-static int dissect_variableParts_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_VariableParts(TRUE, tvb, offset, pinfo, tree, hf_inap_variableParts);
-}
-
-
-static const ber_sequence_t VariableMessage_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_elementaryMessageID_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_variableParts_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_VariableMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   VariableMessage_sequence, hf_index, ett_inap_VariableMessage);
-
-  return offset;
-}
-static int dissect_variableMessage_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_VariableMessage(TRUE, tvb, offset, pinfo, tree, hf_inap_variableMessage);
-}
-
-
-static const value_string inap_TriggerType_vals[] = {
-  {   0, "featureActivation" },
-  {   1, "verticalServiceCode" },
-  {   2, "customizedAccess" },
-  {   3, "customizedIntercom" },
-  {  12, "emergencyService" },
-  {  13, "aFR" },
-  {  14, "sharedIOTrunk" },
-  {  17, "offHookDelay" },
-  {  18, "channelSetupPRI" },
-  {  25, "tNoAnswer" },
-  {  26, "tBusy" },
-  {  27, "oCalledPartyBusy" },
-  {  29, "oNoAnswer" },
-  {  30, "originationAttemptAuthorized" },
-  {  31, "oAnswer" },
-  {  32, "oDisconnect" },
-  {  33, "termAttemptAuthorized" },
-  {  34, "tAnswer" },
-  {  35, "tDisconnect" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_inap_TriggerType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_triggerType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_TriggerType(TRUE, tvb, offset, pinfo, tree, hf_inap_triggerType);
-}
-
-
-static const ber_sequence_t Tone_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_toneID_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tduration_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_Tone(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   Tone_sequence, hf_index, ett_inap_Tone);
-
-  return offset;
-}
-static int dissect_tone_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_Tone(TRUE, tvb, offset, pinfo, tree, hf_inap_tone);
-}
-
-
-
-static int
-dissect_inap_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_messageContent_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_IA5String(TRUE, tvb, offset, pinfo, tree, hf_inap_messageContent);
-}
-static int dissect_displayInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_IA5String(TRUE, tvb, offset, pinfo, tree, hf_inap_displayInformation);
-}
-static int dissect_iA5Response_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_IA5String(TRUE, tvb, offset, pinfo, tree, hf_inap_iA5Response);
-}
-
-
-static const ber_sequence_t Text_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_messageContent_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributes_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_Text(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   Text_sequence, hf_index, ett_inap_Text);
-
-  return offset;
-}
-static int dissect_text_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_Text(TRUE, tvb, offset, pinfo, tree, hf_inap_text);
-}
-
-
-static const ber_sequence_t T_elementaryMessageIDs_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_elementaryMessageIDs_item },
-};
-
-static int
-dissect_inap_T_elementaryMessageIDs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      T_elementaryMessageIDs_sequence_of, hf_index, ett_inap_T_elementaryMessageIDs);
-
-  return offset;
-}
-static int dissect_elementaryMessageIDs_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_elementaryMessageIDs(TRUE, tvb, offset, pinfo, tree, hf_inap_elementaryMessageIDs);
-}
-
-
-static const value_string inap_MessageID_vals[] = {
-  {   0, "elementaryMessageID" },
-  {   1, "text" },
-  {  29, "elementaryMessageIDs" },
-  {  30, "variableMessage" },
-  { 0, NULL }
-};
-
-static const ber_choice_t MessageID_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_elementaryMessageID_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_text_impl },
-  {  29, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_elementaryMessageIDs_impl },
-  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_variableMessage_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_MessageID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 MessageID_choice, hf_index, ett_inap_MessageID,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_messageID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_MessageID(TRUE, tvb, offset, pinfo, tree, hf_inap_messageID);
-}
-
-
-
-static int
-dissect_inap_INTEGER_1_127(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_numberOfRepetitions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_numberOfRepetitions);
-}
-static int dissect_minimumNbOfDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_minimumNbOfDigits);
-}
-static int dissect_maximumNbOfDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_maximumNbOfDigits);
-}
-static int dissect_firstDigitTimeOut_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_firstDigitTimeOut);
-}
-static int dissect_interDigitTimeOut_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_interDigitTimeOut);
-}
-
-
-
-static int
-dissect_inap_INTEGER_0_32767(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_mduration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_32767(TRUE, tvb, offset, pinfo, tree, hf_inap_mduration);
-}
-static int dissect_interval_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_32767(TRUE, tvb, offset, pinfo, tree, hf_inap_interval);
-}
-
-
-static const ber_sequence_t T_inbandInfo_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_messageID_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_numberOfRepetitions_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mduration_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_interval_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_T_inbandInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_inbandInfo_sequence, hf_index, ett_inap_T_inbandInfo);
-
-  return offset;
-}
-static int dissect_inbandInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_inbandInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_inbandInfo);
-}
-
-
-static const value_string inap_InformationToSend_vals[] = {
-  {   0, "inbandInfo" },
-  {   1, "tone" },
-  {   2, "displayInformation" },
-  { 0, NULL }
-};
-
-static const ber_choice_t InformationToSend_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inbandInfo_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tone_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_displayInformation_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_InformationToSend(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 InformationToSend_choice, hf_index, ett_inap_InformationToSend,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_informationToSend_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_InformationToSend(TRUE, tvb, offset, pinfo, tree, hf_inap_informationToSend);
-}
-
-
-static const ber_sequence_t T_addressAndService_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledAddressValue_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingAddressValue_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationNumber_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_T_addressAndService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_addressAndService_sequence, hf_index, ett_inap_T_addressAndService);
-
-  return offset;
-}
-static int dissect_addressAndService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_addressAndService(TRUE, tvb, offset, pinfo, tree, hf_inap_addressAndService);
-}
-
-
-static const value_string inap_FilteringCriteria_vals[] = {
-  {   0, "dialledNumber" },
-  {   1, "callingLineID" },
-  {   2, "serviceKey" },
-  {  30, "addressAndService" },
-  { 0, NULL }
-};
-
-static const ber_choice_t FilteringCriteria_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dialledNumber_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callingLineID_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
-  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_addressAndService_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_FilteringCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 FilteringCriteria_choice, hf_index, ett_inap_FilteringCriteria,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_filteringCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_FilteringCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_filteringCriteria);
-}
-
-
-
-static int
 dissect_inap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
@@ -1281,23 +758,14 @@ dissect_inap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_inap_type);
 }
-static int dissect_maximumNumberOfCounters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_inap_maximumNumberOfCounters);
-}
 static int dissect_trunkGroupID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_inap_trunkGroupID);
 }
 static int dissect_privateFacilityID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_inap_privateFacilityID);
 }
-static int dissect_callingFacilityGroupMember_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_inap_callingFacilityGroupMember);
-}
 static int dissect_facilityGroupMemberID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_inap_facilityGroupMemberID);
-}
-static int dissect_calledFacilityGroupMember_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_inap_calledFacilityGroupMember);
 }
 
 
@@ -1355,7 +823,418 @@ static int dissect_extensions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-static const ber_sequence_t T_filteredCallTreatment_sequence[] = {
+
+static int
+dissect_inap_SFBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_sFBillingChargingCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_SFBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, hf_inap_sFBillingChargingCharacteristics);
+}
+
+
+
+static int
+dissect_inap_Integer4(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_connectTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_connectTime);
+}
+static int dissect_counterValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_counterValue);
+}
+static int dissect_numberOfCalls_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_numberOfCalls);
+}
+static int dissect_elementaryMessageID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_elementaryMessageID);
+}
+static int dissect_elementaryMessageIDs_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(FALSE, tvb, offset, pinfo, tree, hf_inap_elementaryMessageIDs_item);
+}
+static int dissect_callConnectedElapsedTimeValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_callConnectedElapsedTimeValue);
+}
+static int dissect_toneID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_toneID);
+}
+static int dissect_tone_duration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_tone_duration);
+}
+static int dissect_integer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_integer);
+}
+
+
+
+static int
+dissect_inap_IA5String_SIZE_minMessageContentLength_maxMessageContentLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_messageContent_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_IA5String_SIZE_minMessageContentLength_maxMessageContentLength(TRUE, tvb, offset, pinfo, tree, hf_inap_messageContent);
+}
+
+
+
+static int
+dissect_inap_OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_attributes_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength(TRUE, tvb, offset, pinfo, tree, hf_inap_attributes);
+}
+
+
+static const ber_sequence_t T_text_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_messageContent_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributes_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_T_text(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_text_sequence, hf_index, ett_inap_T_text);
+
+  return offset;
+}
+static int dissect_text_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_T_text(TRUE, tvb, offset, pinfo, tree, hf_inap_text);
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_elementaryMessageIDs_item },
+};
+
+static int
+dissect_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4);
+
+  return offset;
+}
+static int dissect_elementaryMessageIDs_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4(TRUE, tvb, offset, pinfo, tree, hf_inap_elementaryMessageIDs);
+}
+
+
+
+static int
+dissect_inap_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_prefix_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_prefix);
+}
+static int dissect_digitsResponse_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_digitsResponse);
+}
+static int dissect_dialledNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_dialledNumber);
+}
+static int dissect_callingLineID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_callingLineID);
+}
+static int dissect_calledAddressValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_calledAddressValue);
+}
+static int dissect_callingAddressValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_callingAddressValue);
+}
+static int dissect_lineID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_lineID);
+}
+static int dissect_number_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Digits(TRUE, tvb, offset, pinfo, tree, hf_inap_number);
+}
+
+
+
+static int
+dissect_inap_OCTET_STRING_SIZE_2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_time_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OCTET_STRING_SIZE_2(TRUE, tvb, offset, pinfo, tree, hf_inap_time);
+}
+
+
+
+static int
+dissect_inap_OCTET_STRING_SIZE_3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_date2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OCTET_STRING_SIZE_3(TRUE, tvb, offset, pinfo, tree, hf_inap_date2);
+}
+
+
+
+static int
+dissect_inap_OCTET_STRING_SIZE_4(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_price_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OCTET_STRING_SIZE_4(TRUE, tvb, offset, pinfo, tree, hf_inap_price);
+}
+
+
+static const value_string inap_VariablePart_vals[] = {
+  {   0, "integer" },
+  {   1, "number" },
+  {   2, "time" },
+  {   3, "date2" },
+  {   4, "price" },
+  { 0, NULL }
+};
+
+static const ber_choice_t VariablePart_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_integer_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_number_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_time_impl },
+  {   3, BER_CLASS_CON, 3, 0, dissect_date2_impl },
+  {   4, BER_CLASS_CON, 4, 0, dissect_price_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_VariablePart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 VariablePart_choice, hf_index, ett_inap_VariablePart,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_variableParts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_VariablePart(FALSE, tvb, offset, pinfo, tree, hf_inap_variableParts_item);
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_5_OF_VariablePart_sequence_of[1] = {
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_variableParts_item },
+};
+
+static int
+dissect_inap_SEQUENCE_SIZE_1_5_OF_VariablePart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_5_OF_VariablePart_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_5_OF_VariablePart);
+
+  return offset;
+}
+static int dissect_variableParts_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_SEQUENCE_SIZE_1_5_OF_VariablePart(TRUE, tvb, offset, pinfo, tree, hf_inap_variableParts);
+}
+
+
+static const ber_sequence_t T_variableMessage_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_elementaryMessageID_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_variableParts_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_T_variableMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_variableMessage_sequence, hf_index, ett_inap_T_variableMessage);
+
+  return offset;
+}
+static int dissect_variableMessage_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_T_variableMessage(TRUE, tvb, offset, pinfo, tree, hf_inap_variableMessage);
+}
+
+
+static const value_string inap_MessageID_vals[] = {
+  {   0, "elementaryMessageID" },
+  {   1, "text" },
+  {  29, "elementaryMessageIDs" },
+  {  30, "variableMessage" },
+  { 0, NULL }
+};
+
+static const ber_choice_t MessageID_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_elementaryMessageID_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_text_impl },
+  {  29, BER_CLASS_CON, 29, 0, dissect_elementaryMessageIDs_impl },
+  {  30, BER_CLASS_CON, 30, 0, dissect_variableMessage_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_MessageID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 MessageID_choice, hf_index, ett_inap_MessageID,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_messageID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_MessageID(TRUE, tvb, offset, pinfo, tree, hf_inap_messageID);
+}
+
+
+
+static int
+dissect_inap_INTEGER_1_127(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_minimumNbOfDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_minimumNbOfDigits);
+}
+static int dissect_maximumNbOfDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_maximumNbOfDigits);
+}
+static int dissect_firstDigitTimeOut_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_firstDigitTimeOut);
+}
+static int dissect_interDigitTimeOut_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_interDigitTimeOut);
+}
+static int dissect_numberOfRepetitions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_1_127(TRUE, tvb, offset, pinfo, tree, hf_inap_numberOfRepetitions);
+}
+
+
+
+static int
+dissect_inap_INTEGER_0_32767(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_duration3_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_0_32767(TRUE, tvb, offset, pinfo, tree, hf_inap_duration3);
+}
+static int dissect_interval_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_0_32767(TRUE, tvb, offset, pinfo, tree, hf_inap_interval);
+}
+
+
+static const ber_sequence_t InbandInfo_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_messageID_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_numberOfRepetitions_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_duration3_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_interval_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_InbandInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   InbandInfo_sequence, hf_index, ett_inap_InbandInfo);
+
+  return offset;
+}
+static int dissect_inbandInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_InbandInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_inbandInfo);
+}
+
+
+static const ber_sequence_t Tone_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_toneID_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tone_duration_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_Tone(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Tone_sequence, hf_index, ett_inap_Tone);
+
+  return offset;
+}
+static int dissect_tone_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Tone(TRUE, tvb, offset, pinfo, tree, hf_inap_tone);
+}
+
+
+
+static int
+dissect_inap_DisplayInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_displayInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_DisplayInformation(TRUE, tvb, offset, pinfo, tree, hf_inap_displayInformation);
+}
+
+
+static const value_string inap_InformationToSend_vals[] = {
+  {   0, "inbandInfo" },
+  {   1, "tone" },
+  {   2, "displayInformation" },
+  { 0, NULL }
+};
+
+static const ber_choice_t InformationToSend_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_inbandInfo_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_tone_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_displayInformation_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_InformationToSend(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 InformationToSend_choice, hf_index, ett_inap_InformationToSend,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_informationToSend_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_InformationToSend(TRUE, tvb, offset, pinfo, tree, hf_inap_informationToSend);
+}
+
+
+
+static int
+dissect_inap_MaximumNumberOfCounters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_maximumNumberOfCounters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_MaximumNumberOfCounters(TRUE, tvb, offset, pinfo, tree, hf_inap_maximumNumberOfCounters);
+}
+
+
+static const ber_sequence_t FilteredCallTreatment_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sFBillingChargingCharacteristics_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_informationToSend_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_maximumNumberOfCounters_impl },
@@ -1364,109 +1243,193 @@ static const ber_sequence_t T_filteredCallTreatment_sequence[] = {
 };
 
 static int
-dissect_inap_T_filteredCallTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_FilteredCallTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_filteredCallTreatment_sequence, hf_index, ett_inap_T_filteredCallTreatment);
+                                   FilteredCallTreatment_sequence, hf_index, ett_inap_FilteredCallTreatment);
 
   return offset;
 }
 static int dissect_filteredCallTreatment_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_filteredCallTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_filteredCallTreatment);
-}
-
-
-static const value_string inap_T_filteringCharacteristics_vals[] = {
-  {   0, "interval" },
-  {   1, "numberOfCalls" },
-  { 0, NULL }
-};
-
-static const ber_choice_t T_filteringCharacteristics_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_interval_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_numberOfCalls_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_T_filteringCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_filteringCharacteristics_choice, hf_index, ett_inap_T_filteringCharacteristics,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_filteringCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_filteringCharacteristics(TRUE, tvb, offset, pinfo, tree, hf_inap_filteringCharacteristics);
+  return dissect_inap_FilteredCallTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_filteredCallTreatment);
 }
 
 
 
 static int
-dissect_inap_INTEGER_M2_86400(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_INTEGER_M1_32000(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_aduration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_M2_86400(TRUE, tvb, offset, pinfo, tree, hf_inap_aduration);
+static int dissect_interval1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_M1_32000(TRUE, tvb, offset, pinfo, tree, hf_inap_interval1);
 }
-static int dissect_cgduration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_M2_86400(TRUE, tvb, offset, pinfo, tree, hf_inap_cgduration);
+
+
+static const value_string inap_FilteringCharacteristics_vals[] = {
+  {   0, "interval1" },
+  {   1, "numberOfCalls" },
+  { 0, NULL }
+};
+
+static const ber_choice_t FilteringCharacteristics_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_interval1_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_numberOfCalls_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_FilteringCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 FilteringCharacteristics_choice, hf_index, ett_inap_FilteringCharacteristics,
+                                 NULL);
+
+  return offset;
 }
-static int dissect_monitorDuration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_M2_86400(TRUE, tvb, offset, pinfo, tree, hf_inap_monitorDuration);
+static int dissect_filteringCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_FilteringCharacteristics(TRUE, tvb, offset, pinfo, tree, hf_inap_filteringCharacteristics);
 }
 
 
 
 static int
-dissect_inap_OCTET_STRING_SIZE_6(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_Duration(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_monitorDuration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Duration(TRUE, tvb, offset, pinfo, tree, hf_inap_monitorDuration);
+}
+static int dissect_duration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Duration(TRUE, tvb, offset, pinfo, tree, hf_inap_duration);
+}
+
+
+
+static int
+dissect_inap_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_stopTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_6(TRUE, tvb, offset, pinfo, tree, hf_inap_stopTime);
-}
 static int dissect_startTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_6(TRUE, tvb, offset, pinfo, tree, hf_inap_startTime);
+  return dissect_inap_DateAndTime(TRUE, tvb, offset, pinfo, tree, hf_inap_startTime);
+}
+static int dissect_stopTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_DateAndTime(TRUE, tvb, offset, pinfo, tree, hf_inap_stopTime);
 }
 static int dissect_callStopTimeValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_6(TRUE, tvb, offset, pinfo, tree, hf_inap_callStopTimeValue);
+  return dissect_inap_DateAndTime(TRUE, tvb, offset, pinfo, tree, hf_inap_callStopTimeValue);
 }
 
 
-static const value_string inap_T_filteringTimeOut_vals[] = {
-  {   0, "aduration" },
+static const value_string inap_FilteringTimeOut_vals[] = {
+  {   0, "duration" },
   {   1, "stopTime" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_filteringTimeOut_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_aduration_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_stopTime_impl },
+static const ber_choice_t FilteringTimeOut_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_duration_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_stopTime_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_filteringTimeOut(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_FilteringTimeOut(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_filteringTimeOut_choice, hf_index, ett_inap_T_filteringTimeOut,
+                                 FilteringTimeOut_choice, hf_index, ett_inap_FilteringTimeOut,
                                  NULL);
 
   return offset;
 }
 static int dissect_filteringTimeOut_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_filteringTimeOut(TRUE, tvb, offset, pinfo, tree, hf_inap_filteringTimeOut);
+  return dissect_inap_FilteringTimeOut(TRUE, tvb, offset, pinfo, tree, hf_inap_filteringTimeOut);
 }
 
 
-static const ber_sequence_t ActivateServiceFilteringarg_sequence[] = {
+
+static int
+dissect_inap_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_Integer4(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_serviceKey_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ServiceKey(TRUE, tvb, offset, pinfo, tree, hf_inap_serviceKey);
+}
+
+
+
+static int
+dissect_inap_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_locationNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_LocationNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_locationNumber);
+}
+
+
+static const ber_sequence_t T_addressAndService_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledAddressValue_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingAddressValue_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationNumber_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_T_addressAndService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_addressAndService_sequence, hf_index, ett_inap_T_addressAndService);
+
+  return offset;
+}
+static int dissect_addressAndService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_T_addressAndService(TRUE, tvb, offset, pinfo, tree, hf_inap_addressAndService);
+}
+
+
+static const value_string inap_FilteringCriteria_vals[] = {
+  {   0, "dialledNumber" },
+  {   1, "callingLineID" },
+  {   2, "serviceKey" },
+  {  30, "addressAndService" },
+  { 0, NULL }
+};
+
+static const ber_choice_t FilteringCriteria_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_dialledNumber_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_callingLineID_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_serviceKey_impl },
+  {  30, BER_CLASS_CON, 30, 0, dissect_addressAndService_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_FilteringCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 FilteringCriteria_choice, hf_index, ett_inap_FilteringCriteria,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_filteringCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_FilteringCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_filteringCriteria);
+}
+
+
+static const ber_sequence_t ActivateServiceFilteringArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_filteredCallTreatment_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_filteringCharacteristics_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_filteringTimeOut_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_filteringCharacteristics_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_filteringTimeOut_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_filteringCriteria_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_startTime_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -1474,9 +1437,9 @@ static const ber_sequence_t ActivateServiceFilteringarg_sequence[] = {
 };
 
 static int
-dissect_inap_ActivateServiceFilteringarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ActivateServiceFilteringArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   ActivateServiceFilteringarg_sequence, hf_index, ett_inap_ActivateServiceFilteringarg);
+                                   ActivateServiceFilteringArg_sequence, hf_index, ett_inap_ActivateServiceFilteringArg);
 
   return offset;
 }
@@ -1539,6 +1502,42 @@ static int dissect_miscCallInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
+static const value_string inap_TriggerType_vals[] = {
+  {   0, "featureActivation" },
+  {   1, "verticalServiceCode" },
+  {   2, "customizedAccess" },
+  {   3, "customizedIntercom" },
+  {  12, "emergencyService" },
+  {  13, "aFR" },
+  {  14, "sharedIOTrunk" },
+  {  17, "offHookDelay" },
+  {  18, "channelSetupPRI" },
+  {  25, "tNoAnswer" },
+  {  26, "tBusy" },
+  {  27, "oCalledPartyBusy" },
+  {  29, "oNoAnswer" },
+  {  30, "originationAttemptAuthorized" },
+  {  31, "oAnswer" },
+  {  32, "oDisconnect" },
+  {  33, "termAttemptAuthorized" },
+  {  34, "tAnswer" },
+  {  35, "tDisconnect" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_TriggerType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_triggerType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_TriggerType(TRUE, tvb, offset, pinfo, tree, hf_inap_triggerType);
+}
+
+
 static const ber_sequence_t ServiceAddressInformation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_miscCallInfo_impl },
@@ -1555,6 +1554,209 @@ dissect_inap_ServiceAddressInformation(gboolean implicit_tag _U_, tvbuff_t *tvb,
 }
 static int dissect_serviceAddressInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_ServiceAddressInformation(TRUE, tvb, offset, pinfo, tree, hf_inap_serviceAddressInformation);
+}
+
+
+
+static int
+dissect_inap_BearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+ tvbuff_t	*parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+
+ dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+
+
+  return offset;
+}
+static int dissect_bearerCap_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_BearerCap(TRUE, tvb, offset, pinfo, tree, hf_inap_bearerCap);
+}
+
+
+
+static int
+dissect_inap_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_tmr_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OCTET_STRING_SIZE_1(TRUE, tvb, offset, pinfo, tree, hf_inap_tmr);
+}
+
+
+static const value_string inap_BearerCapability_vals[] = {
+  {   0, "bearerCap" },
+  {   1, "tmr" },
+  { 0, NULL }
+};
+
+static const ber_choice_t BearerCapability_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_bearerCap_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tmr_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_BearerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 BearerCapability_choice, hf_index, ett_inap_BearerCapability,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_bearerCapability_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_BearerCapability(TRUE, tvb, offset, pinfo, tree, hf_inap_bearerCapability);
+}
+
+
+
+static int
+dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+
+dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
+
+
+  return offset;
+}
+static int dissect_dialledDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CalledPartyNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_dialledDigits);
+}
+static int dissect_calledPartyNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CalledPartyNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartyNumber);
+}
+static int dissect_destinationNumberRoutingAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CalledPartyNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_destinationNumberRoutingAddress);
+}
+static int dissect_DestinationRoutingAddress_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CalledPartyNumber(FALSE, tvb, offset, pinfo, tree, hf_inap_DestinationRoutingAddress_item);
+}
+static int dissect_calledPartynumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CalledPartyNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartynumber);
+}
+
+
+
+static int
+dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+
+	dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
+
+
+
+  return offset;
+}
+static int dissect_callingPartyNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CallingPartyNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartyNumber);
+}
+
+
+
+static int
+dissect_inap_CallingPartysCategory(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_callingPartysCategory_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CallingPartysCategory(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartysCategory);
+}
+
+
+
+static int
+dissect_inap_IPSSPCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_iPSSPCapabilities_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_IPSSPCapabilities(TRUE, tvb, offset, pinfo, tree, hf_inap_iPSSPCapabilities);
+}
+
+
+
+static int
+dissect_inap_IPAvailable(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_iPAvailable_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_IPAvailable(TRUE, tvb, offset, pinfo, tree, hf_inap_iPAvailable);
+}
+
+
+
+static int
+dissect_inap_ISDNAccessRelatedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_iSDNAccessRelatedInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ISDNAccessRelatedInformation(TRUE, tvb, offset, pinfo, tree, hf_inap_iSDNAccessRelatedInformation);
+}
+
+
+static const value_string inap_CGEncountered_vals[] = {
+  {   0, "noCGencountered" },
+  {   1, "manualCGencountered" },
+  {   2, "scpOverload" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_CGEncountered(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_cGEncountered_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CGEncountered(TRUE, tvb, offset, pinfo, tree, hf_inap_cGEncountered);
+}
+
+
+
+static int
+dissect_inap_ServiceProfileIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_serviceProfileIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ServiceProfileIdentifier(TRUE, tvb, offset, pinfo, tree, hf_inap_serviceProfileIdentifier);
 }
 
 
@@ -1581,64 +1783,27 @@ static int dissect_terminalType_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
-static const ber_sequence_t RouteList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_RouteList_item },
-};
 
 static int
-dissect_inap_RouteList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      RouteList_sequence_of, hf_index, ett_inap_RouteList);
+dissect_inap_ChargeNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_LocationNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
-static int dissect_routeList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_RouteList(TRUE, tvb, offset, pinfo, tree, hf_inap_routeList);
+static int dissect_chargeNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ChargeNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_chargeNumber);
 }
 
-
-static const value_string inap_CGEncountered_vals[] = {
-  {   0, "noCGencountered" },
-  {   1, "manualCGencountered" },
-  {   2, "scpOverload" },
-  { 0, NULL }
-};
 
 
 static int
-dissect_inap_CGEncountered(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+dissect_inap_ServingAreaID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_LocationNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
-static int dissect_cGEncountered_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_CGEncountered(TRUE, tvb, offset, pinfo, tree, hf_inap_cGEncountered);
-}
-
-
-static const value_string inap_BearerCapability_vals[] = {
-  {   0, "bearerCap" },
-  {   1, "tmr" },
-  { 0, NULL }
-};
-
-static const ber_choice_t BearerCapability_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_bearerCap_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tmr_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_BearerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 BearerCapability_choice, hf_index, ett_inap_BearerCapability,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_bearerCapability_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_BearerCapability(TRUE, tvb, offset, pinfo, tree, hf_inap_bearerCapability);
+static int dissect_servingAreaID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ServingAreaID(TRUE, tvb, offset, pinfo, tree, hf_inap_servingAreaID);
 }
 
 
@@ -1673,7 +1838,33 @@ static int dissect_dpSpecificCommonParameters_impl(packet_info *pinfo, proto_tre
 }
 
 
-static const value_string inap_CallingFacilityGroup_vals[] = {
+
+static int
+dissect_inap_CallingPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_callingPartyBusinessGroupID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CallingPartyBusinessGroupID(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartyBusinessGroupID);
+}
+
+
+
+static int
+dissect_inap_CallingPartySubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_callingPartySubaddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CallingPartySubaddress(TRUE, tvb, offset, pinfo, tree, hf_inap_callingPartySubaddress);
+}
+
+
+static const value_string inap_FacilityGroup_vals[] = {
   {   0, "trunkGroupID" },
   {   1, "privateFacilityID" },
   {   2, "huntGroup" },
@@ -1681,43 +1872,179 @@ static const value_string inap_CallingFacilityGroup_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CallingFacilityGroup_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_trunkGroupID_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_privateFacilityID_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_huntGroup_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_routeIndex_impl },
+static const ber_choice_t FacilityGroup_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_trunkGroupID_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_privateFacilityID_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_huntGroup_impl },
+  {   3, BER_CLASS_CON, 3, 0, dissect_routeIndex_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_CallingFacilityGroup(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_FacilityGroup(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 CallingFacilityGroup_choice, hf_index, ett_inap_CallingFacilityGroup,
+                                 FacilityGroup_choice, hf_index, ett_inap_FacilityGroup,
                                  NULL);
 
   return offset;
 }
 static int dissect_callingFacilityGroup_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_CallingFacilityGroup(TRUE, tvb, offset, pinfo, tree, hf_inap_callingFacilityGroup);
+  return dissect_inap_FacilityGroup(TRUE, tvb, offset, pinfo, tree, hf_inap_callingFacilityGroup);
+}
+static int dissect_calledFacilityGroup_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_FacilityGroup(TRUE, tvb, offset, pinfo, tree, hf_inap_calledFacilityGroup);
+}
+static int dissect_facilityGroupID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_FacilityGroup(TRUE, tvb, offset, pinfo, tree, hf_inap_facilityGroupID);
 }
 
 
 
 static int
-dissect_inap_OCTET_STRING_SIZE_2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_FacilityGroupMember(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_callingFacilityGroupMember_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_FacilityGroupMember(TRUE, tvb, offset, pinfo, tree, hf_inap_callingFacilityGroupMember);
+}
+static int dissect_calledFacilityGroupMember_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_FacilityGroupMember(TRUE, tvb, offset, pinfo, tree, hf_inap_calledFacilityGroupMember);
+}
+
+
+
+static int
+dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+ tvbuff_t	*parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
+
+
+  return offset;
+}
+static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_OriginalCalledPartyID(TRUE, tvb, offset, pinfo, tree, hf_inap_originalCalledPartyID);
+}
+
+
+
+static int
+dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+ tvbuff_t	*parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+
+
+
+  return offset;
+}
+static int dissect_redirectingPartyID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RedirectingPartyID(TRUE, tvb, offset, pinfo, tree, hf_inap_redirectingPartyID);
+}
+
+
+
+static int
+dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+ tvbuff_t	*parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+
+ dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+
+
+  return offset;
+}
+static int dissect_redirectionInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RedirectionInformation(TRUE, tvb, offset, pinfo, tree, hf_inap_redirectionInformation);
+}
+
+
+static const ber_sequence_t RouteList_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_RouteList_item },
+};
+
+static int
+dissect_inap_RouteList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      RouteList_sequence_of, hf_index, ett_inap_RouteList);
+
+  return offset;
+}
+static int dissect_routeList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RouteList(TRUE, tvb, offset, pinfo, tree, hf_inap_routeList);
+}
+
+
+
+static int
+dissect_inap_TravellingClassMark(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_LocationNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_travellingClassMark_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_TravellingClassMark(TRUE, tvb, offset, pinfo, tree, hf_inap_travellingClassMark);
+}
+
+
+
+static int
+dissect_inap_FeatureCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_LocationNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_featureCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_FeatureCode(TRUE, tvb, offset, pinfo, tree, hf_inap_featureCode);
+}
+
+
+
+static int
+dissect_inap_AccessCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_LocationNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_accessCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_AccessCode(TRUE, tvb, offset, pinfo, tree, hf_inap_accessCode);
+}
+
+
+
+static int
+dissect_inap_Carrier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_redirectionInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_2(TRUE, tvb, offset, pinfo, tree, hf_inap_redirectionInformation);
-}
-static int dissect_highLayerCompatibility_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_2(TRUE, tvb, offset, pinfo, tree, hf_inap_highLayerCompatibility);
-}
-static int dissect_forwardCallIndicators_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_2(TRUE, tvb, offset, pinfo, tree, hf_inap_forwardCallIndicators);
+static int dissect_carrier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_Carrier(TRUE, tvb, offset, pinfo, tree, hf_inap_carrier);
 }
 
 
@@ -1750,45 +2077,32 @@ dissect_inap_AnalysedInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 }
 
 
-
-static int
-dissect_inap_DestinationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_destinationRoutingAddress_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_DestinationAddress(FALSE, tvb, offset, pinfo, tree, hf_inap_destinationRoutingAddress_item);
-}
-
-
-static const ber_sequence_t SEQUENCE_SIZE_1_3_OF_DestinationAddress_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_destinationRoutingAddress_item },
+static const ber_sequence_t DestinationRoutingAddress_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_DestinationRoutingAddress_item },
 };
 
 static int
-dissect_inap_SEQUENCE_SIZE_1_3_OF_DestinationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_DestinationRoutingAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_3_OF_DestinationAddress_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_3_OF_DestinationAddress);
+                                      DestinationRoutingAddress_sequence_of, hf_index, ett_inap_DestinationRoutingAddress);
 
   return offset;
 }
 static int dissect_destinationRoutingAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_SEQUENCE_SIZE_1_3_OF_DestinationAddress(TRUE, tvb, offset, pinfo, tree, hf_inap_destinationRoutingAddress);
+  return dissect_inap_DestinationRoutingAddress(TRUE, tvb, offset, pinfo, tree, hf_inap_destinationRoutingAddress);
 }
 
 
 
 static int
-dissect_inap_OCTET_STRING_SIZE_3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_AlertingPattern(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
 static int dissect_alertingPattern_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_3(TRUE, tvb, offset, pinfo, tree, hf_inap_alertingPattern);
+  return dissect_inap_AlertingPattern(TRUE, tvb, offset, pinfo, tree, hf_inap_alertingPattern);
 }
 
 
@@ -1816,32 +2130,20 @@ dissect_inap_AnalyseInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 }
 
 
-static const value_string inap_PartyToCharge_vals[] = {
-  {   0, "sendingSideID" },
-  {   1, "receivingSideID" },
-  { 0, NULL }
-};
-
-static const ber_choice_t PartyToCharge_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sendingSideID_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_receivingSideID_impl },
-  { 0, 0, 0, 0, NULL }
-};
 
 static int
-dissect_inap_PartyToCharge(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 PartyToCharge_choice, hf_index, ett_inap_PartyToCharge,
-                                 NULL);
+dissect_inap_AChBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
-static int dissect_partyToCharge_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_PartyToCharge(TRUE, tvb, offset, pinfo, tree, hf_inap_partyToCharge);
+static int dissect_aChBillingChargingCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_AChBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, hf_inap_aChBillingChargingCharacteristics);
 }
 
 
-static const ber_sequence_t ApplyChargingarg_sequence[] = {
+static const ber_sequence_t ApplyChargingArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_aChBillingChargingCharacteristics_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_partyToCharge_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -1849,9 +2151,9 @@ static const ber_sequence_t ApplyChargingarg_sequence[] = {
 };
 
 static int
-dissect_inap_ApplyChargingarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ApplyChargingArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   ApplyChargingarg_sequence, hf_index, ett_inap_ApplyChargingarg);
+                                   ApplyChargingArg_sequence, hf_index, ett_inap_ApplyChargingArg);
 
   return offset;
 }
@@ -1859,7 +2161,7 @@ dissect_inap_ApplyChargingarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 
 static int
-dissect_inap_ApplyChargingReportarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1867,7 +2169,31 @@ dissect_inap_ApplyChargingReportarg(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 }
 
 
-static const ber_sequence_t AssistRequestInstructionsarg_sequence[] = {
+
+static int
+dissect_inap_ApplyChargingReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_CallResult(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_inap_CorrelationID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_Digits(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_correlationID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CorrelationID(TRUE, tvb, offset, pinfo, tree, hf_inap_correlationID);
+}
+static int dissect_bcsmEventCorrelationID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CorrelationID(TRUE, tvb, offset, pinfo, tree, hf_inap_bcsmEventCorrelationID);
+}
+
+
+static const ber_sequence_t AssistRequestInstructionsArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iPAvailable_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iPSSPCapabilities_impl },
@@ -1876,15 +2202,15 @@ static const ber_sequence_t AssistRequestInstructionsarg_sequence[] = {
 };
 
 static int
-dissect_inap_AssistRequestInstructionsarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_AssistRequestInstructionsArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   AssistRequestInstructionsarg_sequence, hf_index, ett_inap_AssistRequestInstructionsarg);
+                                   AssistRequestInstructionsArg_sequence, hf_index, ett_inap_AssistRequestInstructionsArg);
 
   return offset;
 }
 
 
-static const value_string inap_T_dpCriteria_vals[] = {
+static const value_string inap_EventTypeBCSM_vals[] = {
   {   1, "origAttemptAuthorized" },
   {   2, "collectedInfo" },
   {   3, "analysedInformation" },
@@ -1907,32 +2233,35 @@ static const value_string inap_T_dpCriteria_vals[] = {
 
 
 static int
-dissect_inap_T_dpCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_EventTypeBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
+static int dissect_eventTypeBCSM_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_EventTypeBCSM(TRUE, tvb, offset, pinfo, tree, hf_inap_eventTypeBCSM);
+}
 static int dissect_dpCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_dpCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_dpCriteria);
+  return dissect_inap_EventTypeBCSM(TRUE, tvb, offset, pinfo, tree, hf_inap_dpCriteria);
 }
 
 
-static const ber_sequence_t T_gapOnService_sequence[] = {
+static const ber_sequence_t GapOnService_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dpCriteria_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_gapOnService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_GapOnService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_gapOnService_sequence, hf_index, ett_inap_T_gapOnService);
+                                   GapOnService_sequence, hf_index, ett_inap_GapOnService);
 
   return offset;
 }
 static int dissect_gapOnService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_gapOnService(TRUE, tvb, offset, pinfo, tree, hf_inap_gapOnService);
+  return dissect_inap_GapOnService(TRUE, tvb, offset, pinfo, tree, hf_inap_gapOnService);
 }
 
 
@@ -1973,7 +2302,7 @@ static int dissect_callingAddressAndService_impl(packet_info *pinfo, proto_tree 
 }
 
 
-static const value_string inap_T_gapCriteria_vals[] = {
+static const value_string inap_GapCriteria_vals[] = {
   {   0, "calledAddressValue" },
   {   2, "gapOnService" },
   {  29, "calledAddressAndService" },
@@ -1981,59 +2310,59 @@ static const value_string inap_T_gapCriteria_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_gapCriteria_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledAddressValue_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gapOnService_impl },
-  {  29, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_calledAddressAndService_impl },
-  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_callingAddressAndService_impl },
+static const ber_choice_t GapCriteria_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_calledAddressValue_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_gapOnService_impl },
+  {  29, BER_CLASS_CON, 29, 0, dissect_calledAddressAndService_impl },
+  {  30, BER_CLASS_CON, 30, 0, dissect_callingAddressAndService_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_gapCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_GapCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_gapCriteria_choice, hf_index, ett_inap_T_gapCriteria,
+                                 GapCriteria_choice, hf_index, ett_inap_GapCriteria,
                                  NULL);
 
   return offset;
 }
 static int dissect_gapCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_gapCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_gapCriteria);
+  return dissect_inap_GapCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_gapCriteria);
 }
 
 
 
 static int
-dissect_inap_INTEGER_M1_60000(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_Interval(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_gapInterval_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_M1_60000(TRUE, tvb, offset, pinfo, tree, hf_inap_gapInterval);
+  return dissect_inap_Interval(TRUE, tvb, offset, pinfo, tree, hf_inap_gapInterval);
 }
 
 
-static const ber_sequence_t T_gapIndicators_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cgduration_impl },
+static const ber_sequence_t GapIndicators_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_duration_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gapInterval_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_gapIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_GapIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_gapIndicators_sequence, hf_index, ett_inap_T_gapIndicators);
+                                   GapIndicators_sequence, hf_index, ett_inap_GapIndicators);
 
   return offset;
 }
 static int dissect_gapIndicators_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_gapIndicators(TRUE, tvb, offset, pinfo, tree, hf_inap_gapIndicators);
+  return dissect_inap_GapIndicators(TRUE, tvb, offset, pinfo, tree, hf_inap_gapIndicators);
 }
 
 
-static const value_string inap_T_controlType_vals[] = {
+static const value_string inap_ControlType_vals[] = {
   {   0, "sCPOverloaded" },
   {   1, "manuallyInitiated" },
   {   2, "destinationOverload" },
@@ -2042,81 +2371,81 @@ static const value_string inap_T_controlType_vals[] = {
 
 
 static int
-dissect_inap_T_controlType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ControlType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_controlType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_controlType(TRUE, tvb, offset, pinfo, tree, hf_inap_controlType);
+  return dissect_inap_ControlType(TRUE, tvb, offset, pinfo, tree, hf_inap_controlType);
 }
 
 
-static const ber_sequence_t Both_sequence[] = {
+static const ber_sequence_t T_both_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_informationToSend_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_Both(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_T_both(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   Both_sequence, hf_index, ett_inap_Both);
+                                   T_both_sequence, hf_index, ett_inap_T_both);
 
   return offset;
 }
 static int dissect_both_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_Both(TRUE, tvb, offset, pinfo, tree, hf_inap_both);
+  return dissect_inap_T_both(TRUE, tvb, offset, pinfo, tree, hf_inap_both);
 }
 
 
-static const value_string inap_T_gapTreatment_vals[] = {
+static const value_string inap_GapTreatment_vals[] = {
   {   0, "informationToSend" },
   {   1, "releaseCause" },
   {   2, "both" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_gapTreatment_choice[] = {
+static const ber_choice_t GapTreatment_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_informationToSend_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_both_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_releaseCause_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_both_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_gapTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_GapTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_gapTreatment_choice, hf_index, ett_inap_T_gapTreatment,
+                                 GapTreatment_choice, hf_index, ett_inap_GapTreatment,
                                  NULL);
 
   return offset;
 }
 static int dissect_gapTreatment_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_gapTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_gapTreatment);
+  return dissect_inap_GapTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_gapTreatment);
 }
 
 
-static const ber_sequence_t CallGaparg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gapCriteria_impl },
+static const ber_sequence_t CallGapArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gapCriteria_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gapIndicators_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlType_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gapTreatment_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gapTreatment_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_CallGaparg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CallGapArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   CallGaparg_sequence, hf_index, ett_inap_CallGaparg);
+                                   CallGapArg_sequence, hf_index, ett_inap_CallGapArg);
 
   return offset;
 }
 
 
-static const value_string inap_T_requestedInformationType_vals[] = {
+static const value_string inap_RequestedInformationType_vals[] = {
   {   0, "callAttemptElapsedTime" },
   {   1, "callStopTime" },
   {   2, "callConnectedElapsedTime" },
@@ -2127,150 +2456,53 @@ static const value_string inap_T_requestedInformationType_vals[] = {
 
 
 static int
-dissect_inap_T_requestedInformationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_RequestedInformationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
+}
+static int dissect_RequestedInformationTypeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RequestedInformationType(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestedInformationTypeList_item);
 }
 static int dissect_requestedInformationType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_requestedInformationType(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationType);
+  return dissect_inap_RequestedInformationType(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationType);
 }
 
 
-
-static int
-dissect_inap_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_callAttemptElapsedTimeValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_255(TRUE, tvb, offset, pinfo, tree, hf_inap_callAttemptElapsedTimeValue);
-}
-
-
-static const value_string inap_T_requestedInformationValue_vals[] = {
-  {   0, "callAttemptElapsedTimeValue" },
-  {   1, "callStopTimeValue" },
-  {   2, "callConnectedElapsedTimeValue" },
-  {   3, "calledAddressValue" },
-  {  30, "releaseCauseValue" },
-  { 0, NULL }
-};
-
-static const ber_choice_t T_requestedInformationValue_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_callAttemptElapsedTimeValue_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callStopTimeValue_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_callConnectedElapsedTimeValue_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_calledAddressValue_impl },
-  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_releaseCauseValue_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_sequence_t RequestedInformationTypeList_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_RequestedInformationTypeList_item },
 };
 
 static int
-dissect_inap_T_requestedInformationValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_requestedInformationValue_choice, hf_index, ett_inap_T_requestedInformationValue,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_requestedInformationValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_requestedInformationValue(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationValue);
-}
-
-
-static const ber_sequence_t T_requestedInformationList_item_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationType_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_requestedInformationValue_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_T_requestedInformationList_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_requestedInformationList_item_sequence, hf_index, ett_inap_T_requestedInformationList_item);
-
-  return offset;
-}
-static int dissect_requestedInformationList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_requestedInformationList_item(FALSE, tvb, offset, pinfo, tree, hf_inap_requestedInformationList_item);
-}
-
-
-static const ber_sequence_t T_requestedInformationList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_requestedInformationList_item },
-};
-
-static int
-dissect_inap_T_requestedInformationList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_RequestedInformationTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      T_requestedInformationList_sequence_of, hf_index, ett_inap_T_requestedInformationList);
+                                      RequestedInformationTypeList_sequence_of, hf_index, ett_inap_RequestedInformationTypeList);
 
   return offset;
 }
-static int dissect_requestedInformationList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_requestedInformationList(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationList);
+static int dissect_requestedInformationTypeList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RequestedInformationTypeList(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationTypeList);
 }
 
 
-static const ber_sequence_t CallInformationReportarg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationList_impl },
+static const ber_sequence_t CallInformationReportArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationTypeList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_CallInformationReportarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CallInformationReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   CallInformationReportarg_sequence, hf_index, ett_inap_CallInformationReportarg);
+                                   CallInformationReportArg_sequence, hf_index, ett_inap_CallInformationReportArg);
 
   return offset;
 }
 
 
-static const value_string inap_T_requestedInformationTypeList_item_vals[] = {
-  {   0, "callAttemptElapsedTime" },
-  {   1, "callStopTime" },
-  {   2, "callConnectedElapsedTime" },
-  {   3, "calledAddress" },
-  {  30, "releaseCause" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_inap_T_requestedInformationTypeList_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_requestedInformationTypeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_requestedInformationTypeList_item(FALSE, tvb, offset, pinfo, tree, hf_inap_requestedInformationTypeList_item);
-}
-
-
-static const ber_sequence_t T_requestedInformationTypeList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_requestedInformationTypeList_item },
-};
-
-static int
-dissect_inap_T_requestedInformationTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      T_requestedInformationTypeList_sequence_of, hf_index, ett_inap_T_requestedInformationTypeList);
-
-  return offset;
-}
-static int dissect_requestedInformationTypeList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_requestedInformationTypeList(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationTypeList);
-}
-
-
-static const ber_sequence_t CallInformationRequestarg_sequence[] = {
+static const ber_sequence_t CallInformationRequestArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationTypeList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -2279,9 +2511,9 @@ static const ber_sequence_t CallInformationRequestarg_sequence[] = {
 };
 
 static int
-dissect_inap_CallInformationRequestarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CallInformationRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   CallInformationRequestarg_sequence, hf_index, ett_inap_CallInformationRequestarg);
+                                   CallInformationRequestArg_sequence, hf_index, ett_inap_CallInformationRequestArg);
 
   return offset;
 }
@@ -2289,17 +2521,14 @@ dissect_inap_CallInformationRequestarg(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
 
 static int
-dissect_inap_INTEGER_M128_127(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_InvokeID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_invokeID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_M128_127(TRUE, tvb, offset, pinfo, tree, hf_inap_invokeID);
-}
-static int dissect_operation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_M128_127(TRUE, tvb, offset, pinfo, tree, hf_inap_operation);
+  return dissect_inap_InvokeID(TRUE, tvb, offset, pinfo, tree, hf_inap_invokeID);
 }
 
 
@@ -2324,54 +2553,25 @@ static int dissect_null(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 }
 
 
-static const value_string inap_Cancelarg_vals[] = {
+static const value_string inap_CancelArg_vals[] = {
   {   0, "invokeID" },
   {   1, "allRequests" },
   { 0, NULL }
 };
 
-static const ber_choice_t Cancelarg_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_invokeID_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_allRequests_impl },
+static const ber_choice_t CancelArg_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_invokeID_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_allRequests_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_Cancelarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CancelArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 Cancelarg_choice, hf_index, ett_inap_Cancelarg,
+                                 CancelArg_choice, hf_index, ett_inap_CancelArg,
                                  NULL);
 
   return offset;
-}
-
-
-static const value_string inap_FacilityGroupID_vals[] = {
-  {   0, "trunkGroupID" },
-  {   1, "privateFacilityID" },
-  {   2, "huntGroup" },
-  {   3, "routeIndex" },
-  { 0, NULL }
-};
-
-static const ber_choice_t FacilityGroupID_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_trunkGroupID_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_privateFacilityID_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_huntGroup_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_routeIndex_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_FacilityGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 FacilityGroupID_choice, hf_index, ett_inap_FacilityGroupID,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_facilityGroupID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_FacilityGroupID(TRUE, tvb, offset, pinfo, tree, hf_inap_facilityGroupID);
 }
 
 
@@ -2384,10 +2584,10 @@ static const value_string inap_ResourceID_vals[] = {
 };
 
 static const ber_choice_t ResourceID_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_lineID_impl },
+  {   0, BER_CLASS_CON, 0, 0, dissect_lineID_impl },
   {   1, BER_CLASS_CON, 1, 0, dissect_facilityGroupID_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_facilityGroupMemberID_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_trunkGroupID_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_facilityGroupMemberID_impl },
+  {   3, BER_CLASS_CON, 3, 0, dissect_trunkGroupID_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2404,22 +2604,22 @@ static int dissect_resourceID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-static const ber_sequence_t CancelStatusReportRequestarg_sequence[] = {
+static const ber_sequence_t CancelStatusReportRequestArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_CancelStatusReportRequestarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CancelStatusReportRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   CancelStatusReportRequestarg_sequence, hf_index, ett_inap_CancelStatusReportRequestarg);
+                                   CancelStatusReportRequestArg_sequence, hf_index, ett_inap_CancelStatusReportRequestArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t CollectedInformationarg_sequence[] = {
+static const ber_sequence_t CollectedInformationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialledDigits_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
@@ -2439,15 +2639,28 @@ static const ber_sequence_t CollectedInformationarg_sequence[] = {
 };
 
 static int
-dissect_inap_CollectedInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CollectedInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   CollectedInformationarg_sequence, hf_index, ett_inap_CollectedInformationarg);
+                                   CollectedInformationArg_sequence, hf_index, ett_inap_CollectedInformationArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t CollectInformationarg_sequence[] = {
+
+static int
+dissect_inap_NumberingPlan(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_numberingPlan_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_NumberingPlan(TRUE, tvb, offset, pinfo, tree, hf_inap_numberingPlan);
+}
+
+
+static const ber_sequence_t CollectInformationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_numberingPlan_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalCalledPartyID_impl },
@@ -2459,9 +2672,9 @@ static const ber_sequence_t CollectInformationarg_sequence[] = {
 };
 
 static int
-dissect_inap_CollectInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CollectInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   CollectInformationarg_sequence, hf_index, ett_inap_CollectInformationarg);
+                                   CollectInformationArg_sequence, hf_index, ett_inap_CollectInformationArg);
 
   return offset;
 }
@@ -2469,37 +2682,64 @@ dissect_inap_CollectInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
 static int
-dissect_inap_INTEGER_0_22(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CutAndPaste(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_cutAndPaste_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_22(TRUE, tvb, offset, pinfo, tree, hf_inap_cutAndPaste);
+  return dissect_inap_CutAndPaste(TRUE, tvb, offset, pinfo, tree, hf_inap_cutAndPaste);
 }
 
 
-static const value_string inap_T_forwardingCondition_vals[] = {
+static const value_string inap_ForwardingCondition_vals[] = {
   {   0, "busy" },
   {   1, "noanswer" },
+  {   2, "any" },
   { 0, NULL }
 };
 
 
 static int
-dissect_inap_T_forwardingCondition(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ForwardingCondition(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_forwardingCondition_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_forwardingCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_forwardingCondition);
+  return dissect_inap_ForwardingCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_forwardingCondition);
 }
 
 
-static const ber_sequence_t Connectarg_sequence[] = {
+
+static int
+dissect_inap_ScfID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_scfID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ScfID(TRUE, tvb, offset, pinfo, tree, hf_inap_scfID);
+}
+
+
+
+static int
+dissect_inap_ServiceInteractionIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_serviceInteractionIndicators_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ServiceInteractionIndicators(TRUE, tvb, offset, pinfo, tree, hf_inap_serviceInteractionIndicators);
+}
+
+
+static const ber_sequence_t ConnectArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
@@ -2521,27 +2761,57 @@ static const ber_sequence_t Connectarg_sequence[] = {
 };
 
 static int
-dissect_inap_Connectarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ConnectArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   Connectarg_sequence, hf_index, ett_inap_Connectarg);
+                                   ConnectArg_sequence, hf_index, ett_inap_ConnectArg);
 
   return offset;
+}
+
+
+
+static int
+dissect_inap_IPRoutingAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_CalledPartyNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_ipRoutingAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_IPRoutingAddress(TRUE, tvb, offset, pinfo, tree, hf_inap_ipRoutingAddress);
+}
+
+
+static const ber_sequence_t T_both2_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ipRoutingAddress_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_T_both2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_both2_sequence, hf_index, ett_inap_T_both2);
+
+  return offset;
+}
+static int dissect_both2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_T_both2(TRUE, tvb, offset, pinfo, tree, hf_inap_both2);
 }
 
 
 static const value_string inap_T_resourceAddress_vals[] = {
   {   0, "ipRoutingAddress" },
   {   1, "legID" },
-  {   2, "both" },
+  {   2, "both2" },
   {   3, "none" },
   { 0, NULL }
 };
 
 static const ber_choice_t T_resourceAddress_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ipRoutingAddress_impl },
+  {   0, BER_CLASS_CON, 0, 0, dissect_ipRoutingAddress_impl },
   {   1, BER_CLASS_CON, 1, 0, dissect_legID_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_both_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_none_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_both2_impl },
+  {   3, BER_CLASS_CON, 3, 0, dissect_none_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -2558,23 +2828,35 @@ static int dissect_resourceAddress(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-static const ber_sequence_t ConnectToResource_sequence[] = {
+static const ber_sequence_t ConnectToResourceArg_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceAddress },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceInteractionIndicators_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_ConnectToResource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ConnectToResourceArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   ConnectToResource_sequence, hf_index, ett_inap_ConnectToResource);
+                                   ConnectToResourceArg_sequence, hf_index, ett_inap_ConnectToResourceArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t EstablishTemporaryConnection_sequence[] = {
+
+static int
+dissect_inap_AssistingSSPIPRoutingAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_Digits(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_assistingSSPIPRoutingAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_AssistingSSPIPRoutingAddress(TRUE, tvb, offset, pinfo, tree, hf_inap_assistingSSPIPRoutingAddress);
+}
+
+
+static const ber_sequence_t EstablishTemporaryConnectionArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_assistingSSPIPRoutingAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
@@ -2586,11 +2868,37 @@ static const ber_sequence_t EstablishTemporaryConnection_sequence[] = {
 };
 
 static int
-dissect_inap_EstablishTemporaryConnection(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_EstablishTemporaryConnectionArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   EstablishTemporaryConnection_sequence, hf_index, ett_inap_EstablishTemporaryConnection);
+                                   EstablishTemporaryConnectionArg_sequence, hf_index, ett_inap_EstablishTemporaryConnectionArg);
 
   return offset;
+}
+
+
+
+static int
+dissect_inap_EventTypeCharging(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_eventTypeCharging_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_EventTypeCharging(TRUE, tvb, offset, pinfo, tree, hf_inap_eventTypeCharging);
+}
+
+
+
+static int
+dissect_inap_EventSpecificInformationCharging(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_eventSpecificInformationCharging_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_EventSpecificInformationCharging(TRUE, tvb, offset, pinfo, tree, hf_inap_eventSpecificInformationCharging);
 }
 
 
@@ -2614,55 +2922,21 @@ static int dissect_monitorMode_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
-static const ber_sequence_t EventNotificationChargingarg_sequence[] = {
+static const ber_sequence_t EventNotificationChargingArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeCharging_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventSpecificInformationCharging_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_monitorMode_impl },
+  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_monitorMode_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_EventNotificationChargingarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_EventNotificationChargingArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   EventNotificationChargingarg_sequence, hf_index, ett_inap_EventNotificationChargingarg);
+                                   EventNotificationChargingArg_sequence, hf_index, ett_inap_EventNotificationChargingArg);
 
   return offset;
-}
-
-
-static const value_string inap_EventTypeBCSM_vals[] = {
-  {   1, "origAttemptAuthorized" },
-  {   2, "collectedInfo" },
-  {   3, "analysedInformation" },
-  {   4, "routeSelectFailure" },
-  {   5, "oCalledPartyBusy" },
-  {   6, "oNoAnswer" },
-  {   7, "oAnswer" },
-  {   8, "oMidCall" },
-  {   9, "oDisconnect" },
-  {  10, "oAbandon" },
-  {  12, "termAttemptAuthorized" },
-  {  13, "tBusy" },
-  {  14, "tNoAnswer" },
-  {  15, "tAnswer" },
-  {  16, "tMidCall" },
-  {  17, "tDisconnect" },
-  {  18, "tAbandon" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_inap_EventTypeBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_eventTypeBCSM_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_EventTypeBCSM(TRUE, tvb, offset, pinfo, tree, hf_inap_eventTypeBCSM);
 }
 
 
@@ -2697,22 +2971,6 @@ dissect_inap_T_analyzedInfoSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 static int dissect_analyzedInfoSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_analyzedInfoSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_analyzedInfoSpecificInfo);
-}
-
-
-
-static int
-dissect_inap_OCTET_STRING_SIZE_2_10(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_failureCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_2_10(TRUE, tvb, offset, pinfo, tree, hf_inap_failureCause);
-}
-static int dissect_busyCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_OCTET_STRING_SIZE_2_10(TRUE, tvb, offset, pinfo, tree, hf_inap_busyCause);
 }
 
 
@@ -2901,7 +3159,7 @@ static int dissect_tDisconnectSpecificInfo_impl(packet_info *pinfo, proto_tree *
 }
 
 
-static const value_string inap_T_eventSpecificInformationBCSM_vals[] = {
+static const value_string inap_EventSpecificInformationBCSM_vals[] = {
   {   0, "collectedInfoSpecificInfo" },
   {   1, "analyzedInfoSpecificInfo" },
   {   2, "routeSelectFailureSpecificInfo" },
@@ -2918,50 +3176,50 @@ static const value_string inap_T_eventSpecificInformationBCSM_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_eventSpecificInformationBCSM_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_collectedInfoSpecificInfo_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_analyzedInfoSpecificInfo_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_routeSelectFailureSpecificInfo_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_oCalledPartyBusySpecificInfo_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_oNoAnswerSpecificInfo_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_oAnswerSpecificInfo_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_oMidCallSpecificInfo_impl },
-  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_oDisconnectSpecificInfo_impl },
-  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_tBusySpecificInfo_impl },
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_tNoAnswerSpecificInfo_impl },
-  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_tAnswerSpecificInfo_impl },
-  {  11, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_tMidCallSpecificInfo_impl },
-  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_tDisconnectSpecificInfo_impl },
+static const ber_choice_t EventSpecificInformationBCSM_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_collectedInfoSpecificInfo_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_analyzedInfoSpecificInfo_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_routeSelectFailureSpecificInfo_impl },
+  {   3, BER_CLASS_CON, 3, 0, dissect_oCalledPartyBusySpecificInfo_impl },
+  {   4, BER_CLASS_CON, 4, 0, dissect_oNoAnswerSpecificInfo_impl },
+  {   5, BER_CLASS_CON, 5, 0, dissect_oAnswerSpecificInfo_impl },
+  {   6, BER_CLASS_CON, 6, 0, dissect_oMidCallSpecificInfo_impl },
+  {   7, BER_CLASS_CON, 7, 0, dissect_oDisconnectSpecificInfo_impl },
+  {   8, BER_CLASS_CON, 8, 0, dissect_tBusySpecificInfo_impl },
+  {   9, BER_CLASS_CON, 9, 0, dissect_tNoAnswerSpecificInfo_impl },
+  {  10, BER_CLASS_CON, 10, 0, dissect_tAnswerSpecificInfo_impl },
+  {  11, BER_CLASS_CON, 11, 0, dissect_tMidCallSpecificInfo_impl },
+  {  12, BER_CLASS_CON, 12, 0, dissect_tDisconnectSpecificInfo_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_eventSpecificInformationBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_EventSpecificInformationBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_eventSpecificInformationBCSM_choice, hf_index, ett_inap_T_eventSpecificInformationBCSM,
+                                 EventSpecificInformationBCSM_choice, hf_index, ett_inap_EventSpecificInformationBCSM,
                                  NULL);
 
   return offset;
 }
 static int dissect_eventSpecificInformationBCSM_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_eventSpecificInformationBCSM(TRUE, tvb, offset, pinfo, tree, hf_inap_eventSpecificInformationBCSM);
+  return dissect_inap_EventSpecificInformationBCSM(TRUE, tvb, offset, pinfo, tree, hf_inap_eventSpecificInformationBCSM);
 }
 
 
-static const ber_sequence_t EventReportBCSM_sequence[] = {
+static const ber_sequence_t EventReportBCSMArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeBCSM_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bcsmEventCorrelationID_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventSpecificInformationBCSM_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_eventSpecificInformationBCSM_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_miscCallInfo_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_miscCallInfo_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_EventReportBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_EventReportBCSMArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   EventReportBCSM_sequence, hf_index, ett_inap_EventReportBCSM);
+                                   EventReportBCSMArg_sequence, hf_index, ett_inap_EventReportBCSMArg);
 
   return offset;
 }
@@ -2969,7 +3227,7 @@ dissect_inap_EventReportBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 
 static int
-dissect_inap_FurnishChargingInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_FCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -2977,25 +3235,85 @@ dissect_inap_FurnishChargingInformationarg(gboolean implicit_tag _U_, tvbuff_t *
 }
 
 
-static const value_string inap_HoldCallInNetworkarg_vals[] = {
+
+static int
+dissect_inap_FurnishChargingInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_FCIBillingChargingCharacteristics(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_inap_HoldCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_holdcause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_HoldCause(TRUE, tvb, offset, pinfo, tree, hf_inap_holdcause);
+}
+
+
+static const value_string inap_HoldCallInNetworkArg_vals[] = {
   {   0, "holdcause" },
   {   1, "empty" },
   { 0, NULL }
 };
 
-static const ber_choice_t HoldCallInNetworkarg_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_holdcause_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_empty_impl },
+static const ber_choice_t HoldCallInNetworkArg_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_holdcause_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_empty_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_HoldCallInNetworkarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_HoldCallInNetworkArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 HoldCallInNetworkarg_choice, hf_index, ett_inap_HoldCallInNetworkarg,
+                                 HoldCallInNetworkArg_choice, hf_index, ett_inap_HoldCallInNetworkArg,
                                  NULL);
 
   return offset;
+}
+
+
+
+static int
+dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_highLayerCompatibility_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_HighLayerCompatibility(TRUE, tvb, offset, pinfo, tree, hf_inap_highLayerCompatibility);
+}
+
+
+
+static int
+dissect_inap_AdditionalCallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_Digits(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_additionalCallingPartyNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_AdditionalCallingPartyNumber(TRUE, tvb, offset, pinfo, tree, hf_inap_additionalCallingPartyNumber);
+}
+
+
+
+static int
+dissect_inap_ForwardCallIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_forwardCallIndicators_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ForwardCallIndicators(TRUE, tvb, offset, pinfo, tree, hf_inap_forwardCallIndicators);
 }
 
 
@@ -3037,7 +3355,7 @@ dissect_inap_InitialDP(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 }
 
 
-static const ber_sequence_t InitiateCallAttempt_sequence[] = {
+static const ber_sequence_t InitiateCallAttemptArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iSDNAccessRelatedInformation_impl },
@@ -3049,85 +3367,37 @@ static const ber_sequence_t InitiateCallAttempt_sequence[] = {
 };
 
 static int
-dissect_inap_InitiateCallAttempt(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_InitiateCallAttemptArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   InitiateCallAttempt_sequence, hf_index, ett_inap_InitiateCallAttempt);
+                                   InitiateCallAttemptArg_sequence, hf_index, ett_inap_InitiateCallAttemptArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t OAnswer_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_callingFacilityGroup_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFacilityGroupMember_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalCalledPartyID_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyID_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectionInformation_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routeList_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_travellingClassMark_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { 0, 0, 0, NULL }
-};
 
 static int
-dissect_inap_OAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   OAnswer_sequence, hf_index, ett_inap_OAnswer);
+dissect_inap_CalledPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
-
-
-static const ber_sequence_t OCalledPartyBusy_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_busyCause_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_callingFacilityGroup_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFacilityGroupMember_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalCalledPartyID_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_prefix_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectionInformation_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routeList_impl },
-  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_travellingClassMark_impl },
-  { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrier_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_OCalledPartyBusy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   OCalledPartyBusy_sequence, hf_index, ett_inap_OCalledPartyBusy);
-
-  return offset;
+static int dissect_calledPartyBusinessGroupID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CalledPartyBusinessGroupID(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartyBusinessGroupID);
 }
 
 
-static const ber_sequence_t ODisconnect_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_callingFacilityGroup_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFacilityGroupMember_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routeList_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrier_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_connectTime_impl },
-  { 0, 0, 0, NULL }
-};
 
 static int
-dissect_inap_ODisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   ODisconnect_sequence, hf_index, ett_inap_ODisconnect);
+dissect_inap_CalledPartySubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
+}
+static int dissect_calledPartySubaddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CalledPartySubaddress(TRUE, tvb, offset, pinfo, tree, hf_inap_calledPartySubaddress);
 }
 
 
@@ -3153,7 +3423,7 @@ static int dissect_featureRequestIndicator_impl(packet_info *pinfo, proto_tree *
 }
 
 
-static const ber_sequence_t OMidCall_sequence[] = {
+static const ber_sequence_t MidCallArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartySubaddress_impl },
@@ -3166,9 +3436,83 @@ static const ber_sequence_t OMidCall_sequence[] = {
 };
 
 static int
-dissect_inap_OMidCall(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_MidCallArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   OMidCall_sequence, hf_index, ett_inap_OMidCall);
+                                   MidCallArg_sequence, hf_index, ett_inap_MidCallArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t OAnswerArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_callingFacilityGroup_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFacilityGroupMember_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalCalledPartyID_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyID_impl },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectionInformation_impl },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routeList_impl },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_travellingClassMark_impl },
+  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_OAnswerArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   OAnswerArg_sequence, hf_index, ett_inap_OAnswerArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t OCalledPartyBusyArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_busyCause_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_callingFacilityGroup_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFacilityGroupMember_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalCalledPartyID_impl },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_prefix_impl },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyID_impl },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectionInformation_impl },
+  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routeList_impl },
+  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_travellingClassMark_impl },
+  { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
+  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrier_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_OCalledPartyBusyArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   OCalledPartyBusyArg_sequence, hf_index, ett_inap_OCalledPartyBusyArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ODisconnectArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_callingFacilityGroup_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFacilityGroupMember_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routeList_impl },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrier_impl },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_connectTime_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_ODisconnectArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ODisconnectArg_sequence, hf_index, ett_inap_ODisconnectArg);
 
   return offset;
 }
@@ -3200,7 +3544,7 @@ dissect_inap_ONoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 }
 
 
-static const ber_sequence_t OriginationAttemptAuthorized_sequence[] = {
+static const ber_sequence_t OriginationAttemptAuthorizedArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialledDigits_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
@@ -3214,9 +3558,9 @@ static const ber_sequence_t OriginationAttemptAuthorized_sequence[] = {
 };
 
 static int
-dissect_inap_OriginationAttemptAuthorized(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_OriginationAttemptAuthorizedArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   OriginationAttemptAuthorized_sequence, hf_index, ett_inap_OriginationAttemptAuthorized);
+                                   OriginationAttemptAuthorizedArg_sequence, hf_index, ett_inap_OriginationAttemptAuthorizedArg);
 
   return offset;
 }
@@ -3249,7 +3593,7 @@ static int dissect_iA5Information_impl(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const ber_sequence_t PlayAnnouncement_sequence[] = {
+static const ber_sequence_t PlayAnnouncementArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_informationToSend_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_disconnectFromIPForbidden_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestAnnouncementComplete_impl },
@@ -3258,9 +3602,9 @@ static const ber_sequence_t PlayAnnouncement_sequence[] = {
 };
 
 static int
-dissect_inap_PlayAnnouncement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_PlayAnnouncementArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PlayAnnouncement_sequence, hf_index, ett_inap_PlayAnnouncement);
+                                   PlayAnnouncementArg_sequence, hf_index, ett_inap_PlayAnnouncementArg);
 
   return offset;
 }
@@ -3285,7 +3629,7 @@ static int dissect_startDigit_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-static const value_string inap_T_errorTreatment_vals[] = {
+static const value_string inap_ErrorTreatment_vals[] = {
   {   0, "reportErrorToScf" },
   {   1, "help" },
   {   2, "repeatPrompt" },
@@ -3294,18 +3638,18 @@ static const value_string inap_T_errorTreatment_vals[] = {
 
 
 static int
-dissect_inap_T_errorTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ErrorTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_errorTreatment_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_errorTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_errorTreatment);
+  return dissect_inap_ErrorTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_errorTreatment);
 }
 
 
-static const ber_sequence_t T_collectedDigits_sequence[] = {
+static const ber_sequence_t CollectedDigits_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_minimumNbOfDigits_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_maximumNbOfDigits_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_endOfReplyDigit_impl },
@@ -3321,44 +3665,44 @@ static const ber_sequence_t T_collectedDigits_sequence[] = {
 };
 
 static int
-dissect_inap_T_collectedDigits(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CollectedDigits(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_collectedDigits_sequence, hf_index, ett_inap_T_collectedDigits);
+                                   CollectedDigits_sequence, hf_index, ett_inap_CollectedDigits);
 
   return offset;
 }
 static int dissect_collectedDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_collectedDigits(TRUE, tvb, offset, pinfo, tree, hf_inap_collectedDigits);
+  return dissect_inap_CollectedDigits(TRUE, tvb, offset, pinfo, tree, hf_inap_collectedDigits);
 }
 
 
-static const value_string inap_T_collectedInfo_vals[] = {
+static const value_string inap_CollectedInfo_vals[] = {
   {   0, "collectedDigits" },
   {   1, "iA5Information" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_collectedInfo_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_collectedDigits_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_iA5Information_impl },
+static const ber_choice_t CollectedInfo_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_collectedDigits_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_iA5Information_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_collectedInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CollectedInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_collectedInfo_choice, hf_index, ett_inap_T_collectedInfo,
+                                 CollectedInfo_choice, hf_index, ett_inap_CollectedInfo,
                                  NULL);
 
   return offset;
 }
 static int dissect_collectedInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_collectedInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_collectedInfo);
+  return dissect_inap_CollectedInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_collectedInfo);
 }
 
 
-static const ber_sequence_t PromptAndCollectUserInformationarg_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_collectedInfo_impl },
+static const ber_sequence_t PromptAndCollectUserInformationArg_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_collectedInfo_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_disconnectFromIPForbidden_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_informationToSend_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -3366,60 +3710,45 @@ static const ber_sequence_t PromptAndCollectUserInformationarg_sequence[] = {
 };
 
 static int
-dissect_inap_PromptAndCollectUserInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_PromptAndCollectUserInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   PromptAndCollectUserInformationarg_sequence, hf_index, ett_inap_PromptAndCollectUserInformationarg);
+                                   PromptAndCollectUserInformationArg_sequence, hf_index, ett_inap_PromptAndCollectUserInformationArg);
 
   return offset;
 }
 
 
-static const value_string inap_PromptAndCollectUserInformationres_vals[] = {
+
+static int
+dissect_inap_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_iA5Response_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_IA5String(TRUE, tvb, offset, pinfo, tree, hf_inap_iA5Response);
+}
+
+
+static const value_string inap_ReceivedInformationArg_vals[] = {
   {   0, "digitsResponse" },
   {   1, "iA5Response" },
   { 0, NULL }
 };
 
-static const ber_choice_t PromptAndCollectUserInformationres_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_digitsResponse_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_iA5Response_impl },
+static const ber_choice_t ReceivedInformationArg_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_digitsResponse_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_iA5Response_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_PromptAndCollectUserInformationres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ReceivedInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 PromptAndCollectUserInformationres_choice, hf_index, ett_inap_PromptAndCollectUserInformationres,
+                                 ReceivedInformationArg_choice, hf_index, ett_inap_ReceivedInformationArg,
                                  NULL);
-
-  return offset;
-}
-
-
-static const value_string inap_ResourceStatus_vals[] = {
-  {   0, "busy" },
-  {   1, "idle" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_inap_ResourceStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_resourceStatus_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_ResourceStatus(TRUE, tvb, offset, pinfo, tree, hf_inap_resourceStatus);
-}
-
-
-
-static int
-dissect_inap_ReleaseCall(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
 
   return offset;
 }
@@ -3464,49 +3793,51 @@ dissect_inap_ReleaseCallArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 }
 
 
-static const value_string inap_RequestCurrentStatusReportarg_vals[] = {
-  {   0, "lineID" },
-  {   1, "facilityGroupID" },
-  {   2, "facilityGroupMemberID" },
-  {   3, "trunkGroupID" },
-  { 0, NULL }
-};
-
-static const ber_choice_t RequestCurrentStatusReportarg_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_lineID_impl },
-  {   1, BER_CLASS_CON, 1, 0, dissect_facilityGroupID_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_facilityGroupMemberID_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_trunkGroupID_impl },
-  { 0, 0, 0, 0, NULL }
-};
 
 static int
-dissect_inap_RequestCurrentStatusReportarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 RequestCurrentStatusReportarg_choice, hf_index, ett_inap_RequestCurrentStatusReportarg,
-                                 NULL);
+dissect_inap_RequestCurrentStatusReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_ResourceID(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
 
 
-static const ber_sequence_t RequestCurrentStatusReportres_sequence[] = {
+static const value_string inap_ResourceStatus_vals[] = {
+  {   0, "busy" },
+  {   1, "idle" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_ResourceStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_resourceStatus_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_ResourceStatus(TRUE, tvb, offset, pinfo, tree, hf_inap_resourceStatus);
+}
+
+
+static const ber_sequence_t RequestCurrentStatusReportResultArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_resourceStatus_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_RequestCurrentStatusReportres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_RequestCurrentStatusReportResultArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   RequestCurrentStatusReportres_sequence, hf_index, ett_inap_RequestCurrentStatusReportres);
+                                   RequestCurrentStatusReportResultArg_sequence, hf_index, ett_inap_RequestCurrentStatusReportResultArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t RequestEveryStatusChangeReport_sequence[] = {
+static const ber_sequence_t RequestEveryStatusChangeReportArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_monitorDuration_impl },
@@ -3515,15 +3846,15 @@ static const ber_sequence_t RequestEveryStatusChangeReport_sequence[] = {
 };
 
 static int
-dissect_inap_RequestEveryStatusChangeReport(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_RequestEveryStatusChangeReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   RequestEveryStatusChangeReport_sequence, hf_index, ett_inap_RequestEveryStatusChangeReport);
+                                   RequestEveryStatusChangeReportArg_sequence, hf_index, ett_inap_RequestEveryStatusChangeReportArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t RequestFirstStatusMatchReport_sequence[] = {
+static const ber_sequence_t RequestFirstStatusMatchReportArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_resourceStatus_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
@@ -3534,16 +3865,16 @@ static const ber_sequence_t RequestFirstStatusMatchReport_sequence[] = {
 };
 
 static int
-dissect_inap_RequestFirstStatusMatchReport(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_RequestFirstStatusMatchReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   RequestFirstStatusMatchReport_sequence, hf_index, ett_inap_RequestFirstStatusMatchReport);
+                                   RequestFirstStatusMatchReportArg_sequence, hf_index, ett_inap_RequestFirstStatusMatchReportArg);
 
   return offset;
 }
 
 
 static const ber_sequence_t RequestNotificationChargingEvent_item_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeCharging_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeCharging2_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_monitorMode_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
   { 0, 0, 0, NULL }
@@ -3576,92 +3907,92 @@ dissect_inap_RequestNotificationChargingEvent(gboolean implicit_tag _U_, tvbuff_
 
 
 static int
-dissect_inap_INTEGER_1_255(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_NumberOfDigits(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_numberOfDigits_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_1_255(TRUE, tvb, offset, pinfo, tree, hf_inap_numberOfDigits);
+  return dissect_inap_NumberOfDigits(TRUE, tvb, offset, pinfo, tree, hf_inap_numberOfDigits);
 }
 
 
 
 static int
-dissect_inap_INTEGER_0_2047(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ApplicationTimer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_applicationTimer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_2047(TRUE, tvb, offset, pinfo, tree, hf_inap_applicationTimer);
+  return dissect_inap_ApplicationTimer(TRUE, tvb, offset, pinfo, tree, hf_inap_applicationTimer);
 }
 
 
-static const value_string inap_T_dpSpecificCriteria_vals[] = {
+static const value_string inap_DpSpecificCriteria_vals[] = {
   {   0, "numberOfDigits" },
   {   1, "applicationTimer" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_dpSpecificCriteria_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_numberOfDigits_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_applicationTimer_impl },
+static const ber_choice_t DpSpecificCriteria_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_numberOfDigits_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_applicationTimer_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_dpSpecificCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_DpSpecificCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 T_dpSpecificCriteria_choice, hf_index, ett_inap_T_dpSpecificCriteria,
+                                 DpSpecificCriteria_choice, hf_index, ett_inap_DpSpecificCriteria,
                                  NULL);
 
   return offset;
 }
 static int dissect_dpSpecificCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_dpSpecificCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_dpSpecificCriteria);
+  return dissect_inap_DpSpecificCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_dpSpecificCriteria);
 }
 
 
-static const ber_sequence_t T_bcsmEvents_item_sequence[] = {
+static const ber_sequence_t BCSMEvent_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeBCSM_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_monitorMode_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dpSpecificCriteria_impl },
+  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_dpSpecificCriteria_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_bcsmEvents_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_bcsmEvents_item_sequence, hf_index, ett_inap_T_bcsmEvents_item);
+                                   BCSMEvent_sequence, hf_index, ett_inap_BCSMEvent);
 
   return offset;
 }
 static int dissect_bcsmEvents_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_bcsmEvents_item(FALSE, tvb, offset, pinfo, tree, hf_inap_bcsmEvents_item);
+  return dissect_inap_BCSMEvent(FALSE, tvb, offset, pinfo, tree, hf_inap_bcsmEvents_item);
 }
 
 
-static const ber_sequence_t T_bcsmEvents_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_bcsmEvents_item },
 };
 
 static int
-dissect_inap_T_bcsmEvents(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      T_bcsmEvents_sequence_of, hf_index, ett_inap_T_bcsmEvents);
+                                      SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent);
 
   return offset;
 }
 static int dissect_bcsmEvents_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_bcsmEvents(TRUE, tvb, offset, pinfo, tree, hf_inap_bcsmEvents);
+  return dissect_inap_SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent(TRUE, tvb, offset, pinfo, tree, hf_inap_bcsmEvents);
 }
 
 
-static const ber_sequence_t RequestReportBCSMEvent_sequence[] = {
+static const ber_sequence_t RequestReportBCSMEventArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_bcsmEvents_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bcsmEventCorrelationID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -3669,33 +4000,45 @@ static const ber_sequence_t RequestReportBCSMEvent_sequence[] = {
 };
 
 static int
-dissect_inap_RequestReportBCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_RequestReportBCSMEventArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   RequestReportBCSMEvent_sequence, hf_index, ett_inap_RequestReportBCSMEvent);
+                                   RequestReportBCSMEventArg_sequence, hf_index, ett_inap_RequestReportBCSMEventArg);
 
   return offset;
 }
 
 
-static const value_string inap_T_timerID_vals[] = {
+static const value_string inap_TimerID_vals[] = {
   {   0, "tssf" },
   { 0, NULL }
 };
 
 
 static int
-dissect_inap_T_timerID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_TimerID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_timerID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_timerID(TRUE, tvb, offset, pinfo, tree, hf_inap_timerID);
+  return dissect_inap_TimerID(TRUE, tvb, offset, pinfo, tree, hf_inap_timerID);
 }
 
 
-static const ber_sequence_t ResetTimer_sequence[] = {
+
+static int
+dissect_inap_TimerValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_inap_Integer4(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_timervalue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_TimerValue(TRUE, tvb, offset, pinfo, tree, hf_inap_timervalue);
+}
+
+
+static const ber_sequence_t ResetTimerArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timerID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_timervalue_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -3703,15 +4046,15 @@ static const ber_sequence_t ResetTimer_sequence[] = {
 };
 
 static int
-dissect_inap_ResetTimer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ResetTimerArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   ResetTimer_sequence, hf_index, ett_inap_ResetTimer);
+                                   ResetTimerArg_sequence, hf_index, ett_inap_ResetTimerArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t RouteSelectFailure_sequence[] = {
+static const ber_sequence_t RouteSelectFailureArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialledDigits_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
@@ -3731,44 +4074,15 @@ static const ber_sequence_t RouteSelectFailure_sequence[] = {
 };
 
 static int
-dissect_inap_RouteSelectFailure(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_RouteSelectFailureArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   RouteSelectFailure_sequence, hf_index, ett_inap_RouteSelectFailure);
+                                   RouteSelectFailureArg_sequence, hf_index, ett_inap_RouteSelectFailureArg);
 
   return offset;
 }
 
 
-static const value_string inap_CalledFacilityGroup_vals[] = {
-  {   0, "trunkGroupID" },
-  {   1, "privateFacilityID" },
-  {   2, "huntGroup" },
-  {   3, "routeIndex" },
-  { 0, NULL }
-};
-
-static const ber_choice_t CalledFacilityGroup_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_trunkGroupID_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_privateFacilityID_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_huntGroup_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_routeIndex_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_CalledFacilityGroup(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 CalledFacilityGroup_choice, hf_index, ett_inap_CalledFacilityGroup,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_calledFacilityGroup_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_CalledFacilityGroup(TRUE, tvb, offset, pinfo, tree, hf_inap_calledFacilityGroup);
-}
-
-
-static const ber_sequence_t SelectFacility_sequence[] = {
+static const ber_sequence_t SelectFacilityArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberRoutingAddress_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iSDNAccessRelatedInformation_impl },
@@ -3780,15 +4094,15 @@ static const ber_sequence_t SelectFacility_sequence[] = {
 };
 
 static int
-dissect_inap_SelectFacility(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_SelectFacilityArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   SelectFacility_sequence, hf_index, ett_inap_SelectFacility);
+                                   SelectFacilityArg_sequence, hf_index, ett_inap_SelectFacilityArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SelectRoute_sequence[] = {
+static const ber_sequence_t SelectRouteArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
@@ -3803,15 +4117,28 @@ static const ber_sequence_t SelectRoute_sequence[] = {
 };
 
 static int
-dissect_inap_SelectRoute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_SelectRouteArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   SelectRoute_sequence, hf_index, ett_inap_SelectRoute);
+                                   SelectRouteArg_sequence, hf_index, ett_inap_SelectRouteArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendChargingInformation_sequence[] = {
+
+static int
+dissect_inap_SCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_sCIBillingChargingCharacteristics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_SCIBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, hf_inap_sCIBillingChargingCharacteristics);
+}
+
+
+static const ber_sequence_t SendChargingInformationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sCIBillingChargingCharacteristics_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_partyToCharge_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -3819,9 +4146,9 @@ static const ber_sequence_t SendChargingInformation_sequence[] = {
 };
 
 static int
-dissect_inap_SendChargingInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_SendChargingInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   SendChargingInformation_sequence, hf_index, ett_inap_SendChargingInformation);
+                                   SendChargingInformationArg_sequence, hf_index, ett_inap_SendChargingInformationArg);
 
   return offset;
 }
@@ -3829,52 +4156,52 @@ dissect_inap_SendChargingInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
 
 static int
-dissect_inap_INTEGER_0_99(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CounterID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_counterID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_inap_counterID);
+  return dissect_inap_CounterID(TRUE, tvb, offset, pinfo, tree, hf_inap_counterID);
 }
 
 
-static const ber_sequence_t T_countersValue_item_sequence[] = {
+static const ber_sequence_t CounterAndValue_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_counterID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_counterValue_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_inap_T_countersValue_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CounterAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_countersValue_item_sequence, hf_index, ett_inap_T_countersValue_item);
+                                   CounterAndValue_sequence, hf_index, ett_inap_CounterAndValue);
 
   return offset;
 }
-static int dissect_countersValue_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_countersValue_item(FALSE, tvb, offset, pinfo, tree, hf_inap_countersValue_item);
+static int dissect_CountersValue_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_CounterAndValue(FALSE, tvb, offset, pinfo, tree, hf_inap_CountersValue_item);
 }
 
 
-static const ber_sequence_t T_countersValue_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_countersValue_item },
+static const ber_sequence_t CountersValue_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CountersValue_item },
 };
 
 static int
-dissect_inap_T_countersValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_CountersValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      T_countersValue_sequence_of, hf_index, ett_inap_T_countersValue);
+                                      CountersValue_sequence_of, hf_index, ett_inap_CountersValue);
 
   return offset;
 }
 static int dissect_countersValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_countersValue(TRUE, tvb, offset, pinfo, tree, hf_inap_countersValue);
+  return dissect_inap_CountersValue(TRUE, tvb, offset, pinfo, tree, hf_inap_countersValue);
 }
 
 
-static const value_string inap_T_responseCondition_vals[] = {
+static const value_string inap_ResponseCondition_vals[] = {
   {   0, "intermediateResponse" },
   {   1, "lastResponse" },
   { 0, NULL }
@@ -3882,18 +4209,18 @@ static const value_string inap_T_responseCondition_vals[] = {
 
 
 static int
-dissect_inap_T_responseCondition(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ResponseCondition(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_responseCondition_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_responseCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_responseCondition);
+  return dissect_inap_ResponseCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_responseCondition);
 }
 
 
-static const ber_sequence_t ServiceFilteringResponse_sequence[] = {
+static const ber_sequence_t ServiceFilteringResponseArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_countersValue_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_filteringCriteria_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
@@ -3902,15 +4229,24 @@ static const ber_sequence_t ServiceFilteringResponse_sequence[] = {
 };
 
 static int
-dissect_inap_ServiceFilteringResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ServiceFilteringResponseArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   ServiceFilteringResponse_sequence, hf_index, ett_inap_ServiceFilteringResponse);
+                                   ServiceFilteringResponseArg_sequence, hf_index, ett_inap_ServiceFilteringResponseArg);
 
   return offset;
 }
 
 
-static const value_string inap_T_reportCondition_vals[] = {
+
+static int
+dissect_inap_SpecializedResourceReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const value_string inap_ReportCondition_vals[] = {
   {   0, "statusReport" },
   {   1, "timerExpired" },
   {   2, "canceled" },
@@ -3919,18 +4255,18 @@ static const value_string inap_T_reportCondition_vals[] = {
 
 
 static int
-dissect_inap_T_reportCondition(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_ReportCondition(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_reportCondition_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_inap_T_reportCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_reportCondition);
+  return dissect_inap_ReportCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_reportCondition);
 }
 
 
-static const ber_sequence_t StatusReport_sequence[] = {
+static const ber_sequence_t StatusReportArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_resourceStatus_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
@@ -3940,15 +4276,15 @@ static const ber_sequence_t StatusReport_sequence[] = {
 };
 
 static int
-dissect_inap_StatusReport(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_StatusReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   StatusReport_sequence, hf_index, ett_inap_StatusReport);
+                                   StatusReportArg_sequence, hf_index, ett_inap_StatusReportArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t TAnswer_sequence[] = {
+static const ber_sequence_t TAnswerArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartySubaddress_impl },
@@ -3959,15 +4295,15 @@ static const ber_sequence_t TAnswer_sequence[] = {
 };
 
 static int
-dissect_inap_TAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_TAnswerArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   TAnswer_sequence, hf_index, ett_inap_TAnswer);
+                                   TAnswerArg_sequence, hf_index, ett_inap_TAnswerArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t TBusy_sequence[] = {
+static const ber_sequence_t TTBusyArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_busyCause_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
@@ -3982,15 +4318,15 @@ static const ber_sequence_t TBusy_sequence[] = {
 };
 
 static int
-dissect_inap_TBusy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_TTBusyArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   TBusy_sequence, hf_index, ett_inap_TBusy);
+                                   TTBusyArg_sequence, hf_index, ett_inap_TTBusyArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t TDisconnect_sequence[] = {
+static const ber_sequence_t TDisconnectArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartySubaddress_impl },
@@ -4003,15 +4339,15 @@ static const ber_sequence_t TDisconnect_sequence[] = {
 };
 
 static int
-dissect_inap_TDisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_TDisconnectArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   TDisconnect_sequence, hf_index, ett_inap_TDisconnect);
+                                   TDisconnectArg_sequence, hf_index, ett_inap_TDisconnectArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t TermAttemptAuthorized_sequence[] = {
+static const ber_sequence_t TermAttemptAuthorizedArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartySubaddress_impl },
@@ -4026,36 +4362,15 @@ static const ber_sequence_t TermAttemptAuthorized_sequence[] = {
 };
 
 static int
-dissect_inap_TermAttemptAuthorized(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_TermAttemptAuthorizedArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   TermAttemptAuthorized_sequence, hf_index, ett_inap_TermAttemptAuthorized);
+                                   TermAttemptAuthorizedArg_sequence, hf_index, ett_inap_TermAttemptAuthorizedArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t TMidCall_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartySubaddress_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_featureRequestIndicator_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrier_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_inap_TMidCall(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   TMidCall_sequence, hf_index, ett_inap_TMidCall);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TNoAnswer_sequence[] = {
+static const ber_sequence_t TNoAnswerArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartySubaddress_impl },
@@ -4070,9 +4385,119 @@ static const ber_sequence_t TNoAnswer_sequence[] = {
 };
 
 static int
-dissect_inap_TNoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_TNoAnswerArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   TNoAnswer_sequence, hf_index, ett_inap_TNoAnswer);
+                                   TNoAnswerArg_sequence, hf_index, ett_inap_TNoAnswerArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ChargingEvent_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeCharging_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_monitorMode_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_ChargingEvent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ChargingEvent_sequence, hf_index, ett_inap_ChargingEvent);
+
+  return offset;
+}
+
+
+
+static int
+dissect_inap_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_callAttemptElapsedTimeValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_0_255(TRUE, tvb, offset, pinfo, tree, hf_inap_callAttemptElapsedTimeValue);
+}
+
+
+static const value_string inap_RequestedInformationValue_vals[] = {
+  {   0, "callAttemptElapsedTimeValue" },
+  {   1, "callStopTimeValue" },
+  {   2, "callConnectedElapsedTimeValue" },
+  {   3, "calledAddressValue" },
+  {  30, "releaseCauseValue" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RequestedInformationValue_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_callAttemptElapsedTimeValue_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_callStopTimeValue_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_callConnectedElapsedTimeValue_impl },
+  {   3, BER_CLASS_CON, 3, 0, dissect_calledAddressValue_impl },
+  {  30, BER_CLASS_CON, 30, 0, dissect_releaseCauseValue_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_RequestedInformationValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 RequestedInformationValue_choice, hf_index, ett_inap_RequestedInformationValue,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_requestedInformationValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RequestedInformationValue(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationValue);
+}
+
+
+static const ber_sequence_t RequestedInformation_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationType_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_requestedInformationValue_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_RequestedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RequestedInformation_sequence, hf_index, ett_inap_RequestedInformation);
+
+  return offset;
+}
+static int dissect_RequestedInformationList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RequestedInformation(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestedInformationList_item);
+}
+
+
+static const ber_sequence_t RequestedInformationList_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RequestedInformationList_item },
+};
+
+static int
+dissect_inap_RequestedInformationList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      RequestedInformationList_sequence_of, hf_index, ett_inap_RequestedInformationList);
+
+  return offset;
+}
+
+
+static const value_string inap_UnavailableNetworkResource_vals[] = {
+  {   0, "unavailableResources" },
+  {   1, "componentFailure" },
+  {   2, "basicCallProcessingException" },
+  {   3, "resourceStatusFailure" },
+  {   4, "endUserFailure" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_UnavailableNetworkResource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4095,6 +4520,19 @@ dissect_inap_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 }
 static int dissect_problem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_problem(TRUE, tvb, offset, pinfo, tree, hf_inap_problem);
+}
+
+
+
+static int
+dissect_inap_INTEGER_M128_127(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_operation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_INTEGER_M128_127(TRUE, tvb, offset, pinfo, tree, hf_inap_operation);
 }
 
 
@@ -4340,25 +4778,61 @@ dissect_inap_RejectPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
 const value_string inap_opr_code_strings[] = {
 
-{16, "AssistRequestInstructions"},
-{44, "CallInformationReport"},
-{45, "CallInformationRequest"},
-{53, "Cancel"},
-{20, "Connect"},
-{18, "DisconnectForwardConnection"},
-	{19,"ConnectToResource"},
-	{17,"EstablishTemporaryConnection"},
-	{24,"EventReportBCSM"},
-	{34,"FurnishChargingInformation"},
 	{0,"InitialDP"},
+	{1, "OriginationAttemptAuthorized"},
+	{2, "CollectedInformation"},
+	{3, "AnalysedInformation"},
+	{4, "RouteSelectFailure"},
+	{5, "oCalledPartyBusy"},
+	{6, "oNoAnswer"},
+	{7, "oAnswer"},
+	{8, "oDisconnect"},
+	{9, "TermAttemptAuthorized"},
+	{10, "tBusy"},
+	{11, "tNoAnswer"},
+	{12, "tAnswer"},
+	{13, "tDisconnect"},
+	{14, "oMidCall"},
+	{15, "tMidCall"},
+	{16, "AssistRequestInstructions"},
+	{17,"EstablishTemporaryConnection"},
+	{18, "DisconnectForwardConnection"},
+	{19,"ConnectToResource"},
+	{20, "Connect"},
+	{21,"HoldCallInNetwork"},
+	{22, "ReleaseCall"},
+	{23, "RequestReportBCSMEven"},
+	{23,"RequestReportBCSMEvent"},
+	{24,"EventReportBCSM"},
+	{25, "RequestNotificationChargingEvent"},
+	{26, "EventNotificationCharging"},
+	{27, "CollectInformation"},
+	{28, "AnalyseInformation"},
+	{29, "SelectRoute"},
+	{30, "SelectFacility"},
+	{31, "Continue"},
+	{32, "InitiateCallAttempt"},
+	{33,"ResetTimer"},
+	{34,"FurnishChargingInformation"},
+	{35, "ApplyCharging"},
+	{36, "ApplyChargingReport"},
+	{37, "RequestCurrentStatusReport"},
+	{38, "RequestEveryStatusChangeReport"},
+	{39, "RequestFirstStatusMatchReport"},
+	{40, "StatusReport"},
+	{41, "CallGap"},
+	{42, "ActivateServiceFiltering"},
+	{43, "ServiceFilteringResponse"},
+	{44, "CallInformationReport"},
+	{45, "CallInformationRequest"},
+	{46, "SendChargingInformation"},
 	{47,"PlayAnnouncement"},
 	{48,"PromptAndCollectUserInformation"},
-	{99,"ReceivedInformation"}, /*???????*/
-	{33,"ResetTimer"},
-	{23,"RequestReportBCSMEvent"},
 	{49,"SpecializedResourceReport"},
-	{22,"ReleaseCall"},
-{0, NULL}
+	{53, "Cancel"},
+	{55, "ActivityTest"},
+	{99,"ReceivedInformation"}, /*???????*/
+	{0, NULL}
 };
 
 const value_string inap_error_code_strings[] = {
@@ -4378,6 +4852,7 @@ const value_string inap_error_code_strings[] = {
 {15,"UnexpectedDataValue"},
 {16,"UnexpectedParameter"},
 {17,"UnknownLegID"},
+{18,"UnknownResource"},
 {0, NULL}
 };
 
@@ -4416,59 +4891,114 @@ dissect_inap_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
+/*
+TC-Invokable OPERATION ::=
+  {activateServiceFiltering | activityTest | analysedInformation |
+   analyseInformation | applyCharging | applyChargingReport |
+   assistRequestInstructions | callGap | callInformationReport |
+   callInformationRequest | cancel | cancelStatusReportRequest |
+   collectedInformation | collectInformation | connect | connectToResource |
+   continue | disconnectForwardConnection | establishTemporaryConnection |
+   eventNotificationCharging | eventReportBCSM | furnishChargingInformation |
+   holdCallInNetwork | initialDP | initiateCallAttempt | oAnswer |
+   oCalledPartyBusy | oDisconnect | oMidCall | oNoAnswer |
+   originationAttemptAuthorized | releaseCall | requestCurrentStatusReport |
+   requestEveryStatusChangeReport | requestFirstStatusMatchReport |
+   requestNotificationChargingEvent | requestReportBCSMEvent | resetTimer |
+   routeSelectFailure | selectFacility | selectRoute | sendChargingInformation
+   | serviceFilteringResponse | statusReport | tAnswer | tBusy | tDisconnect |
+   termAttemptAuthorized | tMidCall | tNoAnswer | playAnnouncement |
+   promptAndCollectUserInformation}
+*/
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
+  case 0: /*InitialDP*/
+    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	 /*1 OriginationAttemptAuthorized */
+	 /*2 CollectedInformation */
+	 /*3 AnalysedInformation */
+	 /*4 RouteSelectFailure */
+	 /*5 oCalledPartyBusy */
+	 /*6 oNoAnswer */
+	 /*7 oAnswer */
+	 /*8 oDisconnect */
+	 /*9 TermAttemptAuthorized */
+	 /*10 tBusy */
+	 /*11 tNoAnswer */
+	 /*12 tAnswer */
+	 /*13 tDisconnect */
+	 /*14 oMidCall */
+	 /*15 tMidCall */
   case  16: /*AssistRequestInstructions*/
-    offset=dissect_inap_AssistRequestInstructionsarg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case  44: /*CallInformationReport*/
-    offset=dissect_inap_CallInformationReportarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case  45: /*CallInformationRequest*/
-    offset=dissect_inap_CallInformationRequestarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case  53: /*Cancel*/
-    offset=dissect_inap_Cancelarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case  20: /*Connect*/
-    offset=dissect_inap_Connectarg(FALSE, tvb, offset, pinfo, tree, -1);
+  case  17: /*EstablishTemporaryConnection*/
+    offset=dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  18: /*DisconnectForwardConnections*/
     proto_tree_add_text(tree, tvb, offset, -1, "Disconnect Forward Connection");
     break;
   case  19: /*ConnectToResource*/
-    offset=dissect_inap_ConnectToResource(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case  17: /*EstablishTemporaryConnection*/
-    offset=dissect_inap_EstablishTemporaryConnection(FALSE, tvb, offset, pinfo, tree, -1);
+  case  20: /*Connect*/
+    offset=dissect_inap_ConnectArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case  24: /*EventReportBCSM*/
-    offset=dissect_inap_EventReportBCSM(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 34: /*FurnishChargingInformation*/
-    offset=dissect_inap_FurnishChargingInformationarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 0: /*InitialDP*/
-    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-    
-    case 23: /*InitialDP*/
-    offset=dissect_inap_RequestReportBCSMEvent(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
- 
-  case 47: /*PlayAnnouncement*/
-    offset=dissect_inap_PlayAnnouncement(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_inap_PromptAndCollectUserInformationarg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 33: /*ResetTimer*/
-    offset=dissect_inap_ResetTimer(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-   case 22: /*ResetTimer*/
+	/* 21 HoldCallInNetwork */
+
+   case 22: /*ReleaseCall*/
     offset=dissect_inap_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+    case 23: /*InitialDP*/
+    offset=dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case  24: /*EventReportBCSM*/
+    offset=dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/*24,"EventReportBCSM */
+	/*25, "RequestNotificationChargingEvent */
+	/*26, "EventNotificationCharging */
+	/*27, "CollectInformation */
+	/*28, "AnalyseInformation */
+	/*29, "SelectRoute */
+	/*30, "SelectFacility */
+	/*31, "Continue */
+	/*32, "InitiateCallAttempt*/
+  case 33: /*ResetTimer*/
+    offset=dissect_inap_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 34: /*FurnishChargingInformation*/
+    offset=dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/*35, "ApplyCharging */
+	/*36, "ApplyChargingReport */
+	/*37, "RequestCurrentStatusReport */
+	/*38, "RequestEveryStatusChangeReport */
+	/*39, "RequestFirstStatusMatchReport */
+	/*40, "StatusReport */
+	/*41, "CallGap */
+	/*42, "ActivateServiceFiltering */
+	/*43, "ServiceFilteringResponse */
+    
+  case  44: /*CallInformationReport*/
+    offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case  45: /*CallInformationRequest*/
+    offset=dissect_inap_CallInformationRequestArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 47: /*PlayAnnouncement*/
+    offset=dissect_inap_PlayAnnouncementArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 48: /*PromptAndCollectUserInformation*/
+    offset=dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/* 49 SpecializedResourceReport */
+  case  53: /*Cancel*/
+    offset=dissect_inap_CancelArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+	/*55 ActivityTest*/
    default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     /* todo call the asn.1 dissector */
@@ -4476,11 +5006,27 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return offset;
 }
 
+/*
+TC-Returnable OPERATION ::=
+  {activateServiceFiltering | activityTest | requestCurrentStatusReport |
+   requestEveryStatusChangeReport | requestFirstStatusMatchReport |
+   promptAndCollectUserInformation}
 
+   activateServiceFiltering			- No arg
+   activityTest						- No Arg
+   requestCurrentStatusReport		- RESULT         RequestCurrentStatusReportResultArg
+   requestEveryStatusChangeReport	- No arg
+   requestFirstStatusMatchReport	- No Arg 
+   promptAndCollectUserInformation	- RESULT         ReceivedInformationArg
+	
+*/
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
+   case 37: /*requestCurrentStatusReport*/
+    offset=dissect_inap_RequestCurrentStatusReportResultArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
    case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_inap_PromptAndCollectUserInformationres(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ReceivedInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
@@ -4777,14 +5323,6 @@ void proto_register_inap(void) {
       { "legID", "inap.legID",
         FT_UINT32, BASE_DEC, VALS(inap_LegID_vals), 0,
         "", HFILL }},
-    { &hf_inap_sendingSideID,
-      { "sendingSideID", "inap.sendingSideID",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_receivingSideID,
-      { "receivingSideID", "inap.receivingSideID",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
     { &hf_inap_heldLegID,
       { "heldLegID", "inap.heldLegID",
         FT_UINT32, BASE_DEC, VALS(inap_LegID_vals), 0,
@@ -4801,126 +5339,6 @@ void proto_register_inap(void) {
       { "legStatus", "inap.legStatus",
         FT_UINT32, BASE_DEC, VALS(inap_LegStatus_vals), 0,
         "LegInformation/legStatus", HFILL }},
-    { &hf_inap_VariableParts_item,
-      { "Item", "inap.VariableParts_item",
-        FT_UINT32, BASE_DEC, VALS(inap_VariableParts_item_vals), 0,
-        "VariableParts/_item", HFILL }},
-    { &hf_inap_integer,
-      { "integer", "inap.integer",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "VariableParts/_item/integer", HFILL }},
-    { &hf_inap_number,
-      { "number", "inap.number",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "VariableParts/_item/number", HFILL }},
-    { &hf_inap_time,
-      { "time", "inap.time",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "VariableParts/_item/time", HFILL }},
-    { &hf_inap_date,
-      { "date", "inap.date",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "VariableParts/_item/date", HFILL }},
-    { &hf_inap_price,
-      { "price", "inap.price",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "VariableParts/_item/price", HFILL }},
-    { &hf_inap_elementaryMessageID,
-      { "elementaryMessageID", "inap.elementaryMessageID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_variableParts,
-      { "variableParts", "inap.variableParts",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "VariableMessage/variableParts", HFILL }},
-    { &hf_inap_toneID,
-      { "toneID", "inap.toneID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "Tone/toneID", HFILL }},
-    { &hf_inap_tduration,
-      { "tduration", "inap.tduration",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "Tone/tduration", HFILL }},
-    { &hf_inap_messageContent,
-      { "messageContent", "inap.messageContent",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Text/messageContent", HFILL }},
-    { &hf_inap_attributes,
-      { "attributes", "inap.attributes",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "Text/attributes", HFILL }},
-    { &hf_inap_text,
-      { "text", "inap.text",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "MessageID/text", HFILL }},
-    { &hf_inap_elementaryMessageIDs,
-      { "elementaryMessageIDs", "inap.elementaryMessageIDs",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "MessageID/elementaryMessageIDs", HFILL }},
-    { &hf_inap_elementaryMessageIDs_item,
-      { "Item", "inap.elementaryMessageIDs_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "MessageID/elementaryMessageIDs/_item", HFILL }},
-    { &hf_inap_variableMessage,
-      { "variableMessage", "inap.variableMessage",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "MessageID/variableMessage", HFILL }},
-    { &hf_inap_inbandInfo,
-      { "inbandInfo", "inap.inbandInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "InformationToSend/inbandInfo", HFILL }},
-    { &hf_inap_messageID,
-      { "messageID", "inap.messageID",
-        FT_UINT32, BASE_DEC, VALS(inap_MessageID_vals), 0,
-        "InformationToSend/inbandInfo/messageID", HFILL }},
-    { &hf_inap_numberOfRepetitions,
-      { "numberOfRepetitions", "inap.numberOfRepetitions",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "InformationToSend/inbandInfo/numberOfRepetitions", HFILL }},
-    { &hf_inap_mduration,
-      { "mduration", "inap.mduration",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "InformationToSend/inbandInfo/mduration", HFILL }},
-    { &hf_inap_interval,
-      { "interval", "inap.interval",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_tone,
-      { "tone", "inap.tone",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "InformationToSend/tone", HFILL }},
-    { &hf_inap_displayInformation,
-      { "displayInformation", "inap.displayInformation",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "InformationToSend/displayInformation", HFILL }},
-    { &hf_inap_dialledNumber,
-      { "dialledNumber", "inap.dialledNumber",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "FilteringCriteria/dialledNumber", HFILL }},
-    { &hf_inap_callingLineID,
-      { "callingLineID", "inap.callingLineID",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "FilteringCriteria/callingLineID", HFILL }},
-    { &hf_inap_serviceKey,
-      { "serviceKey", "inap.serviceKey",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_addressAndService,
-      { "addressAndService", "inap.addressAndService",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "FilteringCriteria/addressAndService", HFILL }},
-    { &hf_inap_calledAddressValue,
-      { "calledAddressValue", "inap.calledAddressValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_callingAddressValue,
-      { "callingAddressValue", "inap.callingAddressValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_locationNumber,
-      { "locationNumber", "inap.locationNumber",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
     { &hf_inap_Extensions_item,
       { "Item", "inap.Extensions_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4940,39 +5358,15 @@ void proto_register_inap(void) {
     { &hf_inap_filteredCallTreatment,
       { "filteredCallTreatment", "inap.filteredCallTreatment",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ActivateServiceFilteringarg/filteredCallTreatment", HFILL }},
-    { &hf_inap_sFBillingChargingCharacteristics,
-      { "sFBillingChargingCharacteristics", "inap.sFBillingChargingCharacteristics",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ActivateServiceFilteringarg/filteredCallTreatment/sFBillingChargingCharacteristics", HFILL }},
-    { &hf_inap_informationToSend,
-      { "informationToSend", "inap.informationToSend",
-        FT_UINT32, BASE_DEC, VALS(inap_InformationToSend_vals), 0,
-        "", HFILL }},
-    { &hf_inap_maximumNumberOfCounters,
-      { "maximumNumberOfCounters", "inap.maximumNumberOfCounters",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "ActivateServiceFilteringarg/filteredCallTreatment/maximumNumberOfCounters", HFILL }},
+        "ActivateServiceFilteringArg/filteredCallTreatment", HFILL }},
     { &hf_inap_filteringCharacteristics,
       { "filteringCharacteristics", "inap.filteringCharacteristics",
-        FT_UINT32, BASE_DEC, VALS(inap_T_filteringCharacteristics_vals), 0,
-        "ActivateServiceFilteringarg/filteringCharacteristics", HFILL }},
-    { &hf_inap_numberOfCalls,
-      { "numberOfCalls", "inap.numberOfCalls",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ActivateServiceFilteringarg/filteringCharacteristics/numberOfCalls", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_FilteringCharacteristics_vals), 0,
+        "ActivateServiceFilteringArg/filteringCharacteristics", HFILL }},
     { &hf_inap_filteringTimeOut,
       { "filteringTimeOut", "inap.filteringTimeOut",
-        FT_UINT32, BASE_DEC, VALS(inap_T_filteringTimeOut_vals), 0,
-        "ActivateServiceFilteringarg/filteringTimeOut", HFILL }},
-    { &hf_inap_aduration,
-      { "aduration", "inap.aduration",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ActivateServiceFilteringarg/filteringTimeOut/aduration", HFILL }},
-    { &hf_inap_stopTime,
-      { "stopTime", "inap.stopTime",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ActivateServiceFilteringarg/filteringTimeOut/stopTime", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_FilteringTimeOut_vals), 0,
+        "ActivateServiceFilteringArg/filteringTimeOut", HFILL }},
     { &hf_inap_filteringCriteria,
       { "filteringCriteria", "inap.filteringCriteria",
         FT_UINT32, BASE_DEC, VALS(inap_FilteringCriteria_vals), 0,
@@ -4980,106 +5374,10 @@ void proto_register_inap(void) {
     { &hf_inap_startTime,
       { "startTime", "inap.startTime",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ActivateServiceFilteringarg/startTime", HFILL }},
+        "ActivateServiceFilteringArg/startTime", HFILL }},
     { &hf_inap_extensions,
       { "extensions", "inap.extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_messageType,
-      { "messageType", "inap.messageType",
-        FT_UINT32, BASE_DEC, VALS(inap_T_messageType_vals), 0,
-        "MiscCallInfo/messageType", HFILL }},
-    { &hf_inap_dpAssignment,
-      { "dpAssignment", "inap.dpAssignment",
-        FT_UINT32, BASE_DEC, VALS(inap_T_dpAssignment_vals), 0,
-        "MiscCallInfo/dpAssignment", HFILL }},
-    { &hf_inap_miscCallInfo,
-      { "miscCallInfo", "inap.miscCallInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_triggerType,
-      { "triggerType", "inap.triggerType",
-        FT_UINT32, BASE_DEC, VALS(inap_TriggerType_vals), 0,
-        "", HFILL }},
-    { &hf_inap_RouteList_item,
-      { "Item", "inap.RouteList_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "RouteList/_item", HFILL }},
-    { &hf_inap_bearerCap,
-      { "bearerCap", "inap.bearerCap",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "BearerCapability/bearerCap", HFILL }},
-    { &hf_inap_tmr,
-      { "tmr", "inap.tmr",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "BearerCapability/tmr", HFILL }},
-    { &hf_inap_serviceAddressInformation,
-      { "serviceAddressInformation", "inap.serviceAddressInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DpSpecificCommonParameters/serviceAddressInformation", HFILL }},
-    { &hf_inap_bearerCapability,
-      { "bearerCapability", "inap.bearerCapability",
-        FT_UINT32, BASE_DEC, VALS(inap_BearerCapability_vals), 0,
-        "", HFILL }},
-    { &hf_inap_calledPartyNumber,
-      { "calledPartyNumber", "inap.calledPartyNumber",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_callingPartyNumber,
-      { "callingPartyNumber", "inap.callingPartyNumber",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_callingPartysCategory,
-      { "callingPartysCategory", "inap.callingPartysCategory",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_iPSSPCapabilities,
-      { "iPSSPCapabilities", "inap.iPSSPCapabilities",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_iPAvailable,
-      { "iPAvailable", "inap.iPAvailable",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_iSDNAccessRelatedInformation,
-      { "iSDNAccessRelatedInformation", "inap.iSDNAccessRelatedInformation",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_cGEncountered,
-      { "cGEncountered", "inap.cGEncountered",
-        FT_UINT32, BASE_DEC, VALS(inap_CGEncountered_vals), 0,
-        "", HFILL }},
-    { &hf_inap_serviceProfileIdentifier,
-      { "serviceProfileIdentifier", "inap.serviceProfileIdentifier",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_terminalType,
-      { "terminalType", "inap.terminalType",
-        FT_UINT32, BASE_DEC, VALS(inap_TerminalType_vals), 0,
-        "", HFILL }},
-    { &hf_inap_chargeNumber,
-      { "chargeNumber", "inap.chargeNumber",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_servingAreaID,
-      { "servingAreaID", "inap.servingAreaID",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "DpSpecificCommonParameters/servingAreaID", HFILL }},
-    { &hf_inap_trunkGroupID,
-      { "trunkGroupID", "inap.trunkGroupID",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_privateFacilityID,
-      { "privateFacilityID", "inap.privateFacilityID",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_huntGroup,
-      { "huntGroup", "inap.huntGroup",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_routeIndex,
-      { "routeIndex", "inap.routeIndex",
-        FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
     { &hf_inap_dpSpecificCommonParameters,
       { "dpSpecificCommonParameters", "inap.dpSpecificCommonParameters",
@@ -5099,7 +5397,7 @@ void proto_register_inap(void) {
         "", HFILL }},
     { &hf_inap_callingFacilityGroup,
       { "callingFacilityGroup", "inap.callingFacilityGroup",
-        FT_UINT32, BASE_DEC, VALS(inap_CallingFacilityGroup_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(inap_FacilityGroup_vals), 0,
         "", HFILL }},
     { &hf_inap_callingFacilityGroupMember,
       { "callingFacilityGroupMember", "inap.callingFacilityGroupMember",
@@ -5145,130 +5443,78 @@ void proto_register_inap(void) {
       { "destinationRoutingAddress", "inap.destinationRoutingAddress",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_inap_destinationRoutingAddress_item,
-      { "Item", "inap.destinationRoutingAddress_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
     { &hf_inap_alertingPattern,
       { "alertingPattern", "inap.alertingPattern",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_iSDNAccessRelatedInformation,
+      { "iSDNAccessRelatedInformation", "inap.iSDNAccessRelatedInformation",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_callingPartyNumber,
+      { "callingPartyNumber", "inap.callingPartyNumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_callingPartysCategory,
+      { "callingPartysCategory", "inap.callingPartysCategory",
+        FT_UINT16, BASE_DEC, VALS(isup_calling_partys_category_value), 0,
+        "", HFILL }},
+    { &hf_inap_calledPartyNumber,
+      { "calledPartyNumber", "inap.calledPartyNumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_chargeNumber,
+      { "chargeNumber", "inap.chargeNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
     { &hf_inap_aChBillingChargingCharacteristics,
       { "aChBillingChargingCharacteristics", "inap.aChBillingChargingCharacteristics",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ApplyChargingarg/aChBillingChargingCharacteristics", HFILL }},
+        "ApplyChargingArg/aChBillingChargingCharacteristics", HFILL }},
     { &hf_inap_partyToCharge,
       { "partyToCharge", "inap.partyToCharge",
-        FT_UINT32, BASE_DEC, VALS(inap_PartyToCharge_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(inap_LegID_vals), 0,
         "", HFILL }},
     { &hf_inap_correlationID,
       { "correlationID", "inap.correlationID",
         FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
+    { &hf_inap_iPAvailable,
+      { "iPAvailable", "inap.iPAvailable",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_iPSSPCapabilities,
+      { "iPSSPCapabilities", "inap.iPSSPCapabilities",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
     { &hf_inap_gapCriteria,
       { "gapCriteria", "inap.gapCriteria",
-        FT_UINT32, BASE_DEC, VALS(inap_T_gapCriteria_vals), 0,
-        "CallGaparg/gapCriteria", HFILL }},
-    { &hf_inap_gapOnService,
-      { "gapOnService", "inap.gapOnService",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "CallGaparg/gapCriteria/gapOnService", HFILL }},
-    { &hf_inap_dpCriteria,
-      { "dpCriteria", "inap.dpCriteria",
-        FT_UINT32, BASE_DEC, VALS(inap_T_dpCriteria_vals), 0,
-        "CallGaparg/gapCriteria/gapOnService/dpCriteria", HFILL }},
-    { &hf_inap_calledAddressAndService,
-      { "calledAddressAndService", "inap.calledAddressAndService",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "CallGaparg/gapCriteria/calledAddressAndService", HFILL }},
-    { &hf_inap_callingAddressAndService,
-      { "callingAddressAndService", "inap.callingAddressAndService",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "CallGaparg/gapCriteria/callingAddressAndService", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_GapCriteria_vals), 0,
+        "CallGapArg/gapCriteria", HFILL }},
     { &hf_inap_gapIndicators,
       { "gapIndicators", "inap.gapIndicators",
         FT_NONE, BASE_NONE, NULL, 0,
-        "CallGaparg/gapIndicators", HFILL }},
-    { &hf_inap_cgduration,
-      { "cgduration", "inap.cgduration",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "CallGaparg/gapIndicators/cgduration", HFILL }},
-    { &hf_inap_gapInterval,
-      { "gapInterval", "inap.gapInterval",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "CallGaparg/gapIndicators/gapInterval", HFILL }},
+        "CallGapArg/gapIndicators", HFILL }},
     { &hf_inap_controlType,
       { "controlType", "inap.controlType",
-        FT_UINT32, BASE_DEC, VALS(inap_T_controlType_vals), 0,
-        "CallGaparg/controlType", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_ControlType_vals), 0,
+        "CallGapArg/controlType", HFILL }},
     { &hf_inap_gapTreatment,
       { "gapTreatment", "inap.gapTreatment",
-        FT_UINT32, BASE_DEC, VALS(inap_T_gapTreatment_vals), 0,
-        "CallGaparg/gapTreatment", HFILL }},
-    { &hf_inap_both,
-      { "both", "inap.both",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_requestedInformationList,
-      { "requestedInformationList", "inap.requestedInformationList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "CallInformationReportarg/requestedInformationList", HFILL }},
-    { &hf_inap_requestedInformationList_item,
-      { "Item", "inap.requestedInformationList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "CallInformationReportarg/requestedInformationList/_item", HFILL }},
-    { &hf_inap_requestedInformationType,
-      { "requestedInformationType", "inap.requestedInformationType",
-        FT_UINT32, BASE_DEC, VALS(inap_T_requestedInformationType_vals), 0,
-        "CallInformationReportarg/requestedInformationList/_item/requestedInformationType", HFILL }},
-    { &hf_inap_requestedInformationValue,
-      { "requestedInformationValue", "inap.requestedInformationValue",
-        FT_UINT32, BASE_DEC, VALS(inap_T_requestedInformationValue_vals), 0,
-        "CallInformationReportarg/requestedInformationList/_item/requestedInformationValue", HFILL }},
-    { &hf_inap_callAttemptElapsedTimeValue,
-      { "callAttemptElapsedTimeValue", "inap.callAttemptElapsedTimeValue",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "CallInformationReportarg/requestedInformationList/_item/requestedInformationValue/callAttemptElapsedTimeValue", HFILL }},
-    { &hf_inap_callStopTimeValue,
-      { "callStopTimeValue", "inap.callStopTimeValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "CallInformationReportarg/requestedInformationList/_item/requestedInformationValue/callStopTimeValue", HFILL }},
-    { &hf_inap_callConnectedElapsedTimeValue,
-      { "callConnectedElapsedTimeValue", "inap.callConnectedElapsedTimeValue",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "CallInformationReportarg/requestedInformationList/_item/requestedInformationValue/callConnectedElapsedTimeValue", HFILL }},
-    { &hf_inap_releaseCauseValue,
-      { "releaseCauseValue", "inap.releaseCauseValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "CallInformationReportarg/requestedInformationList/_item/requestedInformationValue/releaseCauseValue", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_GapTreatment_vals), 0,
+        "CallGapArg/gapTreatment", HFILL }},
     { &hf_inap_requestedInformationTypeList,
       { "requestedInformationTypeList", "inap.requestedInformationTypeList",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "CallInformationRequestarg/requestedInformationTypeList", HFILL }},
-    { &hf_inap_requestedInformationTypeList_item,
-      { "Item", "inap.requestedInformationTypeList_item",
-        FT_UINT32, BASE_DEC, VALS(inap_T_requestedInformationTypeList_item_vals), 0,
-        "CallInformationRequestarg/requestedInformationTypeList/_item", HFILL }},
+        "", HFILL }},
     { &hf_inap_invokeID,
       { "invokeID", "inap.invokeID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "Cancelarg/invokeID", HFILL }},
+        FT_INT32, BASE_DEC, NULL, 0,
+        "CancelArg/invokeID", HFILL }},
     { &hf_inap_allRequests,
       { "allRequests", "inap.allRequests",
         FT_NONE, BASE_NONE, NULL, 0,
-        "Cancelarg/allRequests", HFILL }},
-    { &hf_inap_lineID,
-      { "lineID", "inap.lineID",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_facilityGroupID,
-      { "facilityGroupID", "inap.facilityGroupID",
-        FT_UINT32, BASE_DEC, VALS(inap_FacilityGroupID_vals), 0,
-        "", HFILL }},
-    { &hf_inap_facilityGroupMemberID,
-      { "facilityGroupMemberID", "inap.facilityGroupMemberID",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
+        "CancelArg/allRequests", HFILL }},
     { &hf_inap_resourceID,
       { "resourceID", "inap.resourceID",
         FT_UINT32, BASE_DEC, VALS(inap_ResourceID_vals), 0,
@@ -5276,15 +5522,15 @@ void proto_register_inap(void) {
     { &hf_inap_numberingPlan,
       { "numberingPlan", "inap.numberingPlan",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "CollectInformationarg/numberingPlan", HFILL }},
+        "CollectInformationArg/numberingPlan", HFILL }},
     { &hf_inap_cutAndPaste,
       { "cutAndPaste", "inap.cutAndPaste",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "Connectarg/cutAndPaste", HFILL }},
+        "ConnectArg/cutAndPaste", HFILL }},
     { &hf_inap_forwardingCondition,
       { "forwardingCondition", "inap.forwardingCondition",
-        FT_UINT32, BASE_DEC, VALS(inap_T_forwardingCondition_vals), 0,
-        "Connectarg/forwardingCondition", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_ForwardingCondition_vals), 0,
+        "ConnectArg/forwardingCondition", HFILL }},
     { &hf_inap_scfID,
       { "scfID", "inap.scfID",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -5296,19 +5542,51 @@ void proto_register_inap(void) {
     { &hf_inap_resourceAddress,
       { "resourceAddress", "inap.resourceAddress",
         FT_UINT32, BASE_DEC, VALS(inap_T_resourceAddress_vals), 0,
-        "ConnectToResource/resourceAddress", HFILL }},
+        "ConnectToResourceArg/resourceAddress", HFILL }},
     { &hf_inap_ipRoutingAddress,
       { "ipRoutingAddress", "inap.ipRoutingAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ConnectToResource/resourceAddress/ipRoutingAddress", HFILL }},
+        "", HFILL }},
+    { &hf_inap_both2,
+      { "both2", "inap.both2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ConnectToResourceArg/resourceAddress/both2", HFILL }},
     { &hf_inap_none,
       { "none", "inap.none",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ConnectToResource/resourceAddress/none", HFILL }},
+        "ConnectToResourceArg/resourceAddress/none", HFILL }},
+    { &hf_inap_serviceAddressInformation,
+      { "serviceAddressInformation", "inap.serviceAddressInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DpSpecificCommonParameters/serviceAddressInformation", HFILL }},
+    { &hf_inap_bearerCapability,
+      { "bearerCapability", "inap.bearerCapability",
+        FT_UINT32, BASE_DEC, VALS(inap_BearerCapability_vals), 0,
+        "", HFILL }},
+    { &hf_inap_cGEncountered,
+      { "cGEncountered", "inap.cGEncountered",
+        FT_UINT32, BASE_DEC, VALS(inap_CGEncountered_vals), 0,
+        "", HFILL }},
+    { &hf_inap_locationNumber,
+      { "locationNumber", "inap.locationNumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_serviceProfileIdentifier,
+      { "serviceProfileIdentifier", "inap.serviceProfileIdentifier",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_terminalType,
+      { "terminalType", "inap.terminalType",
+        FT_UINT32, BASE_DEC, VALS(inap_TerminalType_vals), 0,
+        "", HFILL }},
+    { &hf_inap_servingAreaID,
+      { "servingAreaID", "inap.servingAreaID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "DpSpecificCommonParameters/servingAreaID", HFILL }},
     { &hf_inap_assistingSSPIPRoutingAddress,
       { "assistingSSPIPRoutingAddress", "inap.assistingSSPIPRoutingAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "EstablishTemporaryConnection/assistingSSPIPRoutingAddress", HFILL }},
+        "EstablishTemporaryConnectionArg/assistingSSPIPRoutingAddress", HFILL }},
     { &hf_inap_eventTypeCharging,
       { "eventTypeCharging", "inap.eventTypeCharging",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -5316,7 +5594,7 @@ void proto_register_inap(void) {
     { &hf_inap_eventSpecificInformationCharging,
       { "eventSpecificInformationCharging", "inap.eventSpecificInformationCharging",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "EventNotificationChargingarg/eventSpecificInformationCharging", HFILL }},
+        "EventNotificationChargingArg/eventSpecificInformationCharging", HFILL }},
     { &hf_inap_monitorMode,
       { "monitorMode", "inap.monitorMode",
         FT_UINT32, BASE_DEC, VALS(inap_MonitorMode_vals), 0,
@@ -5331,84 +5609,28 @@ void proto_register_inap(void) {
         "", HFILL }},
     { &hf_inap_eventSpecificInformationBCSM,
       { "eventSpecificInformationBCSM", "inap.eventSpecificInformationBCSM",
-        FT_UINT32, BASE_DEC, VALS(inap_T_eventSpecificInformationBCSM_vals), 0,
-        "EventReportBCSM/eventSpecificInformationBCSM", HFILL }},
-    { &hf_inap_collectedInfoSpecificInfo,
-      { "collectedInfoSpecificInfo", "inap.collectedInfoSpecificInfo",
+        FT_UINT32, BASE_DEC, VALS(inap_EventSpecificInformationBCSM_vals), 0,
+        "EventReportBCSMArg/eventSpecificInformationBCSM", HFILL }},
+    { &hf_inap_miscCallInfo,
+      { "miscCallInfo", "inap.miscCallInfo",
         FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/collectedInfoSpecificInfo", HFILL }},
-    { &hf_inap_calledPartynumber,
-      { "calledPartynumber", "inap.calledPartynumber",
-        FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
-    { &hf_inap_analyzedInfoSpecificInfo,
-      { "analyzedInfoSpecificInfo", "inap.analyzedInfoSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/analyzedInfoSpecificInfo", HFILL }},
-    { &hf_inap_routeSelectFailureSpecificInfo,
-      { "routeSelectFailureSpecificInfo", "inap.routeSelectFailureSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/routeSelectFailureSpecificInfo", HFILL }},
-    { &hf_inap_failureCause,
-      { "failureCause", "inap.failureCause",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_oCalledPartyBusySpecificInfo,
-      { "oCalledPartyBusySpecificInfo", "inap.oCalledPartyBusySpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/oCalledPartyBusySpecificInfo", HFILL }},
-    { &hf_inap_busyCause,
-      { "busyCause", "inap.busyCause",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_oNoAnswerSpecificInfo,
-      { "oNoAnswerSpecificInfo", "inap.oNoAnswerSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/oNoAnswerSpecificInfo", HFILL }},
-    { &hf_inap_oAnswerSpecificInfo,
-      { "oAnswerSpecificInfo", "inap.oAnswerSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/oAnswerSpecificInfo", HFILL }},
-    { &hf_inap_oMidCallSpecificInfo,
-      { "oMidCallSpecificInfo", "inap.oMidCallSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/oMidCallSpecificInfo", HFILL }},
-    { &hf_inap_connectTime,
-      { "connectTime", "inap.connectTime",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_inap_oDisconnectSpecificInfo,
-      { "oDisconnectSpecificInfo", "inap.oDisconnectSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/oDisconnectSpecificInfo", HFILL }},
-    { &hf_inap_tBusySpecificInfo,
-      { "tBusySpecificInfo", "inap.tBusySpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/tBusySpecificInfo", HFILL }},
-    { &hf_inap_tNoAnswerSpecificInfo,
-      { "tNoAnswerSpecificInfo", "inap.tNoAnswerSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/tNoAnswerSpecificInfo", HFILL }},
-    { &hf_inap_tAnswerSpecificInfo,
-      { "tAnswerSpecificInfo", "inap.tAnswerSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/tAnswerSpecificInfo", HFILL }},
-    { &hf_inap_tMidCallSpecificInfo,
-      { "tMidCallSpecificInfo", "inap.tMidCallSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/tMidCallSpecificInfo", HFILL }},
-    { &hf_inap_tDisconnectSpecificInfo,
-      { "tDisconnectSpecificInfo", "inap.tDisconnectSpecificInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EventReportBCSM/eventSpecificInformationBCSM/tDisconnectSpecificInfo", HFILL }},
     { &hf_inap_holdcause,
       { "holdcause", "inap.holdcause",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "HoldCallInNetworkarg/holdcause", HFILL }},
+        "HoldCallInNetworkArg/holdcause", HFILL }},
     { &hf_inap_empty,
       { "empty", "inap.empty",
         FT_NONE, BASE_NONE, NULL, 0,
-        "HoldCallInNetworkarg/empty", HFILL }},
+        "HoldCallInNetworkArg/empty", HFILL }},
+    { &hf_inap_serviceKey,
+      { "serviceKey", "inap.serviceKey",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_triggerType,
+      { "triggerType", "inap.triggerType",
+        FT_UINT32, BASE_DEC, VALS(inap_TriggerType_vals), 0,
+        "", HFILL }},
     { &hf_inap_highLayerCompatibility,
       { "highLayerCompatibility", "inap.highLayerCompatibility",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -5432,6 +5654,18 @@ void proto_register_inap(void) {
     { &hf_inap_featureRequestIndicator,
       { "featureRequestIndicator", "inap.featureRequestIndicator",
         FT_UINT32, BASE_DEC, VALS(inap_FeatureRequestIndicator_vals), 0,
+        "MidCallArg/featureRequestIndicator", HFILL }},
+    { &hf_inap_busyCause,
+      { "busyCause", "inap.busyCause",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_connectTime,
+      { "connectTime", "inap.connectTime",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_informationToSend,
+      { "informationToSend", "inap.informationToSend",
+        FT_UINT32, BASE_DEC, VALS(inap_InformationToSend_vals), 0,
         "", HFILL }},
     { &hf_inap_disconnectFromIPForbidden,
       { "disconnectFromIPForbidden", "inap.disconnectFromIPForbidden",
@@ -5440,71 +5674,19 @@ void proto_register_inap(void) {
     { &hf_inap_requestAnnouncementComplete,
       { "requestAnnouncementComplete", "inap.requestAnnouncementComplete",
         FT_BOOLEAN, 8, NULL, 0,
-        "PlayAnnouncement/requestAnnouncementComplete", HFILL }},
+        "PlayAnnouncementArg/requestAnnouncementComplete", HFILL }},
     { &hf_inap_collectedInfo,
       { "collectedInfo", "inap.collectedInfo",
-        FT_UINT32, BASE_DEC, VALS(inap_T_collectedInfo_vals), 0,
-        "PromptAndCollectUserInformationarg/collectedInfo", HFILL }},
-    { &hf_inap_collectedDigits,
-      { "collectedDigits", "inap.collectedDigits",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits", HFILL }},
-    { &hf_inap_minimumNbOfDigits,
-      { "minimumNbOfDigits", "inap.minimumNbOfDigits",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/minimumNbOfDigits", HFILL }},
-    { &hf_inap_maximumNbOfDigits,
-      { "maximumNbOfDigits", "inap.maximumNbOfDigits",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/maximumNbOfDigits", HFILL }},
-    { &hf_inap_endOfReplyDigit,
-      { "endOfReplyDigit", "inap.endOfReplyDigit",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/endOfReplyDigit", HFILL }},
-    { &hf_inap_cancelDigit,
-      { "cancelDigit", "inap.cancelDigit",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/cancelDigit", HFILL }},
-    { &hf_inap_startDigit,
-      { "startDigit", "inap.startDigit",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/startDigit", HFILL }},
-    { &hf_inap_firstDigitTimeOut,
-      { "firstDigitTimeOut", "inap.firstDigitTimeOut",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/firstDigitTimeOut", HFILL }},
-    { &hf_inap_interDigitTimeOut,
-      { "interDigitTimeOut", "inap.interDigitTimeOut",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/interDigitTimeOut", HFILL }},
-    { &hf_inap_errorTreatment,
-      { "errorTreatment", "inap.errorTreatment",
-        FT_UINT32, BASE_DEC, VALS(inap_T_errorTreatment_vals), 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/errorTreatment", HFILL }},
-    { &hf_inap_interruptableAnnInd,
-      { "interruptableAnnInd", "inap.interruptableAnnInd",
-        FT_BOOLEAN, 8, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/interruptableAnnInd", HFILL }},
-    { &hf_inap_voiceInformation,
-      { "voiceInformation", "inap.voiceInformation",
-        FT_BOOLEAN, 8, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/voiceInformation", HFILL }},
-    { &hf_inap_voiceBack,
-      { "voiceBack", "inap.voiceBack",
-        FT_BOOLEAN, 8, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/collectedDigits/voiceBack", HFILL }},
-    { &hf_inap_iA5Information,
-      { "iA5Information", "inap.iA5Information",
-        FT_BOOLEAN, 8, NULL, 0,
-        "PromptAndCollectUserInformationarg/collectedInfo/iA5Information", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_CollectedInfo_vals), 0,
+        "PromptAndCollectUserInformationArg/collectedInfo", HFILL }},
     { &hf_inap_digitsResponse,
       { "digitsResponse", "inap.digitsResponse",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "PromptAndCollectUserInformationres/digitsResponse", HFILL }},
+        "ReceivedInformationArg/digitsResponse", HFILL }},
     { &hf_inap_iA5Response,
       { "iA5Response", "inap.iA5Response",
         FT_STRING, BASE_NONE, NULL, 0,
-        "PromptAndCollectUserInformationres/iA5Response", HFILL }},
+        "ReceivedInformationArg/iA5Response", HFILL }},
     { &hf_inap_initialCallSegment,
       { "initialCallSegment", "inap.initialCallSegment",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -5519,47 +5701,43 @@ void proto_register_inap(void) {
         "", HFILL }},
     { &hf_inap_monitorDuration,
       { "monitorDuration", "inap.monitorDuration",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_inap_RequestNotificationChargingEvent_item,
       { "Item", "inap.RequestNotificationChargingEvent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "RequestNotificationChargingEvent/_item", HFILL }},
+    { &hf_inap_eventTypeCharging2,
+      { "eventTypeCharging2", "inap.eventTypeCharging2",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RequestNotificationChargingEvent/_item/eventTypeCharging2", HFILL }},
     { &hf_inap_bcsmEvents,
       { "bcsmEvents", "inap.bcsmEvents",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "RequestReportBCSMEvent/bcsmEvents", HFILL }},
+        "RequestReportBCSMEventArg/bcsmEvents", HFILL }},
     { &hf_inap_bcsmEvents_item,
       { "Item", "inap.bcsmEvents_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "RequestReportBCSMEvent/bcsmEvents/_item", HFILL }},
-    { &hf_inap_dpSpecificCriteria,
-      { "dpSpecificCriteria", "inap.dpSpecificCriteria",
-        FT_UINT32, BASE_DEC, VALS(inap_T_dpSpecificCriteria_vals), 0,
-        "RequestReportBCSMEvent/bcsmEvents/_item/dpSpecificCriteria", HFILL }},
-    { &hf_inap_numberOfDigits,
-      { "numberOfDigits", "inap.numberOfDigits",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "RequestReportBCSMEvent/bcsmEvents/_item/dpSpecificCriteria/numberOfDigits", HFILL }},
-    { &hf_inap_applicationTimer,
-      { "applicationTimer", "inap.applicationTimer",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "RequestReportBCSMEvent/bcsmEvents/_item/dpSpecificCriteria/applicationTimer", HFILL }},
+        "RequestReportBCSMEventArg/bcsmEvents/_item", HFILL }},
     { &hf_inap_timerID,
       { "timerID", "inap.timerID",
-        FT_UINT32, BASE_DEC, VALS(inap_T_timerID_vals), 0,
-        "ResetTimer/timerID", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_TimerID_vals), 0,
+        "ResetTimerArg/timerID", HFILL }},
     { &hf_inap_timervalue,
       { "timervalue", "inap.timervalue",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "ResetTimer/timervalue", HFILL }},
+        "ResetTimerArg/timervalue", HFILL }},
+    { &hf_inap_failureCause,
+      { "failureCause", "inap.failureCause",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
     { &hf_inap_destinationNumberRoutingAddress,
       { "destinationNumberRoutingAddress", "inap.destinationNumberRoutingAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "SelectFacility/destinationNumberRoutingAddress", HFILL }},
+        "SelectFacilityArg/destinationNumberRoutingAddress", HFILL }},
     { &hf_inap_calledFacilityGroup,
       { "calledFacilityGroup", "inap.calledFacilityGroup",
-        FT_UINT32, BASE_DEC, VALS(inap_CalledFacilityGroup_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(inap_FacilityGroup_vals), 0,
         "", HFILL }},
     { &hf_inap_calledFacilityGroupMember,
       { "calledFacilityGroupMember", "inap.calledFacilityGroupMember",
@@ -5568,38 +5746,410 @@ void proto_register_inap(void) {
     { &hf_inap_sCIBillingChargingCharacteristics,
       { "sCIBillingChargingCharacteristics", "inap.sCIBillingChargingCharacteristics",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "SendChargingInformation/sCIBillingChargingCharacteristics", HFILL }},
+        "SendChargingInformationArg/sCIBillingChargingCharacteristics", HFILL }},
     { &hf_inap_countersValue,
       { "countersValue", "inap.countersValue",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "ServiceFilteringResponse/countersValue", HFILL }},
-    { &hf_inap_countersValue_item,
-      { "Item", "inap.countersValue_item",
+        "ServiceFilteringResponseArg/countersValue", HFILL }},
+    { &hf_inap_responseCondition,
+      { "responseCondition", "inap.responseCondition",
+        FT_UINT32, BASE_DEC, VALS(inap_ResponseCondition_vals), 0,
+        "ServiceFilteringResponseArg/responseCondition", HFILL }},
+    { &hf_inap_reportCondition,
+      { "reportCondition", "inap.reportCondition",
+        FT_UINT32, BASE_DEC, VALS(inap_ReportCondition_vals), 0,
+        "StatusReportArg/reportCondition", HFILL }},
+    { &hf_inap_dpSpecificCriteria,
+      { "dpSpecificCriteria", "inap.dpSpecificCriteria",
+        FT_UINT32, BASE_DEC, VALS(inap_DpSpecificCriteria_vals), 0,
+        "BCSMEvent/dpSpecificCriteria", HFILL }},
+    { &hf_inap_bearerCap,
+      { "bearerCap", "inap.bearerCap",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "BearerCapability/bearerCap", HFILL }},
+    { &hf_inap_tmr,
+      { "tmr", "inap.tmr",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "BearerCapability/tmr", HFILL }},
+    { &hf_inap_minimumNbOfDigits,
+      { "minimumNbOfDigits", "inap.minimumNbOfDigits",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CollectedDigits/minimumNbOfDigits", HFILL }},
+    { &hf_inap_maximumNbOfDigits,
+      { "maximumNbOfDigits", "inap.maximumNbOfDigits",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CollectedDigits/maximumNbOfDigits", HFILL }},
+    { &hf_inap_endOfReplyDigit,
+      { "endOfReplyDigit", "inap.endOfReplyDigit",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CollectedDigits/endOfReplyDigit", HFILL }},
+    { &hf_inap_cancelDigit,
+      { "cancelDigit", "inap.cancelDigit",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CollectedDigits/cancelDigit", HFILL }},
+    { &hf_inap_startDigit,
+      { "startDigit", "inap.startDigit",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CollectedDigits/startDigit", HFILL }},
+    { &hf_inap_firstDigitTimeOut,
+      { "firstDigitTimeOut", "inap.firstDigitTimeOut",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CollectedDigits/firstDigitTimeOut", HFILL }},
+    { &hf_inap_interDigitTimeOut,
+      { "interDigitTimeOut", "inap.interDigitTimeOut",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CollectedDigits/interDigitTimeOut", HFILL }},
+    { &hf_inap_errorTreatment,
+      { "errorTreatment", "inap.errorTreatment",
+        FT_UINT32, BASE_DEC, VALS(inap_ErrorTreatment_vals), 0,
+        "CollectedDigits/errorTreatment", HFILL }},
+    { &hf_inap_interruptableAnnInd,
+      { "interruptableAnnInd", "inap.interruptableAnnInd",
+        FT_BOOLEAN, 8, NULL, 0,
+        "CollectedDigits/interruptableAnnInd", HFILL }},
+    { &hf_inap_voiceInformation,
+      { "voiceInformation", "inap.voiceInformation",
+        FT_BOOLEAN, 8, NULL, 0,
+        "CollectedDigits/voiceInformation", HFILL }},
+    { &hf_inap_voiceBack,
+      { "voiceBack", "inap.voiceBack",
+        FT_BOOLEAN, 8, NULL, 0,
+        "CollectedDigits/voiceBack", HFILL }},
+    { &hf_inap_collectedDigits,
+      { "collectedDigits", "inap.collectedDigits",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ServiceFilteringResponse/countersValue/_item", HFILL }},
+        "CollectedInfo/collectedDigits", HFILL }},
+    { &hf_inap_iA5Information,
+      { "iA5Information", "inap.iA5Information",
+        FT_BOOLEAN, 8, NULL, 0,
+        "CollectedInfo/iA5Information", HFILL }},
     { &hf_inap_counterID,
       { "counterID", "inap.counterID",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "ServiceFilteringResponse/countersValue/_item/counterID", HFILL }},
+        "CounterAndValue/counterID", HFILL }},
     { &hf_inap_counterValue,
       { "counterValue", "inap.counterValue",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "ServiceFilteringResponse/countersValue/_item/counterValue", HFILL }},
-    { &hf_inap_responseCondition,
-      { "responseCondition", "inap.responseCondition",
-        FT_UINT32, BASE_DEC, VALS(inap_T_responseCondition_vals), 0,
-        "ServiceFilteringResponse/responseCondition", HFILL }},
-    { &hf_inap_reportCondition,
-      { "reportCondition", "inap.reportCondition",
-        FT_UINT32, BASE_DEC, VALS(inap_T_reportCondition_vals), 0,
-        "StatusReport/reportCondition", HFILL }},
+        "CounterAndValue/counterValue", HFILL }},
+    { &hf_inap_CountersValue_item,
+      { "Item", "inap.CountersValue_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CountersValue/_item", HFILL }},
+    { &hf_inap_DestinationRoutingAddress_item,
+      { "Item", "inap.DestinationRoutingAddress_item",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "DestinationRoutingAddress/_item", HFILL }},
+    { &hf_inap_numberOfDigits,
+      { "numberOfDigits", "inap.numberOfDigits",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DpSpecificCriteria/numberOfDigits", HFILL }},
+    { &hf_inap_applicationTimer,
+      { "applicationTimer", "inap.applicationTimer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DpSpecificCriteria/applicationTimer", HFILL }},
+    { &hf_inap_collectedInfoSpecificInfo,
+      { "collectedInfoSpecificInfo", "inap.collectedInfoSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/collectedInfoSpecificInfo", HFILL }},
+    { &hf_inap_calledPartynumber,
+      { "calledPartynumber", "inap.calledPartynumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_analyzedInfoSpecificInfo,
+      { "analyzedInfoSpecificInfo", "inap.analyzedInfoSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/analyzedInfoSpecificInfo", HFILL }},
+    { &hf_inap_routeSelectFailureSpecificInfo,
+      { "routeSelectFailureSpecificInfo", "inap.routeSelectFailureSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/routeSelectFailureSpecificInfo", HFILL }},
+    { &hf_inap_oCalledPartyBusySpecificInfo,
+      { "oCalledPartyBusySpecificInfo", "inap.oCalledPartyBusySpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/oCalledPartyBusySpecificInfo", HFILL }},
+    { &hf_inap_oNoAnswerSpecificInfo,
+      { "oNoAnswerSpecificInfo", "inap.oNoAnswerSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/oNoAnswerSpecificInfo", HFILL }},
+    { &hf_inap_oAnswerSpecificInfo,
+      { "oAnswerSpecificInfo", "inap.oAnswerSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/oAnswerSpecificInfo", HFILL }},
+    { &hf_inap_oMidCallSpecificInfo,
+      { "oMidCallSpecificInfo", "inap.oMidCallSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/oMidCallSpecificInfo", HFILL }},
+    { &hf_inap_oDisconnectSpecificInfo,
+      { "oDisconnectSpecificInfo", "inap.oDisconnectSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/oDisconnectSpecificInfo", HFILL }},
+    { &hf_inap_tBusySpecificInfo,
+      { "tBusySpecificInfo", "inap.tBusySpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/tBusySpecificInfo", HFILL }},
+    { &hf_inap_tNoAnswerSpecificInfo,
+      { "tNoAnswerSpecificInfo", "inap.tNoAnswerSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/tNoAnswerSpecificInfo", HFILL }},
+    { &hf_inap_tAnswerSpecificInfo,
+      { "tAnswerSpecificInfo", "inap.tAnswerSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/tAnswerSpecificInfo", HFILL }},
+    { &hf_inap_tMidCallSpecificInfo,
+      { "tMidCallSpecificInfo", "inap.tMidCallSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/tMidCallSpecificInfo", HFILL }},
+    { &hf_inap_tDisconnectSpecificInfo,
+      { "tDisconnectSpecificInfo", "inap.tDisconnectSpecificInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventSpecificInformationBCSM/tDisconnectSpecificInfo", HFILL }},
+    { &hf_inap_trunkGroupID,
+      { "trunkGroupID", "inap.trunkGroupID",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_privateFacilityID,
+      { "privateFacilityID", "inap.privateFacilityID",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "FacilityGroup/privateFacilityID", HFILL }},
+    { &hf_inap_huntGroup,
+      { "huntGroup", "inap.huntGroup",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FacilityGroup/huntGroup", HFILL }},
+    { &hf_inap_routeIndex,
+      { "routeIndex", "inap.routeIndex",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FacilityGroup/routeIndex", HFILL }},
+    { &hf_inap_sFBillingChargingCharacteristics,
+      { "sFBillingChargingCharacteristics", "inap.sFBillingChargingCharacteristics",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FilteredCallTreatment/sFBillingChargingCharacteristics", HFILL }},
+    { &hf_inap_maximumNumberOfCounters,
+      { "maximumNumberOfCounters", "inap.maximumNumberOfCounters",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "FilteredCallTreatment/maximumNumberOfCounters", HFILL }},
+    { &hf_inap_interval1,
+      { "interval1", "inap.interval1",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "FilteringCharacteristics/interval1", HFILL }},
+    { &hf_inap_numberOfCalls,
+      { "numberOfCalls", "inap.numberOfCalls",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "FilteringCharacteristics/numberOfCalls", HFILL }},
+    { &hf_inap_dialledNumber,
+      { "dialledNumber", "inap.dialledNumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FilteringCriteria/dialledNumber", HFILL }},
+    { &hf_inap_callingLineID,
+      { "callingLineID", "inap.callingLineID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FilteringCriteria/callingLineID", HFILL }},
+    { &hf_inap_addressAndService,
+      { "addressAndService", "inap.addressAndService",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "FilteringCriteria/addressAndService", HFILL }},
+    { &hf_inap_calledAddressValue,
+      { "calledAddressValue", "inap.calledAddressValue",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_callingAddressValue,
+      { "callingAddressValue", "inap.callingAddressValue",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_duration,
+      { "duration", "inap.duration",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_stopTime,
+      { "stopTime", "inap.stopTime",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FilteringTimeOut/stopTime", HFILL }},
+    { &hf_inap_gapOnService,
+      { "gapOnService", "inap.gapOnService",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GapCriteria/gapOnService", HFILL }},
+    { &hf_inap_calledAddressAndService,
+      { "calledAddressAndService", "inap.calledAddressAndService",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GapCriteria/calledAddressAndService", HFILL }},
+    { &hf_inap_callingAddressAndService,
+      { "callingAddressAndService", "inap.callingAddressAndService",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GapCriteria/callingAddressAndService", HFILL }},
+    { &hf_inap_dpCriteria,
+      { "dpCriteria", "inap.dpCriteria",
+        FT_UINT32, BASE_DEC, VALS(inap_EventTypeBCSM_vals), 0,
+        "GapOnService/dpCriteria", HFILL }},
+    { &hf_inap_gapInterval,
+      { "gapInterval", "inap.gapInterval",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "GapIndicators/gapInterval", HFILL }},
+    { &hf_inap_both,
+      { "both", "inap.both",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GapTreatment/both", HFILL }},
+    { &hf_inap_messageID,
+      { "messageID", "inap.messageID",
+        FT_UINT32, BASE_DEC, VALS(inap_MessageID_vals), 0,
+        "InbandInfo/messageID", HFILL }},
+    { &hf_inap_numberOfRepetitions,
+      { "numberOfRepetitions", "inap.numberOfRepetitions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "InbandInfo/numberOfRepetitions", HFILL }},
+    { &hf_inap_duration3,
+      { "duration3", "inap.duration3",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "InbandInfo/duration3", HFILL }},
+    { &hf_inap_interval,
+      { "interval", "inap.interval",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "InbandInfo/interval", HFILL }},
+    { &hf_inap_inbandInfo,
+      { "inbandInfo", "inap.inbandInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InformationToSend/inbandInfo", HFILL }},
+    { &hf_inap_tone,
+      { "tone", "inap.tone",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InformationToSend/tone", HFILL }},
+    { &hf_inap_displayInformation,
+      { "displayInformation", "inap.displayInformation",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "InformationToSend/displayInformation", HFILL }},
+    { &hf_inap_sendingSideID,
+      { "sendingSideID", "inap.sendingSideID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "LegID/sendingSideID", HFILL }},
+    { &hf_inap_receivingSideID,
+      { "receivingSideID", "inap.receivingSideID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "LegID/receivingSideID", HFILL }},
+    { &hf_inap_elementaryMessageID,
+      { "elementaryMessageID", "inap.elementaryMessageID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_inap_text,
+      { "text", "inap.text",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageID/text", HFILL }},
+    { &hf_inap_messageContent,
+      { "messageContent", "inap.messageContent",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "MessageID/text/messageContent", HFILL }},
+    { &hf_inap_attributes,
+      { "attributes", "inap.attributes",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "MessageID/text/attributes", HFILL }},
+    { &hf_inap_elementaryMessageIDs,
+      { "elementaryMessageIDs", "inap.elementaryMessageIDs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MessageID/elementaryMessageIDs", HFILL }},
+    { &hf_inap_elementaryMessageIDs_item,
+      { "Item", "inap.elementaryMessageIDs_item",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MessageID/elementaryMessageIDs/_item", HFILL }},
+    { &hf_inap_variableMessage,
+      { "variableMessage", "inap.variableMessage",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageID/variableMessage", HFILL }},
+    { &hf_inap_variableParts,
+      { "variableParts", "inap.variableParts",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MessageID/variableMessage/variableParts", HFILL }},
+    { &hf_inap_variableParts_item,
+      { "Item", "inap.variableParts_item",
+        FT_UINT32, BASE_DEC, VALS(inap_VariablePart_vals), 0,
+        "MessageID/variableMessage/variableParts/_item", HFILL }},
+    { &hf_inap_messageType,
+      { "messageType", "inap.messageType",
+        FT_UINT32, BASE_DEC, VALS(inap_T_messageType_vals), 0,
+        "MiscCallInfo/messageType", HFILL }},
+    { &hf_inap_dpAssignment,
+      { "dpAssignment", "inap.dpAssignment",
+        FT_UINT32, BASE_DEC, VALS(inap_T_dpAssignment_vals), 0,
+        "MiscCallInfo/dpAssignment", HFILL }},
+    { &hf_inap_RequestedInformationList_item,
+      { "Item", "inap.RequestedInformationList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RequestedInformationList/_item", HFILL }},
+    { &hf_inap_RequestedInformationTypeList_item,
+      { "Item", "inap.RequestedInformationTypeList_item",
+        FT_UINT32, BASE_DEC, VALS(inap_RequestedInformationType_vals), 0,
+        "RequestedInformationTypeList/_item", HFILL }},
+    { &hf_inap_requestedInformationType,
+      { "requestedInformationType", "inap.requestedInformationType",
+        FT_UINT32, BASE_DEC, VALS(inap_RequestedInformationType_vals), 0,
+        "RequestedInformation/requestedInformationType", HFILL }},
+    { &hf_inap_requestedInformationValue,
+      { "requestedInformationValue", "inap.requestedInformationValue",
+        FT_UINT32, BASE_DEC, VALS(inap_RequestedInformationValue_vals), 0,
+        "RequestedInformation/requestedInformationValue", HFILL }},
+    { &hf_inap_callAttemptElapsedTimeValue,
+      { "callAttemptElapsedTimeValue", "inap.callAttemptElapsedTimeValue",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RequestedInformationValue/callAttemptElapsedTimeValue", HFILL }},
+    { &hf_inap_callStopTimeValue,
+      { "callStopTimeValue", "inap.callStopTimeValue",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RequestedInformationValue/callStopTimeValue", HFILL }},
+    { &hf_inap_callConnectedElapsedTimeValue,
+      { "callConnectedElapsedTimeValue", "inap.callConnectedElapsedTimeValue",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RequestedInformationValue/callConnectedElapsedTimeValue", HFILL }},
+    { &hf_inap_releaseCauseValue,
+      { "releaseCauseValue", "inap.releaseCauseValue",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RequestedInformationValue/releaseCauseValue", HFILL }},
+    { &hf_inap_lineID,
+      { "lineID", "inap.lineID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ResourceID/lineID", HFILL }},
+    { &hf_inap_facilityGroupID,
+      { "facilityGroupID", "inap.facilityGroupID",
+        FT_UINT32, BASE_DEC, VALS(inap_FacilityGroup_vals), 0,
+        "ResourceID/facilityGroupID", HFILL }},
+    { &hf_inap_facilityGroupMemberID,
+      { "facilityGroupMemberID", "inap.facilityGroupMemberID",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "ResourceID/facilityGroupMemberID", HFILL }},
+    { &hf_inap_RouteList_item,
+      { "Item", "inap.RouteList_item",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RouteList/_item", HFILL }},
+    { &hf_inap_toneID,
+      { "toneID", "inap.toneID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Tone/toneID", HFILL }},
+    { &hf_inap_tone_duration,
+      { "tone-duration", "inap.tone_duration",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Tone/tone-duration", HFILL }},
+    { &hf_inap_integer,
+      { "integer", "inap.integer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "VariablePart/integer", HFILL }},
+    { &hf_inap_number,
+      { "number", "inap.number",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "VariablePart/number", HFILL }},
+    { &hf_inap_time,
+      { "time", "inap.time",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "VariablePart/time", HFILL }},
+    { &hf_inap_date2,
+      { "date2", "inap.date2",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "VariablePart/date2", HFILL }},
+    { &hf_inap_price,
+      { "price", "inap.price",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "VariablePart/price", HFILL }},
     { &hf_inap_problem,
       { "problem", "inap.problem",
         FT_UINT32, BASE_DEC, VALS(inap_T_problem_vals), 0,
         "CancelFailed/problem", HFILL }},
     { &hf_inap_operation,
       { "operation", "inap.operation",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "CancelFailed/operation", HFILL }},
     { &hf_inap_rinvokeID,
       { "rinvokeID", "inap.rinvokeID",
@@ -5662,66 +6212,74 @@ void proto_register_inap(void) {
     &ett_inap_ChangePartiesArg,
     &ett_inap_DetachArg,
     &ett_inap_HoldCallPartyConnectionArg,
-    &ett_inap_LegID,
     &ett_inap_ReconnectArg,
     &ett_inap_ReleaseCallPartyConnectionArg,
     &ett_inap_LegInformation,
-    &ett_inap_VariableParts,
-    &ett_inap_VariableParts_item,
-    &ett_inap_VariableMessage,
-    &ett_inap_Tone,
-    &ett_inap_Text,
-    &ett_inap_MessageID,
-    &ett_inap_T_elementaryMessageIDs,
-    &ett_inap_InformationToSend,
-    &ett_inap_T_inbandInfo,
-    &ett_inap_FilteringCriteria,
-    &ett_inap_T_addressAndService,
     &ett_inap_Extensions,
     &ett_inap_Extensions_item,
-    &ett_inap_ActivateServiceFilteringarg,
-    &ett_inap_T_filteredCallTreatment,
-    &ett_inap_T_filteringCharacteristics,
-    &ett_inap_T_filteringTimeOut,
-    &ett_inap_MiscCallInfo,
-    &ett_inap_ServiceAddressInformation,
-    &ett_inap_RouteList,
-    &ett_inap_BearerCapability,
-    &ett_inap_DpSpecificCommonParameters,
-    &ett_inap_CallingFacilityGroup,
+    &ett_inap_ActivateServiceFilteringArg,
     &ett_inap_AnalysedInformationarg,
     &ett_inap_AnalyseInformationarg,
-    &ett_inap_SEQUENCE_SIZE_1_3_OF_DestinationAddress,
-    &ett_inap_PartyToCharge,
-    &ett_inap_ApplyChargingarg,
-    &ett_inap_AssistRequestInstructionsarg,
-    &ett_inap_CallGaparg,
-    &ett_inap_T_gapCriteria,
-    &ett_inap_T_gapOnService,
-    &ett_inap_T_calledAddressAndService,
-    &ett_inap_T_callingAddressAndService,
-    &ett_inap_T_gapIndicators,
-    &ett_inap_T_gapTreatment,
-    &ett_inap_Both,
-    &ett_inap_CallInformationReportarg,
-    &ett_inap_T_requestedInformationList,
-    &ett_inap_T_requestedInformationList_item,
-    &ett_inap_T_requestedInformationValue,
-    &ett_inap_CallInformationRequestarg,
-    &ett_inap_T_requestedInformationTypeList,
-    &ett_inap_Cancelarg,
-    &ett_inap_FacilityGroupID,
-    &ett_inap_ResourceID,
-    &ett_inap_CancelStatusReportRequestarg,
-    &ett_inap_CollectedInformationarg,
-    &ett_inap_CollectInformationarg,
-    &ett_inap_Connectarg,
-    &ett_inap_ConnectToResource,
+    &ett_inap_ApplyChargingArg,
+    &ett_inap_AssistRequestInstructionsArg,
+    &ett_inap_CallGapArg,
+    &ett_inap_CallInformationReportArg,
+    &ett_inap_CallInformationRequestArg,
+    &ett_inap_CancelArg,
+    &ett_inap_CancelStatusReportRequestArg,
+    &ett_inap_CollectedInformationArg,
+    &ett_inap_CollectInformationArg,
+    &ett_inap_ConnectArg,
+    &ett_inap_ConnectToResourceArg,
     &ett_inap_T_resourceAddress,
-    &ett_inap_EstablishTemporaryConnection,
-    &ett_inap_EventNotificationChargingarg,
-    &ett_inap_EventReportBCSM,
-    &ett_inap_T_eventSpecificInformationBCSM,
+    &ett_inap_T_both2,
+    &ett_inap_DpSpecificCommonParameters,
+    &ett_inap_EstablishTemporaryConnectionArg,
+    &ett_inap_EventNotificationChargingArg,
+    &ett_inap_EventReportBCSMArg,
+    &ett_inap_HoldCallInNetworkArg,
+    &ett_inap_InitialDP,
+    &ett_inap_InitiateCallAttemptArg,
+    &ett_inap_MidCallArg,
+    &ett_inap_OAnswerArg,
+    &ett_inap_OCalledPartyBusyArg,
+    &ett_inap_ODisconnectArg,
+    &ett_inap_ONoAnswer,
+    &ett_inap_OriginationAttemptAuthorizedArg,
+    &ett_inap_PlayAnnouncementArg,
+    &ett_inap_PromptAndCollectUserInformationArg,
+    &ett_inap_ReceivedInformationArg,
+    &ett_inap_ReleaseCallArg,
+    &ett_inap_T_allCallSegments,
+    &ett_inap_RequestCurrentStatusReportResultArg,
+    &ett_inap_RequestEveryStatusChangeReportArg,
+    &ett_inap_RequestFirstStatusMatchReportArg,
+    &ett_inap_RequestNotificationChargingEvent,
+    &ett_inap_RequestNotificationChargingEvent_item,
+    &ett_inap_RequestReportBCSMEventArg,
+    &ett_inap_SEQUENCE_SIZE_1_numOfBCSMEvents_OF_BCSMEvent,
+    &ett_inap_ResetTimerArg,
+    &ett_inap_RouteSelectFailureArg,
+    &ett_inap_SelectFacilityArg,
+    &ett_inap_SelectRouteArg,
+    &ett_inap_SendChargingInformationArg,
+    &ett_inap_ServiceFilteringResponseArg,
+    &ett_inap_StatusReportArg,
+    &ett_inap_TAnswerArg,
+    &ett_inap_TTBusyArg,
+    &ett_inap_TDisconnectArg,
+    &ett_inap_TermAttemptAuthorizedArg,
+    &ett_inap_TNoAnswerArg,
+    &ett_inap_BCSMEvent,
+    &ett_inap_BearerCapability,
+    &ett_inap_ChargingEvent,
+    &ett_inap_CollectedDigits,
+    &ett_inap_CollectedInfo,
+    &ett_inap_CounterAndValue,
+    &ett_inap_CountersValue,
+    &ett_inap_DestinationRoutingAddress,
+    &ett_inap_DpSpecificCriteria,
+    &ett_inap_EventSpecificInformationBCSM,
     &ett_inap_T_collectedInfoSpecificInfo,
     &ett_inap_T_analyzedInfoSpecificInfo,
     &ett_inap_T_routeSelectFailureSpecificInfo,
@@ -5735,48 +6293,37 @@ void proto_register_inap(void) {
     &ett_inap_T_tAnswerSpecificInfo,
     &ett_inap_T_tMidCallSpecificInfo,
     &ett_inap_T_tDisconnectSpecificInfo,
-    &ett_inap_HoldCallInNetworkarg,
-    &ett_inap_InitialDP,
-    &ett_inap_InitiateCallAttempt,
-    &ett_inap_OAnswer,
-    &ett_inap_OCalledPartyBusy,
-    &ett_inap_ODisconnect,
-    &ett_inap_OMidCall,
-    &ett_inap_ONoAnswer,
-    &ett_inap_OriginationAttemptAuthorized,
-    &ett_inap_PlayAnnouncement,
-    &ett_inap_PromptAndCollectUserInformationarg,
-    &ett_inap_T_collectedInfo,
-    &ett_inap_T_collectedDigits,
-    &ett_inap_PromptAndCollectUserInformationres,
-    &ett_inap_ReleaseCallArg,
-    &ett_inap_T_allCallSegments,
-    &ett_inap_RequestCurrentStatusReportarg,
-    &ett_inap_RequestCurrentStatusReportres,
-    &ett_inap_RequestEveryStatusChangeReport,
-    &ett_inap_RequestFirstStatusMatchReport,
-    &ett_inap_RequestNotificationChargingEvent,
-    &ett_inap_RequestNotificationChargingEvent_item,
-    &ett_inap_RequestReportBCSMEvent,
-    &ett_inap_T_bcsmEvents,
-    &ett_inap_T_bcsmEvents_item,
-    &ett_inap_T_dpSpecificCriteria,
-    &ett_inap_ResetTimer,
-    &ett_inap_RouteSelectFailure,
-    &ett_inap_CalledFacilityGroup,
-    &ett_inap_SelectFacility,
-    &ett_inap_SelectRoute,
-    &ett_inap_SendChargingInformation,
-    &ett_inap_ServiceFilteringResponse,
-    &ett_inap_T_countersValue,
-    &ett_inap_T_countersValue_item,
-    &ett_inap_StatusReport,
-    &ett_inap_TAnswer,
-    &ett_inap_TBusy,
-    &ett_inap_TDisconnect,
-    &ett_inap_TermAttemptAuthorized,
-    &ett_inap_TMidCall,
-    &ett_inap_TNoAnswer,
+    &ett_inap_FacilityGroup,
+    &ett_inap_FilteredCallTreatment,
+    &ett_inap_FilteringCharacteristics,
+    &ett_inap_FilteringCriteria,
+    &ett_inap_T_addressAndService,
+    &ett_inap_FilteringTimeOut,
+    &ett_inap_GapCriteria,
+    &ett_inap_T_calledAddressAndService,
+    &ett_inap_T_callingAddressAndService,
+    &ett_inap_GapOnService,
+    &ett_inap_GapIndicators,
+    &ett_inap_GapTreatment,
+    &ett_inap_T_both,
+    &ett_inap_InbandInfo,
+    &ett_inap_InformationToSend,
+    &ett_inap_LegID,
+    &ett_inap_MessageID,
+    &ett_inap_T_text,
+    &ett_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4,
+    &ett_inap_T_variableMessage,
+    &ett_inap_SEQUENCE_SIZE_1_5_OF_VariablePart,
+    &ett_inap_MiscCallInfo,
+    &ett_inap_RequestedInformationList,
+    &ett_inap_RequestedInformationTypeList,
+    &ett_inap_RequestedInformation,
+    &ett_inap_RequestedInformationValue,
+    &ett_inap_ResourceID,
+    &ett_inap_RouteList,
+    &ett_inap_ServiceAddressInformation,
+    &ett_inap_Tone,
+    &ett_inap_VariablePart,
     &ett_inap_CancelFailed,
     &ett_inap_RejectPDU,
     &ett_inap_T_rinvokeID,

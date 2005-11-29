@@ -477,7 +477,7 @@ static const value_string isup_SCCP_method_ind_value[] = {
 #define DATA_CALL                           12
 #define TEST_CALL                           13
 #define PAYPHONE                            15
-static const value_string isup_calling_partys_category_value[] = {
+const value_string isup_calling_partys_category_value[] = {
   { UNKNOWN_AT_THIS_TIME,               "Category unknown at this time (national use)"},
   { OPERATOR_FRENCH,                    "operator, language French"},
   { OPERATOR_ENGLISH,                   "operator, language English"},
@@ -1462,7 +1462,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
 					    "Called Party Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
-  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 1){
+  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
 	  address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
 	  proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
 	  called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
@@ -2942,6 +2942,9 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 			offset = offset + octet - 2;
 		}
 	}
+	if ( offset == (gint)length)
+		/* No data */
+		return;
 
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "APM-user information field"  );
 	/* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
@@ -3049,7 +3052,7 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
 /* ------------------------------------------------------------------
   Dissector Parameter Original called  number
  */
-static void
+void
 dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;
@@ -3106,7 +3109,7 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tre
 /* ------------------------------------------------------------------
   Dissector Parameter Redirecting number
  */
-static void
+void
 dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;
@@ -3244,7 +3247,7 @@ dissect_isup_connection_request_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 /* ------------------------------------------------------------------
   Dissector Parameter Redirection information
  */
-static void
+void
 dissect_isup_redirection_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   if (tvb_length(parameter_tvb) == 2){
