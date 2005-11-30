@@ -109,6 +109,9 @@ static int hf_uma_urr_uc				= -1;
 static int hf_uma_urr_tlra				= -1;
 static int hf_uma_urr_rrs				= -1;
 static int hf_uma_urr_location_estimate = -1;
+static int hf_uma_urr_sign_of_latitude	= -1;
+static int hf_uma_urr_degrees_of_latitude =-1;
+static int hf_uma_urr_degrees_of_longitude =-1;
 static int hf_uma_urr_IP_Address_type	= -1;
 static int hf_uma_urr_FQDN				= -1;
 static int hf_uma_urr_sgw_ipv4			= -1;
@@ -438,6 +441,13 @@ static const value_string type_of_shape_vals[] = {
 	{ 0,	NULL }
 };
 
+
+/* 3GPP TS 23.032 7.3.1 */
+static const value_string sign_of_latitude_vals[] = {
+	{ 0,		"North"},
+	{ 1,		"South"},
+	{ 0,	NULL }
+};
 
 /*IP address type number value (octet 3)*/
 static const value_string IP_address_type_vals[] = {
@@ -944,8 +954,21 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The Location Estimate field is composed of 1 or more octets with an internal structure 
 		 * according to section 7 in [23.032].
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_location_estimate, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_location_estimate, tvb, ie_offset, 1, FALSE);
 		/* TODO:Add further dissecton here ? */
+		octet = tvb_get_guint8(tvb,ie_offset);
+		switch (octet){
+		case 0: /* Ellipsoid Point */
+			ie_offset++;
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_sign_of_latitude, tvb, ie_offset, 1, FALSE);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_degrees_of_latitude, tvb, ie_offset, 3, FALSE);
+			ie_offset = ie_offset + 3;
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_degrees_of_longitude, tvb, ie_offset, 3, FALSE);
+			break;
+		default:
+			break;
+		}
+
 		break;
 	case 9:			
 		/* UNC SGW IP Address 
@@ -1544,6 +1567,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			
 		proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, FALSE);
 		switch  ( pd ){
+		case 0: /* URR_C */
 		case 1: /* URR */
 			offset++;
 			octet = tvb_get_guint8(tvb,offset);
@@ -1825,6 +1849,21 @@ proto_register_uma(void)
 			{ "Location estimate","uma.urr.location_estimate",
 			FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf,          
 			"Location estimate", HFILL }
+		},
+		{ &hf_uma_urr_sign_of_latitude,
+			{ "ign of latitude","uma.urr.sign_of_latitude",
+			FT_UINT8,BASE_DEC, VALS(sign_of_latitude_vals), 0x80,          
+			"Sign of latitude", HFILL }
+		},
+		{ &hf_uma_urr_degrees_of_latitude,
+			{ "Degrees of latitude","uma.urr.sign_of_latitude",
+			FT_UINT32,BASE_DEC, NULL, 0x3fffff,          
+			"Degrees of latitude", HFILL }
+		},
+		{ &hf_uma_urr_degrees_of_longitude,
+			{ "Degrees of longitude","uma.urr.sign_of_longitude",
+			FT_UINT32,BASE_DEC, NULL, 0xffffff,          
+			"Degrees of longitude", HFILL }
 		},
 		{ &hf_uma_urr_IP_Address_type,
 			{ "IP address type number value","uma.urr.ip_type",
