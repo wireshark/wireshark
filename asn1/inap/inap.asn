@@ -15,24 +15,27 @@ BEGIN
 --  TYPE DEFINITION FOR ADDITIONAL	IN CS-1	DATA TYPES
 --  Argument Data Types
 AddPartyArg ::= SEQUENCE {
-	originalCallID	[0]	CallID	OPTIONAL,
+	originalCallID		[0]	CallID	OPTIONAL,
 	destinationCallID	[1]	CallID	OPTIONAL
 	}
+
 --  OPTIONAL denotes network operator specific use.
 AttachArg ::= SEQUENCE {
-	newLegID	[0]	IMPLICIT OCTET STRING	OPTIONAL,
+	newLegID				[0]	IMPLICIT OCTET STRING	OPTIONAL,
 	correlationidentifier	[1]	IMPLICIT OCTET STRING	OPTIONAL
 	}
 --  OPTIONAL denotes network operator specific use.
+
 CallPartyHandlingResultsArg ::= SEQUENCE OF LegInformation
+
 ChangePartiesArg ::= SEQUENCE {
-	callID	[0]	CallID	OPTIONAL,
-	targetCallID	[1]	CallID,
+	callID				[0]	CallID	OPTIONAL,
+	targetCallID		[1]	CallID,
 	legToBeConnectedID	[2]	IMPLICIT OCTET STRING	
 	}
 --  OPTIONAL denotes network operator specific use.
 DetachArg ::= SEQUENCE {
-	legToBeDetached	[0]	IMPLICIT OCTET STRING	OPTIONAL,
+	legToBeDetached			[0]	IMPLICIT OCTET STRING	OPTIONAL,
 	correlationidentifier 	[1]	IMPLICIT OCTET STRING	OPTIONAL
 	}
 --  OPTIONAL denotes network operator specific use.
@@ -43,13 +46,13 @@ HoldCallPartyConnectionArg ::= SEQUENCE {
 	}
 
 ReconnectArg ::= SEQUENCE {
-	callID	[0]	CallID	OPTIONAL,
+	callID		[0]	CallID	OPTIONAL,
 	heldLegID	[1]	LegID
 	}
 --  OPTIONAL denotes network operator specific use.
 ReleaseCallPartyConnectionArg ::= SEQUENCE {
 	legToBeReleased	[0]	LegID,
-	callID	[1]	CallID	OPTIONAL,
+	callID			[1]	CallID	OPTIONAL,
 	releaseCause	[2]	Cause	OPTIONAL
 	}
 --  OPTIONAL denotes network operator specific use. Common Data Types
@@ -58,7 +61,7 @@ CallID ::= INTEGER
 --  4.2.2.1/Q.1214 for a description of Call Segment.
 
 LegInformation ::= SEQUENCE {
-	legID	[0]	LegID,
+	legID		[0]	LegID,
 	legStatus	[1]	LegStatus
 	}
 --  Indicates call party information, as defined by a Leg object. This includes a LegID to reference 
@@ -104,7 +107,7 @@ ActivateServiceFilteringArg ::= SEQUENCE {
   }
 
 
-AnalysedInformationarg ::=	SEQUENCE {
+AnalysedInformationArg ::=	SEQUENCE {
   dpSpecificCommonParameters   [0]  DpSpecificCommonParameters,
   dialledDigits                [1]  CalledPartyNumber OPTIONAL,
   callingPartyBusinessGroupID  [2]  CallingPartyBusinessGroupID OPTIONAL,
@@ -124,7 +127,7 @@ AnalysedInformationarg ::=	SEQUENCE {
   ...
 	}
 
-AnalyseInformationarg ::=	SEQUENCE {
+AnalyseInformationArg ::=	SEQUENCE {
   destinationRoutingAddress     [0]  DestinationRoutingAddress,
   alertingPattern               [1]  AlertingPattern OPTIONAL,
   iSDNAccessRelatedInformation  [2]  ISDNAccessRelatedInformation OPTIONAL,
@@ -602,7 +605,7 @@ TAnswerArg ::= SEQUENCE {
   ...
   }
  
-TTBusyArg ::= SEQUENCE {
+TBusyArg ::= SEQUENCE {
   dpSpecificCommonParameters  [0]  DpSpecificCommonParameters,
   busyCause                   [1]  Cause OPTIONAL,
   calledPartyBusinessGroupID  [2]  CalledPartyBusinessGroupID OPTIONAL,

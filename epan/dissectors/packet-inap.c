@@ -71,6 +71,55 @@ static int hf_inap_genproblem = -1;
 
 /*--- Included file: packet-inap-hf.c ---*/
 
+static int hf_inap_ActivateServiceFilteringArg_PDU = -1;  /* ActivateServiceFilteringArg */
+static int hf_inap_AnalysedInformationArg_PDU = -1;  /* AnalysedInformationArg */
+static int hf_inap_AnalyseInformationArg_PDU = -1;  /* AnalyseInformationArg */
+static int hf_inap_ApplyChargingArg_PDU = -1;     /* ApplyChargingArg */
+static int hf_inap_ApplyChargingReportArg_PDU = -1;  /* ApplyChargingReportArg */
+static int hf_inap_AssistRequestInstructionsArg_PDU = -1;  /* AssistRequestInstructionsArg */
+static int hf_inap_CallGapArg_PDU = -1;           /* CallGapArg */
+static int hf_inap_CallInformationReportArg_PDU = -1;  /* CallInformationReportArg */
+static int hf_inap_CallInformationRequestArg_PDU = -1;  /* CallInformationRequestArg */
+static int hf_inap_CancelArg_PDU = -1;            /* CancelArg */
+static int hf_inap_CollectedInformationArg_PDU = -1;  /* CollectedInformationArg */
+static int hf_inap_CollectInformationArg_PDU = -1;  /* CollectInformationArg */
+static int hf_inap_ConnectArg_PDU = -1;           /* ConnectArg */
+static int hf_inap_ConnectToResourceArg_PDU = -1;  /* ConnectToResourceArg */
+static int hf_inap_EstablishTemporaryConnectionArg_PDU = -1;  /* EstablishTemporaryConnectionArg */
+static int hf_inap_EventNotificationChargingArg_PDU = -1;  /* EventNotificationChargingArg */
+static int hf_inap_EventReportBCSMArg_PDU = -1;   /* EventReportBCSMArg */
+static int hf_inap_FurnishChargingInformationArg_PDU = -1;  /* FurnishChargingInformationArg */
+static int hf_inap_HoldCallInNetworkArg_PDU = -1;  /* HoldCallInNetworkArg */
+static int hf_inap_InitialDP_PDU = -1;            /* InitialDP */
+static int hf_inap_InitiateCallAttemptArg_PDU = -1;  /* InitiateCallAttemptArg */
+static int hf_inap_MidCallArg_PDU = -1;           /* MidCallArg */
+static int hf_inap_OAnswerArg_PDU = -1;           /* OAnswerArg */
+static int hf_inap_OCalledPartyBusyArg_PDU = -1;  /* OCalledPartyBusyArg */
+static int hf_inap_ODisconnectArg_PDU = -1;       /* ODisconnectArg */
+static int hf_inap_ONoAnswer_PDU = -1;            /* ONoAnswer */
+static int hf_inap_OriginationAttemptAuthorizedArg_PDU = -1;  /* OriginationAttemptAuthorizedArg */
+static int hf_inap_PlayAnnouncementArg_PDU = -1;  /* PlayAnnouncementArg */
+static int hf_inap_PromptAndCollectUserInformationArg_PDU = -1;  /* PromptAndCollectUserInformationArg */
+static int hf_inap_ReceivedInformationArg_PDU = -1;  /* ReceivedInformationArg */
+static int hf_inap_ReleaseCallArg_PDU = -1;       /* ReleaseCallArg */
+static int hf_inap_RequestCurrentStatusReportArg_PDU = -1;  /* RequestCurrentStatusReportArg */
+static int hf_inap_RequestCurrentStatusReportResultArg_PDU = -1;  /* RequestCurrentStatusReportResultArg */
+static int hf_inap_RequestEveryStatusChangeReportArg_PDU = -1;  /* RequestEveryStatusChangeReportArg */
+static int hf_inap_RequestFirstStatusMatchReportArg_PDU = -1;  /* RequestFirstStatusMatchReportArg */
+static int hf_inap_RequestNotificationChargingEvent_PDU = -1;  /* RequestNotificationChargingEvent */
+static int hf_inap_RequestReportBCSMEventArg_PDU = -1;  /* RequestReportBCSMEventArg */
+static int hf_inap_ResetTimerArg_PDU = -1;        /* ResetTimerArg */
+static int hf_inap_RouteSelectFailureArg_PDU = -1;  /* RouteSelectFailureArg */
+static int hf_inap_SelectFacilityArg_PDU = -1;    /* SelectFacilityArg */
+static int hf_inap_SelectRouteArg_PDU = -1;       /* SelectRouteArg */
+static int hf_inap_ServiceFilteringResponseArg_PDU = -1;  /* ServiceFilteringResponseArg */
+static int hf_inap_SpecializedResourceReportArg_PDU = -1;  /* SpecializedResourceReportArg */
+static int hf_inap_StatusReportArg_PDU = -1;      /* StatusReportArg */
+static int hf_inap_TAnswerArg_PDU = -1;           /* TAnswerArg */
+static int hf_inap_TBusyArg_PDU = -1;             /* TBusyArg */
+static int hf_inap_TDisconnectArg_PDU = -1;       /* TDisconnectArg */
+static int hf_inap_TermAttemptAuthorizedArg_PDU = -1;  /* TermAttemptAuthorizedArg */
+static int hf_inap_TNoAnswerArg_PDU = -1;         /* TNoAnswerArg */
 static int hf_inap_originalCallID = -1;           /* CallID */
 static int hf_inap_destinationCallID = -1;        /* CallID */
 static int hf_inap_newLegID = -1;                 /* OCTET_STRING */
@@ -331,8 +380,8 @@ static gint ett_inap_LegInformation = -1;
 static gint ett_inap_Extensions = -1;
 static gint ett_inap_Extensions_item = -1;
 static gint ett_inap_ActivateServiceFilteringArg = -1;
-static gint ett_inap_AnalysedInformationarg = -1;
-static gint ett_inap_AnalyseInformationarg = -1;
+static gint ett_inap_AnalysedInformationArg = -1;
+static gint ett_inap_AnalyseInformationArg = -1;
 static gint ett_inap_ApplyChargingArg = -1;
 static gint ett_inap_AssistRequestInstructionsArg = -1;
 static gint ett_inap_CallGapArg = -1;
@@ -379,7 +428,7 @@ static gint ett_inap_SendChargingInformationArg = -1;
 static gint ett_inap_ServiceFilteringResponseArg = -1;
 static gint ett_inap_StatusReportArg = -1;
 static gint ett_inap_TAnswerArg = -1;
-static gint ett_inap_TTBusyArg = -1;
+static gint ett_inap_TBusyArg = -1;
 static gint ett_inap_TDisconnectArg = -1;
 static gint ett_inap_TermAttemptAuthorizedArg = -1;
 static gint ett_inap_TNoAnswerArg = -1;
@@ -2048,7 +2097,7 @@ static int dissect_carrier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const ber_sequence_t AnalysedInformationarg_sequence[] = {
+static const ber_sequence_t AnalysedInformationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialledDigits_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyBusinessGroupID_impl },
@@ -2069,9 +2118,9 @@ static const ber_sequence_t AnalysedInformationarg_sequence[] = {
 };
 
 static int
-dissect_inap_AnalysedInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_AnalysedInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   AnalysedInformationarg_sequence, hf_index, ett_inap_AnalysedInformationarg);
+                                   AnalysedInformationArg_sequence, hf_index, ett_inap_AnalysedInformationArg);
 
   return offset;
 }
@@ -2106,7 +2155,7 @@ static int dissect_alertingPattern_impl(packet_info *pinfo, proto_tree *tree, tv
 }
 
 
-static const ber_sequence_t AnalyseInformationarg_sequence[] = {
+static const ber_sequence_t AnalyseInformationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iSDNAccessRelatedInformation_impl },
@@ -2122,9 +2171,9 @@ static const ber_sequence_t AnalyseInformationarg_sequence[] = {
 };
 
 static int
-dissect_inap_AnalyseInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_AnalyseInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   AnalyseInformationarg_sequence, hf_index, ett_inap_AnalyseInformationarg);
+                                   AnalyseInformationArg_sequence, hf_index, ett_inap_AnalyseInformationArg);
 
   return offset;
 }
@@ -4303,7 +4352,7 @@ dissect_inap_TAnswerArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 }
 
 
-static const ber_sequence_t TTBusyArg_sequence[] = {
+static const ber_sequence_t TBusyArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_busyCause_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
@@ -4318,9 +4367,9 @@ static const ber_sequence_t TTBusyArg_sequence[] = {
 };
 
 static int
-dissect_inap_TTBusyArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_inap_TBusyArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   TTBusyArg_sequence, hf_index, ett_inap_TTBusyArg);
+                                   TBusyArg_sequence, hf_index, ett_inap_TBusyArg);
 
   return offset;
 }
@@ -4771,6 +4820,156 @@ dissect_inap_RejectPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_ActivateServiceFilteringArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ActivateServiceFilteringArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ActivateServiceFilteringArg_PDU);
+}
+static void dissect_AnalysedInformationArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_AnalysedInformationArg(FALSE, tvb, 0, pinfo, tree, hf_inap_AnalysedInformationArg_PDU);
+}
+static void dissect_AnalyseInformationArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_AnalyseInformationArg(FALSE, tvb, 0, pinfo, tree, hf_inap_AnalyseInformationArg_PDU);
+}
+static void dissect_ApplyChargingArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ApplyChargingArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ApplyChargingArg_PDU);
+}
+static void dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ApplyChargingReportArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ApplyChargingReportArg_PDU);
+}
+static void dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, 0, pinfo, tree, hf_inap_AssistRequestInstructionsArg_PDU);
+}
+static void dissect_CallGapArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_CallGapArg(FALSE, tvb, 0, pinfo, tree, hf_inap_CallGapArg_PDU);
+}
+static void dissect_CallInformationReportArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_CallInformationReportArg(FALSE, tvb, 0, pinfo, tree, hf_inap_CallInformationReportArg_PDU);
+}
+static void dissect_CallInformationRequestArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_CallInformationRequestArg(FALSE, tvb, 0, pinfo, tree, hf_inap_CallInformationRequestArg_PDU);
+}
+static void dissect_CancelArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_CancelArg(FALSE, tvb, 0, pinfo, tree, hf_inap_CancelArg_PDU);
+}
+static void dissect_CollectedInformationArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_CollectedInformationArg(FALSE, tvb, 0, pinfo, tree, hf_inap_CollectedInformationArg_PDU);
+}
+static void dissect_CollectInformationArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_CollectInformationArg(FALSE, tvb, 0, pinfo, tree, hf_inap_CollectInformationArg_PDU);
+}
+static void dissect_ConnectArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ConnectArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ConnectArg_PDU);
+}
+static void dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ConnectToResourceArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ConnectToResourceArg_PDU);
+}
+static void dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, 0, pinfo, tree, hf_inap_EstablishTemporaryConnectionArg_PDU);
+}
+static void dissect_EventNotificationChargingArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_EventNotificationChargingArg(FALSE, tvb, 0, pinfo, tree, hf_inap_EventNotificationChargingArg_PDU);
+}
+static void dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_EventReportBCSMArg(FALSE, tvb, 0, pinfo, tree, hf_inap_EventReportBCSMArg_PDU);
+}
+static void dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_FurnishChargingInformationArg(FALSE, tvb, 0, pinfo, tree, hf_inap_FurnishChargingInformationArg_PDU);
+}
+static void dissect_HoldCallInNetworkArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_HoldCallInNetworkArg(FALSE, tvb, 0, pinfo, tree, hf_inap_HoldCallInNetworkArg_PDU);
+}
+static void dissect_InitialDP_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_InitialDP(FALSE, tvb, 0, pinfo, tree, hf_inap_InitialDP_PDU);
+}
+static void dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_InitiateCallAttemptArg(FALSE, tvb, 0, pinfo, tree, hf_inap_InitiateCallAttemptArg_PDU);
+}
+static void dissect_MidCallArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_MidCallArg(FALSE, tvb, 0, pinfo, tree, hf_inap_MidCallArg_PDU);
+}
+static void dissect_OAnswerArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_OAnswerArg(FALSE, tvb, 0, pinfo, tree, hf_inap_OAnswerArg_PDU);
+}
+static void dissect_OCalledPartyBusyArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_OCalledPartyBusyArg(FALSE, tvb, 0, pinfo, tree, hf_inap_OCalledPartyBusyArg_PDU);
+}
+static void dissect_ODisconnectArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ODisconnectArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ODisconnectArg_PDU);
+}
+static void dissect_ONoAnswer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ONoAnswer(FALSE, tvb, 0, pinfo, tree, hf_inap_ONoAnswer_PDU);
+}
+static void dissect_OriginationAttemptAuthorizedArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_OriginationAttemptAuthorizedArg(FALSE, tvb, 0, pinfo, tree, hf_inap_OriginationAttemptAuthorizedArg_PDU);
+}
+static void dissect_PlayAnnouncementArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_PlayAnnouncementArg(FALSE, tvb, 0, pinfo, tree, hf_inap_PlayAnnouncementArg_PDU);
+}
+static void dissect_PromptAndCollectUserInformationArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, 0, pinfo, tree, hf_inap_PromptAndCollectUserInformationArg_PDU);
+}
+static void dissect_ReceivedInformationArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ReceivedInformationArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ReceivedInformationArg_PDU);
+}
+static void dissect_ReleaseCallArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ReleaseCallArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ReleaseCallArg_PDU);
+}
+static void dissect_RequestCurrentStatusReportArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_RequestCurrentStatusReportArg(FALSE, tvb, 0, pinfo, tree, hf_inap_RequestCurrentStatusReportArg_PDU);
+}
+static void dissect_RequestCurrentStatusReportResultArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_RequestCurrentStatusReportResultArg(FALSE, tvb, 0, pinfo, tree, hf_inap_RequestCurrentStatusReportResultArg_PDU);
+}
+static void dissect_RequestEveryStatusChangeReportArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_RequestEveryStatusChangeReportArg(FALSE, tvb, 0, pinfo, tree, hf_inap_RequestEveryStatusChangeReportArg_PDU);
+}
+static void dissect_RequestFirstStatusMatchReportArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_RequestFirstStatusMatchReportArg(FALSE, tvb, 0, pinfo, tree, hf_inap_RequestFirstStatusMatchReportArg_PDU);
+}
+static void dissect_RequestNotificationChargingEvent_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_RequestNotificationChargingEvent(FALSE, tvb, 0, pinfo, tree, hf_inap_RequestNotificationChargingEvent_PDU);
+}
+static void dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, 0, pinfo, tree, hf_inap_RequestReportBCSMEventArg_PDU);
+}
+static void dissect_ResetTimerArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ResetTimerArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ResetTimerArg_PDU);
+}
+static void dissect_RouteSelectFailureArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_RouteSelectFailureArg(FALSE, tvb, 0, pinfo, tree, hf_inap_RouteSelectFailureArg_PDU);
+}
+static void dissect_SelectFacilityArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_SelectFacilityArg(FALSE, tvb, 0, pinfo, tree, hf_inap_SelectFacilityArg_PDU);
+}
+static void dissect_SelectRouteArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_SelectRouteArg(FALSE, tvb, 0, pinfo, tree, hf_inap_SelectRouteArg_PDU);
+}
+static void dissect_ServiceFilteringResponseArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, 0, pinfo, tree, hf_inap_ServiceFilteringResponseArg_PDU);
+}
+static void dissect_SpecializedResourceReportArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_SpecializedResourceReportArg(FALSE, tvb, 0, pinfo, tree, hf_inap_SpecializedResourceReportArg_PDU);
+}
+static void dissect_StatusReportArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_StatusReportArg(FALSE, tvb, 0, pinfo, tree, hf_inap_StatusReportArg_PDU);
+}
+static void dissect_TAnswerArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_TAnswerArg(FALSE, tvb, 0, pinfo, tree, hf_inap_TAnswerArg_PDU);
+}
+static void dissect_TBusyArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_TBusyArg(FALSE, tvb, 0, pinfo, tree, hf_inap_TBusyArg_PDU);
+}
+static void dissect_TDisconnectArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_TDisconnectArg(FALSE, tvb, 0, pinfo, tree, hf_inap_TDisconnectArg_PDU);
+}
+static void dissect_TermAttemptAuthorizedArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_TermAttemptAuthorizedArg(FALSE, tvb, 0, pinfo, tree, hf_inap_TermAttemptAuthorizedArg_PDU);
+}
+static void dissect_TNoAnswerArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_inap_TNoAnswerArg(FALSE, tvb, 0, pinfo, tree, hf_inap_TNoAnswerArg_PDU);
+}
+
 
 /*--- End of included file: packet-inap-fn.c ---*/
 
@@ -4872,7 +5071,7 @@ dissect_inap_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index, &opcode);
 
   if (check_col(pinfo->cinfo, COL_INFO)){
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_opr_code_strings, "Unknown Inap (%u)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, inap_opr_code_strings, "Unknown Inap (%u)"));
   }
 
   return offset;
@@ -4914,89 +5113,153 @@ TC-Invokable OPERATION ::=
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
   case 0: /*InitialDP*/
-    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, hf_inap_InitialDP_PDU);
     break;
-	 /*1 OriginationAttemptAuthorized */
-	 /*2 CollectedInformation */
-	 /*3 AnalysedInformation */
-	 /*4 RouteSelectFailure */
-	 /*5 oCalledPartyBusy */
-	 /*6 oNoAnswer */
-	 /*7 oAnswer */
-	 /*8 oDisconnect */
-	 /*9 TermAttemptAuthorized */
-	 /*10 tBusy */
-	 /*11 tNoAnswer */
-	 /*12 tAnswer */
-	 /*13 tDisconnect */
-	 /*14 oMidCall */
-	 /*15 tMidCall */
+  case 1: /*1 OriginationAttemptAuthorized */
+    offset=dissect_inap_OriginationAttemptAuthorizedArg(FALSE, tvb, offset, pinfo, tree, hf_inap_OriginationAttemptAuthorizedArg_PDU);
+    break;
+  case 2: /*2 CollectedInformation */
+    offset=dissect_inap_CollectedInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CollectedInformationArg_PDU);
+    break;
+  case 3: /*3 AnalysedInformation */
+    offset=dissect_inap_AnalysedInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_AnalysedInformationArg_PDU);
+    break;
+  case 4: /*4 RouteSelectFailure */
+    offset=dissect_inap_RouteSelectFailureArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RouteSelectFailureArg_PDU);
+    break;
+  case 5: /*5 oCalledPartyBusy */
+    offset=dissect_inap_OCalledPartyBusyArg(FALSE, tvb, offset, pinfo, tree, hf_inap_OCalledPartyBusyArg_PDU);
+    break;	 
+  case 6: /*6 oNoAnswer */
+    offset=dissect_inap_ONoAnswer(FALSE, tvb, offset, pinfo, tree, hf_inap_ONoAnswer_PDU);
+    break;
+  case 7: /*7 oAnswer */
+    offset=dissect_inap_OAnswerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_OAnswerArg_PDU);
+    break;
+  case 8: /*8 oDisconnect */
+    offset=dissect_inap_ODisconnectArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ODisconnectArg_PDU);
+    break;
+  case 9: /*9 TermAttemptAuthorized */
+    offset=dissect_inap_TermAttemptAuthorizedArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TermAttemptAuthorizedArg_PDU);
+    break;
+  case 10: /*10 tBusy */
+    offset=dissect_inap_TBusyArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TBusyArg_PDU);
+    break;
+  case 11: /*11 tNoAnswer */
+    offset=dissect_inap_TNoAnswerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TNoAnswerArg_PDU);
+    break;
+  case 12: /*12 tAnswer */
+    offset=dissect_inap_TAnswerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TAnswerArg_PDU);
+    break;
+  case 13: /*13 tDisconnect */
+    offset=dissect_inap_TDisconnectArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TDisconnectArg_PDU);
+    break;
+  case 14: /*14 oMidCall */
+    offset=dissect_inap_MidCallArg(FALSE, tvb, offset, pinfo, tree, hf_inap_MidCallArg_PDU);
+    break;
+  case 15: /*15 tMidCall */
+    offset=dissect_inap_MidCallArg(FALSE, tvb, offset, pinfo, tree, hf_inap_MidCallArg_PDU);
+    break;
   case  16: /*AssistRequestInstructions*/
-    offset=dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, pinfo, tree, hf_inap_AssistRequestInstructionsArg_PDU);
     break;
   case  17: /*EstablishTemporaryConnection*/
-    offset=dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, pinfo, tree, hf_inap_EstablishTemporaryConnectionArg_PDU);
     break;
   case  18: /*DisconnectForwardConnections*/
     proto_tree_add_text(tree, tvb, offset, -1, "Disconnect Forward Connection");
     break;
   case  19: /*ConnectToResource*/
-    offset=dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ConnectToResourceArg_PDU);
     break;
   case  20: /*Connect*/
-    offset=dissect_inap_ConnectArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ConnectArg(FALSE, tvb, offset, pinfo, tree,hf_inap_ConnectArg_PDU);
+    break;	
+  case  21: /* 21 HoldCallInNetwork */
+    offset=dissect_inap_HoldCallInNetworkArg(FALSE, tvb, offset, pinfo, tree,hf_inap_HoldCallInNetworkArg_PDU);
     break;
-	/* 21 HoldCallInNetwork */
 
    case 22: /*ReleaseCall*/
-    offset=dissect_inap_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree,hf_inap_ReleaseCallArg_PDU);
     break;
     case 23: /*InitialDP*/
-    offset=dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestReportBCSMEventArg_PDU);
     break;
   case  24: /*EventReportBCSM*/
-    offset=dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, pinfo, tree, hf_inap_EventReportBCSMArg_PDU);
     break;
-	/*24,"EventReportBCSM */
-	/*25, "RequestNotificationChargingEvent */
-	/*26, "EventNotificationCharging */
-	/*27, "CollectInformation */
-	/*28, "AnalyseInformation */
-	/*29, "SelectRoute */
-	/*30, "SelectFacility */
+  case  25: /*25, "RequestNotificationChargingEvent */
+    offset=dissect_inap_RequestNotificationChargingEvent(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestNotificationChargingEvent_PDU);
+    break;
+  case  26: /*26, "EventNotificationCharging */
+    offset=dissect_inap_EventNotificationChargingArg(FALSE, tvb, offset, pinfo, tree, hf_inap_EventNotificationChargingArg_PDU);
+    break;
+  case  27: /*27, "CollectInformation */
+    offset=dissect_inap_CollectInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CollectInformationArg_PDU);
+    break;
+  case  28: /*28, "AnalyseInformation */
+    offset=dissect_inap_AnalyseInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_AnalyseInformationArg_PDU);
+    break;
+  case  29: /*29, "SelectRoute */
+    offset=dissect_inap_SelectRouteArg(FALSE, tvb, offset, pinfo, tree, hf_inap_SelectRouteArg_PDU);
+    break;
+  case  30: /*30, "SelectFacility */
+    offset=dissect_inap_SelectFacilityArg(FALSE, tvb, offset, pinfo, tree, hf_inap_SelectFacilityArg_PDU);
+    break;
 	/*31, "Continue */
-	/*32, "InitiateCallAttempt*/
+  case  32: /*32, InitiateCallAttempt*/
+    offset=dissect_inap_InitiateCallAttemptArg(FALSE, tvb, offset, pinfo, tree, hf_inap_InitiateCallAttemptArg_PDU);
+    break;
   case 33: /*ResetTimer*/
-    offset=dissect_inap_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ResetTimerArg_PDU);
     break;
   case 34: /*FurnishChargingInformation*/
-    offset=dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_FurnishChargingInformationArg_PDU);
     break;
-	/*35, "ApplyCharging */
-	/*36, "ApplyChargingReport */
-	/*37, "RequestCurrentStatusReport */
-	/*38, "RequestEveryStatusChangeReport */
-	/*39, "RequestFirstStatusMatchReport */
-	/*40, "StatusReport */
-	/*41, "CallGap */
-	/*42, "ActivateServiceFiltering */
-	/*43, "ServiceFilteringResponse */
-    
+  case 35: /*35, ApplyCharging */
+    offset=dissect_inap_ApplyChargingArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ApplyChargingArg_PDU);
+    break;	
+  case 36: /*36, "ApplyChargingReport */
+    offset=dissect_inap_ApplyChargingReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ApplyChargingReportArg_PDU);
+    break;
+  case 37: /*37, "RequestCurrentStatusReport */
+    offset=dissect_inap_RequestCurrentStatusReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestCurrentStatusReportArg_PDU);
+    break;
+  case 38:/*38, "RequestEveryStatusChangeReport */
+    offset=dissect_inap_RequestEveryStatusChangeReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestEveryStatusChangeReportArg_PDU);
+    break;
+  case 39:/*39, "RequestFirstStatusMatchReport */
+    offset=dissect_inap_RequestFirstStatusMatchReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestFirstStatusMatchReportArg_PDU);
+    break;
+  case 40:/*40, "StatusReport */
+    offset=dissect_inap_StatusReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_StatusReportArg_PDU);
+    break;
+  case 41:/*41, "CallGap */
+    offset=dissect_inap_CallGapArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RCallGapArg_PDU);
+    break;
+  case 42:/*42, "ActivateServiceFiltering */
+    offset=dissect_inap_ActivateServiceFilteringArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ActivateServiceFilteringArg_PDU);
+    break;
+  case 43:/*43, "ServiceFilteringResponse */
+    offset=dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ServiceFilteringResponseArg_PDU);
+    break;    
   case  44: /*CallInformationReport*/
-    offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CallInformationReportArg_PDU);
     break;
   case  45: /*CallInformationRequest*/
-    offset=dissect_inap_CallInformationRequestArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_CallInformationRequestArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CallInformationRequestArg_PDU);
     break;
   case 47: /*PlayAnnouncement*/
-    offset=dissect_inap_PlayAnnouncementArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_PlayAnnouncementArg(FALSE, tvb, offset, pinfo, tree, hf_inap_PlayAnnouncementArg_PDU);
     break;
   case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_PromptAndCollectUserInformationArg_PDU);
     break;
-	/* 49 SpecializedResourceReport */
+  case 49: /* 49 SpecializedResourceReport */
+    offset=dissect_inap_SpecializedResourceReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_SpecializedResourceReportArg_PDU);
+    break;
   case  53: /*Cancel*/
-    offset=dissect_inap_CancelArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_CancelArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CancelArg_PDU);
     break;
 	/*55 ActivityTest*/
    default:
@@ -5185,11 +5448,11 @@ dissect_inap_INAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               INAPPDU_choice, hf_index, ett_inap_INAPPDU, NULL);
-
+/*
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%u)"));
   }
-
+*/
   return offset;
 }
 
@@ -5283,6 +5546,202 @@ void proto_register_inap(void) {
 
 /*--- Included file: packet-inap-hfarr.c ---*/
 
+    { &hf_inap_ActivateServiceFilteringArg_PDU,
+      { "ActivateServiceFilteringArg", "inap.ActivateServiceFilteringArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ActivateServiceFilteringArg", HFILL }},
+    { &hf_inap_AnalysedInformationArg_PDU,
+      { "AnalysedInformationArg", "inap.AnalysedInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AnalysedInformationArg", HFILL }},
+    { &hf_inap_AnalyseInformationArg_PDU,
+      { "AnalyseInformationArg", "inap.AnalyseInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AnalyseInformationArg", HFILL }},
+    { &hf_inap_ApplyChargingArg_PDU,
+      { "ApplyChargingArg", "inap.ApplyChargingArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ApplyChargingArg", HFILL }},
+    { &hf_inap_ApplyChargingReportArg_PDU,
+      { "ApplyChargingReportArg", "inap.ApplyChargingReportArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ApplyChargingReportArg", HFILL }},
+    { &hf_inap_AssistRequestInstructionsArg_PDU,
+      { "AssistRequestInstructionsArg", "inap.AssistRequestInstructionsArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AssistRequestInstructionsArg", HFILL }},
+    { &hf_inap_CallGapArg_PDU,
+      { "CallGapArg", "inap.CallGapArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CallGapArg", HFILL }},
+    { &hf_inap_CallInformationReportArg_PDU,
+      { "CallInformationReportArg", "inap.CallInformationReportArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CallInformationReportArg", HFILL }},
+    { &hf_inap_CallInformationRequestArg_PDU,
+      { "CallInformationRequestArg", "inap.CallInformationRequestArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CallInformationRequestArg", HFILL }},
+    { &hf_inap_CancelArg_PDU,
+      { "CancelArg", "inap.CancelArg",
+        FT_UINT32, BASE_DEC, VALS(inap_CancelArg_vals), 0,
+        "CancelArg", HFILL }},
+    { &hf_inap_CollectedInformationArg_PDU,
+      { "CollectedInformationArg", "inap.CollectedInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CollectedInformationArg", HFILL }},
+    { &hf_inap_CollectInformationArg_PDU,
+      { "CollectInformationArg", "inap.CollectInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CollectInformationArg", HFILL }},
+    { &hf_inap_ConnectArg_PDU,
+      { "ConnectArg", "inap.ConnectArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ConnectArg", HFILL }},
+    { &hf_inap_ConnectToResourceArg_PDU,
+      { "ConnectToResourceArg", "inap.ConnectToResourceArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ConnectToResourceArg", HFILL }},
+    { &hf_inap_EstablishTemporaryConnectionArg_PDU,
+      { "EstablishTemporaryConnectionArg", "inap.EstablishTemporaryConnectionArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EstablishTemporaryConnectionArg", HFILL }},
+    { &hf_inap_EventNotificationChargingArg_PDU,
+      { "EventNotificationChargingArg", "inap.EventNotificationChargingArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventNotificationChargingArg", HFILL }},
+    { &hf_inap_EventReportBCSMArg_PDU,
+      { "EventReportBCSMArg", "inap.EventReportBCSMArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventReportBCSMArg", HFILL }},
+    { &hf_inap_FurnishChargingInformationArg_PDU,
+      { "FurnishChargingInformationArg", "inap.FurnishChargingInformationArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "FurnishChargingInformationArg", HFILL }},
+    { &hf_inap_HoldCallInNetworkArg_PDU,
+      { "HoldCallInNetworkArg", "inap.HoldCallInNetworkArg",
+        FT_UINT32, BASE_DEC, VALS(inap_HoldCallInNetworkArg_vals), 0,
+        "HoldCallInNetworkArg", HFILL }},
+    { &hf_inap_InitialDP_PDU,
+      { "InitialDP", "inap.InitialDP",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InitialDP", HFILL }},
+    { &hf_inap_InitiateCallAttemptArg_PDU,
+      { "InitiateCallAttemptArg", "inap.InitiateCallAttemptArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InitiateCallAttemptArg", HFILL }},
+    { &hf_inap_MidCallArg_PDU,
+      { "MidCallArg", "inap.MidCallArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MidCallArg", HFILL }},
+    { &hf_inap_OAnswerArg_PDU,
+      { "OAnswerArg", "inap.OAnswerArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OAnswerArg", HFILL }},
+    { &hf_inap_OCalledPartyBusyArg_PDU,
+      { "OCalledPartyBusyArg", "inap.OCalledPartyBusyArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OCalledPartyBusyArg", HFILL }},
+    { &hf_inap_ODisconnectArg_PDU,
+      { "ODisconnectArg", "inap.ODisconnectArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ODisconnectArg", HFILL }},
+    { &hf_inap_ONoAnswer_PDU,
+      { "ONoAnswer", "inap.ONoAnswer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ONoAnswer", HFILL }},
+    { &hf_inap_OriginationAttemptAuthorizedArg_PDU,
+      { "OriginationAttemptAuthorizedArg", "inap.OriginationAttemptAuthorizedArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OriginationAttemptAuthorizedArg", HFILL }},
+    { &hf_inap_PlayAnnouncementArg_PDU,
+      { "PlayAnnouncementArg", "inap.PlayAnnouncementArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PlayAnnouncementArg", HFILL }},
+    { &hf_inap_PromptAndCollectUserInformationArg_PDU,
+      { "PromptAndCollectUserInformationArg", "inap.PromptAndCollectUserInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PromptAndCollectUserInformationArg", HFILL }},
+    { &hf_inap_ReceivedInformationArg_PDU,
+      { "ReceivedInformationArg", "inap.ReceivedInformationArg",
+        FT_UINT32, BASE_DEC, VALS(inap_ReceivedInformationArg_vals), 0,
+        "ReceivedInformationArg", HFILL }},
+    { &hf_inap_ReleaseCallArg_PDU,
+      { "ReleaseCallArg", "inap.ReleaseCallArg",
+        FT_UINT32, BASE_DEC, VALS(inap_ReleaseCallArg_vals), 0,
+        "ReleaseCallArg", HFILL }},
+    { &hf_inap_RequestCurrentStatusReportArg_PDU,
+      { "RequestCurrentStatusReportArg", "inap.RequestCurrentStatusReportArg",
+        FT_UINT32, BASE_DEC, VALS(inap_ResourceID_vals), 0,
+        "RequestCurrentStatusReportArg", HFILL }},
+    { &hf_inap_RequestCurrentStatusReportResultArg_PDU,
+      { "RequestCurrentStatusReportResultArg", "inap.RequestCurrentStatusReportResultArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RequestCurrentStatusReportResultArg", HFILL }},
+    { &hf_inap_RequestEveryStatusChangeReportArg_PDU,
+      { "RequestEveryStatusChangeReportArg", "inap.RequestEveryStatusChangeReportArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RequestEveryStatusChangeReportArg", HFILL }},
+    { &hf_inap_RequestFirstStatusMatchReportArg_PDU,
+      { "RequestFirstStatusMatchReportArg", "inap.RequestFirstStatusMatchReportArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RequestFirstStatusMatchReportArg", HFILL }},
+    { &hf_inap_RequestNotificationChargingEvent_PDU,
+      { "RequestNotificationChargingEvent", "inap.RequestNotificationChargingEvent",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RequestNotificationChargingEvent", HFILL }},
+    { &hf_inap_RequestReportBCSMEventArg_PDU,
+      { "RequestReportBCSMEventArg", "inap.RequestReportBCSMEventArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RequestReportBCSMEventArg", HFILL }},
+    { &hf_inap_ResetTimerArg_PDU,
+      { "ResetTimerArg", "inap.ResetTimerArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ResetTimerArg", HFILL }},
+    { &hf_inap_RouteSelectFailureArg_PDU,
+      { "RouteSelectFailureArg", "inap.RouteSelectFailureArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RouteSelectFailureArg", HFILL }},
+    { &hf_inap_SelectFacilityArg_PDU,
+      { "SelectFacilityArg", "inap.SelectFacilityArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SelectFacilityArg", HFILL }},
+    { &hf_inap_SelectRouteArg_PDU,
+      { "SelectRouteArg", "inap.SelectRouteArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SelectRouteArg", HFILL }},
+    { &hf_inap_ServiceFilteringResponseArg_PDU,
+      { "ServiceFilteringResponseArg", "inap.ServiceFilteringResponseArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ServiceFilteringResponseArg", HFILL }},
+    { &hf_inap_SpecializedResourceReportArg_PDU,
+      { "SpecializedResourceReportArg", "inap.SpecializedResourceReportArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SpecializedResourceReportArg", HFILL }},
+    { &hf_inap_StatusReportArg_PDU,
+      { "StatusReportArg", "inap.StatusReportArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "StatusReportArg", HFILL }},
+    { &hf_inap_TAnswerArg_PDU,
+      { "TAnswerArg", "inap.TAnswerArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TAnswerArg", HFILL }},
+    { &hf_inap_TBusyArg_PDU,
+      { "TBusyArg", "inap.TBusyArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TBusyArg", HFILL }},
+    { &hf_inap_TDisconnectArg_PDU,
+      { "TDisconnectArg", "inap.TDisconnectArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TDisconnectArg", HFILL }},
+    { &hf_inap_TermAttemptAuthorizedArg_PDU,
+      { "TermAttemptAuthorizedArg", "inap.TermAttemptAuthorizedArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TermAttemptAuthorizedArg", HFILL }},
+    { &hf_inap_TNoAnswerArg_PDU,
+      { "TNoAnswerArg", "inap.TNoAnswerArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TNoAnswerArg", HFILL }},
     { &hf_inap_originalCallID,
       { "originalCallID", "inap.originalCallID",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -6218,8 +6677,8 @@ void proto_register_inap(void) {
     &ett_inap_Extensions,
     &ett_inap_Extensions_item,
     &ett_inap_ActivateServiceFilteringArg,
-    &ett_inap_AnalysedInformationarg,
-    &ett_inap_AnalyseInformationarg,
+    &ett_inap_AnalysedInformationArg,
+    &ett_inap_AnalyseInformationArg,
     &ett_inap_ApplyChargingArg,
     &ett_inap_AssistRequestInstructionsArg,
     &ett_inap_CallGapArg,
@@ -6266,7 +6725,7 @@ void proto_register_inap(void) {
     &ett_inap_ServiceFilteringResponseArg,
     &ett_inap_StatusReportArg,
     &ett_inap_TAnswerArg,
-    &ett_inap_TTBusyArg,
+    &ett_inap_TBusyArg,
     &ett_inap_TDisconnectArg,
     &ett_inap_TermAttemptAuthorizedArg,
     &ett_inap_TNoAnswerArg,

@@ -182,7 +182,7 @@ dissect_inap_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index, &opcode);
 
   if (check_col(pinfo->cinfo, COL_INFO)){
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_opr_code_strings, "Unknown Inap (%u)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, inap_opr_code_strings, "Unknown Inap (%u)"));
   }
 
   return offset;
@@ -224,89 +224,153 @@ TC-Invokable OPERATION ::=
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
   case 0: /*InitialDP*/
-    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_InitialDP(FALSE, tvb, offset, pinfo, tree, hf_inap_InitialDP_PDU);
     break;
-	 /*1 OriginationAttemptAuthorized */
-	 /*2 CollectedInformation */
-	 /*3 AnalysedInformation */
-	 /*4 RouteSelectFailure */
-	 /*5 oCalledPartyBusy */
-	 /*6 oNoAnswer */
-	 /*7 oAnswer */
-	 /*8 oDisconnect */
-	 /*9 TermAttemptAuthorized */
-	 /*10 tBusy */
-	 /*11 tNoAnswer */
-	 /*12 tAnswer */
-	 /*13 tDisconnect */
-	 /*14 oMidCall */
-	 /*15 tMidCall */
+  case 1: /*1 OriginationAttemptAuthorized */
+    offset=dissect_inap_OriginationAttemptAuthorizedArg(FALSE, tvb, offset, pinfo, tree, hf_inap_OriginationAttemptAuthorizedArg_PDU);
+    break;
+  case 2: /*2 CollectedInformation */
+    offset=dissect_inap_CollectedInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CollectedInformationArg_PDU);
+    break;
+  case 3: /*3 AnalysedInformation */
+    offset=dissect_inap_AnalysedInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_AnalysedInformationArg_PDU);
+    break;
+  case 4: /*4 RouteSelectFailure */
+    offset=dissect_inap_RouteSelectFailureArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RouteSelectFailureArg_PDU);
+    break;
+  case 5: /*5 oCalledPartyBusy */
+    offset=dissect_inap_OCalledPartyBusyArg(FALSE, tvb, offset, pinfo, tree, hf_inap_OCalledPartyBusyArg_PDU);
+    break;	 
+  case 6: /*6 oNoAnswer */
+    offset=dissect_inap_ONoAnswer(FALSE, tvb, offset, pinfo, tree, hf_inap_ONoAnswer_PDU);
+    break;
+  case 7: /*7 oAnswer */
+    offset=dissect_inap_OAnswerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_OAnswerArg_PDU);
+    break;
+  case 8: /*8 oDisconnect */
+    offset=dissect_inap_ODisconnectArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ODisconnectArg_PDU);
+    break;
+  case 9: /*9 TermAttemptAuthorized */
+    offset=dissect_inap_TermAttemptAuthorizedArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TermAttemptAuthorizedArg_PDU);
+    break;
+  case 10: /*10 tBusy */
+    offset=dissect_inap_TBusyArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TBusyArg_PDU);
+    break;
+  case 11: /*11 tNoAnswer */
+    offset=dissect_inap_TNoAnswerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TNoAnswerArg_PDU);
+    break;
+  case 12: /*12 tAnswer */
+    offset=dissect_inap_TAnswerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TAnswerArg_PDU);
+    break;
+  case 13: /*13 tDisconnect */
+    offset=dissect_inap_TDisconnectArg(FALSE, tvb, offset, pinfo, tree, hf_inap_TDisconnectArg_PDU);
+    break;
+  case 14: /*14 oMidCall */
+    offset=dissect_inap_MidCallArg(FALSE, tvb, offset, pinfo, tree, hf_inap_MidCallArg_PDU);
+    break;
+  case 15: /*15 tMidCall */
+    offset=dissect_inap_MidCallArg(FALSE, tvb, offset, pinfo, tree, hf_inap_MidCallArg_PDU);
+    break;
   case  16: /*AssistRequestInstructions*/
-    offset=dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, pinfo, tree, hf_inap_AssistRequestInstructionsArg_PDU);
     break;
   case  17: /*EstablishTemporaryConnection*/
-    offset=dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, pinfo, tree, hf_inap_EstablishTemporaryConnectionArg_PDU);
     break;
   case  18: /*DisconnectForwardConnections*/
     proto_tree_add_text(tree, tvb, offset, -1, "Disconnect Forward Connection");
     break;
   case  19: /*ConnectToResource*/
-    offset=dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ConnectToResourceArg_PDU);
     break;
   case  20: /*Connect*/
-    offset=dissect_inap_ConnectArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ConnectArg(FALSE, tvb, offset, pinfo, tree,hf_inap_ConnectArg_PDU);
+    break;	
+  case  21: /* 21 HoldCallInNetwork */
+    offset=dissect_inap_HoldCallInNetworkArg(FALSE, tvb, offset, pinfo, tree,hf_inap_HoldCallInNetworkArg_PDU);
     break;
-	/* 21 HoldCallInNetwork */
 
    case 22: /*ReleaseCall*/
-    offset=dissect_inap_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree,hf_inap_ReleaseCallArg_PDU);
     break;
     case 23: /*InitialDP*/
-    offset=dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestReportBCSMEventArg_PDU);
     break;
   case  24: /*EventReportBCSM*/
-    offset=dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, pinfo, tree, hf_inap_EventReportBCSMArg_PDU);
     break;
-	/*24,"EventReportBCSM */
-	/*25, "RequestNotificationChargingEvent */
-	/*26, "EventNotificationCharging */
-	/*27, "CollectInformation */
-	/*28, "AnalyseInformation */
-	/*29, "SelectRoute */
-	/*30, "SelectFacility */
+  case  25: /*25, "RequestNotificationChargingEvent */
+    offset=dissect_inap_RequestNotificationChargingEvent(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestNotificationChargingEvent_PDU);
+    break;
+  case  26: /*26, "EventNotificationCharging */
+    offset=dissect_inap_EventNotificationChargingArg(FALSE, tvb, offset, pinfo, tree, hf_inap_EventNotificationChargingArg_PDU);
+    break;
+  case  27: /*27, "CollectInformation */
+    offset=dissect_inap_CollectInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CollectInformationArg_PDU);
+    break;
+  case  28: /*28, "AnalyseInformation */
+    offset=dissect_inap_AnalyseInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_AnalyseInformationArg_PDU);
+    break;
+  case  29: /*29, "SelectRoute */
+    offset=dissect_inap_SelectRouteArg(FALSE, tvb, offset, pinfo, tree, hf_inap_SelectRouteArg_PDU);
+    break;
+  case  30: /*30, "SelectFacility */
+    offset=dissect_inap_SelectFacilityArg(FALSE, tvb, offset, pinfo, tree, hf_inap_SelectFacilityArg_PDU);
+    break;
 	/*31, "Continue */
-	/*32, "InitiateCallAttempt*/
+  case  32: /*32, InitiateCallAttempt*/
+    offset=dissect_inap_InitiateCallAttemptArg(FALSE, tvb, offset, pinfo, tree, hf_inap_InitiateCallAttemptArg_PDU);
+    break;
   case 33: /*ResetTimer*/
-    offset=dissect_inap_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ResetTimerArg_PDU);
     break;
   case 34: /*FurnishChargingInformation*/
-    offset=dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_FurnishChargingInformationArg_PDU);
     break;
-	/*35, "ApplyCharging */
-	/*36, "ApplyChargingReport */
-	/*37, "RequestCurrentStatusReport */
-	/*38, "RequestEveryStatusChangeReport */
-	/*39, "RequestFirstStatusMatchReport */
-	/*40, "StatusReport */
-	/*41, "CallGap */
-	/*42, "ActivateServiceFiltering */
-	/*43, "ServiceFilteringResponse */
-    
+  case 35: /*35, ApplyCharging */
+    offset=dissect_inap_ApplyChargingArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ApplyChargingArg_PDU);
+    break;	
+  case 36: /*36, "ApplyChargingReport */
+    offset=dissect_inap_ApplyChargingReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ApplyChargingReportArg_PDU);
+    break;
+  case 37: /*37, "RequestCurrentStatusReport */
+    offset=dissect_inap_RequestCurrentStatusReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestCurrentStatusReportArg_PDU);
+    break;
+  case 38:/*38, "RequestEveryStatusChangeReport */
+    offset=dissect_inap_RequestEveryStatusChangeReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestEveryStatusChangeReportArg_PDU);
+    break;
+  case 39:/*39, "RequestFirstStatusMatchReport */
+    offset=dissect_inap_RequestFirstStatusMatchReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RequestFirstStatusMatchReportArg_PDU);
+    break;
+  case 40:/*40, "StatusReport */
+    offset=dissect_inap_StatusReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_StatusReportArg_PDU);
+    break;
+  case 41:/*41, "CallGap */
+    offset=dissect_inap_CallGapArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RCallGapArg_PDU);
+    break;
+  case 42:/*42, "ActivateServiceFiltering */
+    offset=dissect_inap_ActivateServiceFilteringArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ActivateServiceFilteringArg_PDU);
+    break;
+  case 43:/*43, "ServiceFilteringResponse */
+    offset=dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ServiceFilteringResponseArg_PDU);
+    break;    
   case  44: /*CallInformationReport*/
-    offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CallInformationReportArg_PDU);
     break;
   case  45: /*CallInformationRequest*/
-    offset=dissect_inap_CallInformationRequestArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_CallInformationRequestArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CallInformationRequestArg_PDU);
     break;
   case 47: /*PlayAnnouncement*/
-    offset=dissect_inap_PlayAnnouncementArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_PlayAnnouncementArg(FALSE, tvb, offset, pinfo, tree, hf_inap_PlayAnnouncementArg_PDU);
     break;
   case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, offset, pinfo, tree, hf_inap_PromptAndCollectUserInformationArg_PDU);
     break;
-	/* 49 SpecializedResourceReport */
+  case 49: /* 49 SpecializedResourceReport */
+    offset=dissect_inap_SpecializedResourceReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_SpecializedResourceReportArg_PDU);
+    break;
   case  53: /*Cancel*/
-    offset=dissect_inap_CancelArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_inap_CancelArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CancelArg_PDU);
     break;
 	/*55 ActivityTest*/
    default:
@@ -495,11 +559,11 @@ dissect_inap_INAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               INAPPDU_choice, hf_index, ett_inap_INAPPDU, NULL);
-
+/*
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%u)"));
   }
-
+*/
   return offset;
 }
 

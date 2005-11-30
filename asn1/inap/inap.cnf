@@ -17,6 +17,58 @@
 
 #.FIELD_RENAME
 
+#.PDU
+InitialDP
+OriginationAttemptAuthorizedArg
+CollectedInformationArg
+AnalysedInformationArg
+RouteSelectFailureArg
+OCalledPartyBusyArg
+ONoAnswer
+OAnswerArg
+ODisconnectArg
+TermAttemptAuthorizedArg
+TBusyArg
+TNoAnswerArg
+TAnswerArg
+TDisconnectArg
+MidCallArg
+AssistRequestInstructionsArg
+EstablishTemporaryConnectionArg
+ConnectToResourceArg
+ConnectArg
+HoldCallInNetworkArg
+ReleaseCallArg
+RequestReportBCSMEventArg
+EventReportBCSMArg
+RequestNotificationChargingEvent
+EventNotificationChargingArg
+CollectInformationArg
+AnalyseInformationArg
+SelectRouteArg
+SelectFacilityArg
+InitiateCallAttemptArg
+ResetTimerArg
+FurnishChargingInformationArg
+ApplyChargingArg
+ApplyChargingReportArg
+RequestCurrentStatusReportArg
+RequestEveryStatusChangeReportArg
+RequestFirstStatusMatchReportArg
+StatusReportArg
+CallGapArg
+ActivateServiceFilteringArg
+ServiceFilteringResponseArg
+
+CallInformationReportArg
+CallInformationRequestArg
+PlayAnnouncementArg
+PromptAndCollectUserInformationArg
+SpecializedResourceReportArg
+CancelArg
+RequestCurrentStatusReportResultArg
+ReceivedInformationArg
+
 #.FN_PARS CalledPartyNumber
 VAL_PTR = &parameter_tvb
 
