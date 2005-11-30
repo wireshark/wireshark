@@ -40,10 +40,10 @@ typedef enum {
   AT_ATALK,		/* Appletalk DDP */
   AT_VINES,		/* Banyan Vines */
   AT_OSI,		/* OSI NSAP */
-  AT_ARCNET,		/* ARCNET */
+  AT_ARCNET,	/* ARCNET */
   AT_FC,		/* Fibre Channel */
   AT_SS7PC,		/* SS7 Point Code */
-  AT_STRINGZ,		/* null-terminated string */
+  AT_STRINGZ,	/* null-terminated string */
   AT_EUI64,		/* IEEE EUI-64 */
   AT_URI		/* URI/URL/URN */
 } address_type;
@@ -127,7 +127,8 @@ typedef enum {
   CT_X25,		/* X.25 logical channel number */
   CT_ISUP,		/* ISDN User Part CIC */
   CT_IAX2,		/* IAX2 call id */
-  CT_H223		/* H.223 logical channel number */
+  CT_H223,		/* H.223 logical channel number */
+  CT_BICC		/* BICC Circuit identifier */
   /* Could also have ATM VPI/VCI pairs */
 } circuit_type;
 
