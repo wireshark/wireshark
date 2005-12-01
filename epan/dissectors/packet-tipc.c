@@ -148,8 +148,8 @@ const value_string tipc_link_prot_msg_type_values[] = {
 	{ 0,	NULL},
 };
 const value_string tipc_sm_msg_type_values[] = {
-	{ 0,	"FIRST_SEGMENT"},
-	{ 1,	"SEGMENT"},
+	{ 1,	"FIRST_SEGMENT"},
+	{ 2,	"SEGMENT"},
 	{ 0,	NULL},
 };
 
@@ -177,7 +177,7 @@ tipc_addr_to_str(guint tipc_address)
 }
 
 static void
-dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tree,int offset,guint8 user)
+dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tree,int offset,guint8 user, guint32 msg_size)
 {	
 	guint8 msg_type;
 	/* Internal Protocol Header */
@@ -240,7 +240,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	/* Unused */
 	proto_tree_add_item(tipc_tree, hf_tipc_unused3, tvb, offset, 4, FALSE);
 	offset = offset + 4;
-	proto_tree_add_text(tipc_tree, tvb, offset, -1,"Data");
+	proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
 
 }
 static void
@@ -251,9 +251,11 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *tipc_tree;
 	int offset = 0;
 	guint32 dword;
+	guint32 msg_size;
 	guint8 hdr_size;
 	guint8 user;
 	gchar *addr_str_ptr;
+	const guchar		*src_addr, *dst_addr;
 
 		/* Make entry in Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -262,6 +264,21 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dword = tvb_get_ntohl(tvb,offset);
 	hdr_size = (dword >>21) & 0xf;
 	user = (dword>>25) & 0xf;
+	msg_size = dword & 0x1ffff;
+
+	if ( hdr_size > 5 && user <3){
+		src_addr = tvb_get_ptr(tvb, offset + 24, 4);
+		SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+
+		dst_addr = tvb_get_ptr(tvb, offset + 28, 4);
+		SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+	}
+
+	if ((user >2 )|| (hdr_size <= 5)){
+		src_addr = tvb_get_ptr(tvb, offset + 8, 4);
+		SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+	}
+
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "User: %s", val_to_str(user, tipc_user_values, "unknown"));
@@ -280,10 +297,12 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(tipc_tree, hf_tipc_unused, tvb, offset, 4, FALSE);
 		proto_tree_add_item(tipc_tree, hf_tipc_msg_size, tvb, offset, 4, FALSE);
 		offset = offset + 4;
+		
 		/* Word 1 */
 		proto_tree_add_item(tipc_tree, hf_tipc_ack_link_lev_seq, tvb, offset, 4, FALSE);
 		proto_tree_add_item(tipc_tree, hf_tipc_link_lev_seq, tvb, offset, 4, FALSE);
 		offset = offset + 4;
+		
 		/* Word 2 */
 		dword = tvb_get_ntohl(tvb,offset);
 		addr_str_ptr = tipc_addr_to_str(dword);
@@ -291,11 +310,18 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset = offset + 4;
 		if (user >2){
-			dissect_tipc_int_prot_msg(tvb, pinfo, tipc_tree, offset, user);
+			dissect_tipc_int_prot_msg(tvb, pinfo, tipc_tree, offset, user, msg_size);
 			return;
 		}
+
+		dword = tvb_get_ntohl(tvb,offset);
+		pinfo->ptype = PT_TIPC;
+		pinfo->srcport = dword;
 		proto_tree_add_item(tipc_tree, hf_tipc_org_port, tvb, offset, 4, FALSE);
 		offset = offset + 4;
+
+		dword = tvb_get_ntohl(tvb,offset);
+		pinfo->destport = dword;
 		proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tvb, offset, 4, FALSE);
 		offset = offset + 4;
 		/* 20 - 24 Bytes 
@@ -313,7 +339,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			should be by far the most frequent one this small optimization pays off.
 		*/
 		if ( hdr_size <= 5 ){
-				proto_tree_add_text(tipc_tree, tvb, offset, -1,"Data");
+				proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
 		}else{
 			proto_tree_add_item(tipc_tree, hf_tipc_data_msg_type, tvb, offset, 4, FALSE);
 			proto_tree_add_item(tipc_tree, hf_tipc_err_code, tvb, offset, 4, FALSE);
@@ -323,11 +349,13 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			dword = tvb_get_ntohl(tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
+
 			proto_tree_add_string(tipc_tree, hf_tipc_org_proc, tvb, offset, 4,	addr_str_ptr);
 			offset = offset + 4;
 
 			dword = tvb_get_ntohl(tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
+
 			proto_tree_add_string(tipc_tree, hf_tipc_dst_proc, tvb, offset, 4,	addr_str_ptr);
 			offset = offset + 4;
 			if ( hdr_size > 8 ){
@@ -341,7 +369,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = offset + 4;
 			}
 		}
-		proto_tree_add_text(tipc_tree, tvb, offset, -1,"Data");
+		proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
 
 	}/* if tree */
 }

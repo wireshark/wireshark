@@ -45,7 +45,8 @@ typedef enum {
   AT_SS7PC,		/* SS7 Point Code */
   AT_STRINGZ,	/* null-terminated string */
   AT_EUI64,		/* IEEE EUI-64 */
-  AT_URI		/* URI/URL/URN */
+  AT_URI,		/* URI/URL/URN */
+  AT_TIPC		/* TIPC Address Zone,Subnetwork,Processor */
 } address_type;
 
 typedef struct _address {
@@ -116,7 +117,8 @@ typedef enum {
   PT_EXCHG,		/* Fibre Channel exchange */
   PT_DDP,		/* DDP AppleTalk connection */
   PT_SBCCS,		/* FICON */
-  PT_IDP		/* XNS IDP sockets */
+  PT_IDP,		/* XNS IDP sockets */
+  PT_TIPC		/* TIPC PORT */
 } port_type;
 
 /* Types of circuit IDs Ethereal knows about. */

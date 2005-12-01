@@ -822,6 +822,9 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     buf[copy_len] = '\0';
     }
     break;
+  case AT_TIPC:
+	  tipc_addr_to_str_buf(addr->data, buf, buf_len);
+	  break;
   default:
     g_assert_not_reached();
   }
@@ -878,4 +881,29 @@ gchar* guid_to_str_buf(const guint8 *guid, gchar *buf, int buf_len) {
           guid[8], guid[9],
           guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
   return buf;
+}
+
+void
+tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len){
+	guint8 zone;
+	guint16 subnetwork;
+	guint16 processor;
+	guint32 tipc_address;
+
+	tipc_address = data[0];
+	tipc_address = (tipc_address << 8) ^ data[1];
+	tipc_address = (tipc_address << 8) ^ data[2];
+	tipc_address = (tipc_address << 8) ^ data[3];
+
+	processor = tipc_address & 0x0fff;
+
+	tipc_address = tipc_address >> 12;
+	subnetwork = tipc_address & 0x0fff;
+
+	tipc_address = tipc_address >> 12;
+	zone = tipc_address & 0xff;
+
+	g_snprintf(buf,buf_len,"%u.%u.%u",zone,subnetwork,processor);
+
+
 }

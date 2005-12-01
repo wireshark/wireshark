@@ -79,6 +79,7 @@ extern gchar*	oid_to_str_buf(const guint8*, gint, gchar*, int);
 extern gchar*	guid_to_str(const guint8*);
 extern gchar*	guid_to_str_buf(const guint8*, gchar*, int);
 
+void tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len);
 
 extern char	*other_decode_bitfield_value(char *buf, guint32 val, guint32 mask,
     int width);
