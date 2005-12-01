@@ -163,6 +163,10 @@ static int hf_smb2_ioctl_function_device = -1;
 static int hf_smb2_ioctl_function_access = -1;
 static int hf_smb2_ioctl_function_function = -1;
 static int hf_smb2_ioctl_function_method = -1;
+static int hf_smb2_ioctl_shadow_copy_num_volumes = -1;
+static int hf_smb2_ioctl_shadow_copy_num_labels = -1;
+static int hf_smb2_ioctl_shadow_copy_count = -1;
+static int hf_smb2_ioctl_shadow_copy_label = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -2443,7 +2447,7 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static void
-dissect_smb2_ioctl_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+dissect_smb2_IOCTL_DO_DCERPC(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si, gboolean data_in _U_)
 {
 	dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_length_remaining(tvb, offset), si);
 
@@ -2451,11 +2455,59 @@ dissect_smb2_ioctl_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 }
 
 static void
-dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+{
+	guint32 num_volumes, num_labels;
+
+	/* There is no in data */
+	if(data_in){
+		return;
+	}
+
+	/* num volumes */
+	num_volumes=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_ioctl_shadow_copy_num_volumes, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* num labels */
+	num_labels=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_ioctl_shadow_copy_num_labels, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* count */
+	proto_tree_add_item(tree, hf_smb2_ioctl_shadow_copy_count, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	while(num_volumes--){
+		const char *name;
+		guint16 bc;
+		int len=0;
+		int old_offset=offset;
+
+		bc=tvb_length_remaining(tvb, offset);
+		name = get_unicode_or_ascii_string(tvb, &offset,
+			TRUE, &len, TRUE, FALSE, &bc);
+		proto_tree_add_string(tree, hf_smb2_ioctl_shadow_copy_label, tvb, old_offset, len, name);
+
+		offset = old_offset+len;
+
+		if(!len){
+			break;
+		}
+	}	
+
+	return;
+}
+
+static void
+dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si, gboolean data_in)
 {
 	switch(si->ioctl_function){
-	case 0x0011c017: /* NamedPipe function:5 */
-		dissect_smb2_ioctl_dcerpc(tvb, pinfo, tree, 0, si);
+	case 0x0011c017: 
+		dissect_smb2_IOCTL_DO_DCERPC(tvb, pinfo, tree, 0, si, data_in);
+		break;
+	case 0x00144064:
+		dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvb, pinfo, tree, 0, si, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), TRUE);
@@ -2464,6 +2516,17 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb
 	return;
 }
 
+static void
+dissect_smb2_ioctl_data_in(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	dissect_smb2_ioctl_data(tvb, pinfo, tree, si, TRUE);
+}
+
+static void
+dissect_smb2_ioctl_data_out(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	dissect_smb2_ioctl_data(tvb, pinfo, tree, si, FALSE);
+}
 
 static int
 dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
@@ -2508,14 +2571,14 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	 */
 	if(i_olb.off>o_olb.off){
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data_out);
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data_in);
 	} else {
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data_in);
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data_out);
 	}
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &o_olb);
@@ -2566,14 +2629,14 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if(i_olb.off>o_olb.off){
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data_out);
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data_in);
 	} else {
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data_in);
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data_out);
 	}
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &i_olb);
@@ -4260,6 +4323,22 @@ proto_register_smb2(void)
 	{ &hf_smb2_ioctl_function_method,
 		{ "Method", "smb2.ioctl.function.method", FT_UINT32, BASE_HEX,
 		VALS(smb2_ioctl_method_vals), 0x00000003, "Method for Ioctl", HFILL }},
+
+	{ &hf_smb2_ioctl_shadow_copy_num_volumes,
+		{ "Num Volumes", "smb2.ioctl.shadow_copy.num_volumes", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of shadow copy volumes", HFILL }},
+
+	{ &hf_smb2_ioctl_shadow_copy_num_labels,
+		{ "Num Labels", "smb2.ioctl.shadow_copy.num_labels", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of shadow copy labels", HFILL }},
+
+	{ &hf_smb2_ioctl_shadow_copy_label,
+		{ "Label", "smb2.ioctl.shadow_copy.label", FT_STRING, BASE_NONE,
+		NULL, 0, "Shadow copy label", HFILL }},
+
+	{ &hf_smb2_ioctl_shadow_copy_count,
+		{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of bytes for shadow copy label strings", HFILL }},
 
 	{ &hf_smb2_tag,
 		{ "Tag", "smb2.tag", FT_STRING, BASE_NONE,
