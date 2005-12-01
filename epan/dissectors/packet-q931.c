@@ -45,6 +45,10 @@
 #include <epan/lapd_sapi.h>
 #include "packet-tpkt.h"
 
+#ifndef min
+#define min(a,b) (((a)<(b))?(a):(b))
+#endif
+
 /* Q.931 references:
  *
  * http://www.acacia-net.com/Clarinet/Protocol/q9313svn.htm
@@ -2624,6 +2628,13 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			}
 
 			if (info_element_len > 1) {
+				/*
+				 * If we don't desegment limit the length 
+				 * to the actual size in the frame
+				 */
+				if (!pinfo->can_desegment) {
+					info_element_len = min(info_element_len, tvb_length_remaining(tvb, offset + 4));
+				}
 				/*
 				 * Do we have a handle for the H.225
 				 * dissector?
