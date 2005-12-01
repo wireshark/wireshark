@@ -92,30 +92,28 @@ print_usage(gboolean print_ver) {
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is "PACKAGE " " VERSION "%s"
+    fprintf(output, "This is dumpcap " VERSION "%s"
         "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
 	"\n\n%s\n\n%s\n",
 	svnversion, comp_info_str->str, runtime_info_str->str);
   } else {
     output = stderr;
   }
-  fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
+  fprintf(output, "\n%s [ -vh ] [ -Lp ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
   fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
 #ifdef _WIN32
   fprintf(output, "\t[ -B <capture buffer size> ]\n");
 #endif
   fprintf(output, "\t[ -c <capture packet count> ] [ -f <capture filter> ]\n");
-  fprintf(output, "\t[ -g <packet number> ] [ -i <capture interface> ] [ -m <font> ]\n");
-  fprintf(output, "\t[ -N <name resolving flags> ] [ -o <preference/recent setting> ] ...\n");
-  fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ] [ -s <capture snaplen> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -y <capture link type> ]\n");
-  fprintf(output, "\t[ -z <statistics> ] [ <infile> ]\n");
+  fprintf(output, "\t[ -i <capture interface> ]\n");
+  fprintf(output, "\t[ -s <capture snaplen> ]\n");
+  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ]\n");
 }
 
 static void
 show_version(void)
 {
-  printf(PACKAGE " " VERSION "%s\n\n%s\n\n%s\n",
+  printf("dumpcap " VERSION "%s\n\n%s\n\n%s\n",
       svnversion, comp_info_str->str, runtime_info_str->str);
 }
 
@@ -171,6 +169,19 @@ BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 }
 #endif
 
+void
+exit_main(int err) {
+#ifdef _WIN32
+  /* Shutdown windows sockets */
+  WSACleanup();
+
+  destroy_console();
+#endif
+
+  exit(err);
+}
+
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -196,7 +207,7 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   gboolean             list_link_layer_types = FALSE;
 
-#define OPTSTRING_INIT "a:b:c:f:Hhi:kLpQSs:W:w:vy:"
+#define OPTSTRING_INIT "a:b:c:f:Hhi:Lps:vW:w:y:"
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:Z:"
@@ -280,24 +291,21 @@ main(int argc, char *argv[])
     switch (opt) {
       case 'h':        /* Print help and exit */
         print_usage(TRUE);
-        exit(0);
+        exit_main(0);
         break;
       case 'v':        /* Show version and exit */
         show_version();
-        exit(0);
+        exit_main(0);
         break;
       /*** capture option specific ***/
       case 'a':        /* autostop criteria */
       case 'b':        /* Ringbuffer option */
       case 'c':        /* Capture xxx packets */
       case 'f':        /* capture filter */
-      case 'k':        /* Start capture immediately */
       case 'H':        /* Hide capture info dialog box */
       case 'i':        /* Use interface xxx */
       case 'p':        /* Don't capture in promiscuous mode */
-      case 'Q':        /* Quit after capture (just capture to file) */
       case 's':        /* Set the snapshot (capture) length */
-      case 'S':        /* "Sync" mode: used for following file ala tail -f */
       case 'w':        /* Write to capture file xxx */
       case 'y':        /* Set the pcap data link type */
 #ifdef _WIN32
@@ -327,13 +335,11 @@ main(int argc, char *argv[])
   argc -= optind;
   argv += optind;
   if (argc >= 1) {
-      /* user speficied file name as regular command-line argument */
+      /* user specified file name as regular command-line argument */
       /* XXX - use it as the capture file name (or somthing else)? */
     argc--;
     argv++;
   }
-
-
 
   if (argc != 0) {
     /*
@@ -345,7 +351,7 @@ main(int argc, char *argv[])
 
   if (arg_error) {
     print_usage(FALSE);
-    exit(1);
+    exit_main(1);
   }
 
   if (list_link_layer_types) {
@@ -354,7 +360,7 @@ main(int argc, char *argv[])
     /* No - did they specify a ring buffer option? */
     if (capture_opts->multi_files_on) {
       cmdarg_err("Ring buffer requested, but a capture isn't being done.");
-      exit(1);
+      exit_main(1);
     }
   } else {
     /* No - was the ring buffer option specified and, if so, does it make
@@ -362,9 +368,7 @@ main(int argc, char *argv[])
     if (capture_opts->multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work with temporary files;
-	 b) real_time_mode and multi_files_on are mutually exclusive -
-	    real_time_mode takes precedence;
-	 c) it makes no sense to enable the ring buffer if the maximum
+	 b) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
       if (capture_opts->save_file == NULL) {
 	cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
@@ -395,7 +399,7 @@ if (capture_opts->iface == NULL) {
           cmdarg_err("There are no interfaces on which a capture can be done");
           break;
       }
-      exit(2);
+      exit_main(2);
     }
     if_info = if_list->data;	/* first interface */
     capture_opts->iface = g_strdup(if_info->name);
@@ -412,7 +416,7 @@ if (capture_opts->iface == NULL) {
 	  "you have the proper interface or pipe specified.\n", err_str);
       } else
 	cmdarg_err("The capture device has no data link types.");
-      exit(2);
+      exit_main(2);
     }
     g_warning("Data link types (use option -y to set):");
     for (lt_entry = lt_list; lt_entry != NULL;
@@ -426,7 +430,7 @@ if (capture_opts->iface == NULL) {
       putchar('\n');
     }
     free_pcap_linktype_list(lt_list);
-    exit(0);
+    exit_main(0);
   }
 
   if (capture_opts->has_snaplen) {
@@ -444,10 +448,9 @@ if (capture_opts->iface == NULL) {
     capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 
-  /* Now start the capture. 
-     After the capture is done; there's nothing more for us to do. */
+  /* Now start the capture. */
 
-  /* XXX - hand these stats to the parent process */
+  /* XXX - hand the stats to the parent process */
   if(capture_loop_start(capture_opts, &stats_known, &stats) == TRUE) {
       /* capture ok */
       err = 0;
@@ -456,14 +459,8 @@ if (capture_opts->iface == NULL) {
       err = 1;
   }
 
-#ifdef _WIN32
-  /* Shutdown windows sockets */
-  WSACleanup();
-
-  destroy_console();
-#endif
-
-  return err;
+  /* the capture is done; there's nothing more for us to do. */
+  exit_main(err);
 }
 
 #ifdef _WIN32
@@ -512,7 +509,7 @@ create_console(void)
        the message(s) we put in there). */
     atexit(destroy_console);
 
-    SetConsoleTitle("Ethereal Capture Child Debug Console");
+    SetConsoleTitle("Dumpcap Console");
   }
 }
 
