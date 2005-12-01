@@ -3,6 +3,7 @@
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
 	<!ENTITY nasreq SYSTEM "nasreq.xml">
 	<!ENTITY mobileipv4 SYSTEM "mobileipv4.xml">
+	<!ENTITY chargecontrol SYSTEM "chargecontrol.xml">
 	<!ENTITY sunping SYSTEM "sunping.xml">
 	<!ENTITY imscxdx SYSTEM "imscxdx.xml">
 	<!ENTITY TGPPSh SYSTEM "TGPPSh.xml">
@@ -880,6 +881,7 @@
 	</application>
 	&nasreq;
 	&mobileipv4;
+	&chargecontrol;
 	&sunping;
 	&imscxdx;
 	&TGPPSh;

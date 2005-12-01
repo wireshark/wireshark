@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id:$ -->
+
+
+	<application id="4" name="Diameter Charge Control Application" uri="http://www.ietf.org/rfc/rfc4006.txt">
+
+		<command name="Credit-Control" code="272" vendor-id="None"/>
+
+		<!-- ************************* DCCA AVPs ************************ -->
+                <!-- This list is not complete yet -->
+		<avp name="CC-Correlation-Id" code="411" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="CC-Request-Number" code="415" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="CC-Request-Type" code="416" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="INITIAL_REQUEST"     code="1"/>
+			<enum name="UPDATE_REQUEST"      code="2"/>
+			<enum name="TERMINATION_REQUEST" code="3"/>
+			<enum name="EVENT_REQUEST"       code="4"/>
+		</avp>
+		<avp name="Cost-Information" code="423" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Unit-Value"/>
+				<gavp name="Currency-Code"/>
+				<gavp name="Cost-Unit"/>
+			</grouped>
+		</avp>
+		<avp name="Cost-Unit" code="424" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Currency-Code" code="425" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Exponent" code="429" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Requested-Action" code="436" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="DIRECT_DEBITING"  code="0"/>
+			<enum name="REFUND_ACCOUNT"   code="1"/>
+			<enum name="CHECK_BALANCE"    code="2"/>
+			<enum name="PRICE_ENQUIRY"    code="3"/>
+		</avp>
+		<avp name="Service-Identifier" code="439" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Service-Parameter-Info" code="440" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Service-Parameter-Type"/>
+				<gavp name="Service-Parameter-Value"/>
+			</grouped>
+		</avp>
+		<avp name="Service-Parameter-Type" code="441" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+                        <!-- This field is vendor defined. -->
+		</avp>
+		<avp name="Service-Parameter-Value" code="442" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Subscription-Id" code="443" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Subscription-Id-Data"/>
+				<gavp name="Subscription-Id-Type"/>
+			</grouped>
+		</avp>
+		<avp name="Subscription-Id-Data" code="444" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Subscription-Id-Type" code="450" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="END_USER_E164"    code="0"/>
+			<enum name="END_USER_IMSI"    code="1"/>
+			<enum name="END_USER_SIP_URI" code="2"/>
+			<enum name="END_USER_NAI"     code="3"/>
+			<enum name="END_USER_PRIVATE" code="4"/>
+		</avp>
+		<avp name="Unit-Value" code="445" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Value-Digits"/>
+				<gavp name="Exponent"/>
+			</grouped>
+		</avp>
+		<avp name="Value-Digits" code="447" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Integer64"/>
+		</avp>
+		<avp name="Service-Context-Id" code="461" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+	</application>
