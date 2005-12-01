@@ -567,6 +567,7 @@ static const true_false_string tfs_flags_response = {
 
 
 static const value_string smb2_ioctl_vals[] = {
+  {0x0011c017, "DCE/RPC over named pipe"},
   {0x00090000, "FSCTL_REQUEST_OPLOCK_LEVEL_1"},
   {0x00090004, "FSCTL_REQUEST_OPLOCK_LEVEL_2"},
   {0x00090008, "FSCTL_REQUEST_BATCH_OPLOCK"},
@@ -704,6 +705,7 @@ static const value_string smb2_ioctl_method_vals[] = {
   { 0, NULL }
 };
 
+static int
 dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si)
 {
 	proto_item *item=NULL;
@@ -2440,9 +2442,23 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static void
-dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si)
+dissect_smb2_ioctl_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
-	dissect_file_data_dcerpc(tvb, pinfo, parent_tree, 0, tvb_length(tvb), si);
+	dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_length_remaining(tvb, offset), si);
+
+	return;
+}
+
+static void
+dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	switch(si->ioctl_function){
+	case 0x0011c017: /* NamedPipoe function:5 */
+		dissect_smb2_ioctl_dcerpc(tvb, pinfo, tree, 0, si);
+		break;
+	default:
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), TRUE);
+	}
 
 	return;
 }
