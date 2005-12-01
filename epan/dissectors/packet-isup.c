@@ -56,6 +56,7 @@
 #include "packet-e164.h"
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
+#include <epan/circuit.h>
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define MTP3_BICC_SERVICE_INDICATOR     13
@@ -2942,9 +2943,11 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 			offset = offset + octet - 2;
 		}
 	}
-	if ( offset == (gint)length)
+	if ( offset == (gint)length){
 		/* No data */
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Empty APM-user information field"  );
 		return;
+	}
 
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "APM-user information field"  );
 	/* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
@@ -5669,6 +5672,8 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 bicc_cic;
 	guint8 message_type;
 
+	/*circuit_t *circuit;*/
+
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC");
@@ -5679,15 +5684,29 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
 
-/* In the interest of speed, if "tree" is NULL, don't do any work not
+	/* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
+	   recursive message dissector call */
+	bicc_cic = tvb_get_letohl(tvb, BICC_CIC_OFFSET);
+
+	pinfo->ctype = CT_BICC;
+	pinfo->circuit_id = bicc_cic;
+	/*
+	XXXX TODO:Reassemble APM messages
+	circuit = find_circuit( CT_BICC, bicc_cic, pinfo->fd->num );
+    if( circuit == NULL ) {
+        circuit = circuit_new( CT_BICC, bicc_cic, pinfo->fd->num );
+	}else{
+		if (message_type == MESSAGE_TYPE_REL_CMPL){
+			close_circuit(circuit,pinfo->fd->num);
+		}
+	}
+	*/
+	/* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_bicc, tvb, 0, -1, FALSE);
 		bicc_tree = proto_item_add_subtree(ti, ett_bicc);
 
-		/* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
-		   recursive message dissector call */
-		bicc_cic = tvb_get_letohl(tvb, BICC_CIC_OFFSET);
 
 		proto_tree_add_uint_format(bicc_tree, hf_bicc_cic, tvb, BICC_CIC_OFFSET, BICC_CIC_LENGTH, bicc_cic, "CIC: %u", bicc_cic);
 	}
