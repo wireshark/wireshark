@@ -67,8 +67,8 @@ static int hf_smb2_response_buffer_offset = -1;
 static int hf_smb2_security_blob_offset = -1;
 static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
-static int hf_smb2_transaction_out_data = -1;
-static int hf_smb2_transaction_in_data = -1;
+static int hf_smb2_ioctl_out_data = -1;
+static int hf_smb2_ioctl_in_data = -1;
 static int hf_smb2_unknown = -1;
 static int hf_smb2_unknown_timestamp = -1;
 static int hf_smb2_create_timestamp = -1;
@@ -98,7 +98,7 @@ static int hf_smb2_server_guid = -1;
 static int hf_smb2_class = -1;
 static int hf_smb2_infolevel = -1;
 static int hf_smb2_max_response_size = -1;
-static int hf_smb2_max_transaction_in_size = -1;
+static int hf_smb2_max_ioctl_in_size = -1;
 static int hf_smb2_required_buffer_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_setinfo_size = -1;
@@ -158,6 +158,11 @@ static int hf_smb2_olb_offset = -1;
 static int hf_smb2_olb_length = -1;
 static int hf_smb2_tag = -1;
 static int hf_smb2_impersonation_level = -1;
+static int hf_smb2_ioctl_function = -1;
+static int hf_smb2_ioctl_function_device = -1;
+static int hf_smb2_ioctl_function_access = -1;
+static int hf_smb2_ioctl_function_function = -1;
+static int hf_smb2_ioctl_function_method = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -196,6 +201,7 @@ static gint ett_smb2_tid_tree = -1;
 static gint ett_smb2_create_flags = -1;
 static gint ett_smb2_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
+static gint ett_smb2_ioctl_function = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
@@ -560,6 +566,130 @@ static const true_false_string tfs_flags_response = {
 };
 
 
+static const value_string smb2_ioctl_vals[] = {
+  { 0, NULL }
+};
+
+
+static const value_string smb2_ioctl_device_vals[] = {
+  { 0x0001, "BEEP" },
+  { 0x0002, "CD_ROM" },
+  { 0x0003, "CD_ROM_FILE_SYSTEM" },
+  { 0x0004, "CONTROLLER" },
+  { 0x0005, "DATALINK" },
+  { 0x0006, "DFS" },
+  { 0x0007, "DISK" },
+  { 0x0008, "DISK_FILE_SYSTEM" },
+  { 0x0009, "FILE_SYSTEM" },
+  { 0x000a, "INPORT_PORT" },
+  { 0x000b, "KEYBOARD" },
+  { 0x000c, "MAILSLOT" },
+  { 0x000d, "MIDI_IN" },
+  { 0x000e, "MIDI_OUT" },
+  { 0x000f, "MOUSE" },
+  { 0x0010, "MULTI_UNC_PROVIDER" },
+  { 0x0011, "NAMED_PIPE" },
+  { 0x0012, "NETWORK" },
+  { 0x0013, "NETWORK_BROWSER" },
+  { 0x0014, "NETWORK_FILE_SYSTEM" },
+  { 0x0015, "NULL" },
+  { 0x0016, "PARALLEL_PORT" },
+  { 0x0017, "PHYSICAL_NETCARD" },
+  { 0x0018, "PRINTER" },
+  { 0x0019, "SCANNER" },
+  { 0x001a, "SERIAL_MOUSE_PORT" },
+  { 0x001b, "SERIAL_PORT" },
+  { 0x001c, "SCREEN" },
+  { 0x001d, "SOUND" },
+  { 0x001e, "STREAMS" },
+  { 0x001f, "TAPE" },
+  { 0x0020, "TAPE_FILE_SYSTEM" },
+  { 0x0021, "TRANSPORT" },
+  { 0x0022, "UNKNOWN" },
+  { 0x0023, "VIDEO" },
+  { 0x0024, "VIRTUAL_DISK" },
+  { 0x0025, "WAVE_IN" },
+  { 0x0026, "WAVE_OUT" },
+  { 0x0027, "8042_PORT" },
+  { 0x0028, "NETWORK_REDIRECTOR" },
+  { 0x0029, "BATTERY" },
+  { 0x002a, "BUS_EXTENDER" },
+  { 0x002b, "MODEM" },
+  { 0x002c, "VDM" },
+  { 0x002d, "MASS_STORAGE" },
+  { 0x002e, "SMB" },
+  { 0x002f, "KS" },
+  { 0x0030, "CHANGER" },
+  { 0x0031, "SMARTCARD" },
+  { 0x0032, "ACPI" },
+  { 0x0033, "DVD" },
+  { 0x0034, "FULLSCREEN_VIDEO" },
+  { 0x0035, "DFS_FILE_SYSTEM" },
+  { 0x0036, "DFS_VOLUME" },
+  { 0x0037, "SERENUM" },
+  { 0x0038, "TERMSRV" },
+  { 0x0039, "KSEC" },
+  { 0, NULL }
+};
+
+static const value_string smb2_ioctl_access_vals[] = {
+  { 0x00, "FILE_ANY_ACCESS" },
+  { 0x01, "FILE_READ_ACCESS" },
+  { 0x02, "FILE_WRITE_ACCESS" },
+  { 0x03, "FILE_READ_WRITE_ACCESS" },
+  { 0, NULL }
+};
+
+static const value_string smb2_ioctl_method_vals[] = {
+  { 0x00, "METHOD_BUFFERED" },
+  { 0x01, "METHOD_IN_DIRECT" },
+  { 0x02, "METHOD_OUT_DIRECT" },
+  { 0x03, "METHOD_NEITHER" },
+  { 0, NULL }
+};
+
+dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint32 func;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_ioctl_function, tvb, offset, 4, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_ioctl_function);
+	}
+
+	func=tvb_get_letohl(tvb, offset);
+
+	if(func){
+		/* device */
+		proto_tree_add_item(tree, hf_smb2_ioctl_function_device, tvb, offset, 4, TRUE);
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, " %s",
+				val_to_str((func>>16)&0xffff, smb2_ioctl_device_vals,
+				"Unknown (0x%08X)"));
+		}
+
+		/* access */
+		proto_tree_add_item(tree, hf_smb2_ioctl_function_access, tvb, offset, 4, TRUE);
+
+		/* function */
+		proto_tree_add_item(tree, hf_smb2_ioctl_function_function, tvb, offset, 4, TRUE);
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, " Function:0x%04x",
+				(func>>2)&0x0fff);
+		}
+
+		/* method */
+		proto_tree_add_item(tree, hf_smb2_ioctl_function_method, tvb, offset, 4, TRUE);
+	}
+
+	offset += 4;
+
+	return offset;
+}
 
 /* fake the dce/rpc support structures so we can piggy back on
  * dissect_nt_policy_hnd()   since this will allow us
@@ -2256,7 +2386,7 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static void
-dissect_smb2_transaction_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si)
+dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si)
 {
 	dissect_file_data_dcerpc(tvb, pinfo, parent_tree, 0, tvb_length(tvb), si);
 
@@ -2265,7 +2395,7 @@ dissect_smb2_transaction_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 
 
 static int
-dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t o_olb;
 	offset_length_buffer_t i_olb;
@@ -2274,24 +2404,27 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
-	offset += 6;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* ioctl function */
+	offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, si);
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
 	/* out buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_out_data);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* in buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_in_data);
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_in_data);
 
-	/* max transaction in size */
-	proto_tree_add_item(tree, hf_smb2_max_transaction_in_size, tvb, offset, 4, TRUE);
+	/* max ioctl in size */
+	proto_tree_add_item(tree, hf_smb2_max_ioctl_in_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* some unknown bytes */
@@ -2304,14 +2437,14 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	 */
 	if(i_olb.off>o_olb.off){
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
 		/* in buffer */
 		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
 	} else {
 		/* in buffer */
 		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
 	}
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &o_olb);
@@ -2321,7 +2454,7 @@ dissect_smb2_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static int
-dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t o_olb;
 	offset_length_buffer_t i_olb;
@@ -2331,8 +2464,11 @@ dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset = dissect_smb2_buffercode(tree, tvb, offset, &len);
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
-	offset += 6;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* ioctl function */
+	offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, si);
 
 	/* If there was an error, the response will be just 8 bytes */
 	if((len==8)&&(si->status)){
@@ -2344,10 +2480,10 @@ dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
 	/* in buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_in_data);
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_in_data);
 
 	/* out buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_transaction_out_data);
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_out_data);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
@@ -2359,14 +2495,14 @@ dissect_smb2_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	 */
 	if(i_olb.off>o_olb.off){
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_transaction_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
 	} else {
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_transaction_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
 		/* out buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_transaction_data);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
 	}
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &i_olb);
@@ -2794,7 +2930,7 @@ const value_string smb2_cmd_vals[] = {
   { 0x08, "Read" },
   { 0x09, "Write" },
   { 0x0A, "Lock" },
-  { 0x0B, "Transaction" },
+  { 0x0B, "Ioctl" },
   { 0x0C, "Cancel" },
   { 0x0D, "KeepAlive" },
   { 0x0E, "Find" },
@@ -3080,9 +3216,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x0a Lock */
 	{dissect_smb2_lock_request,
 	 dissect_smb2_lock_response},
-  /* 0x0b Transaction*/
-	{dissect_smb2_transaction_request,
-	 dissect_smb2_transaction_response},
+  /* 0x0b Ioctl*/
+	{dissect_smb2_ioctl_request,
+	 dissect_smb2_ioctl_response},
   /* 0x0c Cancel*/  
 	{dissect_smb2_cancel_request,
 	 NULL},
@@ -3692,9 +3828,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_setinfo_offset,
 		{ "Setinfo Offset", "smb2.setinfo_offset", FT_UINT16, BASE_HEX,
 		NULL, 0, "SMB2 setinfo offset", HFILL }},
-	{ &hf_smb2_max_transaction_in_size,
-		{ "Max Transaction In Size", "smb2.max_transaction_in_size", FT_UINT32, BASE_DEC,
-		NULL, 0, "SMB2 Maximum transaction in size", HFILL }},
+	{ &hf_smb2_max_ioctl_in_size,
+		{ "Max Ioctl In Size", "smb2.max_ioctl_in_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 Maximum ioctl in size", HFILL }},
 	{ &hf_smb2_response_size,
 		{ "Response Size", "smb2.response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 response size", HFILL }},
@@ -3773,13 +3909,13 @@ proto_register_smb2(void)
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
 		NULL, 0, "Security blob", HFILL }},
 
-	{ &hf_smb2_transaction_out_data,
-		{ "Out Data", "smb2.transaction.out", FT_NONE, BASE_NONE,
-		NULL, 0, "Transaction Out", HFILL }},
+	{ &hf_smb2_ioctl_out_data,
+		{ "Out Data", "smb2.ioctl.out", FT_NONE, BASE_NONE,
+		NULL, 0, "Ioctl Out", HFILL }},
 
-	{ &hf_smb2_transaction_in_data,
-		{ "In Data", "smb2.transaction.in", FT_NONE, BASE_NONE,
-		NULL, 0, "Transaction In", HFILL }},
+	{ &hf_smb2_ioctl_in_data,
+		{ "In Data", "smb2.ioctl.in", FT_NONE, BASE_NONE,
+		NULL, 0, "Ioctl In", HFILL }},
 
 	{ &hf_smb2_server_guid, 
 	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE, 
@@ -4034,6 +4170,26 @@ proto_register_smb2(void)
 		{ "Impersonation", "smb2.impersonation.level", FT_UINT32, BASE_DEC,
 		VALS(impersonation_level_vals), 0, "Impersonation level", HFILL }},
 
+	{ &hf_smb2_ioctl_function,
+		{ "Function", "smb2.ioctl.function", FT_UINT32, BASE_HEX,
+		VALS(smb2_ioctl_vals), 0, "Ioctl function", HFILL }},
+
+	{ &hf_smb2_ioctl_function_device,
+		{ "Device", "smb2.ioctl.function.device", FT_UINT32, BASE_HEX,
+		VALS(smb2_ioctl_device_vals), 0xffff0000, "Device for Ioctl", HFILL }},
+
+	{ &hf_smb2_ioctl_function_access,
+		{ "Access", "smb2.ioctl.function.access", FT_UINT32, BASE_HEX,
+		VALS(smb2_ioctl_access_vals), 0x0000c000, "Access for Ioctl", HFILL }},
+
+	{ &hf_smb2_ioctl_function_function,
+		{ "Function", "smb2.ioctl.function.function", FT_UINT32, BASE_HEX,
+		NULL, 0x00003ffc, "Function for Ioctl", HFILL }},
+
+	{ &hf_smb2_ioctl_function_method,
+		{ "Method", "smb2.ioctl.function.method", FT_UINT32, BASE_HEX,
+		VALS(smb2_ioctl_method_vals), 0x00000003, "Method for Ioctl", HFILL }},
+
 	{ &hf_smb2_tag,
 		{ "Tag", "smb2.tag", FT_STRING, BASE_NONE,
 		NULL, 0, "Tag of chain entry", HFILL }},
@@ -4085,6 +4241,7 @@ proto_register_smb2(void)
 		&ett_smb2_create_flags,
 		&ett_smb2_chain_element,
 		&ett_smb2_MxAc_buffer,
+		&ett_smb2_ioctl_function,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
