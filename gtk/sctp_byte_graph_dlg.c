@@ -36,7 +36,7 @@
 #include "epan/filesystem.h"
 #include "../color.h"
 #include "dlg_utils.h"
-#include "gui_utils.h"
+#include "ui_util.h"
 #include "main.h"
 #include "compat_macros.h"
 #include "simple_dialog.h"
@@ -54,7 +54,7 @@
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_ADVANCED 2
 
-#define LEFT_BORDER   60
+#define LEFT_BORDER   80
 #define RIGHT_BORDER  10
 #define TOP_BORDER    10
 #define BOTTOM_BORDER 50
@@ -112,31 +112,17 @@ static void sctp_graph_set_title(struct sctp_udata *u_data);
 static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data);
 
 
-static gint tsn_cmp(gconstpointer aa, gconstpointer bb)
-{
-	const struct tsn_sort* a = aa;
-	const struct tsn_sort* b = bb;
-
-	if (a->tsnumber < b->tsnumber)
-		return -1;
-	if (a->tsnumber == b->tsnumber)
-		return 0;
-	if (a->tsnumber > b->tsnumber)
-		return 1;
-
-	return 0;
-}
-
 static void draw_sack_graph(struct sctp_udata *u_data)
 {
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor green_color = {0, 0, 65535, 0};
 	GdkGC *red_gc, *green_gc;
-	guint32 diff;
+	gint diff;
 	GPtrArray *array = NULL;
 	guint32 min_tsn = 0, max_tsn = 0;
-	guint32 i, size = 0, start, end;
+	guint32 i, size = 0, start=0, end;
 	gboolean more = FALSE;
+	gint width;
 
 #if GTK_MAJOR_VERSION < 2
 	GdkColormap *colormap;
@@ -199,11 +185,12 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 		}
 	}
 
+	width = u_data->io->max_x - u_data->io->min_x;
 
 	for (i=0; i<size; i++)
 	{
-		diff = ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->secs * 1000000 + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->usecs - u_data->io->min_x;
-		start = ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->offset;
+		diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array,  i)))->secs * 1000000 + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->usecs - u_data->io->min_x;
+		//start = ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->offset;
 		end = start + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->length;
 		if (end>max_tsn)
 		{
@@ -211,7 +198,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 			more = TRUE;
 		}
 
-		if (start >= min_tsn)
+		if (start >= min_tsn && diff > 0 && diff <= width)
 		{
 			gdk_draw_line(u_data->io->pixmap,red_gc,
 			             (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
@@ -241,7 +228,8 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 {
 GPtrArray *array = NULL;
 guint32 min_tsn = 0, max_tsn = 0;
-guint32 diff, i, size = 0, start, end;
+guint32 i, size = 0, start, end;
+gint diff, width;
 
 	if (u_data->dir == 1)
 	{
@@ -273,13 +261,14 @@ guint32 diff, i, size = 0, start, end;
 			max_tsn = u_data->io->tmp_max_tsn2;
 		}
 	}
-
+	width = u_data->io->max_x - u_data->io->min_x;
+	
 	for (i=0; i<size; i++)
 	{
-		diff = ((struct tsn_sort*)(g_ptr_array_index(array, i)))->secs*1000000 + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->usecs-u_data->io->min_x;
+		diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array, i)))->secs*1000000 + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->usecs-u_data->io->min_x;
 		start = ((struct tsn_sort*)(g_ptr_array_index(array, i)))->offset;
 		end = start + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->length;
-		if (start >= min_tsn)
+		if (start >= min_tsn && diff > 0 && diff <= width)
 			gdk_draw_line(u_data->io->pixmap,
 			              u_data->io->draw_area->style->black_gc,
 			              (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
@@ -442,7 +431,6 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			start--;
 		start *= 100000;
 	}
-
 
 	for (i=start, j=b; i<=u_data->io->max_x; i+=a, j++)
 	{
@@ -742,6 +730,7 @@ on_zoomin_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 
 		u_data->io->tmp_min_tsn1=u_data->io->y1_tmp+u_data->io->min_y;
 		u_data->io->tmp_max_tsn1=u_data->io->y2_tmp+1+u_data->io->min_y;
+
 		u_data->io->tmp_min_tsn2=u_data->io->tmp_min_tsn1;
 		u_data->io->tmp_max_tsn2=u_data->io->tmp_max_tsn1;
 		tmp_minmax->tmp_min_secs=u_data->io->x1_tmp_sec;
@@ -864,7 +853,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 	guint32 helpx;
 	guint32 helpy, x1_tmp, x2_tmp;
 
-	if (event->y>u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+	if (event->y > u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 		event->y = u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset;
 	if (event->x < LEFT_BORDER+u_data->io->offset)
 		event->x = LEFT_BORDER+u_data->io->offset;
@@ -903,15 +892,14 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		u_data->io->x2_tmp_sec=(guint32)x2_tmp/1000000;
 		u_data->io->x2_tmp_usec=x2_tmp%1000000;
 
-		u_data->io->y1_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->y_old)/u_data->io->y_interval);
-		u_data->io->y2_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-event->y)/u_data->io->y_interval);
+		u_data->io->y1_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-u_data->io->y_old)/u_data->io->y_interval);
+		u_data->io->y2_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y)/u_data->io->y_interval);
 		helpy = MINI(u_data->io->y1_tmp, u_data->io->y2_tmp);
 		u_data->io->y2_tmp = MAXI(u_data->io->y1_tmp, u_data->io->y2_tmp);
 		u_data->io->y1_tmp = helpy;
 		u_data->io->x_new=event->x;
 		u_data->io->y_new=event->y;
 		u_data->io->rectangle=TRUE;
-
 	}
 	return TRUE;
 }
@@ -1160,7 +1148,7 @@ static void compute_offsets(struct sctp_udata *u_data)
 
 		for (i=0; i<u_data->assoc->n_array_tsn1; i++)
 		{
-			((struct tsn_sort*)(g_ptr_array_index(array, i)))->offset=sum;			
+			((struct tsn_sort*)(g_ptr_array_index(array, i)))->offset=sum;
 			t_sort.tsnumber=((struct tsn_sort*)(g_ptr_array_index(array, i)))->tsnumber;
 			if (t_sort.tsnumber>tsntmp)
 				sum+=((struct tsn_sort*)(g_ptr_array_index(array, i)))->length;
