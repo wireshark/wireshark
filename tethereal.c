@@ -656,7 +656,7 @@ main(int argc, char *argv[])
   e_prefs             *prefs;
   char                 badopt;
 
-#define OPTSTRING_INIT "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vw:Vxy:z:"
+#define OPTSTRING_INIT "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vVw:xy:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"

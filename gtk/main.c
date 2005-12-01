@@ -1745,7 +1745,7 @@ main(int argc, char *argv[])
   guint                go_to_packet = 0;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:f:g:Hhi:klLm:nN:o:pQr:R:Ss:t:w:vy:z:"
+#define OPTSTRING_INIT "a:b:c:f:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:y:z:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
