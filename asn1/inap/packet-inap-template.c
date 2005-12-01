@@ -346,7 +346,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_inap_StatusReportArg(FALSE, tvb, offset, pinfo, tree, hf_inap_StatusReportArg_PDU);
     break;
   case 41:/*41, "CallGap */
-    offset=dissect_inap_CallGapArg(FALSE, tvb, offset, pinfo, tree, hf_inap_RCallGapArg_PDU);
+    offset=dissect_inap_CallGapArg(FALSE, tvb, offset, pinfo, tree, hf_inap_CallGapArg_PDU);
     break;
   case 42:/*42, "ActivateServiceFiltering */
     offset=dissect_inap_ActivateServiceFilteringArg(FALSE, tvb, offset, pinfo, tree, hf_inap_ActivateServiceFilteringArg_PDU);
