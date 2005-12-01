@@ -67,8 +67,8 @@ static int hf_smb2_response_buffer_offset = -1;
 static int hf_smb2_security_blob_offset = -1;
 static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
-static int hf_smb2_ioctl_out_data = -1;
 static int hf_smb2_ioctl_in_data = -1;
+static int hf_smb2_ioctl_out_data = -1;
 static int hf_smb2_unknown = -1;
 static int hf_smb2_unknown_timestamp = -1;
 static int hf_smb2_create_timestamp = -1;
@@ -98,7 +98,7 @@ static int hf_smb2_server_guid = -1;
 static int hf_smb2_class = -1;
 static int hf_smb2_infolevel = -1;
 static int hf_smb2_max_response_size = -1;
-static int hf_smb2_max_ioctl_in_size = -1;
+static int hf_smb2_max_ioctl_out_size = -1;
 static int hf_smb2_required_buffer_size = -1;
 static int hf_smb2_response_size = -1;
 static int hf_smb2_setinfo_size = -1;
@@ -567,7 +567,8 @@ static const true_false_string tfs_flags_response = {
 
 
 static const value_string smb2_ioctl_vals[] = {
-  {0x0011c017, "DCE/RPC over named pipe"},
+  {0x0011c017, "IOCTL_DO_DCERPC"},
+  {0x00144064, "FSCTL_GET_SHADOW_COPY_DATA"},
   {0x00090000, "FSCTL_REQUEST_OPLOCK_LEVEL_1"},
   {0x00090004, "FSCTL_REQUEST_OPLOCK_LEVEL_2"},
   {0x00090008, "FSCTL_REQUEST_BATCH_OPLOCK"},
@@ -2453,7 +2454,7 @@ static void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
 	switch(si->ioctl_function){
-	case 0x0011c017: /* NamedPipoe function:5 */
+	case 0x0011c017: /* NamedPipe function:5 */
 		dissect_smb2_ioctl_dcerpc(tvb, pinfo, tree, 0, si);
 		break;
 	default:
@@ -2483,18 +2484,18 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
-	/* out buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_out_data);
+	/* in buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_in_data);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* in buffer offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_in_data);
+	/* out buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_out_data);
 
-	/* max ioctl in size */
-	proto_tree_add_item(tree, hf_smb2_max_ioctl_in_size, tvb, offset, 4, TRUE);
+	/* max ioctl out size */
+	proto_tree_add_item(tree, hf_smb2_max_ioctl_out_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* some unknown bytes */
@@ -2509,10 +2510,10 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		/* out buffer */
 		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
 	} else {
 		/* in buffer */
-		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, NULL);
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &i_olb, si, dissect_smb2_ioctl_data);
 		/* out buffer */
 		dissect_smb2_olb_buffer(pinfo, tree, tvb, &o_olb, si, dissect_smb2_ioctl_data);
 	}
@@ -3898,9 +3899,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_setinfo_offset,
 		{ "Setinfo Offset", "smb2.setinfo_offset", FT_UINT16, BASE_HEX,
 		NULL, 0, "SMB2 setinfo offset", HFILL }},
-	{ &hf_smb2_max_ioctl_in_size,
-		{ "Max Ioctl In Size", "smb2.max_ioctl_in_size", FT_UINT32, BASE_DEC,
-		NULL, 0, "SMB2 Maximum ioctl in size", HFILL }},
+	{ &hf_smb2_max_ioctl_out_size,
+		{ "Max Ioctl Out Size", "smb2.max_ioctl_out_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 Maximum ioctl out size", HFILL }},
 	{ &hf_smb2_response_size,
 		{ "Response Size", "smb2.response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 response size", HFILL }},
