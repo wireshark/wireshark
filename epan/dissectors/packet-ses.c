@@ -37,6 +37,7 @@
 
 #include "packet-ses.h"
 #include "packet-frame.h"
+#include "packet-ber.h"
 #include <epan/prefs.h>
 
 #include <epan/strutil.h>
@@ -146,6 +147,9 @@ static int hf_calling_session_selector = -1;
 /* called session selector */
 static int hf_called_session_selector = -1;
 
+/* activity id */
+static int hf_activity_identifier = -1;
+
 /* serial number */
 static int hf_serial_number = -1;
 
@@ -224,6 +228,7 @@ static const value_string param_vals[] =
   {EnclosureItem, "Enclosure Item"},
   {Token_Setting_Item, "Token Setting Item"},
   {Resync_Type, "Resync Type"},
+  {Activity_Identifier, "Activity Identifier"},
   {Serial_Number, "Serial Number"},
   {Linking_Information, "Linking Information"},
   {Reflect_Parameter, "Reflect Parameter"},
@@ -647,6 +652,16 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_item(param_tree,
 			    hf_data_token_setting,
 			    tvb, offset, 1, FALSE);
+		}
+		break;
+
+	case Activity_Identifier:
+		if (param_len == 0)
+			break;
+		if (tree)
+		{
+			dissect_ber_integer(FALSE, pinfo, param_tree, tvb, offset,
+			    hf_activity_identifier, NULL);
 		}
 		break;
 
@@ -1558,6 +1573,18 @@ proto_register_ses(void)
 				VALS(token_setting_vals),
 				0x03,
 				"data token setting",
+				HFILL
+			}
+		},
+		{
+			&hf_activity_identifier,
+			{
+				"Activity Identifier",
+				"ses.activity_identifier",
+				FT_UINT32, BASE_DEC,
+				NULL,
+				0x0,
+				"Activity Identifier",
 				HFILL
 			}
 		},

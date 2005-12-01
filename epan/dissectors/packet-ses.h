@@ -143,40 +143,41 @@ reason code
 
 /* PI's */
 
-#define Called_SS_user_Reference		9
-#define Calling_SS_user_Reference		10
-#define Common_Reference			11
+#define Called_SS_user_Reference			9
+#define Calling_SS_user_Reference			10
+#define Common_Reference					11
 #define Additional_Reference_Information	12
 
-#define Sync_Type_Item				15
-#define Token_Item				16
-#define Transport_Disconnect			17
+#define Sync_Type_Item						15
+#define Token_Item							16
+#define Transport_Disconnect				17
 
-#define Protocol_Options			19
-#define Session_Requirement			20
-#define TSDU_Maximum_Size			21
-#define Version_Number				22
-#define Initial_Serial_Number			23
-#define Prepare_Type				24
-#define EnclosureItem				25
-#define Token_Setting_Item			26
-#define Resync_Type				27
+#define Protocol_Options					19
+#define Session_Requirement					20
+#define TSDU_Maximum_Size					21
+#define Version_Number						22
+#define Initial_Serial_Number				23
+#define Prepare_Type						24
+#define EnclosureItem						25
+#define Token_Setting_Item					26
+#define Resync_Type							27
 
-#define Serial_Number				42
+#define Activity_Identifier					41
+#define Serial_Number						42
 
-#define Reflect_Parameter			49
+#define Reflect_Parameter					49
 
-#define Reason_Code				50
-#define Calling_Session_Selector		51
-#define Called_Session_Selector			52
-#define Second_Resync_Type			53
-#define Second_Serial_Number			54
+#define Reason_Code							50
+#define Calling_Session_Selector			51
+#define Called_Session_Selector				52
+#define Second_Resync_Type					53
+#define Second_Serial_Number				54
 #define Second_Initial_Serial_Number		55
-#define Upper_Limit_Serial_Number		56
-#define Large_Initial_Serial_Number		57
+#define Upper_Limit_Serial_Number			56
+#define Large_Initial_Serial_Number			57
 #define Large_Second_Initial_Serial_Number	58
 
-#define Data_Overflow				60
+#define Data_Overflow						60
 
 /* transport disconnect values */
 #define		transport_connection_is_released	0x01
