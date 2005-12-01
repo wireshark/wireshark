@@ -81,6 +81,7 @@ typedef struct _smb2_conv_info_t {
  */
 typedef struct _smb2_info_t {
 	guint16 opcode;
+	guint32 ioctl_function;
 	guint32 status;
 	guint32 tid;
 	guint64 seqnum;

@@ -652,22 +652,20 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	guint32 func;
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, hf_smb2_ioctl_function, tvb, offset, 4, TRUE);
 		tree = proto_item_add_subtree(item, ett_smb2_ioctl_function);
 	}
 
-	func=tvb_get_letohl(tvb, offset);
-
-	if(func){
+	si->ioctl_function=tvb_get_letohl(tvb, offset);
+	if(si->ioctl_function){
 		/* device */
 		proto_tree_add_item(tree, hf_smb2_ioctl_function_device, tvb, offset, 4, TRUE);
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " %s",
-				val_to_str((func>>16)&0xffff, smb2_ioctl_device_vals,
+				val_to_str((si->ioctl_function>>16)&0xffff, smb2_ioctl_device_vals,
 				"Unknown (0x%08X)"));
 		}
 
@@ -679,7 +677,7 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " Function:0x%04x",
-				(func>>2)&0x0fff);
+				(si->ioctl_function>>2)&0x0fff);
 		}
 
 		/* method */
