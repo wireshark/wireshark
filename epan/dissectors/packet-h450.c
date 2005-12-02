@@ -5754,7 +5754,7 @@ void proto_register_h450(void) {
         "Unspecified/nonStandard", HFILL }},
     { &hf_h450_extensionId,
       { "extensionId", "h450.extensionId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Extension/extensionId", HFILL }},
     { &hf_h450_extensionArgument,
       { "extensionArgument", "h450.extensionArgument",
