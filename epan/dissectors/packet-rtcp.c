@@ -922,6 +922,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 				prefix_string[ prefix_len ] = '\0';
 				proto_tree_add_string( sdes_item_tree, hf_rtcp_sdes_prefix_string, tvb, offset, prefix_len, prefix_string );
 				offset += prefix_len;
+				item_len -= prefix_len +1;
 			}
 			prefix_string = ep_alloc( item_len + 1 );
 			for ( counter = 0; counter < item_len; counter++ )
