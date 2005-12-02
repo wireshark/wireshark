@@ -95,6 +95,10 @@ static int hf_smb2_tree = -1;
 static int hf_smb2_search = -1;
 static int hf_smb2_find_response_size = -1;
 static int hf_smb2_server_guid = -1;
+static int hf_smb2_object_id = -1;
+static int hf_smb2_birth_volume_id = -1;
+static int hf_smb2_birth_object_id = -1;
+static int hf_smb2_domain_id = -1;
 static int hf_smb2_class = -1;
 static int hf_smb2_infolevel = -1;
 static int hf_smb2_max_response_size = -1;
@@ -573,6 +577,8 @@ static const true_false_string tfs_flags_response = {
 static const value_string smb2_ioctl_vals[] = {
   {0x0011c017, "IOCTL_DO_DCERPC"},
   {0x00144064, "FSCTL_GET_SHADOW_COPY_DATA"},
+  {0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},
+
   {0x00090000, "FSCTL_REQUEST_OPLOCK_LEVEL_1"},
   {0x00090004, "FSCTL_REQUEST_OPLOCK_LEVEL_2"},
   {0x00090008, "FSCTL_REQUEST_BATCH_OPLOCK"},
@@ -616,7 +622,6 @@ static const value_string smb2_ioctl_vals[] = {
   {0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
   {0x000940BB, "FSCTL_READ_USN_JOURNAL"},
   {0x000980BC, "FSCTL_SET_OBJECT_ID_EXTENDED"},
-  {0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},
   {0x000980C4, "FSCTL_SET_SPARSE"},
   {0x000980C8, "FSCTL_SET_ZERO_DATA"},
   {0x000940CF, "FSCTL_QUERY_ALLOCATED_RANGES"},
@@ -2500,6 +2505,36 @@ dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, p
 }
 
 static void
+dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+{
+
+	/* There is no in data */
+	if(data_in){
+		return;
+	}
+
+	/* FILE_OBJECTID_BUFFER */
+
+	/* Object ID */
+	proto_tree_add_item(tree, hf_smb2_object_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Birth Volume ID */
+	proto_tree_add_item(tree, hf_smb2_birth_volume_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Birth Object ID */
+	proto_tree_add_item(tree, hf_smb2_birth_object_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Domain ID */
+	proto_tree_add_item(tree, hf_smb2_domain_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	return;
+}
+
+static void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si, gboolean data_in)
 {
 	switch(si->ioctl_function){
@@ -2508,6 +2543,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb
 		break;
 	case 0x00144064:
 		dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvb, pinfo, tree, 0, si, data_in);
+		break;
+	case 0x000900c0:
+		dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvb, pinfo, tree, 0, si, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), TRUE);
@@ -4054,6 +4092,22 @@ proto_register_smb2(void)
 	{ &hf_smb2_server_guid, 
 	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE, 
 		NULL, 0, "Server GUID", HFILL }},
+
+	{ &hf_smb2_object_id, 
+	  { "ObjectId", "smb2.object_id", FT_GUID, BASE_NONE, 
+		NULL, 0, "ObjectID for this FID", HFILL }},
+
+	{ &hf_smb2_birth_volume_id, 
+	  { "BirthVolumeId", "smb2.birth_volume_id", FT_GUID, BASE_NONE, 
+		NULL, 0, "ObjectID for the volume where this FID was originally created", HFILL }},
+
+	{ &hf_smb2_birth_object_id, 
+	  { "BirthObjectId", "smb2.birth_object_id", FT_GUID, BASE_NONE, 
+		NULL, 0, "ObjectID for this FID when it was originally created", HFILL }},
+
+	{ &hf_smb2_domain_id, 
+	  { "DomainId", "smb2.domain_id", FT_GUID, BASE_NONE, 
+		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_create_timestamp,
 		{ "Create", "smb2.create.time", FT_ABSOLUTE_TIME, BASE_NONE,
