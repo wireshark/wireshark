@@ -177,6 +177,8 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_FC,      "Fibre Channel" },
     { IP_PROTO_RSVPE2EI,"RSVP E2EI" },
     { IP_PROTO_MIPV6,	"Mobile IPv6" },
+    { IP_PROTO_UDPLITE, "UDPlite" },
+    { IP_PROTO_MPLS_IN_IP, "MPLS in IP" },
     { IP_PROTO_AX4000,	"AX/4000 Testframe" },
     { IP_PROTO_NCS_HEARTBEAT,"Novell NCS Heartbeat" },
     { 0,		NULL },
