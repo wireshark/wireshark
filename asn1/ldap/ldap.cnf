@@ -1,0 +1,38 @@
+# ros.cnf
+# ros conformation file
+# Copyright 2005 Anders Broman 
+# $Id:$
+
+
+#.PDU 
+LDAPMessage
+
+#.TYPE_RENAME
+
+BindResponse/resultCode BindResponse_resultCode
+ExtendedResponse/resultCode ExtendedResponse_resultCode
+ModifyRequest/modification ModifyRequest_modification
+
+#.FIELD_RENAME
+BindResponse/resultCode bindResponse_resultCode
+ExtendedResponse/resultCode extendedResponse_resultCode
+SearchRequest/attributes searchRequest_attributes
+SearchResultEntry/attributes searchResultEntry_attributes
+ModifyRequest/modification modifyRequest_modification
+SubstringFilter/substrings substringFilter_substrings
+
+#.TYPE_ATTR
+LDAPDN TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+RelativeLDAPDN TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+AttributeType TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+AttributeDescription TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+MatchingRuleId TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+ErrorMessage TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+LDAPURL TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+ControlType  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+ResponseName  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+
+#.FN_PARS MessageID VAL_PTR = &MessageID
+#.FN_PARS AuthenticationChoice VAL_PTR = &AuthenticationChoice
+

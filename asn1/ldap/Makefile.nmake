@@ -1,0 +1,42 @@
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id: Makefile.nmake 13077 2005-01-16 23:26:02Z lroland $
+
+include ../../config.nmake
+
+UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
+
+PROTOCOL_NAME=ldap
+DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py Lightweight-Directory-Access-Protocol-V3.asn packet-ldap-template.c packet-ldap-template.h ldap.cnf
+!IFDEF PYTHON
+	$(PYTHON) ../../tools/asn2eth.py -X -b -e -p $(PROTOCOL_NAME) -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn
+!ELSE
+	@echo Error: You need Python to use asn2eth.py
+	@exit 1
+!ENDIF
+
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+# Fix EOL in generated dissectors. Cygwin's python generates files with 
+# mixed EOL styles, which can't be commited to the SVN repository.
+# Stuff included from template and "cnf" files has "\r\n" on windows, while 
+# the generated stuff has "\n".
+
+fix_eol: generate_dissector
+	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
+	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
+	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
+	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
+	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
+
+copy_files: generate_dissector fix_eol
+	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
+	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
+
