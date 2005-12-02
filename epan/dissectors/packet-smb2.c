@@ -171,6 +171,7 @@ static int hf_smb2_ioctl_shadow_copy_num_volumes = -1;
 static int hf_smb2_ioctl_shadow_copy_num_labels = -1;
 static int hf_smb2_ioctl_shadow_copy_count = -1;
 static int hf_smb2_ioctl_shadow_copy_label = -1;
+static int hf_smb2_compression_format = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -573,12 +574,27 @@ static const true_false_string tfs_flags_response = {
 	"This is a REQUEST"
 };
 
+static const value_string compression_format_vals[] = {
+  { 0, "COMPRESSION_FORMAT_NONE" },
+  { 1, "COMPRESSION_FORMAT_DEFAULT" },
+  { 2, "COMPRESSION_FORMAT_LZNT1" },
+  { 0, NULL }
+};
+
 
 static const value_string smb2_ioctl_vals[] = {
+  /* dissector implemented */
   {0x0011c017, "IOCTL_DO_DCERPC"},
   {0x00144064, "FSCTL_GET_SHADOW_COPY_DATA"},
   {0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},
+  {0x0009009C, "FSCTL_GET_OBJECT_ID"},
+  {0x000980A0, "FSCTL_DELETE_OBJECT_ID"}, /* no data in/out */
+  {0x00098098, "FSCTL_SET_OBJECT_ID"},
+  {0x000980BC, "FSCTL_SET_OBJECT_ID_EXTENDED"},
+  {0x0009003C, "FSCTL_GET_COMPRESSION"},
+  {0x0009C040, "FSCTL_SET_COMPRESSION"},
 
+  /* dissector not yet implemented */
   {0x00090000, "FSCTL_REQUEST_OPLOCK_LEVEL_1"},
   {0x00090004, "FSCTL_REQUEST_OPLOCK_LEVEL_2"},
   {0x00090008, "FSCTL_REQUEST_BATCH_OPLOCK"},
@@ -592,8 +608,6 @@ static const value_string smb2_ioctl_vals[] = {
   {0x0009002C, "FSCTL_IS_PATHNAME_VALID"},
   {0x00090030, "FSCTL_MARK_VOLUME_DIRTY"},
   {0x0009003B, "FSCTL_QUERY_RETRIEVAL_POINTERS"},
-  {0x0009003C, "FSCTL_GET_COMPRESSION"},
-  {0x0009C040, "FSCTL_SET_COMPRESSION"},
   {0x0009004F, "FSCTL_MARK_AS_SYSTEM_HIVE"},
   {0x00090050, "FSCTL_OPLOCK_BREAK_ACK_NO_2"},
   {0x00090054, "FSCTL_INVALIDATE_VOLUMES"},
@@ -612,16 +626,12 @@ static const value_string smb2_ioctl_vals[] = {
   {0x0009008B, "FSCTL_WRITE_PROPERTY_DATA"},
   {0x0009008F, "FSCTL_FIND_FILES_BY_SID"},
   {0x00090097, "FSCTL_DUMP_PROPERTY_DATA"},
-  {0x00098098, "FSCTL_SET_OBJECT_ID"},
-  {0x0009009C, "FSCTL_GET_OBJECT_ID"},
-  {0x000980A0, "FSCTL_DELETE_OBJECT_ID"},
   {0x000980A4, "FSCTL_SET_REPARSE_POINT"},
   {0x000900A8, "FSCTL_GET_REPARSE_POINT"},
   {0x000980AC, "FSCTL_DELETE_REPARSE_POINT"},
   {0x000940B3, "FSCTL_ENUM_USN_DATA"},
   {0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
   {0x000940BB, "FSCTL_READ_USN_JOURNAL"},
-  {0x000980BC, "FSCTL_SET_OBJECT_ID_EXTENDED"},
   {0x000980C4, "FSCTL_SET_SPARSE"},
   {0x000980C8, "FSCTL_SET_ZERO_DATA"},
   {0x000940CF, "FSCTL_QUERY_ALLOCATED_RANGES"},
@@ -2535,17 +2545,117 @@ dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_
 }
 
 static void
+dissect_smb2_FSCTL_GET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+{
+
+	/* There is no in data */
+	if(data_in){
+		return;
+	}
+
+	/* compression format */
+	proto_tree_add_item(tree, hf_smb2_compression_format, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return;
+}
+static void
+dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+{
+
+	/* There is no out data */
+	if(!data_in){
+		return;
+	}
+
+	/* compression format */
+	proto_tree_add_item(tree, hf_smb2_compression_format, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	return;
+}
+
+static void
+dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+{
+
+	/* There is no out data */
+	if(!data_in){
+		return;
+	}
+
+	/* FILE_OBJECTID_BUFFER */
+
+	/* Object ID */
+	proto_tree_add_item(tree, hf_smb2_object_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Birth Volume ID */
+	proto_tree_add_item(tree, hf_smb2_birth_volume_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Birth Object ID */
+	proto_tree_add_item(tree, hf_smb2_birth_object_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Domain ID */
+	proto_tree_add_item(tree, hf_smb2_domain_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	return;
+}
+
+static void
+dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+{
+
+	/* There is no out data */
+	if(!data_in){
+		return;
+	}
+
+	/* FILE_OBJECTID_BUFFER->ExtendedInfo */
+
+	/* Birth Volume ID */
+	proto_tree_add_item(tree, hf_smb2_birth_volume_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Birth Object ID */
+	proto_tree_add_item(tree, hf_smb2_birth_object_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* Domain ID */
+	proto_tree_add_item(tree, hf_smb2_domain_id, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	return;
+}
+
+static void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si, gboolean data_in)
 {
 	switch(si->ioctl_function){
 	case 0x0011c017: 
 		dissect_smb2_IOCTL_DO_DCERPC(tvb, pinfo, tree, 0, si, data_in);
 		break;
-	case 0x00144064:
+	case 0x00144064: /* FSCTL_GET_SHADOW_COPY_DATA */
 		dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvb, pinfo, tree, 0, si, data_in);
 		break;
-	case 0x000900c0:
+	case 0x0009009C: /* FSCTL_GET_OBJECT_ID */
+	case 0x000900c0: /* FSCTL_CREATE_OR_GET_OBJECT_ID */
 		dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvb, pinfo, tree, 0, si, data_in);
+		break;
+	case 0x00098098: /* FSCTL_SET_OBJECT_ID */
+		dissect_smb2_FSCTL_SET_OBJECT_ID(tvb, pinfo, tree, 0, si, data_in);
+		break;
+	case 0x000980BC: /* FSCTL_SET_OBJECT_ID_EXTENDED */
+		dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvb, pinfo, tree, 0, si, data_in);
+		break;
+	case 0x0009003C: /* FSCTL_GET_COMPRESSION */
+		dissect_smb2_FSCTL_GET_COMPRESSION(tvb, pinfo, tree, 0, si, data_in);
+		break;
+	case 0x0009C040: /* FSCTL_SET_COMPRESSION */
+		dissect_smb2_FSCTL_SET_COMPRESSION(tvb, pinfo, tree, 0, si, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), TRUE);
@@ -4389,6 +4499,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_ioctl_shadow_copy_label,
 		{ "Label", "smb2.ioctl.shadow_copy.label", FT_STRING, BASE_NONE,
 		NULL, 0, "Shadow copy label", HFILL }},
+
+	{ &hf_smb2_compression_format,
+		{ "Compression Format", "smb2.compression_format", FT_UINT16, BASE_DEC,
+		VALS(compression_format_vals), 0, "Compression to use", HFILL }},
 
 	{ &hf_smb2_ioctl_shadow_copy_count,
 		{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
