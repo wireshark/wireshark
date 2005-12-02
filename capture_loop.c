@@ -141,6 +141,7 @@ typedef struct _loop_data {
   gint           packets_max;           /* Number of packets we're supposed to capture - 0 means infinite */
   gint           packets_sync_pipe;     /* packets not already send out to the sync_pipe */
   packet_counts  counts;                /* several packet type counters */
+  gboolean       show_info;             /* show(hide) capture info dialog */
 
   /* pcap "input file" */
   pcap_t        *pcap_h;                /* pcap handle */
@@ -1206,6 +1207,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #ifdef MUST_DO_SELECT
   ld.pcap_fd            = 0;
 #endif
+  ld.show_info          = capture_opts->show_info;
 
 #ifndef _WIN32
   /*
@@ -1659,6 +1661,11 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   }
 
 #ifndef DUMPCAP
+  /* if the capture info dialog is hidden, no need to create the packet info */
+  if(!ld->show_info) {
+      return;
+  }
+
   switch (ld->wtap_linktype) {
     case WTAP_ENCAP_ETHERNET:
       capture_eth(pd, 0, whdr.caplen, &ld->counts);
