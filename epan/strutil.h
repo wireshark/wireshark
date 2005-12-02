@@ -99,6 +99,15 @@ gchar*     bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
 gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
     gboolean force_separators);
 
+/** Turn a OID string representation (dot notaion) into a byte array.
+ *
+ * @param oid_str The OID string (dot notaion).
+ * @param bytes The GByteArray that will receive the bytes.  This
+ *        must be initialized by the caller.
+ * @return True if the string was converted successfully
+ */
+gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
+
 /** Return a XML escaped representation of the unescaped string.
  *  The returned string must be freed when no longer in use. 
  *

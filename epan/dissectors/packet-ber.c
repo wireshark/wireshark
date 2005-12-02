@@ -1775,9 +1775,9 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
   str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
 
   hfi = proto_registrar_get_nth(hf_id);
-  /*if (hfi->type == FT_OID) {
-    item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
-  } else*/ if (IS_FT_STRING(hfi->type)) {
+  if (hfi->type == FT_OID) {
+    item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
+  } else if (IS_FT_STRING(hfi->type)) {
     item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();

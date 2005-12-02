@@ -3063,7 +3063,7 @@ class ObjectIdentifierType (Type):
     return 'OBJECT_IDENTIFIER'
 
   def eth_ftype(self, ectx):
-    return ('FT_STRING', 'BASE_NONE')
+    return ('FT_OID', 'BASE_NONE')
 
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_OID')

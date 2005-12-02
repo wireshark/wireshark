@@ -730,6 +730,38 @@ extern proto_item *
 proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
+/** Add a FT_OID to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value_ptr data to display
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value_ptr);
+
+/** Add a hidden FT_OID to a proto_tree.
+ @deprecated use proto_tree_add_guid() and a subsequent call to PROTO_ITEM_SET_HIDDEN() instead */
+extern proto_item *
+proto_tree_add_oid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value_ptr);
+
+/** Add a formatted FT_OID to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value_ptr data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+
 /** Add a FT_STRING to a proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index

@@ -617,9 +617,9 @@ DEBUG_ENTRY("dissect_per_object_identifier");
   str = oid_to_str(tvb_get_ptr(tvb, offset>>3, length), length);
 
   hfi = proto_registrar_get_nth(hf_index);
-  /*if (hfi->type == FT_OID) {
+  if (hfi->type == FT_OID) {
     item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
-  } else*/ if (IS_FT_STRING(hfi->type)) {
+  } else if (IS_FT_STRING(hfi->type)) {
     item = proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, str);
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();

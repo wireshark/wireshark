@@ -393,6 +393,63 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 	return TRUE;
 }
 
+#define SUBID_BUF_LEN 5
+gboolean
+oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
+  guint32 subid0, subid, sicnt, i;
+  const char *p, *dot;
+  guint8 buf[SUBID_BUF_LEN];
+
+  g_byte_array_set_size(bytes, 0);
+
+  /* check syntax */
+  p = oid_str;
+  dot = NULL;
+  while (*p) {
+    if (!isdigit(*p) && (*p != '.')) return FALSE;
+    if (*p == '.') {
+      if (p == oid_str) return FALSE;
+      if (!*(p+1)) return FALSE;
+      if ((p-1) == dot) return FALSE;
+      dot = p;
+    }
+    p++;
+  }
+  if (!dot) return FALSE;
+
+  p = oid_str;
+  sicnt = 0;
+  while (*p) {
+    subid = 0;
+    while (isdigit(*p)) {
+      subid *= 10;
+      subid += *p - '0';
+      p++;
+    }
+    if (sicnt == 0) {
+      subid0 = subid;
+      if (subid0 > 2) return FALSE;
+    } else if (sicnt == 1) {
+      if ((subid0 < 2) && (subid > 39)) return FALSE;
+      subid += 40 * subid0;
+    }
+    if (sicnt) {
+      i = SUBID_BUF_LEN;
+      do {
+        i--;
+        buf[i] = 0x80 | (subid % 0x80);
+        subid >>= 7;
+      } while (subid && i);
+      buf[SUBID_BUF_LEN-1] &= 0x7F;
+      g_byte_array_append(bytes, buf + i, SUBID_BUF_LEN - i);
+    }
+    sicnt++;
+    if (*p) p++;
+  }
+
+  return TRUE;
+}
+
 
 /* Return a XML escaped representation of the unescaped string.
  * The returned string must be freed when no longer in use. */

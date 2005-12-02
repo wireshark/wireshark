@@ -88,6 +88,19 @@ guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 	guid_to_str_buf(fv->value.bytes->data, buf, GUID_STR_LEN);
 }
 
+static int
+oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	/* more exact computation will come later */
+	return fv->value.bytes->len * 3 + 16;
+}
+
+static void
+oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	oid_to_str_buf(fv->value.bytes->data, fv->value.bytes->len, buf, oid_repr_len(fv, rtype));
+}
+
 static void
 bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
@@ -140,6 +153,18 @@ guid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 	g_assert(!already_copied);
 	common_fvalue_set(fv, value, GUID_LEN);
 }
+
+static void
+oid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+{
+	g_assert(already_copied);
+
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+
+	fv->value.bytes = value;
+}
+
 
 static gpointer
 value_get(fvalue_t *fv)
@@ -313,6 +338,38 @@ guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc 
 	}
 
 	guid_fvalue_set(fv, buffer, FALSE);
+	return TRUE;
+}
+
+static gboolean
+oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+{
+	GByteArray	*bytes;
+	gboolean	res;
+
+
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as an OID if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+		return TRUE;
+	}
+
+	bytes = g_byte_array_new();
+	res = oid_str_to_bytes(s, bytes);
+	if (!res) {
+		if (logfunc != NULL)
+			logfunc("\"%s\" is not a valid OBJECT IDENTIFIER.", s);
+		g_byte_array_free(bytes, TRUE);
+		return FALSE;
+	}
+
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+	fv->value.bytes = bytes;
+
 	return TRUE;
 }
 
@@ -680,9 +737,45 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t oid_type = {
+		"OID",			/* name */
+		"OBJECT IDENTIFIER",			/* pretty_name */
+		0,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		oid_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		oid_to_repr,			/* val_to_string_repr */
+		oid_repr_len,			/* len_string_repr */
+
+		oid_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+		cmp_bytes_bitwise_and,
+		cmp_contains,
+		NULL,				/* cmp_matches */
+
+		len,
+		slice,
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
 	ftype_register(FT_GUID, &guid_type);
+	ftype_register(FT_OID, &oid_type);
 }
