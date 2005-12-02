@@ -2,7 +2,7 @@
 
 /* DO NOT EDIT
 	This filter was automatically generated
-	from librpc/idl/initshutdown.idl and librpc/idl/initshutdown.cnf.
+	from initshutdown.idl and initshutdown.cnf.
 	
 	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
 	It is maintained by the Samba team, not the Ethereal team.

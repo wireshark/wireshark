@@ -3609,7 +3609,7 @@ void proto_register_dcerpc_winreg(void)
 	{ &hf_winreg_winreg_SecBuf_sd, 
 	  { "Sd", "winreg.winreg_SecBuf.sd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_werror, 
-	  { "Windows Error", "winreg.werror", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Windows Error", "winreg.werror", FT_UINT32, BASE_HEX, VALS(DOS_errors), 0, "", HFILL }},
 	{ &hf_winreg_QueryMultipleValue_type, 
 	  { "Type", "winreg.QueryMultipleValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
 	{ &hf_winreg_winreg_String_name_len, 
