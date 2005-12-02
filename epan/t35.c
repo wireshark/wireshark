@@ -270,6 +270,7 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x3d00031e, "Swissvoice" },
 	{  0x3d00031f, "Swissvoice" },
 	{  0x82000002, "Ericsson" },                                        /* From captures */
+	{  0x8a000003, "Teldat H. Kruszynski, M. Cichocki Sp. J." } ,		/* By email		 */
 	{  0xa5000001, "Ericsson" },                                        /* From captures */
 	{  0xb4000000, "British Telecommunications" },                      /* From Ref. 2 */
 	{  0xb4000100, "British Telecommunications" },                      /* From Ref. 2 */
