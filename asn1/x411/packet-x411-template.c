@@ -97,9 +97,26 @@ call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *p
 /*
  * Dissect X411 MTS APDU
  */
-int dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+int 
+dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	return dissect_x411_MTS_APDU (FALSE, tvb, 0, pinfo, parent_tree, hf_x411_MTS_APDU_PDU);
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	/* save parent_tree so subdissectors can create new top nodes */
+	top_tree=parent_tree;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_x411, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_x411);
+	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
+  	if (check_col(pinfo->cinfo, COL_INFO))
+  		col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
+
+	return dissect_x411_MTS_APDU (FALSE, tvb, 0, pinfo, tree, hf_x411_MTS_APDU_PDU);
 }
 
 /*

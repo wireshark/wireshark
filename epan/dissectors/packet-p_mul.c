@@ -429,7 +429,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   case Data_PDU:
     /* Fragment of Data (variable length) */
     data_len = tvb_length_remaining (tvb, offset);
-    proto_tree_add_none_format (tree, hf_data_fragment, tvb, offset,
+    proto_tree_add_none_format (p_mul_tree, hf_data_fragment, tvb, offset,
                                 data_len, "Fragment %d of Data (%d byte%s)",
                                 seq_no, data_len,
                                 plurality (data_len, "", "s"));
