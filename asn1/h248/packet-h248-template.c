@@ -1,6 +1,9 @@
 /* packet-h248.c
  * Routines for H.248/MEGACO packet dissection
+ *
  * Ronnie Sahlberg 2004
+ *
+ * Luis Ontanon 2005 - Context and Transaction Tracing
  *
  * $Id$
  *
@@ -34,6 +37,7 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -78,7 +82,7 @@ static int hf_h248_term_wild_type = -1;
 static int hf_h248_term_wild_level = -1;
 static int hf_h248_term_wild_position = -1;
 
-
+/*
 static int hf_h248_cmd_trx = -1;
 static int hf_h248_cmd_request = -1;
 static int hf_h248_cmd_reply = -1;
@@ -95,7 +99,7 @@ static int hf_h248_ctx_cmd_type = -1;
 static int hf_h248_ctx_cmd_request = -1;
 static int hf_h248_ctx_cmd_reply = -1;
 static int hf_h248_ctx_cmd_error = -1;
-
+*/
 
 #include "packet-h248-hf.c"
 
@@ -124,18 +128,15 @@ static GHashTable* h248_package_properties = NULL;
 static dissector_table_t h248_package_bin_dissector_table=NULL;
 #endif
 
-static GHashTable* transactions = NULL;
-static GHashTable* transactions_by_framenum = NULL;
-static GHashTable* contexts_creating = NULL;
-static GHashTable* contexts = NULL;
+static GHashTable* msgs = NULL;
+static GHashTable* trxs = NULL;
+static GHashTable* ctxs_by_trx = NULL;
+static GHashTable* ctxs = NULL;
 
 static gboolean keep_persistent_data = FALSE;
 
-static h248_cmdmsg_info_t* h248_cmdmsg;
-static guint32 transaction_id;
-static guint32 context_id;
-
 static proto_tree *h248_tree;
+static tvbuff_t* h248_tvb;
 
 static dissector_handle_t h248_term_handle;
 
@@ -477,20 +478,31 @@ static const value_string wildcard_levels[] = {
 };
 
 
-static const value_string request_types[] = {
-    { 0, "unknown" },
-    { 1, "add" },
-    { 2, "move" },
-    { 3, "mod" },
-    { 4, "subtract" },
-    { 5, "auditCap" },
-    { 6, "auditValue" },
-    { 7, "notify" },
-    { 8, "serviceChange" },
+static const value_string cmd_type[] = {
+    { H248_CMD_NONE, "NoCommand"},
+    { H248_CMD_ADD_REQ, "addReq"},
+    { H248_CMD_MOVE_REQ, "moveReq"},
+    { H248_CMD_MOD_REQ, "modReq"},
+    { H248_CMD_SUB_REQ, "subReq"},
+    { H248_CMD_AUDITCAP_REQ, "auditCapReq"},
+    { H248_CMD_AUDITVAL_REQ, "auditValReq"},
+    { H248_CMD_NOTIFY_REQ, "notifyReq"},
+    { H248_CMD_SVCCHG_REQ, "svcChgReq"},
+    { H248_CMD_TOPOLOGY_REQ, "topologyReq"},
+    { H248_CMD_CTX_ATTR_AUDIT_REQ, "ctxAttrAuditReq"},
+    { H248_CMD_ADD_REPLY, "addReply"},
+    { H248_CMD_MOVE_REPLY, "moveReply"},
+    { H248_CMD_MOD_REPLY, "modReply"},
+    { H248_CMD_SUB_REPLY, "subReply"},
+    { H248_CMD_AUDITCAP_REPLY, "auditCapReply"},
+    { H248_CMD_AUDITVAL_REPLY, "auditValReply"},
+    { H248_CMD_NOTIFY_REPLY, "notifyReply"},
+    { H248_CMD_SVCCHG_REPLY, "svcChgReply"},
+    { H248_CMD_TOPOLOGY_REPLY, "topologyReply"},
     { 0, NULL }
 };
 
-static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32* trx_id_p) {
 	guint64 trx_id = 0;
   	gint8 class;
 	gboolean pc;
@@ -517,18 +529,18 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,"transactionId %" PRIu64, trx_id);
             proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 
-            transaction_id = 0;
+            *trx_id_p = 0;
 
 		} else {
 			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);
-            transaction_id = (guint32)trx_id;
+            *trx_id_p = (guint32)trx_id;
 		}
 	}	
 
     return offset;
 }
 
-static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32* ctx_id_p) {
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
@@ -557,7 +569,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
                                                  "contextId: %" PRIu64, ctx_id);
             proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 
-            context_id = 0xfffffffd;
+            *ctx_id_p = 0xfffffffd;
             
 		} else {
 			proto_item* pi = proto_tree_add_uint(tree, hf_h248_context_id, tvb, offset-len, len, (guint32)ctx_id);
@@ -570,7 +582,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
                 proto_item_set_text(pi,"contextId: * (All Contexts = 0xffffffff)");
             }
             
-            context_id = (guint32) ctx_id;
+            *ctx_id_p = (guint32) ctx_id;
 		}
 	}	
 	
@@ -892,372 +904,441 @@ dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
   return offset;
 }
 
-static gchar* cmd_str(h248_cmdmsg_info_t* cmdmsg) {
-    static gchar* command_strings[][2] = {
-    { "unkReq", "unkReply" },
-    { "addReq", "addReply" },
-    { "moveReq", "moveReply" },
-    { "modReq", "modReply" },
-    { "subtractReq", "subtractReply" },
-    { "auditCapRequest", "auditCapReply" },
-    { "auditValueRequest", "auditValueReply" },
-    { "notifyReq", "notifyReply" },
-    { "serviceChangeReq", "serviceChangeReply" }
-    };
-    
-    gchar* ctx_str;
-    gchar* cmd_str;
-    gchar* param_str;
-    
-    switch (cmdmsg->msg_type) {
-        case H248_TRX_REQUEST:
-            cmd_str = command_strings[cmdmsg->cmd_type][0];
+
+
+/*
+ *   Context and Transaction Tracing
+ */
+
+
+
+static h248_msg_t* h248_msg(packet_info* pinfo, int offset) {
+    h248_msg_t* m;
+    guint framenum = pinfo->fd->num;
+
+    if (keep_persistent_data) {
+        gchar* key = ep_strdup_printf("%u-%i",framenum,offset);
+        
+        if (( m = g_hash_table_lookup(msgs,key) )) {
+            m->commited = TRUE;
+        } else {
+            m = se_alloc(sizeof(h248_msg_t));
+            m->framenum = framenum;
+            m->trxs = NULL;
+            m->commited = FALSE;
             
-            if (cmdmsg->term_is_wildcard) {
-                param_str = "Term *";
-            } else {
-                param_str = ep_strdup_printf("Term %s",cmdmsg->term_id);
-            }
-                
-                break;
-        case H248_TRX_REPLY:
-            cmd_str = command_strings[cmdmsg->cmd_type][1];
-            
-            if ( cmdmsg->error_code ) {
-                param_str = ep_strdup_printf("Error %u",cmdmsg->error_code);
-            } else {
-                if (cmdmsg->term_is_wildcard) {
-                    param_str = "Term *";
-                } else {
-                    param_str = ep_strdup_printf("Term %s",cmdmsg->term_id);
-                }
-            }
-                break;
-        case H248_TRX_PENDING:
-            return ep_strdup_printf("T %x { Pending }", cmdmsg->transaction_id);
-        case H248_TRX_ACK:
-            return ep_strdup_printf("T %x { Ack }", cmdmsg->transaction_id);
-        default:
-            return "[ Bad Command ]";
-    };
-    
-    switch (cmdmsg->context_id) {
-        case NULL_CONTEXT: ctx_str = "0"; break;
-        case CHOOSE_CONTEXT: ctx_str = "$"; break;
-        case ALL_CONTEXTS: ctx_str = "*"; break;
-        default: ctx_str = ep_strdup_printf("%u",cmdmsg->context_id); break;
+            g_hash_table_insert(msgs,se_strdup(key),m);
+        }
+    } else {
+        m = ep_new0(h248_msg_t);
+        m->framenum = framenum;
+        m->trxs = NULL;
+        m->commited = FALSE;
     }
     
-    return ep_strdup_printf("T %x { C %s { %s { %s }}} ",
-                            cmdmsg->transaction_id, ctx_str, cmd_str, param_str );
+    if (pinfo->net_src.type == AT_NONE) {
+        m->addr_label = "";
+    } else {
+        m->addr_label = ep_strdup_printf("%s<->%s",address_to_str(&(pinfo->net_src)),address_to_str(&(pinfo->net_dst)));
+    }
     
+    return m;
 }
 
-static proto_tree* cmdmsg_tree(h248_cmdmsg_info_t* cmdmsg) {
-    proto_item* pi = proto_tree_add_text(h248_tree,NULL,0,0,"cmd msg");
-    proto_tree* debug_tree = proto_item_add_subtree(pi,ett_debug);
+static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) {
+    h248_trx_t* t = NULL;
+    h248_trx_msg_t* trxmsg;
     
-    proto_tree_add_text(debug_tree,NULL,0,0,"transaction_id = %x",cmdmsg->transaction_id);
-    proto_tree_add_text(debug_tree,NULL,0,0,"context_id = %x",cmdmsg->context_id);
-    proto_tree_add_text(debug_tree,NULL,0,0,"cmd_type = %u",cmdmsg->cmd_type);
-    proto_tree_add_text(debug_tree,NULL,0,0,"msg_type = %u",cmdmsg->msg_type);
-    proto_tree_add_text(debug_tree,NULL,0,0,"error_code = %u",cmdmsg->error_code);
-    proto_tree_add_text(debug_tree,NULL,0,0,"term_is_wildcard = %x", cmdmsg->term_is_wildcard);
-    proto_tree_add_text(debug_tree,NULL,0,0,"term_id = %s", cmdmsg->term_id);
-    
-    return debug_tree;
-}
-
-static void analyze_h248_cmd(packet_info* pinfo, h248_cmdmsg_info_t* cmdmsg) {
-    h248_cmd_info_t* cmd_info;
-    static h248_cmd_info_t no_cmd_info = {NULL,0,H248_CMD_NONE,0,0,0,FALSE,0,NULL,NULL,NULL};
-    gchar* addr_label;
-    guint framenum = pinfo->fd->num;
-    gchar* cmd_key;
-
-
-    cmd_info = g_hash_table_lookup(transactions_by_framenum,GUINT_TO_POINTER(framenum));
-    
-    if (cmd_info == &no_cmd_info) {
-        cmdmsg->cmd_info = NULL;
-        return;
-    } else if ( cmd_info == NULL ) {
-        gboolean dup = FALSE;
-
-        if (pinfo->net_src.type == AT_NONE) {
-            addr_label = "";
-        } else {
-                
-            if (CMP_ADDRESS(&(pinfo->net_src), &(pinfo->net_dst)) < 0) {
-                addr_label = ep_strdup_printf("%s<->%s:", address_to_str(&(pinfo->net_src)), address_to_str(&(pinfo->net_dst)));
-            } else {
-                addr_label = ep_strdup_printf("%s<->%s:", address_to_str(&(pinfo->net_dst)), address_to_str(&(pinfo->net_src)));
+    if (keep_persistent_data) {
+        if (m->commited) {
+            
+            for ( trxmsg = m->trxs; trxmsg; trxmsg = trxmsg->next) {
+                if (trxmsg->trx->id == t_id) {
+                    return trxmsg->trx;
+                }
             }
-        }
-        
-        cmd_key = ep_strdup_printf("%s%x",addr_label,cmdmsg->transaction_id);
-        
-        cmd_info = g_hash_table_lookup(transactions,cmd_key);
-        
-        if ( cmd_info ) {
-            switch (cmdmsg->msg_type) {
-                case H248_TRX_REQUEST:
-                    dup = TRUE;
-                    break;
-                case H248_TRX_REPLY:
-                    if (cmd_info->response_frame) {
-                        dup = TRUE;
-                    } else {
-                        cmd_info->response_frame = framenum;
-                        cmd_info->error_code = cmdmsg->error_code;
-                    }
-                    break;
+            
+            DISSECTOR_ASSERT(! "a trx that should exist does not!" );
+            
+        } else {
+            gchar* key = ep_strdup_printf("%s:%.8x",m->addr_label,t_id);
+            trxmsg = se_alloc(sizeof(h248_trx_msg_t));
+            
+            if (! (t = g_hash_table_lookup(trxs,key))) {
+                t = se_alloc(sizeof(h248_trx_t));
+                t->key = se_strdup(key);
+                
+                g_hash_table_insert(trxs,t->key,t);
+            }
+            
+            /* XXX: request, reply and ack + point to frames where they are */
+            switch ( type ) {
                 case H248_TRX_PENDING:
-                    cmd_info->pendings++;
-                default:
-                    break;
-            }
-        } else {
-            
-            switch (cmdmsg->msg_type) {
-                case H248_TRX_REQUEST:
-                    cmd_info = se_alloc(sizeof(h248_cmd_info_t));
-                    cmd_info->key = se_strdup(cmd_key);
-                    cmd_info->trx_id = cmdmsg->transaction_id;
-                    cmd_info->type = cmdmsg->cmd_type;
-                    cmd_info->request_frame = framenum;
-                    cmd_info->response_frame = 0;
-                    cmd_info->pendings = 0;
-                    cmd_info->choose_ctx = (cmdmsg->context_id == CHOOSE_CONTEXT);
-                    cmd_info->error_code = 0;
-                    cmd_info->context = NULL;
-                    cmd_info->next = NULL;
-                    cmd_info->last = NULL;
-                    
-                    g_hash_table_insert(transactions,cmd_info->key,cmd_info);
+                    t->pendings++;
                     break;
                 default:
-                    cmd_info = &no_cmd_info;
                     break;
             }
             
         }
+    } else {
+        t = ep_new(h248_trx_t);
+        trxmsg = ep_new(h248_trx_msg_t);
+        t->key = NULL;
+    }
 
-        g_hash_table_insert(transactions_by_framenum,GUINT_TO_POINTER(framenum),cmd_info);
-        
-        cmdmsg->cmd_info = cmd_info;
-        
-        if ( cmd_info && (! cmd_info->context || cmd_info->context->ctx_id == 0 ) ) {
-            h248_context_info_t** ctx_ptr;
-            gchar* ctx_key;
+    t->id = t_id;
+    t->type = type;
+    t->pendings = 0;
+    t->cmds = NULL;
+
+    trxmsg->trx = t;
+    trxmsg->next = NULL;
+    trxmsg->last = trxmsg;
+    
+    if (m->trxs) {
+        m->trxs->last = m->trxs->last->next = trxmsg;
+    } else {
+        m->trxs = trxmsg;
+    }
+    
+    return t;    
+}
+
+
+static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
+    h248_ctx_t* context = NULL;
+    h248_ctx_t** context_p = NULL;
+    
+    if (keep_persistent_data) {
+        if (m->commited) {
+            gchar* key = ep_strdup_printf("%s:%.8x",m->addr_label,c_id);
+            h248_cmd_msg_t* c;
             
-            if (cmd_info->choose_ctx) {
-                /* the fisrt transaction of a new context */
+            
+            if (( context = g_hash_table_lookup(ctxs_by_trx,t->key) )) {
+                return context;
+            } if ((context_p = g_hash_table_lookup(ctxs,key))) {
+                context = *context_p;
                 
-                ctx_key = ep_strdup_printf("%s%i",addr_label,cmdmsg->transaction_id);
-
-                switch (cmdmsg->msg_type) {
-                    case H248_TRX_REQUEST: {
-                        cmd_info->context = se_alloc(sizeof(h248_context_info_t));
-                        cmd_info->context->key = NULL;
-                        cmd_info->context->ctx_id = 0;
-                        cmd_info->context->creation_frame = framenum;
-                        cmd_info->context->cmds = cmd_info;
-                        cmd_info->context->prior = NULL;
-                        
-                        cmd_info->next = NULL;
-                        cmd_info->last = cmd_info;
-                        
-                        /*
-                         * XXX: leak: the "transaction key" of a context should be freed
-                         * as we get the context_id one, there's no need for it afterwards.
-                         *
-                         * We're no using an ep_allocated one because g_hashtables do not
-                         * behave propperly if the key changes.
-                         *
-                         * g_strdup/g_free should be used instead of se_strdup.
-                         */
-                        
-                        g_hash_table_insert(contexts_creating,se_strdup(ctx_key),cmd_info->context);
-                        
+                do {
+                    if (context->first_frame <= m->framenum) {
+                        return context;
                     }
-                        break;
-                    case H248_TRX_REPLY: {
+                } while(( context = context->prev ));
 
-                        /* XXX: former leak: this one should be an extended lookup to g_free the key */
-                        if (( cmd_info->context = g_hash_table_lookup(contexts_creating,ctx_key) )) {
-                            
-                            ctx_key = ep_strdup_printf("%s%.8x",addr_label,cmdmsg->context_id);
-                            
-                            cmd_info->context->ctx_id = cmdmsg->context_id;
-                            
-                            if ((ctx_ptr = g_hash_table_lookup(contexts,ctx_key))) {
-                                cmd_info->context->prior = *ctx_ptr;
-                                cmd_info->context->key = cmd_info->context->prior->key;
-                                *ctx_ptr = cmd_info->context;
-                            } else {
-                                ctx_ptr = se_alloc(sizeof(void*));
-                                *ctx_ptr = cmd_info->context;
-                                cmd_info->context->key = se_strdup(ctx_key);
-                                
-                                g_hash_table_insert(contexts,cmd_info->context->key,ctx_ptr);
-                            }
-                        }
-                    }
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                ctx_key = ep_strdup_printf("%s%.8x",addr_label,cmdmsg->context_id);
-                
-                if (( ctx_ptr = g_hash_table_lookup(contexts,ctx_key) )) {
-                    cmd_info->context = *ctx_ptr;
-                    cmd_info->context->cmds->last->next = cmd_info;
-                    cmd_info->context->cmds->last = cmd_info;
-                }
+                DISSECTOR_ASSERT(! "a context should exist");
             }
             
-            if (cmd_info && cmd_info->context) {
-                cmd_info->context->last_frame = framenum;
+        } else {
+            if (c_id == CHOOSE_CONTEXT) {
+                if (! ( context = g_hash_table_lookup(ctxs_by_trx,t->key))) {
+                    context = se_alloc(sizeof(h248_ctx_t));
+                    context->key = NULL;
+                    context->cmds = NULL;
+                    context->id = c_id;
+                    context->first_frame = m->framenum;
+
+                    g_hash_table_insert(ctxs_by_trx,t->key,context);
+                }
+            } else {
+                gchar* key = ep_strdup_printf("%s:%.8x",m->addr_label,c_id);
+                
+                if (( context = g_hash_table_lookup(ctxs_by_trx,t->key) )) {
+                    
+                    context_p = g_hash_table_lookup(ctxs,key);
+
+                    context = se_alloc(sizeof(h248_ctx_t));
+                    context->key = se_strdup(key);
+                    context->id = c_id;
+                    context->first_frame = m->framenum;
+                    context->cmds = NULL;
+                    
+                    if (context_p) {
+                        context->prev = *context_p;
+                        *context_p = context;
+                    } else {
+                        context_p = se_alloc(sizeof(void*));
+                        *context_p = context;
+                        g_hash_table_insert(ctxs,context->key,context_p);                        
+                    }
+                } else if (! ( context_p = g_hash_table_lookup(ctxs,key) )) {
+                    context = se_alloc(sizeof(h248_ctx_t));
+                    context->key = se_strdup(key);
+                    context->id = c_id;
+                    context->cmds = NULL;
+                    context->first_frame = m->framenum;
+
+                    context_p = se_alloc(sizeof(void*));
+                    *context_p = context;
+                    g_hash_table_insert(ctxs,context->key,context_p);                        
+                } else {
+                    context = *context_p;
+                }
             }
         }
     } else {
-        cmdmsg->cmd_info = cmd_info;
-        return;
+        context = ep_new(h248_ctx_t);
+        context->key = NULL;
+        context->cmds = NULL;
+        context->id = c_id;
+    }
+
+    return context;
+}
+
+static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cmd_type_t type, guint offset) {
+    h248_cmd_t* cmd;
+    h248_cmd_msg_t* cmdtrx;
+    h248_cmd_msg_t* cmdctx;
+    
+    if (keep_persistent_data) {
+        if (m->commited) {
+            DISSECTOR_ASSERT(t->cmds != NULL);
+            
+            for (cmdctx = t->cmds; cmdctx; cmdctx = cmdctx->next) {
+                cmd = cmdctx->cmd;
+                if (cmd->msg == m && cmd->offset == offset) {
+                    return cmd;
+                }
+            }
+            
+            DISSECTOR_ASSERT(!"called for a command that does not exist!");
+            
+            return NULL;
+        } else {
+            cmd = se_alloc(sizeof(h248_cmd_t));
+            cmdtrx = se_alloc(sizeof(h248_cmd_msg_t));
+            cmdctx = se_alloc(sizeof(h248_cmd_msg_t));
+        }
+    } else {
+        cmd = ep_new(h248_cmd_t);
+        cmdtrx = ep_new(h248_cmd_msg_t);
+        cmdctx = ep_new(h248_cmd_msg_t);
+    }
+
+    cmd->type = type;
+    cmd->offset = offset;
+    cmd->strs = NULL;
+    cmd->msg = m;
+    cmd->trx = t;
+    cmd->ctx = c;
+    cmd->error = 0;
+
+    cmdctx->cmd = cmdtrx->cmd = cmd;
+    cmdctx->next =  cmdtrx->next = NULL;
+    cmdctx->last = cmdtrx->last = NULL;
+    
+    if (t->cmds) {
+        t->cmds->last->next = cmdtrx;
+        t->cmds->last = cmdtrx;
+    } else {
+        t->cmds = cmdtrx;
+        t->cmds->last = cmdtrx;
+    }
+
+    if (c->cmds) {
+        c->cmds->last->next = cmdctx;
+        c->cmds->last = cmdctx;
+    } else {
+        c->cmds = cmdctx;
+        c->cmds->last = cmdctx;
+    }
+    
+    return cmd;
+}
+
+static void h248_cmd_add_str(h248_cmd_t* c, gchar* s) {
+    h248_cmd_strs_t* st;
+    
+    if (keep_persistent_data) {
+        if ( c->msg->commited ) {
+            return;
+        } else {
+            st = se_alloc(sizeof(h248_cmd_strs_t));
+            st->str = se_strdup(s);
+        }
+    } else {
+        st = ep_new(h248_cmd_strs_t);
+        st->str = s;
+    }
+
+    st->next = NULL;
+    st->last = st;
+
+    if (c->strs) {
+        c->strs->last = c->strs->last->next = st;
+    } else {
+        c->strs = st;
     }
     
 }
 
-static void analysis_tree(packet_info* pinfo, tvbuff_t *tvb, proto_tree* tree, h248_cmdmsg_info_t* cmdmsg) {
-    h248_cmd_info_t* cmd_info = cmdmsg->cmd_info;
-    guint framenum = pinfo->fd->num;
+static gchar* h248_cmd_to_str(h248_cmd_t* c) {
+    gchar* s = "-";
+    h248_cmd_strs_t* str;
+    
+    switch (c->type) {
+        case H248_CMD_NONE:
+            return "-";
+            break;
+        case H248_CMD_ADD_REQ:
+            s = "AddReq {";
+            break;
+        case H248_CMD_MOVE_REQ:
+            s = "MoveReq {";
+            break;
+        case H248_CMD_MOD_REQ:
+            s = "ModReq {";
+            break;
+        case H248_CMD_SUB_REQ:
+            s = "SubReq {";
+            break;
+        case H248_CMD_AUDITCAP_REQ:
+            s = "AuditCapReq {";
+            break;
+        case H248_CMD_AUDITVAL_REQ:
+            s = "AuditValReq {";
+            break;
+        case H248_CMD_NOTIFY_REQ:
+            s = "NotifyReq {";
+            break;
+        case H248_CMD_SVCCHG_REQ:
+            s = "SvcChgReq {";
+            break;
+        case H248_CMD_TOPOLOGY_REQ:
+            s = "TopologyReq {";
+            break;
+        case H248_CMD_CTX_ATTR_AUDIT_REQ:
+            s = "CtxAttribAuditReq {";
+            break;
+        case H248_CMD_ADD_REPLY:
+            s = "AddReply {";
+            break;
+        case H248_CMD_MOVE_REPLY:
+            s = "MoveReply {";
+            break;
+        case H248_CMD_MOD_REPLY:
+            s = "ModReply {";
+            break;
+        case H248_CMD_SUB_REPLY:
+            s = "SubReply {";
+            break;
+        case H248_CMD_AUDITCAP_REPLY:
+            s = "AuditCapReply {";
+            break;
+        case H248_CMD_AUDITVAL_REPLY:
+            s = "AuditValReply {";
+            break;
+        case H248_CMD_NOTIFY_REPLY:
+            s = "NotifyReply {";
+            break;
+        case H248_CMD_SVCCHG_REPLY:
+            s = "SvcChgReply {";
+            break;
+        case H248_CMD_TOPOLOGY_REPLY:
+            s = "TopologyReply {";
+            break;
+        case H248_CMD_REPLY:
+            s = "ActionReply {";
+            break;
+    }
+    
+    for (str = c->strs; str; str = str->next) {
+        s = ep_strdup_printf("%s %s",s,str->str);
+    };
+    
+    if (c->error) {
+        s = ep_strdup_printf("%s Error=%i",s,c->error);
+    }
+    
+    
+    return ep_strdup_printf("%s }", s);
+}
 
-    if (cmd_info) {
-        proto_item* pi = proto_tree_add_string(tree,hf_h248_cmd_trx,tvb,0,0,cmd_info->key);
-        proto_tree* cmd_tree = proto_item_add_subtree(pi, ett_cmd);
-        PROTO_ITEM_SET_GENERATED(pi);
+static gchar* h248_trx_to_str(h248_trx_t* t) {
+    gchar* s = ep_strdup_printf("T %x { ",t->id);
+    h248_cmd_msg_t* c;
+    
+    if (t->cmds) {
+        if (t->cmds->cmd->ctx) {
+            s = ep_strdup_printf("%s C %x {",s,t->cmds->cmd->ctx->id);        
         
-        switch (cmdmsg->msg_type) {
-            case H248_TRX_REQUEST:
-                if (cmd_info->response_frame) {
-                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_reply,tvb,0,0,cmd_info->response_frame);
-                } else {
-                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No response");
-                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
-                }
-                PROTO_ITEM_SET_GENERATED(pi);
-
-                if (cmd_info->request_frame != framenum) {
-                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_dup_request,tvb,0,0,cmd_info->request_frame);
-                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
-                    PROTO_ITEM_SET_GENERATED(pi);
-                }
-                break;
-            case H248_TRX_REPLY:
-                
-                if (cmd_info->request_frame) {
-                    proto_tree_add_uint(cmd_tree,hf_h248_cmd_request,tvb,0,0,cmd_info->request_frame);
-                } else {
-                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No request");
-                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);                    
-                }
-                
-                if (cmd_info->response_frame != framenum) {
-                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_dup_reply,tvb,0,0,cmd_info->response_frame);
-                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
-                }
-                break;
-            default:
-                if (cmd_info->request_frame) {
-                    proto_tree_add_uint(cmd_tree,hf_h248_cmd_request,tvb,0,0,cmd_info->request_frame);
-                } else {
-                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No request");
-                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);                    
-                }
-                
-                if (cmd_info->response_frame) {
-                    pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_reply,tvb,0,0,cmd_info->response_frame);
-                } else {
-                    pi = proto_tree_add_text(cmd_tree,tvb,0,0,"No response");
-                    proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);
-                }
-                
-                break;
-        }
-        
-        if (cmd_info->pendings) {
-            pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_pending,tvb,0,0,cmd_info->pendings);
-            PROTO_ITEM_SET_GENERATED(pi);
-            proto_item_set_expert_flags(pi, PI_SEQUENCE, PI_NOTE);            
-        }
-        
-        if (cmd_info->choose_ctx) {
-            pi = proto_tree_add_boolean(cmd_tree,hf_h248_cmd_start,tvb,0,0,TRUE);
-            PROTO_ITEM_SET_GENERATED(pi);
-            expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "Context Created");
-        }
-        
-        if (cmd_info->error_code) {
-            pi = proto_tree_add_uint(cmd_tree,hf_h248_cmd_error,tvb,0,0,cmd_info->error_code);
-            PROTO_ITEM_SET_GENERATED(pi);
-            proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
-        }
-        
-        
-        if (cmd_info->context) {
-            proto_tree* ctx_tree;
-            proto_tree* cmds_tree;
-            h248_cmd_info_t* cmd;
-            
-            if (cmd_info->context->key) {
-                pi = proto_tree_add_string(tree,hf_h248_cmd_ctx,tvb,0,0,cmd_info->context->key);
-            } else {
-                pi = proto_tree_add_text(tree,tvb,0,0,"Embryonic Context");
-            }
-            ctx_tree = proto_item_add_subtree(pi, ett_ctx);
-            PROTO_ITEM_SET_GENERATED(pi);
-            
-            pi = proto_tree_add_uint(ctx_tree,hf_h248_ctx_start,tvb,0,0,cmd_info->context->creation_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
-            
-            pi = proto_tree_add_uint(ctx_tree,hf_h248_ctx_last,tvb,0,0,cmd_info->context->last_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
-            
-            pi = proto_tree_add_text(ctx_tree,tvb,0,0,"[ Commands ]");
-            cmds_tree = proto_item_add_subtree(pi, ett_ctx_cmds);
-            
-            for(cmd = cmd_info->context->cmds; cmd; cmd = cmd->next) {
-                proto_tree* ctx_cmd_tree;
-                
-                pi = proto_tree_add_uint(cmds_tree,hf_h248_ctx_cmd_type,tvb,0,0,cmd->type);
-                PROTO_ITEM_SET_GENERATED(pi);
-                ctx_cmd_tree = proto_item_add_subtree(pi,ett_ctx_cmd);
-                
-                if (cmd == cmd_info ) {
-                    pi = proto_tree_add_uint_format(ctx_cmd_tree,hf_h248_ctx_cmd,tvb,0,0,cmd->trx_id,"This Transaction: %u",cmd->trx_id);
-                } else {
-                    pi = proto_tree_add_uint_format(ctx_cmd_tree,hf_h248_ctx_cmd,tvb,0,0,cmd->trx_id,"Transaction: %u",cmd->trx_id);
-                }
-                PROTO_ITEM_SET_GENERATED(pi);
-                
-                pi = proto_tree_add_uint(ctx_cmd_tree,hf_h248_ctx_cmd_request,tvb,0,0,cmd->request_frame);
-                PROTO_ITEM_SET_GENERATED(pi);
-                
-                pi = proto_tree_add_uint(ctx_cmd_tree,hf_h248_ctx_cmd_reply,tvb,0,0,cmd->response_frame);
-                PROTO_ITEM_SET_GENERATED(pi);
-                
-                if (cmd->error_code) {
-                    pi = proto_tree_add_uint(ctx_cmd_tree,hf_h248_ctx_cmd_error,tvb,0,0,cmd->error_code);
-                    PROTO_ITEM_SET_GENERATED(pi);
-                    proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
-                }
-                
+            for (c = t->cmds; c; c = c->next) {
+                s = ep_strdup_printf("%s %s",s,h248_cmd_to_str(c->cmd));
             }
             
+            s = ep_strdup_printf("%s %s",s,"}");
         }
     }
+    
+    if (t->error) {
+        s = ep_strdup_printf("%s Error=%i",s,t->error);
+    }
+
+    return ep_strdup_printf("%s %s",s,"}");
 }
+
+static gchar* h248_msg_to_str(h248_msg_t* m) { 
+    h248_trx_msg_t* t;
+    gchar* s = "";
+    
+    for (t = m->trxs; t; t = t->next) {
+        s = ep_strdup_printf("%s %s",s,h248_trx_to_str(t->trx));
+    };
+
+    return s;
+}
+
+static void analyze_h248_msg(h248_msg_t* m) {
+    proto_item* msg_item;
+    proto_tree* msg_tree;
+    h248_trx_msg_t* t;
+    gchar* types[] = {"None","Req","Reply","Pending","Ack"};
+    
+    msg_item = proto_tree_add_text(h248_tree,h248_tvb,0,0,"Message: label=%s framenum=%u",m->addr_label,m->framenum);
+    msg_tree = proto_item_add_subtree(msg_item,ett_debug);
+    
+    for (t = m->trxs; t; t = t->next) {
+        h248_cmd_msg_t* c;
+        
+        proto_item* trx_item = proto_tree_add_text(msg_tree,h248_tvb,0,0,
+                                                   "Trx: key=%s type=%s error=%u",
+                                                   t->trx->key,
+                                                   t->trx->type > H248_TRX_ACK ? types[0] : types[t->trx->type],
+                                                   t->trx->error
+                                                   );
+        proto_tree* trx_tree = proto_item_add_subtree(trx_item,ett_debug);
+        
+        for (c = t->trx->cmds; c; c = c->next) {
+            h248_ctx_t* ctx = c->cmd->ctx;
+            h248_cmd_msg_t* a;
+            
+            proto_item* pi = proto_tree_add_text(trx_tree,h248_tvb,0,0,
+                                "%s %s",
+                                ctx->key,
+                                h248_cmd_to_str(c->cmd)
+                                );
+            proto_tree* tree = proto_item_add_subtree(pi,ett_debug);
+            
+            for (a = ctx->cmds;a;a = a->next) {
+                proto_tree_add_text(tree,h248_tvb,0,0,"%s",h248_cmd_to_str(a->cmd));
+            }
+
+        }
+        
+    }
+
+}
+
+#define h248_cmd_set_error(c,e) (c->error = e)
+#define h248_trx_set_error(t,e) (t->error = e)
+
+static h248_msg_t* msg;
+static h248_trx_t* trx;
+static h248_ctx_t* ctx;
+static h248_cmd_t* cmd;
+static guint32 error_code;
 
 #include "packet-h248-fn.c"
 
@@ -1267,6 +1348,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *h248_item;
     
     h248_tree = NULL;
+    h248_tvb = NULL;
     
     /* Check if it is actually a text based h248 encoding, which we call
         megaco in ehtereal.
@@ -1300,15 +1382,17 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void h248_init(void)  {
     
-    if (transactions) g_hash_table_destroy(transactions);
-    if (transactions_by_framenum) g_hash_table_destroy(transactions_by_framenum);
-    if (contexts_creating) g_hash_table_destroy(contexts_creating);
-    if (contexts) g_hash_table_destroy(contexts);
+    if (msgs) g_hash_table_destroy(msgs);
+    msgs = g_hash_table_new(g_str_hash,g_str_equal);
     
-    transactions = g_hash_table_new(g_str_hash,g_str_equal);
-    transactions_by_framenum = g_hash_table_new(g_direct_hash,g_direct_equal);
-    contexts_creating = g_hash_table_new(g_str_hash,g_str_equal);
-    contexts = g_hash_table_new(g_str_hash,g_str_equal);
+    if (trxs) g_hash_table_destroy(trxs);
+    trxs = g_hash_table_new(g_str_hash,g_str_equal);
+    
+    if (ctxs_by_trx) g_hash_table_destroy(ctxs_by_trx);
+    ctxs_by_trx = g_hash_table_new(g_str_hash,g_str_equal);
+
+    if (ctxs) g_hash_table_destroy(ctxs);
+    ctxs = g_hash_table_new(g_str_hash,g_str_equal);
     
 }
 
@@ -1409,7 +1493,7 @@ void proto_register_h248(void) {
       FT_UINT8, BASE_DEC, NULL, 0x3F,
       "", HFILL }},
       
-  { &hf_h248_cmd_trx, { "Transaction", "h248.trx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+/*  { &hf_h248_cmd_trx, { "Transaction", "h248.trx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_cmd_request, { "Request for this Reply", "h248.cmd.request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_cmd_reply, { "Reply to this Request", "h248.cmd.reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_cmd_dup_request, { "This Request is a Duplicate of", "h248.cmd.dup_request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
@@ -1425,7 +1509,7 @@ void proto_register_h248(void) {
   { &hf_h248_ctx_cmd_request, { "Request", "h248.ctx.cmd.request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_cmd_reply, { "Reply", "h248.ctx.cmd.reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_cmd_error, { "Error", "h248.ctx.cmd.error", FT_UINT32, BASE_DEC, VALS(h248_reasons), 0, "", HFILL }},
-
+*/
 #include "packet-h248-hfarr.c"
   };
 
@@ -1464,11 +1548,13 @@ void proto_register_h248(void) {
 #endif
   
   h248_module = prefs_register_protocol(proto_h248, h248_init);
-  
+
+#if 0
   prefs_register_bool_preference(h248_module, "ctx_info",
-                                 "Keep Context Information",
+                                 "Keep Persistent Context Information",
                                  "Whether persistent context information is to be kept",
                                  &keep_persistent_data);
+#endif
   
   register_init_routine( &h248_init );
 

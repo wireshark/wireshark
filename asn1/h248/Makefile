@@ -10,7 +10,7 @@ $(DISSECTOR_FILES): ../../tools/asn2eth.py MEGACO.asn packet-h248-template.c pac
 	python ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn
 
 clean:
-	rm -f parsetab.py $(DISSECTOR_FILES)
+	rm -f parsetab.py $(DISSECTOR_FILES) *-fn.c *-ett.c *-hf.c
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) ../../epan/dissectors
