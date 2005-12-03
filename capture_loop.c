@@ -184,7 +184,6 @@ typedef struct _loop_data {
 
 static void capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd);
-static void capture_loop_popup_errmsg(capture_options *capture_opts, const char *errmsg);
 static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
 			  int err, gboolean is_close);
 
@@ -924,7 +923,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
         if (sel_ret < 0 && errno != EINTR) {
           g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
-          capture_loop_popup_errmsg(capture_opts, errmsg);
+          sync_pipe_errmsg_to_parent(errmsg);
           ld->go = FALSE;
         }
       } else {
@@ -1004,7 +1003,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
           if (sel_ret < 0 && errno != EINTR) {
             g_snprintf(errmsg, errmsg_len,
               "Unexpected error from select: %s", strerror(errno));
-            capture_loop_popup_errmsg(capture_opts, errmsg);
+            sync_pipe_errmsg_to_parent(errmsg);
             ld->go = FALSE;
           }
         }
@@ -1461,11 +1460,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (ld.pcap_err) {
     g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
       pcap_geterr(ld.pcap_h));
-    capture_loop_popup_errmsg(capture_opts, errmsg);
+    sync_pipe_errmsg_to_parent(errmsg);
   }
 #ifndef _WIN32
     else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
-      capture_loop_popup_errmsg(capture_opts, errmsg);
+      sync_pipe_errmsg_to_parent(errmsg);
 #endif
 
   /* did we had an error while capturing? */
@@ -1474,7 +1473,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   } else {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, ld.err,
 			      FALSE);
-    capture_loop_popup_errmsg(capture_opts, errmsg);
+    sync_pipe_errmsg_to_parent(errmsg);
     write_ok = FALSE;
   }
 
@@ -1486,7 +1485,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (!close_ok && write_ok) {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, err_close,
 		TRUE);
-    capture_loop_popup_errmsg(capture_opts, errmsg);
+    sync_pipe_errmsg_to_parent(errmsg);
   }
 
   /*
@@ -1511,7 +1510,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       g_snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
 		pcap_geterr(ld.pcap_h));
-      capture_loop_popup_errmsg(capture_opts, errmsg);
+      sync_pipe_errmsg_to_parent(errmsg);
     }
   }
 
@@ -1538,7 +1537,7 @@ error:
     g_free(capture_opts->save_file);
   }
   capture_opts->save_file = NULL;
-  capture_loop_popup_errmsg(capture_opts, errmsg);
+  sync_pipe_errmsg_to_parent(errmsg);
 
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);
@@ -1611,14 +1610,6 @@ capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
     }
     break;
   }
-}
-
-static void
-capture_loop_popup_errmsg(capture_options *capture_opts _U_, const char *errmsg)
-{
-    /* Send the error message to our parent, so they can display a
-       dialog box containing it. */
-    sync_pipe_errmsg_to_parent(errmsg);
 }
 
 
