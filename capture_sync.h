@@ -34,6 +34,10 @@
 #ifndef __CAPTURE_SYNC_H__
 #define __CAPTURE_SYNC_H__
 
+/** Name we give to the child process when doing a "-S" capture. */
+#define	CHILD_NAME	"ethereal-capture"
+
+
 /** 
  * Start a new capture session.
  *  Create a capture child which is doing the real capture work.

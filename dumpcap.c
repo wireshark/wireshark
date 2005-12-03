@@ -53,6 +53,7 @@
 #include "pcap-util.h"
 
 #include "capture.h"
+#include "capture_loop.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"

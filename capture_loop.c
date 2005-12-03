@@ -68,6 +68,7 @@
 
 #include <epan/packet.h>
 #include "capture.h"
+#include "capture_loop.h"
 #include "capture_sync.h"
 #include "pcap-util.h"
 

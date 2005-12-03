@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 
 #include "capture.h"
+#include "capture_opts.h"
 #include "ringbuffer.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
