@@ -32,10 +32,16 @@ open OUT, "> $out";
 my $body = '';
 my $code;
 
+sub escape_non_ascii {
+    my $val = unpack 'C', $_[0];
+    return sprintf '\0%.3o',$val;
+}
+
 while(<IN>) {
 	s/[\000-\037]//g;
 	s/\\/\\\\/g;
 	s/"/\\"/g;
+	s/([\x80-\xFF])/escape_non_ascii($1)/ge;
 	
 	if (/^(\d+)/) {
 		$code = $1;
