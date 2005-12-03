@@ -621,14 +621,13 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
         /* We weren't able to open the new capture file; user has been
            alerted. Close the sync pipe. */
-        /* XXX - is it safe to close the pipe inside this callback? */
         eth_close(source);
 
         /* the child has send us a filename which we couldn't open.
            this probably means, the child is creating files faster than we can handle it.
            this should only be the case for very fast file switches
            we can't do much more than telling the child to stop
-           (this is the emergency brake if user e.g. wants to switch files every second) */
+           (this is the "emergency brake" if user e.g. wants to switch files every second) */
         sync_pipe_stop(capture_opts);
       }
       break;
@@ -638,14 +637,11 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     capture_input_new_packets(capture_opts, nread);
     break;
   case SP_ERROR_MSG:
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\"", buffer);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", buffer);
+    capture_input_error_message(capture_opts, buffer);
     /* the capture child will close the sync_pipe, nothing to do for now */
     break;
   case SP_DROPS:
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%d packet%s dropped", atoi(buffer), plurality(atoi(buffer), "", "s"));
-    cf_set_drops_known(capture_opts->cf, TRUE);
-    cf_set_drops(capture_opts->cf, atoi(buffer));
+    capture_input_drops(capture_opts, atoi(buffer));
     break;
   default:
       g_assert_not_reached();

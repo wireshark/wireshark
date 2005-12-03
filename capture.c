@@ -255,6 +255,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   /* free the old filename */
   if(capture_opts->save_file != NULL) {
     /* we start a new capture file, close the old one (if we had one before) */
+    /* (we can only have an open capture file in real_time_mode!) */
     if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
         cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
         cf_finish_tail(capture_opts->cf, &err);
@@ -308,9 +309,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
   g_assert(capture_opts->save_file);
 
   if(capture_opts->real_time_mode) {
-    /* Read from the capture file the number of records the child told us
-       it added.
-       XXX - do something if this fails? */
+    /* Read from the capture file the number of records the child told us it added. */
     switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
 
     case CF_READ_OK:
@@ -332,6 +331,34 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
       break;
     }
   }
+}
+
+
+/* Capture child told us, how many dropped packets it counted.
+ */
+void
+capture_input_drops(capture_options *capture_opts, int dropped)
+{
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%d packet%s dropped", dropped, plurality(dropped, "", "s"));
+
+  g_assert(capture_opts->state == CAPTURE_RUNNING);
+
+  cf_set_drops_known(capture_opts->cf, TRUE);
+  cf_set_drops(capture_opts->cf, dropped);
+}
+
+
+/* Capture child told us, that an error has occurred while starting the capture. */
+void
+capture_input_error_message(capture_options *capture_opts, char *error_message)
+{
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\"", error_message);
+
+  g_assert(capture_opts->state == CAPTURE_PREPARING);
+
+  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_message);
+
+  /* the capture child will close the sync_pipe, nothing to do for now */
 }
 
 

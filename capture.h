@@ -140,6 +140,16 @@ extern gboolean capture_input_new_file(capture_options *capture_opts, gchar *new
 extern void capture_input_new_packets(capture_options *capture_opts, int to_read);
 
 /**
+ * Capture child told us, how many dropped packets it counted.
+ */
+extern void capture_input_drops(capture_options *capture_opts, int dropped);
+
+/**
+ * Capture child told us, that an error has occurred while starting the capture.
+ */
+extern void capture_input_error_message(capture_options *capture_opts, char *error_message);
+
+/**
  * Capture child closed it's side ot the pipe, do the required cleanup.
  */
 extern void capture_input_closed(capture_options *capture_opts);
