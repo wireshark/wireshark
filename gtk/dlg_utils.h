@@ -33,7 +33,7 @@
  *
  * - "About" about_ethereal_cb()
  * - "Capture Options" capture_prep()
- * - "Capture" capture_info_create()
+ * - "Capture" capture_info_ui_create()
  * - "Interface Options" ifopts_edit_cb()
  * - "Coloring Rules" colorize_dialog_new()
  * - "Edit Color Filter" edit_color_filter_dialog_new()

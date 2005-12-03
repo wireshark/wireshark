@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include "capture.h"
 #include "capture_loop.h"
+#include "capture_info.h"
 #include "globals.h"
 #include "capture_ui_utils.h"
 #include "dlg_utils.h"
@@ -82,7 +83,7 @@ capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_)
 
 /* create the capture info dialog */
 /* will keep pointers to the fields in the counts parameter */
-void capture_info_create(
+void capture_info_ui_create(
 capture_info    *cinfo,
 gchar           *iface)
 {
@@ -242,8 +243,8 @@ gchar           *iface)
 
 /* update the capture info dialog */
 /* As this function is a bit time critical while capturing, */
-/* prepare everything possible in the capture_info_create() function above! */
-void capture_info_update(
+/* prepare everything possible in the capture_info_ui_create() function above! */
+void capture_info_ui_update(
 capture_info    *cinfo)
 {
   unsigned int      i;
@@ -280,7 +281,7 @@ capture_info    *cinfo)
 
 
 /* destroy the capture info dialog again */
-void capture_info_destroy(
+void capture_info_ui_destroy(
 capture_info    *cinfo)
 {
   capture_info_ui_t *info = cinfo->ui;

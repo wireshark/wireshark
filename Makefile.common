@@ -135,9 +135,10 @@ ethereal_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC)	\
 	alert_box.c	\
 	capture.c	\
+	capture_info.c	\
+	capture_loop.c	\
 	capture_opts.c \
 	capture_sync.c	\
-	capture_loop.c	\
 	color_filters.c	\
 	file.c	\
 	fileset.c	\
@@ -151,9 +152,10 @@ ethereal_SOURCES =	\
 ethereal_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
+	capture_info.h	\
+	capture_loop.h	\
 	capture_opts.h	\
 	capture_sync.h	\
-	capture_loop.h	\
 	color_filters.h	\
 	filters.h	\
 	g711.h	\
@@ -215,6 +217,7 @@ dumpcap_SOURCES =	\
 	version_info.c \
 	capture_opts.c \
 	capture_loop.c	\
+	capture_info.c	\
 	dumpcap.c
 
 

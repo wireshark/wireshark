@@ -69,6 +69,7 @@
 #include <epan/packet.h>
 #include "capture.h"
 #include "capture_loop.h"
+#include "capture_info.h"
 #include "capture_sync.h"
 #include "pcap-util.h"
 
@@ -81,8 +82,8 @@
 #include "wiretap/wtap.h"
 #include "wiretap/wtap-capture.h"
 
-#include <epan/prefs.h>
 /* XXX - try to remove this later */
+#include <epan/prefs.h>
 #include "ui_util.h"
 /* XXX - try to remove this later */
 #include "util.h"
@@ -90,24 +91,6 @@
 #include "log.h"
 #include "file_util.h"
 
-
-#include <epan/dissectors/packet-ap1394.h>
-#include <epan/dissectors/packet-atalk.h>
-#include <epan/dissectors/packet-atm.h>
-#include <epan/dissectors/packet-clip.h>
-#include <epan/dissectors/packet-eth.h>
-#include <epan/dissectors/packet-fddi.h>
-#include <epan/dissectors/packet-fr.h>
-#include <epan/dissectors/packet-null.h>
-#include <epan/dissectors/packet-ppp.h>
-#include <epan/dissectors/packet-raw.h>
-#include <epan/dissectors/packet-sll.h>
-#include <epan/dissectors/packet-tr.h>
-#include <epan/dissectors/packet-ieee80211.h>
-#include <epan/dissectors/packet-chdlc.h>
-#include <epan/dissectors/packet-prism.h>
-#include <epan/dissectors/packet-ipfc.h>
-#include <epan/dissectors/packet-arcnet.h>
 
 
 
@@ -139,6 +122,7 @@ typedef struct _loop_data {
   /* common */
   gboolean       go;                    /* TRUE as long as we're supposed to keep capturing */
   int            err;                   /* if non-zero, error seen while capturing */
+  gint           packets_curr;          /* Number of packets we have already captured */
   gint           packets_max;           /* Number of packets we're supposed to capture - 0 means infinite */
   gint           packets_sync_pipe;     /* packets not already send out to the sync_pipe */
   packet_counts  counts;                /* several packet type counters */
@@ -473,7 +457,7 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     cap_pipe_adjust_header(ld, hdr, &rechdr->hdr);
     if (rechdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
       g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
-        ld->counts.total+1, rechdr->hdr.incl_len);
+        ld->packets_curr+1, rechdr->hdr.incl_len);
       break;
     }
     ld->cap_pipe_state = STATE_EXPECT_DATA;
@@ -1179,6 +1163,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* init the loop data */
   ld.go                 = TRUE;
+  ld.packets_curr       = 0;
   if (capture_opts->has_autostop_packets)
     ld.packets_max      = capture_opts->autostop_packets;
   else
@@ -1188,18 +1173,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   ld.pcap_err           = FALSE;
   ld.from_cap_pipe      = FALSE;
   ld.packets_sync_pipe  = 0;
-  ld.counts.total       = 0;
-  ld.counts.sctp        = 0;
-  ld.counts.tcp         = 0;
-  ld.counts.udp         = 0;
-  ld.counts.icmp        = 0;
-  ld.counts.ospf        = 0;
-  ld.counts.gre         = 0;
-  ld.counts.ipx         = 0;
-  ld.counts.netbios     = 0;
-  ld.counts.vines       = 0;
-  ld.counts.other       = 0;
-  ld.counts.arp         = 0;
   ld.wtap_pdh           = NULL;
 #ifndef _WIN32
   ld.cap_pipe_fd        = -1;
@@ -1281,9 +1254,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* start capture info dialog */
   if(capture_opts->show_info) {
-      capture_ui.callback_data  = &ld;
-      capture_ui.counts         = &ld.counts;
-      capture_info_create(&capture_ui, capture_opts->iface);
+      capture_info_init(&ld.counts);
+      capture_ui.counts = &ld.counts;
+      capture_info_ui_create(&capture_ui, capture_opts->iface);
   }
 
   /* init the time values */
@@ -1362,7 +1335,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       } /* cnd_autostop_size */
     } /* inpkts */
 
-    /* Only update once a second so as not to overload slow displays */
+    /* Only update once a second (Win32: 500ms) so as not to overload slow displays */
     cur_time = TIME_GET();
 #ifdef _WIN32
     if ( (cur_time - upd_time) > 500) {
@@ -1384,7 +1357,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           capture_ui.running_time   = cur_time;
 #endif
           capture_ui.new_packets    = ld.packets_sync_pipe;
-          capture_info_update(&capture_ui);
+          capture_info_ui_update(&capture_ui);
       }
 
       /* Let the parent process know. */
@@ -1444,7 +1417,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* close capture info dialog */
   if(capture_opts->show_info) {
-    capture_info_destroy(&capture_ui);
+    capture_info_ui_destroy(&capture_ui);
   }
 
   /* delete stop conditions */
@@ -1625,8 +1598,8 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   int err;
 
   /* if the user told us to stop after x packets, do we have enough? */
-  ld->counts.total++;
-  if ((ld->packets_max > 0) && (ld->counts.total >= ld->packets_max))
+  ld->packets_curr++;
+  if ((ld->packets_max > 0) && (ld->packets_curr >= ld->packets_max))
   {
      ld->go = FALSE;
   }
@@ -1658,68 +1631,7 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
       return;
   }
 
-  switch (ld->wtap_linktype) {
-    case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_FDDI:
-    case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_PRISM_HEADER:
-      capture_prism(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_NULL:
-      capture_null(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_SLL:
-      capture_sll(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_IEEE_802_11:
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-      capture_ieee80211(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_CHDLC:
-      capture_chdlc(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_LOCALTALK:
-      capture_llap(&ld->counts);
-      break;
-    case WTAP_ENCAP_ATM_PDUS:
-      capture_atm(&pseudo_header, pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_IP_OVER_FC:
-      capture_ipfc(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_ARCNET:
-      capture_arcnet(pd, whdr.caplen, &ld->counts, FALSE, TRUE);
-      break;
-    case WTAP_ENCAP_ARCNET_LINUX:
-      capture_arcnet(pd, whdr.caplen, &ld->counts, TRUE, FALSE);
-      break;
-    case WTAP_ENCAP_APPLE_IP_OVER_IEEE1394:
-      capture_ap1394(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_FRELAY:
-    case WTAP_ENCAP_FRELAY_WITH_PHDR:
-      capture_fr(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
-       pseudo-header to DLT_ATM_RFC1483, with LLC header following;
-       we might have to implement that at some point. */
-  }
+  capture_info_packet(&ld->counts, ld->wtap_linktype, pd, whdr.caplen, pseudo_header);
 #endif
 }
 

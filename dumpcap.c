@@ -54,6 +54,7 @@
 
 #include "capture.h"
 #include "capture_loop.h"
+#include "capture_info.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -670,13 +671,13 @@ void main_window_update(void) {}
 
 
 
-void capture_info_create(capture_info    *cinfo, gchar           *iface) {}
+void capture_info_ui_create(capture_info *cinfo, gchar *iface) {}
 
-void capture_info_update(capture_info    *cinfo) {
+void capture_info_ui_update(capture_info *cinfo) {
     printf("Packets: %u\r", cinfo->counts->total);
 }
 
-void capture_info_destroy(capture_info    *cinfo) {}
+void capture_info_ui_destroy(capture_info *cinfo) {}
 
 
 static gpointer *

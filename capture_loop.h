@@ -40,32 +40,4 @@ extern int  capture_loop_start(capture_options *capture_opts, gboolean *stats_kn
 extern void capture_loop_stop(void);
 
 
-
-/** Current Capture info. */
-typedef struct {
-    /* handles */
-    gpointer        callback_data;  /**< capture callback handle */
-    gpointer        ui;             /**< user interfaces own handle */
-
-    /* capture info */
-    packet_counts   *counts;        /**< protocol specific counters */
-    time_t          running_time;   /**< running time since last update */
-    gint            new_packets;    /**< packets since last update */
-} capture_info;
-
-
-/** Create the capture info dialog */
-extern void capture_info_create(
-capture_info    *cinfo,
-gchar           *iface);
-
-/** Update the capture info counters in the dialog */
-extern void capture_info_update(
-capture_info    *cinfo);
-
-/** Destroy the capture info dialog again */
-extern void capture_info_destroy(
-capture_info    *cinfo);
-
-
 #endif /* capture_loop.h */
