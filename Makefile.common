@@ -151,7 +151,9 @@ ethereal_SOURCES =	\
 ethereal_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
+	capture_opts.h	\
 	capture_sync.h	\
+	capture_loop.h	\
 	color_filters.h	\
 	filters.h	\
 	g711.h	\
