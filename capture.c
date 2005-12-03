@@ -372,7 +372,8 @@ capture_input_closed(capture_options *capture_opts)
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
     g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
 
-    /* if we didn't started the capture (happens if an error occured), do a fake start */
+    /* if we didn't started the capture, do a fake start */
+    /* (happens if we got an error message - we won't get a filename then) */
     if(capture_opts->state == CAPTURE_PREPARING) {
         if(capture_opts->real_time_mode) {
             cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts);
