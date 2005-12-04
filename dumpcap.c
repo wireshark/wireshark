@@ -38,6 +38,10 @@
 #include "getopt.h"
 #endif
 
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
 #ifdef _WIN32 /* Needed for console I/O */
 #include <conio.h>
 #endif
