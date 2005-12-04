@@ -2019,15 +2019,14 @@ sub AllocateArrayLevel($$$$$)
 		pidl "if (ndr->flags & LIBNDR_FLAG_REF_ALLOC) {";
 		pidl "\tNDR_PULL_ALLOC_N($ndr, $var, $size);";
 		pidl "}";
-	} else {
-		pidl "NDR_PULL_ALLOC_N($ndr, $var, $size);";
+		if (grep(/in/,@{$e->{DIRECTION}}) and
+		    grep(/out/,@{$e->{DIRECTION}})) {
+			pidl "memcpy(r->out.$e->{NAME},r->in.$e->{NAME},$size * sizeof(*r->in.$e->{NAME}));";
+		}
+		return;
 	}
 
-	if (grep(/in/,@{$e->{DIRECTION}}) and
-	    grep(/out/,@{$e->{DIRECTION}}) and
-	    $pl->{POINTER_TYPE} eq "ref") {
-		pidl "memcpy(r->out.$e->{NAME},r->in.$e->{NAME},$size * sizeof(*r->in.$e->{NAME}));";
-	}
+	pidl "NDR_PULL_ALLOC_N($ndr, $var, $size);";
 }
 
 #####################################################################

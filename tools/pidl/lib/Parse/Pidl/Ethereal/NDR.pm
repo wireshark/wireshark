@@ -709,7 +709,7 @@ sub ProcessInterface($)
 	}
 
 	if (defined($hf_used{"hf_$x->{NAME}_werror"})) {
-		register_hf_field("hf_$x->{NAME}_werror", "Windows Error", "$x->{NAME}.werror", "FT_UINT32", "BASE_HEX", "NULL", 0, "");
+		register_hf_field("hf_$x->{NAME}_werror", "Windows Error", "$x->{NAME}.werror", "FT_UINT32", "BASE_HEX", "VALS(DOS_errors)", 0, "");
 	}
 
 	RegisterInterface($x);

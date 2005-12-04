@@ -713,7 +713,8 @@ sub EjsInterface($$)
 
 	foreach my $d (@{$interface->{FUNCTIONS}}) {
 		next if not defined($d->{OPNUM});
-		
+		next if Parse::Pidl::Util::has_property($d, "noejs");
+
 		EjsPullFunction($d);
 		EjsPushFunction($d);
 		EjsFunction($d, $name);

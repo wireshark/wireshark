@@ -104,9 +104,10 @@ sub GetElementLevelTable($)
 	if (defined($e->{ARRAY_LEN})) {
 		@bracket_array = @{$e->{ARRAY_LEN}};
 	}
-	
+
 	# Parse the [][][][] style array stuff
-	foreach my $d (@bracket_array) {
+	for my $i (0 .. $#bracket_array) {
+		my $d = $bracket_array[$#bracket_array - $i];
 		my $size = $d;
 		my $length = $d;
 		my $is_surrounding = 0;
