@@ -77,19 +77,34 @@ static int hf_tipc_ma_msg_type = -1;
 static int hf_tipc_unknown_msg_type = -1;
 static int hf_tipc_seq_gap = -1;
 static int hf_tipc_nxt_snt_pkg = -1;
-static int hf_tipc_unused3;
+static int hf_tipc_unused3 = -1;
+static int hf_tipc_bearer_name = -1;
+
+static int hf_tipc_name_dist_type = -1;
+static int hf_tipc_name_dist_lower = -1;
+static int hf_tipc_name_dist_upper = -1;
+static int hf_tipc_name_dist_port = -1;
+static int hf_tipc_name_dist_key = -1;
 
 /* Initialize the subtree pointer */
 static gint ett_tipc = -1;
+static gint ett_tipc_data = -1;
 
 #define MAX_TIPC_ADDRESS_STR_LEN	15
+
+/* Users */
+#define TIPC_DATA_PRIO_0			0
+#define TIPC_DATA_PRIO_1			1
+#define TIPC_DATA_PRIO_2			2
+#define TIPC_DATA_NON_REJECTABLE	3
+
 #define TIPC_ROUTING_MANAGER		8
 #define TIPC_NAME_DISTRIBUTOR		9
 #define TIPC_CONNECTION_MANAGER		10
 #define TIPC_LINK_PROTOCOL			11
 #define TIPC_CHANGEOVER_PROTOCOL	13
 #define TIPC_SEGMENTATION_MANAGER	14
-#define TIPC_MSG_ASSEMBLER			15
+#define TIPC_MSG_BUNDLER			15
 
 #define TIPC_LINK_PROTOCO_STATE_MSG 0
 
@@ -97,13 +112,14 @@ const value_string tipc_user_values[] = {
 	{ 0,	"DATA_PRIO_0"},
 	{ 1,	"DATA_PRIO_1"},
 	{ 2,	"DATA_PRIO_2"},
+	{ 3,	"DATA_NON_REJECTABLE"},
 	{ TIPC_ROUTING_MANAGER,			"ROUTING_MANAGER"},
 	{ TIPC_NAME_DISTRIBUTOR,		"NAME_DISTRIBUTOR"},
 	{ TIPC_CONNECTION_MANAGER,		"CONNECTION_MANAGER"},
 	{ TIPC_LINK_PROTOCOL,			"LINK_PROTOCOL"},
 	{ TIPC_CHANGEOVER_PROTOCOL,		"CHANGEOVER_PROTOCOL"},
 	{ TIPC_SEGMENTATION_MANAGER,	"SEGMENTATION_MANAGER"},
-	{ TIPC_MSG_ASSEMBLER,			"MSG_ASSEMBLER"},
+	{ TIPC_MSG_BUNDLER,				"MSG_BUNDLER"},
 	{ 0,	NULL},
 };
 const value_string tipc_data_msg_type_values[] = {
@@ -176,6 +192,79 @@ tipc_addr_to_str(guint tipc_address)
 	return buff;
 }
 
+/*
+All name distributor messages have a data part containing one or more table elements with
+the following five-word structure:
+struct DistributionItem{
+	unsigned int type; / Published port name type /
+	unsigned int lower; / Lower bound of published sequence /
+	unsigned int upper; / Upper bound of published sequence /
+	unsigned int port; / Random number part of port identity /
+	unsigned int key; / Use for verification at withdrawal /
+};
+*/
+static void
+dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+ 
+	while ( tvb_length_remaining(tvb,offset) > 0){
+		 proto_tree_add_item(tree, hf_tipc_name_dist_type, tvb, offset, 4, FALSE);
+		 offset = offset+4;
+		 proto_tree_add_item(tree, hf_tipc_name_dist_lower, tvb, offset, 4, FALSE);
+		 offset = offset+4;
+		 proto_tree_add_item(tree, hf_tipc_name_dist_upper, tvb, offset, 4, FALSE);
+		 offset = offset+4;
+		 proto_tree_add_item(tree, hf_tipc_name_dist_port, tvb, offset, 4, FALSE);
+		 offset = offset+4;
+		 proto_tree_add_item(tree, hf_tipc_name_dist_key, tvb, offset, 4, FALSE);
+		 offset = offset+4;
+	}
+}
+/*  From message.h (http://cvs.sourceforge.net/viewcvs.py/tipc/source/stable_ericsson/TIPC_SCC/src/Message.h?rev=1.2&view=markup)
+	////////////////////////////////////////////////////////////////////
+                TIPC internal header format, version 1:
+
+   :                                                               :
+   |                 Word 0-2: common to all users                 |
+   |                                                               |
+   +-------+-------+-------+-------+-------+-------+-------+-------+
+   |netw-|imp|link |                               | |p|bea- |link |
+w3:|ork  |ort|sel- |        message count          | |r|rer  |sel- | 
+   |id   |anc|ector|                               | |b|id   |ector| 
+   +-------+-------+-------+-------+-------+-------+-------+-------+
+   |                                                               |
+w4:|                        remote address                         |
+   |                                                               |
+   +-------+-------+-------+-------+-------+-------+-------+-------+
+   | msg   |                       |                               |
+w5:| type  |           gap         |           next sent           |
+   |       |                       |                               |
+   +-------+-------+-------+-------+-------+-------+-------+-------+
+   |                       | link    |                             |
+w6:|        reserve        | prio-   |        link tolerance       |
+   |                       | ity     |                             |
+   +-------+-------+-------+-------+-------+-------+-------+-------+
+   |                                                               |
+w7:|                                                               |
+   |                                                               |
+   +-------+-------+                               +-------+-------+
+   |                                                               |
+w8:|                                                               |
+   |                                                               |
+   +-------+-------+       bearer name             +-------+-------+
+   |                                                               |
+w9:|                                                               |
+   |                                                               |
+   +-------+-------+                               +-------+-------+
+   |                                                               |
+wa:|                                                               |
+   |                                                               |
+   +-------+-------+-------+-------+-------+-------+-------+-------+
+
+ NB: Connection Manager and Name Distributor use data message format.
+   
+*/
+
 static void
 dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tree,int offset,guint8 user, guint32 msg_size)
 {	
@@ -183,6 +272,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	/* Internal Protocol Header */
 	/* Unused */
 	msg_type = tvb_get_guint8(tvb,offset + 11);
+	/* W3 */
 	proto_tree_add_item(tipc_tree, hf_tipc_unused2, tvb, offset, 4, FALSE);
 	/* Importance */
 	if ( user == TIPC_SEGMENTATION_MANAGER)
@@ -191,7 +281,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	if ( user == TIPC_SEGMENTATION_MANAGER || user == TIPC_NAME_DISTRIBUTOR || user == TIPC_CHANGEOVER_PROTOCOL )
 		proto_tree_add_item(tipc_tree, hf_tipc_link_selector, tvb, offset, 4, FALSE);
 	/* Message count */
-	if ( user == TIPC_MSG_ASSEMBLER || user == TIPC_CHANGEOVER_PROTOCOL )
+	if ( user == TIPC_MSG_BUNDLER || user == TIPC_CHANGEOVER_PROTOCOL )
 		proto_tree_add_item(tipc_tree, hf_tipc_msg_cnt, tvb, offset, 4, FALSE);
 	/* Unused */
 	/* Probe */
@@ -205,11 +295,14 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 		proto_tree_add_item(tipc_tree, hf_tipc_link_selector2, tvb, offset, 4, FALSE);
 	
 	offset = offset + 4;
+
+	/* W4 */
 	/* Remote address */
 	if ( user == TIPC_ROUTING_MANAGER )
 		proto_tree_add_item(tipc_tree, hf_tipc_remote_addr, tvb, offset, 4, FALSE);
-	
 	offset = offset + 4;
+	
+	/* W5 */
 	/* Message type */
 	switch (user){
 	case TIPC_ROUTING_MANAGER:
@@ -234,21 +327,37 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	if ( user == TIPC_LINK_PROTOCOL && msg_type == TIPC_LINK_PROTOCO_STATE_MSG )
 		proto_tree_add_item(tipc_tree, hf_tipc_seq_gap, tvb, offset, 4, FALSE);
 	/* Next sent packet */
-			proto_tree_add_item(tipc_tree, hf_tipc_seq_gap, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tipc_tree, hf_tipc_nxt_snt_pkg, tvb, offset, 4, FALSE);
 
 	offset = offset + 4;
+	/* W6 */
 	/* Unused */
 	proto_tree_add_item(tipc_tree, hf_tipc_unused3, tvb, offset, 4, FALSE);
 	offset = offset + 4;
-	proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
-
+	switch (user){
+		case TIPC_CONNECTION_MANAGER:
+		case TIPC_NAME_DISTRIBUTOR:
+			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
+			break;
+		case TIPC_LINK_PROTOCOL:
+			proto_tree_add_item(tipc_tree, hf_tipc_bearer_name, tvb, offset, -1, FALSE);
+			break;
+		default:
+			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
+			break;
+	}
+	return;
 }
+
+
+
+
 static void
 dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	proto_item *ti;
-	proto_tree *tipc_tree;
+	proto_item *ti, *tipc_data_item;
+	proto_tree *tipc_tree, *tipc_data_tree;
 	int offset = 0;
 	guint32 dword;
 	guint32 msg_size;
@@ -256,6 +365,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 user;
 	gchar *addr_str_ptr;
 	const guchar		*src_addr, *dst_addr;
+	tvbuff_t *data_tvb;
 
 		/* Make entry in Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -266,22 +376,43 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	user = (dword>>25) & 0xf;
 	msg_size = dword & 0x1ffff;
 
-	if ( hdr_size > 5 && user <3){
-		src_addr = tvb_get_ptr(tvb, offset + 24, 4);
-		SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
-
-		dst_addr = tvb_get_ptr(tvb, offset + 28, 4);
-		SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
-	}
-
-	if ((user >2 )|| (hdr_size <= 5)){
-		src_addr = tvb_get_ptr(tvb, offset + 8, 4);
-		SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+	/* 
+	 * src and dest address will be found at different location depending on User ad hdr_size
+	 */
+	switch (user){
+		case TIPC_DATA_PRIO_0: 	
+		case TIPC_DATA_PRIO_1:
+		case TIPC_DATA_PRIO_2:
+		case TIPC_DATA_NON_REJECTABLE:
+		case TIPC_NAME_DISTRIBUTOR:
+		case TIPC_CONNECTION_MANAGER:
+			/* Data type header */
+			if ( hdr_size > 5 && user <4){
+				src_addr = tvb_get_ptr(tvb, offset + 24, 4);
+				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+	
+				dst_addr = tvb_get_ptr(tvb, offset + 28, 4);
+				SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+			}else{
+				/* Short data hdr */
+				src_addr = tvb_get_ptr(tvb, offset + 8, 4);
+				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+			}
+			break;
+		case TIPC_ROUTING_MANAGER:
+		case TIPC_LINK_PROTOCOL:
+		case TIPC_CHANGEOVER_PROTOCOL:
+		case TIPC_SEGMENTATION_MANAGER:
+		case TIPC_MSG_BUNDLER:
+			src_addr = tvb_get_ptr(tvb, offset + 8, 4);
+			SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+		default:
+			break;		 
 	}
 
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "User: %s", val_to_str(user, tipc_user_values, "unknown"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "User: %s(%u)", val_to_str(user, tipc_user_values, "unknown"),user);
 
 	/* If "tree" is NULL, not necessary to generate protocol tree items. */
 	if (tree) {
@@ -309,9 +440,17 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_string(tipc_tree, hf_tipc_prev_proc, tvb, offset, 4,	addr_str_ptr);
 
 		offset = offset + 4;
-		if (user >2){
-			dissect_tipc_int_prot_msg(tvb, pinfo, tipc_tree, offset, user, msg_size);
-			return;
+		switch (user){
+			case TIPC_ROUTING_MANAGER:
+			case TIPC_LINK_PROTOCOL:
+			case TIPC_CHANGEOVER_PROTOCOL:
+			case TIPC_SEGMENTATION_MANAGER:
+			case TIPC_MSG_BUNDLER:
+				dissect_tipc_int_prot_msg(tvb, pinfo, tipc_tree, offset, user, msg_size);
+				return;
+				break;
+			default:
+			break;		 
 		}
 
 		dword = tvb_get_ntohl(tvb,offset);
@@ -319,11 +458,12 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pinfo->srcport = dword;
 		proto_tree_add_item(tipc_tree, hf_tipc_org_port, tvb, offset, 4, FALSE);
 		offset = offset + 4;
-
-		dword = tvb_get_ntohl(tvb,offset);
-		pinfo->destport = dword;
-		proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tvb, offset, 4, FALSE);
-		offset = offset + 4;
+		if(user != TIPC_NAME_DISTRIBUTOR){
+			dword = tvb_get_ntohl(tvb,offset);
+			pinfo->destport = dword;
+			proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tvb, offset, 4, FALSE);
+		}
+			offset = offset + 4;
 		/* 20 - 24 Bytes 
 			20 bytes: Used in subnetwork local, connection oriented messages, where error code, reroute
 			counter and activity identity are zero. A recipient finding that the header size field is 20 does
@@ -341,7 +481,17 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if ( hdr_size <= 5 ){
 				proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
 		}else{
-			proto_tree_add_item(tipc_tree, hf_tipc_data_msg_type, tvb, offset, 4, FALSE);
+			switch (user){
+			case TIPC_NAME_DISTRIBUTOR:
+				proto_tree_add_item(tipc_tree, hf_tipc_nd_msg_type, tvb, offset, 4, FALSE);
+				break;
+			case TIPC_CONNECTION_MANAGER:
+				proto_tree_add_item(tipc_tree, hf_tipc_cm_msg_type, tvb, offset, 4, FALSE);
+				break;
+			default:
+				proto_tree_add_item(tipc_tree, hf_tipc_data_msg_type, tvb, offset, 4, FALSE);
+				break;
+			}
 			proto_tree_add_item(tipc_tree, hf_tipc_err_code, tvb, offset, 4, FALSE);
 			proto_tree_add_item(tipc_tree, hf_tipc_reroute_cnt, tvb, offset, 4, FALSE);
 			proto_tree_add_item(tipc_tree, hf_tipc_act_id, tvb, offset, 4, FALSE);
@@ -358,19 +508,40 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_string(tipc_tree, hf_tipc_dst_proc, tvb, offset, 4,	addr_str_ptr);
 			offset = offset + 4;
-			if ( hdr_size > 8 ){
 				/* 32 bytes 
 				32 bytes: The size of all data messages containing an explicit port identity as destination
 				address.
 				*/
-				/* Port name type / Connection level sequence number */
-				offset = offset + 4;
-				/* Port name instance */
-				offset = offset + 4;
+			if ( hdr_size > 8){
+				if (user == TIPC_NAME_DISTRIBUTOR ){
+					/*
+						Although an internal service, the name distributor uses the full 40-byte “external” data header
+						format when updating the naming table instances. This is because its messages may need
+						routing, - all system processor must contain the publications from all device processors and
+						vice versa, whether they are directly linked or not. The fields name type, name instance, and
+						destination port of that header have no meaning for such messages
+						*/
+					offset = offset + 8;
+				}else{
+					/* TODO Add to protocol tree */
+					/* Port name type / Connection level sequence number */
+					offset = offset + 4;
+					/* Port name instance */
+					offset = offset + 4;
+				}
 			}
 		}
-		proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
-
+			switch (user){
+			case TIPC_NAME_DISTRIBUTOR:
+				tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_NAME_DISTRIBUTOR %u bytes User Data",(msg_size - hdr_size *4));
+				tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
+				data_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				dissect_tipc_name_dist_data(data_tvb, pinfo, tipc_data_tree);
+				break;
+			default:
+				proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+			break;		 
+		}
 	}/* if tree */
 }
 
@@ -550,11 +721,42 @@ proto_register_tipc(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"TIPC Unused", HFILL }
 		},
+		{ &hf_tipc_bearer_name,
+			{ "Bearer name",           "tipc.bearer_name",
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+			"TIPC Bearer name", HFILL }
+		},
+		{ &hf_tipc_name_dist_type,
+			{ "Published port name type", "tipc.name_dist_type",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"TIPC Published port name type", HFILL }
+		},
+		{ &hf_tipc_name_dist_lower,
+			{ "Lower bound of published sequence",  "tipc.ame_dist_lower",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"TIPC Lower bound of published sequence", HFILL }
+		},
+		{ &hf_tipc_name_dist_upper,
+			{ "Upper bound of published sequence",  "tipc.name_dist_upper",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"TIPC Upper bound of published sequence", HFILL }
+		},
+		{ &hf_tipc_name_dist_port,
+			{ "Random number part of port identity", "tipc.dist_port",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"TIPC Random number part of port identity", HFILL }
+		},
+		{ &hf_tipc_name_dist_key,
+			{ "Key (Use for verification at withdrawal)",  "tipc.dist_key",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"TIPC key", HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_tipc,
+		&ett_tipc_data,
 	};
 
 /* Register the protocol name and description */
