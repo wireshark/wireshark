@@ -61,6 +61,8 @@ typedef struct {
     GtkWidget               *cap_w;
     GtkWidget               *running_time_lb;
     capture_info_counts_t   counts[PACKET_COUNTS_SIZE];
+    guint                   timer_id;
+    time_t                  start_time;
 } capture_info_ui_t;
 
 
@@ -77,7 +79,18 @@ pct(gint num, gint denom) {
 
 static void
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_) {
-  capture_loop_stop();
+  capture_stop(capture_opts);
+}
+
+static gint
+capture_info_ui_update_cb(gpointer data)
+{
+  capture_info *cinfo = data;
+  capture_info_ui_t *info = cinfo->ui;
+
+  cinfo->running_time = time(NULL) - info->start_time;
+  capture_info_ui_update(cinfo);
+  return 1;   /* call the timer again */
 }
 
 
@@ -85,7 +98,7 @@ capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_)
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_ui_create(
 capture_info    *cinfo,
-gchar           *iface)
+const gchar     *iface)
 {
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;
@@ -138,8 +151,6 @@ gchar           *iface)
   g_free(title_iface);
   info->cap_w = dlg_window_new(cap_w_title);
   g_free(cap_w_title);
-
-  gtk_window_set_modal(GTK_WINDOW(info->cap_w), TRUE);
 
   /* Container for capture display widgets */
   main_vb = gtk_vbox_new(FALSE, 1);
@@ -229,15 +240,20 @@ gchar           *iface)
 
   stop_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_STOP);
   window_set_cancel_button(info->cap_w, stop_bt, NULL);
-  SIGNAL_CONNECT(stop_bt, "clicked", capture_info_delete_cb, NULL);
+  SIGNAL_CONNECT(stop_bt, "clicked", capture_info_delete_cb, capture_opts);
 
   SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,
-                 NULL);
+                 capture_opts);
 
   gtk_widget_show(info->cap_w);
   window_present(info->cap_w);
 
+  info->start_time = time(NULL);
+
   cinfo->ui = info;
+
+  /* update the dialog once a second, even if no packets rushing in */
+  info->timer_id = gtk_timeout_add(1000, (GtkFunction)capture_info_ui_update_cb,(gpointer)cinfo);
 }
 
 
@@ -252,12 +268,13 @@ capture_info    *cinfo)
   capture_info_ui_t *info = cinfo->ui;
 
 
-  /* calculate and display running time */
+  /* display running time */
   g_snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld", 
            (long)(cinfo->running_time/3600), (long)((cinfo->running_time%3600)/60),
            (long)(cinfo->running_time%60));
   gtk_label_set(GTK_LABEL(info->running_time_lb), label_str);
 
+  /* if we have new packets, update all rows */
   if (cinfo->new_packets) {
 
     for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
@@ -285,6 +302,8 @@ void capture_info_ui_destroy(
 capture_info    *cinfo)
 {
   capture_info_ui_t *info = cinfo->ui;
+
+  gtk_timeout_remove(info->timer_id);
 
   /* called from capture engine, so it's ok to destroy the dialog here */
   gtk_grab_remove(GTK_WIDGET(info->cap_w));

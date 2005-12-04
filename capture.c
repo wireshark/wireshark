@@ -52,6 +52,7 @@
 #include "file.h"
 #include "capture.h"
 #include "capture_sync.h"
+#include "capture_info.h"
 #include "capture_ui_utils.h"
 #include "util.h"
 #include "pcap-util.h"
@@ -105,6 +106,9 @@ capture_start(capture_options *capture_opts)
       /* to prevent problems, bring the main GUI into "capture mode" right after successfully */
       /* spawn/exec the capture child, without waiting for any response from it */
       cf_callback_invoke(cf_cb_live_capture_prepared, capture_opts);
+
+      if(capture_opts->show_info)
+        capture_info_open(capture_opts->iface);
   }
 
   return ret;
@@ -293,6 +297,9 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts);
   }
 
+  if(capture_opts->show_info)
+    capture_info_new_file(new_file);
+
   capture_opts->state = CAPTURE_RUNNING;
 
   return TRUE;
@@ -320,7 +327,8 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 
          XXX - abort on a read error? */
          cf_callback_invoke(cf_cb_live_capture_update_continue, capture_opts->cf);
-		 /* update the main window, so we get events (e.g. from the stop toolbar button) */
+
+         /* update the main window, so we get events (e.g. from the stop toolbar button) */
          main_window_update();
       break;
 
@@ -331,6 +339,9 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
       break;
     }
   }
+
+  if(capture_opts->show_info)
+    capture_info_new_packets(to_read);
 }
 
 
@@ -440,6 +451,9 @@ capture_input_closed(capture_options *capture_opts)
                 cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
         }
     }
+
+    if(capture_opts->show_info)
+      capture_info_close();
 
     capture_opts->state = CAPTURE_STOPPED;
 

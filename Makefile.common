@@ -217,7 +217,6 @@ dumpcap_SOURCES =	\
 	version_info.c \
 	capture_opts.c \
 	capture_loop.c	\
-	capture_info.c	\
 	dumpcap.c
 
 

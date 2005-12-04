@@ -62,18 +62,16 @@
 #include <signal.h>
 #include <errno.h>
 
-#include <pcap.h>
 
 #include <glib.h>
 
-#include <epan/packet.h>
-#include "capture.h"
-#include "capture_loop.h"
-#include "capture_info.h"
-#include "capture_sync.h"
+#include <pcap.h>
 #include "pcap-util.h"
 
-#include "simple_dialog.h"
+#include "capture.h"
+#include "capture_loop.h"
+#include "capture_sync.h"
+
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
@@ -82,12 +80,8 @@
 #include "wiretap/wtap.h"
 #include "wiretap/wtap-capture.h"
 
-/* XXX - try to remove this later */
-#include <epan/prefs.h>
-#include "ui_util.h"
-/* XXX - try to remove this later */
+#include "simple_dialog.h"
 #include "util.h"
-#include "alert_box.h"
 #include "log.h"
 #include "file_util.h"
 
@@ -125,8 +119,6 @@ typedef struct _loop_data {
   gint           packets_curr;          /* Number of packets we have already captured */
   gint           packets_max;           /* Number of packets we're supposed to capture - 0 means infinite */
   gint           packets_sync_pipe;     /* packets not already send out to the sync_pipe */
-  packet_counts  counts;                /* several packet type counters */
-  gboolean       show_info;             /* show(hide) capture info dialog */
 
   /* pcap "input file" */
   pcap_t        *pcap_h;                /* pcap handle */
@@ -1103,8 +1095,6 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 	    "The file to which the capture would be saved (\"%s\") "
         "could not be opened: %s.", capfile_name, 
         strerror(errno));
-
-      /*open_failure_alert_box(capfile_name, errno, TRUE);*/
     }
     g_free(capfile_name);
     return FALSE;
@@ -1156,7 +1146,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   guint32     autostop_files = 0;
   gboolean    write_ok;
   gboolean    close_ok;
-  capture_info   capture_ui;
   char        errmsg[4096+1];
   int         save_file_fd;
 
@@ -1180,7 +1169,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #ifdef MUST_DO_SELECT
   ld.pcap_fd            = 0;
 #endif
-  ld.show_info          = capture_opts->show_info;
 
 #ifndef _WIN32
   /*
@@ -1252,29 +1240,17 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 	    cnd_new(CND_CLASS_CAPTURESIZE, capture_opts->autostop_files);
   }
 
-  /* start capture info dialog */
-  if(capture_opts->show_info) {
-      capture_info_init(&ld.counts);
-      capture_ui.counts = &ld.counts;
-      capture_info_ui_create(&capture_ui, capture_opts->iface);
-  }
-
   /* init the time values */
   start_time = TIME_GET();
   upd_time = TIME_GET();
-
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child running!");
 
   /* WOW, everything is prepared! */
   /* please fasten your seat belts, we will enter now the actual capture loop */
   while (ld.go) {
-    main_window_update();
-
     /* dispatch incoming packets */
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
-
-    main_window_update();
 
 #ifdef _WIN32
       /* some news from our parent (signal pipe)? -> just stop the capture */
@@ -1287,13 +1263,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           handle = (HANDLE) _get_osfhandle (0);
           result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
+          /*g_warning("check pipe: handle: %x result: %u avail: %u", handle, result, avail);*/
+
           if(!result || avail > 0) {
             /* XXX - doesn't work with dumpcap as a command line tool */
             /* as we have no input pipe, need to find a way to circumvent this */
 #ifndef DUMPCAP
             ld.go = FALSE;
 #endif
-            /*g_warning("loop closing");*/
           }
       }
 #endif
@@ -1347,18 +1324,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       /*if (pcap_stats(pch, stats) >= 0) {
         *stats_known = TRUE;
       }*/
-
-      /* calculate and display running time */
-      if(capture_opts->show_info) {
-          cur_time -= start_time;
-#ifdef _WIN32
-          capture_ui.running_time   = cur_time / 1000;
-#else
-          capture_ui.running_time   = cur_time;
-#endif
-          capture_ui.new_packets    = ld.packets_sync_pipe;
-          capture_info_ui_update(&capture_ui);
-      }
 
       /* Let the parent process know. */
       if (ld.packets_sync_pipe) {
@@ -1414,11 +1379,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   } /* while (ld.go) */
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopping ...");
-
-  /* close capture info dialog */
-  if(capture_opts->show_info) {
-    capture_info_ui_destroy(&capture_ui);
-  }
 
   /* delete stop conditions */
   if (cnd_file_duration != NULL)
@@ -1624,15 +1584,6 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
       ld->err = err;
     }
   }
-
-#ifndef DUMPCAP
-  /* if the capture info dialog is hidden, no need to create the packet info */
-  if(!ld->show_info) {
-      return;
-  }
-
-  capture_info_packet(&ld->counts, ld->wtap_linktype, pd, whdr.caplen, pseudo_header);
-#endif
 }
 
 #endif /* HAVE_LIBPCAP */

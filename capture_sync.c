@@ -112,25 +112,8 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts);
  */
 #define SP_MAX_MSG_LEN	4096
 
-/* Size of buffer to hold decimal representation of
-   signed/unsigned 64-bit int */
-#define SP_DECISIZE 20
 
-/*
- * Indications sent out on the sync pipe (from child to parent).
- */
-#define SP_FILE         'F'     /* the name of the recently opened file */
-#define SP_ERROR_MSG    'E'     /* error message */
-#define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
-#define SP_DROPS        'D'     /* count of packets dropped in capture */
-/*
- * Win32 only: Indications sent out on the signal pipe (from parent to child)
- * (UNIX-like sends signals for this)
- */
-#define SP_QUIT         'Q'     /* "gracefully" capture quit message (SIGUSR1) */
-
-
-/* write a message to the recipient pipe in the standard format 
+ /* write a message to the recipient pipe in the standard format 
    (3 digit message length (excluding length and indicator field), 
    1 byte message indicator and the rest is the message) */
 static void

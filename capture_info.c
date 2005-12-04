@@ -56,26 +56,106 @@
 #include <epan/dissectors/packet-arcnet.h>
 
 
-void
-capture_info_init(packet_counts *counts)
+
+void capture_info_packet(
+packet_counts *counts, gint wtap_linktype, const u_char *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);
+
+
+
+typedef struct _info_data {
+    packet_counts     counts;     /* several packet type counters */
+    struct wtap*      wtap;       /* current wtap file */
+    capture_info      ui;         /* user interface data */
+} info_data_t;
+
+
+info_data_t info_data;
+
+
+/* open the info */
+void capture_info_open(const char *iface)
 {
-  counts->total       = 0;
-  counts->sctp        = 0;
-  counts->tcp         = 0;
-  counts->udp         = 0;
-  counts->icmp        = 0;
-  counts->ospf        = 0;
-  counts->gre         = 0;
-  counts->ipx         = 0;
-  counts->netbios     = 0;
-  counts->vines       = 0;
-  counts->other       = 0;
-  counts->arp         = 0;
+    info_data.counts.total      = 0;
+    info_data.counts.sctp       = 0;
+    info_data.counts.tcp        = 0;
+    info_data.counts.udp        = 0;
+    info_data.counts.icmp       = 0;
+    info_data.counts.ospf       = 0;
+    info_data.counts.gre        = 0;
+    info_data.counts.ipx        = 0;
+    info_data.counts.netbios    = 0;
+    info_data.counts.vines      = 0;
+    info_data.counts.other      = 0;
+    info_data.counts.arp        = 0;
+
+    info_data.wtap = NULL;
+    info_data.ui.counts = &info_data.counts;
+
+    capture_info_ui_create(&info_data.ui, iface);
 }
 
 
-void
-capture_info_packet(packet_counts *counts, gint wtap_linktype, const u_char *pd, guint32 caplen, union wtap_pseudo_header pseudo_header)
+/* new file arrived */
+void capture_info_new_file(const char *new_filename)
+{
+    int err;
+    gchar *err_info;
+
+
+    if(info_data.wtap != NULL) {
+        wtap_close(info_data.wtap);
+    }
+
+    info_data.wtap = wtap_open_offline(new_filename, &err, &err_info, FALSE);
+    if (!info_data.wtap) {
+        g_warning("capture_info_new_file: wtap open failed: %s", err_info);
+    }
+
+}
+
+
+/* new packets arrived */
+void capture_info_new_packets(int to_read)
+{
+    int err;
+    gchar *err_info;
+    long data_offset;
+    const struct wtap_pkthdr *phdr;
+    union wtap_pseudo_header *pseudo_header;
+    int wtap_linktype;
+    const guchar *buf;
+
+
+    info_data.ui.new_packets = to_read;
+
+    /*g_warning("new packets: %u", to_read);*/
+
+    while (to_read != 0 && (wtap_read(info_data.wtap, &err, &err_info, &data_offset))) {
+        phdr = wtap_phdr(info_data.wtap);
+        pseudo_header = wtap_pseudoheader(info_data.wtap);
+        wtap_linktype = phdr->pkt_encap;
+        buf = wtap_buf_ptr(info_data.wtap);
+
+        capture_info_packet(&info_data.counts, wtap_linktype, buf, phdr->caplen, pseudo_header);
+
+        /*g_warning("new packet");*/
+        to_read--;
+    }
+
+    capture_info_ui_update(&info_data.ui);
+}
+
+
+/* close the info */
+void capture_info_close(void)
+{
+    capture_info_ui_destroy(&info_data.ui);
+    wtap_close(info_data.wtap);
+}
+
+
+static void
+capture_info_packet(packet_counts *counts, gint wtap_linktype, const u_char *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
 {
   counts->total++;
   switch (wtap_linktype) {
@@ -118,7 +198,7 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const u_char *pd,
       capture_llap(counts);
       break;
     case WTAP_ENCAP_ATM_PDUS:
-      capture_atm(&pseudo_header, pd, caplen, counts);
+      capture_atm(pseudo_header, pd, caplen, counts);
       break;
     case WTAP_ENCAP_IP_OVER_FC:
       capture_ipfc(pd, caplen, counts);

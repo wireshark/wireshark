@@ -33,10 +33,18 @@
 #define __CAPTURE_INFO_H__
 
 
-extern void capture_info_init(packet_counts *counts);
+/* open the info - init values (wtap, counts), create dialog */
+extern void capture_info_open(const char *iface);
 
-extern void capture_info_packet(
-packet_counts *counts, gint wtap_linktype, const u_char *pd, guint32 caplen, union wtap_pseudo_header pseudo_header);
+/* new file arrived - (eventually close old wtap), open wtap */
+extern void capture_info_new_file(const char *new_filename);
+
+/* new packets arrived - read from wtap, count */
+extern void capture_info_new_packets(int to_read);
+
+/* close the info - close wtap, destroy dialog */
+extern void capture_info_close(void);
+
 
 
 /** Current Capture info. */
@@ -54,7 +62,7 @@ typedef struct {
 /** Create the capture info dialog */
 extern void capture_info_ui_create(
 capture_info    *cinfo,
-gchar           *iface);
+const gchar     *iface);
 
 /** Update the capture info counters in the dialog */
 extern void capture_info_ui_update(

@@ -42,9 +42,7 @@
 #include <conio.h>
 #endif
 
-#include "simple_dialog.h"
 #include "ringbuffer.h"
-#include "util.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
@@ -52,15 +50,17 @@
 #include <pcap.h>
 #include "pcap-util.h"
 
-#include "capture.h"
-#include "capture_loop.h"
-#include "capture_info.h"
-
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include "capture_wpcap_packet.h"
 #endif
 
+#include "capture.h"
+#include "capture_loop.h"
+#include "capture_sync.h"
+
+#include "simple_dialog.h"
+#include "util.h"
 #include "log.h"
 #include "file_util.h"
 
@@ -601,19 +601,8 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 #endif
 }
 
-
-/* Size of buffer to hold decimal representation of
-   signed/unsigned 64-bit int */
-#define SP_DECISIZE 20
-
-/*
- * Indications sent out on the sync pipe.
- */
-#define SP_FILE         'F'     /* the name of the recently opened file */
-#define SP_ERROR_MSG    'E'     /* error message */
-#define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
-#define SP_DROPS        'D'     /* count of packets dropped in capture */
-#define SP_QUIT         'Q'     /* capture quit message (from parent to child) */
+/****************************************************************************************************************/
+/* sync_pipe "dummies" */
 
 static void
 pipe_write_block(int pipe, char indicator, int len, const char *msg)
@@ -664,20 +653,7 @@ sync_pipe_drops_to_parent(int drops)
 
 
 /****************************************************************************************************************/
-/* link "dummies" */
-
-
-void main_window_update(void) {}
-
-
-
-void capture_info_ui_create(capture_info *cinfo, gchar *iface) {}
-
-void capture_info_ui_update(capture_info *cinfo) {
-    printf("Packets: %u\r", cinfo->counts->total);
-}
-
-void capture_info_ui_destroy(capture_info *cinfo) {}
+/* simple_dialog "dummies" */
 
 
 static gpointer *
