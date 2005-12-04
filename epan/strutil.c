@@ -419,6 +419,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
 
   p = oid_str;
   sicnt = 0;
+  subid0 = 0;	/* squelch GCC complaints */
   while (*p) {
     subid = 0;
     while (isdigit(*p)) {
