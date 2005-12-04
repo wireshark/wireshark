@@ -57,8 +57,8 @@
 
 
 
-void capture_info_packet(
-packet_counts *counts, gint wtap_linktype, const u_char *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);
+static void capture_info_packet(
+packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);
 
 
 
@@ -155,7 +155,7 @@ void capture_info_close(void)
 
 
 static void
-capture_info_packet(packet_counts *counts, gint wtap_linktype, const u_char *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
+capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
 {
   counts->total++;
   switch (wtap_linktype) {
