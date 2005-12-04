@@ -1,0 +1,545 @@
+-- $id:$
+   RFC1157-SNMP DEFINITIONS ::= BEGIN
+
+--      IMPORTS
+--          ObjectName, ObjectSyntax, NetworkAddress, IpAddress, TimeTicks
+--              FROM RFC1155-SMI;
+
+-- Local imports
+--      IMPORTS
+--          ObjectName, ObjectSyntax, NetworkAddress, IpAddress, TimeTicks
+--              FROM RFC1155-SMI;
+
+-- names of objects
+-- (Note that these definitions of ObjectName and NotificationName
+--  are not to be IMPORTed by MIB modules.)
+
+ObjectName ::=
+    OBJECT IDENTIFIER
+
+NotificationName ::=
+    OBJECT IDENTIFIER
+
+-- syntax of objects
+
+-- the "base types" defined here are:
+--   3 built-in ASN.1 types: INTEGER, OCTET STRING, OBJECT IDENTIFIER
+--   8 application-defined types: Integer32, IpAddress, Counter32,
+--              Gauge32, Unsigned32, TimeTicks, Opaque, and Counter64
+
+ObjectSyntax ::=
+    CHOICE {
+        simple
+            SimpleSyntax,
+
+          -- note that SEQUENCEs for conceptual tables and
+          -- rows are not mentioned here...
+
+        application-wide
+            ApplicationSyntax
+    }
+-- built-in ASN.1 types
+
+SimpleSyntax ::=
+    CHOICE {
+        -- INTEGERs with a more restrictive range
+        -- may also be used
+        integer-value               -- includes Integer32
+            INTEGER (-2147483648..2147483647),
+
+        -- OCTET STRINGs with a more restrictive size
+        -- may also be used
+        string-value
+            OCTET STRING (SIZE (0..65535)),
+
+        objectID-value
+            OBJECT IDENTIFIER,
+		empty							-- Added from RFC 1155 for Ethereal
+			NULL
+							      }
+
+-- indistinguishable from INTEGER, but never needs more than
+-- 32-bits for a two's complement representation
+Integer32 ::=
+        INTEGER (-2147483648..2147483647)
+
+
+-- application-wide types
+
+ApplicationSyntax ::=
+    CHOICE {
+        ipAddress-value
+            IpAddress,
+
+        counter-value
+            Counter32,
+
+        timeticks-value
+            TimeTicks,
+
+        arbitrary-value
+            Opaque,
+
+        big-counter-value
+            Counter64,
+
+        unsigned-integer-value  -- includes Gauge32
+            Unsigned32
+    }
+
+NetworkAddress ::=
+                 CHOICE {
+                      internet
+                      IpAddress
+                     }
+
+-- in network-byte order
+-- (this is a tagged type for historical reasons)
+IpAddress ::=
+    [APPLICATION 0]
+        IMPLICIT OCTET STRING (SIZE (4))
+
+-- this wraps
+Counter32 ::=
+    [APPLICATION 1]
+        IMPLICIT INTEGER (0..4294967295)
+
+-- this doesn't wrap
+Gauge32 ::=
+    [APPLICATION 2]
+        IMPLICIT INTEGER (0..4294967295)
+
+-- an unsigned 32-bit quantity
+-- indistinguishable from Gauge32
+Unsigned32 ::=
+    [APPLICATION 2]
+        IMPLICIT INTEGER (0..4294967295)
+
+-- hundredths of seconds since an epoch
+TimeTicks ::=
+    [APPLICATION 3]
+        IMPLICIT INTEGER (0..4294967295)
+
+-- for backward-compatibility only
+Opaque ::=
+    [APPLICATION 4]
+        IMPLICIT OCTET STRING
+
+-- for counters that wrap in less than one hour with only 32 bits
+Counter64 ::=
+    [APPLICATION 6]
+        IMPLICIT INTEGER (0..18446744073709551615)
+
+
+
+
+-- End Import
+          -- top-level message
+
+          Message ::=
+                  SEQUENCE {
+                      version    Version,      -- version-1 for this RFC
+
+                      community        -- community name
+                          OCTET STRING,
+
+                      data             -- e.g., PDUs if trivial
+							PDUs
+--                          ANY          
+-- authentication is being used
+                  }
+
+Version ::= INTEGER {
+	version-1(0),
+	v2c(1),
+	v2u (2),
+	snmpv3(3)
+        }
+
+
+    Messagev2u ::=
+         SEQUENCE {
+             version Version,
+--                 INTEGER { v2 (2) },
+
+             parameters
+                 OCTET STRING,
+             -- <model=1>
+             --      <qoS><agentID><agentBoots><agentTime><maxSize>
+             --      <userLen><userName><authLen><authDigest>
+             --      <contextSelector>
+
+             datav2u
+                 CHOICE {
+                     plaintext
+                         PDUs,
+                     encrypted
+                         OCTET STRING
+                 }
+         }
+-- USMSecurityParametersSyntax DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+      UsmSecurityParameters ::=
+          SEQUENCE {
+           -- global User-based security parameters
+              msgAuthoritativeEngineID     SnmpEngineID,
+              msgAuthoritativeEngineBoots  INTEGER (0..2147483647),
+              msgAuthoritativeEngineTime   INTEGER (0..2147483647),
+              msgUserName                  OCTET STRING (SIZE(1..32)),
+           -- authentication protocol specific parameters
+              msgAuthenticationParameters  OCTET STRING,
+           -- privacy protocol specific parameters
+              msgPrivacyParameters         OCTET STRING
+          }
+ --  END USMSecurityParametersSyntax
+
+SnmpEngineID ::= OCTET STRING
+
+-- SNMPv3MessageSyntax DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+       SNMPv3Message ::= SEQUENCE {
+           -- identify the layout of the SNMPv3Message
+           -- this element is in same position as in SNMPv1
+           -- and SNMPv2c, allowing recognition
+           -- the value 3 is used for snmpv3
+           msgVersion Version, 
+		   -- INTEGER ( 0 .. 2147483647 ),
+           -- administrative parameters
+           msgGlobalData HeaderData,
+           -- security model-specific parameters
+           -- format defined by Security Model
+           msgSecurityParameters OCTET STRING,
+           msgData  ScopedPduData
+       }
+
+       HeaderData ::= SEQUENCE {
+           msgID      INTEGER (0..2147483647),
+           msgMaxSize INTEGER (484..2147483647),
+
+           msgFlags   OCTET STRING (SIZE(1)),
+                      --  .... ...1   authFlag
+                      --  .... ..1.   privFlag
+                      --  .... .1..   reportableFlag
+                      --              Please observe:
+                      --  .... ..00   is OK, means noAuthNoPriv
+                      --  .... ..01   is OK, means authNoPriv
+                      --  .... ..10   reserved, must NOT be used.
+                      --  .... ..11   is OK, means authPriv
+
+           msgSecurityModel INTEGER (1..2147483647)
+       }
+
+
+       ScopedPduData ::= CHOICE {
+           plaintext    ScopedPDU,
+           encryptedPDU OCTET STRING  -- encrypted scopedPDU value
+       }
+
+       ScopedPDU ::= SEQUENCE {
+           contextEngineID  OCTET STRING,
+           contextName      OCTET STRING,
+           data             PDUs
+		   -- ANY 
+		   -- e.g., PDUs as defined in RFC 1905
+       }
+
+-- END SNMPv3MessageSyntax
+          -- protocol data units
+
+          PDUs ::=
+                  CHOICE {
+                              get-request
+                                  GetRequest-PDU,
+
+                              get-next-request
+                                  GetNextRequest-PDU,
+
+                              get-response
+                                  GetResponse-PDU,
+
+                              set-request
+                                  SetRequest-PDU,
+
+                              trap
+                                  Trap-PDU
+                          }
+
+          -- PDUs
+
+          GetRequest-PDU ::=
+              [0]
+                  IMPLICIT PDU
+
+          GetNextRequest-PDU ::=
+              [1]
+                  IMPLICIT PDU
+
+          GetResponse-PDU ::=
+              [2]
+                  IMPLICIT PDU
+
+          SetRequest-PDU ::=
+              [3]
+                  IMPLICIT PDU
+-- v2 added
+    -- [4] is obsolete
+
+     GetBulkRequest-PDU ::=
+         [5]
+             IMPLICIT BulkPDU
+
+     InformRequest-PDU ::=
+         [6]
+             IMPLICIT PDU
+
+     SNMPv2-Trap-PDU ::=
+         [7]
+             IMPLICIT PDU
+
+     --   Usage and precise semantics of Report-PDU are not presently
+     --   defined.  Any SNMP administrative framework making use of
+     --   this PDU must define its usage and semantics.
+     Report-PDU ::=
+         [8]
+             IMPLICIT PDU
+
+
+          PDU ::=
+                  SEQUENCE {
+                     request-id
+                          INTEGER,
+
+                      error-status      -- sometimes ignored
+                          INTEGER {
+                     noError(0),
+                     tooBig(1),
+                     noSuchName(2),   -- for proxy compatibility
+                     badValue(3),     -- for proxy compatibility
+                     readOnly(4),     -- for proxy compatibility
+                     genErr(5),
+                     noAccess(6),
+                     wrongType(7),
+                     wrongLength(8),
+                     wrongEncoding(9),
+                     wrongValue(10),
+                     noCreation(11),
+                     inconsistentValue(12),
+                     resourceUnavailable(13),
+                     commitFailed(14),
+                     undoFailed(15),
+                     authorizationError(16),
+                     notWritable(17),
+                     inconsistentName(18)
+                 },
+
+
+                      error-index       -- sometimes ignored
+                         INTEGER,
+
+                      variable-bindings -- values are sometimes ignored
+                          VarBindList
+                  }
+-- v2
+     BulkPDU ::=                     -- MUST be identical in
+         SEQUENCE {                  -- structure to PDU
+             request-id
+                 Integer32,
+
+             non-repeaters
+                 INTEGER (0..2147483647),
+
+             max-repetitions
+                 INTEGER (0..2147483647),
+
+             variable-bindings       -- values are ignored
+                 VarBindList
+         }
+
+-- end v2
+          Trap-PDU ::=
+              [4]
+                 IMPLICIT SEQUENCE {
+                      enterprise        -- type of object generating
+                                        -- trap, see sysObjectID in [5]
+
+
+                          OBJECT IDENTIFIER,
+
+                      agent-addr        -- address of object generating
+                          NetworkAddress, -- trap
+
+                      generic-trap      -- generic trap type
+                          INTEGER {
+                              coldStart(0),
+                              warmStart(1),
+                              linkDown(2),
+                              linkUp(3),
+                              authenticationFailure(4),
+                              egpNeighborLoss(5),
+                              enterpriseSpecific(6)
+                          },
+
+                      specific-trap  INTEGER,   
+-- specific code, present even
+-- if generic-trap is not
+-- enterpriseSpecific
+
+                      time-stamp	TimeTicks,
+-- time elapsed between the last
+-- (re)initialization of the network
+-- entity and the generation of the trap
+
+                       variable-bindings  VarBindList
+-- "interesting" information
+                  }
+
+
+-- variable bindings
+
+     VarBind ::=
+         SEQUENCE {
+             name
+                 ObjectName,
+
+             valueType ValueType
+         }
+
+ValueType ::=
+             CHOICE {
+                 value
+                     ObjectSyntax,
+
+                 unSpecified         -- in retrieval requests
+                         NULL,
+
+                                     -- exceptions in responses
+                 noSuchObject[0]
+                         IMPLICIT NULL,
+
+                 noSuchInstance[1]
+                         IMPLICIT NULL,
+
+                 endOfMibView[2]
+                         IMPLICIT NULL
+						 }
+ 
+
+         VarBindList ::=
+                  SEQUENCE OF
+                     VarBind
+
+-- SMUX DEFINITIONS ::= BEGIN RFC 1227
+
+SMUX-PDUs ::=
+       CHOICE {
+           open            -- SMUX peer uses
+               OpenPDU,    -- immediately after TCP open
+
+           close           -- either uses immediately before TCP close
+               ClosePDU,
+
+           registerRequest -- SMUX peer uses
+               RReqPDU,
+
+--           registerResponse .. SNMP agent uses
+--               RRspPDU,
+--
+--               PDUs,
+-- Revritten
+			registerResponse RegisterResponse,
+			    -- note that roles are reversed:
+                --   SNMP agent does get/get-next/set
+                --   SMUX peer does get-response/trap
+
+           commitOrRollback -- SNMP agent uses
+               SOutPDU
+      }
+
+RegisterResponse ::= CHOICE {
+	rRspPDU RRspPDU,
+	pDUs	PDUs
+	}
+
+  -- open PDU
+   -- currently only simple authentication
+
+   OpenPDU ::=
+       CHOICE {
+          smux-simple
+
+             SimpleOpen
+       }
+
+   SimpleOpen ::=
+       [APPLICATION 0] IMPLICIT
+           SEQUENCE {
+               smux-version     -- of SMUX protocol
+                   INTEGER {
+                       version-1(0)
+                   },
+
+               identity    -- of SMUX peer, authoritative
+                   OBJECT IDENTIFIER,
+
+               description -- of SMUX peer, implementation-specific
+                   DisplayString,
+
+               password    -- zero length indicates no authentication
+                   OCTET STRING
+           }
+
+DisplayString ::= OCTET STRING
+   -- close PDU
+
+   ClosePDU ::=
+       [APPLICATION 1] IMPLICIT
+           INTEGER {
+               goingDown(0),
+               unsupportedVersion(1),
+               packetFormat(2),
+               protocolError(3),
+               internalError(4),
+               authenticationFailure(5)
+           }
+
+
+   -- insert PDU
+
+   RReqPDU ::=
+       [APPLICATION 2] IMPLICIT
+           SEQUENCE {
+               subtree
+                   ObjectName,
+
+               priority    -- the lower the better, "-1" means default
+                   INTEGER (-1..2147483647),
+
+               operation
+
+                   INTEGER {
+                       delete(0),    -- remove registration
+                       readOnly(1),  -- add registration, objects are RO
+                       readWrite(2)  --   .., objects are RW
+                   }
+           }
+
+   RRspPDU ::=
+       [APPLICATION 3] IMPLICIT
+           INTEGER {
+               failure(-1)
+
+              -- on success the non-negative priority is returned
+           }
+
+   SOutPDU ::=
+       [APPLICATION 4] IMPLICIT
+           INTEGER {
+               commit(0),
+               rollback(1)
+           }
+
+
+
+         END
+
+
