@@ -375,8 +375,10 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 			    maxlen = len;
 		    if ((len = strlen(hfinfo->name)) > maxlen2)
 			    maxlen2 = len;
-		    if ((len = strlen(hfinfo->blurb)) > maxlen4)
-			    maxlen4 = len;
+		    if (hfinfo->blurb != NULL) {
+			    if ((len = strlen(hfinfo->blurb)) > maxlen4)
+				maxlen4 = len;
+		    }
 	    }
     }
 
@@ -417,11 +419,18 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 			    continue;
 
 		    type_name = ftype_pretty_name(hfinfo->type);
-		    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s (%s)\n",
-				   -maxlen,  hfinfo->abbrev,
-				   -maxlen2, hfinfo->name,
-				   -maxlen4, hfinfo->blurb,
-				   type_name);
+		    if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
+			    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s (%s)\n",
+					     -maxlen,  hfinfo->abbrev,
+					     -maxlen2, hfinfo->name,
+					     -maxlen4, hfinfo->blurb,
+					     type_name);
+		    } else {
+			    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s (%s)\n",
+					     -maxlen,  hfinfo->abbrev,
+					     -maxlen2, hfinfo->name,
+					     type_name);
+		    }
 #if GTK_MAJOR_VERSION < 2
 		    if (len > maxlen3) {
 			    maxlen3 = len;

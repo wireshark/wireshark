@@ -2967,7 +2967,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     hfinfo->bitmask = 0;
     hfinfo->bitshift = 0;
     hfinfo->ref_count = 0;
-    hfinfo->blurb = "";
+    hfinfo->blurb = NULL;
     hfinfo->parent = -1; /* this field differentiates protos and fields */
 
     proto_id = proto_register_field_init(hfinfo, hfinfo->parent);
@@ -4496,6 +4496,7 @@ proto_registrar_dump_fields(int format)
 	int			i, len;
 	const char 		*enum_name;
 	const char		*base_name;
+	const char		*blurb;
 
 	len = gpa_hfinfo.len;
 	for (i = 0; i < len ; i++) {
@@ -4506,7 +4507,6 @@ proto_registrar_dump_fields(int format)
 		 * the pseudo-field for "proto_tree_add_text()" is such
 		 * a field, and we don't want it in the list of filterable
 		 * fields.
-		 *
 		 *
 		 * XXX - perhaps the name and abbrev field should be null
 		 * pointers rather than null strings for that pseudo-field,
@@ -4586,20 +4586,24 @@ proto_registrar_dump_fields(int format)
 				}
 			}
 
+			blurb = hfinfo->blurb;
+			if (blurb == NULL)
+				blurb = "";
 			if (format == 1) {
-				printf("F\t%s\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
-					enum_name,parent_hfinfo->abbrev, hfinfo->blurb);
+				printf("F\t%s\t%s\t%s\t%s\t%s\n",
+					hfinfo->name, hfinfo->abbrev, enum_name,
+					parent_hfinfo->abbrev, blurb);
 			}
 			else if (format == 2) {
 				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-					hfinfo->name, hfinfo->abbrev,
-					enum_name,parent_hfinfo->abbrev, hfinfo->blurb,
-					base_name, hfinfo->blurb);
+					hfinfo->name, hfinfo->abbrev, enum_name,
+					parent_hfinfo->abbrev, blurb,
+					base_name, blurb);
 			}
 			else if (format == 3) {
 				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t%u\n",
-					hfinfo->name, hfinfo->abbrev,
-					enum_name,parent_hfinfo->abbrev, hfinfo->blurb,
+					hfinfo->name, hfinfo->abbrev, enum_name,
+					parent_hfinfo->abbrev, blurb,
 					base_name, hfinfo->bitmask);
 			}
 			else {
