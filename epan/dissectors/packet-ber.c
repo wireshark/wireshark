@@ -74,6 +74,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/emem.h>
+#include <epan/dissectors/format-oid.h>
 #include "packet-ber.h"
 
 #ifndef MIN
@@ -1736,7 +1737,11 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	int eoffset;
 	char *str, *name;
 	proto_item *item = NULL;
-  header_field_info *hfi;
+	header_field_info *hfi;
+
+	const guint8 *oid_ptr;
+	subid_t *subid_oid;
+	guint subid_oid_length;
 
 #ifdef DEBUG_BER
 {
@@ -1772,7 +1777,8 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
-  str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
+  oid_ptr = tvb_get_ptr(tvb, offset, len);
+  str = oid_to_str(oid_ptr, len);
 
   hfi = proto_registrar_get_nth(hf_id);
   if (hfi->type == FT_OID) {
@@ -1791,7 +1797,18 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		name=g_hash_table_lookup(oid_table, str);
 		if(name){
 			proto_item_append_text(item, " (%s)", name);
+		}else{
+			gchar *decoded_oid;
+			gchar *non_decoded_oid;
+			
+			subid_oid = g_malloc((len+1) * sizeof(gulong));
+			subid_oid_length = oid_to_subid_buf(oid_ptr, len, subid_oid, ((len+1) * sizeof(gulong)));
+			new_format_oid(subid_oid, subid_oid_length,
+				&non_decoded_oid, &decoded_oid);
+			proto_item_append_text(item, " (%s)", (decoded_oid == NULL) ? non_decoded_oid : decoded_oid);
+			
 		}
+
 	}
 
 	return eoffset;

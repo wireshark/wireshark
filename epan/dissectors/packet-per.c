@@ -41,6 +41,7 @@ proper helper routines
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/dissectors/format-oid.h>
 #include "packet-per.h"
 #include "packet-ber.h"
 
@@ -532,7 +533,6 @@ dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *
 	header_field_info *hfi;
 	proto_item *pi;
 
-
 DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 
 	/* 19.5 if min==max and min,max<64k ==> no length determinant */
@@ -610,11 +610,16 @@ dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
   proto_item *item = NULL;
   header_field_info *hfi;
 
+	const guint8 *oid_ptr;
+	subid_t *subid_oid;
+	guint subid_oid_length;
+
 DEBUG_ENTRY("dissect_per_object_identifier");
 
   offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_object_identifier_length, &length);
-
-  str = oid_to_str(tvb_get_ptr(tvb, offset>>3, length), length);
+	
+  oid_ptr = tvb_get_ptr(tvb, offset>>3, length);
+  str = oid_to_str(oid_ptr, length);
 
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
@@ -635,7 +640,17 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 		name = get_ber_oid_name(str);
 		if(name){
 			proto_item_append_text(item, " (%s)", name);
+		}else{
+			gchar *decoded_oid;
+			gchar *non_decoded_oid;
+			
+			subid_oid = g_malloc((length+1) * sizeof(gulong));
+			subid_oid_length = oid_to_subid_buf(oid_ptr, length, subid_oid, ((length+1) * sizeof(gulong)));
+			new_format_oid(subid_oid, subid_oid_length,
+				&non_decoded_oid, &decoded_oid);
+			proto_item_append_text(item, " (%s)", (decoded_oid == NULL) ? non_decoded_oid : decoded_oid);
 		}
+
 	}
 
   return offset;
