@@ -172,6 +172,7 @@ static int hf_smb2_ioctl_shadow_copy_num_labels = -1;
 static int hf_smb2_ioctl_shadow_copy_count = -1;
 static int hf_smb2_ioctl_shadow_copy_label = -1;
 static int hf_smb2_compression_format = -1;
+static int hf_smb2_FILE_OBJECTID_BUFFER = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -211,6 +212,7 @@ static gint ett_smb2_create_flags = -1;
 static gint ett_smb2_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
 static gint ett_smb2_ioctl_function = -1;
+static gint ett_smb2_FILE_OBJECTID_BUFFER = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 
@@ -2514,16 +2516,17 @@ dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	return;
 }
 
-static void
-dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+int
+dissect_smb2_FILE_OBJECTID_BUFFER(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset)
 {
-
-	/* There is no in data */
-	if(data_in){
-		return;
-	}
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
 
 	/* FILE_OBJECTID_BUFFER */
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, hf_smb2_FILE_OBJECTID_BUFFER, tvb, offset, 64, TRUE);
+		tree = proto_item_add_subtree(item, ett_smb2_FILE_OBJECTID_BUFFER);
+	}
 
 	/* Object ID */
 	proto_tree_add_item(tree, hf_smb2_object_id, tvb, offset, 16, TRUE);
@@ -2540,6 +2543,21 @@ dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_
 	/* Domain ID */
 	proto_tree_add_item(tree, hf_smb2_domain_id, tvb, offset, 16, TRUE);
 	offset += 16;
+
+	return offset;
+}
+
+static void
+dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+{
+
+	/* There is no in data */
+	if(data_in){
+		return;
+	}
+
+	/* FILE_OBJECTID_BUFFER */
+	offset=dissect_smb2_FILE_OBJECTID_BUFFER(tvb, pinfo, tree, offset);
 
 	return;
 }
@@ -2585,22 +2603,7 @@ dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	}
 
 	/* FILE_OBJECTID_BUFFER */
-
-	/* Object ID */
-	proto_tree_add_item(tree, hf_smb2_object_id, tvb, offset, 16, TRUE);
-	offset += 16;
-
-	/* Birth Volume ID */
-	proto_tree_add_item(tree, hf_smb2_birth_volume_id, tvb, offset, 16, TRUE);
-	offset += 16;
-
-	/* Birth Object ID */
-	proto_tree_add_item(tree, hf_smb2_birth_object_id, tvb, offset, 16, TRUE);
-	offset += 16;
-
-	/* Domain ID */
-	proto_tree_add_item(tree, hf_smb2_domain_id, tvb, offset, 16, TRUE);
-	offset += 16;
+	offset=dissect_smb2_FILE_OBJECTID_BUFFER(tvb, pinfo, tree, offset);
 
 	return;
 }
@@ -4380,6 +4383,10 @@ proto_register_smb2(void)
 		{ "Data", "smb2.create.chain_data", FT_NONE, BASE_NONE,
 		NULL, 0, "Chain Data", HFILL }},
 
+	{ &hf_smb2_FILE_OBJECTID_BUFFER,
+		{ "FILE_OBJECTID_BUFFER", "smb2.FILE_OBJECTID_BUFFER", FT_NONE, BASE_NONE,
+		NULL, 0, "A FILE_OBJECTID_BUFFER structure", HFILL }},
+
 	{ &hf_smb2_data_length,
 		{ "Data Length", "smb2.create.data_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length Data or 0", HFILL }},
@@ -4560,6 +4567,7 @@ proto_register_smb2(void)
 		&ett_smb2_chain_element,
 		&ett_smb2_MxAc_buffer,
 		&ett_smb2_ioctl_function,
+		&ett_smb2_FILE_OBJECTID_BUFFER,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",

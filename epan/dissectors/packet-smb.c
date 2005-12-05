@@ -53,6 +53,7 @@
 #include "packet-smb-pipe.h"
 #include "packet-dcerpc.h"
 #include "packet-ntlmssp.h"
+#include "packet-smb2.h"
 
 /*
  * Various specifications and documents about SMB can be found in
@@ -543,7 +544,6 @@ static int hf_smb_file_index = -1;
 static int hf_smb_short_file_name = -1;
 static int hf_smb_short_file_name_len = -1;
 static int hf_smb_fs_id = -1;
-static int hf_smb_fs_guid = -1;
 static int hf_smb_sector_unit = -1;
 static int hf_smb_fs_units = -1;
 static int hf_smb_fs_sector = -1;
@@ -13061,28 +13061,11 @@ dissect_qfsi_FS_ATTRIBUTE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 int
 dissect_qfsi_FS_OBJECTID_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp)
 {
-	e_uuid_t fs_id;
-	char uuid_str[DCERPC_UUID_STR_LEN]; 
-	guint8 drep = 0x10;
-		
-	CHECK_BYTE_COUNT_TRANS_SUBR(16);
+	CHECK_BYTE_COUNT_TRANS_SUBR(64);
 
-	dcerpc_tvb_get_uuid (tvb, offset, &drep, &fs_id);
+	dissect_smb2_FILE_OBJECTID_BUFFER(tvb, pinfo, tree, offset);
 
-	g_snprintf(
-		uuid_str, DCERPC_UUID_STR_LEN, 
-		"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-		fs_id.Data1, fs_id.Data2, fs_id.Data3,
-		fs_id.Data4[0], fs_id.Data4[1],
-		fs_id.Data4[2], fs_id.Data4[3],
-		fs_id.Data4[4], fs_id.Data4[5],
-		fs_id.Data4[6], fs_id.Data4[7]);
-
-	proto_tree_add_string_format(
-		tree, hf_smb_fs_guid, tvb,
-		offset, 16, uuid_str, "GUID: %s", uuid_str);
-
-	COUNT_BYTES_TRANS_SUBR(16);
+	COUNT_BYTES_TRANS_SUBR(64);
 
 	return offset;
 }
@@ -13339,7 +13322,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 1007:	/* SMB_FS_FULL_SIZE_INFORMATION */
 		offset = dissect_qfsi_FS_FULL_SIZE_INFO(tvb, pinfo, tree, offset, bcp);
 		break;
-	case 1008: /* Query Object ID is GUID plus unknown data */ {
+	case 1008: /* Query Object ID */ {
 		offset = dissect_qfsi_FS_OBJECTID_INFO(tvb, pinfo, tree, offset, bcp);
 		break;
 	    }
@@ -17420,10 +17403,6 @@ proto_register_smb(void)
 	{ &hf_smb_fs_id,
 		{ "FS Id", "smb.fs_id", FT_UINT32, BASE_DEC,
 		NULL, 0, "File System ID (NT Server always returns 0)", HFILL }},
-
-	{ &hf_smb_fs_guid,
-		{ "FS GUID", "smb.fs_guid", FT_STRING, BASE_NONE,
-		NULL, 0, "File System GUID", HFILL }},
 
 	{ &hf_smb_sector_unit,
 		{ "Sectors/Unit", "smb.fs_sector_per_unit", FT_UINT32, BASE_DEC,

@@ -92,4 +92,7 @@ typedef struct _smb2_info_t {
 	proto_tree *top_tree;	
 } smb2_info_t;
 
+
+int dissect_smb2_FILE_OBJECTID_BUFFER(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
+
 #endif
