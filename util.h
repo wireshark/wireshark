@@ -29,19 +29,37 @@
 extern "C" {
 #endif /* __cplusplus */
 
-int create_tempfile(char *, int, const char *);
 
-/*
- * Collect command-line arguments as a string consisting of the arguments,
+/* create a tempfile with the given prefix (e.g. "ether")
+ * namebuf (and namebuflen) should be 128+1 bytes long (BTW: why?)
+ * returns the file descriptor of the new tempfile and
+ * the name of the new file in namebuf 
+ */
+int create_tempfile(char *namebuf, int namebuflen, const char *pfx);
+
+/* Collect command-line arguments as a string consisting of the arguments,
  * separated by spaces.
  */
-char *get_args_as_string(int, char **, int);
+char *get_args_as_string(int argc, char **argv, int optind);
 
-/* Compute the difference between two seconds/microseconds time stamps. */
-void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
+/* Compute the difference between two seconds/microseconds time stamps.
+ * Beware: we're using nanosecond resolution now and function is currently unused
+ */
+void compute_timestamp_diff(gint *diffsec, gint *diffusec, 
+                            guint32 sec1, guint32 usec1, guint32 sec2, guint32 usec2);
 
-/* Create a capture filter for the connection */
+/* Try to figure out if we're remotely connected, e.g. via ssh or
+   Terminal Server, and create a capture filter that matches aspects of the
+   connection.  We match the following environment variables:
+
+   SSH_CONNECTION (ssh): <remote IP> <remote port> <local IP> <local port>
+   SSH_CLIENT (ssh): <remote IP> <remote port> <local port>
+   REMOTEHOST (tcsh, others?): <remote name>
+   DISPLAY (x11): [remote name]:<display num>
+   CLIENTNAME (terminal server): <remote name>
+ */
 const char *get_conn_cfilter(void);
+
 
 #ifdef __cplusplus
 }
