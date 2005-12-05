@@ -209,6 +209,7 @@ randpkt_SOURCES = \
 dumpcap_SOURCES =	\
 	$(PLATFORM_SRC) \
 	capture_stop_conditions.c	\
+	getopt.c	\
 	clopts_common.c	\
 	conditions.c	\
 	pcap-util.c	\

@@ -98,29 +98,66 @@ print_usage(gboolean print_ver) {
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is dumpcap " VERSION "%s"
-        "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
-	"\n\n%s\n\n%s\n",
-	svnversion, comp_info_str->str, runtime_info_str->str);
+    fprintf(output,
+        "Dumpcap " VERSION "%s\n"
+        "Capture network packets and dump them into a libpcap file.\n"
+        "See http://www.ethereal.com for more information.\n",
+        svnversion);
   } else {
     output = stderr;
   }
-  fprintf(output, "\n%s [ -vh ] [ -Lp ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
-  fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
+  fprintf(output, "\nUsage: dumpcap [option] ...\n");
+  fprintf(output, "\n");
+  fprintf(output, "Capture interface:\n");
+  fprintf(output, "  -i <interface>           name of interface (def: first none loopback)\n");
+  fprintf(output, "  -f <capture filter>      packet filter in libpcap format\n");
+  fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
+  fprintf(output, "  -p                       don't capture in promiscuous mode\n");
 #ifdef _WIN32
-  fprintf(output, "\t[ -B <capture buffer size> ]\n");
+  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
-  fprintf(output, "\t[ -c <capture packet count> ] [ -f <capture filter> ]\n");
-  fprintf(output, "\t[ -i <capture interface> ]\n");
-  fprintf(output, "\t[ -s <capture snaplen> ]\n");
-  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ]\n");
+  fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+  fprintf(output, "\n");
+  fprintf(output, "Stop conditions:\n");
+  fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
+  fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
+  fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
+  fprintf(output, "                              files:NUM - stop after NUM files\n");
+  /*fprintf(output, "\n");*/
+  fprintf(output, "Output (files):\n");
+  fprintf(output, "  -w <filename>            name of file to save (def: tempfile)\n");
+  fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
+  fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
+  fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
+  /*fprintf(output, "\n");*/
+  fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -v                       print version information and exit\n");
+  fprintf(output, "  -h                       display this help and exit\n");
+  fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+  fprintf(output, "\n");
+  fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcap\n");
+  fprintf(output, "\"Capture network packets from interface eth0 until 60s passed into output.pcap\"\n");
+  fprintf(output, "\n");
+  fprintf(output, "Use Ctrl-C to stop capturing at any time.\n");
 }
 
 static void
 show_version(void)
 {
-  printf("dumpcap " VERSION "%s\n\n%s\n\n%s\n",
-      svnversion, comp_info_str->str, runtime_info_str->str);
+#ifdef _WIN32
+  create_console();
+#endif
+
+  printf(
+        "Dumpcap " VERSION "%s\n"
+        "\n"
+        "(C) 1998-2005 Gerald Combs <gerald@ethereal.com>\n"
+        "See http://www.ethereal.com for more information.\n"
+        "\n"
+        "%s\n"
+        "\n"
+        "%s\n",
+        svnversion, comp_info_str->str, runtime_info_str->str);
 }
 
 /*
@@ -439,20 +476,7 @@ if (capture_opts->iface == NULL) {
     exit_main(0);
   }
 
-  if (capture_opts->has_snaplen) {
-    if (capture_opts->snaplen < 1)
-      capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
-    else if (capture_opts->snaplen < MIN_PACKET_SIZE)
-      capture_opts->snaplen = MIN_PACKET_SIZE;
-  }
-
-  /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
-#if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts->num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
-#endif
+  capture_opts_trim(capture_opts, MIN_PACKET_SIZE);
 
   /* Now start the capture. */
 
@@ -744,6 +768,16 @@ simple_dialog_format_message(const char *msg)
     }
     return str;
 }
+
+/****************************************************************************************************************/
+/* link "dummies" */
+
+
+const char *netsnmp_get_version() { return ""; }
+
+gboolean dfilter_compile(const gchar *text, dfilter_t **dfp) { return NULL; }
+
+void dfilter_free(dfilter_t *df) {}
 
 
 /*
