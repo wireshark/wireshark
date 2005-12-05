@@ -137,6 +137,7 @@ DISSECTOR_SRC =	\
 	packet-cdt.c	\
 	packet-cgmp.c	\
 	packet-chdlc.c	\
+	packet-cigi.c   \
 	packet-cimd.c	\
 	packet-cip.c	\
 	packet-cisco-wireless.c	\

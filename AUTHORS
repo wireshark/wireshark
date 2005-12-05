@@ -2425,6 +2425,10 @@ Stig Bjørlykke		<stig [AT] bjorlykke.org> {
 	 CDT (CompressedDataType) support
 }
 
+Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {
+    CIGI dissection
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
