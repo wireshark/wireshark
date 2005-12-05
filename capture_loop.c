@@ -1202,17 +1202,17 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
 
-#ifndef _WIN32
+#ifdef _WIN32
+  /* get the initial state of the signal pipe */
+  /* (if it's already stopped here, ignore it later) */
+  signal_pipe_enabled = !signal_pipe_stopped();
+#else
   /*
    * Catch SIGUSR1, so that we exit cleanly if the parent process
    * kills us with it due to the user selecting "Capture->Stop".
    */
     signal(SIGUSR1, capture_loop_stop_signal_handler);
 #endif
-
-  /* get the initial state of the signal pipe */
-  /* (if it's already stopped here, ignore it later) */
-  signal_pipe_enabled = !signal_pipe_stopped();
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child starting ...");
   capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
