@@ -37,6 +37,10 @@
  */
 extern void new_window_cb(GtkWidget *widget);
 
+/** Destroy all popup packet windows.
+ */
+void destroy_packet_wins(void);
+
 /** Redraw the hex dump panes of all packet windows. */
 void redraw_hex_dump_packet_wins(void);
 

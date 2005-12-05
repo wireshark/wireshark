@@ -30,6 +30,19 @@
  *  @ingroup main_window_group
  */
 
+/** Create byte views in the main window.
+ */
+void add_main_byte_views(epan_dissect_t *edt);
+
+/** Display the protocol tree in the main window.
+ */
+void main_proto_tree_draw(proto_tree *protocol_tree);
+
+/** Clear the hex dump and protocol tree panes.
+ */
+void clear_tree_and_hex_views(void);
+
+
 /** Get the current text notebook page of the packet details notebook.
  *
  * @param nb_ptr the notebook widget

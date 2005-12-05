@@ -1291,7 +1291,8 @@ main_cf_cb_file_closing(capture_file *cf)
 
     /* Destroy all windows, which refer to the
        capture file we're closing. */
-    destroy_cfile_wins();
+    destroy_packet_wins();
+    file_save_as_destroy();
 
     /* Clear any file-related status bar messages.
        XXX - should be "clear *ALL* file-related status bar messages;

@@ -49,6 +49,10 @@ typedef enum {
  */
 void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
 
+/** Destroy the save as dialog.
+ */
+void file_save_as_destroy(void);
+
 /** User requested the "Open" dialog box.
  *
  * @param widget parent widget
