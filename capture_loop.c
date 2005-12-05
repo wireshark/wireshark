@@ -1125,6 +1125,32 @@ capture_loop_stop_signal_handler(int signo _U_)
 #define TIME_GET() time(NULL)
 #endif
 
+#ifdef _WIN32
+static gboolean
+signal_pipe_stopped(void)
+{
+    /* some news from our parent (signal pipe)? -> just stop the capture */
+    HANDLE handle;
+    DWORD avail = 0;
+    gboolean result;
+
+
+    handle = (HANDLE) _get_osfhandle (0);
+    result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+    /*g_warning("check pipe: handle: %x result: %u avail: %u", handle, result, avail);*/
+
+    if(!result || avail > 0) {
+        /* XXX - doesn't work with dumpcap as a command line tool */
+        /* as we have no input pipe, need to find a way to circumvent this */
+        return TRUE;
+    }
+
+    return FALSE;
+}
+#endif
+
+
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
  * flag.
@@ -1148,6 +1174,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   gboolean    close_ok;
   char        errmsg[4096+1];
   int         save_file_fd;
+#ifdef _WIN32
+  gboolean    signal_pipe_enabled;
+#endif
 
 
   /* init the loop data */
@@ -1170,6 +1199,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   ld.pcap_fd            = 0;
 #endif
 
+  /* We haven't yet gotten the capture statistics. */
+  *stats_known      = FALSE;
+
 #ifndef _WIN32
   /*
    * Catch SIGUSR1, so that we exit cleanly if the parent process
@@ -1178,8 +1210,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     signal(SIGUSR1, capture_loop_stop_signal_handler);
 #endif
 
-  /* We haven't yet gotten the capture statistics. */
-  *stats_known      = FALSE;
+  /* get the initial state of the signal pipe */
+  /* (if it's already stopped here, ignore it later) */
+  signal_pipe_enabled = !signal_pipe_stopped();
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child starting ...");
   capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
@@ -1253,26 +1286,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
 
 #ifdef _WIN32
-      /* some news from our parent (signal pipe)? -> just stop the capture */
-      {
-          HANDLE handle;
-          DWORD avail = 0;
-          gboolean result;
-
-
-          handle = (HANDLE) _get_osfhandle (0);
-          result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-          /*g_warning("check pipe: handle: %x result: %u avail: %u", handle, result, avail);*/
-
-          if(!result || avail > 0) {
-            /* XXX - doesn't work with dumpcap as a command line tool */
-            /* as we have no input pipe, need to find a way to circumvent this */
-#ifndef DUMPCAP
-            ld.go = FALSE;
-#endif
-          }
-      }
+    /* some news from our parent (signal pipe)? -> just stop the capture */
+    if (signal_pipe_stopped() && signal_pipe_enabled) {
+      ld.go = FALSE;
+    }
 #endif
 
     if (inpkts > 0) {
