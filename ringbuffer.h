@@ -35,7 +35,8 @@
 /* minimum number of ringbuffer files */
 #define RINGBUFFER_MIN_NUM_FILES 0
 /* maximum number of ringbuffer files */
-#define RINGBUFFER_MAX_NUM_FILES 1024
+/* (only to avoid crashes on very large numbers) */
+#define RINGBUFFER_MAX_NUM_FILES 10000
 
 int ringbuf_init(const char *capture_name, guint num_files);
 const gchar *ringbuf_current_filename(void);
