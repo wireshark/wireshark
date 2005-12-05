@@ -1,0 +1,364 @@
+
+
+
+all: \
+	acse	\
+	camel	\
+	cdt	\
+	cmip	\
+	cms	\
+	dap	\
+	disp	\
+	dsp	\
+	ess	\
+	ftam	\
+	ftbp	\
+	gnm	\
+	gsmmap	\
+	gsm_ss	\
+	h225	\
+	h235	\
+	h245	\
+	h248	\
+	h450	\
+	inap	\
+	logotype-cert-extn	\
+	MAP_Dialogue	\
+	mms	\
+	nbap	\
+	ns-cert-exts	\
+	ocsp	\
+	pkcs1	\
+	pkinit	\
+	pkix1explicit	\
+	pkix1implicit	\
+	pkixcmp	\
+	pkixcrmf	\
+	pkixproxy	\
+	pkixqualified	\
+	pkixtsp	\
+	pres	\
+	ranap	\
+	ros	\
+	rtse	\
+	s4406	\
+	smrse	\
+	spnego	\
+	tcap	\
+	wlancertextn	\
+	x411	\
+	x420	\
+	x501	\
+	x509af	\
+	x509ce	\
+	x509if	\
+	x509sat	
+	
+	
+ber: \	
+	acse	\
+	camel	\
+	cdt	\
+	cmip	\
+	cms	\
+	dap	\
+	disp	\
+	dsp	\
+	ess	\
+	ftam	\
+	ftbp	\
+	gnm	\
+	gsmmap	\
+	gsm_ss	\
+	inap	\
+	logotype-cert-extn	\
+	MAP_Dialogue	\
+	mms	\
+	ns-cert-exts	\
+	ocsp	\
+	pkcs1	\
+	pkinit	\
+	pkix1explicit	\
+	pkix1implicit	\
+	pkixcmp	\
+	pkixcrmf	\
+	pkixproxy	\
+	pkixqualified	\
+	pkixtsp	\
+	pres	\
+	ros	\
+	rtse	\
+	s4406	\
+	smrse	\
+	spnego	\
+	tcap	\
+	wlancertextn	\
+	x411	\
+	x420	\
+	x501	\
+	x509af	\
+	x509ce	\
+	x509if	\
+	x509sat	
+	
+per: \	
+	h225	\
+	h235	\
+	h245	\
+	h248	\
+	h450	\
+	ranap	
+
+acse::
+	cd acse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	cd ..
+
+camel::
+	cd camel
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+cdt::
+	cd cdt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+cmip::
+	cd cmip
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+cms::
+	cd cms
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+dap::
+	cd cms
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+disp::
+	cd disp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+dsp::
+	cd dsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+ess::
+	cd ess
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+ftam::
+	cd ftam
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+ftbp::
+	cd ftbp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+gnm::
+	cd gnm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+gsm_ss::
+	cd gsm_ss
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+gsmmap::
+	cd gsmmap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+h225::
+	cd h225
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+h235::
+	cd h235
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+h245::
+	cd h245
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+h248::
+	cd h248
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+h450::
+	cd h450
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+inap::
+	cd inap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+logotype-cert-extn::
+	cd logotype-cert-extn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+MAP_Dialogue::
+	cd MAP_Dialogue
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+mms::
+	cd mms
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+nbap::
+	cd nbap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+ns-cert-exts::
+	cd ns-cert-exts
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+ocsp::
+	cd ocsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkcs1::
+	cd pkcs1
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkinit::
+	cd pkinit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkix1explicit::
+	cd pkix1explicit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkix1implicit::
+	cd pkix1implicit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkixcmp::
+	cd pkixcmp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkixcrmf::
+	cd pkixcrmf
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkixproxy::
+	cd pkixproxy
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkixqualified::
+	cd pkixqualified
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pkixtsp::
+	cd pkixtsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+pres::
+	cd pres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+ranap::
+	cd ranap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+ros::
+	cd ros
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+rtse::
+	cd rtse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+s4406::
+	cd s4406
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+smrse::
+	cd smrse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+spnego::
+	cd spnego
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+tcap::
+	cd tcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+wlancertextn::
+	cd wlancertextn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+x411::
+	cd x411
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+x420::
+	cd x420
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+x501::
+	cd x501
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+x509af::
+	cd x509af
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+x509ce::
+	cd x509ce
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+x509if::
+	cd x509if
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+x509sat::
+	cd x509sat
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..

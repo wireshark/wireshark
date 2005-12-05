@@ -17,7 +17,7 @@ Countersignature         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 
 #.TYPE_ATTR
 ContentInfo              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-ContentType              TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ContentType              TYPE = FT_OID     DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SignedData               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DigestAlgorithmIdentifiers TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 SignerInfos              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0

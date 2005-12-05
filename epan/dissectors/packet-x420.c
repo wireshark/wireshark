@@ -5,6 +5,7 @@
 
 /* Input file: packet-x420-template.c */
 
+#line 1 "packet-x420-template.c"
 /* packet-x420.c
  * Routines for X.420 (X.400 Message Transfer)  packet dissection
  * Graeme Lunt 2005
@@ -46,6 +47,7 @@
 #include "packet-ros.h"
 
 #include "packet-x509af.h"
+#include "packet-x509ce.h"
 #include "packet-x411.h"
 
 #include "packet-x420.h"
@@ -59,13 +61,79 @@ int proto_x420 = -1;
 
 static const char *object_identifier_id; /* content type identifier */
 
+static const value_string charsetreg_vals [] = {
+  { 1, "C0: (ISO/IEC 6429)"},
+  { 6, "G0: ASCII (ISO/IEC 646)"},
+  { 77, "C1: (ISO/IEC 6429)"},
+  { 100, "Gn: Latin Alphabet No.1, Western European Supplementary Set (GR area of ISO-8859-1)"},
+  { 101, "Gn: Latin Alphabet No.2, Central EuropeanSupplementary Set (GR area of ISO-8859-2)"},
+  { 104, "C0: (ISO/IEC 4873)"},
+  { 105, "C1: (ISO/IEC 4873)"},
+  { 106, "C0: Teletex (CCITT T.61)"},
+  { 107, "C1: Teletex (CCITT T.61)"},
+  { 109, "Gn: Latin Alphabet No.3, Southern European Supplementary Set (GR area of ISO-8859-3)"},
+  { 110, "Gn: Latin Alphabet No.4, Baltic Supplementary Set (GR area of ISO-8859-4)"},
+  { 126, "Gn: Greek Supplementary Set (GR area of ISO-8859-7)"},
+  { 127, "Gn: Arabic Supplementary Set (GR area of ISO-8859-6)"},
+  { 138, "Gn: Hebrew Supplementary Set (GR area of ISO-8859-8)"},
+  { 144, "Gn: Cyrillic Supplementary Set (GR area of ISO-8859-5)"},
+  { 148, "Gn: Latin Alphabet No.5, Cyrillic Supplementary Set (GR area of ISO-8859-9)"},
+  { 154, "Gn: Supplementary Set for Latin Alphabets No.1 or No.5, and No.2"},
+  { 157, "Gn: Latin Alphabet No.6, Arabic Supplementary Set (GR area of ISO-8859-10)"},
+  { 158, "Gn: Supplementary Set for Sami (Lappish) to complement Latin Alphabet No.6 (from Annex A  of ISO-8859-10)"},
+  { 166, "Gn: Thai Supplementary Set (GR area of ISO-8859-11)"},
+  { 179, "Gn: Latin Alphabet No.7, Baltic Rim Supplementary Set (GR area of ISO-8859-13)"},
+  { 182, "Gn: Welsh Variant of Latin Alphabet No.1, Supplementary Set (GR area of ISO-8859-1)"},
+  { 197, "Gn: Supplementary Set for Sami to complement Latin Alphabet No.6 (from Annex A  of ISO-8859-10)"},
+  { 199, "Gn: Latin Alphabet No.8, Celtic Supplementary Set (GR area of ISO-8859-14)"},
+  { 203, "Gn: Latin Alphabet No.9, European Rim Supplementary Set (GR area of ISO-8859-15)"},
+  { 0, NULL}
+};
+
 
 /*--- Included file: packet-x420-hf.c ---*/
-
+#line 1 "packet-x420-hf.c"
+static int hf_x420_InformationObject_PDU = -1;    /* InformationObject */
+static int hf_x420_IA5TextParameters_PDU = -1;    /* IA5TextParameters */
+static int hf_x420_IA5TextData_PDU = -1;          /* IA5TextData */
+static int hf_x420_G3FacsimileParameters_PDU = -1;  /* G3FacsimileParameters */
+static int hf_x420_G3FacsimileData_PDU = -1;      /* G3FacsimileData */
+static int hf_x420_G4Class1Data_PDU = -1;         /* G4Class1Data */
+static int hf_x420_MixedModeData_PDU = -1;        /* MixedModeData */
+static int hf_x420_TeletexParameters_PDU = -1;    /* TeletexParameters */
+static int hf_x420_TeletexData_PDU = -1;          /* TeletexData */
+static int hf_x420_VideotexParameters_PDU = -1;   /* VideotexParameters */
+static int hf_x420_VideotexData_PDU = -1;         /* VideotexData */
+static int hf_x420_EncryptedParameters_PDU = -1;  /* EncryptedParameters */
+static int hf_x420_EncryptedData_PDU = -1;        /* EncryptedData */
+static int hf_x420_MessageParameters_PDU = -1;    /* MessageParameters */
+static int hf_x420_MessageData_PDU = -1;          /* MessageData */
+static int hf_x420_BilaterallyDefinedBodyPart_PDU = -1;  /* BilaterallyDefinedBodyPart */
+static int hf_x420_IPN_PDU = -1;                  /* IPN */
 static int hf_x420_AbsenceAdvice_PDU = -1;        /* AbsenceAdvice */
 static int hf_x420_ChangeOfAddressAdvice_PDU = -1;  /* ChangeOfAddressAdvice */
 static int hf_x420_IPMAssemblyInstructions_PDU = -1;  /* IPMAssemblyInstructions */
 static int hf_x420_OriginatingUA_PDU = -1;        /* OriginatingUA */
+static int hf_x420_IncompleteCopy_PDU = -1;       /* IncompleteCopy */
+static int hf_x420_Languages_PDU = -1;            /* Languages */
+static int hf_x420_AutoSubmitted_PDU = -1;        /* AutoSubmitted */
+static int hf_x420_BodyPartSignatures_PDU = -1;   /* BodyPartSignatures */
+static int hf_x420_IPMSecurityLabel_PDU = -1;     /* IPMSecurityLabel */
+static int hf_x420_AuthorizationTime_PDU = -1;    /* AuthorizationTime */
+static int hf_x420_CirculationList_PDU = -1;      /* CirculationList */
+static int hf_x420_CirculationListIndicator_PDU = -1;  /* CirculationListIndicator */
+static int hf_x420_DistributionCodes_PDU = -1;    /* DistributionCodes */
+static int hf_x420_ExtendedSubject_PDU = -1;      /* ExtendedSubject */
+static int hf_x420_InformationCategories_PDU = -1;  /* InformationCategories */
+static int hf_x420_ManualHandlingInstructions_PDU = -1;  /* ManualHandlingInstructions */
+static int hf_x420_OriginatorsReference_PDU = -1;  /* OriginatorsReference */
+static int hf_x420_PrecedencePolicyIdentifier_PDU = -1;  /* PrecedencePolicyIdentifier */
+static int hf_x420_Precedence_PDU = -1;           /* Precedence */
+static int hf_x420_GeneralTextParameters_PDU = -1;  /* GeneralTextParameters */
+static int hf_x420_GeneralTextData_PDU = -1;      /* GeneralTextData */
+static int hf_x420_VoiceParameters_PDU = -1;      /* VoiceParameters */
+static int hf_x420_VoiceData_PDU = -1;            /* VoiceData */
+static int hf_x420_ForwardedContentParameters_PDU = -1;  /* ForwardedContentParameters */
 static int hf_x420_ipm = -1;                      /* IPM */
 static int hf_x420_ipn = -1;                      /* IPN */
 static int hf_x420_heading = -1;                  /* Heading */
@@ -113,7 +181,7 @@ static int hf_x420_g3_facsimile = -1;             /* G3FacsimileBodyPart */
 static int hf_x420_g4_class1 = -1;                /* G4Class1BodyPart */
 static int hf_x420_teletex = -1;                  /* TeletexBodyPart */
 static int hf_x420_videotex = -1;                 /* VideotexBodyPart */
-static int hf_x420_encrypted = -1;                /* EncryptedBodyPart */
+static int hf_x420_encrypted_bp = -1;             /* EncryptedBodyPart */
 static int hf_x420_message = -1;                  /* MessageBodyPart */
 static int hf_x420_mixed_mode = -1;               /* MixedModeBodyPart */
 static int hf_x420_bilaterally_defined = -1;      /* BilaterallyDefinedBodyPart */
@@ -129,8 +197,8 @@ static int hf_x420_g3facsimile_data = -1;         /* G3FacsimileData */
 static int hf_x420_number_of_pages = -1;          /* INTEGER */
 static int hf_x420_g3facsimile_non_basic_parameters = -1;  /* G3FacsimileNonBasicParameters */
 static int hf_x420_G3FacsimileData_item = -1;     /* BIT_STRING */
-static int hf_x420_G4Class1BodyPart_item = -1;    /* Interchange_Data_Element */
-static int hf_x420_MixedModeBodyPart_item = -1;   /* Interchange_Data_Element */
+static int hf_x420_G4Class1Data_item = -1;        /* Interchange_Data_Element */
+static int hf_x420_MixedModeData_item = -1;       /* Interchange_Data_Element */
 static int hf_x420_teletex_parameters = -1;       /* TeletexParameters */
 static int hf_x420_teletex_data = -1;             /* TeletexData */
 static int hf_x420_telex_compatible = -1;         /* BOOLEAN */
@@ -177,10 +245,48 @@ static int hf_x420_assembly_instructions = -1;    /* BodyPartReferences */
 static int hf_x420_BodyPartReferences_item = -1;  /* BodyPartReference */
 static int hf_x420_stored_entry = -1;             /* SequenceNumber */
 static int hf_x420_stored_content = -1;           /* SequenceNumber */
-static int hf_x420_submitted_body_part = -1;      /* INTEGER_1_MAX */
+static int hf_x420_submitted_body_part = -1;      /* INTEGER */
 static int hf_x420_stored_body_part = -1;         /* T_stored_body_part */
 static int hf_x420_message_entry = -1;            /* SequenceNumber */
-static int hf_x420_body_part_number = -1;         /* INTEGER_1_MAX */
+static int hf_x420_body_part_number = -1;         /* BodyPartNumber */
+static int hf_x420_Languages_item = -1;           /* Language */
+static int hf_x420_algorithmIdentifier = -1;      /* AlgorithmIdentifier */
+static int hf_x420_encrypted = -1;                /* BIT_STRING */
+static int hf_x420_BodyPartSignatures_item = -1;  /* BodyPartSignatures_item */
+static int hf_x420_body_part_signature = -1;      /* BodyPartSignature */
+static int hf_x420_originator_certificate_selector = -1;  /* CertificateAssertion */
+static int hf_x420_content_security_label = -1;   /* SecurityLabel */
+static int hf_x420_heading_security_label = -1;   /* SecurityLabel */
+static int hf_x420_body_part_security_labels = -1;  /* SEQUENCE_OF_BodyPartSecurityLabel */
+static int hf_x420_body_part_security_labels_item = -1;  /* BodyPartSecurityLabel */
+static int hf_x420_body_part_unlabelled = -1;     /* NULL */
+static int hf_x420_body_part_security_label = -1;  /* SecurityLabel */
+static int hf_x420_CirculationList_item = -1;     /* CirculationMember */
+static int hf_x420_circulation_recipient = -1;    /* RecipientSpecifier */
+static int hf_x420_checked = -1;                  /* Checkmark */
+static int hf_x420_simple = -1;                   /* NULL */
+static int hf_x420_timestamped = -1;              /* CirculationTime */
+static int hf_x420_signed = -1;                   /* CirculationSignature */
+static int hf_x420_circulation_signature_algorithm_identifier = -1;  /* CirculationSignatureAlgorithmIdentifier */
+static int hf_x420_timestamp = -1;                /* CirculationTime */
+static int hf_x420_circulation_signature_data = -1;  /* CirculationSignatureData */
+static int hf_x420_DistributionCodes_item = -1;   /* DistributionCode */
+static int hf_x420_oid_code = -1;                 /* OBJECT_IDENTIFIER */
+static int hf_x420_alphanumeric_code = -1;        /* AlphaCode */
+static int hf_x420_or_descriptor = -1;            /* ORDescriptor */
+static int hf_x420_InformationCategories_item = -1;  /* InformationCategory */
+static int hf_x420_reference = -1;                /* OBJECT_IDENTIFIER */
+static int hf_x420_description = -1;              /* DescriptionString */
+static int hf_x420_ManualHandlingInstructions_item = -1;  /* ManualHandlingInstruction */
+static int hf_x420_GeneralTextParameters_item = -1;  /* CharacterSetRegistration */
+static int hf_x420_voice_message_duration = -1;   /* INTEGER */
+static int hf_x420_voice_encoding_type = -1;      /* OBJECT_IDENTIFIER */
+static int hf_x420_supplementary_information = -1;  /* IA5String */
+static int hf_x420_mts_identifier = -1;           /* MessageDeliveryIdentifier */
+static int hf_x420_submission_proof = -1;         /* SubmissionProof */
+static int hf_x420_proof_of_submission = -1;      /* ProofOfSubmission */
+static int hf_x420_originating_MTA_certificate = -1;  /* OriginatingMTACertificate */
+static int hf_x420_message_submission_envelope = -1;  /* MessageSubmissionEnvelope */
 /* named bits */
 static int hf_x420_NotificationRequests_rn = -1;
 static int hf_x420_NotificationRequests_nrn = -1;
@@ -189,13 +295,13 @@ static int hf_x420_NotificationRequests_an_supported = -1;
 static int hf_x420_NotificationRequests_suppress_an = -1;
 
 /*--- End of included file: packet-x420-hf.c ---*/
-
+#line 86 "packet-x420-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x420 = -1;
 
 /*--- Included file: packet-x420-ett.c ---*/
-
+#line 1 "packet-x420-ett.c"
 static gint ett_x420_InformationObject = -1;
 static gint ett_x420_IPM = -1;
 static gint ett_x420_IPMSExtension = -1;
@@ -221,8 +327,8 @@ static gint ett_x420_IA5TextParameters = -1;
 static gint ett_x420_G3FacsimileBodyPart = -1;
 static gint ett_x420_G3FacsimileParameters = -1;
 static gint ett_x420_G3FacsimileData = -1;
-static gint ett_x420_G4Class1BodyPart = -1;
-static gint ett_x420_MixedModeBodyPart = -1;
+static gint ett_x420_G4Class1Data = -1;
+static gint ett_x420_MixedModeData = -1;
 static gint ett_x420_TeletexBodyPart = -1;
 static gint ett_x420_TeletexParameters = -1;
 static gint ett_x420_TeletexData = -1;
@@ -246,13 +352,34 @@ static gint ett_x420_IPMAssemblyInstructions = -1;
 static gint ett_x420_BodyPartReferences = -1;
 static gint ett_x420_BodyPartReference = -1;
 static gint ett_x420_T_stored_body_part = -1;
+static gint ett_x420_Languages = -1;
+static gint ett_x420_Signature = -1;
+static gint ett_x420_BodyPartSignatures = -1;
+static gint ett_x420_BodyPartSignatures_item = -1;
+static gint ett_x420_IPMSecurityLabel = -1;
+static gint ett_x420_SEQUENCE_OF_BodyPartSecurityLabel = -1;
+static gint ett_x420_BodyPartSecurityLabel = -1;
+static gint ett_x420_CirculationList = -1;
+static gint ett_x420_CirculationMember = -1;
+static gint ett_x420_Checkmark = -1;
+static gint ett_x420_CirculationSignatureData = -1;
+static gint ett_x420_CirculationSignature = -1;
+static gint ett_x420_DistributionCodes = -1;
+static gint ett_x420_DistributionCode = -1;
+static gint ett_x420_InformationCategories = -1;
+static gint ett_x420_InformationCategory = -1;
+static gint ett_x420_ManualHandlingInstructions = -1;
+static gint ett_x420_GeneralTextParameters = -1;
+static gint ett_x420_VoiceParameters = -1;
+static gint ett_x420_ForwardedContentParameters = -1;
+static gint ett_x420_SubmissionProof = -1;
 
 /*--- End of included file: packet-x420-ett.c ---*/
-
+#line 90 "packet-x420-template.c"
 
 
 /*--- Included file: packet-x420-fn.c ---*/
-
+#line 1 "packet-x420-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* IPM -> Body -> BodyPart -> MessageBodyPart -> MessageData -> IPM */
@@ -289,11 +416,41 @@ static int dissect_algorithm_identifier(packet_info *pinfo, proto_tree *tree, tv
 static int dissect_originator_certificates(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x411_ExtendedCertificates(FALSE, tvb, offset, pinfo, tree, hf_x420_originator_certificates);
 }
+static int dissect_originator_certificates_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_ExtendedCertificates(TRUE, tvb, offset, pinfo, tree, hf_x420_originator_certificates);
+}
 static int dissect_delivery_time_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x411_MessageDeliveryTime(TRUE, tvb, offset, pinfo, tree, hf_x420_delivery_time);
 }
 static int dissect_delivery_envelope_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x411_OtherMessageDeliveryFields(TRUE, tvb, offset, pinfo, tree, hf_x420_delivery_envelope);
+}
+static int dissect_algorithmIdentifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_x420_algorithmIdentifier);
+}
+static int dissect_originator_certificate_selector_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x420_originator_certificate_selector);
+}
+static int dissect_content_security_label_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_SecurityLabel(TRUE, tvb, offset, pinfo, tree, hf_x420_content_security_label);
+}
+static int dissect_heading_security_label_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_SecurityLabel(TRUE, tvb, offset, pinfo, tree, hf_x420_heading_security_label);
+}
+static int dissect_body_part_security_label_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_SecurityLabel(TRUE, tvb, offset, pinfo, tree, hf_x420_body_part_security_label);
+}
+static int dissect_mts_identifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_MessageDeliveryIdentifier(TRUE, tvb, offset, pinfo, tree, hf_x420_mts_identifier);
+}
+static int dissect_proof_of_submission_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_ProofOfSubmission(TRUE, tvb, offset, pinfo, tree, hf_x420_proof_of_submission);
+}
+static int dissect_originating_MTA_certificate_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_OriginatingMTACertificate(TRUE, tvb, offset, pinfo, tree, hf_x420_originating_MTA_certificate);
+}
+static int dissect_message_submission_envelope(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_MessageSubmissionEnvelope(FALSE, tvb, offset, pinfo, tree, hf_x420_message_submission_envelope);
 }
 
 
@@ -403,6 +560,9 @@ static int dissect_recipient_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 static int dissect_new_address_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x420_ORDescriptor(TRUE, tvb, offset, pinfo, tree, hf_x420_new_address);
 }
+static int dissect_or_descriptor_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_ORDescriptor(TRUE, tvb, offset, pinfo, tree, hf_x420_or_descriptor);
+}
 
 
 
@@ -485,6 +645,7 @@ static int dissect_telex_compatible_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 110 "x420.cnf"
   char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -492,6 +653,7 @@ dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
   
   name = get_ber_oid_name(object_identifier_id);
   proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
+
 
 
   return offset;
@@ -504,8 +666,10 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_x420_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 118 "x420.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -578,6 +742,9 @@ dissect_x420_RecipientSpecifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
                               RecipientSpecifier_set, hf_index, ett_x420_RecipientSpecifier);
 
   return offset;
+}
+static int dissect_circulation_recipient(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_RecipientSpecifier(FALSE, tvb, offset, pinfo, tree, hf_x420_circulation_recipient);
 }
 
 
@@ -736,9 +903,18 @@ static int dissect_related_IPMs_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+#line 140 "x420.cnf"
+  tvbuff_t *subject=NULL;
+
+    offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &subject);
+
+
+  if(subject && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", tvb_format_text(subject, 0, tvb_length(subject)));
+
+
 
   return offset;
 }
@@ -979,6 +1155,12 @@ dissect_x420_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 static int dissect_number_of_pages_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x420_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_x420_number_of_pages);
 }
+static int dissect_submitted_body_part_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_x420_submitted_body_part);
+}
+static int dissect_voice_message_duration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_x420_voice_message_duration);
+}
 
 
 static const ber_sequence_t G3FacsimileParameters_set[] = {
@@ -1010,6 +1192,9 @@ dissect_x420_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 }
 static int dissect_G3FacsimileData_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x420_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_x420_G3FacsimileData_item);
+}
+static int dissect_encrypted(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_x420_encrypted);
 }
 
 
@@ -1050,28 +1235,38 @@ static int dissect_g3_facsimile_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-/*ARGSUSED*/
+#line 159 "x420.cnf"
 /* XXX Not implemented yet */
+
 
 
   return offset;
 }
-static int dissect_G4Class1BodyPart_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x420_Interchange_Data_Element(FALSE, tvb, offset, pinfo, tree, hf_x420_G4Class1BodyPart_item);
+static int dissect_G4Class1Data_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_Interchange_Data_Element(FALSE, tvb, offset, pinfo, tree, hf_x420_G4Class1Data_item);
 }
-static int dissect_MixedModeBodyPart_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x420_Interchange_Data_Element(FALSE, tvb, offset, pinfo, tree, hf_x420_MixedModeBodyPart_item);
+static int dissect_MixedModeData_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_Interchange_Data_Element(FALSE, tvb, offset, pinfo, tree, hf_x420_MixedModeData_item);
 }
 
 
-static const ber_sequence_t G4Class1BodyPart_sequence_of[1] = {
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_G4Class1BodyPart_item },
+static const ber_sequence_t G4Class1Data_sequence_of[1] = {
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_G4Class1Data_item },
 };
 
 static int
-dissect_x420_G4Class1BodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x420_G4Class1Data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      G4Class1BodyPart_sequence_of, hf_index, ett_x420_G4Class1BodyPart);
+                                      G4Class1Data_sequence_of, hf_index, ett_x420_G4Class1Data);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_G4Class1BodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x420_G4Class1Data(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -1262,8 +1457,8 @@ dissect_x420_EncryptedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
-static int dissect_encrypted_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x420_EncryptedBodyPart(TRUE, tvb, offset, pinfo, tree, hf_x420_encrypted);
+static int dissect_encrypted_bp_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_EncryptedBodyPart(TRUE, tvb, offset, pinfo, tree, hf_x420_encrypted_bp);
 }
 
 
@@ -1315,14 +1510,23 @@ static int dissect_message_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const ber_sequence_t MixedModeBodyPart_sequence_of[1] = {
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_MixedModeBodyPart_item },
+static const ber_sequence_t MixedModeData_sequence_of[1] = {
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_MixedModeData_item },
 };
 
 static int
-dissect_x420_MixedModeBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x420_MixedModeData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      MixedModeBodyPart_sequence_of, hf_index, ett_x420_MixedModeBodyPart);
+                                      MixedModeData_sequence_of, hf_index, ett_x420_MixedModeData);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_MixedModeBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x420_MixedModeData(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -1347,8 +1551,10 @@ static int dissect_bilaterally_defined_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-/*ARGSUSED*/
+#line 162 "x420.cnf"
 /* XXX Not implemented yet */
+
+
 
 
   return offset;
@@ -1397,7 +1603,7 @@ static const ber_choice_t BodyPart_choice[] = {
   {   4, BER_CLASS_CON, 4, 0, dissect_g4_class1_impl },
   {   5, BER_CLASS_CON, 5, 0, dissect_teletex_impl },
   {   6, BER_CLASS_CON, 6, 0, dissect_videotex_impl },
-  {   8, BER_CLASS_CON, 8, 0, dissect_encrypted_impl },
+  {   8, BER_CLASS_CON, 8, 0, dissect_encrypted_bp_impl },
   {   9, BER_CLASS_CON, 9, 0, dissect_message_impl },
   {  11, BER_CLASS_CON, 11, 0, dissect_mixed_mode_impl },
   {  14, BER_CLASS_CON, 14, 0, dissect_bilaterally_defined_impl },
@@ -1446,12 +1652,15 @@ static const ber_sequence_t IPM_sequence[] = {
 
 static int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 122 "x420.cnf"
+
+ if((hf_index == hf_x420_ipm) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " Message");
 
     offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    IPM_sequence, hf_index, ett_x420_IPM);
 
- if((hf_index == hf_x420_ipm) && check_col(pinfo->cinfo, COL_INFO))
-   col_append_fstr(pinfo->cinfo, COL_INFO, " Message");
+
 
 
 
@@ -1769,12 +1978,15 @@ static const ber_sequence_t IPN_set[] = {
 
 static int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 130 "x420.cnf"
+
+ if((hf_index == hf_x420_ipn) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " Notification");
 
     offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               IPN_set, hf_index, ett_x420_IPN);
 
- if((hf_index == hf_x420_ipn) && check_col(pinfo->cinfo, COL_INFO))
-   col_append_fstr(pinfo->cinfo, COL_INFO, " Notification");
+
 
 
   return offset;
@@ -1857,17 +2069,14 @@ static int dissect_message_entry(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 
 static int
-dissect_x420_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x420_BodyPartNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_submitted_body_part_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x420_INTEGER_1_MAX(TRUE, tvb, offset, pinfo, tree, hf_x420_submitted_body_part);
-}
 static int dissect_body_part_number(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x420_INTEGER_1_MAX(FALSE, tvb, offset, pinfo, tree, hf_x420_body_part_number);
+  return dissect_x420_BodyPartNumber(FALSE, tvb, offset, pinfo, tree, hf_x420_body_part_number);
 }
 
 
@@ -1958,8 +2167,674 @@ dissect_x420_OriginatingUA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
   return offset;
 }
 
+
+
+static int
+dissect_x420_IncompleteCopy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_Language(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_Languages_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_Language(FALSE, tvb, offset, pinfo, tree, hf_x420_Languages_item);
+}
+
+
+static const ber_sequence_t Languages_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_Languages_item },
+};
+
+static int
+dissect_x420_Languages(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 Languages_set_of, hf_index, ett_x420_Languages);
+
+  return offset;
+}
+
+
+static const value_string x420_AutoSubmitted_vals[] = {
+  {   0, "not-auto-submitted" },
+  {   1, "auto-generated" },
+  {   2, "auto-replied" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x420_AutoSubmitted(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Signature_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithmIdentifier },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Signature_sequence, hf_index, ett_x420_Signature);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_BodyPartSignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x420_Signature(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_body_part_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_BodyPartSignature(FALSE, tvb, offset, pinfo, tree, hf_x420_body_part_signature);
+}
+
+
+static const ber_sequence_t BodyPartSignatures_item_set[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_body_part_number },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_body_part_signature },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originator_certificate_selector_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originator_certificates_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_BodyPartSignatures_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              BodyPartSignatures_item_set, hf_index, ett_x420_BodyPartSignatures_item);
+
+  return offset;
+}
+static int dissect_BodyPartSignatures_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_BodyPartSignatures_item(FALSE, tvb, offset, pinfo, tree, hf_x420_BodyPartSignatures_item);
+}
+
+
+static const ber_sequence_t BodyPartSignatures_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_BodyPartSignatures_item },
+};
+
+static int
+dissect_x420_BodyPartSignatures(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 BodyPartSignatures_set_of, hf_index, ett_x420_BodyPartSignatures);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+static int dissect_body_part_unlabelled_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_NULL(TRUE, tvb, offset, pinfo, tree, hf_x420_body_part_unlabelled);
+}
+static int dissect_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_NULL(FALSE, tvb, offset, pinfo, tree, hf_x420_simple);
+}
+
+
+static const value_string x420_BodyPartSecurityLabel_vals[] = {
+  {   0, "body-part-unlabelled" },
+  {   1, "body-part-security-label" },
+  { 0, NULL }
+};
+
+static const ber_choice_t BodyPartSecurityLabel_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_body_part_unlabelled_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_body_part_security_label_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_BodyPartSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 BodyPartSecurityLabel_choice, hf_index, ett_x420_BodyPartSecurityLabel,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_body_part_security_labels_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_BodyPartSecurityLabel(FALSE, tvb, offset, pinfo, tree, hf_x420_body_part_security_labels_item);
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_BodyPartSecurityLabel_sequence_of[1] = {
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_body_part_security_labels_item },
+};
+
+static int
+dissect_x420_SEQUENCE_OF_BodyPartSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      SEQUENCE_OF_BodyPartSecurityLabel_sequence_of, hf_index, ett_x420_SEQUENCE_OF_BodyPartSecurityLabel);
+
+  return offset;
+}
+static int dissect_body_part_security_labels_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_SEQUENCE_OF_BodyPartSecurityLabel(TRUE, tvb, offset, pinfo, tree, hf_x420_body_part_security_labels);
+}
+
+
+static const ber_sequence_t IPMSecurityLabel_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_content_security_label_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_heading_security_label_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_body_part_security_labels_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_IPMSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   IPMSecurityLabel_sequence, hf_index, ett_x420_IPMSecurityLabel);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_AuthorizationTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_CirculationTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+static int dissect_timestamped(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_CirculationTime(FALSE, tvb, offset, pinfo, tree, hf_x420_timestamped);
+}
+static int dissect_timestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_CirculationTime(FALSE, tvb, offset, pinfo, tree, hf_x420_timestamp);
+}
+
+
+
+static int
+dissect_x420_CirculationSignatureAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_circulation_signature_algorithm_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_CirculationSignatureAlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_x420_circulation_signature_algorithm_identifier);
+}
+
+
+static const ber_sequence_t CirculationSignatureData_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_circulation_signature_algorithm_identifier },
+  { BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_this_IPM },
+  { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_timestamp },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_CirculationSignatureData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   CirculationSignatureData_sequence, hf_index, ett_x420_CirculationSignatureData);
+
+  return offset;
+}
+static int dissect_circulation_signature_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_CirculationSignatureData(FALSE, tvb, offset, pinfo, tree, hf_x420_circulation_signature_data);
+}
+
+
+static const ber_sequence_t CirculationSignature_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_circulation_signature_data },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithm_identifier },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_CirculationSignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   CirculationSignature_sequence, hf_index, ett_x420_CirculationSignature);
+
+  return offset;
+}
+static int dissect_signed(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_CirculationSignature(FALSE, tvb, offset, pinfo, tree, hf_x420_signed);
+}
+
+
+static const value_string x420_Checkmark_vals[] = {
+  {   0, "simple" },
+  {   1, "timestamped" },
+  {   2, "signed" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Checkmark_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_simple },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_timestamped },
+  {   2, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signed },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_Checkmark(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 Checkmark_choice, hf_index, ett_x420_Checkmark,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_checked(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_Checkmark(FALSE, tvb, offset, pinfo, tree, hf_x420_checked);
+}
+
+
+static const ber_sequence_t CirculationMember_set[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_circulation_recipient },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_checked },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_CirculationMember(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              CirculationMember_set, hf_index, ett_x420_CirculationMember);
+
+  return offset;
+}
+static int dissect_CirculationList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_CirculationMember(FALSE, tvb, offset, pinfo, tree, hf_x420_CirculationList_item);
+}
+
+
+static const ber_sequence_t CirculationList_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_CirculationList_item },
+};
+
+static int
+dissect_x420_CirculationList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      CirculationList_sequence_of, hf_index, ett_x420_CirculationList);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_CirculationListIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_oid_code(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x420_oid_code);
+}
+static int dissect_reference_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_x420_reference);
+}
+static int dissect_voice_encoding_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_x420_voice_encoding_type);
+}
+
+
+
+static int
+dissect_x420_AlphaCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x411_UniversalOrBMPString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_alphanumeric_code(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_AlphaCode(FALSE, tvb, offset, pinfo, tree, hf_x420_alphanumeric_code);
+}
+
+
+static const ber_sequence_t DistributionCode_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_oid_code },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_alphanumeric_code },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_or_descriptor_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_DistributionCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   DistributionCode_sequence, hf_index, ett_x420_DistributionCode);
+
+  return offset;
+}
+static int dissect_DistributionCodes_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_DistributionCode(FALSE, tvb, offset, pinfo, tree, hf_x420_DistributionCodes_item);
+}
+
+
+static const ber_sequence_t DistributionCodes_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_DistributionCodes_item },
+};
+
+static int
+dissect_x420_DistributionCodes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      DistributionCodes_sequence_of, hf_index, ett_x420_DistributionCodes);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_ExtendedSubject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x411_UniversalOrBMPString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_DescriptionString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x411_UniversalOrBMPString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_description_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_DescriptionString(TRUE, tvb, offset, pinfo, tree, hf_x420_description);
+}
+
+
+static const ber_sequence_t InformationCategory_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reference_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_description_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_InformationCategory(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   InformationCategory_sequence, hf_index, ett_x420_InformationCategory);
+
+  return offset;
+}
+static int dissect_InformationCategories_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_InformationCategory(FALSE, tvb, offset, pinfo, tree, hf_x420_InformationCategories_item);
+}
+
+
+static const ber_sequence_t InformationCategories_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_InformationCategories_item },
+};
+
+static int
+dissect_x420_InformationCategories(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      InformationCategories_sequence_of, hf_index, ett_x420_InformationCategories);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_ManualHandlingInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x411_UniversalOrBMPString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_ManualHandlingInstructions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_ManualHandlingInstruction(FALSE, tvb, offset, pinfo, tree, hf_x420_ManualHandlingInstructions_item);
+}
+
+
+static const ber_sequence_t ManualHandlingInstructions_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ManualHandlingInstructions_item },
+};
+
+static int
+dissect_x420_ManualHandlingInstructions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      ManualHandlingInstructions_sequence_of, hf_index, ett_x420_ManualHandlingInstructions);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_OriginatorsReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x411_UniversalOrBMPString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_PrecedencePolicyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 151 "x420.cnf"
+  guint32 crs;
+  proto_item *pi;
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &crs);
+
+
+  if((pi = get_ber_last_created_item()))
+    proto_item_append_text(pi, " (%s)", val_to_str(crs, charsetreg_vals, "unknown"));
+
+
+
+  return offset;
+}
+static int dissect_GeneralTextParameters_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_CharacterSetRegistration(FALSE, tvb, offset, pinfo, tree, hf_x420_GeneralTextParameters_item);
+}
+
+
+static const ber_sequence_t GeneralTextParameters_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_GeneralTextParameters_item },
+};
+
+static int
+dissect_x420_GeneralTextParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 GeneralTextParameters_set_of, hf_index, ett_x420_GeneralTextParameters);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_GeneralTextData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_supplementary_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_IA5String(TRUE, tvb, offset, pinfo, tree, hf_x420_supplementary_information);
+}
+
+
+static const ber_sequence_t VoiceParameters_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voice_message_duration_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_voice_encoding_type_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_supplementary_information_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_VoiceParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   VoiceParameters_sequence, hf_index, ett_x420_VoiceParameters);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x420_VoiceData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SubmissionProof_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_proof_of_submission_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_originating_MTA_certificate_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_message_submission_envelope },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_SubmissionProof(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              SubmissionProof_set, hf_index, ett_x420_SubmissionProof);
+
+  return offset;
+}
+static int dissect_submission_proof_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_SubmissionProof(TRUE, tvb, offset, pinfo, tree, hf_x420_submission_proof);
+}
+
+
+static const ber_sequence_t ForwardedContentParameters_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_delivery_time_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_delivery_envelope_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mts_identifier_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_submission_proof_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x420_ForwardedContentParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              ForwardedContentParameters_set, hf_index, ett_x420_ForwardedContentParameters);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
+static void dissect_InformationObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_InformationObject(FALSE, tvb, 0, pinfo, tree, hf_x420_InformationObject_PDU);
+}
+static void dissect_IA5TextParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_IA5TextParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_IA5TextParameters_PDU);
+}
+static void dissect_IA5TextData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_IA5TextData(FALSE, tvb, 0, pinfo, tree, hf_x420_IA5TextData_PDU);
+}
+static void dissect_G3FacsimileParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_G3FacsimileParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_G3FacsimileParameters_PDU);
+}
+static void dissect_G3FacsimileData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_G3FacsimileData(FALSE, tvb, 0, pinfo, tree, hf_x420_G3FacsimileData_PDU);
+}
+static void dissect_G4Class1Data_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_G4Class1Data(FALSE, tvb, 0, pinfo, tree, hf_x420_G4Class1Data_PDU);
+}
+static void dissect_MixedModeData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_MixedModeData(FALSE, tvb, 0, pinfo, tree, hf_x420_MixedModeData_PDU);
+}
+static void dissect_TeletexParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_TeletexParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_TeletexParameters_PDU);
+}
+static void dissect_TeletexData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_TeletexData(FALSE, tvb, 0, pinfo, tree, hf_x420_TeletexData_PDU);
+}
+static void dissect_VideotexParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_VideotexParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_VideotexParameters_PDU);
+}
+static void dissect_VideotexData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_VideotexData(FALSE, tvb, 0, pinfo, tree, hf_x420_VideotexData_PDU);
+}
+static void dissect_EncryptedParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_EncryptedParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_EncryptedParameters_PDU);
+}
+static void dissect_EncryptedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_EncryptedData(FALSE, tvb, 0, pinfo, tree, hf_x420_EncryptedData_PDU);
+}
+static void dissect_MessageParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_MessageParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_MessageParameters_PDU);
+}
+static void dissect_MessageData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_MessageData(FALSE, tvb, 0, pinfo, tree, hf_x420_MessageData_PDU);
+}
+static void dissect_BilaterallyDefinedBodyPart_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_BilaterallyDefinedBodyPart(FALSE, tvb, 0, pinfo, tree, hf_x420_BilaterallyDefinedBodyPart_PDU);
+}
+static void dissect_IPN_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_IPN(FALSE, tvb, 0, pinfo, tree, hf_x420_IPN_PDU);
+}
 static void dissect_AbsenceAdvice_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x420_AbsenceAdvice(FALSE, tvb, 0, pinfo, tree, hf_x420_AbsenceAdvice_PDU);
 }
@@ -1972,10 +2847,70 @@ static void dissect_IPMAssemblyInstructions_PDU(tvbuff_t *tvb, packet_info *pinf
 static void dissect_OriginatingUA_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x420_OriginatingUA(FALSE, tvb, 0, pinfo, tree, hf_x420_OriginatingUA_PDU);
 }
+static void dissect_IncompleteCopy_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_IncompleteCopy(FALSE, tvb, 0, pinfo, tree, hf_x420_IncompleteCopy_PDU);
+}
+static void dissect_Languages_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_Languages(FALSE, tvb, 0, pinfo, tree, hf_x420_Languages_PDU);
+}
+static void dissect_AutoSubmitted_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_AutoSubmitted(FALSE, tvb, 0, pinfo, tree, hf_x420_AutoSubmitted_PDU);
+}
+static void dissect_BodyPartSignatures_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_BodyPartSignatures(FALSE, tvb, 0, pinfo, tree, hf_x420_BodyPartSignatures_PDU);
+}
+static void dissect_IPMSecurityLabel_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_IPMSecurityLabel(FALSE, tvb, 0, pinfo, tree, hf_x420_IPMSecurityLabel_PDU);
+}
+static void dissect_AuthorizationTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_AuthorizationTime(FALSE, tvb, 0, pinfo, tree, hf_x420_AuthorizationTime_PDU);
+}
+static void dissect_CirculationList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_CirculationList(FALSE, tvb, 0, pinfo, tree, hf_x420_CirculationList_PDU);
+}
+static void dissect_CirculationListIndicator_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_CirculationListIndicator(FALSE, tvb, 0, pinfo, tree, hf_x420_CirculationListIndicator_PDU);
+}
+static void dissect_DistributionCodes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_DistributionCodes(FALSE, tvb, 0, pinfo, tree, hf_x420_DistributionCodes_PDU);
+}
+static void dissect_ExtendedSubject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_ExtendedSubject(FALSE, tvb, 0, pinfo, tree, hf_x420_ExtendedSubject_PDU);
+}
+static void dissect_InformationCategories_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_InformationCategories(FALSE, tvb, 0, pinfo, tree, hf_x420_InformationCategories_PDU);
+}
+static void dissect_ManualHandlingInstructions_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_ManualHandlingInstructions(FALSE, tvb, 0, pinfo, tree, hf_x420_ManualHandlingInstructions_PDU);
+}
+static void dissect_OriginatorsReference_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_OriginatorsReference(FALSE, tvb, 0, pinfo, tree, hf_x420_OriginatorsReference_PDU);
+}
+static void dissect_PrecedencePolicyIdentifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_PrecedencePolicyIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x420_PrecedencePolicyIdentifier_PDU);
+}
+static void dissect_Precedence_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_Precedence(FALSE, tvb, 0, pinfo, tree, hf_x420_Precedence_PDU);
+}
+static void dissect_GeneralTextParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_GeneralTextParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_GeneralTextParameters_PDU);
+}
+static void dissect_GeneralTextData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_GeneralTextData(FALSE, tvb, 0, pinfo, tree, hf_x420_GeneralTextData_PDU);
+}
+static void dissect_VoiceParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_VoiceParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_VoiceParameters_PDU);
+}
+static void dissect_VoiceData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_VoiceData(FALSE, tvb, 0, pinfo, tree, hf_x420_VoiceData_PDU);
+}
+static void dissect_ForwardedContentParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_ForwardedContentParameters(FALSE, tvb, 0, pinfo, tree, hf_x420_ForwardedContentParameters_PDU);
+}
 
 
 /*--- End of included file: packet-x420-fn.c ---*/
-
+#line 92 "packet-x420-template.c"
 
 /*
 * Dissect X420 PDUs inside a PPDU.
@@ -2009,7 +2944,75 @@ void proto_register_x420(void) {
   {
 
 /*--- Included file: packet-x420-hfarr.c ---*/
-
+#line 1 "packet-x420-hfarr.c"
+    { &hf_x420_InformationObject_PDU,
+      { "InformationObject", "x420.InformationObject",
+        FT_UINT32, BASE_DEC, VALS(x420_InformationObject_vals), 0,
+        "InformationObject", HFILL }},
+    { &hf_x420_IA5TextParameters_PDU,
+      { "IA5TextParameters", "x420.IA5TextParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IA5TextParameters", HFILL }},
+    { &hf_x420_IA5TextData_PDU,
+      { "IA5TextData", "x420.IA5TextData",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IA5TextData", HFILL }},
+    { &hf_x420_G3FacsimileParameters_PDU,
+      { "G3FacsimileParameters", "x420.G3FacsimileParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "G3FacsimileParameters", HFILL }},
+    { &hf_x420_G3FacsimileData_PDU,
+      { "G3FacsimileData", "x420.G3FacsimileData",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "G3FacsimileData", HFILL }},
+    { &hf_x420_G4Class1Data_PDU,
+      { "G4Class1Data", "x420.G4Class1Data",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "G4Class1Data", HFILL }},
+    { &hf_x420_MixedModeData_PDU,
+      { "MixedModeData", "x420.MixedModeData",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MixedModeData", HFILL }},
+    { &hf_x420_TeletexParameters_PDU,
+      { "TeletexParameters", "x420.TeletexParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TeletexParameters", HFILL }},
+    { &hf_x420_TeletexData_PDU,
+      { "TeletexData", "x420.TeletexData",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TeletexData", HFILL }},
+    { &hf_x420_VideotexParameters_PDU,
+      { "VideotexParameters", "x420.VideotexParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "VideotexParameters", HFILL }},
+    { &hf_x420_VideotexData_PDU,
+      { "VideotexData", "x420.VideotexData",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "VideotexData", HFILL }},
+    { &hf_x420_EncryptedParameters_PDU,
+      { "EncryptedParameters", "x420.EncryptedParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EncryptedParameters", HFILL }},
+    { &hf_x420_EncryptedData_PDU,
+      { "EncryptedData", "x420.EncryptedData",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "EncryptedData", HFILL }},
+    { &hf_x420_MessageParameters_PDU,
+      { "MessageParameters", "x420.MessageParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageParameters", HFILL }},
+    { &hf_x420_MessageData_PDU,
+      { "MessageData", "x420.MessageData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageData", HFILL }},
+    { &hf_x420_BilaterallyDefinedBodyPart_PDU,
+      { "BilaterallyDefinedBodyPart", "x420.BilaterallyDefinedBodyPart",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "BilaterallyDefinedBodyPart", HFILL }},
+    { &hf_x420_IPN_PDU,
+      { "IPN", "x420.IPN",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IPN", HFILL }},
     { &hf_x420_AbsenceAdvice_PDU,
       { "AbsenceAdvice", "x420.AbsenceAdvice",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2026,6 +3029,86 @@ void proto_register_x420(void) {
       { "OriginatingUA", "x420.OriginatingUA",
         FT_STRING, BASE_NONE, NULL, 0,
         "OriginatingUA", HFILL }},
+    { &hf_x420_IncompleteCopy_PDU,
+      { "IncompleteCopy", "x420.IncompleteCopy",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IncompleteCopy", HFILL }},
+    { &hf_x420_Languages_PDU,
+      { "Languages", "x420.Languages",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Languages", HFILL }},
+    { &hf_x420_AutoSubmitted_PDU,
+      { "AutoSubmitted", "x420.AutoSubmitted",
+        FT_UINT32, BASE_DEC, VALS(x420_AutoSubmitted_vals), 0,
+        "AutoSubmitted", HFILL }},
+    { &hf_x420_BodyPartSignatures_PDU,
+      { "BodyPartSignatures", "x420.BodyPartSignatures",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BodyPartSignatures", HFILL }},
+    { &hf_x420_IPMSecurityLabel_PDU,
+      { "IPMSecurityLabel", "x420.IPMSecurityLabel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IPMSecurityLabel", HFILL }},
+    { &hf_x420_AuthorizationTime_PDU,
+      { "AuthorizationTime", "x420.AuthorizationTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "AuthorizationTime", HFILL }},
+    { &hf_x420_CirculationList_PDU,
+      { "CirculationList", "x420.CirculationList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CirculationList", HFILL }},
+    { &hf_x420_CirculationListIndicator_PDU,
+      { "CirculationListIndicator", "x420.CirculationListIndicator",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CirculationListIndicator", HFILL }},
+    { &hf_x420_DistributionCodes_PDU,
+      { "DistributionCodes", "x420.DistributionCodes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DistributionCodes", HFILL }},
+    { &hf_x420_ExtendedSubject_PDU,
+      { "ExtendedSubject", "x420.ExtendedSubject",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ExtendedSubject", HFILL }},
+    { &hf_x420_InformationCategories_PDU,
+      { "InformationCategories", "x420.InformationCategories",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "InformationCategories", HFILL }},
+    { &hf_x420_ManualHandlingInstructions_PDU,
+      { "ManualHandlingInstructions", "x420.ManualHandlingInstructions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ManualHandlingInstructions", HFILL }},
+    { &hf_x420_OriginatorsReference_PDU,
+      { "OriginatorsReference", "x420.OriginatorsReference",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OriginatorsReference", HFILL }},
+    { &hf_x420_PrecedencePolicyIdentifier_PDU,
+      { "PrecedencePolicyIdentifier", "x420.PrecedencePolicyIdentifier",
+        FT_OID, BASE_NONE, NULL, 0,
+        "PrecedencePolicyIdentifier", HFILL }},
+    { &hf_x420_Precedence_PDU,
+      { "Precedence", "x420.Precedence",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Precedence", HFILL }},
+    { &hf_x420_GeneralTextParameters_PDU,
+      { "GeneralTextParameters", "x420.GeneralTextParameters",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GeneralTextParameters", HFILL }},
+    { &hf_x420_GeneralTextData_PDU,
+      { "GeneralTextData", "x420.GeneralTextData",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "GeneralTextData", HFILL }},
+    { &hf_x420_VoiceParameters_PDU,
+      { "VoiceParameters", "x420.VoiceParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "VoiceParameters", HFILL }},
+    { &hf_x420_VoiceData_PDU,
+      { "VoiceData", "x420.VoiceData",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "VoiceData", HFILL }},
+    { &hf_x420_ForwardedContentParameters_PDU,
+      { "ForwardedContentParameters", "x420.ForwardedContentParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ForwardedContentParameters", HFILL }},
     { &hf_x420_ipm,
       { "ipm", "x420.ipm",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2044,7 +3127,7 @@ void proto_register_x420(void) {
         "IPM/body", HFILL }},
     { &hf_x420_type,
       { "type", "x420.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "IPMSExtension/type", HFILL }},
     { &hf_x420_value,
       { "value", "x420.value",
@@ -2053,7 +3136,7 @@ void proto_register_x420(void) {
     { &hf_x420_this_IPM,
       { "this-IPM", "x420.this_IPM",
         FT_NONE, BASE_NONE, NULL, 0,
-        "Heading/this-IPM", HFILL }},
+        "", HFILL }},
     { &hf_x420_originator,
       { "originator", "x420.originator",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2214,7 +3297,7 @@ void proto_register_x420(void) {
       { "videotex", "x420.videotex",
         FT_NONE, BASE_NONE, NULL, 0,
         "BodyPart/videotex", HFILL }},
-    { &hf_x420_encrypted,
+    { &hf_x420_encrypted_bp,
       { "encrypted", "x420.encrypted",
         FT_NONE, BASE_NONE, NULL, 0,
         "BodyPart/encrypted", HFILL }},
@@ -2278,14 +3361,14 @@ void proto_register_x420(void) {
       { "Item", "x420.G3FacsimileData_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "G3FacsimileData/_item", HFILL }},
-    { &hf_x420_G4Class1BodyPart_item,
-      { "Item", "x420.G4Class1BodyPart_item",
+    { &hf_x420_G4Class1Data_item,
+      { "Item", "x420.G4Class1Data_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "G4Class1BodyPart/_item", HFILL }},
-    { &hf_x420_MixedModeBodyPart_item,
-      { "Item", "x420.MixedModeBodyPart_item",
+        "G4Class1Data/_item", HFILL }},
+    { &hf_x420_MixedModeData_item,
+      { "Item", "x420.MixedModeData_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "MixedModeBodyPart/_item", HFILL }},
+        "MixedModeData/_item", HFILL }},
     { &hf_x420_teletex_parameters,
       { "parameters", "x420.parameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2329,11 +3412,11 @@ void proto_register_x420(void) {
     { &hf_x420_algorithm_identifier,
       { "algorithm-identifier", "x420.algorithm_identifier",
         FT_NONE, BASE_NONE, NULL, 0,
-        "EncryptedParameters/algorithm-identifier", HFILL }},
+        "", HFILL }},
     { &hf_x420_originator_certificates,
       { "originator-certificates", "x420.originator_certificates",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "EncryptedParameters/originator-certificates", HFILL }},
+        "", HFILL }},
     { &hf_x420_message_parameters,
       { "parameters", "x420.parameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2345,11 +3428,11 @@ void proto_register_x420(void) {
     { &hf_x420_delivery_time,
       { "delivery-time", "x420.delivery_time",
         FT_STRING, BASE_NONE, NULL, 0,
-        "MessageParameters/delivery-time", HFILL }},
+        "", HFILL }},
     { &hf_x420_delivery_envelope,
       { "delivery-envelope", "x420.delivery_envelope",
         FT_NONE, BASE_NONE, NULL, 0,
-        "MessageParameters/delivery-envelope", HFILL }},
+        "", HFILL }},
     { &hf_x420_subject_ipm,
       { "subject-ipm", "x420.subject_ipm",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2472,7 +3555,7 @@ void proto_register_x420(void) {
         "BodyPartReference/stored-content", HFILL }},
     { &hf_x420_submitted_body_part,
       { "submitted-body-part", "x420.submitted_body_part",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "BodyPartReference/submitted-body-part", HFILL }},
     { &hf_x420_stored_body_part,
       { "stored-body-part", "x420.stored_body_part",
@@ -2484,8 +3567,160 @@ void proto_register_x420(void) {
         "BodyPartReference/stored-body-part/message-entry", HFILL }},
     { &hf_x420_body_part_number,
       { "body-part-number", "x420.body_part_number",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_x420_Languages_item,
+      { "Item", "x420.Languages_item",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Languages/_item", HFILL }},
+    { &hf_x420_algorithmIdentifier,
+      { "algorithmIdentifier", "x420.algorithmIdentifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Signature/algorithmIdentifier", HFILL }},
+    { &hf_x420_encrypted,
+      { "encrypted", "x420.encrypted",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_x420_BodyPartSignatures_item,
+      { "Item", "x420.BodyPartSignatures_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BodyPartSignatures/_item", HFILL }},
+    { &hf_x420_body_part_signature,
+      { "body-part-signature", "x420.body_part_signature",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BodyPartSignatures/_item/body-part-signature", HFILL }},
+    { &hf_x420_originator_certificate_selector,
+      { "originator-certificate-selector", "x420.originator_certificate_selector",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BodyPartSignatures/_item/originator-certificate-selector", HFILL }},
+    { &hf_x420_content_security_label,
+      { "content-security-label", "x420.content_security_label",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IPMSecurityLabel/content-security-label", HFILL }},
+    { &hf_x420_heading_security_label,
+      { "heading-security-label", "x420.heading_security_label",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IPMSecurityLabel/heading-security-label", HFILL }},
+    { &hf_x420_body_part_security_labels,
+      { "body-part-security-labels", "x420.body_part_security_labels",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "BodyPartReference/stored-body-part/body-part-number", HFILL }},
+        "IPMSecurityLabel/body-part-security-labels", HFILL }},
+    { &hf_x420_body_part_security_labels_item,
+      { "Item", "x420.body_part_security_labels_item",
+        FT_UINT32, BASE_DEC, VALS(x420_BodyPartSecurityLabel_vals), 0,
+        "IPMSecurityLabel/body-part-security-labels/_item", HFILL }},
+    { &hf_x420_body_part_unlabelled,
+      { "body-part-unlabelled", "x420.body_part_unlabelled",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BodyPartSecurityLabel/body-part-unlabelled", HFILL }},
+    { &hf_x420_body_part_security_label,
+      { "body-part-security-label", "x420.body_part_security_label",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BodyPartSecurityLabel/body-part-security-label", HFILL }},
+    { &hf_x420_CirculationList_item,
+      { "Item", "x420.CirculationList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CirculationList/_item", HFILL }},
+    { &hf_x420_circulation_recipient,
+      { "circulation-recipient", "x420.circulation_recipient",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CirculationMember/circulation-recipient", HFILL }},
+    { &hf_x420_checked,
+      { "checked", "x420.checked",
+        FT_UINT32, BASE_DEC, VALS(x420_Checkmark_vals), 0,
+        "CirculationMember/checked", HFILL }},
+    { &hf_x420_simple,
+      { "simple", "x420.simple",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Checkmark/simple", HFILL }},
+    { &hf_x420_timestamped,
+      { "timestamped", "x420.timestamped",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Checkmark/timestamped", HFILL }},
+    { &hf_x420_signed,
+      { "signed", "x420.signed",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Checkmark/signed", HFILL }},
+    { &hf_x420_circulation_signature_algorithm_identifier,
+      { "algorithm-identifier", "x420.algorithm_identifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CirculationSignatureData/algorithm-identifier", HFILL }},
+    { &hf_x420_timestamp,
+      { "timestamp", "x420.timestamp",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CirculationSignatureData/timestamp", HFILL }},
+    { &hf_x420_circulation_signature_data,
+      { "circulation-signature-data", "x420.circulation_signature_data",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CirculationSignature/circulation-signature-data", HFILL }},
+    { &hf_x420_DistributionCodes_item,
+      { "Item", "x420.DistributionCodes_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DistributionCodes/_item", HFILL }},
+    { &hf_x420_oid_code,
+      { "oid-code", "x420.oid_code",
+        FT_OID, BASE_NONE, NULL, 0,
+        "DistributionCode/oid-code", HFILL }},
+    { &hf_x420_alphanumeric_code,
+      { "alphanumeric-code", "x420.alphanumeric_code",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DistributionCode/alphanumeric-code", HFILL }},
+    { &hf_x420_or_descriptor,
+      { "or-descriptor", "x420.or_descriptor",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DistributionCode/or-descriptor", HFILL }},
+    { &hf_x420_InformationCategories_item,
+      { "Item", "x420.InformationCategories_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InformationCategories/_item", HFILL }},
+    { &hf_x420_reference,
+      { "reference", "x420.reference",
+        FT_OID, BASE_NONE, NULL, 0,
+        "InformationCategory/reference", HFILL }},
+    { &hf_x420_description,
+      { "description", "x420.description",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InformationCategory/description", HFILL }},
+    { &hf_x420_ManualHandlingInstructions_item,
+      { "Item", "x420.ManualHandlingInstructions_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ManualHandlingInstructions/_item", HFILL }},
+    { &hf_x420_GeneralTextParameters_item,
+      { "Item", "x420.GeneralTextParameters_item",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GeneralTextParameters/_item", HFILL }},
+    { &hf_x420_voice_message_duration,
+      { "voice-message-duration", "x420.voice_message_duration",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "VoiceParameters/voice-message-duration", HFILL }},
+    { &hf_x420_voice_encoding_type,
+      { "voice-encoding-type", "x420.voice_encoding_type",
+        FT_OID, BASE_NONE, NULL, 0,
+        "VoiceParameters/voice-encoding-type", HFILL }},
+    { &hf_x420_supplementary_information,
+      { "supplementary-information", "x420.supplementary_information",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "VoiceParameters/supplementary-information", HFILL }},
+    { &hf_x420_mts_identifier,
+      { "mts-identifier", "x420.mts_identifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ForwardedContentParameters/mts-identifier", HFILL }},
+    { &hf_x420_submission_proof,
+      { "submission-proof", "x420.submission_proof",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ForwardedContentParameters/submission-proof", HFILL }},
+    { &hf_x420_proof_of_submission,
+      { "proof-of-submission", "x420.proof_of_submission",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SubmissionProof/proof-of-submission", HFILL }},
+    { &hf_x420_originating_MTA_certificate,
+      { "originating-MTA-certificate", "x420.originating_MTA_certificate",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SubmissionProof/originating-MTA-certificate", HFILL }},
+    { &hf_x420_message_submission_envelope,
+      { "message-submission-envelope", "x420.message_submission_envelope",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SubmissionProof/message-submission-envelope", HFILL }},
     { &hf_x420_NotificationRequests_rn,
       { "rn", "x420.rn",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -2508,7 +3743,7 @@ void proto_register_x420(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x420-hfarr.c ---*/
-
+#line 124 "packet-x420-template.c"
   };
 
   /* List of subtrees */
@@ -2516,7 +3751,7 @@ void proto_register_x420(void) {
     &ett_x420,
 
 /*--- Included file: packet-x420-ettarr.c ---*/
-
+#line 1 "packet-x420-ettarr.c"
     &ett_x420_InformationObject,
     &ett_x420_IPM,
     &ett_x420_IPMSExtension,
@@ -2542,8 +3777,8 @@ void proto_register_x420(void) {
     &ett_x420_G3FacsimileBodyPart,
     &ett_x420_G3FacsimileParameters,
     &ett_x420_G3FacsimileData,
-    &ett_x420_G4Class1BodyPart,
-    &ett_x420_MixedModeBodyPart,
+    &ett_x420_G4Class1Data,
+    &ett_x420_MixedModeData,
     &ett_x420_TeletexBodyPart,
     &ett_x420_TeletexParameters,
     &ett_x420_TeletexData,
@@ -2567,9 +3802,30 @@ void proto_register_x420(void) {
     &ett_x420_BodyPartReferences,
     &ett_x420_BodyPartReference,
     &ett_x420_T_stored_body_part,
+    &ett_x420_Languages,
+    &ett_x420_Signature,
+    &ett_x420_BodyPartSignatures,
+    &ett_x420_BodyPartSignatures_item,
+    &ett_x420_IPMSecurityLabel,
+    &ett_x420_SEQUENCE_OF_BodyPartSecurityLabel,
+    &ett_x420_BodyPartSecurityLabel,
+    &ett_x420_CirculationList,
+    &ett_x420_CirculationMember,
+    &ett_x420_Checkmark,
+    &ett_x420_CirculationSignatureData,
+    &ett_x420_CirculationSignature,
+    &ett_x420_DistributionCodes,
+    &ett_x420_DistributionCode,
+    &ett_x420_InformationCategories,
+    &ett_x420_InformationCategory,
+    &ett_x420_ManualHandlingInstructions,
+    &ett_x420_GeneralTextParameters,
+    &ett_x420_VoiceParameters,
+    &ett_x420_ForwardedContentParameters,
+    &ett_x420_SubmissionProof,
 
 /*--- End of included file: packet-x420-ettarr.c ---*/
-
+#line 130 "packet-x420-template.c"
   };
 
   /* Register protocol */
@@ -2587,15 +3843,57 @@ void proto_reg_handoff_x420(void) {
 
 
 /*--- Included file: packet-x420-dis-tab.c ---*/
-
+#line 1 "packet-x420-dis-tab.c"
   register_ber_oid_dissector("1.2.826.0.1004.10.1.1", dissect_OriginatingUA_PDU, proto_x420, "nexor-originating-ua");
   register_ber_oid_dissector("2.6.1.19.0", dissect_AbsenceAdvice_PDU, proto_x420, "id-on-absence-advice");
   register_ber_oid_dissector("2.6.1.19.1", dissect_ChangeOfAddressAdvice_PDU, proto_x420, "id-on-change-of-address-advice");
   register_ber_oid_dissector("2.6.1.17.2", dissect_IPMAssemblyInstructions_PDU, proto_x420, "id-mst-assembly-instructions");
+  register_ber_oid_dissector("2.6.1.5.0", dissect_IncompleteCopy_PDU, proto_x420, "id-hex-languages");
+  register_ber_oid_dissector("2.6.1.5.1", dissect_Languages_PDU, proto_x420, "id-hex-languages");
+  register_ber_oid_dissector("2.6.1.5.2", dissect_AutoSubmitted_PDU, proto_x420, "id-hex-auto-submitted");
+  register_ber_oid_dissector("2.6.1.5.3", dissect_BodyPartSignatures_PDU, proto_x420, "id-hex-body-part-signatures");
+  register_ber_oid_dissector("2.6.1.5.4", dissect_IPMSecurityLabel_PDU, proto_x420, "id-hex-ipm-security-label");
+  register_ber_oid_dissector("2.6.1.5.5", dissect_AuthorizationTime_PDU, proto_x420, "id-hex-authorization-time");
+  register_ber_oid_dissector("2.6.1.5.6", dissect_CirculationList_PDU, proto_x420, "id-hex-circulation-list-recipients");
+  register_ber_oid_dissector("2.6.1.20.0", dissect_CirculationListIndicator_PDU, proto_x420, "id-rex-circulation-list-indicator");
+  register_ber_oid_dissector("2.6.1.5.7", dissect_DistributionCodes_PDU, proto_x420, "id-hex-distribution-codes");
+  register_ber_oid_dissector("2.6.1.5.8", dissect_ExtendedSubject_PDU, proto_x420, "id-hex-extended-subject");
+  register_ber_oid_dissector("2.6.1.5.9", dissect_InformationCategories_PDU, proto_x420, "id-hex-information-categories");
+  register_ber_oid_dissector("2.6.1.5.10", dissect_ManualHandlingInstructions_PDU, proto_x420, "id-hex-manual-handling-instructions");
+  register_ber_oid_dissector("2.6.1.5.11", dissect_OriginatorsReference_PDU, proto_x420, "id-hex-originators-reference");
+  register_ber_oid_dissector("2.6.1.5.12", dissect_PrecedencePolicyIdentifier_PDU, proto_x420, "id-hex-precedence-policy-id");
+  register_ber_oid_dissector("2.6.1.20.1", dissect_Precedence_PDU, proto_x420, "id-rex-precedence");
+  register_ber_oid_dissector("2.6.1.4.0", dissect_IA5TextData_PDU, proto_x420, "id-et-ia5-text");
+  register_ber_oid_dissector("2.6.1.11.0", dissect_IA5TextParameters_PDU, proto_x420, "id-ep-ia5-text");
+  register_ber_oid_dissector("2.6.1.4.2", dissect_G3FacsimileData_PDU, proto_x420, "id-et-g3-facsimile");
+  register_ber_oid_dissector("2.6.1.11.2", dissect_G3FacsimileParameters_PDU, proto_x420, "id-ep-g3-facsimile");
+  register_ber_oid_dissector("2.6.1.4.3", dissect_G4Class1Data_PDU, proto_x420, "id-et-g4-class1");
+  register_ber_oid_dissector("2.6.1.4.4", dissect_TeletexData_PDU, proto_x420, "id-et-teletex");
+  register_ber_oid_dissector("2.6.1.11.4", dissect_TeletexParameters_PDU, proto_x420, "id-ep-teletex");
+  register_ber_oid_dissector("2.6.1.4.5", dissect_VideotexData_PDU, proto_x420, "id-et-videotex");
+  register_ber_oid_dissector("2.6.1.11.5", dissect_VideotexParameters_PDU, proto_x420, "id-ep-videotex");
+  register_ber_oid_dissector("2.6.1.4.6", dissect_EncryptedData_PDU, proto_x420, "id-et-encrypted");
+  register_ber_oid_dissector("2.6.1.11.6", dissect_EncryptedParameters_PDU, proto_x420, "id-ep-encrypted");
+  register_ber_oid_dissector("2.6.1.4.7", dissect_MessageData_PDU, proto_x420, "id-et-message");
+  register_ber_oid_dissector("2.6.1.11.7", dissect_MessageParameters_PDU, proto_x420, "id-ep-message");
+  register_ber_oid_dissector("2.6.1.4.8", dissect_MixedModeData_PDU, proto_x420, "id-et-mixed-mode");
+  register_ber_oid_dissector("2.6.1.4.9", dissect_BilaterallyDefinedBodyPart_PDU, proto_x420, "id-et-bilaterally-defined");
+  register_ber_oid_dissector("2.6.1.11.11", dissect_GeneralTextParameters_PDU, proto_x420, "id-ep-general-text");
+  register_ber_oid_dissector("2.6.1.4.11", dissect_GeneralTextData_PDU, proto_x420, "id-et-general-text");
+  register_ber_oid_dissector("2.6.1.11.15", dissect_MessageParameters_PDU, proto_x420, "id-ep-notification");
+  register_ber_oid_dissector("2.6.1.4.15", dissect_IPN_PDU, proto_x420, "id-et-notification");
+  register_ber_oid_dissector("2.6.1.11.16", dissect_VoiceParameters_PDU, proto_x420, "id-ep-voice");
+  register_ber_oid_dissector("2.6.1.4.16", dissect_VoiceData_PDU, proto_x420, "id-et-voice");
+  register_ber_oid_dissector("2.6.1.11.17.2.6.1.10.1", dissect_ForwardedContentParameters_PDU, proto_x420, "id-ep-content-p22");
+  register_ber_oid_dissector("2.6.1.4.17.2.6.1.10.1", dissect_InformationObject_PDU, proto_x420, "id-et-content-p22");
+  register_ber_oid_dissector("2.6.1.11.17.2.6.1.10.0", dissect_ForwardedContentParameters_PDU, proto_x420, "id-ep-content-p2");
+  register_ber_oid_dissector("2.6.1.4.17.2.6.1.10.0", dissect_InformationObject_PDU, proto_x420, "id-et-content-p2");
+  register_ber_oid_dissector("2.6.1.11.17.1.3.26.0.4406.0.4.1", dissect_ForwardedContentParameters_PDU, proto_x420, "id-ep-content-p772");
+  register_ber_oid_dissector("2.6.1.4.17.1.3.26.0.4406.0.4.1", dissect_InformationObject_PDU, proto_x420, "id-et-content-p772");
 
 
 /*--- End of included file: packet-x420-dis-tab.c ---*/
-
+#line 146 "packet-x420-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_x420, proto_x420, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_x420, proto_x420, "InterPersonal Message (1988)");

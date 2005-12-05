@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-cms.h                                                             */
+/* .\packet-cms.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.h */
 
+#line 1 "packet-cms-template.h"
 /* packet-cms.h
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-cms-exp.h ---*/
-
+#line 1 "packet-cms-exp.h"
 extern const value_string cms_SignerIdentifier_vals[];
 int dissect_cms_ContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cms_ContentType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -53,7 +54,7 @@ int dissect_cms_IssuerAndSerialNumber(gboolean implicit_tag, tvbuff_t *tvb, int 
 int dissect_cms_Countersignature(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-cms-exp.h ---*/
-
+#line 30 "packet-cms-template.h"
 
 #endif  /* PACKET_CMS_H */
 

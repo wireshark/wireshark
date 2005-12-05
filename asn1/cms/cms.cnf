@@ -39,6 +39,8 @@ MessageDigest	  B "1.2.840.113549.1.9.4"	"id-messageDigest"
 SigningTime		  B "1.2.840.113549.1.9.5"	"id-signingTime"
 Countersignature  B "1.2.840.113549.1.9.6"	"id-counterSignature"
 
+ContentInfo	 B "2.6.1.4.18" "id-et-pkcs7"
+
 #.NO_EMIT
 
 #.TYPE_RENAME

@@ -1,10 +1,12 @@
 #.MODULE_IMPORT
 MTSAbstractService	x411
 AuthenticationFramework	x509af
+CertificateExtensions	x509ce
 ACSE-1			acse
 
 #.INCLUDE ../x411/x411-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
+#.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../acse/acse-exp.cnf
 
 #.EXPORTS
@@ -33,6 +35,9 @@ EncryptedBodyPart/parameters	encrypted_parameters
 TeletexParameters/non-basic-parameters		teletex_non_basic_parameters
 G3FacsimileParameters/non-basic-parameters	g3facsimile_non_basic_parameters
 
+BodyPart/encrypted		encrypted_bp
+CirculationSignatureData/algorithm-identifier	circulation-signature-algorithm-identifier
+
 #.PDU
 OriginatingUA
 AbsenceAdvice
@@ -44,6 +49,59 @@ OriginatingUA 		B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
 AbsenceAdvice		B "2.6.1.19.0"  "id-on-absence-advice"
 ChangeOfAddressAdvice	B "2.6.1.19.1"  "id-on-change-of-address-advice"
 IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
+
+IncompleteCopy			B "2.6.1.5.0"	"id-hex-languages"
+Languages			B "2.6.1.5.1"	"id-hex-languages"
+AutoSubmitted			B "2.6.1.5.2"	"id-hex-auto-submitted"
+BodyPartSignatures		B "2.6.1.5.3"	"id-hex-body-part-signatures"
+IPMSecurityLabel		B "2.6.1.5.4"	"id-hex-ipm-security-label"
+AuthorizationTime		B "2.6.1.5.5"	"id-hex-authorization-time"
+CirculationList			B "2.6.1.5.6"	"id-hex-circulation-list-recipients"
+CirculationListIndicator	B "2.6.1.20.0"	"id-rex-circulation-list-indicator"
+DistributionCodes		B "2.6.1.5.7"	"id-hex-distribution-codes"
+ExtendedSubject			B "2.6.1.5.8"	"id-hex-extended-subject"
+InformationCategories		B "2.6.1.5.9"	"id-hex-information-categories"
+ManualHandlingInstructions	B "2.6.1.5.10" 	"id-hex-manual-handling-instructions"
+OriginatorsReference		B "2.6.1.5.11"	"id-hex-originators-reference"
+PrecedencePolicyIdentifier	B "2.6.1.5.12"	"id-hex-precedence-policy-id"
+Precedence			B "2.6.1.20.1"	"id-rex-precedence"
+
+IA5TextData 			B "2.6.1.4.0" 	"id-et-ia5-text"
+IA5TextParameters 		B "2.6.1.11.0" 	"id-ep-ia5-text"
+G3FacsimileData 		B "2.6.1.4.2" 	"id-et-g3-facsimile"
+G3FacsimileParameters 		B "2.6.1.11.2" 	"id-ep-g3-facsimile"
+G4Class1Data 			B "2.6.1.4.3" 	"id-et-g4-class1"
+TeletexData 			B "2.6.1.4.4" 	"id-et-teletex"
+TeletexParameters 		B "2.6.1.11.4" 	"id-ep-teletex"
+VideotexData 			B "2.6.1.4.5" 	"id-et-videotex"
+VideotexParameters 		B "2.6.1.11.5" 	"id-ep-videotex"
+EncryptedData 			B "2.6.1.4.6" 	"id-et-encrypted"
+EncryptedParameters 		B "2.6.1.11.6" 	"id-ep-encrypted"
+MessageData 			B "2.6.1.4.7" 	"id-et-message"
+MessageParameters 		B "2.6.1.11.7" 	"id-ep-message"
+MixedModeData 			B "2.6.1.4.8" 	"id-et-mixed-mode"
+BilaterallyDefinedBodyPart 	B "2.6.1.4.9" 	"id-et-bilaterally-defined"
+
+GeneralTextParameters		B "2.6.1.11.11"	"id-ep-general-text"
+GeneralTextData			B "2.6.1.4.11"	"id-et-general-text"
+# FileTransferBodyPart {id-et 12} in a separate dissector (ftbp)
+# {id-et 13} is no longer defined
+# ForwardedReportBodyPart {id-et 14} defined in x411.cnf
+MessageParameters 		B "2.6.1.11.15" "id-ep-notification"
+IPN				B "2.6.1.4.15" 	"id-et-notification"
+VoiceParameters 		B "2.6.1.11.16" "id-ep-voice"
+VoiceData			B "2.6.1.4.16" 	"id-et-voice"
+# P22
+ForwardedContentParameters 	B "2.6.1.11.17.2.6.1.10.1" 	"id-ep-content-p22"
+InformationObject		B "2.6.1.4.17.2.6.1.10.1" 	"id-et-content-p22"
+#p2
+ForwardedContentParameters 	B "2.6.1.11.17.2.6.1.10.0" 	"id-ep-content-p2"
+InformationObject		B "2.6.1.4.17.2.6.1.10.0" 	"id-et-content-p2"
+#p722
+ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-p772"
+# this will display as P22 for now
+InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
+# PKCS#7Bodypart {id-et 18} defined in cms.cnf
 
 #.FN_PARS IPMSExtension/type
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
@@ -86,10 +144,21 @@ IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
   if(subject && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " (%%s)", tvb_format_text(subject, 0, tvb_length(subject)));
 
+#.FN_PARS CharacterSetRegistration
+  VAL_PTR=&crs
+
+#.FN_BODY CharacterSetRegistration
+  guint32 crs;
+  proto_item *pi;
+  %(DEFAULT_BODY)s
+
+  if((pi = get_ber_last_created_item()))
+    proto_item_append_text(pi, " (%%s)", val_to_str(crs, charsetreg_vals, "unknown"));
 
 #.FN_BODY Interchange_Data_Element
 /* XXX Not implemented yet */
 
 #.FN_BODY NationallyDefinedBodyPart
 /* XXX Not implemented yet */
+
 

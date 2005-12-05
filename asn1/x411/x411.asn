@@ -763,10 +763,10 @@ InitiatorCredentials ::= Credentials
 ResponderCredentials ::= Credentials
 
 Credentials ::= CHOICE {
-  simple     Password
+  simple     Password,
 --  strong     [0]  StrongCredentials,
 --  ...,
---  protected  [1]  ProtectedPassword
+  protected  [1]  ProtectedPassword
 }
 
 Password ::= CHOICE {
@@ -781,18 +781,24 @@ Password ::= CHOICE {
 --  certificate-selector     [2]  CertificateAssertion OPTIONAL
 --}
 
---ProtectedPassword ::= SET {
---  signature
+ProtectedPassword ::= SET {
+  signature
 --    SIGNATURE{SET {password  Password,
 --                   time1     [0]  UTCTime OPTIONAL,
 --                   time2     [1]  UTCTime OPTIONAL,
 --                   random1   [2]  BIT STRING OPTIONAL,
 --                   random2   [3]  BIT STRING OPTIONAL}},
---  time1      [0]  UTCTime OPTIONAL,
---  time2      [1]  UTCTime OPTIONAL,
---  random1    [2]  BIT STRING OPTIONAL,
---  random2    [3]  BIT STRING OPTIONAL
---}
+  Signature,
+  time1      [0]  UTCTime OPTIONAL,
+  time2      [1]  UTCTime OPTIONAL,
+  random1    [2]  BIT STRING OPTIONAL,
+  random2    [3]  BIT STRING OPTIONAL
+}
+
+Signature ::= SEQUENCE {
+  algorithmIdentifier	AlgorithmIdentifier,
+  encrypted		BIT STRING
+}
 
 SecurityContext ::= SET --SIZE (1..ub-security-labels)-- OF SecurityLabel
 
@@ -1016,7 +1022,7 @@ MessageDeliveryArgument ::= SEQUENCE {
 
 MessageDeliveryResult ::= SET {
   recipient-certificate  [0]  RecipientCertificate OPTIONAL,
---  proof-of-delivery      [1] IMPLICIT ProofOfDelivery OPTIONAL,
+  proof-of-delivery      [1] IMPLICIT ProofOfDelivery OPTIONAL,
   ...,
   extensions
     [2]  SET OF ExtensionField --{{MessageDeliveryResultExtensions}}-- DEFAULT {}
@@ -1142,7 +1148,7 @@ RefusalReason ::= INTEGER {
 --	Delivery Port Parameters
 RecipientCertificate ::= Certificates
 
---ProofOfDelivery ::=
+ProofOfDelivery ::= Signature
 --  SIGNATURE
 --    {SEQUENCE {algorithm-identifier
 --                 ProofOfDeliveryAlgorithmIdentifier,
@@ -1945,7 +1951,7 @@ ContentConfidentialityAlgorithmIdentifier ::= AlgorithmIdentifier
 --  IDENTIFIED BY            standard-extension:18
 --}
 
---ContentIntegrityCheck ::=
+ContentIntegrityCheck ::= Signature
 --  SIGNATURE
 --    {SEQUENCE {algorithm-identifier
 --                 ContentIntegrityAlgorithmIdentifier OPTIONAL,
@@ -1959,7 +1965,7 @@ ContentIntegrityAlgorithmIdentifier ::= AlgorithmIdentifier
 --  IDENTIFIED BY            standard-extension:19
 --}
 
---MessageOriginAuthenticationCheck ::=
+MessageOriginAuthenticationCheck ::= Signature
 --  SIGNATURE
 --    {SEQUENCE {algorithm-identifier
 --                 MessageOriginAuthenticationAlgorithmIdentifier,
@@ -2013,7 +2019,7 @@ ContentCorrelator ::= CHOICE {ia5text  IA5String,
 --  IDENTIFIED BY            standard-extension:24
 --}
 
---ProbeOriginAuthenticationCheck ::=
+ProbeOriginAuthenticationCheck ::= Signature
 --  SIGNATURE
 --    {SEQUENCE {algorithm-identifier
 --                 ProbeOriginAuthenticationAlgorithmIdentifier,
@@ -2110,7 +2116,7 @@ ReportingMTACertificate ::= Certificates
 --  IDENTIFIED BY            standard-extension:33
 --}
 
---ReportOriginAuthenticationCheck ::=
+ReportOriginAuthenticationCheck ::= Signature
 --  SIGNATURE
 --    {SEQUENCE {algorithm-identifier
 --                 ReportOriginAuthenticationAlgorithmIdentifier,
@@ -2154,7 +2160,7 @@ OriginatingMTACertificate ::= Certificates
 --  IDENTIFIED BY  standard-extension:35
 --}
 
---ProofOfSubmission ::=
+ProofOfSubmission ::= Signature
 --  SIGNATURE
 --    {SEQUENCE {algorithm-identifier
 --                 ProofOfSubmissionAlgorithmIdentifier,
@@ -2163,7 +2169,7 @@ OriginatingMTACertificate ::= Certificates
 --               message-submission-identifier  MessageSubmissionIdentifier,
 --               message-submission-time        MessageSubmissionTime}}
 
-ProofOfSubmissionAlgorithmIdentifier ::= AlgorithmIdentifier
+--ProofOfSubmissionAlgorithmIdentifier ::= AlgorithmIdentifier
 
 --reporting-MTA-name EXTENSION ::= {
 --  ReportingMTAName,

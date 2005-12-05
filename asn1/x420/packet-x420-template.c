@@ -39,6 +39,7 @@
 #include "packet-ros.h"
 
 #include "packet-x509af.h"
+#include "packet-x509ce.h"
 #include "packet-x411.h"
 
 #include "packet-x420.h"
@@ -51,6 +52,35 @@
 int proto_x420 = -1;
 
 static const char *object_identifier_id; /* content type identifier */
+
+static const value_string charsetreg_vals [] = {
+  { 1, "C0: (ISO/IEC 6429)"},
+  { 6, "G0: ASCII (ISO/IEC 646)"},
+  { 77, "C1: (ISO/IEC 6429)"},
+  { 100, "Gn: Latin Alphabet No.1, Western European Supplementary Set (GR area of ISO-8859-1)"},
+  { 101, "Gn: Latin Alphabet No.2, Central EuropeanSupplementary Set (GR area of ISO-8859-2)"},
+  { 104, "C0: (ISO/IEC 4873)"},
+  { 105, "C1: (ISO/IEC 4873)"},
+  { 106, "C0: Teletex (CCITT T.61)"},
+  { 107, "C1: Teletex (CCITT T.61)"},
+  { 109, "Gn: Latin Alphabet No.3, Southern European Supplementary Set (GR area of ISO-8859-3)"},
+  { 110, "Gn: Latin Alphabet No.4, Baltic Supplementary Set (GR area of ISO-8859-4)"},
+  { 126, "Gn: Greek Supplementary Set (GR area of ISO-8859-7)"},
+  { 127, "Gn: Arabic Supplementary Set (GR area of ISO-8859-6)"},
+  { 138, "Gn: Hebrew Supplementary Set (GR area of ISO-8859-8)"},
+  { 144, "Gn: Cyrillic Supplementary Set (GR area of ISO-8859-5)"},
+  { 148, "Gn: Latin Alphabet No.5, Cyrillic Supplementary Set (GR area of ISO-8859-9)"},
+  { 154, "Gn: Supplementary Set for Latin Alphabets No.1 or No.5, and No.2"},
+  { 157, "Gn: Latin Alphabet No.6, Arabic Supplementary Set (GR area of ISO-8859-10)"},
+  { 158, "Gn: Supplementary Set for Sami (Lappish) to complement Latin Alphabet No.6 (from Annex A  of ISO-8859-10)"},
+  { 166, "Gn: Thai Supplementary Set (GR area of ISO-8859-11)"},
+  { 179, "Gn: Latin Alphabet No.7, Baltic Rim Supplementary Set (GR area of ISO-8859-13)"},
+  { 182, "Gn: Welsh Variant of Latin Alphabet No.1, Supplementary Set (GR area of ISO-8859-1)"},
+  { 197, "Gn: Supplementary Set for Sami to complement Latin Alphabet No.6 (from Annex A  of ISO-8859-10)"},
+  { 199, "Gn: Latin Alphabet No.8, Celtic Supplementary Set (GR area of ISO-8859-14)"},
+  { 203, "Gn: Latin Alphabet No.9, European Rim Supplementary Set (GR area of ISO-8859-15)"},
+  { 0, NULL}
+};
 
 #include "packet-x420-hf.c"
 

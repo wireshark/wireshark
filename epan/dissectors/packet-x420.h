@@ -5,6 +5,7 @@
 
 /* Input file: packet-x420-template.h */
 
+#line 1 "packet-x420-template.h"
 /* packet-x420.h
  * Routines for X.420 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
@@ -35,13 +36,13 @@
 
 
 /*--- Included file: packet-x420-exp.h ---*/
-
+#line 1 "packet-x420-exp.h"
 extern const value_string x420_InformationObject_vals[];
 int dissect_x420_InformationObject(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x420_ORDescriptor(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x420_ExtensionsField(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-x420-exp.h ---*/
-
+#line 30 "packet-x420-template.h"
 
 #endif  /* PACKET_X420_H */
