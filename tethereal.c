@@ -1302,7 +1302,7 @@ main(int argc, char *argv[])
         if (pc != NULL) {
           if (pcap_compile(pc, &fcode, rfilter, 0, 0) != -1) {
             cmdarg_err_cont(
-              "  Note: That display filter code looks like a valid capture filter;"
+              "  Note: That display filter code looks like a valid capture filter;");
             cmdarg_err_cont(
               "        maybe you mixed them up?");
           }
