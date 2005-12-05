@@ -101,8 +101,13 @@ typedef struct capture_options_tag {
 extern void
 capture_opts_init(capture_options *capture_opts, void *cfile);
 
+/* set a command line option value */
 extern void
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);
+
+/* trim values after command line finished */
+extern void 
+capture_opts_trim(capture_options *capture_opts, int snaplen_min);
 
 /* log content of capture_opts */
 extern void

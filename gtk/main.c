@@ -2423,20 +2423,7 @@ main(int argc, char *argv[])
     exit(0);
   }
 
-  if (capture_opts->has_snaplen) {
-    if (capture_opts->snaplen < 1)
-      capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
-    else if (capture_opts->snaplen < MIN_PACKET_SIZE)
-      capture_opts->snaplen = MIN_PACKET_SIZE;
-  }
-
-  /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
-#if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts->num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
-#endif
+  capture_opts_trim(capture_opts, MIN_PACKET_SIZE);
 #endif /* HAVE_LIBPCAP */
 
   /* Notify all registered modules that have had any of their preferences
