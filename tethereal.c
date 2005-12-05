@@ -414,7 +414,7 @@ add_decode_as(const gchar *cl_param)
 
   remaining_param = strchr(table_name, '=');
   if (remaining_param == NULL) {
-    fprintf(stderr, "tethereal: Parameter \"%s\" doesn't follow the template \"%s\"\n", cl_param, decode_as_arg_template);
+    cmdarg_err("Parameter \"%s\" doesn't follow the template \"%s\"", cl_param, decode_as_arg_template);
     /* If the argument does not follow the template, carry on anyway to check
        if the table name is at least correct.  If remaining_param is NULL,
        we'll exit anyway further down */
@@ -434,19 +434,19 @@ add_decode_as(const gchar *cl_param)
 
 /* Look for the requested table */
   if ( !(*(table_name)) ) { /* Is the table name empty, if so, don't even search for anything, display a message */
-    fprintf(stderr, "tethereal: No layer type specified\n"); /* Note, we don't exit here, but table_matching will remain NULL, so we exit below */
+    cmdarg_err("No layer type specified"); /* Note, we don't exit here, but table_matching will remain NULL, so we exit below */
   }
   else {
     table_matching = find_dissector_table(table_name);
     if (!table_matching) {
-      fprintf(stderr, "tethereal: Unknown layer type -- %s\n", table_name); /* Note, we don't exit here, but table_matching will remain NULL, so we exit below */
+      cmdarg_err("Unknown layer type -- %s", table_name); /* Note, we don't exit here, but table_matching will remain NULL, so we exit below */
     }
   }
 
   if (!table_matching) {
     /* Display a list of supported layer types to help the user, if the 
        specified layer type was not found */
-    fprintf(stderr, "tethereal: Valid layer types are:\n");
+    cmdarg_err("Valid layer types are:");
     fprint_all_layer_types(stderr);
   }
   if (remaining_param == NULL || !table_matching) {
@@ -457,7 +457,7 @@ add_decode_as(const gchar *cl_param)
   }
   
   if (*(remaining_param + 1) != '=') { /* Check for "==" and not only '=' */
-    fprintf(stderr, "tethereal: WARNING: -d requires \"==\" instead of \"=\". Option will be treated as \"%s==%s\"\n", table_name, remaining_param + 1);
+    cmdarg_err("WARNING: -d requires \"==\" instead of \"=\". Option will be treated as \"%s==%s\"", table_name, remaining_param + 1);
   }
   else {
     remaining_param++; /* Move to the second '=' */
@@ -471,7 +471,7 @@ add_decode_as(const gchar *cl_param)
 
   remaining_param = strchr(selector_str, ',');
   if (remaining_param == NULL) {
-    fprintf(stderr, "tethereal: Parameter \"%s\" doesn't follow the template \"%s\"\n", cl_param, decode_as_arg_template);
+    cmdarg_err("Parameter \"%s\" doesn't follow the template \"%s\"", cl_param, decode_as_arg_template);
     /* If the argument does not follow the template, carry on anyway to check
        if the selector value is at least correct.  If remaining_param is NULL,
        we'll exit anyway further down */
@@ -492,7 +492,7 @@ add_decode_as(const gchar *cl_param)
        There's no need to remove leading and trailing spaces from the
        selector number string, because sscanf will do that for us. */
     if ( sscanf(selector_str, "%u", &selector) != 1 ) {
-      fprintf(stderr, "tethereal: Invalid selector number \"%s\"\n", selector_str);
+      cmdarg_err("Invalid selector number \"%s\"", selector_str);
       g_free(decoded_param);
       return FALSE;
     }
@@ -511,7 +511,7 @@ add_decode_as(const gchar *cl_param)
 
   if (remaining_param == NULL) {
     /* Exit if no ',' separator was found (see above) */
-    fprintf(stderr, "tethereal: Valid protocols for layer type \"%s\" are:\n", table_name);
+    cmdarg_err("Valid protocols for layer type \"%s\" are:", table_name);
     fprint_all_protocols_for_layer_types(stderr, table_name);
     g_free(decoded_param); 
     return FALSE;
@@ -533,7 +533,7 @@ add_decode_as(const gchar *cl_param)
   
   /* We now have a pointer to the handle for the requested table inside the variable table_matching */
   if ( ! (*dissector_str) ) { /* Is the dissector name empty, if so, don't even search for a matching dissector and display all dissectors found for the selected table */
-    fprintf(stderr, "tethereal: No protocol name specified\n"); /* Note, we don't exit here, but dissector_matching will remain NULL, so we exit below */
+    cmdarg_err("No protocol name specified"); /* Note, we don't exit here, but dissector_matching will remain NULL, so we exit below */
   }
   else {
     user_protocol_name.nb_match = 0;
@@ -545,7 +545,7 @@ add_decode_as(const gchar *cl_param)
     if (user_protocol_name.nb_match != 0) {
       dissector_matching = user_protocol_name.matched_handle;
       if (user_protocol_name.nb_match > 1) {
-        fprintf(stderr, "tethereal: WARNING: Protocol \"%s\" matched %u dissectors, first one will be used\n", dissector_str, user_protocol_name.nb_match);
+        cmdarg_err("WARNING: Protocol \"%s\" matched %u dissectors, first one will be used", dissector_str, user_protocol_name.nb_match);
       }
     }
     else {
@@ -556,16 +556,16 @@ add_decode_as(const gchar *cl_param)
          so we exit below */
       if (proto_get_id_by_filter_name(dissector_str) == -1) {
         /* No such protocol */
-        fprintf(stderr, "tethereal: Unknown protocol -- \"%s\"\n", dissector_str);
+        cmdarg_err("Unknown protocol -- \"%s\"", dissector_str);
       } else {
-        fprintf(stderr, "tethereal: Protocol \"%s\" isn't valid for layer type \"%s\"\n",
+        cmdarg_err("Protocol \"%s\" isn't valid for layer type \"%s\"",
 		dissector_str, table_name);
       }
     }
   }
 
   if (!dissector_matching) {
-    fprintf(stderr, "tethereal: Valid protocols for layer type \"%s\" are:\n", table_name);
+    cmdarg_err("Valid protocols for layer type \"%s\" are:", table_name);
     fprint_all_protocols_for_layer_types(stderr, table_name);
     g_free(decoded_param); 
     return FALSE;
@@ -747,21 +747,21 @@ main(int argc, char *argv[])
                      &pf_open_errno, &pf_read_errno, &pf_path);
   if (gpf_path != NULL) {
     if (gpf_open_errno != 0) {
-      fprintf(stderr, "Can't open global preferences file \"%s\": %s.\n",
+      cmdarg_err("Can't open global preferences file \"%s\": %s.",
               pf_path, strerror(gpf_open_errno));
     }
     if (gpf_read_errno != 0) {
-      fprintf(stderr, "I/O error reading global preferences file \"%s\": %s.\n",
+      cmdarg_err("I/O error reading global preferences file \"%s\": %s.",
               pf_path, strerror(gpf_read_errno));
     }
   }
   if (pf_path != NULL) {
     if (pf_open_errno != 0) {
-      fprintf(stderr, "Can't open your preferences file \"%s\": %s.\n", pf_path,
+      cmdarg_err("Can't open your preferences file \"%s\": %s.", pf_path,
               strerror(pf_open_errno));
     }
     if (pf_read_errno != 0) {
-      fprintf(stderr, "I/O error reading your preferences file \"%s\": %s.\n",
+      cmdarg_err("I/O error reading your preferences file \"%s\": %s.",
               pf_path, strerror(pf_read_errno));
     }
     g_free(pf_path);
@@ -776,26 +776,26 @@ main(int argc, char *argv[])
 			    &dp_path, &dp_open_errno, &dp_read_errno);
   if (gdp_path != NULL) {
     if (gdp_open_errno != 0) {
-      fprintf(stderr,
-        "Could not open global disabled protocols file\n\"%s\": %s.\n",
+      cmdarg_err(
+        "Could not open global disabled protocols file\n\"%s\": %s.",
 	gdp_path, strerror(gdp_open_errno));
     }
     if (gdp_read_errno != 0) {
-      fprintf(stderr,
-        "I/O error reading global disabled protocols file\n\"%s\": %s.\n",
+      cmdarg_err(
+        "I/O error reading global disabled protocols file\n\"%s\": %s.",
 	gdp_path, strerror(gdp_read_errno));
     }
     g_free(gdp_path);
   }
   if (dp_path != NULL) {
     if (dp_open_errno != 0) {
-      fprintf(stderr,
-        "Could not open your disabled protocols file\n\"%s\": %s.\n", dp_path,
+      cmdarg_err(
+        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
         strerror(dp_open_errno));
     }
     if (dp_read_errno != 0) {
-      fprintf(stderr,
-        "I/O error reading your disabled protocols file\n\"%s\": %s.\n", dp_path,
+      cmdarg_err(
+        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
         strerror(dp_read_errno));
     }
     g_free(dp_path);
@@ -852,12 +852,12 @@ main(int argc, char *argv[])
             case CANT_GET_INTERFACE_LIST:
                 cant_get_if_list_errstr =
                     cant_get_if_list_error_message(err_str);
-                fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
+                cmdarg_err("%s", cant_get_if_list_errstr);
                 g_free(cant_get_if_list_errstr);
                 break;
 
             case NO_INTERFACES_FOUND:
-                fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+                cmdarg_err("There are no interfaces on which a capture can be done");
                 break;
             }
             exit(2);
@@ -881,7 +881,7 @@ main(int argc, char *argv[])
       case 'F':
         out_file_type = wtap_short_string_to_file_type(optarg);
         if (out_file_type < 0) {
-          fprintf(stderr, "tethereal: \"%s\" isn't a valid capture file type\n",
+          cmdarg_err("\"%s\" isn't a valid capture file type",
 			optarg);
           exit(1);
         }
@@ -903,18 +903,16 @@ main(int argc, char *argv[])
         adapter_index = strtol(optarg, &p, 10);
         if (p != NULL && *p == '\0') {
           if (adapter_index < 0) {
-            fprintf(stderr,
-                "tethereal: The specified adapter index is a negative number\n");
+            cmdarg_err("The specified adapter index is a negative number");
            exit(1);
           }
           if (adapter_index > INT_MAX) {
-            fprintf(stderr,
-                "tethereal: The specified adapter index is too large (greater than %d)\n",
+            cmdarg_err("The specified adapter index is too large (greater than %d)",
                 INT_MAX);
             exit(1);
           }
           if (adapter_index == 0) {
-            fprintf(stderr, "tethereal: there is no interface with that adapter index\n");
+            cmdarg_err("there is no interface with that adapter index");
             exit(1);
           }
           if_list = get_interface_list(&err, err_str);
@@ -924,19 +922,19 @@ main(int argc, char *argv[])
             case CANT_GET_INTERFACE_LIST:
                 cant_get_if_list_errstr =
                     cant_get_if_list_error_message(err_str);
-                fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
+                cmdarg_err("%s", cant_get_if_list_errstr);
                 g_free(cant_get_if_list_errstr);
                 break;
 
             case NO_INTERFACES_FOUND:
-                fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+                cmdarg_err("There are no interfaces on which a capture can be done");
                 break;
             }
             exit(2);
           }
           if_info = g_list_nth_data(if_list, adapter_index - 1);
           if (if_info == NULL) {
-            fprintf(stderr, "tethereal: there is no interface with that adapter index\n");
+            cmdarg_err("there is no interface with that adapter index");
             exit(1);
           }
           capture_opts.iface = g_strdup(if_info->name);
@@ -980,7 +978,7 @@ main(int argc, char *argv[])
           g_resolv_flags = RESOLV_NONE;
         badopt = string_to_name_resolve(optarg, &g_resolv_flags);
         if (badopt != '\0') {
-          fprintf(stderr, "tethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'\n",
+          cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
 			badopt);
           exit(1);
         }
@@ -989,13 +987,13 @@ main(int argc, char *argv[])
         switch (prefs_set_pref(optarg)) {
 
 	case PREFS_SET_SYNTAX_ERR:
-          fprintf(stderr, "tethereal: Invalid -o flag \"%s\"\n", optarg);
+          cmdarg_err("Invalid -o flag \"%s\"", optarg);
           exit(1);
           break;
 
         case PREFS_SET_NO_SUCH_PREF:
         case PREFS_SET_OBSOLETE:
-          fprintf(stderr, "tethereal: -o flag \"%s\" specifies unknown preference\n",
+          cmdarg_err("-o flag \"%s\" specifies unknown preference",
 			optarg);
           exit(1);
           break;
@@ -1023,10 +1021,10 @@ main(int argc, char *argv[])
         else if (strcmp(optarg, "d") == 0)
           timestamp_set_type(TS_DELTA);
         else {
-          fprintf(stderr, "tethereal: Invalid time stamp type \"%s\"\n",
+          cmdarg_err("Invalid time stamp type \"%s\"",
             optarg);
-          fprintf(stderr, "It must be \"r\" for relative, \"a\" for absolute,\n");
-          fprintf(stderr, "\"ad\" for absolute with date, or \"d\" for delta.\n");
+          cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
+          cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
           exit(1);
         }
         break;
@@ -1044,8 +1042,8 @@ main(int argc, char *argv[])
 	  output_action = WRITE_XML;
 	  verbose = FALSE;
 	} else {
-	  fprintf(stderr, "tethereal: Invalid -T parameter.\n");
-	  fprintf(stderr, "It must be \"ps\", \"text\", \"pdml\", or \"psml\".\n");
+	  cmdarg_err("Invalid -T parameter.");
+	  cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", or \"psml\".");
 	  exit(1);
 	}
 	break;
@@ -1070,8 +1068,8 @@ main(int argc, char *argv[])
            part of a tap filter.  Instead, we just add the argument
            to a list of stat arguments. */
         if (!process_stat_cmd_arg(optarg)) {
-	  fprintf(stderr,"tethereal: invalid -z argument.\n");
-	  fprintf(stderr,"  -z argument must be one of :\n");
+	  cmdarg_err("invalid -z argument.");
+	  cmdarg_err_cont("  -z argument must be one of :");
 	  list_stat_cmd_args();
 	  exit(1);
 	}
@@ -1090,16 +1088,16 @@ main(int argc, char *argv[])
   if (optind < argc) {
     if (cf_name != NULL) {
       if (rfilter != NULL) {
-        fprintf(stderr,
-"tethereal: Read filters were specified both with \"-R\" and with additional command-line arguments\n");
+        cmdarg_err("Read filters were specified both with \"-R\" "
+            "and with additional command-line arguments");
         exit(2);
       }
       rfilter = get_args_as_string(argc, argv, optind);
     } else {
 #ifdef HAVE_LIBPCAP
       if (capture_filter_specified) {
-        fprintf(stderr,
-"tethereal: Capture filters were specified both with \"-f\" and with additional command-line arguments\n");
+        cmdarg_err("Capture filters were specified both with \"-f\""
+            " and with additional command-line arguments");
         exit(2);
       }
       capture_opts.cfilter = get_args_as_string(argc, argv, optind);
@@ -1142,8 +1140,7 @@ main(int argc, char *argv[])
         break;
 
       default:		/* couldn't stat it */
-        fprintf(stderr,
-                "tethereal: Error testing whether capture file is a pipe: %s\n",
+        cmdarg_err("Error testing whether capture file is a pipe: %s",
                 strerror(errno));
         exit(2);
       }
@@ -1158,7 +1155,7 @@ main(int argc, char *argv[])
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
-    fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
+    cmdarg_err("This version of Tethereal was not built with support for capturing packets.");
 #endif
   if (arg_error) {
     print_usage(FALSE);
@@ -1171,8 +1168,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   if (cf_name != NULL) {
     if (capture_filter_specified) {
-      fprintf(stderr,
-"tethereal: Only read filters, not capture filters, can be specified when reading a capture file.\n");
+      cmdarg_err("Only read filters, not capture filters, "
+          "can be specified when reading a capture file.");
       exit(2);
     }
   }
@@ -1180,7 +1177,7 @@ main(int argc, char *argv[])
 
   if (print_hex) {
     if (output_action != WRITE_TEXT) {
-      fprintf(stderr, "tethereal: Raw packet hex data can only be printed as text or PostScript\n");
+      cmdarg_err("Raw packet hex data can only be printed as text or PostScript");
       exit(1);
     }
   }
@@ -1191,20 +1188,20 @@ main(int argc, char *argv[])
        did the user also specify a capture file to be read? */
     if (cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "tethereal: You can't specify -L and a capture file to be read.\n");
+      cmdarg_err("You can't specify -L and a capture file to be read.");
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
     if (capture_opts.multi_files_on) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but a capture isn't being done.\n");
+      cmdarg_err("Ring buffer requested, but a capture isn't being done.");
       exit(1);
     }
   } else {
     /* If they didn't specify a "-w" flag, but specified a maximum capture
        file size, tell them that this doesn't work, and exit. */
     if (capture_opts.has_autostop_filesize && save_file == NULL) {
-      fprintf(stderr, "tethereal: Maximum capture file size specified, but "
-        "capture isn't being saved to a file.\n");
+      cmdarg_err("Maximum capture file size specified, but "
+        "capture isn't being saved to a file.");
       exit(1);
     }
 
@@ -1217,23 +1214,21 @@ main(int argc, char *argv[])
 	    file size is set to "infinite";
 	 d) file must not be a pipe. */
       if (save_file == NULL) {
-	fprintf(stderr, "tethereal: Ring buffer requested, but "
-	  "capture isn't being saved to a file.\n");
+	cmdarg_err("Ring buffer requested, but capture isn't being saved to a file.");
 	exit(1);
       }
       if (out_file_type != WTAP_FILE_PCAP) {
-	fprintf(stderr, "tethereal: Ring buffer requested, but "
-	  "capture isn't being saved in libpcap format.\n");
+	cmdarg_err("Ring buffer requested, but "
+	  "capture isn't being saved in libpcap format.");
 	exit(2);
       }
       if (!capture_opts.has_autostop_filesize) {
-	fprintf(stderr, "tethereal: Ring buffer requested, but "
-	  "no maximum capture file size was specified.\n");
+	cmdarg_err("Ring buffer requested, but "
+	  "no maximum capture file size was specified.");
 	exit(2);
       }
       if (ld.output_to_pipe) {
-	fprintf(stderr, "tethereal: Ring buffer requested, but "
-	  "capture file is a pipe.\n");
+	cmdarg_err("Ring buffer requested, but capture file is a pipe.");
 	exit(2);
       }
     }
@@ -1292,23 +1287,12 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (capture_opts.snaplen < 1)
-    capture_opts.snaplen = WTAP_MAX_PACKET_SIZE;
-  else if (capture_opts.snaplen < MIN_PACKET_SIZE)
-    capture_opts.snaplen = MIN_PACKET_SIZE;
-
-  /* Check the value range of the ring_num_files parameter */
-  if (capture_opts.ring_num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts.ring_num_files = RINGBUFFER_MAX_NUM_FILES;
-#if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts.ring_num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.ring_num_files = RINGBUFFER_MIN_NUM_FILES;
-#endif
+  capture_opts_trim(&capture_opts, MIN_PACKET_SIZE);
 #endif
 
   if (rfilter != NULL) {
     if (!dfilter_compile(rfilter, &rfcode)) {
-      fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
+      cmdarg_err("%s", dfilter_error_msg);
       epan_cleanup();
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
@@ -1317,9 +1301,10 @@ main(int argc, char *argv[])
         pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
         if (pc != NULL) {
           if (pcap_compile(pc, &fcode, rfilter, 0, 0) != -1) {
-            fprintf(stderr,
-              "  Note: That display filter code looks like a valid capture filter;\n"
-              "        maybe you mixed them up?\n");
+            cmdarg_err_cont(
+              "  Note: That display filter code looks like a valid capture filter;"
+            cmdarg_err_cont(
+              "        maybe you mixed them up?");
           }
           pcap_close(pc);
         }
@@ -1421,9 +1406,9 @@ main(int argc, char *argv[])
     if (!has_wpcap) {
       char *detailed_err;
 
-      fprintf(stderr, "tethereal: WinPcap couldn't be found.\n");
+      cmdarg_err("WinPcap couldn't be found.");
       detailed_err = cant_load_winpcap_err("Tethereal");
-      fprintf(stderr, "%s\n", detailed_err);
+      cmdarg_err_cont("%s", detailed_err);
       g_free(detailed_err);
       exit(2);
     }
@@ -1448,12 +1433,12 @@ main(int argc, char *argv[])
 
           case CANT_GET_INTERFACE_LIST:
             cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-            fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
+            cmdarg_err("%s", cant_get_if_list_errstr);
             g_free(cant_get_if_list_errstr);
             break;
 
           case NO_INTERFACES_FOUND:
-            fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+            cmdarg_err("There are no interfaces on which a capture can be done");
             break;
 	  }
           exit(2);
@@ -1470,23 +1455,20 @@ main(int argc, char *argv[])
       lt_list = get_pcap_linktype_list(capture_opts.iface, err_str);
       if (lt_list == NULL) {
 	if (err_str[0] != '\0') {
-	  fprintf(stderr, "tethereal: The list of data link types for the capture device could not be obtained (%s).\n"
+	  cmdarg_err("The list of data link types for the capture device could not be obtained (%s).\n"
 	    "Please check to make sure you have sufficient permissions, and that\n"
-	    "you have the proper interface or pipe specified.\n", err_str);
+	    "you have the proper interface or pipe specified.", err_str);
 	} else
-	  fprintf(stderr, "tethereal: The capture device has no data link types.\n");
+	  cmdarg_err("The capture device has no data link types.");
 	exit(2);
       }
-      fprintf(stderr, "Data link types (use option -y to set):\n");
+      cmdarg_err_cont("Data link types (use option -y to set):");
       for (lt_entry = lt_list; lt_entry != NULL;
 	   lt_entry = g_list_next(lt_entry)) {
 	data_link_info = lt_entry->data;
-	fprintf(stderr, "  %s", data_link_info->name);
-	if (data_link_info->description != NULL)
-	  fprintf(stderr, " (%s)", data_link_info->description);
-	else
-	  fprintf(stderr, " (not supported)");
-	putchar('\n');
+	cmdarg_err_cont("  %s (%s)", 
+        data_link_info->name,
+        (data_link_info->description != NULL) ? data_link_info->description : "not supported");
       }
       free_pcap_linktype_list(lt_list);
       exit(0);
@@ -1510,7 +1492,7 @@ main(int argc, char *argv[])
     }
 #else
     /* No - complain. */
-    fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
+    cmdarg_err("This version of Tethereal was not built with support for capturing packets.");
     exit(2);
 #endif
   }
@@ -1579,12 +1561,12 @@ capture(char *save_file, int out_file_type)
 #ifdef _WIN32
     /* try to set the capture buffer size */
     if (pcap_setbuff(ld.pch, capture_opts.buffer_size * 1024 * 1024) != 0) {
-        fprintf(stderr, "tethereal: Couldn't set the capture buffer size!\n"
+        cmdarg_err("Couldn't set the capture buffer size!\n"
           "\n"
           "The capture buffer size of %luMB seems to be too high for your machine,\n"
           "the default of 1MB will be used.\n"
           "\n"
-          "Nonetheless, the capture is started.\n",
+          "Nonetheless, the capture is started.",
           capture_opts.buffer_size);
     }
 #endif
@@ -1705,8 +1687,8 @@ capture(char *save_file, int out_file_type)
        * only for filters that check for broadcast IP addresses, so
        * we just warn the user, and punt and use 0.
        */
-      fprintf(stderr,
-        "Warning:  Couldn't obtain netmask info (%s).\n", lookup_net_err_str);
+      cmdarg_err(
+        "Warning:  Couldn't obtain netmask info (%s).", lookup_net_err_str);
       netmask = 0;
     }
     if (pcap_compile(ld.pch, &fcode, capture_opts.cfilter, 1, netmask) < 0) {
@@ -1782,7 +1764,7 @@ capture(char *save_file, int out_file_type)
   /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
      returned a warning; print it, but keep capturing. */
   if (open_err_str[0] != '\0')
-    fprintf(stderr, "tethereal: WARNING: %s.\n", open_err_str);
+    cmdarg_err("WARNING: %s.", open_err_str);
 
 #ifdef _WIN32
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */
@@ -1959,13 +1941,13 @@ capture(char *save_file, int out_file_type)
 #ifndef _WIN32
     if (ld.from_pipe) {
       if (ld.pipe_err == PIPERR) {
-        fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
+        cmdarg_err("Error while capturing packets: %s",
 	  errmsg);
       }
     } else
 #endif
     {
-      fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
+      cmdarg_err("Error while capturing packets: %s",
 	  pcap_geterr(ld.pch));
     }
   }
@@ -2003,7 +1985,7 @@ capture(char *save_file, int out_file_type)
         fprintf(stderr, "%u packets dropped\n", stats.ps_drop);
       }
     } else {
-      fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
+      cmdarg_err("Can't get packet-drop statistics: %s",
 	  pcap_geterr(ld.pch));
     }
     pcap_close(ld.pch);
@@ -2021,7 +2003,7 @@ error:
   }
   g_free(save_file);
   save_file = NULL;
-  fprintf(stderr, "tethereal: %s\n", errmsg);
+  cmdarg_err("%s", errmsg);
 #ifndef _WIN32
   if (ld.from_pipe) {
     if (pipe_fd >= 0)
@@ -2212,33 +2194,28 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
       switch (err) {
 
       case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
-        fprintf(stderr,
-		"tethereal: Capture files can't be written in that format.\n");
+        cmdarg_err("Capture files can't be written in that format.");
         break;
 
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-        fprintf(stderr,
-          "tethereal: The capture file being read can't be written in "
-          "that format.\n");
+        cmdarg_err("The capture file being read can't be written in "
+          "that format.");
         break;
 
       case WTAP_ERR_CANT_OPEN:
-        fprintf(stderr,
-          "tethereal: The file \"%s\" couldn't be created for some "
-          "unknown reason.\n",
+        cmdarg_err("The file \"%s\" couldn't be created for some "
+          "unknown reason.",
             *save_file == '\0' ? "stdout" : save_file);
         break;
 
       case WTAP_ERR_SHORT_WRITE:
-        fprintf(stderr,
-          "tethereal: A full header couldn't be written to the file \"%s\".\n",
+        cmdarg_err("A full header couldn't be written to the file \"%s\".",
 		*save_file == '\0' ? "stdout" : save_file);
         break;
 
       default:
-        fprintf(stderr,
-          "tethereal: The file \"%s\" could not be created: %s\n.",
+        cmdarg_err("The file \"%s\" could not be created: %s.",
  		*save_file == '\0' ? "stdout" : save_file,
 		wtap_strerror(err));
         break;
@@ -2270,32 +2247,27 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      fprintf(stderr,
-"tethereal: \"%s\" has a packet with a network type that Tethereal doesn't support.\n(%s)\n",
+      cmdarg_err("\"%s\" has a packet with a network type that Tethereal doesn't support.\n(%s)",
 	cf->filename, err_info);
       break;
 
     case WTAP_ERR_CANT_READ:
-      fprintf(stderr,
-"tethereal: An attempt to read from \"%s\" failed for some unknown reason.\n",
+      cmdarg_err("An attempt to read from \"%s\" failed for some unknown reason.",
 	cf->filename);
       break;
 
     case WTAP_ERR_SHORT_READ:
-      fprintf(stderr,
-"tethereal: \"%s\" appears to have been cut short in the middle of a packet.\n",
+      cmdarg_err("\"%s\" appears to have been cut short in the middle of a packet.",
 	cf->filename);
       break;
 
     case WTAP_ERR_BAD_RECORD:
-      fprintf(stderr,
-"tethereal: \"%s\" appears to be damaged or corrupt.\n(%s)\n",
+      cmdarg_err("\"%s\" appears to be damaged or corrupt.\n(%s)",
 	cf->filename, err_info);
       break;
 
     default:
-      fprintf(stderr,
-"tethereal: An error occurred while reading \"%s\": %s.\n",
+      cmdarg_err("An error occurred while reading \"%s\": %s.",
 	cf->filename, wtap_strerror(err));
       break;
     }
@@ -2527,41 +2499,35 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
   switch (err) {
 
   case ENOSPC:
-    fprintf(stderr,
-"tethereal: Not all the packets could be written to \"%s\" because there is "
-"no space left on the file system.\n",
+    cmdarg_err("Not all the packets could be written to \"%s\" because there is "
+"no space left on the file system.",
 	fname);
     break;
 
 #ifdef EDQUOT
   case EDQUOT:
-    fprintf(stderr,
-"tethereal: Not all the packets could be written to \"%s\" because you are "
-"too close to, or over your disk quota.\n",
+    cmdarg_err("Not all the packets could be written to \"%s\" because you are "
+"too close to, or over your disk quota.",
 	fname);
   break;
 #endif
 
   case WTAP_ERR_CANT_CLOSE:
-    fprintf(stderr,
-"tethereal: \"%s\" couldn't be closed for some unknown reason.\n",
+    cmdarg_err("\"%s\" couldn't be closed for some unknown reason.",
 	fname);
     break;
 
   case WTAP_ERR_SHORT_WRITE:
-    fprintf(stderr,
-"tethereal: Not all the packets could be written to \"%s\".\n",
+    cmdarg_err("Not all the packets could be written to \"%s\".",
 	fname);
     break;
 
   default:
     if (is_close) {
-      fprintf(stderr,
-"tethereal: \"%s\" could not be closed: %s.\n",
+      cmdarg_err("\"%s\" could not be closed: %s.",
 	fname, wtap_strerror(err));
     } else {
-      fprintf(stderr,
-"tethereal: An error occurred while writing to \"%s\": %s.\n",
+      cmdarg_err("An error occurred while writing to \"%s\": %s.",
 	fname, wtap_strerror(err));
     }
     break;
@@ -2930,22 +2896,19 @@ show_print_file_io_error(int err)
   switch (err) {
 
   case ENOSPC:
-    fprintf(stderr,
-"tethereal: Not all the packets could be printed because there is "
-"no space left on the file system.\n");
+    cmdarg_err("Not all the packets could be printed because there is "
+"no space left on the file system.");
     break;
 
 #ifdef EDQUOT
   case EDQUOT:
-    fprintf(stderr,
-"tethereal: Not all the packets could be printed because you are "
-"too close to, or over your disk quota.\n");
+    cmdarg_err("Not all the packets could be printed because you are "
+"too close to, or over your disk quota.");
   break;
 #endif
 
   default:
-    fprintf(stderr,
-"tethereal: An error occurred while printing packets: %s.\n",
+    cmdarg_err("An error occurred while printing packets: %s.",
       strerror(err));
     break;
   }
@@ -3111,7 +3074,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 fail:
   g_snprintf(err_msg, sizeof err_msg,
            cf_open_error_message(*err, err_info, FALSE, 0), fname);
-  fprintf(stderr, "tethereal: %s\n", err_msg);
+  cmdarg_err("%s", err_msg);
   return CF_ERROR;
 }
 
@@ -3420,7 +3383,7 @@ failure_message(const char *msg_format, va_list ap)
 static void
 read_failure_message(const char *filename, int err)
 {
-  fprintf(stderr, "tethereal: An error occurred while reading from the file \"%s\": %s.\n",
+  cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
           filename, strerror(err));
 }
 
