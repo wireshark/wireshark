@@ -58,6 +58,7 @@ LIBETHEREAL_SRC = 		\
 	ipproto.c		\
 	ipv4.c			\
 	nstime.c		\
+	oid_resolv.c		\
 	osi-utils.c		\
 	packet.c		\
 	plugins.c		\
@@ -139,6 +140,7 @@ LIBETHEREAL_INCLUDES = 		\
 	llcsaps.h		\
 	nlpid.h			\
 	nstime.h		\
+	oid_resolv.h		\
 	osi-utils.h		\
 	oui.h			\
 	packet.h		\

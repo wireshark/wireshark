@@ -36,6 +36,7 @@
 #include "ptvcursor.h"
 #include "strutil.h"
 #include "addr_resolv.h"
+#include "oid_resolv.h"
 #include "plugins.h"
 #include "proto.h"
 #include "epan_dissect.h"
@@ -3336,6 +3337,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32				integer;
 	ipv4_addr			*ipv4;
 	guint32				n_addr; /* network-order IPv4 address */
+	const gchar			*name;
 	int					ret;	/*tmp return value */
 
 	switch(hfinfo->type) {
@@ -3502,9 +3504,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_OID:
 			bytes = fvalue_get(&fi->value);
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s", hfinfo->name,
-				 oid_to_str(bytes, fvalue_length(&fi->value)));
+			name = (oid_resolv_enabled()) ? get_oid_name(bytes, fvalue_length(&fi->value)) : NULL;
+			if (name) {
+				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					"%s: %s (%s)", hfinfo->name,
+					 oid_to_str(bytes, fvalue_length(&fi->value)), name);
+			} else {
+				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					"%s: %s", hfinfo->name,
+					 oid_to_str(bytes, fvalue_length(&fi->value)));
+			}
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;

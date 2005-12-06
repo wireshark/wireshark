@@ -41,9 +41,7 @@ proper helper routines
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include <epan/dissectors/format-oid.h>
 #include "packet-per.h"
-#include "packet-ber.h"
 
 
 static int proto_per = -1;
@@ -606,25 +604,19 @@ guint32
 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
   guint length;
-  char *str, *name;
+  char *str;
   proto_item *item = NULL;
   header_field_info *hfi;
-
-	const guint8 *oid_ptr;
-	subid_t *subid_oid;
-	guint subid_oid_length;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
 
   offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_object_identifier_length, &length);
 	
-  oid_ptr = tvb_get_ptr(tvb, offset>>3, length);
-  str = oid_to_str(oid_ptr, length);
-
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
     item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
   } else if (IS_FT_STRING(hfi->type)) {
+    str = oid_to_str(tvb_get_ptr(tvb, offset>>3, length), length);
     item = proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, str);
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -634,24 +626,6 @@ DEBUG_ENTRY("dissect_per_object_identifier");
     *value_tvb = tvb_new_subset(tvb, offset>>3, length, length);
 
   offset += 8 * length;
-
-	/* see if we know the name of this oid */
-	if(item){
-		name = get_ber_oid_name(str);
-		if(name){
-			proto_item_append_text(item, " (%s)", name);
-		}else{
-			gchar *decoded_oid;
-			gchar *non_decoded_oid;
-			
-			subid_oid = g_malloc((length+1) * sizeof(gulong));
-			subid_oid_length = oid_to_subid_buf(oid_ptr, length, subid_oid, ((length+1) * sizeof(gulong)));
-			new_format_oid(subid_oid, subid_oid_length,
-				&non_decoded_oid, &decoded_oid);
-			proto_item_append_text(item, " (%s)", (decoded_oid == NULL) ? non_decoded_oid : decoded_oid);
-		}
-
-	}
 
   return offset;
 }

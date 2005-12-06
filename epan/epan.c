@@ -21,6 +21,7 @@
 #include "column-utils.h"
 #include "tap.h"
 #include "addr_resolv.h"
+#include "oid_resolv.h"
 #include "emem.h"
 #include "expert.h"
 
@@ -61,6 +62,7 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	report_read_failure_func = report_read_failure;
 	except_init();
 	tvbuff_init();
+	oid_resolv_init();
 	tap_init();
 	proto_init(plugin_dir,register_all_protocols,register_all_handoffs);
 	packet_init();
@@ -77,6 +79,7 @@ epan_cleanup(void)
 	dfilter_cleanup();
 	proto_cleanup();
 	packet_cleanup();
+	oid_resolv_cleanup();
 	tvbuff_cleanup();
 	except_deinit();
 	host_name_lookup_cleanup();

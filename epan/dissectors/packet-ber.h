@@ -170,7 +170,7 @@ void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t disse
 void register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
 void register_ber_oid_name(const char *oid, const char *name);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-char * get_ber_oid_name(const char *str);
+const char * get_ber_oid_name(const char *str);
 
 #endif  /* __PACKET_BER_H__ */
 

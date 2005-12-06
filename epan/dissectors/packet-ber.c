@@ -74,7 +74,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/emem.h>
-#include <epan/dissectors/format-oid.h>
+#include <epan/oid_resolv.h>
 #include "packet-ber.h"
 
 #ifndef MIN
@@ -164,8 +164,6 @@ proto_item *get_ber_last_created_item(void) {
 }
 
 
-static GHashTable *oid_table=NULL;
-
 void
 dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
@@ -177,7 +175,7 @@ void
 register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name)
 {
 	dissector_add_string("ber.oid", oid, dissector);
-	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+	add_oid_str_name(oid, name);
 }
 
 void
@@ -187,21 +185,21 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 
 	dissector_handle=create_dissector_handle(dissector, proto);
 	dissector_add_string("ber.oid", oid, dissector_handle);
-	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+	add_oid_str_name(oid, name);
 }
 
 /* Register the oid name to get translation in proto dissection */
 void
 register_ber_oid_name(const char *oid, const char *name)
 {
-	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+	add_oid_str_name(oid, name);
 }
 
 /* Get oid name from hash table to get translation in proto dissection(packet-per.c) */
-char *
+const char *
 get_ber_oid_name(const char *oid)
 {
-	return g_hash_table_lookup(oid_table, oid);
+	return get_oid_str_name(oid);
 }
 
 
@@ -1735,13 +1733,9 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	gint32 tag;
 	guint32 len;
 	int eoffset;
-	char *str, *name;
+	char *str;
 	proto_item *item = NULL;
 	header_field_info *hfi;
-
-	const guint8 *oid_ptr;
-	subid_t *subid_oid;
-	guint subid_oid_length;
 
 #ifdef DEBUG_BER
 {
@@ -1777,13 +1771,11 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
-  oid_ptr = tvb_get_ptr(tvb, offset, len);
-  str = oid_to_str(oid_ptr, len);
-
   hfi = proto_registrar_get_nth(hf_id);
   if (hfi->type == FT_OID) {
     item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
   } else if (IS_FT_STRING(hfi->type)) {
+    str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
     item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -1791,25 +1783,6 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 
   if (value_tvb)
     *value_tvb = tvb_new_subset(tvb, offset, len, len);
-
-	/* see if we know the name of this oid */
-	if(item){
-		name=g_hash_table_lookup(oid_table, str);
-		if(name){
-			proto_item_append_text(item, " (%s)", name);
-		}else{
-			gchar *decoded_oid;
-			gchar *non_decoded_oid;
-			
-			subid_oid = g_malloc((len+1) * sizeof(gulong));
-			subid_oid_length = oid_to_subid_buf(oid_ptr, len, subid_oid, ((len+1) * sizeof(gulong)));
-			new_format_oid(subid_oid, subid_oid_length,
-				&non_decoded_oid, &decoded_oid);
-			proto_item_append_text(item, " (%s)", (decoded_oid == NULL) ? non_decoded_oid : decoded_oid);
-			
-		}
-
-	}
 
 	return eoffset;
 }
@@ -2306,7 +2279,6 @@ proto_register_ber(void)
 	" ASN.1 BER details such as Identifier and Length fields", &show_internal_ber_fields);
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
-    oid_table=g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 void
