@@ -342,7 +342,7 @@ guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc 
 }
 
 static gboolean
-oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	GByteArray	*bytes;
 	gboolean	res;
