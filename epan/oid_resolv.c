@@ -36,7 +36,7 @@
 static GHashTable *oid_table = NULL;
 
 void oid_resolv_init(void) {
-  oid_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+  oid_table = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 void oid_resolv_cleanup(void) {
