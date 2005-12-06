@@ -1951,7 +1951,14 @@ dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dest_str = "IG";
     }
 
-    /* XXX - Use ⇒ (U+21D2) in place of => */
+    /*
+     * XXX - Use ⇒ (U+21D2) in place of , *IF* we can ensure that,
+     * for any form of output/display, we arrange that we map U+21D2 to
+     * "=>" if that form of output/display can't handle Unicode.
+     * XXX - how do we know whether, even if the form of output/display
+     * nominally handles Unicode, it has a Unicode font or font set that
+     * includes that character?
+     */
     info_str = g_strdup_printf("%s => %s (%i bytes)", src_str, dest_str, length);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
