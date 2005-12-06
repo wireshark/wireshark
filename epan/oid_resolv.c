@@ -39,7 +39,13 @@ void oid_resolv_init(void) {
   oid_table = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
+static void free_oid_str(gpointer key, gpointer value _U_,
+                         gpointer user_data _U_) {
+  g_free(key);
+}
+
 void oid_resolv_cleanup(void) {
+  g_hash_table_foreach(oid_table, free_oid_str, NULL);
   g_hash_table_destroy(oid_table);
   oid_table = NULL;
 }
