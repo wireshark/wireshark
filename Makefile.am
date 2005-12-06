@@ -171,7 +171,7 @@ radius_DATA = \
 	radius/dictionary.wispr  \
 	radius/dictionary.xedia
 
-PLATFORM_SRC = pcap-util-unix.c
+PLATFORM_SRC = capture-pcap-util-unix.c
 
 include Makefile.common
 

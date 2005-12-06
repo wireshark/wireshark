@@ -1,4 +1,4 @@
-/* pcap-util.c
+/* capture-pcap-util.c
  * Utility routines for packet capture
  *
  * $Id$
@@ -47,8 +47,8 @@
 #include <wtap.h>
 #include <wtap-capture.h>
 
-#include "pcap-util.h"
-#include "pcap-util-int.h"
+#include "capture-pcap-util.h"
+#include "capture-pcap-util-int.h"
 
 #ifndef _WIN32
 #include <netinet/in.h>

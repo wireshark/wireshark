@@ -92,7 +92,7 @@
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
 #include <setjmp.h>
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 #include <wiretap/wtap-capture.h>
 #include <wiretap/libpcap.h>
 #ifdef _WIN32

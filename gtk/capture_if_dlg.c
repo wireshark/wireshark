@@ -38,7 +38,7 @@
 #include <gtk/gtk.h>
 
 #include "globals.h"
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"

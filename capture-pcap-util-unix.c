@@ -1,4 +1,4 @@
-/* pcap-util-unix.c
+/* capture-pcap-util-unix.c
  * UN*X-specific utility routines for packet capture
  *
  * $Id$
@@ -60,8 +60,8 @@ struct rtentry;
 # include <sys/sockio.h>
 #endif
 
-#include "pcap-util.h"
-#include "pcap-util-int.h"
+#include "capture-pcap-util.h"
+#include "capture-pcap-util-int.h"
 
 #ifndef HAVE_PCAP_FINDALLDEVS
 struct search_user_data {

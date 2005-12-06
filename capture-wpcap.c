@@ -35,8 +35,8 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#include "pcap-util.h"
-#include "pcap-util-int.h"
+#include "capture-pcap-util.h"
+#include "capture-pcap-util-int.h"
 
 /* XXX - yes, I know, I should move cppmagic.h to a generic location. */
 #include "tools/lemon/cppmagic.h"

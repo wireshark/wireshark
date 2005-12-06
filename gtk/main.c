@@ -89,7 +89,7 @@
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 #include "capture.h"
 #include "capture_loop.h"
 #include "capture_sync.h"

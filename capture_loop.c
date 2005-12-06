@@ -66,7 +66,7 @@
 #include <glib.h>
 
 #include <pcap.h>
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 
 #include "capture.h"
 #include "capture_loop.h"

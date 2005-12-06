@@ -45,7 +45,7 @@
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "main.h"
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 
 /* a single capture counter value (with title, pointer to value and GtkWidgets) */
 /* as the packet_counts is a struct, not an array, keep a pointer to the */

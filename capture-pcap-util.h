@@ -1,4 +1,4 @@
-/* pcap-util.h
+/* capture-pcap-util.h
  * Utility definitions for packet capture
  *
  * $Id$

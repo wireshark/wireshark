@@ -11,10 +11,10 @@ two lists maybe won't be needed any longer!
 
 libpcap related source files:
 -----------------------------
-pcap-util.c
-pcap-util.h
-pcap-util-int.h
-pcap-util-unix.c
+capture-pcap-util.c
+capture-pcap-util.h
+capture-pcap-util-int.h
+capture-pcap-util-unix.c
 capture-wpcap.c
 capture-wpcap.h
 capture_wpcap_packet.c

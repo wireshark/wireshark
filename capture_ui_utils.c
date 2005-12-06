@@ -33,7 +33,7 @@
 #include <glib.h>
 
 #include <epan/prefs.h>
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
 
 /*

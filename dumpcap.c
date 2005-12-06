@@ -52,7 +52,7 @@
 #include "version_info.h"
 
 #include <pcap.h>
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"

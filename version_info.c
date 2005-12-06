@@ -71,7 +71,7 @@
 #endif
 
 #include "version_info.h"
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 
 #include "svnversion.h"
 

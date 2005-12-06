@@ -40,7 +40,7 @@
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
 #include "main.h"
 #include "compat_macros.h"

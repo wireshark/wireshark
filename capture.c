@@ -55,7 +55,7 @@
 #include "capture_info.h"
 #include "capture_ui_utils.h"
 #include "util.h"
-#include "pcap-util.h"
+#include "capture-pcap-util.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include <epan/prefs.h>

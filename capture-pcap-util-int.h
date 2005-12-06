@@ -1,4 +1,4 @@
-/* pcap-util-int.h
+/* capture-pcap-util-int.h
  * Definitions of routines internal to the libpcap/WinPcap utilities
  *
  * $Id$

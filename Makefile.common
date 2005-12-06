@@ -48,6 +48,7 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 ETHEREAL_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_errs.c	\
+	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
 	capture_ui_utils.c	\
 	cfile.c	\
@@ -55,7 +56,6 @@ ETHEREAL_COMMON_SRC =	\
 	conditions.c	\
 	disabled_protos.c	\
 	packet-range.c	\
-	pcap-util.c	\
 	print.c	\
 	ps.c	\
 	ringbuffer.c	\
@@ -67,6 +67,8 @@ ETHEREAL_COMMON_SRC =	\
 ETHEREAL_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture_errs.h	\
+	capture-pcap-util.h	\
+	capture-pcap-util-int.h	\
 	capture_stop_conditions.h	\
 	capture_ui_utils.h	\
 	cfile.h	\
@@ -79,8 +81,6 @@ ETHEREAL_COMMON_INCLUDES =	\
 	fileset.h	\
 	isprint.h	\
 	packet-range.h	\
-	pcap-util.h	\
-	pcap-util-int.h	\
 	print.h	\
 	ps.h	\
 	register.h	\
@@ -208,11 +208,11 @@ randpkt_SOURCES = \
 # dumpcap specifics
 dumpcap_SOURCES =	\
 	$(PLATFORM_SRC) \
+	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
 	getopt.c	\
 	clopts_common.c	\
 	conditions.c	\
-	pcap-util.c	\
 	ringbuffer.c	\
 	util.c	\
 	version_info.c \
