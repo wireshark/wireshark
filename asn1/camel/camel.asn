@@ -2073,14 +2073,6 @@ Ext-BearerServiceCode ::=
 
 OCTET STRING (SIZE (1..5))
 
--- Imsi notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-Imsi ::=
-
-
-OCTET STRING (SIZE (3..8))
-   -- International Mobile Subscriber Indentity
-   -- digits of MCC, MNC, MSIN are concatenated in this order.
 
 
 -- Duration notes: not recursive, exported,
@@ -2874,7 +2866,7 @@ InitialDPGPRSArg ::=
     serviceKey              [0]  ServiceKey,
     gPRSEventType           [1]  GPRSEventType,
     mSISDN                  [2]  ISDN-AddressString,
-    iMSI                    [3]  Imsi,
+    iMSI                    [3]  IMSI,
     timeAndTimeZone         [4]  TimeAndTimezone,
     gPRSMSClass             [5]  GPRSMSClass             OPTIONAL,
     pDPType                 [6]  PDPType                 OPTIONAL,
@@ -2935,7 +2927,7 @@ InitialDPArg ::=
     cug-Index                       [45] CUG-Index                      OPTIONAL,
     cug-Interlock                   [46] CUG-Interlock                  OPTIONAL,
     cug-OutgoingAccess              [47] NULL                           OPTIONAL,
-    iMSI                            [50] Imsi                           OPTIONAL,
+    iMSI                            [50] IMSI                           OPTIONAL,
     subscriberState                 [51] SubscriberState                OPTIONAL,
     locationInformation             [52] LocationInformation            OPTIONAL,
     ext-basicServiceCode            [53] Ext-BasicServiceCode           OPTIONAL,
@@ -2960,7 +2952,7 @@ InitialDPSMSArg ::=
     destinationSubscriberNumber         [1]  CalledPartyBCDNumber         OPTIONAL,
     callingPartyNumberas                  [2]  ISDN-AddressString           OPTIONAL,
     eventTypeSMS                        [3]  EventTypeSMS                 OPTIONAL,
-    iMSI                                [4]  Imsi                         OPTIONAL,
+    iMSI                                [4]  IMSI                         OPTIONAL,
     locationInformationMSC              [5]  LocationInformation          OPTIONAL,
     locationInformationGPRS             [6]  LocationInformationGPRS      OPTIONAL,
     sMSCAddress                         [7]  ISDN-AddressString           OPTIONAL,

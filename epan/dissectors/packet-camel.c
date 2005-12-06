@@ -5,6 +5,7 @@
 
 /* Input file: packet-camel-template.c */
 
+#line 1 "packet-camel-template.c"
 /* packet-camel-template.c
  * Routines for Camel
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
@@ -88,7 +89,7 @@ static int hf_camel_addr_digits = -1;
 static int hf_camel_cause_indicator = -1;
 
 /*--- Included file: packet-camel-hf.c ---*/
-
+#line 1 "packet-camel-hf.c"
 static int hf_camel_reserved = -1;                /* INTEGER */
 static int hf_camel_aoc = -1;                     /* INTEGER */
 static int hf_camel_standardPartEnd = -1;         /* INTEGER */
@@ -507,7 +508,7 @@ static int hf_camel_disconnectFromIPForbidden = -1;  /* BOOLEAN */
 static int hf_camel_requestAnnouncementComplete = -1;  /* BOOLEAN */
 static int hf_camel_collectedInfo = -1;           /* CollectedInfo */
 static int hf_camel_mSISDN = -1;                  /* ISDN_AddressString */
-static int hf_camel_iMSI = -1;                    /* Imsi */
+static int hf_camel_iMSI = -1;                    /* IMSI */
 static int hf_camel_gPRSMSClass = -1;             /* GPRSMSClass */
 static int hf_camel_sGSNCapabilities = -1;        /* SGSNCapabilities */
 static int hf_camel_gapCriteria = -1;             /* GapCriteria */
@@ -569,7 +570,7 @@ static int hf_camel_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP =
 static int hf_camel_OfferedCamel4Functionalities_serviceChangeDP = -1;
 
 /*--- End of included file: packet-camel-hf.c ---*/
-
+#line 83 "packet-camel-template.c"
 static guint global_tcap_itu_ssn = 0;
 
 /* Initialize the subtree pointers */
@@ -583,7 +584,7 @@ static gint ett_camelisup_parameter = -1;
 static gint ett_camel_addr = -1;
 
 /*--- Included file: packet-camel-ett.c ---*/
-
+#line 1 "packet-camel-ett.c"
 static gint ett_camel_PBSGSNCapabilities = -1;
 static gint ett_camel_PBIPSSPCapabilities = -1;
 static gint ett_camel_PBAddressString = -1;
@@ -791,7 +792,7 @@ static gint ett_camel_ResetTimerGPRSArg = -1;
 static gint ett_camel_CancelFailedPARAM = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-
+#line 95 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -868,7 +869,7 @@ static const value_string camel_number_plan_values[] = {
 
 
 /*--- Included file: packet-camel-fn.c ---*/
-
+#line 1 "packet-camel-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_cellGlobalId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -927,6 +928,9 @@ static int dissect_iMEI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 static int dissect_uu_Data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_UU_Data(TRUE, tvb, offset, pinfo, tree, hf_camel_uu_Data);
+}
+static int dissect_iMSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_IMSI(TRUE, tvb, offset, pinfo, tree, hf_camel_iMSI);
 }
 static int dissect_locationInformationMSC_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_LocationInformation(TRUE, tvb, offset, pinfo, tree, hf_camel_locationInformationMSC);
@@ -2734,8 +2738,21 @@ static int dissect_BCSMEventArray_item(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 101 "camel.cnf"
+
+       tvbuff_t *camel_tvb;
+       guint8 Cause_value;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &camel_tvb);
+
+
+       if (camel_tvb)
+           dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
+
+
+       return offset;
+
 
   return offset;
 }
@@ -2777,6 +2794,7 @@ static int dissect_bCSM_Failure_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_camel_BearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 232 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2788,6 +2806,7 @@ dissect_camel_BearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 	return offset;
 
  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+
 
 
   return offset;
@@ -2826,12 +2845,14 @@ static int dissect_bearerCapability_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_camel_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 64 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
 
  if (!parameter_tvb)
 	return offset;
@@ -2843,6 +2864,7 @@ dissect_camel_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_camel_addr_digits, parameter_tvb, 1, -1, digit_str);
+
 
   return offset;
 }
@@ -2893,6 +2915,7 @@ static int dissect_calledPartyBCDNumber_impl(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_camel_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 44 "camel.cnf"
 
 
  proto_item* parameter_item;
@@ -2907,6 +2930,7 @@ dissect_camel_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  dissect_isup_called_party_number_parameter(isup_tvb, parameter_tree, parameter_item);
  offset += len;
  
+
 
   return offset;
 }
@@ -2927,6 +2951,7 @@ static int dissect_calledPartyNumber_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_camel_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 27 "camel.cnf"
 
 
  proto_item* parameter_item;
@@ -2940,6 +2965,7 @@ dissect_camel_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  isup_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
  dissect_isup_calling_party_number_parameter(isup_tvb, parameter_tree, parameter_item);
  offset += len;
+
 
   return offset;
 }
@@ -3997,6 +4023,7 @@ static int dissect_correlationID_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 133 "camel.cnf"
 
 
 /* 
@@ -4090,6 +4117,7 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 		      time);
 
   return 7; /* 7  octets eaten*/
+
 
 
   return offset;
@@ -5915,6 +5943,7 @@ static int dissect_oCSIApplicable_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 262 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -5927,6 +5956,7 @@ dissect_camel_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, in
  dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
 
 
+
   return offset;
 }
 static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -5937,6 +5967,7 @@ static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_camel_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 276 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -5947,6 +5978,7 @@ dissect_camel_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  if (!parameter_tvb)
 	return offset;
  dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+
 
 
 
@@ -6449,30 +6481,6 @@ dissect_camel_Ext_BearerServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
 
 static int
-dissect_camel_Imsi(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
-
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
- if (!parameter_tvb)
-	 return offset;
-
- digit_str = unpack_digits(parameter_tvb, 0);
- proto_tree_add_string(tree, hf_camel_imsi_digits, parameter_tvb, 0, -1, digit_str);
-
-
-  return offset;
-}
-static int dissect_iMSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_Imsi(TRUE, tvb, offset, pinfo, tree, hf_camel_iMSI);
-}
-
-
-
-static int
 dissect_camel_CallingPartysCategory(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -6487,6 +6495,7 @@ static int dissect_callingPartysCategory_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_camel_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 247 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -6498,6 +6507,7 @@ dissect_camel_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 	return offset;
 
  dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+
 
 
   return offset;
@@ -6565,14 +6575,17 @@ static int dissect_miscCallInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_camel_CallresultoctetPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 87 "camel.cnf"
 tvbuff_t	*parameter_tvb;
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
 
  if (!parameter_tvb)
 	return offset;
  dissect_camel_CAMEL_CallResult(implicit_tag, parameter_tvb, 0, pinfo, tree, -1);
  
+
 
   return offset;
 }
@@ -6631,16 +6644,21 @@ dissect_camel_FurnishChargingInformationArg(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_camel_Q850Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 118 "camel.cnf"
 
        tvbuff_t *camel_tvb;
        guint8 Cause_value;
-       offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &camel_tvb);
+
 
        if (camel_tvb)
            dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
 
 
        return offset;
+
 
   return offset;
 }
@@ -7782,7 +7800,7 @@ dissect_camel_TaskRefusedPARAM(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-
+#line 170 "packet-camel-template.c"
 
 const value_string camel_opr_code_strings[] = {
 
@@ -8310,7 +8328,7 @@ void proto_register_camel(void) {
 #endif
 
 /*--- Included file: packet-camel-hfarr.c ---*/
-
+#line 1 "packet-camel-hfarr.c"
     { &hf_camel_reserved,
       { "reserved", "camel.reserved",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -8777,11 +8795,11 @@ void proto_register_camel(void) {
         "ChangeOfPositionControlInfo/_item", HFILL }},
     { &hf_camel_cellGlobalId,
       { "cellGlobalId", "camel.cellGlobalId",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "ChangeOfLocation/cellGlobalId", HFILL }},
     { &hf_camel_serviceAreaId,
       { "serviceAreaId", "camel.serviceAreaId",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "ChangeOfLocation/serviceAreaId", HFILL }},
     { &hf_camel_locationAreaId,
       { "locationAreaId", "camel.locationAreaId",
@@ -8909,7 +8927,7 @@ void proto_register_camel(void) {
         "DpSpecificInfoAlt/oServiceChangeSpecificInfo", HFILL }},
     { &hf_camel_ext_basicServiceCode,
       { "ext-basicServiceCode", "camel.ext_basicServiceCode",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(gsm_map_Ext_BasicServiceCode_vals), 0,
         "", HFILL }},
     { &hf_camel_tServiceChangeSpecificInfo,
       { "tServiceChangeSpecificInfo", "camel.tServiceChangeSpecificInfo",
@@ -9001,7 +9019,7 @@ void proto_register_camel(void) {
         "", HFILL }},
     { &hf_camel_ext_basicServiceCode2,
       { "ext-basicServiceCode2", "camel.ext_basicServiceCode2",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(gsm_map_Ext_BasicServiceCode_vals), 0,
         "", HFILL }},
     { &hf_camel_oMidCallSpecificInfo,
       { "oMidCallSpecificInfo", "camel.oMidCallSpecificInfo",
@@ -9157,15 +9175,15 @@ void proto_register_camel(void) {
         "GenericNumbers/_item", HFILL }},
     { &hf_camel_short_QoS_format,
       { "short-QoS-format", "camel.short_QoS_format",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "GPRS-QoS/short-QoS-format", HFILL }},
     { &hf_camel_long_QoS_format,
       { "long-QoS-format", "camel.long_QoS_format",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "GPRS-QoS/long-QoS-format", HFILL }},
     { &hf_camel_supplement_to_long_QoS_format,
       { "supplement-to-long-QoS-format", "camel.supplement_to_long_QoS_format",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "GPRS-QoS-Extension/supplement-to-long-QoS-format", HFILL }},
     { &hf_camel_gPRSEventType,
       { "gPRSEventType", "camel.gPRSEventType",
@@ -9189,7 +9207,7 @@ void proto_register_camel(void) {
         "", HFILL }},
     { &hf_camel_chargingID,
       { "chargingID", "camel.chargingID",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
     { &hf_camel_pDPType,
       { "pDPType", "camel.pDPType",
@@ -9277,11 +9295,11 @@ void proto_register_camel(void) {
         "LocationInformationGPRS/cellGlobalIdOrServiceAreaIdOrLAI", HFILL }},
     { &hf_camel_routeingAreaIdentity,
       { "routeingAreaIdentity", "camel.routeingAreaIdentity",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
     { &hf_camel_geographicalInformation,
       { "geographicalInformation", "camel.geographicalInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "LocationInformationGPRS/geographicalInformation", HFILL }},
     { &hf_camel_sgsn_Number,
       { "sgsn-Number", "camel.sgsn_Number",
@@ -9289,7 +9307,7 @@ void proto_register_camel(void) {
         "LocationInformationGPRS/sgsn-Number", HFILL }},
     { &hf_camel_selectedLSAIdentity,
       { "selectedLSAIdentity", "camel.selectedLSAIdentity",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "LocationInformationGPRS/selectedLSAIdentity", HFILL }},
     { &hf_camel_extensionContainer,
       { "extensionContainer", "camel.extensionContainer",
@@ -9337,19 +9355,19 @@ void proto_register_camel(void) {
         "MetDPCriteriaList/_item", HFILL }},
     { &hf_camel_enteringCellGlobalId,
       { "enteringCellGlobalId", "camel.enteringCellGlobalId",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "MetDPCriterion/enteringCellGlobalId", HFILL }},
     { &hf_camel_leavingCellGlobalId,
       { "leavingCellGlobalId", "camel.leavingCellGlobalId",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "MetDPCriterion/leavingCellGlobalId", HFILL }},
     { &hf_camel_enteringServiceAreaId,
       { "enteringServiceAreaId", "camel.enteringServiceAreaId",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "MetDPCriterion/enteringServiceAreaId", HFILL }},
     { &hf_camel_leavingServiceAreaId,
       { "leavingServiceAreaId", "camel.leavingServiceAreaId",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "MetDPCriterion/leavingServiceAreaId", HFILL }},
     { &hf_camel_enteringLocationAreaId,
       { "enteringLocationAreaId", "camel.enteringLocationAreaId",
@@ -9565,7 +9583,7 @@ void proto_register_camel(void) {
         "Code/local", HFILL }},
     { &hf_camel_global,
       { "global", "camel.global",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Code/global", HFILL }},
     { &hf_camel_messageType,
       { "messageType", "camel.messageType",
@@ -9577,7 +9595,7 @@ void proto_register_camel(void) {
         "SupportedExtensionsExtensionType/firstExtensionExtensionType", HFILL }},
     { &hf_camel_extId,
       { "extId", "camel.extId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PrivateExtension/extId", HFILL }},
     { &hf_camel_callresultOctet,
       { "callresultOctet", "camel.callresultOctet",
@@ -9657,11 +9675,11 @@ void proto_register_camel(void) {
         "InitialDPArgExtension/gmscAddress", HFILL }},
     { &hf_camel_ms_Classmark2,
       { "ms-Classmark2", "camel.ms_Classmark2",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "InitialDPArgExtension/ms-Classmark2", HFILL }},
     { &hf_camel_iMEI,
       { "iMEI", "camel.iMEI",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "InitialDPArgExtension/iMEI", HFILL }},
     { &hf_camel_supportedCamelPhases,
       { "supportedCamelPhases", "camel.supportedCamelPhases",
@@ -10041,7 +10059,7 @@ void proto_register_camel(void) {
         "InitialDPArg/cug-Index", HFILL }},
     { &hf_camel_subscriberState,
       { "subscriberState", "camel.subscriberState",
-        FT_UINT32, BASE_DEC, VALS(camel_SubscriberState_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(gsm_map_SubscriberState_vals), 0,
         "InitialDPArg/subscriberState", HFILL }},
     { &hf_camel_mscAddress,
       { "mscAddress", "camel.mscAddress",
@@ -10221,7 +10239,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-
+#line 696 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10236,7 +10254,7 @@ void proto_register_camel(void) {
     &ett_camel_addr,
 
 /*--- Included file: packet-camel-ettarr.c ---*/
-
+#line 1 "packet-camel-ettarr.c"
     &ett_camel_PBSGSNCapabilities,
     &ett_camel_PBIPSSPCapabilities,
     &ett_camel_PBAddressString,
@@ -10444,7 +10462,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-
+#line 709 "packet-camel-template.c"
   };
 
   /* Register protocol */

@@ -5,6 +5,7 @@
 
 /* Input file: packet-camel-template.h */
 
+#line 1 "packet-camel-template.h"
 /* packet-camel-template.h
  * Routines for Camel
  * Copyright 2004, Tim Endean <endeant@hotmail.com>

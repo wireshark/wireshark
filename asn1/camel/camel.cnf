@@ -56,31 +56,16 @@ MAP-CH-DataTypes gsm_map
  offset += len;
  
 #.END
-
 #----------------------------------------------------------------------------------------
-#.FN_BODY Imsi
+#.FN_PARS ISDN-AddressString
+	VAL_PTR = &parameter_tvb
 
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
-
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
- if (!parameter_tvb)
-	 return offset;
-
- digit_str = unpack_digits(parameter_tvb, 0);
- proto_tree_add_string(tree, hf_camel_imsi_digits, parameter_tvb, 0, -1, digit_str);
-
-#.END
-#----------------------------------------------------------------------------------------
 #.FN_BODY ISDN-AddressString
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+%(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
@@ -95,11 +80,13 @@ MAP-CH-DataTypes gsm_map
 #.END
 
 #----------------------------------------------------------------------------------------
+#.FN_PARS CallresultoctetPDU
+	VAL_PTR = &parameter_tvb
+
 #.FN_BODY CallresultoctetPDU
 tvbuff_t	*parameter_tvb;
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
 
+%(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset;
  dissect_camel_CAMEL_CallResult(implicit_tag, parameter_tvb, 0, pinfo, tree, -1);
@@ -107,11 +94,32 @@ tvbuff_t	*parameter_tvb;
 #.END
 
 #----------------------------------------------------------------------------------------
+#.FN_PARS Cause
+	VAL_PTR = &camel_tvb
+
+#.FN_BODY Cause
+
+       tvbuff_t *camel_tvb;
+       guint8 Cause_value;
+
+%(DEFAULT_BODY)s
+
+       if (camel_tvb)
+           dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
+
+
+       return offset;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS Q850Cause
+	VAL_PTR = &camel_tvb
+
 #.FN_BODY Q850Cause
 
        tvbuff_t *camel_tvb;
        guint8 Cause_value;
-       offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
+
+%(DEFAULT_BODY)s
 
        if (camel_tvb)
            dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
