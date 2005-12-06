@@ -359,17 +359,17 @@ capture_input_drops(capture_options *capture_opts, int dropped)
 }
 
 
-/* Capture child told us, that an error has occurred while starting the capture. */
+/* Capture child told us, that an error has occurred while starting/running the capture. */
 void
 capture_input_error_message(capture_options *capture_opts, char *error_message)
 {
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\"", error_message);
 
-  g_assert(capture_opts->state == CAPTURE_PREPARING);
+  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
 
   simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_message);
 
-  /* the capture child will close the sync_pipe, nothing to do for now */
+  /* the capture child will close the sync_pipe if required, nothing to do for now */
 }
 
 
