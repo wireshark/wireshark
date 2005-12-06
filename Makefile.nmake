@@ -144,7 +144,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 !IFNDEF GTK1_DIR
 ethereal.exe	: 
 !ELSE
-ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
+ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(command_line_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK1_LIBS) gtk\libui.lib $(ethereal_OBJECTS) image\ethereal.res
@@ -154,20 +154,20 @@ ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) epan gtk image\ethereal
 !IFNDEF GTK2_DIR
 ethereal-gtk2.exe	: 
 !ELSE
-ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
+ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(command_line_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(ethereal_OBJECTS) image\ethereal.res
 <<
 !ENDIF
 
-tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(command_line_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(command_line_OBJECTS) image\tethereal.res
 <<
 
-capinfos.exe	: config.h capinfos.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
+capinfos.exe	: config.h capinfos.obj getopt.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj $(command_line_OBJECTS) $(capinfos_LIBS) image\capinfos.res
@@ -179,13 +179,13 @@ editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).li
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(command_line_OBJECTS) $(editcap_LIBS) image\editcap.res
 <<
 
-mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(command_line_OBJECTS) $(mergecap_LIBS) image\mergecap.res
 <<
 
-text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
+text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj $(command_line_OBJECTS) image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj $(command_line_OBJECTS) image\text2pcap.res
@@ -197,16 +197,16 @@ dftest.exe	: $(dftest_OBJECTS) epan
 		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
 
-randpkt.exe	: $(randpkt_OBJECTS)
+randpkt.exe	: $(randpkt_OBJECTS) $(command_line_OBJECTS)
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) $(command_line_OBJECTS)
 <<
 
-dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) $(RESOURCES) wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
+dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) $(command_line_OBJECTS) mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) $(command_line_OBJECTS) image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) $(command_line_OBJECTS) mkstemp.obj image\dumpcap.res
 <<
 
 
