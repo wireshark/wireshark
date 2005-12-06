@@ -85,24 +85,28 @@ ServiceChangeReply/terminationID			terminationIDList
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
     trx = h248_trx(msg,trx_id,H248_TRX_REQUEST);
+    error_code = 0;
 #.END
 
 #.FN_BODY TransactionPending/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
     trx = h248_trx(msg,trx_id,H248_TRX_PENDING);
+    error_code = 0;
 #.END
 
 #.FN_BODY TransactionReply/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
     trx = h248_trx(msg,trx_id,H248_TRX_REPLY);
+    error_code = 0;
 #.END
 
 #.FN_BODY TransactionResponseAck/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
     trx = h248_trx(msg,trx_id,H248_TRX_ACK);
+    error_code = 0;
 #.END
 
 

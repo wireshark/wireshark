@@ -968,6 +968,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
                 t->id = t_id;
                 t->type = type;
                 t->pendings = 0;
+                t->error = 0;
                 t->cmds = NULL;
                 
                 g_hash_table_insert(trxs,t->key,t);
@@ -990,6 +991,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
         t->id = t_id;
         t->type = type;
         t->pendings = 0;
+        t->error = 0;
         t->cmds = NULL;
     }
 
@@ -1184,6 +1186,7 @@ static void h248_cmd_add_term(h248_cmd_t* c, h248_term_t* t) {
                 ct = se_alloc(sizeof(h248_terms_t));
 
                 ct->term = se_alloc(sizeof(h248_term_t));
+                ct->next = NULL;
                 
                 ct->term->str = se_strdup(t->str);
                 ct->term->buffer = se_memdup(t->buffer,t->len);
@@ -1200,6 +1203,7 @@ static void h248_cmd_add_term(h248_cmd_t* c, h248_term_t* t) {
     } else {
         ct = ep_new(h248_terms_t);
         ct->term = t;
+        ct->next = NULL;
         c->terms.last = c->terms.last->next = ct;
         
     }
@@ -1383,8 +1387,10 @@ static void analyze_h248_msg(h248_msg_t* m) {
             proto_tree* terms_tree = proto_item_add_subtree(terms_item,ett_ctx_cmds);
 
             for (; ctx_term; ctx_term = ctx_term->next ) {
-                proto_item* term_item = proto_tree_add_string(terms_tree,hf_h248_ctx_term,h248_tvb,0,0,ctx_term->term->str);
-                PROTO_ITEM_SET_GENERATED(term_item);
+                if ( ctx_term->term && ctx_term->term->str) {
+                    proto_item* term_item = proto_tree_add_string(terms_tree,hf_h248_ctx_term,h248_tvb,0,0,ctx_term->term->str);
+                    PROTO_ITEM_SET_GENERATED(term_item);
+                }
             }
         }
     }
