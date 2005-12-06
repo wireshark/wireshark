@@ -72,6 +72,7 @@ static int hf_tipc_rm_msg_type = -1;
 static int hf_tipc_nd_msg_type = -1;
 static int hf_tipc_cm_msg_type = -1;
 static int hf_tipc_lp_msg_type = -1;
+static int hf_tipc_cng_prot_msg_type = -1;
 static int hf_tipc_sm_msg_type = -1;
 static int hf_tipc_ma_msg_type = -1;
 static int hf_tipc_unknown_msg_type = -1;
@@ -152,6 +153,7 @@ const value_string tipc_name_dist_msg_type_values[] = {
 	{ 1,	"WITHDRAWAL"},
 	{ 0,	NULL},
 };
+/* CONNECTION_MANAGER */
 const value_string tipc_cm_msg_type_values[] = {
 	{ 0,	"CONNECTION_PROBE"},
 	{ 1,	"CONNECTION_PROBE_REPLY"},
@@ -163,11 +165,21 @@ const value_string tipc_link_prot_msg_type_values[] = {
 	{ 12,	"STATE_MSG"},
 	{ 0,	NULL},
 };
+/* CHANGEOVER_PROTOCOL */
+const value_string tipc_cng_prot_msg_type_values[] = {
+	{ 0,	"DUPLICATE_MSG"},
+	{ 1,	"ORIGINAL_MSG"},
+	{ 2,	"INFO_MSG"},
+	{ 0,	NULL},
+};
+/* SEGMENTATION_MANAGER */
 const value_string tipc_sm_msg_type_values[] = {
 	{ 1,	"FIRST_SEGMENT"},
 	{ 2,	"SEGMENT"},
 	{ 0,	NULL},
 };
+
+static void dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gchar*
 tipc_addr_to_str(guint tipc_address)
@@ -269,9 +281,14 @@ static void
 dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tree,int offset,guint8 user, guint32 msg_size)
 {	
 	guint8 msg_type;
+	tvbuff_t *data_tvb;
+	guint16 message_count;
+	guint32 msg_in_bundle_size;
+	guint msg_no = 0;
+
 	/* Internal Protocol Header */
 	/* Unused */
-	msg_type = tvb_get_guint8(tvb,offset + 11);
+	msg_type = tvb_get_guint8(tvb,offset + 11)>>4;
 	/* W3 */
 	proto_tree_add_item(tipc_tree, hf_tipc_unused2, tvb, offset, 4, FALSE);
 	/* Importance */
@@ -281,8 +298,10 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	if ( user == TIPC_SEGMENTATION_MANAGER || user == TIPC_NAME_DISTRIBUTOR || user == TIPC_CHANGEOVER_PROTOCOL )
 		proto_tree_add_item(tipc_tree, hf_tipc_link_selector, tvb, offset, 4, FALSE);
 	/* Message count */
-	if ( user == TIPC_MSG_BUNDLER || user == TIPC_CHANGEOVER_PROTOCOL )
+	if ( user == TIPC_MSG_BUNDLER || user == TIPC_CHANGEOVER_PROTOCOL ){
+		message_count = tvb_get_ntohs(tvb,offset+2);
 		proto_tree_add_item(tipc_tree, hf_tipc_msg_cnt, tvb, offset, 4, FALSE);
+	}
 	/* Unused */
 	/* Probe */
 	if ( user == TIPC_LINK_PROTOCOL )
@@ -316,6 +335,9 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	case TIPC_LINK_PROTOCOL:
 		proto_tree_add_item(tipc_tree, hf_tipc_lp_msg_type, tvb, offset, 4, FALSE);
 		break;
+	case TIPC_CHANGEOVER_PROTOCOL:
+		proto_tree_add_item(tipc_tree, hf_tipc_cng_prot_msg_type, tvb, offset, 4, FALSE);
+		break;
 	case TIPC_SEGMENTATION_MANAGER:
 		proto_tree_add_item(tipc_tree, hf_tipc_sm_msg_type, tvb, offset, 4, FALSE);
 		break;
@@ -334,13 +356,48 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	/* Unused */
 	proto_tree_add_item(tipc_tree, hf_tipc_unused3, tvb, offset, 4, FALSE);
 	offset = offset + 4;
+	/*W7 */
+	if (msg_size == 28) /* No data */
+		return;
+
 	switch (user){
-		case TIPC_CONNECTION_MANAGER:
-		case TIPC_NAME_DISTRIBUTOR:
-			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
-			break;
 		case TIPC_LINK_PROTOCOL:
 			proto_tree_add_item(tipc_tree, hf_tipc_bearer_name, tvb, offset, -1, FALSE);
+			break;
+		case TIPC_CHANGEOVER_PROTOCOL:
+			switch (msg_type){
+			case 0: /* DUPLICATE_MSG */
+			case 1: /* ORIGINAL_MSG */
+				proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_CHANGEOVER_PROTOCOL %s (%u)",val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"),msg_type);
+				data_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				dissect_tipc(data_tvb, pinfo, tipc_tree);
+				break;
+			default:
+				/*	INFO_MSG: Even when there are no packets in the send queue of a removed link, the other
+					endpoint must be informed about this fact, so it can be unblocked when it has terminated its
+					part of the changeover procedure. This message type may be regarded as an empty
+					ORIGINAL_MSG, where message count is zero, and no packet is wrapped inside.
+				*/
+				proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_CHANGEOVER_PROTOCOL Protol/dissection Error");
+				return;
+				break;
+			}
+			break;
+		case TIPC_SEGMENTATION_MANAGER:
+			/* TODO: Add desegmentation here */
+			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
+			break;
+		case TIPC_MSG_BUNDLER:
+			proto_tree_add_text(tipc_tree, tvb, offset, -1,"Message Bundle");
+			/* TODO Add loop here */
+			while (offset < msg_size ){
+				msg_no++;
+				msg_in_bundle_size = tvb_get_ntohl(tvb,offset);
+				proto_tree_add_text(tipc_tree, tvb, offset, msg_in_bundle_size,"%u Message in Bundle",msg_no);
+				data_tvb = tvb_new_subset(tvb, offset, msg_in_bundle_size, msg_in_bundle_size);
+				dissect_tipc(data_tvb, pinfo, tipc_tree);
+				offset = offset + msg_in_bundle_size;
+			}
 			break;
 		default:
 			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
@@ -366,6 +423,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar *addr_str_ptr;
 	const guchar		*src_addr, *dst_addr;
 	tvbuff_t *data_tvb;
+	gboolean datatype_hdr = FALSE;
+	guint8 msg_type;
 
 		/* Make entry in Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -376,6 +435,11 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	user = (dword>>25) & 0xf;
 	msg_size = dword & 0x1ffff;
 
+	msg_type = tvb_get_guint8(tvb,offset + 20)>>4;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%u)", val_to_str(user, tipc_user_values, "unknown"),user);
+
 	/* 
 	 * src and dest address will be found at different location depending on User ad hdr_size
 	 */
@@ -384,35 +448,62 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case TIPC_DATA_PRIO_1:
 		case TIPC_DATA_PRIO_2:
 		case TIPC_DATA_NON_REJECTABLE:
+			datatype_hdr = TRUE;
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_data_msg_type_values, "unknown"),msg_type);
+			break;
 		case TIPC_NAME_DISTRIBUTOR:
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_name_dist_msg_type_values, "unknown"),msg_type);
+			break;
 		case TIPC_CONNECTION_MANAGER:
-			/* Data type header */
-			if ( hdr_size > 5 && user <4){
-				src_addr = tvb_get_ptr(tvb, offset + 24, 4);
-				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
-	
-				dst_addr = tvb_get_ptr(tvb, offset + 28, 4);
-				SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
-			}else{
-				/* Short data hdr */
-				src_addr = tvb_get_ptr(tvb, offset + 8, 4);
-				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
-			}
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_cm_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_ROUTING_MANAGER:
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_routing_mgr_msg_type_values, "unknown"),msg_type);
+			break;
 		case TIPC_LINK_PROTOCOL:
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_link_prot_msg_type_values, "unknown"),msg_type);
+			break;
 		case TIPC_CHANGEOVER_PROTOCOL:
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"),msg_type);
+			break;
 		case TIPC_SEGMENTATION_MANAGER:
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_sm_msg_type_values, "unknown"),msg_type);
+			break;
 		case TIPC_MSG_BUNDLER:
-			src_addr = tvb_get_ptr(tvb, offset + 8, 4);
-			SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+			break;
 		default:
 			break;		 
 	}
-
-
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "User: %s(%u)", val_to_str(user, tipc_user_values, "unknown"),user);
+		col_set_fence(pinfo->cinfo,COL_INFO);
+
+	if ( datatype_hdr ){
+		/* Data type header */
+		if ( hdr_size > 5 && user <4){
+			src_addr = tvb_get_ptr(tvb, offset + 24, 4);
+			SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+	
+			dst_addr = tvb_get_ptr(tvb, offset + 28, 4);
+			SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+		}else{
+			/* Short data hdr */
+			src_addr = tvb_get_ptr(tvb, offset + 8, 4);
+			SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+		}
+	}else{
+		src_addr = tvb_get_ptr(tvb, offset + 8, 4);
+		SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+	}
+
+
+
 
 	/* If "tree" is NULL, not necessary to generate protocol tree items. */
 	if (tree) {
@@ -523,11 +614,13 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						*/
 					offset = offset + 8;
 				}else{
-					/* TODO Add to protocol tree */
 					/* Port name type / Connection level sequence number */
+					proto_tree_add_text(tipc_tree, tvb, offset, 4,"Port name type / Connection level sequence number");
 					offset = offset + 4;
 					/* Port name instance */
 					offset = offset + 4;
+					proto_tree_add_text(tipc_tree, tvb, offset, 4,"Port name instance");
+
 				}
 			}
 		}
@@ -694,6 +787,11 @@ proto_register_tipc(void)
 		{ &hf_tipc_lp_msg_type,
 			{ "Message type",           "tipc.lp_msg_type",
 			FT_UINT32, BASE_DEC, VALS(tipc_link_prot_msg_type_values), 0xf0000000,          
+			"TIPC Message type", HFILL }
+		},
+		{ &hf_tipc_cng_prot_msg_type,
+			{ "Message type",           "tipc.cng_prot_msg_type",
+			FT_UINT32, BASE_DEC, VALS(tipc_cng_prot_msg_type_values), 0xf0000000,          
 			"TIPC Message type", HFILL }
 		},
 		{ &hf_tipc_sm_msg_type,
