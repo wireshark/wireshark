@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x411.c                                                            */
+/* ./packet-x411.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.c */
@@ -2702,7 +2702,7 @@ static int dissect_criticality_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 static int
 dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 #line 203 "x411.cnf"
-	char *name;
+	const char *name;
 
 	if(extension_id != -1) 
 		offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
@@ -6933,7 +6933,7 @@ static void dissect_PhysicalDeliveryOfficeName_PDU(tvbuff_t *tvb, packet_info *p
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  char *name = NULL;
+  const char *name = NULL;
   char extension_oid[BER_MAX_OID_STR_LEN];
 
   sprintf(extension_oid, "%s.%d", base_oid, extension_id);	

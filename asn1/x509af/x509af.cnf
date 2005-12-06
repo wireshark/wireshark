@@ -71,7 +71,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   FN_VARIANT = _str  HF_INDEX = hf_x509af_algorithm_id  VAL_PTR = &algorithm_id
 
 #.FN_BODY AlgorithmIdentifier/algorithmId
-  char *name;
+  const char *name;
 
   %(DEFAULT_BODY)s
 
@@ -88,7 +88,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   FN_VARIANT = _str  HF_INDEX = hf_x509af_extension_id  VAL_PTR = &extension_id
 
 #.FN_BODY Extension/extnId
-  char *name;
+  const char *name;
 
   %(DEFAULT_BODY)s
 

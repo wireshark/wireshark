@@ -107,7 +107,7 @@ InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY IPMSExtension/type
-  char *name = NULL;
+  const char *name = NULL;
 
   %(DEFAULT_BODY)s
   

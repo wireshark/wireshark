@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x420.h                                                            */
+/* ./packet-x420.h                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn */
 
 /* Input file: packet-x420-template.h */

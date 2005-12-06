@@ -200,7 +200,7 @@ ReportDeliveryArgument	B	"2.6.1.4.14"	"id-et-report"
 /*XXX not implemented yet */
 
 #.FN_BODY ExtensionValue
-	char *name;
+	const char *name;
 
 	if(extension_id != -1) 
 		offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);

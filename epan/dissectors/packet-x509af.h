@@ -5,6 +5,7 @@
 
 /* Input file: packet-x509af-template.h */
 
+#line 1 "packet-x509af-template.h"
 /* packet-x509af.h
  * Routines for X.509 Authentication Framework packet dissection
  *  Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-x509af-exp.h ---*/
-
+#line 1 "packet-x509af-exp.h"
 extern const value_string x509af_Version_vals[];
 extern const value_string x509af_Time_vals[];
 int dissect_x509af_Certificate(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -62,7 +63,7 @@ int dissect_x509af_AttCertValidityPeriod(gboolean implicit_tag, tvbuff_t *tvb, i
 int dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-x509af-exp.h ---*/
-
+#line 30 "packet-x509af-template.h"
 
 extern const char* x509af_get_last_algorithm_id(void);
 

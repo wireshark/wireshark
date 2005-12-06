@@ -81,7 +81,7 @@ static gint ett_x411 = -1;
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  char *name = NULL;
+  const char *name = NULL;
   char extension_oid[BER_MAX_OID_STR_LEN];
 
   sprintf(extension_oid, "%s.%d", base_oid, extension_id);	
