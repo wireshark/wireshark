@@ -1236,23 +1236,11 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (!has_wpcap) {
+      char * err_msg = cant_load_winpcap_err("Ethereal");
+
 	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "Unable to load WinPcap (wpcap.dll); Ethereal will not be able\n"
-		  "to capture packets.\n\n"
-		  "In order to capture packets, WinPcap must be installed; see\n"
-		  "\n"
-		  "        http://www.winpcap.org/\n"
-		  "\n"
-		  "or the mirror at\n"
-		  "\n"
-		  "        http://winpcap.mirror.ethereal.com/\n"
-		  "\n"
-		  "or the mirror at\n"
-		  "\n"
-		  "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
-		  "\n"
-		  "for a downloadable version of WinPcap and for instructions\n"
-		  "on how to install WinPcap.");
+          err_msg);
+      g_free(err_msg);
 	  return;
   }
 #endif

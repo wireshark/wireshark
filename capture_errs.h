@@ -26,6 +26,8 @@
 #ifdef HAVE_LIBPCAP
 
 #ifdef _WIN32
+/* error message, if WinPcap couldn't be loaded */
+/* will use g_strdup, don't forget to g_free the returned string! */
 extern char *cant_load_winpcap_err(const char *app_name);
 #endif /* _WIN32 */
 
