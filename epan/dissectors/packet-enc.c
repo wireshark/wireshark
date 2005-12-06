@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
+#include "packet-enc.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 
@@ -67,33 +68,26 @@ static int hf_enc_flags = -1;
 
 static gint ett_enc = -1;
 
-static void
-capture_enc(const guchar *pd, int offset, int len, packet_counts *ld)
+void
+capture_enc(const guchar *pd, int len, packet_counts *ld)
 {
-  struct enchdr ench;
+  guint32 af;
 
-  if (!BYTES_ARE_IN_FRAME(offset, len, (int)ENC_HDRLEN)) {
+  if (!BYTES_ARE_IN_FRAME(0, len, (int)ENC_HDRLEN)) {
     ld->other++;
     return;
   }
 
-  offset += ENC_HDRLEN;
-
-  /* Copy out the enc header to insure alignment */
-  memcpy(&ench, pd, sizeof(ench));
-  ench.af = g_ntohl(ench.af);
-
-  switch (ench.af) {
+  af = pntohl(pd + offsetof(struct enchdr, af));
+  switch (af) {
 
   case BSD_ENC_INET:
-    capture_ip(pd, offset, len, ld);
+    capture_ip(pd, ENC_HDRLEN, len, ld);
     break;
 
-#ifdef notyet
   case BSD_ENC_INET6:
-    capture_ipv6(pd, offset, len, ld);
+    capture_ipv6(pd, ENC_HDRLEN, len, ld);
     break;
-#endif
 
   default:
     ld->other++;

@@ -728,6 +728,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dvmrp.h	\
 	packet-e164.h   \
 	packet-edonkey.h	\
+	packet-enc.h	\
 	packet-esis.h	\
 	packet-ess.h	\
 	packet-eth.h	\

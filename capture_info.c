@@ -54,8 +54,7 @@
 #include <epan/dissectors/packet-prism.h>
 #include <epan/dissectors/packet-ipfc.h>
 #include <epan/dissectors/packet-arcnet.h>
-
-
+#include <epan/dissectors/packet-enc.h>
 
 static void capture_info_packet(
 packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);
@@ -215,6 +214,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
     case WTAP_ENCAP_FRELAY:
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
       capture_fr(pd, 0, caplen, counts);
+      break;
+    case WTAP_ENCAP_ENC:
+      capture_enc(pd, caplen, counts);
       break;
     /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;
