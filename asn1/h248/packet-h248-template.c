@@ -82,24 +82,9 @@ static int hf_h248_term_wild_type = -1;
 static int hf_h248_term_wild_level = -1;
 static int hf_h248_term_wild_position = -1;
 
-/*
-static int hf_h248_cmd_trx = -1;
-static int hf_h248_cmd_request = -1;
-static int hf_h248_cmd_reply = -1;
-static int hf_h248_cmd_pending = -1;
-static int hf_h248_cmd_dup_request = -1;
-static int hf_h248_cmd_dup_reply = -1;
-static int hf_h248_cmd_start = -1;
-static int hf_h248_cmd_error = -1;
-static int hf_h248_cmd_ctx = -1;
-static int hf_h248_ctx_start = -1;
-static int hf_h248_ctx_last = -1;
+static int hf_h248_ctx = -1;
+static int hf_h248_ctx_term = -1;
 static int hf_h248_ctx_cmd = -1;
-static int hf_h248_ctx_cmd_type = -1;
-static int hf_h248_ctx_cmd_request = -1;
-static int hf_h248_ctx_cmd_reply = -1;
-static int hf_h248_ctx_cmd_error = -1;
-*/
 
 #include "packet-h248-hf.c"
 
@@ -112,9 +97,8 @@ static gint ett_wildcard = -1;
 
 static gint ett_cmd = -1;
 static gint ett_ctx = -1;
-static gint ett_ctx_cmd = -1;
 static gint ett_ctx_cmds = -1;
-static gint ett_debug = -1;
+static gint ett_ctx_terms = -1;
 
 #include "packet-h248-ett.c"
 
@@ -1052,7 +1036,10 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                     context->cmds = NULL;
                     context->id = c_id;
                     context->first_frame = m->framenum;
-
+                    context->terms.last = &(context->terms);
+                    context->terms.next = NULL;
+                    context->terms.term = NULL;
+                    
                     g_hash_table_insert(ctxs_by_trx,t->key,context);
                 }
             } else {
@@ -1066,6 +1053,9 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                             context->id = c_id;
                             context->first_frame = m->framenum;
                             context->cmds = NULL;
+                            context->terms.last = &(context->terms);
+                            context->terms.next = NULL;
+                            context->terms.term = NULL;
                             
                             context->prev = *context_p;
                             *context_p = context;
@@ -1075,6 +1065,9 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                         *context_p = context;
                         context->key = se_strdup(key);
                         context->id = c_id;
+                        context->terms.last = &(context->terms);
+                        context->terms.next = NULL;
+                        context->terms.term = NULL;
                         g_hash_table_insert(ctxs,context->key,context_p);                        
                     }
                 } else if (! ( context_p = g_hash_table_lookup(ctxs,key) )) {
@@ -1083,7 +1076,10 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                     context->id = c_id;
                     context->cmds = NULL;
                     context->first_frame = m->framenum;
-
+                    context->terms.last = &(context->terms);
+                    context->terms.next = NULL;
+                    context->terms.term = NULL;
+                    
                     context_p = se_alloc(sizeof(void*));
                     *context_p = context;
                     g_hash_table_insert(ctxs,context->key,context_p);                        
@@ -1097,6 +1093,9 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
         context->key = NULL;
         context->cmds = NULL;
         context->id = c_id;
+        context->terms.last = &(context->terms);
+        context->terms.next = NULL;
+        context->terms.term = NULL;
     }
 
     return context;
@@ -1135,7 +1134,9 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     
     cmd->type = type;
     cmd->offset = offset;
-    cmd->strs = NULL;
+    cmd->terms.term = NULL;
+    cmd->terms.next = NULL;
+    cmd->terms.last = &(cmd->terms);
     cmd->msg = m;
     cmd->trx = t;
     cmd->ctx = c;
@@ -1164,35 +1165,50 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     return cmd;
 }
 
-static void h248_cmd_add_str(h248_cmd_t* c, gchar* s) {
-    h248_cmd_strs_t* st;
+
+
+static void h248_cmd_add_term(h248_cmd_t* c, h248_term_t* t) {
+    h248_terms_t* ct;
     
     if (keep_persistent_data) {
         if ( c->msg->commited ) {
             return;
         } else {
-            st = se_alloc(sizeof(h248_cmd_strs_t));
-            st->str = se_strdup(s);
+            for (ct = c->ctx->terms.next; ct; ct = ct->next) {
+                if ( g_str_equal(ct->term->str,t->str) ) {
+                    break;
+                }
+            }
+            
+            if ( ! ct ) {
+                ct = se_alloc(sizeof(h248_terms_t));
+
+                ct->term = se_alloc(sizeof(h248_term_t));
+                
+                ct->term->str = se_strdup(t->str);
+                ct->term->buffer = se_memdup(t->buffer,t->len);
+                ct->term->len = t->len;
+                
+                c->ctx->terms.last->next = ct;
+                c->ctx->terms.last = ct;
+            }
+            
+            c->terms.last = c->terms.last->next = se_alloc(sizeof(h248_terms_t));
+            c->terms.last->next = NULL;
+            c->terms.last->term = ct->term;
         }
     } else {
-        st = ep_new(h248_cmd_strs_t);
-        st->str = s;
+        ct = ep_new(h248_terms_t);
+        ct->term = t;
+        c->terms.last = c->terms.last->next = ct;
+        
     }
 
-    st->next = NULL;
-    st->last = st;
-
-    if (c->strs) {
-        c->strs->last = c->strs->last->next = st;
-    } else {
-        c->strs = st;
-    }
-    
 }
 
 static gchar* h248_cmd_to_str(h248_cmd_t* c) {
     gchar* s = "-";
-    h248_cmd_strs_t* str;
+    h248_terms_t* term;
     
     switch (c->type) {
         case H248_CMD_NONE:
@@ -1260,8 +1276,8 @@ static gchar* h248_cmd_to_str(h248_cmd_t* c) {
             break;
     }
     
-    for (str = c->strs; str; str = str->next) {
-        s = ep_strdup_printf("%s %s",s,str->str);
+    for (term = c->terms.next; term; term = term->next) {
+        s = ep_strdup_printf("%s %s",s,term->term->str);
     };
     
     if (c->error) {
@@ -1310,40 +1326,20 @@ static gchar* h248_msg_to_str(h248_msg_t* m) {
 typedef struct _h248_ctxs_t {
     struct _h248_ctx_t* ctx;
     struct _h248_ctxs_t* next;
-} h248_ctxs;
+} h248_ctxs_t;
 
+/*static const gchar* trx_types[] = {"None","Req","Reply","Pending","Ack"};*/
 
 static void analyze_h248_msg(h248_msg_t* m) {
-    proto_item* msg_item;
-    proto_tree* msg_tree;
     h248_trx_msg_t* t;
-    gchar* types[] = {"None","Req","Reply","Pending","Ack"};
-    h248_ctxs contexts = {NULL,NULL};
-    h248_ctxs* ctx_node;
+    h248_ctxs_t contexts = {NULL,NULL};
+    h248_ctxs_t* ctx_node;
     h248_cmd_msg_t* c;
     
-    msg_item = proto_tree_add_text(h248_tree,h248_tvb,0,0,"Message: label=%s framenum=%u",m->addr_label,m->framenum);
-    msg_tree = proto_item_add_subtree(msg_item,ett_debug);
-    
     for (t = m->trxs; t; t = t->next) {
-        proto_item* trx_item = proto_tree_add_text(msg_tree,h248_tvb,0,0,
-                                                   "Trx(%x): key=%s type=%s error=%u",
-                                                   t,
-                                                   t->trx->key,
-                                                   t->trx->type > H248_TRX_ACK ? types[0] : types[t->trx->type],
-                                                   t->trx->error
-                                                   );
-        proto_tree* trx_tree = proto_item_add_subtree(trx_item,ett_debug);
-        
         for (c = t->trx->cmds; c; c = c->next) {
             h248_ctx_t* ctx = c->cmd->ctx;
 
-            proto_tree_add_text(trx_tree,h248_tvb,0,0,
-                                "%s %s",
-                                ctx->key,
-                                h248_cmd_to_str(c->cmd)
-                                );
-            
             for (ctx_node = contexts.next; ctx_node; ctx_node = ctx_node->next) {
                 if (ctx_node->ctx->id == ctx->id) {
                     break;
@@ -1351,7 +1347,7 @@ static void analyze_h248_msg(h248_msg_t* m) {
             }
             
             if (! ctx_node) {
-                ctx_node = ep_new(h248_ctxs);
+                ctx_node = ep_new(h248_ctxs_t);
                 ctx_node->ctx = ctx;
                 ctx_node->next = contexts.next;
                 contexts.next = ctx_node;
@@ -1362,15 +1358,34 @@ static void analyze_h248_msg(h248_msg_t* m) {
 
     for (ctx_node = contexts.next; ctx_node; ctx_node = ctx_node->next) {
         h248_ctx_t* ctx = ctx_node->ctx;
+        proto_item* ctx_item = proto_tree_add_uint(h248_tree,hf_h248_ctx,h248_tvb,0,0,ctx->id);
+        proto_tree* ctx_tree = proto_item_add_subtree(ctx_item,ett_ctx);
+        h248_terms_t *ctx_term;
+
+        PROTO_ITEM_SET_GENERATED(ctx_item);
+
+        if (( c = ctx->cmds )) {
+            proto_item* history_item = proto_tree_add_text(ctx_tree,h248_tvb,0,0,"[ Command History ]");
+            proto_tree* history_tree = proto_item_add_subtree(history_item,ett_ctx_cmds);
+
+            for (c = ctx->cmds; c; c = c->next) {
+                proto_item* cmd_item = proto_tree_add_uint(history_tree,hf_h248_ctx_cmd,h248_tvb,0,0,c->cmd->msg->framenum);
+                proto_item_set_text(cmd_item,"%s",h248_cmd_to_str(c->cmd) );
+                PROTO_ITEM_SET_GENERATED(cmd_item);
+                if (c->cmd->error) {
+                    proto_item_set_expert_flags(cmd_item, PI_RESPONSE_CODE, PI_WARN);
+                }
+            }
+        }
         
-        proto_item* ctx_item = proto_tree_add_text(msg_tree,h248_tvb,0,0,
-                                                   "Ctx(%x): key=%s id=%x",
-                                                   ctx, ctx->key, ctx->id);
-        proto_tree* ctx_tree = proto_item_add_subtree(ctx_item,ett_debug);
-        
-        for (c = ctx->cmds; c; c = c->next) {
-            proto_tree_add_text(ctx_tree,h248_tvb,0,0,
-                                "%s",h248_cmd_to_str(c->cmd) );
+        if (( ctx_term = ctx->terms.next )) {
+            proto_item* terms_item = proto_tree_add_text(ctx_tree,h248_tvb,0,0,"[ Terminations Used ]");
+            proto_tree* terms_tree = proto_item_add_subtree(terms_item,ett_ctx_cmds);
+
+            for (; ctx_term; ctx_term = ctx_term->next ) {
+                proto_item* term_item = proto_tree_add_string(terms_tree,hf_h248_ctx_term,h248_tvb,0,0,ctx_term->term->str);
+                PROTO_ITEM_SET_GENERATED(term_item);
+            }
         }
     }
 }
@@ -1382,6 +1397,7 @@ static h248_msg_t* msg;
 static h248_trx_t* trx;
 static h248_ctx_t* ctx;
 static h248_cmd_t* cmd;
+static h248_term_t* term;
 static guint32 error_code;
 
 #include "packet-h248-fn.c"
@@ -1539,24 +1555,9 @@ void proto_register_h248(void) {
 
 #include "packet-h248-hfarr.c"
 
-/*
-  { &hf_h248_cmd_trx, { "Transaction", "h248.trx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_cmd_request, { "Request for this Reply", "h248.cmd.request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_cmd_reply, { "Reply to this Request", "h248.cmd.reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_cmd_dup_request, { "This Request is a Duplicate of", "h248.cmd.dup_request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_cmd_dup_reply, { "This Reply is a Duplicate of", "h248.cmd.dup_reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_cmd_pending, { "Pendings", "h248.cmd.pending", FT_UINT32, BASE_DEC, NULL, 0, "Number Of Pending Messages", HFILL }},
-  { &hf_h248_cmd_start, { "This Transaction Starts a New Context", "h248.cmd.start", FT_BOOLEAN, BASE_NONE, NULL, 0, "", HFILL }},
-  { &hf_h248_cmd_error, { "Error", "h248.cmd.error", FT_UINT32, BASE_DEC, VALS(h248_reasons), 0, "", HFILL }},
-  { &hf_h248_cmd_ctx, { "Context", "h248.ctx", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_start, { "Start", "h248.ctx.start", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_last, { "Last", "h248.ctx.last", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_cmd, { "Command", "h248.ctx.cmd", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_cmd_type, { "Command Type", "h248.ctx.cmd.type", FT_UINT32, BASE_DEC, VALS(request_types), 0, "", HFILL }},
-  { &hf_h248_ctx_cmd_request, { "Request", "h248.ctx.cmd.request", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_cmd_reply, { "Reply", "h248.ctx.cmd.reply", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_cmd_error, { "Error", "h248.ctx.cmd.error", FT_UINT32, BASE_DEC, VALS(h248_reasons), 0, "", HFILL }},
-*/
+  { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+  { &hf_h248_ctx_cmd, { "Command", "h248.ctx.cmd", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
   };
 
   /* List of subtrees */
@@ -1568,9 +1569,8 @@ void proto_register_h248(void) {
     &ett_wildcard,
     &ett_cmd,
     &ett_ctx,
-    &ett_ctx_cmd,
     &ett_ctx_cmds,
-    &ett_debug,
+    &ett_ctx_terms,
       
 #include "packet-h248-ettarr.c"
   };

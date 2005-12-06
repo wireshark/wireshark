@@ -92,16 +92,47 @@ typedef struct _h248_trx_t {
     guint error;
 } h248_trx_t;
 
-typedef struct _h248_cmd_strs_t {
+typedef struct _h248_term_t {
     gchar* str;
-    struct _h248_cmd_strs_t* next;
-    struct _h248_cmd_strs_t* last;
-} h248_cmd_strs_t;
+    
+    guint8* buffer;
+    guint len;
+    
+#if 0
+    struct {
+        enum {
+            NO_WILDCARD,
+            WILDCARD_ALL,
+            WILCARD_CHOOSE,
+        } type;
+        
+        gboolean below
+        guint len;
+    } wildcard;
+    
+    struct {
+        enum {
+            MEDIA_UNKNOWN;  
+        } type;
+        
+        union {
+            int dummy;
+        } info;
+    } media;
+#endif
+    
+} h248_term_t;
+
+typedef struct _h248_terms_t {
+    h248_term_t* term;
+    struct _h248_terms_t* next;
+    struct _h248_terms_t* last;
+} h248_terms_t;
 
 typedef struct _h248_cmd_t {
     guint offset;
     h248_cmd_type_t type;
-    h248_cmd_strs_t* strs;
+    h248_terms_t terms;
     struct _h248_msg_t* msg;
     struct _h248_trx_t* trx;
     struct _h248_ctx_t* ctx;
@@ -115,6 +146,7 @@ typedef struct _h248_ctx_t {
     guint first_frame;
     struct _h248_cmd_msg_t* cmds;
     struct _h248_ctx_t* prev;
+    h248_terms_t terms;
 } h248_ctx_t;
 
 

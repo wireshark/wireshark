@@ -5,9 +5,12 @@
 
 /* Input file: packet-h248-template.h */
 
+#line 1 "packet-h248-template.h"
 /* packet-h248.h
- * Routines for H.248/MEGACO packet dissection
+ * Definitions for H.248/MEGACO packet dissection
+ *
  * Ronnie Sahlberg 2004
+ * Luis Ontanon 2005
  *
  * $Id$
  *
@@ -37,14 +40,26 @@
 
 typedef enum {
     H248_CMD_NONE,
-    H248_CMD_ADD,
-    H248_CMD_MOVE,
-    H248_CMD_MOD,
-    H248_CMD_SUB,
-    H248_CMD_AUDITCAP,
-    H248_CMD_AUDITVAL,
-    H248_CMD_NOTIFY,
-    H248_CMD_SVCCHG
+    H248_CMD_ADD_REQ,
+    H248_CMD_MOVE_REQ,
+    H248_CMD_MOD_REQ,
+    H248_CMD_SUB_REQ,
+    H248_CMD_AUDITCAP_REQ,
+    H248_CMD_AUDITVAL_REQ,
+    H248_CMD_NOTIFY_REQ,
+    H248_CMD_SVCCHG_REQ,
+    H248_CMD_TOPOLOGY_REQ,
+    H248_CMD_CTX_ATTR_AUDIT_REQ,
+    H248_CMD_ADD_REPLY,
+    H248_CMD_MOVE_REPLY,
+    H248_CMD_MOD_REPLY,
+    H248_CMD_SUB_REPLY,
+    H248_CMD_AUDITCAP_REPLY,
+    H248_CMD_AUDITVAL_REPLY,
+    H248_CMD_NOTIFY_REPLY,
+    H248_CMD_SVCCHG_REPLY,
+    H248_CMD_TOPOLOGY_REPLY,
+    H248_CMD_REPLY
 } h248_cmd_type_t;
 
 typedef enum {
@@ -53,63 +68,94 @@ typedef enum {
     H248_TRX_PENDING,
     H248_TRX_REPLY,
     H248_TRX_ACK
-} h248_msg_type_t;
-
-/* per command info */
-typedef struct _h248_cmd_info_t h248_cmd_info_t;
-
-/* per context info */
-typedef struct _h248_context_info_t h248_context_info_t;
-
-/* per command message info */
-typedef struct _h248_cmdmsg_info_t {
-    guint32 transaction_id;
-    guint32 context_id;
-    guint offset;
-    h248_cmd_type_t cmd_type;
-    h248_msg_type_t msg_type;
-    guint error_code;
-    gboolean term_is_wildcard;
-    gchar* term_id;
-    h248_cmd_info_t* cmd_info;
-} h248_cmdmsg_info_t;
+} h248_trx_type_t;
 
 
-struct _h248_cmd_info_t {
+typedef struct _h248_msg_t {
+    gchar* addr_label;
+    guint framenum;
+    struct _h248_trx_msg_t* trxs;
+    gboolean commited;
+} h248_msg_t;
+
+typedef struct _h248_trx_msg_t {
+    struct _h248_trx_t* trx;
+    struct _h248_trx_msg_t* next;
+    struct _h248_trx_msg_t* last;
+} h248_trx_msg_t;
+
+typedef struct _h248_cmd_msg_t {
+    struct _h248_cmd_t* cmd;
+    struct _h248_cmd_msg_t* next;
+    struct _h248_cmd_msg_t* last;
+} h248_cmd_msg_t;
+
+typedef struct _h248_trx_t {
     gchar* key;
-    
-    guint32 trx_id;
-    h248_cmd_type_t type;
-
-    guint request_frame;
-    guint response_frame;
+    guint32 id;
+    h248_trx_type_t type;
     guint pendings;
-    
-    gboolean choose_ctx;
-    guint error_code;
-     
-    h248_context_info_t* context;
-    
-    h248_cmd_info_t* next;
-    h248_cmd_info_t* last;
-};
+    struct _h248_cmd_msg_t* cmds;
+    struct _h248_trx_ctx_t* ctxs;
+    guint error;
+} h248_trx_t;
 
-struct _h248_context_info_t {
+typedef struct _h248_term_t {
+    gchar* str;
+    
+    guint8* buffer;
+    guint len;
+    
+#if 0
+    struct {
+        enum {
+            NO_WILDCARD,
+            WILDCARD_ALL,
+            WILCARD_CHOOSE,
+        } type;
+        
+        gboolean below
+        guint len;
+    } wildcard;
+    
+    struct {
+        enum {
+            MEDIA_UNKNOWN;  
+        } type;
+        
+        union {
+            int dummy;
+        } info;
+    } media;
+#endif
+    
+} h248_term_t;
+
+typedef struct _h248_terms_t {
+    h248_term_t* term;
+    struct _h248_terms_t* next;
+    struct _h248_terms_t* last;
+} h248_terms_t;
+
+typedef struct _h248_cmd_t {
+    guint offset;
+    h248_cmd_type_t type;
+    h248_terms_t terms;
+    struct _h248_msg_t* msg;
+    struct _h248_trx_t* trx;
+    struct _h248_ctx_t* ctx;
+    guint error;
+} h248_cmd_t;
+
+
+typedef struct _h248_ctx_t {
     gchar* key;
+    guint32 id;
+    guint first_frame;
+    struct _h248_cmd_msg_t* cmds;
+    struct _h248_ctx_t* prev;
+    h248_terms_t terms;
+} h248_ctx_t;
 
-    guint32 ctx_id;
-
-    guint creation_frame;
-    guint last_frame;
-
-    h248_cmd_info_t* cmds;
-    h248_context_info_t* prior;
-};
-
-typedef void (*h248_dissect_pkg_item_t)(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-extern void h248_add_package_property(guint package, guint property, h248_dissect_pkg_item_t);
-extern void h248_add_package_event(guint package, guint property, h248_dissect_pkg_item_t);
-extern void h248_add_package_signal(guint package, guint property, h248_dissect_pkg_item_t);
 
 #endif  /* PACKET_H248_H */
