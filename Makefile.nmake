@@ -35,7 +35,9 @@ dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 
-command_line_OBJECTS = setargv.obj
+command_line_OBJECTS = 
+
+#setargv.obj
 
 EXTRA_OBJECTS = \
 #	snprintf.obj	\
