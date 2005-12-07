@@ -65,6 +65,14 @@ typedef struct _smb2_tid_info_t {
 	char *name;
 } smb2_tid_info_t;
 
+typedef struct _smb2_uid_info_t {
+	guint64 uid;
+	guint32 auth_frame;
+	char *acct_name;
+	char *domain_name;
+	char *host_name;
+} smb2_uid_info_t;
+
 /* Structure to keep track of conversations and the hash tables.
  * There is one such structure for each conversation.
  */
@@ -73,6 +81,7 @@ typedef struct _smb2_conv_info_t {
 	GHashTable *unmatched;
 	GHashTable *matched;
 	GHashTable *tids;
+	GHashTable *uids;
 } smb2_conv_info_t;
 
 /* This structure contains information from the SMB2 header
@@ -84,6 +93,7 @@ typedef struct _smb2_info_t {
 	guint32 ioctl_function;
 	guint32 status;
 	guint32 tid;
+	guint64 uid;
 	guint64 seqnum;
 	gboolean response; /* is this a response ? */
 	smb2_conv_info_t	*conv;

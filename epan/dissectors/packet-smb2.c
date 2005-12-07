@@ -173,6 +173,10 @@ static int hf_smb2_ioctl_shadow_copy_count = -1;
 static int hf_smb2_ioctl_shadow_copy_label = -1;
 static int hf_smb2_compression_format = -1;
 static int hf_smb2_FILE_OBJECTID_BUFFER = -1;
+static int hf_smb2_acct_name = -1;
+static int hf_smb2_domain_name = -1;
+static int hf_smb2_host_name = -1;
+static int hf_smb2_auth_frame = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -208,6 +212,7 @@ static gint ett_smb2_fs_info_07 = -1;
 static gint ett_smb2_fs_objectid_info = -1;
 static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_tid_tree = -1;
+static gint ett_smb2_uid_tree = -1;
 static gint ett_smb2_create_flags = -1;
 static gint ett_smb2_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
@@ -321,6 +326,30 @@ smb2_tid_info_hash(gconstpointer k)
 	guint32 hash;
 
 	hash=key->tid;
+	return hash;
+}
+
+/* For Uids of a specific conversation.
+   This keeps track of uid->acct_name mappings and other information about the
+   uid.
+   qqq
+   We might need to refine this if it occurs that uids are reused on a single
+   conversation.   we dont worry about that yet for simplicity
+*/
+static gint
+smb2_uid_info_equal(gconstpointer k1, gconstpointer k2)
+{
+	smb2_uid_info_t *key1 = (smb2_uid_info_t *)k1;
+	smb2_uid_info_t *key2 = (smb2_uid_info_t *)k2;
+	return key1->uid==key2->uid;
+}
+static guint
+smb2_uid_info_hash(gconstpointer k)
+{
+	smb2_uid_info_t *key = (smb2_uid_info_t *)k;
+	guint32 hash;
+
+	hash=((key->uid>>32)&&0xffffffff)+((key->uid)&&0xffffffff);
 	return hash;
 }
 
@@ -1596,9 +1625,26 @@ dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_i
 }
 
 static int
-dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t s_olb;
+	ntlmssp_header_t *ntlmssph;
+	static int ntlmssp_tap_id = 0;
+	int idx;
+	
+	if(!ntlmssp_tap_id){
+		GString *error_string;
+		/* We dont specify any callbacks at all.
+		 * Instead we manually fetch the tapped data after the 
+		 * security blob has been fully dissected and before
+		 * we exit from this dissector.
+		 */
+		error_string=register_tap_listener("ntlmssp", NULL, NULL, NULL, NULL, NULL);
+		if(!error_string){
+			ntlmssp_tap_id=find_tap_id("ntlmssp");
+		}
+	}
+
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -1617,6 +1663,24 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &s_olb, si, dissect_smb2_secblob);
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
+
+	/* If we have found a uid->acct_name mapping, store it */
+	if(!pinfo->fd->flags.visited){
+		idx=0;
+		while(ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)){
+			if(ntlmssph && ntlmssph->type==3){
+				smb2_uid_info_t *uid;
+				uid=se_alloc(sizeof(smb2_uid_info_t));
+				uid->uid=si->uid;
+				uid->acct_name=se_strdup(ntlmssph->acct_name);
+				uid->domain_name=se_strdup(ntlmssph->domain_name);
+				uid->host_name=se_strdup(ntlmssph->host_name);
+				uid->auth_frame=pinfo->fd->num;
+				g_hash_table_insert(si->conv->uids, uid, uid);
+
+			}
+		}
+	}
 
 	return offset;
 }
@@ -3808,10 +3872,52 @@ dissect_smb2_tid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int of
 	tid_key.tid=si->tid;
 	si->tree=g_hash_table_lookup(si->conv->tids, &tid_key);
 	if(si->tree){
-		proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, offset, 4, si->tree->name);
+		proto_item *item;
+
+		item=proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, offset, 4, si->tree->name);
+		PROTO_ITEM_SET_GENERATED(item);
 	}
 
 	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_smb2_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
+{
+	proto_item *uid_item=NULL;
+	proto_tree *uid_tree=NULL;
+	smb2_uid_info_t uid_key, *uid;
+
+	/* User ID */
+	si->uid=tvb_get_letoh64(tvb, offset);
+	uid_item=proto_tree_add_item(tree, hf_smb2_uid, tvb, offset, 8, TRUE);
+	if(tree){
+		uid_tree=proto_item_add_subtree(uid_item, ett_smb2_uid_tree);
+	}
+
+	/* see if we can find the name for this uid */
+	uid_key.uid=si->uid;
+	uid=g_hash_table_lookup(si->conv->uids, &uid_key);
+	if(uid){
+		proto_item *item;
+
+		item=proto_tree_add_string(uid_tree, hf_smb2_acct_name, tvb, offset, 0, uid->acct_name);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		item=proto_tree_add_string(uid_tree, hf_smb2_domain_name, tvb, offset, 0, uid->domain_name);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		item=proto_tree_add_string(uid_tree, hf_smb2_host_name, tvb, offset, 0, uid->host_name);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		item=proto_tree_add_uint(tree, hf_smb2_auth_frame, tvb, offset, 0, uid->auth_frame);
+		PROTO_ITEM_SET_GENERATED(item);
+
+	}
+
+	offset += 8;
 
 	return offset;
 }
@@ -3859,6 +3965,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			smb2_saved_info_equal_unmatched);
 		si->conv->tids= g_hash_table_new(smb2_tid_info_hash,
 			smb2_tid_info_equal);
+
+		si->conv->uids= g_hash_table_new(smb2_uid_info_hash,
+			smb2_uid_info_equal);
 
 		conversation_add_proto_data(conversation, proto_smb2, si->conv);
 	}
@@ -3935,8 +4044,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset = dissect_smb2_tid(pinfo, header_tree, tvb, offset, si);
 
 	/* User ID */
-	proto_tree_add_item(header_tree, hf_smb2_uid, tvb, offset, 8, TRUE);
-	offset += 8;
+	offset = dissect_smb2_uid(pinfo, header_tree, tvb, offset, si);
 
 	/* some unknown bytes */
 	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
@@ -4514,9 +4622,25 @@ proto_register_smb2(void)
 		{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes for shadow copy label strings", HFILL }},
 
+	{ &hf_smb2_auth_frame,
+		{ "Authenticated in Frame", "smb2.auth_frame", FT_UINT32, BASE_DEC,
+		NULL, 0, "Which frame this user was authenticated in", HFILL }},
+
 	{ &hf_smb2_tag,
 		{ "Tag", "smb2.tag", FT_STRING, BASE_NONE,
 		NULL, 0, "Tag of chain entry", HFILL }},
+
+	{ &hf_smb2_acct_name,
+		{ "Account", "smb2.acct", FT_STRING, BASE_NONE,
+		NULL, 0, "Account Name", HFILL }},
+
+	{ &hf_smb2_domain_name,
+		{ "Domain", "smb2.domain", FT_STRING, BASE_NONE,
+		NULL, 0, "Domain Name", HFILL }},
+
+	{ &hf_smb2_host_name,
+		{ "Host", "smb2.host", FT_STRING, BASE_NONE,
+		NULL, 0, "Host Name", HFILL }},
 
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
@@ -4562,6 +4686,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_objectid_info,
 		&ett_smb2_sec_info_00,
 		&ett_smb2_tid_tree,
+		&ett_smb2_uid_tree,
 		&ett_smb2_create_flags,
 		&ett_smb2_chain_element,
 		&ett_smb2_MxAc_buffer,
