@@ -155,7 +155,7 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 
 static const char *tmpdir = NULL;
 #ifdef _WIN32
-static char *temp = NULL;
+static const char *temp = NULL;
 #endif
 static const char *E_tmpdir;
 
