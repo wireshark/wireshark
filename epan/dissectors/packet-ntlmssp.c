@@ -39,6 +39,7 @@
 #include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/tap.h>
 #include <epan/crypt-rc4.h>
 #include <epan/crypt-md4.h>
 #include <epan/crypt-des.h>
@@ -46,6 +47,8 @@
 #include "packet-gssapi.h"
 
 #include "packet-ntlmssp.h"
+
+static int ntlmssp_tap = -1;
 
 /* Message types */
 
@@ -726,8 +729,9 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 	return offset;
 }
 
+/* tapping into ntlmssph not yet implemented */
 static int
-dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
+dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
   guint32 negotiate_flags;
   int start;
@@ -875,9 +879,10 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
   return offset;
 }
 
+/* tapping into ntlmssph not yet implemented */
 static int
 dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
-			   proto_tree *ntlmssp_tree)
+			   proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
   guint32 negotiate_flags;
   int item_start, item_end;
@@ -989,7 +994,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 static int
 dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
-		      proto_tree *ntlmssp_tree)
+		      proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph)
 {
   int item_start, item_end;
   int data_start, data_end = 0;
@@ -997,7 +1002,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   gboolean unicode_strings = FALSE;
   ntlmssp_info *conv_ntlmssp_info;
   conversation_t *conversation;
-  const char *domain_name, *user_name;
 
   /*
    * Get flag info from the original negotiate message, if any.
@@ -1070,7 +1074,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_domain,
-				  &item_start, &item_end, &domain_name);
+				  &item_start, &item_end, &(ntlmssph->domain_name));
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
@@ -1079,20 +1083,20 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_username,
-				  &item_start, &item_end, &user_name);
+				  &item_start, &item_end, &(ntlmssph->acct_name));
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, ", User: %s\\%s",
-		    domain_name, user_name);
+		    ntlmssph->domain_name, ntlmssph->acct_name);
 
   /* hostname */
   item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_hostname,
-				  &item_start, &item_end, NULL);
+				  &item_start, &item_end, &(ntlmssph->host_name));
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
@@ -1117,10 +1121,16 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 static void
 dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 ntlmssp_message_type;
   volatile int offset = 0;
   proto_tree *volatile ntlmssp_tree = NULL;
   proto_item *tf = NULL;
+  ntlmssp_header_t *ntlmssph;
+
+  ntlmssph=ep_alloc(sizeof(ntlmssp_header_t));
+  ntlmssph->type=0;
+  ntlmssph->domain_name=NULL;
+  ntlmssph->acct_name=NULL;
+  ntlmssph->host_name=NULL;
 
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
@@ -1153,28 +1163,28 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* NTLMSSP Message Type */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
 			 tvb, offset, 4, TRUE);
-    ntlmssp_message_type = tvb_get_letohl (tvb, offset);
+    ntlmssph->type = tvb_get_letohl (tvb, offset);
     offset += 4; 
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-			    val_to_str(ntlmssp_message_type, 
+			    val_to_str(ntlmssph->type, 
 				       ntlmssp_message_types,
 				       "Unknown message type"));
 
     /* Call the appropriate dissector based on the Message Type */
-    switch (ntlmssp_message_type) {
+    switch (ntlmssph->type) {
 
     case NTLMSSP_NEGOTIATE:
-      offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree);
+      offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree, ntlmssph);
       break;
 
     case NTLMSSP_CHALLENGE:
-      offset = dissect_ntlmssp_challenge (tvb, pinfo, offset, ntlmssp_tree);
+      offset = dissect_ntlmssp_challenge (tvb, pinfo, offset, ntlmssp_tree, ntlmssph);
       break;
 
     case NTLMSSP_AUTH:
-      offset = dissect_ntlmssp_auth (tvb, pinfo, offset, ntlmssp_tree);
+      offset = dissect_ntlmssp_auth (tvb, pinfo, offset, ntlmssp_tree, ntlmssph);
       break;
 
     default:
@@ -1188,6 +1198,8 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } CATCH(ReportedBoundsError) {
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
+
+  tap_queue_packet(ntlmssp_tap, pinfo, ntlmssph);
 }
 
 /*
@@ -1818,4 +1830,5 @@ proto_reg_handoff_ntlmssp(void)
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
 				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
 				    &ntlmssp_seal_fns);
+  ntlmssp_tap = register_tap("ntlmssp");
 }

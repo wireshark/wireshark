@@ -32,4 +32,12 @@ int
 dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *ntlmssp_tree, int offset,
 			int len);
 
+/* the ntlmssp data passed to tap listeners */
+typedef struct _ntlmssp_header_t {
+	guint32		type;
+	const char 	*domain_name;
+	const char 	*acct_name;
+	const char 	*host_name;
+} ntlmssp_header_t;
+
 #endif
