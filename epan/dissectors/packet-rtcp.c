@@ -860,9 +860,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 	guint32 ssrc;
 	unsigned int item_len       = 0;
 	unsigned int sdes_type      = 0;
-	unsigned int counter        = 0;
 	unsigned int prefix_len     = 0;
-	char *prefix_string = NULL;
 
 	while ( chunk <= count ) {
 		/* Create a subtree for this chunk; we don't yet know
@@ -905,33 +903,35 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
 			offset++;
 
-			if ( sdes_type == RTCP_SDES_PRIV ) {
-				/* PRIV adds two items between the SDES length
-				 * and value - an 8 bit length giving the
-				 * length of a "prefix string", and the string.
-				 */
-				prefix_len = tvb_get_guint8( tvb, offset );
-				proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_prefix_len, tvb, offset, 1, FALSE );
-				offset++;
+			if ( item_len != 0 ) {
+				if ( sdes_type == RTCP_SDES_PRIV ) {
+					/* PRIV adds two items between the
+					 * SDES length and value - an 8 bit
+					 * length giving the length of a
+					 * "prefix string", and the string.
+					 */
+					prefix_len = tvb_get_guint8( tvb, offset );
+					if ( prefix_len + 1 > item_len ) {
+						proto_tree_add_uint_format( sdes_item_tree,
+						    hf_rtcp_sdes_prefix_len, tvb,
+						    offset, 1, prefix_len,
+						    "Prefix length: %u (bogus, must be <= %u)",
+						    prefix_len, item_len - 1);
+						offset += item_len;
+						continue;
+					}
+					proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_prefix_len, tvb, offset, 1, FALSE );
+					offset++;
 
-				prefix_string = ep_alloc( prefix_len + 1 );
-				for ( counter = 0; counter < prefix_len; counter++ )
-					prefix_string[ counter ] =
-					    tvb_get_guint8( tvb, offset + counter );
-				/* strncpy( prefix_string, pd + offset, prefix_len ); */
-				prefix_string[ prefix_len ] = '\0';
-				proto_tree_add_string( sdes_item_tree, hf_rtcp_sdes_prefix_string, tvb, offset, prefix_len, prefix_string );
-				offset += prefix_len;
-				item_len -= prefix_len +1;
+					proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_prefix_string, tvb, offset, prefix_len, FALSE );
+					offset += prefix_len;
+					item_len -= prefix_len +1;
+					if ( item_len == 0 )
+						continue;
+				}
+				proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_text, tvb, offset, item_len, FALSE );
+				offset += item_len;
 			}
-			prefix_string = ep_alloc( item_len + 1 );
-			for ( counter = 0; counter < item_len; counter++ )
-			    prefix_string[ counter ] =
-			        tvb_get_guint8( tvb, offset + counter );
-			/* strncpy( prefix_string, pd + offset, item_len ); */
-			prefix_string[ item_len] = 0;
-			proto_tree_add_string( sdes_item_tree, hf_rtcp_sdes_text, tvb, offset, item_len, prefix_string );
-			offset += item_len;
 		}
 
 		/* Set the length of the items subtree. */
