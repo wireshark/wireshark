@@ -125,6 +125,7 @@ gint cigi3_add_animation_stop_notification(tvbuff_t*, proto_tree*, gint);
 gint cigi3_add_event_notification(tvbuff_t*, proto_tree*, gint);
 gint cigi3_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
 
+static gfloat tvb_get_fixed_point(tvbuff_t*, int, gint);
 
 /* CIGI Handle */
 dissector_handle_t cigi_handle;
@@ -268,7 +269,7 @@ static const value_string cigi2_ig_control_ig_mode_vals[] = {
     {0, "Standby/Reset"},
     {1, "Operate"},
     {2,   "Debug"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI2 Entity Control */
@@ -294,7 +295,7 @@ static const value_string cigi2_entity_control_entity_state_vals[] = {
     {0, "Load/Hide"},
     {1, "Load/Show"},
     {2, "Unload"},
-	{0, NULL},
+    {0, NULL},
 };
 
 static const true_false_string cigi2_entity_control_attach_state_tfs = {
@@ -306,7 +307,7 @@ static const value_string cigi2_entity_control_effect_state_vals[] = {
     {0, "Stop"},
     {1, "Play"},
     {2, "Restart"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI2 Component Control */
@@ -403,7 +404,7 @@ static const value_string cigi2_weather_control_phenomenon_type_vals[] = {
     {4, "Rain"},
     {5, "Snow"},
     {6, "Sand"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI2 View Control */
@@ -606,7 +607,7 @@ static const value_string cigi2_start_of_frame_ig_mode_vals[] = {
     {1, "Operate"},
     {2, "Debug"},
     {3, "Off-Line Maintenance"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI2 Height Above Terrain Response */
@@ -878,7 +879,7 @@ static const value_string cigi3_ig_control_ig_mode_vals[] = {
     {0, "Reset/Standby"},
     {1, "Operate"},
     {2, "Debug"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI3 Entity Control */
@@ -907,7 +908,7 @@ static const value_string cigi3_entity_control_entity_state_vals[] = {
     {0, "Inactive/Standby"},
     {1, "Active"},
     {2, "Destroyed"},
-	{0, NULL},
+    {0, NULL},
 };
 
 static const true_false_string cigi3_entity_control_attach_state_tfs = {
@@ -929,7 +930,7 @@ static const value_string cigi3_entity_control_ground_ocean_clamp_vals[] = {
     {0, "No Clamp"},
     {1, "Non-Conformal"},
     {2, "Conformal"},
-	{0, NULL},
+    {0, NULL},
 };
 
 static const true_false_string cigi3_entity_control_animation_direction_tfs = {
@@ -947,7 +948,7 @@ static const value_string cigi3_entity_control_animation_state_vals[] = {
     {1, "Pause"},
     {2, "Play"},
     {3, "Continue"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI3 Conformal Clamped Entity Control */
@@ -987,7 +988,7 @@ static const value_string cigi3_component_control_component_class_vals[] = {
     {11, "Celestial Sphere"},
     {12, "Event"},
     {13, "System"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI3 Short Component Control */
@@ -1015,7 +1016,7 @@ static const value_string cigi3_short_component_control_component_class_vals[] =
     {11, "Celestial Sphere"},
     {12, "Event"},
     {13, "System"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI3 Articulated Part Control */
@@ -1058,7 +1059,7 @@ static const value_string cigi3_short_articulated_part_control_dof_select_vals[]
     {4, "Yaw"},
     {5, "Pitch"},
     {6, "Roll"},
-	{0, NULL},
+    {0, NULL},
 };
 
 /* CIGI3 Rate Control */
@@ -1951,15 +1952,8 @@ dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dest_str = "IG";
     }
 
-    /*
-     * XXX - Use ⇒ (U+21D2) in place of , *IF* we can ensure that,
-     * for any form of output/display, we arrange that we map U+21D2 to
-     * "=>" if that form of output/display can't handle Unicode.
-     * XXX - how do we know whether, even if the form of output/display
-     * nominally handles Unicode, it has a Unicode font or font set that
-     * includes that character?
-     */
-    info_str = g_strdup_printf("%s => %s (%i bytes)", src_str, dest_str, length);
+    info_str = g_strdup_printf("%s => %s (%u bytes)", src_str, dest_str,
+        tvb_reported_length(tvb));
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_clear(pinfo->cinfo, COL_INFO);
@@ -3037,22 +3031,22 @@ cigi2_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree
     proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_collision_mask, tvb, offset, 4, FALSE);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_x_start, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_y_start, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_z_start, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_x_end, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_y_end, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_z_end, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
     return offset;
@@ -3069,22 +3063,22 @@ cigi2_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_volume_id, tvb, offset, 1, FALSE);
     offset += 4;
     
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_x_offset, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_x_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
     
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_y_offset, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_y_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
     
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_z_offset, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_z_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
     
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_height, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_height, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
     
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_width, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_width, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
     
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_depth, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_depth, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
     return offset;
@@ -4741,6 +4735,30 @@ cigi3_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
     return offset;
 }
 
+/*
+ * Extract a 16-bit fixed-point value and convert it to a float.
+ */
+static gfloat
+tvb_get_fixed_point(tvbuff_t *tvb, int offset, gint byte_order)
+{
+	gint16 fixed;
+
+	switch (byte_order) {
+
+	case CIGI_BYTE_ORDER_BIG_ENDIAN:
+		fixed = tvb_get_ntohs(tvb, offset);
+		break;
+
+	case CIGI_BYTE_ORDER_LITTLE_ENDIAN:
+		fixed = tvb_get_letohs(tvb, offset);
+		break;
+
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		fixed = 0;
+	}
+	return fixed / 128.0;
+}
 
 /* Register the protocol with Ethereal */
 void
@@ -7906,12 +7924,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_sensor_response_x_offset,
             { "Gate X Offset (degrees)", "cigi.sensor_response.x_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Specifies the target's horizontal offset from the view plane normal", HFILL }
         },
         { &hf_cigi2_sensor_response_y_offset,
             { "Gate Y Offset (degrees)", "cigi.sensor_response.y_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Specifies the target's vertical offset from the view plane normal", HFILL }
         },
         { &hf_cigi2_sensor_response_x_size,
@@ -8524,4 +8542,3 @@ range_add_udp_callback(guint32 port)
         dissector_add("udp.port", port, cigi_handle);
     }
 }
-
