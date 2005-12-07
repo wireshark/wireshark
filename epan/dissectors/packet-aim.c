@@ -56,8 +56,6 @@
 #define CHANNEL_CLOSE_CONN  0x04
 #define CHANNEL_KEEP_ALIVE  0x05
 
-#define CLI_COOKIE		    0x01
-
 #define FAMILY_ALL_ERROR_INVALID_HEADER				   0x0001
 #define FAMILY_ALL_ERROR_SERVER_RATE_LIMIT_EXCEEDED    0x0002
 #define FAMILY_ALL_ERROR_CLIENT_RATE_LIMIT_EXCEEDED    0x0003
@@ -368,7 +366,7 @@ static int hf_aim_buddyname = -1;
 static int hf_aim_userinfo_warninglevel = -1;
 static int hf_aim_snac_error = -1;
 static int hf_aim_tlvcount = -1;
-static int hf_aim_authcookie = -1;
+static int hf_aim_version = -1;
 static int hf_aim_userclass_unconfirmed = -1;
 static int hf_aim_userclass_administrator = -1;
 static int hf_aim_userclass_aol = -1;
@@ -653,7 +651,7 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
     col_add_fstr(pinfo->cinfo, COL_INFO, "New Connection");
 
   if (tvb_length_remaining(tvb, offset) > 0) {
-	  proto_tree_add_item(tree, hf_aim_authcookie, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(tree, hf_aim_version, tvb, offset, 4, FALSE);
 	  offset+=4;
 	  offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, client_tlvs);
   }
@@ -1327,8 +1325,8 @@ proto_register_aim(void)
     { &hf_aim_seqno,
       { "Sequence Number", "aim.seqno", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
     },
-	{ &hf_aim_authcookie,
-	  { "Authentication Cookie", "aim.authcookie", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL },
+	{ &hf_aim_version,
+	  { "Protocol Version", "aim.version", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
     { &hf_aim_data_len,
       { "Data Field Length", "aim.datalen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
