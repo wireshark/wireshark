@@ -245,6 +245,50 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 	}
 }
 
+
+/* This function can be used by a dissector to fetch any tapped data before
+ * returning.
+ * This can be useful if one wants to extract the data inside dissector  BEFORE
+ * it exists as an alternative to the callbacks that are all called AFTER the 
+ * dissection has completed.
+ *
+ * Example: SMB2 uses this mechanism to extract the data tapped from NTLMSSP
+ * containing the account and domain names before exiting.
+ * Note that the SMB2 tap listener specifies all three callbacks as NULL.
+ *
+ * Beware: when using this mechanism to extract the tapped data you can not
+ * use "filters" and should specify the "filter" as NULL when registering
+ * the tap listener.
+ */
+void * 
+fetch_tapped_data(int tap_id, int idx)
+{
+	tap_packet_t *tp;
+	guint i;
+
+	/* nothing to do, just return */
+	if(!tapping_is_active){
+		return NULL;
+	}
+
+	/* nothing to do, just return */
+	if(!tap_packet_index){
+		return NULL;
+	}
+
+	/* loop over all tapped packets and return the one with index idx */
+	for(i=0;i<tap_packet_index;i++){
+		tp=&tap_packet_array[i];
+		if(tp->tap_id==tap_id){
+			if(!idx--){
+				return tp->tap_specific_data;
+			}
+		}
+	}
+
+	return NULL;
+}
+
 /* This function is called when we need to reset all tap listeners, for example
    when we open/start a new capture or if we need to rescan the packet list.
 */
