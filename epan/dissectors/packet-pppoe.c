@@ -274,8 +274,11 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
 	}
 	
-	/* Now dissect tags */
-	dissect_pppoe_tags(tvb, pinfo, 6, tree, 6+pppoe_length);
+	/* Now dissect any tags */
+	if (pppoe_length > 0)
+	{
+		dissect_pppoe_tags(tvb, pinfo, 6, tree, 6+pppoe_length);
+	}
 
 }
 

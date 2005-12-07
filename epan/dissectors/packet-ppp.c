@@ -4171,7 +4171,7 @@ proto_register_chap(void)
       &hf_chap_value,
       {
         "Value", "chap.value",
-        FT_BYTES, BASE_HEX,
+        FT_BYTES, BASE_NONE,
         NULL, 0x0,
         "CHAP value data", HFILL
       }
@@ -4179,7 +4179,7 @@ proto_register_chap(void)
     {
       &hf_chap_name,
       {
-        "Name", "chap.value",
+        "Name", "chap.name",
         FT_STRING, BASE_NONE,
         NULL, 0x0,
         "CHAP name", HFILL

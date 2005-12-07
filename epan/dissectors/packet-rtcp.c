@@ -1865,6 +1865,11 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
 
 		ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
+		proto_item_append_text(ti, " (%s)",
+		                       val_to_str(packet_type,
+		                                  rtcp_packet_type_vals,
+		                                  "Unknown"));
+
 		rtcp_tree = proto_item_add_subtree( ti, ett_rtcp );
 
 		/* Conversation setup info */
