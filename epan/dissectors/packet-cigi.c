@@ -47,83 +47,83 @@
 void proto_reg_handoff_cigi(void);
 static void range_delete_udp_callback(guint32);
 static void range_add_udp_callback(guint32);
-void cigi_add_tree(tvbuff_t*, proto_tree*);
-gint cigi_add_data(tvbuff_t*, proto_tree*, gint);
+static void cigi_add_tree(tvbuff_t*, proto_tree*);
+static gint cigi_add_data(tvbuff_t*, proto_tree*, gint);
 
-void cigi2_add_tree(tvbuff_t*, proto_tree*);
-gint cigi2_add_ig_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_entity_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_component_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_articulated_parts_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_rate_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_environment_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_weather_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_view_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_sensor_control(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_trajectory_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_special_effect_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_view_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_collision_detection_segment_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_collision_detection_volume_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_height_above_terrain_request(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_line_of_sight_occult_request(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_line_of_sight_range_request(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_height_of_terrain_request(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_start_of_frame(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_height_above_terrain_response(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_line_of_sight_response(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_collision_detection_segment_response(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_sensor_response(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_height_of_terrain_response(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_collision_detection_volume_response(tvbuff_t*, proto_tree*, gint);
-gint cigi2_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
+static void cigi2_add_tree(tvbuff_t*, proto_tree*);
+static gint cigi2_add_ig_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_entity_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_component_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_articulated_parts_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_rate_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_environment_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_weather_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_view_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_sensor_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_trajectory_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_special_effect_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_view_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_collision_detection_segment_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_collision_detection_volume_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_height_above_terrain_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_line_of_sight_occult_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_line_of_sight_range_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_height_of_terrain_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_start_of_frame(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_height_above_terrain_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_line_of_sight_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_collision_detection_segment_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_sensor_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_height_of_terrain_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_collision_detection_volume_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi2_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
 
-void cigi3_add_tree(tvbuff_t*, proto_tree*);
-gint cigi3_add_ig_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_entity_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_conformal_clamped_entity_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_component_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_short_component_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_articulated_part_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_short_articulated_part_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_rate_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_celestial_sphere_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_atmosphere_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_environmental_region_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_weather_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_maritime_surface_conditions_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_wave_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_terrestrial_surface_conditions_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_view_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_sensor_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_motion_tracker_control(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_earth_reference_model_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_trajectory_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_view_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_collision_detection_segment_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_collision_detection_volume_definition(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_hat_hot_request(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_line_of_sight_segment_request(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_line_of_sight_vector_request(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_position_request(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_environmental_conditions_request(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_start_of_frame(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_hat_hot_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_hat_hot_extended_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_line_of_sight_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_line_of_sight_extended_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_sensor_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_sensor_extended_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_position_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_weather_conditions_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_aerosol_concentration_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_maritime_surface_conditions_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_terrestrial_surface_conditions_response(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_collision_detection_segment_notification(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_collision_detection_volume_notification(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_animation_stop_notification(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_event_notification(tvbuff_t*, proto_tree*, gint);
-gint cigi3_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
+static void cigi3_add_tree(tvbuff_t*, proto_tree*);
+static gint cigi3_add_ig_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_entity_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_conformal_clamped_entity_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_component_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_short_component_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_articulated_part_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_short_articulated_part_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_rate_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_celestial_sphere_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_atmosphere_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_environmental_region_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_weather_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_maritime_surface_conditions_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_wave_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_terrestrial_surface_conditions_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_view_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_sensor_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_motion_tracker_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_earth_reference_model_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_trajectory_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_view_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_collision_detection_segment_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_collision_detection_volume_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_hat_hot_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_line_of_sight_segment_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_line_of_sight_vector_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_position_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_environmental_conditions_request(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_start_of_frame(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_hat_hot_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_hat_hot_extended_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_line_of_sight_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_line_of_sight_extended_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_sensor_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_sensor_extended_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_position_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_weather_conditions_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_aerosol_concentration_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_maritime_surface_conditions_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_terrestrial_surface_conditions_response(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_collision_detection_segment_notification(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_collision_detection_volume_notification(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_animation_stop_notification(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_event_notification(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
 
 static gfloat tvb_get_fixed_point(tvbuff_t*, int, gint);
 
@@ -1997,7 +1997,7 @@ dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Create the tree for CIGI (Unknown Version)
  * Note: If we have no version then we assume network order bytes (big endian). */
-void
+static void
 cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 {    
     gint offset = 0;
@@ -2064,7 +2064,7 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 
 /* CIGI Add Data */
 /* offset is the position past the packet_id and packet_size */
-gint
+static gint
 cigi_add_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     gint8 packet_size = 0;
@@ -2085,7 +2085,7 @@ cigi_add_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 /* Create the tree for CIGI 2
  * Note: CIGI 2 guarantee's that the byte order will be big endian. */
-void
+static void
 cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 {    
     gint offset = 0;
@@ -2278,7 +2278,7 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 }
 
 /* Create the tree for CIGI 3 */
-void
+static void
 cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 {    
     gint offset = 0;
@@ -2580,7 +2580,7 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 }
 
 /* CIGI2 IG Control */
-gint
+static gint
 cigi2_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, FALSE);
@@ -2604,7 +2604,7 @@ cigi2_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Entity Control */
-gint
+static gint
 cigi2_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_entity_control_entity_id, tvb, offset, 2, FALSE);
@@ -2650,7 +2650,7 @@ cigi2_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Component Control */
-gint
+static gint
 cigi2_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_component_control_instance_id, tvb, offset, 2, FALSE);
@@ -2675,7 +2675,7 @@ cigi2_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Articulated Part Control */
-gint
+static gint
 cigi2_add_articulated_parts_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_entity_id, tvb, offset, 2, FALSE);
@@ -2715,7 +2715,7 @@ cigi2_add_articulated_parts_control(tvbuff_t *tvb, proto_tree *tree, gint offset
 }
 
 /* CIGI2 Rate Control */
-gint
+static gint
 cigi2_add_rate_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_rate_control_entity_id, tvb, offset, 2, FALSE);
@@ -2746,7 +2746,7 @@ cigi2_add_rate_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Environment Control */
-gint
+static gint
 cigi2_add_environment_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_environment_control_hour, tvb, offset, 1, FALSE);
@@ -2787,7 +2787,7 @@ cigi2_add_environment_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Weather Control */
-gint
+static gint
 cigi2_add_weather_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_weather_control_entity_id, tvb, offset, 2, FALSE);
@@ -2833,7 +2833,7 @@ cigi2_add_weather_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 View Control */
-gint
+static gint
 cigi2_add_view_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_view_control_entity_id, tvb, offset, 2, FALSE);
@@ -2873,7 +2873,7 @@ cigi2_add_view_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Sensor Control */
-gint
+static gint
 cigi2_add_sensor_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_sensor_control_view_id, tvb, offset, 1, FALSE);
@@ -2906,7 +2906,7 @@ cigi2_add_sensor_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Trajectory Definition */
-gint
+static gint
 cigi2_add_trajectory_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_trajectory_definition_entity_id, tvb, offset, 2, FALSE);
@@ -2925,7 +2925,7 @@ cigi2_add_trajectory_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Special Effect Definition */
-gint
+static gint
 cigi2_add_special_effect_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_special_effect_definition_entity_id, tvb, offset, 2, FALSE);
@@ -2975,7 +2975,7 @@ cigi2_add_special_effect_definition(tvbuff_t *tvb, proto_tree *tree, gint offset
 }
 
 /* CIGI2 View Definition */
-gint
+static gint
 cigi2_add_view_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_view_definition_view_id, tvb, offset, 1, FALSE);
@@ -3018,7 +3018,7 @@ cigi2_add_view_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Collision Detection Segment Definition */
-gint
+static gint
 cigi2_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_entity_id, tvb, offset, 2, FALSE);
@@ -3053,7 +3053,7 @@ cigi2_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree
 }
 
 /* CIGI2 Collision Detection Volume Definition*/
-gint
+static gint
 cigi2_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_entity_id, tvb, offset, 2, FALSE);
@@ -3085,7 +3085,7 @@ cigi2_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree,
 }
 
 /* CIGI2 Height Above Terrain Request*/
-gint
+static gint
 cigi2_add_height_above_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_hat_id, tvb, offset, 2, FALSE);
@@ -3104,7 +3104,7 @@ cigi2_add_height_above_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint off
 }
 
 /* CIGI2 Line of Sight Occult Request */
-gint
+static gint
 cigi2_add_line_of_sight_occult_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_los_id, tvb, offset, 2, FALSE);
@@ -3132,7 +3132,7 @@ cigi2_add_line_of_sight_occult_request(tvbuff_t *tvb, proto_tree *tree, gint off
 }
 
 /* CIGI2 Line of Sight Range Request */
-gint
+static gint
 cigi2_add_line_of_sight_range_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_los_id, tvb, offset, 2, FALSE);
@@ -3163,7 +3163,7 @@ cigi2_add_line_of_sight_range_request(tvbuff_t *tvb, proto_tree *tree, gint offs
 }
 
 /* CIGI2 Height of Terrain Request */
-gint
+static gint
 cigi2_add_height_of_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_height_of_terrain_request_hot_id, tvb, offset, 2, FALSE);
@@ -3179,7 +3179,7 @@ cigi2_add_height_of_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint offset
 }
 
 /* CIGI2 Start of Frame */
-gint
+static gint
 cigi2_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, FALSE);
@@ -3204,7 +3204,7 @@ cigi2_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Height Above Terrain Response */
-gint
+static gint
 cigi2_add_height_above_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_hat_id, tvb, offset, 2, FALSE);
@@ -3223,7 +3223,7 @@ cigi2_add_height_above_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint of
 }
 
 /* CIGI2 Line of Sight Response */
-gint
+static gint
 cigi2_add_line_of_sight_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_los_id, tvb, offset, 2, FALSE);
@@ -3252,7 +3252,7 @@ cigi2_add_line_of_sight_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Collision Detection Segment Response */
-gint
+static gint
 cigi2_add_collision_detection_segment_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_entity_id, tvb, offset, 2, FALSE);
@@ -3281,7 +3281,7 @@ cigi2_add_collision_detection_segment_response(tvbuff_t *tvb, proto_tree *tree, 
 }
 
 /* CIGI2 Sensor Response */
-gint
+static gint
 cigi2_add_sensor_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_sensor_response_view_id, tvb, offset, 1, FALSE);
@@ -3307,7 +3307,7 @@ cigi2_add_sensor_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI2 Height of Terrain Response */
-gint
+static gint
 cigi2_add_height_of_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_hot_id, tvb, offset, 2, FALSE);
@@ -3326,7 +3326,7 @@ cigi2_add_height_of_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint offse
 }
 
 /* CIGI2 Collision Detection Volume Response */
-gint
+static gint
 cigi2_add_collision_detection_volume_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_entity_id, tvb, offset, 2, FALSE);
@@ -3343,7 +3343,7 @@ cigi2_add_collision_detection_volume_response(tvbuff_t *tvb, proto_tree *tree, g
 }
 
 /* CIGI2 Image Generator Message */
-gint
+static gint
 cigi2_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     guint8 packet_size = 0;
@@ -3366,7 +3366,7 @@ cigi2_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 IG Control */
-gint
+static gint
 cigi3_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
@@ -3394,7 +3394,7 @@ cigi3_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Entity Control */
-gint
+static gint
 cigi3_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_entity_control_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -3443,7 +3443,7 @@ cigi3_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Conformal Clamped Entity Control */
-gint
+static gint
 cigi3_add_conformal_clamped_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_conformal_clamped_entity_control_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -3462,7 +3462,7 @@ cigi3_add_conformal_clamped_entity_control(tvbuff_t *tvb, proto_tree *tree, gint
 }
 
 /* CIGI3 Component Control */
-gint
+static gint
 cigi3_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_component_control_component_id, tvb, offset, 2, cigi_byte_order);
@@ -3499,7 +3499,7 @@ cigi3_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Short Component Control */
-gint
+static gint
 cigi3_add_short_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_short_component_control_component_id, tvb, offset, 2, cigi_byte_order);
@@ -3524,7 +3524,7 @@ cigi3_add_short_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Articulated Part Control */
-gint
+static gint
 cigi3_add_articulated_part_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -3564,7 +3564,7 @@ cigi3_add_articulated_part_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Short Articulated Part Control */
-gint
+static gint
 cigi3_add_short_articulated_part_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_short_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -3592,7 +3592,7 @@ cigi3_add_short_articulated_part_control(tvbuff_t *tvb, proto_tree *tree, gint o
 }
 
 /* CIGI3 Rate Control */
-gint
+static gint
 cigi3_add_rate_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_rate_control_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -3626,7 +3626,7 @@ cigi3_add_rate_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Celestial Sphere Control */
-gint
+static gint
 cigi3_add_celestial_sphere_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_celestial_sphere_control_hour, tvb, offset, 1, cigi_byte_order);
@@ -3652,7 +3652,7 @@ cigi3_add_celestial_sphere_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Atmosphere Control */
-gint
+static gint
 cigi3_add_atmosphere_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_atmosphere_control_atmospheric_model_enable, tvb, offset, 1, cigi_byte_order);
@@ -3683,7 +3683,7 @@ cigi3_add_atmosphere_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Environmental Region Control */
-gint
+static gint
 cigi3_add_environmental_region_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_environmental_region_control_region_id, tvb, offset, 2, cigi_byte_order);
@@ -3721,7 +3721,7 @@ cigi3_add_environmental_region_control(tvbuff_t *tvb, proto_tree *tree, gint off
 }
 
 /* CIGI3 Weather Control */
-gint
+static gint
 cigi3_add_weather_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_weather_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
@@ -3784,7 +3784,7 @@ cigi3_add_weather_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Maritime Surface Conditions Control */
-gint
+static gint
 cigi3_add_maritime_surface_conditions_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
@@ -3808,7 +3808,7 @@ cigi3_add_maritime_surface_conditions_control(tvbuff_t *tvb, proto_tree *tree, g
 }
 
 /* CIGI3 Wave Control */
-gint
+static gint
 cigi3_add_wave_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_wave_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
@@ -3844,7 +3844,7 @@ cigi3_add_wave_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Terrestrial Surface Conditions Control */
-gint
+static gint
 cigi3_add_terrestrial_surface_conditions_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
@@ -3865,7 +3865,7 @@ cigi3_add_terrestrial_surface_conditions_control(tvbuff_t *tvb, proto_tree *tree
 }
 
 /* CIGI3 View Control */
-gint
+static gint
 cigi3_add_view_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_view_control_view_id, tvb, offset, 2, cigi_byte_order);
@@ -3907,7 +3907,7 @@ cigi3_add_view_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Sensor Control */
-gint
+static gint
 cigi3_add_sensor_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_sensor_control_view_id, tvb, offset, 2, cigi_byte_order);
@@ -3943,7 +3943,7 @@ cigi3_add_sensor_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Motion Tracker Control */
-gint
+static gint
 cigi3_add_motion_tracker_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_view_group_id, tvb, offset, 2, cigi_byte_order);
@@ -3969,7 +3969,7 @@ cigi3_add_motion_tracker_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Earth Reference Model Definition */
-gint
+static gint
 cigi3_add_earth_reference_model_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_earth_reference_model_definition_erm_enable, tvb, offset, 1, cigi_byte_order);
@@ -3985,7 +3985,7 @@ cigi3_add_earth_reference_model_definition(tvbuff_t *tvb, proto_tree *tree, gint
 }
 
 /* CIGI3 Trajectory Definition */
-gint
+static gint
 cigi3_add_trajectory_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_trajectory_definition_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -4010,7 +4010,7 @@ cigi3_add_trajectory_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 View Definition */
-gint
+static gint
 cigi3_add_view_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_view_definition_view_id, tvb, offset, 2, cigi_byte_order);
@@ -4056,7 +4056,7 @@ cigi3_add_view_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Collision Detection Segment Definition */
-gint
+static gint
 cigi3_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -4093,7 +4093,7 @@ cigi3_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree
 }
 
 /* CIGI3 Collision Detection Volume Definition */
-gint
+static gint
 cigi3_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -4137,7 +4137,7 @@ cigi3_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree,
 }
 
 /* CIGI3 HAT/HOT Request */
-gint
+static gint
 cigi3_add_hat_hot_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_hat_hot_request_hat_hot_id, tvb, offset, 2, cigi_byte_order);
@@ -4163,7 +4163,7 @@ cigi3_add_hat_hot_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Line of Sight Segment Request */
-gint
+static gint
 cigi3_add_line_of_sight_segment_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_los_id, tvb, offset, 2, cigi_byte_order);
@@ -4206,7 +4206,7 @@ cigi3_add_line_of_sight_segment_request(tvbuff_t *tvb, proto_tree *tree, gint of
 }
 
 /* CIGI3 Line of Sight Vector Request */
-gint
+static gint
 cigi3_add_line_of_sight_vector_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_los_id, tvb, offset, 2, cigi_byte_order);
@@ -4251,7 +4251,7 @@ cigi3_add_line_of_sight_vector_request(tvbuff_t *tvb, proto_tree *tree, gint off
 }
 
 /* CIGI3 Position Request */
-gint
+static gint
 cigi3_add_position_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_position_request_object_id, tvb, offset, 2, cigi_byte_order);
@@ -4269,7 +4269,7 @@ cigi3_add_position_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Environmental Conditions Request */
-gint
+static gint
 cigi3_add_environmental_conditions_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_type, tvb, offset, 1, cigi_byte_order);
@@ -4291,7 +4291,7 @@ cigi3_add_environmental_conditions_request(tvbuff_t *tvb, proto_tree *tree, gint
 }
 
 /* CIGI3 Start of Frame */
-gint
+static gint
 cigi3_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
@@ -4323,7 +4323,7 @@ cigi3_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 HAT/HOT Response */
-gint
+static gint
 cigi3_add_hat_hot_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_hat_hot_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
@@ -4340,7 +4340,7 @@ cigi3_add_hat_hot_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 HAT/HOT Extended Response */
-gint
+static gint
 cigi3_add_hat_hot_extended_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
@@ -4368,7 +4368,7 @@ cigi3_add_hat_hot_extended_response(tvbuff_t *tvb, proto_tree *tree, gint offset
 }
 
 /* CIGI3 Line of Sight Response */
-gint
+static gint
 cigi3_add_line_of_sight_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_los_id, tvb, offset, 2, cigi_byte_order);
@@ -4392,7 +4392,7 @@ cigi3_add_line_of_sight_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Line of Sight Extended Response */
-gint
+static gint
 cigi3_add_line_of_sight_extended_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_los_id, tvb, offset, 2, cigi_byte_order);
@@ -4448,7 +4448,7 @@ cigi3_add_line_of_sight_extended_response(tvbuff_t *tvb, proto_tree *tree, gint 
 }
 
 /* CIGI3 Sensor Response */
-gint
+static gint
 cigi3_add_sensor_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_sensor_response_view_id, tvb, offset, 2, cigi_byte_order);
@@ -4479,7 +4479,7 @@ cigi3_add_sensor_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Sensor Extended Response */
-gint
+static gint
 cigi3_add_sensor_extended_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_view_id, tvb, offset, 2, cigi_byte_order);
@@ -4523,7 +4523,7 @@ cigi3_add_sensor_extended_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Position Response */
-gint
+static gint
 cigi3_add_position_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_position_response_object_id, tvb, offset, 2, cigi_byte_order);
@@ -4558,7 +4558,7 @@ cigi3_add_position_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Weather Conditions Response */
-gint
+static gint
 cigi3_add_weather_conditions_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
@@ -4589,7 +4589,7 @@ cigi3_add_weather_conditions_response(tvbuff_t *tvb, proto_tree *tree, gint offs
 }
 
 /* CIGI3 Aerosol Concentration Response */
-gint
+static gint
 cigi3_add_aerosol_concentration_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_aerosol_concentration_response_request_id, tvb, offset, 1, cigi_byte_order);
@@ -4605,7 +4605,7 @@ cigi3_add_aerosol_concentration_response(tvbuff_t *tvb, proto_tree *tree, gint o
 }
 
 /* CIGI3 Maritime Surface Conditions Response */
-gint
+static gint
 cigi3_add_maritime_surface_conditions_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
@@ -4624,7 +4624,7 @@ cigi3_add_maritime_surface_conditions_response(tvbuff_t *tvb, proto_tree *tree, 
 }
 
 /* CIGI3 Terrestrial Surface Conditions Response */
-gint
+static gint
 cigi3_add_terrestrial_surface_conditions_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
@@ -4637,7 +4637,7 @@ cigi3_add_terrestrial_surface_conditions_response(tvbuff_t *tvb, proto_tree *tre
 }
 
 /* CIGI3 Collision Detection Segment Notification */
-gint
+static gint
 cigi3_add_collision_detection_segment_notification(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -4662,7 +4662,7 @@ cigi3_add_collision_detection_segment_notification(tvbuff_t *tvb, proto_tree *tr
 }
 
 /* CIGI3 Collision Detection Volume Notification */
-gint
+static gint
 cigi3_add_collision_detection_volume_notification(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -4684,7 +4684,7 @@ cigi3_add_collision_detection_volume_notification(tvbuff_t *tvb, proto_tree *tre
 }
 
 /* CIGI3 Animation Stop Notification */
-gint
+static gint
 cigi3_add_animation_stop_notification(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_animation_stop_notification_entity_id, tvb, offset, 2, cigi_byte_order);
@@ -4694,7 +4694,7 @@ cigi3_add_animation_stop_notification(tvbuff_t *tvb, proto_tree *tree, gint offs
 }
 
 /* CIGI3 Event Notification */
-gint
+static gint
 cigi3_add_event_notification(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_cigi3_event_notification_event_id, tvb, offset, 2, cigi_byte_order);
@@ -4713,7 +4713,7 @@ cigi3_add_event_notification(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 /* CIGI3 Image Generator Message */
-gint
+static gint
 cigi3_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     guint8 packet_size = 0;
