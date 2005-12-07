@@ -2944,22 +2944,22 @@ cigi2_add_special_effect_definition(tvbuff_t *tvb, proto_tree *tree, gint offset
     proto_tree_add_item(tree, hf_cigi2_special_effect_definition_blue, tvb, offset, 1, FALSE);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_x_scale, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_x_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_y_scale, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_y_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_z_scale, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_z_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_time_scale, tvb, offset, 2, FALSE);
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_time_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, cigi_byte_order));
+    offset += 2;
+
+    proto_tree_add_text(tree, tvb, offset, 2, "Spare");
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi2_special_effect_definition_effect_count, tvb, offset, 2, FALSE);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_separation, tvb, offset, 2, FALSE);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi2_special_effect_definition_separation, tvb, offset, 4, FALSE);
