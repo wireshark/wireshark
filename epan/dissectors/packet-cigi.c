@@ -4845,7 +4845,7 @@ proto_register_cigi(void)
                 "Identifies a particular frame", HFILL }
         },
         { &hf_cigi2_ig_control_time_tag,
-            { "Timing Value (µsec)", "cigi.ig_control.time_tag",
+            { "Timing Value (microseconds)", "cigi.ig_control.time_tag",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Identifies synchronous operation", HFILL }
         },
@@ -4877,9 +4877,9 @@ proto_register_cigi(void)
                 "Contains a number that identifying the frame", HFILL }
         },
         { &hf_cigi3_ig_control_timestamp,
-            { "Timestamp (µs)", "cigi.ig_control.timestamp",
+            { "Timestamp (microseconds)", "cigi.ig_control.timestamp",
                 FT_UINT32, BASE_DEC, NULL, 0x0,          
-                "Indicates the number of 10µs since some initial reference time", HFILL }
+                "Indicates the number of 10 microsecond \"ticks\" since some initial reference time", HFILL }
         },
 
         /* CIGI2 Entity Control */
@@ -4929,22 +4929,22 @@ proto_register_cigi(void)
                 "Specifies the degree of opacity of the entity", HFILL }
         },
         { &hf_cigi2_entity_control_internal_temp,
-            { "Internal Temperature (°C)", "cigi.entity_control.internal_temp",
+            { "Internal Temperature (degrees C)", "cigi.entity_control.internal_temp",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the internal temperature of the entity in degrees Celsius", HFILL }
         },
         { &hf_cigi2_entity_control_roll,
-            { "Roll (°)", "cigi.entity_control.roll",
+            { "Roll (degrees)", "cigi.entity_control.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Identifies the roll angle of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_pitch,
-            { "Pitch (°)", "cigi.entity_control",
+            { "Pitch (degrees)", "cigi.entity_control",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Identifies the pitch of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_heading,
-            { "Heading (°)", "cigi.entity_control",
+            { "Heading (degrees)", "cigi.entity_control",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Identifies the heading of the entity in degrees", HFILL }
         },
@@ -4954,12 +4954,12 @@ proto_register_cigi(void)
                 "Identifies the altitude position of the reference point of the entity in meters", HFILL }
         },
         { &hf_cigi2_entity_control_lat,
-            { "Latitude (°)", "cigi.entity_control.lat",
+            { "Latitude (degrees)", "cigi.entity_control.lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Identifies the latitude position of the reference point of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_lon,
-            { "Longitude (°)", "cigi.entity_control.lon",
+            { "Longitude (degrees)", "cigi.entity_control.lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Identifies the longitude position of the reference point of the entity in degrees", HFILL }
         },
@@ -5031,22 +5031,22 @@ proto_register_cigi(void)
                 "Specifies the parent for the entity", HFILL }
         },
         { &hf_cigi3_entity_control_roll,
-            { "Roll (°)", "cigi.entity_control.roll",
+            { "Roll (degrees)", "cigi.entity_control.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the roll angle of the entity", HFILL }
         },
         { &hf_cigi3_entity_control_pitch,
-            { "Pitch (°)", "cigi.entity_control.pitch",
+            { "Pitch (degrees)", "cigi.entity_control.pitch",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the pitch angle of the entity", HFILL }
         },
         { &hf_cigi3_entity_control_yaw,
-            { "Yaw (°)", "cigi.entity_control.yaw",
+            { "Yaw (degrees)", "cigi.entity_control.yaw",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the instantaneous heading of the entity", HFILL }
         },
         { &hf_cigi3_entity_control_lat_xoff,
-            { "Latitude (°)/X Offset (m)", "cigi.entity_control.lat_xoff",
+            { "Latitude (degrees)/X Offset (m)", "cigi.entity_control.lat_xoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,          
                 "Specifies the entity's geodetic latitude or the distance from the parent's reference point along its parent's X axis", HFILL }
         },
@@ -5073,17 +5073,17 @@ proto_register_cigi(void)
                 "Specifies the entity to which this packet is applied", HFILL }
         },
         { &hf_cigi3_conformal_clamped_entity_control_yaw,
-            { "Yaw (°)", "cigi.conformal_clamped_entity_control.yaw",
+            { "Yaw (degrees)", "cigi.conformal_clamped_entity_control.yaw",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the instantaneous heading of the entity", HFILL }
         },
         { &hf_cigi3_conformal_clamped_entity_control_lat,
-            { "Latitude (°)", "cigi.conformal_clamped_entity_control.lat",
+            { "Latitude (degrees)", "cigi.conformal_clamped_entity_control.lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,          
                 "Specifies the entity's geodetic latitude", HFILL }
         },
         { &hf_cigi3_conformal_clamped_entity_control_lon,
-            { "Longitude (°)", "cigi.conformal_clamped_entity_control.lon",
+            { "Longitude (degrees)", "cigi.conformal_clamped_entity_control.lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,          
                 "Specifies the entity's geodetic longitude", HFILL }
         },
@@ -5286,17 +5286,17 @@ proto_register_cigi(void)
                 "Identifies the distance along the Z axis by which the articulated part should be moved", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_roll,
-            { "Roll (°)", "cigi.art_part_control.roll",
+            { "Roll (degrees)", "cigi.art_part_control.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the roll of this part with respect to the submodel coordinate system", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_pitch,
-            { "Pitch (°)", "cigi.art_part_control.pitch",
+            { "Pitch (degrees)", "cigi.art_part_control.pitch",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the pitch of this part with respect to the submodel coordinate system", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_yaw,
-            { "Yaw (°)", "cigi.art_part_control.yaw",
+            { "Yaw (degrees)", "cigi.art_part_control.yaw",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the yaw of this part with respect to the submodel coordinate system", HFILL }
         },
@@ -5368,17 +5368,17 @@ proto_register_cigi(void)
                 "Specifies the distance of the articulated part along its Z axis", HFILL }
         },
         { &hf_cigi3_articulated_part_control_roll,
-            { "Roll (°)", "cigi.art_part_control.roll",
+            { "Roll (degrees)", "cigi.art_part_control.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the angle of rotation of the articulated part submodel about its X axis after yaw and pitch have been applied", HFILL }
         },
         { &hf_cigi3_articulated_part_control_pitch,
-            { "Pitch (°)", "cigi.art_part_control.pitch",
+            { "Pitch (degrees)", "cigi.art_part_control.pitch",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the angle of rotation of the articulated part submodel about its Y axis after yaw has been applied", HFILL }
         },
         { &hf_cigi3_articulated_part_control_yaw,
-            { "Yaw (°)", "cigi.art_part_control.yaw",
+            { "Yaw (degrees)", "cigi.art_part_control.yaw",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the angle of rotation of the articulated part about its Z axis", HFILL }
         },
@@ -5467,17 +5467,17 @@ proto_register_cigi(void)
                 "Specifies the z component of the velocity vector for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_roll_rate,
-            { "Roll Angular Rate (°/s)", "cigi.rate_control.roll_rate",
+            { "Roll Angular Rate (degrees/s)", "cigi.rate_control.roll_rate",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the roll angular rate for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_pitch_rate,
-            { "Pitch Angular Rate (°/s)", "cigi.rate_control.pitch_rate",
+            { "Pitch Angular Rate (degrees/s)", "cigi.rate_control.pitch_rate",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the pitch angular rate for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_yaw_rate,
-            { "Yaw Angular Rate (°/s)", "cigi.rate_control.yaw_rate",
+            { "Yaw Angular Rate (degrees/s)", "cigi.rate_control.yaw_rate",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the yaw angular rate for the entity being represented", HFILL }
         },
@@ -5519,17 +5519,17 @@ proto_register_cigi(void)
                 "Specifies the Z component of a linear velocity vector", HFILL }
         },
         { &hf_cigi3_rate_control_roll_rate,
-            { "Roll Angular Rate (°/s)", "cigi.rate_control.roll_rate",
+            { "Roll Angular Rate (degrees/s)", "cigi.rate_control.roll_rate",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the angle of rotation of the articulated part submodel about its X axis after yaw and pitch have been applied", HFILL }
         },
         { &hf_cigi3_rate_control_pitch_rate,
-            { "Pitch Angular Rate (°/s)", "cigi.rate_control.pitch_rate",
+            { "Pitch Angular Rate (degrees/s)", "cigi.rate_control.pitch_rate",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the angle of rotation of the articulated part submodel about its Y axis after yaw has been applied", HFILL }
         },
         { &hf_cigi3_rate_control_yaw_rate,
-            { "Yaw Angular Rate (°/s)", "cigi.rate_control.yaw_rate",
+            { "Yaw Angular Rate (degrees/s)", "cigi.rate_control.yaw_rate",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,          
                 "Specifies the angle of rotation of the articulated part about its Z axis when its X axis is parallel to that of the entity", HFILL }
         },
@@ -5603,7 +5603,7 @@ proto_register_cigi(void)
                 "Specifies the global humidity of the environment", HFILL }
         },
         { &hf_cigi3_atmosphere_control_air_temp,
-            { "Global Air Temperature (°C)", "cigi.atmosphere_control.air_temp",
+            { "Global Air Temperature (degrees C)", "cigi.atmosphere_control.air_temp",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the global air temperature of the environment", HFILL }
         },
@@ -5623,12 +5623,12 @@ proto_register_cigi(void)
                 "Specifies the global vertical wind speed", HFILL }
         },
         { &hf_cigi3_atmosphere_control_wind_direction,
-            { "Global Wind Direction (°)", "cigi.atmosphere_control.wind_direction",
+            { "Global Wind Direction (degrees)", "cigi.atmosphere_control.wind_direction",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the global wind direction", HFILL }
         },
         { &hf_cigi3_atmosphere_control_barometric_pressure,
-            { "Global Barometric Pressure (mb ∨ hPa)", "cigi.atmosphere_control.barometric_pressure",
+            { "Global Barometric Pressure (mb or hPa)", "cigi.atmosphere_control.barometric_pressure",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the global atmospheric pressure", HFILL }
         },
@@ -5670,7 +5670,7 @@ proto_register_cigi(void)
                 "Specifies the desired date for use by the ephemeris program within the image generator", HFILL }
         },
         { &hf_cigi2_environment_control_air_temp,
-            { "Air Temperature (°C)", "cigi.env_control.air_temp",
+            { "Air Temperature (degrees C)", "cigi.env_control.air_temp",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Identifies the global temperature of the environment", HFILL }
         },
@@ -5685,7 +5685,7 @@ proto_register_cigi(void)
                 "Identifies the global wind speed", HFILL }
         },
         { &hf_cigi2_environment_control_wind_direction,
-            { "Wind Direction (°)", "cigi.env_control.wind_direction",
+            { "Wind Direction (degrees)", "cigi.env_control.wind_direction",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Identifies the global wind direction", HFILL }
         },
@@ -5695,7 +5695,7 @@ proto_register_cigi(void)
                 "Controls the atmospheric pressure input into MODTRAN", HFILL }
         },
         { &hf_cigi2_environment_control_aerosol,
-            { "Aerosol (gm/m³)", "cigi.env_control.aerosol",
+            { "Aerosol (gm/m^3)", "cigi.env_control.aerosol",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Controls the liquid water content for the defined atmosphere", HFILL }
         },
@@ -5737,12 +5737,12 @@ proto_register_cigi(void)
                 "Specifies whether the terrestrial surface conditions found within this region should be merged with those of other regions within areas of overlap", HFILL }
         },
         { &hf_cigi3_environmental_region_control_lat,
-            { "Latitude (°)", "cigi.env_region_control.lat",
+            { "Latitude (degrees)", "cigi.env_region_control.lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the geodetic latitude of the center of the rounded rectangle", HFILL }
         },
         { &hf_cigi3_environmental_region_control_lon,
-            { "Longitude (°)", "cigi.env_region_control.lon",
+            { "Longitude (degrees)", "cigi.env_region_control.lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the geodetic longitude of the center of the rounded rectangle", HFILL }
         },
@@ -5762,7 +5762,7 @@ proto_register_cigi(void)
                 "Specifies the radius of the corner of the rounded rectangle", HFILL }
         },
         { &hf_cigi3_environmental_region_control_rotation,
-            { "Rotation (°)", "cigi.env_region_control.rotation",
+            { "Rotation (degrees)", "cigi.env_region_control.rotation",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the yaw angle of the rounded rectangle", HFILL }
         },
@@ -5809,7 +5809,7 @@ proto_register_cigi(void)
                 "Identifies the type of weather described by this data packet", HFILL }
         },
         { &hf_cigi2_weather_control_air_temp,
-            { "Air Temperature (°C)", "cigi.weather_control.air_temp",
+            { "Air Temperature (degrees C)", "cigi.weather_control.air_temp",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Identifies the local temperature inside the weather phenomenon", HFILL }
         },
@@ -5849,7 +5849,7 @@ proto_register_cigi(void)
                 "Identifies the local wind speed applied to the phenomenon", HFILL }
         },
         { &hf_cigi2_weather_control_wind_direction,
-            { "Winds Aloft Direction (°)", "cigi.weather_control.wind_direction",
+            { "Winds Aloft Direction (degrees)", "cigi.weather_control.wind_direction",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Indicates local direction of the wind applied to the phenomenon", HFILL }
         },
@@ -5911,7 +5911,7 @@ proto_register_cigi(void)
                 "Specifies the severity of the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_air_temp,
-            { "Air Temperature (°C)", "cigi.weather_control.air_temp",
+            { "Air Temperature (degrees C)", "cigi.weather_control.air_temp",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the temperature within the weather layer", HFILL }
         },
@@ -5956,17 +5956,17 @@ proto_register_cigi(void)
                 "Specifies the local vertical wind speed", HFILL }
         },
         { &hf_cigi3_weather_control_wind_direction,
-            { "Wind Direction (°)", "cigi.weather_control.wind_direction",
+            { "Wind Direction (degrees)", "cigi.weather_control.wind_direction",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the local wind direction", HFILL }
         },
         { &hf_cigi3_weather_control_barometric_pressure,
-            { "Barometric Pressure (mb ∨ hPa)", "cigi.weather_control.barometric_pressure",
+            { "Barometric Pressure (mb or hPa)", "cigi.weather_control.barometric_pressure",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the atmospheric pressure within the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_aerosol_concentration,
-            { "Aerosol Concentration (g/m³)", "cigi.weather_control.aerosol_concentration",
+            { "Aerosol Concentration (g/m^3)", "cigi.weather_control.aerosol_concentration",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the concentration of water, smoke, dust, or other particles suspended in the air", HFILL }
         },
@@ -6003,7 +6003,7 @@ proto_register_cigi(void)
                 "Specifies the height of the water above MSL at equilibrium", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_control_surface_water_temp,
-            { "Surface Water Temperature (°C)", "cigi.maritime_surface_conditions_control.surface_water_temp",
+            { "Surface Water Temperature (degrees C)", "cigi.maritime_surface_conditions_control.surface_water_temp",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the water temperature at the surface", HFILL }
         },
@@ -6060,17 +6060,17 @@ proto_register_cigi(void)
                 "Specifies the time required fro one complete oscillation of the wave", HFILL }
         },
         { &hf_cigi3_wave_control_direction,
-            { "Direction (°)", "cigi.wave_control.direction",
+            { "Direction (degrees)", "cigi.wave_control.direction",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the direction in which the wave propagates", HFILL }
         },
         { &hf_cigi3_wave_control_phase_offset,
-            { "Phase Offset (°)", "cigi.wave_control.phase_offset",
+            { "Phase Offset (degrees)", "cigi.wave_control.phase_offset",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies a phase offset for the wave", HFILL }
         },
         { &hf_cigi3_wave_control_leading,
-            { "Leading (°)", "cigi.wave_control.leading",
+            { "Leading (degrees)", "cigi.wave_control.leading",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the phase angle at which the crest occurs", HFILL }
         },
@@ -6179,17 +6179,17 @@ proto_register_cigi(void)
                 "Defines the Z component of the view offset vector along the entity's vertical axis", HFILL }
         },
         { &hf_cigi2_view_control_roll,
-            { "Roll (°)", "cigi.view_control.roll",
+            { "Roll (degrees)", "cigi.view_control.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "The rotation about the view's X axis", HFILL }
         },
         { &hf_cigi2_view_control_pitch,
-            { "Pitch (°)", "cigi.view_control.pitch",
+            { "Pitch (degrees)", "cigi.view_control.pitch",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "The rotation about the view's Y axis", HFILL }
         },
         { &hf_cigi2_view_control_yaw,
-            { "Yaw (°)", "cigi.view_control.yaw",
+            { "Yaw (degrees)", "cigi.view_control.yaw",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "The rotation about the view's Z axis", HFILL }
         },
@@ -6261,17 +6261,17 @@ proto_register_cigi(void)
                 "Specifies the position of the view eyepoint along the Z axis of the entity specified by the Entity ID parameter", HFILL }
         },
         { &hf_cigi3_view_control_roll,
-            { "Roll (°)", "cigi.view_control.roll",
+            { "Roll (degrees)", "cigi.view_control.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the angle of rotation of the view or view group about its X axis after yaw and pitch have been applied", HFILL }
         },
         { &hf_cigi3_view_control_pitch,
-            { "Pitch (°)", "cigi.view_control.pitch",
+            { "Pitch (degrees)", "cigi.view_control.pitch",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the angle of rotation of the view or view group about its Y axis after yaw has been applied", HFILL }
         },
         { &hf_cigi3_view_control_yaw,
-            { "Yaw (°)", "cigi.view_control.yaw",
+            { "Yaw (degrees)", "cigi.view_control.yaw",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the angle of rotation of the view or view group about its Z axis", HFILL }
         },
@@ -6405,7 +6405,7 @@ proto_register_cigi(void)
                 "Specifies the brightness for the sensor display", HFILL }
         },
         { &hf_cigi3_sensor_control_ac_coupling,
-            { "AC Coupling (µs)", "cigi.sensor_control.ac_coupling",
+            { "AC Coupling (microseconds)", "cigi.sensor_control.ac_coupling",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the AC coupling decay constant for the sensor display", HFILL }
         },
@@ -6511,7 +6511,7 @@ proto_register_cigi(void)
                 "Indicates which entity is being influenced by this trajectory behavior", HFILL }
         },
         { &hf_cigi2_trajectory_definition_acceleration,
-            { "Acceleration Factor (m/s²)", "cigi.trajectory_def.acceleration",
+            { "Acceleration Factor (m/s^2)", "cigi.trajectory_def.acceleration",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Indicates the acceleration factor that will be applied to the Vz component of the velocity vector over time to simulate the effects of gravity on the object", HFILL }
         },
@@ -6538,27 +6538,27 @@ proto_register_cigi(void)
                 "Identifies the entity for which the trajectory is defined", HFILL }
         },
         { &hf_cigi3_trajectory_definition_acceleration_x,
-            { "Acceleration X (m/s²)", "cigi.trajectory_def.acceleration_x",
+            { "Acceleration X (m/s^2)", "cigi.trajectory_def.acceleration_x",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the X component of the acceleration vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_acceleration_y,
-            { "Acceleration Y (m/s²)", "cigi.trajectory_def.acceleration_y",
+            { "Acceleration Y (m/s^2)", "cigi.trajectory_def.acceleration_y",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the Y component of the acceleration vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_acceleration_z,
-            { "Acceleration Z (m/s²)", "cigi.trajectory_def.acceleration_z",
+            { "Acceleration Z (m/s^2)", "cigi.trajectory_def.acceleration_z",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the Z component of the acceleration vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_retardation_rate,
-            { "Retardation Rate (m/s²)", "cigi.trajectory_def.retardation_rate",
+            { "Retardation Rate (m/s^2)", "cigi.trajectory_def.retardation_rate",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the magnitude of an acceleration applied against the entity's instantaneous linear velocity vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_terminal_velocity,
-            { "Terminal Velocity (m/s0", "cigi.trajectory_def.terminal_velocity",
+            { "Terminal Velocity (m/s)", "cigi.trajectory_def.terminal_velocity",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the maximum velocity the entity can sustain", HFILL }
         },
@@ -6717,22 +6717,22 @@ proto_register_cigi(void)
                 "Defines the far clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_left,
-            { "Field of View Left (°)", "cigi.view_def.fov_left",
+            { "Field of View Left (degrees)", "cigi.view_def.fov_left",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Defines the left clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_right,
-            { "Field of View Right (°)", "cigi.view_def.fov_right",
+            { "Field of View Right (degrees)", "cigi.view_def.fov_right",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Defines the right clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_top,
-            { "Field of View Top (°)", "cigi.view_def.fov_top",
+            { "Field of View Top (degrees)", "cigi.view_def.fov_top",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Defines the top clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_bottom,
-            { "Field of View Bottom (°)", "cigi.view_def.fov_bottom",
+            { "Field of View Bottom (degrees)", "cigi.view_def.fov_bottom",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Defines the bottom clipping plane for the view", HFILL }
         },
@@ -6819,22 +6819,22 @@ proto_register_cigi(void)
                 "Specifies the position of the view's far clipping plane", HFILL }
         },
         { &hf_cigi3_view_definition_left,
-            { "Left (°)", "cigi.view_def.left",
+            { "Left (degrees)", "cigi.view_def.left",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the left half-angle of the view frustum", HFILL }
         },
         { &hf_cigi3_view_definition_right,
-            { "Right (°)", "cigi.view_def.right",
+            { "Right (degrees)", "cigi.view_def.right",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the right half-angle of the view frustum", HFILL }
         },
         { &hf_cigi3_view_definition_top,
-            { "Top (°)", "cigi.view_def.top",
+            { "Top (degrees)", "cigi.view_def.top",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the top half-angle of the view frustum", HFILL }
         },
         { &hf_cigi3_view_definition_bottom,
-            { "Bottom (°)", "cigi.view_def.bottom",
+            { "Bottom (degrees)", "cigi.view_def.bottom",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the bottom half-angle of the view frustum", HFILL }
         },
@@ -7062,17 +7062,17 @@ proto_register_cigi(void)
                 "Specifies the length of the cuboid along its X axis", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_roll,
-            { "Roll (°)", "cigi.coll_det_vol_def.roll",
+            { "Roll (degrees)", "cigi.coll_det_vol_def.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the roll of the cuboid with respect to the entity's coordinate system", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_pitch,
-            { "Pitch (°)", "cigi.coll_det_vol_def.pitch",
+            { "Pitch (degrees)", "cigi.coll_det_vol_def.pitch",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the pitch of the cuboid with respect to the entity's coordinate system", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_yaw,
-            { "Yaw (°)", "cigi.coll_det_vol_def.yaw",
+            { "Yaw (degrees)", "cigi.coll_det_vol_def.yaw",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the yaw of the cuboid with respect to the entity's coordinate system", HFILL }
         },
@@ -7094,12 +7094,12 @@ proto_register_cigi(void)
                 "Specifies the altitude from which the HAT request is being made", HFILL }
         },
         { &hf_cigi2_height_above_terrain_request_lat,
-            { "Latitude (°)", "cigi.hat_request.lat",
+            { "Latitude (degrees)", "cigi.hat_request.lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitudinal position from which the HAT request is being made", HFILL }
         },
         { &hf_cigi2_height_above_terrain_request_lon,
-            { "Longitude (°)", "cigi.hat_request.lon",
+            { "Longitude (degrees)", "cigi.hat_request.lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitudinal position from which the HAT request is being made", HFILL }
         },
@@ -7121,12 +7121,12 @@ proto_register_cigi(void)
                 "Specifies the altitude of the source point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_source_lat,
-            { "Source Latitude (°)", "cigi.los_occult_request.source_lat",
+            { "Source Latitude (degrees)", "cigi.los_occult_request.source_lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitudinal position of the source point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_source_lon,
-            { "Source Longitude (°)", "cigi.los_occult_request.source_lon",
+            { "Source Longitude (degrees)", "cigi.los_occult_request.source_lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitudinal position of the source point for the LOS request segment", HFILL }
         },
@@ -7136,12 +7136,12 @@ proto_register_cigi(void)
                 "Specifies the altitude of the destination point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_dest_lat,
-            { "Destination Latitude (°)", "cigi.los_occult_request.dest_lat",
+            { "Destination Latitude (degrees)", "cigi.los_occult_request.dest_lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitudinal position for the destination point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_dest_lon,
-            { "Destination Longitude (°)", "cigi.los_occult_request.dest_lon",
+            { "Destination Longitude (degrees)", "cigi.los_occult_request.dest_lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitudinal position of the destination point for the LOS request segment", HFILL }
         },
@@ -7158,12 +7158,12 @@ proto_register_cigi(void)
                 "Identifies the LOS request", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_azimuth,
-            { "Azimuth (°)", "cigi.los_range_request.azimuth",
+            { "Azimuth (degrees)", "cigi.los_range_request.azimuth",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the azimuth of the LOS vector", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_elevation,
-            { "Elevation (°)", "cigi.los_range_request.elevation",
+            { "Elevation (degrees)", "cigi.los_range_request.elevation",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the elevation for the LOS vector", HFILL }
         },
@@ -7183,12 +7183,12 @@ proto_register_cigi(void)
                 "Specifies the altitude of the source point of the LOS request vector", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_source_lat,
-            { "Source Latitude (°)", "cigi.los_range_request.source_lat",
+            { "Source Latitude (degrees)", "cigi.los_range_request.source_lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitudinal position of the source point of the LOS request vector", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_source_lon,
-            { "Source Longitude (°)", "cigi.los_range_request.source_lon",
+            { "Source Longitude (degrees)", "cigi.los_range_request.source_lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitudinal position of the source point of the LOS request vector", HFILL }
         },
@@ -7205,12 +7205,12 @@ proto_register_cigi(void)
                 "Identifies the HOT request", HFILL }
         },
         { &hf_cigi2_height_of_terrain_request_lat,
-            { "Latitude (°)", "cigi.hot_request.lat",
+            { "Latitude (degrees)", "cigi.hot_request.lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitudinal position from which the HOT request is made", HFILL }
         },
         { &hf_cigi2_height_of_terrain_request_lon,
-            { "Longitude (°)", "cigi.hot_request.lon",
+            { "Longitude (degrees)", "cigi.hot_request.lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitudinal position from which the HOT request is made", HFILL }
         },
@@ -7242,12 +7242,12 @@ proto_register_cigi(void)
                 "Specifies the entity relative to which the test point is defined", HFILL }
         },
         { &hf_cigi3_hat_hot_request_lat_xoff,
-            { "Latitude (°)/X Offset (m)", "cigi.hat_hot_request.lat_xoff",
+            { "Latitude (degrees)/X Offset (m)", "cigi.hat_hot_request.lat_xoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitude from which the HAT/HOT request is being made or specifies the X offset of the point from which the HAT/HOT request is being made", HFILL }
         },
         { &hf_cigi3_hat_hot_request_lon_yoff,
-            { "Longitude (°)/Y Offset (m)", "cigi.hat_hot_request.lon_yoff",
+            { "Longitude (degrees)/Y Offset (m)", "cigi.hat_hot_request.lon_yoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitude from which the HAT/HOT request is being made or specifies the Y offset of the point from which the HAT/HOT request is being made", HFILL }
         },
@@ -7299,12 +7299,12 @@ proto_register_cigi(void)
                 "Specifies the entity relative to which the test segment endpoints are defined", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_source_lat_xoff,
-            { "Source Latitude (°)/Source X Offset (m)", "cigi.los_segment_request.source_lat_xoff",
+            { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_segment_request.source_lat_xoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitude of the source endpoint of the LOS test segment or specifies the X offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_source_lon_yoff,
-            { "Source Longitude (°)/Source Y Offset (m)", "cigi.los_segment_request.source_lon_yoff",
+            { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_segment_request.source_lon_yoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitude of the source endpoint of the LOS test segment or specifies the Y offset of the source endpoint of the LOS test segment", HFILL }
         },
@@ -7314,12 +7314,12 @@ proto_register_cigi(void)
                 "Specifies the altitude of the source endpoint of the LOS test segment or specifies the Z offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_destination_lat_xoff,
-            { "Destination Latitude (°)/ Destination X Offset (m)", "cigi.los_segment_request.destination_lat_xoff",
+            { "Destination Latitude (degrees)/ Destination X Offset (m)", "cigi.los_segment_request.destination_lat_xoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitude of the destination endpoint of the LOS test segment or specifies the X offset of the destination endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_destination_lon_yoff,
-            { "Destination Longitude (°)/Destination Y Offset (m)", "cigi.los_segment_request.destination_lon_yoff",
+            { "Destination Longitude (degrees)/Destination Y Offset (m)", "cigi.los_segment_request.destination_lon_yoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitude of the destination endpoint of the LOS test segment or specifies the Y offset of the destination endpoint of the LOS test segment", HFILL }
         },
@@ -7371,12 +7371,12 @@ proto_register_cigi(void)
                 "Specifies the entity relative to which the test segment endpoints are defined", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_azimuth,
-            { "Azimuth (°)", "cigi.los_vector_request.azimuth",
+            { "Azimuth (degrees)", "cigi.los_vector_request.azimuth",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the horizontal angle of the LOS test vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_elevation,
-            { "Elevation (°)", "cigi.los_vector_request.elevation",
+            { "Elevation (degrees)", "cigi.los_vector_request.elevation",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the vertical angle of the LOS test vector", HFILL }
         },
@@ -7391,12 +7391,12 @@ proto_register_cigi(void)
                 "Specifies the maximum range along the LOS test vector at which intersection testing should occur", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_source_lat_xoff,
-            { "Source Latitude (°)/Source X Offset (m)", "cigi.los_vector_request.source_lat_xoff",
+            { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_vector_request.source_lat_xoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitude of the source point of the LOS test vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_source_lon_yoff,
-            { "Source Longitude (°)/Source Y Offset (m)", "cigi.los_vector_request.source_lon_yoff",
+            { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_vector_request.source_lon_yoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitude of the source point of the LOS test vector", HFILL }
         },
@@ -7460,12 +7460,12 @@ proto_register_cigi(void)
                 "Identifies the environmental conditions request", HFILL }
         },
         { &hf_cigi3_environmental_conditions_request_lat,
-            { "Latitude (°)", "cigi.env_cond_request.lat",
+            { "Latitude (degrees)", "cigi.env_cond_request.lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the geodetic latitude at which the environmental state is requested", HFILL }
         },
         { &hf_cigi3_environmental_conditions_request_lon,
-            { "Longitude (°)", "cigi.env_cond_request.lon",
+            { "Longitude (degrees)", "cigi.env_cond_request.lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the geodetic longitude at which the environmental state is requested", HFILL }
         },
@@ -7502,7 +7502,7 @@ proto_register_cigi(void)
                 "Contains a number representing a particular frame", HFILL }
         },
         { &hf_cigi2_start_of_frame_time_tag,
-            { "Timing Value (µsec)", "cigi.sof.time_tag",
+            { "Timing Value (microseconds)", "cigi.sof.time_tag",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Contains a timing value that is used to time-tag the ethernet message during asynchronous operation", HFILL }
         },
@@ -7544,9 +7544,9 @@ proto_register_cigi(void)
                 "Contains a number that identifies the frame", HFILL }
         },
         { &hf_cigi3_start_of_frame_timestamp,
-            { "Timestamp (µs)", "cigi.sof.timestamp",
+            { "Timestamp (microseconds)", "cigi.sof.timestamp",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the number of 10µs \"ticks\" since some initial reference time", HFILL }
+                "Indicates the number of 10 microsecond \"ticks\" since some initial reference time", HFILL }
         },
 
         /* CIGI2 Height Above Terrain Response */
@@ -7635,12 +7635,12 @@ proto_register_cigi(void)
                 "Indicates the material code of the terrain surface at the point of intersection with the HAT/HOT test vector", HFILL }
         },
         { &hf_cigi3_hat_hot_extended_response_normal_vector_azimuth,
-            { "Normal Vector Azimuth (°)", "cigi.hat_hot_ext_response.normal_vector_azimuth",
+            { "Normal Vector Azimuth (degrees)", "cigi.hat_hot_ext_response.normal_vector_azimuth",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Indicates the azimuth of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
         },
         { &hf_cigi3_hat_hot_extended_response_normal_vector_elevation,
-            { "Normal Vector Elevation (°)", "cigi.hat_hot_ext_response.normal_vector_elevation",
+            { "Normal Vector Elevation (degrees)", "cigi.hat_hot_ext_response.normal_vector_elevation",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Indicates the elevation of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
         },
@@ -7682,12 +7682,12 @@ proto_register_cigi(void)
                 "Specifies the altitude of the point of intersection of the LOS request vector with an object", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_lat,
-            { "Intersection Latitude (°)", "cigi.los_response.lat",
+            { "Intersection Latitude (degrees)", "cigi.los_response.lat",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the latitudinal position of the intersection point of the LOS request vector with an object", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_lon,
-            { "Intersection Longitude (°)", "cigi.los_response.lon",
+            { "Intersection Longitude (degrees)", "cigi.los_response.lon",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the longitudinal position of the intersection point of the LOS request vector with an object", HFILL }
         },
@@ -7786,12 +7786,12 @@ proto_register_cigi(void)
                 "Indicates the distance along the LOS test segment or vector from the source point to the point of intersection with an object", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_lat_xoff,
-            { "Latitude (°)/X Offset (m)", "cigi.los_ext_response.lat_xoff",
+            { "Latitude (degrees)/X Offset (m)", "cigi.los_ext_response.lat_xoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Indicates the geodetic latitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's X axis", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_lon_yoff,
-            { "Longitude (°)/Y Offset (m)", "cigi.los_ext_response.lon_yoff",
+            { "Longitude (degrees)/Y Offset (m)", "cigi.los_ext_response.lon_yoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Indicates the geodetic longitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's Y axis", HFILL }
         },
@@ -7826,12 +7826,12 @@ proto_register_cigi(void)
                 "Indicates the material code of the surface intersected by the LOS test segment of vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_normal_vector_azimuth,
-            { "Normal Vector Azimuth (°)", "cigi.los_ext_response.normal_vector_azimuth",
+            { "Normal Vector Azimuth (degrees)", "cigi.los_ext_response.normal_vector_azimuth",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Indicates the azimuth of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_normal_vector_elevation,
-            { "Normal Vector Elevation (°)", "cigi.los_ext_response.normal_vector_elevation",
+            { "Normal Vector Elevation (degrees)", "cigi.los_ext_response.normal_vector_elevation",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Indicates the elevation of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
         },
@@ -7905,12 +7905,12 @@ proto_register_cigi(void)
                 "Identifies the sensor response corresponding to the associated sensor control data packet", HFILL }
         },
         { &hf_cigi2_sensor_response_x_offset,
-            { "Gate X Offset (°)", "cigi.sensor_response.x_offset",
+            { "Gate X Offset (degrees)", "cigi.sensor_response.x_offset",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the target's horizontal offset from the view plane normal", HFILL }
         },
         { &hf_cigi2_sensor_response_y_offset,
-            { "Gate Y Offset (°)", "cigi.sensor_response.y_offset",
+            { "Gate Y Offset (degrees)", "cigi.sensor_response.y_offset",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
                 "Specifies the target's vertical offset from the view plane normal", HFILL }
         },
@@ -7940,495 +7940,489 @@ proto_register_cigi(void)
             { "Sensor ID", "cigi.sensor_response.sensor_id",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Specifies the sensor to which the data in this packet apply", HFILL }
-        }
-        ,
-            { &hf_cigi3_sensor_response_sensor_status,
-                { "Sensor Status", "cigi.sensor_response.sensor_status",
-                    FT_UINT8, BASE_DEC, VALS(cigi3_sensor_response_sensor_status_vals), 0x03,
-                    "Indicates the current tracking state of the sensor", HFILL }
-            }
-        ,
-            { &hf_cigi3_sensor_response_gate_x_size,
-                { "Gate X Size (pixels ∨ raster lines)", "cigi.sensor_response.gate_x_size",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol size along the view's X axis", HFILL }
-            }
-        ,
-            { &hf_cigi3_sensor_response_gate_y_size,
-                { "Gate Y Size (pixels ∨ raster lines)", "cigi.sensor_response.gate_y_size",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol size along the view's Y axis", HFILL }
-            }
-        ,
-            { &hf_cigi3_sensor_response_gate_x_pos,
-                { "Gate X Position (°)", "cigi.sensor_response.gate_x_pos",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol's position along the view's X axis", HFILL }
-            }
-        ,
-            { &hf_cigi3_sensor_response_gate_y_pos,
-                { "Gate Y Position (°)", "cigi.sensor_response.gate_y_pos",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol's position along the view's Y axis", HFILL }
-            }
-        ,
-            { &hf_cigi3_sensor_response_frame_ctr,
-                { "Frame Counter", "cigi.sensor_response.frame_ctr",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
-                    "Indicates the IG's frame counter at the time that the IG calculates the gate and line-of-sight intersection data", HFILL }
-            },
+        },
+        { &hf_cigi3_sensor_response_sensor_status,
+            { "Sensor Status", "cigi.sensor_response.sensor_status",
+                FT_UINT8, BASE_DEC, VALS(cigi3_sensor_response_sensor_status_vals), 0x03,
+                "Indicates the current tracking state of the sensor", HFILL }
+        },
+        { &hf_cigi3_sensor_response_gate_x_size,
+            { "Gate X Size (pixels or raster lines)", "cigi.sensor_response.gate_x_size",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol size along the view's X axis", HFILL }
+        },
+        { &hf_cigi3_sensor_response_gate_y_size,
+            { "Gate Y Size (pixels or raster lines)", "cigi.sensor_response.gate_y_size",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol size along the view's Y axis", HFILL }
+        },
+        { &hf_cigi3_sensor_response_gate_x_pos,
+            { "Gate X Position (degrees)", "cigi.sensor_response.gate_x_pos",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol's position along the view's X axis", HFILL }
+        },
+        { &hf_cigi3_sensor_response_gate_y_pos,
+            { "Gate Y Position (degrees)", "cigi.sensor_response.gate_y_pos",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol's position along the view's Y axis", HFILL }
+        },
+        { &hf_cigi3_sensor_response_frame_ctr,
+            { "Frame Counter", "cigi.sensor_response.frame_ctr",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Indicates the IG's frame counter at the time that the IG calculates the gate and line-of-sight intersection data", HFILL }
+        },
 
-            /* CIGI3 Sensor Extended Response */
-            { &hf_cigi3_sensor_extended_response,
-                { "Sensor Extended Response", "cigi.sensor_ext_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Sensor Extended Response Packet", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_view_id,
-                { "View ID", "cigi.sensor_ext_response.view_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Specifies the view that represents the sensor display", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_sensor_id,
-                { "Sensor ID", "cigi.sensor_ext_response.sensor_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Specifies the sensor to which the data in this packet apply", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_sensor_status,
-                { "Sensor Status", "cigi.sensor_ext_response.sensor_status",
-                    FT_UINT8, BASE_DEC, VALS(cigi3_sensor_extended_response_sensor_status_vals), 0x03,
-                    "Indicates the current tracking state of the sensor", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_entity_id_valid,
-                { "Entity ID Valid", "cigi.sensor_ext_response.entity_id_valid",
-                    FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
-                    "Indicates whether the target is an entity or a non-entity object", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_entity_id,
-                { "Entity ID", "cigi.sensor_ext_response.entity_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates the entity ID of the target", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_gate_x_size,
-                { "Gate X Size (pixels ∨ raster lines)", "cigi.sensor_ext_response.gate_x_size",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol size along the view's X axis", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_gate_y_size,
-                { "Gate Y Size (pixels ∨ raster lines)", "cigi.sensor_ext_response.gate_y_size",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol size along the view's Y axis", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_gate_x_pos,
-                { "Gate X Position (°)", "cigi.sensor_ext_response.gate_x_pos",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol's position along the view's X axis", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_gate_y_pos,
-                { "Gate Y Position (°)", "cigi.sensor_ext_response.gate_y_pos",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Specifies the gate symbol's position along the view's Y axis", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_frame_ctr,
-                { "Frame Counter", "cigi.sensor_ext_response.frame_ctr",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
-                    "Indicates the IG's frame counter at the time that the IG calculates the gate and line-of-sight intersection data", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_track_lat,
-                { "Track Point Latitude (°)", "cigi.sensor_ext_response.track_lat",
-                    FT_DOUBLE, BASE_DEC, NULL, 0x0,
-                    "Indicates the geodetic latitude of the point being tracked by the sensor", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_track_lon,
-                { "Track Point Longitude (°)", "cigi.sensor_ext_response.track_lon",
-                    FT_DOUBLE, BASE_DEC, NULL, 0x0,
-                    "Indicates the geodetic longitude of the point being tracked by the sensor", HFILL }
-            },
-            { &hf_cigi3_sensor_extended_response_track_alt,
-                { "Track Point Altitude (m)", "cigi.sensor_ext_response.track_alt",
-                    FT_DOUBLE, BASE_DEC, NULL, 0x0,
-                    "Indicates the geodetic altitude of the point being tracked by the sensor", HFILL }
-            },
+        /* CIGI3 Sensor Extended Response */
+        { &hf_cigi3_sensor_extended_response,
+            { "Sensor Extended Response", "cigi.sensor_ext_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Sensor Extended Response Packet", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_view_id,
+            { "View ID", "cigi.sensor_ext_response.view_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the view that represents the sensor display", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_sensor_id,
+            { "Sensor ID", "cigi.sensor_ext_response.sensor_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the sensor to which the data in this packet apply", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_sensor_status,
+            { "Sensor Status", "cigi.sensor_ext_response.sensor_status",
+                FT_UINT8, BASE_DEC, VALS(cigi3_sensor_extended_response_sensor_status_vals), 0x03,
+                "Indicates the current tracking state of the sensor", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_entity_id_valid,
+            { "Entity ID Valid", "cigi.sensor_ext_response.entity_id_valid",
+                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                "Indicates whether the target is an entity or a non-entity object", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_entity_id,
+            { "Entity ID", "cigi.sensor_ext_response.entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates the entity ID of the target", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_gate_x_size,
+            { "Gate X Size (pixels or raster lines)", "cigi.sensor_ext_response.gate_x_size",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol size along the view's X axis", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_gate_y_size,
+            { "Gate Y Size (pixels or raster lines)", "cigi.sensor_ext_response.gate_y_size",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol size along the view's Y axis", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_gate_x_pos,
+            { "Gate X Position (degrees)", "cigi.sensor_ext_response.gate_x_pos",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol's position along the view's X axis", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_gate_y_pos,
+            { "Gate Y Position (degrees)", "cigi.sensor_ext_response.gate_y_pos",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the gate symbol's position along the view's Y axis", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_frame_ctr,
+            { "Frame Counter", "cigi.sensor_ext_response.frame_ctr",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Indicates the IG's frame counter at the time that the IG calculates the gate and line-of-sight intersection data", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_track_lat,
+            { "Track Point Latitude (degrees)", "cigi.sensor_ext_response.track_lat",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Indicates the geodetic latitude of the point being tracked by the sensor", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_track_lon,
+            { "Track Point Longitude (degrees)", "cigi.sensor_ext_response.track_lon",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Indicates the geodetic longitude of the point being tracked by the sensor", HFILL }
+        },
+        { &hf_cigi3_sensor_extended_response_track_alt,
+            { "Track Point Altitude (m)", "cigi.sensor_ext_response.track_alt",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Indicates the geodetic altitude of the point being tracked by the sensor", HFILL }
+        },
 
-            /* CIGI2 Height of Terrain Response */
-            { &hf_cigi2_height_of_terrain_response,
-                { "Height of Terrain Response", "cigi.hot_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,          
-                    "Height of Terrain Response Packet", HFILL }
-            },
-            { &hf_cigi2_height_of_terrain_response_hot_id,
-                { "HOT ID", "cigi.hot_response.hot_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Identifies the HOT response corresponding to the associated HOT request", HFILL }
-            },
-            { &hf_cigi2_height_of_terrain_response_valid,
-                { "Valid", "cigi.hot_response.valid",
-                    FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x80,
-                    "Indicates whether the response is valid or invalid", HFILL }
-            },
-            { &hf_cigi2_height_of_terrain_response_material_type,
-                { "Material Type", "cigi.hot_response.material_type",
-                    FT_INT32, BASE_DEC, NULL, 0x0,
-                    "Specifies the material type of the object intersected by the HOT test segment", HFILL }
-            },
-            { &hf_cigi2_height_of_terrain_response_alt,
-                { "Altitude (m)", "cigi.hot_response.alt",
-                    FT_DOUBLE, BASE_DEC, NULL, 0x0,
-                    "Represents the altitude of the terrain for the position requested in the HOT request data packet", HFILL }
-            },
+        /* CIGI2 Height of Terrain Response */
+        { &hf_cigi2_height_of_terrain_response,
+            { "Height of Terrain Response", "cigi.hot_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+                "Height of Terrain Response Packet", HFILL }
+        },
+        { &hf_cigi2_height_of_terrain_response_hot_id,
+            { "HOT ID", "cigi.hot_response.hot_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the HOT response corresponding to the associated HOT request", HFILL }
+        },
+        { &hf_cigi2_height_of_terrain_response_valid,
+            { "Valid", "cigi.hot_response.valid",
+                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x80,
+                "Indicates whether the response is valid or invalid", HFILL }
+        },
+        { &hf_cigi2_height_of_terrain_response_material_type,
+            { "Material Type", "cigi.hot_response.material_type",
+                FT_INT32, BASE_DEC, NULL, 0x0,
+                "Specifies the material type of the object intersected by the HOT test segment", HFILL }
+        },
+        { &hf_cigi2_height_of_terrain_response_alt,
+            { "Altitude (m)", "cigi.hot_response.alt",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Represents the altitude of the terrain for the position requested in the HOT request data packet", HFILL }
+        },
 
-            /* CIGI2 Collision Detection Volume Response */
-            { &hf_cigi2_collision_detection_volume_response,
-                { "Collision Detection Volume Response", "cigi.coll_det_vol_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,          
-                    "Collision Detection Volume Response Packet", HFILL }
-            },
-            { &hf_cigi2_collision_detection_volume_response_entity_id,
-                { "Entity ID", "cigi.coll_det_vol_response.entity_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates which entity experienced a collision", HFILL }
-            },
-            { &hf_cigi2_collision_detection_volume_response_volume_id,
-                { "Volume ID", "cigi.coll_det_vol_response.volume_id",
-                    FT_UINT8, BASE_DEC, NULL, 0xfe,
-                    "Identifies the collision volume corresponding to the associated Collision Detection Volume Request", HFILL }
-            },
-            { &hf_cigi2_collision_detection_volume_response_contact,
-                { "Entity/Non-Entity Contact", "cigi.coll_det_vol_response.contact",
-                    FT_BOOLEAN, 8, TFS(&cigi2_collision_detection_volume_response_contact_tfs), 0x01,
-                    "Indicates whether another entity was contacted during this collision", HFILL }
-            },
-            { &hf_cigi2_collision_detection_volume_response_contact_entity,
-                { "Contacted Entity ID", "cigi.coll_det_vol_response.contact_entity",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates which entity was contacted with during the collision", HFILL }
-            },
+        /* CIGI2 Collision Detection Volume Response */
+        { &hf_cigi2_collision_detection_volume_response,
+            { "Collision Detection Volume Response", "cigi.coll_det_vol_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+                "Collision Detection Volume Response Packet", HFILL }
+        },
+        { &hf_cigi2_collision_detection_volume_response_entity_id,
+            { "Entity ID", "cigi.coll_det_vol_response.entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates which entity experienced a collision", HFILL }
+        },
+        { &hf_cigi2_collision_detection_volume_response_volume_id,
+            { "Volume ID", "cigi.coll_det_vol_response.volume_id",
+                FT_UINT8, BASE_DEC, NULL, 0xfe,
+                "Identifies the collision volume corresponding to the associated Collision Detection Volume Request", HFILL }
+        },
+        { &hf_cigi2_collision_detection_volume_response_contact,
+            { "Entity/Non-Entity Contact", "cigi.coll_det_vol_response.contact",
+                FT_BOOLEAN, 8, TFS(&cigi2_collision_detection_volume_response_contact_tfs), 0x01,
+                "Indicates whether another entity was contacted during this collision", HFILL }
+        },
+        { &hf_cigi2_collision_detection_volume_response_contact_entity,
+            { "Contacted Entity ID", "cigi.coll_det_vol_response.contact_entity",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates which entity was contacted with during the collision", HFILL }
+        },
 
-            /* CIGI3 Position Response */
-            { &hf_cigi3_position_response,
-                { "Position Response", "cigi.pos_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Position Response Packet", HFILL }
-            },
-            { &hf_cigi3_position_response_object_id,
-                { "Object ID", "cigi.pos_response.object_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Identifies the entity, view, view group, or motion tracking device whose position is being reported", HFILL }
-            },
-            { &hf_cigi3_position_response_part_id,
-                { "Articulated Part ID", "cigi.pos_response.part_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Identifies the articulated part whose position is being reported", HFILL }
-            },
-            { &hf_cigi3_position_response_object_class,
-                { "Object Class", "cigi.pos_response.object_class",
-                    FT_UINT8, BASE_DEC, VALS(cigi3_position_response_object_class_vals), 0x07,
-                    "Indicates the type of object whose position is being reported", HFILL }
-            },
-            { &hf_cigi3_position_response_coord_system,
-                { "Coordinate System", "cigi.pos_response.coord_system",
-                    FT_UINT8, BASE_DEC, VALS(cigi3_position_response_coord_system_vals), 0x18,
-                    "Indicates the coordinate system in which the position and orientation are specified", HFILL }
-            },
-            { &hf_cigi3_position_response_lat_xoff,
-                { "Latitude (°)/X Offset (m)", "cigi.pos_response.lat_xoff",
-                    FT_DOUBLE, BASE_DEC, NULL, 0x0,
-                    "Indicates the geodetic latitude of the entity, articulated part, view, or view group or indicates the X offset from the parent entity's origin to the child entity, articulated part, view or view group", HFILL }
-            },
-            { &hf_cigi3_position_response_lon_yoff,
-                { "Longitude (°)/Y Offset (m)", "cigi.pos_response.lon_yoff",
-                    FT_DOUBLE, BASE_DEC, NULL, 0x0,
-                    "Indicates the geodetic longitude of the entity, articulated part, view, or view group or indicates the Y offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
-            },
-            { &hf_cigi3_position_response_alt_zoff,
-                { "Altitude (m)/Z Offset (m)", "cigi.pos_response.alt_zoff",
-                    FT_DOUBLE, BASE_DEC, NULL, 0x0,
-                    "Indicates the geodetic altitude of the entity, articulated part, view, or view group or indicates the Z offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
-            },
-            { &hf_cigi3_position_response_roll,
-                { "Roll (°)", "cigi.pos_response.roll",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the roll angle of the specified entity, articulated part, view, or view group", HFILL }
-            },
-            { &hf_cigi3_position_response_pitch,
-                { "Pitch (°)", "cigi.pos_response.pitch",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the pitch angle of the specified entity, articulated part, view, or view group", HFILL }
-            },
-            { &hf_cigi3_position_response_yaw,
-                { "Yaw (°)", "cigi.pos_response.yaw",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the yaw angle of the specified entity, articulated part, view, or view group", HFILL }
-            },
+        /* CIGI3 Position Response */
+        { &hf_cigi3_position_response,
+            { "Position Response", "cigi.pos_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Position Response Packet", HFILL }
+        },
+        { &hf_cigi3_position_response_object_id,
+            { "Object ID", "cigi.pos_response.object_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the entity, view, view group, or motion tracking device whose position is being reported", HFILL }
+        },
+        { &hf_cigi3_position_response_part_id,
+            { "Articulated Part ID", "cigi.pos_response.part_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Identifies the articulated part whose position is being reported", HFILL }
+        },
+        { &hf_cigi3_position_response_object_class,
+            { "Object Class", "cigi.pos_response.object_class",
+                FT_UINT8, BASE_DEC, VALS(cigi3_position_response_object_class_vals), 0x07,
+                "Indicates the type of object whose position is being reported", HFILL }
+        },
+        { &hf_cigi3_position_response_coord_system,
+            { "Coordinate System", "cigi.pos_response.coord_system",
+                FT_UINT8, BASE_DEC, VALS(cigi3_position_response_coord_system_vals), 0x18,
+                "Indicates the coordinate system in which the position and orientation are specified", HFILL }
+        },
+        { &hf_cigi3_position_response_lat_xoff,
+            { "Latitude (degrees)/X Offset (m)", "cigi.pos_response.lat_xoff",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Indicates the geodetic latitude of the entity, articulated part, view, or view group or indicates the X offset from the parent entity's origin to the child entity, articulated part, view or view group", HFILL }
+        },
+        { &hf_cigi3_position_response_lon_yoff,
+            { "Longitude (degrees)/Y Offset (m)", "cigi.pos_response.lon_yoff",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Indicates the geodetic longitude of the entity, articulated part, view, or view group or indicates the Y offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
+        },
+        { &hf_cigi3_position_response_alt_zoff,
+            { "Altitude (m)/Z Offset (m)", "cigi.pos_response.alt_zoff",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Indicates the geodetic altitude of the entity, articulated part, view, or view group or indicates the Z offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
+        },
+        { &hf_cigi3_position_response_roll,
+            { "Roll (degrees)", "cigi.pos_response.roll",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the roll angle of the specified entity, articulated part, view, or view group", HFILL }
+        },
+        { &hf_cigi3_position_response_pitch,
+            { "Pitch (degrees)", "cigi.pos_response.pitch",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the pitch angle of the specified entity, articulated part, view, or view group", HFILL }
+        },
+        { &hf_cigi3_position_response_yaw,
+            { "Yaw (degrees)", "cigi.pos_response.yaw",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the yaw angle of the specified entity, articulated part, view, or view group", HFILL }
+        },
 
-            /* CIGI3 Weather Conditions Response */
-            { &hf_cigi3_weather_conditions_response,
-                { "Weather Conditions Response", "cigi.wea_cond_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Weather Conditions Response Packet", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_request_id,
-                { "Request ID", "cigi.wea_cond_response.request_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_humidity,
-                { "Humidity (%)", "cigi.wea_cond_response.humidity",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Indicates the humidity at the request location", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_air_temp,
-                { "Air Temperature (°C)", "cigi.wea_cond_response.air_temp",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the air temperature at the requested location", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_visibility_range,
-                { "Visibility Range (m)", "cigi.wea_cond_response.visibility_range",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the visibility range at the requested location", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_horiz_speed,
-                { "Horizontal Wind Speed (m/s)", "cigi.wea_cond_response.horiz_speed",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the local wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_vert_speed,
-                { "Vertical Wind Speed (m/s)", "cigi.wea_cond_response.vert_speed",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the local vertical wind speed", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_wind_direction,
-                { "Wind Direction (°)", "cigi.wea_cond_response.wind_direction",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the local wind direction", HFILL }
-            },
-            { &hf_cigi3_weather_conditions_response_barometric_pressure,
-                { "Barometric Pressure (mb ∨ hPa)", "cigi.wea_cond_response.barometric_pressure",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the atmospheric pressure at the requested location", HFILL }
-            },
+        /* CIGI3 Weather Conditions Response */
+        { &hf_cigi3_weather_conditions_response,
+            { "Weather Conditions Response", "cigi.wea_cond_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Weather Conditions Response Packet", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_request_id,
+            { "Request ID", "cigi.wea_cond_response.request_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_humidity,
+            { "Humidity (%)", "cigi.wea_cond_response.humidity",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Indicates the humidity at the request location", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_air_temp,
+            { "Air Temperature (degrees C)", "cigi.wea_cond_response.air_temp",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the air temperature at the requested location", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_visibility_range,
+            { "Visibility Range (m)", "cigi.wea_cond_response.visibility_range",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the visibility range at the requested location", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_horiz_speed,
+            { "Horizontal Wind Speed (m/s)", "cigi.wea_cond_response.horiz_speed",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the local wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_vert_speed,
+            { "Vertical Wind Speed (m/s)", "cigi.wea_cond_response.vert_speed",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the local vertical wind speed", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_wind_direction,
+            { "Wind Direction (degrees)", "cigi.wea_cond_response.wind_direction",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the local wind direction", HFILL }
+        },
+        { &hf_cigi3_weather_conditions_response_barometric_pressure,
+            { "Barometric Pressure (mb or hPa)", "cigi.wea_cond_response.barometric_pressure",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the atmospheric pressure at the requested location", HFILL }
+        },
 
-            /* CIGI3 Aerosol Concentration Response */
-            { &hf_cigi3_aerosol_concentration_response,
-                { "Aerosol Concentration Response", "cigi.aerosol_concentration_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Aerosol Concentration Response Packet", HFILL }
-            },
-            { &hf_cigi3_aerosol_concentration_response_request_id,
-                { "Request ID", "cigi.aerosol_concentration_response.request_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-            },
-            { &hf_cigi3_aerosol_concentration_response_layer_id,
-                { "Layer ID", "cigi.aerosol_concentration_response.layer_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Identifies the weather layer whose aerosol concentration is being described", HFILL }
-            },
-            { &hf_cigi3_aerosol_concentration_response_aerosol_concentration,
-                { "Aerosol Concentration (g/m³)", "cigi.aerosol_concentration_response.aerosol_concentration",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Identifies the concentration of airborne particles", HFILL }
-            },
+        /* CIGI3 Aerosol Concentration Response */
+        { &hf_cigi3_aerosol_concentration_response,
+            { "Aerosol Concentration Response", "cigi.aerosol_concentration_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Aerosol Concentration Response Packet", HFILL }
+        },
+        { &hf_cigi3_aerosol_concentration_response_request_id,
+            { "Request ID", "cigi.aerosol_concentration_response.request_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
+        },
+        { &hf_cigi3_aerosol_concentration_response_layer_id,
+            { "Layer ID", "cigi.aerosol_concentration_response.layer_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Identifies the weather layer whose aerosol concentration is being described", HFILL }
+        },
+        { &hf_cigi3_aerosol_concentration_response_aerosol_concentration,
+            { "Aerosol Concentration (g/m^3)", "cigi.aerosol_concentration_response.aerosol_concentration",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Identifies the concentration of airborne particles", HFILL }
+        },
 
-            /* CIGI3 Maritime Surface Conditions Response */
-            { &hf_cigi3_maritime_surface_conditions_response,
-                { "Maritime Surface Conditions Response", "cigi.maritime_surface_conditions_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Maritime Surface Conditions Response Packet", HFILL }
-            },
-            { &hf_cigi3_maritime_surface_conditions_response_request_id,
-                { "Request ID", "cigi.maritime_surface_conditions_response.request_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-            },
-            { &hf_cigi3_maritime_surface_conditions_response_sea_surface_height,
-                { "Sea Surface Height (m)", "cigi.maritime_surface_conditions_response.sea_surface_height",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the height of the sea surface at equilibrium", HFILL }
-            },
-            { &hf_cigi3_maritime_surface_conditions_response_surface_water_temp,
-                { "Surface Water Temperature (°C)", "cigi.maritime_surface_conditions_response.surface_water_temp",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the water temperature at the sea surface", HFILL }
-            },
-            { &hf_cigi3_maritime_surface_conditions_response_surface_clarity,
-                { "Surface Clarity (%)", "cigi.maritime_surface_conditions_response.surface_clarity",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the clarity of the water at its surface", HFILL }
-            },
+        /* CIGI3 Maritime Surface Conditions Response */
+        { &hf_cigi3_maritime_surface_conditions_response,
+            { "Maritime Surface Conditions Response", "cigi.maritime_surface_conditions_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Maritime Surface Conditions Response Packet", HFILL }
+        },
+        { &hf_cigi3_maritime_surface_conditions_response_request_id,
+            { "Request ID", "cigi.maritime_surface_conditions_response.request_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
+        },
+        { &hf_cigi3_maritime_surface_conditions_response_sea_surface_height,
+            { "Sea Surface Height (m)", "cigi.maritime_surface_conditions_response.sea_surface_height",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the height of the sea surface at equilibrium", HFILL }
+        },
+        { &hf_cigi3_maritime_surface_conditions_response_surface_water_temp,
+            { "Surface Water Temperature (degrees C)", "cigi.maritime_surface_conditions_response.surface_water_temp",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the water temperature at the sea surface", HFILL }
+        },
+        { &hf_cigi3_maritime_surface_conditions_response_surface_clarity,
+            { "Surface Clarity (%)", "cigi.maritime_surface_conditions_response.surface_clarity",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the clarity of the water at its surface", HFILL }
+        },
 
-            /* CIGI3 Terrestrial Surface Conditions Response */
-            { &hf_cigi3_terrestrial_surface_conditions_response,
-                { "Terrestrial Surface Conditions Response", "cigi.terr_surface_cond_response",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Terrestrial Surface Conditions Response Packet", HFILL }
-            },
-            { &hf_cigi3_terrestrial_surface_conditions_response_request_id,
-                { "Request ID", "cigi.terr_surface_cond_response.request_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-            },
-            { &hf_cigi3_terrestrial_surface_conditions_response_surface_id,
-                { "Surface Condition ID", "cigi.terr_surface_cond_response.surface_id",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
-                    "Indicates the presence of a specific surface condition or contaminant at the test point", HFILL }
-            },
+        /* CIGI3 Terrestrial Surface Conditions Response */
+        { &hf_cigi3_terrestrial_surface_conditions_response,
+            { "Terrestrial Surface Conditions Response", "cigi.terr_surface_cond_response",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Terrestrial Surface Conditions Response Packet", HFILL }
+        },
+        { &hf_cigi3_terrestrial_surface_conditions_response_request_id,
+            { "Request ID", "cigi.terr_surface_cond_response.request_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
+        },
+        { &hf_cigi3_terrestrial_surface_conditions_response_surface_id,
+            { "Surface Condition ID", "cigi.terr_surface_cond_response.surface_id",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Indicates the presence of a specific surface condition or contaminant at the test point", HFILL }
+        },
 
-            /* CIGI3 Collision Detection Segment Notification */
-            { &hf_cigi3_collision_detection_segment_notification,
-                { "Collision Detection Segment Notification", "cigi.coll_det_seg_notification",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Collision Detection Segment Notification Packet", HFILL }
-            },
-            { &hf_cigi3_collision_detection_segment_notification_entity_id,
-                { "Entity ID", "cigi.coll_det_seg_notification.entity_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates the entity to which the collision detection segment belongs", HFILL }
-            },
-            { &hf_cigi3_collision_detection_segment_notification_segment_id,
-                { "Segment ID", "cigi.coll_det_seg_notification.segment_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Indicates the ID of the collision detection segment along which the collision occurred", HFILL }
-            },
-            { &hf_cigi3_collision_detection_segment_notification_type,
-                { "Collision Type", "cigi.coll_det_seg_notification.type",
-                    FT_BOOLEAN, 8, TFS(&cigi3_collision_detection_segment_notification_type_tfs), 0x01,
-                    "Indicates whether the collision occurred with another entity or with a non-entity object", HFILL }
-            },
-            { &hf_cigi3_collision_detection_segment_notification_contacted_entity_id,
-                { "Contacted Entity ID", "cigi.coll_det_seg_notification.contacted_entity_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates the entity with which the collision occurred", HFILL }
-            },
-            { &hf_cigi3_collision_detection_segment_notification_material_code,
-                { "Material Code", "cigi.coll_det_seg_notification.material_code",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
-                    "Indicates the material code of the surface at the point of collision", HFILL }
-            },
-            { &hf_cigi3_collision_detection_segment_notification_intersection_distance,
-                { "Intersection Distance (m)", "cigi.coll_det_seg_notification.intersection_distance",
-                    FT_FLOAT, BASE_DEC, NULL, 0x0,
-                    "Indicates the distance along the collision test vector from the source endpoint to the point of intersection", HFILL }
-            },
+        /* CIGI3 Collision Detection Segment Notification */
+        { &hf_cigi3_collision_detection_segment_notification,
+            { "Collision Detection Segment Notification", "cigi.coll_det_seg_notification",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Collision Detection Segment Notification Packet", HFILL }
+        },
+        { &hf_cigi3_collision_detection_segment_notification_entity_id,
+            { "Entity ID", "cigi.coll_det_seg_notification.entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates the entity to which the collision detection segment belongs", HFILL }
+        },
+        { &hf_cigi3_collision_detection_segment_notification_segment_id,
+            { "Segment ID", "cigi.coll_det_seg_notification.segment_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Indicates the ID of the collision detection segment along which the collision occurred", HFILL }
+        },
+        { &hf_cigi3_collision_detection_segment_notification_type,
+            { "Collision Type", "cigi.coll_det_seg_notification.type",
+                FT_BOOLEAN, 8, TFS(&cigi3_collision_detection_segment_notification_type_tfs), 0x01,
+                "Indicates whether the collision occurred with another entity or with a non-entity object", HFILL }
+        },
+        { &hf_cigi3_collision_detection_segment_notification_contacted_entity_id,
+            { "Contacted Entity ID", "cigi.coll_det_seg_notification.contacted_entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates the entity with which the collision occurred", HFILL }
+        },
+        { &hf_cigi3_collision_detection_segment_notification_material_code,
+            { "Material Code", "cigi.coll_det_seg_notification.material_code",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Indicates the material code of the surface at the point of collision", HFILL }
+        },
+        { &hf_cigi3_collision_detection_segment_notification_intersection_distance,
+            { "Intersection Distance (m)", "cigi.coll_det_seg_notification.intersection_distance",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Indicates the distance along the collision test vector from the source endpoint to the point of intersection", HFILL }
+        },
 
-            /* CIGI3 Collision Detection Volume Notification */
-            { &hf_cigi3_collision_detection_volume_notification,
-                { "Collision Detection Volume Notification", "cigi.coll_det_vol_notification",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Collision Detection Volume Notification Packet", HFILL }
-            },
-            { &hf_cigi3_collision_detection_volume_notification_entity_id,
-                { "Entity ID", "cigi.coll_det_vol_notification.entity_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates the entity to which the collision detection volume belongs", HFILL }
-            },
-            { &hf_cigi3_collision_detection_volume_notification_volume_id,
-                { "Volume ID", "cigi.coll_det_vol_notification.volume_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Indicates the ID of the collision detection volume within which the collision occurred", HFILL }
-            },
-            { &hf_cigi3_collision_detection_volume_notification_type,
-                { "Collision Type", "cigi.coll_det_vol_notification.type",
-                    FT_BOOLEAN, 8, TFS(&cigi3_collision_detection_volume_notification_type_tfs), 0x01,
-                    "Indicates whether the collision occurred with another entity or with a non-entity object", HFILL }
-            },
-            { &hf_cigi3_collision_detection_volume_notification_contacted_entity_id,
-                { "Contacted Entity ID", "cigi.coll_det_vol_notification.contacted_entity_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates the entity with which the collision occurred", HFILL }
-            },
-            { &hf_cigi3_collision_detection_volume_notification_contacted_volume_id,
-                { "Contacted Volume ID", "cigi.coll_det_vol_notification.contacted_volume_id",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Indicates the ID of the collision detection volume with which the collision occurred", HFILL }
-            },
+        /* CIGI3 Collision Detection Volume Notification */
+        { &hf_cigi3_collision_detection_volume_notification,
+            { "Collision Detection Volume Notification", "cigi.coll_det_vol_notification",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Collision Detection Volume Notification Packet", HFILL }
+        },
+        { &hf_cigi3_collision_detection_volume_notification_entity_id,
+            { "Entity ID", "cigi.coll_det_vol_notification.entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates the entity to which the collision detection volume belongs", HFILL }
+        },
+        { &hf_cigi3_collision_detection_volume_notification_volume_id,
+            { "Volume ID", "cigi.coll_det_vol_notification.volume_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Indicates the ID of the collision detection volume within which the collision occurred", HFILL }
+        },
+        { &hf_cigi3_collision_detection_volume_notification_type,
+            { "Collision Type", "cigi.coll_det_vol_notification.type",
+                FT_BOOLEAN, 8, TFS(&cigi3_collision_detection_volume_notification_type_tfs), 0x01,
+                "Indicates whether the collision occurred with another entity or with a non-entity object", HFILL }
+        },
+        { &hf_cigi3_collision_detection_volume_notification_contacted_entity_id,
+            { "Contacted Entity ID", "cigi.coll_det_vol_notification.contacted_entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates the entity with which the collision occurred", HFILL }
+        },
+        { &hf_cigi3_collision_detection_volume_notification_contacted_volume_id,
+            { "Contacted Volume ID", "cigi.coll_det_vol_notification.contacted_volume_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Indicates the ID of the collision detection volume with which the collision occurred", HFILL }
+        },
 
-            /* CIGI3 Animation Stop Notification */
-            { &hf_cigi3_animation_stop_notification,
-                { "Animation Stop Notification", "cigi.animation_stop_notification",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Animation Stop Notification Packet", HFILL }
-            },
-            { &hf_cigi3_animation_stop_notification_entity_id,
-                { "Entity ID", "cigi.animation_stop_notification.entity_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates the entity ID of the animation that has stopped", HFILL }
-            },
+        /* CIGI3 Animation Stop Notification */
+        { &hf_cigi3_animation_stop_notification,
+            { "Animation Stop Notification", "cigi.animation_stop_notification",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Animation Stop Notification Packet", HFILL }
+        },
+        { &hf_cigi3_animation_stop_notification_entity_id,
+            { "Entity ID", "cigi.animation_stop_notification.entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates the entity ID of the animation that has stopped", HFILL }
+        },
 
-            /* CIGI3 Event Notification */
-            { &hf_cigi3_event_notification,
-                { "Event Notification", "cigi.event_notification",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Event Notification Packet", HFILL }
-            },
-            { &hf_cigi3_event_notification_event_id,
-                { "Event ID", "cigi.event_notification.event_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Indicates which event has occurred", HFILL }
-            },
-            { &hf_cigi3_event_notification_data_1,
-                { "Event Data 1", "cigi.event_notification.data_1",
-                    FT_BYTES, BASE_NONE, NULL, 0x0,
-                    "Used for user-defined event data", HFILL }
-            },
-            { &hf_cigi3_event_notification_data_2,
-                { "Event Data 2", "cigi.event_notification.data_2",
-                    FT_BYTES, BASE_NONE, NULL, 0x0,
-                    "Used for user-defined event data", HFILL }
-            },
-            { &hf_cigi3_event_notification_data_3,
-                { "Event Data 3", "cigi.event_notification.data_3",
-                    FT_BYTES, BASE_NONE, NULL, 0x0,
-                    "Used for user-defined event data", HFILL }
-            },
+        /* CIGI3 Event Notification */
+        { &hf_cigi3_event_notification,
+            { "Event Notification", "cigi.event_notification",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Event Notification Packet", HFILL }
+        },
+        { &hf_cigi3_event_notification_event_id,
+            { "Event ID", "cigi.event_notification.event_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Indicates which event has occurred", HFILL }
+        },
+        { &hf_cigi3_event_notification_data_1,
+            { "Event Data 1", "cigi.event_notification.data_1",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "Used for user-defined event data", HFILL }
+        },
+        { &hf_cigi3_event_notification_data_2,
+            { "Event Data 2", "cigi.event_notification.data_2",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "Used for user-defined event data", HFILL }
+        },
+        { &hf_cigi3_event_notification_data_3,
+            { "Event Data 3", "cigi.event_notification.data_3",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "Used for user-defined event data", HFILL }
+        },
 
-            /* CIGI2 Image Generator Message */
-            { &hf_cigi2_image_generator_message,
-                { "Image Generator Message", "cigi.image_generator_message",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,          
-                    "Image Generator Message Packet", HFILL }
-            },
-            { &hf_cigi2_image_generator_message_id,
-                { "Message ID", "cigi.image_generator_message.message_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Uniquely identifies an instance of an Image Generator Response Message", HFILL }
-            },
-            { &hf_cigi2_image_generator_message_message,
-                { "Message", "cigi.image_generator_message.message",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Image generator message", HFILL }
-            },
+        /* CIGI2 Image Generator Message */
+        { &hf_cigi2_image_generator_message,
+            { "Image Generator Message", "cigi.image_generator_message",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+                "Image Generator Message Packet", HFILL }
+        },
+        { &hf_cigi2_image_generator_message_id,
+            { "Message ID", "cigi.image_generator_message.message_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Uniquely identifies an instance of an Image Generator Response Message", HFILL }
+        },
+        { &hf_cigi2_image_generator_message_message,
+            { "Message", "cigi.image_generator_message.message",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Image generator message", HFILL }
+        },
 
-            /* CIGI3 Image Generator Message */
-            { &hf_cigi3_image_generator_message,
-                { "Image Generator Message", "cigi.image_generator_message",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Image Generator Message Packet", HFILL }
-            },
-            { &hf_cigi3_image_generator_message_id,
-                { "Message ID", "cigi.image_generator_message.message_id",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Specifies a numerical identifier for the message", HFILL }
-            },
-            { &hf_cigi3_image_generator_message_message,
-                { "Message", "cigi.image_generator_message.message",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "Message string", HFILL }
-            },
+        /* CIGI3 Image Generator Message */
+        { &hf_cigi3_image_generator_message,
+            { "Image Generator Message", "cigi.image_generator_message",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Image Generator Message Packet", HFILL }
+        },
+        { &hf_cigi3_image_generator_message_id,
+            { "Message ID", "cigi.image_generator_message.message_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies a numerical identifier for the message", HFILL }
+        },
+        { &hf_cigi3_image_generator_message_message,
+            { "Message", "cigi.image_generator_message.message",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Message string", HFILL }
+        },
 
-            /* CIGI2 User Definable */
-            { &hf_cigi2_user_definable,
-                { "User Definable", "cigi.user_definable",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,          
-                    "User definable packet", HFILL }
-            },
+        /* CIGI2 User Definable */
+        { &hf_cigi2_user_definable,
+            { "User Definable", "cigi.user_definable",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+                "User definable packet", HFILL }
+        },
 
-            /* CIGI3 User-Defined Packets */
-            { &hf_cigi3_user_defined,
-                { "User-Defined", "cigi.user_defined",
-                    FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                    "User-Defined Packet", HFILL }
-            },
+        /* CIGI3 User-Defined Packets */
+        { &hf_cigi3_user_defined,
+            { "User-Defined", "cigi.user_defined",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "User-Defined Packet", HFILL }
+        },
     };
 
     /* CIGI preferences */
