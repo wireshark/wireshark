@@ -19,6 +19,7 @@ OperationProgress
 ReferenceType
 ContinuationReference
 AccessPoint
+MasterAndShadowAccessPoints 
 
 #.TYPE_RENAME
 

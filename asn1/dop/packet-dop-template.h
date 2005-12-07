@@ -26,6 +26,6 @@
 #ifndef PACKET_X501_H
 #define PACKET_X501_H
 
-#include "packet-x501-exp.h"
+#include "packet-dop-exp.h"
 
 #endif  /* PACKET_X501_H */

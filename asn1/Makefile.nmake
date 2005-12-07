@@ -8,6 +8,7 @@ all: \
 	cmip	\
 	cms	\
 	dap	\
+	dop	\
 	disp	\
 	dsp	\
 	ess	\
@@ -62,6 +63,7 @@ ber: \
 	cmip	\
 	cms	\
 	dap	\
+	dop	\
 	disp	\
 	dsp	\
 	ess	\
@@ -135,7 +137,11 @@ cms::
 	cd..
 
 dap::
-	cd cms
+	cd dap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+dop::
+	cd dop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd..
 

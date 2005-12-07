@@ -48,7 +48,6 @@
 #include "packet-dap.h"
 #include <epan/strutil.h>
 
-
 /* we don't have a separate dissector for X519 - 
    most of DAP is defined in X511 */
 #define PNAME  "X.519 Directory Access Protocol"
@@ -294,7 +293,11 @@ void proto_register_dap(void) {
 
   /* Register our configuration options for DAP, particularly our port */
 
+#ifdef PREFERENCE_GROUPING
+  dap_module = prefs_register_protocol_subtree("OSI/X.500", proto_dap, prefs_register_dap);
+#else
   dap_module = prefs_register_protocol(proto_dap, prefs_register_dap);
+#endif
 
   prefs_register_uint_preference(dap_module, "tcp.port", "DAP TCP Port",
 				 "Set the port for DAP operations (if other"

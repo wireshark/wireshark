@@ -424,6 +424,8 @@ ReferenceType ::= ENUMERATED {
   supplier(5), master(6), immediateSuperior(7), self(8)}
 
 AccessPoint ::= SET {
+-- The following line, whilst wrong, helps with Thales DOP dissection
+--  ae-title             [0] IMPLICIT NULL,
   ae-title             [0]  Name,
   address              [1]  PresentationAddress,
   protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL

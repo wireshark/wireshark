@@ -298,7 +298,11 @@ void proto_register_dsp(void) {
 
   /* Register our configuration options for DSP, particularly our port */
 
+#ifdef PREFERENCE_GROUPING
+  dsp_module = prefs_register_protocol_subtree("OSI/X.500", proto_dsp, prefs_register_dsp);
+#else
   dsp_module = prefs_register_protocol(proto_dsp, prefs_register_dsp);
+#endif
 
   prefs_register_uint_preference(dsp_module, "tcp.port", "DSP TCP Port",
 				 "Set the port for DSP operations (if other"

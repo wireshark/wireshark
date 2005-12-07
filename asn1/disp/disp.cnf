@@ -7,14 +7,14 @@ AuthenticationFramework	x509af
 ACSE-1			acse
 DirectoryAbstractService	dap
 DistributedOperations		dsp
-DSAOperationalAttributeTypes	x501
+DSAOperationalAttributeTypes	dop
 OperationalBindingManagement	dap
 
-#.INCLUDE ../x501/x501-exp.cnf
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
 #.INCLUDE ../dap/dap-exp.cnf
 #.INCLUDE ../dsp/dsp-exp.cnf
+#.INCLUDE ../dop/dop-exp.cnf
 #.INCLUDE ../acse/acse-exp.cnf
 
 #.TYPE_RENAME
@@ -26,6 +26,21 @@ SubordinateChanges/changes	subordinate-changes
 ModificationParameter/secondaryShadows	modifiedSecondaryShadows
 CoordinateShadowUpdateArgumentData/updateStrategy/standard	standardUpdate
 Information/signedInformation/information	information-data
+
+#.REGISTER
+
+ShadowingAgreementInfo	B "dop.agreement.2.5.19.1" 	"shadow-agreement"
+EstablishParameter	B "dop.establish.rolea.2.5.19.1" 	"shadow-establish-rolea"
+EstablishParameter	B "dop.establish.roleb.2.5.19.1" 	"shadow-establish-roleb"
+ModificationParameter 	B "dop.modify.rolea.2.5.19.1" 	"shadow-modify-rolea"
+ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
+
+# these are useful to Thales DOP 
+ShadowingAgreementInfo	B "dop.agreement.2.5.1.0.2.1" 	"shadow-agreement"
+EstablishParameter	B "dop.establish.rolea.2.5.1.0.2.1" 	"shadow-establish-rolea"
+EstablishParameter	B "dop.establish.roleb.2.5.1.0.2.1" 	"shadow-establish-roleb"
+ModificationParameter 	B "dop.modify.rolea.2.5.1.0.2.1" 	"shadow-modify-rolea"
+ModificationParameter 	B "dop.modify.roleb.2.5.1.0.2.1" 	"shadow-modify-roleb"
 
 #.FN_PARS T_standard
 	VAL_PTR = &update

@@ -1,0 +1,152 @@
+#.MODULE_IMPORT
+SelectedAttributeTypes		x509sat
+DistributedOperations		dsp
+DirectoryAbstractService	dap
+InformationFramework		x509if
+AuthenticationFramework		x509af
+
+#.INCLUDE ../x509sat/x509sat-exp.cnf
+#.INCLUDE ../x509if/x509if-exp.cnf
+#.INCLUDE ../x509af/x509af-exp.cnf
+#.INCLUDE ../dsp/dsp-exp.cnf
+#.INCLUDE ../dap/dap-exp.cnf
+
+#.EXPORTS
+DSEType
+SupplierAndConsumers
+
+#.TYPE_RENAME
+EstablishOperationalBindingArgumentData/initiator	EstablishArgumentInitiator
+ModifyOperationalBindingArgumentData/initiator		ModifyArgumentInitiator
+TerminateOperationalBindingArgumentData/initiator	TerminateArgumentInitiator
+
+ModifyOperationalBindingArgumentData/newAgreement	ArgumentNewAgreement
+ModifyOperationalBindingResultData/newAgreement		ResultNewAgreement
+
+ModifyOperationalBindingResult/protected		ProtectedModifyResult
+TerminateOperationalBindingResult/protected		ProtectedTerminateResult
+
+EstablishOperationalBindingArgumentData/initiator/roleA-initiates	EstablishRoleAInitiates
+ModifyOperationalBindingArgumentData/initiator/roleA-initiates		ModifyRoleAInitiates
+TerminateOperationalBindingArgumentData/initiator/roleA-initiates	TerminateRoleAInitiates
+
+EstablishOperationalBindingArgumentData/initiator/roleB-initiates	EstablishRoleBInitiates
+ModifyOperationalBindingArgumentData/initiator/roleB-initiates		ModifyRoleBInitiates
+TerminateOperationalBindingArgumentData/initiator/roleB-initiates	TerminateRoleBInitiates
+
+EstablishOperationalBindingArgumentData/initiator/symmetric		EstablishSymmetric
+ModifyOperationalBindingArgumentData/initiator/symmetric		ModifySymmetric
+TerminateOperationalBindingArgumentData/initiator/symmetric		TerminateSymmetric
+
+
+#.FIELD_RENAME
+EstablishOperationalBindingArgumentData/initiator	establishInitiator
+ModifyOperationalBindingArgumentData/initiator		modifyInitiator
+TerminateOperationalBindingArgumentData/initiator	terminateInitiator
+
+ModifyOperationalBindingArgumentData/newAgreement	argumentNewAgreement
+ModifyOperationalBindingResultData/newAgreement		resultNewAgreement
+
+ModifyOperationalBindingResult/protected		protectedModifyResult
+TerminateOperationalBindingResult/protected		protectedTerminateResult
+
+EstablishOperationalBindingArgumentData/initiator/roleA-initiates	establishRoleAInitiates
+ModifyOperationalBindingArgumentData/initiator/roleA-initiates		modifyRoleAInitiates
+TerminateOperationalBindingArgumentData/initiator/roleA-initiates	terminateRoleAInitiates
+
+EstablishOperationalBindingArgumentData/initiator/roleB-initiates	establishRoleBInitiates
+ModifyOperationalBindingArgumentData/initiator/roleB-initiates		modifyRoleBInitiates
+TerminateOperationalBindingArgumentData/initiator/roleB-initiates	terminateRoleBInitiates
+
+EstablishOperationalBindingArgumentData/initiator/symmetric		establishSymmetric
+ModifyOperationalBindingArgumentData/initiator/symmetric		modifySymmetric
+TerminateOperationalBindingArgumentData/initiator/symmetric		terminateSymmetric
+
+TerminateOperationalBindingArgumentData/terminateAt			terminateAtTime
+TerminateOperationalBindingResultData/terminateAt			terminateAtGeneralizedTime
+
+
+#.REGISTER
+DSEType	    			B "2.5.12.0" "id-doa-dseType"
+SupplierInformation 		B "2.5.12.5" "id-doa-supplierKnowledge"
+ConsumerInformation 		B "2.5.12.6" "id-doa-consumerKnowledge"
+SupplierAndConsumers 		B "2.5.12.7" "id-doa-secondaryShadows"
+
+HierarchicalAgreement			B "dop.agreement.2.5.19.2" 	"hierarchical-agreement"
+SuperiorToSubordinate			B "dop.establish.rolea.2.5.19.2" "hierarchical-establish-rolea"
+SuperiorToSubordinateModification	B "dop.modify.rolea.2.5.19.2" "hierarchical-modify-rolea"
+SubordinateToSuperior			B "dop.establish.roleb.2.5.19.2" "hierarchical-establish-roleb"
+SubordinateToSuperior			B "dop.modify.roleb.2.5.19.2"  "hierarchical-modify-roleb"
+
+NonSpecificHierarchicalAgreement	B "dop.agreement.2.5.19.3" 	"non-specific-hierarchical-agreement"
+NHOBSuperiorToSubordinate		B "dop.establish.rolea.2.5.19.3"	"non-specific-hierarchical-establish-rolea"
+NHOBSuperiorToSubordinate		B "dop.modify.rolea.2.5.19.3" "non-specific-hierarchical-modify-rolea"
+NHOBSubordinateToSuperior		B "dop.establish.roleb.2.5.19.3" "non-specific-hierarchical-establish-roleb"
+NHOBSubordinateToSuperior		B "dop.modify.roleb.2.5.19.3"  "non-specific-hierarchical-modify-roleb"
+
+#.FN_PARS	OBJECT_IDENTIFIER
+	FN_VARIANT = _str VAL_PTR = &binding_type
+
+#.FN_BODY	EstablishSymmetric
+
+  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree);
+
+#.FN_BODY	EstablishRoleAInitiates
+
+  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree);
+
+#.FN_BODY	EstablishRoleBInitiates
+
+  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree);
+
+#.FN_BODY	ModifySymmetric
+
+  offset = call_dop_oid_callback("dop.modify.symmetric", tvb, offset, pinfo, tree);
+
+#.FN_BODY	ModifyRoleAInitiates
+
+  offset = call_dop_oid_callback("dop.modify.rolea", tvb, offset, pinfo, tree);
+
+#.FN_BODY	ModifyRoleBInitiates
+
+  offset = call_dop_oid_callback("dop.modify.roleb", tvb, offset, pinfo, tree);
+
+#.FN_BODY	TerminateSymmetric
+
+  offset = call_dop_oid_callback("dop.terminate.symmetric", tvb, offset, pinfo, tree);
+
+#.FN_BODY	TerminateRoleAInitiates
+
+  offset = call_dop_oid_callback("dop.terminate.rolea", tvb, offset, pinfo, tree);
+
+#.FN_BODY	TerminateRoleBInitiates
+
+  offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, pinfo, tree);
+
+#.FN_BODY	T_agreement
+
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);
+
+#.FN_BODY	T_symmetric
+
+  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree); 
+
+#.FN_BODY	T_roleA_replies
+
+  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree);
+
+#.FN_BODY	T_roleB_replies
+
+  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree);
+
+#.FN_BODY	T_agreementProposal
+
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);
+
+#.FN_BODY	ResultNewAgreement
+
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);
+
+#.FN_BODY	ArgumentNewAgreement
+
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);

@@ -93,6 +93,9 @@ dSAShadowUnbind OPERATION ::= directoryUnbind
 --}
 
 -- types 
+
+EstablishParameter ::= NULL
+
 ModificationParameter ::= SEQUENCE {
   secondaryShadows  SET OF SupplierAndConsumers
 }

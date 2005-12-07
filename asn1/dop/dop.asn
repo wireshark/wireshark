@@ -1,0 +1,691 @@
+-- Module DSAOperationalAttributeTypes (X.501:02/2001)
+DSAOperationalAttributeTypes {joint-iso-itu-t ds(5) module(1)
+  dsaOperationalAttributeTypes(22) 4} DEFINITIONS ::=
+BEGIN
+
+-- EXPORTS All 
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
+-- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- Directory services. Other applications may use them for their own purposes, but this will not constrain
+-- extensions and modifications needed to maintain or improve the Directory service.
+IMPORTS
+  -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
+  distributedOperations, id-doa, id-kmr, informationFramework,
+    opBindingManagement, selectedAttributeTypes, upperBounds
+    FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
+      usefulDefinitions(0) 4}
+  ATTRIBUTE, MATCHING-RULE, Name, Attribute, DistinguishedName,
+  RelativeDistinguishedName
+    FROM InformationFramework {joint-iso-itu-t ds(5) module(1)
+      informationFramework(1) 4}
+--  OperationalBindingID
+--    FROM OperationalBindingManagement {joint-iso-itu-t ds(5) module(1)
+--      opBindingManagement(18) 4}
+  -- from ITU-T Rec. X.518 | ISO/IEC 9594-4
+  AccessPoint, MasterAndShadowAccessPoints
+    FROM DistributedOperations {joint-iso-itu-t ds(5) module(1)
+      distributedOperations(3) 4}
+  -- from ITU-T Rec. X.520 | ISO/IEC 9594-6
+  bitStringMatch
+    FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
+      selectedAttributeTypes(5) 4}
+  PresentationAddress, ProtocolInformation
+    FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
+      selectedAttributeTypes(5) 4}
+  DirectoryBindArgument, DirectoryBindError, SecurityParameters
+    FROM DirectoryAbstractService {joint-iso-itu-t ds(5) module(1)
+      directoryAbstractService(2) 5}
+  -- from ITU-T Rec. X.509 | ISO/IEC 9594-8
+  AlgorithmIdentifier
+    FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
+      authenticationFramework(7) 4};
+
+
+
+
+
+-- data types 
+DSEType ::= BIT STRING {
+  root(0), -- root DSE 
+  glue(1), -- represents knowledge of a name only 
+  cp(2), -- context prefix 
+  entry(3), -- object entry 
+  alias(4), -- alias entry 
+  subr(5), -- subordinate reference 
+  nssr(6), -- non-specific subordinate reference 
+  supr(7), -- superior reference 
+  xr(8), -- cross reference 
+  admPoint(9), -- administrative point 
+  subentry(10), -- subentry 
+  shadow(11), -- shadow copy 
+  immSupr(13), -- immediate superior reference 
+  rhob(14), -- rhob information 
+  sa(15), -- subordinate reference to alias entry 
+  dsSubentry(16), -- DSA Specific subentry 
+  familyMember(17)} -- family member 
+
+SupplierOrConsumer ::= SET {
+--  COMPONENTS OF AccessPoint, - - supplier or consumer 
+  ae-title             [0]  Name,
+  address              [1]  PresentationAddress,
+  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
+  agreementID  [3]  OperationalBindingID
+}
+
+SupplierInformation ::= SET {
+--  COMPONENTS OF SupplierOrConsumer, - - supplier 
+  ae-title             [0]  Name,
+  address              [1]  PresentationAddress,
+  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
+  agreementID  	       [3]  OperationalBindingID,
+  supplier-is-master   [4]  BOOLEAN DEFAULT TRUE,
+  non-supplying-master [5]  AccessPoint OPTIONAL
+}
+
+ConsumerInformation ::= SupplierOrConsumer -- consumer 
+
+SupplierAndConsumers ::= SET {
+--  COMPONENTS OF AccessPoint, - - supplier 
+  ae-title             [0]  Name,
+  address              [1]  PresentationAddress,
+  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
+  consumers  	       [3]  SET OF AccessPoint
+}
+
+-- attribute types 
+--dseType ATTRIBUTE ::= {
+--  WITH SYNTAX             DSEType
+--  EQUALITY MATCHING RULE  bitStringMatch
+--  SINGLE VALUE            TRUE
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   dSAOperation
+--  ID                      id-doa-dseType
+--}
+
+--myAccessPoint ATTRIBUTE ::= {
+--  WITH SYNTAX             AccessPoint
+--  EQUALITY MATCHING RULE  accessPointMatch
+--  SINGLE VALUE            TRUE
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   dSAOperation
+--  ID                      id-doa-myAccessPoint
+--}
+
+--superiorKnowledge ATTRIBUTE ::= {
+--  WITH SYNTAX             AccessPoint
+--  EQUALITY MATCHING RULE  accessPointMatch
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   dSAOperation
+--  ID                      id-doa-superiorKnowledge
+--}
+
+--specificKnowledge ATTRIBUTE ::= {
+--  WITH SYNTAX             MasterAndShadowAccessPoints
+--  EQUALITY MATCHING RULE  masterAndShadowAccessPointsMatch
+--  SINGLE VALUE            TRUE
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   distributedOperation
+--  ID                      id-doa-specificKnowledge
+--}
+
+--nonSpecificKnowledge ATTRIBUTE ::= {
+--  WITH SYNTAX             MasterAndShadowAccessPoints
+--  EQUALITY MATCHING RULE  masterAndShadowAccessPointsMatch
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   distributedOperation
+--  ID                      id-doa-nonSpecificKnowledge
+--}
+
+--supplierKnowledge ATTRIBUTE ::= {
+--  WITH SYNTAX             SupplierInformation
+--  EQUALITY MATCHING RULE  supplierOrConsumerInformationMatch
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   dSAOperation
+--  ID                      id-doa-supplierKnowledge
+--}
+
+--consumerKnowledge ATTRIBUTE ::= {
+--  WITH SYNTAX             ConsumerInformation
+--  EQUALITY MATCHING RULE  supplierOrConsumerInformationMatch
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   dSAOperation
+--  ID                      id-doa-consumerKnowledge
+--}
+
+--secondaryShadows ATTRIBUTE ::= {
+--  WITH SYNTAX             SupplierAndConsumers
+--  EQUALITY MATCHING RULE  supplierAndConsumersMatch
+--  NO USER MODIFICATION    TRUE
+--  USAGE                   dSAOperation
+--  ID                      id-doa-secondaryShadows
+--}
+
+-- matching rules 
+--accessPointMatch MATCHING-RULE ::= {
+--  SYNTAX  Name
+--  ID      id-kmr-accessPointMatch
+--}
+
+--masterAndShadowAccessPointsMatch MATCHING-RULE ::= {
+--  SYNTAX  SET OF Name
+--  ID      id-kmr-masterShadowMatch
+--}
+
+--supplierOrConsumerInformationMatch MATCHING-RULE ::= {
+--  SYNTAX
+--    SET {ae-title              [0]  Name,
+--         agreement-identifier  [2]  INTEGER}
+--  ID      id-kmr-supplierConsumerMatch
+--}
+
+--supplierAndConsumersMatch MATCHING-RULE ::= {
+--  SYNTAX  Name
+--  ID      id-kmr-supplierConsumersMatch
+--}
+
+-- object identifier assignments 
+-- dsa operational attributes 
+--id-doa-dseType OBJECT IDENTIFIER ::=
+--  {id-doa 0}
+
+--id-doa-myAccessPoint OBJECT IDENTIFIER ::= {id-doa 1}
+
+--id-doa-superiorKnowledge OBJECT IDENTIFIER ::= {id-doa 2}
+
+--id-doa-specificKnowledge OBJECT IDENTIFIER ::= {id-doa 3}
+
+--id-doa-nonSpecificKnowledge OBJECT IDENTIFIER ::= {id-doa 4}
+
+--id-doa-supplierKnowledge OBJECT IDENTIFIER ::= {id-doa 5}
+
+--id-doa-consumerKnowledge OBJECT IDENTIFIER ::= {id-doa 6}
+
+--id-doa-secondaryShadows OBJECT IDENTIFIER ::= {id-doa 7}
+
+-- knowledge matching rules 
+--id-kmr-accessPointMatch OBJECT IDENTIFIER ::=
+--  {id-kmr 0}
+
+--id-kmr-masterShadowMatch OBJECT IDENTIFIER ::= {id-kmr 1}
+
+--id-kmr-supplierConsumerMatch OBJECT IDENTIFIER ::= {id-kmr 2}
+
+--id-kmr-supplierConsumersMatch OBJECT IDENTIFIER ::= {id-kmr 3}
+
+--END DSAOperationalAttributeTypes
+
+-- we include this here to reduce the number of dissectors
+-- Module OperationalBindingManagement (X.501:08/2005)
+--OperationalBindingManagement {joint-iso-itu-t ds(5) module(1)
+--  opBindingManagement(18) 5} DEFINITIONS ::=
+--BEGIN
+
+-- EXPORTS All 
+--ÿThe types and values defined in this module are exported for use in the other ASN.1 modules contained 
+--ÿwithin the Directory Specifications, and for the use of other applications which will use them to access 
+--ÿDirectory services. Other applications may use them for their own purposes, but this will not constrain
+--ÿextensions and modifications needed to maintain or improve the Directory service.
+--IMPORTS
+  -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
+--  directoryAbstractService, directoryShadowAbstractService,
+--    distributedOperations, directoryOSIProtocols, enhancedSecurity,
+--    hierarchicalOperationalBindings, commonProtocolSpecification
+--    FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
+--      usefulDefinitions(0) 5}
+--  OPTIONALLY-PROTECTED-SEQ
+--    FROM EnhancedSecurity {joint-iso-itu-t ds(5) modules(1)
+--      enhancedSecurity(28) 5}
+--  hierarchicalOperationalBinding, nonSpecificHierarchicalOperationalBinding
+--    FROM HierarchicalOperationalBindings hierarchicalOperationalBindings
+  -- from ITU-T Rec. X.511 | ISO/IEC 9594-3
+--  CommonResultsSeq, directoryBind, directoryUnbind, securityError,
+--    SecurityParameters
+--    FROM DirectoryAbstractService {joint-iso-itu-t ds(5) module(1)
+--      directoryAbstractService(2) 5}
+  -- from ITU-T Rec. X.518 | ISO/IEC 9594-4
+--  AccessPoint
+--    FROM DistributedOperations {joint-iso-itu-t ds(5) module(1)
+--      distributedOperations(3) 5}
+  -- from ITU-T Rec. X.519 | ISO/IEC 9594-5
+--  id-err-operationalBindingError, id-op-establishOperationalBinding,
+--    id-op-modifyOperationalBinding, id-op-terminateOperationalBinding,
+--    OPERATION, ERROR
+--    FROM CommonProtocolSpecification commonProtocolSpecification
+--  APPLICATION-CONTEXT
+--    FROM DirectoryOSIProtocols directoryOSIProtocols
+  -- from ITU-T Rec. X.525 | ISO/IEC 9594-9
+--  shadowOperationalBinding
+--    FROM DirectoryShadowAbstractService directoryShadowAbstractService;
+
+-- bind and unbind 
+dSAOperationalBindingManagementBind OPERATION ::=
+  directoryBind
+
+DSAOperationalManagementBindArgument ::= DirectoryBindArgument
+DSAOperationalManagementBindResult ::= DirectoryBindArgument
+DSAOperationalManagementBindError ::= DirectoryBindError
+
+dSAOperationalBindingManagementUnbind OPERATION ::= directoryUnbind
+
+-- operations, arguments and results 
+--establishOperationalBinding OPERATION ::= {
+--  ARGUMENT  EstablishOperationalBindingArgument
+--  RESULT    EstablishOperationalBindingResult
+--  ERRORS    {operationalBindingError | securityError}
+--  CODE      id-op-establishOperationalBinding
+--}
+
+EstablishOperationalBindingArgumentData ::=
+--  OPTIONALLY-PROTECTED-SEQ
+--    {-- SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet}) -- OBJECT IDENTIFIER,
+-- The following line, whilst wrong, helps with Thales DOP dissection
+--               bindingID           [1]  IMPLICIT OperationalBindingID OPTIONAL,
+               bindingID           [1]  OperationalBindingID OPTIONAL,
+               accessPoint         [2]  AccessPoint,
+               -- symmetric, Role A initiates, or Role B initiates 
+               initiator
+                 CHOICE {symmetric
+                           [3] -- OPERATIONAL-BINDING.&both.&EstablishParam
+                               -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleA-initiates
+                           [4]  -- OPERATIONAL-BINDING.&roleA.&EstablishParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleB-initiates
+                           [5] -- OPERATIONAL-BINDING.&roleB.&EstablishParam
+                               -- ({OpBindingSet}{@bindingType}) -- ANY }  OPTIONAL,
+               agreement
+                 [6]  -- OPERATIONAL-BINDING.&Agreement
+                      -- ({OpBindingSet}{@bindingType}) -- ANY,
+               valid               [7]  Validity DEFAULT {},
+               securityParameters  [8]  SecurityParameters OPTIONAL} --}
+
+-- expand OPTIONALLY-PROTECTED macro
+EstablishOperationalBindingArgument ::= CHOICE {
+  unsignedEstablishOperationalBindingArgument EstablishOperationalBindingArgumentData,
+  signedEstablishOperationalBindingArgument SEQUENCE {
+    establishOperationalBindingArgument	EstablishOperationalBindingArgumentData,
+    algorithmIdentifier			AlgorithmIdentifier,
+    encrypted				BIT STRING
+    }
+}
+
+OperationalBindingID ::= SEQUENCE {identifier  INTEGER,
+                                   version     INTEGER
+}
+
+Validity ::= SEQUENCE {
+  validFrom   [0]  CHOICE {now   [0]  NULL,
+                           time  [1]  Time} -- DEFAULT now:NULL --,
+  validUntil
+    [1]  CHOICE {explicitTermination  [0]  NULL,
+                 time                 [1]  Time
+  } -- DEFAULT explicitTermination:NULL 
+}
+
+Time ::= CHOICE {utcTime          UTCTime,
+                 generalizedTime  GeneralizedTime
+}
+
+EstablishOperationalBindingResult ::=
+--  OPTIONALLY-PROTECTED-SEQ
+--    {-- SEQUENCE {bindingType  [0] --OPERATIONAL-BINDING.&id({OpBindingSet}) -- OBJECT IDENTIFIER,
+-- The following line, whilst wrong, helps with Thales DOP dissection
+--               bindingID    [1] IMPLICIT OperationalBindingID OPTIONAL,
+               bindingID    [1]  OperationalBindingID OPTIONAL,
+               accessPoint  [2]  AccessPoint,
+               -- symmetric, Role A replies , or Role B replies 
+               initiator
+                 CHOICE {symmetric
+                           [3]  -- OPERATIONAL-BINDING.&both.&EstablishParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleA-replies
+                           [4]  -- OPERATIONAL-BINDING.&roleA.&EstablishParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleB-replies
+                           [5]  -- OPERATIONAL-BINDING.&roleB.&EstablishParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY } OPTIONAL,
+--               COMPONENTS OF CommonResultsSeq}}
+       	       securityParameters  [30]  SecurityParameters OPTIONAL,
+	       performer           [29]  DistinguishedName OPTIONAL,
+	       aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
+	       notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL}
+
+
+--modifyOperationalBinding OPERATION ::= {
+--  ARGUMENT  ModifyOperationalBindingArgument
+--  RESULT    ModifyOperationalBindingResult
+--  ERRORS    {operationalBindingError | securityError}
+--  CODE      id-op-modifyOperationalBinding
+--}
+
+ModifyOperationalBindingArgumentData ::=
+--  OPTIONALLY-PROTECTED-SEQ
+--    {--SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet})-- OBJECT IDENTIFIER,
+-- The following line, whilst wrong, helps with Thales DOP dissection
+--               bindingID           [1] IMPLICIT OperationalBindingID,
+               bindingID           [1]  OperationalBindingID,
+               accessPoint         [2]  AccessPoint OPTIONAL,
+               -- symmetric, Role A initiates, or Role B initiates 
+               initiator
+                 CHOICE {symmetric
+                           [3]  -- OPERATIONAL-BINDING.&both.&ModifyParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleA-initiates
+                           [4]  -- OPERATIONAL-BINDING.&roleA.&ModifyParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleB-initiates
+                           [5]  -- OPERATIONAL-BINDING.&roleB.&ModifyParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY } OPTIONAL,
+               newBindingID        [6]  OperationalBindingID,
+               newAgreement
+                 [7]  -- OPERATIONAL-BINDING.&Agreement
+                      --  ({OpBindingSet}{@bindingType}) -- ANY OPTIONAL,
+               valid               [8]  Validity OPTIONAL,
+               securityParameters  [9]  SecurityParameters OPTIONAL} -- }
+
+
+ModifyOperationalBindingArgument ::= CHOICE {
+  unsignedModifyOperationalBindingArgument ModifyOperationalBindingArgumentData,
+  signedModifyOperationalBindingArgument SEQUENCE {
+    modifyOperationalBindingArgument	ModifyOperationalBindingArgumentData,
+    algorithmIdentifier			AlgorithmIdentifier,
+    encrypted				BIT STRING
+    }
+}
+
+ModifyOperationalBindingResult ::= CHOICE {
+  null       [0]  NULL,
+  protected  [1]  SEQUENCE {
+    modifyOperationalBindingResultData	ModifyOperationalBindingResultData,
+    algorithmIdentifier			AlgorithmIdentifier,
+    encrypted				BIT STRING
+  }
+}
+
+ModifyOperationalBindingResultData ::= SEQUENCE {
+  newBindingID  OperationalBindingID,
+  bindingType
+    -- OPERATIONAL-BINDING.&id
+    -- ({OpBindingSet}) -- OBJECT IDENTIFIER,
+  newAgreement
+    -- OPERATIONAL-BINDING.&Agreement
+    -- ({OpBindingSet}{@.bindingType}) -- ANY,
+  valid         Validity OPTIONAL,
+  --COMPONENTS OF CommonResultsSeq
+  securityParameters  [30]  SecurityParameters OPTIONAL,
+  performer           [29]  DistinguishedName OPTIONAL,
+  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
+  --          }}
+}
+
+--terminateOperationalBinding OPERATION ::= {
+--  ARGUMENT  TerminateOperationalBindingArgument
+--  RESULT    TerminateOperationalBindingResult
+--  ERRORS    {operationalBindingError | securityError}
+--  CODE      id-op-terminateOperationalBinding
+--}
+
+TerminateOperationalBindingArgumentData ::=
+--  OPTIONALLY-PROTECTED-SEQ
+--    {-- SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet})-- OBJECT IDENTIFIER,
+-- The following line, whilst wrong, helps with Thales DOP dissection
+--               bindingID           [1] IMPLICIT OperationalBindingID,
+               bindingID           [1] OperationalBindingID,
+               -- symmetric, Role A initiates, or Role B initiates 
+               initiator
+                 CHOICE {symmetric
+                           [2]  -- OPERATIONAL-BINDING.&both.&TerminateParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleA-initiates
+                           [3]  -- OPERATIONAL-BINDING.&roleA.&TerminateParam
+                                -- ({OpBindingSet}{@bindingType}) -- ANY,
+                         roleB-initiates
+                           [4]  -- OPERATIONAL-BINDING.&roleB.&TerminateParam
+                                --  ({OpBindingSet}{@bindingType}) -- ANY } OPTIONAL,
+               terminateAt         [5]  Time OPTIONAL,
+               securityParameters  [6]  SecurityParameters OPTIONAL} --}
+
+
+TerminateOperationalBindingArgument ::= CHOICE {
+  unsignedTerminateOperationalBindingArgument TerminateOperationalBindingArgumentData,
+  signedTerminateOperationalBindingArgument SEQUENCE {
+    terminateOperationalBindingArgument	TerminateOperationalBindingArgumentData,
+    algorithmIdentifier			AlgorithmIdentifier,
+    encrypted				BIT STRING
+    }
+}
+
+TerminateOperationalBindingResult ::= CHOICE {
+  null       [0]  NULL,
+  protected  [1]  SEQUENCE {
+    terminateOperationalBindingResultData	TerminateOperationalBindingResultData,
+    algorithmIdentifier				AlgorithmIdentifier,
+    encrypted					BIT STRING
+  }
+}
+
+TerminateOperationalBindingResultData ::= SEQUENCE {
+  bindingID    OperationalBindingID,
+  bindingType
+    -- OPERATIONAL-BINDING.&id
+    -- ({OpBindingSet}) -- OBJECT IDENTIFIER,
+  terminateAt  GeneralizedTime OPTIONAL,
+  --COMPONENTS OF CommonResultsSeq
+  securityParameters  [30]  SecurityParameters OPTIONAL,
+  performer           [29]  DistinguishedName OPTIONAL,
+  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
+--           }}
+}
+
+-- errors and parameters 
+--operationalBindingError ERROR ::= {
+--  PARAMETER OPTIONALLY-PROTECTED-SEQ  {OpBindingErrorParam}
+--  CODE                                id-err-operationalBindingError
+--}
+
+OpBindingErrorParam ::= SEQUENCE {
+  problem
+    [0]  ENUMERATED {invalidID(0), duplicateID(1), unsupportedBindingType(2),
+                     notAllowedForRole(3), parametersMissing(4),
+                     roleAssignment(5), invalidStartTime(6), invalidEndTime(7),
+                     invalidAgreement(8), currentlyNotDecidable(9),
+                     modificationNotAllowed(10)},
+  bindingType        [1]  --OPERATIONAL-BINDING.&id({OpBindingSet})-- OBJECT IDENTIFIER OPTIONAL,
+  agreementProposal
+    [2]  -- OPERATIONAL-BINDING.&Agreement({OpBindingSet}{@bindingType})-- ANY OPTIONAL,
+  retryAt            [3]  Time OPTIONAL,
+--  COMPONENTS OF CommonResultsSeq
+  securityParameters  [30]  SecurityParameters OPTIONAL,
+  performer           [29]  DistinguishedName OPTIONAL,
+  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
+
+}
+
+-- information object classes 
+--OPERATIONAL-BINDING ::= CLASS {
+--  &Agreement    ,
+--  &Cooperation  OP-BINDING-COOP,
+--  &both         OP-BIND-ROLE OPTIONAL,
+--  &roleA        OP-BIND-ROLE OPTIONAL,
+--  &roleB        OP-BIND-ROLE OPTIONAL,
+--  &id           OBJECT IDENTIFIER UNIQUE
+--}
+--WITH SYNTAX {
+--  AGREEMENT &Agreement
+--  APPLICATION CONTEXTS &Cooperation
+--  [SYMMETRIC &both]
+--  [ASYMMETRIC
+--   [ROLE-A &roleA]
+--   [ROLE-B &roleB]]
+--  ID &id
+--}
+
+--OP-BINDING-COOP ::= CLASS {
+--  &applContext  APPLICATION-CONTEXT,
+--  &Operations   OPERATION OPTIONAL
+--}WITH SYNTAX {&applContext
+--              [APPLIES TO &Operations]
+--}
+
+--OP-BIND-ROLE ::= CLASS {
+--  &establish       BOOLEAN DEFAULT FALSE,
+--  &EstablishParam  OPTIONAL,
+--  &modify          BOOLEAN DEFAULT FALSE,
+--  &ModifyParam     OPTIONAL,
+--  &terminate       BOOLEAN DEFAULT FALSE,
+--  &TerminateParam  OPTIONAL
+--}
+--WITH SYNTAX {
+--  [ESTABLISHMENT-INITIATOR &establish]
+--  [ESTABLISHMENT-PARAMETER &EstablishParam]
+--  [MODIFICATION-INITIATOR &modify]
+--  [MODIFICATION-PARAMETER &ModifyParam]
+--  [TERMINATION-INITIATOR &terminate]
+--  [TERMINATION-PARAMETER &TerminateParam]
+--}
+
+--OpBindingSet OPERATIONAL-BINDING ::=
+--  {shadowOperationalBinding | hierarchicalOperationalBinding |
+--   nonSpecificHierarchicalOperationalBinding}
+
+--END - - OperationalBindingManagement
+
+-- Module HierarchicalOperationalBindings (X.518:08/2005)
+--HierarchicalOperationalBindings {joint-iso-itu-t ds(5) module(1)
+--  hierarchicalOperationalBindings(20) 5} DEFINITIONS ::=
+--BEGIN
+
+-- EXPORTS All 
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
+-- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- Directory services. Other applications may use them for their own purposes, but this will not constrain
+-- extensions and modifications needed to maintain or improve the Directory service.
+--IMPORTS
+  -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
+--  directoryOperationalBindingTypes, directoryOSIProtocols,
+--    distributedOperations, informationFramework, opBindingManagement
+--    FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
+--      usefulDefinitions(0) 5}
+--  Attribute, DistinguishedName, RelativeDistinguishedName
+--    FROM InformationFramework {joint-iso-itu-t ds(5) module(1)
+--      informationFramework(1) 5}
+--  OPERATIONAL-BINDING
+--    FROM OperationalBindingManagement {joint-iso-itu-t ds(5) module(1)
+--      opBindingManagement(18) 5}
+  -- from ITU-T Rec. X.518 | ISO/IEC 9594-4
+--  MasterAndShadowAccessPoints
+--    FROM DistributedOperations {joint-iso-itu-t ds(5) module(1)
+--      distributedOperations(3) 5}
+  -- from ITU-T Rec. X.519 | ISO/IEC 9594-5
+--  directorySystemAC
+--    FROM DirectoryOSIProtocols {joint-iso-itu-t ds(5) module(1)
+--      directoryOSIProtocols(37) 5}
+--  id-op-binding-hierarchical, id-op-binding-non-specific-hierarchical
+--    FROM DirectoryOperationalBindingTypes {joint-iso-itu-t ds(5) module(1)
+--      directoryOperationalBindingTypes(25) 5};
+
+-- types 
+HierarchicalAgreement ::= SEQUENCE {
+  rdn                [0]  RelativeDistinguishedName,
+  immediateSuperior  [1]  DistinguishedName
+}
+
+SuperiorToSubordinate ::= SEQUENCE {
+  contextPrefixInfo      [0]  DITcontext,
+  entryInfo              [1]  SET --SIZE (1..MAX)-- OF Attribute OPTIONAL,
+  immediateSuperiorInfo  [2]  SET --SIZE (1..MAX)-- OF Attribute OPTIONAL
+}
+
+DITcontext ::= SEQUENCE OF Vertex
+
+Vertex ::= SEQUENCE {
+  rdn           [0]  RelativeDistinguishedName,
+  admPointInfo  [1]  SET --SIZE (1..MAX)-- OF Attribute OPTIONAL,
+  subentries    [2]  SET --SIZE (1..MAX)-- OF SubentryInfo OPTIONAL,
+  accessPoints  [3]  MasterAndShadowAccessPoints OPTIONAL
+}
+
+SubentryInfo ::= SEQUENCE {
+  rdn   [0]  RelativeDistinguishedName,
+  info  [1]  SET OF Attribute
+}
+
+SubordinateToSuperior ::= SEQUENCE {
+  accessPoints  [0]  MasterAndShadowAccessPoints OPTIONAL,
+  alias         [1]  BOOLEAN DEFAULT FALSE,
+  entryInfo     [2]  SET --SIZE (1..MAX)-- OF Attribute OPTIONAL,
+  subentries    [3]  SET --SIZE (1..MAX)-- OF SubentryInfo OPTIONAL
+}
+
+SuperiorToSubordinateModification ::=
+--  SuperiorToSubordinate(WITH COMPONENTS {
+--                          ...,
+--                          entryInfo  ABSENT
+--                        })
+  SEQUENCE {
+  contextPrefixInfo      [0]  DITcontext,
+  immediateSuperiorInfo  [2]  SET --SIZE (1..MAX)-- OF Attribute OPTIONAL
+}
+
+NonSpecificHierarchicalAgreement ::= SEQUENCE {
+  immediateSuperior  [1]  DistinguishedName
+}
+
+NHOBSuperiorToSubordinate ::=
+--  SuperiorToSubordinate(WITH COMPONENTS {
+--                          ...,
+--                          entryInfo  ABSENT
+--                        })
+  SEQUENCE {
+  contextPrefixInfo      [0]  DITcontext,
+  immediateSuperiorInfo  [2]  SET --SIZE (1..MAX)-- OF Attribute OPTIONAL
+}
+
+NHOBSubordinateToSuperior ::= SEQUENCE {
+  accessPoints  [0]  MasterAndShadowAccessPoints OPTIONAL,
+  subentries    [3]  SET --SIZE (1..MAX)-- OF SubentryInfo OPTIONAL
+}
+
+-- operational binding information objects 
+--hierarchicalOperationalBinding OPERATIONAL-BINDING ::= {
+--  AGREEMENT             HierarchicalAgreement
+--  APPLICATION CONTEXTS  {{directorySystemAC}}
+--  ASYMMETRIC ROLE-A - - superior DSA - -
+--    {ESTABLISHMENT-INITIATOR  TRUE
+--     ESTABLISHMENT-PARAMETER  SuperiorToSubordinate
+--     MODIFICATION-INITIATOR   TRUE
+--     MODIFICATION-PARAMETER   SuperiorToSubordinateModification
+--     TERMINATION-INITIATOR    TRUE}
+--  ROLE-B - - subordinate DSA - -
+--    {ESTABLISHMENT-INITIATOR  TRUE
+--     ESTABLISHMENT-PARAMETER  SubordinateToSuperior
+--     MODIFICATION-INITIATOR   TRUE
+--     MODIFICATION-PARAMETER   SubordinateToSuperior
+--     TERMINATION-INITIATOR    TRUE}
+--  ID                    id-op-binding-hierarchical
+--}
+
+--nonSpecificHierarchicalOperationalBinding OPERATIONAL-BINDING ::= {
+--  AGREEMENT             NonSpecificHierarchicalAgreement
+--  APPLICATION CONTEXTS  {{directorySystemAC}}
+--  ASYMMETRIC ROLE-A - - superior DSA - -
+--    {ESTABLISHMENT-PARAMETER  NHOBSuperiorToSubordinate
+--     MODIFICATION-INITIATOR   TRUE
+--     MODIFICATION-PARAMETER   NHOBSuperiorToSubordinate
+--     TERMINATION-INITIATOR    TRUE}
+--  ROLE-B - - subordinate DSA - -
+--    {ESTABLISHMENT-INITIATOR  TRUE
+--     ESTABLISHMENT-PARAMETER  NHOBSubordinateToSuperior
+--     MODIFICATION-INITIATOR   TRUE
+--     MODIFICATION-PARAMETER   NHOBSubordinateToSuperior
+--     TERMINATION-INITIATOR    TRUE}
+--  ID                    id-op-binding-non-specific-hierarchical
+--}
+
+END -- HierarchicalOperationalBindings
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+
