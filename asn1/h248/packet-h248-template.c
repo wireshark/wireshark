@@ -945,6 +945,8 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int offset) {
 static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) {
     h248_trx_t* t = NULL;
     h248_trx_msg_t* trxmsg;
+
+    if ( !m ) return NULL;
     
     if (keep_persistent_data) {
         if (m->commited) {
@@ -1013,6 +1015,8 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
     h248_ctx_t* context = NULL;
     h248_ctx_t** context_p = NULL;
     
+    if ( !m || !t ) return NULL;
+
     if (keep_persistent_data) {
         if (m->commited) {
             gchar* key = ep_strdup_printf("%s:%.8x",m->addr_label,c_id);
@@ -1046,6 +1050,7 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                 }
             } else {
                 gchar* key = ep_strdup_printf("C%s:%.8x",m->addr_label,c_id);
+
                 
                 if (( context = g_hash_table_lookup(ctxs_by_trx,t->key) )) {
                     if (( context_p = g_hash_table_lookup(ctxs,key) )) {
@@ -1108,6 +1113,8 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     h248_cmd_msg_t* cmdtrx;
     h248_cmd_msg_t* cmdctx;
     
+    if ( !m || !t || !c) return NULL;
+
     if (keep_persistent_data) {
         if (m->commited) {
             DISSECTOR_ASSERT(t->cmds != NULL);
@@ -1172,6 +1179,8 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
 static void h248_cmd_add_term(h248_cmd_t* c, h248_term_t* t) {
     h248_terms_t* ct;
     
+    if ( !c ) return;
+
     if (keep_persistent_data) {
         if ( c->msg->commited ) {
             return;
@@ -1214,6 +1223,8 @@ static gchar* h248_cmd_to_str(h248_cmd_t* c) {
     gchar* s = "-";
     h248_terms_t* term;
     
+    if ( !c ) return "-";
+
     switch (c->type) {
         case H248_CMD_NONE:
             return "-";
@@ -1295,6 +1306,9 @@ static gchar* h248_cmd_to_str(h248_cmd_t* c) {
 static gchar* h248_trx_to_str(h248_msg_t* m, h248_trx_t* t) {
     gchar* s = ep_strdup_printf("T %x { ",t->id);
     h248_cmd_msg_t* c;
+
+    if ( !m || !t ) return "-";
+
     
     if (t->cmds) {
         if (t->cmds->cmd->ctx) {
@@ -1320,6 +1334,8 @@ static gchar* h248_msg_to_str(h248_msg_t* m) {
     h248_trx_msg_t* t;
     gchar* s = "";
     
+    if ( !m ) return "-";
+
     for (t = m->trxs; t; t = t->next) {
         s = ep_strdup_printf("%s %s",s,h248_trx_to_str(m,t->trx));
     };
@@ -1339,6 +1355,7 @@ static void analyze_h248_msg(h248_msg_t* m) {
     h248_ctxs_t contexts = {NULL,NULL};
     h248_ctxs_t* ctx_node;
     h248_cmd_msg_t* c;
+    
     
     for (t = m->trxs; t; t = t->next) {
         for (c = t->trx->cmds; c; c = c->next) {
