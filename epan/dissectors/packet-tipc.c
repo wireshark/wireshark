@@ -42,8 +42,19 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/emem.h>
+#include <epan/reassemble.h>
 
 static int proto_tipc = -1;
+
+static int hf_tipc_msg_fragments = -1;
+static int hf_tipc_msg_fragment = -1;
+static int hf_tipc_msg_fragment_overlap = -1;
+static int hf_tipc_msg_fragment_overlap_conflicts = -1;
+static int hf_tipc_msg_fragment_multiple_tails = -1;
+static int hf_tipc_msg_fragment_too_long_fragment = -1;
+static int hf_tipc_msg_fragment_error = -1;
+static int hf_tipc_msg_reassembled_in = -1;
+
 static int hf_tipc_ver = -1;
 static int hf_tipc_usr = -1;
 static int hf_tipc_hdr_size = -1;
@@ -87,9 +98,31 @@ static int hf_tipc_name_dist_upper = -1;
 static int hf_tipc_name_dist_port = -1;
 static int hf_tipc_name_dist_key = -1;
 
+static gint ett_tipc_msg_fragment = -1;
+static gint ett_tipc_msg_fragments = -1;
+
 /* Initialize the subtree pointer */
 static gint ett_tipc = -1;
 static gint ett_tipc_data = -1;
+
+static const fragment_items tipc_msg_frag_items = {
+	/* Fragment subtrees */
+	&ett_tipc_msg_fragment,
+	&ett_tipc_msg_fragments,
+	/* Fragment fields */
+	&hf_tipc_msg_fragments,
+	&hf_tipc_msg_fragment,
+	&hf_tipc_msg_fragment_overlap,
+	&hf_tipc_msg_fragment_overlap_conflicts,
+	&hf_tipc_msg_fragment_multiple_tails,
+	&hf_tipc_msg_fragment_too_long_fragment,
+	&hf_tipc_msg_fragment_error,
+	/* Reassembled in field */
+	&hf_tipc_msg_reassembled_in,
+	/* Tag */
+	"TIPC Message fragments"
+};
+
 
 #define MAX_TIPC_ADDRESS_STR_LEN	15
 
@@ -173,6 +206,8 @@ const value_string tipc_cng_prot_msg_type_values[] = {
 	{ 0,	NULL},
 };
 /* SEGMENTATION_MANAGER */
+#define TIPC_FIRST_SEGMENT	1
+#define TIPC_SEGMENT		2
 const value_string tipc_sm_msg_type_values[] = {
 	{ 1,	"FIRST_SEGMENT"},
 	{ 2,	"SEGMENT"},
@@ -180,6 +215,19 @@ const value_string tipc_sm_msg_type_values[] = {
 };
 
 static void dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+
+static GHashTable *tipc_msg_fragment_table = NULL;
+static GHashTable *tipc_msg_reassembled_table = NULL;
+
+
+static void
+tipc_defragment_init(void)
+{
+	fragment_table_init (&tipc_msg_fragment_table);
+	reassembled_table_init(&tipc_msg_reassembled_table);
+}
+
 
 static gchar*
 tipc_addr_to_str(guint tipc_address)
@@ -284,12 +332,25 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	tvbuff_t *data_tvb;
 	guint16 message_count;
 	guint32 msg_in_bundle_size;
+	guint32 dword;
 	guint msg_no = 0;
+	guint8 link_sel;
+	guint16 link_lev_seq_no;
+	guint32 reassembled_msg_length = 0;
 
+	gboolean   save_fragmented;
+	tvbuff_t* new_tvb = NULL;
+	tvbuff_t* next_tvb = NULL;
+	fragment_data *frag_msg = NULL;
+	
+	link_lev_seq_no = tvb_get_ntohl(tvb,4) & 0xffff;
 	/* Internal Protocol Header */
 	/* Unused */
-	msg_type = tvb_get_guint8(tvb,offset + 11)>>4;
+
+	msg_type = tvb_get_guint8(tvb,20)>>4;
 	/* W3 */
+	dword = tvb_get_ntohl(tvb,offset);
+	link_sel = dword & 0x7;
 	proto_tree_add_item(tipc_tree, hf_tipc_unused2, tvb, offset, 4, FALSE);
 	/* Importance */
 	if ( user == TIPC_SEGMENTATION_MANAGER)
@@ -384,12 +445,50 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			}
 			break;
 		case TIPC_SEGMENTATION_MANAGER:
-			/* TODO: Add desegmentation here */
-			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
+			save_fragmented = pinfo->fragmented;
+			pinfo->fragmented = TRUE;
+			
+			frag_msg = fragment_add_seq_next(tvb, offset, pinfo,
+					link_sel,							/* ID for fragments belonging together - NEEDS IMPROVING? */  
+					tipc_msg_fragment_table,			/* list of message fragments */
+					tipc_msg_reassembled_table,			/* list of reassembled messages */
+					tvb_length_remaining(tvb, offset),	/* fragment length - to the end */
+					TRUE);								/* More fragments? */
+			if (msg_type == TIPC_FIRST_SEGMENT ){
+				reassembled_msg_length = tvb_get_ntohl(tvb,offset) & 0x1ffff;
+				/* This currently only works with two segments */
+				fragment_set_tot_len(pinfo, link_sel, tipc_msg_fragment_table, 1);
+			}
+
+			new_tvb = process_reassembled_data(tvb, offset, pinfo,
+				"Reassembled Message", frag_msg, &tipc_msg_frag_items,
+				NULL, tipc_tree);
+
+			if (frag_msg) { /* Reassembled */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_str(pinfo->cinfo, COL_INFO, 
+					" (Message Reassembled)");
+			} else { /* Not last packet of reassembled Short Message */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					" (Message fragment %u)", link_lev_seq_no);
+			}
+
+			if (new_tvb) { /* take it all */
+				next_tvb = new_tvb;
+			} else { /* make a new subset */
+			 	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			}
+			pinfo->fragmented = save_fragmented;
+			if (new_tvb){
+				dissect_tipc(next_tvb, pinfo, tipc_tree);
+				return;
+			}
+			proto_tree_add_text(tipc_tree, next_tvb, 0, -1,"%u bytes Data Fragment",(msg_size - 28));
+			return;
 			break;
 		case TIPC_MSG_BUNDLER:
 			proto_tree_add_text(tipc_tree, tvb, offset, -1,"Message Bundle");
-			/* TODO Add loop here */
 			while (offset < msg_size ){
 				msg_no++;
 				msg_in_bundle_size = tvb_get_ntohl(tvb,offset);
@@ -438,7 +537,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	msg_type = tvb_get_guint8(tvb,offset + 20)>>4;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%u)", val_to_str(user, tipc_user_values, "unknown"),user);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipc_user_values, "unknown"),user);
 
 	/* 
 	 * src and dest address will be found at different location depending on User ad hdr_size
@@ -450,39 +549,41 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case TIPC_DATA_NON_REJECTABLE:
 			datatype_hdr = TRUE;
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_data_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_data_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_NAME_DISTRIBUTOR:
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_name_dist_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_name_dist_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_CONNECTION_MANAGER:
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_cm_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cm_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_ROUTING_MANAGER:
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_routing_mgr_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_routing_mgr_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_LINK_PROTOCOL:
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_link_prot_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_link_prot_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_CHANGEOVER_PROTOCOL:
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_SEGMENTATION_MANAGER:
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(msg_type, tipc_sm_msg_type_values, "unknown"),msg_type);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_sm_msg_type_values, "unknown"),msg_type);
 			break;
 		case TIPC_MSG_BUNDLER:
 			break;
 		default:
 			break;		 
 	}
+	/* Dont't set_set_fence :) In case There is Upper layer protocols
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_fence(pinfo->cinfo,COL_INFO);
+		*/
 
 	if ( datatype_hdr ){
 		/* Data type header */
@@ -505,8 +606,10 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-	/* If "tree" is NULL, not necessary to generate protocol tree items. */
+	/* As this is a low level protocol we need to find the upper one
+	If "tree" is NULL, not necessary to generate protocol tree items.
 	if (tree) {
+	 */
 		ti = proto_tree_add_item(tree, proto_tipc, tvb, offset, -1, FALSE);
 		tipc_tree = proto_item_add_subtree(ti, ett_tipc);
 		/* Word 0-2 common for all messages
@@ -635,7 +738,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
 			break;		 
 		}
-	}/* if tree */
+	/*}if tree */
 }
 
 
@@ -649,6 +752,38 @@ proto_register_tipc(void)
 
 	static hf_register_info hf[] = {
 
+		{&hf_tipc_msg_fragments,
+			{"Message fragments", "tipc.msg.fragments",
+			FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } 
+		},
+		{&hf_tipc_msg_fragment,
+			{"Message fragment", "tipc.msg.fragment",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_tipc_msg_fragment_overlap,
+			{"Message fragment overlap", "tipc.msg.fragment.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_tipc_msg_fragment_overlap_conflicts,
+			{"Message fragment overlapping with conflicting data","tipc.msg.fragment.overlap.conflicts",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_tipc_msg_fragment_multiple_tails,
+			{"Message has multiple tail fragments", "tipc.msg.fragment.multiple_tails", 
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_tipc_msg_fragment_too_long_fragment,
+			{"Message fragment too long", "tipc.msg.fragment.too_long_fragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_tipc_msg_fragment_error,
+			{"Message defragmentation error", "tipc.msg.fragment.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_tipc_msg_reassembled_in,
+			{"Reassembled in", "tipc.msg.reassembled.in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
 		{ &hf_tipc_ver,
 			{ "Version",           "tipc.ver",
 			FT_UINT32, BASE_DEC, NULL, 0xe0000000,          
@@ -761,7 +896,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_link_selector2,
 			{ "Link selector",           "tipc.link_selector",
-			FT_UINT32, BASE_DEC, NULL, 0x00000003,          
+			FT_UINT32, BASE_DEC, NULL, 0x00000007,          
 			"TIPC Link selector", HFILL }
 		},
 		{ &hf_tipc_remote_addr,
@@ -855,6 +990,8 @@ proto_register_tipc(void)
 	static gint *ett[] = {
 		&ett_tipc,
 		&ett_tipc_data,
+		&ett_tipc_msg_fragment,
+		&ett_tipc_msg_fragments,
 	};
 
 /* Register the protocol name and description */
@@ -864,6 +1001,9 @@ proto_register_tipc(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_tipc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_init_routine(tipc_defragment_init);
+
 
 }
 

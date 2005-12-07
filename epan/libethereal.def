@@ -45,6 +45,7 @@ capture_arcnet
 capture_atm
 capture_chdlc
 capture_clip
+capture_enc
 capture_eth
 capture_fddi
 capture_fr
