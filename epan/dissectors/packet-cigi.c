@@ -4757,7 +4757,7 @@ tvb_get_fixed_point(tvbuff_t *tvb, int offset, gint byte_order)
 		DISSECTOR_ASSERT_NOT_REACHED();
 		fixed = 0;
 	}
-	return fixed / 128.0;
+	return fixed / 128.0F;
 }
 
 /* Register the protocol with Ethereal */
