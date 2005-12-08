@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-disp.h                                                            */
+/* .\packet-disp.h                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p disp -c disp.cnf -s packet-disp-template disp.asn */
 
 /* Input file: packet-disp-template.h */
 
+#line 1 "packet-disp-template.h"
 /* packet-disp.h
  * Routines for X.525 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005

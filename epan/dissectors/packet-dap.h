@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-dap.h                                                             */
+/* .\packet-dap.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn */
 
 /* Input file: packet-dap-template.h */
 
+#line 1 "packet-dap-template.h"
 /* packet-dap.h
  * Routines for X.511 (X.500 Directory Access Protocol) packet dissection
  * Graeme Lunt 2005
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-dap-exp.h ---*/
-
+#line 1 "packet-dap-exp.h"
 extern const value_string dap_ContextSelection_vals[];
 extern const value_string dap_DirectoryBindError_vals[];
 extern const value_string dap_ReadArgument_vals[];
@@ -99,6 +100,6 @@ int dissect_dap_UpdateError(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 int dissect_dap_OperationalBindingID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-dap-exp.h ---*/
-
+#line 30 "packet-dap-template.h"
 
 #endif  /* PACKET_DAP_H */

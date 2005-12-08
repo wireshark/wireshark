@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-dap.c                                                             */
+/* .\packet-dap.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn */
 
 /* Input file: packet-dap-template.c */
 
+#line 1 "packet-dap-template.c"
 /* packet-dap.c
  * Routines for X.511 (X.500 Directory Asbtract Service) and X.519 DAP  packet dissection
  * Graeme Lunt 2005
@@ -55,7 +56,6 @@
 #include "packet-dap.h"
 #include <epan/strutil.h>
 
-
 /* we don't have a separate dissector for X519 - 
    most of DAP is defined in X511 */
 #define PNAME  "X.519 Directory Access Protocol"
@@ -75,7 +75,7 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 
 /*--- Included file: packet-dap-hf.c ---*/
-
+#line 1 "packet-dap-hf.c"
 static int hf_dap_securityParameters = -1;        /* SecurityParameters */
 static int hf_dap_performer = -1;                 /* DistinguishedName */
 static int hf_dap_aliasDereferenced = -1;         /* BOOLEAN */
@@ -439,13 +439,13 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-
+#line 69 "packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
 
 /*--- Included file: packet-dap-ett.c ---*/
-
+#line 1 "packet-dap-ett.c"
 static gint ett_dap_CommonResults = -1;
 static gint ett_dap_SEQUENCE_OF_Attribute = -1;
 static gint ett_dap_ServiceControls = -1;
@@ -616,11 +616,11 @@ static gint ett_dap_OperationalBindingID = -1;
 static gint ett_dap_DirectoryString = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-
+#line 73 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
-
+#line 1 "packet-dap-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* FamilyEntries -> FamilyEntries/familyEntries -> FamilyEntry -> FamilyEntry/family-info -> FamilyEntries */
@@ -1159,6 +1159,7 @@ static int dissect_priority(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_dap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 168 "dap.cnf"
 	guint32	value;
 
 	  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1172,6 +1173,7 @@ dissect_dap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 			col_append_fstr(pinfo->cinfo, COL_INFO, ",%d", value);
 		}
   	}
+
 
 
   return offset;
@@ -1242,6 +1244,7 @@ static const ber_choice_t Name_choice[] = {
 
 static int
 dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 269 "dap.cnf"
 	const char *dn;
 
 	  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1253,6 +1256,7 @@ dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_in
 		dn = x509if_get_last_dn();
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", (dn && *dn) ? dn : "(root)");
 	}
+
 
 
   return offset;
@@ -1860,9 +1864,11 @@ dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_dap_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 113 "dap.cnf"
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
 	proto_item_append_text(it," XXX: Not yet implemented!");
+
 
 
   return offset;
@@ -1875,7 +1881,9 @@ static int dissect_initial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_dap_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 118 "dap.cnf"
 	/* XXX: not yet implemented */
+
 
 
   return offset;
@@ -1888,7 +1896,9 @@ static int dissect_any(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 121 "dap.cnf"
 	/* XXX: not yet implemented */
+
 
 
   return offset;
@@ -1980,7 +1990,9 @@ static int dissect_matchingRule(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_dap_T_matchValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 124 "dap.cnf"
 	/* XXX: not yet implemented */
+
 
 
   return offset;
@@ -2149,6 +2161,7 @@ static int dissect_newRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 184 "dap.cnf"
 	tvbuff_t *out_tvb;
 	int 	i;
 	int	len;
@@ -2174,6 +2187,7 @@ dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 		}
 	}
 	
+
 
   return offset;
 }
@@ -2336,6 +2350,7 @@ static const ber_sequence_t SimpleCredentials_sequence[] = {
 
 static int
 dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 158 "dap.cnf"
 
 	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SimpleCredentials_sequence, hf_index, ett_dap_SimpleCredentials);
@@ -2343,6 +2358,7 @@ dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 	if(check_col(pinfo->cinfo, COL_INFO))	
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", x509if_get_last_dn());
+
 
 
   return offset;
@@ -2355,7 +2371,9 @@ static int dissect_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_dap_T_bind_token(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 127 "dap.cnf"
 	/* XXX: not yet implemented */
+
 
 
   return offset;
@@ -2388,7 +2406,9 @@ static int dissect_strong(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_dap_T_req(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 130 "dap.cnf"
 	/* XXX: not yet implemented */
+
 
 
   return offset;
@@ -2401,7 +2421,9 @@ static int dissect_req(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_rep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 133 "dap.cnf"
 	/* XXX: not yet implemented */
+
 
 
   return offset;
@@ -2492,6 +2514,7 @@ static const ber_sequence_t DirectoryBindArgument_set[] = {
 
 int
 dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 139 "dap.cnf"
 
 	guint32 len;
 
@@ -2511,6 +2534,7 @@ dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 	  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               DirectoryBindArgument_set, hf_index, ett_dap_DirectoryBindArgument);
 	
+
 
 
   return offset;
@@ -2549,6 +2573,7 @@ static const value_string dap_ServiceProblem_vals[] = {
 
 static int
 dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 223 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2558,6 +2583,7 @@ dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%d)"));
   }
+
 
 
   return offset;
@@ -2586,6 +2612,7 @@ static const value_string dap_SecurityProblem_vals[] = {
 
 static int
 dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 211 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2595,6 +2622,7 @@ dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%d)"));
   }
+
 
 
   return offset;
@@ -3327,6 +3355,7 @@ static const value_string dap_LimitProblem_vals[] = {
 
 static int
 dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 247 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3336,6 +3365,7 @@ dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%d)"));
   }
+
 
 
   return offset;
@@ -3541,6 +3571,7 @@ static const value_string dap_T_subset_vals[] = {
 
 static int
 dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 259 "dap.cnf"
   guint32 subset;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3550,6 +3581,7 @@ dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(subset, dap_T_subset_vals, "Subset(%d)"));
   }
+
 
 
 
@@ -5177,7 +5209,9 @@ dissect_dap_Referral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
 static int
 dissect_dap_T_spkmInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 136 "dap.cnf"
 	/* XXX: not yet implemented */
+
 
 
   return offset;
@@ -5337,6 +5371,7 @@ static const value_string dap_UpdateProblem_vals[] = {
 
 static int
 dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 235 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -5346,6 +5381,7 @@ dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%d)"));
   }
+
 
 
   return offset;
@@ -5463,7 +5499,7 @@ dissect_dap_UpdateError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-
+#line 75 "packet-dap-template.c"
 
 /*
 * Dissect DAP PDUs inside a ROS PDUs
@@ -5667,7 +5703,7 @@ void proto_register_dap(void) {
   {
 
 /*--- Included file: packet-dap-hfarr.c ---*/
-
+#line 1 "packet-dap-hfarr.c"
     { &hf_dap_securityParameters,
       { "securityParameters", "dap.securityParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5726,7 +5762,7 @@ void proto_register_dap(void) {
         "ServiceControls/manageDSAITPlaneRef/agreementID", HFILL }},
     { &hf_dap_serviceType,
       { "serviceType", "dap.serviceType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ServiceControls/serviceType", HFILL }},
     { &hf_dap_userClass,
       { "userClass", "dap.userClass",
@@ -5818,7 +5854,7 @@ void proto_register_dap(void) {
         "FamilyReturn/familySelect", HFILL }},
     { &hf_dap_familySelect_item,
       { "Item", "dap.familySelect_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "FamilyReturn/familySelect/_item", HFILL }},
     { &hf_dap_name,
       { "name", "dap.name",
@@ -5858,7 +5894,7 @@ void proto_register_dap(void) {
         "EntryInformation/derivedEntry", HFILL }},
     { &hf_dap_family_class,
       { "family-class", "dap.family_class",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "FamilyEntries/family-class", HFILL }},
     { &hf_dap_familyEntries,
       { "familyEntries", "dap.familyEntries",
@@ -5918,7 +5954,7 @@ void proto_register_dap(void) {
         "FilterItem/substrings", HFILL }},
     { &hf_dap_sunstringType,
       { "type", "dap.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "FilterItem/substrings/type", HFILL }},
     { &hf_dap_strings,
       { "strings", "dap.strings",
@@ -5974,7 +6010,7 @@ void proto_register_dap(void) {
         "MatchingRuleAssertion/matchingRule", HFILL }},
     { &hf_dap_matchingRule_item,
       { "Item", "dap.matchingRule_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MatchingRuleAssertion/matchingRule/_item", HFILL }},
     { &hf_dap_matchValue,
       { "matchValue", "dap.matchValue",
@@ -6014,7 +6050,7 @@ void proto_register_dap(void) {
         "", HFILL }},
     { &hf_dap_orderingRule,
       { "orderingRule", "dap.orderingRule",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "SortKey/orderingRule", HFILL }},
     { &hf_dap_certification_path,
       { "certification-path", "dap.certification_path",
@@ -6442,7 +6478,7 @@ void proto_register_dap(void) {
         "PartialOutcomeQualifier/unknownErrors", HFILL }},
     { &hf_dap_unknownErrors_item,
       { "Item", "dap.unknownErrors_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PartialOutcomeQualifier/unknownErrors/_item", HFILL }},
     { &hf_dap_overspecFilter,
       { "overspecFilter", "dap.overspecFilter",
@@ -6570,7 +6606,7 @@ void proto_register_dap(void) {
         "JoinAttPair/joinContext", HFILL }},
     { &hf_dap_joinContext_item,
       { "Item", "dap.joinContext_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "JoinAttPair/joinContext/_item", HFILL }},
     { &hf_dap_searchInfo,
       { "searchInfo", "dap.searchInfo",
@@ -7110,7 +7146,7 @@ void proto_register_dap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-
+#line 277 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -7118,7 +7154,7 @@ void proto_register_dap(void) {
     &ett_dap,
 
 /*--- Included file: packet-dap-ettarr.c ---*/
-
+#line 1 "packet-dap-ettarr.c"
     &ett_dap_CommonResults,
     &ett_dap_SEQUENCE_OF_Attribute,
     &ett_dap_ServiceControls,
@@ -7289,7 +7325,7 @@ void proto_register_dap(void) {
     &ett_dap_DirectoryString,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-
+#line 283 "packet-dap-template.c"
   };
   module_t *dap_module;
 
@@ -7303,7 +7339,11 @@ void proto_register_dap(void) {
 
   /* Register our configuration options for DAP, particularly our port */
 
+#ifdef PREFERENCE_GROUPING
+  dap_module = prefs_register_protocol_subtree("OSI/X.500", proto_dap, prefs_register_dap);
+#else
   dap_module = prefs_register_protocol(proto_dap, prefs_register_dap);
+#endif
 
   prefs_register_uint_preference(dap_module, "tcp.port", "DAP TCP Port",
 				 "Set the port for DAP operations (if other"

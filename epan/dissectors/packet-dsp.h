@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-dsp.h                                                             */
+/* .\packet-dsp.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dsp -c dsp.cnf -s packet-dsp-template dsp.asn */
 
 /* Input file: packet-dsp-template.h */
 
+#line 1 "packet-dsp-template.h"
 /* packet-dsp.h
  * Routines for X.511 (X.500 Directory Access Protocol) packet dissection
  * Graeme Lunt 2005
@@ -35,14 +36,15 @@
 
 
 /*--- Included file: packet-dsp-exp.h ---*/
-
+#line 1 "packet-dsp-exp.h"
 extern const value_string dsp_ReferenceType_vals[];
 int dissect_dsp_OperationProgress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dsp_ReferenceType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dsp_AccessPoint(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_dsp_MasterAndShadowAccessPoints(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dsp_ContinuationReference(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-dsp-exp.h ---*/
-
+#line 30 "packet-dsp-template.h"
 
 #endif  /* PACKET_DSP_H */

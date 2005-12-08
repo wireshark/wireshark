@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-dsp.c                                                             */
+/* .\packet-dsp.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dsp -c dsp.cnf -s packet-dsp-template dsp.asn */
 
 /* Input file: packet-dsp-template.c */
 
+#line 1 "packet-dsp-template.c"
 /* packet-dsp.c
  * Routines for X.518 (X.500 Distributed Operations)  packet dissection
  * Graeme Lunt 2005
@@ -71,7 +72,7 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 
 /*--- Included file: packet-dsp-hf.c ---*/
-
+#line 1 "packet-dsp-hf.c"
 static int hf_dsp_AccessPoint_PDU = -1;           /* AccessPoint */
 static int hf_dsp_MasterAndShadowAccessPoints_PDU = -1;  /* MasterAndShadowAccessPoints */
 static int hf_dsp_chainedArgument = -1;           /* ChainingArguments */
@@ -203,13 +204,13 @@ static int hf_dsp_signed = -1;                    /* BOOLEAN */
 static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
-
+#line 66 "packet-dsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dsp = -1;
 
 /*--- Included file: packet-dsp-ett.c ---*/
-
+#line 1 "packet-dsp-ett.c"
 static gint ett_dsp_ChainedReadArgumentData = -1;
 static gint ett_dsp_ChainedReadArgument = -1;
 static gint ett_dsp_T_signedChainedReadArgument = -1;
@@ -282,11 +283,11 @@ static gint ett_dsp_AuthenticationLevel = -1;
 static gint ett_dsp_T_basicLevels = -1;
 
 /*--- End of included file: packet-dsp-ett.c ---*/
-
+#line 70 "packet-dsp-template.c"
 
 
 /*--- Included file: packet-dsp-fn.c ---*/
-
+#line 1 "packet-dsp-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_readArgument(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -914,7 +915,7 @@ static const ber_sequence_t MasterAndShadowAccessPoints_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_MasterAndShadowAccessPoints_item },
 };
 
-static int
+int
 dissect_dsp_MasterAndShadowAccessPoints(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                                  MasterAndShadowAccessPoints_set_of, hf_index, ett_dsp_MasterAndShadowAccessPoints);
@@ -2103,7 +2104,7 @@ static void dissect_MasterAndShadowAccessPoints_PDU(tvbuff_t *tvb, packet_info *
 
 
 /*--- End of included file: packet-dsp-fn.c ---*/
-
+#line 72 "packet-dsp-template.c"
 
 /*
 * Dissect X518 PDUs inside a ROS PDUs
@@ -2311,7 +2312,7 @@ void proto_register_dsp(void) {
   {
 
 /*--- Included file: packet-dsp-hfarr.c ---*/
-
+#line 1 "packet-dsp-hfarr.c"
     { &hf_dsp_AccessPoint_PDU,
       { "AccessPoint", "dsp.AccessPoint",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2662,7 +2663,7 @@ void proto_register_dsp(void) {
         "", HFILL }},
     { &hf_dsp_info,
       { "info", "dsp.info",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_dsp_timeLimit,
       { "timeLimit", "dsp.timeLimit",
@@ -2830,7 +2831,7 @@ void proto_register_dsp(void) {
         "AuthenticationLevel/other", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-
+#line 278 "packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2838,7 +2839,7 @@ void proto_register_dsp(void) {
     &ett_dsp,
 
 /*--- Included file: packet-dsp-ettarr.c ---*/
-
+#line 1 "packet-dsp-ettarr.c"
     &ett_dsp_ChainedReadArgumentData,
     &ett_dsp_ChainedReadArgument,
     &ett_dsp_T_signedChainedReadArgument,
@@ -2911,7 +2912,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-
+#line 284 "packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2929,7 +2930,11 @@ void proto_register_dsp(void) {
 
   /* Register our configuration options for DSP, particularly our port */
 
+#ifdef PREFERENCE_GROUPING
+  dsp_module = prefs_register_protocol_subtree("OSI/X.500", proto_dsp, prefs_register_dsp);
+#else
   dsp_module = prefs_register_protocol(proto_dsp, prefs_register_dsp);
+#endif
 
   prefs_register_uint_preference(dsp_module, "tcp.port", "DSP TCP Port",
 				 "Set the port for DSP operations (if other"
@@ -2946,7 +2951,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- Included file: packet-dsp-dis-tab.c ---*/
-
+#line 1 "packet-dsp-dis-tab.c"
   register_ber_oid_dissector("2.5.12.1", dissect_AccessPoint_PDU, proto_dsp, "id-doa-myAccessPoint");
   register_ber_oid_dissector("2.5.12.2", dissect_AccessPoint_PDU, proto_dsp, "id-doa-superiorKnowledge");
   register_ber_oid_dissector("2.5.12.3", dissect_MasterAndShadowAccessPoints_PDU, proto_dsp, "id-doa-specificKnowledge");
@@ -2954,7 +2959,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-
+#line 321 "packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 
