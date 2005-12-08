@@ -26,7 +26,6 @@
  *
  * Contributers:
  * Kyle J. Harms <kyle.j.harms@boeing.com>
- * 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -45,6 +44,10 @@
 
 /* Forward declaration */
 void proto_reg_handoff_cigi(void);
+static gboolean packet_is_cigi(tvbuff_t*);
+static gboolean dissect_cigi_heur(tvbuff_t*, packet_info*, proto_tree*);
+static int dissect_cigi(tvbuff_t*, packet_info*, proto_tree*);
+static void dissect_cigi_pdu(tvbuff_t*, packet_info*, proto_tree*);
 static void cigi_add_tree(tvbuff_t*, proto_tree*);
 static gint cigi_add_data(tvbuff_t*, proto_tree*, gint);
 
@@ -1856,15 +1859,12 @@ static gint cigi_version = 0;
 /* The byte order of cigi to use; our default is big-endian */
 static gint cigi_byte_order = CIGI_BYTE_ORDER_BIG_ENDIAN;
 
-
 /*
- * The heuristic dissector
+ * Check whether this looks like a CIGI packet or not.
  */
 static gboolean
-dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+packet_is_cigi(tvbuff_t *tvb)
 {    
-    gint length;
-
     guint8 packet_id;
     guint8 packet_size;
     guint8 cigi_version;
@@ -1875,7 +1875,10 @@ dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 reserved;
 
 
-    length = tvb_length(tvb);
+    if (!tvb_bytes_exist(tvb, 0, 3)) {
+        /* Not enough data available to check */
+        return FALSE;
+    }
     packet_id = tvb_get_guint8(tvb, 0);
     packet_size = tvb_get_guint8(tvb, 1);
     cigi_version = tvb_get_guint8(tvb, 2);
@@ -1891,17 +1894,21 @@ dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* CIGI 1 requires that the first packet is always the IG Control or SOF */
             switch ( packet_id ) {
                 case 1:
-                    if ( packet_size != 16 || length < 16 ) {
+                    if ( packet_size != 16 ) {
                         return FALSE;
                     }
 
+                    if (!tvb_bytes_exist(tvb, 4, 1)) {
+                        /* Not enough data available to check */
+                        return FALSE;
+                    }
                     ig_mode = (tvb_get_guint8(tvb, 4) & 0xc0) >> 6;
                     if ( ig_mode > 2 ) {
                         return FALSE;
                     }
                     break;
                 case 101:
-                    if ( packet_size != 12 || length < 12 ) {
+                    if ( packet_size != 12 ) {
                         return FALSE;
                     }
                     break;
@@ -1914,17 +1921,21 @@ dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* CIGI 2 requires that the first packet is always the IG Control or SOF */
             switch ( packet_id ) {
                 case CIGI2_PACKET_ID_IG_CONTROL:
-                    if ( packet_size != CIGI2_PACKET_SIZE_IG_CONTROL || length < CIGI2_PACKET_SIZE_IG_CONTROL ) {
+                    if ( packet_size != CIGI2_PACKET_SIZE_IG_CONTROL ) {
                         return FALSE;
                     }
 
+                    if (!tvb_bytes_exist(tvb, 4, 1)) {
+                        /* Not enough data available to check */
+                        return FALSE;
+                    }
                     ig_mode = (tvb_get_guint8(tvb, 4) & 0xc0) >> 6;
                     if ( ig_mode > 2 ) {
                         return FALSE;
                     }
                     break;
                 case CIGI2_PACKET_ID_START_OF_FRAME:
-                    if ( packet_size != CIGI2_PACKET_SIZE_START_OF_FRAME || length < CIGI2_PACKET_SIZE_START_OF_FRAME ) {
+                    if ( packet_size != CIGI2_PACKET_SIZE_START_OF_FRAME ) {
                         return FALSE;
                     }
                     break;
@@ -1934,12 +1945,22 @@ dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case CIGI_VERSION_3:
+            if (!tvb_bytes_exist(tvb, 6, 1)) {
+                /* Not enough data available to check */
+                return FALSE;
+            }
+
             /* CIGI 3 requires that the first packet is always the IG Control or SOF */
             switch ( packet_id ) {
                 case CIGI3_PACKET_ID_IG_CONTROL:
-                    if ( packet_size != CIGI3_PACKET_SIZE_IG_CONTROL || length < CIGI3_PACKET_SIZE_IG_CONTROL ) {
+                    if ( packet_size != CIGI3_PACKET_SIZE_IG_CONTROL ) {
                         return FALSE;
                     } 
+
+                    if (!tvb_bytes_exist(tvb, 4, 2)) {
+                        /* Not enough data available to check */
+                        return FALSE;
+                    }
 
                     ig_mode = (tvb_get_guint8(tvb, 4) & 0x03);
                     if ( ig_mode > 2 ) {
@@ -1957,7 +1978,12 @@ dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     }
                     break;
                 case CIGI3_PACKET_ID_START_OF_FRAME:
-                    if ( packet_size != CIGI3_PACKET_SIZE_START_OF_FRAME || length < CIGI3_PACKET_SIZE_START_OF_FRAME ) {
+                    if ( packet_size != CIGI3_PACKET_SIZE_START_OF_FRAME ) {
+                        return FALSE;
+                    }
+
+                    if (!tvb_bytes_exist(tvb, 5, 1)) {
+                        /* Not enough data available to check */
                         return FALSE;
                     }
 
@@ -1987,9 +2013,38 @@ dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return TRUE;
 }
 
-/* Code to actually dissect the CIGI packets */
-static int 
+/*
+ * The heuristic dissector
+ */
+static gboolean
+dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{    
+    /* Does this look like CIGI? */
+    if ( !packet_is_cigi(tvb) ) {
+        return FALSE;
+    }
+    dissect_cigi_pdu(tvb, pinfo, tree);
+    return TRUE;
+}
+
+/*
+ * The non-heuristic dissector.
+ */
+static int
 dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /* Make sure this looks like CIGI */
+    if ( !packet_is_cigi(tvb) ) {
+        return 0;
+    }
+    dissect_cigi_pdu(tvb, pinfo, tree);
+    /* We probably ate the entire packet. */
+    return tvb_length(tvb);
+}
+
+/* Code to actually dissect the CIGI packets */
+static void
+dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     guint8 packet_id = 0;
@@ -2002,12 +2057,6 @@ dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const char* info_str;
 
     packet_id = tvb_get_guint8(tvb, 0);
-
-
-    /* Make sure this looks like CIGI */
-    if ( !dissect_cigi_heur(tvb, pinfo, tree) ) {
-        return 0;
-    }
 
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -2074,10 +2123,6 @@ dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cigi_add_tree(tvb, cigi_tree);
         }
     }
-
-    /* If we got this far it is probably CIGI and we probably ate the
-     * entire packet. */
-    return tvb_length(tvb);
 }
 
 /* Create the tree for CIGI (Unknown Version)
@@ -8593,9 +8638,8 @@ proto_reg_handoff_cigi(void)
         cigi_handle = new_create_dissector_handle(dissect_cigi, proto_cigi);
         dissector_add_handle("udp.port", cigi_handle);
         dissector_add_handle("tcp.port", cigi_handle);
-        heur_dissector_add("udp", dissect_cigi, proto_cigi);
+        heur_dissector_add("udp", dissect_cigi_heur, proto_cigi);
 
         inited = TRUE;
     }
 }
-
