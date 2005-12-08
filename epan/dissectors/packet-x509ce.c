@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x509ce.c                                                          */
+/* ./packet-x509ce.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
 
+#line 1 "packet-x509ce-template.c"
 /* packet-x509ce.c
  * Routines for X.509 Certificate Extensions packet dissection
  *  Ronnie Sahlberg 2004
@@ -59,7 +60,7 @@ static int hf_x509ce_object_identifier_id = -1;
 static int hf_x509ce_IPAddress = -1;
 
 /*--- Included file: packet-x509ce-hf.c ---*/
-
+#line 1 "packet-x509ce-hf.c"
 static int hf_x509ce_AuthorityKeyIdentifier_PDU = -1;  /* AuthorityKeyIdentifier */
 static int hf_x509ce_SubjectKeyIdentifier_PDU = -1;  /* SubjectKeyIdentifier */
 static int hf_x509ce_KeyUsage_PDU = -1;           /* KeyUsage */
@@ -207,12 +208,12 @@ static int hf_x509ce_ReasonFlags_privilegeWithdrawn = -1;
 static int hf_x509ce_ReasonFlags_aACompromise = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-
+#line 54 "packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-x509ce-ett.c ---*/
-
+#line 1 "packet-x509ce-ett.c"
 static gint ett_x509ce_AuthorityKeyIdentifier = -1;
 static gint ett_x509ce_KeyUsage = -1;
 static gint ett_x509ce_KeyPurposeIDs = -1;
@@ -258,13 +259,13 @@ static gint ett_x509ce_CertificateListAssertion = -1;
 static gint ett_x509ce_PkiPathMatchSyntax = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-
+#line 57 "packet-x509ce-template.c"
 
 static const char *object_identifier_id;
 
 
 /*--- Included file: packet-x509ce-fn.c ---*/
-
+#line 1 "packet-x509ce-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_authorityCertSerialNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -365,8 +366,10 @@ static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 114 "x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
+
 
 
   return offset;
@@ -635,7 +638,9 @@ static int dissect_policyQualifierId(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 111 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -1594,7 +1599,7 @@ static void dissect_BaseCRLNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-
+#line 61 "packet-x509ce-template.c"
 
 
 static void
@@ -1631,7 +1636,7 @@ void proto_register_x509ce(void) {
 
 
 /*--- Included file: packet-x509ce-hfarr.c ---*/
-
+#line 1 "packet-x509ce-hfarr.c"
     { &hf_x509ce_AuthorityKeyIdentifier_PDU,
       { "AuthorityKeyIdentifier", "x509ce.AuthorityKeyIdentifier",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1694,7 +1699,7 @@ void proto_register_x509ce(void) {
         "CRLReason", HFILL }},
     { &hf_x509ce_HoldInstruction_PDU,
       { "HoldInstruction", "x509ce.HoldInstruction",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "HoldInstruction", HFILL }},
     { &hf_x509ce_CRLScopeSyntax_PDU,
       { "CRLScopeSyntax", "x509ce.CRLScopeSyntax",
@@ -1742,7 +1747,7 @@ void proto_register_x509ce(void) {
         "AuthorityKeyIdentifier/authorityCertSerialNumber", HFILL }},
     { &hf_x509ce_KeyPurposeIDs_item,
       { "Item", "x509ce.KeyPurposeIDs_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "KeyPurposeIDs/_item", HFILL }},
     { &hf_x509ce_notBefore,
       { "notBefore", "x509ce.notBefore",
@@ -1758,7 +1763,7 @@ void proto_register_x509ce(void) {
         "CertificatePoliciesSyntax/_item", HFILL }},
     { &hf_x509ce_policyIdentifier,
       { "policyIdentifier", "x509ce.policyIdentifier",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PolicyInformation/policyIdentifier", HFILL }},
     { &hf_x509ce_policyQualifiers,
       { "policyQualifiers", "x509ce.policyQualifiers",
@@ -1770,7 +1775,7 @@ void proto_register_x509ce(void) {
         "PolicyInformation/policyQualifiers/_item", HFILL }},
     { &hf_x509ce_policyQualifierId,
       { "policyQualifierId", "x509ce.policyQualifierId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PolicyQualifierInfo/policyQualifierId", HFILL }},
     { &hf_x509ce_qualifier,
       { "qualifier", "x509ce.qualifier",
@@ -1782,11 +1787,11 @@ void proto_register_x509ce(void) {
         "PolicyMappingsSyntax/_item", HFILL }},
     { &hf_x509ce_issuerDomainPolicy,
       { "issuerDomainPolicy", "x509ce.issuerDomainPolicy",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PolicyMappingsSyntax/_item/issuerDomainPolicy", HFILL }},
     { &hf_x509ce_subjectDomainPolicy,
       { "subjectDomainPolicy", "x509ce.subjectDomainPolicy",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PolicyMappingsSyntax/_item/subjectDomainPolicy", HFILL }},
     { &hf_x509ce_GeneralNames_item,
       { "Item", "x509ce.GeneralNames_item",
@@ -1818,7 +1823,7 @@ void proto_register_x509ce(void) {
         "GeneralName/iPAddress", HFILL }},
     { &hf_x509ce_registeredID,
       { "registeredID", "x509ce.registeredID",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "GeneralName/registeredID", HFILL }},
     { &hf_x509ce_nameAssigner,
       { "nameAssigner", "x509ce.nameAssigner",
@@ -2042,7 +2047,7 @@ void proto_register_x509ce(void) {
         "CertificateAssertion/privateKeyValid", HFILL }},
     { &hf_x509ce_subjectPublicKeyAlgID,
       { "subjectPublicKeyAlgID", "x509ce.subjectPublicKeyAlgID",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CertificateAssertion/subjectPublicKeyAlgID", HFILL }},
     { &hf_x509ce_keyUsage,
       { "keyUsage", "x509ce.keyUsage",
@@ -2074,11 +2079,11 @@ void proto_register_x509ce(void) {
         "AltNameType/builtinNameForm", HFILL }},
     { &hf_x509ce_otherNameForm,
       { "otherNameForm", "x509ce.otherNameForm",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "AltNameType/otherNameForm", HFILL }},
     { &hf_x509ce_CertPolicySet_item,
       { "Item", "x509ce.CertPolicySet_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CertPolicySet/_item", HFILL }},
     { &hf_x509ce_cpea_issuedToThisCAAssertion,
       { "issuedToThisCAAssertion", "x509ce.issuedToThisCAAssertion",
@@ -2210,14 +2215,14 @@ void proto_register_x509ce(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-
+#line 96 "packet-x509ce-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-x509ce-ettarr.c ---*/
-
+#line 1 "packet-x509ce-ettarr.c"
     &ett_x509ce_AuthorityKeyIdentifier,
     &ett_x509ce_KeyUsage,
     &ett_x509ce_KeyPurposeIDs,
@@ -2263,7 +2268,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_PkiPathMatchSyntax,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-
+#line 101 "packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2280,7 +2285,7 @@ void proto_register_x509ce(void) {
 void proto_reg_handoff_x509ce(void) {
 
 /*--- Included file: packet-x509ce-dis-tab.c ---*/
-
+#line 1 "packet-x509ce-dis-tab.c"
   register_ber_oid_dissector("2.5.29.9", dissect_AttributesSyntax_PDU, proto_x509ce, "id-ce-subjectDirectoryAttributes");
   register_ber_oid_dissector("2.5.29.14", dissect_SubjectKeyIdentifier_PDU, proto_x509ce, "id-ce-subjectKeyIdentifier");
   register_ber_oid_dissector("2.5.29.15", dissect_KeyUsage_PDU, proto_x509ce, "id-ce-keyUsage");
@@ -2311,7 +2316,7 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-
+#line 116 "packet-x509ce-template.c"
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }

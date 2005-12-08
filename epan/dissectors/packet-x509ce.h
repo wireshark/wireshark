@@ -5,6 +5,7 @@
 
 /* Input file: packet-x509ce-template.h */
 
+#line 1 "packet-x509ce-template.h"
 /* packet-x509ce.h
  * Routines for X.509 Certificate Extensions packet dissection
  *  Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-x509ce-exp.h ---*/
-
+#line 1 "packet-x509ce-exp.h"
 extern const value_string x509ce_GeneralName_vals[];
 extern const value_string x509ce_CRLReason_vals[];
 extern const value_string x509ce_StatusReferral_vals[];
@@ -96,7 +97,7 @@ int dissect_x509ce_CertificateListAssertion(gboolean implicit_tag, tvbuff_t *tvb
 int dissect_x509ce_PkiPathMatchSyntax(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-x509ce-exp.h ---*/
-
+#line 30 "packet-x509ce-template.h"
 
 #endif  /* PACKET_X509CE_H */
 
