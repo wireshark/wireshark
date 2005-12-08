@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.h                                                            */
+/* ./packet-h225.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.h */
 
+#line 1 "packet-h225-template.h"
 /* packet-h225.h
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -86,7 +87,7 @@ typedef struct _h225_packet_info {
 
 
 /*--- Included file: packet-h225-exp.h ---*/
-
+#line 1 "packet-h225-exp.h"
 ETH_VAR_IMPORT const value_string T_h323_message_body_vals[];
 ETH_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
 extern const value_string h225_PresentationIndicator_vals[];
@@ -114,7 +115,7 @@ int dissect_h225_CallIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 int dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h225-exp.h ---*/
-
+#line 81 "packet-h225-template.h"
 
 #endif  /* PACKET_H225_H */
 

@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkcs1-template.c */
 
+#line 1 "packet-pkcs1-template.c"
 /* packet-pkcs1.c
  * Routines for PKCS#1/RFC2313 packet dissection
  *  Ronnie Sahlberg 2004
@@ -53,7 +54,7 @@
 static int proto_pkcs1 = -1;
 
 /*--- Included file: packet-pkcs1-hf.c ---*/
-
+#line 1 "packet-pkcs1-hf.c"
 static int hf_pkcs1_modulus = -1;                 /* INTEGER */
 static int hf_pkcs1_publicExponent = -1;          /* INTEGER */
 static int hf_pkcs1_version = -1;                 /* Version */
@@ -67,22 +68,22 @@ static int hf_pkcs1_digestAlgorithm = -1;         /* DigestAlgorithmIdentifier *
 static int hf_pkcs1_digest = -1;                  /* Digest */
 
 /*--- End of included file: packet-pkcs1-hf.c ---*/
-
+#line 48 "packet-pkcs1-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkcs1-ett.c ---*/
-
+#line 1 "packet-pkcs1-ett.c"
 static gint ett_pkcs1_RSAPublicKey = -1;
 static gint ett_pkcs1_RSAPrivateKey = -1;
 static gint ett_pkcs1_DigestInfo = -1;
 
 /*--- End of included file: packet-pkcs1-ett.c ---*/
-
+#line 51 "packet-pkcs1-template.c"
 
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
-
+#line 1 "packet-pkcs1-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -90,7 +91,8 @@ static gint ett_pkcs1_DigestInfo = -1;
 
 static int
 dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -119,6 +121,7 @@ static int dissect_coefficient(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_coefficient);
 }
 
+
 static const ber_sequence_t RSAPublicKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
@@ -128,7 +131,7 @@ static const ber_sequence_t RSAPublicKey_sequence[] = {
 int
 dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
+                                   RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
 
   return offset;
 }
@@ -137,13 +140,15 @@ dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 static int
 dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
 static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkcs1_Version(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_version);
 }
+
 
 static const ber_sequence_t RSAPrivateKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
@@ -161,10 +166,11 @@ static const ber_sequence_t RSAPrivateKey_sequence[] = {
 int
 dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
+                                   RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
 
   return offset;
 }
+
 
 
 static int
@@ -178,16 +184,18 @@ static int dissect_digestAlgorithm(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
+
 static int
 dissect_pkcs1_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
 static int dissect_digest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkcs1_Digest(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_digest);
 }
+
 
 static const ber_sequence_t DigestInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
@@ -198,14 +206,14 @@ static const ber_sequence_t DigestInfo_sequence[] = {
 int
 dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
+                                   DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
 
   return offset;
 }
 
 
 /*--- End of included file: packet-pkcs1-fn.c ---*/
-
+#line 53 "packet-pkcs1-template.c"
 
 /*--- proto_register_pkcs1 ----------------------------------------------*/
 void proto_register_pkcs1(void) {
@@ -214,7 +222,7 @@ void proto_register_pkcs1(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkcs1-hfarr.c ---*/
-
+#line 1 "packet-pkcs1-hfarr.c"
     { &hf_pkcs1_modulus,
       { "modulus", "pkcs1.modulus",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -261,20 +269,20 @@ void proto_register_pkcs1(void) {
         "DigestInfo/digest", HFILL }},
 
 /*--- End of included file: packet-pkcs1-hfarr.c ---*/
-
+#line 60 "packet-pkcs1-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkcs1-ettarr.c ---*/
-
+#line 1 "packet-pkcs1-ettarr.c"
     &ett_pkcs1_RSAPublicKey,
     &ett_pkcs1_RSAPrivateKey,
     &ett_pkcs1_DigestInfo,
 
 /*--- End of included file: packet-pkcs1-ettarr.c ---*/
-
+#line 65 "packet-pkcs1-template.c"
   };
 
   /* Register protocol */

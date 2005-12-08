@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkixtsp-template.h */
 
+#line 1 "packet-pkixtsp-template.h"
 /* packet-pkixtsp.h
  * Routines for RFC3161 Time-Stamp Protocol packet dissection
  *    Ronnie Sahlberg 2004

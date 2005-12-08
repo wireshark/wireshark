@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-cmip.h                                                            */
+/* ./packet-cmip.h                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.h */
 
+#line 1 "packet-cmip-template.h"
 /* packet-cmip.h
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-cmip-exp.h ---*/
-
+#line 1 "packet-cmip-exp.h"
 extern const value_string cmip_ObjectClass_vals[];
 extern const value_string cmip_ObjectInstance_vals[];
 extern const value_string cmip_ROS_vals[];
@@ -49,7 +50,7 @@ int dissect_cmip_CMIPAbortInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset,
 int dissect_cmip_CMIPUserInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-cmip-exp.h ---*/
-
+#line 30 "packet-cmip-template.h"
 
 #endif  /* PACKET_CMIP_H */
 

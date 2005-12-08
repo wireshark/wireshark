@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-s4406.h                                                           */
+/* ./packet-s4406.h                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.h */
 
+#line 1 "packet-s4406-template.h"
 /* packet-s4406.h
  * Routines for X.411 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005

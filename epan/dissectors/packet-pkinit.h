@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkinit-template.h */
 
+#line 1 "packet-pkinit-template.h"
 /* packet-pkinit.h
  * Routines for PKINIT packet dissection
  *  Ronnie Sahlberg 2004

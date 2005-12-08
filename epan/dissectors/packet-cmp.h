@@ -5,6 +5,7 @@
 
 /* Input file: packet-cmp-template.h */
 
+#line 1 "packet-cmp-template.h"
 /* packet-cmp.h
  * Routines for RFC2510 Certificate Management Protocol packet dissection
  *   Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-cmp-exp.h ---*/
-
+#line 1 "packet-cmp-exp.h"
 extern const value_string cmp_PKIBody_vals[];
 extern const value_string cmp_PKIStatus_vals[];
 extern const value_string cmp_CertOrEncCert_vals[];
@@ -77,7 +78,7 @@ int dissect_cmp_GenRepContent(gboolean implicit_tag, tvbuff_t *tvb, int offset, 
 int dissect_cmp_ErrorMsgContent(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-cmp-exp.h ---*/
-
+#line 30 "packet-cmp-template.h"
 
 #endif  /* PACKET_CMP_H */
 

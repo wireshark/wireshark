@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ess.c                                                             */
+/* ./packet-ess.c                                                             */
 /* ../../tools/asn2eth.py -X -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
 
 /* Input file: packet-ess-template.c */
 
+#line 1 "packet-ess-template.c"
 /* packet-ess.c
  * Routines for RFC2634 Extended Security Services packet dissection
  *   Ronnie Sahlberg 2004
@@ -55,7 +56,7 @@ static int proto_ess = -1;
 static int hf_ess_SecurityCategory_type_OID = -1;
 
 /*--- Included file: packet-ess-hf.c ---*/
-
+#line 1 "packet-ess-hf.c"
 static int hf_ess_ReceiptRequest_PDU = -1;        /* ReceiptRequest */
 static int hf_ess_ContentIdentifier_PDU = -1;     /* ContentIdentifier */
 static int hf_ess_Receipt_PDU = -1;               /* Receipt */
@@ -120,12 +121,12 @@ static int hf_ess_issuer = -1;                    /* GeneralNames */
 static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 
 /*--- End of included file: packet-ess-hf.c ---*/
-
+#line 50 "packet-ess-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-ess-ett.c ---*/
-
+#line 1 "packet-ess-ett.c"
 static gint ett_ess_ReceiptRequest = -1;
 static gint ett_ess_SEQUENCE_OF_GeneralNames = -1;
 static gint ett_ess_ReceiptsFrom = -1;
@@ -154,13 +155,13 @@ static gint ett_ess_ESSCertID = -1;
 static gint ett_ess_IssuerSerial = -1;
 
 /*--- End of included file: packet-ess-ett.c ---*/
-
+#line 53 "packet-ess-template.c"
 
 static const char *object_identifier_id;
 
 
 /*--- Included file: packet-ess-fn.c ---*/
-
+#line 1 "packet-ess-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_receiptsTo_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -488,7 +489,9 @@ static int dissect_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 47 "ess.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -964,7 +967,7 @@ static void dissect_SigningCertificate_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
 
 
 /*--- End of included file: packet-ess-fn.c ---*/
-
+#line 57 "packet-ess-template.c"
 
 
 /*--- proto_register_ess ----------------------------------------------*/
@@ -977,7 +980,7 @@ void proto_register_ess(void) {
 	"Type of Security Category", HFILL }},
 
 /*--- Included file: packet-ess-hfarr.c ---*/
-
+#line 1 "packet-ess-hfarr.c"
     { &hf_ess_ReceiptRequest_PDU,
       { "ReceiptRequest", "ess.ReceiptRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1068,7 +1071,7 @@ void proto_register_ess(void) {
         "Receipt/version", HFILL }},
     { &hf_ess_contentType,
       { "contentType", "ess.contentType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_ess_originatorSignatureValue,
       { "originatorSignatureValue", "ess.originatorSignatureValue",
@@ -1080,7 +1083,7 @@ void proto_register_ess(void) {
         "ContentHints/contentDescription", HFILL }},
     { &hf_ess_security_policy_identifier,
       { "security-policy-identifier", "ess.security_policy_identifier",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ESSSecurityLabel/security-policy-identifier", HFILL }},
     { &hf_ess_security_classification,
       { "security-classification", "ess.security_classification",
@@ -1108,7 +1111,7 @@ void proto_register_ess(void) {
         "SecurityCategories/_item", HFILL }},
     { &hf_ess_type,
       { "type", "ess.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "SecurityCategory/type", HFILL }},
     { &hf_ess_value,
       { "value", "ess.value",
@@ -1116,7 +1119,7 @@ void proto_register_ess(void) {
         "SecurityCategory/value", HFILL }},
     { &hf_ess_tagName,
       { "tagName", "ess.tagName",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_ess_attributeFlags,
       { "attributeFlags", "ess.attributeFlags",
@@ -1228,14 +1231,14 @@ void proto_register_ess(void) {
         "IssuerSerial/serialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
-
+#line 68 "packet-ess-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-ess-ettarr.c ---*/
-
+#line 1 "packet-ess-ettarr.c"
     &ett_ess_ReceiptRequest,
     &ett_ess_SEQUENCE_OF_GeneralNames,
     &ett_ess_ReceiptsFrom,
@@ -1264,7 +1267,7 @@ void proto_register_ess(void) {
     &ett_ess_IssuerSerial,
 
 /*--- End of included file: packet-ess-ettarr.c ---*/
-
+#line 73 "packet-ess-template.c"
   };
 
   /* Register protocol */
@@ -1281,7 +1284,7 @@ void proto_register_ess(void) {
 void proto_reg_handoff_ess(void) {
 
 /*--- Included file: packet-ess-dis-tab.c ---*/
-
+#line 1 "packet-ess-dis-tab.c"
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.1", dissect_ReceiptRequest_PDU, proto_ess, "id-aa-receiptRequest");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.7", dissect_ContentIdentifier_PDU, proto_ess, "id-aa-contentIdentifier");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.1", dissect_Receipt_PDU, proto_ess, "id-ct-receipt");
@@ -1300,6 +1303,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-
+#line 88 "packet-ess-template.c"
 }
 

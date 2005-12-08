@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-cdt.h                                                             */
+/* ./packet-cdt.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
 
 /* Input file: packet-cdt-template.h */
 
+#line 1 "packet-cdt-template.h"
 /* packet-cdt.h
  *
  * Routines for Compressed Data Type packet dissection.
@@ -38,11 +39,11 @@
 void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 
 /*--- Included file: packet-cdt-exp.h ---*/
-
+#line 1 "packet-cdt-exp.h"
 int dissect_cdt_CompressedData(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-cdt-exp.h ---*/
-
+#line 33 "packet-cdt-template.h"
 
 #endif  /* PACKET_CDT_H */
 

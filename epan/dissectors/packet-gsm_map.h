@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_map.h                                                         */
+/* ./packet-gsm_map.h                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.h */
 
+#line 1 "packet-gsm_map-template.h"
 /* packet-gsm_map-template.h
  * Routines for GSM MAP packet dissection
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
@@ -48,7 +49,7 @@ char* unpack_digits(tvbuff_t *tvb, int offset);
 extern const value_string ssCode_vals[];
 
 /*--- Included file: packet-gsm_map-exp.h ---*/
-
+#line 1 "packet-gsm_map-exp.h"
 extern const value_string gsm_map_NotificationToMSUser_vals[];
 extern const value_string gsm_map_SubscriberState_vals[];
 extern const value_string gsm_map_SS_Info_vals[];
@@ -117,6 +118,6 @@ int dissect_gsm_map_ProtectedPayload(gboolean implicit_tag, tvbuff_t *tvb, int o
 int dissect_gsm_map_ExtensionContainer(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-
+#line 43 "packet-gsm_map-template.h"
 
 #endif  /* PACKET_GSM_MAP_H */

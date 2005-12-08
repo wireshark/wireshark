@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x509sat.c                                                         */
+/* ./packet-x509sat.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
+#line 1 "packet-x509sat-template.c"
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
  *  Ronnie Sahlberg 2004
@@ -53,7 +54,7 @@
 int proto_x509sat = -1;
 
 /*--- Included file: packet-x509sat-hf.c ---*/
-
+#line 1 "packet-x509sat-hf.c"
 static int hf_x509sat_DirectoryString_PDU = -1;   /* DirectoryString */
 static int hf_x509sat_UniqueIdentifier_PDU = -1;  /* UniqueIdentifier */
 static int hf_x509sat_CountryName_PDU = -1;       /* CountryName */
@@ -196,12 +197,12 @@ static int hf_x509sat_T_bitNamedDays_friday = -1;
 static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- End of included file: packet-x509sat-hf.c ---*/
-
+#line 48 "packet-x509sat-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-x509sat-ett.c ---*/
-
+#line 1 "packet-x509sat-ett.c"
 static gint ett_x509sat_Guide = -1;
 static gint ett_x509sat_Criteria = -1;
 static gint ett_x509sat_SET_OF_Criteria = -1;
@@ -250,11 +251,11 @@ static gint ett_x509sat_T_between = -1;
 static gint ett_x509sat_LocaleContextSyntax = -1;
 
 /*--- End of included file: packet-x509sat-ett.c ---*/
-
+#line 51 "packet-x509sat-template.c"
 
 
 /*--- Included file: packet-x509sat-fn.c ---*/
-
+#line 1 "packet-x509sat-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Criteria -> Criteria/and -> Criteria */
@@ -309,7 +310,9 @@ static int dissect_ZonalSelect_item(packet_info *pinfo, proto_tree *tree, tvbuff
 
 int
 dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 115 "x509sat.cnf"
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
 
 
   return offset;
@@ -1646,7 +1649,7 @@ static void dissect_DayTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
-
+#line 53 "packet-x509sat-template.c"
 
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -1656,7 +1659,7 @@ void proto_register_x509sat(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-x509sat-hfarr.c ---*/
-
+#line 1 "packet-x509sat-hfarr.c"
     { &hf_x509sat_DirectoryString_PDU,
       { "DirectoryString", "x509sat.DirectoryString",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1735,7 +1738,7 @@ void proto_register_x509sat(void) {
         "DayTime", HFILL }},
     { &hf_x509sat_objectClass,
       { "objectClass", "x509sat.objectClass",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509sat_criteria,
       { "criteria", "x509sat.criteria",
@@ -1767,23 +1770,23 @@ void proto_register_x509sat(void) {
         "Criteria/not", HFILL }},
     { &hf_x509sat_equality,
       { "equality", "x509sat.equality",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CriteriaItem/equality", HFILL }},
     { &hf_x509sat_substrings,
       { "substrings", "x509sat.substrings",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CriteriaItem/substrings", HFILL }},
     { &hf_x509sat_greaterOrEqual,
       { "greaterOrEqual", "x509sat.greaterOrEqual",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CriteriaItem/greaterOrEqual", HFILL }},
     { &hf_x509sat_lessOrEqual,
       { "lessOrEqual", "x509sat.lessOrEqual",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CriteriaItem/lessOrEqual", HFILL }},
     { &hf_x509sat_approximateMatch,
       { "approximateMatch", "x509sat.approximateMatch",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CriteriaItem/approximateMatch", HFILL }},
     { &hf_x509sat_subset,
       { "subset", "x509sat.subset",
@@ -1843,7 +1846,7 @@ void proto_register_x509sat(void) {
         "ProtocolInformation/profiles", HFILL }},
     { &hf_x509sat_profiles_item,
       { "Item", "x509sat.profiles_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ProtocolInformation/profiles/_item", HFILL }},
     { &hf_x509sat_dn,
       { "dn", "x509sat.dn",
@@ -1855,7 +1858,7 @@ void proto_register_x509sat(void) {
         "NameAndOptionalUID/uid", HFILL }},
     { &hf_x509sat_matchingRuleUsed,
       { "matchingRuleUsed", "x509sat.matchingRuleUsed",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MultipleMatchingLocalities/matchingRuleUsed", HFILL }},
     { &hf_x509sat_attributeList,
       { "attributeList", "x509sat.attributeList",
@@ -1907,7 +1910,7 @@ void proto_register_x509sat(void) {
         "OctetSubstringAssertion/_item/final", HFILL }},
     { &hf_x509sat_ZonalSelect_item,
       { "Item", "x509sat.ZonalSelect_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ZonalSelect/_item", HFILL }},
     { &hf_x509sat_time,
       { "time", "x509sat.time",
@@ -2083,7 +2086,7 @@ void proto_register_x509sat(void) {
         "TimeAssertion/between/entirely", HFILL }},
     { &hf_x509sat_localeID1,
       { "localeID1", "x509sat.localeID1",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "LocaleContextSyntax/localeID1", HFILL }},
     { &hf_x509sat_localeID2,
       { "localeID2", "x509sat.localeID2",
@@ -2215,14 +2218,14 @@ void proto_register_x509sat(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509sat-hfarr.c ---*/
-
+#line 61 "packet-x509sat-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-x509sat-ettarr.c ---*/
-
+#line 1 "packet-x509sat-ettarr.c"
     &ett_x509sat_Guide,
     &ett_x509sat_Criteria,
     &ett_x509sat_SET_OF_Criteria,
@@ -2271,7 +2274,7 @@ void proto_register_x509sat(void) {
     &ett_x509sat_LocaleContextSyntax,
 
 /*--- End of included file: packet-x509sat-ettarr.c ---*/
-
+#line 66 "packet-x509sat-template.c"
   };
 
   /* Register protocol */
@@ -2288,7 +2291,7 @@ void proto_register_x509sat(void) {
 void proto_reg_handoff_x509sat(void) {
 
 /*--- Included file: packet-x509sat-dis-tab.c ---*/
-
+#line 1 "packet-x509sat-dis-tab.c"
   register_ber_oid_dissector("2.5.4.6", dissect_CountryName_PDU, proto_x509sat, "id-at-countryName");
   register_ber_oid_dissector("2.5.4.2", dissect_DirectoryString_PDU, proto_x509sat, "id-at-knowledgeInformation");
   register_ber_oid_dissector("2.5.4.10", dissect_DirectoryString_PDU, proto_x509sat, "id-at-organizationName");
@@ -2326,7 +2329,7 @@ void proto_reg_handoff_x509sat(void) {
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
-
+#line 81 "packet-x509sat-template.c"
 }
 
 

@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkixtsp-template.c */
 
+#line 1 "packet-pkixtsp-template.c"
 /* packet-pkixtsp.c
  * Routines for RFC2634 Extended Security Services packet dissection
  *   Ronnie Sahlberg 2004
@@ -54,7 +55,7 @@
 static int proto_pkixtsp = -1;
 
 /*--- Included file: packet-pkixtsp-hf.c ---*/
-
+#line 1 "packet-pkixtsp-hf.c"
 static int hf_pkixtsp_version = -1;               /* T_version */
 static int hf_pkixtsp_messageImprint = -1;        /* MessageImprint */
 static int hf_pkixtsp_reqPolicy = -1;             /* TSAPolicyId */
@@ -88,13 +89,13 @@ static int hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable = -1;
 static int hf_pkixtsp_PKIFailureInfo_systemFailure = -1;
 
 /*--- End of included file: packet-pkixtsp-hf.c ---*/
-
+#line 49 "packet-pkixtsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkixtsp = -1;
 
 /*--- Included file: packet-pkixtsp-ett.c ---*/
-
+#line 1 "packet-pkixtsp-ett.c"
 static gint ett_pkixtsp_TimeStampReq = -1;
 static gint ett_pkixtsp_MessageImprint = -1;
 static gint ett_pkixtsp_TimeStampResp = -1;
@@ -104,12 +105,12 @@ static gint ett_pkixtsp_TSTInfo = -1;
 static gint ett_pkixtsp_Accuracy = -1;
 
 /*--- End of included file: packet-pkixtsp-ett.c ---*/
-
+#line 53 "packet-pkixtsp-template.c"
 
 
 
 /*--- Included file: packet-pkixtsp-fn.c ---*/
-
+#line 1 "packet-pkixtsp-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_extensions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -175,8 +176,7 @@ static int dissect_messageImprint(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_pkixtsp_TSAPolicyId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -423,7 +423,7 @@ dissect_pkixtsp_TSTInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 /*--- End of included file: packet-pkixtsp-fn.c ---*/
-
+#line 56 "packet-pkixtsp-template.c"
 
 
 static int
@@ -482,7 +482,7 @@ void proto_register_pkixtsp(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkixtsp-hfarr.c ---*/
-
+#line 1 "packet-pkixtsp-hfarr.c"
     { &hf_pkixtsp_version,
       { "version", "pkixtsp.version",
         FT_INT32, BASE_DEC, VALS(pkixtsp_T_version_vals), 0,
@@ -493,7 +493,7 @@ void proto_register_pkixtsp(void) {
         "", HFILL }},
     { &hf_pkixtsp_reqPolicy,
       { "reqPolicy", "pkixtsp.reqPolicy",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "TimeStampReq/reqPolicy", HFILL }},
     { &hf_pkixtsp_nonce,
       { "nonce", "pkixtsp.nonce",
@@ -537,7 +537,7 @@ void proto_register_pkixtsp(void) {
         "TSTInfo/version", HFILL }},
     { &hf_pkixtsp_policy,
       { "policy", "pkixtsp.policy",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "TSTInfo/policy", HFILL }},
     { &hf_pkixtsp_serialNumber,
       { "serialNumber", "pkixtsp.serialNumber",
@@ -605,7 +605,7 @@ void proto_register_pkixtsp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pkixtsp-hfarr.c ---*/
-
+#line 113 "packet-pkixtsp-template.c"
   };
 
   /* List of subtrees */
@@ -613,7 +613,7 @@ void proto_register_pkixtsp(void) {
 	&ett_pkixtsp,
 
 /*--- Included file: packet-pkixtsp-ettarr.c ---*/
-
+#line 1 "packet-pkixtsp-ettarr.c"
     &ett_pkixtsp_TimeStampReq,
     &ett_pkixtsp_MessageImprint,
     &ett_pkixtsp_TimeStampResp,
@@ -623,7 +623,7 @@ void proto_register_pkixtsp(void) {
     &ett_pkixtsp_Accuracy,
 
 /*--- End of included file: packet-pkixtsp-ettarr.c ---*/
-
+#line 119 "packet-pkixtsp-template.c"
   };
 
   /* Register protocol */

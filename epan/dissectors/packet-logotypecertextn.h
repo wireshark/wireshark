@@ -5,6 +5,7 @@
 
 /* Input file: packet-logotype-cert-extn-template.h */
 
+#line 1 "packet-logotype-cert-extn-template.h"
 /* packet-logotype-cert-extn.h
  * Routines for RFC3907 Logotype Certificate Extensions packet dissection
  *    Ronnie Sahlberg 2004

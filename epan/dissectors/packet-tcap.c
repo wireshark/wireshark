@@ -5,6 +5,7 @@
 
 /* Input file: packet-tcap-template.c */
 
+#line 1 "packet-tcap-template.c"
 /* packet-tcap-template.c
  * Routines for  TCAP
  * Copyright 2004 - 2005, Tim Endean <endeant@hotmail.com>
@@ -57,7 +58,7 @@ static int hf_tcap_data = -1;
 static int hf_tcap_tid = -1;
 
 /*--- Included file: packet-tcap-hf.c ---*/
-
+#line 1 "packet-tcap-hf.c"
 static int hf_tcap_dialogueRequest = -1;          /* AARQ_apdu */
 static int hf_tcap_dialogueResponse = -1;         /* AARE_apdu */
 static int hf_tcap_dialogueAbort = -1;            /* ABRT_apdu */
@@ -183,7 +184,7 @@ static int hf_tcap_T_protocol_versionre_version1 = -1;
 static int hf_tcap_T_protocol_version3_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-
+#line 52 "packet-tcap-template.c"
 static guint tcap_itu_ssn = 106;
 
 static guint global_tcap_itu_ssn = 1;
@@ -198,7 +199,7 @@ static gint ett_dtid = -1;
 
 
 /*--- Included file: packet-tcap-ett.c ---*/
-
+#line 1 "packet-tcap-ett.c"
 static gint ett_tcap_DialoguePDU = -1;
 static gint ett_tcap_ExternalPDU = -1;
 static gint ett_tcap_UserInformation = -1;
@@ -251,7 +252,7 @@ static gint ett_tcap_OperationCode = -1;
 static gint ett_tcap_ErrorCode = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-
+#line 65 "packet-tcap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -272,7 +273,7 @@ static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 /*--- Included file: packet-tcap-fn.c ---*/
-
+#line 1 "packet-tcap-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -298,9 +299,11 @@ static int dissect_protocol_versionrq_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 128 "tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &cur_oid);
 
 	pinfo->private_data = cur_oid;
+
 
 
   return offset;
@@ -313,6 +316,7 @@ static int dissect_application_context_name(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_tcap_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 77 "tcap.cnf"
 tvbuff_t	*next_tvb;
 guint8 class;
 	gboolean pc;
@@ -330,6 +334,7 @@ dissect_tcap_UserInformation(TRUE, next_tvb, 0, pinfo, tree, -1);
  
  
 return offset+len;
+
 
   return offset;
 }
@@ -565,6 +570,7 @@ static int dissect_objectConfidentialityId_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 43 "tcap.cnf"
 guint8 class;
 	gboolean pc;
 	guint32 tag;
@@ -577,6 +583,7 @@ offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
  dissect_tcap_DialoguePDU(TRUE, tvb, 0, pinfo, tree, -1);
 
 return offset+len;
+
 
 
   return offset;
@@ -604,9 +611,11 @@ dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 132 "tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &tcapext_oid);
 
 	pinfo->private_data = tcapext_oid;
+
 
 
   return offset;
@@ -619,6 +628,7 @@ static int dissect_useroid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_tcap_ExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 136 "tcap.cnf"
 tvbuff_t	*next_tvb;
 guint8 class;
 	gboolean pc;
@@ -643,6 +653,7 @@ if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, next_tvb, pinfo, 
 	}
 dissect_tcap_param(pinfo,tree,next_tvb,0);
 	offset+=len;
+
 
 
 
@@ -801,6 +812,7 @@ dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 static int
 dissect_tcap_DialogueOC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 21 "tcap.cnf"
 tvbuff_t	*next_tvb;
 guint8 class;
 	gboolean pc;
@@ -821,6 +833,7 @@ offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 
 
 return offset+len;
+
 
 
   return offset;
@@ -914,6 +927,7 @@ static int dissect_opCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_tcap_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 57 "tcap.cnf"
 tvbuff_t	*next_tvb;
 guint8 class;
 	gboolean pc;
@@ -932,6 +946,7 @@ if (!next_tvb)
  dissect_tcap_param(pinfo,tree,tvb,0);
  offset += len;
   return offset;
+
 
 
   return offset;
@@ -1251,6 +1266,7 @@ static const ber_choice_t Component_choice[] = {
 
 static int
 dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 95 "tcap.cnf"
 tvbuff_t	*next_tvb;
 guint8 class;
 	gboolean pc;
@@ -1282,6 +1298,7 @@ if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap
 else
 	 dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree);
 return offset+len;
+
 
 
   return offset;
@@ -1328,6 +1345,7 @@ static int dissect_unidirectional_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 184 "tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len, i;
 proto_item *tid_item;
@@ -1350,6 +1368,7 @@ if (parameter_tvb){
 
 
 
+
   return offset;
 }
 static int dissect_otid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1366,10 +1385,12 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 225 "tcap.cnf"
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Begin ");
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Begin_sequence, hf_index, ett_tcap_Begin);
+
 
   return offset;
 }
@@ -1381,6 +1402,7 @@ static int dissect_begin_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 206 "tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len , i;
 proto_item *tid_item;
@@ -1400,6 +1422,7 @@ if (parameter_tvb){
 	   }
 }
 
+
   return offset;
 }
 static int dissect_dtid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1416,10 +1439,12 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 230 "tcap.cnf"
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " End ");
 offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 End_sequence, hf_index, ett_tcap_End);
+
 
   return offset;
 }
@@ -1438,10 +1463,12 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 235 "tcap.cnf"
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Continue ");
 offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Continue_sequence, hf_index, ett_tcap_Continue);
+
 
   return offset;
 }
@@ -1505,10 +1532,12 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 240 "tcap.cnf"
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Abort_sequence, hf_index, ett_tcap_Abort); 
+
 
   return offset;
 }
@@ -1722,6 +1751,7 @@ static int dissect_operationCode(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_tcap_ANSIParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 163 "tcap.cnf"
 /* we are doing the ParamSet here so need to look at the tags*/
 	guint32 len;
 len = tvb_length_remaining(tvb, offset);
@@ -1730,6 +1760,7 @@ if (len > 2)  /* arghhh I dont know whether this is constructed or not! */
 else
 offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
                                     NULL);
+
 
 
 
@@ -1986,6 +2017,7 @@ static const ber_choice_t ComponentPDU_choice[] = {
 
 static int
 dissect_tcap_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 174 "tcap.cnf"
 tvbuff_t *next_tvb;
 
 next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
@@ -1995,6 +2027,7 @@ dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, p
 offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
 	
+
 
   return offset;
 }
@@ -2047,6 +2080,7 @@ static const ber_sequence_t TransactionPDU_sequence[] = {
 
 static int
 dissect_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 250 "tcap.cnf"
 if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
 				col_append_fstr(pinfo->cinfo, COL_INFO, " QueryWithPerm");		
 				
@@ -2065,6 +2099,7 @@ if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(pinfo->cinfo, 
  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                 TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);  
           
+
 
   return offset;
 }
@@ -2146,10 +2181,12 @@ static const ber_sequence_t AbortPDU_sequence[] = {
 
 static int
 dissect_tcap_AbortPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 245 "tcap.cnf"
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
    offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);
+
 
   return offset;
 }
@@ -2223,7 +2260,7 @@ dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-
+#line 84 "packet-tcap-template.c"
 
 
 
@@ -2300,7 +2337,7 @@ proto_register_tcap(void)
 	},
 
 /*--- Included file: packet-tcap-hfarr.c ---*/
-
+#line 1 "packet-tcap-hfarr.c"
     { &hf_tcap_dialogueRequest,
       { "dialogueRequest", "tcap.dialogueRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2315,7 +2352,7 @@ proto_register_tcap(void)
         "DialoguePDU/dialogueAbort", HFILL }},
     { &hf_tcap_oid,
       { "oid", "tcap.oid",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ExternalPDU/oid", HFILL }},
     { &hf_tcap_dialog,
       { "dialog", "tcap.dialog",
@@ -2323,7 +2360,7 @@ proto_register_tcap(void)
         "ExternalPDU/dialog", HFILL }},
     { &hf_tcap_useroid,
       { "useroid", "tcap.useroid",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "UserInformation/useroid", HFILL }},
     { &hf_tcap_externuserinfo,
       { "externuserinfo", "tcap.externuserinfo",
@@ -2335,7 +2372,7 @@ proto_register_tcap(void)
         "AARQ-apdu/protocol-versionrq", HFILL }},
     { &hf_tcap_application_context_name,
       { "application-context-name", "tcap.application_context_name",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_tcap_user_information,
       { "user-information", "tcap.user_information",
@@ -2543,7 +2580,7 @@ proto_register_tcap(void)
         "", HFILL }},
     { &hf_tcap_globalValue,
       { "globalValue", "tcap.globalValue",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_tcap_identifier,
       { "identifier", "tcap.identifier",
@@ -2583,7 +2620,7 @@ proto_register_tcap(void)
         "DialoguePortionANSI/applicationContext/integerApplicationId", HFILL }},
     { &hf_tcap_objectApplicationId,
       { "objectApplicationId", "tcap.objectApplicationId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DialoguePortionANSI/applicationContext/objectApplicationId", HFILL }},
     { &hf_tcap_securityContext,
       { "securityContext", "tcap.securityContext",
@@ -2595,7 +2632,7 @@ proto_register_tcap(void)
         "DialoguePortionANSI/securityContext/integerSecurityId", HFILL }},
     { &hf_tcap_objectSecurityId,
       { "objectSecurityId", "tcap.objectSecurityId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DialoguePortionANSI/securityContext/objectSecurityId", HFILL }},
     { &hf_tcap_confidentiality,
       { "confidentiality", "tcap.confidentiality",
@@ -2611,7 +2648,7 @@ proto_register_tcap(void)
         "Confidentiality/confidentialityId/integerConfidentialityId", HFILL }},
     { &hf_tcap_objectConfidentialityId,
       { "objectConfidentialityId", "tcap.objectConfidentialityId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Confidentiality/confidentialityId/objectConfidentialityId", HFILL }},
     { &hf_tcap_ComponentSequence_item,
       { "Item", "tcap.ComponentSequence_item",
@@ -2791,7 +2828,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-
+#line 159 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -2802,7 +2839,7 @@ proto_register_tcap(void)
 	&ett_dtid,
 
 /*--- Included file: packet-tcap-ettarr.c ---*/
-
+#line 1 "packet-tcap-ettarr.c"
     &ett_tcap_DialoguePDU,
     &ett_tcap_ExternalPDU,
     &ett_tcap_UserInformation,
@@ -2855,7 +2892,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-
+#line 168 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

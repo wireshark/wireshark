@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-nbap.c                                                            */
+/* ./packet-nbap.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p nbap -c nbap.cnf -s packet-nbap-template nbap.asn */
 
 /* Input file: packet-nbap-template.c */
 
+#line 1 "packet-nbap-template.c"
 /* packet-nbap.c
  * Routines for UMTS Node B Application Part(NBAP) packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -63,7 +64,7 @@ static int hf_nbap_IE_length = -1;
 
 
 /*--- Included file: packet-nbap-hf.c ---*/
-
+#line 1 "packet-nbap-hf.c"
 static int hf_nbap_NBAP_PDU_PDU = -1;             /* NBAP_PDU */
 static int hf_nbap_initiatingMessage = -1;        /* InitiatingMessage */
 static int hf_nbap_succesfulOutcome = -1;         /* SuccessfulOutcome */
@@ -2067,7 +2068,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-
+#line 58 "packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -2078,7 +2079,7 @@ static int ett_nbap_UnsuccessfulOutcomeValue = -1;
 
 
 /*--- Included file: packet-nbap-ett.c ---*/
-
+#line 1 "packet-nbap-ett.c"
 static gint ett_nbap_NBAP_PDU = -1;
 static gint ett_nbap_InitiatingMessage = -1;
 static gint ett_nbap_SuccessfulOutcome = -1;
@@ -3087,7 +3088,7 @@ static gint ett_nbap_PrivateIE_Container = -1;
 static gint ett_nbap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-
+#line 67 "packet-nbap-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -3760,7 +3761,7 @@ static int dissect_nbap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset,
 static int dissect_nbap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 /*--- Included file: packet-nbap-fn.c ---*/
-
+#line 1 "packet-nbap-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -3828,10 +3829,12 @@ dissect_nbap_ProcedureCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               0U, 255U, &ProcedureCode, NULL, FALSE);
 
+#line 23 "nbap.cnf"
 	if (check_col(pinfo->cinfo, COL_INFO))
        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
                               "unknown message"));
+
   return offset;
 }
 static int dissect_procedureCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -3988,8 +3991,10 @@ static int dissect_transactionID(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 static int
 dissect_nbap_InitiatingMessageValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 44 "nbap.cnf"
 
 	offset = dissect_nbap_InitiatingMessageValueValue(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -4023,8 +4028,10 @@ static int dissect_initiatingMessage(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int
 dissect_nbap_SuccessfulOutcomeValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 48 "nbap.cnf"
 
 	offset = dissect_nbap_SuccessfulOutcomeValueValue(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -4058,8 +4065,10 @@ static int dissect_succesfulOutcome(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_nbap_UnsuccessfulOutcomeValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 60 "nbap.cnf"
 
 	offset = dissect_nbap_UnsuccessfulOutcomeValueValue(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -4093,12 +4102,14 @@ static int dissect_unsuccesfulOutcome(tvbuff_t *tvb, int offset, packet_info *pi
 
 static int
 dissect_nbap_OutcomeValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 52 "nbap.cnf"
 	/* FIX ME */
 	guint length;
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_pdu_length, &length);
 	offset = offset + length;
 	BYTE_ALIGN_OFFSET(offset)
+
 
 
   return offset;
@@ -4772,8 +4783,10 @@ static int dissect_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static int
 dissect_nbap_ProtocolIEValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 64 "nbap.cnf"
 
 	offset = dissect_nbap_ProtocolIEValueValue(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -4825,12 +4838,14 @@ static int dissect_ProtocolIE_ContainerList_item(tvbuff_t *tvb, int offset, pack
 
 static int
 dissect_nbap_Extension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 36 "nbap.cnf"
 	/* FIX ME */
 	guint length;
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
 	offset = offset + length;
 	BYTE_ALIGN_OFFSET(offset)
+
 
 
   return offset;
@@ -5409,12 +5424,14 @@ static int dissect_privateIEid(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static int
 dissect_nbap_PrivateIEvalue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 85 "nbap.cnf"
 	/* FIX ME */
 	guint length;
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
 	offset = offset + length;
 	BYTE_ALIGN_OFFSET(offset)
+
 
   return offset;
 }
@@ -18079,7 +18096,7 @@ static int dissect_segment_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 static int
 dissect_nbap_IB_SG_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                     -1, -1, FALSE);
+                                     NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }
@@ -34441,12 +34458,14 @@ dissect_nbap_Presence(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 static int
 dissect_nbap_FirstValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 68 "nbap.cnf"
 	/* FIX ME */
 	guint length;
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
 	offset = offset + length;
 	BYTE_ALIGN_OFFSET(offset)
+
 
 
   return offset;
@@ -34459,12 +34478,14 @@ static int dissect_firstValue(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 dissect_nbap_SecondValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 76 "nbap.cnf"
 	/* FIX ME */
 	guint length;
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
 	offset = offset + length;
 	BYTE_ALIGN_OFFSET(offset)
+
 
 
 
@@ -34548,7 +34569,7 @@ static void dissect_NBAP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-
+#line 738 "packet-nbap-template.c"
 
 
 static int dissect_nbap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree){
@@ -36737,7 +36758,7 @@ void proto_register_nbap(void) {
 		NULL, 0, "Number of octets in the IE", HFILL }},
 
 /*--- Included file: packet-nbap-hfarr.c ---*/
-
+#line 1 "packet-nbap-hfarr.c"
     { &hf_nbap_NBAP_PDU_PDU,
       { "NBAP-PDU", "nbap.NBAP_PDU",
         FT_UINT32, BASE_DEC, VALS(nbap_NBAP_PDU_vals), 0,
@@ -37428,7 +37449,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-DL-ReferencePowerInformationItem-DL-PC-Rqst", HFILL }},
     { &hf_nbap_id_DLReferencePower,
       { "id-DLReferencePower", "nbap.id_DLReferencePower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-DLReferencePower", HFILL }},
     { &hf_nbap_id_DLReferencePowerList_DL_PC_Rqst,
       { "id-DLReferencePowerList-DL-PC-Rqst", "nbap.id_DLReferencePowerList_DL_PC_Rqst",
@@ -38152,7 +38173,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-DPC-Mode", HFILL }},
     { &hf_nbap_id_DPCHConstant,
       { "id-DPCHConstant", "nbap.id_DPCHConstant",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-DPCHConstant", HFILL }},
     { &hf_nbap_id_FACH_ParametersList_CTCH_SetupRsp,
       { "id-FACH-ParametersList-CTCH-SetupRsp", "nbap.id_FACH_ParametersList_CTCH_SetupRsp",
@@ -38176,7 +38197,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-PICH-ParametersItem-CTCH-ReconfRqstFDD", HFILL }},
     { &hf_nbap_id_PRACHConstant,
       { "id-PRACHConstant", "nbap.id_PRACHConstant",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-PRACHConstant", HFILL }},
     { &hf_nbap_id_PRACH_ParametersListIE_CTCH_ReconfRqstFDD,
       { "id-PRACH-ParametersListIE-CTCH-ReconfRqstFDD", "nbap.id_PRACH_ParametersListIE_CTCH_ReconfRqstFDD",
@@ -38184,7 +38205,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-PRACH-ParametersListIE-CTCH-ReconfRqstFDD", HFILL }},
     { &hf_nbap_id_PUSCHConstant,
       { "id-PUSCHConstant", "nbap.id_PUSCHConstant",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-PUSCHConstant", HFILL }},
     { &hf_nbap_id_RACH_Parameters_CTCH_SetupRsp,
       { "id-RACH-Parameters-CTCH-SetupRsp", "nbap.id_RACH_Parameters_CTCH_SetupRsp",
@@ -38448,11 +38469,11 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-DwPCH-LCR-Information-ResourceStatusInd", HFILL }},
     { &hf_nbap_id_maxFACH_Power_LCR_CTCH_SetupRqstTDD,
       { "id-maxFACH-Power-LCR-CTCH-SetupRqstTDD", "nbap.id_maxFACH_Power_LCR_CTCH_SetupRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-maxFACH-Power-LCR-CTCH-SetupRqstTDD", HFILL }},
     { &hf_nbap_id_maxFACH_Power_LCR_CTCH_ReconfRqstTDD,
       { "id-maxFACH-Power-LCR-CTCH-ReconfRqstTDD", "nbap.id_maxFACH_Power_LCR_CTCH_ReconfRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-maxFACH-Power-LCR-CTCH-ReconfRqstTDD", HFILL }},
     { &hf_nbap_id_FPACH_LCR_Information,
       { "id-FPACH-LCR-Information", "nbap.id_FPACH_LCR_Information",
@@ -38484,11 +38505,11 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-PCCPCH-LCR-Information-Cell-SetupRqstTDD", HFILL }},
     { &hf_nbap_id_PCH_Power_LCR_CTCH_SetupRqstTDD,
       { "id-PCH-Power-LCR-CTCH-SetupRqstTDD", "nbap.id_PCH_Power_LCR_CTCH_SetupRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-PCH-Power-LCR-CTCH-SetupRqstTDD", HFILL }},
     { &hf_nbap_id_PCH_Power_LCR_CTCH_ReconfRqstTDD,
       { "id-PCH-Power-LCR-CTCH-ReconfRqstTDD", "nbap.id_PCH_Power_LCR_CTCH_ReconfRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-PCH-Power-LCR-CTCH-ReconfRqstTDD", HFILL }},
     { &hf_nbap_id_PICH_LCR_Parameters_CTCH_SetupRqstTDD,
       { "id-PICH-LCR-Parameters-CTCH-SetupRqstTDD", "nbap.id_PICH_LCR_Parameters_CTCH_SetupRqstTDD",
@@ -38572,7 +38593,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-UL-TimeslotLCR-Information-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_UL_SIRTarget,
       { "id-UL-SIRTarget", "nbap.id_UL_SIRTarget",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-UL-SIRTarget", HFILL }},
     { &hf_nbap_id_PDSCH_AddInformation_LCR_PSCH_ReconfRqst,
       { "id-PDSCH-AddInformation-LCR-PSCH-ReconfRqst", "nbap.id_PDSCH_AddInformation_LCR_PSCH_ReconfRqst",
@@ -38640,7 +38661,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-PUSCH-Info-DM-Rprt", HFILL }},
     { &hf_nbap_id_InitDL_Power,
       { "id-InitDL-Power", "nbap.id_InitDL_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-InitDL-Power", HFILL }},
     { &hf_nbap_id_cellSyncBurstRepetitionPeriod,
       { "id-cellSyncBurstRepetitionPeriod", "nbap.id_cellSyncBurstRepetitionPeriod",
@@ -38688,15 +38709,15 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-DL-PowerBalancing-UpdatedIndicator", HFILL }},
     { &hf_nbap_id_CCTrCH_Initial_DL_Power_RL_SetupRqstTDD,
       { "id-CCTrCH-Initial-DL-Power-RL-SetupRqstTDD", "nbap.id_CCTrCH_Initial_DL_Power_RL_SetupRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Initial-DL-Power-RL-SetupRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Initial_DL_Power_RL_AdditionRqstTDD,
       { "id-CCTrCH-Initial-DL-Power-RL-AdditionRqstTDD", "nbap.id_CCTrCH_Initial_DL_Power_RL_AdditionRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Initial-DL-Power-RL-AdditionRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Initial_DL_Power_RL_ReconfPrepTDD,
       { "id-CCTrCH-Initial-DL-Power-RL-ReconfPrepTDD", "nbap.id_CCTrCH_Initial_DL_Power_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Initial-DL-Power-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_IPDLParameter_Information_LCR_Cell_SetupRqstTDD,
       { "id-IPDLParameter-Information-LCR-Cell-SetupRqstTDD", "nbap.id_IPDLParameter_Information_LCR_Cell_SetupRqstTDD",
@@ -38808,7 +38829,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-NSubCyclesPerCyclePeriod-CellSyncReconfRqstTDD", HFILL }},
     { &hf_nbap_id_DwPCH_Power,
       { "id-DwPCH-Power", "nbap.id_DwPCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-DwPCH-Power", HFILL }},
     { &hf_nbap_id_AccumulatedClockupdate_CellSyncReprtTDD,
       { "id-AccumulatedClockupdate-CellSyncReprtTDD", "nbap.id_AccumulatedClockupdate_CellSyncReprtTDD",
@@ -38908,43 +38929,43 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-TDD-TPC-DownlinkStepSize-InformationAdd-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Maximum_DL_Power_RL_SetupRqstTDD,
       { "id-CCTrCH-Maximum-DL-Power-RL-SetupRqstTDD", "nbap.id_CCTrCH_Maximum_DL_Power_RL_SetupRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Maximum-DL-Power-RL-SetupRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Minimum_DL_Power_RL_SetupRqstTDD,
       { "id-CCTrCH-Minimum-DL-Power-RL-SetupRqstTDD", "nbap.id_CCTrCH_Minimum_DL_Power_RL_SetupRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Minimum-DL-Power-RL-SetupRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Maximum_DL_Power_RL_AdditionRqstTDD,
       { "id-CCTrCH-Maximum-DL-Power-RL-AdditionRqstTDD", "nbap.id_CCTrCH_Maximum_DL_Power_RL_AdditionRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Maximum-DL-Power-RL-AdditionRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Minimum_DL_Power_RL_AdditionRqstTDD,
       { "id-CCTrCH-Minimum-DL-Power-RL-AdditionRqstTDD", "nbap.id_CCTrCH_Minimum_DL_Power_RL_AdditionRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Minimum-DL-Power-RL-AdditionRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD,
       { "id-CCTrCH-Maximum-DL-Power-InformationAdd-RL-ReconfPrepTDD", "nbap.id_CCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Maximum-DL-Power-InformationAdd-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD,
       { "id-CCTrCH-Minimum-DL-Power-InformationAdd-RL-ReconfPrepTDD", "nbap.id_CCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Minimum-DL-Power-InformationAdd-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD,
       { "id-CCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfPrepTDD", "nbap.id_CCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD,
       { "id-CCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfPrepTDD", "nbap.id_CCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_Maximum_DL_Power_Modify_LCR_InformationModify_RL_ReconfPrepTDD,
       { "id-Maximum-DL-Power-Modify-LCR-InformationModify-RL-ReconfPrepTDD", "nbap.id_Maximum_DL_Power_Modify_LCR_InformationModify_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-Maximum-DL-Power-Modify-LCR-InformationModify-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_Minimum_DL_Power_Modify_LCR_InformationModify_RL_ReconfPrepTDD,
       { "id-Minimum-DL-Power-Modify-LCR-InformationModify-RL-ReconfPrepTDD", "nbap.id_Minimum_DL_Power_Modify_LCR_InformationModify_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-Minimum-DL-Power-Modify-LCR-InformationModify-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_id_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD,
       { "id-DL-DPCH-LCR-InformationModify-ModifyList-RL-ReconfRqstTDD", "nbap.id_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD",
@@ -38952,23 +38973,23 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-DL-DPCH-LCR-InformationModify-ModifyList-RL-ReconfRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD,
       { "id-CCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfRqstTDD", "nbap.id_CCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfRqstTDD", HFILL }},
     { &hf_nbap_id_CCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD,
       { "id-CCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfRqstTDD", "nbap.id_CCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-CCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfRqstTDD", HFILL }},
     { &hf_nbap_id_Initial_DL_Power_TimeslotLCR_InformationItem,
       { "id-Initial-DL-Power-TimeslotLCR-InformationItem", "nbap.id_Initial_DL_Power_TimeslotLCR_InformationItem",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-Initial-DL-Power-TimeslotLCR-InformationItem", HFILL }},
     { &hf_nbap_id_Maximum_DL_Power_TimeslotLCR_InformationItem,
       { "id-Maximum-DL-Power-TimeslotLCR-InformationItem", "nbap.id_Maximum_DL_Power_TimeslotLCR_InformationItem",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-Maximum-DL-Power-TimeslotLCR-InformationItem", HFILL }},
     { &hf_nbap_id_Minimum_DL_Power_TimeslotLCR_InformationItem,
       { "id-Minimum-DL-Power-TimeslotLCR-InformationItem", "nbap.id_Minimum_DL_Power_TimeslotLCR_InformationItem",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-Minimum-DL-Power-TimeslotLCR-InformationItem", HFILL }},
     { &hf_nbap_id_HS_DSCHProvidedBitRateValueInformation,
       { "id-HS-DSCHProvidedBitRateValueInformation", "nbap.id_HS_DSCHProvidedBitRateValueInformation",
@@ -39120,7 +39141,7 @@ void proto_register_nbap(void) {
         "DymmyProtocolIE-ID/id-UpPTSInterferenceValue", HFILL }},
     { &hf_nbap_id_PrimaryCCPCH_RSCP_Delta,
       { "id-PrimaryCCPCH-RSCP-Delta", "nbap.id_PrimaryCCPCH_RSCP_Delta",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DymmyProtocolIE-ID/id-PrimaryCCPCH-RSCP-Delta", HFILL }},
     { &hf_nbap_id_MeasurementRecoveryBehavior,
       { "id-MeasurementRecoveryBehavior", "nbap.id_MeasurementRecoveryBehavior",
@@ -39520,11 +39541,11 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_maxFACH_Power,
       { "maxFACH-Power", "nbap.maxFACH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_pCH_Power,
       { "pCH-Power", "nbap.pCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_pICH_Parameters,
       { "pICH-Parameters", "nbap.pICH_Parameters",
@@ -39536,7 +39557,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_pICH_Power,
       { "pICH-Power", "nbap.pICH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_pICH_Mode,
       { "pICH-Mode", "nbap.pICH_Mode",
@@ -39544,7 +39565,7 @@ void proto_register_nbap(void) {
         "PICH-Parameters-CTCH-SetupRqstFDD/pICH-Mode", HFILL }},
     { &hf_nbap_mICH_Power,
       { "mICH-Power", "nbap.mICH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_mICH_Mode,
       { "mICH-Mode", "nbap.mICH_Mode",
@@ -39596,7 +39617,7 @@ void proto_register_nbap(void) {
         "AICH-Parameters-CTCH-SetupRqstFDD/aICH-TransmissionTiming", HFILL }},
     { &hf_nbap_aICH_Power,
       { "aICH-Power", "nbap.aICH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_secondary_CCPCH_parameters1,
       { "secondary-CCPCH-parameters", "nbap.secondary_CCPCH_parameters",
@@ -39660,7 +39681,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_s_CCPCH_Power,
       { "s-CCPCH-Power", "nbap.s_CCPCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD_item,
       { "Item", "nbap.FACH_ParametersListIE_CTCH_SetupRqstTDD_item",
@@ -39776,7 +39797,7 @@ void proto_register_nbap(void) {
         "PRACH-LCR-ParametersList-CTCH-SetupRqstTDD/_item", HFILL }},
     { &hf_nbap_fPACH_Power,
       { "fPACH-Power", "nbap.fPACH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "FPACH-LCR-Parameters-CTCH-SetupRqstTDD/fPACH-Power", HFILL }},
     { &hf_nbap_FACH_CommonTransportChannel_InformationResponse_item,
       { "Item", "nbap.FACH_CommonTransportChannel_InformationResponse_item",
@@ -39852,7 +39873,7 @@ void proto_register_nbap(void) {
         "Secondary-CCPCHListIE-CTCH-ReconfRqstTDD/_item", HFILL }},
     { &hf_nbap_sCCPCH_Power,
       { "sCCPCH-Power", "nbap.sCCPCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "Secondary-CCPCHItem-CTCH-ReconfRqstTDD/sCCPCH-Power", HFILL }},
     { &hf_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD_item,
       { "Item", "nbap.FACH_ParametersList_CTCH_ReconfRqstTDD_item",
@@ -39864,7 +39885,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_fPACHPower,
       { "fPACHPower", "nbap.fPACHPower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "FPACH-LCR-Parameters-CTCH-ReconfRqstTDD/fPACHPower", HFILL }},
     { &hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_item,
       { "Item", "nbap.Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_item",
@@ -40112,15 +40133,15 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_primarySCH_Power,
       { "primarySCH-Power", "nbap.primarySCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_secondarySCH_Power,
       { "secondarySCH-Power", "nbap.secondarySCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_primaryCPICH_Power,
       { "primaryCPICH-Power", "nbap.primaryCPICH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_transmitDiversityIndicator,
       { "transmitDiversityIndicator", "nbap.transmitDiversityIndicator",
@@ -40136,7 +40157,7 @@ void proto_register_nbap(void) {
         "SecondaryCPICH-InformationItem-Cell-SetupRqstFDD/fDD-DL-ChannelisationCodeNumber", HFILL }},
     { &hf_nbap_secondaryCPICH_Power,
       { "secondaryCPICH-Power", "nbap.secondaryCPICH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_bCH_information,
       { "bCH-information", "nbap.bCH_information",
@@ -40144,7 +40165,7 @@ void proto_register_nbap(void) {
         "PrimaryCCPCH-Information-Cell-SetupRqstFDD/bCH-information", HFILL }},
     { &hf_nbap_bCH_Power,
       { "bCH-Power", "nbap.bCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_powerRaiseLimit,
       { "powerRaiseLimit", "nbap.powerRaiseLimit",
@@ -40184,7 +40205,7 @@ void proto_register_nbap(void) {
         "SCH-Information-Cell-SetupRqstTDD/syncCaseIndicator", HFILL }},
     { &hf_nbap_sCH_Power,
       { "sCH-Power", "nbap.sCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_case1,
       { "case1", "nbap.case1",
@@ -40200,7 +40221,7 @@ void proto_register_nbap(void) {
         "Case2-Cell-SetupRqstTDD/sCH-TimeSlot", HFILL }},
     { &hf_nbap_pCCPCH_Power,
       { "pCCPCH-Power", "nbap.pCCPCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_sCTD_Indicator,
       { "sCTD-Indicator", "nbap.sCTD_Indicator",
@@ -40224,7 +40245,7 @@ void proto_register_nbap(void) {
         "TimeSlotConfigurationList-LCR-Cell-SetupRqstTDD/_item", HFILL }},
     { &hf_nbap_dwPCH_Power,
       { "dwPCH-Power", "nbap.dwPCH_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_iPDL_TDD_Parameters,
       { "iPDL-TDD-Parameters", "nbap.iPDL_TDD_Parameters",
@@ -40496,7 +40517,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_ul_SIR_Target,
       { "ul-SIR-Target", "nbap.ul_SIR_Target",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_diversityMode,
       { "diversityMode", "nbap.diversityMode",
@@ -40580,15 +40601,15 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_initialDL_transmissionPower,
       { "initialDL-transmissionPower", "nbap.initialDL_transmissionPower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_maximumDL_power,
       { "maximumDL-power", "nbap.maximumDL_power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_minimumDL_power,
       { "minimumDL-power", "nbap.minimumDL_power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_not_Used_sSDT_Cell_Identity,
       { "not-Used-sSDT-Cell-Identity", "nbap.not_Used_sSDT_Cell_Identity",
@@ -40796,15 +40817,15 @@ void proto_register_nbap(void) {
         "RL-InformationList-RL-AdditionRqstFDD/_item", HFILL }},
     { &hf_nbap_initialDL_TransmissionPower,
       { "initialDL-TransmissionPower", "nbap.initialDL_TransmissionPower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "RL-InformationItem-RL-AdditionRqstFDD/initialDL-TransmissionPower", HFILL }},
     { &hf_nbap_maximumDL_Power,
       { "maximumDL-Power", "nbap.maximumDL_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_minimumDL_Power,
       { "minimumDL-Power", "nbap.minimumDL_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_not_Used_sSDT_CellIdentity,
       { "not-Used-sSDT-CellIdentity", "nbap.not_Used_sSDT_CellIdentity",
@@ -40828,7 +40849,7 @@ void proto_register_nbap(void) {
         "DL-CCTrCH-InformationItem-RL-AdditionRqstTDD/dL-DPCH-Information", HFILL }},
     { &hf_nbap_initial_DL_Transmission_Power,
       { "initial-DL-Transmission-Power", "nbap.initial_DL_Transmission_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "RL-Information-RL-AdditionRqstTDD/initial-DL-Transmission-Power", HFILL }},
     { &hf_nbap_RL_InformationResponseList_RL_AdditionRspFDD_item,
       { "Item", "nbap.RL_InformationResponseList_RL_AdditionRspFDD_item",
@@ -40944,11 +40965,11 @@ void proto_register_nbap(void) {
         "RL-InformationList-RL-ReconfPrepFDD/_item", HFILL }},
     { &hf_nbap_maxDL_Power,
       { "maxDL-Power", "nbap.maxDL_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_minDL_Power,
       { "minDL-Power", "nbap.minDL_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_not_Used_sSDT_Indication,
       { "not-Used-sSDT-Indication", "nbap.not_Used_sSDT_Indication",
@@ -40976,7 +40997,7 @@ void proto_register_nbap(void) {
         "MultipleRL-UL-DPCH-InformationAddListIE-RL-ReconfPrepTDD/ul-DPCH-InformationListLCR", HFILL }},
     { &hf_nbap_ul_sir_target,
       { "ul-sir-target", "nbap.ul_sir_target",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_tDD_TPC_UplinkStepSize_LCR,
       { "tDD-TPC-UplinkStepSize-LCR", "nbap.tDD_TPC_UplinkStepSize_LCR",
@@ -41076,7 +41097,7 @@ void proto_register_nbap(void) {
         "MultipleRL-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD/dl-DPCH-InformationListLCR", HFILL }},
     { &hf_nbap_cCTrCH_Initial_DL_Power,
       { "cCTrCH-Initial-DL-Power", "nbap.cCTrCH_Initial_DL_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "MultipleRL-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD/cCTrCH-Initial-DL-Power", HFILL }},
     { &hf_nbap_tDD_TPC_DownlinkStepSize,
       { "tDD-TPC-DownlinkStepSize", "nbap.tDD_TPC_DownlinkStepSize",
@@ -41084,11 +41105,11 @@ void proto_register_nbap(void) {
         "MultipleRL-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD/tDD-TPC-DownlinkStepSize", HFILL }},
     { &hf_nbap_cCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD,
       { "cCTrCH-Maximum-DL-Power-InformationAdd-RL-ReconfPrepTDD", "nbap.cCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "MultipleRL-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD/cCTrCH-Maximum-DL-Power-InformationAdd-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_cCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD,
       { "cCTrCH-Minimum-DL-Power-InformationAdd-RL-ReconfPrepTDD", "nbap.cCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "MultipleRL-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD/cCTrCH-Minimum-DL-Power-InformationAdd-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item,
       { "Item", "nbap.CCTrCH_TPCAddList_RL_ReconfPrepTDD_item",
@@ -41132,11 +41153,11 @@ void proto_register_nbap(void) {
         "MultipleRL-DL-DPCH-InformationModifyListIE-RL-ReconfPrepTDD/tDD-TPC-DownlinkStepSize-InformationModify-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD,
       { "cCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfPrepTDD", "nbap.cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "MultipleRL-DL-DPCH-InformationModifyListIE-RL-ReconfPrepTDD/cCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD,
       { "cCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfPrepTDD", "nbap.cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "MultipleRL-DL-DPCH-InformationModifyListIE-RL-ReconfPrepTDD/cCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfPrepTDD", HFILL }},
     { &hf_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item,
       { "Item", "nbap.CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item",
@@ -41292,11 +41313,11 @@ void proto_register_nbap(void) {
         "MultipleRL-DL-CCTrCH-InformationModifyListIE-RL-ReconfRqstTDD/dl-DPCH-LCR-InformationModifyList", HFILL }},
     { &hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD,
       { "cCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfRqstTDD", "nbap.cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "MultipleRL-DL-CCTrCH-InformationModifyListIE-RL-ReconfRqstTDD/cCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfRqstTDD", HFILL }},
     { &hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD,
       { "cCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfRqstTDD", "nbap.cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "MultipleRL-DL-CCTrCH-InformationModifyListIE-RL-ReconfRqstTDD/cCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfRqstTDD", HFILL }},
     { &hf_nbap_dL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD,
       { "dL-Timeslot-LCR-InformationModify-ModifyList-RL-ReconfRqstTDD", "nbap.dL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD",
@@ -41308,11 +41329,11 @@ void proto_register_nbap(void) {
         "DL-Timeslot-LCR-InformationModify-ModifyList-RL-ReconfRqstTDD/_item", HFILL }},
     { &hf_nbap_maxPowerLCR,
       { "maxPowerLCR", "nbap.maxPowerLCR",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DL-Timeslot-LCR-InformationModify-ModifyItem-RL-ReconfRqstTDD/maxPowerLCR", HFILL }},
     { &hf_nbap_minPowerLCR,
       { "minPowerLCR", "nbap.minPowerLCR",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DL-Timeslot-LCR-InformationModify-ModifyItem-RL-ReconfRqstTDD/minPowerLCR", HFILL }},
     { &hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item,
       { "Item", "nbap.DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item",
@@ -41344,7 +41365,7 @@ void proto_register_nbap(void) {
         "DL-ReferencePowerInformationList-DL-PC-Rqst/_item", HFILL }},
     { &hf_nbap_dl_ReferencePower,
       { "dl-ReferencePower", "nbap.dl_ReferencePower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DL-ReferencePowerInformationItem-DL-PC-Rqst/dl-ReferencePower", HFILL }},
     { &hf_nbap_rL,
       { "rL", "nbap.rL",
@@ -41832,7 +41853,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_hS_SCCH_MaxPower,
       { "hS-SCCH-MaxPower", "nbap.hS_SCCH_MaxPower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_hS_SICH_Information,
       { "hS-SICH-Information", "nbap.hS_SICH_Information",
@@ -41988,7 +42009,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_initialDLTransPower,
       { "initialDLTransPower", "nbap.initialDLTransPower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "CellSyncBurstTransInit-CellSyncInitiationRqstTDD/initialDLTransPower", HFILL }},
     { &hf_nbap_TimeslotInfo_CellSyncInitiationRqstTDD_item,
       { "Item", "nbap.TimeslotInfo_CellSyncInitiationRqstTDD_item",
@@ -42024,7 +42045,7 @@ void proto_register_nbap(void) {
         "CellSyncBurstTransInfoItem-CellSyncReconfRqstTDD/syncFrameNumberToTransmit", HFILL }},
     { &hf_nbap_dlTransPower,
       { "dlTransPower", "nbap.dlTransPower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "CellSyncBurstTransInfoItem-CellSyncReconfRqstTDD/dlTransPower", HFILL }},
     { &hf_nbap_cellSyncBurstMeasInfoList_CellSyncReconfRqstTDD,
       { "cellSyncBurstMeasInfoList-CellSyncReconfRqstTDD", "nbap.cellSyncBurstMeasInfoList_CellSyncReconfRqstTDD",
@@ -42096,7 +42117,7 @@ void proto_register_nbap(void) {
         "CellAdjustmentInfoItem-SyncAdjustmentRqstTDD/timingAdjustmentValue", HFILL }},
     { &hf_nbap_dLTransPower,
       { "dLTransPower", "nbap.dLTransPower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "CellAdjustmentInfoItem-SyncAdjustmentRqstTDD/dLTransPower", HFILL }},
     { &hf_nbap_generalCause6,
       { "generalCause", "nbap.generalCause",
@@ -42592,7 +42613,7 @@ void proto_register_nbap(void) {
         "Activate-Info/activation-type", HFILL }},
     { &hf_nbap_initial_dl_tx_power,
       { "initial-dl-tx-power", "nbap.initial_dl_tx_power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "Activate-Info/initial-dl-tx-power", HFILL }},
     { &hf_nbap_firstRLS_Indicator,
       { "firstRLS-Indicator", "nbap.firstRLS_Indicator",
@@ -42652,7 +42673,7 @@ void proto_register_nbap(void) {
         "DL-PowerBalancing-Information/powerAdjustmentType", HFILL }},
     { &hf_nbap_dLReferencePower,
       { "dLReferencePower", "nbap.dLReferencePower",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DL-PowerBalancing-Information/dLReferencePower", HFILL }},
     { &hf_nbap_dLReferencePowerList_DL_PC_Rqst,
       { "dLReferencePowerList-DL-PC-Rqst", "nbap.dLReferencePowerList_DL_PC_Rqst",
@@ -42676,7 +42697,7 @@ void proto_register_nbap(void) {
         "DL-ReferencePowerInformationList/_item", HFILL }},
     { &hf_nbap_dl_Reference_Power,
       { "dl-Reference-Power", "nbap.dl_Reference_Power",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "DL-ReferencePowerInformationItem/dl-Reference-Power", HFILL }},
     { &hf_nbap_DL_TimeslotISCPInfo_item,
       { "Item", "nbap.DL_TimeslotISCPInfo_item",
@@ -43140,7 +43161,7 @@ void proto_register_nbap(void) {
         "GPS-RX-POS/latitude", HFILL }},
     { &hf_nbap_longitude,
       { "longitude", "nbap.longitude",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "GPS-RX-POS/longitude", HFILL }},
     { &hf_nbap_directionOfAltitude,
       { "directionOfAltitude", "nbap.directionOfAltitude",
@@ -43292,11 +43313,11 @@ void proto_register_nbap(void) {
         "", HFILL }},
     { &hf_nbap_measurement_Power_Offset,
       { "measurement-Power-Offset", "nbap.measurement_Power_Offset",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_tDD_AckNack_Power_Offset,
       { "tDD-AckNack-Power-Offset", "nbap.tDD_AckNack_Power_Offset",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "HSDSCH-TDD-Information/tDD-AckNack-Power-Offset", HFILL }},
     { &hf_nbap_hsDSCH_MACdFlow_Specific_Info_to_Modify,
       { "hsDSCH-MACdFlow-Specific-Info-to-Modify", "nbap.hsDSCH_MACdFlow_Specific_Info_to_Modify",
@@ -43312,7 +43333,7 @@ void proto_register_nbap(void) {
         "HSDSCH-Information-to-Modify/hSSCCHCodeChangeGrant", HFILL }},
     { &hf_nbap_tDDAckNackPowerOffset,
       { "tDDAckNackPowerOffset", "nbap.tDDAckNackPowerOffset",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item,
       { "Item", "nbap.HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item",
@@ -43996,11 +44017,11 @@ void proto_register_nbap(void) {
         "SAT-Info-DGPSCorrections-Item/udre", HFILL }},
     { &hf_nbap_prc,
       { "prc", "nbap.prc",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "SAT-Info-DGPSCorrections-Item/prc", HFILL }},
     { &hf_nbap_range_correction_rate,
       { "range-correction-rate", "nbap.range_correction_rate",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "SAT-Info-DGPSCorrections-Item/range-correction-rate", HFILL }},
     { &hf_nbap_SATInfo_RealTime_Integrity_item,
       { "Item", "nbap.SATInfo_RealTime_Integrity_item",
@@ -44052,7 +44073,7 @@ void proto_register_nbap(void) {
         "SFNSFNMeasurementValueInformation/successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation/_item/sFNSFNQuality", HFILL }},
     { &hf_nbap_sFNSFNDriftRate,
       { "sFNSFNDriftRate", "nbap.sFNSFNDriftRate",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "SFNSFNMeasurementValueInformation/successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation/_item/sFNSFNDriftRate", HFILL }},
     { &hf_nbap_sFNSFNDriftRateQuality,
       { "sFNSFNDriftRateQuality", "nbap.sFNSFNDriftRateQuality",
@@ -44476,7 +44497,7 @@ void proto_register_nbap(void) {
         "TUTRANGPSMeasurementValueInformation/tUTRANGPSQuality", HFILL }},
     { &hf_nbap_tUTRANGPSDriftRate,
       { "tUTRANGPSDriftRate", "nbap.tUTRANGPSDriftRate",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "TUTRANGPSMeasurementValueInformation/tUTRANGPSDriftRate", HFILL }},
     { &hf_nbap_tUTRANGPSDriftRateQuality,
       { "tUTRANGPSDriftRateQuality", "nbap.tUTRANGPSDriftRateQuality",
@@ -44548,7 +44569,7 @@ void proto_register_nbap(void) {
         "PrivateIE-ID/local", HFILL }},
     { &hf_nbap_global,
       { "global", "nbap.global",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PrivateIE-ID/global", HFILL }},
     { &hf_nbap_procedureCode,
       { "procedureCode", "nbap.procedureCode",
@@ -44740,7 +44761,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-
+#line 2925 "packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -44752,7 +44773,7 @@ void proto_register_nbap(void) {
 		  &ett_nbap_UnsuccessfulOutcomeValue,
 
 /*--- Included file: packet-nbap-ettarr.c ---*/
-
+#line 1 "packet-nbap-ettarr.c"
     &ett_nbap_NBAP_PDU,
     &ett_nbap_InitiatingMessage,
     &ett_nbap_SuccessfulOutcome,
@@ -45761,7 +45782,7 @@ void proto_register_nbap(void) {
     &ett_nbap_PrivateIE_Field,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-
+#line 2935 "packet-nbap-template.c"
   };
 
 

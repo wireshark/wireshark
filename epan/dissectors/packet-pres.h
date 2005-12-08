@@ -5,6 +5,7 @@
 
 /* Input file: packet-pres-template.h */
 
+#line 1 "packet-pres-template.h"
 /* packet-pres.h
  * Routines for pres packet dissection
  *

@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ranap.c                                                           */
+/* ./packet-ranap.c                                                           */
 /* ../../tools/asn2eth.py -X -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
 
 /* Input file: packet-ranap-template.c */
 
+#line 1 "packet-ranap-template.c"
 /* packet-ranap-template.c
  * Routines for Radio Access Network Application Part Protocol dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -72,7 +73,7 @@ static int hf_ranap_IE_length = -1;
 
 
 /*--- Included file: packet-ranap-hf.c ---*/
-
+#line 1 "packet-ranap-hf.c"
 static int hf_ranap_initiatingMessage = -1;       /* InitiatingMessage */
 static int hf_ranap_successfulOutcome = -1;       /* SuccessfulOutcome */
 static int hf_ranap_unsuccessfulOutcome = -1;     /* UnsuccessfulOutcome */
@@ -590,13 +591,13 @@ static int hf_ranap_private_id = -1;              /* PrivateIE_ID */
 static int hf_ranap_private_value = -1;           /* RANAP_PRIVATE_IES_Value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-
+#line 67 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap;
 
 /*--- Included file: packet-ranap-ett.c ---*/
-
+#line 1 "packet-ranap-ett.c"
 static gint ett_ranap_RANAP_PDU = -1;
 static gint ett_ranap_InitiatingMessage = -1;
 static gint ett_ranap_SuccessfulOutcome = -1;
@@ -856,7 +857,7 @@ static gint ett_ranap_PrivateIE_Container = -1;
 static gint ett_ranap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-
+#line 71 "packet-ranap-template.c"
 
 
 /* Global variables */
@@ -871,7 +872,7 @@ static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, packet_info 
 static int dissect_ranap_messages(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 /*--- Included file: packet-ranap-fn.c ---*/
-
+#line 1 "packet-ranap-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -928,10 +929,12 @@ dissect_ranap_ProcedureCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               0U, 255U, &ProcedureCode, NULL, FALSE);
 
+#line 32 "ranap.cnf"
 	if (check_col(pinfo->cinfo, COL_INFO))
        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
                               "unknown message"));
+
   return offset;
 }
 static int dissect_procedureCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -974,8 +977,10 @@ static int dissect_secondCriticality(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int
 dissect_ranap_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 41 "ranap.cnf"
 	
 	offset = dissect_ranap_messages(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -1264,8 +1269,10 @@ static int dissect_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static int
 dissect_ranap_RANAP_PROTOCOL_IES_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 45 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -1339,8 +1346,10 @@ static int dissect_ext_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_ranap_Extension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 68 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -1895,7 +1904,9 @@ static int dissect_private_id(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 dissect_ranap_RANAP_PRIVATE_IES_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 72 "ranap.cnf"
 /* FIX ME */
+
 
 
   return offset;
@@ -4204,7 +4215,7 @@ static int dissect_chosenIntegrityProtectionAlgorithm(tvbuff_t *tvb, int offset,
 static int
 dissect_ranap_ClassmarkInformation2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -4217,7 +4228,7 @@ static int dissect_id_ClassmarkInformation2(tvbuff_t *tvb, int offset, packet_in
 static int
 dissect_ranap_ClassmarkInformation3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -4548,15 +4559,17 @@ static int dissect_id_DRX_CycleLengthCoefficient(tvbuff_t *tvb, int offset, pack
 
 static int
 dissect_ranap_NAS_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 53 "ranap.cnf"
 
 tvbuff_t *nas_pdu_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, &nas_pdu_tvb);
+                                       NO_BOUND, NO_BOUND, &nas_pdu_tvb);
 
 
 	if (nas_pdu_tvb)
 		dissector_try_port(nas_pdu_dissector_table, 0x1, nas_pdu_tvb, pinfo, top_tree);
+
 
 
   return offset;
@@ -4739,7 +4752,7 @@ static int dissect_id_FrequenceLayerConvergenceFlag(tvbuff_t *tvb, int offset, p
 static int
 dissect_ranap_GERAN_BSC_Container(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -4752,7 +4765,7 @@ static int dissect_id_GERAN_BSC_Container(tvbuff_t *tvb, int offset, packet_info
 static int
 dissect_ranap_GERAN_Classmark(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -5445,7 +5458,7 @@ static int dissect_id_IntegrityProtectionInformation(tvbuff_t *tvb, int offset, 
 static int
 dissect_ranap_RIMInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -5817,7 +5830,7 @@ static int dissect_id_KeyStatus(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 static int
 dissect_ranap_L3_Information(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -6305,7 +6318,7 @@ static int dissect_id_NAS_SequenceNumber(tvbuff_t *tvb, int offset, packet_info 
 static int
 dissect_ranap_NewBSS_To_OldBSS_Information(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -6363,7 +6376,7 @@ static int dissect_id_OMC_ID(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_ranap_OldBSS_ToNewBSS_Information(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -6547,7 +6560,7 @@ static int dissect_id_PositionData(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_ranap_PositionDataSpecificToGERANIuMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -8170,7 +8183,9 @@ static int dissect_id_RAB_SetupOrModifiedList(tvbuff_t *tvb, int offset, packet_
 
 static int
 dissect_ranap_FirstValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 65 "ranap.cnf"
 	offset = dissect_ranap_FirstValue_ies(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -8183,7 +8198,9 @@ static int dissect_firstValue(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 dissect_ranap_SecondValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 62 "ranap.cnf"
 	offset = dissect_ranap_SecondValue_ies(tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -8632,7 +8649,7 @@ static int dissect_id_SourceID(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_ranap_RRC_Container(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1, NULL);
+                                       NO_BOUND, NO_BOUND, NULL);
 
   return offset;
 }
@@ -9717,7 +9734,7 @@ dissect_ranap_ProtocolIE_ContainerPairList(tvbuff_t *tvb, int offset, packet_inf
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-
+#line 84 "packet-ranap-template.c"
 
 
 
@@ -10782,7 +10799,7 @@ void proto_register_ranap(void) {
 
 
 /*--- Included file: packet-ranap-hfarr.c ---*/
-
+#line 1 "packet-ranap-hfarr.c"
     { &hf_ranap_initiatingMessage,
       { "initiatingMessage", "ranap.initiatingMessage",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -12169,7 +12186,7 @@ void proto_register_ranap(void) {
         "GeographicalCoordinates/latitude", HFILL }},
     { &hf_ranap_longitude,
       { "longitude", "ranap.longitude",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "GeographicalCoordinates/longitude", HFILL }},
     { &hf_ranap_directionOfAltitude,
       { "directionOfAltitude", "ranap.directionOfAltitude",
@@ -12761,7 +12778,7 @@ void proto_register_ranap(void) {
         "PrivateIE-ID/local", HFILL }},
     { &hf_ranap_global,
       { "global", "ranap.global",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PrivateIE-ID/global", HFILL }},
     { &hf_ranap_ProtocolIE_Container_item,
       { "Item", "ranap.ProtocolIE_Container_item",
@@ -12845,7 +12862,7 @@ void proto_register_ranap(void) {
         "PrivateIE-Field/value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-
+#line 1147 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -12853,7 +12870,7 @@ void proto_register_ranap(void) {
 	  &ett_ranap,
 
 /*--- Included file: packet-ranap-ettarr.c ---*/
-
+#line 1 "packet-ranap-ettarr.c"
     &ett_ranap_RANAP_PDU,
     &ett_ranap_InitiatingMessage,
     &ett_ranap_SuccessfulOutcome,
@@ -13113,7 +13130,7 @@ void proto_register_ranap(void) {
     &ett_ranap_PrivateIE_Field,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-
+#line 1153 "packet-ranap-template.c"
   };
 
   /* Register protocol */

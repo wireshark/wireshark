@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-pkixqualified.c                                                   */
+/* ./packet-pkixqualified.c                                                   */
 /* ../../tools/asn2eth.py -X -b -e -p pkixqualified -c pkixqualified.cnf -s packet-pkixqualified-template PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.c */
 
+#line 1 "packet-pkixqualified-template.c"
 /* packet-pkixqualified.c
  * Routines for RFC3739 PKIXqualified packet dissection
  *  Ronnie Sahlberg 2004
@@ -55,7 +56,7 @@
 int proto_pkixqualified = -1;
 
 /*--- Included file: packet-pkixqualified-hf.c ---*/
-
+#line 1 "packet-pkixqualified-hf.c"
 static int hf_pkixqualified_Generalizedtime_PDU = -1;  /* Generalizedtime */
 static int hf_pkixqualified_Directorystring_PDU = -1;  /* Directorystring */
 static int hf_pkixqualified_Printablestring_PDU = -1;  /* Printablestring */
@@ -77,12 +78,12 @@ static int hf_pkixqualified_nameRegistrationAuthorities = -1;  /* NameRegistrati
 static int hf_pkixqualified_NameRegistrationAuthorities_item = -1;  /* GeneralName */
 
 /*--- End of included file: packet-pkixqualified-hf.c ---*/
-
+#line 50 "packet-pkixqualified-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkixqualified-ett.c ---*/
-
+#line 1 "packet-pkixqualified-ett.c"
 static gint ett_pkixqualified_BiometricSyntax = -1;
 static gint ett_pkixqualified_BiometricData = -1;
 static gint ett_pkixqualified_TypeOfBiometricData = -1;
@@ -92,13 +93,13 @@ static gint ett_pkixqualified_SemanticsInformation = -1;
 static gint ett_pkixqualified_NameRegistrationAuthorities = -1;
 
 /*--- End of included file: packet-pkixqualified-ett.c ---*/
-
+#line 53 "packet-pkixqualified-template.c"
 
 static const char *object_identifier_id;
 
 
 /*--- Included file: packet-pkixqualified-fn.c ---*/
-
+#line 1 "packet-pkixqualified-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_hashAlgorithm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -272,7 +273,9 @@ static int dissect_statementId(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_pkixqualified_T_statementInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 38 "pkixqualified.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -366,7 +369,7 @@ static void dissect_SemanticsInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, 
 
 
 /*--- End of included file: packet-pkixqualified-fn.c ---*/
-
+#line 57 "packet-pkixqualified-template.c"
 
 
 /*--- proto_register_pkixqualified ----------------------------------------------*/
@@ -376,7 +379,7 @@ void proto_register_pkixqualified(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkixqualified-hfarr.c ---*/
-
+#line 1 "packet-pkixqualified-hfarr.c"
     { &hf_pkixqualified_Generalizedtime_PDU,
       { "Generalizedtime", "pkixqualified.Generalizedtime",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -427,7 +430,7 @@ void proto_register_pkixqualified(void) {
         "TypeOfBiometricData/predefinedBiometricType", HFILL }},
     { &hf_pkixqualified_biometricDataOid,
       { "biometricDataOid", "pkixqualified.biometricDataOid",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "TypeOfBiometricData/biometricDataOid", HFILL }},
     { &hf_pkixqualified_QCStatements_item,
       { "Item", "pkixqualified.QCStatements_item",
@@ -435,7 +438,7 @@ void proto_register_pkixqualified(void) {
         "QCStatements/_item", HFILL }},
     { &hf_pkixqualified_statementId,
       { "statementId", "pkixqualified.statementId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "QCStatement/statementId", HFILL }},
     { &hf_pkixqualified_statementInfo,
       { "statementInfo", "pkixqualified.statementInfo",
@@ -443,7 +446,7 @@ void proto_register_pkixqualified(void) {
         "QCStatement/statementInfo", HFILL }},
     { &hf_pkixqualified_semanticsIdentifier,
       { "semanticsIdentifier", "pkixqualified.semanticsIdentifier",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "SemanticsInformation/semanticsIdentifier", HFILL }},
     { &hf_pkixqualified_nameRegistrationAuthorities,
       { "nameRegistrationAuthorities", "pkixqualified.nameRegistrationAuthorities",
@@ -455,14 +458,14 @@ void proto_register_pkixqualified(void) {
         "NameRegistrationAuthorities/_item", HFILL }},
 
 /*--- End of included file: packet-pkixqualified-hfarr.c ---*/
-
+#line 65 "packet-pkixqualified-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkixqualified-ettarr.c ---*/
-
+#line 1 "packet-pkixqualified-ettarr.c"
     &ett_pkixqualified_BiometricSyntax,
     &ett_pkixqualified_BiometricData,
     &ett_pkixqualified_TypeOfBiometricData,
@@ -472,7 +475,7 @@ void proto_register_pkixqualified(void) {
     &ett_pkixqualified_NameRegistrationAuthorities,
 
 /*--- End of included file: packet-pkixqualified-ettarr.c ---*/
-
+#line 70 "packet-pkixqualified-template.c"
   };
 
   /* Register protocol */
@@ -489,7 +492,7 @@ void proto_register_pkixqualified(void) {
 void proto_reg_handoff_pkixqualified(void) {
 
 /*--- Included file: packet-pkixqualified-dis-tab.c ---*/
-
+#line 1 "packet-pkixqualified-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.2", dissect_BiometricSyntax_PDU, proto_pkixqualified, "id-pe-biometricInfo");
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.3", dissect_QCStatements_PDU, proto_pkixqualified, "id-pe-qcStatements");
   register_ber_oid_dissector("1.3.6.1.5.5.7.11.1", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v1");
@@ -502,6 +505,6 @@ void proto_reg_handoff_pkixqualified(void) {
 
 
 /*--- End of included file: packet-pkixqualified-dis-tab.c ---*/
-
+#line 85 "packet-pkixqualified-template.c"
 }
 

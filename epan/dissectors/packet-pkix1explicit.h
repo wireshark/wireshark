@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkix1explicit-template.h */
 
+#line 1 "packet-pkix1explicit-template.h"
 /* packet-pkix1explicit.h
  * Routines for PKIX1Explicit packet dissection
  *
@@ -43,7 +44,7 @@ int dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *
 
 
 /*--- Included file: packet-pkix1explicit-exp.h ---*/
-
+#line 1 "packet-pkix1explicit-exp.h"
 extern const value_string pkix1explicit_TerminalType_vals[];
 int dissect_pkix1explicit_CertificateSerialNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_pkix1explicit_Extensions(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -56,7 +57,7 @@ int dissect_pkix1explicit_TerminalType(gboolean implicit_tag, tvbuff_t *tvb, int
 int dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-pkix1explicit-exp.h ---*/
-
+#line 38 "packet-pkix1explicit-template.h"
 
 #endif  /* PACKET_PKIX1EXPLICIT_H */
 

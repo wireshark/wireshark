@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ranap.h                                                           */
+/* ./packet-ranap.h                                                           */
 /* ../../tools/asn2eth.py -X -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
 
 /* Input file: packet-ranap-template.h */
 
+#line 1 "packet-ranap-template.h"
 /* packet-ranap-template.h
  * Routines for GSM Supplementary Services dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>

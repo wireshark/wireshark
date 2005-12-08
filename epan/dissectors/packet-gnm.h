@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gnm.h                                                             */
+/* ./packet-gnm.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p gnm -c gnm.cnf -s packet-gnm-template GNM.asn */
 
 /* Input file: packet-gnm-template.h */
 
+#line 1 "packet-gnm-template.h"
 /* packet-gnm.c
  * Routines for GENERIC NETWORK INFORMATION MODEL Data dissection
  *

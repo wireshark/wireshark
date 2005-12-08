@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ftbp.h                                                            */
+/* ./packet-ftbp.h                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template ftbp.asn */
 
 /* Input file: packet-ftbp-template.h */
 
+#line 1 "packet-ftbp-template.h"
 /* packet-ftbp.h
  * Routines for File Transfer Body Part (FTBP) dissection (used in X.420 content)
  * Graeme Lunt 2005

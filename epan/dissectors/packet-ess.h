@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ess.h                                                             */
+/* ./packet-ess.h                                                             */
 /* ../../tools/asn2eth.py -X -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
 
 /* Input file: packet-ess-template.h */
 
+#line 1 "packet-ess-template.h"
 /* packet-ess.h
  * Routines for RFC2634 Extended Security Services packet dissection
  *    Ronnie Sahlberg 2004

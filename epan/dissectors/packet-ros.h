@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ros.h                                                             */
+/* ./packet-ros.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p ros -c ros.cnf -s packet-ros-template ros.asn */
 
 /* Input file: packet-ros-template.h */
 
+#line 1 "packet-ros-template.h"
 /* packet-ros.h
  * Routines for ROS packet dissection
  * Graeme Lunt 2005
@@ -35,14 +36,14 @@
 
 
 /*--- Included file: packet-ros-exp.h ---*/
-
+#line 1 "packet-ros-exp.h"
 extern const value_string ros_InvokeId_vals[];
 extern const value_string ros_Code_vals[];
 int dissect_ros_InvokeId(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_ros_Code(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-ros-exp.h ---*/
-
+#line 30 "packet-ros-template.h"
 
 # include "packet-ses.h"
 

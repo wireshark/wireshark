@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkcs1-template.h */
 
+#line 1 "packet-pkcs1-template.h"
 /* packet-pkcs1.h
  * Routines for PKCS#1/RFC2313 packet dissection
  *  Ronnie Sahlberg 2004
@@ -35,13 +36,13 @@
 
 
 /*--- Included file: packet-pkcs1-exp.h ---*/
-
+#line 1 "packet-pkcs1-exp.h"
 int dissect_pkcs1_RSAPublicKey(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_pkcs1_DigestInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-pkcs1-exp.h ---*/
-
+#line 30 "packet-pkcs1-template.h"
 
 #endif  /* PACKET_PKCS1_H */
 

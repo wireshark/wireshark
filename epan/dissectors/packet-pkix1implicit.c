@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkix1implicit-template.c */
 
+#line 1 "packet-pkix1implicit-template.c"
 /* packet-pkix1implicit.c
  * Routines for PKIX1Implitic packet dissection
  *
@@ -53,7 +54,7 @@
 static int proto_pkix1implicit = -1;
 
 /*--- Included file: packet-pkix1implicit-hf.c ---*/
-
+#line 1 "packet-pkix1implicit-hf.c"
 static int hf_pkix1implicit_Dummy_PDU = -1;       /* Dummy */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU = -1;  /* AuthorityInfoAccessSyntax */
 static int hf_pkix1implicit_nameAssigner = -1;    /* DirectoryString */
@@ -71,12 +72,12 @@ static int hf_pkix1implicit_bmpString = -1;       /* BMPString */
 static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
 
 /*--- End of included file: packet-pkix1implicit-hf.c ---*/
-
+#line 48 "packet-pkix1implicit-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkix1implicit-ett.c ---*/
-
+#line 1 "packet-pkix1implicit-ett.c"
 static gint ett_pkix1implicit_EDIPartyName = -1;
 static gint ett_pkix1implicit_AuthorityInfoAccessSyntax = -1;
 static gint ett_pkix1implicit_AccessDescription = -1;
@@ -86,7 +87,7 @@ static gint ett_pkix1implicit_T_noticeNumbers = -1;
 static gint ett_pkix1implicit_DisplayText = -1;
 
 /*--- End of included file: packet-pkix1implicit-ett.c ---*/
-
+#line 51 "packet-pkix1implicit-template.c"
 
 
 int
@@ -104,7 +105,7 @@ dissect_pkix1implicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 
 /*--- Included file: packet-pkix1implicit-fn.c ---*/
-
+#line 1 "packet-pkix1implicit-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_nameAssigner_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -145,8 +146,7 @@ dissect_pkix1implicit_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 static int
 dissect_pkix1implicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -330,7 +330,7 @@ static void dissect_AuthorityInfoAccessSyntax_PDU(tvbuff_t *tvb, packet_info *pi
 
 
 /*--- End of included file: packet-pkix1implicit-fn.c ---*/
-
+#line 67 "packet-pkix1implicit-template.c"
 
 
 /*--- proto_register_pkix1implicit ----------------------------------------------*/
@@ -340,7 +340,7 @@ void proto_register_pkix1implicit(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkix1implicit-hfarr.c ---*/
-
+#line 1 "packet-pkix1implicit-hfarr.c"
     { &hf_pkix1implicit_Dummy_PDU,
       { "Dummy", "pkix1implicit.Dummy",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -363,7 +363,7 @@ void proto_register_pkix1implicit(void) {
         "AuthorityInfoAccessSyntax/_item", HFILL }},
     { &hf_pkix1implicit_accessMethod,
       { "accessMethod", "pkix1implicit.accessMethod",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "AccessDescription/accessMethod", HFILL }},
     { &hf_pkix1implicit_accessLocation,
       { "accessLocation", "pkix1implicit.accessLocation",
@@ -403,14 +403,14 @@ void proto_register_pkix1implicit(void) {
         "DisplayText/utf8String", HFILL }},
 
 /*--- End of included file: packet-pkix1implicit-hfarr.c ---*/
-
+#line 75 "packet-pkix1implicit-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkix1implicit-ettarr.c ---*/
-
+#line 1 "packet-pkix1implicit-ettarr.c"
     &ett_pkix1implicit_EDIPartyName,
     &ett_pkix1implicit_AuthorityInfoAccessSyntax,
     &ett_pkix1implicit_AccessDescription,
@@ -420,7 +420,7 @@ void proto_register_pkix1implicit(void) {
     &ett_pkix1implicit_DisplayText,
 
 /*--- End of included file: packet-pkix1implicit-ettarr.c ---*/
-
+#line 80 "packet-pkix1implicit-template.c"
   };
 
   /* Register protocol */
@@ -437,7 +437,7 @@ void proto_register_pkix1implicit(void) {
 void proto_reg_handoff_pkix1implicit(void) {
 
 /*--- Included file: packet-pkix1implicit-dis-tab.c ---*/
-
+#line 1 "packet-pkix1implicit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.1", dissect_AuthorityInfoAccessSyntax_PDU, proto_pkix1implicit, "id-pe-authorityInfoAccessSyntax");
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-serverAuth");
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-clientAuth");
@@ -451,6 +451,6 @@ void proto_reg_handoff_pkix1implicit(void) {
 
 
 /*--- End of included file: packet-pkix1implicit-dis-tab.c ---*/
-
+#line 95 "packet-pkix1implicit-template.c"
 }
 

@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_ss.h                                                          */
+/* ./packet-gsm_ss.h                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_ss -c gsm_ss.cnf -s packet-gsm_ss-template SS-Operations.asn */
 
 /* Input file: packet-gsm_ss-template.h */
 
+#line 1 "packet-gsm_ss-template.h"
 /* packet-gsm_map-template.h
  * Routines for GSM Supplementary Services dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>

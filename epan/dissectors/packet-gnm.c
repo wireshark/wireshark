@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gnm.c                                                             */
+/* ./packet-gnm.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p gnm -c gnm.cnf -s packet-gnm-template GNM.asn */
 
 /* Input file: packet-gnm-template.c */
 
+#line 1 "packet-gnm-template.c"
 /* packet-gnm.c
  * Routines for GENERIC NETWORK INFORMATION MODEL Data dissection
  *
@@ -58,7 +59,7 @@ int proto_gnm = -1;
 static int hf_gnm_AdministrativeState = -1;
 
 /*--- Included file: packet-gnm-hf.c ---*/
-
+#line 1 "packet-gnm-hf.c"
 static int hf_gnm_AdministrativeState_PDU = -1;   /* AdministrativeState */
 static int hf_gnm_ControlStatus_PDU = -1;         /* ControlStatus */
 static int hf_gnm_Packages_PDU = -1;              /* Packages */
@@ -283,12 +284,12 @@ static int hf_gnm_TransmissionCharacteristics_dCME = -1;
 static int hf_gnm_TransmissionCharacteristics_echoControl = -1;
 
 /*--- End of included file: packet-gnm-hf.c ---*/
-
+#line 53 "packet-gnm-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-gnm-ett.c ---*/
-
+#line 1 "packet-gnm-ett.c"
 static gint ett_gnm_ProbableCause = -1;
 static gint ett_gnm_AvailabilityStatus = -1;
 static gint ett_gnm_AttributeList = -1;
@@ -397,11 +398,11 @@ static gint ett_gnm_TpsInGtpList = -1;
 static gint ett_gnm_TransmissionCharacteristics = -1;
 
 /*--- End of included file: packet-gnm-ett.c ---*/
-
+#line 56 "packet-gnm-template.c"
 
 
 /*--- Included file: packet-gnm-fn.c ---*/
-
+#line 1 "packet-gnm-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_AttributeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -723,7 +724,9 @@ static int dissect_redline1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_gnm_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 27 "gnm.cnf"
 /* FIX ME */
+
 
 
   return offset;
@@ -3366,7 +3369,7 @@ static void dissect_Version_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-gnm-fn.c ---*/
-
+#line 58 "packet-gnm-template.c"
 
 
 
@@ -3378,7 +3381,7 @@ dissect_gnm_attribute_ObjectInstance(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 }
 
-static void
+void
 dissect_gnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   /* Dymmy function */
@@ -3396,7 +3399,7 @@ void proto_register_gnm(void) {
 
 
 /*--- Included file: packet-gnm-hfarr.c ---*/
-
+#line 1 "packet-gnm-hfarr.c"
     { &hf_gnm_AdministrativeState_PDU,
       { "AdministrativeState", "gnm.AdministrativeState",
         FT_UINT32, BASE_DEC, VALS(gnm_AdministrativeState_vals), 0,
@@ -3435,7 +3438,7 @@ void proto_register_gnm(void) {
         "ChannelNumber", HFILL }},
     { &hf_gnm_CharacteristicInformation_PDU,
       { "CharacteristicInformation", "gnm.CharacteristicInformation",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CharacteristicInformation", HFILL }},
     { &hf_gnm_CircuitDirectionality_PDU,
       { "CircuitDirectionality", "gnm.CircuitDirectionality",
@@ -3575,7 +3578,7 @@ void proto_register_gnm(void) {
         "Version", HFILL }},
     { &hf_gnm_globalValue,
       { "globalValue", "gnm.globalValue",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_gnm_localValue,
       { "localValue", "gnm.localValue",
@@ -3599,7 +3602,7 @@ void proto_register_gnm(void) {
         "ControlStatus/_item", HFILL }},
     { &hf_gnm_identifier,
       { "identifier", "gnm.identifier",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ManagementExtension/identifier", HFILL }},
     { &hf_gnm_significance,
       { "significance", "gnm.significance",
@@ -3611,23 +3614,23 @@ void proto_register_gnm(void) {
         "ManagementExtension/information", HFILL }},
     { &hf_gnm_MappingList_item,
       { "Item", "gnm.MappingList_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MappingList/_item", HFILL }},
     { &hf_gnm_Packages_item,
       { "Item", "gnm.Packages_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Packages/_item", HFILL }},
     { &hf_gnm_objectClass,
       { "objectClass", "gnm.objectClass",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "SignalRate/objectClass", HFILL }},
     { &hf_gnm_characteristicInformation,
       { "characteristicInformation", "gnm.characteristicInformation",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "SignalRate/characteristicInformation", HFILL }},
     { &hf_gnm_SupportedTOClasses_item,
       { "Item", "gnm.SupportedTOClasses_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "SupportedTOClasses/_item", HFILL }},
     { &hf_gnm_AcceptableCircuitPackTypeList_item,
       { "Item", "gnm.AcceptableCircuitPackTypeList_item",
@@ -3727,7 +3730,7 @@ void proto_register_gnm(void) {
         "AlarmSeverityAssignmentList/_item", HFILL }},
     { &hf_gnm_characteristicInfoType,
       { "characteristicInfoType", "gnm.characteristicInfoType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Bundle/characteristicInfoType", HFILL }},
     { &hf_gnm_bundlingFactor,
       { "bundlingFactor", "gnm.bundlingFactor",
@@ -3971,7 +3974,7 @@ void proto_register_gnm(void) {
         "IndividualResult/pass", HFILL }},
     { &hf_gnm_ListOfCharacteristicInformation_item,
       { "Item", "gnm.ListOfCharacteristicInformation_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ListOfCharacteristicInformation/_item", HFILL }},
     { &hf_gnm_ListOfTPs_item,
       { "Item", "gnm.ListOfTPs_item",
@@ -4167,7 +4170,7 @@ void proto_register_gnm(void) {
         "SignalRateAndMappingList/_item/wavelength", HFILL }},
     { &hf_gnm_simple,
       { "simple", "gnm.simple",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "SignalType/simple", HFILL }},
     { &hf_gnm_bundle,
       { "bundle", "gnm.bundle",
@@ -4283,14 +4286,14 @@ void proto_register_gnm(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gnm-hfarr.c ---*/
-
+#line 86 "packet-gnm-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-gnm-ettarr.c ---*/
-
+#line 1 "packet-gnm-ettarr.c"
     &ett_gnm_ProbableCause,
     &ett_gnm_AvailabilityStatus,
     &ett_gnm_AttributeList,
@@ -4399,7 +4402,7 @@ void proto_register_gnm(void) {
     &ett_gnm_TransmissionCharacteristics,
 
 /*--- End of included file: packet-gnm-ettarr.c ---*/
-
+#line 91 "packet-gnm-template.c"
   };
 
   /* Register protocol */
@@ -4416,7 +4419,7 @@ void proto_register_gnm(void) {
 void proto_reg_handoff_gnm(void) {
 
 /*--- Included file: packet-gnm-dis-tab.c ---*/
-
+#line 1 "packet-gnm-dis-tab.c"
   register_ber_oid_dissector("0.0.13.3100.0.7.1", dissect_RelatedObjectInstance_PDU, proto_gnm, "a-TPInstance(1)");
   register_ber_oid_dissector("0.0.13.3100.0.7.2", dissect_ObjectList_PDU, proto_gnm, "affectedObjectList(2)");
   register_ber_oid_dissector("0.0.13.3100.0.7.3", dissect_AlarmSeverityAssignmentList_PDU, proto_gnm, "alarmSeverityAssignmentList(3)");
@@ -4489,7 +4492,7 @@ void proto_reg_handoff_gnm(void) {
 
 
 /*--- End of included file: packet-gnm-dis-tab.c ---*/
-
+#line 106 "packet-gnm-template.c"
 	register_ber_oid_dissector("0.0.13.3100.0.7.9", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientConnection(9)");
 	register_ber_oid_dissector("0.0.13.3100.0.7.10", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientTrail(10)");
 	register_ber_oid_dissector("0.0.13.3100.0.7.31", dissect_gnm_attribute_ObjectInstance, proto_gnm, "networkLevelPointer(31)");

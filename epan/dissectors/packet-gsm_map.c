@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_map.c                                                         */
+/* ./packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
 
+#line 1 "packet-gsm_map-template.c"
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
  * Copyright 2004 - 2005 , Anders Broman <anders.broman [AT] ericsson.com>
@@ -99,7 +100,7 @@ static int hf_gsm_map_ietf_pdp_type_number = -1;
 
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
-
+#line 1 "packet-gsm_map-hf.c"
 static int hf_gsm_map_protocolId = -1;            /* ProtocolId */
 static int hf_gsm_map_signalInfo = -1;            /* SignalInfo */
 static int hf_gsm_map_extensionContainer = -1;    /* ExtensionContainer */
@@ -896,7 +897,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-
+#line 94 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -910,7 +911,7 @@ static gint ett_gsm_map_GSMMAPPDU = -1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
-
+#line 1 "packet-gsm_map-ett.c"
 static gint ett_gsm_map_Bss_APDU = -1;
 static gint ett_gsm_map_SupportedCamelPhases = -1;
 static gint ett_gsm_map_UpdateLocationArg = -1;
@@ -1288,7 +1289,7 @@ static gint ett_gsm_map_UnknownOrUnreachableLCSClient_Param = -1;
 static gint ett_gsm_map_ExtensionContainer = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-
+#line 106 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
@@ -1347,7 +1348,7 @@ unpack_digits(tvbuff_t *tvb, int offset){
 
 
 /*--- Included file: packet-gsm_map-fn.c ---*/
-
+#line 1 "packet-gsm_map-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -1376,6 +1377,7 @@ static int dissect_protocolId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 306 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -1417,6 +1419,7 @@ dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 }
 
 
+
   return offset;
 }
 static int dissect_signalInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1442,10 +1445,12 @@ static int dissect_globalValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 381 "gsmmap.cnf"
 
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
   call_dissector(data_handle, tvb, pinfo, tree);	
   offset = tvb_length_remaining(tvb,offset);		
+
 
 
   return offset;
@@ -1597,6 +1602,7 @@ static int dissect_supportedCAMELPhases_impl(packet_info *pinfo, proto_tree *tre
 
 int
 dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 144 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -1615,6 +1621,7 @@ dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
 
 
+
   return offset;
 }
 static int dissect_imsi(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1628,6 +1635,7 @@ static int dissect_imsi_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 int
 dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 191 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -1648,6 +1656,7 @@ dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int
  proto_tree_add_string(tree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
 
  pinfo->p2p_dir = P2P_DIR_RECV;
+
 
 
 
@@ -3065,6 +3074,7 @@ static int dissect_accessNetworkProtocolId(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 350 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -3096,6 +3106,7 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 		break;
 
  }
+
 
   return offset;
 }
@@ -4662,6 +4673,7 @@ static int dissect_BasicServiceCriteria_item(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_gsm_map_Ext_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 268 "gsmmap.cnf"
  /* Note Ext-SS-Status can have more than one byte */
 
  tvbuff_t	*parameter_tvb;
@@ -4683,6 +4695,7 @@ dissect_gsm_map_Ext_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
  proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
  proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
 
 
 
@@ -4727,11 +4740,13 @@ static int
 dissect_gsm_map_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_gsm_map_Ext_ForwOptions(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
+#line 394 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
+
 
   return offset;
 }
@@ -4756,6 +4771,7 @@ static int dissect_ext_noReplyConditionTime_impl(packet_info *pinfo, proto_tree 
 
 int
 dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 218 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -4774,6 +4790,7 @@ dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
+
 
 
   return offset;
@@ -6152,6 +6169,7 @@ static int dissect_pdp_ContextIdentifier_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_gsm_map_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 405 "gsmmap.cnf"
 	guint8 pdp_type_org;
 	tvbuff_t	*parameter_tvb;
 
@@ -6174,6 +6192,7 @@ dissect_gsm_map_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 		default:
 		break;
 	}
+
 
 
   return offset;
@@ -6199,6 +6218,7 @@ static int dissect_pdp_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 int
 dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 431 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -6210,6 +6230,7 @@ dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 	 if (!parameter_tvb)
 		return offset;
 	de_sm_qos(parameter_tvb, tree, 0, 3, NULL,0);
+
 
 
   return offset;
@@ -6244,6 +6265,7 @@ static int dissect_lcsAPN_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 int
 dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 446 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -6255,6 +6277,7 @@ dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 	 if (!parameter_tvb)
 		return offset;
 	de_sm_qos(parameter_tvb, tree, 0, 9, NULL, 0);
+
 
 
   return offset;
@@ -7344,6 +7367,7 @@ dissect_gsm_map_DeleteSubscriberDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 int
 dissect_gsm_map_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 241 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -7364,6 +7388,7 @@ dissect_gsm_map_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
  proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
  proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
  proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
 
 
 
@@ -7471,11 +7496,13 @@ dissect_gsm_map_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
+#line 388 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
+
   return offset;
 }
 static int dissect_forwardingOptions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -9976,6 +10003,7 @@ dissect_gsm_map_EraseCC_EntryRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 static int
 dissect_gsm_map_ServiceCentreAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 166 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -9995,6 +10023,7 @@ dissect_gsm_map_ServiceCentreAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
  proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
  pinfo->p2p_dir = P2P_DIR_SENT;
+
 
 
   return offset;
@@ -10180,6 +10209,7 @@ static int dissect_sm_RP_OA(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_gsm_map_Sm_RP_UI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 125 "gsmmap.cnf"
 
   tvbuff_t	*tpdu_tvb;
   	
@@ -10194,6 +10224,7 @@ dissect_gsm_map_Sm_RP_UI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 	return offset;
 
     dissector_try_port(sms_dissector_table, 0, tpdu_tvb, pinfo, top_tree);
+
 
   return offset;
 }
@@ -13394,7 +13425,7 @@ dissect_gsm_map_UnknownOrUnreachableLCSClient_Param(gboolean implicit_tag _U_, t
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-
+#line 163 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -14828,7 +14859,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
-
+#line 1 "packet-gsm_map-hfarr.c"
     { &hf_gsm_map_protocolId,
       { "protocolId", "gsm_map.protocolId",
         FT_UINT32, BASE_DEC, VALS(gsm_map_ProtocolId_vals), 0,
@@ -14935,7 +14966,7 @@ void proto_register_gsm_map(void) {
         "PrivateExtensionList/_item", HFILL }},
     { &hf_gsm_map_extId,
       { "extId", "gsm_map.extId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "PrivateExtension/extId", HFILL }},
     { &hf_gsm_map_extType,
       { "extType", "gsm_map.extType",
@@ -17519,7 +17550,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
     { &hf_gsm_map_globalValue,
       { "globalValue", "gsm_map.globalValue",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_gsm_map_networkResource,
       { "networkResource", "gsm_map.networkResource",
@@ -18003,7 +18034,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-
+#line 1595 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -18018,7 +18049,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_GSMMAPPDU,
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
-
+#line 1 "packet-gsm_map-ettarr.c"
     &ett_gsm_map_Bss_APDU,
     &ett_gsm_map_SupportedCamelPhases,
     &ett_gsm_map_UpdateLocationArg,
@@ -18396,7 +18427,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-
+#line 1608 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */

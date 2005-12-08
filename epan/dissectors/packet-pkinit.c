@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkinit-template.c */
 
+#line 1 "packet-pkinit-template.c"
 /* packet-pkinit.c
  * Routines for PKINIT packet dissection
  *  Ronnie Sahlberg 2004
@@ -55,7 +56,7 @@
 static int proto_pkinit = -1;
 
 /*--- Included file: packet-pkinit-hf.c ---*/
-
+#line 1 "packet-pkinit-hf.c"
 static int hf_pkinit_AuthPack_PDU = -1;           /* AuthPack */
 static int hf_pkinit_KDCDHKeyInfo_PDU = -1;       /* KDCDHKeyInfo */
 static int hf_pkinit_signedAuthPack = -1;         /* ContentInfo */
@@ -79,12 +80,12 @@ static int hf_pkinit_dhNonce = -1;                /* INTEGER */
 static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
-
+#line 50 "packet-pkinit-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkinit-ett.c ---*/
-
+#line 1 "packet-pkinit-ett.c"
 static gint ett_pkinit_PaPkAsReq = -1;
 static gint ett_pkinit_SEQUENCE_OF_TrustedCA = -1;
 static gint ett_pkinit_TrustedCA = -1;
@@ -95,14 +96,14 @@ static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
-
+#line 53 "packet-pkinit-template.c"
 
 static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_);
 
 
 /*--- Included file: packet-pkinit-fn.c ---*/
-
+#line 1 "packet-pkinit-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_signedAuthPack(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -340,7 +341,7 @@ static void dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 
 /*--- End of included file: packet-pkinit-fn.c ---*/
-
+#line 58 "packet-pkinit-template.c"
 
 int
 dissect_pkinit_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -374,7 +375,7 @@ void proto_register_pkinit(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkinit-hfarr.c ---*/
-
+#line 1 "packet-pkinit-hfarr.c"
     { &hf_pkinit_AuthPack_PDU,
       { "AuthPack", "pkinit.AuthPack",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -461,14 +462,14 @@ void proto_register_pkinit(void) {
         "KDCDHKeyInfo/dhKeyExpiration", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
-
+#line 90 "packet-pkinit-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkinit-ettarr.c ---*/
-
+#line 1 "packet-pkinit-ettarr.c"
     &ett_pkinit_PaPkAsReq,
     &ett_pkinit_SEQUENCE_OF_TrustedCA,
     &ett_pkinit_TrustedCA,
@@ -479,7 +480,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_KDCDHKeyInfo,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
-
+#line 95 "packet-pkinit-template.c"
   };
 
   /* Register protocol */
@@ -496,12 +497,12 @@ void proto_register_pkinit(void) {
 void proto_reg_handoff_pkinit(void) {
 
 /*--- Included file: packet-pkinit-dis-tab.c ---*/
-
+#line 1 "packet-pkinit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
   register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/
-
+#line 110 "packet-pkinit-template.c"
 }
 

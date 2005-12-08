@@ -5,6 +5,7 @@
 
 /* Input file: packet-crmf-template.h */
 
+#line 1 "packet-crmf-template.h"
 /* packet-crmf.h
  * Routines for RFC2511 Certificate Request Message Format packet dissection
  *   Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-crmf-exp.h ---*/
-
+#line 1 "packet-crmf-exp.h"
 extern const value_string crmf_ProofOfPossession_vals[];
 extern const value_string crmf_POPOPrivKey_vals[];
 extern const value_string crmf_SubsequentMessage_vals[];
@@ -70,7 +71,7 @@ int dissect_crmf_UTF8Pairs(gboolean implicit_tag, tvbuff_t *tvb, int offset, pac
 int dissect_crmf_CertReq(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-crmf-exp.h ---*/
-
+#line 30 "packet-crmf-template.h"
 
 #endif  /* PACKET_CRMF_H */
 

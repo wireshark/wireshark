@@ -5,6 +5,7 @@
 
 /* Input file: packet-x509if-template.h */
 
+#line 1 "packet-x509if-template.h"
 /* packet-x509if.h
  * Routines for X.509 Information Framework packet dissection
  *  Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-x509if-exp.h ---*/
-
+#line 1 "packet-x509if-exp.h"
 extern const value_string x509if_Name_vals[];
 extern const value_string x509if_Refinement_vals[];
 extern const value_string x509if_AttributeUsage_vals[];
@@ -85,7 +86,7 @@ int dissect_x509if_Mapping(gboolean implicit_tag, tvbuff_t *tvb, int offset, pac
 int dissect_x509if_MRSubstitution(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-x509if-exp.h ---*/
-
+#line 30 "packet-x509if-template.h"
 
 extern const char * x509if_get_last_dn(void);
 

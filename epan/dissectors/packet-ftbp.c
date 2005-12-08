@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ftbp.c                                                            */
+/* ./packet-ftbp.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template ftbp.asn */
 
 /* Input file: packet-ftbp-template.c */
 
+#line 1 "packet-ftbp-template.c"
 /* packet-ftbp.c
  * Routines for File Transfer Body Part (FTBP) dissection (used in X.420 content)
  * Graeme Lunt 2005
@@ -59,7 +60,7 @@ int proto_ftbp = -1;
 
 
 /*--- Included file: packet-ftbp-hf.c ---*/
-
+#line 1 "packet-ftbp-hf.c"
 static int hf_ftbp_FileTransferParameters_PDU = -1;  /* FileTransferParameters */
 static int hf_ftbp_FileTransferData_PDU = -1;     /* FileTransferData */
 static int hf_ftbp_related_stored_file = -1;      /* RelatedStoredFile */
@@ -154,13 +155,13 @@ static int hf_ftbp_Access_Request_change_attribute = -1;
 static int hf_ftbp_Access_Request_delete_object = -1;
 
 /*--- End of included file: packet-ftbp-hf.c ---*/
-
+#line 54 "packet-ftbp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ftbp = -1;
 
 /*--- Included file: packet-ftbp-ett.c ---*/
-
+#line 1 "packet-ftbp-ett.c"
 static gint ett_ftbp_FileTransferParameters = -1;
 static gint ett_ftbp_FileTransferData = -1;
 static gint ett_ftbp_RelatedStoredFile = -1;
@@ -192,11 +193,11 @@ static gint ett_ftbp_Pass_Passwords = -1;
 static gint ett_ftbp_Application_Entity_Title = -1;
 
 /*--- End of included file: packet-ftbp-ett.c ---*/
-
+#line 58 "packet-ftbp-template.c"
 
 
 /*--- Included file: packet-ftbp-fn.c ---*/
-
+#line 1 "packet-ftbp-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_extensions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -530,7 +531,9 @@ static int dissect_document_type_name(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ftbp_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 26 "ftbp.cnf"
 /* XXX: Not implemented yet */
+
 
 
   return offset;
@@ -735,7 +738,9 @@ static int dissect_environment_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_ftbp_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 29 "ftbp.cnf"
 /* XXX: Not implemented yet */
+
   return offset;
 }
 static int dissect_compression_algorithm_param_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1138,7 +1143,7 @@ static void dissect_FileTransferData_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
 
 
 /*--- End of included file: packet-ftbp-fn.c ---*/
-
+#line 60 "packet-ftbp-template.c"
 
 
 /*--- proto_register_ftbp -------------------------------------------*/
@@ -1149,7 +1154,7 @@ void proto_register_ftbp(void) {
   {
 
 /*--- Included file: packet-ftbp-hfarr.c ---*/
-
+#line 1 "packet-ftbp-hfarr.c"
     { &hf_ftbp_FileTransferParameters_PDU,
       { "FileTransferParameters", "ftbp.FileTransferParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1248,7 +1253,7 @@ void proto_register_ftbp(void) {
         "Contents-Type-Attribute/document-type", HFILL }},
     { &hf_ftbp_document_type_name,
       { "document-type-name", "ftbp.document_type_name",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Contents-Type-Attribute/document-type/document-type-name", HFILL }},
     { &hf_ftbp_parameter,
       { "parameter", "ftbp.parameter",
@@ -1260,11 +1265,11 @@ void proto_register_ftbp(void) {
         "Contents-Type-Attribute/constraint-set-and-abstract-syntax", HFILL }},
     { &hf_ftbp_constraint_set_name,
       { "constraint-set-name", "ftbp.constraint_set_name",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Contents-Type-Attribute/constraint-set-and-abstract-syntax/constraint-set-name", HFILL }},
     { &hf_ftbp_abstract_syntax_name,
       { "abstract-syntax-name", "ftbp.abstract_syntax_name",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Contents-Type-Attribute/constraint-set-and-abstract-syntax/abstract-syntax-name", HFILL }},
     { &hf_ftbp_application_reference,
       { "application-reference", "ftbp.application_reference",
@@ -1276,7 +1281,7 @@ void proto_register_ftbp(void) {
         "EnvironmentParameter/machine", HFILL }},
     { &hf_ftbp_operating_system,
       { "operating-system", "ftbp.operating_system",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "EnvironmentParameter/operating-system", HFILL }},
     { &hf_ftbp_user_visible_string,
       { "user-visible-string", "ftbp.user_visible_string",
@@ -1288,7 +1293,7 @@ void proto_register_ftbp(void) {
         "EnvironmentParameter/user-visible-string/_item", HFILL }},
     { &hf_ftbp_registered_identifier,
       { "registered-identifier", "ftbp.registered_identifier",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "GeneralIdentifier/registered-identifier", HFILL }},
     { &hf_ftbp_descriptive_identifier,
       { "descriptive-identifier", "ftbp.descriptive_identifier",
@@ -1300,7 +1305,7 @@ void proto_register_ftbp(void) {
         "GeneralIdentifier/descriptive-identifier/_item", HFILL }},
     { &hf_ftbp_compression_algorithm_id,
       { "compression-algorithm-id", "ftbp.compression_algorithm_id",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CompressionParameter/compression-algorithm-id", HFILL }},
     { &hf_ftbp_compression_algorithm_param,
       { "compression-algorithm-param", "ftbp.compression_algorithm_param",
@@ -1516,7 +1521,7 @@ void proto_register_ftbp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-ftbp-hfarr.c ---*/
-
+#line 69 "packet-ftbp-template.c"
   };
 
   /* List of subtrees */
@@ -1524,7 +1529,7 @@ void proto_register_ftbp(void) {
     &ett_ftbp,
 
 /*--- Included file: packet-ftbp-ettarr.c ---*/
-
+#line 1 "packet-ftbp-ettarr.c"
     &ett_ftbp_FileTransferParameters,
     &ett_ftbp_FileTransferData,
     &ett_ftbp_RelatedStoredFile,
@@ -1556,7 +1561,7 @@ void proto_register_ftbp(void) {
     &ett_ftbp_Application_Entity_Title,
 
 /*--- End of included file: packet-ftbp-ettarr.c ---*/
-
+#line 75 "packet-ftbp-template.c"
   };
 
   /* Register protocol */
@@ -1573,12 +1578,12 @@ void proto_register_ftbp(void) {
 void proto_reg_handoff_ftbp(void) {
 
 /*--- Included file: packet-ftbp-dis-tab.c ---*/
-
+#line 1 "packet-ftbp-dis-tab.c"
   register_ber_oid_dissector("2.6.1.11.12", dissect_FileTransferParameters_PDU, proto_ftbp, "id-ep-file-transfer");
   register_ber_oid_dissector("2.6.1.4.12", dissect_FileTransferData_PDU, proto_ftbp, "id-et-file-transfer");
 
 
 /*--- End of included file: packet-ftbp-dis-tab.c ---*/
-
+#line 90 "packet-ftbp-template.c"
 
 }

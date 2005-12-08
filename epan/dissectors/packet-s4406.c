@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-s4406.c                                                           */
+/* ./packet-s4406.c                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
 
+#line 1 "packet-s4406-template.c"
 /* packet-s4406.c
  * Routines for STANAG 4406 (X.400 Military Message Extensions)  packet dissection
  * Graeme Lunt 2005
@@ -58,7 +59,7 @@ int proto_s4406 = -1;
 
 
 /*--- Included file: packet-s4406-hf.c ---*/
-
+#line 1 "packet-s4406-hf.c"
 static int hf_s4406_ExemptedAddress_PDU = -1;     /* ExemptedAddress */
 static int hf_s4406_ExtendedAuthorisationInfo_PDU = -1;  /* ExtendedAuthorisationInfo */
 static int hf_s4406_DistributionCodes_PDU = -1;   /* DistributionCodes */
@@ -106,13 +107,13 @@ static int hf_s4406_body_part_security_label = -1;  /* SecurityLabel */
 static int hf_s4406_body_part_sequence_number = -1;  /* BodyPartSequenceNumber */
 
 /*--- End of included file: packet-s4406-hf.c ---*/
-
+#line 53 "packet-s4406-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_s4406 = -1;
 
 /*--- Included file: packet-s4406-ett.c ---*/
-
+#line 1 "packet-s4406-ett.c"
 static gint ett_s4406_DistributionCodes = -1;
 static gint ett_s4406_SEQUENCE_OF_Sic = -1;
 static gint ett_s4406_SEQUENCE_OF_DistributionExtensionField = -1;
@@ -130,11 +131,11 @@ static gint ett_s4406_SEQUENCE_OF_BodyPartSecurityLabel = -1;
 static gint ett_s4406_BodyPartSecurityLabel = -1;
 
 /*--- End of included file: packet-s4406-ett.c ---*/
-
+#line 57 "packet-s4406-template.c"
 
 
 /*--- Included file: packet-s4406-fn.c ---*/
-
+#line 1 "packet-s4406-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_listName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -222,7 +223,9 @@ static int dissect_dist_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 56 "s4406.cnf"
 /* XXX: not implemented */
+
 
 
   return offset;
@@ -365,12 +368,14 @@ static const value_string s4406_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 61 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);
 
   if((precedence != -1) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " (primary=%s)", val_to_str(precedence, s4406_PrimaryPrecedence_vals, "precedence(%d)"));
+
 
 
   return offset;
@@ -393,12 +398,14 @@ static const value_string s4406_CopyPrecedence_vals[] = {
 
 static int
 dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 69 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);
 
   if((precedence != -1) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " (copy=%s)", val_to_str(precedence, s4406_CopyPrecedence_vals, "precedence(%d)"));
+
 
   return offset;
 }
@@ -772,7 +779,7 @@ static void dissect_PriorityLevelQualifier_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 
 /*--- End of included file: packet-s4406-fn.c ---*/
-
+#line 59 "packet-s4406-template.c"
 
 
 /*
@@ -808,7 +815,7 @@ void proto_register_s4406(void) {
   {
 
 /*--- Included file: packet-s4406-hfarr.c ---*/
-
+#line 1 "packet-s4406-hfarr.c"
     { &hf_s4406_ExemptedAddress_PDU,
       { "ExemptedAddress", "s4406.ExemptedAddress",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -895,7 +902,7 @@ void proto_register_s4406(void) {
         "DistributionCodes/dist-Extensions/_item", HFILL }},
     { &hf_s4406_dist_type,
       { "dist-type", "s4406.dist_type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DistributionExtensionField/dist-type", HFILL }},
     { &hf_s4406_dist_value,
       { "dist-value", "s4406.dist_value",
@@ -991,7 +998,7 @@ void proto_register_s4406(void) {
         "BodyPartSecurityLabel/body-part-sequence-number", HFILL }},
 
 /*--- End of included file: packet-s4406-hfarr.c ---*/
-
+#line 93 "packet-s4406-template.c"
   };
 
   /* List of subtrees */
@@ -999,7 +1006,7 @@ void proto_register_s4406(void) {
     &ett_s4406,
 
 /*--- Included file: packet-s4406-ettarr.c ---*/
-
+#line 1 "packet-s4406-ettarr.c"
     &ett_s4406_DistributionCodes,
     &ett_s4406_SEQUENCE_OF_Sic,
     &ett_s4406_SEQUENCE_OF_DistributionExtensionField,
@@ -1017,7 +1024,7 @@ void proto_register_s4406(void) {
     &ett_s4406_BodyPartSecurityLabel,
 
 /*--- End of included file: packet-s4406-ettarr.c ---*/
-
+#line 99 "packet-s4406-template.c"
   };
 
   /* Register protocol */
@@ -1034,7 +1041,7 @@ void proto_register_s4406(void) {
 void proto_reg_handoff_s4406(void) {
 
 /*--- Included file: packet-s4406-dis-tab.c ---*/
-
+#line 1 "packet-s4406-dis-tab.c"
   register_ber_oid_dissector("1.3.26.0.4406.0.2.0", dissect_PrimaryPrecedence_PDU, proto_s4406, "primary-precedence");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.1", dissect_CopyPrecedence_PDU, proto_s4406, "copy-precedence");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.2", dissect_MessageType_PDU, proto_s4406, "message-type");
@@ -1055,7 +1062,7 @@ void proto_reg_handoff_s4406(void) {
 
 
 /*--- End of included file: packet-s4406-dis-tab.c ---*/
-
+#line 114 "packet-s4406-template.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "Military Message");
 }

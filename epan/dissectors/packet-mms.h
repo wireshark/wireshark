@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-mms.h                                                             */
+/* ./packet-mms.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p mms -c mms.cnf -s packet-mms-template mms.asn */
 
 /* Input file: packet-mms-template.h */
 
+#line 1 "packet-mms-template.h"
 /* packet-mms.h
  * Routines for MMS packet dissection
  *   Ronnie Sahlberg 2005
@@ -35,12 +36,12 @@
 
 
 /*--- Included file: packet-mms-exp.h ---*/
-
+#line 1 "packet-mms-exp.h"
 extern const value_string mms_MMSpdu_vals[];
 int dissect_mms_MMSpdu(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-mms-exp.h ---*/
-
+#line 30 "packet-mms-template.h"
 
 #endif  /* PACKET_MMS_H */
 

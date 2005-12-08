@@ -5,6 +5,7 @@
 
 /* Input file: packet-spnego-template.h */
 
+#line 1 "packet-spnego-template.h"
 /* packet-spnego.h
  * Routines for spnego packet dissection
  *

@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-pkix1explicit.c                                                   */
+/* ./packet-pkix1explicit.c                                                   */
 /* ../../tools/asn2eth.py -e -X -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn */
 
 /* Input file: packet-pkix1explicit-template.c */
 
+#line 1 "packet-pkix1explicit-template.c"
 #define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2eth */
 
 /* packet-pkix1explicit.c
@@ -57,7 +58,7 @@ static int proto_pkix1explicit = -1;
 static int hf_pkix1explicit_object_identifier_id = -1;
 
 /*--- Included file: packet-pkix1explicit-hf.c ---*/
-
+#line 1 "packet-pkix1explicit-hf.c"
 static int hf_pkix1explicit_DomainParameters_PDU = -1;  /* DomainParameters */
 static int hf_pkix1explicit_DirectoryString_PDU = -1;  /* DirectoryString */
 static int hf_pkix1explicit_Extensions_item = -1;  /* Extension */
@@ -79,12 +80,12 @@ static int hf_pkix1explicit_type1 = -1;           /* TeletexString */
 static int hf_pkix1explicit_value1 = -1;          /* TeletexString */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
-
+#line 52 "packet-pkix1explicit-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkix1explicit-ett.c ---*/
-
+#line 1 "packet-pkix1explicit-ett.c"
 static gint ett_pkix1explicit_Extensions = -1;
 static gint ett_pkix1explicit_Extension = -1;
 static gint ett_pkix1explicit_DomainParameters = -1;
@@ -95,7 +96,7 @@ static gint ett_pkix1explicit_RelativeDistinguishedName = -1;
 static gint ett_pkix1explicit_TeletexDomainDefinedAttribute = -1;
 
 /*--- End of included file: packet-pkix1explicit-ett.c ---*/
-
+#line 55 "packet-pkix1explicit-template.c"
 
 
 static const char *object_identifier_id;
@@ -141,7 +142,7 @@ dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb,
 
 
 /*--- Included file: packet-pkix1explicit-fn.c ---*/
-
+#line 1 "packet-pkix1explicit-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -183,6 +184,7 @@ static int dissect_critical(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_pkix1explicit_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 44 "pkix1explicit.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;
@@ -191,6 +193,7 @@ dissect_pkix1explicit_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
   offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
 
@@ -323,7 +326,9 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_pkix1explicit_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 38 "pkix1explicit.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -383,7 +388,9 @@ dissect_pkix1explicit_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 int
 dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 32 "pkix1explicit.cnf"
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
 
 
   return offset;
@@ -452,7 +459,7 @@ static void dissect_DirectoryString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
-
+#line 99 "packet-pkix1explicit-template.c"
 
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
@@ -465,7 +472,7 @@ void proto_register_pkix1explicit(void) {
 	"Object identifier Id", HFILL }},
 
 /*--- Included file: packet-pkix1explicit-hfarr.c ---*/
-
+#line 1 "packet-pkix1explicit-hfarr.c"
     { &hf_pkix1explicit_DomainParameters_PDU,
       { "DomainParameters", "pkix1explicit.DomainParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -480,7 +487,7 @@ void proto_register_pkix1explicit(void) {
         "Extensions/_item", HFILL }},
     { &hf_pkix1explicit_extnId,
       { "extnId", "pkix1explicit.extnId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Extension/extnId", HFILL }},
     { &hf_pkix1explicit_critical,
       { "critical", "pkix1explicit.critical",
@@ -520,7 +527,7 @@ void proto_register_pkix1explicit(void) {
         "ValidationParms/pgenCounter", HFILL }},
     { &hf_pkix1explicit_type,
       { "type", "pkix1explicit.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "AttributeTypeAndValue/type", HFILL }},
     { &hf_pkix1explicit_value,
       { "value", "pkix1explicit.value",
@@ -544,14 +551,14 @@ void proto_register_pkix1explicit(void) {
         "TeletexDomainDefinedAttribute/value", HFILL }},
 
 /*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-
+#line 110 "packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkix1explicit-ettarr.c ---*/
-
+#line 1 "packet-pkix1explicit-ettarr.c"
     &ett_pkix1explicit_Extensions,
     &ett_pkix1explicit_Extension,
     &ett_pkix1explicit_DomainParameters,
@@ -562,7 +569,7 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_TeletexDomainDefinedAttribute,
 
 /*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-
+#line 115 "packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -579,12 +586,12 @@ void proto_register_pkix1explicit(void) {
 void proto_reg_handoff_pkix1explicit(void) {
 
 /*--- Included file: packet-pkix1explicit-dis-tab.c ---*/
-
+#line 1 "packet-pkix1explicit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.2.1", dissect_DirectoryString_PDU, proto_pkix1explicit, "id-qt-cps");
   register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkix1explicit, "dhpublicnumber");
 
 
 /*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-
+#line 130 "packet-pkix1explicit-template.c"
 }
 

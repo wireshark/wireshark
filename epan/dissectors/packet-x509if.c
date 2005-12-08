@@ -5,6 +5,7 @@
 
 /* Input file: packet-x509if-template.c */
 
+#line 1 "packet-x509if-template.c"
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
  *  Ronnie Sahlberg 2004
@@ -57,7 +58,7 @@ static int hf_x509if_object_identifier_id = -1;
 static int hf_x509if_any_string = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
-
+#line 1 "packet-x509if-hf.c"
 static int hf_x509if_Name_PDU = -1;               /* Name */
 static int hf_x509if_DistinguishedName_PDU = -1;  /* DistinguishedName */
 static int hf_x509if_type = -1;                   /* AttributeId */
@@ -202,12 +203,12 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-
+#line 52 "packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-x509if-ett.c ---*/
-
+#line 1 "packet-x509if-ett.c"
 static gint ett_x509if_Attribute = -1;
 static gint ett_x509if_SET_OF_AttributeValue = -1;
 static gint ett_x509if_T_valuesWithContext = -1;
@@ -279,7 +280,7 @@ static gint ett_x509if_Mapping = -1;
 static gint ett_x509if_MRSubstitution = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-
+#line 55 "packet-x509if-template.c"
 
 static const char *object_identifier_id;
 static proto_tree *top_of_dn = NULL;
@@ -297,7 +298,7 @@ static char *last_rdn = NULL;
 
 
 /*--- Included file: packet-x509if-fn.c ---*/
-
+#line 1 "packet-x509if-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Refinement -> Refinement/and -> Refinement */
@@ -365,6 +366,7 @@ static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 102 "x509if.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
@@ -383,6 +385,7 @@ dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
      proto_item_append_text(tree, " (%s=", name);
     }
   }
+
 
 
   return offset;
@@ -413,6 +416,7 @@ static int dissect_restrictionType(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 int
 dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 121 "x509if.cnf"
   int old_offset = offset;
   tvbuff_t	*out_tvb;
   char *value = NULL;
@@ -434,6 +438,7 @@ dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
     }
 
   }
+
 
 
   return offset;
@@ -464,7 +469,9 @@ static int dissect_selectedValues_item(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_x509if_ValuesWithContextValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 153 "x509if.cnf"
   offset=call_ber_oid_callback("unknown", tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -647,7 +654,9 @@ static int dissect_ca_contextType(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_x509if_ContextValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 96 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -836,6 +845,7 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 181 "x509if.cnf"
 
   if(!rdn_one_value) {
     top_of_rdn = tree;
@@ -852,6 +862,7 @@ dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_
   rdn_one_value = TRUE;
 
 
+
   return offset;
 }
 static int dissect_RelativeDistinguishedName_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -865,6 +876,7 @@ static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 int
 dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 156 "x509if.cnf"
   char *temp_dn;
 
   rdn_one_value = FALSE;
@@ -892,6 +904,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
   last_rdn = NULL; /* it will get freed when the next packet is dissected */
 
 
+
   return offset;
 }
 
@@ -899,6 +912,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 208 "x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -909,6 +923,7 @@ dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
   dn_one_rdn = TRUE;
+
 
 
   return offset;
@@ -924,6 +939,7 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 196 "x509if.cnf"
 
   dn_one_rdn = FALSE; /* reset */
   last_dn = ep_alloc(MAX_RDN_STR_LEN); *last_dn = '\0';
@@ -935,6 +951,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   /* we've finished - append the dn */
   proto_item_append_text(top_of_dn, " (%s)", last_dn);
+
 
 
 
@@ -1435,7 +1452,9 @@ static int dissect_level(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
 static int
 dissect_x509if_SelectedValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 144 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -1476,7 +1495,9 @@ static int dissect_entryType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_x509if_DefaultValueValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 150 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -2163,7 +2184,7 @@ static void dissect_DistinguishedName_PDU(tvbuff_t *tvb, packet_info *pinfo, pro
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-
+#line 71 "packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2184,7 +2205,7 @@ void proto_register_x509if(void) {
 			 
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
-
+#line 1 "packet-x509if-hfarr.c"
     { &hf_x509if_Name_PDU,
       { "Name", "x509if.Name",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
@@ -2195,7 +2216,7 @@ void proto_register_x509if(void) {
         "DistinguishedName", HFILL }},
     { &hf_x509if_type,
       { "type", "x509if.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509if_values,
       { "values", "x509if.values",
@@ -2227,7 +2248,7 @@ void proto_register_x509if(void) {
         "", HFILL }},
     { &hf_x509if_contextType,
       { "contextType", "x509if.contextType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509if_contextValues,
       { "contextValues", "x509if.contextValues",
@@ -2263,7 +2284,7 @@ void proto_register_x509if(void) {
         "AttributeValueAssertion/assertedContexts/selectedContexts/_item", HFILL }},
     { &hf_x509if_ca_contextType,
       { "contextType", "x509if.contextType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ContextAssertion/contextType", HFILL }},
     { &hf_x509if_ca_contextValues,
       { "contextValues", "x509if.contextValues",
@@ -2355,7 +2376,7 @@ void proto_register_x509if(void) {
         "ChopSpecification/specificExclusions/_item", HFILL }},
     { &hf_x509if_item,
       { "item", "x509if.item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Refinement/item", HFILL }},
     { &hf_x509if_refinement_and,
       { "and", "x509if.and",
@@ -2383,7 +2404,7 @@ void proto_register_x509if(void) {
         "DITStructureRule/ruleIdentifier", HFILL }},
     { &hf_x509if_nameForm,
       { "nameForm", "x509if.nameForm",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITStructureRule/nameForm", HFILL }},
     { &hf_x509if_superiorStructureRules,
       { "superiorStructureRules", "x509if.superiorStructureRules",
@@ -2395,7 +2416,7 @@ void proto_register_x509if(void) {
         "DITStructureRule/superiorStructureRules/_item", HFILL }},
     { &hf_x509if_structuralObjectClass,
       { "structuralObjectClass", "x509if.structuralObjectClass",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITContentRule/structuralObjectClass", HFILL }},
     { &hf_x509if_auxiliaries,
       { "auxiliaries", "x509if.auxiliaries",
@@ -2403,7 +2424,7 @@ void proto_register_x509if(void) {
         "DITContentRule/auxiliaries", HFILL }},
     { &hf_x509if_auxiliaries_item,
       { "Item", "x509if.auxiliaries_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITContentRule/auxiliaries/_item", HFILL }},
     { &hf_x509if_mandatory,
       { "mandatory", "x509if.mandatory",
@@ -2411,7 +2432,7 @@ void proto_register_x509if(void) {
         "DITContentRule/mandatory", HFILL }},
     { &hf_x509if_mandatory_item,
       { "Item", "x509if.mandatory_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITContentRule/mandatory/_item", HFILL }},
     { &hf_x509if_optional,
       { "optional", "x509if.optional",
@@ -2419,7 +2440,7 @@ void proto_register_x509if(void) {
         "DITContentRule/optional", HFILL }},
     { &hf_x509if_optional_item,
       { "Item", "x509if.optional_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITContentRule/optional/_item", HFILL }},
     { &hf_x509if_precluded,
       { "precluded", "x509if.precluded",
@@ -2427,11 +2448,11 @@ void proto_register_x509if(void) {
         "DITContentRule/precluded", HFILL }},
     { &hf_x509if_precluded_item,
       { "Item", "x509if.precluded_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITContentRule/precluded/_item", HFILL }},
     { &hf_x509if_attributeType,
       { "attributeType", "x509if.attributeType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509if_mandatoryContexts,
       { "mandatoryContexts", "x509if.mandatoryContexts",
@@ -2439,7 +2460,7 @@ void proto_register_x509if(void) {
         "DITContextUse/mandatoryContexts", HFILL }},
     { &hf_x509if_mandatoryContexts_item,
       { "Item", "x509if.mandatoryContexts_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITContextUse/mandatoryContexts/_item", HFILL }},
     { &hf_x509if_optionalContexts,
       { "optionalContexts", "x509if.optionalContexts",
@@ -2447,7 +2468,7 @@ void proto_register_x509if(void) {
         "DITContextUse/optionalContexts", HFILL }},
     { &hf_x509if_optionalContexts_item,
       { "Item", "x509if.optionalContexts_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "DITContextUse/optionalContexts/_item", HFILL }},
     { &hf_x509if_id,
       { "id", "x509if.id",
@@ -2455,11 +2476,11 @@ void proto_register_x509if(void) {
         "", HFILL }},
     { &hf_x509if_dmdId,
       { "dmdId", "x509if.dmdId",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509if_serviceType,
       { "serviceType", "x509if.serviceType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509if_userClass,
       { "userClass", "x509if.userClass",
@@ -2507,7 +2528,7 @@ void proto_register_x509if(void) {
         "", HFILL }},
     { &hf_x509if_additionalControl_item,
       { "Item", "x509if.additionalControl_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509if_allowedSubset,
       { "allowedSubset", "x509if.allowedSubset",
@@ -2559,7 +2580,7 @@ void proto_register_x509if(void) {
         "RequestAttribute/defaultValues/_item", HFILL }},
     { &hf_x509if_entryType,
       { "entryType", "x509if.entryType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "RequestAttribute/defaultValues/_item/entryType", HFILL }},
     { &hf_x509if_ra_values,
       { "values", "x509if.values",
@@ -2599,7 +2620,7 @@ void proto_register_x509if(void) {
         "ContextProfile/contextValue/_item", HFILL }},
     { &hf_x509if_context,
       { "context", "x509if.context",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ContextCombination/context", HFILL }},
     { &hf_x509if_contextcombination_and,
       { "and", "x509if.and",
@@ -2623,7 +2644,7 @@ void proto_register_x509if(void) {
         "ContextCombination/not", HFILL }},
     { &hf_x509if_restrictionType,
       { "restrictionType", "x509if.restrictionType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MatchingUse/restrictionType", HFILL }},
     { &hf_x509if_restrictionValue,
       { "restrictionValue", "x509if.restrictionValue",
@@ -2631,7 +2652,7 @@ void proto_register_x509if(void) {
         "MatchingUse/restrictionValue", HFILL }},
     { &hf_x509if_attribute,
       { "attribute", "x509if.attribute",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509if_and,
       { "and", "x509if.and",
@@ -2723,7 +2744,7 @@ void proto_register_x509if(void) {
         "MRMapping/substitution/_item", HFILL }},
     { &hf_x509if_mappingFunction,
       { "mappingFunction", "x509if.mappingFunction",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Mapping/mappingFunction", HFILL }},
     { &hf_x509if_level,
       { "level", "x509if.level",
@@ -2731,11 +2752,11 @@ void proto_register_x509if(void) {
         "Mapping/level", HFILL }},
     { &hf_x509if_oldMatchingRule,
       { "oldMatchingRule", "x509if.oldMatchingRule",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MRSubstitution/oldMatchingRule", HFILL }},
     { &hf_x509if_newMatchingRule,
       { "newMatchingRule", "x509if.newMatchingRule",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MRSubstitution/newMatchingRule", HFILL }},
     { &hf_x509if_AllowedSubset_baseObject,
       { "baseObject", "x509if.baseObject",
@@ -2751,14 +2772,14 @@ void proto_register_x509if(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-
+#line 90 "packet-x509if-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-x509if-ettarr.c ---*/
-
+#line 1 "packet-x509if-ettarr.c"
     &ett_x509if_Attribute,
     &ett_x509if_SET_OF_AttributeValue,
     &ett_x509if_T_valuesWithContext,
@@ -2830,7 +2851,7 @@ void proto_register_x509if(void) {
     &ett_x509if_MRSubstitution,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-
+#line 95 "packet-x509if-template.c"
   };
 
   /* Register protocol */

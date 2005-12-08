@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h450.c                                                            */
+/* ./packet-h450.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.c */
 
+#line 1 "packet-h450-template.c"
 /* packet-h450.c
  * Routines for h450 packet dissection
  * Based on the previous h450 dissector by:
@@ -207,7 +208,7 @@ static int hf_h4501_ROS = -1;
 
 
 /*--- Included file: packet-h450-hf.c ---*/
-
+#line 1 "packet-h450-hf.c"
 static int hf_h450_networkFacilityExtension = -1;  /* NetworkFacilityExtension */
 static int hf_h450_interpretationApdu = -1;       /* InterpretationApdu */
 static int hf_h450_serviceApdu = -1;              /* ServiceApdus */
@@ -437,7 +438,7 @@ static int hf_h450_extensionId = -1;              /* OBJECT_IDENTIFIER */
 static int hf_h450_extensionArgument = -1;        /* ExtensionArgument */
 
 /*--- End of included file: packet-h450-hf.c ---*/
-
+#line 202 "packet-h450-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h4501 = -1;
@@ -454,7 +455,7 @@ static gint ett_h4501_ROS = -1;
 
 
 /*--- Included file: packet-h450-ett.c ---*/
-
+#line 1 "packet-h450-ett.c"
 static gint ett_h450_H4501SupplementaryService = -1;
 static gint ett_h450_NetworkFacilityExtension = -1;
 static gint ett_h450_EntityType = -1;
@@ -578,7 +579,7 @@ static gint ett_h450_Unspecified = -1;
 static gint ett_h450_Extension = -1;
 
 /*--- End of included file: packet-h450-ett.c ---*/
-
+#line 217 "packet-h450-template.c"
 
 /* Global variables */
 static guint32 localOpcode;
@@ -677,7 +678,7 @@ static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 /*--- Included file: packet-h450-fn.c ---*/
-
+#line 1 "packet-h450-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_rosApdus_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -4112,7 +4113,7 @@ dissect_h450_Unspecified(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-h450-fn.c ---*/
-
+#line 314 "packet-h450-template.c"
 
 static const value_string InvokeProblem_vals[] = {
    {  0, "duplicateInvocation"},
@@ -4851,7 +4852,7 @@ void proto_register_h450(void) {
 
 
 /*--- Included file: packet-h450-hfarr.c ---*/
-
+#line 1 "packet-h450-hfarr.c"
     { &hf_h450_networkFacilityExtension,
       { "networkFacilityExtension", "h450.networkFacilityExtension",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5762,7 +5763,7 @@ void proto_register_h450(void) {
         "Extension/extensionArgument", HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-
+#line 1051 "packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -5780,7 +5781,7 @@ void proto_register_h450(void) {
 	  &ett_h4501_ROS,
 
 /*--- Included file: packet-h450-ettarr.c ---*/
-
+#line 1 "packet-h450-ettarr.c"
     &ett_h450_H4501SupplementaryService,
     &ett_h450_NetworkFacilityExtension,
     &ett_h450_EntityType,
@@ -5904,7 +5905,7 @@ void proto_register_h450(void) {
     &ett_h450_Extension,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-
+#line 1067 "packet-h450-template.c"
   };
 
 

@@ -5,6 +5,7 @@
 
 /* Input file: packet-wlancertextn-template.h */
 
+#line 1 "packet-wlancertextn-template.h"
 /* packet-wlancertextn.h
  * Routines for Wireless Certificate Extensions (RFC3770) packet dissection
  *  Ronnie Sahlberg 2005

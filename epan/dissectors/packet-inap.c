@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-inap.c                                                            */
+/* ./packet-inap.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p inap -c inap.cnf -s packet-inap-template inap.asn */
 
 /* Input file: packet-inap-template.c */
 
+#line 1 "packet-inap-template.c"
 /* packet-inap-template.c
  * Routines for INAP
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
@@ -70,7 +71,7 @@ static int hf_inap_currentPassword = -1;
 static int hf_inap_genproblem = -1;
 
 /*--- Included file: packet-inap-hf.c ---*/
-
+#line 1 "packet-inap-hf.c"
 static int hf_inap_ActivateServiceFilteringArg_PDU = -1;  /* ActivateServiceFilteringArg */
 static int hf_inap_AnalysedInformationArg_PDU = -1;  /* AnalysedInformationArg */
 static int hf_inap_AnalyseInformationArg_PDU = -1;  /* AnalyseInformationArg */
@@ -347,7 +348,7 @@ static int hf_inap_rrp = -1;                      /* ReturnResultProblem */
 static int hf_inap_rep = -1;                      /* ReturnErrorProblem */
 
 /*--- End of included file: packet-inap-hf.c ---*/
-
+#line 65 "packet-inap-template.c"
 
 static guint tcap_itu_ssn = 106;
 static guint tcap_itu_ssn1 = 241;
@@ -367,7 +368,7 @@ static gint ett_inap_INAPPDU = -1;
 static gint ett_inapisup_parameter = -1;
 
 /*--- Included file: packet-inap-ett.c ---*/
-
+#line 1 "packet-inap-ett.c"
 static gint ett_inap_AddPartyArg = -1;
 static gint ett_inap_AttachArg = -1;
 static gint ett_inap_CallPartyHandlingResultsArg = -1;
@@ -492,13 +493,13 @@ static gint ett_inap_T_rinvokeID = -1;
 static gint ett_inap_T_rproblem = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-
+#line 83 "packet-inap-template.c"
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
 
 /*--- Included file: packet-inap-fn.c ---*/
-
+#line 1 "packet-inap-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -1609,6 +1610,7 @@ static int dissect_serviceAddressInformation_impl(packet_info *pinfo, proto_tree
 
 static int
 dissect_inap_BearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 105 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -1620,6 +1622,7 @@ dissect_inap_BearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 	return offset;
 
  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+
 
 
   return offset;
@@ -1670,6 +1673,7 @@ static int dissect_bearerCapability_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 76 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1680,6 +1684,7 @@ dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 	return offset;
 
 dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
+
 
 
   return offset;
@@ -1704,6 +1709,7 @@ static int dissect_calledPartynumber_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 90 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1714,6 +1720,7 @@ dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 	return offset;
 
 	dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
+
 
 
 
@@ -1967,6 +1974,7 @@ static int dissect_calledFacilityGroupMember_impl(packet_info *pinfo, proto_tree
 
 static int
 dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 135 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -1979,6 +1987,7 @@ dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
  dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
 
 
+
   return offset;
 }
 static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1989,6 +1998,7 @@ static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 149 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2002,6 +2012,7 @@ dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
 
+
   return offset;
 }
 static int dissect_redirectingPartyID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -2012,6 +2023,7 @@ static int dissect_redirectingPartyID_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 120 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2023,6 +2035,7 @@ dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 	return offset;
 
  dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+
 
 
   return offset;
@@ -4972,7 +4985,7 @@ static void dissect_TNoAnswerArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-
+#line 87 "packet-inap-template.c"
 
 
 const value_string inap_opr_code_strings[] = {
@@ -5545,7 +5558,7 @@ void proto_register_inap(void) {
 
 
 /*--- Included file: packet-inap-hfarr.c ---*/
-
+#line 1 "packet-inap-hfarr.c"
     { &hf_inap_ActivateServiceFilteringArg_PDU,
       { "ActivateServiceFilteringArg", "inap.ActivateServiceFilteringArg",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6644,7 +6657,7 @@ void proto_register_inap(void) {
         "RejectPDU/rproblem/rep", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-
+#line 658 "packet-inap-template.c"
   };
 
 
@@ -6664,7 +6677,7 @@ void proto_register_inap(void) {
     &ett_inapisup_parameter,
 
 /*--- Included file: packet-inap-ettarr.c ---*/
-
+#line 1 "packet-inap-ettarr.c"
     &ett_inap_AddPartyArg,
     &ett_inap_AttachArg,
     &ett_inap_CallPartyHandlingResultsArg,
@@ -6789,7 +6802,7 @@ void proto_register_inap(void) {
     &ett_inap_T_rproblem,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-
+#line 676 "packet-inap-template.c"
   };
 
   /* Register protocol */

@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h235.h                                                            */
-/* ../../tools/asn2eth.py -X -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
+/* ./packet-h235.h                                                            */
+/* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
 /* Input file: packet-h235-template.h */
 
+#line 1 "packet-h235-template.h"
 /* packet-h235.h
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-h235-exp.h ---*/
-
+#line 1 "packet-h235-exp.h"
 extern const value_string h235_AuthenticationMechanism_vals[];
 extern const value_string h235_CryptoToken_vals[];
 int dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -47,7 +48,7 @@ int dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 int dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h235-exp.h ---*/
-
+#line 30 "packet-h235-template.h"
 
 #endif  /* PACKET_H235_H */
 

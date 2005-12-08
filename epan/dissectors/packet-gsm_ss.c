@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_ss.c                                                          */
+/* ./packet-gsm_ss.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_ss -c gsm_ss.cnf -s packet-gsm_ss-template SS-Operations.asn */
 
 /* Input file: packet-gsm_ss-template.c */
 
+#line 1 "packet-gsm_ss-template.c"
 /* packet-gsm_ss-template.c
  * Routines for GSM Supplementary Services dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -170,7 +171,7 @@ static int hf_gsm_ss_currentPassword = -1;
 static int hf_gsm_ss_SS_Code = -1;
 
 /*--- Included file: packet-gsm_ss-hf.c ---*/
-
+#line 1 "packet-gsm_ss-hf.c"
 static int hf_gsm_ss_notifySS = -1;               /* NotifySS_Arg */
 static int hf_gsm_ss_processUnstructuredSS_Data = -1;  /* SS_UserData */
 static int hf_gsm_ss_forwardCUG_Info = -1;        /* ForwardCUG_InfoArg */
@@ -259,12 +260,12 @@ static int hf_gsm_ss_deferredLocationEventType = -1;  /* DeferredLocationEventTy
 static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 
 /*--- End of included file: packet-gsm_ss-hf.c ---*/
-
+#line 165 "packet-gsm_ss-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-gsm_ss-ett.c ---*/
-
+#line 1 "packet-gsm_ss-ett.c"
 static gint ett_gsm_ss_DummySS_operationsArg = -1;
 static gint ett_gsm_ss_DummySS_operationsRes = -1;
 static gint ett_gsm_ss_NotifySS_Arg = -1;
@@ -292,7 +293,7 @@ static gint ett_gsm_ss_LCS_AreaEventReportArg = -1;
 static gint ett_gsm_ss_LCS_AreaEventCancellationArg = -1;
 
 /*--- End of included file: packet-gsm_ss-ett.c ---*/
-
+#line 168 "packet-gsm_ss-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 
@@ -303,7 +304,7 @@ static proto_tree *top_tree;
 
 
 /*--- Included file: packet-gsm_ss-fn.c ---*/
-
+#line 1 "packet-gsm_ss-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_ss_Code_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1332,7 +1333,7 @@ dissect_gsm_ss_UserUserServiceArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 
 /*--- End of included file: packet-gsm_ss-fn.c ---*/
-
+#line 177 "packet-gsm_ss-template.c"
 
 
 int
@@ -1551,7 +1552,7 @@ void proto_register_gsm_ss(void) {
 
 
 /*--- Included file: packet-gsm_ss-hfarr.c ---*/
-
+#line 1 "packet-gsm_ss-hfarr.c"
     { &hf_gsm_ss_notifySS,
       { "notifySS", "gsm_ss.notifySS",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1898,14 +1899,14 @@ void proto_register_gsm_ss(void) {
         "LCS-AreaEventRequestArg/areaEventInfo", HFILL }},
 
 /*--- End of included file: packet-gsm_ss-hfarr.c ---*/
-
+#line 394 "packet-gsm_ss-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-gsm_ss-ettarr.c ---*/
-
+#line 1 "packet-gsm_ss-ettarr.c"
     &ett_gsm_ss_DummySS_operationsArg,
     &ett_gsm_ss_DummySS_operationsRes,
     &ett_gsm_ss_NotifySS_Arg,
@@ -1933,7 +1934,7 @@ void proto_register_gsm_ss(void) {
     &ett_gsm_ss_LCS_AreaEventCancellationArg,
 
 /*--- End of included file: packet-gsm_ss-ettarr.c ---*/
-
+#line 399 "packet-gsm_ss-template.c"
   };
 
   /* Register protocol */

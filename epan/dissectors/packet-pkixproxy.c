@@ -5,6 +5,7 @@
 
 /* Input file: packet-pkixproxy-template.c */
 
+#line 1 "packet-pkixproxy-template.c"
 /* packet-pkixproxy.c
  * Routines for RFC3820 PKIXProxy packet dissection
  *  Ronnie Sahlberg 2004
@@ -51,7 +52,7 @@
 static int proto_pkixproxy = -1;
 
 /*--- Included file: packet-pkixproxy-hf.c ---*/
-
+#line 1 "packet-pkixproxy-hf.c"
 static int hf_pkixproxy_ProxyCertInfoExtension_PDU = -1;  /* ProxyCertInfoExtension */
 static int hf_pkixproxy_pCPathLenConstraint = -1;  /* ProxyCertPathLengthConstraint */
 static int hf_pkixproxy_proxyPolicy = -1;         /* ProxyPolicy */
@@ -59,21 +60,21 @@ static int hf_pkixproxy_policyLanguage = -1;      /* OBJECT_IDENTIFIER */
 static int hf_pkixproxy_policy = -1;              /* OCTET_STRING */
 
 /*--- End of included file: packet-pkixproxy-hf.c ---*/
-
+#line 46 "packet-pkixproxy-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkixproxy-ett.c ---*/
-
+#line 1 "packet-pkixproxy-ett.c"
 static gint ett_pkixproxy_ProxyCertInfoExtension = -1;
 static gint ett_pkixproxy_ProxyPolicy = -1;
 
 /*--- End of included file: packet-pkixproxy-ett.c ---*/
-
+#line 49 "packet-pkixproxy-template.c"
 
 
 /*--- Included file: packet-pkixproxy-fn.c ---*/
-
+#line 1 "packet-pkixproxy-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -81,7 +82,8 @@ static gint ett_pkixproxy_ProxyPolicy = -1;
 
 static int
 dissect_pkixproxy_ProxyCertPathLengthConstraint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -90,10 +92,10 @@ static int dissect_pCPathLenConstraint(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
+
 static int
 dissect_pkixproxy_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -102,16 +104,18 @@ static int dissect_policyLanguage(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
+
 static int
 dissect_pkixproxy_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
 static int dissect_policy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkixproxy_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkixproxy_policy);
 }
+
 
 static const ber_sequence_t ProxyPolicy_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policyLanguage },
@@ -122,13 +126,14 @@ static const ber_sequence_t ProxyPolicy_sequence[] = {
 static int
 dissect_pkixproxy_ProxyPolicy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ProxyPolicy_sequence, hf_index, ett_pkixproxy_ProxyPolicy);
+                                   ProxyPolicy_sequence, hf_index, ett_pkixproxy_ProxyPolicy);
 
   return offset;
 }
 static int dissect_proxyPolicy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkixproxy_ProxyPolicy(FALSE, tvb, offset, pinfo, tree, hf_pkixproxy_proxyPolicy);
 }
+
 
 static const ber_sequence_t ProxyCertInfoExtension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pCPathLenConstraint },
@@ -139,7 +144,7 @@ static const ber_sequence_t ProxyCertInfoExtension_sequence[] = {
 static int
 dissect_pkixproxy_ProxyCertInfoExtension(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ProxyCertInfoExtension_sequence, hf_index, ett_pkixproxy_ProxyCertInfoExtension);
+                                   ProxyCertInfoExtension_sequence, hf_index, ett_pkixproxy_ProxyCertInfoExtension);
 
   return offset;
 }
@@ -152,7 +157,7 @@ static void dissect_ProxyCertInfoExtension_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 
 /*--- End of included file: packet-pkixproxy-fn.c ---*/
-
+#line 51 "packet-pkixproxy-template.c"
 
 
 /*--- proto_register_pkixproxy ----------------------------------------------*/
@@ -162,7 +167,7 @@ void proto_register_pkixproxy(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkixproxy-hfarr.c ---*/
-
+#line 1 "packet-pkixproxy-hfarr.c"
     { &hf_pkixproxy_ProxyCertInfoExtension_PDU,
       { "ProxyCertInfoExtension", "pkixproxy.ProxyCertInfoExtension",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -177,7 +182,7 @@ void proto_register_pkixproxy(void) {
         "ProxyCertInfoExtension/proxyPolicy", HFILL }},
     { &hf_pkixproxy_policyLanguage,
       { "policyLanguage", "pkixproxy.policyLanguage",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ProxyPolicy/policyLanguage", HFILL }},
     { &hf_pkixproxy_policy,
       { "policy", "pkixproxy.policy",
@@ -185,19 +190,19 @@ void proto_register_pkixproxy(void) {
         "ProxyPolicy/policy", HFILL }},
 
 /*--- End of included file: packet-pkixproxy-hfarr.c ---*/
-
+#line 59 "packet-pkixproxy-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkixproxy-ettarr.c ---*/
-
+#line 1 "packet-pkixproxy-ettarr.c"
     &ett_pkixproxy_ProxyCertInfoExtension,
     &ett_pkixproxy_ProxyPolicy,
 
 /*--- End of included file: packet-pkixproxy-ettarr.c ---*/
-
+#line 64 "packet-pkixproxy-template.c"
   };
 
   /* Register protocol */
@@ -214,12 +219,12 @@ void proto_register_pkixproxy(void) {
 void proto_reg_handoff_pkixproxy(void) {
 
 /*--- Included file: packet-pkixproxy-dis-tab.c ---*/
-
- register_ber_oid_dissector("1.3.6.1.5.5.7.1.14", dissect_ProxyCertInfoExtension_PDU, proto_pkixproxy, "id-pe-proxyCertInfo");
+#line 1 "packet-pkixproxy-dis-tab.c"
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.14", dissect_ProxyCertInfoExtension_PDU, proto_pkixproxy, "id-pe-proxyCertInfo");
 
 
 /*--- End of included file: packet-pkixproxy-dis-tab.c ---*/
-
+#line 79 "packet-pkixproxy-template.c"
   register_ber_oid_name("1.3.6.1.5.5.7.21.0", "id-ppl-anyLanguage");
   register_ber_oid_name("1.3.6.1.5.5.7.21.1", "id-ppl-inheritAll");
   register_ber_oid_name("1.3.6.1.5.5.7.21.2", "id-ppl-independent");

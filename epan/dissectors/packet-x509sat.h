@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x509sat.h                                                         */
+/* ./packet-x509sat.h                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.h */
 
+#line 1 "packet-x509sat-template.h"
 /* packet-x509sat.h
  * Routines for X.509 Selected Attribute Types packet dissection
  *   Ronnie Sahlberg 2004
@@ -35,7 +36,7 @@
 
 
 /*--- Included file: packet-x509sat-exp.h ---*/
-
+#line 1 "packet-x509sat-exp.h"
 extern const value_string x509sat_Criteria_vals[];
 extern const value_string x509sat_ZonalResult_vals[];
 extern const value_string x509sat_XDayOf_vals[];
@@ -74,7 +75,7 @@ int dissect_x509sat_TimeAssertion(gboolean implicit_tag, tvbuff_t *tvb, int offs
 int dissect_x509sat_LocaleContextSyntax(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-x509sat-exp.h ---*/
-
+#line 30 "packet-x509sat-template.h"
 
 #endif  /* PACKET_X509SAT_H */
 

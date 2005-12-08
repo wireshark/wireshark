@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-cmp.c                                                             */
+/* ./packet-cmp.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
 
 /* Input file: packet-cmp-template.c */
 
+#line 1 "packet-cmp-template.c"
 /* packet-cmp.c
  * Routines for RFC2510 Certificate Management Protocol packet dissection
  *   Ronnie Sahlberg 2004
@@ -69,7 +70,7 @@ static int hf_cmp_next_poll_ref = -1;
 static int hf_cmp_ttcb = -1;
 
 /*--- Included file: packet-cmp-hf.c ---*/
-
+#line 1 "packet-cmp-hf.c"
 static int hf_cmp_header = -1;                    /* PKIHeader */
 static int hf_cmp_body = -1;                      /* PKIBody */
 static int hf_cmp_protection = -1;                /* PKIProtection */
@@ -181,13 +182,13 @@ static int hf_cmp_PKIFailureInfo_missingTimeStamp = -1;
 static int hf_cmp_PKIFailureInfo_badPOP = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-
+#line 64 "packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
 
 /*--- Included file: packet-cmp-ett.c ---*/
-
+#line 1 "packet-cmp-ett.c"
 static gint ett_cmp_PKIMessage = -1;
 static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate = -1;
 static gint ett_cmp_PKIHeader = -1;
@@ -225,14 +226,14 @@ static gint ett_cmp_GenRepContent = -1;
 static gint ett_cmp_ErrorMsgContent = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-
+#line 68 "packet-cmp-template.c"
 
 static const char *object_identifier_id;
 
 
 
 /*--- Included file: packet-cmp-fn.c ---*/
-
+#line 1 "packet-cmp-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* PKIMessage -> PKIBody -> NestedMessageContent -> PKIMessage */
@@ -468,7 +469,9 @@ static int dissect_infoType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_cmp_T_infoValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 66 "cmp.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -1312,7 +1315,7 @@ dissect_cmp_OOBCertHash(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-
+#line 73 "packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1520,7 +1523,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
 
 /*--- Included file: packet-cmp-hfarr.c ---*/
-
+#line 1 "packet-cmp-hfarr.c"
     { &hf_cmp_header,
       { "header", "cmp.header",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1887,7 +1890,7 @@ void proto_register_cmp(void) {
         "CRLAnnContent/_item", HFILL }},
     { &hf_cmp_infoType,
       { "infoType", "cmp.infoType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "InfoTypeAndValue/infoType", HFILL }},
     { &hf_cmp_infoValue,
       { "infoValue", "cmp.infoValue",
@@ -1955,7 +1958,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-
+#line 279 "packet-cmp-template.c"
   };
 
   /* List of subtrees */
@@ -1963,7 +1966,7 @@ void proto_register_cmp(void) {
     &ett_cmp,
 
 /*--- Included file: packet-cmp-ettarr.c ---*/
-
+#line 1 "packet-cmp-ettarr.c"
     &ett_cmp_PKIMessage,
     &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate,
     &ett_cmp_PKIHeader,
@@ -2001,7 +2004,7 @@ void proto_register_cmp(void) {
     &ett_cmp_ErrorMsgContent,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-
+#line 285 "packet-cmp-template.c"
   };
   module_t *cmp_module;
 

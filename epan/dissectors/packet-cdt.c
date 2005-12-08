@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-cdt.c                                                             */
+/* ./packet-cdt.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
 
 /* Input file: packet-cdt-template.c */
 
+#line 1 "packet-cdt-template.c"
 /* packet-cdt.c
  *
  * Routines for Compressed Data Type packet dissection.
@@ -54,7 +55,7 @@ static proto_item *cdt_item = NULL;
 int proto_cdt = -1;
 
 /*--- Included file: packet-cdt-hf.c ---*/
-
+#line 1 "packet-cdt-hf.c"
 static int hf_cdt_CompressedData_PDU = -1;        /* CompressedData */
 static int hf_cdt_compressionAlgorithm = -1;      /* CompressionAlgorithmIdentifier */
 static int hf_cdt_compressedContentInfo = -1;     /* CompressedContentInfo */
@@ -66,23 +67,23 @@ static int hf_cdt_contentType_OID = -1;           /* OBJECT_IDENTIFIER */
 static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 
 /*--- End of included file: packet-cdt-hf.c ---*/
-
+#line 49 "packet-cdt-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-cdt-ett.c ---*/
-
+#line 1 "packet-cdt-ett.c"
 static gint ett_cdt_CompressedData = -1;
 static gint ett_cdt_CompressionAlgorithmIdentifier = -1;
 static gint ett_cdt_CompressedContentInfo = -1;
 static gint ett_cdt_T_contentType = -1;
 
 /*--- End of included file: packet-cdt-ett.c ---*/
-
+#line 52 "packet-cdt-template.c"
 
 
 /*--- Included file: packet-cdt-fn.c ---*/
-
+#line 1 "packet-cdt-fn.c"
 /*--- Fields for imported types ---*/
 
 
@@ -95,6 +96,7 @@ static const value_string cdt_AlgorithmID_ShortForm_vals[] = {
 
 static int
 dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 16 "cdt.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -110,6 +112,7 @@ dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
                                  "unknown"));
 
 
+
   return offset;
 }
 static int dissect_algorithmID_ShortForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -120,6 +123,7 @@ static int dissect_algorithmID_ShortForm_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 48 "cdt.cnf"
   const char *obj_id = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &obj_id);
@@ -136,6 +140,7 @@ dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
     if (check_col (pinfo->cinfo, COL_INFO))
       col_append_fstr (pinfo->cinfo, COL_INFO, "%s ", name);
   }
+
 
 
   return offset;
@@ -185,6 +190,7 @@ static const value_string cdt_ContentType_ShortForm_vals[] = {
 
 static int
 dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 32 "cdt.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -198,6 +204,7 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
     col_append_fstr (pinfo->cinfo, COL_INFO, "%s ", 
                      val_to_str (value, cdt_ContentType_ShortForm_vals, 
                                  "unknown"));
+
 
 
   return offset;
@@ -235,6 +242,7 @@ static int dissect_contentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 68 "cdt.cnf"
   tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
   int         save_offset = offset;
 
@@ -266,6 +274,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   dissect_x411_mts_apdu (next_tvb, pinfo, top_tree);
   
+
 
   return offset;
 }
@@ -314,7 +323,7 @@ static void dissect_CompressedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-
+#line 54 "packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -348,7 +357,7 @@ void proto_register_cdt (void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-cdt-hfarr.c ---*/
-
+#line 1 "packet-cdt-hfarr.c"
     { &hf_cdt_CompressedData_PDU,
       { "CompressedData", "cdt.CompressedData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -367,7 +376,7 @@ void proto_register_cdt (void) {
         "CompressionAlgorithmIdentifier/algorithmID-ShortForm", HFILL }},
     { &hf_cdt_algorithmID_OID,
       { "algorithmID-OID", "cdt.algorithmID_OID",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CompressionAlgorithmIdentifier/algorithmID-OID", HFILL }},
     { &hf_cdt_contentType,
       { "contentType", "cdt.contentType",
@@ -379,7 +388,7 @@ void proto_register_cdt (void) {
         "CompressedContentInfo/contentType/contentType-ShortForm", HFILL }},
     { &hf_cdt_contentType_OID,
       { "contentType-OID", "cdt.contentType_OID",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CompressedContentInfo/contentType/contentType-OID", HFILL }},
     { &hf_cdt_compressedContent,
       { "compressedContent", "cdt.compressedContent",
@@ -387,21 +396,21 @@ void proto_register_cdt (void) {
         "CompressedContentInfo/compressedContent", HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-
+#line 86 "packet-cdt-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-cdt-ettarr.c ---*/
-
+#line 1 "packet-cdt-ettarr.c"
     &ett_cdt_CompressedData,
     &ett_cdt_CompressionAlgorithmIdentifier,
     &ett_cdt_CompressedContentInfo,
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-
+#line 91 "packet-cdt-template.c"
   };
 
   /* Register protocol */
@@ -418,10 +427,10 @@ void proto_register_cdt (void) {
 void proto_reg_handoff_cdt (void) {
 
 /*--- Included file: packet-cdt-dis-tab.c ---*/
-
+#line 1 "packet-cdt-dis-tab.c"
   register_ber_oid_dissector("1.3.26.0.4406.0.4.2", dissect_CompressedData_PDU, proto_cdt, "cdt");
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-
+#line 106 "packet-cdt-template.c"
 }

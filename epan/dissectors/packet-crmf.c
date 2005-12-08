@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-crmf.c                                                            */
+/* ./packet-crmf.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn */
 
 /* Input file: packet-crmf-template.c */
 
+#line 1 "packet-crmf-template.c"
 /* packet-crmf.c
  * Routines for RFC2511 Certificate Request Message Format packet dissection
  *   Ronnie Sahlberg 2004
@@ -56,7 +57,7 @@ int proto_crmf = -1;
 static int hf_crmf_type_oid = -1;
 
 /*--- Included file: packet-crmf-hf.c ---*/
-
+#line 1 "packet-crmf-hf.c"
 static int hf_crmf_PBMParameter_PDU = -1;         /* PBMParameter */
 static int hf_crmf_utcTime = -1;                  /* UTCTime */
 static int hf_crmf_generalTime = -1;              /* GeneralizedTime */
@@ -121,12 +122,12 @@ static int hf_crmf_encValue = -1;                 /* BIT_STRING */
 static int hf_crmf_issuer = -1;                   /* GeneralName */
 
 /*--- End of included file: packet-crmf-hf.c ---*/
-
+#line 51 "packet-crmf-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-crmf-ett.c ---*/
-
+#line 1 "packet-crmf-ett.c"
 static gint ett_crmf_Time = -1;
 static gint ett_crmf_CertReqMessages = -1;
 static gint ett_crmf_CertReqMsg = -1;
@@ -152,13 +153,13 @@ static gint ett_crmf_EncryptedValue = -1;
 static gint ett_crmf_CertId = -1;
 
 /*--- End of included file: packet-crmf-ett.c ---*/
-
+#line 54 "packet-crmf-template.c"
 
 static const char *object_identifier_id;
 
 
 /*--- Included file: packet-crmf-fn.c ---*/
-
+#line 1 "packet-crmf-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_signingAlg_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -386,7 +387,9 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_crmf_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 60 "crmf.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 
   return offset;
@@ -999,7 +1002,7 @@ static void dissect_PBMParameter_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 
 /*--- End of included file: packet-crmf-fn.c ---*/
-
+#line 58 "packet-crmf-template.c"
 
 
 /*--- proto_register_crmf ----------------------------------------------*/
@@ -1013,7 +1016,7 @@ void proto_register_crmf(void) {
         "Type of AttributeTypeAndValue", HFILL }},
 
 /*--- Included file: packet-crmf-hfarr.c ---*/
-
+#line 1 "packet-crmf-hfarr.c"
     { &hf_crmf_PBMParameter_PDU,
       { "PBMParameter", "crmf.PBMParameter",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1112,7 +1115,7 @@ void proto_register_crmf(void) {
         "Controls/_item", HFILL }},
     { &hf_crmf_type,
       { "type", "crmf.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "AttributeTypeAndValue/type", HFILL }},
     { &hf_crmf_value,
       { "value", "crmf.value",
@@ -1264,14 +1267,14 @@ void proto_register_crmf(void) {
         "CertId/issuer", HFILL }},
 
 /*--- End of included file: packet-crmf-hfarr.c ---*/
-
+#line 70 "packet-crmf-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-crmf-ettarr.c ---*/
-
+#line 1 "packet-crmf-ettarr.c"
     &ett_crmf_Time,
     &ett_crmf_CertReqMessages,
     &ett_crmf_CertReqMsg,
@@ -1297,7 +1300,7 @@ void proto_register_crmf(void) {
     &ett_crmf_CertId,
 
 /*--- End of included file: packet-crmf-ettarr.c ---*/
-
+#line 75 "packet-crmf-template.c"
   };
 
   /* Register protocol */
@@ -1314,11 +1317,11 @@ void proto_register_crmf(void) {
 void proto_reg_handoff_crmf(void) {
 
 /*--- Included file: packet-crmf-dis-tab.c ---*/
-
+#line 1 "packet-crmf-dis-tab.c"
   register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
 
 
 /*--- End of included file: packet-crmf-dis-tab.c ---*/
-
+#line 90 "packet-crmf-template.c"
 }
 

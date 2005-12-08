@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-nbap.h                                                            */
+/* ./packet-nbap.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p nbap -c nbap.cnf -s packet-nbap-template nbap.asn */
 
 /* Input file: packet-nbap-template.h */
 
+#line 1 "packet-nbap-template.h"
 /* packet-nbap.h
  * Routines for UMTS Node B Application Part(NBAP) packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>

@@ -5,6 +5,7 @@
 
 /* Input file: packet-tcap-template.h */
 
+#line 1 "packet-tcap-template.h"
 /* packet-tcap.h
  *
  * $Id$
