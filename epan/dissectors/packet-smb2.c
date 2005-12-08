@@ -177,6 +177,7 @@ static int hf_smb2_acct_name = -1;
 static int hf_smb2_domain_name = -1;
 static int hf_smb2_host_name = -1;
 static int hf_smb2_auth_frame = -1;
+static int hf_smb2_share_type = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -232,6 +233,17 @@ static const value_string smb2_class_vals[] = {
 	{ SMB2_CLASS_SEC_INFO,	"SEC_INFO"},
 	{ 0, NULL }
 };
+
+#define SMB2_SHARE_TYPE_FILE	0x0001
+#define SMB2_SHARE_TYPE_IPC	0x0002
+#define SMB2_SHARE_TYPE_PRINT	0x0003
+static const value_string smb2_share_type_vals[] = {
+	{ SMB2_SHARE_TYPE_FILE,		"File Share" },
+	{ SMB2_SHARE_TYPE_IPC,		"IPC share" },
+	{ SMB2_SHARE_TYPE_PRINT,	"Print Share" },
+	{ 0, NULL }
+};
+
 
 #define SMB2_FILE_BASIC_INFO	0x04
 #define SMB2_FILE_STANDARD_INFO	0x05
@@ -1748,8 +1760,9 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+
+	/* share type */
+	proto_tree_add_item(tree, hf_smb2_share_type, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	if(!pinfo->fd->flags.visited && si->saved && si->saved->private_data) {
@@ -3876,6 +3889,8 @@ dissect_smb2_tid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int of
 
 		item=proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, offset, 4, si->tree->name);
 		PROTO_ITEM_SET_GENERATED(item);
+
+		proto_item_append_text(tid_item, "  %s", si->tree->name);
 	}
 
 	offset += 4;
@@ -3905,14 +3920,17 @@ dissect_smb2_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int of
 
 		item=proto_tree_add_string(uid_tree, hf_smb2_acct_name, tvb, offset, 0, uid->acct_name);
 		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(uid_item, "   Acct:%s", uid->acct_name);
 
 		item=proto_tree_add_string(uid_tree, hf_smb2_domain_name, tvb, offset, 0, uid->domain_name);
 		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(uid_item, " Domain:%s", uid->domain_name);
 
 		item=proto_tree_add_string(uid_tree, hf_smb2_host_name, tvb, offset, 0, uid->host_name);
 		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(uid_item, " Host:%s", uid->host_name);
 
-		item=proto_tree_add_uint(tree, hf_smb2_auth_frame, tvb, offset, 0, uid->auth_frame);
+		item=proto_tree_add_uint(uid_tree, hf_smb2_auth_frame, tvb, offset, 0, uid->auth_frame);
 		PROTO_ITEM_SET_GENERATED(item);
 
 	}
@@ -4617,6 +4635,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_compression_format,
 		{ "Compression Format", "smb2.compression_format", FT_UINT16, BASE_DEC,
 		VALS(compression_format_vals), 0, "Compression to use", HFILL }},
+
+	{ &hf_smb2_share_type,
+		{ "Share Type", "smb2.share_type", FT_UINT16, BASE_DEC,
+		VALS(smb2_share_type_vals), 0, "Type of share", HFILL }},
 
 	{ &hf_smb2_ioctl_shadow_copy_count,
 		{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
