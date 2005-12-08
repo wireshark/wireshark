@@ -1771,18 +1771,23 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
-  hfi = proto_registrar_get_nth(hf_id);
-  if (hfi->type == FT_OID) {
-    item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
-  } else if (IS_FT_STRING(hfi->type)) {
-    str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
-    item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
-  } else {
-    DISSECTOR_ASSERT_NOT_REACHED();
-  }
+	hfi = proto_registrar_get_nth(hf_id);
+	if (hfi->type == FT_OID) {
+		item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
+	} else if (IS_FT_STRING(hfi->type)) {
+		str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
+		item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
+		/* see if we know the name of this oid */
+		if(item){
+			proto_item_append_text(item, " (%s)",
+			    get_oid_name(tvb_get_ptr(tvb, offset, len), len));
+		}
+	} else {
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
 
-  if (value_tvb)
-    *value_tvb = tvb_new_subset(tvb, offset, len, len);
+	if (value_tvb)
+		*value_tvb = tvb_new_subset(tvb, offset, len, len);
 
 	return eoffset;
 }
