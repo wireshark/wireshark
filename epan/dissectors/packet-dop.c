@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-dop.c                                                             */
+/* ./packet-dop.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
 
 /* Input file: packet-dop-template.c */
@@ -1709,7 +1709,7 @@ static void dissect_NHOBSubordinateToSuperior_PDU(tvbuff_t *tvb, packet_info *pi
 static int
 call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  char *name = NULL;
+  const char *name = NULL;
   char binding_param[BER_MAX_OID_STR_LEN];
 
   sprintf(binding_param, "%s.%s", base_oid, binding_type ? binding_type : "");	
@@ -2218,7 +2218,7 @@ void proto_register_dop(void) {
         "", HFILL }},
     { &hf_dop_accessPoints,
       { "accessPoints", "dop.accessPoints",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_dop_info,
       { "info", "dop.info",

@@ -76,7 +76,7 @@ static gint ett_dop = -1;
 static int
 call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  char *name = NULL;
+  const char *name = NULL;
   char binding_param[BER_MAX_OID_STR_LEN];
 
   sprintf(binding_param, "%s.%s", base_oid, binding_type ? binding_type : "");	
