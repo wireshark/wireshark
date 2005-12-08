@@ -1736,6 +1736,7 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	char *str;
 	proto_item *item = NULL;
 	header_field_info *hfi;
+	const gchar *name;
 
 #ifdef DEBUG_BER
 {
@@ -1777,10 +1778,12 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	} else if (IS_FT_STRING(hfi->type)) {
 		str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
 		item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
-		/* see if we know the name of this oid */
 		if(item){
-			proto_item_append_text(item, " (%s)",
-			    get_oid_name(tvb_get_ptr(tvb, offset, len), len));
+			/* see if we know the name of this oid */
+			name = get_oid_name(tvb_get_ptr(tvb, offset, len), len);
+			if(name){
+				proto_item_append_text(item, " (%s)", name);
+			}
 		}
 	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
