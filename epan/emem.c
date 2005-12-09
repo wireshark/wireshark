@@ -361,10 +361,18 @@ void* se_alloc0(size_t size) {
 	return memset(se_alloc(size),'\0',size);
 }
 
+/* If str is NULL, just return the string "<NULL>" so that the callers dont
+ * have to bother checking it.
+ */
 gchar* se_strdup(const gchar* src) {
-	guint len = strlen(src);
+	guint len;
 	gchar* dst;
 	
+	if(!src){
+		return "<NULL>";
+	}
+
+	len = strlen(src);
 	dst = strncpy(se_alloc(len+1), src, len);
 	
 	dst[len] = '\0';
