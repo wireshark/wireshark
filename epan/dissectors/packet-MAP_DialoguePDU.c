@@ -5,6 +5,7 @@
 
 /* Input file: packet-MAP-DialoguePDU-template.c */
 
+#line 1 "packet-MAP-DialoguePDU-template.c"
 /* packet-MAP_DialoguePDU_asn1.c
  * Routines for MAP_DialoguePDU packet dissection
  *
@@ -51,7 +52,7 @@
 int proto_MAP_DialoguePDU = -1;
 
 /*--- Included file: packet-MAP_DialoguePDU-hf.c ---*/
-
+#line 1 "packet-MAP_DialoguePDU-hf.c"
 static int hf_MAP_DialoguePDU_map_open = -1;      /* MAP_OpenInfo */
 static int hf_MAP_DialoguePDU_map_accept = -1;    /* MAP_AcceptInfo */
 static int hf_MAP_DialoguePDU_map_close = -1;     /* MAP_CloseInfo */
@@ -74,12 +75,12 @@ static int hf_MAP_DialoguePDU_securityHeader = -1;  /* SecurityHeader */
 static int hf_MAP_DialoguePDU_protectedPayload = -1;  /* ProtectedPayload */
 
 /*--- End of included file: packet-MAP_DialoguePDU-hf.c ---*/
-
+#line 46 "packet-MAP-DialoguePDU-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-MAP_DialoguePDU-ett.c ---*/
-
+#line 1 "packet-MAP_DialoguePDU-ett.c"
 static gint ett_MAP_DialoguePDU_MAP_DialoguePDU = -1;
 static gint ett_MAP_DialoguePDU_MAP_OpenInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_AcceptInfo = -1;
@@ -91,11 +92,11 @@ static gint ett_MAP_DialoguePDU_MAP_ProviderAbortInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU = -1;
 
 /*--- End of included file: packet-MAP_DialoguePDU-ett.c ---*/
-
+#line 49 "packet-MAP-DialoguePDU-template.c"
 
 
 /*--- Included file: packet-MAP_DialoguePDU-fn.c ---*/
-
+#line 1 "packet-MAP_DialoguePDU-fn.c"
 /*--- Fields for imported types ---*/
 
 static int dissect_destinationReference_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -193,8 +194,7 @@ static int dissect_reason(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_MAP_DialoguePDU_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -414,7 +414,7 @@ dissect_MAP_DialoguePDU_MAP_ProtectedDialoguePDU(gboolean implicit_tag _U_, tvbu
 
 
 /*--- End of included file: packet-MAP_DialoguePDU-fn.c ---*/
-
+#line 51 "packet-MAP-DialoguePDU-template.c"
 
 static void
 dissect_MAP_Dialogue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -429,7 +429,7 @@ void proto_register_MAP_DialoguePDU(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-MAP_DialoguePDU-hfarr.c ---*/
-
+#line 1 "packet-MAP_DialoguePDU-hfarr.c"
     { &hf_MAP_DialoguePDU_map_open,
       { "map-open", "MAP_DialoguePDU.map_open",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -472,7 +472,7 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-RefuseInfo/reason", HFILL }},
     { &hf_MAP_DialoguePDU_alternativeApplicationContext,
       { "alternativeApplicationContext", "MAP_DialoguePDU.alternativeApplicationContext",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MAP-RefuseInfo/alternativeApplicationContext", HFILL }},
     { &hf_MAP_DialoguePDU_map_UserAbortChoice,
       { "map-UserAbortChoice", "MAP_DialoguePDU.map_UserAbortChoice",
@@ -500,7 +500,7 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-ProviderAbortInfo/map-ProviderAbortReason", HFILL }},
     { &hf_MAP_DialoguePDU_encapsulatedAC,
       { "encapsulatedAC", "MAP_DialoguePDU.encapsulatedAC",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "MAP-ProtectedDialoguePDU/encapsulatedAC", HFILL }},
     { &hf_MAP_DialoguePDU_securityHeader,
       { "securityHeader", "MAP_DialoguePDU.securityHeader",
@@ -512,14 +512,14 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-ProtectedDialoguePDU/protectedPayload", HFILL }},
 
 /*--- End of included file: packet-MAP_DialoguePDU-hfarr.c ---*/
-
+#line 64 "packet-MAP-DialoguePDU-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-MAP_DialoguePDU-ettarr.c ---*/
-
+#line 1 "packet-MAP_DialoguePDU-ettarr.c"
     &ett_MAP_DialoguePDU_MAP_DialoguePDU,
     &ett_MAP_DialoguePDU_MAP_OpenInfo,
     &ett_MAP_DialoguePDU_MAP_AcceptInfo,
@@ -531,7 +531,7 @@ void proto_register_MAP_DialoguePDU(void) {
     &ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU,
 
 /*--- End of included file: packet-MAP_DialoguePDU-ettarr.c ---*/
-
+#line 69 "packet-MAP-DialoguePDU-template.c"
   };
 
   /* Register protocol */

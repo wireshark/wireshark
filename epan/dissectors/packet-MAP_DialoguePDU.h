@@ -5,6 +5,7 @@
 
 /* Input file: packet-MAP-DialoguePDU-template.h */
 
+#line 1 "packet-MAP-DialoguePDU-template.h"
 /* packet-MAP_DialoguePDU.h
  * Routines for MAP_DialoguePDU packet dissection
  *
