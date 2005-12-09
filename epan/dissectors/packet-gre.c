@@ -76,6 +76,7 @@ static const value_string typevals[] = {
 	{ ETHERTYPE_IP,        "IP" },
 	{ SAP_OSINL5,          "OSI"},
 	{ GRE_WCCP,            "WCCP"},
+	{ GRE_NHRP,            "NHRP"},
 	{ ETHERTYPE_IPX,       "IPX"},
 	{ ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
 	{ ETHERTYPE_RAW_FR,    "Frame Relay"},
@@ -362,12 +363,12 @@ proto_register_gre(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_gre_proto,
-			{ "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(typevals), 0x0,
-				"The protocol that is GRE encapsulated", HFILL }
+		  { "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(typevals), 0x0,
+			"The protocol that is GRE encapsulated", HFILL }
 		},
 		{ &hf_gre_key,
-			{ "GRE Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
-				"", HFILL }
+		  { "GRE Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
+			"", HFILL }
 		},
 	};
 	static gint *ett[] = {
@@ -376,14 +377,14 @@ proto_register_gre(void)
 		&ett_gre_wccp2_redirect_header,
 	};
 
-        proto_gre = proto_register_protocol("Generic Routing Encapsulation",
-	    "GRE", "gre");
-        proto_register_field_array(proto_gre, hf, array_length(hf));
+	proto_gre = proto_register_protocol("Generic Routing Encapsulation",
+										"GRE", "gre");
+	proto_register_field_array(proto_gre, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
 	gre_dissector_table = register_dissector_table("gre.proto",
-	    "GRE protocol type", FT_UINT16, BASE_HEX);
+												   "GRE protocol type", FT_UINT16, BASE_HEX);
 }
 
 void

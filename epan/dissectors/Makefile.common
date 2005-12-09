@@ -449,6 +449,7 @@ DISSECTOR_SRC =	\
 	packet-nfs.c	\
 	packet-nfsacl.c	\
 	packet-nfsauth.c	\
+	packet-nhrp.c	\
 	packet-nisplus.c	\
 	packet-nlm.c	\
 	packet-nlsp.c	\
