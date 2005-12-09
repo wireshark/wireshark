@@ -657,7 +657,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pinfo->destport = dword;
 			proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tvb, offset, 4, FALSE);
 		}
-			offset = offset + 4;
+		offset = offset + 4;
 		/* 20 - 24 Bytes 
 			20 bytes: Used in subnetwork local, connection oriented messages, where error code, reroute
 			counter and activity identity are zero. A recipient finding that the header size field is 20 does
@@ -716,28 +716,22 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						destination port of that header have no meaning for such messages
 						*/
 					offset = offset + 8;
+					tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_NAME_DISTRIBUTOR %u bytes User Data",(msg_size - hdr_size *4));
+					tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
+					data_tvb = tvb_new_subset(tvb, offset, -1, -1);
+					dissect_tipc_name_dist_data(data_tvb, pinfo, tipc_data_tree);
+					return;
 				}else{
 					/* Port name type / Connection level sequence number */
 					proto_tree_add_text(tipc_tree, tvb, offset, 4,"Port name type / Connection level sequence number");
 					offset = offset + 4;
 					/* Port name instance */
-					offset = offset + 4;
 					proto_tree_add_text(tipc_tree, tvb, offset, 4,"Port name instance");
-
+					offset = offset + 4;
 				}
 			}
-		}
-			switch (user){
-			case TIPC_NAME_DISTRIBUTOR:
-				tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_NAME_DISTRIBUTOR %u bytes User Data",(msg_size - hdr_size *4));
-				tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
-				data_tvb = tvb_new_subset(tvb, offset, -1, -1);
-				dissect_tipc_name_dist_data(data_tvb, pinfo, tipc_data_tree);
-				break;
-			default:
-				proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
-			break;		 
-		}
+			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+		}/*if ( hdr_size <= 5 ) */
 	/*}if tree */
 }
 
