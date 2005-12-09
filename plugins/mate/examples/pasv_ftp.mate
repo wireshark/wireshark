@@ -1,5 +1,5 @@
 # pasv_ftp.mate
-# $Id $
+# $Id$
 Action=PduDef; Name=ftp_pdu; Proto=ftp; Transport=tcp/ip; Stop=TRUE; ftp_addr=ip.addr; ftp_port=tcp.port; ftp_resp=ftp.response.code; ftp_req=ftp.request.command; server_addr=ftp.passive.ip; server_port=ftp.passive.port;
 
 Action=PduDef; Name=ftp_data_pdu; Proto=ftp-data; Transport=tcp/ip; server_addr=ip.src; server_port=tcp.srcport; 

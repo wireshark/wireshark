@@ -1,5 +1,5 @@
 # web.mate
-# $Id $
+# $Id$
 
 Action=PduDef; Name=dns_pdu; Proto=dns; Transport=ip; addr=ip.addr; dns_resp=dns.flags.response; host=dns.qry.name; client_addr=ip.src; dns_id=dns.id; 
 Action=PduDef; Name=http_pdu; Proto=http; Transport=tcp/ip; addr=ip.addr; port=tcp.port; http_rq=http.request.method; http_rs=http.response; host=http.host; client_addr=ip.src;

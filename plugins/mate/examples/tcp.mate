@@ -1,5 +1,5 @@
 # tcp.mate
-# $Id $
+# $Id$
    Action=PduDef; Name=tcp_pdu; Proto=tcp; Transport=ip; addr=ip.addr; port=tcp.port; tcp_start=tcp.flags.syn; tcp_stop=tcp.flags.fin; tcp_stop=tcp.flags.reset;
    Action=GopDef; Name=tcp_session; On=tcp_pdu; addr; addr; port; port;
    Action=GopStart; For=tcp_session; tcp_start=1;

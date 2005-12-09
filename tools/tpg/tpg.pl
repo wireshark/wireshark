@@ -4,7 +4,7 @@
 #
 # Given a bnf like grammar generate a parser for text based tvbs
 #
-# $Id $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
