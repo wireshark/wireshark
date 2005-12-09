@@ -135,18 +135,24 @@ B<Tethereal> is also capable of reading any of these file formats if
 they are compressed using gzip.  B<Tethereal> recognizes this directly
 from the file; the '.gz' extension is not required for this purpose.
 
-If the B<-w> flag is not specified, B<Tethereal> prints a decoded form
-of the packets it captures or reads; otherwise, it writes those packets
-to the file specified by that flag.
+If the B<-w> flag is not specified, B<Tethereal> writes to the standard
+output the text of a decoded form of the packets it captures or reads. 
+If the B<-w> flag is specified, B<Tethereal> writes to the file
+specified by that flag the raw data of the packets, along with the
+packets' time stamps.
 
-When printing a decoded form of packets, B<Tethereal> prints, by
+When writing a decoded form of packets, B<Tethereal> writes, by
 default, a summary line containing the fields specified by the
 preferences file (which are also the fields displayed in the packet list
-pane in B<Ethereal>), although if it's printing packets as it captures
-them, rather than printing packets from a saved capture file, it won't
-print the "frame number" field.  If the B<-V> flag is specified, it
-prints instead a view of the details of the packet, showing all the
+pane in B<Ethereal>), although if it's writing packets as it captures
+them, rather than writting packets from a saved capture file, it won't
+show the "frame number" field.  If the B<-V> flag is specified, it
+writes instead a view of the details of the packet, showing all the
 fields of all protocols in the packet.
+
+If you want to write the decoded form of packets to a file, run
+B<Tethereal> without the B<-w> flag, and redirect its standard output to
+the file (do I<not> use the B<-w> flag).
 
 When writing packets to a file, B<Tethereal>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
@@ -327,7 +333,8 @@ Set the capture filter expression.
 =item -F
 
 Set the file format of the output capture file written using the B<-w>
-flag.
+flag.  The output written with the B<-w> flag is raw packet data, not
+text, so there is no B<-F> option to request text output.
 
 =item -h
 
@@ -504,7 +511,8 @@ than a one-line summary of the packet.
 =item -w
 
 Write raw packet data to I<savefile> or to the standard output if
-I<savefile> is "-". 
+I<savefile> is "-".  NOTE: this is raw packet data, not text; if you
+want text output, don't use the B<-w> flag.
 
 =item -x
 
