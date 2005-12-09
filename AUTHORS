@@ -2301,6 +2301,7 @@ Mike Duigou		<bondolo [AT] jxta.org> {
 
 Deepak Jain		<jain1971 [AT] yahoo.com> {
 	L2TP v3 support
+	Next Hop Resolution Protocol support
 }
 
 Stefano Pettini		<spettini [AT] users.sourceforge.net> {
