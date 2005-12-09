@@ -214,9 +214,13 @@
 
    Q 1.1: Where can I get help?
 
-   A: Support is available on the ethereal-users mailing list. Subscription
-   information and archives for all of Ethereal's mailing lists can be found at
-   http://www.ethereal.com/lists
+   A: Community support is available on the ethereal-users mailing list.
+   Subscription information and archives for all of Ethereal's mailing lists
+   can be found at http://www.ethereal.com/lists. An IRC channel dedicated to
+   Ethereal can be found at irc://irc.freenode.net/ethereal.
+
+   Commercial support, training, and development services are available from
+   Ethereal Software.
 
    Q 1.2: How much does Ethereal cost?
 
@@ -255,7 +259,7 @@
 
    Q 1.5: What protocols are currently supported?
 
-   A: There are currently 706 supported protocols and media, listed below.
+   A: There are currently 724 supported protocols and media, listed below.
    Descriptions can be found in the ethereal(1) man page.
 
             3Com XNS Encapsulation
@@ -372,12 +376,14 @@
             Cisco NetFlow
             Cisco SLARP
             Cisco Session Management
+            Cisco Wireless Layer 2
             Clearcase NFS
             CoSine IPNOS L2 debug output
             Common Industrial Protocol
             Common Open Policy Service
             Common Unix Printing System (CUPS) Browsing Protocol
             Compuserve GIF
+            Computer Interface to Message Distribution
             Configuration Test Protocol (loopback)
             Connectionless Lightweight Directory Access Protocol
             Coseventcomm Dissector Using GIOP API
@@ -467,6 +473,7 @@ cies
             Data
             Data Link SWitching
             Data Stream Interface
+            Datagram Congestion Control Protocol
             Datagram Delivery Protocol
             Decompressed SigComp message as raw text
             Diameter Protocol
@@ -477,6 +484,7 @@ cies
             Distributed Interactive Simulation
             Distributed Network Protocol 3.0
             Domain Name Service
+            Dublin Core Metadata (DC)
             Dynamic DNS Tools Protocol
             Dynamic Trunking Protocol
             ENTTEC
@@ -490,10 +498,10 @@ cies
             Ethernet over IP
             Extended Security Services
             Extensible Authentication Protocol
+            Extreme Discovery Protocol
             FC Extended Link Svc
             FC Fabric Configuration Server
             FCIP
-            FTAM
             FTP Data
             FTServer Operations
             Fiber Distributed Data Interface
@@ -520,6 +528,7 @@ cies
             GSM Mobile Application
             GSM SMS TPDU (GSM 03.40)
             GSM Short Message Service User Data
+            GSM_SS
             GSS-API Generic Security Service Application Program Interface
             General Inter-ORB Protocol
             Generic Routing Encapsulation
@@ -527,6 +536,7 @@ cies
             H.248 MEGACO
             H221NonStandard
             H235-SECURITY-MESSAGES
+            H323-MESSAGES
             HP Extended Local-Link Control
             HP Remote Maintenance Protocol
             HP Switch Protocol
@@ -583,16 +593,20 @@ cies
             ISO 8073 COTP Connection-Oriented Transport Protocol
             ISO 8327-1 OSI Session Protocol
             ISO 8473 CLNP ConnectionLess Network Protocol
+            ISO 8571 FTAM
             ISO 8602 CLTP ConnectionLess Transport Protocol
             ISO 8823 OSI Presentation Protocol
             ISO 9542 ESIS Routeing Information Exchange Protocol
             ISUP Thin Protocol
             ISystemActivator ISystemActivator Resolver
+            ITU M.3100 Generic Network Information Model
             ITU-T E.164 number
             ITU-T Recommendation H.261
+            ITU-T Recommendation H.263
             ITU-T Recommendation H.263 RTP Payload header (RFC2190)
             InMon sFlow
             Information Access Protocol
+            Init shutdown service
             Intel ANS probe
             Intelligent Platform Management Interface
             Inter-Access-Point Protocol
@@ -646,6 +660,7 @@ cies
             Link Access Procedure Balanced (LAPB)
             Link Access Procedure Balanced Ethernet (LAPBETHER)
             Link Access Procedure, Channel D (LAPD)
+            Link Layer Discovery Protocol
             Link Management Protocol (LMP)
             Linux cooked-mode capture
             Local Management Interface
@@ -670,6 +685,7 @@ cies
             MTP 2 User Adaptation Layer
             MTP 3 User Adaptation Layer
             MTP2 Peer Adaptation Layer
+            MULTIMEDIA-SYSTEM-CONTROL
             Media Gateway Control Protocol
             Media Type
             Media Type: message/http
@@ -678,6 +694,7 @@ cies
             Message Transfer Part Level 3
             Message Transfer Part Level 3 Management
             Meta Analysis Tracing Engine
+            Microsoft AT-Scheduler Service
             Microsoft Distributed File System
             Microsoft Distributed Link Tracking Server Service
             Microsoft Encrypted File System Service
@@ -690,13 +707,11 @@ cies
             Microsoft Messenger Service
             Microsoft Network Logon
             Microsoft Plug and Play service
-            Microsoft Registry
             Microsoft Routing and Remote Access Service
             Microsoft Security Account Manager
             Microsoft Server Service
             Microsoft Service Control
             Microsoft Spool Subsystem
-            Microsoft Task Scheduler Service
             Microsoft Telephony API Service
             Microsoft Windows Browser Protocol
             Microsoft Windows Lanman Remote API Protocol
@@ -834,8 +849,8 @@ cies
             Remote Procedure Call
             Remote Program Load
             Remote Quota
+            Remote Registry Service
             Remote Shell
-            Remote Shutdown
             Remote Wall protocol
             Remote sec_login preauth interface.
             Resource ReserVation Protocol (RSVP)
@@ -858,6 +873,7 @@ cies
             SSCF-NNI
             SSCOP
             SSH Protocol
+            STANAG 4406 Military Message Extensions
             Secure Socket Layer
             Sequenced Packet Protocol
             Sequenced Packet eXchange
@@ -875,6 +891,7 @@ cies
             Signalling Connection Control Part Management
             Simple Mail Transfer Protocol
             Simple Network Management Protocol
+            Simple Protected Negotiation
             Simple Traversal of UDP Through NAT
             Sinec H1 Protocol
             Sipfrag
@@ -884,10 +901,10 @@ cies
             Socks Protocol
             SoulSeek Protocol
             Spanning Tree Protocol
-            Spnego
             Stream Control Transmission Protocol
             Subnetwork Dependent Convergence Protocol
             Symantec Enterprise Firewall
+            Synchronized Multimedia Integration Language
             Synchronous Data Link Control (SDLC)
             Synergy
             Syslog message
@@ -925,6 +942,7 @@ cies
             Virtual Trunking Protocol
             WAP Binary XML
             WAP Session Initiation Request
+            WINS (Windows Internet Name Service) Replication
             Web Cache Coordination Protocol
             WebSphere MQ
             WebSphere MQ Programmable Command Formats
@@ -938,13 +956,17 @@ cies
             Wireless Transport Layer Security
             Wlan Certificate Extension
             X Display Manager Control Protocol
+            X.228 OSI Reliable Transfer Service
             X.25
             X.25 over TCP
             X.29
+            X.411 OSI Message Transfer Service
+            X.420 OSI Information Object
             X.509 Authentication Framework
             X.509 Certificate Extensions
             X.509 Information Framework
             X.509 Selected Attribute Types
+            X.880 OSI Remote Operations Service
             X11
             X711 CMIP
             Xyplex
@@ -959,12 +981,12 @@ cies
             eDonkey Protocol
             eXtensible Markup Language
             giFT Internet File Transfer
-            h225
-            h245
             h450
             iFCP
             iSCSI
             iSNS
+            iTunes podCast rss elements
+            rss
 
    Q 1.6: Are there any plans to support {your favorite protocol}?
 
@@ -1530,10 +1552,8 @@ cies
    of Ethereal and a shared libpcap library with DAG support, in order to do so
    with Ethereal. You should ask Endace whether that could be used to capture
    traffic on, for example, your T1/E1 link.
-   There is currently no hardware to support capturing on SS7 links with
-   libpcap. (Note that the fact that Ethereal includes dissectors for many SS7
-   protocols doesn't imply that it can capture traffic from SS7 links; those
-   protocols can be run over Internet protocols.)
+   See the SS7 capture setup page on the Ethereal Wiki for current information
+   on capturing SS7 traffic on TDM links.
 
    Q 5.10: How do I put an interface into promiscuous mode?
 
@@ -2169,4 +2189,4 @@ cies
    ethereal-users[AT]ethereal.com mailing list.
    For corrections/additions/suggestions for this web page (and not Ethereal
    support questions), please send email to ethereal-web[AT]ethereal.com .
-   Last modified: Thu, September 15 2005.
+   Last modified: Tue, December 06 2005.
