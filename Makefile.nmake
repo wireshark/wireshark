@@ -420,6 +420,11 @@ doxygen: doxygen.cfg doxygen-run
 # Prepare build environment by downloading and installing required libraries
 ################################################################################
 
+# The required tools to build Ethereal.
+#
+# The 'find' tool is available both in \WINNT\System32 and in cygwin's /usr/bin.
+# We only need the cygwin version (for some shell scripts).
+# In the PATH, System32 is before cygwin's dir, so explicitly check for /usr/bin/find.
 REQUIRED_TOOLS=\
 	$(CC) \
 	$(LINK) \
@@ -429,7 +434,7 @@ REQUIRED_TOOLS=\
 	$(LEX)	\
 	env	\
 	grep	\
-	find	\
+	/usr/bin/find	\
 	$(PERL)	\
 	$(PYTHON)	\
 	sed	\
