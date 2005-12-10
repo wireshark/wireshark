@@ -1,3 +1,7 @@
+/*
+ * $Id$
+ */
+
 #define STR_ASCII	LIBNDR_FLAG_STR_ASCII
 #define STR_LEN4	LIBNDR_FLAG_STR_LEN4
 #define STR_SIZE4	LIBNDR_FLAG_STR_SIZE4
@@ -26,6 +30,11 @@
   fixed length 32 character UCS-2 string
 */
 #define string32	[flag(STR_FIXLEN32)] string
+
+/*
+  UCS-2 string
+*/
+#define unistr		[string] uint16
 
 /*
   fixed length 16 character ascii string

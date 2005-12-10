@@ -32,106 +32,106 @@ static gint ett_winreg_QueryMultipleValue = -1;
 
 
 /* Header field declarations */
-static gint hf_winreg_winreg_QueryInfoKey_max_valbufsize = -1;
-static gint hf_winreg_winreg_SecBuf_inherit = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_key_handle = -1;
-static gint hf_winreg_winreg_CreateKey_options = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_reboot = -1;
-static gint hf_winreg_winreg_String_name = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_notify_filter = -1;
-static gint hf_winreg_winreg_QueryInfoKey_max_subkeysize = -1;
-static gint hf_winreg_winreg_OpenKey_unknown = -1;
-static gint hf_winreg_winreg_OpenHKCC_access_mask = -1;
-static gint hf_winreg_winreg_SetValue_data = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_values = -1;
-static gint hf_winreg_winreg_QueryInfoKey_last_changed_time = -1;
-static gint hf_winreg_QueryMultipleValue_name = -1;
-static gint hf_winreg_winreg_EnumValue_type = -1;
-static gint hf_winreg_winreg_CreateKey_class = -1;
-static gint hf_winreg_winreg_OpenHKCR_access_mask = -1;
-static gint hf_winreg_winreg_SetValue_type = -1;
-static gint hf_winreg_winreg_EnumKey_class = -1;
-static gint hf_winreg_winreg_CreateKey_secdesc = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_buffer = -1;
-static gint hf_winreg_winreg_GetVersion_version = -1;
-static gint hf_winreg_winreg_SetKeySecurity_access_mask = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown = -1;
-static gint hf_winreg_winreg_LoadKey_filename = -1;
-static gint hf_winreg_winreg_EnumValue_enum_index = -1;
-static gint hf_winreg_winreg_CreateKey_action_taken = -1;
-static gint hf_winreg_winreg_QueryValue_size = -1;
-static gint hf_winreg_winreg_QueryMultipleValues_buffer_size = -1;
-static gint hf_winreg_access_required = -1;
-static gint hf_winreg_winreg_CreateKey_access_mask = -1;
-static gint hf_winreg_system_name = -1;
-static gint hf_winreg_KeySecurityData_size = -1;
-static gint hf_winreg_winreg_EnumValue_value = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_message = -1;
-static gint hf_winreg_winreg_QueryInfoKey_secdescsize = -1;
-static gint hf_winreg_winreg_QueryValue_data = -1;
-static gint hf_winreg_winreg_EnumValue_length = -1;
-static gint hf_winreg_winreg_SecBuf_length = -1;
-static gint hf_winreg_winreg_QueryValue_value_name = -1;
-static gint hf_winreg_winreg_QueryInfoKey_num_values = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_reboot = -1;
-static gint hf_winreg_winreg_CreateKey_new_handle = -1;
-static gint hf_winreg_winreg_OpenHKPT_access_mask = -1;
-static gint hf_winreg_winreg_QueryValue_type = -1;
-static gint hf_winreg_KeySecurityData_data = -1;
-static gint hf_winreg_QueryMultipleValue_length = -1;
-static gint hf_winreg_winreg_LoadKey_keyname = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_hostname = -1;
-static gint hf_winreg_winreg_StringBuf_name = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown2 = -1;
-static gint hf_winreg_winreg_OpenHKDD_access_mask = -1;
-static gint hf_winreg_winreg_EnumValue_name = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_reason = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_string2 = -1;
 static gint hf_winreg_winreg_InitiateSystemShutdown_message = -1;
-static gint hf_winreg_winreg_DeleteValue_value = -1;
-static gint hf_winreg_winreg_SetValue_name = -1;
-static gint hf_winreg_winreg_GetKeySecurity_sd = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree = -1;
+static gint hf_winreg_KeySecurityData_size = -1;
+static gint hf_winreg_winreg_String_name = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_message = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_reboot = -1;
+static gint hf_winreg_winreg_EnumValue_enum_index = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_key_handle = -1;
+static gint hf_winreg_winreg_LoadKey_keyname = -1;
 static gint hf_winreg_winreg_EnumKey_name = -1;
-static gint hf_winreg_winreg_QueryValue_length = -1;
-static gint hf_winreg_QueryMultipleValue_offset = -1;
-static gint hf_winreg_winreg_SetKeySecurity_data = -1;
+static gint hf_winreg_winreg_CreateKey_options = -1;
+static gint hf_winreg_winreg_EnumValue_type = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_timeout = -1;
+static gint hf_winreg_winreg_EnumKey_last_changed_time = -1;
+static gint hf_winreg_winreg_QueryValue_size = -1;
+static gint hf_winreg_winreg_EnumValue_size = -1;
+static gint hf_winreg_handle = -1;
+static gint hf_winreg_winreg_QueryInfoKey_max_valnamelen = -1;
+static gint hf_winreg_winreg_SecBuf_length = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_reboot = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_buffer_size = -1;
+static gint hf_winreg_winreg_QueryValue_data = -1;
+static gint hf_winreg_winreg_CreateKey_new_handle = -1;
+static gint hf_winreg_winreg_EnumKey_class = -1;
+static gint hf_winreg_winreg_QueryInfoKey_max_subkeysize = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_hostname = -1;
+static gint hf_winreg_winreg_OpenHKPT_access_mask = -1;
+static gint hf_winreg_winreg_OpenHKCC_access_mask = -1;
+static gint hf_winreg_KeySecurityData_data = -1;
+static gint hf_winreg_winreg_OpenKey_access_mask = -1;
+static gint hf_winreg_QueryMultipleValue_name = -1;
+static gint hf_winreg_winreg_GetKeySecurity_sec_info = -1;
+static gint hf_winreg_winreg_StringBuf_size = -1;
 static gint hf_winreg_winreg_SecBuf_sd = -1;
-static gint hf_winreg_werror = -1;
+static gint hf_winreg_winreg_CreateKey_class = -1;
+static gint hf_winreg_winreg_QueryInfoKey_secdescsize = -1;
+static gint hf_winreg_winreg_OpenKey_keyname = -1;
 static gint hf_winreg_QueryMultipleValue_type = -1;
+static gint hf_winreg_winreg_SetValue_name = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree = -1;
+static gint hf_winreg_winreg_CreateKey_access_mask = -1;
+static gint hf_winreg_winreg_CreateKey_secdesc = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_force_apps = -1;
+static gint hf_winreg_winreg_SetValue_type = -1;
+static gint hf_winreg_KeySecurityData_len = -1;
+static gint hf_winreg_winreg_CreateKey_name = -1;
 static gint hf_winreg_winreg_String_name_len = -1;
 static gint hf_winreg_opnum = -1;
-static gint hf_winreg_winreg_QueryInfoKey_num_subkeys = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_timeout = -1;
-static gint hf_winreg_handle = -1;
-static gint hf_winreg_winreg_GetKeySecurity_sec_info = -1;
 static gint hf_winreg_winreg_DeleteKey_key = -1;
-static gint hf_winreg_winreg_EnumKey_last_changed_time = -1;
-static gint hf_winreg_winreg_QueryInfoKey_max_subkeylen = -1;
-static gint hf_winreg_winreg_AbortSystemShutdown_server = -1;
-static gint hf_winreg_winreg_OpenHKU_access_mask = -1;
-static gint hf_winreg_winreg_EnumKey_enum_index = -1;
-static gint hf_winreg_winreg_QueryInfoKey_class = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_hostname = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdownEx_force_apps = -1;
-static gint hf_winreg_winreg_CreateKey_name = -1;
-static gint hf_winreg_winreg_OpenHKLM_access_mask = -1;
-static gint hf_winreg_winreg_StringBuf_size = -1;
-static gint hf_winreg_winreg_OpenKey_keyname = -1;
-static gint hf_winreg_KeySecurityData_len = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_force_apps = -1;
-static gint hf_winreg_winreg_OpenHKPD_access_mask = -1;
-static gint hf_winreg_winreg_EnumValue_size = -1;
-static gint hf_winreg_winreg_SetValue_size = -1;
-static gint hf_winreg_winreg_OpenKey_access_mask = -1;
-static gint hf_winreg_winreg_OpenHKPN_access_mask = -1;
-static gint hf_winreg_winreg_InitiateSystemShutdown_timeout = -1;
-static gint hf_winreg_winreg_QueryInfoKey_max_valnamelen = -1;
+static gint hf_winreg_winreg_EnumValue_name = -1;
+static gint hf_winreg_winreg_LoadKey_filename = -1;
+static gint hf_winreg_winreg_DeleteValue_value = -1;
+static gint hf_winreg_system_name = -1;
+static gint hf_winreg_QueryMultipleValue_length = -1;
 static gint hf_winreg_winreg_QueryMultipleValues_num_values = -1;
-static gint hf_winreg_winreg_OpenHKCU_access_mask = -1;
-static gint hf_winreg_winreg_String_name_size = -1;
+static gint hf_winreg_access_required = -1;
+static gint hf_winreg_winreg_StringBuf_name = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown2 = -1;
+static gint hf_winreg_winreg_QueryInfoKey_num_subkeys = -1;
 static gint hf_winreg_winreg_StringBuf_length = -1;
+static gint hf_winreg_winreg_QueryInfoKey_last_changed_time = -1;
+static gint hf_winreg_winreg_OpenHKPD_access_mask = -1;
+static gint hf_winreg_winreg_AbortSystemShutdown_server = -1;
+static gint hf_winreg_winreg_QueryValue_type = -1;
+static gint hf_winreg_winreg_String_name_size = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown = -1;
+static gint hf_winreg_winreg_QueryValue_length = -1;
+static gint hf_winreg_winreg_OpenHKCR_access_mask = -1;
+static gint hf_winreg_winreg_OpenKey_unknown = -1;
+static gint hf_winreg_winreg_QueryInfoKey_max_valbufsize = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_reason = -1;
+static gint hf_winreg_winreg_OpenHKLM_access_mask = -1;
+static gint hf_winreg_winreg_SecBuf_inherit = -1;
+static gint hf_winreg_winreg_SetValue_size = -1;
+static gint hf_winreg_winreg_EnumValue_length = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_values = -1;
+static gint hf_winreg_winreg_QueryInfoKey_max_subkeylen = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_timeout = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdownEx_hostname = -1;
+static gint hf_winreg_winreg_QueryInfoKey_class = -1;
+static gint hf_winreg_werror = -1;
+static gint hf_winreg_winreg_OpenHKPN_access_mask = -1;
+static gint hf_winreg_winreg_GetVersion_version = -1;
+static gint hf_winreg_winreg_CreateKey_action_taken = -1;
+static gint hf_winreg_winreg_QueryInfoKey_num_values = -1;
+static gint hf_winreg_winreg_SetKeySecurity_data = -1;
+static gint hf_winreg_winreg_EnumKey_enum_index = -1;
+static gint hf_winreg_winreg_SetValue_data = -1;
+static gint hf_winreg_winreg_InitiateSystemShutdown_force_apps = -1;
+static gint hf_winreg_winreg_EnumValue_value = -1;
 static gint hf_winreg_winreg_NotifyChangeKeyValue_string1 = -1;
-static gint hf_winreg_winreg_NotifyChangeKeyValue_string2 = -1;
+static gint hf_winreg_winreg_QueryMultipleValues_buffer = -1;
+static gint hf_winreg_winreg_OpenHKDD_access_mask = -1;
+static gint hf_winreg_winreg_SetKeySecurity_access_mask = -1;
+static gint hf_winreg_winreg_QueryValue_value_name = -1;
+static gint hf_winreg_winreg_OpenHKCU_access_mask = -1;
+static gint hf_winreg_winreg_GetKeySecurity_sd = -1;
+static gint hf_winreg_winreg_OpenHKU_access_mask = -1;
+static gint hf_winreg_winreg_NotifyChangeKeyValue_notify_filter = -1;
+static gint hf_winreg_QueryMultipleValue_offset = -1;
 
 static gint proto_dcerpc_winreg = -1;
 /* Version information */
@@ -393,7 +393,7 @@ winreg_dissect_enum_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* IDL: typedef struct { */
 /* IDL: 	[value(strlen_m_term(name)*2)] uint16 name_len; */
 /* IDL: 	[value(strlen_m_term(name)*2)] uint16 name_size; */
-/* IDL: 	[charset(UTF16)] [unique(1)] uint16 *name; */
+/* IDL: 	[unique(1)] [charset(UTF16)] uint16 *name; */
 /* IDL: } winreg_String; */
 
 static int
@@ -460,7 +460,7 @@ winreg_dissect_struct_String(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 /* IDL: typedef struct { */
-/* IDL: 	[size_is(size)] [length_is(len)] [unique(1)] uint8 *data; */
+/* IDL: 	[unique(1)] [length_is(len)] [size_is(size)] uint8 *data; */
 /* IDL: 	uint32 size; */
 /* IDL: 	uint32 len; */
 /* IDL: } KeySecurityData; */
@@ -607,7 +607,7 @@ winreg_dissect_enum_CreateAction(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 /* IDL: typedef struct { */
 /* IDL: 	[value(strlen_m(name)*2)] uint16 length; */
 /* IDL: 	uint16 size; */
-/* IDL: 	[charset(UTF16)] [size_is(size/2)] [length_is(length/2)] [unique(1)] uint16 *name; */
+/* IDL: 	[unique(1)] [length_is(length/2)] [charset(UTF16)] [size_is(size/2)] uint16 *name; */
 /* IDL: } winreg_StringBuf; */
 
 static int
@@ -1261,9 +1261,9 @@ winreg_dissect_element_CreateKey_action_taken_(tvbuff_t *tvb, int offset, packet
 /* IDL: [in] winreg_String class, */
 /* IDL: [in] uint32 options, */
 /* IDL: [in] uint32 access_mask, */
-/* IDL: [in] [unique(1)] winreg_SecBuf *secdesc, */
+/* IDL: [unique(1)] [in] winreg_SecBuf *secdesc, */
 /* IDL: [out] [ref] policy_handle *new_handle, */
-/* IDL: [out] [in] [unique(1)] winreg_CreateAction *action_taken */
+/* IDL: [out] [unique(1)] [in] winreg_CreateAction *action_taken */
 /* IDL: ); */
 
 static int
@@ -1485,8 +1485,8 @@ winreg_dissect_element_EnumKey_last_changed_time_(tvbuff_t *tvb, int offset, pac
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 enum_index, */
 /* IDL: [out] [in] [ref] winreg_StringBuf *name, */
-/* IDL: [out] [in] [unique(1)] winreg_StringBuf *class, */
-/* IDL: [out] [in] [unique(1)] NTTIME *last_changed_time */
+/* IDL: [out] [unique(1)] [in] winreg_StringBuf *class, */
+/* IDL: [out] [unique(1)] [in] NTTIME *last_changed_time */
 /* IDL: ); */
 
 static int
@@ -1643,10 +1643,10 @@ winreg_dissect_element_EnumValue_length_(tvbuff_t *tvb, int offset, packet_info 
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 enum_index, */
 /* IDL: [out] [in] [ref] winreg_StringBuf *name, */
-/* IDL: [out] [in] [unique(1)] winreg_Type *type, */
-/* IDL: [size_is(*size)] [length_is(*length)] [out] [in] [unique(1)] uint8 *value, */
-/* IDL: [out] [in] [unique(1)] uint32 *size, */
-/* IDL: [out] [in] [unique(1)] uint32 *length */
+/* IDL: [out] [unique(1)] [in] winreg_Type *type, */
+/* IDL: [out] [unique(1)] [in] [length_is(*length)] [size_is(*size)] uint8 *value, */
+/* IDL: [out] [unique(1)] [in] uint32 *size, */
+/* IDL: [out] [unique(1)] [in] uint32 *length */
 /* IDL: ); */
 
 static int
@@ -2327,10 +2327,10 @@ winreg_dissect_element_QueryValue_length_(tvbuff_t *tvb, int offset, packet_info
 /* IDL: WERROR winreg_QueryValue( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] winreg_String value_name, */
-/* IDL: [out] [unique(1)] [in] winreg_Type *type, */
-/* IDL: [size_is(*size)] [length_is(*length)] [out] [unique(1)] [in] uint8 *data, */
-/* IDL: [out] [unique(1)] [in] uint32 *size, */
-/* IDL: [out] [unique(1)] [in] uint32 *length */
+/* IDL: [unique(1)] [out] [in] winreg_Type *type, */
+/* IDL: [unique(1)] [out] [in] [length_is(*length)] [size_is(*size)] uint8 *data, */
+/* IDL: [unique(1)] [out] [in] uint32 *size, */
+/* IDL: [unique(1)] [out] [in] uint32 *length */
 /* IDL: ); */
 
 static int
@@ -2587,7 +2587,7 @@ winreg_dissect_element_SetValue_size(tvbuff_t *tvb, int offset, packet_info *pin
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] winreg_String name, */
 /* IDL: [in] winreg_Type type, */
-/* IDL: [size_is(size)] [in] [ref] uint8 *data, */
+/* IDL: [in] [ref] [size_is(size)] uint8 *data, */
 /* IDL: [in] uint32 size */
 /* IDL: ); */
 
@@ -3064,9 +3064,9 @@ winreg_dissect_element_QueryMultipleValues_buffer_size_(tvbuff_t *tvb, int offse
 
 /* IDL: WERROR winreg_QueryMultipleValues( */
 /* IDL: [in] [ref] policy_handle *key_handle, */
-/* IDL: [size_is(num_values)] [length_is(num_values)] [out] [in] [ref] QueryMultipleValue *values, */
+/* IDL: [out] [in] [ref] [length_is(num_values)] [size_is(num_values)] QueryMultipleValue *values, */
 /* IDL: [in] uint32 num_values, */
-/* IDL: [size_is(*buffer_size)] [length_is(*buffer_size)] [out] [unique(1)] [in] uint8 *buffer, */
+/* IDL: [unique(1)] [out] [in] [length_is(*buffer_size)] [size_is(*buffer_size)] uint8 *buffer, */
 /* IDL: [out] [in] [ref] uint32 *buffer_size */
 /* IDL: ); */
 
@@ -3480,206 +3480,206 @@ static dcerpc_sub_dissector winreg_dissectors[] = {
 void proto_register_dcerpc_winreg(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_winreg_winreg_QueryInfoKey_max_valbufsize, 
-	  { "Max Valbufsize", "winreg.winreg_QueryInfoKey.max_valbufsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SecBuf_inherit, 
-	  { "Inherit", "winreg.winreg_SecBuf.inherit", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_key_handle, 
-	  { "Key Handle", "winreg.winreg_QueryMultipleValues.key_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_options, 
-	  { "Options", "winreg.winreg_CreateKey.options", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reboot, 
-	  { "Reboot", "winreg.winreg_InitiateSystemShutdownEx.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_String_name, 
-	  { "Name", "winreg.winreg_String.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_notify_filter, 
-	  { "Notify Filter", "winreg.winreg_NotifyChangeKeyValue.notify_filter", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_max_subkeysize, 
-	  { "Max Subkeysize", "winreg.winreg_QueryInfoKey.max_subkeysize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenKey_unknown, 
-	  { "Unknown", "winreg.winreg_OpenKey.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCC_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKCC.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_data, 
-	  { "Data", "winreg.winreg_SetValue.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_values, 
-	  { "Values", "winreg.winreg_QueryMultipleValues.values", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_last_changed_time, 
-	  { "Last Changed Time", "winreg.winreg_QueryInfoKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_QueryMultipleValue_name, 
-	  { "Name", "winreg.QueryMultipleValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_type, 
-	  { "Type", "winreg.winreg_EnumValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_class, 
-	  { "Class", "winreg.winreg_CreateKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCR_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKCR.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_type, 
-	  { "Type", "winreg.winreg_SetValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_class, 
-	  { "Class", "winreg.winreg_EnumKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_secdesc, 
-	  { "Secdesc", "winreg.winreg_CreateKey.secdesc", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_buffer, 
-	  { "Buffer", "winreg.winreg_QueryMultipleValues.buffer", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_GetVersion_version, 
-	  { "Version", "winreg.winreg_GetVersion.version", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetKeySecurity_access_mask, 
-	  { "Access Mask", "winreg.winreg_SetKeySecurity.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown, 
-	  { "Unknown", "winreg.winreg_NotifyChangeKeyValue.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_LoadKey_filename, 
-	  { "Filename", "winreg.winreg_LoadKey.filename", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_enum_index, 
-	  { "Enum Index", "winreg.winreg_EnumValue.enum_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_action_taken, 
-	  { "Action Taken", "winreg.winreg_CreateKey.action_taken", FT_UINT32, BASE_DEC, VALS(winreg_winreg_CreateAction_vals), 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_size, 
-	  { "Size", "winreg.winreg_QueryValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryMultipleValues_buffer_size, 
-	  { "Buffer Size", "winreg.winreg_QueryMultipleValues.buffer_size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_access_required, 
-	  { "Access Required", "winreg.access_required", FT_UINT32, BASE_HEX, NULL, 0, " ", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_access_mask, 
-	  { "Access Mask", "winreg.winreg_CreateKey.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_system_name, 
-	  { "System Name", "winreg.system_name", FT_UINT16, BASE_DEC, NULL, 0, " ", HFILL }},
-	{ &hf_winreg_KeySecurityData_size, 
-	  { "Size", "winreg.KeySecurityData.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_value, 
-	  { "Value", "winreg.winreg_EnumValue.value", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_message, 
-	  { "Message", "winreg.winreg_InitiateSystemShutdownEx.message", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_secdescsize, 
-	  { "Secdescsize", "winreg.winreg_QueryInfoKey.secdescsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_data, 
-	  { "Data", "winreg.winreg_QueryValue.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_length, 
-	  { "Length", "winreg.winreg_EnumValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SecBuf_length, 
-	  { "Length", "winreg.winreg_SecBuf.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_value_name, 
-	  { "Value Name", "winreg.winreg_QueryValue.value_name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_num_values, 
-	  { "Num Values", "winreg.winreg_QueryInfoKey.num_values", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_reboot, 
-	  { "Reboot", "winreg.winreg_InitiateSystemShutdown.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_new_handle, 
-	  { "New Handle", "winreg.winreg_CreateKey.new_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPT_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKPT.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_type, 
-	  { "Type", "winreg.winreg_QueryValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
-	{ &hf_winreg_KeySecurityData_data, 
-	  { "Data", "winreg.KeySecurityData.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_QueryMultipleValue_length, 
-	  { "Length", "winreg.QueryMultipleValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_LoadKey_keyname, 
-	  { "Keyname", "winreg.winreg_LoadKey.keyname", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_hostname, 
-	  { "Hostname", "winreg.winreg_InitiateSystemShutdown.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_StringBuf_name, 
-	  { "Name", "winreg.winreg_StringBuf.name", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown2, 
-	  { "Unknown2", "winreg.winreg_NotifyChangeKeyValue.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKDD_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKDD.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_name, 
-	  { "Name", "winreg.winreg_EnumValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reason, 
-	  { "Reason", "winreg.winreg_InitiateSystemShutdownEx.reason", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_string2, 
+	  { "String2", "winreg.winreg_NotifyChangeKeyValue.string2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_InitiateSystemShutdown_message, 
 	  { "Message", "winreg.winreg_InitiateSystemShutdown.message", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_DeleteValue_value, 
-	  { "Value", "winreg.winreg_DeleteValue.value", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_name, 
-	  { "Name", "winreg.winreg_SetValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_GetKeySecurity_sd, 
-	  { "Sd", "winreg.winreg_GetKeySecurity.sd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree, 
-	  { "Watch Subtree", "winreg.winreg_NotifyChangeKeyValue.watch_subtree", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityData_size, 
+	  { "Size", "winreg.KeySecurityData.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_String_name, 
+	  { "Name", "winreg.winreg_String.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_message, 
+	  { "Message", "winreg.winreg_InitiateSystemShutdownEx.message", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_reboot, 
+	  { "Reboot", "winreg.winreg_InitiateSystemShutdown.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_enum_index, 
+	  { "Enum Index", "winreg.winreg_EnumValue.enum_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_key_handle, 
+	  { "Key Handle", "winreg.winreg_QueryMultipleValues.key_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_LoadKey_keyname, 
+	  { "Keyname", "winreg.winreg_LoadKey.keyname", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_EnumKey_name, 
 	  { "Name", "winreg.winreg_EnumKey.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryValue_length, 
-	  { "Length", "winreg.winreg_QueryValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_QueryMultipleValue_offset, 
-	  { "Offset", "winreg.QueryMultipleValue.offset", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetKeySecurity_data, 
-	  { "Data", "winreg.winreg_SetKeySecurity.data", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_options, 
+	  { "Options", "winreg.winreg_CreateKey.options", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_type, 
+	  { "Type", "winreg.winreg_EnumValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_timeout, 
+	  { "Timeout", "winreg.winreg_InitiateSystemShutdownEx.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumKey_last_changed_time, 
+	  { "Last Changed Time", "winreg.winreg_EnumKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_size, 
+	  { "Size", "winreg.winreg_QueryValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_size, 
+	  { "Size", "winreg.winreg_EnumValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_handle, 
+	  { "Handle", "winreg.handle", FT_BYTES, BASE_NONE, NULL, 0, " ", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_valnamelen, 
+	  { "Max Valnamelen", "winreg.winreg_QueryInfoKey.max_valnamelen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SecBuf_length, 
+	  { "Length", "winreg.winreg_SecBuf.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reboot, 
+	  { "Reboot", "winreg.winreg_InitiateSystemShutdownEx.reboot", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_buffer_size, 
+	  { "Buffer Size", "winreg.winreg_QueryMultipleValues.buffer_size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_data, 
+	  { "Data", "winreg.winreg_QueryValue.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_new_handle, 
+	  { "New Handle", "winreg.winreg_CreateKey.new_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumKey_class, 
+	  { "Class", "winreg.winreg_EnumKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_subkeysize, 
+	  { "Max Subkeysize", "winreg.winreg_QueryInfoKey.max_subkeysize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_hostname, 
+	  { "Hostname", "winreg.winreg_InitiateSystemShutdown.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKPT_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKPT.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKCC_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKCC.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityData_data, 
+	  { "Data", "winreg.KeySecurityData.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenKey_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenKey.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_QueryMultipleValue_name, 
+	  { "Name", "winreg.QueryMultipleValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_GetKeySecurity_sec_info, 
+	  { "Sec Info", "winreg.winreg_GetKeySecurity.sec_info", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_StringBuf_size, 
+	  { "Size", "winreg.winreg_StringBuf.size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_SecBuf_sd, 
 	  { "Sd", "winreg.winreg_SecBuf.sd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_werror, 
-	  { "Windows Error", "winreg.werror", FT_UINT32, BASE_HEX, VALS(DOS_errors), 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_class, 
+	  { "Class", "winreg.winreg_CreateKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_secdescsize, 
+	  { "Secdescsize", "winreg.winreg_QueryInfoKey.secdescsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenKey_keyname, 
+	  { "Keyname", "winreg.winreg_OpenKey.keyname", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_QueryMultipleValue_type, 
 	  { "Type", "winreg.QueryMultipleValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_name, 
+	  { "Name", "winreg.winreg_SetValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree, 
+	  { "Watch Subtree", "winreg.winreg_NotifyChangeKeyValue.watch_subtree", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_access_mask, 
+	  { "Access Mask", "winreg.winreg_CreateKey.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_secdesc, 
+	  { "Secdesc", "winreg.winreg_CreateKey.secdesc", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_force_apps, 
+	  { "Force Apps", "winreg.winreg_InitiateSystemShutdownEx.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_type, 
+	  { "Type", "winreg.winreg_SetValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityData_len, 
+	  { "Len", "winreg.KeySecurityData.len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_name, 
+	  { "Name", "winreg.winreg_CreateKey.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_String_name_len, 
 	  { "Name Len", "winreg.winreg_String.name_len", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_opnum, 
 	  { "Operation", "winreg.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_num_subkeys, 
-	  { "Num Subkeys", "winreg.winreg_QueryInfoKey.num_subkeys", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_timeout, 
-	  { "Timeout", "winreg.winreg_InitiateSystemShutdownEx.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_handle, 
-	  { "Handle", "winreg.handle", FT_BYTES, BASE_NONE, NULL, 0, " ", HFILL }},
-	{ &hf_winreg_winreg_GetKeySecurity_sec_info, 
-	  { "Sec Info", "winreg.winreg_GetKeySecurity.sec_info", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_DeleteKey_key, 
 	  { "Key", "winreg.winreg_DeleteKey.key", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_last_changed_time, 
-	  { "Last Changed Time", "winreg.winreg_EnumKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_max_subkeylen, 
-	  { "Max Subkeylen", "winreg.winreg_QueryInfoKey.max_subkeylen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_AbortSystemShutdown_server, 
-	  { "Server", "winreg.winreg_AbortSystemShutdown.server", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKU_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKU.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumKey_enum_index, 
-	  { "Enum Index", "winreg.winreg_EnumKey.enum_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_class, 
-	  { "Class", "winreg.winreg_QueryInfoKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_hostname, 
-	  { "Hostname", "winreg.winreg_InitiateSystemShutdownEx.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdownEx_force_apps, 
-	  { "Force Apps", "winreg.winreg_InitiateSystemShutdownEx.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_CreateKey_name, 
-	  { "Name", "winreg.winreg_CreateKey.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKLM_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKLM.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_StringBuf_size, 
-	  { "Size", "winreg.winreg_StringBuf.size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenKey_keyname, 
-	  { "Keyname", "winreg.winreg_OpenKey.keyname", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_KeySecurityData_len, 
-	  { "Len", "winreg.KeySecurityData.len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_force_apps, 
-	  { "Force Apps", "winreg.winreg_InitiateSystemShutdown.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPD_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKPD.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_EnumValue_size, 
-	  { "Size", "winreg.winreg_EnumValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_SetValue_size, 
-	  { "Size", "winreg.winreg_SetValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenKey_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenKey.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKPN_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKPN.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_InitiateSystemShutdown_timeout, 
-	  { "Timeout", "winreg.winreg_InitiateSystemShutdown.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_max_valnamelen, 
-	  { "Max Valnamelen", "winreg.winreg_QueryInfoKey.max_valnamelen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_name, 
+	  { "Name", "winreg.winreg_EnumValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_LoadKey_filename, 
+	  { "Filename", "winreg.winreg_LoadKey.filename", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_DeleteValue_value, 
+	  { "Value", "winreg.winreg_DeleteValue.value", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_system_name, 
+	  { "System Name", "winreg.system_name", FT_UINT16, BASE_DEC, NULL, 0, " ", HFILL }},
+	{ &hf_winreg_QueryMultipleValue_length, 
+	  { "Length", "winreg.QueryMultipleValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryMultipleValues_num_values, 
 	  { "Num Values", "winreg.winreg_QueryMultipleValues.num_values", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_OpenHKCU_access_mask, 
-	  { "Access Mask", "winreg.winreg_OpenHKCU.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_String_name_size, 
-	  { "Name Size", "winreg.winreg_String.name_size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_access_required, 
+	  { "Access Required", "winreg.access_required", FT_UINT32, BASE_HEX, NULL, 0, " ", HFILL }},
+	{ &hf_winreg_winreg_StringBuf_name, 
+	  { "Name", "winreg.winreg_StringBuf.name", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown2, 
+	  { "Unknown2", "winreg.winreg_NotifyChangeKeyValue.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_num_subkeys, 
+	  { "Num Subkeys", "winreg.winreg_QueryInfoKey.num_subkeys", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_StringBuf_length, 
 	  { "Length", "winreg.winreg_StringBuf.length", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_last_changed_time, 
+	  { "Last Changed Time", "winreg.winreg_QueryInfoKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKPD_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKPD.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_AbortSystemShutdown_server, 
+	  { "Server", "winreg.winreg_AbortSystemShutdown.server", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_type, 
+	  { "Type", "winreg.winreg_QueryValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_String_name_size, 
+	  { "Name Size", "winreg.winreg_String.name_size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_unknown, 
+	  { "Unknown", "winreg.winreg_NotifyChangeKeyValue.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_length, 
+	  { "Length", "winreg.winreg_QueryValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKCR_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKCR.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenKey_unknown, 
+	  { "Unknown", "winreg.winreg_OpenKey.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_valbufsize, 
+	  { "Max Valbufsize", "winreg.winreg_QueryInfoKey.max_valbufsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_reason, 
+	  { "Reason", "winreg.winreg_InitiateSystemShutdownEx.reason", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKLM_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKLM.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SecBuf_inherit, 
+	  { "Inherit", "winreg.winreg_SecBuf.inherit", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_size, 
+	  { "Size", "winreg.winreg_SetValue.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_length, 
+	  { "Length", "winreg.winreg_EnumValue.length", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_values, 
+	  { "Values", "winreg.winreg_QueryMultipleValues.values", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_max_subkeylen, 
+	  { "Max Subkeylen", "winreg.winreg_QueryInfoKey.max_subkeylen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_timeout, 
+	  { "Timeout", "winreg.winreg_InitiateSystemShutdown.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdownEx_hostname, 
+	  { "Hostname", "winreg.winreg_InitiateSystemShutdownEx.hostname", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_class, 
+	  { "Class", "winreg.winreg_QueryInfoKey.class", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_werror, 
+	  { "Windows Error", "winreg.werror", FT_UINT32, BASE_HEX, VALS(DOS_errors), 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKPN_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKPN.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_GetVersion_version, 
+	  { "Version", "winreg.winreg_GetVersion.version", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_CreateKey_action_taken, 
+	  { "Action Taken", "winreg.winreg_CreateKey.action_taken", FT_UINT32, BASE_DEC, VALS(winreg_winreg_CreateAction_vals), 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_num_values, 
+	  { "Num Values", "winreg.winreg_QueryInfoKey.num_values", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetKeySecurity_data, 
+	  { "Data", "winreg.winreg_SetKeySecurity.data", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumKey_enum_index, 
+	  { "Enum Index", "winreg.winreg_EnumKey.enum_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetValue_data, 
+	  { "Data", "winreg.winreg_SetValue.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_InitiateSystemShutdown_force_apps, 
+	  { "Force Apps", "winreg.winreg_InitiateSystemShutdown.force_apps", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_EnumValue_value, 
+	  { "Value", "winreg.winreg_EnumValue.value", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_NotifyChangeKeyValue_string1, 
 	  { "String1", "winreg.winreg_NotifyChangeKeyValue.string1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_winreg_winreg_NotifyChangeKeyValue_string2, 
-	  { "String2", "winreg.winreg_NotifyChangeKeyValue.string2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryMultipleValues_buffer, 
+	  { "Buffer", "winreg.winreg_QueryMultipleValues.buffer", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKDD_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKDD.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SetKeySecurity_access_mask, 
+	  { "Access Mask", "winreg.winreg_SetKeySecurity.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryValue_value_name, 
+	  { "Value Name", "winreg.winreg_QueryValue.value_name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKCU_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKCU.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_GetKeySecurity_sd, 
+	  { "Sd", "winreg.winreg_GetKeySecurity.sd", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_OpenHKU_access_mask, 
+	  { "Access Mask", "winreg.winreg_OpenHKU.access_mask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_NotifyChangeKeyValue_notify_filter, 
+	  { "Notify Filter", "winreg.winreg_NotifyChangeKeyValue.notify_filter", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_QueryMultipleValue_offset, 
+	  { "Offset", "winreg.QueryMultipleValue.offset", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	};
 
 

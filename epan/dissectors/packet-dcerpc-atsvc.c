@@ -802,7 +802,7 @@ atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 /* IDL: 	atsvc_DaysOfMonth days_of_month; */
 /* IDL: 	atsvc_DaysOfWeek days_of_week; */
 /* IDL: 	atsvc_Flags flags; */
-/* IDL: 	[unique(1)] unistr *command; */
+/* IDL: 	[unique(1)] uint16 *command; */
 /* IDL: } atsvc_JobInfo; */
 
 static int
@@ -840,7 +840,7 @@ atsvc_dissect_element_JobInfo_flags(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 atsvc_dissect_element_JobInfo_command(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobInfo_command_, NDR_POINTER_UNIQUE, "Pointer to Command (unistr)",hf_atsvc_atsvc_JobInfo_command);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobInfo_command_, NDR_POINTER_UNIQUE, "Pointer to Command (uint16)",hf_atsvc_atsvc_JobInfo_command);
 
 	return offset;
 }
@@ -848,6 +848,10 @@ atsvc_dissect_element_JobInfo_command(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 atsvc_dissect_element_JobInfo_command_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_atsvc_atsvc_JobInfo_command, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -890,7 +894,7 @@ atsvc_dissect_struct_JobInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 /* IDL: 	atsvc_DaysOfMonth days_of_month; */
 /* IDL: 	atsvc_DaysOfWeek days_of_week; */
 /* IDL: 	atsvc_Flags flags; */
-/* IDL: 	[unique(1)] unistr *command; */
+/* IDL: 	[unique(1)] uint16 *command; */
 /* IDL: } atsvc_JobEnumInfo; */
 
 static int
@@ -936,7 +940,7 @@ atsvc_dissect_element_JobEnumInfo_flags(tvbuff_t *tvb, int offset, packet_info *
 static int
 atsvc_dissect_element_JobEnumInfo_command(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobEnumInfo_command_, NDR_POINTER_UNIQUE, "Pointer to Command (unistr)",hf_atsvc_atsvc_JobEnumInfo_command);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobEnumInfo_command_, NDR_POINTER_UNIQUE, "Pointer to Command (uint16)",hf_atsvc_atsvc_JobEnumInfo_command);
 
 	return offset;
 }
@@ -944,6 +948,10 @@ atsvc_dissect_element_JobEnumInfo_command(tvbuff_t *tvb, int offset, packet_info
 static int
 atsvc_dissect_element_JobEnumInfo_command_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_atsvc_atsvc_JobEnumInfo_command, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -1048,7 +1056,7 @@ atsvc_dissect_struct_enum_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int
 atsvc_dissect_element_JobAdd_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobAdd_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (unistr)",hf_atsvc_servername);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobAdd_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
@@ -1056,6 +1064,10 @@ atsvc_dissect_element_JobAdd_servername(tvbuff_t *tvb, int offset, packet_info *
 static int
 atsvc_dissect_element_JobAdd_servername_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_atsvc_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -1085,7 +1097,7 @@ atsvc_dissect_element_JobAdd_job_id(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 /* IDL: NTSTATUS atsvc_JobAdd( */
-/* IDL: [unique(1)] [in] unistr *servername, */
+/* IDL: [unique(1)] [in] uint16 *servername, */
 /* IDL: [in] [ref] atsvc_JobInfo *job_info, */
 /* IDL: [out] uint32 job_id */
 /* IDL: ); */
@@ -1093,10 +1105,16 @@ atsvc_dissect_element_JobAdd_job_id(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = atsvc_dissect_element_JobAdd_job_id(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
 	return offset;
 }
 
@@ -1113,7 +1131,7 @@ atsvc_dissect_JobAdd_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 static int
 atsvc_dissect_element_JobDel_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobDel_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (unistr)",hf_atsvc_servername);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobDel_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
@@ -1121,6 +1139,10 @@ atsvc_dissect_element_JobDel_servername(tvbuff_t *tvb, int offset, packet_info *
 static int
 atsvc_dissect_element_JobDel_servername_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_atsvc_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -1142,7 +1164,7 @@ atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb, int offset, packet_info *
 }
 
 /* IDL: NTSTATUS atsvc_JobDel( */
-/* IDL: [unique(1)] [in] unistr *servername, */
+/* IDL: [unique(1)] [in] uint16 *servername, */
 /* IDL: [in] uint32 min_job_id, */
 /* IDL: [in] uint32 max_job_id */
 /* IDL: ); */
@@ -1150,7 +1172,13 @@ atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb, int offset, packet_info *
 static int
 atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, NULL);
+	guint32 status;
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
 	return offset;
 }
 
@@ -1169,7 +1197,7 @@ atsvc_dissect_JobDel_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 static int
 atsvc_dissect_element_JobEnum_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobEnum_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (unistr)",hf_atsvc_servername);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobEnum_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
@@ -1177,6 +1205,10 @@ atsvc_dissect_element_JobEnum_servername(tvbuff_t *tvb, int offset, packet_info 
 static int
 atsvc_dissect_element_JobEnum_servername_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_atsvc_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -1230,7 +1262,7 @@ atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb, int offset, packet_i
 }
 
 /* IDL: NTSTATUS atsvc_JobEnum( */
-/* IDL: [unique(1)] [in] unistr *servername, */
+/* IDL: [unique(1)] [in] uint16 *servername, */
 /* IDL: [out] [in] [ref] atsvc_enum_ctr *ctr, */
 /* IDL: [in] uint32 preferred_max_len, */
 /* IDL: [out] uint32 total_entries, */
@@ -1240,6 +1272,8 @@ atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb, int offset, packet_i
 static int
 atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = atsvc_dissect_element_JobEnum_ctr(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1249,7 +1283,11 @@ atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	offset = atsvc_dissect_element_JobEnum_resume_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
 	return offset;
 }
 
@@ -1270,7 +1308,7 @@ atsvc_dissect_JobEnum_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 atsvc_dissect_element_JobGetInfo_servername(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobGetInfo_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (unistr)",hf_atsvc_servername);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, atsvc_dissect_element_JobGetInfo_servername_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint16)",hf_atsvc_servername);
 
 	return offset;
 }
@@ -1278,6 +1316,10 @@ atsvc_dissect_element_JobGetInfo_servername(tvbuff_t *tvb, int offset, packet_in
 static int
 atsvc_dissect_element_JobGetInfo_servername_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_atsvc_servername, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -1307,7 +1349,7 @@ atsvc_dissect_element_JobGetInfo_job_info_(tvbuff_t *tvb, int offset, packet_inf
 }
 
 /* IDL: NTSTATUS atsvc_JobGetInfo( */
-/* IDL: [unique(1)] [in] unistr *servername, */
+/* IDL: [unique(1)] [in] uint16 *servername, */
 /* IDL: [in] uint32 job_id, */
 /* IDL: [unique(1)] [out] atsvc_JobInfo *job_info */
 /* IDL: ); */
@@ -1315,10 +1357,16 @@ atsvc_dissect_element_JobGetInfo_job_info_(tvbuff_t *tvb, int offset, packet_inf
 static int
 atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	guint32 status;
+
 	offset = atsvc_dissect_element_JobGetInfo_job_info(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
 	return offset;
 }
 
@@ -1349,9 +1397,9 @@ void proto_register_dcerpc_atsvc(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_atsvc_atsvc_JobEnumInfo_days_of_month, 
-	  { "Days Of Month", "atsvc.atsvc_JobEnumInfo.days_of_month", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Days Of Month", "atsvc.atsvc_JobEnumInfo.days_of_month", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnum_resume_handle, 
-	  { "Resume Handle", "atsvc.atsvc_JobEnum.resume_handle", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Resume Handle", "atsvc.atsvc_JobEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY, 
 	  { "Daysofweek Thursday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_THURSDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_THURSDAY_tfs), ( 0x08 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Eight, 
@@ -1359,7 +1407,7 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_atsvc_DaysOfMonth_Third, 
 	  { "Third", "atsvc.atsvc_DaysOfMonth.Third", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Third_tfs), ( 0x00000004 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobInfo_days_of_week, 
-	  { "Days Of Week", "atsvc.atsvc_JobInfo.days_of_week", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Days Of Week", "atsvc.atsvc_JobInfo.days_of_week", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyseventh, 
 	  { "Twentyseventh", "atsvc.atsvc_DaysOfMonth.Twentyseventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyseventh_tfs), ( 0x04000000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyth, 
@@ -1375,9 +1423,9 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_atsvc_DaysOfMonth_Thitteenth, 
 	  { "Thitteenth", "atsvc.atsvc_DaysOfMonth.Thitteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Thitteenth_tfs), ( 0x00001000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_enum_ctr_entries_read, 
-	  { "Entries Read", "atsvc.atsvc_enum_ctr.entries_read", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Entries Read", "atsvc.atsvc_enum_ctr.entries_read", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_enum_ctr_first_entry, 
-	  { "First Entry", "atsvc.atsvc_enum_ctr.first_entry", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "First Entry", "atsvc.atsvc_enum_ctr.first_entry", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR, 
 	  { "Job Exec Error", "atsvc.atsvc_Flags.JOB_EXEC_ERROR", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_EXEC_ERROR_tfs), ( 0x02 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_Flags_JOB_NONINTERACTIVE, 
@@ -1405,13 +1453,13 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_status, 
 	  { "Status", "atsvc.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnum_ctr, 
-	  { "Ctr", "atsvc.atsvc_JobEnum.ctr", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Ctr", "atsvc.atsvc_JobEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_JobInfo_command, 
-	  { "Command", "atsvc.atsvc_JobInfo.command", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Command", "atsvc.atsvc_JobInfo.command", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Sixteenth, 
 	  { "Sixteenth", "atsvc.atsvc_DaysOfMonth.Sixteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Sixteenth_tfs), ( 0x00008000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnumInfo_command, 
-	  { "Command", "atsvc.atsvc_JobEnumInfo.command", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Command", "atsvc.atsvc_JobEnumInfo.command", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_Flags_JOB_ADD_CURRENT_DATE, 
 	  { "Job Add Current Date", "atsvc.atsvc_Flags.JOB_ADD_CURRENT_DATE", FT_BOOLEAN, 8, TFS(&atsvc_Flags_JOB_ADD_CURRENT_DATE_tfs), ( 0x08 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Thirtyfirst, 
@@ -1419,17 +1467,17 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_atsvc_DaysOfMonth_Fourth, 
 	  { "Fourth", "atsvc.atsvc_DaysOfMonth.Fourth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fourth_tfs), ( 0x00000008 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnumInfo_days_of_week, 
-	  { "Days Of Week", "atsvc.atsvc_JobEnumInfo.days_of_week", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Days Of Week", "atsvc.atsvc_JobEnumInfo.days_of_week", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_First, 
 	  { "First", "atsvc.atsvc_DaysOfMonth.First", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_First_tfs), ( 0x00000001 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnumInfo_job_time, 
-	  { "Job Time", "atsvc.atsvc_JobEnumInfo.job_time", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Job Time", "atsvc.atsvc_JobEnumInfo.job_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnum_total_entries, 
-	  { "Total Entries", "atsvc.atsvc_JobEnum.total_entries", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Total Entries", "atsvc.atsvc_JobEnum.total_entries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyninth, 
 	  { "Twentyninth", "atsvc.atsvc_DaysOfMonth.Twentyninth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyninth_tfs), ( 0x10000000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobDel_max_job_id, 
-	  { "Max Job Id", "atsvc.atsvc_JobDel.max_job_id", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Max Job Id", "atsvc.atsvc_JobDel.max_job_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY, 
 	  { "Daysofweek Tuesday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_TUESDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY_tfs), ( 0x02 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentythird, 
@@ -1443,7 +1491,7 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY, 
 	  { "Daysofweek Wednesday", "atsvc.atsvc_DaysOfWeek.DAYSOFWEEK_WEDNESDAY", FT_BOOLEAN, 8, TFS(&atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY_tfs), ( 0x04 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobInfo_flags, 
-	  { "Flags", "atsvc.atsvc_JobInfo.flags", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Flags", "atsvc.atsvc_JobInfo.flags", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Seventh, 
 	  { "Seventh", "atsvc.atsvc_DaysOfMonth.Seventh", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Seventh_tfs), ( 0x00000040 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfirst, 
@@ -1453,7 +1501,7 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_atsvc_DaysOfMonth_Fourteenth, 
 	  { "Fourteenth", "atsvc.atsvc_DaysOfMonth.Fourteenth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Fourteenth_tfs), ( 0x00002000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnum_preferred_max_len, 
-	  { "Preferred Max Len", "atsvc.atsvc_JobEnum.preferred_max_len", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Preferred Max Len", "atsvc.atsvc_JobEnum.preferred_max_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfourth, 
 	  { "Twentyfourth", "atsvc.atsvc_DaysOfMonth.Twentyfourth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentyfourth_tfs), ( 0x00800000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentyfifth, 
@@ -1467,9 +1515,9 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_atsvc_DaysOfMonth_Sixth, 
 	  { "Sixth", "atsvc.atsvc_DaysOfMonth.Sixth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Sixth_tfs), ( 0x00000020 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobDel_min_job_id, 
-	  { "Min Job Id", "atsvc.atsvc_JobDel.min_job_id", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Min Job Id", "atsvc.atsvc_JobDel.min_job_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_JobInfo_job_time, 
-	  { "Job Time", "atsvc.atsvc_JobInfo.job_time", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Job Time", "atsvc.atsvc_JobInfo.job_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Ninth, 
 	  { "Ninth", "atsvc.atsvc_DaysOfMonth.Ninth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Ninth_tfs), ( 0x00000100 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_DaysOfMonth_Eleventh, 
@@ -1477,9 +1525,9 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_atsvc_DaysOfMonth_Twentysixth, 
 	  { "Twentysixth", "atsvc.atsvc_DaysOfMonth.Twentysixth", FT_BOOLEAN, 32, TFS(&atsvc_DaysOfMonth_Twentysixth_tfs), ( 0x02000000 ), "", HFILL }},
 	{ &hf_atsvc_atsvc_JobInfo_days_of_month, 
-	  { "Days Of Month", "atsvc.atsvc_JobInfo.days_of_month", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Days Of Month", "atsvc.atsvc_JobInfo.days_of_month", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_atsvc_atsvc_JobEnumInfo_flags, 
-	  { "Flags", "atsvc.atsvc_JobEnumInfo.flags", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	  { "Flags", "atsvc.atsvc_JobEnumInfo.flags", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 	};
 
 
