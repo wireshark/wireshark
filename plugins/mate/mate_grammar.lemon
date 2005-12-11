@@ -38,54 +38,23 @@ typedef struct _extraction {
 	struct _extraction* last;
 } extraction_t;
 
-typedef struct _pdu_flags {
-	gboolean drop_unassigned;
-	gboolean discard;
-	gboolean last_extracted;
-} pdu_flags_t;
-
 typedef struct _pdu_criteria_t {
 	AVPL* criterium_avpl;
 	avpl_match_mode criterium_match_mode;
 	accept_mode_t criterium_accept_mode;
 } pdu_criteria_t;
 
-typedef struct _pdu_statement {
-	GPtrArray* payload;
-	pdu_flags_t* flags;
-	extraction_t* extraction;
-	pdu_criteria_t* criteria;
-	GPtrArray* transforms;
-} pdu_statement_t;
-
-typedef struct _gop_tree_statement {
+typedef struct _gop_options {
 	gop_tree_mode_t pdu_tree_mode;
 	gboolean drop_unassigned;
 	gboolean show_times;
-} gop_tree_statement;
-
-typedef struct _gop_timer_statement {
 	float expiration;
 	float idle_timeout;
 	float lifetime;
-} gop_timer_statement;
-
-typedef struct _gop_option_statement {
-	gop_timer_statement* timer_sts;
-	gop_tree_statement* tree_sts;
-} gop_option_statement;
-
-typedef struct _gop_control_statement {
 	AVPL* start;
 	AVPL* stop;
 	AVPL* extras;
-} gop_control_statement;
-
-typedef struct _gop_statement {
-	gop_control_statement* control;
-	gop_option_statement* options;
-	GPtrArray* transforms;
-} gop_statement;
+} gop_options_t;
 
 typedef struct _gog_statements {
 	float expiration;
@@ -94,6 +63,16 @@ typedef struct _gog_statements {
 	AVPL* extras;
 	LoAL* current_gogkeys;
 } gog_statement_t;
+
+typedef struct _transf_match_t {
+    avpl_match_mode match_mode;
+    AVPL* avpl;
+} transf_match_t; 
+
+typedef struct _transf_action_t {
+    avpl_replace_mode replace_mode;
+    AVPL* avpl;
+} transf_action_t;
 
 static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 	static gchar error_buffer[256];
@@ -140,18 +119,6 @@ static AVPL_Transf* new_transform_elem(AVPL* match, AVPL* replace, avpl_match_mo
 	 t->next = NULL;
 	 
 	 return t;
-}
-
-static pdu_statement_t* do_pdu_statements(GPtrArray* payload, pdu_flags_t* flags, extraction_t* extraction, pdu_criteria_t* criteria, GPtrArray* transforms) {
-	pdu_statement_t* s = g_malloc(sizeof(pdu_statement_t));
-	
-	s->payload = payload;
-	s->flags = flags;
-	s->extraction = extraction;
-	s->criteria = criteria;
-	s->transforms = transforms;
-	
-	return s;
 }
 
 static gchar* recolonize(mate_config* mc, gchar* s) {
@@ -226,8 +193,8 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 %type   transform_body { AVPL_Transf* }
 %type   transform_statements { AVPL_Transf* }
 %type   transform_statement { AVPL_Transf* }
-%type   transform_blks { AVPL_Transf* }
-%type   transform_blk { AVPL_Transf* }
+%type   transform_match { transf_match_t* }
+%type   transform_action { transf_action_t* }
 %type   match_mode { avpl_match_mode }
 %type   action_mode { avpl_replace_mode }
 
@@ -237,36 +204,29 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 %type gop_tree_mode { gop_tree_mode_t }
 %type true_false { gboolean }
 
-%type pdu_setup { pdu_statement_t* }
-%type pdu_statements { pdu_statement_t* }
-
-%type pdu_criteria_statement { pdu_criteria_t* }
-%type pdu_flag_statements { pdu_flags_t* }
+%type criteria_statement { pdu_criteria_t* }
 %type accept_mode { accept_mode_t }
-%type drop_unassigned_statement { gboolean } 
+%type pdu_drop_unassigned_statement { gboolean } 
 %type discard_pdu_data_statement { gboolean } 
 %type last_extracted_statement { gboolean } 
 
 %type extraction_statement {extraction_t*}
 %type extraction_statements {extraction_t*}
 
-%type gop_setup { gop_statement* }
-%type gop_statements { gop_statement* }
-%type gop_control_statements { gop_control_statement* }
-%type gop_option_statements { gop_option_statement* }
-%type gop_timer_statements { gop_timer_statement* }
-%type gop_tree_statements { gop_tree_statement* }
+%type gop_options { gop_options_t* }
 
 %type gop_start_statement { AVPL* }
 %type gop_stop_statement { AVPL* }
 %type extra_statement { AVPL* }
+%type gop_drop_unassigned_statement { gboolean }
 %type show_goptree_statement { gop_tree_mode_t }
 %type show_times_statement { gboolean }
-%type expiration_statement { float }
+%type gop_expiration_statement { float }
 %type idle_timeout_statement { float }
 %type lifetime_statement { float }
 
 %type gog_statements { gog_statement_t* }
+%type gog_expiration_statement { float }
 %type gog_goptree_statement { gop_tree_mode_t }
 %type gog_key_statements { LoAL* }
 %type gog_key_statement { AVPL* }
@@ -313,83 +273,105 @@ transform_decl(A) ::= TRANSFORM_KW NAME(B) transform_body(C) SEMICOLON. {
 	A = NULL;
 }
 
-transform_body(A) ::= OPEN_BRACE transform_blks(B) CLOSE_BRACE. { A = B; }
+transform_body(A) ::= OPEN_BRACE transform_statements(B) CLOSE_BRACE. { A = B; }
 
-transform_blks(A) ::= transform_blks(C) transform_blk(B). {
-	AVPL_Transf* c;
+transform_statements(A) ::= transform_statements(C) transform_statement(B). {
+    AVPL_Transf* c;
 	
 	for ( c = C; c->next; c = c->next ) ;
 	c->next = B;
 	A = C;
 }
 
-transform_blks(A) ::= transform_blk(B). { A = B; }
+transform_statements(A) ::= transform_statement(B). { A = B; }
 
-transform_blk(A) ::= MATCH_KW match_mode(B) avpl(C) action_mode(D) avpl(E) SEMICOLON. {
-	A = new_transform_elem(C,E,B,D);
+transform_statement(A) ::= transform_match(Match) transform_action(Action) SEMICOLON. {
+	A = new_transform_elem(Match->avpl,Action->avpl,Match->match_mode,Action->replace_mode);
 }
 
-transform_blk(A) ::= MATCH_KW match_mode(B) avpl(C) SEMICOLON. {
-	A = new_transform_elem(C,new_avpl(""),B,AVPL_INSERT);
+transform_match(A) ::= MATCH_KW  match_mode(Mode) avpl(Avpl). {
+    A = g_malloc(sizeof(transf_match_t));
+    A->match_mode = Mode;
+    A->avpl = Avpl;
 }
 
-transform_blk(A) ::= MATCH_KW avpl(B) action_mode(C) avpl(D) SEMICOLON. {
-	A = new_transform_elem(B,D,AVPL_STRICT,C);
+transform_match(A) ::= . {
+    A = g_malloc(sizeof(transf_match_t));
+    A->match_mode = AVPL_STRICT;
+    A->avpl = new_avpl("");
+
 }
 
-transform_blk(A) ::= action_mode(B) avpl(C) SEMICOLON. {
-	A = new_transform_elem(new_avpl(""),C,AVPL_NO_MATCH,B);
+transform_action(A) ::= . {
+    A = g_malloc(sizeof(transf_action_t));
+    A->replace_mode = AVPL_INSERT;
+    A->avpl = new_avpl("");
+}
+transform_action(A) ::= action_mode(Mode) avpl(Avpl). {
+    A = g_malloc(sizeof(transf_action_t));
+    A->replace_mode = Mode;
+    A->avpl = Avpl;
 }
 
-transform_blk(A) ::= MATCH_KW avpl(B) SEMICOLON. {
-	A = new_transform_elem(B,new_avpl(""),AVPL_STRICT,AVPL_INSERT);
-}
-
+match_mode(A) ::=  . { A = AVPL_STRICT; }
 match_mode(A) ::=  STRICT_KW. { A = AVPL_STRICT; }
 match_mode(A) ::=  EVERY_KW. { A = AVPL_EVERY; }
 match_mode(A) ::=  LOOSE_KW. { A = AVPL_LOOSE; }
 
 action_mode(A) ::= REPLACE_KW. { A = AVPL_REPLACE; }
 action_mode(A) ::= INSERT_KW. { A = AVPL_INSERT; }
+action_mode(A) ::= . { A = AVPL_INSERT; }
 
 /******************************************* PDU
 */
 
-pdu_decl ::= PDU_KW NAME(NAME) PROTO_KW field(FIELD) TRANSPORT_KW proto_stack(STACK) pdu_setup(SETUP) SEMICOLON. {
-	mate_cfg_pdu* cfg  = new_pducfg(NAME);
+pdu_decl ::=
+    PDU_KW NAME(Name) PROTO_KW field(Field) TRANSPORT_KW proto_stack(Stack)
+        OPEN_BRACE
+            payload_statement(Payload)
+            extraction_statements(Extraction)
+            criteria_statement(Criteria)
+            pdu_drop_unassigned_statement(DropUnassigned)
+            discard_pdu_data_statement(DistcardPduData)
+            last_extracted_statement(LastExtracted)
+            transform_list_statement(Transform)
+        CLOSE_BRACE SEMICOLON.
+{
+    
+	mate_cfg_pdu* cfg  = new_pducfg(Name);
 	extraction_t *extraction, *next_extraction;
 	GPtrArray* transport_stack = g_ptr_array_new();
 	int i;
 	
-	if (! cfg ) configuration_error(mc,"could not create Pdu %s.",NAME);
+	if (! cfg ) configuration_error(mc,"could not create Pdu %s.",Name);
 
-	cfg->hfid_proto = FIELD->id;
+	cfg->hfid_proto = Field->id;
 
-	cfg->last_extracted = (SETUP->flags) ? SETUP->flags->last_extracted : mc->defaults.pdu.last_extracted;
-	cfg->discard = (SETUP->flags) ? SETUP->flags->discard : mc->defaults.pdu.discard;
-	cfg->drop_unassigned = (SETUP->flags) ? SETUP->flags->drop_unassigned : mc->defaults.pdu.drop_unassigned;
+	cfg->last_extracted = LastExtracted;
+	cfg->discard = DistcardPduData;
+	cfg->drop_unassigned = DropUnassigned;
 	
-	g_string_sprintfa(mc->protos_filter,"||%s",FIELD->abbrev);
+	g_string_sprintfa(mc->protos_filter,"||%s",Field->abbrev);
 
 	/* flip the transport_stack */
-	for (i = STACK->len - 1; STACK->len; i--) {
-		g_ptr_array_add(transport_stack,g_ptr_array_remove_index(STACK,i));
+	for (i = Stack->len - 1; Stack->len; i--) {
+		g_ptr_array_add(transport_stack,g_ptr_array_remove_index(Stack,i));
 	}
 	
-	g_ptr_array_free(STACK,FALSE);
+	g_ptr_array_free(Stack,FALSE);
 	
 	cfg->transport_ranges = transport_stack;
-	cfg->payload_ranges = SETUP->payload;
+	cfg->payload_ranges = Payload;
 	
-	if (SETUP->criteria) {
-		cfg->criterium = SETUP->criteria->criterium_avpl;
-		cfg->criterium_match_mode = SETUP->criteria->criterium_match_mode;
-		cfg->criterium_accept_mode = SETUP->criteria->criterium_accept_mode;
+	if (Criteria) {
+		cfg->criterium = Criteria->criterium_avpl;
+		cfg->criterium_match_mode = Criteria->criterium_match_mode;
+		cfg->criterium_accept_mode = Criteria->criterium_accept_mode;
 	}
 	
-	cfg->transforms = SETUP->transforms ? SETUP->transforms : g_ptr_array_new();
+	cfg->transforms = Transform;
 	
-	for (extraction = SETUP->extraction; extraction; extraction = next_extraction) {
+	for (extraction = Extraction; extraction; extraction = next_extraction) {
 		next_extraction = extraction->next;
 		
 		if ( ! add_hfid(extraction->hfi, extraction->as, cfg->hfids_attr) ) {
@@ -400,105 +382,23 @@ pdu_decl ::= PDU_KW NAME(NAME) PROTO_KW field(FIELD) TRANSPORT_KW proto_stack(ST
 	}
 }
 
-pdu_setup(A) ::= OPEN_BRACE pdu_statements(B) CLOSE_BRACE. { A = B; }
-
-
-pdu_statements(A) ::=  payload_statement(B) pdu_flag_statements(C) extraction_statements(D) pdu_criteria_statement(E) transform_list_statement(F). { A = do_pdu_statements(B,C,D,E,F); }
-pdu_statements(A) ::=  payload_statement(B) pdu_flag_statements(C) extraction_statements(D) pdu_criteria_statement(E). { A = do_pdu_statements(B,C,D,E,NULL); }
-pdu_statements(A) ::=  payload_statement(B) pdu_flag_statements(C) extraction_statements(D) transform_list_statement(F). { A = do_pdu_statements(B,C,D,NULL,F); }
-pdu_statements(A) ::=  payload_statement(B) pdu_flag_statements(C) extraction_statements(D). { A = do_pdu_statements(B,C,D,NULL,NULL); }
-pdu_statements(A) ::=  payload_statement(B) extraction_statements(D) pdu_criteria_statement(E) transform_list_statement(F). { A = do_pdu_statements(B,NULL,D,E,F); }
-pdu_statements(A) ::=  payload_statement(B) extraction_statements(D) pdu_criteria_statement(E). { A = do_pdu_statements(B,NULL,D,E,NULL); }
-pdu_statements(A) ::=  payload_statement(B) extraction_statements(D) transform_list_statement(F). { A = do_pdu_statements(B,NULL,D,NULL,F); }
-pdu_statements(A) ::=  payload_statement(B) extraction_statements(D). { A = do_pdu_statements(B,NULL,D,NULL,NULL); }
-pdu_statements(A) ::=  pdu_flag_statements(C) extraction_statements(D) pdu_criteria_statement(E) transform_list_statement(F).  { A = do_pdu_statements(NULL,C,D,E,F); }
-pdu_statements(A) ::=  pdu_flag_statements(C) extraction_statements(D) pdu_criteria_statement(E).  { A = do_pdu_statements(NULL,C,D,E,NULL); }
-pdu_statements(A) ::=  pdu_flag_statements(C) extraction_statements(D) transform_list_statement(F).  { A = do_pdu_statements(NULL,C,D,NULL,F); }
-pdu_statements(A) ::=  pdu_flag_statements(C) extraction_statements(D).  { A = do_pdu_statements(NULL,C,D,NULL,NULL); }
-pdu_statements(A) ::=  extraction_statements(D) pdu_criteria_statement(E) transform_list_statement(F).  { A = do_pdu_statements(NULL,NULL,D,E,F); }
-pdu_statements(A) ::=  extraction_statements(D) pdu_criteria_statement(E).  { A = do_pdu_statements(NULL,NULL,D,E,NULL); }
-pdu_statements(A) ::=  extraction_statements(D) transform_list_statement(F).  { A = do_pdu_statements(NULL,NULL,D,NULL,F); }
-pdu_statements(A) ::=  extraction_statements(D). { A = do_pdu_statements(NULL,NULL,D,NULL,NULL); }
-
-pdu_flag_statements(A) ::= drop_unassigned_statement(B) discard_pdu_data_statement(C) last_extracted_statement(D). {
-	A = g_malloc(sizeof(pdu_flags_t));
-	
-	A->drop_unassigned = B;
-	A->discard = C;
-	A->last_extracted = D;
-}
-
-pdu_flag_statements(A) ::= drop_unassigned_statement(B) discard_pdu_data_statement(C). {
-	A = g_malloc(sizeof(pdu_flags_t));
-	
-	A->drop_unassigned = B;
-	A->discard = C;
-	A->last_extracted = mc->defaults.pdu.last_extracted;
-}
-
-pdu_flag_statements(A) ::= drop_unassigned_statement(B) last_extracted_statement(D). {
-	A = g_malloc(sizeof(pdu_flags_t));
-	
-	A->drop_unassigned = B;
-	A->discard = mc->defaults.pdu.discard;
-	A->last_extracted = D;
-}
-
-pdu_flag_statements(A) ::= discard_pdu_data_statement(C) last_extracted_statement(D). {
-	A = g_malloc(sizeof(pdu_flags_t));
-	
-	A->drop_unassigned = mc->defaults.pdu.drop_unassigned;
-	A->discard = C;
-	A->last_extracted = D;
-}
-
-pdu_flag_statements(A) ::= last_extracted_statement(D). {
-	A = g_malloc(sizeof(pdu_flags_t));
-	
-	A->drop_unassigned = mc->defaults.pdu.drop_unassigned;
-	A->discard = mc->defaults.pdu.discard;
-	A->last_extracted = D;
-}
-
-pdu_flag_statements(A) ::= discard_pdu_data_statement(C). {
-	A = g_malloc(sizeof(pdu_flags_t));
-	
-	A->drop_unassigned = mc->defaults.pdu.drop_unassigned;
-	A->discard = C;
-	A->last_extracted = mc->defaults.pdu.last_extracted;
-}
-
-pdu_flag_statements(A) ::= drop_unassigned_statement(B). {
-	A = g_malloc(sizeof(pdu_flags_t));
-	
-	A->drop_unassigned = B;
-	A->discard = mc->defaults.pdu.discard;
-	A->last_extracted = mc->defaults.pdu.last_extracted;
-}
-
-
+payload_statement(A) ::= . { A = NULL; }
 payload_statement(A) ::= PAYLOAD_KW proto_stack(B) SEMICOLON. { A = B; }
 
-pdu_criteria_statement(A) ::= CRITERIA_KW accept_mode(B) match_mode(C) avpl(D) SEMICOLON. {
+criteria_statement(A) ::= . { A = NULL; }
+criteria_statement(A) ::= CRITERIA_KW accept_mode(B) match_mode(C) avpl(D) SEMICOLON. {
 	A = g_malloc(sizeof(pdu_criteria_t));
 	A->criterium_avpl = D;
 	A->criterium_match_mode = C;
 	A->criterium_accept_mode = B;
 }
 
+accept_mode(A) ::= . { A = ACCEPT_MODE; }
 accept_mode(A) ::= ACCEPT_KW. { A = ACCEPT_MODE; }
 accept_mode(A) ::= REJECT_KW. { A = REJECT_MODE; }
 
-extraction_statements(A) ::= extraction_statements(B) extraction_statement(C). {
-	A = B;
-	A->last->next = C;
-	A->last = C;
-}
-
-extraction_statements(A) ::= extraction_statement(B). {
-	A = B;
-	A->last = A;
-}
+extraction_statements(A) ::= extraction_statements(B) extraction_statement(C). { A = B; A->last = A->last->next = C; }
+extraction_statements(A) ::= extraction_statement(B). { A = B; A->last = A; }
 
 extraction_statement(A) ::= EXTRACT_KW NAME(NAME) FROM_KW field(FIELD) SEMICOLON. {
 	A = g_malloc(sizeof(extraction_t));
@@ -508,11 +408,14 @@ extraction_statement(A) ::= EXTRACT_KW NAME(NAME) FROM_KW field(FIELD) SEMICOLON
 }
 
 
-drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; } 
+pdu_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; } 
+pdu_drop_unassigned_statement(A) ::= . { A =  mc->defaults.pdu.drop_unassigned; }
 
 discard_pdu_data_statement(A) ::=  DISCARD_PDU_DATA_KW true_false(B) SEMICOLON. { A = B; }  
+discard_pdu_data_statement(A) ::=  . { A =  mc->defaults.pdu.discard; } 
 
 last_extracted_statement(A) ::= LAST_PDU_KW true_false(B) SEMICOLON. { A = B; }  
+last_extracted_statement(A) ::= . { A = mc->defaults.pdu.last_extracted; }  
 
 proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 	int* hfidp = g_malloc(sizeof(int));
@@ -538,358 +441,69 @@ field(A) ::= NAME(B). {
 	A = proto_registrar_get_byname(B);
 }
 
-
-
 /******************************************* GOP
 */
 
-gop_decl(A) ::= GOP_KW NAME(B) ON_KW pdu_name(C) MATCH_KW avpl(D) gop_setup(E) SEMICOLON. {
+gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPEN_BRACE 
+        gop_start_statement(Start)
+        gop_stop_statement(Stop)
+        extra_statement(Extra)
+        transform_list_statement(Transform)
+        gop_expiration_statement(Expiration)
+        idle_timeout_statement(IdleTimeout)
+        lifetime_statement(Lifetime)
+        gop_drop_unassigned_statement(DropUnassigned)
+        show_goptree_statement(TreeMode)
+        show_times_statement(ShowTimes)
+    CLOSE_BRACE SEMICOLON. {
 	mate_cfg_gop* cfg;
 	
-	if (g_hash_table_lookup(mc->gopcfgs,B)) configuration_error(mc,"A Gop Named '%s' exists already.",B);
-	if (g_hash_table_lookup(mc->gops_by_pduname,C) ) configuration_error(mc,"Gop for Pdu '%s' exists already",C);
+	if (g_hash_table_lookup(mc->gopcfgs,Name)) configuration_error(mc,"A Gop Named '%s' exists already.",Name);
+	if (g_hash_table_lookup(mc->gops_by_pduname,PduName) ) configuration_error(mc,"Gop for Pdu '%s' exists already",PduName);
 
-	cfg = new_gopcfg(B);
-	g_hash_table_insert(mc->gops_by_pduname,C,cfg);
+	cfg = new_gopcfg(Name);
+	g_hash_table_insert(mc->gops_by_pduname,PduName,cfg);
 	g_hash_table_insert(mc->gopcfgs,cfg->name,cfg);
-	cfg->on_pdu = C;
-
-	cfg->drop_unassigned = (E->options && E->options->tree_sts) ? E->options->tree_sts->drop_unassigned : mc->defaults.gop.drop_unassigned;
-	cfg->show_times = (E->options && E->options->tree_sts) ? E->options->tree_sts->show_times : mc->defaults.gop.show_times;
-	cfg->pdu_tree_mode = (E->options && E->options->tree_sts) ? E->options->tree_sts->pdu_tree_mode : mc->defaults.gop.pdu_tree_mode;
-	
-	cfg->expiration = (E->options && E->options->timer_sts) ? E->options->timer_sts->expiration : mc->defaults.gop.expiration;
-	cfg->idle_timeout = (E->options && E->options->timer_sts) ? E->options->timer_sts->idle_timeout : mc->defaults.gop.idle_timeout;
-	cfg->lifetime = (E->options && E->options->timer_sts) ? E->options->timer_sts->lifetime : mc->defaults.gop.lifetime;
-	
-	cfg->start = E->control ? E->control->start : NULL;
-	cfg->stop = E->control ? E->control->stop : NULL;
-	cfg->key = D;
-	
-	cfg->transforms = (E->transforms) ? E->transforms : g_ptr_array_new();
-	
-	if (E->control && E->control->extras) {
-		merge_avpl(cfg->extra,E->control->extras,TRUE);
-		delete_avpl(E->control->extras,TRUE);
-	}
-	
-	if (E->control) g_free(E->control);
-	
-	if (E->options) {
-		if (E->options->tree_sts) g_free(E->options->tree_sts);
-		if (E->options->timer_sts) g_free(E->options->timer_sts);
-		if (E->options) g_free(E->options);
-	}
-	
-	g_free(E);
+    
+	cfg->on_pdu = PduName;
+	cfg->key = Key;
+    cfg->drop_unassigned = DropUnassigned;
+    cfg->show_times = ShowTimes;
+    cfg->pdu_tree_mode = TreeMode;
+    cfg->expiration = Expiration;
+    cfg->idle_timeout = IdleTimeout;
+    cfg->lifetime = Lifetime;
+    cfg->start = Start;
+    cfg->stop = Stop;
+    cfg->transforms = Transform;
+    
+    merge_avpl(cfg->extra,Extra,TRUE);
+    delete_avpl(Extra,TRUE);
 }
 
-
-gop_decl(A) ::= GOP_KW NAME(B) ON_KW pdu_name(C) MATCH_KW avpl(D) SEMICOLON. {
-	mate_cfg_gop* cfg;
-	
-	if (g_hash_table_lookup(mc->gopcfgs,B)) configuration_error(mc,"A Gop Named '%s' exists already.",B);
-	if (g_hash_table_lookup(mc->gops_by_pduname,C) ) configuration_error(mc,"Gop for Pdu '%s' exists already",C);
-	
-	cfg = new_gopcfg(B);
-	g_hash_table_insert(mc->gops_by_pduname,C,cfg);
-	g_hash_table_insert(mc->gopcfgs,cfg->name,cfg);
-	
-	cfg->drop_unassigned =  mc->defaults.gop.drop_unassigned;
-	cfg->show_times = mc->defaults.gop.show_times;
-	cfg->pdu_tree_mode = mc->defaults.gop.pdu_tree_mode;
-	
-	cfg->expiration = mc->defaults.gop.expiration;
-	cfg->idle_timeout = mc->defaults.gop.idle_timeout;
-	cfg->lifetime = mc->defaults.gop.lifetime;
-	
-	cfg->start = NULL;
-	cfg->stop = NULL;
-	cfg->key = D;
-	
-	cfg->transforms = g_ptr_array_new();
-}
-
-gop_setup(A) ::= OPEN_BRACE gop_statements(B) CLOSE_BRACE. {
-	A = B;
-}
-
-gop_statements(A) ::= gop_control_statements(B) gop_option_statements(C) transform_list_statement(E). {
-  A = g_malloc(sizeof(gop_statement));
-  
-  A->control = B;
-  A->options = C;
-  A->transforms = E;
-}
-
-gop_statements(A) ::= gop_option_statements(C) transform_list_statement(E). {
-  A = g_malloc(sizeof(gop_statement));
-  
-  A->control = NULL;
-  A->options = C;
-  A->transforms = E;
-}
-
-gop_statements(A) ::= gop_control_statements(B) transform_list_statement(E). {
-  A = g_malloc(sizeof(gop_statement));
-  
-  A->control = B;
-  A->options = NULL;
-  A->transforms = E;
-}
-
-gop_statements(A) ::= gop_control_statements(B) gop_option_statements(C). {
-  A = g_malloc(sizeof(gop_statement));
-  
-  A->control = B;
-  A->options = C;
-  A->transforms = NULL;
-}
-
-
-gop_statements(A) ::= gop_option_statements(C). {
-  A = g_malloc(sizeof(gop_statement));
-  
-  A->control = NULL;
-  A->options = C;
-  A->transforms = NULL;
-}
-
-gop_statements(A) ::= gop_control_statements(B). {
-  A = g_malloc(sizeof(gop_statement));
-  
-  A->control = B;
-  A->options = NULL;
-  A->transforms = NULL;
-}
-
-gop_statements(A) ::= transform_list_statement(E). {
-  A = g_malloc(sizeof(gop_statement));
-  
-  A->control = NULL;
-  A->options = NULL;
-  A->transforms = E;
-}
-
-
-
-
-gop_control_statements(A) ::= gop_start_statement(B) gop_stop_statement(C) extra_statement(D).{
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->start = B;
-	A->stop = C;
-    A->extras = D;
-}
-
-
-gop_control_statements(A) ::= gop_stop_statement(C) extra_statement(D).{
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->start = NULL;
-	A->stop = C;
-    A->extras = D;
-}
-
-gop_control_statements(A) ::= gop_start_statement(B) extra_statement(D).{
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->start = B;
-	A->stop = NULL;
-    A->extras = D;
-}
-
-gop_control_statements(A) ::= gop_start_statement(B) gop_stop_statement(C).{
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->start = B;
-	A->stop = C;
-    A->extras = NULL;
-}
-
-
-gop_control_statements(A) ::= gop_start_statement(B).{
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->start = B;
-	A->stop = NULL;
-    A->extras = NULL;
-}
-
-gop_control_statements(A) ::= gop_stop_statement(C).{
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->start = NULL;
-	A->stop = C;
-    A->extras = NULL;
-}
-
-gop_control_statements(A) ::= extra_statement(D). {
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->start = NULL;
-	A->stop = NULL;
-    A->extras = D;
-}
-
-
-
-
-gop_option_statements(A) ::= gop_timer_statements(B) gop_tree_statements(C). {
-	A = g_malloc(sizeof(gop_control_statement));
-	
-	A->timer_sts = B;
-	A->tree_sts = C;
-}
-
-gop_option_statements(A) ::= gop_timer_statements(B). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->timer_sts = B;
-	A->tree_sts = NULL;
-
-}
-
-gop_option_statements(A) ::= gop_tree_statements(C). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->tree_sts = C;
-	A->timer_sts =  NULL;
-
-}
-
-
-
-gop_timer_statements(A) ::= expiration_statement(B) idle_timeout_statement(C) lifetime_statement(D).  {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->expiration = B;
-	A->idle_timeout = C;
-	A->lifetime = D;
-}
-
-
-gop_timer_statements(A) ::= expiration_statement(B) idle_timeout_statement(C). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->expiration = B;
-	A->idle_timeout = C;
-	A->lifetime = mc->defaults.gop.lifetime;
-}
-
-gop_timer_statements(A) ::= expiration_statement(B) lifetime_statement(D). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->expiration = B;
-	A->idle_timeout = mc->defaults.gop.lifetime;
-	A->lifetime = D;
-}
-
-gop_timer_statements(A) ::= idle_timeout_statement(C) lifetime_statement(D). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->expiration = mc->defaults.gop.lifetime;
-	A->idle_timeout = C;
-	A->lifetime = D;
-}
-
-gop_timer_statements(A) ::= expiration_statement(B). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->expiration = B;
-	A->idle_timeout = mc->defaults.gop.lifetime;
-	A->lifetime = mc->defaults.gop.lifetime;
-}
-
-gop_timer_statements(A) ::= idle_timeout_statement(C). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->expiration = mc->defaults.gop.lifetime;
-	A->idle_timeout = C;
-	A->lifetime = mc->defaults.gop.lifetime;
-}
-
-gop_timer_statements(A) ::= lifetime_statement(D). {
-	A = g_malloc(sizeof(gop_timer_statement));
-	
-	A->expiration = mc->defaults.gop.lifetime;
-	A->idle_timeout = mc->defaults.gop.lifetime;
-	A->lifetime = D;
-}
-
-
-
-
-gop_tree_statements(A) ::= drop_unassigned_statement(B) show_goptree_statement(C) show_times_statement(D). {
-	A = g_malloc(sizeof(gop_tree_statement));
-	
-	A->drop_unassigned = B;
-	A->pdu_tree_mode = C;
-	A->show_times = D;
-}
-
-gop_tree_statements(A) ::= drop_unassigned_statement(B) show_goptree_statement(C). {
-	A = g_malloc(sizeof(gop_tree_statement));
-	
-	A->drop_unassigned = B;
-	A->pdu_tree_mode = C;
-	A->show_times = mc->defaults.gop.show_times;
-}
-
-gop_tree_statements(A) ::= drop_unassigned_statement(B) show_times_statement(D). {
-	A = g_malloc(sizeof(gop_tree_statement));
-	
-	A->drop_unassigned = B;
-	A->pdu_tree_mode = mc->defaults.gop.pdu_tree_mode;
-	A->show_times = D;
-}
-
-gop_tree_statements(A) ::= show_goptree_statement(C) show_times_statement(D). {
-	A = g_malloc(sizeof(gop_tree_statement));
-	
-	A->drop_unassigned = mc->defaults.gop.drop_unassigned;
-	A->pdu_tree_mode = C;
-	A->show_times = D;
-}
-
-gop_tree_statements(A) ::= drop_unassigned_statement(B). {
-	A = g_malloc(sizeof(gop_tree_statement));
-	
-	A->drop_unassigned = B;
-	A->pdu_tree_mode = mc->defaults.gop.pdu_tree_mode;
-	A->show_times = mc->defaults.gop.show_times;
-}
-
-gop_tree_statements(A) ::= show_goptree_statement(C).  {
-	A = g_malloc(sizeof(gop_tree_statement));
-	
-	A->drop_unassigned = mc->defaults.gop.drop_unassigned;
-	A->pdu_tree_mode = C;
-	A->show_times = mc->defaults.gop.show_times;
-}
-
-gop_tree_statements(A) ::= show_times_statement(D). {
-	A = g_malloc(sizeof(gop_tree_statement));
-	
-	A->drop_unassigned = mc->defaults.gop.drop_unassigned;
-	A->pdu_tree_mode = mc->defaults.gop.pdu_tree_mode;
-	A->show_times = D;
-}
-
+gop_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; } 
+gop_drop_unassigned_statement(A) ::= . { A =  mc->defaults.gop.drop_unassigned; }
 
 gop_start_statement(A) ::= START_KW avpl(B) SEMICOLON. { A = B; }
+gop_start_statement(A) ::= . { A = NULL; }
 
 gop_stop_statement(A) ::= STOP_KW avpl(B) SEMICOLON. { A = B; }
+gop_stop_statement(A) ::= . { A = NULL; }
 
 show_goptree_statement(A) ::= SHOW_TREE_KW gop_tree_mode(B) SEMICOLON. { A = B; }
+show_goptree_statement(A) ::= . { A = mc->defaults.gop.pdu_tree_mode; }
 
 show_times_statement(A) ::= SHOW_TIMES_KW true_false(B) SEMICOLON. { A = B; }
+show_times_statement(A) ::= . { A = mc->defaults.gop.show_times; }
 
-expiration_statement(A) ::= EXPIRATION_KW time_value(B) SEMICOLON. { A = B; }
+gop_expiration_statement(A) ::= EXPIRATION_KW time_value(B) SEMICOLON. { A = B; }
+gop_expiration_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
 
 idle_timeout_statement(A) ::= IDLE_TIMEOUT_KW time_value(B) SEMICOLON. { A = B; }
+idle_timeout_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
 
 lifetime_statement(A) ::= LIFETIME_KW time_value(B) SEMICOLON. { A = B; }
+lifetime_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
 
 gop_tree_mode(A) ::= NO_TREE_KW.    { A = GOP_NO_TREE; }
 gop_tree_mode(A) ::= PDU_TREE_KW.   { A = GOP_PDU_TREE; }
@@ -920,196 +534,39 @@ time_value(A) ::= INTEGER(B). {
 /************* GOG
 */
 
-gog_decl ::= GOG_KW NAME(A) OPEN_BRACE gog_statements(B) CLOSE_BRACE SEMICOLON. {
+gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE 
+    gog_key_statements(Keys)
+    extra_statement(Extra)
+    transform_list_statement(Transforms)
+    gog_expiration_statement(Expiration)
+    gog_goptree_statement(Tree)
+ CLOSE_BRACE SEMICOLON. {
 	mate_cfg_gog* cfg = NULL;
 	
-	if ( g_hash_table_lookup(mc->gogcfgs,A) ) {
-		configuration_error(mc,"Gog '%s' exists already ",A);
+	if ( g_hash_table_lookup(mc->gogcfgs,Name) ) {
+		configuration_error(mc,"Gog '%s' exists already ",Name);
 	}
 	
-	cfg = new_gogcfg(A);
+	cfg = new_gogcfg(Name);
 
-	cfg->expiration = B->expiration;
-	cfg->gop_tree_mode = B->gop_tree_mode;
-	cfg->transforms = B->transform_list ? B->transform_list : g_ptr_array_new();
-	cfg->keys = B->current_gogkeys;
+	cfg->expiration = Expiration;
+	cfg->gop_tree_mode = Tree;
+	cfg->transforms = Transforms;
+	cfg->keys = Keys;
 	
-	if (B->extras) {
-		merge_avpl(cfg->extra,B->extras,TRUE);
-		delete_avpl(B->extras,TRUE);
-	}
-	
-	g_free(B);
-}
-
-gog_statements(A) ::= expiration_statement(B) gog_goptree_statement(C) gog_key_statements(D) extra_statement(E) transform_list_statement(F). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = F;
-}
-
-gog_statements(A) ::= expiration_statement(B) gog_goptree_statement(C) gog_key_statements(D) transform_list_statement(F). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = F;
-}
-
-gog_statements(A) ::= expiration_statement(B) gog_key_statements(D) extra_statement(E) transform_list_statement(F). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = F;
-}
-
-gog_statements(A) ::= expiration_statement(B) gog_key_statements(D) transform_list_statement(F). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = F;
-}
-
-gog_statements(A) ::= gog_goptree_statement(C) gog_key_statements(D) extra_statement(E) transform_list_statement(F).  {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = F;
-}
-
-gog_statements(A) ::= gog_goptree_statement(C) gog_key_statements(D) transform_list_statement(F).  {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = F;
-}
-
-gog_statements(A) ::= gog_key_statements(D) extra_statement(E) transform_list_statement(F). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = F;
-}
-
-gog_statements(A) ::= gog_key_statements(D) transform_list_statement(F). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = F;
-}
-
-
-gog_statements(A) ::= expiration_statement(B) gog_goptree_statement(C) gog_key_statements(D) extra_statement(E). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = NULL;
-}
-
-gog_statements(A) ::= expiration_statement(B) gog_goptree_statement(C) gog_key_statements(D). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = NULL;
-}
-
-gog_statements(A) ::= expiration_statement(B) gog_key_statements(D) extra_statement(E).  {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = NULL;
-}
-
-gog_statements(A) ::= expiration_statement(B) gog_key_statements(D). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = B;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = NULL;
-}
-
-
-gog_statements(A) ::= gog_goptree_statement(C) gog_key_statements(D) extra_statement(E).  {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = NULL;
-}
-
-gog_statements(A) ::= gog_goptree_statement(C) gog_key_statements(D). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = C;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = NULL;
-}
-
-gog_statements(A) ::= gog_key_statements(D) extra_statement(E).  {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = E;
-	A->transform_list = NULL;
-}
-
-gog_statements(A) ::= gog_key_statements(D). {
-	A = g_malloc(sizeof(gog_statement_t));
-	
-	A->expiration = mc->defaults.gog.expiration;
-	A->gop_tree_mode = mc->defaults.gog.gop_tree_mode;
-	A->current_gogkeys = D;
-	A->extras = new_avpl("");
-	A->transform_list = NULL;
+    merge_avpl(cfg->extra,Extra,TRUE);
+    delete_avpl(Extra,TRUE);
 }
 
 gog_goptree_statement(A) ::= GOP_TREE_KW gop_tree_type(B) SEMICOLON. { A = B; }
+gog_goptree_statement(A) ::= . { A = mc->defaults.gog.gop_tree_mode; }
 
-gop_tree_type(A) ::= NULL_TREE. { A = GOP_NULL_TREE; }
-gop_tree_type(A) ::= FULL_TREE. { A = GOP_FULL_TREE; }
-gop_tree_type(A) ::= BASIC_TREE. { A = GOP_BASIC_TREE; }
+gog_expiration_statement(A) ::= EXPIRATION_KW time_value(B) SEMICOLON. { A = B; }
+gog_expiration_statement(A) ::= . { A = mc->defaults.gog.expiration; }
 
+gop_tree_type(A) ::= NULL_TREE_KW. { A = GOP_NULL_TREE; }
+gop_tree_type(A) ::= FULL_TREE_KW. { A = GOP_FULL_TREE; }
+gop_tree_type(A) ::= BASIC_TREE_KW. { A = GOP_BASIC_TREE; }
 
 gog_key_statements(A) ::= gog_key_statements(B) gog_key_statement(C). {
 	loal_append(B,C);
@@ -1140,8 +597,10 @@ gop_name(A) ::= NAME(B). {
 
 
 extra_statement(A) ::= EXTRA_KW avpl(B) SEMICOLON. { A = B; }
+extra_statement(A) ::= . { A = new_avpl(""); }
 
 transform_list_statement(A) ::= TRANSFORM_KW transform_list(B) SEMICOLON. { A = B; }
+transform_list_statement(A) ::= . { A = g_ptr_array_new(); }
 
 transform_list(A) ::= transform_list(B) COMMA transform(C). { 
 	A = B;
