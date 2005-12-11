@@ -10611,104 +10611,87 @@ dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 /* this dissects the SMB_QUERY_FILE_ALL_INFO
-   as described in 4.2.16.8
+   but not as described in 4.2.16.8 since CNIA spec is wrong 
 */
 static int
 dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
+	smb_info_t *si;
+	guint32 fn_len;
+	const char *fn;
 
-	offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp, trunc);
+	si = (smb_info_t *)pinfo->private_data;
+
+	DISSECTOR_ASSERT(si);
+
+	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
-		return offset;
+	  return offset;
 	}
 
-	/* 4 pad bytes */
-	offset+=4;
-
-	offset = dissect_qfi_SMB_FILE_STANDARD_INFO(tvb, pinfo, tree, offset, bcp, trunc);
-	if (*trunc) {
-		return offset;
-	}
-
-	/* 2 pad bytes */
-	offset+=2;
-
-	/* index number */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	offset = dissect_qfi_SMB_FILE_EA_INFO(tvb, pinfo, tree, offset, bcp, trunc);
-	if (*trunc)
-		return offset;
-
-	/* access flags */
+	/* File Attributes */
 	CHECK_BYTE_COUNT_SUBR(4);
-	offset = dissect_smb_access_mask(tvb, tree, offset);
-	COUNT_BYTES_SUBR(4);
-
-	/* index number */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* current offset */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_current_offset, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* mode */
-	CHECK_BYTE_COUNT_SUBR(4);
-	offset = dissect_nt_create_options(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 4);
 	*bcp -= 4;
 
-	/* alignment */
-	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_t2_alignment, tvb, offset, 4, TRUE);
-	COUNT_BYTES_SUBR(4);
-
-	offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp, trunc);
-
-	return offset;
-}
-
-/* This dissects the SMB_QUERY_FILE_ALL_INFO
-   BUT NOT as described in 4.2.16.8.
-   All SMB_QUERY_FILE_ALL_INFO packets I captured were only correctly
-   decoded using this function. As you can see, this is very different
-   from function dissect_qfi_SMB_FILE_ALL_INFO() which implements the documented
-   format.
-   XXX I don't know which one we should use. Does someone have
-   a valid decoding with dissect_qfi_SMB_FILE_ALL_INFO() ?
-*/
-static int
-dissect_qfi_SMB_FILE_ALL_INFO_unsure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, guint16 *bcp, gboolean *trunc)
-{
-
-	offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp, trunc);
-	if (*trunc) {
-		return offset;
-	}
-
 	/* 4 pad bytes */
 	offset+=4;
+	*bcp -= 4;
 
-	offset = dissect_qfi_SMB_FILE_STANDARD_INFO(tvb, pinfo, tree, offset, bcp, trunc);
-	if (*trunc) {
-		return offset;
-	}
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* end of file */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* number of links */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_number_of_links, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* delete pending */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+
+	/* is directory */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
 
 	/* 2 pad bytes */
 	offset+=2;
+	*bcp -= 2;
 
-	offset = dissect_qfi_SMB_FILE_EA_INFO(tvb, pinfo, tree, offset, bcp, trunc);
-	if (*trunc) {
-		return offset;
+	/* ea length */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	fn_len = (guint32)tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+	COUNT_BYTES_SUBR(4);
+
+
+	/* file name */
+	CHECK_BYTE_COUNT_SUBR(fn_len);
+	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, bcp);
+	if (fn != NULL) {
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_SUBR(fn_len);
 	}
 
-	offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp, trunc);
+
+	if (*trunc)
+		return offset;
 
 	return offset;
 }
@@ -11198,14 +11181,8 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x0107:	/*Query File All Info*/
 	case 1018:	/* SMB_FILE_ALL_INFORMATION */
-#if 1
 		offset = dissect_qfi_SMB_FILE_ALL_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
-#else
-		/* see comments before function definition */
-		offset = dissect_qfi_SMB_FILE_ALL_INFO_unsure(tvb, pinfo, tree, offset, bcp,
-		    &trunc);
-#endif
 		break;
 	case 1019:	/* SMB_FILE_ALLOCATION_INFORMATION */
 		offset = dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, bcp,
