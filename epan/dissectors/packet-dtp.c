@@ -51,18 +51,19 @@ static gint ett_dtp_tlv = -1;
 static void dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree, proto_item *ti, guint8 type);
 
 
-#define	TRUNK_NAME_NUM		0x01
-#define	TYPE_2_NUM		0x02
-#define	TYPE_3_NUM		0x03
-#define	SOMEMAC_NUM		    0x04
+#define	TYPE_DOMAIN		0x01
+#define	TYPE_STATUS		0x02
+#define	TYPE_DTPTYPE		0x03
+#define	TYPE_NEIGHBOR		0x04
 
 
 static const value_string dtp_tlv_type_vals[] = {
-	{ TRUNK_NAME_NUM, "Trunk Name" },
-	{ TYPE_2_NUM, "Type 2" },
-	{ TYPE_3_NUM, "Type 3" },
-	{ SOMEMAC_NUM,  "Some MAC" },
-	{ 0,                NULL }
+	{ TYPE_DOMAIN,		"Domain" },
+	{ TYPE_STATUS,		"Status" },
+	{ TYPE_DTPTYPE,		"Type" },
+	{ TYPE_NEIGHBOR, 	"Neighbor" },
+
+	{ 0,			NULL }
 };
 
 
@@ -124,66 +125,66 @@ dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
 {
 	switch (type) {
 
-	case TRUNK_NAME_NUM:
+	case TYPE_DOMAIN:
 		if (length > 0) {
-			proto_item_set_text(ti, "Trunk Name: %s", tvb_format_text(tvb, offset, length - 1));
-			proto_tree_add_text(tree, tvb, offset, length, "Trunk Name: %s", tvb_format_text(tvb, offset, length - 1));
+			proto_item_set_text(ti, "Domain: %s", tvb_format_text(tvb, offset, length - 1));
+			proto_tree_add_text(tree, tvb, offset, length, "Domain: %s", tvb_format_text(tvb, offset, length - 1));
 		} else {
-			proto_item_set_text(ti, "Trunk Name: Bad length %u", length);
-			proto_tree_add_text(tree, tvb, offset, length, "Trunk Name: Bad length %u", length);
+			proto_item_set_text(ti, "Domain: Bad length %u", length);
+			proto_tree_add_text(tree, tvb, offset, length, "Domain: Bad length %u", length);
 		}
 		break;
 
-	case TYPE_2_NUM:
+	case TYPE_STATUS:
 		if (length > 0) {
 			proto_item_set_text(ti,
-			    "Type 2: 0x%02x",
+			    "Status: 0x%02x",
 			    tvb_get_guint8(tvb, offset));
 			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Type 2: 0x%02x",
+			    "Status: 0x%02x",
 			    tvb_get_guint8(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
-			    "Type 2: Bad length %u",
+			    "Status: Bad length %u",
 			    length);
 			proto_tree_add_text(tree, tvb, offset, length,
-			    "Type 2: Bad length %u",
+			    "Status: Bad length %u",
 			    length);
 		}
 		break;
 
-	case TYPE_3_NUM:
+	case TYPE_DTPTYPE:
 		if (length > 0) {
 			proto_item_set_text(ti,
-			    "Type 3: 0x%02x",
+			    "Dtptype: 0x%02x",
 			    tvb_get_guint8(tvb, offset));
 			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Type 3: 0x%02x",
+			    "Dtptype: 0x%02x",
 			    tvb_get_guint8(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
-			    "Type 3: Bad length %u",
+			    "Dtptype: Bad length %u",
 			    length);
 			proto_tree_add_text(tree, tvb, offset, length,
-			    "Type 3: Bad length %u",
+			    "Dtptype: Bad length %u",
 			    length);
 		}
 		break;
 
 
-	case SOMEMAC_NUM:
+	case TYPE_NEIGHBOR:
 		if (length == 6) {
 	                const guint8 *macptr=tvb_get_ptr(tvb,offset,length);
 
-			proto_item_set_text(ti, "Some MAC: %s",
+			proto_item_set_text(ti, "Neighbor: %s",
 				ether_to_str(macptr));	/* XXX - resolve? */
             		proto_tree_add_ether(tree, hf_dtp_some_mac, tvb, offset,length,macptr);
 		} else {
 			proto_item_set_text(ti,
-			    "Some MAC: Bad length %u",
+			    "Neighbor: Bad length %u",
 			    length);
 			proto_tree_add_text(tree, tvb, offset, length,
-			    "Some MAC: Bad length %u",
+			    "Neighbor: Bad length %u",
 			    length);
 		}
 		break;
@@ -211,8 +212,8 @@ proto_register_dtp(void)
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_dtp_some_mac,
-		{ "Some MAC", "vtp.some_mac", FT_ETHER, BASE_NONE, 
-		NULL, 0x0, "MAC Address of something", HFILL }},
+		{ "Neighbor", "vtp.neighbor", FT_ETHER, BASE_NONE, 
+		NULL, 0x0, "MAC Address of neighbor", HFILL }},
 
         };
 
