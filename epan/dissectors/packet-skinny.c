@@ -1188,7 +1188,8 @@ static guint get_skinny_pdu_len(tvbuff_t *tvb, int offset)
 }
 
 /* Dissect a single SCCP PDU */
-static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset = 0;
 
@@ -2546,7 +2547,8 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 /* Code to actually dissect the packets */
-static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
    * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
