@@ -183,7 +183,7 @@ extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where)
 	}
 
 	if (! exists) {
-		report_error("MATE Error: cannot find field %s",hfi->abbrev);
+		report_error("MATE Error: cannot find field for attribute %s",how);
 	}	
 	return exists;
 }
