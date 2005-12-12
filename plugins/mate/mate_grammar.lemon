@@ -245,15 +245,16 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 %type avp_oneoff { gchar* }
 
 
-mate_config ::= decls DONE_KW SEMICOLON.
+mate_config ::= decls.
 
 decls ::= decls decl.
-decls ::= decl.
+decls ::= .
 
 decl ::= pdu_decl.
 decl ::= gop_decl.
 decl ::= gog_decl.
 decl ::= transform_decl.
+decl ::= DONE_KW SEMICOLON.
 
 /******************************************* TRANSFORM
 */
@@ -330,11 +331,11 @@ pdu_decl ::=
         OPEN_BRACE
             payload_statement(Payload)
             extraction_statements(Extraction)
+            transform_list_statement(Transform)
             criteria_statement(Criteria)
             pdu_drop_unassigned_statement(DropUnassigned)
             discard_pdu_data_statement(DistcardPduData)
             last_extracted_statement(LastExtracted)
-            transform_list_statement(Transform)
         CLOSE_BRACE SEMICOLON.
 {
     
