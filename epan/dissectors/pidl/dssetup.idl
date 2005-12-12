@@ -1,5 +1,7 @@
 #include "idl_types.h"
 
+#define unistr	[string] wchar_t *
+
 /*
   dssetup interface definition
 */
