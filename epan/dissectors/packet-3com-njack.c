@@ -26,10 +26,11 @@
 
 /*
   TODO:
-  - Are heuristic and static wrappers done right?
   - Find out lots more values :-)
   - Create common code for set and get response tlv decoding
   - Support for other 3com devices that use the same protocol
+  - Do any devices use TCP or different ports?
+  - Sanity checks for tlv_length depending on tlv_type
 
 Specs:
 	No specs available. All knowledge gained by looking at traffic dumps
@@ -50,7 +51,6 @@ Specs:
 #include <epan/packet.h>
 
 /* protocol handles */
-static dissector_handle_t data_handle;
 static int proto_njack = -1;
 
 /* ett handles */
@@ -167,7 +167,7 @@ static const true_false_string tfs_yes_no = {
 	"No"
 };
 
-static void
+static int
 dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -356,6 +356,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return offset;
 }
 
 static gboolean
@@ -379,15 +380,13 @@ dissect_njack_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return TRUE;
 }
 
-static void
+static int
 dissect_njack_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if ( !test_njack(tvb) ) {
-		call_dissector(data_handle,tvb, pinfo, tree);
-		return;
+		return 0;
 	}
-	dissect_njack(tvb, pinfo, tree);
-	return;
+	return dissect_njack(tvb, pinfo, tree);
 }
 
 void
@@ -500,13 +499,12 @@ proto_reg_handoff_njack(void)
 {
 	dissector_handle_t njack_handle;
 
-	data_handle = find_dissector("data");
-	njack_handle = create_dissector_handle(dissect_njack_static, proto_njack);
+	njack_handle = new_create_dissector_handle(dissect_njack_static, proto_njack);
 	dissector_add("udp.port", PORT_NJACK1, njack_handle);
-	dissector_add("tcp.port", PORT_NJACK1, njack_handle);
+	/* dissector_add("tcp.port", PORT_NJACK1, njack_handle); */
 	dissector_add("udp.port", PORT_NJACK2, njack_handle);
-	dissector_add("tcp.port", PORT_NJACK2, njack_handle);
+	/* dissector_add("tcp.port", PORT_NJACK2, njack_handle); */
 
         heur_dissector_add("udp", dissect_njack_heur, proto_njack);
-        heur_dissector_add("tcp", dissect_njack_heur, proto_njack);
+        /* heur_dissector_add("tcp", dissect_njack_heur, proto_njack); */
 }
