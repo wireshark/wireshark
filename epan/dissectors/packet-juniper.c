@@ -105,6 +105,256 @@ static const value_string juniper_l2hdr_presence_vals[] = {
     {0,                    NULL}
 };
 
+#define JUNIPER_IFML_ETHER              1
+#define JUNIPER_IFML_FDDI               2
+#define JUNIPER_IFML_TOKENRING          3
+#define JUNIPER_IFML_PPP                4
+#define JUNIPER_IFML_FRAMERELAY         5
+#define JUNIPER_IFML_CISCOHDLC          6
+#define JUNIPER_IFML_SMDSDXI            7
+#define JUNIPER_IFML_ATMPVC             8
+#define JUNIPER_IFML_PPP_CCC            9
+#define JUNIPER_IFML_FRAMERELAY_CCC     10
+#define JUNIPER_IFML_IPIP               11
+#define JUNIPER_IFML_GRE                12
+#define JUNIPER_IFML_PIM                13
+#define JUNIPER_IFML_PIMD               14
+#define JUNIPER_IFML_CISCOHDLC_CCC      15
+#define JUNIPER_IFML_VLAN_CCC           16
+#define JUNIPER_IFML_MLPPP              17
+#define JUNIPER_IFML_MLFR               18
+#define JUNIPER_IFML_ML                 19
+#define JUNIPER_IFML_LSI                20
+#define JUNIPER_IFML_DFE                21
+#define JUNIPER_IFML_ATM_CELLRELAY_CCC  22
+#define JUNIPER_IFML_CRYPTO             23
+#define JUNIPER_IFML_GGSN               24
+#define JUNIPER_IFML_LSI_PPP            25
+#define JUNIPER_IFML_LSI_CISCOHDLC      26
+#define JUNIPER_IFML_PPP_TCC            27
+#define JUNIPER_IFML_FRAMERELAY_TCC     28
+#define JUNIPER_IFML_CISCOHDLC_TCC      29
+#define JUNIPER_IFML_ETHERNET_CCC       30
+#define JUNIPER_IFML_VT                 31
+#define JUNIPER_IFML_EXTENDED_VLAN_CCC  32
+#define JUNIPER_IFML_ETHER_OVER_ATM     33
+#define JUNIPER_IFML_MONITOR            34
+#define JUNIPER_IFML_ETHERNET_TCC       35
+#define JUNIPER_IFML_VLAN_TCC           36
+#define JUNIPER_IFML_EXTENDED_VLAN_TCC  37
+#define JUNIPER_IFML_CONTROLLER         38
+#define JUNIPER_IFML_MFR                39
+#define JUNIPER_IFML_LS                 40
+#define JUNIPER_IFML_ETHERNET_VPLS      41
+#define JUNIPER_IFML_ETHERNET_VLAN_VPLS 42
+#define JUNIPER_IFML_ETHERNET_EXTENDED_VLAN_VPLS 43
+#define JUNIPER_IFML_LT                 44
+#define JUNIPER_IFML_SERVICES           45
+#define JUNIPER_IFML_ETHER_VPLS_OVER_ATM 46
+#define JUNIPER_IFML_FR_PORT_CCC        47
+#define JUNIPER_IFML_FRAMERELAY_EXT_CCC 48
+#define JUNIPER_IFML_FRAMERELAY_EXT_TCC 49
+#define JUNIPER_IFML_FRAMERELAY_FLEX    50
+#define JUNIPER_IFML_GGSNI              51
+#define JUNIPER_IFML_ETHERNET_FLEX      52
+#define JUNIPER_IFML_COLLECTOR          53
+#define JUNIPER_IFML_AGGREGATOR         54
+#define JUNIPER_IFML_LAPD               55
+#define JUNIPER_IFML_PPPOE              56
+#define JUNIPER_IFML_PPP_SUBORDINATE    57
+#define JUNIPER_IFML_CISCOHDLC_SUBORDINATE  58
+#define JUNIPER_IFML_DFC                59
+#define JUNIPER_IFML_PICPEER            60
+
+static const value_string juniper_ifmt_vals[] = {
+    { JUNIPER_IFML_ETHER, "Ethernet" },
+    { JUNIPER_IFML_FDDI, "FDDI" },
+    { JUNIPER_IFML_TOKENRING, "Token-Ring" },
+    { JUNIPER_IFML_PPP, "PPP" },
+    { JUNIPER_IFML_PPP_SUBORDINATE, "PPP-Subordinate" },
+    { JUNIPER_IFML_FRAMERELAY, "Frame-Relay" },
+    { JUNIPER_IFML_CISCOHDLC, "Cisco-HDLC" },
+    { JUNIPER_IFML_SMDSDXI, "SMDS-DXI" },
+    { JUNIPER_IFML_ATMPVC, "ATM-PVC" },
+    { JUNIPER_IFML_PPP_CCC, "PPP-CCC" },
+    { JUNIPER_IFML_FRAMERELAY_CCC, "Frame-Relay-CCC" },
+    { JUNIPER_IFML_FRAMERELAY_EXT_CCC, "Extended FR-CCC" },
+    { JUNIPER_IFML_IPIP, "IP-over-IP" },
+    { JUNIPER_IFML_GRE, "GRE" },
+    { JUNIPER_IFML_PIM, "PIM-Encapsulator" },
+    { JUNIPER_IFML_PIMD, "PIM-Decapsulator" },
+    { JUNIPER_IFML_CISCOHDLC_CCC, "Cisco-HDLC-CCC" },
+    { JUNIPER_IFML_VLAN_CCC, "VLAN-CCC" },
+    { JUNIPER_IFML_EXTENDED_VLAN_CCC, "Extended-VLAN-CCC" },
+    { JUNIPER_IFML_MLPPP, "Multilink-PPP" },
+    { JUNIPER_IFML_MLFR, "Multilink-FR" },
+    { JUNIPER_IFML_MFR, "Multilink-FR-UNI-NNI" },
+    { JUNIPER_IFML_ML, "Multilink" },
+    { JUNIPER_IFML_LS, "LinkService" },
+    { JUNIPER_IFML_LSI, "LSI" },
+    { JUNIPER_IFML_ATM_CELLRELAY_CCC, "ATM-CCC-Cell-Relay" },
+    { JUNIPER_IFML_CRYPTO, "IPSEC-over-IP" },
+    { JUNIPER_IFML_GGSN, "GGSN" },
+    { JUNIPER_IFML_PPP_TCC, "PPP-TCC" },
+    { JUNIPER_IFML_FRAMERELAY_TCC, "Frame-Relay-TCC" },
+    { JUNIPER_IFML_FRAMERELAY_EXT_TCC, "Extended FR-TCC" },
+    { JUNIPER_IFML_CISCOHDLC_TCC, "Cisco-HDLC-TCC" },
+    { JUNIPER_IFML_ETHERNET_CCC, "Ethernet-CCC" },
+    { JUNIPER_IFML_VT, "VPN-Loopback-tunnel" },
+    { JUNIPER_IFML_ETHER_OVER_ATM, "Ethernet-over-ATM" },
+    { JUNIPER_IFML_ETHER_VPLS_OVER_ATM, "Ethernet-VPLS-over-ATM" },
+    { JUNIPER_IFML_MONITOR, "Monitor" },
+    { JUNIPER_IFML_ETHERNET_TCC, "Ethernet-TCC" },
+    { JUNIPER_IFML_VLAN_TCC, "VLAN-TCC" },
+    { JUNIPER_IFML_EXTENDED_VLAN_TCC, "Extended-VLAN-TCC" },
+    { JUNIPER_IFML_CONTROLLER, "Controller" },
+    { JUNIPER_IFML_ETHERNET_VPLS, "VPLS" },
+    { JUNIPER_IFML_ETHERNET_VLAN_VPLS, "VLAN-VPLS" },
+    { JUNIPER_IFML_ETHERNET_EXTENDED_VLAN_VPLS, "Extended-VLAN-VPLS" },
+    { JUNIPER_IFML_LT, "Logical-tunnel" },
+    { JUNIPER_IFML_SERVICES, "General-Services" },
+    { JUNIPER_IFML_PPPOE, "PPPoE" },
+    { JUNIPER_IFML_ETHERNET_FLEX, "Flexible-Ethernet-Services" },
+    { JUNIPER_IFML_FRAMERELAY_FLEX, "Flexible-FrameRelay" },
+    { JUNIPER_IFML_COLLECTOR, "Flow-collection" },
+    { JUNIPER_IFML_PICPEER, "PIC Peer" },
+    { JUNIPER_IFML_DFC, "Dynamic-Flow-Capture" },
+    {0,                    NULL}
+};
+
+#define JUNIPER_IFLE_ATM_SNAP           2
+#define JUNIPER_IFLE_ATM_NLPID          3
+#define JUNIPER_IFLE_ATM_VCMUX          4
+#define JUNIPER_IFLE_ATM_LLC            5
+#define JUNIPER_IFLE_ATM_PPP_VCMUX      6
+#define JUNIPER_IFLE_ATM_PPP_LLC        7
+#define JUNIPER_IFLE_ATM_PPP_FUNI       8
+#define JUNIPER_IFLE_ATM_CCC            9
+#define JUNIPER_IFLE_FR_NLPID           10
+#define JUNIPER_IFLE_FR_SNAP            11
+#define JUNIPER_IFLE_FR_PPP             12
+#define JUNIPER_IFLE_FR_CCC             13
+#define JUNIPER_IFLE_ENET2              14
+#define JUNIPER_IFLE_IEEE8023_SNAP      15
+#define JUNIPER_IFLE_IEEE8023_LLC       16
+#define JUNIPER_IFLE_PPP                17
+#define JUNIPER_IFLE_CISCOHDLC          18
+#define JUNIPER_IFLE_PPP_CCC            19
+#define JUNIPER_IFLE_IPIP_NULL          20
+#define JUNIPER_IFLE_PIM_NULL           21
+#define JUNIPER_IFLE_GRE_NULL           22
+#define JUNIPER_IFLE_GRE_PPP            23
+#define JUNIPER_IFLE_PIMD_DECAPS        24
+#define JUNIPER_IFLE_CISCOHDLC_CCC      25
+#define JUNIPER_IFLE_ATM_CISCO_NLPID    26
+#define JUNIPER_IFLE_VLAN_CCC           27
+#define JUNIPER_IFLE_MLPPP              28
+#define JUNIPER_IFLE_MLFR               29
+#define JUNIPER_IFLE_LSI_NULL           30
+#define JUNIPER_IFLE_AGGREGATE_UNUSED   31
+#define JUNIPER_IFLE_ATM_CELLRELAY_CCC  32
+#define JUNIPER_IFLE_CRYPTO             33
+#define JUNIPER_IFLE_GGSN               34
+#define JUNIPER_IFLE_ATM_TCC            35
+#define JUNIPER_IFLE_FR_TCC             36
+#define JUNIPER_IFLE_PPP_TCC            37
+#define JUNIPER_IFLE_CISCOHDLC_TCC      38
+#define JUNIPER_IFLE_ETHERNET_CCC       39
+#define JUNIPER_IFLE_VT                 40
+#define JUNIPER_IFLE_ATM_EOA_LLC        41
+#define JUNIPER_IFLE_EXTENDED_VLAN_CCC          42
+#define JUNIPER_IFLE_ATM_SNAP_TCC       43
+#define JUNIPER_IFLE_MONITOR            44
+#define JUNIPER_IFLE_ETHERNET_TCC       45
+#define JUNIPER_IFLE_VLAN_TCC           46
+#define JUNIPER_IFLE_EXTENDED_VLAN_TCC  47
+#define JUNIPER_IFLE_MFR                48
+#define JUNIPER_IFLE_ETHERNET_VPLS      49
+#define JUNIPER_IFLE_ETHERNET_VLAN_VPLS 50
+#define JUNIPER_IFLE_ETHERNET_EXTENDED_VLAN_VPLS 51
+#define JUNIPER_IFLE_SERVICES           52
+#define JUNIPER_IFLE_ATM_ETHER_VPLS_ATM_LLC                53
+#define JUNIPER_IFLE_FR_PORT_CCC        54
+#define JUNIPER_IFLE_ATM_MLPPP_LLC      55
+#define JUNIPER_IFLE_ATM_EOA_CCC        56
+#define JUNIPER_IFLE_LT_VLAN            57
+#define JUNIPER_IFLE_COLLECTOR          58
+#define JUNIPER_IFLE_AGGREGATOR         59
+#define JUNIPER_IFLE_LAPD               60
+#define JUNIPER_IFLE_ATM_PPPOE_LLC          61
+#define JUNIPER_IFLE_ETHERNET_PPPOE         62
+#define JUNIPER_IFLE_PPPOE                  63
+#define JUNIPER_IFLE_PPP_SUBORDINATE        64
+#define JUNIPER_IFLE_CISCOHDLC_SUBORDINATE  65
+#define JUNIPER_IFLE_DFC                    66
+#define JUNIPER_IFLE_PICPEER                67
+
+static const value_string juniper_ifle_vals[] = {
+    { JUNIPER_IFLE_AGGREGATOR, "Aggregator" },
+    { JUNIPER_IFLE_ATM_CCC, "CCC over ATM" },
+    { JUNIPER_IFLE_ATM_CELLRELAY_CCC, "ATM CCC Cell Relay" },
+    { JUNIPER_IFLE_ATM_CISCO_NLPID, "CISCO compatible NLPID" },
+    { JUNIPER_IFLE_ATM_EOA_CCC, "Ethernet over ATM CCC" },
+    { JUNIPER_IFLE_ATM_EOA_LLC, "Ethernet over ATM LLC" },
+    { JUNIPER_IFLE_ATM_ETHER_VPLS_ATM_LLC, "Ethernet VPLS over ATM LLC" },
+    { JUNIPER_IFLE_ATM_LLC, "ATM LLC" },
+    { JUNIPER_IFLE_ATM_MLPPP_LLC, "MLPPP over ATM LLC" },
+    { JUNIPER_IFLE_ATM_NLPID, "ATM NLPID" },
+    { JUNIPER_IFLE_ATM_PPPOE_LLC, "PPPoE over ATM LLC" },
+    { JUNIPER_IFLE_ATM_PPP_FUNI, "PPP over FUNI" },
+    { JUNIPER_IFLE_ATM_PPP_LLC, "PPP over ATM LLC" },
+    { JUNIPER_IFLE_ATM_PPP_VCMUX, "PPP over ATM VCMUX" },
+    { JUNIPER_IFLE_ATM_SNAP, "ATM SNAP" },
+    { JUNIPER_IFLE_ATM_SNAP_TCC, "ATM SNAP TCC" },
+    { JUNIPER_IFLE_ATM_TCC, "ATM VCMUX TCC" },
+    { JUNIPER_IFLE_ATM_VCMUX, "ATM VCMUX" },
+    { JUNIPER_IFLE_CISCOHDLC, "C-HDLC" },
+    { JUNIPER_IFLE_CISCOHDLC_CCC, "C-HDLC CCC" },
+    { JUNIPER_IFLE_CISCOHDLC_SUBORDINATE, "C-HDLC via dialer" },
+    { JUNIPER_IFLE_CISCOHDLC_TCC, "C-HDLC TCC" },
+    { JUNIPER_IFLE_COLLECTOR, "Collector" },
+    { JUNIPER_IFLE_CRYPTO, "Crypto" },
+    { JUNIPER_IFLE_ENET2, "Ethernet" },
+    { JUNIPER_IFLE_ETHERNET_CCC, "Ethernet CCC" },
+    { JUNIPER_IFLE_ETHERNET_EXTENDED_VLAN_VPLS, "Extended VLAN VPLS" },
+    { JUNIPER_IFLE_ETHERNET_PPPOE, "PPPoE over Ethernet" },
+    { JUNIPER_IFLE_ETHERNET_TCC, "Ethernet TCC" },
+    { JUNIPER_IFLE_ETHERNET_VLAN_VPLS, "VLAN VPLS" },
+    { JUNIPER_IFLE_ETHERNET_VPLS, "VPLS" },
+    { JUNIPER_IFLE_EXTENDED_VLAN_CCC, "Extended VLAN CCC" },
+    { JUNIPER_IFLE_EXTENDED_VLAN_TCC, "Extended VLAN TCC" },
+    { JUNIPER_IFLE_FR_CCC, "FR CCC" },
+    { JUNIPER_IFLE_FR_NLPID, "FR NLPID" },
+    { JUNIPER_IFLE_FR_PORT_CCC, "FR CCC" },
+    { JUNIPER_IFLE_FR_PPP, "FR PPP" },
+    { JUNIPER_IFLE_FR_SNAP, "FR SNAP" },
+    { JUNIPER_IFLE_FR_TCC, "FR TCC" },
+    { JUNIPER_IFLE_GGSN, "GGSN" },
+    { JUNIPER_IFLE_GRE_NULL, "GRE NULL" },
+    { JUNIPER_IFLE_GRE_PPP, "PPP over GRE" },
+    { JUNIPER_IFLE_IPIP_NULL, "IPIP" },
+    { JUNIPER_IFLE_LAPD, "LAPD" },
+    { JUNIPER_IFLE_LSI_NULL, "LSI Null" },
+    { JUNIPER_IFLE_LT_VLAN, "LT VLAN" },
+    { JUNIPER_IFLE_MFR, "MFR" },
+    { JUNIPER_IFLE_MLFR, "MLFR" },
+    { JUNIPER_IFLE_MLPPP, "MLPPP" },
+    { JUNIPER_IFLE_MONITOR, "Monitor" },
+    { JUNIPER_IFLE_PIMD_DECAPS, "PIMd" },
+    { JUNIPER_IFLE_PIM_NULL, "PIM Null" },
+    { JUNIPER_IFLE_PPP, "PPP" },
+    { JUNIPER_IFLE_PPPOE, "PPPoE" },
+    { JUNIPER_IFLE_PPP_CCC, "PPP CCC" },
+    { JUNIPER_IFLE_PPP_SUBORDINATE, "" },
+    { JUNIPER_IFLE_PPP_TCC, "PPP TCC" },
+    { JUNIPER_IFLE_SERVICES, "General Services" },
+    { JUNIPER_IFLE_VLAN_CCC, "VLAN CCC" },
+    { JUNIPER_IFLE_VLAN_TCC, "VLAN TCC" },
+    { JUNIPER_IFLE_VT, "VT" },
+    {0,                    NULL}
+};
+
+
 static int proto_juniper = -1;
 
 static int hf_juniper_magic = -1;
@@ -192,6 +442,54 @@ static const value_string juniper_proto_vals[] = {
 /* the first subtree is accessed by several routines */
 static proto_tree *juniper_subtree = NULL;
 
+/* return a TLV value based on TLV length and TLV type (host/network order) */
+int
+juniper_ext_get_tlv_value(tvbuff_t *tvb, u_int tlv_type, u_int tlv_len, u_int offset) {
+   
+    int tlv_value;
+
+    if (tlv_type < 128) {
+        /* TLVs < 128 are little-endian / host order encoded */
+        switch (tlv_len) {
+        case 1:
+            tlv_value = tvb_get_guint8(tvb, offset);
+            break; 
+        case 2:
+            tlv_value = tvb_get_letohs(tvb, offset);
+            break;
+        case 3:
+            tlv_value = tvb_get_letoh24(tvb, offset);
+            break;
+        case 4:
+            tlv_value = tvb_get_letohl(tvb, offset);
+            break;
+        default:
+            tlv_value = -1;
+            break;
+        }
+    } else {
+        /* TLVs >= 128 are big-endian / network order encoded */
+        switch (tlv_len) {
+        case 1:
+            tlv_value = tvb_get_guint8(tvb, offset);
+            break; 
+        case 2:
+            tlv_value = tvb_get_ntohs(tvb, offset);
+            break;
+        case 3:
+            tlv_value = tvb_get_ntoh24(tvb, offset);
+            break;
+        case 4:
+            tlv_value = tvb_get_ntohl(tvb, offset);
+            break;
+        default:
+            tlv_value = -1;
+            break;
+        }
+    }
+    return tlv_value;
+}
+
 /* generic juniper header dissector  */
 int
 dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint8 *flags)
@@ -199,7 +497,7 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
   proto_item *tisub;
   guint8     direction,l2hdr_presence,proto,ext_type,ext_len;
   guint16    ext_total_len,ext_offset=6,hdr_len;
-  guint32    magic_number;
+  guint32    magic_number,ext_val;
 
   tvbuff_t   *next_tvb;
   proto_tree *juniper_ext_subtree = NULL;
@@ -249,23 +547,22 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                                        ext_type,
                                        ext_len);
           switch (ext_type) {
-          case EXT_TLV_IFD_IDX:
-              if (ext_len == 2)
-                  proto_item_append_text(tisub, "%u",tvb_get_letohs(tvb,ext_offset+ EXT_TLV_HEADER_SIZE));
-              break;
-
           case EXT_TLV_IFD_MEDIATYPE: /* fall through */
-          case EXT_TLV_IFL_ENCAPS:
           case EXT_TLV_TTP_IFD_MEDIATYPE:
+              ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+ EXT_TLV_HEADER_SIZE);
+              proto_item_append_text(tisub, "%s (%u)", val_to_str(ext_val, juniper_ifmt_vals, "Unknown"), ext_val);
+              break;
+          case EXT_TLV_IFL_ENCAPS: /* fall through */
           case EXT_TLV_TTP_IFL_ENCAPS:
-              if (ext_len == 1) /* FIXME: ifle,ifmt value_string tables */
-                  proto_item_append_text(tisub, "%u",tvb_get_guint8(tvb,ext_offset+ EXT_TLV_HEADER_SIZE));
+              ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+ EXT_TLV_HEADER_SIZE);
+              proto_item_append_text(tisub, "%s (%u)", val_to_str(ext_val, juniper_ifle_vals, "Unknown"), ext_val);
               break;
 
           case EXT_TLV_IFL_IDX: /* fall through */
           case EXT_TLV_IFL_UNIT:
-              if (ext_len == 4)
-                  proto_item_append_text(tisub, "%u",tvb_get_letohl(tvb,ext_offset+ EXT_TLV_HEADER_SIZE));
+          case EXT_TLV_IFD_IDX:
+              ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+ EXT_TLV_HEADER_SIZE);
+              proto_item_append_text(tisub, "%u", ext_val);
               break;
 
           case EXT_TLV_IFD_NAME: /* FIXME print ifname string - lets fall-through for now */
@@ -346,6 +643,9 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         break;
     case PROTO_FRELAY:
         call_dissector(frelay_handle, next_tvb, pinfo, tree);
+        break;
+    case PROTO_CHDLC:
+        call_dissector(chdlc_handle, next_tvb, pinfo, tree);
         break;
     case PROTO_OAM: /* FIXME call OAM disector without leading HEC byte */
     default:
@@ -621,7 +921,7 @@ dissect_juniper_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
       offset+=bytes_processed;
 
-  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_PPP, offset);
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_PPP, offset+2);
 
 }
 
