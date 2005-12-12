@@ -444,7 +444,7 @@ static proto_tree *juniper_subtree = NULL;
 
 /* return a TLV value based on TLV length and TLV type (host/network order) */
 int
-juniper_ext_get_tlv_value(tvbuff_t *tvb, u_int tlv_type, u_int tlv_len, u_int offset) {
+juniper_ext_get_tlv_value(tvbuff_t *tvb, guint tlv_type, guint tlv_len, guint offset) {
    
     int tlv_value;
 
