@@ -177,6 +177,12 @@
 	As there are different forms of the Win32 tools available, the following 
 	will give an overview of the recommended tools (which are highlighted in 
 	bold face).
+	<note><title>Note!</title>
+	<para>
+	<command>Unless you know exactly what you are doing, you should strictly 
+	following these recommendations!</command>
+	</para>
+	</note>
 	
 	<table frame='all'><title>The mandatory tools</title>
 	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
@@ -298,7 +304,7 @@
 	</para>
 	
 	<section id="ChToolsGNUBash">
-	<title>UNIX: GNU bash</title>
+	<title>UNIX or Win32 Cygwin: GNU bash</title>
 	<para>
 	The bash is available for most of the UNIX-like platforms and as the 
 	<application>bash</application> package from the <link 
@@ -338,7 +344,7 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	<title>C compiler</title>
 	
 	<section id="ChToolsGCC">
-	<title>UNIX: GCC (GNU compiler collection)</title>
+	<title>UNIX or Win32 Cygwin: GCC (GNU compiler collection)</title>
 	<note><title>Win32 Note!</title>
 	<para>
 	Although some effort is currently made to use gcc from the Cygwin
@@ -481,7 +487,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	</para>
 
 	<section id="ChToolsGDB">
-	<title>UNIX: GDB (GNU project debugger)</title>
+	<title>UNIX or Win32 Cygwin: GDB (GNU project debugger)</title>
 	<para>
 	GDB is the debugger for the GCC compiler. It is available for many (if 
 	not all) UNIX-like platforms and as the <application>gdb</application> 
@@ -568,7 +574,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	<title>make</title>
 
 	<section id="ChToolsGNUmake">
-	<title>Unix: GNU Make</title>
+	<title>UNIX or Win32 Cygwin: GNU Make</title>
 	<note><title>Win32 Note!</title>
 	<para>
 	Although some effort is made to use make from the Cygwin environment,
@@ -679,7 +685,7 @@ Stop.]]>
 	</para>
 
 	<section id="ChToolsUnixPython">
-	<title>UNIX: python</title>
+	<title>UNIX or Win32 Cygwin: python</title>
 	<para>
 	Python is available for most of the UNIX-like platforms and as the 
 	<application>python</application> package from the <link 
@@ -730,7 +736,7 @@ Stop.]]>
 	</para>
 
 	<section id="ChToolsUnixPerl">
-	<title>UNIX: perl</title>
+	<title>UNIX or Win32 Cygwin: perl</title>
 	<para>
 	Perl is available for most of the UNIX-like platforms and as the 
 	<application>perl</application> package from the <link 
@@ -807,7 +813,7 @@ Built 18:08:02 Feb  4 2003
 	</para>
 
 	<section id="ChToolsUnixSed">
-	<title>UNIX: sed</title>
+	<title>UNIX or Win32 Cygwin: sed</title>
 	<para>
 	Sed is available for most of the UNIX-like platforms and as the 
 	<application>sed</application> package from the <link 
@@ -855,7 +861,7 @@ to the extent permitted by law.]]>
 	</para>
 
 	<section id="ChToolsUnixYacc">
-	<title>UNIX: bison</title>
+	<title>UNIX or Win32 Cygwin: bison</title>
 	<para>
 	Bison is available for most of the UNIX-like platforms and as the 
 	<application>bison</application> package from the <link 
@@ -904,7 +910,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 	
 	<section id="ChToolsUnixLexx">
-	<title>UNIX: flex</title>
+	<title>UNIX or Win32 Cygwin: flex</title>
 	<para>
 	Flex is available for most of the UNIX-like platforms and as the 
 	<application>flex</application> package from the <link 
@@ -967,7 +973,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 
 	<section id="ChToolsUnixSVN">
-	<title>UNIX: svn</title>
+	<title>UNIX or Win32 Cygwin: svn</title>
 	<para>
 	SVN is available for most of the UNIX-like platforms and as the 
 	<application>SVN</application> package from the <link 
@@ -1032,7 +1038,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	</para>
 
 	<section id="ChToolsGNUDiff">
-	<title>UNIX: GNU diff</title>
+	<title>UNIX or Win32 Cygwin: GNU diff</title>
 	<para>
 	Diff is available for most of the UNIX-like platforms and as the 
 	<application>diffutils</application> package from the <link 
@@ -1102,7 +1108,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 
 	<section id="ChToolsUnixPatch">
-	<title>UNIX: patch</title>
+	<title>UNIX or Win32 Cygwin: patch</title>
 	<para>
 	Patch is available for most of the UNIX-like platforms and as the 
 	<application>patch</application> package from the <link 
@@ -1276,12 +1282,13 @@ written by Larry Wall and Paul Eggert]]>
         cl: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/cl
         link: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/link
         nmake: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/nmake
+
         bash: /usr/bin/bash
         bison: /usr/bin/bison
         flex: /usr/bin/flex
         env: /usr/bin/env
         grep: /usr/bin/grep
-        find: /usr/bin/find
+        /usr/bin/find: /usr/bin/find
         perl: /usr/bin/perl
         env: /usr/bin/env
         python: /usr/bin/python
