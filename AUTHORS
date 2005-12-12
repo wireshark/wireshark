@@ -98,6 +98,8 @@ Jörg Mayer              <jmayer[AT]loplof.de> {
 	Mark last packet of TFTP transfer as such in the Info column
 	Dissect both the BOOTP server and client ports as bootp/DHCP
 	Fix some small memleaks found by valgrind
+	Some Extreme protocols
+	Some 3com management protocol
 }
 
 Martin Maciaszek        <fastjack[AT]i-s-o.net> {
