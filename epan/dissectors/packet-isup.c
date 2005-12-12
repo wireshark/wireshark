@@ -57,6 +57,7 @@
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
 #include <epan/circuit.h>
+#include <epan/reassemble.h>
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define MTP3_BICC_SERVICE_INDICATOR     13
@@ -1311,36 +1312,79 @@ static int hf_supported_code_set_5_15  = -1;
 static int hf_supported_code_set_4_75  = -1;
 static int hf_initial_codec_mode  = -1;
 static int hf_max_codec_modes  = -1;
-static int hf_bearer_control_tunneling					= -1;
+static int hf_bearer_control_tunneling			= -1;
 static int hf_Local_BCU_ID						= -1;
-static int hf_late_cut_trough_cap_ind					= -1;
-static int hf_bat_ase_signal						= -1;
-static int hf_bat_ase_duration						= -1;
-static int hf_bat_ase_bearer_redir_ind					= -1;
-static int hf_BAT_ASE_Comp_Report_Reason				= -1;
-static int hf_BAT_ASE_Comp_Report_ident					= -1;
-static int hf_BAT_ASE_Comp_Report_diagnostic				= -1;
-static int hf_nsap_ipv4_addr						= -1;
-static int hf_nsap_ipv6_addr						= -1;
+static int hf_late_cut_trough_cap_ind			= -1;
+static int hf_bat_ase_signal					= -1;
+static int hf_bat_ase_duration					= -1;
+static int hf_bat_ase_bearer_redir_ind			= -1;
+static int hf_BAT_ASE_Comp_Report_Reason		= -1;
+static int hf_BAT_ASE_Comp_Report_ident			= -1;
+static int hf_BAT_ASE_Comp_Report_diagnostic	= -1;
+static int hf_nsap_ipv4_addr					= -1;
+static int hf_nsap_ipv6_addr					= -1;
 static int hf_iana_icp							= -1;
+
+static int hf_isup_apm_msg_fragments = -1;
+static int hf_isup_apm_msg_fragment = -1;
+static int hf_isup_apm_msg_fragment_overlap = -1;
+static int hf_isup_apm_msg_fragment_overlap_conflicts = -1;
+static int hf_isup_apm_msg_fragment_multiple_tails = -1;
+static int hf_isup_apm_msg_fragment_too_long_fragment = -1;
+static int hf_isup_apm_msg_fragment_error = -1;
+static int hf_isup_apm_msg_reassembled_in = -1;
  
 /* Initialize the subtree pointers */
 static gint ett_isup 							= -1;
-static gint ett_isup_parameter 						= -1;
-static gint ett_isup_address_digits 					= -1;
-static gint ett_isup_pass_along_message					= -1;
-static gint ett_isup_circuit_state_ind					= -1;
+static gint ett_isup_parameter 					= -1;
+static gint ett_isup_address_digits 			= -1;
+static gint ett_isup_pass_along_message			= -1;
+static gint ett_isup_circuit_state_ind			= -1;
 static gint ett_bat_ase							= -1;	
 static gint ett_bicc 							= -1;
-static gint ett_bat_ase_element						= -1;
-static gint ett_bat_ase_iwfa						= -1;
-static gint ett_acs						= -1;
-static gint ett_scs						= -1;
+static gint ett_bat_ase_element					= -1;
+static gint ett_bat_ase_iwfa					= -1;
+static gint ett_acs								= -1;
+static gint ett_scs								= -1;
 
+static gint ett_isup_apm_msg_fragment = -1;
+static gint ett_isup_apm_msg_fragments = -1;
 
 
 static dissector_handle_t sdp_handle = NULL;
 static dissector_handle_t q931_ie_handle = NULL; 
+
+/* Declarations to desegment APM Messages */
+static gboolean isup_apm_desegment = TRUE;
+
+static const fragment_items isup_apm_msg_frag_items = {
+	/* Fragment subtrees */
+	&ett_isup_apm_msg_fragment,
+	&ett_isup_apm_msg_fragments,
+	/* Fragment fields */
+	&hf_isup_apm_msg_fragments,
+	&hf_isup_apm_msg_fragment,
+	&hf_isup_apm_msg_fragment_overlap,
+	&hf_isup_apm_msg_fragment_overlap_conflicts,
+	&hf_isup_apm_msg_fragment_multiple_tails,
+	&hf_isup_apm_msg_fragment_too_long_fragment,
+	&hf_isup_apm_msg_fragment_error,
+	/* Reassembled in field */
+	&hf_isup_apm_msg_reassembled_in,
+	/* Tag */
+	"ISUP APM Message fragments"
+};
+
+static GHashTable *isup_apm_msg_fragment_table = NULL;
+static GHashTable *isup_apm_msg_reassembled_table = NULL;
+
+
+static void
+isup_apm_defragment_init(void)
+{
+	fragment_table_init (&isup_apm_msg_fragment_table);
+	reassembled_table_init(&isup_apm_msg_reassembled_table);
+}
 
 /* Info for the tap that must be passed between procedures */
 gchar *tap_called_number = NULL;
@@ -2565,7 +2609,8 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 	proto_tree	*bat_ase_tree, *bat_ase_element_tree, *bat_ase_iwfa_tree;
 	proto_item	*bat_ase_item, *bat_ase_element_item, *bat_ase_iwfa_item;
 	guint8 identifier,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
-	guint8 sdp_length, tempdata, element_no, number_of_indicators;
+	guint8 tempdata, element_no, number_of_indicators;
+	guint16 sdp_length; 
 	guint8 diagnostic_len;
 	guint8 length_ind_len;
 	guint tempdata16;
@@ -2735,7 +2780,12 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 				sdp_length = ( length_indicator ) - 3;
 
-				next_tvb = tvb_new_subset(parameter_tvb, offset, sdp_length, sdp_length);
+				if(sdp_length > tvb_length_remaining(parameter_tvb,offset)){
+					/* If this is a segmented message we may not have all the data */
+					next_tvb = tvb_new_subset(parameter_tvb, offset, -1, -1);
+				}else{
+					next_tvb = tvb_new_subset(parameter_tvb, offset, sdp_length, sdp_length);
+				}
 				call_dissector(sdp_handle, next_tvb, pinfo, bat_ase_element_tree);
 				offset = offset + sdp_length;
 
@@ -2860,13 +2910,19 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 { 
 
 	guint8 application_transport_instruction_ind;
-	guint8 si_and_apm_segmentation_indicator;
+	guint8 si_and_apm_seg_ind;
 	guint8 apm_Segmentation_local_ref;
 	guint16 aci16;
 	gint offset = 0;
 	guint8 octet;
 	guint length = tvb_reported_length(parameter_tvb);
-  
+
+	gboolean more_frag;
+ 	gboolean   save_fragmented;
+	tvbuff_t* new_tvb = NULL;
+	tvbuff_t* next_tvb = NULL;
+	fragment_data *frag_msg = NULL;
+ 
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport parameter fields:");
 	proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
 	aci16 = tvb_get_guint8(parameter_tvb, offset);
@@ -2895,14 +2951,14 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 
 	/* Octet 3*/
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "APM segmentation indicator:");
-	si_and_apm_segmentation_indicator  = tvb_get_guint8(parameter_tvb, offset);
+	si_and_apm_seg_ind  = tvb_get_guint8(parameter_tvb, offset);
 	proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
 	proto_tree_add_item( parameter_tree, hf_isup_apm_si_ind, parameter_tvb, offset, 1, FALSE );
 	proto_tree_add_item( parameter_tree, hf_isup_apm_segmentation_ind, parameter_tvb, offset, 1, FALSE );
 	offset = offset + 1;
 
 	/* Octet 3a */
-	if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x00) {
+	if ( (si_and_apm_seg_ind & H_8BIT_MASK) == 0x00) {
 		apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
 		proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
 		proto_tree_add_item( parameter_tree, hf_isup_apm_slr, parameter_tvb, offset, 1, FALSE );
@@ -2943,20 +2999,71 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 			offset = offset + octet - 2;
 		}
 	}
+	/* Defragment ? */
+	if (isup_apm_desegment && si_and_apm_seg_ind != 0xc0){
+		/* reassembly seems to not work well wid zero length segments */
+		if ( offset == (gint)length){
+			/* No data */
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Empty APM-user information field"  );
+			return;
+		}
+		/* Segmented message */
+		save_fragmented = pinfo->fragmented;
+		pinfo->fragmented = TRUE;
+		more_frag = TRUE;
+		if ((si_and_apm_seg_ind == 0))
+			more_frag = FALSE; 
+			
+		frag_msg = fragment_add_seq_next(parameter_tvb, offset, pinfo,
+				(apm_Segmentation_local_ref & 0x7f),			/* ID for fragments belonging together */  
+				isup_apm_msg_fragment_table,					/* list of message fragments */
+				isup_apm_msg_reassembled_table,					/* list of reassembled messages */
+				tvb_length_remaining(parameter_tvb, offset),		/* fragment length - to the end */
+				more_frag);										/* More fragments? */
+
+		if (((si_and_apm_seg_ind & 0x3f !=0)&&(si_and_apm_seg_ind &0x40 !=0)) ){
+			/* First fragment set number of fragments */
+			fragment_set_tot_len(pinfo, apm_Segmentation_local_ref & 0x7f, isup_apm_msg_fragment_table, (si_and_apm_seg_ind & 0x3f));
+		}
+
+		new_tvb = process_reassembled_data(parameter_tvb, offset, pinfo,
+			"Reassembled Message", frag_msg, &isup_apm_msg_frag_items,
+			NULL, parameter_tree);
+
+		if (frag_msg) { /* Reassembled */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO, 
+				" (Message Reassembled)");
+		} else { /* Not last packet of reassembled Short Message */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO,
+				" (Message fragment )");
+		}
+		
+		pinfo->fragmented = save_fragmented;
+	}/*isup_apm_desegment*/
+
 	if ( offset == (gint)length){
 		/* No data */
 		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Empty APM-user information field"  );
 		return;
 	}
+	if (new_tvb) { /* take it all */
+		next_tvb = new_tvb;
+	} else { /* make a new subset */
+	 	next_tvb = tvb_new_subset(parameter_tvb, offset, -1, -1);
+	}
 
-	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "APM-user information field"  );
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, 
+		"APM-user information field (%u Bytes)",tvb_length_remaining(parameter_tvb, offset));
+	
 	/* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
 	if ((aci16 & 0x7fff) != 5) {
 		proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "No further dissection of APM-user information field");
 		return;
 	}
 
- 	dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb, pinfo, parameter_tree, offset);
+ 	dissect_bat_ase_Encapsulated_Application_Information(next_tvb, pinfo, parameter_tree, 0);
 }
 
 
@@ -6630,6 +6737,38 @@ proto_register_isup(void)
                       { "ISUP Redirecting Number",  "isup.redirecting",
                       FT_STRING, BASE_NONE, NULL,0x0,
 			"", HFILL }},
+		{&hf_isup_apm_msg_fragments,
+			{"Message fragments", "isup_apm.msg.fragments",
+			FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } 
+		},
+		{&hf_isup_apm_msg_fragment,
+			{"Message fragment", "isup_apm.msg.fragment",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_isup_apm_msg_fragment_overlap,
+			{"Message fragment overlap", "isup_apm.msg.fragment.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_isup_apm_msg_fragment_overlap_conflicts,
+			{"Message fragment overlapping with conflicting data","isup_apm.msg.fragment.overlap.conflicts",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_isup_apm_msg_fragment_multiple_tails,
+			{"Message has multiple tail fragments", "isup_apm.msg.fragment.multiple_tails", 
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_isup_apm_msg_fragment_too_long_fragment,
+			{"Message fragment too long", "isup_apm.msg.fragment.too_long_fragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_isup_apm_msg_fragment_error,
+			{"Message defragmentation error", "isup_apm.msg.fragment.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_isup_apm_msg_reassembled_in,
+			{"Reassembled in", "isup_apm.msg.reassembled.in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
 
 	};
 
@@ -6644,7 +6783,9 @@ proto_register_isup(void)
 		&ett_bat_ase_element,
 		&ett_bat_ase_iwfa,
 		&ett_scs,
-		&ett_acs
+		&ett_acs,
+		&ett_isup_apm_msg_fragment,
+		&ett_isup_apm_msg_fragments,
 	};
 
 /* Register the protocol name and description */
@@ -6664,8 +6805,13 @@ proto_register_isup(void)
 	prefs_register_bool_preference(isup_module, "show_cic_in_info", "Show CIC in Info column",
 				 "Show the CIC value (in addition to the message type) in the Info column",
 				 (gint *)&isup_show_cic_in_info);
-	
-/* Register the stats_tree */
+
+	prefs_register_bool_preference(isup_module, "defragment_apm",
+		"Reassemble APM messages",
+		"Whether APM messages datagrams should be reassembled",
+		&isup_apm_desegment);	
+
+	/* Register the stats_tree */
 	stats_tree_register("isup","isup_msg","ISUP Messages", msg_stats_tree_packet, msg_stats_tree_init, NULL );
 }
 
@@ -6707,6 +6853,8 @@ proto_register_bicc(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_bicc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_init_routine(isup_apm_defragment_init);
 }
 
 /* Register isup with the sub-laying MTP L3 dissector */
