@@ -92,7 +92,10 @@ drop_unassigned_kw  DropUnassigned
 discard_pdu_data_kw DiscardPduData
 last_pdu_kw			LastPdu
 done_kw				Done
-
+filename_kw         Filename
+debug_kw            Debug
+level_kw            Level
+default_kw          Default
 
 
 open_parens			"("
@@ -221,6 +224,10 @@ blk_cmnt_stop  "*/"
 <OUTSIDE>{discard_pdu_data_kw}		MATE_PARSE(TOKEN_DISCARD_PDU_DATA_KW);
 <OUTSIDE>{last_pdu_kw}				MATE_PARSE(TOKEN_LAST_PDU_KW);
 <OUTSIDE>{done_kw}					MATE_PARSE(TOKEN_DONE_KW);
+<OUTSIDE>{filename_kw}				MATE_PARSE(TOKEN_FILENAME_KW);
+<OUTSIDE>{debug_kw}					MATE_PARSE(TOKEN_DEBUG_KW);
+<OUTSIDE>{level_kw}					MATE_PARSE(TOKEN_LEVEL_KW);
+<OUTSIDE>{default_kw}				MATE_PARSE(TOKEN_DEFAULT_KW);
 
 <OUTSIDE>{open_parens}				MATE_PARSE(TOKEN_OPEN_PARENS);
 <OUTSIDE>{close_parens}				MATE_PARSE(TOKEN_CLOSE_PARENS);

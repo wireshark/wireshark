@@ -161,7 +161,11 @@ extern void initialize_mate_runtime(void) {
 		dbg_pdu = &(mc->dbg_pdu_lvl);
 		dbg_gop = &(mc->dbg_gop_lvl);
 		dbg_gog = &(mc->dbg_gog_lvl);
-		
+		dbg = &(mc->dbg_lvl);
+        dbg_facility = mc->dbg_facility;
+        
+        dbg_print(dbg, 1, dbg_facility, "starting mate");
+
 	} else {
 		rd = NULL;
 	}

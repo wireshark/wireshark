@@ -254,7 +254,79 @@ decl ::= pdu_decl.
 decl ::= gop_decl.
 decl ::= gog_decl.
 decl ::= transform_decl.
+decl ::= defaults_decl.
+decl ::= debug_decl.
 decl ::= DONE_KW SEMICOLON.
+
+/************* DEBUG
+*/
+
+debug_decl ::= DEBUG_KW OPEN_BRACE dbgfile_default dbglevel_default pdu_dbglevel_default gop_dbglevel_default gog_dbglevel_default CLOSE_BRACE SEMICOLON.
+
+dbgfile_default ::= FILENAME_KW QUOTED(Filename) SEMICOLON. { mc->dbg_facility = fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,FALSE); }
+dbgfile_default ::= FILENAME_KW NAME(Filename) SEMICOLON. { mc->dbg_facility = fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,FALSE);  }
+dbgfile_default ::= .
+
+dbglevel_default ::= LEVEL_KW INTEGER(LevelString) SEMICOLON. { mc->dbg_lvl = (int) strtol(LevelString,NULL,10); }
+dbglevel_default ::= .
+
+pdu_dbglevel_default ::= PDU_KW LEVEL_KW INTEGER(LevelString) SEMICOLON. { mc->dbg_pdu_lvl = (int) strtol(LevelString,NULL,10); }
+pdu_dbglevel_default ::= .
+
+gop_dbglevel_default ::= GOP_KW LEVEL_KW INTEGER(LevelString) SEMICOLON. { mc->dbg_gop_lvl = (int) strtol(LevelString,NULL,10); }
+gop_dbglevel_default ::= .
+
+gog_dbglevel_default ::= GOG_KW LEVEL_KW INTEGER(LevelString) SEMICOLON. { mc->dbg_gog_lvl = (int) strtol(LevelString,NULL,10); }
+gog_dbglevel_default ::= .
+
+
+/************* DEFAULTS
+*/
+
+defaults_decl ::= DEFAULT_KW OPEN_BRACE pdu_defaults gop_defaults gog_defaults CLOSE_BRACE SEMICOLON.
+
+pdu_defaults ::= PDU_KW OPEN_BRACE pdu_last_extracted_default pdu_drop_unassigned_default pdu_discard_default CLOSE_BRACE SEMICOLON.
+pdu_defaults ::= .
+
+pdu_last_extracted_default ::= LAST_EXTRACTED_KW true_false(Flag) SEMICOLON. { mc->defaults.pdu.last_extracted = Flag; }
+pdu_last_extracted_default ::= .
+
+pdu_drop_unassigned_default ::= DROP_UNASSIGNED_KW true_false(Flag) SEMICOLON. { mc->defaults.pdu.drop_unassigned = Flag; }
+pdu_drop_unassigned_default ::= .
+
+pdu_discard_default ::= DISCARD_PDU_DATA_KW true_false(Flag) SEMICOLON. { mc->defaults.pdu.discard = Flag; }
+pdu_discard_default ::= .
+
+gop_defaults ::= GOP_KW OPEN_BRACE gop_expiration_default gop_idle_timeout_default gop_lifetime_default gop_drop_unassigned_default gop_tree_mode_default gop_show_times_default  CLOSE_BRACE SEMICOLON.
+gop_defaults ::= .
+
+gop_expiration_default ::= EXPIRATION_KW time_value(B) SEMICOLON. { mc->defaults.gop.expiration = B; }
+gop_expiration_default ::= .
+
+gop_idle_timeout_default ::= IDLE_TIMEOUT_KW time_value(B) SEMICOLON. { mc->defaults.gop.idle_timeout = B; }
+gop_idle_timeout_default ::= .
+
+gop_lifetime_default ::= LIFETIME_KW time_value(B) SEMICOLON. { mc->defaults.gop.lifetime = B; }
+gop_lifetime_default ::= .
+
+gop_drop_unassigned_default ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { mc->defaults.gop.drop_unassigned = B; }
+gop_drop_unassigned_default ::= .
+
+gop_tree_mode_default ::= SHOW_TREE_KW gop_tree_mode(B) SEMICOLON. { mc->defaults.gop.pdu_tree_mode = B; }
+gop_tree_mode_default ::= .
+
+gop_show_times_default ::= SHOW_TIMES_KW true_false(B) SEMICOLON. { mc->defaults.gop.show_times = B; }
+gop_show_times_default ::= .
+
+gog_defaults ::= GOG_KW OPEN_BRACE gog_expiration_default gop_tree_mode_default gog_goptree_default CLOSE_BRACE SEMICOLON.
+gog_defaults ::= .
+
+gog_expiration_default ::= EXPIRATION_KW time_value(B) SEMICOLON. { mc->defaults.gop.expiration = B; }
+gog_expiration_default ::= .
+
+gog_goptree_default ::= GOP_TREE_KW gop_tree_type(B) SEMICOLON. { mc->defaults.gog.gop_tree_mode = B; }
+gog_goptree_default ::= .
+
 
 /******************************************* TRANSFORM
 */

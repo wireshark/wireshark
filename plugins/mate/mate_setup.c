@@ -917,11 +917,6 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	
 	if ( mate_load_config(filename,matecfg) ) {
 		analyze_config();
-
-		/* if (dbg_cfg_lvl > 0) { */
-			print_config();
-		/* } */
-		
 	} else {
 		report_failure("MATE failed to configue!\n"
 					   "It is recomended that you fix your config and restart ethereal.\n"

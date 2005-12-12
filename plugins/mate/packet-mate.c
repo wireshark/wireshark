@@ -340,8 +340,6 @@ proto_reg_handoff_mate(void)
 				proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
 				register_init_routine(initialize_mate_runtime);
 				
-				g_warning("filter: %s",mc->tap_filter);
-				
 				tap_error = register_tap_listener("frame", &mate_tap_data,
 												  (char*) mc->tap_filter,
 												  (tap_reset_cb) NULL,
