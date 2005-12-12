@@ -72,6 +72,7 @@ static int hf_njack_set_tlv_length = -1;
 static int hf_njack_set_tlv_data = -1;
 static int hf_njack_set_tlv_typeip = -1;
 static int hf_njack_set_tlv_typestring = -1;
+static int hf_njack_set_tlv_typeyesno = -1;
 /* type 08: set result */
 static int hf_njack_setresult = -1;
 /* type 0b: get */
@@ -82,6 +83,7 @@ static int hf_njack_getresp_tlv_length = -1;
 static int hf_njack_getresp_tlv_data = -1;
 static int hf_njack_getresp_tlv_typeip = -1;
 static int hf_njack_getresp_tlv_typestring = -1;
+static int hf_njack_getresp_tlv_typeyesno = -1;
 
 #define PROTO_SHORT_NAME "NJACK"
 #define PROTO_LONG_NAME "3com Network Jack"
@@ -110,6 +112,7 @@ typedef enum {
 	NJACK_CMD_IPADDRESS		= 0x02,
 	NJACK_CMD_NETWORK		= 0x03,
 	NJACK_CMD_MASK			= 0x04,
+	NJACK_CMD_REMOVETAG		= 0x0c,
 	NJACK_CMD_GROUP			= 0x0d,
 	NJACK_CMD_LOCATION		= 0x0e,
 	NJACK_CMD_PORT1			= 0x13,
@@ -129,6 +132,7 @@ static const value_string njack_cmd_vals[] = {
 	{ NJACK_CMD_IPADDRESS,		"IP address" },
 	{ NJACK_CMD_NETWORK,		"IP network" },
 	{ NJACK_CMD_MASK,		"IP netmask" },
+	{ NJACK_CMD_REMOVETAG,		"Remove tag" },
 	{ NJACK_CMD_GROUP,		"Device group" },
 	{ NJACK_CMD_LOCATION,		"Location" },
 	{ NJACK_CMD_PORT1,		"Port 1 (??)" },
@@ -156,6 +160,11 @@ static const value_string njack_setresult_vals[] = {
 	{ NJACK_SETRESULT_FAILAUTH,	"Failauth" },
 
 	{ 0,	NULL }
+};
+
+static const true_false_string tfs_yes_no = {
+	"Yes",
+	"No"
 };
 
 static void
@@ -235,6 +244,11 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb, offset, 1, FALSE);
 				offset += 1;
 				switch (tlv_type) {
+				case 0x0c: /* Strip tags */
+					proto_tree_add_item(tlv_tree, hf_njack_set_tlv_typeyesno,
+						tvb, offset, 1, FALSE);
+					offset += 1;
+					break;
 				case 0x02: /* IP address */
 				case 0x03: /* Network address */
 				case 0x04: /* Network mask */
@@ -300,6 +314,11 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb, offset, 1, FALSE);
 				offset += 1;
 				switch (tlv_type) {
+				case 0x0c: /* Strip tags */
+					proto_tree_add_item(tlv_tree, hf_njack_getresp_tlv_typeyesno,
+						tvb, offset, 1, FALSE);
+					offset += 1;
+					break;
 				case 0x02: /* IP address */
 				case 0x03: /* Network address */
 				case 0x04: /* Network mask */
@@ -426,6 +445,10 @@ proto_register_njack(void)
                 { "SetTlvTypeString",   "njack.set.tlv.typestring", FT_STRING, BASE_DEC, NULL,
                         0x0, "", HFILL }},
 
+                { &hf_njack_set_tlv_typeyesno,
+                { "SetTlvTypeYesNo",   "njack.set.tlv.typeyesno", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
+                        0xff, "", HFILL }},
+
 	/* Type 0x08: set result */
                 { &hf_njack_setresult,
                 { "SetResult",   "njack.setresult", FT_UINT8, BASE_HEX, VALS(njack_setresult_vals),
@@ -454,6 +477,10 @@ proto_register_njack(void)
                 { &hf_njack_getresp_tlv_typestring,
                 { "GetResponeTlvTypeString",   "njack.getresp.tlv.typestring", FT_STRING, BASE_DEC, NULL,
                         0x0, "", HFILL }},
+
+                { &hf_njack_getresp_tlv_typeyesno,
+                { "GetTlvTypeYesNo",   "njack.getresp.tlv.typeyesno", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
+                        0xff, "", HFILL }},
 
         };
 	static gint *ett[] = {
