@@ -1478,6 +1478,12 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
+
+    if(capture_opts->quit_after_cap) {
+        /* command line asked us to quit after the capture */
+        /* don't pop up a dialog to ask for unsaved files etc. */
+        main_do_quit();
+    }
 }
 
 static void
@@ -1525,8 +1531,18 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
      a capture. */
     set_menus_for_capture_in_progress(FALSE);
 
+    /* Restore the standard title bar message */
+    /* (just in case we have trouble opening the capture file). */
+    set_main_window_name("The Ethereal Network Analyzer");
+
     /* We don't have loaded the capture file, this will be done later.
      * For now we still have simply a blank screen. */
+
+    if(capture_opts->quit_after_cap) {
+        /* command line asked us to quit after the capture */
+        /* don't pop up a dialog to ask for unsaved files etc. */
+        main_do_quit();
+    }
 }
 
 static void
