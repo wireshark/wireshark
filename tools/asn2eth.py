@@ -903,7 +903,10 @@ class EthCtx:
     elif self.conform.get_fn_body_presence(self.eth_type[tname]['ref'][0]):
       out = self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_BODY')
     if pars:
-      out = out % pars
+      try:
+        out = out % pars
+      except (TypeError):
+        pass
     return out
 
   #--- eth_output_hf ----------------------------------------------------------

@@ -2109,7 +2109,7 @@ dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
     
     if (cmd) {
         h248_cmd_set_error(cmd,error_code);
-    } else {
+    } else if (trx) {
         h248_trx_set_error(trx,error_code);
     }
     

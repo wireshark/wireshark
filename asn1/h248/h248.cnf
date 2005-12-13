@@ -238,7 +238,7 @@ ServiceChangeReply/terminationID			terminationIDList
     
     if (cmd) {
         h248_cmd_set_error(cmd,error_code);
-    } else {
+    } else if (trx) {
         h248_trx_set_error(trx,error_code);
     }
     
