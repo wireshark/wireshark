@@ -2911,7 +2911,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 
 	guint8 application_transport_instruction_ind;
 	guint8 si_and_apm_seg_ind;
-	guint8 apm_Segmentation_local_ref;
+	guint8 apm_Segmentation_local_ref = 0;
 	guint16 aci16;
 	gint offset = 0;
 	guint8 octet;
@@ -2922,7 +2922,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 	tvbuff_t* new_tvb = NULL;
 	tvbuff_t* next_tvb = NULL;
 	fragment_data *frag_msg = NULL;
- 
+	 
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport parameter fields:");
 	proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
 	aci16 = tvb_get_guint8(parameter_tvb, offset);
@@ -2964,7 +2964,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 		proto_tree_add_item( parameter_tree, hf_isup_apm_slr, parameter_tvb, offset, 1, FALSE );
 		offset = offset + 1;
 	}
-	/* For APM’98’-user applications. ( aci 0 - 3 ), APM-user information field starts at octet 4 */
+	/* For APM'98'-user applications. ( aci 0 - 3 ), APM-user information field starts at octet 4 */
 	if (aci16 > 3) {
 		/* Octet 4 Originating Address length */
 		octet = tvb_get_guint8(parameter_tvb,offset);
@@ -3001,18 +3001,11 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 	}
 	/*
 	 * Defragment ?
-	 * XXX - we can't do that if there's no segmentation local reference,
-	 * as we use the segmentation local reference in the
-	 * fragment_add_seq_next() call.  We don't check for that,
-	 * though.
+	 * (si_and_apm_seg_ind != 0xc0) -> Non segmented APM message
+	 * (si_and_apm_seg_ind & 0x80 == 0x80) NO Segmentation local ref ( without SLR defrag. does not work)
+	 * 
 	 */
-	if (isup_apm_desegment && si_and_apm_seg_ind != 0xc0){
-		/* reassembly seems to not work well wid zero length segments */
-		if ( offset == (gint)length){
-			/* No data */
-			proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Empty APM-user information field"  );
-			return;
-		}
+	if ((isup_apm_desegment && si_and_apm_seg_ind != 0xc0)|| (si_and_apm_seg_ind & 0x80 == 0x80)){
 		/* Segmented message */
 		save_fragmented = pinfo->fragmented;
 		pinfo->fragmented = TRUE;
@@ -3024,7 +3017,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 				(apm_Segmentation_local_ref & 0x7f),			/* ID for fragments belonging together */  
 				isup_apm_msg_fragment_table,					/* list of message fragments */
 				isup_apm_msg_reassembled_table,					/* list of reassembled messages */
-				tvb_length_remaining(parameter_tvb, offset),		/* fragment length - to the end */
+				tvb_length_remaining(parameter_tvb, offset),	/* fragment length - to the end */
 				more_frag);										/* More fragments? */
 
 		if ((si_and_apm_seg_ind & 0x3f) !=0 && (si_and_apm_seg_ind &0x40) !=0){

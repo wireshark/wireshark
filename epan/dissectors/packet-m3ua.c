@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
+#include <epan/emem.h>
 #include "packet-mtp3.h"
 
 #define SCTP_PORT_M3UA         2905
@@ -312,6 +313,9 @@ typedef enum {
 } Version_Type;
 
 static gint version = M3UA_RFC;
+
+static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
+
 
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
@@ -1097,6 +1101,18 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   guint16 ulp_length;
   tvbuff_t *payload_tvb;
   proto_item *item;
+ 
+
+  mtp3_addr_dpc.type = ITU_STANDARD;
+  mtp3_addr_dpc.pc = tvb_get_ntohl(parameter_tvb,DATA_DPC_OFFSET);
+  mtp3_addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
+  SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_dpc), (guint8 *) &mtp3_addr_dpc);
+
+	
+  mtp3_addr_opc.type = ITU_STANDARD;
+  mtp3_addr_opc.pc = tvb_get_ntohl(parameter_tvb,DATA_OPC_OFFSET);
+  mtp3_addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
+  SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_opc), (guint8 *) &mtp3_addr_opc);
 
   ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
 
