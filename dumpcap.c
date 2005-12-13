@@ -74,7 +74,7 @@ GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 
 #ifdef _WIN32
-static gboolean has_console = TRUE;	/* TRUE if app has console */
+static gboolean has_console = TRUE;	        /* TRUE if app has console */
 static void create_console(void);
 static void destroy_console(void);
 #endif
@@ -109,7 +109,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "\nUsage: dumpcap [option] ...\n");
   fprintf(output, "\n");
   fprintf(output, "Capture interface:\n");
-  fprintf(output, "  -i <interface>           name of interface (def: first none loopback)\n");
+  fprintf(output, "  -i <interface>           name or idx of interface (def: first none loopback)\n");
   fprintf(output, "  -f <capture filter>      packet filter in libpcap format\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
@@ -133,6 +133,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -v                       print version information and exit\n");
   fprintf(output, "  -h                       display this help and exit\n");
+  fprintf(output, "  -D                       print list of interfaces and exit\n");
   fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
   fprintf(output, "\n");
   fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcap\n");
@@ -241,8 +242,6 @@ main(int argc, char *argv[])
   gboolean             start_capture = TRUE;
   GList               *if_list;
   if_info_t           *if_info;
-  GList               *lt_list, *lt_entry;
-  data_link_info_t    *data_link_info;
   gchar                err_str[PCAP_ERRBUF_SIZE];
   gchar               *cant_get_if_list_errstr;
   gboolean             stats_known;
@@ -250,7 +249,7 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   gboolean             list_link_layer_types = FALSE;
 
-#define OPTSTRING_INIT "a:b:c:f:Hhi:Lps:vW:w:y:"
+#define OPTSTRING_INIT "a:b:c:Df:hi:Lps:vw:y:"
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:Z:"
@@ -345,7 +344,6 @@ main(int argc, char *argv[])
       case 'b':        /* Ringbuffer option */
       case 'c':        /* Capture xxx packets */
       case 'f':        /* capture filter */
-      case 'H':        /* Hide capture info dialog box */
       case 'i':        /* Use interface xxx */
       case 'p':        /* Don't capture in promiscuous mode */
       case 's':        /* Set the snapshot (capture) length */
@@ -358,14 +356,12 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
         capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
         break;
-      /* This is a hidden option supporting Sync mode, so we don't set
-       * the error flags for the user in the non-libpcap case.
-       */
-      case 'W':        /* Write to capture file FD xxx */
-        capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
-	break;
 
       /*** all non capture option specific ***/
+      case 'D':        /* Print a list of capture devices and exit */
+        capture_opts_list_interfaces();
+        exit(0);
+        break;
       case 'L':        /* Print list of link-layer types and exit */
         list_link_layer_types = TRUE;
         break;
@@ -450,33 +446,12 @@ if (capture_opts->iface == NULL) {
   }
 
   if (list_link_layer_types) {
-    /* Get the list of link-layer types for the capture device. */
-    lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
-    if (lt_list == NULL) {
-      if (err_str[0] != '\0') {
-	cmdarg_err("The list of data link types for the capture device could not be obtained (%s)."
-	  "Please check to make sure you have sufficient permissions, and that\n"
-	  "you have the proper interface or pipe specified.\n", err_str);
-      } else
-	cmdarg_err("The capture device has no data link types.");
-      exit_main(2);
-    }
-    g_warning("Data link types (use option -y to set):");
-    for (lt_entry = lt_list; lt_entry != NULL;
-         lt_entry = g_list_next(lt_entry)) {
-      data_link_info = lt_entry->data;
-      g_warning("  %s", data_link_info->name);
-      if (data_link_info->description != NULL)
-	g_warning(" (%s)", data_link_info->description);
-      else
-	g_warning(" (not supported)");
-      putchar('\n');
-    }
-    free_pcap_linktype_list(lt_list);
+    capture_opts_list_link_layer_types(capture_opts);
     exit_main(0);
   }
 
-  capture_opts_trim(capture_opts, MIN_PACKET_SIZE);
+  capture_opts_trim_snaplen(capture_opts, MIN_PACKET_SIZE);
+  capture_opts_trim_ring_num_files(capture_opts);
 
   /* Now start the capture. */
 
@@ -547,8 +522,9 @@ static void
 destroy_console(void)
 {
   if (has_console) {
-    printf("\n\nPress any key to exit\n");
-    _getch();
+/* XXX - doesn't make sense while we're linked as a console application */
+/*    printf("\n\nPress any key to exit\n");
+    _getch();*/
     FreeConsole();
   }
 }
@@ -637,6 +613,9 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 {
 }
 
+
+int count = 0;
+
 void
 sync_pipe_packet_count_to_parent(int packet_count)
 {
@@ -645,6 +624,9 @@ sync_pipe_packet_count_to_parent(int packet_count)
     g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
 
     /*g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);*/
+
+    count += packet_count;
+    fprintf(stderr, "\rpackets: %u", count);
 
     pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
@@ -684,14 +666,6 @@ sync_pipe_drops_to_parent(int drops)
 /* simple_dialog "dummies" */
 
 
-static gpointer *
-display_simple_dialog(gint type, gint btn_mask, char *message)
-{
-    printf("%s", message);
-
-    return NULL;
-}
-
 char *simple_dialog_primary_start(void)
 {
     return "";
@@ -700,56 +674,6 @@ char *simple_dialog_primary_start(void)
 char *simple_dialog_primary_end(void)
 {
     return "";
-}
-
-/* Simple dialog function - Displays a dialog box with the supplied message
- * text.
- *
- * Args:
- * type       : One of ESD_TYPE_*.
- * btn_mask   : The value passed in determines which buttons are displayed.
- * msg_format : Sprintf-style format of the text displayed in the dialog.
- * ...        : Argument list for msg_format
- */
-
-gpointer
-vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list ap)
-{
-  gchar             *vmessage;
-  gchar             *message;
-  gpointer          *win;
-#if GTK_MAJOR_VERSION >= 2
-  GdkWindowState state = 0;
-#endif
-
-  /* Format the message. */
-  vmessage = g_strdup_vprintf(msg_format, ap);
-
-#if GTK_MAJOR_VERSION >= 2
-  /* convert character encoding from locale to UTF8 (using iconv) */
-  message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
-  g_free(vmessage);
-#else
-  message = vmessage;
-#endif
-
-  win = display_simple_dialog(type, btn_mask, message);
-
-  g_free(message);
-
-  return win;
-}
-
-gpointer
-simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
-{
-  va_list ap;
-  gpointer ret;
-
-  va_start(ap, msg_format);
-  ret = vsimple_dialog(type, btn_mask, msg_format, ap);
-  va_end(ap);
-  return ret;
 }
 
 char *

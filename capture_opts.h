@@ -105,13 +105,28 @@ capture_opts_init(capture_options *capture_opts, void *cfile);
 extern void
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);
 
-/* trim values after command line finished */
-extern void 
-capture_opts_trim(capture_options *capture_opts, int snaplen_min);
-
 /* log content of capture_opts */
 extern void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
 
+/* list link layer types */
+extern void 
+capture_opts_list_link_layer_types(capture_options *capture_opts);
+
+/* list interfaces */
+extern void
+capture_opts_list_interfaces();
+
+/* trim the snaplen entry */
+extern void 
+capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min);
+
+/* trim the ring_num_files entry */
+extern void 
+capture_opts_trim_ring_num_files(capture_options *capture_opts);
+
+/* trim the interface entry */
+extern gboolean
+capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device);
 
 #endif /* capture_opts.h */

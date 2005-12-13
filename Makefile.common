@@ -178,6 +178,7 @@ tethereal_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC)	\
 	$(TETHEREAL_TAP_SRC)	\
 	capture_opts.c		\
+	capture_loop.c	\
 	tethereal-tap-register.c	\
 	tethereal.c
 

@@ -43,6 +43,11 @@
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 
+#include "capture-pcap-util.h"
+#include "capture_ui_utils.h"
+
+
+
 void
 capture_opts_init(capture_options *capture_opts, void *cfile)
 {
@@ -283,6 +288,70 @@ get_pipe_arguments(capture_options *capture_opts, const char *arg)
 
 
 void
+capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
+{
+    long        adapter_index;
+    char        *p;
+    GList       *if_list;
+    if_info_t   *if_info;
+    int         err;
+    gchar       err_str[PCAP_ERRBUF_SIZE];
+    gchar       *cant_get_if_list_errstr;
+
+
+    /*
+     * If the argument is a number, treat it as an index into the list
+     * of adapters, as printed by "tethereal -D".
+     *
+     * This should be OK on UNIX systems, as interfaces shouldn't have
+     * names that begin with digits.  It can be useful on Windows, where
+     * more than one interface can have the same name.
+     */
+    adapter_index = strtol(optarg, &p, 10);
+    if (p != NULL && *p == '\0') {
+      if (adapter_index < 0) {
+        cmdarg_err("The specified adapter index is a negative number");
+       exit(1);
+      }
+      if (adapter_index > INT_MAX) {
+        cmdarg_err("The specified adapter index is too large (greater than %d)",
+            INT_MAX);
+        exit(1);
+      }
+      if (adapter_index == 0) {
+        cmdarg_err("there is no interface with that adapter index");
+        exit(1);
+      }
+      if_list = get_interface_list(&err, err_str);
+      if (if_list == NULL) {
+        switch (err) {
+
+        case CANT_GET_INTERFACE_LIST:
+            cant_get_if_list_errstr =
+                cant_get_if_list_error_message(err_str);
+            cmdarg_err("%s", cant_get_if_list_errstr);
+            g_free(cant_get_if_list_errstr);
+            break;
+
+        case NO_INTERFACES_FOUND:
+            cmdarg_err("There are no interfaces on which a capture can be done");
+            break;
+        }
+        exit(2);
+      }
+      if_info = g_list_nth_data(if_list, adapter_index - 1);
+      if (if_info == NULL) {
+        cmdarg_err("there is no interface with that adapter index");
+        exit(1);
+      }
+      capture_opts->iface = g_strdup(if_info->name);
+      free_interface_list(if_list);
+    } else {
+      capture_opts->iface = g_strdup(optarg);
+    }
+}
+
+void
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture)
 {
     switch(opt) {
@@ -317,7 +386,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->show_info = FALSE;
         break;
     case 'i':        /* Use interface xxx */
-        capture_opts->iface = g_strdup(optarg);
+        capture_opts_add_iface_opt(capture_opts, optarg);
         break;
     case 'k':        /* Start capture immediately */
         *start_capture = TRUE;
@@ -369,13 +438,89 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 }
 
 
-void capture_opts_trim(capture_options *capture_opts, int snaplen_min)
+void capture_opts_list_link_layer_types(capture_options *capture_opts)
+{
+    gchar err_str[PCAP_ERRBUF_SIZE];
+    GList *lt_list, *lt_entry;
+    data_link_info_t *data_link_info;
+
+    /* Get the list of link-layer types for the capture device. */
+    lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
+    if (lt_list == NULL) {
+      if (err_str[0] != '\0') {
+	cmdarg_err("The list of data link types for the capture device could not be obtained (%s)."
+	  "Please check to make sure you have sufficient permissions, and that\n"
+	  "you have the proper interface or pipe specified.\n", err_str);
+      } else
+	cmdarg_err("The capture device has no data link types.");
+      exit(2);
+    }
+    cmdarg_err_cont("Data link types (use option -y to set):");
+    for (lt_entry = lt_list; lt_entry != NULL;
+         lt_entry = g_list_next(lt_entry)) {
+      data_link_info = lt_entry->data;
+      cmdarg_err_cont("  %s", data_link_info->name);
+      if (data_link_info->description != NULL)
+	cmdarg_err_cont(" (%s)", data_link_info->description);
+      else
+	cmdarg_err_cont(" (not supported)");
+      putchar('\n');
+    }
+    free_pcap_linktype_list(lt_list);
+}
+
+
+void capture_opts_list_interfaces()
+{
+    GList       *if_list;
+    GList       *if_entry;
+    if_info_t   *if_info;
+    int         err;
+    gchar       err_str[PCAP_ERRBUF_SIZE];
+    gchar       *cant_get_if_list_errstr;
+    int         i;
+
+
+    if_list = get_interface_list(&err, err_str);
+    if (if_list == NULL) {
+        switch (err) {
+        case CANT_GET_INTERFACE_LIST:
+            cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
+            cmdarg_err("%s", cant_get_if_list_errstr);
+            g_free(cant_get_if_list_errstr);
+        break;
+
+        case NO_INTERFACES_FOUND:
+            cmdarg_err("There are no interfaces on which a capture can be done");
+        break;
+        }
+        exit(2);
+    }
+
+    i = 1;  /* Interface id number */
+    for (if_entry = g_list_first(if_list); if_entry != NULL;
+    if_entry = g_list_next(if_entry)) {
+        if_info = if_entry->data;
+        printf("%d. %s", i++, if_info->name);
+        if (if_info->description != NULL)
+            printf(" (%s)", if_info->description);
+        printf("\n");
+    }
+    free_interface_list(if_list);
+}
+
+
+void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 {
   if (capture_opts->snaplen < 1)
     capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
   else if (capture_opts->snaplen < snaplen_min)
     capture_opts->snaplen = snaplen_min;
+}
 
+
+void capture_opts_trim_ring_num_files(capture_options *capture_opts)
+{
   /* Check the value range of the ring_num_files parameter */
   if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES)
     capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
@@ -384,5 +529,49 @@ void capture_opts_trim(capture_options *capture_opts, int snaplen_min)
     capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 }
+
+
+gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device)
+{
+    GList       *if_list;
+    if_info_t   *if_info;
+    int         err;
+    gchar       err_str[PCAP_ERRBUF_SIZE];
+    gchar       *cant_get_if_list_errstr;
+
+
+    /* Did the user specify an interface to use? */
+    if (capture_opts->iface == NULL) {
+      /* No - is a default specified in the preferences file? */
+      if (capture_device != NULL) {
+          /* Yes - use it. */
+          capture_opts->iface = g_strdup(capture_device);
+      } else {
+        /* No - pick the first one from the list of interfaces. */
+        if_list = get_interface_list(&err, err_str);
+        if (if_list == NULL) {
+          switch (err) {
+
+          case CANT_GET_INTERFACE_LIST:
+              cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
+              cmdarg_err("%s", cant_get_if_list_errstr);
+              g_free(cant_get_if_list_errstr);
+              break;
+
+          case NO_INTERFACES_FOUND:
+              cmdarg_err("There are no interfaces on which a capture can be done");
+              break;
+          }
+          return FALSE;
+        }
+        if_info = if_list->data;	/* first interface */
+        capture_opts->iface = g_strdup(if_info->name);
+        free_interface_list(if_list);
+      }
+    }
+
+    return TRUE;
+}
+
 
 #endif /* HAVE_LIBPCAP */

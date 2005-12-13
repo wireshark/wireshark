@@ -1089,7 +1089,7 @@ print_usage(gboolean print_ver) {
     output = stderr;
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
+  fprintf(output, "\n%s [ -vh ] [ -DklLnpQS ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
   fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
 #ifdef _WIN32
   fprintf(output, "\t[ -B <capture buffer size> ]\n");
@@ -1742,12 +1742,6 @@ main(int argc, char *argv[])
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
-  GList               *if_list;
-  if_info_t           *if_info;
-  GList               *lt_list, *lt_entry;
-  data_link_info_t    *data_link_info;
-  gchar                err_str[PCAP_ERRBUF_SIZE];
-  gchar               *cant_get_if_list_errstr;
   gboolean             stats_known;
   struct pcap_stat     stats;
 #else
@@ -1764,14 +1758,14 @@ main(int argc, char *argv[])
   guint                go_to_packet = 0;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:f:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:y:z:"
+#define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:y:z:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
-#define OPTSTRING_CHILD "W:Z:"
+#define OPTSTRING_CHILD "Z:"
 #define OPTSTRING_WIN32 "B:"
 #else
-#define OPTSTRING_CHILD "W:"
+#define OPTSTRING_CHILD ""
 #define OPTSTRING_WIN32 ""
 #endif  /* _WIN32 */
 #else
@@ -1958,7 +1952,7 @@ main(int argc, char *argv[])
 #endif
     splash_win = splash_new("Loading Ethereal ...");
 
-  splash_update(splash_win, "Registering dissectors ...");
+  splash_update(splash_win, "Init dissectors ...");
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
@@ -1967,7 +1961,7 @@ main(int argc, char *argv[])
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box);
 
-  splash_update(splash_win, "Registering tap listeners ...");
+  splash_update(splash_win, "Init tap listeners ...");
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
@@ -2152,16 +2146,17 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-#ifdef HAVE_LIBPCAP
-      /* This is a hidden option supporting Sync mode, so we don't set
-       * the error flags for the user in the non-libpcap case.
-       */
-      case 'W':        /* Write to capture file FD xxx */
-        capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
-	break;
-#endif
 
       /*** all non capture option specific ***/
+      case 'D':        /* Print a list of capture devices and exit */
+#ifdef HAVE_LIBPCAP
+        capture_opts_list_interfaces();
+        exit(0);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
       case 'g':        /* Go to packet */
         go_to_packet = get_positive_int(optarg, "go to packet");
         break;
@@ -2383,64 +2378,19 @@ main(int argc, char *argv[])
 
   if (start_capture || list_link_layer_types) {
     /* Did the user specify an interface to use? */
-    if (capture_opts->iface == NULL) {
-      /* No - is a default specified in the preferences file? */
-      if (prefs->capture_device != NULL) {
-          /* Yes - use it. */
-          capture_opts->iface = g_strdup(get_if_name(prefs->capture_device));
-      } else {
-        /* No - pick the first one from the list of interfaces. */
-        if_list = get_interface_list(&err, err_str);
-        if (if_list == NULL) {
-          switch (err) {
-
-          case CANT_GET_INTERFACE_LIST:
-              cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-              cmdarg_err("%s", cant_get_if_list_errstr);
-              g_free(cant_get_if_list_errstr);
-              break;
-
-          case NO_INTERFACES_FOUND:
-              cmdarg_err("There are no interfaces on which a capture can be done");
-              break;
-          }
-          exit(2);
-        }
-        if_info = if_list->data;	/* first interface */
-        capture_opts->iface = g_strdup(if_info->name);
-        free_interface_list(if_list);
-      }
+    if (!capture_opts_trim_iface(capture_opts, 
+        (prefs->capture_device) ? get_if_name(prefs->capture_device) : NULL)) {
+        exit(2);
     }
   }
 
   if (list_link_layer_types) {
-    /* Get the list of link-layer types for the capture device. */
-    lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
-    if (lt_list == NULL) {
-      if (err_str[0] != '\0') {
-	cmdarg_err("The list of data link types for the capture device could not be obtained (%s)."
-	  "Please check to make sure you have sufficient permissions, and that\n"
-	  "you have the proper interface or pipe specified.\n", err_str);
-      } else
-	cmdarg_err("The capture device has no data link types.");
-      exit(2);
-    }
-    g_warning("Data link types (use option -y to set):");
-    for (lt_entry = lt_list; lt_entry != NULL;
-         lt_entry = g_list_next(lt_entry)) {
-      data_link_info = lt_entry->data;
-      g_warning("  %s", data_link_info->name);
-      if (data_link_info->description != NULL)
-	g_warning(" (%s)", data_link_info->description);
-      else
-	g_warning(" (not supported)");
-      putchar('\n');
-    }
-    free_pcap_linktype_list(lt_list);
+    capture_opts_list_link_layer_types(capture_opts);
     exit(0);
   }
 
-  capture_opts_trim(capture_opts, MIN_PACKET_SIZE);
+  capture_opts_trim_snaplen(capture_opts, MIN_PACKET_SIZE);
+  capture_opts_trim_ring_num_files(capture_opts);
 #endif /* HAVE_LIBPCAP */
 
   /* Notify all registered modules that have had any of their preferences

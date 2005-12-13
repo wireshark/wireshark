@@ -61,24 +61,25 @@
 
 #include <signal.h>
 #include <errno.h>
+#include <setjmp.h>
 
 
 #include <glib.h>
+
+#include "wiretap/wtap.h"
+#include "wiretap/wtap-capture.h"
+#include "wiretap/libpcap.h"
+
 
 #include <pcap.h>
 #include "capture-pcap-util.h"
 
 #include "capture.h"
-#include "capture_loop.h"
 #include "capture_sync.h"
 
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
-
-#include "wiretap/libpcap.h"
-#include "wiretap/wtap.h"
-#include "wiretap/wtap-capture.h"
 
 #include "simple_dialog.h"
 #include "util.h"
@@ -86,72 +87,15 @@
 #include "file_util.h"
 
 
+#include "capture_loop.h"
+
 
 
 /*
- * We don't want to do a "select()" on the pcap_t's file descriptor on
- * BSD (because "select()" doesn't work correctly on BPF devices on at
- * least some releases of some flavors of BSD), and we don't want to do
- * it on Windows (because "select()" is something for sockets, not for
- * arbitrary handles).  (Note that "Windows" here includes Cygwin;
- * even in its pretend-it's-UNIX environment, we're using WinPcap, not
- * a UNIX libpcap.)
- *
- * We *do* want to do it on other platforms, as, on other platforms (with
- * the possible exception of Ultrix and Digital UNIX), the read timeout
- * doesn't expire if no packets have arrived, so a "pcap_dispatch()" call
- * will block until packets arrive, causing the UI to hang.
- *
- * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
- * want to include it if it's not present on this platform, however.
+ * This needs to be static, so that the SIGUSR1 handler can clear the "go"
+ * flag.
  */
-#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && \
-    !defined(__bsdi__) && !defined(__APPLE__) && !defined(_WIN32) && \
-    !defined(__CYGWIN__)
-# define MUST_DO_SELECT
-#endif
-
-
-typedef struct _loop_data {
-  /* common */
-  gboolean       go;                    /* TRUE as long as we're supposed to keep capturing */
-  int            err;                   /* if non-zero, error seen while capturing */
-  gint           packets_curr;          /* Number of packets we have already captured */
-  gint           packets_max;           /* Number of packets we're supposed to capture - 0 means infinite */
-  gint           packets_sync_pipe;     /* packets not already send out to the sync_pipe */
-
-  /* pcap "input file" */
-  pcap_t        *pcap_h;                /* pcap handle */
-  gboolean       pcap_err;              /* TRUE if error from pcap */
-#ifdef MUST_DO_SELECT
-  int            pcap_fd;               /* pcap file descriptor */
-#endif
-
-  /* capture pipe (unix only "input file") */
-  gboolean       from_cap_pipe;         /* TRUE if we are capturing data from a capture pipe */
-#ifndef _WIN32
-  struct pcap_hdr cap_pipe_hdr;
-  struct pcaprec_modified_hdr cap_pipe_rechdr;
-  int            cap_pipe_fd;           /* the file descriptor of the capture pipe */
-  gboolean       cap_pipe_modified;     /* TRUE if data in the pipe uses modified pcap headers */
-  gboolean       cap_pipe_byte_swapped; /* TRUE if data in the pipe is byte swapped */
-  unsigned int   cap_pipe_bytes_to_read;/* Used by cap_pipe_dispatch */
-  unsigned int   cap_pipe_bytes_read;   /* Used by cap_pipe_dispatch */
-  enum {
-         STATE_EXPECT_REC_HDR,
-         STATE_READ_REC_HDR,
-         STATE_EXPECT_DATA,
-         STATE_READ_DATA
-       } cap_pipe_state;
-
-  enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
-#endif
-
-  /* wiretap (output file) */
-  wtap_dumper   *wtap_pdh;
-  gint           wtap_linktype;
-
-} loop_data;
+static loop_data   ld;
 
 
 /*
@@ -169,10 +113,10 @@ static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fna
 #ifndef _WIN32
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
-static void
-cap_pipe_adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
+void
+cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
 {
-  if (ld->cap_pipe_byte_swapped) {
+  if (byte_swapped) {
     /* Byte-swap the record header fields. */
     rechdr->ts_sec = BSWAP32(rechdr->ts_sec);
     rechdr->ts_usec = BSWAP32(rechdr->ts_usec);
@@ -203,7 +147,7 @@ cap_pipe_adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *
  * header.
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
  * because we can't seek on pipes (see wiretap/libpcap.c for details) */
-static int
+int
 cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
                  char *errmsg, int errmsgl)
 {
@@ -219,7 +163,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
 
   /*
-   * XXX Ethereal blocks until we return
+   * XXX (T)Ethereal blocks until we return
    */
   if (strcmp(pipename, "-") == 0)
     fd = 0; /* read from stdin */
@@ -375,7 +319,7 @@ error:
 
 /* We read one record from the pipe, take care of byte order in the record
  * header, write the record to the capture file, and update capture statistics. */
-static int
+int
 cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 		struct pcaprec_modified_hdr *rechdr, guchar *data,
 		char *errmsg, int errmsgl)
@@ -446,10 +390,10 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 
   case PD_REC_HDR_READ:
     /* We've read the header. Take care of byte order. */
-    cap_pipe_adjust_header(ld, hdr, &rechdr->hdr);
+    cap_pipe_adjust_header(ld->cap_pipe_byte_swapped, hdr, &rechdr->hdr);
     if (rechdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
       g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
-        ld->packets_curr+1, rechdr->hdr.incl_len);
+        ld->packet_count+1, rechdr->hdr.incl_len);
       break;
     }
     ld->cap_pipe_state = STATE_EXPECT_DATA;
@@ -462,7 +406,7 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     phdr.caplen = rechdr->hdr.incl_len;
     phdr.len = rechdr->hdr.orig_len;
 
-    capture_loop_packet_cb((u_char *)ld, &phdr, data);
+    ld->packet_cb((u_char *)ld, &phdr, data);
 
     ld->cap_pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
@@ -487,8 +431,9 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 
 
 /* open the capture input file (pcap or capture pipe) */
-static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len) {
+gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len) {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
+  gchar      *sync_msg_str;
   const char *set_linktype_err_str;
 #ifdef _WIN32
   int         err;
@@ -501,6 +446,9 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", capture_opts->iface);
+
+
+/* XXX - opening Winsock on tethereal? */
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -563,7 +511,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #ifdef _WIN32
     /* try to set the capture buffer size */
     if (pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+        sync_msg_str = g_strdup_printf(
           "%sCouldn't set the capture buffer size!%s\n"
           "\n"
           "The capture buffer size of %luMB seems to be too high for your machine,\n"
@@ -571,6 +519,8 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
           "\n"
           "Nonetheless, the capture is started.\n",
           simple_dialog_primary_start(), simple_dialog_primary_end(), capture_opts->buffer_size);
+        sync_pipe_errmsg_to_parent(sync_msg_str);
+        g_free(sync_msg_str);
     }
 #endif
 
@@ -592,13 +542,14 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     /* On Win32 OSes, the capture devices are probably available to all
        users; don't warn about permissions problems.
 
-       Do, however, warn that WAN devices aren't supported. */
+       Do, however, warn about the lack of 64-bit support, and warn that
+       WAN devices aren't supported. */
     g_snprintf(errmsg, errmsg_len,
 "%sThe capture session could not be initiated!%s\n"
 "\n"
 "(%s)\n"
 "\n"
-"Please check that you have the proper interface specified.\n"
+"Please check that \"%s\" is the proper interface.\n"
 "\n"
 "\n"
 "Help can be found at:\n"
@@ -618,6 +569,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 "support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
 	simple_dialog_primary_start(), simple_dialog_primary_end(),
     open_err_str,
+    capture_opts->iface,
 	simple_dialog_primary_start(), simple_dialog_primary_end());
     return FALSE;
 #else
@@ -630,16 +582,16 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	/* Pipe doesn't exist, so output message for interface */
 
 	/* If we got a "can't find PPA for XXX" message, warn the user (who
-	   is running Ethereal on HP-UX) that they don't have a version
+	   is running (T)Ethereal on HP-UX) that they don't have a version
 	   of libpcap that properly handles HP-UX (libpcap 0.6.x and later
 	   versions, which properly handle HP-UX, say "can't find /dev/dlpi
 	   PPA for XXX" rather than "can't find PPA for XXX"). */
 	if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	  libpcap_warn =
 	    "\n\n"
-	    "You are running Ethereal with a version of the libpcap library\n"
+	    "You are running (T)Ethereal with a version of the libpcap library\n"
 	    "that doesn't handle HP-UX network devices well; this means that\n"
-	    "Ethereal may not be able to capture packets.\n"
+	    "(T)Ethereal may not be able to capture packets.\n"
 	    "\n"
 	    "To fix this, you should install libpcap 0.6.2, or a later version\n"
 	    "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
@@ -666,6 +618,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
   }
 
+/* XXX - will this work for tethereal? */
 #ifdef MUST_DO_SELECT
   if (!ld->from_cap_pipe) {
 #ifdef HAVE_PCAP_GET_SELECTABLE_FD
@@ -678,8 +631,11 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
   /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
      returned a warning; print it, but keep capturing. */
-  if (open_err_str[0] != '\0')
-    g_warning("%s.", open_err_str);
+  if (open_err_str[0] != '\0') {
+    sync_msg_str = g_strdup_printf("%s.", open_err_str);
+    sync_pipe_errmsg_to_parent(sync_msg_str);
+    g_free(sync_msg_str);
+  }
 
   return TRUE;
 }
@@ -712,7 +668,7 @@ static void capture_loop_close_input(loop_data *ld) {
 
 
 /* init the capture filter */
-static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * cfilter, char *errmsg, int errmsg_len) {
+gboolean capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter, char *errmsg, int errmsg_len) {
   bpf_u_int32 netnum, netmask;
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   struct bpf_program fcode;
@@ -721,7 +677,7 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_filter: %s", cfilter);
 
   /* capture filters only work on real interfaces */
-  if (cfilter && !ld->from_cap_pipe) {
+  if (cfilter && !from_cap_pipe) {
     /* A capture filter was specified; set it up. */
     if (pcap_lookupnet(iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
@@ -733,13 +689,15 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
        * a difference (only filters that check for IP broadcast addresses
        * use the netmask).
        */
+      /*cmdarg_err(
+        "Warning:  Couldn't obtain netmask info (%s).", lookup_net_err_str);*/
       netmask = 0;
     }
-    if (pcap_compile(ld->pcap_h, &fcode, cfilter, 1, netmask) < 0) {
+    if (pcap_compile(pcap_h, &fcode, cfilter, 1, netmask) < 0) {
       dfilter_t   *rfcode = NULL;
       gchar *safe_cfilter = simple_dialog_format_message(cfilter);
       gchar *safe_cfilter_error_msg = simple_dialog_format_message(
-	  pcap_geterr(ld->pcap_h));
+	  pcap_geterr(pcap_h));
 
       /* filter string invalid, did the user tried a display filter? */
 #ifndef DUMPCAP
@@ -753,7 +711,7 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
           "Note that display filters and capture filters don't have the same syntax,\n"
           "so you can't use most display filter expressions as capture filters.\n"
           "\n"
-          "See the help for a description of the capture filter syntax.",
+          "See the User's Guide for a description of the capture filter syntax.",
           simple_dialog_primary_start(), safe_cfilter,
           simple_dialog_primary_end(), safe_cfilter_error_msg);
 	dfilter_free(rfcode);
@@ -764,7 +722,7 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
           "That string isn't a valid capture filter (%s).\n"
-          "See the help for a description of the capture filter syntax.",
+          "See the User's Guide for a description of the capture filter syntax.",
           simple_dialog_primary_start(), safe_cfilter,
           simple_dialog_primary_end(), safe_cfilter_error_msg);
       }
@@ -772,9 +730,9 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
       g_free(safe_cfilter);
       return FALSE;
     }
-    if (pcap_setfilter(ld->pcap_h, &fcode) < 0) {
+    if (pcap_setfilter(pcap_h, &fcode) < 0) {
       g_snprintf(errmsg, errmsg_len, "Can't install filter (%s).",
-	pcap_geterr(ld->pcap_h));
+	pcap_geterr(pcap_h));
 #ifdef HAVE_PCAP_FREECODE
       pcap_freecode(&fcode);
 #endif
@@ -790,7 +748,7 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
 
 
 /* open the wiretap part of the capture output file */
-static int capture_loop_init_wiretap_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
+gboolean capture_loop_init_wiretap_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
   int         pcap_encap;
   int         file_snaplen;
   int         err;
@@ -815,7 +773,7 @@ static int capture_loop_init_wiretap_output(capture_options *capture_opts, int s
   if (ld->wtap_linktype == WTAP_ENCAP_UNKNOWN) {
     g_snprintf(errmsg, errmsg_len,
 	"The network you're capturing from is of a type"
-	" that Ethereal doesn't support (data link type %d).", pcap_encap);
+	" that (T)Ethereal doesn't support (data link type %d).", pcap_encap);
     return FALSE;
   }
   if (capture_opts->multi_files_on) {
@@ -828,6 +786,7 @@ static int capture_loop_init_wiretap_output(capture_options *capture_opts, int s
 
   if (ld->wtap_pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
+    /* XXX - use cf_open_error_message from tethereal instead? */
     switch (err) {
 
     case WTAP_ERR_CANT_OPEN:
@@ -861,7 +820,7 @@ static int capture_loop_init_wiretap_output(capture_options *capture_opts, int s
   return TRUE;
 }
 
-static gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
+gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
 
@@ -970,7 +929,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
            * "select()" says we can read from it without blocking; go for
            * it.
            */
-          inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (u_char *)ld);
+          inpkts = pcap_dispatch(ld->pcap_h, 1, ld->packet_cb, (u_char *)ld);
           if (inpkts < 0) {
             ld->pcap_err = TRUE;
             ld->go = FALSE;
@@ -993,7 +952,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch");
 #endif
-        inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (u_char *) ld);
+        inpkts = pcap_dispatch(ld->pcap_h, 1, ld->packet_cb, (u_char *) ld);
         if (inpkts < 0) {
           ld->pcap_err = TRUE;
           ld->go = FALSE;
@@ -1015,7 +974,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 
             inpkts = 0;
             while( (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1) {
-                capture_loop_packet_cb( (u_char *) ld, pkt_header, pkt_data);
+                ld->packet_cb( (u_char *) ld, pkt_header, pkt_data);
                 inpkts++;
             }
 
@@ -1039,7 +998,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 
 /* open the output file (temporary/specified name/ringbuffer) */
 /* Returns TRUE if the file opened successfully, FALSE otherwise. */
-static gboolean
+gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 		      char *errmsg, int errmsg_len) {
 
@@ -1141,21 +1100,15 @@ signal_pipe_stopped(void)
     /*g_warning("check pipe: handle: %x result: %u avail: %u", handle, result, avail);*/
 
     if(!result || avail > 0) {
-        /* XXX - doesn't work with dumpcap as a command line tool */
-        /* as we have no input pipe, need to find a way to circumvent this */
+        /* peek failed or some bytes really available */
         return TRUE;
+    } else {
+        /* pipe ok and no bytes available */
+        return FALSE;
     }
-
-    return FALSE;
 }
 #endif
 
-
-/*
- * This needs to be static, so that the SIGUSR1 handler can clear the "go"
- * flag.
- */
-static loop_data   ld;
 
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
@@ -1164,7 +1117,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 {
   time_t      upd_time, cur_time;
   time_t      start_time;
-  int         err_close, inpkts;
+  int         err_close;
+  int         inpkts;
+  gint        inpkts_to_sync_pipe = 0;     /* packets not already send out to the sync_pipe */
   condition  *cnd_file_duration = NULL;
   condition  *cnd_autostop_files = NULL;
   condition  *cnd_autostop_size = NULL;
@@ -1181,16 +1136,15 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* init the loop data */
   ld.go                 = TRUE;
-  ld.packets_curr       = 0;
+  ld.packet_count       = 0;
   if (capture_opts->has_autostop_packets)
-    ld.packets_max      = capture_opts->autostop_packets;
+    ld.packet_max       = capture_opts->autostop_packets;
   else
-    ld.packets_max      = 0;	/* no limit */
+    ld.packet_max       = 0;	/* no limit */
   ld.err                = 0;	/* no error seen yet */
   ld.wtap_linktype      = WTAP_ENCAP_UNKNOWN;
   ld.pcap_err           = FALSE;
   ld.from_cap_pipe      = FALSE;
-  ld.packets_sync_pipe  = 0;
   ld.wtap_pdh           = NULL;
 #ifndef _WIN32
   ld.cap_pipe_fd        = -1;
@@ -1198,6 +1152,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #ifdef MUST_DO_SELECT
   ld.pcap_fd            = 0;
 #endif
+  ld.packet_cb          = capture_loop_packet_cb;
+
 
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
@@ -1228,7 +1184,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
-  if (!capture_loop_init_filter(&ld, capture_opts->iface, capture_opts->cfilter, errmsg, sizeof(errmsg))) {
+  if (!capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts->iface, capture_opts->cfilter, errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1293,7 +1249,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #endif
 
     if (inpkts > 0) {
-      ld.packets_sync_pipe += inpkts;
+      inpkts_to_sync_pipe += inpkts;
 
       /* check capture size condition */
       if (cnd_autostop_size != NULL && cnd_eval(cnd_autostop_size,
@@ -1315,7 +1271,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             }
             wtap_dump_flush(ld.wtap_pdh);
             sync_pipe_filename_to_parent(capture_opts->save_file);
-			ld.packets_sync_pipe = 0;
+			inpkts_to_sync_pipe = 0;
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1343,15 +1299,15 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       }*/
 
       /* Let the parent process know. */
-      if (ld.packets_sync_pipe) {
+      if (inpkts_to_sync_pipe) {
         /* do sync here */
         wtap_dump_flush(ld.wtap_pdh);
 
-	  /* Send our parent a message saying we've written out "ld.sync_packets"
+	  /* Send our parent a message saying we've written out "inpkts_to_sync_pipe"
 	     packets to the capture file. */
-        sync_pipe_packet_count_to_parent(ld.packets_sync_pipe);
+        sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
 
-        ld.packets_sync_pipe = 0;
+        inpkts_to_sync_pipe = 0;
       }
 
       /* check capture duration condition */
@@ -1379,7 +1335,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
               cnd_reset(cnd_autostop_size);
             wtap_dump_flush(ld.wtap_pdh);
             sync_pipe_filename_to_parent(capture_opts->save_file);
-			ld.packets_sync_pipe = 0;
+			inpkts_to_sync_pipe = 0;
           } else {
             /* File switch failed: stop here */
 	        ld.go = FALSE;
@@ -1575,8 +1531,8 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   int err;
 
   /* if the user told us to stop after x packets, do we have enough? */
-  ld->packets_curr++;
-  if ((ld->packets_max > 0) && (ld->packets_curr >= ld->packets_max))
+  ld->packet_count++;
+  if ((ld->packet_max > 0) && (ld->packet_count >= ld->packet_max))
   {
      ld->go = FALSE;
   }
