@@ -263,8 +263,8 @@ decl ::= DONE_KW SEMICOLON.
 
 debug_decl ::= DEBUG_KW OPEN_BRACE dbgfile_default dbglevel_default pdu_dbglevel_default gop_dbglevel_default gog_dbglevel_default CLOSE_BRACE SEMICOLON.
 
-dbgfile_default ::= FILENAME_KW QUOTED(Filename) SEMICOLON. { mc->dbg_facility = fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,FALSE); }
-dbgfile_default ::= FILENAME_KW NAME(Filename) SEMICOLON. { mc->dbg_facility = fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,FALSE);  }
+dbgfile_default ::= FILENAME_KW QUOTED(Filename) SEMICOLON. { mc->dbg_facility = fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE); }
+dbgfile_default ::= FILENAME_KW NAME(Filename) SEMICOLON. { mc->dbg_facility = fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE);  }
 dbgfile_default ::= .
 
 dbglevel_default ::= LEVEL_KW INTEGER(LevelString) SEMICOLON. { mc->dbg_lvl = (int) strtol(LevelString,NULL,10); }
