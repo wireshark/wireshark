@@ -1280,6 +1280,9 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 
 	/* Re-set the tree */
 	if (rec->sub_ptvc_rec->descr) {
+		if (ptvcursor_current_offset(ptvc) <= offset)
+			THROW(ReportedBoundsError);
+
 		proto_item_set_len(item, ptvcursor_current_offset(ptvc) - offset);
 		ptvcursor_set_tree(ptvc, old_tree);
 	}
