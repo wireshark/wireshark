@@ -1,0 +1,57 @@
+$Id$
+
+WARNING: these tests are in alpha state!
+
+What is it?
+-----------
+This is basically a collection of bash scripts to test the command line options of:
+
+ - Ethereal
+ - Tethereal
+ - Dumpcap 
+
+Motivation
+----------
+
+The command line options of Ethereal and the companion command line tools are 
+numerous. This makes it hard to find newly introduced bugs doing manual testing 
+(try and error) with source code changes.
+
+The current way is to do some changes, testing some scenarios by hand and 
+commit the code so other users will complain about new problems. This obviously 
+is far from being optimal.
+
+Limitations
+-----------
+
+The test set currently provided will only do some basic tests, but even that 
+is far better than nothing. This may involve in time as new tests can be added
+to fix problems reported by users. This will hopefully lead to a "complete" 
+and reliable testset in the future.
+
+The tests are limited to command line tests, other things like unit tests or 
+GUI test are not included.
+
+Prerequisites
+-------------
+
+What you'll need (to do):
+
+ - THE LATEST DEVELOPER BUILDS (the 0.10.13 release won't work)!
+ - obviously, compile the programs (ethereal, ...) to be tested
+ - have a bash (cygwin should do well)
+ - you'll need a network interface with some network traffic 
+   (so you can run the capture tests)
+ - edit the file config.sh to suit your configuration
+
+A Test Ride
+-----------
+
+Start test.sh which should provide a basic menu. Just press Enter to start 
+all tests.
+
+It should start all the available tests. Each test will throw out a line 
+which should end with a green "Ok". If one of the tests fail, the script
+will report it and stop at this test step.
+
+PLEASE REMEMBER TO HAVE SOME TRAFFIC ON YOUR NETWORK INTERFACE!!!
