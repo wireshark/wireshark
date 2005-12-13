@@ -135,16 +135,16 @@ static const value_string njack_cmd_vals[] = {
 	{ NJACK_CMD_REMOVETAG,		"Remove tag" },
 	{ NJACK_CMD_GROUP,		"Device group" },
 	{ NJACK_CMD_LOCATION,		"Location" },
-	{ NJACK_CMD_PORT1,		"Port 1 (??)" },
-	{ NJACK_CMD_PORT2,		"Port 2 (??)" },
-	{ NJACK_CMD_PORT3,		"Port 3 (??)" },
-	{ NJACK_CMD_PORT4,		"Port 4 (??)" },
+	{ NJACK_CMD_PORT1,		"Port 1 (\?\?)" },
+	{ NJACK_CMD_PORT2,		"Port 2 (\?\?)" },
+	{ NJACK_CMD_PORT3,		"Port 3 (\?\?)" },
+	{ NJACK_CMD_PORT4,		"Port 4 (\?\?)" },
 	{ NJACK_CMD_PASSWORD,		"Device password" },
-	{ NJACK_CMD_ROCOMMUNITY,	"RO community (??)" },
+	{ NJACK_CMD_ROCOMMUNITY,	"RO community (\?\?)" },
 	{ NJACK_CMD_IPGATEWAY,		"IP gateway" },
-	{ NJACK_CMD_RWCOMMUNITY,	"RW community (??)" },
-	{ NJACK_CMD_DEVICETYPE,		"Device type(??)" },
-	{ NJACK_CMD_SERIALNO,		"Serial no(??)" },
+	{ NJACK_CMD_RWCOMMUNITY,	"RW community (\?\?)" },
+	{ NJACK_CMD_DEVICETYPE,		"Device type(\?\?)" },
+	{ NJACK_CMD_SERIALNO,		"Serial no(\?\?)" },
 	{ NJACK_CMD_ENDOFPACKET,	"End of packet" },
 
 	{ 0,	NULL }
@@ -421,7 +421,7 @@ proto_register_njack(void)
 			0x0, "", HFILL }},
 
                 { &hf_njack_set_data,
-                { "Authdata??",   "njack.set.data", FT_BYTES, BASE_NONE, NULL,
+                { "Authdata\?\?",   "njack.set.data", FT_BYTES, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
 		{ &hf_njack_set_tlv_type,
