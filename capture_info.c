@@ -149,7 +149,8 @@ void capture_info_new_packets(int to_read)
 void capture_info_close(void)
 {
     capture_info_ui_destroy(&info_data.ui);
-    wtap_close(info_data.wtap);
+    if(info_data.wtap)
+        wtap_close(info_data.wtap);
 }
 
 
