@@ -1,3 +1,7 @@
+/* slightly modified from the samba 4 idl since we have not converted SRVSVC yet.
+   the generated dissector is not yet for inclusion.
+*/
+
 #include "idl_types.h"
 
 /*
@@ -11,19 +15,13 @@
   helpstring("Workstation Service")
 ] interface wkssvc
 {
-
-	/* Temporarily declare platform id here instead since we havent 
-	 * converted srvsvc yet.  
-	 * We have a few more vals here than in 
-	 * srvsvc.idl anyway.
-	 */
 	typedef [public] enum {
 		PLATFORM_ID_DOS = 300,
 		PLATFORM_ID_OS2 = 400,
 		PLATFORM_ID_NT	= 500,
 		PLATFORM_ID_OSF = 600,
 		PLATFORM_ID_VMS = 700
-	} wkssvc_PlatformId;
+	} srvsvc_PlatformId;
 
 #define BOOL uint32
 
@@ -31,7 +29,7 @@
 	/* Function: 0x00 */
 
 	typedef struct {
-		wkssvc_PlatformId platform_id;
+		srvsvc_PlatformId platform_id;
 		[string,charset(UTF16)] uint16 *server_name;
 		[string,charset(UTF16)] uint16 *domain_name;
 		uint32 version_major;
@@ -39,7 +37,7 @@
 	} wkssvc_NetWkstaInfo100;
 
 	typedef struct {
-		wkssvc_PlatformId platform_id;
+		srvsvc_PlatformId platform_id;
 		[string,charset(UTF16)] uint16 *server_name;
 		[string,charset(UTF16)] uint16 *domain_name;
 		uint32 version_major;
@@ -48,7 +46,7 @@
 	} wkssvc_NetWkstaInfo101;
 
 	typedef struct {
-		wkssvc_PlatformId platform_id;
+		srvsvc_PlatformId platform_id;
 		[string,charset(UTF16)] uint16 *server_name;
 		[string,charset(UTF16)] uint16 *domain_name;
 		uint32 version_major;
@@ -163,7 +161,7 @@
 	/*****************************/
 	/* Function        0x02      */
 	typedef struct {
-		[string] uint16 *user;
+		[string,charset(UTF16)] uint16 *user;
 	} USER_INFO_0;
 
 	typedef struct {
@@ -172,10 +170,10 @@
 	} USER_INFO_0_CONTAINER;
 
 	typedef struct {
-		[string] uint16 *user_name;
-		[string] uint16 *logon_domain;
-		[string] uint16 *other_domains;
-		[string] uint16 *logon_server;
+		[string,charset(UTF16)] uint16 *user_name;
+		[string,charset(UTF16)] uint16 *logon_domain;
+		[string,charset(UTF16)] uint16 *other_domains;
+		[string,charset(UTF16)] uint16 *logon_server;
 	} USER_INFO_1;
 
 	typedef struct {
@@ -188,8 +186,8 @@
 		[case(1)] USER_INFO_1_CONTAINER *user1;
 	} WKS_USER_ENUM_UNION;
 
-	WERROR NetWkstaEnumUsers(
-		[in] [string] uint16 *server_name,
+	WERROR wkssvc_NetWkstaEnumUsers(
+		[in] [string,charset(UTF16)] uint16 *server_name,
 		[in] uint32 level,
 		[in] [out] [ref] WKS_USER_ENUM_UNION *users,
 		[in] uint32 prefmaxlen,
@@ -233,7 +231,6 @@
 		[in,out]     uint32 level,
 		[in,out,switch_is(level),ref] wkssvc_NetWkstaTransportCtr *ctr,
 		[in]         uint32 max_buffer,
-		[out] 	     uint32 *entriesread,
 		[out]        uint32 totalentries,
 		[in,out]     uint32 *resume_handle
 		);
@@ -304,8 +301,8 @@
 	WERROR WKSSVC_NETRGETJOINABLEOUS ();
 
 	typedef struct {
-		char blob[524];
-	} TYPE_30;
+		uint8 blob[524];
+	} wkssvc_PasswordBuffer;
 
 	typedef [bitmap32bit] bitmap {
 		/* TRUE: defer setting the SPN and dNSHostName until a rename operation */
@@ -341,16 +338,16 @@
 		[in]         [string,charset(UTF16),ref] uint16 *domain_name,
 		[in]         [string,charset(UTF16)] uint16 *account_name,
 		[in]         [string,charset(UTF16)] uint16 *admin_account,
-		[in]         TYPE_30 *type_30,
+		[in]         wkssvc_PasswordBuffer *type_30,
 		[in]         wkssvc_joinflags join_flags
 		);
 
 	/*****************************/
 	/* Function        0x17      */
 	WERROR wkssvc_NetrUnjoinDomain2 (
-		[in] [unique] [string] uint16 *server_name,
-		[in] [unique] [string] uint16 *account,
-		[in] [unique] TYPE_30 *Encrypted_password,
+		[in] [unique] [string,charset(UTF16)] uint16 *server_name,
+		[in] [unique] [string,charset(UTF16)] uint16 *account,
+		[in] [unique] wkssvc_PasswordBuffer *Encrypted_password,
 		[in] wkssvc_joinflags unjoin_flags
 		);
 
@@ -361,11 +358,11 @@
 
 	/*****************************/
 	/* Function        0x18      */
-	WERROR WKSSVC_NetrRenameMachineInDomain2(
-		[in] [unique] [string] uint16 *server_name,
-		[in] [unique] [string] uint16 *NewMachineName,
-		[in] [unique] [string] uint16 *Account,
-		[in] [unique] TYPE_30 *EncryptedPassword,
+	WERROR wkssvc_NetrRenameMachineInDomain2(
+		[in] [unique] [string,charset(UTF16)] uint16 *server_name,
+		[in] [unique] [string,charset(UTF16)] uint16 *NewMachineName,
+		[in] [unique] [string,charset(UTF16)] uint16 *Account,
+		[in] [unique] wkssvc_PasswordBuffer *EncryptedPassword,
 		[in] wkssvc_renameflags RenameOptions
 		);
 
@@ -379,21 +376,21 @@
 
 	/*****************************/
 	/* Function        0x1b      */
-	WERROR WKSSVC_NetrAddAlternateComputerName(
-		[in] [unique] [string] uint16 *server_name,
-		[in] [unique] [string] uint16 *NewAlternateMachineName,
-		[in] [unique] [string] uint16 *Account,
-		[in] [unique] TYPE_30 *EncryptedPassword,
+	WERROR wkssvc_NetrAddAlternateComputerName(
+		[in] [unique] [string,charset(UTF16)] uint16 *server_name,
+		[in] [unique] [string,charset(UTF16)] uint16 *NewAlternateMachineName,
+		[in] [unique] [string,charset(UTF16)] uint16 *Account,
+		[in] [unique] wkssvc_PasswordBuffer *EncryptedPassword,
 		[in] uint32 Reserved
 		);
 
 	/*****************************/
 	/* Function        0x1c      */
-	WERROR WKSSVC_NetrRemoveAlternateComputerName(
-		[in] [unique] [string] uint16 *server_name,
-		[in] [unique] [string] uint16 *AlternateMachineNameToRemove,
-		[in] [unique] [string] uint16 *Account,
-		[in] [unique] TYPE_30 *EncryptedPassword,
+	WERROR wkssvc_NetrRemoveAlternateComputerName(
+		[in] [unique] [string,charset(UTF16)] uint16 *server_name,
+		[in] [unique] [string,charset(UTF16)] uint16 *AlternateMachineNameToRemove,
+		[in] [unique] [string,charset(UTF16)] uint16 *Account,
+		[in] [unique] wkssvc_PasswordBuffer *EncryptedPassword,
 		[in] uint32 Reserved
 		);
 
@@ -405,4 +402,3 @@
 	/* Function        0x1e      */
 	WERROR WKSSVC_NETRENUMERATECOMPUTERNAMES ();
 }
-

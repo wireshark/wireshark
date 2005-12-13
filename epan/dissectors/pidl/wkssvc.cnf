@@ -1,0 +1,16 @@
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_DEFER_SPN "Defer setting of servicePrincipalName and dNSHostName attributes on the computer object until a rename operation" "Set servicePrincipalName and dNSHostName attributes on the computer object"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_MACHINE_PWD_PASSED "Set the machine password after domain join to passed password" "Do not set the machine password after domain join to passed password"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_JOIN_UNSECURE "Performs an unsecured join" "Perform a secured join"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_DOMAIN_JOIN_IF_JOINED "Allow a join to a new domain even if the computer is already joined to a domain" "Do not allow join to a new domain if the computer is already joined to a domain"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_WIN9X_UPGRADE "The join operation is occuring as part of an upgrade of Windows 9x" "The join operation is not part of a Windows 9x upgrade"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_ACCOUNT_DELETE "Delete the account when a domain is left" "Do not delete the account when a domain is left"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_ACCOUNT_CREATE "Create the account on the domain" "Do not create the account"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_JOIN_TYPE "Join the computer to a domain" "Join the computer to a workgroup"
+
