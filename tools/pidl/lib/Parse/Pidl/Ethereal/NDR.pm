@@ -203,8 +203,13 @@ sub Bitmap($$$)
 		register_hf_field($hf_bitname, field2name($en), $filtername, "FT_BOOLEAN", $e->{ALIGN} * 8, "TFS(&$name\_$en\_tfs)", $ev, "");
 
 		pidl_def "static const true_false_string $name\_$en\_tfs = {";
-		pidl_def "   \"$en is SET\",";
-		pidl_def "   \"$en is NOT SET\",";
+		if (defined($conformance->{tfs}->{$hf_bitname})) {
+			pidl_def "   $conformance->{tfs}->{$hf_bitname}->{TRUE_STRING},";
+			pidl_def "   $conformance->{tfs}->{$hf_bitname}->{FALSE_STRING},";
+		} else {
+			pidl_def "   \"$en is SET\",";
+			pidl_def "   \"$en is NOT SET\",";
+		}
 		pidl_def "};";
 		
 		pidl_code "proto_tree_add_boolean(tree, $hf_bitname, tvb, offset-$e->{ALIGN}, $e->{ALIGN}, flags);";

@@ -70,6 +70,10 @@ Change description for the specified header field. `field' is the hf name of the
 Code to insert when generating the specified dissector. @HF@ and 
 @PARAM@ will be substituted.
 
+=item I<TFS> hf_name "true string" "false string"
+
+Override the text shown when a bitmap boolean value is enabled or disabled.
+
 =back
 
 =head1 EXAMPLE
@@ -125,12 +129,27 @@ sub handle_type($$$$$$$$$$)
 	};
 }
 
+sub handle_tfs($$$$$)
+{
+	my ($pos,$data,$hf,$trues,$falses) = @_;
+
+	unless(defined($falses)) {
+		print "$pos: error: incomplete TFS command\n";
+		return;
+	}
+
+	$data->{tfs}->{$hf} = {
+		TRUE_STRING => $trues,
+		FALSE_STRING => $falses
+	};
+}
+
 sub handle_hf_rename($$$$)
 {
 	my ($pos,$data,$old,$new) = @_;
 
 	unless(defined($new)) {
-		print "$pos: error incomplete HF_RENAME command\n";
+		print "$pos: error: incomplete HF_RENAME command\n";
 		return;
 	}
 
@@ -272,6 +291,7 @@ my %field_handlers = (
 	PARAM_VALUE => \&handle_param_value, 
 	HF_FIELD => \&handle_hf_field, 
 	HF_RENAME => \&handle_hf_rename, 
+	TFS => \&handle_tfs,
 	STRIP_PREFIX => \&handle_strip_prefix,
 	PROTOCOL => \&handle_protocol,
 	FIELD_DESCRIPTION => \&handle_fielddescription,
