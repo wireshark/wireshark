@@ -511,7 +511,6 @@ sync_pipe_start(capture_options *capture_opts) {
        *
        * args: -i interface specification
        * -w file to write
-       * -W file descriptor to write
        * -c count to capture
        * -s snaplen
        * -m / -b fonts
