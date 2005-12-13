@@ -2999,7 +2999,13 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 			offset = offset + octet - 2;
 		}
 	}
-	/* Defragment ? */
+	/*
+	 * Defragment ?
+	 * XXX - we can't do that if there's no segmentation local reference,
+	 * as we use the segmentation local reference in the
+	 * fragment_add_seq_next() call.  We don't check for that,
+	 * though.
+	 */
 	if (isup_apm_desegment && si_and_apm_seg_ind != 0xc0){
 		/* reassembly seems to not work well wid zero length segments */
 		if ( offset == (gint)length){
@@ -3021,7 +3027,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 				tvb_length_remaining(parameter_tvb, offset),		/* fragment length - to the end */
 				more_frag);										/* More fragments? */
 
-		if (((si_and_apm_seg_ind & 0x3f !=0)&&(si_and_apm_seg_ind &0x40 !=0)) ){
+		if ((si_and_apm_seg_ind & 0x3f) !=0 && (si_and_apm_seg_ind &0x40) !=0){
 			/* First fragment set number of fragments */
 			fragment_set_tot_len(pinfo, apm_Segmentation_local_ref & 0x7f, isup_apm_msg_fragment_table, (si_and_apm_seg_ind & 0x3f));
 		}
