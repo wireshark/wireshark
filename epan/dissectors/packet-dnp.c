@@ -248,8 +248,8 @@
 #define AL_OBJCTLC_CLEAR   0x20    /* xx1xxxxx for Control Code 'Clear' */
 
 #define AL_OBJCTLC_TC0     0x00    /* 00xxxxxx NUL */
-#define AL_OBJCTLC_TC1     0x40    /* 01xxxxxx Trip */
-#define AL_OBJCTLC_TC2     0x80    /* 10xxxxxx Close */
+#define AL_OBJCTLC_TC1     0x40    /* 01xxxxxx Close */
+#define AL_OBJCTLC_TC2     0x80    /* 10xxxxxx Trip */
 
 #define AL_OBJCTL_STAT0    0x00    /* Request Accepted, Initiated or Queued */
 #define AL_OBJCTL_STAT1    0x01    /* Request Not Accepted; Arm-timer expired */
@@ -692,8 +692,8 @@ static const value_string dnp3_al_ctlc_misc_vals[] = {
 /* Application Layer Control Code 'Trip/Close' Values */
 static const value_string dnp3_al_ctlc_tc_vals[] = {
   { AL_OBJCTLC_TC0,     "NUL" },
-  { AL_OBJCTLC_TC1,     "Trip" },
-  { AL_OBJCTLC_TC2,     "Close" },
+  { AL_OBJCTLC_TC1,     "Close" },
+  { AL_OBJCTLC_TC2,     "Trip" },
   { 0, NULL }
 };
 
