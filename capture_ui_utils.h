@@ -65,7 +65,7 @@ void free_capture_combo_list(GList *combo_list);
  *
  * @return The raw interface name, without description (must NOT be g_free'd later)
  */
-char *get_if_name(char *if_text);
+char *get_if_name(const char *if_text);
 
 /** Convert plain interface name to the displayed name in the combo box.
  *

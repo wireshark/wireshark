@@ -270,7 +270,7 @@ free_capture_combo_list(GList *combo_list)
  * interface description, extract the interface name.
  */
 char *
-get_if_name(char *if_text)
+get_if_name(const char *if_text)
 {
   char *if_name;
 
