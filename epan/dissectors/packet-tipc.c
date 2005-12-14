@@ -105,6 +105,13 @@ static gint ett_tipc_msg_fragments = -1;
 static gint ett_tipc = -1;
 static gint ett_tipc_data = -1;
 
+static gboolean tipc_defragment = TRUE;
+static gboolean dissect_tipc_data = FALSE;
+
+dissector_handle_t ip_handle;
+
+proto_tree *top_tree;
+
 static const fragment_items tipc_msg_frag_items = {
 	/* Fragment subtrees */
 	&ett_tipc_msg_fragment,
@@ -156,6 +163,11 @@ const value_string tipc_user_values[] = {
 	{ TIPC_MSG_BUNDLER,				"MSG_BUNDLER"},
 	{ 0,	NULL},
 };
+#define TIPC_CONNECTED_MSG	0
+#define TIPC_NAMED_MSG		2
+#define TIPC_DIRECT_MSG		3
+#define TIPC_OVERLOAD_W_MSG 4
+
 const value_string tipc_data_msg_type_values[] = {
 	{ 0,	"CONNECTED_MSG"},
 	{ 2,	"NAMED_MSG"},
@@ -445,33 +457,35 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			}
 			break;
 		case TIPC_SEGMENTATION_MANAGER:
-			save_fragmented = pinfo->fragmented;
-			pinfo->fragmented = TRUE;
+			if (tipc_defragment){
+				save_fragmented = pinfo->fragmented;
+				pinfo->fragmented = TRUE;
 			
-			frag_msg = fragment_add_seq_next(tvb, offset, pinfo,
-					link_sel,							/* ID for fragments belonging together - NEEDS IMPROVING? */  
-					tipc_msg_fragment_table,			/* list of message fragments */
-					tipc_msg_reassembled_table,			/* list of reassembled messages */
-					tvb_length_remaining(tvb, offset),	/* fragment length - to the end */
-					TRUE);								/* More fragments? */
-			if (msg_type == TIPC_FIRST_SEGMENT ){
-				reassembled_msg_length = tvb_get_ntohl(tvb,offset) & 0x1ffff;
-				/* This currently only works with two segments */
-				fragment_set_tot_len(pinfo, link_sel, tipc_msg_fragment_table, 1);
-			}
+				frag_msg = fragment_add_seq_next(tvb, offset, pinfo,
+						link_sel,							/* ID for fragments belonging together - NEEDS IMPROVING? */  
+						tipc_msg_fragment_table,			/* list of message fragments */
+						tipc_msg_reassembled_table,			/* list of reassembled messages */
+						tvb_length_remaining(tvb, offset),	/* fragment length - to the end */
+						TRUE);								/* More fragments? */
+				if (msg_type == TIPC_FIRST_SEGMENT ){
+					reassembled_msg_length = tvb_get_ntohl(tvb,offset) & 0x1ffff;
+					/* This currently only works with two segments */
+					fragment_set_tot_len(pinfo, link_sel, tipc_msg_fragment_table, 1);
+				}
 
-			new_tvb = process_reassembled_data(tvb, offset, pinfo,
-				"Reassembled Message", frag_msg, &tipc_msg_frag_items,
-				NULL, tipc_tree);
+				new_tvb = process_reassembled_data(tvb, offset, pinfo,
+					"Reassembled Message", frag_msg, &tipc_msg_frag_items,
+					NULL, tipc_tree);
 
-			if (frag_msg) { /* Reassembled */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO, 
-					" (Message Reassembled)");
-			} else { /* Not last packet of reassembled Short Message */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_fstr(pinfo->cinfo, COL_INFO,
-					" (Message fragment %u)", link_lev_seq_no);
+				if (frag_msg) { /* Reassembled */
+					if (check_col(pinfo->cinfo, COL_INFO))
+						col_append_str(pinfo->cinfo, COL_INFO, 
+						" (Message Reassembled)");
+				} else { /* Not last packet of reassembled Short Message */
+					if (check_col(pinfo->cinfo, COL_INFO))
+						col_append_fstr(pinfo->cinfo, COL_INFO,
+						" (Message fragment %u)", link_lev_seq_no);
+				}
 			}
 
 			if (new_tvb) { /* take it all */
@@ -484,12 +498,13 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 				dissect_tipc(next_tvb, pinfo, tipc_tree);
 				return;
 			}
+		
 			proto_tree_add_text(tipc_tree, next_tvb, 0, -1,"%u bytes Data Fragment",(msg_size - 28));
 			return;
 			break;
 		case TIPC_MSG_BUNDLER:
 			proto_tree_add_text(tipc_tree, tvb, offset, -1,"Message Bundle");
-			while (offset < msg_size ){
+			while ((guint32)offset < msg_size ){
 				msg_no++;
 				msg_in_bundle_size = tvb_get_ntohl(tvb,offset);
 				proto_tree_add_text(tipc_tree, tvb, offset, msg_in_bundle_size,"%u Message in Bundle",msg_no);
@@ -515,13 +530,14 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti, *tipc_data_item;
 	proto_tree *tipc_tree, *tipc_data_tree;
 	int offset = 0;
+	int previous_offset;
 	guint32 dword;
 	guint32 msg_size;
 	guint8 hdr_size;
 	guint8 user;
 	gchar *addr_str_ptr;
 	const guchar		*src_addr, *dst_addr;
-	tvbuff_t *data_tvb;
+	tvbuff_t *data_tvb, *tipc_tvb;
 	gboolean datatype_hdr = FALSE;
 	guint8 msg_type;
 
@@ -529,12 +545,19 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TIPC");
 
+	top_tree = tree;
 	dword = tvb_get_ntohl(tvb,offset);
 	hdr_size = (dword >>21) & 0xf;
 	user = (dword>>25) & 0xf;
 	msg_size = dword & 0x1ffff;
 
-	msg_type = tvb_get_guint8(tvb,offset + 20)>>4;
+	if ( (guint32)tvb_length_remaining(tvb,offset) < msg_size){
+		tipc_tvb = tvb;
+	}else{
+		tipc_tvb = tvb_new_subset(tvb, offset, msg_size, msg_size);
+	}
+
+	msg_type = tvb_get_guint8(tipc_tvb,offset + 20)>>4;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipc_user_values, "unknown"),user);
@@ -588,18 +611,18 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( datatype_hdr ){
 		/* Data type header */
 		if ( hdr_size > 5 && user <4){
-			src_addr = tvb_get_ptr(tvb, offset + 24, 4);
+			src_addr = tvb_get_ptr(tipc_tvb, offset + 24, 4);
 			SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
 	
-			dst_addr = tvb_get_ptr(tvb, offset + 28, 4);
+			dst_addr = tvb_get_ptr(tipc_tvb, offset + 28, 4);
 			SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
 		}else{
 			/* Short data hdr */
-			src_addr = tvb_get_ptr(tvb, offset + 8, 4);
+			src_addr = tvb_get_ptr(tipc_tvb, offset + 8, 4);
 			SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
 		}
 	}else{
-		src_addr = tvb_get_ptr(tvb, offset + 8, 4);
+		src_addr = tvb_get_ptr(tipc_tvb, offset + 8, 4);
 		SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
 	}
 
@@ -610,28 +633,28 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	If "tree" is NULL, not necessary to generate protocol tree items.
 	if (tree) {
 	 */
-		ti = proto_tree_add_item(tree, proto_tipc, tvb, offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_tipc, tipc_tvb, offset, -1, FALSE);
 		tipc_tree = proto_item_add_subtree(ti, ett_tipc);
 		/* Word 0-2 common for all messages
 		 * Word 0
 		 */
 
-		proto_tree_add_item(tipc_tree, hf_tipc_ver, tvb, offset, 4, FALSE);
-		proto_tree_add_item(tipc_tree, hf_tipc_usr, tvb, offset, 4, FALSE);
-		proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tvb, offset, 4, FALSE);
-		proto_tree_add_item(tipc_tree, hf_tipc_unused, tvb, offset, 4, FALSE);
-		proto_tree_add_item(tipc_tree, hf_tipc_msg_size, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_ver, tipc_tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_usr, tipc_tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_unused, tipc_tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_msg_size, tipc_tvb, offset, 4, FALSE);
 		offset = offset + 4;
 		
 		/* Word 1 */
-		proto_tree_add_item(tipc_tree, hf_tipc_ack_link_lev_seq, tvb, offset, 4, FALSE);
-		proto_tree_add_item(tipc_tree, hf_tipc_link_lev_seq, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_ack_link_lev_seq, tipc_tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_link_lev_seq, tipc_tvb, offset, 4, FALSE);
 		offset = offset + 4;
 		
 		/* Word 2 */
-		dword = tvb_get_ntohl(tvb,offset);
+		dword = tvb_get_ntohl(tipc_tvb,offset);
 		addr_str_ptr = tipc_addr_to_str(dword);
-		proto_tree_add_string(tipc_tree, hf_tipc_prev_proc, tvb, offset, 4,	addr_str_ptr);
+		proto_tree_add_string(tipc_tree, hf_tipc_prev_proc, tipc_tvb, offset, 4,	addr_str_ptr);
 
 		offset = offset + 4;
 		switch (user){
@@ -640,22 +663,22 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case TIPC_CHANGEOVER_PROTOCOL:
 			case TIPC_SEGMENTATION_MANAGER:
 			case TIPC_MSG_BUNDLER:
-				dissect_tipc_int_prot_msg(tvb, pinfo, tipc_tree, offset, user, msg_size);
+				dissect_tipc_int_prot_msg(tipc_tvb, pinfo, tipc_tree, offset, user, msg_size);
 				return;
 				break;
 			default:
 			break;		 
 		}
 
-		dword = tvb_get_ntohl(tvb,offset);
+		dword = tvb_get_ntohl(tipc_tvb,offset);
 		pinfo->ptype = PT_TIPC;
 		pinfo->srcport = dword;
-		proto_tree_add_item(tipc_tree, hf_tipc_org_port, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tipc_tree, hf_tipc_org_port, tipc_tvb, offset, 4, FALSE);
 		offset = offset + 4;
 		if(user != TIPC_NAME_DISTRIBUTOR){
-			dword = tvb_get_ntohl(tvb,offset);
+			dword = tvb_get_ntohl(tipc_tvb,offset);
 			pinfo->destport = dword;
-			proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tipc_tvb, offset, 4, FALSE);
 		}
 		offset = offset + 4;
 		/* 20 - 24 Bytes 
@@ -673,34 +696,34 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			should be by far the most frequent one this small optimization pays off.
 		*/
 		if ( hdr_size <= 5 ){
-				proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+				proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
 		}else{
 			switch (user){
 			case TIPC_NAME_DISTRIBUTOR:
-				proto_tree_add_item(tipc_tree, hf_tipc_nd_msg_type, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipc_nd_msg_type, tipc_tvb, offset, 4, FALSE);
 				break;
 			case TIPC_CONNECTION_MANAGER:
-				proto_tree_add_item(tipc_tree, hf_tipc_cm_msg_type, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipc_cm_msg_type, tipc_tvb, offset, 4, FALSE);
 				break;
 			default:
-				proto_tree_add_item(tipc_tree, hf_tipc_data_msg_type, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipc_data_msg_type, tipc_tvb, offset, 4, FALSE);
 				break;
 			}
-			proto_tree_add_item(tipc_tree, hf_tipc_err_code, tvb, offset, 4, FALSE);
-			proto_tree_add_item(tipc_tree, hf_tipc_reroute_cnt, tvb, offset, 4, FALSE);
-			proto_tree_add_item(tipc_tree, hf_tipc_act_id, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipc_err_code, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipc_reroute_cnt, tipc_tvb, offset, 4, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipc_act_id, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 
-			dword = tvb_get_ntohl(tvb,offset);
+			dword = tvb_get_ntohl(tipc_tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
 
-			proto_tree_add_string(tipc_tree, hf_tipc_org_proc, tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipc_org_proc, tipc_tvb, offset, 4,	addr_str_ptr);
 			offset = offset + 4;
 
-			dword = tvb_get_ntohl(tvb,offset);
+			dword = tvb_get_ntohl(tipc_tvb,offset);
 			addr_str_ptr = tipc_addr_to_str(dword);
 
-			proto_tree_add_string(tipc_tree, hf_tipc_dst_proc, tvb, offset, 4,	addr_str_ptr);
+			proto_tree_add_string(tipc_tree, hf_tipc_dst_proc, tipc_tvb, offset, 4,	addr_str_ptr);
 			offset = offset + 4;
 				/* 32 bytes 
 				32 bytes: The size of all data messages containing an explicit port identity as destination
@@ -718,23 +741,54 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset = offset + 8;
 					tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_NAME_DISTRIBUTOR %u bytes User Data",(msg_size - hdr_size *4));
 					tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
-					data_tvb = tvb_new_subset(tvb, offset, -1, -1);
+					data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
 					dissect_tipc_name_dist_data(data_tvb, pinfo, tipc_data_tree);
 					return;
 				}else{
 					/* Port name type / Connection level sequence number */
-					proto_tree_add_text(tipc_tree, tvb, offset, 4,"Port name type / Connection level sequence number");
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Port name type / Connection level sequence number");
 					offset = offset + 4;
 					/* Port name instance */
-					proto_tree_add_text(tipc_tree, tvb, offset, 4,"Port name instance");
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4,"Port name instance");
 					offset = offset + 4;
 				}
 			}
-			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+
+			if (user < 4 && dissect_tipc_data){ /* DATA type user */
+				switch (msg_type){
+				case TIPC_CONNECTED_MSG:
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+					break;
+				case TIPC_NAMED_MSG:
+					data_tvb = tvb_new_subset(tipc_tvb, offset+14, -1, -1);
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 14,"TIPC_NAMED_MSG Hdr");
+					call_dissector(ip_handle, data_tvb, pinfo, top_tree);
+					return;
+					break;
+				case TIPC_DIRECT_MSG:
+					previous_offset = offset;
+					while (tvb_length_remaining(tipc_tvb,offset) > 0){
+						dword = tvb_get_ntohl(tipc_tvb,offset);
+						if ((dword & 0xff000000) == 0x45000000){ /* && ((dword & 0x0000ffff)== tvb_length_remaining(tvb,offset+2)))*/
+							data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
+							call_dissector(ip_handle, data_tvb, pinfo, top_tree);
+							return;
+						}
+						offset = offset+4;
+					}
+					proto_tree_add_text(tipc_tree, tipc_tvb, previous_offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+					return;
+					break;
+				default:
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+					break;
+				}
+			}			
+			
 		}/*if ( hdr_size <= 5 ) */
 	/*}if tree */
-}
 
+}
 
 
 
@@ -988,6 +1042,8 @@ proto_register_tipc(void)
 		&ett_tipc_msg_fragments,
 	};
 
+	module_t *tipc_module;
+
 /* Register the protocol name and description */
 	proto_tipc = proto_register_protocol("Transparent Inter Process Communication(TIPC)",
 	    "TIPC", "tipc");
@@ -998,6 +1054,18 @@ proto_register_tipc(void)
 
 	register_init_routine(tipc_defragment_init);
 
+	/* Register configuration options */
+	tipc_module = prefs_register_protocol(proto_tipc, NULL);
+
+	prefs_register_bool_preference(tipc_module, "defragment",
+		"Reassemble SEGMENTATION_MANAGER datagrams",
+		"Whether SEGMENTATION_MANAGER datagrams should be reassembled",
+		&tipc_defragment);
+
+	prefs_register_bool_preference(tipc_module, "dissect_tipc_data",
+		"Dissect TIPC data",
+		"Whether to try to dissect TIPC data or not",
+		&dissect_tipc_data);
 
 }
 
@@ -1009,4 +1077,6 @@ proto_reg_handoff_tipc(void)
 
 	tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
 	dissector_add("ethertype", ETHERTYPE_TIPC,     tipc_handle);
+
+	ip_handle = find_dissector("ip");
 }
