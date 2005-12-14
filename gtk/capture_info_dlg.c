@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include "capture.h"
+#include "wiretap/libpcap.h"
 #include "capture_loop.h"
 #include "capture_info.h"
 #include "globals.h"
@@ -46,7 +47,6 @@
 #include "gui_utils.h"
 #include "main.h"
 #include "capture-pcap-util.h"
-#include "wiretap/libpcap.h"
 
 
 /* a single capture counter value (with title, pointer to value and GtkWidgets) */
