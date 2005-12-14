@@ -50,25 +50,24 @@
 	<example id="ChCustEx1">
 	  <title>Help information available from Ethereal</title>
 	  <programlisting>
-This is GNU ethereal 0.10.11
+This is ethereal 0.10.13
  (C) 1998-2005 Gerald Combs &lt;gerald@ethereal.com>
-Compiled with GTK+ 2.4.14, with GLib 2.4.7, with WinPcap (version unknown),
-with libz 1.2.2, with libpcre 4.4, with Net-SNMP 5.1.2, with ADNS.
 
-Running with WinPcap version 3.1 beta4 (packet.dll version 3, 1, 0, 24), based o
-n libpcap version 0.8.3 on Windows XP Service Pack 1, build 2600.
+Compiled with GTK+ 2.6.9, with GLib 2.6.6, with WinPcap (version unknown),
+with libz 1.2.3, with libpcre 6.3, with Net-SNMP 5.2.1.2, with ADNS.
 
-ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
-        [ -b &lt;capture ring buffer option> ] ...] [ -B capture buffer size (Win32 only) ]
+Running with WinPcap version 3.1 (packet.dll version 3, 1, 0, 27), based on libp
+cap version 0.9[.x] on Windows XP Service Pack 2, build 2600.
+
+ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
+        [ -b &lt;capture ring buffer option> ] ...
+        [ -B &lt;capture buffer size> ]
         [ -c &lt;capture packet count> ] [ -f &lt;capture filter> ]
-        [ -g &lt;packet number> ]
-        [ -i &lt;capture interface> ] [ -m &lt;font> ] [ -N &lt;name resolving flags> ]
-        [ -o &lt;preference/recent setting> ] ...
+        [ -g &lt;packet number> ] [ -i &lt;capture interface> ] [ -m &lt;font> ]
+        [ -N &lt;name resolving flags> ] [ -o &lt;preference/recent setting> ] ...
         [ -r &lt;infile> ] [ -R &lt;read (display) filter> ] [ -s &lt;capture snaplen> ]
-        [ -t &lt;time stamp format> ]
-        [ -w &lt;savefile> ] [ -y &lt;capture link type> ] [ -z &lt;statistics> ]
-        [ &lt;infile> ]	  
-	  </programlisting>
+        [ -t &lt;time stamp format> ] [ -w &lt;savefile> ] [ -y &lt;capture link type> ]
+        [ -z &lt;statistics> ] [ &lt;infile> ]	  </programlisting>
 	</example>
 
 	We will examine each of the command line options in turn.
@@ -176,6 +175,30 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>-D</command></term>
+	  <listitem>
+	    <para>
+Print a list of the interfaces on which Ethereal can capture, and
+exit.  For each network interface, a number and an
+interface name, possibly followed by a text description of the
+interface, is printed.  The interface name or the number can be supplied
+to the <command>-i</command> flag to specify an interface on which to capture.
+	    </para>
+	    <para>
+This can be useful on systems that don't have a command to list them  
+(e.g., Windows systems, or UNIX systems lacking <command>ifconfig -a</command>);
+the number can be useful on Windows 2000 and later systems, where the
+interface name is a somewhat complex string.
+	    </para>
+	    <para>
+Note that "can capture" means that Ethereal was able to open
+that device to do a live capture; if, on your system, a program doing a
+network capture must be run from an account with special privileges (for
+example, as root), then, if Ethereal is run with the <command>-D</command> flag and
+is not run from such an account, it will not list any interfaces.
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>-f &lt;capture filter></command></term>
 	  <listitem>
 	    <para>
@@ -203,19 +226,27 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	<varlistentry><term><command>-i &lt;capture interface></command></term>
 	  <listitem>
 	    <para>
-	      The <command>-i</command> option allows you to specify, 
-	      from the command line, which interface packet capture should 
-	      occur on if capturing packets.
+Set the name of the network interface or pipe to use for live packet
+capture. 
 	    </para>
 	    <para>
-	      An example would be: <command>ethereal -i eth0</command>.
+Network interface names should match one of the names listed in
+<command>ethereal -D</command> (described above); a number, as reported by
+<command>ethereal -D</command>, can also be used.  If you're using UNIX, <command>netstat
+-i</command> or <command>ifconfig -a</command> might also work to list interface names,
+although not all versions of UNIX support the <command>-a</command> flag to <command>ifconfig</command>.
 	    </para>
 	    <para>
-	      To get a listing of all the interfaces you can capture on, 
-	      use the command <command>ifconfig -a</command> or 
-	      <command>netstat -i</command>. Unfortunately, some versions of 
-	      UNIX do not support <command>ifconfig -a</command>, so you 
-	      will have to use <command>netstat -i</command> in these cases.
+If no interface is specified, Ethereal searches the list of
+interfaces, choosing the first non-loopback interface if there are any
+non-loopback interfaces, and choosing the first loopback interface if
+there are no non-loopback interfaces; if there are no interfaces,
+Ethereal reports an error and doesn't start the capture.
+	    </para>
+	    <para>
+Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
+read data from the standard input.  Data read from pipes must be in
+standard libpcap format.
 	    </para>
 	  </listitem>
 	</varlistentry>
