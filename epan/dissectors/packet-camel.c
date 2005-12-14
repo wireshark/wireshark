@@ -2738,7 +2738,7 @@ static int dissect_BCSMEventArray_item(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 101 "camel.cnf"
+#line 97 "camel.cnf"
 
        tvbuff_t *camel_tvb;
        guint8 Cause_value;
@@ -2794,7 +2794,7 @@ static int dissect_bCSM_Failure_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_camel_BearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 232 "camel.cnf"
+#line 228 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2845,7 +2845,7 @@ static int dissect_bearerCapability_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_camel_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 64 "camel.cnf"
+#line 60 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -2918,16 +2918,12 @@ dissect_camel_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 #line 44 "camel.cnf"
 
 
- proto_item* parameter_item;
- proto_item* parameter_tree;
  tvbuff_t *isup_tvb;
  guint32 len;
 
  len=tvb_length_remaining(tvb,offset);
- parameter_item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
- parameter_tree = proto_item_add_subtree(parameter_item, ett_camelisup_parameter);
  isup_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
- dissect_isup_called_party_number_parameter(isup_tvb, parameter_tree, parameter_item);
+ dissect_isup_called_party_number_parameter(isup_tvb, tree, NULL);
  offset += len;
  
 
@@ -4023,7 +4019,7 @@ static int dissect_correlationID_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 133 "camel.cnf"
+#line 129 "camel.cnf"
 
 
 /* 
@@ -5943,7 +5939,7 @@ static int dissect_oCSIApplicable_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 262 "camel.cnf"
+#line 258 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -5967,7 +5963,7 @@ static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_camel_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 276 "camel.cnf"
+#line 272 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -6495,7 +6491,7 @@ static int dissect_callingPartysCategory_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_camel_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 247 "camel.cnf"
+#line 243 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -6575,7 +6571,7 @@ static int dissect_miscCallInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_camel_CallresultoctetPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 87 "camel.cnf"
+#line 83 "camel.cnf"
 tvbuff_t	*parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -6644,7 +6640,7 @@ dissect_camel_FurnishChargingInformationArg(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_camel_Q850Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 118 "camel.cnf"
+#line 114 "camel.cnf"
 
        tvbuff_t *camel_tvb;
        guint8 Cause_value;

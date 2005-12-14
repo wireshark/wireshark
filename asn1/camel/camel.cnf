@@ -43,16 +43,12 @@ MAP-CH-DataTypes gsm_map
 #.FN_BODY CalledPartyNumber
 
 
- proto_item* parameter_item;
- proto_item* parameter_tree;
  tvbuff_t *isup_tvb;
  guint32 len;
 
  len=tvb_length_remaining(tvb,offset);
- parameter_item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
- parameter_tree = proto_item_add_subtree(parameter_item, ett_camelisup_parameter);
  isup_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
- dissect_isup_called_party_number_parameter(isup_tvb, parameter_tree, parameter_item);
+ dissect_isup_called_party_number_parameter(isup_tvb, tree, NULL);
  offset += len;
  
 #.END
