@@ -45,9 +45,9 @@ IMPORTS
     id-opcode-search
     FROM DirectoryAccessProtocol {joint-iso-itu-t ds(5) module(1) dap(11) 4}
   -- from ITU-T Rec. X.520 | ISO/IEC 9594-6
---  DirectoryString{}
---    FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
---      selectedAttributeTypes(5) 4}
+  DirectoryString
+    FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
+      selectedAttributeTypes(5) 4}
   ub-domainLocalID
     FROM UpperBounds {joint-iso-itu-t ds(5) module(1) upperBounds(10) 4}
   -- from ITU-T Rec. X.509 | ISO/IEC 9594-8
@@ -58,9 +58,9 @@ IMPORTS
     FROM AttributeCertificateDefinitions {joint-iso-itu-t ds(5) module(1)
       attributeCertificateDefinitions(32) 4}
   -- from ITU-T Rec. X.525 | ISO/IEC 9594-9
---  AgreementID
---    FROM DirectoryShadowAbstractService {joint-iso-itu-t ds(5) module(1)
---      directoryShadowAbstractService(15) 4}
+  AgreementID
+    FROM DirectoryShadowAbstractService {joint-iso-itu-t ds(5) module(1)
+      directoryShadowAbstractService(15) 4}
   -- from ITU-T Rec. X.880 | ISO/IEC 13712-1
   Code, ERROR, OPERATION
     FROM Remote-Operations-Information-Objects {joint-iso-itu-t
@@ -1264,24 +1264,6 @@ UpdateProblem ::= INTEGER {
 
 -- attribute types 
 --id-at-family-information OBJECT IDENTIFIER ::= {id-at 64}
-
-AgreementID ::= OperationalBindingID
-
-OperationalBindingID ::= SEQUENCE {
-  identifier	INTEGER,
-  version 	INTEGER
-}
-
-
--- local definition as one in x509sat is wrong! */
-DirectoryString ::= CHOICE {
-  teletexString    TeletexString,
-  printableString  PrintableString,
-  universalString  UniversalString,
-  bmpString        BMPString,
-  uTF8String       UTF8String
-}
-
 
 END -- DirectoryAbstractService
 

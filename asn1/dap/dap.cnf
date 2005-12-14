@@ -5,6 +5,8 @@ ServiceAdministration	x509if
 AuthenticationFramework	x509af
 AttributeCertificateDefinitions	x509af
 
+SelectedAttributeTypes	x509sat
+
 BasicAccessControl	crmf
 
 Remote-Operations-Generic-ROS-PDUs	ros
@@ -12,11 +14,14 @@ Remote-Operations-Information-Objects	ros
 
 ACSE-1			acse
 DistributedOperations	dsp
+DirectoryShadowAbstractService	disp
 
 #.INCLUDE	../x509if/x509if-exp.cnf
 #.INCLUDE	../x509af/x509af-exp.cnf
+#.INCLUDE	../x509sat/x509sat-exp.cnf
 #.INCLUDE	../pkixcrmf/crmf-exp.cnf
 #.INCLUDE	../dsp/dsp-exp.cnf
+#.INCLUDE	../disp/disp-exp.cnf
 #.INCLUDE	../ros/ros-exp.cnf
 #.INCLUDE	../acse/acse-exp.cnf
 
@@ -26,7 +31,6 @@ Referral
 SecurityParameters
 EntryModification
 ContextSelection
-OperationalBindingID
 DirectoryBindArgument
 DirectoryBindError
 ReadArgument
@@ -161,24 +165,8 @@ ModifyRights/_item/item/value			value-assertion
 	if(check_col(pinfo->cinfo, COL_INFO))	
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", x509if_get_last_dn());
 
-#.FN_PARS INTEGER
-	VAL_PTR	= &value
-
-#.FN_BODY INTEGER
-	guint32	value;
-
-	%(DEFAULT_BODY)s
-
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if(hf_index == hf_dap_identifier) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " id=%%d", value);
-		} else if (hf_index == hf_dap_version) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ",%%d", value);
-		}
-  	}
-
 #.FN_PARS OCTET_STRING
-	VAL_PTR=&out_tvb
+	VAL_PTR=&out_tvb 
 	
 #.FN_BODY OCTET_STRING
 	tvbuff_t *out_tvb;
@@ -273,5 +261,15 @@ ModifyRights/_item/item/value			value-assertion
 	if(check_col(pinfo->cinfo, COL_INFO)) {
 		dn = x509if_get_last_dn();
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", (dn && *dn) ? dn : "(root)");
+	}
+
+#.FN_BODY T_subordinates_item
+	proto_item *sub_item;
+
+	%(DEFAULT_BODY)s
+
+	if((sub_item = get_ber_last_created_item())) {
+		
+		proto_item_append_text(sub_item," (%%s)", x509if_get_last_dn());
 	}
 

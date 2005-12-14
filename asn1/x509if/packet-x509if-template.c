@@ -67,11 +67,43 @@ static gboolean doing_dn = TRUE;
 static char *last_dn = NULL;
 static char *last_rdn = NULL;
 
+static int ava_hf_index;
+#define MAX_FMT_VALS   32
+static value_string fmt_vals[MAX_FMT_VALS];
+#define MAX_AVA_STR_LEN   64
+static char *last_ava = NULL;
+
 #include "packet-x509if-fn.c"
 
 const char * x509if_get_last_dn(void)
 {
   return last_dn;
+}
+
+gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
+{
+  static int idx = 0;
+
+  if(idx < (MAX_FMT_VALS - 1)) {
+
+    fmt_vals[idx].value = hf_index;
+    fmt_vals[idx].strptr = fmt;
+
+    idx++;
+
+    fmt_vals[idx].value = 0;
+    fmt_vals[idx].strptr = NULL;
+
+    return TRUE;
+
+  } else 
+    return FALSE; /* couldn't register it */
+
+}
+
+const char * x509if_get_last_ava(void)
+{
+  return last_ava;
 }
 
 /*--- proto_register_x509if ----------------------------------------------*/
@@ -100,6 +132,10 @@ void proto_register_x509if(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509if, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* initialise array */
+  fmt_vals[0].value = 0;
+  fmt_vals[0].strptr = NULL;
 
 }
 

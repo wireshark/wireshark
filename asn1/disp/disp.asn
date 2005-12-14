@@ -134,7 +134,7 @@ AttributeSelection ::= SET OF ClassAttributeSelection
 
 ClassAttributeSelection ::= SEQUENCE {
   class            OBJECT IDENTIFIER OPTIONAL,
-  classAttributes  ClassAttributes -- DEFAULT allAttributes:NULL
+  classAttributes  ClassAttributes -- DEFAULT allAttributes:NULL -- OPTIONAL
 }
 
 ClassAttributes ::= CHOICE {

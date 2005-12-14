@@ -63,7 +63,7 @@ int proto_dop = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *binding_type = NULL; /* binding_type */
 
-static int call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info);
 
 #include "packet-dop-hf.c"
 
@@ -74,18 +74,16 @@ static gint ett_dop = -1;
 #include "packet-dop-fn.c"
 
 static int
-call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
 {
-  const char *name = NULL;
   char binding_param[BER_MAX_OID_STR_LEN];
 
-  sprintf(binding_param, "%s.%s", base_oid, binding_type ? binding_type : "");	
+  g_snprintf(binding_param, BER_MAX_OID_STR_LEN, "%s.%s", base_oid, binding_type ? binding_type : "");	
 
-  name = get_ber_oid_name(binding_param);
-  proto_item_append_text(tree, " (%s)", name ? name : binding_param); 
+  if (col_info && (check_col(pinfo->cinfo, COL_INFO))) 
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
   return call_ber_oid_callback(binding_param, tvb, offset, pinfo, tree);
-
 }
 
 
@@ -230,9 +228,6 @@ void proto_register_dop(void) {
   /* Register protocol */
   proto_dop = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  /* initially disable the protocol */
-  proto_set_decoding(proto_dop, FALSE);
-
   register_dissector("dop", dissect_dop, proto_dop);
 
   /* Register fields and subtrees */
@@ -271,6 +266,12 @@ void proto_reg_handoff_dop(void) {
   if((handle = find_dissector("dop"))) {
     register_ros_oid_dissector_handle("2.5.9.4", handle, 0, "id-as-directory-operational-binding-management", FALSE); 
   }
+
+  /* BINDING TYPES */
+
+  register_ber_oid_name("2.5.19.1", "shadow-agreement");
+  register_ber_oid_name("2.5.19.2", "hierarchical-agreement");
+  register_ber_oid_name("2.5.19.3", "non-specific-hierarchical-agreement");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

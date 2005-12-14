@@ -61,41 +61,108 @@ TelexNumber
 UniqueIdentifier
 X121Address
 
+ObjectIdentifier
+OctetString
+BitString
+Integer
+Boolean
+SyntaxGeneralizedTime
+SyntaxUTCTime
+SyntaxNumericString
+SyntaxPrintableString
+SyntaxIA5String
+SyntaxBMPString
+SyntaxUniversalString
+SyntaxUTF8String
+SyntaxTeletexString
+SyntaxT61String
+SyntaxVideotexString
+SyntaxGraphicString
+SyntaxISO646String
+SyntaxVisibleString
+SyntaxGeneralString
+
 #.REGISTER
-CountryName     B "2.5.4.6"    "id-at-countryName"
-DirectoryString B "2.5.4.2"    "id-at-knowledgeInformation"
-DirectoryString B "2.5.4.10"   "id-at-organizationName"
-DirectoryString B "2.5.4.7.1"  "id-at-collectiveLocalityName"
-DirectoryString B "2.5.4.3"    "id-at-commonName"
-DirectoryString B "2.5.4.4"    "id-at-surname"
-DirectoryString B "2.5.4.42"   "id-at-givenName"
-DirectoryString B "2.5.4.43"   "id-at-initials"
-DirectoryString B "2.5.4.44"   "id-at-generationQualifier"
-DirectoryString B "2.5.4.51"   "id-at-houseIdentifier"
-DirectoryString B "2.5.4.54"   "id-at-dmdName"
-DirectoryString B "2.5.4.65"   "id-at-pseudonym"
-DirectoryString B "2.5.4.41"   "id-at-name"
-DirectoryString B "2.5.4.8.1"  "id-at-collectiveStateOrProvinceName"
-DirectoryString B "2.5.4.8"    "id-at-stateOrProvinceName"
-DirectoryString B "2.5.4.9"    "id-at-streetAddress"
-DirectoryString B "2.5.4.9.1"  "id-at-collectiveStreetAddress"
-DirectoryString B "2.5.4.10.1" "id-at-collectiveOrganizationName"
-DirectoryString B "2.5.4.7"    "id-at-localityName"
-DirectoryString B "2.5.4.11"   "id-at-organizationalUnitName"
-DirectoryString B "2.5.4.11.1" "id-at-collectiveOrganizationalUnitName"
-DirectoryString B "2.5.4.12"   "id-at-title"
-DirectoryString B "2.5.4.13"   "id-at-description"
-DirectoryString B "2.5.4.15"   "id-at-businessCategory"
-DirectoryString B "2.5.4.17"   "id-at-postalCode"
-DirectoryString B "2.5.4.17.1" "id-at-collectivePostalCode"
-DirectoryString B "2.5.4.18"   "id-at-postOfficeBox"
-DirectoryString B "2.5.4.18.1" "id-at-collectivePostOfficeBox"
-DirectoryString B "2.5.4.19"   "id-at-physicalDeliveryOfficeName"
-DirectoryString B "2.5.4.19.1" "id-at-collectivePhysicalDeliveryOfficeName"
-TelephoneNumber B "2.5.4.20"   "id-at-telephoneNumber"
-TelephoneNumber B "2.5.4.20.1" "id-at-collectiveTelephoneNumber"
-TelexNumber     B "2.5.4.21"   "id-at-telexNumber"
-TelexNumber     B "2.5.4.21.1" "id-at-collectiveTelexNumber"
+ObjectIdentifier        B "2.5.4.0"   "id-at-objectClass"
+#  - see x509if.cnf for "id-at-aliasedEntryName"
+DirectoryString         B "2.5.4.2"    "id-at-knowledgeInformation"
+DirectoryString         B "2.5.4.3"    "id-at-commonName"
+DirectoryString         B "2.5.4.4"    "id-at-surname"
+SyntaxPrintableString	B "2.5.4.5"    "id-at-serialNumber"
+CountryName             B "2.5.4.6"    "id-at-countryName"
+DirectoryString         B "2.5.4.7"    "id-at-localityName"
+DirectoryString         B "2.5.4.7.1"  "id-at-collectiveLocalityName"
+DirectoryString         B "2.5.4.8"    "id-at-stateOrProvinceName"
+DirectoryString         B "2.5.4.8.1"  "id-at-collectiveStateOrProvinceName"
+DirectoryString         B "2.5.4.9"    "id-at-streetAddress"
+DirectoryString         B "2.5.4.9.1"  "id-at-collectiveStreetAddress"
+DirectoryString         B "2.5.4.10.1" "id-at-collectiveOrganizationName"
+DirectoryString         B "2.5.4.10"   "id-at-organizationName"
+DirectoryString         B "2.5.4.11"   "id-at-organizationalUnitName"
+DirectoryString         B "2.5.4.11.1" "id-at-collectiveOrganizationalUnitName"
+DirectoryString         B "2.5.4.12"   "id-at-title"
+DirectoryString         B "2.5.4.13"   "id-at-description"
+EnhancedGuide	        B "2.5.4.14"   "id-at-searchGuide"
+DirectoryString         B "2.5.4.15"   "id-at-businessCategory"
+PostalAddress           B "2.5.4.16"   "id-at-postalAddress"
+DirectoryString         B "2.5.4.17"   "id-at-postalCode"
+DirectoryString         B "2.5.4.17.1" "id-at-collectivePostalCode"
+DirectoryString         B "2.5.4.18"   "id-at-postOfficeBox"
+DirectoryString         B "2.5.4.18.1" "id-at-collectivePostOfficeBox"
+DirectoryString         B "2.5.4.19"   "id-at-physicalDeliveryOfficeName"
+DirectoryString         B "2.5.4.19.1" "id-at-collectivePhysicalDeliveryOfficeName"
+TelephoneNumber         B "2.5.4.20"   "id-at-telephoneNumber"
+TelephoneNumber         B "2.5.4.20.1" "id-at-collectiveTelephoneNumber"
+TelexNumber             B "2.5.4.21"   "id-at-telexNumber"
+TelexNumber             B "2.5.4.21.1" "id-at-collectiveTelexNumber"
+# "id-at-teletexTerminalIdentifier" - what syntax?
+FacsimileTelephoneNumber B "2.5.4.23" "id-at-facsimileTelephoneNumber"
+FacsimileTelephoneNumber B "2.5.4.23.1" "id-at-collectiveFacsimileTelephoneNumber"
+X121Address             B "2.5.4.24"   "id-at-x121Address"
+InternationalISDNNumber B "2.5.4.25" "id-at-internationalISDNNumber"
+InternationalISDNNumber B "2.5.4.25.1" "id-at-collectiveInternationalISDNNumber"
+PostalAddress           B "2.5.4.26" "id-at-registeredAddress"
+DestinationIndicator    B "2.5.4.27" "id-at-destinationIndicator"
+PreferredDeliveryMethod B "2.5.4.28" "id-at-preferredDeliveryMethod"
+PresentationAddress     B "2.5.4.29" "id-at-presentationAddress"
+ObjectIdentifier        B "2.5.4.30" "id-at-supportedApplicationContext"
+# "id-at-member" - see x509if.cnf
+# "id-at-owner" - see x509if.cnf
+# "id-at-roleOccupant" - see x509if.cnf
+# "id-at-seeAlso" - see x509if.cnf
+OctetString        B "2.5.4.35" "id-at-userPassword"
+# "id-at-userCertificate" - see x509af.cnf
+# "id-at-cACertificate" - see x509af.cnf
+# "id-at-authorityRevocationList" - see x509af.cnf
+# "id-at-certificateRevocationList" - see x509af.cnf
+# "id-at-crossCertificatePair" - see x509af.cnf
+DirectoryString         B "2.5.4.41"   "id-at-name"
+DirectoryString         B "2.5.4.42"   "id-at-givenName"
+DirectoryString         B "2.5.4.43"   "id-at-initials"
+DirectoryString         B "2.5.4.44"   "id-at-generationQualifier"
+UniqueIdentifier        B "2.5.4.45"  "id-at-uniqueIdedntifier"
+SyntaxPrintableString    B "2.5.4.46"	"id-at-dnQualifier"
+EnhancedGuide           B "2.5.4.47"	"id-at-enhancedSearchGuide"
+ProtocolInformation     B "2.5.4.48" "id-at-protocolInformation"
+# 49 "id-at-distinguishedName" - see x509if.cnf
+NameAndOptionalUID      B "2.5.4.50" "id-at-uniqueMember"
+DirectoryString         B "2.5.4.51"   "id-at-houseIdentifier"
+ObjectIdentifier        B "2.5.4.52"	"id-at-supportedAlgorithms"
+# 53 "id-at-deltaRevocationList" - what syntax?
+DirectoryString         B "2.5.4.54"   "id-at-dmdName"
+# 55 "id-at-clearance" - what syntax (or rather where?)
+# 56 "id-at-defaultDirQop" - what syntax?
+# 56 "id-at-attributeIntegrityInfo" - what syntax?
+# 58 "id-at-attributeCertificate" - see x509af.cnf
+# 59 "id-at-attributeCertificateRevocationLIst" - see x509af.cnf
+# 60 "id-at-confKeyInfo" - what syntax?
+# 61 ?
+# 62 ?
+# 63 ?
+# 64 "id-at-familyInformation" - what syntax?
+DirectoryString        B "2.5.4.65"   "id-at-pseudonym"
+ObjectIdentifier       B "2.5.4.66" "id-at-communuicationsService"
+ObjectIdentifier       B "2.5.4.67" "id-at-communuicationsNetwork"
 
 #.NO_EMIT
 
@@ -110,9 +177,6 @@ XDayOf/second				second_dayof
 XDayOf/third				third_dayof
 XDayOf/fourth				fourth_dayof
 XDayOf/fifth				fifth_dayof
-
-#.FN_BODY DirectoryString
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
 #.END
 

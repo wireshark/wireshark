@@ -1,5 +1,5 @@
 #.IMPORT_TAG
-DirectoryString          BER_CLASS_UNI BER_UNI_TAG_PrintableString
+DirectoryString          BER_CLASS_ANY/*choice*/ -1/*choice*/
 UniqueIdentifier         BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 CountryName              BER_CLASS_UNI BER_UNI_TAG_PrintableString
 Criteria                 BER_CLASS_ANY/*choice*/ -1/*choice*/
@@ -32,7 +32,7 @@ LocaleContextSyntax      BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.END
 
 #.TYPE_ATTR
-DirectoryString          TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+DirectoryString          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_DirectoryString_vals)  BITMASK = 0
 UniqueIdentifier         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 CountryName              TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Criteria                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_Criteria_vals)  BITMASK = 0

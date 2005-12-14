@@ -26,5 +26,6 @@
 #ifndef PACKET_DISP_H
 #define PACKET_DISP_H
 
+#include "packet-disp-exp.h"
 
 #endif  /* PACKET_DISP_H */

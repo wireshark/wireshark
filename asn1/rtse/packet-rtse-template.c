@@ -198,12 +198,14 @@ void proto_register_rtse(void) {
   rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
 
+  rtse_handle = find_dissector("rtse");
+  ros_handle = find_dissector("ros");
+
 }
 
 
 /*--- proto_reg_handoff_rtse --- */
 void proto_reg_handoff_rtse(void) {
 
-  rtse_handle = find_dissector("rtse");
-  ros_handle = find_dissector("ros");
+
 }

@@ -174,12 +174,14 @@ void proto_register_ros(void) {
 
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
+
+  ros_handle = find_dissector("ros");
+
 }
 
 
 /*--- proto_reg_handoff_ros --- */
 void proto_reg_handoff_ros(void) {
 
-  ros_handle = find_dissector("ros");
 
 }

@@ -30,5 +30,8 @@
 
 extern const char * x509if_get_last_dn(void);
 
+extern gboolean x509if_register_fmt(int hf_index, const gchar *fmt);
+extern const char * x509if_get_last_ava(void);
+
 #endif  /* PACKET_X509IF_H */
 

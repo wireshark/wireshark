@@ -263,6 +263,9 @@ void proto_reg_handoff_disp(void) {
 
   tpkt_handle = find_dissector("tpkt");
 
+  /* DNs */
+  x509if_register_fmt(hf_disp_contextPrefix, "cp=");
+
 }
 
 

@@ -89,6 +89,16 @@ RequestAttribute/defaultValues/_item/values/_item	ra_values_item
 RequestAttribute/selectedValues				ra_selectedValues
 RequestAttribute/selectedValues/_item			ra_selectedValues_item
 
+#.REGISTER
+DistinguishedName	B	"2.5.4.1"	"id-at-aliasedEntryName"
+DistinguishedName	B	"2.5.4.31"	"id-at-member"
+DistinguishedName	B	"2.5.4.32"	"id-at-owner"
+DistinguishedName	B	"2.5.4.33"	"id-at-roleOccupant"
+DistinguishedName	B	"2.5.4.34"	"id-at-seeAlso"
+DistinguishedName	B	"2.5.4.49"	"id-at-distinguishedName"
+
+
+
 #.FN_PARS ContextId
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
 
@@ -99,6 +109,7 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
 
 #.FN_BODY AttributeId
+  const char *fmt; 
   const char *name;
 
   %(DEFAULT_BODY)s
@@ -115,18 +126,33 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
      /* append it to the tree */
      proto_item_append_text(tree, " (%%s=", name);
     }
+
+    if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+      last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+
+      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s", name, fmt);
+
+      proto_item_append_text(tree, " %%s", last_ava);
+
+    }
   }
 
 #.FN_BODY AttributeValue
   int old_offset = offset;
   tvbuff_t	*out_tvb;
-  char *value = NULL;
- 
+  char  	*value = NULL;
+  const char 	*fmt; 
+  const char	*name = NULL;
+
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
   /* try and dissect as a string */
   dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
   
+  /* should also try and dissect as an OID and integer */
+  /* of course, if I can look up the syntax .... */
+
   if(out_tvb) {
     /* it was a string - format it */
     value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
@@ -138,6 +164,16 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
       proto_item_append_text(tree, "%%s)", value);
     }
 
+    if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+
+    if(!(name = get_ber_oid_name(object_identifier_id)))
+      name = object_identifier_id;
+    g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s %%s", name, fmt, value);
+
+    proto_item_append_text(tree, " %%s", last_ava);
+
+    }
   }
 
 #.FN_BODY SelectedValues
@@ -193,6 +229,7 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
   rdn_one_value = TRUE;
 
 #.FN_BODY RDNSequence
+  const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
   last_dn = ep_alloc(MAX_RDN_STR_LEN); *last_dn = '\0';
@@ -203,6 +240,12 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
   /* we've finished - append the dn */
   proto_item_append_text(top_of_dn, " (%%s)", last_dn);
 
+ /* see if we should append this to the col info */
+  if(check_col(pinfo->cinfo, COL_INFO) &&
+     (fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s%%s", fmt, last_dn);
+    }
 
 #.FN_BODY RDNSequence/_item
 
@@ -214,6 +257,15 @@ RequestAttribute/selectedValues/_item			ra_selectedValues_item
   %(DEFAULT_BODY)s
 
   dn_one_rdn = TRUE;
+
+#.FN_BODY AttributeValueAssertion
+
+	ava_hf_index = hf_index;
+	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+
+	%(DEFAULT_BODY)s
+
+	ava_hf_index=-1;
 
 #.END
 

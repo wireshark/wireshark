@@ -39,14 +39,15 @@ IMPORTS
 -- Directory string type 
 --This one is much better declared as this,  it is prettier at least
 --the octet string dissector can handle all of them
-DirectoryString ::= PrintableString
---DirectoryString ::= CHOICE {
---  teletexString    TeletexString,
---  printableString  PrintableString,
---  universalString  UniversalString,
---  bmpString        BMPString,
---  uTF8String       UTF8String
---}
+--DirectoryString ::= PrintableString
+
+DirectoryString ::= CHOICE {
+  teletexString    TeletexString,
+  printableString  PrintableString,
+  universalString  UniversalString,
+  bmpString        BMPString,
+  uTF8String       UTF8String
+}
 
 
 -- Attribute types 
@@ -1450,6 +1451,37 @@ id-at-pseudonym OBJECT IDENTIFIER ::= {id-at 65}
 -- id-cat-characterMatchTypes OBJECT IDENTIFIER ::= {id-cat 3}
 -- 
 -- id-cat-selectedContexts OBJECT IDENTIFIER ::= {id-cat 4}
+
+--
+-- We add these in to give the low-level ASN.1 syntaxes
+-- PrintableString and ObjectIdentifier are the most useful
+-- Note the "Syntax" will be removed during the "make" - it is 
+-- present to stop asn2eth complaining about reserved words
+--
+
+ObjectIdentifier ::= OBJECT IDENTIFIER
+OctetString ::= OCTET STRING
+BitString ::= BIT STRING
+Integer ::= INTEGER
+Boolean ::= BOOLEAN
+
+-- these are reserved words, so we need to prefix them
+SyntaxGeneralizedTime ::= GeneralizedTime
+SyntaxUTCTime ::= UTCTime
+SyntaxNumericString ::= NumericString
+SyntaxPrintableString ::= PrintableString
+SyntaxIA5String ::= IA5String
+SyntaxBMPString ::= BMPString
+SyntaxUniversalString ::= UniversalString
+SyntaxUTF8String ::= UTF8String
+SyntaxTeletexString ::= TeletexString
+SyntaxT61String ::= T61String
+SyntaxVideotexString ::= VideotexString
+SyntaxGraphicString ::= GraphicString
+SyntaxISO646String ::= ISO646String
+SyntaxVisibleString ::= VisibleString
+SyntaxGeneralString ::= GeneralString
+
 
 END -- SelectedAttributeTypes
 

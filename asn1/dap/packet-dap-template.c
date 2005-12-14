@@ -327,6 +327,15 @@ void proto_reg_handoff_dap(void) {
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
 
+  /* AttributeValueAssertions */
+  x509if_register_fmt(hf_dap_equality, "=");
+  x509if_register_fmt(hf_dap_greaterOrEqual, ">=");
+  x509if_register_fmt(hf_dap_lessOrEqual, "<=");
+  x509if_register_fmt(hf_dap_approximateMatch, "=~");
+  /* AttributeTypes */
+  x509if_register_fmt(hf_dap_present, "= *");
+
+
 }
 
 
