@@ -30,6 +30,7 @@ typedef struct _e_udphdr {
   guint16 uh_sport;
   guint16 uh_dport;
   guint16 uh_ulen;
+  guint16 uh_sum_cov;
   guint16 uh_sum;
   address ip_src;
   address ip_dst;
