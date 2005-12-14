@@ -50,7 +50,8 @@ static int stun_att_type = -1;		/* STUN attribute fields */
 static int stun_att_length = -1;
 static int stun_att_value = -1;
 static int stun_att_family = -1;
-static int stun_att_ip = -1;
+static int stun_att_ipv4 = -1;
+static int stun_att_ipv6 = -1;
 static int stun_att_port = -1;
 static int stun_att_change_ip = -1;
 static int stun_att_change_port = -1;
@@ -61,6 +62,10 @@ static int stun_att_error_reason = -1;
 static int stun_att_server_string = -1;
 static int stun_att_xor_ip = -1;
 static int stun_att_xor_port = -1;
+static int stun_att_lifetime = -1;
+static int stun_att_magic_cookie = -1;
+static int stun_att_bandwidth = -1;
+static int stun_att_data = -1;
 
 
 
@@ -71,6 +76,16 @@ static int stun_att_xor_port = -1;
 #define SHARED_SECRET_REQUEST		0x0002
 #define SHARED_SECRET_RESPONSE		0x0102
 #define SHARED_SECRET_ERROR_RESPONSE	0x1112
+#define ALLOCATE_REQUEST		0x0003
+#define ALLOCATE_RESPONSE		0x0103
+#define ALLOCATE_ERROR_RESPONSE		0x0113
+#define SEND_REQUEST			0x0004
+#define SEND_RESPONSE			0x0104
+#define SEND_ERROR_RESPONSE		0x0114
+#define DATA_INDICATION			0x0005
+#define SET_ACTIVE_DESTINATION_REQUEST	0x0006
+#define SET_ACTIVE_DESTINATION_RESPONSE	0x0106
+#define SET_ACTIVE_DESTINATION_ERROR_RESPONSE	0x0116
 
 /* Attribute Types */
 #define MAPPED_ADDRESS		0x0001
@@ -84,9 +99,19 @@ static int stun_att_xor_port = -1;
 #define ERROR_CODE		0x0009
 #define UNKNOWN_ATTRIBUTES	0x000a
 #define REFLECTED_FROM		0x000b
-#define XOR_MAPPED_ADDRESS	0x0020
+#define LIFETIME		0x000d
+#define ALTERNATE_SERVER	0x000e
+#define MAGIC_COOKIE		0x000f
+#define BANDWIDTH		0x0010
+#define DESTINATION_ADDRESS	0x0011
+#define REMOTE_ADDRESS		0x0012
+#define DATA			0x0013
+#define NONCE			0x0014
+#define REALM			0x0015
+#define REQUESTED_ADDRESS_TYPE	0x0016
+#define XOR_MAPPED_ADDRESS	0x8020
 #define XOR_ONLY		0x0021
-#define SERVER			0x0022
+#define SERVER			0x8022
 
 
 
@@ -116,6 +141,16 @@ static const value_string messages[] = {
 	{SHARED_SECRET_REQUEST, "Shared Secret Request"},
 	{SHARED_SECRET_RESPONSE, "Shared Secret Response"},
 	{SHARED_SECRET_ERROR_RESPONSE, "Shared Secret Error Response"},
+	{ALLOCATE_REQUEST, "Allocate Request"},
+	{ALLOCATE_RESPONSE, "Allocate Response"},
+	{ALLOCATE_ERROR_RESPONSE, "Allocate Error Response"},
+	{SEND_REQUEST, "Send Request"},
+	{SEND_RESPONSE, "Send Response"},
+	{SEND_ERROR_RESPONSE, "Send Error Response"},
+	{DATA_INDICATION, "Data Indication"},
+	{SET_ACTIVE_DESTINATION_REQUEST, "Set Active Destination Request"},
+	{SET_ACTIVE_DESTINATION_RESPONSE, "Set Active Destination Response"},
+	{SET_ACTIVE_DESTINATION_ERROR_RESPONSE, "Set Active Destination Error Response"},
 	{0x00, NULL}
 };
 
@@ -130,7 +165,17 @@ static const value_string attributes[] = {
 	{MESSAGE_INTEGRITY, "MESSAGE-INTEGRITY"},
 	{ERROR_CODE, "ERROR-CODE"},
 	{REFLECTED_FROM, "REFLECTED-FROM"},
-	{XOR_MAPPED_ADDRESS, "XOR-MAPPED-ADDRESS"},	
+	{LIFETIME, "LIFETIME"},
+	{ALTERNATE_SERVER, "ALTERNATE_SERVER"},
+	{MAGIC_COOKIE, "MAGIC_COOKIE"},
+	{BANDWIDTH, "BANDWIDTH"},
+	{DESTINATION_ADDRESS, "DESTINATION_ADDRESS"},
+	{REMOTE_ADDRESS, "REMOTE_ADDRESS"},
+	{DATA, "DATA"},
+	{NONCE, "NONCE"},
+	{REALM, "REALM"},
+	{REQUESTED_ADDRESS_TYPE, "REQUESTED_ADDRESS_TYPE"},
+	{XOR_MAPPED_ADDRESS, "XOR_MAPPED_ADDRESS"},
 	{XOR_ONLY, "XOR_ONLY"},
 	{SERVER, "SERVER"},
 	{0x00, NULL}
@@ -138,6 +183,7 @@ static const value_string attributes[] = {
 
 static const value_string attributes_family[] = {
 	{0x0001, "IPv4"},
+	{0x0002, "IPv6"},
 	{0x00, NULL}
 };
 
@@ -238,6 +284,9 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case SOURCE_ADDRESS:
 				case CHANGED_ADDRESS:
 				case REFLECTED_FROM:
+				case ALTERNATE_SERVER:
+				case DESTINATION_ADDRESS:
+				case REMOTE_ADDRESS:
 					if (att_length < 2)
 						break;
 					proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, FALSE);
@@ -246,7 +295,7 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, FALSE);
 					if (att_length < 8)
 						break;
-					proto_tree_add_item(att_tree, stun_att_ip, tvb, offset+4, 4, FALSE);
+					proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, FALSE);
 					break;
 					
 				case CHANGE_REQUEST:
@@ -259,6 +308,8 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case USERNAME:
 				case PASSWORD:
 				case MESSAGE_INTEGRITY:
+				case NONCE:
+				case REALM:
 					if (att_length < 1)
 						break;
 					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, FALSE);
@@ -276,6 +327,28 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+4, (att_length-4), FALSE);
 					break;
 				
+				case LIFETIME:
+					if (att_length < 4)
+						break;
+					proto_tree_add_item(att_tree, stun_att_lifetime, tvb, offset, 4, FALSE);
+					break;
+
+				case MAGIC_COOKIE:
+					if (att_length < 4)
+						break;
+					proto_tree_add_item(att_tree, stun_att_magic_cookie, tvb, offset, 4, FALSE);
+					break;
+
+				case BANDWIDTH:
+					if (att_length < 4)
+						break;
+					proto_tree_add_item(att_tree, stun_att_bandwidth, tvb, offset, 4, FALSE);
+					break;
+
+				case DATA:
+					proto_tree_add_item(att_tree, stun_att_data, tvb, offset, att_length, FALSE);
+					break;
+
 				case UNKNOWN_ATTRIBUTES:
 					for (i = 0; i < att_length; i += 4) {
 						proto_tree_add_item(att_tree, stun_att_unknown, tvb, offset+i, 2, FALSE);
@@ -297,6 +370,12 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (att_length < 8)
 						break;
 					proto_tree_add_item(att_tree, stun_att_xor_ip, tvb, offset+4, 4, FALSE);
+					break;
+
+				case REQUESTED_ADDRESS_TYPE:
+					if (att_length < 2)
+						break;
+					proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, FALSE);
 					break;
 
 				default:
@@ -360,8 +439,12 @@ proto_register_stun(void)
 			{ "Protocol Family",	"stun.att.family",	FT_UINT16,
 			BASE_HEX,	VALS(attributes_family),	0x0, 	"",	HFILL }
 		},
-		{ &stun_att_ip,
-			{ "IP",		"stun.att.ip",	FT_IPv4,
+		{ &stun_att_ipv4,
+			{ "IP",		"stun.att.ipv4",	FT_IPv4,
+			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_ipv6,
+			{ "IP",		"stun.att.ipv6",	FT_IPv6,
 			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
 		},
 		{ &stun_att_port,
@@ -403,6 +486,22 @@ proto_register_stun(void)
 		{ &stun_att_server_string,
 			{ "Server version","stun.att.server",	FT_STRING,
 			BASE_NONE, 	NULL,	0x0,	"",	HFILL}
+ 		},
+		{ &stun_att_lifetime,
+			{ "Lifetime",	"stun.att.lifetime",	FT_UINT32,
+			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_magic_cookie,
+			{ "Magic Cookie",	"stun.att.magic.cookie",	FT_UINT32,
+			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_bandwidth,
+			{ "Bandwidth",	"stun.att.bandwidth",	FT_UINT32,
+			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_data,
+			{ "Data",	"stun.att.data",	FT_BYTES,
+			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
 		},
 	};
 
