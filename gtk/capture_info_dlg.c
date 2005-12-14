@@ -46,6 +46,8 @@
 #include "gui_utils.h"
 #include "main.h"
 #include "capture-pcap-util.h"
+#include "wiretap/libpcap.h"
+
 
 /* a single capture counter value (with title, pointer to value and GtkWidgets) */
 /* as the packet_counts is a struct, not an array, keep a pointer to the */
