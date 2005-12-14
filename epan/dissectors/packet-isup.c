@@ -3002,10 +3002,12 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 	/*
 	 * Defragment ?
 	 * (si_and_apm_seg_ind != 0xc0) -> Non segmented APM message
-	 * (si_and_apm_seg_ind & 0x80 == 0x80) NO Segmentation local ref ( without SLR defrag. does not work)
+	 * (si_and_apm_seg_ind & H_8BIT_MASK)
+	 *    -> NO Segmentation local ref ( without SLR defrag. does not work)
 	 * 
 	 */
-	if ((isup_apm_desegment && si_and_apm_seg_ind != 0xc0)|| (si_and_apm_seg_ind & 0x80 == 0x80)){
+	if (isup_apm_desegment &&
+	    (si_and_apm_seg_ind != 0xc0 || si_and_apm_seg_ind & H_8BIT_MASK)){
 		/* Segmented message */
 		save_fragmented = pinfo->fragmented;
 		pinfo->fragmented = TRUE;
