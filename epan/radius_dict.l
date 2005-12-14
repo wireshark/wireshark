@@ -192,6 +192,8 @@
 
 <<EOF>> {
 	
+    fclose(yyin);
+    
 	if ( --include_stack_ptr < 0 ) {
 		yyterminate();
 	} else {
@@ -375,6 +377,8 @@ radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, 
 
 	yylex();
 
+    fclose(yyin);
+    
 	for (i=0; i < 10; i++) {
 		if (fullpaths[i]) g_free(fullpaths[i]);
 	}
