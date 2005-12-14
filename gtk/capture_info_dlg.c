@@ -38,7 +38,6 @@
 
 #include <epan/packet.h>
 #include "capture.h"
-#include "wiretap/libpcap.h"
 #include "capture_loop.h"
 #include "capture_info.h"
 #include "globals.h"

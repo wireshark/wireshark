@@ -269,10 +269,10 @@ free_capture_combo_list(GList *combo_list)
  * Given text that contains an interface name possibly prefixed by an
  * interface description, extract the interface name.
  */
-char *
+const char *
 get_if_name(const char *if_text)
 {
-  char *if_name;
+  const char *if_name;
 
 #ifdef _WIN32
   /*

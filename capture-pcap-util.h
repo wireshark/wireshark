@@ -91,8 +91,8 @@ typedef struct {
 	char	*description;
 } data_link_info_t;
 
-int get_pcap_linktype(pcap_t *pch, char *devname);
-GList *get_pcap_linktype_list(char *devname, char *err_buf);
+int get_pcap_linktype(pcap_t *pch, const char *devname);
+GList *get_pcap_linktype_list(const char *devname, char *err_buf);
 void free_pcap_linktype_list(GList *linktype_list);
 const char *set_pcap_linktype(pcap_t *pch, char *devname, int dlt);
 

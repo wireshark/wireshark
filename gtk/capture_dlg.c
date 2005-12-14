@@ -153,7 +153,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 {
   gchar *entry_text;
   gchar *if_text;
-  gchar *if_name;
+  const gchar *if_name;
   GList *if_list;
   GList *if_entry;
   if_info_t *if_info;
@@ -1178,7 +1178,7 @@ capture_start_confirmed(void) {
     /* XXX - would better be doing this in main.c */
     if(capture_opts->iface == NULL) {
         gchar *if_device;
-        gchar *if_name;
+        const gchar *if_name;
 
         /* did the user ever selected a capture interface before? */
         if(prefs.capture_device == NULL) {
@@ -1301,7 +1301,7 @@ capture_dlg_prep(gpointer parent_w) {
 #endif
   gchar *entry_text;
   gchar *if_text;
-  gchar *if_name;
+  const gchar *if_name;
   const gchar *filter_text;
   const gchar *g_save_file;
   gchar *cf_name;

@@ -66,12 +66,11 @@
 
 #include <glib.h>
 
+#include <pcap.h>
+
 #include "wiretap/wtap.h"
 #include "wiretap/wtap-capture.h"
-#include "wiretap/libpcap.h"
 
-
-#include <pcap.h>
 #include "capture-pcap-util.h"
 
 #include "capture.h"

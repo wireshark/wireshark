@@ -94,7 +94,6 @@
 #include <setjmp.h>
 #include "capture-pcap-util.h"
 #include <wiretap/wtap-capture.h>
-#include <wiretap/libpcap.h>
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include "capture_errs.h"
@@ -581,7 +580,9 @@ add_decode_as(const gchar *cl_param)
   return TRUE;
 }
 
-void log_func_ignore (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data)
+static void
+log_func_ignore (const gchar *log_domain _U_, GLogLevelFlags log_level _U_,
+    const gchar *message _U_, gpointer user_data _U_)
 {
 }
 
@@ -1379,7 +1380,6 @@ capture(char *save_file, int out_file_type)
   struct pcap_stat stats;
   gboolean    write_ok;
   gboolean    close_ok;
-  dfilter_t   *rfcode = NULL;
   int         save_file_fd;
 
   /* Initialize all data structures used for dissection. */

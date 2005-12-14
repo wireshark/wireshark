@@ -61,7 +61,7 @@
  * rest-of-the-universe libpcap.
  */
 int
-get_pcap_linktype(pcap_t *pch, char *devname
+get_pcap_linktype(pcap_t *pch, const char *devname
 #ifndef _AIX
 	_U_
 #endif
@@ -69,7 +69,7 @@ get_pcap_linktype(pcap_t *pch, char *devname
 {
 	int linktype;
 #ifdef _AIX
-	char *ifacename;
+	const char *ifacename;
 #endif
 
 	linktype = pcap_datalink(pch);
@@ -348,7 +348,7 @@ create_data_link_info(int dlt)
 }
 
 GList *
-get_pcap_linktype_list(char *devname, char *err_buf)
+get_pcap_linktype_list(const char *devname, char *err_buf)
 {
 	GList *linktype_list = NULL;
 	pcap_t *pch;

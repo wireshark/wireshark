@@ -32,6 +32,14 @@
 #ifndef __CAPTURE_LOOP_H__
 #define __CAPTURE_LOOP_H__
 
+#ifndef _WIN32
+/*
+ * Get information about libpcap format from "wiretap/libpcap.h".
+ * XXX - can we just use pcap_open_offline() to read the pipe?
+ */
+#include "wiretap/libpcap.h"
+#endif
+
 /** Do the low-level work of a capture.
  *  Returns TRUE if it succeeds, FALSE otherwise. */
 extern int  capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
