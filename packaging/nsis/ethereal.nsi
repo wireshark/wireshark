@@ -619,23 +619,26 @@ File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libatk-1.0-0.dll"
 File "${GTK2_DIR}\bin\libpango-1.0-0.dll"
 File "${GTK2_DIR}\bin\libpangowin32-1.0-0.dll"
+!ifdef NEED_LIBPNG_DLL
+File "${GTK2_DIR}\bin\libpng13.dll"
+!endif
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK2_DIR}\etc\gtk-2.0\*.*"
 SetOutPath $INSTDIR\etc\pango
 File "${GTK2_DIR}\etc\pango\pango.*"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\loaders
-File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_INST_VERSION}.0\loaders\libpixbufloader-*.dll"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\immodules
-File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_INST_VERSION}.0\immodules\im-*.dll"
-SetOutPath $INSTDIR\lib\pango\${PANGO_INST_VERSION}.0\modules
-File "${GTK2_DIR}\lib\pango\${PANGO_INST_VERSION}.0\modules\pango-*.dll"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders
+File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders\libpixbufloader-*.dll"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules
+File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules\im-*.dll"
+SetOutPath $INSTDIR\lib\pango\${PANGO_LIB_DIR}\modules
+File "${GTK2_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
 SectionEnd
  
 !ifdef GTK_WIMP_DIR
 Section "GTK-Wimp" SecGTKWimp
 ;-------------------------------------------
 SectionIn 1
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\engines
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\engines
 File "${GTK_WIMP_DIR}\libwimp.dll"
 SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
 File "${GTK_WIMP_DIR}\Theme\gtk-2.0\gtkrc"

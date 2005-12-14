@@ -447,7 +447,12 @@ verify_tools:
 # Download and install all the required libraries into ETHEREAL_LIBS.
 # If you used this setup target before, consider doing a clean_setup.
 setup: verify_tools
-!IF "$(GTK2_INST_VERSION)" == "2.6"
+!IF "$(GTK2_INST_VERSION)" == "2.8"
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		glib gtk2.8/glib-2.8.4-20051212.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		glib gtk2.8/glib-dev-2.8.4-20051212.zip
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		glib gtk2.6/glib-2.6.6.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -483,20 +488,35 @@ setup: verify_tools
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		. adns-1.0-win32-04.zip
+		. adns-1.0-win32-05.zip
 !ENDIF
 !IFDEF PCRE_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		pcre-6.3 pcre-6.3-bin.zip
+		pcre-6.4 pcre-6.4-bin.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		pcre-6.3 pcre-6.3-lib.zip
+		pcre-6.4 pcre-6.4-lib.zip
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		zlib123-dll zlib123-dll.zip
 !ENDIF
 !IFDEF GTK2_DIR
-!IF "$(GTK2_INST_VERSION)" == "2.6"
+!IF "$(GTK2_INST_VERSION)" == "2.8"
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/gtk+-2.8.9.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/gtk+-dev-2.8.9.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/cairo-1.0.2.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/cairo-dev-1.0.2.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/atk-1.10.3.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/atk-dev-1.10.3.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/libpng-1.2.8-bin.zip
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.6/gtk+-2.6.9.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -524,7 +544,12 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2/atk-dev-1.4.0.zip
 !ENDIF
-!IF "$(PANGO_INST_VERSION)" == "1.8"
+!IF "$(PANGO_INST_VERSION)" == "1.10"
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/pango-1.10.1.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.8/pango-dev-1.10.1.zip
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.8"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.6/pango-1.8.2.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -597,6 +622,9 @@ install-gtk2-deps: install-required-deps
 	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
 	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules /d
 	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll lib\pango\$(PANGO_LIB_DIR)\modules /d
+!IFDEF NEED_LIBPNG_DLL
+	xcopy $(GTK2_DIR)\bin\libpng13.dll . /d
+!ENDIF
 !ENDIF
 
 install-gtk1-deps: install-required-deps

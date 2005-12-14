@@ -79,11 +79,13 @@ GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
 #
 #GTK2_INST_VERSION=2.2
 #PANGO_INST_VERSION=1.2
-GTK2_INST_VERSION=2.4
-PANGO_INST_VERSION=1.4
-# Support of GTK 2.6 is currently very experimental ...
+#GTK2_INST_VERSION=2.4
+#PANGO_INST_VERSION=1.4
+# Support for GTK 2.6 and 2.8 is currently very experimental ...
 #GTK2_INST_VERSION=2.6
 #PANGO_INST_VERSION=1.8
+GTK2_INST_VERSION=2.8
+PANGO_INST_VERSION=1.10
 
 #
 # If you have GTK-Wimp, set this to the pathname of the directory in
@@ -122,7 +124,7 @@ NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.2.1.2
 # If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
 # isn't defined.
 #
-ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-04
+ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-05
 
 #
 # If you have the PCRE (Perl Compatible Regular Expressions) library,
@@ -132,7 +134,7 @@ ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-04
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
 # isn't defined.
 #
-PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.3
+PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.4
 
 #
 # If you have the Nettle encryption library, set this to the pathname
@@ -285,6 +287,7 @@ GTK1_LIBS=$(GTK1_DIR)\lib\gtk.lib \
 GTK2_CFLAGS=$(GLIB_CFLAGS) /I$(GTK2_DIR)\include\gtk-2.0 \
 	/I$(GTK2_DIR)\lib\gtk-2.0\include \
 	/I$(GTK2_DIR)\include\atk-1.0 \
+	/I$(GTK2_DIR)\include\cairo \
 	/I$(GTK2_DIR)\include\pango-1.0
 GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK2_DIR)\lib\gdk-win32-2.0.lib \
@@ -293,7 +296,10 @@ GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
 	$(GLIB_LIBS)
 
 # the lib dir of GTK2.6 didn't changed since 2.4.0
-!IF "$(GTK2_INST_VERSION)" == "2.6"
+!IF "$(GTK2_INST_VERSION)" == "2.8"
+GTK2_LIB_DIR=2.4.0
+NEED_LIBPNG_DLL=USE
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
 GTK2_LIB_DIR=2.4.0
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
 GTK2_LIB_DIR=2.4.0
@@ -302,7 +308,9 @@ GTK2_LIB_DIR=2.2.0
 !ENDIF
 
 # the lib dir of PANGO1.8 didn't changed since 1.4.0
-!IF "$(PANGO_INST_VERSION)" == "1.8"
+!IF "$(PANGO_INST_VERSION)" == "1.10"
+PANGO_LIB_DIR=1.4.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.8"
 PANGO_LIB_DIR=1.4.0
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.4"
 PANGO_LIB_DIR=1.4.0
