@@ -438,11 +438,11 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
   mtp3_addr_opc.type = mtp3_standard;
   mtp3_addr_opc.pc = opc;
-  SET_ADDRESS(&pinfo->net_src, AT_SS7PC, sizeof(mtp3_addr_opc), (guint8 *) &mtp3_addr_opc);
+  SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_opc), (guint8 *) &mtp3_addr_opc);
 
   mtp3_addr_dpc.type = mtp3_standard;
   mtp3_addr_dpc.pc = dpc;
-  SET_ADDRESS(&pinfo->net_dst, AT_SS7PC, sizeof(mtp3_addr_dpc), (guint8 *) &mtp3_addr_dpc);
+  SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_dpc), (guint8 *) &mtp3_addr_dpc);
 }
 
 static void

@@ -672,9 +672,13 @@ static heur_dissector_list_t heur_subdissector_list;
  *  parameter, we can call appropriate sub-dissector.  TODO: can this info
  *  be stored elsewhere?
  */
+
 static guint8 message_type = 0;
 static guint dlr = 0;
 static guint slr = 0;
+/* Put back old code(before binding) to be able to dissect data messages wher no setup info seen */
+static guint8 called_ssn = INVALID_SSN;
+static guint8 calling_ssn = INVALID_SSN;
 
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
@@ -1067,10 +1071,12 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
       if (called) {
+		  called_ssn = ssn;
 	      if (binding) binding->called_ssn = ssn;
       }
       else {
 	      if (binding) binding->calling_ssn = ssn;
+		  calling_ssn = ssn;
       }
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
@@ -1290,7 +1296,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ssn = binding->called_ssn;
         }
     } else {
-        ssn = INVALID_SSN;
+        ssn = called_ssn;
     }
     
     if ((ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree))) {
@@ -1683,7 +1689,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
     OPTIONAL_POINTER(POINTER_LENGTH)
@@ -1708,7 +1714,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
       
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
       
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
@@ -1722,7 +1728,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
       
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_REFUSAL_CAUSE, offset,
@@ -1739,14 +1745,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
       
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
       
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RELEASE_CAUSE, offset,
 				     RELEASE_CAUSE_LENGTH);
 
       OPTIONAL_POINTER(POINTER_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_RLC:
@@ -1758,7 +1764,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
       
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     break;
 
@@ -1768,7 +1774,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
       
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
       
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SEGMENTING_REASSEMBLING,
@@ -1783,7 +1789,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
       
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SEQUENCING_SEGMENTING, offset,
@@ -1795,14 +1801,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
       
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RECEIVE_SEQUENCE_NUMBER,
 				     offset, RECEIVE_SEQUENCE_NUMBER_LENGTH);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CREDIT, offset, CREDIT_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_UDT:
@@ -1813,7 +1819,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
 
-    binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+    binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
       
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1835,7 +1841,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
 
-    binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+    binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1855,7 +1861,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
       VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
       
@@ -1868,7 +1874,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     break;
 
@@ -1883,7 +1889,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RESET_CAUSE, offset,
 				     RESET_CAUSE_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_RSC:
@@ -1894,7 +1900,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_ERR:
@@ -1905,7 +1911,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_ERROR_CAUSE, offset,
 				     ERROR_CAUSE_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_IT:
@@ -1916,7 +1922,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -1940,7 +1946,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
     OPTIONAL_POINTER(POINTER_LENGTH)
 
-    binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+    binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1965,7 +1971,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
     OPTIONAL_POINTER(POINTER_LENGTH)
 
-    binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+    binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1992,7 +1998,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
       OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				      PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2021,7 +2027,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
       OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
-      binding = sccp_binding(&(pinfo->net_src), &(pinfo->net_dst), slr, dlr);
+      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				      PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2052,8 +2058,8 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *sccp_tree = NULL;
   const mtp3_addr_pc_t *mtp3_addr_p;
 
-  if ((pinfo->net_src.type == AT_SS7PC) &&
-    ((mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->net_src.data)->type <= CHINESE_ITU_STANDARD))
+  if ((pinfo->src.type == AT_SS7PC) &&
+    ((mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->src.data)->type <= CHINESE_ITU_STANDARD))
   {
     /*
 	 * Allow a protocol beneath to specify how the SCCP layer should be dissected.
@@ -2094,14 +2100,14 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Set whether message is UPLINK, DOWNLINK, or of UNKNOWN direction */
 
-  if (pinfo->net_src.type == AT_SS7PC)
+  if (pinfo->src.type == AT_SS7PC)
   {
     /*
      * XXX - we assume that the "data" pointers of the source and destination
      * addresses are set to point to "mtp3_addr_pc_t" structures, so that
      * we can safely cast them.
      */
-    mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->net_src.data;
+    mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->src.data;
 
     if (sccp_source_pc_global == mtp3_addr_p->pc)
     {
@@ -2109,8 +2115,8 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-      /* assuming if net_src was SS7 PC then net_dst will be too */
-      mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->net_dst.data;
+      /* assuming if src was SS7 PC then dst will be too */
+      mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->dst.data;
 
       if (sccp_source_pc_global == mtp3_addr_p->pc)
       {
