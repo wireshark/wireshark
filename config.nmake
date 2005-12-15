@@ -95,6 +95,7 @@ PANGO_INST_VERSION=1.10
 # defined.
 #
 GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
+GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme
 
 #
 # If you have Zlib, set this to the pathname of the directory in
@@ -300,6 +301,8 @@ GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
 GTK2_LIB_DIR=2.4.0
 NEED_LIBPNG_DLL=USE
 NEED_CAIRO_DLL=USE
+GTK_WIMP_DIR=$(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines
+GTK_THEME_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
 GTK2_LIB_DIR=2.4.0
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.4"

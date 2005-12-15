@@ -644,8 +644,12 @@ Section "GTK-Wimp" SecGTKWimp
 SectionIn 1
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\engines
 File "${GTK_WIMP_DIR}\libwimp.dll"
+; GTK+ 2.8 looks for themes in "etc".  We should really pick one
+; directory and install there.
 SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
-File "${GTK_WIMP_DIR}\Theme\gtk-2.0\gtkrc"
+File "${GTK_THEME_DIR}\gtkrc"
+SetOutPath $INSTDIR\etc\gtk-2.0
+File "${GTK_THEME_DIR}\gtkrc"
 SectionEnd
 !endif
 !endif
