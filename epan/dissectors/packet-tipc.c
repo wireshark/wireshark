@@ -85,7 +85,6 @@ static int hf_tipc_cm_msg_type = -1;
 static int hf_tipc_lp_msg_type = -1;
 static int hf_tipc_cng_prot_msg_type = -1;
 static int hf_tipc_sm_msg_type = -1;
-static int hf_tipc_ma_msg_type = -1;
 static int hf_tipc_unknown_msg_type = -1;
 static int hf_tipc_seq_gap = -1;
 static int hf_tipc_nxt_snt_pkg = -1;
@@ -279,7 +278,7 @@ static void
 dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
  
-	while ( tvb_length_remaining(tvb,offset) > 0){
+	while ( tvb_reported_length_remaining(tvb,offset) > 0){
 		 proto_tree_add_item(tree, hf_tipc_name_dist_type, tvb, offset, 4, FALSE);
 		 offset = offset+4;
 		 proto_tree_add_item(tree, hf_tipc_name_dist_lower, tvb, offset, 4, FALSE);
@@ -457,8 +456,8 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			}
 			break;
 		case TIPC_SEGMENTATION_MANAGER:
+			save_fragmented = pinfo->fragmented;
 			if (tipc_defragment){
-				save_fragmented = pinfo->fragmented;
 				pinfo->fragmented = TRUE;
 			
 				frag_msg = fragment_add_seq_next(tvb, offset, pinfo,
@@ -767,9 +766,9 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				case TIPC_DIRECT_MSG:
 					previous_offset = offset;
-					while (tvb_length_remaining(tipc_tvb,offset) > 0){
+					while (tvb_reported_length_remaining(tipc_tvb,offset) > 0){
 						dword = tvb_get_ntohl(tipc_tvb,offset);
-						if ((dword & 0xff000000) == 0x45000000){ /* && ((dword & 0x0000ffff)== tvb_length_remaining(tvb,offset+2)))*/
+						if ((dword & 0xff000000) == 0x45000000){ /* && ((dword & 0x0000ffff)== tvb_reported_length_remaining(tvb,offset+2)))*/
 							data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
 							call_dissector(ip_handle, data_tvb, pinfo, top_tree);
 							return;
