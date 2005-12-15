@@ -78,6 +78,7 @@
 
 #include "globals.h"
 #include "file.h"
+#include <epan/filesystem.h>
 
 #include "capture.h"
 #include "capture_sync.h"
@@ -312,7 +313,6 @@ sync_pipe_start(capture_options *capture_opts) {
     char buffer_size[ARGV_NUMBER_LEN];
     char sync_pipe_fd[ARGV_NUMBER_LEN];
     char signal_pipe_fd[ARGV_NUMBER_LEN];
-    char *fontstring;
     char *filterstring;
     char *savefilestring;
     int signal_pipe[2];                     /* pipe used to send messages from parent to child (currently only stop) */
@@ -403,10 +403,6 @@ sync_pipe_start(capture_options *capture_opts) {
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 
-    if (!capture_opts->show_info) {
-      argv = sync_pipe_add_arg(argv, &argc, "-H");
-    }
-
     if (!capture_opts->promisc_mode)
       argv = sync_pipe_add_arg(argv, &argc, "-p");
 
@@ -438,11 +434,6 @@ sync_pipe_start(capture_options *capture_opts) {
     g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d",capture_opts->buffer_size);
     argv = sync_pipe_add_arg(argv, &argc, buffer_size);
 
-    /* Convert font name to a quote-encapsulated string and pass to child */
-    argv = sync_pipe_add_arg(argv, &argc, "-m");
-    fontstring = g_strdup_printf("\"%s\"", prefs.PREFS_GUI_FONT_NAME);
-    argv = sync_pipe_add_arg(argv, &argc, fontstring);
-
     /* Convert sync pipe write handle to a string and pass to child */
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     g_snprintf(sync_pipe_fd, ARGV_NUMBER_LEN, "sync:%d",sync_pipe[PIPE_WRITE]);
@@ -470,8 +461,24 @@ sync_pipe_start(capture_options *capture_opts) {
     }
 
     /* Spawn process */
+#if 0
+    {
+        /* XXX - experiment to use dumpcap as the capture child */
+        /* currently not working, so commented out for now ... */
+        char *dirname;
+        char *exename;
+        
+        /* take the ethereal programs path and replace ethereal with dumpcap */
+        dirname = get_dirname(g_strdup(ethereal_path));
+        exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", dirname);
+        g_free(dirname);
+        
+        /* call dumpcap */
+        capture_opts->fork_child = spawnvp(_P_NOWAIT, exename, argv);
+        g_free(exename);
+    }
+#endif
     capture_opts->fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
-    g_free(fontstring);
     if (filterstring) {
       g_free(filterstring);
     }
@@ -489,9 +496,6 @@ sync_pipe_start(capture_options *capture_opts) {
       g_free(argv);
       return FALSE;
     }
-
-    argv = sync_pipe_add_arg(argv, &argc, "-m");
-    argv = sync_pipe_add_arg(argv, &argc, prefs.PREFS_GUI_FONT_NAME);
 
     if (capture_opts->cfilter != NULL && capture_opts->cfilter != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
