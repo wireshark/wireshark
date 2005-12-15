@@ -1717,6 +1717,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case ICMP_RTRADVERT:
       switch (icmp_code) {
+      case 0: /* Mobile-Ip */
       case 16: /* Mobile-Ip */
         type_str="Mobile IP Advertisement";
         break;
@@ -1912,7 +1913,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(icmp_tree, tvb, 12 + (i*8), 4,
 	      "Preference level: %d", tvb_get_ntohl(tvb, 12 + (i*8)));
 	  }
-	  if (icmp_code == 16) {
+	  if ((icmp_code == 0) || (icmp_code == 16)) {
 		/* Mobile-Ip */
 		dissect_mip_extensions(tvb, 8 + i*8, icmp_tree);
 	  }
