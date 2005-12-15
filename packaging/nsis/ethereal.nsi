@@ -619,6 +619,10 @@ File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libatk-1.0-0.dll"
 File "${GTK2_DIR}\bin\libpango-1.0-0.dll"
 File "${GTK2_DIR}\bin\libpangowin32-1.0-0.dll"
+!ifdef NEED_CAIRO_DLL
+File "${GTK2_DIR}\bin\libcairo-2.dll"
+File "${GTK2_DIR}\bin\libpangocairo-1.0-0.dll"
+!endif
 !ifdef NEED_LIBPNG_DLL
 File "${GTK2_DIR}\bin\libpng13.dll"
 !endif
