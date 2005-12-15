@@ -1780,7 +1780,6 @@ main(int argc, char *argv[])
   ep_init_chunk();
   se_init_chunk();
 
-  /*** create the compile and runtime version strings ***/
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
