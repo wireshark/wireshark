@@ -70,9 +70,7 @@
 
 
 
-GString *comp_info_str, *runtime_info_str;
-gchar       *ethereal_path = NULL;
-
+/* Win32 console handling */
 #ifdef _WIN32
 static gboolean has_console = TRUE;	        /* TRUE if app has console */
 static void create_console(void);
@@ -82,6 +80,7 @@ static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 		    const char *message, gpointer user_data _U_);
 
+/* capture related options */
 capture_options global_capture_opts;
 capture_options *capture_opts = &global_capture_opts;
 
@@ -143,7 +142,7 @@ print_usage(gboolean print_ver) {
 }
 
 static void
-show_version(void)
+show_version(GString *comp_info_str, GString *runtime_info_str)
 {
 #ifdef _WIN32
   create_console();
@@ -233,17 +232,14 @@ main(int argc, char *argv[])
   int                  opt;
   extern char         *optarg;
   gboolean             arg_error = FALSE;
+  GString             *comp_info_str;
+  GString             *runtime_info_str;
 
 #ifdef _WIN32
   WSADATA              wsaData;
 #endif  /* _WIN32 */
 
-  int                  err;
   gboolean             start_capture = TRUE;
-  GList               *if_list;
-  if_info_t           *if_info;
-  gchar                err_str[PCAP_ERRBUF_SIZE];
-  gchar               *cant_get_if_list_errstr;
   gboolean             stats_known;
   struct pcap_stat     stats;
   GLogLevelFlags       log_flags;
@@ -260,19 +256,20 @@ main(int argc, char *argv[])
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
     OPTSTRING_INIT OPTSTRING_WIN32;
 
-  /*** create the compile and runtime version strings ***/
+
+
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
 
   /* ... and also load the packet.dll from wpcap */
-  wpcap_packet_load();
+  /* XXX - currently not required, may change later. */
+  /*wpcap_packet_load();*/
 
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 
-
-  
+  /* Set handler for Ctrl+C key */
   SetConsoleCtrlHandler(&ConsoleCtrlHandlerRoutine, TRUE);
 #endif  /* _WIN32 */
 
@@ -284,8 +281,6 @@ main(int argc, char *argv[])
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
   get_runtime_version_info(runtime_info_str);
-
-  ethereal_path = argv[0];
 
   /* Arrange that if we have no console window, and a GLib message logging
      routine is called to log a message, we pop up a console window.
@@ -322,7 +317,7 @@ main(int argc, char *argv[])
             console_log_handler, NULL /* user_data */);
 
   /* Set the initial values in the capture_opts. This might be overwritten 
-     by preference settings and then again by the command line parameters. */
+     by the command line parameters. */
   capture_opts_init(capture_opts, NULL);
 
   capture_opts->snaplen             = MIN_PACKET_SIZE;
@@ -336,7 +331,7 @@ main(int argc, char *argv[])
         exit_main(0);
         break;
       case 'v':        /* Show version and exit */
-        show_version();
+        show_version(comp_info_str, runtime_info_str);
         exit_main(0);
         break;
       /*** capture option specific ***/
@@ -367,6 +362,7 @@ main(int argc, char *argv[])
         break;
       default:
       case '?':        /* Bad flag - print usage message */
+        cmdarg_err("Invalid Option: %s", argv[optind-1]);
         arg_error = TRUE;
         break;
     }
@@ -421,29 +417,14 @@ main(int argc, char *argv[])
     }
   }
 
-/* Did the user specify an interface to use? */
-if (capture_opts->iface == NULL) {
-    /* No - pick the first one from the list of interfaces. */
-    if_list = get_interface_list(&err, err_str);
-    if (if_list == NULL) {
-      switch (err) {
+  capture_opts_trim_iface(capture_opts, NULL);
 
-      case CANT_GET_INTERFACE_LIST:
-          cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-          cmdarg_err("%s", cant_get_if_list_errstr);
-          g_free(cant_get_if_list_errstr);
-          break;
-
-      case NO_INTERFACES_FOUND:
-          cmdarg_err("There are no interfaces on which a capture can be done");
-          break;
-      }
-      exit_main(2);
-    }
-    if_info = if_list->data;	/* first interface */
-    capture_opts->iface = g_strdup(if_info->name);
-    free_interface_list(if_list);
-  }
+  /* Let the user know what interface was chosen. */
+/*  descr = get_interface_descriptive_name(capture_opts.iface);
+  fprintf(stderr, "Capturing on %s\n", descr);
+  g_free(descr);*/
+  fprintf(stderr, "Capturing on %s\n", capture_opts->iface);
+  
 
   if (list_link_layer_types) {
     capture_opts_list_link_layer_types(capture_opts);
@@ -458,14 +439,11 @@ if (capture_opts->iface == NULL) {
   /* XXX - hand the stats to the parent process */
   if(capture_loop_start(capture_opts, &stats_known, &stats) == TRUE) {
       /* capture ok */
-      err = 0;
+      exit_main(0);
   } else {
       /* capture failed */
-      err = 1;
+      exit_main(1);
   }
-
-  /* the capture is done; there's nothing more for us to do. */
-  exit_main(err);
 }
 
 #ifdef _WIN32
@@ -551,7 +529,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 
   /* ignore log message, if log_level isn't interesting */
-  if( !(log_level & G_LOG_LEVEL_MASK & ~G_LOG_LEVEL_DEBUG /*prefs.console_log_level*/)) {
+  if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO) /*prefs.console_log_level*/)) {
     return;
   }
 
@@ -608,9 +586,53 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 /****************************************************************************************************************/
 /* sync_pipe "dummies" */
 
+/*
+ * Maximum length of sync pipe message data.  Must be < 2^24, as the
+ * message length is 3 bytes.
+ * XXX - this must be large enough to handle a Really Big Filter
+ * Expression, as the error message for an incorrect filter expression
+ * is a bit larger than the filter expression.
+ */
+#define SP_MAX_MSG_LEN	4096
+
+
+ /* write a message to the recipient pipe in the standard format 
+   (3 digit message length (excluding length and indicator field), 
+   1 byte message indicator and the rest is the message) */
 static void
 pipe_write_block(int pipe, char indicator, int len, const char *msg)
 {
+    guchar header[3+1]; /* indicator + 3-byte len */
+    int ret;
+
+    /*g_warning("write %d enter", pipe);*/
+
+    g_assert(indicator < '0' || indicator > '9');
+    g_assert(len <= SP_MAX_MSG_LEN);
+
+    /* write header (indicator + 3-byte len) */
+    header[0] = indicator;
+    header[1] = (len >> 16) & 0xFF;
+    header[2] = (len >> 8) & 0xFF;
+    header[3] = (len >> 0) & 0xFF;
+
+    ret = write(pipe, header, sizeof header);
+    if(ret == -1) {
+        return;
+    }
+
+    /* write value (if we have one) */
+    if(len) {
+        /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe, indicator, len, msg);*/
+        ret = write(pipe, msg, len);
+        if(ret == -1) {
+            return;
+        }
+    } else {
+        /*g_warning("write %d indicator: %c no value", pipe, indicator);*/
+    }
+
+    /*g_warning("write %d leave", pipe);*/
 }
 
 
@@ -626,7 +648,7 @@ sync_pipe_packet_count_to_parent(int packet_count)
     /*g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);*/
 
     count += packet_count;
-    fprintf(stderr, "\rpackets: %u", count);
+    fprintf(stderr, "\rPackets: %u", count);
 
     pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
