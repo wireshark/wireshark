@@ -4,6 +4,12 @@
  *
  * $Id$
  *
+ * Added support for OSPF restart signaling:
+ *       draft-nguyen-ospf-lls-05.txt
+ *       draft-nguyen-ospf-oob-resync-05.txt
+ *       draft-nguyen-ospf-restart-05.txt
+ *   - (c) 2005 Michael Rozhavsky <mrozhavsky@fortinet.com>
+ * 
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
  * OSPF Extensions which introduce new Packet types
@@ -85,7 +91,7 @@ static const value_string auth_vals[] = {
 #define OSPF_V2_OPTIONS_E		0x02
 #define OSPF_V2_OPTIONS_MC		0x04
 #define OSPF_V2_OPTIONS_NP		0x08
-#define OSPF_V2_OPTIONS_EA		0x10
+#define OSPF_V2_OPTIONS_L		0x10
 #define OSPF_V2_OPTIONS_DC		0x20
 #define OSPF_V2_OPTIONS_O		0x40
 #define OSPF_V3_OPTIONS_V6              0x01
@@ -94,6 +100,9 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_OPTIONS_N		0x08
 #define OSPF_V3_OPTIONS_R		0x10
 #define OSPF_V3_OPTIONS_DC		0x20
+
+#define OSPF_LLS_EXT_OPTIONS_LR		0x00000001
+#define OSPF_LLS_EXT_OPTIONS_RS		0x00000002
 
 
 #define OSPF_DBD_FLAG_MS	1
@@ -177,6 +186,12 @@ static const value_string v3_ls_type_vals[] = {
 
 };
 
+static const value_string lls_tlv_type_vals[] = {
+	{1,                                   "Extended options TLV"         },
+	{2,                                   "Crypo Authentication TLV"     },
+	{0,                                   NULL                           },
+};
+
 static const value_string mpls_link_stlv_ltype_str[] = {
     {1, "Point-to-point"},
     {2, "Multi-access"},
@@ -203,7 +218,7 @@ static int hf_ospf_options_v2 = -1;
 static int hf_ospf_options_v2_e = -1;
 static int hf_ospf_options_v2_mc = -1;
 static int hf_ospf_options_v2_np = -1;
-static int hf_ospf_options_v2_ea = -1;
+static int hf_ospf_options_v2_l = -1;
 static int hf_ospf_options_v2_dc = -1;
 static int hf_ospf_options_v2_o = -1;
 static int hf_ospf_options_v2_dn = -1;
@@ -218,6 +233,9 @@ static int hf_ospf_dbd = -1;
 static int hf_ospf_dbd_i = -1;
 static int hf_ospf_dbd_m = -1;
 static int hf_ospf_dbd_ms = -1;
+static int hf_ospf_lls_ext_options = -1;
+static int hf_ospf_lls_ext_options_lr = -1;
+static int hf_ospf_lls_ext_options_rs = -1;
 
 static gint ett_ospf = -1;
 static gint ett_ospf_hdr = -1;
@@ -230,6 +248,9 @@ static gint ett_ospf_lsa_upd = -1;
 static gint ett_ospf_options_v2 = -1;
 static gint ett_ospf_options_v3 = -1;
 static gint ett_ospf_dbd = -1;
+static gint ett_ospf_lls_data_block = -1;
+static gint ett_ospf_lls_tlv = -1;
+static gint ett_ospf_lls_ext_options = -1;
 
 /* Trees for opaque LSAs */
 static gint ett_ospf_lsa_mpls = -1;
@@ -246,9 +267,9 @@ static const true_false_string tfs_options_v2_dc = {
 	"Demand Circuits are supported",
 	"Demand circuits are NOT supported"
 };
-static const true_false_string tfs_options_v2_ea = {
-	"External Attributes are supported",
-	"External attributes are NOT supported"
+static const true_false_string tfs_options_v2_l = {
+	"The packet contains LLS data block",
+	"The packet does NOT contain LLS data block"
 };
 static const true_false_string tfs_options_v2_np = {
 	"NSSA is supported",
@@ -306,6 +327,14 @@ static const true_false_string tfs_dbd_m = {
 static const true_false_string tfs_dbd_ms = {
 	"MS is SET",
 	"MS is NOT set"
+};
+static const true_false_string tfs_lls_ext_options_lr = {
+	"LSDB Resynchrinization (LR-bit) is SET",
+	"LSDB Resynchrinization (LR-bit) is NOT set"
+};
+static const true_false_string tfs_lls_ext_options_rs = {
+	"Restart Signal (RS-bit) is SET",
+	"Restart Signal (RS-bit) is NOT set"
 };
 
 /*-----------------------------------------------------------------------
@@ -475,9 +504,9 @@ static hf_register_info ospff_info[] = {
     {&hf_ospf_options_v2_np,
      { "NP", "ospf.options.v2.np", FT_BOOLEAN, 8, 
        TFS(&tfs_options_v2_np), OSPF_V2_OPTIONS_NP, "", HFILL }},
-    {&hf_ospf_options_v2_ea,
-     { "EA", "ospf.options.v2.ea", FT_BOOLEAN, 8, 
-       TFS(&tfs_options_v2_ea), OSPF_V2_OPTIONS_EA, "", HFILL }},
+    {&hf_ospf_options_v2_l,
+     { "L", "ospf.options.v2.l", FT_BOOLEAN, 8, 
+       TFS(&tfs_options_v2_l), OSPF_V2_OPTIONS_L, "", HFILL }},
     {&hf_ospf_options_v2_dc,
      { "DC", "ospf.options.v2.dc", FT_BOOLEAN, 8, 
        TFS(&tfs_options_v2_dc), OSPF_V2_OPTIONS_DC, "", HFILL }},
@@ -520,8 +549,15 @@ static hf_register_info ospff_info[] = {
     {&hf_ospf_dbd_ms,
      { "MS", "ospf.dbd.ms", FT_BOOLEAN, 8, 
        TFS(&tfs_dbd_ms), OSPF_DBD_FLAG_MS, "", HFILL }},
-
-
+    {&hf_ospf_lls_ext_options,
+     { "Options", "ospf.lls.ext.options", FT_UINT32, BASE_HEX,
+       NULL, 0x0, "", HFILL }},
+    {&hf_ospf_lls_ext_options_lr,
+     { "LR", "ospf.lls.ext.options.lr", FT_BOOLEAN, 32, 
+       TFS(&tfs_lls_ext_options_lr), OSPF_LLS_EXT_OPTIONS_LR, "", HFILL }},
+    {&hf_ospf_lls_ext_options_rs,
+     { "RS", "ospf.lls.ext.options.rs", FT_BOOLEAN, 32, 
+       TFS(&tfs_lls_ext_options_rs), OSPF_LLS_EXT_OPTIONS_RS, "", HFILL }},
 };
 
 static guint8 ospf_msg_type_to_filter (guint8 msg_type)
@@ -546,11 +582,12 @@ static guint8 ospf_ls_type_to_filter (guint8 ls_type)
 
 static dissector_handle_t data_handle;
 
-static void dissect_ospf_hello(tvbuff_t*, int, proto_tree*, guint8);
-static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8);
-static void dissect_ospf_ls_req(tvbuff_t*, int, proto_tree*, guint8);
-static void dissect_ospf_ls_upd(tvbuff_t*, int, proto_tree*, guint8);
-static void dissect_ospf_ls_ack(tvbuff_t*, int, proto_tree*, guint8);
+static void dissect_ospf_hello(tvbuff_t*, int, proto_tree*, guint8, guint16);
+static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8, guint16);
+static void dissect_ospf_ls_req(tvbuff_t*, int, proto_tree*, guint8, guint16);
+static void dissect_ospf_ls_upd(tvbuff_t*, int, proto_tree*, guint8, guint16);
+static void dissect_ospf_ls_ack(tvbuff_t*, int, proto_tree*, guint8, guint16);
+static void dissect_ospf_lls_data_block(tvbuff_t*, int, proto_tree*, guint8);
 
 /* dissect_ospf_v[23]lsa returns the offset of the next LSA
  * if disassemble_body is set to FALSE (e.g. in LSA ACK
@@ -565,6 +602,24 @@ static void dissect_ospf_options(tvbuff_t *, int, proto_tree *, guint8);
 static void dissect_ospf_v3_prefix_options(tvbuff_t *, int, proto_tree *);
 
 static void dissect_ospf_v3_address_prefix(tvbuff_t *, int, int, proto_tree *);
+
+static int 
+ospf_has_lls_block(tvbuff_t *tvb, int offset, guint8 packet_type)
+{
+    guint8 flags;
+
+    /* LLS block can be found only in HELLO and DBDESC packets */
+    switch (packet_type) {
+    case OSPF_HELLO:
+	flags = tvb_get_guint8 (tvb, offset + 6);
+	return flags & OSPF_V2_OPTIONS_L;
+    case OSPF_DB_DESC:
+	flags = tvb_get_guint8 (tvb, offset + 2);
+	return flags & OSPF_V2_OPTIONS_L;
+    }
+
+    return 0;
+}
 
 static void
 dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -582,7 +637,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint length, reported_length;
     guint16 auth_type;
     char auth_data[8+1];
-    int crypto_len;
+    int crypto_len = 0;
     unsigned int ospf_header_length;
     guint8 instance_ID;
     guint8 reserved;
@@ -616,7 +671,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 	ospflen = tvb_get_ntohs(tvb, 2);
 
-	ti = proto_tree_add_item(tree, proto_ospf, tvb, 0, ospflen, FALSE);
+	ti = proto_tree_add_item(tree, proto_ospf, tvb, 0, -1, FALSE);
 	ospf_tree = proto_item_add_subtree(ti, ett_ospf);
 
 	ti = proto_tree_add_text(ospf_tree, tvb, 0, ospf_header_length,
@@ -789,32 +844,31 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	}
 
-	/* Adjust the length of the tvbuff to match the size of the OSPF
-	 * packet (since the dissect routines use it to work out where the
-	 * end of the OSPF packet is).
-	 */
-	tvb_set_reported_length(tvb, ospflen);
-
 	switch (packet_type){
 
 	case OSPF_HELLO:
-	    dissect_ospf_hello(tvb, ospf_header_length, ospf_tree, version);
+	    dissect_ospf_hello(tvb, ospf_header_length, ospf_tree, version, 
+			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_DB_DESC:
-	    dissect_ospf_db_desc(tvb, ospf_header_length, ospf_tree, version);
+	    dissect_ospf_db_desc(tvb, ospf_header_length, ospf_tree, version, 
+			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_LS_REQ:
-	    dissect_ospf_ls_req(tvb, ospf_header_length, ospf_tree, version);
+	    dissect_ospf_ls_req(tvb, ospf_header_length, ospf_tree, version, 
+			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_LS_UPD:
-	    dissect_ospf_ls_upd(tvb, ospf_header_length, ospf_tree, version);
+	    dissect_ospf_ls_upd(tvb, ospf_header_length, ospf_tree, version, 
+			    ospflen - ospf_header_length);
 	    break;
 
 	case OSPF_LS_ACK:
-	    dissect_ospf_ls_ack(tvb, ospf_header_length, ospf_tree, version);
+	    dissect_ospf_ls_ack(tvb, ospf_header_length, ospf_tree, version, 
+			    ospflen - ospf_header_length);
 	    break;
 
 	default:
@@ -822,16 +876,118 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        tvb_new_subset(tvb, ospf_header_length, -1, -1), pinfo, tree);
 	    break;
 	}
+
+	/* take care of the LLS data block */
+	if (ospf_has_lls_block(tvb, ospf_header_length, packet_type))
+	    dissect_ospf_lls_data_block(tvb, ospflen + crypto_len, ospf_tree, 
+			    version);
     }
 }
 
+
 static void
-dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
+dissect_ospf_lls_extended_options (proto_tree *parent_tree, tvbuff_t *tvb, 
+		int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint32 options;
+
+	options = tvb_get_ntohl(tvb, offset);
+	item=proto_tree_add_uint(parent_tree, hf_ospf_lls_ext_options, 
+			tvb, offset, 4, options);
+	tree=proto_item_add_subtree(item, ett_ospf_lls_ext_options);
+
+	proto_tree_add_boolean(tree, hf_ospf_lls_ext_options_lr, tvb, offset, 
+			4, options);
+	if (options & OSPF_LLS_EXT_OPTIONS_LR){
+		proto_item_append_text(item, "  LR");
+	}
+	options &=  ~OSPF_LLS_EXT_OPTIONS_LR;
+
+	proto_tree_add_boolean(tree, hf_ospf_lls_ext_options_rs, tvb, offset, 
+			4, options);
+	if (options & OSPF_LLS_EXT_OPTIONS_RS){
+		proto_item_append_text(item, "  RS");
+	}
+	options &=  ~OSPF_LLS_EXT_OPTIONS_RS;
+}
+
+static int
+dissect_ospf_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *ospf_lls_tlv_tree;
+    guint16 type;
+    guint16 length;
+
+    type = tvb_get_ntohs(tvb, offset);
+    length = tvb_get_ntohs(tvb, offset + 2);
+
+    ti = proto_tree_add_text(tree, tvb, offset, length + 4, 
+		    val_to_str(type, lls_tlv_type_vals, "Unknown TLV"));
+    ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
+    
+    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 2,
+		    "Type: %d", type);
+    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 2, 2,
+		    "Length: %d", length);
+      
+    switch(type) {
+	case 1:
+	    dissect_ospf_lls_extended_options(ospf_lls_tlv_tree, tvb, 
+			    offset + 4);
+	    break;
+	case 2:
+	    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 4, 4, 
+			    "Sequence number 0x%08x", 
+			    tvb_get_ntohl(tvb, offset + 4));
+	    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 8, length - 4,
+			    "Auth Data: %s", 
+			    tvb_bytes_to_str(tvb, offset + 8, length - 4));
+	    break;
+    }
+
+    return offset + length + 4;
+}
+
+static void
+dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree, 
+		guint8 version)
+{
+    proto_tree *ospf_lls_data_block_tree;
+    proto_item *ti;
+    guint16 ospf_lls_len;
+    int orig_offset = offset;
+
+    ospf_lls_len = tvb_get_ntohs(tvb, offset + 2);
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF LLS Data Block");
+    ospf_lls_data_block_tree = proto_item_add_subtree(ti, 
+		    ett_ospf_lls_data_block);
+
+    if (version != OSPF_VERSION_2)
+	    return;
+
+    /* TODO: verify checksum */
+    proto_tree_add_text(ospf_lls_data_block_tree, tvb, offset, 2, 
+		    "Checksum: 0x%04x", tvb_get_ntohs(tvb, offset));
+    proto_tree_add_text(ospf_lls_data_block_tree, tvb, offset + 2, 2,
+		    "LLS Data Length: %d bytes", ospf_lls_len * 4);
+    
+    offset += 4;
+    while (orig_offset + ospf_lls_len * 4 > offset)
+	offset = dissect_ospf_lls_tlv (tvb, offset, ospf_lls_data_block_tree);
+}
+
+static void
+dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version, 
+		guint16 length)
 {
     proto_tree *ospf_hello_tree;
     proto_item *ti;
+    int orig_offset = offset;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF Hello Packet");
+    ti = proto_tree_add_text(tree, tvb, offset, length, "OSPF Hello Packet");
     ospf_hello_tree = proto_item_add_subtree(ti, ett_ospf_hello);
 
     switch (version ) {
@@ -853,7 +1009,7 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 			ip_to_str(tvb_get_ptr(tvb, offset + 16, 4)));
 
             offset += 20;
-            while (tvb_reported_length_remaining(tvb, offset) != 0) {
+            while (orig_offset + length > offset) {
 	        proto_tree_add_text(ospf_hello_tree, tvb, offset, 4,
 			    "Active Neighbor: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -876,7 +1032,7 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 16, 4, "Backup Designated Router: %s",
 			ip_to_str(tvb_get_ptr(tvb, offset + 16, 4)));
             offset += 20;
-            while (tvb_reported_length_remaining(tvb, offset) != 0) {
+            while (orig_offset + length > offset) {
 	        proto_tree_add_text(ospf_hello_tree, tvb, offset, 4,
 			    "Active Neighbor: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -922,14 +1078,16 @@ dissect_ospf_dbd (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
 
 static void
-dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
+dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, 
+		guint8 version, guint16 length)
 {
     proto_tree *ospf_db_desc_tree=NULL;
     proto_item *ti;
     guint8 reserved;
+    int orig_offset = offset;
 
     if (tree) {
-	ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF DB Description");
+	ti = proto_tree_add_text(tree, tvb, offset, length, "OSPF DB Description");
 	ospf_db_desc_tree = proto_item_add_subtree(ti, ett_ospf_desc);
 
         switch (version ) {
@@ -975,7 +1133,7 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 
     /* LS Headers will be processed here */
     /* skip to the end of DB-Desc header */
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    while (orig_offset + length > offset) {
       if ( version == OSPF_VERSION_2)
           offset = dissect_ospf_v2_lsa(tvb, offset, tree, FALSE);
       else
@@ -986,16 +1144,18 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 }
 
 static void
-dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
+dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
+		guint16 length)
 {
     proto_tree *ospf_lsr_tree;
     proto_item *ti;
     guint32 ls_type;
     guint16 reserved;
+    int orig_offset = offset;
 
     /* zero or more LS requests may be within a LS Request */
     /* we place every request for a LSA in a single subtree */
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    while (orig_offset + length > offset) {
 	ti = proto_tree_add_text(tree, tvb, offset, OSPF_LS_REQ_LENGTH,
 				 "Link State Request");
 	ospf_lsr_tree = proto_item_add_subtree(ti, ett_ospf_lsr);
@@ -1029,14 +1189,15 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 }
 
 static void
-dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
+dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
+		guint16 length)
 {
     proto_tree *ospf_lsa_upd_tree=NULL;
     proto_item *ti;
     guint32 lsa_nr;
     guint32 lsa_counter;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "LS Update Packet");
+    ti = proto_tree_add_text(tree, tvb, offset, length, "LS Update Packet");
     ospf_lsa_upd_tree = proto_item_add_subtree(ti, ett_ospf_lsa_upd);
 
     lsa_nr = tvb_get_ntohl(tvb, offset);
@@ -1057,10 +1218,12 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 }
 
 static void
-dissect_ospf_ls_ack(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
+dissect_ospf_ls_ack(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
+		guint16 length)
 {
+    int orig_offset = offset;
     /* the body of a LS Ack packet simply contains zero or more LSA Headers */
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    while (orig_offset + length > offset) {
         if ( version == OSPF_VERSION_2)
 	    offset = dissect_ospf_v2_lsa(tvb, offset, tree, FALSE);
         else
@@ -2341,11 +2504,11 @@ dissect_ospf_v2_options (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	}
 	flags&=(~( OSPF_V2_OPTIONS_DC ));
 
-	proto_tree_add_boolean(tree, hf_ospf_options_v2_ea, tvb, offset, 1, flags);
-	if (flags&OSPF_V2_OPTIONS_EA){
-		proto_item_append_text(item, "  EA");
+	proto_tree_add_boolean(tree, hf_ospf_options_v2_l, tvb, offset, 1, flags);
+	if (flags&OSPF_V2_OPTIONS_L){
+		proto_item_append_text(item, "  L");
 	}
-	flags&=(~( OSPF_V2_OPTIONS_EA ));
+	flags&=(~( OSPF_V2_OPTIONS_L ));
 
 	proto_tree_add_boolean(tree, hf_ospf_options_v2_np, tvb, offset, 1, flags);
 	if (flags&OSPF_V2_OPTIONS_NP){
@@ -2543,7 +2706,10 @@ proto_register_ospf(void)
         &ett_ospf_lsa_oif_tna_stlv,
         &ett_ospf_options_v2,
         &ett_ospf_options_v3,
-        &ett_ospf_dbd
+        &ett_ospf_dbd,
+	&ett_ospf_lls_data_block,
+	&ett_ospf_lls_tlv,
+	&ett_ospf_lls_ext_options,
     };
 
     proto_ospf = proto_register_protocol("Open Shortest Path First",
