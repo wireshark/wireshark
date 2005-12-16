@@ -1593,32 +1593,24 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		tlvLen--;
 		
 		/* Get flags */
-		if (tlvLen < 1)
-		{
-			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
-			return;
-		}
-		tempByte = tvb_get_guint8(tvb, tempOffset);
-		
-		/* Unknown policy flag */
-		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x80, 8,"Policy: Unknown", "Policy: Defined"));
-		
-		/* Tagged flag */
-		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x40, 8,"Tagged: Yes", "Tagged: No"));
-		tempOffset++;
-		tlvLen--;
-						
-		/* Get vlan id */
-		if (tlvLen < 1)
+		if (tlvLen < 2)
 		{
 			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
 			return;
 		}
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
+		
+		/* Unknown policy flag */
+		if (tree)
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s",
+						decode_boolean_bitfield(tempShort, 0x8000, 16,"Policy: Unknown", "Policy: Defined"));
+		
+		/* Tagged flag */
+		if (tree)
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s",
+						decode_boolean_bitfield(tempShort, 0x4000, 16,"Tagged: Yes", "Tagged: No"));
+						
+		/* Get vlan id */
 		tempVLAN = (tempShort & 0x1FFE) >> 1;
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s %u",

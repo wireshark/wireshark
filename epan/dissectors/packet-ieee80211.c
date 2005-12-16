@@ -636,7 +636,7 @@ find_header_length (guint16 fcf)
   case DATA_FRAME:
     len = (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
 						      DATA_SHORT_HDR_LEN;
-    if( IS_DATA_QOS(fcf))
+    if( IS_DATA_QOS(COMPOSE_FRAME_TYPE(fcf)))
       return len + 2;
     else
       return len;

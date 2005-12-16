@@ -212,8 +212,10 @@ static void usage(void)
 
   fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-E <probability>]\n");
   fprintf(stderr, "               [-F <capture type>] [-s <snaplen>] [-t <time adjustment>]\n");
+  fprintf(stderr, "               [-c <packets per file>]\n");
   fprintf(stderr, "               <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
   fprintf(stderr, "  where\n");
+  fprintf(stderr, "       \t-c <packets per file> If given splits the output to different files\n");
   fprintf(stderr, "       \t-E <probability> specifies the probability (between 0 and 1)\n");
   fprintf(stderr, "       \t    that a particular byte will will have an error.\n");
   fprintf(stderr, "       \t-F <capture type> specifies the capture file type to write:\n");
@@ -260,10 +262,13 @@ int main(int argc, char *argv[])
   const struct wtap_pkthdr *phdr;
   int err_type;
   guint8 *buf;
+  int split_packet_count = 0;
+  int written_count = 0;
+  char *filename;
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "E:F:hrs:t:T:v")) !=-1) {
+  while ((opt = getopt(argc, argv, "E:F:hrs:c:t:T:v")) !=-1) {
 
     switch (opt) {
 
@@ -282,6 +287,20 @@ int main(int argc, char *argv[])
       if (out_file_type < 0) {
       	fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n",
       	    optarg);
+      	exit(1);
+      }
+      break;
+
+    case 'c':
+      split_packet_count = strtol(optarg, &p, 10);
+      if (p == optarg || *p != '\0') {
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
+      	    optarg);
+      	exit(1);
+      }
+      if (split_packet_count <= 0) {
+      	fprintf(stderr, "editcap: \"%d\" packet count must be larger than zero\n",
+		split_packet_count);
       	exit(1);
       }
       break;
@@ -372,11 +391,21 @@ int main(int argc, char *argv[])
     if (out_frame_type == -2)
       out_frame_type = wtap_file_encap(wth);
 
-    pdh = wtap_dump_open(argv[optind + 1], out_file_type,
+    if (split_packet_count > 0) {
+      filename = (char *) malloc(strlen(argv[optind+1]) + 20);
+      if (!filename) {
+	exit(5);
+      }
+      sprintf(filename, "%s-%05d", argv[optind+1], 0);
+    } else {
+      filename = argv[optind+1];
+    }
+  
+    pdh = wtap_dump_open(filename, out_file_type,
 			 out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
     if (pdh == NULL) {
 
-      fprintf(stderr, "editcap: Can't open or create %s: %s\n", argv[optind+1],
+      fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
 	      wtap_strerror(err));
       exit(1);
 
@@ -386,6 +415,31 @@ int main(int argc, char *argv[])
       add_selection(argv[i]);
 
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
+
+      if (split_packet_count > 0 && (written_count % split_packet_count == 0)) {
+	if (!wtap_dump_close(pdh, &err)) {
+
+	  fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+		  wtap_strerror(err));
+	  exit(1);
+	}
+
+	sprintf(filename, "%s-%05d",argv[optind+1], count / split_packet_count);
+
+	if (verbose) {
+	  fprintf(stderr, "Continuing writing in file %s\n", filename);
+	}
+
+	pdh = wtap_dump_open(filename, out_file_type,
+			     out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+	if (pdh == NULL) {
+	  
+	  fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+		  wtap_strerror(err));
+	  exit(1);
+	  
+	}
+      }
 
       if ((!selected(count) && !keep_em) ||
           (selected(count) && keep_em)) {
@@ -486,10 +540,12 @@ int main(int argc, char *argv[])
                        &err)) {
 
           fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                  argv[optind + 1], wtap_strerror(err));
+                  filename, wtap_strerror(err));
           exit(1);
 
 	}
+
+	written_count++;
 
       }
 
@@ -514,7 +570,7 @@ int main(int argc, char *argv[])
 
     if (!wtap_dump_close(pdh, &err)) {
 
-      fprintf(stderr, "editcap: Error writing to %s: %s\n", argv[optind + 1],
+      fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
 	      wtap_strerror(err));
       exit(1);
 
