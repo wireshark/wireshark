@@ -445,7 +445,7 @@ proto_register_dccp(void)
 				NULL, 0, "Client ID", HFILL }},
 
 			{ &hf_dccp_opnums_host, {
-				"Host", "dccp.opnums.host", FT_IPv4, BASE_DEC,
+				"Host", "dccp.opnums.host", FT_UINT32, BASE_DEC,
 				NULL, 0, "Host", HFILL }},
 
 			{ &hf_dccp_opnums_pid, {
