@@ -97,7 +97,7 @@ gint itu_pc_structure = ITU_PC_STRUCTURE_NONE;
 gint mtp3_standard = ITU_STANDARD;
 
 static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
-static gint mtp3_net_addr_fmt = MTP3_NET_ADDR_FMT_DASHED;
+static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 
 #define SIO_LENGTH                1
@@ -254,9 +254,9 @@ mtp3_addr_to_str_buf(
 {
   const mtp3_addr_pc_t  *addr_pc_p = (const mtp3_addr_pc_t *)data;
 
-  switch (mtp3_net_addr_fmt)
+  switch (mtp3_addr_fmt)
   {
-  case MTP3_NET_ADDR_FMT_DEC:
+  case MTP3_ADDR_FMT_DEC:
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
@@ -269,7 +269,7 @@ mtp3_addr_to_str_buf(
     }
     break;
 
-  case MTP3_NET_ADDR_FMT_HEX:
+  case MTP3_ADDR_FMT_HEX:
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
@@ -282,7 +282,7 @@ mtp3_addr_to_str_buf(
     }
     break;
 
-  case MTP3_NET_ADDR_FMT_NI_DEC:
+  case MTP3_ADDR_FMT_NI_DEC:
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
@@ -295,7 +295,7 @@ mtp3_addr_to_str_buf(
     }
     break;
 
-  case MTP3_NET_ADDR_FMT_NI_HEX:
+  case MTP3_ADDR_FMT_NI_HEX:
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
@@ -311,7 +311,7 @@ mtp3_addr_to_str_buf(
   default:
     /* FALLTHRU */
 
-  case MTP3_NET_ADDR_FMT_DASHED:
+  case MTP3_ADDR_FMT_DASHED:
     mtp3_pc_to_str_buf(addr_pc_p->pc, buf, buf_len);
     break;
   }
@@ -577,12 +577,12 @@ proto_register_mtp3(void)
     { NULL, NULL, 0 }
   };
 
-  static enum_val_t mtp3_net_addr_fmt_str_e[] = {
-    { "decimal",        "Decimal",              MTP3_NET_ADDR_FMT_DEC },
-    { "hexadecimal",    "Hexadecimal",          MTP3_NET_ADDR_FMT_HEX },
-    { "ni-decimal",     "NI-Decimal",           MTP3_NET_ADDR_FMT_NI_DEC },
-    { "ni-hexadecimal", "NI-Hexadecimal",       MTP3_NET_ADDR_FMT_NI_HEX },
-    { "dashed",         "Dashed",               MTP3_NET_ADDR_FMT_DASHED },
+  static enum_val_t mtp3_addr_fmt_str_e[] = {
+    { "decimal",        "Decimal",              MTP3_ADDR_FMT_DEC },
+    { "hexadecimal",    "Hexadecimal",          MTP3_ADDR_FMT_HEX },
+    { "ni-decimal",     "NI-Decimal",           MTP3_ADDR_FMT_NI_DEC },
+    { "ni-hexadecimal", "NI-Hexadecimal",       MTP3_ADDR_FMT_NI_HEX },
+    { "dashed",         "Dashed",               MTP3_ADDR_FMT_DASHED },
     { NULL,             NULL,                   0 }
   };
 
@@ -623,9 +623,9 @@ proto_register_mtp3(void)
                                  "Use 5-bit (instead of 8-bit) SLS in ANSI MTP3 packets",
                                  &mtp3_use_ansi_5_bit_sls);
 
-  prefs_register_enum_preference(mtp3_module, "net_addr_format", "Network Address Format",
-                                 "Format for point code in the network address columns",
-                                 &mtp3_net_addr_fmt, mtp3_net_addr_fmt_str_e, FALSE);
+  prefs_register_enum_preference(mtp3_module, "addr_format", "Address Format",
+                                 "Format for point code in the address columns",
+                                 &mtp3_addr_fmt, mtp3_addr_fmt_str_e, FALSE);
 }
 
 void

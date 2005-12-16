@@ -30,11 +30,11 @@ typedef enum {
 extern gint mtp3_standard;
 
 typedef enum {
-  MTP3_NET_ADDR_FMT_DEC		= 1,
-  MTP3_NET_ADDR_FMT_HEX		= 2,
-  MTP3_NET_ADDR_FMT_NI_DEC	= 3,
-  MTP3_NET_ADDR_FMT_NI_HEX	= 4,
-  MTP3_NET_ADDR_FMT_DASHED	= 5
+  MTP3_ADDR_FMT_DEC		= 1,
+  MTP3_ADDR_FMT_HEX		= 2,
+  MTP3_ADDR_FMT_NI_DEC	= 3,
+  MTP3_ADDR_FMT_NI_HEX	= 4,
+  MTP3_ADDR_FMT_DASHED	= 5
 } mtp3_net_addr_fmt_e;
 
 typedef struct _mtp3_addr_pc_t {
