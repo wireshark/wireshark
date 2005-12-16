@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-rtse.c                                                            */
+/* .\packet-rtse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -1072,12 +1072,14 @@ void proto_register_rtse(void) {
   rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
 
+  rtse_handle = find_dissector("rtse");
+  ros_handle = find_dissector("ros");
+
 }
 
 
 /*--- proto_reg_handoff_rtse --- */
 void proto_reg_handoff_rtse(void) {
 
-  rtse_handle = find_dissector("rtse");
-  ros_handle = find_dissector("ros");
+
 }

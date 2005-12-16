@@ -53,6 +53,7 @@
 #include "packet-crmf.h"
 
 #include "packet-dsp.h"
+#include "packet-disp.h"
 #include "packet-dap.h"
 #include <epan/strutil.h>
 
@@ -389,13 +390,6 @@ static int hf_dap_attributeInfo_item = -1;        /* T_attributeInfo_item */
 static int hf_dap_unsignedUpdateError = -1;       /* UpdateErrorData */
 static int hf_dap_signedUpdateError = -1;         /* T_signedUpdateError */
 static int hf_dap_updateError = -1;               /* UpdateErrorData */
-static int hf_dap_identifier = -1;                /* INTEGER */
-static int hf_dap_version = -1;                   /* INTEGER */
-static int hf_dap_teletexString = -1;             /* TeletexString */
-static int hf_dap_printableString = -1;           /* PrintableString */
-static int hf_dap_universalString = -1;           /* UniversalString */
-static int hf_dap_bmpString = -1;                 /* BMPString */
-static int hf_dap_uTF8String = -1;                /* UTF8String */
 /* named bits */
 static int hf_dap_ServiceControlOptions_preferChaining = -1;
 static int hf_dap_ServiceControlOptions_chainingProhibited = -1;
@@ -439,7 +433,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 69 "packet-dap-template.c"
+#line 70 "packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -612,11 +606,9 @@ static gint ett_dap_T_attributeInfo = -1;
 static gint ett_dap_T_attributeInfo_item = -1;
 static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
-static gint ett_dap_OperationalBindingID = -1;
-static gint ett_dap_DirectoryString = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 73 "packet-dap-template.c"
+#line 74 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -683,6 +675,9 @@ static int dissect_performer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 static int dissect_notification_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_dap_notification_item);
+}
+static int dissect_agreementID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_disp_AgreementID(FALSE, tvb, offset, pinfo, tree, hf_dap_agreementID);
 }
 static int dissect_select_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dap_select_item);
@@ -1159,22 +1154,8 @@ static int dissect_priority(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_dap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 168 "dap.cnf"
-	guint32	value;
-
-	  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  &value);
-
-
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if(hf_index == hf_dap_identifier) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " id=%d", value);
-		} else if (hf_index == hf_dap_version) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ",%d", value);
-		}
-  	}
-
-
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1204,12 +1185,6 @@ static int dissect_lowEstimate(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 static int dissect_extendedArea(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dap_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_dap_extendedArea);
-}
-static int dissect_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_dap_identifier);
-}
-static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_dap_version);
 }
 
 
@@ -1244,7 +1219,7 @@ static const ber_choice_t Name_choice[] = {
 
 static int
 dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 269 "dap.cnf"
+#line 257 "dap.cnf"
 	const char *dn;
 
 	  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1278,33 +1253,6 @@ static int dissect_joinBaseObject(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 static int dissect_matched_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dap_Name(FALSE, tvb, offset, pinfo, tree, hf_dap_matched_name);
-}
-
-
-static const ber_sequence_t OperationalBindingID_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_identifier },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
-  { 0, 0, 0, NULL }
-};
-
-int
-dissect_dap_OperationalBindingID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   OperationalBindingID_sequence, hf_index, ett_dap_OperationalBindingID);
-
-  return offset;
-}
-
-
-
-static int
-dissect_dap_AgreementID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_dap_OperationalBindingID(implicit_tag, tvb, offset, pinfo, tree, hf_index);
-
-  return offset;
-}
-static int dissect_agreementID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_AgreementID(FALSE, tvb, offset, pinfo, tree, hf_dap_agreementID);
 }
 
 
@@ -1864,7 +1812,7 @@ dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_dap_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 113 "dap.cnf"
+#line 117 "dap.cnf"
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
 	proto_item_append_text(it," XXX: Not yet implemented!");
@@ -1881,7 +1829,7 @@ static int dissect_initial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_dap_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 118 "dap.cnf"
+#line 122 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -1896,7 +1844,7 @@ static int dissect_any(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 121 "dap.cnf"
+#line 125 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -1990,7 +1938,7 @@ static int dissect_matchingRule(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_dap_T_matchValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 124 "dap.cnf"
+#line 128 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2161,7 +2109,7 @@ static int dissect_newRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 184 "dap.cnf"
+#line 172 "dap.cnf"
 	tvbuff_t *out_tvb;
 	int 	i;
 	int	len;
@@ -2350,7 +2298,7 @@ static const ber_sequence_t SimpleCredentials_sequence[] = {
 
 static int
 dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 158 "dap.cnf"
+#line 162 "dap.cnf"
 
 	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SimpleCredentials_sequence, hf_index, ett_dap_SimpleCredentials);
@@ -2371,7 +2319,7 @@ static int dissect_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_dap_T_bind_token(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 127 "dap.cnf"
+#line 131 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2406,7 +2354,7 @@ static int dissect_strong(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_dap_T_req(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 130 "dap.cnf"
+#line 134 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2421,7 +2369,7 @@ static int dissect_req(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_rep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 133 "dap.cnf"
+#line 137 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2514,7 +2462,7 @@ static const ber_sequence_t DirectoryBindArgument_set[] = {
 
 int
 dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 139 "dap.cnf"
+#line 143 "dap.cnf"
 
 	guint32 len;
 
@@ -2573,7 +2521,7 @@ static const value_string dap_ServiceProblem_vals[] = {
 
 static int
 dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 223 "dap.cnf"
+#line 211 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2612,7 +2560,7 @@ static const value_string dap_SecurityProblem_vals[] = {
 
 static int
 dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 211 "dap.cnf"
+#line 199 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3319,8 +3267,19 @@ static const ber_sequence_t T_subordinates_item_sequence[] = {
 
 static int
 dissect_dap_T_subordinates_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+#line 267 "dap.cnf"
+	proto_item *sub_item;
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    T_subordinates_item_sequence, hf_index, ett_dap_T_subordinates_item);
+
+
+	if((sub_item = get_ber_last_created_item())) {
+		
+		proto_item_append_text(sub_item," (%s)", x509if_get_last_dn());
+	}
+
+
 
   return offset;
 }
@@ -3355,7 +3314,7 @@ static const value_string dap_LimitProblem_vals[] = {
 
 static int
 dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 247 "dap.cnf"
+#line 235 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3571,7 +3530,7 @@ static const value_string dap_T_subset_vals[] = {
 
 static int
 dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 259 "dap.cnf"
+#line 247 "dap.cnf"
   guint32 subset;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3650,106 +3609,8 @@ static int dissect_searchControlOptions(packet_info *pinfo, proto_tree *tree, tv
 
 
 static int
-dissect_dap_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_teletexString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_TeletexString(FALSE, tvb, offset, pinfo, tree, hf_dap_teletexString);
-}
-
-
-
-static int
-dissect_dap_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_printableString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_dap_printableString);
-}
-
-
-
-static int
-dissect_dap_UniversalString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UniversalString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_universalString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_UniversalString(FALSE, tvb, offset, pinfo, tree, hf_dap_universalString);
-}
-
-
-
-static int
-dissect_dap_BMPString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_BMPString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_bmpString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_BMPString(FALSE, tvb, offset, pinfo, tree, hf_dap_bmpString);
-}
-
-
-
-static int
-dissect_dap_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_uTF8String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_dap_UTF8String(FALSE, tvb, offset, pinfo, tree, hf_dap_uTF8String);
-}
-
-
-static const value_string dap_DirectoryString_vals[] = {
-  {   0, "teletexString" },
-  {   1, "printableString" },
-  {   2, "universalString" },
-  {   3, "bmpString" },
-  {   4, "uTF8String" },
-  { 0, NULL }
-};
-
-static const ber_choice_t DirectoryString_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_teletexString },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_printableString },
-  {   2, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_universalString },
-  {   3, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
-  {   4, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_uTF8String },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_dap_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 DirectoryString_choice, hf_index, ett_dap_DirectoryString,
-                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_dap_DomainLocalID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_dap_DirectoryString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_x509sat_DirectoryString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -3843,7 +3704,7 @@ static int dissect_joinAttributes(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static const ber_sequence_t JoinArgument_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_joinBaseObject },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_domainLocalID },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_domainLocalID },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_joinSubset },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_joinFilter },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_joinAttributes },
@@ -5209,7 +5070,7 @@ dissect_dap_Referral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
 static int
 dissect_dap_T_spkmInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 136 "dap.cnf"
+#line 140 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -5371,7 +5232,7 @@ static const value_string dap_UpdateProblem_vals[] = {
 
 static int
 dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 235 "dap.cnf"
+#line 223 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -5499,7 +5360,7 @@ dissect_dap_UpdateError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 75 "packet-dap-template.c"
+#line 76 "packet-dap-template.c"
 
 /*
 * Dissect DAP PDUs inside a ROS PDUs
@@ -5782,7 +5643,7 @@ void proto_register_dap(void) {
         "", HFILL }},
     { &hf_dap_select_item,
       { "Item", "dap.select_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_dap_infoTypes,
       { "infoTypes", "dap.infoTypes",
@@ -5822,7 +5683,7 @@ void proto_register_dap(void) {
         "ContextSelection/selectedContexts/_item", HFILL }},
     { &hf_dap_type,
       { "type", "dap.type",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_dap_contextAssertions,
       { "contextAssertions", "dap.contextAssertions",
@@ -5874,7 +5735,7 @@ void proto_register_dap(void) {
         "EntryInformation/information/_item", HFILL }},
     { &hf_dap_attributeType,
       { "attributeType", "dap.attributeType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_dap_attribute,
       { "attribute", "dap.attribute",
@@ -5990,7 +5851,7 @@ void proto_register_dap(void) {
         "FilterItem/lessOrEqual", HFILL }},
     { &hf_dap_present,
       { "present", "dap.present",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "FilterItem/present", HFILL }},
     { &hf_dap_approximateMatch,
       { "approximateMatch", "dap.approximateMatch",
@@ -6314,7 +6175,7 @@ void proto_register_dap(void) {
         "ModifyRights/_item/item/entry", HFILL }},
     { &hf_dap_attribute_type,
       { "attribute", "dap.attribute",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ModifyRights/_item/item/attribute", HFILL }},
     { &hf_dap_value_assertion,
       { "value", "dap.value",
@@ -6346,7 +6207,7 @@ void proto_register_dap(void) {
         "CompareResultData/matched", HFILL }},
     { &hf_dap_matchedSubtype,
       { "matchedSubtype", "dap.matchedSubtype",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "CompareResultData/matchedSubtype", HFILL }},
     { &hf_dap_unsignedCompareResult,
       { "unsignedCompareResult", "dap.unsignedCompareResult",
@@ -6570,7 +6431,7 @@ void proto_register_dap(void) {
         "JoinArgument/joinBaseObject", HFILL }},
     { &hf_dap_domainLocalID,
       { "domainLocalID", "dap.domainLocalID",
-        FT_UINT32, BASE_DEC, VALS(dap_DirectoryString_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "JoinArgument/domainLocalID", HFILL }},
     { &hf_dap_joinSubset,
       { "joinSubset", "dap.joinSubset",
@@ -6594,11 +6455,11 @@ void proto_register_dap(void) {
         "JoinArgument/joinSelection", HFILL }},
     { &hf_dap_baseAtt,
       { "baseAtt", "dap.baseAtt",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "JoinAttPair/baseAtt", HFILL }},
     { &hf_dap_joinAtt,
       { "joinAtt", "dap.joinAtt",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "JoinAttPair/joinAtt", HFILL }},
     { &hf_dap_joinContext,
       { "joinContext", "dap.joinContext",
@@ -6754,7 +6615,7 @@ void proto_register_dap(void) {
         "EntryModification/addAttribute", HFILL }},
     { &hf_dap_removeAttribute,
       { "removeAttribute", "dap.removeAttribute",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "EntryModification/removeAttribute", HFILL }},
     { &hf_dap_addValues,
       { "addValues", "dap.addValues",
@@ -6770,7 +6631,7 @@ void proto_register_dap(void) {
         "EntryModification/alterValues", HFILL }},
     { &hf_dap_resetValue,
       { "resetValue", "dap.resetValue",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "EntryModification/resetValue", HFILL }},
     { &hf_dap_newRDN,
       { "newRDN", "dap.newRDN",
@@ -6956,34 +6817,6 @@ void proto_register_dap(void) {
       { "updateError", "dap.updateError",
         FT_NONE, BASE_NONE, NULL, 0,
         "UpdateError/signedUpdateError/updateError", HFILL }},
-    { &hf_dap_identifier,
-      { "identifier", "dap.identifier",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "OperationalBindingID/identifier", HFILL }},
-    { &hf_dap_version,
-      { "version", "dap.version",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "OperationalBindingID/version", HFILL }},
-    { &hf_dap_teletexString,
-      { "teletexString", "dap.teletexString",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "DirectoryString/teletexString", HFILL }},
-    { &hf_dap_printableString,
-      { "printableString", "dap.printableString",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "DirectoryString/printableString", HFILL }},
-    { &hf_dap_universalString,
-      { "universalString", "dap.universalString",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "DirectoryString/universalString", HFILL }},
-    { &hf_dap_bmpString,
-      { "bmpString", "dap.bmpString",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "DirectoryString/bmpString", HFILL }},
-    { &hf_dap_uTF8String,
-      { "uTF8String", "dap.uTF8String",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "DirectoryString/uTF8String", HFILL }},
     { &hf_dap_ServiceControlOptions_preferChaining,
       { "preferChaining", "dap.preferChaining",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -7146,7 +6979,7 @@ void proto_register_dap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 277 "packet-dap-template.c"
+#line 278 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -7321,11 +7154,9 @@ void proto_register_dap(void) {
     &ett_dap_T_attributeInfo_item,
     &ett_dap_UpdateError,
     &ett_dap_T_signedUpdateError,
-    &ett_dap_OperationalBindingID,
-    &ett_dap_DirectoryString,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 283 "packet-dap-template.c"
+#line 284 "packet-dap-template.c"
   };
   module_t *dap_module;
 
@@ -7372,6 +7203,15 @@ void proto_reg_handoff_dap(void) {
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
+
+  /* AttributeValueAssertions */
+  x509if_register_fmt(hf_dap_equality, "=");
+  x509if_register_fmt(hf_dap_greaterOrEqual, ">=");
+  x509if_register_fmt(hf_dap_lessOrEqual, "<=");
+  x509if_register_fmt(hf_dap_approximateMatch, "=~");
+  /* AttributeTypes */
+  x509if_register_fmt(hf_dap_present, "= *");
+
 
 }
 

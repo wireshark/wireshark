@@ -45,6 +45,7 @@
 #include "packet-crmf.h"
 
 #include "packet-dsp.h"
+#include "packet-disp.h"
 #include "packet-dap.h"
 #include <epan/strutil.h>
 

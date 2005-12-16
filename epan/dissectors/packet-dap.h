@@ -97,7 +97,6 @@ int dissect_dap_Referral(gboolean implicit_tag, tvbuff_t *tvb, int offset, packe
 int dissect_dap_SecurityError(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dap_ServiceError(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dap_UpdateError(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_dap_OperationalBindingID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-dap-exp.h ---*/
 #line 30 "packet-dap-template.h"

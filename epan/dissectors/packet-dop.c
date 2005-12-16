@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-dop.c                                                             */
+/* .\packet-dop.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
 
 /* Input file: packet-dop-template.c */
@@ -71,7 +71,7 @@ int proto_dop = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *binding_type = NULL; /* binding_type */
 
-static int call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info);
 
 
 /*--- Included file: packet-dop-hf.c ---*/
@@ -355,8 +355,22 @@ static int dissect_protocolInformation(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_dop_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+#line 170 "dop.cnf"
+	guint32	value;
+
+	  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &value);
+
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		if(hf_index == hf_dop_identifier) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, " id=%d", value);
+		} else if (hf_index == hf_dop_version) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ",%d", value);
+		}
+  	}
+
+
 
   return offset;
 }
@@ -374,7 +388,7 @@ static const ber_sequence_t OperationalBindingID_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_dop_OperationalBindingID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    OperationalBindingID_sequence, hf_index, ett_dop_OperationalBindingID);
@@ -518,7 +532,18 @@ dissect_dop_DSAOperationalManagementBindError(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_dop_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &binding_type);
+#line 92 "dop.cnf"
+  const char *name;
+
+    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &binding_type);
+
+
+  if(check_col(pinfo->cinfo, COL_INFO)) {
+    name = get_ber_oid_name(binding_type);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : binding_type);
+  }
+
+
 
   return offset;
 }
@@ -530,9 +555,9 @@ static int dissect_bindingType(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_dop_EstablishSymmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 91 "dop.cnf"
+#line 102 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree, "symmetric");
 
 
 
@@ -546,9 +571,9 @@ static int dissect_establishSymmetric(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_dop_EstablishRoleAInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 95 "dop.cnf"
+#line 106 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree, "roleA");
 
 
 
@@ -562,9 +587,9 @@ static int dissect_establishRoleAInitiates(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_dop_EstablishRoleBInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 99 "dop.cnf"
+#line 110 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree, "roleB");
 
 
 
@@ -605,9 +630,9 @@ static int dissect_establishInitiator(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_dop_T_agreement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 127 "dop.cnf"
+#line 138 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
 
 
 
@@ -848,9 +873,9 @@ dissect_dop_EstablishOperationalBindingArgument(gboolean implicit_tag _U_, tvbuf
 
 static int
 dissect_dop_T_symmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 131 "dop.cnf"
+#line 142 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree); 
+  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree, "symmetric"); 
 
 
 
@@ -864,9 +889,9 @@ static int dissect_symmetric(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_dop_T_roleA_replies(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 135 "dop.cnf"
+#line 146 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree, "roleA");
 
 
 
@@ -880,9 +905,9 @@ static int dissect_roleA_replies(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_dop_T_roleB_replies(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 139 "dop.cnf"
+#line 150 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree, "roleB");
 
 
 
@@ -960,9 +985,9 @@ dissect_dop_EstablishOperationalBindingResult(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_dop_ModifySymmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 103 "dop.cnf"
+#line 114 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.modify.symmetric", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.modify.symmetric", tvb, offset, pinfo, tree, "symmetric");
 
 
 
@@ -976,9 +1001,9 @@ static int dissect_modifySymmetric(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_dop_ModifyRoleAInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 107 "dop.cnf"
+#line 118 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.modify.rolea", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.modify.rolea", tvb, offset, pinfo, tree, "roleA");
 
 
 
@@ -992,9 +1017,9 @@ static int dissect_modifyRoleAInitiates(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_dop_ModifyRoleBInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 111 "dop.cnf"
+#line 122 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.modify.roleb", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.modify.roleb", tvb, offset, pinfo, tree, "roleB");
 
 
 
@@ -1035,9 +1060,11 @@ static int dissect_modifyInitiator(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_dop_ArgumentNewAgreement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 151 "dop.cnf"
+#line 162 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
+
+
 
 
   return offset;
@@ -1118,9 +1145,9 @@ dissect_dop_ModifyOperationalBindingArgument(gboolean implicit_tag _U_, tvbuff_t
 
 static int
 dissect_dop_ResultNewAgreement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 147 "dop.cnf"
+#line 158 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
 
 
 
@@ -1199,9 +1226,9 @@ dissect_dop_ModifyOperationalBindingResult(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_dop_TerminateSymmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 115 "dop.cnf"
+#line 126 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.terminate.symmetric", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.terminate.symmetric", tvb, offset, pinfo, tree, "symmetric");
 
 
 
@@ -1215,9 +1242,9 @@ static int dissect_terminateSymmetric(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_dop_TerminateRoleAInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 119 "dop.cnf"
+#line 130 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.terminate.rolea", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.terminate.rolea", tvb, offset, pinfo, tree, "roleA");
 
 
 
@@ -1231,9 +1258,9 @@ static int dissect_terminateRoleAInitiates(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_dop_TerminateRoleBInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 123 "dop.cnf"
+#line 134 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, pinfo, tree, "roleB");
 
 
 
@@ -1431,9 +1458,9 @@ static int dissect_problem(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_dop_T_agreementProposal(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 143 "dop.cnf"
+#line 154 "dop.cnf"
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
 
 
 
@@ -1707,18 +1734,16 @@ static void dissect_NHOBSubordinateToSuperior_PDU(tvbuff_t *tvb, packet_info *pi
 #line 75 "packet-dop-template.c"
 
 static int
-call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
 {
-  const char *name = NULL;
   char binding_param[BER_MAX_OID_STR_LEN];
 
-  sprintf(binding_param, "%s.%s", base_oid, binding_type ? binding_type : "");	
+  g_snprintf(binding_param, BER_MAX_OID_STR_LEN, "%s.%s", base_oid, binding_type ? binding_type : "");	
 
-  name = get_ber_oid_name(binding_param);
-  proto_item_append_text(tree, " (%s)", name ? name : binding_param); 
+  if (col_info && (check_col(pinfo->cinfo, COL_INFO))) 
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
   return call_ber_oid_callback(binding_param, tvb, offset, pinfo, tree);
-
 }
 
 
@@ -2302,7 +2327,7 @@ void proto_register_dop(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 220 "packet-dop-template.c"
+#line 218 "packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -2358,16 +2383,13 @@ void proto_register_dop(void) {
     &ett_dop_NHOBSubordinateToSuperior,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 226 "packet-dop-template.c"
+#line 224 "packet-dop-template.c"
   };
 
   module_t *dop_module;
 
   /* Register protocol */
   proto_dop = proto_register_protocol(PNAME, PSNAME, PFNAME);
-
-  /* initially disable the protocol */
-  proto_set_decoding(proto_dop, FALSE);
 
   register_dissector("dop", dissect_dop, proto_dop);
 
@@ -2416,7 +2438,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 264 "packet-dop-template.c"
+#line 259 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   register_ber_oid_name("2.5.3.3", "id-ac-directory-operational-binding-management");
@@ -2427,6 +2449,12 @@ void proto_reg_handoff_dop(void) {
   if((handle = find_dissector("dop"))) {
     register_ros_oid_dissector_handle("2.5.9.4", handle, 0, "id-as-directory-operational-binding-management", FALSE); 
   }
+
+  /* BINDING TYPES */
+
+  register_ber_oid_name("2.5.19.1", "shadow-agreement");
+  register_ber_oid_name("2.5.19.2", "hierarchical-agreement");
+  register_ber_oid_name("2.5.19.3", "non-specific-hierarchical-agreement");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

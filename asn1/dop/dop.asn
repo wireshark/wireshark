@@ -278,8 +278,6 @@ dSAOperationalBindingManagementUnbind OPERATION ::= directoryUnbind
 EstablishOperationalBindingArgumentData ::=
 --  OPTIONALLY-PROTECTED-SEQ
 --    {-- SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet}) -- OBJECT IDENTIFIER,
--- The following line, whilst wrong, helps with Thales DOP dissection
---               bindingID           [1]  IMPLICIT OperationalBindingID OPTIONAL,
                bindingID           [1]  OperationalBindingID OPTIONAL,
                accessPoint         [2]  AccessPoint,
                -- symmetric, Role A initiates, or Role B initiates 
@@ -329,8 +327,6 @@ Time ::= CHOICE {utcTime          UTCTime,
 EstablishOperationalBindingResult ::=
 --  OPTIONALLY-PROTECTED-SEQ
 --    {-- SEQUENCE {bindingType  [0] --OPERATIONAL-BINDING.&id({OpBindingSet}) -- OBJECT IDENTIFIER,
--- The following line, whilst wrong, helps with Thales DOP dissection
---               bindingID    [1] IMPLICIT OperationalBindingID OPTIONAL,
                bindingID    [1]  OperationalBindingID OPTIONAL,
                accessPoint  [2]  AccessPoint,
                -- symmetric, Role A replies , or Role B replies 
@@ -361,8 +357,6 @@ EstablishOperationalBindingResult ::=
 ModifyOperationalBindingArgumentData ::=
 --  OPTIONALLY-PROTECTED-SEQ
 --    {--SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet})-- OBJECT IDENTIFIER,
--- The following line, whilst wrong, helps with Thales DOP dissection
---               bindingID           [1] IMPLICIT OperationalBindingID,
                bindingID           [1]  OperationalBindingID,
                accessPoint         [2]  AccessPoint OPTIONAL,
                -- symmetric, Role A initiates, or Role B initiates 
@@ -429,8 +423,6 @@ ModifyOperationalBindingResultData ::= SEQUENCE {
 TerminateOperationalBindingArgumentData ::=
 --  OPTIONALLY-PROTECTED-SEQ
 --    {-- SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet})-- OBJECT IDENTIFIER,
--- The following line, whilst wrong, helps with Thales DOP dissection
---               bindingID           [1] IMPLICIT OperationalBindingID,
                bindingID           [1] OperationalBindingID,
                -- symmetric, Role A initiates, or Role B initiates 
                initiator

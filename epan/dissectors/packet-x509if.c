@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509if.c                                                          */
+/* .\packet-x509if.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
@@ -296,6 +296,12 @@ static gboolean doing_dn = TRUE;
 static char *last_dn = NULL;
 static char *last_rdn = NULL;
 
+static int ava_hf_index;
+#define MAX_FMT_VALS   32
+static value_string fmt_vals[MAX_FMT_VALS];
+#define MAX_AVA_STR_LEN   64
+static char *last_ava = NULL;
+
 
 /*--- Included file: packet-x509if-fn.c ---*/
 #line 1 "packet-x509if-fn.c"
@@ -366,7 +372,8 @@ static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 102 "x509if.cnf"
+#line 112 "x509if.cnf"
+  const char *fmt; 
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
@@ -383,6 +390,16 @@ dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
      /* append it to the tree */
      proto_item_append_text(tree, " (%s=", name);
+    }
+
+    if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+      last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+
+      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
+
+      proto_item_append_text(tree, " %s", last_ava);
+
     }
   }
 
@@ -416,16 +433,21 @@ static int dissect_restrictionType(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 int
 dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 121 "x509if.cnf"
+#line 142 "x509if.cnf"
   int old_offset = offset;
   tvbuff_t	*out_tvb;
-  char *value = NULL;
- 
+  char  	*value = NULL;
+  const char 	*fmt; 
+  const char	*name = NULL;
+
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
   /* try and dissect as a string */
   dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
   
+  /* should also try and dissect as an OID and integer */
+  /* of course, if I can look up the syntax .... */
+
   if(out_tvb) {
     /* it was a string - format it */
     value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
@@ -437,6 +459,16 @@ dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
       proto_item_append_text(tree, "%s)", value);
     }
 
+    if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+
+    if(!(name = get_ber_oid_name(object_identifier_id)))
+      name = object_identifier_id;
+    g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
+
+    proto_item_append_text(tree, " %s", last_ava);
+
+    }
   }
 
 
@@ -469,7 +501,7 @@ static int dissect_selectedValues_item(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_x509if_ValuesWithContextValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 153 "x509if.cnf"
+#line 189 "x509if.cnf"
   offset=call_ber_oid_callback("unknown", tvb, offset, pinfo, tree);
 
 
@@ -654,7 +686,7 @@ static int dissect_ca_contextType(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_x509if_ContextValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 96 "x509if.cnf"
+#line 106 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -753,8 +785,18 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 int
 dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+#line 262 "x509if.cnf"
+
+	ava_hf_index = hf_index;
+	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+
+	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    AttributeValueAssertion_sequence, hf_index, ett_x509if_AttributeValueAssertion);
+
+
+	ava_hf_index=-1;
+
+
 
   return offset;
 }
@@ -845,7 +887,7 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 181 "x509if.cnf"
+#line 217 "x509if.cnf"
 
   if(!rdn_one_value) {
     top_of_rdn = tree;
@@ -876,7 +918,7 @@ static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 int
 dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 156 "x509if.cnf"
+#line 192 "x509if.cnf"
   char *temp_dn;
 
   rdn_one_value = FALSE;
@@ -912,7 +954,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 208 "x509if.cnf"
+#line 251 "x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -939,7 +981,8 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 196 "x509if.cnf"
+#line 232 "x509if.cnf"
+  const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
   last_dn = ep_alloc(MAX_RDN_STR_LEN); *last_dn = '\0';
@@ -952,6 +995,12 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
   /* we've finished - append the dn */
   proto_item_append_text(top_of_dn, " (%s)", last_dn);
 
+ /* see if we should append this to the col info */
+  if(check_col(pinfo->cinfo, COL_INFO) &&
+     (fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s%s", fmt, last_dn);
+    }
 
 
 
@@ -1452,7 +1501,7 @@ static int dissect_level(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
 static int
 dissect_x509if_SelectedValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 144 "x509if.cnf"
+#line 180 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1495,7 +1544,7 @@ static int dissect_entryType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_x509if_DefaultValueValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 150 "x509if.cnf"
+#line 186 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -2063,7 +2112,7 @@ static int dissect_entryLimit(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
 static const ber_sequence_t SET_OF_DirectoryString_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_name_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_name_item },
 };
 
 static int
@@ -2184,11 +2233,37 @@ static void dissect_DistinguishedName_PDU(tvbuff_t *tvb, packet_info *pinfo, pro
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 71 "packet-x509if-template.c"
+#line 77 "packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
   return last_dn;
+}
+
+gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
+{
+  static int idx = 0;
+
+  if(idx < (MAX_FMT_VALS - 1)) {
+
+    fmt_vals[idx].value = hf_index;
+    fmt_vals[idx].strptr = fmt;
+
+    idx++;
+
+    fmt_vals[idx].value = 0;
+    fmt_vals[idx].strptr = NULL;
+
+    return TRUE;
+
+  } else 
+    return FALSE; /* couldn't register it */
+
+}
+
+const char * x509if_get_last_ava(void)
+{
+  return last_ava;
 }
 
 /*--- proto_register_x509if ----------------------------------------------*/
@@ -2548,11 +2623,11 @@ void proto_register_x509if(void) {
         "SearchRuleDescription/name", HFILL }},
     { &hf_x509if_name_item,
       { "Item", "x509if.name_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "SearchRuleDescription/name/_item", HFILL }},
     { &hf_x509if_description,
       { "description", "x509if.description",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "SearchRuleDescription/description", HFILL }},
     { &hf_x509if_obsolete,
       { "obsolete", "x509if.obsolete",
@@ -2772,7 +2847,7 @@ void proto_register_x509if(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 90 "packet-x509if-template.c"
+#line 122 "packet-x509if-template.c"
   };
 
   /* List of subtrees */
@@ -2851,7 +2926,7 @@ void proto_register_x509if(void) {
     &ett_x509if_MRSubstitution,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 95 "packet-x509if-template.c"
+#line 127 "packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2860,6 +2935,10 @@ void proto_register_x509if(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509if, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* initialise array */
+  fmt_vals[0].value = 0;
+  fmt_vals[0].strptr = NULL;
 
 }
 

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509sat.c                                                         */
+/* .\packet-x509sat.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
@@ -70,10 +70,36 @@ static int hf_x509sat_InternationalISDNNumber_PDU = -1;  /* InternationalISDNNum
 static int hf_x509sat_DestinationIndicator_PDU = -1;  /* DestinationIndicator */
 static int hf_x509sat_PreferredDeliveryMethod_PDU = -1;  /* PreferredDeliveryMethod */
 static int hf_x509sat_PresentationAddress_PDU = -1;  /* PresentationAddress */
+static int hf_x509sat_ProtocolInformation_PDU = -1;  /* ProtocolInformation */
 static int hf_x509sat_NameAndOptionalUID_PDU = -1;  /* NameAndOptionalUID */
 static int hf_x509sat_CaseIgnoreListMatch_PDU = -1;  /* CaseIgnoreListMatch */
 static int hf_x509sat_DayTimeBand_PDU = -1;       /* DayTimeBand */
 static int hf_x509sat_DayTime_PDU = -1;           /* DayTime */
+static int hf_x509sat_ObjectIdentifier_PDU = -1;  /* ObjectIdentifier */
+static int hf_x509sat_OctetString_PDU = -1;       /* OctetString */
+static int hf_x509sat_BitString_PDU = -1;         /* BitString */
+static int hf_x509sat_Integer_PDU = -1;           /* Integer */
+static int hf_x509sat_Boolean_PDU = -1;           /* Boolean */
+static int hf_x509sat_SyntaxGeneralizedTime_PDU = -1;  /* SyntaxGeneralizedTime */
+static int hf_x509sat_SyntaxUTCTime_PDU = -1;     /* SyntaxUTCTime */
+static int hf_x509sat_SyntaxNumericString_PDU = -1;  /* SyntaxNumericString */
+static int hf_x509sat_SyntaxPrintableString_PDU = -1;  /* SyntaxPrintableString */
+static int hf_x509sat_SyntaxIA5String_PDU = -1;   /* SyntaxIA5String */
+static int hf_x509sat_SyntaxBMPString_PDU = -1;   /* SyntaxBMPString */
+static int hf_x509sat_SyntaxUniversalString_PDU = -1;  /* SyntaxUniversalString */
+static int hf_x509sat_SyntaxUTF8String_PDU = -1;  /* SyntaxUTF8String */
+static int hf_x509sat_SyntaxTeletexString_PDU = -1;  /* SyntaxTeletexString */
+static int hf_x509sat_SyntaxT61String_PDU = -1;   /* SyntaxT61String */
+static int hf_x509sat_SyntaxVideotexString_PDU = -1;  /* SyntaxVideotexString */
+static int hf_x509sat_SyntaxGraphicString_PDU = -1;  /* SyntaxGraphicString */
+static int hf_x509sat_SyntaxISO646String_PDU = -1;  /* SyntaxISO646String */
+static int hf_x509sat_SyntaxVisibleString_PDU = -1;  /* SyntaxVisibleString */
+static int hf_x509sat_SyntaxGeneralString_PDU = -1;  /* SyntaxGeneralString */
+static int hf_x509sat_teletexString = -1;         /* TeletexString */
+static int hf_x509sat_printableString = -1;       /* PrintableString */
+static int hf_x509sat_universalString = -1;       /* UniversalString */
+static int hf_x509sat_bmpString = -1;             /* BMPString */
+static int hf_x509sat_uTF8String = -1;            /* UTF8String */
 static int hf_x509sat_objectClass = -1;           /* OBJECT_IDENTIFIER */
 static int hf_x509sat_criteria = -1;              /* Criteria */
 static int hf_x509sat_type = -1;                  /* CriteriaItem */
@@ -203,6 +229,7 @@ static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- Included file: packet-x509sat-ett.c ---*/
 #line 1 "packet-x509sat-ett.c"
+static gint ett_x509sat_DirectoryString = -1;
 static gint ett_x509sat_Guide = -1;
 static gint ett_x509sat_Criteria = -1;
 static gint ett_x509sat_SET_OF_Criteria = -1;
@@ -308,12 +335,107 @@ static int dissect_ZonalSelect_item(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 
+static int
+dissect_x509sat_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_teletexString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_TeletexString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_teletexString);
+}
+
+
+
+static int
+dissect_x509sat_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_printableString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_printableString);
+}
+static int dissect_telexNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_telexNumber);
+}
+static int dissect_countryCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_countryCode);
+}
+static int dissect_answerback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_answerback);
+}
+
+
+
+static int
+dissect_x509sat_UniversalString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UniversalString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_universalString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_UniversalString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_universalString);
+}
+
+
+
+static int
+dissect_x509sat_BMPString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_BMPString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_bmpString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_BMPString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_bmpString);
+}
+
+
+
+static int
+dissect_x509sat_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_uTF8String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_UTF8String(FALSE, tvb, offset, pinfo, tree, hf_x509sat_uTF8String);
+}
+
+
+const value_string x509sat_DirectoryString_vals[] = {
+  {   0, "teletexString" },
+  {   1, "printableString" },
+  {   2, "universalString" },
+  {   3, "bmpString" },
+  {   4, "uTF8String" },
+  { 0, NULL }
+};
+
+static const ber_choice_t DirectoryString_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_teletexString },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_printableString },
+  {   2, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_universalString },
+  {   3, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
+  {   4, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_uTF8String },
+  { 0, 0, 0, 0, NULL }
+};
+
 int
 dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 115 "x509sat.cnf"
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
-
-
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 DirectoryString_choice, hf_index, ett_x509sat_DirectoryString,
+                                 NULL);
 
   return offset;
 }
@@ -511,7 +633,7 @@ dissect_x509sat_EnhancedGuide(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 
 static const ber_sequence_t PostalAddress_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_PostalAddress_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_PostalAddress_item },
 };
 
 int
@@ -534,26 +656,6 @@ dissect_x509sat_TelephoneNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 }
 static int dissect_telephoneNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_TelephoneNumber(FALSE, tvb, offset, pinfo, tree, hf_x509sat_telephoneNumber);
-}
-
-
-
-static int
-dissect_x509sat_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_telexNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_telexNumber);
-}
-static int dissect_countryCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_countryCode);
-}
-static int dissect_answerback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_answerback);
 }
 
 
@@ -847,7 +949,7 @@ dissect_x509sat_SubstringAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
 static const ber_sequence_t CaseIgnoreListMatch_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_CaseIgnoreListMatch_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_CaseIgnoreListMatch_item },
 };
 
 int
@@ -1574,7 +1676,7 @@ const value_string x509sat_LocaleContextSyntax_vals[] = {
 
 static const ber_choice_t LocaleContextSyntax_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_localeID1 },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_localeID2 },
+  {   1, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_localeID2 },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1583,6 +1685,218 @@ dissect_x509sat_LocaleContextSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  LocaleContextSyntax_choice, hf_index, ett_x509sat_LocaleContextSyntax,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_ObjectIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_OctetString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_BitString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_Integer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_Boolean(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxGeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxUTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxNumericString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxPrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_BMPString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxUniversalString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UniversalString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxUTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxTeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxT61String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxVideotexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VideotexString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxGraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxISO646String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxVisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1634,6 +1948,9 @@ static void dissect_PreferredDeliveryMethod_PDU(tvbuff_t *tvb, packet_info *pinf
 static void dissect_PresentationAddress_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509sat_PresentationAddress(FALSE, tvb, 0, pinfo, tree, hf_x509sat_PresentationAddress_PDU);
 }
+static void dissect_ProtocolInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_ProtocolInformation(FALSE, tvb, 0, pinfo, tree, hf_x509sat_ProtocolInformation_PDU);
+}
 static void dissect_NameAndOptionalUID_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509sat_NameAndOptionalUID(FALSE, tvb, 0, pinfo, tree, hf_x509sat_NameAndOptionalUID_PDU);
 }
@@ -1645,6 +1962,66 @@ static void dissect_DayTimeBand_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 static void dissect_DayTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x509sat_DayTime(FALSE, tvb, 0, pinfo, tree, hf_x509sat_DayTime_PDU);
+}
+static void dissect_ObjectIdentifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_ObjectIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509sat_ObjectIdentifier_PDU);
+}
+static void dissect_OctetString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_OctetString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_OctetString_PDU);
+}
+static void dissect_BitString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_BitString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_BitString_PDU);
+}
+static void dissect_Integer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_Integer(FALSE, tvb, 0, pinfo, tree, hf_x509sat_Integer_PDU);
+}
+static void dissect_Boolean_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_Boolean(FALSE, tvb, 0, pinfo, tree, hf_x509sat_Boolean_PDU);
+}
+static void dissect_SyntaxGeneralizedTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxGeneralizedTime(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxGeneralizedTime_PDU);
+}
+static void dissect_SyntaxUTCTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxUTCTime(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxUTCTime_PDU);
+}
+static void dissect_SyntaxNumericString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxNumericString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxNumericString_PDU);
+}
+static void dissect_SyntaxPrintableString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxPrintableString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxPrintableString_PDU);
+}
+static void dissect_SyntaxIA5String_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxIA5String(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxIA5String_PDU);
+}
+static void dissect_SyntaxBMPString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxBMPString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxBMPString_PDU);
+}
+static void dissect_SyntaxUniversalString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxUniversalString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxUniversalString_PDU);
+}
+static void dissect_SyntaxUTF8String_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxUTF8String(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxUTF8String_PDU);
+}
+static void dissect_SyntaxTeletexString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxTeletexString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxTeletexString_PDU);
+}
+static void dissect_SyntaxT61String_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxT61String(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxT61String_PDU);
+}
+static void dissect_SyntaxVideotexString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxVideotexString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxVideotexString_PDU);
+}
+static void dissect_SyntaxGraphicString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxGraphicString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxGraphicString_PDU);
+}
+static void dissect_SyntaxISO646String_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxISO646String(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxISO646String_PDU);
+}
+static void dissect_SyntaxVisibleString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxVisibleString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxVisibleString_PDU);
+}
+static void dissect_SyntaxGeneralString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_SyntaxGeneralString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_SyntaxGeneralString_PDU);
 }
 
 
@@ -1662,7 +2039,7 @@ void proto_register_x509sat(void) {
 #line 1 "packet-x509sat-hfarr.c"
     { &hf_x509sat_DirectoryString_PDU,
       { "DirectoryString", "x509sat.DirectoryString",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "DirectoryString", HFILL }},
     { &hf_x509sat_UniqueIdentifier_PDU,
       { "UniqueIdentifier", "x509sat.UniqueIdentifier",
@@ -1720,6 +2097,10 @@ void proto_register_x509sat(void) {
       { "PresentationAddress", "x509sat.PresentationAddress",
         FT_NONE, BASE_NONE, NULL, 0,
         "PresentationAddress", HFILL }},
+    { &hf_x509sat_ProtocolInformation_PDU,
+      { "ProtocolInformation", "x509sat.ProtocolInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtocolInformation", HFILL }},
     { &hf_x509sat_NameAndOptionalUID_PDU,
       { "NameAndOptionalUID", "x509sat.NameAndOptionalUID",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1736,6 +2117,106 @@ void proto_register_x509sat(void) {
       { "DayTime", "x509sat.DayTime",
         FT_NONE, BASE_NONE, NULL, 0,
         "DayTime", HFILL }},
+    { &hf_x509sat_ObjectIdentifier_PDU,
+      { "ObjectIdentifier", "x509sat.ObjectIdentifier",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ObjectIdentifier", HFILL }},
+    { &hf_x509sat_OctetString_PDU,
+      { "OctetString", "x509sat.OctetString",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "OctetString", HFILL }},
+    { &hf_x509sat_BitString_PDU,
+      { "BitString", "x509sat.BitString",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "BitString", HFILL }},
+    { &hf_x509sat_Integer_PDU,
+      { "Integer", "x509sat.Integer",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Integer", HFILL }},
+    { &hf_x509sat_Boolean_PDU,
+      { "Boolean", "x509sat.Boolean",
+        FT_BOOLEAN, 8, NULL, 0,
+        "Boolean", HFILL }},
+    { &hf_x509sat_SyntaxGeneralizedTime_PDU,
+      { "GeneralizedTime", "x509sat.GeneralizedTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "GeneralizedTime", HFILL }},
+    { &hf_x509sat_SyntaxUTCTime_PDU,
+      { "UTCTime", "x509sat.UTCTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTCTime", HFILL }},
+    { &hf_x509sat_SyntaxNumericString_PDU,
+      { "NumericString", "x509sat.NumericString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "NumericString", HFILL }},
+    { &hf_x509sat_SyntaxPrintableString_PDU,
+      { "PrintableString", "x509sat.PrintableString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "PrintableString", HFILL }},
+    { &hf_x509sat_SyntaxIA5String_PDU,
+      { "IA5String", "x509sat.IA5String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IA5String", HFILL }},
+    { &hf_x509sat_SyntaxBMPString_PDU,
+      { "BMPString", "x509sat.BMPString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "BMPString", HFILL }},
+    { &hf_x509sat_SyntaxUniversalString_PDU,
+      { "UniversalString", "x509sat.UniversalString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UniversalString", HFILL }},
+    { &hf_x509sat_SyntaxUTF8String_PDU,
+      { "UTF8String", "x509sat.UTF8String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String", HFILL }},
+    { &hf_x509sat_SyntaxTeletexString_PDU,
+      { "TeletexString", "x509sat.TeletexString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "TeletexString", HFILL }},
+    { &hf_x509sat_SyntaxT61String_PDU,
+      { "T61String", "x509sat.T61String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "T61String", HFILL }},
+    { &hf_x509sat_SyntaxVideotexString_PDU,
+      { "VideotexString", "x509sat.VideotexString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "VideotexString", HFILL }},
+    { &hf_x509sat_SyntaxGraphicString_PDU,
+      { "GraphicString", "x509sat.GraphicString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "GraphicString", HFILL }},
+    { &hf_x509sat_SyntaxISO646String_PDU,
+      { "ISO646String", "x509sat.ISO646String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ISO646String", HFILL }},
+    { &hf_x509sat_SyntaxVisibleString_PDU,
+      { "VisibleString", "x509sat.VisibleString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "VisibleString", HFILL }},
+    { &hf_x509sat_SyntaxGeneralString_PDU,
+      { "GeneralString", "x509sat.GeneralString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "GeneralString", HFILL }},
+    { &hf_x509sat_teletexString,
+      { "teletexString", "x509sat.teletexString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DirectoryString/teletexString", HFILL }},
+    { &hf_x509sat_printableString,
+      { "printableString", "x509sat.printableString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DirectoryString/printableString", HFILL }},
+    { &hf_x509sat_universalString,
+      { "universalString", "x509sat.universalString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DirectoryString/universalString", HFILL }},
+    { &hf_x509sat_bmpString,
+      { "bmpString", "x509sat.bmpString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DirectoryString/bmpString", HFILL }},
+    { &hf_x509sat_uTF8String,
+      { "uTF8String", "x509sat.uTF8String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DirectoryString/uTF8String", HFILL }},
     { &hf_x509sat_objectClass,
       { "objectClass", "x509sat.objectClass",
         FT_OID, BASE_NONE, NULL, 0,
@@ -1794,7 +2275,7 @@ void proto_register_x509sat(void) {
         "EnhancedGuide/subset", HFILL }},
     { &hf_x509sat_PostalAddress_item,
       { "Item", "x509sat.PostalAddress_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "PostalAddress/_item", HFILL }},
     { &hf_x509sat_telexNumber,
       { "telexNumber", "x509sat.telexNumber",
@@ -1874,15 +2355,15 @@ void proto_register_x509sat(void) {
         "SubstringAssertion/_item", HFILL }},
     { &hf_x509sat_initial,
       { "initial", "x509sat.initial",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "SubstringAssertion/_item/initial", HFILL }},
     { &hf_x509sat_any,
       { "any", "x509sat.any",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "SubstringAssertion/_item/any", HFILL }},
     { &hf_x509sat_final,
       { "final", "x509sat.final",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "SubstringAssertion/_item/final", HFILL }},
     { &hf_x509sat_control,
       { "control", "x509sat.control",
@@ -1890,7 +2371,7 @@ void proto_register_x509sat(void) {
         "SubstringAssertion/_item/control", HFILL }},
     { &hf_x509sat_CaseIgnoreListMatch_item,
       { "Item", "x509sat.CaseIgnoreListMatch_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "CaseIgnoreListMatch/_item", HFILL }},
     { &hf_x509sat_OctetSubstringAssertion_item,
       { "Item", "x509sat.OctetSubstringAssertion_item",
@@ -2090,7 +2571,7 @@ void proto_register_x509sat(void) {
         "LocaleContextSyntax/localeID1", HFILL }},
     { &hf_x509sat_localeID2,
       { "localeID2", "x509sat.localeID2",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "LocaleContextSyntax/localeID2", HFILL }},
     { &hf_x509sat_T_bitDay_sunday,
       { "sunday", "x509sat.sunday",
@@ -2226,6 +2707,7 @@ void proto_register_x509sat(void) {
 
 /*--- Included file: packet-x509sat-ettarr.c ---*/
 #line 1 "packet-x509sat-ettarr.c"
+    &ett_x509sat_DirectoryString,
     &ett_x509sat_Guide,
     &ett_x509sat_Criteria,
     &ett_x509sat_SET_OF_Criteria,
@@ -2292,30 +2774,27 @@ void proto_reg_handoff_x509sat(void) {
 
 /*--- Included file: packet-x509sat-dis-tab.c ---*/
 #line 1 "packet-x509sat-dis-tab.c"
-  register_ber_oid_dissector("2.5.4.6", dissect_CountryName_PDU, proto_x509sat, "id-at-countryName");
+  register_ber_oid_dissector("2.5.4.0", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-objectClass");
   register_ber_oid_dissector("2.5.4.2", dissect_DirectoryString_PDU, proto_x509sat, "id-at-knowledgeInformation");
-  register_ber_oid_dissector("2.5.4.10", dissect_DirectoryString_PDU, proto_x509sat, "id-at-organizationName");
-  register_ber_oid_dissector("2.5.4.7.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveLocalityName");
   register_ber_oid_dissector("2.5.4.3", dissect_DirectoryString_PDU, proto_x509sat, "id-at-commonName");
   register_ber_oid_dissector("2.5.4.4", dissect_DirectoryString_PDU, proto_x509sat, "id-at-surname");
-  register_ber_oid_dissector("2.5.4.42", dissect_DirectoryString_PDU, proto_x509sat, "id-at-givenName");
-  register_ber_oid_dissector("2.5.4.43", dissect_DirectoryString_PDU, proto_x509sat, "id-at-initials");
-  register_ber_oid_dissector("2.5.4.44", dissect_DirectoryString_PDU, proto_x509sat, "id-at-generationQualifier");
-  register_ber_oid_dissector("2.5.4.51", dissect_DirectoryString_PDU, proto_x509sat, "id-at-houseIdentifier");
-  register_ber_oid_dissector("2.5.4.54", dissect_DirectoryString_PDU, proto_x509sat, "id-at-dmdName");
-  register_ber_oid_dissector("2.5.4.65", dissect_DirectoryString_PDU, proto_x509sat, "id-at-pseudonym");
-  register_ber_oid_dissector("2.5.4.41", dissect_DirectoryString_PDU, proto_x509sat, "id-at-name");
-  register_ber_oid_dissector("2.5.4.8.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveStateOrProvinceName");
+  register_ber_oid_dissector("2.5.4.5", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-serialNumber");
+  register_ber_oid_dissector("2.5.4.6", dissect_CountryName_PDU, proto_x509sat, "id-at-countryName");
+  register_ber_oid_dissector("2.5.4.7", dissect_DirectoryString_PDU, proto_x509sat, "id-at-localityName");
+  register_ber_oid_dissector("2.5.4.7.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveLocalityName");
   register_ber_oid_dissector("2.5.4.8", dissect_DirectoryString_PDU, proto_x509sat, "id-at-stateOrProvinceName");
+  register_ber_oid_dissector("2.5.4.8.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveStateOrProvinceName");
   register_ber_oid_dissector("2.5.4.9", dissect_DirectoryString_PDU, proto_x509sat, "id-at-streetAddress");
   register_ber_oid_dissector("2.5.4.9.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveStreetAddress");
   register_ber_oid_dissector("2.5.4.10.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveOrganizationName");
-  register_ber_oid_dissector("2.5.4.7", dissect_DirectoryString_PDU, proto_x509sat, "id-at-localityName");
+  register_ber_oid_dissector("2.5.4.10", dissect_DirectoryString_PDU, proto_x509sat, "id-at-organizationName");
   register_ber_oid_dissector("2.5.4.11", dissect_DirectoryString_PDU, proto_x509sat, "id-at-organizationalUnitName");
   register_ber_oid_dissector("2.5.4.11.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveOrganizationalUnitName");
   register_ber_oid_dissector("2.5.4.12", dissect_DirectoryString_PDU, proto_x509sat, "id-at-title");
   register_ber_oid_dissector("2.5.4.13", dissect_DirectoryString_PDU, proto_x509sat, "id-at-description");
+  register_ber_oid_dissector("2.5.4.14", dissect_EnhancedGuide_PDU, proto_x509sat, "id-at-searchGuide");
   register_ber_oid_dissector("2.5.4.15", dissect_DirectoryString_PDU, proto_x509sat, "id-at-businessCategory");
+  register_ber_oid_dissector("2.5.4.16", dissect_PostalAddress_PDU, proto_x509sat, "id-at-postalAddress");
   register_ber_oid_dissector("2.5.4.17", dissect_DirectoryString_PDU, proto_x509sat, "id-at-postalCode");
   register_ber_oid_dissector("2.5.4.17.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectivePostalCode");
   register_ber_oid_dissector("2.5.4.18", dissect_DirectoryString_PDU, proto_x509sat, "id-at-postOfficeBox");
@@ -2326,6 +2805,32 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.5.4.20.1", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-collectiveTelephoneNumber");
   register_ber_oid_dissector("2.5.4.21", dissect_TelexNumber_PDU, proto_x509sat, "id-at-telexNumber");
   register_ber_oid_dissector("2.5.4.21.1", dissect_TelexNumber_PDU, proto_x509sat, "id-at-collectiveTelexNumber");
+  register_ber_oid_dissector("2.5.4.23", dissect_FacsimileTelephoneNumber_PDU, proto_x509sat, "id-at-facsimileTelephoneNumber");
+  register_ber_oid_dissector("2.5.4.23.1", dissect_FacsimileTelephoneNumber_PDU, proto_x509sat, "id-at-collectiveFacsimileTelephoneNumber");
+  register_ber_oid_dissector("2.5.4.24", dissect_X121Address_PDU, proto_x509sat, "id-at-x121Address");
+  register_ber_oid_dissector("2.5.4.25", dissect_InternationalISDNNumber_PDU, proto_x509sat, "id-at-internationalISDNNumber");
+  register_ber_oid_dissector("2.5.4.25.1", dissect_InternationalISDNNumber_PDU, proto_x509sat, "id-at-collectiveInternationalISDNNumber");
+  register_ber_oid_dissector("2.5.4.26", dissect_PostalAddress_PDU, proto_x509sat, "id-at-registeredAddress");
+  register_ber_oid_dissector("2.5.4.27", dissect_DestinationIndicator_PDU, proto_x509sat, "id-at-destinationIndicator");
+  register_ber_oid_dissector("2.5.4.28", dissect_PreferredDeliveryMethod_PDU, proto_x509sat, "id-at-preferredDeliveryMethod");
+  register_ber_oid_dissector("2.5.4.29", dissect_PresentationAddress_PDU, proto_x509sat, "id-at-presentationAddress");
+  register_ber_oid_dissector("2.5.4.30", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-supportedApplicationContext");
+  register_ber_oid_dissector("2.5.4.35", dissect_OctetString_PDU, proto_x509sat, "id-at-userPassword");
+  register_ber_oid_dissector("2.5.4.41", dissect_DirectoryString_PDU, proto_x509sat, "id-at-name");
+  register_ber_oid_dissector("2.5.4.42", dissect_DirectoryString_PDU, proto_x509sat, "id-at-givenName");
+  register_ber_oid_dissector("2.5.4.43", dissect_DirectoryString_PDU, proto_x509sat, "id-at-initials");
+  register_ber_oid_dissector("2.5.4.44", dissect_DirectoryString_PDU, proto_x509sat, "id-at-generationQualifier");
+  register_ber_oid_dissector("2.5.4.45", dissect_UniqueIdentifier_PDU, proto_x509sat, "id-at-uniqueIdedntifier");
+  register_ber_oid_dissector("2.5.4.46", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-dnQualifier");
+  register_ber_oid_dissector("2.5.4.47", dissect_EnhancedGuide_PDU, proto_x509sat, "id-at-enhancedSearchGuide");
+  register_ber_oid_dissector("2.5.4.48", dissect_ProtocolInformation_PDU, proto_x509sat, "id-at-protocolInformation");
+  register_ber_oid_dissector("2.5.4.50", dissect_NameAndOptionalUID_PDU, proto_x509sat, "id-at-uniqueMember");
+  register_ber_oid_dissector("2.5.4.51", dissect_DirectoryString_PDU, proto_x509sat, "id-at-houseIdentifier");
+  register_ber_oid_dissector("2.5.4.52", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-supportedAlgorithms");
+  register_ber_oid_dissector("2.5.4.54", dissect_DirectoryString_PDU, proto_x509sat, "id-at-dmdName");
+  register_ber_oid_dissector("2.5.4.65", dissect_DirectoryString_PDU, proto_x509sat, "id-at-pseudonym");
+  register_ber_oid_dissector("2.5.4.66", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsService");
+  register_ber_oid_dissector("2.5.4.67", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsNetwork");
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/

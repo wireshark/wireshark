@@ -411,9 +411,9 @@ dissect_disp_ModificationParameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
 
-static int
+int
 dissect_disp_AgreementID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_dap_OperationalBindingID(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_dop_OperationalBindingID(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -527,7 +527,7 @@ static int dissect_classAttributes(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static const ber_sequence_t ClassAttributeSelection_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_class },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_classAttributes },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_classAttributes },
   { 0, 0, 0, NULL }
 };
 
@@ -859,7 +859,7 @@ static const value_string disp_StandardUpdate_vals[] = {
 
 static int
 dissect_disp_StandardUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 73 "disp.cnf"
+#line 69 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1081,7 +1081,7 @@ static const ber_choice_t CoordinateShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_CoordinateShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 85 "disp.cnf"
+#line 81 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1108,7 +1108,7 @@ static const value_string disp_T_standard_vals[] = {
 
 static int
 dissect_disp_T_standard(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 49 "disp.cnf"
+#line 45 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1231,7 +1231,7 @@ static const ber_choice_t RequestShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_RequestShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 97 "disp.cnf"
+#line 93 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1586,7 +1586,7 @@ static const ber_choice_t RefreshInformation_choice[] = {
 
 static int
 dissect_disp_RefreshInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 61 "disp.cnf"
+#line 57 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1686,7 +1686,7 @@ static const ber_choice_t UpdateShadowResult_choice[] = {
 
 static int
 dissect_disp_UpdateShadowResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 109 "disp.cnf"
+#line 105 "disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1722,7 +1722,7 @@ static const value_string disp_ShadowProblem_vals[] = {
 
 static int
 dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 121 "disp.cnf"
+#line 117 "disp.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1732,7 +1732,6 @@ dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, disp_ShadowProblem_vals, "ShadowProblem(%d)"));
   }
-
 
 
   return offset;
@@ -2065,7 +2064,7 @@ void proto_register_disp(void) {
         "ClassAttributes/exclude", HFILL }},
     { &hf_disp_AttributeTypes_item,
       { "Item", "disp.AttributeTypes_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "AttributeTypes/_item", HFILL }},
     { &hf_disp_supplierInitiated,
       { "supplierInitiated", "disp.supplierInitiated",
@@ -2289,7 +2288,7 @@ void proto_register_disp(void) {
         "", HFILL }},
     { &hf_disp_attValIncomplete_item,
       { "Item", "disp.attValIncomplete_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_disp_rdn,
       { "rdn", "disp.rdn",
@@ -2486,11 +2485,6 @@ void proto_reg_handoff_disp(void) {
   register_ber_oid_dissector("dop.establish.roleb.2.5.19.1", dissect_EstablishParameter_PDU, proto_disp, "shadow-establish-roleb");
   register_ber_oid_dissector("dop.modify.rolea.2.5.19.1", dissect_ModificationParameter_PDU, proto_disp, "shadow-modify-rolea");
   register_ber_oid_dissector("dop.modify.roleb.2.5.19.1", dissect_ModificationParameter_PDU, proto_disp, "shadow-modify-roleb");
-  register_ber_oid_dissector("dop.agreement.2.5.1.0.2.1", dissect_ShadowingAgreementInfo_PDU, proto_disp, "shadow-agreement");
-  register_ber_oid_dissector("dop.establish.rolea.2.5.1.0.2.1", dissect_EstablishParameter_PDU, proto_disp, "shadow-establish-rolea");
-  register_ber_oid_dissector("dop.establish.roleb.2.5.1.0.2.1", dissect_EstablishParameter_PDU, proto_disp, "shadow-establish-roleb");
-  register_ber_oid_dissector("dop.modify.rolea.2.5.1.0.2.1", dissect_ModificationParameter_PDU, proto_disp, "shadow-modify-rolea");
-  register_ber_oid_dissector("dop.modify.roleb.2.5.1.0.2.1", dissect_ModificationParameter_PDU, proto_disp, "shadow-modify-roleb");
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
@@ -2517,6 +2511,9 @@ void proto_reg_handoff_disp(void) {
   register_ber_oid_name("2.5.1.0.5.1", "id-op-binding-shadow");
 
   tpkt_handle = find_dissector("tpkt");
+
+  /* DNs */
+  x509if_register_fmt(hf_disp_contextPrefix, "cp=");
 
 }
 

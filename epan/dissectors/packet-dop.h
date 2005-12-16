@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-dop.h                                                             */
+/* .\packet-dop.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
 
 /* Input file: packet-dop-template.h */
@@ -39,6 +39,7 @@
 #line 1 "packet-dop-exp.h"
 int dissect_dop_DSEType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dop_SupplierAndConsumers(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_dop_OperationalBindingID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-dop-exp.h ---*/
 #line 30 "packet-dop-template.h"

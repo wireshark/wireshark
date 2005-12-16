@@ -35,4 +35,11 @@
 #define PACKET_DISP_H
 
 
+/*--- Included file: packet-disp-exp.h ---*/
+#line 1 "packet-disp-exp.h"
+int dissect_disp_AgreementID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-disp-exp.h ---*/
+#line 30 "packet-disp-template.h"
+
 #endif  /* PACKET_DISP_H */

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x509if.h                                                          */
+/* .\packet-x509if.h                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.h */
@@ -89,6 +89,9 @@ int dissect_x509if_MRSubstitution(gboolean implicit_tag, tvbuff_t *tvb, int offs
 #line 30 "packet-x509if-template.h"
 
 extern const char * x509if_get_last_dn(void);
+
+extern gboolean x509if_register_fmt(int hf_index, const gchar *fmt);
+extern const char * x509if_get_last_ava(void);
 
 #endif  /* PACKET_X509IF_H */
 

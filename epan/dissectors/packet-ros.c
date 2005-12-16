@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-ros.c                                                             */
+/* .\packet-ros.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p ros -c ros.cnf -s packet-ros-template ros.asn */
 
 /* Input file: packet-ros-template.c */
@@ -992,12 +992,14 @@ void proto_register_ros(void) {
 
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
+
+  ros_handle = find_dissector("ros");
+
 }
 
 
 /*--- proto_reg_handoff_ros --- */
 void proto_reg_handoff_ros(void) {
 
-  ros_handle = find_dissector("ros");
 
 }
