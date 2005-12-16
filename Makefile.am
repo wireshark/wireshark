@@ -424,20 +424,15 @@ dftest_LDADD = \
 dftest_LDFLAGS = -export-dynamic
 
 dumpcap_additional_libs = \
-	wiretap/libwiretap.la	\
-	epan/libethereal.la
+	wiretap/libwiretap.la
 
 dumpcap_DEPENDENCIES = \
-	$(dumpcap_additional_libs)	\
-	$(plugin_libs)
+	$(dumpcap_additional_libs)
 
 dumpcap_LDADD = \
 	$(dumpcap_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@ 		\
-	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
+	@PCAP_LIBS@
 
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should
