@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/emem.h>
+#include "packet-frame.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"
 #include "packet-isis.h"
@@ -367,6 +368,7 @@ static GHashTable *clnp_reassembled_table = NULL;
  */
 static GHashTable *cotp_segment_table = NULL;
 static GHashTable *cotp_reassembled_table = NULL;
+static guint16    cotp_dst_ref = 0;
 
 #define TSAP_DISPLAY_AUTO	0
 #define TSAP_DISPLAY_STRING	1
@@ -391,6 +393,12 @@ const enum_val_t tsap_display_options[] = {
 /* function definitions */
 
 #define MAX_TSAP_LEN	32
+
+static void cotp_frame_end(void)
+{
+  cotp_dst_ref = 0;
+}
+
 static gboolean is_all_printable(const guchar *stringtocheck, int length)
 {
   gboolean allprintable;
@@ -917,7 +925,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 	fragment = TRUE;
       is_extended = FALSE;
       is_class_234 = FALSE;
-      dst_ref = 0;
+      dst_ref = cotp_dst_ref;
       break;
 
     default : /* bad TPDU */
@@ -1023,6 +1031,9 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			       pinfo, reassembled_tvb, &ti);
 	pinfo->fragmented = fragment;
 	next_tvb = reassembled_tvb;
+
+	cotp_dst_ref++;
+	register_frame_end_routine(cotp_frame_end);
       }
     }
     if (fragment && reassembled_tvb == NULL) {
@@ -2163,6 +2174,7 @@ clnp_reassemble_init(void)
 {
   fragment_table_init(&clnp_segment_table);
   reassembled_table_init(&clnp_reassembled_table);
+  cotp_dst_ref = 0;
 }
 
 static void

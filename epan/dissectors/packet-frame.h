@@ -36,6 +36,14 @@ void show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+/* 
+ * Routine used to register frame end routine.  The routine should only
+ * be registred when the dissector is used in the frame, not in the
+ * proto_register_XXX function.
+ */
+void
+register_frame_end_routine(void (*func)(void));
+
 /*
  * "Protocol" used for "malformed frame" errors (other than
  * ReportedBoundsError exceptions).
