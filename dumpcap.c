@@ -56,7 +56,7 @@
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
-#include "capture_wpcap_packet.h"
+/*#include "capture_wpcap_packet.h"*/
 #endif
 
 #include "capture.h"
@@ -337,17 +337,17 @@ main(int argc, char *argv[])
       /*** capture option specific ***/
       case 'a':        /* autostop criteria */
       case 'b':        /* Ringbuffer option */
-      case 'c':        /* Capture xxx packets */
+      case 'c':        /* Capture x packets */
       case 'f':        /* capture filter */
-      case 'i':        /* Use interface xxx */
+      case 'i':        /* Use interface x */
       case 'p':        /* Don't capture in promiscuous mode */
       case 's':        /* Set the snapshot (capture) length */
-      case 'w':        /* Write to capture file xxx */
+      case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
 #ifdef _WIN32
       case 'B':        /* Buffer size */
       /* Hidden option supporting Sync mode */
-      case 'Z':        /* Write to pipe FD XXX */
+      case 'Z':        /* Write to pipe FD x */
 #endif /* _WIN32 */
         capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
         break;
@@ -371,7 +371,7 @@ main(int argc, char *argv[])
   argv += optind;
   if (argc >= 1) {
       /* user specified file name as regular command-line argument */
-      /* XXX - use it as the capture file name (or somthing else)? */
+      /* XXX - use it as the capture file name (or something else)? */
     argc--;
     argv++;
   }
@@ -607,6 +607,9 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 
     /*g_warning("write %d enter", pipe);*/
 
+    /* XXX - find a suitable way to switch between pipe and console output */
+    return;
+
     g_assert(indicator < '0' || indicator > '9');
     g_assert(len <= SP_MAX_MSG_LEN);
 
@@ -643,12 +646,16 @@ sync_pipe_packet_count_to_parent(int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
 
+
+    count += packet_count;
+    fprintf(stderr, "\r%u", count);
+    /* stderr could be line buffered */
+    fflush(stderr);
+
+
     g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
 
     /*g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);*/
-
-    count += packet_count;
-    fprintf(stderr, "\rPackets: %u", count);
 
     pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }

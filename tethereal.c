@@ -102,6 +102,7 @@
 #include "capture_loop.h"
 #endif /* HAVE_LIBPCAP */
 #include "epan/emem.h"
+#include "log.h"
 
 /*
  * This is the template for the decode as option; it is shared between the
@@ -647,6 +648,9 @@ main(int argc, char *argv[])
 		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
+		    log_flags,
+		    log_func_ignore, NULL /* user_data */);
+  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
 		    log_flags,
 		    log_func_ignore, NULL /* user_data */);
 

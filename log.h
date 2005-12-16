@@ -35,6 +35,7 @@
 #define LOG_DOMAIN_MAIN				"Main"
 
 /* enable very verbose capture log debug output */
+/* (might slightly degrade performance) */
 /*#define LOG_CAPTURE_VERBOSE*/
 
 
