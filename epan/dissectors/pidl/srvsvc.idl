@@ -1,0 +1,1508 @@
+#include "idl_types.h"
+
+/*
+  srvsvc interface definitions
+*/
+
+[ uuid("4b324fc8-1670-01d3-1278-5a47bf6ee188"),
+  version(3.0),
+  endpoint("ncacn_np:[\\pipe\\srvsvc]", "ncacn_ip_tcp:", "ncalrpc:"),
+  pointer_default(unique),
+  pointer_default_top(unique),
+  helpstring("Server Service"),
+  depends(security,svcctl)
+] interface srvsvc
+{
+	declare bitmap svcctl_ServerType;
+
+/**************************/
+/* srvsvc_NetCharDev      */
+/**************************/
+	typedef struct {
+		[string,charset(UTF16)] uint16 *device;
+	} srvsvc_NetCharDevInfo0;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetCharDevInfo0 *array;
+	} srvsvc_NetCharDevCtr0;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *device;
+		uint32 status;
+		[string,charset(UTF16)] uint16 *user;
+		uint32 time;
+	} srvsvc_NetCharDevInfo1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetCharDevInfo1 *array;
+	} srvsvc_NetCharDevCtr1;
+
+	typedef union {
+		[case(0)] srvsvc_NetCharDevInfo0 *info0;
+		[case(1)] srvsvc_NetCharDevInfo1 *info1;
+		[default] ;
+	} srvsvc_NetCharDevInfo;
+
+	typedef union {
+		[case(0)] srvsvc_NetCharDevCtr0 *ctr0;
+		[case(1)] srvsvc_NetCharDevCtr1 *ctr1;
+		[default] ;
+	} srvsvc_NetCharDevCtr;
+
+	/******************/
+	/* Function: 0x00 */
+	WERROR srvsvc_NetCharDevEnum(
+		[in]   [string,charset(UTF16)] uint16 *server_unc, 
+		[in,out]   uint32 level,
+		[in,out,switch_is(level)]   srvsvc_NetCharDevCtr ctr,
+		[in]   uint32 max_buffer,
+		[out]   uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+	/******************/
+	/* Function: 0x01 */
+	WERROR srvsvc_NetCharDevGetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 device_name[],
+		[in]   uint32 level,
+		[out,switch_is(level)]   srvsvc_NetCharDevInfo info
+		);
+
+	/******************/
+	/* Function: 0x02 */
+	WERROR srvsvc_NetCharDevControl(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 device_name[],
+		[in]   uint32 opcode
+		);
+
+/**************************/
+/* srvsvc_NetCharDevQ     */
+/**************************/
+	typedef struct {
+		[string,charset(UTF16)] uint16 *device;
+	} srvsvc_NetCharDevQInfo0;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetCharDevQInfo0 *array;
+	} srvsvc_NetCharDevQCtr0;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *device;
+		uint32 priority;
+		[string,charset(UTF16)] uint16 *devices;
+		uint32 users;
+		uint32 num_ahead;
+	} srvsvc_NetCharDevQInfo1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetCharDevQInfo1 *array;
+	} srvsvc_NetCharDevQCtr1;
+
+	typedef union {
+		[case(0)] srvsvc_NetCharDevQInfo0 *info0;
+		[case(1)] srvsvc_NetCharDevQInfo1 *info1;
+		[default] ;
+	} srvsvc_NetCharDevQInfo;
+
+	typedef union {
+		[case(0)] srvsvc_NetCharDevQCtr0 *ctr0;
+		[case(1)] srvsvc_NetCharDevQCtr1 *ctr1;
+		[default] ;
+	} srvsvc_NetCharDevQCtr;
+
+	/******************/
+	/* Function: 0x03 */
+	WERROR srvsvc_NetCharDevQEnum(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 *user,
+		[in,out]   uint32 level,
+		[in,out,switch_is(level)]   srvsvc_NetCharDevQCtr ctr,
+		[in]   uint32 max_buffer,
+		[out]   uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+	/******************/
+	/* Function: 0x04 */
+	WERROR srvsvc_NetCharDevQGetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 queue_name[],
+		[in]   [string,charset(UTF16)] uint16 user[],
+		[in]   uint32 level,
+		[out,switch_is(level)]   srvsvc_NetCharDevQInfo info
+		);
+
+	/******************/
+	/* Function: 0x05 */
+	WERROR srvsvc_NetCharDevQSetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 queue_name[],
+		[in]   uint32 level,
+		[in,switch_is(level)]   srvsvc_NetCharDevQInfo info,
+		[in,out]   uint32 *parm_error
+		);
+
+	/******************/
+	/* Function: 0x06 */
+	WERROR srvsvc_NetCharDevQPurge(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 queue_name[]
+		);
+
+	/******************/
+	/* Function: 0x07 */
+	WERROR srvsvc_NetCharDevQPurgeSelf(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 queue_name[],
+		[in]   [string,charset(UTF16)] uint16 computer_name[]
+		);
+
+/**************************/
+/* srvsvc_NetConn         */
+/**************************/
+	typedef struct {
+		uint32 conn_id;
+	} srvsvc_NetConnInfo0;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetConnInfo0 *array;
+	} srvsvc_NetConnCtr0;
+
+	typedef struct {
+		uint32 conn_id;
+		uint32 conn_type;
+		uint32 num_open;
+		uint32 num_users;
+		uint32 conn_time;
+		[string,charset(UTF16)] uint16 *user;
+		[string,charset(UTF16)] uint16 *share;
+	} srvsvc_NetConnInfo1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetConnInfo1 *array;
+	} srvsvc_NetConnCtr1;
+
+	typedef union {
+		[case(0)] srvsvc_NetConnCtr0 *ctr0;
+		[case(1)] srvsvc_NetConnCtr1 *ctr1;
+		[default] ;
+	} srvsvc_NetConnCtr;
+
+	/******************/
+	/* Function: 0x08 */
+	WERROR srvsvc_NetConnEnum(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 *path,
+		[in,out]   uint32 level,
+		[in,out,switch_is(level)]   srvsvc_NetConnCtr ctr,
+		[in]   uint32 max_buffer,
+		[out]   uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+/**************************/
+/* srvsvc_NetFile         */
+/**************************/
+	typedef struct {
+		uint32 fid;
+	} srvsvc_NetFileInfo2;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetFileInfo2 *array;
+	} srvsvc_NetFileCtr2;
+
+	typedef struct {
+		uint32 fid;
+		uint32 permissions;
+		uint32 num_locks;
+		[string,charset(UTF16)] uint16 *path;
+		[string,charset(UTF16)] uint16 *user;
+	} srvsvc_NetFileInfo3;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetFileInfo3 *array;
+	} srvsvc_NetFileCtr3;
+
+	typedef union {
+		[case(2)] srvsvc_NetFileInfo2 *info2;
+		[case(3)] srvsvc_NetFileInfo3 *info3;
+		[default] ;
+	} srvsvc_NetFileInfo;
+
+	typedef union {
+		[case(2)] srvsvc_NetFileCtr2 *ctr2;
+		[case(3)] srvsvc_NetFileCtr3 *ctr3;
+		[default] ;
+	} srvsvc_NetFileCtr;
+
+	/******************/
+	/* Function: 0x09 */
+	WERROR srvsvc_NetFileEnum(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 *path,
+		[in]   [string,charset(UTF16)] uint16 *user,
+		[in,out]   uint32 level,
+		[in,out,switch_is(level)]   srvsvc_NetFileCtr ctr,
+		[in]   uint32 max_buffer,
+		[out]   uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+	/******************/
+	/* Function: 0x0a */
+	WERROR srvsvc_NetFileGetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   uint32 fid,
+		[in]   uint32 level,
+		[out,switch_is(level)]   srvsvc_NetFileInfo info
+		);
+
+	/******************/
+	/* Function: 0x0b */
+	WERROR srvsvc_NetFileClose(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   uint32 fid	
+		);
+
+/**************************/
+/* srvsvc_NetSess         */
+/**************************/
+	typedef struct {
+		[string,charset(UTF16)] uint16 *client;
+	} srvsvc_NetSessInfo0;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetSessInfo0 *array;
+	} srvsvc_NetSessCtr0;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *client;
+		[string,charset(UTF16)] uint16 *user;
+		uint32 num_open;
+		uint32 time;
+		uint32 idle_time;
+		uint32 user_flags;
+	} srvsvc_NetSessInfo1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetSessInfo1 *array;
+	} srvsvc_NetSessCtr1;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *client;
+		[string,charset(UTF16)] uint16 *user;
+		uint32 num_open;
+		uint32 time;
+		uint32 idle_time;
+		uint32 user_flags;
+		[string,charset(UTF16)] uint16 *client_type;
+	} srvsvc_NetSessInfo2;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetSessInfo2 *array;
+	} srvsvc_NetSessCtr2;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *client;
+		[string,charset(UTF16)] uint16 *user;
+		uint32 time;
+		uint32 idle_time;
+	} srvsvc_NetSessInfo10;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetSessInfo10 *array;
+	} srvsvc_NetSessCtr10;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *client;
+		[string,charset(UTF16)] uint16 *user;
+		uint32 num_open;
+		uint32 time;
+		uint32 idle_time;
+		uint32 user_flags;
+		[string,charset(UTF16)] uint16 *client_type;
+		[string,charset(UTF16)] uint16 *transport;
+	} srvsvc_NetSessInfo502;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetSessInfo502 *array;
+	} srvsvc_NetSessCtr502;
+
+	typedef union {
+		[case(0)] srvsvc_NetSessCtr0 *ctr0;
+		[case(1)] srvsvc_NetSessCtr1 *ctr1;
+		[case(2)] srvsvc_NetSessCtr2 *ctr2;
+		[case(10)] srvsvc_NetSessCtr10 *ctr10;
+		[case(502)] srvsvc_NetSessCtr502 *ctr502;
+		[default] ;
+	} srvsvc_NetSessCtr;
+
+	/******************/
+	/* Function: 0x0c */
+	WERROR srvsvc_NetSessEnum(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 *client,
+		[in]   [string,charset(UTF16)] uint16 *user,
+		[in,out]   uint32 level,
+		[in,out,switch_is(level)]   srvsvc_NetSessCtr ctr,
+		[in]   uint32 max_buffer,
+		[out]   uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+	/******************/
+	/* Function: 0x0d */
+	WERROR srvsvc_NetSessDel(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 *client,
+		[in]   [string,charset(UTF16)] uint16 *user
+		);
+
+/**************************/
+/* srvsvc_NetShare        */
+/**************************/
+
+	/* share types */
+	const uint32 STYPE_TEMPORARY = 0x40000000; /* share is a temporary one */
+	const uint32 STYPE_HIDDEN    = 0x80000000; /* share is a hidden one */
+
+	typedef [v1_enum, flag(NDR_PAHEX)] enum {
+		STYPE_DISKTREE = 0,
+		STYPE_DISKTREE_TEMPORARY = STYPE_DISKTREE|STYPE_TEMPORARY,
+		STYPE_DISKTREE_HIDDEN    = STYPE_DISKTREE|STYPE_HIDDEN,
+		STYPE_PRINTQ   = 1,
+		STYPE_PRINTQ_TEMPORARY = STYPE_PRINTQ|STYPE_TEMPORARY,
+		STYPE_PRINTQ_HIDDEN    = STYPE_PRINTQ|STYPE_HIDDEN,
+		STYPE_DEVICE   = 2,	/* Serial device */
+		STYPE_DEVICE_TEMPORARY = STYPE_DEVICE|STYPE_TEMPORARY,
+		STYPE_DEVICE_HIDDEN    = STYPE_DEVICE|STYPE_HIDDEN,
+		STYPE_IPC      = 3,	/* Interprocess communication (IPC) */
+		STYPE_IPC_TEMPORARY = STYPE_IPC|STYPE_TEMPORARY,
+		STYPE_IPC_HIDDEN    = STYPE_IPC|STYPE_HIDDEN
+	} srvsvc_ShareType;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *name;
+	} srvsvc_NetShareInfo0;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo0 *array;
+	} srvsvc_NetShareCtr0;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *name;
+		srvsvc_ShareType type;
+		[string,charset(UTF16)] uint16 *comment;
+	} srvsvc_NetShareInfo1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo1 *array;
+	} srvsvc_NetShareCtr1;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *name;
+		srvsvc_ShareType type;
+		[string,charset(UTF16)] uint16 *comment;
+		uint32 permissions;
+		uint32 max_users;
+		uint32 current_users;
+		[string,charset(UTF16)] uint16 *path;
+		[string,charset(UTF16)] uint16 *password;
+	} srvsvc_NetShareInfo2;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo2 *array;
+	} srvsvc_NetShareCtr2;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *name;
+		srvsvc_ShareType type;
+		[string,charset(UTF16)] uint16 *comment;
+		uint32 csc_policy;
+	} srvsvc_NetShareInfo501;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo501 *array;
+	} srvsvc_NetShareCtr501;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *name;
+		srvsvc_ShareType type;
+		[string,charset(UTF16)] uint16 *comment;
+		uint32 permissions;
+		int32 max_users;
+		uint32 current_users;
+		[string,charset(UTF16)] uint16 *path;
+		[string,charset(UTF16)] uint16 *password;
+		uint32 unknown;
+		[subcontext(4)] security_descriptor *sd;
+	} srvsvc_NetShareInfo502;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo502 *array;
+	} srvsvc_NetShareCtr502;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *comment;
+	} srvsvc_NetShareInfo1004;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo1004 *array;
+	} srvsvc_NetShareCtr1004;
+
+	typedef struct {
+		uint32 dfs_flags;
+	} srvsvc_NetShareInfo1005;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo1005 *array;
+	} srvsvc_NetShareCtr1005;
+
+	typedef struct {
+		int32 max_users;
+	} srvsvc_NetShareInfo1006;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo1006 *array;
+	} srvsvc_NetShareCtr1006;
+
+	typedef struct {
+		uint32 flags;
+		[string,charset(UTF16)] uint16 *alternate_directory_name;
+	} srvsvc_NetShareInfo1007;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo1007 *array;
+	} srvsvc_NetShareCtr1007;
+
+	typedef struct {
+		uint32 reserved;
+		[subcontext(4)] security_descriptor *sd;
+	} srvsvc_NetShareInfo1501;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetShareInfo1501 *array;
+	} srvsvc_NetShareCtr1501;
+
+	typedef union {
+		[case(0)] srvsvc_NetShareInfo0 *info0;
+		[case(1)] srvsvc_NetShareInfo1 *info1;
+		[case(2)] srvsvc_NetShareInfo2 *info2;
+		[case(501)] srvsvc_NetShareInfo501 *info501;
+		[case(502)] srvsvc_NetShareInfo502 *info502;
+		[case(1004)] srvsvc_NetShareInfo1004 *info1004;
+		[case(1005)] srvsvc_NetShareInfo1005 *info1005;
+		[case(1006)] srvsvc_NetShareInfo1006 *info1006;
+		[case(1007)] srvsvc_NetShareInfo1007 *info1007;
+		[case(1501)] srvsvc_NetShareInfo1501 *info1501;
+		[default] ;
+	} srvsvc_NetShareInfo;
+
+	typedef union {
+		[case(0)] srvsvc_NetShareCtr0 *ctr0;
+		[case(1)] srvsvc_NetShareCtr1 *ctr1;
+		[case(2)] srvsvc_NetShareCtr2 *ctr2;
+		[case(501)] srvsvc_NetShareCtr501 *ctr501;
+		[case(502)] srvsvc_NetShareCtr502 *ctr502;
+		[case(1004)] srvsvc_NetShareCtr1004 *ctr1004;
+		[case(1005)] srvsvc_NetShareCtr1005 *ctr1005;
+		[case(1006)] srvsvc_NetShareCtr1006 *ctr1006;
+		[case(1007)] srvsvc_NetShareCtr1007 *ctr1007;
+		[case(1501)] srvsvc_NetShareCtr1501 *ctr1501;
+		[default] ;
+	} srvsvc_NetShareCtr;
+
+	/******************/
+	/* Function: 0x0e */
+	WERROR srvsvc_NetShareAdd(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   uint32 level,
+		[in,switch_is(level)] srvsvc_NetShareInfo info,
+		[in,out]   uint32 *parm_error
+		);
+
+	/******************/
+	/* Function: 0x0f */
+	WERROR srvsvc_NetShareEnumAll (
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in,out]   uint32 level,
+		[in,out,switch_is(level)] srvsvc_NetShareCtr ctr,
+		[in]   uint32 max_buffer,
+		[out]  uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+	/******************/
+	/* Function: 0x10 */
+	WERROR srvsvc_NetShareGetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 share_name[],
+		[in]   uint32 level,
+		[out,switch_is(level)] srvsvc_NetShareInfo info
+		);
+
+	/******************/
+	/* Function: 0x11 */
+	WERROR srvsvc_NetShareSetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 share_name[],
+		[in]   uint32 level,
+		[in,switch_is(level)] srvsvc_NetShareInfo info,
+		[in,out]   uint32 *parm_error
+		);
+
+	/******************/
+	/* Function: 0x12 */
+	WERROR srvsvc_NetShareDel(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 share_name[],
+		[in]   uint32 reserved
+		);
+
+	/******************/
+	/* Function: 0x13 */
+	WERROR srvsvc_NetShareDelSticky(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 share_name[],
+		[in]   uint32 reserved
+		);
+	
+	/******************/
+	/* Function: 0x14 */
+	WERROR srvsvc_NetShareCheck(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 device_name[],
+		[out]  srvsvc_ShareType type
+		);
+
+/**************************/
+/* srvsvc_NetSrv          */
+/**************************/
+	typedef [public] enum {
+		PLATFORM_ID_DOS = 300,
+		PLATFORM_ID_OS2 = 400,
+		PLATFORM_ID_NT	= 500,
+		PLATFORM_ID_OSF = 600,
+		PLATFORM_ID_VMS = 700
+	} srvsvc_PlatformId;
+
+	typedef struct {
+		srvsvc_PlatformId platform_id;
+		[string,charset(UTF16)] uint16 *server_name;
+	} srvsvc_NetSrvInfo100;
+
+	typedef struct {
+		srvsvc_PlatformId platform_id;
+		[string,charset(UTF16)] uint16 *server_name;
+		uint32 version_major;
+		uint32 version_minor;
+		svcctl_ServerType server_type;
+		[string,charset(UTF16)] uint16 *comment;
+	} srvsvc_NetSrvInfo101;
+
+	typedef struct {
+		srvsvc_PlatformId platform_id;
+		[string,charset(UTF16)] uint16 *server_name;
+		uint32 ver_major;
+		uint32 ver_minor;
+		svcctl_ServerType server_type;
+		[string,charset(UTF16)] uint16 *comment;
+		uint32 users;
+		uint32 disc;
+		uint32 hidden;
+		uint32 announce;
+		uint32 anndelta;
+		uint32 licences;
+		[string,charset(UTF16)] uint16 *userpath;
+	} srvsvc_NetSrvInfo102;
+
+	typedef struct {
+		uint32 ulist_mtime;
+		uint32 glist_mtime;
+		uint32 alist_mtime;
+		[string,charset(UTF16)] uint16 *alerts;
+		uint32 security;
+		uint32 numadmin;
+		uint32 lanmask;
+		[string,charset(UTF16)] uint16 *guestaccount;
+		uint32 chdevs;
+		uint32 chdevqs;
+		uint32 chdevjobs;
+		uint32 connections;
+		uint32 shares;
+		uint32 openfiles;
+		uint32 sessopen;
+		uint32 sesssvc;
+		uint32 sessreqs;
+		uint32 opensearch;
+		uint32 activelocks;
+		uint32 sizereqbufs;
+		uint32 numbigbufs;
+		uint32 numfiletasks;
+		uint32 alertsched;
+		uint32 erroralert;
+		uint32 logonalert;
+		uint32 accessalert;
+		uint32 diskalert;
+		uint32 netioalert;
+		uint32 maxaudits;
+		[string,charset(UTF16)] uint16 *srvheuristics;
+	} srvsvc_NetSrvInfo402;
+
+	typedef struct {
+		uint32 ulist_mtime;
+		uint32 glist_mtime;
+		uint32 alist_mtime;
+		[string,charset(UTF16)] uint16 *alerts;
+		uint32 security;
+		uint32 numadmin;
+		uint32 lanmask;
+		[string,charset(UTF16)] uint16 *guestaccount;
+		uint32 chdevs;
+		uint32 chdevqs;
+		uint32 chdevjobs;
+		uint32 connections;
+		uint32 shares;
+		uint32 openfiles;
+		uint32 sessopen;
+		uint32 sesssvc;
+		uint32 sessreqs;
+		uint32 opensearch;
+		uint32 activelocks;
+		uint32 sizereqbufs;
+		uint32 numbigbufs;
+		uint32 numfiletasks;
+		uint32 alertsched;
+		uint32 eroralert;
+		uint32 logonalert;
+		uint32 accessalert;
+		uint32 diskalert;
+		uint32 netioalert;
+		uint32 maxaudits;
+		[string,charset(UTF16)] uint16 *srvheuristics;
+		uint32 auditedevents;
+		uint32 auditprofile;
+		[string,charset(UTF16)] uint16 *autopath;
+	} srvsvc_NetSrvInfo403;
+
+	typedef struct {
+		uint32 sessopen;
+		uint32 sesssvc;
+		uint32 opensearch;
+		uint32 sizereqbufs;
+		uint32 initworkitems;
+		uint32 maxworkitems;
+		uint32 rawworkitems;
+		uint32 irpstacksize;
+		uint32 maxrawbuflen;
+		uint32 sessusers;
+		uint32 sessconns;
+		uint32 maxpagedmemoryusage;
+		uint32 maxnonpagedmemoryusage;
+		uint32 enablesoftcompat;
+		uint32 enableforcedlogoff;
+		uint32 timesource;
+		uint32 acceptdownlevelapis;
+		uint32 lmannounce;
+	} srvsvc_NetSrvInfo502;
+
+        typedef struct{
+		uint32 sessopen;
+		uint32 sesssvc;
+		uint32 opensearch;
+		uint32 sizereqbufs;
+		uint32 initworkitems;
+		uint32 maxworkitems;
+		uint32 rawworkitems;
+		uint32 irpstacksize;
+		uint32 maxrawbuflen;
+		uint32 sessusers;
+		uint32 sessconns;
+		uint32 maxpagedmemoryusage;
+		uint32 maxnonpagedmemoryusage;
+		uint32 enablesoftcompat;
+		uint32 enableforcedlogoff;
+		uint32 timesource;
+		uint32 acceptdownlevelapis;
+		uint32 lmannounce;
+		[string,charset(UTF16)] uint16 *domain;
+		uint32 maxcopyreadlen;
+		uint32 maxcopywritelen;
+		uint32 minkeepsearch;
+		uint32 maxkeepsearch;
+		uint32 minkeepcomplsearch;
+		uint32 maxkeepcomplsearch;
+		uint32 threadcountadd;
+		uint32 numlockthreads;
+		uint32 scavtimeout;
+		uint32 minrcvqueue;
+		uint32 minfreeworkitems;
+		uint32 xactmemsize;
+		uint32 threadpriority;
+		uint32 maxmpxct;
+		uint32 oplockbreakwait;
+		uint32 oplockbreakresponsewait;
+		uint32 enableoplocks;
+		uint32 enableoplockforceclose;
+		uint32 enablefcbopens;
+		uint32 enableraw;
+		uint32 enablesharednetdrives;
+		uint32 minfreeconnections;
+		uint32 maxfreeconnections;
+        } srvsvc_NetSrvInfo503;
+
+        typedef struct{
+		uint32 sessopen;
+		uint32 sesssvc;
+		uint32 opensearch;
+		uint32 sizereqbufs;
+		uint32 initworkitems;
+		uint32 maxworkitems;
+		uint32 rawworkitems;
+		uint32 irpstacksize;
+		uint32 maxrawbuflen;
+		uint32 sessusers;
+		uint32 sessconns;
+		uint32 maxpagedmemoryusage;
+		uint32 maxnonpagedmemoryusage;
+		uint32 enablesoftcompat;
+		uint32 enableforcedlogoff;
+		uint32 timesource;
+		uint32 acceptdownlevelapis;
+		uint32 lmannounce;
+		[string,charset(UTF16)] uint16 *domain;
+		uint32 maxcopyreadlen;
+		uint32 maxcopywritelen;
+		uint32 minkeepsearch;
+		uint32 minkeepcomplsearch;
+		uint32 maxkeepcomplsearch;
+		uint32 threadcountadd;
+		uint32 numlockthreads;
+		uint32 scavtimeout;
+		uint32 minrcvqueue;
+		uint32 minfreeworkitems;
+		uint32 xactmemsize;
+		uint32 threadpriority;
+		uint32 maxmpxct;
+		uint32 oplockbreakwait;
+		uint32 oplockbreakresponsewait;
+		uint32 enableoplocks;
+		uint32 enableoplockforceclose;
+		uint32 enablefcbopens;
+		uint32 enableraw;
+		uint32 enablesharednetdrives;
+		uint32 minfreeconnections;
+		uint32 maxfreeconnections;
+		uint32 initsesstable;
+		uint32 initconntable;
+		uint32 initfiletable;
+		uint32 initsearchtable;
+		uint32 alertsched;
+		uint32 errortreshold;
+		uint32 networkerrortreshold;
+		uint32 diskspacetreshold;
+		uint32 reserved;
+		uint32 maxlinkdelay;
+		uint32 minlinkthroughput;
+		uint32 linkinfovalidtime;
+		uint32 scavqosinfoupdatetime;
+		uint32 maxworkitemidletime;
+        } srvsvc_NetSrvInfo599;
+
+        typedef struct{
+		[string,charset(UTF16)] uint16 *comment;
+        } srvsvc_NetSrvInfo1005;
+
+        typedef struct{
+                uint32 disc;
+        } srvsvc_NetSrvInfo1010;
+
+        typedef struct{
+                uint32 hidden;
+        } srvsvc_NetSrvInfo1016;
+
+        typedef struct{
+                uint32 announce;
+        } srvsvc_NetSrvInfo1017;
+
+        typedef struct{
+                uint32 anndelta;
+        } srvsvc_NetSrvInfo1018;
+
+        typedef struct{
+                uint32 users;
+        } srvsvc_NetSrvInfo1107;
+
+        typedef struct{
+                uint32 sessopens;
+        } srvsvc_NetSrvInfo1501;
+
+        typedef struct{
+                uint32 sessvcs;
+        } srvsvc_NetSrvInfo1502;
+
+        typedef struct{
+                uint32 opensearch;
+        } srvsvc_NetSrvInfo1503;
+
+        typedef struct{
+                uint32 maxworkitems;
+        } srvsvc_NetSrvInfo1506;
+
+        typedef struct{
+                uint32 maxrawbuflen;
+        } srvsvc_NetSrvInfo1509;
+
+        typedef struct{
+                uint32 sessusers;
+        } srvsvc_NetSrvInfo1510;
+
+        typedef struct{
+                uint32 sesscons;
+        } srvsvc_NetSrvInfo1511;
+
+        typedef struct{
+                uint32 maxnonpagedmemoryusage;
+        } srvsvc_NetSrvInfo1512;
+
+        typedef struct{
+                uint32 maxpagedmemoryusage;
+        } srvsvc_NetSrvInfo1513;
+
+        typedef struct{
+                uint32 enablesoftcompat;
+        } srvsvc_NetSrvInfo1514;
+
+        typedef struct{
+                uint32 enableforcedlogoff;
+        } srvsvc_NetSrvInfo1515;
+
+        typedef struct{
+                uint32 timesource;
+        } srvsvc_NetSrvInfo1516;
+
+        typedef struct{
+                uint32 lmannounce;
+        } srvsvc_NetSrvInfo1518;
+
+        typedef struct{
+                uint32 maxcopyreadlen;
+        } srvsvc_NetSrvInfo1520;
+
+        typedef struct{
+                uint32 maxcopywritelen;
+        } srvsvc_NetSrvInfo1521;
+
+        typedef struct{
+                uint32 minkeepsearch;
+        } srvsvc_NetSrvInfo1522;
+
+        typedef struct{
+                uint32 maxkeepsearch;
+        } srvsvc_NetSrvInfo1523;
+
+        typedef struct{
+                uint32 minkeepcomplsearch;
+        } srvsvc_NetSrvInfo1524;
+
+        typedef struct{
+                uint32 maxkeepcomplsearch;
+        } srvsvc_NetSrvInfo1525;
+
+        typedef struct{
+                uint32 scavtimeout;
+        } srvsvc_NetSrvInfo1528;
+
+        typedef struct{
+                uint32 minrcvqueue;
+        } srvsvc_NetSrvInfo1529;
+
+        typedef struct{
+                uint32 minfreeworkitems;
+        } srvsvc_NetSrvInfo1530;
+
+        typedef struct{
+                uint32 maxmpxct;
+        } srvsvc_NetSrvInfo1533;
+
+        typedef struct{
+                uint32 oplockbreakwait;
+        } srvsvc_NetSrvInfo1534;
+
+        typedef struct{
+                uint32 oplockbreakresponsewait;
+        } srvsvc_NetSrvInfo1535;
+
+        typedef struct{
+                uint32 enableoplocks;
+        } srvsvc_NetSrvInfo1536;
+
+        typedef struct{
+                uint32 enableoplockforceclose;
+        } srvsvc_NetSrvInfo1537;
+
+        typedef struct{
+                uint32 enablefcbopens;
+        } srvsvc_NetSrvInfo1538;
+
+        typedef struct{
+                uint32 enableraw;
+        } srvsvc_NetSrvInfo1539;
+
+        typedef struct{
+                uint32 enablesharednetdrives;
+        } srvsvc_NetSrvInfo1540;
+
+        typedef struct{
+                uint32 minfreeconnections;
+        } srvsvc_NetSrvInfo1541;
+
+        typedef struct{
+                uint32 maxfreeconnections;
+        } srvsvc_NetSrvInfo1542;
+
+        typedef struct{
+                uint32 initsesstable;
+        } srvsvc_NetSrvInfo1543;
+
+        typedef struct{
+                uint32 initconntable;
+        } srvsvc_NetSrvInfo1544;
+
+        typedef struct{
+                uint32 initfiletable;
+        } srvsvc_NetSrvInfo1545;
+
+        typedef struct{
+                uint32 initsearchtable;
+        } srvsvc_NetSrvInfo1546;
+
+        typedef struct{
+                uint32 alertsched;
+        } srvsvc_NetSrvInfo1547;
+
+        typedef struct{
+                uint32 errortreshold;
+        } srvsvc_NetSrvInfo1548;
+
+        typedef struct{
+                uint32 networkerrortreshold;
+        } srvsvc_NetSrvInfo1549;
+
+        typedef struct{
+                uint32 diskspacetreshold;
+        } srvsvc_NetSrvInfo1550;
+
+        typedef struct{
+                uint32 maxlinkdelay;
+        } srvsvc_NetSrvInfo1552;
+
+        typedef struct{
+                uint32 minlinkthroughput;
+        } srvsvc_NetSrvInfo1553;
+
+        typedef struct{
+                uint32 linkinfovalidtime;
+        } srvsvc_NetSrvInfo1554;
+
+        typedef struct{
+                uint32 scavqosinfoupdatetime;
+        } srvsvc_NetSrvInfo1555;
+
+        typedef struct{
+                uint32 maxworkitemidletime;
+        } srvsvc_NetSrvInfo1556;
+
+
+	typedef union{
+                [case(100)]     srvsvc_NetSrvInfo100 *info100;
+                [case(101)]     srvsvc_NetSrvInfo101 *info101;
+                [case(102)]     srvsvc_NetSrvInfo102 *info102;
+                [case(402)]     srvsvc_NetSrvInfo402 *info402;
+                [case(403)]     srvsvc_NetSrvInfo403 *info403;
+                [case(502)]     srvsvc_NetSrvInfo502 *info502;
+                [case(503)]     srvsvc_NetSrvInfo503 *info503;
+                [case(599)]     srvsvc_NetSrvInfo599 *info599;
+                [case(1005)]    srvsvc_NetSrvInfo1005 *info1005;
+                [case(1010)]    srvsvc_NetSrvInfo1010 *info1010;
+                [case(1016)]    srvsvc_NetSrvInfo1016 *info1016;
+                [case(1017)]    srvsvc_NetSrvInfo1017 *info1017;
+                [case(1018)]    srvsvc_NetSrvInfo1018 *info1018;
+                [case(1107)]    srvsvc_NetSrvInfo1107 *info1107;
+                [case(1501)]    srvsvc_NetSrvInfo1501 *info1501;
+                [case(1502)]    srvsvc_NetSrvInfo1502 *info1502;
+                [case(1503)]    srvsvc_NetSrvInfo1503 *info1503;
+                [case(1506)]    srvsvc_NetSrvInfo1506 *info1506;
+                [case(1509)]    srvsvc_NetSrvInfo1509 *info1509;
+                [case(1510)]    srvsvc_NetSrvInfo1510 *info1510;
+                [case(1511)]    srvsvc_NetSrvInfo1511 *info1511;
+                [case(1512)]    srvsvc_NetSrvInfo1512 *info1512;
+                [case(1513)]    srvsvc_NetSrvInfo1513 *info1513;
+                [case(1514)]    srvsvc_NetSrvInfo1514 *info1514;
+                [case(1515)]    srvsvc_NetSrvInfo1515 *info1515;
+                [case(1516)]    srvsvc_NetSrvInfo1516 *info1516;
+                [case(1518)]    srvsvc_NetSrvInfo1518 *info1518;
+                [case(1520)]    srvsvc_NetSrvInfo1520 *info1520;
+                [case(1521)]    srvsvc_NetSrvInfo1521 *info1521;
+                [case(1522)]    srvsvc_NetSrvInfo1522 *info1522;
+                [case(1523)]    srvsvc_NetSrvInfo1523 *info1523;
+                [case(1524)]    srvsvc_NetSrvInfo1524 *info1524;
+                [case(1525)]    srvsvc_NetSrvInfo1525 *info1525;
+                [case(1528)]    srvsvc_NetSrvInfo1528 *info1528;
+                [case(1529)]    srvsvc_NetSrvInfo1529 *info1529;
+                [case(1530)]    srvsvc_NetSrvInfo1530 *info1530;
+                [case(1533)]    srvsvc_NetSrvInfo1533 *info1533;
+                [case(1534)]    srvsvc_NetSrvInfo1534 *info1534;
+                [case(1535)]    srvsvc_NetSrvInfo1535 *info1535;
+                [case(1536)]    srvsvc_NetSrvInfo1536 *info1536;
+                [case(1537)]    srvsvc_NetSrvInfo1537 *info1537;
+                [case(1538)]    srvsvc_NetSrvInfo1538 *info1538;
+                [case(1539)]    srvsvc_NetSrvInfo1539 *info1539;
+                [case(1540)]    srvsvc_NetSrvInfo1540 *info1540;
+                [case(1541)]    srvsvc_NetSrvInfo1541 *info1541;
+                [case(1542)]    srvsvc_NetSrvInfo1542 *info1542;
+                [case(1543)]    srvsvc_NetSrvInfo1543 *info1543;
+                [case(1544)]    srvsvc_NetSrvInfo1544 *info1544;
+                [case(1545)]    srvsvc_NetSrvInfo1545 *info1545;
+                [case(1546)]    srvsvc_NetSrvInfo1546 *info1546;
+                [case(1547)]    srvsvc_NetSrvInfo1547 *info1547;
+                [case(1548)]    srvsvc_NetSrvInfo1548 *info1548;
+                [case(1549)]    srvsvc_NetSrvInfo1549 *info1549;
+                [case(1550)]    srvsvc_NetSrvInfo1550 *info1550;
+                [case(1552)]    srvsvc_NetSrvInfo1552 *info1552;
+                [case(1553)]    srvsvc_NetSrvInfo1553 *info1553;
+                [case(1554)]    srvsvc_NetSrvInfo1554 *info1554;
+                [case(1555)]    srvsvc_NetSrvInfo1555 *info1555;
+                [case(1556)]    srvsvc_NetSrvInfo1556 *info1556;
+		[default];
+	} srvsvc_NetSrvInfo;
+
+	/******************/
+	/* Function: 0x15 */
+	WERROR srvsvc_NetSrvGetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   uint32 level,
+		[out,switch_is(level)] srvsvc_NetSrvInfo info
+		);
+
+	/******************/
+	/* Function: 0x16 */
+	WERROR srvsvc_NetSrvSetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   uint32 level,
+		[in,switch_is(level)] srvsvc_NetSrvInfo info,
+		[in,out]   uint32 *parm_error
+		);
+
+/**************************/
+/* srvsvc_NetDisk         */
+/**************************/
+	typedef struct {
+		[string,charset(UTF16)] uint16 *disc;
+	} srvsvc_NetDiskInfo0;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count), length_is(count)] srvsvc_NetDiskInfo0 *discs;
+	} srvsvc_NetDiskInfo;
+
+	/******************/
+	/* Function: 0x17 */
+	WERROR srvsvc_NetDiskEnum(
+		[in]      [string,charset(UTF16)] uint16 *server_unc,
+		[in]      uint32 level,
+		[in,out]  srvsvc_NetDiskInfo disks,
+		[in]      uint32 maxlen,
+		[out]     uint32 totalentries,
+		[in,out]  uint32 *resume_handle
+		);
+
+/**************************/
+/* srvsvc_NetStatistics   */
+/**************************/
+	typedef struct {
+		uint32 start;
+		uint32 fopens;
+		uint32 devopens;
+		uint32 jobsqueued;
+		uint32 sopens;
+		uint32 stimeouts;
+		uint32 serrorout;
+		uint32 pwerrors;
+		uint32 permerrors;
+		uint32 syserrors;
+		uint32 bytessent_low;
+		uint32 bytessent_high;
+		uint32 bytesrcvd_low;
+		uint32 bytesrcvd_high;
+		uint32 avresponse;
+		uint32 reqbufneed;
+		uint32 bigbufneed;
+	} srvsvc_Statistics;
+
+	/******************/
+	/* Function: 0x18 */
+	WERROR srvsvc_NetServerStatisticsGet(
+		[in]      [string,charset(UTF16)] uint16 *server_unc,
+		[in]      [string,charset(UTF16)] uint16 *service,
+		[in]      uint32 level,
+		[in]      uint32 options,
+		[out]     srvsvc_Statistics stat
+		);
+
+/**************************/
+/* srvsvc_NetTransport    */
+/**************************/
+	typedef struct {
+		uint32 vcs;
+		[string,charset(UTF16)] uint16 *name;
+		[size_is(addr_len)] char *addr;
+		uint32 addr_len;
+		[string,charset(UTF16)] uint16 *net_addr;
+	} srvsvc_NetTransportInfo0;
+
+	/******************/
+	/* Function: 0x19 */
+	WERROR srvsvc_NetTransportAdd(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in] uint32 level,
+		[in,switch_is(level)]   srvsvc_NetTransportInfo info
+		);
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetTransportInfo0 *array;
+	} srvsvc_NetTransportCtr0;
+
+	typedef struct {
+		uint32 vcs;
+		[string,charset(UTF16)] uint16 *name;
+		[size_is(addr_len)] char *addr;
+		uint32 addr_len;
+		[string,charset(UTF16)] uint16 *net_addr;
+		[string,charset(UTF16)] uint16 *domain;
+	} srvsvc_NetTransportInfo1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetTransportInfo1 *array;
+	} srvsvc_NetTransportCtr1;
+
+	typedef struct {
+		uint32 vcs;
+		[string,charset(UTF16)] uint16 *name;
+		[size_is(addr_len)] char *addr;
+		uint32 addr_len;
+		[string,charset(UTF16)] uint16 *net_addr;
+		[string,charset(UTF16)] uint16 *domain;
+		uint32 unknown;
+	} srvsvc_NetTransportInfo2;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetTransportInfo2 *array;
+	} srvsvc_NetTransportCtr2;
+
+	typedef struct {
+		uint32 vcs;
+		[string,charset(UTF16)] uint16 *name;
+		[size_is(addr_len)] char *addr;
+		uint32 addr_len;
+		[string,charset(UTF16)] uint16 *net_addr;
+		[string,charset(UTF16)] uint16 *domain;
+		uint32 unknown1;
+		uint32 unknown2;
+		[size_is(256)] char unknown3[256];
+	} srvsvc_NetTransportInfo3;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] srvsvc_NetTransportInfo3 *array;
+	} srvsvc_NetTransportCtr3;
+
+	typedef union {
+		[case(0)] srvsvc_NetTransportCtr0 *ctr0;
+		[case(1)] srvsvc_NetTransportCtr1 *ctr1;
+		[case(2)] srvsvc_NetTransportCtr2 *ctr2;
+		[case(3)] srvsvc_NetTransportCtr3 *ctr3;
+		[default];
+	} srvsvc_NetTransportCtr;
+
+	/******************/
+	/* Function: 0x1a */
+	WERROR srvsvc_NetTransportEnum(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in,out] uint32 level,
+		[in,out,switch_is(level)]   srvsvc_NetTransportCtr transports,
+		[in]   uint32 max_buffer,
+		[out]   uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+	/******************/
+	/* Function: 0x1b */
+	WERROR srvsvc_NetTransportDel(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]	uint32 unknown,
+		[in] 	srvsvc_NetTransportInfo0 transport
+		);
+
+/**************************/
+/* srvsvc_NetRemoteTOD    */
+/**************************/
+	typedef struct {
+		uint32 elapsed; /* time(NULL) */
+		uint32 msecs; /* milliseconds till system reboot (uptime) */
+		uint32 hours;
+		uint32 mins;
+		uint32 secs;
+		uint32 hunds;
+		int32 timezone; /* in minutes */
+		uint32 tinterval; /* clock tick interval in 0.0001 second units; 310 on windows */
+		uint32 day;
+		uint32 month;
+		uint32 year;
+		uint32 weekday;
+	} srvsvc_NetRemoteTODInfo;
+
+	/******************/
+	/* Function: 0x1c */
+	WERROR srvsvc_NetRemoteTOD(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[out]   srvsvc_NetRemoteTODInfo *info
+		);
+
+/**************************/
+/* srvsvc_NetServiceBits  */
+/**************************/
+	/******************/
+	/* Function: 0x1d */
+	WERROR srvsvc_NetSetServiceBits(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 *transport,
+		[in]   uint32 servicebits,
+		[in]   uint32 updateimmediately
+		);
+
+/**************************/
+/* srvsvc_NetPath         */
+/**************************/
+	/******************/
+	/* Function: 0x1e */
+	WERROR srvsvc_NetPathType(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 path[],
+		[in]   uint32 pathflags,
+		[out]   uint32 pathtype
+		);
+
+	/******************/
+	/* Function: 0x1f */
+	WERROR srvsvc_NetPathCanonicalize(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 path[],
+		[out]  [size_is(maxbuf)] char can_path[],
+		[in]   uint32 maxbuf,
+		[in]   [string,charset(UTF16)] uint16 prefix[],
+		[in,out] uint32 pathtype,
+		[in]    uint32 pathflags
+		);
+
+	/******************/
+	/* Function: 0x20 */
+	WERROR srvsvc_NetPathCompare(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 path1[],
+		[in]   [string,charset(UTF16)] uint16 path2[],
+		[in]    uint32 pathtype,
+		[in]    uint32 pathflags
+		);
+
+/**************************/
+/* srvsvc_NetName         */
+/**************************/
+	/******************/
+	/* Function: 0x21 */
+	WERROR srvsvc_NetNameValidate(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 path[],
+		[in]    uint32 pathtype,
+		[in]    uint32 pathflags
+		);
+
+	/******************/
+	/* Function: 0x22 */
+	WERROR srvsvc_NETRPRNAMECANONICALIZE(
+		);
+
+	/******************/
+	/* Function: 0x23 */
+	WERROR srvsvc_NetPRNameCompare(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 path1[],
+		[in]   [string,charset(UTF16)] uint16 path2[],
+		[in]    uint32 pathtype,
+		[in]    uint32 pathflags
+		);
+
+/**************************/
+/* srvsvc_NetShare ...    */
+/**************************/
+	/******************/
+	/* Function: 0x24 */
+	/* Note, there must be some way to return entries read vs 
+	   total entries ... */
+	WERROR srvsvc_NetShareEnum(
+		[in]       [string,charset(UTF16)] uint16 *server_unc,
+	 	[in,out]   uint32 level,
+		[in,out,switch_is(level)]   srvsvc_NetShareCtr ctr,
+		[in]       uint32 max_buffer,
+		[out]      uint32 totalentries,
+		[in,out]   uint32 *resume_handle
+		);
+
+	/******************/
+	/* Function: 0x25 */
+	WERROR srvsvc_NetShareDelStart(
+		[in]       [string,charset(UTF16)] uint16 *server_unc,
+		[in]       [string,charset(UTF16)] uint16 share[],
+		[in]       uint32 reserved,
+		[out, context_handle] void **hnd
+		);
+
+	/******************/
+	/* Function: 0x26 */
+	WERROR srvsvc_NetShareDelCommit(
+		[in, out, context_handle] void **hnd
+		);
+
+	/******************/
+	/* Function: 0x27 */
+	WERROR srvsvc_NetGetFileSecurity(
+		[in]       [string,charset(UTF16)] uint16 *server_unc,
+		[in]       [string,charset(UTF16)] uint16 *share,
+		[in]       [string,charset(UTF16)] uint16 file[],
+		[in]       uint32 securityinformation,
+/*QQQ    is this subcontext thing correct?*/
+		[out, subcontext(4)] security_descriptor *sd
+		);
+
+	/******************/
+	/* Function: 0x28 */
+	WERROR srvsvc_NetSetFileSecurity(
+		[in]       [string,charset(UTF16)] uint16 *server_unc,
+		[in]       [string,charset(UTF16)] uint16 *share,
+		[in]       [string,charset(UTF16)] uint16 file[],
+		[in]       uint32 securityinformation,
+/*QQQ   is this subcontext thing correct ?*/
+		[in, subcontext(4)] security_descriptor sd
+		);
+
+
+
+	typedef [switch_type(long)] union {
+		[case(0)] srvsvc_NetTransportInfo0 info0;
+		[case(1)] srvsvc_NetTransportInfo1 info1;
+		[case(2)] srvsvc_NetTransportInfo2 info2;
+		[case(3)] srvsvc_NetTransportInfo3 info3;
+	} srvsvc_NetTransportInfo;
+
+	/******************/
+	/* Function: 0x29 */
+	WERROR srvsvc_NetServerTransportAddEx(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in] uint32 level,
+		[in,switch_is(level)]   srvsvc_NetTransportInfo info
+		);
+
+	/******************/
+	/* Function: 0x2a */
+	WERROR srvsvc_NetServerSetServiceBitsEx(
+		[in]   [string,charset(UTF16)] uint16 *server_unc,
+		[in]   [string,charset(UTF16)] uint16 *emulated_server_unc,
+		[in]   [string,charset(UTF16)] uint16 *transport,
+		[in]   uint32 servicebitsofinterest,
+		[in]   uint32 servicebits,
+		[in]   uint32 updateimmediately
+		);
+
+	/******************/
+	/* Function: 0x2b */
+	WERROR srvsvc_NETRDFSGETVERSION(
+		);
+
+	/******************/
+	/* Function: 0x2c */
+	WERROR srvsvc_NETRDFSCREATELOCALPARTITION(
+		);
+
+	/******************/
+	/* Function: 0x2d */
+	WERROR srvsvc_NETRDFSDELETELOCALPARTITION(
+		);
+
+	/******************/
+	/* Function: 0x2e */
+	WERROR srvsvc_NETRDFSSETLOCALVOLUMESTATE(
+		);
+
+	/******************/
+	/* Function: 0x2f */
+	WERROR srvsvc_NETRDFSSETSERVERINFO(
+		);
+
+	/******************/
+	/* Function: 0x30 */
+	WERROR srvsvc_NETRDFSCREATEEXITPOINT(
+		);
+
+	/******************/
+	/* Function: 0x31 */
+	WERROR srvsvc_NETRDFSDELETEEXITPOINT(
+		);
+
+	/******************/
+	/* Function: 0x32 */
+	WERROR srvsvc_NETRDFSMODIFYPREFIX(
+		);
+
+	/******************/
+	/* Function: 0x33 */
+	WERROR srvsvc_NETRDFSFIXLOCALVOLUME(
+		);
+
+	/******************/
+	/* Function: 0x34 */
+	WERROR srvsvc_NETRDFSMANAGERREPORTSITEINFO(
+		);
+
+	/******************/
+	/* Function: 0x35 */
+	WERROR srvsvc_NETRSERVERTRANSPORTDELEX(
+		);
+}
