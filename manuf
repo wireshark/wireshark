@@ -210,7 +210,7 @@
 00:00:9D	LocusCompu             # LOCUS COMPUTING CORPORATION
 00:00:9E	MarliSA                # MARLI S.A.
 00:00:9F	AmeristarT             # AMERISTAR TECHNOLOGIES INC.
-00:00:A0	TokyoSanyo             # TOKYO SANYO ELECTRIC CO. LTD.
+00:00:A0	SanyoElect             # SANYO Electric Co., Ltd.
 00:00:A1	MarquetteE             # MARQUETTE ELECTRIC CO.
 00:00:A2	BayNetwork             # BAY NETWORKS
 00:00:A3	NAT
@@ -598,7 +598,7 @@
 00:02:21	DspApplica             # DSP Application, Ltd.
 00:02:22	Chromisys              # Chromisys, Inc.
 00:02:23	Clicktv
-00:02:24	LanternCom             # Lantern Communications, Inc.
+00:02:24	C-Cor
 00:02:25	CertusTech             # Certus Technology, Inc.
 00:02:26	Xesystems              # XESystems, Inc.
 00:02:27	Esd                    # ESD GmbH
@@ -3717,7 +3717,7 @@
 00:0E:77	Decru                  # Decru, Inc.
 00:0E:78	Amtelco
 00:0E:79	AmpleCommu             # Ample Communications Inc.
-00:0E:7A	Private
+00:0E:7A	GemwonComm             # GemWon Communications Co., Ltd.
 00:0E:7B	Toshiba
 00:0E:7C	TelevesSA              # Televes S.A.
 00:0E:7D	Electronic             # Electronics Line 3000 Ltd.
@@ -5837,6 +5837,29 @@
 00:16:C0	Semtech                # Semtech Corporation
 00:16:C1	Eleksen                # Eleksen Ltd
 00:16:C2	Avtec                  # Avtec Systems Inc
+00:16:C3	Ba                     # BA Systems Inc
+00:16:C4	SirfTechno             # SiRF Technology, Inc.
+00:16:C5	ShenzhenXi             # Shenzhen Xing Feng Industry Co.,Ltd
+00:16:C6	NorthAtlan             # North Atlantic Industries
+00:16:C7	Cisco                  # Cisco Systems
+00:16:C8	Cisco                  # Cisco Systems
+00:16:C9	NatSeattle             # NAT Seattle, Inc.
+00:16:CA	Nortel
+00:16:CB	AppleCompu             # Apple Computer
+00:16:CC	XcuteMobil             # Xcute Mobile Corp.
+00:16:CD	HijiHigh-T             # HIJI HIGH-TECH CO., LTD.
+00:16:CE	HonHaiPrec             # Hon Hai Precision Ind. Co., Ltd.
+00:16:CF	HonHaiPrec             # Hon Hai Precision Ind. Co., Ltd.
+00:16:D0	AtechElekt             # ATech elektronika d.o.o.
+00:16:D1	ZatAS                  # ZAT a.s.
+00:16:D2	Caspian
+00:16:D3	Wistron                # Wistron Corporation
+00:16:D4	CompalComm             # Compal Communications, Inc.
+00:16:D5	Synccom                # Synccom Co., Ltd
+00:16:D6	TdaTechPty             # TDA Tech Pty Ltd
+00:16:D7	Sunways                # Sunways AG
+00:16:D8	Senea                  # Senea AB
+00:16:D9	NingboBird             # NINGBO BIRD CO.,LTD.
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -8947,6 +8970,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 00-00-0C-07-AC/40	All-HSRP-routers
 00-00-5E-00-01/40	IETF-VRRP-virtual-router-VRID
+00-BF-00-00-00-00/16	MS-NLB-VirtServer
 00-E0-2B-00-00-00	Extreme-EDP
 00-E0-2B-00-00-01	Extreme-EAPS-Source
 00-E0-2B-00-00-02	Extreme-ESRP-Client
