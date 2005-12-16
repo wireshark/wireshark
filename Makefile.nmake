@@ -282,7 +282,8 @@ clean: gtk2_distclean
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
 		AUTHORS-SHORT-FORMAT \
-		dftest.obj dftest.exe randpkt.obj randpkt.ext doxygen.cfg \
+		dftest.obj dftest.exe randpkt.obj randpkt.ext dumpcap.obj \
+		doxygen.cfg \
 		$(RESOURCES) libethereal.dll wiretap-$(WTAP_VERSION).dll
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean

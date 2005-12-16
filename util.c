@@ -296,10 +296,8 @@ const gchar *get_conn_cfilter(void) {
 			return filter_str->str;
 		}
 	} else if ((env = getenv("CLIENTNAME")) != NULL) {
-		if (g_strcasecmp("console", env) != 0) {
-			g_string_sprintf(filter_str, "not %s host %s", host_ip_af(env), env);
-			return filter_str->str;
-		}
+		g_string_sprintf(filter_str, "not tcp port 3389");
+		return filter_str->str;
 	}
 	return "";
 }
