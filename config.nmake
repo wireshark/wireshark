@@ -81,11 +81,12 @@ GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
 #PANGO_INST_VERSION=1.2
 #GTK2_INST_VERSION=2.4
 #PANGO_INST_VERSION=1.4
-# Support for GTK 2.6 and 2.8 is currently very experimental ...
-#GTK2_INST_VERSION=2.6
-#PANGO_INST_VERSION=1.8
-GTK2_INST_VERSION=2.8
-PANGO_INST_VERSION=1.10
+# GTK 2.6 is the mainline since Ethereal 0.10.14
+GTK2_INST_VERSION=2.6
+PANGO_INST_VERSION=1.8
+# Support for GTK 2.8 is currently experimental ...
+#GTK2_INST_VERSION=2.8
+#PANGO_INST_VERSION=1.10
 
 #
 # If you have GTK-Wimp, set this to the pathname of the directory in
@@ -94,8 +95,11 @@ PANGO_INST_VERSION=1.10
 # If you don't have GTK-Wimp, comment this line out, so that GTK-Wimp isn't
 # defined.
 #
+# Please note: GTK 2.8 (and later?) includes GTK-Wimp
+# (in this case these GTK-Wimp related settings will have no effect)
+#
 GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
-GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme
+GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
 
 #
 # If you have Zlib, set this to the pathname of the directory in
