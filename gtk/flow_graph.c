@@ -549,7 +549,7 @@ static void flow_graph_dlg_create (void)
 	/* Network source / dest address */
 	net_src_dst_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(src_dst_rb, "_Network source/destination addresses", accel_group);
 	gtk_tooltips_set_tip (tooltips, net_src_dst_rb, 
-		("Nodes in the diagram are identified with network source and destination addresses (like SS7 point codes)"), NULL);
+		("Nodes in the diagram are identified with network source and destination addresses"), NULL);
 	SIGNAL_CONNECT(net_src_dst_rb, "toggled", toggle_select_netsrcdst, NULL);
 	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), net_src_dst_rb, 1, 2, 0, 1);
 	if (node_addr_type == NET_SRCDST) {
