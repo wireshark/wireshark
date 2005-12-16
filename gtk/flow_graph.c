@@ -53,9 +53,12 @@
 #define ALL 1
 #define GENERAL 0
 #define TCP 1
+#define SRCDST 0
+#define NET_SRCDST 1
 
 static int type_of_packets = DISPLAYED;
 static int type_of_flow = GENERAL;
+static int node_addr_type = SRCDST;
 
 static int tap_identifier;
 static gboolean have_frame_tap_listener=FALSE;
@@ -69,6 +72,8 @@ static GtkWidget *select_all_rb;
 static GtkWidget *select_displayed_rb;
 static GtkWidget *select_general_rb;
 static GtkWidget *select_tcp_rb;
+static GtkWidget *src_dst_rb;
+static GtkWidget *net_src_dst_rb;
 
 void flow_graph_data_init(void);
 
@@ -184,6 +189,25 @@ toggle_select_tcp(GtkWidget *widget _U_, gpointer user_data _U_)
 	}
 }
 
+/****************************************************************************/
+static void
+toggle_select_srcdst(GtkWidget *widget _U_, gpointer user_data _U_)
+{
+  /* is the button now active? */
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(src_dst_rb))) {
+		node_addr_type = SRCDST;
+	}
+}
+
+/****************************************************************************/
+static void
+toggle_select_netsrcdst(GtkWidget *widget _U_, gpointer user_data _U_)
+{
+  /* is the button now active? */
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(net_src_dst_rb))) {
+		node_addr_type = NET_SRCDST;
+	}
+}
 
 /****************************************************************************/
 /* Add a new frame into the graph */
@@ -195,8 +219,13 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
 	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
-	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
-	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+  if (node_addr_type == NET_SRCDST) {
+    COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
+    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
+  } else {
+    COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
+    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+  }
 	gai->port_src=pinfo->srcport;
 	gai->port_dst=pinfo->destport;
 	gai->comment=NULL;
@@ -251,8 +280,13 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
 	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
-	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
-	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+  if (node_addr_type == NET_SRCDST) {
+    COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
+    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
+  } else {
+    COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
+    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+  }
 	gai->port_src=pinfo->srcport;
 	gai->port_dst=pinfo->destport;
 
@@ -394,7 +428,7 @@ static void flow_graph_dlg_create (void)
 #if 0
 	GtkWidget *top_label = NULL;
 #endif
-	GtkWidget *flow_type_fr, *range_fr, *range_tb, *flow_type_tb;
+	GtkWidget *flow_type_fr, *range_fr, *range_tb, *flow_type_tb, *node_addr_fr, *node_addr_tb;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -492,6 +526,40 @@ static void flow_graph_dlg_create (void)
 
 	gtk_widget_show(flow_type_tb);
 	gtk_widget_show(flow_type_fr);
+
+	/*** Node address type frame ***/
+	node_addr_fr = gtk_frame_new("Choose node address type");
+	gtk_box_pack_start(GTK_BOX(main_vb), node_addr_fr, FALSE, FALSE, 0);
+
+    node_addr_tb = gtk_table_new(4, 4, FALSE);
+    gtk_container_border_width(GTK_CONTAINER(node_addr_tb), 5);
+	gtk_container_add(GTK_CONTAINER(node_addr_fr), node_addr_tb);
+
+	/* Source / Dest address */
+	src_dst_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_Standard source/destination addresses", accel_group);
+	gtk_tooltips_set_tip (tooltips, src_dst_rb, 
+		("Nodes in the diagram are identified with source and destination addresses"), NULL);
+	SIGNAL_CONNECT(src_dst_rb, "toggled", toggle_select_srcdst, NULL);
+	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), src_dst_rb, 0, 1, 0, 1);
+	if (node_addr_type == SRCDST) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(src_dst_rb),TRUE);
+	}
+  	gtk_widget_show(src_dst_rb);
+
+	/* Network source / dest address */
+	net_src_dst_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(src_dst_rb, "_Network source/destination addresses", accel_group);
+	gtk_tooltips_set_tip (tooltips, net_src_dst_rb, 
+		("Nodes in the diagram are identified with network source and destination addresses (like SS7 point codes)"), NULL);
+	SIGNAL_CONNECT(net_src_dst_rb, "toggled", toggle_select_netsrcdst, NULL);
+	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), net_src_dst_rb, 1, 2, 0, 1);
+	if (node_addr_type == NET_SRCDST) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(net_src_dst_rb),TRUE);
+	}
+
+  	gtk_widget_show(net_src_dst_rb);
+
+	gtk_widget_show(node_addr_tb);
+	gtk_widget_show(node_addr_fr);
 
         /* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
