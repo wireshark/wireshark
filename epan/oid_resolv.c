@@ -77,7 +77,11 @@ const gchar *get_oid_str_name(const gchar *oid_str) {
 
   bytes = g_byte_array_new();
   res = oid_str_to_bytes(oid_str, bytes);
-  if (!res) return NULL;
+  if (!res)  {
+    /* just try a direct lookup - this allows backward compatibility
+       with non-OIDs used for X.411 standard extensions and DISP initiators */
+    return g_hash_table_lookup(oid_table, oid_str);
+  }
   name = get_oid_name(bytes->data, bytes->len);
   g_byte_array_free(bytes, TRUE);
   return name;
