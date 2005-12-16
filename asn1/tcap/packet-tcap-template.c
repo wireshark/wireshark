@@ -229,7 +229,6 @@ static void range_delete_callback(guint32 ssn)
 {
     if (ssn) {
 	dissector_delete("sccp.ssn", ssn, tcap_handle);
-	dissector_delete("sua.ssn", ssn, tcap_handle);
     }
 }
 
@@ -237,7 +236,6 @@ static void range_add_callback(guint32 ssn)
 {
     if (ssn) {
 	dissector_add("sccp.ssn", ssn, tcap_handle);
-	dissector_add("sua.ssn", ssn, tcap_handle);
     }
 }
 

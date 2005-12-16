@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-tcap.c                                                            */
+/* .\packet-tcap.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -2957,7 +2957,6 @@ static void range_delete_callback(guint32 ssn)
 {
     if (ssn) {
 	dissector_delete("sccp.ssn", ssn, tcap_handle);
-	dissector_delete("sua.ssn", ssn, tcap_handle);
     }
 }
 
@@ -2965,7 +2964,6 @@ static void range_add_callback(guint32 ssn)
 {
     if (ssn) {
 	dissector_add("sccp.ssn", ssn, tcap_handle);
-	dissector_add("sua.ssn", ssn, tcap_handle);
     }
 }
 

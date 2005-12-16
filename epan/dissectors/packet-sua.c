@@ -328,7 +328,7 @@ static gint ett_sua_return_on_error_bit_and_protocol_class = -1;
 static gint ett_sua_protcol_classes = -1;
 
 static dissector_handle_t data_handle;
-static dissector_table_t sua_ssn_dissector_table;
+static dissector_table_t sccp_ssn_dissector_table;
 
 /* stuff for supporting multiple versions */
 typedef enum {
@@ -1825,9 +1825,9 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   {
     /* Try subdissectors (if we found a valid SSN on the current message) */
     if ((dest_ssn == INVALID_SSN ||
-       !dissector_try_port(sua_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree))
+       !dissector_try_port(sccp_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree))
        && (source_ssn == INVALID_SSN ||
-       !dissector_try_port(sua_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
+       !dissector_try_port(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
     {
       /* No sub-dissection occured, treat it as raw data */
       call_dissector(data_handle, data_tvb, pinfo, sua_tree);
@@ -2010,7 +2010,6 @@ proto_register_sua(void)
   prefs_register_obsolete_preference(sua_module, "sua_version");
   prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Ethereal", &version, options, FALSE);
 
-  sua_ssn_dissector_table = register_dissector_table("sua.ssn", "SUA SSN", FT_UINT8, BASE_DEC);
 }
 
 void
@@ -2023,4 +2022,6 @@ proto_reg_handoff_sua(void)
   dissector_add("sctp.port", SCTP_PORT_SUA,           sua_handle);
 
   data_handle = find_dissector("data");
+  sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
+ 
 }

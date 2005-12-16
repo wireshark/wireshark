@@ -2007,7 +2007,6 @@ proto_register_m3ua(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m3ua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  si_dissector_table = register_dissector_table("m3ua.protocol_data_si", "MTP3 Service indicator", FT_UINT8, BASE_HEX);
 
 }
 
@@ -2024,4 +2023,6 @@ proto_reg_handoff_m3ua(void)
   m3ua_handle = create_dissector_handle(dissect_m3ua, proto_m3ua);
   dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
   dissector_add("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
+
+  si_dissector_table = find_dissector_table("mtp3.service_indicator");
 }

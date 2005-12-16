@@ -6828,7 +6828,6 @@ proto_reg_handoff_isup(void)
   isup_handle = create_dissector_handle(dissect_isup, proto_isup);
   application_isup_handle = create_dissector_handle(dissect_application_isup, proto_isup);
   dissector_add("mtp3.service_indicator", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
-  dissector_add("m3ua.protocol_data_si", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
   dissector_add_string("media_type","application/isup", application_isup_handle);
   dissector_add_string("tali.opcode", "isot", isup_handle);
 
@@ -6868,6 +6867,5 @@ proto_reg_handoff_bicc(void)
 
   bicc_handle = create_dissector_handle(dissect_bicc, proto_bicc);
   dissector_add("mtp3.service_indicator", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
-  dissector_add("m3ua.protocol_data_si", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
   dissector_add("sctp.ppi", BICC_PAYLOAD_PROTOCOL_ID, bicc_handle);
 }

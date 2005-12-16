@@ -1635,7 +1635,6 @@ void proto_reg_handoff_h248(void) {
   h248_handle = find_dissector("h248");
   h248_term_handle = find_dissector("h248term");
 
-  dissector_add("m3ua.protocol_data_si", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
 }
