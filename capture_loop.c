@@ -1128,9 +1128,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   gboolean    close_ok;
   char        errmsg[4096+1];
   int         save_file_fd;
-#ifdef _WIN32
-  gboolean    signal_pipe_enabled;
-#endif
 
 
   /* init the loop data */
@@ -1157,11 +1154,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
 
-#ifdef _WIN32
-  /* get the initial state of the signal pipe */
-  /* (if it's already stopped here, ignore it later) */
-  signal_pipe_enabled = !signal_pipe_stopped();
-#else
+#ifndef _WIN32
   /*
    * Catch SIGUSR1, so that we exit cleanly if the parent process
    * kills us with it due to the user selecting "Capture->Stop".
@@ -1241,8 +1234,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
 
 #ifdef _WIN32
-    /* some news from our parent (signal pipe)? -> just stop the capture */
-    if (signal_pipe_stopped() && signal_pipe_enabled) {
+    fprintf(stderr, "fd: %u ret: %u\n", capture_opts->signal_pipe_fd, signal_pipe_stopped());
+
+    /* any news from our parent (signal pipe)? -> just stop the capture */
+    if (capture_opts->signal_pipe_fd != -1 && signal_pipe_stopped()) {
       ld.go = FALSE;
     }
 #endif

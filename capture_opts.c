@@ -279,6 +279,7 @@ get_pipe_arguments(capture_options *capture_opts, const char *arg)
       cmdarg_err("Unable to dup signal pipe handle");
       return FALSE;
     }
+    capture_opts->signal_pipe_fd = pipe_fd;
   }
 
   *colonp = ':';	/* put the colon back */
