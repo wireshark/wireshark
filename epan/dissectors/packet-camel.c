@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-camel.c                                                           */
+/* ./packet-camel.c                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
 
 /* Input file: packet-camel-template.c */
@@ -59,6 +59,7 @@
 #include "packet-e164.h"
 #include "packet-isup.h"
 #include "packet-gsm_map.h"
+#include "packet-tcap.h"
 
 #define PNAME  "Camel"
 #define PSNAME "CAMEL"
@@ -570,7 +571,7 @@ static int hf_camel_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP =
 static int hf_camel_OfferedCamel4Functionalities_serviceChangeDP = -1;
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 83 "packet-camel-template.c"
+#line 84 "packet-camel-template.c"
 static guint global_tcap_itu_ssn = 0;
 
 /* Initialize the subtree pointers */
@@ -792,7 +793,7 @@ static gint ett_camel_ResetTimerGPRSArg = -1;
 static gint ett_camel_CancelFailedPARAM = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 95 "packet-camel-template.c"
+#line 96 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -7796,7 +7797,7 @@ dissect_camel_TaskRefusedPARAM(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 170 "packet-camel-template.c"
+#line 171 "packet-camel-template.c"
 
 const value_string camel_opr_code_strings[] = {
 
@@ -8229,14 +8230,14 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 static void range_delete_callback(guint32 ssn)
 {
   if (ssn) {
-    dissector_delete("tcap.itu_ssn", ssn, camel_handle);
+    delete_itu_tcap_subdissector(ssn, camel_handle);
   }
 }
 
 static void range_add_callback(guint32 ssn)
 {
   if (ssn) {
-    dissector_add("tcap.itu_ssn", ssn, camel_handle);
+    add_itu_tcap_subdissector(ssn, camel_handle);
   }
 }
 
@@ -10235,7 +10236,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 696 "packet-camel-template.c"
+#line 697 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10458,7 +10459,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 709 "packet-camel-template.c"
+#line 710 "packet-camel-template.c"
   };
 
   /* Register protocol */

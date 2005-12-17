@@ -42,6 +42,7 @@
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include "packet-isup.h"
+#include "packet-tcap.h"
 
 #define PNAME  "Intelligent Network Application Protocol"
 #define PSNAME "INAP"
@@ -604,13 +605,13 @@ void proto_reg_handoff_inap(void) {
 		inap_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn, inap_handle);
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn1, inap_handle);
+		delete_itu_tcap_subdissector(tcap_itu_ssn, inap_handle);
+		delete_itu_tcap_subdissector(tcap_itu_ssn1, inap_handle);
 	}
 	tcap_itu_ssn = global_tcap_itu_ssn;
 	tcap_itu_ssn1 = global_tcap_itu_ssn1;
-    dissector_add("tcap.itu_ssn", global_tcap_itu_ssn, inap_handle);
-    dissector_add("tcap.itu_ssn", global_tcap_itu_ssn1, inap_handle);
+    add_itu_tcap_subdissector(global_tcap_itu_ssn, inap_handle);
+    add_itu_tcap_subdissector(global_tcap_itu_ssn1, inap_handle);
    
 }
 

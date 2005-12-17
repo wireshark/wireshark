@@ -676,15 +676,13 @@ static heur_dissector_list_t heur_subdissector_list;
 static guint8 message_type = 0;
 static guint dlr = 0;
 static guint slr = 0;
-/* Put back old code(before binding) to be able to dissect data messages wher no setup info seen */
-static guint8 called_ssn = INVALID_SSN;
-static guint8 calling_ssn = INVALID_SSN;
 
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
 
 static GHashTable* bindings = NULL;
 sccp_binding_info_t* binding;
+sccp_binding_info_t no_binding = {NULL,NULL,0,0};
 
 static sccp_binding_info_t* sccp_binding(address* opc, address* dpc, guint src_lr, guint dst_lr) {
     
@@ -692,7 +690,7 @@ static sccp_binding_info_t* sccp_binding(address* opc, address* dpc, guint src_l
         return binding;
     
     if (!src_lr && !dst_lr)
-        return NULL;
+        return &no_binding;
     
     switch (message_type) {
         case MESSAGE_TYPE_CR:
@@ -749,7 +747,7 @@ static sccp_binding_info_t* sccp_binding(address* opc, address* dpc, guint src_l
         }
     }
     
-    return binding;
+    return binding ? binding : &no_binding;
 }
 
 
@@ -1071,13 +1069,11 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
       if (called) {
-		  called_ssn = ssn;
 	      if (binding) binding->called_ssn = ssn;
       }
       else {
 	      if (binding) binding->calling_ssn = ssn;
-		  calling_ssn = ssn;
-      }
+    }
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
@@ -1290,16 +1286,24 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 ssn;
     
     if (binding) {
-        if (pinfo->p2p_dir == P2P_DIR_SENT) {
-            ssn = binding->calling_ssn;
-        } else {
-            ssn = binding->called_ssn;
+        switch (pinfo->p2p_dir) {
+            case P2P_DIR_SENT:
+                ssn = binding->calling_ssn;
+                break;
+            case P2P_DIR_RECV:
+                ssn = binding->called_ssn;
+                break;
+            default:
+                ssn = binding->called_ssn;
+                if (ssn == INVALID_SSN) ssn = binding->calling_ssn;
+                break;
         }
     } else {
-        ssn = called_ssn;
+        ssn = binding->called_ssn;
     }
     
-    if ((ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree))) {
+
+    if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree) ) {
         return;
     }
     
@@ -2133,7 +2137,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_sccp_message(tvb, pinfo, sccp_tree, tree);
 }
 
-void init_sccp(void) {
+static void init_sccp(void) {
     
     if (bindings) {
         g_hash_table_destroy(bindings);

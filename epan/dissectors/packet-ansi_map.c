@@ -116,7 +116,7 @@
 
 #include "packet-ansi_a.h"
 #include "packet-ansi_map.h"
-
+#include "packet-tcap.h"
 
 /* PROTOTYPES/FORWARDS */
 
@@ -13149,16 +13149,16 @@ proto_reg_handoff_ansi_map(void)
 
     ansi_map_handle = create_dissector_handle(dissect_ansi_map, proto_ansi_map);
 
-    dissector_add("tcap.ansi_ssn", 5, ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 6, ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 7, ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 8, ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 9 , ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 10 , ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 11 , ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 12 , ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 13 , ansi_map_handle);
-    dissector_add("tcap.ansi_ssn", 14 , ansi_map_handle);
+    add_ansi_tcap_subdissector(5, ansi_map_handle);
+    add_ansi_tcap_subdissector(6, ansi_map_handle);
+    add_ansi_tcap_subdissector(7, ansi_map_handle);
+    add_ansi_tcap_subdissector(8, ansi_map_handle);
+    add_ansi_tcap_subdissector(9 , ansi_map_handle);
+    add_ansi_tcap_subdissector(10 , ansi_map_handle);
+    add_ansi_tcap_subdissector(11 , ansi_map_handle);
+    add_ansi_tcap_subdissector(12 , ansi_map_handle);
+    add_ansi_tcap_subdissector(13 , ansi_map_handle);
+    add_ansi_tcap_subdissector(14 , ansi_map_handle);
 
     data_handle = find_dissector("data");
 }

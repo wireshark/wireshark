@@ -50,6 +50,7 @@
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include "packet-isup.h"
+#include "packet-tcap.h"
 
 #define PNAME  "Intelligent Network Application Protocol"
 #define PSNAME "INAP"
@@ -348,7 +349,7 @@ static int hf_inap_rrp = -1;                      /* ReturnResultProblem */
 static int hf_inap_rep = -1;                      /* ReturnErrorProblem */
 
 /*--- End of included file: packet-inap-hf.c ---*/
-#line 65 "packet-inap-template.c"
+#line 66 "packet-inap-template.c"
 
 static guint tcap_itu_ssn = 106;
 static guint tcap_itu_ssn1 = 241;
@@ -493,7 +494,7 @@ static gint ett_inap_T_rinvokeID = -1;
 static gint ett_inap_T_rproblem = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 83 "packet-inap-template.c"
+#line 84 "packet-inap-template.c"
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
@@ -4985,7 +4986,7 @@ static void dissect_TNoAnswerArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 87 "packet-inap-template.c"
+#line 88 "packet-inap-template.c"
 
 
 const value_string inap_opr_code_strings[] = {
@@ -5506,13 +5507,13 @@ void proto_reg_handoff_inap(void) {
 		inap_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn, inap_handle);
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn1, inap_handle);
+		delete_itu_tcap_subdissector(tcap_itu_ssn, inap_handle);
+		delete_itu_tcap_subdissector(tcap_itu_ssn1, inap_handle);
 	}
 	tcap_itu_ssn = global_tcap_itu_ssn;
 	tcap_itu_ssn1 = global_tcap_itu_ssn1;
-    dissector_add("tcap.itu_ssn", global_tcap_itu_ssn, inap_handle);
-    dissector_add("tcap.itu_ssn", global_tcap_itu_ssn1, inap_handle);
+    add_itu_tcap_subdissector(global_tcap_itu_ssn, inap_handle);
+    add_itu_tcap_subdissector(global_tcap_itu_ssn1, inap_handle);
    
 }
 
@@ -6657,7 +6658,7 @@ void proto_register_inap(void) {
         "RejectPDU/rproblem/rep", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 658 "packet-inap-template.c"
+#line 659 "packet-inap-template.c"
   };
 
 
@@ -6802,7 +6803,7 @@ void proto_register_inap(void) {
     &ett_inap_T_rproblem,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 676 "packet-inap-template.c"
+#line 677 "packet-inap-template.c"
   };
 
   /* Register protocol */

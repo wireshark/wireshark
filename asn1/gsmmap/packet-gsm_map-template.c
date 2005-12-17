@@ -46,6 +46,7 @@
 #include "packet-q931.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
+#include "packet-tcap.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -1059,7 +1060,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
 
     top_tree = parent_tree;
-    dissector_add("tcap.itu_ssn",pinfo->match_port, map_handle);
+
     /* create display subtree for the protocol */
     if(parent_tree){
         item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, FALSE);
@@ -1346,14 +1347,14 @@ static const value_string chargingcharacteristics_values[] = {
 static void range_delete_callback(guint32 ssn)
 {
     if (ssn) {
-	dissector_delete("tcap.itu_ssn", ssn, map_handle);
+	delete_itu_tcap_subdissector(ssn, map_handle);
     }
 }
 
 static void range_add_callback(guint32 ssn)
 {
     if (ssn) {
-	dissector_add("tcap.itu_ssn", ssn, map_handle);
+	add_itu_tcap_subdissector(ssn, map_handle);
     }
 }
 

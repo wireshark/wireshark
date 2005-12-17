@@ -51,6 +51,7 @@
 #include "packet-e164.h"
 #include "packet-isup.h"
 #include "packet-gsm_map.h"
+#include "packet-tcap.h"
 
 #define PNAME  "Camel"
 #define PSNAME "CAMEL"
@@ -599,14 +600,14 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 static void range_delete_callback(guint32 ssn)
 {
   if (ssn) {
-    dissector_delete("tcap.itu_ssn", ssn, camel_handle);
+    delete_itu_tcap_subdissector(ssn, camel_handle);
   }
 }
 
 static void range_add_callback(guint32 ssn)
 {
   if (ssn) {
-    dissector_add("tcap.itu_ssn", ssn, camel_handle);
+    add_itu_tcap_subdissector(ssn, camel_handle);
   }
 }
 

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-tcap.h                                                            */
+/* ./packet-tcap.h                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.h */
@@ -65,5 +65,10 @@ extern gint tcap_standard;
 
 extern const value_string tcap_component_type_str[];
 
+extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
+extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
+
+extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
+extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
 
 #endif  /* PACKET_INAP_H */

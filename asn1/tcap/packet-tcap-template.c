@@ -48,10 +48,8 @@ static int hf_tcap_tag = -1;
 static int hf_tcap_length = -1; 
 static int hf_tcap_data = -1;
 static int hf_tcap_tid = -1;
-#include "packet-tcap-hf.c"
-static guint tcap_itu_ssn = 106;
 
-static guint global_tcap_itu_ssn = 1;
+#include "packet-tcap-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -67,17 +65,50 @@ static gint ett_dtid = -1;
 static range_t *global_ssn_range;
 static range_t *ssn_range;
 
-dissector_handle_t	tcap_handle;
+dissector_handle_t	tcap_handle = NULL;
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
 static const char * tcapext_oid;
 static proto_tree	*tcap_top_tree=NULL;
 static dissector_handle_t data_handle;
-static dissector_table_t tcap_itu_ssn_dissector_table; /* map use ssn in sccp */
-static dissector_table_t tcap_ansi_ssn_dissector_table; /* map use ssn in sccp */
 
+static dissector_table_t sccp_ssn_table;
 static int dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+
+
+static GHashTable* ansi_sub_dissectors = NULL;
+static GHashTable* itu_sub_dissectors = NULL;
+
+static void dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
+
+extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
+    g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
+    dissector_add("sccp.ssn",ssn,tcap_handle);
+}
+
+extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
+    g_hash_table_insert(itu_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
+    dissector_add("sccp.ssn",ssn,tcap_handle);
+}
+
+extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
+    g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
+    dissector_delete("sccp.ssn",ssn,tcap_handle);
+}
+extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
+    g_hash_table_remove(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
+	dissector_delete("sccp.ssn", ssn,tcap_handle);
+}
+
+static dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
+    return g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
+}
+
+static dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
+    return g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
+}
+
 
 
 #include "packet-tcap-fn.c"
@@ -119,15 +150,23 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 
+void
+proto_reg_handoff_tcap(void)
+{
+    
+    static gboolean prefs_initialized = FALSE;
+    
+    if (! prefs_initialized) {
+        sccp_ssn_table = find_dissector_table("sccp.ssn");
+        prefs_initialized = TRUE;
+    }
+    
+    register_ber_oid_name("0.0.17.773.1.1.1",
+                          "itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
+    
+}
 
-/* Register the protocol with Ethereal */
-
-void proto_reg_handoff_tcap(void);
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
+static void init_tcap(void);
 
 void
 proto_register_tcap(void)
@@ -201,71 +240,50 @@ proto_register_tcap(void)
 #endif
 
     /* Set default SSNs */
-    range_convert_str(&global_ssn_range, "2,4-141,143-251,253,255", MAX_SSN);
+    range_convert_str(&global_ssn_range, "", MAX_SSN);
     ssn_range = range_empty();
 
     prefs_register_range_preference(tcap_module, "ssn", "SCCP SSNs",
 	"SCCP (and SUA) SSNs to decode as TCAP",
 	&global_ssn_range, MAX_SSN);
-
-    /* we will fake a ssn subfield which has the same value obtained from sccp */
-    tcap_itu_ssn_dissector_table = register_dissector_table("tcap.itu_ssn", "ITU TCAP SSN", FT_UINT8, BASE_DEC);
-    tcap_ansi_ssn_dissector_table = register_dissector_table("tcap.ansi_ssn", "ANSI TCAP SSN", FT_UINT8, BASE_DEC);
+    
+    ansi_sub_dissectors = g_hash_table_new(g_direct_hash,g_direct_equal);
+    itu_sub_dissectors = g_hash_table_new(g_direct_hash,g_direct_equal);
 
     /* 'globally' register dissector */
     register_dissector("tcap", dissect_tcap, proto_tcap);
 
+    tcap_handle = create_dissector_handle(dissect_tcap, proto_tcap);
+
+    register_init_routine(&init_tcap);
 }
 
 
-
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
-
 static void range_delete_callback(guint32 ssn)
 {
-    if (ssn) {
-	dissector_delete("sccp.ssn", ssn, tcap_handle);
+    if ( ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
+        dissector_delete("sccp.ssn", ssn, tcap_handle);
     }
 }
 
 static void range_add_callback(guint32 ssn)
 {
-    if (ssn) {
-	dissector_add("sccp.ssn", ssn, tcap_handle);
+    if (ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
+        dissector_add("sccp.ssn", ssn, tcap_handle);
     }
 }
 
-void
-proto_reg_handoff_tcap(void)
-{
-    static gboolean prefs_initialized = FALSE;
 
-    if (!prefs_initialized) {
-
-	tcap_handle = create_dissector_handle(dissect_tcap, proto_tcap);
-	
-	prefs_initialized = TRUE;
-
-    } else {
-
-	range_foreach(ssn_range, range_delete_callback);
+static void init_tcap(void) {
+    if (ssn_range) {
+        range_foreach(ssn_range, range_delete_callback);
+        g_free(ssn_range);
     }
-
-    g_free(ssn_range);
+    
     ssn_range = range_copy(global_ssn_range);
-
     range_foreach(ssn_range, range_add_callback);
-    register_ber_oid_name("0.0.17.773.1.1.1",
-		"itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
-
+    
 }
-
-
-
 
 static int
 dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
