@@ -263,9 +263,6 @@ static const char * tcapext_oid;
 static proto_tree	*tcap_top_tree=NULL;
 static dissector_handle_t data_handle;
 
-//static dissector_table_t tcap_itu_ssn_dissector_table; /* map use ssn in sccp */
-//static dissector_table_t tcap_ansi_ssn_dissector_table; /* map use ssn in sccp */
-
 static dissector_table_t sccp_ssn_table;
 static int dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
@@ -2313,7 +2310,7 @@ dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 118 "packet-tcap-template.c"
+#line 115 "packet-tcap-template.c"
 
 
 
@@ -2889,7 +2886,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 201 "packet-tcap-template.c"
+#line 198 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -2953,7 +2950,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 210 "packet-tcap-template.c"
+#line 207 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
@@ -3028,7 +3025,6 @@ static void init_tcap(void) {
     if (ssn_range) {
         range_foreach(ssn_range, range_delete_callback);
         g_free(ssn_range);
-        ssn_range = NULL;
     }
     
     ssn_range = range_copy(global_ssn_range);
