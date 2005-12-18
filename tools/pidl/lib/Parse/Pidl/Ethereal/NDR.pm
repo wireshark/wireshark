@@ -22,6 +22,7 @@ use Parse::Pidl::Util qw(has_property ParseExpr property_matches make_str);
 use Parse::Pidl::NDR qw(ContainsString GetNextLevel);
 use Parse::Pidl::Dump qw(DumpTypedef DumpFunction);
 use Parse::Pidl::Ethereal::Conformance qw(ReadConformance);
+use File::Basename;	
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -206,6 +207,7 @@ sub Bitmap($$$)
 		if (defined($conformance->{tfs}->{$hf_bitname})) {
 			pidl_def "   $conformance->{tfs}->{$hf_bitname}->{TRUE_STRING},";
 			pidl_def "   $conformance->{tfs}->{$hf_bitname}->{FALSE_STRING},";
+			$conformance->{tfs}->{$hf_bitname}->{USED} = 1;
 		} else {
 			pidl_def "   \"$en is SET\",";
 			pidl_def "   \"$en is NOT SET\",";
@@ -827,7 +829,6 @@ sub Parse($$$$)
 	$res{headers} .= "#include \"packet-dcerpc-nt.h\"\n";
 	$res{headers} .= "#include \"packet-windows-common.h\"\n";
 
-	use File::Basename;	
 	my $h_basename = basename($h_filename);
 
 	$res{headers} .= "#include \"$h_basename\"\n";
@@ -1007,6 +1008,12 @@ sub CheckUsed($)
 	foreach (values %{$conformance->{fielddescription}}) {
 		if (not $_->{USED}) {
 			print "$_->{POS}: warning: description never used\n";
+		}
+	}
+
+	foreach (values %{$conformance->{tfs}}) {
+		if (not $_->{USED}) {
+			print "$_->{POS}: warning: True/False description never used\n";
 		}
 	}
 }

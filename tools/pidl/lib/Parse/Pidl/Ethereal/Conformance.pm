@@ -232,10 +232,9 @@ sub handle_strip_prefix($$$)
 
 sub handle_noemit($$$)
 {
-	my ($pos,$data) = @_;
-	my $type;
-
-	$type = shift if ($#_ == 1);
+	my $pos = shift;
+	my $data = shift;
+	my $type = shift;
 
 	if (defined($type)) {
 	    $data->{noemit}->{$type} = 1;
