@@ -441,6 +441,7 @@ DISSECTOR_SRC =	\
 	packet-ncp2222.c	\
 	packet-ncp-nmas.c	\
 	packet-ncp-sss.c \
+	packet-ncs.c	\
 	packet-ndmp.c	\
 	packet-ndps.c	\
 	packet-netbios.c	\

@@ -1258,7 +1258,10 @@ AFPEntryID			= uint32("afp_entry_id", "AFP Entry ID", BE)
 AFPEntryID.Display("BASE_HEX")
 AllocAvailByte			= uint32("alloc_avail_byte", "Bytes Available for Allocation")
 AllocateMode			= bitfield16("alloc_mode", "Allocate Mode", [
-	bf_boolean16(0x0001, "alloc_dir_hdl", "Temporary (True) or Permanent (False) Dir Handle"),
+	bf_val_str16(0x0001, "alloc_dir_hdl", "Dir Handle Type",[
+            [0x00, "Permanent"],
+            [0x01, "Temporary"],
+    ]),
 	bf_boolean16(0x0002, "alloc_spec_temp_dir_hdl","Special Temporary Directory Handle"),
     bf_boolean16(0x4000, "alloc_reply_lvl2","Reply Level 2"),
     bf_boolean16(0x8000, "alloc_dst_name_spc","Destination Name Space Input Parameter"),
@@ -1307,15 +1310,36 @@ AttributesDef32   		= bitfield32("attr_def_32", "Attributes", [
 	bf_boolean32(0x00000020, "att_def32_archive", "Archive"),
     bf_boolean32(0x00000040, "att_def32_execute_confirm", "Execute Confirm"),
 	bf_boolean32(0x00000080, "att_def32_shareable", "Shareable"),
+	bf_val_str32(0x00000700, "att_def32_search", "Search Mode",[
+            [0, "Search on all Read Only Opens"],
+            [1, "Search on Read Only Opens with no Path"],
+            [2, "Shell Default Search Mode"],
+            [3, "Search on all Opens with no Path"],
+            [4, "Do not Search"],
+            [5, "Reserved - Do not Use"],
+            [6, "Search on All Opens"],
+            [7, "Reserved - Do not Use"],
+    ]),
+	bf_boolean32(0x00000800, "att_def32_no_suballoc", "No Suballoc"),
 	bf_boolean32(0x00001000, "att_def32_transaction", "Transactional"),
 	bf_boolean32(0x00004000, "att_def32_read_audit", "Read Audit"),
 	bf_boolean32(0x00008000, "att_def32_write_audit", "Write Audit"),
-	bf_boolean32(0x00010000, "att_def_purge", "Immediate Purge"),
-	bf_boolean32(0x00020000, "att_def_reninhibit", "Rename Inhibit"),
-	bf_boolean32(0x00040000, "att_def_delinhibit", "Delete Inhibit"),
-	bf_boolean32(0x00080000, "att_def_cpyinhibit", "Copy Inhibit"),
-	bf_boolean32(0x02000000, "att_def_im_comp", "Immediate Compress"),
-	bf_boolean32(0x04000000, "att_def_comp", "Compressed"),
+	bf_boolean32(0x00010000, "att_def32_purge", "Immediate Purge"),
+	bf_boolean32(0x00020000, "att_def32_reninhibit", "Rename Inhibit"),
+	bf_boolean32(0x00040000, "att_def32_delinhibit", "Delete Inhibit"),
+	bf_boolean32(0x00080000, "att_def32_cpyinhibit", "Copy Inhibit"),
+	bf_boolean32(0x00100000, "att_def32_file_audit", "File Audit"),
+	bf_boolean32(0x00200000, "att_def32_reserved", "Reserved"),
+	bf_boolean32(0x00400000, "att_def32_data_migrate", "Data Migrated"),
+	bf_boolean32(0x00800000, "att_def32_inhibit_dm", "Inhibit Data Migration"),
+	bf_boolean32(0x01000000, "att_def32_dm_save_key", "Data Migration Save Key"),
+	bf_boolean32(0x02000000, "att_def32_im_comp", "Immediate Compress"),
+	bf_boolean32(0x04000000, "att_def32_comp", "Compressed"),
+	bf_boolean32(0x08000000, "att_def32_comp_inhibit", "Inhibit Compression"),
+	bf_boolean32(0x10000000, "att_def32_reserved2", "Reserved"),
+	bf_boolean32(0x20000000, "att_def32_cant_compress", "Can't Compress"),
+	bf_boolean32(0x40000000, "att_def32_attr_archive", "Archive Attributes"),
+	bf_boolean32(0x80000000, "att_def32_reserved3", "Reserved"),
 ])
 AttributeValidFlag 		= uint32("attribute_valid_flag", "Attribute Valid Flag")
 AuditFileVersionDate            = uint16("audit_file_ver_date", "Audit File Version Date")
@@ -2168,6 +2192,13 @@ FileLock			= val_string8("file_lock", "File Lock", [
 	[ 0xff, "Unknown" ],
 ])
 FileLockCount			= uint16("file_lock_count", "File Lock Count")
+FileMigrationState  = val_string8("file_mig_state", "File Migration State", [
+    [ 0x00, "Mark file ineligible for file migration" ],
+    [ 0x01, "Mark file eligible for file migration" ],
+    [ 0x02, "Mark file as migrated and delete fat chains" ],
+    [ 0x03, "Reset file status back to normal" ],
+    [ 0x04, "Get file data back and reset file status back to normal" ],
+])
 FileMode			= uint8("file_mode", "File Mode")
 FileName			= nstring8("file_name", "Filename")
 FileName12			= fw_string("file_name_12", "Filename", 12)
@@ -3178,7 +3209,7 @@ OpenRights			= bitfield8("open_rights", "Open Rights", [
 	bf_boolean8(0x40, "open_rights_write_thru", "File Write Through"),
 ])
 OptionNumber			= uint8("option_number", "Option Number")
-originalSize                    = uint32("original_size", "Original Size")
+originalSize            = uint32("original_size", "Original Size")
 OSLanguageID			= uint8("os_language_id", "OS Language ID")
 OSMajorVersion			= uint8("os_major_version", "OS Major Version")
 OSMinorVersion			= uint8("os_minor_version", "OS Minor Version")
@@ -3225,7 +3256,7 @@ PreviousRecord			= uint32("previous_record", "Previous Record")
 PrimaryEntry			= uint32("primary_entry", "Primary Entry")
 PrintFlags			= bitfield8("print_flags", "Print Flags", [
 	bf_boolean8(0x08, "print_flags_ff", "Suppress Form Feeds"),
-        bf_boolean8(0x10, "print_flags_cr", "Create"),
+    bf_boolean8(0x10, "print_flags_cr", "Create"),
 	bf_boolean8(0x20, "print_flags_del_spool", "Delete Spool File after Printing"),
 	bf_boolean8(0x40, "print_flags_exp_tabs", "Expand Tabs in the File"),
 	bf_boolean8(0x80, "print_flags_banner", "Print Banner Page"),
@@ -3276,7 +3307,7 @@ PurgeCount			= uint32("purge_count", "Purge Count")
 PurgeFlags			= val_string16("purge_flags", "Purge Flags", [
 	[ 0x0000, "Do not Purge All" ],
 	[ 0x0001, "Purge All" ],
-        [ 0xffff, "Do not Purge All" ],
+    [ 0xffff, "Do not Purge All" ],
 ])
 PurgeList                       = uint32("purge_list", "Purge List")
 PhysicalDiskChannel		= uint8("physical_disk_channel", "Physical Disk Channel")
@@ -3364,15 +3395,15 @@ RequestCode			= val_string8("request_code", "Request Code", [
 	[ 0x01, "Change Temporary Authenticated to Logged in" ],
 ])
 RequestData			= nstring8("request_data", "Request Data")
-RequestsReprocessed 		= uint16("requests_reprocessed", "Requests Reprocessed")
+RequestsReprocessed = uint16("requests_reprocessed", "Requests Reprocessed")
 Reserved			= uint8( "reserved", "Reserved" )
 Reserved2			= bytes("reserved2", "Reserved", 2)
 Reserved3			= bytes("reserved3", "Reserved", 3)
 Reserved4			= bytes("reserved4", "Reserved", 4)
 Reserved5			= bytes("reserved5", "Reserved", 5)
-Reserved6                       = bytes("reserved6", "Reserved", 6)
+Reserved6           = bytes("reserved6", "Reserved", 6)
 Reserved8			= bytes("reserved8", "Reserved", 8)
-Reserved10                      = bytes("reserved10", "Reserved", 10)
+Reserved10          = bytes("reserved10", "Reserved", 10)
 Reserved12			= bytes("reserved12", "Reserved", 12)
 Reserved16			= bytes("reserved16", "Reserved", 16)
 Reserved20			= bytes("reserved20", "Reserved", 20)
@@ -3520,7 +3551,6 @@ SectorsPerTrack 			= uint8("sectors_per_track", "Sectors Per Track")
 SectorSize				= uint32("sector_size", "Sector Size")
 SemaphoreHandle				= uint32("semaphore_handle", "Semaphore Handle")
 SemaphoreName				= nstring8("semaphore_name", "Semaphore Name")
-SemaphoreNameLen 			= uint8("semaphore_name_len", "Semaphore Name Len")
 SemaphoreOpenCount			= uint8("semaphore_open_count", "Semaphore Open Count")
 SemaphoreShareCount			= uint8("semaphore_share_count", "Semaphore Share Count")
 SemaphoreTimeOut			= uint16("semaphore_time_out", "Semaphore Time Out")
@@ -3540,7 +3570,6 @@ SequenceNumber			= uint32("sequence_number", "Sequence Number")
 SequenceNumber.Display("BASE_HEX")
 ServerAddress                   = bytes("server_address", "Server Address", 12)
 ServerAppNumber			= uint16("server_app_num", "Server App Number")
-#ServerIDList			= uint32("server_id_list", "Server ID List")
 ServerID			= uint32("server_id_number", "Server ID", BE )
 ServerID.Display("BASE_HEX")
 ServerInfoFlags                 = val_string16("server_info_flags", "Server Information Flags", [
@@ -3733,7 +3762,7 @@ TimeoutLimit			= uint16("timeout_limit", "Timeout Limit")
 TimesyncStatus                  = bitfield32("timesync_status_flags", "Timesync Status", [
 	bf_boolean32(0x00000001, "timesync_status_sync", "Time is Synchronized"),
 	bf_boolean32(0x00000002, "timesync_status_net_sync", "Time is Synchronized to the Network"),
-        bf_boolean32(0x00000004, "timesync_status_active", "Time Synchronization is Active"),
+    bf_boolean32(0x00000004, "timesync_status_active", "Time Synchronization is Active"),
 	bf_boolean32(0x00000008, "timesync_status_external", "External Time Synchronization Active"),
 	bf_val_str32(0x00000700, "timesync_status_server_type", "Time Server Type", [
 		[ 0x01, "Client Time Server" ],
@@ -8511,7 +8540,7 @@ def define_ncp2222():
 		rec( 8, 1, DirHandle ),
 		rec( 9, 1, AccessRightsMask ),
 	])
-	pkt.CompletionCodes([0x0000, 0x9600, 0x9804, 0x9900, 0x9c03, 0x9d00,
+	pkt.CompletionCodes([0x0000, 0x9600, 0x9804, 0x9900, 0x9b00, 0x9c03, 0x9d00,
 			     0xa100, 0xfd00, 0xff00])
 	# 2222/1617, 22/23
 	pkt = NCP(0x1617, "Extract a Base Handle", 'fileserver')
@@ -8593,7 +8622,7 @@ def define_ncp2222():
 		rec( 120, 4, DeletedID, BE ),
 		rec( 124, 16, Reserved16 ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfb01, 0xff1d])
+	pkt.CompletionCodes([0x0000, 0xfb01, 0x9801, 0xff1d])
 	# 2222/161C, 22/28
 	pkt = NCP(0x161C, "Recover Salvageable File", 'fileserver')
 	pkt.Request((17,525), [
@@ -9165,8 +9194,8 @@ def define_ncp2222():
 		rec( 73, 1, VirtualConsoleVersion ),
 		rec( 74, 1, SecurityRestrictionVersion ),
 		rec( 75, 1, InternetBridgeVersion ),
-		rec( 76, 1, MixedModePathFlag ),
-		rec( 77, 1, LocalLoginInfoCcode ),
+		rec( 76, 1, MixedModePathFlag ), 
+		rec( 77, 1, LocalLoginInfoCcode ),   
 		rec( 78, 2, ProductMajorVersion, BE ),
 		rec( 80, 2, ProductMinorVersion, BE ),
 		rec( 82, 2, ProductRevisionVersion, BE ),
@@ -9785,7 +9814,7 @@ def define_ncp2222():
 		rec( 16, 1, NewPosition ),
 	])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x9600, 0xd000, 0xd100, 0xd500,
+	pkt.CompletionCodes([0x0000, 0x9600, 0xd000, 0xd100, 0xd300, 0xd500,
 			     0xd601, 0xfe07, 0xff1f])
 	# 2222/176F, 23/111
 	pkt = NCP(0x176F, "Attach Queue Server To Queue", 'qms')
@@ -9842,7 +9871,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc07, 0xff00])
 	# 2222/1773, 23/115
 	pkt = NCP(0x1773, "Abort Servicing Queue Job", 'qms')
 	pkt.Request(16, [
@@ -9852,7 +9881,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff18])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc07, 0xff18])
 	# 2222/1774, 23/116
 	pkt = NCP(0x1774, "Change To Client Rights", 'qms')
 	pkt.Request(16, [
@@ -9906,7 +9935,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc07, 0xff00])
 	# 2222/1779, 23/121
 	pkt = NCP(0x1779, "Create Queue Job And File", 'qms')
 	pkt.Request(264, [
@@ -10881,10 +10910,10 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff03])
 	# 2222/2000, 32/00
 	pkt = NCP(0x2000, "Open Semaphore", 'file', has_length=0)
-	pkt.Request(10, [
+	pkt.Request((10,264), [
 		rec( 8, 1, InitialSemaphoreValue ),
-		rec( 9, 1, SemaphoreNameLen ),
-	])
+		rec( 9, (1,255), SemaphoreName ),
+	], info_str=(SemaphoreName, "Open Semaphore: %s", ", %s"))
 	pkt.Reply(13, [
 		  rec( 8, 4, SemaphoreHandle, BE ),
 		  rec( 12, 1, SemaphoreOpenCount ),
@@ -11384,14 +11413,14 @@ def define_ncp2222():
 		rec( 14, 1, NCPextensionRevisionNumber ),
 		rec( 15, (1, 255), NCPextensionName ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfe00, 0xff20])
 	# 2222/2401, 36/01
 	pkt = NCP(0x2401, "Get NCP Extension Maximum Data Size", 'fileserver')
 	pkt.Request(10)
 	pkt.Reply(10, [
 		rec( 8, 2, NCPdataSize ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfe00, 0xff20])
 	# 2222/2402, 36/02
 	pkt = NCP(0x2402, "Get NCP Extension Information by Name", 'fileserver')
 	pkt.Request((11, 265), [
@@ -11404,14 +11433,14 @@ def define_ncp2222():
 		rec( 14, 1, NCPextensionRevisionNumber ),
 		rec( 15, (1, 255), NCPextensionName ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00, 0xff20])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfe00, 0xff20])
 	# 2222/2403, 36/03
 	pkt = NCP(0x2403, "Get Number of Registered NCP Extensions", 'fileserver')
 	pkt.Request(10)
 	pkt.Reply(12, [
 		rec( 8, 4, NumberOfNCPExtensions ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfe00, 0xff20])
 	# 2222/2404, 36/04
 	pkt = NCP(0x2404, "Get NCP Extension Registered Verbs List", 'fileserver')
 	pkt.Request(14, [
@@ -11422,7 +11451,7 @@ def define_ncp2222():
 		rec( 12, 4, nextStartingNumber ),
 		rec( 16, 4, NCPExtensionNumbers, repeat="x" ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfe00, 0xff20])
 	# 2222/2405, 36/05
 	pkt = NCP(0x2405, "Return NCP Extension Information", 'fileserver')
 	pkt.Request(14, [
@@ -11435,14 +11464,14 @@ def define_ncp2222():
 		rec( 14, 1, NCPextensionRevisionNumber ),
 		rec( 15, (1, 255), NCPextensionName ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfe00, 0xff20])
 	# 2222/2406, 36/06
 	pkt = NCP(0x2406, "Return NCP Extension Maximum Data Size", 'fileserver')
 	pkt.Request(10)
 	pkt.Reply(12, [
 		rec( 8, 4, NCPdataSize ),
 	])
-	pkt.CompletionCodes([0x0000, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0xfe00, 0xff20])
 	# 2222/25, 37
 	pkt = NCP(0x25, "Execute NCP Extension", 'fileserver')
 	pkt.Request(11, [
@@ -11453,7 +11482,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 		# The following value is Unicode
 		#[ 8, (1, 255), ReplyBuffer ],
-	pkt.CompletionCodes([0x0000, 0x9c00, 0xd504, 0xee00, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xf000, 0x9c00, 0xd504, 0xee00, 0xfe00, 0xff20])
 	# 2222/3B, 59
 	pkt = NCP(0x3B, "Commit File", 'file', has_length=0 )
 	pkt.Request(14, [
@@ -11774,7 +11803,7 @@ def define_ncp2222():
 	pkt = NCP(0x5602, "Write Extended Attribute", 'file', has_length=0 )
 	pkt.Request((35,97), [
 		rec( 8, 2, EAFlags ),
-		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
+		rec( 10, 4, EAHandleOrNetWareHandleOrVolume, BE ),
 		rec( 14, 4, ReservedOrDirectoryNumber ),
 		rec( 18, 4, TtlWriteDataSize ),
 		rec( 22, 4, FileOffset ),
@@ -12228,14 +12257,14 @@ def define_ncp2222():
 		rec( 18, 1, PathCount, var="x" ),
 		rec( 19, (1,255), Path, repeat="x" ),
 	], info_str=(Path, "Allocate Short Directory Handle to: %s", "/%s"))
-	pkt.Reply(14, [
-		rec( 8, 1, DirHandle ),
-		rec( 9, 1, VolumeNumber ),
-		rec( 10, 4, Reserved4 ),
+	pkt.Reply(NO_LENGTH_CHECK, [
+        srec( ReplyLevel2Struct, req_cond="ncp.alloc_reply_lvl2 == TRUE" ),
+		srec( ReplyLevel1Struct, req_cond="ncp.alloc_reply_lvl2 == FALSE" ),
 	])
+	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0x9d00, 0xa901, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5710, 87/16
 	pkt = NCP(0x5710, "Scan Salvageable Files", 'file', has_length=0)
 	pkt.Request((26,280), [
@@ -13085,7 +13114,7 @@ def define_ncp2222():
         rec( 8, 4, FileHandle, BE ),
     ])
 	pkt.Reply(16, [
-        rec( 8, 8, FileSize64bit, BE ),
+        rec( 8, 8, FileSize64bit),
     ])
 	pkt.CompletionCodes([0x0000, 0x7f00, 0x8800, 0x9600, 0xfd02, 0xff01])
 	# 2222/5743, 87/67
@@ -13129,9 +13158,9 @@ def define_ncp2222():
 	pkt.Reply(40, [
 		rec(8, 32, NWAuditStatus ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5802, 8802
 	pkt = NCP(0x5802, "Add User Audit Property", "auditing", has_length=0)
 	pkt.Request(25, [
@@ -13142,178 +13171,178 @@ def define_ncp2222():
 		rec(24, 1, AuditFlag ),
 	])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5803, 8803
 	pkt = NCP(0x5803, "Add Auditor Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xde00, 0xfd00, 0xff16])
 	# 2222/5804, 8804
 	pkt = NCP(0x5804, "Change Auditor Volume Password", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5805, 8805
 	pkt = NCP(0x5805, "Check Auditor Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5806, 8806
 	pkt = NCP(0x5806, "Delete User Audit Property", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff21])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff21])
 	# 2222/5807, 8807
 	pkt = NCP(0x5807, "Disable Auditing On A Volume", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5808, 8808
 	pkt = NCP(0x5808, "Enable Auditing On A Volume", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xde00, 0xfd00, 0xff16])
 	# 2222/5809, 8809
 	pkt = NCP(0x5809, "Query User Being Audited", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/580A, 88,10
 	pkt = NCP(0x580A, "Read Audit Bit Map", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/580B, 88,11
 	pkt = NCP(0x580B, "Read Audit File Configuration Header", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/580D, 88,13
 	pkt = NCP(0x580D, "Remove Auditor Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/580E, 88,14
 	pkt = NCP(0x580E, "Reset Audit File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 
 	# 2222/580F, 88,15
 	pkt = NCP(0x580F, "Auditing NCP", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfb00, 0xfd00, 0xff16])
 	# 2222/5810, 88,16
 	pkt = NCP(0x5810, "Write Audit Bit Map", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5811, 88,17
 	pkt = NCP(0x5811, "Write Audit File Configuration Header", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5812, 88,18
 	pkt = NCP(0x5812, "Change Auditor Volume Password2", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5813, 88,19
 	pkt = NCP(0x5813, "Return Audit Flags", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5814, 88,20
 	pkt = NCP(0x5814, "Close Old Audit File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5816, 88,22
 	pkt = NCP(0x5816, "Check Level Two Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5817, 88,23
 	pkt = NCP(0x5817, "Return Old Audit File List", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5818, 88,24
 	pkt = NCP(0x5818, "Init Audit File Reads", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5819, 88,25
 	pkt = NCP(0x5819, "Read Auditing File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/581A, 88,26
 	pkt = NCP(0x581A, "Delete Old Audit File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/581E, 88,30
 	pkt = NCP(0x581E, "Restart Volume auditing", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/581F, 88,31
 	pkt = NCP(0x581F, "Set Volume Password", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0106, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa700, 0xa801, 0xbe00, 0xfd00, 0xff16])
 	# 2222/5901, 89,01
 	pkt = NCP(0x5901, "Enhanced Open/Create File or Subdirectory", "file", has_length=0)
 	pkt.Request((37,290), [
@@ -13388,7 +13417,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8000, 0x8101, 0x8401, 0x8501,
 						0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-						0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+						0x9804, 0x9b03, 0x9c03, 0xa901, 0xa500, 0xaa00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5902, 89/02
 	pkt = NCP(0x5902, "Enhanced Initialize Search", 'file', has_length=0)
 	pkt.Request( (25,278), [
@@ -14639,6 +14668,17 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+    # 2222/5A96, 90/150
+	pkt = NCP(0x5A96, "File Migration Request", 'file')
+	pkt.Request(22, [
+		rec( 10, 4, VolumeNumberLong ),
+        rec( 14, 4, DirectoryBase ),
+        rec( 18, 4, FileMigrationState ),
+	])
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfb00, 0xff16])
     # 2222/5C, 91
 	pkt = NCP(0x5B, "NMAS Graded Authentication", 'nmas')
 	#Need info on this packet structure
@@ -14648,70 +14688,70 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# SecretStore data is dissected by packet-ncp-sss.c
-    # 2222/5C00, 9201                                                  
+    # 2222/5C01, 9201                                                  
 	pkt = NCP(0x5C01, "SecretStore Services (Ping Server)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C01, 9202
+	# 2222/5C02, 9202
 	pkt = NCP(0x5C02, "SecretStore Services (Fragment)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C02, 9203
+	# 2222/5C03, 9203
 	pkt = NCP(0x5C03, "SecretStore Services (Write App Secrets)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C03, 9204
+	# 2222/5C04, 9204
 	pkt = NCP(0x5C04, "SecretStore Services (Add Secret ID)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C04, 9205
+	# 2222/5C05, 9205
 	pkt = NCP(0x5C05, "SecretStore Services (Remove Secret ID)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C05, 9206
+	# 2222/5C06, 9206
 	pkt = NCP(0x5C06, "SecretStore Services (Remove SecretStore)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C06, 9207
+	# 2222/5C07, 9207
 	pkt = NCP(0x5C07, "SecretStore Services (Enumerate Secret IDs)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C07, 9208
+	# 2222/5C08, 9208
 	pkt = NCP(0x5C08, "SecretStore Services (Unlock Store)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C08, 9209
+	# 2222/5C09, 9209
 	pkt = NCP(0x5C09, "SecretStore Services (Set Master Password)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C09, 920a
+	# 2222/5C0a, 9210
 	pkt = NCP(0x5C0a, "SecretStore Services (Get Service Information)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
@@ -15460,8 +15500,8 @@ def define_ncp2222():
 		rec(8, 4, CurrentServerTime ),
 		rec(12, 1, VConsoleVersion ),
 		rec(13, 1, VConsoleRevision ),
-		rec(14, 2, Reserved2 ),
-                rec(16, 3, BoardNameStruct ),
+		rec(14, 2, Reserved2 ),      
+        rec(16, 3, BoardNameStruct ),
         ])
 	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B19, 123/25
