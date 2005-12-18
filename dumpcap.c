@@ -726,7 +726,7 @@ simple_dialog_format_message(const char *msg)
 /* link "dummies" */
 
 
-const char *netsnmp_get_version() { return ""; }
+const char *netsnmp_get_version(void) { return ""; }
 
 gboolean dfilter_compile(const gchar *text, dfilter_t **dfp) { return NULL; }
 

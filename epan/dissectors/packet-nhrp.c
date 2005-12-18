@@ -46,8 +46,8 @@
 #include "packet-nhrp.h"
 
 /* forward reference */
-void proto_register_nhrp();
-void proto_reg_handoff_nhrp();
+void proto_register_nhrp(void);
+void proto_reg_handoff_nhrp(void);
 void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_nhrp = -1;

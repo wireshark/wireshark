@@ -115,7 +115,7 @@ capture_opts_list_link_layer_types(capture_options *capture_opts);
 
 /* list interfaces */
 extern void
-capture_opts_list_interfaces();
+capture_opts_list_interfaces(void);
 
 /* trim the snaplen entry */
 extern void 

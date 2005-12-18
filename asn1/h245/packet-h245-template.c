@@ -257,7 +257,7 @@ static void h223_lc_init_dir( int dir )
 	h223_pending_olc_reqs[dir] = g_hash_table_new( g_direct_hash, g_direct_equal );
 }
 
-static void h223_lc_init()
+static void h223_lc_init( void )
 {
 	h223_lc_init_dir( P2P_DIR_SENT );
 	h223_lc_init_dir( P2P_DIR_RECV );
