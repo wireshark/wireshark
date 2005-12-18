@@ -190,7 +190,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	for (i=0; i<size; i++)
 	{
 		diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array,  i)))->secs * 1000000 + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->usecs - u_data->io->min_x;
-		//start = ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->offset;
+		/*start = ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->offset; */
 		end = start + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->length;
 		if (end>max_tsn)
 		{

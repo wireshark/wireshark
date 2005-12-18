@@ -381,7 +381,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		offset += 2;
 	}
 	
-	// TBD : Check for hdr->afn
+	/* TBD : Check for hdr->afn */
 	shl = hdr->ar_shtl & 0x3f;
 	if (shl) {
 		tvb_ensure_bytes_exist(tvb, offset, shl);
@@ -523,7 +523,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 	*pOffset = mandEnd;
 }
 
-// TBD : Decode Authentication Extension and Vendor Specific Extension
+/* TBD : Decode Authentication Extension and Vendor Specific Extension */
 void dissect_nhrp_ext(tvbuff_t *tvb,
 					  proto_tree *tree,
 					  gint *pOffset,
@@ -582,7 +582,7 @@ void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *ti = NULL;
 		proto_tree *nhrp_tree = NULL;
 		
-		// Fixed header is always 20 bytes.
+		/* Fixed header is always 20 bytes. */
 		tvb_ensure_bytes_exist(tvb, offset, 20);
 		memset(&hdr, 0, sizeof(e_nhrp_hdr));
 	
