@@ -19,11 +19,11 @@
 
 #.FN_BODY DialogueOC
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint tag;
 	guint32 len;
-	guint32 ind_field;
+	gint ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -40,11 +40,11 @@ offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 return offset+len;
 
 #.FN_BODY Dialog1
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint tag;
 	guint32 len;
-	guint32 ind_field;
+	gint ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -55,11 +55,11 @@ return offset+len;
 
 #.FN_BODY Parameter
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint tag;
 	guint32 len;
-	guint32 ind_field;
+	gint ind_field;
 
 
  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -75,11 +75,11 @@ if (!next_tvb)
 
 #.FN_BODY User_information
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint tag;
 	guint32 len;
-	guint32 ind_field;
+	gint ind_field;
 
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -93,16 +93,15 @@ dissect_tcap_UserInformation(TRUE, next_tvb, 0, pinfo, tree, -1);
 return offset+len;
 #.FN_BODY Component
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint tag;
 	guint32 len, s_offset;
-	guint32 ind_field;
+	gint ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
 ber_oid_dissector_table = find_dissector_table("ber.oid");
-tcap_itu_ssn_dissector_table = find_dissector_table("tcap.itu_ssn");
 s_offset = offset;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
@@ -117,28 +116,43 @@ dissect_ber_choice(pinfo, tree, next_tvb, 0,
 if (ber_oid_dissector_table && cur_oid){
 if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
-	dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb,pinfo, tcap_top_tree);
+	dissector_handle_t subdissector_handle;
+
+    if (! (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
+        subdissector_handle = data_handle;
+    } 
+
+    call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
+
 	}
 }
-else
-	 dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree);
+else {
+    dissector_handle_t subdissector_handle;
+
+    if (! (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
+        subdissector_handle = data_handle;
+    } 
+
+    call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
+}
+     
 return offset+len;
 
 #.FN_BODY Applicationcontext  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	pinfo->private_data = cur_oid;
+	pinfo->private_data = (void*)cur_oid;
 
 #.FN_BODY UserInfoOID  FN_VARIANT = _str  VAL_PTR = &tcapext_oid
 %(DEFAULT_BODY)s
-	pinfo->private_data = tcapext_oid;
+	pinfo->private_data = (void*)tcapext_oid;
 
 #.FN_BODY ExternUserInfo
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint tag;
 	guint32 len, start_offset;
-	guint32 ind_field;
+	gint ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
@@ -172,11 +186,16 @@ offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
 
 #.FN_BODY ComponentPDU 	
 tvbuff_t *next_tvb;
+dissector_handle_t subdissector_handle;
 
 next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
 
-dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree);
+if (! (subdissector_handle = get_ansi_tcap_subdissector(pinfo->match_port))) {
+    subdissector_handle = data_handle;
+} 
 
+call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
+    
 offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
 	
