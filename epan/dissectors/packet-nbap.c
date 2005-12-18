@@ -36730,7 +36730,6 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*nbap_item = NULL;
 	proto_tree	*nbap_tree = NULL;
-	int			offset = 0;
 
 	top_tree = tree;
 
@@ -44761,7 +44760,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 2925 "packet-nbap-template.c"
+#line 2924 "packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -45782,7 +45781,7 @@ void proto_register_nbap(void) {
     &ett_nbap_PrivateIE_Field,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 2935 "packet-nbap-template.c"
+#line 2934 "packet-nbap-template.c"
   };
 
 

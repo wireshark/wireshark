@@ -2895,7 +2895,6 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*nbap_item = NULL;
 	proto_tree	*nbap_tree = NULL;
-	int			offset = 0;
 
 	top_tree = tree;
 
