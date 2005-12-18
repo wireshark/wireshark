@@ -2187,7 +2187,7 @@ Dominic Béchaz          <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
 }
 
-Richard van der Hoff     <richardv [AT] mxtelecom.com> {
+Richard van der Hoff	<richardv [AT] mxtelecom.com> {
 	IAX2 updates
 	CRC16 routines
 	H.223 Support
@@ -2226,7 +2226,7 @@ Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
 	MANOLITO support
 }
 
-Irene Rüngler          <i.ruengeler [AT] fh-muenster.de {
+Irene Rüngle		<i.ruengeler [AT] fh-muenster.de {
 	SCTP analysis
 	Support PPID and SCTP port based selection in Decode as
 }
@@ -2244,11 +2244,11 @@ Luis Ontanon		<luis.ontanon[AT]gmail.com> {
 	MATE plugin
 }
 
-Luca Deri	<deri [AT] ntop.org> {
+Luca Deri		<deri [AT] ntop.org> {
 	NetFlow v9 enhancements
 }
 
-Viorel Suman	<vsuman [AT] avmob.ro> {
+Viorel Suman		<vsuman [AT] avmob.ro> {
 	TALI (RFC 3094) support
 	Various GSM SMS fixes
 }
@@ -2323,11 +2323,11 @@ Charlie Lenahan		<clenahan [AT] fortresstech.com> {
 	Support for some HP switch protocol
 }
 
-Takeshi Nakashima <T.Nakashima [AT] jp.yokogawa.com> {
+Takeshi Nakashima	<T.Nakashima [AT] jp.yokogawa.com> {
 	Support for the KINK protocol.
 }
 
-Shoichi Sakane <sakane [AT] tanu.org> {
+Shoichi Sakane		<sakane [AT] tanu.org> {
 	IKEv2 support
 }
 
@@ -2535,7 +2535,7 @@ Steve Packet		<packetsteve [AT] hotmail.com>
 Javier Acuna		<javier.acuna [AT] sixbell.cl>
 Miklos Szurdi		<szurdimiklos [AT] yahoo.com>
 Cvetan Ivanov		<zezo [AT] spnet.net>
-Vasanth Manickam    <vasanth.manickam [AT] bt.com>
+Vasanth Manickam	<vasanth.manickam [AT] bt.com>
 Julian Onions		<julian.onions [AT] gmail.com>
 Samuel Thibault		<samuel.thibault [AT] ens-lyon.org>
 Peter Kovář		<peter.kovar [AT] gmail.com>
