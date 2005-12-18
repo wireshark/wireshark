@@ -1,0 +1,8 @@
+This is a work in progress to replace the existing ansi_map dissector with an asn2eth generated one.
+
+To test/use this work in progress dissector you will have to compile it with asn2eth and copy the resulting .c and .h files over to epan/dissectors.
+
+This dissector is not yet ready for public consumption and lacks many vital features of the existing ansi_map dissector as it does not dissect
+parameter data.
+
+

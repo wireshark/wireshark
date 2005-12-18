@@ -1,0 +1,37 @@
+# ansi_map.cnf
+# ansi_map conformation file
+# Copyright 2005 Anders Broman 
+# $Id$
+
+
+#.EXPORTS
+
+#.PDU
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY InvokeParameters
+	proto_tree_add_item(tree, hf_ansi_map_invokeParameters, tvb, offset,-1,FALSE);
+	offset = dissect_invokeData(pinfo, tree, tvb, offset);
+
+#.FN_BODY ReturnParameters
+	proto_tree_add_item(tree, hf_ansi_map_returnResult, tvb, offset,-1,FALSE);
+	offset = dissect_returnData(pinfo, tree, tvb, offset);
+
+#.FN_BODY ErrorParameters
+
+#.FN_BODY RejectParameters
+
+#.FN_PARS PrivateOperationCode
+
+VAL_PTR = &OperationCode
+
+#.FN_BODY PrivateOperationCode
+ %(DEFAULT_BODY)s
+ proto_tree_add_item(tree, hf_ansi_map_op_code_fam, tvb, offset-2,1,FALSE);
+ proto_tree_add_item(tree, hf_ansi_map_op_code, tvb, offset-1,1,FALSE);
+#.END
