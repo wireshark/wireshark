@@ -136,14 +136,14 @@
     <section><title>How Ethereal handles it</title>
     <para>
 	For some of the network protocols Ethereal knows of, a mechanism is 
-	implemented to find, decode and display this chunks of data. 
+	implemented to find, decode and display these chunks of data. 
 	Ethereal will try to find the corresponding packets of this chunk, 
 	and will show the combined data as additional pages in the 
 	"Packet Bytes" pane, see <xref linkend="ChUsePacketBytesPaneSection"/>.
     </para>
     <note><title>Note!</title>
     <para>
-	Reassembling might take place in several protocol layers, so it's possible 
+	Reassembling might take place at several protocol layers, so it's possible 
 	that multiple tabs in the "Packet Bytes" pane appear.
 	</para>
     </note>
@@ -158,15 +158,16 @@
 		HTML page) is returned. Ethereal will show the hex dump of the data in 
 		a new tab "Uncompressed entity body" in the "Packet Bytes" pane.
     </para>
-    </section>
-	
-    <section><title>Reassembling is disabled by default!</title>
     <para>
-	Reassembling is usually disabled in the preferences by default, as it 
-	slows down packet processing a bit. 
+	Reassembling is enabled in the preferences by default. The defaults 
+	were changed from disabled to enabled in September 2005. If you created 
+	your preference settings before this date, you might look if reassembling 
+	is actually enabled, as it can be extremely helpful while analyzing 
+	network packets.
     </para>
     <para>
-	Enabling reassembling of a protocol typically requires two things:
+	The enabling or disabling of the reassemble settings of a protocol typically 
+	requires two things:
 	<orderedlist>
 	<listitem>
     <para>
