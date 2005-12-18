@@ -1679,7 +1679,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* If we have found a uid->acct_name mapping, store it */
 	if(!pinfo->fd->flags.visited){
 		idx=0;
-		while(ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)){
+		while((ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL){
 			if(ntlmssph && ntlmssph->type==3){
 				smb2_uid_info_t *uid;
 				uid=se_alloc(sizeof(smb2_uid_info_t));
