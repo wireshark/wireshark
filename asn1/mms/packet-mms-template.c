@@ -45,8 +45,6 @@
 /* Initialize the protocol and registered fields */
 int proto_mms = -1;
 
-static char object_identifier_id[MAX_OID_STR_LEN];
-
 #include "packet-mms-hf.c"
 
 /* Initialize the subtree pointers */
