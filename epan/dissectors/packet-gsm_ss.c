@@ -297,11 +297,6 @@ static gint ett_gsm_ss_LCS_AreaEventCancellationArg = -1;
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 
-/* Global variables */
-static proto_tree *top_tree;
-
-
-
 
 /*--- Included file: packet-gsm_ss-fn.c ---*/
 #line 1 "packet-gsm_ss-fn.c"
@@ -1333,7 +1328,7 @@ dissect_gsm_ss_UserUserServiceArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 
 /*--- End of included file: packet-gsm_ss-fn.c ---*/
-#line 177 "packet-gsm_ss-template.c"
+#line 172 "packet-gsm_ss-template.c"
 
 
 int
@@ -1899,7 +1894,7 @@ void proto_register_gsm_ss(void) {
         "LCS-AreaEventRequestArg/areaEventInfo", HFILL }},
 
 /*--- End of included file: packet-gsm_ss-hfarr.c ---*/
-#line 394 "packet-gsm_ss-template.c"
+#line 389 "packet-gsm_ss-template.c"
   };
 
   /* List of subtrees */
@@ -1934,7 +1929,7 @@ void proto_register_gsm_ss(void) {
     &ett_gsm_ss_LCS_AreaEventCancellationArg,
 
 /*--- End of included file: packet-gsm_ss-ettarr.c ---*/
-#line 399 "packet-gsm_ss-template.c"
+#line 394 "packet-gsm_ss-template.c"
   };
 
   /* Register protocol */

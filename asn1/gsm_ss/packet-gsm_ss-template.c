@@ -168,11 +168,6 @@ static int hf_gsm_ss_SS_Code = -1;
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 
-/* Global variables */
-static proto_tree *top_tree;
-
-
-
 #include "packet-gsm_ss-fn.c"
 
 
