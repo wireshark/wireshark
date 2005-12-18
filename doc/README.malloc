@@ -1,47 +1,75 @@
-$Id$
+$Id:$
 
-In order to make memory management easier and to reduce the probability of memory leaks ethereal provides its own memory management API.
-This API is implemented inside epan/emem.c and provides memory allocation functions where the allocated memory is automatically freed at certain points.
+1. Introduction
+
+In order to make memory management easier and to reduce the probability of
+memory leaks ethereal provides its own memory management API. This API is 
+implemented inside epan/emem.c and provides memory allocation functions 
+where the allocated memory is automatically freed at certain points.
 
 If you use these functions you will no longer need to keep track of when and 
-where to free any dynamically allocated memory, the memory will automatically be freed at the appropriate time.
+where to free any dynamically allocated memory, the memory will 
+automatically be freed at the appropriate time.
 
+Using these functions will greatly elevate the probability that your code 
+will not leak memory so do use them where appropriate.
 
-Using these functions will greatly elevate the probability that your code will not leak memory so do use them where appropriate.
+2. The allocation types
 
+There are two sets of functions with different allocation temporal scopes:
+ * ephemeral (ep_...)
+ * seasonal (se_...)
 
+2.1 Ephemeral allocations
 
-There are two sets of fucntions with different allocation/free scope:
-ephemeral:
-ep_... which allocates memory that will be automatically freed once the 
-       current packet dissection completes. These functions are useful
-       for situations where you just want a temporary buffer that should stay
-       around for a short while.
-       Do not use these functions if you need persistent allocations where 
-       the data is to still be available in some later packet.
-seasonal:
-se_... which allocates memory that will stay around a lot longer but will be
-       automatically freed once the current capture is closed and ethereal
-       opens a new capture (either by reading a new capture file or by starting
-       a new capture on some interface).
-       These functions are useful for allocations with longer scope for example
-       if you need some buffers or data to keep statemanagement between packets.
+The ephemeral functions allocate memory that will be automatically freed 
+once the current packet dissection completes. These functions are useful for 
+situations where you just want a temporary buffer that should stay around for 
+a short while. Do not use these functions if you need persistent allocations 
+where the data is to still be available in some later packet.
 
+2.2 Seasonal allocations
 
-These two allocation scopes provide several useful functions :
-.._alloc() : allocate a chunk of memory with ep/se scope.
-.._alloc0() : allocate a chunk of memory and fill it with 0.
-.._strdup() : equivalent to strdup()
-.._strndup(s,n) : allocate a chunk of size n+1 and copy s into it
-.._memdup(s,n) : allocate n chunk and copy into it n bytes starting at s
+The seasonal functions allocate memory that will stay around a lot longer 
+but will be automatically freed once the current capture is closed and 
+Ethereal opens a new capture (either by reading a new capture file or by 
+starting a new capture on some interface). These functions are useful for 
+allocations with longer scope for example if you need some buffers or data to 
+keep state between packets.
 
-.._strdup_printf() : will calculate the size of the formated string allocate a chunk for it and format the string 
-.._alloc_array(t,n): will allocate an array of n elements of type t 
-ep_strsplit(): will split a string based on a certain separator returning an array of strings 
+3 The API
 
-Stack management:
-ep_stack_new() : creates a stack
-ep_stack_push() : pushes an element into the stack
-ep_stack_pop() : pops an element from the stack
-ep_stack_peek() : returns the top element of the stack without popping it
+For a detailed description of the functions please refer to the header file
+epan/emem.h
+
+3.1 Common memory allocation functions
+
+.._alloc(n) : allocate a chunk of memory of size n with ep/se scope.
+ep_new(t) : allocate a single element of type t.
+.._alloc_array(t,n): will allocate an array of n elements of type t.
+
+.._alloc0(n) : allocate a chunk of memory of size n and fill it with 0.
+ep_new0(t) : allocate a single element of type t and fill it with 0.
+
+3.2 String related functions
+
+.._strdup(s) : equivalent to strdup(s) with ep/se scope.
+.._strndup(s,n) : allocate a chunk of size n+1 and copy s into it.
+.._memdup(s,n) : allocate n chunk and copy into it n bytes starting at s.
+
+.._strdup_printf() : will calculate the size of the formated string, allocate 
+  a chunk for it and format the string.
+.._strdup_vprintf() : will calculate the size of the formated string, 
+  allocate a chunk for it and format the string.
+
+ep_strsplit(): will split a string based on a certain separator returning an 
+  array of strings.
+
+3.3 Stack related functions
+
+ep_stack_new() : creates an ephemeral stack.
+ep_stack_push() : pushes an element into the stack.
+ep_stack_pop() : pops an element from the stack.
+ep_stack_peek() : returns the top element of the stack without popping it.
+
 

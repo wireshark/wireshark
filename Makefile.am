@@ -84,12 +84,14 @@ pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
 #
 diameterdir = $(pkgdatadir)/diameter
 diameter_DATA = \
+	diameter/chargecontrol.xml \
 	diameter/dictionary.dtd \
 	diameter/dictionary.xml \
 	diameter/imscxdx.xml \
 	diameter/mobileipv4.xml \
 	diameter/nasreq.xml \
-	diameter/sunping.xml
+	diameter/sunping.xml \
+	diameter/TGPPSh.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory
