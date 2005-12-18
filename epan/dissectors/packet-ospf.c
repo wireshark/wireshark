@@ -107,6 +107,7 @@ static const value_string auth_vals[] = {
 #define OSPF_DBD_FLAG_MS	1
 #define OSPF_DBD_FLAG_M		2
 #define OSPF_DBD_FLAG_I		4
+#define OSPF_DBD_FLAG_R		8
 
 #define OSPF_LS_REQ_LENGTH	12
 
@@ -311,6 +312,10 @@ static const true_false_string tfs_dbd_ms = {
 	"Master/Slave bit is SET",
 	"Master/Slave bit is NOT set"
 };
+static const true_false_string tfs_dbd_r = {
+	"OOBResync bit is SET",
+	"OOBResync bit is NOT set"
+};
 static const true_false_string tfs_lls_ext_options_lr = {
 	"LSDB Resynchrinization (LR-bit) is SET",
 	"LSDB Resynchrinization (LR-bit) is NOT set"
@@ -437,6 +442,7 @@ enum {
     OSPFF_V3_OPTIONS_R,
     OSPFF_V3_OPTIONS_DC,
     OSPFF_DBD,
+    OSPFF_DBD_R,
     OSPFF_DBD_I,
     OSPFF_DBD_M,
     OSPFF_DBD_MS,
@@ -621,6 +627,9 @@ static hf_register_info ospff_info[] = {
     {&ospf_filter[OSPFF_DBD],
      { "DB Description", "ospf.dbd", FT_UINT8, BASE_HEX,
        NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_DBD_R],
+     { "R", "ospf.dbd.r", FT_BOOLEAN, 8,
+       TFS(&tfs_dbd_r), OSPF_DBD_FLAG_R, "", HFILL }},
     {&ospf_filter[OSPFF_DBD_I],
      { "I", "ospf.dbd.i", FT_BOOLEAN, 8,
        TFS(&tfs_dbd_i), OSPF_DBD_FLAG_I, "", HFILL }},
@@ -723,6 +732,7 @@ typedef struct _bitfield_info {
 } bitfield_info;
 
 static int bf_dbd[] = {
+    OSPFF_DBD_R,
     OSPFF_DBD_I,
     OSPFF_DBD_M,
     OSPFF_DBD_MS
