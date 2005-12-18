@@ -21,54 +21,54 @@ Gilbert Ramirez         <gram[AT]alumni.rice.edu> {
 }
 
 Hannes R. Boehm         <hannes[AT]boehm.org> {
-    http://hannes.boehm.org/
+	http://hannes.boehm.org/
 
-    OSPFv2 
-    RIPv1, RIPv2
-    CDP (Cisco Discovery Protocol Version 1)
+	OSPFv2 
+	RIPv1, RIPv2
+	CDP (Cisco Discovery Protocol Version 1)
 }
 
 Mike Hall               <mike [AT] hallzone.net> {
-    TCP Follow
+	Follow TCP Stream
 }
 
 Bobo Rajec              <bobo[AT]bsp-consulting.sk> {
-    DNS protocol support
+	DNS protocol support
 }
 
 Laurent Deniel          <laurent.deniel[AT]free.fr> {
-    Name resolution
-    Ethernet/Manufacturer files support
-    FDDI support
-    OMG GIOP/IIOP support
-    ISO/OSI CLNP/COTP support
-    Real time capture and display enhancement
-    Many display filters added
-    GUI enhancements (about & help windows)
-    Follow TCP stream for IPv6
-    Protocol activation/deactivation (Edit:protocols)
-    Ability to mark the frames and associated features
-    "Protocol Properties..." menu item
-    Ring buffer rework
-    X11 decoding enhancements and fixes
-    Miscellaneous enhancements and fixes
+	Name resolution
+	Ethernet/Manufacturer files support
+	FDDI support
+	OMG GIOP/IIOP support
+	ISO/OSI CLNP/COTP support
+	Real time capture and display enhancement
+	Many display filters added
+	GUI enhancements (about & help windows)
+	Follow TCP stream for IPv6
+	Protocol activation/deactivation (Edit:protocols)
+	Ability to mark the frames and associated features
+	"Protocol Properties..." menu item
+	Ring buffer rework
+	X11 decoding enhancements and fixes
+	Miscellaneous enhancements and fixes
 }
 
 Don Lafontaine          <lafont02[AT]cn.ca> {
-    Banyan Vines support
-    IGRP support
+	Banyan Vines support
+	IGRP support
 }
 
 Guy Harris              <guy[AT]alum.mit.edu> {
-    DNS and NetBIOS Name Service enhancements
-    Bitfield decoding
-    IP and TCP option decoding
-    HTTP support
-    NNTP support
-    ATM and LANE decoding
-    Q.931 decoding
-    Changes to the popup packet windows
-    Miscellaneous enhancements and fixes
+	DNS and NetBIOS Name Service enhancements
+	Bitfield decoding
+	IP and TCP option decoding
+	HTTP support
+	NNTP support
+	ATM and LANE decoding
+	Q.931 decoding
+	Changes to the popup packet windows
+	Miscellaneous enhancements and fixes
 }
 
 Simon Wilkinson         <sxw[AT]dcs.ed.ac.uk> {
@@ -2227,7 +2227,7 @@ Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
 }
 
 Irene Rüngler          <i.ruengeler [AT] fh-muenster.de {
-        SCTP analysis
+	SCTP analysis
 	Support PPID and SCTP port based selection in Decode as
 }
 
@@ -2429,7 +2429,7 @@ Stig Bjørlykke		<stig [AT] bjorlykke.org> {
 }
 
 Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {
-    CIGI dissection
+	CIGI dissection
 }
 
 And assorted fixes and enhancements by the people listed above
@@ -2445,7 +2445,7 @@ Kaloian Stoilov         <kalkata [AT] yahoo.com>
 Steven Lass             <stevenlass [AT] mail.com>
 Gregory Stark           <gsstark [AT] mit.edu>
 Darren Steele           <steeley [AT] steeley.co.uk>
-                        <smhuang [AT] pcs.csie.nctu.edu.tw>
+	                <smhuang [AT] pcs.csie.nctu.edu.tw>
 Michael Kopp            <michael.kopp [AT] isarnet.de>
 Bernd Leibing           <bernd.leibing [AT] kiz.uni-ulm.de>
 Chris Heath             <chris [AT] heathens.co.nz>
@@ -2460,7 +2460,7 @@ Eric Wedel              <ewedel [AT] bluearc.com>
 Reinhard Speyerer       <rspmn [AT] arcor.de>
 Patrick Kursawe         <phosphan [AT] gentoo.org>
 Arsen Chaloyan          <achaloyan [AT] yahoo.com>
-                        <melerski [AT] poczta.onet.pl>
+	                <melerski [AT] poczta.onet.pl>
 Arnaud Jacques          <webmaster [AT] securiteinfo.com>
 D. Manzella             <manzella [AT] lucent.com>
 Jari Mustajarvi         <jari.mustajarvi [AT] nokia.com>
