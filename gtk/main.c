@@ -133,7 +133,7 @@
 #include "decode_as_dlg.h"
 #include "webbrowser.h"
 #include "capture_dlg.h"
-#if 0
+#ifdef SHOW_WELCOME_PAGE
 #include "../image/eicon3d64.xpm"
 #endif
 #include "capture_ui_utils.h"
@@ -3001,7 +3001,7 @@ is_widget_visible(GtkWidget *widget, gpointer data)
 }
 
 
-#if 0
+#ifdef SHOW_WELCOME_PAGE
 /* XXX - There seems to be some disagreement about if and how this feature should be implemented.
    As I currently don't have the time to continue this, it's temporarily disabled. - ULFL */
 GtkWidget *
@@ -3118,14 +3118,14 @@ welcome_new(void)
 
     return welcome_scrollw;
 }
-#endif /* 0 */
-
+#else
 static GtkWidget *
 welcome_new(void)
 {
     /* this is just a dummy to fill up window space, simply showing nothing */
     return scrolled_window_new(NULL, NULL);
 }
+#endif
 
 
 
