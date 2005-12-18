@@ -2362,7 +2362,8 @@ proto_reg_handoff_tcap(void)
     
     register_ber_oid_name("0.0.17.773.1.1.1",
                           "itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
-    
+
+    data_handle = find_dissector("data");    
 }
 
 static void init_tcap(void);
@@ -2886,7 +2887,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 198 "packet-tcap-template.c"
+#line 199 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -2950,7 +2951,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 207 "packet-tcap-template.c"
+#line 208 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
