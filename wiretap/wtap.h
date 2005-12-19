@@ -177,8 +177,10 @@
 #define WTAP_ENCAP_JUNIPER_PPP                  85
 #define WTAP_ENCAP_JUNIPER_FRELAY               86
 #define WTAP_ENCAP_JUNIPER_CHDLC                87
+#define WTAP_ENCAP_JUNIPER_GGSN                 88
+
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			88
+#define WTAP_NUM_ENCAP_TYPES			89
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we

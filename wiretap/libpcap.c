@@ -309,6 +309,7 @@ static const struct {
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
         { 130,          WTAP_ENCAP_JUNIPER_MLPPP }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
         { 131,          WTAP_ENCAP_JUNIPER_MLFR }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
+    {133, WTAP_ENCAP_JUNIPER_GGSN},
 	/*
 	 * Values 132-134, 136 not listed here are reserved for use
 	 * in Juniper hardware.

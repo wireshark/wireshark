@@ -366,6 +366,8 @@ static int hf_juniper_atm2_cookie = -1;
 static int hf_juniper_mlpic_cookie = -1;
 static int hf_juniper_lspic_cookie = -1;
 static int hf_juniper_aspic_cookie = -1;
+static int hf_juniper_vlan = -1;
+static int hf_juniper_proto = -1;
 
 static gint ett_juniper = -1;
 
@@ -1156,6 +1158,34 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   call_dissector(data_handle, next_tvb, pinfo, tree);  
 }
 
+
+static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+    tvbuff_t* sub_tvb;
+    proto_item* ti = proto_tree_add_item(tree,proto_juniper,tvb,0,16,FALSE);
+    proto_tree* jt = proto_item_add_subtree(ti,ett_juniper);
+    guint16 proto = tvb_get_letohs(tvb,0);
+
+    proto_item_append_text(ti," GGSN");
+    proto_tree_add_uint(jt,hf_juniper_proto,tvb,0,2,proto);
+    proto_tree_add_item(jt,hf_juniper_vlan,tvb,2,2,TRUE);
+    
+    sub_tvb = tvb_new_subset(tvb, 4,
+                             tvb_length_remaining(tvb, 4),
+                             tvb_reported_length_remaining(tvb, 4));
+    
+    switch (proto) {
+        case PROTO_IP:
+            call_dissector(ipv4_handle,sub_tvb,pinfo,tree);            
+            break;
+        case PROTO_IP6:
+            call_dissector(ipv6_handle,sub_tvb,pinfo,tree);            
+            break;
+        default:
+            call_dissector(data_handle,sub_tvb,pinfo,tree);
+            break;
+    }
+}
+
 /* list of Juniper supported PPP proto IDs */
 static gboolean
 ppp_heuristic_guess(guint16 proto) {
@@ -1333,9 +1363,15 @@ proto_register_juniper(void)
     { &hf_juniper_lspic_cookie,
     { "Cookie", "juniper.lspic.cookie", FT_UINT32, BASE_HEX,
         NULL, 0x0, "", HFILL }},
-    { &hf_juniper_aspic_cookie,
-    { "Cookie", "juniper.aspic.cookie", FT_UINT64, BASE_HEX,
-        NULL, 0x0, "", HFILL }},
+  { &hf_juniper_aspic_cookie,
+  { "Cookie", "juniper.aspic.cookie", FT_UINT64, BASE_HEX,
+      NULL, 0x0, "", HFILL }},
+  { &hf_juniper_vlan,
+  { "VLan ID", "juniper.vlan", FT_UINT16, BASE_DEC,
+      NULL, 0x0, "", HFILL }},
+  { &hf_juniper_proto,
+  { "Protocol", "juniper.proto", FT_UINT16, BASE_DEC,
+      VALS(juniper_proto_vals), 0x0, "", HFILL }},
   };
 
   static gint *ett[] = {
@@ -1360,6 +1396,7 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_ppp_handle;
   dissector_handle_t juniper_frelay_handle;
   dissector_handle_t juniper_chdlc_handle;
+  dissector_handle_t juniper_ggsn_handle;
 
   osinl_subdissector_table = find_dissector_table("osinl");
   osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
@@ -1383,7 +1420,8 @@ proto_reg_handoff_juniper(void)
   juniper_ppp_handle = create_dissector_handle(dissect_juniper_ppp, proto_juniper);
   juniper_frelay_handle = create_dissector_handle(dissect_juniper_frelay, proto_juniper);
   juniper_chdlc_handle = create_dissector_handle(dissect_juniper_chdlc, proto_juniper);
-
+  juniper_ggsn_handle = create_dissector_handle(dissect_juniper_ggsn, proto_juniper);
+    
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2, juniper_atm2_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1, juniper_atm1_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_PPPOE, juniper_pppoe_handle);
@@ -1393,6 +1431,7 @@ proto_reg_handoff_juniper(void)
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_PPP, juniper_ppp_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_FRELAY, juniper_frelay_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC, juniper_chdlc_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN, juniper_ggsn_handle);
 
 }
 
