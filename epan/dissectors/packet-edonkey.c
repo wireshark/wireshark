@@ -60,12 +60,22 @@ static int hf_edonkey_search = -1;
 static int hf_edonkey_ip = -1;
 static int hf_edonkey_port = -1;
 static int hf_edonkey_hash = -1;
+static int hf_edonkey_part_count = -1;
+static int hf_edonkey_file_status = -1;
 static int hf_edonkey_directory = -1;
 static int hf_edonkey_string = -1;
 static int hf_edonkey_string_length = -1;
 static int hf_edonkey_fileinfo = -1;
 static int hf_edonkey_clientinfo = -1;
 static int hf_edonkey_serverinfo = -1;
+static int hf_emule_aich_partnum = -1;
+static int hf_emule_aich_root_hash = -1;
+static int hf_emule_aich_hash_entry = -1;
+static int hf_emule_aich_hash_id = -1;
+static int hf_emule_aich_hash = -1;
+static int hf_emule_multipacket_entry = -1;
+static int hf_emule_multipacket_opcode = -1;
+static int hf_emule_source_count = -1;
 static int hf_overnet_peer = -1;
 
 static gint ett_edonkey = -1;
@@ -75,6 +85,8 @@ static gint ett_edonkey_search = -1;
 static gint ett_edonkey_fileinfo = -1;
 static gint ett_edonkey_serverinfo = -1;
 static gint ett_edonkey_clientinfo = -1;
+static gint ett_emule_aichhash = -1;
+static gint ett_emule_multipacket = -1;
 static gint ett_overnet_peer = -1;
 
 /* desegmentation of eDonkey over TCP */
@@ -142,6 +154,12 @@ static const value_string emule_tcp_msgs[] = {
 	{ EMULE_MSG_QUEUE_RANKING,           "Queue Ranking"            },
 	{ EMULE_MSG_SOURCES_REQUEST,         "Sources Request"          },
 	{ EMULE_MSG_SOURCES_ANSWER,          "Sources Answer"           },
+	{ EMULE_MSG_MULTIPACKET,             "MultiPacket"              },
+	{ EMULE_MSG_MULTIPACKET_ANSWER,      "MultiPacket Answer"       },
+	{ EMULE_MSG_AICH_REQUEST,            "AICH Hashset Request"     },
+	{ EMULE_MSG_AICH_ANSWER,             "AICH Hashset Answer"      },
+	{ EMULE_MSG_AICHFILEHASH_ANSWER,     "AICH Master Hash Request" },
+	{ EMULE_MSG_AICHFILEHASH_REQUEST,    "AICH Master Hash Answer"  },
     { 0,                                 NULL                       }
 };
 
@@ -541,14 +559,6 @@ static int dissect_edonkey_address_list(tvbuff_t *tvb, packet_info *pinfo _U_,
     return dissect_edonkey_list(tvb, pinfo, offset, tree, 1, "Address", dissect_edonkey_address);
 }
 
-/* Dissects the eMule   address list */
-static int dissect_emule_address_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
-                                        int offset,  proto_tree *tree)
-{
-    /* <Address List> ::= <List Size (guint16)> <Address>* */
-    return dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "Address", dissect_edonkey_address);
-}
-
 /* Dissects the eDonkey hash */
 static int dissect_edonkey_hash(tvbuff_t *tvb, packet_info *pinfo _U_, 
                                        int offset, proto_tree *tree)
@@ -558,12 +568,21 @@ static int dissect_edonkey_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset+16;
 }
 
+/* Dissects the eDonkey file hash */
+static int dissect_edonkey_file_hash(tvbuff_t *tvb, packet_info *pinfo _U_, 
+                                     int offset, proto_tree *tree)
+{
+    /* <File hash> ::= HASH (16 word MD4 digest) */
+    proto_tree_add_item(tree, hf_edonkey_file_hash, tvb, offset, 16, FALSE);
+    return offset+16;
+}
 
 /* Dissects the eDonkey hash list */
 static int dissect_edonkey_hash_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
                                         int offset,  proto_tree *tree)
 {
-    /* <Hash List> ::= <List Size (guint16)> <Hash>* */
+    /* <Hash List> ::= <File Hash> <List Size (guint16)> <Hash>* */
+    offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
     return dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "Hash", dissect_edonkey_hash);
 }
 
@@ -605,21 +624,30 @@ static int dissect_edonkey_file_name(tvbuff_t *tvb, packet_info *pinfo _U_,
     return dissect_edonkey_string(tvb, pinfo, offset, tree);
 }
 
+/* Dissects the eDonkey File Status */
+static int dissect_edonkey_file_status(tvbuff_t *tvb, packet_info *pinfo _U_,
+				       int offset, proto_tree *tree)
+{
+  guint16 partcount, arrlen;
+
+  /* <File Status> ::= <Part Count> <Part Status> */
+  partcount = tvb_get_letohs(tvb, offset);
+  arrlen = (partcount+7)/8;
+
+  proto_tree_add_uint(tree, hf_edonkey_part_count, tvb, offset, 2, partcount);
+  if (partcount>0) {
+    proto_tree_add_item(tree, hf_edonkey_file_status, tvb, offset+2, arrlen, FALSE);
+  }
+  return offset+2+arrlen;
+}
+
+
 /* Dissects the eDonkey directory list */
 static int dissect_edonkey_directory_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
                                           int offset,  proto_tree *tree)
 {
     /* <Directory List> ::= <List Size (guint32)> <Directory>* */
     return dissect_edonkey_list(tvb, pinfo, offset, tree, 4, "Directory", dissect_edonkey_directory);
-}
-
-/* Dissects the eDonkey file hash */
-static int dissect_edonkey_file_hash(tvbuff_t *tvb, packet_info *pinfo _U_, 
-                                     int offset, proto_tree *tree)
-{
-    /* <File hash> ::= HASH (16 word MD4 digest) */
-    proto_tree_add_item(tree, hf_edonkey_file_hash, tvb, offset, 16, FALSE);
-    return offset+16;
 }
 
 /* Dissects the eDonkey server hash */
@@ -744,6 +772,172 @@ static int dissect_edonkey_file_info_list(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     /* <File Info List> ::= <List Size (guint32)> <File Info>* */
     return dissect_edonkey_list(tvb, pinfo, offset, tree, 4, "File Info", dissect_edonkey_file_info);
+}
+
+/* Dissects the eMule   address list */
+static int dissect_emule_address_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
+                                        int offset,  proto_tree *tree)
+{
+    /* <Address List> ::= <List Size (guint16)> <Address>* */
+    return dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "Address", dissect_edonkey_address);
+}
+
+static int dissect_emule_aich_root_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
+					int offset, proto_tree *tree)
+{
+  /* <AICH Root Hash> ::= HASH (20 byte SHA1 digest) */
+  proto_tree_add_item(tree, hf_emule_aich_root_hash, tvb, offset, 20, FALSE);
+  return offset + 20;
+}
+
+static int dissect_emule_aich_hash_list_entry(tvbuff_t *tvb, packet_info *pinfo _U_,
+					      int offset, proto_tree *tree)
+{
+  guint16 hashid;
+  proto_item *ti;
+  proto_tree *aichhash_tree;
+  /* <AICH Hash List Entry> ::= <AICH Hash ID> <AICH Hash> */
+  ti = proto_tree_add_item(tree, hf_emule_aich_hash_entry, tvb, offset, 22, FALSE);
+  aichhash_tree = proto_item_add_subtree(ti, ett_emule_aichhash);
+
+  hashid = tvb_get_letohs(tvb, offset);
+  proto_tree_add_uint(aichhash_tree, hf_emule_aich_hash_id, tvb, offset, 2, hashid);
+  proto_tree_add_item(aichhash_tree, hf_emule_aich_hash, tvb, offset+2, 20, FALSE);
+  return offset + 22;
+}
+
+static int dissect_emule_aich_hash_list(tvbuff_t *tvb, packet_info *pinfo _U_,
+					int offset, proto_tree *tree)
+{
+  /* <AICH Hash List> ::= <List Size (guint16)> < <AICH Hash ID> <AICH Hash> >* */
+  return dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "AICH Hash", dissect_emule_aich_hash_list_entry);
+}
+
+static int dissect_emule_multipacket(tvbuff_t *tvb, packet_info *pinfo _U_,
+				     int offset, int eoffset, proto_tree *tree)
+{
+  guint8 opcode, nextop;
+  guint16 namelen, partcount, arrlen, oplen;
+  guint32 sourcecount;
+  proto_item *ti;
+  proto_tree *mp_tree;
+
+  /* <MultiPacket> ::= <File Hash> <Opcodes>* */
+  offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+
+  while (offset<eoffset) {
+    opcode = tvb_get_guint8(tvb, offset);
+
+    switch (opcode) {
+    case EDONKEY_MSG_FILE_STATUS_REQUEST:
+      ti = proto_tree_add_item(tree, hf_emule_multipacket_entry, tvb, offset, 1, FALSE);
+      mp_tree = proto_item_add_subtree(ti, ett_emule_multipacket);
+
+      proto_tree_add_uint_format(mp_tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "File Status Request (0x%02x)", opcode);
+      offset += 1;
+      break;
+    case EDONKEY_MSG_FILE_REQUEST:
+      partcount = 443; /* Invalid */
+      sourcecount = 65536; /* Out of range */
+      arrlen = 0;
+      oplen = 1;
+
+      if (offset+2<eoffset) {
+	nextop = tvb_get_guint8(tvb, offset+1);
+	if (nextop!=EDONKEY_MSG_FILE_STATUS_REQUEST &&
+	    nextop!=EMULE_MSG_SOURCES_REQUEST &&
+	    nextop!=EMULE_MSG_AICHFILEHASH_REQUEST) {
+
+	  partcount = tvb_get_letohs(tvb, offset+1);
+	  if (partcount<=442) {
+	    arrlen = (partcount+7)/8;
+	    oplen += 2+arrlen;
+
+	    if (offset+2+arrlen+2<eoffset) {
+	      nextop = tvb_get_guint8(tvb, offset+2+arrlen+1);
+	      if (nextop!=EDONKEY_MSG_FILE_STATUS_REQUEST &&
+		  nextop!=EMULE_MSG_SOURCES_REQUEST &&
+		  nextop!=EMULE_MSG_AICHFILEHASH_REQUEST) {
+
+		sourcecount = tvb_get_letohs(tvb, offset+2+arrlen+1);
+		oplen += 2;
+	      }
+	    }
+	  }
+	}
+      }
+
+      ti = proto_tree_add_item(tree, hf_emule_multipacket_entry, tvb, offset, oplen, FALSE);
+      mp_tree = proto_item_add_subtree(ti, ett_emule_multipacket);
+
+      proto_tree_add_uint_format(mp_tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "File Name Request (0x%02x)", opcode);
+      if (partcount<=442) {
+	dissect_edonkey_file_status(tvb, pinfo, offset+1, mp_tree);
+	if (sourcecount<65536) {
+	  proto_tree_add_uint(mp_tree, hf_emule_source_count, tvb, offset+3+arrlen, 2, sourcecount);
+	}
+      }
+      offset += oplen;
+      break;
+    case EMULE_MSG_SOURCES_REQUEST:
+      ti = proto_tree_add_item(tree, hf_emule_multipacket_entry, tvb, offset, 1, FALSE);
+      mp_tree = proto_item_add_subtree(ti, ett_emule_multipacket);
+
+      proto_tree_add_uint_format(mp_tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "Sources Request (0x%02x)", opcode);
+      offset += 1;
+      break;
+    case EMULE_MSG_AICHFILEHASH_REQUEST:
+      ti = proto_tree_add_item(tree, hf_emule_multipacket_entry, tvb, offset, 1, FALSE);
+      mp_tree = proto_item_add_subtree(ti, ett_emule_multipacket);
+
+      proto_tree_add_uint_format(mp_tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "AICH Root Hash Request (0x%02x)", opcode);
+      offset += 1;
+      break;
+
+    case EDONKEY_MSG_FILE_STATUS:
+      partcount = tvb_get_letohs(tvb, offset+1);
+      arrlen = (partcount+7)/8;
+
+      ti = proto_tree_add_item(tree, hf_emule_multipacket_entry, tvb, offset, 3+arrlen, FALSE);
+      mp_tree = proto_item_add_subtree(ti, ett_emule_multipacket);
+
+      proto_tree_add_uint_format(mp_tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "File Status (0x%02x)", opcode);
+      offset = dissect_edonkey_file_status(tvb, pinfo, offset+1, mp_tree);
+      break;
+    case EDONKEY_MSG_FILE_REQUEST_ANSWER:
+      namelen = tvb_get_letohs(tvb, offset+1);
+
+      ti = proto_tree_add_item(tree, hf_emule_multipacket_entry, tvb, offset, 3+namelen, FALSE);
+      mp_tree = proto_item_add_subtree(ti, ett_emule_multipacket);
+
+      proto_tree_add_uint_format(mp_tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "File Name (0x%02x)", opcode);
+      offset = dissect_edonkey_file_name(tvb, pinfo, offset+1, mp_tree);
+      break;
+    case EMULE_MSG_AICHFILEHASH_ANSWER:
+      ti = proto_tree_add_item(tree, hf_emule_multipacket_entry, tvb, offset, 21, FALSE);
+      mp_tree = proto_item_add_subtree(ti, ett_emule_multipacket);
+
+      proto_tree_add_uint_format(mp_tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "AICH Root Hash (0x%02x)", opcode);
+      proto_tree_add_item(mp_tree, hf_emule_aich_root_hash, tvb, offset+1, 20, FALSE);
+      offset += 21;
+      break;
+
+    default:
+      /* Unknown opcode means we can't continue parsing the stream */
+      proto_tree_add_uint_format(tree, hf_emule_multipacket_opcode, tvb, offset, 1,
+				 opcode, "Unknown MultiPacket opcode (0x%02x)", opcode);
+      return offset+1;
+    }
+  }
+
+  return offset;
 }
 
 /* Dissects the Overnet peer type */
@@ -982,6 +1176,11 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
             proto_tree_add_text(tree, tvb, offset+4, 4, "Number of Files: %u", nfiles);
             break;
 
+        case EDONKEY_MSG_FILE_STATUS: /* File Status: <File hash> <Part Count> <Part Status>? */
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_file_status(tvb, pinfo, offset, tree);
+            break;
+
         case EDONKEY_MSG_FILE_REQUEST_ANSWER: /* File Request Answer: <File hash> <File name> */
             offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
             offset = dissect_edonkey_file_name(tvb, pinfo, offset, tree);
@@ -1042,7 +1241,7 @@ static void dissect_emule_tcp_message(guint8 msg_type,
 {   
     int msg_start, msg_end, bytes_remaining;
     guint32 packed_length;
-    guint16 version, rank;
+    guint16 version, rank, partnum;
 
     if (tree == NULL) return;
 
@@ -1086,6 +1285,28 @@ static void dissect_emule_tcp_message(guint8 msg_type,
                 proto_tree_add_text(tree, tvb, offset, bytes_remaining, 
                                     "Compressed Message Data (%d bytes)", bytes_remaining);
             }
+            break;
+
+        case EMULE_MSG_AICH_REQUEST: /* AICH Request: <File Hash> <PartNum> <AICH Hash> */
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+            partnum = tvb_get_letohs(tvb, offset);
+	    proto_tree_add_uint(tree, hf_emule_aich_partnum, tvb, offset, 2, partnum);
+            offset += 2;
+            offset = dissect_emule_aich_root_hash(tvb, pinfo, offset, tree);
+            break;
+
+        case EMULE_MSG_AICH_ANSWER: /* AICH Answer: <File Hash> <PartNum> <AICH Hash> <AICH Hash List> */
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+            partnum = tvb_get_letohs(tvb, offset);
+	    proto_tree_add_uint(tree, hf_emule_aich_partnum, tvb, offset, 2, partnum);
+            offset += 2;
+            offset = dissect_emule_aich_root_hash(tvb, pinfo, offset, tree);
+            offset = dissect_emule_aich_hash_list(tvb, pinfo, offset, tree);
+            break;
+
+        case EMULE_MSG_MULTIPACKET: /* MultiPacket: <Hash> <Opcodes> */
+        case EMULE_MSG_MULTIPACKET_ANSWER:
+            offset = dissect_emule_multipacket(tvb, pinfo, offset, offset+length, tree);
             break;
 
         default:
@@ -1515,6 +1736,12 @@ void proto_register_edonkey(void) {
         { &hf_edonkey_string_length,
           { "String Length", "edonkey.string_length",
             FT_UINT16, BASE_DEC, NULL, 0, "eDonkey String Length", HFILL } },
+	{ &hf_edonkey_part_count,
+	  { "Part Count", "edonkey.part_count",
+	    FT_UINT16, BASE_DEC, NULL, 0, "eDonkey Part Count", HFILL } },
+	{ &hf_edonkey_file_status,
+	  { "File Status", "edonkey.file_status",
+	    FT_BYTES, BASE_HEX, NULL, 0, "eDonkey File Status", HFILL } },
         { &hf_edonkey_directory,
           { "Directory", "edonkey.directory",
             FT_STRING, BASE_NONE, NULL, 0, "eDonkey Directory", HFILL } },
@@ -1527,6 +1754,30 @@ void proto_register_edonkey(void) {
         { &hf_edonkey_clientinfo,  
           { "eDonkey Client Info", "edonkey.clientinfo",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey Client Info", HFILL } },
+	{ &hf_emule_aich_partnum,
+	  { "Part Number", "emule.aich_partnum",
+	    FT_UINT16, BASE_DEC, NULL, 0, "eMule AICH Part Number", HFILL } },
+	{ &hf_emule_aich_root_hash,
+	  { "AICH Root Hash", "emule.aich_root_hash",
+	    FT_BYTES, BASE_HEX, NULL, 0, "eMule AICH Root Hash", HFILL } },
+	{ &hf_emule_aich_hash_entry,
+	  { "AICH Hash Entry", "emule_aich_hash_entry",
+	    FT_NONE, BASE_NONE, NULL, 0, "eMule AICH Hash Entry", HFILL } },
+	{ &hf_emule_aich_hash_id,
+	  { "AICH Hash ID", "emule.aich_hash_id",
+	    FT_UINT16, BASE_HEX, NULL, 0, "eMule AICH Hash ID", HFILL } },
+	{ &hf_emule_aich_hash,
+	  { "AICH Hash", "emule.aich_hash",
+	    FT_BYTES, BASE_HEX, NULL, 0, "eMule AICH Hash", HFILL } },
+	{ &hf_emule_multipacket_entry,
+	  { "eMule MultiPacket Entry", "emule.multipacket_entry",
+	    FT_NONE, BASE_NONE, NULL, 0, "eMule MultiPacket Entry", HFILL } },
+	{ &hf_emule_multipacket_opcode,
+	  { "MultiPacket Opcode", "emule.multipacket_opcode",
+	    FT_UINT8, BASE_HEX, NULL, 0, "eMule MultiPacket Opcode", HFILL } },
+	{ &hf_emule_source_count,
+	  { "Compeleted Sources Count", "emule.source_count",
+	    FT_UINT16, BASE_DEC, NULL, 0, "eMule Completed Sources Count", HFILL } },
         { &hf_overnet_peer,  
           { "Overnet Peer", "overnet.peer",
             FT_NONE, BASE_NONE, NULL, 0, "Overnet Peer", HFILL } },
@@ -1540,6 +1791,8 @@ void proto_register_edonkey(void) {
 		&ett_edonkey_fileinfo,
 		&ett_edonkey_serverinfo,
 		&ett_edonkey_clientinfo,
+		&ett_emule_aichhash,
+		&ett_emule_multipacket,
 		&ett_overnet_peer
 	};
 	module_t *edonkey_module;

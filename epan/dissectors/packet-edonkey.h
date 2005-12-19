@@ -103,6 +103,12 @@ void proto_register_edonkey(void);
 #define EMULE_MSG_QUEUE_RANKING          0x60
 #define EMULE_MSG_SOURCES_REQUEST        0x81
 #define EMULE_MSG_SOURCES_ANSWER         0x82
+#define EMULE_MSG_MULTIPACKET            0x92
+#define EMULE_MSG_MULTIPACKET_ANSWER     0x93
+#define EMULE_MSG_AICH_REQUEST           0x9b
+#define EMULE_MSG_AICH_ANSWER            0x9c
+#define EMULE_MSG_AICHFILEHASH_ANSWER    0x9d
+#define EMULE_MSG_AICHFILEHASH_REQUEST   0x9e
 
 /* EDONKEY UDP MESSAGES */
 #define EDONKEY_MSG_UDP_SERVER_STATUS_REQUEST      0x96
