@@ -117,6 +117,33 @@ Ext-ForwardingInfoFor-CSE/forwardingFeatureList ext-forwardingFeatureList
 Ext-ForwFeature/noReplyConditionTime ext-noReplyConditionTime
 ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 #----------------------------------------------------------------------------------------
+#.PDU 
+Component 
+
+#.FN_BODY InvokeParameter
+	offset = dissect_invokeData(pinfo, tree, tvb, offset);
+
+#.FN_BODY ReturnResultParameter
+	offset = dissect_returnResultData(pinfo, tree, tvb, offset);
+
+#.FN_BODY ReturnErrorParameter
+	offset = dissect_returnErrorData(pinfo, tree, tvb, offset);
+
+#.FN_PARS  OperationLocalvalue
+
+  VAL_PTR = &opcode
+
+#.FN_BODY  OperationLocalvalue
+
+%(DEFAULT_BODY)s 
+  if (check_col(pinfo->cinfo, COL_INFO)){
+    col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%%u)"));
+  }
+
+#.FN_PARS  LocalErrorcode
+
+  VAL_PTR = &errorCode
+
 #.FN_PARS  Sm-RP-UI
 
   VAL_PTR = &tpdu_tvb
@@ -321,7 +348,7 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
  	/* gsm-0806 */
 	case 2:
 		break;
-	/* gsm-BSSMAP TODO Is it correct to stripp off tw first octets here?*/
+	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
 	case 3:
 		octet = tvb_get_guint8(parameter_tvb,0);
 		length = tvb_get_guint8(parameter_tvb,1);

@@ -8,6 +8,247 @@ DEFINITIONS::=
 
 BEGIN
 
+-- ROS def's
+-- Module Remote-Operations-Apdus (H.450.1:02/1998)
+--Remote-Operations-Apdus {itu-t recommendation h 450 1 version1(0)
+--  remote-operations-apdus(11)} DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+Component ::=	CHOICE {
+				invoke				[1] IMPLICIT Invoke,
+				returnResultLast	[2] IMPLICIT ReturnResult,
+				returnError			[3] IMPLICIT ReturnError,
+				reject				[4] IMPLICIT Reject
+}
+
+Invoke ::=		SEQUENCE {
+				invokeID			InvokeIdType,
+				linkedID			[0] IMPLICIT InvokeIdType OPTIONAL,
+				opCode				OPERATION,
+				invokeparameter	 	InvokeParameter OPTIONAL
+}
+InvokeParameter ::= ANY
+
+ 
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER or the keyword ARGUMENT
+-- in the type definition of a particular operation.
+
+ReturnResult ::=	SEQUENCE {
+				invokeID				InvokeIdType,
+				resultretres			SEQUENCE {
+				opCode					OPERATION,
+				returnparameter				ReturnResultParameter OPTIONAL
+				} OPTIONAL
+			}
+
+ReturnResultParameter ::= ANY
+
+-- ANY is filled by the single ASN.1 data type following the keyword RESULT in the type definition
+-- of a particular operation.
+
+ReturnError ::=	SEQUENCE {
+				invokeID				InvokeIdType,
+				errorCode				ERROR,
+				parameter				ReturnErrorParameter  OPTIONAL }
+
+ReturnErrorParameter ::= ANY
+ 
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER in the type definition
+-- of a particular error.
+
+Reject ::=		SEQUENCE {
+				invokeIDRej CHOICE {
+					derivable			InvokeIdType,
+					not-derivable		NULL },
+				problem CHOICE {
+					generalProblem		[0] IMPLICIT GeneralProblem,
+					invokeProblem		[1] IMPLICIT InvokeProblem,
+					returnResultProblem	[2] IMPLICIT ReturnResultProblem,
+					returnErrorProblem	[3] IMPLICIT ReturnErrorProblem } }
+
+InvokeIdType ::=	INTEGER (-128..127)
+
+
+OPERATION	::=	CHOICE {
+							localValue OperationLocalvalue,
+							globalValue OBJECT IDENTIFIER } 
+
+OperationLocalvalue ::= INTEGER{
+	updateLocation (2),
+	cancelLocation (3),
+	provideRoamingNumber (4),
+	noteSubscriberDataModified (5),
+	resumeCallHandling (6),
+	insertSubscriberData (7),
+	deleteSubscriberData (8),
+	sendParameters (9),
+	registerSS (10),
+	eraseSS (11),
+	activateSS (12),
+	deactivateSS (13),
+	interrogateSS (14),
+	authenticationFailureReport (15),
+	registerPassword (17),
+	getPassword (18),
+	processUnstructuredSS-Data (19),
+	releaseResources (20),
+	sendRoutingInfo (22),
+	updateGprsLocation (23),
+	sendRoutingInfoForGprs (24),
+	failureReport (25),
+	noteMsPresentForGprs (26),
+	performHandover (28),
+	sendEndSignal (29),
+	performSubsequentHandover (30),
+	provideSIWFSNumber (31),
+	sIWFSSignallingModify (32),
+	processAccessSignalling (33),
+	forwardAccessSignalling (34),
+	noteInternalHandover (35),
+	reset (37),
+	forwardCheckSS (38),
+	prepareGroupCall (39),
+	sendGroupCallEndSignal (40),
+	processGroupCallSignalling (41),
+	forwardGroupCallSignalling (42),
+	checkIMEI (43),
+	mt-forwardSM (44),
+	sendRoutingInfoForSM (45),
+	mo-forwardSM (46),
+	reportSM-DeliveryStatus (47),
+	noteSubscriberPresent (48),
+	alertServiceCentreWithoutResult (49),
+	activateTraceMode (50),
+	deactivateTraceMode (51),
+	traceSubscriberActivity (52),
+	beginSubscriberActivity (54),
+	sendIdentification (55),
+	sendAuthenticationInfo (56),
+	restoreData (57),
+	sendIMSI (58),
+	processUnstructuredSS-Request (59),
+	unstructuredSS-Request (60),
+	unstructuredSS-Notify (61),
+	anyTimeSubscriptionInterrogation (62),
+	informServiceCentre (63),
+	alertServiceCentre (64),
+	anyTimeModification (65),
+	readyForSM (66),
+	purgeMS (67),
+	prepareHandover (68),
+	prepareSubsequentHandover (69),
+	provideSubscriberInfo (70),
+	anyTimeInterrogation (71),
+	ss-InvocationNotification (72),
+	setReportingState (73),
+	statusReport (74),
+	remoteUserFree (75),
+	registerCC-Entry (76),
+	eraseCC-Entry (77),
+	secureTransportClass1 (78),
+	secureTransportClass2 (79),
+	secureTransportClass3 (80),
+	secureTransportClass4 (81),
+	provideSubscriberLocation (83),
+	sendRoutingInfoForLCS (85),
+	subscriberLocationReport (86),
+	ist-Alert (87),
+	ist-Command (88),
+	noteMM-Event (89)
+		}
+
+ERROR	::=	CHOICE {
+			localValue LocalErrorcode,
+			globalValue OBJECT IDENTIFIER } 
+
+LocalErrorcode ::= INTEGER{
+	systemFailure (34),
+	dataMissing (35),
+	unexpectedDataValue (36),
+	facilityNotSupported (21),
+	incompatibleTerminal (28),
+	resourceLimitation (51),
+	unknownSubscriber (1),
+	numberChanged (44),
+	unknownMSC (3),
+	unidentifiedSubscriber (5),
+	unknownEquipment (7),
+	roamingNotAllowed (8),
+	illegalSubscriber (9),
+	illegalEquipment (12),
+	bearerServiceNotProvisioned (10),
+	teleserviceNotProvisioned (11),
+	noHandoverNumberAvailable (25),
+	subsequentHandoverFailure (26),
+	targetCellOutsideGroupCallArea (42),
+	tracingBufferFull (40),
+	noRoamingNumberAvailable (39),
+	absentSubscriber (27),
+	busySubscriber (45),
+	noSubscriberReply (46),
+	callBarred (13),
+	forwardingViolation (14),
+	forwardingFailed (47),
+	cug-Reject (15),
+	or-NotAllowed (48),
+	ati-NotAllowed (49),
+	atsi-NotAllowed (60),
+	atm-NotAllowed (61),
+	informationNotAvailabl (62),
+	illegalSS-Operation (16),
+	ss-ErrorStatus (17),
+	ss-NotAvailable (18),
+	ss-SubscriptionViolatio (19),
+	ss-Incompatibility (20),
+	unknownAlphabe (71),
+	ussd-Busy (72),
+	pw-RegistrationFailur (37),
+	negativePW-Check (38),
+	numberOfPW-AttemptsViolation (43),
+	shortTermDenial (29),
+	longTermDenial (30),
+	subscriberBusyForMT-SMS (31),
+	sm-DeliveryFailure (32),
+	messageWaitingListFull (33),
+	absentSubscriberSM (6),
+	noGroupCallNumberAvailable (50),
+	unauthorizedRequestingNetwork (52),
+	unauthorizedLCSClient (53),
+	positionMethodFailure (54),
+	unknownOrUnreachableLCSClient (58),
+	mm-EventNotSupported (59),
+	secureTransportError (4)
+	}
+
+-- PROBLEMS
+
+GeneralProblem		::=	INTEGER {		unrecognizedComponent (0),
+								mistypedComponent (1),
+								badlyStructuredComponent (2) }
+
+InvokeProblem		::=	INTEGER {		duplicateInvokeID (0),
+								unrecognizedOperation (1),
+								mistypedParameter (2),
+								resourceLimitation (3),
+								initiatingRelease (4),
+								unrecognizedLinkedID (5),
+								linkedResponseUnexpected (6),
+								unexpectedLinkedOperation (7) }
+
+ReturnResultProblem	::=	INTEGER {		unrecognizedInvokeID (0),
+								returnResultUnexpected (1),
+								mistypedParameter (2) }
+
+ReturnErrorProblem	::=	INTEGER {		unrecognizedInvokeID (0),
+								returnErrorUnexpected (1),
+								unrecognizedError (2),
+								unexpectedError (3),
+								mistypedParameter (4) }
+
+
+
+--END
+
 
 Bss-APDU ::=  SEQUENCE {
             protocolId		ProtocolId,
@@ -2519,7 +2760,7 @@ IST-CommandRes ::= SEQUENCE{
 --   }
 
 ReleaseResourcesArg ::= SEQUENCE{
-	msrn						ISDN-AddressString,
+	msrn						ISDN-AddressString OPTIONAL,
 	extensionContainer			ExtensionContainer OPTIONAL,
 ...}
 
@@ -4722,6 +4963,10 @@ FacilityNotSupParam ::= SEQUENCE {
          ... }
 -- ::= localValue : 21
 
+OR-NotAllowedParam ::= SEQUENCE {
+	extensionContainer ExtensionContainer OPTIONAL,
+...}
+
 --incompatibleTerminal ERROR
 --   PARAMETER
 IncompatibleTerminalParam ::= SEQUENCE {
@@ -4827,15 +5072,28 @@ NoRoamingNbParam ::= SEQUENCE {
 
 --absentSubscriber ERROR
 --   PARAMETER
+
 AbsentSubscriberParam ::= SEQUENCE {
-         extensionContainer       ExtensionContainer OPTIONAL,
-         ... , 
-         absentSubscriberReason   [0] IMPLICIT ENUMERATED {
-            imsiDetach        ( 0 ), 
-            restrictedArea    ( 1 ), 
-            noPageResponse    ( 2 ), 
-            ...  } OPTIONAL}
+	extensionContainer		ExtensionContainer OPTIONAL,
+	...,
+	absentSubscriberReason	[0] AbsentSubscriberReason OPTIONAL
+	}
+
 -- ::= localValue : 27
+AbsentSubscriberReason ::= ENUMERATED {
+	imsiDetach (0),
+	restrictedArea (1),
+	noPageResponse (2),
+	... ,
+	purgedMS (3)
+	}
+
+-- exception handling: at reception of other values than the ones listed the
+-- AbsentSubscriberReason shall be ignored.
+-- The AbsentSubscriberReason: purgedMS is defined for the Super-Charger feature
+-- (see TS 23.116). If this value is received in a Provide Roaming Number response
+-- it shall be mapped to the AbsentSubscriberReason: imsiDetach in the Send Routeing
+-- Information response
 
 --busySubscriber ERROR
 --   PARAMETER
@@ -4853,20 +5111,12 @@ NoSubscriberReplyParam ::= SEQUENCE {
          ... }
 -- ::= localValue : 46
 
---callBarred ERROR
+--forwardingViolation ERROR
 --   PARAMETER
-CallBarredParam ::= CHOICE {
-         callBarringCause              CallBarringCause, 
-         extensibleCallBarredParam     SEQUENCE {
-            callBarringCause                CallBarringCause OPTIONAL, 
-            extensionContainer              ExtensionContainer OPTIONAL,
-            ... , 
-            unauthorisedMessageOriginator   [1] IMPLICIT NULL OPTIONAL}}
--- ::= localValue : 13
-CallBarringCause ::= ENUMERATED {
-            barringServiceActive    ( 0 ), 
-            operatorBarring         ( 1 ) 
-}
+ForwardingViolationParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 14
 
 --forwardingFailed ERROR
 --   PARAMETER
@@ -4875,6 +5125,84 @@ ForwardingFailedParam ::= SEQUENCE {
          ... }
 -- ::= localValue : 47
 
+--ati-NotAllowed ERROR
+--   PARAMETER
+ATI-NotAllowedParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 49
+
+ATSI-NotAllowedParam ::= SEQUENCE {
+		extensionContainer ExtensionContainer OPTIONAL,
+		...
+		}
+
+ATM-NotAllowedParam ::= SEQUENCE {
+		extensionContainer ExtensionContainer OPTIONAL,
+		...
+		}
+
+IllegalSS-OperationParam ::= SEQUENCE {
+		extensionContainer ExtensionContainer OPTIONAL,
+		...
+		}
+SS-NotAvailableParam ::= SEQUENCE {
+		extensionContainer ExtensionContainer OPTIONAL,
+		...
+		}
+
+SS-SubscriptionViolationParam ::= SEQUENCE {
+		extensionContainer ExtensionContainer OPTIONAL,
+		...
+		}
+
+InformationNotAvailableParam ::= SEQUENCE {
+		extensionContainer ExtensionContainer OPTIONAL,
+		...
+		}
+
+--subscriberBusyForMT-SMS ERROR
+--   PARAMETER
+SubBusyForMT-SMS-Param ::= SEQUENCE {
+         extensionContainer        ExtensionContainer OPTIONAL,
+         ... , 
+         gprsConnectionSuspended   NULL OPTIONAL}
+-- ::= localValue : 31
+
+--callBarred ERROR
+--   PARAMETER
+CallBarredParam ::= CHOICE {
+         callBarringCause              CallBarringCause, 
+         extensibleCallBarredParam     ExtensibleCallBarredParam
+			}
+-- ::= localValue : 13
+
+CallBarringCause ::= ENUMERATED {
+            barringServiceActive    ( 0 ), 
+            operatorBarring         ( 1 ) 
+}
+
+ExtensibleCallBarredParam ::= SEQUENCE {
+	callBarringCause					CallBarringCause OPTIONAL,
+	extensionContainer					ExtensionContainer OPTIONAL,
+	... ,
+	unauthorisedMessageOriginator		[1] NULL OPTIONAL 
+	}
+
+CUG-RejectParam ::= SEQUENCE {
+	cug-RejectCause			CUG-RejectCause OPTIONAL,
+	extensionContainer		ExtensionContainer OPTIONAL,
+	...
+	}
+
+CUG-RejectCause ::= ENUMERATED {
+	incomingCallsBarredWithinCUG					(0),
+	subscriberNotMemberOfCUG						(1),
+	requestedBasicServiceViolatesCUG-Constraints	(5),
+	calledPartySS-InteractionViolation				(7)
+	}
+
+
 --or-NotAllowed ERROR
 --   PARAMETER
 Or-NotAllowedParam ::= SEQUENCE {
@@ -4882,12 +5210,7 @@ Or-NotAllowedParam ::= SEQUENCE {
          ... }
 -- ::= localValue : 48
 
---forwardingViolation ERROR
---   PARAMETER
-ForwardingViolationParam ::= SEQUENCE {
-         extensionContainer   ExtensionContainer OPTIONAL,
-         ... }
--- ::= localValue : 14
+
 
 --cug-Reject ERROR
 --   PARAMETER
@@ -4901,12 +5224,6 @@ Cug-RejectParam ::= SEQUENCE {
          ... }
 -- ::= localValue : 15
 
---ati-NotAllowed ERROR
---   PARAMETER
-Ati-NotAllowedParam ::= SEQUENCE {
-         extensionContainer   ExtensionContainer OPTIONAL,
-         ... }
--- ::= localValue : 49
 
 --noGroupCallNumberAvailable ERROR
 --   PARAMETER
@@ -4945,10 +5262,12 @@ SS-IncompatibilityCause ::= SEQUENCE {
 
 --pw-RegistrationFailure ERROR
 --   PARAMETER
-Pw-RegistrationFailureCause ::= ENUMERATED {
-         undetermined            ( 0 ), 
-         invalidFormat           ( 1 ), 
-         newPasswordsMismatch    ( 2 ) }
+
+PW-RegistrationFailureCause ::= ENUMERATED {
+	undetermined (0),
+	invalidFormat (1),
+	newPasswordsMismatch (2)
+	}
 -- ::= localValue : 37
 
 --negativePW-Check ERROR
@@ -4969,29 +5288,26 @@ LongTermDenialParam ::= SEQUENCE {
          ... }
 -- ::= localValue : 30
 
---subscriberBusyForMT-SMS ERROR
---   PARAMETER
-SubBusyForMT-SMS-Param ::= SEQUENCE {
-         extensionContainer        ExtensionContainer OPTIONAL,
-         ... , 
-         gprsConnectionSuspended   NULL OPTIONAL}
--- ::= localValue : 31
 
 --sm-DeliveryFailure ERROR
 --   PARAMETER
-Sm-DeliveryFailureCause ::= SEQUENCE {
-         sm-EnumeratedDeliveryFailureCause   ENUMERATED {
-            memoryCapacityExceeded        ( 0 ), 
-            equipmentProtocolError        ( 1 ), 
-            equipmentNotSM-Equipped       ( 2 ), 
-            unknownServiceCentre          ( 3 ), 
-            sc-Congestion                 ( 4 ), 
-            invalidSME-Address            ( 5 ), 
-            subscriberNotSC-Subscriber    ( 6 ) }, 
-         diagnosticInfo                      OCTET STRING ( SIZE( 1 .. 200 ) ) OPTIONAL, 
-         extensionContainer                  ExtensionContainer OPTIONAL,
-         ... }
+SM-EnumeratedDeliveryFailureCause ::= ENUMERATED {
+	memoryCapacityExceeded (0),
+	equipmentProtocolError (1),
+	equipmentNotSM-Equipped (2),
+	unknownServiceCentre (3),
+	sc-Congestion (4),
+	invalidSME-Address (5),
+	subscriberNotSC-Subscriber (6)
+	}
+
+SM-DeliveryFailureCause ::= SEQUENCE {
+	sm-EnumeratedDeliveryFailureCause	SM-EnumeratedDeliveryFailureCause,
+	diagnosticInfo						SignalInfo OPTIONAL,
+	extensionContainer					ExtensionContainer OPTIONAL,
+...}
 -- ::= localValue : 32
+
 
 --messageWaitingListFull ERROR
 --   PARAMETER
@@ -5042,19 +5358,26 @@ UnauthorizedLCSClient-Param ::= SEQUENCE {
 --positionMethodFailure ERROR
 --   PARAMETER
 PositionMethodFailure-Param ::= SEQUENCE {
-         positionMethodFailure-Diagnostic   [0] IMPLICIT ENUMERATED {
-            congestion                                  ( 0 ), 
-            insufficientResources                       ( 1 ), 
-            insufficientMeasurementData                 ( 2 ), 
-            inconsistentMeasurementData                 ( 3 ), 
-            locationProcedureNotCompleted               ( 4 ), 
-            locationProcedureNotSupportedByTargetMS     ( 5 ), 
-            qoSNotAttainable                            ( 6 ), 
-            positionMethodNotAvailableInNetwork         ( 7 ), 
-            positionMethodNotAvailableInLocationArea    ( 8 ), 
-            ...  } OPTIONAL, 
-         extensionContainer                 [1] IMPLICIT ExtensionContainer OPTIONAL,
-         ... }
+	positionMethodFailure-Diagnostic		[0] IMPLICIT PositionMethodFailure-Diagnostic OPTIONAL,
+	extensionContainer						[1] IMPLICIT ExtensionContainer OPTIONAL,
+	... 
+	}
+
+
+PositionMethodFailure-Diagnostic ::= ENUMERATED {
+	congestion (0),
+	insufficientResources (1),
+	insufficientMeasurementData (2),
+	inconsistentMeasurementData (3),
+	locationProcedureNotCompleted (4),
+	locationProcedureNotSupportedByTargetMS (5),
+	qoSNotAttainable (6),
+	positionMethodNotAvailableInNetwork (7),
+	positionMethodNotAvailableInLocationArea (8),
+	... 
+	}
+-- exception handling:
+-- any unrecognized value shall be ignored
 -- ::= localValue : 54
 
 --unknownOrUnreachableLCSClient ERROR
@@ -5063,6 +5386,24 @@ UnknownOrUnreachableLCSClient-Param ::= SEQUENCE {
          extensionContainer   ExtensionContainer OPTIONAL,
          ... }
 -- ::= localValue : 58
+
+MM-EventNotSupported-Param ::= SEQUENCE {
+	extensionContainer ExtensionContainer OPTIONAL,
+	...
+	}
+
+TargetCellOutsideGCA-Param ::= SEQUENCE {
+	extensionContainer ExtensionContainer OPTIONAL,
+	...
+	}
+
+SecureTransportErrorParam ::= SEQUENCE {
+	securityHeader		SecurityHeader,
+	protectedPayload	ProtectedPayload OPTIONAL
+}
+-- The protectedPayload carries the result of applying the security function
+-- defined in 3GPP TS 33.200 to the encoding of the securely transported error
+-- parameter
 
 ExtensionContainer ::=    SEQUENCE {
    privateExtensionList [0] IMPLICIT PrivateExtensionList OPTIONAL, 
