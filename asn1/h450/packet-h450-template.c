@@ -158,14 +158,7 @@ static int hf_h4501_Reject = -1;
 static int hf_h4502_CTIdentifyRes = -1;
 static int hf_h4502_DummyRes = -1;
 static int hf_h4502_DummyArg = -1;
-static int hf_h4502_CTInitiateArg = -1;
-static int hf_h4502_CTSetupArg = -1;
-static int hf_h4502_CTUpdateArg = -1;
-static int hf_h4502_SubaddressTransferArg = -1;
-static int hf_h4502_CTCompleteArg = -1;
-static int hf_h4502_CTActiveArg = -1;
 
-static int hf_h4503ActivateDiversionQArg = -1;
 static int hf_h4503DeactivateDiversionQArg = -1;
 static int hf_h4503InterrogateDiversionQ = -1;
 static int hf_h4503CheckRestrictionArg = -1;
@@ -389,6 +382,23 @@ dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo,
       case CallTransferSetup:
          dissect_h450_DummyRes(result_tvb, 0, pinfo , tree, hf_h4502_DummyRes);
          break;
+
+	  case ActivateDiversionQ:
+		  dissect_ActivateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case DeactivateDiversionQ:
+		  dissect_DeactivateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case InterrogateDiversionQ:
+		  dissect_InterrogateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case CheckRestriction:
+		  dissect_CheckRestrictionRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case CallRerouting:
+		  dissect_CallReroutingRes_PDU(result_tvb, pinfo, tree);
+		  break;
+
 	case RemoteRetrieve:
          dissect_h450_RemoteRetrieveRes(result_tvb, 0, pinfo , tree, hf_h4504_RemoteRetrieveRes);
          break;
@@ -691,38 +701,33 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
       switch (localOpcode) {
 		  /* h450.2 */
 		  case CallTransferIdentify:  /* Localvalue 7 */
+			  dissect_CallTransferIdentify_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferAbandon:   /* Localvalue 8 */
-			 dissect_h450_DummyArg(argument_tvb, 0, pinfo , tree, hf_h4502_DummyArg);
-			 break;
-
+			  dissect_CallTransferAbandon_PDU(argument_tvb, pinfo, tree);
+			  break;
 		   case CallTransferInitiate:  /* Localvalue 9 */
-	         dissect_h450_CTInitiateArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTInitiateArg);
-	         break;
-
+			  dissect_CallTransferInitiate_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferSetup:		/* Localvalue 10 */
-	         dissect_h450_CTSetupArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTSetupArg);
-	         break;
-
+			  dissect_CallTransferSetup_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferUpdate:		/* Localvalue 13 */
-	         dissect_h450_CTUpdateArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTUpdateArg);
-	         break;
-
+			  dissect_CallTransferUpdate_PDU(argument_tvb, pinfo, tree);
+			  break;
 		  case SubaddressTransfer:		/* Localvalue 14 */
-	         dissect_h450_SubaddressTransfer(argument_tvb, 0, pinfo , tree, hf_h4502_SubaddressTransferArg);
-	         break;
-
+			  dissect_SubaddressTransfer_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferComplete:	/* Localvalue 12 */
-	         dissect_h450_CTCompleteArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTCompleteArg);
-	         break;
-
+			  dissect_CallTransferComplete_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferActive:		/* Localvalue 11 */
-	         dissect_h450_CTActiveArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTActiveArg);
-		     break;
+			  dissect_CallTransferActive_PDU(argument_tvb, pinfo, tree);
+			  break;
 		  /* h450.3*/
-
 		  case ActivateDiversionQ:          /* Localvalue 15 */
-	         dissect_h450_ActivateDiversionQArg(argument_tvb, 0, pinfo , tree, hf_h4503ActivateDiversionQArg);
-		     break;
+			  dissect_ActivateDiversionQArg_PDU(argument_tvb, pinfo, tree);
+			  break;
 		  case DeactivateDiversionQ:        /* Localvalue 16 */
 	         dissect_h450_DeactivateDiversionQArg(argument_tvb, 0, pinfo , tree, hf_h4503DeactivateDiversionQArg);
 		     break;
@@ -936,13 +941,6 @@ void proto_register_h450(void) {
    { &hf_h4501_Invoke,
       { "Invoke", "h4501.Invoke", FT_NONE, BASE_NONE,
       NULL, 0, "Invoke sequence of", HFILL }},
-
-   { &hf_h4502_CTActiveArg,
-      { "CTActiveArg", "h4502.CTActiveArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTActiveArg sequence of", HFILL }},
-   { &hf_h4502_CTCompleteArg,
-      { "CTCompleteArg", "h4502.CTCompleteArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTCompleteArg sequence of", HFILL }},
    { &hf_h4502_CTIdentifyRes,
       { "CTIdentifyRes", "h4502.CTIdentifyRes", FT_NONE, BASE_NONE,
       NULL, 0, "CTIdentifyRes sequence of", HFILL }},
@@ -952,22 +950,6 @@ void proto_register_h450(void) {
    { &hf_h4502_DummyArg,
       { "DummyArg", "h4502.DummyArg", FT_UINT32, BASE_DEC,
       VALS(h450_DummyArg_vals), 0, "DummyArg choice", HFILL }},
-   { &hf_h4502_CTInitiateArg,
-      { "CTInitiateArg", "h4502.CTInitiateArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTInitiateArg sequence of", HFILL }},
-   { &hf_h4502_CTSetupArg,
-      { "CTSetupArg", "h4502.CTSetupArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTSetupArg sequence of", HFILL }},
-   { &hf_h4502_CTUpdateArg,
-      { "CTUpdateArg", "h4502.CTUpdateArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTUpdateArg sequence of", HFILL }},
-   { &hf_h4502_SubaddressTransferArg,
-      { "SubaddressTransferArg", "h4502.SubaddressTransferArg", FT_NONE, BASE_NONE,
-      NULL, 0, "SubaddressTransferArg sequence of", HFILL }},
-
-   { &hf_h4503ActivateDiversionQArg,
-      { "ActivateDiversionQArg", "h4503.ActivateDiversionQArg", FT_NONE, BASE_NONE,
-      NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},
    { &hf_h4503DeactivateDiversionQArg,
       { "DeactivateDiversionQArg", "h4503.DeactivateDiversionQArg", FT_NONE, BASE_NONE,
       NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},

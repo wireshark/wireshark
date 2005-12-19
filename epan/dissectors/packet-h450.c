@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h450.c                                                            */
+/* .\packet-h450.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.c */
@@ -166,14 +166,7 @@ static int hf_h4501_Reject = -1;
 static int hf_h4502_CTIdentifyRes = -1;
 static int hf_h4502_DummyRes = -1;
 static int hf_h4502_DummyArg = -1;
-static int hf_h4502_CTInitiateArg = -1;
-static int hf_h4502_CTSetupArg = -1;
-static int hf_h4502_CTUpdateArg = -1;
-static int hf_h4502_SubaddressTransferArg = -1;
-static int hf_h4502_CTCompleteArg = -1;
-static int hf_h4502_CTActiveArg = -1;
 
-static int hf_h4503ActivateDiversionQArg = -1;
 static int hf_h4503DeactivateDiversionQArg = -1;
 static int hf_h4503InterrogateDiversionQ = -1;
 static int hf_h4503CheckRestrictionArg = -1;
@@ -209,6 +202,20 @@ static int hf_h4501_ROS = -1;
 
 /*--- Included file: packet-h450-hf.c ---*/
 #line 1 "packet-h450-hf.c"
+static int hf_h450_CallTransferIdentify_PDU = -1;  /* CallTransferIdentify */
+static int hf_h450_CallTransferAbandon_PDU = -1;  /* CallTransferAbandon */
+static int hf_h450_CallTransferInitiate_PDU = -1;  /* CallTransferInitiate */
+static int hf_h450_CallTransferSetup_PDU = -1;    /* CallTransferSetup */
+static int hf_h450_CallTransferUpdate_PDU = -1;   /* CallTransferUpdate */
+static int hf_h450_SubaddressTransfer_PDU = -1;   /* SubaddressTransfer */
+static int hf_h450_CallTransferComplete_PDU = -1;  /* CallTransferComplete */
+static int hf_h450_CallTransferActive_PDU = -1;   /* CallTransferActive */
+static int hf_h450_ActivateDiversionQArg_PDU = -1;  /* ActivateDiversionQArg */
+static int hf_h450_ActivateDiversionQRes_PDU = -1;  /* ActivateDiversionQRes */
+static int hf_h450_DeactivateDiversionQRes_PDU = -1;  /* DeactivateDiversionQRes */
+static int hf_h450_InterrogateDiversionQRes_PDU = -1;  /* InterrogateDiversionQRes */
+static int hf_h450_CheckRestrictionRes_PDU = -1;  /* CheckRestrictionRes */
+static int hf_h450_CallReroutingRes_PDU = -1;     /* CallReroutingRes */
 static int hf_h450_networkFacilityExtension = -1;  /* NetworkFacilityExtension */
 static int hf_h450_interpretationApdu = -1;       /* InterpretationApdu */
 static int hf_h450_serviceApdu = -1;              /* ServiceApdus */
@@ -438,7 +445,7 @@ static int hf_h450_extensionId = -1;              /* OBJECT_IDENTIFIER */
 static int hf_h450_extensionArgument = -1;        /* ExtensionArgument */
 
 /*--- End of included file: packet-h450-hf.c ---*/
-#line 202 "packet-h450-template.c"
+#line 195 "packet-h450-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h4501 = -1;
@@ -579,7 +586,7 @@ static gint ett_h450_Unspecified = -1;
 static gint ett_h450_Extension = -1;
 
 /*--- End of included file: packet-h450-ett.c ---*/
-#line 217 "packet-h450-template.c"
+#line 210 "packet-h450-template.c"
 
 /* Global variables */
 static guint32 localOpcode;
@@ -4111,9 +4118,54 @@ dissect_h450_Unspecified(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_CallTransferIdentify_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallTransferIdentify(tvb, 0, pinfo, tree, hf_h450_CallTransferIdentify_PDU);
+}
+static void dissect_CallTransferAbandon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallTransferAbandon(tvb, 0, pinfo, tree, hf_h450_CallTransferAbandon_PDU);
+}
+static void dissect_CallTransferInitiate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallTransferInitiate(tvb, 0, pinfo, tree, hf_h450_CallTransferInitiate_PDU);
+}
+static void dissect_CallTransferSetup_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallTransferSetup(tvb, 0, pinfo, tree, hf_h450_CallTransferSetup_PDU);
+}
+static void dissect_CallTransferUpdate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallTransferUpdate(tvb, 0, pinfo, tree, hf_h450_CallTransferUpdate_PDU);
+}
+static void dissect_SubaddressTransfer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_SubaddressTransfer(tvb, 0, pinfo, tree, hf_h450_SubaddressTransfer_PDU);
+}
+static void dissect_CallTransferComplete_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallTransferComplete(tvb, 0, pinfo, tree, hf_h450_CallTransferComplete_PDU);
+}
+static void dissect_CallTransferActive_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallTransferActive(tvb, 0, pinfo, tree, hf_h450_CallTransferActive_PDU);
+}
+static void dissect_ActivateDiversionQArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_ActivateDiversionQArg(tvb, 0, pinfo, tree, hf_h450_ActivateDiversionQArg_PDU);
+}
+static void dissect_ActivateDiversionQRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_ActivateDiversionQRes(tvb, 0, pinfo, tree, hf_h450_ActivateDiversionQRes_PDU);
+}
+static void dissect_DeactivateDiversionQRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_DeactivateDiversionQRes(tvb, 0, pinfo, tree, hf_h450_DeactivateDiversionQRes_PDU);
+}
+static void dissect_InterrogateDiversionQRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_InterrogateDiversionQRes(tvb, 0, pinfo, tree, hf_h450_InterrogateDiversionQRes_PDU);
+}
+static void dissect_CheckRestrictionRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CheckRestrictionRes(tvb, 0, pinfo, tree, hf_h450_CheckRestrictionRes_PDU);
+}
+static void dissect_CallReroutingRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h450_CallReroutingRes(tvb, 0, pinfo, tree, hf_h450_CallReroutingRes_PDU);
+}
+
 
 /*--- End of included file: packet-h450-fn.c ---*/
-#line 314 "packet-h450-template.c"
+#line 307 "packet-h450-template.c"
 
 static const value_string InvokeProblem_vals[] = {
    {  0, "duplicateInvocation"},
@@ -4192,6 +4244,23 @@ dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo,
       case CallTransferSetup:
          dissect_h450_DummyRes(result_tvb, 0, pinfo , tree, hf_h4502_DummyRes);
          break;
+
+	  case ActivateDiversionQ:
+		  dissect_ActivateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case DeactivateDiversionQ:
+		  dissect_DeactivateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case InterrogateDiversionQ:
+		  dissect_InterrogateDiversionQRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case CheckRestriction:
+		  dissect_CheckRestrictionRes_PDU(result_tvb, pinfo, tree);
+		  break;
+	  case CallRerouting:
+		  dissect_CallReroutingRes_PDU(result_tvb, pinfo, tree);
+		  break;
+
 	case RemoteRetrieve:
          dissect_h450_RemoteRetrieveRes(result_tvb, 0, pinfo , tree, hf_h4504_RemoteRetrieveRes);
          break;
@@ -4494,38 +4563,33 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
       switch (localOpcode) {
 		  /* h450.2 */
 		  case CallTransferIdentify:  /* Localvalue 7 */
+			  dissect_CallTransferIdentify_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferAbandon:   /* Localvalue 8 */
-			 dissect_h450_DummyArg(argument_tvb, 0, pinfo , tree, hf_h4502_DummyArg);
-			 break;
-
+			  dissect_CallTransferAbandon_PDU(argument_tvb, pinfo, tree);
+			  break;
 		   case CallTransferInitiate:  /* Localvalue 9 */
-	         dissect_h450_CTInitiateArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTInitiateArg);
-	         break;
-
+			  dissect_CallTransferInitiate_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferSetup:		/* Localvalue 10 */
-	         dissect_h450_CTSetupArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTSetupArg);
-	         break;
-
+			  dissect_CallTransferSetup_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferUpdate:		/* Localvalue 13 */
-	         dissect_h450_CTUpdateArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTUpdateArg);
-	         break;
-
+			  dissect_CallTransferUpdate_PDU(argument_tvb, pinfo, tree);
+			  break;
 		  case SubaddressTransfer:		/* Localvalue 14 */
-	         dissect_h450_SubaddressTransfer(argument_tvb, 0, pinfo , tree, hf_h4502_SubaddressTransferArg);
-	         break;
-
+			  dissect_SubaddressTransfer_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferComplete:	/* Localvalue 12 */
-	         dissect_h450_CTCompleteArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTCompleteArg);
-	         break;
-
+			  dissect_CallTransferComplete_PDU(argument_tvb, pinfo, tree);
+			  break;
 	      case CallTransferActive:		/* Localvalue 11 */
-	         dissect_h450_CTActiveArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTActiveArg);
-		     break;
+			  dissect_CallTransferActive_PDU(argument_tvb, pinfo, tree);
+			  break;
 		  /* h450.3*/
-
 		  case ActivateDiversionQ:          /* Localvalue 15 */
-	         dissect_h450_ActivateDiversionQArg(argument_tvb, 0, pinfo , tree, hf_h4503ActivateDiversionQArg);
-		     break;
+			  dissect_ActivateDiversionQArg_PDU(argument_tvb, pinfo, tree);
+			  break;
 		  case DeactivateDiversionQ:        /* Localvalue 16 */
 	         dissect_h450_DeactivateDiversionQArg(argument_tvb, 0, pinfo , tree, hf_h4503DeactivateDiversionQArg);
 		     break;
@@ -4739,13 +4803,6 @@ void proto_register_h450(void) {
    { &hf_h4501_Invoke,
       { "Invoke", "h4501.Invoke", FT_NONE, BASE_NONE,
       NULL, 0, "Invoke sequence of", HFILL }},
-
-   { &hf_h4502_CTActiveArg,
-      { "CTActiveArg", "h4502.CTActiveArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTActiveArg sequence of", HFILL }},
-   { &hf_h4502_CTCompleteArg,
-      { "CTCompleteArg", "h4502.CTCompleteArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTCompleteArg sequence of", HFILL }},
    { &hf_h4502_CTIdentifyRes,
       { "CTIdentifyRes", "h4502.CTIdentifyRes", FT_NONE, BASE_NONE,
       NULL, 0, "CTIdentifyRes sequence of", HFILL }},
@@ -4755,22 +4812,6 @@ void proto_register_h450(void) {
    { &hf_h4502_DummyArg,
       { "DummyArg", "h4502.DummyArg", FT_UINT32, BASE_DEC,
       VALS(h450_DummyArg_vals), 0, "DummyArg choice", HFILL }},
-   { &hf_h4502_CTInitiateArg,
-      { "CTInitiateArg", "h4502.CTInitiateArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTInitiateArg sequence of", HFILL }},
-   { &hf_h4502_CTSetupArg,
-      { "CTSetupArg", "h4502.CTSetupArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTSetupArg sequence of", HFILL }},
-   { &hf_h4502_CTUpdateArg,
-      { "CTUpdateArg", "h4502.CTUpdateArg", FT_NONE, BASE_NONE,
-      NULL, 0, "CTUpdateArg sequence of", HFILL }},
-   { &hf_h4502_SubaddressTransferArg,
-      { "SubaddressTransferArg", "h4502.SubaddressTransferArg", FT_NONE, BASE_NONE,
-      NULL, 0, "SubaddressTransferArg sequence of", HFILL }},
-
-   { &hf_h4503ActivateDiversionQArg,
-      { "ActivateDiversionQArg", "h4503.ActivateDiversionQArg", FT_NONE, BASE_NONE,
-      NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},
    { &hf_h4503DeactivateDiversionQArg,
       { "DeactivateDiversionQArg", "h4503.DeactivateDiversionQArg", FT_NONE, BASE_NONE,
       NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},
@@ -4853,6 +4894,62 @@ void proto_register_h450(void) {
 
 /*--- Included file: packet-h450-hfarr.c ---*/
 #line 1 "packet-h450-hfarr.c"
+    { &hf_h450_CallTransferIdentify_PDU,
+      { "CallTransferIdentify", "h450.CallTransferIdentify",
+        FT_UINT32, BASE_DEC, VALS(h450_DummyArg_vals), 0,
+        "CallTransferIdentify", HFILL }},
+    { &hf_h450_CallTransferAbandon_PDU,
+      { "CallTransferAbandon", "h450.CallTransferAbandon",
+        FT_UINT32, BASE_DEC, VALS(h450_DummyArg_vals), 0,
+        "CallTransferAbandon", HFILL }},
+    { &hf_h450_CallTransferInitiate_PDU,
+      { "CallTransferInitiate", "h450.CallTransferInitiate",
+        FT_UINT32, BASE_DEC, VALS(h450_DummyRes_vals), 0,
+        "CallTransferInitiate", HFILL }},
+    { &hf_h450_CallTransferSetup_PDU,
+      { "CallTransferSetup", "h450.CallTransferSetup",
+        FT_UINT32, BASE_DEC, VALS(h450_DummyRes_vals), 0,
+        "CallTransferSetup", HFILL }},
+    { &hf_h450_CallTransferUpdate_PDU,
+      { "CallTransferUpdate", "h450.CallTransferUpdate",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CallTransferUpdate", HFILL }},
+    { &hf_h450_SubaddressTransfer_PDU,
+      { "SubaddressTransfer", "h450.SubaddressTransfer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SubaddressTransfer", HFILL }},
+    { &hf_h450_CallTransferComplete_PDU,
+      { "CallTransferComplete", "h450.CallTransferComplete",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CallTransferComplete", HFILL }},
+    { &hf_h450_CallTransferActive_PDU,
+      { "CallTransferActive", "h450.CallTransferActive",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CallTransferActive", HFILL }},
+    { &hf_h450_ActivateDiversionQArg_PDU,
+      { "ActivateDiversionQArg", "h450.ActivateDiversionQArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ActivateDiversionQArg", HFILL }},
+    { &hf_h450_ActivateDiversionQRes_PDU,
+      { "ActivateDiversionQRes", "h450.ActivateDiversionQRes",
+        FT_UINT32, BASE_DEC, VALS(h450_ActivateDiversionQRes_vals), 0,
+        "ActivateDiversionQRes", HFILL }},
+    { &hf_h450_DeactivateDiversionQRes_PDU,
+      { "DeactivateDiversionQRes", "h450.DeactivateDiversionQRes",
+        FT_UINT32, BASE_DEC, VALS(h450_DeactivateDiversionQRes_vals), 0,
+        "DeactivateDiversionQRes", HFILL }},
+    { &hf_h450_InterrogateDiversionQRes_PDU,
+      { "InterrogateDiversionQRes", "h450.InterrogateDiversionQRes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "InterrogateDiversionQRes", HFILL }},
+    { &hf_h450_CheckRestrictionRes_PDU,
+      { "CheckRestrictionRes", "h450.CheckRestrictionRes",
+        FT_UINT32, BASE_DEC, VALS(h450_CheckRestrictionRes_vals), 0,
+        "CheckRestrictionRes", HFILL }},
+    { &hf_h450_CallReroutingRes_PDU,
+      { "CallReroutingRes", "h450.CallReroutingRes",
+        FT_UINT32, BASE_DEC, VALS(h450_CallReroutingRes_vals), 0,
+        "CallReroutingRes", HFILL }},
     { &hf_h450_networkFacilityExtension,
       { "networkFacilityExtension", "h450.networkFacilityExtension",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5763,7 +5860,7 @@ void proto_register_h450(void) {
         "Extension/extensionArgument", HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 1051 "packet-h450-template.c"
+#line 1033 "packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -5905,7 +6002,7 @@ void proto_register_h450(void) {
     &ett_h450_Extension,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 1067 "packet-h450-template.c"
+#line 1049 "packet-h450-template.c"
   };
 
 

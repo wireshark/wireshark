@@ -10,6 +10,22 @@ Remote-Operations-Apdus ros
 
 #.INCLUDE ../h225/h225-exp.cnf
 #----------------------------------------------------------------------------------------
+#.PDU
+CallTransferIdentify
+CallTransferAbandon
+CallTransferInitiate
+CallTransferSetup
+CallTransferUpdate
+SubaddressTransfer
+CallTransferComplete
+CallTransferActive
+ActivateDiversionQArg
+ActivateDiversionQRes
+DeactivateDiversionQRes
+InterrogateDiversionQRes
+CheckRestrictionRes
+CallReroutingRes
+
 #.TYPE_RENAME
 ActivateDiversionQArg/extension ActivateDiversionQArg_extension
 DeactivateDiversionQArg/extension DeactivateDiversionQArg_extension
