@@ -34,4 +34,16 @@ VAL_PTR = &OperationCode
  %(DEFAULT_BODY)s
  proto_tree_add_item(tree, hf_ansi_map_op_code_fam, tvb, offset-2,1,FALSE);
  proto_tree_add_item(tree, hf_ansi_map_op_code, tvb, offset-1,1,FALSE);
+
+#.FN_PARS DigitsType
+
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY DigitsType
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if parameter_tvb{
+		dissect_ansi_map_digits_type();
+	}
+	 
 #.END

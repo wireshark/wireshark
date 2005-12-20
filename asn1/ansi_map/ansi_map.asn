@@ -82,14 +82,20 @@ AuthenticationDirective  ::= [PRIVATE 18] SET {
 	--	O 6.5.2.12 b
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
 	--	O 6.5.2.18 c
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 j
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
 	--	O 6.5.2.54 d
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	--	O 6.5.2.77 e
 	randomVariableSSD						[42] IMPLICIT RandomVariableSSD OPTIONAL,
 	--	O 6.5.2.103 f
 	randomVariableUniqueChallenge			[43] IMPLICIT RandomVariableUniqueChallenge OPTIONAL, 
 	--	O 6.5.2.104 b
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	--	O 6.5.2.116 g
 	sharedSecretData						[46] IMPLICIT SharedSecretData OPTIONAL,
@@ -126,57 +132,64 @@ AuthenticationDirectiveForwardRes ::= [PRIVATE 18] SET {
 	countUpdateReport						[138] IMPLICIT CountUpdateReport OPTIONAL,
 	-- O 6.5.2.52 a
 	uniqueChallengeReport					[124] IMPLICIT UniqueChallengeReport OPTIONAL,
-	--	M 6.5.2.162
+	--	O 6.5.2.162
 	...
 }
 
 -- 6.4.2.3 AuthenticationFailureReport
 AuthenticationFailureReport ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber, 
---M 6.5.2.63
+	--M 6.5.2.63
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
---M 6.5.2.81
+	--M 6.5.2.81
 	reportType								[44] IMPLICIT ReportType,
--- 	M 6.5.2.112
+	-- 	M 6.5.2.112
 	systemAccessType						[34] IMPLICIT SystemAccessType,
---	M 6.5.2.145
+	--	M 6.5.2.145
 	systemCapabilities						[49] IMPLICIT SystemCapabilities,
---	(Serving) M 6.5.2.146
+	--	(Serving) M 6.5.2.146
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
---	O 6.5.2.18 a
+	--	O 6.5.2.18 a
 	callHistoryCountExpected				[79] IMPLICIT CallHistoryCountExpected,
---	 O 6.5.2.19 a
+	--	 O 6.5.2.19 a
 	mscid									[21] IMPLICIT MSCID,
---	(Serving MSC) O 6.5.2.82 b
+	--	(Serving MSC) O 6.5.2.82 b
 	reportType2								[44] IMPLICIT ReportType,
--- 	M 6.5.2.112 c
-	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL
---	O 6.5.2.116 d
+	-- 	M 6.5.2.112 c
+	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
+	--	O 6.5.2.116 d
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL
+	-- O 6.5.2.154
 }
 
 -- AuthenticationFailureReport RETURN RESULT Parameters
 AuthenticationFailureReportRes ::= [PRIVATE 18] SET {
 	authenticationAlgorithmVersion			[77] IMPLICIT AuthenticationAlgorithmVersion OPTIONAL,
--- O 6.5.2.7 a
+	-- O 6.5.2.7 a
 	authenticationResponseUniqueChallenge	[37] IMPLICIT AuthenticationResponseUniqueChallenge OPTIONAL,
---O 6.5.2.12 b
+	--O 6.5.2.12 b
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
---O 6.5.2.18 c
+	--O 6.5.2.18 c
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 i
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL, 
--- O 6.5.2.54 d
+	-- O 6.5.2.54 d
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56 i
 	randomVariableSSD						[42] IMPLICIT RandomVariableSSD OPTIONAL,
--- O 6.5.2.103 e
+	-- O 6.5.2.103 e
 	randomVariableUniqueChallenge			[43] IMPLICIT RandomVariableUniqueChallenge OPTIONAL,
--- O 6.5.2.104 b
+	-- O 6.5.2.104 b
 	sharedSecretData						[46] IMPLICIT SharedSecretData OPTIONAL, 
--- O 6.5.2.119 c
+	-- O 6.5.2.119 c
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114
 	ssdnotShared							[52] IMPLICIT SSDNotShared OPTIONAL, 
--- O 6.5.2.141 f
+	-- O 6.5.2.141 f
 	terminalType							[47] IMPLICIT TerminalType OPTIONAL, 
--- O 6.5.2.154 g
-	updateCount								[51] IMPLICIT UpdateCount OPTIONAL,
--- O 6.5.2.163 h
-	...
+	-- O 6.5.2.154 g
+	updateCount								[51] IMPLICIT UpdateCount OPTIONAL
+	-- O 6.5.2.163 h
 }
 
 -- 6.4.2.4 AuthenticationRequest
@@ -208,6 +221,8 @@ AuthenticationRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.101 b
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 f
+	suspiciousAccess						[285] IMPLICIT SuspiciousAccess OPTIONAL,
+	-- O 6.5.2.do h
 	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
 	-- O 6.5.2.154 g
 	...
@@ -221,14 +236,20 @@ AuthenticationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.12 b
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
 	-- O 6.5.2.18 c
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 i
 	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
 	--O 6.5.2.36 d
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
 	-- O 6.5.2.54 e
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56 i
 	randomVariableSSD						[42] IMPLICIT RandomVariableSSD OPTIONAL,
 	-- O 6.5.2.103 f
 	randomVariableUniqueChallenge			[43] IMPLICIT RandomVariableUniqueChallenge OPTIONAL,
 	-- O 6.5.2.104 b
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114
 	sharedSecretData						[46] IMPLICIT SharedSecretData OPTIONAL,
 	-- O 6.5.2.119 c
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
@@ -253,6 +274,8 @@ AuthenticationStatusReport ::= [PRIVATE 18] SET {
 	-- (Serving) M 6.5.2.146
 	countUpdateReport						[138] IMPLICIT CountUpdateReport OPTIONAL,
 	-- O 6.5.2.52 a
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 e
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 b
 	ssdUpdateReport							[156] IMPLICIT SSDUpdateReport OPTIONAL,
@@ -269,12 +292,18 @@ AuthenticationStatusReportRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.12 b
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
 	-- O 6.5.2.18 c
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 i
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
 	-- O 6.5.2.54 d
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56 i
 	randomVariableSSD						[42] IMPLICIT RandomVariableSSD OPTIONAL,
 	-- O 6.5.2.103 e
 	randomVariableUniqueChallenge			[43] IMPLICIT RandomVariableUniqueChallenge OPTIONAL,
 	-- O 6.5.2.104 b
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114
 	sharedSecretData						[46] IMPLICIT SharedSecretData OPTIONAL,
 	-- O 6.5.2.119 c
 	ssdnotShared							[52] IMPLICIT SSDNotShared OPTIONAL,
@@ -388,6 +417,129 @@ FacilitiesDirectiveRes ::= [PRIVATE 18] SET {
 	-- (Target) O 6.5.2.153 d	...
 	}
 
+-- 6.4.2.11 FacilitiesDirective2
+-- N.S0007-0 v 1.0
+FacilitiesDirective2 ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- M 6.5.2.16
+	channelData								[5] IMPLICIT ChannelData,
+	-- (Serving) M 6.5.2.47 a
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
+	-- M 6.5.2.63
+	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	-- M 6.5.2.72
+	interSwitchCount						[7] IMPLICIT InterSwitchCount,
+	-- M 6.5.2.73
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	-- M 6.5.2.81
+	servingCellID							[2] IMPLICIT ServingCellID,
+	-- M 6.5.2.117
+	baseStationManufacturerCode				[197] IMPLICIT BaseStationManufacturerCode OPTIONAL,
+	-- O 6 .5.2.aa a a
+	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
+	-- O 6.5.2.3 s
+	cdmaCallMode							[62] IMPLICIT CDMACallMode OPTIONAL,
+	-- O 6.5.2.29 c, d, e
+	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.30 c
+	cdmaMobileProtocolRevision				[66] IMPLICIT CDMAMobileProtocolRevision OPTIONAL,
+	-- O 6.5.2.34 c
+	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
+	-- O 6.5.2.36 f
+	cdmaServingOneWayDelay					[60] IMPLICIT CDMAServingOneWayDelay OPTIONAL,
+	-- O 6.5.2.38 a, c
+	cdmaStationClassMark					[61] IMPLICIT CDMAStationClassMark OPTIONAL,
+	-- O 6.5.2.41 c
+	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
+	-- O 6.5.2.43 g
+	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList,
+	-- O 6.5.2.45 h
+	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
+	-- (Desired) O 6.5.2.50 b
+	handoffReason							[30] IMPLICIT HandoffReason OPTIONAL,
+	-- O 6.5.2.70 c
+	handoffState							[164] IMPLICIT HandoffState OPTIONAL,
+	-- O 6.5.2.71 d
+	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
+	-- O 6.5.2.84 c
+	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
+	-- O 6.5.2.85 e, m
+	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.86 n
+	nonPublicData							[200] IMPLICIT NonPublicData OPTIONAL,
+	-- O 6.5.2.ad t
+	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
+	-- O 6.5.2.120 j
+	stationClassMark						[18] IMPLICIT StationClassMark,
+	-- M 6.5.2.143
+	systemOperatorCode						[206] IMPLICIT SystemOperatorCode OPTIONAL,
+	-- O 6 .5.2.a j b b
+	targetCellID							[3] IMPLICIT TargetCellID,
+	-- O 6.5.2.148 b
+	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
+	-- (Serving) O 6.5.2.151 o
+	tdmaCallMode							[29] IMPLICIT TDMACallMode OPTIONAL,
+	-- O 6.5.2.152 e, p
+	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.153 o
+	tdmaServiceCode							[178] IMPLICIT TDMAServiceCode OPTIONAL,
+	-- O 6 .5.2.i x
+	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL,
+	-- y O 6 .5.2.j x
+	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL,
+	-- O 6.5.2.k u
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
+	-- O 6 .5.2.154
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
+	-- O 6.5.2.am (IS-730) v
+	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
+	-- O 6.5.2.166 q
+}
+
+-- FacilitiesDirective2 RETURN RESULT Parameters
+FacilitiesDirective2Res ::= [PRIVATE 18] SET {
+	bsmcstatus								[198] IMPLICIT BSMCStatus OPTIONAL,
+	-- O 6 .5.2.a b f
+	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Target) O 6.5.2.30 a
+	cdmaCodeChannelList						[132] IMPLICIT CDMACodeChannelList OPTIONAL,
+	-- O 6.5.2.33 a
+	cdmaSearchWindow						[69] IMPLICIT CDMASearchWindow OPTIONAL,
+	-- O 6.5.2.37 a
+	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
+	-- (Actual) O 6.5.2.50 c
+	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Target) O 6.5.2.86 d
+	sOCStatus								[205] IMPLICIT SOCStatus OPTIONAL,
+	-- O 6 .5.2.a i f
+	targetCellID							[3] IMPLICIT TargetCellID,
+	-- O 6.5.2.148 e
+	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
+	-- (Target) O 6.5.2.151 f
+	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
+	-- (Target) O 6.5.2.153 g
+	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL
+	-- (Target ) O 6 .5.2.k h
+}
+
+-- 6.4.2.12 FacilitiesRelease
+FacilitiesRelease ::= [PRIVATE 18] SET {
+	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	-- M 6.5.2.72
+	releaseReason							[10] IMPLICIT ReleaseReason,
+	-- M 6.5.2.111
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
+	-- O 6.5.2.16 a
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL
+	-- O 6.5.2.81
+	}
+
+-- FacilitiesRelease RETURN RESULT Parameters
+FacilitiesReleaseRes ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID OPTIONAL
+	-- O 6.5.2.16
+	}
+
 -- Updated with N.S0004
 -- 6.4.2.13 FeatureRequest
 FeatureRequest ::= [PRIVATE 18] SET {
@@ -431,7 +583,7 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.71 l
 	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
 	-- O 6.5.2.84 c
-	nampsCallMode							[197] IMPLICIT NAMPSCallMode OPTIONAL,
+	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
 	-- O 6.5.2.85 e, m
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.86 n
@@ -445,9 +597,8 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.152 e, p
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 o
-	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL,
+	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
 	-- O 6.5.2.166 q
-	...
 	}
 -- FeatureRequest RETURN RESULT Parameters
 FeatureRequestRes ::= [PRIVATE 18] SET {
@@ -471,6 +622,10 @@ FeatureRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.49 e
 	digits		 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Dialed) O 6.5.2.58 f
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx l, m
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- O 6.5.2.ec l, m
 	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 g
 	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
@@ -491,6 +646,8 @@ FeatureRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.91 j
 	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
 	-- O 6.5.2.95 h
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 n, o
 	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 d
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
@@ -515,9 +672,8 @@ FlashRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.81
 	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
 	-- (Actual) O 6.5.2.50 b
-	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL
 	-- O 6.5.2.63
-	...
 	}
 -- FlashRequest RETURN RESULT Parameters
 -- zero octets
@@ -579,6 +735,8 @@ HandoffBack2 ::= [PRIVATE 18] SET {
 	-- M 6.5.2.81
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- M 6.5.2.117 a
+	baseStationManufacturerCode				[197] IMPLICIT BaseStationManufacturerCode OPTIONAL,
+	-- O 6 .5.2.a a u
 	targetCellID							[3] IMPLICIT TargetCellID OPTIONAL,
 	-- O 6.5.2.148 b
 	cdmaCallMode							[62] IMPLICIT CDMACallMode OPTIONAL,
@@ -607,18 +765,30 @@ HandoffBack2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.71 l
 	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
 	-- O 6.5.2.84 c
-	nampsCallMode							[197] IMPLICIT NAMPSCallMode OPTIONAL,
+	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
 	-- O 6.5.2.85 e, m
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.86 n
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
 	-- O 6.5.2.120 j
+	stationClassMark						[18] IMPLICIT StationClassMark OPTIONAL,
+	-- O 6 .5.2.14 3 i , n, o
+	systemOperatorCode						[206] IMPLICIT SystemOperatorCode OPTIONAL,
+	-- O 6 .5.2.a j v
 	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
 	-- (Serving) O 6.5.2.151 o
 	tdmaCallMode							[29] IMPLICIT TDMACallMode OPTIONAL,
 	-- O 6.5.2.152 e, p
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 o
+	tdmaServiceCode							[178] IMPLICIT TDMAServiceCode OPTIONAL,
+	-- O 6 .5.2.i x
+	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL,
+	-- y O 6 .5.2.j x
+	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL,
+	-- O 6.5.2.k u
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
+	-- O 6 .5.2.154
 	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL,
 	-- O 6.5.2.166 q
 	...
@@ -626,6 +796,8 @@ HandoffBack2 ::= [PRIVATE 18] SET {
 
 -- HandoffBack2 RETURN RESULT Parameters
 HandoffBack2Res ::= [PRIVATE 18] SET {
+	bsmcstatus								[198] IMPLICIT BSMCStatus OPTIONAL,
+	-- O 6 .5.2.a b f
 	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
 	-- (Target) O 6.5.2.30 a
 	cdmaCodeChannelList						[132] IMPLICIT CDMACodeChannelList OPTIONAL,
@@ -638,17 +810,19 @@ HandoffBack2Res ::= [PRIVATE 18] SET {
 	-- (Actual) O 6.5.2.50 c
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Target) O 6.5.2.86 d
+	sOCStatus								[205] IMPLICIT SOCStatus OPTIONAL,
+	-- O 6 .5.2.a i f
 	targetCellID							[3] IMPLICIT TargetCellID OPTIONAL,
 	-- O 6.5.2.148 e
 	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
 	-- (Target) O 6.5.2.151 f
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Target) O 6.5.2.153 g
-	...
+	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL
+	-- (Target ) O 6 .5.2.k h
 	}
 
 -- 6.4.2.17 HandoffMeasurementRequest
--- HandoffBack2 RETURN RESULT Parameters
 
 HandoffMeasurementRequest ::= [PRIVATE 18] SET {
 	channelData								[5] IMPLICIT ChannelData,
@@ -657,11 +831,14 @@ HandoffMeasurementRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.117
 	stationClassMark						[18] IMPLICIT StationClassMark,
 	-- M 6.5.2.143
+	targetCellIDList						[207] IMPLICIT TargetCellIDList OPTIONAL,
+	-- O 6 .5.2.ak i
 	tdmaCallMode							[29] IMPLICIT TDMACallMode OPTIONAL,
 	-- O 6.5.2.152 b
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 c
-	...
+	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL
+	-- O 6 .5.2.j h
 	}
 
 --HandoffMeasurementRequest RETURN RESULT Parameters
@@ -689,17 +866,20 @@ HandoffMeasurementRequest2 ::= [PRIVATE 18] SET {
 	-- (Serving) O 6.5.2.47 c
 	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
 	-- O 6.5.2.84 b
-	nampsCallMode							[197] IMPLICIT NAMPSCallMode OPTIONAL,
+	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
 	-- O 6.5.2.85 d
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.86 e
 	stationClassMark						[18] IMPLICIT StationClassMark OPTIONAL,
 	-- O 6.5.2.143 c, f
+	targetCellIDList						[207] IMPLICIT TargetCellIDList OPTIONAL,
+	-- O 6.5.2.ak
 	tdmaCallMode							[29] IMPLICIT TDMACallMode OPTIONAL,
 	-- O 6.5.2.152 g
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 f
-	...
+	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL
+	-- O 6.5.2.j
 	}
 
 -- HandoffMeasurementRequest2 RETURN RESULT Parameters
@@ -724,6 +904,8 @@ HandoffToThird ::= [PRIVATE 18] SET {
 	-- (Target) M 6.5.2.82
 	servingCellID							[2] IMPLICIT ServingCellID,
 	-- M 6.5.2.117
+	baseStationManufacturerCode				[197] IMPLICIT BaseStationManufacturerCode OPTIONAL,
+	-- O 6 .5.2.aa u
 	stationClassMark						[18] IMPLICIT StationClassMark,
 	-- M 6.5.2.143
 	targetCellID							[3] IMPLICIT TargetCellID,
@@ -736,6 +918,8 @@ HandoffToThird ::= [PRIVATE 18] SET {
 	-- (Desired) O 6.5.2.50 c
 	handoffReason							[30] IMPLICIT HandoffReason OPTIONAL,
 	-- O 6.5.2.70 d
+	handoffState							[164] IMPLICIT HandoffState OPTIONAL,
+	-- O 6 .5.2.71 t
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
 	-- O 6.5.2.120 c
 	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
@@ -744,6 +928,14 @@ HandoffToThird ::= [PRIVATE 18] SET {
 	-- O 6.5.2.152 f
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 e
+	tdmaServiceCode							[178] IMPLICIT TDMAServiceCode OPTIONAL,
+	-- O 6 .5.2.i x
+	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL,
+	-- y O 6 .5.2.j x
+	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL,
+	-- O 6.5.2.k u
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
+	-- O 6 .5.2.154
 	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
 	-- O 6.5.2.166 g
 		}
@@ -762,6 +954,8 @@ HandoffToThirdRes ::= [PRIVATE 18] SET {
 
 -- 6.4.2.20 HandoffToThird2
 HandoffToThird2 ::= [PRIVATE 18] SET {
+	bsmcstatus								[198] IMPLICIT BSMCStatus OPTIONAL,
+	-- O 6 .5.2.a b f
 	billingID								[1] IMPLICIT BillingID,
 	-- M 6.5.2.16
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
@@ -802,10 +996,12 @@ HandoffToThird2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.70 k
 	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
 	-- O 6.5.2.84 c
-	nampsCallMode							[197] IMPLICIT NAMPSCallMode OPTIONAL,
+	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
 	-- O 6.5.2.85 e, l
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.86 m
+	sOCStatus								[205] IMPLICIT SOCStatus OPTIONAL,
+	-- O 6 .5.2.a i f
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
 	-- O 6.5.2.120 j
 	stationClassMark						[18] IMPLICIT StationClassMark OPTIONAL,
@@ -816,6 +1012,10 @@ HandoffToThird2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.152 n, o
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 n
+	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL,
+	-- O 6.5.2.k
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
+	-- O 6.5.2.am (IS-730)
 	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
 	-- O 6.5.2.166 p	
 	}
@@ -858,6 +1058,10 @@ InformationDirective ::= [PRIVATE 18] SET {
 	-- O 6.5.2.24 c
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 c
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- 6.5.2.ec
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
 	-- O 6.5.2.108 c
 	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
@@ -889,6 +1093,10 @@ InformationForward ::= [PRIVATE 18] SET {
 	-- O 6.5.2.24 b
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 b
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- 6.5.2.ec
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 a
 	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
@@ -927,8 +1135,6 @@ InterSystemPage ::= [PRIVATE 18] SET {
 	-- (Originating) M 6.5.2.16
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
-	-- M 6.5.2.81
 	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 a
 	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
@@ -943,6 +1149,12 @@ InterSystemPage ::= [PRIVATE 18] SET {
 	-- O 6.5.2.40 b
 	cdmaStationClassMark					[61] IMPLICIT CDMAStationClassMark OPTIONAL,
 	-- O 6.5.2.41 c
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 6 .5.2.ac m
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- 6.5.2.ec
 	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
 	-- O 6.5.2.60 a
 	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
@@ -951,20 +1163,30 @@ InterSystemPage ::= [PRIVATE 18] SET {
 	-- (Serving MSC) O 6.5.2.64 d
 	extendedSystemMyTypeCode				[54] IMPLICIT ExtendedSystemMyTypeCode OPTIONAL,
 	-- (Serving MSC) O 6.5.2.65 e
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 f
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 a
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	-- M 6.5.2.81
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- (Originating MSC) O 6.5.2.82 g
 	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
 	-- O 6.5.2.83 f
+	mSIDUsage								[327] IMPLICIT MSIDUsage OPTIONAL,
+	-- O 6.5.2.fe
 	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
 	-- O 6.5.2.88 f
+	pageCount								[300] IMPLICIT PageCount OPTIONAL,
+	-- O 6.5.2.ed
 	pageIndicator							[71] IMPLICIT PageIndicator OPTIONAL,
 	-- O 6.5.2.92 h
+	pageResponseTime						[301] IMPLICIT PageResponseTime OPTIONAL,
+	-- O 6.5.2.ee
 	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
 	-- (Originating MSC) O 6.5.2.93 i
 	pilotBillingID							[169] IMPLICIT PilotBillingID OPTIONAL,
@@ -979,6 +1201,8 @@ InterSystemPage ::= [PRIVATE 18] SET {
 	-- O 6.5.2.116 f
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- (Originating MSC) O 6.5.2.147 l
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
+	-- O 6 .5.2.154 f
 	terminationTreatment					[121] IMPLICIT TerminationTreatment OPTIONAL,
 	-- O 6.5.2.158 f
 	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL
@@ -1008,11 +1232,9 @@ InterSystemPageRes ::= [PRIVATE 18] SET {
 -- 6.4.2.25 InterSystemPage2
 InterSystemPage2 ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
-	-- (Originating) M 6.5.2.16
+	-- (Anchor MSC) M 6.5.2.16
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
-	-- M 6.5.2.81
 	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
 	-- O 6.5.2.3 a
 	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
@@ -1021,20 +1243,46 @@ InterSystemPage2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.24 b
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 b
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 6 .5.2.ac f
 	cdmaSlotCycleIndex						[166] IMPLICIT CDMASlotCycleIndex OPTIONAL,
 	-- O 6.5.2.40 b
 	cdmaStationClassMark					[61] IMPLICIT CDMAStationClassMark OPTIONAL,
 	-- O 6.5.2.41 d
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- 6.5.2.ec
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 e
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 a
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	-- M 6.5.2.81
+	mSIDUsage								[327] IMPLICIT MSIDUsage OPTIONAL,
+	-- O 6.5.2.fe k
+	nonPublicData							[200] IMPLICIT NonPublicData OPTIONAL,
+	-- O 6.5.2.ad IS-730 l
+	pageCount								[300] IMPLICIT PageCount OPTIONAL,
+	-- O 6.5.2.ed
 	pageIndicator							[71] IMPLICIT PageIndicator OPTIONAL,
 	-- O 6.5.2.92 f
+	pagingFrameClass						[210] IMPLICIT PagingFrameClass OPTIONAL,
+	-- O 6 .5.2.ae g
+	pageResponseTime						[301] IMPLICIT PageResponseTime OPTIONAL,
+	-- O 6.5.2.ee IS-730 h
+	pSID-RSIDList							[203] IMPLICIT PSID-RSIDList OPTIONAL,
+	-- O 6.5.2.ag IS-730 m,
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
 	-- O 6.5.2.108 b
-	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
 	-- O 6.5.2.109 b
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
+	-- O 6 .5.2.154 d
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL
+	-- O 6.5.2.am IS-730
 	}
 
 -- InterSystemPage2 RETURN RESULT Parameters
@@ -1050,8 +1298,12 @@ InterSystemPage2Res ::= [PRIVATE 18] SET {
 	-- O 6.5.2.100 c
 	randomVariableBaseStation				[41] IMPLICIT RandomVariableBaseStation,
 	-- O 6.5.2.101 d
-	systemAccessType						[34] IMPLICIT SystemAccessType
+	systemAccessType						[34] IMPLICIT SystemAccessType,
 	-- O 6.5.2.145 b	
+	systemCapabilities						[49] IMPLICIT SystemCapabilities OPTIONAL,
+	-- (Border) O 6.5.2.146 e
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL
+	-- O 6.5.2.154 e
 	}
 
 -- 6.4.2.26 InterSystemSetup
@@ -1105,8 +1357,10 @@ LocationRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.109 a
 	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL,
 	-- O 6.5.2.155 d	
-	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- O 6.5.2.160 e
+	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL
+	-- O 6.5.2.gl
 	}
 -- LocationRequest RETURN RESULT Parameters
 
@@ -1125,10 +1379,16 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.23 e
 	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 e
+	controlNetworkID						[307] IMPLICIT ControlNetworkID OPTIONAL,
+	-- O 6.5.2.ek s
 	digits-carrier 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Carrier) O 6.5.2.58 f
 	digits-dest 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Destination) O 6.5.2.58 g, h
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- 6.5.2.ec
 	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 i
 	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
@@ -1137,6 +1397,8 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 i
 	dmh-RedirectionIndicator				[88] DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 j
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei q
 	groupInformation						[163] GroupInformation OPTIONAL,
 	-- O 6.5.2.69 k
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
@@ -1147,6 +1409,8 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.88 m
 	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
 	-- (Serving MSC or VLR) O 6.5.2.93 n
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 f, r
 	edirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 j
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
@@ -1157,8 +1421,10 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.114 f
 	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
 	-- O 6.5.2.156 o
-	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
 	-- O 6.5.2.159 f
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de f, t
 	}
 
 -- 6.4.2.28 MobileOnChannel
@@ -1177,10 +1443,14 @@ MSInactive ::= [PRIVATE 18] SET {
 	-- O 6.5.2.18 a
 	deregistrationType						[73] IMPLICIT DeregistrationType OPTIONAL,
 	-- O 6.5.2.55 b
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 c
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 d
+	servicesResult							[204] IMPLICIT ServicesResult OPTIONAL,
+	-- O 6 .5.2.ah f
 	sms-MessageWaitingIndicator				[118] IMPLICIT SMS-MessageWaitingIndicator OPTIONAL
 	-- O 6.5.2.129 e
 	}
@@ -1201,6 +1471,8 @@ OriginationRequest ::= [PRIVATE 18] SET {
 	--M 6.5.2.81
 	mscid									[21] IMPLICIT MSCID,
 	--(Originating MSC) M 6.5.2.82	1 0 0 1 0 1 0 1 (0x95)(0x15)
+	msid									MSID,
+	-- M 6.5.2.bv k
 	originationTriggers						[98] IMPLICIT OriginationTriggers, 
 	--M 6.5.2.90	1 0 0 1 1 1 1 1 (0x9f)
 	--				0 1 1 0 0 0 1 0 (0x62) (98)
@@ -1271,7 +1543,7 @@ OriginationRequestRes ::= [PRIVATE 18] SET {
 	-- (Dialed) O 6.5.2.58 h
 	displayText								[244] IMPLICIT DisplayText OPTIONAL,
 	-- O 6.5.2.bx d, e, p
-	displayText2							[244] IMPLICIT DisplayText OPTIONAL,
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
 	-- O 6.5.2.ec d, e, p
 	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 i
@@ -1279,7 +1551,8 @@ OriginationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.60 i
 	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
 	-- O 6.5.2.61 i
---	DMH-ChargeInformation O 6.5.2.eo i, t
+	dmh-ChargeInformation					[311] IMPLICIT DMH-ChargeInformation OPTIONAL,
+	-- O 6.5.2.eo i, t
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 i, j
 	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
@@ -1329,6 +1602,8 @@ QualificationDirective ::= [PRIVATE 18] SET {
 	-- O 6.5.2.13 a
 	authorizationPeriod						[14] IMPLICIT AuthorizationPeriod OPTIONAL,
 	-- O 6.5.2.14 b
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 6 .5.2.ac j
 	deniedAuthorizationPeriod				[167] IMPLICIT DeniedAuthorizationPeriod OPTIONAL,
 	-- O 6.5.2.53 c
 	digits-carrier 							[4] IMPLICIT Digits OPTIONAL,
@@ -1356,14 +1631,20 @@ QualificationRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.99
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (MSC or VLR) M 6.5.2.147
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 c
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- (Serving MSC or Originating MSC) O 6.5.2.82 a
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 b
 	systemAccessType						[34] IMPLICIT SystemAccessType OPTIONAL,
 	-- O 6.5.2.145 a
-	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- O 6.5.2.160 a
+	nonPublicData							[200] IMPLICIT NonPublicData OPTIONAL,
+	-- O 6 .5.2.a d
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL
+	-- O 6 .5.2.am e
 	}
 
 -- QualificationRequest RETURN RESULT Parameters
@@ -1374,16 +1655,17 @@ QualificationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.13 a
 	authorizationPeriod						[14] IMPLICIT AuthorizationPeriod OPTIONAL,
 	-- O 6.5.2.14 b
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 6 .5.2.ac h
 	deniedAuthorizationPeriod				[167] IMPLICIT DeniedAuthorizationPeriod OPTIONAL,
 	-- O 6.5.2.53 c
 	digits-carrier 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Carrier) O 6.5.2.58 d
 	digits-dest 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Destination) O 6.5.2.58 e
-	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	mscid									[21] IMPLICIT MSCID OPTIONAL
 	-- (HLR) O 6.5.2.82 f
 --	Profile **Macro** O 6.5.2.97 g	
-	...
 	}
 
 -- 6.4.2.33 RandomVariableRequest
@@ -1510,6 +1792,8 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- O 6.5.2.17 b
 	controlChannelData						[55] IMPLICIT ControlChannelData OPTIONAL,
 	-- O 6.5.2.51 b
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 6 .5.2.ac h
 	extendedMSCID							[53] IMPLICIT ExtendedMSCID OPTIONAL,
 	-- (VLR) O 6.5.2.64 c
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
@@ -1538,7 +1822,8 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- O 6.5.2.160 j
 	winCapability							[280] IMPLICIT WINCapability OPTIONAL,
 	-- O 6.5.2.di l
-	... }
+	... 
+	}
 -- RegistrationNotification RETURN RESULT Parameters
 RegistrationNotificationRes ::= [PRIVATE 18] SET {
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
@@ -1650,8 +1935,6 @@ RoutingRequest ::= [PRIVATE 18] SET {
 	-- (Originating) M 6.5.2.16 a
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber, 
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
-	-- M 6.5.2.81
 	mscid									[21] IMPLICIT MSCID,
 	-- (Originating MSC) M 6.5.2.82
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
@@ -1661,11 +1944,17 @@ RoutingRequest ::= [PRIVATE 18] SET {
 	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 c
 	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
-	-- O 6.5.2.24 c
+	--, O 6.5.2.24 c
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 c
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 6 .5.2.ac r
 	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
 	-- O 6.5.2.56 d, e
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- O 6.5.2.ec d, e, p
 	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 f
 	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
@@ -1678,6 +1967,8 @@ RoutingRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.77 f, h
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 f
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	-- M 6.5.2.81
 	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
 	-- O 6.5.2.83 i
 	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
@@ -1700,6 +1991,10 @@ RoutingRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.158 o
 	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
 	-- O 6.5.2.159 f
+	userGroup								[208] IMPLICIT UserGroup OPTIONAL,
+	-- O 6 .5.2.al s
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
+	-- (Originating MSC) O M 6.5.2.160
 	voiceMailboxNumber						[160] IMPLICIT VoiceMailboxNumber OPTIONAL,
 	-- O 6.5.2.164 p
 	voiceMailboxPIN							[159] IMPLICIT VoiceMailboxPIN OPTIONAL
@@ -1791,8 +2086,8 @@ SMSDeliveryForward ::= [PRIVATE 18] SET {
 
 -- SMSDeliveryForward RETURN RESULT Parameters
 SMSDeliveryForwardRes ::= [PRIVATE 18] SET {
-	sms-BearerData							[105] IMPLICIT SMS-BearerData,
-	-- O 6.5.2.124 a
+	sms-BearerData							[105] IMPLICIT SMS-BearerData OPTIONAL,
+	--, O 6.5.2.124 a
 	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL
 	-- O 6.5.2.125 b
 	}
@@ -1803,10 +2098,21 @@ SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 	-- M 6.5.2.124
 	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier,
 	-- M 6.5.2.137
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 a
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	interMessageTime						[325] IMPLICIT InterMessageTime OPTIONAL,
+	-- O 6.5.2.fd
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
 	-- O 6.5.2.81 a
+	-- Exchanged by MCID
+--	mcid 6.5.2.bv
+--	NewlyAssignedMIN O 6.5.2.rB j
+--	NewlyAssignedIMSI O 6.5.2.dqB j
+	newMINExtension							[328] IMPLICIT NewMINExtension OPTIONAL,
+	-- O 6.5.2.ff n
+--	ServiceIndicator O 6.5.2.wB
 	sms-ChargeIndicator						[106] IMPLICIT SMS-ChargeIndicator OPTIONAL,
 	-- O 6.5.2.126 b
 	sms-DestinationAddress					[107] IMPLICIT SMS-DestinationAddress OPTIONAL,
@@ -1825,6 +2131,7 @@ SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 	--  O 6.5.2.134 b
 	sms-OriginatingAddress					[114] IMPLICIT SMS-OriginatingAddress OPTIONAL
 	-- O 6.5.2.135 g
+--	TemporaryReferenceNumber O 6.5.2.yC
 	}
 
 -- SMSDeliveryPointToPoint RETURN RESULT Parameters
@@ -1839,43 +2146,63 @@ SMSDeliveryPointToPointRes ::= [PRIVATE 18] SET {
 SMSNotification ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber, 
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
+	-- Exchanged by MCID
+--	MCID 6.5.2.bv
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 f
 	sms-AccessDeniedReason					[152] IMPLICIT SMS-AccessDeniedReason OPTIONAL,
 	-- O 6.5.2.122 a
-	sms-Address								[104] IMPLICIT	SMS-Address OPTIONAL
+	sms-Address								[104] IMPLICIT SMS-Address OPTIONAL,
 	-- O 6.5.2.123 a, b
+	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier
+	-- O 6.5.2.137
 	}
 
 -- SMSNotification RETURN RESULT Parameters
--- zero octets
+SMSNotificationRes ::= [PRIVATE 18] SET {
+	sms-MessageCount						[108] IMPLICIT SMS-MessageCount OPTIONAL
+	-- O 6.5.2.128
+}
 
 -- 6.4.2.45 SMSRequest
 SMSRequest ::= [PRIVATE 18] SET {
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
-	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- 6.5.2.bv
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 e
+--	ServiceIndicator O 6.5.2.wB d
 	-- O 6.5.2.63 a
 	sms-NotificationIndicator				[109] IMPLICIT SMS-NotificationIndicator OPTIONAL,
 	-- O 6.5.2.130 b
-	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier
+	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier OPTIONAL
 	-- O 6.5.2.137 c
 	}
 
 -- SMSRequest RETURN RESULT Parameters
 SMSRequestRes ::= [PRIVATE 18] SET {
-	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 a
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- 6.5.2.bv
 	sms-AccessDeniedReason					[152] IMPLICIT SMS-AccessDeniedReason OPTIONAL,
 	-- O 6.5.2.122 b, c
-	sms-Address								[104] IMPLICIT	SMS-Address OPTIONAL
+	sms-Address								[104] IMPLICIT SMS-Address OPTIONAL,
 	-- O 6.5.2.123 c, d
+	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL
+	-- O 6.5.2.125
 	}
 
 -- 6.4.2.46 TransferToNumberRequest
 TransferToNumberRequest ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
+--	MSID M 6.5.2.bv h
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
 	redirectionReason						[19] IMPLICIT RedirectionReason,
@@ -1896,19 +2223,23 @@ TransferToNumberRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.94 f
 	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
 	-- O 6.5.2.95 f
-	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
+	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
+	-- O 6.5.2.116 g
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- O 6.5.2.160 e
+	winCapability							[280] IMPLICIT WINCapability OPTIONAL
+	-- O 6.5.2.di i
 	}
 
 -- TransferToNumberRequest RETURN RESULT Parameters
 TransferToNumberRequestRes ::= [PRIVATE 18] SET {
-	digits-Destination						[4] IMPLICIT Digits,
+	digits-Destination						[4] IMPLICIT Digits OPTIONAL,
 	-- (Destination) M 6.5.2.58 a
 	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
 	-- O 6.5.2.1 b
 	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
 	-- O 6.5.2.2 c
-	announcementList						[130] IMPLICIT AnnouncementList,
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 d
 	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 e
@@ -1918,6 +2249,10 @@ TransferToNumberRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.25 e, f
 	digits-Carrier	 						[4] IMPLICIT Digits OPTIONAL,
 	-- (Carrier) O 6.5.2.58 g
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- O 6.5.2.ec d, e, p
 	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 h
 	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
@@ -1926,12 +2261,16 @@ TransferToNumberRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 h
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 h
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei k
 	groupInformation						[163] GroupInformation OPTIONAL,
 	-- O 6.5.2.69 i
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 h
 	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
 	-- O 6.5.2.87 g
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 g, m
 	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 f
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
@@ -1940,8 +2279,10 @@ TransferToNumberRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.109 e, f
 	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
 	-- O 6.5.2.156 j
-	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
 	-- O 6.5.2.159 g
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de l
 	}
 
 -- 6.4.2.47 TrunkTest
@@ -2007,7 +2348,7 @@ UnsolicitedResponse ::= [PRIVATE 18] SET {
 UnsolicitedResponseRes ::= [PRIVATE 18] SET {
 	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
 	-- O 6.5.2.3 a
-	billingID								[1] IMPLICIT BillingID,
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
 	-- (Originating) O 6.5.2.16 b
 	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 c
@@ -2015,6 +2356,10 @@ UnsolicitedResponseRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.24 c
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 c
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- O 6.5.2.ec d, e, p
 	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 d
 	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
@@ -2048,6 +2393,1076 @@ UnsolicitedResponseRes ::= [PRIVATE 18] SET {
 	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL
 	-- O 6.5.2.159 g
 	}
+-- 6.4.2.h ServiceRequest
+
+ServiceRequest ::= [PRIVATE 18] SET {
+	serviceID								[245] IMPLICIT ServiceID,
+	-- M 6.5.2.bz
+	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
+	-- O 6.5.2.1 c d
+	availabilityType						[90] IMPLICIT AvailabilityType OPTIONAL,
+	-- O 6.5.2.15 c, e
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
+	-- O 6.5.2.16 a, f
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw a
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL, 
+	--O 6.5.2.21 a	1 0 0 1 1 1 1 1 (0x9f)
+	--				0 1 0 1 0 0 0 0 (0x50)
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL, 
+	--O 6.5.2.22 b	1 0 0 1 1 1 1 1 (0x9f)
+	--				0 1 0 1 0 0 0 1 (0x51)
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL, 
+	--O 6.5.2.25 a	1 0 0 1 1 1 1 1 (0x9f)
+	--				0 1 0 1 0 1 0 0 (0x54)
+
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 p
+	conditionallyDeniedReason				[162] IMPLICIT ConditionallyDeniedReason OPTIONAL,
+	-- O 6.5.2.48 c, d
+	dataAccessElementList					[250] IMPLICIT DataAccessElementList OPTIONAL,
+	-- O 6.5.2.cd c
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56 q
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) O 6.5.2.58 a
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 c
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ej c, r
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 c, s
+	extendedMSCID							[53] IMPLICIT ExtendedMSCID OPTIONAL,
+	-- O 6.5.2.64 c, t
+	featureIndicator						[306] IMPLICIT FeatureIndicator OPTIONAL,
+	-- O 6.5.2.ej c, u
+	groupInformation						[163] GroupInformation OPTIONAL,
+	-- O 6.5.2.69 c
+	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	-- O 6.5.2.75 c
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 c
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 c, g
+-- Removed MobileIdentificationNumber O 6.5.2.81 c
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Invoking) O 6.5.2.82 c, h
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- (Invoking) O 6.5.2.83 c, i
+--	msid
+	-- O 6.5.2.bv p
+	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
+	-- O 6.5.2.93 i, j
+	pilotBillingID							[169] IMPLICIT PilotBillingID OPTIONAL,
+	-- O 6.5.2.94 c
+	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
+	-- O 6.5.2.95 c
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 a
+	redirectingPartyName					[245] IMPLICIT RedirectingPartyName OPTIONAL,
+	-- O 6.5.2.by a
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 a
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
+	-- O 6.5.2.109 a
+	redirectionReason						[19] IMPLICIT RedirectionReason OPTIONAL,
+	-- O 6.5.2.110 a, c
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 v
+	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
+	-- O 6.5.2.116 k
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 c
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- O 6.5.2.147 l
+	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL,
+	-- O 6.5.2.155 c
+	timeDateOffset							[275] IMPLICIT TimeDateOffset OPTIONAL,
+	-- O 6.5.2.dd c, w
+	timeOfDay								[309] IMPLICIT TimeOfDay OPTIONAL,
+	-- O 6.5.2.em c, x
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
+	-- O 6.5.2.160 m
+	triggerType								[279] IMPLICIT TriggerType OPTIONAL,
+	--	O 6.5.2.dh n
+	winCapability							[280] IMPLICIT WINCapability OPTIONAL
+	-- O 6.5.2.di o
+}
+
+-- ServiceRequest RETURN RESULT Parameters
+ServiceRequestRes ::= [PRIVATE 18] SET {
+	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
+	-- O 6.5.2.1 b
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 c
+	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
+	-- O 6.5.2.3 d
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 e
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw a
+	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	-- O 6.5.2.23 a
+	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	-- O 6.5.2.24 a
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 a
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 a
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) O 6.5.2.58 f
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, p
+	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
+	-- O 6.5.2.ec d, e, p
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 a
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 a
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 a
+	dmh-ChargeInformation					[311] IMPLICIT DMH-ChargeInformation OPTIONAL,
+	-- O 6.5.2.eo a, k
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 a
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei i
+	groupInformation						[163] GroupInformation OPTIONAL,
+	-- O 6.5.2.69 a
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 a
+	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
+	-- O 6.5.2.87 a
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 a
+	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
+	-- O 6.5.2.108 a
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
+	-- O 6.5.2.109 a
+	resumePIC								[394] IMPLICIT ResumePIC,
+	-- O 6.5.2.cu g
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 a
+	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
+	-- O 6.5.2.156 h
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de j
+
+}
+
+-- 6.4.2.i AnalyzedInformation
+AnalyzedInformation ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Originating) M 6.5.2.16 a
+	digits		 							[4] IMPLICIT Digits,
+	-- (Dialed) M 6.5.2.58
+	mscid									[21] IMPLICIT MSCID,
+	-- (Originating) M 6.5.2.82 b
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh c
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di d
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw e, m
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 e
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 e
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 e
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 n, o
+	conferenceCallingIndicator				[137] IMPLICIT ConferenceCallingIndicator OPTIONAL,
+	-- O 6.5.2.49 f
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56 n, p
+	dmd-BillingIndicator					[312] IMPLICIT DMH-BillingIndicator OPTIONAL,
+	-- O 6.5.2.ep y
+	dmh-ChargeInformation					[311] IMPLICIT DMH-ChargeInformation OPTIONAL,
+	--	 O 6.5.2.eo g, r
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 q
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+		-- O 6.5.2.63 g, r
+	featureIndicator						[306] IMPLICIT FeatureIndicator OPTIONAL,
+	-- O 6.5.2.ej s
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 h, t
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 i
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 g
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 j
+--	msid
+	-- O 6.5.2.bv n
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 k
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 e
+	redirectingPartyName					[245] IMPLICIT RedirectingPartyName OPTIONAL,
+	-- O 6.5.2.by b, m
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
+	-- O 6.5.2.109 e
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 n, u
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 h, v
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- O 6.5.2.147
+	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL,
+	-- O 6.5.2.155 l
+	timeDateOffset							[275] IMPLICIT TimeDateOffset OPTIONAL,
+	-- O 6.5.2.dd w
+	timeOfDay								[309] IMPLICIT TimeOfDay OPTIONAL
+	-- O 6.5.2.em x
+	}
+
+--AnalyzedInformation RETURN RESULT Parameters
+
+AnalyzedInformationRes ::= [PRIVATE 18] SET {
+	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
+	-- O 6.5.2.1 a
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 b
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 c
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 d
+	conferenceCallingIndicator				[137] IMPLICIT ConferenceCallingIndicator OPTIONAL,
+	-- O 6.5.2.49 e
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) O 6.5.2.58 f
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, m
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 g
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 g
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 g
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 h
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei n
+	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
+	-- O 6.5.2.87 i
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 j
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 d
+	resumePIC								[394] IMPLICIT ResumePIC,
+	-- O 6.5.2.cu k
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 d
+	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
+	-- O 6.5.2.156 l
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
+	-- O 6.5.2.159 d
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de d, o
+	}
+
+-- 6.4.2.m FacilitySelectedAndAvailable
+FacilitySelectedAndAvailable ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Serving) M 6.5.2.16
+	mscid									[21] IMPLICIT MSCID,
+	-- (Serving) M 6.5.2.82
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh a
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di b
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw c, i
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 c
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 c
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 c
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63
+	groupInformation						[163] GroupInformation OPTIONAL,
+	-- O 6.5.2.69 c
+	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	-- O 6.5.2.75 c
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 c
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 d, e
+--MobileIdentificationNumber O 6.5.2.81 d
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 f
+--MSID O 6.5.2.bv d, j
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 g
+	pilotBillingID							[169] IMPLICIT PilotBillingID OPTIONAL,
+	-- O 6.5.2.94 c
+	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
+	-- O 6.5.2.95 c
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 c
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 c
+	redirectingPartyName					[245] IMPLICIT RedirectingPartyName OPTIONAL,
+	-- O 6.5.2.by c, i
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
+	-- O 6.5.2.109 c
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 c
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- O 6.5.2.147
+	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
+	-- O 6.5.2.155 h
+	}
+
+-- FacilitySelectedAndAvailable RETURN RESULT Parameters
+
+FacilitySelectedAndAvailableRes ::= [PRIVATE 18] SET {
+	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
+	-- O 6.5.2.1 a
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 b
+	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
+	-- O 6.5.2.3 c
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, j
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 e
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 e
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 e
+	dmh-ChargeInformation					[311] IMPLICIT DMH-ChargeInformation OPTIONAL,
+	-- O 6.5.2.eo e, l
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 e, f
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei k
+	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
+	-- O 6.5.2.87 g
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 h
+	resumePIC								[394] IMPLICIT ResumePIC,
+	-- O 6.5.2.cu i
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
+	-- O 6.5.2.159 d
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de d, l
+	}
+
+--6.4.2.s SRFDirective
+SRFDirective ::= [PRIVATE 18] SET {
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 a, d
+	digitCollectionControl					[139] IMPLICIT DigitCollectionControl OPTIONAL,
+	-- O 6.5.2.57 b
+	executeScript							[386] IMPLICIT ExecuteScript OPTIONAL,
+	-- O 6.5.2.cl c, d
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL
+	-- O 6.5.2.80 e
+	}
+
+
+-- 6.4.2.t TBusy
+TBusy ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Invoking) M 6.5.2.16 a
+	mscid									[21] IMPLICIT MSCID,
+	-- M 6.5.2.82 b
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh c
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di d
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 e
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 e
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 e
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 f
+	groupInformation						[163] GroupInformation OPTIONAL,
+	-- O 6.5.2.69 f
+	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	-- O 6.5.2.75 f
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 g
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 h, i
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 h
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 b
+--	MSID O 6.5.2.bv h
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 j
+	pilotBillingID							[169] IMPLICIT PilotBillingID OPTIONAL,
+	-- O 6.5.2.94 f
+	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
+	-- O 6.5.2.95 f
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 g
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 e
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
+	-- O 6.5.2.109 e
+	redirectionReason						[19] IMPLICIT RedirectionReason OPTIONAL,
+	--: TBusy O 6.5.2.110 f
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 g
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- O 6.5.2.147
+	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
+	-- O 6.5.2.155 f
+	}
+
+
+-- TBusy RETURN RESULT Parameters
+
+TBusyRes ::= [PRIVATE 18] SET {
+	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
+	-- O 6.5.2.1 a
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 b
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 c
+	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	-- O 6.5.2.23 d, e
+	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	-- O 6.5.2.24 d, e
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 l
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, m
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 g
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 f
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 f
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei n
+	groupInformation						[163] GroupInformation OPTIONAL,
+	-- O 6.5.2.69 g
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 h
+	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
+	-- O 6.5.2.95 g
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 l, o
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 i
+	resumePIC								[394] IMPLICIT ResumePIC,
+	-- O 6.5.2.cu j
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 l
+	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
+	-- O 6.5.2.156 k
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
+	-- O 6.5.2.159 l
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de l
+	}
+-- 6.4.2.u TNoAnswer
+TNoAnswer ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Invoking) M 6.5.2.16 a
+	mscid									[21] IMPLICIT MSCID,
+	-- M 6.5.2.82 b
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh c
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di d
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 e
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 e
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 e
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 f
+	groupInformation						[163] GroupInformation OPTIONAL,
+	-- O 6.5.2.69 f
+	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	-- O 6.5.2.75 f
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 g
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 h, i
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 h
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 b
+	msid									MSID OPTIONAL,
+	-- O 6.5.2.bv h
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 j
+	pilotBillingID							[169] IMPLICIT PilotBillingID OPTIONAL,
+	-- O 6.5.2.94 f
+	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
+	-- O 6.5.2.95 f
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 g
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 e
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
+	-- O 6.5.2.109 e
+	redirectionReason						[19] IMPLICIT RedirectionReason OPTIONAL,
+	--:TNoAnswer O 6.5.2.110 f
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 g
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- O 6.5.2.147
+	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
+	-- O 6.5.2.155 f
+}
+-- TNoAnswer RETURN RESULT Parameters
+-- 6.4.2.u TNoAnswer
+TNoAnswerRes ::= [PRIVATE 18] SET {
+	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
+	-- O 6.5.2.1 a
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 b
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 c
+	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	-- O 6.5.2.23 d, e
+	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	-- O 6.5.2.24 d, e
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 l
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx d, e, m
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 f
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 f
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 f
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 f
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei n
+	groupInformation						[163] GroupInformation OPTIONAL,
+	-- O 6.5.2.69 g
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 h
+	pilotNumber								[168] IMPLICIT PilotNumber OPTIONAL,
+	-- O 6.5.2.95 g
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 l, o
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 i
+	resumePIC								[394] IMPLICIT ResumePIC,
+	-- O 6.5.2.cu j
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 l
+	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
+	-- O 6.5.2.156 k
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
+	-- O 6.5.2.159 l
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de l, p
+}
+
+
+-- 6.4.2.X MessageDirective
+MessageDirective ::= [PRIVATE 18] SET {
+	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount,
+	--	 O 6.5.2.78 a
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL
+	-- O 6.5.2.80 b, c
+--	MSID O 6.5.2.bv IS-751 b, c
+	}
+-- 6.4.2.X2 MessageDirective RETURN RESULT Parameters
+--zero octets
+
+-- 6.4.2.y BulkDisconnection
+BulkDisconnection ::= [PRIVATE 18] SET {
+	mscid									[21] IMPLICIT MSCID,
+	-- M 6.5.2.82
+	timeDateOffset							[275] IMPLICIT TimeDateOffset OPTIONAL,
+	-- M 6.5.2.2 a
+	timeOfDay								[309] IMPLICIT TimeOfDay OPTIONAL,
+	-- M 6.5.2.em b
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 c
+	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL
+	-- O 6.5.2.116 d
+	}
+
+-- BulkDisconnection RETURN RESULT Parameters
+-- Length zero octets M 6.3.2.2
+--BulkDisconnectionRes ::= [PRIVATE 18] SET {
+--	}
+
+
+-- 6.4.2.z CallControlDirective
+CallControlDirective ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- M 6.5.2.16 a
+	mscid									[21] IMPLICIT MSCID,
+	-- M 6.5.2.82 b
+	msid									MSID,
+	-- M 6.5.2.bv c
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 d
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 e
+	displayText								[244] IMPLICIT DisplayText OPTIONAL,
+	-- O 6.5.2.bx f
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 g
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 g
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 g
+	dmh-ChargeInformation					[311] IMPLICIT DMH-ChargeInformation OPTIONAL,
+	-- O 6.5.2.eo g, o
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 g, h
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 i, j
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 k
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 l, m
+	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
+	-- O 6.5.2.156 k
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de h
+}
+
+-- z-2 CallControlDirective RETURN RESULT Parameters
+CallControlDirectiveres ::= [PRIVATE 18] SET {
+	callStatus								[310] IMPLICIT CallStatus OPTIONAL
+	-- O 6.5.2.en a
+
+	}
+
+-- 6.4.2.aa OAnswer
+OAnswer ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Originating) M 6.5.2.16 a
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- M 6.5.2.63 b
+	mscid									[21] IMPLICIT MSCID,
+	-- (Originating) M 6.5.2.82 c
+	msid									MSID,
+	-- M 6.5.2.bv d
+	timeDateOffset							[275] IMPLICIT TimeDateOffset,
+	-- M 6.5.2.dd e
+	timeOfDay								[309] IMPLICIT TimeOfDay,
+	-- M 6.5.2.em f
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh g
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 h, i
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 j
+	featureIndicator						[306] IMPLICIT FeatureIndicator OPTIONAL,
+	-- O 6.5.2.ej k
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 l
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 h, m
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode
+	-- O 6.5.2.147
+	}
+
+
+--6.4.2.ab ODisconnect
+ODisconnect ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Originating) M 6.5.2.16 a
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- M 6.5.2.63 b
+	mscid									[21] IMPLICIT MSCID,
+	-- (Originating) M 6.5.2.82 c
+	msid									MSID,
+	-- M 6.5.2.bv d
+	releaseCause							[308] IMPLICIT ReleaseCause OPTIONAL,
+	-- M 6.5.2.el e
+	timeDateOffset							[275] IMPLICIT TimeDateOffset OPTIONAL,
+	-- M 6.5.2.dd f
+	timeOfDay								[309] IMPLICIT TimeOfDay,
+	-- M 6.5.2.em g
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh h
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 i, j
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 k
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 l
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 i, m
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode
+	-- O 6.5.2.147
+}
+
+-- ab-2 ODisconnect RETURN RESULT Parameters
+ODisconnectRes ::= [PRIVATE 18] SET {
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 a
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL
+	-- O 6.5.2.ei b
+	}
+-- 6.4.2.ac CallRecoveryReport
+
+CallRecoveryReport ::= [PRIVATE 18] SET {
+	callRecoveryIDList						[303] IMPLICIT CallRecoveryIDList
+	-- M 6.5.2.eh a
+	}
+
+-- ac-2 CallRecoveryReport RETURN RESULT Parameters
+--CallRecoveryReportRes ::= [PRIVATE 18] SET {
+--	}
+
+-- 6.4.2.ad TAnswer
+TAnswer ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Originating) M 6.5.2.16 a
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- M 6.5.2.63 b
+	mscid									[21] IMPLICIT MSCID,
+	-- M 6.5.2.82 c
+	msid									MSID,
+	-- M 6.5.2.bv b
+	timeDateOffset							[275] IMPLICIT TimeDateOffset OPTIONAL,
+	-- M 6.5.2.dd d
+	timeOfDay								[309] IMPLICIT TimeOfDay,
+	-- M 6.5.2.em e
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh f
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 g, h
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 i
+	featureIndicator						[306] IMPLICIT FeatureIndicator OPTIONAL,
+	-- O 6.5.2.ej j
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 k
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 g, l
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- O 6.5.2.147
+	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
+	-- O 6.5.2.155 m
+	}
+-- 6.4.2.ae TDisconnect
+TDisconnect ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Originating) M 6.5.2.16 a
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- M 6.5.2.63 b
+	mscid									[21] IMPLICIT MSCID,
+	-- M 6.5.2.82 c
+	msid									MSID,
+	-- M 6.5.2.bv d
+	timeDateOffset							[275] IMPLICIT TimeDateOffset OPTIONAL,
+	-- M 6.5.2.dd e
+	timeOfDay								[309] IMPLICIT TimeOfDay,
+	-- M 6.5.2.em f
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh g
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 n
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 n
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 h, i
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 j
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 k
+	releaseCause							[308] IMPLICIT ReleaseCause OPTIONAL,
+	-- O 6.5.2.el l
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 h, m
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode
+	-- O 6.5.2.147
+	}
+
+-- Table ae-2 TDisconnect RETURN RESULT Parameters
+TDisconnectRes ::= [PRIVATE 18] SET {
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL
+	-- O 6.5.2.ei a
+	}
+
+-- 6.4.2.af UnreliableCallData
+UnreliableCallData ::= [PRIVATE 18] SET {
+	controlNetworkID						[307] IMPLICIT ControlNetworkID,
+	-- M 6.5.2.ek a
+	mscid									[21] IMPLICIT MSCID
+	-- M 6.5.2.82 b
+}
+
+-- UnreliableCallData RETURN RESULT Parameters
+--UnreliableCallData ::= [PRIVATE 18] SET {
+--
+--}
+
+-- 6.4.2.ag OCalledPartyBusy
+
+OCalledPartyBusy ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Originating) M 6.5.2.16
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- M 6.5.2.63 a
+	mscid									[21] IMPLICIT MSCID,
+	-- (Originating MSC) M 6.5.2.82
+	msid									MSID,
+	-- M 6.5.2.bv b
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw c
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 c
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 c
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 c
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 d
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56 e
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) O 6.5.2.58 d
+	failureCause							[387] IMPLICIT FailureCause OPTIONAL,
+	--  O 6.5.2.cm f
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 d, g
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 h
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 i
+	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
+	-- (Originating MSC) O 6.5.2.93 j
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.114 c
+	redirectingPartyName					[245] IMPLICIT RedirectingPartyName OPTIONAL,
+	-- O 6.5.2.114 c
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 d
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
+	-- O 6.5.2.117 d, k
+	}
+
+-- OCalledPartyBusy RETURN RESULT Parameters
+OCalledPartyBusyRes ::= [PRIVATE 18] SET {
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 a
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 b
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 c
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 e
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 e
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 e
+	dmh-ChargeInformation					[311] IMPLICIT DMH-ChargeInformation OPTIONAL,
+	-- O 6.5.2.eo e, d
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 e, f
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei g
+	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
+	-- O 6.5.2.87 h
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 i
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 c, j
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 k
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 c
+	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
+	-- O 6.5.2.156 l
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de m
+	}
+
+-- 6.4.2.ah ONoAnswer
+ONoAnswer ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- (Originating) M 6.5.2.16
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- M 6.5.2.63 a
+	mscid									[21] IMPLICIT MSCID,
+	-- (Originating MSC) M 6.5.2.82
+	msid									MSID,
+	-- M 6.5.2.bv b
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 6.5.2.160
+	triggerType								[279] IMPLICIT TriggerType,
+	-- M 6.5.2.dh
+	winCapability							[280] IMPLICIT WINCapability,
+	-- M 6.5.2.di
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw c
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 c
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 c
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 c
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 d
+	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
+	-- O 6.5.2.56 e
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) O 6.5.2.58 d
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 d, f
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 g
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83 h
+	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
+	-- (Originating MSC) O 6.5.2.93 i
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.114 c
+	redirectingPartyName					[245] IMPLICIT RedirectingPartyName OPTIONAL,
+	-- O 6.5.2.114 c
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 d
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
+	-- O 6.5.2.117 d, j
+	}
+
+-- ONoAnswer RETURN RESULT Parameters
+ONoAnswerRes ::= [PRIVATE 18] SET {
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 a
+	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
+	-- O 6.5.2.6 b
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 c
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 e
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 e
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 e
+	dmh-ChargeInformation					[311] IMPLICIT DMH-ChargeInformation OPTIONAL,
+	-- O 6.5.2.eo e, d
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
+	-- O 6.5.2.62 e, f
+	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	-- O 6.5.2.ei g
+	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
+	-- O 6.5.2.87 h
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 i
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 c, j
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	-- O 6.5.2.107 k
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 c
+	terminationList							[120] IMPLICIT TerminationList OPTIONAL,
+	-- O 6.5.2.156 l
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	-- O 6.5.2.de m
+	}
+
+-- 6.4.2.ai PositionRequest
+PositionRequest ::= [PRIVATE 18] SET {
+	mscid									[21] IMPLICIT MSCID,
+	-- (Requesting) M 6.5.2.82 a
+	positionInformationCode					[315] IMPLICIT PositionInformationCode,
+	-- M 6.5.2.er b
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 c
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 d, e
+	msid									MSID,
+	-- O 6.5.2.bv c, e
+	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL
+	-- O 6.5.2.116 f
+	}
+
+-- PositionRequest RETURN RESULT Parameters
+PositionRequestres ::= [PRIVATE 18] SET {
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 a, b
+	extendedMSCID							[53] IMPLICIT ExtendedMSCID OPTIONAL,
+	-- O 6.5.2.64 c, d
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- (Serving MSC) O 6.5.2.83 a, d, e, f
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 g, d, h
+	msid									MSID,
+	-- O 6.5.2.bv a, b
+	mSStatus								[313] IMPLICIT MSStatus OPTIONAL,
+	-- O 6.5.2.eq i, d
+	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
+	-- (Serving MSC) O 6.5.2.93 a, d, e, f
+	pSID-RSIDInformation					[202] IMPLICIT PSID-RSIDInformation OPTIONAL,
+	-- O 6.5.2.f j, a, d
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 k, a, d
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
+	-- O 6.5.2.117 l, a, d
+	}
+
+
+-- 6.4.2.aj PositionRequestForward
+PositionRequestForward ::= [PRIVATE 18] SET {
+	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	-- M 6.5.2.72
+	positionInformationCode					[315] IMPLICIT PositionInformationCode,
+	-- M 6.5.2.er a
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.bu b
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu c, d
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL
+	-- O 6.5.2.81 c, d
+	}
+
+-- PositionRequestForward RETURN RESULT Parameters
+PositionRequestForwardRes ::= [PRIVATE 18] SET {
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 a
+	mSStatus								[313] IMPLICIT MSStatus OPTIONAL,
+	-- O 6.5.2.eq b
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 6.5.2.77 c, d
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
+	-- O 6.5.2.117 c, e
+	}
+
+
+
 
 -- Parameters
 -- 6.5.2.1
@@ -2130,17 +3545,19 @@ AuthenticationResponseUniqueChallenge ::= OCTET STRING
 -- 6.5.2.13
 -- 1 0 0 0 1 1 0 1 (0x8d)(13)
 AuthorizationDenied ::= ENUMERATED {
-	not-used							( 0 ),
-	delinquent-account					( 1 ),
-	invalid-serial-number				( 2 ),
-	stolen-unit							( 3 ),
-	duplicate-unit						( 4 ),
-	unassigned-directory-number			( 5 ),
-	unspecified							( 6 ),
-	multiple-access						( 7 ),
-	not-Authorized-for-the-MSC			( 8 ),
-	missing-authentication-parameters	( 9 ),
-	terminalType-mismatch				( 10 ) }
+	not-used								( 0 ),
+	delinquent-account						( 1 ),
+	invalid-serial-number					( 2 ),
+	stolen-unit								( 3 ),
+	duplicate-unit							( 4 ),
+	unassigned-directory-number				( 5 ),
+	unspecified								( 6 ),
+	multiple-access							( 7 ),
+	not-Authorized-for-the-MSC				( 8 ),
+	missing-authentication-parameters		( 9 ),
+	terminalType-mismatch					( 10 ),
+	requested-Service-Code-Not-Supported	( 11 )
+	 }
 
 -- 6.5.2.14
 -- 1 0 0 0 1 1 1 0 (0x8e)(14)
@@ -2396,7 +3813,7 @@ DenyAccess ::= ENUMERATED {
 	process-collision					( 7 ),
 	missing-authentication-parameters	( 8 ),
 	terminalType-mismatch				( 9 ),
-	mIN-or-ESN-authorization-failure	( 10 ),
+	mIN-IMSI-or-ESN-authorization-failure	( 10 ),
 	...
 }
 
@@ -2520,7 +3937,7 @@ InterSwitchCount  ::=  INTEGER (0..255)
 --6.5.2.74 
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 0 1 0 1 1 0 0 1 (0x59)(89)
-IntersystemTermination ::= SET {
+IntersystemTermination ::= SEQUENCE {
 	destinationDigits						[87] IMPLICIT	DestinationDigits,
 	-- M 6.5.2.56
 	mscid									[21] IMPLICIT MSCID,
@@ -2533,6 +3950,8 @@ IntersystemTermination ::= SET {
 	-- O 6.5.2.28 c, d
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 e
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- 6.5.2.bu e, k
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
@@ -2557,11 +3976,9 @@ LegInformation ::= OCTET STRING
 -- 6.5.2.76
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 0 1 0 1 1 0 1 1 (0x5b)(91)
-LocalTermination ::= SET {
+LocalTermination ::= SEQUENCE {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
-	-- M 6.5.2.81
 	terminationTreatment					[121] IMPLICIT TerminationTreatment,
 	-- M 6.5.2.158
 	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
@@ -2570,10 +3987,14 @@ LocalTermination ::= SET {
 	-- O 6.5.2.28 b, c
 	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
 	-- O 6.5.2.56 d, e
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- 6.5.2.bu e, k
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 a
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 b, f
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	-- M 6.5.2.81
 	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
 	-- O 6.5.2.88 b, g
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
@@ -2629,7 +4050,7 @@ MSLocation ::=  OCTET STRING
 -- 6.5.2.85
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
--- 0 0 1 0 0 1 0 1 (0x45)(197)
+-- 0 0 1 0 0 1 0 1 (0x25)(165)
 NAMPSCallMode ::= OCTET STRING
 
 -- 6.5.2.86
@@ -2732,10 +4153,13 @@ Profile ::= SET {
 	-- O 6.5.2.91 j
 	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
 	-- O 6.5.2.96 k
+--	QOSPriority O 6.5.2.xx t
 	restrictionDigits						[227] IMPLICIT RestrictionDigits OPTIONAL,
 	-- O 6.5.2.113 l
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 m
+	pSID-RSIDList							[203] IMPLICIT PSID-RSIDList OPTIONAL,
+	-- O 6 .5.2.ag u , w
 	sms-OriginationRestrictions				[115] IMPLICIT SMS-OriginationRestrictions OPTIONAL,
 	-- O 6.5.2.136 n
 	sms-TerminationRestrictions				[117] IMPLICIT SMS-TerminationRestrictions OPTIONAL,
@@ -2750,6 +4174,12 @@ Profile ::= SET {
 	-- O 6.5.2.159 s
 	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL,
 	-- O 6.5.2.de t
+	userGroup								[208] IMPLICIT UserGroup OPTIONAL,
+	-- O 6 .5.2.al p
+	nonPublicData							[200] IMPLICIT NonPublicData OPTIONAL,
+	-- O 6 .5.2.ad v
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
+	-- O 6 .5.2.am v , w
 	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL,
 	-- O 6.5.2.gl z
 	...
@@ -2783,13 +4213,15 @@ Profile ::= SET {
 -- 6.5.2.98
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 0 1 0 1 1 1 1 1 (0x5f)(79)
-PSTNTermination ::= SET {
+PSTNTermination ::= SEQUENCE {
 	destinationDigits						[87] IMPLICIT	DestinationDigits,
 	-- M 6.5.2.56
 	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
 	-- O 6.5.2.28 a, b
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- O 6.5.2.63 c
+	imsi									[242] IMPLICIT IMSI,
+	-- 6.5.2.bu
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 d
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
@@ -2878,7 +4310,7 @@ RedirectionReason ::= ENUMERATED {
 	}
 
 -- 6.5.2.111 
--- 1 0 0 0 1 0 1 0
+-- 1 0 0 0 1 0 1 0 (0x8a)
 ReleaseReason ::= ENUMERATED {
 	unspecified					( 0 ),
 	callOverClearForward		( 1 ),
@@ -2898,7 +4330,7 @@ ReleaseReason ::= ENUMERATED {
 ReportType ::= ENUMERATED {
 	not-used							( 0 ),
 	unspecified-security-violation		( 1 ),
-	mIN-ESN-mismatch					( 2 ),
+	mSID-ESN-mismatch					( 2 ),
 	rANDC-mismatch						( 3 ),
 	reserved							( 4 ),
 	sSD-update-failed					( 5 ),
@@ -2943,7 +4375,7 @@ SeizureType  ::= ENUMERATED {
 SenderIdentificationNumber ::= DigitsType
 
 -- 6.5.2.117	
--- 1 0 0 0 0 0 1 0 (0x82)(2)
+-- 1 0 0 0 0 0 1 0 (0x82)(0x2)
 ServingCellID ::= OCTET STRING
 
 -- 6.5.2.118
@@ -2964,7 +4396,29 @@ SignalingMessageEncryptionKey ::= OCTET STRING
 
 -- 6.5.2.121 
 -- 1 0 0 0 1 0 1 1 (0x8b)(11)
-SignalQuality ::= INTEGER (0..255)
+SignalQuality ::= INTEGER{
+	not-a-usable-signal (0),
+	treat-as-Not-a-usable-signal (1),
+	treat-as-Not-a-usable-signal (2),
+	treat-as-Not-a-usable-signal (3),
+	treat-as-Not-a-usable-signal (4),
+	treat-as-Not-a-usable-signal (5),
+	treat-as-Not-a-usable-signal (6),
+	treat-as-Not-a-usable-signal (7),
+	treat-as-Not-a-usable-signal (8),
+	usable-signal-range (9),
+	usable-signal-range (245),
+	treat-the-same-as-interference (246),
+	treat-the-same-as-interference (247),
+	treat-the-same-as-interference (248),
+	treat-the-same-as-interference (249),
+	treat-the-same-as-interference (250),
+	treat-the-same-as-interference (251),
+	treat-the-same-as-interference (252),
+	treat-the-same-as-interference (253),
+	treat-the-same-as-interference (254),
+	interference (255)
+} (0..255)
 
 -- 6.5.2.122
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -3128,12 +4582,12 @@ SystemMyTypeCode ::= ENUMERATED {
 	iNET						( 12 ),
 	bellcore					( 13 ),
 	alcatel-SEL					( 14 ),
-	tandem						( 15 ),
+	compaq						( 15 ),
 	qUALCOMM					( 16 ),
 	aldiscon					( 17 ),
 	celcore						( 18 ),
 	tELOS						( 19 ),
-	stanilite					( 20 ),
+	aDI-Limited					( 20 ),
 	coral-Systems				( 21 ),
 	synacom-Technology			( 22 ),
 	dSC							( 23 ),
@@ -3142,7 +4596,12 @@ SystemMyTypeCode ::= ENUMERATED {
 	sema-Group-Telecoms			( 26 ),
 	lG-Information-and-Communications	( 27 ),
 	cBIS						( 28 ),
-	siemens						( 29 )
+	siemens						( 29 ),
+	samsung-Electronics			( 30 ),
+	readyCom-Inc				( 31 ),
+	aG-Communication-Systems	( 32 ),
+	hughes-Network-Systems		( 33 ),
+	phoenix-Wireless-Group		( 34 )
 	}
 
 
@@ -3188,11 +4647,21 @@ TerminalType ::= ENUMERATED {
 	not-distinguished			( 1 ),
 	iS-54-B						( 2 ),
 	iS-136						( 3 ),
+	j-STD-011					( 4 ),
+	iS-136-A-or-TIA-EIA-136-Revision-0	( 5 ),
+	tIA-EIA-136-A				( 6 ),
+	iA-EIA-136-B				( 7 ),
 	iS-95						( 32 ),
 	iS-95B						( 33 ),
+	j-STD-008					( 34 ),
+	tIA-EIA-95-B				( 35 ),
+	iS-2000						( 36 ),
 	iS-88						( 64 ),
 	iS-94						( 65 ),
 	iS-91						( 66 ),
+	j-STD-014					( 67 ),
+	tIA-EIA-553-A				( 68 ),
+	iS-91-A						( 69 ),
 	...
 	}
 
@@ -3278,11 +4747,126 @@ VoiceMailboxPIN ::= DigitsType
 -- 0 0 1 1 0 0 0 0 (0x30)(48)
 VoicePrivacyMask ::= OCTET STRING
 
+-- 6.5.2.aa (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 1 0 1 (0x45)(197)
+BaseStationManufacturerCode ::= OCTET STRING
+
+-- 6.5.2.ab (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 1 1 0 (0x46)(198)
+BSMCStatus ::= OCTET STRING
+
+-- 6.5.2.ac (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 1 1 1 (0x49)(199)
+ControlChannelMode ::= OCTET STRING
+
+-- 6 .5.2.ad (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 0 0 0 (0x48)(200)
+NonPublicData ::= OCTET STRING
+
+
+-- 6.5.2.ae (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 0 0 1 (0x49)(201)
+PagingFrameClass ::= OCTET STRING
+
+
+-- 6.5.2.af (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 0 1 0 (0x4a)(202)
+PSID-RSIDInformation ::= OCTET STRING
+
+-- 6.5.2.ag (N.S0007-0 v 1.0)
+-- 1 0 1 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 0 1 1 (0x4b)(203)
+
+PSID-RSIDList ::= SEQUENCE{
+	pSID-RSIDInformation		[202] IMPLICIT PSID-RSIDInformation,
+	 -- M 6.5.2.af
+	pSID-RSIDInformation1		[202] IMPLICIT PSID-RSIDInformation OPTIONAL
+	--O 6.5.2.af a
+	}
+
+-- 6.5.2.ah (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 1 0 0 (0x4c)(204)
+ServicesResult ::= OCTET STRING
+
+-- 6.5.2.ai (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 1 0 1 (0x4d)(205)
+SOCStatus ::= OCTET STRING
+
+-- 6.5.2.aj (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 1 1 0 (0x4e)(206)
+SystemOperatorCode ::= OCTET STRING
+
+-- 6.5.2.ak (N.S0007-0 v 1.0)
+-- 1 0 1 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 1 1 1 1 (0x4f)(207)
+TargetCellIDList ::= SEQUENCE {
+	targetCellID							[3] IMPLICIT TargetCellID,
+	-- M 6.5.2.148
+	targetCellID1							[3] IMPLICIT TargetCellID OPTIONAL
+	-- O 6.5.2.148
+	}
+
+
+-- 6.5.2.al (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 1 0 0 0 0 (0x50)(208)
+UserGroup ::= OCTET STRING
+
+
+-- 6.5.2.am (N.S0007-0 v 1.0)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 1 0 0 0 1 (0x51)(209)
+UserZoneData ::= OCTET STRING
+
+--6.5.2.ar
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 1 0 1 (0x55)
+--(287)
+-- CDMAState
+
+-- 6.5.2.bv MSID
+
+MSID ::= CHOICE {
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	imsi									[242] IMPLICIT IMSI
+	}
+
+-- 6.5.2.bu
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 1 1 0 0 1 0 (0x72)(242)
+IMSI ::= OCTET STRING
+
 -- 6.5.2.bw
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 0 0 1 1 (0x73)(243)
 CallingPartyName ::= OCTET STRING
+
+
 
 -- 6.5.2.bx
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -3293,7 +4877,7 @@ DisplayText ::= OCTET STRING
 -- 6.5.2.by
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
--- 0 1 1 1 0 1 0 1
+-- 0 1 1 1 0 1 0 1 (0x75)(245)
 RedirectingPartyName ::= OCTET STRING
 
 -- 6.5.2.bz
@@ -3644,15 +5228,14 @@ TriggerType ::= ENUMERATED {
 	called-Routing-Address-Available (39),
 	o-Answer (40),
 	o-Disconnect (41),
-	location (42),
-	location (43),
-	location (44),
+	o-Called-Party-Busy (42),
+	o-No-Answer (43),
 
 	terminating-Resource-Available (64),
 	t-Busy (65),
 	t-No-Answer (66),
 	t-No-Page-Response (67),
-	t-Unroutable (68),
+	t-Routable (68),
 	t-Answer (69),
 	t-Disconnect (70),
 	...
@@ -3667,17 +5250,6 @@ WINCapability ::= SET {
 	wINOperationsCapability		[281] IMPLICIT WINOperationsCapability OPTIONAL
 --	 O 6.5.2.dj a
 }
-
--- 6.5.2.do
--- 1 0 0 1 1 1 1 1 (0x9f)
--- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 1 1 1 0 1
-SuspiciousAccess ::= ENUMERATED {
-	not-used (0),
-	anomalous-Digits (1),
-	unspecified (2),
-	...
-	}
 
 -- 6.5.2.dj
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -3702,6 +5274,70 @@ WIN-TriggerList ::= SET OF WIN-Trigger
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 1 0 0 0 1 1 (0x63)(355)
 CallingPartyCategory ::= OCTET STRING
+
+--The CallingPartyCategory (CPC) parameter identifies the Calling Party’s Category. This
+--parameter is based on the Calling Party’s Category parameter defined in Section 3.11 of
+--ITU-T Q.763-1997 and includes the ”reserved for national use” values.
+
+-- 6.5.2.do
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 0 1 1 1 0 1 (0x1d)(285)
+
+SuspiciousAccess ::= ENUMERATED {
+	not-used (0),
+	anomalous-Digits (1),
+	unspecified (2),
+	...
+	}
+
+-- 6.5.2.eb
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 0 1 0 1 0 1 0
+-- [298)
+--CommandCode
+--(IS-764 modification)
+
+-- 6.5.2.ec
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 0 1 0 1 0 1 1
+-- (299)
+DisplayText2 ::= OCTET STRING
+
+
+
+-- 6.5.2.ed
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 0 1 0 1 1 0 0
+-- (300)
+-- PageCount
+
+PageCount ::= OCTET STRING
+
+-- 6.5.2.ee
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 0 1 0 1 1 0 1
+-- (301)
+-- PageResponseTime
+PageResponseTime ::= OCTET STRING
+
+-- 6.5.2.ef
+-- (IS-737 modification)
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 1 0 1 1 1 0 (0x2e)(302)
+-- (302)
+-- Mod from 6.5.2.aj ?
+-- 1 0 1 1 1 1 1 1
+-- 1 0 0 0 0 0 0 1
+-- 0 1 0 1 1 0 0 1
+-- 
+
+-- SMS-TransactionID
 
 -- 6.5.2.eg 
 -- 1 0 1 1 1 1 1 1 (0x9f)
@@ -3743,13 +5379,13 @@ FeatureIndicator  ::= ENUMERATED {
 -- 6.5.2.ek
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 1 1 0 0 1 1 (33)(307)
+-- 0 0 1 1 0 0 1 1 (0x33)(307)
 ControlNetworkID  ::= OCTET STRING
 
 -- 6.5.2.el
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 1 1 0 1 0 0
+-- 0 0 1 1 0 1 0 0 (0x34)(308)
 ReleaseCause ::= ENUMERATED {
 	unspecified (0),
 	calling-Party (1),
@@ -3767,7 +5403,7 @@ TimeOfDay ::= INTEGER
 -- 6.5.2.en
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 1 1 0 1 1 0
+-- 0 0 1 1 0 1 1 0 (0x36) (310)
 CallStatus ::= ENUMERATED {
 	not-used (0),
 	call-Setup-in-Progress (1),
@@ -3776,11 +5412,91 @@ CallStatus ::= ENUMERATED {
 	...
 	}
 
+-- 6.5.2.eo
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 1 1 0 1 1 1 (0x37)(311)
+DMH-ChargeInformation ::= OCTET STRING
+
+
+-- 6.5.2.ep
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 1 1 1 0 0 0 (0x38)(312)
+DMH-BillingIndicator ::= OCTET STRING
+	
+
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 1 1 1 0 0 1 (0x39)(313)
+-- 6.5.2.eq
+MSStatus ::= OCTET STRING
+
+-- 6.5.2.er
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 1 1 1 0 1 1 (0x3b)(315)
+PositionInformationCode::= OCTET STRING
+
+-- 6.5.2.fd
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 0 1 1 0 (0x46)(326)
+-- (3xx)
+InterMessageTime ::= OCTET STRING
+
+-- 6.5.2.fe
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 0 1 1 1 (0x47)(327)
+-- (3xx)
+MSIDUsage ::= OCTET STRING
+
+-- 6.5.2.ff
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 0 0 0 (0x48)(328)
+-- (3xx)
+NewMINExtension ::= MINType
+-- XXX ???
+MINType ::= OCTET STRING
+
 --  6.5.2.gj
 -- 1 0 0 1 1 1 1 1 (0x9f)
--- 1 0 0 0 0 0 1 0
--- 0 1 1 0 0 0 0 1
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 0 0 0 0 1 (0x61)
 Range ::= INTEGER
+
+-- 6 .5.2.i N.S0007-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 0 0 1 0 (0x32)(178)
+TDMAServiceCode  ::= OCTET STRING
+
+
+-- 6.5.2.j N.S0007-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 0 0 1 1 (0x33)(179)
+TDMATerminalCapability ::= OCTET STRING
+
+-- 6.5.2.k N.S0007-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 0 1 0 0 (0x34)(180)
+TDMAVoiceCoder ::= OCTET STRING
+
+
+-- 6.5.2.xx
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 x x x x x x
+-- (3xx)
+QOSPriority ::= OCTET STRING
+
+-- 6.5.2.wB
+-- FIX ME
+ServiceIndicator ::= OCTET STRING
 
 -- 6.5.3.2
 DigitsType ::= OCTET STRING

@@ -32,8 +32,31 @@
  * Title		3GPP2			Other
  *
  *   Cellular Radiotelecommunications Intersystem Operations
- *			3GPP2 N.S0005-0 v 1.0		ANSI/TIA/EIA-41-D XXX incomplete
- */
+ *			3GPP2 N.S0005-0 v 1.0		ANSI/TIA/EIA-41-D 
+ *
+ *   Network Support for MDN-Based Message Centers
+ *			3GPP2 N.S0024-0 v1.0	IS-841
+ *
+ *   Enhanced International Calling
+ *			3GPP2 N.S0027		IS-875
+ *
+ *   ANSI-41-D Miscellaneous Enhancements Revision 0
+ *			3GPP2 N.S0015		PN-3590 (ANSI-41-E)
+ *
+ *   Authentication Enhancements
+ *			3GPP2 N.S0014-0 v1.0	IS-778
+ *
+ *	 DCCH (Clarification of Audit Order with Forced 
+ *         Re-Registration in pre-TIA/EIA-136-A Implementation 
+ *			3GPP2 A.S0017-B			IS-730
+ *
+ *   UIM
+ *			3GPP2 N.S0003
+ *
+ *   WIN Phase 2
+ *			3GPP2 N.S0004-0 v1.0	IS-848
+ *
+ */ 
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
