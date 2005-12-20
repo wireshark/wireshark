@@ -1061,16 +1061,16 @@ next_attribute:
 static void init_xml_names(void) {
 	xml_ns_t* xmlpi_xml_ns;
 	guint i;
-    DIRECTORY_T* dir;
-    const FILE_T* file;
-    const gchar* filename;
-    gchar* dirname;
-    
+	DIRECTORY_T* dir;
+	const FILE_T* file;
+	const gchar* filename;
+	gchar* dirname;
+	
 #if GLIB_MAJOR_VERSION >= 2
-    GError** dummy = g_malloc(sizeof(GError *));
-    *dummy = NULL;
+	GError** dummy = g_malloc(sizeof(GError *));
+	*dummy = NULL;
 #endif
-    
+	
 	xmpli_names = g_hash_table_new(g_str_hash,g_str_equal);
 	media_types = g_hash_table_new(g_str_hash,g_str_equal);
 	
@@ -1082,55 +1082,57 @@ static void init_xml_names(void) {
 	g_hash_table_destroy(xmlpi_xml_ns->elements);
 	xmlpi_xml_ns->elements = NULL;
 
-    
-    dirname = get_persconffile_path("dtds", FALSE);
+	
+	dirname = get_persconffile_path("dtds", FALSE);
 	
 	if (test_for_directory(dirname) != EISDIR) {
+		/* Although dir isn't a directory it may still use memory */
+		g_free(dirname);
 		dirname = get_datafile_path("dtds");
-    }
-    
+	}
+	
 	if (test_for_directory(dirname) == EISDIR) {
-        
-        if ((dir = OPENDIR_OP(dirname)) != NULL) {
-            while ((file = DIRGETNEXT_OP(dir)) != NULL) {
-                guint namelen;
-                filename = GETFNAME_OP(file);
-                
-                namelen = strlen(filename);
-                if ( namelen > 4 && ( g_strcasecmp(filename+(namelen-4),".dtd")  == 0 ) ) {
-                    GString* errors = g_string_new("");
-                    GString* preparsed = dtd_preparse(dirname, filename, errors);
-                    dtd_build_data_t* dtd_data;
-                    
-                    if (errors->len) {
-                        report_failure("Dtd Preparser in file %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,errors->str);
-                        continue;
-                    }
-                    
-                    dtd_data = dtd_parse(preparsed);
-                    
-                    g_string_free(preparsed,TRUE);
-                    
-                    if (dtd_data->error->len) {
-                        report_failure("Dtd Parser in file %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,dtd_data->error->str);
-                        destroy_dtd_data(dtd_data);
-                        continue;
-                    }
-                    
-                    register_dtd(dtd_data,errors);
-                    
-                    if (errors->len) {
-                        report_failure("Dtd Registration in file: %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,errors->str);
-                        g_string_free(errors,TRUE);
-                        continue;
-                    }
-                }
-            }
-            
-            CLOSEDIR_OP(dir);
-        }
-    }
-    
+	    
+	    if ((dir = OPENDIR_OP(dirname)) != NULL) {
+	        while ((file = DIRGETNEXT_OP(dir)) != NULL) {
+	            guint namelen;
+	            filename = GETFNAME_OP(file);
+	            
+	            namelen = strlen(filename);
+	            if ( namelen > 4 && ( g_strcasecmp(filename+(namelen-4),".dtd")  == 0 ) ) {
+	                GString* errors = g_string_new("");
+	                GString* preparsed = dtd_preparse(dirname, filename, errors);
+	                dtd_build_data_t* dtd_data;
+	                
+	                if (errors->len) {
+	                    report_failure("Dtd Preparser in file %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,errors->str);
+	                    continue;
+	                }
+	                
+	                dtd_data = dtd_parse(preparsed);
+	                
+	                g_string_free(preparsed,TRUE);
+	                
+	                if (dtd_data->error->len) {
+	                    report_failure("Dtd Parser in file %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,dtd_data->error->str);
+	                    destroy_dtd_data(dtd_data);
+	                    continue;
+	                }
+	                
+	                register_dtd(dtd_data,errors);
+	                
+	                if (errors->len) {
+	                    report_failure("Dtd Registration in file: %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,errors->str);
+	                    g_string_free(errors,TRUE);
+	                    continue;
+	                }
+	            }
+	        }
+	        
+	        CLOSEDIR_OP(dir);
+	    }
+	}
+	
 	for(i=0;i<array_length(default_media_types);i++) {
 		if( ! g_hash_table_lookup(media_types,default_media_types[i]) ) {
 			g_hash_table_insert(media_types,(gpointer)default_media_types[i],&xml_ns);
@@ -1140,7 +1142,7 @@ static void init_xml_names(void) {
 	g_hash_table_foreach(xmpli_names,add_xmlpi_namespace,"xml.xmlpi");
 
 #if GLIB_MAJOR_VERSION >= 2
-    g_free(dummy);
+	g_free(dummy);
 #endif    
 }
 

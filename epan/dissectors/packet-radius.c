@@ -1101,6 +1101,8 @@ proto_register_radius(void)
 	dir = get_persconffile_path("radius", FALSE);
 	
 	if (test_for_directory(dir) != EISDIR) {
+		/* Although dir isn't a directory it may still use memory */
+		g_free(dir);
 		
 		dir = get_datafile_path("radius");
 		
