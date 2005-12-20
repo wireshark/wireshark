@@ -98,6 +98,7 @@ static const value_string mip_reply_codes[]= {
   {74, "Reg Deny (FA)- Requested Reverse Tunnel Unavailable"},
   {75, "Reg Deny (FA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
   {76, "Reg Deny (FA)- Mobile Node Too Distant"},
+  {77, "Reg Deny (FA)- Invalid Care-of Address"},
   {79, "Reg Deny (FA)- Delivery Style Not Supported"},
   {80, "Reg Deny (FA)- Home Network Unreachable"},
   {81, "Reg Deny (FA)- HA Host Unreachable"},
