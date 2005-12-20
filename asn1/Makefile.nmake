@@ -40,6 +40,7 @@ all: \
 	pkixtsp	\
 	pres	\
 	ranap	\
+	rnsap	\
 	ros	\
 	rtse	\
 	s4406	\
@@ -109,7 +110,8 @@ per: \
 	h245	\
 	h248	\
 	h450	\
-	ranap	
+	ranap	\
+	rnsap
 
 acse::
 	cd acse
@@ -297,6 +299,11 @@ pres::
 
 ranap::
 	cd ranap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd..
+
+rnsap::
+	cd rnsap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd..
 

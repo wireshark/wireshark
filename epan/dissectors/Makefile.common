@@ -521,6 +521,7 @@ DISSECTOR_SRC =	\
 	packet-rmt-fec.c	\
 	packet-rmt-lct.c	\
 	packet-rmt-norm.c	\
+	packet-rnsap.c	\
 	packet-ros.c	\
 	packet-rpc.c	\
 	packet-rpl.c	\
@@ -851,6 +852,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rmt-fec.h	\
 	packet-rmt-lct.h	\
 	packet-rmt-norm.h	\
+	packet-rnsap.h	\
 	packet-ros.h	\
 	packet-rpc.h	\
 	packet-rquota.h	\

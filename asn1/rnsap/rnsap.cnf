@@ -1,0 +1,84 @@
+# rnsap.cnf
+# rnsap conformation file
+# Copyright 2005 Anders Broman 
+# $Id$
+#.PDU
+RNSAP-PDU
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+
+#.FN_PARS  ProcedureCode
+
+VAL_PTR = &ProcedureCode
+
+#.FN_FTR ProcedureCode
+	if (check_col(pinfo->cinfo, COL_INFO))
+       col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str(ProcedureCode, rnsap_ProcedureCode_vals,
+                              "unknown message"));
+#.FN_PARS ProtocolIE-ID
+ 
+VAL_PTR = &ProtocolIE_ID
+
+#.FN_PARS ProcedureID/ddMode
+ 
+VAL_PTR = &ddMode
+
+#.FN_BODY Extension
+
+	offset = dissect_rnsap_ProtocolIEValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY InitiatingMessageValue
+
+	offset = dissect_rnsap_InitiatingMessageValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY SuccessfulOutcomeValue
+
+	offset = dissect_rnsap_SuccessfulOutcomeValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY OutcomeValue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_rnsap_pdu_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+#.FN_BODY UnsuccessfulOutcomeValue
+
+	offset = dissect_rnsap_UnsuccessfulOutcomeValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY ProtocolIEValue
+
+	offset = dissect_rnsap_ProtocolIEValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY FirstValue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_rnsap_IE_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+#.FN_BODY SecondValue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_rnsap_IE_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+
+#.FN_BODY PrivateIEvalue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_rnsap_IE_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+#.TYPE_ATTR
+BLER TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = NULL
