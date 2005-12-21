@@ -20,7 +20,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.14pre1">
+  <!ENTITY EtherealCurrentVersion "0.10.14">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -67,7 +67,7 @@ Gnu info
   <section id="WhatsNew"><title>What's New</title>
     <section><title>Bug Fixes</title>
     <para>
-      Several security vulnerabilities have been fixed since the
+      Three security vulnerabilities have been fixed since the
       previous release.  See the
       <ulink url="http://www.ethereal.com/appnotes/enpa-sa-00022.html">application
       advisory</ulink> for more details.
@@ -87,6 +87,14 @@ Gnu info
 	  <!-- Bug IDs: 576 -->
           <!-- CVE: None -->
 	  Versions affected: 0.9.1 to 0.10.13.
+        </para></listitem>
+
+        <listitem><para>
+	  iDefense found a buffer overflow in the OSPF dissector.
+	  <!-- Fixed in r16507 -->
+	  <!-- Bug IDs: None -->
+          <!-- CVE: CAN-2005-3651 -->
+	  Versions affected: 0.8.20 to 0.10.13.
         </para></listitem>
 
       </itemizedlist>
