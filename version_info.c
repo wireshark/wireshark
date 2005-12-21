@@ -81,7 +81,6 @@
 	const char *svnversion = "";
 #endif
 
-
 /*
  * See whether the last line in the string goes past column 80; if so,
  * replace the blank at the specified point with a newline.
@@ -100,6 +99,19 @@ do_word_wrap(GString *str, gint point)
 		g_assert(str->str[point] == ' ');
 		str->str[point] = '\n';
 	}
+}	
+
+/*
+ * If the string doesn't end with a newline, append one.
+ */
+static void
+end_string(GString *str)
+{
+	size_t point;
+
+	point = strlen(str->str);
+	if (point == 0 || str->str[point - 1] != '\n')
+		g_string_append(str, "\n");
 }	
 
 /*
@@ -201,6 +213,8 @@ get_compiled_version_info(GString *str)
 			"\nsyntax.");
 	do_word_wrap(str, break_point);
 #endif	/* HAVE_LIBPCRE */
+
+	end_string(str);
 }
 
 /*
@@ -373,4 +387,18 @@ get_runtime_version_info(GString *str)
 	g_string_append(str, "an unknown OS");
 #endif
 	g_string_append(str, ".");
+
+	end_string(str);
+}
+
+/*
+ * Get copyright information.
+ */
+const char *
+get_copyright_info(void)
+{
+	return
+"Copyright 1998-2005 Gerald Combs <gerald@ethereal.com>.\n"
+"This is free software; see the source for copying conditions. There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
 }

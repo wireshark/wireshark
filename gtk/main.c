@@ -1081,10 +1081,15 @@ print_usage(gboolean print_ver) {
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is "PACKAGE " " VERSION "%s"
-        "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
-	"\n\n%s\n\n%s\n",
-	svnversion, comp_info_str->str, runtime_info_str->str);
+    fprintf(output, "This is "PACKAGE " " VERSION "%s\n"
+        "\n"
+        "%s"
+        "\n"
+	"%s"
+	"\n"
+	"%s",
+	svnversion, get_copyright_info(), comp_info_str->str,
+	runtime_info_str->str);
   } else {
     output = stderr;
   }
@@ -1119,8 +1124,15 @@ show_version(void)
   create_console();
 #endif
 
-  printf(PACKAGE " " VERSION "%s\n\n%s\n\n%s\n",
-      svnversion, comp_info_str->str, runtime_info_str->str);
+  printf(PACKAGE " " VERSION "%s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+      svnversion, get_copyright_info(), comp_info_str->str,
+      runtime_info_str->str);
 
 #ifdef _WIN32
   destroy_console();

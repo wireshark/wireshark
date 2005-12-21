@@ -47,6 +47,11 @@ void get_compiled_version_info(GString *str);
  */
 void get_runtime_version_info(GString *str);
 
+/*
+ * Get copyright information.
+ */
+const char *get_copyright_info(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

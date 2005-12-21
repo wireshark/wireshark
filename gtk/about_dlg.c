@@ -151,15 +151,19 @@ about_ethereal_page_new(void)
 
   /* Construct the message string */
   message = g_strdup_printf(
-       "Version " VERSION "%s"
-       " (C) 1998-2005 Gerald Combs <gerald@ethereal.com>\n\n"
-       "%s\n\n"
-       "%s\n\n"
-
-       "Ethereal is Open Source Software released under the GNU General Public License.\n\n"
-
+       "Version " VERSION "%s\n"
+       "\n"
+       "%s"
+       "\n"
+       "%s"
+       "\n"
+       "%s"
+       "\n"
+       "Ethereal is Open Source Software released under the GNU General Public License.\n"
+       "\n"
        "Check the man page and http://www.ethereal.com for more information.",
-       svnversion, comp_info_str->str, runtime_info_str->str);
+       svnversion, get_copyright_info(), comp_info_str->str,
+       runtime_info_str->str);
 
   msg_label = gtk_label_new(message);
   g_free(message);

@@ -194,11 +194,16 @@ print_usage(gboolean print_ver)
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is t" PACKAGE " " VERSION "%s"
-        "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
-	"\n%s\n%s\n",
+    fprintf(output, "This is t" PACKAGE " " VERSION "%s\n"
+        "\n"
+        "%s"
+        "\n"
+	"%s"
+	"\n"
+	"%s",
 
-	svnversion, comp_info_str->str, runtime_info_str->str);
+	svnversion, get_copyright_info(), comp_info_str->str,
+	runtime_info_str->str);
   } else {
     output = stderr;
   }
@@ -952,8 +957,15 @@ main(int argc, char *argv[])
 	}
 	break;
       case 'v':        /* Show version and exit */
-        printf("t" PACKAGE " " VERSION "%s\n%s\n%s\n",
-	    svnversion, comp_info_str->str, runtime_info_str->str);
+        printf("t" PACKAGE " " VERSION "%s\n"
+               "\n"
+               "%s"
+               "\n"
+               "%s"
+               "\n"
+               "%s",
+	    svnversion, get_copyright_info(), comp_info_str->str,
+	    runtime_info_str->str);
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
