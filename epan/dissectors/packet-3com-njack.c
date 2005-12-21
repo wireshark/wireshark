@@ -31,8 +31,8 @@
   - Support for other 3com devices that use the same protocol
   - Do any devices use TCP or different ports?
   - Sanity checks for tlv_length depending on tlv_type
-  - Replace numbers by their enum-values
-  - Consistent nameing of tfs elements
+  - Search and fix XXX comments in the code
+  - Proper descriptions in hf_ fields
 
 Specs:
 	No specs available. All knowledge gained by looking at traffic dumps
@@ -69,16 +69,18 @@ static int hf_njack_type = -1;
 static int hf_njack_auth_data = -1;
 static int hf_njack_tlv_length = -1;
 static int hf_njack_tlv_data = -1;
+static int hf_njack_tlv_version = -1;
 static int hf_njack_tlv_type = -1;
 static int hf_njack_tlv_typeip = -1;
 static int hf_njack_tlv_typemac = -1;
 static int hf_njack_tlv_typestring = -1;
 static int hf_njack_tlv_typeyesno = -1;
-static int hf_njack_tlv_typecountermode = -1;
-static int hf_njack_tlv_typescheduling = -1;
+static int hf_njack_tlv_countermode = -1;
+static int hf_njack_tlv_scheduling = -1;
+static int hf_njack_tlv_addtagscheme = -1;
 /* type 07: set */
 static int hf_njack_set_length = -1;
-static int hf_njack_set_unknown1 = -1;
+static int hf_njack_set_salt = -1;
 static int hf_njack_set_seqno = -1;
 /* type 08: set result */
 static int hf_njack_setresult = -1;
@@ -125,9 +127,11 @@ typedef enum {
 	NJACK_CMD_MASK			= 0x04,
 	NJACK_CMD_COUNTERMODE		= 0x06,
 	NJACK_CMD_QUEUEING		= 0x0a,
+	NJACK_CMD_ADDTAGSCHEME		= 0x0b,
 	NJACK_CMD_REMOVETAG		= 0x0c,
 	NJACK_CMD_GROUP			= 0x0d,
 	NJACK_CMD_LOCATION		= 0x0e,
+	NJACK_CMD_VERSION		= 0x0f,
 	NJACK_CMD_PORT1			= 0x13,
 	NJACK_CMD_PORT2			= 0x14,
 	NJACK_CMD_PORT3			= 0x15,
@@ -152,9 +156,11 @@ static const value_string njack_cmd_vals[] = {
 	{ NJACK_CMD_MASK,		"IP netmask" },
 	{ NJACK_CMD_COUNTERMODE,	"Countermode" },
 	{ NJACK_CMD_QUEUEING,		"Priority scheduling policy" },
+	{ NJACK_CMD_ADDTAGSCHEME,	"Add tag scheme" },
 	{ NJACK_CMD_REMOVETAG,		"Remove tag" },
 	{ NJACK_CMD_GROUP,		"Device group" },
 	{ NJACK_CMD_LOCATION,		"Location" },
+	{ NJACK_CMD_VERSION,		"Firmware version" },
 	{ NJACK_CMD_PORT1,		"Port 1" },
 	{ NJACK_CMD_PORT2,		"Port 2" },
 	{ NJACK_CMD_PORT3,		"Port 3" },
@@ -190,9 +196,14 @@ static const true_false_string tfs_yes_no = {
 	"No"
 };
 
-static const true_false_string tfs_good_errors = {
+static const true_false_string tfs_countermode = {
 	"Good frames",
 	"RX errors, TX collisions"
+};
+
+static const true_false_string tfs_addtagscheme = {
+	"tbd", /* XXX what does the tool say here */
+	"Add Tag to Egress Frame"
 };
 
 static const true_false_string tfs_scheduling = {
@@ -203,6 +214,24 @@ static const true_false_string tfs_scheduling = {
 static int
 dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
 {
+	/* XXX This is still work in progress, the information here
+	 *     may be wrong and is obviously incomplete
+	 *  Structure: 8 bytes, total 64 bits.
+	 *
+	 * Bytes 0-1: select feature
+	 *       2-7: feature values
+	 *  Feature		Indicator	Valuebit(s)
+	 *  ------------------------------------------------------------
+	 *  Port Vlan		0x8000		0x0000 0078 0000 (bits: port 4 ... 1)
+	 *  Prio (hw queue)	0x4000		0x0000 0006 0000
+	 *  Speed/Duplex	0x0c00		XXX don't know which bit is speed / duplex
+	 *					0x0000 0800 0000 (duplex 0 half, 1 full)
+	 * 					0x0000 1000 0000 (speed 0 10M, 1 100M)
+	 *  Port Ena		0x0100		0x0000 0300 0000 (1 dis, 3 ena)
+	 *  Auto neg 	 	0x0008 		0x0000 0000 0800 (0 man, 1 auto)
+	 *  Vlan number 	0x0004 		0xff0f 0000 0000 (le)
+	 *  Mdi			0x0002		0x0000 0000 0300 (1 man, 2 auto)
+	 */
 	proto_tree_add_item(port_tree, hf_njack_tlv_data,
 		tvb, offset, 8, FALSE);
 	return offset;
@@ -254,44 +283,58 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset, gboolean is_
 				offset += 16;
 			}
 			break;
-		case 0x06: /* Counter mode */
-			proto_tree_add_item(tlv_tree, hf_njack_tlv_typecountermode,
+		case NJACK_CMD_COUNTERMODE:
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_countermode,
 				tvb, offset, 1, FALSE);
 			offset += 1;
 			break;
-		case 0x0a: /* Scheduling */
-			proto_tree_add_item(tlv_tree, hf_njack_tlv_typescheduling,
+		case NJACK_CMD_QUEUEING:
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_scheduling,
 				tvb, offset, 1, FALSE);
 			offset += 1;
 			break;
-		case 0x0c: /* Strip tags */
-		case 0x1a: /* Enable SNMP write */
-		case 0x1f: /* DHCP control (disabled/enabled) */
+		case NJACK_CMD_ADDTAGSCHEME:
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_addtagscheme,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+			break;
+		case NJACK_CMD_REMOVETAG:
+			/* XXX change to use strings from tool */
+		case NJACK_CMD_ENABLESNMPWRITE:
+			/* XXX change to use strings from tool */
+		case NJACK_CMD_DHCPCONTROL:
+			/* XXX change to use strings from tool */
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_typeyesno,
 				tvb, offset, 1, FALSE);
 			offset += 1;
 			break;
-		case 0x01: /* MAC address */
+		case NJACK_CMD_MACADDRESS:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_typemac,
 				tvb, offset, 6, FALSE);
 			offset += 6;
 			break;
-		case 0x02: /* IP address */
-		case 0x03: /* Network address */
-		case 0x04: /* Network mask */
-		case 0x20: /* Default gateway */
+		case NJACK_CMD_VERSION:
+			/* XXX Don't misuse ip address printing here */
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_version,
+				tvb, offset, 4, TRUE);
+			offset += 4;
+			break;
+		case NJACK_CMD_IPADDRESS:
+		case NJACK_CMD_NETWORK:
+		case NJACK_CMD_MASK:
+		case NJACK_CMD_IPGATEWAY:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_typeip,
 				tvb, offset, 4, FALSE);
 			offset += 4;
 			break;
-		case 0x0d: /* group name */
-		case 0x0e: /* location */
-		case 0x19: /* password */
-		case 0x1b: /* ro community */
-		case 0x1c: /* rw community */
+		case NJACK_CMD_GROUP:
+		case NJACK_CMD_LOCATION:
+		case NJACK_CMD_PASSWORD:
+		case NJACK_CMD_ROCOMMUNITY:
+		case NJACK_CMD_RWCOMMUNITY:
 		case 0x25: /* ? */
-		case 0x2a: /* Product name */
-		case 0x2b: /* Serialno - ending in last 3 bytes of MAC address */
+		case NJACK_CMD_PRODUCTNAME:
+		case NJACK_CMD_SERIALNO:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_typestring,
 				tvb, offset, tlv_length, FALSE);
 			offset += tlv_length;
@@ -352,7 +395,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(njack_tree, hf_njack_set_length, tvb, offset,
 				2, FALSE);
 			offset += 2;
-			proto_tree_add_item(njack_tree, hf_njack_set_unknown1, tvb, offset,
+			proto_tree_add_item(njack_tree, hf_njack_set_salt, tvb, offset,
 				1, FALSE);
 			offset += 1;
 			proto_tree_add_item(njack_tree, hf_njack_set_seqno, tvb, offset,
@@ -457,6 +500,10 @@ proto_register_njack(void)
                 { "TlvData",   "njack.tlv.data", FT_BYTES, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
+                { &hf_njack_tlv_version,
+                { "TlvFwVersion",   "njack.tlv.version", FT_IPv4, BASE_NONE, NULL,
+                        0x0, "", HFILL }},
+
                 { &hf_njack_tlv_typeip,
                 { "TlvTypeIP",   "njack.tlv.typeip", FT_IPv4, BASE_NONE, NULL,
                         0x0, "", HFILL }},
@@ -469,12 +516,16 @@ proto_register_njack(void)
                 { "TlvTypeString",   "njack.tlv.typestring", FT_STRING, BASE_DEC, NULL,
                         0x0, "", HFILL }},
 
-                { &hf_njack_tlv_typecountermode,
-                { "TlvTypeCountermode",   "njack.tlv.typecontermode", FT_BOOLEAN, 8, TFS(&tfs_good_errors),
+                { &hf_njack_tlv_countermode,
+                { "TlvTypeCountermode",   "njack.tlv.contermode", FT_BOOLEAN, 8, TFS(&tfs_countermode),
                         0xff, "", HFILL }},
 
-                { &hf_njack_tlv_typescheduling,
-                { "TlvTypeScheduling",   "njack.tlv.typescheduling", FT_BOOLEAN, 8, TFS(&tfs_scheduling),
+                { &hf_njack_tlv_scheduling,
+                { "TlvTypeScheduling",   "njack.tlv.scheduling", FT_BOOLEAN, 8, TFS(&tfs_scheduling),
+                        0xff, "", HFILL }},
+
+                { &hf_njack_tlv_addtagscheme,
+                { "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_BOOLEAN, 8, TFS(&tfs_addtagscheme),
                         0xff, "", HFILL }},
 
                 { &hf_njack_tlv_typeyesno,
@@ -486,8 +537,8 @@ proto_register_njack(void)
 		{ "SetLength",	"njack.set.length", FT_UINT16, BASE_HEX, NULL,
 			0x0, "", HFILL }},
 
-		{ &hf_njack_set_unknown1,
-		{ "Unknown1",	"njack.set.unknown1", FT_UINT8, BASE_HEX, NULL,
+		{ &hf_njack_set_salt,
+		{ "Salt\?\?",	"njack.set.salt", FT_UINT8, BASE_HEX, NULL,
 			0x0, "", HFILL }},
 
 		{ &hf_njack_set_seqno,
