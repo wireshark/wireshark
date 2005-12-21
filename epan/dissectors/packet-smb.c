@@ -425,6 +425,8 @@ static int hf_smb_nt_create_options_no_ea_knowledge = -1;
 static int hf_smb_nt_create_options_eight_dot_three_only = -1;
 static int hf_smb_nt_create_options_random_access = -1;
 static int hf_smb_nt_create_options_delete_on_close = -1;
+static int hf_smb_nt_create_options_open_by_fileid = -1;
+static int hf_smb_nt_create_options_backup_intent = -1;
 static int hf_smb_nt_share_access_read = -1;
 static int hf_smb_nt_share_access_write = -1;
 static int hf_smb_nt_share_access_delete = -1;
@@ -7128,6 +7130,14 @@ static const true_false_string tfs_nt_create_options_delete_on_close = {
 	"The file should be deleted when it is closed",
 	"The file should not be deleted when it is closed"
 };
+static const true_false_string tfs_nt_create_options_open_by_fileid = {
+	"OpenByFileID bit is SET",
+	"OpenByFileID is NOT set"
+};
+static const true_false_string tfs_nt_create_options_backup_intent = {
+	"This is a create with BACKUP INTENT",
+	"This is a normal create"
+};
 
 int
 dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
@@ -7168,6 +7178,10 @@ dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_random_access,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_delete_on_close,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_by_fileid,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_backup_intent,
 		tvb, offset, 4, mask);
 
 	offset += 4;
@@ -16897,12 +16911,18 @@ proto_register_smb(void)
 	{ &hf_smb_nt_create_options_delete_on_close,
 		{ "Delete On Close", "smb.nt.create_options.delete_on_close", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_delete_on_close), 0x00001000, "Should the file be deleted when closed?", HFILL }},
+	{ &hf_smb_nt_create_options_open_by_fileid,
+		{ "Open By FileID", "smb.nt.create_options.open_by_fileid", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_open_by_fileid), 0x00002000, "Open file by inode", HFILL }},
 
 	/* 0x00002000 is "open by FID", or something such as that (which
 	   I suspect is like "open by inumber" on UNIX), at least in
 	   "NtCreateFile()" and "NtOpenFile()"; is that sent over the
 	   wire?  NetMon thinks so, but see previous comment. */
 
+	{ &hf_smb_nt_create_options_backup_intent,
+		{ "Backup Intent", "smb.nt.create_options.backup_intent", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_backup_intent), 0x00004000, "Is this opened by BACKUP ADMIN for backup intent?", HFILL }},
 	/* 0x00004000 is "open for backup", at least in "NtCreateFile()"
 	   and "NtOpenFile()"; is that sent over the wire?  NetMon
 	   thinks so, but see previous comment. */
