@@ -60,6 +60,7 @@
 
 #define TCP_SYN(flags)		( flags & TH_SYN )
 #define TCP_ACK(flags)		( flags & TH_ACK )
+#define TCP_FIN(flags)		( flags & TH_FIN )
 
 #define TXT_WIDTH	850
 #define TXT_HEIGHT	550
@@ -442,8 +443,8 @@ static gint key_press_event (GtkWidget * , GdkEventKey * );
 static gint key_release_event (GtkWidget * , GdkEventKey * );
 static gint leave_notify_event (GtkWidget * , GdkEventCrossing * );
 static gint enter_notify_event (GtkWidget * , GdkEventCrossing * );
-static void tseq_stevens_initialize (struct graph * );
-static void tseq_stevens_get_bounds (struct graph * );
+static void tseq_initialize (struct graph * );
+static void tseq_get_bounds (struct graph * );
 static void tseq_stevens_read_config (struct graph * );
 static void tseq_stevens_make_elmtlist (struct graph * );
 static void tseq_stevens_toggle_seq_origin (struct graph * );
@@ -1688,7 +1689,7 @@ static void graph_type_dependent_initialize (struct graph *g)
 	switch (g->type) {
 	case GRAPH_TSEQ_STEVENS:
 	case GRAPH_TSEQ_TCPTRACE:
-		tseq_stevens_initialize (g);
+		tseq_initialize (g);
 		break;
 	case GRAPH_THROUGHPUT:
 		tput_initialize (g);
@@ -3310,10 +3311,11 @@ static void tseq_stevens_read_config (struct graph *g)
 	g->x_axis->label[1] = NULL;
 }
 
-static void tseq_stevens_initialize (struct graph *g)
+/* Used by both 'stevens' and 'tcptrace' */
+static void tseq_initialize (struct graph *g)
 {
-	debug(DBS_FENTRY) puts ("tseq_stevens_initialize()");
-	tseq_stevens_get_bounds (g);
+	debug(DBS_FENTRY) puts ("tseq_initialize()");
+	tseq_get_bounds (g);
 
 	g->x_axis->min = 0;
 	g->y_axis->min = 0;
@@ -3328,64 +3330,100 @@ static void tseq_stevens_initialize (struct graph *g)
 	}
 }
 
-static void tseq_stevens_get_bounds (struct graph *g)
-{
-	struct segment *tmp, *last, *first;
-	double t, t0, tmax, ymax;
-	guint32 seq_base;
-	guint32 seq_cur;
-	guint32 ack_base = 0;
 
-	for (first=g->segments; first->next; first=first->next) {
-		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
-				   &first->ip_src, &first->ip_dst,
-				   first->th_sport, first->th_dport,
-				   COMPARE_CURR_DIR)) {
-			break;
-		}
-	}
-	last = NULL;
-	ymax = 0;
-	tmax = 0;
-	
-	seq_base = first->th_seq;
+/* Determine "bounds"
+ *  Essentially: look for lowest/highest time and seq in the list of segments
+ *  Note that for tcptrace the "(ack + window) sequence number" would normally be expected 
+ *   to be the upper bound; However, just to be safe, include the data seg sequence numbers
+ *   in the comparison for tcptrace
+ *   (e.g. to handle the case of only data segments).
+ */
+
+/* ToDo: worry about handling cases such as trying to plot seq of just 1 frame  */
+
+static void tseq_get_bounds (struct graph *g)
+{
+	struct segment *tmp;
+	double   tim;
+	gboolean data_frame_seen=FALSE;
+	double   data_tim_low;
+	double   data_tim_high;
+	guint32  data_seq_cur;
+	guint32  data_seq_nxt;
+	guint32  data_seq_low;
+	guint32  data_seq_high;
+	gboolean ack_frame_seen=FALSE;
+	double   ack_tim_low;
+	double   ack_tim_high;
+	guint32  ack_seq_cur;
+	guint32  ack_seq_low;
+	guint32  win_seq_cur;
+	guint32  win_seq_high;
+
+	/* go thru all segments to determine "bounds" */
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
-		unsigned int highest_byte_num;
-		last = tmp;
 		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
 				   g->current->th_sport, g->current->th_dport,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
-			seq_cur = tmp->th_seq -seq_base;
-			highest_byte_num = seq_cur + tmp->th_seglen;
+
+			/* "data" seg */
+			tim = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+			data_seq_cur = tmp->th_seq;
+			data_seq_nxt = data_seq_cur + tmp->th_seglen;
+			if (! data_frame_seen) {
+				data_tim_low    = data_tim_high = tim;
+				data_seq_low    = data_seq_cur;
+				data_seq_high   = data_seq_nxt;
+				data_frame_seen = TRUE;
+			}
+			if (tim          < data_tim_low)  data_tim_low  = tim;
+			if (tim          > data_tim_high) data_tim_high = tim;
+			if (data_seq_cur < data_seq_low)  data_seq_low  = data_seq_cur;
+			if (data_seq_nxt > data_seq_high) data_seq_high = data_seq_nxt;
 		}
-		else {
-			seq_cur = tmp->th_ack;
-			if (!ack_base)
-				ack_base = seq_cur;
-			highest_byte_num = seq_cur - ack_base;
+		else { /* ack seg */
+			/* skip ack processing if no ACK (e.g. in RST) */
+			if (TCP_ACK (tmp->th_flags)) {
+				tim = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+				ack_seq_cur = tmp->th_ack;
+				win_seq_cur = ack_seq_cur + tmp->th_win;
+				if (! ack_frame_seen) {
+					ack_tim_low  = ack_tim_high = tim;
+					ack_seq_low  = ack_seq_cur;
+					win_seq_high = win_seq_cur;
+					ack_frame_seen = TRUE;
+				}
+				if (tim         < ack_tim_low)  ack_tim_low  = tim;
+				if (tim         > ack_tim_high) ack_tim_high = tim;
+				if (ack_seq_cur < ack_seq_low)  ack_seq_low  = ack_seq_cur;
+				if (win_seq_cur > win_seq_high) win_seq_high = win_seq_cur;
+			}
 		}
-		if (highest_byte_num > ymax)
-			ymax = highest_byte_num;
-		t = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
-		if (t > tmax)
-			tmax = t;
-	}
-	if (!last) {
-		puts ("tseq_stevens_get_bounds: segment list corrupted!");
-		return;
 	}
 
-	t0 = g->segments->rel_secs + g->segments->rel_usecs / 1000000.0;
-	g->bounds.x0 = t0;
-	g->bounds.y0 = seq_base;
-	g->bounds.width = tmax - t0;
-	g->bounds.height = ymax;
+        /* if 'stevens':  use only data segments to determine bounds         */
+	/* if 'tcptrace': use both data and ack segments to determine bounds */
+	switch (g->type) {
+	case GRAPH_TSEQ_STEVENS:
+		g->bounds.x0     = data_tim_low;
+		g->bounds.width  = data_tim_high - data_tim_low;
+		g->bounds.y0     = data_seq_low;
+		g->bounds.height = data_seq_high - data_seq_low;
+		break;
+	case GRAPH_TSEQ_TCPTRACE:
+		g->bounds.x0     = (data_tim_low <= ack_tim_low)    ? data_tim_low  : ack_tim_low;
+		g->bounds.width  = ((data_tim_high >= ack_tim_high) ? data_tim_high : ack_tim_high) - g->bounds.x0; ;
+		g->bounds.y0     = (data_seq_low <= ack_seq_low)    ? data_seq_low  : ack_seq_low;;
+		g->bounds.height = ((data_seq_high >= win_seq_high) ? data_seq_high : win_seq_high) - g->bounds.y0; ;
+		break;
+	}
+
 	g->zoom.x = (g->geom.width - 1) / g->bounds.width;
 	g->zoom.y = (g->geom.height -1) / g->bounds.height;
 }
+
 
 static void tseq_stevens_make_elmtlist (struct graph *g)
 {
@@ -3412,6 +3450,7 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 				   COMPARE_CURR_DIR)) {
 			continue;
 		}
+		/* data seg */
 		seq_cur = tmp->th_seq - seq_base;
 		secs = g->zoom.x * (tmp->rel_secs + tmp->rel_usecs / 1000000.0 - x0);
 		seqno = g->zoom.y * seq_cur;
@@ -3537,6 +3576,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	double x0, y0;
 	double p_t; /* ackno, window and time of previous segment */
 	double p_ackno, p_win;
+	gboolean ack_seen=FALSE;
 	int toggle=0;
 	guint32 seq_base;
 	guint32 seq_cur;
@@ -3558,21 +3598,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	x0 = g->bounds.x0;
 	y0 = g->bounds.y0;
 	seq_base = (guint32) y0;
-	/* initialize "previous" values */
-	for (tmp=g->segments; tmp; tmp=tmp->next)
-		if(!compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
-				   &tmp->ip_src, &tmp->ip_dst,
-				   tmp->th_sport, tmp->th_dport,
-				   COMPARE_CURR_DIR)) {
-			break;
-		}
-	/*
-	p_ackno = (unsigned int )(g->zoom.y * (tmp->th_ack - y0));
-	 */
-	p_ackno = 0;
-	p_win = g->zoom.y * tmp->th_win;
-	p_t = g->segments->rel_secs + g->segments->rel_usecs/1000000.0 - x0;
+
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		double secs, data;
 		double x;
@@ -3588,8 +3614,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			/* forward direction -> we need seqno and amount of data */
 			double y1, y2;
 
-			seq_cur = tmp->th_seq -seq_base;
-			if (TCP_SYN (tmp->th_flags))
+			seq_cur = tmp->th_seq - seq_base;
+			if (TCP_SYN (tmp->th_flags) || TCP_FIN (tmp->th_flags))
 				data = 1;
 			else
 				data = tmp->th_seglen;
@@ -3619,8 +3645,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1++;
 		} else {
 			double ackno, win;
-			if (TCP_SYN (tmp->th_flags) && ! TCP_ACK (tmp->th_flags))
-				/* SYN's have ACK==0 and are useless here */
+			if (! TCP_ACK (tmp->th_flags))
+				/* SYN's and RST's do not necessarily have ACK's*/
 				continue;
 			/* backward direction -> we need ackno and window */
 			seq_cur = tmp->th_ack - seq_base;
@@ -3628,43 +3654,46 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			win = tmp->th_win * g->zoom.y;
 
 			/* ack line */
-			e0->type = ELMT_LINE;
-			e0->parent = tmp;
-			e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
-			e0->p.line.dim.x1 = p_t;
-			e0->p.line.dim.y1 = p_ackno;
-			e0->p.line.dim.x2 = x;
-			e0->p.line.dim.y2 = p_ackno;
-			e0++;
-			e0->type = ELMT_LINE;
-			e0->parent = tmp;
-			e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
-			e0->p.line.dim.x1 = x;
-			e0->p.line.dim.y1 = p_ackno;
-			e0->p.line.dim.x2 = x;
-			e0->p.line.dim.y2 = ackno!=p_ackno || ackno<4 ? ackno : ackno-4;
-			e0++;
-			/* window line */
-			e0->type = ELMT_LINE;
-			e0->parent = tmp;
-			e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
-			e0->p.line.dim.x1 = p_t;
-			e0->p.line.dim.y1 = p_win + p_ackno;
-			e0->p.line.dim.x2 = x;
-			e0->p.line.dim.y2 = p_win + p_ackno;
-			e0++;
-			e0->type = ELMT_LINE;
-			e0->parent = tmp;
-			e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
-			e0->p.line.dim.x1 = x;
-			e0->p.line.dim.y1 = p_win + p_ackno;
-			e0->p.line.dim.x2 = x;
-			e0->p.line.dim.y2 = win + ackno;
-			e0++;
+			if (ack_seen == TRUE) { /* don't plot the first ack */
+				e0->type = ELMT_LINE;
+				e0->parent = tmp;
+				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				e0->p.line.dim.x1 = p_t;
+				e0->p.line.dim.y1 = p_ackno;
+				e0->p.line.dim.x2 = x;
+				e0->p.line.dim.y2 = p_ackno;
+				e0++;
+				e0->type = ELMT_LINE;
+				e0->parent = tmp;
+				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				e0->p.line.dim.x1 = x;
+				e0->p.line.dim.y1 = p_ackno;
+				e0->p.line.dim.x2 = x;
+				e0->p.line.dim.y2 = ackno!=p_ackno || ackno<4 ? ackno : ackno-4;
+				e0++;
+				/* window line */
+				e0->type = ELMT_LINE;
+				e0->parent = tmp;
+				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				e0->p.line.dim.x1 = p_t;
+				e0->p.line.dim.y1 = p_win + p_ackno;
+				e0->p.line.dim.x2 = x;
+				e0->p.line.dim.y2 = p_win + p_ackno;
+				e0++;
+				e0->type = ELMT_LINE;
+				e0->parent = tmp;
+				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				e0->p.line.dim.x1 = x;
+				e0->p.line.dim.y1 = p_win + p_ackno;
+				e0->p.line.dim.x2 = x;
+				e0->p.line.dim.y2 = win + ackno;
+				e0++;
+				toggle = 1^toggle;
+			}
+			ack_seen = TRUE;
 			p_ackno = ackno;
 			p_win = win;
 			p_t = x;
-			toggle = 1^toggle;
 		}
 	}
 	e0->type = ELMT_NONE;
