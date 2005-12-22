@@ -223,30 +223,25 @@ static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb,
 static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend, int revision);
 
+static const value_string opt53_text[] = {
+	{ 1,	"Discover" },
+	{ 2,	"Offer" },
+	{ 3,	"Request" },
+	{ 4,	"Decline" },
+	{ 5,	"ACK" },
+	{ 6,	"NAK" },
+	{ 7,	"Release" },
+	{ 8,	"Inform" },
+	{ 9,	"Force Renew" },
+	/* draft-ietf-dhc-leasequery-09.txt */
+	{ 13,	"Lease query" },
+	{ 14,	"Lease known" },
+	{ 15,	"Lease unknown" },
+	{ 16,	"Lease active" },
+	{ 17,	"Unimplemented" },
 
-static const char *
-get_dhcp_type(guint8 byte)
-{
-	static const char	*opt53_text[] = {
-		"Unknown Message Type",
-		"Discover",
-		"Offer",
-		"Request",
-		"Decline",
-		"ACK",
-		"NAK",
-		"Release",
-		"Inform",
-		"Force Renew"
-	};
-	int i;
-
-	if (byte > 0 && byte < (sizeof opt53_text / sizeof opt53_text[0]))
-		i = byte;
-	else
-		i = 0;
-	return opt53_text[i];
-}
+	{ 0,	NULL }
+};
 
 /* DHCP Authentication protocols */
 #define AUTHEN_PROTO_CONFIG_TOKEN	0
@@ -635,7 +630,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 			case 53:
 				*dhcp_type_p =
-				    get_dhcp_type(tvb_get_guint8(tvb, voff+2));
+				    val_to_str(tvb_get_guint8(tvb, voff+2),
+					opt53_text,
+					"Unknown Message Type (0x%02x)");
 				break;
 
 			case 60:
@@ -810,7 +807,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			break;
 		}
 		proto_tree_add_text(bp_tree, tvb, voff, 3, "Option %d: %s = DHCP %s",
-			code, text, get_dhcp_type(tvb_get_guint8(tvb, optoff)));
+			code, text, val_to_str(tvb_get_guint8(tvb, optoff),
+					opt53_text,
+					"Unknown Message Type (0x%02x)"));
 		break;
 
 	case 55:	/* Parameter Request List */
