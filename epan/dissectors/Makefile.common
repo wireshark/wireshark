@@ -425,6 +425,7 @@ DISSECTOR_SRC =	\
 	packet-mq-pcf.c	\
 	packet-mrdisc.c	\
 	packet-msdp.c	\
+	packet-msnlb.c	\
 	packet-msn-messenger.c	\
 	packet-msnip.c	\
 	packet-msproxy.c	\
