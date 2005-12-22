@@ -344,8 +344,8 @@ proto_init(const char *plugin_dir
 
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
-	tree_is_expanded = g_malloc(num_tree_types*sizeof (gint *));
-	memset(tree_is_expanded, 0, num_tree_types*sizeof (gint *));
+	tree_is_expanded = g_malloc(num_tree_types*sizeof (gboolean));
+	memset(tree_is_expanded, 0, num_tree_types*sizeof (gboolean));
 }
 
 /* String comparison func for dfilter_token GTree */
@@ -3313,9 +3313,9 @@ proto_register_subtree_array(gint *const *indices, int num_indices)
 	if (tree_is_expanded != NULL) {
 		tree_is_expanded =
 		    g_realloc(tree_is_expanded,
-		        (num_tree_types+num_indices)*sizeof (gint *));
+		        (num_tree_types+num_indices)*sizeof (gboolean));
 		memset(tree_is_expanded + num_tree_types, 0,
-		    num_indices*sizeof (gint *));
+		    num_indices*sizeof (gboolean));
 	}
 
 	/*
