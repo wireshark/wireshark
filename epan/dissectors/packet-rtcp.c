@@ -1723,7 +1723,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 			      pinfo->fd->abs_ts.nsecs - p_conv_data->last_received_timestamp.nsecs;
 
 
-			gint total_gap = ((seconds_between_packets*1000000) +
+			gint total_gap = ((seconds_between_packets*1000) +
 			                 nseconds_between_packets) / 1000000;
 			gint delay = total_gap - (int)(((double)dlsr/(double)65536) * 1000.0);
 
