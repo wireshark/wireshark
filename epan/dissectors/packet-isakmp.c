@@ -8,6 +8,9 @@
  * (draft-ietf-ipsec-ikev2-17.txt)
  * Shoichi Sakane <sakane@tanu.org>
  *
+ * Added routines for RFC3947 Negotiation of NAT-Traversal in the IKE
+ *   ronnie sahlberg
+ *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
@@ -208,6 +211,8 @@ static struct payload_func v1_plfunc[] = {
   { 14, "Attrib",		dissect_config	  },
   { 15, "NAT-Discovery",	dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike-04 */
   { 16, "NAT-Original Address",	dissect_nat_original_address }, /* draft-ietf-ipsec-nat-t-ike */
+  { 20, "NAT-D (RFC 3947)",	dissect_nat_discovery },
+  { 21, "NAT-OA (RFC 3947)",	dissect_nat_original_address },
   { 130, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)",		dissect_nat_discovery },
   { 131, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)",	dissect_nat_original_address },
 };
@@ -245,6 +250,8 @@ static const guint8 VID_CP[VID_CP_LEN] = {0xF4, 0xED, 0x19, 0xE0, 0xC1, 0x14, 0x
 static const guint8 VID_CYBERGUARD[VID_LEN] = {0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D, 0x5F, 0x50, 0x6A, 0xEB, 0x26, 0xC, 0xF2, 0x14};
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_03[VID_LEN] = {0x7D, 0x94, 0x19, 0xA6, 0x53, 0x10, 0xCA, 0x6F, 0x2C, 0x17, 0x9D, 0x92, 0x15, 0x52, 0x9d, 0x56}; /* according to http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-03.txt */
+
+static const guint8 VID_rfc3947[VID_LEN] = {0x4a, 0x13, 0x1c, 0x81, 0x07, 0x03, 0x58, 0x45, 0x5c, 0x57, 0x28, 0xf2, 0x0e, 0x95, 0x45, 0x2f}; /* RFC 3947 Negotiation of NAT-Traversal in the IKE*/
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_0[VID_LEN] = {0xfB, 0xF4, 0x76, 0x14, 0x98, 0x40, 0x31, 0xFA, 0x8E, 0x3B, 0xB6, 0x19, 0x80, 0x89, 0xB2, 0x23}; /* Ssh Communications Security IPSEC Express version 1.1.0 */
 
@@ -1476,6 +1483,9 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_03, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-03");
+  else
+  if (memcmp(pVID,  VID_rfc3947, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "RFC 3947 Negotiation of NAT-Traversal in the IKE");
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_0, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.1.0");
