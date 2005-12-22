@@ -6,6 +6,7 @@ editcap - Edit and/or translate the format of capture files
 =head1 SYNOPSYS
 
 B<editcap>
+S<[ B<-c> packets per file]>
 S<[ B<-E> error probability]>
 S<[ B<-F> file format ]>
 S<[ B<-h> ]>
@@ -135,6 +136,11 @@ specified as I<start>-I<end>, referring to all packets from I<start> to
 I<end> (removing them all if B<-r> isn't specified, including them all
 if B<-r> is specified).
 
+If the B<-c> flag is used to specify the amount of packets in a capture
+file, the output file will be created with a suffix -nnnnn. The suffix
+starts at 00000. No more then the specified number of packets are written
+in the output file before the next output file is opened. 
+
 If the B<-s> flag is used to specify a snapshot length, frames in the
 input file with more captured data than the specified snapshot length
 will have only the amount of data specified by the snapshot length
@@ -174,6 +180,10 @@ be used for fuzz-testing protocol dissectors.
 =head1 OPTIONS
 
 =over 4
+
+=item -c
+
+Sets the number of packets per output file.
 
 =item -E
 
