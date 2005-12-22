@@ -1650,11 +1650,15 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 static int hf_nt_access_mask = -1;
 
+#define ACE_TYPE_ACCESS_ALLOWED		0
+#define ACE_TYPE_ACCESS_DENIED		1
+#define ACE_TYPE_SYSTEM_AUDIT		2
+#define ACE_TYPE_SYSTEM_ALARM		3
 static const value_string ace_type_vals[] = {
-  { 0, "Access Allowed"},
-  { 1, "Access Denied"},
-  { 2, "System Audit"},
-  { 3, "System Alarm"},
+  { ACE_TYPE_ACCESS_ALLOWED,	"Access Allowed"},
+  { ACE_TYPE_ACCESS_DENIED,	"Access Denied"},
+  { ACE_TYPE_SYSTEM_AUDIT,	"System Audit"},
+  { ACE_TYPE_SYSTEM_ALARM,	"System Alarm"},
   { 0, NULL}
 };
 static const true_false_string tfs_ace_flags_object_inherit = {
@@ -1755,8 +1759,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset;
-	guint16 size;
 	char *sid_str = NULL;
+	guint16 size;
 	guint8 type;
 	guint8 flags;
 	guint32 perms = 0;
@@ -1788,22 +1792,36 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	proto_tree_add_uint(tree, hf_nt_ace_size, tvb, offset, 2, size);
 	offset += 2;
+	
+	/* some ACE types we not yet handle store other things than access mask
+	 * and SID in here.
+	 * sometimes things that are not related at all to access control.
+	 *    naughty naughty.    -- ronnie
+	 */
+	switch(type){
+	case ACE_TYPE_ACCESS_ALLOWED:
+	case ACE_TYPE_ACCESS_DENIED:
+	case ACE_TYPE_SYSTEM_AUDIT:
+	case ACE_TYPE_SYSTEM_ALARM:
 
-	/* access mask */
-	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, 
-		hf_nt_access_mask, ami, &perms);
+		/* access mask */
+		offset = dissect_nt_access_mask(
+			tvb, offset, pinfo, tree, drep, 
+			hf_nt_access_mask, ami, &perms);
 
-	/* SID */
-	offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str, -1);
+		/* SID */
+		offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str, -1);
 
-	if (item)
-		proto_item_append_text(
-			item, "%s, flags 0x%02x, %s, mask 0x%08x", sid_str, flags,
-			val_to_str(type, ace_type_vals, "Unknown ACE type (0x%02x)"),
-			perms);
-
-	g_free(sid_str);
+		if (item)
+			proto_item_append_text(
+				item, "%s, flags 0x%02x, %s, mask 0x%08x", sid_str, flags,
+				val_to_str(type, ace_type_vals, "Unknown ACE type (0x%02x)"),
+				perms);
+		if(sid_str){
+			g_free(sid_str);
+		}
+		break;
+	};
 
 	proto_item_set_len(item, offset-old_offset);
 
