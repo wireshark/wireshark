@@ -72,12 +72,18 @@ static int hf_njack_tlv_data = -1;
 static int hf_njack_tlv_version = -1;
 static int hf_njack_tlv_type = -1;
 static int hf_njack_tlv_typeip = -1;
-static int hf_njack_tlv_typemac = -1;
+static int hf_njack_tlv_devicemac = -1;
+static int hf_njack_tlv_snmpwrite = -1;
+static int hf_njack_tlv_dhcpcontrol = -1;
 static int hf_njack_tlv_typestring = -1;
 static int hf_njack_tlv_typeyesno = -1;
+/* 1st TAB */
 static int hf_njack_tlv_countermode = -1;
 static int hf_njack_tlv_scheduling = -1;
 static int hf_njack_tlv_addtagscheme = -1;
+static int hf_njack_tlv_portingressmode = -1;
+static int hf_njack_tlv_maxframesize = -1;
+static int hf_njack_tlv_powerforwarding = -1;
 /* type 07: set */
 static int hf_njack_set_length = -1;
 static int hf_njack_set_salt = -1;
@@ -125,6 +131,7 @@ typedef enum {
 	NJACK_CMD_IPADDRESS		= 0x02,
 	NJACK_CMD_NETWORK		= 0x03,
 	NJACK_CMD_MASK			= 0x04,
+	NJACK_CMD_MAXFRAMESIZE		= 0x05,
 	NJACK_CMD_COUNTERMODE		= 0x06,
 	NJACK_CMD_QUEUEING		= 0x0a,
 	NJACK_CMD_ADDTAGSCHEME		= 0x0b,
@@ -140,6 +147,7 @@ typedef enum {
 	NJACK_CMD_ENABLESNMPWRITE	= 0x1a,
 	NJACK_CMD_ROCOMMUNITY		= 0x1b,
 	NJACK_CMD_RWCOMMUNITY		= 0x1c,
+	NJACK_CMD_POWERFORWARDING	= 0x1e,
 	NJACK_CMD_DHCPCONTROL		= 0x1f,
 	NJACK_CMD_IPGATEWAY		= 0x20,
 	NJACK_CMD_PRODUCTNAME		= 0x2a,
@@ -154,6 +162,7 @@ static const value_string njack_cmd_vals[] = {
 	{ NJACK_CMD_IPADDRESS,		"IP address" },
 	{ NJACK_CMD_NETWORK,		"IP network" },
 	{ NJACK_CMD_MASK,		"IP netmask" },
+	{ NJACK_CMD_MAXFRAMESIZE,	"Max frame size" },
 	{ NJACK_CMD_COUNTERMODE,	"Countermode" },
 	{ NJACK_CMD_QUEUEING,		"Priority scheduling policy" },
 	{ NJACK_CMD_ADDTAGSCHEME,	"Add tag scheme" },
@@ -169,6 +178,7 @@ static const value_string njack_cmd_vals[] = {
 	{ NJACK_CMD_ENABLESNMPWRITE,	"SNMP write enable" },
 	{ NJACK_CMD_ROCOMMUNITY,	"RO community" },
 	{ NJACK_CMD_RWCOMMUNITY,	"RW community" },
+	{ NJACK_CMD_POWERFORWARDING,	"Port power forwarding" },
 	{ NJACK_CMD_DHCPCONTROL,	"DHCP control" },
 	{ NJACK_CMD_IPGATEWAY,		"IP gateway" },
 	{ NJACK_CMD_PRODUCTNAME,	"Product name" },
@@ -191,24 +201,63 @@ static const value_string njack_setresult_vals[] = {
 	{ 0,	NULL }
 };
 
-static const true_false_string tfs_yes_no = {
-	"Yes",
-	"No"
+static const value_string njack_snmpwrite[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
 };
 
-static const true_false_string tfs_countermode = {
-	"Good frames",
-	"RX errors, TX collisions"
+static const value_string njack_dhcpcontrol[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
 };
 
-static const true_false_string tfs_addtagscheme = {
-	"tbd", /* XXX what does the tool say here */
-	"Add Tag to Egress Frame"
+/* 1st TAB */
+static const value_string njack_scheduling[] = {
+	{ 0,	"Weighted fair" },
+	{ 1,	"Strict priority" },
+
+	{ 0,	NULL }
 };
 
-static const true_false_string tfs_scheduling = {
-	"Weighted fair",
-	"Priority"
+static const value_string njack_addtagscheme[] = {
+	{ 0,	"Frames transmitted unmodified" },
+	{ 1,	"Add tag to untagged frame" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_portingressmode[] = {
+	{ 0,	"Receive unmodified" },
+	{ 1,	"Remove tag if present" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_maxframesize[] = {
+	{ 0,	"1522 tagged, 1518 untagged" },
+	{ 1,	"1535" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_countermode[] = {
+	{ 0,	"Count Rx, Tx Good frames" },
+	{ 1,	"RX errors, TX collisions" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_powerforwarding[] = {
+	{ 1,	"OFF" },
+	{ 2,	"ON" },
+	/* XXX find out correct value */
+	{ 3,	"802.3af" },
+
+	{ 0,	NULL }
 };
 
 static int
@@ -299,17 +348,32 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset, gboolean is_
 			offset += 1;
 			break;
 		case NJACK_CMD_REMOVETAG:
-			/* XXX change to use strings from tool */
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_portingressmode,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+			break;
+		case NJACK_CMD_MAXFRAMESIZE:
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_maxframesize,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+			break;
 		case NJACK_CMD_ENABLESNMPWRITE:
-			/* XXX change to use strings from tool */
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_snmpwrite,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+			break;
+		case NJACK_CMD_POWERFORWARDING:
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_powerforwarding,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+			break;
 		case NJACK_CMD_DHCPCONTROL:
-			/* XXX change to use strings from tool */
-			proto_tree_add_item(tlv_tree, hf_njack_tlv_typeyesno,
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_dhcpcontrol,
 				tvb, offset, 1, FALSE);
 			offset += 1;
 			break;
 		case NJACK_CMD_MACADDRESS:
-			proto_tree_add_item(tlv_tree, hf_njack_tlv_typemac,
+			proto_tree_add_item(tlv_tree, hf_njack_tlv_devicemac,
 				tvb, offset, 6, FALSE);
 			offset += 6;
 			break;
@@ -504,33 +568,51 @@ proto_register_njack(void)
                 { "TlvFwVersion",   "njack.tlv.version", FT_IPv4, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
-                { &hf_njack_tlv_typeip,
-                { "TlvTypeIP",   "njack.tlv.typeip", FT_IPv4, BASE_NONE, NULL,
+                { &hf_njack_tlv_snmpwrite,
+                { "TlvTypeSnmpwrite",   "njack.tlv.snmpwrite", FT_UINT8, BASE_DEC, VALS(&njack_snmpwrite),
                         0x0, "", HFILL }},
 
-                { &hf_njack_tlv_typemac,
-                { "TlvTypeMAC",   "njack.tlv.typemac", FT_ETHER, BASE_NONE, NULL,
+                { &hf_njack_tlv_dhcpcontrol,
+                { "TlvTypeDhcpControl",   "njack.tlv.dhcpcontrol", FT_UINT8, BASE_DEC, VALS(&njack_dhcpcontrol),
+                        0x0, "", HFILL }},
+
+                { &hf_njack_tlv_devicemac,
+                { "TlvTypeDeviceMAC",   "njack.tlv.devicemac", FT_ETHER, BASE_NONE, NULL,
+                        0x0, "", HFILL }},
+
+		/* XXX dummy entries, to be replaced */
+                { &hf_njack_tlv_typeip,
+                { "TlvTypeIP",   "njack.tlv.typeip", FT_IPv4, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
                 { &hf_njack_tlv_typestring,
                 { "TlvTypeString",   "njack.tlv.typestring", FT_STRING, BASE_DEC, NULL,
                         0x0, "", HFILL }},
 
-                { &hf_njack_tlv_countermode,
-                { "TlvTypeCountermode",   "njack.tlv.contermode", FT_BOOLEAN, 8, TFS(&tfs_countermode),
-                        0xff, "", HFILL }},
-
+		/* 1st tab */
                 { &hf_njack_tlv_scheduling,
-                { "TlvTypeScheduling",   "njack.tlv.scheduling", FT_BOOLEAN, 8, TFS(&tfs_scheduling),
-                        0xff, "", HFILL }},
+                { "TlvTypeScheduling",   "njack.tlv.scheduling", FT_UINT8, BASE_DEC, VALS(&njack_scheduling),
+                        0x0, "", HFILL }},
 
                 { &hf_njack_tlv_addtagscheme,
-                { "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_BOOLEAN, 8, TFS(&tfs_addtagscheme),
-                        0xff, "", HFILL }},
+                { "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_UINT8, BASE_DEC, VALS(&njack_addtagscheme),
+                        0x0, "", HFILL }},
 
-                { &hf_njack_tlv_typeyesno,
-                { "TlvTypeYesNo",   "njack.tlv.typeyesno", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
-                        0xff, "", HFILL }},
+                { &hf_njack_tlv_portingressmode,
+                { "TlvTypePortingressmode",   "njack.tlv.portingressmode", FT_UINT8, BASE_DEC, VALS(&njack_portingressmode),
+                        0x0, "", HFILL }},
+
+                { &hf_njack_tlv_maxframesize,
+                { "TlvTypeMaxframesize",   "njack.tlv.maxframesize", FT_UINT8, BASE_DEC, VALS(&njack_maxframesize),
+                        0x0, "", HFILL }},
+
+                { &hf_njack_tlv_countermode,
+                { "TlvTypeCountermode",   "njack.tlv.contermode", FT_UINT8, BASE_DEC, VALS(&njack_countermode),
+                        0x0, "", HFILL }},
+
+                { &hf_njack_tlv_powerforwarding,
+                { "TlvTypePowerforwarding",   "njack.tlv.powerforwarding", FT_UINT8, BASE_DEC, VALS(&njack_powerforwarding),
+                        0x0, "", HFILL }},
 
 	/* Type 0x07: set */
 		{ &hf_njack_set_length,
@@ -583,3 +665,4 @@ proto_reg_handoff_njack(void)
         heur_dissector_add("udp", dissect_njack_heur, proto_njack);
         /* heur_dissector_add("tcp", dissect_njack_heur, proto_njack); */
 }
+
