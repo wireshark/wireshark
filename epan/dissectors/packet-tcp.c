@@ -2814,8 +2814,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u Ack=%u Win=%u",
-      flags, tcph->th_seq, tcph->th_ack, tcph->th_win);
+    if(tcph->th_flags&TH_ACK){
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u Ack=%u Win=%u",
+        flags, tcph->th_seq, tcph->th_ack, tcph->th_win);
+    } else {
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u",
+        flags, tcph->th_seq);
+    }
   }
 
   if (tree) {
@@ -2847,7 +2852,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     if (tcp_summary_in_tree) {
-      proto_item_append_text(ti, ", Ack: %u", tcph->th_ack);
+      if(tcph->th_flags&TH_ACK){
+        proto_item_append_text(ti, ", Ack: %u", tcph->th_ack);
+      }
       if (tcph->th_have_seglen)
         proto_item_append_text(ti, ", Len: %u", tcph->th_seglen);
     }
