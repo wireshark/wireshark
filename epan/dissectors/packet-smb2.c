@@ -220,6 +220,8 @@ static gint ett_smb2_MxAc_buffer = -1;
 static gint ett_smb2_ioctl_function = -1;
 static gint ett_smb2_FILE_OBJECTID_BUFFER = -1;
 
+static int smb2_tap = -1;
+
 static dissector_handle_t gssapi_handle = NULL;
 
 static heur_dissector_list_t smb2_heur_subdissector_list;
@@ -4164,6 +4166,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*qqq*/
 	si->saved=ssi;
 
+	tap_queue_packet(smb2_tap, pinfo, si);
+
 	/* Decode the payload */
 	dissect_smb2_command(pinfo, tree, tvb, offset, si);
 }
@@ -4722,6 +4726,7 @@ proto_register_smb2(void)
 	proto_register_field_array(proto_smb2, hf, array_length(hf));
 
 	register_heur_dissector_list("smb2_heur_subdissectors", &smb2_heur_subdissector_list);
+	smb2_tap = register_tap("smb2");
 }
 
 void
