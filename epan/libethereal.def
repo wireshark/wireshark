@@ -551,6 +551,7 @@ show_fragment_tree
 sid_name_snooping               DATA
 sid_name_table                  DATA
 smb_cmd_vals                    DATA
+smb2_cmd_vals                    DATA
 sminmpec_values                 DATA
 start_requested_stats
 stats_tree_branch_max_namelen
