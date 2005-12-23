@@ -3752,11 +3752,8 @@ static gint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
 					gboolean do_col_protocol,
 					gboolean have_rm,
 					kerberos_callbacks *cb);
-static gint kerberos_rm_to_reclen(guint krb_rm);
 static void dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *tree);
-static guint get_krb_pdu_len(tvbuff_t *tvb, int offset);
-
 
 
 gint
@@ -3793,13 +3790,13 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, FALSE, NULL);
 }
 
-static gint
+gint
 kerberos_rm_to_reclen(guint krb_rm)
 {
     return (krb_rm & KRB_RM_RECLEN);
 }
 
-static guint
+guint
 get_krb_pdu_len(tvbuff_t *tvb, int offset)
 {
     guint krb_rm;
@@ -3840,7 +3837,7 @@ dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * Display the TCP record mark.
  */
-static void
+void
 show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
 {
     gint rec_len;

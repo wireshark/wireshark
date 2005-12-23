@@ -54,6 +54,13 @@ int dissect_krb5_cname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 int dissect_krb5_realm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 guint32 kerberos_output_keytype(void);
 
+guint get_krb_pdu_len(tvbuff_t *tvb, int offset);
+
+gint kerberos_rm_to_reclen(guint krb_rm);
+
+void
+show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm);
+
 #ifdef HAVE_KERBEROS
 #define KRB_MAX_ORIG_LEN	256
 

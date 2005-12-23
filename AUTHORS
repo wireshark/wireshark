@@ -2433,6 +2433,11 @@ Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {
 	CIGI dissection
 }
 
+Eric Wedel              <ewedel [AT] bluearc.com> {
+	KPASSWD over TCP support
+}
+
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
@@ -2457,7 +2462,6 @@ David E. Weekly         <david [AT] weekly.org>
 Steve Ford              <sford [AT] geeky-boy.com>
 Masaki Chikama          <masaki-c [AT] is.aist-nara.ac.jp>
 Mohammad Hanif          <mhanif [AT] nexthop.com>
-Eric Wedel              <ewedel [AT] bluearc.com>
 Reinhard Speyerer       <rspmn [AT] arcor.de>
 Patrick Kursawe         <phosphan [AT] gentoo.org>
 Arsen Chaloyan          <achaloyan [AT] yahoo.com>
