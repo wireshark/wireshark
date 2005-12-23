@@ -92,6 +92,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 /*                              0x000d */
 #define TYPE_VOIP_VLAN_REPLY    0x000e /* VoIP VLAN reply */
 #define TYPE_VOIP_VLAN_QUERY    0x000f /* VoIP VLAN query */
+#define TYPE_POWER              0x0010 /* Power consumption */
 #define TYPE_MTU                0x0011 /* MTU */
 #define TYPE_TRUST_BITMAP       0x0012 /* Trust bitmap */
 #define TYPE_UNTRUSTED_COS      0x0013 /* Untrusted port CoS */
@@ -115,6 +116,7 @@ static const value_string type_vals[] = {
 	{ TYPE_DUPLEX,          "Duplex" },
 	{ TYPE_VOIP_VLAN_REPLY, "VoIP VLAN Reply" },
 	{ TYPE_VOIP_VLAN_QUERY, "VoIP VLAN Query" },
+	{ TYPE_POWER,           "Power consumption" },
 	{ TYPE_MTU,             "MTU"},
 	{ TYPE_TRUST_BITMAP,    "Trust Bitmap" },
 	{ TYPE_UNTRUSTED_COS,   "Untrusted Port CoS" },
@@ -501,6 +503,20 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      }
 	      offset += length;
 	      break;
+	    case TYPE_POWER:
+		tlvi = proto_tree_add_text(cdp_tree, tvb,
+			    offset, length, "Power consumption: %d mW",
+					   tvb_get_ntohs(tvb, offset + 4));
+		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+			    offset + TLV_TYPE, 2, type);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+			    offset + TLV_LENGTH, 2, length);
+		proto_tree_add_text(tlv_tree, tvb, offset + 4,
+			    length - 4, "Power consumption: %d mW",
+				    tvb_get_ntohs(tvb, offset + 4));
+		offset += length;
+		break;
 	    case TYPE_MTU:
 	      tlvi = proto_tree_add_text(cdp_tree, tvb,
 					 offset, length, "MTU: %u",
