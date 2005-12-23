@@ -161,6 +161,7 @@ ETHEREAL_TAP_SRC = \
 	sctp_stat_dlg.c	\
 	sip_stat.c	\
 	smb_stat.c	\
+	smb2_stat.c	\
 	t38_analysis.c  \
 	tcp_graph.c	\
 	voip_calls_dlg.c \
