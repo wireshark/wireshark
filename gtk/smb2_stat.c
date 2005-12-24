@@ -1,7 +1,7 @@
 /* smb2_stat.c
  * smb2_stat   2005 Ronnie Sahlberg
  *
- * $Id: smb2_stat.c 15845 2005-09-17 00:31:15Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
