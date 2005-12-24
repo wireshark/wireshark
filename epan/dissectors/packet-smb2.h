@@ -50,18 +50,10 @@ typedef struct _smb2_saved_info_t {
 	nstime_t req_time;
 } smb2_saved_info_t;
 
-/* at most one of these two bits may be set.
- * if ipc$ status is unknown none is set.
- *
- * if the tid name ends with "IPC$" we assume that all files on this tid
- * are dcerpc pipes.
- */
-#define SMB2_FLAGS_TID_IS_IPC		0x00000001
-#define SMB2_FLAGS_TID_IS_NOT_IPC	0x00000002
-
 typedef struct _smb2_tid_info_t {
 	guint32 tid;
-	guint32 flags;
+	guint32 connect_frame;
+	guint16 share_type;
 	char *name;
 } smb2_tid_info_t;
 
@@ -71,6 +63,7 @@ typedef struct _smb2_uid_info_t {
 	char *acct_name;
 	char *domain_name;
 	char *host_name;
+	GHashTable *tids;
 } smb2_uid_info_t;
 
 /* Structure to keep track of conversations and the hash tables.
@@ -80,7 +73,6 @@ typedef struct _smb2_conv_info_t {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
-	GHashTable *tids;
 	GHashTable *uids;
 } smb2_conv_info_t;
 
@@ -99,6 +91,7 @@ typedef struct _smb2_info_t {
 	smb2_conv_info_t	*conv;
 	smb2_saved_info_t	*saved;
 	smb2_tid_info_t		*tree;
+	smb2_uid_info_t		*session;
 	proto_tree *top_tree;	
 } smb2_info_t;
 

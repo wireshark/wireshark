@@ -177,6 +177,7 @@ static int hf_smb2_acct_name = -1;
 static int hf_smb2_domain_name = -1;
 static int hf_smb2_host_name = -1;
 static int hf_smb2_auth_frame = -1;
+static int hf_smb2_tcon_frame = -1;
 static int hf_smb2_share_type = -1;
 
 static gint ett_smb2 = -1;
@@ -1690,8 +1691,8 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				uid->domain_name=se_strdup(ntlmssph->domain_name);
 				uid->host_name=se_strdup(ntlmssph->host_name);
 				uid->auth_frame=pinfo->fd->num;
+				uid->tids= g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
 				g_hash_table_insert(si->conv->uids, uid, uid);
-
 			}
 		}
 	}
@@ -1760,37 +1761,31 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int
 dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
+	guint16 share_type;
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* share type */
+	share_type = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_share_type, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	if(!pinfo->fd->flags.visited && si->saved && si->saved->private_data) {
+	if(!pinfo->fd->flags.visited && si->saved && si->saved->private_data && si->session) {
 		smb2_tid_info_t *tid, tid_key;
 
-
 		tid_key.tid=si->tid;
-		tid=g_hash_table_lookup(si->conv->tids, &tid_key);
+		tid=g_hash_table_lookup(si->session->tids, &tid_key);
 		if(tid){
-			g_hash_table_remove(si->conv->tids, &tid_key);
+			g_hash_table_remove(si->session->tids, &tid_key);
 		}
 		tid=se_alloc(sizeof(smb2_tid_info_t));
 		tid->tid=si->tid;
 		tid->name=(char *)si->saved->private_data;
-		tid->flags=0;
-		if(strlen(tid->name)>=4){
-			if(!strcmp(tid->name+strlen(tid->name)-4, "IPC$")){
-				tid->flags|=SMB2_FLAGS_TID_IS_IPC;
-			} else {
-				tid->flags|=SMB2_FLAGS_TID_IS_NOT_IPC;
-			}
-		} else {
-			tid->flags|=SMB2_FLAGS_TID_IS_NOT_IPC;
-		}
+		tid->connect_frame=pinfo->fd->num;
+		tid->share_type=share_type;
 
-		g_hash_table_insert(si->conv->tids, tid, tid);
+		g_hash_table_insert(si->session->tids, tid, tid);
 
 		si->saved->private_data=NULL;
 	}
@@ -2508,7 +2503,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
 	/* data or dcerpc ?*/
-	if(length && si->tree && si->tree->flags&SMB2_FLAGS_TID_IS_IPC ){
+	if(length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si);
 		return offset;
 	}
@@ -2938,7 +2933,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 8;
 
 	/* data or dcerpc ?*/
-	if(length && si->tree && si->tree->flags&SMB2_FLAGS_TID_IS_IPC ){
+	if(length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si);
 		return offset;
 	}
@@ -3870,74 +3865,89 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 }
 
 static int
-dissect_smb2_tid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
+dissect_smb2_tid_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
 {
 	proto_item *tid_item=NULL;
 	proto_tree *tid_tree=NULL;
 	smb2_tid_info_t tid_key;
+	int tid_offset;
+	proto_item *uid_item=NULL;
+	proto_tree *uid_tree=NULL;
+	smb2_uid_info_t uid_key;
+	int uid_offset;
+	proto_item *item;
 
 	/* Tree ID */
+	tid_offset = offset;
 	si->tid=tvb_get_letohl(tvb, offset);
 	tid_item=proto_tree_add_item(tree, hf_smb2_tid, tvb, offset, 4, TRUE);
 	if(tree){
 		tid_tree=proto_item_add_subtree(tid_item, ett_smb2_tid_tree);
 	}
-
-	/* see if we can find the name for this tid */
-	tid_key.tid=si->tid;
-	si->tree=g_hash_table_lookup(si->conv->tids, &tid_key);
-	if(si->tree){
-		proto_item *item;
-
-		item=proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, offset, 4, si->tree->name);
-		PROTO_ITEM_SET_GENERATED(item);
-
-		proto_item_append_text(tid_item, "  %s", si->tree->name);
-	}
-
 	offset += 4;
 
-	return offset;
-}
-
-static int
-dissect_smb2_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
-{
-	proto_item *uid_item=NULL;
-	proto_tree *uid_tree=NULL;
-	smb2_uid_info_t uid_key, *uid;
-
 	/* User ID */
+	uid_offset = offset;
 	si->uid=tvb_get_letoh64(tvb, offset);
 	uid_item=proto_tree_add_item(tree, hf_smb2_uid, tvb, offset, 8, TRUE);
 	if(tree){
 		uid_tree=proto_item_add_subtree(uid_item, ett_smb2_uid_tree);
 	}
+	offset += 8;
 
-	/* see if we can find the name for this uid */
+	/* now we need to first lookup the uid session */
 	uid_key.uid=si->uid;
-	uid=g_hash_table_lookup(si->conv->uids, &uid_key);
-	if(uid){
-		proto_item *item;
+	si->session=g_hash_table_lookup(si->conv->uids, &uid_key);
+	if(!si->session) {
+		if (si->opcode != 0x03) return offset;
 
-		item=proto_tree_add_string(uid_tree, hf_smb2_acct_name, tvb, offset, 0, uid->acct_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(uid_item, "   Acct:%s", uid->acct_name);
+		/* if we come to a session that is unknown, and the operation is 
+		 * a tree connect, we create a dummy sessison, so we can hang the
+		 * tree data on it
+		 */
+		si->session=se_alloc(sizeof(smb2_uid_info_t));
+		si->session->uid=si->uid;
+		si->session->acct_name=NULL;
+		si->session->domain_name=NULL;
+		si->session->host_name=NULL;
+		si->session->auth_frame=(guint32)-1;
+		si->session->tids= g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
+		g_hash_table_insert(si->conv->uids, si->session, si->session);
 
-		item=proto_tree_add_string(uid_tree, hf_smb2_domain_name, tvb, offset, 0, uid->domain_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(uid_item, " Domain:%s", uid->domain_name);
-
-		item=proto_tree_add_string(uid_tree, hf_smb2_host_name, tvb, offset, 0, uid->host_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(uid_item, " Host:%s", uid->host_name);
-
-		item=proto_tree_add_uint(uid_tree, hf_smb2_auth_frame, tvb, offset, 0, uid->auth_frame);
-		PROTO_ITEM_SET_GENERATED(item);
-
+		return offset;
 	}
 
-	offset += 8;
+	if (si->session->auth_frame != (guint32)-1) {
+		item=proto_tree_add_string(uid_tree, hf_smb2_acct_name, tvb, uid_offset, 0, si->session->acct_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(uid_item, " Acct:%s", si->session->acct_name);
+
+		item=proto_tree_add_string(uid_tree, hf_smb2_domain_name, tvb, uid_offset, 0, si->session->domain_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(uid_item, " Domain:%s", si->session->domain_name);
+
+		item=proto_tree_add_string(uid_tree, hf_smb2_host_name, tvb, uid_offset, 0, si->session->host_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(uid_item, " Host:%s", si->session->host_name);
+
+		item=proto_tree_add_uint(uid_tree, hf_smb2_auth_frame, tvb, uid_offset, 0, si->session->auth_frame);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+
+	/* see if we can find the name for this tid */
+	tid_key.tid=si->tid;
+	si->tree=g_hash_table_lookup(si->session->tids, &tid_key);
+	if(!si->tree) return offset;
+
+	item=proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, tid_offset, 4, si->tree->name);
+	PROTO_ITEM_SET_GENERATED(item);
+	proto_item_append_text(tid_item, "  %s", si->tree->name);
+
+	item=proto_tree_add_uint(tid_tree, hf_smb2_share_type, tvb, tid_offset, 0, si->tree->share_type);
+	PROTO_ITEM_SET_GENERATED(item);
+
+	item=proto_tree_add_uint(tid_tree, hf_smb2_tcon_frame, tvb, tid_offset, 0, si->tree->connect_frame);
+	PROTO_ITEM_SET_GENERATED(item);
 
 	return offset;
 }
@@ -3983,9 +3993,6 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			smb2_saved_info_equal_matched);
 		si->conv->unmatched= g_hash_table_new(smb2_saved_info_hash_unmatched,
 			smb2_saved_info_equal_unmatched);
-		si->conv->tids= g_hash_table_new(smb2_tid_info_hash,
-			smb2_tid_info_equal);
-
 		si->conv->uids= g_hash_table_new(smb2_uid_info_hash,
 			smb2_uid_info_equal);
 
@@ -4060,11 +4067,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_item(header_tree, hf_smb2_pid, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* Tree ID */
-	offset = dissect_smb2_tid(pinfo, header_tree, tvb, offset, si);
-
-	/* User ID */
-	offset = dissect_smb2_uid(pinfo, header_tree, tvb, offset, si);
+	/* Tree ID and User ID */
+	offset = dissect_smb2_tid_uid(pinfo, header_tree, tvb, offset, si);
 
 	/* some unknown bytes */
 	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
@@ -4651,6 +4655,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_auth_frame,
 		{ "Authenticated in Frame", "smb2.auth_frame", FT_UINT32, BASE_DEC,
 		NULL, 0, "Which frame this user was authenticated in", HFILL }},
+
+	{ &hf_smb2_tcon_frame,
+		{ "Connected in Frame", "smb2.tcon_frame", FT_UINT32, BASE_DEC,
+		NULL, 0, "Which frame this share was connected in", HFILL }},
 
 	{ &hf_smb2_tag,
 		{ "Tag", "smb2.tag", FT_STRING, BASE_NONE,
