@@ -796,13 +796,19 @@ dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	 * extra 8 bytes of "Random confounder" after the checksum.
 	 * It certainly confounds code expecting all Kerberos 5
 	 * GSS_Wrap() tokens to look the same....
+	 *
+	 * The exception is DNS/TSIG where there is no such confounder
+	 * so we need to test here if there are more bytes in our tvb or not.
+	 *  -- ronnie
 	 */
-	if (sgn_alg == KRB_SGN_ALG_HMAC) {
-	  proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
+	if (tvb_length_remaining(tvb, offset)) {
+	  if (sgn_alg == KRB_SGN_ALG_HMAC) {
+	    proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
 			      TRUE);
 
-	  offset += 8;
-	}
+	    offset += 8;
+	  }
+        }
 
 	/*
 	 * Return the offset past the checksum, so that we know where
