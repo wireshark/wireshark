@@ -433,6 +433,8 @@ static dcerpc_auth_subdissector_fns gssapi_auth_fns = {
 void
 proto_reg_handoff_gssapi(void)
 {
+	dissector_handle_t gssapi_handle;
+
 	ntlmssp_handle = find_dissector("ntlmssp");
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
@@ -444,4 +446,7 @@ proto_reg_handoff_gssapi(void)
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
 					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
 					  &gssapi_auth_fns);
+
+	gssapi_handle = create_dissector_handle(dissect_gssapi,	proto_gssapi);
+	dissector_add_string("dns.tsig.mac", "gss.microsoft.com", gssapi_handle);
 }

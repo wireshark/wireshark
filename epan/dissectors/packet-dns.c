@@ -73,6 +73,14 @@ static int hf_dns_rr_type = -1;
 static int hf_dns_rr_class = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
+static int hf_dns_tsig_error = -1;
+static int hf_dns_tsig_fudge = -1;
+static int hf_dns_tsig_mac_size = -1;
+static int hf_dns_tsig_mac = -1;
+static int hf_dns_tsig_original_id = -1;
+static int hf_dns_tsig_algorithm_name = -1;
+static int hf_dns_tsig_other_len = -1;
+static int hf_dns_tsig_other_data = -1;
 
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
@@ -82,6 +90,9 @@ static gint ett_dns_ans = -1;
 static gint ett_dns_flags = -1;
 static gint ett_t_key_flags = -1;
 static gint ett_t_key = -1;
+static gint ett_dns_mac = -1;
+
+static dissector_table_t dns_tsig_dissector_table=NULL;
 
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
@@ -1984,19 +1995,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   case T_TSIG:
     {
-      guint16 tsig_fudge;
-      guint16 tsig_originalid, tsig_error, tsig_timehi, tsig_siglen, tsig_otherlen;
+      guint16 tsig_error, tsig_timehi, tsig_siglen, tsig_otherlen;
       guint32 tsig_timelo;
-      char *tsig_algname;
+      char *tsig_raw_algname, *tsig_algname;
       int tsig_algname_len;
       nstime_t nstime;
       int rr_len = data_len;
 
       if (dns_tree != NULL) {
-	tsig_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &tsig_algname);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_algname_len,
-		"Algorithm name: %s",
-		format_text(tsig_algname, strlen(tsig_algname)));
+	tsig_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &tsig_raw_algname);
+	tsig_algname=format_text(tsig_raw_algname, strlen(tsig_raw_algname));
+	proto_tree_add_string(rr_tree, hf_dns_tsig_algorithm_name, tvb, cur_offset, tsig_algname_len, tsig_algname);
 	cur_offset += tsig_algname_len;
 	rr_len -= tsig_algname_len;
 
@@ -2013,55 +2022,65 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 	if (rr_len < 2)
 	  goto bad_rr;
-	tsig_fudge = tvb_get_ntohs(tvb, cur_offset);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Fudge: %u",
-		tsig_fudge);
+
+	proto_tree_add_item(rr_tree, hf_dns_tsig_fudge, tvb, cur_offset, 2, FALSE);
 	cur_offset += 2;
 	rr_len -= 2;
 
 	if (rr_len < 2)
 	  goto bad_rr;
 	tsig_siglen = tvb_get_ntohs(tvb, cur_offset);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Signature length: %u", tsig_siglen);
+	proto_tree_add_item(rr_tree, hf_dns_tsig_mac_size, tvb, cur_offset, 2, FALSE);
 	cur_offset += 2;
 	rr_len -= 2;
 
 	if (tsig_siglen != 0) {
+	  proto_item *mac_item;
+	  proto_tree *mac_tree;
+	  tvbuff_t *sub_tvb;
+
 	  if (rr_len < tsig_siglen)
 	    goto bad_rr;
-	  proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_siglen, "Signature");
+
+	  mac_item = proto_tree_add_item(rr_tree, hf_dns_tsig_mac, tvb, cur_offset, tsig_siglen, FALSE);
+	  mac_tree = proto_item_add_subtree(mac_item, ett_dns_mac);
+
+	  sub_tvb=tvb_new_subset(tvb, cur_offset, tsig_siglen, tsig_siglen);
+
+	  if(!dissector_try_string(dns_tsig_dissector_table, tsig_algname, sub_tvb, pinfo, mac_tree)){
+		proto_tree_add_text(mac_tree, sub_tvb, 0, tvb_length(sub_tvb), "No dissector for algorithm:%s", tsig_algname);
+	  }
+
 	  cur_offset += tsig_siglen;
 	  rr_len -= tsig_siglen;
 	}
 
 	if (rr_len < 2)
 	  goto bad_rr;
-	tsig_originalid = tvb_get_ntohs(tvb, cur_offset);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Original id: %d",
-		tsig_originalid);
+	proto_tree_add_item(rr_tree, hf_dns_tsig_original_id, tvb, cur_offset, 2, FALSE);
 	cur_offset += 2;
 	rr_len -= 2;
 
 	if (rr_len < 2)
 	  goto bad_rr;
 	tsig_error = tvb_get_ntohs(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Error: %s",
-		val_to_str(tsig_error, rcode_vals,
-		val_to_str(tsig_error, tsigerror_vals, "Unknown error (%x)")));
+	proto_tree_add_uint_format(rr_tree, hf_dns_tsig_error, tvb, cur_offset, 2, tsig_error, "Error: %s (%d)",
+		val_to_str(tsig_error, rcode_vals,val_to_str(tsig_error, tsigerror_vals, "Unknown error")),
+		tsig_error);
 	cur_offset += 2;
 	rr_len -= 2;
 
 	if (rr_len < 2)
 	  goto bad_rr;
 	tsig_otherlen = tvb_get_ntohs(tvb, cur_offset);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Other length: %u", tsig_otherlen);
+	proto_tree_add_item(rr_tree, hf_dns_tsig_other_len, tvb, cur_offset, 2, FALSE);
 	cur_offset += 2;
 	rr_len -= 2;
 
 	if (tsig_otherlen != 0) {
 	  if (rr_len < tsig_otherlen)
 	    goto bad_rr;
-	  proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_otherlen, "Other");
+	  proto_tree_add_item(rr_tree, hf_dns_tsig_other_data, tvb, cur_offset, tsig_otherlen, FALSE);
 	  cur_offset += tsig_otherlen;
 	  rr_len -= tsig_otherlen;
 	}
@@ -2633,6 +2652,38 @@ proto_register_dns(void)
       { "Updates",       	"dns.count.updates",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of updates records in packet", HFILL }},
+    { &hf_dns_tsig_original_id,
+      { "Original Id",       	"dns.tsig.original_id",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Original Id", HFILL }},
+    { &hf_dns_tsig_error,
+      { "Error",       	"dns.tsig.error",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Expanded RCODE for TSIG", HFILL }},
+    { &hf_dns_tsig_fudge,
+      { "Fudge",       	"dns.tsig.fudge",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of bytes for the MAC", HFILL }},
+    { &hf_dns_tsig_mac_size,
+      { "MAC Size",       	"dns.tsig.mac_size",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of bytes for the MAC", HFILL }},
+    { &hf_dns_tsig_other_len,
+      { "Other Len",       	"dns.tsig.other_len",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of bytes for Other Data", HFILL }},
+    { &hf_dns_tsig_mac,
+      { "MAC",       	"dns.tsig.mac",
+	FT_NONE, BASE_NONE, NULL, 0x0,
+	"MAC", HFILL }},
+    { &hf_dns_tsig_other_data,
+      { "Other Data",       	"dns.tsig.other_data",
+	FT_BYTES, BASE_HEX, NULL, 0x0,
+	"Other Data", HFILL }},
+    { &hf_dns_tsig_algorithm_name,
+      { "Algorithm Name",      	"dns.tsig.algorithm_name",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Name of algorithm used for the MAC", HFILL }},
     { &hf_dns_count_add_rr,
       { "Additional RRs",      	"dns.count.add_rr",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -2647,6 +2698,7 @@ proto_register_dns(void)
     &ett_dns_flags,
     &ett_t_key_flags,
     &ett_t_key,
+    &ett_dns_mac,
   };
   module_t *dns_module;
 
@@ -2660,6 +2712,8 @@ proto_register_dns(void)
     "Whether the DNS dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &dns_desegment);
+
+  dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE);
 }
 
 void
@@ -2680,4 +2734,5 @@ proto_reg_handoff_dns(void)
 
   gssapi_handle = find_dissector("gssapi");
   ntlmssp_handle = find_dissector("ntlmssp");
+
 }
