@@ -39,13 +39,17 @@ Specs:
 	Packets to Managementstation: PORT_NJACK1 (5264)
 	Packets to Switch: PORT_NJACK2 (5265)
 
-	Type 0x07 (set):      M -> S, Magic, type, length (16 bit be)
-	Type 0x08 (set resp): S -> M, Magic, type, net length (8 bit), result status
-	Type 0x0b (get):      M -> S, Magic, type, 00 00 63 ff
-	Type 0x0c (get resp): S -> M, Magic, type, T(8 bit) L(8 bit) V(L bytes)
-	Type 0x0d (dhcpinfo): S -> M, Magic, type, tlv, t=00 = last (no length)
-	Type 0x10 (clear counters):      M -> S, Magic, type, 0400
-	Type 0x10 (clear counters resp): M -> S, Magic, type, 00
+	Type 0x00? (localquery):	  M -> BC, Magic, type, 'LOCALQUERY'?
+	Type 0x01 (query):                M -> S, Magic, type, 'QUERY'
+	Type 0x02 (query resp):		  S -> M, Magic, type, tlv-list (end: ffxx)
+	Type 0x04 ??? (after query resp): M -> S, Magic, type, 0x43AAD406
+	Type 0x07 (set):                  M -> S, Magic, type, length (16 bit be)
+	Type 0x08 (set resp):             S -> M, Magic, type, net length (8 bit), result status
+	Type 0x0b (get):                  M -> S, Magic, type, 00 00 63 ff
+	Type 0x0c (get resp):             S -> M, Magic, type, T(8 bit) L(8 bit) V(L bytes)
+	Type 0x0d (dhcpinfo):             S -> M, Magic, type, tlv, t=00 = last (no length)
+	Type 0x10 (clear counters):       M -> S, Magic, type, 0400
+	Type 0x10 (clear counters resp):  M -> S, Magic, type, 00
  */
 
 #ifdef HAVE_CONFIG_H
@@ -76,7 +80,6 @@ static int hf_njack_tlv_devicemac = -1;
 static int hf_njack_tlv_snmpwrite = -1;
 static int hf_njack_tlv_dhcpcontrol = -1;
 static int hf_njack_tlv_typestring = -1;
-static int hf_njack_tlv_typeyesno = -1;
 /* 1st TAB */
 static int hf_njack_tlv_countermode = -1;
 static int hf_njack_tlv_scheduling = -1;
@@ -101,6 +104,9 @@ static int hf_njack_getresp_unknown1 = -1;
 #define PORT_NJACK2	5265
 
 typedef enum {
+	NJACK_TYPE_QUERY	= 0x01,
+	NJACK_TYPE_QUERYRESP	= 0x02,
+	/* type 0x04 exists - see specs sections */
 	NJACK_TYPE_SET		= 0x07,
 	NJACK_TYPE_SETRESULT	= 0x08,
 
@@ -116,6 +122,8 @@ typedef enum {
 static const value_string njack_type_vals[] = {
 	{ NJACK_TYPE_SET,		"Set"},
 	{ NJACK_TYPE_SETRESULT,		"Set result"},
+	{ NJACK_TYPE_QUERY,		"Query (discovery)"},
+	{ NJACK_TYPE_QUERYRESP,		"Query response"},
 	{ NJACK_TYPE_GET,		"Get"},
 	{ NJACK_TYPE_GETRESP,		"Get response"},
 	{ NJACK_TYPE_DHCPINFO,		"DHCP info\?\?"},
@@ -150,6 +158,11 @@ typedef enum {
 	NJACK_CMD_POWERFORWARDING	= 0x1e,
 	NJACK_CMD_DHCPCONTROL		= 0x1f,
 	NJACK_CMD_IPGATEWAY		= 0x20,
+	NJACK_CMD_SNMPTRAP		= 0x23,
+	NJACK_CMD_COLDSTARTTRAP		= 0x26,
+	NJACK_CMD_LINKDOWNTRAP		= 0x27,
+	NJACK_CMD_LINKUPTRAP		= 0x28,
+	NJACK_CMD_AUTHFAILTRAP		= 0x29,
 	NJACK_CMD_PRODUCTNAME		= 0x2a,
 	NJACK_CMD_SERIALNO		= 0x2b,
 	NJACK_CMD_GETALLPARMAMS		= 0x63,
@@ -181,6 +194,11 @@ static const value_string njack_cmd_vals[] = {
 	{ NJACK_CMD_POWERFORWARDING,	"Port power forwarding" },
 	{ NJACK_CMD_DHCPCONTROL,	"DHCP control" },
 	{ NJACK_CMD_IPGATEWAY,		"IP gateway" },
+	{ NJACK_CMD_SNMPTRAP,		"SNMP trap" },
+	{ NJACK_CMD_COLDSTARTTRAP,	"Coldstart trap" },
+	{ NJACK_CMD_LINKDOWNTRAP,	"Linkdown trap" },
+	{ NJACK_CMD_LINKUPTRAP,		"Linkup trap" },
+	{ NJACK_CMD_AUTHFAILTRAP,	"Auth fail trap" },
 	{ NJACK_CMD_PRODUCTNAME,	"Product name" },
 	{ NJACK_CMD_SERIALNO,		"Serial no" },
 	{ NJACK_CMD_GETALLPARMAMS,	"Get all parameters" },
@@ -201,21 +219,39 @@ static const value_string njack_setresult_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string njack_snmpwrite[] = {
-	{ 0,	"Disable" },
-	{ 1,	"Enable" },
-
-	{ 0,	NULL }
-};
-
+/* General settings TAB */ 
 static const value_string njack_dhcpcontrol[] = {
 	{ 0,	"Disable" },
 	{ 1,	"Enable" },
 
 	{ 0,	NULL }
 };
+/* End General settings TAB */ 
 
-/* 1st TAB */
+/* Port settings TAB */
+static const true_false_string tfs_port_state = {
+	"Disable",
+	"Enable"
+};
+
+static const true_false_string tfs_port_autoneg = {
+	"Manual",
+	"Auto negotiation"
+};
+
+static const true_false_string tfs_port_speed = {
+	"10Mbps",
+	"100Mbps"
+};
+
+static const true_false_string tfs_port_duplex = {
+	"halfduplex",
+	"duplex"
+};
+
+/* End Port settings TAB */
+
+/* Hardware Settings TAB */
 static const value_string njack_scheduling[] = {
 	{ 0,	"Weighted fair" },
 	{ 1,	"Strict priority" },
@@ -259,6 +295,51 @@ static const value_string njack_powerforwarding[] = {
 
 	{ 0,	NULL }
 };
+/* End Hardware Settings TAB */
+
+/* SNMP TAB */
+static const value_string njack_snmpwrite[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_snmptrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_coldstarttrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_linkdowntrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_linkuptrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_authfailtrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+/* End SNMP TAB */
 
 static int
 dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
@@ -273,13 +354,20 @@ dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
 	 *  ------------------------------------------------------------
 	 *  Port Vlan		0x8000		0x0000 0078 0000 (bits: port 4 ... 1)
 	 *  Prio (hw queue)	0x4000		0x0000 0006 0000
+	 *  MC rate limit	0x1000		0x0000 6000 0000 (0:3, 1:6, 2:12, 3:100%)
 	 *  Speed/Duplex	0x0c00		XXX don't know which bit is speed / duplex
 	 *					0x0000 0800 0000 (duplex 0 half, 1 full)
 	 * 					0x0000 1000 0000 (speed 0 10M, 1 100M)
 	 *  Port Ena		0x0100		0x0000 0300 0000 (1 dis, 3 ena)
 	 *  Auto neg 	 	0x0008 		0x0000 0000 0800 (0 man, 1 auto)
 	 *  Vlan number 	0x0004 		0xff0f 0000 0000 (le)
-	 *  Mdi			0x0002		0x0000 0000 0300 (1 man, 2 auto)
+	 * XXX evaluate the following stuff:
+	 *  Flowcontrol		0x0001		0x0000 0000 0200 ???
+	 *  Flowcontrol		0x0001		0x0100 83f1 0a00 <- recorded
+	 *  Auto Mdi		0x0002		0x0000 0000 0300 (1 man, 2 auto)
+	 *  Manual MDI		0x0002		0x0100 8371 0900 <- recorded
+	 *  Manual MDI-X	0x0002		0x0100 8371 0800 <- recorded
+	 *  Auto MDI-X
 	 */
 	proto_tree_add_item(port_tree, hf_njack_tlv_data,
 		tvb, offset, 8, FALSE);
@@ -481,6 +569,8 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Type 0x0b: S -> M, Magic, type, 00 00 63 ff */
 			offset = dissect_tlvs(tvb, njack_tree, offset, FALSE);
 			break;
+		case NJACK_TYPE_QUERYRESP:
+			/* Type 0x02: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
 		case NJACK_TYPE_GETRESP:
 			/* Type 0x0c: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
 			offset = dissect_tlvs(tvb, njack_tree, offset, FALSE);
