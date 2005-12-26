@@ -3,7 +3,7 @@
 # Copyright tridge@samba.org 2003
 # released under the GNU GPL
 
-package Parse::Pidl::Samba::NDR::Client;
+package Parse::Pidl::Samba4::NDR::Client;
 
 use vars qw($VERSION);
 $VERSION = '0.01';

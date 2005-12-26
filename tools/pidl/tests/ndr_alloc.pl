@@ -3,16 +3,15 @@
 # (C) 2005 Jelmer Vernooij. Published under the GNU GPL
 use strict;
 
-use Parse::Pidl::Test;
-
-my %settings = Parse::Pidl::Test::GetSettings(@ARGV);
-$settings{'IDL-Arguments'} = ['--quiet', '--parse', '--parser=ndr_test.c', '--header=ndr_test.h'];
-$settings{'IncludeFiles'} = ['ndr_test.h'];
-$settings{'ExtraFiles'} = ['ndr_test.c'];
+use Test::More tests => 5 * 8;
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+use lib "$RealBin";
+use Util qw(test_samba4_ndr);
 
 # Check that an outgoing scalar pointer is allocated correctly
 
-Parse::Pidl::Test::test_idl("alloc-scalar", \%settings, 
+test_samba4_ndr("alloc-scalar", 
 '	
 	typedef struct {
 		uint8 *x;
@@ -37,16 +36,11 @@ Parse::Pidl::Test::test_idl("alloc-scalar", \%settings,
 );
 
 # Check that an outgoing buffer pointer is allocated correctly
-Parse::Pidl::Test::test_idl("alloc-buffer", \%settings, 
+test_samba4_ndr("alloc-buffer", 
 '	
-	typedef struct {
-		uint8 data;
-	} blie;
+	typedef struct { uint8 data; } blie;
+	typedef struct { blie *x; } bla; 
 
-	typedef struct {
-		blie *x;
-	} bla;
-	
 	[public] void TestAlloc([in] bla foo);
 ','
 	uint8_t data[] = { 0xde, 0xad, 0xbe, 0xef, 0x03 };
@@ -66,7 +60,7 @@ Parse::Pidl::Test::test_idl("alloc-buffer", \%settings,
 );
 
 # Check that ref pointers aren't allocated by default
-Parse::Pidl::Test::test_idl("ref-noalloc-null", \%settings, 
+test_samba4_ndr("ref-noalloc-null", 
 '	
 	[public] void TestAlloc([in,ref] uint8 *t);
 ','
@@ -82,7 +76,7 @@ Parse::Pidl::Test::test_idl("ref-noalloc-null", \%settings,
 );
 
 # Check that ref pointers aren't allocated by default
-Parse::Pidl::Test::test_idl("ref-noalloc", \%settings, 
+test_samba4_ndr("ref-noalloc", 
 '	
 	[public] void TestAlloc([in,ref] uint8 *t);
 ','
@@ -102,7 +96,7 @@ Parse::Pidl::Test::test_idl("ref-noalloc", \%settings,
 );
 
 # Check that an outgoing ref pointer is allocated correctly
-Parse::Pidl::Test::test_idl("ref-alloc", \%settings, 
+test_samba4_ndr("ref-alloc", 
 '	
 	[public] void TestAlloc([in,ref] uint8 *t);
 ','

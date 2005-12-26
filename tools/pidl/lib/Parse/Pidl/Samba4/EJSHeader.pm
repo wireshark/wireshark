@@ -3,7 +3,7 @@
 # Copyright tridge@samba.org 2005
 # released under the GNU GPL
 
-package Parse::Pidl::Samba::EJSHeader;
+package Parse::Pidl::Samba4::EJSHeader;
 
 use strict;
 use Parse::Pidl::Typelist;
@@ -54,9 +54,7 @@ sub HeaderInterface($)
 
 	pidl "\n";
 
-	foreach my $d (@{$interface->{TYPEDEFS}}) {
-		HeaderTypedefProto($d);
-	}
+	HeaderTypedefProto($_) foreach (@{$interface->{TYPES}});
 
 	pidl "\n";
 	pidl "#endif /* _HEADER_EJS_$interface->{NAME} */\n";

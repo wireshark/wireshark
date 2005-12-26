@@ -1,7 +1,7 @@
 # COM Header generation
 # (C) 2005 Jelmer Vernooij <jelmer@samba.org>
 
-package Parse::Pidl::Samba::COM::Header;
+package Parse::Pidl::Samba4::COM::Header;
 
 use Parse::Pidl::Typelist;
 use Parse::Pidl::Util qw(has_property);

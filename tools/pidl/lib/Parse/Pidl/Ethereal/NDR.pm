@@ -112,7 +112,7 @@ sub Interface($)
 {
 	my($interface) = @_;
 	Const($_,$interface->{NAME}) foreach (@{$interface->{CONSTS}});
-	Typedef($_,$interface->{NAME}) foreach (@{$interface->{TYPEDEFS}});
+	Typedef($_,$interface->{NAME}) foreach (@{$interface->{TYPES}});
 	Function($_,$interface->{NAME}) foreach (@{$interface->{FUNCTIONS}});
 }
 

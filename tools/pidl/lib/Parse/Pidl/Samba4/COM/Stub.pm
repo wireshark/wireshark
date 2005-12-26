@@ -5,7 +5,7 @@
 # Copyright metze@samba.org 2004
 # released under the GNU GPL
 
-package Parse::Pidl::Samba::COM::Stub;
+package Parse::Pidl::Samba4::COM::Stub;
 
 use Parse::Pidl::Util qw(has_property);
 use strict;

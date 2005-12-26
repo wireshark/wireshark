@@ -566,7 +566,7 @@ sub ParseInterface($)
 
 	# Structures first 
 	pidl "/* $if->{NAME} structures */";
-	foreach (@{$if->{TYPEDEFS}}) {
+	foreach (@{$if->{TYPES}}) {
 		ParseStruct($if, $_->{DATA}, $_->{NAME}) if ($_->{DATA}->{TYPE} eq "STRUCT");
 		ParseUnion($if, $_->{DATA}, $_->{NAME}) if ($_->{DATA}->{TYPE} eq "UNION");
 	}

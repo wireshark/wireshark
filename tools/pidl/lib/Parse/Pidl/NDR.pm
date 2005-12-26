@@ -13,15 +13,18 @@ Parse::Pidl::NDR - NDR parsing information generator
 
 =head1 DESCRIPTION
 
-#####################################################################
-# return a table describing the order in which the parts of an element
-# should be parsed
-# Possible level types:
-#  - POINTER
-#  - ARRAY
-#  - SUBCONTEXT
-#  - SWITCH
-#  - DATA
+Return a table describing the order in which the parts of an element
+should be parsed
+Possible level types:
+ - POINTER
+ - ARRAY
+ - SUBCONTEXT
+ - SWITCH
+ - DATA
+
+=head1 AUTHOR
+
+Jelmer Vernooij <jelmer@samba.org>
 
 =cut
 
@@ -327,8 +330,9 @@ sub find_largest_alignment($)
 
 #####################################################################
 # align a type
-sub align_type
+sub align_type($)
 {
+	sub align_type($);
 	my $e = shift;
 
 	unless (hasType($e)) {
@@ -366,9 +370,9 @@ sub ParseElement($)
 	};
 }
 
-sub ParseStruct($)
+sub ParseStruct($$)
 {
-	my $struct = shift;
+	my ($ndr,$struct) = @_;
 	my @elements = ();
 	my $surrounding = undef;
 
@@ -402,9 +406,9 @@ sub ParseStruct($)
 	};
 }
 
-sub ParseUnion($)
+sub ParseUnion($$)
 {
-	my $e = shift;
+	my ($ndr,$e) = @_;
 	my @elements = ();
 	my $switch_type = has_property($e, "switch_type");
 	unless (defined($switch_type)) { $switch_type = "uint32"; }
@@ -441,9 +445,9 @@ sub ParseUnion($)
 	};
 }
 
-sub ParseEnum($)
+sub ParseEnum($$)
 {
-	my $e = shift;
+	my ($ndr,$e) = @_;
 
 	return {
 		TYPE => "ENUM",
@@ -454,9 +458,9 @@ sub ParseEnum($)
 	};
 }
 
-sub ParseBitmap($)
+sub ParseBitmap($$)
 {
-	my $e = shift;
+	my ($ndr,$e) = @_;
 
 	return {
 		TYPE => "BITMAP",
@@ -467,26 +471,34 @@ sub ParseBitmap($)
 	};
 }
 
+sub ParseType($$)
+{
+	my ($ndr, $d) = @_;
+
+	if ($d->{TYPE} eq "STRUCT" or $d->{TYPE} eq "UNION") {
+		CheckPointerTypes($d, $ndr->{PROPERTIES}->{pointer_default});
+	}
+
+	my $data = {
+		STRUCT => \&ParseStruct,
+		UNION => \&ParseUnion,
+		ENUM => \&ParseEnum,
+		BITMAP => \&ParseBitmap,
+		TYPEDEF => \&ParseTypedef,
+	}->{$d->{TYPE}}->($ndr, $d);
+
+	return $data;
+}
+
 sub ParseTypedef($$)
 {
 	my ($ndr,$d) = @_;
-	my $data;
-
-	if ($d->{DATA}->{TYPE} eq "STRUCT" or $d->{DATA}->{TYPE} eq "UNION") {
-		CheckPointerTypes($d->{DATA}, $ndr->{PROPERTIES}->{pointer_default});
-	}
 
 	if (defined($d->{PROPERTIES}) && !defined($d->{DATA}->{PROPERTIES})) {
 		$d->{DATA}->{PROPERTIES} = $d->{PROPERTIES};
 	}
 
-	$data = {
-		STRUCT => \&ParseStruct,
-		UNION => \&ParseUnion,
-		ENUM => \&ParseEnum,
-		BITMAP => \&ParseBitmap
-	}->{$d->{DATA}->{TYPE}}->($d->{DATA});
-
+	my $data = ParseType($ndr, $d->{DATA});
 	$data->{ALIGN} = align_type($d->{NAME});
 
 	return {
@@ -560,7 +572,7 @@ sub CheckPointerTypes($$)
 sub ParseInterface($)
 {
 	my $idl = shift;
-	my @typedefs = ();
+	my @types = ();
 	my @consts = ();
 	my @functions = ();
 	my @endpoints;
@@ -579,20 +591,14 @@ sub ParseInterface($)
 	}
 
 	foreach my $d (@{$idl->{DATA}}) {
-		if ($d->{TYPE} eq "TYPEDEF") {
-			push (@typedefs, ParseTypedef($idl, $d));
-		}
-
 		if ($d->{TYPE} eq "DECLARE") {
 			push (@declares, $d);
-		}
-
-		if ($d->{TYPE} eq "FUNCTION") {
+		} elsif ($d->{TYPE} eq "FUNCTION") {
 			push (@functions, ParseFunction($idl, $d, \$opnum));
-		}
-
-		if ($d->{TYPE} eq "CONST") {
+		} elsif ($d->{TYPE} eq "CONST") {
 			push (@consts, ParseConst($idl, $d));
+		} else {
+			push (@types, ParseType($idl, $d));
 		}
 	}
 
@@ -617,7 +623,7 @@ sub ParseInterface($)
 		PROPERTIES => $idl->{PROPERTIES},
 		FUNCTIONS => \@functions,
 		CONSTS => \@consts,
-		TYPEDEFS => \@typedefs,
+		TYPES => \@types,
 		DECLARES => \@declares,
 		ENDPOINTS => \@endpoints
 	};
@@ -629,6 +635,11 @@ sub ParseInterface($)
 sub Parse($)
 {
 	my $idl = shift;
+
+	return undef unless (defined($idl));
+
+	Parse::Pidl::NDR::Validate($idl);
+	
 	my @ndr = ();
 
 	push(@ndr, ParseInterface($_)) foreach (@{$idl});

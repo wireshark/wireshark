@@ -3,7 +3,7 @@
 # Copyright tpot@samba.org 2004,2005
 # released under the GNU GPL
 
-package Parse::Pidl::Samba::SWIG;
+package Parse::Pidl::Samba4::SWIG;
 
 use vars qw($VERSION);
 $VERSION = '0.01';

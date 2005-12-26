@@ -4,9 +4,9 @@
 # Copyright jelmer@samba.org 2003-2005
 # released under the GNU GPL
 
-package Parse::Pidl::Samba::COM::Proxy;
+package Parse::Pidl::Samba4::COM::Proxy;
 
-use Parse::Pidl::Samba::COM::Header;
+use Parse::Pidl::Samba4::COM::Header;
 use Parse::Pidl::Util qw(has_property);
 
 use vars qw($VERSION);
@@ -89,7 +89,7 @@ sub ParseFunction($$)
 	my $uname = uc $name;
 
 	$res.="
-static $fn->{RETURN_TYPE} dcom_proxy_$interface->{NAME}_$name(struct $interface->{NAME} *d, TALLOC_CTX *mem_ctx" . Parse::Pidl::Samba::COM::Header::GetArgumentProtoList($fn) . ")
+static $fn->{RETURN_TYPE} dcom_proxy_$interface->{NAME}_$name(struct $interface->{NAME} *d, TALLOC_CTX *mem_ctx" . Parse::Pidl::Samba4::COM::Header::GetArgumentProtoList($fn) . ")
 {
 	struct dcerpc_pipe *p;
 	NTSTATUS status = dcom_get_pipe(d, &p);

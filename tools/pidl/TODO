@@ -1,5 +1,3 @@
-- allow more then one identifier for types (unsigned char, struct foo)
-
 - true multiple dimension array / strings in arrays support
 
 - compatibility mode for generating MIDL-readable data:
@@ -14,6 +12,4 @@
  
 - replace subcontext() with represent_as()
 
-- --explain-ndr option that dumps out parse tree
-
-- fix test suite
+- --explain-ndr option that dumps out parse tree ?

@@ -140,15 +140,22 @@ usertype: struct | union | enum | bitmap;
 
 typedecl: usertype ';' { $_[1] };
 
-type: usertype | identifier 
-	| void { "void" }
+sign: 'signed' | 'unsigned';
+
+existingtype: 
+	| sign identifier { "$_[1] $_[2]" }
+	| identifier 
 ;
 
-enum: 'enum' optional_identifier '{' enum_elements '}' 
+type: usertype | existingtype | void { "void" } ;
+
+enum_body: '{' enum_elements '}' { $_[2] };
+opt_enum_body: | enum_body;
+enum: 'enum' optional_identifier opt_enum_body
         {{
              "TYPE" => "ENUM", 
 			 "NAME" => $_[2],
-		     "ELEMENTS" => $_[4]
+		     "ELEMENTS" => $_[3]
         }}
 ;
 
@@ -161,11 +168,13 @@ enum_element: identifier
 	      | identifier '=' anytext { "$_[1]$_[2]$_[3]" }
 ;
 
-bitmap: 'bitmap' optional_identifier '{' bitmap_elements '}' 
+bitmap_body: '{' bitmap_elements '}' { $_[2] };
+opt_bitmap_body: | bitmap_body;
+bitmap: 'bitmap' optional_identifier opt_bitmap_body
         {{
              "TYPE" => "BITMAP", 
 			 "NAME" => $_[2],
-		     "ELEMENTS" => $_[4]
+		     "ELEMENTS" => $_[3]
         }}
 ;
 
@@ -177,11 +186,14 @@ bitmap_elements:
 bitmap_element: identifier '=' anytext { "$_[1] ( $_[3] )" }
 ;
 
-struct: 'struct' optional_identifier '{' element_list1 '}' 
+struct_body: '{' element_list1 '}' { $_[2] };
+opt_struct_body: | struct_body;
+
+struct: 'struct' optional_identifier opt_struct_body
         {{
              "TYPE" => "STRUCT", 
 			 "NAME" => $_[2],
-		     "ELEMENTS" => $_[4]
+		     "ELEMENTS" => $_[3]
         }}
 ;
 
@@ -200,7 +212,7 @@ empty_element: property_list ';'
 base_or_empty: base_element ';' | empty_element;
 
 optional_base_element:
-	property_list base_or_empty { $_[2]->{PROPERTIES} = Parse::Pidl::Util::FlattenHash([$_[1],$_[2]->{PROPERTIES}]); $_[2] }
+	property_list base_or_empty { $_[2]->{PROPERTIES} = FlattenHash([$_[1],$_[2]->{PROPERTIES}]); $_[2] }
 ;
 
 union_elements: 
@@ -208,11 +220,14 @@ union_elements:
     | union_elements optional_base_element { push(@{$_[1]}, $_[2]); $_[1] }
 ;
 
-union: 'union' optional_identifier '{' union_elements '}' 
+union_body: '{' union_elements '}' { $_[2] };
+opt_union_body: | union_body;
+
+union: 'union' optional_identifier opt_union_body
         {{
              "TYPE" => "UNION", 
 		     "NAME" => $_[2],
-		     "ELEMENTS" => $_[4]
+		     "ELEMENTS" => $_[3]
         }}
 ;
 
@@ -256,11 +271,11 @@ array_len:
 
 property_list: 
     #empty
-    | property_list '[' properties ']' { Parse::Pidl::Util::FlattenHash([$_[1],$_[3]]); }
+    | property_list '[' properties ']' { FlattenHash([$_[1],$_[3]]); }
 ;
 
 properties: property          { $_[1] }
-    | properties ',' property { Parse::Pidl::Util::FlattenHash([$_[1], $_[3]]); }
+    | properties ',' property { FlattenHash([$_[1], $_[3]]); }
 ;
 
 property: identifier                   {{ "$_[1]" => "1"     }}
@@ -321,7 +336,21 @@ optional_semicolon:
 # start code
 %%
 
-use Parse::Pidl::Util;
+#####################################################################
+# flatten an array of hashes into a single hash
+sub FlattenHash($) 
+{ 
+    my $a = shift;
+    my %b;
+    for my $d (@{$a}) {
+	for my $k (keys %{$d}) {
+	    $b{$k} = $d->{$k};
+	}
+    }
+    return \%b;
+}
+
+
 
 #####################################################################
 # traverse a perl data structure removing any empty arrays or
@@ -330,6 +359,7 @@ sub CleanData($)
 {
     sub CleanData($);
     my($v) = shift;
+	return undef if (not defined($v));
     if (ref($v) eq "ARRAY") {
 	foreach my $i (0 .. $#{$v}) {
 	    CleanData($v->[$i]);
@@ -404,7 +434,7 @@ again:
 			$parser->YYData->{LAST_TOKEN} = $1;
 			if ($1 =~ 
 			    /^(coclass|interface|const|typedef|declare|union
-			      |struct|enum|bitmap|void)$/x) {
+			      |struct|enum|bitmap|void|unsigned|signed)$/x) {
 				return $1;
 			}
 			return('IDENTIFIER',$1);
@@ -416,9 +446,25 @@ again:
 	}
 }
 
-sub parse_idl($$)
+sub parse_string
 {
-	my ($self,$filename) = @_;
+	my ($data,$filename) = @_;
+
+	my $self = new Parse::Pidl::IDL;
+
+    $self->YYData->{INPUT_FILENAME} = $filename;
+    $self->YYData->{INPUT} = $data;
+    $self->YYData->{LINE} = 0;
+    $self->YYData->{LAST_TOKEN} = "NONE";
+
+	my $idl = $self->YYParse( yylex => \&_Lexer, yyerror => \&_Error );
+
+	return CleanData($idl);
+}
+
+sub parse_file($)
+{
+	my ($filename) = @_;
 
 	my $saved_delim = $/;
 	undef $/;
@@ -429,11 +475,5 @@ sub parse_idl($$)
 	my $data = `$cpp -D__PIDL__ -xc $filename`;
 	$/ = $saved_delim;
 
-    $self->YYData->{INPUT} = $data;
-    $self->YYData->{LINE} = 0;
-    $self->YYData->{LAST_TOKEN} = "NONE";
-
-	my $idl = $self->YYParse( yylex => \&_Lexer, yyerror => \&_Error );
-
-	return CleanData($idl);
+	return parse_string($data, $filename);
 }

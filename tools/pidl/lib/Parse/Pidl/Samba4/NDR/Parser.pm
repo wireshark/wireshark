@@ -5,7 +5,7 @@
 # Copyright jelmer@samba.org 2004-2005
 # released under the GNU GPL
 
-package Parse::Pidl::Samba::NDR::Parser;
+package Parse::Pidl::Samba4::NDR::Parser;
 
 use strict;
 use Parse::Pidl::Typelist qw(hasType getType mapType);
@@ -101,7 +101,7 @@ sub get_value_of($)
 	}
 }
 
-my $res = "";
+my $res;
 my $deferred = "";
 my $tabs = "";
 
@@ -116,6 +116,10 @@ sub pidl($)
 	}
 	$res .="\n";
 }
+
+my $res_hdr;
+
+sub pidl_hdr ($) { my $d = shift; $res_hdr .= "$d\n"; }
 
 ####################################
 # defer() is like pidl(), but adds to 
@@ -188,13 +192,17 @@ sub check_null_pointer_void($)
 }
 
 #####################################################################
-# work out is a parse function should be declared static or not
-sub fn_prefix($)
+# declare a function public or static, depending on its attributes
+sub fn_declare($$)
 {
-	my $fn = shift;
+	my ($fn,$decl) = @_;
 
-	return "" if (has_property($fn, "public"));
-	return "static ";
+	if (has_property($fn, "public")) {
+		pidl_hdr "$decl;";
+		pidl "$decl";
+	} else {
+		pidl "static $decl";
+	}
 }
 
 ###################################################################
@@ -1821,7 +1829,7 @@ sub ParseTypedefPush($)
 	my($e) = shift;
 
 	my $args = $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e,"push");
-	pidl fn_prefix($e) . "NTSTATUS ndr_push_$e->{NAME}(struct ndr_push *ndr, int ndr_flags, $args)";
+	fn_declare($e, "NTSTATUS ndr_push_$e->{NAME}(struct ndr_push *ndr, int ndr_flags, $args)");
 
 	pidl "{";
 	indent;
@@ -1840,7 +1848,7 @@ sub ParseTypedefPull($)
 
 	my $args = $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e,"pull");
 
-	pidl fn_prefix($e) . "NTSTATUS ndr_pull_$e->{NAME}(struct ndr_pull *ndr, int ndr_flags, $args)";
+	fn_declare($e, "NTSTATUS ndr_pull_$e->{NAME}(struct ndr_pull *ndr, int ndr_flags, $args)");
 
 	pidl "{";
 	indent;
@@ -1860,6 +1868,7 @@ sub ParseTypedefPrint($)
 	my $args = $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e,"print");
 
 	pidl "void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args)";
+	pidl_hdr "void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args);";
 	pidl "{";
 	indent;
 	$typefamily{$e->{DATA}->{TYPE}}->{PRINT_FN_BODY}->($e->{DATA}, $e->{NAME});
@@ -1877,7 +1886,8 @@ sub ParseTypedefNdrSize($)
 	my $tf = $typefamily{$t->{DATA}->{TYPE}};
 	my $args = $tf->{SIZE_FN_ARGS}->($t);
 
-	pidl "size_t ndr_size_$t->{NAME}($args)";
+	fn_declare($t, "size_t ndr_size_$t->{NAME}($args)");
+
 	pidl "{";
 	indent;
 	$typefamily{$t->{DATA}->{TYPE}}->{SIZE_FN_BODY}->($t);
@@ -1895,6 +1905,7 @@ sub ParseFunctionPrint($)
 	return if has_property($fn, "noprint");
 
 	pidl "void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r)";
+	pidl_hdr "void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r);";
 	pidl "{";
 	indent;
 
@@ -1958,7 +1969,8 @@ sub ParseFunctionPush($)
 
 	return if has_property($fn, "nopush");
 
-	pidl fn_prefix($fn) . "NTSTATUS ndr_push_$fn->{NAME}(struct ndr_push *ndr, int flags, const struct $fn->{NAME} *r)";
+	fn_declare($fn, "NTSTATUS ndr_push_$fn->{NAME}(struct ndr_push *ndr, int flags, const struct $fn->{NAME} *r)");
+
 	pidl "{";
 	indent;
 
@@ -2038,7 +2050,7 @@ sub ParseFunctionPull($)
 	return if has_property($fn, "nopull");
 
 	# pull function args
-	pidl fn_prefix($fn) . "NTSTATUS ndr_pull_$fn->{NAME}(struct ndr_pull *ndr, int flags, struct $fn->{NAME} *r)";
+	fn_declare($fn, "NTSTATUS ndr_pull_$fn->{NAME}(struct ndr_pull *ndr, int flags, struct $fn->{NAME} *r)");
 	pidl "{";
 	indent;
 
@@ -2149,6 +2161,7 @@ sub FunctionTable($)
 	$count = $#{$interface->{FUNCTIONS}}+1;
 
 	return if ($count == 0);
+	return unless defined ($interface->{PROPERTIES}->{uuid});
 
 	pidl "static const struct dcerpc_interface_call $interface->{NAME}\_calls[] = {";
 	$count = 0;
@@ -2223,13 +2236,84 @@ sub FunctionTable($)
 }
 
 #####################################################################
+# generate prototypes and defines for the interface definitions
+# FIXME: these prototypes are for the DCE/RPC client functions, not the 
+# NDR parser and so do not belong here, technically speaking
+sub HeaderInterface($)
+{
+	my($interface) = shift;
+
+	my $count = 0;
+
+	pidl_hdr "#ifndef _HEADER_RPC_$interface->{NAME}";
+	pidl_hdr "#define _HEADER_RPC_$interface->{NAME}";
+
+	pidl_hdr "";
+
+	if (defined $interface->{PROPERTIES}->{depends}) {
+		my @d = split / /, $interface->{PROPERTIES}->{depends};
+		foreach my $i (@d) {
+			pidl_hdr "#include \"librpc/gen_ndr/ndr_$i\.h\"";
+		}
+	}
+
+	if (defined $interface->{PROPERTIES}->{uuid}) {
+		my $name = uc $interface->{NAME};
+		pidl_hdr "#define DCERPC_$name\_UUID " . 
+		Parse::Pidl::Util::make_str(lc($interface->{PROPERTIES}->{uuid}));
+
+		if(!defined $interface->{PROPERTIES}->{version}) { $interface->{PROPERTIES}->{version} = "0.0"; }
+		pidl_hdr "#define DCERPC_$name\_VERSION $interface->{PROPERTIES}->{version}";
+
+		pidl_hdr "#define DCERPC_$name\_NAME \"$interface->{NAME}\"";
+
+		if(!defined $interface->{PROPERTIES}->{helpstring}) { $interface->{PROPERTIES}->{helpstring} = "NULL"; }
+		pidl_hdr "#define DCERPC_$name\_HELPSTRING $interface->{PROPERTIES}->{helpstring}";
+
+		pidl_hdr "extern const struct dcerpc_interface_table dcerpc_table_$interface->{NAME};";
+		pidl_hdr "NTSTATUS dcerpc_server_$interface->{NAME}_init(void);";
+	}
+
+	foreach (@{$interface->{FUNCTIONS}}) {
+		next if has_property($_, "noopnum");
+		next if grep(/$_->{NAME}/,@{$interface->{INHERITED_FUNCTIONS}});
+		my $u_name = uc $_->{NAME};
+	
+		my $val = sprintf("0x%02x", $count);
+		if (defined($interface->{BASE})) {
+			$val .= " + DCERPC_" . uc $interface->{BASE} . "_CALL_COUNT";
+		}
+		
+		pidl_hdr "#define DCERPC_$u_name ($val)";
+
+		pidl_hdr "NTSTATUS dcerpc_$_->{NAME}(struct dcerpc_pipe *p, TALLOC_CTX *mem_ctx, struct $_->{NAME} *r);";
+	   	pidl_hdr "struct rpc_request *dcerpc_$_->{NAME}\_send(struct dcerpc_pipe *p, TALLOC_CTX *mem_ctx, struct $_->{NAME} *r);";
+
+		pidl_hdr "";
+		$count++;
+	}
+
+	my $val = $count;
+
+	if (defined($interface->{BASE})) {
+		$val .= " + DCERPC_" . uc $interface->{BASE} . "_CALL_COUNT";
+	}
+
+	pidl_hdr "#define DCERPC_" . uc $interface->{NAME} . "_CALL_COUNT ($val)";
+
+	pidl_hdr "#endif /* _HEADER_RPC_$interface->{NAME} */";
+}
+
+#####################################################################
 # parse the interface definitions
 sub ParseInterface($$)
 {
 	my($interface,$needed) = @_;
 
+	HeaderInterface($interface);
+
 	# Typedefs
-	foreach my $d (@{$interface->{TYPEDEFS}}) {
+	foreach my $d (@{$interface->{TYPES}}) {
 		($needed->{"push_$d->{NAME}"}) && ParseTypedefPush($d);
 		($needed->{"pull_$d->{NAME}"}) && ParseTypedefPull($d);
 		($needed->{"print_$d->{NAME}"}) && ParseTypedefPrint($d);
@@ -2257,10 +2341,8 @@ sub ParseInterface($$)
 
 sub RegistrationFunction($$)
 {
-	my ($idl,$filename) = @_;
+	my ($idl,$basename) = @_;
 
-	$filename =~ /.*\/ndr_(.*).c/;
-	my $basename = $1;
 	pidl "NTSTATUS dcerpc_$basename\_init(void)";
 	pidl "{";
 	indent;
@@ -2271,6 +2353,7 @@ sub RegistrationFunction($$)
 		my $count = ($#{$interface->{FUNCTIONS}}+1);
 
 		next if ($count == 0);
+		next unless defined ($interface->{PROPERTIES}->{uuid});
 
 		pidl "status = dcerpc_ndr_$interface->{NAME}_init();";
 		pidl "if (NT_STATUS_IS_ERR(status)) {";
@@ -2288,37 +2371,31 @@ sub RegistrationFunction($$)
 # parse a parsed IDL structure back into an IDL file
 sub Parse($$)
 {
-	my($ndr,$filename) = @_;
+	my($ndr,$basename) = @_;
 
 	$tabs = "";
-	my $h_filename = $filename;
 	$res = "";
 
-	if ($h_filename =~ /(.*)\.c/) {
-		$h_filename = "$1.h";
-	}
+	$res_hdr = "";
+    pidl_hdr "/* header auto-generated by pidl */";
+	pidl_hdr "";
 
 	pidl "/* parser auto-generated by pidl */";
-	pidl "";
-	pidl "#include \"includes.h\"";
-	pidl "#include \"librpc/gen_ndr/ndr_misc.h\"";
-	pidl "#include \"librpc/gen_ndr/ndr_dcerpc.h\"";
-	pidl "#include \"$h_filename\"";
 	pidl "";
 
 	my %needed = ();
 
-	foreach my $x (@{$ndr}) {
-		($x->{TYPE} eq "INTERFACE") && NeededInterface($x, \%needed);
+	foreach (@{$ndr}) {
+		($_->{TYPE} eq "INTERFACE") && NeededInterface($_, \%needed);
 	}
 
-	foreach my $x (@{$ndr}) {
-		($x->{TYPE} eq "INTERFACE") && ParseInterface($x, \%needed);
+	foreach (@{$ndr}) {
+		($_->{TYPE} eq "INTERFACE") && ParseInterface($_, \%needed);
 	}
 
-	RegistrationFunction($ndr, $filename);
+	RegistrationFunction($ndr, $basename);
 
-	return $res;
+	return ($res_hdr, $res);
 }
 
 sub NeededFunction($$)
@@ -2378,12 +2455,9 @@ sub NeededTypedef($$)
 sub NeededInterface($$)
 {
 	my ($interface,$needed) = @_;
-	foreach my $d (@{$interface->{FUNCTIONS}}) {
-	    NeededFunction($d, $needed);
-	}
-	foreach my $d (reverse @{$interface->{TYPEDEFS}}) {
-	    NeededTypedef($d, $needed);
-	}
+	NeededFunction($_, $needed) foreach (@{$interface->{FUNCTIONS}});
+	NeededTypedef($_, $needed) foreach (reverse @{$interface->{TYPES}});
 }
 
 1;
+

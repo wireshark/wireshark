@@ -4,24 +4,17 @@
 # Published under the GNU General Public License
 use strict;
 
-use Parse::Pidl::Test;
+use Test::More tests => 8;
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+use lib "$RealBin";
+use Util qw(test_samba4_ndr);
 
-my %settings = Parse::Pidl::Test::GetSettings(@ARGV);
-$settings{'IDL-Arguments'} = ['--quiet', '--parse', '--parser=ndr_test.c', '--header=ndr_test.h'];
-$settings{'IncludeFiles'} = ['ndr_test.h'];
-$settings{'ExtraFiles'} = ['ndr_test.c'];
-
-Parse::Pidl::Test::test_idl(
-	# Name
+test_samba4_ndr(
 	'Fixed-Array',
 	
-	# Settings
-	\%settings,
-	
-	# IDL 
 	'[public] void Test([in] uint8 x[10]);',
 	
-	# C Test
 	'
 	uint8_t data[] = {1,2,3,4,5,6,7,8,9,10};
 	int i;

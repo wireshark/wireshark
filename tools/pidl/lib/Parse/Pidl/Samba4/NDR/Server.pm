@@ -4,7 +4,7 @@
 # Copyright metze@samba.org 2004
 # released under the GNU GPL
 
-package Parse::Pidl::Samba::NDR::Server;
+package Parse::Pidl::Samba4::NDR::Server;
 
 use strict;
 

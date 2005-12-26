@@ -13,48 +13,6 @@ $VERSION = '0.01';
 use strict;
 
 #####################################################################
-# flatten an array of arrays into a single array
-sub FlattenArray2($) 
-{ 
-    my $a = shift;
-    my @b;
-    for my $d (@{$a}) {
-	for my $d1 (@{$d}) {
-	    push(@b, $d1);
-	}
-    }
-    return \@b;
-}
-
-#####################################################################
-# flatten an array of arrays into a single array
-sub FlattenArray($) 
-{ 
-    my $a = shift;
-    my @b;
-    for my $d (@{$a}) {
-	for my $d1 (@{$d}) {
-	    push(@b, $d1);
-	}
-    }
-    return \@b;
-}
-
-#####################################################################
-# flatten an array of hashes into a single hash
-sub FlattenHash($) 
-{ 
-    my $a = shift;
-    my %b;
-    for my $d (@{$a}) {
-	for my $k (keys %{$d}) {
-	    $b{$k} = $d->{$k};
-	}
-    }
-    return \%b;
-}
-
-#####################################################################
 # a dumper wrapper to prevent dependence on the Data::Dumper module
 # unless we actually need it
 sub MyDumper($)

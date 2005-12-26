@@ -183,7 +183,7 @@ sub ParseInterface($)
 
 	pidl "";
 
-	foreach (@{$if->{TYPEDEFS}}) {
+	foreach (@{$if->{TYPES}}) {
 		ParseStruct($if, $_->{DATA}, $_->{NAME}) if ($_->{DATA}->{TYPE} eq "STRUCT");
 		ParseEnum($if, $_->{DATA}, $_->{NAME}) if ($_->{DATA}->{TYPE} eq "ENUM");
 		ParseBitmap($if, $_->{DATA}, $_->{NAME}) if ($_->{DATA}->{TYPE} eq "BITMAP");

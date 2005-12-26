@@ -5,14 +5,13 @@
 # Published under the GNU General Public License.
 use strict;
 
-use Parse::Pidl::Test;
+use Test::More tests => 21 * 8;
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+use lib "$RealBin";
+use Util qw(test_samba4_ndr);
 
-my %settings = Parse::Pidl::Test::GetSettings(@ARGV);
-$settings{'IDL-Arguments'} = ['--quiet', '--parse', '--parser=ndr_test.c', '--header=ndr_test.h'];
-$settings{'IncludeFiles'} = ['ndr_test.h'];
-$settings{'ExtraFiles'} = ['ndr_test.c'];
-
-Parse::Pidl::Test::test_idl("noptr-push", \%settings, 
+test_samba4_ndr("noptr-push", 
 '	typedef struct {
 		uint16 x;
 	} xstruct;
@@ -41,7 +40,7 @@ Parse::Pidl::Test::test_idl("noptr-push", \%settings,
 	}
 ');
 
-Parse::Pidl::Test::test_idl("ptr-embedded-push", \%settings,
+test_samba4_ndr("ptr-embedded-push", 
 '   typedef struct {
 		uint16 *x;
 	} xstruct;
@@ -68,7 +67,7 @@ Parse::Pidl::Test::test_idl("ptr-embedded-push", \%settings,
 		return 4;
 ');
 
-Parse::Pidl::Test::test_idl("ptr-embedded-push-null", \%settings,
+test_samba4_ndr("ptr-embedded-push-null", 
 '   typedef struct {
 		uint16 *x;
 	} xstruct;
@@ -91,7 +90,7 @@ Parse::Pidl::Test::test_idl("ptr-embedded-push-null", \%settings,
 		return 3;
 ');
 
-Parse::Pidl::Test::test_idl("refptr-embedded-push", \%settings,
+test_samba4_ndr("refptr-embedded-push", 
 '
 	typedef struct {
 		[ref] uint16 *x;
@@ -119,7 +118,7 @@ Parse::Pidl::Test::test_idl("refptr-embedded-push", \%settings,
 		return 4;
 ');
 
-Parse::Pidl::Test::test_idl("refptr-embedded-push-null", \%settings,
+test_samba4_ndr("refptr-embedded-push-null", 
 '
 	typedef struct {
 		[ref] uint16 *x;
@@ -137,7 +136,7 @@ Parse::Pidl::Test::test_idl("refptr-embedded-push-null", \%settings,
 	/* Windows gives [client runtime error 0x6f4] */
 ');
 
-Parse::Pidl::Test::test_idl("ptr-top-push", \%settings,
+test_samba4_ndr("ptr-top-push", 
 '
 	typedef struct {
 		uint16 x;
@@ -162,7 +161,7 @@ Parse::Pidl::Test::test_idl("ptr-top-push", \%settings,
 		return 3;
 ');
 
-Parse::Pidl::Test::test_idl("ptr-top-push-null", \%settings,
+test_samba4_ndr("ptr-top-push-null", 
 '
 	typedef struct {
 		uint16 x;
@@ -182,7 +181,7 @@ Parse::Pidl::Test::test_idl("ptr-top-push-null", \%settings,
 ');
 
 
-Parse::Pidl::Test::test_idl("refptr-top-push", \%settings,
+test_samba4_ndr("refptr-top-push", 
 '
 	typedef struct {
 		uint16 x;
@@ -207,7 +206,7 @@ Parse::Pidl::Test::test_idl("refptr-top-push", \%settings,
 		return 3;
 ');
 
-Parse::Pidl::Test::test_idl("refptr-top-push-null", \%settings,
+test_samba4_ndr("refptr-top-push-null", 
 '
 	typedef struct {
 		uint16 x;
@@ -227,7 +226,7 @@ Parse::Pidl::Test::test_idl("refptr-top-push-null", \%settings,
 ');
 
 
-Parse::Pidl::Test::test_idl("uniqueptr-top-push", \%settings,
+test_samba4_ndr("uniqueptr-top-push", 
 '	typedef struct {
 		uint16 x;
 	} xstruct;
@@ -255,7 +254,7 @@ Parse::Pidl::Test::test_idl("uniqueptr-top-push", \%settings,
 		return 4;
 ');
 
-Parse::Pidl::Test::test_idl("uniqueptr-top-push-null", \%settings,
+test_samba4_ndr("uniqueptr-top-push-null", 
 '	typedef struct {
 		uint16 x;
 	} xstruct;
@@ -279,7 +278,7 @@ Parse::Pidl::Test::test_idl("uniqueptr-top-push-null", \%settings,
 ');
 
 
-Parse::Pidl::Test::test_idl("ptr-top-out-pull", \%settings,
+test_samba4_ndr("ptr-top-out-pull", 
 '
 	typedef struct {
 		uint16 x;
@@ -306,7 +305,7 @@ Parse::Pidl::Test::test_idl("ptr-top-out-pull", \%settings,
 		return 3;
 ');	
 
-Parse::Pidl::Test::test_idl("ptr-top-out-pull-null", \%settings,
+test_samba4_ndr("ptr-top-out-pull-null", 
 '
 	typedef struct {
 		uint16 x;
@@ -329,7 +328,7 @@ Parse::Pidl::Test::test_idl("ptr-top-out-pull-null", \%settings,
 ');
 
 
-Parse::Pidl::Test::test_idl("refptr-top-out-pull", \%settings,
+test_samba4_ndr("refptr-top-out-pull", 
 '
 	typedef struct {
 		uint16 x;
@@ -356,7 +355,7 @@ Parse::Pidl::Test::test_idl("refptr-top-out-pull", \%settings,
 		return 3;
 ');	
 
-Parse::Pidl::Test::test_idl("refptr-top-out-pull-null", \%settings,
+test_samba4_ndr("refptr-top-out-pull-null", 
 '
 	typedef struct {
 		uint16 x;
@@ -379,7 +378,7 @@ Parse::Pidl::Test::test_idl("refptr-top-out-pull-null", \%settings,
 ');
 
 
-Parse::Pidl::Test::test_idl("ptr-top-push-double", \%settings,
+test_samba4_ndr("ptr-top-push-double", 
 '
 	[public] void echo_TestRef([in] uint16 **foo);
 ',
@@ -403,7 +402,7 @@ Parse::Pidl::Test::test_idl("ptr-top-push-double", \%settings,
 		return 4;
 ');
 
-Parse::Pidl::Test::test_idl("ptr-top-push-double-sndnull", \%settings,
+test_samba4_ndr("ptr-top-push-double-sndnull", 
 '
 	[public] void echo_TestRef([in] uint16 **foo);
 ',
@@ -423,7 +422,7 @@ Parse::Pidl::Test::test_idl("ptr-top-push-double-sndnull", \%settings,
 		return 3;
 ');
 
-Parse::Pidl::Test::test_idl("ptr-top-push-double-fstnull", \%settings,
+test_samba4_ndr("ptr-top-push-double-fstnull", 
 '
 	[public] void echo_TestRef([in] uint16 **foo);
 ',
@@ -439,7 +438,7 @@ Parse::Pidl::Test::test_idl("ptr-top-push-double-fstnull", \%settings,
 ');
 
 
-Parse::Pidl::Test::test_idl("refptr-top-push-double", \%settings,
+test_samba4_ndr("refptr-top-push-double", 
 '
 	[public] void echo_TestRef([in,ref] uint16 **foo);
 ',
@@ -463,7 +462,7 @@ Parse::Pidl::Test::test_idl("refptr-top-push-double", \%settings,
 		return 4;
 ');
 
-Parse::Pidl::Test::test_idl("refptr-top-push-double-sndnull", \%settings,
+test_samba4_ndr("refptr-top-push-double-sndnull", 
 '
 	[public] void echo_TestRef([in,ref] uint16 **foo);
 ',
@@ -483,7 +482,7 @@ Parse::Pidl::Test::test_idl("refptr-top-push-double-sndnull", \%settings,
 		return 3;
 ');
 
-Parse::Pidl::Test::test_idl("refptr-top-push-double-fstnull", \%settings,
+test_samba4_ndr("refptr-top-push-double-fstnull", 
 '
 	[public] void echo_TestRef([in,ref] uint16 **foo);
 ',
@@ -498,19 +497,20 @@ Parse::Pidl::Test::test_idl("refptr-top-push-double-fstnull", \%settings,
 
 ');
 
-Parse::Pidl::Test::test_idl("ignore-ptr", \%settings,
-'
-	[public] void echo_TestRef([in,ignore] uint16 *foo, [in] uint16 *bar);
-',
-'	struct ndr_push *ndr = ndr_push_init();
-	struct echo_TestRef r;
-	uint16_t v = 10;
-	r.in.foo = &v; 
-	r.in.bar = &v;
-
-	if (NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
-		return 1;
-
-	if (ndr->offset != 4)
-		return 2;
-');
+#FIXME: Not supported yet
+#test_samba4_ndr("ignore-ptr", 
+#'
+#	[public] void echo_TestRef([in,ignore] uint16 *foo, [in] uint16 *bar);
+#',
+#'	struct ndr_push *ndr = ndr_push_init();
+#	struct echo_TestRef r;
+#	uint16_t v = 10;
+#	r.in.foo = &v; 
+#	r.in.bar = &v;
+#
+#	if (NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+#		return 1;
+#
+#	if (ndr->offset != 4)
+#		return 2;
+#');

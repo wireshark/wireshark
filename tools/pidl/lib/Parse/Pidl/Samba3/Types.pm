@@ -350,7 +350,7 @@ sub LoadTypes($)
 	foreach my $if (@{$ndr}) {
 		next unless ($if->{TYPE} eq "INTERFACE");
 
-		foreach my $td (@{$if->{TYPEDEFS}}) {
+		foreach my $td (@{$if->{TYPES}}) {
 			my $decl = uc("$if->{NAME}_$td->{NAME}");
 
 			my $init = sub {
