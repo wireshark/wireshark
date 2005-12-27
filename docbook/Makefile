@@ -23,6 +23,11 @@ FOP=fop-0.20.5/fop.bat
 HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 #HHC="true"
 
+# elinks (text version of release notes)
+# This could also be "lynx", or "true" if neither elinks nor lynx is installed
+ELINKS=elinks
+#ELINKS="true"
+
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
 # the XSL processor
@@ -221,6 +226,7 @@ CLEANFILES =	\
 	htmlhelp.*		\
 	release_notes_chm	\
 	release-notes.html	\
+	release-notes.txt	\
 	svn_version.xml		\
 
 
@@ -355,7 +361,7 @@ ifdef HHC
 endif
 
 
-release_notes: release-notes.html release-notes-a4.pdf release-notes-us.pdf release-notes.chm
+release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf release-notes.chm
 
 # validate the content
 release_notes.validated: $(RELEASE_NOTES_SOURCE)
@@ -367,6 +373,11 @@ release_notes.validated: $(RELEASE_NOTES_SOURCE)
 release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
 	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
+
+# create txt single page file
+release-notes.txt: $(RELEASE_NOTES_SOURCE)
+	@ echo --- RELEASE NOTES - HTML ---
+	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(ELINKS) -dump -dump-width 72 > $@
 	
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
