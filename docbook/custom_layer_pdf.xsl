@@ -13,6 +13,7 @@
 <!-- use graphics for admons (note, tip, ...) -->
 <xsl:param name="admon.graphics" select="1"/>
 <xsl:param name="admon.graphics.path">graphics/</xsl:param>
+<xsl:param name="admon.graphics.extension" select="'.png'"/>
 
 <!-- use numbering for sections (not only for chapters) -->
 <xsl:param name="section.autolabel" select="1"/>
