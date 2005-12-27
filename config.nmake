@@ -120,7 +120,7 @@ PCAP_DIR=$(ETHEREAL_LIBS)\WPdpack
 # Set NET_SNMP_DIR to the pathname of the directory in which the
 # Net-SNMP include files and library resides.
 #
-NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.2.1.2
+NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.2.2
 
 #
 # If you have GNU ADNS, set this to the pathname of the directory in
