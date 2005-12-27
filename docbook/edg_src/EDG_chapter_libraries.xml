@@ -88,29 +88,23 @@
 	
   <section id="ChLibsSetup">
 	<title>Win32: Automated library download</title>
+	<para>
+	You can download/install all required libraries by using the setup target 
+	of the <filename>Makefile.nmake</filename> from the source package.
+	</para>
 	<tip><title>Tip!</title>
 	<para>
 	It's a really good idea to use the Win32 automated library download to 
 	install the required libraries as it makes this download very easy.
 	</para>
 	</tip>
-	<warning><title>Warning!</title>
-	<para>
-	The library zip files on the server and in the setup target will match 
-	only for the latest sources, as old zip files will be moved into the 
-	<filename>old</filename> folder on the server. So you cannot use the 
-	setup target for "old" (this may even include the released) sources!
-	</para>
-	</warning>
-	<para>
-	You can download/install all required libraries by using the setup target 
-	of the <filename>Makefile.nmake</filename> from the source package.
-	</para>
+	<note><title>Note!</title>
 	<para>
 	Before you start the download, you must have installed both
 	the required tools (see <xref linkend="ChapterTools"/>) and also the 
 	Ethereal sources (see <xref linkend="ChSrcObtain"/>).
 	</para>
+	</note>
 	<para>
 	By default the libraries will be downloaded and installed into 
 	<filename>C:\ethereal-win32-libs</filename>.
@@ -176,7 +170,7 @@
 	<para>
 	Start the setup target described above. As wget will download only the 
 	missing files, existing zip files in the ETHEREAL_LIBS dir won't be 
-	downloaded again. Outdated zip files shouldn't do any harm.
+	downloaded again. Remaining (outdated) zip files shouldn't do any harm.
 	</para>
 	</listitem>
 	</itemizedlist>

@@ -51,7 +51,8 @@ Ethereal Info
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
   <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
   <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
-  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
+  <!ENTITY EtherealDevsGuidePage "&EtherealWebSite;/docs">
+  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs">
   <!ENTITY EtherealWikiSite "http://wiki.ethereal.com">
   <!ENTITY EtherealBugsSite "http://bugs.ethereal.com">
 

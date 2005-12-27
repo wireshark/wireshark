@@ -114,22 +114,9 @@
     <title>Where to get the latest copy of this document?</title>
     <para>
       The latest copy of this documentation can always be found at: 
-     <!-- <ulink url="&LatestVersionWebsite;">&LatestVersionWebsite;</ulink>; 
-      and at: --> 
-      <ulink url="&EtherealWikiSite;/Development"/> in PDF (A4 and US letter)
-      and HTML (single and chunked) and CHM format.
+      <ulink url="&EtherealDevsGuidePage;">&EtherealDevsGuidePage;</ulink>
+	  in PDF (A4 and US letter), HTML (single and chunked) and CHM format.
     </para>
-   <!-- <para>
-      In addition, you can find a PDF version of the guide at: 
-      <ulink url="&LatestVersionPDFWebsiteA4;">
-	&LatestVersionPDFWebsiteA4;
-      </ulink> 
-      in A4 and 
-      <ulink url="&LatestVersionPDFWebsiteUSLetter;">
-	&LatestVersionPDFWebsiteUSLetter
-      </ulink> 
-      in US Letter.
-    </para> -->    
   </section>
 
   <section id="PreFeedback">
