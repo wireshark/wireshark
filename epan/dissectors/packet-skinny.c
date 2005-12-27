@@ -1235,8 +1235,9 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_add_fstr(pinfo->cinfo, COL_INFO,"%s ",
                 val_to_str(data_messageid, message_id, "0x%08X (Unknown)"));
+	col_set_fence(pinfo->cinfo, COL_INFO);
   }
 
   if (tree) {
