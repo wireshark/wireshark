@@ -10,39 +10,40 @@ BIOGRAPHICAL SECTION
 -->
 
 <!-- Author's Names -->
-  <!ENTITY AuthorFullName "Richard Sharpe">
-  <!ENTITY AuthorFirstName "Richard">
+  <!ENTITY AuthorFullName "Ulf Lamping">
+  <!ENTITY AuthorFirstName "Ulf">
   <!ENTITY AuthorOtherName "">
-  <!ENTITY AuthorSurname "Sharpe">
+  <!ENTITY AuthorSurname "Lamping">
 
-  <!ENTITY AuthorFullName2 "Ed Warnicke">
-  <!ENTITY AuthorFirstName2 "Ed">
+  <!ENTITY AuthorFullName2 "Richard Sharpe">
+  <!ENTITY AuthorFirstName2 "Richard">
   <!ENTITY AuthorOtherName2 "">
-  <!ENTITY AuthorSurname2 "Warnicke">
+  <!ENTITY AuthorSurname2 "Sharpe">
 
-  <!ENTITY AuthorFullName3 "Ulf Lamping">
-  <!ENTITY AuthorFirstName3 "Ulf">
+  <!ENTITY AuthorFullName3 "Ed Warnicke">
+  <!ENTITY AuthorFirstName3 "Ed">
   <!ENTITY AuthorOtherName3 "">
-  <!ENTITY AuthorSurname3 "Lamping">
+  <!ENTITY AuthorSurname3 "Warnicke">
 
 <!--Author's Affiliation -->
   <!ENTITY AuthorShortAffiliation "">
-  <!ENTITY AuthorJobTitle "Director">
-  <!ENTITY AuthorOrgName "NS Computer Software and Services P/L">
+  <!ENTITY AuthorJobTitle "">
+  <!ENTITY AuthorOrgName "">
   <!ENTITY AuthorOrgDiv "">
-  <!ENTITY AuthorEmail "rsharpe[AT]ns.aus.com">
+  <!ENTITY AuthorEmail "ulf.lamping[AT]web.de">
 
   <!ENTITY AuthorShortAffiliation2 "">
-  <!ENTITY AuthorJobTitle2 "">
-  <!ENTITY AuthorOrgName2 "">
+  <!ENTITY AuthorJobTitle2 "Director">
+  <!ENTITY AuthorOrgName2 "NS Computer Software and Services P/L">
   <!ENTITY AuthorOrgDiv2 "">
-  <!ENTITY AuthorEmail2 "hagbard[AT]physics.rutgers.edu">
+  <!ENTITY AuthorEmail2 "rsharpe[AT]ns.aus.com">
 
   <!ENTITY AuthorShortAffiliation3 "">
   <!ENTITY AuthorJobTitle3 "">
   <!ENTITY AuthorOrgName3 "">
   <!ENTITY AuthorOrgDiv3 "">
-  <!ENTITY AuthorEmail3 "ulf.lamping[AT]web.de">
+  <!ENTITY AuthorEmail3 "hagbard[AT]physics.rutgers.edu">
+
 
 
   
@@ -56,9 +57,9 @@ DOCUMENT SECTION
   <!ENTITY DocumentSubTitle "&DocumentVersion; (&SvnVersion;) for Ethereal &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EUG">
 
-  <!ENTITY DocumentCopyrightHolder1 "Richard Sharpe">
-  <!ENTITY DocumentCopyrightHolder2 "Ed Warnicke">
-  <!ENTITY DocumentCopyrightHolder3 "Ulf Lamping">
+  <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
+  <!ENTITY DocumentCopyrightHolder2 "Richard Sharpe ">
+  <!ENTITY DocumentCopyrightHolder3 "Ed Warnicke ">
   <!ENTITY DocumentCopyrightYear "2004-2005">
 
   <!ENTITY DocumentEdition "Third ">
@@ -108,6 +109,16 @@ Tcpdump Info
 Gnu info
 -->
   <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
+
+<!--
+Timezone info
+-->
+  <!ENTITY TimezoneGMTSite "http://wwp.greenwichmeantime.com/">
+  <!ENTITY TimezoneWorldClockSite "http://www.timeanddate.com/worldclock/">
+  <!ENTITY NTPSite "http://www.ntp.org/">
+  <!ENTITY WikipediaTimezone "http://en.wikipedia.org/wiki/Time_zone">
+  <!ENTITY WikipediaDaylightSaving "http://en.wikipedia.org/wiki/Daylight_saving">
+  <!ENTITY WikipediaUTC "http://en.wikipedia.org/wiki/Coordinated_Universal_Time">
 
 <!--
 FILE SECTION
