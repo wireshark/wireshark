@@ -107,37 +107,66 @@ Gnu info
       since the last release:
 
       <itemizedlist>
+
         <listitem><para>
-		When cancelling a file load operation, Ethereal will keep
-		displaying the loaded packets now, instead of simply discarding the 
-		whole load attempt. 
-		</para>
-		<para>
-		This can be very helpful to detect wether a specific (huge) capture 
-		file is the expected file or not. Remember: 
-		The complete load of a huge capture file (>100MB) can take even 
-		minutes!
+          The Windows installer now ships with GTK+ 2.6 instead of GTK+ 2.4.
+          This should fix several long-standing bugs.
         </para></listitem>
+
+        <listitem><para>
+          If you're loading a saved capture file and press "Cancel",
+          Ethereal will now display the packets read up to that point.
+          In previous versions, Ethereal would abort the attempt
+          completely and clear the packet list.
+        </para><para>
+          This means that if you're loding a huge capture file, you can
+          stop loading in the middle and still be able to analyze part of
+          the file.
+        </para></listitem>
+
+        <listitem><para>
+          The maximum number of files allowed in a ring buffer has been 
+          increased from 1024 to 10,000.
+        </para></listitem>
+
+        <listitem><para>
+          OID to name resolution has been improved.
+        </para></listitem>
+
+        <listitem><para>
+          TCP graphs now handle upper and lower bounds better.
+        </para></listitem>
+
       </itemizedlist>
     </para>
     </section>
 
-    <section><title>New Protocol Support</title>
-    <para>
+    <section><title>New Protocol Support</title><para>
 
-    </para>
-    </section>
+3Com Netjack200, CDT, CIGI, DAP, DISP, DOP, DSP, FTBP, MS NLB, NBAP, NCP
+SSS, NCS, NHRP, P_Mul, RNSAP, SMB2, STANAG 5066, TIPC, UDP-Lite, X.501
 
-    <section><title>Updated Protocol Support</title> <para>
+    </para></section>
 
-    </para>
-    </section>
+    <section><title>Updated Protocol Support</title><para>
 
-    <section><title>New and Updated Capture File Support</title>
-    <para>
+ACSE, AIM, ALCAP, AMR, ANSI MAP, BER, BitTorrent, BOOTP, CAMEL, CMP, CMS,
+COPS, CRMF, DCCP, DCERPC (DCERPC, DSSETUP, INITSHUTDOWN, NT, WINREG),
+DEC DNA RT, DNP, DTP, eDonkey, ENIP, ESS, Etheric, FC-DNS, FC-FZS, FMIPv6,
+GRE, GSM A, GSM MAP, GTP, H.225, H.235, H.245, H.248, H.263, H.450, IAPP,
+IEEE 802.11, INAP, IP, IPv6, IRC, ISIS LSP, ISUP, IUUP, Juniper, LLDP,
+M3UA, MIP, MIPv6, Modbus/TCP, MTP3, NCP, NDPS, NDS, NEMO, NMAS, NTLMSSP,
+OSPF, PER, PN-DCP, PPP CHAP, PPPoE, PVFS2, Q.931, RADIUS, RANAP, RDT,
+RLOGIN, RMT, ROS, RTCP, RTP, RTSE, S4406, SCCP, SCTP, SES, SIP, SMB,
+SNDCP, SRVLOC, STUN, T.38, UMA, WINS Replication, X.411, X.420, X.509
 
-    </para>
-    </section>
+    </para></section>
+
+    <section><title>New and Updated Capture File Support</title><para>
+
+DOS Sniffer, Endace ERF, HP-UX nettl, IBM iSeries traces, Tektronix K12
+
+    </para></section>
 
   </section>
 
