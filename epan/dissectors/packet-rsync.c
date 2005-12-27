@@ -207,7 +207,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  proto_tree_add_item(rsync_tree, hf_rsync_rsyncdok_string, tvb, offset, -1, TRUE);
 
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_str(pinfo->cinfo, COL_INFO, "Authenication");
+	    col_append_str(pinfo->cinfo, COL_INFO, "Authentication");
 	  }
 	  conversation_data->state = RSYNC_COMMAND;
 
