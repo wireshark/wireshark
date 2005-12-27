@@ -3,7 +3,7 @@
 <!-- $Id: -->
 
 <chapter id="ChapterAdvanced">
-  <title>Advanced Features</title>
+  <title>Advanced Topics</title>
   
   <section id="ChAdvIntroduction"><title>Introduction</title>
   <para>
@@ -111,7 +111,320 @@
     </note>
   </section>
   </section>
+
+  <section id="ChAdvTimestamps"><title>Time Stamps</title>
+	<para>
+	Time stamps, their precisions and all that can be quite 
+	confusing, this section will provide you with information what's going 
+	on while Ethereal processes time stamps.
+	</para>
+    <para>
+	While packets are captured, each packet is time stamped as it comes in.
+	These time stamps will be saved to the capture file, so they will be 
+	available for (later) analysis. 
+	</para>
+	<para>
+	So where do these time stamps come from?
+	While capturing, Ethereal gets the time stamps from the libpcap (WinPcap) 
+	library, which in turn get's them from the operating system kernel.
+	If the capture data is loaded from a capture file, Ethereal obviously gets 
+	the data from that file.
+	</para>
+  <section><title>Ethereal internals</title>
+	<para>
+	The internal format that Ethereal uses to keep a packet time stamp consists 
+	of the date (in days since 1.1.1970) and the time of day (in nanoseconds 
+	since midnight). You can adjust the way Ethereal displays the time stamp data 
+	in the packet list, see <xref linkend="ChUseViewMenuSection"/> for details.
+	</para>
+	<para>
+	While reading or writing capture files, Ethereal converts the time stamp 
+	data between the capture file format and the internal format as required.
+	</para>
+	<para>
+	While capturing, Ethereal uses the libpcap (WinPcap) capture library which 
+	supports microsecond resolution. Unless you are working with specialized 
+	capturing hardware, this resolution should be adequate.
+	</para>
+  </section>
+  <section><title>Capture file formats</title>
+	<para>
+	Every capture file format that Ethereal knows support time stamps. 
+	The time stamp precision 
+	supported by a specific capture file format differs widely and varies 
+	from one second "0" to one nanosecond "0.123456789" (or even beyond?). 
+	Most file formats store the time stamps with a fixed precision 
+	(e.g. microseconds), while some file formats are even capable to store the 
+	time stamp precision itself (whatever the benefit may be).
+	</para>
+	<para>
+	The common libpcap capture file format that is used by Ethereal (and a 
+	lot of other tools) supports a fixed microsecond resolution "0.123456" 
+	only. 
+	</para>
+    <note>
+      <title>Note!</title>
+      <para>
+	  Writing data into a capture file format that doesn't provide
+	  the capability to store the actual precision will lead to loss of information.
+	  Example: If you load a capture file with nanosecond resolution and 
+	  store the capture data to a libpcap file (with microsecond resolution)
+	  Ethereal obviously must reduce the precision from nanosecond to microsecond.
+      </para>
+    </note>
+  </section>
+  <section><title>Accuracy</title>
+	<para>
+	It's often asked: "Which time stamp accuracy is provided by Ethereal?". 
+	Well, Ethereal doesn't create any time stamps itself but simply get's them
+	from "somewhere else" and displays them. So accuracy will depend on the 
+	capture system (operating system, performance, ...) that you use. 
+	Because of this, the above question is difficult to answer in a 
+	general way.
+    <note>
+      <title>Note!</title>
+      <para>
+	  USB connected network adapters often provide a very bad time stamp 
+	  accuracy. The incoming packets have to take "a long and winding 
+	  road" to travel through the USB cable until they actually reach the 
+	  kernel. As the incoming packets are time stamped when they are processed 
+	  by the kernel, this time stamping mechanism becomes very inaccurate.
+      </para>
+      <para>
+	  Conclusion: don't use USB connected NIC's when you need precise
+	  time stamp accuracy! (XXX - are there any such NIC's that stamps already 
+	  on the USB hardware?)
+      </para>
+    </note>
+	</para>
+  </section>
+  </section>
   
+  <section id="ChAdvTimezones"><title>Time Zones</title>
+	<para>
+	If you travel across the planet, time zones can be confusing. If you get a 
+	capture file from somewhere around the world time zones can even be a lot 
+	more confusing ;-) 
+	</para>
+	<para>
+	First of all, there are two reasons why you may not need to think about 
+	time zones at all:
+	<itemizedlist>
+	  <listitem>
+	  <para>
+		You are only interested in the time differences between the packet 
+		time stamps and don't need to know the exact date and time of the 
+		captured packets (which is often the case).
+	  </para>
+	  </listitem>
+	  <listitem>
+	  <para>
+	  	You don't get capture files from different time zones than your own, 
+		so there are simply no time zone problems. For example: everyone in 
+		your team is working in the same time zone than yourself.
+	  </para>
+	  </listitem>
+	</itemizedlist>
+	</para>
+	<sidebar><title>What are time zones?</title>
+	<para>
+	People expect that the time reflects the sunset. Dawn should be in the 
+	morning maybe around 06:00 and dusk in the evening maybe at 20:00.
+	These times will obviously vary depending on the season. 
+	It would be very confusing if everyone on earth would use the same 
+	global time as this would correspond to the sunset only at a small part 
+	of the world. 
+	</para>
+	<para>
+	For that reason, the earth is splitted into several different time zones, 
+	each zone with a local time that corresponds to the local sunset.
+	</para>
+	<para>
+	The time zone's base time is UTC (Coordinated Universal Time) or Zulu 
+	Time (military and aviation). The older term GMT (Greenwich Mean Time) 
+	shouldn't be used as it is slightly incorrect (up to 0.9 seconds 
+	difference to UTC). 
+	The UTC base time equals to 0 and all time zones have an offset to UTC
+	between -12 to +14 hours!
+	</para>
+	<para>
+	For example: If you live in 
+	Berlin you are in a time zone one hour earlier than UTC, so you are in 
+	time zone "+1" (time difference in hours compared to UTC). If it's 
+	3 o'clock in Berlin it's 2 o'clock in UTC "at the same moment".
+	</para>
+	<para>
+	Be aware that at a few places on earth don't use time zones with even 
+	hour offsets (e.g. New Delhi uses UTC+05:30)!
+	</para>
+	<para>
+	Further information can be found at: 
+	<ulink url="&WikipediaTimezone;">&WikipediaTimezone;</ulink> and 
+	<ulink url="&WikipediaUTC;">&WikipediaUTC;</ulink>.
+	</para>
+	
+	</sidebar>
+	<sidebar><title>What is daylight saving time (DST)?</title>
+	<para>
+	Daylight Saving Time (DST), also known as Summer Time, is intended to 
+	"save" some daylight during the summer months. 
+	To do this, a lot of countries (but not all!) add an DST hour to the 
+	already existing UTC offset. 
+	So you may need to take another hour (or in very rare cases even two 
+	hours!) difference into your "time zone calculations". 
+	</para>
+	<para>
+	Unfortunately, the date at which DST actually takes effect is different 
+	throughout the world. You may also note, that the northern and southern 
+	hemispheres have opposite DST's (e.g. while it's summer in Europe it's 
+	winter in Australia). 
+	</para>
+	<para>
+	Keep in mind: UTC remains the same all year around, regardless of DST!
+	</para>
+	<para>
+	Further information can be found at: 
+	<ulink url="&WikipediaDaylightSaving;">&WikipediaDaylightSaving;</ulink>.
+	</para>
+	</sidebar>
+	<para>	
+	Further time zone and DST information can be found at: 
+	<ulink url="&TimezoneGMTSite;">&TimezoneGMTSite;</ulink> and
+	<ulink url="&TimezoneWorldClockSite;">&TimezoneWorldClockSite;</ulink>.
+	</para>
+  <section><title>Set your computer's time correct!</title>
+	<para>
+	If you work with people around the world, it's very helpful to set your 
+	computer's time and time zone right.
+	</para>
+	<para>
+	You should set your computers time and time zone in the correct sequence:
+	<orderedlist>
+	  <listitem>
+	  <para>
+		Set your time zone to your current location
+	  </para>
+	  </listitem>
+	  <listitem>
+	  <para>
+		Set your computer's clock to the local time
+	  </para>
+	  </listitem>
+	</orderedlist>
+	This way you will tell your computer both the local time and also the time 
+	offset to UTC.
+	<tip><title>Tip!</title>
+	<para>
+	If you travel around the world, it's an often made mistake to adjust the 
+	hours of your computer clock to the local time. Don't adjust the 
+	hours but your time zone setting instead! For your computer, the time is 
+	essentially the same as before, you are simply in a different time zone 
+	with a different local time!
+	</para>
+	</tip>
+	<tip><title>Tip!</title>
+	<para>
+	You can use the Network Time Protocol (NTP) to automatically adjust your 
+	computer to the correct time, by synchronizing it to internet NTP clock 
+	servers. NTP clients are available for all operating systems that 
+	Ethereal supports (and for a lot more), for examples see:
+	<ulink url="&NTPSite;">&NTPSite;</ulink>.
+	</para>
+	</tip>
+	</para>
+  </section>
+  <section><title>Ethereal and Time Zones</title>
+	<para>
+	So what's the relationship between Ethereal and time zones anyway? 
+	</para>
+	<para>
+	All capture file formats known save the time stamps in UTC format. The 
+	capturing computer may have to convert the time stamps from local time to 
+	UTC before it saves them to the capture file. 
+	</para>
+	<para>
+	Ethereal in turn will display the time stamps always in local time. The 
+	displaying computer will convert them from UTC to local time and displays 
+	this (local) time.
+	</para>
+	<para>
+    <table id="ChAdvTabTimezones" frame="none">
+      <title>Time zone examples (without DST)</title>
+      <tgroup cols="7">
+<!--	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	  <colspec colnum="3" colwidth="80pt"/>-->
+	    <thead>
+	      <row>
+		<entry></entry>
+		<entry>Los Angeles</entry>
+		<entry>New York</entry>
+		<entry>Madrid</entry>
+		<entry>London</entry>
+		<entry>Berlin</entry>
+		<entry>Tokyo</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Capture File (UTC)</command></entry>
+		<entry>10:00</entry>
+		<entry>10:00</entry>
+		<entry>10:00</entry>
+		<entry>10:00</entry>
+		<entry>10:00</entry>
+		<entry>10:00</entry>
+	      </row>
+	      <row>
+		<entry><command>Local Offset to UTC</command></entry>
+		<entry>-8</entry>
+		<entry>-5</entry>
+		<entry>-1</entry>
+		<entry>0</entry>
+		<entry>+1</entry>
+		<entry>+9</entry>
+	      </row>
+	      <row>
+		<entry><command>Displayed Time (Local Time)</command></entry>
+		<entry>02:00</entry>
+		<entry>05:00</entry>
+		<entry>09:00</entry>
+		<entry>10:00</entry>
+		<entry>11:00</entry>
+		<entry>19:00</entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+	</para>
+	<para>
+	An example:
+	Let's assume that someone in Los Angeles captured a packet at exactly 2 
+	o'clock local time and sents you this capture file. The capture 
+	file's time stamp will be represented in UTC as 10 o'clock. You are located 
+	in Berlin and will see 11 o'clock on your Ethereal display. 
+	</para>
+	<para>
+	Now you have a phone call, video conference or internet meeting with that 
+	one to talk about that capture file. 
+	As you are both looking at the displayed time on your local computers, 
+	the one in Los Angeles still sees 2 o'clock but you in Berlin will see 
+	11 o'clock. The time displays are different as both Ethereal displays 
+	will show the (different) local times at the same point in time.
+	</para>
+	<para>
+	<command>Conclusion</command>: You may not bother about the date/time 
+	of the time stamp you currently look at, unless you must make sure that 
+	the date/time is as expected. 
+	So, if you get a capture file from a different time zone and/or DST, you'll
+	have to find out the time zone/DST difference between the two local times 
+	and "mentally adjust" the time stamps accordingly.
+	In any case, make sure that every computer in question has the correct 
+	time and time zone setting.
+	</para>
+  </section>
+  </section>
+
   <section id="ChAdvReassemblySection"><title>Packet Reassembling</title>
     <section><title>What is it?</title>
     <para>
@@ -248,7 +561,7 @@
     <para><command>Ethernet manufacturer codes (manuf file)</command>
 	If both ARP and ethers didn't returned a result, Ethereal tries to convert 
 	the first 3 bytes of an ethernet address to an abbreviated manufacturer name, 
-	which has been assigned by the IETF 
+	which has been assigned by the IEC 
 	(e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
     </para>
 	</section>

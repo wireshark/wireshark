@@ -1308,29 +1308,54 @@ eth.src[1-2] == 00:83
 	analysis.
 	</para>
 	<para>
-	When the packets are displayed, the presentation of these timestamps can 
-	be chosen by the user. There are four presentation formats available:
+	A detailed description of timestamps, timezones and alike can be found at: <xref 
+		linkend="ChAdvTimestamps"/>.
+	</para>
+	<para>
+	The timestamp presentation format and the precision in the packet list can 
+	be chosen using the View menu, see <xref linkend="ChUseEtherealViewMenu"/>. 
+	</para>
+	<para>
+	The available presentation formats are:
 	<itemizedlist>
-	<listitem><para><command>Time of Day</command>, e.g. 20:02:48.863096
-		The absolute time of the day when the packet was captured.</para>
-	</listitem>
-	<listitem><para><command>Date and Time of Day</command>, e.g. 2004-06-22 20:02:48.863096
+	<listitem><para><command>Date and Time of Day:  1970-01-01 01:02:03.123456</command>
 		The absolute date and time of the day when the packet was captured.</para>
 	</listitem>
-	<listitem><para><command>Seconds Since Beginning of Capture</command>, e.g. 123.299139
+	<listitem><para><command>Time of Day:  01:02:03.123456</command>
+		The absolute time of the day when the packet was captured.</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Beginning of Capture:  123.123456</command>
 		The time relative to the start of the capture file or the first 
 		"Time Reference" before this packet (see <xref 
 		linkend="ChWorkTimeReferencePacketSection"/>).</para>
 	</listitem>
-	<listitem><para><command>Seconds Since Previous Packet</command>, e.g. 1.162423
+	<listitem><para><command>Seconds Since Previous Packet:  1.123456</command>
 		The time relative to the previous packet.</para>
 	</listitem>
 	</itemizedlist>
-	The time format can be selected from the View menu, see 
-	<xref linkend="ChUseEtherealViewMenu"/>.
 	</para>
 	<para>
-	XXX - how is the GMT / localtime thing handled.
+	The available precisions (aka. the number of displayed decimal places) are:
+	<itemizedlist>
+	<listitem><para><command>Automatic</command>
+	The timestamp precision of  
+	the loaded capture file format will be used (the default).</para>
+	</listitem>
+	<listitem><para><command>Seconds, Deciseconds, Centiseconds, Milliseconds, 
+	Microseconds or Nanoseconds</command>
+	The timestamp precision will be forced to the given setting. If the 
+	actually available
+	precision is smaller, zeros will be appended. If the precision is larger, 
+	the remaining decimal places will be cut off.</para>
+	</listitem>
+	</itemizedlist>
+	</para>
+	<para>
+	Precision example: If you have a timestamp and it's displayed using,
+	"Seconds Since Previous Packet", : the value might be 1.123456. This will
+	be displayed using the "Automatic" setting for libpcap files (which is 
+	microseconds). If you use Seconds it would show simply 1 and if you use
+	Nanoseconds it shows 1.123456000.
 	</para>
   <section id="ChWorkTimeReferencePacketSection">
   <title>Packet time referencing</title>

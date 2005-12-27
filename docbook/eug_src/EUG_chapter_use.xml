@@ -662,12 +662,12 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Time Display Format > Time of Day</command></entry>
+		<entry><command>Time Display Format > Date and Time of Day:  1970-01-01 01:02:03.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display time 
-	      stamps in time of day format, see 
-		  <xref linkend="ChWorkTimeFormatsSection"/>. 
+	      Selecting this tells Ethereal to display the 
+	      time stamps in date and time of day format, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  <note><title>Note!</title>
 		  <para>
 		  The fields "Time of Day", "Date and Time of 
@@ -678,16 +678,16 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Time Display Format > Date and Time of Day</command></entry>
+		<entry><command>Time Display Format > Time of Day:  01:02:03.123456</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Ethereal to display the 
-	      time stamps in date and time of day format, see 
-		  <xref linkend="ChWorkTimeFormatsSection"/>.
+	      Selecting this tells Ethereal to display time 
+	      stamps in time of day format, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>. 
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Time Display Format > Seconds Since Beginning of Capture</command></entry>
+		<entry><command>Time Display Format > Seconds Since Beginning of Capture:  123.123456</command></entry>
 		<entry></entry>
 		<entry><para>
 	      Selecting this tells Ethereal to display time 
@@ -696,11 +696,46 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Time Display Format > Seconds Since Previous Packet</command></entry>
+		<entry><command>Time Display Format > Seconds Since Previous Packet:  1.123456</command></entry>
 		<entry></entry>
 		<entry><para>
 	      Selecting this tells Ethereal to display time stamps in 
 	      seconds since previous packet format, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > ------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Automatic (File Format Precision)</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Ethereal to display time stamps with the 
+		  precision given by the capture file format used, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  <note><title>Note!</title>
+		  <para>
+		  The fields "Automatic", "Seconds" and "...seconds" are mutually exclusive.
+		  </para>
+		  </note>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Seconds:  0</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Ethereal to display time stamps with a precision of one second, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > ...seconds:  0....</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Ethereal to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see 
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
