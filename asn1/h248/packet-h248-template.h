@@ -92,35 +92,41 @@ typedef struct _h248_trx_t {
     guint error;
 } h248_trx_t;
 
+#define H248_TERM_TYPE_UNKNOWN 0
+#define H248_TERM_TYPE_AAL1 1
+#define H248_TERM_TYPE_AAL2 2
+#define H248_TERM_TYPE_AAL1_STRUCT 3
+#define H248_TERM_TYPE_IP_RTP 4
+#define H248_TERM_TYPE_TDM 5
+
+typedef enum _h248_wildcard_t {
+    H248_WILDCARD_NONE,
+    H248_WILDCARD_CHOOSE,
+    H248_WILDCARD_ALL
+} h248_wildcard_t;
+
 typedef struct _h248_term_t {
     gchar* str;
     
     guint8* buffer;
     guint len;
+
+    guint type;
+    gchar* bir;
+    gchar* nsap;
+
+    h248_msg_t* start;
     
-#if 0
-    struct {
-        enum {
-            NO_WILDCARD,
-            WILDCARD_ALL,
-            WILCARD_CHOOSE,
-        } type;
-        
-        gboolean below
-        guint len;
-    } wildcard;
-    
-    struct {
-        enum {
-            MEDIA_UNKNOWN;  
-        } type;
-        
-        union {
-            int dummy;
-        } info;
-    } media;
-#endif
-    
+    /*
+    guint16 vp;
+    guint16 vc;
+    guint32 ts_mask;
+    address* src_addr;
+    address* dst_addr;
+    guint16 src_pt;
+    guint16 dst_pt;
+    */
+
 } h248_term_t;
 
 typedef struct _h248_terms_t {
