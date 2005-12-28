@@ -145,7 +145,7 @@ Gnu info
     <section><title>Microsoft Windows</title>
       <para>
 	Download ethereal-setup-&EtherealCurrentVersion;.exe from the
-	<ulink url="http://www.ethereal.com/docs/distribution/win32/">Windows
+	<ulink url="http://www.ethereal.com/distribution/win32/">Windows
 	download area</ulink> on the main web site.  Double-click the 
 	installer executable.
       </para>
@@ -154,7 +154,7 @@ Gnu info
     <section><title>Sun Solaris</title>
       <para>
 	Download the appropriate package from the
-	<ulink url="http://www.ethereal.com/docs/distribution/solaris/">Solaris
+	<ulink url="http://www.ethereal.com/distribution/solaris/">Solaris
 	download area</ulink> on the main web site.  Uncompress the package
 	using bzip2, and install it using pkgadd.
       </para>
@@ -163,7 +163,7 @@ Gnu info
     <section><title>Source Code</title>
       <para>
 	Download ethereal-&EtherealCurrentVersion;.tar.gz from the
-	<ulink url="http://www.ethereal.com/docs/distribution/">main
+	<ulink url="http://www.ethereal.com/distribution/">main
 	download area</ulink> on the web site.  Extract the package
 	using tar and gzip.  Run "configure ; make ; make install".
       </para>

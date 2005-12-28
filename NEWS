@@ -1,5 +1,140 @@
 $Id$
 
+== December 27, 2005
+
+Ethereal 0.10.14 has been released.
+
+  Bug Fixes
+
+   Three security vulnerabilities have been fixed since the previous
+   release. See the [1]application advisory for more details.
+
+     o The IRC dissector could go into an infinite loop. Versions
+       affected: 0.10.13.
+
+     o The GTP dissector could go into an infinite loop. Versions
+       affected: 0.9.1 to 0.10.13.
+
+     o iDefense found a buffer overflow in the OSPF dissector.
+       Versions affected: 0.8.20 to 0.10.13.
+
+  New and Updated Features
+
+   The following features are new (or have been significantly
+   updated) since the last release:
+
+     o The Windows installer now ships with GTK+ 2.6 instead of GTK+
+       2.4. This should fix several long-standing bugs.
+
+     o If you're loading a saved capture file and press "Cancel",
+       Ethereal will now display the packets read up to that point.
+       In previous versions, Ethereal would abort the attempt
+       completely and clear the packet list.
+
+       This means that if you're loding a huge capture file, you can
+       stop loading in the middle and still be able to analyze part
+       of the file.
+
+     o The maximum number of files allowed in a ring buffer has been
+       increased from 1024 to 10,000.
+
+     o OID to name resolution has been improved.
+
+     o TCP graphs now handle upper and lower bounds better.
+
+  New Protocol Support
+
+   3Com Netjack200, CDT, CIGI, DAP, DISP, DOP, DSP, FTBP, MS NLB,
+   NBAP, NCP SSS, NCS, NHRP, P_Mul, RNSAP, SMB2, STANAG 5066, TIPC,
+   UDP-Lite, X.501
+
+  Updated Protocol Support
+
+   ACSE, AIM, ALCAP, AMR, ANSI MAP, BER, BitTorrent, BOOTP, CAMEL,
+   CMP, CMS, COPS, CRMF, DCCP, DCERPC (DCERPC, DSSETUP, INITSHUTDOWN,
+   NT, WINREG), DEC DNA RT, DNP, DTP, eDonkey, ENIP, ESS, Etheric,
+   FC-DNS, FC-FZS, FMIPv6, GRE, GSM A, GSM MAP, GTP, H.225, H.235,
+   H.245, H.248, H.263, H.450, IAPP, IEEE 802.11, INAP, IP, IPv6,
+   IRC, ISIS LSP, ISUP, IUUP, Juniper, LLDP, M3UA, MIP, MIPv6,
+   Modbus/TCP, MTP3, NCP, NDPS, NDS, NEMO, NMAS, NTLMSSP, OSPF, PER,
+   PN-DCP, PPP CHAP, PPPoE, PVFS2, Q.931, RADIUS, RANAP, RDT, RLOGIN,
+   RMT, ROS, RTCP, RTP, RTSE, S4406, SCCP, SCTP, SES, SIP, SMB,
+   SNDCP, SRVLOC, STUN, T.38, UMA, WINS Replication, X.411, X.420,
+   X.509
+
+  New and Updated Capture File Support
+
+   DOS Sniffer, Endace ERF, HP-UX nettl, IBM iSeries traces,
+   Tektronix K12
+
+Getting Ethereal
+
+  Microsoft Windows
+
+   Download ethereal-setup-0.10.14.exe from the [2]Windows download
+   area on the main web site. Double-click the installer executable.
+
+  Sun Solaris
+
+   Download the appropriate package from the [3]Solaris download area
+   on the main web site. Uncompress the package using bzip2, and
+   install it using pkgadd.
+
+  Source Code
+
+   Download ethereal-0.10.14.tar.gz from the [4]main download area on
+   the web site. Extract the package using tar and gzip. Run
+   "configure ; make ; make install".
+
+  Vendor-supplied Packages
+
+   Most Linux and Unix vendors supply their own Ethereal packages.
+   You can install or upgrade Ethereal using the package management
+   system specific to that platform. A list of third-party packages
+   can be found on the [5]download page on the Ethereal web site.
+
+File Locations
+
+   Ethereal and Tethereal look in several different locations for
+   preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+   These locations vary from platform to platform. You can use
+   About->Folders to find the default locations on your system.
+
+Known Problems
+
+   On Windows systems the packet list scroll bar can sometimes
+   disappear or become unusable. Until the problem is fixed you can
+   work around it by resizing the packet list or the main window.
+   ([6]Bug #220)
+
+Getting Help
+
+   Community support is available on the ethereal-users mailing list.
+   Subscription information and archives for all of Ethereal's
+   mailing lists can be found on [7]the web site. There is also an
+   [8]IRC channel dedicated to Ethereal.
+
+   Commercial support, training, and development services are
+   available from [9]Ethereal Software.
+
+Frequently Asked Questions
+
+   A complete FAQ is available on the [10]Ethereal web site.
+
+References
+
+   Visible links
+   1. http://www.ethereal.com/appnotes/enpa-sa-00022.html
+   2. http://www.ethereal.com/docs/distribution/win32/
+   3. http://www.ethereal.com/docs/distribution/solaris/
+   4. http://www.ethereal.com/docs/distribution/
+   5. http://www.ethereal.com/download.html#otherplat
+   6. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220
+   7. http://www.ethereal.com/lists/
+   8. irc://irc.freenode.net/ethereal
+   9. http://www.etherealsoft.com/
+  10. http://www.ethereal.com/faq.html
+
 == October 17, 2005
 
 Ethereal 0.10.13 has been released.
