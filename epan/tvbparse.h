@@ -69,29 +69,10 @@
 #include <epan/tvbuff.h>
 #include <glib.h>
 
-/* a definition of something we want to look for */
+typedef struct _tvbparse_elem_t tvbparse_elem_t;
 typedef struct _tvbparse_wanted_t tvbparse_wanted_t;
-
-/* an instance of a per packet parser */
 typedef struct _tvbparse_t tvbparse_t;
 
-/* a matching token returned by either tvbparser_get or tvb_parser_find */
-typedef struct _tvbparse_elem_t {
-	int id;
-	
-	tvbuff_t* tvb;
-	int offset;
-	int len;
-	
-	void* data;
-	
-	struct _tvbparse_elem_t* sub;
-	
-	struct _tvbparse_elem_t* next;
-	struct _tvbparse_elem_t* last;
-	
-	const tvbparse_wanted_t* wanted;
-} tvbparse_elem_t;
 
 /*
  * a callback function to be called before or after an element has been
@@ -106,6 +87,90 @@ typedef struct _tvbparse_elem_t {
  * elem: the extracted element
  */
 typedef void (*tvbparse_action_t)(void* tvbparse_data, const void* wanted_data, struct _tvbparse_elem_t* elem);
+
+typedef int (*tvbparse_condition_t)
+(tvbparse_t*, int,
+ const tvbparse_wanted_t*, 
+ tvbparse_elem_t**);
+
+
+typedef enum  {
+    TP_UNTIL_INCLUDE, /* last elem is included, its span is spent by the parser */
+    TP_UNTIL_SPEND, /* last elem is not included, but its span is spent by the parser */
+    TP_UNTIL_LEAVE /* last elem is not included, neither its span is spent by the parser */
+} until_mode_t;
+
+
+struct _tvbparse_wanted_t {
+	int id;
+    tvbparse_condition_t condition;
+    
+	union {
+        const gchar* str;
+        struct _tvbparse_wanted_t** handle;
+        struct {
+            union {
+                gint64 i;
+                guint64 u;
+                gdouble f;
+            } value;            
+            gboolean (*comp)(void*,const void*);
+            void* (*extract)(tvbuff_t*,guint);
+        } number;
+        enum ftenum ftenum;
+        struct {
+            until_mode_t mode;
+            const tvbparse_wanted_t* subelem;
+        } until;
+        struct {
+            GHashTable* table;
+            struct _tvbparse_wanted_t* key;
+            struct _tvbparse_wanted_t* other;
+        } hash;
+        GPtrArray* elems;
+        const tvbparse_wanted_t* subelem;
+        void* p;
+    } control;
+    
+	int len;
+	
+	guint min;
+	guint max;
+	
+	const void* data;
+    
+	tvbparse_action_t before;
+	tvbparse_action_t after;
+	
+};
+
+/* an instance of a per packet parser */
+struct _tvbparse_t {
+	tvbuff_t* tvb;
+	int offset;
+    int end_offset;
+	void* data;
+	const tvbparse_wanted_t* ignore;
+};
+
+
+/* a matching token returned by either tvbparser_get or tvb_parser_find */
+struct _tvbparse_elem_t {
+	int id;
+	
+	tvbuff_t* tvb;
+	int offset;
+	int len;
+	
+	void* data;
+	
+	struct _tvbparse_elem_t* sub;
+	
+	struct _tvbparse_elem_t* next;
+	struct _tvbparse_elem_t* last;
+	
+	const tvbparse_wanted_t* wanted;
+};
 
 
 /*
@@ -213,21 +278,17 @@ tvbparse_wanted_t* tvbparse_casestring(int id,
  *
  * It won't have a subelement, the ending's callbacks won't get called.
  */
-tvbparse_wanted_t* tvbparse_until(int id,
-								  const void* private_data,
-								  tvbparse_action_t before_cb,
-								  tvbparse_action_t after_cb,
-								  const tvbparse_wanted_t* ending,
-								  int op_mode);
 
 /*
  * op_mode values determine how the terminating element and the current offset
  * of the parser are handled 
  */
-        
-#define TP_UNTIL_INCLUDE 0 /* elem is included, its span is spent by the parser */
-#define TP_UNTIL_SPEND 1 /* elem is not included, but its span is spent by the parser */
-#define TP_UNTIL_LEAVE 2 /* elem is not included, neither its span is spent by the parser */
+tvbparse_wanted_t* tvbparse_until(int id,
+								  const void* private_data,
+								  tvbparse_action_t before_cb,
+								  tvbparse_action_t after_cb,
+								  const tvbparse_wanted_t* ending,
+								  until_mode_t until_mode);
 
 /*
  * one_of
@@ -243,6 +304,20 @@ tvbparse_wanted_t* tvbparse_set_oneof(int id,
 									  tvbparse_action_t before_cb,
 									  tvbparse_action_t after_cb,
 									  ...);
+
+/* 
+ * hashed
+ */
+
+tvbparse_wanted_t* tvbparse_hashed(int id,
+                                   const void* data, 
+                                   tvbparse_action_t before_cb,
+                                   tvbparse_action_t after_cb,
+                                   tvbparse_wanted_t* key,
+                                   tvbparse_wanted_t* other,
+                                   ...);
+
+void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
 
 /*
  * sequence
@@ -286,6 +361,41 @@ tvbparse_wanted_t* tvbparse_some(int id,
  * been initialized yet) so that recursive structures
  */
 tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle);
+
+#if 0
+
+enum ft_cmp_op {
+    TVBPARSE_CMP_GT,
+    TVBPARSE_CMP_GE,
+    TVBPARSE_CMP_EQ,
+    TVBPARSE_CMP_NE,
+    TVBPARSE_CMP_LE,
+    TVBPARSE_CMP_LT
+};
+
+/* not yet tested */
+tvbparse_wanted_t* tvbparse_ft(int id,
+                               const void* data,
+                               tvbparse_action_t before_cb,
+                               tvbparse_action_t after_cb,
+                               enum ftenum ftenum);
+
+/* not yet tested */
+tvbparse_wanted_t* tvbparse_end_of_buffer(int id,
+                                          const void* data,
+                                          tvbparse_action_t before_cb,
+                                          tvbparse_action_t after_cb);
+/* not yet tested */
+tvbparse_wanted_t* tvbparse_ft_numcmp(int id,
+                                      const void* data,
+                                      tvbparse_action_t before_cb,
+                                      tvbparse_action_t after_cb,
+                                      enum ftenum ftenum,
+                                      int little_endian,
+                                      enum ft_cmp_op ft_cmp_op,
+                                      ... );
+
+#endif
 
 /*  quoted
  *  this is a composed candidate, that will try to match a quoted string
