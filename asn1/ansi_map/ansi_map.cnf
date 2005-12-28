@@ -7,6 +7,11 @@
 #.EXPORTS
 
 #.PDU
+AuthenticationDirective
+AuthenticationDirectiveRes
+
+OriginationRequest
+OriginationRequestRes
 
 #.NO_EMIT
 
@@ -42,8 +47,11 @@ VAL_PTR = &parameter_tvb
 #.FN_BODY DigitsType
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
-	if parameter_tvb{
-		dissect_ansi_map_digits_type();
+	if (parameter_tvb){
+		dissect_ansi_map_digits_type(parameter_tvb,pinfo,tree);
 	}
 	 
+#.TYPE_ATTR
+ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
+ServiceRedirectionCause  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ServiceRedirectionCause_vals)
 #.END
