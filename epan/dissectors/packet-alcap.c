@@ -39,8 +39,7 @@
 #include <epan/emem.h>
 #include <epan/prefs.h>
 #include "packet-alcap.h"
-#include "packet-e164.h"
-#include "packet-isup.h"
+#include <epan/dissectors/packet-isup.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
 
@@ -408,6 +407,7 @@ static gboolean keep_persistent_info = TRUE;
 GHashTable* legs_by_dsaid = NULL;
 GHashTable* legs_by_osaid = NULL;
 GHashTable* legs_by_circuit_id = NULL;
+GHashTable* legs_by_bearer = NULL;
 
 static gchar* dissect_fields_unknown(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
     proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,FALSE);
@@ -591,9 +591,8 @@ static gchar* dissect_fields_dnsea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
         return NULL;
     }        
     
-    msg_info->dest_nsap = ep_tvb_memdup(tvb,offset+1,len+1);
-    msg_info->dest_nsap[len] = '\0';
-    
+    msg_info->dest_nsap = tvb_bytes_to_str(tvb,offset,20);
+
     proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, FALSE);
 	dissect_nsap(tvb, offset,20, tree);
     
@@ -613,8 +612,7 @@ static gchar* dissect_fields_onsea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
         return NULL;
     }
     
-    msg_info->orig_nsap = ep_tvb_memdup(tvb,offset+1,len+1);
-    msg_info->orig_nsap[len] = '\0';
+    msg_info->orig_nsap = tvb_bytes_to_str(tvb,offset,20);
     
     proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, FALSE);
 	dissect_nsap(tvb, offset,20, tree);
@@ -1294,6 +1292,78 @@ static alcap_msg_type_info_t msg_types[] = {
     { NULL, 0 }
 };
 
+static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info_t* leg) {
+    proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"[ALCAP Leg Info]");
+    
+    tree = proto_item_add_subtree(pi,ett_leg);
+    
+    if (leg->dsaid) {
+        pi = proto_tree_add_uint(tree,hf_alcap_leg_dsaid,tvb,0,0,leg->dsaid);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    
+    if (leg->osaid) {
+        pi = proto_tree_add_uint(tree,hf_alcap_leg_osaid,tvb,0,0,leg->osaid);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    
+    if (leg->pathid) {
+        pi = proto_tree_add_uint(tree,hf_alcap_leg_pathid,tvb,0,0,leg->pathid);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    
+    if (leg->cid) {
+        pi = proto_tree_add_uint(tree,hf_alcap_leg_cid,tvb,0,0,leg->cid);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    
+    if (leg->sugr) {
+        pi = proto_tree_add_uint(tree,hf_alcap_leg_sugr,tvb,0,0,leg->sugr);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    
+    if (leg->orig_nsap) {
+        pi = proto_tree_add_string(tree,hf_alcap_leg_onsea,tvb,0,0,leg->orig_nsap);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    
+    if (leg->dest_nsap) {
+        pi = proto_tree_add_string(tree,hf_alcap_leg_dnsea,tvb,0,0,leg->dest_nsap);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    
+    if(leg->release_cause) {
+        pi = proto_tree_add_uint(tree,hf_alcap_leg_release_cause,tvb,0,0,leg->release_cause);
+        PROTO_ITEM_SET_GENERATED(pi);
+        if (leg->release_cause && leg->release_cause != 31)
+            proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
+    }
+    
+    if(leg->msgs) {
+        alcap_msg_data_t* msg = leg->msgs;
+        proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"[Messages in this leg]");
+        proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
+        
+        
+        do {
+            pi = proto_tree_add_uint(tree,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
+            proto_item_set_text(pi,"%s in frame %u", val_to_str(msg->msg_type,msg_type_strings,"Unknown message"),msg->framenum);
+            PROTO_ITEM_SET_GENERATED(pi);
+        } while (( msg = msg->next));
+        
+    }
+    
+}
+
+
+extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  gchar* key) {
+    alcap_leg_info_t* leg = g_hash_table_lookup(legs_by_bearer,key);
+    
+    if (leg) {
+        alcap_leg_tree(tree,tvb,leg);
+    }
+}
+
 #define GET_MSG_TYPE(id) ( array_length(msg_types) < id ? &(msg_types[0]) : &(msg_types[id]) )
 
 static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -1379,9 +1449,30 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     leg->cid = msg_info->cid;
                     leg->sugr = msg_info->sugr;
                     
-                    leg->orig_nsap = msg_info->orig_nsap ? se_strdup(bytes_to_str(msg_info->orig_nsap,FIELD_NSAP_ADDRESS_LEN)) : NULL;
-                    leg->dest_nsap = msg_info->dest_nsap ? se_strdup(bytes_to_str(msg_info->dest_nsap,FIELD_NSAP_ADDRESS_LEN)) : NULL;
+                    if (msg_info->orig_nsap) {
+                        gchar* key = se_strdup_printf("%s:%.8X",msg_info->orig_nsap,leg->sugr);
+                        g_strdown(key);
 
+                        leg->orig_nsap = se_strdup(msg_info->orig_nsap);
+                        
+                        if (!g_hash_table_lookup(legs_by_bearer,key)) {
+                            g_hash_table_insert(legs_by_bearer,key,leg);
+                        }
+                        
+                        proto_tree_add_text(alcap_tree,tvb,0,0,"Key=>%s",key);
+                    }
+                    
+                    if (msg_info->dest_nsap) {
+                        gchar* key = se_strdup_printf("%s:%.8X",msg_info->dest_nsap,leg->sugr);
+                        g_strdown(key);
+
+                        leg->dest_nsap = se_strdup(msg_info->dest_nsap);
+
+                        if (!g_hash_table_lookup(legs_by_bearer,key)) {
+                            g_hash_table_insert(legs_by_bearer,key,leg);
+                        }
+                    }
+                    
                     leg->msgs = NULL;
                     leg->release_cause = 0;
                     
@@ -1436,67 +1527,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             
         }
         
-        if (tree && leg) {
-            proto_item* pi = proto_tree_add_text(alcap_tree,tvb,0,0,"[Call Leg Info]");
-            proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
-            
-            if (leg->dsaid) {
-                pi = proto_tree_add_uint(tree,hf_alcap_leg_dsaid,tvb,0,0,leg->dsaid);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            
-            if (leg->osaid) {
-                pi = proto_tree_add_uint(tree,hf_alcap_leg_osaid,tvb,0,0,leg->osaid);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            
-            if (leg->pathid) {
-                pi = proto_tree_add_uint(tree,hf_alcap_leg_pathid,tvb,0,0,leg->pathid);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            
-            if (leg->cid) {
-                pi = proto_tree_add_uint(tree,hf_alcap_leg_cid,tvb,0,0,leg->cid);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            
-            if (leg->sugr) {
-                pi = proto_tree_add_uint(tree,hf_alcap_leg_sugr,tvb,0,0,leg->sugr);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            
-            if (leg->orig_nsap) {
-                pi = proto_tree_add_string(tree,hf_alcap_leg_onsea,tvb,0,0,leg->orig_nsap);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            
-            if (leg->dest_nsap) {
-                pi = proto_tree_add_string(tree,hf_alcap_leg_dnsea,tvb,0,0,leg->dest_nsap);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            
-            if(leg->release_cause) {
-                pi = proto_tree_add_uint(tree,hf_alcap_leg_release_cause,tvb,0,0,leg->release_cause);
-                PROTO_ITEM_SET_GENERATED(pi);
-                if (leg->release_cause != 31)
-                    expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_WARN, "Abnormal Release");
-            }
-            
-            if(leg->msgs) {
-                alcap_msg_data_t* msg = leg->msgs;
-                proto_item* pi = proto_tree_add_text(alcap_tree,tvb,0,0,"[Messages in this leg]");
-                proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
-                
-                
-                do {
-                    pi = proto_tree_add_uint(tree,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
-                    proto_item_set_text(pi,"%s in frame %u", val_to_str(msg->msg_type,msg_type_strings,"Unknown message"),msg->framenum);
-                    PROTO_ITEM_SET_GENERATED(pi);
-                } while (( msg = msg->next));
-                
-            }
-            
-        }
+        if (tree && leg) alcap_leg_tree(alcap_tree,tvb,leg);
     }
 }
 
@@ -1506,9 +1537,11 @@ static void alcap_init(void) {
 	if (legs_by_dsaid == NULL) {
 		legs_by_dsaid = g_hash_table_new(g_direct_hash,g_direct_equal);
 		legs_by_osaid = g_hash_table_new(g_direct_hash,g_direct_equal);
+        legs_by_bearer = g_hash_table_new(g_str_hash,g_str_equal);
 	} else {
 		g_hash_table_foreach_remove(legs_by_dsaid,just_do_it,NULL);
 		g_hash_table_foreach_remove(legs_by_osaid,just_do_it,NULL);
+		g_hash_table_foreach_remove(legs_by_bearer,just_do_it,NULL);
 	}
 }
 
