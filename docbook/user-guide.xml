@@ -54,7 +54,7 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> User's Guide">
-  <!ENTITY DocumentSubTitle "&DocumentVersion; (&SvnVersion;) for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Ethereal &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EUG">
 
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
@@ -73,7 +73,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.13">
+  <!ENTITY EtherealCurrentVersion "0.10.14">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -273,7 +273,8 @@ FILE SECTION
 <book>
   <title>&DocumentTitle;</title>
   <subtitle>&DocumentSubTitle;</subtitle>
-  <!-- -->
+  <!--
+  -->
   &BookMetaInformation;
   &Preface;
   &ChapterIntroduction;
@@ -283,29 +284,24 @@ FILE SECTION
   &ChapterIo;
   &ChapterWork;
   &ChapterAdvanced;
-  <!-- -->
   &ChapterStatistics;  
   &ChapterCustomize;
 
-  <!-- Removed, as this chapter has to be reworked first -->
-  <!-- &ChapterTroubleshoot; -->
-  
-  <!-- Removed, as this chapter is much too long and should form it's own document -->
-  <!-- &FilterFields; -->
-
-  <!-- Removed, as there are a lot more of warnings and messages right now, and 
-  the warnings and messages should be self explanatory. -->
-  <!-- &AppMessages; -->
+  <!-- Removed, as this chapter has to be reworked first
+  &ChapterTroubleshoot; 
+  -->
   
   &AppFiles;
   &AppProtocols;
+  &AppMessages;  
   &AppTools;
-  <!-- Removed, as this chapter is not finished
+  <!-- Removed, as this chapter is not finished 
   &AppHowItWorks;
   -->
+  
   &AppGPL;
-  <!-- Removed, as these chapters must be reworked -->
-  <!--
+  <!-- Removed, as these chapters must be reworked
   &Glossary;
-  &Index;  -->
+  &Index;
+  -->
 </book>

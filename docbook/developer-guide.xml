@@ -28,7 +28,7 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> Developer's Guide">
-  <!ENTITY DocumentSubTitle "&DocumentVersion; (&SvnVersion;) for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Ethereal &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EDG">
 
   <!ENTITY DocumentCopyrightHolder "Ulf Lamping">
@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.13">
+  <!ENTITY EtherealCurrentVersion "0.10.14">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
