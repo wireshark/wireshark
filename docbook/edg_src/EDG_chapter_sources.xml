@@ -148,6 +148,16 @@
 	There are several ways to obtain the sources from Ethereal's Subversion 
 	server.
 	</para>
+	<tip><title>Tip!</title>
+	<para>
+	Anonymous Subversion access can make your life much easier, compared to
+	update your source tree by using any of the zip file methods mentioned 
+	below.
+	Subversion handles merging of changes into your personal source tree in a 
+	very comfortable and quick way. So you can update your source tree several 
+	times a day without much effort.
+	</para>
+	</tip>
 	<note><title>Note!</title>
 	<para>
 	The following ways to retrieve the Ethereal sources are sorted in 
@@ -175,16 +185,6 @@
 	trunk is:
 	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk/"/>.
 	</para>
-	<tip><title>Tip!</title>
-	<para>
-	Anonymous Subversion access can make your life much easier, compared to
-	update your source tree by using any of the zip file methods mentioned 
-	below.
-	Subversion handles merging of changes into your personal source tree in a 
-	very comfortable and quick way. So you can update your source tree several 
-	times a day without much effort.
-	</para>
-	</tip>
 	<para>
 	See <xref linkend="ChToolsSubversion"/> how to install a Subversion client.
 	</para>
@@ -222,25 +222,27 @@
 	</para>
 	</section>	
 	 
-	<section id="ChSrcNightly">
-	<title>Nightly snapshots</title>
+	<section id="ChSrcBuildbot">
+	<title>Buildbot Snapshots</title>
 	<para>
-	Well, not recommended at all.
+	Recommended for development purposes, if direct Subversion access isn't 
+	possible (e.g. because of a restrictive firewall).
 	</para>
 	<para>
-	Age: up to 24 hours.
+	Age: a few minutes (a bit older than the anonymous Subversion access).
 	</para>
 	<para>
-	The Subversion server will automatically generate a snapshot of Ethereal's
-	sourcetree every night. These snapshots can be found at: <ulink
-	url="http://www.ethereal.com/distribution/nightly-builds/"/>.
+	The buildbot server will automatically start to generate a snapshot of 
+	Ethereal's sourcetree after a source code change committed. 
+	These snapshots can be found at: <ulink
+	url="http://www.ethereal.com/distribution/buildbot-builds/source/"/>.
 	</para>
 	<para>
 	If anonymous Subversion access isn't possible, e.g. if the connection to 
 	the server isn't possible because of a corporate firewall, the sources 
-	can be obtained by downloading this nightly snapshots. However, if you are
+	can be obtained by downloading this buildbot snapshots. However, if you are
 	going to maintain your sources in parallel to the "official" sources
-	for some time, it's recommended to use the anonymour Subversion access if
+	for some time, it's recommended to use the anonymous Subversion access if
 	possible (believe it, it will save you a lot of time).
 	</para>
 	</section>
@@ -520,7 +522,7 @@ make
 	<title>What is a diff file (a patch)?</title>
 	<para>
 	A diff file is a plain text file containing the differences between a 
-	pair of files (or multiple of such pairs). 
+	pair of files (or a multiple of such file pairs). 
 	<tip><title>Tip!</title>
 	<para>A diff file is often also called a patch, 
 	as it can be used to patch an existing source file or tree with changes
