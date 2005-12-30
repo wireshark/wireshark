@@ -847,7 +847,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		
 		proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4,AUTHENTICATOR_LENGTH,FALSE);
 	}
-	tvb_memcpy(tvb,authenticator,0,AUTHENTICATOR_LENGTH);
+	tvb_memcpy(tvb,authenticator,4,AUTHENTICATOR_LENGTH);
 
 	if (tree && avplength > 0) {
 		/* list the attribute value pairs */
