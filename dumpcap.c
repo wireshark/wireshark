@@ -210,8 +210,12 @@ BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 }
 #endif
 
-void
-exit_main(int err) {
+#if __GNUC__ >= 2
+void exit_main(int err) __attribute__ ((noreturn));
+#else
+void exit_main(int err)
+#endif
+{
 #ifdef _WIN32
   /* Shutdown windows sockets */
   WSACleanup();
@@ -353,7 +357,7 @@ main(int argc, char *argv[])
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
         capture_opts_list_interfaces();
-        exit(0);
+        exit_main(0);
         break;
       case 'L':        /* Print list of link-layer types and exit */
         list_link_layer_types = TRUE;
@@ -416,6 +420,7 @@ main(int argc, char *argv[])
   }
 
   if (capture_opts_trim_iface(capture_opts, NULL) == FALSE) {
+	cmdarg_err("No capture interfaces available (maybe lack of privileges?).");
     exit_main(1);
   }
 
@@ -444,8 +449,6 @@ main(int argc, char *argv[])
       /* capture failed */
       exit_main(1);
   }
-
-  return 0; /* Everything to keep GCC happy */
 }
 
 #ifdef _WIN32
