@@ -431,7 +431,8 @@ file_open_cmd(GtkWidget *w)
   static construct_args_t args = {
   	"Ethereal: Read Filter",
   	FALSE,
-  	FALSE
+  	FALSE,
+    TRUE
   };
 
   if (file_open_w != NULL) {
@@ -760,7 +761,8 @@ file_merge_cmd(GtkWidget *w)
   static construct_args_t args = {
   	"Ethereal: Read Filter",
   	FALSE,
-  	FALSE
+  	FALSE,
+    TRUE
   };
 
   if (file_merge_w != NULL) {

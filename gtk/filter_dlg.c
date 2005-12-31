@@ -105,7 +105,8 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 	static construct_args_t args = {
 		"Ethereal: Capture Filter",
 		FALSE,
-		FALSE
+		FALSE,
+        FALSE
 	};
 
 	/* Has a filter dialog box already been opened for that button? */
@@ -194,7 +195,8 @@ cfilter_dialog_cb(GtkWidget *w _U_)
 	static construct_args_t args = {
 		"Ethereal: Capture Filter",
 		FALSE,
-		FALSE
+		FALSE,
+        FALSE
 	};
 
 	/* Has a filter dialog box already been opened for editing
@@ -222,7 +224,8 @@ dfilter_dialog_cb(GtkWidget *w _U_)
 	static construct_args_t args = {
 		"Ethereal: Display Filter",
 		TRUE,
-		TRUE
+		TRUE,
+        FALSE
 	};
 
     display_filter_construct_cb(OBJECT_GET_DATA(top_level, E_FILT_BT_PTR_KEY), &args);
@@ -361,6 +364,12 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     main_w = dlg_window_new(construct_args->title);
 	gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
     OBJECT_SET_DATA(main_w, E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
+
+    if(construct_args->modal_and_transient) {
+        GdkWindow*  parent = gtk_widget_get_parent_window(parent_filter_te);
+        gtk_window_set_transient_for(GTK_WINDOW(main_w), GTK_WINDOW(parent));
+        gtk_window_set_modal(GTK_WINDOW(main_w), TRUE);
+    }
 
     main_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 5);

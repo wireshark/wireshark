@@ -3273,7 +3273,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     static construct_args_t args = {
         "Ethereal: Display Filter",
         TRUE,
-        TRUE
+        TRUE,
+        FALSE
     };
 
     /* use user-defined title if preference is set */

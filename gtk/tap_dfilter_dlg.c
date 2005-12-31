@@ -160,6 +160,7 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 		end_dlg_list->args.title = g_strdup_printf("%s Filter", dlg_data->win_title);
 		end_dlg_list->args.wants_apply_button = TRUE;
 		end_dlg_list->args.activate_on_ok = FALSE;
+        end_dlg_list->args.modal_and_transient = FALSE;
 		end_dlg_list->next = NULL;
 		dlg_data->index = end_dlg_list->cont.index;
 		current_dlg = end_dlg_list;

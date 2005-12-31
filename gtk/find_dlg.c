@@ -125,7 +125,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   static construct_args_t args = {
   	"Ethereal: Search Filter",
   	FALSE,
-  	TRUE
+  	TRUE,
+    FALSE
   };
 
   if (find_frame_w != NULL) {

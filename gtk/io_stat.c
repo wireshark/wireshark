@@ -1085,6 +1085,7 @@ gtk_iostat_init(const char *optarg _U_)
 		io->graphs[i].args->title = NULL;
 		io->graphs[i].args->wants_apply_button=TRUE;
 		io->graphs[i].args->activate_on_ok=TRUE;
+		io->graphs[i].args->modal_and_transient=FALSE;
 
 		io->graphs[i].filter_bt=NULL;
 	}

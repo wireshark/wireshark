@@ -41,6 +41,8 @@ typedef struct {
     gboolean wants_apply_button;    /**< dialog should have an Apply button */
     gboolean activate_on_ok;        /**< if parent text widget should be
                                         activated on "Ok" or "Apply" */
+    gboolean modal_and_transient;   /**< dialog is modal and transient to the
+                                        parent window (e.g. to gtk_file_chooser) */
 } construct_args_t;
 
 /** Create a "Capture Filter" dialog box caused by a button click.

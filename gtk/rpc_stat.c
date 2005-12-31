@@ -418,7 +418,8 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	static construct_args_t args = {
 	  "Service Response Time Statistics Filter",
 	  TRUE,
-	  FALSE
+	  FALSE,
+      FALSE
 	};
 
 	/* if the window is already open, bring it to front */
