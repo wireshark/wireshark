@@ -1234,7 +1234,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
 
 #ifdef _WIN32
-    fprintf(stderr, "fd: %u ret: %u\n", capture_opts->signal_pipe_fd, signal_pipe_stopped());
+    /*fprintf(stderr, "fd: %u ret: %u\n", capture_opts->signal_pipe_fd, signal_pipe_stopped());*/
 
     /* any news from our parent (signal pipe)? -> just stop the capture */
     if (capture_opts->signal_pipe_fd != -1 && signal_pipe_stopped()) {
