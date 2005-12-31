@@ -151,13 +151,11 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
   printf(
         "Dumpcap " VERSION "%s\n"
         "\n"
-        "(C) 1998-2005 Gerald Combs <gerald@ethereal.com>\n"
-        "See http://www.ethereal.com for more information.\n"
-        "\n"
         "%s\n"
-        "\n"
-        "%s\n",
-        svnversion, comp_info_str->str, runtime_info_str->str);
+        "%s\n"
+        "%s\n"
+        "See http://www.ethereal.com for more information.\n",
+        svnversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
 }
 
 /*
@@ -417,7 +415,9 @@ main(int argc, char *argv[])
     }
   }
 
-  capture_opts_trim_iface(capture_opts, NULL);
+  if (capture_opts_trim_iface(capture_opts, NULL) == FALSE) {
+    exit_main(1);
+  }
 
   /* Let the user know what interface was chosen. */
 /*  descr = get_interface_descriptive_name(capture_opts.iface);
@@ -444,6 +444,8 @@ main(int argc, char *argv[])
       /* capture failed */
       exit_main(1);
   }
+
+  return 0; /* Everything to keep GCC happy */
 }
 
 #ifdef _WIN32
@@ -584,7 +586,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 }
 
 /****************************************************************************************************************/
-/* sync_pipe "dummies" */
+/* sync_pipe stubs */
 
 /*
  * Maximum length of sync pipe message data.  Must be < 2^24, as the
@@ -692,7 +694,7 @@ sync_pipe_drops_to_parent(int drops)
 
 
 /****************************************************************************************************************/
-/* simple_dialog "dummies" */
+/* simple_dialog stubs */
 
 
 char *simple_dialog_primary_start(void)
@@ -723,14 +725,14 @@ simple_dialog_format_message(const char *msg)
 }
 
 /****************************************************************************************************************/
-/* link "dummies" */
+/* Stub functions */
 
 
 const char *netsnmp_get_version(void) { return ""; }
 
-gboolean dfilter_compile(const gchar *text, dfilter_t **dfp) { return NULL; }
+gboolean dfilter_compile(const gchar *text, dfilter_t **dfp) { (void)text; (void)dfp; return FALSE; }
 
-void dfilter_free(dfilter_t *df) {}
+void dfilter_free(dfilter_t *df) { (void)df; }
 
 
 /*
