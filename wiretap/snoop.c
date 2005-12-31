@@ -810,7 +810,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	rec_hdr.rec_len = g_htonl(reclen);
 	rec_hdr.cum_drops = 0;
 	rec_hdr.ts_sec = g_htonl(phdr->ts.secs);
-	rec_hdr.ts_usec = g_htonl(phdr->ts.nsecs) / 1000;
+	rec_hdr.ts_usec = g_htonl(phdr->ts.nsecs / 1000);
 	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
 	if (nwritten != sizeof rec_hdr) {
 		if (nwritten == 0 && ferror(wdh->fh))
