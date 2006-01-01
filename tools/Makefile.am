@@ -51,7 +51,6 @@ EXTRA_DIST = \
 	pidl/lib/Parse/Pidl/Samba4/Template.pm		\
 	pidl/lib/Parse/Pidl/Samba4/TDR.pm		\
 	pidl/lib/Parse/Pidl/Samba4/SWIG.pm		\
-	pidl/lib/Parse/Pidl/Samba4/EJSHeader.pm		\
 	pidl/lib/Parse/Pidl/Samba4/Header.pm		\
 	pidl/lib/Parse/Pidl/NDR.pm			\
 	pidl/lib/Parse/Pidl/ODL.pm			\
