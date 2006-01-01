@@ -13,7 +13,6 @@ lib/Parse/Pidl/Samba4/NDR/Client.pm
 lib/Parse/Pidl/Samba4/COM/Header.pm
 lib/Parse/Pidl/Samba4/COM/Stub.pm
 lib/Parse/Pidl/Samba4/COM/Proxy.pm
-lib/Parse/Pidl/Samba4/EJSHeader.pm
 lib/Parse/Pidl/Samba4/Header.pm
 lib/Parse/Pidl/Samba4/SWIG.pm
 lib/Parse/Pidl/Samba4/TDR.pm

@@ -675,10 +675,9 @@ sub process_file($)
 
 	if (defined($opt_ejs)) {
 		require Parse::Pidl::Samba4::EJS;
-		require Parse::Pidl::Samba4::EJSHeader;
-		FileSave("$outputdir/ndr_$basename\_ejs.c", Parse::Pidl::Samba4::EJS::Parse($ndr, $h_filename));
-
-		FileSave("$outputdir/ndr_$basename\_ejs.h", Parse::Pidl::Samba4::EJSHeader::Parse($ndr));
+		my ($hdr,$prsr) = Parse::Pidl::Samba4::EJS::Parse($ndr, $h_filename);
+		FileSave("$outputdir/ndr_$basename\_ejs.c", $prsr);
+		FileSave("$outputdir/ndr_$basename\_ejs.h", $hdr);
 	}
 
 	if (defined($opt_server)) {

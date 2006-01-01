@@ -3,8 +3,8 @@
 
 package Parse::Pidl::Samba4::COM::Header;
 
-use Parse::Pidl::Typelist;
-use Parse::Pidl::Util qw(has_property);
+use Parse::Pidl::Typelist qw(mapType);
+use Parse::Pidl::Util qw(has_property is_constant);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -18,7 +18,7 @@ sub GetArgumentProtoList($)
 
 	foreach my $a (@{$f->{ELEMENTS}}) {
 
-		$res .= ", " . Parse::Pidl::Typelist::mapType($a->{TYPE}) . " ";
+		$res .= ", " . mapType($a->{TYPE}) . " ";
 
 		my $l = $a->{POINTERS};
 		$l-- if (Parse::Pidl::Typelist::scalar_is_reference($a->{TYPE}));
@@ -26,13 +26,12 @@ sub GetArgumentProtoList($)
 			$res .= "*";
 		}
 
-		if (defined $a->{ARRAY_LEN}[0] && 
-		!Parse::Pidl::Util::is_constant($a->{ARRAY_LEN}[0]) &&
+		if (defined $a->{ARRAY_LEN}[0] && !is_constant($a->{ARRAY_LEN}[0]) &&
 		!$a->{POINTERS}) {
 			$res .= "*";
 		}
 		$res .= $a->{NAME};
-		if (defined $a->{ARRAY_LEN}[0] && Parse::Pidl::Util::is_constant($a->{ARRAY_LEN}[0])) {
+		if (defined $a->{ARRAY_LEN}[0] && is_constant($a->{ARRAY_LEN}[0])) {
 			$res .= "[$a->{ARRAY_LEN}[0]]";
 		}
 	}
@@ -45,9 +44,7 @@ sub GetArgumentList($)
 	my $f = shift;
 	my $res = "";
 
-	foreach my $a (@{$f->{ELEMENTS}}) {
-		$res .= ", $a->{NAME}";
-	}
+	foreach (@{$f->{ELEMENTS}}) { $res .= ", $_->{NAME}"; }
 
 	return $res;
 }
@@ -65,7 +62,7 @@ sub HeaderVTable($)
 
 	my $data = $interface->{DATA};
 	foreach my $d (@{$data}) {
-		$res .= "\t" . Parse::Pidl::Typelist::mapType($d->{RETURN_TYPE}) . " (*$d->{NAME}) (struct $interface->{NAME} *d, TALLOC_CTX *mem_ctx" . GetArgumentProtoList($d) . ");\\\n" if ($d->{TYPE} eq "FUNCTION");
+		$res .= "\t" . mapType($d->{RETURN_TYPE}) . " (*$d->{NAME}) (struct $interface->{NAME} *d, TALLOC_CTX *mem_ctx" . GetArgumentProtoList($d) . ");\\\n" if ($d->{TYPE} eq "FUNCTION");
 	}
 	$res .= "\n";
 	$res .= "struct $interface->{NAME}_vtable {\n";

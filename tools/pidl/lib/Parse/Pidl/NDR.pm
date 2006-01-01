@@ -642,7 +642,9 @@ sub Parse($)
 	
 	my @ndr = ();
 
-	push(@ndr, ParseInterface($_)) foreach (@{$idl});
+	foreach (@{$idl}) {
+		($_->{TYPE} eq "INTERFACE") && push(@ndr, ParseInterface($_));
+	}
 
 	return \@ndr;
 }

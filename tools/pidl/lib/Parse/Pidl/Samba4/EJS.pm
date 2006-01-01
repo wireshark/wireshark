@@ -13,10 +13,18 @@ use Parse::Pidl::Util qw(has_property);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
-my($res);
+my $res;
+my $res_hdr;
+
 my %constants;
 
 my $tabs = "";
+
+sub pidl_hdr ($)
+{
+	$res_hdr .= shift;
+}
+
 sub pidl($)
 {
 	my $d = shift;
@@ -110,12 +118,16 @@ sub get_value_of($)
 
 #####################################################################
 # work out is a parse function should be declared static or not
-sub fn_prefix($)
+sub fn_declare($$)
 {
-	my $fn = shift;
+	my ($fn,$decl) = @_;
 
-	return "" if (has_property($fn, "public"));
-	return "static ";
+	if (has_property($fn, "public")) {
+		pidl_hdr "$decl;\n";
+		pidl "$decl";
+	} else {
+		pidl "static $decl";
+	}
 }
 
 ###########################
@@ -251,8 +263,8 @@ sub EjsStructPull($$)
 	my $name = shift;
 	my $d = shift;
 	my $env = GenerateStructEnv($d);
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, struct $name *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, struct $name *r)");
+	pidl "{";
 	indent;
 	pidl "NDR_CHECK(ejs_pull_struct_start(ejs, &v, name));";
         foreach my $e (@{$d->{ELEMENTS}}) {
@@ -271,8 +283,8 @@ sub EjsUnionPull($$)
 	my $d = shift;
 	my $have_default = 0;
 	my $env = GenerateStructEnv($d);
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, union $name *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, union $name *r)");
+	pidl "{";
 	indent;
 	pidl "NDR_CHECK(ejs_pull_struct_start(ejs, &v, name));";
 	pidl "switch (ejs->switch_var) {";
@@ -327,8 +339,8 @@ sub EjsEnumPull($$)
 	my $name = shift;
 	my $d = shift;
 	EjsEnumConstant($d);
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, enum $name *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, enum $name *r)");
+	pidl "{";
 	indent;
 	pidl "unsigned e;";
 	pidl "NDR_CHECK(ejs_pull_enum(ejs, v, name, &e));";
@@ -346,8 +358,8 @@ sub EjsBitmapPull($$)
 	my $d = shift;
 	my $type_fn = $d->{BASE_TYPE};
 	my($type_decl) = Parse::Pidl::Typelist::mapType($d->{BASE_TYPE});
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, $type_decl *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, $type_decl *r)");
+	pidl "{";
 	indent;
 	pidl "return ejs_pull_$type_fn(ejs, v, name, r);";
 	deindent;
@@ -529,8 +541,8 @@ sub EjsStructPush($$)
 	my $name = shift;
 	my $d = shift;
 	my $env = GenerateStructEnv($d);
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const struct $name *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const struct $name *r)");
+	pidl "{";
 	indent;
 	pidl "NDR_CHECK(ejs_push_struct_start(ejs, &v, name));";
         foreach my $e (@{$d->{ELEMENTS}}) {
@@ -549,8 +561,8 @@ sub EjsUnionPush($$)
 	my $d = shift;
 	my $have_default = 0;
 	my $env = GenerateStructEnv($d);
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const union $name *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const union $name *r)");
+	pidl "{";
 	indent;
 	pidl "NDR_CHECK(ejs_push_struct_start(ejs, &v, name));";
 	pidl "switch (ejs->switch_var) {";
@@ -587,8 +599,8 @@ sub EjsEnumPush($$)
 	my $name = shift;
 	my $d = shift;
 	EjsEnumConstant($d);
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const enum $name *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const enum $name *r)");
+	pidl "{";
 	indent;
 	pidl "unsigned e = *r;";
 	pidl "NDR_CHECK(ejs_push_enum(ejs, v, name, &e));";
@@ -613,8 +625,8 @@ sub EjsBitmapPush($$)
 			$constants{$bname} = $v;
 		}
 	}
-	pidl fn_prefix($d);
-	pidl "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const $type_decl *r)\n{";
+	fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const $type_decl *r)");
+	pidl "{";
 	indent;
 	pidl "return ejs_push_$type_fn(ejs, v, name, r);";
 	deindent;
@@ -628,6 +640,7 @@ sub EjsTypedefPush($)
 {
 	my $d = shift;
 	return if (has_property($d, "noejs"));
+
 	if ($d->{DATA}->{TYPE} eq 'STRUCT') {
 		EjsStructPush($d->{NAME}, $d->{DATA});
 	} elsif ($d->{DATA}->{TYPE} eq 'UNION') {
@@ -706,6 +719,17 @@ sub EjsInterface($$)
 
 	%constants = ();
 
+	pidl_hdr "#ifndef _HEADER_EJS_$interface->{NAME}\n";
+	pidl_hdr "#define _HEADER_EJS_$interface->{NAME}\n\n";
+
+	if (has_property($interface, "depends")) {
+		foreach (split / /, $interface->{PROPERTIES}->{depends}) {
+			pidl_hdr "#include \"librpc/gen_ndr/ndr_$_\_ejs\.h\"\n";
+		}
+	}
+
+	pidl_hdr "\n";
+
 	foreach my $d (@{$interface->{TYPES}}) {
 		($needed->{"push_$d->{NAME}"}) && EjsTypedefPush($d);
 		($needed->{"pull_$d->{NAME}"}) && EjsTypedefPull($d);
@@ -748,9 +772,13 @@ sub EjsInterface($$)
 	pidl "NTSTATUS ejs_init_$name(void)";
 	pidl "{";
 	indent;
-	pidl "return smbcalls_register_ejs(\"$name\_init\", ejs_$name\_init);";
+	pidl "ejsDefineCFunction(-1, \"$name\_init\", ejs_$name\_init, NULL, MPR_VAR_SCRIPT_HANDLE);";
+	pidl "return NT_STATUS_OK;";
 	deindent;
 	pidl "}";
+
+	pidl_hdr "\n";
+	pidl_hdr "#endif /* _HEADER_EJS_$interface->{NAME} */\n";
 }
 
 #####################################################################
@@ -762,6 +790,10 @@ sub Parse($$)
     my $ejs_hdr = $hdr;
     $ejs_hdr =~ s/.h$/_ejs.h/;
     $res = "";
+	$res_hdr = "";
+
+    pidl_hdr "/* header auto-generated by pidl */\n\n";
+	
     pidl "
 /* EJS wrapper functions auto-generated by pidl */
 #include \"includes.h\"
@@ -784,7 +816,7 @@ sub Parse($$)
 	    ($x->{TYPE} eq "INTERFACE") && EjsInterface($x, \%needed);
     }
 
-    return $res;
+    return ($res_hdr, $res);
 }
 
 sub NeededFunction($$)

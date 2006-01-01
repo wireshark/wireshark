@@ -6,7 +6,7 @@ package Parse::Pidl::Util;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(has_property property_matches ParseExpr is_constant make_str);
+@EXPORT = qw(has_property property_matches ParseExpr is_constant make_str print_uuid);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
@@ -73,6 +73,20 @@ sub make_str($)
 		return $str;
 	}
 	return "\"" . $str . "\"";
+}
+
+sub print_uuid($)
+{
+	my ($uuid) = @_;
+	$uuid =~ s/"//g;
+	my ($time_low,$time_mid,$time_hi,$clock_seq,$node) = split /-/, $uuid;
+
+	my @clock_seq = $clock_seq =~ /(..)/g;
+	my @node = $node =~ /(..)/g;
+
+	return "{0x$time_low,0x$time_mid,0x$time_hi," .
+		"{".join(',', map {"0x$_"} @clock_seq)."}," .
+		"{".join(',', map {"0x$_"} @node)."}}";
 }
 
 # a hack to build on platforms that don't like negative enum values

@@ -27,26 +27,24 @@ Internals overview:
 
 -- Generic --
 Parse::Pidl::Dump - Converts the parse tree back to an IDL file
-Parse::Pidl::Samba::Header - Generates header file with data structures defined in IDL file
+Parse::Pidl::Samba4::Header - Generates header file with data structures defined in IDL file
 Parse::Pidl::NDR - Generates intermediate datastructures for use by NDR parses/generators
 Parse::Pidl::ODL - Generates IDL structures from ODL structures for use in the NDR parser generator
 Parse::Pidl::Test - Utility functions for use in pidl's testsuite
 
 -- Samba NDR --
-Parse::Pidl::Samba::NDR::Client - Generates client call functions in C using the NDR parser
-Parse::Pidl::Samba::SWIG - Generates SWIG interface files (.i)
-Parse::Pidl::Samba::NDR::Header - Generates a header file with NDR-parser specific data
-Parse::Pidl::Samba::NDR::Parser - Generates pull/push functions for parsing NDR
-Parse::Pidl::Samba::NDR::Server - Generates server side implementation in C
-Parse::Pidl::Samba::TDR - Parser generator for the "Trivial Data Representation"
-Parse::Pidl::Samba::Template - Generates stubs in C for server implementation
-Parse::Pidl::Samba::EJS - Generates bindings for Embedded JavaScript (EJS)
-Parse::Pidl::Samba::EJSHeader - Generates headers for the EJS bindings
+Parse::Pidl::Samba4::NDR::Client - Generates client call functions in C using the NDR parser
+Parse::Pidl::Samba4::SWIG - Generates SWIG interface files (.i)
+Parse::Pidl::Samba4::NDR::Parser - Generates pull/push functions for parsing NDR
+Parse::Pidl::Samba4::NDR::Server - Generates server side implementation in C
+Parse::Pidl::Samba4::TDR - Parser generator for the "Trivial Data Representation"
+Parse::Pidl::Samba4::Template - Generates stubs in C for server implementation
+Parse::Pidl::Samba4::EJS - Generates bindings for Embedded JavaScript (EJS)
 
 -- Samba COM / DCOM --
-Parse::Pidl::Samba::COM::Proxy - Generates proxy object for DCOM (client-side)
-Parse::Pidl::Samba::COM::Stub - Generates stub call handler for DCOM (server-side)
-Parse::Pidl::Samba::COM::Header - Generates header file for COM interface(s)
+Parse::Pidl::Samba4::COM::Proxy - Generates proxy object for DCOM (client-side)
+Parse::Pidl::Samba4::COM::Stub - Generates stub call handler for DCOM (server-side)
+Parse::Pidl::Samba4::COM::Header - Generates headers for COM
 
 -- Ethereal --
 Parse::Pidl::Ethereal::NDR - Generates a parser for the ethereal network sniffer

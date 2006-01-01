@@ -9,7 +9,7 @@ package Parse::Pidl::Samba4::NDR::Parser;
 
 use strict;
 use Parse::Pidl::Typelist qw(hasType getType mapType);
-use Parse::Pidl::Util qw(has_property ParseExpr);
+use Parse::Pidl::Util qw(has_property ParseExpr print_uuid);
 use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
 
 use vars qw($VERSION);
@@ -2158,13 +2158,10 @@ sub FunctionTable($)
 	my $count = 0;
 	my $uname = uc $interface->{NAME};
 
-	$count = $#{$interface->{FUNCTIONS}}+1;
-
-	return if ($count == 0);
+	return if ($#{$interface->{FUNCTIONS}}+1 == 0);
 	return unless defined ($interface->{PROPERTIES}->{uuid});
 
 	pidl "static const struct dcerpc_interface_call $interface->{NAME}\_calls[] = {";
-	$count = 0;
 	foreach my $d (@{$interface->{FUNCTIONS}}) {
 		next if not defined($d->{OPNUM});
 		pidl "\t{";
@@ -2218,7 +2215,7 @@ sub FunctionTable($)
 
 	pidl "\nconst struct dcerpc_interface_table dcerpc_table_$interface->{NAME} = {";
 	pidl "\t.name\t\t= \"$interface->{NAME}\",";
-	pidl "\t.uuid\t\t= DCERPC_$uname\_UUID,";
+	pidl "\t.uuid\t\t= ". print_uuid($interface->{UUID}) .",";
 	pidl "\t.if_version\t= DCERPC_$uname\_VERSION,";
 	pidl "\t.helpstring\t= DCERPC_$uname\_HELPSTRING,";
 	pidl "\t.num_calls\t= $count,";
@@ -2228,11 +2225,6 @@ sub FunctionTable($)
 	pidl "};";
 	pidl "";
 
-	pidl "static NTSTATUS dcerpc_ndr_$interface->{NAME}_init(void)";
-	pidl "{";
-	pidl "\treturn librpc_register_interface(&dcerpc_table_$interface->{NAME});";
-	pidl "}";
-	pidl "";
 }
 
 #####################################################################
@@ -2339,34 +2331,6 @@ sub ParseInterface($$)
 	FunctionTable($interface);
 }
 
-sub RegistrationFunction($$)
-{
-	my ($idl,$basename) = @_;
-
-	pidl "NTSTATUS dcerpc_$basename\_init(void)";
-	pidl "{";
-	indent;
-	pidl "NTSTATUS status = NT_STATUS_OK;";
-	foreach my $interface (@{$idl}) {
-		next if $interface->{TYPE} ne "INTERFACE";
-
-		my $count = ($#{$interface->{FUNCTIONS}}+1);
-
-		next if ($count == 0);
-		next unless defined ($interface->{PROPERTIES}->{uuid});
-
-		pidl "status = dcerpc_ndr_$interface->{NAME}_init();";
-		pidl "if (NT_STATUS_IS_ERR(status)) {";
-		pidl "\treturn status;";
-		pidl "}";
-		pidl "";
-	}
-	pidl "return status;";
-	deindent;
-	pidl "}";
-	pidl "";
-}
-
 #####################################################################
 # parse a parsed IDL structure back into an IDL file
 sub Parse($$)
@@ -2392,8 +2356,6 @@ sub Parse($$)
 	foreach (@{$ndr}) {
 		($_->{TYPE} eq "INTERFACE") && ParseInterface($_, \%needed);
 	}
-
-	RegistrationFunction($ndr, $basename);
 
 	return ($res_hdr, $res);
 }

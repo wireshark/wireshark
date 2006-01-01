@@ -48,7 +48,7 @@ SKIP: {
 	my $outfile = "test-$name";
 
 	#my $cflags = $ENV{CFLAGS};
-	my $cflags = "-Iinclude -I.";
+	my $cflags = "-Iinclude -Ilib -I.";
 
 	if ($insamba and $link) {
 		open CC, "|cc -x c -o $outfile $cflags -";

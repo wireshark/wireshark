@@ -74,29 +74,19 @@ my %supported_properties = (
 	"length_is"		=> ["ELEMENT"],
 );
 
-
-my($res);
-
 sub warning($$)
 {
-	my $l = shift;
-	my $m = shift;
-
-	print "$l->{FILE}:$l->{LINE}:Warning:$m\n";
-}
-
-sub error($$)
-{
 	my ($l,$m) = @_;
-	print "$l->{FILE}:$l->{LINE}:$m\n";
+
+	print STDERR "$l->{FILE}:$l->{LINE}:warning:$m\n";
 }
 
 sub CheckTypedef($)
 {
-	my $td = shift;
+	my ($td) = @_;
 
 	if (has_property($td, "nodiscriminant")) {
-		error($td, "nodiscriminant property not supported");
+		warning($td, "nodiscriminant property not supported");
 	}
 
 	if ($td->{TYPE} eq "BITMAP") {
@@ -121,7 +111,7 @@ sub CheckElement($)
 	my $e = shift;
 
 	if (has_property($e, "noheader")) {
-		error($e, "noheader property not supported");
+		warning($e, "noheader property not supported");
 		return;
 	}
 
@@ -131,30 +121,28 @@ sub CheckElement($)
 	}
 
 	if (has_property($e, "compression")) {
-		error($e, "compression() property not supported");
+		warning($e, "compression() property not supported");
 	}
 
 	if (has_property($e, "obfuscation")) {
-		error($e, "obfuscation() property not supported");
+		warning($e, "obfuscation() property not supported");
 	}
 
 	if (has_property($e, "sptr")) {
-		error($e, "sptr() pointer property not supported");
+		warning($e, "sptr() pointer property not supported");
 	}
 
 	if (has_property($e, "relative")) {
-		error($e, "relative() pointer property not supported");
+		warning($e, "relative() pointer property not supported");
 	}
 
-	if (has_property($td, "flag")) {
+	if (has_property($e, "flag")) {
 		warning($e, "ignoring flag() property");
 	}
 	
-	if (has_property($td, "value")) {
+	if (has_property($e, "value")) {
 		warning($e, "ignoring value() property");
 	}
-
-	StripProperties($e);
 }
 
 sub CheckFunction($)
@@ -162,12 +150,8 @@ sub CheckFunction($)
 	my $fn = shift;
 
 	if (has_property($fn, "noopnum")) {
-		error($fn, "noopnum not converted. Opcodes will be out of sync.");
+		warning($fn, "noopnum not converted. Opcodes will be out of sync.");
 	}
-
-	StripProperties($fn);
-
-
 }
 
 sub CheckInterface($)
@@ -176,10 +160,8 @@ sub CheckInterface($)
 
 	if (has_property($if, "pointer_default_top") and 
 		$if->{PROPERTIES}->{pointer_default_top} ne "ref") {
-		error($if, "pointer_default_top() is pidl-specific");
+		warning($if, "pointer_default_top() is pidl-specific");
 	}
-
-	StripProperties($if);
 
 	foreach my $x (@{$if->{DATA}}) {
 		if ($x->{TYPE} eq "DECLARE") {
@@ -193,14 +175,10 @@ sub Check($)
 {
 	my $pidl = shift;
 	my $nidl = [];
-	my $res = "";
 
-	foreach my $x (@{$pidl}) {
-		push (@$nidl, CheckInterface($x)) 
-			if ($x->{TYPE} eq "INTERFACE");
+	foreach (@{$pidl}) {
+		push (@$nidl, CheckInterface($_)) if ($_->{TYPE} eq "INTERFACE");
 	}
-
-	return $res;
 }
 
 1;

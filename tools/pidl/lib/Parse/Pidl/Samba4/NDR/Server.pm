@@ -7,6 +7,7 @@
 package Parse::Pidl::Samba4::NDR::Server;
 
 use strict;
+use Parse::Pidl::Util;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -76,7 +77,7 @@ sub Boilerplate_Iface($)
 	my($interface) = shift;
 	my $name = $interface->{NAME}; 
 	my $uname = uc $name;
-	my $uuid = Parse::Pidl::Util::make_str(lc($interface->{PROPERTIES}->{uuid}));
+	my $uuid = lc($interface->{PROPERTIES}->{uuid});
 	my $if_version = $interface->{PROPERTIES}->{version};
 
 	pidl "
@@ -187,7 +188,7 @@ static NTSTATUS $name\__op_ndr_push(struct dcesrv_call_state *dce_call, TALLOC_C
 
 static const struct dcesrv_interface $name\_interface = {
 	.name		= \"$name\",
-	.uuid		= $uuid,
+	.uuid		= ".print_uuid($uuid).",
 	.if_version	= $if_version,
 	.bind		= $name\__op_bind,
 	.unbind		= $name\__op_unbind,
@@ -227,10 +228,10 @@ static NTSTATUS $name\__op_init_server(struct dcesrv_context *dce_ctx, const str
 	return NT_STATUS_OK;
 }
 
-static BOOL $name\__op_interface_by_uuid(struct dcesrv_interface *iface, const char *uuid, uint32_t if_version)
+static BOOL $name\__op_interface_by_uuid(struct dcesrv_interface *iface, const struct GUID *uuid, uint32_t if_version)
 {
 	if ($name\_interface.if_version == if_version &&
-		strcmp($name\_interface.uuid, uuid)==0) {
+		GUID_equal(\&$name\_interface.uuid, uuid)) {
 		memcpy(iface,&$name\_interface, sizeof(*iface));
 		return True;
 	}

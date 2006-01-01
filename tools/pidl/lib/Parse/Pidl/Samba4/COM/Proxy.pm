@@ -54,7 +54,7 @@ sub ParseRegFunc($)
 		$res.= "
 	const void *base_vtable;
 
-	GUID_from_string(DCERPC_" . (uc $interface->{BASE}) . "_UUID, &base_iid);
+	base_iid = dcerpc_table_$interface->{BASE}.uuid;
 
 	base_vtable = dcom_proxy_vtable_by_iid(&base_iid);
 	if (base_vtable == NULL) {
@@ -73,7 +73,7 @@ sub ParseRegFunc($)
 	}
 
 	$res.= "
-	GUID_from_string(DCERPC_" . (uc $interface->{NAME}) . "_UUID, &proxy_vtable.iid);
+	proxy_vtable.iid = dcerpc_table_$interface->{NAME}.uuid;
 
 	return dcom_register_proxy(&proxy_vtable);
 }\n\n";
