@@ -23,58 +23,61 @@
 
 SUBDIRS = lemon
 
+PIDL_FILES= \
+	pidl/MANIFEST					\
+	pidl/Makefile.PL				\
+	pidl/README					\
+	pidl/TODO					\
+	pidl/idl.yp					\
+	pidl/lib/Parse/Pidl.pm				\
+	pidl/lib/Parse/Pidl/Compat.pm			\
+	pidl/lib/Parse/Pidl/Dump.pm			\
+	pidl/lib/Parse/Pidl/Ethereal/Conformance.pm	\
+	pidl/lib/Parse/Pidl/Ethereal/NDR.pm		\
+	pidl/lib/Parse/Pidl/IDL.pm			\
+	pidl/lib/Parse/Pidl/NDR.pm			\
+	pidl/lib/Parse/Pidl/ODL.pm			\
+	pidl/lib/Parse/Pidl/Samba4/COM/Header.pm	\
+	pidl/lib/Parse/Pidl/Samba4/COM/Proxy.pm		\
+	pidl/lib/Parse/Pidl/Samba4/COM/Stub.pm		\
+	pidl/lib/Parse/Pidl/Samba4/EJS.pm		\
+	pidl/lib/Parse/Pidl/Samba4/Header.pm		\
+	pidl/lib/Parse/Pidl/Samba4/NDR/Client.pm	\
+	pidl/lib/Parse/Pidl/Samba4/NDR/Parser.pm	\
+	pidl/lib/Parse/Pidl/Samba4/NDR/Server.pm	\
+	pidl/lib/Parse/Pidl/Samba4/SWIG.pm		\
+	pidl/lib/Parse/Pidl/Samba4/TDR.pm		\
+	pidl/lib/Parse/Pidl/Samba4/Template.pm		\
+	pidl/lib/Parse/Pidl/Typelist.pm			\
+	pidl/lib/Parse/Pidl/Util.pm			\
+	pidl/pidl					\
+	pidl/ref_notes.txt				\
+	pidl/smb_interfaces.pm				\
+	pidl/smb_interfaces.yp				\
+	pidl/tests/Util.pm				\
+	pidl/tests/ndr_align.pl				\
+	pidl/tests/ndr_alloc.pl				\
+	pidl/tests/ndr_array.pl				\
+	pidl/tests/ndr_refptr.pl			\
+	pidl/tests/ndr_simple.pl			\
+	pidl/tests/ndr_string.pl			\
+	pidl/tests/parse_idl.pl
+
 EXTRA_DIST = \
-	asn2eth.py					\
+	$(PIDLFILES)					\
 	EtherealXML.py					\
 	Makefile.nmake					\
+	asn2eth.py					\
 	cvsdiff-fix.py					\
 	dfilter-test.py 				\
 	fuzz-test.sh					\
-	msnchat						\
 	lex.py						\
+	msnchat						\
 	netscreen2dump.py				\
 	pkt-from-core.py				\
 	unix2dos.pl					\
 	win32-setup.sh					\
-	yacc.py						\
-	pidl/lib/Parse/Pidl/Ethereal/NDR.pm		\
-	pidl/lib/Parse/Pidl/Ethereal/Conformance.pm	\
-	pidl/lib/Parse/Pidl/IDL.pm			\
-	pidl/lib/Parse/Pidl/Util.pm			\
-	pidl/lib/Parse/Pidl/Samba4/COM/Proxy.pm		\
-	pidl/lib/Parse/Pidl/Samba4/COM/Stub.pm		\
-	pidl/lib/Parse/Pidl/Samba4/COM/Header.pm	\
-	pidl/lib/Parse/Pidl/Samba4/NDR/Client.pm	\
-	pidl/lib/Parse/Pidl/Samba4/NDR/Parser.pm	\
-	pidl/lib/Parse/Pidl/Samba4/NDR/Server.pm	\
-	pidl/lib/Parse/Pidl/Samba4/EJS.pm		\
-	pidl/lib/Parse/Pidl/Samba4/Template.pm		\
-	pidl/lib/Parse/Pidl/Samba4/TDR.pm		\
-	pidl/lib/Parse/Pidl/Samba4/SWIG.pm		\
-	pidl/lib/Parse/Pidl/Samba4/Header.pm		\
-	pidl/lib/Parse/Pidl/NDR.pm			\
-	pidl/lib/Parse/Pidl/ODL.pm			\
-	pidl/lib/Parse/Pidl/Typelist.pm			\
-	pidl/lib/Parse/Pidl/Dump.pm			\
-	pidl/lib/Parse/Pidl/Compat.pm			\
-	pidl/lib/Parse/Pidl.pm				\
-	pidl/TODO					\
-	pidl/pidl					\
-	pidl/tests/Util.pm				\
-	pidl/tests/ndr_string.pl			\
-	pidl/tests/ndr_array.pl				\
-	pidl/tests/ndr_align.pl				\
-	pidl/tests/ndr_alloc.pl				\
-	pidl/tests/ndr_simple.pl			\
-	pidl/tests/ndr_refptr.pl			\
-	pidl/tests/parse_idl.pl				\
-	pidl/README					\
-	pidl/Makefile.PL				\
-	pidl/idl.yp					\
-	pidl/ref_notes.txt				\
-	pidl/smb_interfaces.pm				\
-	pidl/smb_interfaces.yp				\
-	pidl/MANIFEST
+	yacc.py
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
