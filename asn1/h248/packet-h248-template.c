@@ -548,7 +548,7 @@ static const value_string wildcard_modes[] = {
 
 static const value_string wildcard_levels[] = {
     { 0, "This One Level" },
-    { 1, "This Level and those bellow" },
+    { 1, "This Level and those below" },
     { 0, NULL }
 };
 

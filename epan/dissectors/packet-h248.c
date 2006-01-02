@@ -954,7 +954,7 @@ static const value_string wildcard_modes[] = {
 
 static const value_string wildcard_levels[] = {
     { 0, "This One Level" },
-    { 1, "This Level and those bellow" },
+    { 1, "This Level and those below" },
     { 0, NULL }
 };
 
@@ -2643,7 +2643,6 @@ dissect_h248_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_i
     }
 
     term = h248_cmd_add_term(msg, trx, cmd, term, wild_term);
-//    g_warning("h248_cmd_add_term: term=%x num=%u str=%s",term,pinfo->fd->num,term ? term->str : "-");
 
 	if (new_tvb && h248_term_handle) {
 		call_dissector(h248_term_handle, new_tvb, pinfo, tree);
