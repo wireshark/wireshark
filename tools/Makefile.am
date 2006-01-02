@@ -64,7 +64,7 @@ PIDL_FILES= \
 	pidl/tests/parse_idl.pl
 
 EXTRA_DIST = \
-	$(PIDLFILES)					\
+	$(PIDL_FILES)					\
 	EtherealXML.py					\
 	Makefile.nmake					\
 	asn2eth.py					\
