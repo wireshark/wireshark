@@ -212,6 +212,7 @@ BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 
 #if __GNUC__ >= 2
 void exit_main(int err) __attribute__ ((noreturn));
+void exit_main(int err)
 #else
 void exit_main(int err)
 #endif
