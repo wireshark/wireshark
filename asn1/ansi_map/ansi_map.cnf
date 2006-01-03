@@ -1,7 +1,7 @@
 # ansi_map.cnf
 # ansi_map conformation file
 # Copyright 2005 Anders Broman 
-# $Id$
+# $Id:$
 
 
 #.EXPORTS
@@ -40,6 +40,17 @@ VAL_PTR = &OperationCode
  proto_tree_add_item(tree, hf_ansi_map_op_code_fam, tvb, offset-2,1,FALSE);
  proto_tree_add_item(tree, hf_ansi_map_op_code, tvb, offset-1,1,FALSE);
 
+#.FN_PARS MINType
+
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY MINType
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_min_type(parameter_tvb,pinfo,tree);
+	}
+
 #.FN_PARS DigitsType
 
 VAL_PTR = &parameter_tvb
@@ -50,8 +61,68 @@ VAL_PTR = &parameter_tvb
 	if (parameter_tvb){
 		dissect_ansi_map_digits_type(parameter_tvb,pinfo,tree);
 	}
+
+#.FN_PARS OriginationTriggers
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY OriginationTriggers
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_originationtriggers(parameter_tvb,pinfo,tree);
+	}
+
+#.FN_PARS TriggerCapability
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY TriggerCapability
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_triggercapability(parameter_tvb,pinfo,tree);
+	}
+
+#.FN_PARS BillingID
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY BillingID
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_billingid(parameter_tvb,pinfo,tree);
+	}
+
+#.FN_PARS MSCID
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY MSCID
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_mscid(parameter_tvb,pinfo,tree);
+	}
+
+
+#.FN_PARS TransactionCapability
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY TransactionCapability
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_transactioncapability(parameter_tvb,pinfo,tree);
+	}
 	 
 #.TYPE_ATTR
+ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ActionCode_vals)
 ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
 ServiceRedirectionCause  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ServiceRedirectionCause_vals)
+SMS-AccessDeniedReason  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SMS_AccessDeniedReason_vals)
+SMS_CauseCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ansi_map_SMS_CauseCode_vals)
+TDMABandwidth TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(ansi_map_TDMABandwidth_vals)
+TDMAServiceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_TDMAServiceCode_vals)
+OTASP-ResultCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_OTASP_ResultCode_vals)
+ServiceIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_ServiceIndicator_vals)
+SignalingMessageEncryptionReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMEReport_vals)
+VoicePrivacyReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_VoicePrivacyReport_vals)
 #.END

@@ -7,7 +7,7 @@
  *
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
+ * $Id:$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,22 @@
  *   Authentication Enhancements
  *			3GPP2 N.S0014-0 v1.0	IS-778
  *
+ *   Features In CDMA
+ *			3GPP2 N.S0010-0 v1.0	IS-735
+ *
+ *   OTASP and OTAPA
+ *			3GPP2 N.S0011-0 v1.0	IS-725-A
+ *
+ *   Circuit Mode Services
+ *			3GPP2 N.S0008-0 v1.0	IS-737
+ *	XXX SecondInterMSCCircuitID not implemented, parameter ID conflicts with ISLP Information!
+ *
+ *   IMSI
+ *			3GPP2 N.S0009-0 v1.0	IS-751
+ *
+ *   WIN Phase 1
+ *			3GPP2 N.S0013-0 v1.0	IS-771
+ *
  *	 DCCH (Clarification of Audit Order with Forced 
  *         Re-Registration in pre-TIA/EIA-136-A Implementation 
  *			3GPP2 A.S0017-B			IS-730
@@ -55,6 +71,19 @@
  *
  *   WIN Phase 2
  *			3GPP2 N.S0004-0 v1.0	IS-848
+ *
+ *   TIA/EIA-41-D Pre-Paid Charging
+ *			3GPP2 N.S0018-0 v1.0	IS-826
+ *
+ *   User Selective Call Forwarding
+ *			3GPP2 N.S0021-0 v1.0	IS-838
+ *
+ *
+ *   Answer Hold
+ *			3GPP2 N.S0022-0 v1.0	IS-837
+ *
+ *   UIM
+ *			3GPP2 N.S0003
  *
  */ 
 
@@ -98,11 +127,69 @@ static int hf_ansi_map_digits_enc = -1;
 static int hf_ansi_map_np = -1;
 static int hf_ansi_map_nr_digits = -1;
 static int hf_ansi_map_bcd_digits = -1;
+static int hf_ansi_map_trans_cap_prof = -1;
+static int hf_ansi_map_trans_cap_busy = -1;
+static int hf_ansi_map_trans_cap_ann = -1;
+static int hf_ansi_map_trans_cap_rui = -1;
+static int hf_ansi_map_trans_cap_spini = -1;
+static int hf_ansi_map_trans_cap_uzci = -1;
+static int hf_ansi_map_trans_cap_ndss = -1;
+static int hf_ansi_map_trans_cap_nami = -1;
+static int hf_ansi_trans_cap_multerm = -1;
+static int hf_ansi_trans_cap_tl = -1;
+static int hf_ansi_map_MarketID = -1;
+static int hf_ansi_map_swno = -1;
+static int hf_ansi_map_idno = -1;
+static int hf_ansi_map_segcount = -1;
+static int hf_ansi_map_originationtriggers_all = -1;
+static int hf_ansi_map_originationtriggers_local = -1;
+static int hf_ansi_map_originationtriggers_ilata = -1;
+static int hf_ansi_map_originationtriggers_olata = -1;
+static int hf_ansi_map_originationtriggers_int = -1;
+static int hf_ansi_map_originationtriggers_wz = -1;
+static int hf_ansi_map_originationtriggers_unrec = -1;
+static int hf_ansi_map_originationtriggers_rvtc = -1;
+static int hf_ansi_map_originationtriggers_star = -1;
+static int hf_ansi_map_originationtriggers_ds = -1;
+static int hf_ansi_map_originationtriggers_pound = -1;
+static int hf_ansi_map_originationtriggers_dp = -1;
+static int hf_ansi_map_originationtriggers_pa = -1;
+static int hf_ansi_map_originationtriggers_nodig = -1;
+static int hf_ansi_map_originationtriggers_onedig = -1;
+static int hf_ansi_map_originationtriggers_twodig = -1;
+static int hf_ansi_map_originationtriggers_threedig = -1;
+static int hf_ansi_map_originationtriggers_fourdig = -1;
+static int hf_ansi_map_originationtriggers_fivedig = -1;
+static int hf_ansi_map_originationtriggers_sixdig = -1;
+static int hf_ansi_map_originationtriggers_sevendig = -1;
+static int hf_ansi_map_originationtriggers_eightdig = -1;
+static int hf_ansi_map_originationtriggers_ninedig = -1;
+static int hf_ansi_map_originationtriggers_tendig = -1;
+static int hf_ansi_map_originationtriggers_elevendig = -1;
+static int hf_ansi_map_originationtriggers_thwelvedig = -1;
+static int hf_ansi_map_originationtriggers_thirteendig = -1;
+static int hf_ansi_map_originationtriggers_fourteendig = -1;
+static int hf_ansi_map_originationtriggers_fifteendig = -1;
+static int hf_ansi_map_triggercapability_init = -1;
+static int hf_ansi_map_triggercapability_kdigit = -1;
+static int hf_ansi_map_triggercapability_all = -1;
+static int hf_ansi_map_triggercapability_rvtc = -1;
+static int hf_ansi_map_triggercapability_oaa = -1;
+static int hf_ansi_map_triggercapability_oans = -1;
+static int hf_ansi_map_triggercapability_odisc = -1;
+static int hf_ansi_map_triggercapability_ona = -1;
 
 #include "packet-ansi_map-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
+static gint ett_mintype = -1;
+static gint ett_digitstype = -1;
+static gint ett_billingid = -1;
+static gint ett_mscid = -1;
+static gint ett_originationtriggers = -1;
+static gint ett_transactioncapability = -1;
+
 #include "packet-ansi_map-ett.c"
 
 /* Global variables */
@@ -223,21 +310,6 @@ const value_string ansi_map_opr_code_strings[] = {
     { 100,	"Drop Service" },
     { 0, NULL },
 };
-/*
- * 6.5.2.2 ActionCode
- * Table 114 ActionCode value
- */
-static const value_string ansi_map_ActionCode_vals[] = {
-  {   0, "Not used" },
-  {   1, "Continue processing" },
-  {   2, "Disconnect call" },
-  {   3, "Disconnect call leg" },
-  {   4, "Conference Calling Drop Last Party" },
-  {   5, "Bridge call leg(s) to conference call" },
-  {   6, "Drop call leg on busy or routing failure" },
-  {   7, "Disconnect all call legs" },
-  { 0, NULL }
-};
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -252,6 +324,12 @@ static dgt_set_t Dgt_tbcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
      '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#'
+    }
+};
+static dgt_set_t Dgt1_9_bcd = {
+    {
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
     }
 };
 /* Assumes the rest of the tvb contains the digits to be turned into a string 
@@ -355,6 +433,19 @@ static const value_string ansi_map_np_vals[]  = {
 	{	0, NULL }
 };
 
+static void 
+dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	char		*digit_str;
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_mintype);
+	
+	digit_str = unpack_digits2(tvb, offset, &Dgt1_9_bcd);
+	proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+}
 
 static void 
 dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
@@ -362,20 +453,25 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint8 octet;
 	int offset = 0;
 	char		*digit_str;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_digitstype);
 
 	/* Octet 1 */
-	proto_tree_add_item(tree, hf_ansi_map_type_of_digits, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_type_of_digits, tvb, offset, 1, FALSE);
 	offset++;
 	/* Octet 2 */
-	proto_tree_add_item(tree, hf_ansi_map_si, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_ansi_map_navail, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_ansi_map_pi, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_ansi_map_na, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_si, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_navail, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_pi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_na, tvb, offset, 1, FALSE);
 	offset++;
 	/* Octet 3 */
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_item(tree, hf_ansi_map_np, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_ansi_map_digits_enc, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_np, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_digits_enc, tvb, offset, 1, FALSE);
 	offset++;
 	/* Octet 4 - */
 	switch(octet>>4){
@@ -384,17 +480,17 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	case 3:/* Data Numbering (ITU-T Rec. X.121) (not used in this Standard). */
 	case 4:/* Telex Numbering (ITU-T Rec. F.69) (not used in this Standard). */
 	case 5:/* Maritime Mobile Numbering (not used in this Standard). */
-		proto_tree_add_text(tree, tvb, offset, -1, "This Number plan should not have been used");
+		proto_tree_add_text(subtree, tvb, offset, -1, "This Number plan should not have been used");
 		break;
 	case 2:/* Telephony Numbering (ITU-T Rec. E.164,E.163). */
 	case 6:/* Land Mobile Numbering (ITU-T Rec. E.212) */
 	case 7:/* Private Numbering Plan */
 		if ((octet&0xf) == 1){
 			/* BCD Coding */
-			proto_tree_add_item(tree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
 			offset++;
-			digit_str = unpack_digits(tvb, offset);
-			proto_tree_add_string(tree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
+			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
 		}
 		break;
 	case 13:/* ANSI SS7 Point Code (PC) and Subsystem Number (SSN). */
@@ -402,11 +498,475 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	case 14:/* Internet Protocol (IP) Address. */
 		break;
 	default:
-		proto_tree_add_text(tree, tvb, offset, -1, "This Number plan should not have been used");
+		proto_tree_add_text(subtree, tvb, offset, -1, "This Number plan should not have been used");
 		break;
 	}
 
 }
+/*
+ * 6.5.2.2 ActionCode
+ * Table 114 ActionCode value
+ */
+
+
+/* 6.5.2.2 ActionCode(TIA/EIA-41.5-D, page 5-129) */
+
+static const value_string ansi_map_ActionCode_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Continue processing"},
+    {   2, "Disconnect call"},
+    {   3, "Disconnect call leg"},
+    {   4, "Conference Calling Drop Last Party"},
+    {   5, "Bridge call leg(s) to conference call"},
+    {   6, "Drop call leg on busy or routing failure"},
+    {   7, "Disconnect all call legs"},
+    {   8, "Attach MSC to OTAF"},
+    {   9, "Initiate RegistrationNotification"},
+    {   10, "Generate Public Encryption values"},
+    {   11, "Generate A-key"},
+    {   12, "Perform SSD Update procedure"},
+    {   13, "Perform Re-authentication procedure"},
+    {   14, "Release TRN"},
+    {   15, "Commit A-key"},
+    {   16, "Release Resources (e.g., A-key, Traffic Channel)"},
+    {   17, "Record NEWMSID"},
+    {   18, "Allocate Resources (e.g., Multiple message traffic channel delivery)."},
+    {   19, "Generate Authentication Signature"},
+	{	0, NULL }
+};
+
+/* 6.5.2.16 BillingID */
+static void
+dissect_ansi_map_billingid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+
+	proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+	offset++;
+	/* ID Number */
+	proto_tree_add_item(subtree, hf_ansi_map_idno, tvb, offset, 3, FALSE);
+	offset = offset + 3;
+	proto_tree_add_item(subtree, hf_ansi_map_segcount, tvb, offset, 1, FALSE);
+
+}
+/* 6.5.2.82 MSCID */
+
+static void
+dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_mscid);
+
+	proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+}
+
+/* 6.5.2.90 OriginationTriggers */
+
+
+/* All Origination (All) (octet 1, bit A) */
+static const true_false_string ansi_map_originationtriggers_all_bool_val  = {
+  "Launch an OriginationRequest for any call attempt. This overrides all other values",
+  "Trigger is not active"
+};
+
+/* Local (octet 1, bit B) */
+static const true_false_string ansi_map_originationtriggers_local_bool_val  = {
+  "Launch an OriginationRequest for any local call attempt",
+  "Trigger is not active"
+};
+
+/* Intra-LATA Toll (ILATA) (octet 1, bit C) */
+static const true_false_string ansi_map_originationtriggers_ilata_bool_val  = {
+  "Launch an OriginationRequest for any intra-LATA call attempt",
+  "Trigger is not active"
+};
+/* Inter-LATA Toll (OLATA) (octet 1, bit D) */
+static const true_false_string ansi_map_originationtriggers_olata_bool_val  = {
+  "Launch an OriginationRequest for any inter-LATA toll call attempt",
+  "Trigger is not active"
+};
+/* International (Int'l ) (octet 1, bit E) */
+static const true_false_string ansi_map_originationtriggers_int_bool_val  = {
+  "Launch an OriginationRequest for any international call attempt",
+  "Trigger is not active"
+};
+/* World Zone (WZ) (octet 1, bit F) */
+static const true_false_string ansi_map_originationtriggers_wz_bool_val  = {
+  "Launch an OriginationRequest for any call attempt outside of the current World Zone (as defined in ITU-T Rec. E.164)",
+  "Trigger is not active"
+};
+
+/* Unrecognized Number (Unrec) (octet 1, bit G) */
+static const true_false_string ansi_map_originationtriggers_unrec_bool_val  = {
+  "Launch an OriginationRequest for any call attempt to an unrecognized number",
+  "Trigger is not active"
+};
+/* Revertive Call (RvtC) (octet 1, bit H)*/
+static const true_false_string ansi_map_originationtriggers_rvtc_bool_val  = {
+  "Launch an OriginationRequest for any Revertive Call attempt",
+  "Trigger is not active"
+};
+
+/* Star (octet 2, bit A) */
+static const true_false_string ansi_map_originationtriggers_star_bool_val  = {
+  "Launch an OriginationRequest for any number beginning with a Star '*' digit",
+  "Trigger is not active"
+};
+
+/* Double Star (DS) (octet 2, bit B) */
+static const true_false_string ansi_map_originationtriggers_ds_bool_val  = {
+  "Launch an OriginationRequest for any number beginning with two Star '**' digits",
+  "Trigger is not active"
+};
+/* Pound (octet 2, bit C) */
+static const true_false_string ansi_map_originationtriggers_pound_bool_val  = {
+  "Launch an OriginationRequest for any number beginning with a Pound '#' digit",
+  "Trigger is not active"
+};
+/* Double Pound (DP) (octet 2, bit D) */
+static const true_false_string ansi_map_originationtriggers_dp_bool_val  = {
+  "Launch an OriginationRequest for any number beginning with two Pound '##' digits",
+  "Trigger is not active"
+};
+/* Prior Agreement (PA) (octet 2, bit E) */
+static const true_false_string ansi_map_originationtriggers_pa_bool_val  = {
+  "Launch an OriginationRequest for any number matching a criteria of a prior agreement",
+  "Trigger is not active"
+};
+
+/* No digits (octet 3, bit A) */
+static const true_false_string ansi_map_originationtriggers_nodig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with no digits",
+  "Trigger is not active"
+};
+
+/* 1 digit (octet 3, bit B) */
+static const true_false_string ansi_map_originationtriggers_onedig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 1 digit",
+  "Trigger is not active"
+};
+/* 1 digit (octet 3, bit C) */
+static const true_false_string ansi_map_originationtriggers_twodig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 2 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 3, bit D) */
+static const true_false_string ansi_map_originationtriggers_threedig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 3 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 3, bit E) */
+static const true_false_string ansi_map_originationtriggers_fourdig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 4 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 3, bit F) */
+static const true_false_string ansi_map_originationtriggers_fivedig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 5 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 3, bit G) */
+static const true_false_string ansi_map_originationtriggers_sixdig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 6 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 3, bit H) */
+static const true_false_string ansi_map_originationtriggers_sevendig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 7 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit A) */
+static const true_false_string ansi_map_originationtriggers_eightdig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 8 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit B) */
+static const true_false_string ansi_map_originationtriggers_ninedig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 9 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit C) */
+static const true_false_string ansi_map_originationtriggers_tendig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 10 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit D) */
+static const true_false_string ansi_map_originationtriggers_elevendig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 11 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit E) */
+static const true_false_string ansi_map_originationtriggers_thwelvdig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 12 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit F) */
+static const true_false_string ansi_map_originationtriggers_thirteendig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 13 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit G) */
+static const true_false_string ansi_map_originationtriggers_fourteendig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 14 digits",
+  "Trigger is not active"
+};
+/* 1 digit (octet 4, bit H) */
+static const true_false_string ansi_map_originationtriggers_fifteendig_bool_val  = {
+  "Launch an OriginationRequest for any call attempt with 15 digits",
+  "Trigger is not active"
+};
+
+static void
+dissect_ansi_map_originationtriggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+
+	/* Revertive Call (RvtC) (octet 1, bit H)*/
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_rvtc, tvb, offset,	1, FALSE);
+	/* Unrecognized Number (Unrec) (octet 1, bit G) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_unrec, tvb, offset,	1, FALSE);
+	/* World Zone (WZ) (octet 1, bit F) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_wz, tvb, offset,	1, FALSE);
+	/* International (Int'l ) (octet 1, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_int, tvb, offset,	1, FALSE);
+	/* Inter-LATA Toll (OLATA) (octet 1, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_olata, tvb, offset,	1, FALSE);
+	/* Intra-LATA Toll (ILATA) (octet 1, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ilata, tvb, offset,	1, FALSE);
+	/* Local (octet 1, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_local, tvb, offset,	1, FALSE);
+	/* All Origination (All) (octet 1, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_all, tvb, offset,	1, FALSE);
+	offset++;
+
+	/*Prior Agreement (PA) (octet 2, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_pa, tvb, offset,	1, FALSE);
+	/* Double Pound (DP) (octet 2, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_dp, tvb, offset,	1, FALSE);
+	/* Pound (octet 2, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_pound, tvb, offset,	1, FALSE);
+	/* Double Star (DS) (octet 2, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ds, tvb, offset,	1, FALSE);
+	/* Star (octet 2, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_star, tvb, offset,	1, FALSE);
+	offset++;
+
+	/* 7 digit (octet 3, bit H) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_sevendig, tvb, offset,	1, FALSE);
+	/* 6 digit (octet 3, bit G) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_sixdig, tvb, offset,	1, FALSE);
+	/* 5 digit (octet 3, bit F) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fivedig, tvb, offset,	1, FALSE);
+	/* 4 digit (octet 3, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fourdig, tvb, offset,	1, FALSE);
+	/* 3 digit (octet 3, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_threedig, tvb, offset,	1, FALSE);
+	/* 2 digit (octet 3, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_twodig, tvb, offset,	1, FALSE);
+	/* 1 digit (octet 3, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_onedig, tvb, offset,	1, FALSE);
+	/* No digits (octet 3, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_nodig, tvb, offset,	1, FALSE);
+	offset++;
+
+	/* 15 digit (octet 4, bit H) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fifteendig, tvb, offset,	1, FALSE);
+	/* 14 digit (octet 4, bit G) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fourteendig, tvb, offset,	1, FALSE);
+	/* 13 digit (octet 4, bit F) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_thirteendig, tvb, offset,	1, FALSE);
+	/* 12 digit (octet 4, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_thwelvedig, tvb, offset,	1, FALSE);
+	/* 11 digit (octet 4, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_elevendig, tvb, offset,	1, FALSE);
+	/* 10 digit (octet 4, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_tendig, tvb, offset,	1, FALSE);
+	/* 9 digit (octet 4, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ninedig, tvb, offset,	1, FALSE);
+	/* 8 digits (octet 4, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_eightdig, tvb, offset,	1, FALSE);
+
+}
+/*	6.5.2.122 SMS_AccessDeniedReason (TIA/EIA-41.5-D, page 5-256)
+	N.S0011-0 v 1.0
+ */
+static const value_string ansi_map_SMS_AccessDeniedReason_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Denied"},
+    {   2, "Postponed"},
+    {   3, "Unavailable"},
+    {   4, "Invalid"},
+	{	0, NULL }
+};
+
+/* 6.5.2.125 SMS_CauseCode (TIA/EIA-41.5-D, page 5-262)
+	N.S0011-0 v 1.0
+ */
+static const value_string ansi_map_SMS_CauseCode_vals[]  = {
+    {   0, "Address vacant"},
+    {   1, "Address translation failure"},
+    {   2, "Network resource shortage"},
+    {   3, "Network failure"},
+    {   4, "Invalid Teleservice ID"},
+    {   5, "Other network problem"},
+    {   6, "Unsupported network interface"},
+    {   32, "No page response"},
+    {   33, "Destination busy"},
+    {   34, "No acknowledgment"},
+    {   35, "Destination resource shortage"},
+    {   36, "SMS delivery postponed"},
+    {   37, "Destination out of service"},
+    {   38, "Destination no longer at this address"},
+    {   39, "Other terminal problem"},
+    {   64, "Radio interface resource shortage"},
+    {   65, "Radio interface incompatibility"},
+    {   66, "Other radio interface problem"},
+    {   67, "Unsupported Base Station Capability"},
+    {   96, "Encoding problem"},
+    {   97, "Service origination denied"},
+    {   98, "Service termination denied"},
+    {   99, "Supplementary service not supported"},
+    {   100, "Service not supported"},
+    {   101, "Reserved"},
+    {   102, "Missing expected parameter"},
+    {   103, "Missing mandatory parameter"},
+    {   104, "Unrecognized parameter value"},
+    {   105, "Unexpected parameter value"},
+    {   106, "User Data size error"},
+    {   107, "Other general problems"},
+    {   108, "Session not active"},
+	{	0, NULL }
+};
+
+
+
+
+static const true_false_string ansi_map_trans_cap_prof_bool_val  = {
+  "The system is capable of supporting the IS-41-C profile parameters",
+  "The system is not capable of supporting the IS-41-C profile parameters"
+};
+
+static const true_false_string ansi_map_trans_cap_busy_bool_val  = {
+  "The system is capable of detecting a busy condition at the current time",
+  "The system is not capable of detecting a busy condition at the current time"
+};
+
+static const true_false_string ansi_map_trans_cap_ann_bool_val  = {
+  "The system is capable of honoring the AnnouncementList parameter at the current time",
+  "The system is not capable of honoring the AnnouncementList parameter at the current time"
+};
+
+static const true_false_string ansi_map_trans_cap_rui_bool_val  = {
+  "The system is capable of interacting with the user",
+  "The system is not capable of interacting with the user"
+};
+
+static const true_false_string ansi_map_trans_cap_spini_bool_val  = {
+  "The system is capable of supporting local SPINI operation",
+  "The system is not capable of supporting local SPINI operation at the current time"
+};
+
+static const true_false_string ansi_map_trans_cap_uzci_bool_val  = {
+  "The system is User Zone capable at the current time",
+  "The system is not User Zone capable at the current time"
+};
+static const true_false_string ansi_map_trans_cap_ndss_bool_val  = {
+  "Serving system is NDSS capable",
+  "Serving system is not NDSS capable"
+};
+static const true_false_string ansi_map_trans_cap_nami_bool_val  = {
+  "The system is CNAP/CNAR capable",
+  "The system is not CNAP/CNAR capable"
+};
+
+static const value_string ansi_map_trans_cap_multerm_vals[]  = {
+    {   0, "The system cannot accept a termination at this time (i.e., cannot accept routing information)"},
+    {   1, "The system supports the number of call legs indicated"},
+    {   2, "The system supports the number of call legs indicated"},
+    {   3, "The system supports the number of call legs indicated"},
+    {   4, "The system supports the number of call legs indicated"},
+    {   5, "The system supports the number of call legs indicated"},
+    {   6, "The system supports the number of call legs indicated"},
+    {   7, "The system supports the number of call legs indicated"},
+    {   8, "The system supports the number of call legs indicated"},
+    {   9, "The system supports the number of call legs indicated"},
+    {   10, "The system supports the number of call legs indicated"},
+    {   11, "The system supports the number of call legs indicated"},
+    {   12, "The system supports the number of call legs indicated"},
+    {   13, "The system supports the number of call legs indicated"},
+    {   14, "The system supports the number of call legs indicated"},
+    {   15, "The system supports the number of call legs indicated"},
+	{	0, NULL }
+};
+
+static const true_false_string ansi_map_trans_cap_tl_bool_val  = {
+  "The system is capable of supporting the TerminationList parameter at the current time",
+  "The system is not capable of supporting the TerminationList parameter at the current time"
+};
+
+/* 6.5.2.160 TransactionCapability (TIA/EIA-41.5-D, page 5-315) */
+static void
+dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_transactioncapability);
+
+	/*NAME Capability Indicator (NAMI) (octet 1, bit H) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_nami, tvb, offset, 1, FALSE);
+	/* NDSS Capability (NDSS) (octet 1, bit G) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_ndss, tvb, offset, 1, FALSE);
+	/* UZ Capability Indicator (UZCI) (octet 1, bit F) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_uzci, tvb, offset, 1, FALSE);
+	/* Subscriber PIN Intercept (SPINI) (octet 1, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_spini, tvb, offset, 1, FALSE);
+	/* Remote User Interaction (RUI) (octet 1, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_rui, tvb, offset, 1, FALSE);
+	/* Announcements (ANN) (octet 1, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_ann, tvb, offset, 1, FALSE);
+	/* Busy Detection (BUSY) (octet 1, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_busy, tvb, offset, 1, FALSE);
+	/* Profile (PROF) (octet 1, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_prof, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* Multiple Terminations (octet 2, bits A-D) */
+	proto_tree_add_item(subtree, hf_ansi_trans_cap_multerm, tvb, offset, 1, FALSE);
+	/* TerminationList (TL) (octet 2, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_trans_cap_tl, tvb, offset, 1, FALSE);
+}
+/* 6.5.2.i (IS-730) TDMAServiceCode */
+static const value_string ansi_map_TDMAServiceCode_vals[]  = {
+    {   0, "Analog Speech Only"},
+    {   1, "Digital Speech Only"},
+    {   2, "Analog or Digital Speech, Analog Preferred"},
+    {   3, "Analog or Digital Speech, Digital Preferred"},
+    {   4, "Asynchronous Data"},
+    {   5, "G3 Fax"},
+    {   6, "Not Used (Service Rejected)"},
+    {   7, "STU-III"},
+	{	0, NULL }
+};
 
 /*- 6.5.2.ac (N.S0007-0 v 1.0) ControlChannelMode */
 static const value_string ansi_map_ControlChannelMode_vals[]  = {
@@ -417,6 +977,110 @@ static const value_string ansi_map_ControlChannelMode_vals[]  = {
 	{	0, NULL }
 };
 
+/*Table 6.5.2.ay TDMABandwidth value */
+static const value_string ansi_map_TDMABandwidth_vals[]  = {
+    {   0, "Half-Rate Digital Traffic Channel Only"},
+    {   1, "Full-Rate Digital Traffic Channel Only"},
+    {   2, "Half-Rate or Full-rate Digital Traffic Channel - Full-Rate Preferred"},
+    {   3, "Half-rate or Full-rate Digital Traffic Channel - Half-rate Preferred"},
+    {   4, "Double Full-Rate Digital Traffic Channel Only"},
+    {   5, "Triple Full-Rate Digital Traffic Channel Only"},
+    {   6, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   7, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   8, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   9, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   10, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   11, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   12, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   13, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   14, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+    {   15, "Reserved. Treat reserved values the same as value 1 - Full-Rate Digital Traffic Channel Only"},
+	{	0, NULL }
+
+};
+/* 6.5.2.bw CallingPartyName N.S0012-0 v 1.0*/
+
+/* Presentation Status (octet 1, bits A and B) */
+static const value_string ansi_map_Presentation_Status_vals[]  = {
+    {   0, "Presentation allowed"},
+    {   1, "Presentation restricted"},
+    {   2, "Blocking toggle"},
+    {   3, "No indication"},
+	{	0, NULL }
+};
+/* Availability (octet 1, bit E) N.S0012-0 v 1.0*/
+static const true_false_string ansi_map_Availability_bool_val  = {
+  "Name not available",
+  "Name available/unknown"
+};
+/* 6.5.2.bx DisplayText N.S0012-0 v 1.0*/
+/* a. Refer to ANSI T1.610 for field encoding. */
+
+/* 6.5.2.bz ServiceID
+Service Identifier (octets 1 to n)
+0 Not used.
+1 Calling Name Presentation - No RND.
+2 Calling Name Presentation with RND.
+ */
+
+
+/* 6.5.2.df TriggerCapability */
+
+
+static const true_false_string ansi_map_triggercapability_bool_val  = {
+  "triggers can be armed by the TriggerAddressList parameter",
+  "triggers cannot be armed by the TriggerAddressList parameter"
+};
+
+static void
+dissect_ansi_map_triggercapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+
+
+	/* O_No_Answer (ONA) (octet 1, bit H)*/
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_ona, tvb, offset,	1, FALSE);
+	/* O_Disconnect (ODISC) (octet 1, bit G)*/
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_odisc, tvb, offset,	1, FALSE);
+	/* O_Answer (OANS) (octet 1, bit F)*/
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_oans, tvb, offset,	1, FALSE);
+	/* Origination_Attempt_Authorized (OAA) (octet 1, bit E)*/
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_oaa, tvb, offset,	1, FALSE);
+	/* Revertive_Call (RvtC) (octet 1, bit D)*/
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_rvtc, tvb, offset,	1, FALSE);
+	/* All_Calls (All) (octet 1, bit C)*/
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_all, tvb, offset,	1, FALSE);
+	/* K-digit (K-digit) (octet 1, bit B)*/
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_kdigit, tvb, offset,	1, FALSE);
+	/* Introducing Star/Pound (INIT) (octet 1, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_init, tvb, offset,	1, FALSE);
+	offset++;
+
+
+	/* O_Called_Party_Busy (OBSY) (octet 2, bit H)*/
+	/* Called_Routing_Address_Available (CdRAA) (octet 2, bit G)*/
+	/* Initial_Termination (IT) (octet 2, bit F)*/
+	/* Calling_Routing_Address_Available (CgRAA)*/
+	/* Advanced_Termination (AT) (octet 2, bit D)*/
+	/* Prior_Agreement (PA) (octet 2, bit C)*/
+	/* Unrecognized_Number (Unrec) (octet 2, bit B)*/
+	/* Call Types (CT) (octet 2, bit A)*/
+
+	/* */
+	/* */
+	/* */
+	/* T_Disconnect (TDISC) (octet 3, bit E)*/
+	/* T_Answer (TANS) (octet 3, bit D)*/
+	/* T_No_Answer (TNA) (octet 3, bit C)*/
+	/* T_Busy (TBusy) (octet 3, bit B)*/
+	/* Terminating_Resource_Available (TRA) (octet 3, bit A) */
+
+}
 /* 6.5.2.bp-1 ServiceRedirectionCause value */
 static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   0, "Not used"},
@@ -428,6 +1092,68 @@ static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   6, "WrongNID"},
 	{	0, NULL }
 };
+
+/* 6.5.2.lB AKeyProtocolVersion
+	N.S0011-0 v 1.0
+ */
+static const value_string ansi_map_AKeyProtocolVersion_vals[]  = {
+    {   0, "Not used"},
+    {   1, "A-key Generation not supported"},
+    {   2, "Diffie Hellman with 768-bit modulus, 160-bit primitive, and 160-bit exponents"},
+    {   3, "Diffie Hellman with 512-bit modulus, 160-bit primitive, and 160-bit exponents"},
+    {   4, "Diffie Hellman with 768-bit modulus, 32-bit primitive, and 160-bit exponents"},
+	{	0, NULL }
+};
+/* 6.5.2.sB OTASP_ResultCode
+	N.S0011-0 v 1.0
+ */
+static const value_string ansi_map_OTASP_ResultCode_vals[]  = {
+    {   0, "Accepted - Successful"},
+    {   1, "Rejected - Unknown cause."},
+    {   2, "Computation Failure - E.g., unable to compute A-key"},
+    {   3, "CSC Rejected - CSC challenge failure"},
+    {   4, "Unrecognized OTASPCallEntry"},
+    {   5, "Unsupported AKeyProtocolVersion(s)"},
+    {   6, "Unable to Commit"},
+	{	0, NULL }
+};
+
+/*6.5.2.wB ServiceIndicator
+	N.S0011-0 v 1.0
+ */
+static const value_string ansi_map_ServiceIndicator_vals[]  = {
+    {   0, "Undefined Service"},
+    {   1, "CDMA OTASP Service"},
+    {   2, "TDMA OTASP Service"},
+    {   3, "CDMA OTAPA Service"},
+	{	0, NULL }
+};
+
+/* 6.5.2.xB SignalingMessageEncryptionReport
+	N.S0011-0 v 1.0
+ */
+static const value_string ansi_map_SMEReport_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Signaling Message Encryption enabling not attempted"},
+    {   2, "Signaling Message Encryption enabling no response"},
+    {   3, "Signaling Message Encryption is enabled"},
+    {   4, "Signaling Message Encryption enabling failed"},
+	{	0, NULL }
+};
+
+/* 6.5.2.zB VoicePrivacyReport
+	N.S0011-0 v 1.0
+ */
+static const value_string ansi_map_VoicePrivacyReport_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Voice Privacy not attempted"},
+    {   2, "Voice Privacy no response"},
+    {   3, "Voiec Privacy is active"},
+    {   4, "Voice Privacy failed"},
+	{	0, NULL }
+};
+
+
 #include "packet-ansi_map-fn.c"
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -601,42 +1327,44 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  break;
 	  /* End N.S0005*/
 	  /* N.S0010-0 v 1.0 */
-  case  56: /*OTASP Request*/
-	  offset = offset;
+	  /* N.S0011-0 v 1.0 */
+  case  56: /*OTASP Request 6.4.2.CC*/
+	  offset = dissect_ansi_map_OTASPRequest(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
+	  /*End N.S0011-0 v 1.0 */
   case  57: /*Information Backward*/
 	  offset = offset;
 	  break;
 	  /*  N.S0008-0 v 1.0 */
   case  58: /*Change Facilities*/
-	  offset = offset;
+	  offset = dissect_ansi_map_ChangeFacilities(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  59: /*Change Service*/
-	  offset = offset;
+	  offset = dissect_ansi_map_ChangeService(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
 	  /* End N.S0008-0 v 1.0 */	
   case  60: /*Parameter Request*/
-	  offset = offset;
+	  offset = dissect_ansi_map_ParameterRequest(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  61: /*TMSI Directive*/
-	  offset = offset;
+	  offset = dissect_ansi_map_TMSIDirective(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
 	  /*End  N.S0010-0 v 1.0 */
   case  62: /*Reserved 62*/
-	  offset = offset;
+	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(Reserved 62)");
 	  break;
-  case  63: /*Service Request*/
+  case  63: /*Service Request N.S0012-0 v 1.0*/
 	  offset = dissect_ansi_map_ServiceRequest(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
 	  /* N.S0013 */
   case  64: /*Analyzed Information Request*/
-	  offset = dissect_ansi_map_AnalyzedInformation(TRUE, tvb, offset, pinfo, tree, -1);;
+	  offset = dissect_ansi_map_AnalyzedInformation(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  65: /*Connection Failure Report*/
-	  offset = offset;
+	  offset = dissect_ansi_map_ConnectionFailureReport(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  66: /*Connect Resource*/
-	  offset = offset;
+	  offset = dissect_ansi_map_ConnectResource(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  67: /*Disconnect Resource*/
 	  /* No data */
@@ -648,16 +1376,16 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  /* No data */
 	  break;
   case  70: /*Modify*/
-	  offset = offset;
+	  offset = dissect_ansi_map_Modify(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  71: /*Reset Timer*/
-	  offset = offset;
+	  /*No Data*/
 	  break;
   case  72: /*Search*/
-	  offset = offset;
+	  offset = dissect_ansi_map_Search(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  73: /*Seize Resource*/
-	  offset = offset;
+	  offset = dissect_ansi_map_SeizeResource(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  74: /*SRF Directive*/
 	  offset = dissect_ansi_map_SRFDirective(TRUE, tvb, offset, pinfo, tree, -1);
@@ -828,11 +1556,30 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case  55: /*SMS Request*/
 	  offset = dissect_ansi_map_SMSRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
+	  /*  N.S0008-0 v 1.0 */
+  case  58: /*Change Facilities*/
+	  offset = dissect_ansi_map_ChangeFacilitiesRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  59: /*Change Service*/
+	  offset = dissect_ansi_map_ChangeServiceRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  61: /*TMSI Directive*/
+	  offset = dissect_ansi_map_TMSIDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
   case  63: /*Service Request*/
 	  offset = dissect_ansi_map_ServiceRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  68: /*Facility Selected and Available*/
 	  offset = dissect_ansi_map_FacilitySelectedAndAvailableRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  70: /*Modify*/
+	  offset = dissect_ansi_map_ModifyRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  72: /*Search*/
+	  offset = dissect_ansi_map_SearchRes(TRUE, tvb, offset, pinfo, tree, -1);;
+	  break;
+  case  73: /*Seize Resource*/
+	  offset = dissect_ansi_map_SeizeResourceRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  75: /*T Busy*/
 	  offset = dissect_ansi_map_TBusyRes(TRUE, tvb, offset, pinfo, tree, -1);
@@ -960,12 +1707,224 @@ void proto_register_ansi_map(void) {
       { "BCD digits", "gsm_map.bcd_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "BCD digits", HFILL }},
+	{ &hf_ansi_map_trans_cap_prof,
+      { "Profile (PROF)", "ansi_map.trans_cap_prof",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_prof_bool_val),0x01,
+        "Profile (PROF)", HFILL }},
+	{ &hf_ansi_map_trans_cap_busy,
+      { "Busy Detection (BUSY)", "ansi_map.trans_cap_busy",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_busy_bool_val),0x02,
+        "Busy Detection (BUSY)", HFILL }},
+	{ &hf_ansi_map_trans_cap_ann,
+      { "Announcements (ANN)", "ansi_map.trans_cap_ann",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_ann_bool_val),0x04,
+        "Announcements (ANN)", HFILL }},
+	{ &hf_ansi_map_trans_cap_rui,
+      { "Remote User Interaction (RUI)", "ansi_map.trans_cap_rui",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_rui_bool_val),0x08,
+        "Remote User Interaction (RUI)", HFILL }},
+	{ &hf_ansi_map_trans_cap_spini,
+      { "Subscriber PIN Intercept (SPINI)", "ansi_map.trans_cap_spini",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_spini_bool_val),0x10,
+        "Subscriber PIN Intercept (SPINI)", HFILL }},
+	{ &hf_ansi_map_trans_cap_uzci,
+      { "UZ Capability Indicator (UZCI)", "ansi_map.trans_cap_uzci",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_uzci_bool_val),0x20,
+        "UZ Capability Indicator (UZCI)", HFILL }},
+	{ &hf_ansi_map_trans_cap_ndss,
+      { "NDSS Capability (NDSS)", "ansi_map.trans_cap_ndss",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_ndss_bool_val),0x40,
+        "NDSS Capability (NDSS)", HFILL }},		
+	{ &hf_ansi_map_trans_cap_nami,
+      { "NAME Capability Indicator (NAMI)", "ansi_map.trans_cap_nami",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_nami_bool_val),0x80,
+        "NAME Capability Indicator (NAMI)", HFILL }},
+	{ &hf_ansi_trans_cap_multerm,
+      { "Multiple Terminations", "ansi_map.trans_cap_multerm",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_trans_cap_multerm_vals), 0x0f,
+        "Multiple Terminations", HFILL }},
+	{ &hf_ansi_trans_cap_tl,
+      { "TerminationList (TL)", "ansi_map.trans_cap_tl",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_nami_bool_val),0x10,
+        "TerminationList (TL)", HFILL }},
+	{ &hf_ansi_map_MarketID,
+      { "MarketID", "ansi_map.marketid",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        "MarketID", HFILL }},
+	{ &hf_ansi_map_swno,
+      { "Switch Number (SWNO)", "ansi_map.swno",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Switch Number (SWNO)", HFILL }},
+	{ &hf_ansi_map_idno,
+      { "ID Number", "ansi_map.idno",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ID Number", HFILL }},
+	{ &hf_ansi_map_segcount,
+      { "Segment Counter", "ansi_map.segcount",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Segment Counter", HFILL }},
+	{ &hf_ansi_map_originationtriggers_all,
+      { "All Origination (All)", "ansi_map.originationtriggers.all",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_all_bool_val),0x01,
+        "All Origination (All)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_local,
+      { "Local", "ansi_map.originationtriggers.all",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_local_bool_val),0x02,
+        "Local", HFILL }},
+	{ &hf_ansi_map_originationtriggers_ilata,
+      { "Intra-LATA Toll (ILATA)", "ansi_map.originationtriggers.ilata",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_ilata_bool_val),0x04,
+        "Intra-LATA Toll (ILATA)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_olata,
+      { "Inter-LATA Toll (OLATA)", "ansi_map.originationtriggers.olata",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_olata_bool_val),0x08,
+        "Inter-LATA Toll (OLATA)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_int,
+      { "International (Int'l )", "ansi_map.originationtriggers.int",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_int_bool_val),0x10,
+        "International (Int'l )", HFILL }},
+	{ &hf_ansi_map_originationtriggers_wz,
+      { "World Zone (WZ)", "ansi_map.originationtriggers.wz",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_wz_bool_val),0x20,
+        "World Zone (WZ)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_unrec,
+      { "Unrecognized Number (Unrec)", "ansi_map.originationtriggers.unrec",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_unrec_bool_val),0x40,
+        "Unrecognized Number (Unrec)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_rvtc,
+      { "Revertive Call (RvtC)", "ansi_map.originationtriggers.rvtc",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_rvtc_bool_val),0x80,
+        "Revertive Call (RvtC)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_star,
+      { "Star", "ansi_map.originationtriggers.star",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_star_bool_val),0x01,
+        "Star", HFILL }},
+	{ &hf_ansi_map_originationtriggers_ds,
+      { "Double Star (DS)", "ansi_map.originationtriggers.ds",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_ds_bool_val),0x02,
+        "Double Star (DS)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_pound,
+      { "Pound", "ansi_map.originationtriggers.pound",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_pound_bool_val),0x04,
+        "Pound", HFILL }},
+	{ &hf_ansi_map_originationtriggers_dp,
+      { "Double Pound (DP)", "ansi_map.originationtriggers.dp",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_dp_bool_val),0x08,
+        "Double Pound (DP)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_pa,
+      { "Prior Agreement (PA)", "ansi_map.originationtriggers.pa",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_pa_bool_val),0x10,
+        "Prior Agreement (PA)", HFILL }},
+	{ &hf_ansi_map_originationtriggers_nodig,
+      { "No digits", "ansi_map.originationtriggers.nodig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_nodig_bool_val),0x01,
+        "No digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_onedig,
+      { "1 digit", "ansi_map.originationtriggers.onedig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_onedig_bool_val),0x02,
+        "1 digit", HFILL }},
+	{ &hf_ansi_map_originationtriggers_twodig,
+      { "2 digits", "ansi_map.originationtriggers.twodig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_twodig_bool_val),0x04,
+        "2 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_threedig,
+      { "3 digits", "ansi_map.originationtriggers.threedig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_threedig_bool_val),0x08,
+        "3 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_fourdig,
+      { "4 digits", "ansi_map.originationtriggers.fourdig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_fourdig_bool_val),0x10,
+        "4 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_fivedig,
+      { "5 digits", "ansi_map.originationtriggers.fivedig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_fivedig_bool_val),0x20,
+        "5 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_sixdig,
+      { "6 digits", "ansi_map.originationtriggers.sixdig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_sixdig_bool_val),0x40,
+        "6 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_sevendig,
+      { "7 digits", "ansi_map.originationtriggers.sevendig",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_sevendig_bool_val),0x80,
+        "7 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_eightdig,
+      { "8 digits", "ansi_map.originationtriggers.eight",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_eightdig_bool_val),0x01,
+        "8 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_ninedig,
+      { "9 digits", "ansi_map.originationtriggers.nine",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_ninedig_bool_val),0x02,
+        "9 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_tendig,
+      { "10 digits", "ansi_map.originationtriggers.ten",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_tendig_bool_val),0x04,
+        "10 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_elevendig,
+      { "11 digits", "ansi_map.originationtriggers.eleven",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_elevendig_bool_val),0x08,
+        "11 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_thwelvedig,
+      { "12 digits", "ansi_map.originationtriggers.thwelv",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_thwelvdig_bool_val),0x10,
+        "12 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_thirteendig,
+      { "13 digits", "ansi_map.originationtriggers.thirteen",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_thirteendig_bool_val),0x20,
+        "13 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_fourteendig,
+      { "14 digits", "ansi_map.originationtriggers.fourteen",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_fourteendig_bool_val),0x40,
+        "14 digits", HFILL }},
+	{ &hf_ansi_map_originationtriggers_fifteendig,
+      { "15 digits", "ansi_map.originationtriggers.fifteen",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_fifteendig_bool_val),0x80,
+        "15 digits", HFILL }},
+
+	{ &hf_ansi_map_triggercapability_init,
+      { "Introducing Star/Pound (INIT)", "ansi_map.triggercapability.init",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x01,
+        "Introducing Star/Pound (INIT)", HFILL }},
+	{ &hf_ansi_map_triggercapability_kdigit,
+      { "K-digit (K-digit)", "ansi_map.triggercapability.kdigit",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x02,
+        "K-digit (K-digit)", HFILL }},
+	{ &hf_ansi_map_triggercapability_all,
+      { "All_Calls (All)", "ansi_map.triggercapability.all",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x04,
+        "All_Calls (All)", HFILL }},
+	{ &hf_ansi_map_triggercapability_rvtc,
+      { "Revertive_Call (RvtC)", "ansi_map.triggercapability.rvtc",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x08,
+        "Revertive_Call (RvtC)", HFILL }},
+	{ &hf_ansi_map_triggercapability_oaa,
+      { "Origination_Attempt_Authorized (OAA)", "ansi_map.triggercapability.oaa",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x10,
+        "Origination_Attempt_Authorized (OAA)", HFILL }},
+	{ &hf_ansi_map_triggercapability_oans,
+      { "O_Answer (OANS)", "ansi_map.triggercapability.oans",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x20,
+        "O_Answer (OANS)", HFILL }},
+	{ &hf_ansi_map_triggercapability_odisc,
+      { "O_Disconnect (ODISC)", "ansi_map.triggercapability.odisc",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x40,
+        "O_Disconnect (ODISC)", HFILL }},
+	{ &hf_ansi_map_triggercapability_ona,
+      { "O_No_Answer (ONA)", "ansi_map.triggercapability.ona",
+        FT_BOOLEAN, 8, TFS(&ansi_map_triggercapability_bool_val),0x80,
+        "O_No_Answer (ONA)", HFILL }},
+
 #include "packet-ansi_map-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_ansi_map,
+	  &ett_mintype,
+	  &ett_digitstype,
+	  &ett_billingid,
+	  &ett_mscid,
+	  &ett_originationtriggers,
+	  &ett_transactioncapability,
 #include "packet-ansi_map-ettarr.c"
   };
 
@@ -1014,7 +1973,6 @@ proto_reg_handoff_ansi_map(void)
     add_ansi_tcap_subdissector(13 , ansi_map_handle); 
     add_ansi_tcap_subdissector(14 , ansi_map_handle); 
     
-
     data_handle = find_dissector("data");
 
 }

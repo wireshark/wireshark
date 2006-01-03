@@ -1,4 +1,4 @@
-
+-- $Id:$
 MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
 
 DEFINITIONS ::=
@@ -74,14 +74,20 @@ AuthenticationDirective  ::= [PRIVATE 18] SET {
 
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber, 
 	--M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	--M 6.5.2.81
+	msid									MSID OPTIONAL,
+	--
 	authenticationAlgorithmVersion			[77] IMPLICIT AuthenticationAlgorithmVersion,
 	-- O 6.5.2.7 a
+	authenticationResponseReauthentication	[182] IMPLICIT AuthenticationResponseReauthentication,
+	-- O 6.5.2.mT j
 	authenticationResponseUniqueChallenge	[37] IMPLICIT AuthenticationResponseUniqueChallenge OPTIONAL,
 	--	O 6.5.2.12 b
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
 	--	O 6.5.2.18 c
+	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
+	-- O 6.5.2.36 m
 	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
 	-- O 6.5.2.28 j
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
@@ -90,6 +96,12 @@ AuthenticationDirective  ::= [PRIVATE 18] SET {
 	-- O 6.5.2.56
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	--	O 6.5.2.77 e
+	randomVariableReauthentication			[191] IMPLICIT RandomVariableReauthentication OPTIONAL,
+	-- O 6.5.2.uT j
+	mobileStationMIN						[184] IMPLICIT MobileStationMIN OPTIONAL,
+	-- O 6.5.2.oC j
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- O 6.5.2.82 n
 	randomVariableSSD						[42] IMPLICIT RandomVariableSSD OPTIONAL,
 	--	O 6.5.2.103 f
 	randomVariableUniqueChallenge			[43] IMPLICIT RandomVariableUniqueChallenge OPTIONAL, 
@@ -100,6 +112,8 @@ AuthenticationDirective  ::= [PRIVATE 18] SET {
 	--	O 6.5.2.116 g
 	sharedSecretData						[46] IMPLICIT SharedSecretData OPTIONAL,
 	--	O 6.5.2.119 c
+	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
+	-- O 6.5.2.120 m
 	ssdnotShared							[52] IMPLICIT SSDNotShared OPTIONAL,
 	--	O 6.5.2.141 h
 	updateCount								[51] IMPLICIT UpdateCount OPTIONAL
@@ -150,9 +164,9 @@ AuthenticationFailureReport ::= [PRIVATE 18] SET {
 	--	(Serving) M 6.5.2.146
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
 	--	O 6.5.2.18 a
-	callHistoryCountExpected				[79] IMPLICIT CallHistoryCountExpected,
+	callHistoryCountExpected				[79] IMPLICIT CallHistoryCountExpected OPTIONAL,
 	--	 O 6.5.2.19 a
-	mscid									[21] IMPLICIT MSCID,
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	--	(Serving MSC) O 6.5.2.82 b
 	reportType2								[44] IMPLICIT ReportType,
 	-- 	M 6.5.2.112 c
@@ -207,7 +221,7 @@ AuthenticationRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.145
 	systemCapabilities						[49] IMPLICIT SystemCapabilities,
 	-- (Serving) M 6.5.2.146
-	authenticationData						[161] IMPLICIT AuthenticationData,
+	authenticationData						[161] IMPLICIT AuthenticationData OPTIONAL,
 	-- O 6.5.2.9 a
 	authenticationResponse					[35] IMPLICIT AuthenticationResponse,
 	-- O 6.5.2.10 b
@@ -290,21 +304,30 @@ AuthenticationRequestRes ::= [PRIVATE 18] SET {
 AuthenticationStatusReport ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
+	msid									MSID OPTIONAL,
+	-- 
 	systemCapabilities						[49] IMPLICIT SystemCapabilities,
 	-- (Serving) M 6.5.2.146
 	countUpdateReport						[138] IMPLICIT CountUpdateReport OPTIONAL,
 	-- O 6.5.2.52 a
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- (Serving) O 6.5.2.82 e
+	reauthenticationReport					[192] IMPLICIT ReauthenticationReport OPTIONAL,
+	-- O 6.5.2.vT e
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 b
+	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL,
+	-- O 6.5.2.wB e
+	signalingMessageEncryptionReport		[194] IMPLICIT SignalingMessageEncryptionReport OPTIONAL,
+	-- O 6.5.2.xB h
 	ssdUpdateReport							[156] IMPLICIT SSDUpdateReport OPTIONAL,
 	-- O 6.5.2.142 c
 	uniqueChallengeReport					[124] IMPLICIT UniqueChallengeReport OPTIONAL,
 	-- O 6.5.2.162 d
-	...
+	voicePrivacyReport						[196] IMPLICIT VoicePrivacyReport OPTIONAL
+	-- O 6.5.2.zB g
 }
 -- AuthenticationStatusReport RETURN RESULT Parameters
 AuthenticationStatusReportRes ::= [PRIVATE 18] SET {
@@ -338,13 +361,16 @@ AuthenticationStatusReportRes ::= [PRIVATE 18] SET {
 BaseStationChallenge ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
+	msid									MSID OPTIONAL,
+	--
 	randomVariableBaseStation				[41] IMPLICIT RandomVariableBaseStation,
 	-- M 6.5.2.102
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 a
-	...
+	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL
+	-- O 6.5.2.wB b
 	}
 -- BaseStationChallenge RETURN RESULT Parameters
 BaseStationChallengeRes ::= [PRIVATE 18] SET {
@@ -608,9 +634,11 @@ FacilitiesReleaseRes ::= [PRIVATE 18] SET {
 FeatureRequest ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- M 6.5.2.16
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) M 6.5.2.58
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	interSwitchCount						[7] IMPLICIT InterSwitchCount,
 	-- M 6.5.2.73
@@ -618,8 +646,14 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.81
 	servingCellID							[2] IMPLICIT ServingCellID,
 	-- M 6.5.2.117 a
-	targetCellID							[3] IMPLICIT TargetCellID OPTIONAL,
-	-- O 6.5.2.148 b
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw c
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 c
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
+	-- O 6.5.2.22 c
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 c
 	cdmaCallMode							[62] IMPLICIT CDMACallMode OPTIONAL,
 	-- O 6.5.2.29 c, d, e
 	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
@@ -638,28 +672,46 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.45 h
 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.47 i
+	conferenceCallingIndicator				[137] IMPLICIT ConferenceCallingIndicator OPTIONAL,
+	-- O 6.5.2.49
 	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
 	-- (Desired) O 6.5.2.50 j
 	handoffReason							[30] IMPLICIT HandoffReason OPTIONAL,
 	-- O 6.5.2.70 k
 	handoffState							[164] IMPLICIT HandoffState OPTIONAL,
 	-- O 6.5.2.71 l
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 d
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 e
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 6.5.2.83
 	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
 	-- O 6.5.2.84 c
+	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
+	-- O 6.5.2.88 f
+	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
+	-- O 6.5.2.93
 	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
 	-- O 6.5.2.85 e, m
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.86 n
+	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
+	-- O 6.5.2.116
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
 	-- O 6.5.2.120 j
 	stationClassMark						[18] IMPLICIT StationClassMark OPTIONAL,
 	-- O 6.5.2.143 i, o
+	targetCellID							[3] IMPLICIT TargetCellID OPTIONAL,
+	-- O 6.5.2.148 b
 	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
 	-- (Serving) O 6.5.2.151 o
 	tdmaCallMode							[29] IMPLICIT TDMACallMode OPTIONAL,
 	-- O 6.5.2.152 e, p
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 o
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
+	-- 6.5.2.160
 	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
 	-- O 6.5.2.166 q
 	}
@@ -685,6 +737,8 @@ FeatureRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.49 e
 	digits		 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Dialed) O 6.5.2.58 f
+	digits-Destination						[4] IMPLICIT Digits OPTIONAL,
+	-- (Destination) O 6.5.2.58 l
 	displayText								[244] IMPLICIT DisplayText OPTIONAL,
 	-- O 6.5.2.bx l, m
 	displayText2							[299] IMPLICIT DisplayText2 OPTIONAL,
@@ -1602,6 +1656,8 @@ LocationRequest ::= [PRIVATE 18] SET {
 	-- (Originating) O 6.5.2.93 c
 	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 a
+	redirectingPartyName					[245] IMPLICIT RedirectingPartyName OPTIONAL,
+	-- O 6.5.2.by
 	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
 	-- O 6.5.2.109 a
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
@@ -2100,6 +2156,8 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- (VLR) O 6.5.2.64 c
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 d
+	msc-Address								[284] IMPLICIT MSC-Address OPTIONAL,
+	-- O 6.5.2.dnC l
 	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL, 
 	--(Serving MSC or VLR) O 6.5.2.93 e
 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
@@ -2443,11 +2501,14 @@ SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 	-- Exchanged by MSID
 	msid									MSID OPTIONAL,
 	--6.5.2.bv
---	NewlyAssignedMIN O 6.5.2.rB j
---	NewlyAssignedIMSI O 6.5.2.dqB j
+	newlyAssignedMIN						[187] IMPLICIT NewlyAssignedMIN OPTIONAL,
+	-- O 6.5.2.rB j
+	newlyAssignedIMSI						[287] IMPLICIT NewlyAssignedIMSI OPTIONAL,
+	-- O 6.5.2.dqB j
 	newMINExtension							[328] IMPLICIT NewMINExtension OPTIONAL,
 	-- O 6.5.2.ff n
---	ServiceIndicator O 6.5.2.wB
+	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL,
+	-- O 6.5.2.wB
 	sms-ChargeIndicator						[106] IMPLICIT SMS-ChargeIndicator OPTIONAL,
 	-- O 6.5.2.126 b
 	sms-DestinationAddress					[107] IMPLICIT SMS-DestinationAddress OPTIONAL,
@@ -2464,17 +2525,30 @@ SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 	-- O 6.5.2.133 f
 	sms-OriginalOriginatingSubaddress		[113] IMPLICIT SMS-OriginalOriginatingSubaddress OPTIONAL,
 	--  O 6.5.2.134 b
-	sms-OriginatingAddress					[114] IMPLICIT SMS-OriginatingAddress OPTIONAL
+	sms-OriginatingAddress					[114] IMPLICIT SMS-OriginatingAddress OPTIONAL,
 	-- O 6.5.2.135 g
---	TemporaryReferenceNumber O 6.5.2.yC
+	temporaryReferenceNumber				[195] IMPLICIT TemporaryReferenceNumber OPTIONAL
+	-- O 6.5.2.yC
 	}
 
 -- SMSDeliveryPointToPoint RETURN RESULT Parameters
 SMSDeliveryPointToPointRes ::= [PRIVATE 18] SET {
+	authorizationDenied						[13] IMPLICIT AuthorizationDenied OPTIONAL,
+	-- O 6.5.2.13 h
+	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
+	-- O 6.5.2.54 c
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 d
+	mobileStationMSID						MobileStationMSID OPTIONAL,
+	-- O 6.5.2.oC e
+	mscid									[21] IMPLICIT MSCID,
+	-- O 6.5.2.82 f
 	sms-BearerData							[105] IMPLICIT SMS-BearerData OPTIONAL,
 	-- O 6.5.2.124 a
-	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL
+	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL,
 	-- O 6.5.2.125 b
+	systemCapabilities						[49] IMPLICIT SystemCapabilities OPTIONAL
+	-- O 6.5.2.146 g
 	}
 
 -- 6.4.2.44 SMSNotification
@@ -2512,7 +2586,8 @@ SMSRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.63
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 e
---	ServiceIndicator O 6.5.2.wB d
+	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL,
+	-- O 6.5.2.wB d
 	-- O 6.5.2.63 a
 	sms-NotificationIndicator				[109] IMPLICIT SMS-NotificationIndicator OPTIONAL,
 	-- O 6.5.2.130 b
@@ -2548,6 +2623,14 @@ TransferToNumberRequest ::= [PRIVATE 18] SET {
 	-- (MSC) M 6.5.2.147
 	billingID								[1] IMPLICIT BillingID,
 	-- (Originating) O 6.5.2.16 a
+	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
+	-- O 6.5.2.bw r, u, v
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL, 
+	-- O 6.5.2.21 c, t	
+	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL, 
+	-- O 6.5.2.22 c, t	
+	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
+	-- O 6.5.2.25 c
 	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
 	-- O 6.5.2.f
 	groupInformation						[163] GroupInformation OPTIONAL,
@@ -4107,6 +4190,69 @@ DropServiceRes ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID OPTIONAL
 	-- O 6.5.2.16 a
 	}
+
+-- 6.4.2.CC OTASPRequest
+OTASPRequest ::= [PRIVATE 18] SET {
+	ctionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 a
+	aKeyProtocolVersion						[181] IMPLICIT AKeyProtocolVersion OPTIONAL,
+	-- O 6.5.2.lB b
+	authenticationData						[161] IMPLICIT AuthenticationData OPTIONAL,
+	-- O 6.5.2.9 c
+	authenticationResponse					[35] IMPLICIT AuthenticationResponse OPTIONAL,
+	-- O 6.5.2.10 c
+	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
+	-- O 6.5.2.18 c
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 d
+	msid									MSID OPTIONAL,
+	-- O 6.5.2.81 e, d
+	mobileStationMSID						MobileStationMSID OPTIONAL,
+	-- O 6.5.2.oC f
+	mobileStationPartialKey					[185] IMPLICIT MobileStationPartialKey OPTIONAL,
+	-- O 6.5.2.pB g
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- O 6.5.2.64 h
+	newlyAssignedMSID						NewlyAssignedMSID OPTIONAL,
+	--O 6.5.2.rB i
+	randomVariable							[40] IMPLICIT RandomVariable OPTIONAL,
+	-- O 6.5.2.101 c
+	randomVariableBaseStation				[41] IMPLICIT RandomVariableBaseStation,
+	-- O 6.5.2.102 m
+	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL,
+	-- O 6.5.2.wB j
+	systemCapabilities						[49] IMPLICIT SystemCapabilities OPTIONAL,
+	-- O 6.5.2.146 k
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL
+	-- O 6.5.2.154
+		}
+-- Table 6.4.2.CCy OTASPRequest RETURN RESULT Parameters
+OTASPRequestRes ::= [PRIVATE 18] SET {
+	aKeyProtocolVersion						[181] IMPLICIT AKeyProtocolVersion OPTIONAL,
+	-- O 6.5.2.lB a
+	authenticationResponseBaseStation		[36] IMPLICIT AuthenticationResponseBaseStation OPTIONAL,
+	-- O 6.5.2.11 g
+	baseStationPartialKey					[183] IMPLICIT BaseStationPartialKey OPTIONAL,
+	-- O 6.5.2.nB b
+	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
+	-- O 6.5.2.54 c
+	modulusValue							[186] IMPLICIT ModulusValue OPTIONAL,
+	-- O 6.5.2.qB b
+	otasp-ResultCode						[189] IMPLICIT OTASP-ResultCode OPTIONAL,
+	-- O 6.5.2.sB d
+	primitiveValue							[190] IMPLICIT PrimitiveValue OPTIONAL,
+	-- O 6.5.2.tB b
+	signalingMessageEncryptionReport		[194] IMPLICIT SignalingMessageEncryptionReport OPTIONAL,
+	-- O 6.5.2.xB e
+	ssdUpdateReport							[156] IMPLICIT SSDUpdateReport OPTIONAL,
+	-- O 6.5.2.142 f
+	uniqueChallengeReport					[124] IMPLICIT UniqueChallengeReport OPTIONAL,
+	-- O 6.5.2.162 f
+	voicePrivacyReport						[196] IMPLICIT VoicePrivacyReport OPTIONAL
+	-- O 6.5.2.zB e
+	}
+	
+		
 -- Parameters
 -- 6.5.2.1
 -- 1 0 0 1 0 1 0 0 (0x94)
@@ -4679,7 +4825,9 @@ MobileDirectoryNumber ::= DigitsType
 
 -- 6.5.2.81		
 -- 1 0 0 0 1 0 0 0 (0x88)(0x8)
-MobileIdentificationNumber ::= OCTET STRING
+MobileIdentificationNumber ::= MINType
+--N.S0011-0 v 1.0
+-- b. Refer to the MINType parameter type (see 6.5.3.u1) for notes and field encoding.
 
 -- 6.5.2.82
 -- 1 0 0 1 0 1 0 1 (0x95)
@@ -5209,15 +5357,16 @@ SystemAccessData ::= OCTET STRING
 -- 1 0 0 1 1 1 1 1 (0x9f) (0x9c)
 -- 0 0 1 0 0 0 1 0 (0x22)(34)
 SystemAccessType  ::= ENUMERATED {
-	not-used					( 0 ),
-	unspecified					( 1 ),
-	flash-request				( 2 ),
-	autonomous-registration		( 3 ),
-	call-origination			( 4 ),
-	page-response				( 5 ),
-	no-access					( 6 ),
-	power-down-registration		( 7 ),
-	sms-page-response			( 8 ),
+	not-used					(0),
+	unspecified					(1),
+	flash-request				(2),
+	autonomous-registration		(3),
+	call-origination			(4),
+	page-response				(5),
+	no-access					(6),
+	power-down-registration		(7),
+	sms-page-response			(8),
+	otasp						(9),
 	...
 	}
 
@@ -5488,6 +5637,7 @@ TDMATerminalCapability ::= OCTET STRING
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 1 0 0 (0x34)(180)
+-- last TSB76 assigned identifier)
 TDMAVoiceCoder ::= OCTET STRING
 
 
@@ -5845,27 +5995,26 @@ MSID ::= CHOICE {
 -- 0 1 1 1 0 0 1 0 (0x72)(242)
 IMSI ::= OCTET STRING
 
--- 6.5.2.bw
+-- 6.5.2.bw N.S0012-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 0 0 1 1 (0x73)(243)
 CallingPartyName ::= OCTET STRING
 
 
-
--- 6.5.2.bx
+-- 6.5.2.bx N.S0012-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 0 1 0 0 (0x74)(244)
 DisplayText ::= OCTET STRING
 
--- 6.5.2.by
+-- 6.5.2.by N.S0012-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 0 1 0 1 (0x75)(245)
 RedirectingPartyName ::= OCTET STRING
 
--- 6.5.2.bz
+-- 6.5.2.bz N.S0012-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 0 1 1 0 (0x76)(246)
@@ -6223,6 +6372,11 @@ TriggerType ::= ENUMERATED {
 	t-Routable (68),
 	t-Answer (69),
 	t-Disconnect (70),
+
+	reserved-for-TDP-R-DP-Type-value (220),
+	reserved-for-TDP-N-DP-Type-value (221),
+	reserved-for-EDP-R-DP-Type-value (222),
+	reserved-for-EDP-N-DP-Type-value (223),
 	...
 	}
 -- 1 0 1 1 1 1 1 1 (0x9f) (0xbf)
@@ -6433,8 +6587,6 @@ MSIDUsage ::= OCTET STRING
 -- 0 1 0 0 1 0 0 0 (0x48)(328)
 -- (3xx)
 NewMINExtension ::= MINType
--- XXX ???
-MINType ::= OCTET STRING
 
 -- 6.5.2.ge (Misc. 10.9)
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -6481,9 +6633,9 @@ Range ::= INTEGER
 -- 0 1 1 0 0 0 1 1 (0x63)(355)
 CallingPartyCategory ::= OCTET STRING
 
---The CallingPartyCategory (CPC) parameter identifies the Calling Party’s Category. This
---parameter is based on the Calling Party’s Category parameter defined in Section 3.11 of
---ITU-T Q.763-1997 and includes the ”reserved for national use” values.
+--The CallingPartyCategory (CPC) parameter identifies the Calling Party's Category. This
+--parameter is based on the Calling Party's Category parameter defined in Section 3.11 of
+--ITU-T Q.763-1997 and includes the "reserved for national use" values.
 
 
 -- 6.5.2.gm
@@ -6513,15 +6665,163 @@ CDMA2000HandoffResponseIOSData ::= OCTET STRING
 -- 0 1 1 0 1 0 0 1 (0x69)(361)
 CDMAServiceOptionConnectionIdentifier ::= OCTET STRING
 
--- 6.5.2.wB
--- FIX ME
-ServiceIndicator ::= OCTET STRING
 
+-- 6.5.2.lB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 0 1 0 1 (0x35)(181)
+AKeyProtocolVersion ::= OCTET STRING
+
+
+-- 6.5.2.mT N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 0 1 1 0 (0x36)(182)
+AuthenticationResponseReauthentication ::= OCTET STRING
+
+-- 6.5.2.nB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 0 1 1 1 (0x37)(183)
+BaseStationPartialKey ::= OCTET STRING
+
+-- 6.5.2.oC N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 1 0 0 0 (0x38)(184)
+MobileStationMIN ::= MINType
+-- b. Refer to the MINType parameter type (see 6.5.3.u1) for notes and field encoding.
+
+-- 6.5.2.pB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 1 0 0 1 (0x39)(185)
+MobileStationPartialKey ::= OCTET STRING
+
+-- 6.5.2.qB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 1 0 1 0 (0x3a)(186)
+ModulusValue ::= OCTET STRING
+
+-- 6.5.2.rB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 1 0 1 1 (0x3b)(187)
+NewlyAssignedMIN ::= MINType
+
+
+-- 6.5.2.sB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 1 1 0 1 (0x3d)(189)
+OTASP-ResultCode::= OCTET STRING
+
+-- 6.5.2.tB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 1 1 1 0 (0x3e)(190)
+PrimitiveValue::= OCTET STRING
+
+-- 6.5.2.uT N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 0 1 1 1 1 1 1 (0x3f)(191)
+RandomVariableReauthentication::= OCTET STRING
+
+-- 6.5.2.vT N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 0 0 0 (0x40)(192)
+ReauthenticationReport::= OCTET STRING
+
+-- 6.5.2.wB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 0 0 1 (0x41)(193)
+ServiceIndicator::= OCTET STRING
+
+-- 6.5.2.xB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 0 1 0 (0x42)(194)
+SignalingMessageEncryptionReport::= OCTET STRING
+
+
+-- 6.5.2.yC N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 0 1 1 (0x43)(195)
+TemporaryReferenceNumber ::= OCTET STRING
+
+-- 6.5.2.zB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 0 0 0 1 0 0 (0x44)(196)
+VoicePrivacyReport::= OCTET STRING
+
+-- 6.5.2.dnC N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 0 1 1 1 0 0 (0x1c)(284)
+MSC-Address::= DigitsType
+
+-- 6.5.2.dpC N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 0 1 1 1 1 0 (0x1e)(286)
+MobileStationIMSI ::= IMSIType
+
+-- 6.5.2.dqB N.S0011-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 0 1 1 1 1 1 (0x1f)(287)
+NewlyAssignedIMSI ::= IMSIType
+
+-- 6.5.2.adC MobileStationMSID N.S0011-0 v 1.0
+--The MobileStationMSID (MS_MSID) identifies the MIN or the IMSI value stored in the
+--MS's permanent memory at an OTASP call origination. The MS_MSID CHOICE is not
+--explicitly encoded with a parameter ID and length.
+
+MobileStationMSID ::= CHOICE {
+	mobileStationMIN			[184] IMPLICIT MobileStationMIN,
+	-- O 6.5.2.oC
+	mobileStationIMSI			[286] IMPLICIT MobileStationIMSI
+	-- O 6.5.2.dpC
+	}
+	
+-- 6.5.2.aeB NewlyAssignedMSID
+--The NewlyAssignedMSID (NEWMSID) identifies the MIN or the IMSI value that may be
+--assigned following the successful completion of the OTASP process. The MS_MSID
+--CHOICE is not explicitly encoded with a parameter ID and length.	 
+
+NewlyAssignedMSID ::= CHOICE {
+	newlyAssignedMIN				[187] IMPLICIT NewlyAssignedMIN,
+	-- O 6.5.2.rB
+	newlyAssignedIMSI				[287] IMPLICIT NewlyAssignedIMSI
+	-- O 6.5.2.dqB
+	}
+
+--Notes:
+--a. Parameters with references ending with a "B" in them, such as "6.5.2.qB" are
+--common to BOTH CDMA and TDMA OTASP.
+--b. Parameters with references ending with a "C" in them, such as "6.5.2.oC" are
+--unique to CDMA OTASP.
+--c. Parameters with references ending with a "T" in them, such as "6.5.2.uT" are
+--unique to TDMA OTASP.
+
+-- 6.5.3 Parameter Type Definitions
 -- 6.5.3.2
 DigitsType ::= OCTET STRING
 
 -- 6.5.3.13
 Subaddress ::= OCTET STRING
 
+-- 6.5.3.u1 MINType
+MINType ::= OCTET STRING
+
+-- 6.5.3.u2 IMSIType
+
+IMSIType ::= OCTET STRING
 
 END
