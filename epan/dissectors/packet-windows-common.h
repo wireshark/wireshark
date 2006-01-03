@@ -52,7 +52,7 @@
 #define SMBE_badshare 32           /* Share mode on file conflict with open mode */
 #define SMBE_lock 33               /* Lock request conflicts with existing lock */
 #define SMBE_unsup 50              /* Request unsupported, returned by Win 95, RJS 20Jun98 */
-#define SMBE_nosuchshare 67        /* Share does not exits */
+#define SMBE_nosuchshare 67        /* Share does not exist */
 #define SMBE_filexists 80          /* File in operation already exists */
 #define SMBE_invalidparam 87	   /* Invalid parameter */
 #define SMBE_cannotopen 110        /* Cannot open the file specified */
