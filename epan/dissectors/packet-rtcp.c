@@ -1713,6 +1713,12 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 			p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);
 		}
 
+		/* Don't allow match seemingly calculated from same frame! */
+		if (pinfo->fd->num == p_conv_data->last_received_frame_number)
+		{
+			return;
+		}
+        
 		/* Any previous report must match the lsr given here */
 		if (p_conv_data->last_received_ts == lsr)
 		{
@@ -1722,9 +1728,8 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 			gint nseconds_between_packets =
 			      pinfo->fd->abs_ts.nsecs - p_conv_data->last_received_timestamp.nsecs;
 
-
-			gint total_gap = ((seconds_between_packets*1000) +
-			                 nseconds_between_packets) / 1000000;
+			gint total_gap = (seconds_between_packets*1000) +
+			                 (nseconds_between_packets / 1000000);
 			gint delay = total_gap - (int)(((double)dlsr/(double)65536) * 1000.0);
 
 			/* No useful calculation can be done if dlsr not set... */
