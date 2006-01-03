@@ -4,6 +4,9 @@
  * Copyright 2002, Ryuji Somegawa <somegawa@wide.ad.jp>
  * packet-3g-a11.c was written based on 'packet-mip.c'.
  *
+ * packet-3g-a11.c updated by Ravi Valmikam for 3GPP2 TIA-878-A
+ * Copyright 2005, Ravi Valmikam <rvalmikam@airvananet.com>
+ *
  * packet-mip.c
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
@@ -85,10 +88,45 @@ static int hf_a11_vse_apptype = -1;
 static int hf_a11_vse_canid = -1;
 static int hf_a11_vse_panid = -1;
 static int hf_a11_vse_srvopt = -1;
+static int hf_a11_vse_qosmode = -1;
 static int hf_a11_vse_pdit = -1;
 static int hf_a11_vse_code = -1;
 static int hf_a11_vse_dormant = -1;
 static int hf_a11_vse_ppaddr = -1;
+
+/* Additional Session Information */
+static int hf_a11_ase_len_type = -1;
+static int hf_a11_ase_srid_type = -1;
+static int hf_a11_ase_servopt_type = -1;
+static int hf_a11_ase_gre_proto_type = -1;
+static int hf_a11_ase_gre_key = -1;
+static int hf_a11_ase_pcf_addr_key = -1;
+
+/* Foward QoS Information */
+static int hf_a11_fqi_srid = -1;
+static int hf_a11_fqi_flags = -1;
+static int hf_a11_fqi_flowcount = -1;
+static int hf_a11_fqi_flowid = -1;
+static int hf_a11_fqi_entrylen = -1;
+static int hf_a11_fqi_dscp = -1;
+static int hf_a11_fqi_flowstate = -1;
+static int hf_a11_fqi_requested_qoslen = -1;
+static int hf_a11_fqi_requested_qos = -1;
+static int hf_a11_fqi_granted_qoslen = -1;
+static int hf_a11_fqi_granted_qos = -1;
+
+/* Reverse QoS Information */
+static int hf_a11_rqi_srid = -1;
+static int hf_a11_rqi_flowcount = -1;
+static int hf_a11_rqi_flowid = -1;
+static int hf_a11_rqi_entrylen = -1;
+static int hf_a11_rqi_flowstate = -1;
+static int hf_a11_rqi_requested_qoslen = -1;
+static int hf_a11_rqi_requested_qos = -1;
+static int hf_a11_rqi_granted_qoslen = -1;
+static int hf_a11_rqi_granted_qos = -1;
+
+/* Initialize the subtree pointers */
 
 /* Initialize the subtree pointers */
 static gint ett_a11 = -1;
@@ -97,6 +135,12 @@ static gint ett_a11_ext = -1;
 static gint ett_a11_exts = -1;
 static gint ett_a11_radius = -1;
 static gint ett_a11_radiuses = -1;
+static gint ett_a11_ase = -1;
+static gint ett_a11_fqi_flowentry = -1;
+static gint ett_a11_rqi_flowentry = -1;
+static gint ett_a11_fqi_flags = -1;
+static gint ett_a11_fqi_entry_flags = -1;
+static gint ett_a11_rqi_entry_flags = -1;
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
@@ -122,6 +166,7 @@ static const value_string a11_types[] = {
 
 static const value_string a11_ses_ptype_vals[] = {
 	{0x8881, "Unstructured Byte Stream"},
+	{0x88D2, "3GPP2 Packet"},
 	{0, NULL},
 };
 
@@ -217,10 +262,18 @@ static const value_string a11_ext_stypes[]= {
   {0, NULL},
 };
 
+static const value_string a11_ext_nvose_qosmode[]= {
+  {0x00, "QoS Disabled"},
+  {0x01, "QoS Enabled"},
+  {0, NULL},
+};
+
 static const value_string a11_ext_nvose_srvopt[]= {
   {0x0021, "3G High Speed Packet Data"},
+  {0x003B, "HRPD Main Service Connection"},
   {0x003C, "Link Layer Assisted Header Removal"},
   {0x003D, "Link Layer Assisted Robust Header Compression"},
+  {0x0040, "HRPD Auxiliary Service Connection"},
   {0, NULL},
 };
 
@@ -252,7 +305,17 @@ static const value_string a11_ext_app[]= {
   {0x0601, "Indicators (All Dormant Indicator)"},
   {0x0701, "PDSN Code (PDSN Code)"},
   {0x0801, "Session Parameter (RN-PDIT:Radio Network Packet Data Inactivity Timer)"},
+  {0x0802, "Session Parameter (Always On)"},
+  {0x0803, "Session Parameter (QoS Mode)"},
   {0x0901, "Service Option (Service Option Value)"},
+  {0x0A01, "PDSN Enabled Features (Flow Control Enabled)"},
+  {0x0A02, "PDSN Enabled Features (Packet Boundary Enabled)"},
+  {0x0B01, "PCF Enabled Features (Short Data Indication Supported)"},
+  {0x0B02, "PCF Enabled Features (GRE Segmentation Enabled)"},
+  {0x0C01, "Additional Session Info"},
+  {0x0D01, "Forward QoS Info"},
+  {0x0D02, "Reverse QoS Info"},
+  {0x0D08, "Subscriber QoS Profile"},
   {0, NULL},
 };
 
@@ -521,6 +584,273 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
 
 }
 
+
+/* Code to dissect Additional Session Info */
+static void dissect_ase(tvbuff_t* tvb, int offset, int ase_len, proto_tree* ext_tree)
+{
+   int clen = 0; /* consumed length */
+
+   while(clen < ase_len)
+   {
+      guint8 srid = tvb_get_guint8(tvb, offset+clen+1);
+      proto_item* ti = proto_tree_add_text
+              (ext_tree, tvb, offset+clen, 0x0D+1, "GRE Key Entry (SRID: %d)", srid);
+      proto_tree* exts_tree = proto_item_add_subtree(ti, ett_a11_ase);
+   
+      /* Entry Length */
+      proto_tree_add_item(exts_tree, hf_a11_ase_len_type, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* SRID */
+      proto_tree_add_item(exts_tree, hf_a11_ase_srid_type, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Service Option */
+      proto_tree_add_item(exts_tree, hf_a11_ase_servopt_type, tvb, offset+clen, 2, FALSE);
+      clen+=2;
+
+      /* GRE Protocol Type*/
+      proto_tree_add_item(exts_tree, hf_a11_ase_gre_proto_type, tvb, offset+clen, 2, FALSE);
+      clen+=2;
+
+      /* GRE Key */
+      proto_tree_add_item(exts_tree, hf_a11_ase_gre_key, tvb, offset+clen, 4, FALSE);
+      clen+=4;
+
+      /* PCF IP Address */
+      proto_tree_add_item(exts_tree, hf_a11_ase_pcf_addr_key, tvb, offset+clen, 4, FALSE);
+      clen+=4;
+   }
+}
+
+#define A11_FQI_IPFLOW_DISC_ENABLED 0x80
+#define A11_FQI_DSCP_INCLUDED 0x40
+
+static void dissect_fwd_qosinfo_flags
+       (tvbuff_t* tvb, int offset, proto_tree* ext_tree, guint8* p_dscp_included)
+{
+      guint8 flags = tvb_get_guint8(tvb, offset);
+      guint8 nbits = sizeof(flags) * 8;
+
+      proto_item* ti = proto_tree_add_text(ext_tree, tvb, offset, sizeof(flags),
+                           "Flags: %#02x", flags);
+
+      proto_tree* flags_tree = proto_item_add_subtree(ti, ett_a11_fqi_flags);
+
+      proto_tree_add_text(flags_tree, tvb, offset, sizeof(flags), "%s",
+                      decode_boolean_bitfield(flags, A11_FQI_IPFLOW_DISC_ENABLED, nbits,
+                       "IP Flow Discriminator Enabled", "IP Flow Discriminator Disabled"));
+
+      proto_tree_add_text(flags_tree, tvb, offset, sizeof(flags), "%s",
+                      decode_boolean_bitfield(flags, A11_FQI_DSCP_INCLUDED, nbits,
+                                        "DSCP Included", "DSCP Not Included"));
+      if(flags & A11_FQI_DSCP_INCLUDED)
+      {
+         *p_dscp_included = 1;
+      }else
+      {
+         *p_dscp_included = 0;
+      }
+}
+
+#define A11_FQI_DSCP 0x7E
+#define A11_FQI_FLOW_STATE 0x01
+
+static void dissect_fqi_entry_flags
+       (tvbuff_t* tvb, int offset, proto_tree* ext_tree, guint8 dscp_enabled)
+{
+      guint8 dscp = tvb_get_guint8(tvb, offset);
+      guint8 nbits = sizeof(dscp) * 8;
+
+      proto_item* ti = proto_tree_add_text(ext_tree, tvb, offset, sizeof(dscp),
+                           "DSCP and Flow State: %#02x", dscp);
+
+      proto_tree* flags_tree = proto_item_add_subtree(ti, ett_a11_fqi_entry_flags);
+
+      if(dscp_enabled)
+      {
+         proto_tree_add_text(flags_tree, tvb, offset, sizeof(dscp), "%s",
+                      decode_numeric_bitfield(dscp, A11_FQI_DSCP, nbits,
+                                              "DSCP: %u"));
+      }
+
+      proto_tree_add_text(flags_tree, tvb, offset, sizeof(dscp), "%s",
+                      decode_boolean_bitfield(dscp, A11_FQI_FLOW_STATE, nbits,
+                          "Flow State: Active", "Flow State: Inactive"));
+}
+
+
+#define A11_RQI_FLOW_STATE 0x01
+
+static void dissect_rqi_entry_flags
+       (tvbuff_t* tvb, int offset, proto_tree* ext_tree)
+{
+      guint8 flags = tvb_get_guint8(tvb, offset);
+      guint8 nbits = sizeof(flags) * 8;
+
+      proto_item* ti = proto_tree_add_text(ext_tree, tvb, offset, sizeof(flags),
+                           "Flags: %#02x", flags);
+
+      proto_tree* flags_tree = proto_item_add_subtree(ti, ett_a11_rqi_entry_flags);
+
+      proto_tree_add_text(flags_tree, tvb, offset, sizeof(flags), "%s",
+                      decode_boolean_bitfield(flags, A11_RQI_FLOW_STATE, nbits,
+                          "Flow State: Active", "Flow State: Inactive"));
+}
+
+/* Code to dissect Forward QoS Info */
+static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
+{
+   int clen = 0; /* consumed length */
+   guint8 srid = 0;
+   guint8 flow_count = 0;
+   guint8 flow_index = 0;
+   guint8 dscp_enabled = 0;
+
+
+   /* SR Id */
+   srid = tvb_get_guint8(tvb, offset+clen); 
+   proto_tree_add_item(ext_tree, hf_a11_fqi_srid, tvb, offset+clen, 1, FALSE);
+   clen++;
+
+   /* Flags */
+   dissect_fwd_qosinfo_flags(tvb, offset+clen, ext_tree, &dscp_enabled);
+   clen++;
+
+   /* Flow Count */
+   flow_count = tvb_get_guint8(tvb, offset+clen);
+   flow_count &= 0x1F;
+   proto_tree_add_item(ext_tree, hf_a11_fqi_flowcount, tvb, offset+clen, 1, FALSE);
+   clen++;
+
+   for(flow_index=0; flow_index<flow_count; flow_index++)
+   {
+      guint8 requested_qos_len = 0;
+      guint8 granted_qos_len = 0;
+
+      guint8 entry_len = tvb_get_guint8(tvb, offset+clen);
+      guint8 flow_id = tvb_get_guint8(tvb, offset+clen+1);
+
+      proto_item* ti = proto_tree_add_text
+          (ext_tree, tvb, offset+clen, entry_len+1, "Forward Flow Entry (Flow Id: %d)", flow_id);
+
+      proto_tree* exts_tree = proto_item_add_subtree(ti, ett_a11_fqi_flowentry);
+   
+      /* Entry Length */
+      proto_tree_add_item(exts_tree, hf_a11_fqi_entrylen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Flow Id */
+      proto_tree_add_item(exts_tree, hf_a11_fqi_flowid, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* DSCP and Flow State*/
+      dissect_fqi_entry_flags(tvb, offset+clen, exts_tree, dscp_enabled);
+      clen++;
+
+
+      /* Requested QoS Length */
+      requested_qos_len = tvb_get_guint8(tvb, offset+clen);
+      proto_tree_add_item
+        (exts_tree, hf_a11_fqi_requested_qoslen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Requested QoS Blob */
+      if(requested_qos_len)
+      {
+        proto_tree_add_item
+          (exts_tree, hf_a11_fqi_requested_qos, tvb, offset+clen, 
+              requested_qos_len, FALSE);
+        clen += requested_qos_len;
+      }
+
+      /* Granted QoS Length */
+      granted_qos_len = tvb_get_guint8(tvb, offset+clen);
+      proto_tree_add_item(exts_tree, hf_a11_fqi_granted_qoslen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Granted QoS Blob */
+      if(granted_qos_len)
+      {
+        proto_tree_add_item
+          (exts_tree, hf_a11_fqi_granted_qos, tvb, offset+clen, granted_qos_len, FALSE);
+        clen += granted_qos_len;
+      }
+   }
+}
+
+/* Code to dissect Reverse QoS Info */
+static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
+{
+   int clen = 0; /* consumed length */
+   guint8 srid = 0;
+   guint8 flow_count = 0;
+   guint8 flow_index = 0;
+
+   /* SR Id */
+   srid = tvb_get_guint8(tvb, offset+clen); 
+   proto_tree_add_item(ext_tree, hf_a11_rqi_srid, tvb, offset+clen, 1, FALSE);
+   clen++;
+
+   /* Flow Count */
+   flow_count = tvb_get_guint8(tvb, offset+clen);
+   flow_count &= 0x1F;
+   proto_tree_add_item(ext_tree, hf_a11_rqi_flowcount, tvb, offset+clen, 1, FALSE);
+   clen++;
+
+   for(flow_index=0; flow_index<flow_count; flow_index++)
+   {
+      guint8 requested_qos_len = 0;
+      guint8 granted_qos_len = 0;
+
+      guint8 entry_len = tvb_get_guint8(tvb, offset+clen);
+      guint8 flow_id = tvb_get_guint8(tvb, offset+clen+1);
+
+      proto_item* ti = proto_tree_add_text
+          (ext_tree, tvb, offset+clen, entry_len+1, "Reverse Flow Entry (Flow Id: %d)", flow_id);
+
+      proto_tree* exts_tree = proto_item_add_subtree(ti, ett_a11_rqi_flowentry);
+   
+      /* Entry Length */
+      proto_tree_add_item(exts_tree, hf_a11_rqi_entrylen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Flow Id */
+      proto_tree_add_item(exts_tree, hf_a11_rqi_flowid, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Flags */
+      dissect_rqi_entry_flags(tvb, offset+clen, exts_tree);
+      clen++;
+
+      /* Requested QoS Length */
+      requested_qos_len = tvb_get_guint8(tvb, offset+clen);
+      proto_tree_add_item(exts_tree, hf_a11_rqi_requested_qoslen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Requested QoS Blob */
+      if(requested_qos_len)
+      {
+        proto_tree_add_item
+          (exts_tree, hf_a11_rqi_requested_qos, tvb, offset+clen, requested_qos_len, FALSE);
+        clen += requested_qos_len;
+      }
+
+      /* Granted QoS Length */
+      granted_qos_len = tvb_get_guint8(tvb, offset+clen);
+      proto_tree_add_item(exts_tree, hf_a11_rqi_granted_qoslen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Granted QoS Blob */
+      if(granted_qos_len)
+      {
+        proto_tree_add_item
+          (exts_tree, hf_a11_rqi_granted_qos, tvb, offset+clen, granted_qos_len, FALSE);
+        clen += granted_qos_len;
+      }
+   }
+}
+
 /* Code to dissect extensions */
 static void
 dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -733,10 +1063,22 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
         case 0x0802:
           proto_tree_add_text(ext_tree, tvb, offset, -1, "Session Parameter - Always On");
           break;
+        case 0x0803:
+          proto_tree_add_item(ext_tree, hf_a11_vse_qosmode, tvb, offset, 1, FALSE);
+          break;
         case 0x0901:
           if (ext_len < 2)
             break;
           proto_tree_add_item(ext_tree, hf_a11_vse_srvopt, tvb, offset, 2, FALSE);
+          break;
+        case 0x0C01:
+          dissect_ase(tvb, offset, ext_len, ext_tree);
+          break;
+        case 0x0D01:
+          dissect_fwd_qosinfo(tvb, offset, ext_tree);
+          break;
+        case 0x0D02:
+          dissect_rev_qosinfo(tvb, offset, ext_tree);
           break;
       }
 
@@ -1234,7 +1576,141 @@ void proto_register_a11(void)
 			FT_BYTES, BASE_HEX, NULL, 0,
 			"CANID", HFILL }
 	  },
-     
+	  { &hf_a11_vse_qosmode,
+		 { "QoS Mode",       "a11.ext.qosmode",
+			FT_UINT8, BASE_HEX, VALS(a11_ext_nvose_qosmode), 0,
+			"QoS Mode.", HFILL }
+      },
+      { &hf_a11_ase_len_type,
+		 { "Entry Length",   "a11.ext.ase.len",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Entry Length.", HFILL }
+      },
+      { &hf_a11_ase_srid_type,
+		 { "Service Reference ID (SRID)",   "a11.ext.ase.srid",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Service Reference ID (SRID).", HFILL }
+      },
+      { &hf_a11_ase_servopt_type,
+		 { "Service Option", "a11.ext.ase.srvopt",
+			FT_UINT16, BASE_HEX, VALS(a11_ext_nvose_srvopt), 0,
+			"Service Option.", HFILL }
+      },
+	  { &hf_a11_ase_gre_proto_type,
+		 { "GRE Protocol Type",   "a11.ext.ase.ptype",
+			FT_UINT16, BASE_HEX, VALS(a11_ses_ptype_vals), 0,
+			"GRE Protocol Type.", HFILL }
+	  },
+	  { &hf_a11_ase_gre_key,
+		 { "GRE Key",   "a11.ext.ase.key",
+			FT_UINT32, BASE_HEX, NULL, 0,
+			"GRE Key.", HFILL }
+	  },
+	  { &hf_a11_ase_pcf_addr_key,
+		 { "PCF IP Address",           "a11.ext.ase.pcfip",
+			FT_IPv4, BASE_NONE, NULL, 0,
+			"PCF IP Address.", HFILL }
+	  },
+	  { &hf_a11_fqi_srid,
+		 { "SRID",   "a11.ext.fqi.srid",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Forward Flow Entry SRID.", HFILL }
+	  },
+	  { &hf_a11_fqi_flags,
+		 { "Flags",   "a11.ext.fqi.flags",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"Forward Flow Entry Flags.", HFILL }
+	  },
+	  { &hf_a11_fqi_flowcount,
+		 { "Forward Flow Count",   "a11.ext.fqi.flowcount",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Forward Flow Count.", HFILL }
+	  },
+	  { &hf_a11_fqi_flowid,
+		 { "Forward Flow Id",   "a11.ext.fqi.flowid",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Forward Flow Id.", HFILL }
+	  },
+	  { &hf_a11_fqi_entrylen,
+		 { "Entry Length",   "a11.ext.fqi.entrylen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Forward Entry Length.", HFILL }
+	  },
+	  { &hf_a11_fqi_dscp,
+		 { "Forward DSCP",   "a11.ext.fqi.dscp",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"Forward Flow DSCP.", HFILL }
+	  },
+	  { &hf_a11_fqi_flowstate,
+		 { "Forward Flow State",   "a11.ext.fqi.flowstate",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"Forward Flow State.", HFILL }
+	  },
+	  { &hf_a11_fqi_requested_qoslen,
+		 { "Requested QoS Length",   "a11.ext.fqi.reqqoslen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Forward Requested QoS Length.", HFILL }
+	  },
+	  { &hf_a11_fqi_requested_qos,
+		 { "Requested QoS",   "a11.ext.fqi.reqqos",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Forward Requested QoS.", HFILL }
+	  },
+	  { &hf_a11_fqi_granted_qoslen,
+		 { "Granted QoS Length",   "a11.ext.fqi.graqoslen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Forward Granted QoS Length.", HFILL }
+	  },
+	  { &hf_a11_fqi_granted_qos,
+		 { "Granted QoS",   "a11.ext.fqi.graqos",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Forward Granted QoS.", HFILL }
+	  },
+	  { &hf_a11_rqi_srid,
+		 { "SRID",   "a11.ext.rqi.srid",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse Flow Entry SRID.", HFILL }
+	  },
+	  { &hf_a11_rqi_flowcount,
+		 { "Reverse Flow Count",   "a11.ext.rqi.flowcount",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse Flow Count.", HFILL }
+	  },
+	  { &hf_a11_rqi_flowid,
+		 { "Reverse Flow Id",   "a11.ext.rqi.flowid",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse Flow Id.", HFILL }
+	  },
+	  { &hf_a11_rqi_entrylen,
+		 { "Entry Length",   "a11.ext.rqi.entrylen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse Flow Entry Length.", HFILL }
+	  },
+	  { &hf_a11_rqi_flowstate,
+		 { "Flow State",   "a11.ext.rqi.flowstate",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"Reverse Flow State.", HFILL }
+	  },
+	  { &hf_a11_rqi_requested_qoslen,
+		 { "Requested QoS Length",   "a11.ext.rqi.reqqoslen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse Requested QoS Length.", HFILL }
+	  },
+	  { &hf_a11_rqi_requested_qos,
+		 { "Requested QoS",   "a11.ext.rqi.reqqos",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Reverse Requested QoS.", HFILL }
+	  },
+	  { &hf_a11_rqi_granted_qoslen,
+		 { "Granted QoS Length",   "a11.ext.rqi.graqoslen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse Granted QoS Length.", HFILL }
+	  },
+	  { &hf_a11_rqi_granted_qos,
+		 { "Granted QoS",   "a11.ext.rqi.graqos",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Reverse Granted QoS.", HFILL }
+	  },
 	};
 
 	/* Setup protocol subtree array */
@@ -1245,6 +1721,12 @@ void proto_register_a11(void)
 		&ett_a11_exts,
 		&ett_a11_radius,
 		&ett_a11_radiuses,
+		&ett_a11_ase,
+		&ett_a11_fqi_flowentry,
+		&ett_a11_rqi_flowentry,
+		&ett_a11_fqi_flags,
+		&ett_a11_fqi_entry_flags,
+		&ett_a11_rqi_entry_flags,
 	};
 
 	/* Register the protocol name and description */
