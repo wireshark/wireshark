@@ -293,6 +293,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 #else
         text = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text), GTK_WRAP_WORD_CHAR);
 #endif
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
 	follow_info->text = text;
