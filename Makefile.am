@@ -515,8 +515,10 @@ EXTRA_DIST = \
 	doc/README.design	\
 	doc/README.developer	\
 	doc/README.idl2eth	\
+	doc/README.malloc	\
 	doc/README.plugins	\
 	doc/README.regression   \
+	doc/README.stats_tree	\
 	doc/README.tapping	\
 	doc/README.tvbuff	\
 	doc/README.xml-output	\
