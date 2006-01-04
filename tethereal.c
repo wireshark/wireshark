@@ -1122,30 +1122,39 @@ main(int argc, char *argv[])
     }
 
     if (capture_opts.multi_files_on) {
-      /* Ring buffer works only under certain conditions:
-	 a) ring buffer does not work if you're not saving the capture to
-	    a file;
-	 b) ring buffer only works if you're saving in libpcap format;
-	 c) it makes no sense to enable the ring buffer if the maximum
-	    file size is set to "infinite";
-	 d) file must not be a pipe. */
+      /* Multiple-file mode works only under certain conditions:
+	 a) it doesn't work if you're not saving the capture to a file;
+	 b) it doesn't work if you're writing to the standard output;
+	 c) it doesn't work if you're writing to a pipe;
+	 d) it only works if you're saving in libpcap format;
+	 e) it makes no sense if the maximum file size is set to "infinite"
+	    (XXX - shouldn't that be "if there is no stop criterion",
+	    as you might want to switch files based on a packet count
+	    or a time). */
       if (save_file == NULL) {
-	cmdarg_err("Ring buffer requested, but capture isn't being saved to a file.");
+	cmdarg_err("Multiple capture files requested, but "
+	  "the capture isn't being saved to a file.");
+	exit(1);
+      }
+      if (strcmp(save_file, "") == 0) {
+	cmdarg_err("Multiple capture files requested, but "
+	  "the capture is being written to the standard output.");
+	exit(1);
+      }
+      if (ld.output_to_pipe) {
+	cmdarg_err("Multiple capture files requested, but "
+	  "the capture file is a pipe.");
 	exit(1);
       }
       if (out_file_type != WTAP_FILE_PCAP) {
-	cmdarg_err("Ring buffer requested, but "
-	  "capture isn't being saved in libpcap format.");
-	exit(2);
+	cmdarg_err("Multiple capture files requested, but "
+	  "the capture isn't being saved in libpcap format.");
+	exit(1);
       }
       if (!capture_opts.has_autostop_filesize) {
-	cmdarg_err("Ring buffer requested, but "
+	cmdarg_err("Multiple capture files requested, but "
 	  "no maximum capture file size was specified.");
-	exit(2);
-      }
-      if (ld.output_to_pipe) {
-	cmdarg_err("Ring buffer requested, but capture file is a pipe.");
-	exit(2);
+	exit(1);
       }
     }
   }
