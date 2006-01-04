@@ -1015,20 +1015,33 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
      * case the caller destroys it after we return.
      */
     capfile_name = g_strdup(capture_opts->save_file);
-    if (capture_opts->multi_files_on) {
-      /* ringbuffer is enabled */
-      *save_file_fd = ringbuf_init(capfile_name,
-          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
-
-      /* we need the ringbuf name */
-      if(*save_file_fd != -1) {
-          g_free(capfile_name);
-          capfile_name = g_strdup(ringbuf_current_filename());
+    if (strcmp(capfile_name, "") == 0) {
+      /* Write to the standard output. */
+      if (capture_opts->multi_files_on) {
+        /* ringbuffer is enabled; that doesn't work with standard output */
+        g_snprintf(errmsg, errmsg_len,
+	    "Ring buffer requested, but capture is being written to the standard error.");
+        g_free(capfile_name);
+        return FALSE;
+      } else {
+        *save_file_fd = 1;
       }
     } else {
-      /* Try to open/create the specified file for use as a capture buffer. */
-      *save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
-				0600);
+      if (capture_opts->multi_files_on) {
+        /* ringbuffer is enabled */
+        *save_file_fd = ringbuf_init(capfile_name,
+            (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
+
+        /* we need the ringbuf name */
+        if(*save_file_fd != -1) {
+            g_free(capfile_name);
+            capfile_name = g_strdup(ringbuf_current_filename());
+        }
+      } else {
+        /* Try to open/create the specified file for use as a capture buffer. */
+        *save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+                             0600);
+      }
     }
     is_tempfile = FALSE;
   } else {
