@@ -592,6 +592,22 @@ log_func_ignore (const gchar *log_domain _U_, GLogLevelFlags log_level _U_,
 {
 }
 
+static char *
+output_file_description(const char *fname)
+{
+  char *save_file_string;
+
+  /* Get a string that describes what we're writing to */
+  if (*fname == '\0') {
+    /* We're writing to the standard output */
+    save_file_string = g_strdup("standard output");
+  } else {
+    /* We're writing to a file with the name in save_file */
+    save_file_string = g_strdup_printf("file \"%s\"", fname);
+  }
+  return save_file_string;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1457,6 +1473,8 @@ capture(char *save_file, int out_file_type)
       goto error;
   }
 
+  /* Save the capture file name. */
+  ld.save_file = capture_opts.save_file;
 
 #ifdef _WIN32
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */
@@ -1867,9 +1885,13 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
   int          err;
   gchar        *err_info;
   long         data_offset;
+  char         *save_file_string = NULL;
 
   linktype = wtap_file_encap(cf->wth);
   if (save_file != NULL) {
+    /* Get a string that describes what we're writing to */
+    save_file_string = output_file_description(save_file);
+
     /* Set up to write to the capture file. */
     snapshot_length = wtap_snapshot_length(cf->wth);
     if (snapshot_length == 0) {
@@ -1894,19 +1916,17 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
         break;
 
       case WTAP_ERR_CANT_OPEN:
-        cmdarg_err("The file \"%s\" couldn't be created for some "
-          "unknown reason.",
-            *save_file == '\0' ? "stdout" : save_file);
+        cmdarg_err("The %s couldn't be created for some "
+          "unknown reason.", save_file_string);
         break;
 
       case WTAP_ERR_SHORT_WRITE:
-        cmdarg_err("A full header couldn't be written to the file \"%s\".",
-		*save_file == '\0' ? "stdout" : save_file);
+        cmdarg_err("A full header couldn't be written to the %s.",
+		save_file_string);
         break;
 
       default:
-        cmdarg_err("The file \"%s\" could not be created: %s.",
- 		*save_file == '\0' ? "stdout" : save_file,
+        cmdarg_err("The %s could not be created: %s.", save_file_string,
 		wtap_strerror(err));
         break;
       }
@@ -1984,6 +2004,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
 out:
   wtap_close(cf->wth);
   cf->wth = NULL;
+
+  if (save_file_string != NULL)
+    g_free(save_file_string);
 
   return err;
 }
@@ -2183,45 +2206,47 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
 static void
 show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 {
-  if (*fname == '\0')
-    fname = "stdout";
+  char *save_file_string;
+
+  save_file_string = output_file_description(fname);
 
   switch (err) {
 
   case ENOSPC:
-    cmdarg_err("Not all the packets could be written to \"%s\" because there is "
+    cmdarg_err("Not all the packets could be written to the %s because there is "
 "no space left on the file system.",
-	fname);
+	save_file_string);
     break;
 
 #ifdef EDQUOT
   case EDQUOT:
-    cmdarg_err("Not all the packets could be written to \"%s\" because you are "
+    cmdarg_err("Not all the packets could be written to the %s because you are "
 "too close to, or over your disk quota.",
-	fname);
+	save_file_string);
   break;
 #endif
 
   case WTAP_ERR_CANT_CLOSE:
-    cmdarg_err("\"%s\" couldn't be closed for some unknown reason.",
-	fname);
+    cmdarg_err("The %s couldn't be closed for some unknown reason.",
+	save_file_string);
     break;
 
   case WTAP_ERR_SHORT_WRITE:
-    cmdarg_err("Not all the packets could be written to \"%s\".",
-	fname);
+    cmdarg_err("Not all the packets could be written to the %s.",
+	save_file_string);
     break;
 
   default:
     if (is_close) {
-      cmdarg_err("\"%s\" could not be closed: %s.",
-	fname, wtap_strerror(err));
+      cmdarg_err("The %s could not be closed: %s.",
+	save_file_string, wtap_strerror(err));
     } else {
-      cmdarg_err("An error occurred while writing to \"%s\": %s.",
-	fname, wtap_strerror(err));
+      cmdarg_err("An error occurred while writing to the %s: %s.",
+	save_file_string, wtap_strerror(err));
     }
     break;
   }
+  g_free(save_file_string);
 }
 
 static gboolean
