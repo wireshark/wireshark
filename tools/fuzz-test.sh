@@ -78,6 +78,9 @@ fi
 echo "Running $TETHEREAL with args: $TETHEREAL_ARGS"
 echo ""
 
+# Not yet - properly handle empty filenames
+#trap "rm $TMP_DIR/$TMP_FILE $TMP_DIR/$FUZZ_FILE; exit 1" 1 2 15
+
 # Iterate over our capture files.
 PASS=0
 while [ 1 ] ; do
