@@ -53,6 +53,7 @@ TEST_STEPS[0]=0			# number of steps of a specific nesting level
 TEST_OK=0				# global count of succeeded steps
 TEST_FAILED=0			# global count of failed steps
 
+TEST_STEP_PRE_CB=
 TEST_STEP_POST_CB=
 
 # level number of this test item (suite or step)
@@ -208,11 +209,14 @@ test_step_add() {
 	fi
 
 	if [ $TEST_RUN = "ON" ]; then		
+		# preprecessing step
+		$TEST_STEP_PRE_CB
 		#echo "command: "$2" opt1: "$3" opt2: "$4" opt3: "$5" opt4: "$6" opt5: "$7
 		TEST_STEP_NAME=$1
 		# actually run the command to test now
 		$2 
 		#"$3" "$4" "$5" "$6" "$7"
+		# post precessing step
 		$TEST_STEP_POST_CB
 	else
 		if [[ $TEST_NESTING_LEVEL -eq 0 ]]; then
@@ -222,7 +226,13 @@ test_step_add() {
 }
 
 
-# set the a post processing function
+# set the preprocessing function
+# $1 remark
+test_step_set_pre() {
+	TEST_STEP_PRE_CB=$1
+}
+
+# set the post processing function
 # $1 remark
 test_step_set_post() {
 	TEST_STEP_POST_CB=$1
