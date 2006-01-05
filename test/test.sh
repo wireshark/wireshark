@@ -133,6 +133,36 @@ do
 		menu_title[MENU_LEVEL]=${test_title[3]}
 		menu_function[MENU_LEVEL]=${test_function[3]}
 	;;
+		"4")
+		let "MENU_LEVEL += 1"
+		menu_title[MENU_LEVEL]=${test_title[4]}
+		menu_function[MENU_LEVEL]=${test_function[4]}
+	;;
+		"5")
+		let "MENU_LEVEL += 1"
+		menu_title[MENU_LEVEL]=${test_title[5]}
+		menu_function[MENU_LEVEL]=${test_function[5]}
+	;;
+		"6")
+		let "MENU_LEVEL += 1"
+		menu_title[MENU_LEVEL]=${test_title[6]}
+		menu_function[MENU_LEVEL]=${test_function[6]}
+	;;
+		"7")
+		let "MENU_LEVEL += 1"
+		menu_title[MENU_LEVEL]=${test_title[7]}
+		menu_function[MENU_LEVEL]=${test_function[7]}
+	;;
+		"8")
+		let "MENU_LEVEL += 1"
+		menu_title[MENU_LEVEL]=${test_title[8]}
+		menu_function[MENU_LEVEL]=${test_function[8]}
+	;;
+		"9")
+		let "MENU_LEVEL += 1"
+		menu_title[MENU_LEVEL]=${test_title[9]}
+		menu_function[MENU_LEVEL]=${test_function[9]}
+	;;
 
 	esac
 done
