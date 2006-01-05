@@ -561,6 +561,10 @@ static int rsn_cap_no_pairwise = -1;
 static int rsn_cap_ptksa_replay_counter = -1;
 static int rsn_cap_gtksa_replay_counter = -1;
 
+static int hf_aironet_ie_type = -1;
+static int hf_aironet_ie_version = -1;
+static int hf_aironet_ie_data = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -1133,6 +1137,39 @@ dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tvb,
 	proto_item_append_text(ietree, ": RSN");
 }
 
+typedef enum {
+	AIRONET_IE_VERSION = 3
+} aironet_ie_type_t;
+
+static const value_string aironet_ie_type_vals[] = {
+        { AIRONET_IE_VERSION,	"CCX version\?"},
+
+	{ 0,			NULL }
+};
+
+static void
+dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
+	tvbuff_t * tvb, int offset, guint32 tag_len)
+{
+	guint8	type;
+
+	type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item (ietree, hf_aironet_ie_type, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	switch (type) {
+	case AIRONET_IE_VERSION:
+		proto_tree_add_item (ietree, hf_aironet_ie_version, tvb, offset, 1, TRUE);
+		break;
+	default:
+		proto_tree_add_item(ietree, hf_aironet_ie_data, tvb, offset,
+			tag_len - 1, FALSE);
+		break;
+	}
+	proto_item_append_text(aironet_item, ": %s", 
+		val_to_str(type, aironet_ie_type_vals, "Unknown"));
+}
+
 static void
 dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	       guint32 tag_len, const guint8 *tag_val)
@@ -1663,12 +1700,19 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		tag_val = tvb_get_ptr(tvb, offset + 2, tag_len);
 #define WPAWME_OUI	0x0050F2
 #define RSNOUI_VAL	0x000FAC
+#define AIRONET_VAL	0x004096
 		switch (oui) {
 		case WPAWME_OUI:
 			dissect_vendor_ie_wpawme(ti, tree, tvb, offset + 2, tag_len, tag_val);
 			break;
 		case RSNOUI_VAL:
 			dissect_vendor_ie_rsn(ti, tree, tvb, offset + 2, tag_len, tag_val);
+			break;
+		case AIRONET_VAL:
+			proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
+				"", "Vendor: %s", get_manuf_name(tag_val));
+			proto_item_append_text(ti, ": %s", get_manuf_name(tag_val));
+			dissect_vendor_ie_aironet(ti, tree, tvb, offset + 5, tag_len - 3);
 			break;
 		default:
 			proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
@@ -2039,11 +2083,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   else
     hdr_len = find_header_length (fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
-
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-      col_set_str (pinfo->cinfo, COL_PROTOCOL,
-          val_to_str(frame_type_subtype, frame_type_subtype_vals,
-              "Unrecognized (Reserved frame)"));
 
   if (check_col (pinfo->cinfo, COL_INFO))
       col_set_str (pinfo->cinfo, COL_INFO,
@@ -3776,6 +3815,18 @@ proto_register_ieee80211 (void)
       "wlan_mgt.rsn.capabilities.gtksa_replay_counter",
       FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x0030,
       "RSN GTKSA Replay Counter capabilities", HFILL }},
+
+    {&hf_aironet_ie_type,
+     {"Aironet IE type", "wlan_mgt.aironet.type",
+      FT_UINT8, BASE_DEC, VALS(aironet_ie_type_vals), 0, "", HFILL }},
+
+    {&hf_aironet_ie_version,
+     {"Aironet IE CCX version?", "wlan_mgt.aironet.version",
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    { &hf_aironet_ie_data,
+      { "Aironet IE data", "wlan_mgmt.aironet.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
   };
 
   static gint *tree_array[] = {
