@@ -1022,7 +1022,7 @@ main(int argc, char *argv[])
       if (rfilter != NULL) {
         cmdarg_err("Read filters were specified both with \"-R\" "
             "and with additional command-line arguments");
-        exit(2);
+        exit(1);
       }
       rfilter = get_args_as_string(argc, argv, optind);
     } else {
@@ -1030,7 +1030,7 @@ main(int argc, char *argv[])
       if (capture_filter_specified) {
         cmdarg_err("Capture filters were specified both with \"-f\""
             " and with additional command-line arguments");
-        exit(2);
+        exit(1);
       }
       capture_opts.cfilter = get_args_as_string(argc, argv, optind);
 #else
@@ -1046,7 +1046,16 @@ main(int argc, char *argv[])
   if (save_file != NULL) {
     /* We're writing to a capture file. */
     if (strcmp(save_file, "-") == 0) {
-      /* Write to the standard output. */
+      /* Write to the standard output.
+         If we'll also be writing dissected packets to the standard
+         output, reject the request.  At best, we could redirect that
+         to the standard error; we *can't* write both to the standard
+         output and have either of them be useful. */
+      if (print_packet_info) {
+        cmdarg_err("You can't write both raw packet data and dissected packets"
+            " to the standard error.");
+        exit(1);
+      }
       g_free(save_file);
       save_file = g_strdup("");
 #ifdef HAVE_LIBPCAP
@@ -1102,7 +1111,7 @@ main(int argc, char *argv[])
     if (capture_filter_specified) {
       cmdarg_err("Only read filters, not capture filters, "
           "can be specified when reading a capture file.");
-      exit(2);
+      exit(1);
     }
   }
 #endif
