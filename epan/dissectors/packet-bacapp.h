@@ -1380,6 +1380,7 @@ fAddressBinding (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
+#if 0
 /**
  * BACnetClientCOV ::= CHOICE {
  * 	real-increment  REAL,
@@ -1392,6 +1393,7 @@ fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fClientCOV (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
 /**
  * BACnetDailySchedule ::= SEQUENCE {
@@ -1444,6 +1446,7 @@ fDateRange (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fDateTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
+#if 0
 /**
  * BACnetDestination ::= SEQUENCE {
  *  validDays   BACnetDaysOfWeek,
@@ -1461,7 +1464,9 @@ fDateTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
  */
 static guint
 fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
+#if 0
 /**
  * BACnetDeviceObjectPropertyReference ::= SEQUENCE {
  *  objectIdentifier    [0] BACnetObjectIdentifier,
@@ -1476,7 +1481,9 @@ fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
+#if 0
 /**
  * BACnetDeviceObjectReference ::= SEQUENCE {
  *  deviceIdentifier    [0] BACnetObjectIdentifier OPTIONAL,
@@ -1489,7 +1496,9 @@ fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fDeviceObjectReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
+#if 0
 /**
  * BACnetEventParameter ::= CHOICE {
  * 	change-of-bitstring [0] SEQUENCE {
@@ -1543,8 +1552,10 @@ fDeviceObjectReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
 
+#if 0
 /**
  * BACnetLogRecord ::= SEQUENCE {
  *	timestamp [0] BACnetDateTime,
@@ -1570,6 +1581,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
 /**
  * BACnetNotificationParameters ::= CHOICE {
@@ -1641,6 +1653,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
+#if 0
 /**
  * BACnetObjectPropertyValue ::= SEQUENCE {
  *		objectIdentifier [0] BACnetObjectIdentifier,
@@ -1657,6 +1670,7 @@ fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
 /**
  * BACnetPriorityArray ::= SEQUENCE SIZE (16) OF BACnetPriorityValue
@@ -1734,6 +1748,7 @@ fRecipient (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fRecipientProcess (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
+#if 0
 /**
  * BACnetSessionKey ::= SEQUENCE {
  * 	sessionKey	OCTET STRING (SIZE(8)), -- 56 bits for key, 8 bits for checksum
@@ -1747,7 +1762,9 @@ fRecipientProcess (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fSessionKey (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
+#if 0
 /**
  * BACnetSetpointReference ::= SEQUENCE {
  * 	sessionKey	[0] BACnetObjectPropertyReference OPTIONAL
@@ -1759,6 +1776,7 @@ fSessionKey (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fSetpointReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
 /**
  * BACnetSpecialEvent ::= SEQUENCE {
@@ -1804,6 +1822,7 @@ fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fTimeValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
+#if 0
 /**
  * BACnetVTSession ::= SEQUENCE {
  * 	local-vtSessionID	Unsigned8,
@@ -1817,6 +1836,7 @@ fTimeValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fVTSession (tvbuff_t *tvb, proto_tree *tree, guint offset);
+#endif
 
 /**
  * BACnetWeekNDay ::= OCTET STRING (SIZE (3))

@@ -1281,8 +1281,9 @@ static gboolean tag_is_closing(guint8 tag)
 	return (tag & 0x07) == 7;
 }
 
-/* from clause 20.2.1.3.2 Constructed Data
-   returns true if the tag number is context specific */
+/* from clause 20.2.1.1 Class
+   class bit shall be one for context specific tags */
+/* returns true if the tag is context specific */
 static gboolean tag_is_context_specific(guint8 tag)
 {
 	return (tag & 0x08) != 0;
@@ -1854,6 +1855,7 @@ fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+#if 0
 static guint
 fSetpointReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -1873,8 +1875,9 @@ fSetpointReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
-
+#if 0
 static guint
 fClientCOV (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -1901,6 +1904,8 @@ fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+
+#endif
 
 static guint
 fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label, guint32 lvt)
@@ -1945,12 +1950,14 @@ fAddress (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+#if 0
 static guint
 fSessionKey (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	offset = fOctetString (tvb,tree,offset,"session key: ", 8);
 	return fAddress (tvb,tree,offset);
 }
+#endif
 
 static guint
 fObjectIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
@@ -2521,13 +2528,19 @@ static guint
 fBACnetPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
+	guint8 tag_no, tag_info;
+	guint32 lvt;
 
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		offset = fPropertyValue(tvb, tree, offset, 0);
 		if (offset > lastoffset)
 		{
-			offset = fSignedTag(tvb, tree, offset, "Priority: ");
+			/* detect optional priority
+			by looking to see if the next tag is context tag number 3 */
+			fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+			if (tag_is_context_specific(tag_info) && (tag_no == 3))
+				offset = fUnsignedTag (tvb,tree,offset,"Priority: ");
 		}
 	}
 	return offset;
@@ -3104,6 +3117,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+#if 0
 static guint
 fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -3340,6 +3354,7 @@ fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
 static guint
 fConfirmedEventNotificationRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
@@ -4076,6 +4091,7 @@ fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+#if 0
 static guint
 fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -4122,8 +4138,9 @@ fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
-
+#if 0
 static guint
 fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -4145,11 +4162,12 @@ fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
 static guint
 fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	guint8 i, ar[256];
+	char i, ar[256];
 
 	if (offset >= tvb_reported_length(tvb))
 		return offset;
@@ -4167,6 +4185,7 @@ fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+#if 0
 static guint
 fDeviceObjectReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -4188,6 +4207,7 @@ fDeviceObjectReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
 static guint
 fSpecialEvent (tvbuff_t *tvb, proto_tree *subtree, guint offset)
@@ -5244,6 +5264,7 @@ fChangeListError(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+#if 0
 static guint
 fVTSession(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -5254,6 +5275,7 @@ fVTSession(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
 static guint
 fVTCloseError(tvbuff_t *tvb, proto_tree *tree, guint offset)
