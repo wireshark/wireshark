@@ -466,6 +466,7 @@ DISSECTOR_SRC =	\
 	packet-ntp.c	\
 	packet-null.c	\
 	packet-ocsp.c	\
+	packet-oicq.c	\
 	packet-olsr.c	\
 	packet-osi-options.c	\
 	packet-osi.c	\
