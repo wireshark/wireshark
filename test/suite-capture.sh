@@ -56,11 +56,45 @@ capture_step_10packets() {
 	else
 		echo
 		cat ./testout.txt
-		test_step_failed "Probably the wrong interface (no traffic captured)!"
+		# part of the Prerequisite checks
+		# probably wrong interface, output the possible interfaces
+		$TETHEREAL -D
+		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
 
-# capture exactly 2 times 10 packets
+# capture exactly 10 packets using "-w -" (piping to stdout)
+capture_step_10packets_stdout() {
+	#$DUT -i $TRAFFIC_CAPTURE_IFACE -c 10 -a duration:$TRAFFIC_CAPTURE_DURATION -F libpcap -w ./testout.pcap 2>./testout.txt
+	$DUT -i $TRAFFIC_CAPTURE_IFACE -c 10 -a duration:$TRAFFIC_CAPTURE_DURATION -F libpcap -w - > ./testout.pcap 2>./testout.txt
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		$TETHEREAL -D
+		return
+	fi
+
+	# we should have an output file now
+	if [ ! -f "./testout.pcap" ]; then
+		test_step_failed "No output file!"
+		return
+	fi
+	
+	# ok, we got a capture file, does it contain exactly 10 packets?
+	$CAPINFOS ./testout.pcap > ./testout2.txt 2>&1
+	grep -i 'Number of packets: 10' ./testout2.txt > /dev/null
+	if [ $? -eq 0 ]; then
+		test_step_ok
+	else
+		echo
+		cat ./testout.txt
+		cat ./testout2.txt
+		$TETHEREAL -D
+		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
+	fi
+}
+
+# capture exactly 2 times 10 packets (multiple files)
 capture_step_2multi_10packets() {
 	$DUT -i $TRAFFIC_CAPTURE_IFACE -w ./testout.pcap -c 10  -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
 	RETURNVALUE=$?
@@ -165,6 +199,7 @@ ethereal_capture_suite() {
 tethereal_capture_suite() {
 	DUT=$TETHEREAL
 	test_step_add "Capture 10 packets" capture_step_10packets
+	test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
 	test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
@@ -178,15 +213,17 @@ dumpcap_capture_suite() {
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
 
-capture_post_step() {
+capture_cleanup_step() {
 	rm -f ./testout.txt
+	rm -f ./testout2.txt
 	rm -f ./testout.pcap
 	rm -f ./testout2.pcap
 }
 
 capture_suite() {
-	test_step_set_post capture_post_step
-	test_remark_add "Capture - need some traffic on: \"$TRAFFIC_CAPTURE_IFACE\""
+	test_step_set_pre capture_cleanup_step
+	test_step_set_post capture_cleanup_step
+	test_remark_add "Capture - need some traffic on interface: \"$TRAFFIC_CAPTURE_IFACE\""
 	test_suite_add "Tethereal capture" tethereal_capture_suite
 	test_suite_add "Ethereal capture" ethereal_capture_suite
 	test_suite_add "Dumpcap capture" dumpcap_capture_suite
