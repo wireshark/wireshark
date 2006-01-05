@@ -110,7 +110,7 @@ clopts_step_invalid_capfilter() {
 	fi
 }
 
-# check exit status and grep output string of an invalid capture filter
+# check exit status and grep output string of an invalid interface
 clopts_step_invalid_interface() {
 	$TETHEREAL -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
@@ -118,6 +118,24 @@ clopts_step_invalid_interface() {
 		test_step_failed "exit status: $RETURNVALUE"
 	else
 		grep -i 'The capture session could not be initiated!' ./testout.txt > /dev/null
+		if [ $? -eq 0 ]; then
+			test_step_ok
+		else
+			cat ./testout.txt
+			test_step_failed "Infos"
+		fi
+	fi
+}
+
+# check exit status and grep output string of an invalid interface index
+# (valid interface indexes start with 1)
+clopts_step_invalid_interface_index() {
+	$TETHEREAL -i 0 -w './testout.pcap' > ./testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
+		test_step_failed "exit status: $RETURNVALUE"
+	else
+		grep -i 'there is no interface with that adapter index' ./testout.txt > /dev/null
 		if [ $? -eq 0 ]; then
 			test_step_ok
 		else
@@ -157,6 +175,7 @@ clopt_suite() {
 	test_suite_add "Valid Tethereal single char options" clopts_suite_valid_chars
 	test_step_add  "Invalid capture filter -f" clopts_step_invalid_capfilter
 	test_step_add  "Invalid capture interface -i" clopts_step_invalid_interface
+	test_step_add  "Invalid capture interface index 0" clopts_step_invalid_interface_index
 	test_step_add  "Valid name resolution options -N (1s)" clopts_step_valid_name_resolving
 	#test_remark_add "Undocumented command line option: G"
 	#test_remark_add "Options currently unchecked: S, V, l, n, p, q and x"
