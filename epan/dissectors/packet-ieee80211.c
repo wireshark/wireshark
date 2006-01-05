@@ -1380,6 +1380,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
     case TAG_SUPP_RATES:
     case TAG_EXT_SUPP_RATES:
+      if (tag_len < 1)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"Tag length %u too short, must be > 0", tag_len);
+        break;
+       }
+       tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
+
       tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
       for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
         ret = snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
@@ -1512,7 +1520,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             if (bmap[i/8] & (1<<(i%8))) {
               int aid=i+bmapoff*8;
               len+=snprintf (out_buff+len, SHORT_STR-len," %u", aid);
-              proto_item_append_text(ti, "  %u", aid);
+              proto_item_append_text(ti, " %u", aid);
               if (len>=SHORT_STR) {
                 break;
               }
