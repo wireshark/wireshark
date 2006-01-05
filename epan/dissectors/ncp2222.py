@@ -5399,8 +5399,8 @@ def define_errors():
     	errors[0xc501] = "Login lockout"
     	errors[0xc502] = "Server Login Locked"
 
-    	errors[0xc600] = "The caller does not have operator priviliges"
-    	errors[0xc601] = "The client does not have operator priviliges"
+    	errors[0xc600] = "The caller does not have operator privileges"
+    	errors[0xc601] = "The client does not have operator privileges"
 
     	errors[0xc800] = "Missing EA Key"
     	errors[0xc900] = "EA Not Found"

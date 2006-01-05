@@ -403,7 +403,7 @@ void proto_register_mip(void)
 		   "Broadcast Datagrams requested", HFILL }
 	  },
 	  { &hf_mip_d,
-		 { "Co-lcated Care-of Address",           "mip.d",
+		 { "Co-located Care-of Address",           "mip.d",
 		   FT_BOOLEAN, 8, NULL, 32,
 		   "MN using Co-located Care-of address", HFILL }
 	  },

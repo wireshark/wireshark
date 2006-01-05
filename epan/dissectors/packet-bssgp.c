@@ -1736,7 +1736,7 @@ decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     { 0x2a, "Unknown destination address" },
     { 0x2b, "Unknown RIM application identity" },
     { 0x2c, "Invalid container unit information" },
-    { 0x2d, "PFC queing" },
+    { 0x2d, "PFC queuing" },
     { 0x2e, "PFC created successfully" },
     { 0,    NULL },
   };
@@ -3264,7 +3264,7 @@ decode_iei_feature_bitmap(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
 
   value = get_masked_guint8(data, MASK_INR);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_INR);
-  proto_item_append_text(pi, "INR: Inter-NSE re-routeing%s supoprted",
+  proto_item_append_text(pi, "INR: Inter-NSE re-routeing%s supported",
 			 value == 0 ? " not" : "");
   
   value = get_masked_guint8(data, MASK_CBL);
@@ -3715,7 +3715,7 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
     value = get_masked_guint8(data, MASK_USAGE);
 
     switch (value) {
-    case 0: proto_item_append_text(pi, " attempted unsuccessfully due to failure or interuption "); break;
+    case 0: proto_item_append_text(pi, " attempted unsuccessfully due to failure or interruption "); break;
     case 1: proto_item_append_text(pi, " attempted successfully: results not used to generate location"); break;
     case 2: proto_item_append_text(pi, " attempted successfully: results used to verify but not generate location"); break;
     case 3: proto_item_append_text(pi, "attempted successfully: results used to generate location"); break;

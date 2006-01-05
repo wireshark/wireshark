@@ -171,11 +171,11 @@ static value_string sonmp_backplane_val[] =
 	{4, "ethernet and FDDI"},
 	{5, "ethernet, tokenring and FDDI"},
 	{6, "ethernet and tokenring with redundant power"},
-	{7, "ethernet, tokenring, FDDI with redunadant power"},
+	{7, "ethernet, tokenring, FDDI with redundant power"},
 	{8, "token ring"},
 	{9, "ethernet, tokenring and fast ethernet"},
 	{10, "ethernet and fast ethernet"},
-	{11, "ethernet, tokenring, fast ethernet with redunant power"},
+	{11, "ethernet, tokenring, fast ethernet with redundant power"},
 	{12, "ethernet, fast ethernet and gigabit ethernet"},
 	{0, NULL}
 };

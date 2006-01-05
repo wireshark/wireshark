@@ -2043,7 +2043,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_iseqno,
      {"Inbound seq.no.", "iax2.iseqno", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "iseqno is the sequence no of the last successfully recieved packet",
+      "iseqno is the sequence no of the last successfully received packet",
       HFILL}},
 
     {&hf_iax2_type,

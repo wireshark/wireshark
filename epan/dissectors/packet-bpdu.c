@@ -781,7 +781,7 @@ proto_register_bpdu(void)
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"", HFILL }},
     { &hf_bpdu_msti_port_identifier_priority,
-      { "Port identifier prority",		"mstp.msti.port_priority",
+      { "Port identifier priority",		"mstp.msti.port_priority",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"", HFILL }},
     { &hf_bpdu_msti_remaining_hops,

@@ -4621,7 +4621,7 @@ proto_register_afp(void)
     { &hf_afp_dir_bitmap_UTF8Name,
       { "UTF-8 name",         "afp.dir_bitmap.UTF8_name",
     	FT_BOOLEAN, 16, NULL,  kFPUTF8NameBit,
-      	"Return UTF-8 name if diectory", HFILL }},
+      	"Return UTF-8 name if directory", HFILL }},
 
     { &hf_afp_dir_bitmap_UnixPrivs,
       { "UNIX privileges",         "afp.dir_bitmap.unix_privs",

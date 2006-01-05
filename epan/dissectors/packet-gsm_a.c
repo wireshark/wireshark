@@ -482,7 +482,7 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { 0x2f,	"Time Indication" },
     { 0x30,	"Resource Situation" },
     { 0x31,	"Current Channel Type 1" },
-    { 0x32,	"Queueing Indicator" },
+    { 0x32,	"Queuing Indicator" },
     { 0x40,	"Speech Version" },
     { 0x33,	"Assignment Requirement" },
     { 0x35,	"Talker Flag" },

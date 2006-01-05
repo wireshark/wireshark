@@ -1320,7 +1320,7 @@ proto_register_lwres(void)
 
     { &hf_version,
       { "Version", "lwres.version", FT_UINT16, BASE_DEC, NULL, 0x0,
-        "lwres legth", HFILL }},
+        "lwres version", HFILL }},
 
     { &hf_flags,
       { "Packet Flags", "lwres.flags", FT_UINT16, BASE_HEX, NULL, 0x0,

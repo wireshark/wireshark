@@ -147,7 +147,7 @@ static const value_string ata_cmd_vals[] = {
   { 0xc8, "Read dma (with retry)" },
   { 0xc9, "Read dma (no retry)" },
   { 0xca, "Write dma (with retry)" },
-  { 0xcb, "Write dma (no retru)" },
+  { 0xcb, "Write dma (no retry)" },
   { 0xde, "Door lock" },
   { 0xdf, "Door unlock" },
   { 0xe0, "Standy immediate" },

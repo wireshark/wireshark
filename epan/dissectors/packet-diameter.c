@@ -243,7 +243,7 @@ static gboolean gbl_diameter_desegment = TRUE;
 /* Allow zero as a valid application ID */
 static gboolean allow_zero_as_app_id = TRUE;
 
-/* Supress console output at unknown AVP:s,Flags etc */
+/* Suppress console output at unknown AVP:s,Flags etc */
 static gboolean suppress_console_output = TRUE;
 
 #define DICT_FN  "diameter/dictionary.xml"
@@ -2269,7 +2269,7 @@ proto_register_diameter(void)
 			&allow_zero_as_app_id);
 	/* Register some preferences we no longer support, so we can report
 	   them as obsolete rather than just illegal. */
-	/* Supress console output or not */
+	/* Suppress console output or not */
 	prefs_register_bool_preference(diameter_module, "suppress_console_output",
 			"Suppress console output for unknown AVP:s Flags etc.",
 			"If console output for errors should be suppressed or not",

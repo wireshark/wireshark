@@ -1131,7 +1131,7 @@ static const true_false_string unjoin_flags_acct_delete = {
 };
 
 static const true_false_string join_flags_win9x_upgrade = {
-	"The join operation is occuring as part of an upgrade of Windows 9x",
+	"The join operation is occurring as part of an upgrade of Windows 9x",
 	"The join operation is not part of a Windows 9x upgrade"
 };
 

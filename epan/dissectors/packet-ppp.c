@@ -279,7 +279,7 @@ const value_string ppp_vals[] = {
 	{PPP_RTP_CRDP16,"RTP IPHC Compressed RTP 16" },
 	{PPP_CCCP,	"Cray Communications Control Protocol" },
 	{PPP_CDPD_MNRP,	"CDPD Mobile Network Registration Protocol" },
-	{PPP_EXPANDAP,	"Expand accelarator protocol" },
+	{PPP_EXPANDAP,	"Expand accelerator protocol" },
 	{PPP_ODSICP,	"ODSICP NCP" },
 	{PPP_DOCSIS,	"DOCSIS DLL" },
 	{PPP_LZS,	"Stacker LZS" },

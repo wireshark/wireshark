@@ -129,7 +129,7 @@ static const true_false_string tfs_error_ef = {
 };
 static const true_false_string tfs_error_nd = {
 	"This Frame has NO Data",
-	"This frame carriues data"
+	"This frame carries data"
 };
 static const true_false_string tfs_error_tr = {
 	"This frame is TRUNCATED",

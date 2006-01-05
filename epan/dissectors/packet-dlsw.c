@@ -245,7 +245,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    dlsw_header_tree = proto_item_add_subtree(ti2, ett_dlsw_header);
    proto_tree_add_text (dlsw_header_tree,tvb,0 ,1,"Version        = %s",
-    val_to_str(version , dlsw_version_vals, "Unknown Version, dissection may be innacurate"));
+    val_to_str(version , dlsw_version_vals, "Unknown Version, dissection may be inaccurate"));
    proto_tree_add_text (dlsw_header_tree,tvb,1 ,1,"Header Length  = %u",hlen) ;
    mlen=tvb_get_ntohs(tvb,2);
    proto_tree_add_text (dlsw_header_tree,tvb,2 ,2,"Message Length = %u",mlen);

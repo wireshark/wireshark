@@ -9517,7 +9517,7 @@ param_dereg(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, 
     {
     case 0: str = "Not used"; break;
     case 1: str = "Deregister for an unspecified reason"; break;
-    case 2: str = "Deregister for an adminstrative reason"; break;
+    case 2: str = "Deregister for an administrative reason"; break;
     case 3: str = "Deregister due to MS power down"; break;
     default:
 	if ((value >= 4) && (value <= 223)) { str = "Reserved, treat as Deregister for an unspecified reason"; }

@@ -700,9 +700,9 @@ proto_register_docsis (void)
       "Version", HFILL}
      },
     {&hf_docsis_ehdr_phsi,
-     {"Payload Header Supression Index", "docsis.ehdr.phsi",
+     {"Payload Header Suppression Index", "docsis.ehdr.phsi",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Payload Header Supression Index", HFILL}
+      "Payload Header Suppression Index", HFILL}
      },
     {&hf_docsis_ehdr_qind,
      {"Queue Indicator", "docsis.ehdr.qind",

@@ -474,12 +474,12 @@ dissect_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 
 #define UNKNOWN_UNAVAIL_CAUSE                  0
 #define UNEQUIPPED_REMOTE_USER_UNAVAIL_CAUSE   1
-#define INACCESSABLE_REMOTE_USER_UNAVAIL_CAUSE 2
+#define INACCESSIBLE_REMOTE_USER_UNAVAIL_CAUSE 2
 
 static const value_string unavailability_cause_values[] = {
   { UNKNOWN_UNAVAIL_CAUSE,                  "Unknown"                  },
   { UNEQUIPPED_REMOTE_USER_UNAVAIL_CAUSE,   "Unequipped remote user"   },
-  { INACCESSABLE_REMOTE_USER_UNAVAIL_CAUSE, "Inaccessable remote user" },
+  { INACCESSIBLE_REMOTE_USER_UNAVAIL_CAUSE, "Inaccessible remote user" },
   {0,                                       NULL } };
 
 #define RESERVED_0_USER_ID                0

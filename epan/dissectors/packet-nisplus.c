@@ -932,7 +932,7 @@ static const value_string nis_error[] = {
 #define NIS_NOTEMPTY		37
 	{	NIS_NOTEMPTY,		"Attempt to remove a non-empty tbl"	},
 #define NIS_COLDSTART_ERR	38
-	{	NIS_COLDSTART_ERR,	"Error accesing the cold start file"	},
+	{	NIS_COLDSTART_ERR,	"Error accessing the cold start file"	},
 #define NIS_RESYNC		39
 	{	NIS_RESYNC,		"Transaction log too far out of date"	},
 #define NIS_FAIL		40

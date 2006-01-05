@@ -1368,7 +1368,7 @@ DataAccessError ::= INTEGER
 	{
 	object-invalidated		(0),
 	hardware-fault			(1),
-	temporarly-unavailable		(2),
+	temporarily-unavailable		(2),
 	object-access-denied		(3),
 	object-undefined		(4),
 	invalid-address			(5),

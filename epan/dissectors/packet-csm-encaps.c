@@ -60,7 +60,7 @@
 
 
 #define CSM_ENCAPS_CTRL_ACK		         0x80
-#define CSM_ENCAPS_CTRL_ACK_SUPRESS		 0x40
+#define CSM_ENCAPS_CTRL_ACK_SUPPRESS   	 0x40
 #define CSM_ENCAPS_CTRL_ACK_TO_HOST	     0x20
 #define CSM_ENCAPS_CTRL_ENDIAN		     0x01
 
@@ -116,7 +116,7 @@ static int hf_csm_encaps_seq              = -1;
 static int hf_csm_encaps_ctrl             = -1;
 static int hf_csm_encaps_ctrl_endian      = -1;
 static int hf_csm_encaps_ctrl_ack         = -1;
-static int hf_csm_encaps_ctrl_ack_supress = -1;
+static int hf_csm_encaps_ctrl_ack_suppress = -1;
 static int hf_csm_encaps_channel          = -1;
 static int hf_csm_encaps_index            = -1;
 static int hf_csm_encaps_length           = -1;
@@ -288,7 +288,7 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		csm_encaps_control_tree = proto_item_add_subtree(subitem, ett_csm_encaps_control);
 
 		    proto_tree_add_boolean(csm_encaps_control_tree, hf_csm_encaps_ctrl_ack, tvb, 3, 1, control);
-    		proto_tree_add_boolean(csm_encaps_control_tree, hf_csm_encaps_ctrl_ack_supress, tvb, 3, 1, control);
+    		proto_tree_add_boolean(csm_encaps_control_tree, hf_csm_encaps_ctrl_ack_suppress, tvb, 3, 1, control);
 		    proto_tree_add_boolean(csm_encaps_control_tree, hf_csm_encaps_ctrl_endian, tvb, 3, 1, control);
 
 		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_channel, tvb, 4, 2, FALSE);
@@ -360,7 +360,7 @@ proto_register_csm_encaps(void)
 {
 	static struct true_false_string control_endian_bit      = {"Little Endian","Big Endian"};
 	static struct true_false_string control_ack_bit         = {"ACK Packet", "Message Packet"};
-	static struct true_false_string control_ack_supress_bit = {"ACK Supressed", "ACK Required"};
+	static struct true_false_string control_ack_suppress_bit = {"ACK Suppressed", "ACK Required"};
 
 
 	static hf_register_info hf[] = {
@@ -386,10 +386,10 @@ proto_register_csm_encaps(void)
 		        FT_BOOLEAN, 8, TFS(&control_ack_bit), CSM_ENCAPS_CTRL_ACK,
 		        "Message Packet/ACK Packet", HFILL }
 		},
-		{ &hf_csm_encaps_ctrl_ack_supress,
-		   { "ACK Supress Bit",	"csm_encaps.ctrl.ack_supress",
-		        FT_BOOLEAN, 8, TFS(&control_ack_supress_bit), CSM_ENCAPS_CTRL_ACK_SUPRESS,
-		        "ACK Required/ACK Supressed", HFILL }
+		{ &hf_csm_encaps_ctrl_ack_suppress,
+		   { "ACK Suppress Bit",	"csm_encaps.ctrl.ack_suppress",
+		        FT_BOOLEAN, 8, TFS(&control_ack_suppress_bit), CSM_ENCAPS_CTRL_ACK_SUPPRESS,
+		        "ACK Required/ACK Suppressed", HFILL }
 		},
 		{ &hf_csm_encaps_ctrl_endian,
 		   { "Endian Bit",	"csm_encaps.ctrl.endian",

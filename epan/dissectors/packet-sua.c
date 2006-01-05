@@ -913,7 +913,7 @@ dissect_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 static const value_string cause_values[] = {
   { 0x0,  "Remote SCCP unavailable, Reason unknown" },
   { 0x2,  "Remote SCCP unequipped" },
-  { 0x3,  "Remote SCCP inaccessable" },
+  { 0x3,  "Remote SCCP inaccessible" },
   { 0,    NULL } };
 
 static void

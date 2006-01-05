@@ -206,7 +206,7 @@ proto_register_vnc(void)
 /* Register a sample preference */        
 /*        prefs_register_bool_preference(vnc_module, "showHex", 
              "Display numbers in Hex",
-	     "Enable to display numerical values in hexidecimal.",
+	     "Enable to display numerical values in hexadecimal.",
 	     &gPREF_HEX );        */
 }
 

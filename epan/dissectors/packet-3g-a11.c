@@ -1401,7 +1401,7 @@ void proto_register_a11(void)
 		   "Broadcast Datagrams requested", HFILL }
 	  },
 	  { &hf_a11_d,
-		 { "Co-lcated Care-of Address",           "a11.d",
+		 { "Co-located Care-of Address",           "a11.d",
 		   FT_BOOLEAN, 8, NULL, 32,          
 		   "MN using Co-located Care-of address", HFILL }
 	  },

@@ -698,7 +698,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 
 		    tmpbuf=ep_alloc(80);
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
-			    "(Throughput class negociation)", fac);
+			    "(Throughput class negotiation)", fac);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_throughput);
 		    byte1 = tvb_get_guint8(tvb, *offset + 1);
 		    switch (byte1 >> 4)
@@ -796,7 +796,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 	    case X25_FAC_EXPRESS_DATA:
 		if (fac_tree) {
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
-			    "(Negociation of express data)", fac);
+			    "(Negotiation of express data)", fac);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_express_data);
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,

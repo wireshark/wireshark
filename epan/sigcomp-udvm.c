@@ -92,7 +92,7 @@ static gint show_instr_detail_level;
 
 /* Internal result code values of decompression failures */
 const value_string result_code_vals[] = {
-	{ 0,	"No decomprssion failure" },
+	{ 0,	"No decompression failure" },
 	{ 1,	"Partial state length less than 6 or greater than 20 bytes long" },
 	{ 2,	"No state match" },
 	{ 3,	"state_begin + state_length > size of state" },
@@ -1817,7 +1817,7 @@ execute_next_instruction:
 
 			if (k + handle_now >= UDVM_MEMORY_SIZE)
 				goto decompression_failure;
-			result = crc16_ccitt_seed(&buff[k], handle_now, result ^ 0xffff);
+			result = crc16_ccitt_seed(&buff[k], handle_now, (guint16) (result ^ 0xffff));
 
 			k = ( k + handle_now ) & 0xffff;
 			n = ( n + handle_now ) & 0xffff;

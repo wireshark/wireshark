@@ -95,7 +95,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       version = (ver_and_opcode&0xf0)>>4 ; /* version is the fist half of the byte */
       opcode = ver_and_opcode&0x0f ;       /* opcode is the last half of the byte */
 
-      proto_tree_add_text(igrp_tree,  tvb, 0,1,"IGRP Version  : %d %s",version,(version==1?" ":" -  Unknown Version, The dissection may be innacurate"));
+      proto_tree_add_text(igrp_tree,  tvb, 0,1,"IGRP Version  : %d %s",version,(version==1?" ":" -  Unknown Version, The dissection may be inaccurate"));
       proto_tree_add_text(igrp_tree,  tvb, 0,1,"Command       : %d %s",opcode,(opcode==1?"(Response)":"(Request)"));
       proto_tree_add_uint(igrp_tree, hf_igrp_update, tvb, 1,1, update);
       proto_tree_add_uint(igrp_tree, hf_igrp_as, tvb, 2,2,as);

@@ -1153,8 +1153,8 @@ proto_register_radius(void)
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
                                      "Shared secret used to decode User Passwords",
                                      &shared_secret);
-	prefs_register_bool_preference(radius_module,"show_length","Show AVP Lenghts",
-                                     "Whether to add or not to the tree the AVP's payload lenght",
+	prefs_register_bool_preference(radius_module,"show_length","Show AVP Lengths",
+                                     "Whether to add or not to the tree the AVP's payload length",
                                      &show_length);
     prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
                                    "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);

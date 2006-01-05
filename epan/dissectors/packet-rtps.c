@@ -596,7 +596,7 @@ static char *
 IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char *buff, int buff_len)
 {
   IPAddress         ip;
-  guint8  a = 0, b = 0, c = 0, d = 0; /* IP Adresss = a.b.c.d */
+  guint8  a = 0, b = 0, c = 0, d = 0; /* IP Address = a.b.c.d */
 
   ip = get_guint32(tvb, offset, little_endian);
      /* get_guint32() - reads + endian conversion */
@@ -1836,7 +1836,7 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
- /*  'multicastReplyAdress' and 'multicastReplyPort' are    *
+ /*  'multicastReplyAddress' and 'multicastReplyPort' are   *
   *   parts of submessage INFO REPLY which are available    *
   *   only when FLAG  M=1  flags: XXXX XXME                 */
 
@@ -1859,7 +1859,7 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
 
   /* Unicat Reply IPAddress */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
-                      "Unicast Reply IP Adress: %s",
+                      "Unicast Reply IP Address: %s",
                       IP_to_string(offset, tvb, little_endian, buff_ip, 200));
   offset +=4;
 
@@ -1871,7 +1871,7 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
   offset +=4;
 
 
- /*  'multicastReplyAdress' and 'multicastReplyPort' are    *
+ /*  'multicastReplyAddress' and 'multicastReplyPort' are   *
   *   parts of submessage INFO REPLY which are available    *
   *   only when FLAG  M=1  flags: XXXX XXME                 */
 
@@ -1879,7 +1879,7 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
   {
     /* Multicast Reply IPAddress */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
-                        "Multicast Reply IP Adress: %s",
+                        "Multicast Reply IP Address: %s",
                         IP_to_string(offset, tvb, little_endian, buff_ip, 200));
     offset +=4;
 

@@ -7645,8 +7645,8 @@ static int dissect_pre_emptionVulnerability(tvbuff_t *tvb, int offset, packet_in
 
 
 static const value_string ranap_QueuingAllowed_vals[] = {
-  {   0, "queueing-not-allowed" },
-  {   1, "queueing-allowed" },
+  {   0, "queuing-not-allowed" },
+  {   1, "queuing-allowed" },
   { 0, NULL }
 };
 

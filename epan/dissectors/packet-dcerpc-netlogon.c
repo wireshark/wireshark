@@ -4586,7 +4586,7 @@ static const true_false_string get_dcname_request_flags_pdc_required = {
 	"pdc server is NOT required"
 };
 static const true_false_string get_dcname_request_flags_background_only = {
-	"Only returned cahced data, even if it has expired",
+	"Only return cached data, even if it has expired",
 	"Return cached data unless it has expired"
 };
 static const true_false_string get_dcname_request_flags_ip_required = {
@@ -7270,7 +7270,7 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_get_dcname_request_flags_timeserv_required,
 	        { "Timeserv Required", "netlogon.get_dcname.request.flags.timeserv_required",
 		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_timeserv_required), DS_TIMESERV_REQUIRED,
-		  "If we require the retruned server to be a NTP serveruns WindowsTimeServicer", HFILL }},
+		  "If we require the returned server to be a NTP serveruns WindowsTimeServicer", HFILL }},
 
 	{ &hf_netlogon_get_dcname_request_flags_writable_required,
 	        { "Writable Required", "netlogon.get_dcname.request.flags.writable_required",

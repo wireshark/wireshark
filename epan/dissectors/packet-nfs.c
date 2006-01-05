@@ -8027,7 +8027,7 @@ proto_register_nfs(void)
 			"maxfilesize", "nfs.fsinfo.maxfilesize", FT_UINT64, BASE_DEC,
 			NULL, 0, "Maximum file size", HFILL }},
 		{ &hf_nfs_fsinfo_properties, {
-			"Properties", "nfs.fsinfo.propeties", FT_UINT32, BASE_HEX,
+			"Properties", "nfs.fsinfo.properties", FT_UINT32, BASE_HEX,
 			NULL, 0, "File System Properties", HFILL }},
 		{ &hf_nfs_pathconf_linkmax, {
 			"linkmax", "nfs.pathconf.linkmax", FT_UINT32, BASE_DEC,

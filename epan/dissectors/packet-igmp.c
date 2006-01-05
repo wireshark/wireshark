@@ -126,7 +126,7 @@ static int hf_access_key = -1;
 static int hf_max_resp = -1;
 static int hf_max_resp_exp = -1;
 static int hf_max_resp_mant = -1;
-static int hf_supress = -1;
+static int hf_suppress = -1;
 static int hf_qrv = -1;
 static int hf_qqic = -1;
 static int hf_num_src = -1;
@@ -243,8 +243,8 @@ static const value_string vs_reply_code[] = {
 };
 
 static const true_false_string tfs_s = {
-	"SUPRESS router side processing",
-	"Do not supress router side processing"
+	"SUPPRESS router side processing",
+	"Do not suppress router side processing"
 };
 
 #define IGMP_V3_MODE_IS_INCLUDE		1
@@ -428,7 +428,7 @@ dissect_v3_sqrv_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	tree = proto_item_add_subtree(item, ett_sqrv_bits);
 
 	/* S flag */
-	proto_tree_add_boolean(tree, hf_supress, tvb, offset, 1, bits);
+	proto_tree_add_boolean(tree, hf_suppress, tvb, offset, 1, bits);
 	/* QRV */
 	proto_tree_add_uint(tree, hf_qrv, tvb, offset, 1, bits);
 	offset += 1;
@@ -945,9 +945,9 @@ proto_register_igmp(void)
 			{ "Max Resp Time", "igmp.max_resp", FT_UINT8, BASE_DEC,
 			  NULL, 0, "Max Response Time", HFILL }},
 
-		{ &hf_supress,
+		{ &hf_suppress,
 			{ "S", "igmp.s", FT_BOOLEAN, 8,
-			  TFS(&tfs_s), IGMP_V3_S, "Supress Router Side Processing", HFILL }},
+			  TFS(&tfs_s), IGMP_V3_S, "Suppress Router Side Processing", HFILL }},
 
 		{ &hf_qrv,
 			{ "QRV", "igmp.qrv", FT_UINT8, BASE_DEC,

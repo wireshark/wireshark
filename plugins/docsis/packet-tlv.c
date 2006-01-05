@@ -255,7 +255,7 @@ static const value_string dsc_act_vals[] = {
 
 static const value_string qos_param_vals[] = {
   {0x01, "Apply to provisioned set only"},
-  {0x02, "Perform admission control add apply to addmitted set"},
+  {0x02, "Perform admission control add apply to admitted set"},
   {0x03, "Apply to provisioned and admitted set; Perform admission control"},
   {0x04, "Perform admission control if needed and apply to active set"},
   {0x05,

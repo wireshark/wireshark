@@ -445,7 +445,7 @@ proto_register_amr(void)
 
 	prefs_register_uint_preference(amr_module, "dynamic.payload.type",
 								   "AMR dynamic payload type",
-								   "The dynamic payload type which will be interpretyed as AMR",
+								   "The dynamic payload type which will be interpreted as AMR",
 								   10,
 								   &temp_dynamic_payload_type);
 

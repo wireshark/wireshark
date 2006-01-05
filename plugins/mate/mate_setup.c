@@ -293,7 +293,7 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	g_array_append_val(matecfg->hfrs,hfri);
 	
 	hfri.p_id = &(cfg->hfid_pdu_time_in_gop);
-	hfri.hfinfo.name = g_strdup_printf("%s time since begining of Gop",cfg->name);
+	hfri.hfinfo.name = g_strdup_printf("%s time since beginning of Gop",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.TimeInGop",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
 	hfri.hfinfo.display = BASE_DEC;
@@ -333,7 +333,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
 	hfri.hfinfo.display = BASE_DEC;
-	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the begining of caputre to the start of this %s",cfg->name);
+	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
@@ -475,7 +475,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
-	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the begining of caputre to the start of this %s",cfg->name);
+	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 	
 	g_array_append_val(matecfg->hfrs,hfri);
 		
@@ -919,7 +919,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 		analyze_config();
 	} else {
 		report_failure("MATE failed to configue!\n"
-					   "It is recomended that you fix your config and restart ethereal.\n"
+					   "It is recommended that you fix your config and restart ethereal.\n"
 					   "The reported error is:\n%s\n",matecfg->config_error->str);
 		
 		/* if (matecfg) destroy_mate_config(matecfg,FALSE); */

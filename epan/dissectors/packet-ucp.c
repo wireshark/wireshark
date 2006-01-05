@@ -395,7 +395,7 @@ static const value_string vals_parm_Rsn[] = {
     {  108, "Delivery fail" },
     {  109, "Sc congestion" },
     {  110, "Protocol error" },
-    {  111, "MS not equiped" },
+    {  111, "MS not equipped" },
     {  112, "Unknown SC" },
     {  113, "SC congestion" },
     {  114, "Illegal MS" },

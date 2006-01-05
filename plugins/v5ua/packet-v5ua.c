@@ -238,10 +238,10 @@ dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree 
 }
 /*----------------------Text Interface Identifier (RFC)------------------------*/
 
-/*----------------------DLCI & Envelope Function Adress-------------------------*/
+/*----------------------DLCI & Envelope Function Address------------------------*/
 
 
-/* interpretaion of EFA-values */
+/* interpretation of EFA-values */
 static const value_string efa_values[] = {
 	{ 8175, "ISDN Protocol" },
 	{ 8176, "PSTN Protocol" },
@@ -297,7 +297,7 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
   }
 
 }
-/*----------------------DLCI & Envelope Function Adress-------------------------*/
+/*----------------------DLCI & Envelope Function Address------------------------*/
 
 /*----------------------Error Indication (Draft)-------------------------------*/
 
@@ -315,9 +315,9 @@ static const value_string draft_error_code_values[] = {
   { MGMT_ERROR_INVALID_IFID_DRAFT,    "Invalid interface ID" },
   { MGMT_ERROR_UNDEFINIED_MSG_DRAFT,  "An unexpected message was received" },
   { MGMT_ERROR_VERSION_ERR_DRAFT,     "The IUA layers are of different version" },
-  { MGMT_ERROR_INVALID_STID_DRAFT,    "Invalid SCTP stream idetifier" },
+  { MGMT_ERROR_INVALID_STID_DRAFT,    "Invalid SCTP stream identifier" },
   { MGMT_ERROR_INVALID_SCNV_DRAFT,    "Invalid SCN version" },
-  { MGMT_ERROR_INVALID_ALI_DRAFT,     "Invalid Adapiotion Layer Identifier" },
+  { MGMT_ERROR_INVALID_ALI_DRAFT,     "Invalid Adaptation Layer Identifier" },
   { 0,                                NULL } };
 
 #define MGMT_ERROR_MSG_LENGTH_OFFSET PARAMETER_LENGTH_OFFSET
@@ -2160,11 +2160,11 @@ proto_register_v5ua(void)
                FT_UINT8,    BASE_HEX, NULL,                             0x0,
 			   "", HFILL } },
 		{ &hf_l3_adress,
-			{ "Layer3 adress",         "v5ua.l3_adress",
+			{ "Layer3 address",        "v5ua.l3_address",
 			   FT_UINT8,    BASE_HEX, NULL,                             0xfe,
 			   "", HFILL } },
 		{ &hf_l3_low_adress,
-			{ "Layer3 low adress",     "v5ua.l3_low_adress",
+			{ "Layer3 low address",    "v5ua.l3_low_address",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
 			   "", HFILL } },
 		{&hf_l3_msg_type,

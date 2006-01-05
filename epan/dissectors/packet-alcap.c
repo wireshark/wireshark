@@ -428,8 +428,8 @@ static gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_tree *
     proto_item* pi;
     
     if (len < 2) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -497,8 +497,8 @@ static gchar* dissect_fields_ceid(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
     proto_item* pi;
     
     if (len != 5) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }        
     
@@ -532,8 +532,8 @@ static gchar* dissect_fields_desea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
     e164_info_t* e164;
 
     if (len < 2) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }        
     
@@ -560,8 +560,8 @@ static gchar* dissect_fields_oesea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
     e164_info_t* e164;
     
     if (len < 2) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }        
     
@@ -586,8 +586,8 @@ static gchar* dissect_fields_dnsea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      */
     
     if (len < 1) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }        
     
@@ -607,8 +607,8 @@ static gchar* dissect_fields_onsea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      */
     
     if (len < 1) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -631,8 +631,8 @@ static gchar* dissect_fields_alc(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tr
      */
     
     if (len != 12) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -659,8 +659,8 @@ static gchar* dissect_fields_plc(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tr
      */
     
     if (len != 12) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -683,8 +683,8 @@ static gchar* dissect_fields_osaid(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      * 7.4.2 Signalling Association Identifier -> Originating Signalling Association
      */
     if (len != 4) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -702,8 +702,8 @@ static gchar* dissect_fields_sugr(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      * 7.4.10 Served User Generated Reference
      */
     if (len != 4) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -721,8 +721,8 @@ static gchar* dissect_fields_suci(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      * 7.4.22 Served user correlation ID
      */
     if (len != 4) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -738,8 +738,8 @@ static gchar* dissect_fields_ssia(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      * 7.4.5 Organizational Unique Identifier
      */
     if (len != 8) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -770,8 +770,8 @@ static gchar* dissect_fields_ssim(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      * 7.4.7 Multirate Service
      */
     if (len != 3) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -789,8 +789,8 @@ static gchar* dissect_fields_ssisa(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      * 7.4.8 Segmentation and Reassembly (Assured Data Transfer)
      */
     if (len != 14) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
 
@@ -813,8 +813,8 @@ static gchar* dissect_fields_ssisu(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      * 7.4.9 Segmentation and Reassembly (Unassured Data Transfer)
      */
     if (len != 7) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -837,8 +837,8 @@ static gchar* dissect_fields_none(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      *
      */
     if (len != 0) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -853,8 +853,8 @@ static gchar* dissect_fields_ssiae(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      * 7.4.5 Organizational unique identifier
      */
     if (len != 8) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -889,8 +889,8 @@ static gchar* dissect_fields_pssiae(packet_info* pinfo _U_, tvbuff_t *tvb, proto
      * 7.4.5 Organizational unique identifier
      */
     if (len != 8) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -924,8 +924,8 @@ static gchar* dissect_fields_ssime(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      * 7.4.20 Multirate extended service
      */
     if (len != 3) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -944,8 +944,8 @@ static gchar* dissect_fields_pssime(packet_info* pinfo _U_, tvbuff_t *tvb, proto
      * 7.4.20 Multirate extended service
      */
     if (len != 3) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -964,8 +964,8 @@ static gchar* dissect_fields_acc(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tr
      * 7.4.23 AAL type 2 Node Automatic Congestion Level
      */
     if (len != 1) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -981,8 +981,8 @@ static gchar* dissect_fields_cp(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tre
      * 7.4.24 Priority
      */
     if (len != 1) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -997,8 +997,8 @@ static gchar* dissect_fields_pt(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tre
      * 7.4.21 AAL Type 2 Path QoS Codepoint
      */
     if (len != 1) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1014,8 +1014,8 @@ static gchar* dissect_fields_hc(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tre
      * 7.4.25 AAL type 2 Hop Counter
      */
     if (len != 1) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1033,8 +1033,8 @@ static gchar* dissect_fields_fbw(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tr
      * 7.4.28 Maximum allowed CPS packet size
      */
     if (len != 12) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1057,8 +1057,8 @@ static gchar* dissect_fields_pfbw(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      * 7.4.28 Maximum allowed CPS packet size
      */
     if (len != 12) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1082,8 +1082,8 @@ static gchar* dissect_fields_vbws(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      * 7.4.29 Source Traffic Type
      */
     if (len != 13) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1109,8 +1109,8 @@ static gchar* dissect_fields_pvbws(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      * 7.4.29 Source Traffic Type
      */
     if (len != 13) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1139,8 +1139,8 @@ static gchar* dissect_fields_pvbwt(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
      */
     
     if (len != 22) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1173,8 +1173,8 @@ static gchar* dissect_fields_vbwt(packet_info* pinfo _U_, tvbuff_t *tvb, proto_t
      * 7.4.28 Maximum allowed CPS packet size
      */
     if (len != 22) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     
@@ -1205,8 +1205,8 @@ static gchar* dissect_fields_sut(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tr
     guint sut_len;
     
     if (len < 2) {
-        proto_item* bad_lenght = proto_tree_add_text(tree, tvb, offset, len,"[Wrong lenght for parameter fields]");
-        proto_item_set_expert_flags(bad_lenght, PI_MALFORMED, PI_WARN);
+        proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
+        proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
     

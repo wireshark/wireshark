@@ -5534,7 +5534,7 @@ static int dissect_rename1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 static const value_string mms_DataAccessError_vals[] = {
   {   0, "object-invalidated" },
   {   1, "hardware-fault" },
-  {   2, "temporarly-unavailable" },
+  {   2, "temporarily-unavailable" },
   {   3, "object-access-denied" },
   {   4, "object-undefined" },
   {   5, "invalid-address" },

@@ -692,8 +692,8 @@ static const value_string vals_dcs_cbs_language[] = {
 	{ 0x0D, "Hungarian" },
 	{ 0x0E, "Polish" },
 	{ 0x0F, "Language not specified" },
-	{ 0x10, "GSM 7-bit default alphabet - message preceeded by language indication" },
-	{ 0x11, "UCS-2 (16-bit) - message preceeded by language indication" },
+	{ 0x10, "GSM 7-bit default alphabet - message preceded by language indication" },
+	{ 0x11, "UCS-2 (16-bit) - message preceded by language indication" },
 	{ 0x20, "Czech" },
 	{ 0x21, "Hebrew" },
 	{ 0x22, "Arabic" },
@@ -2227,9 +2227,9 @@ proto_register_smpp(void)
 	    }
 	},
 	{   &hf_smpp_dlist_resp,
-	    {   "Unsuccesfull delivery list", "smpp.dlist_resp",
+	    {   "Unsuccessfull delivery list", "smpp.dlist_resp",
 		FT_NONE, BASE_NONE, NULL, 0x00,
-		"The list of unsuccesfull deliveries to destinations.",
+		"The list of unsuccessfull deliveries to destinations.",
 		HFILL
 	    }
 	},

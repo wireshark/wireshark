@@ -58,7 +58,7 @@ static const value_string msdp_types[] = {
         { MSDP_KEEP_ALIVE,        "KeepAlive"                    },
         { MSDP_NOTIFICATION,      "Notification"                 },
 
-        { MSDP_TRACE_IN_PROGRESS, "MSDP traceroute in progresss" },
+        { MSDP_TRACE_IN_PROGRESS, "MSDP traceroute in progress"  },
         { MSDP_TRACE_REPLY,       "MSDP traceroute reply"        },
         { 0, NULL },
 };

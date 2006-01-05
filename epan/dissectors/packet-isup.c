@@ -644,7 +644,7 @@ static const value_string isup_numbering_plan_ind_value[] = {
 static const value_string isup_address_presentation_restricted_ind_value[] = {
   { ADDRESS_PRESETATION_ALLOWED,     "presentation allowed"},
   { ADDRESS_PRESETATION_RESTRICTED,  "presentation restricted"},
-  { ADDRESS_NOT_AVAILABLE,           "address not availabe (national use)"},
+  { ADDRESS_NOT_AVAILABLE,           "address not available (national use)"},
   { 3,                                 "spare"},
   { 0,                                 NULL}};
 
@@ -3793,9 +3793,9 @@ static const value_string OECD_inf_ind_vals[] = {
 };
 static const value_string IECD_inf_ind_vals[] = {
 	{0x00, "no information"},
-	{0x01, "incomming echo control device not included and not available"},
-	{0x02, "incomming echo control device included"},
-	{0x03, "incomming echo control device not included but available"},
+	{0x01, "incoming echo control device not included and not available"},
+	{0x02, "incoming echo control device included"},
+	{0x03, "incoming echo control device not included but available"},
 	{ 0,	NULL }
 };
 
@@ -3809,8 +3809,8 @@ static const value_string OECD_req_ind_vals[] = {
 
 static const value_string IECD_req_ind_vals[] = {
 	{0x00, "no information"},
-	{0x01, "incomming echo control device activation request"},
-	{0x02, "incomming echo control device deactivation request"},
+	{0x01, "incoming echo control device activation request"},
+	{0x02, "incoming echo control device deactivation request"},
 	{0x03, "spare"},
 	{ 0,	NULL }
 };
