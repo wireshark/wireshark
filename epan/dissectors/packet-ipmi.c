@@ -527,7 +527,13 @@ static const value_string ipmi_ccode_vals[] = {
 
 static const value_string ipmi_addr_vals[] = {
 	{ 0x20, "BMC Slave Address" },
-	{ 0x81,	"Remote Console Software ID" },
+	{ 0x81,	"Remote Console Software 1" },
+	{ 0x83,	"Remote Console Software 2" },
+	{ 0x85,	"Remote Console Software 3" },
+	{ 0x87,	"Remote Console Software 4" },
+	{ 0x89,	"Remote Console Software 5" },
+	{ 0x8b,	"Remote Console Software 6" },
+	{ 0x8d,	"Remote Console Software 7" },
 	{ 0x00,	NULL },
 };
 
