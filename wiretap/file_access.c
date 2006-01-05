@@ -655,6 +655,12 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
 
+#ifdef _WIN32
+    if(fd == 1) {
+		setmode(fileno(stdout), O_BINARY);
+    }
+#endif
+
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
