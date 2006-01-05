@@ -57,7 +57,6 @@ use POSIX qw(strftime);
 use Getopt::Long;
 
 my $version_file = 'svnversion.h';
-my $version_string = "";
 my $package_string = "";
 my $vconf_file = 'version.conf';
 my $last = 0;
@@ -103,7 +102,6 @@ sub read_svn_info {
 					$last && $revision) {
 				$in_entries = 0;
 				$version_format =~ s/%#/$revision/;
-				$version_string = strftime($version_format, gmtime($last));
 
 				$package_format =~ s/%#/$revision/;
 				$package_string = strftime($package_format, gmtime($last));
@@ -176,8 +174,8 @@ sub print_svn_version
 	if ($pkg_version) { return; }
 
 	if ($last && $revision) {
-		$svn_version = "#define SVNVERSION \"" . 
-			$version_string . "\"\n";
+		$svn_version = "#define SVNVERSION \"SVN Rev " . 
+			$revision . "\"\n";
 	} else {
 		$svn_version = "/* #define SVNVERSION \"\" */\n";
 	}
