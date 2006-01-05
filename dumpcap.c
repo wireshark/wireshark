@@ -84,6 +84,12 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 capture_options global_capture_opts;
 capture_options *capture_opts = &global_capture_opts;
 
+#if __GNUC__ >= 2
+void exit_main(int err) __attribute__ ((noreturn));
+#else
+void exit_main(int err);
+#endif
+
 
 
 static void
@@ -210,12 +216,7 @@ BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 }
 #endif
 
-#if __GNUC__ >= 2
-void exit_main(int err) __attribute__ ((noreturn));
 void exit_main(int err)
-#else
-void exit_main(int err)
-#endif
 {
 #ifdef _WIN32
   /* Shutdown windows sockets */
