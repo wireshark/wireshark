@@ -2227,9 +2227,9 @@ proto_register_smpp(void)
 	    }
 	},
 	{   &hf_smpp_dlist_resp,
-	    {   "Unsuccessfull delivery list", "smpp.dlist_resp",
+	    {   "Unsuccessful delivery list", "smpp.dlist_resp",
 		FT_NONE, BASE_NONE, NULL, 0x00,
-		"The list of unsuccessfull deliveries to destinations.",
+		"The list of unsuccessful deliveries to destinations.",
 		HFILL
 	    }
 	},

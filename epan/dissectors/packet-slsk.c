@@ -60,7 +60,7 @@ static int hf_slsk_string_length = -1;
 static int hf_slsk_username = -1;
 static int hf_slsk_password = -1;
 static int hf_slsk_version = -1;
-static int hf_slsk_login_successfull = -1;
+static int hf_slsk_login_successful = -1;
 static int hf_slsk_login_message = -1;
 static int hf_slsk_port = -1;
 static int hf_slsk_ip = -1;
@@ -380,8 +380,8 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							       "Message Type: %s (Code: %02d)", message_type, msg_code);
 					offset += 4;
 					i=tvb_get_guint8(tvb, offset);
-					proto_tree_add_uint_format(slsk_tree, hf_slsk_login_successfull, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-						"Login successfull: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+					proto_tree_add_uint_format(slsk_tree, hf_slsk_login_successful, tvb, offset, 1, tvb_get_guint8(tvb, offset),
+						"Login successful: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
 					offset += 1;
 					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
 					proto_tree_add_item(slsk_tree, hf_slsk_login_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
@@ -1151,7 +1151,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				}
 				else if (check_slsk_format(tvb, offset, "is")) {
 					/* Client-to-Client */
-					/* Client-to-Server: send after login successfull */
+					/* Client-to-Server: send after login successful */
 					message_type = "Get User Stats";
 					proto_tree_add_uint_format(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
 							       "Message Type: %s (Code: %02d)", message_type, msg_code);
@@ -2446,9 +2446,9 @@ proto_register_slsk(void)
 		{ &hf_slsk_version,
 			{ "Version", "slsk.version",
 			FT_UINT32, BASE_DEC, NULL, 0, "Version", HFILL } },
-		{ &hf_slsk_login_successfull,
-			{ "Login successfull", "slsk.login.successfull",
-			FT_UINT8, BASE_DEC, NULL, 0, "Login Successfull", HFILL } },
+		{ &hf_slsk_login_successful,
+			{ "Login successful", "slsk.login.successful",
+			FT_UINT8, BASE_DEC, NULL, 0, "Login Successful", HFILL } },
 		{ &hf_slsk_login_message,
 			{ "Login Message", "slsk.login.message",
 			FT_STRING, BASE_NONE, NULL, 0, "Login Message", HFILL } },

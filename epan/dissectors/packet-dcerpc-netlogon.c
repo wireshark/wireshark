@@ -7270,12 +7270,12 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_get_dcname_request_flags_timeserv_required,
 	        { "Timeserv Required", "netlogon.get_dcname.request.flags.timeserv_required",
 		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_timeserv_required), DS_TIMESERV_REQUIRED,
-		  "If we require the returned server to be a NTP serveruns WindowsTimeServicer", HFILL }},
+		  "If we require the returned server to be a WindowsTimeServ server", HFILL }},
 
 	{ &hf_netlogon_get_dcname_request_flags_writable_required,
 	        { "Writable Required", "netlogon.get_dcname.request.flags.writable_required",
 		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_writable_required), DS_WRITABLE_REQUIRED,
-		  "If we require that the return server is writable", HFILL }},
+		  "If we require that the returned server is writable", HFILL }},
 
 	{ &hf_netlogon_get_dcname_request_flags_good_timeserv_preferred,
 	        { "Timeserv Preferred", "netlogon.get_dcname.request.flags.good_timeserv_preferred",

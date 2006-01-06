@@ -628,7 +628,7 @@ BACnetPropertyIdentifier [] = {
 	{6,"alarm-value"},
 	{7,"alarm-values"},
 	{8,"all"},
-	{9,"all-write-successfull"},
+	{9,"all-write-successful"},
 	{10,"apdu-segment-timeout"},
 	{11,"apdu-timeout"},
 	{12,"application-software-version"},
