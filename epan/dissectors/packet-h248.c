@@ -1595,7 +1595,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
         if (m->commited) {
             
             for ( trxmsg = m->trxs; trxmsg; trxmsg = trxmsg->next) {
-                if (trxmsg->trx->id == t_id) {
+                if (trxmsg->trx && trxmsg->trx->id == t_id) {
                     return trxmsg->trx;
                 }
             }
@@ -1796,6 +1796,7 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     cmdctx->last = cmdtrx->last = NULL;
     
     if (t->cmds) {
+        DISSECTOR_ASSERT(t->cmds->last != NULL);
         t->cmds->last->next = cmdtrx;
         t->cmds->last = cmdtrx;
     } else {
@@ -1804,6 +1805,7 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     }
 
     if (c->cmds) {
+        DISSECTOR_ASSERT(c->cmds->last != NULL);
         c->cmds->last->next = cmdctx;
         c->cmds->last = cmdctx;
     } else {
@@ -5781,7 +5783,7 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1761 "packet-h248-template.c"
+#line 1763 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -7080,7 +7082,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2019 "packet-h248-template.c"
+#line 2021 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7235,7 +7237,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2041 "packet-h248-template.c"
+#line 2043 "packet-h248-template.c"
   };
   
   module_t *h248_module;

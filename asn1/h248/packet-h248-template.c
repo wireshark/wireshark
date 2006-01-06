@@ -1189,7 +1189,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
         if (m->commited) {
             
             for ( trxmsg = m->trxs; trxmsg; trxmsg = trxmsg->next) {
-                if (trxmsg->trx->id == t_id) {
+                if (trxmsg->trx && trxmsg->trx->id == t_id) {
                     return trxmsg->trx;
                 }
             }
@@ -1390,6 +1390,7 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     cmdctx->last = cmdtrx->last = NULL;
     
     if (t->cmds) {
+        DISSECTOR_ASSERT(t->cmds->last != NULL);
         t->cmds->last->next = cmdtrx;
         t->cmds->last = cmdtrx;
     } else {
@@ -1398,6 +1399,7 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     }
 
     if (c->cmds) {
+        DISSECTOR_ASSERT(c->cmds->last != NULL);
         c->cmds->last->next = cmdctx;
         c->cmds->last = cmdctx;
     } else {

@@ -20,7 +20,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.14">
+  <!ENTITY EtherealCurrentVersion "0.10.15">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -74,27 +74,10 @@ Gnu info
       <itemizedlist>
 
         <listitem><para>
-	  The IRC dissector could go into an infinite loop.
-	  <!-- Fixed in r16290 -->
-	  <!-- Bug IDs: 548 -->
-          <!-- CVE: CVE-2005-3313 -->
-	  Versions affected: 0.10.13.
-        </para></listitem>
-
-        <listitem><para>
-	  The GTP dissector could go into an infinite loop.
-	  <!-- Fixed in r16436 -->
-	  <!-- Bug IDs: 576 -->
-          <!-- CVE: None -->
-	  Versions affected: 0.9.1 to 0.10.13.
-        </para></listitem>
-
-        <listitem><para>
-	  iDefense found a buffer overflow in the OSPF dissector.
-	  <!-- Fixed in r16507 -->
-	  <!-- Bug IDs: None -->
-          <!-- CVE: CAN-2005-3651 -->
-	  Versions affected: 0.8.20 to 0.10.13.
+	  The H.248 dissector could crash.
+	  <!-- Fixed in r16967 -->
+	  <!-- Bug IDs: 651 -->
+	  Versions affected: 0.10.14.
         </para></listitem>
 
       </itemizedlist>
@@ -108,15 +91,6 @@ Gnu info
 
       <itemizedlist>
         <listitem><para>
-		When cancelling a file load operation, Ethereal will keep
-		displaying the loaded packets now, instead of simply discarding the 
-		whole load attempt. 
-		</para>
-		<para>
-		This can be very helpful to detect wether a specific (huge) capture 
-		file is the expected file or not. Remember: 
-		The complete load of a huge capture file (>100MB) can take even 
-		minutes!
         </para></listitem>
       </itemizedlist>
     </para>
