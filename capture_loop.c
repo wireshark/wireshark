@@ -1015,7 +1015,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
      * case the caller destroys it after we return.
      */
     capfile_name = g_strdup(capture_opts->save_file);
-    if (strcmp(capfile_name, "") == 0) {
+    if (strcmp(capfile_name, "-") == 0) {
       /* Write to the standard output. */
       if (capture_opts->multi_files_on) {
         /* ringbuffer is enabled; that doesn't work with standard output */

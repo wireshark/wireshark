@@ -603,8 +603,8 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
 
-	/* Empty filename means stdout */
-	if (*filename == '\0') {
+	/* "-" means stdout */
+	if (strcmp(filename, "-") == 0) {
 		if(compressed) {
 			g_free(wdh);
 			return NULL;	/* compress won't work on stdout */

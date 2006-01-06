@@ -598,7 +598,7 @@ output_file_description(const char *fname)
   char *save_file_string;
 
   /* Get a string that describes what we're writing to */
-  if (*fname == '\0') {
+  if (strcmp(fname, "-") == 0) {
     /* We're writing to the standard output */
     save_file_string = g_strdup("standard output");
   } else {
@@ -1039,6 +1039,11 @@ main(int argc, char *argv[])
     }
   }
 
+  /* If we're not writing to a file and "-q" wasn't specified
+     we should print packet information */
+  if (save_file == NULL && !quiet)
+    print_packet_info = TRUE;
+
   /* See if we're writing a capture file and the file is a pipe */
 #ifdef HAVE_LIBPCAP
   ld.output_to_pipe = FALSE;
@@ -1053,11 +1058,9 @@ main(int argc, char *argv[])
          output and have either of them be useful. */
       if (print_packet_info) {
         cmdarg_err("You can't write both raw packet data and dissected packets"
-            " to the standard error.");
+            " to the standard output.");
         exit(1);
       }
-      g_free(save_file);
-      save_file = g_strdup("");
 #ifdef HAVE_LIBPCAP
       /* XXX - should we check whether it's a pipe?  It's arguably
          silly to do "-w - >output_file" rather than "-w output_file",
@@ -1068,6 +1071,7 @@ main(int argc, char *argv[])
     }
 #ifdef HAVE_LIBPCAP
     else {
+      /* not a capture file, test for a FIFO (aka named pipe) */
       err = test_for_fifo(save_file);
       switch (err) {
 
@@ -1087,11 +1091,6 @@ main(int argc, char *argv[])
       }
     }
 #endif
-  } else {
-    /* We're not writing to a file, so we should print packet information
-       unless "-q" was specified. */
-    if (!quiet)
-      print_packet_info = TRUE;
   }
 
 #ifndef HAVE_LIBPCAP
@@ -1161,7 +1160,7 @@ main(int argc, char *argv[])
 	  "the capture isn't being saved to a file.");
 	exit(1);
       }
-      if (strcmp(save_file, "") == 0) {
+      if (strcmp(save_file, "-") == 0) {
 	cmdarg_err("Multiple capture files requested, but "
 	  "the capture is being written to the standard output.");
 	exit(1);
