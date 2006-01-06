@@ -622,6 +622,154 @@
 	</section>
   </section>
 
+  <section id="ChAdvChecksums"><title>Checksums</title>
+    <para>
+	Several network protocols use checksums to ensure data integrity. 
+    </para>
+	<tip><title>Tip!</title>
+	<para>
+	Applying checksums as described here is also known as 
+	<command>redundancy check</command>.
+	</para>
+	</tip>
+	<sidebar><title>What are checksums for?</title>
+	<para>
+	Checksums are used to ensure the integrity of data portions for data 
+	transmission or storage.
+	A checksum is basically a calculated summary of such a data portion. 
+	</para>
+	<para>
+	Network data transmissions often produce errors, such as toggled, missing 
+	or duplicated bits. 
+	As a result, the data received might not be identical to the data 
+	transmitted, which is obviously a bad thing.
+	</para>
+	<para>
+	Because of these transmission errors, network protocols very often use 
+	checksums to detect such errors.
+	The transmitter will calculate a checksum of the data and transmits the 
+	data together with the checksum.
+	The receiver will calculate the checksum of the received data with the same
+	algorithm as the transmitter.
+	If the received and calculated checksums don't match a transmission error
+	has occured.
+	</para>
+	<para>
+	Some checksum algorithms are able to recover (simple) errors by 
+	calculating where the expected error must be and repairing it. 
+	</para>
+	<para>
+	If there are errors that cannot be recovered, the receiving side throws 
+	away the packet. Depending on the network protocol, this data loss is 
+	simply ignored or the sending side needs to detect this loss somehow and 
+	retransmits the required packet(s).
+	</para>
+	<para>
+	Using a checksum drastically reduces the number of undetected transmission 
+	errors. However, the usual checksum algorithms cannot guarantee an error 
+	detection of 100%, so a very small number of transmission errors may 
+	remain undetected.
+	</para>
+	<para>
+	There are several different kinds of checksum algorithms, an example of 
+	an often used checksum algorithm is CRC32. 
+	The checksum algorithm actually chosen for a specific network protocol 
+	will depend on the expected error rate of the network medium, the 
+	importance of error detection, the processor load to perform the 
+	calculation, the performance needed and many other things.
+	</para>
+	<para>
+	Further information can be found at:
+	<ulink url="http://en.wikipedia.org/wiki/Checksum"/>.
+	</para>
+	</sidebar>
+  <section><title>Ethereal checksum validation</title>
+	<para>
+	Ethereal will validate the checksums of several potocols, e.g.: IP, TCP, ...
+	</para>
+	<para>
+	It will do the same calculation as a "normal receiver" would do, 
+	and shows the checksum fields in the packet details with a comment, e.g.:
+	[correct], [invalid, must be 0x12345678] or alike.
+	</para>
+	<para>
+	Checksum validation can be switched off for various protocols in the 
+	Ethereal protocol preferences, e.g. to (very slightly) increase 
+	performance.
+	</para>
+	<para>
+	If the checksum validation is enabled and it detected an invalid checksum,
+	features like packet reassembling won't be processed. 
+	This is avoided as incorrect connection data could "confuse" the internal 
+	database.
+	</para>
+  </section>
+  
+  <section><title>Checksum calculation / validation in hardware</title>
+	<para>
+	The checksum calculation might be done by the network driver, protocol 
+	driver or even in hardware.
+	</para>
+	<para>
+	For example: The Ethernet transmitting hardware calculates the 
+	Ethernet CRC32 checksum and the receiving hardware validates this 
+	checksum. 
+	If the received checksum is wrong Ethereal won't even see the packet, 
+	as the Ethernet hardware internally throws away the packet.
+	</para>
+	<para>
+	Higher level checksums are "traditionally" calculated by the protocol 
+	implementation and the completed packet is then handed over to the 
+	hardware.
+	</para>
+	<para>
+	Recent network hardware can perform advanced features such as IP checksum 
+	calculation, also known as checksum offloading.
+	The network driver won't calculate the checksum itself but simply hand 
+	over an empty (usually zero filled) checksum field to the hardware.
+	</para>
+	<note><title>Note!</title>
+	<para>
+	Checksum offloading often causes confusion as the network packets to be 
+	transmitted are handed over to Ethereal before the checksums are actually 
+	calculated.
+	Ethereal gets these "empty" checksums and displays them as 
+	invalid, even though the packets will contain valid checksums when they 
+	leave the network hardware later.
+	</para>
+	</note>
+	<tip><title>Tip!</title>
+	<para>
+	The term used for checksum offloading varies between manufacturers, so 
+	you may find slightly different terms in the documentation and elsewhere.
+	</para>
+	</tip>
+	<para>
+	Checksum offloading can be confusing and having a lot of [invalid] 
+	messages on the screen can be quite annoying.
+	As mentioned above, invalid checksums may lead to unreassembled packets,
+	making the analysis of the packet data much harder.
+	</para>
+	<para>
+	You can do two things to avoid this checksum offloading problem:
+      <itemizedlist>
+	<listitem>
+	<para>
+	Turn off the checksum offloading in the network driver, if this option is 
+	available.
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Turn off checksum validation of the specific protocol in the Ethereal 
+	preferences.
+	</para>
+	</listitem>
+      </itemizedlist>
+	</para>
+  </section>
+  </section>
+
 </chapter>
 <!-- End of EUG Chapter Advanced -->
 
