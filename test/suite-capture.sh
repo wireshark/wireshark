@@ -65,8 +65,7 @@ capture_step_10packets() {
 
 # capture exactly 10 packets using "-w -" (piping to stdout)
 capture_step_10packets_stdout() {
-	#$DUT -i $TRAFFIC_CAPTURE_IFACE -c 10 -a duration:$TRAFFIC_CAPTURE_DURATION -F libpcap -w ./testout.pcap 2>./testout.txt
-	$DUT -i $TRAFFIC_CAPTURE_IFACE -c 10 -a duration:$TRAFFIC_CAPTURE_DURATION -F libpcap -w - > ./testout.pcap 2>./testout.txt
+	$DUT -i $TRAFFIC_CAPTURE_IFACE -c 10 -a duration:$TRAFFIC_CAPTURE_DURATION -w - > ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
@@ -190,6 +189,8 @@ ethereal_capture_suite() {
 	# Q: quit after cap, k: start capture immediately
 	DUT="$ETHEREAL -Q -k"
 	test_step_add "Capture 10 packets" capture_step_10packets
+	# piping to stdout doesn't work with Ethereal and capturing!
+	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
 	# read filter doesn't work with Ethereal and capturing!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	# the snapshot length test is also based on the read filters
@@ -208,6 +209,8 @@ dumpcap_capture_suite() {
 	#DUT="$DUMPCAP -Q"
 	DUT=$DUMPCAP
 	test_step_add "Capture 10 packets" capture_step_10packets
+	# piping to stdout currently doesn't work with dumpcap!
+	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
 	# read filter doesn't work with dumpcap!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
