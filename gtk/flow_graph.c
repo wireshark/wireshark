@@ -235,8 +235,8 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 		
   		for (i = pinfo->cinfo->col_first[COL_INFO]; i <= pinfo->cinfo->col_last[COL_INFO]; i++) {
     		if (pinfo->cinfo->fmt_matx[i][COL_INFO]) {
-				if (gai->frame_label!=NULL){
-					g_free(gai->frame_label);
+				if (gai->comment!=NULL){
+					g_free(gai->comment);
 				}
 				gai->comment = g_strdup(pinfo->cinfo->col_data[i]);
 			}
