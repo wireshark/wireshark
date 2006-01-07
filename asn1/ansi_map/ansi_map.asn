@@ -1,4 +1,5 @@
--- $Id:$
+-- Copyright 2005 - 2006 Anders Broman
+-- $Id$
 MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
 
 DEFINITIONS ::=

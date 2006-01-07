@@ -1,7 +1,7 @@
 # ansi_map.cnf
 # ansi_map conformation file
-# Copyright 2005 Anders Broman 
-# $Id:$
+# Copyright 2005-2006 Anders Broman 
+# $Id$
 
 
 #.EXPORTS
@@ -62,26 +62,41 @@ VAL_PTR = &parameter_tvb
 		dissect_ansi_map_digits_type(parameter_tvb,pinfo,tree);
 	}
 
-#.FN_PARS OriginationTriggers
+# 6.5.2.3 AlertCode
+#.FN_PARS AlertCode
 VAL_PTR = &parameter_tvb
 
-#.FN_BODY OriginationTriggers
+#.FN_BODY AlertCode
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_originationtriggers(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_alertcode(parameter_tvb,pinfo,tree);
 	}
 
-#.FN_PARS TriggerCapability
+# 6.5.2.5 AnnouncementCode
+#.FN_PARS AnnouncementCode
 VAL_PTR = &parameter_tvb
 
-#.FN_BODY TriggerCapability
+#.FN_BODY AnnouncementCode
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_triggercapability(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_announcementcode(parameter_tvb,pinfo,tree);
 	}
 
+# 6.5.2.14 AuthorizationPeriod
+#.FN_PARS AuthorizationPeriod
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY AuthorizationPeriod
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_authorizationperiod(parameter_tvb,pinfo,tree);
+	}
+
+
+# 6.5.2.16 BillingID
 #.FN_PARS BillingID
 VAL_PTR = &parameter_tvb
 
@@ -92,6 +107,61 @@ VAL_PTR = &parameter_tvb
 		dissect_ansi_map_billingid(parameter_tvb,pinfo,tree);
 	}
 
+# 6.5.2.20 CallingFeaturesIndicator
+#.FN_PARS CallingFeaturesIndicator
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY CallingFeaturesIndicator
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_callingfeaturesindicator(parameter_tvb,pinfo,tree);
+	}
+# 6.5.2.29 CDMACallMode
+#.FN_PARS CDMACallMode
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY CDMACallMode
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_cdmacallmode(parameter_tvb,pinfo,tree);
+	}
+# 6.5.2.41 CDMAStationClassMark
+#.FN_PARS CDMAStationClassMark
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY CDMAStationClassMark
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_cdmastationclassmark(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.47 ChannelData
+#.FN_PARS ChannelData
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY ChannelData
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_channeldata(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.50 ConfidentialityModes
+#.FN_PARS ConfidentialityModes
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY ConfidentialityModes
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_confidentialitymodes(parameter_tvb,pinfo,tree);
+	}
+
+
+# 6.5.2.82 MSCID
 #.FN_PARS MSCID
 VAL_PTR = &parameter_tvb
 
@@ -101,8 +171,40 @@ VAL_PTR = &parameter_tvb
 	if (parameter_tvb){
 		dissect_ansi_map_mscid(parameter_tvb,pinfo,tree);
 	}
+# 6.5.2.90 OriginationTriggers
+#.FN_PARS OriginationTriggers
+VAL_PTR = &parameter_tvb
 
+#.FN_BODY OriginationTriggers
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_originationtriggers(parameter_tvb,pinfo,tree);
+	}
 
+# 6.5.2.91 PACAIndicator
+#.FN_PARS PACAIndicator
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY PACAIndicator
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_pacaindicator(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.158 TerminationTreatment
+#.FN_PARS TerminationTreatment
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY TerminationTreatment
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_terminationtreatment(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.160 TransactionCapability
 #.FN_PARS TransactionCapability
 VAL_PTR = &parameter_tvb
 
@@ -112,17 +214,50 @@ VAL_PTR = &parameter_tvb
 	if (parameter_tvb){
 		dissect_ansi_map_transactioncapability(parameter_tvb,pinfo,tree);
 	}
+
+# 6.5.2.df TriggerCapability
+#.FN_PARS TriggerCapability
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY TriggerCapability
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_triggercapability(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.dj WINOperationsCapability
+#.FN_PARS WINOperationsCapability
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY WINOperationsCapability
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_winoperationscapability(parameter_tvb,pinfo,tree);
+	}
+
 	 
 #.TYPE_ATTR
 ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ActionCode_vals)
+AuthenticationCapability TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AuthenticationCapability_vals) 
+AlertResult   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AlertResult_result_vals)
+AvailabilityType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AvailabilityType_vals)
+CancellationType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CancellationType_vals)
+
+CountUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CountUpdateReport_vals)
 ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
 ServiceRedirectionCause  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ServiceRedirectionCause_vals)
+PageIndicator  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_PageIndicator_vals)
 SMS-AccessDeniedReason  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SMS_AccessDeniedReason_vals)
 SMS_CauseCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ansi_map_SMS_CauseCode_vals)
+SSDUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SSDUpdateReport_vals)
 TDMABandwidth TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(ansi_map_TDMABandwidth_vals)
 TDMAServiceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_TDMAServiceCode_vals)
 OTASP-ResultCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_OTASP_ResultCode_vals)
 ServiceIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_ServiceIndicator_vals)
+TerminationAccessType TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_TerminationAccessType_vals)
+TerminationTreatment  TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_TerminationTreatment_vals)
 SignalingMessageEncryptionReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMEReport_vals)
 VoicePrivacyReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_VoicePrivacyReport_vals)
 #.END
