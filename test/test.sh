@@ -31,6 +31,7 @@ source test-backend.sh
 
 source config.sh
 source suite-clopts.sh
+source suite-io.sh
 source suite-capture.sh
 
 
@@ -59,7 +60,8 @@ prerequisites_suite() {
 
 test_suite() {
 	test_suite_add "Prerequisites" prerequisites_suite
-	test_suite_add "Basic command line options" clopt_suite
+	test_suite_add "Command line options" clopt_suite
+	test_suite_add "File I/O" io_suite
 	test_suite_add "Capture" capture_suite
 }
 
