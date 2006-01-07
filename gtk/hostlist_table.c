@@ -220,15 +220,15 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
 
 	switch(clist->sort_column){
-	case 0:
-	case 2:
+	case 0: /* Address */
+	case 1: /* (Port) */
 		return strcmp (text1, text2);
-	case 1:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
+	case 2: /* Packets */
+	case 3: /* Bytes */
+	case 4: /* Tx Packets */
+	case 5: /* Tx Bytes */
+	case 6: /* Rx Packets */
+	case 7: /* Rx Bytes */
 		sscanf(text1, "%" PRIu64, &i1);
 		sscanf(text2, "%" PRIu64, &i2);
         /* XXX - this might cause trouble because of overflow problems */
