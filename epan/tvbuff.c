@@ -2417,6 +2417,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 	err = inflateInit2(strm, wbits);
 	inits_done = 1;
 	if (err != Z_OK) {
+		inflateEnd(strm);
 		g_free(strm);
 		g_free(compr);
 		g_free(strmbuf);
@@ -2444,6 +2445,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				    bytes_pass);
 
 				if (new_data == NULL) {
+					inflateEnd(strm);
 					g_free(strm);
 					g_free(strmbuf);
 					g_free(compr);
@@ -2477,7 +2479,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			 * to decompress this fully, so return what we've done
 			 * so far, if any.
 			 */
-
+			inflateEnd(strm);
 			g_free(strm);
 			g_free(strmbuf);
 
@@ -2511,6 +2513,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (*c == Z_DEFLATED) {
 				c++;
 			} else {
+				inflateEnd(strm);
 				g_free(strm);
 				g_free(compr);
 				g_free(strmbuf);
@@ -2555,6 +2558,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			next = c;
 			strm->next_in = next;
 			if (c - compr > comprlen) {
+				inflateEnd(strm);
 				g_free(strm);
 				g_free(compr);
 				g_free(strmbuf);
@@ -2562,6 +2566,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			}
 			comprlen -= (c - compr);
 			
+			inflateEnd(strm);
 			err = inflateInit2(strm, wbits);
 			inits_done++;
 		} else if (err == Z_DATA_ERROR && uncompr == NULL &&
@@ -2598,6 +2603,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				return NULL;
 			}
 		} else {
+			inflateEnd(strm);
 			g_free(strm);
 			g_free(strmbuf);
 			g_free(compr);
