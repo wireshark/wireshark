@@ -1,4 +1,5 @@
 /* flow_graph.c
+ * $Id:$
  * Allows to display a flow graph of the currently displayed packets
  *
  * Copyright 2004, Ericsson , Spain
@@ -215,30 +216,40 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 {
 	graph_analysis_item_t *gai;
 	int i;
+	gchar *protocol;
+	gchar *colinfo;
+	
+	protocol=NULL;
+	colinfo=NULL;
 
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
 	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
-  if (node_addr_type == NET_SRCDST) {
-    COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
-    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
-  } else {
-    COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
-    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
-  }
+	if (node_addr_type == NET_SRCDST) {
+		COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
+	    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
+	} else {
+		COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
+		COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+	}
 	gai->port_src=pinfo->srcport;
 	gai->port_dst=pinfo->destport;
 	gai->comment=NULL;
 	gai->frame_label=NULL;
 
+	if (gai->comment!=NULL){
+		g_free(gai->comment);
+	}
+	if (gai->frame_label!=NULL){
+		g_free(gai->frame_label);
+	}
+
+
 	if (pinfo->cinfo->col_first[COL_INFO]>=0){
 		
   		for (i = pinfo->cinfo->col_first[COL_INFO]; i <= pinfo->cinfo->col_last[COL_INFO]; i++) {
     		if (pinfo->cinfo->fmt_matx[i][COL_INFO]) {
-				if (gai->comment!=NULL){
-					g_free(gai->comment);
-				}
-				gai->comment = g_strdup(pinfo->cinfo->col_data[i]);
+				colinfo = g_strdup(pinfo->cinfo->col_data[i]);
 			}
 		}
 	}
@@ -247,14 +258,37 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 		
   		for (i = pinfo->cinfo->col_first[COL_PROTOCOL]; i <= pinfo->cinfo->col_last[COL_PROTOCOL]; i++) {
     		if (pinfo->cinfo->fmt_matx[i][COL_PROTOCOL]) {
-				if (gai->frame_label!=NULL){
-					g_free(gai->frame_label);
-				}
-				gai->frame_label = g_strdup(pinfo->cinfo->col_data[i]);
+				protocol = g_strdup(pinfo->cinfo->col_data[i]);
+
 			}
 		}
 	}
-
+		
+	if (colinfo != NULL) {
+		if (protocol != NULL) {
+			gai->frame_label = g_strdup_printf("%.19s", colinfo);
+			gai->comment = g_strdup_printf("%s: %s", protocol, colinfo);
+		} else {
+			gai->frame_label = g_strdup_printf("%.19s", colinfo);
+			gai->comment = g_strdup_printf("%s", colinfo);
+		}
+	} else {
+		/* This will probably never happen...*/
+		if (protocol != NULL) {
+			gai->frame_label = g_strdup_printf("%.19s", protocol);
+			gai->comment = g_strdup_printf("%s", protocol);
+		} else {
+			gai->frame_label = NULL;
+			gai->comment = NULL;
+		}
+	}
+ 
+	if (protocol!=NULL){
+		g_free(protocol);
+	}
+	if (colinfo!=NULL){
+		g_free(colinfo);
+	}
 
 	gai->line_style=1;
 	gai->conv_num=0;

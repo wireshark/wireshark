@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-camel.c                                                           */
+/* .\packet-camel.c                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
 
 /* Input file: packet-camel-template.c */
@@ -8197,7 +8197,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     /* Populate the info column with PDU type*/
-    col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camelPDU_vals, "Unknown Camel (%u)"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camelPDU_vals, "Unknown Camel (%u)"));
   }
 
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,

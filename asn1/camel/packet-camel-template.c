@@ -567,7 +567,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     /* Populate the info column with PDU type*/
-    col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camelPDU_vals, "Unknown Camel (%u)"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camelPDU_vals, "Unknown Camel (%u)"));
   }
 
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
