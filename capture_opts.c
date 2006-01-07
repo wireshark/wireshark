@@ -45,7 +45,10 @@
 
 #include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
+#include <wiretap/file_util.h>
 
+
+static gboolean capture_opts_output_to_pipe(const char *save_file);
 
 
 void
@@ -89,6 +92,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->signal_pipe_fd          = -1;
 #endif
   capture_opts->state                   = CAPTURE_STOPPED;
+  capture_opts->output_to_pipe          = FALSE;
 }
 
 
@@ -409,6 +413,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         break;
     case 'w':        /* Write to capture file xxx */
         capture_opts->save_file = g_strdup(optarg);
+        capture_opts->output_to_pipe = capture_opts_output_to_pipe(capture_opts->save_file);
 	    break;
     case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
@@ -574,5 +579,65 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
     return TRUE;
 }
 
+
+
+#ifndef S_IFIFO
+#define S_IFIFO	_S_IFIFO
+#endif
+#ifndef S_ISFIFO
+#define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
+#endif
+
+/* copied from filesystem.c */
+static int capture_opts_test_for_fifo(const char *path)
+{
+	struct stat statb;
+
+	if (eth_stat(path, &statb) < 0)
+		return errno;
+
+	if (S_ISFIFO(statb.st_mode))
+		return ESPIPE;
+	else
+		return 0;
+}
+
+static gboolean capture_opts_output_to_pipe(const char *save_file)
+{
+  int err;
+
+  if (save_file != NULL) {
+    /* We're writing to a capture file. */
+    if (strcmp(save_file, "-") == 0) {
+      /* Writing to stdout. */
+      /* XXX - should we check whether it's a pipe?  It's arguably
+         silly to do "-w - >output_file" rather than "-w output_file",
+         but by not checking we might be violating the Principle Of
+         Least Astonishment. */
+      return TRUE;
+    } else {
+      /* not a capture file, test for a FIFO (aka named pipe) */
+      err = capture_opts_test_for_fifo(save_file);
+      switch (err) {
+
+      case ENOENT:	/* it doesn't exist, so we'll be creating it,
+      			   and it won't be a FIFO */
+      case 0:		/* found it, but it's not a FIFO */
+        break;
+
+      case ESPIPE:	/* it is a FIFO */
+        return TRUE;
+        break;
+
+      default:		/* couldn't stat it */
+        cmdarg_err("Error testing whether capture file is a pipe: %s",
+                strerror(errno));
+        exit(2);
+      }
+    }
+  }
+
+  return FALSE;
+}
 
 #endif /* HAVE_LIBPCAP */

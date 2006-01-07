@@ -90,8 +90,7 @@ typedef struct _loop_data {
   jmp_buf        stopenv;               /* T: starting point of loop (jump back this point on SIG...) */
 
   char          *save_file;             /* T: Name of file to which we're writing */
-  gboolean       output_to_pipe;        /* T: output to a pipe, flush outut file immediately */
-  capture_packet_cb_fct  packet_cb;         /* callback for a single captured packet */
+  capture_packet_cb_fct  packet_cb;     /* callback for a single captured packet */
 
   /* pcap "input file" */
   pcap_t        *pcap_h;                /* pcap handle */

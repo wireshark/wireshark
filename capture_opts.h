@@ -94,6 +94,7 @@ typedef struct capture_options_tag {
     int signal_pipe_fd;         /**< the pipe to signal the child */
 #endif
     capture_state state;        /**< current state of the capture engine */
+    gboolean output_to_pipe;    /**< save_file is a pipe (named or stdout) */
 } capture_options;
 
 

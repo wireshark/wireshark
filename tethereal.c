@@ -152,7 +152,7 @@ static gboolean infoprint;	/* if TRUE, print capture info after clearing infodel
 #endif /* HAVE_LIBPCAP */
 
 
-static int capture(char *, int);
+static int capture(int);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void report_counts(void);
@@ -634,7 +634,6 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
 #endif
   gboolean             quiet = FALSE;
-  gchar               *save_file = NULL;
   int                  out_file_type = WTAP_FILE_PCAP;
   gchar               *cf_name = NULL, *rfilter = NULL;
 #ifdef HAVE_PCAP_OPEN_DEAD
@@ -835,6 +834,7 @@ main(int argc, char *argv[])
       case 'i':        /* Use interface xxx */
       case 'p':        /* Don't capture in promiscuous mode */
       case 's':        /* Set the snapshot (capture) length */
+      case 'w':        /* Write to capture file xxx */
       case 'y':        /* Set the pcap data link type */
 #ifdef _WIN32
       case 'B':        /* Buffer size */
@@ -984,9 +984,6 @@ main(int argc, char *argv[])
 	    runtime_info_str->str);
         exit(0);
         break;
-      case 'w':        /* Write to capture file xxx */
-        save_file = g_strdup(optarg);
-	break;
       case 'V':        /* Verbose */
         verbose = TRUE;
         break;
@@ -1041,56 +1038,20 @@ main(int argc, char *argv[])
 
   /* If we're not writing to a file and "-q" wasn't specified
      we should print packet information */
-  if (save_file == NULL && !quiet)
+  if (capture_opts.save_file == NULL && !quiet)
     print_packet_info = TRUE;
 
-  /* See if we're writing a capture file and the file is a pipe */
-#ifdef HAVE_LIBPCAP
-  ld.output_to_pipe = FALSE;
-#endif
-  if (save_file != NULL) {
-    /* We're writing to a capture file. */
-    if (strcmp(save_file, "-") == 0) {
-      /* Write to the standard output.
-         If we'll also be writing dissected packets to the standard
+  if (capture_opts.save_file != NULL && 
+      strcmp(capture_opts.save_file, "-") == 0 
+      && print_packet_info) {
+      /* If we're writing to the standard output.
+         and we'll also be writing dissected packets to the standard
          output, reject the request.  At best, we could redirect that
          to the standard error; we *can't* write both to the standard
          output and have either of them be useful. */
-      if (print_packet_info) {
-        cmdarg_err("You can't write both raw packet data and dissected packets"
-            " to the standard output.");
-        exit(1);
-      }
-#ifdef HAVE_LIBPCAP
-      /* XXX - should we check whether it's a pipe?  It's arguably
-         silly to do "-w - >output_file" rather than "-w output_file",
-         but by not checking we might be violating the Principle Of
-         Least Astonishment. */
-      ld.output_to_pipe = TRUE;
-#endif
-    }
-#ifdef HAVE_LIBPCAP
-    else {
-      /* not a capture file, test for a FIFO (aka named pipe) */
-      err = test_for_fifo(save_file);
-      switch (err) {
-
-      case ENOENT:	/* it doesn't exist, so we'll be creating it,
-      			   and it won't be a FIFO */
-      case 0:		/* found it, but it's not a FIFO */
-        break;
-
-      case ESPIPE:	/* it is a FIFO */
-        ld.output_to_pipe = TRUE;
-        break;
-
-      default:		/* couldn't stat it */
-        cmdarg_err("Error testing whether capture file is a pipe: %s",
-                strerror(errno));
-        exit(2);
-      }
-    }
-#endif
+      cmdarg_err("You can't write both raw packet data and dissected packets"
+          " to the standard output.");
+      exit(1);
   }
 
 #ifndef HAVE_LIBPCAP
@@ -1139,7 +1100,7 @@ main(int argc, char *argv[])
   } else {
     /* If they didn't specify a "-w" flag, but specified a maximum capture
        file size, tell them that this doesn't work, and exit. */
-    if (capture_opts.has_autostop_filesize && save_file == NULL) {
+    if (capture_opts.has_autostop_filesize && capture_opts.save_file == NULL) {
       cmdarg_err("Maximum capture file size specified, but "
         "capture isn't being saved to a file.");
       exit(1);
@@ -1155,17 +1116,17 @@ main(int argc, char *argv[])
 	    (XXX - shouldn't that be "if there is no stop criterion",
 	    as you might want to switch files based on a packet count
 	    or a time). */
-      if (save_file == NULL) {
+      if (capture_opts.save_file == NULL) {
 	cmdarg_err("Multiple capture files requested, but "
 	  "the capture isn't being saved to a file.");
 	exit(1);
       }
-      if (strcmp(save_file, "-") == 0) {
+      if (strcmp(capture_opts.save_file, "-") == 0) {
 	cmdarg_err("Multiple capture files requested, but "
 	  "the capture is being written to the standard output.");
 	exit(1);
       }
-      if (ld.output_to_pipe) {
+      if (capture_opts.output_to_pipe) {
 	cmdarg_err("Multiple capture files requested, but "
 	  "the capture file is a pipe.");
 	exit(1);
@@ -1340,7 +1301,7 @@ main(int argc, char *argv[])
     }
 
     /* Process the packets in the file */
-    err = load_cap_file(&cfile, save_file, out_file_type);
+    err = load_cap_file(&cfile, capture_opts.save_file, out_file_type);
     if (err != 0) {
       epan_cleanup();
       exit(2);
@@ -1387,7 +1348,7 @@ main(int argc, char *argv[])
     /* For now, assume libpcap gives microsecond precision. */
     timestamp_set_precision(TS_PREC_AUTO_USEC);
 
-    capture(save_file, out_file_type);
+    capture(out_file_type);
 
     if (capture_opts.multi_files_on) {
       ringbuf_free();
@@ -1412,7 +1373,7 @@ main(int argc, char *argv[])
 static condition  *volatile cnd_file_duration = NULL; /* this must be visible in process_packet */
 
 static int
-capture(char *save_file, int out_file_type)
+capture(int out_file_type)
 {
   int         err = 0;
   int         volatile volatile_err = 0;
@@ -1461,9 +1422,7 @@ capture(char *save_file, int out_file_type)
   setgid(getgid());
 #endif
 
-  capture_opts.save_file = save_file;
-
-  /* open the output file (temporary/specified name/ringbuffer) */
+  /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
   if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
     goto error;    
   }
@@ -1616,7 +1575,7 @@ capture(char *save_file, int out_file_type)
            its maximum size. */
         if (capture_opts.multi_files_on) {
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &save_file, &save_file_fd, &loop_err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts.save_file, &save_file_fd, &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_autostop_size);
 	    if (cnd_file_duration) {
@@ -1632,7 +1591,7 @@ capture(char *save_file, int out_file_type)
           ld.go = FALSE;
         }
       }
-      if (ld.output_to_pipe) {
+      if (capture_opts.output_to_pipe) {
         if (ld.packet_count > packet_count_prev) {
           wtap_dump_flush(ld.wtap_pdh);
           packet_count_prev = ld.packet_count;
@@ -1674,18 +1633,18 @@ capture(char *save_file, int out_file_type)
   if (volatile_err == 0)
     write_ok = TRUE;
   else {
-    show_capture_file_io_error(save_file, volatile_err, FALSE);
+    show_capture_file_io_error(capture_opts.save_file, volatile_err, FALSE);
     write_ok = FALSE;
   }
 
-  if (save_file != NULL) {
+  if (capture_opts.save_file != NULL) {
     /* We're saving to a file or files; close all files. */
     close_ok = capture_loop_close_output(&capture_opts, &ld, &err);
 
     /* If we've displayed a message about a write error, there's no point
        in displaying another message about an error on close. */
     if (!close_ok && write_ok)
-      show_capture_file_io_error(save_file, err, TRUE);
+      show_capture_file_io_error(capture_opts.save_file, err, TRUE);
   }
 
 #ifndef _WIN32
@@ -1717,8 +1676,8 @@ error:
   if (capture_opts.multi_files_on) {
     ringbuf_error_cleanup();
   }
-  g_free(save_file);
-  save_file = NULL;
+  g_free(capture_opts.save_file);
+  capture_opts.save_file = NULL;
   cmdarg_err("%s", errmsg);
 #ifndef _WIN32
   if (ld.from_cap_pipe) {

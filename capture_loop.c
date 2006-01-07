@@ -995,7 +995,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 }
 
 
-/* open the output file (temporary/specified name/ringbuffer) */
+/* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
 /* Returns TRUE if the file opened successfully, FALSE otherwise. */
 gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
@@ -1020,7 +1020,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
       if (capture_opts->multi_files_on) {
         /* ringbuffer is enabled; that doesn't work with standard output */
         g_snprintf(errmsg, errmsg_len,
-	    "Ring buffer requested, but capture is being written to the standard error.");
+	    "Ring buffer requested, but capture is being written to the standard output.");
         g_free(capfile_name);
         return FALSE;
       } else {
@@ -1290,6 +1290,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           continue;
         }
       } /* cnd_autostop_size */
+      if (capture_opts->output_to_pipe) {
+        wtap_dump_flush(ld.wtap_pdh);
+      }
     } /* inpkts */
 
     /* Only update once a second (Win32: 500ms) so as not to overload slow displays */
