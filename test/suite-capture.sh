@@ -193,7 +193,6 @@ ethereal_capture_suite() {
 	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
 	# read filter doesn't work with Ethereal and capturing!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
-	# the snapshot length test is also based on the read filters
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
 
@@ -209,9 +208,8 @@ dumpcap_capture_suite() {
 	#DUT="$DUMPCAP -Q"
 	DUT=$DUMPCAP
 	test_step_add "Capture 10 packets" capture_step_10packets
-	# piping to stdout currently doesn't work with dumpcap!
-	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
-	# read filter doesn't work with dumpcap!
+	test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
+	# read (display) filters intentionally doesn't work with dumpcap!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
