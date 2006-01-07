@@ -433,7 +433,7 @@ dumpcap_DEPENDENCIES = \
 
 dumpcap_LDADD = \
 	$(dumpcap_additional_libs)	\
-	@GLIB_LIBS@ -lm			\
+	@GLIB_LIBS@			\
 	@PCAP_LIBS@
 
 #
