@@ -127,7 +127,7 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 			if ((*err = file_error(wth->fh)) != 0)
 				return -1;
 			else
-				break; /* eof */
+		        return 0;
 		}
 
 		packet_size = g_ntohs(header.rlen) - sizeof(header);
