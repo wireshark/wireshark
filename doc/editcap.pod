@@ -7,6 +7,7 @@ editcap - Edit and/or translate the format of capture files
 
 B<editcap>
 S<[ B<-c> packets per file]>
+S<[ B<-C> choplen ]>
 S<[ B<-E> error probability]>
 S<[ B<-F> file format ]>
 S<[ B<-h> ]>
@@ -17,17 +18,169 @@ S<[ B<-T> encapsulation type ]>
 S<[ B<-v> ]>
 I<infile>
 I<outfile>
-S<[ I<record#>[-I<record#>] ... ]>
+S<[ I<packet#>[-I<packet#>] ... ]>
 
 =head1 DESCRIPTION
 
-B<Editcap> is a program that reads a saved capture file and writes some
-or all of the packets in that capture file to another capture file. 
-B<Editcap> knows how to read B<libpcap> capture files, including those
-of B<tcpdump>, B<Ethereal>, and other tools that write captures in that
-format.  
+B<Editcap> is a program that reads some or all of the captured packets from the 
+I<infile>, optionally converts them in various ways and writes the 
+resulting packets to the capture I<outfile> (or outfiles). 
 
-B<Editcap> can read / import the following file formats:
+By default, it reads all packets from the I<infile> and writes them to the I<outfile>
+in libpcap file format.
+
+A list of packet numbers can be specified on the command line; ranges of packet numbers can be
+specified as I<start>-I<end>, referring to all packets from I<start> to
+I<end>.
+The selected packets with those numbers will I<not> be written to the capture file. 
+If the B<-r> flag is specified, the whole packet selection is reversed; in that case I<only> the selected packets
+will be written to the capture file.  
+
+The supported input and output capture file formats are described in a section below.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -c  packets per file
+
+Sets the maximum number of packets per output file. Each output file will 
+be created with a suffix -nnnnn, starting with 00000. If the specified 
+number of packets are written to the output file, the next output file is 
+opened. 
+
+=item -C  choplen
+
+Sets the chop length to use when writing the packet data.
+Each packet is chopped at the packet end by a few <choplen> bytes of data.
+
+This is useful in the rare case that the conversion between two file 
+formats leaves some random bytes at the end of each packet.
+
+=item -E  error probability
+
+Sets the probabilty that bytes in the output file are randomly changed.
+B<Editcap> uses that probability (between 0.0 and 1.0 inclusive) 
+to apply errors to each data byte in the file.  For instance, a 
+probability of 0.02 means that each byte has a 2% chance of having an error.
+
+This option is meant to be used for fuzz-testing protocol dissectors.
+
+=item -F  file format
+
+Sets the file format of the output capture file.
+B<Editcap> can write the file in several formats, B<editcap -h> 
+provides a complete list of the available output formats.
+
+=item -h
+
+Prints the version and options and exits.
+
+=item -r
+
+Reverse the packet selection.
+Causes the packets whose packet numbers are specified on the command
+line to be written to the output capture file, instead of discarding them.
+
+=item -s  snaplen
+
+Sets the snapshot length to use when writing the data.
+If the B<-s> flag is used to specify a snapshot length, packets in the
+input file with more captured data than the specified snapshot length
+will have only the amount of data specified by the snapshot length
+written to the output file.  
+
+This may be useful if the program that is
+to read the output file cannot handle packets larger than a certain size
+(for example, the versions of snoop in Solaris 2.5.1 and Solaris 2.6
+appear to reject Ethernet packets larger than the standard Ethernet MTU,
+making them incapable of handling gigabit Ethernet captures if jumbo
+packets were used).
+
+=item -t  time adjustment
+
+Sets the time adjustment to use on selected packets.
+If the B<-t> flag is used to specify a time adjustment, the specified
+adjustment will be applied to all selected packets in the capture file.
+The adjustment is specified as [-]I<seconds>[I<.fractional seconds>].
+For example, B<-t> 3600 advances the timestamp on selected packets by one
+hour while B<-t> -0.5 reduces the timestamp on selected packets by
+one-half second.  
+
+This feature is useful when synchronizing dumps
+collected on different machines where the time difference between the
+two machines is known or can be estimated.
+
+=item -T  encapsulation type
+
+Sets the packet encapsulation type of the output capture file.
+If the B<-T> flag is used to specify an encapsulation type, the
+encapsulation type of the output capture file will be forced to the
+specified type, rather than being the type appropriate to the
+encapsulation type of the input capture file.
+
+Note: this merely
+forces the encapsulation type of the output file to be the specified
+type; the packet headers of the packets will not be translated from the
+encapsulation type of the input capture file to the specified
+encapsulation type (for example, it will not translate an Ethernet
+capture to an FDDI capture if an Ethernet capture is read and 'B<-T
+fddi>' is specified).
+
+=item -v
+
+Causes B<editcap> to print verbose messages while it's working.
+
+=back
+
+=head1 EXAMPLES
+
+To see more detailed description of the options use:
+
+    editcap -h
+
+To shrink the capture file by truncating the packets at 64 bytes and writing it as Sun snoop file use:
+
+    editcap -s 64 -F snoop capture.pcap shortcapture.snoop
+
+To delete packet 1000 from the capture file use:
+
+    editcap capture.pcap sans1000.pcap 1000
+
+To limit a capture file to packets from number 200 to 750 (inclusive) use:
+
+    editcap -r capture.pcap small.pcap 200-750
+
+To get all packets from number 1-500 (inclusive) use:
+
+    editcap -r capture.pcap 500.pcap 1-500
+
+or
+
+    editcap capture.pcap 500.pcap 501-9999999
+
+To filter out packets 10 to 20 and 30 to 40 into a new file use:
+
+    editcap capture.pcap selection.pcap 10-20 30-40
+
+To introduce 5% random errors in a capture file use:
+
+=over 4
+
+  editcap -E 0.05 capture.pcap capture_error.pcap
+
+=back
+
+=head1 Capture File Formats
+
+There is no need to tell B<Editcap> what type of
+file you are reading; it will determine the file type by itself. 
+
+B<Editcap> is also capable of reading any of these file formats if they
+are compressed using gzip. It recognizes this directly from the
+file; the '.gz' extension is not required for this purpose.
+
+The following I<input> file formats are supported:
 
 =over 4
 
@@ -111,153 +264,10 @@ Linux Bluez Bluetooth stack B<hcidump -w> traces
 
 =back
 
-There is no need to tell B<Editcap> what type of
-file you are reading; it will determine the file type by itself. 
-B<Editcap> is also capable of reading any of these file formats if they
-are compressed using gzip.  B<Editcap> recognizes this directly from the
-file; the '.gz' extension is not required for this purpose.
-
-By default, it writes the capture file in B<libpcap> format, and writes
-all of the packets in the capture file to the output file.  The B<-F>
+B<Editcap> can write the file in several output formats. The B<-F>
 flag can be used to specify the format in which to write the capture
-file; it can write the file in B<libpcap> format (standard B<libpcap>
-format, a modified format used by some patched versions of B<libpcap>,
-the format used by Red Hat Linux 6.1, or the format used by SuSE Linux
-6.3), B<snoop> format, uncompressed B<Sniffer> format, Microsoft
-B<Network Monitor> 1.x format, the format used by Windows-based versions
-of the B<Sniffer> software, and the format used by Visual Networks'
-software.
-
-A list of packet numbers can be specified on the command line; the
-packets with those numbers will I<not> be written to the capture file,
-unless the B<-r> flag is specified, in which case I<only> those packets
-will be written to the capture file.  Ranges of packet numbers can be
-specified as I<start>-I<end>, referring to all packets from I<start> to
-I<end> (removing them all if B<-r> isn't specified, including them all
-if B<-r> is specified).
-
-If the B<-c> flag is used to specify the amount of packets in a capture
-file, the output file will be created with a suffix -nnnnn. The suffix
-starts at 00000. No more then the specified number of packets are written
-in the output file before the next output file is opened. 
-
-If the B<-s> flag is used to specify a snapshot length, frames in the
-input file with more captured data than the specified snapshot length
-will have only the amount of data specified by the snapshot length
-written to the output file.  This may be useful if the program that is
-to read the output file cannot handle packets larger than a certain size
-(for example, the versions of snoop in Solaris 2.5.1 and Solaris 2.6
-appear to reject Ethernet frames larger than the standard Ethernet MTU,
-making them incapable of handling gigabit Ethernet captures if jumbo
-frames were used).
-
-If the B<-t> flag is used to specify a time adjustment, the specified
-adjustment will be applied to all selected frames in the capture file.
-The adjustment is specified as [-]I<seconds>[I<.fractional seconds>].
-For example, B<-t> 3600 advances the timestamp on selected frames by one
-hour while B<-t> -0.5 reduces the timestamp on selected frames by
-one-half second.  This feature is useful when synchronizing dumps
-collected on different machines where the time difference between the
-two machines is known or can be estimated.
-
-If the B<-T> flag is used to specify an encapsulation type, the
-encapsulation type of the output capture file will be forced to the
-specified type, rather than being the type appropriate to the
-encapsulation type of the input capture file.  Note that this merely
-forces the encapsulation type of the output file to be the specified
-type; the packet headers of the packets will not be translated from the
-encapsulation type of the input capture file to the specified
-encapsulation type (for example, it will not translate an Ethernet
-capture to an FDDI capture if an Ethernet capture is read and 'B<-T
-fddi>' is specified).
-
-If the B<-E> flag is used to specify a probability (between 0.0 and
-1.0 inclusive), Editcap uses that probability to apply errors to each
-data byte in the file.  For instance, a probability of 0.02 means that
-each byte has a 2% chance of having an error.  This option is meant to
-be used for fuzz-testing protocol dissectors.
-
-=head1 OPTIONS
-
-=over 4
-
-=item -c
-
-Sets the number of packets per output file.
-
-=item -E
-
-Sets the probabilty that bytes in the output file are randomly changed.
-
-=item -F
-
-Sets the file format of the output capture file.
-
-=item -T
-
-Sets the packet encapsulation type of the output capture file.
-
-=item -r
-
-Causes the packets whose packet numbers are specified on the command
-line to be written to the output capture file, and no other packets to
-be written to the output capture file.
-
-=item -v
-
-Causes B<editcap> to print a number of messages while it's working.
-
-=item -s
-
-Sets the snapshot length to use when writing the data.
-
-=item -t
-
-Sets the time adjustment to use on selected frames.
-
-=item -h
-
-Prints the version and options and exits.
-
-=back
-
-=head1 EXAMPLES
-
-To see more detailed description of the options use:
-
-    editcap -h
-
-To shrink the capture file by truncating the packets at 64 bytes and writing it as Sun snoop file use:
-
-    editcap -s 64 -F snoop capture.pcap shortcapture.snoop
-
-To delete packet 1000 from the capture file use:
-
-    editcap capture.pcap sans1000.pcap 1000
-
-To limit a capture file to packets from number 200 to 750 (inclusive) use:
-
-    editcap -r capture.pcap small.pcap 200-750
-
-To get all packets from number 1-500 (inclusive) use:
-
-    editcap -r capture.pcap 500.pcap 1-500
-
-or
-
-    editcap capture.pcap 500.pcap 501-9999999
-
-To filter out packets 10 to 20 and 30 to 40 into a new file use:
-
-    editcap capture.pcap selection.pcap 10-20 30-40
-
-To introduce 5% random errors in a capture file use:
-
-=over 4
-
-  editcap -E 0.05 capture.pcap capture_error.pcap
-
-=back
+file, B<editcap -h> provides
+a list of the available output formats.
 
 =head1 SEE ALSO
 
@@ -278,3 +288,4 @@ of B<Ethereal> can be found at B<http://www.ethereal.com>.
   Contributors
   ------------
   Guy Harris               <guy[AT]alum.mit.edu>
+  Ulf Lamping              <ulf.lamping[AT]web.de>
