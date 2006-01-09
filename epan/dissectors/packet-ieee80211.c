@@ -564,6 +564,10 @@ static int rsn_cap_gtksa_replay_counter = -1;
 static int hf_aironet_ie_type = -1;
 static int hf_aironet_ie_version = -1;
 static int hf_aironet_ie_data = -1;
+static int hf_aironet_ie_qos_unk1 = -1;
+static int hf_aironet_ie_qos_paramset = -1;
+static int hf_aironet_ie_qos_val = -1;
+
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -1138,11 +1142,13 @@ dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tvb,
 }
 
 typedef enum {
-	AIRONET_IE_VERSION = 3
+	AIRONET_IE_VERSION = 3,
+	AIRONET_IE_QOS
 } aironet_ie_type_t;
 
 static const value_string aironet_ie_type_vals[] = {
         { AIRONET_IE_VERSION,	"CCX version\?"},
+        { AIRONET_IE_QOS,	"Qos?\?"},
 
 	{ 0,			NULL }
 };
@@ -1152,6 +1158,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 	tvbuff_t * tvb, int offset, guint32 tag_len)
 {
 	guint8	type;
+	int i;
 
 	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item (ietree, hf_aironet_ie_type, tvb, offset, 1, TRUE);
@@ -1160,6 +1167,31 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 	switch (type) {
 	case AIRONET_IE_VERSION:
 		proto_tree_add_item (ietree, hf_aironet_ie_version, tvb, offset, 1, TRUE);
+		break;
+	case AIRONET_IE_QOS:
+		proto_tree_add_item (ietree, hf_aironet_ie_qos_unk1, tvb, offset, 1, TRUE);
+		offset += 1;
+		proto_tree_add_item (ietree, hf_aironet_ie_qos_paramset, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* XXX: just copied over from WME. Maybe "Best Effort" and "Background"
+		 *	need to be swapped. Also, the "TXOP" may be TXOP - or not.
+		 */
+		for (i = 0; i < 4; i++) {
+			guint8 byte1, byte2;
+			guint16 txop;
+			byte1 = tvb_get_guint8(tvb, offset);
+			byte2 = tvb_get_guint8(tvb, offset + 1);
+			txop = tvb_get_letohs(tvb, offset + 2);
+			proto_tree_add_bytes_format(ietree, hf_aironet_ie_qos_val, tvb, offset, 4,
+				tvb_get_ptr(tvb, offset, 4),
+		  		"CCX QoS Parameters??: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
+				(byte1 & 0x60) >> 5, wme_acs[(byte1 & 0x60) >> 5],
+				(byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
+				byte2 & 0x0f, (byte2 & 0xf0) >> 4,
+				txop);
+			offset += 4;
+		}
 		break;
 	default:
 		proto_tree_add_item(ietree, hf_aironet_ie_data, tvb, offset,
@@ -3827,6 +3859,19 @@ proto_register_ieee80211 (void)
     { &hf_aironet_ie_data,
       { "Aironet IE data", "wlan_mgmt.aironet.data",
         FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    {&hf_aironet_ie_qos_unk1,
+     {"Aironet IE QoS unknown1", "wlan_mgt.tag.aironet.qos.unk1",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+    {&hf_aironet_ie_qos_paramset,
+     {"Aironet IE QoS paramset", "wlan_mgt.tag.aironet.qos.paramset",
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    {&hf_aironet_ie_qos_val,
+     {"Aironet IE QoS valueset", "wlan_mgt.tag.aironet.qos.val",
+      FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+
   };
 
   static gint *tree_array[] = {
