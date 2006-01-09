@@ -246,6 +246,7 @@ dissect_camel_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
     /* Add Camel Opcode to INFO column */
     col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, camel_opr_code_strings, "Unknown Camel (%u)"));
     col_append_fstr(pinfo->cinfo, COL_INFO, " ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
   }
   return offset;
 }

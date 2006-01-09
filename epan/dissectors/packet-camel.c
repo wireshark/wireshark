@@ -7876,6 +7876,7 @@ dissect_camel_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
     /* Add Camel Opcode to INFO column */
     col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, camel_opr_code_strings, "Unknown Camel (%u)"));
     col_append_fstr(pinfo->cinfo, COL_INFO, " ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
   }
   return offset;
 }
@@ -10236,7 +10237,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 697 "packet-camel-template.c"
+#line 698 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10459,7 +10460,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 710 "packet-camel-template.c"
+#line 711 "packet-camel-template.c"
   };
 
   /* Register protocol */
