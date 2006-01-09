@@ -1,4 +1,4 @@
-/* Edit capture files.  We can delete records, adjust timestamps, or
+/* Edit capture files.  We can delete packets, adjust timestamps, or
  * simply convert from one format to another format.
  *
  * $Id$
@@ -117,7 +117,7 @@ static void add_selection(char *sel)
 
 }
 
-/* Was the record selected? */
+/* Was the packet selected? */
 
 static int selected(int recno)
 {
@@ -210,14 +210,16 @@ static void usage(void)
   int i;
   const char *string;
 
-  fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-E <probability>]\n");
-  fprintf(stderr, "               [-F <capture type>] [-s <snaplen>] [-t <time adjustment>]\n");
-  fprintf(stderr, "               [-c <packets per file>]\n");
-  fprintf(stderr, "               <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
+  fprintf(stderr, "Usage: editcap [-c <packets per file>] [-C <choplen>] [-E <probability>]\n");
+  fprintf(stderr, "               [-F <capture type>] [-h] [-r] [-s <snaplen>]\n");
+  fprintf(stderr, "               [-t <time adjustment>] [-T <encap type>] [-v]\n");
+  fprintf(stderr, "               <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
   fprintf(stderr, "  where\n");
-  fprintf(stderr, "       \t-c <packets per file> If given splits the output to different files\n");
-  fprintf(stderr, "       \t-E <probability> specifies the probability (between 0 and 1)\n");
-  fprintf(stderr, "       \t    that a particular byte will will have an error.\n");
+  fprintf(stderr, "       \t-c <packets per file> split the output to different files\n");
+  fprintf(stderr, "       \t-C <choplen> specifies that each packet should be chopped by\n");
+  fprintf(stderr, "       \t    <choplen> bytes of data at the packet end\n");
+  fprintf(stderr, "       \t-E <probability> specifies the probability (between 0.0 and 1.0 incl.)\n");
+  fprintf(stderr, "       \t    that a particular byte will have an error\n");
   fprintf(stderr, "       \t-F <capture type> specifies the capture file type to write:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
@@ -225,13 +227,13 @@ static void usage(void)
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
   fprintf(stderr, "       \t    default is libpcap\n");
-  fprintf(stderr, "       \t-h produces this help listing.\n");
-  fprintf(stderr, "       \t-r specifies that the records specified should be kept, not deleted, \n");
-  fprintf(stderr, "                           default is to delete\n");
+  fprintf(stderr, "       \t-h produces this help\n");
+  fprintf(stderr, "       \t-r specifies that the packets specified should be kept,\n");
+  fprintf(stderr, "            the default is to delete them\n");
   fprintf(stderr, "       \t-s <snaplen> specifies that packets should be truncated to\n");
-  fprintf(stderr, "       \t   <snaplen> bytes of data\n");
-  fprintf(stderr, "       \t-t <time adjustment> specifies the time adjustment\n");
-  fprintf(stderr, "       \t   to be applied to selected packets\n");
+  fprintf(stderr, "       \t    <snaplen> bytes of data\n");
+  fprintf(stderr, "       \t-t <time adjustment> specifies the time adjustment in seconds\n");
+  fprintf(stderr, "       \t    to be applied to selected packets (e.g. -0.5)\n");
   fprintf(stderr, "       \t-T <encap type> specifies the encapsulation type to use:\n");
   for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
       string = wtap_encap_short_string(i);
@@ -240,8 +242,10 @@ static void usage(void)
           string, wtap_encap_string(i));
   }
   fprintf(stderr, "       \t    default is the same as the input file\n");
-  fprintf(stderr, "       \t-v specifies verbose operation, default is silent\n");
-  fprintf(stderr, "\n      \t    A range of records can be specified as well\n");
+  fprintf(stderr, "       \t-v specifies verbose operation (slows down output),\n");
+  fprintf(stderr, "       \t    default is silent\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "  A single packet or a range of packets can be specified\n");
 }
 
 int main(int argc, char *argv[])
@@ -255,6 +259,7 @@ int main(int argc, char *argv[])
   int opt;
   char *p;
   unsigned int snaplen = 0;             /* No limit               */
+  unsigned int choplen = 0;             /* No chop                */
   wtap_dumper *pdh;
   int count = 1;
   long data_offset;
@@ -268,7 +273,7 @@ int main(int argc, char *argv[])
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "E:F:hrs:c:t:T:v")) !=-1) {
+  while ((opt = getopt(argc, argv, "c:C:E:F:hrs:t:T:v")) !=-1) {
 
     switch (opt) {
 
@@ -301,6 +306,15 @@ int main(int argc, char *argv[])
       if (split_packet_count <= 0) {
       	fprintf(stderr, "editcap: \"%d\" packet count must be larger than zero\n",
 		split_packet_count);
+      	exit(1);
+      }
+      break;
+
+    case 'C':
+      choplen = strtol(optarg, &p, 10);
+      if (p == optarg || *p != '\0') {
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
+      	    optarg);
       	exit(1);
       }
       break;
@@ -445,12 +459,18 @@ int main(int argc, char *argv[])
           (selected(count) && keep_em)) {
 
         if (verbose)
-          printf("Record: %u\n", count);
+          printf("Packet: %u\n", count);
 
         /* We simply write it, perhaps after truncating it; we could do other
            things, like modify it. */
 
         phdr = wtap_phdr(wth);
+
+        if (choplen != 0 && phdr->caplen > choplen) {
+          snap_phdr = *phdr;
+          snap_phdr.caplen -= choplen;
+          phdr = &snap_phdr;
+        }
 
         if (snaplen != 0 && phdr->caplen > snaplen) {
           snap_phdr = *phdr;
