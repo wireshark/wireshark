@@ -178,6 +178,7 @@ again:
       ld->tcp++;
       break;
     case IP_PROTO_UDP:
+    case IP_PROTO_UDPLITE:
       ld->udp++;
       break;
     case IP_PROTO_ICMP:

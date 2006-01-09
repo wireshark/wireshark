@@ -382,6 +382,7 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
       ld->tcp++;
       break;
     case IP_PROTO_UDP:
+    case IP_PROTO_UDPLITE:
       ld->udp++;
       break;
     case IP_PROTO_ICMP:
