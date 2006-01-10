@@ -478,11 +478,241 @@
          field MUST be set to 16 (20 if the 'V' bit is enabled).
 	-->
 		<!-- ************************* End Typedefns ************************ -->
-		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
-		<avp name="Accounting-Interim-Interval" code="482" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+		<!-- ******************* RADIUS AVPS ************************ -->
+		<avp name="User-Name" code="1" mandatory="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="User-Password" code="2" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="CHAP-Password" code="3" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="NAS-IP-Address" code="4" mandatory="may">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="NAS-Port" code="5" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Service-Type" code="6" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Framed-Protocol" code="7" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Framed-IP-Address" code="8" mandatory="may">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="Framed-IP-Netmask" code="9" mandatory="may">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="Framed-Routing" code="10" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Filter-Id" code="11" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Framed-MTU" code="12" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Framed-Compression" code="13" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+ 		<avp name="Login-IP-Host" code="14" mandatory="may">
+ 			<type type-name="IPAddress"/>
+ 		</avp>
+		<avp name="Login-Service" code="15" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+ 		<avp name="Login-TCP-Port" code="16" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Reply-Message" code="18" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Callback-Number" code="19" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Callback-Id" code="20" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Framed-Route" code="22" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Framed-IPX-Network" code="23" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="State" code="24" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Class" code="25" mandatory="must">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Vendor-Specific" code="26" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Session-Timeout" code="27" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="Idle-Timeout" code="28" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+
+
+		<avp name="Termination-Action" code="29" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Called-Station-Id" code="30" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Calling-Station-Id" code="31" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="NAS-Identifier" code="32" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Proxy-State" code="33" mandatory="must">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Login-LAT-Service" code="34" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Login-LAT-Node" code="35" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Login-LAT-Group" code="36" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Framed-AppleTalk-Link" code="37" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Framed-AppleTalk-Network" code="38" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Framed-AppleTalk-Zone" code="39" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Acct-Status-Type" code="40" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Delay-Time" code="41" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Input-Octets" code="42" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Output-Octets" code="43" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Accounting-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Acct-Authentic" code="45" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Session-Time" code="46" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Input-Packets" code="47" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Output-Packets" code="48" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Terminate-Cause" code="49" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
 		<avp name="Accounting-Multi-Session-Id" code="50" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Acct-Link-Count" code="51" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Input-Gigawords" code="52" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Acct-Output-Gigawords" code="53" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Event-Timestamp" code="55" mandatory="must">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="CHAP-Challenge" code="60" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="NAS-Port-Type" code="61" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Port-Limit" code="62" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Login-LAT-Port" code="63" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Tunnel-Type" code="64" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Tunnel-Medium-Type" code="65" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Acct-Tunnel-Client-Endpoint" code="66" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Tunnel-Server-Endpoint" code="67" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Acct-Tunnel-Connection-ID" code="68" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Tunnel-Password" code="69" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ARAP-Password" code="70" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ARAP-Features" code="71" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="ARAP-Zone-Access" code="72" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="ARAP-Security" code="73" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="ARAP-Security-Data" code="74" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Password-Retry" code="75" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Prompt" code="76" mandatory="may">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Connect-Info" code="77" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Configuration-Token" code="78" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="EAP-Message" code="79" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Signature" code="80" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Acct-Interim-Interval" code="85" mandatory="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Framed-Interface-Id" code="96" mandatory="may">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="Framed-IPv6-Prefix" code="97" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
+		
+		<avp name="Accounting-Interim-Interval" code="482" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
@@ -501,9 +731,6 @@
 			<enum name="Start Record" code="2"/>
 			<enum name="Interim Record" code="3"/>
 			<enum name="Stop Record" code="4"/>
-		</avp>
-		<avp name="Accounting-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="AppId"/>
@@ -571,6 +798,11 @@
 		</avp>
 		<avp name="Error-Reporting-Host" code="294" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="E2E-Sequence" code="300" mandatory="must">
+			<grouped>
+				<gavp name="foo"/>
+			</grouped>
 		</avp>
 		<avp name="Failed-AVP" code="279" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
