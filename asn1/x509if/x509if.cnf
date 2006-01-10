@@ -232,7 +232,7 @@ DistinguishedName	B	"2.5.4.49"	"id-at-distinguishedName"
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
-  last_dn = ep_alloc(MAX_RDN_STR_LEN); *last_dn = '\0';
+  last_dn = ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
 
   %(DEFAULT_BODY)s
@@ -245,7 +245,9 @@ DistinguishedName	B	"2.5.4.49"	"id-at-distinguishedName"
      (fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s%%s", fmt, last_dn);
-    }
+  }
+
+  last_dn = NULL;
 
 #.FN_BODY RDNSequence/_item
 

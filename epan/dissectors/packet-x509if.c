@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x509if.c                                                          */
+/* ./packet-x509if.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
@@ -785,7 +785,7 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 int
 dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 262 "x509if.cnf"
+#line 264 "x509if.cnf"
 
 	ava_hf_index = hf_index;
 	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
@@ -954,7 +954,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 251 "x509if.cnf"
+#line 253 "x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -985,7 +985,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
-  last_dn = ep_alloc(MAX_RDN_STR_LEN); *last_dn = '\0';
+  last_dn = ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
 
     offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
@@ -1000,7 +1000,9 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
      (fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s%s", fmt, last_dn);
-    }
+  }
+
+  last_dn = NULL;
 
 
 
