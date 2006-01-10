@@ -201,7 +201,7 @@ ep_alloc(size_t size)
 	ep_packet_mem.free_list->amount_free-=size;
 	ep_packet_mem.free_list->free_offset+=size;
 
-	cptr = buf + size - EMEM_CANARY_SIZE;
+	cptr = (char *)buf + size - EMEM_CANARY_SIZE;
 	ep_packet_mem.free_list->canary[ep_packet_mem.free_list->c_count] = cptr;
 	memcpy(cptr, &ep_canary, EMEM_CANARY_SIZE);
 	ep_packet_mem.free_list->c_count++;
@@ -262,7 +262,7 @@ se_alloc(size_t size)
 	se_packet_mem.free_list->amount_free-=size;
 	se_packet_mem.free_list->free_offset+=size;
 
-	cptr = buf + size - EMEM_CANARY_SIZE;
+	cptr = (char *)buf + size - EMEM_CANARY_SIZE;
 	se_packet_mem.free_list->canary[se_packet_mem.free_list->c_count] = cptr;
 	memcpy(cptr, &se_canary, EMEM_CANARY_SIZE);
 	se_packet_mem.free_list->c_count++;
