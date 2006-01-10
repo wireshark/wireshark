@@ -3161,7 +3161,7 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 		if (*ptr->p_id != -1 && *ptr->p_id != 0) {
 			fprintf(stderr,
 			    "Duplicate field detected in call to proto_register_field_array: %s is already registered\n",
-			    hf->hfinfo.abbrev);
+			    ptr->hfinfo.abbrev);
 			return;
 		}
 
@@ -3257,10 +3257,13 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 
 		/* Check that the filter name (abbreviation) is legal;
 		 * it must contain only alphanumerics, '-', "_", and ".". */
-		for (p = hfinfo->abbrev; (c = *p) != '\0'; p++)
-			DISSECTOR_ASSERT(isalnum(c) || c == '-' || c == '_' ||
-			    c == '.');
-
+		for (p = hfinfo->abbrev; (c = *p) != '\0'; p++) {
+			if (!(isalnum(c) || c == '-' || c == '_' || c == '.')) {
+				fprintf(stderr, "OOPS: '%c' in '%s'\n", c, hfinfo->abbrev);
+				DISSECTOR_ASSERT(isalnum(c) || c == '-' || c == '_' ||
+			    		c == '.');
+			}
+		}
 		/* We allow multiple hfinfo's to be registered under the same
 		 * abbreviation. This was done for X.25, as, depending
 		 * on whether it's modulo-8 or modulo-128 operation,
