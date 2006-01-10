@@ -36,6 +36,8 @@
 #include <process.h>    /* getpid */
 #endif
 
+#include "svnversion.h"
+
 /*
  * Some globals so we can pass things to various routines
  */
@@ -207,45 +209,69 @@ set_time_adjustment(char *optarg)
 
 static void usage(void)
 {
+  fprintf(stderr, "Editcap %s"
+#ifdef SVNVERSION
+	  " (" SVNVERSION ")"
+#endif
+	  "\n", VERSION);
+  fprintf(stderr, "Edit and/or translate the format of capture files.\n");
+  fprintf(stderr, "See http://www.ethereal.com for more information.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "A single packet or a range of packets can be selected.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Packets:\n");
+  fprintf(stderr, "  -C <choplen>           chop each packet at the end by <choplen> bytes\n");
+  fprintf(stderr, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
+  fprintf(stderr, "                         that a particular packet byte will be randomly changed\n");
+  fprintf(stderr, "  -r                     keep the selected packets, default is to delete them\n");
+  fprintf(stderr, "  -s <snaplen>           truncate packets to max. <snaplen> bytes of data\n");
+  fprintf(stderr, "  -t <time adjustment>   adjust the timestamp of selected packets,\n");
+  fprintf(stderr, "                         <time adjustment> is in relative seconds (e.g. -0.5)\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Output File(s):\n");
+  fprintf(stderr, "  -c <packets per file>  split the packet output to different files,\n");
+  fprintf(stderr, "                         with a maximum of <packets per file> each\n");
+  fprintf(stderr, "  -F <capture type>      set the output file type, default is libpcap\n");
+  fprintf(stderr, "                         an empty \"-F\" option will list the file types\n");
+  fprintf(stderr, "  -T <encap type>        set the output file encapsulation type,\n");
+  fprintf(stderr, "                         default is the same as the input file\n");
+  fprintf(stderr, "                         an empty \"-T\" option will list the encapsulation types\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Miscellaneous:\n");
+  fprintf(stderr, "  -h                     display this help and exit\n");
+  fprintf(stderr, "  -v                     verbose output\n");
+  fprintf(stderr, "\n");
+}
+
+
+static void bad_option_help(int bad_opt) {
   int i;
   const char *string;
 
-  fprintf(stderr, "Usage: editcap [-c <packets per file>] [-C <choplen>] [-E <probability>]\n");
-  fprintf(stderr, "               [-F <capture type>] [-h] [-r] [-s <snaplen>]\n");
-  fprintf(stderr, "               [-t <time adjustment>] [-T <encap type>] [-v]\n");
-  fprintf(stderr, "               <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
-  fprintf(stderr, "  where\n");
-  fprintf(stderr, "       \t-c <packets per file> split the output to different files\n");
-  fprintf(stderr, "       \t-C <choplen> specifies that each packet should be chopped by\n");
-  fprintf(stderr, "       \t    <choplen> bytes of data at the packet end\n");
-  fprintf(stderr, "       \t-E <probability> specifies the probability (between 0.0 and 1.0 incl.)\n");
-  fprintf(stderr, "       \t    that a particular byte will have an error\n");
-  fprintf(stderr, "       \t-F <capture type> specifies the capture file type to write:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
-    if (wtap_dump_can_open(i))
-      fprintf(stderr, "       \t    %s - %s\n",
-        wtap_file_type_short_string(i), wtap_file_type_string(i));
+
+  switch(bad_opt) {
+  case'F':
+    fprintf(stderr, "The available capture file types for \"F\":\n");
+    for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+      if (wtap_dump_can_open(i))
+        fprintf(stderr, "    %s - %s\n",
+          wtap_file_type_short_string(i), wtap_file_type_string(i));
+    }
+    break;
+  case'T':
+    fprintf(stderr, "The available encapsulation types for \"T\":\n");
+    for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
+        string = wtap_encap_short_string(i);
+        if (string != NULL)
+          fprintf(stderr, "    %s - %s\n",
+            string, wtap_encap_string(i));
+    }
+    break;
+  default:
+    usage();
   }
-  fprintf(stderr, "       \t    default is libpcap\n");
-  fprintf(stderr, "       \t-h produces this help\n");
-  fprintf(stderr, "       \t-r specifies that the packets specified should be kept,\n");
-  fprintf(stderr, "            the default is to delete them\n");
-  fprintf(stderr, "       \t-s <snaplen> specifies that packets should be truncated to\n");
-  fprintf(stderr, "       \t    <snaplen> bytes of data\n");
-  fprintf(stderr, "       \t-t <time adjustment> specifies the time adjustment in seconds\n");
-  fprintf(stderr, "       \t    to be applied to selected packets (e.g. -0.5)\n");
-  fprintf(stderr, "       \t-T <encap type> specifies the encapsulation type to use:\n");
-  for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
-      string = wtap_encap_short_string(i);
-      if (string != NULL)
-        fprintf(stderr, "       \t    %s - %s\n",
-          string, wtap_encap_string(i));
-  }
-  fprintf(stderr, "       \t    default is the same as the input file\n");
-  fprintf(stderr, "       \t-v specifies verbose operation (slows down output),\n");
-  fprintf(stderr, "       \t    default is silent\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "  A single packet or a range of packets can be specified\n");
 }
 
 int main(int argc, char *argv[])
@@ -319,8 +345,12 @@ int main(int argc, char *argv[])
       }
       break;
 
-    case 'h':
     case '?':              /* Bad options if GNU getopt */
+      bad_option_help(optopt);
+      exit(1);
+      break;
+
+    case 'h':
       usage();
       exit(1);
       break;
