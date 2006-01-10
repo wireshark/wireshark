@@ -86,32 +86,55 @@ get_positive_int(const char *string, const char *name)
 static void
 usage(void)
 {
-  int i;
-  const char *string;
 
-  printf("Usage: mergecap [-hva] [-s <snaplen>] [-T <encap type>]\n");
-  printf("          [-F <capture type>] -w <outfile> <infile> [...]\n\n");
-  printf("  where\t-h produces this help listing.\n");
-  printf("       \t-v verbose operation, default is silent\n");
-  printf("       \t-a files should be concatenated, not merged\n");
-  printf("       \t     Default merges based on frame timestamps\n");
-  printf("       \t-s <snaplen>: truncate packets to <snaplen> bytes of data\n");
-  printf("       \t-w <outfile>: sets output filename to <outfile>\n");
-  printf("       \t-T <encap type> encapsulation type to use:\n");
-  for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
-      string = wtap_encap_short_string(i);
-      if (string != NULL)
-        printf("       \t     %s - %s\n",
-          string, wtap_encap_string(i));
-  }
-  printf("       \t     default is the same as the first input file\n");
-  printf("       \t-F <capture type> capture file type to write:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
-    if (wtap_dump_can_open(i))
-      printf("       \t     %s - %s\n",
-        wtap_file_type_short_string(i), wtap_file_type_string(i));
-  }
-  printf("       \t     default is libpcap\n");
+  fprintf(stderr, "Mergecap %s"
+#ifdef SVNVERSION
+	  " (" SVNVERSION ")"
+#endif
+	  "\n", VERSION);
+  fprintf(stderr, "Merge two or more capture files into one.\n");
+  fprintf(stderr, "See http://www.ethereal.com for more information.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Usage: mergecap [options] -w <outfile|-> <infile> ...\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Output:\n");
+  fprintf(stderr, "  -a                files should be concatenated, not merged\n");
+  fprintf(stderr, "                    Default merges based on frame timestamps\n");
+  fprintf(stderr, "  -s <snaplen>      truncate packets to <snaplen> bytes of data\n");
+  fprintf(stderr, "  -w <outfile|->    set the output filename to <outfile> or '-' for stdout\n");
+  fprintf(stderr, "  -F <capture type> set the output file type, default is libpcap\n");
+  fprintf(stderr, "                    an empty \"-F\" option will list the file types\n");
+  fprintf(stderr, "  -T <encap type>   set the output file encapsulation type,\n");
+  fprintf(stderr, "                    default is the same as the first input file\n");
+  fprintf(stderr, "                    an empty \"-T\" option will list the encapsulation types\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Miscellaneous:\n");
+  fprintf(stderr, "  -h                display this help and exit\n");
+  fprintf(stderr, "  -v                verbose output\n");
+}
+
+static void list_capture_types(void) {
+    int i;
+
+    fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
+    for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+      if (wtap_dump_can_open(i))
+        fprintf(stderr, "    %s - %s\n",
+          wtap_file_type_short_string(i), wtap_file_type_string(i));
+    }
+}
+
+static void list_encap_types(void) {
+    int i;
+    const char *string;
+
+    fprintf(stderr, "editcap: The available encapsulation types for \"T\":\n");
+    for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
+        string = wtap_encap_short_string(i);
+        if (string != NULL)
+          fprintf(stderr, "    %s - %s\n",
+            string, wtap_encap_string(i));
+    }
 }
 
 int
@@ -156,6 +179,7 @@ main(int argc, char *argv[])
       if (frame_type < 0) {
       	fprintf(stderr, "mergecap: \"%s\" isn't a valid encapsulation type\n",
       	    optarg);
+        list_encap_types();
       	exit(1);
       }
       break;
@@ -165,6 +189,7 @@ main(int argc, char *argv[])
       if (file_type < 0) {
       	fprintf(stderr, "mergecap: \"%s\" isn't a valid capture file type\n",
       	    optarg);
+        list_capture_types();
       	exit(1);
       }
       break;
@@ -178,18 +203,22 @@ main(int argc, char *argv[])
       break;
 
     case 'h':
-      printf("mergecap version %s"
-#ifdef SVNVERSION
-	  " (" SVNVERSION ")"
-#endif
-	  "\n", VERSION);
       usage();
       exit(0);
       break;
 
     case '?':              /* Bad options if GNU getopt */
-      usage();
-      return 1;
+      switch(optopt) {
+      case'F':
+        list_capture_types();
+        break;
+      case'T':
+        list_encap_types();
+        break;
+      default:
+        usage();
+      }
+      exit(1);
       break;
 
     }

@@ -6,12 +6,14 @@ mergecap - Merges two or more capture files into one
 =head1 SYNOPSYS
 
 B<mergecap>
-S<[ B<-hva> ]>
-S<[ B<-s> I<snaplen> ]>
-S<[ B<-F> I<file format> ]>
-S<[ B<-T> I<encapsulation type> ]>
-S<B<-w> I<outfile>|->
-I<infile>
+S<[ B<-a> ]>
+S<[ B<-F> E<lt>I<file format>E<gt> ]>
+S<[ B<-h> ]>
+S<[ B<-s> E<lt>I<snaplen>E<gt> ]>
+S<[ B<-T> E<lt>I<encapsulation type>E<gt> ]>
+S<[ B<-v> ]>
+S<B<-w> E<lt>I<outfile>E<gt>|->
+E<lt>I<infile>E<gt>
 I<...>
 
 =head1 DESCRIPTION
@@ -21,7 +23,98 @@ a single output file specified by the B<-w> argument.  B<Mergecap> knows
 how to read B<libpcap> capture files, including those of B<tcpdump>,
 B<Ethereal>, and other tools that write captures in that format.  
 
-B<Mergecap> can read / import the following file formats:
+By default, it writes the capture file in B<libpcap> format, and writes
+all of the packets in both input capture files to the output file.  
+
+Packets from the input files are merged in chronological order based on
+each frame's timestamp, unless the B<-a> flag is specified.  B<Mergecap>
+assumes that frames within a single capture file are already stored in
+chronological order.  When the B<-a> flag is specified, packets are
+copied directly from each input file to the output file, independent of
+each frame's timestamp.
+
+The output file frame encapsulation type is set to the type of the input
+files, if all input files have the same type.  If not all of the input
+files have the same frame encapsulation type, the output file type is
+set to WTAP_ENCAP_PER_PACKET.  Note that some capture file formats, most
+notably B<libpcap>, do not currently support WTAP_ENCAP_PER_PACKET.
+This combination will cause the output file creation to fail.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -a
+
+Causes the frame timestamps to be ignored, writing all packets from the
+first input file followed by all packets from the second input file.  By
+default, when B<-a> is not specified, the contents of the input files
+are merged in chronological order based on each frame's timestamp.
+
+Note: when merging, B<mergecap> assumes that packets within a capture
+file are already in chronological order.
+
+=item -F  E<lt>file formatE<gt>
+
+Sets the file format of the output capture file. B<Mergecap> can write 
+the file in several formats, B<mergecap -F> provides a list of the 
+available output formats. The default is to use the file format of the 
+first input file.
+
+=item -h
+
+Prints the version and options and exits.
+
+=item -s  E<lt>snaplenE<gt>
+
+Sets the snapshot length to use when writing the data.
+If the B<-s> flag is used to specify a snapshot length, frames in the
+input file with more captured data than the specified snapshot length
+will have only the amount of data specified by the snapshot length
+written to the output file.  This may be useful if the program that is
+to read the output file cannot handle packets larger than a certain size
+(for example, the versions of snoop in Solaris 2.5.1 and Solaris 2.6
+appear to reject Ethernet frames larger than the standard Ethernet MTU,
+making them incapable of handling gigabit Ethernet captures if jumbo
+frames were used).
+
+=item -v
+
+Causes B<mergecap> to print a number of messages while it's working.
+
+=item -w  E<lt>outfileE<gt>|-
+
+Sets the output filename. If the name is 'B<->', stdout will be used.
+This setting is mandatory.
+
+=item -T  E<lt>encapsulation typeE<gt>
+
+Sets the packet encapsulation type of the output capture file.
+If the B<-T> flag is used to specify a frame encapsulation type, the
+encapsulation type of the output capture file will be forced to the
+specified type, rather than being the type appropriate to the
+encapsulation type of the input capture files.  
+
+Note that this merely
+forces the encapsulation type of the output file to be the specified
+type; the packet headers of the packets will not be translated from the
+encapsulation type of the input capture file to the specified
+encapsulation type (for example, it will not translate an Ethernet
+capture to an FDDI capture if an Ethernet capture is read and 'B<-T
+fddi>' is specified).
+
+=back
+
+=head1 CAPTURE FILE FORMATS
+
+There is no need to tell B<Mergecap> what type of
+file you are reading; it will determine the file type by itself. 
+
+B<Mergecap> is also capable of reading any of these file formats if they
+are compressed using gzip.  B<Mergecap> recognizes this directly from
+the file; the '.gz' extension is not required for this purpose.
+
+The following I<input> file formats are supported:
 
 =over 4
 
@@ -105,96 +198,10 @@ Linux Bluez Bluetooth stack B<hcidump -w> traces
 
 =back
 
-There is no need to tell B<Mergecap> what type of
-file you are reading; it will determine the file type by itself. 
-B<Mergecap> is also capable of reading any of these file formats if they
-are compressed using gzip.  B<Mergecap> recognizes this directly from
-the file; the '.gz' extension is not required for this purpose.
-
-By default, it writes the capture file in B<libpcap> format, and writes
-all of the packets in both input capture files to the output file.  The
-B<-F> flag can be used to specify the format in which to write the
-capture file; it can write the file in B<libpcap> format (standard
-B<libpcap> format, a modified format used by some patched versions of
-B<libpcap>, the format used by Red Hat Linux 6.1, or the format used by
-SuSE Linux 6.3), B<snoop> format, uncompressed B<Sniffer> format,
-Microsoft B<Network Monitor> 1.x format, the format used by
-Windows-based versions of the B<Sniffer> software, and the format used
-by Visual Networks' software.
-
-Packets from the input files are merged in chronological order based on
-each frame's timestamp, unless the B<-a> flag is specified.  B<Mergecap>
-assumes that frames within a single capture file are already stored in
-chronological order.  When the B<-a> flag is specified, packets are
-copied directly from each input file to the output file, independent of
-each frame's timestamp.
-
-If the B<-s> flag is used to specify a snapshot length, frames in the
-input file with more captured data than the specified snapshot length
-will have only the amount of data specified by the snapshot length
-written to the output file.  This may be useful if the program that is
-to read the output file cannot handle packets larger than a certain size
-(for example, the versions of snoop in Solaris 2.5.1 and Solaris 2.6
-appear to reject Ethernet frames larger than the standard Ethernet MTU,
-making them incapable of handling gigabit Ethernet captures if jumbo
-frames were used).
-
-The output file frame encapsulation type is set to the type of the input
-files, if all input files have the same type.  If not all of the input
-files have the same frame encapsulation type, the output file type is
-set to WTAP_ENCAP_PER_PACKET.  Note that some capture file formats, most
-notably B<libpcap>, do not currently support WTAP_ENCAP_PER_PACKET.
-This combination will cause the output file creation to fail.
-
-If the B<-T> flag is used to specify a frame encapsulation type, the
-encapsulation type of the output capture file will be forced to the
-specified type, rather than being the type appropriate to the
-encapsulation type of the input capture files.  Note that this merely
-forces the encapsulation type of the output file to be the specified
-type; the packet headers of the packets will not be translated from the
-encapsulation type of the input capture file to the specified
-encapsulation type (for example, it will not translate an Ethernet
-capture to an FDDI capture if an Ethernet capture is read and 'B<-T
-fddi>' is specified).
-
-=head1 OPTIONS
-
-=over 4
-
-=item -w
-
-Sets the output filename. If the name is 'B<->', stdout will be used.
-
-=item -F
-
-Sets the file format of the output capture file.
-
-=item -T
-
-Sets the packet encapsulation type of the output capture file.
-
-=item -a
-
-Causes the frame timestamps to be ignored, writing all packets from the
-first input file followed by all packets from the second input file.  By
-default, when B<-a> is not specified, the contents of the input files
-are merged in chronological order based on each frame's timestamp.
-Note: when merging, B<mergecap> assumes that packets within a capture
-file are already in chronological order.
-
-=item -v
-
-Causes B<mergecap> to print a number of messages while it's working.
-
-=item -s
-
-Sets the snapshot length to use when writing the data.
-
-=item -h
-
-Prints the version and options and exits.
-
-=back
+B<Mergecap> can write the file in several output formats.
+The B<-F> flag can be used to specify the format in which to write the
+capture file, B<mergecap -F> provides a list of the available output 
+formats.
 
 =head1 SEE ALSO
 
