@@ -660,7 +660,7 @@ xmlParseCommand(xmlNodePtr cur)
 
 /* This routine adds an application to the name<-> id table */
 static int
-dictionaryAddApplication(char *name, int id)
+dictionaryAddApplication(char *name, guint32 id)
 {
   ApplicationId *entry;
 
@@ -751,9 +751,8 @@ xmlDictionaryParseSegment(xmlNodePtr cur, int base)
 				name?name:"NULL", id?id:"NULL");
 	  return -1;
 	}
-
 	/* Add the application */
-	if (dictionaryAddApplication(name, atol(id)) != 0) {
+	if (dictionaryAddApplication(name, (guint32)atol(id)) != 0) {
 	  /* ERROR! */
 	  return -1;
 	}
