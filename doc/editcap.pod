@@ -6,15 +6,15 @@ editcap - Edit and/or translate the format of capture files
 =head1 SYNOPSYS
 
 B<editcap>
-S<[ B<-c> packets per file]>
-S<[ B<-C> choplen ]>
-S<[ B<-E> error probability]>
-S<[ B<-F> file format ]>
+S<[ B<-c> E<lt>packets per fileE<gt> ]>
+S<[ B<-C> E<lt>choplenE<gt> ]>
+S<[ B<-E> E<lt>error probabilityE<gt> ]>
+S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-r> ]>
-S<[ B<-s> snaplen ]>
-S<[ B<-t> time adjustment ]>
-S<[ B<-T> encapsulation type ]>
+S<[ B<-s> E<lt>snaplenE<gt> ]>
+S<[ B<-t> E<lt>time adjustmentE<gt> ]>
+S<[ B<-T> E<lt>encapsulation typeE<gt> ]>
 S<[ B<-v> ]>
 I<infile>
 I<outfile>
@@ -42,14 +42,14 @@ The supported input and output capture file formats are described in a section b
 
 =over 4
 
-=item -c  packets per file
+=item -c  E<lt>packets per fileE<gt>
 
 Sets the maximum number of packets per output file. Each output file will 
 be created with a suffix -nnnnn, starting with 00000. If the specified 
 number of packets are written to the output file, the next output file is 
-opened. 
+opened. The default is to use a single output file.
 
-=item -C  choplen
+=item -C  E<lt>choplenE<gt>
 
 Sets the chop length to use when writing the packet data.
 Each packet is chopped at the packet end by a few <choplen> bytes of data.
@@ -57,7 +57,7 @@ Each packet is chopped at the packet end by a few <choplen> bytes of data.
 This is useful in the rare case that the conversion between two file 
 formats leaves some random bytes at the end of each packet.
 
-=item -E  error probability
+=item -E  E<lt>error probabilityE<gt>
 
 Sets the probabilty that bytes in the output file are randomly changed.
 B<Editcap> uses that probability (between 0.0 and 1.0 inclusive) 
@@ -66,11 +66,12 @@ probability of 0.02 means that each byte has a 2% chance of having an error.
 
 This option is meant to be used for fuzz-testing protocol dissectors.
 
-=item -F  file format
+=item -F  E<lt>file formatE<gt>
 
 Sets the file format of the output capture file.
-B<Editcap> can write the file in several formats, B<editcap -h> 
-provides a complete list of the available output formats.
+B<Editcap> can write the file in several formats, B<editcap -F> 
+provides a list of the available output formats. The default
+is the B<libpcap> format.
 
 =item -h
 
@@ -82,7 +83,7 @@ Reverse the packet selection.
 Causes the packets whose packet numbers are specified on the command
 line to be written to the output capture file, instead of discarding them.
 
-=item -s  snaplen
+=item -s  E<lt>snaplenE<gt>
 
 Sets the snapshot length to use when writing the data.
 If the B<-s> flag is used to specify a snapshot length, packets in the
@@ -97,7 +98,7 @@ appear to reject Ethernet packets larger than the standard Ethernet MTU,
 making them incapable of handling gigabit Ethernet captures if jumbo
 packets were used).
 
-=item -t  time adjustment
+=item -t  E<lt>time adjustmentE<gt>
 
 Sets the time adjustment to use on selected packets.
 If the B<-t> flag is used to specify a time adjustment, the specified
@@ -111,13 +112,15 @@ This feature is useful when synchronizing dumps
 collected on different machines where the time difference between the
 two machines is known or can be estimated.
 
-=item -T  encapsulation type
+=item -T  E<lt>encapsulation typeE<gt>
 
 Sets the packet encapsulation type of the output capture file.
 If the B<-T> flag is used to specify an encapsulation type, the
 encapsulation type of the output capture file will be forced to the
-specified type, rather than being the type appropriate to the
-encapsulation type of the input capture file.
+specified type. 
+B<editcap -T> provides a list of the available types. The default
+type is the one appropriate to the encapsulation type of the input 
+capture file.
 
 Note: this merely
 forces the encapsulation type of the output file to be the specified
@@ -266,7 +269,7 @@ Linux Bluez Bluetooth stack B<hcidump -w> traces
 
 B<Editcap> can write the file in several output formats. The B<-F>
 flag can be used to specify the format in which to write the capture
-file, B<editcap -h> provides
+file, B<editcap -F> provides
 a list of the available output formats.
 
 =head1 SEE ALSO
