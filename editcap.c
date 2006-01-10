@@ -245,33 +245,28 @@ static void usage(void)
   fprintf(stderr, "\n");
 }
 
+static void list_capture_types(void) {
+    int i;
 
-static void bad_option_help(int bad_opt) {
-  int i;
-  const char *string;
-
-
-  switch(bad_opt) {
-  case'F':
-    fprintf(stderr, "The available capture file types for \"F\":\n");
+    fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
     for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
       if (wtap_dump_can_open(i))
         fprintf(stderr, "    %s - %s\n",
           wtap_file_type_short_string(i), wtap_file_type_string(i));
     }
-    break;
-  case'T':
-    fprintf(stderr, "The available encapsulation types for \"T\":\n");
+}
+
+static void list_encap_types(void) {
+    int i;
+    const char *string;
+
+    fprintf(stderr, "editcap: The available encapsulation types for \"T\":\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
         string = wtap_encap_short_string(i);
         if (string != NULL)
           fprintf(stderr, "    %s - %s\n",
             string, wtap_encap_string(i));
     }
-    break;
-  default:
-    usage();
-  }
 }
 
 int main(int argc, char *argv[])
@@ -316,8 +311,9 @@ int main(int argc, char *argv[])
     case 'F':
       out_file_type = wtap_short_string_to_file_type(optarg);
       if (out_file_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n",
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
       	    optarg);
+        list_capture_types();
       	exit(1);
       }
       break;
@@ -346,7 +342,16 @@ int main(int argc, char *argv[])
       break;
 
     case '?':              /* Bad options if GNU getopt */
-      bad_option_help(optopt);
+      switch(optopt) {
+      case'F':
+        list_capture_types();
+        break;
+      case'T':
+        list_encap_types();
+        break;
+      default:
+        usage();
+      }
       exit(1);
       break;
 
@@ -375,8 +380,9 @@ int main(int argc, char *argv[])
     case 'T':
       out_frame_type = wtap_short_string_to_encap(optarg);
       if (out_frame_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n",
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
       	    optarg);
+        list_encap_types();
       	exit(1);
       }
       break;
