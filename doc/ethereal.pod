@@ -6,34 +6,34 @@ ethereal - Interactively browse network traffic
 =head1 SYNOPSYS
 
 B<ethereal>
-S<[ B<-a> capture autostop condition ] ...>
-S<[ B<-b> capture ring buffer option ] ...>
-S<[ B<-B> capture buffer size (Win32 only) ] >
-S<[ B<-c> capture packet count ]>
+S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
+S<[ B<-b> E<lt>capture ring buffer optionE<gt> ] ...>
+S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
+S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-D> ]>
-S<[ B<-f> capture filter ]>
-S<[ B<-g> packet number ]>
+S<[ B<-f> E<lt>capture filterE<gt> ]>
+S<[ B<-g> E<lt>packet numberE<gt> ]>
 S<[ B<-h> ]>
-S<[ B<-i> capture interface ]> 
+S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
 S<[ B<-k> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
-S<[ B<-m> font ]>
+S<[ B<-m> E<lt>fontE<gt> ]>
 S<[ B<-n> ]>
-S<[ B<-N> name resolving flags ] >
-S<[ B<-o> preference/recent setting ] ...>
+S<[ B<-N> E<lt>name resolving flagsE<gt> ] >
+S<[ B<-o> E<lt>preference/recent settingE<gt> ] ...>
 S<[ B<-p> ]>
 S<[ B<-Q> ]>
-S<[ B<-r> infile ]>
-S<[ B<-R> read (display) filter ]>
+S<[ B<-r> E<lt>infileE<gt> ]>
+S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-S> ]>
-S<[ B<-s> capture snaplen ]>
-S<[ B<-t> time stamp format ]>
+S<[ B<-s> E<lt>capture snaplenE<gt> ]>
+S<[ B<-t> E<lt>time stamp formatE<gt> ]>
 S<[ B<-v> ]>
-S<[ B<-w> savefile]>
-S<[ B<-y> capture link type ]>
-S<[ B<-z> statistics ]>
-S<[ infile ]>
+S<[ B<-w> E<lt>outfileE<gt> ]>
+S<[ B<-y> E<lt>capture link typeE<gt> ]>
+S<[ B<-z> E<lt>statisticsE<gt> ]>
+S<[ E<lt>infileE<gt> ]>
 
 =head1 DESCRIPTION
 
@@ -166,7 +166,7 @@ B<-r> option or can be specified as a command-line argument.
 Most users will want to start B<Ethereal> without options and configure
 it from the menus instead. Those users may just skip this section.
 
-=item -a
+=item -a  E<lt>capture autostop conditionE<gt>
 
 Specify a criterion that specifies when B<Ethereal> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
@@ -181,7 +181,7 @@ current capture file and switch to the next one if filesize is reached.
 
 B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
 
-=item -b
+=item -b  E<lt>capture ring buffer optionE<gt>
 
 Cause B<Ethereal> to run in "multiple files" mode.  In "multiple files" mode, 
 B<Ethereal> will write to several capture files. When the first capture file 
@@ -189,7 +189,7 @@ fills up, B<Ethereal> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> flag, the number of 
 the file and on the creation date and time, 
-e.g. savefile_00001_20050604120117.pcap, savefile_00001_20050604120523.pcap, ...
+e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer". 
 This will fill up new files until the number of files specified, 
@@ -210,13 +210,13 @@ I<value> kilobytes (where a kilobyte is 1024 bytes).
 B<files>:I<value> begin again with the first file after I<value> number of 
 files were written (form a ring buffer).
 
-=item -B
+=item -B  E<lt>capture buffer size (Win32 only)E<gt>
 
 Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
 the capture driver to buffer packet data until that data can be written to 
 disk. If you encounter packet drops while capturing, try to increase this size.
 
-=item -c
+=item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
 data.
@@ -240,11 +240,11 @@ network capture must be run from an account with special privileges (for
 example, as root), then, if B<Ethereal> is run with the B<-D> flag and
 is not run from such an account, it will not list any interfaces.
 
-=item -f
+=item -f  E<lt>capture filterE<gt>
 
 Set the capture filter expression.
 
-=item -g
+=item -g  E<lt>packet numberE<gt>
 
 After reading in a capture file using the B<-r> flag, go to the given I<packet number>.
 
@@ -252,7 +252,7 @@ After reading in a capture file using the B<-r> flag, go to the given I<packet n
 
 Print the version and options and exit.
 
-=item -i
+=item -i  E<lt>capture interfaceE<gt>|-
 
 Set the name of the network interface or pipe to use for live packet
 capture. 
@@ -266,12 +266,15 @@ although not all versions of UNIX support the B<-a> flag to B<ifconfig>.
 If no interface is specified, B<Ethereal> searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
-there are no non-loopback interfaces; if there are no interfaces,
+there are no non-loopback interfaces. If there are no interfaces at all,
 B<Ethereal> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
+
+Note: the Win32 version of B<Ethereal> doesn't support capturing from
+pipes or stdin!
 
 =item -k
 
@@ -293,7 +296,7 @@ B<-S> flag).
 
 List the data link types supported by the interface and exit.
 
-=item -m
+=item -m  E<lt>fontE<gt>
 
 Set the name of the font used by B<Ethereal> for most text.  B<Ethereal>
 will construct the name of the bold font used for the data in the byte
@@ -305,7 +308,7 @@ pane from the name of the main text font.
 Disable network object name resolution (such as hostname, TCP and UDP port
 names), the B<-N> flag might override this one.
 
-=item -N
+=item -N  E<lt>name resolving flagsE<gt>
 
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
@@ -323,7 +326,7 @@ B<t> to enable transport-layer port number resolution
 
 B<C> to enable concurrent (asynchronous) DNS lookups
 
-=item -o
+=item -o  E<lt>preference/recent settingE<gt>
 
 Set a preference or recent value, overriding the default value and any value 
 read from a preference/recent file. The argument to the flag is a string of 
@@ -348,11 +351,13 @@ Cause B<Ethereal> to exit after the end of capture session (useful in
 batch mode with B<-c> option for instance); this option requires the
 B<-i> and B<-w> parameters.
 
-=item -r
+=item -r  E<lt>infileE<gt>
 
-Read packet data from I<infile>.
+Read packet data from I<infile>, can be any supported capture file format 
+(including gzipped files). It's not possible to use named pipes or stdin 
+here!
 
-=item -R
+=item -R  E<lt>read (display) filterE<gt>
 
 When reading a capture file specified with the B<-r> flag, causes the
 specified filter (which uses the syntax of display filters, rather than
@@ -363,13 +368,13 @@ capture file; packets not matching the filter are discarded.
 
 Automatically update the packet display as packets are coming in.
 
-=item -s
+=item -s  E<lt>capture snaplenE<gt>
 
 Set the default snapshot length to use when capturing live data. 
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.
 
-=item -t
+=item -t  E<lt>time stamp formatE<gt>
 
 Set the format of the packet timestamp displayed in the packet list
 window, the default is relative. The format can be one of:
@@ -390,17 +395,17 @@ captured
 
 Print the version and exit.
 
-=item -w
+=item -w  E<lt>outfileE<gt>
 
 Set the default capture file name.
 
-=item -y
+=item -y  E<lt>capture link typeE<gt>
 
 If a capture is started from the command line with B<-k>, set the data
 link type to use while capturing packets.  The values reported by B<-L>
 are the values that can be used.
 
-=item -z
+=item -z  E<lt>statisticsE<gt>
 
 Get B<Ethereal> to collect various types of statistics and display the result
 in a window that updates in semi-real time.
