@@ -240,6 +240,9 @@ Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
 
+Note: the Win32 version of B<Tethereal> doesn't support capturing from
+pipes or stdin!
+
 =item -l
 
 Flush the standard output after the information for each packet is
