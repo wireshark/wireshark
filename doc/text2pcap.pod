@@ -10,22 +10,22 @@ S<[ B<-h> ]>
 S<[ B<-d> ]>
 S<[ B<-q> ]>
 S<[ B<-o> hex|oct ]>
-S<[ B<-l> typenum ]>
-S<[ B<-e> l3pid ]>
-S<[ B<-i> proto ]>
-S<[ B<-m> max-packet ]>
-S<[ B<-u> srcport,destport ]>
-S<[ B<-T> srcport,destport ]>
-S<[ B<-s> srcport,destport,tag ]>
-S<[ B<-S> srcport,destport,ppi ]>
-S<[ B<-t> timefmt ]>
-I<infile>
-I<outfile>
+S<[ B<-l> E<lt>typenumE<gt> ]>
+S<[ B<-e> E<lt>l3pidE<gt> ]>
+S<[ B<-i> E<lt>protoE<gt> ]>
+S<[ B<-m> E<lt>max-packetE<gt> ]>
+S<[ B<-u> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
+S<[ B<-T> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
+S<[ B<-s> E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>tagE<gt> ]>
+S<[ B<-S> E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>ppiE<gt> ]>
+S<[ B<-t> E<lt>timefmtE<gt> ]>
+E<lt>I<infile>E<gt>|-
+E<lt>I<outfile>E<gt>|-
 
 =head1 DESCRIPTION
 
 B<Text2pcap> is a program that reads in an ASCII hex dump and writes the
-data described into a B<libpcap>-style capture file.  B<text2pcap> can
+data described into a B<libpcap> capture file.  B<text2pcap> can
 read hexdumps with multiple packets in them, and build a capture file of
 multiple packets.  B<text2pcap> is also capable of generating dummy
 Ethernet, IP and UDP, TCP, or SCTP headers, in order to build fully
@@ -110,7 +110,7 @@ encapsulations. Note that this option should be used if your dump is a
 complete hex dump of an encapsulated packet and you wish to specify
 the exact type of encapsulation. Example: I<-l 7> for ARCNet packets.
 
-=item -e l3pid
+=item -e E<lt>l3pidE<gt>
 
 Include a dummy Ethernet header before each packet. Specify the L3PID
 for the Ethernet header in hex. Use this option if your dump has Layer
@@ -123,7 +123,7 @@ I<-l 12> does not work for any non-IP Layer 3 packet (e.g. ARP),
 whereas generating a dummy Ethernet header with I<-e> works for any
 sort of L3 packet.
 
-=item -i proto
+=item -i E<lt>protoE<gt>
 
 Include dummy IP headers before each packet. Specify the IP protocol
 for the packet in decimal. Use this option if your dump is the payload
@@ -132,7 +132,7 @@ an IP header. Note that this automatically includes an appropriate
 Ethernet header as well. Example: I<-i 46> to specify an RSVP packet
 (IP protocol 46).
 
-=item -m max-packet
+=item -m E<lt>max-packetE<gt>
 
 Set the maximum packet length, default is 64000.
 Useful for testing various packet boundaries when only an application
@@ -143,7 +143,7 @@ I<od -Ax -tx1 stream | text2pcap -m1460 -T1234,1234 - stream.pcap>
 will convert from plain datastream format to a sequence of Ethernet
 TCP packets.
 
-=item -u srcport,destport
+=item -u E<lt>srcportE<gt>,E<lt>destportE<gt>
 
 Include dummy UDP headers before each packet. Specify the source and
 destination UDP ports for the packet in decimal. Use this option if
@@ -152,7 +152,7 @@ IP or Ethernet headers. Note that this automatically includes
 appropriate Ethernet and IP headers with each packet. Example: I<-u
 1000,69> to make the packets look like TFTP/UDP packets.
 
-=item -T srcport,destport
+=item -T E<lt>srcportE<gt>,E<lt>destportE<gt>
 
 Include dummy TCP headers before each packet. Specify the source and
 destination TCP ports for the packet in decimal. Use this option if
@@ -161,7 +161,7 @@ IP or Ethernet headers. Note that this automatically includes
 appropriate Ethernet and IP headers with each packet.
 Sequence numbers will start a 0.
 
-=item -s srcport,destport,tag
+=item -s E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>tagE<gt>
 
 Include dummy SCTP headers before each packet.  Specify, in decimal, the
 source and destination SCTP ports, and verification tag, for the packet. 
@@ -170,7 +170,7 @@ not include any SCTP, IP or Ethernet headers.  Note that this
 automatically includes appropriate Ethernet and IP headers with each
 packet.  A CRC32C checksum will be put into the SCTP header.
 
-=item -S srcport,destport,ppi
+=item -S E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>ppiE<gt>
 
 Include dummy SCTP headers before each packet.  Specify, in decimal, the
 source and destination SCTP ports, and a verification tag of 0, for the
@@ -181,7 +181,7 @@ headers.  Note that this automatically includes appropriate Ethernet and
 IP headers with each packet.  A CRC32C checksum will be put into the
 SCTP header.
 
-=item -t timefmt
+=item -t E<lt>timefmtE<gt>
 
 Treats the text before the packet as a date/time code; I<timefmt> is a
 format string of the sort supported by B<strptime(3)>.
@@ -195,7 +195,7 @@ a second.
 
 =head1 SEE ALSO
 
-I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<editcap(1)>, I<strptime(3)>.
+I<od(1)>, I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<editcap(1)>, I<strptime(3)>.
 
 =head1 NOTES
 
