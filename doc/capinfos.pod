@@ -31,7 +31,7 @@ will report all statistics available.
 
 B<Capinfos> is able to detect and read the same capture files that are 
 supported by B<Ethereal>.
-The input file doesn't need a specific filename extension, the file 
+The input files don't need a specific filename extension, the file 
 format and an optional gzip compression will be automatically detected.
 The I<capture file format> section of I<ethereal(1)> or
 I<http://www.ethereal.com/docs/man-pages/ethereal.1.html>

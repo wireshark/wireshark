@@ -26,6 +26,19 @@ B<Ethereal>, and other tools that write captures in that format.
 By default, it writes the capture file in B<libpcap> format, and writes
 all of the packets in both input capture files to the output file.  
 
+B<Mergecap> is able to detect, read and write the same capture files that 
+are supported by B<Ethereal>.
+The input files don't need a specific filename extension, the file 
+format and an optional gzip compression will be automatically detected.
+The I<capture file format> section of I<ethereal(1)> or
+I<http://www.ethereal.com/docs/man-pages/ethereal.1.html>
+provides a detailed description.
+
+B<Mergecap> can write the file in several output formats.
+The B<-F> flag can be used to specify the format in which to write the
+capture file, B<mergecap -F> provides a list of the available output 
+formats.
+
 Packets from the input files are merged in chronological order based on
 each frame's timestamp, unless the B<-a> flag is specified.  B<Mergecap>
 assumes that frames within a single capture file are already stored in
@@ -105,104 +118,6 @@ fddi>' is specified).
 
 =back
 
-=head1 CAPTURE FILE FORMATS
-
-There is no need to tell B<Mergecap> what type of
-file you are reading; it will determine the file type by itself. 
-
-B<Mergecap> is also capable of reading any of these file formats if they
-are compressed using gzip.  B<Mergecap> recognizes this directly from
-the file; the '.gz' extension is not required for this purpose.
-
-The following I<input> file formats are supported:
-
-=over 4
-
-=item *
-libpcap/WinPcap, tcpdump and various other tools using tcpdump's capture format
-
-=item *
-B<snoop> and B<atmsnoop>
-
-=item *
-Shomiti/Finisar B<Surveyor> captures
-
-=item *
-Novell B<LANalyzer> captures
-
-=item *
-Microsoft B<Network Monitor> captures
-
-=item *
-AIX's B<iptrace> captures
-
-=item *
-Cinco Networks B<NetXRay> captures
-
-=item *
-Network Associates Windows-based B<Sniffer> captures
-
-=item *
-Network General/Network Associates DOS-based B<Sniffer> (compressed or uncompressed) captures
-
-=item *
-AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/B<PacketGrabber> captures
-
-=item *
-B<RADCOM>'s WAN/LAN analyzer captures
-
-=item *
-Network Instruments B<Observer> version 9 captures
-
-=item *
-B<Lucent/Ascend> router debug output
-
-=item *
-files from HP-UX's B<nettl>
-
-=item *
-B<Toshiba's> ISDN routers dump output
-
-=item *
-the output from B<i4btrace> from the ISDN4BSD project
-
-=item *
-traces from the B<EyeSDN> USB S0.
-
-=item *
-the output in B<IPLog> format from the Cisco Secure Intrusion Detection System
-
-=item *
-B<pppd logs> (pppdump format)
-
-=item *
-the output from VMS's B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities
-
-=item *
-the text output from the B<DBS Etherwatch> VMS utility
-
-=item *
-Visual Networks' B<Visual UpTime> traffic capture
-
-=item *
-the output from B<CoSine> L2 debug
-
-=item *
-the output from Accellent's B<5Views> LAN agents
-
-=item *
-Endace Measurement Systems' ERF format captures 
-
-=item *
-Linux Bluez Bluetooth stack B<hcidump -w> traces
-
-=back
-
-B<Mergecap> can write the file in several output formats.
-The B<-F> flag can be used to specify the format in which to write the
-capture file, B<mergecap -F> provides a list of the available output 
-formats.
-
 =head1 SEE ALSO
 
 I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<editcap(1)>
@@ -214,6 +129,9 @@ B<Mergecap> is based heavily upon B<editcap> by Richard Sharpe
 
 B<Mergecap> is part of the B<Ethereal> distribution.  The latest version
 of B<Ethereal> can be found at B<http://www.ethereal.com>.
+
+HTML versions of the Ethereal project man pages are available at:
+http://www.ethereal.com/docs/man-pages
 
 =head1 AUTHORS
 
