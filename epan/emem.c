@@ -110,8 +110,8 @@ emem_canary(guint8 *canary) {
 	FILE *fp;
 	size_t sz;
 	/* Try /dev/urandom */
-	if (fp = eth_fopen("/dev/urandom", 0)) {
-		sz = fread(canary, EMEM_CANARY_DATA_SIZE, 1, fd);
+	if ((fp = eth_fopen("/dev/urandom", 0)) != NULL) {
+		sz = fread(canary, EMEM_CANARY_DATA_SIZE, 1, fp);
 		fclose(fp);
 		if (sz == EMEM_CANARY_SIZE) {
 			return;
@@ -131,7 +131,7 @@ emem_canary(guint8 *canary) {
  * Given an allocation size, return the amount of padding needed for
  * the canary value.
  */
-guint8
+static guint8
 emem_canary_pad (size_t allocation) {
 	guint8 pad;
 
@@ -524,6 +524,7 @@ ep_free_all(void)
 	while (npc != NULL) {
 #ifndef EP_DEBUG_FREE
 		for (i = 0; i < npc->c_count; i++) {
+			/* XXX - This isn't very graceful */
 			g_assert(memcmp(npc->canary[i], &ep_canary, npc->cmp_len[i]) == 0);
 		}
 		npc->c_count = 0;
@@ -564,6 +565,7 @@ se_free_all(void)
 	while (npc != NULL) {
 #ifndef SE_DEBUG_FREE
 		for (i = 0; i < npc->c_count; i++) {
+			/* XXX - This isn't very graceful */
 			g_assert(memcmp(npc->canary[i], &se_canary, npc->cmp_len[i]) == 0);
 		}
 		npc->c_count = 0;
