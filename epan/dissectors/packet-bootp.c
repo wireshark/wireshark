@@ -112,6 +112,7 @@ static int hf_bootp_fqdn_asciiname = -1;
 static int hf_bootp_pkt_mtacap_len = -1;
 static int hf_bootp_docsis_cmcap_len = -1;
 static int hf_bootp_hw_ether_addr = -1;
+static int hf_bootp_alcatel_vid = -1;
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
@@ -593,6 +594,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	int			o52voff, o52eoff;
 	gboolean		o52at_end;
 	gboolean		skip_opaque = FALSE;
+	int			s_option;
+	int			ava_vid;
+	
 
 	static const value_string slpda_vals[] = {
 	    {0x00,   "Dynamic Discovery" },
@@ -789,6 +793,31 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 43:	/* Vendor-Specific Info */
+		s_option = tvb_get_guint8(tvb, optoff);
+
+		if (optlen == 5 && s_option == 58) 
+		{				
+				vti = proto_tree_add_text(bp_tree, tvb, voff,
+					consumed, "Option %d: %s (Alcatel AVA)", code, text);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+
+				ava_vid =  tvb_get_ntohs(tvb, optoff + 2);
+
+				proto_tree_add_uint (v_tree, hf_bootp_alcatel_vid, tvb, optoff + 2,
+					2, ava_vid);
+
+				if (ava_vid == 65535)
+				{
+					proto_tree_add_text (v_tree, tvb, optoff + 2,
+						2, "Type: Request from TSC IP Phone");
+				} else {
+					proto_tree_add_text (v_tree, tvb, optoff + 2,
+						2, "Type: Response from Server");
+				}
+
+				break;
+		}
+
 		/* PXE protocol 2.1 as described in the intel specs */
 		if (*vendor_class_id_p != NULL &&
 		    strncmp(*vendor_class_id_p, "PXEClient", strlen("PXEClient")) == 0) {
@@ -3138,10 +3167,16 @@ proto_register_bootp(void)
       { "PacketCable MTA Device Capabilities Length",	"bootp.vendor.pktc.mtacap_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "PacketCable MTA Device Capabilities Length", HFILL }},
+
     { &hf_bootp_docsis_cmcap_len,
       { "DOCSIS CM Device Capabilities Length",	"bootp.vendor.docsis.cmcap_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
+
+    { &hf_bootp_alcatel_vid,
+      { "Voice VLAN ID",	"bootp.vendor.alcatel.vid",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Alcatel VLAN ID to define Voice VLAN", HFILL }},
   };
 
   static gint *ett[] = {

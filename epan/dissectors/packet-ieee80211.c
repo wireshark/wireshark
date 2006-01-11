@@ -539,6 +539,7 @@ static int tag_length = -1;
 static int tag_interpretation = -1;
 static int tag_oui = -1;
 
+
 static int tim_length = -1;
 static int tim_dtim_count = -1;
 static int tim_dtim_period = -1;
@@ -568,6 +569,16 @@ static int hf_aironet_ie_qos_unk1 = -1;
 static int hf_aironet_ie_qos_paramset = -1;
 static int hf_aironet_ie_qos_val = -1;
 
+/*QBSS - Version 1,2,802.11e*/
+
+static int hf_qbss2_cal = -1;
+static int hf_qbss2_gl = -1;
+static int hf_qbss_cu = -1;
+static int hf_qbss2_cu = -1;
+static int hf_qbss_scount = -1;
+static int hf_qbss2_scount = -1;
+static int hf_qbss_version = -1;
+static int hf_qbss_adc = -1;
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -1390,6 +1401,7 @@ static int
 add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
 {
   guint32 oui;
+  guint8 type;
   const guint8 *tag_val;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
@@ -1656,6 +1668,51 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       break;
 
+    case TAG_QBSS_LOAD:  
+      if (tag_len < 4 || tag_len >5)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Wrong QBSS Tag Length", tag_len);
+        break;
+      }
+
+      if (tag_len == 4)
+      {
+        /* QBSS Version 1 */
+        proto_tree_add_string (tree, tag_interpretation, tvb, offset + 1,
+          tag_len, "Cisco QBSS Version 1 - non CCA");
+
+        /* Extract Values */
+        proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 1);
+
+        proto_tree_add_uint (tree, hf_qbss_scount, tvb, offset + 2,
+          2, tvb_get_guint8(tvb, offset + 2));
+
+        proto_tree_add_uint (tree, hf_qbss_cu, tvb, offset + 4,
+          1, tvb_get_guint8(tvb, offset + 4));
+
+        proto_tree_add_uint (tree, hf_qbss_adc, tvb, offset + 5,
+          1, tvb_get_guint8(tvb, offset + 5));
+      } 
+      else if (tag_len == 5)
+      {
+         /* QBSS Version 2 */
+         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+           tag_len, "802.11e CCA Version");
+
+         /* Extract Values */
+         proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 2);
+
+         proto_tree_add_uint (tree, hf_qbss_scount, tvb, offset + 2,
+           2, tvb_get_guint8(tvb, offset + 2));
+
+         proto_tree_add_uint (tree, hf_qbss_cu, tvb, offset + 4,
+           1, tvb_get_guint8(tvb, offset + 4));
+
+         proto_tree_add_uint (tree, hf_qbss_adc, tvb, offset + 5,
+           2, tvb_get_guint8(tvb, offset + 5));
+      }
+      break;
+
     case TAG_FH_HOPPING_PARAMETER:
       if (tag_len < 2)
       {
@@ -1730,9 +1787,11 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       if (tag_len >= 3) {
 		oui = tvb_get_ntoh24(tvb, offset + 2);
 		tag_val = tvb_get_ptr(tvb, offset + 2, tag_len);
+		
 #define WPAWME_OUI	0x0050F2
 #define RSNOUI_VAL	0x000FAC
 #define AIRONET_VAL	0x004096
+
 		switch (oui) {
 		case WPAWME_OUI:
 			dissect_vendor_ie_wpawme(ti, tree, tvb, offset + 2, tag_len, tag_val);
@@ -1741,10 +1800,36 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 			dissect_vendor_ie_rsn(ti, tree, tvb, offset + 2, tag_len, tag_val);
 			break;
 		case AIRONET_VAL:
-			proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
-				"", "Vendor: %s", get_manuf_name(tag_val));
-			proto_item_append_text(ti, ": %s", get_manuf_name(tag_val));
-			dissect_vendor_ie_aironet(ti, tree, tvb, offset + 5, tag_len - 3);
+			type = tvb_get_guint8(tvb, offset + 5);
+
+			if (tag_len==9 && type==14)
+			{
+				proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
+					"", "Vendor: %s", "Cisco QBSS V2");
+
+				proto_item_append_text(ti, ": Cisco QBSS V2");
+
+				proto_tree_add_string (tree, tag_interpretation, tvb, offset + 1,
+					tag_len, "Cisco QBSS Version 2 - CCA");
+
+				/* Extract Values */
+				proto_tree_add_uint (tree, hf_qbss2_scount, tvb, offset + 6,
+					2, tvb_get_guint8(tvb, offset + 6));
+
+				proto_tree_add_uint (tree, hf_qbss2_cu, tvb, offset + 8,
+					1, tvb_get_guint8(tvb, offset + 8));
+
+				proto_tree_add_uint (tree, hf_qbss2_cal, tvb, offset + 9,
+					1, tvb_get_guint8(tvb, offset + 9));
+
+				proto_tree_add_uint (tree, hf_qbss2_gl, tvb, offset + 10,
+					1, tvb_get_guint8(tvb, offset + 10));
+			} else {
+				proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
+					"", "Vendor: %s", get_manuf_name(tag_val));
+				proto_item_append_text(ti, ": %s", get_manuf_name(tag_val));
+				dissect_vendor_ie_aironet(ti, tree, tvb, offset + 5, tag_len - 3);
+			}
 			break;
 		default:
 			proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
@@ -3859,6 +3944,38 @@ proto_register_ieee80211 (void)
     { &hf_aironet_ie_data,
       { "Aironet IE data", "wlan_mgmt.aironet.data",
         FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
+	
+    {&hf_qbss_version,
+     {"QBSS Version", "wlan_mgt.qbss.version",
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    {&hf_qbss_scount,
+     {"Station Count", "wlan_mgt.qbss.scount",
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    {&hf_qbss_cu,
+     {"Channel Utilization", "wlan_mgt.qbss.cu",
+       FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+		
+    {&hf_qbss_adc,
+     {"Available Admission Capabilities", "wlan_mgt.qbss.adc",
+     FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    {&hf_qbss2_cu,
+     {"Channel Utilization", "wlan_mgt.qbss2.cu",
+       FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    {&hf_qbss2_gl,
+     {"G.711 CU Quantum", "wlan_mgt.qbss2.glimit",
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    {&hf_qbss2_cal,
+     {"Call Admission Limit", "wlan_mgt.qbss2.cal",
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+
+    {&hf_qbss2_scount,
+     {"Station Count", "wlan_mgt.qbss2.scount",
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_aironet_ie_qos_unk1,
      {"Aironet IE QoS unknown1", "wlan_mgt.tag.aironet.qos.unk1",
