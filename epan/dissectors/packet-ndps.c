@@ -4626,7 +4626,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset = qualifiedname(tvb, ndps_tree, foffset);
             break;
         case 0x00000003:    /* Unbind */
-            proto_tree_add_item(ndps_tree, hf_ndps_object, tvb, foffset, 
+            proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 
             4, FALSE);
             break;
         case 0x00000004:    /* Print */
@@ -7070,7 +7070,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind PSM */
-            proto_tree_add_item(ndps_tree, hf_ndps_oid, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
             foffset += 4;
             if(error_val != 0)
             {
@@ -7088,7 +7088,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_item_set_end(aitem, tvb, foffset);
             break;
         case 0x00000002:    /* Bind PA */
-            proto_tree_add_item(ndps_tree, hf_ndps_oid, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
             foffset += 4;
             if(error_val != 0)
             {
