@@ -70,7 +70,6 @@ static int ett_njack_tlv_header = -1;
 static int hf_njack_magic = -1;
 static int hf_njack_type = -1;
 /* type set/get response */
-static int hf_njack_auth_data = -1;
 static int hf_njack_tlv_length = -1;
 static int hf_njack_tlv_data = -1;
 static int hf_njack_tlv_version = -1;
@@ -90,7 +89,7 @@ static int hf_njack_tlv_powerforwarding = -1;
 /* type 07: set */
 static int hf_njack_set_length = -1;
 static int hf_njack_set_salt = -1;
-static int hf_njack_set_seqno = -1;
+static int hf_njack_set_authdata = -1;
 /* type 08: set result */
 static int hf_njack_setresult = -1;
 /* type 0b: get */
@@ -375,7 +374,7 @@ dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
 }
 
 static int
-dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset, gboolean is_set)
+dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 {
 	guint8 tlv_type;
 	guint8 tlv_length;
@@ -414,11 +413,6 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset, gboolean is_
 		offset += 1;
 		switch (tlv_type) {
 		case NJACK_CMD_STARTOFPARAMS:
-			if (is_set) { /* followed by authdata? in case of set */
-				proto_tree_add_item(njack_tree, hf_njack_auth_data, tvb,
-					offset, 16, FALSE);
-				offset += 16;
-			}
 			break;
 		case NJACK_CMD_COUNTERMODE:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_countermode,
@@ -548,12 +542,12 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				2, FALSE);
 			offset += 2;
 			proto_tree_add_item(njack_tree, hf_njack_set_salt, tvb, offset,
-				1, FALSE);
-			offset += 1;
-			proto_tree_add_item(njack_tree, hf_njack_set_seqno, tvb, offset,
-				1, FALSE);
-			offset += 1;
-			offset = dissect_tlvs(tvb, njack_tree, offset, TRUE);
+				4, TRUE);
+			offset += 4;
+			proto_tree_add_item(njack_tree, hf_njack_set_authdata, tvb, offset,
+				16, FALSE);
+			offset += 16;
+			offset = dissect_tlvs(tvb, njack_tree, offset);
 			break;
 		case NJACK_TYPE_SETRESULT:
 			/* Type 0x08: M -> S, Magic, type, setresult (8 bit) */
@@ -567,13 +561,13 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case NJACK_TYPE_GET:
 			/* Type 0x0b: S -> M, Magic, type, 00 00 63 ff */
-			offset = dissect_tlvs(tvb, njack_tree, offset, FALSE);
+			offset = dissect_tlvs(tvb, njack_tree, offset);
 			break;
 		case NJACK_TYPE_QUERYRESP:
 			/* Type 0x02: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
 		case NJACK_TYPE_GETRESP:
 			/* Type 0x0c: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
-			offset = dissect_tlvs(tvb, njack_tree, offset, FALSE);
+			offset = dissect_tlvs(tvb, njack_tree, offset);
 			proto_tree_add_item(njack_tree, hf_njack_getresp_unknown1, tvb, offset,
 				1, FALSE);
 			offset += 1;
@@ -598,7 +592,7 @@ test_njack(tvbuff_t *tvb)
 {
 	/* We need at least 'NJ200' + 1 Byte packet type */
 	if ( !tvb_bytes_exist(tvb, 0, 6) || 
-		    g_strncasecmp(tvb_get_ptr(tvb, 0, 5), "NJ200", 5) ) {
+		    g_strncasecmp((const char *)tvb_get_ptr(tvb, 0, 5), "NJ200", 5) ) {
         	return FALSE;
 	}
 	return TRUE;
@@ -638,10 +632,6 @@ proto_register_njack(void)
 			0x0, "", HFILL }},
 
 	/* TLV fields */
-                { &hf_njack_auth_data,
-                { "Authdata\?\?",   "njack.tlv.authdata", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
-
 		{ &hf_njack_tlv_type,
 		{ "TlvType",	"njack.tlv.type", FT_UINT8, BASE_HEX, VALS(njack_cmd_vals),
 			0x0, "", HFILL }},
@@ -710,12 +700,12 @@ proto_register_njack(void)
 			0x0, "", HFILL }},
 
 		{ &hf_njack_set_salt,
-		{ "Salt\?\?",	"njack.set.salt", FT_UINT8, BASE_HEX, NULL,
+		{ "Salt",	"njack.set.salt", FT_UINT32, BASE_HEX, NULL,
 			0x0, "", HFILL }},
 
-		{ &hf_njack_set_seqno,
-		{ "Seqno",	"njack.set.seqno", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+                { &hf_njack_set_authdata,
+                { "Authdata",   "njack.tlv.authdata", FT_BYTES, BASE_NONE, NULL,
+                        0x0, "", HFILL }},
 
 	/* Type 0x08: set result */
                 { &hf_njack_setresult,
