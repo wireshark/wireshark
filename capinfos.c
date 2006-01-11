@@ -210,22 +210,38 @@ static void usage(gboolean is_error)
     output = stderr;
   }
 
-
-  fprintf(output, "Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]\n");
-  fprintf(output, "                [-i] [-z] [-h] <capfile>\n");
-  fprintf(output, "  where\t-t display the capture type of <capfile>\n");
-  fprintf(output, "       \t-c count the number of packets\n");
-  fprintf(output, "       \t-s display the size of the file \n");
-  fprintf(output, "       \t-d display the total length of all packets in the file\n");
-  fprintf(output, "       \t   (in bytes)\n");
-  fprintf(output, "       \t-u display the capture duration (in seconds) \n");
-  fprintf(output, "       \t-a display the capture start time\n");
-  fprintf(output, "       \t-e display the capture end time\n");
-  fprintf(output, "       \t-y display average data rate (in bytes)\n");
-  fprintf(output, "       \t-i display average data rate (in bits)\n");
-  fprintf(output, "       \t-z display average packet size (in bytes)\n");
-  fprintf(output, "       \t-h produces this help listing.\n");
-  fprintf(output, "\n      \t    If no data flags are given, default is to display all statistics\n");
+  fprintf(output, "Capinfos %s"
+#ifdef SVNVERSION
+	  " (" SVNVERSION ")"
+#endif
+	  "\n", VERSION);
+  fprintf(output, "Prints information about capture files.\n");
+  fprintf(output, "See http://www.ethereal.com for more information.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Usage: capinfos [options] <infile> ...\n");
+  fprintf(output, "\n");
+  fprintf(output, "General:\n");
+  fprintf(output, "  -t display the capture file type\n");
+  fprintf(output, "\n");
+  fprintf(output, "Size:\n");
+  fprintf(output, "  -c display the number of packets\n");
+  fprintf(output, "  -s display the size of the file (in bytes)\n");
+  fprintf(output, "  -d display the total length of all packets (in bytes)\n");
+  fprintf(output, "\n");
+  fprintf(output, "Time:\n");
+  fprintf(output, "  -u display the capture duration (in seconds) \n");
+  fprintf(output, "  -a display the capture start time\n");
+  fprintf(output, "  -e display the capture end time\n");
+  fprintf(output, "\n");
+  fprintf(output, "Statistic:\n");
+  fprintf(output, "  -y display average data rate (in bytes/s)\n");
+  fprintf(output, "  -i display average data rate (in bits/s)\n");
+  fprintf(output, "  -z display average packet size (in bytes)\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Miscellaneous:\n");
+  fprintf(stderr, "  -h display this help and exit\n");
+  fprintf(output, "\n");
+  fprintf(output, "If no options are given, default is to display all infos\n");
 }
 
 int main(int argc, char *argv[])
