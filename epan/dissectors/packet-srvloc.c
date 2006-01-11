@@ -276,7 +276,7 @@ static const value_string srvloc_errs[] = {
 
 /* Define Error Codes for Version 2 */
 
-#define LANGUAGE_NOT_SUPPORTED 	1 
+#define LANGUAGE_NOT_SUPPORTED 	1
 #define PARSE_ERROR 		2
 #define INVALID_REGISTRATION	3
 #define SCOPE_NOT_SUPPORTED	4
@@ -386,7 +386,7 @@ dissect_authblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     guint16 length;
     nstime_t ts;
-    
+
     proto_tree_add_item(tree, hf_srvloc_authblkv2_bsd, tvb, offset, 2, FALSE);
     proto_tree_add_item(tree, hf_srvloc_authblkv2_len, tvb, offset+2, 2, FALSE);
     ts.nsecs = 0;
@@ -454,6 +454,10 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
   guint8	c_char, c_char1;
   guint8	*byte_array;
 
+  /* XXX - Is this the correct behavior? */
+  if (length < 1)
+    return "";
+
   if (endianness) {
       byte_array = ep_alloc(length*2 + 1);
       for (i = length; i > 0; i--) {
@@ -490,11 +494,11 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 
 /*
  * Format of x-x-x-xxxxxxxx. Each of these entries represents the service binding to UDP, TCP, or IPX.
- * The first digit is the protocol family: 2 for TCP/UPD, 6 for IPX. 
- * The second digit is the socket type: 1 for socket stream (TCP), 2 for datagram (UDP and IPX). 
- * The third is the protocol: 6 for TCP, 17 for UDP, and 1000 for IPX. 
+ * The first digit is the protocol family: 2 for TCP/UPD, 6 for IPX.
+ * The second digit is the socket type: 1 for socket stream (TCP), 2 for datagram (UDP and IPX).
+ * The third is the protocol: 6 for TCP, 17 for UDP, and 1000 for IPX.
  * Last is the IP address, in hex, of the interface that is registered (or, in the case of IPX, an IPX network number).
-*/              
+*/
 static void
 attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     guint16 encoding)
@@ -789,7 +793,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
 				tvb_get_ntohs(tvb, offset + 10));
         /* added echo of XID to info colomn by Greg Morris 0ct 14, 2005 */
-        if (check_col(pinfo->cinfo, COL_INFO)) 
+        if (check_col(pinfo->cinfo, COL_INFO))
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", V1 Transaction ID - %u", tvb_get_ntohs(tvb, offset + 10));
 
 	    offset += 12;
@@ -807,7 +811,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 add_v1_string(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, encoding);
                 offset += length;
 		break;
-		
+
             case SRVRPLY:
                 expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
                 expert_status = tvb_get_ntohs(tvb, offset);
@@ -940,8 +944,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (0xFFFF == length) {
                     proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlenall, tvb, offset, 2, length);
                     offset += 2;
-                } 
-                else 
+                }
+                else
                 {
                     proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
                     offset += 2;
@@ -1001,7 +1005,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				next_ext_off);
 	    proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2,
 				tvb_get_ntohs(tvb, offset + 10));
-        if (check_col(pinfo->cinfo, COL_INFO)) 
+        if (check_col(pinfo->cinfo, COL_INFO))
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
 	    lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
 	    proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2,	lang_tag_len);
@@ -1036,7 +1040,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_slpspi, tvb, offset, length, TRUE);
 		offset += length;
 		break;
-		
+
             case SRVRPLY: /* RFC2608 8.2 */
                 expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
                 expert_status = tvb_get_ntohs(tvb, offset);
@@ -1092,7 +1096,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, TRUE);
                 offset += length;
 		break;
-            
+
             case SRVACK: /* RFC2608 8.4 */
                 expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
                 expert_status = tvb_get_ntohs(tvb, offset);
@@ -1143,7 +1147,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset += 2;
                     attr_list(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
                     offset += length;
-            		count = tvb_get_guint8(tvb, offset); 
+            		count = tvb_get_guint8(tvb, offset);
             		proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrauthcount, tvb, offset, 1, count);
             		offset += 1;
             		while (count > 0) {
@@ -1152,7 +1156,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             		}
                 }
             break;
-            
+
             case DAADVERT: /* RCC 2608 8.5 */
                 expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
                 expert_status = tvb_get_ntohs(tvb, offset);
@@ -1185,7 +1189,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
                 proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_slpspi, tvb, offset, length, TRUE);
                 offset += length;
-		count = tvb_get_guint8(tvb, offset); 
+		count = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_authcount, tvb, offset, 1, count);
 		offset += 1;
 		while (count > 0) {
@@ -1289,7 +1293,7 @@ dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
-	
+
     if (tree) {
         ti = proto_tree_add_item(tree, proto_srvloc, tvb, 0, -1, FALSE);
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
@@ -1332,23 +1336,23 @@ proto_register_srvloc(void)
             "", HFILL }
         },
         {&hf_srvloc_xid,
-            {"XID", "srvloc.xid", 
-            FT_UINT24, BASE_DEC, NULL, 0x0, 
+            {"XID", "srvloc.xid",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
             "Transaction ID", HFILL }
         },
         {&hf_srvloc_langtag,
-            {"Lang Tag", "srvloc.langtag", 
-            FT_STRING, BASE_NONE, NULL, 0x0, 
+            {"Lang Tag", "srvloc.langtag",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             "", HFILL }
         },
         {&hf_srvloc_langtaglen,
-            {"Lang Tag Len", "srvloc.langtaglen", 
-            FT_UINT16, BASE_DEC, NULL, 0x0, 
+            {"Lang Tag Len", "srvloc.langtaglen",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "", HFILL }
         },
         {&hf_srvloc_nextextoff,
-            {"Next Extension Offset", "srvloc.nextextoff", 
-            FT_UINT24, BASE_DEC, NULL, 0x0, 
+            {"Next Extension Offset", "srvloc.nextextoff",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
             "", HFILL }
         },
 
@@ -1382,8 +1386,8 @@ proto_register_srvloc(void)
         },
 
         {&hf_srvloc_pktlen,
-            {"Packet Length", "srvloc.pktlen", 
-            FT_UINT24, BASE_DEC, NULL, 0x0, 
+            {"Packet Length", "srvloc.pktlen",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
             "", HFILL }
         },
 
@@ -1420,8 +1424,8 @@ proto_register_srvloc(void)
 	    TFS(&tfs_srvloc_flags_fresh), FLAG_F, "Is this a new registration?", HFILL }},
 
         {&hf_srvloc_flags_v2,
-            {"Flags", "srvloc.flags_v2", 
-            FT_UINT16, BASE_HEX, NULL, 0x0, 
+            {"Flags", "srvloc.flags_v2",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
              "", HFILL }
          },
 
