@@ -6,35 +6,35 @@ tethereal - Dump and analyze network traffic
 =head1 SYNOPSYS
 
 B<tethereal>
-S<[ B<-a> capture autostop condition ] ...>
-S<[ B<-b> capture ring buffer option] ...>
-S<[ B<-B> capture buffer size (Win32 only) ] >
-S<[ B<-c> capture packet count ]>
-S<[ B<-d> <layer type>==<selector>,<decode-as protocol> ]>
+S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
+S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
+S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
+S<[ B<-c> E<lt>capture packet countE<gt> ]>
+S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
 S<[ B<-D> ]>
-S<[ B<-f> capture filter ]>
-S<[ B<-F> file format ]>
+S<[ B<-f> E<lt>capture filterE<gt> ]>
+S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
-S<[ B<-i> capture interface ]> 
+S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-n> ]>
-S<[ B<-N> name resolving flags ]>
-S<[ B<-o> preference setting ] ...>
+S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
+S<[ B<-o> E<lt>preference settingE<gt> ] ...>
 S<[ B<-p> ]>
 S<[ B<-q> ]>
-S<[ B<-r> infile ]>
-S<[ B<-R> read (display) filter ]>
-S<[ B<-s> capture snaplen ]>
+S<[ B<-r> E<lt>infileE<gt> ]>
+S<[ B<-R> E<lt>read (display) filterE<gt> ]>
+S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
-S<[ B<-t> time stamp format ]>
+S<[ B<-t> r|a|ad|d ]>
 S<[ B<-T> pdml|psml|ps|text ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
-S<[ B<-w> savefile ]>
+S<[ B<-w> E<lt>outfileE<gt>|- ]>
 S<[ B<-x> ]>
-S<[ B<-y> capture link type ]>
-S<[ B<-z> statistics ]>
+S<[ B<-y> E<lt>capture link typeE<gt> ]>
+S<[ B<-z> E<lt>statisticsE<gt> ]>
 
 =head1 DESCRIPTION
 
@@ -45,100 +45,26 @@ standard output or writing the packets to a file.  B<Tethereal>'s native
 capture file format is B<libpcap> format, which is also the format used
 by B<tcpdump> and various other tools.  
 
-B<Tethereal> can read / import the following file formats:
+Without any options set, B<Tethereal> will work much like B<tcpdump>. It will 
+use the pcap library to capture traffic from the first available network 
+interface and displays a summary line on stdout for each received packet. 
 
-=over 4
+B<Tethereal> is able to detect, read and write the same capture files that 
+are supported by B<Ethereal>.
+The input file doesn't need a specific filename extension, the file 
+format and an optional gzip compression will be automatically detected.
+The I<capture file format> section of I<ethereal(1)> or
+I<http://www.ethereal.com/docs/man-pages/ethereal.1.html>
+provides a detailed description.
 
-=item *
-libpcap/WinPcap, tcpdump and various other tools using tcpdump's capture format
+Compressed file support uses (and therefore requires) the zlib library. 
+If the zlib library is not present, B<Tethereal> will compile, but will
+be unable to read compressed files.
 
-=item *
-B<snoop> and B<atmsnoop>
-
-=item *
-Shomiti/Finisar B<Surveyor> captures
-
-=item *
-Novell B<LANalyzer> captures
-
-=item *
-Microsoft B<Network Monitor> captures
-
-=item *
-AIX's B<iptrace> captures
-
-=item *
-Cinco Networks B<NetXRay> captures
-
-=item *
-Network Associates Windows-based B<Sniffer> captures
-
-=item *
-Network General/Network Associates DOS-based B<Sniffer> (compressed or uncompressed) captures
-
-=item *
-AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/B<PacketGrabber> captures
-
-=item *
-B<RADCOM>'s WAN/LAN analyzer captures
-
-=item *
-Network Instruments B<Observer> version 9 captures
-
-=item *
-B<Lucent/Ascend> router debug output
-
-=item *
-files from HP-UX's B<nettl>
-
-=item *
-B<Toshiba's> ISDN routers dump output
-
-=item *
-the output from B<i4btrace> from the ISDN4BSD project
-
-=item *
-traces from the B<EyeSDN> USB S0.
-
-=item *
-the output in B<IPLog> format from the Cisco Secure Intrusion Detection System
-
-=item *
-B<pppd logs> (pppdump format)
-
-=item *
-the output from VMS's B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities
-
-=item *
-the text output from the B<DBS Etherwatch> VMS utility
-
-=item *
-Visual Networks' B<Visual UpTime> traffic capture
-
-=item *
-the output from B<CoSine> L2 debug
-
-=item *
-the output from Accellent's B<5Views> LAN agents
-
-=item *
-Endace Measurement Systems' ERF format captures 
-
-=item *
-Linux Bluez Bluetooth stack B<hcidump -w> traces
-
-=back
-
-There is no need to tell B<Tethereal> what type of
-file you are reading; it will determine the file type by itself. 
-B<Tethereal> is also capable of reading any of these file formats if
-they are compressed using gzip.  B<Tethereal> recognizes this directly
-from the file; the '.gz' extension is not required for this purpose.
-
-If the B<-w> flag is not specified, B<Tethereal> writes to the standard
+If the B<-w> option is not specified, B<Tethereal> writes to the standard
 output the text of a decoded form of the packets it captures or reads. 
-If the B<-w> flag is specified, B<Tethereal> writes to the file
-specified by that flag the raw data of the packets, along with the
+If the B<-w> option is specified, B<Tethereal> writes to the file
+specified by that option the raw data of the packets, along with the
 packets' time stamps.
 
 When writing a decoded form of packets, B<Tethereal> writes, by
@@ -146,63 +72,19 @@ default, a summary line containing the fields specified by the
 preferences file (which are also the fields displayed in the packet list
 pane in B<Ethereal>), although if it's writing packets as it captures
 them, rather than writting packets from a saved capture file, it won't
-show the "frame number" field.  If the B<-V> flag is specified, it
+show the "frame number" field.  If the B<-V> option is specified, it
 writes instead a view of the details of the packet, showing all the
 fields of all protocols in the packet.
 
 If you want to write the decoded form of packets to a file, run
-B<Tethereal> without the B<-w> flag, and redirect its standard output to
-the file (do I<not> use the B<-w> flag).
+B<Tethereal> without the B<-w> option, and redirect its standard output to
+the file (do I<not> use the B<-w> option).
 
 When writing packets to a file, B<Tethereal>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
-output file.  The B<-F> flag can be used to specify the format in which
-to write the file.  The following output formats are supported:
-
-=over 4
-
-=item *
-B<libpcap> - libpcap (tcpdump, Ethereal, etc.)
-
-=item *
-B<rh6_1libpcap> - Red Hat Linux 6.1 libpcap (tcpdump)
-
-=item *
-B<suse6_3libpcap> - SuSE Linux 6.3 libpcap (tcpdump)
-
-=item *
-B<modlibpcap> - modified libpcap (tcpdump)
-
-=item *
-B<nokialibpcap> - Nokia libpcap (tcpdump)
-
-=item *
-B<lanalyzer> - Novell LANalyzer
-
-=item *
-B<ngsniffer> - Network Associates Sniffer (DOS-based)
-
-=item *
-B<snoop> - Sun snoop
-
-=item *
-B<netmon1> - Microsoft Network Monitor 1.x
-
-=item *
-B<netmon2> - Microsoft Network Monitor 2.x
-
-=item *
-B<ngwsniffer_1_1> - Network Associates Sniffer (Windows-based) 1.1
-
-=item *
-B<ngwsniffer_2_0> - Network Associates Sniffer (Windows-based) 2.00x
-
-=item *
-B<visual> - Visual Networks traffic capture
-
-=back
-
-This list is also displayed by the B<-h> flag.
+output file.  The B<-F> option can be used to specify the format in which
+to write the file. This list of available file formats is displayed by 
+the B<-h> flag.
 
 Read filters in B<Tethereal>, which allow you to select which packets
 are to be decoded or written to a file, are very powerful; more fields
@@ -220,10 +102,6 @@ more efficient than read filters, and it may be more difficult for
 B<Tethereal> to keep up with a busy network if a read filter is
 specified for a live capture.
 
-Compressed file support uses (and therefore requires) the zlib library. 
-If the zlib library is not present, B<Tethereal> will compile, but will
-be unable to read compressed files.
-
 A capture or read filter can either be specified with the B<-f> or B<-R>
 option, respectively, in which case the entire filter expression must be
 specified as a single argument (which means that if it contains spaces,
@@ -236,14 +114,14 @@ Tethereal to do more work when filtering, so you might be more likely to
 lose packets under heavy load if you're using a read filter.  If the
 filter is specified with command-line arguments after the option
 arguments, it's a capture filter if a capture is being done (i.e., if no
-B<-r> flag was specified) and a read filter if a capture file is being
-read (i.e., if a B<-r> flag was specified).
+B<-r> option was specified) and a read filter if a capture file is being
+read (i.e., if a B<-r> option was specified).
 
 =head1 OPTIONS
 
 =over 4
 
-=item -a
+=item -a  E<lt>capture autostop conditionE<gt>
 
 Specify a criterion that specifies when B<Tethereal> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
@@ -258,15 +136,15 @@ current capture file and switch to the next one if filesize is reached.
 
 B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
 
-=item -b
+=item -b  E<lt>capture ring buffer optionE<gt>
 
 Cause B<Tethereal> to run in "multiple files" mode.  In "multiple files" mode, 
 B<Tethereal> will write to several capture files. When the first capture file 
 fills up, B<Tethereal> will switch writing to the next file and so on.
 
-The created filenames are based on the filename given with the B<-w> flag, the number of 
+The created filenames are based on the filename given with the B<-w> option, the number of 
 the file and on the creation date and time, 
-e.g. savefile_00001_20050604120117.pcap, savefile_00001_20050604120523.pcap, ...
+e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer". 
 This will fill up new files until the number of files specified, 
@@ -287,18 +165,18 @@ I<value> kilobytes (where a kilobyte is 1024 bytes).
 B<files>:I<value> begin again with the first file after I<value> number of 
 files were written (form a ring buffer).
 
-=item -B
+=item -B  E<lt>capture buffer size (Win32 only)E<gt>
 
 Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
 the capture driver to buffer packet data until that data can be written to 
 disk. If you encounter packet drops while capturing, try to increase this size.
 
-=item -c
+=item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
 data.
 
-=item -d
+=item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
 
 Specify that if the layer type in question (for example, B<tcp.port> or
 B<udp.port> for a TCP or UDP port number) has the specified selector
@@ -313,7 +191,7 @@ Print a list of the interfaces on which B<Tethereal> can capture, and
 exit.  For each network interface, a number and an
 interface name, possibly followed by a text description of the
 interface, is printed.  The interface name or the number can be supplied
-to the B<-i> flag to specify an interface on which to capture.
+to the B<-i> option to specify an interface on which to capture.
 
 This can be useful on systems that don't have a command to list them  
 (e.g., Windows systems, or UNIX systems lacking B<ifconfig -a>);
@@ -321,26 +199,27 @@ the number can be useful on Windows 2000 and later systems, where the
 interface name is a somewhat complex string.
 
 Note that "can capture" means that B<Tethereal> was able to open
-that device to do a live capture; if, on your system, a program doing a
-network capture must be run from an account with special privileges (for
-example, as root), then, if B<Tethereal> is run with the B<-D> flag and
-is not run from such an account, it will not list any interfaces.
+that device to do a live capture. Depending on your system you may need to run tethereal from an account 
+with special privileges (for example, as root) to be able to capture 
+network traffic.
+If B<Tethereal -D> is not run from such an account, it will not list 
+any interfaces.
 
-=item -f
+=item -f  E<lt>capture filterE<gt>
 
 Set the capture filter expression.
 
-=item -F
+=item -F  E<lt>file formatE<gt>
 
 Set the file format of the output capture file written using the B<-w>
-flag.  The output written with the B<-w> flag is raw packet data, not
+option.  The output written with the B<-w> option is raw packet data, not
 text, so there is no B<-F> option to request text output.
 
 =item -h
 
 Print the version and options and exits.
 
-=item -i
+=item -i  E<lt>capture interfaceE<gt>|-
 
 Set the name of the network interface or pipe to use for live packet
 capture. 
@@ -349,12 +228,12 @@ Network interface names should match one of the names listed in
 "B<tethereal -D>" (described above); a number, as reported by
 "B<tethereal -D>", can also be used.  If you're using UNIX, "B<netstat
 -i>" or "B<ifconfig -a>" might also work to list interface names,
-although not all versions of UNIX support the B<-a> flag to B<ifconfig>.
+although not all versions of UNIX support the B<-a> option to B<ifconfig>.
 
 If no interface is specified, B<Tethereal> searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
-there are no non-loopback interfaces; if there are no interfaces,
+there are no non-loopback interfaces. If there are no interfaces at all,
 B<Tethereal> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
@@ -381,14 +260,15 @@ standard output buffer containing that data fills up.
 
 =item -L
 
-List the data link types supported by the interface and exit.
+List the data link types supported by the interface and exit. The reported
+link types can be used for the B<-y> option.
 
 =item -n
 
 Disable network object name resolution (such as hostname, TCP and UDP port
 names), the B<-N> flag might override this one.
 
-=item -N
+=item -N  E<lt>name resolving flagsE<gt>
 
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
@@ -406,10 +286,10 @@ B<t> to enable transport-layer port number resolution
 
 B<C> to enable concurrent (asynchronous) DNS lookups
 
-=item -o
+=item -o  E<lt>preference settingE<gt>
 
 Set a preference value, overriding the default value and any value read
-from a preference file.  The argument to the flag is a string of the
+from a preference file.  The argument to the option is a string of the
 form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
 file), and I<value> is the value to which it should be set.
@@ -429,28 +309,30 @@ When capturing packets, don't display the continuous count of packets
 captured that is normally shown when saving a capture to a file;
 instead, just display, at the end of the capture, a count of packets
 captured.  On systems that support the SIGINFO signal, such as various
-BSDs, typing your "status" character (typically control-T, although it
+BSDs, you can cause the current count to be displayed by typing your 
+"status" character (typically control-T, although it
 might be set to "disabled" by default on at least some BSDs, so you'd
-have to explicitly set it to use it) will cause the current count to be
-displayed.
+have to explicitly set it to use it).
 
 When reading a capture file, or when capturing and not saving to a file,
 don't print packet information; this is useful if you're using a B<-z>
-flag to calculate statistics and don't want the packet information
+option to calculate statistics and don't want the packet information
 printed, just the statistics.
 
-=item -r
+=item -r  E<lt>infileE<gt>
 
-Read packet data from I<infile>.
+Read packet data from I<infile>, can be any supported capture file format 
+(including gzipped files). It's B<not> possible to use named pipes 
+or stdin here!
 
-=item -R
+=item -R  E<lt>read (display) filterE<gt>
 
-Cause the specified filter (which uses the syntax of read filters,
+Cause the specified filter (which uses the syntax of read/display filters,
 rather than that of capture filters) to be applied before printing a
 decoded form of packets or writing packets to a file; packets not
 matching the filter are discarded rather than being printed or written.
 
-=item -s
+=item -s  E<lt>capture snaplenE<gt>
 
 Set the default snapshot length to use when capturing live data. 
 No more than I<snaplen> bytes of each network packet will be read into
@@ -459,9 +341,9 @@ memory, or saved to disk.
 =item -S
 
 Decode and display packets even while writing raw packet data using the
-B<-w> flag.
+B<-w> option.
 
-=item -t
+=item -t  r|a|ad|d
 
 Set the format of the packet timestamp printed in summary lines, the default 
 is relative. The format can be one of:
@@ -478,7 +360,7 @@ date the packet was captured
 B<d> delta: The delta time is the time since the previous packet was
 captured
 
-=item -T
+=item -T  pdml|psml|ps|text
 
 Set the format of the output when viewing decoded packet data.  The
 options are one of:
@@ -505,26 +387,29 @@ Print the version and exit.
 
 =item -V
 
-Cause B<Tethereal> to print a view of the details of the packet rather
+Cause B<Tethereal> to print a view of the packet details rather
 than a one-line summary of the packet.
 
-=item -w
+=item -w  E<lt>outfileE<gt>|-
 
-Write raw packet data to I<savefile> or to the standard output if
-I<savefile> is "-".  NOTE: this is raw packet data, not text; if you
-want text output, don't use the B<-w> flag.
+Write raw packet data to I<outfile> or to the standard output if
+I<outfile> is '-'.  
+
+NOTE: -w provides raw packet data, not text. If you want text output 
+you need to redirect stdout (e.g. using '>'), don't use the B<-w> 
+option for this.
 
 =item -x
 
 Cause B<Tethereal> to print a hex and ASCII dump of the packet data
 after printing the summary or details.
 
-=item -y
+=item -y  E<lt>capture link typeE<gt>
 
 Set the data link type to use while capturing packets.  The values
 reported by B<-L> are the values that can be used.
 
-=item -z
+=item -z  E<lt>statisticsE<gt>
 
 Get B<Tethereal> to collect various types of statistics and display the result
 after finishing reading the capture file.  Use the B<-q> flag if you're
@@ -830,7 +715,7 @@ The F<preferences> files contain global (system-wide) and personal
 preference settings. If the system-wide preference file exists, it is
 read first, overriding the default settings. If the personal preferences
 file exists, it is read next, overriding any previous values. Note: If
-the command line flag B<-o> is used (possibly more than once), it will
+the command line option B<-o> is used (possibly more than once), it will
 in turn override values from the preferences files.
 
 The preferences settings are in the form I<prefname>B<:>I<value>,
@@ -964,6 +849,9 @@ I<ethereal-filter(4)> I<ethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 B<Tethereal> is part of the B<Ethereal> distribution.  The latest version
 of B<Ethereal> can be found at B<http://www.ethereal.com>.
+
+HTML versions of the Ethereal project man pages are available at:
+http://www.ethereal.com/docs/man-pages
 
 =head1 AUTHORS
 
