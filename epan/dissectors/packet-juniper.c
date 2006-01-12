@@ -510,14 +510,18 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
   l2hdr_presence = *flags & JUNIPER_FLAG_NO_L2;
 
   juniper_subtree = proto_item_add_subtree(ti, ett_juniper);          
+
+  /* be liberal with magic-number detection -
+   * some older JUNOS releases (e.g. 6.4),
+   * which are still in the field do not generate magic-numbers */
+  if (magic_number != JUNIPER_PCAP_MAGIC) {
+      tisub = proto_tree_add_text (juniper_subtree, tvb, 0, 0, "no Magic-Number found !");
+     return 0;
+  }
+
   tisub = proto_tree_add_text (juniper_subtree, tvb, 0, 3,
-                            "Magic-Number: 0x%06x (%scorrect)", 
-                            magic_number,
-                            (magic_number == JUNIPER_PCAP_MAGIC) ?  "" : "in" );
-    
-  if (magic_number != JUNIPER_PCAP_MAGIC)
-     return -1;
-  
+                            "Magic-Number: 0x%06x", magic_number);
+      
   tisub = proto_tree_add_uint_format (juniper_subtree, hf_juniper_direction, tvb, 3, 1,
                             direction, "Direction: %s",
                             val_to_str(direction,juniper_direction_vals,"Unknown"));
@@ -962,7 +966,7 @@ static void
 dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
-  guint      offset;
+  guint      offset = 0;
   int        bytes_processed;
   guint8     flags;
 
@@ -970,8 +974,6 @@ dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper C-HDLC");
   if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
-
-  offset = 0;
 
   ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper C-HDLC");
 
@@ -1036,10 +1038,10 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   switch (atm_pictype) {
   case JUNIPER_PIC_ATM1:
-      ti = proto_tree_add_text (tree, tvb, 0, 4 , "Juniper ATM1 PIC");
+      ti = proto_tree_add_text (tree, tvb, 0, 0 , "Juniper ATM1 PIC");
       break;
   case JUNIPER_PIC_ATM2:
-      ti = proto_tree_add_text (tree, tvb, 0, 4 , "Juniper ATM2 PIC");
+      ti = proto_tree_add_text (tree, tvb, 0, 0 , "Juniper ATM2 PIC");
       break;
   default: /* should not happen */
       ti = proto_tree_add_text (tree, tvb, 0, 0 , "Juniper unknown ATM PIC");
@@ -1062,18 +1064,18 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
       atm2_header_len = 8;
   }
 
-  cookie1 = tvb_get_ntohl(tvb,4);
-  cookie2 = tvb_get_ntoh64(tvb,4);
+  cookie1 = tvb_get_ntohl(tvb, offset);
+  cookie2 = tvb_get_ntoh64(tvb, offset);
 
   switch (atm_pictype) {
   case JUNIPER_PIC_ATM1:
-      tisub = proto_tree_add_uint(juniper_subtree, hf_juniper_atm1_cookie, tvb, 4, 4, cookie1);
+      tisub = proto_tree_add_uint(juniper_subtree, hf_juniper_atm1_cookie, tvb, offset, 4, cookie1);
       offset += atm1_header_len;
-      if (cookie1 & 0x80000000) /* OAM cell ? */
+      if ((cookie1 >> 24) == 0x80) /* OAM cell ? */
           next_proto = PROTO_OAM;
       break;
   case JUNIPER_PIC_ATM2:
-      tisub = proto_tree_add_uint64(juniper_subtree, hf_juniper_atm2_cookie, tvb, 4, 8, cookie2);
+      tisub = proto_tree_add_uint64(juniper_subtree, hf_juniper_atm2_cookie, tvb, offset, 8, cookie2);
       offset += atm2_header_len;
       if (cookie2 & 0x7000) /* OAM cell ? */
           next_proto = PROTO_OAM;
@@ -1160,30 +1162,36 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
 
 static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
-    tvbuff_t* sub_tvb;
-    proto_item* ti = proto_tree_add_item(tree,proto_juniper,tvb,0,16,FALSE);
-    proto_tree* jt = proto_item_add_subtree(ti,ett_juniper);
-    guint16 proto = tvb_get_letohs(tvb,0);
 
-    proto_item_append_text(ti," GGSN");
-    proto_tree_add_uint(jt,hf_juniper_proto,tvb,0,2,proto);
-    proto_tree_add_item(jt,hf_juniper_vlan,tvb,2,2,TRUE);
+  proto_item *ti;
+  guint      offset = 0;
+  int        bytes_processed;
+  guint8     flags;
+  guint16    proto;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper GGSN");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
     
-    sub_tvb = tvb_new_subset(tvb, 4,
-                             tvb_length_remaining(tvb, 4),
-                             tvb_reported_length_remaining(tvb, 4));
-    
-    switch (proto) {
-        case PROTO_IP:
-            call_dissector(ipv4_handle,sub_tvb,pinfo,tree);            
-            break;
-        case PROTO_IP6:
-            call_dissector(ipv6_handle,sub_tvb,pinfo,tree);            
-            break;
-        default:
-            call_dissector(data_handle,sub_tvb,pinfo,tree);
-            break;
-    }
+  ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper GGSN");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if(bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  proto = tvb_get_letohs(tvb, offset); /* fetch protocol */
+
+  proto_tree_add_uint(juniper_subtree, hf_juniper_proto, tvb, offset, 2, proto);
+  proto_tree_add_item(juniper_subtree, hf_juniper_vlan, tvb, offset+2, 2, TRUE);
+  offset += 4;
+
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, offset);
+
 }
 
 /* list of Juniper supported PPP proto IDs */
