@@ -1081,36 +1081,74 @@ print_usage(gboolean print_ver) {
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is "PACKAGE " " VERSION "%s\n"
+    fprintf(output, "Ethereal " VERSION "%s\n"
+        "Interactively dump and analyze network traffic.\n"
+        "See http://www.ethereal.com for more information.\n"
         "\n"
-        "%s"
-        "\n"
-	"%s"
-	"\n"
-	"%s",
-	svnversion, get_copyright_info(), comp_info_str->str,
-	runtime_info_str->str);
+        "%s",
+	svnversion, get_copyright_info());
   } else {
     output = stderr;
   }
+  fprintf(output, "\n");
+  fprintf(output, "Usage: ethereal [options] ... [ <infile> ]\n");
+  fprintf(output, "\n");
+
 #ifdef HAVE_LIBPCAP
-  fprintf(output, "\n%s [ -vh ] [ -DklLnpQS ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
-  fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
+  fprintf(output, "Capture interface:\n");
+  fprintf(output, "  -i <interface>           name or idx of interface (def: first none loopback)\n");
+  fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
+  fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
+  fprintf(output, "  -p                       don't capture in promiscuous mode\n");
+  fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
+  fprintf(output, "  -Q                       quit Ethereal after capturing\n");
+  fprintf(output, "  -S                       update packet display when new packets are captured\n");
+  fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
 #ifdef _WIN32
-  fprintf(output, "\t[ -B <capture buffer size> ]\n");
+  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
-  fprintf(output, "\t[ -c <capture packet count> ] [ -f <capture filter> ]\n");
-  fprintf(output, "\t[ -g <packet number> ] [ -i <capture interface> ] [ -m <font> ]\n");
-  fprintf(output, "\t[ -N <name resolving flags> ] [ -o <preference/recent setting> ] ...\n");
-  fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ] [ -s <capture snaplen> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -y <capture link type> ]\n");
-  fprintf(output, "\t[ -z <statistics> ] [ <infile> ]\n");
-#else
-  fprintf(output, "\n%s [ -vh ] [ -n ] [ -g <packet number> ] [ -m <font> ]\n", PACKAGE);
-  fprintf(output, "\t[ -N <resolving flags> ] [ -o <preference/recent setting> ...\n");
-  fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -z <statistics ] [ <infile> ]\n");
-#endif
+  fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+  fprintf(output, "  -D                       print list of interfaces and exit\n");
+  fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+  fprintf(output, "\n");
+  fprintf(output, "Capture stop conditions:\n");
+  fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
+  fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
+  fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
+  fprintf(output, "                              files:NUM - stop after NUM files\n");
+  /*fprintf(output, "\n");*/
+  fprintf(output, "Capture output:\n");
+  fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
+  fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
+  fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
+#endif  /* HAVE_LIBPCAP */
+
+  /*fprintf(output, "\n");*/
+  fprintf(output, "Input file:\n");
+  fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
+
+  fprintf(output, "\n");
+  fprintf(output, "Processing:\n");
+  fprintf(output, "  -R <read filter>         packet filter in Ethereal display filter syntax\n");
+  fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
+  fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
+
+  fprintf(output, "\n");
+  fprintf(output, "User interface:\n");
+  fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
+  fprintf(output, "  -m <font>                set the font name used for most text\n");
+  fprintf(output, "  -t ad|a|r|d              output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
+
+  fprintf(output, "\n");
+  fprintf(output, "Output:\n");
+  fprintf(stderr, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
+
+  fprintf(output, "\n");
+  fprintf(stderr, "Miscellaneous:\n");
+  fprintf(stderr, "  -h                       display this help and exit\n");
+  fprintf(stderr, "  -v                       display version info and exit\n");
+  fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
 
 #ifdef _WIN32
   destroy_console();
