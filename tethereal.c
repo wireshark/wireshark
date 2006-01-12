@@ -186,57 +186,94 @@ static void read_failure_message(const char *filename, int err);
 capture_file cfile;
 
 
+static void list_capture_types(void) {
+    int i;
+
+    fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
+    for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+      if (wtap_dump_can_open(i))
+        fprintf(stderr, "    %s - %s\n",
+          wtap_file_type_short_string(i), wtap_file_type_string(i));
+    }
+}
+
 static void
 print_usage(gboolean print_ver)
 {
-  int i;
   FILE *output;
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is t" PACKAGE " " VERSION "%s\n"
+    fprintf(output, 
+        "Tethereal " VERSION "%s\n"
+        "Dump and analyze network traffic.\n"
+        "See http://www.ethereal.com for more information.\n"
         "\n"
-        "%s"
-        "\n"
-	"%s"
-	"\n"
-	"%s",
-
-	svnversion, get_copyright_info(), comp_info_str->str,
-	runtime_info_str->str);
+        "%s",
+	svnversion, get_copyright_info());
   } else {
     output = stderr;
   }
+  fprintf(output, "\n");
+  fprintf(output, "Usage: tethereal [options] ...\n");
+
+
 #ifdef HAVE_LIBPCAP
-  fprintf(output, "\nt%s [ -vh ] [ -DlLnpqSVx ] [ -a <capture autostop condition> ] ...\n",
-	  PACKAGE);
-  fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
+  fprintf(output, "\n");
+  fprintf(output, "Capture interface:\n");
+  fprintf(output, "  -i <interface>           name or idx of interface (def: first none loopback)\n");
+  fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
+  fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
+  fprintf(output, "  -p                       don't capture in promiscuous mode\n");
 #ifdef _WIN32
-  fprintf(output, "\t[ -B <capture buffer size> ]\n");
+  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
-  fprintf(output, "\t[ -c <capture packet count> ]\n");
-  fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
-  fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ]\n");
-  fprintf(output, "\t[ -i <capture interface> ] [ -N <name resolving flags> ]\n");
-  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ]\n");
-  fprintf(output, "\t[ -R <read (display) filter> ] [ -s <capture snaplen> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -T pdml|ps|psml|text ]\n");
-  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ] [ -z <statistics> ]\n");
-#else
-  fprintf(output, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
-  fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
-  fprintf(output, "\t[ -F <output file type> ] [ -N <name resolving flags> ]\n");
-  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ]\n");
-  fprintf(output, "\t[ -R <read (display) filter> ] \t[ -t <time stamp format> ]\n");
-  fprintf(output, "\t[ -T pdml|ps|psml|text ] [ -w <savefile> ] [ -z <statistics ]\n");
+  fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+  fprintf(output, "  -D                       print list of interfaces and exit\n");
+  fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+  fprintf(output, "\n");
+  fprintf(output, "Capture stop conditions:\n");
+  fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
+  fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
+  fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
+  fprintf(output, "                              files:NUM - stop after NUM files\n");
+  /*fprintf(output, "\n");*/
+  fprintf(output, "Capture output:\n");
+  fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
+  fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
+  fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
 #endif
-  fprintf(output, "Valid file type arguments to the \"-F\" flag:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
-    if (wtap_dump_can_open(i))
-      fprintf(output, "\t%s - %s\n",
-        wtap_file_type_short_string(i), wtap_file_type_string(i));
-  }
-  fprintf(output, "\tdefault is libpcap\n");
+  /*fprintf(output, "\n");*/
+  fprintf(output, "Input file:\n");
+  fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
+
+  fprintf(output, "\n");
+  fprintf(output, "Processing:\n");
+  fprintf(output, "  -R <read filter>         packet filter in Ethereal display filter syntax\n");
+  fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
+  fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
+  fprintf(output, "  -d %s ...\n", decode_as_arg_template);
+  fprintf(output, "                           \"Decode As\", see the man page for details\n");
+  fprintf(output, "                           Example: tcp.port==8888,http\n");
+
+  /*fprintf(output, "\n");*/
+  fprintf(output, "Output:\n");
+  fprintf(stderr, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
+  fprintf(stderr, "  -F <output file type>    set the output file type, default is libpcap\n");
+  fprintf(stderr, "                           an empty \"-F\" option will list the file types\n");
+  fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
+  fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
+  fprintf(output, "  -T pdml|ps|psml|text     output format of text output (def: text)\n");
+  fprintf(output, "  -t ad|a|r|d              output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -l                       flush output after each packet\n");
+  fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
+  fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
+
+  fprintf(output, "\n");
+  fprintf(stderr, "Miscellaneous:\n");
+  fprintf(stderr, "  -h                       display this help and exit\n");
+  fprintf(stderr, "  -v                       display version info and exit\n");
+  fprintf(output, "  -o <pref.>:<value> ...   override preference setting\n");
 }
 
 /*
@@ -864,6 +901,7 @@ main(int argc, char *argv[])
         if (out_file_type < 0) {
           cmdarg_err("\"%s\" isn't a valid capture file type",
 			optarg);
+          list_capture_types();
           exit(1);
         }
         break;
@@ -973,7 +1011,7 @@ main(int argc, char *argv[])
 	}
 	break;
       case 'v':        /* Show version and exit */
-        printf("t" PACKAGE " " VERSION "%s\n"
+        printf("Tethereal " VERSION "%s\n"
                "\n"
                "%s"
                "\n"
@@ -1005,8 +1043,15 @@ main(int argc, char *argv[])
         break;
       default:
       case '?':        /* Bad flag - print usage message */
-        arg_error = TRUE;
+      switch(optopt) {
+      case'F':
+        list_capture_types();
         break;
+      default:
+        print_usage(TRUE);
+      }
+      exit(1);
+      break;
     }
   }
 
