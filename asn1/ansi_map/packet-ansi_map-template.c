@@ -127,6 +127,8 @@ static int hf_ansi_map_digits_enc = -1;
 static int hf_ansi_map_np = -1;
 static int hf_ansi_map_nr_digits = -1;
 static int hf_ansi_map_bcd_digits = -1;
+static int hf_ansi_map_subaddr_type = -1;
+static int hf_ansi_map_subaddr_odd_even = -1;
 static int hf_ansi_alertcode_cadence = -1;
 static int hf_ansi_alertcode_pitch = -1;
 static int hf_ansi_alertcode_alertaction = -1;
@@ -136,7 +138,15 @@ static int hf_ansi_map_announcementcode_std_ann = -1;
 static int hf_ansi_map_announcementcode_cust_ann = -1;
 static int hf_ansi_map_authorizationperiod_period = -1;
 static int hf_ansi_map_value = -1;
-
+static int hf_ansi_map_msc_type = -1;
+static int hf_ansi_map_handoffstate_pi = -1;
+static int hf_ansi_map_tgn = -1;
+static int hf_ansi_map_tmn = -1;
+static int hf_ansi_map_messagewaitingnotificationcount_tom = -1;
+static int hf_ansi_map_messagewaitingnotificationcount_no_mw = -1;
+static int hf_ansi_map_messagewaitingnotificationtype_mwi = -1;
+static int hf_ansi_map_messagewaitingnotificationtype_apt = -1;
+static int hf_ansi_map_messagewaitingnotificationtype_pt = -1;
 
 static int hf_ansi_map_trans_cap_prof = -1;
 static int hf_ansi_map_trans_cap_busy = -1;
@@ -153,15 +163,32 @@ static int hf_ansi_map_terminationtreatment_npr = -1;
 static int hf_ansi_map_terminationtreatment_na = -1;
 static int hf_ansi_map_terminationtreatment_nr = -1;
 static int hf_ansi_trans_cap_tl = -1;
+static int hf_ansi_trans_cap_waddr = -1;
 static int hf_ansi_map_MarketID = -1;
 static int hf_ansi_map_swno = -1;
 static int hf_ansi_map_idno = -1;
 static int hf_ansi_map_segcount = -1;
+static int hf_ansi_map_mslocation_lat = -1;
+static int hf_ansi_map_mslocation_long = -1;
+static int hf_ansi_map_mslocation_res = -1;
+static int hf_ansi_map_nampscallmode_namps = -1;
+static int hf_ansi_map_nampscallmode_amps = -1;
+static int hf_ansi_map_nampschanneldata_navca = -1;
+static int hf_ansi_map_nampschanneldata_CCIndicator = -1;
+
 static int hf_ansi_map_callingfeaturesindicator_cfufa = -1;
 static int hf_ansi_map_callingfeaturesindicator_cfbfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_cfnafa = -1;
 static int hf_ansi_map_callingfeaturesindicator_cwfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_3wcfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_dpfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_ahfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_uscfvmfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_uscfmsfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_uscfnrfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_cpdsfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_ccsfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_epefa = -1;
 static int hf_ansi_map_callingfeaturesindicator_cdfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_vpfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_ctfa = -1;
@@ -172,6 +199,17 @@ static int hf_ansi_map_callingfeaturesindicator_cniroverfa = -1;
 static int hf_ansi_map_cdmacallmode_cdma = -1;
 static int hf_ansi_map_cdmacallmode_amps = -1;
 static int hf_ansi_map_cdmacallmode_namps = -1;
+static int hf_ansi_map_cdmacallmode_cls1 = -1;
+static int hf_ansi_map_cdmacallmode_cls2 = -1;
+static int hf_ansi_map_cdmacallmode_cls3 = -1;
+static int hf_ansi_map_cdmacallmode_cls4 = -1;
+static int hf_ansi_map_cdmacallmode_cls5 = -1;
+static int hf_ansi_map_cdmacallmode_cls6 = -1;
+static int hf_ansi_map_cdmacallmode_cls7 = -1;
+static int hf_ansi_map_cdmacallmode_cls8 = -1;
+static int hf_ansi_map_cdmacallmode_cls9 = -1;
+static int hf_ansi_map_cdmacallmode_cls10 = -1;
+ 
 static int hf_ansi_map_cdmastationclassmark_pc = -1;
 static int hf_ansi_map_cdmastationclassmark_dtx = -1;
 static int hf_ansi_map_cdmastationclassmark_smi = -1;
@@ -182,6 +220,8 @@ static int hf_ansi_map_channeldata_scc = -1;
 static int hf_ansi_map_channeldata_chno = -1;
 static int hf_ansi_map_ConfidentialityModes_vp = -1;
 static int hf_ansi_map_ConfidentialityModes_se = -1;
+static int hf_ansi_map_deniedauthorizationperiod_period = -1;
+static int hf_ansi_map_ConfidentialityModes_dp = -1;
 
 static int hf_ansi_map_originationtriggers_all = -1;
 static int hf_ansi_map_originationtriggers_local = -1;
@@ -373,6 +413,7 @@ const value_string ansi_map_opr_code_strings[] = {
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_ansi_map_SystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 
 typedef struct dgt_set_t
 {
@@ -487,7 +528,7 @@ static const value_string ansi_map_np_vals[]  = {
     {   5, "Maritime Mobile Numbering"},
     {   6, "Land Mobile Numbering (ITU-T Rec. E.212)"},
     {   7, "Private Numbering Plan"},
-    {   13, "ANSI SS7 Point Code (PC) and Subsystem Number (SSN)"},
+    {   13, "SS7 Point Code (PC) and Subsystem Number (SSN)"},
     {   14, "Internet Protocol (IP) Address."},
     {   15, "Reserved for extension"},
 	{	0, NULL }
@@ -563,6 +604,39 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 
 }
+/* 6.5.3.13. Subaddress */
+
+static const true_false_string ansi_map_Odd_Even_Ind_bool_val  = {
+  "Odd",
+  "Even"
+};
+/* Type of Subaddress (octet 1, bits E-G) */
+static const value_string ansi_map_sub_addr_type_vals[]  = {
+    {   0, "NSAP (CCITT Rec. X.213 or ISO 8348 AD2)"},
+    {   1, "User specified"},
+    {   2, "Reserved"},
+    {   3, "Reserved"},
+    {   4, "Reserved"},
+    {   5, "Reserved"},
+    {   6, "Reserved"},
+    {   7, "Reserved"},
+	{	0, NULL }
+};
+
+static void 
+dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* Type of Subaddress (octet 1, bits E-G) */
+	proto_tree_add_item(subtree, hf_ansi_map_subaddr_type, tvb, offset, 1, FALSE);
+	/* Odd/Even Indicator (O/E) (octet 1, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_subaddr_odd_even, tvb, offset, 1, FALSE);
+
+}
 /*
  * 6.5.2.2 ActionCode
  * Table 114 ActionCode value
@@ -590,6 +664,7 @@ static const value_string ansi_map_ActionCode_vals[]  = {
     {   17, "Record NEWMSID"},
     {   18, "Allocate Resources (e.g., Multiple message traffic channel delivery)."},
     {   19, "Generate Authentication Signature"},
+    {   20, "Release leg and redirect subscriber"},
 	{	0, NULL }
 };
 /* 6.5.2.3 AlertCode */
@@ -673,7 +748,7 @@ static const value_string ansi_map_AlertResult_result_vals[]  = {
 	{	0, NULL }
 };
 
-/* 6.5.2.5 AnnouncementCode */
+/* 6.5.2.5 AnnouncementCode Updatef from NS0018Re*/
 /* Tone (octet 1) */
 static const value_string ansi_map_AnnouncementCode_tone_vals[]  = {
 	{   0, "DialTone"},
@@ -686,7 +761,13 @@ static const value_string ansi_map_AnnouncementCode_tone_vals[]  = {
 	{   7, "CallWaitingTone"},
 	{   8, "OffHookTone"},
 	{   17, "RecallDialTone"},
-	{   18, "BargeInTone."},
+	{   18, "BargeInTone"},
+	{   20, "PPCInsufficientTone"},
+	{   21, "PPCWarningTone1"},
+	{   22, "PPCWarningTone2"},
+	{   23, "PPCWarningTone3"},
+	{   24, "PPCDisconnectTone"},
+	{   25, "PPCRedirectTone"},
 	{   63, "TonesOff"},
 	{   192, "PipTone"},
 	{   193, "AbbreviatedIntercept"},
@@ -704,7 +785,7 @@ static const value_string ansi_map_AnnouncementCode_class_vals[]  = {
 	{   1, "Sequential"},
 	{	0, NULL }
 };
-/* Standard Announcement (octet 3) */
+/* Standard Announcement (octet 3) Updated with N.S0015 */
 static const value_string ansi_map_AnnouncementCode_std_ann_vals[]  = {
 	{   0, "None"},
 	{   1, "UnauthorizedUser"},
@@ -776,6 +857,15 @@ static const value_string ansi_map_AnnouncementCode_std_ann_vals[]  = {
 	{   139, "EnterDirectoryNumberPrompt"},
 	{   140, "ReEnterDirectoryNumberPrompt"},
 	{   141, "EnterFeatureCodePrompt"},
+	{   142, "EnterEnterCreditCardNumberPrompt"},
+	{   143, "EnterDestinationNumberPrompt"},
+	{   152, "PPCInsufficientAccountBalance"},
+	{   153, "PPCFiveMinuteWarning"},
+	{   154, "PPCThreeMinuteWarning"},
+	{   155, "PPCTwoMinuteWarning"},
+	{   156, "PPCOneMinuteWarning"},
+	{   157, "PPCDisconnect"},
+	{   158, "PPCRedirect"},
 	{	0, NULL }
 };
 
@@ -808,11 +898,12 @@ dissect_ansi_map_announcementcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_item(subtree, hf_ansi_map_announcementcode_cust_ann, tvb, offset, 1, FALSE);
 
 }
-/* 6.5.2.8 AuthenticationCapability */
+/* 6.5.2.8 AuthenticationCapability Updated N.S0003*/
 static const value_string ansi_map_AuthenticationCapability_vals[]  = {
 	{   0, "Not used"},
 	{   1, "No authentication required"},
 	{   2, "Authentication required"},
+	{   128, "Authentication required and UIM capable."},
 	{	0, NULL }
 };
 
@@ -931,11 +1022,29 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnip1fa, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* (Octet 4 bits GH ) 	*/
-	/* (Octet 4 bits EF ) 	*/
-	/* (Octet 4 bits CD ) 	*/
+	/* USCF divert to voice mail: FeatureActivity USCFvm-FA (Octet 4 bits GH ) 	*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfvmfa, tvb, offset, 1, FALSE);
+	/* Answer Hold: FeatureActivity AH-FA (Octet 4 bits EF ) N.S0029-0 v1.0	*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ahfa, tvb, offset, 1, FALSE);
+	/* Data Privacy Feature Activity DP-FA (Octet 4 bits CD ) N.S0008-0 v 1.0	*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_dpfa, tvb, offset, 1, FALSE);
 	/* Priority Call Waiting FeatureActivity PCW-FA (Octet 4 bits AB )	*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_3wcfa, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* USCF divert to mobile station provided DN:FeatureActivity.USCFms-FA (Octet 5 bits AB ) */
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfmsfa, tvb, offset, 1, FALSE);
+	/* USCF divert to network registered DN:FeatureActivity. USCFnr-FA (Octet 5 bits CD )*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfnrfa, tvb, offset, 1, FALSE);
+	/* CDMA-Packet Data Service: FeatureActivity. CPDS-FA (Octet 5 bits EF ) N.S0029-0 v1.0*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cpdsfa, tvb, offset, 1, FALSE);
+	/* CDMA-Concurrent Service:FeatureActivity. CCS-FA (Octet 5 bits GH ) N.S0029-0 v1.0*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ccsfa, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA (Octet 6 bits AB ) N.S0029-0 v1.0*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_epefa, tvb, offset, 1, FALSE);
+
 	}
 
 
@@ -948,19 +1057,75 @@ static const value_string ansi_map_CancellationType_vals[]  = {
 	{	0, NULL }
 };
 
-/* 6.5.2.29 CDMACallMode */
+/* 6.5.2.29 CDMACallMode Updated with N.S0029-0 v1.0*/
+/* Call Mode (octet 1, bit A) */
 static const true_false_string ansi_map_CDMACallMode_cdma_bool_val  = {
-  "CDMA channel acceptable",
-  "CDMA channel not acceptable"
+  "CDMA 800 MHz channel (Band Class 0) acceptable.",
+  "CDMA 800 MHz channel (Band Class 0) not acceptable"
 };
-static const true_false_string ansi_map_CDMACallMode_amps_bool_val  = {
-	"AMPS channel acceptable",
-	"AMPS channel not acceptable"
+/* Call Mode (octet 1, bit B) */
+static const true_false_string ansi_map_CallMode_amps_bool_val  = {
+	"AAMPS 800 MHz channel acceptable",
+	"AMPS 800 MHz channel not acceptable"
 };
-static const true_false_string ansi_map_CDMACallMode_namps_bool_val  = {
-	"NAMPS channel acceptable",
-	"NAMPS channel not acceptable"
+/* Call Mode (octet 1, bit C) */
+static const true_false_string ansi_map_CallMode_namps_bool_val  = {
+	"NAMPS 800 MHz channel acceptable",
+	"NAMPS 800 MHz channel not acceptable"
 };
+/* Call Mode (octet 1, bit D) */
+static const true_false_string ansi_map_CDMACallMode_cls1_bool_val  = {
+  "CDMA 1900 MHz channel (Band Class 1) acceptable.",
+  "CDMA 1900 MHz channel (Band Class 1) not acceptable"
+};
+/* Call Mode (octet 1, bit E) */
+static const true_false_string ansi_map_CDMACallMode_cls2_bool_val  = {
+  "TACS channel (Band Class 2) acceptable",
+  "TACS channel (Band Class 2) not acceptable"
+};
+/* Call Mode (octet 1, bit F) */
+static const true_false_string ansi_map_CDMACallMode_cls3_bool_val  = {
+  "JTACS channel (Band Class 3) acceptable",
+  "JTACS channel (Band Class 3) not acceptable"
+};
+/* Call Mode (octet 1, bit G) */
+static const true_false_string ansi_map_CDMACallMode_cls4_bool_val  = {
+  "Korean PCS channel (Band Class 4) acceptable",
+  "Korean PCS channel (Band Class 4) not acceptable"
+};
+/* Call Mode (octet 1, bit H) */
+static const true_false_string ansi_map_CDMACallMode_cls5_bool_val  = {
+  "450 MHz channel (Band Class 5) not acceptable",
+  "450 MHz channel (Band Class 5) not acceptable"
+};
+/* Call Mode (octet 2, bit A) */
+static const true_false_string ansi_map_CDMACallMode_cls6_bool_val  = {
+  "2 GHz channel (Band Class 6) acceptable.",
+  "2 GHz channel (Band Class 6) not acceptable."
+};
+
+/* Call Mode (octet 2, bit B) */
+static const true_false_string ansi_map_CDMACallMode_cls7_bool_val  = {
+  "700 MHz channel (Band Class 7) acceptable",
+  "700 MHz channel (Band Class 7) not acceptable"
+};
+
+/* Call Mode (octet 2, bit C) */
+static const true_false_string ansi_map_CDMACallMode_cls8_bool_val  = {
+  "1800 MHz channel (Band Class 8) acceptable",
+  "1800 MHz channel (Band Class 8) not acceptable"
+};
+/* Call Mode (octet 2, bit D) */
+static const true_false_string ansi_map_CDMACallMode_cls9_bool_val  = {
+  "900 MHz channel (Band Class 9) acceptable",
+  "900 MHz channel (Band Class 9) not acceptable"
+};
+/* Call Mode (octet 2, bit E) */
+static const true_false_string ansi_map_CDMACallMode_cls10_bool_val  = {
+  "Secondary 800 MHz channel (Band Class 10) acceptable.",
+  "Secondary 800 MHz channel (Band Class 10) not acceptable."
+};
+
 static void
 dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
@@ -969,13 +1134,38 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
-	/* Call Mode (octet 1, bits A-C) */
+	/* Call Mode (octet 1, bit A) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cdma, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit B) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_amps, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit C) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_namps, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls1, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls2, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit F) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls3, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit G) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls4, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit H) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls5, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* Call Mode (octet 2, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls6, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls7, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls8, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls9, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls10, tvb, offset, 1, FALSE);
 
 }
 /* 6.5.2.30 CDMAChannelData */
+/* Updated with N.S0010-0 v 1.0 */
 /* TODO Add decoding here */
 
 /* 6.5.2.31 CDMACodeChannel */
@@ -983,10 +1173,10 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 /* 6.5.2.41 CDMAStationClassMark */
 /* Power Class: (PC) (octet 1, bits A and B) */
 static const value_string ansi_map_CDMAStationClassMark_pc_vals[]  = {
-	{   0, "Not used"},
-	{   1, "COUNT Update not attempted"},
-	{   2, "COUNT Update no response"},
-	{   3, "COUNT Update successful"},
+	{   0, "Class I"},
+	{   1, "Class II"},
+	{   2, "Class III"},
+	{   3, "Reserved"},
 	{	0, NULL }
 };
 /* Analog Transmission: (DTX) (octet 1, bit C) */
@@ -1058,6 +1248,7 @@ dissect_ansi_map_channeldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 /* 6.5.2.50 ConfidentialityModes */
+/* Updated with N.S0008-0 v 1.0*/
 /* Voice Privacy (VP) Confidentiality Status (octet 1, bit A) */
 
 static const true_false_string ansi_map_ConfidentialityModes_bool_val  = {
@@ -1073,6 +1264,8 @@ dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
 
+	/* DataPrivacy (DP) Confidentiality Status (octet 1, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_dp, tvb, offset, 1, FALSE);
 	/* Signaling Message Encryption (SE) Confidentiality Status (octet 1, bit B) */
 	proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_se, tvb, offset, 1, FALSE);
 	/* Voice Privacy (VP) Confidentiality Status (octet 1, bit A) */
@@ -1081,6 +1274,15 @@ dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 
 /* 6.5.2.51 ControlChannelData */
+
+/* Digital Color Code (DCC) (octet 1, bit H and G) */
+/* Control Mobile Attenuation Code (CMAC) (octet 1, bit A - C) */
+/* Channel Number (CHNO) ( octet 2 and 3 ) */
+/* Supplementary Digital Color Codes (SDCC1 and SDCC2) */
+/* SDCC1 ( octet 4, bit D and C )*/
+/* SDCC2 ( octet 4, bit A and B )*/
+
+
 
 /* 6.5.2.52 CountUpdateReport */
 static const value_string ansi_map_CountUpdateReport_vals[]  = {
@@ -1092,9 +1294,8 @@ static const value_string ansi_map_CountUpdateReport_vals[]  = {
 };
 
 /* 6.5.2.53 DeniedAuthorizationPeriod */
-
-/* Period (octet 1) */
-static const value_string ansi_map_DeniedAuthorizationPeriod_vals[]  = {
+/* Period (octet 1) */ 
+static const value_string ansi_map_deniedauthorizationperiod_period_vals[]  = {
 	{   0, "Not used"},
 	{   1, "Per Call. Re-authorization should be attempted on the next call attempt"},
 	{   2, "Hours"},
@@ -1113,6 +1314,193 @@ indicates anything else the Value is set to zero
 on sending and ignored on receipt. 
 */
 
+static void
+dissect_ansi_map_deniedauthorizationperiod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	proto_tree_add_item(subtree, hf_ansi_map_deniedauthorizationperiod_period, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(subtree, hf_ansi_map_value, tvb, offset, 1, FALSE);
+
+}
+
+
+/* 6.5.2.57 DigitCollectionControl */
+/* TODO Add decoding here */
+
+/* 6.5.2.64 ExtendedMSCID */
+static const value_string ansi_map_msc_type_vals[]  = {
+	{   0, "Not specified"},
+	{   1, "Serving MSC"},
+	{   2, "Home MSC"},
+	{   3, "Gateway MSC"},
+	{   4, "HLR"},
+	{   5, "VLR"},
+	{   6, "EIR (reserved)"},
+	{   7, "AC"},
+	{   8, "Border MSC"},
+	{   9, "Originating MSC"},
+	{	0, NULL }
+};
+
+static void
+dissect_ansi_map_extendedmscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* Type (octet 1) */
+	proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+
+}
+/* 6.5.2.65 ExtendedSystemMyTypeCode */
+static void
+dissect_ansi_map_extendedsystemmytypecode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* Type (octet 1) */
+	proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
+	offset++;
+	offset = dissect_ansi_map_SystemMyTypeCode(TRUE, tvb, offset, pinfo, subtree, hf_ansi_map_systemMyTypeCode);
+}
+
+
+/* 6.5.2.68 GeographicAuthorization */
+/* Geographic Authorization (octet 1) */
+static const value_string ansi_map_GeographicAuthorization_vals[]  = {
+	{   0, "Not used"},
+	{   1, "Authorized for all MarketIDs served by the VLR"},
+	{   2, "Authorized for this MarketID only"},
+	{   3, "Authorized for this MarketID and Switch Number only"},
+	{   4, "Authorized for this LocationAreaID within a MarketID only"},
+	{   5, "VLR"},
+	{   6, "EIR (reserved)"},
+	{   7, "AC"},
+	{   8, "Border MSC"},
+	{   9, "Originating MSC"},
+	{	0, NULL }
+};
+
+/* 6.5.2.71 HandoffState */
+/* Party Involved (PI) (octet 1, bit A) */
+static const true_false_string ansi_map_HandoffState_pi_bool_val  = {
+	"Terminator is handing off",
+	"Originator is handing off"
+};
+static void
+dissect_ansi_map_handoffstate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* Party Involved (PI) (octet 1, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_handoffstate_pi, tvb, offset, 1, FALSE);
+}
+
+/* 6.5.2.72 InterMSCCircuitID */
+/* Trunk Member Number (M) Octet2 */
+static void
+dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* Trunk Group Number (G) Octet 1 */
+	proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, FALSE);
+	offset++;
+	/* Trunk Member Number (M) Octet2 */
+	proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, FALSE);
+}
+
+/* 6.5.2.78 MessageWaitingNotificationCount */
+/* Type of messages (octet 1) */
+static const value_string ansi_map_MessageWaitingNotificationCount_type_vals[]  = {
+	{   0, "Voice messages"},
+	{   1, "Short Message Services (SMS) messages"},
+	{   2, "Group 3 (G3) Fax messages"},
+	{	0, NULL }
+};
+
+static void
+dissect_ansi_map_messagewaitingnotificationcount(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* Type of messages (octet 1) */
+	proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationcount_tom, tvb, offset, 1, FALSE);
+	offset++;
+	/* Number of Messages Waiting (octet 2) */
+	proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationcount_no_mw, tvb, offset, 1, FALSE);
+
+}
+
+/* 6.5.2.79 MessageWaitingNotificationType */
+/* Pip Tone (PT) (octet 1, bit A) */
+static const true_false_string ansi_map_MessageWaitingNotificationType_pt_bool_val  = {
+	"Pip Tone (PT) notification is required",
+	"Pip Tone (PT) notification is not authorized or no notification is required"
+};
+/* Alert Pip Tone (APT) (octet 1, bit B) */
+static const true_false_string ansi_map_MessageWaitingNotificationType_apt_bool_val  = {
+	"Alert Pip Tone (APT) notification is required",
+	"Alert Pip Tone (APT) notification is not authorized or notification is not required"
+};
+/* Message Waiting Indication (MWI) (octet 1, bits C and D) */
+static const value_string ansi_map_MessageWaitingNotificationType_mwi_vals[]  = {
+	{   0, "No MWI. Message Waiting Indication (MWI) notification is not authorized or notification is not required"},
+	{   1, "Reserved"},
+	{   2, "MWI On. Message Waiting Indication (MWI) notification is required. Messages waiting"},
+	{   3, "MWI Off. Message Waiting Indication (MWI) notification is required. No messages waiting"},
+	{	0, NULL }
+};
+
+static void
+dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	
+	/* Message Waiting Indication (MWI) (octet 1, bits C and D) */
+	proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_mwi, tvb, offset, 1, FALSE);
+	/* Alert Pip Tone (APT) (octet 1, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_apt, tvb, offset, 1, FALSE);
+	/* Pip Tone (PT) (octet 1, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_pt, tvb, offset, 1, FALSE);
+}
+
+/* 6.5.2.81 MobileIdentificationNumber */
+
 /* 6.5.2.82 MSCID */
 
 static void
@@ -1129,9 +1517,158 @@ dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
 }
 
+
+/* 6.5.2.84 MSLocation */
+static void
+dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_mscid);
+
+	/* Latitude in tenths of a second octet 1 - 3 */
+	proto_tree_add_item(subtree, hf_ansi_map_mslocation_lat, tvb, offset, 3, FALSE);
+	offset = offset + 3;
+	/* Longitude in tenths of a second octet 4 - 6 */
+	proto_tree_add_item(subtree, hf_ansi_map_mslocation_long, tvb, offset, 3, FALSE);
+	offset = offset + 3;
+	/* Resolution in units of 1 foot octet 7, octet 8 optional */
+	proto_tree_add_item(subtree, hf_ansi_map_mslocation_res, tvb, offset, -1, FALSE);
+
+}
+/* 6.5.2.85 NAMPSCallMode */
+static void
+dissect_ansi_map_nampscallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_mscid);
+
+	/* Call Mode (octet 1, bits A and B) */
+	proto_tree_add_item(subtree, hf_ansi_map_nampscallmode_amps, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_nampscallmode_namps, tvb, offset, 1, FALSE);
+}
+
+/* 6.5.2.86 NAMPSChannelData */
+/* Narrow Analog Voice Channel Assignment (NAVCA) (octet 1, bits A and B) */
+static const value_string ansi_map_NAMPSChannelData_navca_vals[]  = {
+	{   0, "Wide. 30 kHz AMPS voice channel"},
+	{   1, "Upper. 10 kHz NAMPS voice channel"},
+	{   2, "Middle. 10 kHz NAMPS voice channel"},
+	{   3, "Lower. 10 kHz NAMPS voice channel"},
+	{	0, NULL }
+};
+/* Color Code Indicator (CCIndicator) (octet 1, bits C, D, and E) */
+static const value_string ansi_map_NAMPSChannelData_ccinidicator_vals[]  = {
+	{   0, "ChannelData parameter SCC field applies"},
+	{   1, "Digital SAT Color Code 1 (ignore SCC field)"},
+	{   2, "Digital SAT Color Code 2 (ignore SCC field)"},
+	{   3, "Digital SAT Color Code 3 (ignore SCC field)"},
+	{   4, "Digital SAT Color Code 4 (ignore SCC field)"},
+	{   5, "Digital SAT Color Code 5 (ignore SCC field)"},
+	{   6, "Digital SAT Color Code 6 (ignore SCC field)"},
+	{   7, "Digital SAT Color Code 7 (ignore SCC field)"},
+	{	0, NULL }
+};
+
+
+
+static void
+dissect_ansi_map_nampschanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_mscid);
+
+	/* Color Code Indicator (CCIndicator) (octet 1, bits C, D, and E) */
+	proto_tree_add_item(subtree, hf_ansi_map_nampschanneldata_CCIndicator, tvb, offset, 1, FALSE);
+	/* Narrow Analog Voice Channel Assignment (NAVCA) (octet 1, bits A and B) */
+	proto_tree_add_item(subtree, hf_ansi_map_nampschanneldata_navca, tvb, offset, 1, FALSE);
+
+}
+
+/* 6.5.2.88 OneTimeFeatureIndicator */
+/* updated with N.S0012 */
+/* Call Waiting for Future Incoming Call (CWFI) (octet 1, bits A and B) */
+/* Call Waiting for Incoming Call (CWIC) (octet 1, bits C and D) */
+
+static const value_string ansi_map_onetimefeatureindicator_cw_vals[]  = {
+	{   0, "Ignore"},
+	{   1, "No CW"},
+	{   2, "Normal CW"},
+	{   3, "Priority CW"},
+	{	0, NULL }
+};
+/* MessageWaitingNotification (MWN) (octet 1, bits E and F) */
+static const value_string ansi_map_onetimefeatureindicator_mwn_vals[]  = {
+	{   0, "Ignore"},
+	{   1, "Pip Tone Inactive"},
+	{   2, "Pip Tone Active"},
+	{   3, "Reserved"},
+	{	0, NULL }
+};
+/* Calling Number Identification Restriction (CNIR) (octet 1, bits G and H)*/
+static const value_string ansi_map_onetimefeatureindicator_cnir_vals[]  = {
+	{   0, "Ignore"},
+	{   1, "CNIR Inactive"},
+	{   2, "CNIR Active"},
+	{   3, "Reserved"},
+	{	0, NULL }
+};
+
+/* Priority Access and Channel Assignment (PACA) (octet 2, bits A and B)*/
+static const value_string ansi_map_onetimefeatureindicator_paca_vals[]  = {
+	{   0, "Ignore"},
+	{   1, "PACA Demand Inactive"},
+	{   2, "PACA Demand Activated"},
+	{   3, "Reserved"},
+	{	0, NULL }
+};
+
+/* Flash Privileges (Flash) (octet 2, bits C and D) */
+static const value_string ansi_map_onetimefeatureindicator_flash_vals[]  = {
+	{   0, "Ignore"},
+	{   1, "Flash Inactive"},
+	{   2, "Flash Active"},
+	{   3, "Reserved"},
+	{	0, NULL }
+};
+/* Calling Name Restriction (CNAR) (octet 2, bits E and F) */
+static const value_string ansi_map_onetimefeatureindicator_cnar_vals[]  = {
+	{   0, "Ignore"},
+	{   1, "Presentation Allowed"},
+	{   2, "Presentation Restricted."},
+	{   3, "Blocking Toggle"},
+	{	0, NULL }
+};
+static void
+dissect_ansi_map_onetimefeatureindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_mscid);
+
+	/* Calling Number Identification Restriction (CNIR) (octet 1, bits G and H)*/
+	/* MessageWaitingNotification (MWN) (octet 1, bits E and F) */
+	/* Call Waiting for Incoming Call (CWIC) (octet 1, bits C and D) */
+	/* Call Waiting for Future Incoming Call (CWFI) (octet 1, bits A and B) */
+	offset++;
+	/* Calling Name Restriction (CNAR) (octet 2, bits E and F) */
+	/* Flash Privileges (Flash) (octet 2, bits C and D) */
+	/* Priority Access and Channel Assignment (PACA) (octet 2, bits A and B)*/
+
+
+}
+
 /* 6.5.2.90 OriginationTriggers */
-
-
 /* All Origination (All) (octet 1, bit A) */
 static const true_false_string ansi_map_originationtriggers_all_bool_val  = {
   "Launch an OriginationRequest for any call attempt. This overrides all other values",
@@ -1413,6 +1950,72 @@ static const value_string ansi_map_PageIndicator_vals[]  = {
 	{	0, NULL }
 };
 
+/* 6.5.2.93 PC_SSN */
+static void
+dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* Type (octet 1) */
+	proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
+	offset++;
+	/* TODO Put this info in the tree ( use function from MTP3 ? )
+	/* Point Code Member Number octet 2 */
+	/* Point Code Cluster Number octet 3 */
+	/* Point Code Network Number octet 4 */
+	/* Subsystem Number (SSN) octet 5 */
+
+}
+/* 6.5.2.94 PilotBillingID */
+static void
+dissect_ansi_map_pilotbillingid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/* First Originating MarketID octet 1 and 2 */
+	proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	/* First Originating Switch Number octet 3*/
+	proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+	offset++;
+	/* ID Number */
+	proto_tree_add_item(subtree, hf_ansi_map_idno, tvb, offset, 3, FALSE);
+	offset = offset + 3;
+	proto_tree_add_item(subtree, hf_ansi_map_segcount, tvb, offset, 1, FALSE);
+
+}
+/* 6.5.2.96 PreferredLanguageIndicator */
+static const value_string ansi_map_PreferredLanguageIndicator_vals[]  = {
+    {   0, "Unspecified"},
+    {   1, "English"},
+    {   2, "French"},
+    {   3, "Spanish"},
+    {   4, "German"},
+    {   5, "Portuguese"},
+	{	0, NULL }
+};
+
+/* 6.5.2.106 ReceivedSignalQuality */
+/* a. This octet is encoded the same as octet 1 in the SignalQuality parameter (see
+		6.5.2.121).
+*/
+/* 6.5.2.118 SetupResult */
+static const value_string ansi_map_SetupResult_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Unsuccessful"},
+    {   2, "Successful"},
+	{	0, NULL }
+};
+/* 6.5.2.121 SignalQuality */
+/* TODO */
 
 /*	6.5.2.122 SMS_AccessDeniedReason (TIA/EIA-41.5-D, page 5-256)
 	N.S0011-0 v 1.0
@@ -1425,6 +2028,7 @@ static const value_string ansi_map_SMS_AccessDeniedReason_vals[]  = {
     {   4, "Invalid"},
 	{	0, NULL }
 };
+
 
 /* 6.5.2.125 SMS_CauseCode (TIA/EIA-41.5-D, page 5-262)
 	N.S0011-0 v 1.0
@@ -1465,15 +2069,97 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
 	{	0, NULL }
 };
 
-/* 6.5.2.142 SSDUpdateReport */
-static const value_string ansi_map_SSDUpdateReport_vals[]  = {
+/* 6.5.2.126 SMS_ChargeIndicator */
+/* SMS Charge Indicator (octet 1) */
+static const value_string ansi_map_SMS_ChargeIndicator_vals[]  = {
     {   0, "Not used"},
-    {   1, "SSD Update not attempted"},
+    {   1, "No charge"},
+    {   2, "Charge original originator"},
+    {   3, "Charge original destination"},
+	{	0, NULL }
+};
+/*	4 through 63 Reserved. Treat the same as value 1, No charge.
+	64 through 127 Reserved. Treat the same as value 2, Charge original originator.
+	128 through 223 Reserved. Treat the same as value 3, Charge original destination.
+	224 through 255 Reserved for TIA/EIA-41 protocol extension. If unknown, treat the same as value 2, Charge
+	original originator.
+	*/
+
+/* 6.5.2.130 SMS_NotificationIndicator */
+static const value_string ansi_map_SMS_NotificationIndicator_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Do not notify when available"},
+	{	0, NULL }
+};
+
+/* 6.5.2.136 SMS_OriginationRestrictions */
+/* DEFAULT (octet 1, bits A and B) */
+
+static const value_string ansi_map_SMS_OriginationRestrictions_default_vals[]  = {
+    {   0, "Block all"},
+    {   1, "Reserved"},
+    {   1, "Allow specific"},
+    {   1, "Allow all"},
+	{	0, NULL }
+};
+/* DIRECT (octet 1, bit C) */
+static const true_false_string ansi_map_SMS_OriginationRestrictions_direct_bool_val  = {
+  "Allow Direct",
+  "Block Direct"
+};
+
+/* Force Message Center (FMC) (octet 1, bit D) */
+static const true_false_string ansi_map_SMS_OriginationRestrictions_fmc_bool_val  = {
+  "Force Indirect",
+  "No effect"
+};
+
+/* 6.5.2.137 SMS_TeleserviceIdentifier */
+/* Updated with N.S0011-0 v 1.0 */
+
+/* SMS Teleservice Identifier (octets 1 and 2) */
+static const value_string ansi_map_SMS_TeleserviceIdentifier_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Reserved for maintenance"},
     {   2, "SSD Update no response"},
     {   3, "SSD Update successful"},
     {   4, "SSD Update failed"},
 	{	0, NULL }
 };
+/* 6.5.2.140 SPINITriggers */
+/* All Origination (All) (octet 1, bit A) */
+
+/* 6.5.2.142 SSDUpdateReport */
+static const value_string ansi_map_SSDUpdateReport_vals[]  = {
+    {   0, "Not used"},
+    {   4096, "AMPS Extended Protocol Enhanced Services"},
+    {   4097, "CDMA Cellular Paging Teleservice"},
+    {   4098, "CDMA Cellular Messaging Teleservice"},
+    {   32513, "TDMA Cellular Messaging Teleservice"},
+    {   32514, "TDMA Cellular Paging Teleservice (CPT-136)"},
+    {   32515, "TDMA Over-the-Air Activation Teleservice (OATS)"},
+    {   32516, "TDMA Over-the-Air Programming Teleservice (OPTS)"},
+    {   32517, "TDMA General UDP Transport Service (GUTS)"},
+    {   32576, "Reserved"},
+    {   32577, "TDMA Segmented Cellular MessagingTeleservice"},
+    {   32578, "TDMA Segmented Cellular Paging Teleservice"},
+    {   32579, "TDMA Segmented Over-the-Air Activation Teleservice (OATS)"},
+    {   32580, "TDMA Segmented Over-the-Air Programming Teleservice (OPTS)."},
+    {   32581, "TDMA Segmented General UDP Transport Service (GUTS)"},
+    {   32576, "Reserved"},
+	{	0, NULL }
+};
+
+/* 6.5.2.143 StationClassMark */
+
+/* 6.5.2.144 SystemAccessData */
+
+/* 6.5.2.146 SystemCapabilities */
+/* Updated in N.S0008-0 v 1.0 */
+
+/* 6.5.2.151 TDMABurstIndicator */
+/* 6.5.2.152 TDMACallMode */
+/* 6.5.2.153 TDMAChannelData Updated in N.S0007-0 v 1.0*/
 
 /* 6.5.2.155 TerminationAccessType */
 /* XXX Fix Me, Fill up the values or do special decoding? */
@@ -1572,6 +2258,7 @@ dissect_ansi_map_terminationtreatment(tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 
 /* 6.5.2.160 TransactionCapability (TIA/EIA-41.5-D, page 5-315) */
+/* Updated with N.S0010-0 v 1.0, N.S0012-0 v 1.0 N.S0013-0 v 1.0 */
 static const true_false_string ansi_map_trans_cap_prof_bool_val  = {
   "The system is capable of supporting the IS-41-C profile parameters",
   "The system is not capable of supporting the IS-41-C profile parameters"
@@ -1635,6 +2322,11 @@ static const true_false_string ansi_map_trans_cap_tl_bool_val  = {
   "The system is not capable of supporting the TerminationList parameter at the current time"
 };
 
+static const true_false_string ansi_map_trans_cap_waddr_bool_val  = {
+  "The system is capable of supporting the TriggerAddressList parameter",
+  "The system is not capable of supporting the TriggerAddressList parameter"
+};
+
 
 static void
 dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
@@ -1664,12 +2356,38 @@ dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo, proto_
 	proto_tree_add_item(subtree, hf_ansi_map_trans_cap_prof, tvb, offset, 1, FALSE);
 	offset++;
 
+	/* WIN Addressing (WADDR) (octet 2, bit F) */
+	proto_tree_add_item(subtree, hf_ansi_trans_cap_waddr, tvb, offset, 1, FALSE);
 	/* Multiple Terminations (octet 2, bits A-D) */
 	proto_tree_add_item(subtree, hf_ansi_trans_cap_multerm, tvb, offset, 1, FALSE);
 	/* TerminationList (TL) (octet 2, bit E) */
 	proto_tree_add_item(subtree, hf_ansi_trans_cap_tl, tvb, offset, 1, FALSE);
 }
-/* 6.5.2.i (IS-730) TDMAServiceCode */
+
+/* 6.5.2.162 UniqueChallengeReport */
+/* Unique Challenge Report (octet 1) */
+static const value_string ansi_map_UniqueChallengeReport_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Unique Challenge not attempted"},
+    {   2, "Unique Challenge no response"},
+    {   3, "Unique Challenge successful"},
+    {   4, "Unique Challenge failed"},
+	{	0, NULL }
+};
+
+/* 6.5.2.166 VoicePrivacyMask */
+
+
+/* 6.5.2.e (TSB76) CDMAServiceConfigurationRecord N.S0008-0 v 1.0 */
+/* a. This field carries the CDMA Service Configuration Record. The bit-layout is the
+same as that of Service Configuration Record in TSB74, and J-STD-008.
+*/
+
+/* 6.5.2.f (TSB76) CDMAServiceOption N.S0008-0 v 1.0*/
+/* This field carries the CDMA Service Option. The bit-layout is the same as that of
+Service Option in TSB74 and J-STD-008.*/
+
+/* 6.5.2.i (IS-730) TDMAServiceCode N.S0008-0 v 1.0 */
 static const value_string ansi_map_TDMAServiceCode_vals[]  = {
     {   0, "Analog Speech Only"},
     {   1, "Digital Speech Only"},
@@ -1681,8 +2399,50 @@ static const value_string ansi_map_TDMAServiceCode_vals[]  = {
     {   7, "STU-III"},
 	{	0, NULL }
 };
+/* 6.5.2.j (IS-730) TDMATerminalCapability N.S0008-0 v 1.0 Updted with N.S0015-0 */
+/* Supported Frequency Band (octet 1) */
+/* Voice Coder (octet 2) */
+/* Protocol Version (octet 3) N.S0015-0 */
+static const value_string ansi_map_TDMATerminalCapability_prot_ver_vals[]  = {
+    {   0, "EIA-553 or IS-54-A"},
+    {   1, "TIA/EIA-627.(IS-54-B)"},
+    {   2, "IS-136"},
+    {   3, "Permanently Reserved (ANSI J-STD-011).Treat the same as value 4, IS-136-A."},
+    {   4, "PV 0 as published in TIA/EIA-136-0 and IS-136-A."},
+    {   5, "PV 1 as published in TIA/EIA-136-A."},
+    {   6, "PV 2 as published in TIA/EIA-136-A."},
+    {   7, "PV 3 as published in TIA/EIA-136-A."},
+	{	0, NULL }
+};
+/* Asynchronous Data (ADS) (octet 4, bit A) N.S0007-0*/
+/* Group 3 Fax (G3FAX) (octet 4, bit B) */
+/* Secure Telephone Unit III (STU3) (octet 4, bit C) */
+/* Analog Voice (AVOX) (octet 4, bit D) */
+/* Half Rate (HRATE) (octet 4, bit E) */
+/* Full Rate (FRATE) (octet 4, bit F) */
+/* Double Rate (2RATE) (octet 4, bit G) */
+/* Triple Rate (3RATE) (octet 4, bit H) */
 
-/*- 6.5.2.ac (N.S0007-0 v 1.0) ControlChannelMode */
+
+/* 6.5.2.k (IS-730)) TDMAVoiceCoder N.S0008-0 v 1.0, N.S0007-0 */
+/* VoiceCoder (octet 1) */
+
+/* 6.5.2.p UserZoneData N.S0015-0 */
+
+/* 6.5.2.aa BaseStationManufacturerCode N.S0007-0 v 1.0 */
+/* The BaseStationManufacturerCode (BSMC) parameter specifies the manufacturer of the
+base station that is currently serving the MS (see IS-136 for enumeration of values).*/
+
+/* 6.5.2.ab BSMCStatus */
+
+/* BSMC Status (octet 1) */
+static const value_string ansi_map_BSMCStatus_vals[]  = {
+    {   0, "Same BSMC Value shall not be supported"},
+    {   1, "Same BSMC Value shall be supported"},
+	{	0, NULL }
+};
+
+/*- 6.5.2.ac ControlChannelMode (N.S0007-0 v 1.0)*/
 static const value_string ansi_map_ControlChannelMode_vals[]  = {
     {   0, "Unknown"},
     {   1, "MS is in Analog CC Mode"},
@@ -1691,7 +2451,60 @@ static const value_string ansi_map_ControlChannelMode_vals[]  = {
 	{	0, NULL }
 };
 
-/*Table 6.5.2.ay TDMABandwidth value */
+/* 6.5.2.ad NonPublicData N.S0007-0 v 1.0*/
+/* NP Only Service (NPOS) (octet 1, bits A and B) */
+/* Charging Area Tone Service (CATS) (octet 1, bits C - F) */
+/* PSID/RSID Download Order (PRDO) (octet 1, bits G and H) */
+
+/* 6.5.2.ae PagingFrameClass N.S0007-0 v 1.0*/
+/* Paging Frame Class (octet 1) */
+
+static const value_string ansi_map_PagingFrameClass_vals[]  = {
+    {   0, "PagingFrameClass 1 (1.28 seconds)"},
+    {   1, "PagingFrameClass 2 (2.56 seconds)"},
+    {   2, "PagingFrameClass 3 (3.84 seconds)"},
+    {   3, "PagingFrameClass 4 (7.68 seconds)"},
+    {   4, "PagingFrameClass 5 (15.36 seconds)"},
+    {   5, "PagingFrameClass 6 (30.72 seconds)"},
+    {   6, "PagingFrameClass 7 (61.44 seconds)"},
+    {   7, "PagingFrameClass 8 (122.88 seconds)"},
+    {   8, "Reserved. Treat the same as value 0, PagingFrameClass 1"},
+	{	0, NULL }
+};
+
+/* 6.5.2.af PSID_RSIDInformation N.S0007-0 v 1.0*/
+/* PSID/RSID Indicator (octet 1, bit A) */
+/* PSID/RSID Type (octet 1, bits B-D) */
+
+/* 6.5.2.ah ServicesResult N.S0007-0 v 1.0*/
+/* PSID/RSID Download Result (PRDR) (octet 1, bits A and B) */
+static const value_string ansi_map_ServicesResult_ppr_vals[]  = {
+    {   0, "No Indication"},
+    {   1, "Unsuccessful PSID/RSID download"},
+    {   2, "Successful PSID/RSID download"},
+    {   3, "Reserved. Treat the same as value 0, No Indication"},
+	{	0, NULL }
+};
+
+/* 6.5.2.ai SOCStatus N.S0007-0 v 1.0*/
+
+/* SOC Status (octet 1) */
+static const value_string ansi_map_SOCStatus_vals[]  = {
+    {   0, "Same SOC Value shall not be supported"},
+    {   1, "Same SOC Value shall be supported"},
+	{	0, NULL }
+};
+
+/* 6.5.2.aj SystemOperatorCode N.S0007-0 v 1.0*/
+/* The SystemOperatorCode (SOC) parameter specifies the system operator that is currently
+providing service to a MS (see IS-136 for enumeration of values) */
+
+/* 6.5.2.al UserGroup N.S0007-0 v 1.0*/
+
+/* 6.5.2.am UserZoneData N.S0007-0 v 1.0*/
+
+
+/*Table 6.5.2.ay TDMABandwidth value N.S0008-0 v 1.0 */
 static const value_string ansi_map_TDMABandwidth_vals[]  = {
     {   0, "Half-Rate Digital Traffic Channel Only"},
     {   1, "Full-Rate Digital Traffic Channel Only"},
@@ -1712,6 +2525,130 @@ static const value_string ansi_map_TDMABandwidth_vals[]  = {
 	{	0, NULL }
 
 };
+
+/* 6.5.2.az TDMADataFeaturesIndicator N.S0008-0 v 1.0 */
+/* TDMADataFeaturesIndicator 
+ansi_map_FeatureActivity_vals
+
+ ADS FeatureActivity ADS-FA ( octet 1 bit A and B )
+ G3 Fax FeatureActivity G3FAX-FA ( octet 1 bit C and D )
+ STU-III FeatureActivity STUIII-FA ( octet 1 bit E and F )
+ Half Rate data FeatureActivity HRATE-FA ( octet 2 bit A and B )
+ Full Rate data FeatureActivity FRATE-FA ( octet 2 bit C and D )
+ Double Rate data FeatureActivity 2RATE-FA ( octet 2 bit E and F )
+ Triple Rate data FeatureActivity 3RATE-FA ( octet g bit G and H )
+*/
+
+/* 6.5.2.ba TDMADataMode */
+
+/* 6.5.2.bb TDMAVoiceMode */
+
+/* 6.5.2.bb CDMAConnectionReference N.S0008-0 v 1.0 */
+/* Service Option Connection Reference Octet 1 */
+/*	a. This field carries the CDMA Service Option Connection Reference. The bitlayout
+		is the same as that of Service Option Connection Reference in TSB74 and
+		J-STD-008.
+*/
+
+/* 6.5.2.ad CDMAState N.S0008-0 v 1.0 */
+/* Service Option State Octet 1 */
+/* a. This field carries the CDMA Service Option State information. The CDMA
+Service Option State is defined in the current CDMA Service Options standard.
+If CDMA Service Option State is not explicitly defined within a section of the
+relevant CDMA Service Option standard, the CDMA Service Option State shall
+carry the value of the ORD_Q octet of all current Service Option Control Orders
+(see IS-95), or the contents of all current CDMA Service Option Control
+Messages (see TSB74) type specific field for this connection reference. */
+
+/* 6.5.2.aj SecondInterMSCCircuitID */
+/* -- XXX Same code as ISLPinformation???
+dissect_ansi_map_secondintermsccircuitid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_billingid);
+	/ Trunk Group Number (G) Octet 1 /
+	proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, FALSE);
+	offset++;
+	/ Trunk Member Number (M) Octet2 /
+	proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, FALSE);
+}
+*/
+/* 6.5.2.as ChangeServiceAttributes N.S0008-0 v 1.0 */
+/* Change Facilities Flag (CHGFAC)(octet 1, bits A - B) */
+static const value_string ansi_map_ChangeServiceAttributes_chgfac_vals[]  = {
+    {   0, "Change Facilities Operation Requested"},
+    {   1, "Change Facilities Operation Not Requested"},
+    {   2, "Change Facilities Operation Used"},
+    {   3, "Change Facilities Operation Not Used"},
+	{	0, NULL }
+};
+/* Service Negotiate Flag (SRVNEG)(octet 1, bits C - D) */
+static const value_string ansi_map_ChangeServiceAttributes_srvneg_vals[]  = {
+    {   0, "Service Negotiation Used"},
+    {   1, "Service Negotiation Not Used"},
+    {   2, "Service Negotiation Required"},
+    {   3, "Service Negotiation Not Required"},
+	{	0, NULL }
+};
+/* 6.5.2.au DataPrivacyParameters N.S0008-0 v 1.0*/
+/* Privacy Mode (PM) (octet 1, Bits A and B) */
+static const value_string ansi_map_DataPrivacyParameters_pm_vals[]  = {
+    {   0, "Privacy inactive or not supported"},
+    {   1, "Privacy Requested or Acknowledged"},
+    {   2, "Reserved. Treat reserved values the same as value 0, Privacy inactive or not supported."},
+    {   3, "Reserved. Treat reserved values the same as value 0, Privacy inactive or not supported."},
+	{	0, NULL }
+};
+/* Data Privacy Version (PM) (octet 2) */
+static const value_string ansi_map_DataPrivacyParameters_data_priv_ver_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Data Privacy Version 1"},
+	{	0, NULL }
+};
+
+/* 6.5.2.av ISLPInformation N.S0008-0 v 1.0*/
+/* ISLP Type (octet 1) */
+static const value_string ansi_map_islp_type_vals[]  = {
+    {   0, "No ISLP supported"},
+    {   1, "ISLP supported"},
+	{	0, NULL }
+};
+/* 6.5.2.bc AnalogRedirectInfo */
+/* Sys Ordering (octet 1, bits A-E) */
+/* Ignore CDMA (IC) (octet 1, bit F) */
+
+/* 6.5.2.be CDMAChannelNumber N.S0010-0 v 1.0*/
+
+/* 6.5.2.bg CDMAPowerCombinedIndicator N.S0010-0 v 1.0*/
+
+/* 6.5.2.bi CDMASearchParameters N.S0010-0 v 1.0*/
+
+/* 6.5.2.bk CDMANetworkIdentification N.S0010-0 v 1.0*/
+/* See CDMA [J-STD-008] for encoding of this field. */
+
+/* 6.5.2.bo RequiredParametersMask N.S0010-0 v 1.0 */
+
+/* 6.5.2.bp ServiceRedirectionCause */
+static const value_string ansi_map_ServiceRedirectionCause_type_vals[]  = {
+    {   0, "Not used"},
+    {   1, "NormalRegistration"},
+    {   2, "SystemNotFound."},
+    {   3, "ProtocolMismatch."},
+    {   4, "RegistrationRejection."},
+    {   5, "WrongSID."},
+    {   6, "WrongNID.."},
+	{	0, NULL }
+};
+
+/* 6.5.2.bq ServiceRedirectionInfo  N.S0010-0 v 1.0 */
+
+/* 6.5.2.br RoamingIndication N.S0010-0 v 1.0*/
+/* See CDMA [TSB58] for the definition of this field. */
+
 /* 6.5.2.bw CallingPartyName N.S0012-0 v 1.0*/
 
 /* Presentation Status (octet 1, bits A and B) */
@@ -1727,6 +2664,24 @@ static const true_false_string ansi_map_Availability_bool_val  = {
   "Name not available",
   "Name available/unknown"
 };
+static void
+dissect_ansi_map_callingpartyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+	/* Availability (octet 1, bit E) N.S0012-0 v 1.0*/
+
+	/* Presentation Status (octet 1, bits A and B) */
+
+
+
+}
+
+
 /* 6.5.2.bx DisplayText N.S0012-0 v 1.0*/
 /* a. Refer to ANSI T1.610 for field encoding. */
 
@@ -1737,9 +2692,24 @@ Service Identifier (octets 1 to n)
 2 Calling Name Presentation with RND.
  */
 
+/* 6.5.2.co GlobalTitle N.S0013-0 v 1.0
+ * Refer to Section 3 of ANSI T1.112 for the encoding of this field.
+ */
+/* Address Indicator octet 1 */
+/* Global Title Octet 2 - n */
 
+
+/* 6.5.2.dc SpecializedResource N.S0013-0 v 1.0*/
+/* Resource Type (octet 1) */
+static const value_string ansi_map_resource_type_vals[]  = {
+    {   0, "Not used"},
+    {   1, "DTMF tone detector"},
+    {   2, "Automatic Speech Recognition - Speaker Independent - Digits"},
+    {   3, "Automatic Speech Recognition - Speaker Independent - Speech User Interface Version 1"},
+	{	0, NULL }
+};
 /* 6.5.2.df TriggerCapability */
-
+/* Updated with N.S0004 N.S0013-0 v 1.0*/
 
 static const true_false_string ansi_map_triggercapability_bool_val  = {
   "triggers can be armed by the TriggerAddressList parameter",
@@ -1808,8 +2778,10 @@ dissect_ansi_map_triggercapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tra, tvb, offset,	1, FALSE);
 
 }
+/* 6.5.2.ei DMH_ServiceID N.S0018 */
 
 /* 6.5.2.dj WINOperationsCapability */
+/* Updated with N.S0004 */
 /* ConnectResource (CONN) (octet 1, bit A) */
 static const true_false_string ansi_map_winoperationscapability_conn_bool_val  = {
   "Sender is capable of supporting the ConnectResource, DisconnectResource, ConnectionFailureReport and ResetTimer (SSFT timer) operations",
@@ -1846,6 +2818,132 @@ dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo, prot
 
 }
 
+/* 6.5.2.ek ControlNetworkID N.S0018*/
+static void
+dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+	/* MarketID octet 1 and 2 */
+	proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	/* Switch Number octet 3*/
+	proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+	offset++;
+}
+
+
+/* 6.5.2.dk WIN_TriggerList N.S0013-0 v 1.0 */
+
+/* 6.5.2.ec DisplayText2 Updated in N.S0015-0*/
+
+/* 6.5.2.eq MSStatus N.S0004 */
+
+/* 6.5.2.er PositionInformationCode N.S0004 */
+
+/* 6.5.2.fd InterMessageTime N.S0015-0*/
+/* Timer value (in 10s of seconds) octet 1 */
+
+/* 6.5.2.fe MSIDUsage N.S0015-0 */
+/* M and I Report (octet 1, bits A and B) */
+static const value_string ansi_MSIDUsage_m_or_i_vals[]  = {
+    {   0, "Not used"},
+    {   1, "MIN last used"},
+    {   2, "IMSI last used"},
+    {   3, "Reserved"},
+	{	0, NULL }
+};
+
+/* 6.5.2.ff NewMINExtension N.S0015-0 */
+
+/* 6.5.2.fv ACGEncountered N.S0023-0 v 1.0 */
+/* ACG Encountered (octet 1, bits A-F) */
+static const value_string ansi_ACGEncountered_vals[]  = {
+    {   0, "PC_SSN"},
+    {   1, "1-digit control"},
+    {   2, "2-digit control"},
+    {   3, "3-digit control"},
+    {   4, "4-digit control"},
+    {   5, "5-digit control"},
+    {   6, "6-digit control"},
+    {   7, "7-digit control"},
+    {   8, "8-digit control"},
+    {   9, "9-digit control"},
+    {   10, "10-digit control"},
+    {   11, "11-digit control"},
+    {   12, "12-digit control"},
+    {   13, "13-digit control"},
+    {   14, "14-digit control"},
+    {   15, "15-digit control"},
+	{	0, NULL }
+};
+/* Control Type (octet 1, bits G-H) */
+static const value_string ansi_ACGEncountered_cntrl_type_vals[]  = {
+    {   0, "Not used."},
+    {   1, "Service Management System Initiated control encountered"},
+    {   2, "SCF Overload control encountered"},
+    {   3, "Reserved. Treat the same as value 0, Not used."},
+	{	0, NULL }
+};
+
+/* 6.5.2.fw ControlType N.S0023-0 v 1.0 *
+
+
+
+/* 6.5.2.ge QoSPriority N.S0029-0 v1.0*/
+/* 6.5.2.xx QOSPriority */
+/* Non-Assured Priority (octet 1, bits A-D) */
+static const value_string ansi_map_Priority_vals[]  = {
+    {   0, "Priority Level 0. This is the lowest level"},
+    {   1, "Priority Level 1"},
+    {   2, "Priority Level 2"},
+    {   3, "Priority Level 3"},
+    {   4, "Priority Level 4"},
+    {   5, "Priority Level 5"},
+    {   6, "Priority Level 6"},
+    {   7, "Priority Level 7"},
+    {   8, "Priority Level 8"},
+    {   8, "Priority Level 9"},
+    {   10, "Priority Level 10"},
+    {   11, "Priority Level 11"},
+    {   12, "Priority Level 12"},
+    {   13, "Priority Level 13"},
+    {   14, "Reserved"},
+    {   15, "Reserved"},
+	{	0, NULL }
+};
+/* Assured Priority (octet 1, bits E-H)*/
+
+
+/* 6.5.2.gf PDSNAddress N.S0029-0 v1.0*/
+/* a. See IOS Handoff Request message for the definition of this field. */
+
+/* 6.5.2.gg PDSNProtocolType N.S0029-0 v1.0*/
+/* See IOS Handoff Request message for the definition of this field. */
+
+/* 6.5.2.gh CDMAMSMeasuredChannelIdentity N.S0029-0 v1.0*/
+
+/* 6.5.2.gl CallingPartyCategory N.S0027*/
+/* a. Refer to ITU-T Q.763 (Signalling System No. 7  ISDN user part formats and
+codes) for encoding of this parameter.
+b. Refer to national ISDN user part specifications for definitions and encoding of the
+reserved for national use values.
+*/
+/* 6.5.2.gm CDMA2000HandoffInvokeIOSData N.S0029-0 v1.0*/
+/* IOS A1 Element Handoff Invoke Information */
+
+
+/* 6.5.2.gn CDMA2000HandoffResponseIOSData */
+/* IOS A1 Element Handoff Response Information N.S0029-0 v1.0*/
+
+/* 6.5.2.gr CDMAServiceOptionConnectionIdentifier N.S0029-0 v1.0*/
+
+
+
 /* 6.5.2.bp-1 ServiceRedirectionCause value */
 static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   0, "Not used"},
@@ -1857,6 +2955,19 @@ static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   6, "WrongNID"},
 	{	0, NULL }
 };
+/* 6.5.2.mT AuthenticationResponseReauthentication N.S0011-0 v 1.0*/
+
+/* 6.5.2.vT ReauthenticationReport N.S0011-0 v 1.0*/
+static const value_string ansi_map_ReauthenticationReport_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Reauthentication not attempted"},
+    {   2, "Reauthentication no response"},
+    {   3, "Reauthentication successful"},
+    {   4, "RReauthentication failed"},
+	{	0, NULL }
+};
+
+
 
 /* 6.5.2.lB AKeyProtocolVersion
 	N.S0011-0 v 1.0
@@ -2228,18 +3339,20 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case  96: /*Inter System Position Request Forward*/
 	  offset = offset;
 	  break;
+	  /* 3GPP2 N.S0023-0 */
   case  97: /*ACG Directive*/
-	  offset = offset;
+	  offset = dissect_ansi_map_ACGDirective(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
+	  /* END 3GPP2 N.S0023-0 */
   case  98: /*Roamer Database Verification Request*/
-	  offset = offset;
+	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequest(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
 	  /* N.S0029 */
   case  99: /*Add Service*/
-	  offset = offset;
+	  offset = dissect_ansi_map_AddService(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  100: /*Drop Service*/
-	  offset = offset;
+	  offset = dissect_ansi_map_DropService(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
 	  /*End N.S0029 */
   default:
@@ -2370,6 +3483,17 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case  91: /*Position Request Forward*/
 	  offset = dissect_ansi_map_PositionRequestForwardRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
+  case  98: /*Roamer Database Verification Request*/
+	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  99: /*Add Service*/
+	  offset = dissect_ansi_map_AddServiceRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  100: /*Drop Service*/
+	  offset = dissect_ansi_map_DropServiceRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+	  /*End N.S0029 */
+
  default:
 	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
 	  break;
@@ -2472,6 +3596,14 @@ void proto_register_ansi_map(void) {
       { "BCD digits", "gsm_map.bcd_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "BCD digits", HFILL }},
+	{ &hf_ansi_map_subaddr_type,
+      { "Type of Subaddress", "ansi_subaddr_type",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_sub_addr_type_vals), 0x70,
+        "Type of Subaddress", HFILL }},
+	{ &hf_ansi_map_subaddr_odd_even,
+      { "Odd/Even Indicator", "ansi_map.subaddr_odd_even",
+        FT_BOOLEAN, 8, TFS(&ansi_map_navail_bool_val),0x08,
+        "Odd/Even Indicator", HFILL }},
 
 	{ &hf_ansi_alertcode_cadence,
       { "Cadence", "ansi_map._alertcode.cadence",
@@ -2509,7 +3641,42 @@ void proto_register_ansi_map(void) {
       { " Value", "ansi_map.value",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Value", HFILL }},
-
+	{ &hf_ansi_map_msc_type,
+      { "Type", "ansi_map.extendedmscid.type",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_msc_type_vals), 0x0,
+        "Type", HFILL }},
+	{ &hf_ansi_map_handoffstate_pi,
+      { "Party Involved (PI)", "ansi_map.handoffstate.pi",
+        FT_BOOLEAN, 8, TFS(&ansi_map_HandoffState_pi_bool_val),0x01,
+        "Party Involved (PI)", HFILL }},
+	{ &hf_ansi_map_tgn,
+      { "Trunk Group Number (G)", "ansi_map.tgn",
+        FT_UINT8, BASE_DEC, NULL,0x0,
+        "Trunk Group Number (G)", HFILL }},
+	{ &hf_ansi_map_tmn,
+      { "Trunk Member Number (M)", "ansi_map.tgn",
+        FT_UINT8, BASE_DEC, NULL,0x0,
+        "Trunk Member Number (M)", HFILL }},
+	{ &hf_ansi_map_messagewaitingnotificationcount_tom,
+      { "Type of messages", "ansi_map.messagewaitingnotificationcount.tom",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_MessageWaitingNotificationCount_type_vals), 0x0,
+        "Type of messages", HFILL }},
+	{ &hf_ansi_map_messagewaitingnotificationcount_no_mw,
+      { "Number of Messages Waiting", "ansi_map.messagewaitingnotificationcount.nomw",
+        FT_UINT8, BASE_DEC, NULL,0x0,
+        "Number of Messages Waiting", HFILL }},
+	{ &hf_ansi_map_messagewaitingnotificationtype_mwi,
+      { "Message Waiting Indication (MWI)", "ansi_map.messagewaitingnotificationcount.mwi",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_MessageWaitingNotificationType_mwi_vals), 0x0,
+        "Message Waiting Indication (MWI)", HFILL }},
+	{ &hf_ansi_map_messagewaitingnotificationtype_apt,
+      { "Alert Pip Tone (APT)", "ansi_map.messagewaitingnotificationtype.apt",
+        FT_BOOLEAN, 8, TFS(&ansi_map_HandoffState_pi_bool_val),0x02,
+        "Alert Pip Tone (APT)", HFILL }},
+	{ &hf_ansi_map_messagewaitingnotificationtype_pt,
+      { "Pip Tone (PT)", "ansi_map.messagewaitingnotificationtype.pt",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_MessageWaitingNotificationType_mwi_vals), 0xc0,
+        "Pip Tone (PT)", HFILL }},
 
 	{ &hf_ansi_map_trans_cap_prof,
       { "Profile (PROF)", "ansi_map.trans_cap_prof",
@@ -2569,8 +3736,13 @@ void proto_register_ansi_map(void) {
         "None Reachable (NR)", HFILL }},
 	{ &hf_ansi_trans_cap_tl,
       { "TerminationList (TL)", "ansi_map.trans_cap_tl",
-        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_nami_bool_val),0x10,
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_tl_bool_val),0x10,
         "TerminationList (TL)", HFILL }},
+	{ &hf_ansi_trans_cap_waddr,
+      { "WIN Addressing (WADDR)", "ansi_map.trans_cap_waddr",
+        FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_waddr_bool_val),0x20,
+        "WIN Addressing (WADDR)", HFILL }},
+
 	{ &hf_ansi_map_MarketID,
       { "MarketID", "ansi_map.marketid",
         FT_UINT16, BASE_DEC, NULL, 0,
@@ -2587,6 +3759,36 @@ void proto_register_ansi_map(void) {
       { "Segment Counter", "ansi_map.segcount",
         FT_UINT8, BASE_DEC, NULL, 0,
         "Segment Counter", HFILL }},
+	{ &hf_ansi_map_mslocation_lat,
+      { "Latitude in tenths of a second", "ansi_map.mslocation.lat",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Latitude in tenths of a second", HFILL }},
+	{ &hf_ansi_map_mslocation_long,
+      { "Longitude in tenths of a second", "ansi_map.mslocation.long",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Switch Number (SWNO)", HFILL }},
+	{ &hf_ansi_map_mslocation_res,
+      { "Resolution in units of 1 foot", "ansi_map.mslocation.res",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Resolution in units of 1 foot", HFILL }},
+	{ &hf_ansi_map_nampscallmode_namps,
+      { "Call Mode", "ansi_map.nampscallmode.namps",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CallMode_namps_bool_val),0x01,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_nampscallmode_amps,
+      { "Call Mode", "ansi_map.nampscallmode.amps",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CallMode_amps_bool_val),0x02,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_nampschanneldata_navca,
+      { "Narrow Analog Voice Channel Assignment (NAVCA)", "ansi_map.nampschanneldata.navca",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_NAMPSChannelData_navca_vals), 0x03,
+        "Narrow Analog Voice Channel Assignment (NAVCA)", HFILL }},
+	{ &hf_ansi_map_nampschanneldata_CCIndicator,
+      { "Color Code Indicator (CCIndicator)", "ansi_map.nampschanneldata.ccindicator",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_NAMPSChannelData_ccinidicator_vals), 0x1c,
+        "Color Code Indicator (CCIndicator)", HFILL }},
+
+
 	{ &hf_ansi_map_callingfeaturesindicator_cfufa,
       { "Call Forwarding Unconditional FeatureActivity, CFU-FA", "ansi_map.callingfeaturesindicator.cfufa",
         FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x03,
@@ -2608,6 +3810,42 @@ void proto_register_ansi_map(void) {
       { "Three-Way Calling FeatureActivity, 3WC-FA", "ansi_map.callingfeaturesindicator.3wcfa",
         FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x03,
         "Three-Way Calling FeatureActivity, 3WC-FA", HFILL }},
+	{ &hf_ansi_map_callingfeaturesindicator_dpfa,
+      { "Data Privacy Feature Activity DP-FA", "ansi_map.callingfeaturesindicator.dpfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x0c,
+        "Data Privacy Feature Activity DP-FA", HFILL }},
+	{ &hf_ansi_map_callingfeaturesindicator_ahfa,
+      { "Answer Hold: FeatureActivity AH-FA", "ansi_map.callingfeaturesindicator.ahfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x30,
+        "Answer Hold: FeatureActivity AH-FA", HFILL }},
+	{ &hf_ansi_map_callingfeaturesindicator_uscfvmfa,
+      { "USCF divert to voice mail: FeatureActivity USCFvm-FA", "ansi_map.callingfeaturesindicator.uscfvmfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0xc0,
+        "USCF divert to voice mail: FeatureActivity USCFvm-FA", HFILL }},
+
+	{ &hf_ansi_map_callingfeaturesindicator_uscfmsfa,
+      { "USCF divert to mobile station provided DN:FeatureActivity.USCFms-FA", "ansi_map.callingfeaturesindicator.uscfmsfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x03,
+        "USCF divert to mobile station provided DN:FeatureActivity.USCFms-FA", HFILL }},
+	{ &hf_ansi_map_callingfeaturesindicator_uscfnrfa,
+      { "USCF divert to network registered DN:FeatureActivity. USCFnr-FA", "ansi_map.callingfeaturesindicator.uscfmsfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x0c,
+        "USCF divert to network registered DN:FeatureActivity. USCFnr-FA", HFILL }},
+	{ &hf_ansi_map_callingfeaturesindicator_cpdsfa,
+      { "CDMA-Packet Data Service: FeatureActivity. CPDS-FA", "ansi_map.callingfeaturesindicator.cpdfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x30,
+        "CDMA-Packet Data Service: FeatureActivity. CPDS-FA", HFILL }},
+	{ &hf_ansi_map_callingfeaturesindicator_ccsfa,
+      { "CDMA-Concurrent Service:FeatureActivity. CCS-FA", "ansi_map.callingfeaturesindicator.ccsfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0xc0,
+        "CDMA-Concurrent Service:FeatureActivity. CCS-FA", HFILL }},
+
+	{ &hf_ansi_map_callingfeaturesindicator_epefa,
+      { "TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA", "ansi_map.callingfeaturesindicator.epefa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x03,
+        "TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA", HFILL }},
+
+
 	{ &hf_ansi_map_callingfeaturesindicator_cdfa,
       { "Call Delivery: FeatureActivity, CD-FA", "ansi_map.callingfeaturesindicator.cdfa",
         FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x0c,
@@ -2639,17 +3877,58 @@ void proto_register_ansi_map(void) {
         "", HFILL }},
 
 	{ &hf_ansi_map_cdmacallmode_cdma,
-      { "Call Mode", "ansi_map.originationtriggers.all",
+      { "Call Mode", "ansi_map.cdmacallmode.cdma",
         FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cdma_bool_val),0x01,
         "Call Mode", HFILL }},
 	{ &hf_ansi_map_cdmacallmode_amps,
-      { "Call Mode", "ansi_map.originationtriggers.all",
-        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_amps_bool_val),0x02,
+      { "Call Mode", "ansi_map.ocdmacallmode.amps",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CallMode_amps_bool_val),0x02,
         "Call Mode", HFILL }},
 	{ &hf_ansi_map_cdmacallmode_namps,
-      { "Call Mode", "ansi_map.originationtriggers.all",
-        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_namps_bool_val),0x04,
+      { "Call Mode", "ansi_map.cdmacallmode.namps",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CallMode_namps_bool_val),0x04,
         "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls1,
+      { "Call Mode", "ansi_map.cdmacallmode.cls1",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls1_bool_val),0x08,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls2,
+      { "Call Mode", "ansi_map.cdmacallmode.cls2",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls2_bool_val),0x10,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls3,
+      { "Call Mode", "ansi_map.cdmacallmode.cls3",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls3_bool_val),0x20,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls4,
+      { "Call Mode", "ansi_map.cdmacallmode.cls4",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls4_bool_val),0x40,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls5,
+      { "Call Mode", "ansi_map.cdmacallmode.cls5",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls5_bool_val),0x80,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls6,
+      { "Call Mode", "ansi_map.cdmacallmode.cls6",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls6_bool_val),0x01,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls7,
+      { "Call Mode", "ansi_map.cdmacallmode.cls7",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls7_bool_val),0x02,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls8,
+      { "Call Mode", "ansi_map.cdmacallmode.cls8",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls8_bool_val),0x04,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls9,
+      { "Call Mode", "ansi_map.cdmacallmode.cls9",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls9_bool_val),0x08,
+        "Call Mode", HFILL }},
+	{ &hf_ansi_map_cdmacallmode_cls10,
+      { "Call Mode", "ansi_map.cdmacallmode.cls10",
+        FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls10_bool_val),0x10,
+        "Call Mode", HFILL }},
+
 	{ &hf_ansi_map_cdmastationclassmark_pc,
       { "Power Class: (PC)", "ansi_map.cdmastationclassmark.pc",
         FT_UINT8, BASE_DEC, VALS(ansi_map_CDMAStationClassMark_pc_vals), 0x03,
@@ -2688,9 +3967,18 @@ void proto_register_ansi_map(void) {
         FT_BOOLEAN, 8, TFS(&ansi_map_ConfidentialityModes_bool_val),0x01,
         "Voice Privacy (VP) Confidentiality Status", HFILL }},
 	{ &hf_ansi_map_ConfidentialityModes_se,
-      { "Signaling Message Encryption (SE) Confidentiality Status (octet 1, bit B)", "ansi_map.confidentialitymodes.se",
+      { "Signaling Message Encryption (SE) Confidentiality Status", "ansi_map.confidentialitymodes.se",
         FT_BOOLEAN, 8, TFS(&ansi_map_ConfidentialityModes_bool_val),0x02,
-        "Signaling Message Encryption (SE) Confidentiality Status (octet 1, bit B)", HFILL }},
+        "Signaling Message Encryption (SE) Confidentiality Status", HFILL }},
+	{ &hf_ansi_map_ConfidentialityModes_dp,
+      { "DataPrivacy (DP) Confidentiality Status", "ansi_map.confidentialitymodes.dp",
+        FT_BOOLEAN, 8, TFS(&ansi_map_ConfidentialityModes_bool_val),0x04,
+        "DataPrivacy (DP) Confidentiality Status", HFILL }},
+
+	{ &hf_ansi_map_deniedauthorizationperiod_period,
+      { "Period", "ansi_map.deniedauthorizationperiod.period",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_deniedauthorizationperiod_period_vals), 0x0,
+        "Period", HFILL }},
 
 
 	{ &hf_ansi_map_originationtriggers_all,

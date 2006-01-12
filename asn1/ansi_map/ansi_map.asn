@@ -630,7 +630,7 @@ FacilitiesReleaseRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.16
 	}
 
--- Updated with N.S0004
+-- Updated with N.S0004, N.S0012-0 v 1.0 N.S0023-0 v 1.0
 -- 6.4.2.13 FeatureRequest
 FeatureRequest ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
@@ -647,6 +647,8 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.81
 	servingCellID							[2] IMPLICIT ServingCellID,
 	-- M 6.5.2.117 a
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
 	-- O 6.5.2.bw c
 	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
@@ -1250,7 +1252,7 @@ HandoffToThird2Res ::= [PRIVATE 18] SET {
 	-- (Target) O 6.5.2.k j
 	}
 
--- 6.4.2.21 InformationDirective
+-- 6.4.2.21 InformationDirective Updated with N.S0012-0 v 1.0
 InformationDirective ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
@@ -1633,7 +1635,7 @@ InterSystemSetupRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.118 a
 	}
 
--- 6.4.2.27 LocationRequest
+-- 6.4.2.27 LocationRequest Updated with N.S0023-0 v 1.0
 LocationRequest ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- (Originating) M 6.5.2.16
@@ -1643,6 +1645,8 @@ LocationRequest ::= [PRIVATE 18] SET {
 	-- (Originating) M 6.5.2.82
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (Originating) M 6.5.2.147
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv
 	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL, 
 	--O 6.5.2.21 a
 	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL, 
@@ -1777,7 +1781,7 @@ MSInactive ::= [PRIVATE 18] SET {
 -- zero octets
 
 -- 6.4.2.30
--- OriginationRequest INVOKE Parameters
+-- OriginationRequest INVOKE Parameters Updated with N.S0023-0 v 1.0
 OriginationRequest ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID, 
 	--(originating) M 6.5.2.16	1 0 0 0 0 0 0 1 (0x81)(0x1)
@@ -1796,6 +1800,8 @@ OriginationRequest ::= [PRIVATE 18] SET {
 	--				0 1 1 0 0 0 1 0 (0x62) (98)
 	transactionCapability					[123] IMPLICIT TransactionCapability, 
 	--M 6.5.2.160	1 0 0 1 1 1 1 1 (0x9f)
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv k
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
 	-- O 6.5.2.bw g
 	--	N.S0012-0_v1.0
@@ -2610,7 +2616,7 @@ SMSRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.125
 	}
 
--- 6.4.2.46 TransferToNumberRequest
+-- 6.4.2.46 TransferToNumberRequest Updated with N.S0023-0 v 1.0
 TransferToNumberRequest ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
@@ -2622,6 +2628,8 @@ TransferToNumberRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.110
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (MSC) M 6.5.2.147
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv h
 	billingID								[1] IMPLICIT BillingID,
 	-- (Originating) O 6.5.2.16 a
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
@@ -2903,13 +2911,29 @@ TMSIDirectiveRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.aw
 	}
 
--- 6.4.2.h ServiceRequest
+-- 6.4.2.g NumberPortabilityRequest Updated with N.S0023-0 v 1.0
+NumberPortabilityRequest ::= [PRIVATE 18] SET {
+	digits		 							[4] IMPLICIT Digits,
+	-- (Dialed) M 6.5.2.58
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv d
+	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
+	-- O 6.5.2.21 a
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- O 6.5.2.82 b
+	msid									MSID OPTIONAL
+	-- (Originating) O 6.5.2.bv c
+	}
+
+-- 6.4.2.h ServiceRequest Updated with N.S0023-0 v 1.0
 
 ServiceRequest ::= [PRIVATE 18] SET {
 	serviceID								[245] IMPLICIT ServiceID,
 	-- M 6.5.2.bz
 	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
 	-- O 6.5.2.1 c d
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv p
 	availabilityType						[90] IMPLICIT AvailabilityType OPTIONAL,
 	-- O 6.5.2.15 c, e
 	billingID								[1] IMPLICIT BillingID OPTIONAL,
@@ -3060,7 +3084,7 @@ ServiceRequestRes ::= [PRIVATE 18] SET {
 
 }
 
--- 6.4.2.i AnalyzedInformation
+-- 6.4.2.i AnalyzedInformation Updated with N.S0023-0 v 1.0
 AnalyzedInformation ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- (Originating) M 6.5.2.16 a
@@ -3074,6 +3098,8 @@ AnalyzedInformation ::= [PRIVATE 18] SET {
 	-- M 6.5.2.dh c
 	winCapability							[280] IMPLICIT WINCapability,
 	-- M 6.5.2.di d
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv n
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
 	-- O 6.5.2.bw e, m
 	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
@@ -3200,7 +3226,7 @@ ConnectResource ::= [PRIVATE 18] SET {
 --DisconnectResource ::= [PRIVATE 18] SET {
 --	}
 
--- 6.4.2.m FacilitySelectedAndAvailable
+-- 6.4.2.m FacilitySelectedAndAvailable updated with N.S0023-0 v 1.0
 FacilitySelectedAndAvailable ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- (Serving) M 6.5.2.16
@@ -3212,6 +3238,8 @@ FacilitySelectedAndAvailable ::= [PRIVATE 18] SET {
 	-- M 6.5.2.dh a
 	winCapability							[280] IMPLICIT WINCapability,
 	-- M 6.5.2.di b
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
 	-- O 6.5.2.bw c, i
 	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
@@ -3365,7 +3393,7 @@ SRFDirectiveRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.cx c
 	}
 
--- 6.4.2.t TBusy
+-- 6.4.2.t TBusy updated with N.S0023-0 v 1.0
 TBusy ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- (Invoking) M 6.5.2.16 a
@@ -3377,6 +3405,8 @@ TBusy ::= [PRIVATE 18] SET {
 	-- M 6.5.2.dh c
 	winCapability							[280] IMPLICIT WINCapability,
 	-- M 6.5.2.di d
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv
 	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
 	-- O 6.5.2.21 e
 	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
@@ -3468,7 +3498,7 @@ TBusyRes ::= [PRIVATE 18] SET {
 	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
 	-- O 6.5.2.de l
 	}
--- 6.4.2.u TNoAnswer
+-- 6.4.2.u TNoAnswer updated with N.S0023-0 v 1.0
 TNoAnswer ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- (Invoking) M 6.5.2.16 a
@@ -3480,6 +3510,8 @@ TNoAnswer ::= [PRIVATE 18] SET {
 	-- M 6.5.2.dh c
 	winCapability							[280] IMPLICIT WINCapability,
 	-- M 6.5.2.di d
+	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
+	-- O 6.5.2.fv
 	callingPartyNumberDigits1				[80] IMPLICIT CallingPartyNumberDigits1 OPTIONAL,
 	-- O 6.5.2.21 e
 	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
@@ -4140,7 +4172,41 @@ PositionRequestForwardRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.117 c, e
 	}
 
--- 6.4.2.ar AddService
+-- 6.4.2.ap ACGDirective
+ACGDirective  ::= [PRIVATE 18] SET {
+	controlType								[341] IMPLICIT ControlType,
+	-- M 6.5.2.fw a
+	destinationAddress						DestinationAddress OPTIONAL,
+	--M 6.5.2.cc b
+	gapDuration								[342] IMPLICIT GapDuration OPTIONAL,
+	-- O 6.5.2.fx c, e
+	gapInterval								GapInterval OPTIONAL
+	-- O 6.5.2.fy d, e
+
+}
+
+-- 6.4.2.aq RoamerDatabaseVerificationRequest
+
+RoamerDatabaseVerificationRequest ::= [PRIVATE 18] SET {
+	invokingNEType							[353] IMPLICIT InvokingNEType OPTIONAL,
+	-- O 6.5.2.gj g
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 e, f
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (HLR) O 6.5.2.82 a
+	msid									MSID OPTIONAL,
+	-- O 6.5.2.bv b, f
+	range									[352] IMPLICIT Range OPTIONAL
+	-- O 6.5.2.gj c, d
+	}
+
+-- RoamerDatabaseVerificationRequest RETURN RESULT Parameters
+RoamerDatabaseVerificationRequestRes ::= [PRIVATE 18] SET {
+	transactionCapability					[123] IMPLICIT TransactionCapability
+	-- O 6.5.2.160
+	}
+
+-- 6.4.2.ar AddService N.S0029-0 v1.0
 
 AddService ::= [PRIVATE 18] SET {
 	cdmaConnectionReferenceList				[212] IMPLICIT CDMAConnectionReferenceList OPTIONAL,
@@ -4171,7 +4237,7 @@ AddServiceRes ::= [PRIVATE 18] SET {
 --	SpecialHandling O 6.5.2.bt J-STD-034 e
 	}
 
--- 6.4.2.as DropService
+-- 6.4.2.as DropService N.S0029-0 v1.0
 DropService ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- O 6.5.2.16 a
@@ -4872,11 +4938,11 @@ OriginationIndicator ::= ENUMERATED {
 	prior-agreement				( 1 ),
 	origination-denied			( 2 ),
 	local-calls-only			( 3 ),
-	selected-leading-digits-of-directorynumber			( 4 ),
-	selected-leading-digits-of-directorynumber-and-local-calls-only		( 5 ),
+	selected-leading-digits-of-directorynumberor-of-international-E164-number	( 4 ),
+	selected-leading-digits-of-directorynumberor-of-international-E164-numbe-and-local-calls-only		( 5 ),
 	national-long-distance			( 6 ),
 	international-calls			( 7 ),
-	single-directory-number		( 8 ),
+	single-directory-number-or-international-E164-number		( 8 ),
 	...
 	}
 -- 6.5.2.90
@@ -5096,7 +5162,7 @@ RedirectingNumberString ::= DigitsType
 -- 0 1 1 0 0 1 1 0 (0x66)(102)
 RedirectingSubaddress ::= Subaddress
 
--- 6.5.2.110 
+-- 6.5.2.110 RedirectionReason updated N.S0021 
 -- 1 0 0 1 0 0 1 1 (0x93)(19)
 RedirectionReason ::= ENUMERATED {
 	not-used						(0),
@@ -5114,7 +5180,7 @@ RedirectionReason ::= ENUMERATED {
 	...
 	}
 
--- 6.5.2.111 
+-- 6.5.2.111 ReleaseReason  updated N.S0029-0 v1.0
 -- 1 0 0 0 1 0 1 0 (0x8a)
 ReleaseReason ::= ENUMERATED {
 	unspecified					(0),
@@ -6032,7 +6098,7 @@ AllOrNone ::= ENUMERATED{
 	treatEachChangeIndependently (2)
 	}
 
--- 6.5.2.cb
+-- 6.5.2.cb N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 1 0 0 0 (0x78)(248)
@@ -6046,7 +6112,7 @@ Change  ::= ENUMERATED {
 -- 1 0 1 1 1 1 1 1 (0xbf)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 1 0 0 1 (0x79)(249)
--- 6.5.2.cc
+-- 6.5.2.cc N.S0013-0 v 1.0
 DataAccessElement ::= SEQUENCE {
 	dataID		[251] IMPLICIT DataID,
 --	 M 6.5.2.ce
@@ -6059,13 +6125,13 @@ DataAccessElement ::= SEQUENCE {
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81) 
 -- 0 1 1 1 1 0 1 0 (0x7a) (250)
--- 6.5.2.cd
+-- 6.5.2.cd N.S0013-0 v 1.0
 DataAccessElementList ::= SEQUENCE OF SEQUENCE{
 	dataAccessElement1	[249] IMPLICIT DataAccessElement,
 	dataAccessElement2	[249] IMPLICIT DataAccessElement OPTIONAL
 }
 
--- 6.5.2.ce
+-- 6.5.2.ce N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 1 0 1 1 (0x7b)(251)
@@ -6074,10 +6140,10 @@ DataID ::= OCTET STRING
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81) 
 -- 0 1 1 1 1 1 0 0 (0x7c)(252)
--- 6.5.2.cf
+-- 6.5.2.cf N.S0013-0 v 1.0
 DatabaseKey ::= OCTET STRING
 
--- 6.5.2.cg
+-- 6.5.2.cg N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 1 1 0 1 (0x7d)(253)
@@ -6089,7 +6155,7 @@ DataResult ::= ENUMERATED {
 	reserved							( 4 ) }
 
 
--- 6.5.2.ch
+-- 6.5.2.ch N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0xbf)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 1 1 1 0 (0x7e)(254)
@@ -6100,7 +6166,7 @@ DataUpdateResult ::= SEQUENCE {
 --	 M 6.5.2.cg
 }
 
--- 6.5.2.ci
+-- 6.5.2.ci N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81) 
 -- 0 1 1 1 1 1 1 1 (0x7f)(255)
@@ -6111,14 +6177,14 @@ DataUpdateResultList ::= SEQUENCE OF SEQUENCE{
 	--	O 6.5.2.ch	
 }
 
--- 6.5.2.cj
+-- 6.5.2.cj N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 0 0 0 0 (0x00)(256)
 DataValue ::= OCTET STRING
 
 
--- 6.5.2.ck DestinationAddress
+-- 6.5.2.ck DestinationAddress N.S0013-0 v 1.0
 DestinationAddress ::= CHOICE {
 	globalTitle	[389] IMPLICIT GlobalTitle, 
 	pC-SSN		[32] IMPLICIT PC-SSN
@@ -6130,10 +6196,11 @@ DetectionPointType ::= ENUMERATED {
 	eDP-R (3),
 	eDP-N (4)
 }
+
+-- 6.5.2.cl N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 0 0 1 0 (0x02)(386)
--- 6.5.2.cl
 ExecuteScript ::= SEQUENCE {
 	scriptName		[396] IMPLICIT ScriptName,
 --	M 6.5.2.cw a
@@ -6141,18 +6208,18 @@ ExecuteScript ::= SEQUENCE {
 --	O 6.5.2.cv b
 }
 
+-- 6.5.2.cm N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 0 0 1 1 (0x03)(387)
--- 6.5.2.cm
 FailureCause ::= OCTET STRING
 --encoding of this parameter is based on the encoding of
 --the information elements in T1.113.3 section 2.3.9.
 
+-- 6.5.2.cn N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 0 1 0 0 (0x04)(260)
--- 6.5.2.cn
 
 FailureType ::= ENUMERATED {
 	callAbandoned (1),
@@ -6161,7 +6228,7 @@ FailureType ::= ENUMERATED {
 	sSFTExpiration (4)
 }
 
--- 6.5.2.co
+-- 6.5.2.co N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 0 1 0 1 (0x05)(389)
@@ -6169,7 +6236,7 @@ GlobalTitle ::= OCTET STRING
 --parameter carries the SCCP Global Title as defined in
 --Section 3 of ANSI T1.112.
 
--- 6.5.2.cp
+-- 6.5.2.cp N.S0013-0 v 1.0
 -- ModificationRequest 
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
@@ -6180,27 +6247,27 @@ ModificationRequest ::= SEQUENCE {
 	allOrNone	[247] IMPLICIT AllOrNone
 	}
 
--- 6.5.2.cq
+-- 6.5.2.cq N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 0 1 1 1 (0x07)(391)
 ModificationRequestList ::= SEQUENCE OF [390]IMPLICIT ModificationRequest
 
+-- 6.5.2.cr ModificationResult N.S0013-0 v 1.0 
+-- The ModificationResult CHOICE is not explicitly encoded with a parameter identifier and length
+ModificationResult ::= CHOICE
+	{dataResult				[253] IMPLICIT DataResult,
+	serviceDataResultList	[9999] IMPLICIT ServiceDataResultList
+	}
 
-
--- 6.5.2.cs
+-- 6.5.2.cs N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 1 0 0 0 (0x08)(392)
 ModificationResultList ::= SEQUENCE OF [9999] IMPLICIT ModificationResult
 
 
-ModificationResult ::= CHOICE
-	{dataResult				[253] IMPLICIT DataResult,
-	serviceDataResultList	[9999] IMPLICIT ServiceDataResultList
-	}
-
--- 6.5.2.ct
+-- 6.5.2.ct N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 1 0 0 1 (0x09)(383)
@@ -6208,17 +6275,29 @@ PrivateSpecializedResource ::= OCTET STRING
 --values are allocated by network operators for use
 --within their networks 
 
--- 6.5.2.cu
+-- 6.5.2.cu N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 1 0 1 0 (0x0a)(394)
 ResumePIC ::= ENUMERATED {
 	continue-Call-Processing (1),
-	collect-InformationPIC (2),
-	analyze-InformationPIC (3),
-	select-RoutePIC (4),
-	select-FacilityPIC (32),
-	present-CallPIC (33)
+	collect-Information-PIC (2),
+	analyze-Information-PIC (3),
+	select-Route-PIC (4),
+	authorize-Origination-Attempt-PIC (5),
+	authorize-Call-Setup-PIC (6),
+	send-Call-PIC (7),
+	o-Alerting-PIC (8),
+	o-Active-PIC (9),
+	o-Suspended-PIC (10),
+	o-Null-PIC (11),
+	select-Facility-PIC (32),
+	present-Call-PIC (33),
+	authorize-Termination-Attempt-PIC (34),
+	t-Alerting-PIC (35),
+	t-Active-PIC (36),
+	t-Suspended-PIC (37),
+	t-Null-PIC (38)
 }
 
 -- 6.5.2.cv
@@ -6310,7 +6389,7 @@ TriggerCapability ::= OCTET STRING
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 1 0 1 1 0 (0x16)(278)
 TriggerList ::= SET{
-	destinationAddress		[20000] IMPLICIT DestinationAddress,
+	destinationAddress		DestinationAddress OPTIONAL,
 --	M 6.5.2.ck a
 	wIN-TriggerList			[283] IMPLICIT WIN-TriggerList
 --	M 6.5.2.dk
@@ -6501,6 +6580,7 @@ DMH-ServiceID  ::= OCTET STRING
 -- 0 0 1 1 0 0 1 0 (0x32)(306)
 FeatureIndicator  ::= ENUMERATED {
 	not-used (0),
+	user-selective-call-forwarding (38),
 	...
 	}
 -- See the DMH FeatureIndicator parameter for the values of this field.
@@ -6553,8 +6633,10 @@ DMH-ChargeInformation ::= OCTET STRING
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 1 1 1 0 0 0 (0x38)(312)
-DMH-BillingIndicator ::= OCTET STRING
-	
+DMH-BillingIndicator ::= ENUMERATED {
+	unspecified (0)
+	}
+-- b. See the DMH BillingIndicator parameter for the values of this field. (?? Huh?)	
 
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
@@ -6589,14 +6671,62 @@ MSIDUsage ::= OCTET STRING
 -- (3xx)
 NewMINExtension ::= MINType
 
--- 6.5.2.ge (Misc. 10.9)
+-- 6.5.2.fv ACGEncountered N.S0023-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 1 0 0 (0x54)(340)
+ACGEncountered ::= OCTET STRING
+
+-- 6.5.2.fw N.S0023-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 1 0 1 (0x55)(341)
+ControlType ::= OCTET STRING
+
+-- 6.5.2.fx GapDuration N.S0023-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 1 1 0 (0x56)(342)
+GapDuration ::= ENUMERATED{
+	not-used (0)
+	}
+
+-- 6.5.2.fy GapInterval
+-- The GapInterval (GAPINT) identifies the average minimum amount of time in seconds
+-- that the NE must wait before sending another query of the type under control. The
+-- GapInterval CHOICE is not explicitly encoded with a parameter identifier and length.
+GapInterval ::= CHOICE {
+	sCFOverloadGapInterval					[343] IMPLICIT SCFOverloadGapInterval,
+	-- O 6.5.2.fz a
+	serviceManagementSystemGapInterval		[344] IMPLICIT ServiceManagementSystemGapInterval
+	-- O 6.5.2.ga b
+}
+
+-- 6.5.2.fz N.S0023-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 1 1 1 (0x57)(343)
+SCFOverloadGapInterval ::= ENUMERATED {
+	not-used (0)
+	}
+
+
+-- 6.5.2.ga N.S0023-0 v 1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 1 0 0 0 (0x58)(344)
+ServiceManagementSystemGapInterval ::= ENUMERATED{
+	not-used (0)
+	}
+
+-- 6.5.2.ge (Misc. 10.9) 
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 0 1 1 1 0 0 (0x5c)(348)
 
 QoSPriority ::= OCTET STRING
 
--- 6.5.2.gf
+-- 6.5.2.gf 
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 0 1 1 1 0 1 (0x5d)(349)
@@ -6614,15 +6744,17 @@ PDSNProtocolType ::= OCTET STRING
 -- 0 1 0 1 1 1 1 1 (0x5f)(351)
 CDMAMSMeasuredChannelIdentity ::= OCTET STRING
 
---  6.5.2.gj
+--  6.5.2.gj Range N.S0025-B v1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 1 0 0 0 0 0 (0x60)(352)
 Range ::= INTEGER
 
+-- 6.5.2.gk InvokingNEType N.S0025-B v1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 1 0 0 0 0 1 (0x61)(353)
+InvokingNEType ::= INTEGER
 
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)

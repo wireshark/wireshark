@@ -62,6 +62,17 @@ VAL_PTR = &parameter_tvb
 		dissect_ansi_map_digits_type(parameter_tvb,pinfo,tree);
 	}
 
+#.FN_PARS Subaddress
+
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY Subaddress
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_subaddress(parameter_tvb,pinfo,tree);
+	}
+
 # 6.5.2.3 AlertCode
 #.FN_PARS AlertCode
 VAL_PTR = &parameter_tvb
@@ -160,6 +171,82 @@ VAL_PTR = &parameter_tvb
 		dissect_ansi_map_confidentialitymodes(parameter_tvb,pinfo,tree);
 	}
 
+# 6.5.2.53 DeniedAuthorizationPeriod
+#.FN_PARS DeniedAuthorizationPeriod
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY DeniedAuthorizationPeriod
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_deniedauthorizationperiod(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.64 ExtendedMSCID
+#.FN_PARS ExtendedMSCID
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY ExtendedMSCID
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_extendedmscid(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.65 ExtendedSystemMyTypeCode
+#.FN_PARS ExtendedSystemMyTypeCode
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY ExtendedSystemMyTypeCode
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_extendedsystemmytypecode(parameter_tvb,pinfo,tree);
+	}
+#6.5.2.71 HandoffState
+#.FN_PARS HandoffState
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY HandoffState
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_handoffstate(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.72 InterMSCCircuitID
+#.FN_PARS InterMSCCircuitID
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY InterMSCCircuitID
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_intermsccircuitid(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.78 MessageWaitingNotificationCount 
+#.FN_PARS MessageWaitingNotificationCount
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY MessageWaitingNotificationCount
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_messagewaitingnotificationcount(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.79 MessageWaitingNotificationType
+#.FN_PARS MessageWaitingNotificationType
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY MessageWaitingNotificationType
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_messagewaitingnotificationtype(parameter_tvb,pinfo,tree);
+	}
+
 
 # 6.5.2.82 MSCID
 #.FN_PARS MSCID
@@ -171,6 +258,50 @@ VAL_PTR = &parameter_tvb
 	if (parameter_tvb){
 		dissect_ansi_map_mscid(parameter_tvb,pinfo,tree);
 	}
+# 6.5.2.84 MSLocation
+#.FN_PARS MSLocation
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY MSLocation
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_mscid(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.85 NAMPSCallMode
+#.FN_PARS NAMPSCallMode
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY NAMPSCallMode
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_nampscallmode(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.86 NAMPSChannelData
+#.FN_PARS NAMPSChannelData
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY NAMPSChannelData
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_nampschanneldata(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.88 OneTimeFeatureIndicator
+#.FN_PARS OneTimeFeatureIndicator
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY OneTimeFeatureIndicator
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_onetimefeatureindicator(parameter_tvb,pinfo,tree);
+	}
+
 # 6.5.2.90 OriginationTriggers
 #.FN_PARS OriginationTriggers
 VAL_PTR = &parameter_tvb
@@ -193,6 +324,29 @@ VAL_PTR = &parameter_tvb
 		dissect_ansi_map_pacaindicator(parameter_tvb,pinfo,tree);
 	}
 
+# 6.5.2.93 PC_SSN
+#.FN_PARS PC-SSN
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY PC-SSN
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_pc_ssn(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.94 PilotBillingID
+#.FN_PARS PilotBillingID
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY PilotBillingID
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_pilotbillingid(parameter_tvb,pinfo,tree);
+	}
+
+
 # 6.5.2.158 TerminationTreatment
 #.FN_PARS TerminationTreatment
 VAL_PTR = &parameter_tvb
@@ -213,6 +367,20 @@ VAL_PTR = &parameter_tvb
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_transactioncapability(parameter_tvb,pinfo,tree);
+	}
+
+# 6.5.2.aj SecondInterMSCCircuitID
+# -- XXX Same code as ISLPinformation???
+
+# 6.5.2.bw CallingPartyName N.S0012-0 v 1.0
+#.FN_PARS CallingPartyName
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY CallingPartyName
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_callingpartyname(parameter_tvb,pinfo,tree);
 	}
 
 # 6.5.2.df TriggerCapability
@@ -237,6 +405,17 @@ VAL_PTR = &parameter_tvb
 		dissect_ansi_map_winoperationscapability(parameter_tvb,pinfo,tree);
 	}
 
+# 6.5.2.ek ControlNetworkID
+#.FN_PARS ControlNetworkID
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY ControlNetworkID
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_controlnetworkid(parameter_tvb,pinfo,tree);
+	}
+
 	 
 #.TYPE_ATTR
 ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ActionCode_vals)
@@ -244,14 +423,13 @@ AuthenticationCapability TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ans
 AlertResult   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AlertResult_result_vals)
 AvailabilityType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AvailabilityType_vals)
 CancellationType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CancellationType_vals)
+GeographicAuthorization TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_GeographicAuthorization_vals)
 
 CountUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CountUpdateReport_vals)
 ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
-ServiceRedirectionCause  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ServiceRedirectionCause_vals)
 PageIndicator  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_PageIndicator_vals)
 SMS-AccessDeniedReason  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SMS_AccessDeniedReason_vals)
 SMS_CauseCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ansi_map_SMS_CauseCode_vals)
-SSDUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SSDUpdateReport_vals)
 TDMABandwidth TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(ansi_map_TDMABandwidth_vals)
 TDMAServiceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_TDMAServiceCode_vals)
 OTASP-ResultCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_OTASP_ResultCode_vals)
@@ -260,4 +438,18 @@ TerminationAccessType TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_
 TerminationTreatment  TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_TerminationTreatment_vals)
 SignalingMessageEncryptionReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMEReport_vals)
 VoicePrivacyReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_VoicePrivacyReport_vals)
+PreferredLanguageIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_PreferredLanguageIndicator_vals)
+SetupResult TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SetupResult_vals)
+SMS-ChargeIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMS_ChargeIndicator_vals)
+SMS-NotificationIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMS_NotificationIndicator_vals)
+UniqueChallengeReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_UniqueChallengeReport_vals)
+ISLPInformation TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_islp_type_vals)
+ServiceRedirectionCause  TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_ServiceRedirectionCause_type_vals)
+SSDUpdateReport   TYPE = FT_UINT16  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SSDUpdateReport_vals)
+ReauthenticationReport   TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_ReauthenticationReport_vals)
+MSIDUsage TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_MSIDUsage_m_or_i_vals)
+BSMCStatus  TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_BSMCStatus_vals)
+PagingFrameClass   TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_PagingFrameClass_vals)
+ServicesResult TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_ServicesResult_ppr_vals)
+SOCStatus TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_SOCStatus_vals)
 #.END
