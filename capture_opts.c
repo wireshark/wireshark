@@ -412,7 +412,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->real_time_mode = TRUE;
         break;
     case 'w':        /* Write to capture file xxx */
+#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
+        /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
+        capture_opts->save_file = g_locale_to_utf8(optarg, -1, NULL, NULL, NULL);
+#else
         capture_opts->save_file = g_strdup(optarg);
+#endif
         capture_opts->output_to_pipe = capture_opts_output_to_pipe(capture_opts->save_file);
 	    break;
     case 'y':        /* Set the pcap data link type */
