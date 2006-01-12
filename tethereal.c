@@ -216,10 +216,9 @@ print_usage(gboolean print_ver)
   }
   fprintf(output, "\n");
   fprintf(output, "Usage: tethereal [options] ...\n");
-
+  fprintf(output, "\n");
 
 #ifdef HAVE_LIBPCAP
-  fprintf(output, "\n");
   fprintf(output, "Capture interface:\n");
   fprintf(output, "  -i <interface>           name or idx of interface (def: first none loopback)\n");
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
@@ -242,7 +241,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
   fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
   fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
-#endif
+#endif  /* HAVE_LIBPCAP */
+
   /*fprintf(output, "\n");*/
   fprintf(output, "Input file:\n");
   fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
@@ -273,7 +273,7 @@ print_usage(gboolean print_ver)
   fprintf(stderr, "Miscellaneous:\n");
   fprintf(stderr, "  -h                       display this help and exit\n");
   fprintf(stderr, "  -v                       display version info and exit\n");
-  fprintf(output, "  -o <pref.>:<value> ...   override preference setting\n");
+  fprintf(output, "  -o <name>:<value> ...   override preference setting\n");
 }
 
 /*
