@@ -27,7 +27,7 @@ S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
-S<[ B<-t> r|a|ad|d ]>
+S<[ B<-t> ad|a|r|d ]>
 S<[ B<-T> pdml|psml|ps|text ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
@@ -289,7 +289,7 @@ B<t> to enable transport-layer port number resolution
 
 B<C> to enable concurrent (asynchronous) DNS lookups
 
-=item -o  E<lt>preference settingE<gt>
+=item -o  E<lt>preferenceE<gt>:E<lt>valueE<gt>
 
 Set a preference value, overriding the default value and any value read
 from a preference file.  The argument to the option is a string of the
@@ -346,19 +346,19 @@ memory, or saved to disk.
 Decode and display packets even while writing raw packet data using the
 B<-w> option.
 
-=item -t  r|a|ad|d
+=item -t  ad|a|r|d
 
 Set the format of the packet timestamp printed in summary lines, the default 
 is relative. The format can be one of:
 
-B<r> relative: The relative time is the time elapsed between the first packet 
-and the current packet
+B<ad> absolute with date: The absolute date and time is the actual time and 
+date the packet was captured
 
 B<a> absolute: The absolute time is the actual time the packet was captured, 
 with no date displayed
 
-B<ad> absolute with date: The absolute date and time is the actual time and 
-date the packet was captured
+B<r> relative: The relative time is the time elapsed between the first packet 
+and the current packet
 
 B<d> delta: The delta time is the time since the previous packet was
 captured
