@@ -290,6 +290,11 @@ dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	dissect_tpkt_encap(tvb, pinfo, parent_tree, h245_reassembly, MultimediaSystemControlMessage_handle);
 }
 
+static void reset_h245_pi(void *dummy _U_)
+{
+	h245_pi = NULL; /* Make sure we don't leave ep_alloc()ated memory lying around */
+}
+
 static void
 dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -306,11 +311,12 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */
 	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
+		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
-		h245_pi = NULL;
+		CLEANUP_CALL_AND_POP;
 	}
 }
 
@@ -354,7 +360,7 @@ void proto_register_h245(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* From Ronnie Sahlbergs original H245 dissector */
-	
+
   h245_module = prefs_register_protocol(proto_h245, NULL);
   prefs_register_bool_preference(h245_module, "reassembly",
 		"Reassemble H.245 messages spanning multiple TCP segments",

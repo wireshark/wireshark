@@ -1,10 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h245.c                                                            */
+/* ./packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
 
+#line 1 "packet-h245-template.c"
 /* packet-h245_asn1.c
  * Routines for h245 packet dissection
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
@@ -264,7 +265,7 @@ static void h223_lc_init_dir( int dir )
 	h223_pending_olc_reqs[dir] = g_hash_table_new( g_direct_hash, g_direct_equal );
 }
 
-static void h223_lc_init(void)
+static void h223_lc_init( void )
 {
 	h223_lc_init_dir( P2P_DIR_SENT );
 	h223_lc_init_dir( P2P_DIR_RECV );
@@ -282,7 +283,7 @@ void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 int proto_h245 = -1;
 
 /*--- Included file: packet-h245-hf.c ---*/
-
+#line 1 "packet-h245-hf.c"
 static int hf_h245_OpenLogicalChannel_PDU = -1;   /* OpenLogicalChannel */
 static int hf_h245_request = -1;                  /* RequestMessage */
 static int hf_h245_response = -1;                 /* ResponseMessage */
@@ -1634,12 +1635,12 @@ static int hf_h245_timestamp = -1;                /* INTEGER_0_4294967295 */
 static int hf_h245_expirationTime = -1;           /* INTEGER_0_4294967295 */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-
+#line 277 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-h245-ett.c ---*/
-
+#line 1 "packet-h245-ett.c"
 static gint ett_h245_MultimediaSystemControlMessage = -1;
 static gint ett_h245_RequestMessage = -1;
 static gint ett_h245_ResponseMessage = -1;
@@ -2114,11 +2115,11 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-
+#line 280 "packet-h245-template.c"
 
 
 /*--- Included file: packet-h245-fn.c ---*/
-
+#line 1 "packet-h245-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* GenericParameter -> ParameterValue -> ParameterValue/genericParameter -> GenericParameter */
@@ -2279,14 +2280,18 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 655 "h245.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
+
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_H221NonStandardID, H221NonStandardID_sequence);
 
+#line 659 "h245.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
+
   return offset;
 }
 static int dissect_h221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -2308,6 +2313,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 636 "h245.cnf"
 	guint32 value;
 
 	nsiOID = "";
@@ -2328,6 +2334,7 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo
 			nsp_handle = NULL;
     }
 
+
   return offset;
 }
 static int dissect_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -2341,6 +2348,7 @@ static int dissect_vendor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_h245_T_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 670 "h245.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
@@ -2349,6 +2357,7 @@ dissect_h245_T_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
   }
+
 
   return offset;
 }
@@ -2365,7 +2374,9 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 static int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 668 "h245.cnf"
   nsp_handle = NULL;
+
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_NonStandardParameter, NonStandardParameter_sequence);
 
@@ -2493,8 +2504,10 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDetermination, MasterSlaveDetermination_sequence);
 
+#line 446 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDet;
+
   return offset;
 }
 static int dissect_masterSlaveDetermination(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5276,8 +5289,10 @@ static int
 dissect_h245_T_standard(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_index, &standard_oid_str);
 
+#line 485 "h245.cnf"
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
 	h245_lc_dissector = amr_handle;
+
   return offset;
 }
 static int dissect_standardOid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5630,6 +5645,7 @@ static const per_choice_t Application_choice[] = {
 
 static int
 dissect_h245_Application(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 379 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -5638,6 +5654,7 @@ dissect_h245_Application(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
+
 
   return offset;
 }
@@ -7414,7 +7431,9 @@ dissect_h245_H263VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_H263VideoCapability, H263VideoCapability_sequence);
 
+#line 248 "h245.cnf"
   h245_lc_dissector = h263_handle;
+
   return offset;
 }
 static int dissect_h263VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -7520,6 +7539,7 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 370 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -7528,6 +7548,7 @@ dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
+
 
 
   return offset;
@@ -7903,6 +7924,7 @@ static const per_choice_t AudioCapability_choice[] = {
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 361 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -7911,6 +7933,7 @@ dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioCapability_short_vals, "ukn"));
+
 
 
   return offset;
@@ -8545,8 +8568,10 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySet, TerminalCapabilitySet_sequence);
 
+#line 461 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSet;
+
   return offset;
 }
 static int dissect_terminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -8557,11 +8582,13 @@ static int dissect_terminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info 
 
 static int
 dissect_h245_LogicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 103 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               1U, 65535U, &value, NULL, FALSE);
 
   h245_lc_temp = value & 0xfff;
+
 
   return offset;
 }
@@ -8608,7 +8635,9 @@ static int
 dissect_h245_OLC_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_index);
 
+#line 109 "h245.cnf"
   h223_fw_lc_num = h245_lc_temp;
+
   return offset;
 }
 static int dissect_olc_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -9050,8 +9079,10 @@ static int dissect_h222LogicalChannelParameters(tvbuff_t *tvb, int offset, packe
 
 static int
 dissect_h245_T_al1Framed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 140 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1Framed;
+
   offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9064,8 +9095,10 @@ static int dissect_h223_al_type_al1Framed(tvbuff_t *tvb, int offset, packet_info
 
 static int
 dissect_h245_T_al1NotFramed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 145 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1NotFramed;
+
   offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9078,8 +9111,10 @@ static int dissect_h223_al_type_al1NotFramed(tvbuff_t *tvb, int offset, packet_i
 
 static int
 dissect_h245_T_al2WithoutSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 150 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithoutSequenceNumbers;
+
   offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9092,8 +9127,10 @@ static int dissect_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb, int off
 
 static int
 dissect_h245_T_al2WithSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 155 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithSequenceNumbers;
+
   offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9106,12 +9143,14 @@ static int dissect_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb, int offset
 
 static int
 dissect_h245_T_controlFieldOctets(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 169 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               0U, 2U, &value, NULL, FALSE);
 
   if(h223_lc_params_temp && h223_lc_params_temp->al_params)
 	((h223_al3_params*)h223_lc_params_temp->al_params)->control_field_octets = value & 3 ;
+
 
   return offset;
 }
@@ -9123,12 +9162,14 @@ static int dissect_controlFieldOctets(tvbuff_t *tvb, int offset, packet_info *pi
 
 static int
 dissect_h245_T_sendBufferSize(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 178 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               0U, 16777215U, &value, NULL, FALSE);
 
   if(h223_lc_params_temp && h223_lc_params_temp->al_params)
 	((h223_al3_params*)h223_lc_params_temp->al_params)->send_buffer_size = value & 0xfffff;
+
 
   return offset;
 }
@@ -9158,10 +9199,12 @@ static int dissect_al3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 static int
 dissect_h245_T_al3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 160 "h245.cnf"
  if(h223_lc_params_temp) {
 	h223_lc_params_temp->al_type = al3;
 	h223_lc_params_temp->al_params = se_alloc(sizeof(h223_al3_params));
   }
+
   offset = dissect_h245_Al3(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9384,8 +9427,10 @@ static int dissect_al1M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 static int
 dissect_h245_T_al1M(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 185 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1M;
+
   offset = dissect_h245_H223AL1MParameters(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9441,8 +9486,10 @@ static int dissect_al2M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 static int
 dissect_h245_T_al2M(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 190 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2M;
+
   offset = dissect_h245_H223AL2MParameters(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9539,8 +9586,10 @@ static int dissect_al3M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 static int
 dissect_h245_T_al3M(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 195 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al3M;
+
   offset = dissect_h245_H223AL3MParameters(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9592,12 +9641,14 @@ static int dissect_adaptationLayerType(tvbuff_t *tvb, int offset, packet_info *p
 
 static int
 dissect_h245_T_segmentableFlag(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 202 "h245.cnf"
   guint32 value;
   offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
                                   &value, NULL);
 
   if(h223_lc_params_temp)
 	h223_lc_params_temp->segmentable = value & 1;
+
 
   return offset;
 }
@@ -9624,12 +9675,14 @@ dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info
 
 static int
 dissect_h245_OLC_fw_h223_params(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 122 "h245.cnf"
   h223_fw_lc_params = se_alloc(sizeof(h223_lc_params));
   h223_fw_lc_params->al_type = al_nonStandard;
   h223_fw_lc_params->al_params = NULL;
   h223_fw_lc_params->segmentable = 0;
   h223_fw_lc_params->subdissector = NULL;
   h223_lc_params_temp = h223_fw_lc_params;
+
   offset = dissect_h245_H223LogicalChannelParameters(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -9823,6 +9876,7 @@ static int dissect_v76LogicalChannelParameters(tvbuff_t *tvb, int offset, packet
 
 static int
 dissect_h245_Ipv4_network(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 497 "h245.cnf"
 
   tvbuff_t *value_tvb;
 
@@ -9836,6 +9890,7 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
     rtcp_ipv4_address = tvb_get_ipv4(value_tvb, 0);
 
 
+
   return offset;
 }
 static int dissect_ip4_network(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -9846,6 +9901,7 @@ static int dissect_ip4_network(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static int
 dissect_h245_TsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 510 "h245.cnf"
   guint32 tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
@@ -9856,6 +9912,7 @@ dissect_h245_TsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
   if ( media_control_channel )
 	rtcp_ipv4_port = tsapIdentifier;
+
 
 
   return offset;
@@ -10163,14 +10220,18 @@ static int dissect_signalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 static int
 dissect_h245_T_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 528 "h245.cnf"
 
 
 	media_channel = TRUE;
+
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
+#line 558 "h245.cnf"
 
 
 	media_channel = FALSE;
+
   return offset;
 }
 static int dissect_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -10181,14 +10242,18 @@ static int dissect_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 static int
 dissect_h245_T_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 540 "h245.cnf"
 
 
 	media_control_channel = TRUE;
+
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
+#line 564 "h245.cnf"
 
 
 	media_control_channel = FALSE;
+
   return offset;
 }
 static int dissect_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -10373,6 +10438,7 @@ static const per_sequence_t T_forwardLogicalChannelParameters_sequence[] = {
 
 static int
 dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 113 "h245.cnf"
   h245_lc_dissector = NULL;
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_T_forwardLogicalChannelParameters, T_forwardLogicalChannelParameters_sequence);
@@ -10381,6 +10447,7 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, packet
 	h223_lc_params_temp->subdissector = h245_lc_dissector;
   else if(h223_lc_params_temp)
 	h223_lc_params_temp->subdissector = data_handle;
+
 
   return offset;
 }
@@ -10392,12 +10459,14 @@ static int dissect_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, pa
 
 static int
 dissect_h245_OLC_rev_h223_params(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 131 "h245.cnf"
   h223_rev_lc_params = se_alloc(sizeof(h223_lc_params));
   h223_rev_lc_params->al_type = al_nonStandard;
   h223_rev_lc_params->al_params = NULL;
   h223_rev_lc_params->segmentable = 0;
   h223_rev_lc_params->subdissector = NULL;
   h223_lc_params_temp = h223_rev_lc_params;
+
   offset = dissect_h245_H223LogicalChannelParameters(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -10423,15 +10492,18 @@ static const per_choice_t OLC_rev_multiplexParameters_choice[] = {
 
 static int
 dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 601 "h245.cnf"
 
 
 	media_channel = FALSE;
 	media_control_channel = FALSE;
 
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                                  ett_h245_OLC_rev_multiplexParameters, OLC_rev_multiplexParameters_choice,
                                  NULL);
 
+#line 609 "h245.cnf"
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
 		address src_addr;
 
@@ -10450,6 +10522,7 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info 
 
 		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
 	}
+
 
   return offset;
 }
@@ -10706,6 +10779,7 @@ static const per_sequence_t OpenLogicalChannel_sequence[] = {
 
 int
 dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 84 "h245.cnf"
   gint32 temp;
 
   h223_fw_lc_num = 0;
@@ -10724,7 +10798,10 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U
   }
 
 
+#line 472 "h245.cnf"
+
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
+
   return offset;
 }
 static int dissect_openLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -10796,8 +10873,10 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_CloseLogicalChannel, CloseLogicalChannel_sequence);
 
+#line 426 "h245.cnf"
 
   h245_pi->msg_type = H245_CloseLogChn;
+
   return offset;
 }
 static int dissect_closeLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -10856,11 +10935,13 @@ static int dissect_requestChannelClose(tvbuff_t *tvb, int offset, packet_info *p
 
 static int
 dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 28 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               1U, 15U, &value, NULL, FALSE);
 
   h223_mc = value & 0xf;
+
 
   return offset;
 }
@@ -10878,6 +10959,7 @@ static int dissect_entryNumbers_item(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int
 dissect_h245_T_logicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 54 "h245.cnf"
   /*MultiplexElement/type/logicalChannelNumber*/
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
@@ -10885,6 +10967,7 @@ dissect_h245_T_logicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinf
 
   h223_me->sublist = NULL;
   h223_me->vc = value & 0xffff;
+
 
   return offset;
 }
@@ -10899,6 +10982,7 @@ static const per_sequence_t T_subElementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_subElementList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 62 "h245.cnf"
   h223_mux_element dummy_me, *parent_me = h223_me;
   h223_me = &dummy_me;
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
@@ -10908,6 +10992,7 @@ dissect_h245_T_subElementList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   parent_me->sublist = dummy_me.next;
   h223_me = parent_me;
   h223_me->vc = 0;
+
 
   return offset;
 }
@@ -10944,11 +11029,13 @@ static int dissect_me_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 static int
 dissect_h245_ME_finiteRepeatCount(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 77 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               1U, 65535U, &value, NULL, FALSE);
 
   h223_me->repeat_count = value & 0xffff;
+
 
   return offset;
 }
@@ -10962,7 +11049,9 @@ static int
 dissect_h245_T_untilClosingFlag(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
 
+#line 71 "h245.cnf"
   h223_me->repeat_count = 0;
+
   return offset;
 }
 static int dissect_untilClosingFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -11003,11 +11092,13 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 44 "h245.cnf"
   /*MultiplexElement*/
   h223_mux_element* me = se_alloc(sizeof(h223_mux_element));
   h223_me->next = me;
   h223_me = me;
   h223_me->next = NULL;
+
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MultiplexElement, MultiplexElement_sequence);
 
@@ -11021,6 +11112,7 @@ static const per_sequence_t T_elementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_elementList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 34 "h245.cnf"
   /* create a h223_mux_element to hold onto the head of the list, since
    * h223_me will track the tail */
   h223_mux_element dummy_me;
@@ -11031,6 +11123,7 @@ dissect_h245_T_elementList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 
   /* set h223_me to the head of the list for MEDescriptor to pick up */
   h223_me = dummy_me.next;
+
 
   return offset;
 }
@@ -11047,6 +11140,7 @@ static const per_sequence_t MultiplexEntryDescriptor_sequence[] = {
 
 static int
 dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 16 "h245.cnf"
   /*MultiplexEntryDescriptor*/
   h223_me = NULL;
   h223_mc = 0;
@@ -11056,6 +11150,7 @@ dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb, int offset, packet_info *pi
   if(h223_set_mc_handle)
     (*h223_set_mc_handle)(pinfo, h223_mc, h223_me);
  /* stuff */
+
 
   return offset;
 }
@@ -11349,6 +11444,7 @@ static const per_choice_t VideoMode_choice[] = {
 
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 395 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -11357,6 +11453,7 @@ dissect_h245_VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
   codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
+
 
   return offset;
 }
@@ -11710,6 +11807,7 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 387 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -11718,6 +11816,7 @@ dissect_h245_AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
+
 
   return offset;
 }
@@ -11779,6 +11878,7 @@ static const per_choice_t DataModeApplication_choice[] = {
 
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 403 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -11787,6 +11887,7 @@ dissect_h245_DataModeApplication(tvbuff_t *tvb, int offset, packet_info *pinfo _
 
   codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_DataModeApplication_vals, "ukn"));
+
 
   return offset;
 }
@@ -12871,7 +12972,9 @@ static int dissect_logicalChannelRateRequest(tvbuff_t *tvb, int offset, packet_i
 
 static int
 dissect_h245_T_subMessageIdentifer(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 490 "h245.cnf"
   guint32 subMessageIdentifer;
+
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               0U, 127U, &subMessageIdentifer, NULL, FALSE);
@@ -12953,6 +13056,7 @@ static const per_choice_t RequestMessage_choice[] = {
 
 static int
 dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 252 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -12991,6 +13095,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
     /* if it is OLC or RM*/
     if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
                 g_snprintf(h245_pi->frame_label, 50, "%s (%s) ", h245_pi->frame_label, codec_type);
+
 
   return offset;
 }
@@ -13034,8 +13139,10 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb, int offset, packet_info 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationAck, MasterSlaveDeterminationAck_sequence);
 
+#line 411 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetAck;
+
   return offset;
 }
 static int dissect_masterSlaveDeterminationAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13076,8 +13183,10 @@ dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb, int offset, packet_in
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationReject, MasterSlaveDeterminationReject_sequence);
 
+#line 416 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetRjc;
+
   return offset;
 }
 static int dissect_masterSlaveDeterminationReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13095,8 +13204,10 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetAck, TerminalCapabilitySetAck_sequence);
 
+#line 441 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetAck;
+
   return offset;
 }
 static int dissect_terminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13169,8 +13280,10 @@ dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet_info 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetReject, TerminalCapabilitySetReject_sequence);
 
+#line 451 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetRjc;
+
   return offset;
 }
 static int dissect_terminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13183,7 +13296,9 @@ static int
 dissect_h245_OLC_ack_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_index);
 
+#line 240 "h245.cnf"
   h223_fw_lc_num = h245_lc_temp;
+
   return offset;
 }
 static int dissect_olc_ack_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13239,14 +13354,18 @@ static int dissect_olc_ack_reverseLogicalChannelParameters(tvbuff_t *tvb, int of
 
 static int
 dissect_h245_Ack_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 522 "h245.cnf"
 
 
 	media_channel = TRUE;
+
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
+#line 546 "h245.cnf"
 
 
 	media_channel = FALSE;
+
   return offset;
 }
 static int dissect_ack_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13257,14 +13376,18 @@ static int dissect_ack_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_h245_Ack_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 534 "h245.cnf"
 
 
 	media_control_channel = TRUE;
+
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
+#line 552 "h245.cnf"
 
 
 	media_control_channel = FALSE;
+
   return offset;
 }
 static int dissect_ack_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13307,15 +13430,18 @@ static const per_choice_t T_forwardMultiplexAckParameters_choice[] = {
 
 static int
 dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 570 "h245.cnf"
 
 
 	media_channel = FALSE;
 	media_control_channel = FALSE;
 
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                                  ett_h245_T_forwardMultiplexAckParameters, T_forwardMultiplexAckParameters_choice,
                                  NULL);
 
+#line 578 "h245.cnf"
 	
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
 		address src_addr;
@@ -13336,6 +13462,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_i
 		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
 	}
 
+
   return offset;
 }
 static int dissect_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13354,6 +13481,7 @@ static const per_sequence_t OpenLogicalChannelAck_sequence[] = {
 
 static int
 dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 210 "h245.cnf"
   guint32 temp;
   int p2p_dir;
   h223_pending_olc *pend;
@@ -13385,7 +13513,10 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo
   pinfo->p2p_dir = p2p_dir;
 
 
+#line 478 "h245.cnf"
+
   h245_pi->msg_type = H245_OpenLogChnAck;
+
   return offset;
 }
 static int dissect_openLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13453,8 +13584,10 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_OpenLogicalChannelReject, OpenLogicalChannelReject_sequence);
 
+#line 421 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnRjc;
+
   return offset;
 }
 static int dissect_openLogicalChannelReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13472,8 +13605,10 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinf
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_CloseLogicalChannelAck, CloseLogicalChannelAck_sequence);
 
+#line 431 "h245.cnf"
 
   h245_pi->msg_type = H245_CloseLogChnAck;
+
   return offset;
 }
 static int dissect_closeLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -14774,6 +14909,7 @@ static const per_choice_t ResponseMessage_choice[] = {
 
 static int
 dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 290 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -14798,6 +14934,7 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
     g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
+
 
   return offset;
 }
@@ -15977,6 +16114,7 @@ static const per_choice_t CommandMessage_choice[] = {
 
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 337 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -16000,6 +16138,7 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
     g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
+
 
 
   return offset;
@@ -16045,8 +16184,10 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_i
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
 
+#line 456 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetRls;
+
   return offset;
 }
 static int dissect_masterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -16063,8 +16204,10 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetRelease, TerminalCapabilitySetRelease_sequence);
 
+#line 466 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetRls;
+
   return offset;
 }
 static int dissect_terminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -16082,8 +16225,10 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb, int offset, packet_info *p
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_OpenLogicalChannelConfirm, OpenLogicalChannelConfirm_sequence);
 
+#line 436 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnCnf;
+
   return offset;
 }
 static int dissect_openLogicalChannelConfirm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -17177,6 +17322,7 @@ static const per_choice_t IndicationMessage_choice[] = {
 
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 314 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -17200,6 +17346,7 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
     g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
+
 
   return offset;
 }
@@ -17263,7 +17410,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-
+#line 282 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -17273,6 +17420,11 @@ dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * dissect_h245_h245, so we don't want to do any h245_pi or tap stuff here.
 	 */
 	dissect_tpkt_encap(tvb, pinfo, parent_tree, h245_reassembly, MultimediaSystemControlMessage_handle);
+}
+
+static void reset_h245_pi(void *dummy _U_)
+{
+	h245_pi = NULL; /* Make sure we don't leave ep_alloc()ated memory lying around */
 }
 
 static void
@@ -17291,11 +17443,12 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */
 	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
+		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
-		h245_pi = NULL;
+		CLEANUP_CALL_AND_POP;
 	}
 }
 
@@ -17324,7 +17477,7 @@ void proto_register_h245(void) {
 		VALS(H221ManufacturerCode_vals), 0, "h245.H.221 Manufacturer", HFILL }},
 
 /*--- Included file: packet-h245-hfarr.c ---*/
-
+#line 1 "packet-h245-hfarr.c"
     { &hf_h245_OpenLogicalChannel_PDU,
       { "OpenLogicalChannel", "h245.OpenLogicalChannel",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22723,7 +22876,7 @@ void proto_register_h245(void) {
         "Rtp/expirationTime", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-
+#line 347 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -22731,7 +22884,7 @@ void proto_register_h245(void) {
 	  &ett_h245,
 
 /*--- Included file: packet-h245-ettarr.c ---*/
-
+#line 1 "packet-h245-ettarr.c"
     &ett_h245_MultimediaSystemControlMessage,
     &ett_h245_RequestMessage,
     &ett_h245_ResponseMessage,
@@ -23206,7 +23359,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-
+#line 353 "packet-h245-template.c"
   };
   module_t *h245_module;
 
@@ -23217,7 +23370,7 @@ void proto_register_h245(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* From Ronnie Sahlbergs original H245 dissector */
-	
+
   h245_module = prefs_register_protocol(proto_h245, NULL);
   prefs_register_bool_preference(h245_module, "reassembly",
 		"Reassemble H.245 messages spanning multiple TCP segments",
