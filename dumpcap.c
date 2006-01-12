@@ -111,17 +111,19 @@ print_usage(gboolean print_ver) {
   } else {
     output = stderr;
   }
-  fprintf(output, "\nUsage: dumpcap [option] ...\n");
+  fprintf(output, "\nUsage: dumpcap [options] ...\n");
   fprintf(output, "\n");
   fprintf(output, "Capture interface:\n");
   fprintf(output, "  -i <interface>           name or idx of interface (def: first none loopback)\n");
-  fprintf(output, "  -f <capture filter>      packet filter in libpcap format\n");
+  fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
 #ifdef _WIN32
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+  fprintf(output, "  -D                       print list of interfaces and exit\n");
+  fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
   fprintf(output, "\n");
   fprintf(output, "Stop conditions:\n");
   fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
@@ -138,8 +140,6 @@ print_usage(gboolean print_ver) {
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -v                       print version information and exit\n");
   fprintf(output, "  -h                       display this help and exit\n");
-  fprintf(output, "  -D                       print list of interfaces and exit\n");
-  fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
   fprintf(output, "\n");
   fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcap\n");
   fprintf(output, "\"Capture network packets from interface eth0 until 60s passed into output.pcap\"\n");
