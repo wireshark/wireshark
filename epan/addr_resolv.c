@@ -1640,7 +1640,7 @@ host_name_lookup_init(void) {
    */
 #ifdef WIN32
 
-  sysroot = getenv("WINDIR");
+  sysroot = getenv_utf8("WINDIR");
   if (sysroot != NULL) {
     /*
      * The file should be under WINDIR.

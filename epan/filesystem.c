@@ -334,6 +334,51 @@ get_systemfile_dir(void)
 #define PF_DIR ".ethereal"
 #endif
 
+#ifdef WIN32
+/* utf8 version of getenv, needed to get win32 filename paths */
+char *getenv_utf8(const char *varname)
+{
+	char *envvar;
+	wchar_t *envvarw;
+	wchar_t *varnamew;
+
+	envvar = getenv(varname);
+
+	/* since GLib 2.6 we need an utf8 version of the filename */
+#if GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)
+	if (!G_WIN32_HAVE_WIDECHAR_API ()) {
+		/* Windows OT (9x, ME), convert from current code page to utf8 */
+		/* it's the best we can do here ... */
+        envvar = g_locale_to_utf8(envvar, -1, NULL, NULL, NULL);
+		/* XXX - memleak */
+		return envvar;
+	}
+
+	/* Windows NT, 2000, XP, ... */
+	/* using the wide char version of getenv should work under all circumstances */
+
+	/* convert given varname to utf16, needed by _wgetenv */
+	varnamew = g_utf8_to_utf16(varname, -1, NULL, NULL, NULL);
+	if (varnamew == NULL) {
+		return envvar;
+	}
+
+	/* use wide char version of getenv */
+	envvarw = _wgetenv(varnamew);
+	g_free(varnamew);
+	if (envvarw == NULL) {
+		return envvar;
+	}
+
+	/* convert value to utf8 */
+	envvar = g_utf16_to_utf8(envvarw, -1, NULL, NULL, NULL);
+	/* XXX - memleak */
+#endif
+
+	return envvar;
+}
+#endif
+
 /*
  * Get the directory in which personal configuration files reside;
  * in UNIX-compatible systems, it's ".ethereal", under the user's home
@@ -366,7 +411,7 @@ get_persconffile_dir(void)
 	 * Ethereal even if the home directory is an inaccessible
 	 * network drive.
 	 */
-	appdatadir = getenv("APPDATA");
+	appdatadir = getenv_utf8("APPDATA");
 	if (appdatadir != NULL) {
 		/*
 		 * Concatenate %APPDATA% with "\Ethereal".
@@ -378,7 +423,7 @@ get_persconffile_dir(void)
 		 * OK, %APPDATA% wasn't set, so use
 		 * %USERPROFILE%\Application Data.
 		 */
-		userprofiledir = getenv("USERPROFILE");
+		userprofiledir = getenv_utf8("USERPROFILE");
 		if (userprofiledir != NULL) {
 			pf_dir = g_strdup_printf(
 			    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
@@ -504,9 +549,9 @@ get_home_dir(void)
 	 * Is there a chance that it might be set but one or more of
 	 * HOMEDRIVE or HOMEPATH isn't set?
 	 */
-	homedrive = getenv("HOMEDRIVE");
+	homedrive = getenv_utf8("HOMEDRIVE");
 	if (homedrive != NULL) {
-		homepath = getenv("HOMEPATH");
+		homepath = getenv_utf8("HOMEPATH");
 		if (homepath != NULL) {
 			/*
 			 * This is cached, so we don't need to worry about
