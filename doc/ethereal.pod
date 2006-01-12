@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-ethereal - Interactively browse network traffic
+ethereal - Interactively dump and analyze network traffic
 
 =head1 SYNOPSYS
 
@@ -28,7 +28,7 @@ S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-S> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
-S<[ B<-t> E<lt>time stamp formatE<gt> ]>
+S<[ B<-t> ad|a|r|d ]>
 S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
@@ -374,19 +374,19 @@ Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.
 
-=item -t  E<lt>time stamp formatE<gt>
+=item -t  ad|a|r|d
 
 Set the format of the packet timestamp displayed in the packet list
 window, the default is relative. The format can be one of:
 
-B<r> relative: The relative time is the time elapsed between the first packet 
-and the current packet
+B<ad> absolute with date: The absolute date and time is the actual time and 
+date the packet was captured
 
 B<a> absolute: The absolute time is the actual time the packet was captured, 
 with no date displayed
 
-B<ad> absolute with date: The absolute date and time is the actual time and 
-date the packet was captured
+B<r> relative: The relative time is the time elapsed between the first packet 
+and the current packet
 
 B<d> delta: The delta time is the time since the previous packet was
 captured
