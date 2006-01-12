@@ -2584,7 +2584,7 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint message_len;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		message_len = dissect_snmp_pdu(tvb, 0, pinfo, tree,
+		message_len = dissect_snmp_pdu(tvb, offset, pinfo, tree,
 		    proto_snmp, ett_snmp, TRUE);
 		if (message_len == 0) {
 			/*
