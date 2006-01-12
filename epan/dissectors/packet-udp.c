@@ -217,6 +217,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     udph->uh_ulen = udph->uh_sum_cov = tvb_get_ntohs(tvb, offset+4);
     if (udph->uh_ulen < 8) {
       /* Bogus length - it includes the header, so it must be >= 8. */
+      /* XXX - should handle IPv6 UDP jumbograms (RFC 2675), where the length is zero */
       if (tree) {
         proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
@@ -224,8 +225,15 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       return;
     }
     if (tree) {
-      proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
-      proto_tree_add_uint_hidden(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 0, udph->uh_sum_cov);
+      if ((udph->uh_ulen > pinfo->iplen - pinfo->iphdrlen) && ! pinfo->fragmented) {
+        proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
+          udph->uh_ulen, "Length: %u (bogus, should be %u)", udph->uh_ulen,
+          pinfo->iplen - pinfo->iphdrlen);
+      } else {
+        proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
+        proto_tree_add_uint_hidden(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4,
+          0, udph->uh_sum_cov);
+      }
     }
   } else {
     udph->uh_ulen = pinfo->iplen - pinfo->iphdrlen;
