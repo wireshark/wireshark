@@ -576,10 +576,10 @@ static const value_string package_name_vals[] = {
   {   0x0004, "tonedet H.248.1 Annex E" },
   {   0x0005, "dg H.248.1 Annex E" },
   {   0x0006, "dd H.248.1 Annex E" },
-  {   0x0007, "cg H.248.1 Annex E" }, 
+  {   0x0007, "cg H.248.1 Annex E" },
   {   0x0008, "cd H.248.1 Annex E" },
   {   0x0009, "al H.248.1 Annex E" },
-  {   0x000a, "ct H.248.1 Annex E" }, 
+  {   0x000a, "ct H.248.1 Annex E" },
   {   0x000b, "nt H.248.1 Annex E" },
   {   0x000c, "rtp H.248.1 Annex E" },
   {   0x000d, "tdmc H.248.1 Annex E" },
@@ -592,17 +592,17 @@ static const value_string package_name_vals[] = {
   {   0x0014, "dis H.248.3" },											/* H.248.3 */
   {   0x0015, "key H.248.3" },
   {   0x0016, "kp H.248.3" },
-  {   0x0017, "labelkey H.248.3" },   
+  {   0x0017, "labelkey H.248.3" },
   {   0x0018, "kf H.248.3" },
   {   0x0019, "ind H.248.3" },
   {   0x001a, "ks H.248.3" },
   {   0x001b, "anci H.248.3" },
   {   0x001c, "dtd H.248.6" },											/* H.248.6 */
   {   0x001d, "an H.248.7" },											/* H.248.7 */
-  {   0x001e, "Bearer Characteristics Q.1950 Annex A" }, 				/* Q.1950 Annex A */ 
+  {   0x001e, "Bearer Characteristics Q.1950 Annex A" }, 				/* Q.1950 Annex A */
   {   0x001f, "Bearer Network Connection Cut Q.1950 Annex A" },
   {   0x0020, "Reuse Idle Q.1950 Annex A" },
-  {   0x0021, "Generic Bearer Connection Q.1950 Annex A" }, 
+  {   0x0021, "Generic Bearer Connection Q.1950 Annex A" },
   {   0x0022, "Bearer Control Tunnelling Q.1950 Annex A" },
   {   0x0023, "Basic Call Progress Tones Q.1950 Annex A" },
   {   0x0024, "Expanded Call Progress Tones Q.1950 Annex A" },
@@ -623,23 +623,23 @@ static const value_string package_name_vals[] = {
   {   0x0033, "Advanced Audio Server (AAS Base)" },						/* H.248.9 */
   {   0x0034, "AAS Digit Collection" }, 								/* H.248.9 */
   {   0x0035, "AAS Recording" }, 										/* H.248.9 */
-  {   0x0036, "AAS Segment Management" },								/* H.248.9 */ 
+  {   0x0036, "AAS Segment Management" },								/* H.248.9 */
   {   0x0037, "Quality Alert Ceasing" },								/* H.248.13 */
   {   0x0038, "Conferencing Tones Generation" },						/* H.248.27 */
   {   0x0039, "Diagnostic Tones Generation" },							/* H.248.27 */
   {   0x003a, "Carrier Tones Generation Package H.248.23" },			/* H.248.27 */
   {   0x003b, "Enhanced Alerting Package H.248.23" },					/* H.248.23 */
   {   0x003c, "Analog Display Signalling Package H.248.23" },			/* H.248.23 */
-  {   0x003d, "Multi-Frequency Tone Generation Package H.248.24" },		/* H.248.24 */												   
+  {   0x003d, "Multi-Frequency Tone Generation Package H.248.24" },		/* H.248.24 */
   {   0x003e, "H.248.23Multi-Frequency Tone Detection Package H.248.24" }, /* H.248.24 */
-  {   0x003f, "Basic CAS Package H.248.25" },							/* H.248.25 */												   
+  {   0x003f, "Basic CAS Package H.248.25" },							/* H.248.25 */
   {   0x0040, "Robbed Bit Signalling Package H.248.25" },		        /* H.248.25 */
-  {   0x0041, "Operator Services and Emgergency Services Package H.248.25" },												   
+  {   0x0041, "Operator Services and Emgergency Services Package H.248.25" },
   {   0x0042, "Operator Services Extension Package H.248.25" },
   {   0x0043, "Extended Analog Line Supervision Package H.248.26" },
-  {   0x0044, "Automatic Metering Package H.248.26" },  
-  {   0x0045, "Inactivity Timer Package H.248.14" },      
-  {   0x0046, "3G Modification of Link Characteristics Bearer Capability" }, /* 3GPP TS 29.232 v4.4.0 */ 
+  {   0x0044, "Automatic Metering Package H.248.26" },
+  {   0x0045, "Inactivity Timer Package H.248.14" },
+  {   0x0046, "3G Modification of Link Characteristics Bearer Capability" }, /* 3GPP TS 29.232 v4.4.0 */
   {   0x0047, "Base Announcement Syntax H.248.9" },
   {   0x0048, "Voice Variable Syntax H.248.9" },
   {   0x0049, "Announcement Set Syntax H.248.9" },
@@ -649,8 +649,8 @@ static const value_string package_name_vals[] = {
   {   0x004d, "NAS outgoing package" },
   {   0x004e, "NAS control package" },
   {   0x004f, "NAS root package" },
-  {   0x0050, "Profile Handling Package H.248.18" }, 
-  {   0x0051, "Media Gateway Overload Control Package H.248.11" }, 
+  {   0x0050, "Profile Handling Package H.248.18" },
+  {   0x0051, "Media Gateway Overload Control Package H.248.11" },
   {   0x0052, "Extended DTMF Detection Package H.248.16" },
   {   0x0053, "Quiet Termination Line Test" },
   {   0x0054, "Loopback Line Test Response" }, 							/* H.248.17 */
@@ -671,9 +671,9 @@ static const value_string package_name_vals[] = {
   {   0x0063, "Extended H.324 Packages H.248.12 Annex A" },
   {   0x0064, "Extended H.245 Command Package H.248.12 Annex A" },
   {   0x0065, "Extended H.245 Indication Package H.248.12 Annex A" },
-  {   0x0066, "Enhanced DTMF Detection Package H.248.16" }, 
-  {   0x0067, "Connection Group Identity Package Q.1950 Annex E" }, 
-  {   0x0068, "CTM Text Transport 3GPP TS 29.232 v5.2.0" }, 
+  {   0x0066, "Enhanced DTMF Detection Package H.248.16" },
+  {   0x0067, "Connection Group Identity Package Q.1950 Annex E" },
+  {   0x0068, "CTM Text Transport 3GPP TS 29.232 v5.2.0" },
   {   0x0069, "SPNE Control Package Q.115.0" },
   {   0x006a, "Semi-permanent Connection Package H.248.21" },
   {   0x006b, "Shared Risk Group Package H.248.22" },
@@ -701,7 +701,7 @@ static const value_string package_name_vals[] = {
   {   0x0081, "RTCP XR Burst Metrics Package H.248.30" },
   {   0x0082, "threegcsden 3G Circuit Switched Data" },				/* 3GPP TS 29.232 v5.6.0 */
   {   0x0083, "threegiptra 3G Circuit Switched Data" },				/* 3GPP TS 29.232 v5.6.0 */
-  {   0x0084, "threegflex 3G Circuit Switched Data" },				/* 3GPP TS 29.232 v5.6.0 */												   
+  {   0x0084, "threegflex 3G Circuit Switched Data" },				/* 3GPP TS 29.232 v5.6.0 */
   {   0x0085, "H.248 PCMSB" },
   {   0x008a, "TIPHON Extended H.248/MEGACO Package" },				/* ETSI specification TS 101 3 */
   {   0x008b, "Differentiated Services Package" },					/* Annex A of ETSI TS 102 333 */
@@ -711,7 +711,7 @@ static const value_string package_name_vals[] = {
   {   0x008f, "NAT Traversal Package" },							/* Annex E of ETSI TS 102 333 */
   {   0x0090, "MPLS Package" },										/* Annex F of ETSI TS 102 333 */
   {   0x0091, "VLAN Package" },										/* Annex G of ETSI TS 102 333 */
-  {   0x8000, "Ericsson IU" }, 
+  {   0x8000, "Ericsson IU" },
   {   0x8001, "Ericsson UMTS and GSM Circuit" },
   {   0x8002, "Ericsson Tone Generator Package" },
   {   0x8003, "Ericsson Line Test Package" },
@@ -724,31 +724,31 @@ static const value_string package_name_vals[] = {
   {   0x800a, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
-/* 
- * This table consist of PackageName + EventName and its's corresponding string 
- * 
+/*
+ * This table consist of PackageName + EventName and its's corresponding string
+ *
  */
 static const value_string event_name_vals[] = {
   {   0x00000000, "Media stream properties H.248.1 Annex C" },
   {   0x00010000, "g H.248.1 Annex E" },
   {   0x00010001, "g, Cause" },
   {   0x00010002, "g, Signal Completion" },
-  {   0x00210000, "Generic Bearer Connection Q.1950 Annex A" }, 
-  {   0x00210001, "GB BNC change" }, 
+  {   0x00210000, "Generic Bearer Connection Q.1950 Annex A" },
+  {   0x00210001, "GB BNC change" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
 
-/* 
- * This table consist of PackageName + SignalName and its's corresponding string 
+/*
+ * This table consist of PackageName + SignalName and its's corresponding string
  */
 static const value_string signal_name_vals[] = {
   {   0x00000000, "Media stream properties H.248.1 Annex C" },
   {   0x00010000, "g H.248.1 Annex E" },
-  {   0x00210000, "GB Generic Bearer Connection Q.1950 Annex A" }, 
-  {   0x00210001, "GB Establish BNC" }, 
-  {   0x00210002, "GB Modify BNC" }, 
-  {   0x00210003, "GB Release BNC" }, 
+  {   0x00210000, "GB Generic Bearer Connection Q.1950 Annex A" },
+  {   0x00210001, "GB Establish BNC" },
+  {   0x00210002, "GB Modify BNC" },
+  {   0x00210003, "GB Release BNC" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
@@ -997,15 +997,15 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 	gint32 tag;
 	guint32 len;
 	guint32 i;
-	
+
 	if(!implicit_tag){
 		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	} else {
 		len=tvb_length_remaining(tvb, offset);
 	}
-	
-	
+
+
 	if (len > 8 || len < 1) {
 		THROW(BoundsError);
 	} else {
@@ -1023,7 +1023,7 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);
             *trx_id_p = (guint32)trx_id;
 		}
-	}	
+	}
 
     return offset;
 }
@@ -1035,15 +1035,15 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 	guint32 len;
 	guint64 ctx_id = 0;
 	guint32 i;
-	
+
 	if(!implicit_tag){
 		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	} else {
 		len=tvb_length_remaining(tvb, offset);
 	}
-	
-	
+
+
 	if (len > 8 || len < 1) {
 		THROW(BoundsError);
 	} else {
@@ -1051,14 +1051,14 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			ctx_id=(ctx_id<<8)|tvb_get_guint8(tvb, offset);
 			offset++;
 		}
-        
+
 		if (ctx_id > 0xffffffff) {
 			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,
                                                  "contextId: %" PRIu64, ctx_id);
             proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 
             *ctx_id_p = 0xfffffffd;
-            
+
 		} else {
 			proto_item* pi = proto_tree_add_uint(tree, hf_h248_context_id, tvb, offset-len, len, (guint32)ctx_id);
 
@@ -1069,22 +1069,22 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
             } else if ( ctx_id ==  ALL_CONTEXTS ) {
                 proto_item_set_text(pi,"contextId: * (All Contexts = 0xffffffff)");
             }
-            
+
             *ctx_id_p = (guint32) ctx_id;
 		}
-	}	
-	
+	}
+
 	return offset;
 }
 
-static void 
+static void
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
 	int offset = 0;
 	tvbuff_t *new_tvb;
 	int len;
-	
+
 	switch ( name_minor ){
-        
+
         /*
          *   C.1 General Media Attributes
          */
@@ -1152,8 +1152,8 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
             /* RTPpayload */
             offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_rtp_payload, NULL);
             break;
-            
-            
+
+
         /*
          *   C.2 MUX Properties
          */
@@ -1173,8 +1173,8 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
             offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_h2250, &new_tvb);
             /* XXX H.223 */
             break;
-                
-            
+
+
         /*
          *   C.3 General Bearer Properties
          */
@@ -1197,12 +1197,12 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
                 }
             }
             break;
-            
-            
+
+
         /*
          *   C.4 General ATM Properties
          */
-            
+
         case 0x4001:
             /* AESA */
             proto_tree_add_item(tree,hf_h248_package_annex_C_aesa,tvb,0,20,FALSE);
@@ -1234,9 +1234,9 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
             proto_tree_add_item(tree,hf_h248_package_annex_C_uppc,tvb,offset,1,FALSE);
             offset++;
             break;
-            
-            
-            
+
+
+
         case 0x9001: /* TMR */
             offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_TMR, NULL);
             break;
@@ -1321,7 +1321,7 @@ dissect_3G_User_Plane_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, packet_info 
 			break;
 	}
 
- 
+
 }
 static const value_string BNCChar_vals[] = {
   {   H248_TERM_TYPE_AAL1, "aal1" },
@@ -1380,7 +1380,7 @@ guint offset=0;
 
 }
 static guint32 packageandid;
- 
+
 static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
@@ -1389,7 +1389,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 
   old_offset=offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
-  
+
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
     name_major=tvb_get_ntohs(new_tvb, 0);
@@ -1407,7 +1407,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 }
 
 
-static int 
+static int
 dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
@@ -1495,13 +1495,13 @@ dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 	}
 */
 	dissect_h248_package_data(implicit_tag, next_tvb, pinfo, tree, name_major, name_minor);
-	
+
 	return end_offset;
 }
 
 
 
-static int 
+static int
 dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *mtp_tree=NULL;
@@ -1527,7 +1527,7 @@ dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
     proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_ni, tvb, old_offset, offset-old_offset, val&0x03);
     proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_pc, tvb, old_offset, offset-old_offset, val>>2);
   }
-  
+
   return offset;
 }
 
@@ -1545,7 +1545,7 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int offset) {
 
     if (keep_persistent_data) {
         gchar* key = ep_strdup_printf("%u-%i",framenum,offset);
-        
+
         if (( m = g_hash_table_lookup(msgs,key) )) {
             m->commited = TRUE;
         } else {
@@ -1553,7 +1553,7 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int offset) {
             m->framenum = framenum;
             m->trxs = NULL;
             m->commited = FALSE;
-            
+
             g_hash_table_insert(msgs,se_strdup(key),m);
         }
     } else {
@@ -1562,7 +1562,7 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int offset) {
         m->trxs = NULL;
         m->commited = FALSE;
     }
-    
+
     if (pinfo->net_src.type == AT_NONE) {
         m->addr_label = "";
     } else {
@@ -1570,7 +1570,7 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int offset) {
         address* dst = &(pinfo->net_dst);
         address* lo_addr;
         address* hi_addr;
-        
+
         if (CMP_ADDRESS(src, dst) < 0)  {
             lo_addr = src;
             hi_addr = dst;
@@ -1578,10 +1578,10 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int offset) {
             lo_addr = dst;
             hi_addr = src;
         }
-        
+
         m->addr_label = ep_strdup_printf("%s<->%s",address_to_str(lo_addr),address_to_str(hi_addr));
     }
-    
+
     return m;
 }
 
@@ -1590,23 +1590,23 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
     h248_trx_msg_t* trxmsg;
 
     if ( !m ) return NULL;
-    
+
     if (keep_persistent_data) {
         if (m->commited) {
-            
+
             for ( trxmsg = m->trxs; trxmsg; trxmsg = trxmsg->next) {
                 if (trxmsg->trx && trxmsg->trx->id == t_id) {
                     return trxmsg->trx;
                 }
             }
-            
+
             DISSECTOR_ASSERT(! "a trx that should exist does not!" );
-            
+
         } else {
             gchar* key = ep_strdup_printf("T%s:%.8x",m->addr_label,t_id);
             trxmsg = se_alloc(sizeof(h248_trx_msg_t));
             t = g_hash_table_lookup(trxs,key);
-            
+
             if (!t) {
                 t = se_alloc(sizeof(h248_trx_t));
                 t->key = se_strdup(key);
@@ -1615,10 +1615,10 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
                 t->pendings = 0;
                 t->error = 0;
                 t->cmds = NULL;
-                
+
                 g_hash_table_insert(trxs,t->key,t);
             }
-            
+
             /* XXX: request, reply and ack + point to frames where they are */
             switch ( type ) {
                 case H248_TRX_PENDING:
@@ -1627,7 +1627,7 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
                 default:
                     break;
             }
-            
+
         }
     } else {
         t = ep_new(h248_trx_t);
@@ -1643,32 +1643,32 @@ static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) 
     trxmsg->trx = t;
     trxmsg->next = NULL;
     trxmsg->last = trxmsg;
-    
+
     if (m->trxs) {
         m->trxs->last = m->trxs->last->next = trxmsg;
     } else {
         m->trxs = trxmsg;
     }
-    
-    return t;    
+
+    return t;
 }
 
 
 static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
     h248_ctx_t* context = NULL;
     h248_ctx_t** context_p = NULL;
-    
+
     if ( !m || !t ) return NULL;
 
     if (keep_persistent_data) {
         if (m->commited) {
             gchar* key = ep_strdup_printf("%s:%.8x",m->addr_label,c_id);
-            
+
             if (( context = g_hash_table_lookup(ctxs_by_trx,t->key) )) {
                 return context;
             } if ((context_p = g_hash_table_lookup(ctxs,key))) {
                 context = *context_p;
-                
+
                 do {
                     if (context->first_frame <= m->framenum) {
                         return context;
@@ -1688,13 +1688,13 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                     context->terms.last = &(context->terms);
                     context->terms.next = NULL;
                     context->terms.term = NULL;
-                    
+
                     g_hash_table_insert(ctxs_by_trx,t->key,context);
                 }
             } else {
                 gchar* key = ep_strdup_printf("C%s:%.8x",m->addr_label,c_id);
 
-                
+
                 if (( context = g_hash_table_lookup(ctxs_by_trx,t->key) )) {
                     if (( context_p = g_hash_table_lookup(ctxs,key) )) {
                         if (context != *context_p) {
@@ -1706,7 +1706,7 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                             context->terms.last = &(context->terms);
                             context->terms.next = NULL;
                             context->terms.term = NULL;
-                            
+
                             context->prev = *context_p;
                             *context_p = context;
                         }
@@ -1715,7 +1715,7 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                         *context_p = context;
                         context->key = se_strdup(key);
                         context->id = c_id;
-                        g_hash_table_insert(ctxs,context->key,context_p);                        
+                        g_hash_table_insert(ctxs,context->key,context_p);
                     }
                 } else if (! ( context_p = g_hash_table_lookup(ctxs,key) )) {
                     context = se_alloc(sizeof(h248_ctx_t));
@@ -1726,10 +1726,10 @@ static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
                     context->terms.last = &(context->terms);
                     context->terms.next = NULL;
                     context->terms.term = NULL;
-                    
+
                     context_p = se_alloc(sizeof(void*));
                     *context_p = context;
-                    g_hash_table_insert(ctxs,context->key,context_p);                        
+                    g_hash_table_insert(ctxs,context->key,context_p);
                 } else {
                     context = *context_p;
                 }
@@ -1752,22 +1752,22 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     h248_cmd_t* cmd;
     h248_cmd_msg_t* cmdtrx;
     h248_cmd_msg_t* cmdctx;
-    
+
     if ( !m || !t || !c) return NULL;
 
     if (keep_persistent_data) {
         if (m->commited) {
             DISSECTOR_ASSERT(t->cmds != NULL);
-            
+
             for (cmdctx = t->cmds; cmdctx; cmdctx = cmdctx->next) {
                 cmd = cmdctx->cmd;
                 if (cmd->msg == m && cmd->offset == offset) {
                     return cmd;
                 }
             }
-            
+
             DISSECTOR_ASSERT(!"called for a command that does not exist!");
-            
+
             return NULL;
         } else {
             cmd = se_alloc(sizeof(h248_cmd_t));
@@ -1780,7 +1780,6 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
         cmdctx = ep_new(h248_cmd_msg_t);
     }
 
-    
     cmd->type = type;
     cmd->offset = offset;
     cmd->terms.term = NULL;
@@ -1794,9 +1793,8 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     cmdctx->cmd = cmdtrx->cmd = cmd;
     cmdctx->next =  cmdtrx->next = NULL;
     cmdctx->last = cmdtrx->last = NULL;
-    
+
     if (t->cmds) {
-        DISSECTOR_ASSERT(t->cmds->last != NULL);
         t->cmds->last->next = cmdtrx;
         t->cmds->last = cmdtrx;
     } else {
@@ -1805,14 +1803,13 @@ static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cm
     }
 
     if (c->cmds) {
-        DISSECTOR_ASSERT(c->cmds->last != NULL);
         c->cmds->last->next = cmdctx;
         c->cmds->last = cmdctx;
     } else {
         c->cmds = cmdctx;
         c->cmds->last = cmdctx;
     }
-    
+
     return cmd;
 }
 
@@ -1822,13 +1819,13 @@ static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t*
     h248_terms_t* ct2;
 
     static h248_term_t all_terms = {"$",(guint8*)"",1,H248_TERM_TYPE_UNKNOWN,NULL,NULL,NULL};
-    
+
     if ( !c ) return NULL;
 
     if ( wildcard == H248_WILDCARD_CHOOSE) {
         return &all_terms;
     }
-    
+
     if (keep_persistent_data) {
         if ( c->msg->commited ) {
             if (wildcard == H248_WILDCARD_ALL) {
@@ -1854,24 +1851,24 @@ static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t*
                     break;
                 }
             }
-            
+
             if ( ! ct ) {
-                
+
                 if (wildcard == H248_WILDCARD_ALL) {
                     ct = se_alloc(sizeof(h248_terms_t));
                     ct->next = NULL;
                     ct->term = se_alloc0(sizeof(h248_term_t));
-                    
+
                     ct->term->start = m;
                     ct->term->str = "*";
                     ct->term->buffer = NULL;
                     ct->term->len = 0;
-                    
+
                     c->terms.last = c->terms.last->next = ct;
-                    
+
                     ct2 = se_alloc0(sizeof(h248_terms_t));
                     ct2->term = ct->term;
-                                        
+
                     c->ctx->terms.last->next = ct2;
                     c->ctx->terms.last = ct2;
 
@@ -1883,7 +1880,7 @@ static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t*
                             ct->term->str = se_strdup(t->str);
                             ct->term->buffer = se_memdup(t->buffer,t->len);
                             ct->term->len = t->len;
-                            
+
                             ct2 = se_alloc0(sizeof(h248_terms_t));
                             ct2->term = ct->term;
 
@@ -1891,13 +1888,13 @@ static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t*
 
                             return ct->term;
                         }
-                        
+
                         if  ( g_str_equal(ct->term->str,t->str) ) {
                             ct2 = se_alloc0(sizeof(h248_terms_t));
                             ct2->term = ct->term;
-                            
+
                             c->terms.last = c->terms.last->next = ct2;
-                            
+
                             return ct->term;
                         }
                     }
@@ -1905,32 +1902,32 @@ static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t*
                     ct = se_alloc(sizeof(h248_terms_t));
                     ct->next = NULL;
                     ct->term = se_alloc0(sizeof(h248_term_t));
-                    
+
                     ct->term->start = m;
                     ct->term->str = se_strdup(t->str);
                     ct->term->buffer = se_memdup(t->buffer,t->len);
                     ct->term->len = t->len;
-                    
+
                     ct2 = se_alloc0(sizeof(h248_terms_t));
                     ct2->term = ct->term;
-                    
+
                     c->terms.last = c->terms.last->next = ct2;
-                    
+
                     ct2 = se_alloc0(sizeof(h248_terms_t));
                     ct2->term = ct->term;
-                    
+
                     c->ctx->terms.last = c->ctx->terms.last->next = ct2;
-                    
+
                     return ct->term;
                 }
             } else {
                 ct2 = se_alloc0(sizeof(h248_terms_t));
                 ct2->term = ct->term;
-                
-                c->terms.last = c->terms.last->next = ct2;                
+
+                c->terms.last = c->terms.last->next = ct2;
                 return ct->term;
             }
-            
+
             DISSECTOR_ASSERT_NOT_REACHED();
             return NULL;
         }
@@ -1939,7 +1936,7 @@ static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t*
         ct->term = t;
         ct->next = NULL;
         c->terms.last = c->terms.last->next = ct;
-        
+
         return t;
     }
 
@@ -1948,7 +1945,7 @@ static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t*
 static gchar* h248_cmd_to_str(h248_cmd_t* c) {
     gchar* s = "-";
     h248_terms_t* term;
-    
+
     if ( !c ) return "-";
 
     switch (c->type) {
@@ -2016,16 +2013,16 @@ static gchar* h248_cmd_to_str(h248_cmd_t* c) {
             s = "ActionReply {";
             break;
     }
-    
+
     for (term = c->terms.next; term; term = term->next) {
         s = ep_strdup_printf("%s %s",s,term->term->str);
     };
-    
+
     if (c->error) {
         s = ep_strdup_printf("%s Error=%i",s,c->error);
     }
-    
-    
+
+
     return ep_strdup_printf("%s }", s);
 }
 
@@ -2035,20 +2032,20 @@ static gchar* h248_trx_to_str(h248_msg_t* m, h248_trx_t* t) {
 
     if ( !m || !t ) return "-";
 
-    
+
     if (t->cmds) {
         if (t->cmds->cmd->ctx) {
-            s = ep_strdup_printf("%s C %x {",s,t->cmds->cmd->ctx->id);        
-        
+            s = ep_strdup_printf("%s C %x {",s,t->cmds->cmd->ctx->id);
+
             for (c = t->cmds; c; c = c->next) {
                 if (c->cmd->msg == m)
                     s = ep_strdup_printf("%s %s",s,h248_cmd_to_str(c->cmd));
             }
-            
+
             s = ep_strdup_printf("%s %s",s,"}");
         }
     }
-    
+
     if (t->error) {
         s = ep_strdup_printf("%s Error=%i",s,t->error);
     }
@@ -2056,10 +2053,10 @@ static gchar* h248_trx_to_str(h248_msg_t* m, h248_trx_t* t) {
     return ep_strdup_printf("%s %s",s,"}");
 }
 
-static gchar* h248_msg_to_str(h248_msg_t* m) { 
+static gchar* h248_msg_to_str(h248_msg_t* m) {
     h248_trx_msg_t* t;
     gchar* s = "";
-    
+
     if ( !m ) return "-";
 
     for (t = m->trxs; t; t = t->next) {
@@ -2081,8 +2078,8 @@ static void analyze_h248_msg(h248_msg_t* m) {
     h248_ctxs_t contexts = {NULL,NULL};
     h248_ctxs_t* ctx_node;
     h248_cmd_msg_t* c;
-    
-    
+
+
     for (t = m->trxs; t; t = t->next) {
         for (c = t->trx->cmds; c; c = c->next) {
             h248_ctx_t* ctx = c->cmd->ctx;
@@ -2092,7 +2089,7 @@ static void analyze_h248_msg(h248_msg_t* m) {
                     break;
                 }
             }
-            
+
             if (! ctx_node) {
                 ctx_node = ep_new(h248_ctxs_t);
                 ctx_node->ctx = ctx;
@@ -2124,7 +2121,7 @@ static void analyze_h248_msg(h248_msg_t* m) {
                 }
             }
         }
-        
+
         if (( ctx_term = ctx->terms.next )) {
             proto_item* terms_item = proto_tree_add_text(ctx_tree,h248_tvb,0,0,"[ Terminations Used ]");
             proto_tree* terms_tree = proto_item_add_subtree(terms_item,ett_ctx_terms);
@@ -2133,24 +2130,24 @@ static void analyze_h248_msg(h248_msg_t* m) {
                 if ( ctx_term->term && ctx_term->term->str) {
                     proto_item* pi = proto_tree_add_string(terms_tree,hf_h248_ctx_term,h248_tvb,0,0,ctx_term->term->str);
                     proto_tree* term_tree = proto_item_add_subtree(pi,ett_ctx_term);
-                    
+
                     PROTO_ITEM_SET_GENERATED(pi);
-                    
+
                     if (ctx_term->term->type) {
                         pi = proto_tree_add_uint(term_tree,hf_h248_ctx_term_type,h248_tvb,0,0,ctx_term->term->type);
                         PROTO_ITEM_SET_GENERATED(pi);
                     }
-                    
+
                     if (ctx_term->term->bir) {
                         pi = proto_tree_add_string(term_tree,hf_h248_ctx_term_bir,h248_tvb,0,0,ctx_term->term->bir);
                         PROTO_ITEM_SET_GENERATED(pi);
                     }
-                    
+
                     if (ctx_term->term->nsap) {
                         pi = proto_tree_add_string(term_tree,hf_h248_ctx_term_nsap,h248_tvb,0,0,ctx_term->term->nsap);
                         PROTO_ITEM_SET_GENERATED(pi);
                     }
-                    
+
                     if (ctx_term->term->bir && ctx_term->term->nsap) {
                         gchar* key = ep_strdup_printf("%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
                         g_strdown(key);
@@ -5783,16 +5780,22 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1763 "packet-h248-template.c"
+#line 1760 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *h248_item;
-    
+
     h248_tree = NULL;
     h248_tvb = NULL;
-    
+
+    msg = NULL;
+    trx = NULL;
+    ctx = NULL;
+    cmd = NULL;
+    term = NULL;
+
     /* Check if it is actually a text based h248 encoding, which we call
         megaco in ehtereal.
         */
@@ -5808,35 +5811,35 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
-    
+
     /* Make entry in the Protocol column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
-    
+
     if (tree) {
         h248_item = proto_tree_add_item(tree, proto_h248, tvb, 0, -1, FALSE);
         h248_tree = proto_item_add_subtree(h248_item, ett_h248);
     }
-    
+
     dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
-    
+
 }
 
 
 static void h248_init(void)  {
-    
+
     if (msgs) g_hash_table_destroy(msgs);
     msgs = g_hash_table_new(g_str_hash,g_str_equal);
-    
+
     if (trxs) g_hash_table_destroy(trxs);
     trxs = g_hash_table_new(g_str_hash,g_str_equal);
-    
+
     if (ctxs_by_trx) g_hash_table_destroy(ctxs_by_trx);
     ctxs_by_trx = g_hash_table_new(g_str_hash,g_str_equal);
 
     if (ctxs) g_hash_table_destroy(ctxs);
     ctxs = g_hash_table_new(g_str_hash,g_str_equal);
-    
+
 }
 
 /*--- proto_register_h248 ----------------------------------------------*/
@@ -5863,7 +5866,7 @@ void proto_register_h248(void) {
       { "BNCChar", "h248.package_bcp.BNCChar",
         FT_UINT32, BASE_DEC, VALS(BNCChar_vals), 0,
         "BNCChar", HFILL }},
-  
+
   { &hf_h248_package_annex_C_media,
   { "Media", "h248.package_annex_C.media",
       FT_UINT32, BASE_HEX, VALS(h248_annex_C_media_vals), 0,
@@ -5995,7 +5998,7 @@ void proto_register_h248(void) {
   { &hf_h248_package_annex_C_sc,
   { "Service Class", "h248.package_annex_C.sc",
       FT_UINT32, BASE_DEC, NULL, 0,
-      "Service Class", HFILL }},      
+      "Service Class", HFILL }},
   { &hf_h248_package_annex_C_bcob,
   { "BCOB", "h248.package_annex_C.bcob",
       FT_UINT8, BASE_DEC, NULL, 0x1F,
@@ -6003,7 +6006,7 @@ void proto_register_h248(void) {
   { &hf_h248_package_annex_C_bbtc,
   { "BBTC", "h248.package_annex_C.bbtc",
       FT_UINT8, BASE_DEC, NULL, 0x3F,
-      "Broadband Transfer Capability", HFILL }},      
+      "Broadband Transfer Capability", HFILL }},
   { &hf_h248_package_annex_C_atc,
   { "ATC", "h248.package_annex_C.atc",
       FT_UINT32, BASE_DEC, VALS(h248_package_annex_C_atc_values), 0x0,
@@ -6011,15 +6014,15 @@ void proto_register_h248(void) {
   { &hf_h248_package_annex_C_stc,
   { "STC", "h248.package_annex_C.stc",
       FT_UINT8, BASE_DEC, VALS(h248_package_annex_C_stc_values), 0x03,
-      "Susceptibility to Clipping", HFILL }},      
+      "Susceptibility to Clipping", HFILL }},
   { &hf_h248_package_annex_C_uppc,
   { "UPPC", "h248.package_annex_C.uppc",
       FT_UINT8, BASE_DEC, VALS(h248_package_annex_C_uppc_values), 0x03,
-      "User Plane Connection Configuration", HFILL }},      
+      "User Plane Connection Configuration", HFILL }},
 
-      
-      
-      
+
+
+
   { &hf_h248_error_code,
   { "errorCode", "h248.errorCode",
       FT_UINT32, BASE_DEC, VALS(h248_reasons), 0,
@@ -7082,7 +7085,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2021 "packet-h248-template.c"
+#line 2024 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7237,9 +7240,9 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2043 "packet-h248-template.c"
+#line 2046 "packet-h248-template.c"
   };
-  
+
   module_t *h248_module;
 
 
@@ -7257,7 +7260,7 @@ void proto_register_h248(void) {
   h248_package_events = g_hash_table_new(g_hash_direct,g_direct_equal);
   h248_package_properties = g_hash_table_new(g_hash_direct,g_direct_equal);
 #endif
-  
+
 #if 1
   h248_module = prefs_register_protocol(proto_h248, h248_init);
   prefs_register_bool_preference(h248_module, "ctx_info",
@@ -7265,7 +7268,7 @@ void proto_register_h248(void) {
                                  "Whether persistent context information is to be kept",
                                  &keep_persistent_data);
 #endif
-  
+
   register_init_routine( &h248_init );
 
 }
