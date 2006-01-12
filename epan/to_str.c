@@ -847,7 +847,7 @@ gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf, int buf_len) 
   bufp = buf; subid = 0; is_first = TRUE;
   for (i=0; i<oid_len; i++){
     byte = oid[i];
-    if ((bufp - buf) > (buf_len - 12)) { 
+    if ((bufp - buf) > (buf_len - 15)) { 
       bufp += g_snprintf(bufp, buf_len-(bufp-buf), ".>>>");
       break;
     }
