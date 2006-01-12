@@ -105,13 +105,17 @@ struct netxray_hdr {
  * depends on the network type.  We prefix all the capture types
  * for WAN captures with WAN_.
  */
-#define CAPTYPE_NDIS	0	/* Capture on network interface using NDIS */
+#define CAPTYPE_NDIS	0		/* Capture on network interface using NDIS 			*/
 
 /*
  * Ethernet capture types.
  */
-#define ETH_CAPTYPE_GIGPOD	2	/* gigabit Ethernet captured with pod */
-#define ETH_CAPTYPE_OTHERPOD	3	/* non-gigabit Ethernet captured with pod */
+#define ETH_CAPTYPE_GIGPOD	2	/* gigabit Ethernet captured with pod				*/
+#define ETH_CAPTYPE_OTHERPOD	3	/* non-gigabit Ethernet captured with pod			*/
+#define ETH_CAPTYPE_OTHERPOD2	5	/* gigabit Ethernet via pod ??					*/
+					/*  Captype 5 seen in capture from Distributed Sniffer with:	*/
+					/*    Version 4.50.211 software					*/
+					/*    SysKonnect SK-9843 Gigabit Ethernet Server Adapter	*/
 #define ETH_CAPTYPE_GIGPOD2	6	/* gigabit Ethernet captured with pod */
 
 /*
@@ -144,6 +148,9 @@ struct netxray_hdr {
  * Instead, if a value in a TpS table is wrong, check whether captype
  * has a non-zero value; if so, perhaps we need a new TpS table for the
  * corresponding network type and captype.
+ *
+ * TpS...[] entries of 0.0 mean that no capture file for the
+ * corresponding captype/timeunit values has yet been seen
  *
  * Note that the "realtick" value is wrong in many captures, so
  * we no longer use it.  We don't know what significance it has.
@@ -193,6 +200,12 @@ static double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
  */
 static double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 }; 
 #define NUM_NETXRAY_TIMEUNITS_OTHERPOD (sizeof TpS_otherpod / sizeof TpS_otherpod[0])
+
+/*
+ * Table of time units for Ethernet captures with captype ETH_CAPTYPE_OTHERPOD2.
+ */
+static double TpS_otherpod2[] = { 1e6, 0.0, 0.0 }; 
+#define NUM_NETXRAY_TIMEUNITS_OTHERPOD2 (sizeof TpS_otherpod2 / sizeof TpS_otherpod2[0])
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD2. 
@@ -514,6 +527,28 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				timeunit = TpS_otherpod[hdr.timeunit];
 
 				/*
+				 * At least for 002.002 and 002.003
+				 * captures, the start time stamp is 0,
+				 * not the value in the file.
+				 */
+				if (version_minor == 2 || version_minor == 3)
+					start_timestamp = 0.0;
+				break;
+
+			case ETH_CAPTYPE_OTHERPOD2:
+				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_OTHERPOD2
+				    || TpS_otherpod2[hdr.timeunit] == 0.0) {
+					*err = WTAP_ERR_UNSUPPORTED;
+					*err_info = g_strdup_printf(
+					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_OTHERPOD2 version %.8s capture",
+					    hdr.timeunit, hdr.version);
+					return -1;
+				}
+				timeunit = TpS_otherpod2[hdr.timeunit];
+				/*
+				 * XXX: start time stamp in the one capture file examined of this type was 0;
+				 *      We'll assume the start time handling is the same as for other pods.
+				 *
 				 * At least for 002.002 and 002.003
 				 * captures, the start time stamp is 0,
 				 * not the value in the file.
