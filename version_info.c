@@ -398,7 +398,7 @@ const char *
 get_copyright_info(void)
 {
 	return
-"Copyright 1998-2005 Gerald Combs <gerald@ethereal.com>.\n"
+"Copyright 1998-2006 Gerald Combs <gerald@ethereal.com> and contributors.\n"
 "This is free software; see the source for copying conditions. There is NO\n"
 "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
 }
