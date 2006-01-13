@@ -27,7 +27,6 @@
 /*
   TODO:
   - Find out lots more values :-)
-  - Find out set authentication mechanism, offer verification option
   - Support for other 3com devices that use the same protocol
   - Do any devices use TCP or different ports?
   - Sanity checks for tlv_length depending on tlv_type
@@ -505,6 +504,58 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 	}
 	return offset;
 }
+
+#if 0
+#include <epan/crypt-md5.h>
+
+static gboolean
+verify_password(tvbuff_t *tvb, const char *password)
+{
+	/* 1. pad non-terminated password-string to a length of 32 bytes
+	 *    (padding: 0x01, 0x02, 0x03...)
+         * 2. Calculate MD5 of padded password and write it to offset 12 of packet
+         * 3. Calculate MD5 of resulting packet and write it to offset 12 of packet
+	 */
+
+	gboolean is_valid = TRUE;
+	const guint8	*packetdata;
+	guint32 length;
+	guint8	workbuffer[32];
+	guint	i;
+	guint8	byte;
+	md5_state_t md_ctx;
+	md5_byte_t digest[16];
+
+
+	length = tvb_get_ntohs(tvb, 6);
+	packetdata = tvb_get_ptr(tvb, 0, length);
+	for (i = 0; i<32 && *password; i++, password++) {
+		workbuffer[i] = *password;
+	}
+	for (byte = 1; i<32; i++, byte++) {
+		workbuffer[i] = byte;
+	}
+	md5_init(&md_ctx);
+	md5_append(&md_ctx, workbuffer, 32);
+	md5_finish(&md_ctx, digest);
+	md5_init(&md_ctx);
+	md5_append(&md_ctx, packetdata, 12);
+	md5_append(&md_ctx, digest, 16);
+	md5_append(&md_ctx, packetdata + 28, length - 28);
+	md5_finish(&md_ctx, digest);
+	fprintf(stderr, "Calclulated digest: "); //debugging
+	for (i = 0; i < 16; i++) {
+		fprintf(stderr, "%02X", digest[i]); //debugging
+		if (digest[i] != *(packetdata + 12 + i)) {
+			is_valid = FALSE;
+			break;	
+		}
+	}
+	fprintf(stderr, " (%d)\n", is_valid); //debugging
+
+	return is_valid;
+}
+#endif
 
 static int
 dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
