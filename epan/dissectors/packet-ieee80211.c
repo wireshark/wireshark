@@ -1154,12 +1154,14 @@ dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tvb,
 
 typedef enum {
 	AIRONET_IE_VERSION = 3,
-	AIRONET_IE_QOS
+	AIRONET_IE_QOS,
+	AIRONET_IE_QBSS_V2 = 14
 } aironet_ie_type_t;
 
 static const value_string aironet_ie_type_vals[] = {
-        { AIRONET_IE_VERSION,	"CCX version\?"},
-        { AIRONET_IE_QOS,	"Qos?\?"},
+        { AIRONET_IE_VERSION,	"CCX version"},
+        { AIRONET_IE_QOS,	"Qos"},
+        { AIRONET_IE_QBSS_V2,	"QBSS V2 - CCA"},
 
 	{ 0,			NULL }
 };
@@ -1170,6 +1172,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 {
 	guint8	type;
 	int i;
+	gboolean dont_change = FALSE; /* Don't change the IE item text to default */
 
 	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item (ietree, hf_aironet_ie_type, tvb, offset, 1, TRUE);
@@ -1178,6 +1181,9 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 	switch (type) {
 	case AIRONET_IE_VERSION:
 		proto_tree_add_item (ietree, hf_aironet_ie_version, tvb, offset, 1, TRUE);
+		proto_item_append_text(aironet_item, ": Aironet CCX version = %d", 
+			tvb_get_guint8(tvb, offset));
+		dont_change = TRUE;
 		break;
 	case AIRONET_IE_QOS:
 		proto_tree_add_item (ietree, hf_aironet_ie_qos_unk1, tvb, offset, 1, TRUE);
@@ -1204,13 +1210,22 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 			offset += 4;
 		}
 		break;
+	case AIRONET_IE_QBSS_V2:
+		/* Extract Values */
+		proto_tree_add_item (ietree, hf_qbss2_scount, tvb, offset, 2, FALSE);
+		proto_tree_add_item (ietree, hf_qbss2_cu, tvb, offset + 2, 1, FALSE);
+		proto_tree_add_item (ietree, hf_qbss2_cal, tvb, offset + 3, 1, FALSE);
+		proto_tree_add_item (ietree, hf_qbss2_gl, tvb, offset + 4, 1, FALSE);
+		break;
 	default:
 		proto_tree_add_item(ietree, hf_aironet_ie_data, tvb, offset,
 			tag_len - 1, FALSE);
 		break;
 	}
-	proto_item_append_text(aironet_item, ": %s", 
-		val_to_str(type, aironet_ie_type_vals, "Unknown"));
+	if (!dont_change) {
+		proto_item_append_text(aironet_item, ": Aironet %s", 
+			val_to_str(type, aironet_ie_type_vals, "Unknown"));
+	}
 }
 
 static void
@@ -1683,15 +1698,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
         /* Extract Values */
         proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 1);
-
-        proto_tree_add_uint (tree, hf_qbss_scount, tvb, offset + 2,
-          2, tvb_get_guint8(tvb, offset + 2));
-
-        proto_tree_add_uint (tree, hf_qbss_cu, tvb, offset + 4,
-          1, tvb_get_guint8(tvb, offset + 4));
-
-        proto_tree_add_uint (tree, hf_qbss_adc, tvb, offset + 5,
-          1, tvb_get_guint8(tvb, offset + 5));
+        proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, FALSE);
+        proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
+        proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 1, FALSE);
       } 
       else if (tag_len == 5)
       {
@@ -1701,15 +1710,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
          /* Extract Values */
          proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 2);
-
-         proto_tree_add_uint (tree, hf_qbss_scount, tvb, offset + 2,
-           2, tvb_get_guint8(tvb, offset + 2));
-
-         proto_tree_add_uint (tree, hf_qbss_cu, tvb, offset + 4,
-           1, tvb_get_guint8(tvb, offset + 4));
-
-         proto_tree_add_uint (tree, hf_qbss_adc, tvb, offset + 5,
-           2, tvb_get_guint8(tvb, offset + 5));
+         proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, FALSE);
+         proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
+         proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 2, FALSE);
       }
       break;
 
@@ -1800,36 +1803,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 			dissect_vendor_ie_rsn(ti, tree, tvb, offset + 2, tag_len, tag_val);
 			break;
 		case AIRONET_VAL:
-			type = tvb_get_guint8(tvb, offset + 5);
-
-			if (tag_len==9 && type==14)
-			{
-				proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
-					"", "Vendor: %s", "Cisco QBSS V2");
-
-				proto_item_append_text(ti, ": Cisco QBSS V2");
-
-				proto_tree_add_string (tree, tag_interpretation, tvb, offset + 1,
-					tag_len, "Cisco QBSS Version 2 - CCA");
-
-				/* Extract Values */
-				proto_tree_add_uint (tree, hf_qbss2_scount, tvb, offset + 6,
-					2, tvb_get_guint8(tvb, offset + 6));
-
-				proto_tree_add_uint (tree, hf_qbss2_cu, tvb, offset + 8,
-					1, tvb_get_guint8(tvb, offset + 8));
-
-				proto_tree_add_uint (tree, hf_qbss2_cal, tvb, offset + 9,
-					1, tvb_get_guint8(tvb, offset + 9));
-
-				proto_tree_add_uint (tree, hf_qbss2_gl, tvb, offset + 10,
-					1, tvb_get_guint8(tvb, offset + 10));
-			} else {
-				proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
-					"", "Vendor: %s", get_manuf_name(tag_val));
-				proto_item_append_text(ti, ": %s", get_manuf_name(tag_val));
-				dissect_vendor_ie_aironet(ti, tree, tvb, offset + 5, tag_len - 3);
-			}
+			dissect_vendor_ie_aironet(ti, tree, tvb, offset + 5, tag_len - 3);
 			break;
 		default:
 			proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
@@ -3951,7 +3925,7 @@ proto_register_ieee80211 (void)
 
     {&hf_qbss_scount,
      {"Station Count", "wlan_mgt.qbss.scount",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_qbss_cu,
      {"Channel Utilization", "wlan_mgt.qbss.cu",
@@ -3975,18 +3949,18 @@ proto_register_ieee80211 (void)
 
     {&hf_qbss2_scount,
      {"Station Count", "wlan_mgt.qbss2.scount",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_aironet_ie_qos_unk1,
-     {"Aironet IE QoS unknown1", "wlan_mgt.tag.aironet.qos.unk1",
+     {"Aironet IE QoS unknown1", "wlan_mgt.aironet.qos.unk1",
       FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
     {&hf_aironet_ie_qos_paramset,
-     {"Aironet IE QoS paramset", "wlan_mgt.tag.aironet.qos.paramset",
+     {"Aironet IE QoS paramset", "wlan_mgt.aironet.qos.paramset",
       FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_aironet_ie_qos_val,
-     {"Aironet IE QoS valueset", "wlan_mgt.tag.aironet.qos.val",
+     {"Aironet IE QoS valueset", "wlan_mgt.aironet.qos.val",
       FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
 
   };
