@@ -940,15 +940,15 @@ static const value_string CMSP_vals[] = {
 };
 /* A5/3 algorithm supported (octet 5, bit 2) */
 static const value_string A5_3_algorithm_sup_vals[] = {
-	{ 0,		"encryption algorithm A5/3 available"},
-	{ 1,		"encryption algorithm A5/3 not available"},
+	{ 0,		"encryption algorithm A5/3 not available"},
+	{ 1,		"encryption algorithm A5/3 available"},
 	{ 0,	NULL }
 };
 
 /* A5/2 algorithm supported (octet 5, bit 1) */
 static const value_string A5_2_algorithm_sup_vals[] = {
-	{ 0,		"encryption algorithm A5/2 available"},
-	{ 1,		"encryption algorithm A5/3 not available"},
+	{ 0,		"encryption algorithm A5/2 not available"},
+	{ 1,		"encryption algorithm A5/2 available"},
 	{ 0,	NULL }
 };
 
@@ -1094,6 +1094,7 @@ static int hf_gsm_a_bcc				= -1;
 static int hf_gsm_a_ncc				= -1;
 static int hf_gsm_a_bcch_arfcn		= -1;
 static int hf_gsm_a_rr_ho_ref_val = -1;
+static int hf_gsm_a_b7spare = -1;
 static int hf_gsm_a_b8spare = -1;
 static int hf_gsm_a_rr_pow_cmd_atc = -1;
 static int hf_gsm_a_rr_pow_cmd_epc = -1;
@@ -3692,6 +3693,8 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	/* CM3 (octet 5, bit 8) */
 	proto_tree_add_item(tree, hf_gsm_a_CM3, tvb, curr_offset, 1, FALSE);
+	/* spare bit 7 */
+        proto_tree_add_item(tree, hf_gsm_a_b7spare, tvb, curr_offset, 1, FALSE);
 	/* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
 	proto_tree_add_item(tree, hf_gsm_a_LCS_VA_cap, tvb, curr_offset, 1, FALSE);
 	/* UCS2 treatment (octet 5, bit 5) */
@@ -9061,6 +9064,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     guint index = 0;
     guchar dtm_gprs_mslot = 0;
     guchar dtm_egprs_mslot = 4;
+    gboolean finished = TRUE;
     
     curr_len = len;
     curr_offset = offset;
@@ -9157,9 +9161,52 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	if ( acc_type == 0x0f )
 	{
+		do 
+		{
 		/*
 		 * Additional access technologies:
 		 */
+			finished = TRUE; /* Break out of the loop unless proven unfinished */
+
+			/*
+			 * Presence bit
+			 */
+			bits_needed = 1;
+			GET_DATA;
+
+			/* analyse bits */
+			switch ( oct>>(32-bits_needed) )
+			{
+				case 0x00: str="Not Present"; finished = TRUE; break;
+				case 0x01: str="Present"; finished = FALSE; break;
+				default: str="This should not happen";
+			}
+
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"Presence: (%u) %s",oct>>(32-bits_needed),str);
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+
+			if (finished)
+			{
+				/*
+				 * No more valid data, get spare bits if any
+				 */
+				while ( curr_bits_length > 0 )
+				{
+					if ( curr_bits_length > 8 )
+						bits_needed = 8;
+					else
+						bits_needed = curr_bits_length;
+					GET_DATA;
+					curr_bits_length -= bits_needed;
+					oct <<= bits_needed;
+					bits_in_oct -= bits_needed;
+				}
+				continue;
+			}
 
 		/*
 		 * Access Technology
@@ -9261,20 +9308,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     		oct <<= bits_needed;
     		bits_in_oct -= bits_needed;
 
-		/*
-		 * we are too long ... so jump over it
-		 */
-		while ( curr_bits_length > 0 )
-		{
-			if ( curr_bits_length > 8 )
-				bits_needed = 8;
-			else
-				bits_needed = curr_bits_length;
-			GET_DATA;
-		    	curr_bits_length -= bits_needed;
-    			oct <<= bits_needed;
-			bits_in_oct -= bits_needed;
-		}
+		} while (!finished);
 		
 		/* goto next one */
 		continue;
@@ -18257,12 +18291,12 @@ proto_register_gsm_a(void)
 	},
 	{ &hf_gsm_a_ES_IND,
 		{ "ES IND","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC,  VALS(ES_IND_vals), 0x20,          
+		FT_UINT8,BASE_DEC,  VALS(ES_IND_vals), 0x10,          
 			"ES IND", HFILL }
 	},
 	{ &hf_gsm_a_A5_1_algorithm_sup,
 		{ "A5/1 algorithm supported","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC,  VALS(A5_1_algorithm_sup_vals), 0x10,          
+		FT_UINT8,BASE_DEC,  VALS(A5_1_algorithm_sup_vals), 0x08,          
 		"A5/1 algorithm supported ", HFILL }
 	},
 	{ &hf_gsm_a_RF_power_capability,
@@ -18302,12 +18336,12 @@ proto_register_gsm_a(void)
 	},
 	{ &hf_gsm_a_CM3,
 		{ "CM3","gsm_a.CM3",
-		FT_UINT8,BASE_DEC,  VALS(CM3_vals), 0x01,          
+		FT_UINT8,BASE_DEC,  VALS(CM3_vals), 0x80,          
 		"CM3", HFILL }
 	},
 	{ &hf_gsm_a_LCS_VA_cap,
 		{ "LCS VA capability (LCS value added location request notification capability) ","gsm_a.LCS_VA_cap",
-		FT_UINT8,BASE_DEC,  VALS(LCS_VA_cap_vals), 0x80,          
+		FT_UINT8,BASE_DEC,  VALS(LCS_VA_cap_vals), 0x20,          
 		"LCS VA capability (LCS value added location request notification capability) ", HFILL }
 	},
 	{ &hf_gsm_a_UCS2_treatment,
@@ -18374,6 +18408,11 @@ proto_register_gsm_a(void)
 		{ "Handover reference value","gsm_a.rr.ho_ref_val",
 		FT_UINT8,BASE_DEC,  NULL, 0x0,          
 		"Handover reference value", HFILL }
+	},
+        { &hf_gsm_a_b7spare,
+	        { "Spare","gsm_a.spareb7",
+	        FT_UINT8,BASE_DEC,  NULL, 0x40,
+	        "Spare", HFILL }
 	},
 	{ &hf_gsm_a_b8spare,
 		{ "Spare","gsm_a.spareb8",
