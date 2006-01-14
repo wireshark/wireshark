@@ -1253,6 +1253,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	char *str, *strptr;
 	char *sid_string;
 	char *sid_name;
+	size_t remaining, returned_length;
 
 	sid_string=ep_alloc(MAX_STR_LEN);
 	if(hf_sid==-1){
@@ -1287,6 +1288,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           str = ep_alloc(MAX_STR_LEN);
           str[0]=0;
           strptr=str;
+          remaining = MAX_STR_LEN;
 
 	  /* sub authorities, leave RID to last */
 	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
@@ -1299,8 +1301,15 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	     * and IA-64 runs little-endian, as does x86-64), we can (?)
 	     * assume that non le byte encodings will be "uncommon"?
 	     */
-             strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), (i>0 ? "-%u" : "%u"),
-                  tvb_get_letohl(tvb, offset));
+
+             assert(MAX_STR_LEN-(strptr-str) >= 0);
+             returned_length = g_snprintf(strptr, remaining, (i>0 ? "-%u" : "%u"),
+               tvb_get_letohl(tvb, offset));
+             if (returned_length > remaining) {
+               returned_length = remaining;
+             }
+             remaining -= returned_length;
+             strptr += returned_length ;
              offset+=4;
 	  }
 
