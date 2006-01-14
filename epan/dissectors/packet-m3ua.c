@@ -1103,13 +1103,13 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   proto_item *item;
  
 
-  mtp3_addr_dpc.type = ITU_STANDARD;
+  mtp3_addr_dpc.type = mtp3_standard;
   mtp3_addr_dpc.pc = tvb_get_ntohl(parameter_tvb,DATA_DPC_OFFSET);
   mtp3_addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
   SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_dpc), (guint8 *) &mtp3_addr_dpc);
 
 	
-  mtp3_addr_opc.type = ITU_STANDARD;
+  mtp3_addr_opc.type = mtp3_standard;
   mtp3_addr_opc.pc = tvb_get_ntohl(parameter_tvb,DATA_OPC_OFFSET);
   mtp3_addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
   SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_opc), (guint8 *) &mtp3_addr_opc);
