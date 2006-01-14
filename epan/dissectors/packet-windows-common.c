@@ -1250,10 +1250,11 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
         guint auth = 0;   /* FIXME: What if it is larger than 32-bits */
 	int i;
 #define MAX_STR_LEN 256
-	char *str, *strptr;
+	char *str;
 	char *sid_string;
 	char *sid_name;
-	size_t remaining, returned_length;
+	size_t returned_length;
+	unsigned long str_index;;
 
 	sid_string=ep_alloc(MAX_STR_LEN);
 	if(hf_sid==-1){
@@ -1286,9 +1287,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           sa_offset = offset;
 
           str = ep_alloc(MAX_STR_LEN);
-          str[0]=0;
-          strptr=str;
-          remaining = MAX_STR_LEN;
+          str_index = 0;
+          str[str_index]=0;
 
 	  /* sub authorities, leave RID to last */
 	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
@@ -1302,14 +1302,10 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	     * assume that non le byte encodings will be "uncommon"?
 	     */
 
-             assert(MAX_STR_LEN-(strptr-str) >= 0);
-             returned_length = g_snprintf(strptr, remaining, (i>0 ? "-%u" : "%u"),
-               tvb_get_letohl(tvb, offset));
-             if (returned_length > remaining) {
-               returned_length = remaining;
-             }
-             remaining -= returned_length;
-             strptr += returned_length ;
+             DISSECTOR_ASSERT(str_index <= MAX_STR_LEN);
+             returned_length = g_snprintf(&str[str_index], MAX_STR_LEN-str_index,
+                (i>0 ? "-%u" : "%u"), tvb_get_letohl(tvb, offset));
+             str_index += MIN(returned_length, (MAX_STR_LEN-str_index));
              offset+=4;
 	  }
 
