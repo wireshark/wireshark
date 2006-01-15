@@ -2197,7 +2197,7 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 RegistrationNotificationRes ::= [PRIVATE 18] SET {
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (VLR or HLR) M 6.5.2.147
-	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord,
+	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord OPTIONAL,
 	-- O 6.5.2.bd
 	authorizationDenied						[13] IMPLICIT AuthorizationDenied OPTIONAL,
 	-- O 6.5.2.13 a
@@ -5627,32 +5627,32 @@ VoiceMailboxPIN ::= DigitsType
 VoicePrivacyMask ::= OCTET STRING
 
 
--- 6.5.2.a
+-- 6.5.2.a N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 0 1 0 1 0 (0x2a)(170)
 -- a. See CDMA [TSB76] for the definition of this parameter.
 CDMABandClass ::= OCTET STRING
 
--- 6.5.2.b
+-- 6.5.2.b N.S0010-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 0 1 0 1 1 (0x2b)(171)
 CDMABandClassInformation ::= OCTET STRING
 
--- 6.5.2.c
+-- 6.5.2.c N.S0010-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 0 1 1 0 0 (0x2c)(172)
 CDMABandClassList ::= OCTET STRING
 
--- 6.5.2.d
+-- 6.5.2.d N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 0 1 1 0 1 (0x2d)(173)
 CDMAPilotPN ::= OCTET STRING
 
--- 6.5.2.e (TSB76)
+-- 6.5.2.e (TSB76) N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 0 1 1 1 0 (0x2e)(174)
@@ -5660,7 +5660,7 @@ CDMAServiceConfigurationRecord ::= OCTET STRING
 -- a.	This field carries the CDMA Service Configuration Record. The bit-layout is the
 --		same as that of Service Configuration Record in TSB74, and J-STD-008.
 
--- 6.5.2.f (TSB76) CDMAServiceOption
+-- 6.5.2.f (TSB76) CDMAServiceOption N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 0 1 1 1 1 (0x2f)(175)
@@ -5668,7 +5668,7 @@ CDMAServiceOption ::= OCTET STRING
 --a.	This field carries the CDMA Service Option. The bit-layout is the same as that of
 --		Service Option in TSB74 and J-STD-008.
 
--- 6.5.2.g
+-- 6.5.2.g N.S0010-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 0 0 0 (0x30)(176)
@@ -5680,27 +5680,27 @@ CDMAServiceOptionList ::= SEQUENCE OF SEQUENCE{
 	...
 	}
 
--- 6.5.2.h
+-- 6.5.2.h N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 0 0 1 (0x31)(177)
 CDMAStationClassMark2 ::= OCTET STRING
 
 
--- 6 .5.2.i N.S0007-0 v 1.0
+-- 6 .5.2.i N.S0007-0 v 1.0 N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 0 1 0 (0x32)(178)
 TDMAServiceCode  ::= OCTET STRING
 
 
--- 6.5.2.j N.S0007-0 v 1.0
+-- 6.5.2.j N.S0007-0 v 1.0 N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 0 1 1 (0x33)(179)
 TDMATerminalCapability ::= OCTET STRING
 
--- 6.5.2.k N.S0007-0 v 1.0
+-- 6.5.2.k N.S0007-0 v 1.0 N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 1 0 0 (0x34)(180)
@@ -5721,7 +5721,7 @@ BaseStationManufacturerCode ::= OCTET STRING
 -- 0 1 0 0 0 1 1 0 (0x46)(198)
 BSMCStatus ::= OCTET STRING
 
--- 6.5.2.ac (N.S0007-0 v 1.0)
+-- 6.5.2.ac (N.S0007-0 v 1.0) N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 0 0 1 1 1 (0x49)(199)
@@ -5920,13 +5920,13 @@ CDMAConnectionReference ::= OCTET STRING
 --		is the same as that of Service Option Connection Reference in TSB74 and
 --		J-STD-008.
 
--- 6.5.2.bc
+-- 6.5.2.bc N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 0 0 0 (0x60)(224)
 AnalogRedirectInfo ::= OCTET STRING
 
--- 6.5.2.bd
+-- 6.5.2.bd N.S0010-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 0 0 1 (0x61)(225)
@@ -5938,13 +5938,13 @@ AnalogRedirectRecord ::= SEQUENCE {
 	...
 	}
 
--- 6.5.2.be
+-- 6.5.2.be N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 0 1 0 (0x62)(226)
 CDMAChannelNumber ::= OCTET STRING
 
--- 6.5.2.bf
+-- 6.5.2.bf N.S0010-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 0 1 1 (0x63)(227)
@@ -5956,13 +5956,13 @@ CDMAChannelNumberList ::= SEQUENCE OF SEQUENCE{
 	...
 	}
 
--- 6.5.2.bg
+-- 6.5.2.bg N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 1 0 0 (0x64)(228)
 CDMAPowerCombinedIndicator ::= OCTET STRING
 
--- 6.5.2.bh
+-- 6.5.2.bh N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 1 0 1 (0x65)(229)
@@ -5978,63 +5978,62 @@ CDMARedirectRecord ::= SEQUENCE {
 	...
 	}
 	
-
--- 6.5.2.bi
+-- 6.5.2.bi N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 1 1 0 (0x66)(230)
 CDMASearchParameters ::= OCTET STRING
 
--- 6.5.2.bj
+-- 6.5.2.bj N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 0 1 1 1 (0x67)(231)
 -- Reserved
 
--- 6.5.2.bk
+-- 6.5.2.bk N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 0 0 0 (0x68)(232)
 CDMANetworkIdentification ::= OCTET STRING
 
+-- 6.5.2.bl N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 0 0 1 (0x69)(233)
--- 6.5.2.bl
 -- XXX Is this correct? see (N.S0005-0 v 1.0 Chapter 5, page 219)
 NetworkTMSI ::= DigitsType
 
--- 6.5.2.bm
+-- 6.5.2.bm N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 0 1 0 (0x6a)(234)
 NetworkTMSIExpirationTime ::= OCTET STRING
 
--- 6.5.2.bn
+-- 6.5.2.bn N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 0 1 1 (0x6b)(235)
 NewNetworkTMSI ::= DigitsType
 
--- 6.5.2.bo
+-- 6.5.2.bo N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 1 0 0 (0x6c)(236)
 RequiredParametersMask ::= OCTET STRING
 
--- 6.5.2.bp
+-- 6.5.2.bp N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 1 0 1 (0x6d)(237)
 ServiceRedirectionCause ::= OCTET STRING
 
--- 6.5.2.bq
+-- 6.5.2.bq N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 1 1 0 (0x6e)(238)
 ServiceRedirectionInfo ::= OCTET STRING
 
--- 6.5.2.br
+-- 6.5.2.br N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 1 1 1 (0x6f)(239)
@@ -6109,10 +6108,10 @@ Change  ::= ENUMERATED {
 	replaceDataItemWithAssociatedDataValue (4),
 ...}
 
+-- 6.5.2.cc N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0xbf)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 1 0 0 1 (0x79)(249)
--- 6.5.2.cc N.S0013-0 v 1.0
 DataAccessElement ::= SEQUENCE {
 	dataID		[251] IMPLICIT DataID,
 --	 M 6.5.2.ce
@@ -6122,10 +6121,10 @@ DataAccessElement ::= SEQUENCE {
 --	O 6.5.2.cj a
 	...}
 
+-- 6.5.2.cd N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81) 
 -- 0 1 1 1 1 0 1 0 (0x7a) (250)
--- 6.5.2.cd N.S0013-0 v 1.0
 DataAccessElementList ::= SEQUENCE OF SEQUENCE{
 	dataAccessElement1	[249] IMPLICIT DataAccessElement,
 	dataAccessElement2	[249] IMPLICIT DataAccessElement OPTIONAL
@@ -6137,10 +6136,10 @@ DataAccessElementList ::= SEQUENCE OF SEQUENCE{
 -- 0 1 1 1 1 0 1 1 (0x7b)(251)
 DataID ::= OCTET STRING
 
+-- 6.5.2.cf N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81) 
 -- 0 1 1 1 1 1 0 0 (0x7c)(252)
--- 6.5.2.cf N.S0013-0 v 1.0
 DatabaseKey ::= OCTET STRING
 
 -- 6.5.2.cg N.S0013-0 v 1.0
@@ -6170,12 +6169,13 @@ DataUpdateResult ::= SEQUENCE {
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81) 
 -- 0 1 1 1 1 1 1 1 (0x7f)(255)
-DataUpdateResultList ::= SEQUENCE OF SEQUENCE{
-	dataUpdateResult	[254] IMPLICIT DataUpdateResult,
+DataUpdateResultList ::= SEQUENCE OF DataUpdateResult
+--DataUpdateResultList ::= SEQUENCE OF SEQUENCE{
+--	dataUpdateResult	[254] IMPLICIT DataUpdateResult,
 	--	M 6.5.2.ch
-	dataUpdateResultopt	[254] IMPLICIT DataUpdateResult OPTIONAL
+--	dataUpdateResultopt	[254] IMPLICIT DataUpdateResult OPTIONAL
 	--	O 6.5.2.ch	
-}
+--}
 
 -- 6.5.2.cj N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -6257,14 +6257,14 @@ ModificationRequestList ::= SEQUENCE OF [390]IMPLICIT ModificationRequest
 -- The ModificationResult CHOICE is not explicitly encoded with a parameter identifier and length
 ModificationResult ::= CHOICE
 	{dataResult				[253] IMPLICIT DataResult,
-	serviceDataResultList	[9999] IMPLICIT ServiceDataResultList
+	serviceDataResultList	[273] IMPLICIT ServiceDataResultList
 	}
 
 -- 6.5.2.cs N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 1 0 0 0 (0x08)(392)
-ModificationResultList ::= SEQUENCE OF [9999] IMPLICIT ModificationResult
+ModificationResultList ::= SEQUENCE OF ModificationResult
 
 
 -- 6.5.2.ct N.S0013-0 v 1.0
@@ -6479,7 +6479,7 @@ WINOperationsCapability ::= OCTET STRING
 
 WIN-Trigger ::= SEQUENCE {
 	triggerType			[279] IMPLICIT TriggerType OPTIONAL,
-	detectionPointType	[9999] IMPLICIT DetectionPointType
+	detectionPointType	DetectionPointType
 	}
 
 --6.5.2.dk

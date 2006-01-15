@@ -181,6 +181,7 @@ static int hf_ansi_map_callingfeaturesindicator_cfbfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_cfnafa = -1;
 static int hf_ansi_map_callingfeaturesindicator_cwfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_3wcfa = -1;
+static int hf_ansi_map_callingfeaturesindicator_pcwfa =-1;
 static int hf_ansi_map_callingfeaturesindicator_dpfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_ahfa = -1;
 static int hf_ansi_map_callingfeaturesindicator_uscfvmfa = -1;
@@ -1029,7 +1030,7 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	/* Data Privacy Feature Activity DP-FA (Octet 4 bits CD ) N.S0008-0 v 1.0	*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_dpfa, tvb, offset, 1, FALSE);
 	/* Priority Call Waiting FeatureActivity PCW-FA (Octet 4 bits AB )	*/
-	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_3wcfa, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_pcwfa, tvb, offset, 1, FALSE);
 	offset++;
 
 	/* USCF divert to mobile station provided DN:FeatureActivity.USCFms-FA (Octet 5 bits AB ) */
@@ -1042,10 +1043,12 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ccsfa, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA (Octet 6 bits AB ) N.S0029-0 v1.0*/
-	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_epefa, tvb, offset, 1, FALSE);
-
+	if ( tvb_length_remaining(tvb,offset) > 0){
+		/* TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA (Octet 6 bits AB ) N.S0029-0 v1.0*/
+		proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_epefa, tvb, offset, 1, FALSE);
 	}
+
+}
 
 
 /* 6.5.2.27 CancellationType */
@@ -3810,6 +3813,12 @@ void proto_register_ansi_map(void) {
       { "Three-Way Calling FeatureActivity, 3WC-FA", "ansi_map.callingfeaturesindicator.3wcfa",
         FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x03,
         "Three-Way Calling FeatureActivity, 3WC-FA", HFILL }},
+
+	{ &hf_ansi_map_callingfeaturesindicator_pcwfa,
+      { "Priority Call Waiting FeatureActivity PCW-FA", "ansi_map.callingfeaturesindicator.pcwfa",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x03,
+        "Priority Call Waiting FeatureActivity PCW-FA", HFILL }},
+	  
 	{ &hf_ansi_map_callingfeaturesindicator_dpfa,
       { "Data Privacy Feature Activity DP-FA", "ansi_map.callingfeaturesindicator.dpfa",
         FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x0c,
