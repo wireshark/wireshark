@@ -1,291 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-	<application id="1" name="NASREQ Application" uri="http://www.ietf.org/rfc/rfc4004.txt">
+	<application id="1" name="NASREQ Application" uri="http://www.ietf.org/rfc/rfc4005.txt">
 
 		<command name="AA" code="265" vendor-id="None"/>
 		<command name="Diameter-EAP" code="268" vendor-id="None"/>
 
-		<!-- ************************* RADIUS AVPs ************************ -->
-		<avp name="User-Name" code="1">
-			<type type-name="UTF8String"/>
+		<avp name="NAS-Filter-Rule" code="400">
+			<type type-name="IPFilterRule"/>
 		</avp>
-		<avp name="User-Password" code="2">
+		<avp name="Tunneling" code="401">
+			<grouped>
+				<gavp name="CHAP-Algorithm"/>
+				<gavp name="CHAP-Ident"/>
+				<gavp name="CHAP-Response"/>
+			</grouped>
+		</avp>
+		<avp name="CHAP-Auth" code="402">
+			<grouped>
+				<gavp name="Tunnel-Type"/>
+				<gavp name="Tunnel-Medium-Type"/>
+				<gavp name="Tunnel-Client-Endpoint"/>
+				<gavp name="Tunnel-Server-Endpoint"/>
+				<gavp name="Tunnel-Preference"/>
+				<gavp name="Tunnel-Client-Auth-Id"/>
+				<gavp name="Tunnel-Server-Auth-Id"/>
+				<gavp name="Tunnel-Assignment-Id"/>
+				<gavp name="Tunnel-Password"/>
+				<gavp name="Tunnel-Private-Group-Id"/>
+			</grouped>
+		</avp>
+		<avp name="CHAP-Algorithm" code="403">
+			<type type-name="Enumerated"/>
+			<enum name="CHAP with MD5" code="5"/>
+		</avp>
+		<avp name="CHAP-Ident" code="404">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="CHAP-Password" code="3">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="NAS-IP-Address" code="4">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="NAS-Port" code="5">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Service-Type" code="6">
-			<type type-name="Unsigned32"/>
-			<enum name="Labels" code="3"/>
-			<enum name="RSVP" code="1"/>
-			<enum name="TOS" code="2"/>
-		</avp>
-		<avp name="Framed-Protocol" code="7">
-			<type type-name="Unsigned32"/>
-			<enum name="ARA" code="3"/>
-			<enum name="Ascend-ARA" code="255"/>
-			<enum name="COMB" code="260"/>
-			<enum name="EURAW" code="257"/>
-			<enum name="EUUI" code="258"/>
-			<enum name="FR" code="261"/>
-			<enum name="Gandalf" code="4"/>
-			<enum name="MPP" code="256"/>
-			<enum name="PPP" code="1"/>
-			<enum name="SLIP" code="2"/>
-			<enum name="X25" code="259"/>
-			<enum name="Xylogics" code="5"/>
-		</avp>
-		<avp name="Framed-IP-Address" code="8">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="Framed-IP-Netmask" code="9">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="Framed-Routing" code="10">
-			<type type-name="Unsigned32"/>
-			<enum name="Broadcast" code="1"/>
-			<enum name="Broadcast-Listen" code="3"/>
-			<enum name="Listen" code="2"/>
-			<enum name="None" code="0"/>
-		</avp>
-		<avp name="Filter-Id" code="11">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Framed-MTU" code="12">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Framed-Compression" code="13">
-			<type type-name="Unsigned32"/>
-			<enum name="IPX-Header-Compression" code="2"/>
-			<enum name="None" code="0"/>
-			<enum name="Van-Jacobson-TCP-IP" code="1"/>
-		</avp>
-		<avp name="Login-IP-Host" code="14">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="Login-Service" code="15">
-			<type type-name="Unsigned32"/>
-			<enum name="LAT" code="4"/>
-			<enum name="PortMaster" code="3"/>
-			<enum name="Rlogin" code="1"/>
-			<enum name="TCP-Clear" code="2"/>
-			<enum name="Telnet" code="0"/>
-			<enum name="X25-PAD" code="5"/>
-			<enum name="X25-T3POS" code="6"/>
-		</avp>
-		<avp name="Login-TCP-Port" code="16">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Old-Password" code="17">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Reply-Message" code="18">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Callback-Number" code="19">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Callback-Id" code="20">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Framed-Route" code="22">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Framed-IPX-Network" code="23">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="State" code="24">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Class" code="25">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Vendor-Specific" code="26">
-			<type type-name="Unsigned32"/>
-			<!-- Should vendors be enum'ed? -->
-		</avp>
-		<avp name="Session-Timeout" code="27">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Idle-Timeout" code="28">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Termination-Action" code="29">
-			<type type-name="Unsigned32"/>
-			<enum name="Default" code="0"/>
-			<enum name="RADIUS-Request" code="1"/>
-		</avp>
-		<avp name="Called-Station-Id" code="30">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Calling-Station-Id" code="31">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="NAS-Identifier" code="32">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Proxy-State" code="33">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Login-LAT-Service" code="34">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Login-LAT-Node" code="35">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Login-LAT-Group" code="36">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Framed-AppleTalk-Link" code="37">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Framed-AppleTalk-Network" code="38">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Framed-AppleTalk-Zone" code="39">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Acct-Status-Type" code="40">
-			<type type-name="Unsigned32"/>
-			<enum name="Accounting-Off" code="8"/>
-			<enum name="Accounting-On" code="7"/>
-			<enum name="Alive" code="3"/>
-			<enum name="Cancel" code="6"/>
-			<enum name="Modem-Start" code="4"/>
-			<enum name="Modem-Stop" code="5"/>
-			<enum name="Start" code="1"/>
-			<enum name="Stop" code="2"/>
-		</avp>
-		<avp name="Acct-Delay-Time" code="41">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Acct-Input-Octets" code="42">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Acct-Output-Octets" code="43">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Acct-Session-Id" code="44" mandatory="must">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Acct-Authentic" code="45">
-			<type type-name="Unsigned32"/>
-			<enum name="Local" code="2"/>
-			<enum name="None" code="0"/>
-			<enum name="RADIUS" code="1"/>
-		</avp>
-		<avp name="Acct-Session-Time" code="46">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Acct-Input-Packets" code="47">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Acct-Output-Packets" code="48">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Acct-Terminate-Cause" code="49">
-			<type type-name="Unsigned32"/>
-			<enum name="Admin-Reboot" code="7"/>
-			<enum name="Admin-Reset" code="6"/>
-			<enum name="Callback" code="16"/>
-			<enum name="Host-Request" code="18"/>
-			<enum name="Idle-Timeout" code="4"/>
-			<enum name="Lost-Carrier" code="2"/>
-			<enum name="Lost-Service" code="3"/>
-			<enum name="NAS-Error" code="9"/>
-			<enum name="NAS-Reboot" code="11"/>
-			<enum name="NAS-Request" code="10"/>
-			<enum name="Port-Error" code="8"/>
-			<enum name="Port-Preempted" code="13"/>
-			<enum name="Port-Suspended" code="14"/>
-			<enum name="Port-Unneeded" code="12"/>
-			<enum name="Service-Unavailable" code="15"/>
-			<enum name="Session-Timeout" code="5"/>
-			<enum name="User-Error" code="17"/>
-			<enum name="User-Request" code="1"/>
-		</avp>
-		<avp name="Acct-Multi-Session-Id" code="50">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Acct-Link-Count" code="51">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="CHAP-Challenge" code="60">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="NAS-Port-Type" code="61">
-			<type type-name="Unsigned32"/>
-			<enum name="Async" code="0"/>
-			<enum name="HDLC-Clear-Channel" code="7"/>
-			<enum name="ISDN-Async-v110" code="4"/>
-			<enum name="ISDN-Async-v120" code="3"/>
-			<enum name="ISDN-Sync" code="2"/>
-			<enum name="PIAFS" code="6"/>
-			<enum name="Sync" code="1"/>
-			<enum name="Virtual" code="5"/>
-			<enum name="X25" code="8"/>
-			<enum name="X75" code="9"/>
-		</avp>
-		<avp name="Port-Limit" code="62">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Login-LAT-Port" code="63">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Tunnel-Type" code="64">
-			<type type-name="Unsigned32"/>
-			<enum name="PPTP" code="1"/>
-			<enum name="L2F" code="2"/>
-			<enum name="L2TP" code="3"/>
-			<enum name="ATMP" code="4"/>
-			<enum name="VTP" code="5"/>
-			<enum name="AH" code="6"/>
-			<enum name="IP-IP-Encap" code="7"/>
-			<enum name="MIN-IP-IP" code="8"/>
-			<enum name="ESP" code="9"/>
-			<enum name="GRE" code="10"/>
-			<enum name="DVS" code="11"/>
-			<enum name="IP-IP" code="12"/>
-		</avp>
-		<avp name="Tunnel-Medium-Type" code="65">
-			<type type-name="Unsigned32"/>
-			<enum name="IPv4" code="1"/>
-			<enum name="IPv6" code="2"/>
-			<enum name="NSAP" code="3"/>
-			<enum name="HDLC" code="4"/>
-			<enum name="BBN" code="5"/>
-			<enum name="IEEE-802" code="6"/>
-			<enum name="E-163" code="7"/>
-			<enum name="E-164" code="8"/>
-			<enum name="F-69" code="9"/>
-			<enum name="X-121" code="10"/>
-			<enum name="IPX" code="11"/>
-			<enum name="Appletalk-802" code="12"/>
-			<enum name="Decnet4" code="13"/>
-			<enum name="Vines" code="14"/>
-			<enum name="E-164-NSAP" code="15"/>
-		</avp>
-		<avp name="Tunnel-Client-Endpoint" code="66">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Tunnel-Server-Endpoint" code="67">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Tunnel-Connection-ID" code="68">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Tunnel-Password" code="69">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Tunnel-Assignment-Id" code="82">
-			<type type-name="OctetString"/>
+		<avp name="OctetString" code="405">
+			<type type-name="IPFilterRule"/>
 		</avp>
 		<avp name="Accounting-Auth-Method" code="406">
 			<type type-name="Unsigned32"/>
@@ -296,8 +48,11 @@
 			<enum name="EAP" code="5"/>
 			<enum name="None" code="7"/>
 		</avp>
+		<avp name="QoS-Filter-Rule" code="407">
+			<type type-name="QoSFilterRule"/>
+		</avp>
 		<avp name="Origin-AAA-Protocol" code="408">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="RADIUS" code="1"/>
 		</avp>
 	</application>

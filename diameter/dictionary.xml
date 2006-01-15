@@ -477,8 +477,13 @@
          64 bit unsigned value, in network byte order. The AVP Length
          field MUST be set to 16 (20 if the 'V' bit is enabled).
 	-->
+		<typedefn type-name="Enumerated" type-parent="Unsigned32"/>
+		<typedefn type-name="DiameterURI" type-parent="UTF8String"/>
+
 		<!-- ************************* End Typedefns ************************ -->
 		<!-- ******************* RADIUS AVPS ************************ -->
+		<!-- http://www.iana.org/assignments/aaa-parameters -->
+		<!-- 1-255    Radius attributes                  [RAD-IANA] -->
 		<avp name="User-Name" code="1" mandatory="must">
 			<type type-name="UTF8String"/>
 		</avp>
@@ -494,11 +499,40 @@
 		<avp name="NAS-Port" code="5" mandatory="may">
 			<type type-name="Integer32"/>
 		</avp>
-		<avp name="Service-Type" code="6" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Service-Type" code="6">
+			<type type-name="Unsigned32"/>
+			<enum name="Login" code="1"/>
+			<enum name="Framed" code="2"/>
+			<enum name="Callback-Login" code="3"/>
+			<enum name="Callback-Framed" code="4"/>
+			<enum name="Outbound" code="5"/>
+			<enum name="Administrative" code="6"/>
+			<enum name="NAS-Prompt" code="7"/>
+			<enum name="Authenticate-Only" code="8"/>
+			<enum name="Callback-NAS-Prompt" code="9"/>
+			<enum name="Call Check" code="10"/>
+			<enum name="Callback Administrative" code="11"/>
+			<enum name="Voice" code="12"/>
+			<enum name="Fax" code="13"/>
+			<enum name="Modem Relay" code="14"/>
+			<enum name="IAPP-Register" code="15"/>
+			<enum name="IAPP-AP-Check" code="16"/>
+			<enum name="Authorize Only" code="17"/>
 		</avp>
-		<avp name="Framed-Protocol" code="7" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Framed-Protocol" code="7">
+			<type type-name="Unsigned32"/>
+			<enum name="ARA" code="3"/>
+			<enum name="Ascend-ARA" code="255"/>
+			<enum name="COMB" code="260"/>
+			<enum name="EURAW" code="257"/>
+			<enum name="EUUI" code="258"/>
+			<enum name="FR" code="261"/>
+			<enum name="Gandalf" code="4"/>
+			<enum name="MPP" code="256"/>
+			<enum name="PPP" code="1"/>
+			<enum name="SLIP" code="2"/>
+			<enum name="X25" code="259"/>
+			<enum name="Xylogics" code="5"/>
 		</avp>
 		<avp name="Framed-IP-Address" code="8" mandatory="may">
 			<type type-name="IPAddress"/>
@@ -506,8 +540,12 @@
 		<avp name="Framed-IP-Netmask" code="9" mandatory="may">
 			<type type-name="IPAddress"/>
 		</avp>
-		<avp name="Framed-Routing" code="10" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Framed-Routing" code="10">
+			<type type-name="Unsigned32"/>
+			<enum name="Broadcast" code="1"/>
+			<enum name="Broadcast-Listen" code="3"/>
+			<enum name="Listen" code="2"/>
+			<enum name="None" code="0"/>
 		</avp>
 		<avp name="Filter-Id" code="11" mandatory="may">
 			<type type-name="OctetString"/>
@@ -515,14 +553,25 @@
 		<avp name="Framed-MTU" code="12" mandatory="may">
 			<type type-name="Integer32"/>
 		</avp>
-		<avp name="Framed-Compression" code="13" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Framed-Compression" code="13">
+			<type type-name="Unsigned32"/>
+			<enum name="IPX-Header-Compression" code="2"/>
+			<enum name="None" code="0"/>
+			<enum name="Van-Jacobson-TCP-IP" code="1"/>
 		</avp>
  		<avp name="Login-IP-Host" code="14" mandatory="may">
  			<type type-name="IPAddress"/>
  		</avp>
-		<avp name="Login-Service" code="15" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Login-Service" code="15">
+			<type type-name="Unsigned32"/>
+			<enum name="Telnet" code="0"/>
+			<enum name="Rlogin" code="1"/>
+			<enum name="TCP-Clear" code="2"/>
+			<enum name="PortMaster" code="3"/>
+			<enum name="LAT" code="4"/>
+			<enum name="X25-PAD" code="5"/>
+			<enum name="X25-T3POS" code="6"/>
+			<enum name="TCP Clear Quiet (suppresses any NAS-generated connect string)" code="8"/>
 		</avp>
  		<avp name="Login-TCP-Port" code="16" mandatory="may">
 			<type type-name="Integer32"/>
@@ -548,8 +597,9 @@
 		<avp name="Class" code="25" mandatory="must">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Vendor-Specific" code="26" mandatory="may">
-			<type type-name="OctetString"/>
+		<avp name="Vendor-Specific" code="26">
+			<type type-name="Unsigned32"/>
+			<!-- Should vendors be enum'ed? -->
 		</avp>
 		<avp name="Session-Timeout" code="27" mandatory="must">
 			<type type-name="Unsigned32"/>
@@ -557,10 +607,10 @@
 		<avp name="Idle-Timeout" code="28" mandatory="may">
 			<type type-name="Integer32"/>
 		</avp>
-
-
-		<avp name="Termination-Action" code="29" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Termination-Action" code="29">
+			<type type-name="Unsigned32"/>
+			<enum name="Default" code="0"/>
+			<enum name="RADIUS-Request" code="1"/>
 		</avp>
 		<avp name="Called-Station-Id" code="30" mandatory="may">
 			<type type-name="OctetString"/>
@@ -592,8 +642,16 @@
 		<avp name="Framed-AppleTalk-Zone" code="39" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Acct-Status-Type" code="40" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Acct-Status-Type" code="40">
+			<type type-name="Unsigned32"/>
+			<enum name="Accounting-Off" code="8"/>
+			<enum name="Accounting-On" code="7"/>
+			<enum name="Alive" code="3"/>
+			<enum name="Cancel" code="6"/>
+			<enum name="Modem-Start" code="4"/>
+			<enum name="Modem-Stop" code="5"/>
+			<enum name="Start" code="1"/>
+			<enum name="Stop" code="2"/>
 		</avp>
 		<avp name="Acct-Delay-Time" code="41" mandatory="may">
 			<type type-name="Integer32"/>
@@ -607,8 +665,13 @@
 		<avp name="Accounting-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Acct-Authentic" code="45" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Acct-Authentic" code="45">
+			<type type-name="Unsigned32"/>
+			<enum name="None" code="0"/>
+			<enum name="RADIUS" code="1"/>
+			<enum name="Local" code="2"/>
+			<enum name="Remote" code="3"/>
+			<enum name="Diameter" code="4"/>
 		</avp>
 		<avp name="Acct-Session-Time" code="46" mandatory="may">
 			<type type-name="Integer32"/>
@@ -619,8 +682,30 @@
 		<avp name="Acct-Output-Packets" code="48" mandatory="may">
 			<type type-name="Integer32"/>
 		</avp>
-		<avp name="Acct-Terminate-Cause" code="49" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="Acct-Terminate-Cause" code="49">
+			<type type-name="Unsigned32"/>
+			<enum name="User-Request" code="1"/>
+			<enum name="Lost-Carrier" code="2"/>
+			<enum name="Lost-Service" code="3"/>
+			<enum name="Idle-Timeout" code="4"/>
+			<enum name="Session-Timeout" code="5"/>
+			<enum name="Admin-Reset" code="6"/>
+			<enum name="Admin-Reboot" code="7"/>
+			<enum name="Port-Error" code="8"/>
+			<enum name="NAS-Error" code="9"/>
+			<enum name="NAS-Request" code="10"/>
+			<enum name="NAS-Reboot" code="11"/>
+			<enum name="Port-Unneeded" code="12"/>
+			<enum name="Port-Preempted" code="13"/>
+			<enum name="Port-Suspended" code="14"/>
+			<enum name="Service-Unavailable" code="15"/>
+			<enum name="Callback" code="16"/>
+			<enum name="User-Error" code="17"/>
+			<enum name="Host-Request" code="18"/>
+			<enum name="Supplicant Restart" code="19"/>
+			<enum name="Reauthentication Failure" code="20"/>
+			<enum name="Port Reinitialized" code="21"/>
+			<enum name="Port Administratively Disabled" code="22"/>
 		</avp>
 		<avp name="Accounting-Multi-Session-Id" code="50" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
@@ -634,14 +719,42 @@
 		<avp name="Acct-Output-Gigawords" code="53" mandatory="may">
 			<type type-name="Integer32"/>
 		</avp>
-		<avp name="Event-Timestamp" code="55" mandatory="must">
+		<avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Time"/>
 		</avp>
+<!--  56-59	(unassigned) -->
 		<avp name="CHAP-Challenge" code="60" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="NAS-Port-Type" code="61" mandatory="may">
-			<type type-name="Integer32"/>
+		<avp name="NAS-Port-Type" code="61" mandatory="must" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="Async" code="0"/>
+			<enum name="HDLC-Clear-Channel" code="7"/>
+			<enum name="ISDN-Async-v110" code="4"/>
+			<enum name="ISDN-Async-v120" code="3"/>
+			<enum name="ISDN-Sync" code="2"/>
+			<enum name="PIAFS" code="6"/>
+			<enum name="Sync" code="1"/>
+			<enum name="Virtual" code="5"/>
+			<enum name="X25" code="8"/>
+			<enum name="X75" code="9"/>
+			<enum name="G.3 Fax" code="10"/>
+			<enum name="SDSL - Symmetric DSL" code="11"/>
+			<enum name="ADSL-CAP - Asymmetric DSL, Carrierless Amplitude Phase Modulation" code="12"/>
+			<enum name="ADSL-DMT - Asymmetric DSL, Discrete Multi-Tone" code="13"/>
+			<enum name="IDSL - ISDN Digital Subscriber Line" code="14"/>
+			<enum name="Ethernet" code="15"/>
+			<enum name="xDSL - Digital Subscriber Line of unknown type" code="16"/>
+			<enum name="Cable" code="17"/>
+			<enum name="Wireless - Other" code="18"/>
+			<enum name="Wireless - IEEE 802.11  " code="19"/>
+			<enum name="Token-Ring" code="20"/>
+			<enum name="FDDI" code="21"/>
+			<enum name="Wireless - CDMA2000" code="22"/>
+			<enum name="Wireless - UMTS" code="23"/>
+			<enum name="Wireless - 1X-EV" code="24"/>
+			<enum name="IAPP" code="25"/>
+			<enum name="FTTP - Fiber to the Premises" code="26"/>
 		</avp>
 		<avp name="Port-Limit" code="62" mandatory="may">
 			<type type-name="Integer32"/>
@@ -649,11 +762,39 @@
 		<avp name="Login-LAT-Port" code="63" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Tunnel-Type" code="64" mandatory="may">
-			<type type-name="OctetString"/>
+		<avp name="Tunnel-Type" code="64">
+			<type type-name="Unsigned32"/>
+			<enum name="PPTP" code="1"/>
+			<enum name="L2F" code="2"/>
+			<enum name="L2TP" code="3"/>
+			<enum name="ATMP" code="4"/>
+			<enum name="VTP" code="5"/>
+			<enum name="AH" code="6"/>
+			<enum name="IP-IP-Encap" code="7"/>
+			<enum name="MIN-IP-IP" code="8"/>
+			<enum name="ESP" code="9"/>
+			<enum name="GRE" code="10"/>
+			<enum name="DVS" code="11"/>
+			<enum name="IP-IP" code="12"/>
+			<enum name="VLAN" code="13"/>
 		</avp>
-		<avp name="Tunnel-Medium-Type" code="65" mandatory="may">
-			<type type-name="OctetString"/>
+		<avp name="Tunnel-Medium-Type" code="65">
+			<type type-name="Unsigned32"/>
+			<enum name="IPv4" code="1"/>
+			<enum name="IPv6" code="2"/>
+			<enum name="NSAP" code="3"/>
+			<enum name="HDLC" code="4"/>
+			<enum name="BBN" code="5"/>
+			<enum name="IEEE-802" code="6"/>
+			<enum name="E-163" code="7"/>
+			<enum name="E-164" code="8"/>
+			<enum name="F-69" code="9"/>
+			<enum name="X-121" code="10"/>
+			<enum name="IPX" code="11"/>
+			<enum name="Appletalk-802" code="12"/>
+			<enum name="Decnet4" code="13"/>
+			<enum name="Vines" code="14"/>
+			<enum name="E-164-NSAP" code="15"/>
 		</avp>
 		<avp name="Acct-Tunnel-Client-Endpoint" code="66" mandatory="may">
 			<type type-name="OctetString"/>
@@ -700,8 +841,11 @@
 		<avp name="Signature" code="80" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Acct-Interim-Interval" code="85" mandatory="must">
-			<type type-name="Unsigned32"/>
+		<avp name="ARAP-Challenge-Response" code="84" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Acct-Interim-Interval" code="85" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Integer32"/>
 		</avp>
 		<avp name="Framed-Interface-Id" code="96" mandatory="may">
 			<type type-name="Unsigned64"/>
@@ -709,29 +853,13 @@
 		<avp name="Framed-IPv6-Prefix" code="97" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
-
 		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
-		
-		<avp name="Accounting-Interim-Interval" code="482" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+		<avp name="Host-IP-Address" code="257" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="IPAddress"/>
 		</avp>
-		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="Reserved" code="0"/>
-			<enum name="DELIVER_AND_GRANT" code="1"/>
-			<enum name="GRANT_AND_STORE" code="2"/>
-			<enum name="GRANT_AND_LOSE" code="3"/>
-		</avp>
-		<avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Accounting-Record-Type" code="480" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="Event Record" code="1"/>
-			<enum name="Start Record" code="2"/>
-			<enum name="Interim Record" code="3"/>
-			<enum name="Stop Record" code="4"/>
-		</avp>
+		<avp name="Auth-Application-Id" code="258" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="AppId"/>
+		</avp>		
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="AppId"/>
 			<enum name="Diameter Common Messages" code="0"/>
@@ -753,89 +881,12 @@
 			<enum name="Ericsson Zx" code="16777228"/>
 			<enum name="3GPP Rx" code="16777229"/>
 		</avp>
-		<avp name="Alternate-Peer" code="275" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="Auth-Application-Id" code="258" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="AppId"/>
-		</avp>
-		<avp name="Auth-Request-Type" code="274" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="Authenticate Only" code="1"/>
-			<enum name="Authorize Only" code="2"/>
-			<enum name="Authorize Authenticate" code="3"/>
-		</avp>
-		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Integer32"/>
-		</avp>
-		<avp name="Auth-Grace-Period" code="276" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Auth-Session-State" code="277" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="STATE_MAINTAINED" code="0"/>
-			<enum name="NO_STATE_MAINTAINED" code="1"/>
-		</avp>
-		<avp name="Re-Auth-Request-Type" code="285" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="AUTHORIZE_ONLY" code="0"/>
-			<enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
-		</avp>
-		<avp name="Destination-Host" code="293" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="Destination-Realm" code="283" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Disconnect-Cause" code="273" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="REBOOTING" code="0"/>
-			<enum name="BUSY" code="1"/>
-			<enum name="DO_NOT_WANT_TO_TALK_TO_YOU" code="2"/>
-		</avp>
-		<avp name="Error-Message" code="281" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Error-Reporting-Host" code="294" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="E2E-Sequence" code="300" mandatory="must">
+		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
-				<gavp name="foo"/>
+				<gavp name="Vendor-Id"/>
+				<gavp name="Auth-Application-Id"/>
+				<gavp name="Acct-Application-Id"/>
 			</grouped>
-		</avp>
-		<avp name="Failed-AVP" code="279" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Firmware-Revision" code="267" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Host-IP-Address" code="257" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="Multi-Round-Time-Out" code="272" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Origin-Host" code="264" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="Origin-Realm" code="296" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Origin-State-Id" code="278" mandatory="must" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Product-Name" code="269" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Proxy-Host" code="280" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="Proxy-Info" code="284" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Redirect-Host" code="292" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
 		</avp>
 		<avp name="Redirect-Host-Usage" code="261" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
@@ -847,6 +898,21 @@
 			<enum name="All Host" code="5"/>
 		</avp>
 		<avp name="Redirect-Max-Cache-Time" code="262" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Session-Id" code="263" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Origin-Host" code="264" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Supported-Vendor-Id" code="265" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="VendorId"/>
+		</avp>
+		<avp name="Vendor-Id" code="266" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="VendorId"/>
+		</avp>
+		<avp name="Firmware-Revision" code="267" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Result-Code" code="268" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
@@ -896,6 +962,102 @@
 			<enum name="DIAMETER_USER_UNKNOWN" code="5030"/>
 			<enum name="DIAMETER_RATING_FAILED" code="5031"/>
 		</avp>
+		<avp name="Product-Name" code="269" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Session-Binding" code="270" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="RE_AUTH" code="1"/>
+			<enum name="STR" code="2"/>
+			<enum name="Unallocated" code="3"/>
+			<enum name="ACCOUNTING" code="4"/>
+		</avp>
+		<avp name="Session-Server-Failover" code="271" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="REFUSE_SERVICE" code="0"/>
+			<enum name="TRY_AGAIN" code="1"/>
+			<enum name="ALLOW_SERVICE" code="2"/>
+			<enum name="TRY_AGAIN_ALLOW_SERVICE" code="3"/>
+		</avp>
+		<avp name="Multi-Round-Time-Out" code="272" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Disconnect-Cause" code="273" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="REBOOTING" code="0"/>
+			<enum name="BUSY" code="1"/>
+			<enum name="DO_NOT_WANT_TO_TALK_TO_YOU" code="2"/>
+		</avp>
+		<avp name="Auth-Request-Type" code="274" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Authenticate Only" code="1"/>
+			<enum name="Authorize Only" code="2"/>
+			<enum name="Authorize Authenticate" code="3"/>
+		</avp>
+		<avp name="Alternate-Peer" code="275" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Auth-Grace-Period" code="276" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Auth-Session-State" code="277" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="STATE_MAINTAINED" code="0"/>
+			<enum name="NO_STATE_MAINTAINED" code="1"/>
+		</avp>
+		<avp name="Origin-State-Id" code="278" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Failed-AVP" code="279" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Proxy-Host" code="280" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Error-Message" code="281" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Route-Record" code="282" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Destination-Realm" code="283" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Proxy-Info" code="284" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Re-Auth-Request-Type" code="285" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="AUTHORIZE_ONLY" code="0"/>
+			<enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
+		</avp>
+<!-- 286-290    Unallocated http://www.iana.org/assignments/aaa-parameters (last updated 20 September 2005)?? -->
+		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Integer32"/>
+		</avp>
+ 		<avp name="Redirect-Host" code="292" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Destination-Host" code="293" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Error-Reporting-Host" code="294" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Termination-Cause" code="295" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="DIAMETER_LOGOUT" code="1"/>
+			<enum name="DIAMETER_SERVICE_NOT_PROVIDED" code="2"/>
+			<enum name="DIAMETER_BAD_ANSWER" code="3"/>
+			<enum name="DIAMETER_ADMINISTRATIVE" code="4"/>
+			<enum name="DIAMETER_LINK_BROKEN" code="5"/>
+			<enum name="DIAMETER_AUTH_EXPIRED" code="6"/>
+			<enum name="DIAMETER_USER_MOVED" code="7"/>
+			<enum name="DIAMETER_SESSION_TIMEOUT" code="8"/>
+		</avp>
+		<avp name="Origin-Realm" code="296" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
 		<avp name="Experimental-Result" code="297" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
 				<gavp name="Vendor-Id"/>
@@ -939,52 +1101,38 @@
 			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
 			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
 		</avp>
-		<avp name="Route-Record" code="282" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="Session-Id" code="263" mandatory="must" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Session-Binding" code="270" mandatory="must" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="RE_AUTH" code="1"/>
-			<enum name="STR" code="2"/>
-			<enum name="Unallocated" code="3"/>
-			<enum name="ACCOUNTING" code="4"/>
-		</avp>
-		<avp name="Session-Server-Failover" code="271" mandatory="must" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="REFUSE_SERVICE" code="0"/>
-			<enum name="TRY_AGAIN" code="1"/>
-			<enum name="ALLOW_SERVICE" code="2"/>
-			<enum name="TRY_AGAIN_ALLOW_SERVICE" code="3"/>
-		</avp>
-		<avp name="Source-Route" code="286" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
-		</avp>
-		<avp name="Supported-Vendor-Id" code="265" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="VendorId"/>
-		</avp>
-		<avp name="Termination-Cause" code="295" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
-			<enum name="DIAMETER_LOGOUT" code="1"/>
-			<enum name="DIAMETER_SERVICE_NOT_PROVIDED" code="2"/>
-			<enum name="DIAMETER_BAD_ANSWER" code="3"/>
-			<enum name="DIAMETER_ADMINISTRATIVE" code="4"/>
-			<enum name="DIAMETER_LINK_BROKEN" code="5"/>
-			<enum name="DIAMETER_AUTH_EXPIRED" code="6"/>
-			<enum name="DIAMETER_USER_MOVED" code="7"/>
-			<enum name="DIAMETER_SESSION_TIMEOUT" code="8"/>
-		</avp>
-		<avp name="Vendor-Id" code="266" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="VendorId"/>
-		</avp>
-		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+		<avp name="E2E-Sequence" code="300" mandatory="must">
 			<grouped>
-				<gavp name="Vendor-Id"/>
-				<gavp name="Auth-Application-Id"/>
-				<gavp name="Acct-Application-Id"/>
+				<gavp name="foo"/>
 			</grouped>
+		</avp>
+		<!-- 301-317    Unallocated -->
+<!-- AVP:s 317 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml --> 
+<!-- AVP:s 363 - 408 Belongs to Diameter Network Access Server Application and is defined in nasreq.xml -->
+<!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml --> 
+<!-- 466-479    Unallocated -->
+		<avp name="Accounting-Record-Type" code="480" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Event Record" code="1"/>
+			<enum name="Start Record" code="2"/>
+			<enum name="Interim Record" code="3"/>
+			<enum name="Stop Record" code="4"/>
+		</avp>
+<!-- 481-482    Unallocated -->
+		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Reserved" code="0"/>
+			<enum name="DELIVER_AND_GRANT" code="1"/>
+			<enum name="GRANT_AND_STORE" code="2"/>
+			<enum name="GRANT_AND_LOSE" code="3"/>
+		</avp>
+<!-- 484    unallocated  -->
+		<avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+<!-- 486    unallocated  -->
+		<avp name="Accounting-Sub-Session-Id" code="487" mandatory="must">
+			<type type-name="Unsigned64"/>
 		</avp>
 		<avp name="Example-AVP" code="999999" mandatory="mustnot" vendor-bit="may">
 			<grouped>
@@ -992,14 +1140,8 @@
 				<gavp name="Host-IP-Address"/>
 			</grouped>
 		</avp>
-		<avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Time"/>
-		</avp>
-		<avp name="Acct-Interim-Interval" code="85" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Integer32"/>
-		</avp>
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
-		<!-- 3GPP Diameter accounting AVPs  -->
+		<!-- 3GPP Diameter accounting AVPs  NOT IANA allocated Change when/if there is a collision-->
 		<avp name="Event-Type" code="823" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
 				<gavp name="SIP-Method"/>
