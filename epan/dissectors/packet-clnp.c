@@ -942,11 +942,11 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s",
 		 tpdu_nr,
 		 dst_ref,
-		 (fragment)? "(fragment)" : "EOT");
+		 (fragment)? "[COTP Fragment]" : "EOT");
     } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) %s",
 		 tpdu_nr,
-		 (fragment)? "(fragment)" : "EOT");
+		 (fragment)? "[COTP Fragment]" : "EOT");
     }
   }
 
