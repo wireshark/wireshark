@@ -1107,7 +1107,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		/* make sure it doesnt conflict with previous data */
 		dfpos=0;
 		last_fd=NULL;
-		for (fd_i=fd_head->next;fd_i->offset!=fd->offset;fd_i=fd_i->next) {
+		for (fd_i=fd_head->next;fd_i && (fd_i->offset!=fd->offset);fd_i=fd_i->next) {
 		  if (!last_fd || last_fd->offset!=fd_i->offset){
 		    dfpos += fd_i->len;
 		  }
@@ -1182,8 +1182,11 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	 * XXX - what if we didn't capture the entire fragment due
 	 * to a too-short snapshot length?
 	 */
-	fd->data = g_malloc(fd->len);
-	tvb_memcpy(tvb, fd->data, offset, fd->len);
+	/* check len, ther may be a fragment with 0 len, that is actually the tail */
+	if (fd->len) {
+		fd->data = g_malloc(fd->len);
+		tvb_memcpy(tvb, fd->data, offset, fd->len);
+	}
 	LINK_FRAG(fd_head,fd);
 
 

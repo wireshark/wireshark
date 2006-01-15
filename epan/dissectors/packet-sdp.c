@@ -437,13 +437,13 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			
 	    /* Add t38 conversation, if available and only if no rtp */
 	    if((!pinfo->fd->flags.visited) && port!=0 && !set_rtp && is_t38 && is_ipv4_addr){
-                    src_addr.data=(char *)&ipaddr;
-                    if(t38_handle){
-                                t38_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
-                    }
+			src_addr.data=(char *)&ipaddr;
+            if(t38_handle){
+				t38_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
+            }	
 	    }
 
-		/* Create the summary str for the Voip Call analysis */
+		/* Create the RTP summary str for the Voip Call analysis */
 		for (i = 0; i < transport_info.media[n].pt_count; i++)
 		{
 			/* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
@@ -460,6 +460,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Free the hash table if we did't assigned it to a conv use it */
 		if (set_rtp == FALSE) 
 			rtp_free_hash_dyn_payload(transport_info.media[n].rtp_dyn_payload);
+
+		/* Create the T38 summary str for the Voip Call analysis */
+		if (is_t38) g_snprintf(sdp_pi->summary_str, 50, "%s t38", sdp_pi->summary_str);	
 	}
 
 	/* Free the remainded hash tables not used */

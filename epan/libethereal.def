@@ -583,6 +583,9 @@ stream_new_circ
 stream_process_reassembled
 string_to_name_resolve
 swaptab
+t30_data_vals                   DATA
+t30_facsimile_control_field_vals        DATA
+t30_facsimile_control_field_vals_short  DATA
 t30_indicator_vals		DATA
 T_h323_message_body_vals	DATA
 tap_push_tapped_queue

@@ -38,15 +38,16 @@
 #include <epan/epan.h>
 
 #include <epan/stat_cmd_args.h>
-#include "../stat_menu.h"
+#include "stat_menu.h"
 #include "gui_stat_menu.h"
 #include "simple_dialog.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include <epan/tap.h>
-#include "../register.h"
+#include "register.h"
 #include <epan/dissectors/packet-rpc.h>
-#include "../globals.h"
+#include "main.h"
+#include "globals.h"
 #include "filter_dlg.h"
 #include "compat_macros.h"
 #include "service_response_time_table.h"
@@ -199,8 +200,6 @@ rpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
  *
  * there should not be any other critical regions in gtk2
  */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {

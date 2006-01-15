@@ -196,6 +196,7 @@ static void voip_calls_remove_tap_listener(void)
 		remove_tap_listener_mgcp_calls();
 	}
 	remove_tap_listener_actrace_calls();
+	remove_tap_listener_t38();
 }
 
 /****************************************************************************/
@@ -338,6 +339,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 			case VOIP_MGCP:
 			case VOIP_AC_ISDN:
 			case VOIP_AC_CAS:
+			case MEDIA_T38:
 				/* XXX - not supported */
 				break;
 		}
@@ -742,7 +744,8 @@ void voip_calls_dlg_reset(void *ptr _U_)
 }
 
 /* init function for tap */
-static void
+/* Made extern only for "Fax T38 Analysis..." */
+void
 voip_calls_init_tap(const char *dummy _U_)
 {
 	gint c;
@@ -774,6 +777,7 @@ voip_calls_init_tap(const char *dummy _U_)
 		mgcp_calls_init_tap();
 	}
 	actrace_calls_init_tap();
+	t38_init_tap();
 
 	/* create dialog box if necessary */
 	if (voip_calls_dlg == NULL) {
