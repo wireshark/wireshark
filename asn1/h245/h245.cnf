@@ -576,25 +576,38 @@ OpenLogicalChannel
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelAck/forwardMultiplexAckParameters
 	
-	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
-		address src_addr;
+	if (!pinfo->fd->flags.visited) {
+		if (codec_type && strcmp(codec_type, "t38fax")==0) {
+			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
+				address src_addr;
 
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&ipv4_address;
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+				t38_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		} else {
+			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
+
+				rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+			}
+			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&rtcp_ipv4_address;
+
+				rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		}
 	}
-	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
-		address src_addr;
-
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&rtcp_ipv4_address;
-
-		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
-	}
-
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
@@ -606,25 +619,39 @@ OpenLogicalChannel
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
-	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
-		address src_addr;
+	
+	if (!pinfo->fd->flags.visited) {
+		if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
+			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
+				address src_addr;
 
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&ipv4_address;
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+				t38_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		} else {
+			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
+
+				rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+			}
+			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&rtcp_ipv4_address;
+
+				rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		}
 	}
-	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
-		address src_addr;
-
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&rtcp_ipv4_address;
-
-		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
-	}
-
 #.END
 
 #--- NonStandardParameter ---------------------------------------------------------------

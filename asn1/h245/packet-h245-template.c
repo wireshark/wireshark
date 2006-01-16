@@ -52,6 +52,7 @@
 #include <epan/emem.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
+#include "packet-t38.h"
 #include "packet-ber.h"
 #include <epan/emem.h>
 
@@ -61,6 +62,7 @@
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
+static dissector_handle_t t38_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_handle_t nsp_handle;
@@ -403,6 +405,7 @@ void proto_register_h245(void) {
 void proto_reg_handoff_h245(void) {
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
+	t38_handle = find_dissector("t38");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");
 	amr_handle = find_dissector("amr_if2");

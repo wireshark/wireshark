@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h245.c                                                            */
+/* .\packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -60,6 +60,7 @@
 #include <epan/emem.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
+#include "packet-t38.h"
 #include "packet-ber.h"
 #include <epan/emem.h>
 
@@ -69,6 +70,7 @@
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
+static dissector_handle_t t38_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_handle_t nsp_handle;
@@ -1635,7 +1637,7 @@ static int hf_h245_timestamp = -1;                /* INTEGER_0_4294967295 */
 static int hf_h245_expirationTime = -1;           /* INTEGER_0_4294967295 */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 277 "packet-h245-template.c"
+#line 279 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -2115,7 +2117,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 280 "packet-h245-template.c"
+#line 282 "packet-h245-template.c"
 
 
 /*--- Included file: packet-h245-fn.c ---*/
@@ -2280,7 +2282,7 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 655 "h245.cnf"
+#line 682 "h245.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
@@ -2288,7 +2290,7 @@ dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_H221NonStandardID, H221NonStandardID_sequence);
 
-#line 659 "h245.cnf"
+#line 686 "h245.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
 
@@ -2313,7 +2315,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 636 "h245.cnf"
+#line 663 "h245.cnf"
 	guint32 value;
 
 	nsiOID = "";
@@ -2348,7 +2350,7 @@ static int dissect_vendor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_h245_T_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 670 "h245.cnf"
+#line 697 "h245.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
@@ -2374,7 +2376,7 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 static int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 668 "h245.cnf"
+#line 695 "h245.cnf"
   nsp_handle = NULL;
 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
@@ -10492,7 +10494,7 @@ static const per_choice_t OLC_rev_multiplexParameters_choice[] = {
 
 static int
 dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 601 "h245.cnf"
+#line 614 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -10503,26 +10505,40 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info 
                                  ett_h245_OLC_rev_multiplexParameters, OLC_rev_multiplexParameters_choice,
                                  NULL);
 
-#line 609 "h245.cnf"
-	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
-		address src_addr;
+#line 622 "h245.cnf"
+	
+	if (!pinfo->fd->flags.visited) {
+		if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
+			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
+				address src_addr;
 
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&ipv4_address;
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+				t38_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		} else {
+			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
+
+				rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+			}
+			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&rtcp_ipv4_address;
+
+				rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		}
 	}
-	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
-		address src_addr;
-
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&rtcp_ipv4_address;
-
-		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
-	}
-
 
   return offset;
 }
@@ -13443,25 +13459,38 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_i
 
 #line 578 "h245.cnf"
 	
-	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
-		address src_addr;
+	if (!pinfo->fd->flags.visited) {
+		if (codec_type && strcmp(codec_type, "t38fax")==0) {
+			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
+				address src_addr;
 
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&ipv4_address;
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+				t38_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		} else {
+			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&ipv4_address;
+
+				rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
+			}
+			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
+				address src_addr;
+
+				src_addr.type=AT_IPv4;
+				src_addr.len=4;
+				src_addr.data=(guint8*)&rtcp_ipv4_address;
+
+				rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+			}
+		}
 	}
-	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
-		address src_addr;
-
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(guint8*)&rtcp_ipv4_address;
-
-		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
-	}
-
 
   return offset;
 }
@@ -17410,7 +17439,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 282 "packet-h245-template.c"
+#line 284 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -22876,7 +22905,7 @@ void proto_register_h245(void) {
         "Rtp/expirationTime", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 347 "packet-h245-template.c"
+#line 349 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -23359,7 +23388,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 353 "packet-h245-template.c"
+#line 355 "packet-h245-template.c"
   };
   module_t *h245_module;
 
@@ -23413,6 +23442,7 @@ void proto_register_h245(void) {
 void proto_reg_handoff_h245(void) {
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
+	t38_handle = find_dissector("t38");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");
 	amr_handle = find_dissector("amr_if2");
