@@ -79,6 +79,20 @@ Gnu info
 	  <!-- Bug IDs: 651 -->
 	  Versions affected: 0.10.14.
         </para></listitem>
+        <listitem><para>
+	  Win32: Unicode characters in the users profile path causes problems 
+	  reading/writing the preferences (and alike) files.
+	  <!-- Fixed in r17024 -->
+	  <!-- Bug IDs: 648 -->
+	  Versions affected: 0.10.14.
+        </para></listitem>
+        <listitem><para>
+	  Win32: Unicode characters in filenames given to the Ethereal command 
+	  line doesn't work (used e.g. when "double-clicking" in explorer).
+	  <!-- Fixed in r17025 -->
+	  <!-- Bug IDs: 661 -->
+	  Versions affected: 0.10.14.
+        </para></listitem>
 
       </itemizedlist>
     </para>
