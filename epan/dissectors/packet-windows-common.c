@@ -1302,10 +1302,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	     * assume that non le byte encodings will be "uncommon"?
 	     */
 
-             DISSECTOR_ASSERT(str_index <= MAX_STR_LEN);
              returned_length = g_snprintf(&str[str_index], MAX_STR_LEN-str_index,
                 (i>0 ? "-%u" : "%u"), tvb_get_letohl(tvb, offset));
-             str_index += MIN(returned_length, (MAX_STR_LEN-str_index));
+             str_index += MIN(returned_length, MAX_STR_LEN-str_index);
              offset+=4;
 	  }
 
@@ -1838,7 +1837,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *parent_tree, guint8 *drep, char *name,
+	       proto_tree *parent_tree, guint8 *drep, const char *name,
 	       struct access_mask_info *ami)
 {
 	proto_item *item = NULL;

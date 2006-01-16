@@ -2084,7 +2084,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	  
 
 	tmpstr=tvb_get_ptr(tvb, offset, len);
-	snprintf(str, 31, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s (%.1s)",
+	g_snprintf(str, 32, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s (%.1s)",
 		tmpstr, tmpstr+4, tmpstr+6, tmpstr+8,
 		tmpstr+10, tmpstr+12, tmpstr+14);
 	str[31]=0; /* just in case ... */

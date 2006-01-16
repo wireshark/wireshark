@@ -78,7 +78,7 @@ dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
 	    flags_masklen & 0x0040 ? "R" : "");
     } else
 	buf[0] = '\0';
-    g_snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s/%u",
+	g_snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s/%u",
 	ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)), flags_masklen & 0x3f);
 
     return buf;

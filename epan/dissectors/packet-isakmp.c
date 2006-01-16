@@ -2060,7 +2060,6 @@ situation2str(guint32 type)
     ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
-      msg[SIT_MSG_NUM-1] = '\0';
       return msg;
     }
     n += ret;
@@ -2074,7 +2073,6 @@ situation2str(guint32 type)
     ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sSECRECY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
-      msg[SIT_MSG_NUM-1] = '\0';
       return msg;
     }
     n += ret;
@@ -2088,7 +2086,6 @@ situation2str(guint32 type)
     ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sINTEGRITY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
-      msg[SIT_MSG_NUM-1] = '\0';
       return msg;
     }
     n += ret;

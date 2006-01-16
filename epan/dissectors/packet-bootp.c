@@ -2293,9 +2293,6 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 				return;
 			} else {
 				/* Value(s) */
-				/*strptr+=g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "Length: %d, Value%s: ", tlv_len,
-						plurality(tlv_len, "", "s") );*/
-
 				ti = proto_tree_add_text(v_tree, tvb, off,
 				    (tlv_len * 2) + 4,
 				    "0x%s: %s = ",

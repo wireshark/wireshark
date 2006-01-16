@@ -549,24 +549,22 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	refid = tvb_get_ptr(tvb, 12, 4);
 	if (stratum <= 1) {
-		int buffpos=0;
 		buff=ep_alloc(NTP_TS_SIZE);
-		buffpos += g_snprintf (buff, NTP_TS_SIZE,
-				    "Unindentified reference source '%.4s'",
-				    refid);
+		g_snprintf (buff, NTP_TS_SIZE, "Unindentified reference source '%.4s'",
+			refid);
 		for (i = 0; primary_sources[i].id; i++) {
-			if (memcmp (refid, primary_sources[i].id,
-			    4) == 0) {
-				buffpos += g_snprintf(buff, NTP_TS_SIZE-buffpos, "%s", primary_sources[i].data);
+			if (memcmp (refid, primary_sources[i].id, 4) == 0) {
+				g_snprintf(buff, NTP_TS_SIZE, "%s",
+					primary_sources[i].data);
 				break;
 			}
 		}
 	} else {
-		int buffpos=0;
-		buff=ep_alloc(NTP_TS_SIZE);
+		int buffpos;
+		buff = ep_alloc(NTP_TS_SIZE);
 		refid_addr = tvb_get_ipv4(tvb, 12);
-		buffpos += g_snprintf(buff, NTP_TS_SIZE, get_hostname (refid_addr));
-		if (buffpos>=(NTP_TS_SIZE-1)){
+		buffpos = g_snprintf(buff, NTP_TS_SIZE, get_hostname (refid_addr));
+		if (buffpos >= NTP_TS_SIZE) {
 			buff[NTP_TS_SIZE-4]='.';
 			buff[NTP_TS_SIZE-3]='.';
 			buff[NTP_TS_SIZE-2]='.';

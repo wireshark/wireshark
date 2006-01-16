@@ -613,12 +613,14 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 		if (j==1) {
 			segment = tvb_get_ntohs(tvb, RIF_OFFSET) >> 4;
 			size = g_snprintf(buffer, MAX_BUF_LEN, "%03X",segment);
+			size = MIN(size, MAX_BUF_LEN - 1);
 			proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
 			buff_offset += size;
 		}
 		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
 		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
 		size = g_snprintf(buffer+buff_offset, MAX_BUF_LEN-buff_offset, "-%01X-%03X",brdgnmb,segment);
+		size = MIN(size, MAX_BUF_LEN-buff_offset-1);
 		proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
 		proto_tree_add_uint_hidden(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
 		buff_offset += size;

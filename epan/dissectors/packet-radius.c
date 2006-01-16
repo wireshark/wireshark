@@ -285,14 +285,16 @@ radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
     md5_state_t md_ctx;
     md5_byte_t digest[16];
     int i;
-    int totlen;
+    size_t totlen, returned_length;
     const guint8 *pd;
     guchar c;
 	
+    DISSECTOR_ASSERT(dest_len > 2);  /* \"\"\0 */
     dest[0] = '"';
     dest[1] = '\0';
     totlen = 1;
-	
+    dest_len -= 1; /* Need to add trailing \" */
+
     md5_init(&md_ctx);
     md5_append(&md_ctx,(const guint8*)shared_secret,strlen(shared_secret));
     md5_append(&md_ctx,authenticator, AUTHENTICATOR_LENGTH);
@@ -301,24 +303,29 @@ radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
     pd = tvb_get_ptr(tvb,offset,length);
     for( i = 0 ; i < AUTHENTICATOR_LENGTH && i < length ; i++ ) {
 		c = pd[i] ^ digest[i];
-		if ( isprint(c)) {
-			dest[totlen] = c;
-			totlen++;
+		if ( isprint(c) ) {
+			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
+				"%c",c);
+			totlen += MIN(returned_length, dest_len-totlen-1);
 		} else {
-			totlen += g_snprintf(dest+totlen, dest_len-totlen, "\\%03o",c);
+			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
+				"\\%03o",c);
+			totlen += MIN(returned_length, dest_len-totlen-1);
 		}
     }
     while(i<length) {
 		if ( isprint(pd[i]) ) {
-			dest[totlen] = (gchar)pd[i];
-			totlen++;
+			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
+				"%c", pd[i]);
+			totlen += MIN(returned_length, dest_len-totlen-1);
 		} else {
-			totlen += g_snprintf(dest+totlen, dest_len-totlen, "\\%03o", pd[i]);
+			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
+				"\\%03o", pd[i]);
+			totlen += MIN(returned_length, dest_len-totlen-1);
 		}
 		i++;
     }
-    dest[totlen]='"';
-    dest[totlen+1] = '\0';
+    g_snprintf(&dest[totlen], dest_len+1-totlen, "%c", '"');
 }
 
 

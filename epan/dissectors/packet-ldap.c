@@ -661,7 +661,7 @@ static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length
   *filter = g_realloc(*filter, *filter_length);
   filterp = *filter + strlen(*filter);
 
-  filterp += g_snprintf(filterp, (*filter_length)-(filterp-*filter), "(%s%s%s)", string, operation, string2);
+  g_snprintf(filterp, (*filter_length)-(filterp-*filter), "(%s%s%s)", string, operation, string2);
 
   g_free(string);
   g_free(string2);

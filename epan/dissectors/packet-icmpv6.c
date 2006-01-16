@@ -682,8 +682,7 @@ bitrange0(guint32 v, int s, char *buf, int buflen)
 			l = g_snprintf(p, ep - p, ",%d-%d", s + off,
 			    s + off + i - 1);
 		}
-		if (l == -1 || l > ep - p) {
-			buf[0] = '\0';
+		if (l == -1 || l >= ep - p) {
 			return NULL;
 		}
 		v >>= i; off += i;

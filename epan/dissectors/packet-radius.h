@@ -24,7 +24,7 @@
  */
 
 typedef struct _radius_vendor_info_t {
-	gchar *name;
+	const gchar *name;
 	guint code;
 	GHashTable* attrs_by_id;
     gint ett;

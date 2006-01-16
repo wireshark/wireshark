@@ -1654,7 +1654,7 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     "DLE", "DC1 (XON)", "DC2", "DC3 (XOFF)", "DC4",      "NAK", "SYN", "ETB",
     "CAN", "EM",        "SUB", "ESC",        "FS",       "GS",  "RS",  "US"
   };
-  char *mapp;
+  size_t returned_length, str_index;
   int i;
 
   /*
@@ -1673,10 +1673,12 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     /*
      * Show the names of the control characters being mapped.
      */
-    mapp = mapstr;
+    str_index = 0;
     for (i = 0; i < 32; i++) {
       if (map & (1 << i)) {
-        mapp+=g_snprintf(mapp, MAX_MAPSTR_LEN-(mapp-mapstr), "%s%s", (mapp==mapstr)?"":", ", ctrlchars[i]);
+         returned_length = g_snprintf(&mapstr[str_index], MAX_MAPSTR_LEN-str_index,
+           "%s%s", str_index?"":", ", ctrlchars[i]);
+         str_index += MIN(returned_length, MAX_MAPSTR_LEN-str_index);
       }
     }
   }

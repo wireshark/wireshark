@@ -823,9 +823,11 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     guint32 flags;
     char *str;
-    gint length, pos, i;
+    size_t length, pos;
+    gint i;
     header_field_info *hfinfo;
     int hfindex, index;
+    size_t returned_length;
 
     hfindex = ospf_filter[bfinfo->hfindex];
     hfinfo = proto_registrar_get_nth(hfindex);
@@ -860,9 +862,10 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
             index = ospf_filter[bfinfo->index[i]];
 	    hfinfo = proto_registrar_get_nth(index);
 	    if (flags & hfinfo->bitmask) {
-		pos += g_snprintf(str+pos, MAX_OPTIONS_LEN-pos, "%s%s",
+		returned_length = g_snprintf(&str[pos], MAX_OPTIONS_LEN-pos, "%s%s",
 				  pos ? ", " : "",
 				  hfinfo->name);
+		pos += MIN(returned_length, MAX_OPTIONS_LEN-pos);
 	    }
 	    proto_tree_add_boolean(tree, index, tvb, offset, length, flags);
 	}
