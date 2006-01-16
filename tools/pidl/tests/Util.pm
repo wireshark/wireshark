@@ -25,7 +25,7 @@ sub test_samba4_ndr($$$)
 	my ($name,$idl,$c) = @_;
 	my $pidl = Parse::Pidl::IDL::parse_string("interface echo { $idl }; ", "<$name>");
 	
-	ok (defined($pidl), "($name) parse idl");
+	ok(defined($pidl), "($name) parse idl");
 	my $header = Parse::Pidl::Samba4::Header::Parse($pidl);
 	ok(defined($header), "($name) generate generic header");
 	my $pndr = Parse::Pidl::NDR::Parse($pidl);
@@ -45,7 +45,14 @@ SKIP: {
 	skip "no sane C compiler, skipping compilation", 3
 		if not $sanecc;
 
-	my $outfile = "test-$name";
+	my $test_data_prefix = $ENV{TEST_DATA_PREFIX};
+
+	my $outfile;
+	if (defined($test_data_prefix)) {
+		$outfile = "$test_data_prefix/test-$name";	
+	} else {
+		$outfile = "test-$name";
+	}
 
 	#my $cflags = $ENV{CFLAGS};
 	my $cflags = "-Iinclude -Ilib -I.";
