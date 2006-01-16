@@ -672,7 +672,7 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	GList* list;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
-	graph_analysis_item_t *gai, *tmp_gai;
+	graph_analysis_item_t *tmp_gai, *gai = NULL;
 	guint16 line_style = 2;
 	double duration;
 	int conv_num = -1;
