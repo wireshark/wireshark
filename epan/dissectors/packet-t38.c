@@ -1578,7 +1578,7 @@ force_reassmeble_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	      fd_head->flags |= FD_OVERLAP;
 	      if( (last_fd->len!=fd_i->datalen)
 		  || memcmp(last_fd->data, fd_i->data, last_fd->len) ){
-			fd->flags      |= FD_OVERLAPCONFLICT;
+			fd_i->flags    |= FD_OVERLAPCONFLICT;
 			fd_head->flags |= FD_OVERLAPCONFLICT;
 	      }
 	    }
