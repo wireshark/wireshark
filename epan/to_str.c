@@ -837,6 +837,7 @@ gchar* oid_to_str(const guint8 *oid, gint oid_len) {
   return oid_to_str_buf(oid, oid_len, buf, MAX_OID_STR_LEN);
 }
 
+#define OID_STR_LIMIT (1 + 10 + 4 + 1) /* "." + 10 digits + ".>>>" + '\0' */
 gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf, int buf_len) {
   gint i;
   guint8 byte;
@@ -847,7 +848,7 @@ gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf, int buf_len) 
   bufp = buf; subid = 0; is_first = TRUE;
   for (i=0; i<oid_len; i++){
     byte = oid[i];
-    if ((bufp - buf) > (buf_len - 15)) { 
+    if ((bufp - buf) > (buf_len - OID_STR_LIMIT)) {
       bufp += g_snprintf(bufp, buf_len-(bufp-buf), ".>>>");
       break;
     }
