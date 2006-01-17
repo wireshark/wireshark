@@ -557,6 +557,9 @@ EXTRA_DIST = \
 	image/eicon3d32.xpm	\
 	image/eicon3d48.xpm	\
 	image/eicon3d64.xpm	\
+	image/eiconcap16.xpm	\
+	image/eiconcap32.xpm	\
+	image/eiconcap48.xpm	\
 	image/elogo3d48x48.png	\
 	image/ethereal.ico	\
 	image/ethereal.rc.in	\

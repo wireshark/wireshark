@@ -133,14 +133,17 @@
 #include "decode_as_dlg.h"
 #include "webbrowser.h"
 #include "capture_dlg.h"
-#ifdef SHOW_WELCOME_PAGE
-#include "../image/eicon3d64.xpm"
-#endif
 #include "capture_ui_utils.h"
 #include "log.h"
 #include "../epan/emem.h"
 #include "file_util.h"
-
+#include "../image/eicon3d16.xpm"
+#include "../image/eicon3d32.xpm"
+#include "../image/eicon3d48.xpm"
+#include "../image/eicon3d64.xpm"
+#include "../image/eiconcap16.xpm"
+#include "../image/eiconcap32.xpm"
+#include "../image/eiconcap48.xpm"
 
 
 /*
@@ -1409,11 +1412,57 @@ main_cf_cb_file_read_finished(capture_file *cf)
     main_set_for_capture_file(TRUE);
 }
 
+#if GTK_MAJOR_VERSION >= 2
+/* XXX - we might need a list of icons here */
+GList *icon_list_create(
+    const char **icon16_xpm, 
+    const char **icon32_xpm, 
+    const char **icon48_xpm, 
+    const char **icon64_xpm)
+{
+  GList *icon_list = NULL;
+  GdkPixbuf * pixbuf16;
+  GdkPixbuf * pixbuf32;
+  GdkPixbuf * pixbuf48;
+  GdkPixbuf * pixbuf64;
+
+
+  if(icon16_xpm != NULL) {
+      pixbuf16 = gdk_pixbuf_new_from_xpm_data(icon16_xpm);
+      g_assert(pixbuf16);
+      icon_list = g_list_append(icon_list, pixbuf16);
+  }
+
+  if(icon32_xpm != NULL) {
+      pixbuf32 = gdk_pixbuf_new_from_xpm_data(icon32_xpm);
+      g_assert(pixbuf32);
+      icon_list = g_list_append(icon_list, pixbuf32);
+  }
+
+  if(icon48_xpm != NULL) {
+      pixbuf48 = gdk_pixbuf_new_from_xpm_data(icon48_xpm);
+      g_assert(pixbuf48);
+      icon_list = g_list_append(icon_list, pixbuf48);
+  }
+
+  if(icon64_xpm != NULL) {
+      pixbuf64 = gdk_pixbuf_new_from_xpm_data(icon64_xpm);
+      g_assert(pixbuf64);
+      icon_list = g_list_append(icon_list, pixbuf64);
+  }
+
+  return icon_list;
+}
+#endif
+
 #ifdef HAVE_LIBPCAP
 static void
 main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 {
     gchar *title;
+#if GTK_MAJOR_VERSION >= 2
+    static GList *icon_list = NULL;
+#endif
 
 
     if(capture_opts->iface) {
@@ -1424,6 +1473,13 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
     }
     set_main_window_name(title);
     g_free(title);
+
+#if GTK_MAJOR_VERSION >= 2
+    if(icon_list == NULL) {
+        icon_list = icon_list_create(eiconcap16_xpm, eiconcap32_xpm, eiconcap48_xpm, NULL);
+    }
+    gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
+#endif
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -1598,6 +1654,10 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 static void
 main_cf_cb_live_capture_stopping(capture_file *cf _U_)
 {
+#if GTK_MAJOR_VERSION >= 2
+    static GList *icon_list = NULL;
+#endif
+
 #if 0
 	/* XXX - the time to stop the capture has been reduced (this was only a 
 	 * problem on Win32 because of the capture piping), so showing a splash 
@@ -1611,6 +1671,13 @@ main_cf_cb_live_capture_stopping(capture_file *cf _U_)
 #else
 	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER);
 #endif
+#endif
+
+#if GTK_MAJOR_VERSION >= 2
+    if(icon_list == NULL) {
+        icon_list = icon_list_create(eicon3d16_xpm, eicon3d32_xpm, eicon3d48_xpm, eicon3d64_xpm);
+    }
+    gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 #endif
 }
 
@@ -3155,6 +3222,12 @@ welcome_new(void)
         "Home",
         "Visit the Ethereal homepage",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
+    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+
+    item_hb = welcome_item(ETHEREAL_STOCK_WEB_SUPPORT, 
+        "User's Guide",
+        "Open the Ethereal User's Guide",
+        GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 #endif
 
