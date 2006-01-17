@@ -51,6 +51,7 @@
 #include "packet-e164.h"
 #include "packet-isup.h"
 #include "packet-gsm_map.h"
+#include "packet-gsm_a.h"
 #include "packet-tcap.h"
 
 #define PNAME  "Camel"
@@ -92,6 +93,11 @@ static gint ett_camel_ReturnResult_result = -1;
 static gint ett_camel_camelPDU = -1;
 static gint ett_camelisup_parameter = -1;
 static gint ett_camel_addr = -1;
+static gint ett_camel_isdn_address_string = -1;
+static gint ett_camel_MSRadioAccessCapability = -1;
+static gint ett_camel_MSNetworkCapability = -1;
+static gint ett_camel_AccessPointName = -1;
+
 #include "packet-camel-ett.c"
 
 
@@ -352,6 +358,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 71: /*ApplyChargingGPRS*/
     offset=dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 72: /*ApplyChargingReportGPRS*/
+    offset=dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 73: /*CancelGPRS*/
     offset=dissect_camel_CancelGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -361,6 +370,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 75: /*ContinueGPRS*/
     offset=dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 76: /*EntityReleasedGPRS*/
+    offset=dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 77: /*FurnishChargingInformationGPRS*/
     offset=dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -369,6 +381,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 79: /*ReleaseGPRS*/
     offset=dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 80: /*EventReportGPRS*/
+    offset=dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 81: /*RequestReportGPRSEvent*/
     offset=dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -422,15 +437,6 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
   case 70: /*ActivityTestGPRS*/
     /* ActivityTestGPRS: no arguments - do nothing */
-    break;
-  case 72: /*ApplyChargingReportGPRS*/
-    offset=dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 76: /*EntityReleasedGPRS*/
-    offset=dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
-  case 80: /*EventReportGPRS*/
-    offset=dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
@@ -707,6 +713,10 @@ void proto_register_camel(void) {
     &ett_camel_camelPDU,
     &ett_camelisup_parameter,
     &ett_camel_addr,
+	&ett_camel_isdn_address_string,
+	&ett_camel_MSRadioAccessCapability,
+	&ett_camel_MSNetworkCapability,
+	&ett_camel_AccessPointName,
 #include "packet-camel-ettarr.c"
   };
 
@@ -719,6 +729,11 @@ void proto_register_camel(void) {
   register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version2(1)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.51.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-assist-handoff-gsmssf-to-gsmscf(51) version2(1)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
+  register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
+
+  register_ber_oid_name("0.4.0.0.1.1.5.2","iitu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) cap-GPRS-ReferenceNumber(5) version3(2)");
+
+    
 
   /* Register our configuration options, particularly our ssn:s */
   /* Set default SSNs */

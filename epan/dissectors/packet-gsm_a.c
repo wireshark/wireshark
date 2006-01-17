@@ -8980,7 +8980,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 			add_ocetets = 0;
 
 
-static guint8
+guint8
 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
@@ -11028,7 +11028,7 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  */
 #define MAX_APN_LENGTH		50
 
-static guint8
+guint8
 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len _U_)
 {
     guint32	curr_offset;

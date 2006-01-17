@@ -60,19 +60,23 @@ MAP-CH-DataTypes gsm_map
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
+ proto_item *item;
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_isdn_address_string);
   
- proto_tree_add_item(tree, hf_camel_addr_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_camel_addr_extension, parameter_tvb, 0,1,FALSE);
  
- proto_tree_add_item(tree, hf_camel_addr_natureOfAddressIndicator, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_camel_addr_numberingPlanInd, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_camel_addr_natureOfAddressIndicator, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_camel_addr_numberingPlanInd, parameter_tvb, 0,1,FALSE);
  digit_str = unpack_digits(parameter_tvb, 1);
 
- proto_tree_add_string(tree, hf_camel_addr_digits, parameter_tvb, 1, -1, digit_str);
+ proto_tree_add_string(subtree, hf_camel_addr_digits, parameter_tvb, 1, -1, digit_str);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -278,6 +282,56 @@ tvbuff_t	*parameter_tvb;
 	return offset;
  dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
 
+#.FN_PARS MSNetworkCapability
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY MSNetworkCapability 
+
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_MSNetworkCapability);
+ de_gmm_ms_net_cap(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
+
+#.FN_PARS MSRadioAccessCapability
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY MSRadioAccessCapability 
+
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_MSRadioAccessCapability);
+ de_gmm_ms_radio_acc_cap(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
+
+#.FN_PARS AccessPointName
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY AccessPointName 
+
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_AccessPointName);
+ de_sm_apn(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
 
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
