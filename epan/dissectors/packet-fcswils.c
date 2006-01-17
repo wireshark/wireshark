@@ -770,21 +770,26 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
 	flags="";
         if (elp.cls1_svcparm[0] & 0x80) {
 #define MAX_FLAGS_LEN 40
-            int stroff;
+            size_t stroff, returned_length;
 
             flags=ep_alloc(MAX_FLAGS_LEN);
             stroff = 0;
 	    flags[stroff]=0;
 
-            stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, "Class 1 Valid");
+            returned_length = g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff,
+		"Class 1 Valid");
+	    stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             if (elp.cls1_svcparm[0] & 0x40) {
-                stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | IMX");
+                returned_length = g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | IMX");
+	        stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             if (elp.cls1_svcparm[0] & 0x20) {
-                stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | IPS");
+                returned_length = g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | IPS");
+	        stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             if (elp.cls1_svcparm[0] & 0x10) {
-                stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
+                returned_length = g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
+	        stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
         }
         else {

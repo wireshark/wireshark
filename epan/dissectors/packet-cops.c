@@ -1343,6 +1343,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
   gchar *vb_display_string;
   gchar *vb_display_string2;
+  size_t returned_length, str_index = 0;
 
 #ifdef HAVE_NET_SNMP
   struct variable_list variable;
@@ -1350,7 +1351,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 #endif	/* HAVE_NET_SNMP */
 
   unsigned int i;
-  gchar *buf;
   gint8 class;
   gboolean pc, ind = 0;
   gint32 ber_tag;
@@ -1476,10 +1476,13 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
              * to the end of the string.
              */
             vb_display_string = ep_alloc(4*vb_length);
-            buf = vb_display_string;
-            buf += g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
+            returned_length = g_snprintf(vb_display_string, 4*vb_length, "%03u",
+		vb_octet_string[0]);
+	    str_index += MIN(returned_length, 4*vb_length);
             for (i = 1; i < vb_length; i++) {
-              buf += g_snprintf(buf, 4*vb_length-(buf-vb_display_string), ".%03u", vb_octet_string[i]);
+              returned_length = g_snprintf(&vb_display_string[str_index],
+		4*vb_length-str_index, ".%03u", vb_octet_string[i]);
+	      str_index += MIN(returned_length, 4*vb_length-str_index);
             }
             proto_tree_add_text(tree, tvb, vb_value_start, length,
                                 "Value: %s: %s", vb_type_name, vb_display_string);

@@ -1193,6 +1193,7 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	int i;
 	char *flags_string;
 	char *p;
+	size_t returned_length, str_index = 0;
 	char *buf;
 
 	if (capability_val_len != 4) {
@@ -1206,13 +1207,16 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 #define FLAGS_STRING_LEN (128+1)
 	flags_string=ep_alloc(FLAGS_STRING_LEN);
 	flags_string[0] = 0;
-	p = flags_string;
 	for (i = 0; flags[i].short_name != NULL; i++) {
 		if (capability_val & flags[i].value) {
-			if (p != flags_string) {
-				p+=g_snprintf(p, FLAGS_STRING_LEN-(p-flags_string), ",");
+			if (str_index != 0) {
+				returned_length = g_snprintf(&flags_string[str_index],
+					FLAGS_STRING_LEN-str_index, ",");
+				str_index += MIN(returned_length, FLAGS_STRING_LEN-str_index);
 			}
-			p+=g_snprintf(p, FLAGS_STRING_LEN-(p-flags_string), "%s", flags[i].short_name);
+			returned_length = g_snprintf(&flags_string[str_index],
+				FLAGS_STRING_LEN-str_index, "%s", flags[i].short_name);
+			str_index += MIN(returned_length, FLAGS_STRING_LEN-str_index);
 		}
 	}
 	tm = proto_tree_add_text(element_tree, tvb, curr_offset+4, 4,
@@ -1225,12 +1229,14 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	for (i = 0; flags[i].long_name != NULL; i++) {
 		p = decode_bitfield_value(buf, capability_val,
 		      flags[i].value, 32);
-		p+=g_snprintf(p, BUF_SIZE-(p-buf), "%s: %s", 
-				flags[i].long_name,
+		str_index = MIN(p-buf, BUF_SIZE);
+		returned_length = g_snprintf(&flags_string[str_index], BUF_SIZE-str_index,
+			"%s: %s", flags[i].long_name,
 				(capability_val & flags[i].value)?
 					"Supported":
 					"Not supported"
 				);
+		str_index += MIN(returned_length, BUF_SIZE-str_index);
 		proto_tree_add_text(method_tree, tvb, curr_offset+4, 4,
 		    "%s", buf);
 	}
