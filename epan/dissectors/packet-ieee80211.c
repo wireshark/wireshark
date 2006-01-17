@@ -1208,7 +1208,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 		break;
 	case AIRONET_IE_QBSS_V2:
 		/* Extract Values */
-		proto_tree_add_item (ietree, hf_qbss2_scount, tvb, offset, 1, FALSE);
+		proto_tree_add_item (ietree, hf_qbss2_scount, tvb, offset, 2, TRUE);
 		proto_tree_add_item (ietree, hf_qbss2_cu, tvb, offset + 2, 1, FALSE);
 		proto_tree_add_item (ietree, hf_qbss2_cal, tvb, offset + 3, 1, FALSE);
 		proto_tree_add_item (ietree, hf_qbss2_gl, tvb, offset + 4, 1, FALSE);
@@ -1694,7 +1694,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
         /* Extract Values */
         proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 1);
-        proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 1, FALSE);
+        proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, TRUE);
         proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
         proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 1, FALSE);
       } 
@@ -1706,7 +1706,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
          /* Extract Values */
          proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 2);
-         proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 1, FALSE);
+         proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, TRUE);
          proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
          proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 2, FALSE);
       }
@@ -3921,7 +3921,7 @@ proto_register_ieee80211 (void)
 
     {&hf_qbss_scount,
      {"Station Count", "wlan_mgt.qbss.scount",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_qbss_cu,
      {"Channel Utilization", "wlan_mgt.qbss.cu",
@@ -3945,7 +3945,7 @@ proto_register_ieee80211 (void)
 
     {&hf_qbss2_scount,
      {"Station Count", "wlan_mgt.qbss2.scount",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_aironet_ie_qos_unk1,
      {"Aironet IE QoS unknown1", "wlan_mgt.aironet.qos.unk1",
