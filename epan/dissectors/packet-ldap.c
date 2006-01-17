@@ -779,10 +779,10 @@ static int parse_filter_extensibleMatch(ASN1_SCK *a, char **filter, guint *filte
 {
     static char *dnString = "dn";
     int ret;
-    guint length;
+    /*guint length;*/
     char *filterp;
-    guint seq_len;
-    guint header_bytes;
+    /*guint seq_len;*/
+    /*guint header_bytes;*/
     guint string_length;
     guint end;
     guchar *matchingRule, *type, *matchValue;
