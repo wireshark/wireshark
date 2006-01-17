@@ -50,10 +50,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/bitswap.h>
@@ -1137,17 +1133,17 @@ dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tvb,
 		/* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
 		 * This is only used within EAPOL-Key frame Key Data. */
 		pos = out_buff;
-		pos += snprintf(pos, out_buff + SHORT_STR - pos, "RSN PMKID: ");
-	if (tag_len - 4 != PMKID_LEN) {
-		pos += snprintf(pos, out_buff + SHORT_STR - pos,
-			  "(invalid PMKID len=%d, expected 16) ", tag_len - 4);
-	}
-	for (i = 0; i < tag_len - 4; i++) {
-		pos += snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
-			tag_val[tag_val_off + 4 + i]);
-	}
-	proto_tree_add_string(tree, tag_interpretation, tvb, offset,
-	      tag_len, out_buff);
+		pos += g_snprintf(pos, out_buff + SHORT_STR - pos, "RSN PMKID: ");
+		if (tag_len - 4 != PMKID_LEN) {
+			pos += g_snprintf(pos, out_buff + SHORT_STR - pos,
+				"(invalid PMKID len=%d, expected 16) ", tag_len - 4);
+		}
+		for (i = 0; i < tag_len - 4; i++) {
+			pos += g_snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
+				tag_val[tag_val_off + 4 + i]);
+		}
+		proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+			tag_len, out_buff);
 	}
 	proto_item_append_text(ietree, ": RSN");
 }
@@ -1212,7 +1208,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 		break;
 	case AIRONET_IE_QBSS_V2:
 		/* Extract Values */
-		proto_tree_add_item (ietree, hf_qbss2_scount, tvb, offset, 2, FALSE);
+		proto_tree_add_item (ietree, hf_qbss2_scount, tvb, offset, 1, FALSE);
 		proto_tree_add_item (ietree, hf_qbss2_cu, tvb, offset + 2, 1, FALSE);
 		proto_tree_add_item (ietree, hf_qbss2_cal, tvb, offset + 3, 1, FALSE);
 		proto_tree_add_item (ietree, hf_qbss2_gl, tvb, offset + 4, 1, FALSE);
@@ -1341,9 +1337,9 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
     if (tag_val_off + PMKID_LEN > tag_len)
       goto done;
     pos = out_buff;
-    pos += snprintf(pos, out_buff + SHORT_STR - pos, "PMKID %u: ", i);
+    pos += g_snprintf(pos, out_buff + SHORT_STR - pos, "PMKID %u: ", i);
     for (j = 0; j < PMKID_LEN; j++) {
-      pos += snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
+      pos += g_snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
 		      tag_val[tag_val_off + j]);
     }
     proto_tree_add_string(tree, tag_interpretation, tvb, offset,
@@ -1486,7 +1482,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
       for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
-        ret = snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
+        ret = g_snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
                         (tag_data_ptr[i] & 0x7F) * 0.5,
                         (tag_data_ptr[i] & 0x80) ? "(B)" : "");
         if (ret == -1 || ret >= SHORT_STR - n) {
@@ -1609,13 +1605,13 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           }
         }
         if (bmaplen>1 || bmap[0]) {
-          int len=snprintf (out_buff, SHORT_STR,
+          int len=g_snprintf (out_buff, SHORT_STR,
                             "Bitmap: traffic for AID's:");
           int i=0;
           for (i=0;i<bmaplen*8;i++) {
             if (bmap[i/8] & (1<<(i%8))) {
               int aid=i+bmapoff*8;
-              len+=snprintf (out_buff+len, SHORT_STR-len," %u", aid);
+              len+=g_snprintf (out_buff+len, SHORT_STR-len," %u", aid);
               proto_item_append_text(ti, " %u", aid);
               if (len>=SHORT_STR) {
                 break;
@@ -1698,7 +1694,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
         /* Extract Values */
         proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 1);
-        proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, FALSE);
+        proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 1, FALSE);
         proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
         proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 1, FALSE);
       } 
@@ -1710,7 +1706,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
          /* Extract Values */
          proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 2);
-         proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, FALSE);
+         proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 1, FALSE);
          proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
          proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 2, FALSE);
       }
@@ -3925,7 +3921,7 @@ proto_register_ieee80211 (void)
 
     {&hf_qbss_scount,
      {"Station Count", "wlan_mgt.qbss.scount",
-      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_qbss_cu,
      {"Channel Utilization", "wlan_mgt.qbss.cu",
@@ -3949,7 +3945,7 @@ proto_register_ieee80211 (void)
 
     {&hf_qbss2_scount,
      {"Station Count", "wlan_mgt.qbss2.scount",
-      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 
     {&hf_aironet_ie_qos_unk1,
      {"Aironet IE QoS unknown1", "wlan_mgt.aironet.qos.unk1",
