@@ -1413,7 +1413,6 @@ main_cf_cb_file_read_finished(capture_file *cf)
 }
 
 #if GTK_MAJOR_VERSION >= 2
-/* XXX - we might need a list of icons here */
 GList *icon_list_create(
     const char **icon16_xpm, 
     const char **icon32_xpm, 
