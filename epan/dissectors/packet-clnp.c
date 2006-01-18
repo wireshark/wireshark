@@ -1267,8 +1267,8 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
-  class_option = (tvb_get_guint8(tvb, offset + P_CLASS_OPTION) >> 4 ) & 0x0F;
-  if (class_option > 4)
+  class_option = tvb_get_guint8(tvb, offset + P_CLASS_OPTION);
+  if (((class_option & 0xF0) >> 4) > 4) /* class 0..4 allowed */
     return -1;
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -1314,7 +1314,9 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (tree) {
     proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Class option: 0x%02x", class_option);
+			"Class: %1u", (class_option & 0xF0) >> 4);
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
+			"Option: %1u", (class_option & 0x0F));
   }
   offset += 1;
   li -= 1;
