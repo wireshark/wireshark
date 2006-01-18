@@ -1309,7 +1309,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
   if (!variable->type)
     variable->type=mib_to_asn_type(subtree->type);
 
-  if (!sprint_realloc_by_type(&buf, &buf_len, &out_len, TRUE, variable, subtree->enums, subtree->hint, NULL))
+  if (!sprint_realloc_by_type(&buf, &buf_len, &out_len, FALSE, variable, subtree->enums, subtree->hint, NULL))
     g_snprintf(buf,SPRINT_MAX_LEN,"%s","sprint_realloc_by_type failed");
 
   return buf;
@@ -1340,10 +1340,10 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
   subid_t *vb_oid;
   guint vb_oid_length;
+  proto_item *vb_pi;
 
   gchar *vb_display_string;
   gchar *vb_display_string2;
-  size_t returned_length, str_index = 0;
 
 #ifdef HAVE_NET_SNMP
   struct variable_list variable;
@@ -1475,17 +1475,12 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
              * We stopped, due to a non-printable character, before we got
              * to the end of the string.
              */
-            vb_display_string = ep_alloc(4*vb_length);
-            returned_length = g_snprintf(vb_display_string, 4*vb_length, "%03u",
-		vb_octet_string[0]);
-	    str_index += MIN(returned_length, 4*vb_length);
+            vb_pi = proto_tree_add_text(tree, tvb, vb_value_start, length,
+                                "Value: %s: ", vb_type_name);
+            proto_item_append_text(vb_pi, "%03u", vb_octet_string[0]);
             for (i = 1; i < vb_length; i++) {
-              returned_length = g_snprintf(&vb_display_string[str_index],
-		4*vb_length-str_index, ".%03u", vb_octet_string[i]);
-	      str_index += MIN(returned_length, 4*vb_length-str_index);
+              proto_item_append_text(vb_pi, ".%03u", vb_octet_string[0]);
             }
-            proto_tree_add_text(tree, tvb, vb_value_start, length,
-                                "Value: %s: %s", vb_type_name, vb_display_string);
           } else {
             proto_tree_add_text(tree, tvb, vb_value_start, length,
                                 "Value: %s: %.*s", vb_type_name, (int)vb_length,
@@ -1506,7 +1501,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
     case COPS_OBJECTID:
       /* XXX Redo this using dissect_ber_object_identifier when it returns tvb
-         or some other binary form of an OID */ 
+         or some other binary form of an OID */
       offset = start;
       offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &ber_tag);
       offset = dissect_ber_length(pinfo, tree, tvb, offset, &vb_length, &ind);
@@ -1517,9 +1512,9 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
       offset = offset + vb_length;
       length = offset - vb_value_start;
 
-/*      ret = asn1_oid_value_decode (&asn1, vb_length, &vb_oid, &vb_oid_length); 
+/*      ret = asn1_oid_value_decode (&asn1, vb_length, &vb_oid, &vb_oid_length);
       if (ret != ASN1_ERR_NOERROR)
-        return ret; 
+        return ret;
       length = asn1.offset - start;
 */
       if (tree) {

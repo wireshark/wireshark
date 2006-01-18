@@ -76,9 +76,11 @@ typedef struct _emem_chunk_t {
 	unsigned int	amount_free;
 	unsigned int	free_offset;
 	char *buf;
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 	unsigned int	c_count;
 	void		*canary[EMEM_ALLOCS_PER_CHUNK];
 	guint8		cmp_len[EMEM_ALLOCS_PER_CHUNK];
+#endif
 } emem_chunk_t;
 
 typedef struct _emem_header_t {

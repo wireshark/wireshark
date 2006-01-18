@@ -263,6 +263,8 @@ format_oid(subid_t *oid, guint oid_length)
 	 * length of the result string.
 	 *
 	 * XXX - check for "sprint_realloc_objid()" failure.
+	 * XXX - if we convert this to ep_alloc(), make sure the fourth
+	 * argument to sprint_realloc_objid() is FALSE.
 	 */
 	oid_string_len = 256;
 	oid_string = malloc(oid_string_len);
@@ -270,7 +272,7 @@ format_oid(subid_t *oid, guint oid_length)
 		return NULL;
 	*oid_string = '\0';
 	oid_out_len = 0;
-	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
+	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, TRUE,
 	    oid, oid_length);
 	result_len += strlen(oid_string) + 3;
 #endif
@@ -297,8 +299,8 @@ format_oid(subid_t *oid, guint oid_length)
 
 /* returns the decoded (can be NULL) and non_decoded OID strings,
    returned pointers shall be freed by the caller */
-void 
-new_format_oid(subid_t *oid, guint oid_length, 
+void
+new_format_oid(subid_t *oid, guint oid_length,
 	       gchar **non_decoded, gchar **decoded)
 {
 	int non_decoded_len;
@@ -316,12 +318,17 @@ new_format_oid(subid_t *oid, guint oid_length,
 	 * length of the result string.
 	 */
 
+	/*
+	 * XXX - if we convert this to ep_alloc(), make sure the fourth
+	 * argument to sprint_realloc_objid() is FALSE.
+	 */
+
 	oid_string_len = 256;
 	oid_string = malloc(oid_string_len);
 	if (oid_string != NULL) {
 		*oid_string = '\0';
 		oid_out_len = 0;
-		sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
+		sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, TRUE,
 				     oid, oid_length);
 	}
 	*decoded = oid_string;
@@ -365,7 +372,7 @@ static const value_string snmp_engineid_format_vals[] = {
 	{ 0,   	NULL }
 };
 
-/* 
+/*
  * SNMP Engine ID dissection according to RFC 3411 (SnmpEngineID TC)
  * or historic RFC 1910 (AgentID)
  */
@@ -386,7 +393,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     /* 4-byte enterprise number/name */
     if (len_remain<4) return offset;
     enterpriseid = tvb_get_ntohl(tvb, offset);
-    if (conformance) 
+    if (conformance)
       enterpriseid -= 0x80000000; /* ignore first bit */
     proto_tree_add_uint(tree, hf_snmp_engineid_enterprise, tvb, offset, 4, enterpriseid);
     offset+=4;
@@ -453,13 +460,13 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       case 128:
 	/* most common enterprise-specific format: (ucd|net)-snmp random */
 	if ((enterpriseid==2021)||(enterpriseid==8072)) {
-	  proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random"); 
+	  proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random");
 	  /* demystify: 4B random, 4B epoch seconds */
 	  if (len_remain==8) {
 	    proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, FALSE);
 	    seconds = tvb_get_letohl(tvb, offset+4);
 	    ts.secs = seconds;
-	    proto_tree_add_time_format(tree, hf_snmp_engineid_time, tvb, offset+4, 4, 
+	    proto_tree_add_time_format(tree, hf_snmp_engineid_time, tvb, offset+4, 4,
                                   &ts, "Engine ID Data: Creation Time: %s",
                                   abs_time_secs_to_str(seconds));
 	    offset+=8;
@@ -637,8 +644,8 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 tmp_length;
 	gboolean tmp_ind;
 
-	/* 
-	 * See if this looks like SNMP or not. if not, return 0 so 
+	/*
+	 * See if this looks like SNMP or not. if not, return 0 so
 	 * ethereal can try som other dissector instead.
 	 */
 	/* All SNMP packets are BER encoded and consist of a SEQUENCE
@@ -874,7 +881,7 @@ void proto_register_snmp(void) {
   /* Register protocol */
   proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
   new_register_dissector("snmp", dissect_snmp, proto_snmp);
-  
+
   /* Register fields and subtrees */
   proto_register_field_array(proto_snmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
