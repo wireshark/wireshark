@@ -104,6 +104,9 @@
 #ifdef HAVE_GNU_ADNS
 # include <errno.h>
 # include <adns.h>
+# ifdef inet_aton
+#  undef inet_aton
+# endif
 #endif
 
 #if defined(_WIN32) && defined(INET6)
@@ -394,7 +397,7 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
   tp->next = NULL;
 
 #ifdef HAVE_GNU_ADNS
-  if ((g_resolv_flags & RESOLV_CONCURRENT) && 
+  if ((g_resolv_flags & RESOLV_CONCURRENT) &&
       prefs.name_resolve_concurrency > 0 &&
       gnu_adns_initialized) {
     qmsg = g_malloc(sizeof(adns_queue_msg_t));
@@ -1748,7 +1751,7 @@ host_name_lookup_cleanup(void) {
     adns_queue_head = g_list_remove(adns_queue_head, qdata);
     g_free(qdata);
   }
-  
+
   if (gnu_adns_initialized)
     adns_finish(ads);
 }
@@ -1927,30 +1930,30 @@ extern gchar *get_sctp_port(guint port)
 const gchar *get_addr_name(address *addr)
 {
   const gchar *result;
-  
+
   result = solve_address_to_name(addr);
-  
+
   if (result!=NULL){
 	  return result;
   }
-  
+
   /* if it gets here, either it is of type AT_NONE, */
   /* or it should be solvable in address_to_str -unless addr->type is wrongly defined- */
-  
+
   if (addr->type == AT_NONE){
 	  return "NONE";
   }
-   
+
   return(address_to_str(addr));
 } /* get_addr_name */
-  
-  
+
+
 void get_addr_name_buf(address *addr, gchar *buf, guint size)
 {
   const gchar *result;
-    
+
   result = get_addr_name(addr);
-  
+
   strncpy(buf,result,size);
   buf[size]='\0';
   return;

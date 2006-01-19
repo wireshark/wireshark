@@ -50,9 +50,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#ifdef NEED_INET_ATON_H
-# include <epan/inet_aton.h>
-#endif
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>		/* needed to define AF_ values on Windows */
