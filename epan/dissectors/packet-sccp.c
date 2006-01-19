@@ -45,6 +45,7 @@
 #include "packet-mtp3.h"
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/reassemble.h>
 
 typedef struct _sccp_binding_info_t {
     gchar* calling_key;
@@ -642,6 +643,14 @@ static int hf_sccp_ansi_isni_iri = -1;
 static int hf_sccp_ansi_isni_ti = -1;
 static int hf_sccp_ansi_isni_netspec = -1;
 static int hf_sccp_ansi_isni_counter = -1;
+static int hf_sccp_xudt_msg_fragments = -1;
+static int hf_sccp_xudt_msg_fragment = -1;
+static int hf_sccp_xudt_msg_fragment_overlap = -1;
+static int hf_sccp_xudt_msg_fragment_overlap_conflicts = -1;
+static int hf_sccp_xudt_msg_fragment_multiple_tails = -1;
+static int hf_sccp_xudt_msg_fragment_too_long_fragment = -1;
+static int hf_sccp_xudt_msg_fragment_error = -1;
+static int hf_sccp_xudt_msg_reassembled_in = -1;
 
 
 /* Initialize the subtree pointers */
@@ -657,6 +666,33 @@ static gint ett_sccp_calling_gt = -1;
 static gint ett_sccp_sequencing_segmenting = -1;
 static gint ett_sccp_segmentation = -1;
 static gint ett_sccp_ansi_isni_routing_control = -1;
+static gint ett_sccp_xudt_msg_fragment = -1;
+static gint ett_sccp_xudt_msg_fragments = -1;
+/* Declarations to desegment XUDT Messages */
+static gboolean sccp_xudt_desegment = TRUE;
+
+static const fragment_items sccp_xudt_msg_frag_items = {
+	/* Fragment subtrees */
+	&ett_sccp_xudt_msg_fragment,
+	&ett_sccp_xudt_msg_fragments,
+	/* Fragment fields */
+	&hf_sccp_xudt_msg_fragments,
+	&hf_sccp_xudt_msg_fragment,
+	&hf_sccp_xudt_msg_fragment_overlap,
+	&hf_sccp_xudt_msg_fragment_overlap_conflicts,
+	&hf_sccp_xudt_msg_fragment_multiple_tails,
+	&hf_sccp_xudt_msg_fragment_too_long_fragment,
+	&hf_sccp_xudt_msg_fragment_error,
+	/* Reassembled in field */
+	&hf_sccp_xudt_msg_reassembled_in,
+	/* Tag */
+	"SCCP XUDT Message fragments"
+};
+
+static GHashTable *sccp_xudt_msg_fragment_table = NULL;
+static GHashTable *sccp_xudt_msg_reassembled_table = NULL;
+
+
 
 /*
  * Here are the global variables associated with
@@ -1637,6 +1673,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   guint16 variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
   guint16 optional_pointer = 0;
   guint16 offset = 0;
+  guint8 parameter_type;
 
 /* Macro for getting pointer to mandatory variable parameters */
 #define VARIABLE_POINTER(var, hf_var, ptr_size) \
@@ -1950,6 +1987,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
     OPTIONAL_POINTER(POINTER_LENGTH)
 
+	/* Optional parameters are Segmentation and Importance 
+	 * NOTE 2 - Segmentation Should not be present in case of a single XUDT message.
+	 */
+
     binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
@@ -1958,8 +1999,13 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLING_PARTY_ADDRESS,
 				    variable_pointer2);
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
+	if ((parameter_type = tvb_get_guint8(tvb, optional_pointer)) ==
+		PARAMETER_SEGMENTATION){
+		proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data"  );
+	}else{
+	    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer3);
+	}
     break;
 
   case MESSAGE_TYPE_XUDTS:
@@ -2144,6 +2190,8 @@ static void init_sccp(void) {
     }
     
     bindings = g_hash_table_new(g_str_hash,g_str_equal);
+	fragment_table_init (&sccp_xudt_msg_fragment_table);
+	reassembled_table_init(&sccp_xudt_msg_reassembled_table);
 }
 
 /* Register the protocol with Ethereal */
@@ -2480,6 +2528,39 @@ proto_register_sccp(void)
       { "ISNI Counter", "sccp.isni.counter",
 	FT_UINT8, BASE_HEX, NULL, ANSI_ISNI_COUNTER_MASK,
 	"", HFILL}},
+		{&hf_sccp_xudt_msg_fragments,
+			{"Message fragments", "isup_apm.msg.fragments",
+			FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } 
+		},
+		{&hf_sccp_xudt_msg_fragment,
+			{"Message fragment", "isup_apm.msg.fragment",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_sccp_xudt_msg_fragment_overlap,
+			{"Message fragment overlap", "isup_apm.msg.fragment.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_sccp_xudt_msg_fragment_overlap_conflicts,
+			{"Message fragment overlapping with conflicting data","isup_apm.msg.fragment.overlap.conflicts",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_sccp_xudt_msg_fragment_multiple_tails,
+			{"Message has multiple tail fragments", "isup_apm.msg.fragment.multiple_tails", 
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_sccp_xudt_msg_fragment_too_long_fragment,
+			{"Message fragment too long", "isup_apm.msg.fragment.too_long_fragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_sccp_xudt_msg_fragment_error,
+			{"Message defragmentation error", "isup_apm.msg.fragment.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+		{&hf_sccp_xudt_msg_reassembled_in,
+			{"Reassembled in", "isup_apm.msg.reassembled.in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
+		},
+
   };
 
   /* Setup protocol subtree array */
@@ -2496,6 +2577,8 @@ proto_register_sccp(void)
     &ett_sccp_sequencing_segmenting,
     &ett_sccp_segmentation,
     &ett_sccp_ansi_isni_routing_control,
+    &ett_sccp_xudt_msg_fragment,
+    &ett_sccp_xudt_msg_fragments,
   };
 
   /* Register the protocol name and description */
