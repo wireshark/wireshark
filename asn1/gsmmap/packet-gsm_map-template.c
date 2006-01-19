@@ -92,6 +92,20 @@ static int hf_gsm_map_forwarding_reason = -1;
 static int hf_gsm_map_pdp_type_org = -1;
 static int hf_gsm_map_etsi_pdp_type_number = -1;
 static int hf_gsm_map_ietf_pdp_type_number = -1;
+static int hf_gsm_map_ext_qos_subscribed_pri = -1;
+
+static int hf_gsm_map_qos_traffic_cls = -1;
+static int hf_gsm_map_qos_del_order = -1;
+static int hf_gsm_map_qos_del_of_err_sdu = -1;
+static int hf_gsm_map_qos_ber = -1;
+static int hf_gsm_map_qos_sdu_err_rat = -1;
+static int hf_gsm_map_qos_traff_hdl_pri = -1;
+static int hf_gsm_map_qos_max_sdu = -1;
+static int hf_gsm_map_max_brate_ulink = -1;
+static int hf_gsm_map_max_brate_dlink = -1;
+static int hf_gsm_map_qos_transfer_delay = -1;
+static int hf_gsm_map_guaranteed_max_brate_ulink = -1;
+static int hf_gsm_map_guaranteed_max_brate_dlink = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -104,6 +118,7 @@ static gint ett_gsm_map_ReturnErrorPDU = -1;
 static gint ett_gsm_map_ReturnResult_result = -1;
 static gint ett_gsm_map_ReturnError_result = -1;
 static gint ett_gsm_map_GSMMAPPDU = -1;
+static gint ett_gsm_map_ext_qos_subscribed = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -167,6 +182,77 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	return digit_str;
 }
 
+
+
+static void 
+dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+	guint8 octet;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_gsm_map_ext_qos_subscribed);
+	/*  OCTET 1:
+		Allocation/Retention Priority (This octet encodes each priority level defined in
+		23.107 as the binary value of the priority level, declaration in 29.060)
+		Octets 2-9 are coded according to 3GPP TS 24.008[35] Quality of Service Octets
+		6-13.
+	 */
+	/* Allocation/Retention Priority */
+	proto_tree_add_item(subtree, hf_gsm_map_ext_qos_subscribed_pri, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* Quality of Service Octets 6-13.( Octet 2 - 9 Here) */
+
+	/* Traffic class, octet 6 (see 3GPP TS 23.107) Bits 8 7 6 */
+	proto_tree_add_item(subtree, hf_gsm_map_qos_traffic_cls, tvb, offset, 1, FALSE);
+	/* Delivery order, octet 6 (see 3GPP TS 23.107) Bits 5 4 */
+	proto_tree_add_item(subtree, hf_gsm_map_qos_del_order, tvb, offset, 1, FALSE);
+	/* Delivery of erroneous SDUs, octet 6 (see 3GPP TS 23.107) Bits 3 2 1 */
+	proto_tree_add_item(subtree, hf_gsm_map_qos_del_of_err_sdu, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* Maximum SDU size, octet 7 (see 3GPP TS 23.107) */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, octet);
+
+
+	offset++;
+	/* Maximum bit rate for uplink, octet 8 */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_uint(subtree, hf_gsm_map_max_brate_ulink, tvb, offset, 1, octet);
+	offset++;
+	/* Maximum bit rate for downlink, octet 9 (see 3GPP TS 23.107) */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_uint(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, octet);
+	offset++;
+	/* Residual Bit Error Rate (BER), octet 10 (see 3GPP TS 23.107) Bits 8 7 6 5 */ 
+	proto_tree_add_item(subtree, hf_gsm_map_qos_ber, tvb, offset, 1, FALSE);
+	/* SDU error ratio, octet 10 (see 3GPP TS 23.107) */
+	proto_tree_add_item(subtree, hf_gsm_map_qos_sdu_err_rat, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* Traffic handling priority, octet 11 (see 3GPP TS 23.107) Bits 2 1 */
+	proto_tree_add_item(subtree, hf_gsm_map_qos_traff_hdl_pri, tvb, offset, 1, FALSE);
+	/* Transfer delay, octet 11 (See 3GPP TS 23.107) Bits 8 7 6 5 4 3 */
+	proto_tree_add_item(subtree, hf_gsm_map_qos_transfer_delay, tvb, offset, 1, FALSE);
+	offset++;
+
+	/*	Guaranteed bit rate for uplink, octet 12 (See 3GPP TS 23.107)
+		Coding is identical to that of Maximum bit rate for uplink.
+	 */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, octet);
+	offset++;
+
+	/*	Guaranteed bit rate for downlink, octet 13(See 3GPP TS 23.107)
+		Coding is identical to that of Maximum bit rate for uplink.
+	 */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, octet);
+
+}
 
 #include "packet-gsm_map-fn.c"
 
@@ -1605,8 +1691,59 @@ void proto_register_gsm_map(void) {
       { "PDP Type Number", "gsm_map.ietf_pdp_type_number",
         FT_UINT8, BASE_HEX, VALS(ietf_pdp_type_number_values), 0,
         "IETF PDP Type Number", HFILL }},
-	
+    { &hf_gsm_map_ext_qos_subscribed_pri,
+      { "Allocation/Retention priority", "gsm_map.ext_qos_subscribed_pri",
+        FT_UINT8, BASE_DEC, NULL, 0xff,
+        "Allocation/Retention priority", HFILL }},
+    { &hf_gsm_map_qos_traffic_cls,
+      { "Traffic class", "gsm_map.qos.traffic_cls",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,
+        "Traffic class", HFILL }},
+    { &hf_gsm_map_qos_del_order,
+      { "Delivery order", "gsm_map.qos.del_order",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0x18,
+        "Delivery order", HFILL }},
+    { &hf_gsm_map_qos_del_of_err_sdu,
+      { "Delivery of erroneous SDUs", "gsm_map.qos.del_of_err_sdu",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x03,
+        "Delivery of erroneous SDUs", HFILL }},
+    { &hf_gsm_map_qos_ber,
+      { "Residual Bit Error Rate (BER)", "gsm_map.qos.ber",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_ber_vals), 0xf0,
+        "Residual Bit Error Rate (BER)", HFILL }},
+    { &hf_gsm_map_qos_sdu_err_rat,
+      { "SDU error ratio", "gsm_map.qos.sdu_err_rat",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_sdu_err_rat_vals), 0x0f,
+        "SDU error ratio", HFILL }},
+    { &hf_gsm_map_qos_traff_hdl_pri,
+      { "Traffic handling priority", "gsm_map.qos.traff_hdl_pri",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
+        "Traffic handling priority", HFILL }},
 
+    { &hf_gsm_map_qos_max_sdu,
+      { "Maximum SDU size (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.max_sdu",
+        FT_UINT8, BASE_DEC, NULL, 0xff,
+        "Maximum SDU size", HFILL }},		
+    { &hf_gsm_map_max_brate_ulink,
+      { "Maximum bit rate for uplink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.max_brate_ulink",
+        FT_UINT8, BASE_DEC, NULL, 0xff,
+        "Maximum bit rate for uplink", HFILL }},
+    { &hf_gsm_map_max_brate_dlink,
+      { "Maximum bit rate for downlink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.max_brate_dlink",
+        FT_UINT8, BASE_DEC, NULL, 0xff,
+        "Maximum bit rate for downlink", HFILL }},
+    { &hf_gsm_map_qos_transfer_delay,
+      { "Transfer delay (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.transfer_delay",
+        FT_UINT8, BASE_DEC, NULL, 0xfc,
+        "Transfer delay", HFILL }},
+    { &hf_gsm_map_guaranteed_max_brate_ulink,
+      { "Guaranteed bit rate for uplink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.brate_ulink",
+        FT_UINT8, BASE_DEC, NULL, 0xff,
+        "Guaranteed bit rate for uplink", HFILL }},
+    { &hf_gsm_map_guaranteed_max_brate_dlink,
+      { "Guaranteed bit rate for downlink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.brate_dlink",
+        FT_UINT8, BASE_DEC, NULL, 0xff,
+        "Guaranteed bit rate for downlink", HFILL }},
 #include "packet-gsm_map-hfarr.c"
   };
 
@@ -1620,6 +1757,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ReturnResult_result,
 	&ett_gsm_map_ReturnError_result,
     &ett_gsm_map_GSMMAPPDU,
+	&ett_gsm_map_ext_qos_subscribed,
 #include "packet-gsm_map-ettarr.c"
   };
 

@@ -1069,6 +1069,12 @@ static int hf_gsm_a_dtap_cause = -1;
 
 static int hf_gsm_a_MSC_rev = -1;
 static int hf_gsm_a_ES_IND			= -1;
+static int hf_gsm_a_qos_traffic_cls = -1;
+static int hf_gsm_a_qos_del_order = -1;
+static int hf_gsm_a_qos_del_of_err_sdu = -1;
+static int hf_gsm_a_qos_ber = -1;
+static int hf_gsm_a_qos_sdu_err_rat = -1;
+static int hf_gsm_a_qos_traff_hdl_pri = -1;
 static int hf_gsm_a_A5_1_algorithm_sup = -1;
 static int hf_gsm_a_RF_power_capability = -1;
 static int hf_gsm_a_ps_sup_cap		= -1;
@@ -11336,7 +11342,75 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 /*
  * [7] 10.5.6.5
  */
-guint8
+ /* Delivery of erroneous SDUs, octet 6 (see 3GPP TS 23.107) Bits 3 2 1 */
+const value_string gsm_a_qos_del_of_err_sdu_vals[] = {
+	{ 0, "Subscribed delivery of erroneous SDUs/Reserved" },
+	{ 1, "No detect('-')" },
+	{ 2, "Erroneous SDUs are delivered('yes')" },
+	{ 3, "Erroneous SDUs are not delivered('No')" },
+	{ 7, "Reserved" },
+	{ 0, NULL }
+};
+
+ /* Delivery order, octet 6 (see 3GPP TS 23.107) Bits 5 4 3 */
+const value_string gsm_a_qos_del_order_vals[] = {
+	{ 0, "Subscribed delivery order/Reserved" },
+	{ 1, "With delivery order ('yes')" },
+	{ 2, "Without delivery order ('no')" },
+	{ 3, "Reserved" },
+	{ 0, NULL }
+};
+/* Traffic class, octet 6 (see 3GPP TS 23.107) Bits 8 7 6 */
+const value_string gsm_a_qos_traffic_cls_vals[] = {
+	{ 0, "Subscribed traffic class/Reserved" },
+	{ 1, "Conversational class" },
+	{ 2, "Streaming class" },
+	{ 3, "Interactive class" },
+	{ 4, "Background class" },
+	{ 7, "Reserved" },
+	{ 0, NULL }
+};
+
+/* Residual Bit Error Rate (BER), octet 10 (see 3GPP TS 23.107) Bits 8 7 6 5 */
+const value_string gsm_a_qos_ber_vals[] = {
+	{ 0, "Subscribed residual BER/Reserved" },
+	{ 1, "5*10-2" },
+	{ 2, "1*10-2" },
+	{ 3, "5*10-3" },
+	{ 4, "4*10-3" },
+	{ 5, "1*10-3" },
+	{ 6, "1*10-4" },
+	{ 7, "1*10-5" },
+	{ 8, "1*10-6" },
+	{ 9, "6*10-8" },
+	{ 10, "Reserved" },
+	{ 0, NULL }
+};
+
+/* SDU error ratio, octet 10 (see 3GPP TS 23.107) Bits 4 3 2 1 */
+const value_string gsm_a_qos_sdu_err_rat_vals[] = {
+	{ 0, "Subscribed SDU error ratio/Reserved" },
+	{ 1, "1*10-2" },
+	{ 2, "7*10-3" },
+	{ 3, "1*10-3" },
+	{ 4, "1*10-4" },
+	{ 5, "1*10-5" },
+	{ 6, "1*10-6" },
+	{ 7, "1*10-1" },
+	{ 15, "Reserved" },
+	{ 0, NULL }
+};
+
+/* Traffic handling priority, octet 11 (see 3GPP TS 23.107) Bits 2 1 */
+const value_string gsm_a_qos_traff_hdl_pri_vals[] = {
+	{ 0, "Subscribed traffic handling priority/Reserved" },
+	{ 1, "Priority level 1" },
+	{ 2, "Priority level 2" },
+	{ 3, "Priority level 3" },
+	{ 0, NULL }
+};
+
+ guint8
 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
@@ -11478,49 +11552,9 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    return(curr_offset - offset);
     }
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    switch ( oct>>5 )
-    {
-    	case 0x00: str="Subscribed traffic class/reserved"; break;
-    	case 0x01: str="Conversational class"; break;
-    	case 0x02: str="Streaming class"; break;
-    	case 0x03: str="Interactive class"; break;
-    	case 0x04: str="Background class"; break;
-    	case 0x07: str="Reserved"; break;
-    	default: str="Unspecified";
-    }
-
-    proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Traffic class: (%u) %s",oct>>5,str);
-
-    switch ( (oct>>3)&3 )
-    {
-    	case 0x00: str="Subscribed delivery order"; break;
-    	case 0x01: str="With delivery order ('yes')"; break;
-    	case 0x02: str="Without delivery order ('no')"; break;
-    	case 0x03: str="Reserved"; break;
-    	default: str="This should not happen - BUG";
-    }
-
-    proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Delivery order: (%u) %s",(oct>>3)&3,str);
-
-    switch ( oct&7 )
-    {
-    	case 0x00: str="Subscribed delivery of erroneous SDUs/reserved"; break;
-    	case 0x01: str="No detect ('-')"; break;
-    	case 0x02: str="Erroneous SDUs are delivered ('yes')"; break;
-    	case 0x03: str="Erroneous SDUs are not delivered ('no')"; break;
-    	case 0x07: str="Reserved"; break;
-    	default: str="Unspecified";
-    }
-
-    proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Delivery of erroneous SDUs: (%u) %s",oct&7,str);
+    proto_tree_add_item(tree, hf_gsm_a_qos_traffic_cls, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_del_order, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_qos_del_of_err_sdu, tvb, offset, 1, FALSE);
 
     curr_offset+= 1;	   
     curr_len-= 1;
@@ -11635,45 +11669,8 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    return(curr_offset - offset);
     }
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    switch ( oct>>4 )
-    {
-    	case 0x00: str="Subscribed residual BER/reserved"; break;
-    	case 0x01: str="5*10-2"; break;
-    	case 0x02: str="1*10-2"; break;
-    	case 0x03: str="5*10-3"; break;
-    	case 0x04: str="4*10-3"; break;
-    	case 0x05: str="1*10-3"; break;
-    	case 0x06: str="1*10-4"; break;
-    	case 0x07: str="1*10-5"; break;
-    	case 0x08: str="1*10-6"; break;
-    	case 0x09: str="6*10-8"; break;
-    	case 0x0f: str="Reserved"; break;
-    	default: str="Unspecified";
-    }
-
-    proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Residual BER: (%u) %s",oct>>4,str);
-
-    switch ( oct&0x0f )
-    {
-    	case 0x00: str="Subscribed SDU error ratio/reserved"; break;
-    	case 0x01: str="1*10-2"; break;
-    	case 0x02: str="7*10-3"; break;
-    	case 0x03: str="1*10-3"; break;
-    	case 0x04: str="1*10-4"; break;
-    	case 0x05: str="1*10-5"; break;
-    	case 0x06: str="1*10-6"; break;
-    	case 0x07: str="1*10-1"; break;
-    	case 0x0f: str="Reserved"; break;
-    	default: str="Unspecified";
-    }
-
-    proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"SDU error ratio: (%u) %s",oct&0x0f,str);
+    proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, offset, 1, FALSE);
 
     curr_offset+= 1;	   
     curr_len-= 1;
@@ -18294,6 +18291,30 @@ proto_register_gsm_a(void)
 		FT_UINT8,BASE_DEC,  VALS(ES_IND_vals), 0x10,          
 			"ES IND", HFILL }
 	},
+    { &hf_gsm_a_qos_traffic_cls,
+      { "Traffic class", "gsm_a.qos.traffic_cls",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,
+        "Traffic class", HFILL }},
+    { &hf_gsm_a_qos_del_order,
+      { "Delivery order", "gsm_a.qos.del_order",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0x18,
+        "Delivery order", HFILL }},
+    { &hf_gsm_a_qos_del_of_err_sdu,
+      { "Delivery of erroneous SDUs", "gsm_a.qos.del_of_err_sdu",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x03,
+        "Delivery of erroneous SDUs", HFILL }},
+    { &hf_gsm_a_qos_ber,
+      { "Residual Bit Error Rate (BER)", "gsm_a.qos.ber",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_ber_vals), 0xf0,
+        "Residual Bit Error Rate (BER)", HFILL }},
+    { &hf_gsm_a_qos_sdu_err_rat,
+      { "SDU error ratio", "gsm_a.qos.sdu_err_rat",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_sdu_err_rat_vals), 0x0f,
+        "SDU error ratio", HFILL }},
+    { &hf_gsm_a_qos_traff_hdl_pri,
+      { "Traffic handling priority", "gsm_a.qos.traff_hdl_pri",
+        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
+        "Traffic handling priority", HFILL }},
 	{ &hf_gsm_a_A5_1_algorithm_sup,
 		{ "A5/1 algorithm supported","gsm_a.MSC2_rev",
 		FT_UINT8,BASE_DEC,  VALS(A5_1_algorithm_sup_vals), 0x08,          

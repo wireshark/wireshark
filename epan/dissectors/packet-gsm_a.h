@@ -101,3 +101,9 @@ ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
 ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
 ETH_VAR_IMPORT const gchar *gsm_a_pd_str[];
 
+extern const value_string gsm_a_qos_del_of_err_sdu_vals[];
+extern const value_string gsm_a_qos_del_order_vals[];
+extern const value_string gsm_a_qos_traffic_cls_vals[];
+extern const value_string gsm_a_qos_ber_vals[];
+extern const value_string gsm_a_qos_sdu_err_rat_vals[];
+extern const value_string gsm_a_qos_traff_hdl_pri_vals[];

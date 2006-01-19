@@ -458,7 +458,6 @@ Component
 
 	tvbuff_t	*parameter_tvb;
 
-
 %(DEFAULT_BODY)s
 
 	 if (!parameter_tvb)
@@ -473,13 +472,12 @@ Component
 
 	tvbuff_t	*parameter_tvb;
 
-
 %(DEFAULT_BODY)s
 
-	 if (!parameter_tvb)
+	if (!parameter_tvb)
 		return offset;
-	de_sm_qos(parameter_tvb, tree, 0, 9, NULL, 0);
-
+	dissect_gsm_map_ext_qos_subscribed(tvb, pinfo, tree);
+	
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
