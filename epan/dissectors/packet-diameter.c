@@ -664,7 +664,7 @@ dictionaryAddApplication(char *name, guint32 id)
 {
   ApplicationId *entry;
 
-  if (!name || (id < 0) || (id == 0 && !allow_zero_as_app_id)) {
+  if (!name || (id == 0 && !allow_zero_as_app_id)) {
 	report_failure( "Diameter Error: Invalid application (name=%p, id=%d)",
 			   name, id);
 	return (-1);
@@ -1275,9 +1275,11 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  bpos = 1 << i;
 	  if (flags & bpos) {
 		if (flagstr[0]) {
-		  fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", ");
+		  fslen+=MIN(FLAG_STR_LEN-fslen,
+			     g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", "));
 		}
-		fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]);
+		fslen+=MIN(FLAG_STR_LEN-fslen,
+			   g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
 	  }
 	}
 	if (flagstr[0] == 0) {
@@ -1626,9 +1628,11 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		bpos = 1 << i;
 		if (flags & bpos) {
 		  if (flagstr[0]) {
-			fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", ");
+			fslen+=MIN(FLAG_STR_LEN-fslen,
+				   g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", "));
 		  }
-		  fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]);
+		  fslen+=MIN(FLAG_STR_LEN-fslen,
+			     g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
 		}
 	  }
 	  if (flagstr[0] == 0) {

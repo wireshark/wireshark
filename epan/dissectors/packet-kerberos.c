@@ -389,11 +389,14 @@ read_keytab_file(const char *filename, krb5_context *context)
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
-			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal ");
+			pos+=MIN(KRB_MAX_ORIG_LEN,
+				 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
 			for(i=0;i<key.principal->length;i++){
-				pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),(key.principal->data[i]).data);
+				pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
+					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),(key.principal->data[i]).data));
 			}
-			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm.data);
+			pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
+				 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm.data));
 			*pos=0;
 /*printf("added key for principal :%s\n", new_key->key_origin);*/
 			new_key->keytype=key.key.enctype;
@@ -509,11 +512,14 @@ read_keytab_file(const char *filename, krb5_context *context)
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
-			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal ");
+			pos+=MIN(KRB_MAX_ORIG_LEN,
+				 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
 			for(i=0;i<key.principal->name.name_string.len;i++){
-				pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),key.principal->name.name_string.val[i]);
+				pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
+					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),key.principal->name.name_string.val[i]));
 			}
-			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm);
+			pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
+				 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm));
 			*pos=0;
 			new_key->keytype=key.keyblock.keytype;
 			new_key->keylength=key.keyblock.keyvalue.length;
@@ -1640,8 +1646,9 @@ static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 		{
 		char netbios_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 		int netbios_name_type;
+		int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
 
-		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name);
+		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
 		g_snprintf(address_str, 255, "%s<%02x>", netbios_name, netbios_name_type);
 		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
 		}

@@ -1185,19 +1185,23 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	    for (i = 0; i < 8; i++) {
 	      if (bits & mask) {
 		if (strptr!=bitnames)
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), ", ");
+		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
+				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), ", "));
 		switch (protocol) {
 
 		case IP_PROTO_TCP:
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_tcp_port(port_num));
+		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
+				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_tcp_port(port_num)));
 		  break;
 
 		case IP_PROTO_UDP:
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_udp_port(port_num));
+		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
+				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_udp_port(port_num)));
 		  break;
 
 		default:
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%u", port_num);
+		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
+				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%u", port_num));
 		  break;
 	        }
 	      }
@@ -2337,14 +2341,16 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     bufpos=0;
-    bufpos+=g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s%s",
+    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
+		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s%s",
 		val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
-		(flags&F_RESPONSE)?" response":"");
+		(flags&F_RESPONSE)?" response":""));
 		
     if (flags & F_RESPONSE) {
       if ((flags & F_RCODE) != RCODE_NOERROR) {
-	bufpos+=g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, ", %s",
-		val_to_str(flags & F_RCODE, rcode_vals, "Unknown error (%u)"));
+	bufpos+=MIN(MAX_BUF_SIZE-bufpos,
+		    g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, ", %s",
+			val_to_str(flags & F_RCODE, rcode_vals, "Unknown error (%u)")));
       }
     }
     col_add_str(pinfo->cinfo, COL_INFO, buf);
@@ -2376,11 +2382,13 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset + DNS_ID, 2, id);
 
     bufpos=0;
-    bufpos+=g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s",
-	    	val_to_str(opcode, opcode_vals, "Unknown operation"));
+    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
+		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s",
+			val_to_str(opcode, opcode_vals, "Unknown operation")));
     if (flags & F_RESPONSE) {
-	    bufpos+=g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, " response, %s",
-		val_to_str(flags & F_RCODE, rcode_vals, "Unknown error"));
+	    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
+			g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, " response, %s",
+				val_to_str(flags & F_RCODE, rcode_vals, "Unknown error")));
     }
     tf = proto_tree_add_uint_format(dns_tree, hf_dns_flags, tvb,
 				    offset + DNS_FLAGS, 2,

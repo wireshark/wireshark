@@ -489,27 +489,30 @@ static const char *
 optsstr(nchar_t opts)
 {
 	char *msg;
-	char *p;
-
-	msg=ep_alloc(256);
-	p=msg;
+	size_t returned_length, index = 0;
+	const int MAX_STR_LEN = 256;
+	msg=ep_alloc(MAX_STR_LEN);
 	if (opts == 0)
 		return("");
 
 	if (opts & PGM_OPT){
-		p += g_snprintf(p, 256-(p-msg), "Present");
+		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "Present");
+		index += MIN(returned_length, MAX_STR_LEN-index);
 	}
 	if (opts & PGM_OPT_NETSIG){
-		p += g_snprintf(p, 256-(p-msg), "%sNetSig", (p==msg)?"":",");
+		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sNetSig", (!index)?"":",");
+		index += MIN(returned_length, MAX_STR_LEN-index);
 	}
 	if (opts & PGM_OPT_VAR_PKTLEN){
-		p += g_snprintf(p, 256-(p-msg), "%sVarLen", (p==msg)?"":",");
+		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sVarLen", (!index)?"":",");
+		index += MIN(returned_length, MAX_STR_LEN-index);
 	}
 	if (opts & PGM_OPT_PARITY){
-		p += g_snprintf(p, 256-(p-msg), "%sParity", (p==msg)?"":",");
+		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sParity", (!index)?"":",");
+		index += MIN(returned_length, MAX_STR_LEN-index);
 	}
-	if (p == msg) {
-		p += g_snprintf(p, 256-(p-msg), "0x%x", opts);
+	if (!index) {
+		g_snprintf(&msg[index], MAX_STR_LEN-index, "0x%x", opts);
 	}
 	return(msg);
 }
@@ -517,21 +520,23 @@ static const char *
 paritystr(nchar_t parity)
 {
 	char *msg;
-	char *p;
+	size_t returned_length, index = 0;
+	const int MAX_STR_LEN = 256;
 
-	msg=ep_alloc(256);
-	p=msg;
+	msg=ep_alloc(MAX_STR_LEN);
 	if (parity == 0)
 		return("");
 
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
-		p += g_snprintf(p, 256-(p-msg), "Pro-active");
+		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "Pro-active");
+		index += MIN(returned_length, MAX_STR_LEN-index);
 	}
 	if (parity & PGM_OPT_PARITY_PRM_OND){
-		p += g_snprintf(p, 256-(p-msg), "%sOn-demand", (p==msg)?"":",");
+		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sOn-demand", (!index)?"":",");
+		index += MIN(returned_length, MAX_STR_LEN-index);
 	}
-	if (p == msg) {
-		g_snprintf(p, 256-(p-msg), "%s0x%x", (p==msg)?"":" ", parity);
+	if (!index) {
+		g_snprintf(&msg[index], MAX_STR_LEN-index, "0x%x", parity);
 	}
 	return(msg);
 }
@@ -767,15 +772,15 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			naks = (optdata.len/sizeof(nlong_t));
 			nakbuf=ep_alloc(8192);
 			nakbuf[0]=0;
-			soffset=0;
 			ptr = nakbuf;
 			j = 0;
 			/*
 			 * Print out 8 per line
 			 */
 			for (i=0; i < naks; i++) {
-				soffset += g_snprintf(nakbuf+soffset, 8192-soffset, "0x%lx ",
-				    (unsigned long)g_ntohl(naklist[i]));
+				soffset += MIN(8192-soffset,
+					g_snprintf(nakbuf+soffset, 8192-soffset, "0x%lx ",
+						(unsigned long)g_ntohl(naklist[i])));
 				if ((++j % 8) == 0) {
 					if (firsttime) {
 						proto_tree_add_bytes_format(opt_tree,

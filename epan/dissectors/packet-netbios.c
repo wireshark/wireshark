@@ -281,7 +281,7 @@ void capture_netbios(packet_counts *ld)
 
 
 int
-process_netbios_name(const guchar *name_ptr, char *name_ret)
+process_netbios_name(const guchar *name_ptr, char *name_ret, int name_ret_len)
 {
 	int i;
 	int name_type = *(name_ptr + NETBIOS_NAME_LEN - 1);
@@ -290,15 +290,20 @@ process_netbios_name(const guchar *name_ptr, char *name_ret)
 
 	for (i = 0; i < NETBIOS_NAME_LEN - 1; i++) {
 		name_char = *name_ptr++;
-		if (name_char >= ' ' && name_char <= '~')
-			*name_ret++ = name_char;
-		else {
+		if (name_char >= ' ' && name_char <= '~') {
+			if (--name_ret_len > 0)
+				*name_ret++ = name_char;
+		} else {
 			/* It's not printable; show it as <XX>, where
 			   XX is the value in hex. */
-			*name_ret++ = '<';
-			*name_ret++ = hex_digits[(name_char >> 4)];
-			*name_ret++ = hex_digits[(name_char & 0x0F)];
-			*name_ret++ = '>';
+			if (--name_ret_len > 0)
+				*name_ret++ = '<';
+			if (--name_ret_len > 0)
+				*name_ret++ = hex_digits[(name_char >> 4)];
+			if (--name_ret_len > 0)
+				*name_ret++ = hex_digits[(name_char & 0x0F)];
+			if (--name_ret_len > 0)
+				*name_ret++ = '>';
 		}
 	}
 	*name_ret = '\0';
@@ -319,12 +324,12 @@ process_netbios_name(const guchar *name_ptr, char *name_ret)
 }
 
 
-int get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret)
+int get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret, int name_ret_len)
 
 {/*  Extract the name string and name type.  Return the name string in  */
  /* name_ret and return the name_type. */
 
-	return process_netbios_name( tvb_get_ptr( tvb, offset, NETBIOS_NAME_LEN ), name_ret);
+	return process_netbios_name( tvb_get_ptr( tvb, offset, NETBIOS_NAME_LEN ), name_ret, name_ret_len);
 }
 
 
@@ -349,7 +354,7 @@ void netbios_add_name(const char* label, tvbuff_t *tvb, int offset,
 	const char  *name_type_str;
 
 					/* decode the name field */
-	name_type = get_netbios_name( tvb, offset, name_str);
+	name_type = get_netbios_name( tvb, offset, name_str, (NETBIOS_NAME_LEN - 1)*4 + 1);
 	name_type_str = netbios_name_type_descr(name_type);
 	tf = proto_tree_add_text( tree, tvb, offset, NETBIOS_NAME_LEN,
 	    	"%s: %s<%02x> (%s)", label, name_str, name_type, name_type_str);
@@ -1130,7 +1135,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		command_name = val_to_str(command, cmd_vals, "Unknown (0x%02x)");
                 switch ( command ) {
                 case NB_NAME_QUERY:
-                        name_type = get_netbios_name( tvb, offset + 12, name);
+                        name_type = get_netbios_name( tvb, offset + 12, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
                         col_add_fstr( pinfo->cinfo, COL_INFO, "%s for %s<%02x>",
                             command_name, name, name_type);
                         break;
@@ -1138,7 +1143,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case NB_NAME_RESP:
                 case NB_ADD_NAME:
                 case NB_ADD_GROUP:
-                        name_type = get_netbios_name( tvb, offset + 28, name);
+                        name_type = get_netbios_name( tvb, offset + 28, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
                         col_add_fstr( pinfo->cinfo, COL_INFO, "%s - %s<%02x>",
                             command_name, name, name_type);
                         break;

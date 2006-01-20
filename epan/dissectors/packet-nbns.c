@@ -277,16 +277,16 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	int name_len;
 	char *name;
 	char *nbname;
-	char *pname, *pnbname, cname, cnbname;
+	char *pname, cname, cnbname;
 	int name_type;
 	char *pname_ret;
+	size_t index = 0;
 
 	nbname=ep_alloc(NBNAME_BUF_LEN);
 	name_len = get_dns_name(tvb, offset, nbns_data_offset, &name);
 
 	/* OK, now undo the first-level encoding. */
 	pname = &name[0];
-	pnbname = &nbname[0];
 	pname_ret=name_ret;
 
 	for (;;) {
@@ -299,7 +299,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 			break;		/* scope ID follows */
 		if (cname < 'A' || cname > 'Z') {
 			/* Not legal. */
-			nbname="Illegal NetBIOS name (character not between A and Z in first-level encoding)";
+			nbname="Illegal NetBIOS name (1st character not between A and Z in first-level encoding)";
 			goto bad;
 		}
 		cname -= 'A';
@@ -315,7 +315,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		}
 		if (cname < 'A' || cname > 'Z') {
 			/* Not legal. */
-			nbname="Illegal NetBIOS name (character not between A and Z in first-level encoding)";
+			nbname="Illegal NetBIOS name (2nd character not between A and Z in first-level encoding)";
 			goto bad;
 		}
 		cname -= 'A';
@@ -323,32 +323,29 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		pname++;
 
 		/* Do we have room to store the character? */
-		if (pnbname < &nbname[NETBIOS_NAME_LEN]) {
+		if (index < NETBIOS_NAME_LEN) {
 			/* Yes - store the character. */
-			*pnbname = cnbname;
+			nbname[index++] = cnbname;
 		}
-
-		/* We bump the pointer even if it's past the end of the
-		   name, so we keep track of how long the name is. */
-		pnbname++;
 	}
 
 	/* NetBIOS names are supposed to be exactly 16 bytes long. */
-	if (pnbname - nbname != NETBIOS_NAME_LEN) {
+	if (index != NETBIOS_NAME_LEN) {
 		/* It's not. */
-		g_snprintf(nbname, NBNAME_BUF_LEN, "Illegal NetBIOS name (%ld bytes long)",
-		    (long)(pnbname - nbname));
+		g_snprintf(nbname, NBNAME_BUF_LEN, "Illegal NetBIOS name (%d bytes long)",
+		    index);
 		goto bad;
 	}
 
 	/* This one is; make its name printable. */
-	name_type = process_netbios_name(nbname, name_ret);
-	pname_ret += strlen(name_ret);
-	pname_ret += g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "<%02x>", name_type);
+	name_type = process_netbios_name(nbname, name_ret, name_ret_len);
+	pname_ret += MIN(strlen(name_ret), name_ret_len);
+	pname_ret += MIN(name_ret_len-(pname_ret-name_ret),
+		g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "<%02x>", name_type));
 	if (cname == '.') {
 		/* We have a scope ID, starting at "pname"; append that to
 		 * the decoded host name. */
-		pname_ret += g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", pname);
+		g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", pname);
 	}
 	if (name_type_ret != NULL)
 		*name_type_ret = name_type;
@@ -357,7 +354,9 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 bad:
 	if (name_type_ret != NULL)
 		*name_type_ret = -1;
-	pname_ret += g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", nbname);
+	/* This is only valid because nbname is always assigned an error string
+	 * before jumping to bad: Otherwise nbname wouldn't be \0 terminated */
+	g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", nbname);
 	return name_len;
 }
 
@@ -740,7 +739,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 			tvb_memcpy(tvb, (guint8 *)nbname, cur_offset,
 			    NETBIOS_NAME_LEN);
 			name_type = process_netbios_name(nbname,
-			    name_str);
+			    name_str, name_len);
 			proto_tree_add_text(rr_tree, tvb, cur_offset,
 			    NETBIOS_NAME_LEN, "Name: %s<%02x> (%s)",
 			    name_str, name_type,

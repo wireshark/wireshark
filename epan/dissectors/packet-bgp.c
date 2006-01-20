@@ -484,19 +484,20 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 
         /* withdrawn routes may contain 0 or 0x800000 in the first label */
         if((index-offset)==0&&(label_entry==0||label_entry==0x800000)) {
-            bufptr+=g_snprintf(bufptr, buflen-(bufptr-buf), "0 (withdrawn)");
+            g_snprintf(bufptr, buflen-(bufptr-buf), "0 (withdrawn)");
             return (1);
         }
 
-        bufptr+=g_snprintf(bufptr, buflen-(bufptr-buf), "%u%s", 
-		(label_entry >> 4), 
-		((label_entry & 0x000001) == 0) ? "," : " (bottom)");
+        bufptr+=MIN(buflen-(bufptr-buf),
+		    g_snprintf(bufptr, buflen-(bufptr-buf), "%u%s", 
+			(label_entry >> 4), 
+			((label_entry & 0x000001) == 0) ? "," : " (bottom)"));
 	
         index += 3 ;
 
 	if ((label_entry & 0x000001) == 0) {
 	    /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
-	    bufptr+=g_snprintf(bufptr, buflen-(bufptr-buf), " (BOGUS: Bottom of Stack NOT set!)");
+	    g_snprintf(bufptr, buflen-(bufptr-buf), " (BOGUS: Bottom of Stack NOT set!)");
 	    break;
 	}
     }
@@ -515,10 +516,8 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
     guint32             ip4addr,ip4addr2;               /* IPv4 address                 */
     guint16             rd_type;                        /* Route Distinguisher type     */
     struct e_in6_addr   ip6addr;                        /* IPv6 address                 */
-    char *strptr;
 
     buf[0]=0;
-    strptr=buf;
 
     length = 0 ;
     switch (afi) {
@@ -531,7 +530,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
 			case SAFNUM_TUNNEL:
                                 length = 4 ;
                                 ip4addr = tvb_get_ipv4(tvb, offset);
-			        strptr += g_snprintf(strptr, buf_len-(strptr-buf), "%s", ip_to_str((guint8 *)&ip4addr));
+			        g_snprintf(buf, buf_len, "%s", ip_to_str((guint8 *)&ip4addr));
                                 break;
                         case SAFNUM_LAB_VPNUNICAST:
                         case SAFNUM_LAB_VPNMULCAST:
@@ -541,7 +540,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + sizeof(ip4addr);
                                                 ip4addr = tvb_get_ipv4(tvb, offset + 8);   /* Next Hop */
-                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%u:%u IPv4=%s",
+                                                g_snprintf(buf, buf_len, "Empty Label Stack RD=%u:%u IPv4=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
                                                                 ip_to_str((guint8 *)&ip4addr));
@@ -550,20 +549,20 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                                 length = 8 + sizeof(ip4addr);
                                                 ip4addr = tvb_get_ipv4(tvb, offset + 2);   /* IP part of the RD            */
                                                 ip4addr2 = tvb_get_ipv4(tvb, offset + 8);  /* Next Hop   */
-                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%s:%u IPv4=%s",
+                                                g_snprintf(buf, buf_len, "Empty Label Stack RD=%s:%u IPv4=%s",
                                                                 ip_to_str((guint8 *)&ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
                                                                 ip_to_str((guint8 *)&ip4addr2));
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
+                                                g_snprintf(buf, buf_len, "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
                                                 break;
                                 }
                                 break;
                         default:
                             length = 0 ;
-                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            g_snprintf(buf, buf_len, "Unknown SAFI (%u) for AFI %u", safi, afi);
                             break;
                 }
                 break;
@@ -576,7 +575,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
 			case SAFNUM_TUNNEL:
                             length = 16 ;
                             tvb_get_ipv6(tvb, offset, &ip6addr);
-                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "%s", ip6_to_str(&ip6addr));
+                            g_snprintf(buf, buf_len, "%s", ip6_to_str(&ip6addr));
                             break;
                         case SAFNUM_LAB_VPNUNICAST:
                         case SAFNUM_LAB_VPNMULCAST:
@@ -586,7 +585,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + 16;
                                                 tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
-                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%u:%u IPv6=%s",
+                                                g_snprintf(buf, buf_len, "Empty Label Stack RD=%u:%u IPv6=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
                                                                 ip6_to_str(&ip6addr));
@@ -595,20 +594,20 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                                 length = 8 + 16;
                                                 ip4addr = tvb_get_ipv4(tvb, offset + 2);   /* IP part of the RD            */
                                                 tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
-                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%s:%u IPv6=%s",
+                                                g_snprintf(buf, buf_len, "Empty Label Stack RD=%s:%u IPv6=%s",
                                                                 ip_to_str((guint8 *)&ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
                                                                 ip6_to_str(&ip6addr));
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
+                                                g_snprintf(buf, buf_len, "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
                                                 break;
                                 }
                                 break;
                         default:
                             length = 0 ;
-                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            g_snprintf(buf, buf_len, "Unknown SAFI (%u) for AFI %u", safi, afi);
                             break;
                 }
                 break;
@@ -621,18 +620,18 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                         case SAFNUM_VPLS:
                             length = 4; /* the next-hop is simply an ipv4 addr */
                             ip4addr = tvb_get_ipv4(tvb, offset + 0);
-                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "IPv4=%s",
+                            g_snprintf(buf, buf_len, "IPv4=%s",
                                      ip_to_str((guint8 *)&ip4addr));
                             break;
                         default:
                             length = 0 ;
-                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            g_snprintf(buf, buf_len, "Unknown SAFI (%u) for AFI %u", safi, afi);
                             break;
                 }
                 break;
         default:
                 length = 0 ;
-                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown AFI (%u) value", afi);
+                g_snprintf(buf, buf_len, "Unknown AFI (%u) value", afi);
                 break;
     }
     return(length) ;

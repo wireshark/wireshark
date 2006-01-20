@@ -429,7 +429,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	 */
 	name_tvb = tvb_new_subset(winsrepl_tvb, winsrepl_offset, name_len, name_len);
 	netbios_add_name("Name", name_tvb, 0, name_tree);
-	name_type = get_netbios_name(name_tvb, 0, name_str);
+	name_type = get_netbios_name(name_tvb, 0, name_str, (NETBIOS_NAME_LEN - 1)*4 + 1);
 	proto_item_append_text(name_item, ": %s<%02x>", name_str, name_type);
 	winsrepl_offset += name_len;
 

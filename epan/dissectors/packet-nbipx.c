@@ -283,7 +283,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_NAME_IN_USE:
 	case NBIPX_DEREGISTER_NAME:
 		name_type_flag = tvb_get_guint8(tvb, offset);
-		name_type = get_netbios_name(tvb, offset+2, name);
+		name_type = get_netbios_name(tvb, offset+2, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s<%02x>",
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
@@ -693,8 +693,8 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	opcode = tvb_get_guint8(tvb, offset);
 	nmpi_name_type = tvb_get_guint8(tvb, offset+1);
-	name_type = get_netbios_name(tvb, offset+4, name);
-	node_name_type = get_netbios_name(tvb, offset+20, node_name);
+	name_type = get_netbios_name(tvb, offset+4, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
+	node_name_type = get_netbios_name(tvb, offset+20, node_name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		switch (opcode) {

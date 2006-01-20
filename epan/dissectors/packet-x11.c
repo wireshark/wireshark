@@ -1312,28 +1312,35 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
 	    buffer=ep_alloc(512);
 
-	    bp = buffer + g_snprintf(buffer, 512, "flags: ");
+	    bp = buffer + MIN(512, g_snprintf(buffer, 512, "flags: "));
 
 	    if (do_red_green_blue & 0x1) {
-		  bp += g_snprintf(bp, 512-(bp-buffer), "DoRed");
+		  bp += MIN(512-(bp-buffer),
+			    g_snprintf(bp, 512-(bp-buffer), "DoRed"));
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0x2) {
-		  if (sep) bp += g_snprintf(bp, 512-(bp-buffer), " | ");
-		  bp += g_snprintf(bp, 512-(bp-buffer), "DoGreen");
+		  if (sep) bp += MIN(512-(bp-buffer),
+				     g_snprintf(bp, 512-(bp-buffer), " | "));
+		  bp += MIN(512-(bp-buffer),
+			    g_snprintf(bp, 512-(bp-buffer), "DoGreen"));
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0x4) {
-		  if (sep) bp += g_snprintf(bp, 512-(bp-buffer), " | ");
-		  bp += g_snprintf(bp, 512-(bp-buffer), "DoBlue");
+		  if (sep) bp += MIN(512-(bp-buffer),
+				     g_snprintf(bp, 512-(bp-buffer), " | "));
+		  bp += MIN(512-(bp-buffer),
+			    g_snprintf(bp, 512-(bp-buffer), "DoBlue"));
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0xf8) {
-		  if (sep) bp += g_snprintf(bp, 512-(bp-buffer), " + ");
-		  g_snprintf(bp, 512-(bp-buffer), "trash");
+		  if (sep) bp += MIN(512-(bp-buffer),
+				     g_snprintf(bp, 512-(bp-buffer), " + "));
+		  MIN(512-(bp-buffer),
+		      g_snprintf(bp, 512-(bp-buffer), "trash"));
 	    }
 
 	    ti = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
@@ -1452,18 +1459,21 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    blue = VALUE16(tvb, *offsetp + 8);
 	    do_red_green_blue = VALUE8(tvb, *offsetp + 10);
 
-	    bp = buffer + g_snprintf(buffer, 1024, "colorItem: ");
+	    bp = buffer + MIN(1024, g_snprintf(buffer, 1024, "colorItem: "));
 	    sep = "";
 	    if (do_red_green_blue & 0x1) {
-		bp += g_snprintf(bp, 1024-(bp-buffer), "red = %d", red);
+		bp += MIN(1024-(bp-buffer),
+			  g_snprintf(bp, 1024-(bp-buffer), "red = %d", red));
 		sep = ", ";
 	    }
 	    if (do_red_green_blue & 0x2) {
-		bp += g_snprintf(bp, 1024-(bp-buffer), "%sgreen = %d", sep, green);
+		bp += MIN(1024-(bp-buffer),
+			  g_snprintf(bp, 1024-(bp-buffer), "%sgreen = %d", sep, green));
 		sep = ", ";
 	    }
 	    if (do_red_green_blue & 0x4)
-		bp += g_snprintf(bp, 1024-(bp-buffer), "%sblue = %d", sep, blue);
+		bp += MIN(1024-(bp-buffer),
+			  g_snprintf(bp, 1024-(bp-buffer), "%sblue = %d", sep, blue));
 
 	    tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", buffer);
 	    ttt = proto_item_add_subtree(tti, ett_x11_color_item);
