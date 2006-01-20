@@ -4,7 +4,7 @@
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
  * Copyright 2005, Javier Acu«Òa <javier.acuna@sixbell.com>
  * Updated to ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005-2006, Anders Broman <anders.broman@ericsson.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
@@ -81,6 +81,10 @@ static int hf_camel_addr_nature_of_number = -1;
 static int hf_camel_addr_numberingPlanInd = -1;
 static int hf_camel_addr_digits = -1;
 static int hf_camel_cause_indicator = -1;
+static int hf_camel_PDPTypeNumber_etsi = -1;
+static int hf_camel_PDPTypeNumber_ietf = -1;
+static int hf_camel_PDPAddress_IPv4 = -1;
+static int hf_camel_PDPAddress_IPv6 = -1;
 #include "packet-camel-hf.c"
 static guint global_tcap_itu_ssn = 0;
 
@@ -97,6 +101,7 @@ static gint ett_camel_isdn_address_string = -1;
 static gint ett_camel_MSRadioAccessCapability = -1;
 static gint ett_camel_MSNetworkCapability = -1;
 static gint ett_camel_AccessPointName = -1;
+static gint ett_camel_pdptypenumber = -1;
 
 #include "packet-camel-ett.c"
 
@@ -110,6 +115,9 @@ dissector_handle_t  camel_handle;
 /* Global variables */
 
 static int application_context_version;
+static guint8 PDPTypeOrganization;
+static guint8 PDPTypeNumber;
+
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
@@ -695,9 +703,24 @@ void proto_register_camel(void) {
         "Address digits", HFILL }},
    { &hf_digit,
       { "Digit Value",  "camel.digit_value",
-      FT_UINT8, BASE_DEC, 
-      VALS(digit_value), 
-      0, "", HFILL }},
+      FT_UINT8, BASE_DEC, VALS(digit_value), 0, "Digit Value", HFILL }},
+   { &hf_camel_PDPTypeNumber_etsi,
+      { "ETSI defined PDP Type Value",  "camel.PDPTypeNumber_etsi",
+      FT_UINT8, BASE_HEX, VALS(gsm_map_etsi_defined_pdp_vals), 0,
+	  "ETSI defined PDP Type Value", HFILL }},
+   { &hf_camel_PDPTypeNumber_ietf,
+      { "IETF defined PDP Type Value",  "camel.PDPTypeNumber_ietf",
+      FT_UINT8, BASE_HEX, VALS(gsm_map_ietf_defined_pdp_vals), 0,
+	  "IETF defined PDP Type Value", HFILL }},
+   { &hf_camel_PDPAddress_IPv4,
+      { "PDPAddress IPv4",  "camel.PDPAddress_IPv4",
+	  FT_IPv4, BASE_NONE, NULL, 0,
+	  "IPAddress IPv4", HFILL }},
+   { &hf_camel_PDPAddress_IPv6,
+      { "PDPAddress IPv6",  "camel.PDPAddress_IPv6",
+	  FT_IPv4, BASE_NONE, NULL, 0,
+	  "IPAddress IPv6", HFILL }},
+
 #ifdef REMOVED
 #endif
 #include "packet-camel-hfarr.c"
@@ -717,6 +740,7 @@ void proto_register_camel(void) {
 	&ett_camel_MSRadioAccessCapability,
 	&ett_camel_MSNetworkCapability,
 	&ett_camel_AccessPointName,
+	&ett_camel_pdptypenumber,
 #include "packet-camel-ettarr.c"
   };
 

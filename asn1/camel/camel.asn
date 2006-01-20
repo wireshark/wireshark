@@ -249,8 +249,9 @@ IMPORTS
 	CellGlobalIdOrServiceAreaIdFixedLength,
 	Ext-BasicServiceCode,
 	IMEI,
-	IMSI
---	ISDN-AddressString
+	IMSI,
+--	ISDN-AddressString,
+	LAIFixedLength
 
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
@@ -918,15 +919,9 @@ ElapsedTimeRollOver ::= CHOICE {
 -- The receiver of this parameter shall ignore the most significant 4 bits of this octet. 
 EndUserAddress ::= SEQUENCE
 {
-    pDPTypeOrganization [0]
-        
-        OCTET STRING (SIZE (1)),
-    pDPTypeNumber [1]
-        
-        OCTET STRING (SIZE (1)),
-    pDPAddress [2]
-        
-        OCTET STRING (SIZE (1..63)) OPTIONAL
+    pDPTypeOrganization [0] OCTET STRING (SIZE (1)),
+    pDPTypeNumber		[1] OCTET STRING (SIZE (1)),
+    pDPAddress			[2] OCTET STRING (SIZE (1..63)) OPTIONAL
 }
 -- Indicates the EndUserAddress, refer to 3GPP TS 29.060 [12] for the encoding.
 -- The pDPTypeOrganization shall use the least significant 4 bits of the octet encoded.
@@ -1251,7 +1246,7 @@ GPRSEventSpecificInformation ::= CHOICE
         qualityOfService        [4] QualityOfService        OPTIONAL,
         timeAndTimeZone         [5] TimeAndTimezone         OPTIONAL,
 		...,
-        gGSNAddress             [6] GSNAddress              OPTIONAL
+        gGSNAddress             [6] GSN-Address              OPTIONAL
     },
     detachSpecificInformation [2]  SEQUENCE
     {
@@ -1285,7 +1280,7 @@ GPRSEventSpecificInformation ::= CHOICE
         locationInformationGPRS [4] LocationInformationGPRS OPTIONAL,
         timeAndTimeZone         [5] TimeAndTimezone         OPTIONAL,
 		...,
-        gGSNAddress             [6] GSNAddress              OPTIONAL
+        gGSNAddress             [6] GSN-Address              OPTIONAL
     }
 }
 
@@ -2044,10 +2039,8 @@ CellIdFixedLength ::=
 
 -- LAIFixedLength notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-LAIFixedLength ::=
-		
-    
-		OCTET STRING (SIZE (5))
+-- IMPORTED fom GSM MAP
+-- LAIFixedLength ::= OCTET STRING (SIZE (5))
     -- Refers to Location Area Identification defined in TS GSM 03.03.
     -- Octets ares encoded according to TS GSM 04.08.
     -- The internal structure is defined as follows:
@@ -2128,11 +2121,8 @@ TCInvokeIdSet ::= INTEGER (-128..127)
 ExtensionSetextensionId ::= OBJECT IDENTIFIER
 
 
-
-GSNAddress ::=
-
-
-OCTET STRING (SIZE (5..17))
+-- Import from GSM MAP
+-- GSN-Address ::= OCTET STRING (SIZE (5..17))
 
 
 
@@ -2141,18 +2131,22 @@ OCTET STRING (SIZE (5..17))
 -- Equivalent to EndUserAddress
 PDPType ::= SEQUENCE
 {
-    pDPTypeOrganization [0]
-        
-        OCTET STRING (SIZE (1)),
-    pDPTypeNumber [1]
-        
-        OCTET STRING (SIZE (1)),
-    pDPAddress [2]
-        
-        OCTET STRING (SIZE (1..63)) OPTIONAL
+    pDPTypeOrganization		[0] PDPTypeOrganization,
+    pDPTypeNumber			[1] PDPTypeNumber,
+    pDPAddress				[2] PDPAddress OPTIONAL
 }
 
+PDPTypeOrganization ::= OCTET STRING (SIZE (1))
 
+PDPTypeNumber ::= OCTET STRING (SIZE (1))
+
+PDPAddress ::= OCTET STRING (SIZE (1..63))
+
+-- Indicates the PDPType, refer to 3GPP TS 29.060 for the encoding.
+-- The pDPTypeOrganization shall use the least significant 4 bits of the octet encoded.
+-- The sender of this parameter shall set the most significant 4 bit of the octet to 0.
+-- The receiver of this parameter shall ignore the most significant 4 bits of this octet.
+-- TS 29.060 "The PDP Type Organisation and PDP Type Number are encoded as in the End User Address information element."
 
 -- Code notes: not recursive, exported,
 -- locally refd 63 times, import refd 0 times
@@ -2439,14 +2433,19 @@ PlayToneArg ::= SEQUENCE {
 	...
 	}
 
-CellGlobalIdOrServiceAreaIdOrLAI ::=
+CellGlobalIdOrServiceAreaIdOrLAI ::= OCTET STRING (SIZE (5..7))
 
-OCTET STRING (SIZE (5..7))
 -- The 3GPP TS 29.078 standard, about cellGlobalIdOrServiceAreaIdOrLAI:
 --   "CellGlobalIdOrServiceAreaIdOrLAI and LSAIdentity are coded in accordance with
 --   3GPP TS 29.002 [13].
 --   sai-Present indicates that the cellGlobalIdOrServiceAreaIdOrLAI parameter contains
 --   a Service Area Identity."
+
+-- GPP TS 29.078 version 6.4.0 Release 6 has it as:
+-- CellGlobalIdOrServiceAreaIdFixedLength type or the LAIFixedLength type (i.e. excluding tags
+-- and lengths) as defined in 3GPP TS 29.002 [13].
+-- sai-Present indicates that the cellGlobalIdOrServiceAreaIdOrLAI parameter contains
+-- a Service Area Identity.
 
 -- 3GPP TS 29.002 [13] gives the folowing coding for CellGlobalIdOrServiceAreaIdOrLAI:
 --    CellGlobalIdOrServiceAreaIdOrLAI ::= CHOICE {
@@ -2461,9 +2460,7 @@ OCTET STRING (SIZE (5..7))
 -- parameter is set as an OCTET STRING, as it was in previous implementations.
 
 
-GeodeticInformation ::=
-
-OCTET STRING (SIZE(10))
+GeodeticInformation ::= OCTET STRING (SIZE(10))
 
 -- Local imports
 SupportedCamelPhases ::= BIT STRING {
@@ -2878,7 +2875,7 @@ InitialDPGPRSArg ::=
     locationInformationGPRS [12] LocationInformationGPRS OPTIONAL,
     pDPInitiationType       [13] PDPInitiationType       OPTIONAL,
     extensions              [14] ExtensionsArray         OPTIONAL,
-    gGSNAddress             [15] GSNAddress              OPTIONAL,
+    gGSNAddress             [15] GSN-Address             OPTIONAL,
     secondaryPDPContext     [16] NULL                    OPTIONAL
 }
 

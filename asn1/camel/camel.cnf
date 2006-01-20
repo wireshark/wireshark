@@ -333,9 +333,82 @@ tvbuff_t	*parameter_tvb;
  subtree = proto_item_add_subtree(item, ett_camel_AccessPointName);
  de_sm_apn(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
 
+
+#.FN_PARS PDPTypeOrganization
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY PDPTypeOrganization 
+
+ tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ PDPTypeOrganization  = (tvb_get_guint8(parameter_tvb,0) &0x0f);	
+
+#.FN_PARS PDPTypeNumber
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY PDPTypeNumber 
+
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ PDPTypeNumber = tvb_get_guint8(parameter_tvb,0);	
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+ switch (PDPTypeOrganization){
+ case 0: /* ETSI */
+	proto_tree_add_item(tree, hf_camel_PDPTypeNumber_etsi, parameter_tvb, 0, 1, FALSE);
+	break;
+ case 1: /* IETF */
+	proto_tree_add_item(tree, hf_camel_PDPTypeNumber_ietf, parameter_tvb, 0, 1, FALSE);
+	break;
+ default:
+	break;
+ }
+
+#.FN_PARS PDPAddress
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY PDPAddress 
+
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+ switch (PDPTypeOrganization){
+ case 0: /* ETSI */
+	break;
+ case 1: /* IETF */
+	switch(PDPTypeNumber){
+	case 0x21: /* IPv4 */
+		proto_tree_add_item(tree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		break;
+	case 0x57: /* IPv6 */
+		proto_tree_add_item(tree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		break;
+	default:
+		break;
+	}
+ default:
+	break;
+
+ }
+
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
-
+PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 #.END
-
-
