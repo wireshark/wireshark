@@ -1225,6 +1225,9 @@ col_fill_in(packet_info *pinfo)
     case COL_DCE_CALL:	/* done by dcerpc */
       break;
 
+    case COL_8021Q_VLAN_ID:
+        break;
+
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;

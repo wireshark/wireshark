@@ -98,6 +98,7 @@ enum {
   COL_HPUX_SUBSYS,    /* HP-UX Nettl Subsystem */
   COL_HPUX_DEVID,     /* HP-UX Nettl Device ID */
   COL_DCE_CALL,       /* DCE/RPC call id OR datagram sequence number */
+  COL_8021Q_VLAN_ID,  /* 802.1Q vlan ID */
   NUM_COL_FMTS        /* Should always be last */
 };
 

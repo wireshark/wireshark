@@ -82,6 +82,9 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
       (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
   }
+  if ( check_col(pinfo->cinfo, COL_8021Q_VLAN_ID)) {
+      col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%u", (tci & 0xFFF));
+  }
 
   vlan_tree = NULL;
 
