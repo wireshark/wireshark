@@ -34,6 +34,7 @@ IMSI
 InterrogateSS-Res
 ISDN-AddressString
 ISDN-SubaddressString
+LAIFixedLength
 LCSClientExternalID
 LCSClientName
 LCSRequestorID
@@ -477,7 +478,31 @@ Component
 	if (!parameter_tvb)
 		return offset;
 	dissect_gsm_map_ext_qos_subscribed(tvb, pinfo, tree);
-	
+
+#.FN_PARS GSN-Address
+		
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY GSN-Address
+
+	tvbuff_t	*parameter_tvb;
+	guint8		octet;
+
+%(DEFAULT_BODY)s
+
+	if (!parameter_tvb)
+		return offset;
+	octet = tvb_get_guint8(parameter_tvb,0);
+	switch(octet){
+	case 0x04: /* IPv4 */
+		proto_tree_add_item(tree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
+		break;
+	case 0x50: /* IPv4 */
+		proto_tree_add_item(tree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
+		break;
+	default:
+		break;
+	}		
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)

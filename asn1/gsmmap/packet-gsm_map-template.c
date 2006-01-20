@@ -1,6 +1,6 @@
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
- * Copyright 2004 - 2005 , Anders Broman <anders.broman [AT] ericsson.com>
+ * Copyright 2004 - 2006 , Anders Broman <anders.broman [AT] ericsson.com>
  * Based on the dissector by:
  * Felix Fei <felix.fei [AT] utstar.com>
  * and Michael Lum <mlum [AT] telostech.com>
@@ -106,7 +106,8 @@ static int hf_gsm_map_max_brate_dlink = -1;
 static int hf_gsm_map_qos_transfer_delay = -1;
 static int hf_gsm_map_guaranteed_max_brate_ulink = -1;
 static int hf_gsm_map_guaranteed_max_brate_dlink = -1;
-
+static int hf_gsm_map_GSNAddress_IPv4 = -1;
+static int hf_gsm_map_GSNAddress_IPv6 = -1;
 #include "packet-gsm_map-hf.c"
 
 /* Initialize the subtree pointers */
@@ -145,6 +146,24 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
+/* Value strings */
+
+const value_string gsm_map_PDP_Type_Organisation_vals[] = {
+  {  0, "ETSI" },
+  {  1, "IETF" },
+  { 0, NULL }
+};
+
+const value_string gsm_map_ietf_defined_pdp_vals[] = {
+  {  0x21, "IPv4 Address" },
+  {  0x57, "IPv6 Address" },
+  { 0, NULL }
+};
+
+const value_string gsm_map_etsi_defined_pdp_vals[] = {
+  {  1, "PPP" },
+  { 0, NULL }
+};
 
 char*
 unpack_digits(tvbuff_t *tvb, int offset){
@@ -182,7 +201,34 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	return digit_str;
 }
 
+/* returns value in kb/s */
+static guint
+gsm_map_calc_bitrate(guint8 value){
 
+	guint8 granularity;
+	guint returnvalue; 
+
+	if (value == 0xff)
+		return 0;
+
+	granularity = value >> 6;
+	returnvalue = value & 0x7f;
+	switch (granularity){
+	case 0:
+		break;
+	case 1:
+		returnvalue = ((returnvalue - 0x40) << 3)+64;
+		break;
+	case 2:
+		returnvalue = (returnvalue << 6)+576;
+		break;
+	case 3:
+		returnvalue = (returnvalue << 6)+576;
+		break;
+	}
+	return returnvalue;
+
+}
 
 static void 
 dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
@@ -190,6 +236,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item *item;
     proto_tree *subtree;
 	guint8 octet;
+	guint16 value;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_gsm_map_ext_qos_subscribed);
@@ -215,17 +262,47 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Maximum SDU size, octet 7 (see 3GPP TS 23.107) */
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, octet);
-
-
+	switch (octet){
+	case 0:
+		proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Maximum SDU size/Reserved");
+		break;
+	case 0x93:
+		value = 1502;
+		proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, value);
+		break;
+	case 0x98:
+		value = 1510;
+		proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, value);
+		break;
+	case 0x99:
+		value = 1532;
+		proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, value);
+		break;
+	default:
+		if (octet<0x97){
+			value = octet * 10;
+			proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, value);
+		}else{
+			proto_tree_add_text(subtree, tvb, offset, 1, "Maximum SDU size value 0x%x not defined in TS 24.008",octet);
+		}			
+	}
 	offset++;
+
 	/* Maximum bit rate for uplink, octet 8 */
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_uint(subtree, hf_gsm_map_max_brate_ulink, tvb, offset, 1, octet);
+	if (octet == 0 ){
+		proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Maximum bit rate for uplink/Reserved"  );
+	}else{
+		proto_tree_add_uint(subtree, hf_gsm_map_max_brate_ulink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
+	}
 	offset++;
 	/* Maximum bit rate for downlink, octet 9 (see 3GPP TS 23.107) */
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_uint(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, octet);
+	if (octet == 0 ){
+		proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Maximum bit rate for downlink/Reserved"  );
+	}else{
+		proto_tree_add_uint(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
+	}
 	offset++;
 	/* Residual Bit Error Rate (BER), octet 10 (see 3GPP TS 23.107) Bits 8 7 6 5 */ 
 	proto_tree_add_item(subtree, hf_gsm_map_qos_ber, tvb, offset, 1, FALSE);
@@ -233,24 +310,32 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(subtree, hf_gsm_map_qos_sdu_err_rat, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* Traffic handling priority, octet 11 (see 3GPP TS 23.107) Bits 2 1 */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_traff_hdl_pri, tvb, offset, 1, FALSE);
 	/* Transfer delay, octet 11 (See 3GPP TS 23.107) Bits 8 7 6 5 4 3 */
 	proto_tree_add_item(subtree, hf_gsm_map_qos_transfer_delay, tvb, offset, 1, FALSE);
+	/* Traffic handling priority, octet 11 (see 3GPP TS 23.107) Bits 2 1 */
+	proto_tree_add_item(subtree, hf_gsm_map_qos_traff_hdl_pri, tvb, offset, 1, FALSE);
 	offset++;
 
 	/*	Guaranteed bit rate for uplink, octet 12 (See 3GPP TS 23.107)
 		Coding is identical to that of Maximum bit rate for uplink.
 	 */
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, octet);
+	if (octet == 0 ){
+		proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Guaranteed bit rate for uplink/Reserved"  );
+	}else{
+		proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
+	}
 	offset++;
 
 	/*	Guaranteed bit rate for downlink, octet 13(See 3GPP TS 23.107)
 		Coding is identical to that of Maximum bit rate for uplink.
 	 */
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, octet);
+	if (octet == 0 ){
+		proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Guaranteed bit rate for downlink/Reserved"  );
+	}else{
+		proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
+	}
 
 }
 
@@ -1721,29 +1806,38 @@ void proto_register_gsm_map(void) {
         "Traffic handling priority", HFILL }},
 
     { &hf_gsm_map_qos_max_sdu,
-      { "Maximum SDU size (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.max_sdu",
-        FT_UINT8, BASE_DEC, NULL, 0xff,
+      { "Maximum SDU size", "gsm_map.qos.max_sdu",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "Maximum SDU size", HFILL }},		
     { &hf_gsm_map_max_brate_ulink,
-      { "Maximum bit rate for uplink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.max_brate_ulink",
-        FT_UINT8, BASE_DEC, NULL, 0xff,
+      { "Maximum bit rate for uplink in kbit/s", "gsm_map.qos.max_brate_ulink",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "Maximum bit rate for uplink", HFILL }},
     { &hf_gsm_map_max_brate_dlink,
-      { "Maximum bit rate for downlink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.max_brate_dlink",
-        FT_UINT8, BASE_DEC, NULL, 0xff,
+      { "Maximum bit rate for downlink in kbit/s", "gsm_map.qos.max_brate_dlink",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "Maximum bit rate for downlink", HFILL }},
     { &hf_gsm_map_qos_transfer_delay,
       { "Transfer delay (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.transfer_delay",
         FT_UINT8, BASE_DEC, NULL, 0xfc,
         "Transfer delay", HFILL }},
     { &hf_gsm_map_guaranteed_max_brate_ulink,
-      { "Guaranteed bit rate for uplink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.brate_ulink",
-        FT_UINT8, BASE_DEC, NULL, 0xff,
+      { "Guaranteed bit rate for uplink in kbit/s", "gsm_map.qos.brate_ulink",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "Guaranteed bit rate for uplink", HFILL }},
     { &hf_gsm_map_guaranteed_max_brate_dlink,
-      { "Guaranteed bit rate for downlink (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.brate_dlink",
-        FT_UINT8, BASE_DEC, NULL, 0xff,
+      { "Guaranteed bit rate for downlink in kbit/s", "gsm_map.qos.brate_dlink",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "Guaranteed bit rate for downlink", HFILL }},
+   { &hf_gsm_map_GSNAddress_IPv4,
+      { "GSN-Address IPv4",  "gsm_map.gsnaddress_ipv4",
+	  FT_IPv4, BASE_NONE, NULL, 0,
+	  "IPAddress IPv4", HFILL }},
+   { &hf_gsm_map_GSNAddress_IPv6,
+      { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
+	  FT_IPv4, BASE_NONE, NULL, 0,
+	  "IPAddress IPv6", HFILL }},
+
 #include "packet-gsm_map-hfarr.c"
   };
 
