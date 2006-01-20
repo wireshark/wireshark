@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

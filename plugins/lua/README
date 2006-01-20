@@ -1,0 +1,18 @@
+Starts to work so I check it in.
+
+This is an interface to the Lua programming language.
+
+http://www.lua.org
+
+I've already wrote a simple dissector that calls another dissectors.
+
+soon It will be able to register a tap and do something more.
+
+I did not checkin changes to the Makefiles so in order to use it you must change the
+makefiles.
+
+Other than that to get it to work you need to download lua-5.0.2.tar.gz into the plugin
+directory, uncompress it, cd to it and call make.
+
+the interface is buggy and far from finished, time will help on this.
+
