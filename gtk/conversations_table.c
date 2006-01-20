@@ -1145,36 +1145,36 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 {
    guint32         i,j;
    gchar           *table_entry;
-   gchar           *CSV_str;
    GtkClipboard    *cb;
+   GString         *CSV_str = g_string_new("");
 
    conversations_table *talkers=(conversations_table *)data;
 
-   CSV_str=g_new(gchar,(80*(talkers->num_conversations+1))); /* 80 chars * num rows */
-   strcpy(CSV_str,"");                                   /* initialize string   */
    /* Add the column headers to the CSV data */
    for(i=0;i<talkers->num_columns;i++){                  /* all columns         */
     if((i==1 || i==3) && !talkers->has_ports) continue;  /* Don't add the port column if it's empty */
-     strcat(CSV_str,talkers->default_titles[i]);         /* add the column heading to the CSV string */
-     strcat(CSV_str,",");
+     g_string_append(CSV_str,talkers->default_titles[i]);/* add the column heading to the CSV string */
+    if(i!=talkers->num_columns-1)
+     g_string_append(CSV_str,",");
    }
-   strcat(CSV_str,"\n");                                 /* new row */
+   g_string_append(CSV_str,"\n");                        /* new row */
 
    /* Add the column values to the CSV data */
-   for(i=0;i<talkers->num_conversations;i++){                /* all rows            */
+   for(i=0;i<talkers->num_conversations;i++){            /* all rows            */
     for(j=0;j<talkers->num_columns;j++){                 /* all columns         */
      if((j==1 || j==3) && !talkers->has_ports) continue; /* Don't add the port column if it's empty */
      gtk_clist_get_text(talkers->table,i,j,&table_entry);/* copy table item into string */
-     strcat(CSV_str,table_entry);                        /* add the table entry to the CSV string */
-     strcat(CSV_str,",");
+     g_string_append(CSV_str,table_entry);               /* add the table entry to the CSV string */
+    if(j!=talkers->num_columns-1)
+     g_string_append(CSV_str,",");
     }
-    strcat(CSV_str,"\n");                                /* new row */
+    g_string_append(CSV_str,"\n");                       /* new row */
    }
 
    /* Now that we have the CSV data, copy it into the default clipboard */
-   cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
-   gtk_clipboard_set_text(cb, CSV_str, -1);             /* Copy the CSV data into the clipboard */
-   g_free(CSV_str);                                     /* Free the memory */
+   cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);      /* Get the default clipboard */
+   gtk_clipboard_set_text(cb, CSV_str->str, -1);         /* Copy the CSV data into the clipboard */
+   g_string_free(CSV_str, TRUE);                         /* Free the memory */
 }
 #endif
 
