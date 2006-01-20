@@ -12,7 +12,7 @@
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
  * Copyright 2005, Javier Acu«Òa <javier.acuna@sixbell.com>
  * Updated to ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005-2006, Anders Broman <anders.broman@ericsson.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
@@ -89,6 +89,10 @@ static int hf_camel_addr_nature_of_number = -1;
 static int hf_camel_addr_numberingPlanInd = -1;
 static int hf_camel_addr_digits = -1;
 static int hf_camel_cause_indicator = -1;
+static int hf_camel_PDPTypeNumber_etsi = -1;
+static int hf_camel_PDPTypeNumber_ietf = -1;
+static int hf_camel_PDPAddress_IPv4 = -1;
+static int hf_camel_PDPAddress_IPv6 = -1;
 
 /*--- Included file: packet-camel-hf.c ---*/
 #line 1 "packet-camel-hf.c"
@@ -315,7 +319,7 @@ static int hf_camel_chargingID = -1;              /* GPRSChargingID */
 static int hf_camel_pDPType = -1;                 /* PDPType */
 static int hf_camel_qualityOfService = -1;        /* QualityOfService */
 static int hf_camel_timeAndTimeZone = -1;         /* TimeAndTimezone */
-static int hf_camel_gGSNAddress = -1;             /* GSNAddress */
+static int hf_camel_gGSNAddress = -1;             /* GSN_Address */
 static int hf_camel_detachSpecificInformation = -1;  /* T_detachSpecificInformation */
 static int hf_camel_inititatingEntity = -1;       /* InitiatingEntity */
 static int hf_camel_routeingAreaUpdate = -1;      /* NULL */
@@ -404,6 +408,9 @@ static int hf_camel_number = -1;                  /* Digits */
 static int hf_camel_time = -1;                    /* OCTET_STRING_SIZE_2 */
 static int hf_camel_date = -1;                    /* OCTET_STRING_SIZE_4 */
 static int hf_camel_price = -1;                   /* OCTET_STRING_SIZE_4 */
+static int hf_camel_pDPTypeOrganization1 = -1;    /* PDPTypeOrganization */
+static int hf_camel_pDPTypeNumber1 = -1;          /* PDPTypeNumber */
+static int hf_camel_pDPAddress1 = -1;             /* PDPAddress */
 static int hf_camel_local = -1;                   /* INTEGER */
 static int hf_camel_global = -1;                  /* OBJECT_IDENTIFIER */
 static int hf_camel_messageType = -1;             /* T_messageType */
@@ -572,7 +579,7 @@ static int hf_camel_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP =
 static int hf_camel_OfferedCamel4Functionalities_serviceChangeDP = -1;
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 85 "packet-camel-template.c"
+#line 89 "packet-camel-template.c"
 static guint global_tcap_itu_ssn = 0;
 
 /* Initialize the subtree pointers */
@@ -588,6 +595,7 @@ static gint ett_camel_isdn_address_string = -1;
 static gint ett_camel_MSRadioAccessCapability = -1;
 static gint ett_camel_MSNetworkCapability = -1;
 static gint ett_camel_AccessPointName = -1;
+static gint ett_camel_pdptypenumber = -1;
 
 
 /*--- Included file: packet-camel-ett.c ---*/
@@ -799,7 +807,7 @@ static gint ett_camel_ResetTimerGPRSArg = -1;
 static gint ett_camel_CancelFailedPARAM = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 102 "packet-camel-template.c"
+#line 107 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -811,6 +819,9 @@ dissector_handle_t  camel_handle;
 /* Global variables */
 
 static int application_context_version;
+static guint8 PDPTypeOrganization;
+static guint8 PDPTypeNumber;
+
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
@@ -885,6 +896,9 @@ static int dissect_cellGlobalId_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 static int dissect_serviceAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_serviceAreaId);
 }
+static int dissect_locationAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_locationAreaId);
+}
 static int dissect_ext_basicServiceCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_Ext_BasicServiceCode(TRUE, tvb, offset, pinfo, tree, hf_camel_ext_basicServiceCode);
 }
@@ -906,6 +920,9 @@ static int dissect_supplement_to_long_QoS_format_impl(packet_info *pinfo, proto_
 static int dissect_chargingID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_GPRSChargingID(TRUE, tvb, offset, pinfo, tree, hf_camel_chargingID);
 }
+static int dissect_gGSNAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_GSN_Address(TRUE, tvb, offset, pinfo, tree, hf_camel_gGSNAddress);
+}
 static int dissect_routeingAreaIdentity_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_RAIdentity(TRUE, tvb, offset, pinfo, tree, hf_camel_routeingAreaIdentity);
 }
@@ -926,6 +943,15 @@ static int dissect_enteringServiceAreaId_impl(packet_info *pinfo, proto_tree *tr
 }
 static int dissect_leavingServiceAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_leavingServiceAreaId);
+}
+static int dissect_enteringLocationAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_enteringLocationAreaId);
+}
+static int dissect_leavingLocationAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_leavingLocationAreaId);
+}
+static int dissect_laiFixedLength_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_laiFixedLength);
 }
 static int dissect_ms_Classmark2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_MS_Classmark2(TRUE, tvb, offset, pinfo, tree, hf_camel_ms_Classmark2);
@@ -1569,6 +1595,7 @@ dissect_camel_AccessPointName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  item = get_ber_last_created_item();
  subtree = proto_item_add_subtree(item, ett_camel_AccessPointName);
  de_sm_apn(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
+
 
 
 
@@ -2600,28 +2627,6 @@ dissect_camel_MidCallControlInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 }
 static int dissect_midCallControlInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_MidCallControlInfo(TRUE, tvb, offset, pinfo, tree, hf_camel_midCallControlInfo);
-}
-
-
-
-static int
-dissect_camel_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_locationAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_locationAreaId);
-}
-static int dissect_enteringLocationAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_enteringLocationAreaId);
-}
-static int dissect_leavingLocationAreaId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_leavingLocationAreaId);
-}
-static int dissect_laiFixedLength_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_camel_laiFixedLength);
 }
 
 
@@ -5579,10 +5584,117 @@ static int dissect_attachChangeOfPositionSpecificInformation_impl(packet_info *p
 }
 
 
+
+static int
+dissect_camel_PDPTypeOrganization(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 341 "camel.cnf"
+
+ tvbuff_t	*parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+ PDPTypeOrganization  = (tvb_get_guint8(parameter_tvb,0) &0x0f);	
+
+
+
+  return offset;
+}
+static int dissect_pDPTypeOrganization1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_PDPTypeOrganization(TRUE, tvb, offset, pinfo, tree, hf_camel_pDPTypeOrganization1);
+}
+
+
+
+static int
+dissect_camel_PDPTypeNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 354 "camel.cnf"
+
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+ PDPTypeNumber = tvb_get_guint8(parameter_tvb,0);	
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+ switch (PDPTypeOrganization){
+ case 0: /* ETSI */
+	proto_tree_add_item(tree, hf_camel_PDPTypeNumber_etsi, parameter_tvb, 0, 1, FALSE);
+	break;
+ case 1: /* IETF */
+	proto_tree_add_item(tree, hf_camel_PDPTypeNumber_ietf, parameter_tvb, 0, 1, FALSE);
+	break;
+ default:
+	break;
+ }
+
+
+
+  return offset;
+}
+static int dissect_pDPTypeNumber1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_PDPTypeNumber(TRUE, tvb, offset, pinfo, tree, hf_camel_pDPTypeNumber1);
+}
+
+
+
+static int
+dissect_camel_PDPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 381 "camel.cnf"
+
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+ switch (PDPTypeOrganization){
+ case 0: /* ETSI */
+	break;
+ case 1: /* IETF */
+	switch(PDPTypeNumber){
+	case 0x21: /* IPv4 */
+		proto_tree_add_item(tree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		break;
+	case 0x57: /* IPv6 */
+		proto_tree_add_item(tree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		break;
+	default:
+		break;
+	}
+ default:
+	break;
+
+ }
+
+
+
+  return offset;
+}
+static int dissect_pDPAddress1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_PDPAddress(TRUE, tvb, offset, pinfo, tree, hf_camel_pDPAddress1);
+}
+
+
 static const ber_sequence_t PDPType_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pDPTypeOrganization_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_pDPTypeNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pDPAddress_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pDPTypeOrganization1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_pDPTypeNumber1_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pDPAddress1_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -5633,19 +5745,6 @@ static int dissect_timeAndTimeZone_impl(packet_info *pinfo, proto_tree *tree, tv
 }
 static int dissect_timeAndTimezone_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_TimeAndTimezone(TRUE, tvb, offset, pinfo, tree, hf_camel_timeAndTimezone);
-}
-
-
-
-static int
-dissect_camel_GSNAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_gGSNAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_GSNAddress(TRUE, tvb, offset, pinfo, tree, hf_camel_gGSNAddress);
 }
 
 
@@ -7851,7 +7950,7 @@ dissect_camel_TaskRefusedPARAM(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 177 "packet-camel-template.c"
+#line 185 "packet-camel-template.c"
 
 const value_string camel_opr_code_strings[] = {
 
@@ -8373,9 +8472,24 @@ void proto_register_camel(void) {
         "Address digits", HFILL }},
    { &hf_digit,
       { "Digit Value",  "camel.digit_value",
-      FT_UINT8, BASE_DEC, 
-      VALS(digit_value), 
-      0, "", HFILL }},
+      FT_UINT8, BASE_DEC, VALS(digit_value), 0, "Digit Value", HFILL }},
+   { &hf_camel_PDPTypeNumber_etsi,
+      { "ETSI defined PDP Type Value",  "camel.PDPTypeNumber_etsi",
+      FT_UINT8, BASE_HEX, VALS(gsm_map_etsi_defined_pdp_vals), 0,
+	  "ETSI defined PDP Type Value", HFILL }},
+   { &hf_camel_PDPTypeNumber_ietf,
+      { "IETF defined PDP Type Value",  "camel.PDPTypeNumber_ietf",
+      FT_UINT8, BASE_HEX, VALS(gsm_map_ietf_defined_pdp_vals), 0,
+	  "IETF defined PDP Type Value", HFILL }},
+   { &hf_camel_PDPAddress_IPv4,
+      { "PDPAddress IPv4",  "camel.PDPAddress_IPv4",
+	  FT_IPv4, BASE_NONE, NULL, 0,
+	  "IPAddress IPv4", HFILL }},
+   { &hf_camel_PDPAddress_IPv6,
+      { "PDPAddress IPv6",  "camel.PDPAddress_IPv6",
+	  FT_IPv4, BASE_NONE, NULL, 0,
+	  "IPAddress IPv6", HFILL }},
+
 #ifdef REMOVED
 #endif
 
@@ -9020,15 +9134,15 @@ void proto_register_camel(void) {
     { &hf_camel_pDPTypeOrganization,
       { "pDPTypeOrganization", "camel.pDPTypeOrganization",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "EndUserAddress/pDPTypeOrganization", HFILL }},
     { &hf_camel_pDPTypeNumber,
       { "pDPTypeNumber", "camel.pDPTypeNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "EndUserAddress/pDPTypeNumber", HFILL }},
     { &hf_camel_pDPAddress,
       { "pDPAddress", "camel.pDPAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "EndUserAddress/pDPAddress", HFILL }},
     { &hf_camel_routeSelectFailureSpecificInfo,
       { "routeSelectFailureSpecificInfo", "camel.routeSelectFailureSpecificInfo",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9629,6 +9743,18 @@ void proto_register_camel(void) {
       { "price", "camel.price",
         FT_BYTES, BASE_HEX, NULL, 0,
         "VariablePart/price", HFILL }},
+    { &hf_camel_pDPTypeOrganization1,
+      { "pDPTypeOrganization", "camel.pDPTypeOrganization",
+        FT_UINT8, BASE_DEC, VALS(gsm_map_PDP_Type_Organisation_vals), 0x0f,
+        "PDPType/pDPTypeOrganization", HFILL }},
+    { &hf_camel_pDPTypeNumber1,
+      { "pDPTypeNumber", "camel.pDPTypeNumber",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "PDPType/pDPTypeNumber", HFILL }},
+    { &hf_camel_pDPAddress1,
+      { "pDPAddress", "camel.pDPAddress",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "PDPType/pDPAddress", HFILL }},
     { &hf_camel_local,
       { "local", "camel.local",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -10291,7 +10417,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 704 "packet-camel-template.c"
+#line 727 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10308,6 +10434,7 @@ void proto_register_camel(void) {
 	&ett_camel_MSRadioAccessCapability,
 	&ett_camel_MSNetworkCapability,
 	&ett_camel_AccessPointName,
+	&ett_camel_pdptypenumber,
 
 /*--- Included file: packet-camel-ettarr.c ---*/
 #line 1 "packet-camel-ettarr.c"
@@ -10518,7 +10645,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 721 "packet-camel-template.c"
+#line 745 "packet-camel-template.c"
   };
 
   /* Register protocol */

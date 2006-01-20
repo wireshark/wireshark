@@ -47,6 +47,9 @@ ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
 extern const value_string ssCode_vals[];
+extern const value_string gsm_map_PDP_Type_Organisation_vals[];
+extern const value_string gsm_map_ietf_defined_pdp_vals[];
+extern const value_string gsm_map_etsi_defined_pdp_vals[];
 
 /*--- Included file: packet-gsm_map-exp.h ---*/
 #line 1 "packet-gsm_map-exp.h"
@@ -73,6 +76,7 @@ int dissect_gsm_map_IMEI(gboolean implicit_tag, tvbuff_t *tvb, int offset, packe
 int dissect_gsm_map_LCSClientExternalID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_LCSServiceTypeID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_gsm_map_LAIFixedLength(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_LocationInformation(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_RAIdentity(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_GeographicalInformation(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -118,6 +122,6 @@ int dissect_gsm_map_ProtectedPayload(gboolean implicit_tag, tvbuff_t *tvb, int o
 int dissect_gsm_map_ExtensionContainer(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 43 "packet-gsm_map-template.h"
+#line 46 "packet-gsm_map-template.h"
 
 #endif  /* PACKET_GSM_MAP_H */

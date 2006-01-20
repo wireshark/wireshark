@@ -39,6 +39,9 @@ ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
 extern const value_string ssCode_vals[];
+extern const value_string gsm_map_PDP_Type_Organisation_vals[];
+extern const value_string gsm_map_ietf_defined_pdp_vals[];
+extern const value_string gsm_map_etsi_defined_pdp_vals[];
 #include "packet-gsm_map-exp.h"
 
 #endif  /* PACKET_GSM_MAP_H */
