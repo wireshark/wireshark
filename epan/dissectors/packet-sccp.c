@@ -1674,6 +1674,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   guint16 optional_pointer = 0;
   guint16 offset = 0;
   guint8 parameter_type;
+  gboolean   save_fragmented;
 
 /* Macro for getting pointer to mandatory variable parameters */
 #define VARIABLE_POINTER(var, hf_var, ptr_size) \
@@ -1999,9 +2000,59 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLING_PARTY_ADDRESS,
 				    variable_pointer2);
+
 	if ((parameter_type = tvb_get_guint8(tvb, optional_pointer)) ==
 		PARAMETER_SEGMENTATION){
-		proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data"  );
+		if (!sccp_xudt_desegment){
+			proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data"  );
+
+		}else{
+			guint8 octet;
+			gboolean more_frag = TRUE;
+			guint32 source_local_ref=0;
+			tvbuff_t *new_tvb = NULL;
+			fragment_data *frag_msg = NULL;
+
+			/* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
+			 * Bit 8 of octet 1 is used for First segment indication
+			 * Bit 7 of octet 1 is used to keep in the message in sequence delivery option required by the SCCP user
+			 * Bits 6 and 5 in octet 1 are spare bits.
+			 * Bits 4-1 of octet 1 are used to indicate the number of remaining segments. 
+			 * The values 0000 to 1111 are possible; the value 0000 indicates the last segment.
+			 */
+			octet = tvb_get_guint8(tvb,optional_pointer+2);
+			source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
+			if ((octet&0x0f) == 0) 
+				more_frag = FALSE;
+			save_fragmented = pinfo->fragmented;
+			pinfo->fragmented = TRUE;
+			frag_msg = fragment_add_seq_next(tvb, variable_pointer3 + 1, pinfo,
+				source_local_ref,									/* ID for fragments belonging together */  
+				sccp_xudt_msg_fragment_table,						/* list of message fragments */
+				sccp_xudt_msg_reassembled_table,					/* list of reassembled messages */
+				tvb_get_guint8(tvb,variable_pointer3),				/* fragment length - to the end */
+				more_frag);											/* More fragments? */
+			
+			if ((octet&0x80) == 0x80)/*First segment, set number of segments*/
+				fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
+
+			new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1, pinfo,
+				"Reassembled Message", frag_msg, &sccp_xudt_msg_frag_items,
+				NULL, tree);
+
+			if (frag_msg) { /* Reassembled */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_str(pinfo->cinfo, COL_INFO, 
+					" (Message Reassembled)");
+			} else { /* Not last packet of reassembled Short Message */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					" (Message fragment )");
+			}		
+			pinfo->fragmented = save_fragmented;
+			if (new_tvb)
+				dissect_sccp_data_param(new_tvb, pinfo, tree);
+		}
 	}else{
 	    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer3);
@@ -2607,6 +2658,10 @@ proto_register_sccp(void)
       "Show parameter length in the protocol tree",
       &sccp_show_length);
   
+  prefs_register_bool_preference(sccp_module, "defragment_xudt",
+		"Reassemble XUDT messages",
+		"Whether XUDT messages dshould be reassembled",
+		&sccp_xudt_desegment);	
 
   register_init_routine(&init_sccp);
   
