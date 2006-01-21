@@ -48,16 +48,16 @@
 #define VALUE_STRING "ValueString"
 typedef GArray* ValueString;
 
-#define FIELD "Field"
-typedef struct _eth_field_t* Field;
+#define PROTO_FIELD "ProtoField"
+typedef struct _eth_field_t* ProtoField;
 
-#define FIELD_ARRAY "FieldArray"
-typedef GArray* FieldArray;
+#define PROTO_FIELD_ARRAY "ProtoFieldArr"
+typedef GArray* ProtoFieldArray;
 
-#define ETT "Ett"
+#define ETT "SubTreeType"
 typedef int* Ett;
 
-#define ETT_ARRAY "EttArray"
+#define ETT_ARRAY "SubTreeTypeArr"
 typedef GArray* EttArray;
 
 #define PROTO "Proto"
@@ -71,6 +71,9 @@ typedef struct _eth_distbl_t {
 
 #define DISSECTOR "Dissector"
 typedef dissector_handle_t Dissector;
+
+#define BYTE_ARRAY "ByteArray"
+typedef GByteArray* ByteArray;
 
 #define TVB "Tvb"
 typedef tvbuff_t* Tvb;
@@ -93,8 +96,22 @@ typedef proto_item* Item;
 #define ADDRESS "Address"
 typedef address* Address;
 
+#define INTERESTING "Interesting"
+typedef header_field_info* Interesting;
+
+#define TAP "Tap"
+typedef struct _eth_tap {
+    const gchar* name;
+    GPtrArray* interesting_fields;
+    gchar* filter;
+    gboolean registered;
+}* Tap;
+
 static lua_State* L = NULL;
 static dissector_handle_t data_handle = NULL;
+static packet_info* g_pinfo = NULL;
+static proto_tree* g_tree = NULL;
+
 
 typedef struct _eth_field_t {
     int hfid;
@@ -161,7 +178,7 @@ static int No_gc(lua_State *L _U_) { return 0; }
 /*
  * ValueString class
  */
-LUA_CLASS_OPS(ValueString,VALUE_STRING,if ( !p )  luaL_error(L,"null value_string"););
+LUA_CLASS_OPS(ValueString,VALUE_STRING,if ( !p )  luaL_error(L,"NULL ValueString"););
 
 static int ValueString_new(lua_State* L) {
     ValueString vs = g_array_new(TRUE,TRUE,sizeof(value_string));
@@ -203,7 +220,7 @@ static int ValueString_gc(lua_State* L) {
 static int ValueString_tostring(lua_State* L) {
     ValueString vs = checkValueString(L,1);
     value_string* c = (value_string*)vs->data;
-    GString* s = g_string_new("");
+    GString* s = g_string_new("ValueString:\n");
     
     for(;c->strptr;c++) {
         g_string_sprintfa(s,"\t%u\t%s\n",c->value,c->strptr);
@@ -250,7 +267,7 @@ static  int ValueString_register(lua_State* L) {
 
 
 /*
- * Field class
+ * ProtoField class
  */
 
 static const eth_ft_types_t ftenums[] = {
@@ -337,19 +354,19 @@ static base_display_e string_to_base(const gchar* str) {
 }
 
 
-LUA_CLASS_OPS(Field,FIELD,if (! *p) luaL_error(L,"null Field"));
+LUA_CLASS_OPS(ProtoField,PROTO_FIELD,if (! *p) luaL_error(L,"null ProtoField"));
 
-static int Field_new(lua_State* L) {
-    Field f = g_malloc(sizeof(eth_field_t));
+static int ProtoField_new(lua_State* L) {
+    ProtoField f = g_malloc(sizeof(eth_field_t));
     GArray* vs;
     
-    f->hfid = -1;
+    f->hfid = -2;
     f->name = g_strdup(luaL_checkstring(L,1));
     f->abbr = g_strdup(luaL_checkstring(L,2));
     f->type = get_ftenum(luaL_checkstring(L,3));
     
     if (f->type == FT_NONE) {
-        luaL_error(L,"invalid FT_type");
+        luaL_argerror(L, 3, "invalid FT_type");
         return 0;
     }
     
@@ -363,18 +380,19 @@ static int Field_new(lua_State* L) {
         f->vs = NULL;
     }
     
+    /* XXX: need BASE_ERROR */
     f->base = string_to_base(luaL_optstring(L, 5, "BASE_NONE"));
     f->mask = luaL_optint(L, 6, 0x0);
     f->blob = g_strdup(luaL_optstring(L,7,""));
     
-    pushField(L,f);
+    pushProtoField(L,f);
     
     return 1;
 }
 
-static int Field_tostring(lua_State* L) {
-    Field f = checkField(L,1);
-    gchar* s = g_strdup_printf("Field: %s %s %s %s %p %.8x %s\n",f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
+static int ProtoField_tostring(lua_State* L) {
+    ProtoField f = checkProtoField(L,1);
+    gchar* s = g_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
     
     lua_pushstring(L,s);
     g_free(s);
@@ -384,24 +402,24 @@ static int Field_tostring(lua_State* L) {
 
 
 
-static const luaL_reg Field_methods[] = {
-    {"new",   Field_new},
+static const luaL_reg ProtoField_methods[] = {
+    {"new",   ProtoField_new},
     {0,0}
 };
 
-static const luaL_reg Field_meta[] = {
+static const luaL_reg ProtoField_meta[] = {
     {"__gc",       No_gc},
-    {"__tostring", Field_tostring},
+    {"__tostring", ProtoField_tostring},
     {0, 0}
 };
 
-static int Field_register(lua_State* L) {
+static int ProtoField_register(lua_State* L) {
     const eth_ft_types_t* ts;
     const struct base_display_string_t* b;
 
-    luaL_openlib(L, FIELD, Field_methods, 0);
-    luaL_newmetatable(L, FIELD);
-    luaL_openlib(L, 0, Field_meta, 0);
+    luaL_openlib(L, PROTO_FIELD, ProtoField_methods, 0);
+    luaL_newmetatable(L, PROTO_FIELD);
+    luaL_openlib(L, 0, ProtoField_meta, 0);
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
@@ -410,12 +428,14 @@ static int Field_register(lua_State* L) {
     lua_rawset(L, -3);
     lua_pop(L, 1);
     
+    /* add a global FT_* variable for each FT_ type */
     for (ts = ftenums; ts->str; ts++) {
         lua_pushstring(L, ts->str);
         lua_pushstring(L, ts->str);
         lua_settable(L, LUA_GLOBALSINDEX);
     }
     
+    /* add a global BASE_* variable for each BASE_ */
     for (b=base_displays;b->str;b++) {
         lua_pushstring(L, b->str);
         lua_pushstring(L, b->str);
@@ -429,32 +449,63 @@ static int Field_register(lua_State* L) {
 
 
 /*
- * FieldArray class
+ * ProtoFieldArray class
  */
 
-LUA_CLASS_OPS(FieldArray,FIELD_ARRAY,if (! *p) luaL_error(L,"null FieldArray"));
+LUA_CLASS_OPS(ProtoFieldArray,PROTO_FIELD_ARRAY,if (! *p) luaL_error(L,"null ProtoFieldArray"));
 
-static int FieldArray_new(lua_State* L) {
-    FieldArray fa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
-    pushFieldArray(L,fa);
+static int ProtoFieldArray_new(lua_State* L) {
+    ProtoFieldArray fa;
+    guint i;
+    guint num_args = lua_gettop(L);
+
+    fa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
+    
+    for ( i = 1; i <= num_args; i++) {
+        ProtoField f = checkProtoField(L,i);
+        hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
+        
+        if (f->hfid != -2) {
+            luaL_argerror(L, i, "field has already been added to an array");
+            return 0;
+        }
+        
+        f->hfid = -1;
+        
+        g_array_append_val(fa,hfri);
+    }
+    
+    pushProtoFieldArray(L,fa);
     return 1;
 }
 
 
-static int FieldArray_add(lua_State* L) {
-    FieldArray fa = checkFieldArray(L,1);
-    Field f = checkField(L,2);
-    hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
-    
-    g_array_append_val(fa,hfri);
+static int ProtoFieldArray_add(lua_State* L) {
+    ProtoFieldArray fa = checkProtoFieldArray(L,1);
+    guint i;
+    guint num_args = lua_gettop(L);
+
+    for ( i = 2; i <= num_args; i++) {
+        ProtoField f = checkProtoField(L,i);
+        hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
+
+        if (f->hfid != -2) {
+            luaL_argerror(L, i, "field has already been added to an array");
+            return 0;
+        }
+        
+        f->hfid = -1;
+
+        g_array_append_val(fa,hfri);
+    }
     
     return 0;
 }
 
-static int FieldArray_tostring(lua_State* L) {
-    GString* s = g_string_new("FieldArray:\n");
+static int ProtoFieldArray_tostring(lua_State* L) {
+    GString* s = g_string_new("ProtoFieldArray:\n");
     hf_register_info* f;
-    FieldArray fa = checkFieldArray(L,1);
+    ProtoFieldArray fa = checkProtoFieldArray(L,1);
     unsigned i;
     
     for(i = 0; i< fa->len; i++) {
@@ -468,8 +519,8 @@ static int FieldArray_tostring(lua_State* L) {
     return 1;
 }
 
-static int FieldArray_gc(lua_State* L) {
-    FieldArray vs = checkValueString(L,1);
+static int ProtoFieldArray_gc(lua_State* L) {
+    ProtoFieldArray vs = checkValueString(L,1);
     
     g_array_free(vs,TRUE);
     
@@ -477,22 +528,22 @@ static int FieldArray_gc(lua_State* L) {
 }
 
 
-static const luaL_reg FieldArray_methods[] = {
-    {"new",   FieldArray_new},
-    {"add",   FieldArray_add},
+static const luaL_reg ProtoFieldArray_methods[] = {
+    {"new",   ProtoFieldArray_new},
+    {"add",   ProtoFieldArray_add},
     {0,0}
 };
 
-static const luaL_reg FieldArray_meta[] = {
-    {"__gc",       FieldArray_gc},
-    {"__tostring", FieldArray_tostring},
+static const luaL_reg ProtoFieldArray_meta[] = {
+    {"__gc",       ProtoFieldArray_gc},
+    {"__tostring", ProtoFieldArray_tostring},
     {0, 0}
 };
 
-static int FieldArray_register(lua_State* L) {
-    luaL_openlib(L, FIELD_ARRAY, FieldArray_methods, 0);
-    luaL_newmetatable(L, FIELD_ARRAY);
-    luaL_openlib(L, 0, FieldArray_meta, 0);
+static int ProtoFieldArray_register(lua_State* L) {
+    luaL_openlib(L, PROTO_FIELD_ARRAY, ProtoFieldArray_methods, 0);
+    luaL_newmetatable(L, PROTO_FIELD_ARRAY);
+    luaL_openlib(L, 0, ProtoFieldArray_meta, 0);
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
@@ -515,7 +566,7 @@ LUA_CLASS_OPS(Ett,ETT,NOP);
 
 static int Ett_new(lua_State* L) {
     Ett e = g_malloc(sizeof(int));
-    *e = -1;
+    *e = -2;
     pushEtt(L,e);
     
     return 1;
@@ -567,9 +618,24 @@ static int Ett_register(lua_State* L) {
  */
 LUA_CLASS_OPS(EttArray,ETT_ARRAY,if (! *p) luaL_error(L,"null EttArray"));
 
-
 static int EttArray_new(lua_State* L) {
     EttArray ea = g_array_new(TRUE,TRUE,sizeof(gint*));
+    guint i;
+    guint num_args = lua_gettop(L);
+
+    for (i = 1; i <= num_args; i++) {
+        Ett e = checkEtt(L,i);
+        
+        if(*e != -2) {
+            luaL_argerror(L, i, "SubTree has already been added to an array");
+            return 0;
+        }
+
+        *e = -1;
+        
+        g_array_append_val(ea,e);
+    }
+    
     pushEttArray(L,ea);
     return 1;
 }
@@ -577,9 +643,20 @@ static int EttArray_new(lua_State* L) {
 
 static int EttArray_add(lua_State* L) {
     EttArray ea = checkEttArray(L,1);
-    Ett e = checkEtt(L,2);
+    guint i;
+    guint num_args = lua_gettop(L);
     
-    g_array_append_val(ea,e);
+    for (i = 2; i <= num_args; i++) {
+        Ett e = checkEtt(L,i);
+        if(*e != -2) {
+            luaL_argerror(L, i, "SubTree has already been added to an array");
+            return 0;
+        }
+        
+        *e = -1;
+                
+        g_array_append_val(ea,e);
+    }
     
     return 0;
 }
@@ -602,6 +679,18 @@ static int EttArray_tostring(lua_State* L) {
 
 static int EttArray_register_to_ethereal(lua_State* L) {
     EttArray ea = checkEttArray(L,1);
+    
+    if (!ea->len) {
+        luaL_argerror(L,1,"empty array");
+        return 0;
+    }
+    
+    /* is last ett -1? */
+    if ( *(((gint *const *)ea->data)[ea->len -1])  != -1) {
+        luaL_argerror(L,1,"array has been registered already");
+        return 0;
+    }
+    
     proto_register_subtree_array((gint *const *)ea->data, ea->len);
     return 0;
 }
@@ -666,7 +755,7 @@ static int Proto_new(lua_State* L) {
     if (proto->name && proto->filter && proto->desc) {
         if ( proto_get_id_by_filter_name(proto->filter) > 0 ) { 
             g_free(proto);
-            luaL_error(L,"Protocol exists already");
+            luaL_argerror(L,2,"Protocol exists already");
             return 0;
         } else {
             proto->hfid = proto_register_protocol(proto->desc,proto->name,proto->filter);
@@ -675,8 +764,17 @@ static int Proto_new(lua_State* L) {
             return 1;
         }
      } else {
+         if (! proto->name ) 
+             luaL_argerror(L,1,"missing name");
+         
+         if (! proto->filter ) 
+             luaL_argerror(L,2,"missing filter");
+         
+         if (! proto->desc ) 
+             luaL_argerror(L,3,"missing desc");
+         
          g_free(proto);
-         luaL_error(L,"Missing Parameters");
+
          return 0;
      }
 
@@ -684,19 +782,29 @@ static int Proto_new(lua_State* L) {
 
 static int Proto_register_field_array(lua_State* L) {
     Proto proto = checkProto(L,1);
-    FieldArray fa = checkFieldArray(L,2);
+    ProtoFieldArray fa = checkProtoFieldArray(L,2);
     
-    if (proto && fa && fa->len) {
-        if (proto->hfarray) {
-            luaL_error(L,"field array already registered");
-        }
-        
-        proto->hfarray = (hf_register_info*)(fa->data);
-        proto_register_field_array(proto->hfid,proto->hfarray,fa->len);
-        
-    } else {
-        luaL_error(L,"not a good field array");
+    if (!proto) {
+        luaL_argerror(L,1,"not a good proto");
+        return 0;
     }
+
+    if (! fa) {
+        luaL_argerror(L,2,"not a good field_array");
+        return 0;
+    }
+
+    if( ! fa->len ) {
+        luaL_argerror(L,2,"empty field_array");
+        return 0;
+    }
+
+    if (proto->hfarray) {
+        luaL_argerror(L,1,"field_array already registered for this protocol");
+    }
+        
+    proto->hfarray = (hf_register_info*)(fa->data);
+    proto_register_field_array(proto->hfid,proto->hfarray,fa->len);
     
     return 0;
 }
@@ -709,30 +817,25 @@ static int Proto_add_uint_pref(lua_State* L) {
     gchar* name = g_strdup(luaL_optstring (L, 5, ""));
     gchar* desc = g_strdup(luaL_optstring (L, 6, ""));
     
-    if (proto && abbr) {
-        eth_pref_t* pref = g_malloc(sizeof(eth_pref_t));
-        pref->name = abbr;
-        pref->type = PREF_UINT;
-        pref->value.u = def;
-        pref->next = NULL;
-        
-        if (! proto->prefs_module)
-            proto->prefs_module = prefs_register_protocol(proto->hfid, NULL);
-        
-        if (! proto->prefs) {
-            proto->prefs = pref;
-        } else {
-            eth_pref_t* p;
-            for (p = proto->prefs; p->next; p = p->next) ;
-            p->next = pref;
-        }
-        
-        prefs_register_uint_preference(proto->prefs_module, abbr,name,
-                                       desc, base, &(pref->value.u));
-        
+    eth_pref_t* pref = g_malloc(sizeof(eth_pref_t));
+    pref->name = abbr;
+    pref->type = PREF_UINT;
+    pref->value.u = def;
+    pref->next = NULL;
+    
+    if (! proto->prefs_module)
+        proto->prefs_module = prefs_register_protocol(proto->hfid, NULL);
+    
+    if (! proto->prefs) {
+        proto->prefs = pref;
     } else {
-        luaL_error(L,"missing a mandatory parameter");
+        eth_pref_t* p;
+        for (p = proto->prefs; p->next; p = p->next) ;
+        p->next = pref;
     }
+    
+    prefs_register_uint_preference(proto->prefs_module, abbr,name,
+                                   desc, base, &(pref->value.u));
     
     return 0;
 }
@@ -744,31 +847,26 @@ static int Proto_add_bool_pref(lua_State* L) {
     gchar* name = g_strdup(luaL_optstring (L, 4, ""));
     gchar* desc = g_strdup(luaL_optstring (L, 5, ""));
     
-    if (proto && abbr) {
-        eth_pref_t* pref = g_malloc(sizeof(eth_pref_t));
-        pref->name = abbr;
-        pref->type = PREF_BOOL;
-        pref->value.b = def;
-        pref->next = NULL;
-        
-        if (! proto->prefs_module)
-            proto->prefs_module = prefs_register_protocol(proto->hfid, NULL);
-        
-        if (! proto->prefs) {
-            proto->prefs = pref;
-        } else {
-            eth_pref_t* p;
-            for (p = proto->prefs; p->next; p = p->next) ;
-            p->next = pref;
-        }
-        
-        prefs_register_bool_preference(proto->prefs_module, abbr,name,
-                                       desc, &(pref->value.b));
-        
+    eth_pref_t* pref = g_malloc(sizeof(eth_pref_t));
+    pref->name = abbr;
+    pref->type = PREF_BOOL;
+    pref->value.b = def;
+    pref->next = NULL;
+    
+    if (! proto->prefs_module)
+        proto->prefs_module = prefs_register_protocol(proto->hfid, NULL);
+    
+    if (! proto->prefs) {
+        proto->prefs = pref;
     } else {
-        luaL_error(L,"missing a mandatory parameter");
+        eth_pref_t* p;
+        for (p = proto->prefs; p->next; p = p->next) ;
+        p->next = pref;
     }
     
+    prefs_register_bool_preference(proto->prefs_module, abbr,name,
+                                   desc, &(pref->value.b));
+        
     return 0;
 }
 
@@ -779,30 +877,26 @@ static int Proto_add_string_pref(lua_State* L) {
     gchar* name = g_strdup(luaL_optstring (L, 4, ""));
     gchar* desc = g_strdup(luaL_optstring (L, 5, ""));
     
-    if (proto && abbr) {
-        eth_pref_t* pref = g_malloc(sizeof(eth_pref_t));
-        pref->name = abbr;
-        pref->type = PREF_STRING;
-        pref->value.s = def;
-        pref->next = NULL;
-        
-        if (! proto->prefs_module)
-            proto->prefs_module = prefs_register_protocol(proto->hfid, NULL);
-        
-        if (! proto->prefs) {
-            proto->prefs = pref;
-        } else {
-            eth_pref_t* p;
-            for (p = proto->prefs; p->next; p = p->next) ;
-            p->next = pref;
-        }
-        
-        prefs_register_string_preference(proto->prefs_module, abbr,name,
-                                         desc, &(pref->value.s));
-        
+    eth_pref_t* pref = g_malloc(sizeof(eth_pref_t));
+    pref->name = abbr;
+    pref->type = PREF_STRING;
+    pref->value.s = def;
+    pref->next = NULL;
+    
+    if (! proto->prefs_module)
+        proto->prefs_module = prefs_register_protocol(proto->hfid, NULL);
+    
+    if (! proto->prefs) {
+        proto->prefs = pref;
     } else {
-        luaL_error(L,"missing a mandatory parameter");
+        eth_pref_t* p;
+        for (p = proto->prefs; p->next; p = p->next) ;
+        p->next = pref;
     }
+    
+    prefs_register_string_preference(proto->prefs_module, abbr,name,
+                                     desc, &(pref->value.s));
+        
     
     return 0;
 }
@@ -810,9 +904,15 @@ static int Proto_add_string_pref(lua_State* L) {
 
 static int Proto_get_pref(lua_State* L) {
     Proto proto = checkProto(L,1);
-    gchar* abbr = g_strdup(luaL_checkstring(L,2));
+    const gchar* abbr = luaL_checkstring(L,2);
+
+    if (!proto) {
+        luaL_argerror(L,1,"not a good proto");
+        return 0;
+    }
     
-    if (! proto || ! abbr) {
+    if (!abbr) {
+        luaL_argerror(L,2,"not a good abbrev");
         return 0;
     }
     
@@ -835,60 +935,19 @@ static int Proto_get_pref(lua_State* L) {
             }
         }
         
-        luaL_error(L,"no such preference");
+        luaL_argerror(L,2,"no such preference for this protocol");
         return 0;
         
     } else {
-        luaL_error(L,"no preferences");
+        luaL_error(L,"no preferences set for this protocol");
         return 0;
     }
 }
 
-
-static int Proto_set_pref(lua_State* L) {
-    Proto proto = checkProto(L,1);
-    gchar* abbr = g_strdup(luaL_checkstring(L,2));
-    
-    if (! proto || ! abbr) {
-        return 0;
-    }
-    
-    if (proto->prefs) {
-        eth_pref_t* p;
-        for (p = proto->prefs; p; p = p->next) {
-            if (g_str_equal(p->name,abbr)) {
-                switch(p->type) {
-                    case PREF_BOOL:
-                        if (lua_isnumber(L, 3)) {
-                            p->value.b  = lua_toboolean(L, 3);
-                        } else {
-                            p->value.b = TRUE;
-                        }
-                        break;
-                    case PREF_UINT:
-                        p->value.u = (guint32)luaL_checkint(L, 3);
-                        break;
-                    case PREF_STRING:
-                        g_free((void*)p->value.s);
-                        p->value.s = lua_isstring(L, 3) ? g_strdup(lua_tostring(L,3)): g_strdup("");
-                        break;
-                }
-                return 0;
-            }
-        }
-        
-        luaL_error(L,"no such preference");
-        return 0;
-        
-    } else {
-        luaL_error(L,"no preferences");
-        return 0;
-    }
-}
 
 static int Proto_tostring(lua_State* L) { 
     Proto proto = checkProto(L,1);
-    gchar* s = g_strdup_printf("a Proto: %s",proto->name);
+    gchar* s = g_strdup_printf("Proto: %s",proto->name);
     lua_pushstring(L,s);
     g_free(s);
     
@@ -902,7 +961,6 @@ static const luaL_reg Proto_methods[] = {
     {"add_bool_pref",   Proto_add_bool_pref},
     {"add_string_pref",   Proto_add_string_pref},
     {"get_pref",   Proto_get_pref},
-    {"set_pref",   Proto_set_pref},
     {0,0}
 };
 
@@ -928,18 +986,291 @@ static int Proto_register(lua_State* L) {
 }
 
 
+LUA_CLASS_OPS(ByteArray,BYTE_ARRAY,if (! *p) luaL_argerror(L,index,"null bytearray"));
+
+static int ByteArray_new(lua_State* L) {
+    GByteArray* ba = g_byte_array_new();
+
+    if (lua_gettop(L) == 1) {
+        const gchar* s = luaL_checkstring(L,1);
+        
+        if (!s) {
+            luaL_argerror(L,1,"not a string");
+            return 0;
+        }
+        
+        /* XXX: slow! */
+        int nibble[2];
+        int i = 0;
+        gchar c;
+        
+        for (; (c = *s); s++) {
+            switch(c) {
+                case '0': case '1': case '2': case '3': case '4': case '5' : case '6' : case '7': case '8' : case '9' :
+                    nibble[(i++)%2] = c - '0';
+                    break;
+                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f' :
+                    nibble[(i++)%2] = c - 'a' + 0xa;
+                    break;
+                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F' :
+                    nibble[(i++)%2] = c - 'A' + 0xa;
+                    break;
+                default:
+                    break;
+            }
+
+            if ( i == 2 ) {
+                guint8 b = (guint8)(nibble[0] * 16 + nibble[1]);
+                g_byte_array_append(ba,&b,1);
+                i = 0;
+            }
+        }
+    } 
+    
+    pushByteArray(L,ba);
+
+    return 1;
+}
+
+static int ByteArray_gc(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+
+    if (!ba) return 0;
+    
+    g_byte_array_free(ba,TRUE);
+    return 0;
+}
+
+static int ByteArray_append(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    
+    if (luaL_checkudata (L, 2, BYTE_ARRAY)) {
+        ByteArray ba2 = checkByteArray(L,2);
+        g_byte_array_append(ba,ba2->data,ba2->len);
+    } else if (( lua_gettop(L) == 2 )) {
+        int i = luaL_checkint(L,2);
+        guint8 d;
+        
+        if (i < 0 || i > 255) {
+            luaL_error(L,"Byte out of range");
+            return 0;
+        }
+        
+        d = (guint8)i;
+        g_byte_array_append(ba,&d,1);
+    } else {
+        luaL_error(L,"ByteArray:append takes two arguments");
+    }
+    return 0;
+}
+
+static int ByteArray_preppend(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    
+    if (!ba) return 0;
+    
+    if (luaL_checkudata (L, 2, BYTE_ARRAY)) {
+        ByteArray ba2 = checkByteArray(L,2);
+        g_byte_array_prepend(ba,ba2->data,ba2->len);
+    } else if (( lua_gettop(L) == 2 )) {
+        int i = luaL_checkint(L,2);
+        guint8 d;
+        
+        if (i < 0 || i > 255) luaL_error(L,"Byte out of range");
+        
+        d = (guint8)i;
+        g_byte_array_prepend(ba,&d,1);
+    } else {
+        luaL_error(L,"ByteArray:preppend takes two arguments");
+    }
+    return 0;
+}
+
+static int ByteArray_set_size(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    int siz = luaL_checkint(L,2);
+
+    if (!ba) return 0;
+
+    g_byte_array_set_size(ba,siz);
+    return 0;
+}
+
+static int ByteArray_set_index(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    int idx = luaL_checkint(L,2);
+    int v = luaL_checkint(L,3);
+    
+    if (!ba) return 0;
+
+    if (idx < 0 || (guint)idx >= ba->len) {
+            luaL_argerror(L,2,"index out of range");
+            return 0;
+    }
+    
+    if (v < 0 || v > 255) {
+        luaL_argerror(L,3,"Byte out of range");
+        return 0;
+    }
+    
+    ba->data[idx] = (guint8)v;
+    
+    return 0;
+}
+
+
+static int ByteArray_get_index(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    int idx = luaL_checkint(L,2);
+    
+    if (!ba) return 0;
+
+    if (idx < 0 || (guint)idx >= ba->len) {
+        luaL_argerror(L,2,"index out of range");
+        return 0;
+    }
+    
+    lua_pushnumber(L,(lua_Number)ba->data[idx]);
+    
+    return 1;
+}
+
+static int ByteArray_len(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    
+    if (!ba) return 0;
+    
+    lua_pushnumber(L,(lua_Number)ba->len);
+
+    return 1;
+}
+
+static int ByteArray_subset(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    int offset = luaL_checkint(L,2);
+    int len = luaL_checkint(L,3);
+    ByteArray ret;
+    guint i;
+    
+    if (!ba) return 0;
+    
+    if ((offset + len) > (int)ba->len) {
+        luaL_error(L,"out of bounds");
+        return 0;
+    }
+    
+    ret = g_byte_array_sized_new(len);
+    
+    for ( i=0 ; i < ba->len ; i++) {
+        (ret->data)[i] =  (ba->data)[offset+i];
+    }
+    
+    pushByteArray(L,ba);
+    return 1;
+}
+
+static int ByteArray_tostring(lua_State* L) {
+    static const gchar* byte_to_str[] = {
+        "00","01","02","03","04","05","06","07","08","09","0A","0B","0C","0D","0E","0F",
+        "10","11","12","13","14","15","16","17","18","19","1A","1B","1C","1D","1E","1F",
+        "20","21","22","23","24","25","26","27","28","29","2A","2B","2C","2D","2E","2F",
+        "30","31","32","33","34","35","36","37","38","39","3A","3B","3C","3D","3E","3F",
+        "40","41","42","43","44","45","46","47","48","49","4A","4B","4C","4D","4E","4F",
+        "50","51","52","53","54","55","56","57","58","59","5A","5B","5C","5D","5E","5F",
+        "60","61","62","63","64","65","66","67","68","69","6A","6B","6C","6D","6E","6F",
+        "70","71","72","73","74","75","76","77","78","79","7A","7B","7C","7D","7E","7F",
+        "80","81","82","83","84","85","86","87","88","89","8A","8B","8C","8D","8E","8F",
+        "90","91","92","93","94","95","96","97","98","99","9A","9B","9C","9D","9E","9F",
+        "A0","A1","A2","A3","A4","A5","A6","A7","A8","A9","AA","AB","AC","AD","AE","AF",
+        "B0","B1","B2","B3","B4","B5","B6","B7","B8","B9","BA","BB","BC","BD","BE","BF",
+        "C0","C1","C2","C3","C4","C5","C6","C7","C8","C9","CA","CB","CC","CD","CE","CF",
+        "D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","DA","DB","DC","DD","DE","DF",
+        "E0","E1","E2","E3","E4","E5","E6","E7","E8","E9","EA","EB","EC","ED","EE","EF",
+        "F0","F1","F2","F3","F4","F5","F6","F7","F8","F9","FA","FB","FC","FD","FE","FF"
+    };
+    ByteArray ba = checkByteArray(L,1);
+    int i;
+    GString* s;
+    
+    if (!ba) return 0;
+    
+    s = g_string_new("ByteArray");
+    
+    g_string_sprintfa(s,"(%u): ",ba->len);
+    
+    for (i = 0; i < (int)ba->len; i++) {
+        g_string_append(s,byte_to_str[(ba->data)[i]]);
+    }
+    
+    lua_pushstring(L,s->str);
+    g_string_free(s,TRUE);
+    
+    return 1;
+}
+
+static const luaL_reg ByteArray_methods[] = {
+    {"new",           ByteArray_new},
+    {"get_index", ByteArray_get_index},
+    {"len", ByteArray_len},
+    {"preppend", ByteArray_preppend},
+    {"append", ByteArray_append},
+    {"subset", ByteArray_subset},
+    {"set", ByteArray_set_index},
+    {"set_size", ByteArray_set_size},
+    {0,0}
+};
+
+static const luaL_reg ByteArray_meta[] = {
+    {"__gc",       ByteArray_gc},
+    {"__tostring", ByteArray_tostring},
+    {"__concat", ByteArray_append},
+    {0, 0}
+};
+
+static int ByteArray_register(lua_State* L) {
+    luaL_openlib(L, BYTE_ARRAY, ByteArray_methods, 0);
+    luaL_newmetatable(L, BYTE_ARRAY);
+    luaL_openlib(L, 0, ByteArray_meta, 0);
+    lua_pushliteral(L, "__index");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pushliteral(L, "__metatable");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pop(L, 1);
+    
+    return 1;
+};
+
 
 /*
  * Tvb class
  */
 
-
 LUA_CLASS_OPS(Tvb,TVB,if (! *p) luaL_error(L,"null tvb"));
 
 static int Tvb_new (lua_State *L) {
-    int len = luaL_optint(L, 3, -1);
-    pushTvb(L, tvb_new_subset( checkTvb(L,1),luaL_optint(L, 2, 0),len, len) );
-    return 1;
+    ByteArray ba;
+
+    if (!g_pinfo) {
+        /* XXX: for now tvb should only be used in the frame that created */
+        luaL_error(L,"Tvb can only be used in dissectors");
+        return 0;
+    }
+        
+    if (( luaL_checkudata(L,1,BYTE_ARRAY) )) {
+        ba = toByteArray(L,1);
+        const gchar* name = luaL_optstring(L,2,"Unnamed") ;
+        /* XXX: what if the BA gets garbage collected? */
+        Tvb tvb = tvb_new_real_data(ba->data, ba->len,ba->len);
+        add_new_data_source(g_pinfo, tvb, name);
+        pushTvb(L,tvb);
+        return 1;
+    } else {
+        int len = luaL_optint(L, 3, -1);
+        pushTvb(L, tvb_new_subset( checkTvb(L,1),luaL_optint(L, 2, 0),len, len) );
+        return 1;
+    }
 }
 
 
@@ -949,6 +1280,8 @@ static int Tvb_new (lua_State *L) {
 #define DEFINE_TVBGET(type,len)  static int TVBGET_FN(type) (lua_State *L) { \
     tvbuff_t* tvb = checkTvb(L,1); \
     int offset = luaL_checkint(L,2); \
+    if (!tvb) return 0; \
+    if (!g_pinfo) { luaL_error(L,"Tvb can only be used in dissectors"); return 0; } \
     if (tvb_offset_exists(tvb, offset+len)) { \
         lua_pushnumber(L, (lua_Number) tvb_get_ ## type(tvb,offset)); \
         return 1; \
@@ -972,20 +1305,89 @@ DEFINE_TVBGET(letohl,3);
 DEFINE_TVBGET(letohieee_float,4);
 DEFINE_TVBGET(letohieee_double,8);
 
+static int Tvb_get_bytearray(lua_State* L) {
+    Tvb tvb = checkTvb(L,1);
+    int offset = 0;
+    int o_len;
+    int len;
+    ByteArray ba;
+    
+    if (!tvb) return 0;
+    
+    o_len = tvb_length(tvb);
+    len = o_len;
+    
+    if (!g_pinfo) {
+        luaL_error(L,"Tvb can only be used in dissectors");
+        return 0;
+    }
+    
+    
+    switch( lua_gettop(L) ) {
+        case 3:
+            offset = luaL_checkint(L,2);
+            len = luaL_checkint(L,3);
+            break;
+        case 2:
+            offset = luaL_checkint(L,2);
+            len -= offset;
+            break;
+        case 1:
+            break;
+        default:
+            luaL_error(L,"too many arguments");
+            return 0;
+    }
+    
+    if (len <  1 || offset+len > o_len) {
+        luaL_error(L,"off bounds");
+        return 0;
+        
+    }
+    
+    ba = g_byte_array_new();
+    g_byte_array_append(ba,ep_tvb_memdup(tvb,offset,len),len);
+    
+    pushByteArray(L,ba);
+    
+    return 1;
+}
 
 static int Tvb_get_stringz(lua_State* L) {
-    lua_pushstring(L,(gchar*)tvb_get_ephemeral_stringz(checkTvb(L,1),luaL_checkint(L,2),NULL));
+    Tvb tvb = checkTvb(L,1);
+    
+    if (!tvb) return 0;
+    
+    if (!g_pinfo) {
+        luaL_error(L,"Tvb can only be used in dissectors");
+        return 0;
+    }
+    
+    lua_pushstring(L,(gchar*)tvb_get_ephemeral_stringz(tvb,luaL_checkint(L,2),NULL));
     return 1;
 }
 
 static int Tvb_get_string(lua_State* L) {
-    lua_pushstring(L,(gchar*)tvb_get_ephemeral_string(checkTvb(L,1),luaL_checkint(L,2),luaL_checkint(L,3)));
+    Tvb tvb = checkTvb(L,1);
+    
+    if (!tvb) return 0;
+
+    if (!g_pinfo) {
+        luaL_error(L,"Tvb can only be used in dissectors");
+        return 0;
+    }
+    
+    lua_pushstring(L,(gchar*)tvb_get_ephemeral_string(tvb,luaL_checkint(L,2),luaL_checkint(L,3)));
    return 1;
 }
 
 static int Tvb_tostring(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
-    int len = tvb_length(tvb);
+    int len;
+    
+    if (!tvb) return 0;
+
+    len = tvb_length(tvb);
     gchar* str = g_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb,0,len));
     lua_pushstring(L,str);
     return 1;
@@ -995,6 +1397,14 @@ static int Tvb_tostring(lua_State* L) {
 
 static int Tvb_len(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
+
+    if (!tvb) return 0;
+    
+    if (!g_pinfo) {
+        luaL_error(L,"Tvb can only be used in dissectors");
+        return 0;
+    }
+    
     lua_pushnumber(L,tvb_length(tvb));
     return 1;
 }
@@ -1016,6 +1426,7 @@ static const luaL_reg Tvb_methods[] = {
     {"get_letohdouble", TVBGET_FN(letohieee_double)},
     {"get_stringz", Tvb_get_stringz },
     {"get_string", Tvb_get_string },
+    {"get_bytearray",Tvb_get_bytearray},
     {"len", Tvb_len},
     {0,0}
 };
@@ -1099,6 +1510,7 @@ static const struct col_names_t colnames[] = {
     {NULL,0}
 };
 
+#if 0
 static gint col_name_to_id(const gchar* name) {
     const struct col_names_t* cn;    
     for(cn = colnames; cn->name; cn++) {
@@ -1109,6 +1521,7 @@ static gint col_name_to_id(const gchar* name) {
     
     return 0;
 }
+#endif
 
 static const gchar*  col_id_to_name(gint id) {
     const struct col_names_t* cn;    
@@ -1124,15 +1537,24 @@ LUA_CLASS_OPS(Column,COLUMN,if (! *p) luaL_error(L,"null column"));
 
 static int Column_tostring(lua_State *L) {
     Column c = checkColumn(L,1);
-    const gchar* name = col_id_to_name(c->col);
+    const gchar* name;
+    
+    if (!c) return 0;
+
+    name = col_id_to_name(c->col);
+    
     lua_pushstring(L,name ? name : "Unknown Column");
     return 1;
 }
 
 static int Column_clear(lua_State *L) {
     Column c = checkColumn(L,1);
+    
+    if (!c) return 0;
+    
     if (check_col(c->cinfo, c->col))
         col_clear(c->cinfo, c->col);
+    
     return 0;
 }
 
@@ -1140,6 +1562,8 @@ static int Column_set(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
+    if (!c) return 0;
+
     if (check_col(c->cinfo, c->col))
         col_set_str(c->cinfo, c->col, s);
     
@@ -1150,6 +1574,8 @@ static int Column_append(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
+    if (!(c && s)) return 0;
+    
     if (check_col(c->cinfo, c->col))
         col_append_str(c->cinfo, c->col, s);
     
@@ -1159,6 +1585,8 @@ static int Column_preppend(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
+    if (!(c && s)) return 0;
+    
     if (check_col(c->cinfo, c->col))
         col_prepend_fstr(c->cinfo, c->col, "%s",s);
     
@@ -1167,6 +1595,7 @@ static int Column_preppend(lua_State *L) {
 
 static int Column_gc(lua_State *L) {
     Column c = checkColumn(L,1);
+    if (!c) return 0;
     g_free(c);
     return 0;
 }
@@ -1203,7 +1632,7 @@ static int Column_register(lua_State *L) {
     
     for(cn = colnames; cn->name; cn++) {
         lua_pushstring(L, cn->name);
-        lua_pushstring(L, cn->name);
+        lua_pushnumber(L,(lua_Number)cn->id);
         lua_settable(L, LUA_GLOBALSINDEX);
     }
 
@@ -1214,8 +1643,19 @@ static int Column_register(lua_State *L) {
 LUA_CLASS_OPS(Pinfo,PINFO,if (! *p) luaL_error(L,"null pinfo"));
 static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 
-#define PINFO_GET_NUMBER(name,val) static int name(lua_State *L) {  Pinfo pinfo = checkPinfo(L,1); lua_pushnumber(L,(lua_Number)(val)); return 1; }
-#define PINFO_GET_STRING(name,val) static int name(lua_State *L) {  Pinfo pinfo = checkPinfo(L,1); if (val) lua_pushstring(L,(const char*)(val)); else lua_pushnil(L); return 1; }
+#define PINFO_GET_NUMBER(name,val) static int name(lua_State *L) {  \
+    Pinfo pinfo = checkPinfo(L,1); \
+    if (!pinfo) return 0;\
+    lua_pushnumber(L,(lua_Number)(val));\
+    return 1;\
+}
+
+#define PINFO_GET_STRING(name,val) static int name(lua_State *L) { \
+    Pinfo pinfo = checkPinfo(L,1); \
+    if (!pinfo) return 0; \
+    if (val) lua_pushstring(L,(const char*)(val)); else lua_pushnil(L); \
+    return 1; \
+}
 
 PINFO_GET_NUMBER(Pinfo_number,pinfo->fd->num);
 PINFO_GET_NUMBER(Pinfo_len,pinfo->fd->pkt_len);
@@ -1241,10 +1681,14 @@ PINFO_GET_STRING(Pinfo_curr_proto,pinfo->current_proto);
 
 static int Pinfo_column(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-    Column c = g_malloc(sizeof(*c));
+    Column c;
+    
+    if (!pinfo) return 0;
+    
+    c = g_malloc(sizeof(*c));
     
     c->cinfo = pinfo->cinfo;
-    c->col = col_name_to_id(luaL_checkstring(L,2));
+    c->col = luaL_checkint(L,2);
     
     pushColumn(L,c);
     return 1;
@@ -1308,7 +1752,7 @@ static int Tree_add_item_any(lua_State *L, gboolean little_endian) {
      tree,tvb,text
      */
     Tree tree = checkTree(L,1);
-    Field field;
+    ProtoField field;
     Item item;
     Tvb tvb;
     int offset;
@@ -1332,14 +1776,14 @@ static int Tree_add_item_any(lua_State *L, gboolean little_endian) {
             len = 0;
             str = lua_tostring(L,3);
         } else {
-            luaL_error(L,"First arg must be either TVB or Field");
+            luaL_error(L,"First arg must be either TVB or ProtoField");
             return 0;
         }
         
         item = proto_tree_add_text(tree,tvb,offset,len,"%s",str);
         
-    } else if (( luaL_checkudata (L, 2, FIELD) )) {
-        field = checkField(L,2);
+    } else if (( luaL_checkudata (L, 2, PROTO_FIELD) )) {
+        field = checkProtoField(L,2);
         tvb = checkTvb(L,3);
         offset = luaL_checkint(L,4);
         len = luaL_checkint(L,5);
@@ -1387,7 +1831,7 @@ static int Tree_add_item_any(lua_State *L, gboolean little_endian) {
             item = proto_tree_add_item(tree,field->hfid,tvb,offset,len,little_endian);
         }
     } else {
-        luaL_error(L,"First arg must be either TVB or Field");
+        luaL_error(L,"First arg must be either TVB or ProtoField");
         return 0;
     }
     
@@ -1400,7 +1844,7 @@ static int Tree_add_item_le(lua_State *L) { return Tree_add_item_any(L,TRUE); }
 
 static int Tree_tostring(lua_State *L) {
     Tree tree = checkTree(L,1);
-    lua_pushstring(L,ep_strdup_printf("a Tree %p",tree));
+    lua_pushstring(L,ep_strdup_printf("Tree %p",tree));
     return 1;
 }
 
@@ -1449,22 +1893,24 @@ static int Tree_register(lua_State* L) {
 /* Item class */
 static int Item_tostring(lua_State *L) {
     Item item = checkItem(L,1);
-    lua_pushstring(L,ep_strdup_printf("an Item %p",item));
+    lua_pushstring(L,ep_strdup_printf("Item %p",item));
     return 1;
 }
 
 static int Item_add_subtree(lua_State *L) {
     Item item = checkItem(L,1);
     Ett ett;
+    Tree tree = NULL;
     
-    if (!item) {
-        pushTree(L,NULL);
-        return 1;
+    if (item) {
+        ett = checkEtt(L,2);
+        
+        if (ett && *ett >= 0) {
+            tree = proto_item_add_subtree(item,*ett);
+        } else {
+            luaL_argerror(L,2,"bad ett");
+        }
     }
-    
-    ett = checkEtt(L,2);
-    
-    Tree tree = proto_item_add_subtree(item,*ett);
     
     pushTree(L,tree);
     return 1;
@@ -1634,24 +2080,31 @@ LUA_CLASS_OPS(Dissector,DISSECTOR,NOP);
 
 static int Dissector_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,1);
-    Dissector d = find_dissector(name);
+    Dissector d;
     
-    if (d) {
+    if (!name) {
+        return 0;
+    }
+    
+    if ((d = find_dissector(name))) {
         pushDissector(L, d);
         return 1;
     } else {
-        luaL_error(L,"No such dissector");
+        luaL_argerror(L,1,"No such dissector");
         return 0;
     }
     
 }
-
 
 static int Dissector_call(lua_State* L) {
     Dissector d = checkDissector(L,1);
     Tvb tvb = checkTvb(L,2);
     Pinfo pinfo = checkPinfo(L,3);
     Tree tree = checkTree(L,4);
+
+    if (!d) return 0;
+    if (!tvb) return 0;
+    if (!pinfo) return 0;
     
     call_dissector(d, tvb, pinfo, tree);
     return 0;
@@ -1660,6 +2113,7 @@ static int Dissector_call(lua_State* L) {
 
 static int Dissector_tostring(lua_State* L) {
     Dissector d = checkDissector(L,1);
+    if (!d) return 0;
     lua_pushstring(L,dissector_handle_get_short_name(d));
     return 1;
 }
@@ -1703,14 +2157,21 @@ static int Dissector_register(lua_State* L) {
 LUA_CLASS_OPS(DissectorTable,DISSECTOR_TABLE,NOP);
 
 static int DissectorTable_new (lua_State *L) {
-    gchar* name = g_strdup(luaL_checkstring(L,1));
-    gchar* ui_name = g_strdup(luaL_optstring(L,2,name));
-    enum ftenum type = get_ftenum(luaL_optstring(L,3,"FT_UINT32"));
-    int base = luaL_optint(L,3,10);
+    gchar* name = (void*)luaL_checkstring(L,1);
+    gchar* ui_name = (void*)luaL_optstring(L,2,name);
+    const gchar* ftstr = luaL_optstring(L,3,"FT_UINT32");
+    enum ftenum type;
+    base_display_e base = luaL_optint(L,3,BASE_DEC);
+    
+    if(!(name && ui_name && ftstr)) return 0;
+    
+    name = g_strdup(name);
+    ui_name = g_strdup(ui_name);
+    type = get_ftenum(ftstr);
     
     switch(type) {
         case FT_STRING:
-            base = 0;
+            base = BASE_NONE;
         case FT_UINT32:
         {
             DissectorTable dt = g_malloc(sizeof(struct _eth_distbl_t));
@@ -1721,7 +2182,7 @@ static int DissectorTable_new (lua_State *L) {
         }
             return 1;
         default:
-            luaL_error(L,"Invalid ft_type");
+            luaL_argerror(L,3,"Invalid ft_type");
             return 0;
     }
     
@@ -1729,7 +2190,11 @@ static int DissectorTable_new (lua_State *L) {
 
 static int DissectorTable_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,1);
-    dissector_table_t table = find_dissector_table(name);
+    dissector_table_t table;
+
+    if(!name) return 0;
+    
+    table = find_dissector_table(name);
         
     if (table) {
         DissectorTable dt = g_malloc(sizeof(struct _eth_distbl_t));
@@ -1750,8 +2215,12 @@ static int DissectorTable_get (lua_State *L) {
 static int DissectorTable_add (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
     Proto p = checkProto(L,3);
-    ftenum_t type = get_dissector_table_selector_type(dt->name);
+    ftenum_t type;
+    
+    if (!(dt && p)) return 0;
 
+    type = get_dissector_table_selector_type(dt->name);
+        
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,2));
         dissector_add_string(dt->name, pattern,p->handle);
@@ -1769,10 +2238,17 @@ static int DissectorTable_try (lua_State *L) {
     Tvb tvb = checkTvb(L,3);
     Pinfo pinfo = checkPinfo(L,4);
     Tree tree = checkTree(L,5);
-    ftenum_t type = get_dissector_table_selector_type(dt->name);
+    ftenum_t type;
+    
+    if (! (dt && tvb && pinfo && tree) ) return 0;
+    
+    type = get_dissector_table_selector_type(dt->name);
 
     if (type == FT_STRING) {
         const gchar* pattern = luaL_checkstring(L,2);
+        
+        if (!pattern) return 0;
+        
         if (dissector_try_string(dt->table,pattern,tvb,pinfo,tree))
             return 0;
     } else if ( type == FT_UINT32 ) {
@@ -1787,11 +2263,14 @@ static int DissectorTable_try (lua_State *L) {
     return 0;
 }
 
-
 static int DissectorTable_get_dissector (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
-    ftenum_t type = get_dissector_table_selector_type(dt->name);
+    ftenum_t type;
     dissector_handle_t handle = data_handle;
+    
+    if (!dt) return 0;
+    
+    type = get_dissector_table_selector_type(dt->name);
     
     if (type == FT_STRING) {
         const gchar* pattern = luaL_checkstring(L,2);
@@ -1810,8 +2289,13 @@ static int DissectorTable_get_dissector (lua_State *L) {
 
 static int DissectorTable_tostring(lua_State* L) {
     DissectorTable dt = checkDissectorTable(L,1);
-    GString* s = g_string_new("DissectorTable ");
-    ftenum_t type =  get_dissector_table_selector_type(dt->name);
+    GString* s;
+    ftenum_t type;
+    
+    if (!dt) return 0;
+    
+    type =  get_dissector_table_selector_type(dt->name);
+    s = g_string_new("DissectorTable ");
     
     switch(type) {
         case FT_STRING:
@@ -1832,7 +2316,6 @@ static int DissectorTable_tostring(lua_State* L) {
     lua_pushstring(L,s->str);
     g_string_free(s,TRUE);
     return 1;
-
 }
 
 static const luaL_reg DissectorTable_methods[] = {
@@ -1867,6 +2350,264 @@ static int DissectorTable_register(lua_State* L) {
 
 
 
+
+LUA_CLASS_OPS(Interesting,INTERESTING,NOP);
+
+static int Interesting_get (lua_State *L) {
+    const gchar* name = luaL_checkstring(L,1);
+    Interesting i;
+    
+    if (!name) return 0;
+    
+    i = proto_registrar_get_byname(name);
+    
+    if (!i) {
+        luaL_error(L,"Could not find field `%s'",name);
+        return 0;
+    }
+    
+    pushInteresting(L,i);
+    return 1;
+}    
+
+static int Interesting_fetch (lua_State* L) {
+    Interesting in = checkInteresting(L,1);
+    int items_found = 0;
+    
+    for (;in;in = in->same_name_next) {
+        GPtrArray* found = proto_find_finfo(g_tree, in->id);
+        guint i;
+        
+        for (i=0; i<found->len; i++) {
+            field_info* fi = g_ptr_array_index(found,i);
+            switch(fi->hfinfo->type) {
+                case FT_UINT8:
+                case FT_UINT16:
+                case FT_UINT24:
+                case FT_UINT32:
+                case FT_FRAMENUM:
+                case FT_INT8:
+                case FT_INT16:
+                case FT_INT24:
+                case FT_INT32:
+                    lua_pushnumber(L,(lua_Number)fvalue_get_integer(&(fi->value)));
+                    items_found++;
+                    break;
+                case FT_FLOAT:
+                case FT_DOUBLE:
+                    lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->value)));
+                    items_found++;
+                    break;
+                case FT_UINT64:
+                case FT_INT64:
+                    /* XXX: get them as strings for now */
+                case FT_STRING:
+                case FT_STRINGZ:
+                case FT_ETHER:
+                case FT_BYTES:
+                case FT_UINT_BYTES:
+                case FT_IPv4:
+                case FT_IPv6:
+                case FT_IPXNET:
+                case FT_GUID:
+                case FT_OID:
+                    lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+                    items_found++;
+                    break;
+                default:
+                    luaL_error(L,"FT_ not yet supported");
+                    return items_found;
+            }
+        }
+    }
+    
+    return items_found;
+
+}
+
+static int Interesting_tostring (lua_State* L) {
+    Interesting in = checkInteresting(L,1);
+    
+    lua_pushfstring(L,"Interesting: %s",in->abbrev);
+    return 1;
+}
+
+static const luaL_reg Interesting_methods[] = {
+    {"get", Interesting_get},
+    {"fetch", Interesting_fetch },
+    {0,0}
+};
+
+static const luaL_reg Interesting_meta[] = {
+    {"__gc",       No_gc},
+    {"__tostring", Interesting_tostring},
+    {0, 0}
+};
+
+static int Interesting_register(lua_State* L) {
+    luaL_openlib(L, INTERESTING, Interesting_methods, 0);
+    luaL_newmetatable(L, INTERESTING);
+    luaL_openlib(L, 0, Interesting_meta, 0);
+    lua_pushliteral(L, "__index");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pushliteral(L, "__metatable");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pop(L, 1);
+    
+    return 1;
+};
+
+LUA_CLASS_OPS(Tap,TAP,NOP);
+
+static int Tap_new(lua_State* L) {
+    const gchar* name = luaL_checkstring(L,1);
+    Tap tap;
+    
+    if (!tap) return 0;
+    
+    tap = g_malloc(sizeof(struct _eth_tap));
+    
+    tap->name = g_strdup(name);
+    tap->interesting_fields = g_ptr_array_new();
+    tap->filter = NULL;
+    
+    pushTap(L,tap);
+    return 1;
+}
+
+static int Tap_add(lua_State* L) {
+    Tap tap = checkTap(L,1);
+    Interesting in = checkInteresting(L,2);
+    
+    if (!(tap && in)) return 0;
+    
+    g_ptr_array_add(tap->interesting_fields,in);
+    
+    return 0;
+}
+
+static int Tap_tostring(lua_State* L) {
+    Tap tap = checkTap(L,1);
+    gchar* str;
+    
+    if (!tap) return 0;
+    
+    str = g_strdup_printf("Tap->%s filter: %s",tap->name, tap->filter ? tap->filter : "NONE");
+    lua_pushstring(L,str);
+    g_free(str);
+    
+    return 1;
+}
+
+static int Tap_set_filter(lua_State* L) {
+    Tap tap = checkTap(L,1);
+    const gchar* filter = luaL_checkstring(L,2);
+    
+    if (!(tap && filter)) return 0;
+    
+    if (tap->filter) {
+        luaL_error(L,"tap has filter already");
+        return 0;
+    }
+
+    tap->filter = g_strdup(filter);
+    
+    return 0;
+}
+
+static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_) {
+    Tap tap = tapdata;
+    
+    lua_pushstring(L, "_ethereal_pinfo");
+    pushPinfo(L, pinfo);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    g_tree = edt->tree;
+    
+    lua_dostring(L,ep_strdup_printf("taps.%s(_ethereal_pinfo);",tap->name));
+}
+
+static void lua_tap_reset(void *tapdata) {
+    Tap tap = tapdata;
+    lua_dostring(L,ep_strdup_printf("tap_resets.%s();",tap->name));
+}
+
+static void lua_tap_draw(void *tapdata) {
+    Tap tap = tapdata;
+    lua_dostring(L,ep_strdup_printf("tap_draws.%s();",tap->name));
+}
+
+static int Tap_register_to_ethereal(lua_State*L) {
+    Tap tap = checkTap(L,1);
+    GString* filter_s;
+    GString* error;
+    GPtrArray* ins;
+    guint i;
+
+    if (!tap) return 0;
+    
+    if (tap->registered) {
+        luaL_error(L,"tap already registered");
+        return 0;
+    }
+    
+    tap->registered = TRUE;
+    
+    filter_s = g_string_new("");
+    g_string_sprintfa(filter_s,"( %s ) && frame ",tap->filter);
+    g_free(tap->filter);
+
+    ins = tap->interesting_fields;
+
+    for (i=0; i < ins->len; i++) {
+        Interesting in = g_ptr_array_index(ins,i);
+        g_string_sprintfa(filter_s," ||%s",in->abbrev);
+    }
+
+    tap->filter = filter_s->str;
+    g_string_free(filter_s,FALSE);
+
+    error = register_tap_listener(tap->name, tap, tap->filter, lua_tap_reset, lua_tap_packet, lua_tap_draw);
+
+    if (error) {
+        luaL_error(L,"tap registration error: %s",error);
+        g_string_free(error,TRUE);
+    }
+    
+    return 0;
+}
+
+static const luaL_reg Tap_methods[] = {
+    {"new", Tap_new},
+    {"add", Tap_add},
+    {"set_filter", Tap_set_filter},
+    {"register", Tap_register_to_ethereal},
+    {0,0}
+};
+
+static const luaL_reg Tap_meta[] = {
+    {"__gc",       No_gc},
+    {"__tostring", Tap_tostring},
+    {0, 0}
+};
+
+static int Tap_register(lua_State* L) {
+    luaL_openlib(L, TAP, Tap_methods, 0);
+    luaL_newmetatable(L, TAP);
+    luaL_openlib(L, 0, Tap_meta, 0);
+    lua_pushliteral(L, "__index");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pushliteral(L, "__metatable");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pop(L, 1);
+    
+    return 1;
+};
+
 /* ethereal uses lua */
 
 static void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
@@ -1883,8 +2624,11 @@ static void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     pushTree(L, tree);
     lua_settable(L, LUA_GLOBALSINDEX);
     
+    g_pinfo = pinfo;
+    
     lua_dostring(L,ep_strdup_printf("dissectors.%s(_ethereal_tvb,_ethereal_pinfo,_ethereal_tree);",pinfo->current_proto));
     
+    g_pinfo = NULL;
 }
 
 static void init_lua(void) {
@@ -1908,13 +2652,14 @@ static const char *getF(lua_State *L _U_, void *ud, size_t *size)
     return (*size>0) ? buff : NULL;
 }
 
-static void functions_defined_but_unused(void) {
+extern void lua_functions_defined_but_unused(void) {
     toValueString(L,1);
-    toField(L,1);
-    toFieldArray(L,1);
+    toProtoField(L,1);
+    toProtoFieldArray(L,1);
     toEtt(L,1);
     toEttArray(L,1);
     toProto(L,1);
+    toByteArray(L,1);
     toTvb(L,1);
     toColumn(L,1);
     toPinfo(L,1);
@@ -1922,12 +2667,20 @@ static void functions_defined_but_unused(void) {
     toItem(L,1);
     toDissector(L,1);
     toDissectorTable(L,1);
+    toInteresting(L,1);
+    toTap(L,1);
 }
 
 void proto_register_lua(void)
 {
     FILE* file;
     gchar* filename = getenv("ETHEREAL_LUA_INIT");
+    
+    /* TODO: 
+        disable if not running with the right credentials
+        
+        if (euid == 0 && euid != ruid) return;
+    */
     
     if (!filename) filename = get_persconffile_path("init.lua", FALSE);
 
@@ -1943,10 +2696,11 @@ void proto_register_lua(void)
     luaopen_io(L);
     luaopen_string(L);
     ValueString_register(L);
-    Field_register(L);
-    FieldArray_register(L);
+    ProtoField_register(L);
+    ProtoFieldArray_register(L);
     Ett_register(L);
     EttArray_register(L);
+    ByteArray_register(L);
     Tvb_register(L);
     Proto_register(L);
     Column_register(L);
@@ -1955,7 +2709,8 @@ void proto_register_lua(void)
     Item_register(L);
     Dissector_register(L);
     DissectorTable_register(L);
-    
+    Interesting_register(L);
+    Tap_register(L);
     lua_pushstring(L, "handoff_routines");
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
@@ -1965,6 +2720,18 @@ void proto_register_lua(void)
     lua_settable(L, LUA_GLOBALSINDEX);
     
     lua_pushstring(L, "dissectors");
+    lua_newtable (L);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "taps");
+    lua_newtable (L);
+    lua_settable(L, LUA_GLOBALSINDEX);
+
+    lua_pushstring(L, "tap_resets");
+    lua_newtable (L);
+    lua_settable(L, LUA_GLOBALSINDEX);
+
+    lua_pushstring(L, "tap_draws");
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     

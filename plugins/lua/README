@@ -1,18 +1,103 @@
-Starts to work so I check it in.
-
 This is an interface to the Lua programming language.
 
 http://www.lua.org
 
-I've already wrote a simple dissector that calls another dissectors.
-
-soon It will be able to register a tap and do something more.
-
-I did not checkin changes to the Makefiles so in order to use it you must change the
-makefiles.
-
-Other than that to get it to work you need to download lua-5.0.2.tar.gz into the plugin
+To get it to work you need to download lua-5.0.2.tar.gz into the plugin
 directory, uncompress it, cd to it and call make.
 
-the interface is buggy and far from finished, time will help on this.
+The interface is buggy and far from finished, time will help on this.
 
+Interface:
+
+
+ValueString -- a class to manage value_strings
+  .new() -- create a new empty Valuetring
+  :add(val,str) -- add a value-string pair to a ValueString
+  :match(val) -- a wrapper arroud val_to_str()
+
+ProtoField -- a class that represents registration info of fields.
+  .new(name,fieldname,FT_,value_str*,BASE_*,desc*) 
+     -- declare a field (both the hfid and the registration info)
+
+ProtoFieldArr -- a class that represents the field_array of a protocol.
+  .new()  -- creates an empty field array to start with
+  :add(field,field*,...) -- adds fields to the array
+
+SubTreeType -- a class to represent an ett
+ :new() -- create an ett
+
+SubTreeTypeArr -- a class that represents the ett array for a protocol
+  .new(subtree*,...) -- creates an array
+  :add(subtree*,...) -- adds Etts to the array
+  :register() -- registers the ett array with ethereal
+
+Proto -- a class that represents protocol info in ethereal
+ .new(name,filter_name,descr) -- creates and registers a new protocol
+ :register_field_array(field_array) -- registers a field array as this protocol's
+ :add_uint_pref(abbr,...) -- adds an uint preference to this protocol
+ :add_bool_pref(abbr,...) -- adds a string preference to this protocol
+ :add_string_pref(abbr,...) -- adds an bool preference to this protocol
+ :get_pref(abbr) -- fetches the value of a preference
+
+DissectorTable -- a class to intreface to dissector tables
+ .new(name,ui_name,type,opt_base) -- create a dissector table for others to register
+ .get(name) -- obtain a reference to another's dissector table
+ :add(pattern,proto) -- add a protocol to a table (*)
+ :try(pattern,tvb,pinfo,tree) -- try to invoke a dissector through a table
+
+Dissector -- a class that represent another dissector
+ .get(name) -- wraps find_dissector
+ :call(tvb,pinfo,tree) -- calls a dissector
+
+ByteArray -- a class to manage byte arrays
+ .new()
+ .new(string) -- like "00 01 22 2a" or "0129374AF5D"
+ :get_index(idx) -- gets the value of the idx byte from the array
+ :len() -- the length of the array
+ 
+ 
+Tvb -- a class that represents a tvb
+ .new(tvb,opt_offset,opt_len) -- creates a subset tvb
+ :get_* -- wrappers to tvb_get_* functions
+
+Pinfo -- a class that represents a packet_info structure
+ :number -- the frame number
+ :len -- the frame len
+ :caplen -- the frame capture len
+ :abs_ts -- absolute timestamp a floating number (s + ns/10^9)
+ :rel_ts -- relative timestamp
+ :delta_ts -- delta
+ :visited -- pinfo->fd->flags.visited
+ :src_address -- so far a string representing the address
+ :dst_address -- we need an adress class!
+ :dl_src
+ :dl_dst
+ :net_src
+ :net_dst
+ :ipproto
+ :circuit_id
+ :ptype
+ :match_port
+ :match_string
+ :curr_proto
+ :col -- colifo = pinfo:col(COL_INFO)
+
+Column -- a class that represents a column
+  :clear
+  :set
+  :append
+  :prepend
+
+Tree -- a class that represents a proto_tree
+ :add_item -- overeloaded to accept many types of items, stil incomplete
+ :add_item_le -- same thing but little_endian
+ :get_parent -- yields the parent Item
+
+Item -- a class that represents a proto_item
+ :add_subtree
+ :set_text
+ :append_text
+ :set_len
+ :set_expert_flags
+ :set_generated
+ :set_hidden
