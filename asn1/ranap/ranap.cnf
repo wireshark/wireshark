@@ -37,6 +37,10 @@ VAL_PTR = &ProcedureCode
  
 VAL_PTR = &ProtocolIE_ID
 
+#.FN_PARS ProtocolExtensionID
+
+VAL_PTR = &ProtocolIE_ID
+
 #.FN_BODY Value
 	
 	offset = dissect_ranap_messages(tvb, offset, pinfo, tree);

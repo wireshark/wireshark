@@ -969,6 +969,7 @@ static const value_string A5_2_algorithm_sup_vals[] = {
 	{ 2,		"IMEI"},
 	{ 3,		"IMEISV"},
 	{ 4,		"TMSI/P-TMSI"},
+	{ 5,		"TMGI and optional MBMS Session Identity"}, /* ETSI TS 124 008 V6.8.0 (2005-03) p326 */
 	{ 0,		"No Identity"},
 	{ 0,	NULL }
 };
@@ -3596,8 +3597,10 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	break;
 
     default:	/* Reserved */
+	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+ 	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_text(tree, tvb, curr_offset, len,
-	    "Format Unknown");
+	    "Mobile station identity Format %u, Format Unknown",(oct & 0x07));
 
 	if (add_string)
 	    g_snprintf(add_string, string_len, " - Format Unknown");
@@ -16914,7 +16917,8 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     
     ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SRVC_TYPE );
     
-    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_MID );
+	/* P-TMSI Mobile station identity 10.5.1.4 M LV 6 */
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MID, "");
     
     ELEM_OPT_TLV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_PDP_CONTEXT_STAT , "" );
 

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-ranap.c                                                           */
+/* .\packet-ranap.c                                                           */
 /* ../../tools/asn2eth.py -X -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
 
 /* Input file: packet-ranap-template.c */
@@ -977,7 +977,7 @@ static int dissect_secondCriticality(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int
 dissect_ranap_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 41 "ranap.cnf"
+#line 45 "ranap.cnf"
 	
 	offset = dissect_ranap_messages(tvb, offset, pinfo, tree);
 
@@ -1269,7 +1269,7 @@ static int dissect_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static int
 dissect_ranap_RANAP_PROTOCOL_IES_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 45 "ranap.cnf"
+#line 49 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
 
@@ -1334,7 +1334,7 @@ static int dissect_ProtocolIE_ContainerList250_item(tvbuff_t *tvb, int offset, p
 static int
 dissect_ranap_ProtocolExtensionID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0U, 65535U, NULL, NULL, FALSE);
+                                              0U, 65535U, &ProtocolIE_ID, NULL, FALSE);
 
   return offset;
 }
@@ -1346,7 +1346,7 @@ static int dissect_ext_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_ranap_Extension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 68 "ranap.cnf"
+#line 72 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
 
@@ -1904,7 +1904,7 @@ static int dissect_private_id(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 dissect_ranap_RANAP_PRIVATE_IES_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 72 "ranap.cnf"
+#line 76 "ranap.cnf"
 /* FIX ME */
 
 
@@ -4559,7 +4559,7 @@ static int dissect_id_DRX_CycleLengthCoefficient(tvbuff_t *tvb, int offset, pack
 
 static int
 dissect_ranap_NAS_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 53 "ranap.cnf"
+#line 57 "ranap.cnf"
 
 tvbuff_t *nas_pdu_tvb=NULL;
 
@@ -7645,8 +7645,8 @@ static int dissect_pre_emptionVulnerability(tvbuff_t *tvb, int offset, packet_in
 
 
 static const value_string ranap_QueuingAllowed_vals[] = {
-  {   0, "queuing-not-allowed" },
-  {   1, "queuing-allowed" },
+  {   0, "queueing-not-allowed" },
+  {   1, "queueing-allowed" },
   { 0, NULL }
 };
 
@@ -8183,7 +8183,7 @@ static int dissect_id_RAB_SetupOrModifiedList(tvbuff_t *tvb, int offset, packet_
 
 static int
 dissect_ranap_FirstValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 65 "ranap.cnf"
+#line 69 "ranap.cnf"
 	offset = dissect_ranap_FirstValue_ies(tvb, offset, pinfo, tree);
 
 
@@ -8198,7 +8198,7 @@ static int dissect_firstValue(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 dissect_ranap_SecondValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 62 "ranap.cnf"
+#line 66 "ranap.cnf"
 	offset = dissect_ranap_SecondValue_ies(tvb, offset, pinfo, tree);
 
 
