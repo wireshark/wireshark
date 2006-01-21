@@ -938,7 +938,6 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     length = sizeof(ushort_value);
     if (wpcap_packet_request(adapter, OID_GEN_DRIVER_VERSION, FALSE /* !set */, (char *) &ushort_value, &length)) {
-        g_assert(length == 2);
         g_snprintf(string_buff, DETAILS_STR_MAX, "%u.%u", ushort_value / 0x100, ushort_value % 0x100);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -947,7 +946,6 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     length = sizeof(uint_value);
     if (wpcap_packet_request(adapter, OID_GEN_VENDOR_DRIVER_VERSION, FALSE /* !set */, (char *) &uint_value, &length)) {
-        g_assert(length == 4);
         /* XXX - what's the correct output format? */
         g_snprintf(string_buff, DETAILS_STR_MAX, "%u.%u (Hex: %X.%X)", 
             (uint_value / 0x10000  ) % 0x10000,
