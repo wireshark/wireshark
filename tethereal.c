@@ -2043,6 +2043,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
+  fdata->color_filter = NULL;
 
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time

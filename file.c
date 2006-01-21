@@ -915,6 +915,7 @@ read_packet(capture_file *cf, long offset)
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
+  fdata->color_filter = NULL;
 
   fdata->abs_ts  = *((nstime_t *) &phdr->ts);
 

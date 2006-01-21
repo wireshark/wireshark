@@ -36,6 +36,9 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 
+#include "color.h"
+#include "color_filters.h"
+
 int proto_frame = -1;
 int hf_frame_arrival_time = -1;
 static int hf_frame_time_delta = -1;
@@ -49,6 +52,8 @@ static int hf_frame_marked = -1;
 static int hf_frame_ref_time = -1;
 static int hf_link_number = -1;
 static int hf_frame_protocols = -1;
+static int hf_frame_color_filter_name = -1;
+static int hf_frame_color_filter_text = -1;
 
 static int proto_short = -1;
 int proto_malformed = -1;
@@ -250,6 +255,16 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				  "File Offset: %ld (0x%lx)",
 				  pinfo->fd->file_off, pinfo->fd->file_off);
 	  }
+
+      if(pinfo->fd->color_filter != NULL) {
+          color_filter_t *color_filter = pinfo->fd->color_filter;
+	      item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
+		    0, 0, color_filter->filter_name);
+	      PROTO_ITEM_SET_GENERATED(item);
+	      item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
+		    0, 0, color_filter->filter_text);
+	      PROTO_ITEM_SET_GENERATED(item);
+      }
 	}
 
 	TRY {
@@ -426,7 +441,14 @@ proto_register_frame(void)
 		{ &hf_frame_protocols,
 		{ "Protocols in frame",	"frame.protocols", FT_STRING, 0, NULL, 0x0,
 			"Protocols carried by this frame", HFILL }},
-	};
+
+		{ &hf_frame_color_filter_name,
+		{ "Coloring Rule Name",	"frame.coloring_rule.name", FT_STRING, 0, NULL, 0x0,
+			"The frame matched the coloring rule with this name", HFILL }},
+		{ &hf_frame_color_filter_text,
+		{ "Coloring Rule String", "frame.coloring_rule.string", FT_STRING, 0, NULL, 0x0,
+			"The frame matched this coloring rule string", HFILL }},
+    };
 	static gint *ett[] = {
 		&ett_frame,
 	};
