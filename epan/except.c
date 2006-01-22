@@ -33,6 +33,13 @@
 #include <limits.h>
 #include "except.h"
 
+#ifdef _WIN32
+/* IsDebuggerPresent() needs this #define! */
+#define _WIN32_WINNT 0x0400
+#include <windows.h>
+#include "exceptions.h"
+#endif
+
 #define XCEPT_BUFFER_SIZE	1024
 
 #ifdef KAZLIB_RCSID
@@ -267,6 +274,12 @@ void except_throw(long group, long code, const char *msg)
     except.except_id.except_code = code;
     except.except_message = msg;
     except.except_dyndata = 0;
+
+#ifdef _WIN32
+    if (code == DissectorError && IsDebuggerPresent()) {
+        DebugBreak();
+    }
+#endif
 
     do_throw(&except);
 }
