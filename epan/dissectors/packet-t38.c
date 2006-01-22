@@ -1509,8 +1509,6 @@ force_reassmeble_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 {
 	fragment_key key;
 	fragment_data *fd_head;
-
-	fragment_data *fd;
 	fragment_data *fd_i;
 	fragment_data *last_fd;
 	guint32 dfpos, size, packet_lost, burst_lost, seq_num;
@@ -1999,7 +1997,6 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
-	int i;
 
 	/*
 	 * XXX - heuristic to check for misidentified packets.
@@ -2056,7 +2053,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	p_t38_conv = NULL;
 
 	/* Use existing packet info if available */
-    p_t38_packet_conv = p_get_proto_data(pinfo->fd, proto_t38);
+	 p_t38_packet_conv = p_get_proto_data(pinfo->fd, proto_t38);
 
 
 	/* find the conversation used for Reassemble and Setup Info */
@@ -2070,7 +2067,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      pinfo->ptype, pinfo->srcport, pinfo->destport, NO_ADDR_B | NO_PORT_B);
 
 		/* Set dissector */
-        conversation_set_dissector(p_conv, t38_udp_handle);
+		conversation_set_dissector(p_conv, t38_udp_handle);
 	}
 
 	if (!p_t38_packet_conv) {
@@ -2079,8 +2076,8 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* create the conversation if it doen't exist */
 		if (!p_t38_conv) {
 			p_t38_conv = se_alloc(sizeof(t38_conv));
-			p_t38_conv->setup_method[0] = NULL;
-	        p_t38_conv->setup_frame_number = 0;
+			p_t38_conv->setup_method[0] = '\0';
+			p_t38_conv->setup_frame_number = 0;
 
 			p_t38_conv->src_t38_info.reass_ID = 0;
 			p_t38_conv->src_t38_info.reass_start_seqnum = -1;
@@ -2104,7 +2101,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* copy the t38 conversation info to the packet t38 conversation */
 		p_t38_packet_conv = se_alloc(sizeof(t38_conv));
 		strcpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method);
-	    p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
+		p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
 
 		memcpy(&(p_t38_packet_conv->src_t38_info), &(p_t38_conv->src_t38_info), sizeof(t38_conv_info));
 		memcpy(&(p_t38_packet_conv->dst_t38_info), &(p_t38_conv->dst_t38_info), sizeof(t38_conv_info));
@@ -2120,8 +2117,8 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		p_t38_packet_conv_info = &(p_t38_packet_conv->dst_t38_info);
 	}
 
-    /* Show Conversation setup info if exists*/
-    if (global_t38_show_setup_info) {
+	/* Show Conversation setup info if exists*/
+	if (global_t38_show_setup_info) {
 		show_setup_info(tvb, pinfo, tr, p_conv, p_t38_packet_conv);
 	}
 
@@ -2155,7 +2152,6 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *tr;
 	guint32 offset=0;
 	guint16 ifp_packet_number=1;
-	int i;
 
 	/* tap info */
 	t38_info_current++;
