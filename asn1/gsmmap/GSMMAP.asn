@@ -2236,7 +2236,7 @@ CellGlobalIdOrServiceAreaIdOrLAI ::= CHOICE {
 	laiFixedLength							[1] IMPLICIT LAIFixedLength}
 
 CellGlobalIdOrServiceAreaIdFixedLength ::= OCTET STRING (SIZE (7))
--- Refers to Cell Global Identification or Service Are Identification
+-- Refers to Cell Global Identification or Service Area Identification
 -- defined in 3GPP TS 23.003.
 -- The internal structure is defined as follows:
 -- octet 1 bits 4321 Mobile Country Code 1st digit

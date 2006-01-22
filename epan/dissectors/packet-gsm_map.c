@@ -951,6 +951,8 @@ static gint ett_gsm_map_ReturnResult_result = -1;
 static gint ett_gsm_map_ReturnError_result = -1;
 static gint ett_gsm_map_GSMMAPPDU = -1;
 static gint ett_gsm_map_ext_qos_subscribed = -1;
+static gint ett_gsm_map_pdptypenumber = -1;
+static gint ett_gsm_map_RAIdentity = -1; 
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -1353,7 +1355,7 @@ static gint ett_gsm_map_SecureTransportErrorParam = -1;
 static gint ett_gsm_map_ExtensionContainer = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 125 "packet-gsm_map-template.c"
+#line 127 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
@@ -3071,6 +3073,8 @@ dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
+	proto_item *item;
+	proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -3078,17 +3082,21 @@ dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 	if (!parameter_tvb)
 		return offset;
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_gsm_map_pdptypenumber);
+
 	octet = tvb_get_guint8(parameter_tvb,0);
 	switch(octet){
 	case 0x04: /* IPv4 */
-		proto_tree_add_item(tree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
 		break;
 	case 0x50: /* IPv4 */
-		proto_tree_add_item(tree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
 		break;
 	default:
 		break;
-	}		
+	}
+
 
 
   return offset;
@@ -9181,8 +9189,23 @@ static int dissect_subscriberState(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 int
 dissect_gsm_map_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 517 "gsmmap.cnf"
+
+	tvbuff_t	*parameter_tvb;
+	proto_item *item;
+	proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+	 if (!parameter_tvb)
+		return offset;
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_gsm_map_RAIdentity);
+	de_gmm_rai(parameter_tvb, subtree, 0, 3, NULL,0);
+
+
 
   return offset;
 }
@@ -14399,7 +14422,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 343 "packet-gsm_map-template.c"
+#line 345 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -19171,7 +19194,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 1842 "packet-gsm_map-template.c"
+#line 1844 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -19185,6 +19208,9 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_ReturnError_result,
     &ett_gsm_map_GSMMAPPDU,
 	&ett_gsm_map_ext_qos_subscribed,
+	&ett_gsm_map_pdptypenumber,
+	&ett_gsm_map_RAIdentity,
+
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
 #line 1 "packet-gsm_map-ettarr.c"
@@ -19586,7 +19612,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 1856 "packet-gsm_map-template.c"
+#line 1861 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */

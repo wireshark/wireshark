@@ -85,6 +85,7 @@ static int hf_camel_PDPTypeNumber_etsi = -1;
 static int hf_camel_PDPTypeNumber_ietf = -1;
 static int hf_camel_PDPAddress_IPv4 = -1;
 static int hf_camel_PDPAddress_IPv6 = -1;
+static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
 #include "packet-camel-hf.c"
 static guint global_tcap_itu_ssn = 0;
 
@@ -720,6 +721,10 @@ void proto_register_camel(void) {
       { "PDPAddress IPv6",  "camel.PDPAddress_IPv6",
 	  FT_IPv4, BASE_NONE, NULL, 0,
 	  "IPAddress IPv6", HFILL }},
+    { &hf_camel_cellGlobalIdOrServiceAreaIdFixedLength,
+      { "CellGlobalIdOrServiceAreaIdFixedLength", "camel.CellGlobalIdOrServiceAreaIdFixedLength",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "LocationInformationGPRS/CellGlobalIdOrServiceAreaIdOrLAI", HFILL }},
 
 #ifdef REMOVED
 #endif

@@ -408,6 +408,24 @@ tvbuff_t	*parameter_tvb;
 
  }
 
+#.FN_BODY CellGlobalIdOrServiceAreaIdOrLAI 
+	proto_item *item;
+	proto_tree *subtree;
+	int start_offset;
+
+ start_offset = offset;
+%(DEFAULT_BODY)s
+
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+
+ if (tvb_reported_length_remaining(tvb,start_offset) == 7){
+	dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, start_offset, pinfo, subtree, hf_camel_cellGlobalIdOrServiceAreaIdFixedLength);
+ }else{
+	dissect_gsm_map_LAIFixedLength(TRUE, tvb, start_offset, pinfo, subtree, hf_camel_locationAreaId);
+ }			
+
+
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)

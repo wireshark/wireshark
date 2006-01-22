@@ -93,6 +93,7 @@ static int hf_camel_PDPTypeNumber_etsi = -1;
 static int hf_camel_PDPTypeNumber_ietf = -1;
 static int hf_camel_PDPAddress_IPv4 = -1;
 static int hf_camel_PDPAddress_IPv6 = -1;
+static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
 
 /*--- Included file: packet-camel-hf.c ---*/
 #line 1 "packet-camel-hf.c"
@@ -579,7 +580,7 @@ static int hf_camel_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP =
 static int hf_camel_OfferedCamel4Functionalities_serviceChangeDP = -1;
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 89 "packet-camel-template.c"
+#line 90 "packet-camel-template.c"
 static guint global_tcap_itu_ssn = 0;
 
 /* Initialize the subtree pointers */
@@ -807,7 +808,7 @@ static gint ett_camel_ResetTimerGPRSArg = -1;
 static gint ett_camel_CancelFailedPARAM = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 107 "packet-camel-template.c"
+#line 108 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -5454,8 +5455,27 @@ static int dissect_GPRSEventArray_item(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_CellGlobalIdOrServiceAreaIdOrLAI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 412 "camel.cnf"
+	proto_item *item;
+	proto_tree *subtree;
+	int start_offset;
+
+ start_offset = offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
+
+
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+
+ if (tvb_reported_length_remaining(tvb,start_offset) == 7){
+	dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, start_offset, pinfo, subtree, hf_camel_cellGlobalIdOrServiceAreaIdFixedLength);
+ }else{
+	dissect_gsm_map_LAIFixedLength(TRUE, tvb, start_offset, pinfo, subtree, hf_camel_locationAreaId);
+ }			
+
+
+
 
   return offset;
 }
@@ -7950,7 +7970,7 @@ dissect_camel_TaskRefusedPARAM(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 185 "packet-camel-template.c"
+#line 186 "packet-camel-template.c"
 
 const value_string camel_opr_code_strings[] = {
 
@@ -8489,6 +8509,10 @@ void proto_register_camel(void) {
       { "PDPAddress IPv6",  "camel.PDPAddress_IPv6",
 	  FT_IPv4, BASE_NONE, NULL, 0,
 	  "IPAddress IPv6", HFILL }},
+    { &hf_camel_cellGlobalIdOrServiceAreaIdFixedLength,
+      { "CellGlobalIdOrServiceAreaIdFixedLength", "camel.CellGlobalIdOrServiceAreaIdFixedLength",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "LocationInformationGPRS/CellGlobalIdOrServiceAreaIdOrLAI", HFILL }},
 
 #ifdef REMOVED
 #endif
@@ -10417,7 +10441,7 @@ void proto_register_camel(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 727 "packet-camel-template.c"
+#line 732 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10645,7 +10669,7 @@ void proto_register_camel(void) {
     &ett_camel_CancelFailedPARAM,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 745 "packet-camel-template.c"
+#line 750 "packet-camel-template.c"
   };
 
   /* Register protocol */

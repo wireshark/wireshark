@@ -1,6 +1,6 @@
 /* packet-ranap-template.c
  * Routines for Radio Access Network Application Part Protocol dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2006, Anders Broman <anders.broman@ericsson.com>
  * Based on the dissector by Martin Held <Martin.Held@icn.siemens.de>
  *
  * Ethereal - Network traffic analyzer

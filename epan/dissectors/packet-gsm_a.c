@@ -12,7 +12,7 @@
  *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
  *
  * Added Dissection of Radio Resource Management Information Elements
- * Copyright 2005, Anders Broman [AT] ericsson.com
+ * Copyright 2005 - 2006, Anders Broman [AT] ericsson.com
  *
  * Title		3GPP			Other
  *

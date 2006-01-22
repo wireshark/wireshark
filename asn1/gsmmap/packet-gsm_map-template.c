@@ -120,6 +120,8 @@ static gint ett_gsm_map_ReturnResult_result = -1;
 static gint ett_gsm_map_ReturnError_result = -1;
 static gint ett_gsm_map_GSMMAPPDU = -1;
 static gint ett_gsm_map_ext_qos_subscribed = -1;
+static gint ett_gsm_map_pdptypenumber = -1;
+static gint ett_gsm_map_RAIdentity = -1; 
 
 #include "packet-gsm_map-ett.c"
 
@@ -1852,6 +1854,9 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_ReturnError_result,
     &ett_gsm_map_GSMMAPPDU,
 	&ett_gsm_map_ext_qos_subscribed,
+	&ett_gsm_map_pdptypenumber,
+	&ett_gsm_map_RAIdentity,
+
 #include "packet-gsm_map-ettarr.c"
   };
 
