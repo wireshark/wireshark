@@ -267,9 +267,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       }
 	}
 
+    /* Portable Exception Handling to trap Ethereal specific exceptions like BoundsError exceptions */
 	TRY {
-		if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
-					tvb, pinfo, parent_tree)) {
+#ifdef _WIN32
+    /* WIN32 Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
+    /* (a running debugger will be called before the except part below) */
+    __try {
+#endif
+        if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
+            tvb, pinfo, parent_tree)) {
 
 			if (check_col(pinfo->cinfo, COL_PROTOCOL))
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
@@ -278,6 +284,24 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				    pinfo->fd->lnk_t);
 			call_dissector(data_handle,tvb, pinfo, parent_tree);
 		}
+#ifdef _WIN32
+    } __except(TRUE /* handle all exceptions */) {
+        switch(GetExceptionCode()) {
+        case(STATUS_ACCESS_VIOLATION):
+		    show_exception(tvb, pinfo, parent_tree, DissectorError, 
+                "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
+            break;
+        case(STATUS_INTEGER_DIVIDE_BY_ZERO):
+		    show_exception(tvb, pinfo, parent_tree, DissectorError,
+                "STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
+            break;
+        /* XXX - add other hardware exception codes as required */
+        default:
+		    show_exception(tvb, pinfo, parent_tree, DissectorError, 
+                g_strdup_printf("dissector caused an unknown exception: %u", GetExceptionCode()));
+        }
+    }
+#endif
 	}
 	CATCH_ALL {
 		show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
