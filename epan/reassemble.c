@@ -386,6 +386,7 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 	return fd_head;
 }
 
+/* id *must* be the frame number for this to work! */
 fragment_data *
 fragment_get_reassembled(packet_info *pinfo, guint32 id, GHashTable *reassembled_table)
 {
@@ -394,6 +395,20 @@ fragment_get_reassembled(packet_info *pinfo, guint32 id, GHashTable *reassembled
 
 	/* create key to search hash with */
 	key.frame = id;
+	key.id = id;
+	fd_head = g_hash_table_lookup(reassembled_table, &key);
+
+	return fd_head;
+}
+
+fragment_data *
+fragment_get_reassembled_id(packet_info *pinfo, guint32 id, GHashTable *reassembled_table)
+{
+	fragment_data *fd_head;
+	reassembled_key key;
+
+	/* create key to search hash with */
+	key.frame = pinfo->fd->num;
 	key.id = id;
 	fd_head = g_hash_table_lookup(reassembled_table, &key);
 
@@ -802,6 +817,12 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	fragment_data *fd_head;
 	fragment_data *fd_item;
 	gboolean already_added=pinfo->fd->flags.visited;
+
+
+    /* dissector shouldn't give us garbage tvb info */
+    if(!tvb_bytes_exist(tvb, offset, frag_data_len)) {
+        THROW(DissectorError);
+    }
 
 	/* create key to search hash with */
 	key.src = pinfo->src;

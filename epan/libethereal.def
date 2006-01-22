@@ -256,6 +256,7 @@ fragment_add_seq_check
 fragment_add_seq_next
 fragment_delete
 fragment_get
+fragment_get_reassembled_id
 fragment_get_tot_len
 fragment_set_partial_reassembly
 fragment_set_tot_len
@@ -496,6 +497,7 @@ proto_tree_add_uint64
 proto_tree_add_uint64_format
 proto_tree_children_foreach
 proto_tree_get_parent
+proto_tree_move_item
 p_add_proto_data
 p_get_proto_data
 q931_cause_code_vals           DATA
