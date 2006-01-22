@@ -332,8 +332,8 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	/* NetBIOS names are supposed to be exactly 16 bytes long. */
 	if (index != NETBIOS_NAME_LEN) {
 		/* It's not. */
-		g_snprintf(nbname, NBNAME_BUF_LEN, "Illegal NetBIOS name (%d bytes long)",
-		    index);
+		g_snprintf(nbname, NBNAME_BUF_LEN, "Illegal NetBIOS name (%lu bytes long)",
+		    (unsigned long)index);
 		goto bad;
 	}
 
