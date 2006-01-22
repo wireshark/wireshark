@@ -820,9 +820,7 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 
     /* dissector shouldn't give us garbage tvb info */
-    if(!tvb_bytes_exist(tvb, offset, frag_data_len)) {
-        THROW(DissectorError);
-    }
+    DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, frag_data_len));
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
