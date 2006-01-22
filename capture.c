@@ -217,7 +217,7 @@ guint32 drops)
   }
 
   /* if we didn't captured even a single packet, close the file again */
-  if(cf_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
+  if(cf_get_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
 "%sNo packets captured!%s\n"
 "\n"
@@ -327,9 +327,6 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 
          XXX - abort on a read error? */
          cf_callback_invoke(cf_cb_live_capture_update_continue, capture_opts->cf);
-
-         /* update the main window, so we get events (e.g. from the stop toolbar button) */
-         main_window_update();
       break;
 
     case CF_READ_ABORTED:
@@ -338,7 +335,16 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
       capture_kill_child(capture_opts);
       break;
     }
+  } else {
+    /* increase capture file packet counter by the number or incoming packets */
+    cf_set_packet_count(capture_opts->cf, 
+        cf_get_packet_count(capture_opts->cf) + to_read);
+
+    cf_callback_invoke(cf_cb_live_capture_fixed_continue, capture_opts->cf);
   }
+
+  /* update the main window, so we get events (e.g. from the stop toolbar button) */
+  main_window_update();
 
   if(capture_opts->show_info)
     capture_info_new_packets(to_read);
@@ -408,7 +414,7 @@ capture_input_closed(capture_options *capture_opts)
         switch (status) {
 
         case CF_READ_OK:
-            if(cf_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
+            if(cf_get_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
                 simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
 "%sNo packets captured!%s\n"
 "\n"

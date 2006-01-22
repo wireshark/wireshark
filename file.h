@@ -66,6 +66,7 @@ typedef enum {
     cf_cb_live_capture_update_continue,
     cf_cb_live_capture_update_finished,
     cf_cb_live_capture_fixed_started,
+    cf_cb_live_capture_fixed_continue,
     cf_cb_live_capture_fixed_finished,
 	cf_cb_live_capture_stopping,
 #endif
@@ -178,7 +179,15 @@ const gchar *cf_get_display_name(capture_file *cf);
  * @param cf the capture file
  * @return the number of packets in the capture file
  */
-int cf_packet_count(capture_file *cf);
+int cf_get_packet_count(capture_file *cf);
+
+/**
+ * Set the number of packets in the capture file.
+ * 
+ * @param cf the capture file
+ * @param the number of packets in the capture file
+ */
+void cf_set_packet_count(capture_file *cf, int packet_count);
 
 /**
  * Is this capture file a temporary file?

@@ -1608,12 +1608,28 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
         (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
-    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " <capturing>");
+    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " P: 0");
 
     g_free(capture_msg);
 
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
+}
+
+static void
+main_cf_cb_live_capture_fixed_continue(capture_file *cf)
+{
+    gchar *capture_msg;
+    
+
+	gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
+
+    capture_msg = g_strdup_printf(" P: %u", 
+        cf_get_packet_count(cf));
+
+    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, capture_msg);
+
+    g_free(capture_msg);
 }
 
 static void
@@ -1780,13 +1796,17 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 		/*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
         main_cf_cb_live_capture_update_continue(data);
         break;
+    case(cf_cb_live_capture_update_finished):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
+        main_cf_cb_live_capture_update_finished(data);
+        break;
     case(cf_cb_live_capture_fixed_started):
 		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
         main_cf_cb_live_capture_fixed_started(data);
         break;
-    case(cf_cb_live_capture_update_finished):
-		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
-        main_cf_cb_live_capture_update_finished(data);
+    case(cf_cb_live_capture_fixed_continue):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");
+        main_cf_cb_live_capture_fixed_continue(data);
         break;
     case(cf_cb_live_capture_fixed_finished):
 		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
