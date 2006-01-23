@@ -73,6 +73,7 @@ static int hf_chassis_id_ip4 = -1;
 static int hf_chassis_id_ip6 = -1;
 static int hf_port_id_subtype = -1;
 static int hf_port_id_mac = -1;
+static int hf_lldp_network_address_family = -1;
 static int hf_port_id_ip4 = -1;
 static int hf_port_id_ip6 = -1;
 static int hf_time_to_live = -1;
@@ -116,15 +117,15 @@ static gint ett_802_3_aggregation = -1;
 static gint ett_media_capabilities = -1;
 
 const value_string tlv_types[] = {
-	{ END_OF_LLDPDU_TLV_TYPE, 		"End of LLDPDU"},
-	{ CHASSIS_ID_TLV_TYPE,			"Chassis Id"},
-	{ PORT_ID_TLV_TYPE,			"Port Id"},
-	{ TIME_TO_LIVE_TLV_TYPE,		"Time to Live"},
+	{ END_OF_LLDPDU_TLV_TYPE, 			"End of LLDPDU"},
+	{ CHASSIS_ID_TLV_TYPE,				"Chassis Id"},
+	{ PORT_ID_TLV_TYPE,					"Port Id"},
+	{ TIME_TO_LIVE_TLV_TYPE,			"Time to Live"},
 	{ PORT_DESCRIPTION_TLV_TYPE,		"Port Description"},
-	{ SYSTEM_NAME_TLV_TYPE,			"System Name"},
+	{ SYSTEM_NAME_TLV_TYPE,				"System Name"},
 	{ SYSTEM_DESCRIPTION_TLV_TYPE,		"System Description"},
 	{ SYSTEM_CAPABILITIES_TLV_TYPE,		"System Capabilities"},
-	{ MANAGEMENT_ADDR_TLV_TYPE,		"Management Address"},
+	{ MANAGEMENT_ADDR_TLV_TYPE,			"Management Address"},
 	{ ORGANIZATION_SPECIFIC_TLV_TYPE,	"Organization Specific"},
 	{ 0, NULL} 
 };
@@ -152,6 +153,32 @@ const value_string port_id_subtypes[] = {
 	{ 7,	"Locally assigned"},
 	{ 0, NULL} 
 };
+
+#define IANA_ADDR_FAMILY_RESERVED	0	/* Reserved */
+#define IANA_ADDR_FAMILY_IP4		1	/* IP (IP version 4) */
+#define IANA_ADDR_FAMILY_IP6		2	/* IP6 (IP version 6) */
+#define IANA_ADDR_FAMILY_NSAP		3	/* NSAP */
+#define IANA_ADDR_FAMILY_HDLC		4	/* HDLC (8-bit multidrop) */
+#define IANA_ADDR_FAMILY_BBN1822	5	/* BBN 1822 */
+#define IANA_ADDR_FAMILY_802		6	/* 802 (includes all 802 media plus Ethernet "canonical format") */
+#define IANA_ADDR_FAMILY_E163		7	/* E.163 */
+#define IANA_ADDR_FAMILY_E164		8	/* E.164 (SMDS, Frame Relay, ATM) */
+#define IANA_ADDR_FAMILY_F69		9	/* F.69 (Telex) */
+#define IANA_ADDR_FAMILY_X121		10	/* X.121 (X.25, Frame Relay) */
+#define IANA_ADDR_FAMILY_IPX		11	/* IPX */
+#define IANA_ADDR_FAMILY_APPLETALK	12	/* Appletalk */
+#define IANA_ADDR_FAMILY_DECNET_IV	13	/* Decnet IV */
+#define IANA_ADDR_FAMILY_BANYON_VINES	14	/* Banyan Vines */
+#define IANA_ADDR_FAMILY_E164_NSAP	15	/* E.164 with NSAP format subaddress */
+#define IANA_ADDR_FAMILY_DNS		16	/* DNS (Domain Name System) */
+#define IANA_ADDR_FAMILY_DISTINGUISHED	17	/* Distinguished Name */
+#define IANA_ADDR_FAMILY_ASN		18	/* AS Number */
+#define IANA_ADDR_FAMILY_XTP_IP4	19	/* XTP over IP version 4 */
+#define IANA_ADDR_FAMILY_XTP_IP6	20	/* XTP over IP version 6 */
+#define IANA_ADDR_FAMILY_XTP		21	/* XTP native mode XTP */
+#define IANA_ADDR_FAMILY_FIBRE_PORT	22	/* Fibre Channel World-Wide Port Name */
+#define IANA_ADDR_FAMILY_FIBRE_NODE	23	/* Fibre Channel World-Wide Node Name */
+#define IANA_ADDR_FAMILY_GWID		24	/* GWID */
 
 const value_string management_addr_values[] = {
 	{ 0,	"Reserved"},
@@ -515,6 +542,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	const guint8 *mac_addr = NULL;
 	guint32 ip_addr;
 	struct e_in6_addr ip6_addr;
+	guint8 addr_family;
 	
 	proto_tree	*chassis_tree = NULL;
 	proto_item 	*tf = NULL;
@@ -571,23 +599,30 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	}
 	case 5:	/* Network address */
 	{
+		/* Get network address family */
+		addr_family = tvb_get_guint8(tvb,offset+3);
 		/* Check for IPv4 or IPv6 */
-		if (tempLen == 5)
-		{
-			ip_addr = tvb_get_ipv4(tvb, (offset+3));
-			strPtr = ip_to_str((guint8 *)&ip_addr);
-		}
-		else if  (tempLen == 17)
-		{
-			tvb_get_ipv6(tvb, (offset+3), &ip6_addr);
-			strPtr = ip6_to_str(&ip6_addr);
-		}
-		else
-		{
-			incorrectLen = 1; 	/* Invalid length */
+		switch(addr_family){
+		case IANA_ADDR_FAMILY_IP4:
+			if (tempLen == 6){
+				ip_addr = tvb_get_ipv4(tvb, (offset+4));
+				strPtr = ip_to_str((guint8 *)&ip_addr);
+			}else{
+				incorrectLen = 1; 	/* Invalid length */
+			}
+			break;
+		case IANA_ADDR_FAMILY_IP6:
+			if  (tempLen == 18){
+				tvb_get_ipv6(tvb, (offset+4), &ip6_addr);
+				strPtr = ip6_to_str(&ip6_addr);
+			}else{
+				incorrectLen = 1; 	/* Invalid length */
+			}
+			break;
+		default:
+			strPtr = tvb_bytes_to_str(tvb, (offset+4), (tempLen-2));
 			break;
 		}
-			
 		break;
 	}
 	case 2:	/* Interface alias */
@@ -670,10 +705,18 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			proto_tree_add_ether(chassis_tree, hf_chassis_id_mac, tvb, (offset+3), 6, mac_addr);
 			break;
 		case 5: /* Network address */
-			if (tempLen == 5)
-				proto_tree_add_ipv4(chassis_tree, hf_chassis_id_ip4, tvb, (offset+3), 4, ip_addr);
-			else
-				proto_tree_add_ipv6(chassis_tree, hf_chassis_id_ip6, tvb, (offset+3), 16, ip6_addr.bytes);
+			proto_tree_add_item(chassis_tree, hf_lldp_network_address_family, tvb, offset+3, 1, FALSE);
+			switch(addr_family){
+			case IANA_ADDR_FAMILY_IP4:
+				proto_tree_add_ipv4(chassis_tree, hf_chassis_id_ip4, tvb, (offset+4), 4, ip_addr);
+				break;
+			case IANA_ADDR_FAMILY_IP6:
+				proto_tree_add_ipv6(chassis_tree, hf_chassis_id_ip6, tvb, (offset+4), 16, ip6_addr.bytes);
+				break;
+			default:
+				proto_tree_add_text(chassis_tree, tvb, (offset+4), (tempLen-2), "Chassis Id: %s", strPtr);
+				break;
+			}
 			break;
 		case 2:	/* Interface alias */
 		case 6: /* Interface name */
@@ -701,6 +744,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	const guint8 *mac_addr = NULL;
 	guint32 ip_addr;
 	struct e_in6_addr ip6_addr;
+	guint8 addr_family = 0;
 	
 	proto_tree	*port_tree = NULL;
 	proto_item 	*tf = NULL;
@@ -730,20 +774,30 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	}
 	case 4:	/* Network address */
 	{
+		/* Get network address family */
+		addr_family = tvb_get_guint8(tvb,offset+3);
 		/* Check for IPv4 or IPv6 */
-		if (tempLen == 5)
-		{
-			ip_addr = tvb_get_ipv4(tvb, (offset+3));
-			strPtr = ip_to_str((guint8 *)&ip_addr);
+		switch(addr_family){
+		case IANA_ADDR_FAMILY_IP4:
+			if (tempLen == 6){
+				ip_addr = tvb_get_ipv4(tvb, (offset+4));
+				strPtr = ip_to_str((guint8 *)&ip_addr);
+			}else{
+				return -1;
+			}
+			break;
+		case IANA_ADDR_FAMILY_IP6:
+			if  (tempLen == 18){
+				tvb_get_ipv6(tvb, (offset+4), &ip6_addr);
+				strPtr = ip6_to_str(&ip6_addr);
+			}else{
+				return -1;	/* Invalid chassis id */
+			}
+			break;
+		default:
+			strPtr = tvb_bytes_to_str(tvb, (offset+4), (tempLen-2));
+			break;
 		}
-		else if  (tempLen == 17)
-		{
-			tvb_get_ipv6(tvb, (offset+3), &ip6_addr);
-			strPtr = ip6_to_str(&ip6_addr);
-		}
-		else
-			return -1;	/* Invalid chassis id */
-			
 		break;
 	}
 	default:
@@ -778,10 +832,23 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			proto_tree_add_ether(port_tree, hf_port_id_mac, tvb, (offset+3), 6, mac_addr);
 			break;
 		case 4: /* Network address */
-			if (tempLen == 5)
-				proto_tree_add_ipv4(port_tree, hf_port_id_ip4, tvb, (offset+3), 4, ip_addr);
-			else
-				proto_tree_add_ipv6(port_tree, hf_port_id_ip6, tvb, (offset+3), 16, ip6_addr.bytes);
+			/* Network address 
+			 * networkAddress is an octet string that identifies a particular network address family 
+			 * and an associated network address that are encoded in network octet order.
+ 			 */
+			/* Network address family */
+			proto_tree_add_item(port_tree, hf_lldp_network_address_family, tvb, offset+3, 1, FALSE);
+			switch(addr_family){
+			case IANA_ADDR_FAMILY_IP4:
+				proto_tree_add_ipv4(port_tree, hf_port_id_ip4, tvb, (offset+4), 4, ip_addr);
+				break;
+			case IANA_ADDR_FAMILY_IP6:
+				proto_tree_add_ipv6(port_tree, hf_port_id_ip6, tvb, (offset+4), 16, ip6_addr.bytes);
+				break;
+			default:
+				proto_tree_add_text(port_tree, tvb, (offset+4), (tempLen-2), "Port Id: %s", strPtr);
+				break;
+			}
 			break;
 		default:
 			proto_tree_add_text(port_tree, tvb, (offset+3), (tempLen-1), "Port Id: %s", strPtr);
@@ -2384,6 +2451,10 @@ proto_register_lldp(void)
 			{ "Port Id", "lldp.port.id.mac", FT_ETHER, BASE_NONE, 
 			NULL, 0, "", HFILL }
 		},
+		{ &hf_lldp_network_address_family,
+			{ "Network Address family", "lldp.network_address.subtype", FT_UINT8, BASE_DEC, 
+			VALS(management_addr_values), 0, "Network Address family", HFILL }
+		},
 		{ &hf_port_id_ip4,
 			{ "Port Id", "lldp.port.id.ip4", FT_IPv4, BASE_NONE, 
 			NULL, 0, "", HFILL }
@@ -2412,7 +2483,7 @@ proto_register_lldp(void)
 			{ "Object Identifier", "lldp.mgn.obj.id", FT_BYTES, BASE_HEX, 
 			NULL, 0, "", HFILL }
 		},
-		{ & hf_org_spc_oui,
+		{ &hf_org_spc_oui,
 			{ "Organization Unique Code",	"lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
 	   		VALS(tlv_oui_subtype_vals), 0x0, "", HFILL }
 		},
