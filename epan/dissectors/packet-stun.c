@@ -60,7 +60,8 @@ static int stun_att_error_class = -1;
 static int stun_att_error_number = -1;
 static int stun_att_error_reason = -1;
 static int stun_att_server_string = -1;
-static int stun_att_xor_ip = -1;
+static int stun_att_xor_ipv4 = -1;
+static int stun_att_xor_ipv6 = -1;
 static int stun_att_xor_port = -1;
 static int stun_att_lifetime = -1;
 static int stun_att_magic_cookie = -1;
@@ -82,7 +83,7 @@ static int stun_att_data = -1;
 #define SEND_REQUEST			0x0004
 #define SEND_RESPONSE			0x0104
 #define SEND_ERROR_RESPONSE		0x0114
-#define DATA_INDICATION			0x0005
+#define DATA_INDICATION			0x0115
 #define SET_ACTIVE_DESTINATION_REQUEST	0x0006
 #define SET_ACTIVE_DESTINATION_RESPONSE	0x0106
 #define SET_ACTIVE_DESTINATION_ERROR_RESPONSE	0x0116
@@ -293,9 +294,19 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (att_length < 4)
 						break;
 					proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, FALSE);
-					if (att_length < 8)
-						break;
-					proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, FALSE);
+					switch( tvb_get_guint8(tvb, offset+1) ){
+						case 1:
+							if (att_length < 8)
+								break;
+							proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, FALSE);
+							break;
+
+						case 2:
+							if (att_length < 20)
+								break;
+							proto_tree_add_item(att_tree, stun_att_ipv6, tvb, offset+4, 16, FALSE);
+							break;
+						}
 					break;
 					
 				case CHANGE_REQUEST:
@@ -369,7 +380,19 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(att_tree, stun_att_xor_port, tvb, offset+2, 2, FALSE);
 					if (att_length < 8)
 						break;
-					proto_tree_add_item(att_tree, stun_att_xor_ip, tvb, offset+4, 4, FALSE);
+					switch( tvb_get_guint8(tvb, offset+1) ){
+						case 1:
+							if (att_length < 8)
+								break;
+							proto_tree_add_item(att_tree, stun_att_xor_ipv4, tvb, offset+4, 4, FALSE);
+							break;
+
+						case 2:
+							if (att_length < 20)
+								break;
+							proto_tree_add_item(att_tree, stun_att_xor_ipv6, tvb, offset+4, 16, FALSE);
+							break;
+						}
 					break;
 
 				case REQUESTED_ADDRESS_TYPE:
@@ -475,8 +498,12 @@ proto_register_stun(void)
 			{ "Error Reason Phase","stun.att.error.reason",	FT_STRING,
 			BASE_NONE, 	NULL,	0x0,	"",	HFILL}
 		},
-		{ &stun_att_xor_ip,
-			{ "IP (XOR-d)",		"stun.att.ip-xord",	FT_IPv4,
+		{ &stun_att_xor_ipv4,
+			{ "IP (XOR-d)",		"stun.att.ipv4-xord",	FT_IPv4,
+			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_xor_ipv6,
+			{ "IP (XOR-d)",		"stun.att.ipv6-xord",	FT_IPv6,
 			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
 		},
 		{ &stun_att_xor_port,
