@@ -1636,56 +1636,67 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			pinfo->fragmented = TRUE;
 
-			frag_msg = fragment_add_seq(tvb, offset, pinfo,
-				p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
-				data_fragment_table, /* list of message fragments */
-				seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum,  /* fragment sequence number */
-				/*0,*/
-				0, /* fragment length */
-				FALSE); /* More fragments */
+			/* if reass_start_seqnum=-1 it means we have received the end of the fragmente, without received any fragment data */
+			if (p_t38_packet_conv_info->reass_start_seqnum != -1) {
+				frag_msg = fragment_add_seq(tvb, offset, pinfo,
+					p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
+					data_fragment_table, /* list of message fragments */
+					seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum,  /* fragment sequence number */
+					/*0,*/
+					0, /* fragment length */
+					FALSE); /* More fragments */
+				if ( Data_Field_field_type_value == 7 ) {
+					/* if there was packet lost or other errors during the defrag then frag_msg is NULL. This could also means
+					 * there are out of order packets (e.g, got the tail frame t4-non-ecm-sig-end before the last fragment), 
+					 * but we will assume there was packet lost instead, which is more usual. So, we are going to reassemble the packet
+					 * and get some stat, like packet lost and burst number of packet lost
+					*/
+					if (!frag_msg) {
+						force_reassmeble_seq(tvb, offset, pinfo,
+							p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
+							data_fragment_table, /* list of message fragments */
+							seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum);  /* fragment sequence number */
+					} else {
+						if (check_col(pinfo->cinfo, COL_INFO))
+							col_append_str(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");	
+						
+						g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
+					}
 
-			if ( Data_Field_field_type_value == 7 ) {
-				/* if there was packet lost or other errors during the defrag then frag_msg is NULL. This could also means
-				 * there are out of order packets (e.g, got the tail frame t4-non-ecm-sig-end before the last fragment), 
-				 * but we will assume there was packet lost instead, which is more usual. So, we are going to reassemble the packet
-				 * and get some stat, like packet lost and burst number of packet lost
-				*/
-				if (!frag_msg) {
-					force_reassmeble_seq(tvb, offset, pinfo,
-						p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
-						data_fragment_table, /* list of message fragments */
-						seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum);  /* fragment sequence number */
-				} else {
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_str(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");	
 					
-					g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
-				}
+					if (p_t38_packet_conv_info->packet_lost) {
+						g_snprintf(t38_info->desc_comment, MAX_T38_DESC, " Pack lost: %d, Pack burst lost: %d", p_t38_packet_conv_info->packet_lost, p_t38_packet_conv_info->burst_lost);
+					} else {
+						g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
+					}
 
-				
-				if (p_t38_packet_conv_info->packet_lost) {
-					g_snprintf(t38_info->desc_comment, MAX_T38_DESC, " Pack lost: %d, Pack burst lost: %d", p_t38_packet_conv_info->packet_lost, p_t38_packet_conv_info->burst_lost);
+					new_tvb = process_reassembled_data(tvb, offset, pinfo,
+								"Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+
+					/* Now reset fragmentation information in pinfo */
+					pinfo->fragmented = save_fragmented;
+
+					t38_info->time_first_t4_data = p_t38_packet_conv_info->time_first_t4_data; 
+					t38_info->frame_num_first_t4_data = p_t38_packet_conv_info->reass_ID; /* The reass_ID is the Frame number of the first t4 fragment */
+
 				} else {
-					g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
+					new_tvb = process_reassembled_data(tvb, offset, pinfo,
+								"Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+
+					/* Now reset fragmentation information in pinfo */
+					pinfo->fragmented = save_fragmented;
+
+					if (new_tvb) dissect_t30_hdlc(new_tvb, 0, pinfo, tree); 
 				}
-
-				new_tvb = process_reassembled_data(tvb, offset, pinfo,
-							"Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
-
-				/* Now reset fragmentation information in pinfo */
-				pinfo->fragmented = save_fragmented;
-
-				t38_info->time_first_t4_data = p_t38_packet_conv_info->time_first_t4_data; 
-				t38_info->frame_num_first_t4_data = p_t38_packet_conv_info->reass_ID; /* The reass_ID is the Frame number of the first t4 fragment */
-
 			} else {
-				new_tvb = process_reassembled_data(tvb, offset, pinfo,
-							"Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
-
-				/* Now reset fragmentation information in pinfo */
+				if(tree){
+					proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+						"[RECEIVED END OF FRAGMENT W/OUT ANY FRAGMENT DATA]");
+				}
+				if (check_col(pinfo->cinfo, COL_INFO)){
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed?]");
+				}
 				pinfo->fragmented = save_fragmented;
-
-				if (new_tvb) dissect_t30_hdlc(new_tvb, 0, pinfo, tree); 
 			}
 		}
 
@@ -1989,26 +2000,10 @@ dissect_t38_UDPTLPacket(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
     return offset;
 }
 
-/* Entry point for dissection */
+/* initialize the tap t38_info and the conversation */
 static void
-dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+init_t38_info_conv(packet_info *pinfo)
 {
-	guint8 octet1;
-	proto_item *it;
-	proto_tree *tr;
-	guint32 offset=0;
-
-	/*
-	 * XXX - heuristic to check for misidentified packets.
-	 */
-	if(dissect_possible_rtpv2_packets_as_rtp){
-		octet1 = tvb_get_guint8( tvb, offset );
-		if(RTP_VERSION(octet1) == 2){
-			call_dissector(rtp_handle,tvb,pinfo,tree);
-			return;
-		}
-	}
-
 	/* tap info */
 	t38_info_current++;
 	if (t38_info_current==MAX_T38_MESSAGES_IN_PACKET) {
@@ -2027,21 +2022,6 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	t38_info->time_first_t4_data = 0;
 	t38_info->frame_num_first_t4_data = 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
-	}
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
-
-	primary_part = TRUE;
-
-	/* This indicate the item number in the primary part of the T38 message, it is used for the reassemble of T30 packets */
-	Data_Field_item_num = 0;
-
-	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, -1,
-	    "ITU-T Recommendation T.38");
-	tr=proto_item_add_subtree(it, ett_t38);
 
 	/* 
 		p_t38_packet_conv hold the conversation info in each of the packets.
@@ -2117,13 +2097,52 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		p_t38_packet_conv_info = &(p_t38_packet_conv->dst_t38_info);
 	}
 
+	/* update t38_info */
+	t38_info->setup_frame_number = p_t38_packet_conv->setup_frame_number;
+}
+
+/* Entry point for dissection */
+static void
+dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 octet1;
+	proto_item *it;
+	proto_tree *tr;
+	guint32 offset=0;
+
+	/*
+	 * XXX - heuristic to check for misidentified packets.
+	 */
+	if (dissect_possible_rtpv2_packets_as_rtp){
+		octet1 = tvb_get_guint8(tvb, offset);
+		if (RTP_VERSION(octet1) == 2){
+			call_dissector(rtp_handle,tvb,pinfo,tree);
+			return;
+		}
+	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_clear(pinfo->cinfo, COL_INFO);
+	}
+
+	primary_part = TRUE;
+
+	/* This indicate the item number in the primary part of the T38 message, it is used for the reassemble of T30 packets */
+	Data_Field_item_num = 0;
+
+	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, -1, "ITU-T Recommendation T.38");
+	tr=proto_item_add_subtree(it, ett_t38);
+
+	/* init tap and conv info */
+	init_t38_info_conv(pinfo);
+
 	/* Show Conversation setup info if exists*/
 	if (global_t38_show_setup_info) {
 		show_setup_info(tvb, pinfo, tr, p_conv, p_t38_packet_conv);
 	}
-
-	/* update t38_info */
-	t38_info->setup_frame_number = p_t38_packet_conv->setup_frame_number;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
@@ -2131,11 +2150,11 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset=dissect_t38_UDPTLPacket(tvb, offset, pinfo, tr);
 
-	if(offset&0x07){
+	if (offset&0x07){
 		offset=(offset&0xfffffff8)+8;
 	}
-	if(tvb_length_remaining(tvb,offset>>3)>0){
-		if(tr){
+	if (tvb_length_remaining(tvb,offset>>3)>0){
+		if (tr){
 			proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 				"[MALFORMED PACKET or wrong preference settings]");
 		}
@@ -2153,24 +2172,6 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 offset=0;
 	guint16 ifp_packet_number=1;
 
-	/* tap info */
-	t38_info_current++;
-	if (t38_info_current==MAX_T38_MESSAGES_IN_PACKET) {
-		t38_info_current=0;
-	}
-	t38_info = &t38_info_arr[t38_info_current];
-
-	t38_info->seq_num = 0;
-	t38_info->type_msg = 0;
-	t38_info->data_value = 0;
-	t38_info->t30ind_value =0;
-	t38_info->setup_frame_number = 0;
-	t38_info->Data_Field_field_type_value = 0;
-	t38_info->desc[0] = '\0';
-	t38_info->desc_comment[0] = '\0';
-	t38_info->time_first_t4_data = 0;
-	t38_info->frame_num_first_t4_data = 0;
-
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
 	}
@@ -2178,9 +2179,21 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, -1,
-	    "ITU-T Recommendation T.38");
+	primary_part = TRUE;
+
+	/* This indicate the item number in the primary part of the T38 message, it is used for the reassemble of T30 packets */
+	Data_Field_item_num = 0;
+
+	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, -1, "ITU-T Recommendation T.38");
 	tr=proto_item_add_subtree(it, ett_t38);
+
+	/* init tap and conv info */
+	init_t38_info_conv(pinfo);
+
+	/* Show Conversation setup info if exists*/
+	if (global_t38_show_setup_info) {
+		show_setup_info(tvb, pinfo, tr, p_conv, p_t38_packet_conv);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
