@@ -739,7 +739,8 @@ find_header_length (guint16 fcf)
 /* ************************************************************************* */
 static void
 capture_ieee80211_common (const guchar * pd, int offset, int len,
-			  packet_counts * ld, gboolean fixed_length_header)
+			  packet_counts * ld, gboolean fixed_length_header,
+			  gboolean datapad)
 {
   guint16 fcf, hdr_length;
 
@@ -748,7 +749,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
     return;
   }
 
-  fcf = pletohs (&pd[0]);
+  fcf = pletohs (&pd[offset]);
 
   if (IS_PROTECTED(FCF_FLAGS(fcf)))
     {
@@ -768,6 +769,8 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
         hdr_length = DATA_LONG_HDR_LEN;
       else
         hdr_length = find_header_length (fcf);
+      if (datapad)
+        hdr_length = roundup2(hdr_length, 4);
       /* I guess some bridges take Netware Ethernet_802_3 frames,
          which are 802.3 frames (with a length field rather than
          a type field, but with no 802.2 header in the payload),
@@ -803,7 +806,17 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 void
 capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld)
 {
-  capture_ieee80211_common (pd, offset, len, ld, FALSE);
+  capture_ieee80211_common (pd, offset, len, ld, FALSE, FALSE);
+}
+
+/*
+ * Handle 802.11 with a variable-length link-layer header and data padding.
+ */
+void
+capture_ieee80211_datapad (const guchar * pd, int offset, int len,
+                           packet_counts * ld)
+{
+  capture_ieee80211_common (pd, offset, len, ld, FALSE, TRUE);
 }
 
 /*
@@ -813,7 +826,7 @@ capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld)
 void
 capture_ieee80211_fixed (const guchar * pd, int offset, int len, packet_counts * ld)
 {
-  capture_ieee80211_common (pd, offset, len, ld, TRUE);
+  capture_ieee80211_common (pd, offset, len, ld, TRUE, FALSE);
 }
 
 

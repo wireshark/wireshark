@@ -28,6 +28,7 @@
  */
 
 void capture_ieee80211 (const guchar *, int, int, packet_counts *);
+void capture_ieee80211_datapad (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_fixed (const guchar *, int, int, packet_counts *);
 
 void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,

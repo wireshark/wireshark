@@ -156,23 +156,75 @@ static dissector_handle_t ieee80211_datapad_handle;
 static void
 dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+#define BITNO_32(x) (((x) >> 16) ? 16 + BITNO_16((x) >> 16) : BITNO_16((x)))
+#define BITNO_16(x) (((x) >> 8) ? 8 + BITNO_8((x) >> 8) : BITNO_8((x)))
+#define BITNO_8(x) (((x) >> 4) ? 4 + BITNO_4((x) >> 4) : BITNO_4((x)))
+#define BITNO_4(x) (((x) >> 2) ? 2 + BITNO_2((x) >> 2) : BITNO_2((x)))
+#define BITNO_2(x) (((x) & 2) ? 1 : 0)
+#define BIT(n)	(1 << n)
+
 void
 capture_radiotap(const guchar *pd, int offset, int len, packet_counts *ld)
 {
     const struct ieee80211_radiotap_header *hdr;
+    guint16 it_len;
+    guint32 present;
+    guint8 rflags;
+    int rt_offset;
 
     if(!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(*hdr))) {
         ld->other ++;
         return;
     }
     hdr = (const struct ieee80211_radiotap_header *)pd;
-    if(!BYTES_ARE_IN_FRAME(offset, len, hdr->it_len)) {
+    it_len = pletohs(&hdr->it_len);
+    if(!BYTES_ARE_IN_FRAME(offset, len, it_len)) {
         ld->other ++;
         return;
     }
 
+    if(it_len > len) {
+        /* Header length is bigger than total packet length */
+        ld->other ++;
+        return;
+    }
+
+    if(it_len < sizeof(*hdr)) {
+        /* Header length is shorter than fixed-length portion of header */
+        ld->other ++;
+        return;
+    }
+
+    present = pletohl(&hdr->it_present);
+    rt_offset = sizeof(*hdr);
+
+    rflags = 0;
+
+    /*
+     * IEEE80211_RADIOTAP_TSFT is the lowest-order bit.
+     */
+    if (present & BIT(IEEE80211_RADIOTAP_TSFT)) {
+	/* That field is present, and it's 8 bits long. */
+	rt_offset += 8;
+    }
+
+    /*
+     * IEEE80211_RADIOTAP_FLAGS is the next bit.
+     */
+    if (present & BIT(IEEE80211_RADIOTAP_FLAGS)) {
+	/* That field is present; fetch it. */
+	if(!BYTES_ARE_IN_FRAME(rt_offset, len, 1)) {
+	    ld->other ++;
+	    return;
+	}
+	rflags = pd[rt_offset];
+    }
+
     /* 802.11 header follows */
-    capture_ieee80211(pd, offset + hdr->it_len, len, ld);
+    if (rflags & IEEE80211_RADIOTAP_F_DATAPAD)
+	capture_ieee80211_datapad(pd, offset + it_len, len, ld);
+    else
+	capture_ieee80211(pd, offset + it_len, len, ld);
 }
 
 void
@@ -314,12 +366,6 @@ ieee80211_mhz2ieee(int freq, int flags)
 static void
 dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#define BITNO_32(x) (((x) >> 16) ? 16 + BITNO_16((x) >> 16) : BITNO_16((x)))
-#define BITNO_16(x) (((x) >> 8) ? 8 + BITNO_8((x) >> 8) : BITNO_8((x)))
-#define BITNO_8(x) (((x) >> 4) ? 4 + BITNO_4((x) >> 4) : BITNO_4((x)))
-#define BITNO_4(x) (((x) >> 2) ? 2 + BITNO_2((x) >> 2) : BITNO_2((x)))
-#define BITNO_2(x) (((x) & 2) ? 1 : 0)
-#define BIT(n)	(1 << n)
     proto_tree *radiotap_tree = NULL;
     proto_tree *pt, *present_tree;
     proto_item *ti;
@@ -507,12 +553,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
 	ieee80211_datapad_handle : ieee80211_handle,
 	tvb_new_subset(tvb, length, -1, -1), pinfo, tree);
-#undef BITNO_32
-#undef BITNO_16
-#undef BITNO_8
-#undef BITNO_4
-#undef BITNO_2
-#undef BIT
 }
 
 void
