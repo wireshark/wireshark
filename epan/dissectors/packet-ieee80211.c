@@ -126,23 +126,23 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 /*
  * Extract the protocol version from the frame control field
  */
-#define COOK_PROT_VERSION(x)  ((x) & 0x3)
+#define FCF_PROT_VERSION(x)  ((x) & 0x3)
 
 /*
  * Extract the frame type from the frame control field.
  */
-#define COOK_FRAME_TYPE(x)    (((x) & 0xC) >> 2)
+#define FCF_FRAME_TYPE(x)    (((x) & 0xC) >> 2)
 
 /*
  * Extract the frame subtype from the frame control field.
  */
-#define COOK_FRAME_SUBTYPE(x) (((x) & 0xF0) >> 4)
+#define FCF_FRAME_SUBTYPE(x) (((x) & 0xF0) >> 4)
 
 /*
  * Convert the frame type and subtype from the frame control field into
  * one of the MGT_, CTRL_, or DATA_ values.
  */
-#define COMPOSE_FRAME_TYPE(x) (((x & 0x0C)<< 2)+COOK_FRAME_SUBTYPE(x))	/* Create key to (sub)type */
+#define COMPOSE_FRAME_TYPE(x) (((x & 0x0C)<< 2)+FCF_FRAME_SUBTYPE(x))	/* Create key to (sub)type */
 
 /*
  * The subtype field of a data frame is, in effect, composed of 4 flag
@@ -157,7 +157,7 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 /*
  * Extract the flags from the frame control field.
  */
-#define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
+#define FCF_FLAGS(x)           (((x) & 0xFF00) >> 8)
 
 /*
  * Bits from the flags field.
@@ -186,14 +186,13 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 /*
  * Extract subfields from the flags field.
  */
-#define COOK_DS_STATUS(x)          ((x) & (FLAG_FROM_DS|FLAG_TO_DS))
-#define COOK_WEP_KEY(x)            (((x) & (FLAG_ORDER|FLAG_PROTECTED)) >> 6)
+#define FLAGS_DS_STATUS(x)          ((x) & (FLAG_FROM_DS|FLAG_TO_DS))
 
 /*
  * Extract an indication of the types of addresses in a data frame from
  * the frame control field.
  */
-#define COOK_ADDR_SELECTOR(x) ((x) & ((FLAG_TO_DS|FLAG_FROM_DS) << 8))
+#define FCF_ADDR_SELECTOR(x) ((x) & ((FLAG_TO_DS|FLAG_FROM_DS) << 8))
 
 #define DATA_ADDR_T1         0
 #define DATA_ADDR_T2         (FLAG_FROM_DS << 8)
@@ -204,8 +203,8 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
  * Extract the fragment number and sequence number from the sequence
  * control field.
  */
-#define COOK_FRAGMENT_NUMBER(x) ((x) & 0x000F)
-#define COOK_SEQUENCE_NUMBER(x) (((x) & 0xFFF0) >> 4)
+#define SEQCTL_FRAGMENT_NUMBER(x) ((x) & 0x000F)
+#define SEQCTL_SEQUENCE_NUMBER(x) (((x) & 0xFFF0) >> 4)
 
 /*
  * Extract subfields from the QoS control field.
@@ -221,14 +220,19 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 /*
  * Extract subfields from the result of QOS_FIELD_CONTENT().
  */
-#define QOS_PS_BUF_STATE(x)	   (((x) & 0x02) >> 1)
-#define QOS_PS_BUF_AC(x)	   (((x) & 0x0C) >> 2)
-#define QOS_PS_BUF_LOAD(x)	   (((x) & 0xF0) >> 4)
+#define QOS_PS_BUF_STATE(x)	(((x) & 0x02) >> 1)
+#define QOS_PS_BUF_AC(x)	(((x) & 0x0C) >> 2)
+#define QOS_PS_BUF_LOAD(x)	(((x) & 0xF0) >> 4)
 
 /*
  * Extract the association ID from the value in an association ID field.
  */
-#define COOK_ASSOC_ID(x)      ((x) & 0x3FFF)
+#define ASSOC_ID(x)             ((x) & 0x3FFF)
+
+/*
+ * Extract subfields from the key octet in WEP-encrypted frames.
+ */
+#define KEY_OCTET_WEP_KEY(x)    (((x) & 0xC0) >> 6)
 
 #define KEY_EXTIV		0x20
 #define EXTIV_LEN		8
@@ -694,7 +698,7 @@ find_header_length (guint16 fcf)
 {
   int len;
 
-  switch (COOK_FRAME_TYPE (fcf)) {
+  switch (FCF_FRAME_TYPE (fcf)) {
 
   case MGT_FRAME:
     return MGT_FRAME_HDR_LEN;
@@ -717,7 +721,7 @@ find_header_length (guint16 fcf)
     return 4;	/* XXX */
 
   case DATA_FRAME:
-    len = (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
+    len = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
 						      DATA_SHORT_HDR_LEN;
     if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf)))
       return len + 2;
@@ -746,7 +750,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 
   fcf = pletohs (&pd[0]);
 
-  if (IS_PROTECTED(COOK_FLAGS(fcf)))
+  if (IS_PROTECTED(FCF_FLAGS(fcf)))
     {
       ld->other++;
       return;
@@ -957,7 +961,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_ASSOC_ID:
       proto_tree_add_uint(tree, ff_assoc_id, tvb, offset, 2,
-			  COOK_ASSOC_ID(tvb_get_letohs(tvb,offset)));
+			  ASSOC_ID(tvb_get_letohs(tvb,offset)));
       /* proto_tree_add_item (tree, ff_assoc_id, tvb, offset, 2, TRUE); */
       break;
 
@@ -2263,7 +2267,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           val_to_str(frame_type_subtype, frame_type_subtype_vals,
               "Unrecognized (Reserved frame)"));
 
-  flags = COOK_FLAGS (fcf);
+  flags = FCF_FLAGS (fcf);
   more_frags = HAVE_FRAGMENTS (flags);
 
 
@@ -2309,16 +2313,16 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb,
 		           wlan_broken_fc?1:0, 1,
-			   COOK_PROT_VERSION (fcf));
+			   FCF_PROT_VERSION (fcf));
 
       proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb,
 		           wlan_broken_fc?1:0, 1,
-			   COOK_FRAME_TYPE (fcf));
+			   FCF_FRAME_TYPE (fcf));
 
       proto_tree_add_uint (fc_tree, hf_fc_frame_subtype,
 			   tvb,
 			   wlan_broken_fc?1:0, 1,
-			   COOK_FRAME_SUBTYPE (fcf));
+			   FCF_FRAME_SUBTYPE (fcf));
 
       flag_item =
 	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb,
@@ -2329,7 +2333,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb,
 		           wlan_broken_fc?0:1, 1,
-			   COOK_DS_STATUS (flags));
+			   FLAGS_DS_STATUS (flags));
       proto_tree_add_boolean_hidden (flag_tree, hf_fc_to_ds, tvb, 1, 1,
 				     flags);
       proto_tree_add_boolean_hidden (flag_tree, hf_fc_from_ds, tvb, 1, 1,
@@ -2357,7 +2361,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       if (frame_type_subtype == CTRL_PS_POLL)
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
-			    COOK_ASSOC_ID(tvb_get_letohs(tvb,2)));
+			    ASSOC_ID(tvb_get_letohs(tvb,2)));
 
       else
 	  proto_tree_add_uint (hdr_tree, hf_did_duration, tvb, 2, 2,
@@ -2372,7 +2376,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   frag_number = 0;
   seq_number = 0;
 
-  switch (COOK_FRAME_TYPE (fcf))
+  switch (FCF_FRAME_TYPE (fcf))
     {
 
     case MGT_FRAME:
@@ -2394,8 +2398,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);
-      frag_number = COOK_FRAGMENT_NUMBER(seq_control);
-      seq_number = COOK_SEQUENCE_NUMBER(seq_control);
+      frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
+      seq_number = SEQCTL_SEQUENCE_NUMBER(seq_control);
 
       if (check_col (pinfo->cinfo, COL_INFO))
       {
@@ -2552,7 +2556,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       break;
 
     case DATA_FRAME:
-      addr_type = COOK_ADDR_SELECTOR (fcf);
+      addr_type = FCF_ADDR_SELECTOR (fcf);
 
       /* In order to show src/dst address we must always do the following */
       switch (addr_type)
@@ -2599,8 +2603,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);
-      frag_number = COOK_FRAGMENT_NUMBER(seq_control);
-      seq_number = COOK_SEQUENCE_NUMBER(seq_control);
+      frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
+      seq_number = SEQCTL_SEQUENCE_NUMBER(seq_control);
 
       if (check_col (pinfo->cinfo, COL_INFO))
       {
@@ -2773,7 +2777,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
    * Only management and data frames have a body, so we don't have
    * anything more to do for other types of frames.
    */
-  switch (COOK_FRAME_TYPE (fcf))
+  switch (FCF_FRAME_TYPE (fcf))
     {
 
     case MGT_FRAME:
@@ -2886,7 +2890,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       return;
     }
 
-  if (IS_PROTECTED(COOK_FLAGS(fcf))) {
+  if (IS_PROTECTED(FCF_FLAGS(fcf))) {
     /*
      * It's a WEP-encrypted frame; dissect the WEP parameters and decrypt
      * the data, if we have a matching key.  Otherwise display it as data.
@@ -2897,7 +2901,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     guint8 key, keybyte;
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
-    key = COOK_WEP_KEY(keybyte);
+    key = KEY_OCTET_WEP_KEY(keybyte);
     if ((keybyte & KEY_EXTIV) && (len >= EXTIV_LEN)) {
       /* Extended IV; this frame is likely encrypted with TKIP or CCMP */
       if (tree) {
@@ -3141,7 +3145,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     goto end_of_wlan;
   }
 
-  switch (COOK_FRAME_TYPE (fcf))
+  switch (FCF_FRAME_TYPE (fcf))
     {
 
     case MGT_FRAME:
@@ -4238,7 +4242,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
   key[0] = buf[0];
   key[1] = buf[1];
   key[2] = buf[2];
-  keyidx = COOK_WEP_KEY(buf[3]);
+  keyidx = KEY_OCTET_WEP_KEY(buf[3]);
 
   if (key_override >= 0)
     keyidx = key_override;
