@@ -106,6 +106,8 @@ struct gaps {
 	guint16 end;
 };
 
+static gboolean label_set = FALSE;
+static guint32 max_tsn=0, min_tsn=0;
 
 
 static void sctp_graph_set_title(struct sctp_udata *u_data);
@@ -119,7 +121,6 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	GdkGC *red_gc, *green_gc;
 	gint diff;
 	GPtrArray *array = NULL;
-	guint32 min_tsn = 0, max_tsn = 0;
 	guint32 i, size = 0, start=0, end;
 	gboolean more = FALSE;
 	gint width;
@@ -190,7 +191,6 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	for (i=0; i<size; i++)
 	{
 		diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array,  i)))->secs * 1000000 + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->usecs - u_data->io->min_x;
-		/*start = ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->offset; */
 		end = start + ((struct tsn_sort*)(g_ptr_array_index(array,  i)))->length;
 		if (end>max_tsn)
 		{
@@ -227,7 +227,6 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 static void draw_tsn_graph(struct sctp_udata *u_data)
 {
 GPtrArray *array = NULL;
-guint32 min_tsn = 0, max_tsn = 0;
 guint32 i, size = 0, start, end;
 gint diff, width;
 
@@ -850,9 +849,31 @@ static gint
 on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata *u_data)
 {
 	sctp_graph_t *ios;
-	guint32 helpx;
-	guint32 helpy, x1_tmp, x2_tmp;
+	guint32 helpx, helpy, x1_tmp, x2_tmp, label_width, label_height, y_value;
+	gdouble x_value, position;
+	gint lwidth;
+	char label_string[30];
+	GdkGC *text_color;
+	#if GTK_MAJOR_VERSION < 2
+		GdkFont *font;
+#else
+		PangoLayout  *layout;
+#endif
 
+#if GTK_MAJOR_VERSION < 2
+		font = u_data->io->draw_area->style->font;
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+		label_width=gdk_string_width(font, label_string);
+		label_height=gdk_string_height(font, label_string);
+#else
+		g_snprintf(label_string, 15, "%d", 0);
+		memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+		layout = gtk_widget_create_pango_layout(u_data->io->draw_area, label_string);
+		pango_layout_get_pixel_size(layout, &label_width, &label_height);
+
+#endif
 	if (event->y > u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 		event->y = u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset;
 	if (event->x < LEFT_BORDER+u_data->io->offset)
@@ -900,6 +921,58 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		u_data->io->x_new=event->x;
 		u_data->io->y_new=event->y;
 		u_data->io->rectangle=TRUE;
+	}
+		else
+	{
+		if (label_set)
+		{
+			label_set = FALSE;
+			sctp_graph_redraw(u_data);
+		}
+		else
+		{
+			x_value = ((event->x-LEFT_BORDER-u_data->io->offset) * ((u_data->io->x2_tmp_sec+u_data->io->x2_tmp_usec/1000000.0)-(u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0)) / (u_data->io->pixmap_width-LEFT_BORDER-u_data->io->offset))+u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0;
+			y_value = round((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
+			text_color = u_data->io->draw_area->style->black_gc;
+			g_snprintf(label_string, 30, "(%.6lf, %u)", x_value, y_value);
+			label_set = TRUE;
+		
+			gdk_draw_line(u_data->io->pixmap,text_color, event->x-2, event->y, event->x+2, event->y);
+			gdk_draw_line(u_data->io->pixmap,text_color, event->x, event->y-2, event->x, event->y+2);
+			if (event->x+150>=u_data->io->pixmap_width)
+				position = event->x - 150;
+			else
+				position = event->x + 5;
+		
+#if GTK_MAJOR_VERSION < 2
+			lwidth=gdk_string_width(font, label_string);
+		                            gdk_draw_string(u_data->io->pixmap,font,text_color,
+		                            position,
+		                            event->y-10,
+		                            label_string);
+#else
+			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+			pango_layout_set_text(layout, label_string, -1);
+			pango_layout_get_pixel_size(layout, &lwidth, NULL);
+	
+			gdk_draw_layout(u_data->io->pixmap,text_color,
+							position,
+							event->y-10,
+							layout);
+	#endif
+			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+	
+			if(!ios){
+				exit(10);
+			}
+			gdk_draw_pixmap(u_data->io->draw_area->window,
+		                    u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+		                    ios->pixmap,
+		                    0, 0,
+		                    0, 0,
+		                    u_data->io->draw_area->allocation.width,
+		                    u_data->io->draw_area->allocation.height);
+		}
 	}
 	return TRUE;
 }
