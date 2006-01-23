@@ -25,14 +25,20 @@ INCLUDES = -I$(top_srcdir) -I./lua-5.0.2/include
 
 plugindir = @plugindir@
 
-plugin_LTLIBRARIES = work.la
+plugin_LTLIBRARIES = lua.la
 
-work_la_SOURCES = \
+lua_la_SOURCES = \
+    lua_tvb.c \
+    lua_proto.c \
+    lua_tree.c \
+    lua_pinfo.c \
+    lua_tap.c \
     packet-lua.c \
+    packet-lua.h \
 	plugin.c
 
-work_la_LDFLAGS = -module -avoid-version
-work_la_LIBADD = @PLUGIN_LIBS@
+lua_la_LDFLAGS = -module -avoid-version
+lua_la_LIBADD = @PLUGIN_LIBS@
 
 
 # Libs must be cleared, or else libtool won't create a shared module.
@@ -55,4 +61,27 @@ EXTRA_DIST = \
 
 dummy:
 	touch dummy
-    
+
+GUNZIP = gzip -d
+TAR = tar
+
+lua-5.0.2: lua-5.0.2.tar.gz
+	$(GUNZIP) lua-5.0.2.tar.gz | $(TAR) xf -
+
+lua_tvb.c : lua-5.0.2/lib/liblua.so
+
+lua_proto.c : lua-5.0.2/lib/liblua.so
+
+lua_tree.c : lua-5.0.2/lib/liblua.so
+
+lua_pinfo.c : lua-5.0.2/lib/liblua.so
+
+lua_tap.c : lua-5.0.2/lib/liblua.so
+
+packet-lua.c : lua-5.0.2/lib/liblua.so
+
+packet-lua.h : lua-5.0.2/lib/liblua.so
+
+
+lua-5.0.2/lib/liblua.la:
+	cd lua-5.0.2 ; env -i PATH=$(PATH) make

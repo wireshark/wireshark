@@ -58,15 +58,17 @@ static gboolean initialized = FALSE;
 G_MODULE_EXPORT const gchar version[] = VERSION;
 
 G_MODULE_EXPORT void plugin_register(void) {
-	
-	if (! initialized ) {
-        proto_register_lua();
-		initialized = 1;
-	}
+    
 }
 
 G_MODULE_EXPORT void plugin_reg_handoff(void)
 {
+    if (! initialized ) {
+        proto_register_lua();
+		initialized = 1;
+	}
+    
     proto_reg_handoff_lua();
+
 }
 #endif
