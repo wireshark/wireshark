@@ -70,6 +70,10 @@
 #include <ctype.h>
 #include "isprint.h"
 
+#ifndef roundup2
+#define	roundup2(x, y)	(((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
+#endif
+
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;
 
@@ -118,29 +122,46 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
-#define COMPOSE_FRAME_TYPE(x) (((x & 0x0C)<< 2)+((x & 0xF0) >> 4))	/* Create key to (sub)type */
+
+/*
+ * Extract the protocol version from the frame control field
+ */
 #define COOK_PROT_VERSION(x)  ((x) & 0x3)
+
+/*
+ * Extract the frame type from the frame control field.
+ */
 #define COOK_FRAME_TYPE(x)    (((x) & 0xC) >> 2)
+
+/*
+ * Extract the frame subtype from the frame control field.
+ */
 #define COOK_FRAME_SUBTYPE(x) (((x) & 0xF0) >> 4)
-#define COOK_ADDR_SELECTOR(x) ((x) & 0x300)
-#define COOK_ASSOC_ID(x)      ((x) & 0x3FFF)
-#define COOK_FRAGMENT_NUMBER(x) ((x) & 0x000F)
-#define COOK_SEQUENCE_NUMBER(x) (((x) & 0xFFF0) >> 4)
-#define COOK_QOS_PRIORITY(x)    ((x) & 0x0007)
-#define COOK_QOS_ACK_POLICY(x)  (((x) & 0x0060) >> 5)
+
+/*
+ * Convert the frame type and subtype from the frame control field into
+ * one of the MGT_, CTRL_, or DATA_ values.
+ */
+#define COMPOSE_FRAME_TYPE(x) (((x & 0x0C)<< 2)+COOK_FRAME_SUBTYPE(x))	/* Create key to (sub)type */
+
+/*
+ * The subtype field of a data frame is, in effect, composed of 4 flag
+ * bits - CF-Ack, CF-Poll, Null (means the frame doesn't actually have
+ * any data), and QoS.
+ */
+#define DATA_FRAME_IS_CF_ACK(x)  ((x) & 0x01)
+#define DATA_FRAME_IS_CF_POLL(x) ((x) & 0x02)
+#define DATA_FRAME_IS_NULL(x)    ((x) & 0x04)
+#define DATA_FRAME_IS_QOS(x)     ((x) & 0x08)
+
+/*
+ * Extract the flags from the frame control field.
+ */
 #define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
-#define COOK_DS_STATUS(x)       ((x) & 0x3)
-#define COOK_WEP_KEY(x)       (((x) & 0xC0) >> 6)
-#define COOK_QOS_TID(x)		   ((x) & 0x000F)
-#define COOK_QOS_EOSP(x)	   (((x) & 0x0010) >> 4) /* end of service period */
-#define COOK_QOS_FIELD_CONTENT(x)  (((x) & 0xFF00) >> 8)
-#define COOK_PS_BUF_STATE(x)	   (((x) & 0x02) >> 1)
-#define COOK_PS_BUF_AC(x)	   (((x) & 0x0C) >> 2)
-#define COOK_PS_BUF_LOAD(x)	   (((x) & 0xF0) >> 4)
 
-#define KEY_EXTIV		0x20
-#define EXTIV_LEN		8
-
+/*
+ * Bits from the flags field.
+ */
 #define FLAG_TO_DS		0x01
 #define FLAG_FROM_DS		0x02
 #define FLAG_MORE_FRAGMENTS	0x04
@@ -149,27 +170,68 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define FLAG_MORE_DATA		0x20
 #define FLAG_PROTECTED		0x40
 #define FLAG_ORDER		0x80
-#define FLAG_DATA_NULL		0x24
-#define FLAG_DATA_QOS		0x28
-#define FLAG_EOSP		0x08
-#define FLAG_DATA_CF_POLL	0x22
 
+/*
+ * Test bits in the flags field.
+ */
 #define IS_TO_DS(x)            ((x) & FLAG_TO_DS)
 #define IS_FROM_DS(x)          ((x) & FLAG_FROM_DS)
 #define HAVE_FRAGMENTS(x)      ((x) & FLAG_MORE_FRAGMENTS)
 #define IS_RETRY(x)            ((x) & FLAG_RETRY)
 #define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
 #define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
-#define IS_PROTECTED(x)              (!wlan_ignore_wep && ((x) & FLAG_PROTECTED))
+#define IS_PROTECTED(x)        (!wlan_ignore_wep && ((x) & FLAG_PROTECTED))
 #define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
-#define IS_DATA_NULL(x)	       (((x) & 0xf4) == FLAG_DATA_NULL)
-#define IS_DATA_QOS(x)	       (((x) & 0xf8) == FLAG_DATA_QOS)
-#define IS_DATA_CF_POLL(x)     (((x) & 0xf2) == FLAG_DATA_CF_POLL)
 
-#define MGT_RESERVED_RANGE(x)  (((x>=0x06)&&(x<=0x07))||((x>=0x0E)&&(x<=0x0F)))
-#define CTRL_RESERVED_RANGE(x) ((x>=0x10)&&(x<=0x17))
-#define DATA_RESERVED_RANGE(x) (x==0x2D)
-#define SPEC_RESERVED_RANGE(x) ((x>=0x30)&&(x<=0x3f))
+/*
+ * Extract subfields from the flags field.
+ */
+#define COOK_DS_STATUS(x)          ((x) & (FLAG_FROM_DS|FLAG_TO_DS))
+#define COOK_WEP_KEY(x)            (((x) & (FLAG_ORDER|FLAG_PROTECTED)) >> 6)
+
+/*
+ * Extract an indication of the types of addresses in a data frame from
+ * the frame control field.
+ */
+#define COOK_ADDR_SELECTOR(x) ((x) & ((FLAG_TO_DS|FLAG_FROM_DS) << 8))
+
+#define DATA_ADDR_T1         0
+#define DATA_ADDR_T2         (FLAG_FROM_DS << 8)
+#define DATA_ADDR_T3         (FLAG_TO_DS << 8)
+#define DATA_ADDR_T4         ((FLAG_TO_DS|FLAG_FROM_DS) << 8)
+
+/*
+ * Extract the fragment number and sequence number from the sequence
+ * control field.
+ */
+#define COOK_FRAGMENT_NUMBER(x) ((x) & 0x000F)
+#define COOK_SEQUENCE_NUMBER(x) (((x) & 0xFFF0) >> 4)
+
+/*
+ * Extract subfields from the QoS control field.
+ */
+#define QOS_TID(x)	      ((x) & 0x000F)
+#define QOS_PRIORITY(x)       ((x) & 0x0007)
+#define QOS_EOSP(x)	      (((x) & 0x0010) >> 4) /* end of service period */
+#define QOS_ACK_POLICY(x)     (((x) & 0x0060) >> 5)
+#define QOS_FIELD_CONTENT(x)  (((x) & 0xFF00) >> 8)
+
+#define QOS_FLAG_EOSP		0x08
+
+/*
+ * Extract subfields from the result of QOS_FIELD_CONTENT().
+ */
+#define QOS_PS_BUF_STATE(x)	   (((x) & 0x02) >> 1)
+#define QOS_PS_BUF_AC(x)	   (((x) & 0x0C) >> 2)
+#define QOS_PS_BUF_LOAD(x)	   (((x) & 0xF0) >> 4)
+
+/*
+ * Extract the association ID from the value in an association ID field.
+ */
+#define COOK_ASSOC_ID(x)      ((x) & 0x3FFF)
+
+#define KEY_EXTIV		0x20
+#define EXTIV_LEN		8
 
 
 /* ************************************************************************* */
@@ -183,51 +245,53 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define DATA_LONG_HDR_LEN      30
 #define MGT_FRAME_HDR_LEN      24	/* Length of Managment frame-headers */
 
-#define MGT_ASSOC_REQ        0x00	/* Management - association request        */
-#define MGT_ASSOC_RESP       0x01	/* Management - association response       */
-#define MGT_REASSOC_REQ      0x02	/* Management - reassociation request      */
-#define MGT_REASSOC_RESP     0x03	/* Management - reassociation response     */
-#define MGT_PROBE_REQ        0x04	/* Management - Probe request              */
-#define MGT_PROBE_RESP       0x05	/* Management - Probe response             */
-#define MGT_BEACON           0x08	/* Management - Beacon frame               */
-#define MGT_ATIM             0x09	/* Management - ATIM                       */
-#define MGT_DISASS           0x0A	/* Management - Disassociation             */
-#define MGT_AUTHENTICATION   0x0B	/* Management - Authentication             */
-#define MGT_DEAUTHENTICATION 0x0C	/* Management - Deauthentication           */
-#define MGT_ACTION           0x0D	/* Management - Action */
+/*
+ * COMPOSE_FRAME_TYPE() values for management frames.
+ */
+#define MGT_ASSOC_REQ        0x00	/* association request        */
+#define MGT_ASSOC_RESP       0x01	/* association response       */
+#define MGT_REASSOC_REQ      0x02	/* reassociation request      */
+#define MGT_REASSOC_RESP     0x03	/* reassociation response     */
+#define MGT_PROBE_REQ        0x04	/* Probe request              */
+#define MGT_PROBE_RESP       0x05	/* Probe response             */
+#define MGT_BEACON           0x08	/* Beacon frame               */
+#define MGT_ATIM             0x09	/* ATIM                       */
+#define MGT_DISASS           0x0A	/* Disassociation             */
+#define MGT_AUTHENTICATION   0x0B	/* Authentication             */
+#define MGT_DEAUTHENTICATION 0x0C	/* Deauthentication           */
+#define MGT_ACTION           0x0D	/* Action */
 
-#define CTRL_BLOCK_ACK_REQ   0x18	/* Control - Block ack Request		    */
-#define CTRL_BLOCK_ACK	     0x19	/* Control - Block ack			    */
+/*
+ * COMPOSE_FRAME_TYPE() values for control frames.
+ */
+#define CTRL_BLOCK_ACK_REQ   0x18	/* Block ack Request		    */
+#define CTRL_BLOCK_ACK	     0x19	/* Block ack			    */
+#define CTRL_PS_POLL         0x1A	/* power-save poll               */
+#define CTRL_RTS             0x1B	/* request to send               */
+#define CTRL_CTS             0x1C	/* clear to send                 */
+#define CTRL_ACKNOWLEDGEMENT 0x1D	/* acknowledgement               */
+#define CTRL_CFP_END         0x1E	/* contention-free period end    */
+#define CTRL_CFP_ENDACK      0x1F	/* contention-free period end/ack */
 
-#define CTRL_PS_POLL         0x1A	/* Control - power-save poll               */
-#define CTRL_RTS             0x1B	/* Control - request to send               */
-#define CTRL_CTS             0x1C	/* Control - clear to send                 */
-#define CTRL_ACKNOWLEDGEMENT 0x1D	/* Control - acknowledgement               */
-#define CTRL_CFP_END         0x1E	/* Control - contention-free period end    */
-#define CTRL_CFP_ENDACK      0x1F	/* Control - contention-free period end/ack */
+/*
+ * COMPOSE_FRAME_TYPE() values for data frames.
+ */
+#define DATA                        0x20	/* Data                       */
+#define DATA_CF_ACK                 0x21	/* Data + CF-Ack              */
+#define DATA_CF_POLL                0x22	/* Data + CF-Poll             */
+#define DATA_CF_ACK_POLL            0x23	/* Data + CF-Ack + CF-Poll    */
+#define DATA_NULL_FUNCTION          0x24	/* Null function (no data)    */
+#define DATA_CF_ACK_NOD             0x25	/* CF-Ack (no data)           */
+#define DATA_CF_POLL_NOD            0x26	/* CF-Poll (No data)          */
+#define DATA_CF_ACK_POLL_NOD        0x27	/* CF-Ack + CF-Poll (no data) */
 
-#define DATA                 0x20	/* Data - Data                             */
-#define DATA_CF_ACK          0x21	/* Data - Data + CF acknowledge            */
-#define DATA_CF_POLL         FLAG_DATA_CF_POLL	/* Data - Data + CF poll                   */
-#define DATA_CF_ACK_POLL     0x23	/* Data - Data + CF acknowledge + CF poll  */
-#define DATA_NULL_FUNCTION   FLAG_DATA_NULL	/* Data - Null function (no data)          */
-#define DATA_CF_ACK_NOD      0x25	/* Data - CF ack (no data)                 */
-#define DATA_CF_POLL_NOD     0x26       /* Data - CF poll (No data)         */
-#define DATA_CF_ACK_POLL_NOD 0x27	/* Data - CF ack + CF poll (no data)       */
-#define DATA_QOS_DATA        FLAG_DATA_QOS	/* Data - QoS Data                         */
-
-
-#define DATA_QOS_DATA_CF_ACK        0x29	/* Data - QoS Data + CF-Ack		  */
-#define DATA_QOS_DATA_CF_POLL       0x2A	/* Data - QoS Data + CF-Poll		  */
-#define DATA_QOS_DATA_CF_ACK_POLL   0x2B	/* Data - QoS Data + CF-Ack + CF-poll	  */
-#define DATA_QOS_NULL		    0x2C	/* Data - QoS Null			  */
-#define DATA_QOS_CF_POLL_NOD	    0x2E	/* Data - QoS CF-poll (No Data)		  */
-#define DATA_QOS_CF_ACK_POLL_NOD    0x2F	/* Data - QoS CF-Ack + CF-poll (No Data)  */
-
-#define DATA_ADDR_T1         0
-#define DATA_ADDR_T2         (FLAG_FROM_DS << 8)
-#define DATA_ADDR_T3         (FLAG_TO_DS << 8)
-#define DATA_ADDR_T4         ((FLAG_TO_DS|FLAG_FROM_DS) << 8)
+#define DATA_QOS_DATA               0x28	/* QoS Data                   */
+#define DATA_QOS_DATA_CF_ACK        0x29	/* QoS Data + CF-Ack	      */
+#define DATA_QOS_DATA_CF_POLL       0x2A	/* QoS Data + CF-Poll		  */
+#define DATA_QOS_DATA_CF_ACK_POLL   0x2B	/* QoS Data + CF-Ack + CF-Poll	  */
+#define DATA_QOS_NULL		    0x2C	/* QoS Null			  */
+#define DATA_QOS_CF_POLL_NOD	    0x2E	/* QoS CF-Poll (No Data)		  */
+#define DATA_QOS_CF_ACK_POLL_NOD    0x2F	/* QoS CF-Ack + CF-Poll (No Data) */
 
 
 /* ************************************************************************* */
@@ -323,29 +387,31 @@ static const value_string frame_type_subtype_vals[] = {
 	{MGT_AUTHENTICATION,   "Authentication"},
 	{MGT_DEAUTHENTICATION, "Deauthentication"},
 	{MGT_ACTION,           "Action"},
+
+	{CTRL_BLOCK_ACK_REQ,   "802.11 Block Ack Req"},
+	{CTRL_BLOCK_ACK,       "802.11 Block Ack"},
 	{CTRL_PS_POLL,         "Power-Save poll"},
 	{CTRL_RTS,             "Request-to-send"},
 	{CTRL_CTS,             "Clear-to-send"},
 	{CTRL_ACKNOWLEDGEMENT, "Acknowledgement"},
 	{CTRL_CFP_END,         "CF-End (Control-frame)"},
 	{CTRL_CFP_ENDACK,      "CF-End + CF-Ack (Control-frame)"},
+
 	{DATA,                 "Data"},
-	{DATA_CF_ACK,          "Data + CF-Acknowledgement"},
+	{DATA_CF_ACK,          "Data + CF-Ack"},
 	{DATA_CF_POLL,         "Data + CF-Poll"},
-	{DATA_CF_ACK_POLL,     "Data + CF-Acknowledgement/Poll"},
+	{DATA_CF_ACK_POLL,     "Data + CF-Ack + CF-Poll"},
 	{DATA_NULL_FUNCTION,   "Null function (No data)"},
-	{DATA_CF_ACK_NOD,      "Data + Acknowledgement (No data)"},
-	{DATA_CF_POLL_NOD,     "Data + CF-Poll (No data)"},
-	{DATA_CF_ACK_POLL_NOD, "Data + CF-Acknowledgement/Poll (No data)"},
+	{DATA_CF_ACK_NOD,      "Acknowledgement (No data)"},
+	{DATA_CF_POLL_NOD,     "CF-Poll (No data)"},
+	{DATA_CF_ACK_POLL_NOD, "CF-Ack/Poll (No data)"},
 	{DATA_QOS_DATA,        "QoS Data"},
-	{DATA_QOS_NULL,        "QoS Null (No data)"},
-	{DATA_QOS_DATA_CF_ACK,	"802.11 Q0S Data + CF-Ack"},
-	{DATA_QOS_DATA_CF_POLL,	"802.11 QoS Data + CF-Poll"},
-	{DATA_QOS_DATA_CF_ACK_POLL,	"802.11 Q0S Data + CF-Ack/Poll"},
-	{DATA_QOS_CF_POLL_NOD,	"802.11 QoS CF-poll (No Data)"},
-	{DATA_QOS_CF_ACK_POLL_NOD,  "802.11 QoS CF-Ack + CF-poll (No Data)"},
-	{CTRL_BLOCK_ACK_REQ,	"802.11 Block Ack Req"},
-	{CTRL_BLOCK_ACK,	"802.11 Block Ack"},
+	{DATA_QOS_DATA_CF_ACK,	"QoS Data + CF-Acknowledgment"},
+	{DATA_QOS_DATA_CF_POLL,	"QoS Data + CF-Poll"},
+	{DATA_QOS_DATA_CF_ACK_POLL, "QoS Data + CF-Ack + CF-Poll"},
+	{DATA_QOS_NULL,        "QoS Null function (No data)"},
+	{DATA_QOS_CF_POLL_NOD,	"QoS CF-Poll (No Data)"},
+	{DATA_QOS_CF_ACK_POLL_NOD,  "QoS CF-Ack + CF-Poll (No data)"},
 	{0,                    NULL}
 };
 
@@ -459,9 +525,11 @@ static int hf_qos_ack_policy = -1;
 static int hf_qos_eosp = -1;
 static int hf_qos_field_content = -1;
 /*static int hf_qos_txop_limit = -1;*/
+/*	FIXME: hf_ values not defined
 static int hf_qos_buf_state = -1;
 static int hf_qos_buf_ac = -1;
 static int hf_qos_buf_load = -1;
+*/
 /*static int hf_qos_txop_dur_req = -1;
 static int hf_qos_queue_size = -1;*/
 
@@ -651,7 +719,7 @@ find_header_length (guint16 fcf)
   case DATA_FRAME:
     len = (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
 						      DATA_SHORT_HDR_LEN;
-    if( IS_DATA_QOS(COMPOSE_FRAME_TYPE(fcf)))
+    if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf)))
       return len + 2;
     else
       return len;
@@ -1412,7 +1480,6 @@ static int
 add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
 {
   guint32 oui;
-  guint8 type;
   const guint8 *tag_val;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
@@ -1682,7 +1749,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_QBSS_LOAD:  
       if (tag_len < 4 || tag_len >5)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Wrong QBSS Tag Length", tag_len);
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Wrong QBSS Tag Length %u", tag_len);
         break;
       }
 
@@ -2097,6 +2164,23 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
 		     ether_to_str(addr));
 }
 
+static guint32
+crc32_802_tvb_padded(tvbuff_t *tvb, guint hdr_len, guint hdr_size, guint len)
+{
+  guint32 c_crc;
+
+  c_crc = crc32_ccitt_tvb(tvb, hdr_len);
+  c_crc = crc32_ccitt_seed(tvb_get_ptr(tvb, hdr_size, len), len, ~c_crc);
+
+  /* Byte reverse. */
+  c_crc = ((unsigned char)(c_crc>>0)<<24) |
+    ((unsigned char)(c_crc>>8)<<16) |
+    ((unsigned char)(c_crc>>16)<<8) |
+    ((unsigned char)(c_crc>>24)<<0);
+
+  return ( c_crc );
+}
+
 typedef enum {
     ENCAP_802_2,
     ENCAP_IPX,
@@ -2110,7 +2194,7 @@ static void
 dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			  proto_tree * tree, gboolean fixed_length_header,
 			  gboolean has_radio_information, gint fcs_len,
-			  gboolean wlan_broken_fc)
+			  gboolean wlan_broken_fc, gboolean datapad)
 {
   guint16 fcf, flags, frame_type_subtype;
   guint16 seq_control;
@@ -2125,7 +2209,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *hdr_tree = NULL;
   proto_tree *flag_tree;
   proto_tree *fc_tree;
-  guint16 hdr_len;
+  guint16 hdr_len, ohdr_len;
   gboolean has_fcs;
   gint len, reported_len, ivlen;
   gboolean save_fragmented;
@@ -2169,6 +2253,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     hdr_len = DATA_LONG_HDR_LEN;
   else
     hdr_len = find_header_length (fcf);
+  ohdr_len = hdr_len;
+  if (datapad)
+    hdr_len = roundup2(hdr_len, 4);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -2660,9 +2747,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	  reported_len -= 4;
 	  if (tree)
 	    {
-	      guint32 fcs = crc32_802_tvb(tvb, hdr_len + len);
 	      guint32 sent_fcs = tvb_get_ntohl(tvb, hdr_len + len);
+	      guint32 fcs;
 
+	      if (datapad)
+		fcs = crc32_802_tvb_padded(tvb, ohdr_len, hdr_len, len);
+	      else
+		fcs = crc32_802_tvb(tvb, hdr_len + len);
 	      if (fcs == sent_fcs)
 		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
 			hdr_len + len, 4, sent_fcs,
@@ -2689,43 +2780,54 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       break;
 
     case DATA_FRAME:
-      {
-	if (tree && IS_DATA_QOS(frame_type_subtype)) {
+      if (tree && DATA_FRAME_IS_QOS(frame_type_subtype))
+	{
 
 	  proto_item *qos_fields;
 	  proto_tree *qos_tree;
 
-          guint16 qos_control;
+	  guint16 qosoff;
+	  guint16 qos_control;
 	  guint16 qos_priority;
-          guint16 qos_ack_policy;
+	  guint16 qos_ack_policy;
 	  guint16 qos_eosp;
 	  guint16 qos_field_content;
 
-	  qos_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len - 2, 2,
+	  /*
+	   * We calculate the offset to the QoS header data as
+	   * an offset relative to the end of the header.  But
+	   * when the header has been padded to align the data
+	   * this must be done relative to true header size, not
+	   * the padded/aligned value.  To simplify this work we
+	   * stash the original header size in ohdr_len instead
+	   * of recalculating it.
+	   */
+	  qosoff = ohdr_len - 2;
+	  qos_fields = proto_tree_add_text(hdr_tree, tvb, qosoff, 2,
 	      "QoS parameters");
-          qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
+	  qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
 
-          qos_control =	      tvb_get_letohs(tvb, hdr_len - 2);
-	  qos_priority =      COOK_QOS_PRIORITY(qos_control);
-          qos_ack_policy =    COOK_QOS_ACK_POLICY(qos_control);
-	  qos_eosp =	      COOK_QOS_EOSP(qos_control);
-	  qos_field_content = COOK_QOS_FIELD_CONTENT( qos_control);
+	  qos_control = tvb_get_letohs(tvb, qosoff + 0);
+	  qos_priority = QOS_PRIORITY(qos_control);
+	  qos_ack_policy = QOS_ACK_POLICY(qos_control);
+	  qos_eosp = QOS_EOSP(qos_control);
+	  qos_field_content = QOS_FIELD_CONTENT( qos_control);
 
-          proto_tree_add_uint_format (qos_tree, hf_qos_priority, tvb,
-	      hdr_len - 2, 2, qos_priority,
+	  proto_tree_add_uint_format (qos_tree, hf_qos_priority, tvb,
+	      qosoff, 2, qos_priority,
 	      "Priority: %d (%s) (%s)",
 	      qos_priority, qos_tags[qos_priority], qos_acs[qos_priority]);
 
-    	  if(flags & FLAG_FROM_DS)	{
+	  if (flags & FLAG_FROM_DS) {
 	    proto_tree_add_boolean (qos_tree, hf_qos_eosp, tvb,
-	      hdr_len - 2, 1, qos_eosp);
+	      qosoff, 1, qos_eosp);
 
-	    if(IS_DATA_CF_POLL(frame_type_subtype)) {
+	    if (DATA_FRAME_IS_CF_POLL(frame_type_subtype)) {
 	      /* txop limit */
 	      proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-      		  hdr_len - 1, 1, qos_field_content, "TXOP Limit: %d ", qos_field_content);
+      		  qosoff + 1, 1, qos_field_content, "TXOP Limit: %d ", qos_field_content);
 
-	    }else {
+	    } else {
 	      /* qap ps buffer state */
 	      proto_item *qos_ps_buf_state_fields;
     	      proto_tree *qos_ps_buf_state_tree;
@@ -2733,50 +2835,49 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      guint16 buf_ac;
 	      guint16 buf_load;
 
-	      buf_state = COOK_PS_BUF_STATE(qos_field_content);
-	      buf_ac	= COOK_PS_BUF_AC(qos_field_content);  /*access category */
-	      buf_load	= COOK_PS_BUF_LOAD(qos_field_content);
+	      buf_state = QOS_PS_BUF_STATE(qos_field_content);
+	      buf_ac = QOS_PS_BUF_AC(qos_field_content);  /*access category */
+	      buf_load = QOS_PS_BUF_LOAD(qos_field_content);
 
-	      qos_ps_buf_state_fields = proto_tree_add_text(qos_tree, tvb, hdr_len - 1, 1,
-	      "QAP PS Buffer State: 0x%x", qos_field_content);
-    	      qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
+	      qos_ps_buf_state_fields = proto_tree_add_text(qos_tree, tvb, qosoff + 1, 1,
+		"QAP PS Buffer State: 0x%x", qos_field_content);
+	      qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
 /*	FIXME: hf_ values not defined
 	      proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state, tvb,
     		  1, 1, buf_state);
 
 	      proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_ac, tvb,
-		  hdr_len - 1, 1, buf_ac, "Priority: %d (%s)",
+		  qosoff + 1, 1, buf_ac, "Priority: %d (%s)",
 		  buf_ac, wme_acs[buf_ac]);
 
 	      proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_load, tvb,
-      		  hdr_len - 1, 1, buf_load, "Buffered load: %d ", (buf_load * 4096));
+      		  qosoff + 1, 1, buf_load, "Buffered load: %d ", (buf_load * 4096));
 */
 
 	    }
-	  } else  if(qos_eosp)  {
+	  } else if (qos_eosp)  {
 	    /* txop limit requested */
 	    proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-      		  hdr_len - 1, 1, qos_field_content, "Queue Size: %d ", (qos_field_content * 254));
-	  } else  {
+      		  qosoff + 1, 1, qos_field_content, "Queue Size: %d ", (qos_field_content * 254));
+	  } else {
 	    /* queue size */
 	    proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-		  hdr_len - 1, 1, qos_field_content, "TXOP Limit Requested: %d ", qos_field_content);
+		  qosoff + 1, 1, qos_field_content, "TXOP Limit Requested: %d ", qos_field_content);
 	  }
 
-	  proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, hdr_len - 2, 1,
+	  proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, qosoff, 1,
 	      qos_ack_policy);
 
-      	} /* end of qos control field */
+	} /* end of qos control field */
 
       /*
        * No-data frames don't have a body.
        */
-      if( IS_DATA_NULL(frame_type_subtype))
+      if (DATA_FRAME_IS_NULL(frame_type_subtype))
 	return;
 
       break;
-      }
 
     case CONTROL_FRAME:
       return;
@@ -3122,7 +3223,17 @@ static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
-      pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE);
+      pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header and data padding.
+ */
+static void
+dissect_ieee80211_datapad (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
+      pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE);
 }
 
 /*
@@ -3133,7 +3244,7 @@ static void
 dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE,
-     pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE);
+     pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE);
 }
 
 /*
@@ -3144,7 +3255,7 @@ dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_bsfc (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, 0, TRUE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, 0, TRUE, FALSE);
 }
 
 /*
@@ -3154,7 +3265,7 @@ dissect_ieee80211_bsfc (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, 0, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, 0, FALSE, FALSE);
 }
 
 static void
@@ -3594,7 +3705,7 @@ proto_register_ieee80211 (void)
       "802.1D Tag", HFILL }},
 
     {&hf_qos_eosp,
-     {"EOSP", "wlan.qos.eosp", FT_BOOLEAN, 8, TFS (&eosp_flag), FLAG_EOSP,
+     {"EOSP", "wlan.qos.eosp", FT_BOOLEAN, 8, TFS (&eosp_flag), QOS_FLAG_EOSP,
       "EOSP Field", HFILL }},
 
     {&hf_qos_ack_policy,
@@ -4000,6 +4111,7 @@ proto_register_ieee80211 (void)
   register_dissector("wlan", dissect_ieee80211, proto_wlan);
   register_dissector("wlan_fixed", dissect_ieee80211_fixed, proto_wlan);
   register_dissector("wlan_bsfc", dissect_ieee80211_bsfc, proto_wlan);
+  register_dissector("wlan_datapad", dissect_ieee80211_datapad, proto_wlan);
   register_init_routine(wlan_defragment_init);
 
   wlan_tap = register_tap("wlan");
