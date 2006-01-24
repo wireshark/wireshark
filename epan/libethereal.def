@@ -55,6 +55,7 @@ capture_llap
 capture_null
 capture_ppp_hdlc
 capture_prism
+capture_radiotap
 capture_raw
 capture_sll
 capture_tr
