@@ -29,17 +29,6 @@
 #include "tvbuff.h"
 #include <epan/nstime.h>
 
-#if 0
-/* Defined in color.h */
-#ifndef __COLOR_H__
-typedef struct _color_t /* {
-	guint32 pixel;
-	guint16 red;
-	guint16 green;
-	guint16 blue;
-} */ color_t;
-#endif
-#endif
 
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep that stuff in the "packet_info" structure, instead, to
@@ -81,8 +70,8 @@ typedef struct {
 
 /* Utility routines used by packet*.c */
 
-extern void p_add_proto_data(frame_data *, int, void *);
-extern void *p_get_proto_data(frame_data *, int);
-extern void p_rem_proto_data(frame_data *fd, int proto);
+extern void p_add_proto_data(frame_data *fd, int proto, void *proto_data);
+extern void *p_get_proto_data(frame_data *fd, int proto);
+extern void p_remove_proto_data(frame_data *fd, int proto);
 
 #endif  /* __FRAME_DATA__ */

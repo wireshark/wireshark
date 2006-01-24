@@ -97,7 +97,7 @@ p_get_proto_data(frame_data *fd, int proto)
 }
 
 void
-p_rem_proto_data(frame_data *fd, int proto)
+p_remove_proto_data(frame_data *fd, int proto)
 {
   frame_proto_data temp;
   GSList *item;

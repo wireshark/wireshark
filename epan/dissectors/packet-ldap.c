@@ -2428,7 +2428,7 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d result%s", 
 					     *num_results, *num_results == 1 ? "" : "s");
 		     g_free(num_results);
-		     p_rem_proto_data(pinfo->fd, proto_ldap);
+		     p_remove_proto_data(pinfo->fd, proto_ldap);
 	     }
 
 	     dissect_ldap_result(&a, ldap_tree, pinfo);
