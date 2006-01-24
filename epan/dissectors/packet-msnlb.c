@@ -36,8 +36,10 @@
 static int proto_msnlb = -1;
 
 static int hf_msnlb_unknown = -1;
+static int hf_msnlb_hpn = -1;
 static int hf_msnlb_cls_virt_ip = -1;
 static int hf_msnlb_host_ip = -1;
+static int hf_msnlb_count = -1;
 static int hf_msnlb_host_name = -1;
 
 /* Initialize the subtree pointers */
@@ -73,7 +75,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
     offset += 4;
 
-    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+    proto_tree_add_item(msnlb_tree, hf_msnlb_hpn, tvb, offset, 4, TRUE);
     offset += 4;
 
     proto_tree_add_item(msnlb_tree, hf_msnlb_cls_virt_ip, tvb, offset, 4, FALSE);
@@ -97,7 +99,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_count, tvb, offset, 4, TRUE);
         offset += 4;
 
         proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
@@ -141,6 +143,12 @@ proto_register_msnlb(void)
         NULL, 0,
         "", HFILL }
     },
+    { &hf_msnlb_hpn,
+      { "Host Priority Number", "msnlb.hpn",
+        FT_UINT32, BASE_DEC,
+        NULL, 0,
+        "Host Priority Number", HFILL }
+    },
     { &hf_msnlb_host_ip,
       { "Host IP", "msnlb.host_ip",
         FT_IPv4, BASE_HEX,
@@ -152,6 +160,12 @@ proto_register_msnlb(void)
         FT_IPv4, BASE_HEX,
         NULL, 0,
         "Cluster Virtual IP address", HFILL }
+    },
+    { &hf_msnlb_count,
+      { "Count", "msnlb.count",
+        FT_UINT32, BASE_HEX,
+        NULL, 0,
+        "Count", HFILL }
     },
     { &hf_msnlb_host_name,
       { "Host name", "msnlb.host_name",
