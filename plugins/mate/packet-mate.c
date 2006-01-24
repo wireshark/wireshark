@@ -367,7 +367,8 @@ void
 proto_register_mate(void)
 {
 	module_t *mate_module;
-
+    dissector_handle_t mate_handle;
+    
 	proto_mate = proto_register_protocol("Meta Analysis Tracing Engine", "MATE", "mate");
 	register_dissector("mate",mate_tree,proto_mate);
 	mate_module = prefs_register_protocol(proto_mate, proto_reg_handoff_mate);
@@ -375,5 +376,9 @@ proto_register_mate(void)
 									 "Configuration Filename",
 									 "The name of the file containing the mate module's configuration",
 									 &pref_mate_config_filename);
+
+    mate_handle = create_dissector_handle(mate_tree, proto_mate);
+    
+    register_postdissector(mate_handle);
 }
 

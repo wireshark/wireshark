@@ -1782,3 +1782,23 @@ void
 dissector_dump_decodes() {
 	dissector_all_tables_foreach(dissector_dump_decodes_display, NULL);
 }
+
+static GPtrArray* post_dissectors = NULL;
+static guint num_of_postdissectors = 0;
+
+void register_postdissector(dissector_hanlde_t handle) {
+    if (!post_dissectors)
+        post_dissectors = g_ptr_array_new();
+    
+    g_ptr_array_add(post_dissectors, handle);
+    num_of_postdissectors++;
+}
+
+extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    guint i;
+    for(i=0;i<num_of_postdissectors;i++) {
+        call_dissector((dissector_handle_t) g_ptr_array_index(post_dissectors,i),
+                       tvb,pinfo,tree);
+    }
+}
+

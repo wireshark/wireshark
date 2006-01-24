@@ -523,6 +523,7 @@ register_giop_user_module
 register_heur_dissector_list
 register_init_routine
 register_postseq_cleanup_routine
+register_postdissector
 register_stat_cmd_arg
 register_tap
 register_tap_listener

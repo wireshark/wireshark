@@ -406,4 +406,11 @@ extern void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
  */
 extern void dissector_dump_decodes(void);
 
+/*
+ * post dissectors are to be called by packet-frame.c after every other
+ * dissector has been called.
+ */
+extern void register_postdissector(dissector_handle_t);
+extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 #endif /* packet.h */
