@@ -27,10 +27,196 @@
  */
 
 #include "packet-lua.h"
+#include <epan/addr_resolv.h>
+#include <string.h>
 
-LUA_CLASS_DEFINE(Column,COLUMN,if (! *p) luaL_error(L,"null column"));
+LUA_CLASS_DEFINE(Column,COLUMN,NOP);
 LUA_CLASS_DEFINE(Columns,COLUMNS,NOP);
 LUA_CLASS_DEFINE(Pinfo,PINFO,if (! *p) luaL_error(L,"null pinfo"));
+LUA_CLASS_DEFINE(Address,ADDRESS,NOP);
+
+static int Address_ip(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+    guint32* ip_addr = g_malloc(sizeof(guint32));
+    const gchar* name = luaL_checkstring(L,1);
+    
+    if (! get_host_ipaddr(name, (guint32*)ip_addr)) {
+        *ip_addr = 0;
+    }
+        
+    SET_ADDRESS(addr, AT_IPv4, 4, ip_addr); 
+    pushAddress(L,addr);
+    return 1;
+}
+
+#if 0
+/* TODO */
+static int Address_ipv6(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_ss7(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_eth(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_sna(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_atalk(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_vines(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_osi(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_arcnet(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_fc(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_string(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_eui64(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_uri(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+static int Address_tipc(lua_State* L) {
+    Address addr = g_malloc(sizeof(address));
+
+    SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4)); 
+    
+    pushAddress(L,addr);
+    return 1;
+}
+#endif
+
+static const luaL_reg Address_methods[] = {
+    {"ip", Address_ip },
+#if 0
+    {"ipv6", Address_ipv6 },
+    {"ss7pc", Address_ss7 },
+    {"eth", Address_eth },
+    {"sna", Address_sna },
+    {"atalk", Address_atalk },
+    {"vines", Address_vines },
+    {"osi", Address_osi },
+    {"arcnet", Address_arcnet },
+    {"fc", Address_fc },
+    {"string", Address_string },
+    {"eui64", Address_eui64 },
+    {"uri", Address_uri },
+    {"tipc", Address_tipc },
+#endif
+    {0,0}
+};
+
+static int Address_tostring(lua_State* L) {
+    Address addr = checkAddress(L,1);
+    
+    lua_pushstring(L,get_addr_name(addr));
+    
+    return 1;
+}
+
+static int Address_gc(lua_State* L) {
+    Address addr = checkAddress(L,1);
+    
+    if (addr) {
+        if (addr->data) g_free((void*)addr->data);
+        g_free((void*)addr);
+    }
+
+    return 0;
+}
+
+static const luaL_reg Address_meta[] = {
+    {"__gc", Address_gc },
+    {"__tostring", Address_tostring },
+    {0,0}
+};
+
+
+int Address_register(lua_State *L) {
+    luaL_openlib(L, ADDRESS, Address_methods, 0);
+    luaL_newmetatable(L, ADDRESS);
+    luaL_openlib(L, 0, Address_meta, 0);
+    lua_pushliteral(L, "__index");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pushliteral(L, "__metatable");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pop(L, 1);
+    
+    return 1;
+}
 
 /* Column class */
 struct col_names_t {
@@ -114,18 +300,21 @@ static int Column_tostring(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* name;
     
-    if (!c) return 0;
-
-    name = col_id_to_name(c->col);
+    if (!(c && c->cinfo)) {
+        lua_pushstring(L,"Bad Column");
+        return 1;
+    } else {
+        name = col_id_to_name(c->col);
+        lua_pushstring(L,name ? name : "Unknown Column");
+    }
     
-    lua_pushstring(L,name ? name : "Unknown Column");
     return 1;
 }
 
 static int Column_clear(lua_State *L) {
     Column c = checkColumn(L,1);
     
-    if (!c) return 0;
+    if (!(c && c->cinfo)) return 0;
     
     if (check_col(c->cinfo, c->col))
         col_clear(c->cinfo, c->col);
@@ -137,7 +326,7 @@ static int Column_set(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
-    if (!c) return 0;
+    if (!(c && c->cinfo && s)) return 0;
 
     if (check_col(c->cinfo, c->col))
         col_set_str(c->cinfo, c->col, s);
@@ -149,7 +338,7 @@ static int Column_append(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
-    if (!(c && s)) return 0;
+    if (!(c && c->cinfo && s)) return 0;
     
     if (check_col(c->cinfo, c->col))
         col_append_str(c->cinfo, c->col, s);
@@ -160,7 +349,7 @@ static int Column_preppend(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
-    if (!(c && s)) return 0;
+    if (!(c && c->cinfo && s)) return 0;
     
     if (check_col(c->cinfo, c->col))
         col_prepend_fstr(c->cinfo, c->col, "%s",s);
@@ -234,7 +423,7 @@ static int Columns_newindex(lua_State *L) {
         if( g_str_equal(cn->name,colname) ) {
             if (check_col(cols, cn->id))
                 col_set_str(cols, cn->id, text);
-            return 1;
+            return 0;
         }
     }
     
@@ -246,7 +435,14 @@ static int Columns_index(lua_State *L) {
     const struct col_names_t* cn;    
     const char* colname;
 
-    if (!cols) return 0;
+    if (!cols) {
+        Column c = g_malloc(sizeof(struct _eth_col_info));
+        c->cinfo = NULL;
+        c->col = 0;
+        
+        pushColumn(L,c);
+        return 1;
+    }
     
     colname = luaL_checkstring(L,2);
     
@@ -257,26 +453,26 @@ static int Columns_index(lua_State *L) {
             Column c = g_malloc(sizeof(struct _eth_col_info));
             c->cinfo = cols;
             c->col = col_name_to_id(colname);
-            
+
             pushColumn(L,c);
-            return 0;
+            return 1;
         }
     }
-    
+
     return 0;
 }
 
 
 static const luaL_reg Columns_meta[] = {
     {"__tostring", Columns_tostring },
-    {"__newindex", Columns_index },
-    {"__index", Columns_newindex },
+    {"__newindex", Columns_newindex },
+    {"__index",  Columns_index},
     {0,0}
 };
 
 
 int Columns_register(lua_State *L) {
-    luaL_newmetatable(L, COLUMN);
+    luaL_newmetatable(L, COLUMNS);
     luaL_openlib(L, NULL, Columns_meta, 0);
     
     return 1;
@@ -295,8 +491,19 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
 
 #define PINFO_GET_STRING(name,val) static int name(lua_State *L) { \
     Pinfo pinfo = checkPinfo(L,1); \
+    const gchar* value; \
     if (!pinfo) return 0; \
-    if (val) lua_pushstring(L,(const char*)(val)); else lua_pushnil(L); \
+    value = val; \
+    if (value) lua_pushstring(L,(const char*)(value)); else lua_pushnil(L); \
+    return 1; \
+}
+
+#define PINFO_GET_ADDRESS(name,role) static int name(lua_State *L) { \
+    Pinfo pinfo = checkPinfo(L,1); \
+    Address addr = g_malloc(sizeof(address)); \
+    if (!pinfo) return 0; \
+    COPY_ADDRESS(addr, &(pinfo->role)); \
+    pushAddress(L,addr); \
     return 1; \
 }
 
@@ -306,59 +513,231 @@ PINFO_GET_NUMBER(Pinfo_caplen,pinfo->fd->cap_len);
 PINFO_GET_NUMBER(Pinfo_abs_ts,(((double)pinfo->fd->abs_ts.secs) + (((double)pinfo->fd->abs_ts.nsecs) / 1000000000.0) ));
 PINFO_GET_NUMBER(Pinfo_rel_ts,(((double)pinfo->fd->rel_ts.secs) + (((double)pinfo->fd->rel_ts.nsecs) / 1000000000.0) ));
 PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->fd->del_ts.secs) + (((double)pinfo->fd->del_ts.nsecs) / 1000000000.0) ));
-PINFO_GET_NUMBER(Pinfo_visited,pinfo->fd->flags.visited);
 PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ipproto);
 PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->circuit_id);
 PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ptype);
-PINFO_GET_NUMBER(Pinfo_match_port,pinfo->match_port);
+PINFO_GET_NUMBER(Pinfo_src_port,pinfo->srcport);
+PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->destport);
 
 
-PINFO_GET_STRING(Pinfo_src,address_to_str(&(pinfo->src)));
-PINFO_GET_STRING(Pinfo_dst,address_to_str(&(pinfo->dst)));
-PINFO_GET_STRING(Pinfo_net_src,address_to_str(&(pinfo->net_src)));
-PINFO_GET_STRING(Pinfo_net_dst,address_to_str(&(pinfo->net_dst)));
-PINFO_GET_STRING(Pinfo_dl_src,address_to_str(&(pinfo->dl_src)));
-PINFO_GET_STRING(Pinfo_dl_dst,address_to_str(&(pinfo->dl_dst)));
-PINFO_GET_STRING(Pinfo_match_string,pinfo->match_string);
 PINFO_GET_STRING(Pinfo_curr_proto,pinfo->current_proto);
 
-static int Pinfo_columns(lua_State *L) {
+PINFO_GET_ADDRESS(Pinfo_net_src,net_src);
+PINFO_GET_ADDRESS(Pinfo_net_dst,net_dst);
+PINFO_GET_ADDRESS(Pinfo_dl_src,dl_src);
+PINFO_GET_ADDRESS(Pinfo_dl_dst,dl_dst);
+PINFO_GET_ADDRESS(Pinfo_src,src);
+PINFO_GET_ADDRESS(Pinfo_dst,dst);
+
+static int Pinfo_visited(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     if (!pinfo) return 0;
-    pushColumns(L,pinfo->cinfo);
+    lua_pushboolean(L,pinfo->fd->flags.visited);
     return 1;
 }
 
-static const luaL_reg Pinfo_methods[] = {
-    {"number", Pinfo_number },
-    {"len", Pinfo_len },
-    {"caplen", Pinfo_caplen },
-    {"abs_ts",Pinfo_abs_ts },
-    {"rel_ts",Pinfo_rel_ts },
-    {"delta_ts",Pinfo_delta_ts },
-    {"visited",Pinfo_visited },
-    {"src_address", Pinfo_src },
-    {"dst_address", Pinfo_dst },
-    {"dl_src", Pinfo_dl_src },
-    {"dl_dst", Pinfo_dl_dst },
-    {"net_src", Pinfo_net_src },
-    {"net_dst", Pinfo_net_dst },
-    {"ipproto", Pinfo_ipproto },
-    {"circuit_id", Pinfo_circuit_id },
-    {"ptype", Pinfo_ptype },
-    {"match_port", Pinfo_match_port },
-    {"match_string", Pinfo_match_string },
-    {"curr_proto", Pinfo_curr_proto },
-    {"col", Pinfo_columns },
-    {0,0}
+
+static int Pinfo_match(lua_State *L) {
+    Pinfo pinfo = checkPinfo(L,1);
+    
+    if (!pinfo) return 0;
+    
+    if (pinfo->match_string) {
+        lua_pushstring(L,pinfo->match_string);
+    } else {
+        lua_pushnumber(L,(lua_Number)(pinfo->match_port));
+    }
+    
+    return 1;
+}
+
+static int Pinfo_columns(lua_State *L) {
+    Pinfo pinfo = checkPinfo(L,1);
+    const gchar* colname = luaL_optstring(L,2,NULL);
+
+    if (!colname) {
+        pushColumns(L,pinfo->cinfo);
+    } else {
+        lua_settop(L,0);
+        pushColumns(L,pinfo->cinfo);
+        lua_pushstring(L,colname);
+        return Columns_index(L);
+    }
+    return 1;
+}
+
+
+typedef enum {
+    PARAM_NONE,
+    PARAM_ADDR_SRC,
+    PARAM_ADDR_DST,
+    PARAM_ADDR_DL_SRC,
+    PARAM_ADDR_DL_DST,
+    PARAM_ADDR_NET_SRC,
+    PARAM_ADDR_NET_DST,
+    PARAM_PORT_SRC,
+    PARAM_PORT_DST,
+    PARAM_CIRCUIT_ID,
+    PARAM_PORT_TYPE,
+} pinfo_param_type_t;
+
+static int pushnil_param(lua_State* L, packet_info* pinfo _U_, pinfo_param_type_t pt _U_ ) {
+    lua_pushnil(L);
+    return 1;
+}
+
+int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
+    const address* from = checkAddress(L,1);
+    address* to;
+    
+    if (! from ) {
+        luaL_error(L,"Not an OK address");
+        return 0;
+    }
+    
+    switch(pt) {
+        case PARAM_ADDR_SRC:
+            to = &(pinfo->src);
+            break;
+        case PARAM_ADDR_DST:
+            to = &(pinfo->src);
+            break;
+        case PARAM_ADDR_DL_SRC:
+            to = &(pinfo->src);
+            break;
+        case PARAM_ADDR_DL_DST:
+            to = &(pinfo->src);
+            break;
+        case PARAM_ADDR_NET_SRC:
+            to = &(pinfo->src);
+            break;
+        case PARAM_ADDR_NET_DST:
+            to = &(pinfo->src);
+            break;
+        default:
+            g_assert(!"BUG: A bad parameter");
+    }
+    
+    COPY_ADDRESS(to,from);
+    return 0;
+}
+
+int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
+    guint v = luaL_checkint(L,1);
+    
+    switch(pt) {
+        case PARAM_PORT_SRC:
+            pinfo->srcport = v;
+            return 0;
+        case PARAM_PORT_DST:
+            pinfo->destport = v;
+            return 0;
+        case PARAM_CIRCUIT_ID:
+            pinfo->circuit_id = v;
+            return 0;
+        default:
+            g_assert(!"BUG: A bad parameter");
+    }
+    
+    return 0;
+}
+
+typedef struct _pinfo_method_t {
+    const gchar* name;
+    lua_CFunction get;
+    int (*set)(lua_State*, packet_info*, pinfo_param_type_t);
+    pinfo_param_type_t param;
+} pinfo_method_t;
+
+
+static const pinfo_method_t Pinfo_methods[] = {
+    {"number", Pinfo_number, pushnil_param, PARAM_NONE},
+    {"len", Pinfo_len, pushnil_param, PARAM_NONE },
+    {"caplen", Pinfo_caplen, pushnil_param, PARAM_NONE },
+    {"abs_ts",Pinfo_abs_ts, pushnil_param, PARAM_NONE },
+    {"rel_ts",Pinfo_rel_ts, pushnil_param, PARAM_NONE },
+    {"delta_ts",Pinfo_delta_ts, pushnil_param, PARAM_NONE },
+    {"visited",Pinfo_visited, pushnil_param, PARAM_NONE },
+    {"src", Pinfo_src, Pinfo_set_addr, PARAM_ADDR_SRC },
+    {"dst", Pinfo_dst, Pinfo_set_addr, PARAM_ADDR_DST },
+    {"dl_src", Pinfo_dl_src, Pinfo_set_addr, PARAM_ADDR_DL_SRC },
+    {"dl_dst", Pinfo_dl_dst, Pinfo_set_addr, PARAM_ADDR_DL_DST },
+    {"net_src", Pinfo_net_src, Pinfo_set_addr, PARAM_ADDR_NET_SRC },
+    {"net_dst", Pinfo_net_dst, Pinfo_set_addr, PARAM_ADDR_NET_DST },
+    {"src_port", Pinfo_src_port, Pinfo_set_int,  PARAM_PORT_SRC },
+    {"dst_port", Pinfo_dst_port, Pinfo_set_int,  PARAM_PORT_SRC },
+    {"ipproto", Pinfo_ipproto, pushnil_param,  PARAM_NONE },
+    {"circuit_id", Pinfo_circuit_id, Pinfo_set_int, PARAM_CIRCUIT_ID },
+    {"port_type", Pinfo_ptype, pushnil_param, PARAM_NONE },
+    {"match", Pinfo_match, pushnil_param, PARAM_NONE },
+    {"curr_proto", Pinfo_curr_proto, pushnil_param, PARAM_NONE },
+    {"cols", Pinfo_columns, pushnil_param, PARAM_NONE },
+    {NULL,NULL,NULL,PARAM_NONE}
 };
 
+
+static int pushnil(lua_State* L) {
+    lua_pushnil(L);
+    return 1;
+}
+
+static int Pinfo_index(lua_State* L) {
+    Pinfo pinfo = checkPinfo(L,1);
+    const gchar* name = luaL_checkstring(L,2);
+    lua_CFunction method = pushnil;
+    const pinfo_method_t* curr;
+    
+    if (! (pinfo && name) ) {
+        lua_pushnil(L);
+        return 1;
+    }
+    
+    for (curr = Pinfo_methods ; curr->name ; curr++) {
+        if (g_str_equal(curr->name,name)) {
+            method = curr->get;
+            break;
+        }
+    }
+    
+    lua_settop(L,1);
+    return method(L);
+}
+
+static int Pinfo_setindex(lua_State* L) {
+    Pinfo pinfo = checkPinfo(L,1);
+    const gchar* name = luaL_checkstring(L,2);
+    int (*method)(lua_State*, packet_info* pinfo, pinfo_param_type_t) = pushnil_param;
+    const pinfo_method_t* curr;
+    pinfo_param_type_t param_type = PARAM_NONE;
+    
+    if (! (pinfo && name) ) {
+        return 0;
+    }
+    
+    for (curr = Pinfo_methods ; curr->name ; curr++) {
+        if (g_str_equal(curr->name,name)) {
+            method = curr->set;
+            param_type = curr->param;
+            break;
+        }
+    }
+    
+    lua_pop(L,1);
+    lua_pop(L,1);    
+    return method(L,pinfo,param_type);
+}
+
 static const luaL_reg Pinfo_meta[] = {
+    {"__index", Pinfo_index},
+    {"__setindex",Pinfo_setindex},
     {"__tostring", Pinfo_tostring},
     {0, 0}
 };
 
 int Pinfo_register(lua_State* L) {
+    luaL_newmetatable(L, PINFO);
+    luaL_openlib(L, NULL, Pinfo_meta, 0);
+/*
     luaL_openlib(L, PINFO, Pinfo_methods, 0);
     luaL_newmetatable(L, PINFO);
     luaL_openlib(L, 0, Pinfo_meta, 0);
@@ -369,7 +748,7 @@ int Pinfo_register(lua_State* L) {
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
     lua_pop(L, 1);
-    
+ */   
     return 1;
 };
 

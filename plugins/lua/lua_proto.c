@@ -31,9 +31,12 @@
 LUA_CLASS_DEFINE(Proto,PROTO,if (! *p) luaL_error(L,"null Proto"));
 LUA_CLASS_DEFINE(ProtoField,PROTO_FIELD,if (! *p) luaL_error(L,"null ProtoField"));
 LUA_CLASS_DEFINE(ProtoFieldArray,PROTO_FIELD_ARRAY,if (! *p) luaL_error(L,"null ProtoFieldArray"));
-LUA_CLASS_DEFINE(Ett,ETT,NOP);
-LUA_CLASS_DEFINE(EttArray,ETT_ARRAY,if (! *p) luaL_error(L,"null EttArray"));
+LUA_CLASS_DEFINE(SubTreeType,SUB_TREE_TYPE,NOP);
+LUA_CLASS_DEFINE(SubTreeTypeArray,SUB_TREE_TYPE_ARRAY,if (! *p) luaL_error(L,"null SubTreeTypeArray"));
 LUA_CLASS_DEFINE(ValueString,VALUE_STRING,NOP);
+LUA_CLASS_DEFINE(Dissector,DISSECTOR,NOP);
+LUA_CLASS_DEFINE(DissectorTable,DISSECTOR_TABLE,NOP);
+
 
 /*
  * ProtoField class
@@ -421,21 +424,21 @@ int ProtoFieldArray_register(lua_State* L) {
 
 
 /*
- * Ett class
+ * SubTreeType class
  */
 
 
-static int Ett_new(lua_State* L) {
-    Ett e = g_malloc(sizeof(int));
+static int SubTreeType_new(lua_State* L) {
+    SubTreeType e = g_malloc(sizeof(int));
     *e = -2;
-    pushEtt(L,e);
+    pushSubTreeType(L,e);
     
     return 1;
 }
 
-static int Ett_tostring(lua_State* L) {
-    Ett e = checkEtt(L,1);
-    gchar* s = g_strdup_printf("Ett: %i",*e);
+static int SubTreeType_tostring(lua_State* L) {
+    SubTreeType e = checkSubTreeType(L,1);
+    gchar* s = g_strdup_printf("SubTreeType: %i",*e);
     
     lua_pushstring(L,s);
     g_free(s);
@@ -444,20 +447,20 @@ static int Ett_tostring(lua_State* L) {
 }
 
 
-static const luaL_reg Ett_methods[] = {
-    {"new",   Ett_new},
+static const luaL_reg SubTreeType_methods[] = {
+    {"new",   SubTreeType_new},
     {0,0}
 };
 
-static const luaL_reg Ett_meta[] = {
-    {"__tostring", Ett_tostring},
+static const luaL_reg SubTreeType_meta[] = {
+    {"__tostring", SubTreeType_tostring},
     {0, 0}
 };
 
-int Ett_register(lua_State* L) {
-    luaL_openlib(L, ETT, Ett_methods, 0);
-    luaL_newmetatable(L, ETT);
-    luaL_openlib(L, 0, Ett_meta, 0);
+int SubTreeType_register(lua_State* L) {
+    luaL_openlib(L, SUB_TREE_TYPE, SubTreeType_methods, 0);
+    luaL_newmetatable(L, SUB_TREE_TYPE);
+    luaL_openlib(L, 0, SubTreeType_meta, 0);
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
@@ -474,16 +477,16 @@ int Ett_register(lua_State* L) {
 
 
 /*
- * EttArray class
+ * SubTreeTypeArray class
  */
 
-static int EttArray_new(lua_State* L) {
-    EttArray ea = g_array_new(TRUE,TRUE,sizeof(gint*));
+static int SubTreeTypeArray_new(lua_State* L) {
+    SubTreeTypeArray ea = g_array_new(TRUE,TRUE,sizeof(gint*));
     guint i;
     guint num_args = lua_gettop(L);
     
     for (i = 1; i <= num_args; i++) {
-        Ett e = checkEtt(L,i);
+        SubTreeType e = checkSubTreeType(L,i);
         
         if(*e != -2) {
             luaL_argerror(L, i, "SubTree has already been added to an array");
@@ -495,18 +498,18 @@ static int EttArray_new(lua_State* L) {
         g_array_append_val(ea,e);
     }
     
-    pushEttArray(L,ea);
+    pushSubTreeTypeArray(L,ea);
     return 1;
 }
 
 
-static int EttArray_add(lua_State* L) {
-    EttArray ea = checkEttArray(L,1);
+static int SubTreeTypeArray_add(lua_State* L) {
+    SubTreeTypeArray ea = checkSubTreeTypeArray(L,1);
     guint i;
     guint num_args = lua_gettop(L);
     
     for (i = 2; i <= num_args; i++) {
-        Ett e = checkEtt(L,i);
+        SubTreeType e = checkSubTreeType(L,i);
         if(*e != -2) {
             luaL_argerror(L, i, "SubTree has already been added to an array");
             return 0;
@@ -520,9 +523,9 @@ static int EttArray_add(lua_State* L) {
     return 0;
 }
 
-static int EttArray_tostring(lua_State* L) {
-    GString* s = g_string_new("EttArray:\n");
-    EttArray ea = checkEttArray(L,1);
+static int SubTreeTypeArray_tostring(lua_State* L) {
+    GString* s = g_string_new("SubTreeTypeArray:\n");
+    SubTreeTypeArray ea = checkSubTreeTypeArray(L,1);
     unsigned i;
     
     for(i = 0; i< ea->len; i++) {
@@ -536,8 +539,8 @@ static int EttArray_tostring(lua_State* L) {
     return 1;
 }
 
-static int EttArray_register_to_ethereal(lua_State* L) {
-    EttArray ea = checkEttArray(L,1);
+static int SubTreeTypeArray_register_to_ethereal(lua_State* L) {
+    SubTreeTypeArray ea = checkSubTreeTypeArray(L,1);
     
     if (!ea->len) {
         luaL_argerror(L,1,"empty array");
@@ -554,8 +557,8 @@ static int EttArray_register_to_ethereal(lua_State* L) {
     return 0;
 }
 
-static int EttArray_gc(lua_State* L) {
-    EttArray ea = checkEttArray(L,1);
+static int SubTreeTypeArray_gc(lua_State* L) {
+    SubTreeTypeArray ea = checkSubTreeTypeArray(L,1);
     
     g_array_free(ea,FALSE);
     
@@ -563,23 +566,23 @@ static int EttArray_gc(lua_State* L) {
 }
 
 
-static const luaL_reg EttArray_methods[] = {
-    {"new",   EttArray_new},
-    {"add",   EttArray_add},
-    {"register",   EttArray_register_to_ethereal},
+static const luaL_reg SubTreeTypeArray_methods[] = {
+    {"new",   SubTreeTypeArray_new},
+    {"add",   SubTreeTypeArray_add},
+    {"register",   SubTreeTypeArray_register_to_ethereal},
     {0,0}
 };
 
-static const luaL_reg EttArray_meta[] = {
-    {"__gc",       EttArray_gc},
-    {"__tostring", EttArray_tostring},
+static const luaL_reg SubTreeTypeArray_meta[] = {
+    {"__gc",       SubTreeTypeArray_gc},
+    {"__tostring", SubTreeTypeArray_tostring},
     {0, 0}
 };
 
-int EttArray_register(lua_State* L) {
-    luaL_openlib(L, ETT_ARRAY, EttArray_methods, 0);
-    luaL_newmetatable(L, ETT_ARRAY);
-    luaL_openlib(L, 0, EttArray_meta, 0);
+int SubTreeTypeArray_register(lua_State* L) {
+    luaL_openlib(L, SUB_TREE_TYPE_ARRAY, SubTreeTypeArray_methods, 0);
+    luaL_newmetatable(L, SUB_TREE_TYPE_ARRAY);
+    luaL_openlib(L, 0, SubTreeTypeArray_meta, 0);
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
@@ -884,10 +887,6 @@ int Proto_register(lua_State* L) {
     return 1;
 }
 
-LUA_CLASS_DEFINE(Dissector,DISSECTOR,NOP);
-LUA_CLASS_DEFINE(DissectorTable,DISSECTOR_TABLE,NOP);
-
-
 /*
  * Dissector class
  */
@@ -914,7 +913,7 @@ static int Dissector_call(lua_State* L) {
     Dissector d = checkDissector(L,1);
     Tvb tvb = checkTvb(L,2);
     Pinfo pinfo = checkPinfo(L,3);
-    Tree tree = checkTree(L,4);
+    ProtoTree tree = checkProtoTree(L,4);
     
     if (! ( d && tvb && pinfo) ) return 0;
     
@@ -929,7 +928,6 @@ static int Dissector_tostring(lua_State* L) {
     lua_pushstring(L,dissector_handle_get_short_name(d));
     return 1;
 }
-
 
 static const luaL_reg Dissector_methods[] = {
     {"get", Dissector_get },
@@ -956,10 +954,6 @@ int Dissector_register(lua_State* L) {
     
     return 1;
 };
-
-
-
-
 
 
 /*
@@ -1046,7 +1040,7 @@ static int DissectorTable_try (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
     Tvb tvb = checkTvb(L,3);
     Pinfo pinfo = checkPinfo(L,4);
-    Tree tree = checkTree(L,5);
+    ProtoTree tree = checkProtoTree(L,5);
     ftenum_t type;
     
     if (! (dt && tvb && pinfo && tree) ) return 0;
@@ -1229,7 +1223,7 @@ static const luaL_reg ValueString_meta[] = {
 };
 
 
-extern int ValueString_register(lua_State* L) {
+int ValueString_register(lua_State* L) {
     luaL_openlib(L, VALUE_STRING, ValueString_methods, 0);
     luaL_newmetatable(L, VALUE_STRING);
     luaL_openlib(L, 0, ValueString_meta, 0);

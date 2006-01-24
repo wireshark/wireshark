@@ -29,11 +29,11 @@
 #include "packet-lua.h"
 
 LUA_CLASS_DEFINE(Tap,TAP,NOP);
-LUA_CLASS_DEFINE(Interesting,INTERESTING,NOP);
+LUA_CLASS_DEFINE(Field,FIELD,NOP);
 
-static int Interesting_get (lua_State *L) {
+static int Field_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,1);
-    Interesting i;
+    Field i;
     
     if (!name) return 0;
     
@@ -44,12 +44,12 @@ static int Interesting_get (lua_State *L) {
         return 0;
     }
     
-    pushInteresting(L,i);
+    pushField(L,i);
     return 1;
 }    
 
-static int Interesting_fetch (lua_State* L) {
-    Interesting in = checkInteresting(L,1);
+static int Field_fetch (lua_State* L) {
+    Field in = checkField(L,1);
     int items_found = 0;
     
     for (;in;in = in->same_name_next) {
@@ -103,28 +103,28 @@ static int Interesting_fetch (lua_State* L) {
     
 }
 
-static int Interesting_tostring (lua_State* L) {
-    Interesting in = checkInteresting(L,1);
+static int Field_tostring (lua_State* L) {
+    Field in = checkField(L,1);
     
-    lua_pushfstring(L,"Interesting: %s",in->abbrev);
+    lua_pushfstring(L,"Field: %s",in->abbrev);
     return 1;
 }
 
-static const luaL_reg Interesting_methods[] = {
-    {"get", Interesting_get},
-    {"fetch", Interesting_fetch },
+static const luaL_reg Field_methods[] = {
+    {"get", Field_get},
+    {"fetch", Field_fetch },
     {0,0}
 };
 
-static const luaL_reg Interesting_meta[] = {
-    {"__tostring", Interesting_tostring},
+static const luaL_reg Field_meta[] = {
+    {"__tostring", Field_tostring},
     {0, 0}
 };
 
-int Interesting_register(lua_State* L) {
-    luaL_openlib(L, INTERESTING, Interesting_methods, 0);
-    luaL_newmetatable(L, INTERESTING);
-    luaL_openlib(L, 0, Interesting_meta, 0);
+int Field_register(lua_State* L) {
+    luaL_openlib(L, FIELD, Field_methods, 0);
+    luaL_newmetatable(L, FIELD);
+    luaL_openlib(L, 0, Field_meta, 0);
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
@@ -160,7 +160,7 @@ static int Tap_new(lua_State* L) {
 
 static int Tap_add(lua_State* L) {
     Tap tap = checkTap(L,1);
-    Interesting in = checkInteresting(L,2);
+    Field in = checkField(L,2);
     
     if (!(tap && in)) return 0;
     
@@ -217,7 +217,7 @@ static int Tap_register_to_ethereal(lua_State*L) {
     ins = tap->interesting_fields;
 
     for (i=0; i < ins->len; i++) {
-        Interesting in = g_ptr_array_index(ins,i);
+        Field in = g_ptr_array_index(ins,i);
         g_string_sprintfa(filter_s," ||%s",in->abbrev);
     }
 

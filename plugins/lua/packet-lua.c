@@ -28,11 +28,14 @@
 
 #include "packet-lua.h"
 static lua_State* L = NULL;
+packet_info* lua_pinfo;
+proto_tree* lua_tree;
+dissector_handle_t lua_data_handle;
 
 
 /* ethereal uses lua */
 
-extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_) {
+int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_) {
     Tap tap = tapdata;
     
     lua_pushstring(L, "_ethereal_pinfo");
@@ -67,7 +70,7 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_settable(L, LUA_GLOBALSINDEX);
 
     lua_pushstring(L, "_ethereal_tree");
-    pushTree(L, tree);
+    pushProtoTree(L, tree);
     lua_settable(L, LUA_GLOBALSINDEX);
     
     lua_pinfo = pinfo;
@@ -98,26 +101,6 @@ static const char *getF(lua_State *L _U_, void *ud, size_t *size)
     return (*size>0) ? buff : NULL;
 }
 
-extern void lua_functions_defined_but_unused(void) {
-    toValueString(L,1);
-    toProtoField(L,1);
-    toProtoFieldArray(L,1);
-    toEtt(L,1);
-    toEttArray(L,1);
-    toProto(L,1);
-    toByteArray(L,1);
-    toTvb(L,1);
-    toColumn(L,1);
-    toPinfo(L,1);
-    toTree(L,1);
-    toItem(L,1);
-    toDissector(L,1);
-    toDissectorTable(L,1);
-    toInteresting(L,1);
-    toTap(L,1);
-    toColumns(L,1);
-}
-
 void proto_register_lua(void)
 {
     FILE* file;
@@ -145,20 +128,22 @@ void proto_register_lua(void)
     ValueString_register(L);
     ProtoField_register(L);
     ProtoFieldArray_register(L);
-    Ett_register(L);
-    EttArray_register(L);
+    SubTreeType_register(L);
+    SubTreeTypeArray_register(L);
     ByteArray_register(L);
     Tvb_register(L);
     Proto_register(L);
     Column_register(L);
     Pinfo_register(L);
-    Tree_register(L);
-    Item_register(L);
+    ProtoTree_register(L);
+    ProtoItem_register(L);
     Dissector_register(L);
     DissectorTable_register(L);
-    Interesting_register(L);
+    Field_register(L);
     Columns_register(L);
     Tap_register(L);
+    Address_register(L);
+    
     lua_pushstring(L, "handoff_routines");
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);

@@ -95,14 +95,14 @@ typedef GArray* ValueString;
 #define PROTO_FIELD "ProtoField"
 typedef struct _eth_field_t* ProtoField;
 
-#define PROTO_FIELD_ARRAY "ProtoFieldArr"
+#define PROTO_FIELD_ARRAY "ProtoFieldArray"
 typedef GArray* ProtoFieldArray;
 
-#define ETT "SubTreeType"
-typedef int* Ett;
+#define SUB_TREE_TYPE "SubTreeType"
+typedef int* SubTreeType;
 
-#define ETT_ARRAY "SubTreeTypeArr"
-typedef GArray* EttArray;
+#define SUB_TREE_TYPE_ARRAY "SubTreeTypeArray"
+typedef GArray* SubTreeTypeArray;
 
 #define PROTO "Proto"
 typedef struct _eth_proto_t* Proto;
@@ -134,17 +134,17 @@ typedef column_info* Columns;
 #define PINFO "Pinfo"
 typedef packet_info* Pinfo;
 
-#define TREE "Tree"
-typedef proto_tree* Tree;
+#define PROTO_TREE "ProtoTree"
+typedef proto_tree* ProtoTree;
 
-#define ITEM "Item"
-typedef proto_item* Item;
+#define ITEM "ProtoItem"
+typedef proto_item* ProtoItem;
 
 #define ADDRESS "Address"
 typedef address* Address;
 
-#define INTERESTING "Interesting"
-typedef header_field_info* Interesting;
+#define FIELD "Field"
+typedef header_field_info* Field;
 
 #define TAP "Tap"
 typedef struct _eth_tap {
@@ -186,22 +186,23 @@ extern C* push##C(lua_State* L, C v); \
 extern int C##_register(lua_State* L);
 
 LUA_CLASS_DECLARE(Tap,TAP);
-LUA_CLASS_DECLARE(Interesting,INTERESTING);
+LUA_CLASS_DECLARE(Field,FIELD);
 LUA_CLASS_DECLARE(ValueString,VALUE_STRING);
 LUA_CLASS_DECLARE(ProtoField,PROTO_FIELD);
 LUA_CLASS_DECLARE(ProtoFieldArray,PROTO_FIELD_ARRAY);
-LUA_CLASS_DECLARE(Ett,ETT);
-LUA_CLASS_DECLARE(EttArray,ETT_ARRAY);
+LUA_CLASS_DECLARE(SubTreeType,SUB_TREE_TYPE);
+LUA_CLASS_DECLARE(SubTreeTypeArray,SUB_TREE_TYPE_ARRAY);
 LUA_CLASS_DECLARE(Proto,PROTO);
 LUA_CLASS_DECLARE(ByteArray,BYTE_ARRAY);
 LUA_CLASS_DECLARE(Tvb,TVB);
 LUA_CLASS_DECLARE(Column,COLUMN);
 LUA_CLASS_DECLARE(Columns,COLUMNS);
 LUA_CLASS_DECLARE(Pinfo,PINFO);
-LUA_CLASS_DECLARE(Tree,TREE);
-LUA_CLASS_DECLARE(Item,ITEM);
+LUA_CLASS_DECLARE(ProtoTree,TREE);
+LUA_CLASS_DECLARE(ProtoItem,ITEM);
 LUA_CLASS_DECLARE(Dissector,DISSECTOR);
 LUA_CLASS_DECLARE(DissectorTable,DISSECTOR_TABLE);
+LUA_CLASS_DECLARE(Address,ADDRESS);
 
 extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_);

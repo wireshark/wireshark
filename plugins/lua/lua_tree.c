@@ -28,12 +28,12 @@
 
 #include "packet-lua.h"
 
-LUA_CLASS_DEFINE(Tree,TREE,NOP);
-LUA_CLASS_DEFINE(Item,ITEM,NOP);
+LUA_CLASS_DEFINE(ProtoTree,PROTO_TREE,NOP);
+LUA_CLASS_DEFINE(ProtoItem,ITEM,NOP);
 
-/* Tree class */
+/* ProtoTree class */
 
-static int Tree_add_item_any(lua_State *L, gboolean little_endian) {
+static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
     /*
      called with:
      tree,field,tvb,offset,len,datum
@@ -41,15 +41,15 @@ static int Tree_add_item_any(lua_State *L, gboolean little_endian) {
      tree,tvb,offset,len,text
      tree,tvb,text
      */
-    Tree tree = checkTree(L,1);
+    ProtoTree tree = checkProtoTree(L,1);
     ProtoField field;
-    Item item;
+    ProtoItem item;
     Tvb tvb;
     int offset;
     int len;
     
     if (!tree) {
-        pushItem(L,NULL);
+        pushProtoItem(L,NULL);
         return 1;
     }
     
@@ -125,49 +125,49 @@ static int Tree_add_item_any(lua_State *L, gboolean little_endian) {
         return 0;
     }
     
-    pushItem(L,item);
+    pushProtoItem(L,item);
     return 1;
 }
 
-static int Tree_add_item(lua_State *L) { return Tree_add_item_any(L,FALSE); }
-static int Tree_add_item_le(lua_State *L) { return Tree_add_item_any(L,TRUE); }
+static int ProtoTree_add_item(lua_State *L) { return ProtoTree_add_item_any(L,FALSE); }
+static int ProtoTree_add_item_le(lua_State *L) { return ProtoTree_add_item_any(L,TRUE); }
 
-static int Tree_tostring(lua_State *L) {
-    Tree tree = checkTree(L,1);
-    lua_pushstring(L,ep_strdup_printf("Tree %p",tree));
+static int ProtoTree_tostring(lua_State *L) {
+    ProtoTree tree = checkProtoTree(L,1);
+    lua_pushstring(L,ep_strdup_printf("ProtoTree %p",tree));
     return 1;
 }
 
 
-static int Tree_get_parent(lua_State *L) {
-    Tree tree = checkTree(L,1);
+static int ProtoTree_get_parent(lua_State *L) {
+    ProtoTree tree = checkProtoTree(L,1);
     proto_item* item = NULL;
     
     if (tree) {
         item = proto_tree_get_parent(tree);
     }
     
-    pushItem(L,item);
+    pushProtoItem(L,item);
     
     return 1;
 }
 
-static const luaL_reg Tree_methods[] = {
-    {"add_item",       Tree_add_item},
-    {"add_item_le",       Tree_add_item_le},
-    {"get_parent",       Tree_get_parent},
+static const luaL_reg ProtoTree_methods[] = {
+    {"add_item",       ProtoTree_add_item},
+    {"add_item_le",       ProtoTree_add_item_le},
+    {"get_parent",       ProtoTree_get_parent},
     {0, 0}
 };
 
-static const luaL_reg Tree_meta[] = {
-    {"__tostring", Tree_tostring},
+static const luaL_reg ProtoTree_meta[] = {
+    {"__tostring", ProtoTree_tostring},
     {0, 0}
 };
 
-int Tree_register(lua_State* L) {
-    luaL_openlib(L, TREE, Tree_methods, 0);
-    luaL_newmetatable(L, TREE);
-    luaL_openlib(L, 0, Tree_meta, 0);
+int ProtoTree_register(lua_State* L) {
+    luaL_openlib(L, PROTO_TREE, ProtoTree_methods, 0);
+    luaL_newmetatable(L, PROTO_TREE);
+    luaL_openlib(L, 0, ProtoTree_meta, 0);
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
@@ -179,20 +179,20 @@ int Tree_register(lua_State* L) {
     return 1;
 }
 
-/* Item class */
-static int Item_tostring(lua_State *L) {
-    Item item = checkItem(L,1);
-    lua_pushstring(L,ep_strdup_printf("Item %p",item));
+/* ProtoItem class */
+static int ProtoItem_tostring(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
+    lua_pushstring(L,ep_strdup_printf("ProtoItem %p",item));
     return 1;
 }
 
-static int Item_add_subtree(lua_State *L) {
-    Item item = checkItem(L,1);
-    Ett ett;
-    Tree tree = NULL;
+static int ProtoItem_add_subtree(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
+    SubTreeType ett;
+    ProtoTree tree = NULL;
     
     if (item) {
-        ett = checkEtt(L,2);
+        ett = checkSubTreeType(L,2);
         
         if (ett && *ett >= 0) {
             tree = proto_item_add_subtree(item,*ett);
@@ -201,12 +201,12 @@ static int Item_add_subtree(lua_State *L) {
         }
     }
     
-    pushTree(L,tree);
+    pushProtoTree(L,tree);
     return 1;
 }
 
-static int Item_set_text(lua_State *L) {
-    Item item = checkItem(L,1);
+static int ProtoItem_set_text(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
     
     if (!item) {
         const gchar* s = luaL_checkstring(L,2);
@@ -216,8 +216,8 @@ static int Item_set_text(lua_State *L) {
     return 0;
 }
 
-static int Item_append_text(lua_State *L) {
-    Item item = checkItem(L,1);
+static int ProtoItem_append_text(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
     const gchar* s;
     
     if (item) {
@@ -227,8 +227,8 @@ static int Item_append_text(lua_State *L) {
     return 0;
 }
 
-static int Item_set_len(lua_State *L) {
-    Item item = checkItem(L,1);
+static int ProtoItem_set_len(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
     int len;
 
     if (item) {
@@ -284,8 +284,8 @@ static const gchar* expert_to_str(int val) {
 }
 #endif
 
-static int Item_set_expert_flags(lua_State *L) {
-    Item item = checkItem(L,1);
+static int ProtoItem_set_expert_flags(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
     int group;
     int severity;
 
@@ -302,8 +302,8 @@ static int Item_set_expert_flags(lua_State *L) {
 }
 
 
-static int Item_set_generated(lua_State *L) {
-    Item item = checkItem(L,1);
+static int ProtoItem_set_generated(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
     if (item) {
         PROTO_ITEM_SET_GENERATED(item);
     }
@@ -311,38 +311,38 @@ static int Item_set_generated(lua_State *L) {
 }
 
 
-static int Item_set_hidden(lua_State *L) {
-    Item item = checkItem(L,1);
+static int ProtoItem_set_hidden(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
     if (item) {
         PROTO_ITEM_SET_HIDDEN(item);
     }
     return 0;
 }
 
-static const luaL_reg Item_methods[] = {
-    {"add_subtree",       Item_add_subtree},
-    {"set_text",       Item_set_text},
-    {"append_text",       Item_append_text},
-    {"set_len",       Item_set_len},
-    {"set_expert_flags",       Item_set_expert_flags},
-    {"set_generated",       Item_set_generated},
-    {"set_hidden",       Item_set_hidden},
+static const luaL_reg ProtoItem_methods[] = {
+    {"add_subtree",       ProtoItem_add_subtree},
+    {"set_text",       ProtoItem_set_text},
+    {"append_text",       ProtoItem_append_text},
+    {"set_len",       ProtoItem_set_len},
+    {"set_expert_flags",       ProtoItem_set_expert_flags},
+    {"set_generated",       ProtoItem_set_generated},
+    {"set_hidden",       ProtoItem_set_hidden},
     {0, 0}
 };
 
-static const luaL_reg Item_meta[] = {
-    {"__tostring", Item_tostring},
+static const luaL_reg ProtoItem_meta[] = {
+    {"__tostring", ProtoItem_tostring},
     {0, 0}
 };
 
 
 
-int Item_register(lua_State *L) {
+int ProtoItem_register(lua_State *L) {
    const struct _expert_severity* s;
     
-    luaL_openlib(L, ITEM, Item_methods, 0);
+    luaL_openlib(L, ITEM, ProtoItem_methods, 0);
     luaL_newmetatable(L, ITEM);
-    luaL_openlib(L, 0, Item_meta, 0);
+    luaL_openlib(L, 0, ProtoItem_meta, 0);
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -3);
     lua_rawset(L, -3);
