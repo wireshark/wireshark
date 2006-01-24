@@ -1786,7 +1786,7 @@ dissector_dump_decodes() {
 static GPtrArray* post_dissectors = NULL;
 static guint num_of_postdissectors = 0;
 
-void register_postdissector(dissector_hanlde_t handle) {
+void register_postdissector(dissector_handle_t handle) {
     if (!post_dissectors)
         post_dissectors = g_ptr_array_new();
     
