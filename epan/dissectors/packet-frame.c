@@ -313,7 +313,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		pinfo->layer_names = NULL;
 	}
 
-    call_all_postdissectors(tvb,pinfo,tree);
+    call_all_postdissectors(tvb,pinfo,parent_tree);
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
     
