@@ -268,8 +268,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     /* Portable Exception Handling to trap Ethereal specific exceptions like BoundsError exceptions */
 	TRY {
-#ifdef _WIN32
-    /* WIN32 Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
+#ifdef _MSC_VER
+    /* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
     /* (a running debugger will be called before the except part below) */
     __try {
 #endif
@@ -283,7 +283,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				    pinfo->fd->lnk_t);
 			call_dissector(data_handle,tvb, pinfo, parent_tree);
 		}
-#ifdef _WIN32
+#ifdef _MSC_VER
     } __except(TRUE /* handle all exceptions */) {
         switch(GetExceptionCode()) {
         case(STATUS_ACCESS_VIOLATION):
