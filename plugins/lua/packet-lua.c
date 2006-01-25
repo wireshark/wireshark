@@ -27,11 +27,45 @@
  */
 
 #include "packet-lua.h"
+#include <epan/nstime.h>
+#include <math.h>
+
 static lua_State* L = NULL;
 packet_info* lua_pinfo;
 proto_tree* lua_tree;
 dissector_handle_t lua_data_handle;
 
+static int lua_format_date(lua_State* L) {
+    lua_Number time = luaL_checknumber(L,1);
+    nstime_t then;
+    gchar* str;
+    
+    then.secs = (guint32)floor(time);
+    then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
+    str = abs_time_to_str(&then);    
+    lua_pushstring(L,str);
+    
+    return 1;
+}
+
+static int lua_format_time(lua_State* L) {
+    lua_Number time = luaL_checknumber(L,1);
+    nstime_t then;
+    gchar* str;
+    
+    then.secs = (guint32)floor(time);
+    then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
+    str = rel_time_to_str(&then);    
+    lua_pushstring(L,str);
+    
+    return 1;
+}
+
+static int lua_report_failure(lua_State* L) {
+    const gchar* s = luaL_checkstring(L,1);
+    report_failure("%s",s);
+    return 0;
+}
 
 /* ethereal uses lua */
 
@@ -44,6 +78,7 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     
     lua_tree = edt->tree;
     
+    /* XXX in C */
     lua_dostring(L,ep_strdup_printf("taps.%s(_ethereal_pinfo);",tap->name));
     
     return 1;
@@ -51,11 +86,13 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
 
 void lua_tap_reset(void *tapdata) {
     Tap tap = tapdata;
+    /* XXX in C */
     lua_dostring(L,ep_strdup_printf("tap_resets.%s();",tap->name));
 }
 
 void lua_tap_draw(void *tapdata) {
     Tap tap = tapdata;
+    /* XXX in C */
     lua_dostring(L,ep_strdup_printf("tap_draws.%s();",tap->name));
 }
 
@@ -75,19 +112,21 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     
     lua_pinfo = pinfo;
     
+    /* XXX in C */
     lua_dostring(L,ep_strdup_printf("dissectors.%s(_ethereal_tvb,_ethereal_pinfo,_ethereal_tree);",pinfo->current_proto));
     
     lua_pinfo = NULL;
 }
 
 static void init_lua(void) {
+    /* XXX in C */
     if (L)
         lua_dostring(L, "for k in init_routines do init_routines[k]() end;");
 }
 
 void proto_reg_handoff_lua(void) {
     lua_data_handle = find_dissector("data");
-    
+    /* XXX in C */
     if (L)
         lua_dostring(L, "for k in handoff_routines do handoff_routines[k]() end ;");
 }
@@ -144,6 +183,18 @@ void proto_register_lua(void)
     Tap_register(L);
     Address_register(L);
     
+    lua_pushstring(L, "format_date");
+    lua_pushcfunction(L, lua_format_date);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "format_time");
+    lua_pushcfunction(L, lua_format_time);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "report_failure");
+    lua_pushcfunction(L, lua_report_failure);
+    lua_settable(L, LUA_GLOBALSINDEX);
+            
     lua_pushstring(L, "handoff_routines");
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);

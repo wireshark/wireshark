@@ -167,7 +167,7 @@ C check##C(lua_State* L, int index) { \
     luaL_checktype(L,index,LUA_TUSERDATA); \
     p = (C*)luaL_checkudata(L, index, CN); \
     check_code; \
-    return *p; \
+    return p ? *p : NULL; \
 } \
 C* push##C(lua_State* L, C v) { \
     C* p = lua_newuserdata(L,sizeof(C)); *p = v; \
@@ -208,5 +208,5 @@ extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_);
 extern void lua_tap_reset(void *tapdata);
 extern void lua_tap_draw(void *tapdata);
-    
+
 #endif

@@ -68,20 +68,3 @@ TAR = tar
 lua-5.0.2: lua-5.0.2.tar.gz
 	$(GUNZIP) lua-5.0.2.tar.gz | $(TAR) xf -
 
-lua_tvb.c : lua-5.0.2/lib/liblua.la
-
-lua_proto.c : lua-5.0.2/lib/liblua.la
-
-lua_tree.c : lua-5.0.2/lib/liblua.la
-
-lua_pinfo.c : lua-5.0.2/lib/liblua.la
-
-lua_tap.c : lua-5.0.2/lib/liblua.la
-
-packet-lua.c : lua-5.0.2/lib/liblua.la
-
-packet-lua.h : lua-5.0.2/lib/liblua.la
-
-
-lua-5.0.2/lib/liblua.la:
-	cd lua-5.0.2 ; env -i PATH=$(PATH) make
