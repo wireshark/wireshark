@@ -153,8 +153,13 @@ static gint ett_payload_subflows = -1;
 static GHashTable* circuits = NULL;
 
 static dissector_handle_t data_handle = NULL;
+static dissector_handle_t iuup_handle = NULL;
 static gboolean dissect_fields = FALSE;
 static gboolean two_byte_pseudoheader = FALSE;
+static guint dynamic_payload_type = 0;
+static guint temp_dynamic_payload_type = 0;
+static gboolean iuup_prefs_initialized = FALSE;
+
 
 #define PDUTYPE_DATA_WITH_CRC 0
 #define PDUTYPE_DATA_NO_CRC 1
@@ -335,7 +340,7 @@ proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, int bit
     shifted_buffer[len] &= masks[(bits + bit_offset)%8];
     
     if (buf)
-        *buf = shifted_buffer;
+        *buf = (gchar*)shifted_buffer;
     
     pi = proto_tree_add_bytes(tree, hf, tvb, offset, len + ((bits + bit_offset) % 8 ? 1 : 0) , shifted_buffer);
     proto_item_append_text(pi, " (%i Bits)", bits);
@@ -758,6 +763,27 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
 static void init_iuup(void) {
     if (circuits) g_hash_table_destroy(circuits);
     circuits = g_hash_table_new(g_direct_hash,g_direct_equal);
+
+    if (!iuup_prefs_initialized) {
+		iuup_prefs_initialized = TRUE;
+    } else {
+        if ( dynamic_payload_type > 95 )
+            dissector_delete("rtp.pt", dynamic_payload_type, iuup_handle);
+	}
+    
+    dynamic_payload_type = temp_dynamic_payload_type;
+    
+    if ( dynamic_payload_type > 95 ){
+		dissector_add("rtp.pt", dynamic_payload_type, iuup_handle);
+	}
+    
+    dissector_add_string("rtp_dyn_payload_type","VND.3GPP.IUFP", iuup_handle);
+
+}
+
+
+void proto_reg_handoff_iuup(void) {
+    data_handle = find_dissector("data");
 }
 
 
@@ -876,8 +902,10 @@ void proto_register_iuup(void) {
 	proto_register_subtree_array(ett, array_length(ett));
     register_dissector("iuup", dissect_iuup, proto_iuup);
     register_init_routine(&init_iuup);
+    
+	iuup_handle = create_dissector_handle(dissect_iuup, proto_iuup);
 
-    iuup_module = prefs_register_protocol(proto_iuup, NULL);
+    iuup_module = prefs_register_protocol(proto_iuup, init_iuup);
     
     prefs_register_bool_preference(iuup_module, "dissect_payload",
                                    "Dissect IuUP Payload bits",
@@ -889,8 +917,12 @@ void proto_register_iuup(void) {
                                    "The payload contains a two byte pseudoheader indicating direction and circuit_id",
                                    &two_byte_pseudoheader);
     
+    prefs_register_uint_preference(iuup_module, "dynamic.payload.type",
+								   "IuUP dynamic payload type",
+								   "The dynamic payload type which will be interpreted as IuUP",
+								   10,
+								   &temp_dynamic_payload_type);
+    
+    
 }
 
-void proto_reg_handoff_iuup(void) {
-    data_handle = find_dissector("data");
-}
