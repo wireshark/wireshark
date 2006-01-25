@@ -411,14 +411,14 @@ static int ProtoFieldArray_tostring(lua_State* L) {
 }
 
 static int ProtoFieldArray_gc(lua_State* L) {
-    ProtoFieldArray fa = checkValueString(L,1);
+    ProtoFieldArray fa = checkProtoFieldArray(L,1);
     gboolean free_it = FALSE;
     
     /* we'll keep the data if the array was registered to a protocol */
     if (fa->len) {
         hf_register_info* f = (hf_register_info*)fa->data;
         
-        if ( *(f->p_id) == -2)
+        if ( *(f->p_id) == -1)
             free_it = TRUE;
     } else {
         free_it = TRUE;        
