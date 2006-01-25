@@ -103,10 +103,11 @@ Gnu info
       The following features are new (or have been significantly updated)
       since the last release:
 
-      <itemizedlist>
         <listitem><para>
+	  Win32: Catch hardware exceptions caused by buggy dissectors. 
+	  If e.g. a NULL pointer exceptions occurs, Ethereal won't crash now 
+	  but displays the exception and tries to continue decoding packets.
         </para></listitem>
-      </itemizedlist>
     </para>
     </section>
 
