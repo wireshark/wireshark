@@ -61,6 +61,7 @@
  *   Core network protocols;
  *   Stage 3
  *   (3GPP TS 24.008 version 6.7.0 Release 6)
+ *	 (3GPP TS 24.008 version 6.8.0 Release 6)
  *
  * $Id$
  *
@@ -411,6 +412,11 @@ const value_string gsm_a_dtap_msg_sm_strings[] = {
     { 0x53,	"Reserved: was allocated in earlier phases of the protocol" },
     { 0x54,	"Reserved: was allocated in earlier phases of the protocol" },
     { 0x55,	"SM Status" },
+    { 0x56,	"Activate MBMS Context Request" },
+    { 0x57,	"Activate MBMS Context Accept" },
+    { 0x58,	"Activate MBMS Context Reject" },
+    { 0x59,	"Request MBMS Context Activation" },
+    { 0x5a,	"Request MBMS Context Activation Reject" },
     { 0, NULL },
 };
 
@@ -716,7 +722,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Detach Type" },
     { 0x00,	"DRX Parameter" },
     { 0x00,	"Force to Standby" },
-    { 0x00,     "Force to Standby" },
+    { 0x00, "Force to Standby" },
     { 0x00,	"P-TMSI Signature" },
     { 0x00,	"P-TMSI Signature 2" },
     { 0x00,	"Identity Type 2" },
@@ -727,13 +733,14 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"GMM Cause" },
     { 0x00,	"Routing Area Identification" },
     { 0x00,	"Update Result" },
-    { 0x00,     "Update Type" },
+    { 0x00, "Update Type" },
     { 0x00,	"A&C Reference Number" },
-    { 0x00,     "A&C Reference Number" },
+    { 0x00, "A&C Reference Number" },
     { 0x00,	"Service Type" },
     { 0x00,	"Cell Notification" },
-    { 0x00,     "PS LCS Capability" },
+    { 0x00, "PS LCS Capability" },
     { 0x00,	"Network Feature Support" },
+	{ 0x00, "Inter RAT information container" },
     /* Short Message Service Information Elements [5] 8.1.4 */
     { 0x00,	"CP-User Data" },
     { 0x00,	"CP-Cause" },
@@ -760,8 +767,9 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Radio Priority" },
     { 0x00,	"GPRS Timer" },
     { 0x00,	"GPRS Timer 2" },
-    { 0x00,     "Radio Priority 2"},
-    { 0x00,     "Spare Nibble"},
+    { 0x00, "Radio Priority 2"},
+	{ 0x00,	"MBMS context status"},
+    { 0x00, "Spare Nibble"},
     { 0, NULL },
 };
 
@@ -1326,6 +1334,7 @@ my_dgt_tbcd_unpack(
 
     return(cnt);
 }
+
 
 /* ELEMENT FUNCTIONS */
 
@@ -3246,117 +3255,121 @@ typedef enum
 
 
     /* Mobility Management Information Elements 10.5.3 */
-    DE_AUTH_PARAM_RAND,	/* Authentication Parameter RAND */
-    DE_AUTH_PARAM_AUTN,	/* Authentication Parameter AUTN (UMTS authentication challenge only) */
-    DE_AUTH_RESP_PARAM,	/* Authentication Response Parameter */
-    DE_AUTH_RESP_PARAM_EXT,	/* Authentication Response Parameter (extension) (UMTS authentication challenge only) */
-    DE_AUTH_FAIL_PARAM,	/* Authentication Failure Parameter (UMTS authentication challenge only) */
-    DE_CM_SRVC_TYPE,	/* CM Service Type */
-    DE_ID_TYPE,	/* Identity Type */
-    DE_LOC_UPD_TYPE,	/* Location Updating Type */
-    DE_NETWORK_NAME,	/* Network Name */
-    DE_REJ_CAUSE,	/* Reject Cause */
-    DE_FOP,	/* Follow-on Proceed */
-    DE_TIME_ZONE,	/* Time Zone */
-    DE_TIME_ZONE_TIME,	/* Time Zone and Time */
-    DE_CTS_PERM,	/* CTS Permission */
-    DE_LSA_ID,	/* LSA Identifier */
-    DE_DAY_SAVING_TIME,	/* Daylight Saving Time */
-    DE_EMERGENCY_NUM_LIST, /* Emergency Number List */
+    DE_AUTH_PARAM_RAND,				/* Authentication Parameter RAND */
+    DE_AUTH_PARAM_AUTN,				/* Authentication Parameter AUTN (UMTS authentication challenge only) */
+    DE_AUTH_RESP_PARAM,				/* Authentication Response Parameter */
+    DE_AUTH_RESP_PARAM_EXT,			/* Authentication Response Parameter (extension) (UMTS authentication challenge only) */
+    DE_AUTH_FAIL_PARAM,				/* Authentication Failure Parameter (UMTS authentication challenge only) */
+    DE_CM_SRVC_TYPE,				/* CM Service Type */
+    DE_ID_TYPE,						/* Identity Type */
+    DE_LOC_UPD_TYPE,				/* Location Updating Type */
+    DE_NETWORK_NAME,				/* Network Name */
+    DE_REJ_CAUSE,					/* Reject Cause */
+    DE_FOP,							/* Follow-on Proceed */
+    DE_TIME_ZONE,					/* Time Zone */
+    DE_TIME_ZONE_TIME,				/* Time Zone and Time */
+    DE_CTS_PERM,					/* CTS Permission */
+    DE_LSA_ID,						/* LSA Identifier */
+    DE_DAY_SAVING_TIME,				/* Daylight Saving Time */
+    DE_EMERGENCY_NUM_LIST,			/* Emergency Number List */
     /* Call Control Information Elements 10.5.4 */
-    DE_AUX_STATES,	/* Auxiliary States */
-    DE_BEARER_CAP,	/* Bearer Capability */
-    DE_CC_CAP,	/* Call Control Capabilities */
-    DE_CALL_STATE,	/* Call State */
-    DE_CLD_PARTY_BCD_NUM,	/* Called Party BCD Number */
-    DE_CLD_PARTY_SUB_ADDR,	/* Called Party Subaddress */
-    DE_CLG_PARTY_BCD_NUM,	/* Calling Party BCD Number */
-    DE_CLG_PARTY_SUB_ADDR,	/* Calling Party Subaddress */
-    DE_CAUSE,	/* Cause */
-    DE_CLIR_SUP,	/* CLIR Suppression */
-    DE_CLIR_INV,	/* CLIR Invocation */
-    DE_CONGESTION,	/* Congestion Level */
-    DE_CONN_NUM,	/* Connected Number */
-    DE_CONN_SUB_ADDR,	/* Connected Subaddress */
-    DE_FACILITY,	/* Facility */
-    DE_HLC,	/* High Layer Compatibility */
-    DE_KEYPAD_FACILITY,	/* Keypad Facility */
-    DE_LLC,	/* Low Layer Compatibility */
-    DE_MORE_DATA,	/* More Data */
-    DE_NOT_IND,	/* Notification Indicator */
-    DE_PROG_IND,	/* Progress Indicator */
-    DE_RECALL_TYPE,	/* Recall type $(CCBS)$ */
-    DE_RED_PARTY_BCD_NUM,	/* Redirecting Party BCD Number */
-    DE_RED_PARTY_SUB_ADDR,	/* Redirecting Party Subaddress */
-    DE_REPEAT_IND,	/* Repeat Indicator */
-    DE_REV_CALL_SETUP_DIR,	/* Reverse Call Setup Direction */
-    DE_SETUP_CONTAINER,	/* SETUP Container $(CCBS)$ */
-    DE_SIGNAL,	/* Signal */
-    DE_SS_VER_IND,	/* SS Version Indicator */
-    DE_USER_USER,	/* User-user */
-    DE_ALERT_PATTERN,	/* Alerting Pattern $(NIA)$ */
-    DE_ALLOWED_ACTIONS,	/* Allowed Actions $(CCBS)$ */
-    DE_SI,	/* Stream Identifier */
-    DE_NET_CC_CAP,	/* Network Call Control Capabilities */
-    DE_CAUSE_NO_CLI,	/* Cause of No CLI */
-    DE_IMM_MOD_IND,	/* Immediate Modification Indicator */
-    DE_SUP_CODEC_LIST,	/* Supported Codec List */
-    DE_SRVC_CAT,	/* Service Category */
+    DE_AUX_STATES,					/* Auxiliary States */
+    DE_BEARER_CAP,					/* Bearer Capability */
+    DE_CC_CAP,						/* Call Control Capabilities */
+    DE_CALL_STATE,					/* Call State */
+    DE_CLD_PARTY_BCD_NUM,			/* Called Party BCD Number */
+    DE_CLD_PARTY_SUB_ADDR,			/* Called Party Subaddress */
+    DE_CLG_PARTY_BCD_NUM,			/* Calling Party BCD Number */
+    DE_CLG_PARTY_SUB_ADDR,			/* Calling Party Subaddress */
+    DE_CAUSE,						/* Cause */
+    DE_CLIR_SUP,					/* CLIR Suppression */
+    DE_CLIR_INV,					/* CLIR Invocation */
+    DE_CONGESTION,					/* Congestion Level */
+    DE_CONN_NUM,					/* Connected Number */
+    DE_CONN_SUB_ADDR,				/* Connected Subaddress */
+    DE_FACILITY,					/* Facility */
+    DE_HLC,							/* High Layer Compatibility */
+    DE_KEYPAD_FACILITY,				/* Keypad Facility */
+    DE_LLC,							/* Low Layer Compatibility */
+    DE_MORE_DATA,					/* More Data */
+    DE_NOT_IND,						/* Notification Indicator */
+    DE_PROG_IND,					/* Progress Indicator */
+    DE_RECALL_TYPE,					/* Recall type $(CCBS)$ */
+    DE_RED_PARTY_BCD_NUM,			/* Redirecting Party BCD Number */
+    DE_RED_PARTY_SUB_ADDR,			/* Redirecting Party Subaddress */
+    DE_REPEAT_IND,					/* Repeat Indicator */
+    DE_REV_CALL_SETUP_DIR,			/* Reverse Call Setup Direction */
+    DE_SETUP_CONTAINER,				/* SETUP Container $(CCBS)$ */
+    DE_SIGNAL,						/* Signal */
+    DE_SS_VER_IND,					/* SS Version Indicator */
+    DE_USER_USER,					/* User-user */
+    DE_ALERT_PATTERN,				/* Alerting Pattern $(NIA)$ */
+    DE_ALLOWED_ACTIONS,				/* Allowed Actions $(CCBS)$ */
+    DE_SI,							/* Stream Identifier */
+    DE_NET_CC_CAP,					/* Network Call Control Capabilities */
+    DE_CAUSE_NO_CLI,				/* Cause of No CLI */
+    DE_IMM_MOD_IND,					/* Immediate Modification Indicator */
+    DE_SUP_CODEC_LIST,				/* Supported Codec List */
+    DE_SRVC_CAT,					/* Service Category */
     /* GPRS Mobility Management Information Elements 10.5.5 */
-    DE_ATTACH_RES,	/* Attach Result */
-    DE_ATTACH_TYPE,	/* Attach Type */
-    DE_CIPH_ALG,	/* Cipher Algorithm */
-    DE_TMSI_STAT,	/* TMSI Status */
-    DE_DETACH_TYPE,	/* Detach Type */
-    DE_DRX_PARAM,	/* DRX Parameter */
-    DE_FORCE_TO_STAND,	/* Force to Standby */
-    DE_FORCE_TO_STAND_H,/* Force to Standby - Info is in the high nibble */
-    DE_P_TMSI_SIG,	/* P-TMSI Signature */
-    DE_P_TMSI_SIG_2,	/* P-TMSI Signature 2 */
-    DE_ID_TYPE_2,	/* Identity Type 2 */
-    DE_IMEISV_REQ,	/* IMEISV Request */
-    DE_REC_N_PDU_NUM_LIST,	/* Receive N-PDU Numbers List */
-    DE_MS_NET_CAP,	/* MS Network Capability */
-    DE_MS_RAD_ACC_CAP,	/* MS Radio Access Capability */
-    DE_GMM_CAUSE,	/* GMM Cause */
-    DE_RAI,	/* Routing Area Identification */
-    DE_UPD_RES,	/* Update Result */
-    DE_UPD_TYPE,	/* Update Type */
-    DE_AC_REF_NUM,	/* A&C Reference Number */
-    DE_AC_REF_NUM_H,	/* A&C Reference Number - Info is in the high nibble */
-    DE_SRVC_TYPE,	/* Service Type */
-    DE_CELL_NOT,	/* Cell Notification */
-    DE_PS_LCS_CAP,	/* PS LCS Capability */
-    DE_NET_FEAT_SUP,	/* Network Feature Support */
+    DE_ATTACH_RES,					/* [7] 10.5.1 Attach Result*/
+    DE_ATTACH_TYPE,					/* [7] 10.5.2 Attach Type */
+    DE_CIPH_ALG,					/* [7] 10.5.3 Cipher Algorithm */
+    DE_TMSI_STAT,					/* [7] 10.5.4 TMSI Status */
+    DE_DETACH_TYPE,					/* [7] 10.5.5 Detach Type */
+    DE_DRX_PARAM,					/* [7] 10.5.6 DRX Parameter */
+    DE_FORCE_TO_STAND,				/* [7] 10.5.7 Force to Standby */
+    DE_FORCE_TO_STAND_H,			/* [7] 10.5.8 Force to Standby - Info is in the high nibble */
+    DE_P_TMSI_SIG,					/* [7] 10.5.9 P-TMSI Signature */
+    DE_P_TMSI_SIG_2,				/* [7] 10.5.10 P-TMSI Signature 2 */
+    DE_ID_TYPE_2,					/* [7] 10.5.11 Identity Type 2 */
+    DE_IMEISV_REQ,					/* [7] 10.5.12 IMEISV Request */
+    DE_REC_N_PDU_NUM_LIST,			/* [7] 10.5.13 Receive N-PDU Numbers List */
+    DE_MS_NET_CAP,					/* [7] 10.5.14 MS Network Capability */
+    DE_MS_RAD_ACC_CAP,				/* [7] 10.5.15 MS Radio Access Capability */
+    DE_GMM_CAUSE,					/* [7] 10.5.16 GMM Cause */
+    DE_RAI,							/* [7] 10.5.17 Routing Area Identification */
+    DE_UPD_RES,						/* [7] 10.5.18 Update Result */
+    DE_UPD_TYPE,					/* [7] 10.5.19 Update Type */
+    DE_AC_REF_NUM,					/* [7] 10.5.20 A&C Reference Number */
+    DE_AC_REF_NUM_H,				/* A&C Reference Number - Info is in the high nibble */
+    DE_SRVC_TYPE,					/* [7] 10.5.20 Service Type */
+    DE_CELL_NOT,					/* [7] 10.5.21 Cell Notification */
+    DE_PS_LCS_CAP,					/* [7] 10.5.22 PS LCS Capability */
+    DE_NET_FEAT_SUP,				/* [7] 10.5.23 Network Feature Support */
+	DE_RAT_INFO_CONTAINER,			/* [7] 10.5.24 Inter RAT information container */
+	/* [7] 10.5.25 Requested MS information */
+
     /* Short Message Service Information Elements [5] 8.1.4 */
-    DE_CP_USER_DATA,	/* CP-User Data */
-    DE_CP_CAUSE,	/* CP-Cause */
+    DE_CP_USER_DATA,				/* CP-User Data */
+    DE_CP_CAUSE,					/* CP-Cause */
     /* Short Message Service Information Elements [5] 8.2 */
-    DE_RP_MESSAGE_REF,	/* RP-Message Reference */
-    DE_RP_ORIG_ADDR,	/* RP-Origination Address */
-    DE_RP_DEST_ADDR,	/* RP-Destination Address */
-    DE_RP_USER_DATA,	/* RP-User Data */
-    DE_RP_CAUSE,	/* RP-Cause */
+    DE_RP_MESSAGE_REF,				/* RP-Message Reference */
+    DE_RP_ORIG_ADDR,				/* RP-Origination Address */
+    DE_RP_DEST_ADDR,				/* RP-Destination Address */
+    DE_RP_USER_DATA,				/* RP-User Data */
+    DE_RP_CAUSE,					/* RP-Cause */
     /* Session Management Information Elements 10.5.6 */
-    DE_ACC_POINT_NAME,	/* Access Point Name */
-    DE_NET_SAPI,	/* Network Service Access Point Identifier */
-    DE_PRO_CONF_OPT,	/* Protocol Configuration Options */
-    DE_PD_PRO_ADDR,	/* Packet Data Protocol Address */
-    DE_QOS,	/* Quality Of Service */
-    DE_SM_CAUSE,	/* SM Cause */
-    DE_LINKED_TI,	/* Linked TI */
-    DE_LLC_SAPI,	/* LLC Service Access Point Identifier */
-    DE_TEAR_DOWN_IND,	/* Tear Down Indicator */
-    DE_PACKET_FLOW_ID,	/* Packet Flow Identifier */
-    DE_TRAFFIC_FLOW_TEMPLATE,	/* Traffic Flow Template */
+    DE_ACC_POINT_NAME,				/* Access Point Name */
+    DE_NET_SAPI,					/* Network Service Access Point Identifier */
+    DE_PRO_CONF_OPT,				/* Protocol Configuration Options */
+    DE_PD_PRO_ADDR,					/* Packet Data Protocol Address */
+    DE_QOS,							/* Quality Of Service */
+    DE_SM_CAUSE,					/* SM Cause */
+    DE_LINKED_TI,					/* Linked TI */
+    DE_LLC_SAPI,					/* LLC Service Access Point Identifier */
+    DE_TEAR_DOWN_IND,				/* Tear Down Indicator */
+    DE_PACKET_FLOW_ID,				/* Packet Flow Identifier */
+    DE_TRAFFIC_FLOW_TEMPLATE,		/* Traffic Flow Template */
     /* GPRS Common Information Elements 10.5.7 */
-    DE_PDP_CONTEXT_STAT,	/* PDP Context Status */
-    DE_RAD_PRIO,	/* Radio Priority */
-    DE_GPRS_TIMER,	/* GPRS Timer */
-    DE_GPRS_TIMER_2,	/* GPRS Timer 2 */
-    DE_RAD_PRIO_2,	/* Radio Priority 2 */
-    DE_SPARE_NIBBLE,	/* Spare Nibble */
-    DE_NONE	/* NONE */
+    DE_PDP_CONTEXT_STAT,			/* [8] 10.5.7.1		PDP Context Status */
+    DE_RAD_PRIO,					/* [8] 10.5.7.2		Radio Priority */
+    DE_GPRS_TIMER,					/* [8] 10.5.7.3		GPRS Timer */
+    DE_GPRS_TIMER_2,				/* [8] 10.5.7.4		GPRS Timer 2 */
+    DE_RAD_PRIO_2,					/* [8] 10.5.7.5		Radio Priority 2 */
+	DE_MBMS_CTX_STATUS,				/* [8] 10.5.7.6		MBMS context status */
+    DE_SPARE_NIBBLE,				/* Spare Nibble */
+    DE_NONE							/* NONE */
 }
 dtap_elem_idx_t;
 
@@ -5233,19 +5246,31 @@ static guint8
 de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
+	guint8 hour;
+	guint8 minute;
     guint32	curr_offset;
 
     len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
+	hour = (oct&0x3f)>>2;
+	minute = (oct&0x3)*15;
 
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Time Zone: 0x%02x (%u)",
-	oct,
-	oct);
+	/* 3GPP TS 23.040 version 6.6.0 Release 6 
+	 * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
+	 * :
+	 * The Time Zone indicates the difference, expressed in quarters of an hour, 
+	 * between the local time and GMT. In the first of the two semi-octets, 
+	 * the first bit (bit 3 of the seventh octet of the TP-Service-Centre-Time-Stamp field)
+	 * represents the algebraic sign of this difference (0: positive, 1: negative).
+	 */
 
+	if ((oct&0x40)== 0x40 ){/* + */
+		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT +%u:%u",hour,minute);
+	}else{
+		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT -%u:%u",hour,minute);
+	}
     curr_offset++;
 
     /* no length check possible */
@@ -5261,6 +5286,8 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint8	oct, oct2, oct3;
     guint32	curr_offset;
+	guint8 hour;
+	guint8 minute;
 
     len = len;
     curr_offset = offset;
@@ -5299,11 +5326,23 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Time Zone: 0x%02x (%u)",
-	oct,
-	oct);
+	hour = (oct&0x3f)>>2;
+	minute = (oct&0x3)*15;
+
+	/* 3GPP TS 23.040 version 6.6.0 Release 6 
+	 * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
+	 * :
+	 * The Time Zone indicates the difference, expressed in quarters of an hour, 
+	 * between the local time and GMT. In the first of the two semi-octets, 
+	 * the first bit (bit 3 of the seventh octet of the TP-Service-Centre-Time-Stamp field)
+	 * represents the algebraic sign of this difference (0: positive, 1: negative).
+	 */
+
+	if ((oct&0x40)== 0x40 ){/* + */
+		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT +%u:%u",hour,minute);
+	}else{
+		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT -%u:%u",hour,minute);
+	}
 
     curr_offset++;
 
@@ -10824,6 +10863,107 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
     return(curr_offset - offset);
 }
 
+/* [7] 10.5.24 Inter RAT information container */
+static guint8
+de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	len = len;
+    curr_offset = offset;
+
+/* The value part of the Inter RAT information container information element is the INTER RAT HANDOVER INFO as
+defined in 3GPP TS 25.331 [23c]. If this field includes padding bits, they are defined in 3GPP TS 25.331 [23c].*/
+	proto_tree_add_text(tree, tvb, curr_offset, len,"INTER RAT HANDOVER INFO - Not decoded");
+
+	return len;
+
+}
+
+/*
+ * [7] 10.5.7.1
+ */
+static guint8
+de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint8	oct;
+    guint16	pdp_nr;
+    guint32	curr_offset;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+
+    gchar 	str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
+    
+    len = len;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"PDP Context Status");
+
+    tf_tree = proto_item_add_subtree(tf, ett_gmm_context_stat );
+    
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    for ( pdp_nr=0;pdp_nr<16; pdp_nr++ )
+    {
+            if ( pdp_nr == 8 )
+            {
+            	curr_offset++;
+            	oct = tvb_get_guint8(tvb, curr_offset);
+            }
+	    proto_tree_add_text(tf_tree,
+		tvb, curr_offset, 1,
+		"NSAPI %d: (%u) %s",pdp_nr,
+		oct&1,
+		str[oct&1]);
+	    oct>>=1;
+    }
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.7.2
+ */
+static guint8
+de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    const gchar	*str;
+    
+    len = len;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct&7 )
+    {
+    	case 1: str="priority level 1 (highest)"; break;
+    	case 2: str="priority level 2"; break;
+    	case 3: str="priority level 3"; break;
+    	case 4: str="priority level 4 (lowest)"; break;
+    	default: str="priority level 4 (lowest)";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Radio Priority (PDP or SMS): (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
 /*
  * [7] 10.5.7.3
  */
@@ -10910,40 +11050,6 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     return(curr_offset - offset);
 }
 
-/*
- * [7] 10.5.7.2
- */
-static guint8
-de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
-{
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
-    
-    len = len;
-    curr_offset = offset;
-
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    switch ( oct&7 )
-    {
-    	case 1: str="priority level 1 (highest)"; break;
-    	case 2: str="priority level 2"; break;
-    	case 3: str="priority level 3"; break;
-    	case 4: str="priority level 4 (lowest)"; break;
-    	default: str="priority level 4 (lowest)";
-    }
-
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Radio Priority (PDP or SMS): (%u) %s",
-	oct&7,
-	str);
-
-    curr_offset++;
-
-    return(curr_offset - offset);
-}
 
 /*
  * [7] 10.5.7.5
@@ -10984,54 +11090,20 @@ de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 }
 
 /*
- * [7] 10.5.7.1
+ * [8] 10.5.7.6 MBMS context status
  */
 static guint8
-de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint16	pdp_nr;
     guint32	curr_offset;
-    proto_item  *tf = NULL;
-    proto_tree      *tf_tree = NULL;
-
-    gchar 	str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
     
     len = len;
     curr_offset = offset;
+ 
+	proto_tree_add_text(tree,tvb, curr_offset, len,	"MBMS context status - Not decoded");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    tf = proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"PDP Context Status");
-
-    tf_tree = proto_item_add_subtree(tf, ett_gmm_context_stat );
-    
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    for ( pdp_nr=0;pdp_nr<16; pdp_nr++ )
-    {
-            if ( pdp_nr == 8 )
-            {
-            	curr_offset++;
-            	oct = tvb_get_guint8(tvb, curr_offset);
-            }
-	    proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"NSAPI %d: (%u) %s",pdp_nr,
-		oct&1,
-		str[oct&1]);
-	    oct>>=1;
-    }
-
-    curr_offset++;
-
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-    return(curr_offset - offset);
+    return(len);
 }
-
 /*
  * [7] 10.5.6.1
  */
@@ -11894,7 +11966,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 /*
- * [8] 10.5.6.6
+ * [8] 10.5.6.6 SM cause
  */
 static guint8
 de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len _U_)
@@ -12719,6 +12791,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_gmm_cell_notfi,	/* Cell Notification */
     de_gmm_ps_lcs_cap,	/* PS LCS Capability */
     de_gmm_net_feat_supp,	/* Network Feature Support */
+	de_gmm_rat_info_container, /* Inter RAT information container */
     /* Short Message Service Information Elements [5] 8.1.4 */
     de_cp_user_data,	/* CP-User Data */
     de_cp_cause,	/* CP-Cause */
@@ -12746,6 +12819,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_gc_timer,	/* GPRS Timer */
     de_gc_timer2,	/* GPRS Timer 2 */
     de_gc_radio_prio2,	/* Radio Priority 2 */
+	de_gc_mbms_context_stat, /* 10.5.7.6 MBMS context status */
     de_gc_spare,	/* Spare Nibble */
     NULL,	/* NONE */
 };
@@ -16806,9 +16880,11 @@ dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     is_uplink = IS_UPLINK_TRUE;
     g_pinfo->p2p_dir = P2P_DIR_RECV;
-
+	/* [7] 10.5.5.11 */
     ELEM_OPT_TLV( 0x26 , BSSAP_PDU_TYPE_DTAP, DE_REC_N_PDU_NUM_LIST , "" );
-
+	/* Inter RAT information container 10.5.5.24 TS 24.008 version 6.8.0 Release 6 */
+	/*TO DO: Implement */
+	ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_RAT_INFO_CONTAINER , "" );
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -16863,7 +16939,7 @@ dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [7] 9.4.19
+ * [8] 9.4.19 GMM Information
  */
 static void
 dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -16882,9 +16958,9 @@ dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     
     ELEM_OPT_TLV( 0x45 , BSSAP_PDU_TYPE_DTAP, DE_NETWORK_NAME , " - Short Name" );
     
-    ELEM_OPT_TLV( 0x46 , BSSAP_PDU_TYPE_DTAP, DE_TIME_ZONE , "" );
+    ELEM_OPT_TV( 0x46 , BSSAP_PDU_TYPE_DTAP, DE_TIME_ZONE , "" );
     
-    ELEM_OPT_TLV( 0x47 , BSSAP_PDU_TYPE_DTAP, DE_TIME_ZONE_TIME , "" );
+    ELEM_OPT_TV( 0x47 , BSSAP_PDU_TYPE_DTAP, DE_TIME_ZONE_TIME , "" );
     
     ELEM_OPT_TLV( 0x48 , BSSAP_PDU_TYPE_DTAP, DE_LSA_ID , "" );
     
@@ -16922,6 +16998,9 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     
     ELEM_OPT_TLV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_PDP_CONTEXT_STAT , "" );
 
+	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
+	ELEM_OPT_TLV( 0x35 , BSSAP_PDU_TYPE_DTAP, DE_MBMS_CTX_STATUS , "" );
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -16942,6 +17021,9 @@ dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     g_pinfo->p2p_dir = P2P_DIR_SENT;
 
     ELEM_OPT_TLV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_PDP_CONTEXT_STAT , "" );
+
+	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
+	ELEM_OPT_TLV( 0x35 , BSSAP_PDU_TYPE_DTAP, DE_MBMS_CTX_STATUS , "" );
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -16968,7 +17050,7 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [7] 9.5.1
+ * [8] 9.5.1 Activate PDP context request
  */
 static void
 dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -16999,7 +17081,7 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [7] 9.5.2
+ * [8] 9.5.2 Activate PDP context accept
  */
 static void
 dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17037,7 +17119,7 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [7] 9.5.3
+ * [8] 9.5.3 Activate PDP context reject
  */
 static void
 dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17060,7 +17142,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [7] 9.5.4
+ * [8] 9.5.4 Activate Secondary PDP Context Request
  */
 static void
 dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17083,7 +17165,8 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
     ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_LINKED_TI , "" );
 
-    ELEM_OPT_TLV( 0x33 , BSSAP_PDU_TYPE_DTAP, DE_TRAFFIC_FLOW_TEMPLATE , "" );
+	/* 3GPP TS 24.008 version 6.8.0 Release 6, 36 TFT Traffic Flow Template 10.5.6.12 O TLV 3-257 */
+    ELEM_OPT_TLV( 0x36 , BSSAP_PDU_TYPE_DTAP, DE_TRAFFIC_FLOW_TEMPLATE , "" );
 
     ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
 
@@ -17125,7 +17208,7 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 9.5.6
+ * [8] 9.5.6 Activate Secondary PDP Context Reject
  */
 static void
 dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17148,7 +17231,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 9.5.7
+ * [8] 9.5.7 Request PDP context activation
  */
 static void
 dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17173,7 +17256,7 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [7] 9.5.8
+ * [8] 9.5.8 Request PDP context activation reject
  */
 static void
 dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17196,7 +17279,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 9.5.9
+ * [7] 9.5.9 Modify PDP context request (Network to MS direction)
  */
 static void
 dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17232,7 +17315,7 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 9.5.10
+ * [8] 9.5.10 Modify PDP context request (MS to network direction)
  */
 static void
 dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17259,7 +17342,7 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 /*
- * [7] 9.5.11
+ * [8] 9.5.11 Modify PDP context accept (MS to network direction)
  */
 static void
 dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17280,7 +17363,7 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 /*
- * [7] 9.5.12
+ * [8] 9.5.12 Modify PDP context accept (Network to MS direction)
  */
 static void
 dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17309,7 +17392,7 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 9.5.13
+ * [8] 9.5.13 Modify PDP Context Reject
  */
 static void
 dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17332,7 +17415,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [7] 9.5.14
+ * [8] 9.5.14 Deactivate PDP context request
  */
 static void
 dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17353,12 +17436,15 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
 
+	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
+	ELEM_OPT_TLV( 0x35 , BSSAP_PDU_TYPE_DTAP, DE_MBMS_CTX_STATUS , "" );
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
 
 /*
- * [7] 9.5.15
+ * [8] 9.5.15 Deactivate PDP context accept
  */
 static void
 dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17375,11 +17461,14 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
 
+	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
+	ELEM_OPT_TLV( 0x35 , BSSAP_PDU_TYPE_DTAP, DE_MBMS_CTX_STATUS , "" );
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
 /*
- * [7] 9.5.21
+ * [8] 9.5.21 SM Status
  */
 static void
 dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17399,6 +17488,32 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
+/*
+ * [8] 9.5.22 Activate MBMS Context Request
+ */
+
+	/* Requested MBMS NSAPI Enhanced Network service access point identifier 10.5.6.15 M V */
+	/* Requested LLC SAPI LLC service access point identifier 10.5.6.9 M V 1 */
+	/* Supported MBMS bearer capabilities MBMS bearer capabilities 10.5.6.14 M LV 2 - 3 */
+	/* Requested multicast address Packet data protocol address 10.5.6.4 M LV 3 - 19 */
+	/* Access point name Access point name 10.5.6.1 M LV 2 - 101 */
+	/* 35 MBMS protocol configuration options MBMS protocol configuration options 10.5.6.15 O TLV 3 - 253 */
+
+/*
+ * [8] 9.5.23 Activate MBMS Context Accept
+ */
+
+/*
+ * [8] 9.5.24 Activate MBMS Context Reject
+ */
+
+/*
+ * [8] 9.5.25 Request MBMS Context Activation
+ */
+
+/*
+ * [8] 9.5.26 Request MBMS Context Activation Reject
+ */
 
 #define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
@@ -17575,29 +17690,29 @@ static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 #define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_gmm[NUM_GSM_DTAP_MSG_GMM];
 static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-    dtap_gmm_attach_req,	/* Attach Request */
-    dtap_gmm_attach_acc,	/* Attach Accept */
-    dtap_gmm_attach_com,	/* Attach Complete */
-    dtap_gmm_attach_rej,	/* Attach Reject */
-    dtap_gmm_detach_req,	/* Detach Request */
-    dtap_gmm_detach_acc,	/* Detach Accept */
-    dtap_gmm_rau_req,	/* Routing Area Update Request */
-    dtap_gmm_rau_acc,	/* Routing Area Update Accept */
-    dtap_gmm_rau_com,	/* Routing Area Update Complete */
-    dtap_gmm_rau_rej,	/* Routing Area Update Reject */
-    dtap_gmm_service_req,	/* Service Request */
-    dtap_gmm_service_acc,	/* Service Accept */
-    dtap_gmm_service_rej,	/* Service Reject */
+    dtap_gmm_attach_req,		/* Attach Request */
+    dtap_gmm_attach_acc,		/* Attach Accept */
+    dtap_gmm_attach_com,		/* Attach Complete */
+    dtap_gmm_attach_rej,		/* Attach Reject */
+    dtap_gmm_detach_req,		/* Detach Request */
+    dtap_gmm_detach_acc,		/* Detach Accept */
+    dtap_gmm_rau_req,			/* Routing Area Update Request */
+    dtap_gmm_rau_acc,			/* Routing Area Update Accept */
+    dtap_gmm_rau_com,			/* Routing Area Update Complete */
+    dtap_gmm_rau_rej,			/* Routing Area Update Reject */
+    dtap_gmm_service_req,		/* Service Request */
+    dtap_gmm_service_acc,		/* Service Accept */
+    dtap_gmm_service_rej,		/* Service Reject */
     dtap_gmm_ptmsi_realloc_cmd,	/* P-TMSI Reallocation Command */
     dtap_gmm_ptmsi_realloc_com,	/* P-TMSI Reallocation Complete */
-    dtap_gmm_auth_ciph_req,	/* Authentication and Ciphering Req */
+    dtap_gmm_auth_ciph_req,		/* Authentication and Ciphering Req */
     dtap_gmm_auth_ciph_resp,	/* Authentication and Ciphering Resp */
-    dtap_gmm_auth_ciph_rej,	/* Authentication and Ciphering Rej */
+    dtap_gmm_auth_ciph_rej,		/* Authentication and Ciphering Rej */
     dtap_gmm_auth_ciph_fail,	/* Authentication and Ciphering Failure */
-    dtap_gmm_ident_req,	/* Identity Request */
-    dtap_gmm_ident_res,	/* Identity Response */
-    dtap_gmm_status,	/* GMM Status */
-    dtap_gmm_information,	/* GMM Information */
+    dtap_gmm_ident_req,			/* Identity Request */
+    dtap_gmm_ident_res,			/* Identity Response */
+    dtap_gmm_status,			/* GMM Status */
+    dtap_gmm_information,		/* GMM Information */
     NULL,	/* NONE */
 };
 
@@ -17613,27 +17728,32 @@ static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 #define	NUM_GSM_DTAP_MSG_SM (sizeof(gsm_a_dtap_msg_sm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_sm[NUM_GSM_DTAP_MSG_SM];
 static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-    dtap_sm_act_pdp_req,	/* Activate PDP Context Request */
-    dtap_sm_act_pdp_acc,	/* Activate PDP Context Accept */
-    dtap_sm_act_pdp_rej,	/* Activate PDP Context Reject */
-    dtap_sm_req_pdp_act,	/* Request PDP Context Activation */
+    dtap_sm_act_pdp_req,		/* Activate PDP Context Request */
+    dtap_sm_act_pdp_acc,		/* Activate PDP Context Accept */
+    dtap_sm_act_pdp_rej,		/* Activate PDP Context Reject */
+    dtap_sm_req_pdp_act,		/* Request PDP Context Activation */
     dtap_sm_req_pdp_act_rej,	/* Request PDP Context Activation rej. */
-    dtap_sm_deact_pdp_req,	/* Deactivate PDP Context Request */
-    dtap_sm_deact_pdp_acc,	/* Deactivate PDP Context Accept */
+    dtap_sm_deact_pdp_req,		/* Deactivate PDP Context Request */
+    dtap_sm_deact_pdp_acc,		/* Deactivate PDP Context Accept */
     dtap_sm_mod_pdp_req_net,	/* Modify PDP Context Request(Network to MS direction) */
-    dtap_sm_mod_pdp_acc_ms,	/* Modify PDP Context Accept (MS to network direction) */
-    dtap_sm_mod_pdp_req_ms,	/* Modify PDP Context Request(MS to network direction) */
+    dtap_sm_mod_pdp_acc_ms,		/* Modify PDP Context Accept (MS to network direction) */
+    dtap_sm_mod_pdp_req_ms,		/* Modify PDP Context Request(MS to network direction) */
     dtap_sm_mod_pdp_acc_net,	/* Modify PDP Context Accept (Network to MS direction) */
-    dtap_sm_mod_pdp_rej,	/* Modify PDP Context Reject */
+    dtap_sm_mod_pdp_rej,		/* Modify PDP Context Reject */
     dtap_sm_act_sec_pdp_req,	/* Activate Secondary PDP Context Request */
     dtap_sm_act_sec_pdp_acc,	/* Activate Secondary PDP Context Accept */
     dtap_sm_act_sec_pdp_rej,	/* Activate Secondary PDP Context Reject */
-    NULL,	/* Reserved: was allocated in earlier phases of the protocol */
-    NULL,	/* Reserved: was allocated in earlier phases of the protocol */
-    NULL,	/* Reserved: was allocated in earlier phases of the protocol */
-    NULL,	/* Reserved: was allocated in earlier phases of the protocol */
-    NULL,	/* Reserved: was allocated in earlier phases of the protocol */
-    dtap_sm_status,	/* SM Status */
+    NULL,						/* Reserved: was allocated in earlier phases of the protocol */
+    NULL,						/* Reserved: was allocated in earlier phases of the protocol */
+    NULL,						/* Reserved: was allocated in earlier phases of the protocol */
+    NULL,						/* Reserved: was allocated in earlier phases of the protocol */
+    NULL,						/* Reserved: was allocated in earlier phases of the protocol */
+    dtap_sm_status,				/* SM Status */
+								/* Activate MBMS Context Request */
+								/* Activate MBMS Context Accept */
+								/* Activate MBMS Context Reject */
+								/* Request MBMS Context Activation */
+								/* Request MBMS Context Activation Reject*
     NULL,	/* NONE */
 };
 
