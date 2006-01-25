@@ -33,18 +33,18 @@ LUA_CLASS_DEFINE(Field,FIELD,NOP);
 
 static int Field_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,1);
-    Field i;
+    Field f;
     
     if (!name) return 0;
     
-    i = proto_registrar_get_byname(name);
+    f = proto_registrar_get_byname(name);
     
-    if (!i) {
+    if (!f) {
         luaL_error(L,"Could not find field `%s'",name);
         return 0;
     }
     
-    pushField(L,i);
+    pushField(L,f);
     return 1;
 }    
 
@@ -55,50 +55,51 @@ static int Field_fetch (lua_State* L) {
     for (;in;in = in->same_name_next) {
         GPtrArray* found = proto_find_finfo(lua_tree, in->id);
         guint i;
-        
-        for (i=0; i<found->len; i++) {
-            field_info* fi = g_ptr_array_index(found,i);
-            switch(fi->hfinfo->type) {
-                case FT_UINT8:
-                case FT_UINT16:
-                case FT_UINT24:
-                case FT_UINT32:
-                case FT_FRAMENUM:
-                case FT_INT8:
-                case FT_INT16:
-                case FT_INT24:
-                case FT_INT32:
-                    lua_pushnumber(L,(lua_Number)fvalue_get_integer(&(fi->value)));
-                    items_found++;
-                    break;
-                case FT_FLOAT:
-                case FT_DOUBLE:
-                    lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->value)));
-                    items_found++;
-                    break;
-                case FT_UINT64:
-                case FT_INT64:
-                    /* XXX: get them as strings for now */
-                case FT_STRING:
-                case FT_STRINGZ:
-                case FT_ETHER:
-                case FT_BYTES:
-                case FT_UINT_BYTES:
-                case FT_IPv4:
-                case FT_IPv6:
-                case FT_IPXNET:
-                case FT_GUID:
-                case FT_OID:
-                    lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
-                    items_found++;
-                    break;
-                default:
-                    luaL_error(L,"FT_ not yet supported");
-                    return items_found;
+        if (found) {
+            for (i=0; i<found->len; i++) {
+                field_info* fi = g_ptr_array_index(found,i);
+                switch(fi->hfinfo->type) {
+                    case FT_UINT8:
+                    case FT_UINT16:
+                    case FT_UINT24:
+                    case FT_UINT32:
+                    case FT_FRAMENUM:
+                    case FT_INT8:
+                    case FT_INT16:
+                    case FT_INT24:
+                    case FT_INT32:
+                        lua_pushnumber(L,(lua_Number)fvalue_get_integer(&(fi->value)));
+                        items_found++;
+                        break;
+                    case FT_FLOAT:
+                    case FT_DOUBLE:
+                        lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->value)));
+                        items_found++;
+                        break;
+                    case FT_UINT64:
+                    case FT_INT64:
+                        /* XXX: get them as strings for now */
+                    case FT_ETHER:
+                    case FT_IPv4:
+                    case FT_IPv6:
+                    case FT_IPXNET:
+                        /* XXX -> Address */
+                    case FT_STRING:
+                    case FT_STRINGZ:
+                    case FT_BYTES:
+                    case FT_UINT_BYTES:
+                    case FT_GUID:
+                    case FT_OID:
+                        lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+                        items_found++;
+                        break;
+                    default:
+                        luaL_error(L,"FT_ not yet supported");
+                        return items_found;
+                }
             }
         }
     }
-    
     return items_found;
     
 }
@@ -198,10 +199,33 @@ static int Tap_set_filter(lua_State* L) {
     return 0;
 }
 
+GPtrArray* lua_taps = NULL;
+gboolean taps_registered = FALSE;
+
+GString* register_all_lua_taps(void) {
+    
+    if (!lua_taps || taps_registered) return NULL;
+
+    while (lua_taps->len) {
+        Tap tap = g_ptr_array_remove_index(lua_taps,0);
+        GString* error;
+
+        error = register_tap_listener("frame", tap, tap->filter, lua_tap_reset, lua_tap_packet, lua_tap_draw);
+    
+        if (error) {
+            return error;
+        }
+        
+        taps_registered = TRUE;
+    }
+    
+    
+    return NULL;
+    
+}
 static int Tap_register_to_ethereal(lua_State*L) {
     Tap tap = checkTap(L,1);
     GString* filter_s;
-    GString* error;
     GPtrArray* ins;
     guint i;
 
@@ -211,25 +235,26 @@ static int Tap_register_to_ethereal(lua_State*L) {
     
     if (tap->filter)
         g_string_sprintfa(filter_s,"( %s ) && frame ",tap->filter);
+    else
+        g_string_sprintfa(filter_s,"frame ");
     
     g_free(tap->filter);
-
+    
     ins = tap->interesting_fields;
-
+    
     for (i=0; i < ins->len; i++) {
         Field in = g_ptr_array_index(ins,i);
         g_string_sprintfa(filter_s," ||%s",in->abbrev);
     }
 
     tap->filter = filter_s->str;
+    
     g_string_free(filter_s,FALSE);
 
-    error = register_tap_listener("frame", tap, tap->filter, lua_tap_reset, lua_tap_packet, lua_tap_draw);
-
-    if (error) {
-        luaL_error(L,"tap registration error: %s",error);
-        g_string_free(error,TRUE);
-    }
+    if (!lua_taps)
+        lua_taps = g_ptr_array_new();
+    
+    g_ptr_array_add(lua_taps,tap);
     
     return 0;
 }

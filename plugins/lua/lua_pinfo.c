@@ -300,10 +300,11 @@ static int Column_tostring(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* name;
     
-    if (!(c && c->cinfo)) {
-        lua_pushstring(L,"Bad Column");
-        return 1;
+    if (!(c)) {
+        luaL_error(L,"Bad column");
+        return 0;
     } else {
+        /* TODO: format the column */
         name = col_id_to_name(c->col);
         lua_pushstring(L,name ? name : "Unknown Column");
     }
@@ -433,18 +434,18 @@ static int Columns_newindex(lua_State *L) {
 static int Columns_index(lua_State *L) {
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;    
-    const char* colname;
+    const char* colname = luaL_checkstring(L,2);
 
     if (!cols) {
         Column c = g_malloc(sizeof(struct _eth_col_info));
         c->cinfo = NULL;
-        c->col = 0;
+        c->col = col_name_to_id(colname);
         
         pushColumn(L,c);
         return 1;
     }
     
-    colname = luaL_checkstring(L,2);
+    
     
     if (!colname) return 0;
 

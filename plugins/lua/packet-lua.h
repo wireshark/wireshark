@@ -209,4 +209,6 @@ extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
 extern void lua_tap_reset(void *tapdata);
 extern void lua_tap_draw(void *tapdata);
 
+extern GString* register_all_lua_taps(void);
+
 #endif

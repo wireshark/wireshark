@@ -131,6 +131,7 @@ static int ProtoField_new(lua_State* L) {
     ProtoField f = g_malloc(sizeof(eth_field_t));
     GArray* vs;
     
+    /* will be using -2 as far as the field has not been added to an array then it will turn -1 */
     f->hfid = -2;
     f->name = g_strdup(luaL_checkstring(L,1));
     f->abbr = g_strdup(luaL_checkstring(L,2));
@@ -246,6 +247,30 @@ static int ProtoField_tostring(lua_State* L) {
     return 1;
 }
 
+static int ProtoField_gc(lua_State* L) {
+    ProtoField f = checkProtoField(L,1);
+
+    /*
+     * A garbage collector for ProtoFields makes little sense.
+     * Even if This cannot be used anymore because it has gone out of scope, 
+     * we can destroy the ProtoField only if it is not part of a ProtoFieldArray,
+     * if it actualy belongs to one we need to preserve it as it is pointed by
+     * a field array that may be registered afterwards causing a crash or memory corruption.
+     */
+    
+    if (!f) {
+        luaL_argerror(L,1,"BUG: ProtoField_gc called for something not ProtoField");
+        /* g_assert() ?? */
+    } else if (f->hfid == -2) {
+        g_free(f->name);
+        g_free(f->abbr);
+        g_free(f->blob);
+        g_free(f);
+    }
+    
+    return 0;
+}
+
 
 static const luaL_reg ProtoField_methods[] = {
     {"new",   ProtoField_new},
@@ -277,7 +302,8 @@ static const luaL_reg ProtoField_methods[] = {
 };
 
 static const luaL_reg ProtoField_meta[] = {
-    {"__tostring", ProtoField_tostring},
+    {"__gc", ProtoField_gc },
+    {"__tostring", ProtoField_tostring },
     {0, 0}
 };
 
@@ -385,9 +411,20 @@ static int ProtoFieldArray_tostring(lua_State* L) {
 }
 
 static int ProtoFieldArray_gc(lua_State* L) {
-    ProtoFieldArray vs = checkValueString(L,1);
+    ProtoFieldArray fa = checkValueString(L,1);
+    gboolean free_it = FALSE;
     
-    g_array_free(vs,TRUE);
+    /* we'll keep the data if the array was registered to a protocol */
+    if (fa->len) {
+        hf_register_info* f = (hf_register_info*)fa->data;
+        
+        if ( *(f->p_id) == -2)
+            free_it = TRUE;
+    } else {
+        free_it = TRUE;        
+    }
+    
+    g_array_free(fa,free_it);
     
     return 0;
 }
@@ -560,6 +597,7 @@ static int SubTreeTypeArray_register_to_ethereal(lua_State* L) {
 static int SubTreeTypeArray_gc(lua_State* L) {
     SubTreeTypeArray ea = checkSubTreeTypeArray(L,1);
     
+    /* XXX - free the array if unregistered */
     g_array_free(ea,FALSE);
     
     return 0;
@@ -603,51 +641,34 @@ int SubTreeTypeArray_register(lua_State* L) {
 
 
 static int Proto_new(lua_State* L) {
-    Proto proto;
     const gchar* name = luaL_checkstring(L,1);
-    const gchar* filter = luaL_checkstring(L,2);
-    const gchar* desc = luaL_checkstring(L,3);
+    const gchar* desc = luaL_optstring(L,2,"");
     
-    if (! (name && filter && desc) ) return 0;
-    
-    proto = g_malloc(sizeof(eth_proto_t));
-    
-    proto->hfid = -1;
-    proto->name = g_strdup(name);
-    proto->filter = g_strdup(filter);
-    proto->desc = g_strdup(desc);
-    proto->hfarray = NULL;
-    proto->prefs_module = NULL;
-    proto->prefs = NULL;
-    proto->handle = NULL;
-    proto->is_postdissector = FALSE;
-    
-    if (proto->name && proto->filter && proto->desc) {
-        if ( proto_get_id_by_filter_name(proto->filter) > 0 ) { 
-            g_free(proto);
-            luaL_argerror(L,2,"Protocol exists already");
+    if ( name ) {
+        if ( proto_get_id_by_filter_name(name) > 0 ) { 
+            luaL_argerror(L,1,"Protocol exists already");
             return 0;
         } else {
+            Proto proto = g_malloc(sizeof(eth_proto_t));
+            
+            /* XXX - using the same name and filtername to have to deal just with one name */
+            proto->name = g_strdup(name);
+            proto->filter = proto->name;
+            proto->desc = g_strdup(desc);
+            proto->hfarray = NULL;
+            proto->prefs_module = NULL;
+            proto->prefs = NULL;
+            proto->is_postdissector = FALSE;
             proto->hfid = proto_register_protocol(proto->desc,proto->name,proto->filter);
             proto->handle = create_dissector_handle(dissect_lua,proto->hfid);
+            
             pushProto(L,proto);
             return 1;
         }
      } else {
-         if (! proto->name ) 
-             luaL_argerror(L,1,"missing name");
-         
-         if (! proto->filter ) 
-             luaL_argerror(L,2,"missing filter");
-         
-         if (! proto->desc ) 
-             luaL_argerror(L,3,"missing desc");
-         
-         g_free(proto);
-
-         return 0;
+        luaL_argerror(L,1,"missing name");
+        return 0;
      }
-
 }
 
 static int Proto_register_field_array(lua_State* L) {
@@ -671,6 +692,10 @@ static int Proto_register_field_array(lua_State* L) {
 
     if (proto->hfarray) {
         luaL_argerror(L,1,"field_array already registered for this protocol");
+    }
+    
+    if ( *(((hf_register_info*)(fa->data))->p_id) != -1 ) {
+        luaL_argerror(L,1,"this field_array has been already registered to another protocol");
     }
         
     proto->hfarray = (hf_register_info*)(fa->data);
@@ -770,7 +795,6 @@ static int Proto_add_string_pref(lua_State* L) {
     
     return 0;
 }
-
 
 static int Proto_get_pref(lua_State* L) {
     Proto proto = checkProto(L,1);
@@ -975,6 +999,9 @@ static int DissectorTable_new (lua_State *L) {
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT24:
         case FT_UINT32:
         {
             DissectorTable dt = g_malloc(sizeof(struct _eth_distbl_t));
@@ -1027,9 +1054,29 @@ static int DissectorTable_add (lua_State *L) {
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,2));
         dissector_add_string(dt->name, pattern,p->handle);
-    } else if ( type == FT_UINT32 ) {
+    } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
         dissector_add(dt->name, port, p->handle);
+    }
+    
+    return 0;
+}
+
+static int DissectorTable_remove (lua_State *L) {
+    DissectorTable dt = checkDissectorTable(L,1);
+    Proto p = checkProto(L,3);
+    ftenum_t type;
+    
+    if (!(dt && p)) return 0;
+    
+    type = get_dissector_table_selector_type(dt->name);
+    
+    if (type == FT_STRING) {
+        gchar* pattern = g_strdup(luaL_checkstring(L,2));
+        dissector_delete_string(dt->name, pattern,p->handle);
+    } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
+        int port = luaL_checkint(L, 2);
+        dissector_delete(dt->name, port, p->handle);
     }
     
     return 0;
@@ -1054,7 +1101,7 @@ static int DissectorTable_try (lua_State *L) {
         
         if (dissector_try_string(dt->table,pattern,tvb,pinfo,tree))
             return 0;
-    } else if ( type == FT_UINT32 ) {
+    } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
         if (dissector_try_port(dt->table,port,tvb,pinfo,tree))
             return 0;
@@ -1078,7 +1125,7 @@ static int DissectorTable_get_dissector (lua_State *L) {
     if (type == FT_STRING) {
         const gchar* pattern = luaL_checkstring(L,2);
         handle = dissector_get_string_handle(dt->table,pattern);
-    } else if ( type == FT_UINT32 ) {
+    } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
         handle = dissector_get_port_handle(dt->table,port);
     }
@@ -1106,6 +1153,9 @@ static int DissectorTable_tostring(lua_State* L) {
             g_string_sprintfa(s,"%s String:\n",dt->name);
             break;
         }
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT24:
         case FT_UINT32:
         {
             int base = get_dissector_table_base(dt->name);
@@ -1122,9 +1172,10 @@ static int DissectorTable_tostring(lua_State* L) {
 }
 
 static const luaL_reg DissectorTable_methods[] = {
-    {"new", DissectorTable_new},
-    {"get", DissectorTable_get},
+    {"new", DissectorTable_new },
+    {"get", DissectorTable_get },
     {"add", DissectorTable_add },
+    {"remove", DissectorTable_remove },
     {"try", DissectorTable_try },
     {"get_dissector", DissectorTable_get_dissector },
     {0,0}

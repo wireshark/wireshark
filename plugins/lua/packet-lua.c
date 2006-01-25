@@ -119,6 +119,12 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 }
 
 static void init_lua(void) {
+    GString* tap_error = register_all_lua_taps();
+    
+    if ( tap_error ) {
+        report_failure("lua tap registration problem: %s",tap_error->str);
+    }
+    
     /* XXX in C */
     if (L)
         lua_dostring(L, "for k in init_routines do init_routines[k]() end;");

@@ -237,9 +237,7 @@ static int ByteArray_tostring(lua_State* L) {
     
     if (!ba) return 0;
     
-    s = g_string_new("ByteArray");
-    
-    g_string_sprintfa(s,"(%u): ",ba->len);
+    s = g_string_new("");
     
     for (i = 0; i < (int)ba->len; i++) {
         g_string_append(s,byte_to_str[(ba->data)[i]]);
