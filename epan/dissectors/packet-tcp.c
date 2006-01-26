@@ -109,7 +109,7 @@ static int hf_tcp_analysis_duplicate_ack_num = -1;
 static int hf_tcp_analysis_duplicate_ack_frame = -1;
 static int hf_tcp_analysis_zero_window = -1;
 static int hf_tcp_analysis_zero_window_probe = -1;
-static int hf_tcp_analysis_zero_window_violation = -1;
+static int hf_tcp_analysis_zero_window_probe_ack = -1;
 static int hf_tcp_continuation_to = -1;
 static int hf_tcp_pdu_time = -1;
 static int hf_tcp_pdu_last_frame = -1;
@@ -170,30 +170,12 @@ static dissector_handle_t data_handle;
 
 /* TCP structs and definitions */
 
-static void
-process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
-	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment);
-
 /* **************************************************************************
- * stuff to analyze TCP sequencenumbers for retransmissions, missing segments,
+
  * RTT and reltive sequence numbers.
  * **************************************************************************/
 static gboolean tcp_analyze_seq = TRUE;
 static gboolean tcp_relative_seq = TRUE;
-
-typedef struct _tcp_unacked_t {
-	struct _tcp_unacked_t *next;
-	guint32 frame;
-	guint32	seq;
-	guint32 nextseq;
-	nstime_t ts;
-
-	/* this is to keep track of zero window and zero window probe */
-	guint32 window;
-
-	guint32 flags;
-} tcp_unacked_t;
 
 /* SLAB allocator for tcp_unacked structures
  */
@@ -219,81 +201,29 @@ static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
 #define TCP_A_DUPLICATE_ACK		0x0010
 #define TCP_A_ZERO_WINDOW		0x0020
 #define TCP_A_ZERO_WINDOW_PROBE		0x0040
-#define TCP_A_ZERO_WINDOW_VIOLATION	0x0080
+#define TCP_A_ZERO_WINDOW_PROBE_ACK	0x0080
 #define TCP_A_KEEP_ALIVE_ACK		0x0100
 #define TCP_A_OUT_OF_ORDER		0x0200
 #define TCP_A_FAST_RETRANSMISSION	0x0400
 #define TCP_A_WINDOW_UPDATE		0x0800
 #define TCP_A_WINDOW_FULL		0x1000
-struct tcp_acked {
-	guint32 frame_acked;
-	nstime_t ts;
-	
-	guint32  rto_frame;	
-	nstime_t rto_ts;	/* Time since previous packet for 
-				   retransmissions. */
-	guint16 flags;
-	guint32 dupack_num;	/* dup ack number */
-	guint32 dupack_frame;	/* dup ack to frame # */
-};
 static GHashTable *tcp_analyze_acked_table = NULL;
 
-struct tcp_rel_seq {
-	guint32 seq_base;
-	guint32 ack_base;
-	gint16  win_scale;
-};
-static GHashTable *tcp_rel_seq_table = NULL;
-
-struct tcp_analysis {
-	/* These two structs are managed based on comparing the source
-	 * and destination addresses and, if they're equal, comparing
-	 * the source and destination ports.
-	 *
-	 * If the source is greater than the destination, then stuff
-	 * sent from src is in ual1.
-	 *
-	 * If the source is less than the destination, then stuff
-	 * sent from src is in ual2.
-	 *
-	 * XXX - if the addresses and ports are equal, we don't guarantee
-	 * the behavior.
-	 */
-	tcp_unacked_t *ual1;		/* UnAcked List 1*/
-	guint32 base_seq1;
-	tcp_unacked_t *ual2;		/* UnAcked List 2*/
-	guint32 base_seq2;
-	gint16 win_scale1, win_scale2;
-	gint32 win1, win2;
-	guint32 ack1, ack2;
-	guint32 ack1_frame, ack2_frame;
-	nstime_t ack1_time, ack2_time;
-	guint32 num1_acks, num2_acks;
-
-	/* these two lists are used to track when PDUs may start
-	   inside a segment.
-	*/
-	struct tcp_next_pdu *pdu_seq1;
-	struct tcp_next_pdu *pdu_seq2;
-};
-
-
-struct tcp_next_pdu {
-	struct tcp_next_pdu *next;
-	guint32 seq;
-	guint32 nxtpdu;
-	guint32 first_frame;
-	guint32 last_frame;
-        nstime_t last_frame_time;
-};
 static GHashTable *tcp_pdu_tracking_table = NULL;
 static GHashTable *tcp_pdu_skipping_table = NULL;
 static GHashTable *tcp_pdu_time_table = NULL;
 
+static void
+process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
+	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
+	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment, 
+	struct tcp_analysis *tcpd);
 
-static struct tcp_analysis *
+
+struct tcp_analysis *
 get_tcp_conversation_data(packet_info *pinfo)
 {
+	int direction;
 	conversation_t *conv=NULL;
 	struct tcp_analysis *tcpd=NULL;
 
@@ -308,29 +238,49 @@ get_tcp_conversation_data(packet_info *pinfo)
 	if(!tcpd){
 		/* No no such data yet. Allocate and init it */
 		tcpd=se_alloc(sizeof(struct tcp_analysis));
-		tcpd->ual1=NULL;
-		tcpd->base_seq1=0;
-		tcpd->win1=-1;
-		tcpd->win_scale1=-1;
-		tcpd->ack1=0;
-		tcpd->ack1_frame=0;
-		tcpd->ack1_time.secs=0;
-		tcpd->ack1_time.nsecs=0;
-		tcpd->num1_acks=0;
-		tcpd->ual2=NULL;
-		tcpd->base_seq2=0;
-		tcpd->win2=-1;
-		tcpd->win_scale2=-1;
-		tcpd->ack2=0;
-		tcpd->ack2_frame=0;
-		tcpd->ack2_time.secs=0;
-		tcpd->ack2_time.nsecs=0;
-		tcpd->num2_acks=0;
-
-		tcpd->pdu_seq1=NULL;
-		tcpd->pdu_seq2=NULL;
+		tcpd->flow1.segments=NULL;
+		tcpd->flow1.base_seq=0;
+		tcpd->flow1.lastack=0;
+		tcpd->flow1.lastacktime.secs=0;
+		tcpd->flow1.lastacktime.nsecs=0;
+		tcpd->flow1.lastnondupack=0;
+		tcpd->flow1.nextseq=0;
+		tcpd->flow1.nextseqtime.secs=0;
+		tcpd->flow1.nextseqtime.nsecs=0;
+		tcpd->flow1.nextseqframe=0;
+		tcpd->flow1.window=0;
+		tcpd->flow1.win_scale=-1;
+		tcpd->flow1.pdu_seq=NULL;
+		tcpd->flow2.segments=NULL;
+		tcpd->flow2.base_seq=0;
+		tcpd->flow2.lastack=0;
+		tcpd->flow2.lastacktime.secs=0;
+		tcpd->flow2.lastacktime.nsecs=0;
+		tcpd->flow2.lastnondupack=0;
+		tcpd->flow2.nextseq=0;
+		tcpd->flow2.nextseqtime.secs=0;
+		tcpd->flow2.nextseqtime.nsecs=0;
+		tcpd->flow2.nextseqframe=0;
+		tcpd->flow2.window=0;
+		tcpd->flow2.win_scale=-1;
+		tcpd->flow2.pdu_seq=NULL;
 
 		conversation_add_proto_data(conv, proto_tcp, tcpd);
+	}
+
+
+	/* check direction and get ua lists */
+	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+	/* if the addresses are equal, match the ports instead */
+	if(direction==0) {
+		direction= (pinfo->srcport > pinfo->destport)*2-1;
+	}
+	if(direction>=0){
+		tcpd->fwd=&(tcpd->flow1);
+		tcpd->rev=&(tcpd->flow2);
+	} else {
+		tcpd->fwd=&(tcpd->flow2);
+		tcpd->rev=&(tcpd->flow1);
 	}
 
 	return tcpd;
@@ -411,26 +361,13 @@ print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree,
    and let TCP try to find out what it can about this segment
 */
 static int
-scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
+scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq, struct tcp_analysis *tcpd)
 {
-	struct tcp_analysis *tcpd=NULL;
 	struct tcp_next_pdu *tnp=NULL;
-	int direction;
 
 	if(!pinfo->fd->flags.visited){
 		/* find(or create if needed) the conversation for this tcp session */
-		tcpd=get_tcp_conversation_data(pinfo);
-		/* check direction and get pdu start lists */
-		direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-		/* if the addresses are equal, match the ports instead */
-		if(direction==0) {
-			direction= (pinfo->srcport > pinfo->destport)*2-1;
-		}
-		if(direction>=0){
-			tnp=tcpd->pdu_seq1;
-		} else {
-			tnp=tcpd->pdu_seq2;
-		}
+		tnp=tcpd->fwd->pdu_seq;
 
 		/* scan and see if we find any pdus starting inside this tvb */
 		for(;tnp;tnp=tnp->next){
@@ -493,14 +430,9 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
    use this function to remember where the next pdu starts
 */
 static void
-pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu)
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, struct tcp_analysis *tcpd)
 {
-	struct tcp_analysis *tcpd=NULL;
 	struct tcp_next_pdu *tnp=NULL;
-	int direction;
-
- 	/* find(or create if needed) the conversation for this tcp session */
-	tcpd=get_tcp_conversation_data(pinfo);
 
 	tnp=se_alloc(sizeof(struct tcp_next_pdu));
 	tnp->nxtpdu=nxtpdu;
@@ -509,19 +441,8 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	tnp->last_frame=pinfo->fd->num;
 	tnp->last_frame_time=pinfo->fd->abs_ts;
 
-	/* check direction and get pdu start list */
-	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-	/* if the addresses are equal, match the ports instead */
-	if(direction==0) {
-		direction= (pinfo->srcport > pinfo->destport)*2-1;
-	}
-	if(direction>=0){
-		tnp->next=tcpd->pdu_seq1;
-		tcpd->pdu_seq1=tnp;
-	} else {
-		tnp->next=tcpd->pdu_seq2;
-		tcpd->pdu_seq2=tnp;
-	}
+	tnp->next=tcpd->fwd->pdu_seq;
+	tcpd->fwd->pdu_seq=tnp;
 	/*QQQ 
 	  Add check for ACKs and purge list of sequence numbers
 	  already acked.
@@ -536,56 +457,32 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
  * (or the SYN was missing) and then we disable the window scaling
  * for this tcp session.
  */
-static void verify_tcp_window_scaling(packet_info *pinfo)
+static void 
+verify_tcp_window_scaling(struct tcp_analysis *tcpd)
 {
-	struct tcp_analysis *tcpd=NULL;
-
-	/* find(or create if needed) the conversation for this tcp session */
-	tcpd=get_tcp_conversation_data(pinfo);
-
-	if( (tcpd->win_scale1==-1) || (tcpd->win_scale2==-1) ){
-		tcpd->win_scale1=-1;
-		tcpd->win_scale2=-1;
+	if( (tcpd->flow1.win_scale==-1) || (tcpd->flow2.win_scale==-1) ){
+		tcpd->flow1.win_scale=-1;
+		tcpd->flow2.win_scale=-1;
 	}
 }
 
 /* if we saw a window scaling option, store it for future reference 
 */
-static void pdu_store_window_scale_option(packet_info *pinfo, guint8 ws)
+static void 
+pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
 {
-	struct tcp_analysis *tcpd=NULL;
-	int direction;
-
-	/* find(or create if needed) the conversation for this tcp session */
-	tcpd=get_tcp_conversation_data(pinfo);
-
-	/* check direction and get pdu start list */
-	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-	/* if the addresses are equal, match the ports instead */
-	if(direction==0) {
-		direction= (pinfo->srcport > pinfo->destport)*2-1;
-	}
-	if(direction>=0){
-		tcpd->win_scale1=ws;
-	} else {
-		tcpd->win_scale2=ws;
-	}
+	tcpd->fwd->win_scale=ws;
 }
 
 static void
-tcp_get_relative_seq_ack(guint32 frame, guint32 *seq, guint32 *ack, guint32 *win)
+tcp_get_relative_seq_ack(guint32 *seq, guint32 *ack, guint32 *win, struct tcp_analysis *tcpd)
 {
-	struct tcp_rel_seq *trs;
-
-	trs=g_hash_table_lookup(tcp_rel_seq_table, GUINT_TO_POINTER(frame));
-	if(!trs){
-		return;
-	}
-
-	(*seq) -= trs->seq_base;
-	(*ack) -= trs->ack_base;
-	if(trs->win_scale!=-1){
-		(*win)<<=trs->win_scale;
+	if(tcp_relative_seq){
+		(*seq) -= tcpd->fwd->base_seq;
+		(*ack) -= tcpd->rev->base_seq;
+		if(tcpd->fwd->win_scale!=-1){
+			(*win)<<=tcpd->fwd->win_scale;
+		}
 	}
 }
 
@@ -608,661 +505,384 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 	return ta;
 }
 
-static void
-tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint32 window)
-{
-	struct tcp_analysis *tcpd=NULL;
-	int direction;
-	tcp_unacked_t *ual1=NULL;
-	tcp_unacked_t *ual2=NULL;
-	tcp_unacked_t *ual=NULL;
-	guint32 base_seq;
-	guint32 base_ack;
-	guint32 ack1, ack2;
-	guint32 ack1_frame, ack2_frame;
-	nstime_t *ack1_time, *ack2_time;
-	guint32 num1_acks, num2_acks;
-	gint32 win1,win2;
-	gint16  win_scale1,win_scale2;
-	struct tcp_next_pdu **tnp=NULL;
 
-	/* find(or create if needed) the conversation for this tcp session */
-	tcpd=get_tcp_conversation_data(pinfo);
-
-	/* check direction and get ua lists */
-	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-	/* if the addresses are equal, match the ports instead */
-	if(direction==0) {
-		direction= (pinfo->srcport > pinfo->destport)*2-1;
-	}
-	if(direction>=0){
-		ual1=tcpd->ual1;
-		ual2=tcpd->ual2;
-		ack1=tcpd->ack1;
-		ack2=tcpd->ack2;
-		ack1_frame=tcpd->ack1_frame;
-		ack2_frame=tcpd->ack2_frame;
-		ack1_time=&tcpd->ack1_time;
-		ack2_time=&tcpd->ack2_time;
-		num1_acks=tcpd->num1_acks;
-		num2_acks=tcpd->num2_acks;
-		tnp=&tcpd->pdu_seq2;
-		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq1;
-		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq2;
-		win_scale1=tcpd->win_scale1;
-		win1=tcpd->win1;
-		win_scale2=tcpd->win_scale2;
-		win2=tcpd->win2;
-	} else {
-		ual1=tcpd->ual2;
-		ual2=tcpd->ual1;
-		ack1=tcpd->ack2;
-		ack2=tcpd->ack1;
-		ack1_frame=tcpd->ack2_frame;
-		ack2_frame=tcpd->ack1_frame;
-		ack1_time=&tcpd->ack2_time;
-		ack2_time=&tcpd->ack1_time;
-		num1_acks=tcpd->num2_acks;
-		num2_acks=tcpd->num1_acks;
-		tnp=&tcpd->pdu_seq1;
-		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq2;
-		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq1;
-		win_scale1=tcpd->win_scale2;
-		win1=tcpd->win2;
-		win_scale2=tcpd->win_scale1;
-		win2=tcpd->win1;
-	}
-
-	if(!seglen){
-		if(!ack2_frame){
-			ack2_frame=pinfo->fd->num;
-			ack2=ack;
-			*ack2_time=pinfo->fd->abs_ts;
-			num2_acks=0;
-		} else if(GT_SEQ(ack, ack2)){
-			ack2_frame=pinfo->fd->num;
-			ack2=ack;
-			*ack2_time=pinfo->fd->abs_ts;
-			num2_acks=0;
-		}
-	}
-
-#ifdef REMOVED
-/* useful debug ouput   
- * it prints the two lists of the sliding window emulation 
- */
-{
-tcp_unacked_t *u=NULL;
-printf("\n");
-printf("analyze_sequence_number(frame:%d seq:%d nextseq:%d ack:%d  baseseq:0x%08x baseack:0x%08x)\n",pinfo->fd->num,seq,seq+seglen,ack,base_seq,base_ack);
-printf("UAL1:\n");
-for(u=ual1;u;u=u->next){
-printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->nextseq,u->ts.secs,u->ts.nsecs,ack1,ack2);
-}
-printf("UAL2:\n");
-for(u=ual2;u;u=u->next){
-printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->nextseq,u->ts.secs,u->ts.nsecs,ack1,ack2);
-}
-}
-#endif
-
-	/* To handle FIN, just add 1 to the length.
-	   else the ACK following the FIN-ACK will look like it was
-	   outside the window. */
-	if( flags&TH_FIN ){
-		seglen+=1;
-	}
-
-	/* handle the sequence numbers */
-	/* if this was a SYN packet, then remove existing list and
-	 * put SEQ+1 first the list, just "forget" the existing nodes */
-	if(flags&TH_SYN){
-		for(ual=ual1;ual1;ual1=ual){
-			ual=ual1->next;
-			TCP_UNACKED_FREE(ual1);
-		}
-		TCP_UNACKED_NEW(ual1);
-		ual1->next=NULL;
-		ual1->frame=pinfo->fd->num;
-		ack1_frame=0;
-		ack2_frame=0;
-		ack1=0;
-		ack2=0;
-		num1_acks=0;
-		num2_acks=0;
-		ual1->seq=seq;
-		ual1->nextseq=seq+1;
-		ual1->ts=pinfo->fd->abs_ts;
-		ual1->window=window;
-		ual1->flags=0;
-		if(tcp_relative_seq){
-			base_seq=seq;
-			/* if this was an SYN|ACK packet then set base_ack
-			 * reflect the start of the sequence, i.e. one less 
-			 */
-			if(flags&TH_ACK){
-				base_ack=ack-1;
-			} else {
-				base_ack=ack;
-			}
-		}
-		goto seq_finished;
-	}
-
-	/* if this is the first segment we see then just add it */
-	if( !ual1 ){
-		TCP_UNACKED_NEW(ual1);
-		ual1->next=NULL;
-		ual1->frame=pinfo->fd->num;
-		ual1->seq=seq;
-		ual1->nextseq=seq+seglen;
-		ual1->ts=pinfo->fd->abs_ts;
-		ual1->window=window;
-		ual1->flags=0;
-		if(tcp_relative_seq){
-			base_seq=seq;
-			base_ack=ack;
-		}
-		goto seq_finished;
-	}
-
-	/* if we get past here we know that ual1 points to a segment */
-
-
-	/* if seq is beyond ual1->nextseq we have lost a segment */
-	if (GT_SEQ(seq, ual1->nextseq)) {
-		struct tcp_acked *ta;
-
-		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-		ta->flags|=TCP_A_LOST_PACKET;
-
-		/* just add the segment to the beginning of the list */
-		TCP_UNACKED_NEW(ual);
-		ual->next=ual1;
-		ual->frame=pinfo->fd->num;
-		ual->seq=seq;
-		ual->nextseq=seq+seglen;
-		ual->ts=pinfo->fd->abs_ts;
-		ual->window=window;
-		ual->flags=0;
-		ual1=ual;
-		goto seq_finished;
-	}
-
-	/* keep-alives are empty segments with a sequence number -1 of what
-	 * we would expect.
-         *
-	 * Solaris is an exception, Solaris does not really use KeepAlives
-	 * according to RFC793, instead they move the left window edge one
-	 * byte to the left and makes up a fake byte to fill in this position
-	 * of the enlarged window.
-	 * This means that Solaris will do "weird" KeepAlives that actually
-	 * contains a one-byte segment with "random" junk data which the
-	 * Solaris host then will try to transmit, and posisbly retransmit
-	 * to the other side. Of course the other side will ignore this junk
-	 * byte since it is outside (left of) the window.
-	 * This is actually a brilliant trick that gives them, for free, 
-	 * semi-reliable KeepAlives.
-	 * (since normal retransmission will handle any lost keepalive segments
-	 * , brilliant)
-	 */
-	if( (seglen<=1) && EQ_SEQ(seq, (ual1->nextseq-1)) ){
-		if(!(flags&TH_FIN)){ /* FIN segments are not keepalives */
-			struct tcp_acked *ta;
-	
-			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-			ta->flags|=TCP_A_KEEP_ALIVE;
-			ual1->flags|=TCP_A_KEEP_ALIVE;
-			goto seq_finished;
-		}
-	}
-
-	/* if this is an empty segment, just skip it all */
-	if( !seglen ){
-		goto seq_finished;
-	}
-
-	/* check if the sequence number is lower than expected, i.e. either a 
-	 * retransmission a fast retransmission or an out of order segment
-	 */
-	if( LT_SEQ(seq, ual1->nextseq )){
-		gboolean outoforder;
-		tcp_unacked_t *tu,*ntu;
-
-		/* assume it is a fast retransmission if
-		 * 1 we have seen >=3 dupacks in the other direction for this 
-		 *   segment (i.e. >=4 acks)
-		 * 2 if this segment is the next unacked segment
-		 * 3 this segment came within 10ms of the last dupack
-		 *   (10ms is arbitrary but should be low enough not to be
-		 *   confused with a retransmission timeout 
-		 */
-		if( (num1_acks>=4) && (seq==ack1) ){
-			guint32 t;
-
-			t=(pinfo->fd->abs_ts.secs-ack1_time->secs)*1000000000;
-			t=t+(pinfo->fd->abs_ts.nsecs)-ack1_time->nsecs;
-			if(t<10000000){
-				/* has to be a retransmission then */
-				struct tcp_acked *ta;
-
-				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-				ta->flags|=TCP_A_FAST_RETRANSMISSION;
-				goto seq_finished;
-			}
-		}
-
-		/* check it is a suspected out of order segment.
-		 * we assume it is an out of order segment if 
-		 * 1 it has not been ACKed yet.
-		 * 2 we have not seen the segment before
-		 * 3 it arrived within (arbitrary value) 4ms of the
-		 *      next semgent in the sequence.
-		 *   4 there were no dupacks in the opposite direction.
-		 */
-		outoforder=TRUE;
-#ifdef REMOVED
-		/* dont do this test.  For full-duplex capture devices that 
-		 * capture in both directions using two NICs it is more common
-		 * than one would expect for this to happen since they often
-		 * lose the time integrity between the two NICs
-		 */
-		/* 1 has it already been ACKed ? */
-		if(LT_SEQ(seq,ack1)){
-			outoforder=FALSE;
-		}
-#endif
-		/* 2 have we seen this segment before ? */
-		for(tu=ual1;tu;tu=tu->next){
-			if((tu->frame)&&(tu->seq==seq)){
-				outoforder=FALSE;
-			}
-		}
-		/* 3 was it received within 4ms of the next segment ?*/
-		ntu=NULL;
-		for(tu=ual1;tu;tu=tu->next){
-			if(LT_SEQ(seq,tu->seq)){
-				if(tu->frame){
-					ntu=tu;
-				}
-			}
-		}
-		if(ntu){
-			if(pinfo->fd->abs_ts.secs > ntu->ts.secs+2){
-				outoforder=FALSE;
-			} else if(pinfo->fd->abs_ts.secs+2 < ntu->ts.secs){
-				outoforder=FALSE;
-			} else {
-				guint32 t;
-
-				t=(ntu->ts.secs-pinfo->fd->abs_ts.secs)*1000000000;
-				t=t+ntu->ts.nsecs-(pinfo->fd->abs_ts.nsecs);
-
-				if(t>4000000){
-					outoforder=FALSE;
-				}
-			}
-		}
-
-		
-		if(outoforder) {
-			struct tcp_acked *ta;
-
-			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-			ta->flags|=TCP_A_OUT_OF_ORDER;
-		} else {
-			/* has to be a retransmission then */
-			struct tcp_acked *ta;
-
-			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-			ta->flags|=TCP_A_RETRANSMISSION;
-
-#ifdef REMOVED
-/* The code in the block here and is ifdeffed out tries to measure the RTO
- * as the delta between the time the original pakcet was lost and this packet,
- * which is essentially what the RTO is all about. We dont do that here.
+/* fwd contains a list of all segments processed but not yet ACKed in the
+ *     same direction as the current segment.
+ * rev contains a list of all segments received but not yet ACKed in the
+ *     opposite direction to the current segment.
  *
- * Instead we define the RTO as the delta between the retransmitted packet
- * and the last previous data segment on the same session.
- * This is an metric on how long the link were idle due to the RTO
- * and thus since this reflects the real damage to performance  this is much
- * more interesting for most people.
- * Measuring the RTO in this way, while technically not entirely correct,
- * allows us to SUM(tcp.analysis.rto) for a session and we will have the amount
- * of time for that session that was spent waiting for a retransmission instead
- * of pushing data across.
- */ 
-			/* measure RTO from the most recent frame we have in 
-			 * the sliding window that has a sequence number equal
-			 * to or less than the retransmitted frame.
-			 */
-			ntu=NULL;
-			for(tu=ual1;tu;tu=tu->next){
-				if(GE_SEQ(seq,tu->seq)){
-					if(tu->frame){
-						ntu=tu;
-						break;
-					}
-				}
-			}
+ * New segments are always added to the head of the fwd/rev lists.
+ *
+ */
+static void
+tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint32 window, struct tcp_analysis *tcpd)
+{
+	tcp_unacked_t *ual=NULL;
+	struct tcp_acked *ta=NULL;
+	int ackcount;
+
+#ifdef REMOVED
+printf("analyze_sequence numbers   frame:%d  direction:%s\n",pinfo->fd->num,direction>=0?"FWD":"REW");
+printf("FWD list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->fwd->lastsegmentflags,tcpd->fwd->base_seq);for(ual=tcpd->fwd->segments;ual;ual=ual->next)printf("Frame:%d Seq:%d Nextseq:%d\n",ual->frame,ual->seq,ual->nextseq);
+printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflags,tcpd->rev->base_seq);for(ual=tcpd->rev->segments;ual;ual=ual->next)printf("Frame:%d Seq:%d Nextseq:%d\n",ual->frame,ual->seq,ual->nextseq);
 #endif
-			ntu=ual1;
-			if(ntu){
-				/* Set RTO to the delta since the previous 
-				 * segment with an equal or lower sequence 
-				 * number.
-				 */
-				nstime_delta(&ta->rto_ts, &pinfo->fd->abs_ts, &ntu->ts);
-				ta->rto_frame=ntu->frame;
-			} else {
-				/* we didnt see any previous packet so we
-				 * cant calculate the RTO 
-				 */
-				ta->rto_ts.secs=0;
-				ta->rto_ts.nsecs=0;
-				ta->rto_frame=0;
-			}
-
-			/* did this segment contain any more data we havent seen yet?
-			 * if so we can just increase nextseq
-			 */
-			if(GT_SEQ((seq+seglen), ual1->nextseq)){
-				ual1->nextseq=seq+seglen;
-				ual1->frame=pinfo->fd->num;
-				ual1->ts=pinfo->fd->abs_ts;
-			}
-		}
-		goto seq_finished;
-	}
-
-	/* just add the segment to the beginning of the list */
-	TCP_UNACKED_NEW(ual);
-	ual->next=ual1;
-	ual->frame=pinfo->fd->num;
-	ual->seq=seq;
-	ual->nextseq=seq+seglen;
-	ual->ts=pinfo->fd->abs_ts;
-	ual->window=window;
-	ual->flags=0;
-	ual1=ual;
-
-seq_finished:
 
 
 
-	/* handle the ack numbers */
-
-	/* if we dont have the ack flag its not much we can do */
-	if( !(flags&TH_ACK)){
-		goto ack_finished;
-	}
-
-	/* if we havent seen anything yet in the other direction we dont
-	 * know what this one acks */
-	if( !ual2 ){
-		goto ack_finished;
-	}
-
-	/* if we dont have any real segments in the other direction not
-	 * acked yet (as we see from the magic frame==0 entry)
-	 * then there is no point in continuing
+	/* if this is the first segment for this list we need to store the 
+	 * base_seq
 	 */
-	if( !ual2->frame ){
-		goto ack_finished;
+	if(tcpd->fwd->base_seq==0){
+		tcpd->fwd->base_seq=seq;
 	}
-
-	/* if we get here we know ual2 is valid */
-
-	/* if we are acking beyong what we have seen in the other direction
-	 * we must have lost packets. Not much point in keeping the segments
-	 * in the other direction either. Just "forget" the old nodes.
+	/* if we have spotted a new base_Seq in the reverse direction 
+	 * store it.
 	 */
-	if( GT_SEQ(ack, ual2->nextseq )){
-		struct tcp_acked *ta;
-
-		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-		ta->flags|=TCP_A_ACK_LOST_PACKET;
-		for(ual=ual2;ual2;ual2=ual){
-			ual=ual2->next;
-			TCP_UNACKED_FREE(ual2);
-		}
-		prune_next_pdu_list(tnp, ack-base_ack);
-		goto ack_finished;
+	if(tcpd->rev->base_seq==0){
+		tcpd->rev->base_seq=ack;
 	}
 
 
-	/* does this ACK ack all semgents we have seen in the other direction?*/
-	if( EQ_SEQ(ack, ual2->nextseq )){
-		struct tcp_acked *ta;
 
-		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-		ta->frame_acked=ual2->frame;
-		nstime_delta(&ta->ts, &pinfo->fd->abs_ts, &ual2->ts);
-
-		/* its all been ACKed so we dont need to keep them anymore */
-		for(ual=ual2;ual2;ual2=ual){
-			ual=ual2->next;
-			TCP_UNACKED_FREE(ual2);
-		}
-		prune_next_pdu_list(tnp, ack-base_ack);
-		goto ack_finished;
-	}
-
-	/* ok it only ACKs part of what we have seen. Find out how much
-	 * update and remove the ACKed segments
+	/* ZERO WINDOW PROBE
+	 * it is a zero window probe if
+	 *  the sequnece number is the next expected one
+	 *  the window in the other direction is 0
+	 *  the segment is exactly 1 byte
 	 */
-	for(ual=ual2;ual->next;ual=ual->next){
-		if( GE_SEQ(ack, ual->next->nextseq)){
-			break;
-		}
-	}
-	if(ual->next){
-		tcp_unacked_t *tmpual=NULL;
-		tcp_unacked_t *ackedual=NULL;
-		struct tcp_acked *ta;
-
-		/* XXX normal ACK*/
-		ackedual=ual->next;
-
-		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-		ta->frame_acked=ackedual->frame;
-		nstime_delta(&ta->ts, &pinfo->fd->abs_ts, &ackedual->ts);
-
-		/* just delete all ACKed segments */
-		tmpual=ual->next;
-		ual->next=NULL;
-		for(ual=tmpual;ual;ual=tmpual){
-			tmpual=ual->next;
-			TCP_UNACKED_FREE(ual);
-		}
-		prune_next_pdu_list(tnp, ack-base_ack);
-	}
-
-ack_finished:
-	/* we might have deleted the entire ual2 list, if this is an ACK,
-	   make sure ual2 at least has a dummy entry for the current ACK */
-	if( (!ual2) && (flags&TH_ACK) ){
-		TCP_UNACKED_NEW(ual2);
-		ual2->next=NULL;
-		ual2->frame=0;
-		ual2->seq=ack;
-		ual2->nextseq=ack;
-		ual2->ts.secs=0;
-		ual2->ts.nsecs=0;
-		ual2->window=window;
-		ual2->flags=0;
-	}
-
-	/* update the ACK counter and check for
-	   duplicate ACKs*/
-	/* go to the oldest segment in the list of segments 
-	   in the other direction */
-	/* XXX we should guarantee ual2 to always be non NULL here
-	   so we can skip the ual/ual2 tests */
-	for(ual=ual2;ual&&ual->next;ual=ual->next)
-		;
-	if(ual2){
-		/* we only consider this being a potential duplicate ack
-		   if the segment length is 0 (ack only segment)
-		   and if it acks something previous to oldest segment
-		   in the other direction */
-		if((!seglen)&&LE_SEQ(ack,ual->seq)){
-			/* if this is the first ack to keep track of, it is not
-			   a duplicate */
-			if(num2_acks==0){
-				ack2=ack;
-				ack2_frame=pinfo->fd->num;
-				num2_acks=1;
-			/* if this ack is different, store this one 
-			   instead and forget the previous one(s) */
-			} else if(ack2!=ack){
-				ack2=ack;
-				ack2_frame=pinfo->fd->num;
-				num2_acks=1;
-			/* this has to be a duplicate ack */
-			} else {
-				num2_acks++;
-			}	
-			
-			/* is this an ACK to a KeepAlive? */
-			if( (ual->flags&TCP_A_KEEP_ALIVE)
-			&& (ack==ual->seq) ){
-				struct tcp_acked *ta;
-				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-				ta->flags|=TCP_A_KEEP_ALIVE_ACK;
-				ual->flags^=TCP_A_KEEP_ALIVE;
-			} else if(num2_acks>1) {
-			/* ok we have found a potential duplicate ack */
-				struct tcp_acked *ta;
-				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-				/* keepalives are not dupacks and 
-				 * netiher are RST/FIN segments
-				 */
-				if( (!(ta->flags&TCP_A_KEEP_ALIVE))
-				  &&(!(flags&(TH_RST|TH_FIN))) ){
-					/* well then   
-					 * this could then either be a dupack
-					 * or maybe just a window update.
-					 */
-					if(win1==(gint32)window){
-						ta->flags|=TCP_A_DUPLICATE_ACK;
-						ta->dupack_num=num2_acks-1;
-						ta->dupack_frame=ack2_frame;
-					} else {
-						ta->flags|=TCP_A_WINDOW_UPDATE;
-					}
-				}
-			}
-		}		
-
-	}
-
-	/* see if this semgent has filled up the window completely,
-	 * i.e. same thing as if the other side would start sending
-	 * zero windows back to us.
-	 */
-	if( !(flags&TH_RST)){ /* RST segments are never WindowFull segments*/
-	  if(win_scale2==-1){
-	    if( EQ_SEQ( (seq+seglen), (win2+ack1) ) ){
-	      struct tcp_acked *ta;
-	      ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-	      ta->flags|=TCP_A_WINDOW_FULL;
-	    }
-	  } else {
-	    if( EQ_SEQ( (seq+seglen), ((win2<<win_scale2)+ack1) ) ){
-	      struct tcp_acked *ta;
-	      ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-	      ta->flags|=TCP_A_WINDOW_FULL;
-	    }
-	  }
-	}
-
-	/* check for zero window probes 
-	   a zero window probe is when a TCP tries to write 1 byte segments
-	   where the remote side has advertised a window of 0 bytes.
-	   We only do this check if we actually have seen anything from the
-	   other side of this connection.
-
-	   We also assume ual still points to the last entry in the ual2
-	   list from the section above.
-
-	   At the same time, check for violations, i.e. attempts to write >1
-	   byte to a zero-window.
-	*/
-	/* XXX we should not need to do the ual->frame check here?
-	   might be a bug somewhere. look for it later .
-	*/
-	if(ual2&&(ual->frame)){
-		if((seglen==1)&&(ual->window==0)){
-			struct tcp_acked *ta;
+/*QQQ tested*/
+	if( seglen==1
+	&&  seq==tcpd->fwd->nextseq
+	&&  tcpd->rev->window==0 ){
+		if(!ta){
 			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-			ta->flags|=TCP_A_ZERO_WINDOW_PROBE;
 		}
-		if((seglen>1)&&(ual->window==0)){
-			struct tcp_acked *ta;
-			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-			ta->flags|=TCP_A_ZERO_WINDOW_VIOLATION;
-		}
+		ta->flags|=TCP_A_ZERO_WINDOW_PROBE;
+		goto finished_fwd;
 	}
 
-	/* check for zero window
-	 * dont check for RST/FIN segments since the window field is 
-	 * meaningless for those
+
+	/* ZERO WINDOW 
+	 * a zero window packet has window == 0   but none of the SYN/FIN/RST set
 	 */
-	if( (!window)
-	  &&(!(flags&(TH_RST|TH_FIN))) ){
-		struct tcp_acked *ta;
-		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+/*QQQ tested*/
+	if( window==0 
+	&& (flags&(TH_RST|TH_FIN|TH_SYN))==0 ){
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
 		ta->flags|=TCP_A_ZERO_WINDOW;
 	}
 
 
-	/* store the lists back in our struct */
-	if(direction>=0){
-		/*
-		 * XXX - if direction == 0, that'll be true for packets
-		 * from both sides of the connection, so this won't
-		 * work.
-		 *
-		 * That'd be a connection from a given port on a machine
-		 * to that same port on the same machine; does that ever
-		 * happen?
+	/* LOST PACKET
+	 * If this segment is beyond the last seen nextseq we must
+	 * have missed some previous segment
+	 * 
+	 * We only check for this if we have actually seen segments prior to this
+	 * one.
+	 */
+	if( tcpd->fwd->nextseq
+	&&  GT_SEQ(seq, tcpd->fwd->nextseq)) {
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_LOST_PACKET;
+	}
+
+
+	/* KEEP ALIVE
+	 * a keepalive contains 0 or 1 bytes of data and starts one byte prior
+	 * to what should be the next sequence number.
+	 * SYN/FIN/RST segments are never keepalives
+	 */
+/*QQQ tested */
+	if( (seglen==0||seglen==1)
+	&&  seq==(tcpd->fwd->nextseq-1)
+	&&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_KEEP_ALIVE;
+	}
+
+	/* WINDOW UPDATE
+	 * A window update is a 0 byte segment with the same SEQ/ACK numbers as 
+	 * the previous seen segment and with a new window value
+	 */
+	if( seglen==0 
+	&&  window
+	&&  window!=tcpd->fwd->window
+	&&  seq==tcpd->fwd->nextseq
+	&&  ack==tcpd->fwd->lastack
+	&&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_WINDOW_UPDATE;
+	}
+	
+
+	/* WINDOW FULL
+	 * If we know the window scaling
+	 * and if this segment contains data ang goes all the way to the
+	 * edge of the advertized window
+	 * then we mark it as WINDOW FULL
+	 * SYN/RST/FIN packets are never WINDOW FULL
+	 */
+/*QQQ tested*/
+	if( seglen>0
+	&&  tcpd->fwd->win_scale!=-1
+	&&  tcpd->rev->win_scale!=-1
+	&&  (seq+seglen)==(tcpd->rev->lastack+(tcpd->rev->window<<tcpd->rev->win_scale))
+	&&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_WINDOW_FULL;
+	}
+
+
+	/* KEEP ALIVE ACK
+	 * It is a keepalive ack if it repeats the previous ACK and if
+	 * the last segment in the reverse direction was a keepalive
+	 */
+/*QQQ tested*/
+	if( seglen==0 
+	&&  window
+	&&  window==tcpd->fwd->window
+	&&  seq==tcpd->fwd->nextseq
+	&&  ack==tcpd->fwd->lastack
+	&& (tcpd->rev->lastsegmentflags&TCP_A_KEEP_ALIVE)
+	&&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_KEEP_ALIVE_ACK;
+		goto finished_fwd;
+	}
+
+
+	/* ZERO WINDOW PROBE ACK
+	 * It is a zerowindowprobe ack if it repeats the previous ACK and if
+	 * the last segment in the reverse direction was a zerowindowprobe
+	 * It also repeats the previous zero window indication
+	 */
+/*QQQ tested*/
+	if( seglen==0 
+	&&  window==0
+	&&  window==tcpd->fwd->window
+	&&  seq==tcpd->fwd->nextseq
+	&&  ack==tcpd->fwd->lastack
+	&& (tcpd->rev->lastsegmentflags&TCP_A_ZERO_WINDOW_PROBE)
+	&&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_ZERO_WINDOW_PROBE_ACK;
+		goto finished_fwd;
+	}
+
+
+	/* DUPLICATE ACK
+	 * It is a duplicate ack if window/seq/ack is the same as the previous
+	 * segment and if the segment length is 0
+	 */
+	if( seglen==0 
+	&&  window
+	&&  window==tcpd->fwd->window
+	&&  seq==tcpd->fwd->nextseq
+	&&  ack==tcpd->fwd->lastack
+	&&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
+		tcpd->fwd->dupacknum++;
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_DUPLICATE_ACK;
+		ta->dupack_num=tcpd->fwd->dupacknum;
+		ta->dupack_frame=tcpd->fwd->lastnondupack;
+	}
+
+
+finished_fwd:
+	/* If this was NOT a dupack we must reset the dupack countres */
+	if( (!ta) || !(ta->flags&TCP_A_DUPLICATE_ACK) ){
+		tcpd->fwd->lastnondupack=pinfo->fd->num;
+		tcpd->fwd->dupacknum=0;
+	}
+
+
+	/* ACKED LOST PACKET
+	 * If this segment acks beyond the nextseqnum in the other direction
+	 * then that means we have missed packets going in the
+	 * other direction
+	 *
+	 * We only check this if we have actually seen some seq numbers
+	 * in the other direction.
+	 */
+	if( tcpd->rev->nextseq
+	&&  GT_SEQ(ack, tcpd->rev->nextseq )){
+/*QQQ tested*/
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_ACK_LOST_PACKET;
+		/* update nextseq in the other direction so we dont get
+		 * this indication again.
 		 */
-		tcpd->ual1=ual1;
-		tcpd->ual2=ual2;
-		tcpd->ack1=ack1;
-		tcpd->ack2=ack2;
-		tcpd->ack1_frame=ack1_frame;
-		tcpd->ack2_frame=ack2_frame;
-		tcpd->num1_acks=num1_acks;
-		tcpd->num2_acks=num2_acks;
-		tcpd->base_seq1=base_seq;
-		tcpd->base_seq2=base_ack;
-		tcpd->win1=window;
+		tcpd->rev->nextseq=ack;
+	}
+
+
+	/* RETRANSMISSION/FAST RETRANSMISSION/OUT-OF-ORDER
+	 * If the segments contains data and if it does not advance
+	 * sequence number it must be either of these three.
+	 * Only test for this if we know what the seq number should be 
+	 * (tcpd->fwd->nextseq)
+	 *
+	 * Note that a simple KeepAlive is not a retransmission
+	 */
+	if( seglen>0
+	&&  tcpd->fwd->nextseq
+	&&  (LT_SEQ(seq, tcpd->fwd->nextseq)) ){
+		guint32 t;
+
+		if(ta && (ta->flags&TCP_A_KEEP_ALIVE) ){
+			goto finished_checking_retransmission_type;
+		}
+
+		/* If there were >=1 duplicate ACKs in the reverse direction
+		 * (there might be duplicate acks missing from the trace)
+		 * and if this sequence number matches those ACKs
+		 * and if the packet occurs within 20ms of the last 
+		 * duplicate ack
+		 * then this is a fast retransmission
+		 */
+		t=(pinfo->fd->abs_ts.secs-tcpd->rev->lastacktime.secs)*1000000000;
+		t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->rev->lastacktime.nsecs;
+		if( tcpd->rev->dupacknum>=1
+		&&  tcpd->rev->lastack==seq
+		&&  t<20000000 ){
+			if(!ta){
+				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			}
+			ta->flags|=TCP_A_FAST_RETRANSMISSION;
+			goto finished_checking_retransmission_type;
+		}
+
+		/* If the segment came <3ms since the segment with the highest
+		 * seen sequence number, then it is an OUT-OF-ORDER segment.
+		 *   (3ms is an arbitrary number)
+		 */
+		t=(pinfo->fd->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
+		t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->fwd->nextseqtime.nsecs;
+		if( t<3000000 ){		
+			if(!ta){
+				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			}
+			ta->flags|=TCP_A_OUT_OF_ORDER;
+			goto finished_checking_retransmission_type;
+		}
+
+		/* Then it has to be a generic retransmission */
+		if(!ta){
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		}
+		ta->flags|=TCP_A_RETRANSMISSION;
+		nstime_delta(&ta->rto_ts, &pinfo->fd->abs_ts, &tcpd->fwd->nextseqtime);
+		ta->rto_frame=tcpd->fwd->nextseqframe;
+	}
+finished_checking_retransmission_type:
+
+
+	/* add this new sequence number to the fwd list */
+	TCP_UNACKED_NEW(ual);
+	ual->next=tcpd->fwd->segments;
+	tcpd->fwd->segments=ual;
+	ual->frame=pinfo->fd->num;
+	ual->seq=seq;
+	ual->ts=pinfo->fd->abs_ts;
+
+	/* next sequence number is seglen bytes away, plus SYN/FIN which counts as one byte */
+	ual->nextseq=seq+seglen;
+	if( flags&(TH_SYN|TH_FIN) ){
+		ual->nextseq+=1;
+	}
+
+	/* Store the highest number seen so far for nextseq so we can detect 
+	 * when we receive segments that arrive with a "hole"
+	 * If we dont have anything since before, just store what we got. 
+	 * ZeroWindowProbes are special and dont really advance the nextseq
+	 */
+	if(GT_SEQ(ual->nextseq, tcpd->fwd->nextseq) || !tcpd->fwd->nextseq) {
+		if( !ta || !(ta->flags&TCP_A_ZERO_WINDOW_PROBE) ){
+			tcpd->fwd->nextseq=ual->nextseq;
+			tcpd->fwd->nextseqframe=pinfo->fd->num;
+			tcpd->fwd->nextseqtime.secs=pinfo->fd->abs_ts.secs;
+			tcpd->fwd->nextseqtime.nsecs=pinfo->fd->abs_ts.nsecs;
+		}
+	}
+
+
+	/* remember what the ack/window is so we can track window updates and retransmissions */
+	tcpd->fwd->window=window;
+	tcpd->fwd->lastack=ack;
+	tcpd->fwd->lastacktime.secs=pinfo->fd->abs_ts.secs;
+	tcpd->fwd->lastacktime.nsecs=pinfo->fd->abs_ts.nsecs;
+
+
+	/* if there were any flags set for this segment we need to remember them
+	 * we only remember the flags for the very last segment though.
+	 */
+	if(ta){
+		tcpd->fwd->lastsegmentflags=ta->flags;
 	} else {
-		tcpd->ual1=ual2;
-		tcpd->ual2=ual1;
-		tcpd->ack1=ack2;
-		tcpd->ack2=ack1;
-		tcpd->ack1_frame=ack2_frame;
-		tcpd->ack2_frame=ack1_frame;
-		tcpd->num1_acks=num2_acks;
-		tcpd->num2_acks=num1_acks;
-		tcpd->base_seq2=base_seq;
-		tcpd->base_seq1=base_ack;
-		tcpd->win2=window;
+		tcpd->fwd->lastsegmentflags=0;
 	}
 
 
-	if(tcp_relative_seq){
-		struct tcp_rel_seq *trs;
-		/* remember relative seq/ack number base for this packet */
-		trs=se_alloc(sizeof(struct tcp_rel_seq));
-		trs->seq_base=base_seq;
-		trs->ack_base=base_ack;
-		trs->win_scale=win_scale1;
-		g_hash_table_insert(tcp_rel_seq_table, GINT_TO_POINTER(pinfo->fd->num), trs);
+	prune_next_pdu_list(&(tcpd->rev->pdu_seq), ack-tcpd->rev->base_seq);
+
+	/* remove all segments this ACKs and we dont need to keep around any more
+	 */
+	ackcount=0;
+	/* first we remove all such segments at the head of the list */
+	while((ual=tcpd->rev->segments)){
+		tcp_unacked_t *tmpual;
+		if(GT_SEQ(ual->nextseq,ack)){
+			break;
+		}
+		if(!ackcount){
+/*qqq do the ACKs segment x  delta y */
+		}
+		ackcount++;
+		tmpual=tcpd->rev->segments->next;
+		TCP_UNACKED_FREE(ual);
+		tcpd->rev->segments=tmpual;
 	}
+	/* now we remove all such segments that are NOT at the head of the list */
+	ual=tcpd->rev->segments;
+	while(ual && ual->next){
+		tcp_unacked_t *tmpual;
+		if(GT_SEQ(ual->next->nextseq,ack)){
+			ual=ual->next;
+			continue;
+		}
+		if(!ackcount){
+/*qqq do the ACKs segment x  delta y */
+		}
+		ackcount++;
+		tmpual=ual->next->next;
+		TCP_UNACKED_FREE(ual->next);
+		ual->next=tmpual;
+		ual=ual->next;
+	}
+
+#ifdef REMOVED
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->frame_acked=tcpd->rev->segments->frame;
+		nstime_delta(&ta->ts, &pinfo->fd->abs_ts, &tcpd->rev->segments->ts);
+#endif
 }
 
 static void
@@ -1417,12 +1037,12 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
 			}
 		}
-		if( ta->flags&TCP_A_ZERO_WINDOW_VIOLATION ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_violation, tvb, 0, 0, "This is a ZeroWindow violation, attempts to write >1 byte of data to a zero-window");
+		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE_ACK ){
+			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_probe_ack, tvb, 0, 0, "This is an ACK to a TCP zero-window-probe");
 			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window violation");
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window probe ACK");
 			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowViolation] ");
+				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbeAck] ");
 			}
 		}
 	}
@@ -1466,12 +1086,6 @@ tcp_analyze_seq_init(void)
 		g_hash_table_destroy(tcp_analyze_acked_table);
 		tcp_analyze_acked_table = NULL;
 	}
-	if( tcp_rel_seq_table ){
-		g_hash_table_foreach_remove(tcp_rel_seq_table,
-			free_all_acked, NULL);
-		g_hash_table_destroy(tcp_rel_seq_table);
-		tcp_rel_seq_table = NULL;
-	}
 	if( tcp_pdu_tracking_table ){
 		g_hash_table_foreach_remove(tcp_pdu_tracking_table,
 			free_all_acked, NULL);
@@ -1493,8 +1107,6 @@ tcp_analyze_seq_init(void)
 
 	if(tcp_analyze_seq){
 		tcp_analyze_acked_table = g_hash_table_new(tcp_acked_hash,
-			tcp_acked_equal);
-		tcp_rel_seq_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
 		tcp_pdu_time_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
@@ -1672,7 +1284,8 @@ static void
 desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		guint32 seq, guint32 nxtseq,
 		guint32 sport, guint32 dport,
-		proto_tree *tree, proto_tree *tcp_tree)
+		proto_tree *tree, proto_tree *tcp_tree,
+		struct tcp_analysis *tcpd)
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	fragment_data *ipfd_head=NULL;
@@ -1750,7 +1363,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		   Call the normal subdissector.
 		*/
 		process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
-				sport, dport, 0, 0, FALSE);
+				sport, dport, 0, 0, FALSE, tcpd);
 		called_dissector = TRUE;
 
 		/* Did the subdissector ask us to desegment some more data
@@ -1819,7 +1432,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 			/* call subdissector */
 			process_tcp_payload(next_tvb, 0, pinfo, tree,
-			    tcp_tree, sport, dport, 0, 0, FALSE);
+			    tcp_tree, sport, dport, 0, 0, FALSE, tcpd);
 			called_dissector = TRUE;
 
 			/*
@@ -2250,6 +1863,9 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   guint8 ws;
+  struct tcp_analysis *tcpd=NULL;
+
+  tcpd=get_tcp_conversation_data(pinfo);
 
   ws = tvb_get_guint8(tvb, offset + 2);
   proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_wscale, tvb, 
@@ -2259,7 +1875,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			     optp->name, ws, 1 << ws);
   tcp_info_append_uint(pinfo, "WS", ws);
   if(!pinfo->fd->flags.visited && tcp_analyze_seq && tcp_relative_seq){
-    pdu_store_window_scale_option(pinfo, ws);
+    pdu_store_window_scale_option(ws, tcpd);
   }
 }
 
@@ -2271,24 +1887,13 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_item *tf=NULL;
   guint32 leftedge, rightedge;
   struct tcp_analysis *tcpd=NULL;
-  int direction;
   guint32 base_ack=0;
 
   if(tcp_analyze_seq && tcp_relative_seq){
     /* find(or create if needed) the conversation for this tcp session */
     tcpd=get_tcp_conversation_data(pinfo);
 
-    /* check direction and get ua lists */
-    direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-    /* if the addresses are equal, match the ports instead */
-    if(direction==0) {
-      direction= (pinfo->srcport > pinfo->destport)*2-1;
-    }
-    if(direction>=0){
-      base_ack=tcpd->base_seq2;
-    } else {
-      base_ack=tcpd->base_seq1;
-    }
+    base_ack=tcpd->rev->base_seq;
   }
 
   tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s:", optp->name);
@@ -2570,7 +2175,8 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
-	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment)
+	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment,
+	struct tcp_analysis *tcpd)
 {
 	pinfo->want_pdu_tracking=0;
 
@@ -2580,7 +2186,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			if(tcp_analyze_seq && (!tcp_desegment)){
 				if(seq || nxtseq){
 					offset=scan_for_next_pdu(tvb, tcp_tree, pinfo, offset,
-						seq, nxtseq);
+						seq, nxtseq, tcpd);
 				}
 			}
 		}
@@ -2606,7 +2212,8 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 						pdu_store_sequencenumber_of_next_pdu(
 						    pinfo,
                 	                            seq,
-						    nxtseq+pinfo->bytes_until_next_pdu);
+						    nxtseq+pinfo->bytes_until_next_pdu,
+						    tcpd);
 					}
 				}
 			}
@@ -2634,7 +2241,8 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 				if(seq || nxtseq){
 					pdu_store_sequencenumber_of_next_pdu(pinfo,
         	                            seq,
-					    nxtseq+pinfo->bytes_until_next_pdu);
+					    nxtseq+pinfo->bytes_until_next_pdu,
+					    tcpd);
 				}
 			}
 		}
@@ -2646,7 +2254,8 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 void
 dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
 		    guint32 nxtseq, guint32 sport, guint32 dport,
-		    proto_tree *tree, proto_tree *tcp_tree)
+		    proto_tree *tree, proto_tree *tcp_tree,
+		    struct tcp_analysis *tcpd)
 {
   gboolean save_fragmented;
 
@@ -2654,7 +2263,7 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
   if (pinfo->can_desegment) {
     /* Yes. */
     desegment_tcp(tvb, pinfo, offset, seq, nxtseq, sport, dport, tree,
-        tcp_tree);
+        tcp_tree, tcpd);
   } else {
     /* No - just call the subdissector.
        Mark this as fragmented, so if somebody throws an exception,
@@ -2662,7 +2271,7 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
     process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree, sport, dport,
-        seq, nxtseq, TRUE);
+        seq, nxtseq, TRUE, tcpd);
     pinfo->fragmented = save_fragmented;
   }
 }
@@ -2694,6 +2303,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   static struct tcpheader tcphstruct[4], *tcph;
   static int tcph_count=0;
   proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL;
+  struct tcp_analysis *tcpd=NULL;
 
   tcph_count++;
   if(tcph_count>=4){
@@ -2784,13 +2394,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       }
 
+      /* find(or create if needed) the conversation for this tcp session */
+      tcpd=get_tcp_conversation_data(pinfo);
+
+
       /* handle TCP seq# analysis parse all new segments we see */
       if(tcp_analyze_seq){
           if(!(pinfo->fd->flags.visited)){
-              tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win);
+              tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd);
           }
           if(tcp_relative_seq){
-              tcp_get_relative_seq_ack(pinfo->fd->num, &(tcph->th_seq), &(tcph->th_ack), &(tcph->th_win));
+              tcp_get_relative_seq_ack(&(tcph->th_seq), &(tcph->th_ack), &(tcph->th_win), tcpd);
           }
       }
 
@@ -3056,13 +2670,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree);
   }
 
-  /* If there was window scaling in the SYN packet byt none in the SYN+ACK
+  /* If there was window scaling in the SYN packet but none in the SYN+ACK
    * then we should just forget about the windowscaling completely.
    */
   if(!pinfo->fd->flags.visited){
     if(tcp_analyze_seq && tcp_relative_seq){
       if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
-        verify_tcp_window_scaling(pinfo);
+        verify_tcp_window_scaling(tcpd);
       }
     }
   }
@@ -3123,7 +2737,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb_format_text(tvb, offset, length_remaining));
     } else {
       dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
-                          tcph->th_sport, tcph->th_dport, tree, tcp_tree);
+                          tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd);
     }
   }
 }
@@ -3266,13 +2880,13 @@ proto_register_tcp(void)
 		{ "This is a continuation to the PDU in frame",		"tcp.continuation_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This is a continuation to the PDU in frame #", HFILL }},
 
-		{ &hf_tcp_analysis_zero_window_violation,
-		{ "Zero Window Violation",		"tcp.analysis.zero_window_violation", FT_NONE, BASE_NONE, NULL, 0x0,
-			"This is a zero-window violation, an attempt to write >1 byte to a zero-window", HFILL }},
-
 		{ &hf_tcp_analysis_zero_window_probe,
 		{ "Zero Window Probe",		"tcp.analysis.zero_window_probe", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a zero-window-probe", HFILL }},
+
+		{ &hf_tcp_analysis_zero_window_probe_ack,
+		{ "Zero Window Probe Ack",		"tcp.analysis.zero_window_probe_ack", FT_NONE, BASE_NONE, NULL, 0x0,
+			"This is an ACK to a zero-window-probe", HFILL }},
 
 		{ &hf_tcp_analysis_zero_window,
 		{ "Zero Window",		"tcp.analysis.zero_window", FT_NONE, BASE_NONE, NULL, 0x0,

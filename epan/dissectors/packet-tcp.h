@@ -89,9 +89,96 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int);
 
+
+typedef struct _tcp_unacked_t {
+	struct _tcp_unacked_t *next;
+	guint32 frame;
+	guint32	seq;
+	guint32	nextseq;
+	nstime_t ts;
+} tcp_unacked_t;
+
+struct tcp_acked {
+	guint32 frame_acked;
+	nstime_t ts;
+	
+	guint32  rto_frame;	
+	nstime_t rto_ts;	/* Time since previous packet for 
+				   retransmissions. */
+	guint16 flags;
+	guint32 dupack_num;	/* dup ack number */
+	guint32 dupack_frame;	/* dup ack to frame # */
+};
+
+struct tcp_next_pdu {
+	struct tcp_next_pdu *next;
+	guint32 seq;
+	guint32 nxtpdu;
+	guint32 first_frame;
+	guint32 last_frame;
+        nstime_t last_frame_time;
+};
+
+typedef struct _tcp_flow_t {
+	guint32 base_seq;	/* base seq number (used by relative sequence numbers)
+				 * or 0 if not yet known.
+				 */
+	tcp_unacked_t *segments;
+	guint32 lastack;	/* last seen ack */
+	nstime_t lastacktime;	/* Time of the last ack packet */ 
+	guint32 lastnondupack;	/* frame number of last seen non dupack */
+	guint32 dupacknum;	/* dupack number */
+	guint32 nextseq;	/* highest seen nextseq */
+	guint32 nextseqframe;	/* frame number for segment with highest
+				 * sequence number
+				 */
+	nstime_t nextseqtime;	/* Time of the nextseq packet so we can 
+				 * distinguish between retransmission, 
+				 * fast retransmissions and outoforder 
+				 */
+	guint32 window;		/* last seen window */
+	gint16	win_scale;	/* -1 is we dont know */
+	guint32 lastsegmentflags;
+
+	/* this list is used to track when PDUs may start
+	   inside a segment.
+	*/
+	struct tcp_next_pdu *pdu_seq;
+} tcp_flow_t;
+	
+
+struct tcp_analysis {
+	/* These two structs are managed based on comparing the source
+	 * and destination addresses and, if they're equal, comparing
+	 * the source and destination ports.
+	 *
+	 * If the source is greater than the destination, then stuff
+	 * sent from src is in ual1.
+	 *
+	 * If the source is less than the destination, then stuff
+	 * sent from src is in ual2.
+	 *
+	 * XXX - if the addresses and ports are equal, we don't guarantee
+	 * the behavior.
+	 */
+	tcp_flow_t	flow1;
+	tcp_flow_t	flow2;
+
+	/* These pointers are set by get_tcp_conversation_data()
+	 * fwd point in the same direction as the current packet
+	 * and rev in the reverse direction
+	 */
+	tcp_flow_t	*fwd;
+	tcp_flow_t	*rev;
+};
+
+
 extern void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				guint32 seq, guint32 nxtseq, guint32 sport,
 				guint32 dport, proto_tree *tree,
-				proto_tree *tcp_tree);
+				proto_tree *tcp_tree,
+				struct tcp_analysis *tcpd);
+
+extern struct tcp_analysis *get_tcp_conversation_data(packet_info *pinfo);
 
 #endif

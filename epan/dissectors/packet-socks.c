@@ -941,6 +941,9 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 *ptr;
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	guint16 save_can_desegment;
+	struct tcp_analysis *tcpd=NULL;
+
+	tcpd=get_tcp_conversation_data(pinfo);
 
  	if (( hash_info->command  == PING_COMMAND) ||
  	    ( hash_info->command  == TRACERT_COMMAND))
@@ -967,7 +970,7 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		pinfo->can_desegment = pinfo->saved_can_desegment;
 		dissect_tcp_payload(tvb, pinfo, offset, tcpinfo->seq,
 		    tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
-		    tree, socks_tree);
+		    tree, socks_tree, tcpd);
 		pinfo->can_desegment = save_can_desegment;
 
 		CLEANUP_CALL_AND_POP;
