@@ -8,7 +8,7 @@
 #line 1 "packet-ranap-template.c"
 /* packet-ranap-template.c
  * Routines for Radio Access Network Application Part Protocol dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2006, Anders Broman <anders.broman@ericsson.com>
  * Based on the dissector by Martin Held <Martin.Held@icn.siemens.de>
  *
  * Ethereal - Network traffic analyzer
@@ -47,6 +47,7 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-ranap.h"
+#include "packet-e212.h"
 
 #define SCCP_SSN_RANAP 0x8E
 
@@ -591,10 +592,11 @@ static int hf_ranap_private_id = -1;              /* PrivateIE_ID */
 static int hf_ranap_private_value = -1;           /* RANAP_PRIVATE_IES_Value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 67 "packet-ranap-template.c"
+#line 68 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
-static int ett_ranap;
+static int ett_ranap = -1;
+static int ett_ranap_plnmidentity = -1;
 
 /*--- Included file: packet-ranap-ett.c ---*/
 #line 1 "packet-ranap-ett.c"
@@ -857,7 +859,7 @@ static gint ett_ranap_PrivateIE_Container = -1;
 static gint ett_ranap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 71 "packet-ranap-template.c"
+#line 73 "packet-ranap-template.c"
 
 
 /* Global variables */
@@ -1906,6 +1908,7 @@ static int
 dissect_ranap_RANAP_PRIVATE_IES_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 #line 76 "ranap.cnf"
 /* FIX ME */
+
 
 
 
@@ -3053,8 +3056,19 @@ static int dissect_aPN(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 static int
 dissect_ranap_PLMNidentity(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 84 "ranap.cnf"
+
+	tvbuff_t *parameter_tvb=NULL;
+
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                       3, 3, NULL);
+                                       3, 3, &parameter_tvb);
+
+
+	 if (!parameter_tvb)
+		return offset;
+	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
+
+
 
   return offset;
 }
@@ -9734,7 +9748,7 @@ dissect_ranap_ProtocolIE_ContainerPairList(tvbuff_t *tvb, int offset, packet_inf
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 84 "packet-ranap-template.c"
+#line 86 "packet-ranap-template.c"
 
 
 
@@ -12842,7 +12856,7 @@ void proto_register_ranap(void) {
         "ProtocolExtensionContainer/_item", HFILL }},
     { &hf_ranap_ext_id,
       { "id", "ranap.id",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_DEC, VALS(ranap_ProtocolIE_ID_vals), 0,
         "ProtocolExtensionField/id", HFILL }},
     { &hf_ranap_extensionValue,
       { "extensionValue", "ranap.extensionValue",
@@ -12862,12 +12876,13 @@ void proto_register_ranap(void) {
         "PrivateIE-Field/value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 1147 "packet-ranap-template.c"
+#line 1149 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_ranap,
+	  &ett_ranap_plnmidentity,
 
 /*--- Included file: packet-ranap-ettarr.c ---*/
 #line 1 "packet-ranap-ettarr.c"
@@ -13130,7 +13145,7 @@ void proto_register_ranap(void) {
     &ett_ranap_PrivateIE_Field,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 1153 "packet-ranap-template.c"
+#line 1156 "packet-ranap-template.c"
   };
 
   /* Register protocol */

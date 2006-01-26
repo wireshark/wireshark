@@ -263,6 +263,7 @@ DISSECTOR_SRC =	\
 	packet-dua.c	\
 	packet-dvmrp.c	\
 	packet-e164.c	\
+	packet-e212.c	\
 	packet-eap.c	\
 	packet-eapol.c	\
 	packet-echo.c	\
@@ -734,6 +735,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dsp.h	\
 	packet-dvmrp.h	\
 	packet-e164.h   \
+	packet-e212.h   \
 	packet-edonkey.h	\
 	packet-enc.h	\
 	packet-esis.h	\

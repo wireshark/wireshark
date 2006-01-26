@@ -75,4 +75,21 @@ tvbuff_t *nas_pdu_tvb=NULL;
 #.FN_BODY RANAP_PRIVATE_IES_Value
 /* FIX ME */
 
+
+#.FN_PARS PLMNidentity
+
+VAL_PTR = &parameter_tvb
+
+#.FN_BODY PLMNidentity
+
+	tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+
+	 if (!parameter_tvb)
+		return offset;
+	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
+
 #.END
+#.TYPE_ATTR
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ranap_ProtocolIE_ID_vals)

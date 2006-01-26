@@ -39,6 +39,7 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-ranap.h"
+#include "packet-e212.h"
 
 #define SCCP_SSN_RANAP 0x8E
 
@@ -66,7 +67,8 @@ static int hf_ranap_IE_length = -1;
 #include "packet-ranap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_ranap;
+static int ett_ranap = -1;
+static int ett_ranap_plnmidentity = -1;
 #include "packet-ranap-ett.c"
 
 
@@ -1149,6 +1151,7 @@ void proto_register_ranap(void) {
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_ranap,
+	  &ett_ranap_plnmidentity,
 #include "packet-ranap-ettarr.c"
   };
 
