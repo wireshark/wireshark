@@ -33,7 +33,6 @@ LUA_CLASS_DEFINE(ProtoField,PROTO_FIELD,if (! *p) luaL_error(L,"null ProtoField"
 LUA_CLASS_DEFINE(ProtoFieldArray,PROTO_FIELD_ARRAY,if (! *p) luaL_error(L,"null ProtoFieldArray"));
 LUA_CLASS_DEFINE(SubTreeType,SUB_TREE_TYPE,NOP);
 LUA_CLASS_DEFINE(SubTreeTypeArray,SUB_TREE_TYPE_ARRAY,if (! *p) luaL_error(L,"null SubTreeTypeArray"));
-LUA_CLASS_DEFINE(ValueString,VALUE_STRING,NOP);
 LUA_CLASS_DEFINE(Dissector,DISSECTOR,NOP);
 LUA_CLASS_DEFINE(DissectorTable,DISSECTOR_TABLE,NOP);
 
@@ -125,11 +124,54 @@ static base_display_e string_to_base(const gchar* str) {
     return BASE_NONE;
 }
 
+static value_string* value_string_from_table(lua_State* L, int idx) {
+    GArray* vs = g_array_new(TRUE,TRUE,sizeof(value_string));
+    value_string* ret;
+    
+    if (!lua_istable(L,idx)) {
+        luaL_argerror(L,idx,"must be a table");
+        g_array_free(vs,TRUE);
+        return NULL;
+    }
+    
+    lua_pushnil(L);
+    
+    while (lua_next(L, idx) != 0) {
+        value_string v = {0,NULL};
+        
+        if (! lua_isnumber(L,-2)) {
+            luaL_argerror(L,idx,"All keys of a table used as vaalue_string must be integers");
+            g_array_free(vs,TRUE);
+            return NULL;
+        }
+        
+        if (! lua_isstring(L,-1)) {
+            luaL_argerror(L,idx,"All values of a table used as vaalue_string must be strings");
+            g_array_free(vs,TRUE);
+            return NULL;
+        }
+        
+        v.value = (guint32)lua_tonumber(L,-2);
+        v.strptr = g_strdup(lua_tostring(L,-1));
+        
+        g_array_append_val(vs,v);
+        
+        lua_pop(L, 1);
+    }
+    
+    lua_pop(L, 1);
+    
+    ret = (value_string*)vs->data;
+    
+    g_array_free(vs,FALSE);
 
+    return ret;
+    
+}    
 
 static int ProtoField_new(lua_State* L) {
     ProtoField f = g_malloc(sizeof(eth_field_t));
-    GArray* vs;
+    value_string* vs;
     
     /* will be using -2 as far as the field has not been added to an array then it will turn -1 */
     f->hfid = -2;
@@ -143,11 +185,16 @@ static int ProtoField_new(lua_State* L) {
     }
     
     if (! lua_isnil(L,4) ) {
-        vs = checkValueString(L,4);
+        vs = value_string_from_table(L,4);
         
         if (vs) {
-            f->vs = (value_string*)vs->data;
+            f->vs = vs;
+        } else {
+            g_free(f);
+            return 0;
         }
+        
+        
     } else {
         f->vs = NULL;
     }
@@ -170,15 +217,16 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     const gchar* abbr = luaL_checkstring(L,1); 
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* base = luaL_optstring(L, 3, "BASE_DEC");
-    GArray* vs = (lua_gettop(L) >= 4) ? checkValueString(L,4) : NULL;
+    value_string* vs = (!lua_isnil(L,4)) ? value_string_from_table(L,4) : NULL;
     int mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,"");
-    
+
+
     f->hfid = -2;
     f->name = g_strdup(name);
     f->abbr = g_strdup(abbr);
     f->type = type;
-    f->vs = (value_string*)vs->data;
+    f->vs = vs;
     f->base = string_to_base(base);
     f->mask = mask;
     f->blob = g_strdup(blob);
@@ -941,7 +989,14 @@ static int Dissector_call(lua_State* L) {
     
     if (! ( d && tvb && pinfo) ) return 0;
     
-    call_dissector(d, tvb, pinfo, tree);
+    TRY {
+        call_dissector(d, tvb, pinfo, tree);
+    } CATCH(ReportedBoundsError) {
+        proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+        luaL_error(L,"Malformed Frame");
+        return 0;
+    } ENDTRY;
+    
     return 0;
 }
 
@@ -1099,12 +1154,27 @@ static int DissectorTable_try (lua_State *L) {
         
         if (!pattern) return 0;
         
-        if (dissector_try_string(dt->table,pattern,tvb,pinfo,tree))
+        TRY {
+            if (dissector_try_string(dt->table,pattern,tvb,pinfo,tree))
+                return 0;
+        } CATCH(ReportedBoundsError) {
+            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+            luaL_error(L,"Malformed Frame");
             return 0;
+        } ENDTRY;
+        
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
-        if (dissector_try_port(dt->table,port,tvb,pinfo,tree))
+
+        TRY {
+            if (dissector_try_port(dt->table,port,tvb,pinfo,tree))
+                return 0;
+        } CATCH(ReportedBoundsError) {
+            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+            luaL_error(L,"Malformed Frame");
             return 0;
+        } ENDTRY;
+        
     } else {
         luaL_error(L,"No such type of dissector_table");
     }
@@ -1200,98 +1270,6 @@ int DissectorTable_register(lua_State* L) {
     
     return 1;
 };
-
-
-/*
- * ValueString class
- */
-
-static int ValueString_new(lua_State* L) {
-    ValueString vs = g_array_new(TRUE,TRUE,sizeof(value_string));
-    pushValueString(L,vs);
-    return 1;
-}
-
-
-static int ValueString_add(lua_State* L) {
-    ValueString vs = checkValueString(L,1);
-    value_string v = {0,NULL};
-    
-    v.value = luaL_checkint(L,2);
-    v.strptr = g_strdup(luaL_checkstring(L,3));
-    
-    g_array_append_val(vs,v);
-    
-    return 0;
-}
-
-static int ValueString_match(lua_State* L) {
-    ValueString vs = checkValueString(L,1);
-    guint32 val = (guint32)luaL_checkint(L,2);
-    const gchar* def = luaL_optstring(L,8,"Unknown");
-    
-    lua_pushstring(L,val_to_str(val, (value_string*)(vs->data), def));
-    
-    return 1;
-}
-
-static int ValueString_gc(lua_State* L) {
-    ValueString vs = checkValueString(L,1);
-    
-    g_array_free(vs,TRUE);
-    
-    return 0;
-}
-
-static int ValueString_tostring(lua_State* L) {
-    ValueString vs = checkValueString(L,1);
-    value_string* c = (value_string*)vs->data;
-    GString* s = g_string_new("ValueString:\n");
-    
-    for(;c->strptr;c++) {
-        g_string_sprintfa(s,"\t%u\t%s\n",c->value,c->strptr);
-    }
-    
-    lua_pushstring(L,s->str);
-    
-    g_string_free(s,TRUE);
-    
-    return 1;
-}
-
-static const luaL_reg ValueString_methods[] = {
-    {"new",   ValueString_new},
-    {"add",   ValueString_add},
-    {"match", ValueString_match},
-    {0,0}
-};
-
-
-static const luaL_reg ValueString_meta[] = {
-    {"__gc",       ValueString_gc},
-    {"__tostring", ValueString_tostring},
-    {0, 0}
-};
-
-
-int ValueString_register(lua_State* L) {
-    luaL_openlib(L, VALUE_STRING, ValueString_methods, 0);
-    luaL_newmetatable(L, VALUE_STRING);
-    luaL_openlib(L, 0, ValueString_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
-    return 1;
-}
-
-
-
-
 
 
 

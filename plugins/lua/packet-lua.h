@@ -48,6 +48,8 @@
 #include <epan/report_err.h>
 #include <epan/emem.h>
 
+#define LUA_DISSECTORS_TABLE "dissectors"
+
 typedef struct _eth_field_t {
     int hfid;
     char* name;
@@ -88,9 +90,6 @@ typedef struct _eth_proto_t {
 
 typedef struct {const gchar* str; enum ftenum id; } eth_ft_types_t;
 
-
-#define VALUE_STRING "ValueString"
-typedef GArray* ValueString;
 
 #define PROTO_FIELD "ProtoField"
 typedef struct _eth_field_t* ProtoField;
@@ -177,6 +176,8 @@ C* push##C(lua_State* L, C v) { \
 
 extern packet_info* lua_pinfo;
 extern proto_tree* lua_tree;
+extern tvbuff_t* lua_tvb;
+extern int lua_malformed;
 extern dissector_handle_t lua_data_handle;
 
 #define LUA_CLASS_DECLARE(C,CN) \
@@ -187,7 +188,6 @@ extern int C##_register(lua_State* L);
 
 LUA_CLASS_DECLARE(Tap,TAP);
 LUA_CLASS_DECLARE(Field,FIELD);
-LUA_CLASS_DECLARE(ValueString,VALUE_STRING);
 LUA_CLASS_DECLARE(ProtoField,PROTO_FIELD);
 LUA_CLASS_DECLARE(ProtoFieldArray,PROTO_FIELD_ARRAY);
 LUA_CLASS_DECLARE(SubTreeType,SUB_TREE_TYPE);
@@ -210,5 +210,7 @@ extern void lua_tap_reset(void *tapdata);
 extern void lua_tap_draw(void *tapdata);
 
 extern GString* register_all_lua_taps(void);
+
+#define WARNSTACK(s) {int i; for (i = 1; i <= lua_gettop(L); i++) g_warning("-%s-> %i %s",s,i , lua_typename(L,lua_type(L,i))); }
 
 #endif

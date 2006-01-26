@@ -31,38 +31,41 @@
 #include <math.h>
 
 static lua_State* L = NULL;
+
 packet_info* lua_pinfo;
 proto_tree* lua_tree;
+tvbuff_t* lua_tvb;
+int lua_malformed;
 dissector_handle_t lua_data_handle;
 
-static int lua_format_date(lua_State* L) {
-    lua_Number time = luaL_checknumber(L,1);
+static int lua_format_date(lua_State* LS) {
+    lua_Number time = luaL_checknumber(LS,1);
     nstime_t then;
     gchar* str;
     
     then.secs = (guint32)floor(time);
     then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
     str = abs_time_to_str(&then);    
-    lua_pushstring(L,str);
+    lua_pushstring(LS,str);
     
     return 1;
 }
 
-static int lua_format_time(lua_State* L) {
-    lua_Number time = luaL_checknumber(L,1);
+static int lua_format_time(lua_State* LS) {
+    lua_Number time = luaL_checknumber(LS,1);
     nstime_t then;
     gchar* str;
     
     then.secs = (guint32)floor(time);
     then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
     str = rel_time_to_str(&then);    
-    lua_pushstring(L,str);
+    lua_pushstring(LS,str);
     
     return 1;
 }
 
-static int lua_report_failure(lua_State* L) {
-    const gchar* s = luaL_checkstring(L,1);
+static int lua_report_failure(lua_State* LS) {
+    const gchar* s = luaL_checkstring(LS,1);
     report_failure("%s",s);
     return 0;
 }
@@ -96,26 +99,72 @@ void lua_tap_draw(void *tapdata) {
     lua_dostring(L,ep_strdup_printf("tap_draws.%s();",tap->name));
 }
 
-
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
-    lua_pushstring(L, "_ethereal_tvb");
-    pushTvb(L, tvb);
-    lua_settable(L, LUA_GLOBALSINDEX);
-
-    lua_pushstring(L, "_ethereal_pinfo");
-    pushPinfo(L, pinfo);
-    lua_settable(L, LUA_GLOBALSINDEX);
-
-    lua_pushstring(L, "_ethereal_tree");
-    pushProtoTree(L, tree);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
     lua_pinfo = pinfo;
+    lua_tree = tree;
+    lua_tvb = tvb;
+
+    /*
+     * equivalent to Lua:
+     * dissectors[current_proto](tvb,pinfo,tree)
+     */
     
-    /* XXX in C */
-    lua_dostring(L,ep_strdup_printf("dissectors.%s(_ethereal_tvb,_ethereal_pinfo,_ethereal_tree);",pinfo->current_proto));
+    lua_settop(L,0);
+
+    lua_getglobal(L, LUA_DISSECTORS_TABLE);
     
+    if (!lua_istable(L, -1)) {
+        g_warning("either `" LUA_DISSECTORS_TABLE "' does not exist or it is not a table!");
+
+        lua_pinfo = NULL;
+        lua_tree = NULL;
+        lua_tvb = NULL;
+        
+        return;
+    }
+    
+    
+    lua_pushstring(L, pinfo->current_proto);
+
+    lua_gettable(L, -2);  
+
+    lua_remove(L,1);
+
+    
+    if (!lua_isfunction(L,1)) {
+        g_warning("`" LUA_DISSECTORS_TABLE ".%s' is not a function, is a %s",
+                  pinfo->current_proto,lua_typename(L,lua_type(L,1)));
+
+        lua_pinfo = NULL;
+        lua_tree = NULL;
+        lua_tvb = NULL;
+        
+        return;        
+    }
+    
+    pushTvb(L, tvb);
+    pushPinfo(L, pinfo);
+    pushProtoTree(L, tree);
+    
+    switch ( lua_pcall(L,3,0,0) ) {
+        case 0:
+            /* OK */
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling dissectors.%s() ",pinfo->current_proto);
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling dissectors.%s() ",pinfo->current_proto);
+            break;
+        default:
+            g_warning("-X2-");
+            g_assert_not_reached();
+            break;
+    }
+
     lua_pinfo = NULL;
+    lua_tree = NULL;
+    lua_tvb = NULL;
 }
 
 static void init_lua(void) {
@@ -166,11 +215,12 @@ void proto_register_lua(void)
     register_init_routine(init_lua);    
     
     L = lua_open();
+    
     luaopen_base(L);
     luaopen_table(L);
     luaopen_io(L);
     luaopen_string(L);
-    ValueString_register(L);
+
     ProtoField_register(L);
     ProtoFieldArray_register(L);
     SubTreeType_register(L);
@@ -209,7 +259,7 @@ void proto_register_lua(void)
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
-    lua_pushstring(L, "dissectors");
+    lua_pushstring(L, LUA_DISSECTORS_TABLE);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
@@ -233,6 +283,9 @@ void proto_register_lua(void)
     lua_data_handle = NULL;
     lua_pinfo = NULL;
     lua_tree = NULL;
+    lua_tvb = NULL;
+    
+    lua_malformed = proto_get_id_by_filter_name("malformed");
     
 }
 

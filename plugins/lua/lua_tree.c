@@ -27,6 +27,7 @@
  */
 
 #include "packet-lua.h"
+#include <epan/expert.h>
 
 LUA_CLASS_DEFINE(ProtoTree,PROTO_TREE,NOP);
 LUA_CLASS_DEFINE(ProtoItem,ITEM,NOP);
@@ -43,10 +44,8 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
      */
     ProtoTree tree = checkProtoTree(L,1);
     ProtoField field;
-    ProtoItem item;
+    ProtoItem item = NULL;
     Tvb tvb;
-    int offset;
-    int len;
     
     if (!tree) {
         pushProtoItem(L,NULL);
@@ -55,71 +54,88 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
     
     if (( luaL_checkudata (L, 2, TVB) )) {
         tvb = checkTvb(L,2);
-        const char* str;
+
+        TRY {
+            const char* str;
+            int offset;
+            int len;
+
+            if (lua_isnumber(L,3)) {
+                offset = luaL_checkint(L,3);
+                len = luaL_checkint(L,4);
+                str = lua_tostring(L,5);
+            } else if (lua_isstring(L,3)) {
+                offset = 0;
+                len = 0;
+                str = lua_tostring(L,3);
+            } else {
+                luaL_error(L,"First arg must be either TVB or ProtoField");
+                return 0;
+            }
         
-        if (lua_isnumber(L,3)) {
-            offset = luaL_checkint(L,3);
-            len = luaL_checkint(L,4);
-            str = lua_tostring(L,5);
-        } else if (lua_isstring(L,3)) {
-            offset = 0;
-            len = 0;
-            str = lua_tostring(L,3);
-        } else {
-            luaL_error(L,"First arg must be either TVB or ProtoField");
+            item = proto_tree_add_text(tree,tvb,offset,len,"%s",str);
+        } CATCH(ReportedBoundsError) {
+            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+            luaL_error(L,"Malformed Frame");
             return 0;
-        }
-        
-        item = proto_tree_add_text(tree,tvb,offset,len,"%s",str);
-        
+        } ENDTRY;
+            
     } else if (( luaL_checkudata (L, 2, PROTO_FIELD) )) {
         field = checkProtoField(L,2);
         tvb = checkTvb(L,3);
-        offset = luaL_checkint(L,4);
-        len = luaL_checkint(L,5);
-        
-        if ( lua_gettop(L) == 6 ) {
-            switch(field->type) {
-                case FT_UINT8:
-                case FT_UINT16:
-                case FT_UINT24:
-                case FT_UINT32:
-                case FT_FRAMENUM:
-                    item = proto_tree_add_uint(tree,field->hfid,tvb,offset,len,(guint32)luaL_checknumber(L,6));
-                    break;
-                case FT_INT8:
-                case FT_INT16:
-                case FT_INT24:
-                case FT_INT32:
-                    item = proto_tree_add_int(tree,field->hfid,tvb,offset,len,(gint32)luaL_checknumber(L,6));
-                    break;
-                case FT_FLOAT:
-                    item = proto_tree_add_float(tree,field->hfid,tvb,offset,len,(float)luaL_checknumber(L,6));
-                    break;
-                case FT_DOUBLE:
-                    item = proto_tree_add_double(tree,field->hfid,tvb,offset,len,(double)luaL_checknumber(L,6));
-                    break;
-                case FT_STRING:
-                case FT_STRINGZ:
-                    item = proto_tree_add_string(tree,field->hfid,tvb,offset,len,luaL_checkstring(L,6));
-                    break;
-                case FT_UINT64:
-                case FT_INT64:
-                case FT_ETHER:
-                case FT_BYTES:
-                case FT_UINT_BYTES:
-                case FT_IPv4:
-                case FT_IPv6:
-                case FT_IPXNET:
-                case FT_GUID:
-                case FT_OID:
-                default:
-                    luaL_error(L,"FT_ not yet supported");
-                    return 0;
+
+        TRY {
+            int offset = luaL_checkint(L,4);
+            int len = luaL_checkint(L,5);
+
+            if ( lua_gettop(L) == 6 ) {
+                switch(field->type) {
+                    case FT_UINT8:
+                    case FT_UINT16:
+                    case FT_UINT24:
+                    case FT_UINT32:
+                    case FT_FRAMENUM:
+                        item = proto_tree_add_uint(tree,field->hfid,tvb,offset,len,(guint32)luaL_checknumber(L,6));
+                        break;
+                    case FT_INT8:
+                    case FT_INT16:
+                    case FT_INT24:
+                    case FT_INT32:
+                        item = proto_tree_add_int(tree,field->hfid,tvb,offset,len,(gint32)luaL_checknumber(L,6));
+                        break;
+                    case FT_FLOAT:
+                        item = proto_tree_add_float(tree,field->hfid,tvb,offset,len,(float)luaL_checknumber(L,6));
+                        break;
+                    case FT_DOUBLE:
+                        item = proto_tree_add_double(tree,field->hfid,tvb,offset,len,(double)luaL_checknumber(L,6));
+                        break;
+                    case FT_STRING:
+                    case FT_STRINGZ:
+                        item = proto_tree_add_string(tree,field->hfid,tvb,offset,len,luaL_checkstring(L,6));
+                        break;
+                    case FT_UINT64:
+                    case FT_INT64:
+                    case FT_ETHER:
+                    case FT_BYTES:
+                    case FT_UINT_BYTES:
+                    case FT_IPv4:
+                    case FT_IPv6:
+                    case FT_IPXNET:
+                    case FT_GUID:
+                    case FT_OID:
+                    default:
+                        luaL_error(L,"FT_ not yet supported");
+                        return 0;
+                }
+            } else {
+                item = proto_tree_add_item(tree,field->hfid,tvb,offset,len,little_endian);
             }
-        } else {
-            item = proto_tree_add_item(tree,field->hfid,tvb,offset,len,little_endian);
-        }
+        } CATCH(ReportedBoundsError) {
+            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+            luaL_error(L,"Malformed Frame");
+            return 0;
+        } ENDTRY;
+        
     } else {
         luaL_error(L,"First arg must be either TVB or ProtoField");
         return 0;
@@ -301,6 +317,19 @@ static int ProtoItem_set_expert_flags(lua_State *L) {
     return 0;
 }
 
+static int ProtoItem_add_expert_info(lua_State *L) {
+    ProtoItem item = checkProtoItem(L,1);
+
+    if (item) {
+        int group = str_to_expert(luaL_checkstring(L,2));
+        int severity = str_to_expert(luaL_checkstring(L,3));
+        const gchar* str = luaL_optstring(L,4,"Expert Info");
+        
+        expert_add_info_format(lua_pinfo, item, group, severity, "%s", str);
+    }
+    
+    return 0;
+}
 
 static int ProtoItem_set_generated(lua_State *L) {
     ProtoItem item = checkProtoItem(L,1);
@@ -325,6 +354,7 @@ static const luaL_reg ProtoItem_methods[] = {
     {"append_text",       ProtoItem_append_text},
     {"set_len",       ProtoItem_set_len},
     {"set_expert_flags",       ProtoItem_set_expert_flags},
+    {"add_expert_info",       ProtoItem_add_expert_info},
     {"set_generated",       ProtoItem_set_generated},
     {"set_hidden",       ProtoItem_set_hidden},
     {0, 0}

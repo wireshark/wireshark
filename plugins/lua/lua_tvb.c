@@ -198,7 +198,7 @@ static int ByteArray_subset(lua_State* L) {
     if (!ba) return 0;
     
     if ((offset + len) > (int)ba->len) {
-        luaL_error(L,"out of bounds");
+        luaL_error(L,"Out Of Bounds");
         return 0;
     }
     
@@ -292,8 +292,8 @@ int ByteArray_register(lua_State* L) {
 static int Tvb_new (lua_State *L) {
     ByteArray ba;
 
-    if (!lua_pinfo) {
-        /* XXX: for now tvb should only be used in the frame that created */
+    if (!lua_tvb) {
+        /* XXX: incomplete check, a tvb should only be used in the frame that created it */
         luaL_error(L,"Tvb can only be used in dissectors");
         return 0;
     }
@@ -301,15 +301,30 @@ static int Tvb_new (lua_State *L) {
     if (( luaL_checkudata(L,1,BYTE_ARRAY) )) {
         ba = toByteArray(L,1);
         const gchar* name = luaL_optstring(L,2,"Unnamed") ;
-        /* XXX: what if the BA gets garbage collected? */
-        Tvb tvb = tvb_new_real_data(ba->data, ba->len,ba->len);
+        guint8* data;
+        
+        if (! ba) return  0;
+        
+        data = g_memdup(ba->data, ba->len);
+        
+        Tvb tvb = tvb_new_real_data(data, ba->len,ba->len);
+        tvb_set_free_cb(tvb, g_free);
+        
         add_new_data_source(lua_pinfo, tvb, name);
         pushTvb(L,tvb);
         return 1;
     } else {
+        Tvb tvb = checkTvb(L,1);
+        int offset = luaL_optint(L, 2, 0);
         int len = luaL_optint(L, 3, -1);
-        pushTvb(L, tvb_new_subset( checkTvb(L,1),luaL_optint(L, 2, 0),len, len) );
-        return 1;
+        
+        if (tvb_offset_exists(tvb, offset+len)) {
+            pushTvb(L, tvb_new_subset(tvb,offset,len, len) );
+            return 1;
+        } else {
+            luaL_error(L,"Out Of Bounds");
+            return 0;
+        }
     }
 }
 
@@ -380,9 +395,8 @@ static int Tvb_get_bytearray(lua_State* L) {
     }
     
     if (len <  1 || offset+len > o_len) {
-        luaL_error(L,"off bounds");
+        luaL_error(L,"Out Of Bounds");
         return 0;
-        
     }
     
     ba = g_byte_array_new();
@@ -395,29 +409,57 @@ static int Tvb_get_bytearray(lua_State* L) {
 
 static int Tvb_get_stringz(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
+    int offset;
+    int len;
+    guint8* buf;
     
     if (!tvb) return 0;
+    
+    offset = luaL_checkint(L,2);
+    
+    if (!tvb_offset_exists(tvb, offset)) {
+        luaL_error(L,"Out Of Bounds");
+        return 0;
+    }
+        
+    len = tvb_length(tvb) - offset;
+    buf = ep_alloc0(len+1);
     
     if (!lua_pinfo) {
         luaL_error(L,"Tvb can only be used in dissectors");
         return 0;
     }
     
-    lua_pushstring(L,(gchar*)tvb_get_ephemeral_stringz(tvb,luaL_checkint(L,2),NULL));
-    return 1;
+    len = tvb_get_nstringz(tvb, offset, len, buf);
+    
+    lua_pushstring(L,(gchar*)buf);
+    lua_pushnumber(L,(lua_Number)len);
+    
+    return 2;
 }
 
 static int Tvb_get_string(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
-    
+    int offset;
+    int len;
+
     if (!tvb) return 0;
 
-    if (!lua_pinfo) {
+    if (!lua_tvb) {
         luaL_error(L,"Tvb can only be used in dissectors");
         return 0;
     }
     
-    lua_pushstring(L,(gchar*)tvb_get_ephemeral_string(tvb,luaL_checkint(L,2),luaL_checkint(L,3)));
+    offset = luaL_checkint(L,2);
+    len = luaL_checkint(L,3);
+    
+    if ( ! tvb_offset_exists(tvb, offset+len)) {
+        luaL_error(L,"Out Of Bounds");
+        return 0;
+    }
+    
+    lua_pushstring(L,(gchar*)tvb_get_ephemeral_string(tvb,offset,len));
+    
    return 1;
 }
 
@@ -428,7 +470,7 @@ static int Tvb_tostring(lua_State* L) {
     if (!tvb) return 0;
 
     len = tvb_length(tvb);
-    gchar* str = g_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb,0,len));
+    gchar* str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb,0,len));
     lua_pushstring(L,str);
     return 1;
 }
@@ -449,6 +491,48 @@ static int Tvb_len(lua_State* L) {
     return 1;
 }
 
+static int Tvb_get_eth(lua_State* L) {
+    Tvb tvb = checkTvb(L,1);
+    int offset = luaL_checkint(L,2);
+    Address addr;
+    guint8* eth_addr;
+    
+    if (!tvb) return 0;
+    
+    if (tvb_offset_exists(tvb, offset+6)) {
+        eth_addr = ep_tvb_memdup(tvb,offset,6);
+        addr = g_malloc(sizeof(address));
+        SET_ADDRESS(addr, AT_ETHER, 4, eth_addr);
+        pushAddress(L,addr);
+        return 1;
+    } else {
+        luaL_error(L,"Out Of Bounds");
+        return 0;
+    }
+    
+}
+
+static int Tvb_get_ipv4(lua_State* L) {
+    Tvb tvb = checkTvb(L,1);
+    int offset = luaL_checkint(L,2);
+    Address addr;
+    guint32 ip_addr;
+    
+    if (!tvb) return 0;
+
+    if (tvb_offset_exists(tvb, offset+4)) {
+        ip_addr = tvb_get_ipv4(tvb,offset);
+        addr = g_malloc(sizeof(address));
+        SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
+        pushAddress(L,addr);
+        return 1;
+    } else {
+        luaL_error(L,"Out Of Bounds");
+        return 0;
+    }
+    
+}
+
 
 static const luaL_reg Tvb_methods[] = {
     {"new",           Tvb_new},
@@ -467,6 +551,11 @@ static const luaL_reg Tvb_methods[] = {
     {"get_stringz", Tvb_get_stringz },
     {"get_string", Tvb_get_string },
     {"get_bytearray",Tvb_get_bytearray},
+    {"get_ipv4", Tvb_get_ipv4 },
+    {"get_eth",Tvb_get_eth },    
+#if 0
+    {"get_ipv6",Tvb_get_ipv6 },
+#endif
     {"len", Tvb_len},
     {0,0}
 };
