@@ -31,6 +31,57 @@
 LUA_CLASS_DEFINE(Tap,TAP,NOP);
 LUA_CLASS_DEFINE(Field,FIELD,NOP);
 
+static GPtrArray* wanted_fields = NULL;
+static GPtrArray* lua_taps = NULL;
+static gboolean taps_registered = FALSE;
+
+/* XXX this will be used in the future, called from somewhere in packet.c */
+#if 0
+void lua_prime_all_fields(proto_tree* tree) {
+    guint i;
+    
+    for(i=0; i < wanted_fields->len; i++) {
+        Field f = g_ptr_array_index(wanted_fields,i);
+        for (;f;f = f->same_name_next) {
+            proto_tree_prime_hfid(tree,f->id);
+        }
+    }
+}
+#else
+/* XXX - this will be used while we are a plugin */
+
+void lua_prime_all_fields(proto_tree* tree _U_) {
+    GString* fake_tap_filter = g_string_new("frame");
+    guint i;
+    static gboolean fake_tap;
+    
+    
+    if ( !wanted_fields || fake_tap ) return;
+
+    fake_tap = FALSE;
+    
+    for(i=0; i < wanted_fields->len; i++) {
+        Field f = g_ptr_array_index(wanted_fields,i);
+        g_string_sprintfa(fake_tap_filter," || %s",f->abbrev);
+        fake_tap = TRUE;
+    }
+    
+    if (fake_tap) {
+        /* a boring tap :-) */
+        GString* error = register_tap_listener("frame",
+                                      &fake_tap,
+                                      fake_tap_filter->str,
+                                      NULL, NULL, NULL);
+        
+        if (error) {
+            report_failure("while regitering lua_fake_tap:\n%s",error->str);
+            g_string_free(error,TRUE);
+        }
+    }
+    
+}
+#endif
+
 static int Field_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,1);
     Field f;
@@ -43,6 +94,11 @@ static int Field_get (lua_State *L) {
         luaL_error(L,"Could not find field `%s'",name);
         return 0;
     }
+    
+    if (!wanted_fields)
+        wanted_fields = g_ptr_array_new();
+    
+    g_ptr_array_add(wanted_fields,f);
     
     pushField(L,f);
     return 1;
@@ -159,17 +215,6 @@ static int Tap_new(lua_State* L) {
     return 1;
 }
 
-static int Tap_add(lua_State* L) {
-    Tap tap = checkTap(L,1);
-    Field in = checkField(L,2);
-    
-    if (!(tap && in)) return 0;
-    
-    g_ptr_array_add(tap->interesting_fields,in);
-    
-    return 0;
-}
-
 static int Tap_tostring(lua_State* L) {
     Tap tap = checkTap(L,1);
     gchar* str;
@@ -199,8 +244,6 @@ static int Tap_set_filter(lua_State* L) {
     return 0;
 }
 
-GPtrArray* lua_taps = NULL;
-gboolean taps_registered = FALSE;
 
 GString* register_all_lua_taps(void) {
     
@@ -223,33 +266,11 @@ GString* register_all_lua_taps(void) {
     return NULL;
     
 }
+
 static int Tap_register_to_ethereal(lua_State*L) {
     Tap tap = checkTap(L,1);
-    GString* filter_s;
-    GPtrArray* ins;
-    guint i;
 
     if (!tap) return 0;
-
-    filter_s = g_string_new("");
-    
-    if (tap->filter)
-        g_string_sprintfa(filter_s,"( %s ) && frame ",tap->filter);
-    else
-        g_string_sprintfa(filter_s,"frame ");
-    
-    g_free(tap->filter);
-    
-    ins = tap->interesting_fields;
-    
-    for (i=0; i < ins->len; i++) {
-        Field in = g_ptr_array_index(ins,i);
-        g_string_sprintfa(filter_s," ||%s",in->abbrev);
-    }
-
-    tap->filter = filter_s->str;
-    
-    g_string_free(filter_s,FALSE);
 
     if (!lua_taps)
         lua_taps = g_ptr_array_new();
@@ -261,7 +282,6 @@ static int Tap_register_to_ethereal(lua_State*L) {
 
 static const luaL_reg Tap_methods[] = {
     {"new", Tap_new},
-    {"add", Tap_add},
     {"set_filter", Tap_set_filter},
     {"register", Tap_register_to_ethereal},
     {0,0}

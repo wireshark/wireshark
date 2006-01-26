@@ -49,6 +49,8 @@
 #include <epan/emem.h>
 
 #define LUA_DISSECTORS_TABLE "dissectors"
+#define LUA_INIT_ROUTINES "init_routines"
+
 
 typedef struct _eth_field_t {
     int hfid;
@@ -210,6 +212,7 @@ extern void lua_tap_reset(void *tapdata);
 extern void lua_tap_draw(void *tapdata);
 
 extern GString* register_all_lua_taps(void);
+extern void lua_prime_all_fields(proto_tree* tree);
 
 #define WARNSTACK(s) {int i; for (i = 1; i <= lua_gettop(L); i++) g_warning("-%s-> %i %s",s,i , lua_typename(L,lua_type(L,i))); }
 

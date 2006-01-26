@@ -36,14 +36,14 @@
 #endif
 
 /* Name of package */
-#define PACKAGE "lua_plugin"
+#define PACKAGE "lua_plugin_5.0.2"
 
 #ifdef VERSION
 #undef VERSION
 #endif
 
 /* Version number of package */
-#define VERSION "0.0.0"
+#define VERSION "0.0"
 
 
 #include <gmodule.h>

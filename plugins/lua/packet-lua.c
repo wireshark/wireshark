@@ -151,13 +151,12 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
             /* OK */
             break;
         case LUA_ERRRUN:
-            g_warning("Runtime error while calling dissectors.%s() ",pinfo->current_proto);
+            g_warning("Runtime error while calling " LUA_DISSECTORS_TABLE ".%s() ",pinfo->current_proto);
             break;
         case LUA_ERRMEM:
-            g_warning("Memory alloc error while calling dissectors.%s() ",pinfo->current_proto);
+            g_warning("Memory alloc error while calling " LUA_DISSECTORS_TABLE ".%s() ",pinfo->current_proto);
             break;
         default:
-            g_warning("-X2-");
             g_assert_not_reached();
             break;
     }
@@ -172,11 +171,52 @@ static void init_lua(void) {
     
     if ( tap_error ) {
         report_failure("lua tap registration problem: %s",tap_error->str);
+        g_string_free(tap_error,TRUE);
     }
     
-    /* XXX in C */
-    if (L)
-        lua_dostring(L, "for k in init_routines do init_routines[k]() end;");
+    
+    /* this should be called in a more appropriate place */
+    lua_prime_all_fields(NULL);
+    
+    if (L) {
+        lua_getglobal(L, LUA_INIT_ROUTINES);
+
+        if (!lua_istable(L, -1)) {
+            g_warning("either `" LUA_INIT_ROUTINES "' does not exist or it is not a table!");
+            return;
+        }
+        
+        lua_pushnil(L);
+        
+        while (lua_next(L, -2) != 0) {
+            const gchar* name = lua_tostring(L,-2);
+            if (!lua_isfunction(L,-1)) {
+                g_warning("`" LUA_INIT_ROUTINES ".%s' is not a function, is a %s",
+                          name,lua_typename(L,lua_type(L,-1)));
+                return;
+            }
+                        
+            switch ( lua_pcall(L,-1,0,0) ) {
+                case 0:
+                    /* OK */
+                    break;
+                case LUA_ERRRUN:
+                    g_warning("Runtime error while calling " LUA_INIT_ROUTINES ".%s() ",name);
+                    break;
+                case LUA_ERRMEM:
+                    g_warning("Memory alloc error while calling " LUA_INIT_ROUTINES ".%s() ",name);
+                    break;
+                default:
+                    g_assert_not_reached();
+                    break;
+            }
+            
+            lua_pop(L, 1);
+        }
+        
+        lua_pop(L, 1);
+        
+    }
 }
 
 void proto_reg_handoff_lua(void) {
@@ -255,7 +295,7 @@ void proto_register_lua(void)
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
-    lua_pushstring(L, "init_routines");
+    lua_pushstring(L, LUA_INIT_ROUTINES);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
