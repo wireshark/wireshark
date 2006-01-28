@@ -17753,7 +17753,7 @@ static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 								/* Activate MBMS Context Accept */
 								/* Activate MBMS Context Reject */
 								/* Request MBMS Context Activation */
-								/* Request MBMS Context Activation Reject*
+								/* Request MBMS Context Activation Reject */
     NULL,	/* NONE */
 };
 
