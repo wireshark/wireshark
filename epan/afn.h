@@ -25,22 +25,36 @@
 #ifndef __AFN_H__
 #define __AFN_H__
 
-/* RFC1700 address family numbers */
-#define AFNUM_INET	1
-#define AFNUM_INET6	2
-#define AFNUM_NSAP	3
-#define AFNUM_HDLC	4
-#define AFNUM_BBN1822	5
-#define AFNUM_802	6
-#define AFNUM_E163	7
-#define AFNUM_E164	8
-#define AFNUM_F69	9
-#define AFNUM_X121	10
-#define AFNUM_IPX	11
-#define AFNUM_ATALK	12
-#define AFNUM_DECNET	13
-#define AFNUM_BANYAN	14
-#define AFNUM_E164NSAP	15
+/*
+ * Address family numbers, from
+ *
+ *	http://www.iana.org/assignments/address-family-numbers
+ */
+#define AFNUM_RESERVED	0	/* Reserved */
+#define AFNUM_INET	1	/* IP (IP version 4) */
+#define AFNUM_INET6	2	/* IP6 (IP version 6) */
+#define AFNUM_NSAP	3	/* NSAP */
+#define AFNUM_HDLC	4	/* HDLC (8-bit multidrop) */
+#define AFNUM_BBN1822	5	/* BBN 1822 */
+#define AFNUM_802	6	/* 802 (includes all 802 media plus Ethernet "canonical format") */
+#define AFNUM_E163	7	/* E.163 */
+#define AFNUM_E164	8	/* E.164 (SMDS, Frame Relay, ATM) */
+#define AFNUM_F69	9	/* F.69 (Telex) */
+#define AFNUM_X121	10	/* X.121 (X.25, Frame Relay) */
+#define AFNUM_IPX	11	/* IPX */
+#define AFNUM_ATALK	12	/* Appletalk */
+#define AFNUM_DECNET	13	/* Decnet IV */
+#define AFNUM_BANYAN	14	/* Banyan Vines */
+#define AFNUM_E164NSAP	15	/* E.164 with NSAP format subaddress */
+#define AFNUM_DNS	16	/* DNS (Domain Name System) */
+#define AFNUM_DISTNAME	17	/* Distinguished Name */
+#define AFNUM_AS_NUMBER	18	/* AS Number */
+#define AFNUM_XTP_IP4	19	/* XTP over IP version 4 */
+#define AFNUM_XTP_IP6	20	/* XTP over IP version 6 */
+#define AFNUM_XTP	21	/* XTP native mode XTP */
+#define AFNUM_FC_WWPN	22	/* Fibre Channel World-Wide Port Name */
+#define AFNUM_FC_WWNN	23	/* Fibre Channel World-Wide Node Name */
+#define AFNUM_GWID	24	/* GWID */
 /* draft-kompella-ppvpn-l2vpn */
 #define AFNUM_L2VPN     25
 #define AFNUM_L2VPN_OLD 196
