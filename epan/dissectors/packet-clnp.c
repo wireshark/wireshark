@@ -428,9 +428,10 @@ static gchar *print_tsap(const guchar *tsap, int length)
     g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
   else {
     allprintable = is_all_printable(tsap,length);
-    if (!allprintable)
+    if (!allprintable) {
       returned_length = g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "0x");
       index += MIN(returned_length, MAX_TSAP_LEN * 2 + 3 - 1);
+    }
     while (length != 0) {
       if (allprintable) {
         returned_length = g_snprintf(&cur[index], MAX_TSAP_LEN * 2 + 3 - index, "%c", *tsap ++);
