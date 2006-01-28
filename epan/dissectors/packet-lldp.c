@@ -488,7 +488,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	const guint8 *mac_addr = NULL;
 	guint32 ip_addr;
 	struct e_in6_addr ip6_addr;
-	guint8 addr_family;
+	guint8 addr_family = 0;
 	
 	proto_tree	*chassis_tree = NULL;
 	proto_item 	*tf = NULL;
