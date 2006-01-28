@@ -29,6 +29,7 @@
 #include "packet-lua.h"
 #include <epan/nstime.h>
 #include <math.h>
+#include <epan/expert.h>
 
 static lua_State* L = NULL;
 
@@ -75,29 +76,119 @@ static int lua_report_failure(lua_State* LS) {
 int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_) {
     Tap tap = tapdata;
     
-    lua_pushstring(L, "_ethereal_pinfo");
-    pushPinfo(L, pinfo);
-    lua_settable(L, LUA_GLOBALSINDEX);
+    lua_getglobal(L, LUA_TAP_PACKET);
     
-    lua_tree = edt->tree;
+    if (!lua_istable(L, -1)) {
+        g_warning("either `" LUA_TAP_PACKET "' does not exist or it is not a table!");
+        return 0;
+    }
     
-    /* XXX in C */
-    lua_dostring(L,ep_strdup_printf("taps.%s(_ethereal_pinfo);",tap->name));
+    lua_pushstring(L, tap->name);
     
+    lua_gettable(L, -2);  
+    
+    lua_remove(L,1);
+    
+    if (lua_isfunction(L,1)) {
+
+        lua_tree = edt->tree;
+        lua_pinfo = pinfo;
+        lua_tvb = NULL;
+        
+        pushPinfo(L, pinfo);
+        
+        switch ( lua_pcall(L,1,1,0) ) {
+            case 0:
+                /* OK */
+                break;
+            case LUA_ERRRUN:
+                g_warning("Runtime error while calling " LUA_TAP_PACKET ".%s() ",tap->name);
+                break;
+            case LUA_ERRMEM:
+                g_warning("Memory alloc error while calling " LUA_TAP_PACKET ".%s() ",tap->name);
+                break;
+            default:
+                g_assert_not_reached();
+                break;
+        }
+        
+    }
+
+    /* XXX - use the return value of the tap */
     return 1;
 }
 
 void lua_tap_reset(void *tapdata) {
     Tap tap = tapdata;
-    /* XXX in C */
-    lua_dostring(L,ep_strdup_printf("tap_resets.%s();",tap->name));
+
+    lua_getglobal(L, LUA_TAP_INIT);
+    
+    if (!lua_istable(L, -1)) {
+        g_warning("either `" LUA_TAP_INIT "' does not exist or it is not a table!");
+        return;
+    }
+    
+    lua_pushstring(L, tap->name);
+    
+    lua_gettable(L, -2);  
+    
+    lua_remove(L,1);
+    
+    if (lua_isfunction(L,1)) {
+        switch ( lua_pcall(L,1,0,0) ) {
+            case 0:
+                /* OK */
+                break;
+            case LUA_ERRRUN:
+                g_warning("Runtime error while calling " LUA_TAP_INIT ".%s() ",tap->name);
+                break;
+            case LUA_ERRMEM:
+                g_warning("Memory alloc error while calling " LUA_TAP_INIT ".%s() ",tap->name);
+                break;
+            default:
+                g_assert_not_reached();
+                break;
+        }
+    }
+
 }
 
 void lua_tap_draw(void *tapdata) {
     Tap tap = tapdata;
-    /* XXX in C */
-    lua_dostring(L,ep_strdup_printf("tap_draws.%s();",tap->name));
+    
+    lua_getglobal(L, LUA_TAP_DRAW);
+    
+    if (!lua_istable(L, -1)) {
+        g_warning("either `" LUA_TAP_DRAW "' does not exist or it is not a table!");
+        return;
+    }
+    
+    
+    lua_pushstring(L, tap->name);
+    
+    lua_gettable(L, -2);  
+    
+    lua_remove(L,1);
+    
+    if (lua_isfunction(L,1)) {
+        switch ( lua_pcall(L,1,0,0) ) {
+            case 0:
+                /* OK */
+                break;
+            case LUA_ERRRUN:
+                g_warning("Runtime error while calling " LUA_TAP_DRAW ".%s() ",tap->name);
+                break;
+            case LUA_ERRMEM:
+                g_warning("Memory alloc error while calling " LUA_TAP_DRAW ".%s() ",tap->name);
+                break;
+            default:
+                g_assert_not_reached();
+                break;
+        }
+    }
 }
+
+
 
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
@@ -105,8 +196,9 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_tvb = tvb;
 
     /*
-     * equivalent to Lua:
+     * almost equivalent to Lua:
      * dissectors[current_proto](tvb,pinfo,tree)
+     * but it wont give an error if dissectors[current_proto] doesn't exist
      */
     
     lua_settop(L,0);
@@ -114,7 +206,8 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_getglobal(L, LUA_DISSECTORS_TABLE);
     
     if (!lua_istable(L, -1)) {
-        g_warning("either `" LUA_DISSECTORS_TABLE "' does not exist or it is not a table!");
+        proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua: either `" LUA_DISSECTORS_TABLE "' does not exist or it is not a table!");
+        expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR,"Lua Error");
 
         lua_pinfo = NULL;
         lua_tree = NULL;
@@ -131,99 +224,105 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_remove(L,1);
 
     
-    if (!lua_isfunction(L,1)) {
-        g_warning("`" LUA_DISSECTORS_TABLE ".%s' is not a function, is a %s",
-                  pinfo->current_proto,lua_typename(L,lua_type(L,1)));
-
-        lua_pinfo = NULL;
-        lua_tree = NULL;
-        lua_tvb = NULL;
+    if (lua_isfunction(L,1)) {
         
-        return;        
+        pushTvb(L,tvb);
+        pushPinfo(L,pinfo);
+        pushProtoTree(L,tree);
+        
+        if  ( lua_pcall(L,3,0,0) ) {
+            const gchar* error = lua_tostring(L,-1);
+            proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: %s",error);
+            expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
+        }
+    } else {
+        /* XXX */   
     }
     
-    pushTvb(L, tvb);
-    pushPinfo(L, pinfo);
-    pushProtoTree(L, tree);
-    
-    switch ( lua_pcall(L,3,0,0) ) {
-        case 0:
-            /* OK */
-            break;
-        case LUA_ERRRUN:
-            g_warning("Runtime error while calling " LUA_DISSECTORS_TABLE ".%s() ",pinfo->current_proto);
-            break;
-        case LUA_ERRMEM:
-            g_warning("Memory alloc error while calling " LUA_DISSECTORS_TABLE ".%s() ",pinfo->current_proto);
-            break;
-        default:
-            g_assert_not_reached();
-            break;
-    }
-
     lua_pinfo = NULL;
     lua_tree = NULL;
     lua_tvb = NULL;
+
+}
+
+static void iter_table_and_call(lua_State* LS, const gchar* table_name, lua_CFunction error_handler) {
+    lua_settop(LS,0);
+    
+    lua_pushcfunction(LS,error_handler);
+    lua_getglobal(LS, table_name);
+
+    if (!lua_istable(LS, 2)) {
+        report_failure("Lua: either `%s' does not exist or it is not a table!\n",table_name);
+        lua_close(LS);
+        L = NULL;
+        return;
+    }
+
+    lua_pushnil(LS);
+    
+    while (lua_next(LS, 2)) {
+        const gchar* name = lua_tostring(L,-2);
+
+        if (lua_isfunction(LS,-1)) {
+
+            if ( lua_pcall(LS,0,0,1) ) {
+                    lua_pop(LS,1);
+            }
+            
+        } else {
+            report_failure("Lua: Something not a function got its way into the %s.%s",table_name,name);
+            lua_close(LS);
+            L = NULL;
+            return;
+        }
+    }
+
+    lua_settop(LS,0);
+}
+
+gboolean lua_initialized = FALSE;
+
+static int init_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of Initialization:\n %s",error);
+    return 0;
 }
 
 static void init_lua(void) {
-    GString* tap_error = register_all_lua_taps();
-    
-    if ( tap_error ) {
-        report_failure("lua tap registration problem: %s",tap_error->str);
-        g_string_free(tap_error,TRUE);
+    if ( ! lua_initialized ) {
+        GString* tap_error = lua_register_all_taps();
+        
+        if ( tap_error ) {
+            report_failure("lua tap registration problem: %s",tap_error->str);
+            g_string_free(tap_error,TRUE);
+        }
+                
+        lua_prime_all_fields(NULL);
+        
+        lua_register_subtrees();
+            
+        lua_initialized = TRUE;
     }
-    
-    
-    /* this should be called in a more appropriate place */
-    lua_prime_all_fields(NULL);
     
     if (L) {
-        lua_getglobal(L, LUA_INIT_ROUTINES);
-
-        if (!lua_istable(L, -1)) {
-            g_warning("either `" LUA_INIT_ROUTINES "' does not exist or it is not a table!");
-            return;
-        }
-        
-        lua_pushnil(L);
-        
-        while (lua_next(L, -2) != 0) {
-            const gchar* name = lua_tostring(L,-2);
-            if (!lua_isfunction(L,-1)) {
-                g_warning("`" LUA_INIT_ROUTINES ".%s' is not a function, is a %s",
-                          name,lua_typename(L,lua_type(L,-1)));
-                return;
-            }
-                        
-            switch ( lua_pcall(L,-1,0,0) ) {
-                case 0:
-                    /* OK */
-                    break;
-                case LUA_ERRRUN:
-                    g_warning("Runtime error while calling " LUA_INIT_ROUTINES ".%s() ",name);
-                    break;
-                case LUA_ERRMEM:
-                    g_warning("Memory alloc error while calling " LUA_INIT_ROUTINES ".%s() ",name);
-                    break;
-                default:
-                    g_assert_not_reached();
-                    break;
-            }
-            
-            lua_pop(L, 1);
-        }
-        
-        lua_pop(L, 1);
-        
+        iter_table_and_call(L, LUA_INIT_ROUTINES,init_error_handler);
     }
+
+}
+
+static int handoff_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of Handoff:\n %s",error);
+    return 0;
 }
 
 void proto_reg_handoff_lua(void) {
     lua_data_handle = find_dissector("data");
-    /* XXX in C */
-    if (L)
-        lua_dostring(L, "for k in handoff_routines do handoff_routines[k]() end ;");
+
+    if (L) {
+        iter_table_and_call(L, LUA_HANDOFF_ROUTINES,handoff_error_handler);
+    }
+
 }
 
 static const char *getF(lua_State *L _U_, void *ud, size_t *size)
@@ -233,6 +332,12 @@ static const char *getF(lua_State *L _U_, void *ud, size_t *size)
     if (feof(f)) return NULL;
     *size=fread(buff,1,sizeof(buff),f);
     return (*size>0) ? buff : NULL;
+}
+
+static int lua_main_error_handler(lua_State* LS) {
+    const gchar* error =  lua_tostring(LS,1);
+    report_failure("Lua: Error during registration:\n %s",error);
+    return 0;
 }
 
 void proto_register_lua(void)
@@ -256,6 +361,8 @@ void proto_register_lua(void)
     
     L = lua_open();
     
+    lua_pushcfunction(L,lua_main_error_handler);
+
     luaopen_base(L);
     luaopen_table(L);
     luaopen_io(L);
@@ -263,8 +370,7 @@ void proto_register_lua(void)
 
     ProtoField_register(L);
     ProtoFieldArray_register(L);
-    SubTreeType_register(L);
-    SubTreeTypeArray_register(L);
+    SubTree_register(L);
     ByteArray_register(L);
     Tvb_register(L);
     Proto_register(L);
@@ -291,7 +397,7 @@ void proto_register_lua(void)
     lua_pushcfunction(L, lua_report_failure);
     lua_settable(L, LUA_GLOBALSINDEX);
             
-    lua_pushstring(L, "handoff_routines");
+    lua_pushstring(L, LUA_HANDOFF_ROUTINES);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
@@ -303,21 +409,20 @@ void proto_register_lua(void)
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
-    lua_pushstring(L, "taps");
+    lua_pushstring(L, LUA_TAP_PACKET);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
 
-    lua_pushstring(L, "tap_resets");
+    lua_pushstring(L, LUA_TAP_RESET);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
 
-    lua_pushstring(L, "tap_draws");
+    lua_pushstring(L, LUA_TAP_DRAW);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
-    if (lua_load(L,getF,file,filename) || lua_pcall(L,0,0,0))
-        fprintf(stderr,"%s\n",lua_tostring(L,-1));
-    
+    lua_load(L,getF,file,filename) || lua_pcall(L,0,0,1);
+
     fclose(file);
     
     lua_data_handle = NULL;
@@ -326,6 +431,7 @@ void proto_register_lua(void)
     lua_tvb = NULL;
     
     lua_malformed = proto_get_id_by_filter_name("malformed");
-    
+ 
+
 }
 

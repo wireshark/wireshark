@@ -31,6 +31,79 @@
 
 LUA_CLASS_DEFINE(ProtoTree,PROTO_TREE,NOP);
 LUA_CLASS_DEFINE(ProtoItem,ITEM,NOP);
+LUA_CLASS_DEFINE(SubTree,SUBTREE,NOP);
+
+
+/*
+ * SubTree class
+ */
+
+
+static GArray* lua_etts = NULL;
+static gint lua_ett = -1;
+
+void lua_register_subtrees(void) {
+    gint* ettp = &lua_ett;
+    g_array_append_val(lua_etts,ettp);
+    
+    proto_register_subtree_array((gint**)lua_etts->data,lua_etts->len);
+}
+
+static int SubTree_new(lua_State* L) {
+    SubTree e;
+    
+    if (lua_initialized)
+        luaL_error(L,"a SubTree can be created only before initialization");
+    
+    e = g_malloc(sizeof(gint));
+    *e = -1;
+    
+    if (!lua_etts) 
+        lua_etts = g_array_new(FALSE,FALSE,sizeof(gint*));
+    
+    g_array_append_val(lua_etts,e);
+    
+    pushSubTree(L,e);
+    
+    return 1;
+}
+
+static int SubTree_tostring(lua_State* L) {
+    SubTree e = checkSubTree(L,1);
+    gchar* s = g_strdup_printf("SubTree: %i",*e);
+    
+    lua_pushstring(L,s);
+    g_free(s);
+    
+    return 1;
+}
+
+
+static const luaL_reg SubTree_methods[] = {
+    {"new",   SubTree_new},
+    {0,0}
+};
+
+static const luaL_reg SubTree_meta[] = {
+    {"__tostring", SubTree_tostring},
+    {0, 0}
+};
+
+int SubTree_register(lua_State* L) {
+    luaL_openlib(L, SUBTREE, SubTree_methods, 0);
+    luaL_newmetatable(L, SUBTREE);
+    luaL_openlib(L, 0, SubTree_meta, 0);
+    lua_pushliteral(L, "__index");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pushliteral(L, "__metatable");
+    lua_pushvalue(L, -3);
+    lua_rawset(L, -3);
+    lua_pop(L, 1);
+    
+    return 1;
+}
+
 
 /* ProtoTree class */
 
@@ -43,7 +116,6 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
      tree,tvb,text
      */
     ProtoTree tree = checkProtoTree(L,1);
-    ProtoField field;
     ProtoItem item = NULL;
     Tvb tvb;
     
@@ -81,7 +153,7 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
         } ENDTRY;
             
     } else if (( luaL_checkudata (L, 2, PROTO_FIELD) )) {
-        field = checkProtoField(L,2);
+        ProtoField field = checkProtoField(L,2);
         tvb = checkTvb(L,3);
 
         TRY {
@@ -136,6 +208,20 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
             return 0;
         } ENDTRY;
         
+    } else if (( luaL_checkudata (L, 2, PROTO) )) {
+        Proto proto = checkProto(L,2);
+        tvb = checkTvb(L,3);
+        
+        TRY {
+            int offset = luaL_checkint(L,4);
+            int len = luaL_checkint(L,5);
+            
+            item = proto_tree_add_item(tree,proto->hfid,tvb,offset,len,little_endian);
+        } CATCH(ReportedBoundsError) {
+            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+            luaL_error(L,"Malformed Frame");
+            return 0;
+        } ENDTRY;
     } else {
         luaL_error(L,"First arg must be either TVB or ProtoField");
         return 0;
@@ -204,16 +290,15 @@ static int ProtoItem_tostring(lua_State *L) {
 
 static int ProtoItem_add_subtree(lua_State *L) {
     ProtoItem item = checkProtoItem(L,1);
-    SubTreeType ett;
     ProtoTree tree = NULL;
     
     if (item) {
-        ett = checkSubTreeType(L,2);
+        SubTree ett = checkSubTree(L,2);
         
-        if (ett && *ett >= 0) {
+        if (ett) {
             tree = proto_item_add_subtree(item,*ett);
         } else {
-            luaL_argerror(L,2,"bad ett");
+            tree = proto_item_add_subtree(item,lua_ett);
         }
     }
     

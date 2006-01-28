@@ -50,7 +50,11 @@
 
 #define LUA_DISSECTORS_TABLE "dissectors"
 #define LUA_INIT_ROUTINES "init_routines"
-
+#define LUA_HANDOFF_ROUTINES "handoff_routines"
+#define LUA_TAP_PACKET "taps"
+#define LUA_TAP_INIT "taps_init"
+#define LUA_TAP_DRAW "taps_draw"
+#define LUA_TAP_RESET "taps_reset"
 
 typedef struct _eth_field_t {
     int hfid;
@@ -63,35 +67,36 @@ typedef struct _eth_field_t {
     guint32 mask;
 } eth_field_t;
 
-typedef enum {PREF_BOOL,PREF_UINT,PREF_STRING} pref_type_t;
+typedef enum {PREF_NONE,PREF_BOOL,PREF_UINT,PREF_STRING} pref_type_t;
 
 typedef struct _eth_pref_t {
     gchar* name;
+    gchar* label;
+    gchar* desc;
     pref_type_t type;
     union {
         gboolean b;
         guint32 u;
-        gint32 i;
         const gchar* s;
     } value;
+    
     struct _eth_pref_t* next;
+    struct _eth_proto_t* proto;
 } eth_pref_t;
 
 typedef struct _eth_proto_t {
     int hfid;
     char* name;
-    char* filter;
     char* desc;
     hf_register_info* hfarray;
     gboolean hf_registered;
     module_t *prefs_module;
-    eth_pref_t* prefs;
+    eth_pref_t prefs;
     dissector_handle_t handle;
     gboolean is_postdissector;
 } eth_proto_t;
 
 typedef struct {const gchar* str; enum ftenum id; } eth_ft_types_t;
-
 
 #define PROTO_FIELD "ProtoField"
 typedef struct _eth_field_t* ProtoField;
@@ -99,11 +104,8 @@ typedef struct _eth_field_t* ProtoField;
 #define PROTO_FIELD_ARRAY "ProtoFieldArray"
 typedef GArray* ProtoFieldArray;
 
-#define SUB_TREE_TYPE "SubTreeType"
-typedef int* SubTreeType;
-
-#define SUB_TREE_TYPE_ARRAY "SubTreeTypeArray"
-typedef GArray* SubTreeTypeArray;
+#define SUBTREE "SubTree"
+typedef int* SubTree;
 
 #define PROTO "Proto"
 typedef struct _eth_proto_t* Proto;
@@ -150,7 +152,6 @@ typedef header_field_info* Field;
 #define TAP "Tap"
 typedef struct _eth_tap {
     const gchar* name;
-    GPtrArray* interesting_fields;
     gchar* filter;
     gboolean registered;
 }* Tap;
@@ -181,6 +182,8 @@ extern proto_tree* lua_tree;
 extern tvbuff_t* lua_tvb;
 extern int lua_malformed;
 extern dissector_handle_t lua_data_handle;
+extern gboolean lua_initialized;
+
 
 #define LUA_CLASS_DECLARE(C,CN) \
 extern C to##C(lua_State* L, int index); \
@@ -192,8 +195,7 @@ LUA_CLASS_DECLARE(Tap,TAP);
 LUA_CLASS_DECLARE(Field,FIELD);
 LUA_CLASS_DECLARE(ProtoField,PROTO_FIELD);
 LUA_CLASS_DECLARE(ProtoFieldArray,PROTO_FIELD_ARRAY);
-LUA_CLASS_DECLARE(SubTreeType,SUB_TREE_TYPE);
-LUA_CLASS_DECLARE(SubTreeTypeArray,SUB_TREE_TYPE_ARRAY);
+LUA_CLASS_DECLARE(SubTree,SUBTREE);
 LUA_CLASS_DECLARE(Proto,PROTO);
 LUA_CLASS_DECLARE(ByteArray,BYTE_ARRAY);
 LUA_CLASS_DECLARE(Tvb,TVB);
@@ -211,9 +213,12 @@ extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
 extern void lua_tap_reset(void *tapdata);
 extern void lua_tap_draw(void *tapdata);
 
-extern GString* register_all_lua_taps(void);
+extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);
+void lua_register_subtrees(void);
 
-#define WARNSTACK(s) {int i; for (i = 1; i <= lua_gettop(L); i++) g_warning("-%s-> %i %s",s,i , lua_typename(L,lua_type(L,i))); }
+#if 0
+#define WARNSTACK(s) {int i; for (i = 1; i <= lua_gettop(L); i++) if (lua_isstring(L,i)) printf("-%s-> %i `%s'\n",s,i , lua_tostring(L,i)); else printf("-%s-> %i %s\n",s,i , lua_typename(L,lua_type(L,i))); }
+#endif
 
 #endif

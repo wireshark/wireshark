@@ -196,20 +196,21 @@ int Field_register(lua_State* L) {
 
 static int Tap_new(lua_State* L) {
     const gchar* name = luaL_checkstring(L,1);
+    const gchar* filter = luaL_optstring(L,2,NULL);
     Tap tap;
     
     if (!name) return 0;
     
-    if( find_tap_id(name) ) {
-        luaL_error(L,"a tap with this name exists already");
-        return 0;
-    }
-
     tap = g_malloc(sizeof(struct _eth_tap));
     
     tap->name = g_strdup(name);
-    tap->interesting_fields = g_ptr_array_new();
-    tap->filter = NULL;
+    tap->filter = g_strdup(filter);
+
+    if (!lua_taps)
+        lua_taps = g_ptr_array_new();
+    
+    g_ptr_array_add(lua_taps,tap);
+    
     
     pushTap(L,tap);
     return 1;
@@ -228,24 +229,7 @@ static int Tap_tostring(lua_State* L) {
     return 1;
 }
 
-static int Tap_set_filter(lua_State* L) {
-    Tap tap = checkTap(L,1);
-    const gchar* filter = luaL_checkstring(L,2);
-    
-    if (!(tap && filter)) return 0;
-    
-    if (tap->filter) {
-        luaL_error(L,"tap has filter already");
-        return 0;
-    }
-
-    tap->filter = g_strdup(filter);
-    
-    return 0;
-}
-
-
-GString* register_all_lua_taps(void) {
+GString* lua_register_all_taps(void) {
     
     if (!lua_taps || taps_registered) return NULL;
 
@@ -267,23 +251,8 @@ GString* register_all_lua_taps(void) {
     
 }
 
-static int Tap_register_to_ethereal(lua_State*L) {
-    Tap tap = checkTap(L,1);
-
-    if (!tap) return 0;
-
-    if (!lua_taps)
-        lua_taps = g_ptr_array_new();
-    
-    g_ptr_array_add(lua_taps,tap);
-    
-    return 0;
-}
-
 static const luaL_reg Tap_methods[] = {
     {"new", Tap_new},
-    {"set_filter", Tap_set_filter},
-    {"register", Tap_register_to_ethereal},
     {0,0}
 };
 
