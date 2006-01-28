@@ -44,6 +44,10 @@ static gint lua_ett = -1;
 
 void lua_register_subtrees(void) {
     gint* ettp = &lua_ett;
+
+    if (!lua_etts) 
+        lua_etts = g_array_new(FALSE,FALSE,sizeof(gint*));
+
     g_array_append_val(lua_etts,ettp);
     
     proto_register_subtree_array((gint**)lua_etts->data,lua_etts->len);
@@ -293,7 +297,7 @@ static int ProtoItem_add_subtree(lua_State *L) {
     ProtoTree tree = NULL;
     
     if (item) {
-        SubTree ett = checkSubTree(L,2);
+        SubTree ett = luaL_checkudata(L,2,SUBTREE);
         
         if (ett) {
             tree = proto_item_add_subtree(item,*ett);

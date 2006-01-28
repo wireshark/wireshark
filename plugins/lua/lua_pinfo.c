@@ -196,9 +196,79 @@ static int Address_gc(lua_State* L) {
     return 0;
 }
 
+static int Address_gt(lua_State* L) {
+    Address addr1 = checkAddress(L,1);
+    Address addr2 = checkAddress(L,2);
+    gboolean result = FALSE;
+    
+    if (CMP_ADDRESS(addr1, addr2) > 0)
+        result = TRUE;
+
+    lua_pushboolean(L,result);
+    
+    return 1;
+}
+
+static int Address_ge(lua_State* L) {
+    Address addr1 = checkAddress(L,1);
+    Address addr2 = checkAddress(L,2);
+    gboolean result = FALSE;
+    
+    if (CMP_ADDRESS(addr1, addr2) >= 0)
+        result = TRUE;
+    
+    lua_pushboolean(L,result);
+    
+    return 1;
+}
+
+static int Address_eq(lua_State* L) {
+    Address addr1 = checkAddress(L,1);
+    Address addr2 = checkAddress(L,2);
+    gboolean result = FALSE;
+    
+    if (ADDRESSES_EQUAL(addr1, addr2))
+        result = TRUE;
+    
+    lua_pushboolean(L,result);
+    
+    return 1;
+}
+
+static int Address_le(lua_State* L) {
+    Address addr1 = checkAddress(L,1);
+    Address addr2 = checkAddress(L,2);
+    gboolean result = FALSE;
+    
+    if (CMP_ADDRESS(addr1, addr2) <= 0)
+        result = TRUE;
+    
+    lua_pushboolean(L,result);
+    
+    return 1;
+}
+
+static int Address_lt(lua_State* L) {
+    Address addr1 = checkAddress(L,1);
+    Address addr2 = checkAddress(L,2);
+    gboolean result = FALSE;
+    
+    if (CMP_ADDRESS(addr1, addr2) < 0)
+        result = TRUE;
+    
+    lua_pushboolean(L,result);
+    
+    return 1;
+}
+
 static const luaL_reg Address_meta[] = {
     {"__gc", Address_gc },
     {"__tostring", Address_tostring },
+    {"__gt",Address_gt},
+    {"__ge",Address_ge},
+    {"__eq",Address_eq},
+    {"__le",Address_le},
+    {"__lt",Address_lt},
     {0,0}
 };
 

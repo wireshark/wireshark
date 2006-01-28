@@ -1133,19 +1133,27 @@ static int DissectorTable_get (lua_State *L) {
 
 static int DissectorTable_add (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
-    Proto p = checkProto(L,3);
+    Proto p;
     ftenum_t type;
-    
-    if (!(dt && p)) return 0;
+    Dissector handle;
+
+    if (!dt) return 0;
+
+    if(( p = luaL_checkudata(L,3,PROTO) )) {
+        handle = p->handle;
+    } else if (! ( handle  = luaL_checkudata(L,3,DISSECTOR) )) {
+        luaL_argerror(L,3,"Must be either " PROTO " or " DISSECTOR );
+        return 0;
+    }
     
     type = get_dissector_table_selector_type(dt->name);
     
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,2));
-        dissector_add_string(dt->name, pattern,p->handle);
+        dissector_add_string(dt->name, pattern,handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
-        dissector_add(dt->name, port, p->handle);
+        dissector_add(dt->name, port, handle);
     }
     
     return 0;
@@ -1153,19 +1161,27 @@ static int DissectorTable_add (lua_State *L) {
 
 static int DissectorTable_remove (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
-    Proto p = checkProto(L,3);
+    Proto p;
     ftenum_t type;
+    Dissector handle;
     
-    if (!(dt && p)) return 0;
+    if (!dt) return 0;
+    
+    if(( p = luaL_checkudata(L,3,PROTO) )) {
+        handle = p->handle;
+    } else if (! ( handle  = luaL_checkudata(L,3,DISSECTOR) )) {
+        luaL_argerror(L,3,"Must be either " PROTO " or " DISSECTOR );
+        return 0;
+    }
     
     type = get_dissector_table_selector_type(dt->name);
     
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,2));
-        dissector_delete_string(dt->name, pattern,p->handle);
+        dissector_delete_string(dt->name, pattern,handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
-        dissector_delete(dt->name, port, p->handle);
+        dissector_delete(dt->name, port, handle);
     }
     
     return 0;
