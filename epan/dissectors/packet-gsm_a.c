@@ -18372,12 +18372,12 @@ proto_register_gsm_a(void)
 	},
 	{ &hf_gsm_a_cell_ci,
 	    { "Cell CI",	"gsm_a.cell_ci",
-	    FT_UINT16, BASE_HEX, 0, 0x0,
+	    FT_UINT16, BASE_HEX_DEC, 0, 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_cell_lac,
 	    { "Cell LAC",	"gsm_a.cell_lac",
-	    FT_UINT16, BASE_HEX, 0, 0x0,
+	    FT_UINT16, BASE_HEX_DEC, 0, 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dlci_cc,
