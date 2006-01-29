@@ -1035,7 +1035,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Cell Identifier List 
 		 * The rest of the IE is coded as in [TS 48.008], not including IEI and length, if present
 		 */
-		be_cell_id_list(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		be_cell_id_list(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 16:		/* TU3907 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, FALSE);

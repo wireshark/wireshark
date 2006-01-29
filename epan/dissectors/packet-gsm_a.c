@@ -2384,10 +2384,10 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	break;
 
     default:
-	proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+	proto_tree_add_text(tree, tvb, curr_offset, len,
 	    "Cell ID - Unknown format");
 
-	curr_offset += (len - 1);
+	curr_offset += (len);
 	break;
     }
 
