@@ -203,7 +203,8 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     
     lua_settop(L,0);
 
-    lua_getglobal(L, LUA_DISSECTORS_TABLE);
+    lua_pushstring(L, LUA_DISSECTORS_TABLE);
+    lua_gettable(L, LUA_REGISTRYINDEX);
     
     if (!lua_istable(L, -1)) {
         proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua: either `" LUA_DISSECTORS_TABLE "' does not exist or it is not a table!");
@@ -249,8 +250,9 @@ static void iter_table_and_call(lua_State* LS, const gchar* table_name, lua_CFun
     lua_settop(LS,0);
     
     lua_pushcfunction(LS,error_handler);
-    lua_getglobal(LS, table_name);
-
+    lua_pushstring(LS, table_name);
+    lua_gettable(LS, LUA_REGISTRYINDEX);
+    
     if (!lua_istable(LS, 2)) {
         report_failure("Lua: either `%s' does not exist or it is not a table!\n",table_name);
         lua_close(LS);
@@ -396,18 +398,20 @@ void proto_register_lua(void)
     lua_pushstring(L, "report_failure");
     lua_pushcfunction(L, lua_report_failure);
     lua_settable(L, LUA_GLOBALSINDEX);
-            
+    
+    
+    
     lua_pushstring(L, LUA_HANDOFF_ROUTINES);
     lua_newtable (L);
-    lua_settable(L, LUA_GLOBALSINDEX);
+    lua_settable(L, LUA_REGISTRYINDEX);
     
     lua_pushstring(L, LUA_INIT_ROUTINES);
     lua_newtable (L);
-    lua_settable(L, LUA_GLOBALSINDEX);
+    lua_settable(L, LUA_REGISTRYINDEX);
     
     lua_pushstring(L, LUA_DISSECTORS_TABLE);
     lua_newtable (L);
-    lua_settable(L, LUA_GLOBALSINDEX);
+    lua_settable(L, LUA_REGISTRYINDEX);
     
     lua_pushstring(L, LUA_TAP_PACKET);
     lua_newtable (L);

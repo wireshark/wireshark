@@ -840,7 +840,9 @@ static int Proto_set_dissector(lua_State* L) {
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
        
-        lua_getglobal(L, LUA_DISSECTORS_TABLE);
+        lua_pushstring(L, LUA_DISSECTORS_TABLE);
+        lua_gettable(L, LUA_REGISTRYINDEX);
+
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
@@ -867,7 +869,8 @@ static int Proto_set_init(lua_State* L) {
     
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
-        lua_getglobal(L, LUA_INIT_ROUTINES);
+        lua_pushstring(L, LUA_INIT_ROUTINES);
+        lua_gettable(L, LUA_REGISTRYINDEX);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
@@ -886,7 +889,8 @@ static int Proto_set_handoff(lua_State* L) {
     
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
-        lua_getglobal(L, LUA_HANDOFF_ROUTINES);
+        lua_pushstring(L, LUA_HANDOFF_ROUTINES);
+        lua_gettable(L, LUA_REGISTRYINDEX);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
@@ -983,7 +987,7 @@ int Proto_register(lua_State* L) {
     lua_pushcfunction(L, Proto_register_postdissector);
     lua_settable(L, LUA_GLOBALSINDEX);
 
-    lua_pushstring(L, "new_protocol");
+    lua_pushstring(L, PROTO);
     lua_pushcfunction(L, Proto_new);
     lua_settable(L, LUA_GLOBALSINDEX);
     
@@ -1133,15 +1137,18 @@ static int DissectorTable_get (lua_State *L) {
 
 static int DissectorTable_add (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
-    Proto p;
     ftenum_t type;
     Dissector handle;
 
     if (!dt) return 0;
 
-    if(( p = luaL_checkudata(L,3,PROTO) )) {
+    if( isProto(L,3) ) {
+        Proto p;
+        p = toProto(L,3);
         handle = p->handle;
-    } else if (! ( handle  = luaL_checkudata(L,3,DISSECTOR) )) {
+    } else if ( isDissector(L,3) ) {
+        handle = toDissector(L,3);
+    } else {
         luaL_argerror(L,3,"Must be either " PROTO " or " DISSECTOR );
         return 0;
     }

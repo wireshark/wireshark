@@ -107,7 +107,7 @@ typedef GArray* ProtoFieldArray;
 #define SUBTREE "SubTree"
 typedef int* SubTree;
 
-#define PROTO "Proto"
+#define PROTO "Protocol"
 typedef struct _eth_proto_t* Proto;
 
 #define DISSECTOR_TABLE "DissectorTable"
@@ -158,6 +158,12 @@ typedef struct _eth_tap {
 
 #define NOP
 
+/*
+ * toXxx(L,idx) gets a Xxx from an index (Lua Error if fails)
+ * checkXxx(L,idx) gets a Xxx from an index after calling check_code (No Lua Error if it fails)
+ * pushXxx(L,xxx) pushes an Xxx into the stack
+ * isXxx(L,idx) tests whether we have an Xxx at idx
+ */
 #define LUA_CLASS_DEFINE(C,CN,check_code) \
 C to##C(lua_State* L, int index) { \
     C* v = (C*)lua_touserdata (L, index); \
@@ -175,7 +181,11 @@ C* push##C(lua_State* L, C v) { \
     C* p = lua_newuserdata(L,sizeof(C)); *p = v; \
     luaL_getmetatable(L, CN); lua_setmetatable(L, -2); \
     return p; \
+}\
+gboolean is##C(lua_State* L,int i) { \
+        return (gboolean)(lua_isuserdata(L,i) && luaL_checkudata(L,3,CN)); \
 }
+
 
 extern packet_info* lua_pinfo;
 extern proto_tree* lua_tree;
@@ -189,7 +199,9 @@ extern gboolean lua_initialized;
 extern C to##C(lua_State* L, int index); \
 extern C check##C(lua_State* L, int index); \
 extern C* push##C(lua_State* L, C v); \
-extern int C##_register(lua_State* L);
+extern int C##_register(lua_State* L); \
+extern gboolean is##C(lua_State* L,int i)
+
 
 LUA_CLASS_DECLARE(Tap,TAP);
 LUA_CLASS_DECLARE(Field,FIELD);
@@ -216,9 +228,5 @@ extern void lua_tap_draw(void *tapdata);
 extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);
 void lua_register_subtrees(void);
-
-#if 0
-#define WARNSTACK(s) {int i; for (i = 1; i <= lua_gettop(L); i++) if (lua_isstring(L,i)) printf("-%s-> %i `%s'\n",s,i , lua_tostring(L,i)); else printf("-%s-> %i %s\n",s,i , lua_typename(L,lua_type(L,i))); }
-#endif
 
 #endif
