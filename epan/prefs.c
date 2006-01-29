@@ -1964,6 +1964,8 @@ set_pref(gchar *pref_name, gchar *value)
         /* Handle old names for MTP3 preferences. */
         if (strcmp(dotp, "mtp3_standard") == 0)
           pref = find_preference(module, "standard");
+        else if (strcmp(dotp, "net_addr_format") == 0)
+          pref = find_preference(module, "addr_format");
       } else if (strcmp(module->name, "nlm") == 0) {
         /* Handle old names for NLM preferences. */
         if (strcmp(dotp, "nlm_msg_res_matching") == 0)
