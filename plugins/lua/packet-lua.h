@@ -163,6 +163,8 @@ typedef struct _eth_tap {
  * checkXxx(L,idx) gets a Xxx from an index after calling check_code (No Lua Error if it fails)
  * pushXxx(L,xxx) pushes an Xxx into the stack
  * isXxx(L,idx) tests whether we have an Xxx at idx
+ *
+ * LUA_CLASS_DEFINE must be used without trailing ';'
  */
 #define LUA_CLASS_DEFINE(C,CN,check_code) \
 C to##C(lua_State* L, int index) { \

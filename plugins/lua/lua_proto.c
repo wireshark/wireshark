@@ -33,13 +33,13 @@
 typedef eth_pref_t* Pref;
 typedef eth_pref_t* Prefs;
 
-LUA_CLASS_DEFINE(ProtoField,PROTO_FIELD,if (! *p) luaL_error(L,"null ProtoField"));
-LUA_CLASS_DEFINE(ProtoFieldArray,PROTO_FIELD_ARRAY,if (! *p) luaL_error(L,"null ProtoFieldArray"));
-LUA_CLASS_DEFINE(Dissector,DISSECTOR,NOP);
-LUA_CLASS_DEFINE(DissectorTable,DISSECTOR_TABLE,NOP);
-LUA_CLASS_DEFINE(Pref,PREF,NOP);
-LUA_CLASS_DEFINE(Prefs,PREFS,NOP);
-LUA_CLASS_DEFINE(Proto,PROTO,NOP);
+LUA_CLASS_DEFINE(ProtoField,PROTO_FIELD,if (! *p) luaL_error(L,"null ProtoField"))
+LUA_CLASS_DEFINE(ProtoFieldArray,PROTO_FIELD_ARRAY,if (! *p) luaL_error(L,"null ProtoFieldArray"))
+LUA_CLASS_DEFINE(Dissector,DISSECTOR,NOP)
+LUA_CLASS_DEFINE(DissectorTable,DISSECTOR_TABLE,NOP)
+LUA_CLASS_DEFINE(Pref,PREF,NOP)
+LUA_CLASS_DEFINE(Prefs,PREFS,NOP)
+LUA_CLASS_DEFINE(Proto,PROTO,NOP)
 
 static int new_pref(lua_State* L, pref_type_t type) {
     const gchar* label = luaL_optstring(L,1,NULL);
@@ -131,7 +131,7 @@ static int Pref_register(lua_State* L) {
     lua_pop(L, 1);
     
     return 1;
-};
+}
 
 
 static int Prefs_newindex(lua_State* L) {
@@ -242,7 +242,7 @@ static int Prefs_register(lua_State* L) {
     luaL_openlib(L, NULL, Prefs_meta, 0);
     
     return 1;
-};
+}
 
 
 
@@ -446,17 +446,17 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 }
 
 #define PROTOFIELD_INTEGER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_integer(L,FT); }
-PROTOFIELD_INTEGER(uint8,FT_UINT8);
-PROTOFIELD_INTEGER(uint16,FT_UINT16);
-PROTOFIELD_INTEGER(uint24,FT_UINT24);
-PROTOFIELD_INTEGER(uint32,FT_UINT32);
-PROTOFIELD_INTEGER(uint64,FT_UINT64);
-PROTOFIELD_INTEGER(int8,FT_INT8);
-PROTOFIELD_INTEGER(int16,FT_INT8);
-PROTOFIELD_INTEGER(int24,FT_INT8);
-PROTOFIELD_INTEGER(int32,FT_INT8);
-PROTOFIELD_INTEGER(int64,FT_INT8);
-PROTOFIELD_INTEGER(framenum,FT_FRAMENUM);
+PROTOFIELD_INTEGER(uint8,FT_UINT8)
+PROTOFIELD_INTEGER(uint16,FT_UINT16)
+PROTOFIELD_INTEGER(uint24,FT_UINT24)
+PROTOFIELD_INTEGER(uint32,FT_UINT32)
+PROTOFIELD_INTEGER(uint64,FT_UINT64)
+PROTOFIELD_INTEGER(int8,FT_INT8)
+PROTOFIELD_INTEGER(int16,FT_INT8)
+PROTOFIELD_INTEGER(int24,FT_INT8)
+PROTOFIELD_INTEGER(int32,FT_INT8)
+PROTOFIELD_INTEGER(int64,FT_INT8)
+PROTOFIELD_INTEGER(framenum,FT_FRAMENUM)
 
 static int ProtoField_other(lua_State* L,enum ftenum type) {
     ProtoField f = g_malloc(sizeof(eth_field_t));
@@ -479,19 +479,19 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 }
 
 #define PROTOFIELD_OTHER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_other(L,FT); }
-PROTOFIELD_OTHER(ipv4,FT_IPv4);
-PROTOFIELD_OTHER(ipv6,FT_IPv6);
-PROTOFIELD_OTHER(ipx,FT_IPXNET);
-PROTOFIELD_OTHER(ether,FT_ETHER);
-PROTOFIELD_OTHER(bool,FT_BOOLEAN);
-PROTOFIELD_OTHER(float,FT_FLOAT);
-PROTOFIELD_OTHER(double,FT_DOUBLE);
-PROTOFIELD_OTHER(string,FT_STRING);
-PROTOFIELD_OTHER(stringz,FT_STRINGZ);
-PROTOFIELD_OTHER(bytes,FT_BYTES);
-PROTOFIELD_OTHER(ubytes,FT_UINT_BYTES);
-PROTOFIELD_OTHER(guid,FT_GUID);
-PROTOFIELD_OTHER(oid,FT_OID);
+PROTOFIELD_OTHER(ipv4,FT_IPv4)
+PROTOFIELD_OTHER(ipv6,FT_IPv6)
+PROTOFIELD_OTHER(ipx,FT_IPXNET)
+PROTOFIELD_OTHER(ether,FT_ETHER)
+PROTOFIELD_OTHER(bool,FT_BOOLEAN)
+PROTOFIELD_OTHER(float,FT_FLOAT)
+PROTOFIELD_OTHER(double,FT_DOUBLE)
+PROTOFIELD_OTHER(string,FT_STRING)
+PROTOFIELD_OTHER(stringz,FT_STRINGZ)
+PROTOFIELD_OTHER(bytes,FT_BYTES)
+PROTOFIELD_OTHER(ubytes,FT_UINT_BYTES)
+PROTOFIELD_OTHER(guid,FT_GUID)
+PROTOFIELD_OTHER(oid,FT_OID)
 
 
 static int ProtoField_tostring(lua_State* L) {
@@ -1070,7 +1070,7 @@ int Dissector_register(lua_State* L) {
     lua_pop(L, 1);
     
     return 1;
-};
+}
 
 
 /*
@@ -1326,7 +1326,7 @@ int DissectorTable_register(lua_State* L) {
     lua_pop(L, 1);
     
     return 1;
-};
+}
 
 
 

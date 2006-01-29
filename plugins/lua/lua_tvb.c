@@ -28,8 +28,8 @@
 
 #include "packet-lua.h"
 
-LUA_CLASS_DEFINE(Tvb,TVB,if (! *p) luaL_error(L,"null tvb"));
-LUA_CLASS_DEFINE(ByteArray,BYTE_ARRAY,if (! *p) luaL_argerror(L,index,"null bytearray"));
+LUA_CLASS_DEFINE(Tvb,TVB,if (! *p) luaL_error(L,"null tvb"))
+LUA_CLASS_DEFINE(ByteArray,BYTE_ARRAY,if (! *p) luaL_argerror(L,index,"null bytearray"))
 
 static int ByteArray_new(lua_State* L) {
     GByteArray* ba = g_byte_array_new();
@@ -281,7 +281,7 @@ int ByteArray_register(lua_State* L) {
     lua_pop(L, 1);
     
     return 1;
-};
+}
 
 
 /*
@@ -347,18 +347,18 @@ static int Tvb_new (lua_State *L) {
 }
 
 
-DEFINE_TVBGET(guint8,1);
-DEFINE_TVBGET(ntohs,2);
-DEFINE_TVBGET(ntoh24,3);
-DEFINE_TVBGET(ntohl,4);
-DEFINE_TVBGET(ntohieee_float,4);
-DEFINE_TVBGET(ntohieee_double,8);
+DEFINE_TVBGET(guint8,1)
+DEFINE_TVBGET(ntohs,2)
+DEFINE_TVBGET(ntoh24,3)
+DEFINE_TVBGET(ntohl,4)
+DEFINE_TVBGET(ntohieee_float,4)
+DEFINE_TVBGET(ntohieee_double,8)
 
-DEFINE_TVBGET(letohs,1);
-DEFINE_TVBGET(letoh24,2);
-DEFINE_TVBGET(letohl,3);
-DEFINE_TVBGET(letohieee_float,4);
-DEFINE_TVBGET(letohieee_double,8);
+DEFINE_TVBGET(letohs,1)
+DEFINE_TVBGET(letoh24,2)
+DEFINE_TVBGET(letohl,3)
+DEFINE_TVBGET(letohieee_float,4)
+DEFINE_TVBGET(letohieee_double,8)
 
 static int Tvb_get_bytearray(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
@@ -578,5 +578,5 @@ int Tvb_register(lua_State* L) {
     lua_pop(L, 1);
     
     return 1;
-};
+}
 

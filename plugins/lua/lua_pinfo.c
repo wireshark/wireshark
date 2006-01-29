@@ -30,10 +30,10 @@
 #include <epan/addr_resolv.h>
 #include <string.h>
 
-LUA_CLASS_DEFINE(Column,COLUMN,NOP);
-LUA_CLASS_DEFINE(Columns,COLUMNS,NOP);
-LUA_CLASS_DEFINE(Pinfo,PINFO,if (! *p) luaL_error(L,"null pinfo"));
-LUA_CLASS_DEFINE(Address,ADDRESS,NOP);
+LUA_CLASS_DEFINE(Column,COLUMN,NOP)
+LUA_CLASS_DEFINE(Columns,COLUMNS,NOP)
+LUA_CLASS_DEFINE(Pinfo,PINFO,if (! *p) luaL_error(L,"null pinfo"))
+LUA_CLASS_DEFINE(Address,ADDRESS,NOP)
 
 static int Address_ip(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
@@ -578,27 +578,27 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
     return 1; \
 }
 
-PINFO_GET_NUMBER(Pinfo_number,pinfo->fd->num);
-PINFO_GET_NUMBER(Pinfo_len,pinfo->fd->pkt_len);
-PINFO_GET_NUMBER(Pinfo_caplen,pinfo->fd->cap_len);
-PINFO_GET_NUMBER(Pinfo_abs_ts,(((double)pinfo->fd->abs_ts.secs) + (((double)pinfo->fd->abs_ts.nsecs) / 1000000000.0) ));
-PINFO_GET_NUMBER(Pinfo_rel_ts,(((double)pinfo->fd->rel_ts.secs) + (((double)pinfo->fd->rel_ts.nsecs) / 1000000000.0) ));
-PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->fd->del_ts.secs) + (((double)pinfo->fd->del_ts.nsecs) / 1000000000.0) ));
-PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ipproto);
-PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->circuit_id);
-PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ptype);
-PINFO_GET_NUMBER(Pinfo_src_port,pinfo->srcport);
-PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->destport);
+PINFO_GET_NUMBER(Pinfo_number,pinfo->fd->num)
+PINFO_GET_NUMBER(Pinfo_len,pinfo->fd->pkt_len)
+PINFO_GET_NUMBER(Pinfo_caplen,pinfo->fd->cap_len)
+PINFO_GET_NUMBER(Pinfo_abs_ts,(((double)pinfo->fd->abs_ts.secs) + (((double)pinfo->fd->abs_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_rel_ts,(((double)pinfo->fd->rel_ts.secs) + (((double)pinfo->fd->rel_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->fd->del_ts.secs) + (((double)pinfo->fd->del_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ipproto)
+PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->circuit_id)
+PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ptype)
+PINFO_GET_NUMBER(Pinfo_src_port,pinfo->srcport)
+PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->destport)
 
 
-PINFO_GET_STRING(Pinfo_curr_proto,pinfo->current_proto);
+PINFO_GET_STRING(Pinfo_curr_proto,pinfo->current_proto)
 
-PINFO_GET_ADDRESS(Pinfo_net_src,net_src);
-PINFO_GET_ADDRESS(Pinfo_net_dst,net_dst);
-PINFO_GET_ADDRESS(Pinfo_dl_src,dl_src);
-PINFO_GET_ADDRESS(Pinfo_dl_dst,dl_dst);
-PINFO_GET_ADDRESS(Pinfo_src,src);
-PINFO_GET_ADDRESS(Pinfo_dst,dst);
+PINFO_GET_ADDRESS(Pinfo_net_src,net_src)
+PINFO_GET_ADDRESS(Pinfo_net_dst,net_dst)
+PINFO_GET_ADDRESS(Pinfo_dl_src,dl_src)
+PINFO_GET_ADDRESS(Pinfo_dl_dst,dl_dst)
+PINFO_GET_ADDRESS(Pinfo_src,src)
+PINFO_GET_ADDRESS(Pinfo_dst,dst)
 
 static int Pinfo_visited(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
@@ -821,5 +821,5 @@ int Pinfo_register(lua_State* L) {
     lua_pop(L, 1);
  */   
     return 1;
-};
+}
 

@@ -28,8 +28,8 @@
 
 #include "packet-lua.h"
 
-LUA_CLASS_DEFINE(Tap,TAP,NOP);
-LUA_CLASS_DEFINE(Field,FIELD,NOP);
+LUA_CLASS_DEFINE(Tap,TAP,NOP)
+LUA_CLASS_DEFINE(Field,FIELD,NOP)
 
 static GPtrArray* wanted_fields = NULL;
 static GPtrArray* lua_taps = NULL;
@@ -191,7 +191,7 @@ int Field_register(lua_State* L) {
     lua_pop(L, 1);
     
     return 1;
-};
+}
 
 
 static int Tap_new(lua_State* L) {
@@ -274,5 +274,5 @@ int Tap_register(lua_State* L) {
     lua_pop(L, 1);
     
     return 1;
-};
+}
 

@@ -29,9 +29,9 @@
 #include "packet-lua.h"
 #include <epan/expert.h>
 
-LUA_CLASS_DEFINE(ProtoTree,PROTO_TREE,NOP);
-LUA_CLASS_DEFINE(ProtoItem,ITEM,NOP);
-LUA_CLASS_DEFINE(SubTree,SUBTREE,NOP);
+LUA_CLASS_DEFINE(ProtoTree,PROTO_TREE,NOP)
+LUA_CLASS_DEFINE(ProtoItem,ITEM,NOP)
+LUA_CLASS_DEFINE(SubTree,SUBTREE,NOP)
 
 
 /*
