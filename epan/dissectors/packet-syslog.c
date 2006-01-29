@@ -44,9 +44,6 @@
 /* The maximum number if priority digits to read in. */
 #define MAX_DIGITS 3
 
-#define COL_INFO_LEN 32
-#define ELLIPSIS "..." /* ISO 8859-1 doesn't appear to have a real ellipsis. */
-
 static const value_string short_lev[] = {
   { 0,      "EMERG" },
   { 1,      "ALERT" },
@@ -139,10 +136,9 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   gint pri = -1, lev = -1, fac = -1;
   gint msg_off = 0, msg_len;
-  gint ellipsis_len = (COL_INFO_LEN - strlen(ELLIPSIS)) - 1;
   proto_item *ti;
   proto_tree *syslog_tree;
-  gchar msg_str[COL_INFO_LEN];
+  const char *msg_str;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
@@ -164,23 +160,15 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     lev = pri & PRIORITY_MASK;
   }
 
-  /* Copy the message into a string buffer, with a trailing ellipsis if needed. */
   msg_len = tvb_ensure_length_remaining(tvb, msg_off);
-  if (msg_len >= COL_INFO_LEN) {
-    tvb_memcpy(tvb, msg_str, msg_off, ellipsis_len);
-    g_snprintf(msg_str + ellipsis_len, COL_INFO_LEN-ellipsis_len, "%s", ELLIPSIS);
-  } else {
-    tvb_memcpy(tvb, msg_str, msg_off, msg_len);
-    msg_str[msg_len] = '\0';
-  }
-
+  msg_str = tvb_format_text(tvb, msg_off, msg_len);
   if (check_col(pinfo->cinfo, COL_INFO)) {
     if (pri >= 0) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s.%s: %s",
         val_to_str(fac, short_fac, "UNKNOWN"),
         val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
+      col_add_str(pinfo->cinfo, COL_INFO, msg_str);
     }
   }
 
