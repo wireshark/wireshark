@@ -71,6 +71,7 @@
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t stun_handle;
+static dissector_handle_t t38_handle;
 
 static int rtp_tap = -1;
 
@@ -112,10 +113,12 @@ static gint ett_rtp_setup = -1;
 
 #define RTP0_INVALID 0
 #define RTP0_STUN    1
+#define RTP0_T38     2
 
 static enum_val_t rtp_version0_types[] = {
 	{ "invalid", "Invalid RTP packets", RTP0_INVALID },
 	{ "stun", "STUN packets", RTP0_STUN },
+	{ "t38", "T.38 packets", RTP0_T38 },
 	{ NULL, NULL, 0 }
 };
 static guint global_rtp_version0_type = 0;
@@ -337,6 +340,10 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			call_dissector(stun_handle, tvb, pinfo, tree);
 			return TRUE;
 
+		case RTP0_T38:
+			call_dissector(t38_handle, tvb, pinfo, tree);
+			return TRUE;
+
 		case RTP0_INVALID:
 		default:
 			return FALSE; /* Unknown or unsupported version */
@@ -436,6 +443,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		switch (global_rtp_version0_type) {
 		case RTP0_STUN:
 			call_dissector(stun_handle, tvb, pinfo, tree);
+			return;
+
+		case RTP0_T38:
+			call_dissector(t38_handle, tvb, pinfo, tree);
 			return;
 
 		case RTP0_INVALID:
@@ -1092,6 +1103,7 @@ proto_reg_handoff_rtp(void)
 {
 	data_handle = find_dissector("data");
 	stun_handle = find_dissector("stun");
+	t38_handle = find_dissector("t38");
 	/*
 	 * Register this dissector as one that can be selected by a
 	 * UDP port number.
