@@ -2321,7 +2321,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     case 0x01:
     case 0x05:
-	case 0x0a: /*For intersystem handover from GSM to UMTS or cdma2000: */
+    case 0x0a: /*For intersystem handover from GSM to UMTS or cdma2000: */
 
 	/* LAC */
 
@@ -2334,7 +2334,9 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	if (add_string)
 	    g_snprintf(add_string, string_len, " - LAC (0x%04x)", value);
 
-	case 0x09: /* For intersystem handover from GSM to UMTS or cdma2000: */
+	/* FALLTHRU */
+
+    case 0x09: /* For intersystem handover from GSM to UMTS or cdma2000: */
 
 	if ((disc == 0x08) ||(disc == 0x09) || (disc == 0x0a)){ 
 		/* RNC-ID */
