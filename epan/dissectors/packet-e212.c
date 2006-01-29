@@ -330,7 +330,7 @@ proto_register_e212(void)
 	static hf_register_info hf[] = {
 	{ &hf_E212_mcc,
 		{ "Mobile Country Code (MCC)","e212.mcc",
-		FT_UINT16, BASE_DEC, NULL, 0x0,          
+		FT_UINT16, BASE_DEC, VALS(E212_codes), 0x0,          
 		"Mobile Country Code MCC", HFILL }
 	},
 	{ &hf_E212_mnc,
