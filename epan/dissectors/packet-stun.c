@@ -241,6 +241,8 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
+		guint transaction_id_first_word;
+
 		ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, FALSE);
 			    
 		stun_tree = proto_item_add_subtree(ti, ett_stun);
@@ -248,6 +250,9 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(stun_tree, hf_stun_type, tvb, 0, 2, msg_type);
 		proto_tree_add_uint(stun_tree, hf_stun_length, tvb, 2, 2, msg_length);
 		proto_tree_add_item(stun_tree, hf_stun_id, tvb, 4, 16, FALSE);
+
+		/* Remember this (in host order) so we can show clear xor'd addresses */
+		transaction_id_first_word = tvb_get_ntohl(tvb, 4);
 
 		if (msg_length > 0) {
 		    ta = proto_tree_add_item(stun_tree, hf_stun_att, tvb, STUN_HDR_LEN, msg_length, FALSE);
@@ -378,6 +383,15 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (att_length < 4)
 						break;
 					proto_tree_add_item(att_tree, stun_att_xor_port, tvb, offset+2, 2, FALSE);
+
+					/* Show the port 'in the clear'
+						XOR (host order) transid with (host order) xor-port.
+						Add host-order port into tree. */
+					ti = proto_tree_add_uint(att_tree, stun_att_port, tvb, offset+2, 2,
+					                         tvb_get_ntohs(tvb, offset+2) ^
+					                         (transaction_id_first_word >> 16));
+					PROTO_ITEM_SET_GENERATED(ti);
+
 					if (att_length < 8)
 						break;
 					switch( tvb_get_guint8(tvb, offset+1) ){
@@ -385,6 +399,14 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (att_length < 8)
 								break;
 							proto_tree_add_item(att_tree, stun_att_xor_ipv4, tvb, offset+4, 4, FALSE);
+
+							/* Show the address 'in the clear'.
+							   XOR (host order) transid with (host order) xor-address.
+							   Add in network order tree. */
+							ti = proto_tree_add_ipv4(att_tree, stun_att_ipv4, tvb, offset+4, 4,
+													 g_htonl(tvb_get_ntohl(tvb, offset+4) ^
+													 transaction_id_first_word));
+							PROTO_ITEM_SET_GENERATED(ti);
 							break;
 
 						case 2:
