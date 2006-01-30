@@ -632,6 +632,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 		return offset;
 	}else{/* PoC1 Application */
+		guint8 t2timer_code, participants_code;
 		proto_item *item;
 		item = proto_tree_add_uint( tree, hf_rtcp_app_poc1_subtype, tvb, offset - 8, 1, rtcp_subtype );
 		PROTO_ITEM_SET_GENERATED(item);
@@ -662,20 +663,37 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		proto_tree_add_item( PoC1_tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
 		switch ( rtcp_subtype ) {
 			case 1: /* TBCP Granted */
-				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_stt, tvb, offset, 2, FALSE );
-				offset += 2;
-				packet_len -= 2;
-				proto_tree_add_text(PoC1_tree, tvb, offset, 2, "Spare 2 bytes" );
-				offset += 2;
-				packet_len -= 2;
-				if (packet_len ==0)
+				t2timer_code = tvb_get_guint8(tvb, offset);
+				offset += 1;
+				packet_len -=1;
+				if (t2timer_code != 101) /* SHALL be 101 */
 					return offset;
+				
+				item_len = tvb_get_guint8(tvb, offset);
+				offset += 1;
+				packet_len -= 1;
+				if (item_len != 2) /* SHALL be 2 */
+					return offset;
+				
+				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_stt, tvb, offset, 2, FALSE );
+				offset += item_len;
+				packet_len -= item_len;
+
+				participants_code = tvb_get_guint8(tvb, offset);
+				offset += 1;
+				packet_len -=1;
+				if (participants_code != 100) /* SHALL be 100 */
+					return offset;
+				
+				item_len = tvb_get_guint8(tvb, offset);
+				offset += 1;
+				packet_len -= 1;
+				if (item_len != 2) /* SHALL be 2 */
+					return offset;
+				
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_partic, tvb, offset, 2, FALSE );
-				offset += 2;
-				packet_len -= 2;
-				proto_tree_add_text(PoC1_tree, tvb, offset, 2, "Spare 2 bytes" );
-				offset += 2;
-				packet_len -= 2;
+				offset += item_len;
+				packet_len -= item_len;
 				break;
 			case 2:		/* TBCP Talk Burst Taken (no reply expected) */
 			case 18:	/* TBCP Talk Burst Taken (ack expected) */
@@ -718,6 +736,22 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, item_len, FALSE );
 				offset = offset + item_len;
 				packet_len = packet_len - item_len;
+				
+				if (packet_len == 0)
+					return offset;
+				participants_code = tvb_get_guint8(tvb, offset);
+				offset += 1;
+				packet_len -=1;
+				if (participants_code != 100) /* SHALL be 100 */
+					return offset;
+				item_len = tvb_get_guint8(tvb, offset);
+				offset += 1;
+				packet_len -= 1;
+				if (item_len != 2) /* SHALL be 2 */
+					return offset;
+				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_partic, tvb, offset, 2, FALSE );
+				offset += item_len;
+				packet_len -= item_len;
 				break;
 			case 3:		/* TBCP Talk Burst Deny */
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code1, tvb, offset, 1, FALSE );
