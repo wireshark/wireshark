@@ -445,8 +445,8 @@ static void unrecognized_token(void* tvbparse_data, const void* wanted_data _U_,
 
 
 static void init_xml_parser(void) {	
-	tvbparse_wanted_t* want_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ",NULL,NULL,NULL);
-	tvbparse_wanted_t* want_attr_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ:",NULL,NULL,NULL);
+	tvbparse_wanted_t* want_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",NULL,NULL,NULL);
+	tvbparse_wanted_t* want_attr_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:",NULL,NULL,NULL);
     
     tvbparse_wanted_t* want_scoped_name = tvbparse_set_seq(XML_SCOPED_NAME, NULL, NULL, NULL,
                                                            want_name,
