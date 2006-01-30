@@ -68,6 +68,7 @@
 #include "packet-gsm_a.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
+#include "packet-e212.h"
 
 static dissector_handle_t uma_tcp_handle = NULL;
 static dissector_handle_t uma_udp_handle = NULL;
@@ -816,39 +817,7 @@ static const value_string suti_vals[] = {
 	{ 0,	NULL }
 };
 	/* Code to actually dissect the packets */
-static int
-dissect_mcc_mnc(tvbuff_t *tvb, proto_tree *urr_ie_tree, int offset){
 
-	int			start_offset;	
-	guint8		octet;
-	guint16		mcc, mnc;
-	guint8		mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
-
-	start_offset = offset;
-	/* Mobile country code MCC */
-	octet = tvb_get_guint8(tvb,offset);
-	mcc1 = octet & 0x0f;
-	mcc2 = octet >> 4;
-	offset++;
-	octet = tvb_get_guint8(tvb,offset);
-	mcc3 = octet & 0x0f;
-	/* MNC, Mobile network code (octet 3 bits 5 to 8, octet 4)  */
-	mnc3 = octet >> 4;
-	offset++;
-	octet = tvb_get_guint8(tvb,offset);
-	mnc1 = octet & 0x0f;
-	mnc2 = octet >> 4;
-
-	mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
-	mnc = 10 * mnc1 + mnc2;
-	if (mnc3 != 0xf) {
-		mnc += 10 * mnc + mnc3;
-	}
-	proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mcc , tvb, start_offset, 2, mcc );
-	proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mnc , tvb, start_offset + 1, 2, mnc );
-	offset++;
-	return offset;
-}
 static int
 dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
@@ -1325,7 +1294,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		ie_offset++;
 		if ( octet == 0 ){
-			ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
+			ie_offset = dissect_e212_mcc_mnc(tvb, urr_ie_tree, ie_offset);
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
 			ie_offset = ie_offset + 2;
 			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'. 
