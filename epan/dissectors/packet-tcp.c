@@ -147,8 +147,8 @@ static gint ett_tcp_segments = -1;
 static gint ett_tcp_segment  = -1;
 
 
-/* not all of the hf_fields below make sense for TCP but we have to provide 
-   them anyways to comply with the api (which was aimed for ip fragment 
+/* not all of the hf_fields below make sense for TCP but we have to provide
+   them anyways to comply with the api (which was aimed for ip fragment
    reassembly) */
 static const fragment_items tcp_segment_items = {
 	&ett_tcp_segment,
@@ -216,7 +216,7 @@ static GHashTable *tcp_pdu_time_table = NULL;
 static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
-	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment, 
+	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment,
 	struct tcp_analysis *tcpd);
 
 
@@ -293,14 +293,14 @@ get_tcp_conversation_data(packet_info *pinfo)
    IF we see an ACK then we assume that the left edge of the window has changed
       at least to this point and assuming it is rare with reordering and
       trailing duplicate/retransmitted segments, we just assume that after
-      we have seen the ACK we will not see any more segments prior to the 
+      we have seen the ACK we will not see any more segments prior to the
       ACK value.
       If we will not see any segments prior to the ACK value then we can just
-      delete all next_pdu entries that describe pdu's starting prior to the 
+      delete all next_pdu entries that describe pdu's starting prior to the
       ACK.
       If this heuristics is prooved to be too simplistic we can just enhance it
       later.
-*/   
+*/
 /* XXX this function should be ehnanced to handle sequence number wrapping */
 /* XXX to handle retransmissions and reordered packets maybe we should only
        discard entries that are more than (guesstimate) 50kb older than the
@@ -341,7 +341,7 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
 		}
 	}
 }
-		
+
 
 static void
 print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree, struct tcp_next_pdu *tnp)
@@ -356,7 +356,7 @@ print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree,
 	PROTO_ITEM_SET_GENERATED(item);
 }
 
-/* if we know that a PDU starts inside this segment, return the adjusted 
+/* if we know that a PDU starts inside this segment, return the adjusted
    offset to where that PDU starts or just return offset back
    and let TCP try to find out what it can about this segment
 */
@@ -380,14 +380,14 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 			if(seq>tnp->seq && nxtseq<=tnp->nxtpdu){
 				tnp->last_frame=pinfo->fd->num;
 				tnp->last_frame_time=pinfo->fd->abs_ts;
-				g_hash_table_insert(tcp_pdu_skipping_table, 
+				g_hash_table_insert(tcp_pdu_skipping_table,
 					GINT_TO_POINTER(pinfo->fd->num), (void *)tnp);
 				print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
 
 				return -1;
-			}			
+			}
 			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
-				g_hash_table_insert(tcp_pdu_tracking_table, 
+				g_hash_table_insert(tcp_pdu_tracking_table,
 					GINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(tnp->nxtpdu));
 				offset+=tnp->nxtpdu-seq;
 				break;
@@ -443,7 +443,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 
 	tnp->next=tcpd->fwd->pdu_seq;
 	tcpd->fwd->pdu_seq=tnp;
-	/*QQQ 
+	/*QQQ
 	  Add check for ACKs and purge list of sequence numbers
 	  already acked.
 	*/
@@ -457,18 +457,18 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
  * (or the SYN was missing) and then we disable the window scaling
  * for this tcp session.
  */
-static void 
+static void
 verify_tcp_window_scaling(struct tcp_analysis *tcpd)
 {
-	if( (tcpd->flow1.win_scale==-1) || (tcpd->flow2.win_scale==-1) ){
+	if( tcpd && ((tcpd->flow1.win_scale==-1) || (tcpd->flow2.win_scale==-1)) ){
 		tcpd->flow1.win_scale=-1;
 		tcpd->flow2.win_scale=-1;
 	}
 }
 
-/* if we saw a window scaling option, store it for future reference 
+/* if we saw a window scaling option, store it for future reference
 */
-static void 
+static void
 pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
 {
 	tcpd->fwd->win_scale=ws;
@@ -529,13 +529,13 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 
 
 
-	/* if this is the first segment for this list we need to store the 
+	/* if this is the first segment for this list we need to store the
 	 * base_seq
 	 */
 	if(tcpd->fwd->base_seq==0){
 		tcpd->fwd->base_seq=seq;
 	}
-	/* if we have spotted a new base_Seq in the reverse direction 
+	/* if we have spotted a new base_Seq in the reverse direction
 	 * store it.
 	 */
 	if(tcpd->rev->base_seq==0){
@@ -562,11 +562,11 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	}
 
 
-	/* ZERO WINDOW 
+	/* ZERO WINDOW
 	 * a zero window packet has window == 0   but none of the SYN/FIN/RST set
 	 */
 /*QQQ tested*/
-	if( window==0 
+	if( window==0
 	&& (flags&(TH_RST|TH_FIN|TH_SYN))==0 ){
 		if(!ta){
 			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
@@ -578,7 +578,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	/* LOST PACKET
 	 * If this segment is beyond the last seen nextseq we must
 	 * have missed some previous segment
-	 * 
+	 *
 	 * We only check for this if we have actually seen segments prior to this
 	 * one.
 	 */
@@ -607,10 +607,10 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	}
 
 	/* WINDOW UPDATE
-	 * A window update is a 0 byte segment with the same SEQ/ACK numbers as 
+	 * A window update is a 0 byte segment with the same SEQ/ACK numbers as
 	 * the previous seen segment and with a new window value
 	 */
-	if( seglen==0 
+	if( seglen==0
 	&&  window
 	&&  window!=tcpd->fwd->window
 	&&  seq==tcpd->fwd->nextseq
@@ -621,7 +621,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 		}
 		ta->flags|=TCP_A_WINDOW_UPDATE;
 	}
-	
+
 
 	/* WINDOW FULL
 	 * If we know the window scaling
@@ -648,7 +648,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	 * the last segment in the reverse direction was a keepalive
 	 */
 /*QQQ tested*/
-	if( seglen==0 
+	if( seglen==0
 	&&  window
 	&&  window==tcpd->fwd->window
 	&&  seq==tcpd->fwd->nextseq
@@ -669,7 +669,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	 * It also repeats the previous zero window indication
 	 */
 /*QQQ tested*/
-	if( seglen==0 
+	if( seglen==0
 	&&  window==0
 	&&  window==tcpd->fwd->window
 	&&  seq==tcpd->fwd->nextseq
@@ -688,7 +688,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	 * It is a duplicate ack if window/seq/ack is the same as the previous
 	 * segment and if the segment length is 0
 	 */
-	if( seglen==0 
+	if( seglen==0
 	&&  window
 	&&  window==tcpd->fwd->window
 	&&  seq==tcpd->fwd->nextseq
@@ -737,7 +737,7 @@ finished_fwd:
 	/* RETRANSMISSION/FAST RETRANSMISSION/OUT-OF-ORDER
 	 * If the segments contains data and if it does not advance
 	 * sequence number it must be either of these three.
-	 * Only test for this if we know what the seq number should be 
+	 * Only test for this if we know what the seq number should be
 	 * (tcpd->fwd->nextseq)
 	 *
 	 * Note that a simple KeepAlive is not a retransmission
@@ -754,7 +754,7 @@ finished_fwd:
 		/* If there were >=1 duplicate ACKs in the reverse direction
 		 * (there might be duplicate acks missing from the trace)
 		 * and if this sequence number matches those ACKs
-		 * and if the packet occurs within 20ms of the last 
+		 * and if the packet occurs within 20ms of the last
 		 * duplicate ack
 		 * then this is a fast retransmission
 		 */
@@ -776,7 +776,7 @@ finished_fwd:
 		 */
 		t=(pinfo->fd->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
 		t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->fwd->nextseqtime.nsecs;
-		if( t<3000000 ){		
+		if( t<3000000 ){
 			if(!ta){
 				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 			}
@@ -809,9 +809,9 @@ finished_checking_retransmission_type:
 		ual->nextseq+=1;
 	}
 
-	/* Store the highest number seen so far for nextseq so we can detect 
+	/* Store the highest number seen so far for nextseq so we can detect
 	 * when we receive segments that arrive with a "hole"
-	 * If we dont have anything since before, just store what we got. 
+	 * If we dont have anything since before, just store what we got.
 	 * ZeroWindowProbes are special and dont really advance the nextseq
 	 */
 	if(GT_SEQ(ual->nextseq, tcpd->fwd->nextseq) || !tcpd->fwd->nextseq) {
@@ -1018,7 +1018,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
 				tvb, 0, 0, ta->dupack_frame);
 			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Duplicate ACK (#%u) to ACK in packet #%u", 
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Duplicate ACK (#%u) to ACK in packet #%u",
 				ta->dupack_num, ta->dupack_frame);
 		}
 		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE ){
@@ -1868,10 +1868,10 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
   tcpd=get_tcp_conversation_data(pinfo);
 
   ws = tvb_get_guint8(tvb, offset + 2);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_wscale, tvb, 
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_wscale, tvb,
 				offset, optlen, TRUE);
   proto_tree_add_uint_format(opt_tree, hf_tcp_option_wscale_val, tvb,
-			     offset, optlen, ws, "%s: %u (multiply by %u)", 
+			     offset, optlen, ws, "%s: %u (multiply by %u)",
 			     optp->name, ws, 1 << ws);
   tcp_info_append_uint(pinfo, "WS", ws);
   if(!pinfo->fd->flags.visited && tcp_analyze_seq && tcp_relative_seq){
@@ -1903,7 +1903,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     if (field_tree == NULL) {
       /* Haven't yet made a subtree out of this option.  Do so. */
       field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-      proto_tree_add_boolean_hidden(field_tree, hf_tcp_option_sack, tvb, 
+      proto_tree_add_boolean_hidden(field_tree, hf_tcp_option_sack, tvb,
 				    offset, optlen, TRUE);
     }
     if (optlen < 4) {
@@ -1912,8 +1912,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
       break;
     }
     leftedge = tvb_get_ntohl(tvb, offset)-base_ack;
-    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
-			       offset, 4, leftedge, 
+    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb,
+			       offset, 4, leftedge,
 			       "left edge = %u%s", leftedge,
 			       tcp_relative_seq ? " (relative)" : "");
 
@@ -1926,8 +1926,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     /* XXX - check whether it goes past end of packet */
     rightedge = tvb_get_ntohl(tvb, offset + 4)-base_ack;
     optlen -= 4;
-    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb, 
-			       offset+4, 4, rightedge, 
+    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb,
+			       offset+4, 4, rightedge,
 			       "right edge = %u%s", rightedge,
 			       tcp_relative_seq ? " (relative)" : "");
     tcp_info_append_uint(pinfo, "SLE", leftedge);
@@ -1959,7 +1959,7 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
   tsv = tvb_get_ntohl(tvb, offset + 2);
   tser = tvb_get_ntohl(tvb, offset + 6);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_time_stamp, tvb, 
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_time_stamp, tvb,
 				offset, optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: tsval %u, tsecr %u", optp->name, tsv, tser);
@@ -2235,7 +2235,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			 * It's from a TCP segment.
 			 *
 			 * if !visited, check want_pdu_tracking and store it
-			 * in table 
+			 * in table
 			 */
 			if((!pinfo->fd->flags.visited) && tcp_analyze_seq && pinfo->want_pdu_tracking){
 				if(seq || nxtseq){
@@ -2949,7 +2949,7 @@ proto_register_tcp(void)
 			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
 
 		{ &hf_tcp_option_mss,
-		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN, 
+		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP MSS Option", HFILL }},
 
 		{ &hf_tcp_option_mss_val,
@@ -2957,8 +2957,8 @@ proto_register_tcp(void)
 		    BASE_DEC, NULL, 0x0, "TCP MSS Option Value", HFILL}},
 
 		{ &hf_tcp_option_wscale,
-		  { "TCP Window Scale Option", "tcp.options.wscale", 
-		    FT_BOOLEAN, 
+		  { "TCP Window Scale Option", "tcp.options.wscale",
+		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Window Option", HFILL}},
 
 		{ &hf_tcp_option_wscale_val,
@@ -2966,13 +2966,13 @@ proto_register_tcp(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0, "TCP Window Scale Value",
 		    HFILL}},
 
-		{ &hf_tcp_option_sack_perm, 
-		  { "TCP Sack Perm Option", "tcp.options.sack_perm", 
+		{ &hf_tcp_option_sack_perm,
+		  { "TCP Sack Perm Option", "tcp.options.sack_perm",
 		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Sack Perm Option", HFILL}},
 
 		{ &hf_tcp_option_sack,
-		  { "TCP Sack Option", "tcp.options.sack", FT_BOOLEAN, 
+		  { "TCP Sack Option", "tcp.options.sack", FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Sack Option", HFILL}},
 
 		{ &hf_tcp_option_sack_sle,
@@ -2984,16 +2984,16 @@ proto_register_tcp(void)
 		   BASE_DEC, NULL, 0x0, "TCP Sack Right Edge", HFILL}},
 
 		{ &hf_tcp_option_echo,
-		  { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN, 
+		  { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Sack Echo", HFILL}},
 
 		{ &hf_tcp_option_echo_reply,
-		  { "TCP Echo Reply Option", "tcp.options.echo_reply", 
+		  { "TCP Echo Reply Option", "tcp.options.echo_reply",
 		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Echo Reply Option", HFILL}},
 
 		{ &hf_tcp_option_time_stamp,
-		  { "TCP Time Stamp Option", "tcp.options.time_stamp", 
+		  { "TCP Time Stamp Option", "tcp.options.time_stamp",
 		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Time Stamp Option", HFILL}},
 
@@ -3002,7 +3002,7 @@ proto_register_tcp(void)
 		    NULL, 0x0, "TCP CC Option", HFILL}},
 
 		{ &hf_tcp_option_ccnew,
-		  { "TCP CC New Option", "tcp.options.ccnew", FT_BOOLEAN, 
+		  { "TCP CC New Option", "tcp.options.ccnew", FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP CC New Option", HFILL}},
 
 		{ &hf_tcp_option_ccecho,
