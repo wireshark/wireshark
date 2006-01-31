@@ -21,30 +21,30 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-INCLUDES = -I$(top_srcdir) -I./lua-5.0.2/include
+INCLUDES = -I$(top_srcdir) 
 
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = lua.la
 
 lua_la_SOURCES = \
-    lua_tvb.c \
-    lua_proto.c \
-    lua_tree.c \
-    lua_pinfo.c \
-    lua_tap.c \
-    packet-lua.c \
-    packet-lua.h \
+	lua_tvb.c \
+	lua_proto.c \
+	lua_tree.c \
+	lua_pinfo.c \
+	lua_tap.c \
+	packet-lua.c \
+	packet-lua.h \
 	plugin.c
 
 lua_la_LDFLAGS = -module -avoid-version
-lua_la_LIBADD = @PLUGIN_LIBS@
+lua_la_LIBADD = @PLUGIN_LIBS@ @LUA_LIBS@
 
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
 # add them here.
-LIBS = -L./lua-5.0.2/lib -llua -llualib
+LIBS =
 
 
 CLEANFILES = \
@@ -61,10 +61,4 @@ EXTRA_DIST = \
 
 dummy:
 	touch dummy
-
-GUNZIP = gzip -d
-TAR = tar
-
-lua-5.0.2: lua-5.0.2.tar.gz
-	$(GUNZIP) lua-5.0.2.tar.gz | $(TAR) xf -
 

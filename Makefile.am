@@ -178,6 +178,13 @@ PLATFORM_SRC = capture-pcap-util-unix.c
 include Makefile.common
 
 if HAVE_PLUGINS
+
+if HAVE_LIBLUA
+lua_lib = plugins/lua/lua.la
+else		# HAVE_LIBLUA
+lua_lib =
+endif		# HAVE_LIBLUA
+
 plugin_libs = \
 	plugins/acn/acn.la \
 	plugins/agentx/agentx.la \
@@ -190,7 +197,9 @@ plugin_libs = \
 	plugins/giop/coseventcomm.la \
 	plugins/gryphon/gryphon.la \
 	plugins/irda/irda.la \
+	$(lua_lib) \
 	plugins/lwres/lwres.la \
+	plugins/mate/mate.la \
 	plugins/megaco/megaco.la \
 	plugins/mgcp/mgcp.la \
 	plugins/opsi/opsi.la \
@@ -200,12 +209,20 @@ plugin_libs = \
 	plugins/rlm/rlm.la \
 	plugins/rtnet/rtnet.la \
 	plugins/rudp/rudp.la \
+	plugins/stats_tree/stats_tree.la \
 	plugins/v5ua/v5ua.la
 
 if ENABLE_STATIC
 plugin_ldadd = $(plugin_libs)
 
 else		# ENABLE_STATIC
+
+if HAVE_LIBLUA
+lua_ldadd = "-dlopen" plugins/lua/lua.la
+else		# HAVE_LIBLUA
+lua_ldadd =
+endif		# HAVE_LIBLUA
+
 plugin_ldadd = \
 	"-dlopen" self	\
 	"-dlopen" plugins/acn/acn.la \
@@ -218,8 +235,11 @@ plugin_ldadd = \
 	"-dlopen" plugins/giop/cosnaming.la \
 	"-dlopen" plugins/giop/coseventcomm.la \
 	"-dlopen" plugins/gryphon/gryphon.la \
+	"-dlopen" plugins/h223/h223.la \
 	"-dlopen" plugins/irda/irda.la \
+	$(lua_ldadd) \
 	"-dlopen" plugins/lwres/lwres.la \
+	"-dlopen" plugins/mate/mate.la \
 	"-dlopen" plugins/megaco/megaco.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/opsi/opsi.la \
@@ -229,6 +249,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/rlm/rlm.la \
 	"-dlopen" plugins/rtnet/rtnet.la \
 	"-dlopen" plugins/rudp/rudp.la \
+	"-dlopen" plugins/stats_tree/stats_tree.la \
 	"-dlopen" plugins/v5ua/v5ua.la
 
 endif		# ENABLE_STATIC

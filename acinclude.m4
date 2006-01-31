@@ -736,6 +736,149 @@ AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
 ])
 
 #
+# AC_ETHEREAL_LIBLUA_CHECK
+#
+AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
+
+	if test "x$lua_dir" != "x"
+	then
+		#
+		# The user specified a directory in which liblua resides,
+		# so add the "include" subdirectory of that directory to
+		# the include file search path and the "lib" subdirectory
+		# of that directory to the library search path.
+		#
+		# XXX - if there's also a liblua in a directory that's
+		# already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
+		# make us find the version in the specified directory,
+		# as the compiler and/or linker will search that other
+		# directory before it searches the specified directory.
+		#
+		ethereal_save_CFLAGS="$CFLAGS"
+		CFLAGS="$CFLAGS -I$lua_dir/include"
+		ethereal_save_CPPFLAGS="$CPPFLAGS"
+		CPPFLAGS="$CPPFLAGS -I$lua_dir/include"
+		ethereal_save_LIBS="$LIBS"
+		LIBS="$LIBS -llua -llualib"
+		ethereal_save_LDFLAGS="$LDFLAGS"
+		LDFLAGS="$LDFLAGS -L$lua_dir/lib"
+	else 
+		#
+		# The user specified no directory in which liblua resides,
+		# so just add "-llua -lliblua" to the used libs.
+		#
+		ethereal_save_CFLAGS="$CFLAGS"
+		ethereal_save_CPPFLAGS="$CPPFLAGS"
+		ethereal_save_LDFLAGS="$LDFLAGS"
+		ethereal_save_LIBS="$LIBS"
+	fi
+
+	#
+	# Make sure we have "lua.h", "lualib.h" and "lauxlib.h".  If we don't, it means we probably
+	# don't have liblua, so don't use it.
+	#
+	AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h,,
+	[
+		if test "x$lua_dir" != "x"
+		then
+			#
+			# The user used "--with-lua=" to specify a directory
+			# containing liblua, but we didn't find the header file
+			# there; that either means they didn't specify the
+			# right directory or are confused about whether liblua
+			# is, in fact, installed.  Report the error and give up.
+			#
+			AC_MSG_ERROR([liblua header not found in directory specified in --with-lua])
+		else
+			if test "x$want_lua" = "xyes"
+			then
+				#
+				# The user tried to force us to use the library, but we
+				# couldn't find the header file; report an error.
+				#
+				AC_MSG_ERROR(Header file lua.h not found.)
+			else
+				#
+				# We couldn't find the header file; don't use the
+				# library, as it's probably not present.
+				#
+				want_lua=no
+			fi
+		fi
+	])
+
+	if test "x$want_lua" != "xno"
+	then
+		#
+		# Well, we at least have the lua header file.
+		#
+		# let's check if the libs are there
+		#
+		AC_CHECK_LIB(lua, lua_version,
+		[
+			if test "x$lua_dir" != "x"
+			then
+				#
+				# Put the "-I" and "-L" flags for lua at
+				# the beginning of CFLAGS, CPPFLAGS,
+				# LDFLAGS, and LIBS.
+				#
+				LUA_LIBS="-L$lua_dir/lib -llua"
+				CFLAGS="-I$lua_dir/include $ethereal_save_CFLAGS"
+
+			else
+				LUA_LIBS="-llua"
+			fi
+
+			#
+			# we got lua, now look for lualib
+			#
+
+			AC_CHECK_LIB(lualib, luaopen_base,
+			[
+				LUA_LIBS="$LUA_LIBS -llualib"
+			],[
+				if test "x$lua_dir" != "x"
+				then
+					#
+					# Restore the versions of CFLAGS, CPPFLAGS,
+					# LDFLAGS, and LIBS before we added the
+					# "--with-lua=" directory, as we didn't
+					# actually find lua there.
+					#
+					CFLAGS="$ethereal_save_CFLAGS"
+					CPPFLAGS="$ethereal_save_CPPFLAGS"
+					LDFLAGS="$ethereal_save_LDFLAGS"
+					LIBS="$ethereal_save_LIBS"
+					LUA_LIBS=""
+				fi
+				want_lua=no
+			])
+		],[  
+			#
+			# Restore the versions of CFLAGS, CPPFLAGS,
+			# LDFLAGS, and LIBS before we added the
+			# "--with-lua=" directory, as we didn't
+			# actually find lua there.
+			#
+			CFLAGS="$ethereal_save_CFLAGS"
+			CPPFLAGS="$ethereal_save_CPPFLAGS"
+			LDFLAGS="$ethereal_save_LDFLAGS"
+			LIBS="$ethereal_save_LIBS"
+			LUA_LIBS=""
+			want_lua=no
+		])
+	
+	
+	CPPFLAGS="$ethereal_save_CPPFLAGS"
+	LDFLAGS="$ethereal_save_LDFLAGS"
+	LIBS="$ethereal_save_LIBS"
+	AC_SUBST(LUA_LIBS)
+
+	fi
+])
+
+#
 # AC_ETHEREAL_NETSNMP_CHECK
 #
 AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],

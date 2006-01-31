@@ -749,6 +749,41 @@ else
 fi
 
 
+dnl lua check
+AC_MSG_CHECKING(whether to use liblua for the lua scripting plugin)
+
+AC_ARG_WITH(lua,
+[  --with-lua[[=DIR]]       use liblua (located in directory DIR, if supplied) for the lua scripting plugin.  [[default=no]]],
+[
+	if test $withval = no
+	then
+		want_lua=no
+	elif test $withval = yes
+	then
+		want_lua=yes
+	else
+		want_lua=yes
+		lua_dir=$withval
+	fi
+],[
+	#
+	# Use liblua if it's present, otherwise don't.
+	#
+	want_lua=no
+	lua_dir=
+])
+if test "x$want_lua" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_ETHEREAL_LIBLUA_CHECK
+	if test "x$want_lua" = "xno" ; then
+		AC_MSG_RESULT(liblua not found - disabling support for the lua scripting plugin)
+	fi
+fi
+AM_CONDITIONAL(HAVE_LIBLUA, test x$want_lua = xyes)
+
+
 dnl ipv6 check
 AC_ARG_ENABLE(ipv6,
 [  --enable-ipv6           use ipv6 name resolution, if available.  [default=yes]],enable_ipv6=$enableval,enable_ipv6=yes)
@@ -1256,6 +1291,7 @@ AC_OUTPUT(
   plugins/gryphon/Makefile
   plugins/h223/Makefile
   plugins/irda/Makefile
+  plugins/lua/Makefile
   plugins/lwres/Makefile
   plugins/mate/Makefile
   plugins/megaco/Makefile
@@ -1292,6 +1328,12 @@ if test "x$want_pcre" = "xno" ; then
 	pcre_message="no"
 else
 	pcre_message="yes"
+fi
+
+if test "x$want_lua" = "xyes" -a "x$have_plugins" = "xyes" ; then
+	lua_message="yes"
+else
+	lua_message="no"
 fi
 
 if test "x$want_ssl" = "xno" ; then
@@ -1335,6 +1377,7 @@ echo "                      Build dftest : $enable_dftest"
 echo ""
 echo "                    Install setuid : $setuid_message"
 echo "                       Use plugins : $have_plugins"
+echo "                  Build lua plugin : $lua_message"
 echo "               Use GTK+ v2 library : $enable_gtk2"
 if test "x$enable_gtk2" = "xyes" ; then
 echo "                       Use threads : $enable_threads"
