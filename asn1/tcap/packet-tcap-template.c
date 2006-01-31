@@ -105,7 +105,7 @@ static dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
     return g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 
-static dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
+dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
     return g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 
