@@ -1093,7 +1093,7 @@ proto_register_rtp(void)
 
 	prefs_register_enum_preference(rtp_module, "version0_type",
 	                               "Treat RTP version 0 packets as",
-	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet or a STUN packet",
+	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet, a STUN packet, or a T.38 packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
 }
