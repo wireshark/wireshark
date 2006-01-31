@@ -38,6 +38,8 @@
 #include <epan/emem.h>
 #include <prefs.h>
 
+#include "packet-e212.h"
+
 /*#define BSSGP_DEBUG*/
 #define BSSGP_LITTLE_ENDIAN FALSE
 #define BSSGP_TRANSLATION_MAX_LEN 50
@@ -1386,15 +1388,12 @@ static char*
 decode_mcc_mnc(build_info_t *bi, proto_tree *parent_tree) {
 #define RES_LEN 15
   const guint8 UNUSED_MNC3 = 0x0f;
-  proto_item *pi_mcc, *pi_mnc;
   guint8 mcc1, mcc2, mcc3, mnc1, mnc2, mnc3, data;
   guint16 start_offset, mcc, mnc;
   static char mcc_mnc[RES_LEN];
 
   start_offset = bi->offset;
 
-  pi_mcc = proto_tree_add_text(parent_tree, bi->tvb, bi->offset, 3, "MCC");
-  pi_mnc = proto_tree_add_text(parent_tree, bi->tvb, bi->offset, 3, "MNC");
 
   data = tvb_get_guint8(bi->tvb, bi->offset);
   mcc2 = get_masked_guint8(data, BSSGP_MASK_LEFT_OCTET_HALF);
@@ -1423,21 +1422,17 @@ decode_mcc_mnc(build_info_t *bi, proto_tree *parent_tree) {
     mnc += 10 * mnc + mnc3;
   }
 
-  proto_tree_add_uint_hidden(bi->bssgp_tree, hf_bssgp_mcc, 
+  proto_tree_add_uint(parent_tree, hf_bssgp_mcc, 
 			     bi->tvb, start_offset, 3, mcc);
-  proto_tree_add_uint_hidden(bi->bssgp_tree, hf_bssgp_mnc, 
+  proto_tree_add_uint(parent_tree, hf_bssgp_mnc, 
 			     bi->tvb, start_offset, 3, mnc);
-
-  proto_item_append_text(pi_mcc, ": %03u", mcc);
 
   if (mnc3 != UNUSED_MNC3) {
     /* Three digits mnc */
-    proto_item_append_text(pi_mnc, ": %03u", mnc);
     g_snprintf(mcc_mnc, RES_LEN, "%u-%03u", mcc, mnc);
   }
   else {
     /* Two digits mnc */
-    proto_item_append_text(pi_mnc, ": %02u", mnc);
     g_snprintf(mcc_mnc, RES_LEN, "%u-%02u", mcc, mnc);
   }
 #undef RES_LEN
@@ -5753,7 +5748,7 @@ proto_register_bssgp(void)
     },
     { &hf_bssgp_mcc,
       { "MCC", "bssgp.mcc",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT8, BASE_DEC, VALS(E212_codes), 0x0,
 	"", HFILL }
     },
     { &hf_bssgp_mnc,

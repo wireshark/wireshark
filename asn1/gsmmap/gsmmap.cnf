@@ -527,6 +527,24 @@ Component
 	subtree = proto_item_add_subtree(item, ett_gsm_map_RAIdentity);
 	de_gmm_rai(parameter_tvb, subtree, 0, 3, NULL,0);
 
+#.FN_PARS LAIFixedLength 
+                
+  VAL_PTR = &parameter_tvb 
+
+#.FN_BODY LAIFixedLength 
+
+        tvbuff_t        *parameter_tvb; 
+        proto_item *item; 
+        proto_tree *subtree; 
+
+%(DEFAULT_BODY)s 
+
+         if (!parameter_tvb) 
+                return offset; 
+        item = get_ber_last_created_item(); 
+        subtree = proto_item_add_subtree(item, ett_gsm_map_LAIFixedLength); 
+        dissect_e212_mcc_mnc(parameter_tvb, subtree, 0); 
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)

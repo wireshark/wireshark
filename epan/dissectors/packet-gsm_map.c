@@ -55,6 +55,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
 #include "packet-tcap.h"
+#include "packet-e212.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -939,7 +940,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 112 "packet-gsm_map-template.c"
+#line 113 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -953,6 +954,7 @@ static gint ett_gsm_map_GSMMAPPDU = -1;
 static gint ett_gsm_map_ext_qos_subscribed = -1;
 static gint ett_gsm_map_pdptypenumber = -1;
 static gint ett_gsm_map_RAIdentity = -1; 
+static gint ett_gsm_map_LAIFixedLength = -1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -1355,7 +1357,7 @@ static gint ett_gsm_map_SecureTransportErrorParam = -1;
 static gint ett_gsm_map_ExtensionContainer = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 127 "packet-gsm_map-template.c"
+#line 129 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
@@ -3465,8 +3467,23 @@ static int dissect_numberOfRequestedVectors(packet_info *pinfo, proto_tree *tree
 
 int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 535 "gsmmap.cnf"
+
+        tvbuff_t        *parameter_tvb; 
+        proto_item *item; 
+        proto_tree *subtree; 
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+ 
+
+         if (!parameter_tvb) 
+                return offset; 
+        item = get_ber_last_created_item(); 
+        subtree = proto_item_add_subtree(item, ett_gsm_map_LAIFixedLength); 
+        dissect_e212_mcc_mnc(parameter_tvb, subtree, 0); 
+
+
 
   return offset;
 }
@@ -14422,7 +14439,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 345 "packet-gsm_map-template.c"
+#line 347 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -14909,7 +14926,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_CancelLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  4: /*provideRoamingNumber*/
-    offset=dissect_gsm_map_ProvideRoamingNumberRes(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_ProvideRoamingNumberRes(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case  6: /*resumeCallHandling*/
     offset=dissect_gsm_map_ResumeCallHandlingRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -15021,7 +15038,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 56: /*sendAuthenticationInfo*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+		offset = offset + 2;
 		offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
 	}else{
 		offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -15296,6 +15313,7 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, gsm_map_Component_vals, "Unknown GSM-MAP PDU (%u)"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " ");
   }
   offset = dissect_gsm_map_Component(FALSE, tvb, 0, pinfo, tree, hf_gsm_map_Component_PDU);
   return offset;
@@ -19194,7 +19212,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 1844 "packet-gsm_map-template.c"
+#line 1847 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -19210,6 +19228,7 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_ext_qos_subscribed,
 	&ett_gsm_map_pdptypenumber,
 	&ett_gsm_map_RAIdentity,
+	&ett_gsm_map_LAIFixedLength,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -19612,7 +19631,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 1861 "packet-gsm_map-template.c"
+#line 1865 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */

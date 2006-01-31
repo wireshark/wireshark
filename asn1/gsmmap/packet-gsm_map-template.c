@@ -47,6 +47,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
 #include "packet-tcap.h"
+#include "packet-e212.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -122,6 +123,7 @@ static gint ett_gsm_map_GSMMAPPDU = -1;
 static gint ett_gsm_map_ext_qos_subscribed = -1;
 static gint ett_gsm_map_pdptypenumber = -1;
 static gint ett_gsm_map_RAIdentity = -1; 
+static gint ett_gsm_map_LAIFixedLength = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -828,7 +830,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_CancelLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  4: /*provideRoamingNumber*/
-    offset=dissect_gsm_map_ProvideRoamingNumberRes(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_ProvideRoamingNumberRes(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case  6: /*resumeCallHandling*/
     offset=dissect_gsm_map_ResumeCallHandlingRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -940,7 +942,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 56: /*sendAuthenticationInfo*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+		offset = offset + 2;
 		offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
 	}else{
 		offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1215,6 +1217,7 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, gsm_map_Component_vals, "Unknown GSM-MAP PDU (%u)"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " ");
   }
   offset = dissect_gsm_map_Component(FALSE, tvb, 0, pinfo, tree, hf_gsm_map_Component_PDU);
   return offset;
@@ -1856,6 +1859,7 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_ext_qos_subscribed,
 	&ett_gsm_map_pdptypenumber,
 	&ett_gsm_map_RAIdentity,
+	&ett_gsm_map_LAIFixedLength,
 
 #include "packet-gsm_map-ettarr.c"
   };
