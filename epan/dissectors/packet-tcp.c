@@ -2360,6 +2360,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   real_window = tcph->th_win;
   tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
+  /* find(or create if needed) the conversation for this tcp session */
+  tcpd=get_tcp_conversation_data(pinfo);
+
   /*
    * If we've been handed an IP fragment, we don't know how big the TCP
    * segment is, so don't do anything that requires that we know that.
@@ -2394,10 +2397,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       }
 
-      /* find(or create if needed) the conversation for this tcp session */
-      tcpd=get_tcp_conversation_data(pinfo);
-
-
+ 
       /* handle TCP seq# analysis parse all new segments we see */
       if(tcp_analyze_seq){
           if(!(pinfo->fd->flags.visited)){
