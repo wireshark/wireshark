@@ -46,6 +46,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
+#include "packet-tcap.h"
 
 typedef struct _sccp_binding_info_t {
     gchar* calling_key;
@@ -1028,12 +1029,16 @@ static void
 dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 				  guint length, gboolean called)
 {
-  proto_item *call_item = 0, *call_ai_item = 0;
+  proto_item *call_item = 0, *call_ai_item = 0, *item;
   proto_tree *call_tree = 0, *call_ai_tree = 0;
   guint offset;
   guint8 national = -1, routing_ind, gti, pci, ssni, ssn;
   guint32 dpc;
   tvbuff_t *gt_tvb;
+  dissector_handle_t ssn_dissector = NULL, tcap_ssn_dissector = NULL;
+  dissector_table_t tcap_ssn_dissector_table = NULL;
+  const char *ssn_dissector_short_name = NULL;
+  const char *tcap_ssn_dissector_short_name = NULL;
 
   call_item = proto_tree_add_text(tree, tvb, 0, length,
 				    "%s Party address (%u byte%s)",
@@ -1117,6 +1122,27 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
       proto_tree_add_uint_hidden(call_tree, hf_sccp_ssn, tvb, offset,
 				 ADDRESS_SSN_LENGTH, ssn);
       offset += ADDRESS_SSN_LENGTH;
+
+	  /* Get the dissector handle of the dissector registered for this ssn
+	   * And print it's name.
+	   */
+	
+	  ssn_dissector = dissector_get_port_handle(sccp_ssn_dissector_table, ssn);
+	  if (ssn_dissector){
+		  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+		  if(ssn_dissector_short_name){
+			  item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH,"Linked to %s",ssn_dissector_short_name);
+			  PROTO_ITEM_SET_GENERATED(item);
+			  if (strncasecmp("TCAP",ssn_dissector_short_name,4)== 0){
+				  tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
+				  if(tcap_ssn_dissector){
+					  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
+					  proto_item_append_text(item,", TCAP ssn Linked to %s",tcap_ssn_dissector_short_name);
+				  }
+			  }
+		  }
+
+	  }
     }
 
     if (!tree)
