@@ -1293,7 +1293,7 @@ GPRSEventType ::= ENUMERATED
 	detached							(3),
 	pdp-ContextEstablishment			(11),
 	pdp-ContextEstablishmentAcknowledgement (12),
-	disonnect							(13),
+	disconnect							(13),
 	pdp-ContextChangeOfPosition			(14)
 }
 

@@ -5416,7 +5416,7 @@ static const value_string camel_GPRSEventType_vals[] = {
   {   3, "detached" },
   {  11, "pdp-ContextEstablishment" },
   {  12, "pdp-ContextEstablishmentAcknowledgement" },
-  {  13, "disonnect" },
+  {  13, "disconnect" },
   {  14, "pdp-ContextChangeOfPosition" },
   { 0, NULL }
 };
