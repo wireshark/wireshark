@@ -719,7 +719,7 @@ void proto_register_camel(void) {
 	  "IPAddress IPv4", HFILL }},
    { &hf_camel_PDPAddress_IPv6,
       { "PDPAddress IPv6",  "camel.PDPAddress_IPv6",
-	  FT_IPv4, BASE_NONE, NULL, 0,
+	  FT_IPv6, BASE_NONE, NULL, 0,
 	  "IPAddress IPv6", HFILL }},
     { &hf_camel_cellGlobalIdOrServiceAreaIdFixedLength,
       { "CellGlobalIdOrServiceAreaIdFixedLength", "camel.CellGlobalIdOrServiceAreaIdFixedLength",
