@@ -886,20 +886,16 @@ io_stat_draw(io_stat_t *io)
 				y_pos=draw_height-1-(val*draw_height)/max_y+top_y_border;
 			}
 
-			/* dont need to draw anything if the segment
-			 * is entirely above the top of the graph 
-			 */
-			if( (prev_y_pos==0) && (y_pos==0) ){
-				prev_y_pos=y_pos;
-				prev_x_pos=x_pos;
-				continue;
-			}
-
 			switch(io->graphs[i].plot_style){
 			case PLOT_STYLE_LINE:
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, 
-					prev_x_pos, prev_y_pos, 
-					x_pos, y_pos);
+				/* dont need to draw anything if the segment
+				 * is entirely above the top of the graph
+				 */
+				if( (prev_y_pos!=0) || (y_pos!=0) ){
+					gdk_draw_line(io->pixmap, io->graphs[i].gc,
+						prev_x_pos, prev_y_pos,
+						x_pos, y_pos);
+				}
 				break;
 			case PLOT_STYLE_IMPULSE:
 				if(val){
