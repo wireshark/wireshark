@@ -1181,6 +1181,10 @@ static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b3 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b2 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b1 = -1;
 
+static int hf_gsm_a_extension = -1;
+static int hf_gsm_a_type_of_number = -1;
+static int hf_gsm_a_numbering_plan_id = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
 static gint ett_dtap_msg = -1;
@@ -5104,11 +5108,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
     switch ((oct & 0x70) >> 4)
     {
@@ -5432,11 +5432,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree,
@@ -6773,80 +6769,50 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     return(curr_offset - offset);
 }
 
+static const true_false_string gsm_a_extension_value = {
+  "No Extension",
+  "Extension"
+};
+
+const value_string gsm_a_type_of_number_values[] = {
+	{   0x00,	"unknown" },
+	{   0x01,	"International Number" },
+	{   0x02,	"National number" },
+	{   0x03,	"Network Specific Number" },
+	{   0x04,	"Dedicated access, short code" },
+	{   0x05,	"Reserved" },
+	{   0x06,	"Reserved" },
+	{   0x07,	"Reserved for extension" },
+	{ 0, NULL }
+};
+
+const value_string gsm_a_numbering_plan_id_values[] = {
+	{   0x00,	"unknown" },
+	{   0x01,	"ISDN/Telephony Numbering (Rec ITU-T E.164)" },
+	{   0x02,	"spare" },
+	{   0x03,	"Data Numbering (ITU-T Rec. X.121)" },
+	{   0x04,	"Telex Numbering (ITU-T Rec. F.69)" },
+	{   0x08,	"National Numbering" },
+	{   0x09,	"Private Numbering" },
+	{	0x0d,	"reserved for CTS (see 3GPP TS 44.056 [91])" },
+	{   0x0f,	"Reserved for extension" },
+	{ 0, NULL }
+};
+
 /*
  * [3] 10.5.4.7
  */
 static guint8
 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	ton;
     guint8	*poctets;
     guint32	curr_offset;
-    const gchar *str;
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
-
-    ton = (oct & 0x70) >> 4;
-    switch (ton)
-    {
-    case 0: str = "Unknown"; break;
-    case 1: str = "International number"; break;
-    case 2: str = "National number"; break;
-    case 3: str = "Network specific number"; break;
-    case 4: str = "Dedicated access, short code"; break;
-    case 7: str = "Reserved for extension"; break;
-    default:
-	str = "Reserved";
-	break;
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Type of number: %s",
-	a_bigbuf,
-	str);
-
-    if ((ton == 0) ||
-	(ton == 1) ||
-	(ton == 2) ||
-	(ton == 4))
-    {
-	switch (oct & 0x0f)
-	{
-	case 0: str = "Unknown"; break;
-	case 1: str = "ISDN/telephony numbering plan (Rec. E.164/E.163)"; break;
-	case 3: str = "Data numbering plan (Recommendation X.121)"; break;
-	case 4: str = "Telex numbering plan (Recommendation F.69)"; break;
-	case 8: str = "National numbering plan"; break;
-	case 9: str = "Private numbering plan"; break;
-	case 11: str = "Reserved for CTS (see 3GPP TS 44.056)"; break;
-	case 15: str = "Reserved for extension"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
-    }
-    else
-    {
-	str = "not applicable";
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Numbering plan identification: %s",
-	a_bigbuf,
-	str);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_type_of_number , tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_numbering_plan_id , tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -6887,11 +6853,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
     switch ((oct & 0x70) >> 4)
     {
@@ -6938,90 +6900,28 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     return(curr_offset - offset);
 }
 
-/*
+/* 3GPP TS 24.008
  * [3] 10.5.4.9
  */
 static guint8
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8	oct;
-    guint8	ton;
     guint8	*poctets;
     guint32	curr_offset;
     const gchar *str;
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
-
-    ton = (oct & 0x70) >> 4;
-    switch (ton)
-    {
-    case 0: str = "Unknown"; break;
-    case 1: str = "International number"; break;
-    case 2: str = "National number"; break;
-    case 3: str = "Network specific number"; break;
-    case 4: str = "Dedicated access, short code"; break;
-    case 7: str = "Reserved for extension"; break;
-    default:
-	str = "Reserved";
-	break;
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Type of number: %s",
-	a_bigbuf,
-	str);
-
-    if ((ton == 0) ||
-	(ton == 1) ||
-	(ton == 2) ||
-	(ton == 4))
-    {
-	switch (oct & 0x0f)
-	{
-	case 0: str = "Unknown"; break;
-	case 1: str = "ISDN/telephony numbering plan (Rec. E.164/E.163)"; break;
-	case 3: str = "Data numbering plan (Recommendation X.121)"; break;
-	case 4: str = "Telex numbering plan (Recommendation F.69)"; break;
-	case 8: str = "National numbering plan"; break;
-	case 9: str = "Private numbering plan"; break;
-	case 11: str = "Reserved for CTS (see 3GPP TS 44.056)"; break;
-	case 15: str = "Reserved for extension"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
-    }
-    else
-    {
-	str = "not applicable";
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Numbering plan identification: %s",
-	a_bigbuf,
-	str);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_type_of_number , tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_numbering_plan_id , tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
     switch ((oct & 0x60) >> 5)
     {
@@ -7102,11 +7002,7 @@ de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
     switch ((oct & 0x70) >> 4)
     {
@@ -7226,11 +7122,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     if (!(oct & 0x80))
     {
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Extension",
-	    a_bigbuf);
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
@@ -7243,11 +7135,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	oct = tvb_get_guint8(tvb, curr_offset);
     }
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
     cause = oct & 0x7f;
     switch (cause)
@@ -18208,11 +18096,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((ti != -1) &&
 	(ti & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK)
     {
-	other_decode_bitfield_value(a_bigbuf, oct_2, 0x80, 8);
-	proto_tree_add_text(pd_tree,
-	    tvb, 1, 1,
-	    "%s :  Extension",
-	    a_bigbuf);
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, 1, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct_2, DTAP_TIE_MASK, 8);
 	proto_tree_add_text(pd_tree,
@@ -18889,7 +18773,18 @@ proto_register_gsm_a(void)
 		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,          
 		"6,60 kbit/s codec rate", HFILL }
 	},
-
+    { &hf_gsm_a_extension,
+      { "Extension", "gsm_a.extension",
+        FT_BOOLEAN, 8, TFS(&gsm_a_extension_value), 0x80,
+        "Extension", HFILL }},
+    { &hf_gsm_a_type_of_number,
+      { "Type of number", "gsm_a.type_of_number",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_type_of_number_values), 0x70,
+        "Type of number", HFILL }},
+    { &hf_gsm_a_numbering_plan_id,
+      { "Numbering plan identification", "gsm_a.numbering_plan_id",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_numbering_plan_id_values), 0x0f,
+        "Numbering plan identification", HFILL }},
     };
 
     /* Setup protocol subtree array */
