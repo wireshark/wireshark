@@ -85,21 +85,29 @@ typedef struct _ncpstat_t {
 } ncpstat_t;
 
 static const value_string ncp_group_vals[] = {
-	{ 0, "File" },
-	{ 1, "Queue Management System (QMS)" },
-	{ 2, "Connection" },
-	{ 3, "File Server" },
-	{ 4, "Message" },
-	{ 5, "Bindery" },
-	{ 6, "Novell Directory Services" },
-	{ 7, "Accounting" },
-	{ 8, "Server Statistics" },
+	{ 0, "Synchronization" },
+	{ 1, "Print" },
+	{ 2, "File System" },
+	{ 3, "Connection" },
+	{ 4, "File Server Environment" },
+	{ 5, "Message" },
+	{ 6, "Bindery" },
+	{ 7, "Queue Management System (QMS)" },
+	{ 8, "Accounting" },
 	{ 9, "Transaction Tracking" },
 	{ 10, "AFP" },
-	{ 11, "Auditing" },
-	{ 12, "Novell Modular Authentication Service" },
-	{ 13, "SecretStore Services" },
-	{ 14, "Communication" }
+	{ 11, "NCP Extension" },
+	{ 12, "Extended Attribute" },
+	{ 13, "Auditing" },
+	{ 14, "Enhanced File System" },
+	{ 15, "Migration" },
+	{ 16, "Novell Modular Authentication Services (NMAS)" },
+	{ 17, "Secret Store Services (SSS)" },
+	{ 18, "Packet Burst" },
+	{ 19, "Novell Directory Services (NDS)" },
+	{ 20, "Time Synchronization" },
+	{ 21, "Server Statistics" },
+	{ 22, "Remote" }
 };
 
 static const value_string sss_verb_enum[] = {
@@ -409,6 +417,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	protect_thread_critical_region();
 	remove_tap_listener(ss);
 	unprotect_thread_critical_region();
+
 
 	free_srt_table_data(&ss->ncp_srt_table);
 	free_srt_table_data(&ss->func_srt_table);

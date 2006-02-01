@@ -549,6 +549,7 @@ reset_srt_table_data(srt_stat_table *rst)
 	for(i=0;i<rst->num_procs;i++){
 		time_stat_init(&rst->procedures[i].stats);
 	}
+	gtk_clist_clear(rst->table);
 }
 
 void
