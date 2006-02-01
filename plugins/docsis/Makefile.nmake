@@ -27,7 +27,9 @@ OBJECTS=packet-intrngreq.obj packet-type29ucd.obj \
 	packet-dsaack.obj packet-dsdreq.obj \
 	packet-regrsp.obj packet-ucd.obj \
 	packet-dsareq.obj packet-dsdrsp.obj \
-	packet-rngreq.obj packet-vendor.obj
+	packet-rngreq.obj packet-vendor.obj \
+	packet-dccack.obj packet-dccreq.obj \
+	packet-dccrsp.obj packet-dcd.obj
 
 docsis.dll docsis.exp docsis.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
 	link -dll /out:docsis.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \

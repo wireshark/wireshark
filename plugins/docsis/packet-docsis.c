@@ -801,6 +801,10 @@ plugin_register (void)
       proto_register_docsis_regrsp ();
       proto_register_docsis_ucd ();
       proto_register_docsis_type29ucd ();
+      proto_register_docsis_dcd ();
+      proto_register_docsis_dccreq ();
+      proto_register_docsis_dccrsp ();
+      proto_register_docsis_dccack ();
       proto_register_docsis_dsareq ();
       proto_register_docsis_dsdrsp ();
       proto_register_docsis_rngreq ();
@@ -835,6 +839,10 @@ plugin_reg_handoff (void)
   proto_reg_handoff_docsis_regrsp ();
   proto_reg_handoff_docsis_ucd ();
   proto_reg_handoff_docsis_type29ucd ();
+  proto_reg_handoff_docsis_dcd ();
+  proto_reg_handoff_docsis_dccreq ();
+  proto_reg_handoff_docsis_dccrsp ();
+  proto_reg_handoff_docsis_dccack ();
   proto_reg_handoff_docsis_dsareq ();
   proto_reg_handoff_docsis_dsdrsp ();
   proto_reg_handoff_docsis_vsif ();

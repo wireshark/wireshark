@@ -48,6 +48,10 @@ void proto_reg_handoff_docsis_uccreq (void);
 void proto_reg_handoff_docsis_uccrsp (void);
 void proto_reg_handoff_docsis_ucd (void);
 void proto_reg_handoff_docsis_type29ucd (void);
+void proto_reg_handoff_docsis_dcd (void);
+void proto_reg_handoff_docsis_dccreq (void);
+void proto_reg_handoff_docsis_dccrsp (void);
+void proto_reg_handoff_docsis_dccack (void);
 void proto_reg_handoff_docsis_vsif (void);
 void proto_reg_handoff_docsis_intrngreq (void);
   
@@ -76,6 +80,10 @@ void proto_register_docsis_uccreq (void);
 void proto_register_docsis_uccrsp (void);
 void proto_register_docsis_ucd (void);
 void proto_register_docsis_type29ucd (void);
+void proto_register_docsis_dcd (void);
+void proto_register_docsis_dccreq (void);
+void proto_register_docsis_dccrsp (void);
+void proto_register_docsis_dccack (void);
 void proto_register_docsis_vsif (void);
 void proto_register_docsis_intrngreq (void);
 #endif

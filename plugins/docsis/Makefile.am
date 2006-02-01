@@ -27,7 +27,7 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = docsis.la
-docsis_la_SOURCES = packet-intrngreq.c packet-type29ucd.c packet-docsis.c packet-bpkmattr.c packet-dsarsp.c packet-macmgmt.c packet-rngrsp.c packet-bpkmreq.c packet-dscack.c packet-map.c packet-tlv.c packet-bpkmrsp.c packet-dscreq.c packet-regack.c packet-uccreq.c packet-dscrsp.c packet-regreq.c packet-uccrsp.c packet-dsaack.c packet-dsdreq.c packet-regrsp.c packet-ucd.c packet-dsareq.c packet-dsdrsp.c packet-rngreq.c packet-vendor.c packet-docsis.h packet-tlv.h moduleinfo.h
+docsis_la_SOURCES = packet-intrngreq.c packet-type29ucd.c packet-docsis.c packet-bpkmattr.c packet-dsarsp.c packet-macmgmt.c packet-rngrsp.c packet-bpkmreq.c packet-dscack.c packet-map.c packet-tlv.c packet-bpkmrsp.c packet-dscreq.c packet-regack.c packet-uccreq.c packet-dscrsp.c packet-regreq.c packet-uccrsp.c packet-dsaack.c packet-dsdreq.c packet-regrsp.c packet-ucd.c packet-dsareq.c packet-dsdrsp.c packet-rngreq.c packet-vendor.c packet-docsis.h packet-tlv.h moduleinfo.h packet-dccack.c packet-dccreq.c  packet-dccrsp.c  packet-dcd.c
 docsis_la_LDFLAGS = -module -avoid-version
 docsis_la_LIBADD = @PLUGIN_LIBS@
 
