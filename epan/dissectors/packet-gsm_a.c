@@ -2447,11 +2447,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
     proto_tree_add_text(tree,
@@ -3051,11 +3047,7 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
     switch (oct & 0x7f)
     {
@@ -3382,10 +3374,10 @@ dtap_elem_idx_t;
 #define	NUM_GSM_DTAP_ELEM (sizeof(gsm_dtap_elem_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_elem[NUM_GSM_DTAP_ELEM];
 
-/*
- * [3] 10.5.1.1
+/* 3GPP TS 24.008
+ * [3] 10.5.1.1 Cell Identity
  */
-static guint8
+guint8
 de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32	curr_offset;
@@ -3393,7 +3385,7 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     curr_offset = offset;
 
     curr_offset +=
-		/* Is this correct???? - Anders Broman */
+	/* 0x02 CI */
 	be_cell_id_aux(tvb, tree, offset, len, add_string, string_len, 0x02);
 
     /* no length check possible */
@@ -3636,7 +3628,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 /*
  * [3] 10.5.1.5
  */
-static guint8
+guint8
 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
@@ -3655,11 +3647,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
     subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_MS_CM_1]);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
     proto_tree_add_item(subtree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, FALSE);
 
@@ -3746,6 +3734,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 /*
  * [3] 10.5.1.9
  */
+
 static guint8
 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -3876,6 +3865,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 /*
  * [3] 10.5.1.11
  */
+
 static guint8
 de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -5171,10 +5161,10 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     return(curr_offset - offset);
 }
 
-/*
- * [3] 10.5.3.6
+/* 3GPP TS 24.008
+ * [3] 10.5.3.6 Reject cause
  */
-static guint8
+guint8
 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
@@ -10389,7 +10379,7 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 }
 
 /*
- * [7] 10.5.5.15
+ * [7] 10.5.5.15 Routing area identification
  */
 guint8
 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -14925,7 +14915,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * [4] 9.1.15a
  */
-static void
+void
 dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32	curr_offset;
@@ -18386,19 +18376,19 @@ proto_register_gsm_a(void)
 		"SoLSA", HFILL }
 	},
 	{ &hf_gsm_a_CMSP,
-		{ "CMSP: CM Service Prompt ","gsm_a.CMSP",
+		{ "CMSP: CM Service Prompt","gsm_a.CMSP",
 		FT_UINT8,BASE_DEC,  VALS(CMSP_vals), 0x04,          
-		"CMSP: CM Service Prompt ", HFILL }
+		"CMSP: CM Service Prompt", HFILL }
 	},
 	{ &hf_gsm_a_A5_3_algorithm_sup,
-		{ "A5/3 algorithm supported ","gsm_a.A5_3_algorithm_sup",
+		{ "A5/3 algorithm supported","gsm_a.A5_3_algorithm_sup",
 		FT_UINT8,BASE_DEC,  VALS(A5_3_algorithm_sup_vals), 0x02,          
-		"A5/3 algorithm supported ", HFILL }
+		"A5/3 algorithm supported", HFILL }
 	},
 	{ &hf_gsm_a_A5_2_algorithm_sup,
-		{ "A5/2 algorithm supported ","gsm_a.A5_2_algorithm_sup",
+		{ "A5/2 algorithm supported","gsm_a.A5_2_algorithm_sup",
 		FT_UINT8,BASE_DEC,  VALS(A5_2_algorithm_sup_vals), 0x01,          
-		"A5/2 algorithm supported ", HFILL }
+		"A5/2 algorithm supported", HFILL }
 	},
 	{ &hf_gsm_a_mobile_identity_type,
 		{ "Mobile Identity Type","gsm_a.ie.mobileid.type",
