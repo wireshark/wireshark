@@ -1577,11 +1577,23 @@ printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(exp
 			length_remaining=tvb_length_remaining(tvb, hoffset);
 			if(length_remaining>length)
 				length_remaining=length;
-			
+
+#ifdef REMOVED			
+			/* This is bogus and makes the OID_1.0.9506.1.1.cap file
+			 * in Steven J Schaeffer's email of 2005-09-12 fail to dissect
+			 * properly.  Maybe we should get rid of 'first_pass'
+			 * completely.
+			 * It was added as a qad workaround for some problem CMIP
+			 * traces anyway.
+			 * God, this file is a mess and it is my fault. /ronnie
+			 */
 			if(first_pass)
 			next_tvb=tvb_new_subset(tvb, hoffset, length_remaining, length);
 			else
 			  next_tvb = tvb; /* we didn't make selection on this class/tag so pass it on */
+#endif
+			next_tvb=tvb_new_subset(tvb, hoffset, length_remaining, length);
+
 
 #ifdef DEBUG_BER
 {
