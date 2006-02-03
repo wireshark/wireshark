@@ -817,7 +817,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
             addr->data[4], addr->data[5], addr->data[6], addr->data[7]);
     break;
   case AT_URI: {
-    int copy_len = addr->len < buf_len ? addr->len : buf_len;
+    int copy_len = addr->len < (buf_len - 1) ? addr->len : (buf_len - 1);
     memmove(buf, addr->data, copy_len );
     buf[copy_len] = '\0';
     }
