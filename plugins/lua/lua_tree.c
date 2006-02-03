@@ -110,130 +110,127 @@ int SubTree_register(lua_State* L) {
 
 
 /* ProtoTree class */
-
 static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
-    /*
-     called with:
-     tree,field,tvb,offset,len,datum
-     tree,field,tvb,offset,len
-     tree,tvb,offset,len,text
-     tree,tvb,text
-     */
-    ProtoTree tree = checkProtoTree(L,1);
+    ProtoTree tree;
+    TvbRange tvbr;
+    Proto proto;
+    ProtoField field;
     ProtoItem item = NULL;
-    Tvb tvb;
+    int hfid = -1;
+    ftenum_t type = FT_NONE;
+
+    tree = shiftProtoTree(L,1);
     
     if (!tree) {
         pushProtoItem(L,NULL);
         return 1;
     }
     
-    if (( luaL_checkudata (L, 2, TVB) )) {
-        tvb = checkTvb(L,2);
-
-        TRY {
-            const char* str;
-            int offset;
-            int len;
-
-            if (lua_isnumber(L,3)) {
-                offset = luaL_checkint(L,3);
-                len = luaL_checkint(L,4);
-                str = lua_tostring(L,5);
-            } else if (lua_isstring(L,3)) {
-                offset = 0;
-                len = 0;
-                str = lua_tostring(L,3);
-            } else {
-                luaL_error(L,"First arg must be either TVB or ProtoField");
-                return 0;
-            }
-        
-            item = proto_tree_add_text(tree,tvb,offset,len,"%s",str);
-        } CATCH(ReportedBoundsError) {
-            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-            luaL_error(L,"Malformed Frame");
-            return 0;
-        } ENDTRY;
-            
-    } else if (( luaL_checkudata (L, 2, PROTO_FIELD) )) {
-        ProtoField field = checkProtoField(L,2);
-        tvb = checkTvb(L,3);
-
-        TRY {
-            int offset = luaL_checkint(L,4);
-            int len = luaL_checkint(L,5);
-
-            if ( lua_gettop(L) == 6 ) {
-                switch(field->type) {
-                    case FT_UINT8:
-                    case FT_UINT16:
-                    case FT_UINT24:
-                    case FT_UINT32:
-                    case FT_FRAMENUM:
-                        item = proto_tree_add_uint(tree,field->hfid,tvb,offset,len,(guint32)luaL_checknumber(L,6));
-                        break;
-                    case FT_INT8:
-                    case FT_INT16:
-                    case FT_INT24:
-                    case FT_INT32:
-                        item = proto_tree_add_int(tree,field->hfid,tvb,offset,len,(gint32)luaL_checknumber(L,6));
-                        break;
-                    case FT_FLOAT:
-                        item = proto_tree_add_float(tree,field->hfid,tvb,offset,len,(float)luaL_checknumber(L,6));
-                        break;
-                    case FT_DOUBLE:
-                        item = proto_tree_add_double(tree,field->hfid,tvb,offset,len,(double)luaL_checknumber(L,6));
-                        break;
-                    case FT_STRING:
-                    case FT_STRINGZ:
-                        item = proto_tree_add_string(tree,field->hfid,tvb,offset,len,luaL_checkstring(L,6));
-                        break;
-                    case FT_UINT64:
-                    case FT_INT64:
-                    case FT_ETHER:
-                    case FT_BYTES:
-                    case FT_UINT_BYTES:
-                    case FT_IPv4:
-                    case FT_IPv6:
-                    case FT_IPXNET:
-                    case FT_GUID:
-                    case FT_OID:
-                    default:
-                        luaL_error(L,"FT_ not yet supported");
-                        return 0;
-                }
-            } else {
-                item = proto_tree_add_item(tree,field->hfid,tvb,offset,len,little_endian);
-            }
-        } CATCH(ReportedBoundsError) {
-            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-            luaL_error(L,"Malformed Frame");
-            return 0;
-        } ENDTRY;
-        
-    } else if (( luaL_checkudata (L, 2, PROTO) )) {
-        Proto proto = checkProto(L,2);
-        tvb = checkTvb(L,3);
-        
-        TRY {
-            int offset = luaL_checkint(L,4);
-            int len = luaL_checkint(L,5);
-            
-            item = proto_tree_add_item(tree,proto->hfid,tvb,offset,len,little_endian);
-        } CATCH(ReportedBoundsError) {
-            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-            luaL_error(L,"Malformed Frame");
-            return 0;
-        } ENDTRY;
+    if (!tree) return 0;
+    
+    if (! ( field = shiftProtoField(L,1) ) ) {
+        if (( proto = shiftProto(L,1) )) {
+            hfid = proto->hfid;
+            type = FT_PROTOCOL;
+        }
     } else {
-        luaL_error(L,"First arg must be either TVB or ProtoField");
-        return 0;
+        hfid = field->hfid;
+        type = field->type;
+
+    }
+
+    tvbr = shiftTvbRange(L,1);
+
+    if (hfid > 0 && tvbr ) {
+        if (lua_gettop(L)) {
+            switch(type) {
+                case FT_PROTOCOL:
+                    item = proto_tree_add_item(tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,FALSE);
+                    lua_pushnumber(L,0);
+                    lua_insert(L,1);
+                    break;
+                case FT_UINT8:
+                case FT_UINT16:
+                case FT_UINT24:
+                case FT_UINT32:
+                case FT_FRAMENUM:
+                    item = proto_tree_add_uint(tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,(guint32)luaL_checknumber(L,1));
+                    break;
+                case FT_INT8:
+                case FT_INT16:
+                case FT_INT24:
+                case FT_INT32:
+                    item = proto_tree_add_int(tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,(gint32)luaL_checknumber(L,1));
+                    break;
+                case FT_FLOAT:
+                    item = proto_tree_add_float(tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,(float)luaL_checknumber(L,1));
+                    break;
+                case FT_DOUBLE:
+                    item = proto_tree_add_double(tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,(double)luaL_checknumber(L,1));
+                    break;
+                case FT_STRING:
+                case FT_STRINGZ:
+                    item = proto_tree_add_string(tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,luaL_checkstring(L,1));
+                    break;
+                case FT_UINT64:
+                case FT_INT64:
+                case FT_ETHER:
+                case FT_BYTES:
+                case FT_UINT_BYTES:
+                case FT_IPv4:
+                case FT_IPv6:
+                case FT_IPXNET:
+                case FT_GUID:
+                case FT_OID:
+                default:
+                    luaL_error(L,"FT_ not yet supported");
+                    return 0;
+            }
+            
+            lua_remove(L,1);
+
+        } else {
+            item = proto_tree_add_item(tree, hfid, tvbr->tvb, tvbr->offset, tvbr->len, little_endian);
+        }
+        
+        if ( lua_gettop(L) ) {
+            const gchar* s = lua_tostring(L,1);
+            
+            if (s) proto_item_set_text(item,"%s",s);
+
+            lua_remove(L,1);
+
+        }        
+    
+    } else if (tvbr) {
+        if (lua_gettop(L)) {
+            const gchar* s = lua_tostring(L,1);
+
+            item = proto_tree_add_text(tree, tvbr->tvb, tvbr->offset, tvbr->len,"%s",s);
+            lua_remove(L,1);
+        }
+    } else {
+        if (lua_gettop(L)) {
+            const gchar* s = lua_tostring(L,1);
+            item = proto_tree_add_text(tree, lua_tvb, 0, 0,"%s",s);
+            lua_remove(L,1);
+        }
+    }
+    
+    while(lua_gettop(L)) {
+        const gchar* s = lua_tostring(L,1);
+        
+        if (s) proto_item_append_text(item, " %s", s);
+
+        lua_remove(L,1);
+
     }
     
     pushProtoItem(L,item);
+    
     return 1;
 }
+
 
 static int ProtoTree_add_item(lua_State *L) { return ProtoTree_add_item_any(L,FALSE); }
 static int ProtoTree_add_item_le(lua_State *L) { return ProtoTree_add_item_any(L,TRUE); }
@@ -297,10 +294,10 @@ static int ProtoItem_add_subtree(lua_State *L) {
     ProtoTree tree = NULL;
     
     if (item) {
-        SubTree ett = luaL_checkudata(L,2,SUBTREE);
+        SubTree* ett = luaL_checkudata(L,2,SUBTREE);
         
-        if (ett) {
-            tree = proto_item_add_subtree(item,*ett);
+        if (ett && *ett) {
+            tree = proto_item_add_subtree(item,**ett);
         } else {
             tree = proto_item_add_subtree(item,lua_ett);
         }
@@ -344,6 +341,7 @@ static int ProtoItem_set_len(lua_State *L) {
     return 0;
 }
 
+/* XXX: expensive use of strings should think in lpp */
 struct _expert_severity {
     const gchar* str;
     int val;

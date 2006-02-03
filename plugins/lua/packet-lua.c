@@ -347,6 +347,7 @@ void proto_register_lua(void)
     FILE* file;
     gchar* filename = getenv("ETHEREAL_LUA_INIT");
     
+
     /* TODO: 
         disable if not running with the right credentials
         
@@ -375,6 +376,7 @@ void proto_register_lua(void)
     SubTree_register(L);
     ByteArray_register(L);
     Tvb_register(L);
+    TvbRange_register(L);
     Proto_register(L);
     Column_register(L);
     Pinfo_register(L);
@@ -399,8 +401,6 @@ void proto_register_lua(void)
     lua_pushcfunction(L, lua_report_failure);
     lua_settable(L, LUA_GLOBALSINDEX);
     
-    
-    
     lua_pushstring(L, LUA_HANDOFF_ROUTINES);
     lua_newtable (L);
     lua_settable(L, LUA_REGISTRYINDEX);
@@ -424,18 +424,32 @@ void proto_register_lua(void)
     lua_pushstring(L, LUA_TAP_DRAW);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_load(L,getF,file,filename) || lua_pcall(L,0,0,1);
 
-    fclose(file);
-    
-    lua_data_handle = NULL;
-    lua_pinfo = NULL;
-    lua_tree = NULL;
-    lua_tvb = NULL;
-    
-    lua_malformed = proto_get_id_by_filter_name("malformed");
- 
-
+    switch (lua_load(L,getF,file,filename)) {
+    case 0:
+	    lua_pcall(L,0,0,1);
+	    fclose(file);
+	    
+	    lua_data_handle = NULL;
+	    lua_pinfo = NULL;
+	    lua_tree = NULL;
+	    lua_tvb = NULL;
+	    
+	    lua_malformed = proto_get_id_by_filter_name("malformed");
+	    
+	    return;
+    case LUA_ERRSYNTAX: {
+		report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
+		lua_close(L);
+		L = NULL;
+		return;
+    }
+	case LUA_ERRMEM:
+		report_failure("Lua: memory allocation error during execution of %s",filename);
+		lua_close(L);
+		L = NULL;
+		return;
+    }
+    return;
 }
 

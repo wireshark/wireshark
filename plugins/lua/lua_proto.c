@@ -180,7 +180,7 @@ static int Prefs_newindex(lua_State* L) {
                                                    pref->name,
                                                    pref->label,
                                                    pref->desc,
-                                                   BASE_DEC,
+                                                   10,
                                                    &(pref->value.u));
                     break;
                 case PREF_STRING:
@@ -337,7 +337,9 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
     GArray* vs = g_array_new(TRUE,TRUE,sizeof(value_string));
     value_string* ret;
     
-    if (!lua_istable(L,idx)) {
+    if(lua_isnil(L,idx)) {
+	    return NULL;
+    } else if (!lua_istable(L,idx)) {
         luaL_argerror(L,idx,"must be a table");
         g_array_free(vs,TRUE);
         return NULL;
@@ -426,7 +428,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     const gchar* abbr = luaL_checkstring(L,1); 
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* base = luaL_optstring(L, 3, "BASE_DEC");
-    value_string* vs = (!lua_isnil(L,4)) ? value_string_from_table(L,4) : NULL;
+    value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
     int mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,"");
 
@@ -483,7 +485,6 @@ PROTOFIELD_OTHER(ipv4,FT_IPv4)
 PROTOFIELD_OTHER(ipv6,FT_IPv6)
 PROTOFIELD_OTHER(ipx,FT_IPXNET)
 PROTOFIELD_OTHER(ether,FT_ETHER)
-PROTOFIELD_OTHER(bool,FT_BOOLEAN)
 PROTOFIELD_OTHER(float,FT_FLOAT)
 PROTOFIELD_OTHER(double,FT_DOUBLE)
 PROTOFIELD_OTHER(string,FT_STRING)
@@ -492,6 +493,9 @@ PROTOFIELD_OTHER(bytes,FT_BYTES)
 PROTOFIELD_OTHER(ubytes,FT_UINT_BYTES)
 PROTOFIELD_OTHER(guid,FT_GUID)
 PROTOFIELD_OTHER(oid,FT_OID)
+
+/* XXX: T/F strings */
+PROTOFIELD_OTHER(bool,FT_BOOLEAN)
 
 
 static int ProtoField_tostring(lua_State* L) {

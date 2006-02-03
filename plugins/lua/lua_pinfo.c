@@ -158,7 +158,8 @@ static int Address_tipc(lua_State* L) {
 #endif
 
 static const luaL_reg Address_methods[] = {
-    {"ip", Address_ip },
+	{"ip", Address_ip },
+	{"ipv4", Address_ip },
 #if 0
     {"ipv6", Address_ipv6 },
     {"ss7pc", Address_ss7 },
@@ -671,19 +672,19 @@ int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
             to = &(pinfo->src);
             break;
         case PARAM_ADDR_DST:
-            to = &(pinfo->src);
+            to = &(pinfo->dst);
             break;
         case PARAM_ADDR_DL_SRC:
-            to = &(pinfo->src);
+            to = &(pinfo->dl_src);
             break;
         case PARAM_ADDR_DL_DST:
-            to = &(pinfo->src);
+            to = &(pinfo->dl_dst);
             break;
         case PARAM_ADDR_NET_SRC:
-            to = &(pinfo->src);
+            to = &(pinfo->net_src);
             break;
         case PARAM_ADDR_NET_DST:
-            to = &(pinfo->src);
+            to = &(pinfo->net_dst);
             break;
         default:
             g_assert(!"BUG: A bad parameter");
@@ -793,14 +794,14 @@ static int Pinfo_setindex(lua_State* L) {
         }
     }
     
-    lua_pop(L,1);
-    lua_pop(L,1);    
+    lua_remove(L,1);
+    lua_remove(L,1);    
     return method(L,pinfo,param_type);
 }
 
 static const luaL_reg Pinfo_meta[] = {
     {"__index", Pinfo_index},
-    {"__setindex",Pinfo_setindex},
+    {"__newindex",Pinfo_setindex},
     {"__tostring", Pinfo_tostring},
     {0, 0}
 };

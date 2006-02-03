@@ -56,6 +56,12 @@
 #define LUA_TAP_DRAW "taps_draw"
 #define LUA_TAP_RESET "taps_reset"
 
+struct _eth_tvbrange {
+    tvbuff_t* tvb;
+    int offset;
+    int len;
+};
+
 typedef struct _eth_field_t {
     int hfid;
     char* name;
@@ -76,7 +82,7 @@ typedef struct _eth_pref_t {
     pref_type_t type;
     union {
         gboolean b;
-        guint32 u;
+        guint u;
         const gchar* s;
     } value;
     
@@ -95,6 +101,7 @@ typedef struct _eth_proto_t {
     dissector_handle_t handle;
     gboolean is_postdissector;
 } eth_proto_t;
+
 
 typedef struct {const gchar* str; enum ftenum id; } eth_ft_types_t;
 
@@ -124,6 +131,9 @@ typedef GByteArray* ByteArray;
 
 #define TVB "Tvb"
 typedef tvbuff_t* Tvb;
+
+#define TVB_RANGE "TvbRange"
+typedef struct _eth_tvbrange* TvbRange; 
 
 #define COLUMN "Column"
 typedef struct _eth_col_info {
@@ -186,8 +196,16 @@ C* push##C(lua_State* L, C v) { \
 }\
 gboolean is##C(lua_State* L,int i) { \
         return (gboolean)(lua_isuserdata(L,i) && luaL_checkudata(L,3,CN)); \
+} \
+extern C shift##C(lua_State* L,int i) { \
+    C* p; \
+    if ((p = (C*)luaL_checkudata(L, i, CN))) {\
+        lua_remove(L,i); \
+        return *p; \
+    } else { \
+        return NULL; \
+    } \
 }
-
 
 extern packet_info* lua_pinfo;
 extern proto_tree* lua_tree;
@@ -202,7 +220,9 @@ extern C to##C(lua_State* L, int index); \
 extern C check##C(lua_State* L, int index); \
 extern C* push##C(lua_State* L, C v); \
 extern int C##_register(lua_State* L); \
-extern gboolean is##C(lua_State* L,int i)
+extern gboolean is##C(lua_State* L,int i); \
+extern C shift##C(lua_State* L,int i)
+
 
 
 LUA_CLASS_DECLARE(Tap,TAP);
@@ -213,6 +233,7 @@ LUA_CLASS_DECLARE(SubTree,SUBTREE);
 LUA_CLASS_DECLARE(Proto,PROTO);
 LUA_CLASS_DECLARE(ByteArray,BYTE_ARRAY);
 LUA_CLASS_DECLARE(Tvb,TVB);
+LUA_CLASS_DECLARE(TvbRange,TVB_RANGE);
 LUA_CLASS_DECLARE(Column,COLUMN);
 LUA_CLASS_DECLARE(Columns,COLUMNS);
 LUA_CLASS_DECLARE(Pinfo,PINFO);
