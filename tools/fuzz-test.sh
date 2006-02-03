@@ -20,8 +20,8 @@ DATE=/bin/date
 # Temporary file directory and names.
 # (had problems with this on cygwin, tried TMP_DIR=./ which worked)
 TMP_DIR=/tmp
-TMP_FILE=fuzz-test.pcap
-ERR_FILE=fuzz-err.txt
+TMP_FILE=fuzz-test-`$DATE +%Y-%m-%d`-$$.pcap
+ERR_FILE=fuzz-err-`$DATE +%Y-%m-%d`-$$.txt
 
 # These may be set to your liking
 # Stop the child process, if it's running longer than x seconds
