@@ -239,7 +239,7 @@ static int ByteArray_tostring(lua_State* L) {
 static int Tvb_new_real (lua_State *L);
 
 static const luaL_reg ByteArray_methods[] = {
-    {"new",           ByteArray_new},
+    {"new", ByteArray_new},
     {"len", ByteArray_len},
     {"prepend", ByteArray_prepend},
     {"append", ByteArray_append},

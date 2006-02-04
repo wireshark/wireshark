@@ -33,6 +33,7 @@ lua_la_SOURCES = \
 	lua_tree.c \
 	lua_pinfo.c \
 	lua_tap.c \
+	lua_gui.c \
 	packet-lua.c \
 	packet-lua.h \
 	plugin.c

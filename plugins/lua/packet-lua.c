@@ -39,6 +39,18 @@ tvbuff_t* lua_tvb;
 int lua_malformed;
 dissector_handle_t lua_data_handle;
 
+
+const gchar* lua_shiftstring(lua_State* L, int i) {
+    const gchar* p = luaL_checkstring(L, i);
+
+    if (p) {
+        lua_remove(L,i);
+        return p;
+    } else {
+        return NULL;
+    }
+}
+
 static int lua_format_date(lua_State* LS) {
     lua_Number time = luaL_checknumber(LS,1);
     nstime_t then;
@@ -292,6 +304,9 @@ static int init_error_handler(lua_State* L) {
 
 static void init_lua(void) {
     if ( ! lua_initialized ) {
+
+        TextWindow_register(L);
+        
         GString* tap_error = lua_register_all_taps();
         
         if ( tap_error ) {

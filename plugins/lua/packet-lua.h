@@ -47,6 +47,7 @@
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
 #include <epan/emem.h>
+#include <epan/funnel.h>
 
 #define LUA_DISSECTORS_TABLE "dissectors"
 #define LUA_INIT_ROUTINES "init_routines"
@@ -166,6 +167,9 @@ typedef struct _eth_tap {
     gboolean registered;
 }* Tap;
 
+#define TEXT_WINDOW "TextWindow"
+typedef funnel_text_window_t* TextWindow;
+
 #define NOP
 
 /*
@@ -242,11 +246,15 @@ LUA_CLASS_DECLARE(ProtoItem,ITEM);
 LUA_CLASS_DECLARE(Dissector,DISSECTOR);
 LUA_CLASS_DECLARE(DissectorTable,DISSECTOR_TABLE);
 LUA_CLASS_DECLARE(Address,ADDRESS);
+LUA_CLASS_DECLARE(TextWindow,TEXT_WINDOW);
 
 extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_);
 extern void lua_tap_reset(void *tapdata);
 extern void lua_tap_draw(void *tapdata);
+
+extern const gchar* lua_shiftstring(lua_State* L,int idx);
+
 
 extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);
