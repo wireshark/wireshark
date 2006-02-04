@@ -63,14 +63,14 @@ extern void funnel_register_menu(const char *name,
     }
 }
 
-#if 0
-extern void funnel_register_field_menu(const char *name,
-                                       const char *field_abbrev,
-                                       REGISTER_STAT_GROUP_E group,
-                                       void (*callback)(gpointer),
-                                       gpointer callback_data) {
+
+extern void funnel_register_field_menu(const char *name _U_,
+                                       const char *field_abbrev _U_,
+                                       REGISTER_STAT_GROUP_E group _U_,
+                                       void (*callback)(gpointer) _U_,
+                                       gpointer callback_data _U_) {
+
 }
-#endif
 
 extern void funnel_register_all_menus(funnel_registration_cb_t r_cb) {
     funnel_menu_t* c;
