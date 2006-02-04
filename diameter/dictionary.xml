@@ -1056,7 +1056,7 @@
 			<enum name="DIAMETER_SESSION_TIMEOUT" code="8"/>
 		</avp>
 		<avp name="Origin-Realm" code="296" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
+			<type type-name="DiameterIdentity"/>
 		</avp>
 		<avp name="Experimental-Result" code="297" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -1248,6 +1248,41 @@
 			<enum name="AS" code="6"/>
 			<enum name="UE" code="7"/>
 		</avp>
+		<avp name="Service-Information" code="873" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="PS-Information"/>
+				<gavp name="WLAN-Information"/>
+				<gavp name="IMS-Information"/>
+				<gavp name="MMS-Information"/>
+				<gavp name="LCS-Information"/>
+				<gavp name="PoC-Information"/>
+				<gavp name="MBMS-Information"/>
+			</grouped>
+		</avp>
+		<avp name="IMS-Information" code="876" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Event-Type"/>
+				<gavp name="Role-Of-Node"/>
+				<gavp name="Node-Functionality"/>
+				<gavp name="User-Session-ID"/>
+				<gavp name="Calling-Party-Address"/>
+				<gavp name="Called-Party-Address"/>
+				<gavp name="Time-Stamps"/>
+				<gavp name="Application-Server-Information"/>
+				<gavp name="Inter-Operator-Identifier"/>
+				<gavp name="IMS-Charging-Identifier"/>
+				<gavp name="SDP-Session-Description"/>
+				<gavp name="SDP-Media-Component"/>
+				<gavp name="GGSN-Address"/>
+				<gavp name="Served-Party-IP-Address"/>
+				<gavp name="Server-Capabilities"/>
+				<gavp name="Trunk-Group-ID"/>
+				<gavp name="Bearer-Service"/>
+				<gavp name="Service-Id"/>
+				<gavp name="Service-Specific-Data"/>
+				<gavp name="Message-Body"/>
+				<gavp name="Cause-Code"/>
+			</grouped>
 	</base>
 	<application id="0" name="Diameter Common Messages" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
