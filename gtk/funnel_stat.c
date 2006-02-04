@@ -66,8 +66,14 @@ struct _funnel_tree_window_t {
 	GtkWidget *win;
 
 };
-struct _funnel_node_t {};
-struct _funnel_dialog_t {};
+
+struct _funnel_node_t {
+    void* dummy;
+};
+
+struct _funnel_dialog_t {
+    void* dummy;
+};
 
 static void text_window_cancel_button_cb(GtkWidget *bt _U_, gpointer data) {
     funnel_text_window_t* tw = data;
@@ -81,7 +87,6 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     funnel_text_window_t* tw = g_malloc(sizeof(funnel_text_window_t));
 	GtkWidget *txt_scrollw, *main_vb, *bbox, *bt_close;
 
-    printf("funnel: new_text_window('%s')\n",title);
     tw->win = window_new(GTK_WINDOW_TOPLEVEL,title);
     txt_scrollw = scrolled_window_new(NULL, NULL);
     main_vb = gtk_vbox_new(FALSE, 3);
@@ -212,6 +217,11 @@ static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
 }
 
 static void text_window_destroy(funnel_text_window_t*  tw) {
+    /*
+     * XXX: This way Lua's garbage collector might destroy the window.
+     * Here we need to change the callbacks for closing the window so that
+     * the window can live after Lua has destroyed it and we do not leak the window object.
+     */
     if (tw->win) {
         window_destroy(tw->win);
     }
