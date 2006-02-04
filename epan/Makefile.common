@@ -53,6 +53,7 @@ LIBETHEREAL_SRC = 		\
 	filesystem.c		\
 	follow.c		\
 	frame_data.c		\
+	funnel.c    \
 	h225-persistentdata.c	\
 	in_cksum.c		\
 	ipproto.c		\
@@ -127,6 +128,7 @@ LIBETHEREAL_INCLUDES = 		\
 	filesystem.h		\
 	follow.h		\
 	frame_data.h		\
+	funnel.h		\
 	gnuc_format_check.h	\
 	greproto.h		\
 	h225-persistentdata.h	\
