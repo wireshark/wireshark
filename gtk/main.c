@@ -3575,6 +3575,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                          filter_te);
     set_menu_object_data("/Analyze/Follow TCP Stream", E_DFILTER_TE_KEY,
                          filter_te);
+    set_menu_object_data("/Analyze/Follow SSL Stream", E_DFILTER_TE_KEY,
+                         filter_te);                         
     set_menu_object_data("/Analyze/Apply as Filter/Selected", E_DFILTER_TE_KEY,
                          filter_te);
     set_menu_object_data("/Analyze/Apply as Filter/Not Selected", E_DFILTER_TE_KEY,

@@ -63,6 +63,24 @@ AC_PATH_PROG(DOXYGEN, doxygen)
 AC_CHECK_PROG(HAVE_DOXYGEN, doxygen, "yes", "no")
 AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 
+# gnu tls
+AM_PATH_LIBGNUTLS(1.0.0, 
+        [
+                echo "gnuTLS found, enabling ssl decryption"
+                AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use gnutls library])
+                tls_message="yes"
+        ]
+        , [
+                if test x$libgnutls_config_prefix != x ; then
+	                AC_MSG_ERROR([[gnuTLS not found; install gnuTLS-devel package for your system]])
+                else
+                        echo echo "gnuTLS not found, disabling ssl decryption"
+                        tls_message="no"
+                fi
+        ]
+)        
+        
+
 # Check for xsltproc
 AC_PATH_PROG(XSLTPROC, xsltproc)
 AC_CHECK_PROG(HAVE_XSLTPROC, xsltproc, "yes", "no")
@@ -1391,3 +1409,4 @@ echo "              Use GNU ADNS library : $adns_message"
 echo "            Use SSL crypto library : $ssl_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "     Use UCD SNMP/Net-SNMP library : $snmp_libs_message"
+echo "                Use gnutls library : $tls_message"

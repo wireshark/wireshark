@@ -304,7 +304,8 @@ ethereal_LDADD = \
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
-	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@
+	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
+	@LIBGNUTLS_LIBS@
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
@@ -326,7 +327,8 @@ tethereal_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
+	@LIBGNUTLS_LIBS@
 
 if ENABLE_STATIC
 tethereal_LDFLAGS = -Wl,-static -all-static
@@ -442,7 +444,8 @@ dftest_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
+	@LIBGNUTLS_LIBS@
 
 dftest_LDFLAGS = -export-dynamic
 

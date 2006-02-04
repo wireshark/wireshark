@@ -171,6 +171,8 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
                     currently opened/captured file only.
 */
 
+void
+ssl_stream_cb(GtkWidget * w, gpointer data _U_);
 
 /* main menu */
 static GtkItemFactoryEntry menu_items[] =
@@ -377,6 +379,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
                        follow_stream_cb, 0, NULL, NULL),    
+    ITEM_FACTORY_ENTRY("/Analyze/_Follow SSL Stream", NULL,
+                       ssl_stream_cb, 0, NULL, NULL),    
     ITEM_FACTORY_ENTRY("/_Statistics", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/_Summary", NULL, summary_open_cb, 0, GTK_STOCK_PROPERTIES),
     ITEM_FACTORY_ENTRY("/Statistics/_Protocol Hierarchy", NULL,
@@ -458,6 +462,8 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, ssl_stream_cb,
+                       0, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
@@ -504,6 +510,8 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, ssl_stream_cb,
                        0, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -1987,6 +1995,12 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(tree_view_menu_factory, "/Follow TCP Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow SSL Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Follow SSL Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
