@@ -5,7 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  * 
- * $Id: ncp_stat.c 00000 2005-09-22 11:09:36Z xxx $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,10 +98,10 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 #if GTK_MAJOR_VERSION < 2
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    tv->txt = gtk_text_new(NULL, NULL);
-    gtk_text_set_editable(GTK_TEXT(tv->txt), FALSE);
-    gtk_text_set_word_wrap(GTK_TEXT(tv->txt), TRUE);
-    gtk_text_set_line_wrap(GTK_TEXT(tv->txt), TRUE);
+    tw->txt = gtk_text_new(NULL, NULL);
+    gtk_text_set_editable(GTK_TEXT(tw->txt), FALSE);
+    gtk_text_set_word_wrap(GTK_TEXT(tw->txt), TRUE);
+    gtk_text_set_line_wrap(GTK_TEXT(tw->txt), TRUE);
 #else
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
                                         GTK_SHADOW_IN);
