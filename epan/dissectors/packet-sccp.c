@@ -258,6 +258,7 @@ static const value_string sccp_ai_ssni_values[] = {
 
 #define ADDRESS_SSN_LENGTH    1
 #define INVALID_SSN 0xff
+  /* Some values from 3GPP TS 23.003 */
 static const value_string sccp_ssn_values[] = {
   { 0x00,  "SSN not known/not used" },
   { 0x01,  "SCCP management" },
@@ -274,8 +275,22 @@ static const value_string sccp_ssn_values[] = {
   { 0x0c,  "Reserved for international use (ITU only)" },
   { 0x0d,  "Broadband ISDN edge-to-edge applications (ITU only)" },
   { 0x0e,  "TC test responder (ITU only)" },
+  /* The following national network subsystem numbers have been allocated for use within and
+   * between GSM/UMTS networks:
+   */
   { 0x8e,  "RANAP" },
-  { 0xfc,  "IOS" },
+  { 0x8f,  "RANSAP" },
+  { 0x91,  "GMLC(MAP)" },
+  { 0x93,  "gsmSCF (MAP) or IM-SSF (MAP) or Presence Network Agent" },
+  { 0x94,  "SIWF (MAP)" },
+  { 0x95,  "SGSN (MAP)" },
+  { 0x96,  "GGSN (MAP)" },
+  /* The following national network subsystem numbers have been allocated for use within GSM/UMTS networks:*/
+  { 0xf9,  "PCAP" },
+  { 0xfa,  "BSC (BSSAP-LE)" },
+  { 0xfb,  "MSC (BSSAP-LE)" },
+  { 0xfc,  "IOS or SMLC (BSSAP-LE)" },
+  { 0xfd,  "BSS O&M (A interface)" },
   { 0xfe,  "BSSAP/BSAP" },
   { 0,     NULL } };
 
