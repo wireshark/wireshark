@@ -560,11 +560,16 @@ static GHashTable* trxs = NULL;
 static GHashTable* ctxs_by_trx = NULL;
 static GHashTable* ctxs = NULL;
 
+static gboolean h248_prefs_initialized = FALSE;
 static gboolean keep_persistent_data = FALSE;
+static guint32 udp_port = 0;
+static guint32 temp_udp_port = 0;
+
 
 static proto_tree *h248_tree;
 static tvbuff_t* h248_tvb;
 
+static dissector_handle_t h248_handle;
 static dissector_handle_t h248_term_handle;
 
 
@@ -5840,6 +5845,18 @@ static void h248_init(void)  {
     if (ctxs) g_hash_table_destroy(ctxs);
     ctxs = g_hash_table_new(g_str_hash,g_str_equal);
 
+    if (!h248_prefs_initialized) {
+		h248_prefs_initialized = TRUE;
+    } else {
+        if ( udp_port )
+            dissector_delete("udp.port", udp_port, h248_handle);
+	}
+    
+    udp_port = temp_udp_port;
+    
+    if ( udp_port ) {
+		dissector_add("udp.port", udp_port, h248_handle);
+	}
 }
 
 /*--- proto_register_h248 ----------------------------------------------*/
@@ -7249,6 +7266,7 @@ void proto_register_h248(void) {
   /* Register protocol */
   proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("h248", dissect_h248, proto_h248);
+  h248_handle = find_dissector("h248");
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_h248, hf, array_length(hf));
@@ -7261,23 +7279,23 @@ void proto_register_h248(void) {
   h248_package_properties = g_hash_table_new(g_hash_direct,g_direct_equal);
 #endif
 
-#if 1
   h248_module = prefs_register_protocol(proto_h248, h248_init);
   prefs_register_bool_preference(h248_module, "ctx_info",
                                  "Keep Persistent Context Information",
                                  "Whether persistent context information is to be kept",
                                  &keep_persistent_data);
-#endif
-
+  prefs_register_uint_preference(h248_module, "udp_port",
+                                 "UDP port",
+                                 "Port to be decoded as h248",
+                                 10,
+                                 &temp_udp_port);
+  
   register_init_routine( &h248_init );
 
 }
 
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
 void proto_reg_handoff_h248(void) {
-  dissector_handle_t h248_handle;
-
-  h248_handle = find_dissector("h248");
   h248_term_handle = find_dissector("h248term");
 
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
