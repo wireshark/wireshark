@@ -41,7 +41,7 @@ static gint ett_dcerpc_pnp = -1;
 
 /* 
  * The pnp MSRPC interface is typically reached using the ncacn_np transport
- * and the \pipe\ntsvcs named pipe as endpoint.
+ * and \pipe\ntsvcs or \pipe\plugplay named pipes as endpoint.
  */
 
 static e_uuid_t uuid_dcerpc_pnp = {
@@ -167,6 +167,26 @@ static dcerpc_sub_dissector dcerpc_pnp_dissectors[] = {
 		"PNP_GetBlockedDriverInfo", NULL, NULL },
 	{ PNP_GET_SERVER_SIDE_DEV_INSTALL_FLAGS, 
 		"PNP_GetServerSideDeviceInstallFlags", NULL, NULL },
+	{ PNP_GET_OBJECT_PROP_KEYS, 
+		"PNP_GetObjectPropKeys", NULL, NULL },
+	{ PNP_GET_OBJECT_PROP, 
+		"PNP_GetObjectProp", NULL, NULL },
+	{ PNP_SET_OBJECT_PROP, 
+		"PNP_SetObjectProp", NULL, NULL },
+	{ PNP_INSTALL_DEV_INST, 
+		"PNP_InstallDevInst", NULL, NULL },
+	{ PNP_APPLY_POWER_SETTINGS, 
+		"PNP_ApplyPowerSettings", NULL, NULL },
+	{ PNP_DRIVER_STORE_ADD_DRV_PKG, 
+		"PNP_DriverStoreAddDriverPackage", NULL, NULL },
+	{ PNP_DRIVER_STORE_DEL_DRV_PKG, 
+		"PNP_DriverStoreDeleteDriverPackage", NULL, NULL },
+	{ PNP_REGISTER_SRV_NOTIFICATION,
+		"PNP_RegisterServiceNotification", NULL, NULL },
+	{ PNP_SET_ACTIVE_SRV,
+		"PNP_SetActiveService", NULL, NULL },
+	{ PNP_DELETE_SERVICE_DEVICES,
+		"PNP_DeleteServiceDevices", NULL, NULL },
         { 0, NULL, NULL,  NULL }
 };
 
