@@ -83,124 +83,6 @@ static int lua_report_failure(lua_State* LS) {
     return 0;
 }
 
-/* ethereal uses lua */
-
-int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_) {
-    Tap tap = tapdata;
-    
-    lua_getglobal(L, LUA_TAP_PACKET);
-    
-    if (!lua_istable(L, -1)) {
-        g_warning("either `" LUA_TAP_PACKET "' does not exist or it is not a table!");
-        return 0;
-    }
-    
-    lua_pushstring(L, tap->name);
-    
-    lua_gettable(L, -2);  
-    
-    lua_remove(L,1);
-    
-    if (lua_isfunction(L,1)) {
-
-        lua_tree = edt->tree;
-        lua_pinfo = pinfo;
-        lua_tvb = NULL;
-        
-        pushPinfo(L, pinfo);
-        
-        switch ( lua_pcall(L,1,1,0) ) {
-            case 0:
-                /* OK */
-                break;
-            case LUA_ERRRUN:
-                g_warning("Runtime error while calling " LUA_TAP_PACKET ".%s() ",tap->name);
-                break;
-            case LUA_ERRMEM:
-                g_warning("Memory alloc error while calling " LUA_TAP_PACKET ".%s() ",tap->name);
-                break;
-            default:
-                g_assert_not_reached();
-                break;
-        }
-        
-    }
-
-    /* XXX - use the return value of the tap */
-    return 1;
-}
-
-void lua_tap_reset(void *tapdata) {
-    Tap tap = tapdata;
-
-    lua_getglobal(L, LUA_TAP_INIT);
-    
-    if (!lua_istable(L, -1)) {
-        g_warning("either `" LUA_TAP_INIT "' does not exist or it is not a table!");
-        return;
-    }
-    
-    lua_pushstring(L, tap->name);
-    
-    lua_gettable(L, -2);  
-    
-    lua_remove(L,1);
-    
-    if (lua_isfunction(L,1)) {
-        switch ( lua_pcall(L,1,0,0) ) {
-            case 0:
-                /* OK */
-                break;
-            case LUA_ERRRUN:
-                g_warning("Runtime error while calling " LUA_TAP_INIT ".%s() ",tap->name);
-                break;
-            case LUA_ERRMEM:
-                g_warning("Memory alloc error while calling " LUA_TAP_INIT ".%s() ",tap->name);
-                break;
-            default:
-                g_assert_not_reached();
-                break;
-        }
-    }
-
-}
-
-void lua_tap_draw(void *tapdata) {
-    Tap tap = tapdata;
-    
-    lua_getglobal(L, LUA_TAP_DRAW);
-    
-    if (!lua_istable(L, -1)) {
-        g_warning("either `" LUA_TAP_DRAW "' does not exist or it is not a table!");
-        return;
-    }
-    
-    
-    lua_pushstring(L, tap->name);
-    
-    lua_gettable(L, -2);  
-    
-    lua_remove(L,1);
-    
-    if (lua_isfunction(L,1)) {
-        switch ( lua_pcall(L,1,0,0) ) {
-            case 0:
-                /* OK */
-                break;
-            case LUA_ERRRUN:
-                g_warning("Runtime error while calling " LUA_TAP_DRAW ".%s() ",tap->name);
-                break;
-            case LUA_ERRMEM:
-                g_warning("Memory alloc error while calling " LUA_TAP_DRAW ".%s() ",tap->name);
-                break;
-            default:
-                g_assert_not_reached();
-                break;
-        }
-    }
-}
-
-
 
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
@@ -305,15 +187,8 @@ static int init_error_handler(lua_State* L) {
 static void init_lua(void) {
     if ( ! lua_initialized ) {
 
-        TextWindow_register(L);
+        if (L) TextWindow_register(L);
         
-        GString* tap_error = lua_register_all_taps();
-        
-        if ( tap_error ) {
-            report_failure("lua tap registration problem: %s",tap_error->str);
-            g_string_free(tap_error,TRUE);
-        }
-                
         lua_prime_all_fields(NULL);
         
         lua_register_subtrees();
@@ -432,18 +307,6 @@ void proto_register_lua(void)
     lua_newtable (L);
     lua_settable(L, LUA_REGISTRYINDEX);
     
-    lua_pushstring(L, LUA_TAP_PACKET);
-    lua_newtable (L);
-    lua_settable(L, LUA_GLOBALSINDEX);
-
-    lua_pushstring(L, LUA_TAP_RESET);
-    lua_newtable (L);
-    lua_settable(L, LUA_GLOBALSINDEX);
-
-    lua_pushstring(L, LUA_TAP_DRAW);
-    lua_newtable (L);
-    lua_settable(L, LUA_GLOBALSINDEX);
-
     switch (lua_load(L,getF,file,filename)) {
     case 0:
 	    lua_pcall(L,0,0,1);

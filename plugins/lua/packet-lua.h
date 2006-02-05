@@ -52,10 +52,6 @@
 #define LUA_DISSECTORS_TABLE "dissectors"
 #define LUA_INIT_ROUTINES "init_routines"
 #define LUA_HANDOFF_ROUTINES "handoff_routines"
-#define LUA_TAP_PACKET "taps"
-#define LUA_TAP_INIT "taps_init"
-#define LUA_TAP_DRAW "taps_draw"
-#define LUA_TAP_RESET "taps_reset"
 
 struct _eth_tvbrange {
     tvbuff_t* tvb;
@@ -161,11 +157,7 @@ typedef address* Address;
 typedef header_field_info* Field;
 
 #define TAP "Tap"
-typedef struct _eth_tap {
-    const gchar* name;
-    gchar* filter;
-    gboolean registered;
-}* Tap;
+typedef struct _eth_tap* Tap;
 
 #define TEXT_WINDOW "TextWindow"
 typedef funnel_text_window_t* TextWindow;

@@ -44,7 +44,6 @@ static int menu_cb_error_handler(lua_State* L) {
 
 void lua_menu_callback(gpointer data) {
     struct _lua_menu_data* md = data;
-    int i;
 
     lua_pushcfunction(md->L,menu_cb_error_handler);
     lua_rawgeti(md->L, LUA_REGISTRYINDEX, md->cb_ref);
@@ -58,6 +57,7 @@ void lua_menu_callback(gpointer data) {
 extern int lua_register_menu(lua_State* L) {
     const gchar* name = luaL_checkstring(L,1);
     struct _lua_menu_data* md;
+    gboolean retap = FALSE;
     
     if (ops) {
         luaL_error(L,"to late to register_menu");
@@ -76,7 +76,11 @@ extern int lua_register_menu(lua_State* L) {
     md->cb_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     if ( lua_gettop(L) > 2) {
-        lua_pushvalue(L, 3);
+        retap = lua_toboolean(L,3);
+    }
+
+    if ( lua_gettop(L) > 3) {
+        lua_pushvalue(L, 4);
         md->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     } else {
         md->data_ref = LUA_NOREF;
@@ -85,7 +89,9 @@ extern int lua_register_menu(lua_State* L) {
     funnel_register_menu(name,
                          REGISTER_STAT_GROUP_GENERIC,
                          lua_menu_callback,
-                         md);
+                         md,
+                         retap);
+    return 0;
 }
 
 
@@ -107,6 +113,64 @@ static int TextWindow_new(lua_State* L) {
     pushTextWindow(L,tw);
     
     return 1;
+}
+
+struct _close_cb_data {
+    lua_State* L;
+    int func_ref;
+    int data_ref;
+};
+
+int text_win_close_cb_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of TextWindow close callback:\n %s",error);
+    return 0;    
+}
+
+static void text_win_close_cb(void* data) {
+    struct _close_cb_data* cbd = data;
+    lua_State* L = cbd->L;
+
+    lua_pushcfunction(L,text_win_close_cb_error_handler);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->data_ref);
+    
+    switch ( lua_pcall(L,1,0,1) ) {
+        case 0:
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error during execution of TextWindow close callback");
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error during execution of TextWindow close callback");
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+}
+
+static int TextWindow_at_close(lua_State* L) {
+    TextWindow tw = shiftTextWindow(L,1);
+    struct _close_cb_data* cbd;
+
+    lua_settop(L,2);
+
+    if (! lua_isfunction(L,1)) {
+        luaL_error(L,"Window's close callback must be a function");
+        return 0;
+    }
+    
+    cbd = g_malloc(sizeof(struct _close_cb_data));
+
+    cbd->L = L;
+    cbd->data_ref = luaL_ref(L,  LUA_REGISTRYINDEX);
+    cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    ops->set_close_cb(tw,text_win_close_cb,cbd);
+    
+    pushTextWindow(L,tw);
+    return 1;    
 }
 
 static int TextWindow_set_text(lua_State* L) {
@@ -176,6 +240,7 @@ static const luaL_reg TextWindow_methods[] = {
     {"append", TextWindow_append_text},
     {"prepend", TextWindow_prepend_text},
     {"clear", TextWindow_clear_text},
+    {"at_close", TextWindow_at_close},
     {0, 0}
 };
 

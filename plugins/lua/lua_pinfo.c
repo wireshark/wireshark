@@ -809,18 +809,7 @@ static const luaL_reg Pinfo_meta[] = {
 int Pinfo_register(lua_State* L) {
     luaL_newmetatable(L, PINFO);
     luaL_openlib(L, NULL, Pinfo_meta, 0);
-/*
-    luaL_openlib(L, PINFO, Pinfo_methods, 0);
-    luaL_newmetatable(L, PINFO);
-    luaL_openlib(L, 0, Pinfo_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
- */   
+
     return 1;
 }
 

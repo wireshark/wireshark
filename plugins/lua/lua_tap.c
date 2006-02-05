@@ -32,8 +32,6 @@ LUA_CLASS_DEFINE(Tap,TAP,NOP)
 LUA_CLASS_DEFINE(Field,FIELD,NOP)
 
 static GPtrArray* wanted_fields = NULL;
-static GPtrArray* lua_taps = NULL;
-static gboolean taps_registered = FALSE;
 
 /* XXX this will be used in the future, called from somewhere in packet.c */
 #if 0
@@ -74,7 +72,7 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
                                       NULL, NULL, NULL);
         
         if (error) {
-            report_failure("while regitering lua_fake_tap:\n%s",error->str);
+            report_failure("while registering lua_fake_tap:\n%s",error->str);
             g_string_free(error,TRUE);
         }
     }
@@ -194,26 +192,173 @@ int Field_register(lua_State* L) {
 }
 
 
+
+
+/*
+ *  Tap
+ */
+
+struct _eth_tap {
+    gchar* name;
+    gchar* filter;
+    lua_State* L;
+    int packet_ref;
+    int draw_ref;
+    int init_ref;
+    int data_ref;
+};
+
+int tap_packet_cb_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of Tap Packet Callback:\n %s",error);
+    return 0;    
+}
+
+
+int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_ , const void *data _U_) {
+    Tap tap = tapdata;
+    int retval = 0;
+    
+    if (tap->packet_ref == LUA_NOREF) return 0;
+
+    lua_settop(tap->L,0);
+    
+    lua_pushcfunction(tap->L,tap_packet_cb_error_handler);
+    lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->packet_ref);
+    pushPinfo(tap->L, pinfo);
+    lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->data_ref);
+    
+    switch ( lua_pcall(tap->L,2,1,1) ) {
+        case 0:
+            
+            if (lua_gettop(tap->L) == 1)
+                retval = luaL_checkint(tap->L,1);
+            else 
+                retval = 1;
+            
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling %s.packet() ",tap->name);
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling %s.packet() ",tap->name);
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+    
+    return retval;
+}
+
+int tap_reset_cb_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of Tap init Callback:\n %s",error);
+    return 0;
+}
+
+void lua_tap_reset(void *tapdata) {
+    Tap tap = tapdata;
+    
+    if (tap->init_ref == LUA_NOREF) return;
+    
+    lua_pushcfunction(tap->L,tap_reset_cb_error_handler);
+    lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->init_ref);
+    lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->data_ref);
+    
+    switch ( lua_pcall(tap->L,1,0,1) ) {
+        case 0:
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling %s.init() ",tap->name);
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling %s.init() ",tap->name);
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+}
+
+int tap_draw_cb_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of Tap Draw Callback:\n %s",error);
+    return 0;
+}
+
+void lua_tap_draw(void *tapdata) {
+    Tap tap = tapdata;
+    const gchar* error;
+    if (tap->draw_ref == LUA_NOREF) return;
+    
+    lua_pushcfunction(tap->L,tap_reset_cb_error_handler);
+    lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->draw_ref);
+    lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->data_ref);
+    
+    switch ( lua_pcall(tap->L,1,0,1) ) {
+        case 0:
+            /* OK */
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling %s.draw(): %s",tap->name,error);
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling %s.draw() ",tap->name);
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+}
+
 static int Tap_new(lua_State* L) {
     const gchar* name = luaL_checkstring(L,1);
     const gchar* filter = luaL_optstring(L,2,NULL);
     Tap tap;
-    
+    GString* error;
+
     if (!name) return 0;
     
     tap = g_malloc(sizeof(struct _eth_tap));
     
     tap->name = g_strdup(name);
-    tap->filter = g_strdup(filter);
+    tap->filter = filter ? g_strdup(filter) : NULL;
+    tap->L = L;
+    tap->packet_ref = LUA_NOREF;
+    tap->draw_ref = LUA_NOREF;
+    tap->init_ref = LUA_NOREF;
 
-    if (!lua_taps)
-        lua_taps = g_ptr_array_new();
+    if (lua_gettop(L) > 2) {
+        lua_pushvalue(L, 3);
+        tap->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+        tap->data_ref = LUA_NOREF;
+    }
     
-    g_ptr_array_add(lua_taps,tap);
-    
+    error = register_tap_listener("frame", tap, tap->filter, lua_tap_reset, lua_tap_packet, lua_tap_draw);
+
+    if (error) {
+        luaL_error(L,"Error while registering tap:\n%s",error->str);
+        g_string_free(error,TRUE);
+        if (tap->filter) g_free(tap->filter);
+        g_free(tap->name);
+        luaL_unref(L, LUA_REGISTRYINDEX, tap->data_ref);
+        g_free(tap);
+    }
     
     pushTap(L,tap);
     return 1;
+}
+
+static int Tap_remove(lua_State* L) {
+    Tap tap = checkTap(L,1);
+    
+    if (!tap) return 0;
+    
+    remove_tap_listener(tap);
+    
+    return 0;
 }
 
 static int Tap_tostring(lua_State* L) {
@@ -229,49 +374,55 @@ static int Tap_tostring(lua_State* L) {
     return 1;
 }
 
-GString* lua_register_all_taps(void) {
-    
-    if (!lua_taps || taps_registered) return NULL;
 
-    while (lua_taps->len) {
-        Tap tap = g_ptr_array_remove_index(lua_taps,0);
-        GString* error;
-
-        error = register_tap_listener("frame", tap, tap->filter, lua_tap_reset, lua_tap_packet, lua_tap_draw);
+static int Tap_newindex(lua_State* L) { 
+    Tap tap = shiftTap(L,1);
+    const gchar* index = lua_shiftstring(L,1);
+    int* refp = NULL;
     
-        if (error) {
-            return error;
-        }
-        
-        taps_registered = TRUE;
+    if (!index) return 0;
+    
+    if (g_str_equal(index,"packet")) {
+        refp = &(tap->packet_ref);
+    } else if (g_str_equal(index,"draw")) {
+        refp = &(tap->draw_ref);
+    } else if (g_str_equal(index,"init")) {
+        refp = &(tap->init_ref);
+    } else {
+        luaL_error(L,"No such attribute `%s' for a tap",index);
+        return 0;
     }
     
+    if (! lua_isfunction(L,1)) {
+        luaL_error(L,"Tap's attribute `%s' must be a function");
+        return 0;
+    }
     
-    return NULL;
-    
+    lua_pushvalue(L, 1);
+    *refp = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    return 0;
 }
 
-static const luaL_reg Tap_methods[] = {
-    {"new", Tap_new},
-    {0,0}
-};
 
 static const luaL_reg Tap_meta[] = {
     {"__tostring", Tap_tostring},
+    {"__newindex", Tap_newindex},
     {0, 0}
 };
 
 int Tap_register(lua_State* L) {
-    luaL_openlib(L, TAP, Tap_methods, 0);
     luaL_newmetatable(L, TAP);
     luaL_openlib(L, 0, Tap_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
+
+
+    lua_pushstring(L, "new_tap");
+    lua_pushcfunction(L, Tap_new);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "remove_tap");
+    lua_pushcfunction(L, Tap_remove);
+    lua_settable(L, LUA_GLOBALSINDEX);
     
     return 1;
 }
