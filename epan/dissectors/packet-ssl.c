@@ -1436,7 +1436,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
             
             /* data ptr is changed, so remove old one and re-add the new one*/
             ssl_debug_printf("decrypt_ssl3_record: removing old app_data ptr\n");
-            p_rem_proto_data(pinfo->fd, proto_ssl);
+            p_remove_proto_data(pinfo->fd, proto_ssl);
         }
      
         ssl_debug_printf("decrypt_ssl3_record: setting decrypted app_data ptr %p\n",data);

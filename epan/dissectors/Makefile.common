@@ -585,6 +585,7 @@ DISSECTOR_SRC =	\
 	packet-srvloc.c	\
 	packet-sscop.c	\
 	packet-ssh.c	\
+	packet-ssl-utils.c	\
 	packet-ssl.c	\
 	packet-stat-notify.c	\
 	packet-stat.c	\
@@ -886,6 +887,7 @@ DISSECTOR_INCLUDES =	\
 	packet-snmp.h	\
 	packet-spray.h	\
 	packet-sscop.h \
+	packet-ssl-utils.h	\
 	packet-stat-notify.h	\
 	packet-stat.h	\
 	packet-t38.h	\
