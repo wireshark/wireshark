@@ -60,6 +60,9 @@
 struct _funnel_text_window_t {
 	GtkWidget* win;
     GtkWidget* txt;
+    GtkWidget* bt_close;
+    text_win_close_cb_t close_cb;
+    void* close_data;
 };
 
 struct _funnel_tree_window_t {
@@ -80,14 +83,37 @@ static void text_window_cancel_button_cb(GtkWidget *bt _U_, gpointer data) {
     
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
+    
+    tw->close_cb(tw->close_data);
+}
 
+static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
+    funnel_text_window_t* tw = data;
+    
+    window_destroy(GTK_WIDGET(tw->win));
+    tw->win = NULL;
+
+    tw->close_cb(tw->close_data);
+    
+    g_free(tw);
+    
+}
+
+static text_window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data)
+{
+    funnel_text_window_t* tw = user_data;
+    window_destroy(win);
+    tw->close_cb(tw->close_data);
+    return TRUE;
 }
 
 static funnel_text_window_t* new_text_window(const gchar* title) {
     funnel_text_window_t* tw = g_malloc(sizeof(funnel_text_window_t));
-	GtkWidget *txt_scrollw, *main_vb, *bbox, *bt_close;
+	GtkWidget *txt_scrollw, *main_vb, *bbox;
 
     tw->win = window_new(GTK_WINDOW_TOPLEVEL,title);
+    SIGNAL_CONNECT(tw->win, "delete-event", text_window_delete_event_cb, tw);
+
     txt_scrollw = scrolled_window_new(NULL, NULL);
     main_vb = gtk_vbox_new(FALSE, 3);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
@@ -124,9 +150,9 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(bt_close, "clicked", text_window_cancel_button_cb, tw);
-    gtk_widget_grab_default(bt_close);
+    tw->bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    SIGNAL_CONNECT(tw->bt_close, "clicked", text_window_cancel_button_cb, tw);
+    gtk_widget_grab_default(tw->bt_close);
 
     gtk_container_add(GTK_CONTAINER(txt_scrollw), tw->txt);
     gtk_window_resize(GTK_WINDOW(tw->win),400,300);
@@ -153,6 +179,8 @@ http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.sht
     gtk_adjustment_set_value(txt->vadj, 0.0);
     gtk_text_forward_delete(txt, gtk_text_get_length(txt));
 #else
+    if (! tw->win) return; 
+
     GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tw->txt));
     
     gtk_text_buffer_set_text(buf, "", 0);
@@ -218,6 +246,11 @@ static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
     return "";
 }
 
+static void text_window_set_close_cb(funnel_text_window_t*  tw, text_win_close_cb_t cb, void* data) {
+    tw->close_cb = cb;
+    tw->close_data = data;
+}
+
 static void text_window_destroy(funnel_text_window_t*  tw) {
     /*
      * XXX: This way Lua's garbage collector might destroy the window.
@@ -225,9 +258,18 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
      * the window can live after Lua has destroyed it and we do not leak the window object.
      */
     if (tw->win) {
-        window_destroy(tw->win);
+        /*
+         * the window is still there and its callbacks refer to this data structure
+         * we need to change the callback so that they free tw.
+         */
+        SIGNAL_CONNECT(tw->bt_close, "clicked", unref_text_win_cancel_bt_cb, tw);
+    } else {
+        /*
+         * we have no window anymore a human user closed
+         * the window already just free the container
+         */
+        g_free(tw);
     }
-    g_free(tw);
 }
 
 static const funnel_ops_t ops = {
@@ -237,6 +279,7 @@ static const funnel_ops_t ops = {
     text_window_prepend,
     text_window_clear,
     text_window_get_text,
+    text_window_set_close_cb,
     text_window_destroy
 };
 
@@ -244,21 +287,25 @@ static const funnel_ops_t ops = {
 typedef struct _menu_cb_t {
     void (*callback)(gpointer);
     void* callback_data;
+    gboolean retap;
 } menu_cb_t;
 
 static void our_menu_callback(void* unused _U_, gpointer data) {
     menu_cb_t* mcb = data;
     mcb->callback(mcb->callback_data);
+    if (mcb->retap) cf_retap_packets(&cfile, FALSE);
 }
 
 static void register_menu_cb(const char *name,
                              REGISTER_STAT_GROUP_E group,
                              void (*callback)(gpointer),
-                             gpointer callback_data) {
+                             gpointer callback_data,
+                             gboolean retap) {
     menu_cb_t* mcb = g_malloc(sizeof(menu_cb_t));
 
     mcb->callback = callback;
     mcb->callback_data = callback_data;
+    mcb->retap = retap;
     
     register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
 

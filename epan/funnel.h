@@ -40,6 +40,8 @@ typedef struct _funnel_tree_window_t funnel_tree_window_t ;
 typedef struct _funnel_node_t funnel_node_t ;
 typedef struct _funnel_dialog_t funnel_dialog_t;
 
+typedef void (*text_win_close_cb_t)(void*);
+
 typedef void (*funnel_dlg_cb_t)(const gchar** user_input);
 
 typedef struct _funnel_ops_t {
@@ -49,6 +51,7 @@ typedef struct _funnel_ops_t {
     void (*prepend_text)(funnel_text_window_t*  win, const gchar* text);
     void (*clear_text)(funnel_text_window_t*  win);
     const gchar* (*get_text)(funnel_text_window_t*  win);
+    void (*set_close_cb)(funnel_text_window_t*  win, text_win_close_cb_t cb, void* data);
     void (*destroy_text_window)(funnel_text_window_t*  win);
 #if 0
     funnel_node_t* (*new_tree_window)(const gchar* title, gchar** columns);
@@ -72,15 +75,17 @@ extern void funnel_set_funnel_ops(const funnel_ops_t*);
 
 
 extern void funnel_register_menu(const char *name,
-                               REGISTER_STAT_GROUP_E group,
-                               void (*callback)(gpointer),
-                               gpointer callback_data);
+                                 REGISTER_STAT_GROUP_E group,
+                                 void (*callback)(gpointer),
+                                 gpointer callback_data,
+                                 gboolean retap);
 
 
 typedef void (*funnel_registration_cb_t)(const char *name,
                                          REGISTER_STAT_GROUP_E group,
                                          void (*callback)(gpointer),
-                                         gpointer callback_data);
+                                         gpointer callback_data,
+                                         gboolean retap);
 
 extern void funnel_register_all_menus(funnel_registration_cb_t r_cb);
 
