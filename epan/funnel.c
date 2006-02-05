@@ -36,17 +36,16 @@ typedef struct _funnel_menu_t {
     struct _funnel_menu_t* next;
 } funnel_menu_t;
 
-
 static const funnel_ops_t* ops = NULL;
 static funnel_menu_t* menus = NULL;
 
 const funnel_ops_t* funnel_get_funnel_ops() { return ops;  }
 void funnel_set_funnel_ops(const funnel_ops_t* o) { ops = o; }
 
-extern void funnel_register_menu(const char *name,
-                                 REGISTER_STAT_GROUP_E group,
-                                 void (*callback)(gpointer),
-                                 gpointer callback_data) {
+void funnel_register_menu(const char *name,
+                          REGISTER_STAT_GROUP_E group,
+                          void (*callback)(gpointer),
+                          gpointer callback_data) {
     funnel_menu_t* m = g_malloc(sizeof(funnel_menu_t));
     m->name = g_strdup(name);
     m->group = group;
@@ -63,19 +62,12 @@ extern void funnel_register_menu(const char *name,
     }
 }
 
-
-extern void funnel_register_field_menu(const char *name _U_,
-                                       const char *field_abbrev _U_,
-                                       REGISTER_STAT_GROUP_E group _U_,
-                                       void (*callback)(gpointer) _U_,
-                                       gpointer callback_data _U_) {
-
-}
-
-extern void funnel_register_all_menus(funnel_registration_cb_t r_cb) {
+void funnel_register_all_menus(funnel_registration_cb_t r_cb) {
     funnel_menu_t* c;
     for (c = menus; c; c = c->next) {
         r_cb(c->name,c->group,c->callback,c->callback_data);
     }
 }
+
+
 

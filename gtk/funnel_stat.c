@@ -116,8 +116,8 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
         * so the text will be "bump" against the edges.
         * the following is only working for left and right edges,
         * there is no such thing for top and bottom :-( */
-    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tw->txt), 4);
-    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(tw->txt), 4);
+/*    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tw->txt), 4);
+    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(tw->txt), 4);*/
 #endif
     
     
@@ -138,10 +138,12 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 
 static void text_window_clear(funnel_text_window_t*  tw)
 {
+#if GTK_MAJOR_VERSION < 2
+    GtkText *txt;
+
     if (! tw->win) return; 
     
-#if GTK_MAJOR_VERSION < 2
-    GtkText *txt = tw->txt;
+    txt = tw->txt;
     
     gtk_text_set_point(txt, 0);
     /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
@@ -238,13 +240,33 @@ static const funnel_ops_t ops = {
     text_window_destroy
 };
 
-static void register_tap_cb(const char *name, REGISTER_STAT_GROUP_E group, void (*callback)(gpointer), gpointer callback_data) {
-    register_stat_menu_item(name, group, callback, NULL, NULL, callback_data);
+
+typedef struct _menu_cb_t {
+    void (*callback)(gpointer);
+    void* callback_data;
+} menu_cb_t;
+
+static void our_menu_callback(void* unused _U_, gpointer data) {
+    menu_cb_t* mcb = data;
+    mcb->callback(mcb->callback_data);
+}
+
+static void register_menu_cb(const char *name,
+                             REGISTER_STAT_GROUP_E group,
+                             void (*callback)(gpointer),
+                             gpointer callback_data) {
+    menu_cb_t* mcb = g_malloc(sizeof(menu_cb_t));
+
+    mcb->callback = callback;
+    mcb->callback_data = callback_data;
+    
+    register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
+
 }
 
 void
 register_tap_listener_gtkfunnel(void)
 {
     funnel_set_funnel_ops(&ops);
-    funnel_register_all_menus(register_tap_cb);
+    funnel_register_all_menus(register_menu_cb);
 }

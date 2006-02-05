@@ -35,7 +35,6 @@
 #include <glib.h>
 #include "../stat_menu.h"
 
-
 typedef struct _funnel_text_window_t funnel_text_window_t ;
 typedef struct _funnel_tree_window_t funnel_tree_window_t ;
 typedef struct _funnel_node_t funnel_node_t ;
@@ -76,19 +75,12 @@ extern void funnel_register_menu(const char *name,
                                REGISTER_STAT_GROUP_E group,
                                void (*callback)(gpointer),
                                gpointer callback_data);
-#if 0
-extern void funnel_register_field_menu(const char *name,
-                                const char *field_abbrev,
-                                REGISTER_STAT_GROUP_E group,
-                                void (*callback)(gpointer),
-                                gpointer callback_data);
-#endif
 
 
 typedef void (*funnel_registration_cb_t)(const char *name,
-                 REGISTER_STAT_GROUP_E group,
-                 void (*callback)(gpointer),
-                 gpointer callback_data);
+                                         REGISTER_STAT_GROUP_E group,
+                                         void (*callback)(gpointer),
+                                         gpointer callback_data);
 
 extern void funnel_register_all_menus(funnel_registration_cb_t r_cb);
 

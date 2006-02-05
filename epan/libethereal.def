@@ -283,7 +283,6 @@ fvalue_to_string_repr
 funnel_get_funnel_ops
 funnel_set_funnel_ops
 funnel_register_menu
-funnel_register_field_menu
 funnel_register_all_menus
 GatekeeperRejectReason_vals     DATA
 get_addr_name
