@@ -416,6 +416,10 @@ void proto_register_lua(void)
     lua_pushcfunction(L, lua_report_failure);
     lua_settable(L, LUA_GLOBALSINDEX);
     
+    lua_pushstring(L, "register_menu");
+    lua_pushcfunction(L, lua_register_menu);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
     lua_pushstring(L, LUA_HANDOFF_ROUTINES);
     lua_newtable (L);
     lua_settable(L, LUA_REGISTRYINDEX);

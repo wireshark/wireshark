@@ -30,6 +30,69 @@ LUA_CLASS_DEFINE(TextWindow,TEXT_WINDOW,NOP)
 
 static const funnel_ops_t* ops = NULL;
 
+struct _lua_menu_data {
+    lua_State* L;
+    int cb_ref;
+    int data_ref;
+};
+
+static int menu_cb_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of Menu Callback:\n %s",error);
+    return 0;    
+}
+
+void lua_menu_callback(gpointer data) {
+    struct _lua_menu_data* md = data;
+    int i;
+
+    lua_pushcfunction(md->L,menu_cb_error_handler);
+    lua_rawgeti(md->L, LUA_REGISTRYINDEX, md->cb_ref);
+    lua_rawgeti(md->L, LUA_REGISTRYINDEX, md->data_ref);
+        
+    lua_pcall(md->L,1,0,1);
+    
+    return;
+}
+
+extern int lua_register_menu(lua_State* L) {
+    const gchar* name = luaL_checkstring(L,1);
+    struct _lua_menu_data* md;
+    
+    if (ops) {
+        luaL_error(L,"to late to register_menu");
+        return 0;
+    }
+    
+    if (!lua_isfunction(L,2)) {
+        luaL_error(L,"register_menu takes a string, a function and another optional datum");
+        return 0;
+    }
+    
+    md = g_malloc(sizeof(struct _lua_menu_data));
+    md->L = L;
+    
+    lua_pushvalue(L, 2);
+    md->cb_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    if ( lua_gettop(L) > 2) {
+        lua_pushvalue(L, 3);
+        md->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+        md->data_ref = LUA_NOREF;
+    }
+
+    funnel_register_menu(name,
+                         REGISTER_STAT_GROUP_GENERIC,
+                         lua_menu_callback,
+                         md);
+}
+
+
+/*
+ * TextWindow
+ */
+
 static int TextWindow_new(lua_State* L) {
     const gchar* title;
     TextWindow tw;
@@ -139,4 +202,5 @@ int TextWindow_register(lua_State* L) {
     
     return 1;
 }
+
 
