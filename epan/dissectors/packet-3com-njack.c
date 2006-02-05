@@ -35,8 +35,8 @@
 
 Specs:
 	No specs available. All knowledge gained by looking at traffic dumps
-	Packets to Managementstation: PORT_NJACK1 (5264)
-	Packets to Switch: PORT_NJACK2 (5265)
+	Packets to Managementstation: PORT_NJACK_PC (5264)
+	Packets to Switch: PORT_NJACK_SWITCH (5265)
 
 	Type 0x00? (localquery):	  M -> BC, Magic, type, 'LOCALQUERY'?
 	Type 0x01 (query):                M -> S, Magic, type, 'QUERY'
@@ -98,8 +98,8 @@ static int hf_njack_getresp_unknown1 = -1;
 #define PROTO_SHORT_NAME "NJACK"
 #define PROTO_LONG_NAME "3com Network Jack"
 
-#define PORT_NJACK1	5264
-#define PORT_NJACK2	5265
+#define PORT_NJACK_PC	5264
+#define PORT_NJACK_SWITCH	5265
 
 typedef enum {
 	NJACK_TYPE_QUERY	= 0x01,
@@ -788,10 +788,10 @@ proto_reg_handoff_njack(void)
 	dissector_handle_t njack_handle;
 
 	njack_handle = new_create_dissector_handle(dissect_njack_static, proto_njack);
-	dissector_add("udp.port", PORT_NJACK1, njack_handle);
-	/* dissector_add("tcp.port", PORT_NJACK1, njack_handle); */
-	dissector_add("udp.port", PORT_NJACK2, njack_handle);
-	/* dissector_add("tcp.port", PORT_NJACK2, njack_handle); */
+	dissector_add("udp.port", PORT_NJACK_PC, njack_handle);
+	/* dissector_add("tcp.port", PORT_NJACK_PC, njack_handle); */
+	dissector_add("udp.port", PORT_NJACK_SWITCH, njack_handle);
+	/* dissector_add("tcp.port", PORT_NJACK_SWITCH, njack_handle); */
 
         heur_dissector_add("udp", dissect_njack_heur, proto_njack);
         /* heur_dissector_add("tcp", dissect_njack_heur, proto_njack); */
