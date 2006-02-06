@@ -1109,8 +1109,10 @@ ssl_load_key(FILE* fp)
         return NULL;
     }
 
-    // note: openssl and gnutls use 'p' and 'q' with opposite meaning:
-    // our 'p' must be equal to 'q' as provided from openssl and viceversa
+    /*
+     * note: openssl and gnutls use 'p' and 'q' with opposite meaning:
+     * our 'p' must be equal to 'q' as provided from openssl and viceversa
+     */
     if (gcry_mpi_scan( &rsa_params[2], GCRYMPI_FMT_USG, d.data,  d.size, &tmp_size) !=0) {
         ssl_debug_printf("ssl_load_key: can't convert d rsa param to int (size %d)\n", d.size);
         return NULL;
