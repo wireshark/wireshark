@@ -64,6 +64,7 @@ LIBETHEREAL_SRC = 		\
 	packet.c		\
 	plugins.c		\
 	prefs.c			\
+	privileges.c		\
 	proto.c			\
 	radius_dict.c		\
 	range.c			\
@@ -152,6 +153,7 @@ LIBETHEREAL_INCLUDES = 		\
 	ppptypes.h		\
 	prefs.h			\
 	prefs-int.h		\
+	privileges.h		\
 	proto.h			\
 	ptvcursor.h		\
 	range.h			\

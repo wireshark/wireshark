@@ -62,6 +62,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <epan/filesystem.h>
+#include <epan/privileges.h>
 #include <wiretap/file_util.h>
 
 #include "globals.h"
@@ -693,6 +694,11 @@ main(int argc, char *argv[])
 #endif  /* HAVE_LIBPCAP */
 
   static const char    optstring[] = OPTSTRING_INIT OPTSTRING_WIN32;
+
+  /*
+   * Get credential information for later use.
+   */
+  get_credential_info();
 
   /* nothing more than the standard GLib handler, but without a warning */
   log_flags = 

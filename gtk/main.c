@@ -54,6 +54,7 @@
 
 #include <epan/epan.h>
 #include <epan/filesystem.h>
+#include <epan/privileges.h>
 #include <epan/epan_dissect.h>
 #include <epan/timestamp.h>
 #include <epan/packet.h>
@@ -1911,6 +1912,11 @@ main(int argc, char *argv[])
 
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_CHILD) + sizeof(OPTSTRING_WIN32) - 2] =
     OPTSTRING_INIT OPTSTRING_WIN32;
+
+  /*
+   * Get credential information for later use.
+   */
+  get_credential_info();
 
   /* initialize memory allocation subsystem */
   ep_init_chunk();

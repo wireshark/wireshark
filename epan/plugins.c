@@ -49,6 +49,7 @@
 #endif
 
 #include "filesystem.h"
+#include "privileges.h"
 #include <wiretap/file_util.h>
 #include "report_err.h"
 
@@ -415,11 +416,18 @@ init_plugins(const char *plugin_dir)
 	g_free(datafile_dir);
 
 	/*
-	 * Scan the users plugin directory.
+	 * If the program wasn't started with special privileges,
+	 * scan the users plugin directory.  (Even if we relinquish
+	 * them, plugins aren't safe unless we've *permanently*
+	 * relinquished them, and we can't do that in Ethereal as,
+	 * if we need privileges to start capturing, we'd need to
+	 * reclaim them before each time we start capturing.)
 	 */
-	datafile_dir = get_plugins_pers_dir();
-	plugins_scan_dir(datafile_dir);
-	g_free(datafile_dir);
+	if (!started_with_special_privs()) {
+	    datafile_dir = get_plugins_pers_dir();
+	    plugins_scan_dir(datafile_dir);
+	    g_free(datafile_dir);
+	}
     }
 }
 
