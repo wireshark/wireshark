@@ -355,7 +355,12 @@ static void funnel_new_dialog(const gchar* title,
 
     dd->win = win;
     
+#if GTK_MAJOR_VERSION >= 2
     gtk_window_resize(GTK_WINDOW(win),400,10*(i+2));
+#else
+    gtk_window_set_default_size(GTK_WINDOW(win), 400, 10*(i+2));
+    gtk_widget_set_usize(win, 400, 10*(i+2));
+#endif
     
     main_vb = gtk_vbox_new(TRUE,5);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
