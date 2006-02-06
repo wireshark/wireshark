@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <epan/gnuc_format_check.h>
 #include "packet-ssl-utils.h"
 
 #ifdef HAVE_LIBGNUTLS
@@ -34,7 +35,8 @@
 /* hmac abstraction layer */
 #define SSL_HMAC gcry_md_hd_t
 
-inline void ssl_hmac_init(SSL_HMAC* md, const void * key, int len, int algo)
+static inline void 
+ssl_hmac_init(SSL_HMAC* md, const void * key, int len, int algo)
 {
     if (*(md)) 
         gcry_md_close(*(md)); 
@@ -42,72 +44,88 @@ inline void ssl_hmac_init(SSL_HMAC* md, const void * key, int len, int algo)
     gcry_md_setkey (*(md), key, len);
 }
 
-inline void ssl_hmac_update(SSL_HMAC* md, const void* data, int len)
+static inline void 
+ssl_hmac_update(SSL_HMAC* md, const void* data, int len)
 {
     gcry_md_write(*(md), data, len);
 }
-inline void ssl_hmac_final(SSL_HMAC* md, unsigned char* data, unsigned int* datalen)
+static inline void 
+ssl_hmac_final(SSL_HMAC* md, unsigned char* data, unsigned int* datalen)
 { 
     int algo = gcry_md_get_algo (*(md));
     unsigned int len = gcry_md_get_algo_dlen(algo);
     memcpy(data, gcry_md_read(*(md), algo), len);
     *datalen =len;
 }
-inline void ssl_hmac_cleanup(SSL_HMAC* md) { gcry_md_close(*(md)); }
+static inline void 
+ssl_hmac_cleanup(SSL_HMAC* md) 
+{ 
+    gcry_md_close(*(md)); 
+}
 
 /* memory digest abstraction layer*/
 #define SSL_MD gcry_md_hd_t
 
-inline void ssl_md_init(SSL_MD* md, int algo)
+static inline void 
+ssl_md_init(SSL_MD* md, int algo)
 {
     if (*(md)) 
         gcry_md_close(*(md));
     gcry_md_open(md,algo, 0); 
 }
-inline void ssl_md_update(SSL_MD* md, unsigned char* data, int len) 
+static inline void 
+ssl_md_update(SSL_MD* md, unsigned char* data, int len) 
 { 
     gcry_md_write(*(md), data, len); 
 }
-inline void ssl_md_final(SSL_MD* md, unsigned char* data, unsigned int* datalen)
+static inline void 
+ssl_md_final(SSL_MD* md, unsigned char* data, unsigned int* datalen)
 { 
     int algo = gcry_md_get_algo (*(md));
     int len = gcry_md_get_algo_dlen (algo);
     memcpy(data, gcry_md_read(*(md),  algo), len);
     *datalen = len;
 }
-inline void ssl_md_cleanup(SSL_MD* md) { gcry_md_close(*(md)); }
+static inline void 
+ssl_md_cleanup(SSL_MD* md) { gcry_md_close(*(md)); }
 
 /* md5 /sha abstraction layer */
 #define SSL_SHA_CTX gcry_md_hd_t
 #define SSL_MD5_CTX gcry_md_hd_t
 
-void ssl_sha_init(SSL_SHA_CTX* md)
+static void 
+ssl_sha_init(SSL_SHA_CTX* md)
 {
     if (*(md)) 
         gcry_md_close(*(md));
     gcry_md_open(md,GCRY_MD_SHA1, 0); 
 }
-inline void ssl_sha_update(SSL_SHA_CTX* md, unsigned char* data, int len) 
+static inline void 
+ssl_sha_update(SSL_SHA_CTX* md, unsigned char* data, int len) 
 { 
     gcry_md_write(*(md), data, len);
 }
-inline void ssl_sha_final(unsigned char* buf, SSL_SHA_CTX* md)
+static inline void 
+ssl_sha_final(unsigned char* buf, SSL_SHA_CTX* md)
 {
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_SHA1), 
         gcry_md_get_algo_dlen(GCRY_MD_SHA1));
 }
 
-inline int ssl_md5_init(SSL_MD5_CTX* md)
+static inline int 
+ssl_md5_init(SSL_MD5_CTX* md)
 {
     if (*(md)) 
         gcry_md_close(*(md));
     return gcry_md_open(md,GCRY_MD_MD5, 0); 
 }
-inline void ssl_md5_update(SSL_MD5_CTX* md, unsigned char* data, int len)
+static inline void 
+ssl_md5_update(SSL_MD5_CTX* md, unsigned char* data, int len)
 {
     gcry_md_write(*(md), data, len);
 }
-inline void ssl_md5_final(unsigned char* buf, SSL_MD5_CTX* md)
+static inline void 
+ssl_md5_final(unsigned char* buf, SSL_MD5_CTX* md)
 {
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_MD5), 
         gcry_md_get_algo_dlen(GCRY_MD_MD5));
@@ -115,7 +133,8 @@ inline void ssl_md5_final(unsigned char* buf, SSL_MD5_CTX* md)
 
 
 /* stream cipher abstraction layer*/
-int ssl_cipher_init(gcry_cipher_hd_t *cipher, int algo, unsigned char* sk, 
+static int 
+ssl_cipher_init(gcry_cipher_hd_t *cipher, int algo, unsigned char* sk, 
         unsigned char* iv, int mode)
 {
     int gcry_modes[]={
@@ -133,22 +152,26 @@ int ssl_cipher_init(gcry_cipher_hd_t *cipher, int algo, unsigned char* sk,
         return -1;
     return 0;
 }
-inline int ssl_cipher_decrypt(gcry_cipher_hd_t *cipher, unsigned char * out, int outl, 
+static inline int 
+ssl_cipher_decrypt(gcry_cipher_hd_t *cipher, unsigned char * out, int outl, 
                    const unsigned char * in,int inl)
 {
     return gcry_cipher_decrypt ( *(cipher), out, outl, in, inl);
 }
-inline int ssl_get_digest_by_name(const char*name)
+static inline int 
+ssl_get_digest_by_name(const char*name)
 {
     return gcry_md_map_name(name);
 }
-inline int ssl_get_cipher_by_name(const char* name)
+static inline int 
+ssl_get_cipher_by_name(const char* name)
 {
     return gcry_cipher_map_name(name);
 }
 
 /* private key abstraction layer */
-inline int ssl_get_key_len(SSL_PRIVATE_KEY* pk) {return gcry_pk_get_nbits (pk); }
+static inline int 
+ssl_get_key_len(SSL_PRIVATE_KEY* pk) {return gcry_pk_get_nbits (pk); }
 
 gcry_err_code_t
 _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
@@ -158,7 +181,8 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
-int ssl_private_decrypt(unsigned int len, unsigned char* encr_data, SSL_PRIVATE_KEY* pk)
+int 
+ssl_private_decrypt(unsigned int len, unsigned char* encr_data, SSL_PRIVATE_KEY* pk)
 {
     int rc;
     size_t decr_len = 0;
@@ -281,6 +305,23 @@ out:
     return decr_len;
 }
 
+/* stringinfo interface */
+static int 
+ssl_data_alloc(StringInfo* str, unsigned int len)
+{
+    str->data = g_malloc(len);
+    if (!str->data)
+        return -1;
+    str->data_len = len;
+    return 0;
+}
+
+void 
+ssl_data_set(StringInfo* str, unsigned char* data, unsigned int len)
+{
+    memcpy(str->data, data, len);
+    str->data_len = len;
+}
 
 #define PRF(ssl,secret,usage,rnd1,rnd2,out) ((ssl->version_netorder==SSLV3_VERSION)? \
         ssl3_prf(secret,usage,rnd1,rnd2,out): \
@@ -345,7 +386,8 @@ static SslCipherSuite cipher_suites[]={
 #define MAX_BLOCK_SIZE 16
 #define MAX_KEY_SIZE 32
 
-int ssl_find_cipher(int num,SslCipherSuite* cs)
+int 
+ssl_find_cipher(int num,SslCipherSuite* cs)
 {
     SslCipherSuite *c;
     
@@ -359,7 +401,8 @@ int ssl_find_cipher(int num,SslCipherSuite* cs)
     return -1;
 }
 
-static int tls_hash(StringInfo* secret,
+static int 
+tls_hash(StringInfo* secret,
         StringInfo* seed, int md, StringInfo* out)
 {
     guint8 *ptr=out->data;
@@ -398,7 +441,8 @@ static int tls_hash(StringInfo* secret,
     return (0);
 }    
 
-static int tls_prf(StringInfo* secret, const char *usage,
+static int 
+tls_prf(StringInfo* secret, const char *usage,
         StringInfo* rnd1, StringInfo* rnd2, StringInfo* out)
 {
     StringInfo seed, sha_out, md5_out;
@@ -455,7 +499,8 @@ free_sha:
     return r;    
 }
 
-static int ssl3_generate_export_iv(StringInfo* r1,
+static int 
+ssl3_generate_export_iv(StringInfo* r1,
         StringInfo* r2, StringInfo* out)
 {
     SSL_MD5_CTX md5;
@@ -472,7 +517,8 @@ static int ssl3_generate_export_iv(StringInfo* r1,
     return(0);
 }
 
-static int ssl3_prf(StringInfo* secret, const char* usage,
+static int 
+ssl3_prf(StringInfo* secret, const char* usage,
         StringInfo* r1,
         StringInfo* r2,StringInfo* out)
 {
@@ -530,7 +576,8 @@ static int ssl3_prf(StringInfo* secret, const char* usage,
     return(0);
 }
 
-int ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite, 
+static int 
+ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite, 
         guint8 *mk, guint8 *sk, guint8 *iv)
 {
     int ciph=0;
@@ -562,7 +609,8 @@ int ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite,
     return 0;    
 }
 
-int ssl_generate_keyring_material(SslDecryptSession*ssl_session)
+int 
+ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 {
     StringInfo key_block;
     guint8 _iv_c[MAX_BLOCK_SIZE],_iv_s[MAX_BLOCK_SIZE];
@@ -768,7 +816,8 @@ fail:
     return -1;
 }
 
-int ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session, 
+int 
+ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session, 
     StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk)
 {
     int i;
@@ -827,7 +876,8 @@ static int fmt_seq(guint32 num, guint8* buf)
     return(0);
 }
 
-static int tls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
+static int 
+tls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
         guint32 datalen, guint8* mac)
 {
     SSL_HMAC hm;
@@ -868,7 +918,8 @@ static int tls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
     return(0);
 }
 
-int ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
+int 
+ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
         guint32 datalen, guint8* mac)
 {
     SSL_MD mc;
@@ -923,7 +974,8 @@ int ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     return(0);
 }
   
-int ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
+int 
+ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
         const unsigned char* in, int inl,unsigned char*out,int* outl)
 {
     int pad, worklen;
@@ -979,7 +1031,8 @@ int ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
 
 /* old relase of gnutls does not define the appropriate macros, so get 
  * them from the string*/
-void ssl_get_version(int* major, int* minor, int* patch)
+static void 
+ssl_get_version(int* major, int* minor, int* patch)
 {
     const char* str = gnutls_check_version(NULL);
     
@@ -988,7 +1041,8 @@ void ssl_get_version(int* major, int* minor, int* patch)
 }
 
 
-SSL_PRIVATE_KEY* ssl_load_key(FILE* fp)
+SSL_PRIVATE_KEY* 
+ssl_load_key(FILE* fp)
 {    
     /* gnutls make our work much harded, since we have to work internally with
      * s-exp formatted data, but PEM loader export only in "gnutls_datum" 
@@ -1121,48 +1175,60 @@ void ssl_free_key(SSL_PRIVATE_KEY* key)
 #endif    
 }
 
+#ifdef SSL_DECRYPT_DEBUG
 static FILE* myout=NULL;
-void ssl_lib_init(void)
+#endif
+void 
+ssl_lib_init(void)
 {
     gnutls_global_init();
 
+#ifdef SSL_DECRYPT_DEBUG    
 #ifdef _WIN32
     /* we don't have standard I/O file available, open a log */
     myout = fopen("ssl-decrypt.txt","w");
     if (!myout)
 #endif
         myout = stderr;
+#endif    
 }
 
 
 #else
 /* no libgnutl: dummy operation to keep interface consistent*/
-void ssl_lib_init(void)
+void 
+ssl_lib_init(void)
 {
 }
 
-SSL_PRIVATE_KEY* ssl_load_key(FILE* fp) 
+SSL_PRIVATE_KEY* 
+ssl_load_key(FILE* fp) 
 {
     ssl_debug_printf("ssl_load_key: impossible without glutls. fp %p\n",fp);
     return NULL;
 }
-void ssl_free_key(SSL_PRIVATE_KEY* key)
+
+void 
+ssl_free_key(SSL_PRIVATE_KEY* key _U_)
 {
 }
 
-int ssl_find_cipher(int num,SslCipherSuite* cs) 
+int 
+ssl_find_cipher(int num,SslCipherSuite* cs) 
 {
     ssl_debug_printf("ssl_find_cipher: dummy without glutls. num %d cs %p\n",
         num,cs);
     return 0; 
 }
-int ssl_generate_keyring_material(SslDecryptSession*ssl) 
+int 
+ssl_generate_keyring_material(SslDecryptSession*ssl) 
 {
     ssl_debug_printf("ssl_generate_keyring_material: impossible without glutls. ssl %p\n",
         ssl);
     return 0; 
 }
-int ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session, 
+int 
+ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session, 
     StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk)
 {
     ssl_debug_printf("ssl_decrypt_pre_master_secret: impossible without glutls."
@@ -1171,11 +1237,12 @@ int ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session,
     return 0;
 }
 
-int ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct, 
+int 
+ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct, 
         const unsigned char* in, int inl,unsigned char*out,int* outl)
 {
     ssl_debug_printf("ssl_decrypt_record: impossible without gnutls. ssl %p"
-        "decoder %p ct %d, in %p inl %d out %p outl %d\n", ssl, decoder, ct,
+        "decoder %p ct %d, in %p inl %d out %p outl %p\n", ssl, decoder, ct,
         in, inl, out, outl);
     return 0;
 }
@@ -1183,10 +1250,11 @@ int ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
 #endif
 
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
-void ssl_session_init(SslDecryptSession* ssl_session)
+void 
+ssl_session_init(SslDecryptSession* ssl_session)
 {
-    ssl_debug_printf("ssl_session_init: initializing ptr %p size %d\n", 
-        ssl_session, sizeof(SslDecryptSession));
+    ssl_debug_printf("ssl_session_init: initializing ptr %p size %lu\n", 
+        ssl_session, (unsigned long)sizeof(SslDecryptSession));
 
     ssl_session->master_secret.data = ssl_session->_master_secret;
     ssl_session->session_id.data = ssl_session->_session_id;
@@ -1195,35 +1263,9 @@ void ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->master_secret.data_len = 48;
 }
 
-int ssl_data_init(StringInfo* str, unsigned char* src, unsigned int len)
-{
-    str->data = g_realloc(str->data,len);
-    if (!str->data)
-        return -1;
-    if (src)
-        memcpy(str->data, src,len);
-    str->data_len = len;
-    return 0;
-}
-
-int ssl_data_alloc(StringInfo* str, unsigned int len)
-{
-    str->data = g_malloc(len);
-    if (!str->data)
-        return -1;
-    str->data_len = len;
-    return 0;
-}
-
-int ssl_data_set(StringInfo* str, unsigned char* data, unsigned int len)
-{
-    memcpy(str->data, data, len);
-    str->data_len = len;
-    return 0;
-}
-
 #ifdef SSL_DECRYPT_DEBUG
-void ssl_debug_printf(const char* fmt, ...)
+void 
+ssl_debug_printf(const char* fmt, ...)
 {
   va_list ap;
   int ret=0;
@@ -1233,8 +1275,8 @@ void ssl_debug_printf(const char* fmt, ...)
   fflush(myout);
 }
 
-
-void ssl_print_text_data(const char* name, const unsigned char* data, int len)
+void 
+ssl_print_text_data(const char* name, const unsigned char* data, int len)
 {
     int i;
     fprintf(myout,"%s: ",name);
@@ -1245,7 +1287,8 @@ void ssl_print_text_data(const char* name, const unsigned char* data, int len)
     fflush(myout);
 }
 
-void ssl_print_data(const char* name, const unsigned char* data, int len)
+void 
+ssl_print_data(const char* name, const unsigned char* data, int len)
 {
     int i;
     fprintf(myout,"%s[%d]:\n",name, len);
@@ -1258,7 +1301,8 @@ void ssl_print_data(const char* name, const unsigned char* data, int len)
     fflush(myout);
 }
 
-void ssl_print_string(const char* name, const StringInfo* data)
+void 
+ssl_print_string(const char* name, const StringInfo* data)
 {
     ssl_print_data(name, data->data, data->data_len);
 }

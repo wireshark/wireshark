@@ -28,7 +28,6 @@
 #ifdef HAVE_LIBGNUTLS
 
 #ifdef _WIN32
-/* #include <gnutls_conf.h> */
 #include <gcrypt_conf.h>
 #endif
 
@@ -36,6 +35,7 @@
 #include <gcrypt.h>
 #include <gnutls/x509.h>
 #include <gnutls/openssl.h>
+#include <epan/gnuc_format_check.h>
 
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
@@ -139,31 +139,86 @@ typedef struct _SslDecryptSession {
 
 } SslDecryptSession;
 
-void ssl_lib_init(void);
-void ssl_session_init(SslDecryptSession*);
-int ssl_data_alloc(StringInfo* str, unsigned int len);
-int ssl_data_set(StringInfo* data, unsigned char* src, unsigned int len);
+/** Initialize decryption engine/ssl layer. To be called once per execution */
+extern void 
+ssl_lib_init(void);
 
-SSL_PRIVATE_KEY* ssl_load_key(FILE* fp);
-void ssl_free_key(SSL_PRIVATE_KEY*);
+/** Initialize an ssl session struct
+ @param ssl pointer to ssl session struct to be initialized */
+extern void 
+ssl_session_init(SslDecryptSession* ssl);
 
-int ssl_find_cipher(int num,SslCipherSuite* cs);
+/** set the data and len for the stringInfo buffer. buf should be big enough to
+ * contain the provided data
+ @param buf the buffer to update
+ @param src the data source 
+ @param len the source data len */
+extern void 
+ssl_data_set(StringInfo* buf, unsigned char* src, unsigned int len);
 
-int ssl_generate_keyring_material(SslDecryptSession*ssl_session);
+/** Load an RSA private key from specified file
+ @param fp the file that contain the key data
+ @return a pointer to the loaded key on success, or NULL */
+extern SSL_PRIVATE_KEY* 
+ssl_load_key(FILE* fp);
 
-int ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session, 
+/** Deallocate the memory used for specified key 
+ @param pointer to the key to be freed */
+extern void 
+ssl_free_key(SSL_PRIVATE_KEY* key);
+
+/* Search for the specified cipher souite id 
+ @param num the id of the cipher suite to be searched 
+ @param cs pointer to the cipher suite struct to be filled 
+ @return 0 if the cipher suite is found, -1 elsewhere */
+extern int 
+ssl_find_cipher(int num,SslCipherSuite* cs);
+
+/* Expand the pre_master_secret to generate all the session information 
+ * (master secret, session keys, ivs)
+ @param ssl_session the store for all the session data
+ @return 0 on success */
+extern int 
+ssl_generate_keyring_material(SslDecryptSession*ssl_session);
+
+/* Try to decrypt in place the encrypted pre_master_secret
+ @param ssl_session the store for the decrypted pre_master_secret
+ @param entrypted_pre_master the rsa encrypted pre_master_secret
+ @param pk the private key to be used for decryption
+ @return 0 on success */
+extern int 
+ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session, 
     StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk);
 
-int ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct, 
+/* Try to decrypt an ssl record
+ @param ssl_session the store all the session data
+ @param decoder the stream decoder to be used
+ @param ct the content type of this ssl record
+ @param in a pinter to the ssl record to be decrypted
+ @param inl the record lenght
+ @param out a pointer to the store for the decrypted data
+ @param outl the decrypted data len 
+ @return 0 on success */
+extern int 
+ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct, 
         const unsigned char* in, int inl,unsigned char*out,int* outl);
 
 #ifdef SSL_DECRYPT_DEBUG
-void ssl_debug_printf(const char* fmt,...);
-void ssl_print_data(const char* name, const unsigned char* data, int len);
-void ssl_print_string(const char* name, const StringInfo* data);
-void ssl_print_text_data(const char* name, const unsigned char* data, int len);
+extern void 
+ssl_debug_printf(const char* fmt,...) GNUC_FORMAT_CHECK(printf,1,2);
+extern void 
+ssl_print_data(const char* name, const unsigned char* data, int len);
+extern void 
+ssl_print_string(const char* name, const StringInfo* data);
+extern void 
+ssl_print_text_data(const char* name, const unsigned char* data, int len);
 #else
-static inline char* ssl_debug_printf(const char* fmt,...) { return fmt; }
+
+/* No debug: nullify debug operation*/
+static inline void GNUC_FORMAT_CHECK(printf,1,2)
+ssl_debug_printf(const char* fmt _U_,...)
+{ 
+}
 #define ssl_print_data(a, b, c)
 #define ssl_print_string(a, b)
 #define ssl_print_text_data(a, b, c)

@@ -217,13 +217,7 @@ typedef struct {
     char* info;
 } SslAssociation;
 
-#ifdef _WIN32
-#define TEST_DIR "\\Program Files\\Ethereal\\esp_data\\"
-#else
-#define TEST_DIR "/usr/share/ethereal-ssl-decrypt/"
-#endif
-static char* ssl_keys_list = "127.0.0.1:443:"TEST_DIR"server.key,"
-    "127.0.0.1:4433:"TEST_DIR"server.pem";
+static char* ssl_keys_list = NULL;
 static char* ssl_ports_list = NULL;
 
 typedef struct _SslService {
@@ -238,7 +232,8 @@ static dissector_handle_t ssl_handle = NULL;
 static StringInfo ssl_decrypted_data = {NULL, 0};
 
 /* Hash Functions for ssl sessions table and private keys table*/
-static gint  ssl_equal (gconstpointer v, gconstpointer v2)
+static gint  
+ssl_equal (gconstpointer v, gconstpointer v2)
 {
     const StringInfo *val1 = (const StringInfo *)v;
     const StringInfo *val2 = (const StringInfo *)v2;
@@ -250,7 +245,8 @@ static gint  ssl_equal (gconstpointer v, gconstpointer v2)
     return 0;
 }
 
-static guint ssl_hash  (gconstpointer v)
+static guint 
+ssl_hash  (gconstpointer v)
 {    
     guint l,hash = 0;
     StringInfo* id = (StringInfo*) v;
@@ -261,7 +257,8 @@ static guint ssl_hash  (gconstpointer v)
     return hash;
 }
 
-static gint  ssl_private_key_equal (gconstpointer v, gconstpointer v2)
+static gint 
+ssl_private_key_equal (gconstpointer v, gconstpointer v2)
 {
     const SslService *val1 = (const SslService *)v;
     const SslService *val2 = (const SslService *)v2;
@@ -273,7 +270,8 @@ static gint  ssl_private_key_equal (gconstpointer v, gconstpointer v2)
     return 0;
 }
 
-static guint ssl_private_key_hash  (gconstpointer v)
+static guint 
+ssl_private_key_hash  (gconstpointer v)
 {    
     const SslService *key = (const SslService *)v;
     guint l,hash = key->port, len = key->addr.len;
@@ -287,14 +285,16 @@ static guint ssl_private_key_hash  (gconstpointer v)
 
 /* private key table entries have a scope 'larger' then packet capture,
  * so we can't relay on se_alloc** function */
-static void ssl_private_key_free(gpointer id, gpointer key, gpointer dummy)
+static void 
+ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_)
 {
     g_free(id);
     ssl_free_key((SSL_PRIVATE_KEY*) key);
 }
 
 /* handling of association between ssl ports and clear text protocol */
-static void ssl_association_add(unsigned int port, unsigned int ctport, 
+static void 
+ssl_association_add(unsigned int port, unsigned int ctport, 
         const char* info)
 {
     dissector_table_t tcp_dissectors = find_dissector_table( "tcp.port");
@@ -313,23 +313,26 @@ static void ssl_association_add(unsigned int port, unsigned int ctport,
     g_tree_insert(ssl_associations, (gpointer)port, assoc);
 }
 
-static gint ssl_association_cmp(gconstpointer a, gconstpointer b)
+static gint 
+ssl_association_cmp(gconstpointer a, gconstpointer b)
 {
     return (gint)a-(gint)b;
 }
 
-static inline SslAssociation* ssl_association_find(unsigned int port)
+static inline 
+SslAssociation* ssl_association_find(unsigned int port)
 {
     register SslAssociation* ret = g_tree_lookup(ssl_associations, (gpointer)port);
     ssl_debug_printf("ssl_association_find: port %d found %p\n", port, ret);
     return ret;
 }
 
-static gint ssl_association_remove_handle (gpointer key, 
-    gpointer  data, gpointer  user_data)
+static gint 
+ssl_association_remove_handle (gpointer key _U_, 
+    gpointer  data, gpointer  user_data _U_)
 {
     SslAssociation* assoc = (SslAssociation*) data;
-    ssl_debug_printf("ssl_association_remove_handle removing ptr %p handle\n",
+    ssl_debug_printf("ssl_association_remove_handle removing ptr %p handle %p\n",
         data, assoc->handle);
     if (assoc->handle)
         dissector_delete("tcp.port", assoc->ssl_port, assoc->handle);
@@ -1706,7 +1709,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             new_tvb = tvb_new_real_data(decrypted->data, 
                 decrypted->data_len, decrypted->data_len);
             tvb_set_free_cb(new_tvb, g_free);
-            //tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+            /* tvb_set_child_real_data_tvbuff(tvb, new_tvb); */
             
             /* find out a dissector using server port*/
             if (association && association->handle) {
@@ -2133,7 +2136,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 
     }
     
-    // XXXX
+    /* XXXX */
     return session_id_length+33;
 }
 
@@ -2960,7 +2963,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
                                              plurality(session_id_length, "", "s"));
             }
             
-            //PAOLO: get session id and reset session state for key [re]negotiation
+            /* PAOLO: get session id and reset session state for key [re]negotiation */
             if (ssl)
             {
                 tvb_memcpy(tvb,ssl->session_id.data, offset, session_id_length);
@@ -2981,14 +2984,14 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
                                 tvb, offset, challenge_length, 0);
             if (ssl)
             {
-                //PAOLO: get client random data; we get at most 32 bytes from 
-                // challenge
+                /* PAOLO: get client random data; we get at most 32 bytes from 
+                 challenge */
                 int max = challenge_length > 32? 32: challenge_length;
                 
                 ssl_debug_printf("client random len: %d padded to 32\n",
                     challenge_length);
                 
-                // client random is padded with zero and 'right' aligned
+                /* client random is padded with zero and 'right' aligned */
                 memset(ssl->client_random.data, 0, 32 - max);
                 tvb_memcpy(tvb, &ssl->client_random.data[32 - max], offset, max);
                 ssl->client_random.data_len = 32;

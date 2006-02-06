@@ -137,7 +137,7 @@ forget_follow_info(follow_info_t *follow_info)
 }
 
 static int
-ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *ssl)
+ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
 {
     follow_info_t* follow_info = tapdata;
     SslDecryptedRecord* rec;
