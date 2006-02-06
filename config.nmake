@@ -73,6 +73,12 @@ GLIB_DIR=$(ETHEREAL_LIBS)\glib
 GTK1_DIR=$(ETHEREAL_LIBS)\gtk+
 GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
 
+#
+# If you have gnutls set this to the pathname where the lib and include files
+# are stored.
+# This enable ssl decryption
+#GNUTLS_DIR=$(ETHEREAL_LIBS)\gnutls-win32-msvc\gnutls
+
 # Declare the version of your gtk2 and pango. (MAJOR + MINOR Version number
 # but without MICRO version number) 
 # These macros are used by the nsis installer script and by the setup target.
@@ -400,6 +406,19 @@ LIBETHEREAL_CONFIG=^#define HAVE_LIBETHEREALDLL 1
 !ELSE
 LIBETHEREAL_CONFIG=
 !ENDIF
+
+!IFDEF GNUTLS_DIR
+GNUTLS_PATH=$(GNUTLS_DIR)
+GNUTLS_CFLAGS=/I$(GNUTLS_DIR)
+GNUTLS_LIBS=$(GNUTLS_DIR)\gnutls.lib
+# Nmake uses carets to escape special characters
+GNUTLS_CONFIG=^#define HAVE_GNUTLS 1
+!else
+GNUTLS_CFLAGS=
+GNUTLS_LIBS=
+GNUTLS_CONFIG=
+!ENDIF
+
 
 # Construct the path
 PATH=$(PATH);$(CYGWIN_PATH);$(DLL_PATH);$(ZLIB_PATH);$(ADNS_PATH)

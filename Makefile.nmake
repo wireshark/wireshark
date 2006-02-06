@@ -16,7 +16,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
 	/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32 \
-	$(ADNS_CFLAGS) $(PCRE_CFLAGS) -D_U_="" -D_NEED_VAR_IMPORT_
+	$(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) -D_U_="" -D_NEED_VAR_IMPORT_
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -56,7 +56,8 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
-	$(ZLIB_LIBS)
+	$(ZLIB_LIBS) \
+	$(GNUTLS_LIBS) 
 !ENDIF
 #	$(PCAP_DIR)\lib\wpcap.lib
 
@@ -72,7 +73,8 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
-	$(ZLIB_LIBS)
+	$(ZLIB_LIBS) \
+	$(GNUTLS_LIBS)
 !ENDIF
 
 capinfos_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -103,7 +105,8 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
-	$(ZLIB_LIBS)	
+	$(ZLIB_LIBS) \
+	$(GNUTLS_LIBS)	
 !ENDIF
 
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -224,6 +227,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_PCAP_DATALINK_VAL_TO_NAME@/$(PCAP_DATALINK_VAL_TO_NAME_CONFIG)/" \
 	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
+		-e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps

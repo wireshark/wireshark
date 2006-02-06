@@ -29,6 +29,13 @@
 #include <string.h>
 #include "packet-ssl-utils.h"
 
+void 
+ssl_data_set(StringInfo* str, unsigned char* data, unsigned int len)
+{
+    memcpy(str->data, data, len);
+    str->data_len = len;
+}
+
 #ifdef HAVE_LIBGNUTLS
 
 /* hmac abstraction layer */
@@ -313,13 +320,6 @@ ssl_data_alloc(StringInfo* str, unsigned int len)
         return -1;
     str->data_len = len;
     return 0;
-}
-
-void 
-ssl_data_set(StringInfo* str, unsigned char* data, unsigned int len)
-{
-    memcpy(str->data, data, len);
-    str->data_len = len;
 }
 
 #define PRF(ssl,secret,usage,rnd1,rnd2,out) ((ssl->version_netorder==SSLV3_VERSION)? \

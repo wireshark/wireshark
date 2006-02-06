@@ -36,7 +36,6 @@
 #include <gcrypt.h>
 #include <gnutls/x509.h>
 #include <gnutls/openssl.h>
-#include <epan/gnuc_format_check.h>
 
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
