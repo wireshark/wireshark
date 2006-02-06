@@ -81,8 +81,6 @@ struct _funnel_node_t {
     void* dummy;
 };
 
-static gboolean text_window_delete_event_cb(GtkWidget*, GdkEvent*, gpointer);
-
 static void text_window_cancel_button_cb(GtkWidget *bt _U_, gpointer data) {
     funnel_text_window_t* tw = data;
     
@@ -103,7 +101,6 @@ static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
         tw->close_cb(tw->close_data);
     
     g_free(tw);
-    
 }
 
 static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data) {
@@ -118,7 +115,6 @@ static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *eve
     g_free(tw);
     
     return TRUE;
-    
 }
 
 static gboolean text_window_delete_event_cb(GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data)
@@ -332,6 +328,8 @@ static gboolean funnel_dlg_cb(GtkWidget *win _U_, gpointer user_data)
 
     window_destroy(GTK_WIDGET(dd->win));
 
+    g_ptr_array_free(returns,FALSE);
+
     return TRUE;
 }
 
@@ -406,7 +404,7 @@ static void funnel_new_dialog(const gchar* title,
     gtk_widget_show(win);
 }
 
-static const funnel_ops_t ops = {
+static const funnel_ops_t funnel_ops = {
     new_text_window,
     text_window_set_text,
     text_window_append,
@@ -447,9 +445,12 @@ static void register_menu_cb(const char *name,
 
 }
 
+void initialize_funnel_ops(void) {
+    funnel_set_funnel_ops(&funnel_ops);
+}
+
 void
 register_tap_listener_gtkfunnel(void)
 {
-    funnel_set_funnel_ops(&ops);
     funnel_register_all_menus(register_menu_cb);
 }

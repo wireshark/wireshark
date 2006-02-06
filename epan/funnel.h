@@ -89,4 +89,6 @@ typedef void (*funnel_registration_cb_t)(const char *name,
 
 extern void funnel_register_all_menus(funnel_registration_cb_t r_cb);
 
+extern void initialize_funnel_ops(void);
+
 #endif

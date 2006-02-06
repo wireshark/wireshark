@@ -63,6 +63,7 @@
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
+#include <epan/funnel.h>
 
 /* general (not GTK specific) */
 #include "file.h"
@@ -1921,7 +1922,10 @@ main(int argc, char *argv[])
   /* initialize memory allocation subsystem */
   ep_init_chunk();
   se_init_chunk();
-
+  
+  /* initialize the funnel mini-api */
+  initialize_funnel_ops();
+  
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
