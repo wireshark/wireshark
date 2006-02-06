@@ -182,7 +182,12 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     gtk_widget_grab_default(tw->bt_close);
 
     gtk_container_add(GTK_CONTAINER(txt_scrollw), tw->txt);
+#if GTK_MAJOR_VERSION >= 2
     gtk_window_resize(GTK_WINDOW(tw->win),400,300);
+#else
+    gtk_window_set_default_size(GTK_WINDOW(tw->win), 400, 300);
+    gtk_widget_set_usize(tw->win, 400, 300);
+#endif
     gtk_widget_show_all(tw->win);
     
     return tw;
