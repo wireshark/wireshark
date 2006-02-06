@@ -99,7 +99,7 @@ static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
     
 }
 
-static text_window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data)
+static gboolean text_window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data)
 {
     funnel_text_window_t* tw = user_data;
     window_destroy(win);
