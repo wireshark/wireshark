@@ -211,9 +211,11 @@ http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.sht
     gtk_adjustment_set_value(txt->vadj, 0.0);
     gtk_text_forward_delete(txt, gtk_text_get_length(txt));
 #else
+    GtkTextBuffer *buf;
+
     if (! tw->win) return; 
 
-    GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tw->txt));
+    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tw->txt));
     
     gtk_text_buffer_set_text(buf, "", 0);
 #endif
@@ -224,6 +226,10 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
 {
     GtkWidget *txt;
     int nchars = strlen(str);
+#if GTK_MAJOR_VERSION >= 2
+    GtkTextBuffer *buf;
+    GtkTextIter    iter;
+#endif
  
     if (! tw->win) return; 
 
@@ -234,8 +240,7 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
 #if GTK_MAJOR_VERSION < 2
     gtk_text_insert(GTK_TEXT(txt), user_font_get_regular(), NULL, NULL, str, nchars);
 #else
-    GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
-    GtkTextIter    iter;
+    buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
     
     gtk_text_buffer_get_end_iter(buf, &iter);
     gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
