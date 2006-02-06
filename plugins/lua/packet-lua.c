@@ -83,6 +83,11 @@ static int lua_report_failure(lua_State* LS) {
     return 0;
 }
 
+static int lua_not_register_menu(lua_State* L) {
+    luaL_error(L,"too late to register a menu");
+    return 0;    
+}
+
 
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
@@ -187,8 +192,6 @@ static int init_error_handler(lua_State* L) {
 static void init_lua(void) {
     if ( ! lua_initialized ) {
 
-        if (L) TextWindow_register(L);
-        
         lua_prime_all_fields(NULL);
         
         lua_register_subtrees();
@@ -278,7 +281,8 @@ void proto_register_lua(void)
     Columns_register(L);
     Tap_register(L);
     Address_register(L);
-    
+    TextWindow_register(L);
+
     lua_pushstring(L, "format_date");
     lua_pushcfunction(L, lua_format_date);
     lua_settable(L, LUA_GLOBALSINDEX);
@@ -293,6 +297,10 @@ void proto_register_lua(void)
     
     lua_pushstring(L, "register_menu");
     lua_pushcfunction(L, lua_register_menu);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "gui_enabled");
+    lua_pushcfunction(L, lua_gui_enabled);
     lua_settable(L, LUA_GLOBALSINDEX);
     
     lua_pushstring(L, "dialog");
@@ -336,6 +344,12 @@ void proto_register_lua(void)
 		L = NULL;
 		return;
     }
+
+    /* after the body it is too late to register a menu */
+    lua_pushstring(L, "register_menu");
+    lua_pushcfunction(L, lua_not_register_menu);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
     return;
 }
 

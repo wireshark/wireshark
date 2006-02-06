@@ -249,6 +249,7 @@ extern const gchar* lua_shiftstring(lua_State* L,int idx);
 
 extern int lua_register_menu(lua_State* L);
 extern int lua_new_dialog(lua_State* L);
+extern int lua_gui_enabled(lua_State* L);
 
 extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);

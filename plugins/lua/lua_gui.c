@@ -42,6 +42,11 @@ static int menu_cb_error_handler(lua_State* L) {
     return 0;    
 }
 
+int lua_gui_enabled(lua_State* L) {
+    lua_pushboolean(L,GPOINTER_TO_INT(ops));
+    return 1;
+}
+
 void lua_menu_callback(gpointer data) {
     struct _lua_menu_data* md = data;
 
@@ -58,11 +63,6 @@ extern int lua_register_menu(lua_State* L) {
     const gchar* name = luaL_checkstring(L,1);
     struct _lua_menu_data* md;
     gboolean retap = FALSE;
-    
-    if (ops) {
-        luaL_error(L,"to late to register_menu");
-        return 0;
-    }
     
     if (!lua_isfunction(L,2)) {
         luaL_error(L,"register_menu takes a string, a function and another optional datum");
@@ -151,7 +151,7 @@ extern int lua_new_dialog(lua_State* L) {
     struct _dlg_cb_data* dcbd;
     
     if (! ops) {
-        luaL_argerror(L,1,"too early for dialog");
+        luaL_error(L,"GUI not available");
         return 0;
     }
     
@@ -212,7 +212,7 @@ static int TextWindow_new(lua_State* L) {
     TextWindow tw;
     
     if (!ops) {
-        luaL_error(L,"GUI system not available");
+        luaL_error(L,"GUI not available");
         return 0;
     }
     
