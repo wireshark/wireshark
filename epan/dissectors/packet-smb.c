@@ -418,15 +418,23 @@ static int hf_smb_nt_create_bits_ext_resp = -1;
 static int hf_smb_nt_create_options_directory_file = -1;
 static int hf_smb_nt_create_options_write_through = -1;
 static int hf_smb_nt_create_options_sequential_only = -1;
+static int hf_smb_nt_create_options_no_intermediate_buffering = -1;
 static int hf_smb_nt_create_options_sync_io_alert = -1;
 static int hf_smb_nt_create_options_sync_io_nonalert = -1;
 static int hf_smb_nt_create_options_non_directory_file = -1;
+static int hf_smb_nt_create_options_create_tree_connection = -1;
+static int hf_smb_nt_create_options_complete_if_oplocked = -1;
 static int hf_smb_nt_create_options_no_ea_knowledge = -1;
 static int hf_smb_nt_create_options_eight_dot_three_only = -1;
 static int hf_smb_nt_create_options_random_access = -1;
 static int hf_smb_nt_create_options_delete_on_close = -1;
 static int hf_smb_nt_create_options_open_by_fileid = -1;
 static int hf_smb_nt_create_options_backup_intent = -1;
+static int hf_smb_nt_create_options_no_compression = -1;
+static int hf_smb_nt_create_options_reserve_opfilter = -1;
+static int hf_smb_nt_create_options_open_reparse_point = -1;
+static int hf_smb_nt_create_options_open_no_recall = -1;
+static int hf_smb_nt_create_options_open_for_free_space_query = -1;
 static int hf_smb_nt_share_access_read = -1;
 static int hf_smb_nt_share_access_write = -1;
 static int hf_smb_nt_share_access_delete = -1;
@@ -7102,6 +7110,10 @@ static const true_false_string tfs_nt_create_options_sequential_only = {
 	"The file will only be accessed sequentially",
 	"The file might not only be accessed sequentially"
 };
+static const true_false_string tfs_nt_create_options_no_intermediate_buffering = {
+	"NO intermediate buffering is allowed",
+	"Intermediate buffering is allowed"
+};
 static const true_false_string tfs_nt_create_options_sync_io_alert = {
 	"All operations SYNCHRONOUS, waits subject to termination from alert",
 	"Operations NOT necessarily synchronous"
@@ -7113,6 +7125,14 @@ static const true_false_string tfs_nt_create_options_sync_io_nonalert = {
 static const true_false_string tfs_nt_create_options_non_directory = {
 	"File being created/opened must not be a directory",
 	"File being created/opened must be a directory"
+};
+static const true_false_string tfs_nt_create_options_create_tree_connection = {
+	"Create Tree Connections is SET",
+	"Create Tree Connections is NOT set"
+};
+static const true_false_string tfs_nt_create_options_complete_if_oplocked = {
+	"Complete if oplocked is SET",
+	"Complete if oplocked is NOT set"
 };
 static const true_false_string tfs_nt_create_options_no_ea_knowledge = {
 	"The client does not understand extended attributes",
@@ -7137,6 +7157,26 @@ static const true_false_string tfs_nt_create_options_open_by_fileid = {
 static const true_false_string tfs_nt_create_options_backup_intent = {
 	"This is a create with BACKUP INTENT",
 	"This is a normal create"
+};
+static const true_false_string tfs_nt_create_options_no_compression = {
+	"Open/Create with NO Compression",
+	"Compression is allowed for Open/Create"
+};
+static const true_false_string tfs_nt_create_options_reserve_opfilter = {
+	"Reserve Opfilter is SET",
+	"Reserve Opfilter is NOT set"
+};
+static const true_false_string tfs_nt_create_options_open_reparse_point = {
+	"Open a Reparse Point",
+	"Normal open"
+};
+static const true_false_string tfs_nt_create_options_open_no_recall = {
+	"Open No Recall is SET",
+	"Open no recall is NOT set"
+};
+static const true_false_string tfs_nt_create_options_open_for_free_space_query = {
+	"This is an OPEN FOR FREE SPACE QUERY",
+	"This is NOT an open for free space query"
 };
 
 int
@@ -7165,11 +7205,17 @@ dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sequential_only,
 		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_intermediate_buffering,
+		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_alert,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_nonalert,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_non_directory_file,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_create_tree_connection,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_complete_if_oplocked,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_ea_knowledge,
 		tvb, offset, 4, mask);
@@ -7182,6 +7228,16 @@ dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_by_fileid,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_backup_intent,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_compression,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_reserve_opfilter,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_reparse_point,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_no_recall,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_for_free_space_query,
 		tvb, offset, 4, mask);
 
 	offset += 4;
@@ -16875,6 +16931,10 @@ proto_register_smb(void)
 		{ "Sequential Only", "smb.nt.create_options.sequential_only", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_sequential_only), 0x00000004, "Will accees to thsis file only be sequential?", HFILL }},
 
+	{ &hf_smb_nt_create_options_no_intermediate_buffering,
+		{ "Intermediate Buffering", "smb.nt.create_options.intermediate_buffering", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_no_intermediate_buffering), 0x00000008, "Is intermediate buffering allowed?", HFILL }},
+
 	{ &hf_smb_nt_create_options_sync_io_alert,
 		{ "Sync I/O Alert", "smb.nt.create_options.sync_io_alert", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_sync_io_alert), 0x00000010, "All operations are performed synchronous", HFILL}},
@@ -16887,14 +16947,13 @@ proto_register_smb(void)
 		{ "Non-Directory", "smb.nt.create_options.non_directory", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_non_directory), 0x00000040, "Should file being opened/created be a non-directory?", HFILL }},
 
-	/* 0x00000080 is "tree connect", at least in "NtCreateFile()"
-	   and "NtOpenFile()"; is that sent over the wire?  Network
-	   Monitor thinks so, but its author may just have grabbed
-	   the flag bits from a system header file. */
+	{ &hf_smb_nt_create_options_create_tree_connection,
+		{ "Create Tree Connection", "smb.nt.create_options.create_tree_connection", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_create_tree_connection), 0x00000080, "Create Tree Connection flag", HFILL }},
 
-	/* 0x00000100 is "complete if oplocked", at least in "NtCreateFile()"
-	   and "NtOpenFile()"; is that sent over the wire?  NetMon
-	   thinks so, but see previous comment. */
+	{ &hf_smb_nt_create_options_complete_if_oplocked,
+		{ "Complete If Oplocked", "smb.nt.create_options.complete_if_oplocked", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_complete_if_oplocked), 0x00000100, "Complete if oplocked flag", HFILL }},
 
 	{ &hf_smb_nt_create_options_no_ea_knowledge,
 		{ "No EA Knowledge", "smb.nt.create_options.no_ea_knowledge", FT_BOOLEAN, 32,
@@ -16915,17 +16974,29 @@ proto_register_smb(void)
 		{ "Open By FileID", "smb.nt.create_options.open_by_fileid", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_open_by_fileid), 0x00002000, "Open file by inode", HFILL }},
 
-	/* 0x00002000 is "open by FID", or something such as that (which
-	   I suspect is like "open by inumber" on UNIX), at least in
-	   "NtCreateFile()" and "NtOpenFile()"; is that sent over the
-	   wire?  NetMon thinks so, but see previous comment. */
-
 	{ &hf_smb_nt_create_options_backup_intent,
 		{ "Backup Intent", "smb.nt.create_options.backup_intent", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_backup_intent), 0x00004000, "Is this opened by BACKUP ADMIN for backup intent?", HFILL }},
-	/* 0x00004000 is "open for backup", at least in "NtCreateFile()"
-	   and "NtOpenFile()"; is that sent over the wire?  NetMon
-	   thinks so, but see previous comment. */
+
+	{ &hf_smb_nt_create_options_no_compression,
+		{ "No Compression", "smb.nt.create_options.no_compression", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_no_compression), 0x00008000, "Is compression allowed?", HFILL }},
+
+	{ &hf_smb_nt_create_options_reserve_opfilter,
+		{ "Reserve Opfilter", "smb.nt.create_options.reserve_opfilter", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_reserve_opfilter), 0x00100000, "Reserve Opfilter flag", HFILL }},
+
+	{ &hf_smb_nt_create_options_open_reparse_point,
+		{ "Open Reparse Point", "smb.nt.create_options.open_reparse_point", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_open_reparse_point), 0x00200000, "Is this an open of a reparse point or of the normal file?", HFILL }},
+
+	{ &hf_smb_nt_create_options_open_no_recall,
+		{ "Open No Recall", "smb.nt.create_options.open_no_recall", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_open_no_recall), 0x00400000, "Open no recall flag", HFILL }},
+
+	{ &hf_smb_nt_create_options_open_for_free_space_query,
+		{ "Open For Free Space query", "smb.nt.create_options.open_for_free_space_query", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_open_for_free_space_query), 0x00800000, "Open For Free Space Query flag", HFILL }},
 
 	{ &hf_smb_nt_share_access_read,
 		{ "Read", "smb.share.access.read", FT_BOOLEAN, 32,
