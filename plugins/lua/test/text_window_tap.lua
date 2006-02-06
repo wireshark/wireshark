@@ -1,5 +1,5 @@
 -- text_window_tap.lua
--- $Id:  $
+-- $Id$
 --
 -- (C) 2006 Luis E. G. Ontanon <luis.ontanon@gmail.com>
 --
