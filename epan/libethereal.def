@@ -316,6 +316,7 @@ get_column_format_from_str
 get_column_format_matches
 get_column_longest_string
 get_column_title
+get_credential_info
 get_datafile_path
 get_datafile_dir
 get_dirname
@@ -534,6 +535,7 @@ register_tap
 register_tap_listener
 RegistrationRejectReason_vals   DATA
 ReleaseCompleteReason_vals      DATA
+relinquish_special_privs_perm
 remove_tap_listener
 report_failure
 report_open_failure
@@ -562,6 +564,7 @@ smb_cmd_vals                    DATA
 smb2_cmd_vals                    DATA
 sminmpec_values                 DATA
 start_requested_stats
+started_with_special_privs
 stats_tree_branch_max_namelen
 stats_tree_branch_to_str
 stats_tree_create_node
