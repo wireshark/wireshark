@@ -265,7 +265,7 @@ ssl_private_decrypt(unsigned int len, unsigned char* encr_data, SSL_PRIVATE_KEY*
 
 out:        
     gcry_sexp_release(s_plain);
-#else    
+#else /* SSL_FAST */
     rc = _gcry_rsa_decrypt(0, &text,  &encr_mpi, pk,0);
     gcry_mpi_print( GCRYMPI_FMT_USG, 0, 0, &decr_len, text);
     
@@ -299,7 +299,7 @@ out:
     ssl_print_data("decypted_unstrip_pre_master", decr_data_ptr, decr_len);
     g_memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
     decr_len -= rc;
-#endif    
+#endif /* SSL_FAST */
     gcry_mpi_release(text);
     return decr_len;
 }
@@ -1055,9 +1055,9 @@ ssl_load_key(FILE* fp)
     unsigned int tmp_size;
 #ifdef SSL_FAST
     gcry_mpi_t* rsa_params = g_malloc(sizeof(gcry_mpi_t)*6);
-#else    
+#else
     gcry_mpi_t rsa_params[6];
-#endif    
+#endif
     gcry_sexp_t rsa_priv_key;
     
     /* init private key data*/
@@ -1162,18 +1162,18 @@ ssl_load_key(FILE* fp)
             gcry_mpi_release(rsa_params[i]);
     }
     return rsa_priv_key;
-#endif    
+#endif
 }
 
 void ssl_free_key(SSL_PRIVATE_KEY* key)
 {
-#if SSL_FAST    
+#if SSL_FAST
     int i;
     for (i=0; i< 6; i++)
         gcry_mpi_release(key[i]);    
 #else
     gcry_sexp_release(key);
-#endif    
+#endif
 }
 
 #ifdef SSL_DECRYPT_DEBUG
@@ -1189,13 +1189,12 @@ ssl_lib_init(void)
     /* we don't have standard I/O file available, open a log */
     myout = fopen("ssl-decrypt.txt","w");
     if (!myout)
-#endif
+#endif /* _WIN32 */
         myout = stderr;
-#endif    
+#endif /* SSL_DECRYPT_DEBUG */
 }
 
-
-#else
+#else /* HAVE_LIBGNUTLS */
 /* no libgnutl: dummy operation to keep interface consistent*/
 void 
 ssl_lib_init(void)
@@ -1248,7 +1247,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
     return 0;
 }
 
-#endif
+#endif /* HAVE_LIBGNUTLS */
 
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
 void 
@@ -1307,4 +1306,4 @@ ssl_print_string(const char* name, const StringInfo* data)
 {
     ssl_print_data(name, data->data, data->data_len);
 }
-#endif
+#endif /* SSL_DECRYPT_DEBUG */
