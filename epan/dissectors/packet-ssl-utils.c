@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <epan/gnuc_format_check.h>
 #include "packet-ssl-utils.h"
 
 #ifdef HAVE_LIBGNUTLS

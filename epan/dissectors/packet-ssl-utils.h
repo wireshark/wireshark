@@ -1,4 +1,4 @@
-/* packet-ss-utils.c
+/* packet-ssl-utils.h
  *
  * $Id$
  *
@@ -24,6 +24,7 @@
 #define __SSL_UTILS_H_
 
 #include <glib.h>
+#include <epan/gnuc_format_check.h>
 
 #ifdef HAVE_LIBGNUTLS
 
