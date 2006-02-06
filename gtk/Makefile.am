@@ -93,6 +93,7 @@ noinst_HEADERS = \
 	sctp_stat.h	\
 	service_response_time_table.h	\
 	gui_stat_menu.h	\
+	ssl-dlg.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
