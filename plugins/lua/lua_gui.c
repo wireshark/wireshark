@@ -95,6 +95,114 @@ extern int lua_register_menu(lua_State* L) {
 }
 
 
+
+
+struct _dlg_cb_data {
+    lua_State* L;
+    int func_ref;
+    int data_ref;
+};
+
+static int dlg_cb_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of dialog callback:\n %s",error);
+    return 0;
+}
+
+static void lua_dialog_cb(gchar** user_input, void* data) {
+    struct _dlg_cb_data* dcbd = data;
+    int i = 0;
+    gchar* input;
+    lua_State* L = dcbd->L;
+    
+    lua_settop(L,0);
+    lua_pushcfunction(L,dlg_cb_error_handler);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, dcbd->func_ref);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, dcbd->data_ref);
+    
+    for (i = 0; (input = user_input[i]) ; i++) {
+        lua_pushstring(L,input);
+        g_free(input);
+    }
+    
+    g_free(user_input);
+    
+    switch ( lua_pcall(L,i+1,0,1) ) {
+        case 0:
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling dialog callback");
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling dialog callback");
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+    
+}
+
+extern int lua_new_dialog(lua_State* L) {
+    const gchar* title;
+    int top = lua_gettop(L);
+    int i;
+    GPtrArray* labels;
+    struct _dlg_cb_data* dcbd;
+    
+    if (! ops) {
+        luaL_argerror(L,1,"too early for dialog");
+        return 0;
+    }
+    
+    if (! (title  = luaL_checkstring(L,1)) ) {
+        luaL_argerror(L,1,"the title must be a string");
+        return 0;
+    }
+    
+    if (! lua_isfunction(L,2)) {
+        luaL_argerror(L,2,"must be a function");
+        return 0;
+    }
+    
+    if (top < 3) {
+        luaL_error(L,"too few arguments");
+        return 0;
+    }
+    
+    
+    dcbd = g_malloc(sizeof(struct _dlg_cb_data));
+    dcbd->L = L;
+    
+    lua_remove(L,1);
+    
+    lua_pushvalue(L, 1);
+    dcbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_remove(L,1);
+    
+    lua_pushvalue(L, 1);
+    dcbd->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_remove(L,1);
+    
+    labels = g_ptr_array_new();
+    
+    top -= 3;
+    
+    for (i = 1; i <= top; i++) {
+        gchar* label = (void*)luaL_checkstring(L,i);
+        g_ptr_array_add(labels,label);
+    }
+    
+    g_ptr_array_add(labels,NULL);
+    
+    ops->new_dialog(title, (const gchar**)labels->pdata, lua_dialog_cb, dcbd);
+    
+    g_ptr_array_free(labels,TRUE);
+    
+    return 0;
+}
+
+
 /*
  * TextWindow
  */
