@@ -2958,6 +2958,19 @@ dissect_smb2_ExtA_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, sm
 }
 
 static void
+dissect_smb2_TWrp_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
+{
+	proto_item *item=NULL;
+	if (tree) {
+		item = proto_tree_get_parent(tree);
+		proto_item_append_text(item, ": Timestamp");
+	}
+	dissect_nt_64bit_time(tvb, tree, 0, hf_smb2_unknown_timestamp);
+
+	return;
+}
+
+static void
 dissect_smb2_MxAc_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
 	int offset=0;
@@ -3037,6 +3050,8 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		dissector = dissect_smb2_ExtA_buffer;
 	} else if(!strcmp(tag, "MxAc")){
 		dissector = dissect_smb2_MxAc_buffer;
+	} else if(!strcmp(tag, "TWrp")){
+		dissector = dissect_smb2_TWrp_buffer;
 	}
 
 	dissect_smb2_olb_buffer(pinfo, sub_tree, tvb, &data_olb, si, dissector);
