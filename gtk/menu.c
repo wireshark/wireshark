@@ -78,6 +78,7 @@
 #include "simple_dialog.h"
 #include "packet_history.h"
 #include "color_filters.h"
+#include "ssl-dlg.h"
 
 GtkWidget *popup_menu_object;
 
@@ -170,9 +171,6 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
                     By putting the Close item near the open item(s), it better suggests that it will close the 
                     currently opened/captured file only.
 */
-
-void
-ssl_stream_cb(GtkWidget * w, gpointer data _U_);
 
 /* main menu */
 static GtkItemFactoryEntry menu_items[] =

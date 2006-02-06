@@ -60,6 +60,8 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
+#include "ssl-dlg.h"
+
 #ifndef SSL_SUFFIX
 #define SSL_SUFFIX ""
 #endif
