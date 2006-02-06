@@ -32,3 +32,8 @@ extern void get_credential_info(void);
  * Was this program started with special privileges?
  */
 extern gboolean started_with_special_privs(void);
+
+/*
+ * Permanently relinquish special privileges.
+ */
+extern void relinquish_special_privs_perm(void);

@@ -1311,15 +1311,12 @@ main(int argc, char *argv[])
      * We're reading a capture file.
      */
 
-#ifndef _WIN32
     /*
-     * Immediately relinquish any set-UID or set-GID privileges we have;
-     * we must not be allowed to read any capture files the user running
-     * Tethereal can't open.
+     * Immediately relinquish any special privileges we have; we must not
+     * be allowed to read any capture files the user running Tethereal
+     * can't open.
      */
-    setuid(getuid());
-    setgid(getgid());
-#endif
+    relinquish_special_privs_perm();
 
     if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
       epan_cleanup();
@@ -1457,21 +1454,19 @@ capture(int out_file_type)
     goto error;
   }
 
-#ifndef _WIN32
   /*
-   * We've opened the capture device, so, if we're set-UID or set-GID,
-   * relinquish those privileges.
+   * We've opened the capture device, so we shouldn't need any special
+   * privileges any more; relinquish those privileges.
    *
    * XXX - if we have saved set-user-ID support, we should give up those
    * privileges immediately, and then reclaim them long enough to get
    * a list of network interfaces and to open one, and then give them
    * up again, so that stuff we do while processing the argument list,
-   * reading the user's preferences, etc. is done as the real user and
-   * group, not the effective user and group.
+   * reading the user's preferences, loading and starting plugins
+   * (especially *user* plugins), etc. is done with the user's privileges,
+   * not special privileges.
    */
-  setuid(getuid());
-  setgid(getgid());
-#endif
+  relinquish_special_privs_perm();
 
   /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
   if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {

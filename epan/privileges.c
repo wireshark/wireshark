@@ -53,6 +53,14 @@ started_with_special_privs(void)
 	return FALSE;
 }
 
+/*
+ * For now, we don't do anything when asked to relinquish special privileges.
+ */
+void
+relinquish_special_privs_perm(void)
+{
+}
+
 #else /* _WIN32 */
 
 #ifdef HAVE_SYS_TYPES_H
@@ -92,4 +100,17 @@ started_with_special_privs(void)
 	return (ruid != euid || rgid != egid);
 #endif
 }
+
+/*
+ * Permanently relinquish  set-UID and set-GID privileges.
+ * Ignore errors for now - if we have the privileges, we should
+ * be able to relinquish them.
+ */
+void
+relinquish_special_privs_perm(void)
+{
+	setuid(ruid);
+	setgid(rgid);
+}
+
 #endif /* _WIN32 */
