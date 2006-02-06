@@ -38,11 +38,10 @@
 typedef struct _funnel_text_window_t funnel_text_window_t ;
 typedef struct _funnel_tree_window_t funnel_tree_window_t ;
 typedef struct _funnel_node_t funnel_node_t ;
-typedef struct _funnel_dialog_t funnel_dialog_t;
 
 typedef void (*text_win_close_cb_t)(void*);
 
-typedef void (*funnel_dlg_cb_t)(const gchar** user_input);
+typedef void (*funnel_dlg_cb_t)(gchar** user_input, void* data);
 
 typedef struct _funnel_ops_t {
     funnel_text_window_t* (*new_text_window)(const gchar* label);
@@ -58,15 +57,16 @@ typedef struct _funnel_ops_t {
     funnel_node_t* (*add_node)(funnel_node_t* node, gchar** values);
     void  (*remove_node)(funnel_node_t* node);
     void  (*set_cell)(funnel_node_t* node, gchar* column, const gchar* text);
-    
-    funnel_dialog_t* (*new_dialog)(const gchar* title,
-                                   const gchar* text,
-                                   guint32 buttonmask,
-                                   const gchar** fieldnames,
-                                   funnel_dlg_cb_t dlg_cb );
-    
+
     void (*set_filter)(const gchar* filter_string);
+
 #endif
+
+    void (*new_dialog)(const gchar* title,
+                                   const gchar** fieldnames,
+                                   funnel_dlg_cb_t dlg_cb,
+                                   void* data);
+    
 } funnel_ops_t;
 
 
