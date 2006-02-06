@@ -115,7 +115,7 @@ static void follow_stream_om_server(GtkWidget * w, gpointer data);
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
 
-/* List of "follow_info_t" structures for all "Follow TCP Stream" windows,
+/* List of "follow_info_t" structures for all "Follow SSL Stream" windows,
    so we can redraw them all if the colors or font changes. */
 static GList *follow_infos;
 
@@ -179,7 +179,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     return 0;
 }
 
-/* Follow the TCP stream, if any, to which the last packet that we called
+/* Follow the SSL stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
 void
@@ -200,7 +200,7 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     follow_info_t	*follow_info;
     GString* msg;
 
-    /* we got tcp so we can follow */
+    /* we got ssl so we can follow */
     if (cfile.edt->pi.ipproto != 6) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                           "Error following stream.  Please make\n"
@@ -220,7 +220,7 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
         return;
     }
     
-    /* Create a new filter that matches all packets in the TCP stream,
+    /* Create a new filter that matches all packets in the SSL stream,
        and set the display filter entry accordingly */
     reset_tcp_reassembly();
     follow_filter = build_follow_filter(&cfile.edt->pi);
@@ -264,12 +264,12 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     remove_tap_listener(follow_info);
 
     /* The data_out_filename file now has all the text that was in the session */
-    streamwindow = dlg_window_new("Follow TCP stream");
+    streamwindow = dlg_window_new("Follow SSL stream");
 
     /* needed in follow_filter_out_stream(), is there a better way? */
     follow_info->streamwindow = streamwindow;
 
-    gtk_widget_set_name(streamwindow, "TCP stream window");
+    gtk_widget_set_name(streamwindow, "SSL stream window");
     gtk_window_set_default_size(GTK_WINDOW(streamwindow), DEF_WIDTH, DEF_HEIGHT);
     gtk_container_border_width(GTK_CONTAINER(streamwindow), 6);
 
@@ -462,7 +462,7 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 
     /* Make sure this widget gets destroyed if we quit the main loop,
        so that if we exit, we clean up any temporary files we have
-       for "Follow TCP Stream" windows. */
+       for "Follow SSL Stream" windows. */
     gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(streamwindow));
 
     gtk_widget_show_all(streamwindow);
@@ -903,9 +903,9 @@ follow_load_text(follow_info_t *follow_info)
 
 
 /*
- * Keep a static pointer to the current "Save TCP Follow Stream As" window, if
+ * Keep a static pointer to the current "Save SSL Follow Stream As" window, if
  * any, so that if somebody tries to do "Save"
- * while there's already a "Save TCP Follow Stream" window up, we just pop
+ * while there's already a "Save SSL Follow Stream" window up, we just pop
  * up the existing one, rather than creating a new one.
  */
 static void
@@ -920,7 +920,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	return;
     }
 
-    new_win = file_selection_new("Ethereal: Save TCP Follow Stream As",
+    new_win = file_selection_new("Ethereal: Save SSL Follow Stream As",
                                  FILE_SELECTION_SAVE);
     follow_info->follow_save_as_w = new_win;
 
