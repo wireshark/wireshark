@@ -101,6 +101,9 @@ static int hf_smb2_birth_object_id = -1;
 static int hf_smb2_domain_id = -1;
 static int hf_smb2_class = -1;
 static int hf_smb2_infolevel = -1;
+static int hf_smb2_infolevel_file_info = -1;
+static int hf_smb2_infolevel_fs_info = -1;
+static int hf_smb2_infolevel_sec_info = -1;
 static int hf_smb2_max_response_size = -1;
 static int hf_smb2_max_ioctl_out_size = -1;
 static int hf_smb2_required_buffer_size = -1;
@@ -263,10 +266,34 @@ static const value_string smb2_share_type_vals[] = {
 #define SMB2_FILE_ALLOCATION_INFO	0x13
 #define SMB2_FILE_ENDOFFILE_INFO	0x14
 #define SMB2_FILE_ALTERNATE_NAME_INFO	0x15
-#define SMB2_FILE_STREAM_INFO	0x16
+#define SMB2_FILE_STREAM_INFO		0x16
 #define SMB2_FILE_COMPRESSION_INFO	0x1c
 #define SMB2_FILE_NETWORK_OPEN_INFO	0x22
 #define SMB2_FILE_ATTRIBUTE_TAG_INFO	0x23
+static const value_string smb2_file_info_levels[] = {
+	{SMB2_FILE_BASIC_INFO,		"SMB2_FILE_BASIC_INFO" },
+	{SMB2_FILE_STANDARD_INFO,	"SMB2_FILE_STANDARD_INFO" },
+	{SMB2_FILE_INTERNAL_INFO,	"SMB2_FILE_INTERNAL_INFO" },
+	{SMB2_FILE_EA_INFO,		"SMB2_FILE_EA_INFO" },
+	{SMB2_FILE_ACCESS_INFO,		"SMB2_FILE_ACCESS_INFO" },
+	{SMB2_FILE_RENAME_INFO,		"SMB2_FILE_RENAME_INFO" },
+	{SMB2_FILE_DISPOSITION_INFO,	"SMB2_FILE_DISPOSITION_INFO" },
+	{SMB2_FILE_POSITION_INFO,	"SMB2_FILE_POSITION_INFO" },
+	{SMB2_FILE_INFO_0f,		"SMB2_FILE_INFO_0f" },
+	{SMB2_FILE_MODE_INFO,		"SMB2_FILE_MODE_INFO" },
+	{SMB2_FILE_ALIGNMENT_INFO,	"SMB2_FILE_ALIGNMENT_INFO" },
+	{SMB2_FILE_ALL_INFO,		"SMB2_FILE_ALL_INFO" },
+	{SMB2_FILE_ALLOCATION_INFO,	"SMB2_FILE_ALLOCATION_INFO" },
+	{SMB2_FILE_ENDOFFILE_INFO,	"SMB2_FILE_ENDOFFILE_INFO" },
+	{SMB2_FILE_ALTERNATE_NAME_INFO,	"SMB2_FILE_ALTERNATE_NAME_INFO" },
+	{SMB2_FILE_STREAM_INFO,		"SMB2_FILE_STREAM_INFO" },
+	{SMB2_FILE_COMPRESSION_INFO,	"SMB2_FILE_COMPRESSION_INFO" },
+	{SMB2_FILE_NETWORK_OPEN_INFO,	"SMB2_FILE_NETWORK_OPEN_INFO" },
+	{SMB2_FILE_ATTRIBUTE_TAG_INFO,	"SMB2_FILE_ATTRIBUTE_TAG_INFO" },
+	{ 0, NULL }
+};
+
+
 
 #define SMB2_FS_INFO_01		0x01 
 #define SMB2_FS_INFO_03		0x03 
@@ -275,8 +302,22 @@ static const value_string smb2_share_type_vals[] = {
 #define SMB2_FS_INFO_06		0x06 
 #define SMB2_FS_INFO_07		0x07 
 #define SMB2_FS_OBJECTID_INFO	0x08 
+static const value_string smb2_fs_info_levels[] = {
+	{SMB2_FS_INFO_01,	"SMB2_FS_INFO_01" },
+	{SMB2_FS_INFO_03,	"SMB2_FS_INFO_03" },
+	{SMB2_FS_INFO_04,	"SMB2_FS_INFO_04" },
+	{SMB2_FS_INFO_05,	"SMB2_FS_INFO_05" },
+	{SMB2_FS_INFO_06,	"SMB2_FS_INFO_06" },
+	{SMB2_FS_INFO_07,	"SMB2_FS_INFO_07" },
+	{SMB2_FS_OBJECTID_INFO,	"SMB2_FS_OBJECTID_INFO" },
+	{ 0, NULL }
+};
 
 #define SMB2_SEC_INFO_00	0x00
+static const value_string smb2_sec_info_levels[] = {
+	{SMB2_SEC_INFO_00,	"SMB2_SEC_INFO_00" },
+	{ 0, NULL }
+};
 
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info
@@ -2082,29 +2123,86 @@ dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 
 static int
-dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
+dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, smb2_info_t *si)
+{
+	char cl, il;
+	proto_item *item;
+	int hfindex;
+	value_string dummy_value_string[] = {
+		{ 0, NULL }
+	};
+	value_string *vs;
+
+	if(si->response){
+		if(!si->saved){
+			return offset;
+		}
+		cl=si->saved->class;
+		il=si->saved->infolevel;
+	} else {
+		cl=tvb_get_guint8(tvb, offset);
+		il=tvb_get_guint8(tvb, offset+1);
+		if(si->saved){
+			si->saved->class=cl;
+			si->saved->infolevel=il;
+		}
+	}
+
+
+	switch(cl){
+	case SMB2_CLASS_FILE_INFO:
+		hfindex=hf_smb2_infolevel_file_info;
+		vs=smb2_file_info_levels;
+		break;
+	case SMB2_CLASS_FS_INFO:
+		hfindex=hf_smb2_infolevel_fs_info;
+		vs=smb2_fs_info_levels;
+		break;
+	case SMB2_CLASS_SEC_INFO:
+		hfindex=hf_smb2_infolevel_sec_info;
+		vs=smb2_sec_info_levels;
+		break;
+	default:
+		hfindex=hf_smb2_infolevel;
+		vs=dummy_value_string;
+	}
+
+
+	/* class */
+	item=proto_tree_add_uint(tree, hf_smb2_class, tvb, offset, 1, cl);
+	if(si->response){
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+	/* infolevel */
+	item=proto_tree_add_uint(tree, hfindex, tvb, offset+1, 1, il);
+	if(si->response){
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+	offset += 2;
+
+	if(!si->response){
+		/* Only update COL_INFO for requests. It clutters the
+		 * display ab bit too much if we do it for replies
+		 * as well.
+		 */
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s", 
+				val_to_str(cl, smb2_class_vals, "(Class:0x%08x)"), 
+				val_to_str(il, vs, "(Level:0x%08x)"));
+		}
+	}
+
+	return offset;
+}
+
+static int
+dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* class */
-	if(si->saved){
-		si->saved->class=tvb_get_guint8(tvb, offset);
-	}
-	proto_tree_add_item(tree, hf_smb2_class, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* infolevel */
-	if(si->saved){
-		si->saved->infolevel=tvb_get_guint8(tvb, offset);
-	}
-	proto_tree_add_item(tree, hf_smb2_infolevel, tvb, offset, 1, TRUE);
-	offset += 1;
-
-
-	if (si->saved && check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Class:0x%02x Level:0x%02x", si->saved->class, si->saved->infolevel);
-	}
+	/* class and info level */
+	offset = dissect_smb2_class_infolevel(pinfo, tvb, offset, tree, si);
 
 	/* max response size */
 	proto_tree_add_item(tree, hf_smb2_max_response_size, tvb, offset, 4, TRUE);
@@ -2259,23 +2357,11 @@ dissect_smb2_getinfo_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int
 dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
-	guint8 class=0;
-	guint8 infolevel=0;
 	guint16 len;
 	offset_length_buffer_t olb;
 
 	/* class/infolevel */
-	if(si->saved){
-		proto_item *item;
-
-		class=si->saved->class;
-		item=proto_tree_add_uint(tree, hf_smb2_class, tvb, 0, 0, class);
-		PROTO_ITEM_SET_GENERATED(item);
-
-		infolevel=si->saved->infolevel;
-		item=proto_tree_add_uint(tree, hf_smb2_infolevel, tvb, 0, 0, infolevel);
-		PROTO_ITEM_SET_GENERATED(item);
-	}
+	dissect_smb2_class_infolevel(pinfo, tvb, offset, tree, si);
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, &len);
@@ -2958,7 +3044,7 @@ dissect_smb2_ExtA_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, sm
 }
 
 static void
-dissect_smb2_TWrp_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
+dissect_smb2_TWrp_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
 	proto_item *item=NULL;
 	if (tree) {
@@ -3222,24 +3308,8 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* class/level only meaningful in requests */
-	if(!si->response){
-		/* class */
-		if(si->saved){
-			si->saved->class=tvb_get_guint8(tvb, offset);
-		}
-		proto_tree_add_item(tree, hf_smb2_class, tvb, offset, 1, TRUE);
-		/* infolevel */
-		if(si->saved){
-			si->saved->infolevel=tvb_get_guint8(tvb, offset+1);
-		}
-		proto_tree_add_item(tree, hf_smb2_infolevel, tvb, offset+1, 1, TRUE);
-	}
-	offset += 2;
-
-	if (si->saved && check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Class:0x%02x Level:0x%02x", si->saved->class, si->saved->infolevel);
-	}
+	/* class and info level */
+	offset = dissect_smb2_class_infolevel(pinfo, tvb, offset, tree, si);
 
 	/* size */
 	setinfo_size=tvb_get_letohl(tvb, offset);
@@ -3267,22 +3337,10 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
-dissect_smb2_setinfo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
+dissect_smb2_setinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* class/infolevel */
-	if(si->saved){
-		guint8 class=0;
-		guint8 infolevel=0;
-		proto_item *item;
-
-		class=si->saved->class;
-		item=proto_tree_add_uint(tree, hf_smb2_class, tvb, 0, 0, class);
-		PROTO_ITEM_SET_GENERATED(item);
-
-		infolevel=si->saved->infolevel;
-		item=proto_tree_add_uint(tree, hf_smb2_infolevel, tvb, 0, 0, infolevel);
-		PROTO_ITEM_SET_GENERATED(item);
-	}
+	dissect_smb2_class_infolevel(pinfo, tvb, offset, tree, si);
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -4321,6 +4379,18 @@ proto_register_smb2(void)
 	{ &hf_smb2_infolevel,
 		{ "InfoLevel", "smb2.infolevel", FT_UINT8, BASE_HEX,
 		NULL, 0, "Infolevel", HFILL }},
+
+	{ &hf_smb2_infolevel_file_info,
+		{ "InfoLevel", "smb2.file_info.infolevel", FT_UINT8, BASE_HEX,
+		VALS(smb2_file_info_levels), 0, "File_Info Infolevel", HFILL }},
+
+	{ &hf_smb2_infolevel_fs_info,
+		{ "InfoLevel", "smb2.fs_info.infolevel", FT_UINT8, BASE_HEX,
+		VALS(smb2_fs_info_levels), 0, "Fs_Info Infolevel", HFILL }},
+
+	{ &hf_smb2_infolevel_sec_info,
+		{ "InfoLevel", "smb2.sec_info.infolevel", FT_UINT8, BASE_HEX,
+		VALS(smb2_sec_info_levels), 0, "Sec_Info Infolevel", HFILL }},
 
 	{ &hf_smb2_write_length,
 		{ "Write Length", "smb2.write_length", FT_UINT32, BASE_DEC,
