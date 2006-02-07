@@ -629,6 +629,7 @@ static int hf_smb_unix_find_file_nextoffset = -1;
 static int hf_smb_unix_find_file_resumekey = -1;
 static int hf_smb_network_unknown = -1;
 static int hf_smb_disposition_delete_on_close = -1;
+static int hf_smb_pipe_info_flag = -1;
 static int hf_smb_mode = -1;
 static int hf_smb_attribute = -1;
 static int hf_smb_reparse_tag = -1;
@@ -1295,6 +1296,11 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 static const true_false_string tfs_disposition_delete_on_close = {
 	"DELETE this file when closed",
 	"Normal access, do not delete on close"
+};
+
+static const true_false_string tfs_pipe_info_flag = {
+	"SET NAMED PIPE mode",
+	"Clear NAMED PIPE mode"
 };
 
 
@@ -11178,6 +11184,23 @@ dissect_disposition_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	return offset;
 }
 
+int
+dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		    int offset, guint16 *bcp, gboolean *trunc)
+{
+	smb_info_t *si = pinfo->private_data;
+
+	DISSECTOR_ASSERT(si);
+
+	/* pipe info flag */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_pipe_info_flag, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+
+	*trunc = FALSE;
+	return offset;
+}
+
 /*dissect the data block for TRANS2_QUERY_PATH_INFORMATION and
   TRANS2_QUERY_FILE_INFORMATION*/
 static int
@@ -11366,11 +11389,14 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_disposition_info(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
+	case 1023: /* Set Pipe Info */
+		offset = dissect_sfi_SMB_FILE_PIPE_INFO(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
 	case 1014:
 	case 1016:
 	case 1019:
 	case 1020:
-	case 1023:
 	case 1025:
 	case 1029:
 	case 1032:
@@ -17775,6 +17801,10 @@ proto_register_smb(void)
 	{ &hf_smb_disposition_delete_on_close,
 	  { "Delete on close", "smb.disposition.delete_on_close", FT_BOOLEAN, 8,
 		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
+
+	{ &hf_smb_pipe_info_flag,
+	  { "Pipe Info", "smb.pipe_info_flag", FT_BOOLEAN, 8,
+		TFS(&tfs_pipe_info_flag), 0x01, "", HFILL }},
 
 	};
 
