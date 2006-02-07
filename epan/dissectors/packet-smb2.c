@@ -64,6 +64,7 @@ static int hf_smb2_tid = -1;
 static int hf_smb2_uid = -1;
 static int hf_smb2_flags_response = -1;
 static int hf_smb2_flags_pid_valid = -1;
+static int hf_smb2_flags_signature = -1;
 static int hf_smb2_response_buffer_offset = -1;
 static int hf_smb2_security_blob_offset = -1;
 static int hf_smb2_security_blob_len = -1;
@@ -184,6 +185,7 @@ static int hf_smb2_host_name = -1;
 static int hf_smb2_auth_frame = -1;
 static int hf_smb2_tcon_frame = -1;
 static int hf_smb2_share_type = -1;
+static int hf_smb2_signature = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -668,6 +670,11 @@ static const true_false_string tfs_flags_response = {
 static const true_false_string tfs_flags_pid_valid = {
 	"The PID field is VALID",
 	"The pid field if NOT valid"
+};
+
+static const true_false_string tfs_flags_signature = {
+	"This pdu is SIGNED",
+	"This pdu is NOT signed"
 };
 
 static const value_string compression_format_vals[] = {
@@ -4166,6 +4173,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			"Flags: 0x%08x", si->flags);
 		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
 	}
+	proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_pid_valid, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_response, tvb, offset, 4, si->flags);
  
@@ -4189,13 +4197,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* Tree ID and User ID */
 	offset = dissect_smb2_tid_uid(pinfo, header_tree, tvb, offset, si);
 
-	/* some unknown bytes */
-	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
-	offset += 4;
-
-	/* some unknown bytes */
-	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 12, FALSE);
-	offset += 12;
+	/* Signature */
+	proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, FALSE);
+	offset += 16;
 
 	proto_item_set_len(header_item, offset-old_offset);
 
@@ -4383,6 +4387,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_flags_pid_valid,
 		{ "PID Valid", "smb2.flags.pid_valid", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_pid_valid), SMB2_FLAGS_PID_VALID, "Whether the PID field is valid or not", HFILL }},
+	{ &hf_smb2_flags_signature,
+		{ "Signing", "smb2.flags.signature", FT_BOOLEAN, 32,
+		TFS(&tfs_flags_signature), SMB2_FLAGS_SIGNATURE, "Whether the pdu is signed or not", HFILL }},
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the Tree/Share", HFILL }},
@@ -4813,6 +4820,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_host_name,
 		{ "Host", "smb2.host", FT_STRING, BASE_NONE,
 		NULL, 0, "Host Name", HFILL }},
+
+	{ &hf_smb2_signature,
+		{ "Signature", "smb2.signature", FT_BYTES, BASE_HEX,
+		NULL, 0, "Signature", HFILL }},
 
 	{ &hf_smb2_unknown,
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
