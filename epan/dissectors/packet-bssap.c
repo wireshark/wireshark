@@ -674,8 +674,7 @@ dissect_bssap_channel_needed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	 * value part of the Channel Needed IE defined in 3GPP TS 44.018.
 	 * 10.5.2.8 Channel Needed
 	 */
-	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
-
+	de_rr_chnl_needed(tvb, ie_tree, offset, ie_len, NULL, 0);
 
 	return offset + ie_len;
 

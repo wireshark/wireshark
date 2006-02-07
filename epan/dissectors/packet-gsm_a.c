@@ -1143,6 +1143,8 @@ static int hf_gsm_a_rr_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_utran_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_cdma200_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_geran_iu_cm_cng_msg_req = -1;
+static int hf_gsm_a_rr_chnl_needed_ch1 = -1;
+static int hf_gsm_a_rr_chnl_needed_ch2 = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
 static int hf_ROS_component = -1;
 static int hf_ROS_invoke = -1;                    /* Invoke */
@@ -1285,7 +1287,7 @@ static dgt_set_t Dgt_tbcd = {
     }
 };
 
-static dgt_set_t Dgt_msid = {
+static dgt_set_t Dgt1_9_bcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
@@ -3147,8 +3149,8 @@ typedef enum
 /* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
  * [3]  10.5.2.7b	(void) */
 	DE_RR_CM_ENQ_MASK,				/* [3]  10.5.2.7c	Classmark Enquiry Mask		*/
-/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
- * [3]  10.5.2.8	Channel Needed
+/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element						*/
+	DE_RR_CHNL_NEEDED,				/* [3]  10.5.2.8	Channel Needed
  * [3]  10.5.2.8a	(void)	
  * [3]  10.5.2.8b	Channel Request Description 2 */
 	DE_RR_CIP_MODE_SET,				/* [3]  10.5.2.9	Cipher Mode Setting			*/
@@ -3504,7 +3506,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    tvb, curr_offset, 1,
 	    "%s :  Identity Digit 1: %c",
 	    a_bigbuf,
-	    Dgt_msid.out[(oct & 0xf0) >> 4]);
+	    Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
 
 	odd = oct & 0x08;
 
@@ -3513,13 +3515,13 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
 
-	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
+	a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
 	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-	    &Dgt_msid);
+	    &Dgt1_9_bcd);
 
 	proto_tree_add_string_format(tree,
 	    ((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
@@ -3553,20 +3555,20 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    tvb, curr_offset, 1,
 	    "%s :  Identity Digit 1: %c",
 	    a_bigbuf,
-	    Dgt_msid.out[(oct & 0xf0) >> 4]);
+	    Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
 
 	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
 	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
 
-	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
+	a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
 	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-	    &Dgt_msid);
+	    &Dgt1_9_bcd);
 
 	proto_tree_add_string_format(tree,
 	    hf_gsm_a_imei,
@@ -4185,6 +4187,30 @@ de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 }
 /*
  * [3] 10.5.2.8 Channel Needed
+ */
+static const value_string gsm_a_rr_channel_needed_vals[] = {
+{ 0x00,		"Any channel"},
+{ 0x01,		"SDCCH"},
+{ 0x02,		"TCH/F (Full rate)"},
+{ 0x03,		"TCH/H or TCH/F (Dual rate)"},
+	{ 0,	NULL }
+};
+guint8
+de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+
+    len = len;
+    curr_offset = offset;
+	
+	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch2, tvb, curr_offset, 1, FALSE);
+
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+/*
  * [3] 10.5.2.8a Channel Request Description
  * [3] 10.5.2.8b Channel Request Description 2
  */
@@ -12486,8 +12512,8 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * [3]  10.5.2.7b	(void) */
 
 	de_rr_cm_enq_mask,				/* [3]  10.5.2.7c	Classmark Enquiry Mask		*/
-/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
- * [3]  10.5.2.8	Channel Needed
+/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element						*/
+	de_rr_chnl_needed,				/* [3]  10.5.2.8	Channel Needed
  * [3]  10.5.2.8a	(void)	
  * [3]  10.5.2.8b	Channel Request Description 2 */
 	de_rr_cip_mode_set,					/* [3]  10.5.2.9	Cipher Mode Setting		*/
@@ -18600,6 +18626,16 @@ proto_register_gsm_a(void)
 		{ "GERAN IU MODE CLASSMARK CHANGE","gsm_a.rr_geran_iu_cm_cng_msg_req",
 		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x04,          
 		"GERAN IU MODE CLASSMARK CHANGE", HFILL }
+	},
+	{ &hf_gsm_a_rr_chnl_needed_ch1,
+		{ "Channel 1","gsm_a.rr_chnl_needed_ch1",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x03,          
+		"Channel 1", HFILL }
+	},
+	{ &hf_gsm_a_rr_chnl_needed_ch2,
+		{ "Channel 2","gsm_a.rr_chnl_needed_ch1",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x0c,          
+		"Channel 2", HFILL }
 	},
 	{ &hf_gsm_a_rr_suspension_cause,
 		{ "Suspension cause value","gsm_a.rr.suspension_cause",
