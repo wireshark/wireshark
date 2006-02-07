@@ -218,6 +218,10 @@ epan_dissect_prime_dfilter
 epan_dissect_run
 epan_init
 ether_to_str
+ex_opt_add
+ex_opt_count
+ex_opt_get_nth
+ex_opt_get_next
 except_alloc
 except_deinit
 except_free
