@@ -50,7 +50,6 @@
 #endif
 
 void proto_register_lua(void);
-void proto_reg_handoff_lua(void);
 
 static gboolean initialized = FALSE;
 
@@ -67,8 +66,5 @@ G_MODULE_EXPORT void plugin_reg_handoff(void)
         proto_register_lua();
 		initialized = 1;
 	}
-    
-    proto_reg_handoff_lua();
-
 }
 #endif

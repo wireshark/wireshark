@@ -719,6 +719,14 @@ SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\mate\mate.dll"
 SectionEnd
 
+!ifdef LUA_DIR
+Section "LUA Plugin" SecLua
+;-------------------------------------------
+SetOutPath $INSTDIR\plugins\${VERSION}
+File "..\..\plugins\lua\lua.dll"
+SectionEnd
+!endif
+
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
@@ -984,6 +992,9 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
+!ifdef LUA_DIR
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecLua} "Plugin - LUA (Experimental)."
+!endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."

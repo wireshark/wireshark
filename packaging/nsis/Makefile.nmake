@@ -76,6 +76,9 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/gryphon/gryphon.dll \
 	../../plugins/h223/h223.dll \
 	../../plugins/irda/irda.dll \
+!IFDEF LUA_DIR
+    ../../plugins/lua/lua.dll \
+!ENDIF
 	../../plugins/lwres/lwres.dll \
 	../../plugins/mate/mate.dll \
 	../../plugins/megaco/megaco.dll \
@@ -143,6 +146,9 @@ $(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
 !ENDIF
 !IF "$(ZLIB_DIR)" != ""
 	/DZLIB_DIR=$(ZLIB_DIR) \
+!ENDIF
+!IFDEF LUA_DIR
+	/DLUA_DIR=$(LUA_DIR) \
 !ENDIF
 	ethereal.nsi
 

@@ -1,0 +1,41 @@
+#
+# $Id$
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) $(LUA_CFLAGS)\
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF LUA_DIR
+!IFDEF ENABLE_LIBETHEREAL
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+OBJECTS= \
+	lua_tvb.obj \
+	lua_proto.obj \
+	lua_tree.obj \
+	lua_pinfo.obj \
+	lua_tap.obj \
+	lua_gui.obj \
+	packet-lua.obj \
+	plugin.obj
+
+lua.dll lua.exp lua.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:lua.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS) $(LUA_LIBS)
+
+!ENDIF
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) lua.dll lua.exp lua.lib *.pdb
+
+distclean: clean
+
+maintainer-clean: distclean

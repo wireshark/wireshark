@@ -34,19 +34,19 @@ LUA_CLASS_DEFINE(ByteArray,BYTE_ARRAY,if (! *p) luaL_argerror(L,index,"null byte
 
 static int ByteArray_new(lua_State* L) {
     GByteArray* ba = g_byte_array_new();
+    const gchar* s;
+    /* XXX: slow! */
+    int nibble[2];
+    int i = 0;
+    gchar c;
 
     if (lua_gettop(L) == 1) {
-        const gchar* s = luaL_checkstring(L,1);
+        s = luaL_checkstring(L,1);
         
         if (!s) {
             luaL_argerror(L,1,"not a string");
             return 0;
         }
-        
-        /* XXX: slow! */
-        int nibble[2];
-        int i = 0;
-        gchar c;
         
         for (; (c = *s); s++) {
             switch(c) {
@@ -282,6 +282,9 @@ int ByteArray_register(lua_State* L) {
 
 static int Tvb_new_real (lua_State *L) {
     ByteArray ba = checkByteArray(L,1);
+    const gchar* name = luaL_optstring(L,2,"Unnamed") ;
+    guint8* data;
+    Tvb tvb;
     
     if (!ba) return 0;
     
@@ -294,14 +297,12 @@ static int Tvb_new_real (lua_State *L) {
         return 0;
     }
     
-    const gchar* name = luaL_optstring(L,2,"Unnamed") ;
-    guint8* data;
     
     if (! ba) return  0;
     
     data = g_memdup(ba->data, ba->len);
     
-    Tvb tvb = tvb_new_real_data(data, ba->len,ba->len);
+    tvb = tvb_new_real_data(data, ba->len,ba->len);
     tvb_set_free_cb(tvb, g_free);
     
     add_new_data_source(lua_pinfo, tvb, name);
@@ -334,11 +335,12 @@ static int Tvb_new_subset (lua_State *L) {
 static int Tvb_tostring(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
     int len;
+    gchar* str;
     
     if (!tvb) return 0;
 
     len = tvb_length(tvb);
-    gchar* str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb,0,len));
+    str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb,0,len));
     lua_pushstring(L,str);
     return 1;
 }

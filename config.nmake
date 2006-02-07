@@ -157,6 +157,15 @@ PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.4
 # NETTLE_DIR=$(ETHEREAL_LIBS)\nettle-1.10
 
 #
+# If you have the LUA library, set this to the pathname
+# of the directory in which the LUA package has been extracted.
+#
+# If you don't have LUA, comment this line out, so that LUA_DIR
+# isn't defined.
+#
+# LUA_DIR=$(ETHEREAL_LIBS)\lua-5.0.2
+
+#
 # Set ICONV_DIR to the pathname of the directory in which the
 # ICONV include files and library resides.
 #
@@ -419,6 +428,16 @@ GNUTLS_LIBS=
 GNUTLS_CONFIG=
 !ENDIF
 
+!IFDEF LUA_DIR
+LUA_CFLAGS=/I$(LUA_DIR)\include
+LUA_LIBS=$(LUA_DIR)\bin\LibLua.lib $(LUA_DIR)\bin\LibLuaLib.lib
+# Nmake uses carets to escape special characters
+LUA_CONFIG=^#define HAVE_LUA 1
+!else
+LUA_CFLAGS=
+LUA_LIBS=
+LUA_CONFIG=
+!ENDIF
 
 # Construct the path
 PATH=$(PATH);$(CYGWIN_PATH);$(DLL_PATH);$(ZLIB_PATH);$(ADNS_PATH)

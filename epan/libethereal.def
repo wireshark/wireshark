@@ -326,6 +326,8 @@ get_dissector_table_ui_name
 get_ether_name
 get_hostname
 get_hostname6
+get_host_ipaddr
+get_host_ipaddr6
 get_manuf_name_if_known
 get_persconffile_path
 get_plugins_global_dir
@@ -387,6 +389,7 @@ nstime_to_sec
 nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
+offset_from_real_beginning
 plugin_list                     DATA
 postseq_cleanup_all_protocols
 prefs                           DATA
@@ -524,6 +527,7 @@ register_all_protocols
 register_all_protocol_handoffs
 register_dissector
 register_dissector_table
+register_final_registration_routine
 register_giop_user
 register_giop_user_module
 register_heur_dissector_list
@@ -536,6 +540,7 @@ register_tap_listener
 RegistrationRejectReason_vals   DATA
 ReleaseCompleteReason_vals      DATA
 relinquish_special_privs_perm
+rel_time_to_str
 remove_tap_listener
 report_failure
 report_open_failure
