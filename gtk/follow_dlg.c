@@ -64,6 +64,14 @@
 #include "print_mswin.h"
 #include "font_utils.h"
 
+/* This is backwards-compatibility code for old versions of GTK+ (2.2.1 and
+ * earlier).  It defines the new wrap behavior (unknown in earlier versions)
+ * as the old (slightly buggy) wrap behavior.
+ */
+#ifndef GTK_WRAP_WORD_CHAR
+#define GTK_WRAP_WORD_CHAR GTK_WRAP_WORD
+#endif
+
 /* Show Stream */
 typedef enum {
 	FROM_CLIENT,
