@@ -63,6 +63,7 @@ static int hf_smb2_pid = -1;
 static int hf_smb2_tid = -1;
 static int hf_smb2_uid = -1;
 static int hf_smb2_flags_response = -1;
+static int hf_smb2_flags_pid_valid = -1;
 static int hf_smb2_response_buffer_offset = -1;
 static int hf_smb2_security_blob_offset = -1;
 static int hf_smb2_security_blob_len = -1;
@@ -659,10 +660,16 @@ typedef struct _smb2_function {
 } smb2_function;
 
 #define SMB2_FLAGS_RESPONSE	0x01
+#define SMB2_FLAGS_PID_VALID	0x02
 
 static const true_false_string tfs_flags_response = {
 	"This is a RESPONSE",
 	"This is a REQUEST"
+};
+
+static const true_false_string tfs_flags_pid_valid = {
+	"The PID field is VALID",
+	"The pid field if NOT valid"
 };
 
 static const value_string compression_format_vals[] = {
@@ -3044,8 +3051,11 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
 	offset += 8;
 
-	/* data or dcerpc ?*/
-	if(length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC){
+	/* data or dcerpc ?
+	 * If the pidvalid flag is set we assume it is a deferred 
+	 * STATUS_PENDING read and thus a named pipe (==dcerpc)
+	 */
+	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC)||si->pidvalid)){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si);
 		return offset;
 	}
@@ -4064,6 +4074,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	conversation_t *conversation;
 	smb2_saved_info_t *ssi=NULL, ssi_key;
 	smb2_info_t *si;
+	char flags;
+	unsigned int pid;
 
 	si=ep_alloc(sizeof(smb2_info_t));
 	si->conv=NULL;
@@ -4148,8 +4160,11 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	/* flags */
-	si->response=tvb_get_guint8(tvb, offset)&SMB2_FLAGS_RESPONSE;
+	flags=tvb_get_guint8(tvb, offset);
+	si->response=flags&SMB2_FLAGS_RESPONSE;
 	proto_tree_add_item(header_tree, hf_smb2_flags_response, tvb, offset, 1, FALSE);
+	si->pidvalid=flags&SMB2_FLAGS_PID_VALID;
+	proto_tree_add_item(header_tree, hf_smb2_flags_pid_valid, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* some unknown bytes */
@@ -4163,7 +4178,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 8;
 
 	/* Process ID */
-	proto_tree_add_item(header_tree, hf_smb2_pid, tvb, offset, 4, TRUE);
+	pid=tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint_format(header_tree, hf_smb2_pid, tvb, offset, 4, pid, "Process Id: %08x %s",pid,(flags&SMB2_FLAGS_PID_VALID)?"":"(not valid)");
 	offset += 4;
 
 	/* Tree ID and User ID */
@@ -4360,6 +4376,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_flags_response,
 		{ "Response", "smb2.flags.response", FT_BOOLEAN, 8,
 		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
+	{ &hf_smb2_flags_pid_valid,
+		{ "PID Valid", "smb2.flags.pid_valid", FT_BOOLEAN, 8,
+		TFS(&tfs_flags_pid_valid), SMB2_FLAGS_PID_VALID, "Whether the PID field is valid or not", HFILL }},
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the Tree/Share", HFILL }},

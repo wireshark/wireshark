@@ -88,6 +88,7 @@ typedef struct _smb2_info_t {
 	guint64 uid;
 	guint64 seqnum;
 	gboolean response; /* is this a response ? */
+	gboolean pidvalid; /* is the pid valid ? */
 	smb2_conv_info_t	*conv;
 	smb2_saved_info_t	*saved;
 	smb2_tid_info_t		*tree;
