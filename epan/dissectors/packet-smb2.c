@@ -1898,7 +1898,7 @@ dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 }
 
 static int
-dissect_smb2_logoff_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_sessionlogoff_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -1911,7 +1911,7 @@ dissect_smb2_logoff_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
-dissect_smb2_logoff_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_sessionlogoff_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -3388,7 +3388,7 @@ dissect_smb2_setinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 const value_string smb2_cmd_vals[] = {
   { 0x00, "NegotiateProtocol" },
   { 0x01, "SessionSetupAndX" },
-  { 0x02, "Logoff" },
+  { 0x02, "SessionLogoff" },
   { 0x03, "TreeConnect" },
   { 0x04, "TreeDisconnect" },
   { 0x05, "Create" },
@@ -3656,9 +3656,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x01 SessionSetup*/  
 	{dissect_smb2_session_setup_request, 
 	 dissect_smb2_session_setup_response},
-  /* 0x02 Logoff*/
-	{dissect_smb2_logoff_request, 
-	 dissect_smb2_logoff_response},
+  /* 0x02 SessionLogoff*/
+	{dissect_smb2_sessionlogoff_request, 
+	 dissect_smb2_sessionlogoff_response},
   /* 0x03 TreeConnect*/  
 	{dissect_smb2_tree_connect_request,
 	 dissect_smb2_tree_connect_response},
