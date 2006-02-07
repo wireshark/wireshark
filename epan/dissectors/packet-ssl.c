@@ -4289,12 +4289,12 @@ proto_register_ssl(void)
              &ssl_desegment);
        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list",
              "comma separated list of private RSA keys used for SSL decryption; "
-             "each list entry must be in the form of <ip>:<port>:<key_file_name>\n"
+             "each list entry must be in the form of <ip>:<port>:<key_file_name>"
              "<key_file_name>   is the local file name of the RSA private key used by the specified server\n",
              (const char **)&ssl_keys_list);
         prefs_register_string_preference(ssl_module, "ports_list", "SSL ports list",
              "comma separated list of tcp ports numbers to be dissectes as SSL; "
-             "each list entry must be in the form of <port>:<clear-text-port>\n"
+             "each list entry must be in the form of <port>:<clear-text-port>"
              "<clear-text-port>   is the port numbert associated with the protocol tunneled over SSL for this port\n",
              (const char **)&ssl_ports_list);
     }
