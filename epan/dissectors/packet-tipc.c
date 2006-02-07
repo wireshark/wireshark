@@ -107,6 +107,10 @@ static gint ett_tipc_data = -1;
 static gboolean tipc_defragment = TRUE;
 static gboolean dissect_tipc_data = FALSE;
 
+static gboolean extra_ethertype = FALSE;
+
+#define ETHERTYPE_TIPC2  0x0807
+
 dissector_handle_t ip_handle;
 
 proto_tree *top_tree;
@@ -348,11 +352,13 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	guint8 link_sel;
 	guint16 link_lev_seq_no;
 	guint32 reassembled_msg_length = 0;
+	guint32 no_of_segments = 0;
 
 	gboolean   save_fragmented;
 	tvbuff_t* new_tvb = NULL;
 	tvbuff_t* next_tvb = NULL;
 	fragment_data *frag_msg = NULL;
+	proto_item *item;
 	
 	link_lev_seq_no = tvb_get_ntohl(tvb,4) & 0xffff;
 	/* Internal Protocol Header */
@@ -468,8 +474,16 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 						TRUE);								/* More fragments? */
 				if (msg_type == TIPC_FIRST_SEGMENT ){
 					reassembled_msg_length = tvb_get_ntohl(tvb,offset) & 0x1ffff;
-					/* This currently only works with two segments */
-					fragment_set_tot_len(pinfo, link_sel, tipc_msg_fragment_table, 1);
+					/* The number of segments needed fot he complete message (Including header) will be
+					 * The size of the data section of the first message, divided by the complete message size
+					 * + one segment for the remainder (if any).
+					 */
+					no_of_segments = reassembled_msg_length/(msg_size - 28);
+					if (reassembled_msg_length > (no_of_segments * (msg_size - 28)))
+						no_of_segments++;
+					fragment_set_tot_len(pinfo, link_sel, tipc_msg_fragment_table, no_of_segments-1);
+					item = proto_tree_add_text(tipc_tree, tvb, offset, -1,"Segmented message size %u bytes -> No segments = %i",reassembled_msg_length,no_of_segments);
+					PROTO_ITEM_SET_GENERATED(item);
 				}
 
 				new_tvb = process_reassembled_data(tvb, offset, pinfo,
@@ -731,7 +745,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if ( hdr_size > 8){
 				if (user == TIPC_NAME_DISTRIBUTOR ){
 					/*
-						Although an internal service, the name distributor uses the full 40-byte “external” data header
+						Although an internal service, the name distributor uses the full 40-byte "external" data header
 						format when updating the naming table instances. This is because its messages may need
 						routing, - all system processor must contain the publications from all device processors and
 						vice versa, whether they are directly linked or not. The fields name type, name instance, and
@@ -761,7 +775,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case TIPC_NAMED_MSG:
 					data_tvb = tvb_new_subset(tipc_tvb, offset+14, -1, -1);
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 14,"TIPC_NAMED_MSG Hdr");
-					call_dissector(ip_handle, data_tvb, pinfo, top_tree);
+					proto_tree_add_text(tipc_tree, data_tvb,0, -1,"%u bytes Data",(msg_size - hdr_size *4));
 					return;
 					break;
 				case TIPC_DIRECT_MSG:
@@ -1065,9 +1079,7 @@ proto_register_tipc(void)
 		"Dissect TIPC data",
 		"Whether to try to dissect TIPC data or not",
 		&dissect_tipc_data);
-
 }
-
 
 void
 proto_reg_handoff_tipc(void)
@@ -1076,6 +1088,8 @@ proto_reg_handoff_tipc(void)
 
 	tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
 	dissector_add("ethertype", ETHERTYPE_TIPC,     tipc_handle);
-
+	if (extra_ethertype)
+		dissector_add("ethertype", ETHERTYPE_TIPC2,     tipc_handle);
+	
 	ip_handle = find_dissector("ip");
 }

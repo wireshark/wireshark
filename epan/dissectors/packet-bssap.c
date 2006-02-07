@@ -51,6 +51,8 @@
 
 #include "epan/packet.h"
 #include <epan/prefs.h>
+#include <epan/emem.h>
+
 #include "packet-bssap.h"
 #include "packet-gsm_a.h"
 #include "packet-e212.h"
@@ -282,6 +284,7 @@ static int hf_bssap_extension = -1;
 static int hf_bssap_type_of_number = -1; 
 static int hf_bssap_numbering_plan_id = -1;
 static int hf_bssap_sgsn_number = -1;
+static int hf_bssap_vlr_number = -1;
 static int hf_bssap_call_priority = -1;
 static int hf_bssap_gprs_loc_upd_type_ie = -1;
 static int hf_bssap_Gs_cause_ie = -1;
@@ -296,6 +299,9 @@ static int hf_bssap_gprs_erroneous_msg_ie = -1;
 
 static int hf_bssap_gprs_loc_upd_type = -1;
 static int hf_bssap_Gs_cause = -1;
+static int hf_bssap_imei = -1;
+static int hf_bssap_imeisv = -1;
+static int hf_bssap_imsi = -1;
 static int hf_bssap_imsi_det_from_gprs_serv_type = -1;
 static int hf_bssap_info_req = -1;
 static int hf_bssap_loc_inf_age = -1;
@@ -581,6 +587,70 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_bssap_message(tvb, pinfo, bssap_tree, tree);
 }
 
+
+/* 
+ * BSSAP+ Routines
+ */
+
+typedef struct dgt_set_t
+{
+    unsigned char out[15];
+}
+dgt_set_t;
+
+static dgt_set_t Dgt_tbcd = {
+    {
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#'
+    }
+};
+static dgt_set_t Dgt1_9_bcd = {
+    {
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
+    }
+};
+/* Assumes the rest of the tvb contains the digits to be turned into a string 
+ */
+static char*
+unpack_digits(tvbuff_t *tvb, int offset,dgt_set_t *dgt,gboolean skip_first){
+
+	int length;
+	guint8 octet;
+	int i=0;
+	char *digit_str;
+
+	length = tvb_length(tvb);
+	if (length < offset)
+		return "";
+	digit_str = ep_alloc((length - offset)*2+1);
+
+	while ( offset < length ){
+
+		octet = tvb_get_guint8(tvb,offset);
+		if (!skip_first){
+			digit_str[i] = dgt->out[octet & 0x0f]; 
+			i++;
+		}
+		skip_first = FALSE;
+
+		/*
+		 * unpack second value in byte
+		 */
+		octet = octet >> 4;
+
+		if (octet == 0x0f)	/* odd number bytes - hit filler */
+			break;
+
+		digit_str[i] = dgt->out[octet & 0x0f]; 
+		i++;
+		offset++;
+
+	}
+	digit_str[i]= '\0';
+	return digit_str;
+}
+
 static gboolean
 check_ie(tvbuff_t *tvb, proto_tree *tree, int *offset, guint8 expected_ie){
 	guint8	ie_type;
@@ -860,7 +930,9 @@ dissect_bssap_imei(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     proto_item	*item = NULL;
     proto_tree	*ie_tree = NULL;
 	guint8 ie_len;
-	
+	tvbuff_t *ie_tvb;
+	char *digit_str;
+
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_imei_ie, tvb, offset, ie_len+2, FALSE);
 	ie_tree = proto_item_add_subtree(item, ett_bassp_imei);
@@ -872,8 +944,9 @@ dissect_bssap_imei(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	/* The IMEI is coded as a sequence of BCD digits, compressed two into each octet.
 	 * The IMEI consists of 15 digits (see 3GPP TS 23.003).
 	 */
-	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
-
+	ie_tvb = tvb_new_subset(tvb, offset, ie_len, ie_len);
+	digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, FALSE);
+	proto_tree_add_string(ie_tree, hf_bssap_imei, ie_tvb, 0, -1, digit_str);
 
 	return offset + ie_len;
 
@@ -885,6 +958,8 @@ dissect_bssap_imesiv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     proto_item	*item = NULL;
     proto_tree	*ie_tree = NULL;
 	guint8 ie_len;
+	tvbuff_t *ie_tvb;
+	char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_imesiv_ie, tvb, offset, ie_len+2, FALSE);
@@ -897,7 +972,9 @@ dissect_bssap_imesiv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	/*	The IMEISV is coded as a sequence of BCD digits, compressed two into each octet.
 	 *	The IMEISV consists of 16 digits (see 3GPP TS 23.003).
 	 */
-	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
+	ie_tvb = tvb_new_subset(tvb, offset, ie_len, ie_len);
+	digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, FALSE);
+	proto_tree_add_string(ie_tree, hf_bssap_imeisv, ie_tvb, 0, -1, digit_str);
 
 	return offset + ie_len;
 
@@ -915,6 +992,8 @@ dissect_bssap_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     proto_item	*item = NULL;
     proto_tree	*ie_tree = NULL;
 	guint8 ie_len;
+	tvbuff_t *ie_tvb;
+	char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_imsi_ie, tvb, offset, ie_len+2, FALSE);
@@ -924,9 +1003,10 @@ dissect_bssap_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	offset++;
 	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, FALSE);
 	offset++;
-	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
-
-
+	ie_tvb = tvb_new_subset(tvb, offset, ie_len,ie_len);
+	digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, TRUE);
+	proto_tree_add_string(ie_tree, hf_bssap_imsi, ie_tvb, 0, -1, digit_str);
+	
 	return offset + ie_len;
 
 }
@@ -1263,7 +1343,6 @@ dissect_bssap_service_area_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	 */
 	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
 
-
 	return offset + ie_len;
 
 }
@@ -1281,6 +1360,8 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     proto_item	*item = NULL;
     proto_tree	*ie_tree = NULL;
 	guint8 ie_len;
+	tvbuff_t *number_tvb;
+	char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_sgsn_nr_ie, tvb, offset, ie_len+2, FALSE);
@@ -1296,10 +1377,16 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	 * and includes a length indicator. The value part of the SGSN number information element 
 	 * (not including IEI, Length indicator and Octet 3) shall not exceed 15 digits.
 	 */
-	proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
+	proto_tree_add_item(ie_tree, hf_bssap_extension, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ie_tree, hf_bssap_type_of_number, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, FALSE);
+	offset++;
+	number_tvb = tvb_new_subset(tvb, offset, ie_len-1,ie_len-1);
+	digit_str = unpack_digits(number_tvb, 0, &Dgt1_9_bcd, FALSE);
+	proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
 
 
-	return offset + ie_len;
+	return offset + ie_len-1;
 
 }
 /* 18.4.23 TMSI */
@@ -1412,6 +1499,8 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     proto_item	*item = NULL;
     proto_tree	*ie_tree = NULL;
 	guint8 ie_len;
+	tvbuff_t *number_tvb;
+	char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_vlr_number_ie, tvb, offset, ie_len+2, FALSE);
@@ -1427,10 +1516,16 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	 *	and includes a length indicator. The value part of the VLR number information element
 	 *	(not including IEI, length indicator and Octet 3), shall not exceed 15 digits.
 	 */
-	 proto_tree_add_item(ie_tree, hf_bssap_plus_ie_data, tvb, offset, ie_len, FALSE);
 
+	proto_tree_add_item(ie_tree, hf_bssap_extension, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ie_tree, hf_bssap_type_of_number, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, FALSE);
+	offset++;
+	number_tvb = tvb_new_subset(tvb, offset, ie_len-1,ie_len-1);
+	digit_str = unpack_digits(number_tvb, 0, &Dgt1_9_bcd, FALSE);
+	proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
 
-	return offset + ie_len;
+	return offset + ie_len-1;
 
 }
 /* 18.4.27 Global CN-Id */
@@ -2091,6 +2186,10 @@ proto_register_bssap(void)
       { "SGSN number", "bssap.sgsn_number",
         FT_STRING, BASE_NONE, NULL, 0,
         "SGSN number", HFILL }},
+	{ &hf_bssap_vlr_number,
+      { "VLR number", "bssap.vlr_number",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "VLR number", HFILL }},
 	{ &hf_bssap_cell_global_id_ie,
       { "Cell global identity IE", "bssap.cell_global_id_ie",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2221,6 +2320,18 @@ proto_register_bssap(void)
 	    { "Gs cause", "bssap.gprs_loc_upd_type",
 		FT_UINT8, BASE_DEC, VALS(bssap_Gs_cause_values), 0x0,
 		"Gs cause", HFILL}},
+	{ &hf_bssap_imei,
+      { "IMEI", "bssap.imei",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IMEI", HFILL }},
+	{ &hf_bssap_imeisv,
+      { "IMEISV", "bssap.imeisv",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IMEISV", HFILL }},
+	{ &hf_bssap_imsi,
+      { "IMSI", "bssap.imsi",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IMSI", HFILL }},
 	{ &hf_bssap_imsi_det_from_gprs_serv_type,
 	    { "IMSI detach from GPRS service type", "bssap.imsi_det_from_gprs_serv_type",
 		FT_UINT8, BASE_DEC, VALS(bssap_Gs_cause_values), 0x0,
