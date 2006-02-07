@@ -87,8 +87,8 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	smb2stat_t *ss=(smb2stat_t *)pss;
 	const smb2_info_t *si=psi;
 
-	/* we are only interested in reply packets */
-	if(!si->response){
+	/* we are only interested in response packets */
+	if(!(si->flags&SMB2_FLAGS_RESPONSE)){
 		return 0;
 	}
 	/* if we havnt seen the request, just ignore it */

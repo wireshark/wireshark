@@ -226,6 +226,7 @@ static gint ett_smb2_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
 static gint ett_smb2_ioctl_function = -1;
 static gint ett_smb2_FILE_OBJECTID_BUFFER = -1;
+static gint ett_smb2_flags = -1;
 
 static int smb2_tap = -1;
 
@@ -658,9 +659,6 @@ typedef struct _smb2_function {
        int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si);
        int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si);
 } smb2_function;
-
-#define SMB2_FLAGS_RESPONSE	0x01
-#define SMB2_FLAGS_PID_VALID	0x02
 
 static const true_false_string tfs_flags_response = {
 	"This is a RESPONSE",
@@ -2163,7 +2161,7 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 	};
 	value_string *vs;
 
-	if(si->response){
+	if(si->flags & SMB2_FLAGS_RESPONSE){
 		if(!si->saved){
 			return offset;
 		}
@@ -2200,17 +2198,17 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 
 	/* class */
 	item=proto_tree_add_uint(tree, hf_smb2_class, tvb, offset, 1, cl);
-	if(si->response){
+	if(si->flags & SMB2_FLAGS_RESPONSE){
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 	/* infolevel */
 	item=proto_tree_add_uint(tree, hfindex, tvb, offset+1, 1, il);
-	if(si->response){
+	if(si->flags & SMB2_FLAGS_RESPONSE){
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 	offset += 2;
 
-	if(!si->response){
+	if(!si->flags & SMB2_FLAGS_RESPONSE){
 		/* Only update COL_INFO for requests. It clutters the
 		 * display ab bit too much if we do it for replies
 		 * as well.
@@ -3055,7 +3053,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	 * If the pidvalid flag is set we assume it is a deferred 
 	 * STATUS_PENDING read and thus a named pipe (==dcerpc)
 	 */
-	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC)||si->pidvalid)){
+	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC)||(si->flags & SMB2_FLAGS_PID_VALID))){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si);
 		return offset;
 	}
@@ -3644,9 +3642,10 @@ const value_string smb2_cmd_vals[] = {
   { 0xFF, "unknown-0xFF" },
   { 0x00, NULL },
 };
-static const char *decode_smb2_name(guint8 cmd)
+static const char *decode_smb2_name(guint16 cmd)
 {
-  return(smb2_cmd_vals[cmd].strptr);
+  if (cmd > 0xFF) return "unknown";
+  return(smb2_cmd_vals[cmd & 0xFF].strptr);
 }
 
 static smb2_function smb2_dissector[256] = {
@@ -3955,12 +3954,12 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 	cmd_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s %s (0x%02x)",
 			decode_smb2_name(si->opcode),
-			si->response?"Response":"Request",
+			(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request",
 			si->opcode);
 	cmd_tree = proto_item_add_subtree(cmd_item, ett_smb2_command);
 
 
-	cmd_dissector=si->response?
+	cmd_dissector=(si->flags & SMB2_FLAGS_RESPONSE)?
 		smb2_dissector[si->opcode&0xff].response:
 		smb2_dissector[si->opcode&0xff].request;
 	if(cmd_dissector){
@@ -4068,13 +4067,14 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree=NULL;
 	proto_item *header_item=NULL;
 	proto_tree *header_tree=NULL;
+	proto_item *flags_item=NULL;
+	proto_tree *flags_tree=NULL;
 	int offset=0;
 	int old_offset;
 	guint16 header_len;
 	conversation_t *conversation;
 	smb2_saved_info_t *ssi=NULL, ssi_key;
 	smb2_info_t *si;
-	char flags;
 	unsigned int pid;
 
 	si=ep_alloc(sizeof(smb2_info_t));
@@ -4151,7 +4151,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 	/* opcode */
-	si->opcode=tvb_get_guint8(tvb, offset);
+	si->opcode=tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, TRUE);
 	offset += 2;
 
@@ -4160,16 +4160,20 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	/* flags */
-	flags=tvb_get_guint8(tvb, offset);
-	si->response=flags&SMB2_FLAGS_RESPONSE;
-	proto_tree_add_item(header_tree, hf_smb2_flags_response, tvb, offset, 1, FALSE);
-	si->pidvalid=flags&SMB2_FLAGS_PID_VALID;
-	proto_tree_add_item(header_tree, hf_smb2_flags_pid_valid, tvb, offset, 1, FALSE);
-	offset += 1;
+	si->flags=tvb_get_letohl(tvb, offset);
+	if(header_tree){
+		flags_item = proto_tree_add_text(header_tree, tvb, offset, 4,
+			"Flags: 0x%08x", si->flags);
+		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
+	}
+	proto_tree_add_boolean(flags_tree, hf_smb2_flags_pid_valid, tvb, offset, 4, si->flags);
+	proto_tree_add_boolean(flags_tree, hf_smb2_flags_response, tvb, offset, 4, si->flags);
+ 
+	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 7, FALSE);
-	offset += 7;
+	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
+	offset += 4;
 
 	/* command sequence number*/
 	si->seqnum=tvb_get_letoh64(tvb, offset);
@@ -4179,7 +4183,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* Process ID */
 	pid=tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(header_tree, hf_smb2_pid, tvb, offset, 4, pid, "Process Id: %08x %s",pid,(flags&SMB2_FLAGS_PID_VALID)?"":"(not valid)");
+	proto_tree_add_uint_format(header_tree, hf_smb2_pid, tvb, offset, 4, pid, "Process Id: %08x %s",pid,(si->flags&SMB2_FLAGS_PID_VALID)?"":"(not valid)");
 	offset += 4;
 
 	/* Tree ID and User ID */
@@ -4200,7 +4204,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			decode_smb2_name(si->opcode),
-			si->response?"Response":"Request");
+			(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request");
 		if(si->status){
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, ", Error: %s",
@@ -4214,7 +4218,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* see if we can find this seqnum in the unmatched table */
 		ssi=g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 
-		if(!si->response){
+		if(!(si->flags & SMB2_FLAGS_RESPONSE)){
 			/* This is a request */
 			if(ssi){
 				/* this is a request and we already found 
@@ -4260,7 +4264,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(ssi){
-		if(!si->response){
+		if(!(si->flags & SMB2_FLAGS_RESPONSE)){
 			if(ssi->frame_res){
 				proto_item *tmp_item;
 				tmp_item=proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0, ssi->frame_res);
@@ -4374,10 +4378,10 @@ proto_register_smb2(void)
 		{ "Process Id", "smb2.pid", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Process Id", HFILL }},
 	{ &hf_smb2_flags_response,
-		{ "Response", "smb2.flags.response", FT_BOOLEAN, 8,
+		{ "Response", "smb2.flags.response", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
 	{ &hf_smb2_flags_pid_valid,
-		{ "PID Valid", "smb2.flags.pid_valid", FT_BOOLEAN, 8,
+		{ "PID Valid", "smb2.flags.pid_valid", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_pid_valid), SMB2_FLAGS_PID_VALID, "Whether the PID field is valid or not", HFILL }},
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
@@ -4861,6 +4865,7 @@ proto_register_smb2(void)
 		&ett_smb2_MxAc_buffer,
 		&ett_smb2_ioctl_function,
 		&ett_smb2_FILE_OBJECTID_BUFFER,
+		&ett_smb2_flags,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
