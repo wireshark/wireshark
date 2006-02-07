@@ -206,6 +206,7 @@ static int hf_ntlmssp_ntlmv2_response_unknown = -1;
 static int hf_ntlmssp_ntlmv2_response_name = -1;
 static int hf_ntlmssp_ntlmv2_response_name_type = -1;
 static int hf_ntlmssp_ntlmv2_response_name_len = -1;
+static int hf_ntlmssp_ntlmv2_response_client_time = -1;
 
 static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
@@ -594,6 +595,7 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
 #define NTLM_NAME_NB_DOMAIN  0x0002
 #define NTLM_NAME_DNS_HOST   0x0003
 #define NTLM_NAME_DNS_DOMAIN 0x0004
+#define NTLM_NAME_CLIENT_TIME 0x0007
 
 static const value_string ntlm_name_types[] = {
 	{ NTLM_NAME_END, "End of list" },
@@ -601,6 +603,7 @@ static const value_string ntlm_name_types[] = {
 	{ NTLM_NAME_NB_DOMAIN, "NetBIOS domain name" },
 	{ NTLM_NAME_DNS_HOST, "DNS host name" },
 	{ NTLM_NAME_DNS_DOMAIN, "DNS domain name" },
+	{ NTLM_NAME_CLIENT_TIME, "Client Time" },
 	{ 0, NULL }
 };
 
@@ -686,26 +689,38 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
 		/* Dissect name */
 
-		if (name_len > 0) {
+		switch(name_type){
+		case NTLM_NAME_END:
+			name = "NULL";
+			proto_item_append_text(
+				name_item, "%s", 
+				val_to_str(name_type, ntlm_name_types,
+					   "Unknown"));
+			break;
+		case NTLM_NAME_NB_HOST:
+		case NTLM_NAME_NB_DOMAIN:
+		case NTLM_NAME_DNS_HOST:
+		case NTLM_NAME_DNS_DOMAIN:
 			name = tvb_get_ephemeral_faked_unicode(
 				tvb, offset, name_len / 2, TRUE);
 
 			proto_tree_add_text(
 				name_tree, tvb, offset, name_len, 
 				"Name: %s", name);
-		} else
-			name = "NULL";
-
-		if (name_type == 0)
-			proto_item_append_text(
-				name_item, "%s", 
-				val_to_str(name_type, ntlm_name_types,
-					   "Unknown"));
-		else
 			proto_item_append_text(
 				name_item, "%s, %s",
 				val_to_str(name_type, ntlm_name_types,
 					   "Unknown"), name);
+			break;
+		case NTLM_NAME_CLIENT_TIME:
+			offset = dissect_nt_64bit_time(
+				tvb, name_tree, offset, 
+				hf_ntlmssp_ntlmv2_response_client_time);
+			proto_item_append_text(
+				name_item, "Client Time");
+			break;
+		}
+
 
 		offset += name_len;
 
@@ -1714,7 +1729,9 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_ntlmv2_response_name_type,
       { "Name type", "ntlmssp.ntlmv2response.name.type", FT_UINT32, BASE_DEC, VALS(ntlm_name_types), 0x0, "", HFILL }},
     { &hf_ntlmssp_ntlmv2_response_name_len,
-      { "Name len", "ntlmssp.ntlmv2response.name.len", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }}
+      { "Name len", "ntlmssp.ntlmv2response.name.len", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_client_time,
+      { "Client Time", "ntlmssp.ntlmv2response.client_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }}
   };
 
 
