@@ -145,12 +145,12 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
 }
 
-static void iter_table_and_call(lua_State* LS, const gchar* table_name, lua_CFunction error_handler) {
+static void iter_table_and_call(lua_State* LS, int env, const gchar* table_name, lua_CFunction error_handler) {
     lua_settop(LS,0);
     
     lua_pushcfunction(LS,error_handler);
     lua_pushstring(LS, table_name);
-    lua_gettable(LS, LUA_REGISTRYINDEX);
+    lua_gettable(LS, env);
     
     if (!lua_istable(LS, 2)) {
         report_failure("Lua: either `%s' does not exist or it is not a table!\n",table_name);
@@ -200,22 +200,7 @@ static void init_lua(void) {
     }
     
     if (L) {
-        iter_table_and_call(L, LUA_INIT_ROUTINES,init_error_handler);
-    }
-
-}
-
-static int handoff_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of Handoff:\n %s",error);
-    return 0;
-}
-
-void proto_reg_handoff_lua(void) {
-    lua_data_handle = find_dissector("data");
-
-    if (L) {
-        iter_table_and_call(L, LUA_HANDOFF_ROUTINES,handoff_error_handler);
+        iter_table_and_call(L, LUA_GLOBALSINDEX, LUA_INIT_ROUTINES,init_error_handler);
     }
 
 }
@@ -235,8 +220,7 @@ static int lua_main_error_handler(lua_State* LS) {
     return 0;
 }
 
-void proto_register_lua(void)
-{
+void register_lua(void) {
     FILE* file;
     gchar* filename = getenv("ETHEREAL_LUA_INIT");
     
@@ -307,13 +291,9 @@ void proto_register_lua(void)
     lua_pushcfunction(L, lua_new_dialog);
     lua_settable(L, LUA_GLOBALSINDEX);
 
-    lua_pushstring(L, LUA_HANDOFF_ROUTINES);
-    lua_newtable (L);
-    lua_settable(L, LUA_REGISTRYINDEX);
-    
     lua_pushstring(L, LUA_INIT_ROUTINES);
     lua_newtable (L);
-    lua_settable(L, LUA_REGISTRYINDEX);
+    lua_settable(L, LUA_GLOBALSINDEX);
     
     lua_pushstring(L, LUA_DISSECTORS_TABLE);
     lua_newtable (L);
@@ -353,3 +333,7 @@ void proto_register_lua(void)
     return;
 }
 
+void proto_register_lua(void)
+{
+    register_final_registration_routine(register_lua);
+}

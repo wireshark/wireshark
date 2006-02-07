@@ -888,26 +888,6 @@ static int Proto_set_init(lua_State* L) {
     
 }
 
-static int Proto_set_handoff(lua_State* L) { 
-    Proto proto = toProto(L,1);
-    
-    if (lua_isfunction(L,3)) {
-        /* insert the dissector into the dissectors table */
-        lua_pushstring(L, LUA_HANDOFF_ROUTINES);
-        lua_gettable(L, LUA_REGISTRYINDEX);
-        lua_replace(L, 1);
-        lua_pushstring(L,proto->name);
-        lua_replace(L, 2);
-        lua_settable(L,1);
-        
-        return 0;
-    }  else {
-        luaL_argerror(L,3,"The handoff of a protocol must be a function");
-        return 0;
-    } 
-    
-}
-
 static int Proto_get_name(lua_State* L) { 
     Proto proto = toProto(L,1);
 
@@ -926,7 +906,6 @@ static const proto_actions_t proto_actions[] = {
     {"fields",NULL,Proto_register_field_array},
     {"prefs",Proto_get_prefs,NULL},
     {"init",NULL,Proto_set_init},
-    {"handoff",NULL,Proto_set_handoff},
     {"name",Proto_get_name,NULL},
     {NULL,NULL,NULL}
 };
