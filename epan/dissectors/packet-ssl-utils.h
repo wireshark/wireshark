@@ -27,9 +27,8 @@
 #include <epan/gnuc_format_check.h>
 
 #ifdef HAVE_LIBGNUTLS
-
 #ifdef _WIN32
-#include <gcrypt_conf.h>
+#include <winposixtype.h>
 #endif
 
 #include <stdio.h>

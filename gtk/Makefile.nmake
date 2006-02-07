@@ -7,7 +7,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) \
+CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) $(GNUTLS_CFLAGS) \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
 	/I$(PCAP_DIR)\include /I$(NET_SNMP_DIR)\include \

@@ -403,13 +403,19 @@ static void ssl_parse(void)
             ssl_debug_printf("ssl_init found host entry %s\n", addr);
             port = strchr(addr, ':');
             if (!port)
+            {
+                ssl_debug_printf("ssl_init entry malformed can't find port in %s\n", addr);
                 break;
+            }
             *port = 0;
             port++;
             
             filename = strchr(port,':');
             if (!filename)
+            {
+                ssl_debug_printf("ssl_init entry malformed can't find filename in %s\n", port);
                 break;
+            }
             *filename=0;
             filename++;
             
