@@ -63,6 +63,7 @@
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
+#include <epan/ex-opt.h>
 #include <epan/funnel.h>
 
 /* general (not GTK specific) */
@@ -1143,6 +1144,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
   fprintf(output, "  -m <font>                set the font name used for most text\n");
   fprintf(output, "  -t ad|a|r|d              output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
   fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
 
   fprintf(output, "\n");
@@ -1896,7 +1898,7 @@ main(int argc, char *argv[])
   guint                go_to_packet = 0;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:y:z:"
+#define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:X:y:z:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1979,6 +1981,14 @@ main(int argc, char *argv[])
         show_version();
         exit(0);
         break;
+      case 'X':
+          /*
+           *  Extension command line options have to be processed before
+           *  we call epan_init() as they are supposed to be used by dissectors
+           *  or taps very early in the registration process.
+           */
+          ex_opt_add(optarg);
+          break;
       case '?':        /* Ignore errors - the "real" scan will catch them. */
         break;
     }
@@ -2406,6 +2416,9 @@ main(int argc, char *argv[])
           exit(1);
         }
         break;
+      case 'X': 
+          /* ext ops were already processed just ignore them this time*/
+          break;          
       case 'z':
         /* We won't call the init function for the stat this soon
            as it would disallow MATE's fields (which are registered

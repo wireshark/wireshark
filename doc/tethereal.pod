@@ -33,6 +33,7 @@ S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> E<lt>outfileE<gt>|- ]>
 S<[ B<-x> ]>
+S<[ B<-X> E<lt>eXtension optionE<gt>]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 
@@ -406,6 +407,16 @@ option for this.
 
 Cause B<Tethereal> to print a hex and ASCII dump of the packet data
 after printing the summary or details.
+
+
+=item -X E<lt>eXtension optionsE<gt>
+
+Specify an option to be passed to a B<Tethereal> module. The eXtension option
+is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
+
+B<lua_script>:I<lua_script_filename> tells B<Ethereal> to load the given script in addition to the
+default Lua scripts.
+
 
 =item -y  E<lt>capture link typeE<gt>
 

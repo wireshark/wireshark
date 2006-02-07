@@ -89,6 +89,7 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/timestamp.h>
+#include <epan/ex-opt.h>
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
@@ -268,6 +269,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -t ad|a|r|d              output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -l                       flush output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
+  fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
 
   fprintf(output, "\n");
@@ -682,7 +684,7 @@ main(int argc, char *argv[])
   char                 badopt;
   GLogLevelFlags       log_flags;
 
-#define OPTSTRING_INIT "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vVw:xy:z:"
+#define OPTSTRING_INIT "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -1032,8 +1034,11 @@ main(int argc, char *argv[])
         verbose = TRUE;
         break;
       case 'x':        /* Print packet data in hex (and ASCII) */
-        print_hex = TRUE;
-        break;
+          print_hex = TRUE;
+          break;
+      case 'X':
+          ex_opt_add(optarg);
+          break;
       case 'z':
         /* We won't call the init function for the stat this soon
            as it would disallow MATE's fields (which are registered

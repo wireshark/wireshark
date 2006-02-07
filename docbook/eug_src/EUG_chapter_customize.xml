@@ -67,7 +67,7 @@ ethereal [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
         [ -N &lt;name resolving flags> ] [ -o &lt;preference/recent setting> ] ...
         [ -r &lt;infile> ] [ -R &lt;read (display) filter> ] [ -s &lt;capture snaplen> ]
         [ -t &lt;time stamp format> ] [ -w &lt;savefile> ] [ -y &lt;capture link type> ]
-        [ -z &lt;statistics> ] [ &lt;infile> ]	  </programlisting>
+        [ -X &lt;eXtension option> ] [ -z &lt;statistics> ] [ &lt;infile> ]	  </programlisting>
 	</example>
 
 	We will examine each of the command line options in turn.
@@ -464,6 +464,20 @@ standard libpcap format.
 		</para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>-X &lt;eXtension option></command></term>
+	  <listitem>
+	    <para>
+        Specify an option to be passed to a Tethereal module. The eXtension
+        option is in the form extension_key:value, where extension_key can
+        be:
+            <varlistentry><term><command>lua_script</command>:lua_script_filename</term>
+                <listitem><para>
+                Tell Ethereal to load the given script in addition to the default Lua scripts. 
+                </para></listitem>
+            </varlistentry>
+		</para>
+	  </listitem>
+	</varlistentry>    
 	<varlistentry><term><command>-z &lt;statistics-string></command></term>
 	  <listitem>
 	    <para>

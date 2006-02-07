@@ -32,6 +32,7 @@ S<[ B<-t> ad|a|r|d ]>
 S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
+S<[ B<-X> E<lt>eXtension optionE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ E<lt>infileE<gt> ]>
 
@@ -404,6 +405,15 @@ Set the default capture file name.
 If a capture is started from the command line with B<-k>, set the data
 link type to use while capturing packets.  The values reported by B<-L>
 are the values that can be used.
+
+=item -X E<lt>eXtension optionsE<gt>
+
+Specify an option to be passed to an B<Ethereal> module. The eXtension option
+is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
+
+B<lua_script>:I<lua_script_filename> tells B<Ethereal> to load the given script in addition to the
+default Lua scripts.
+
 
 =item -z  E<lt>statisticsE<gt>
 

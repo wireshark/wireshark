@@ -48,6 +48,7 @@ LIBETHEREAL_SRC = 		\
 	dtd_preparse.c  \
 	emem.c			\
 	epan.c			\
+	ex-opt.c		\
 	except.c		\
 	expert.c		\
 	filesystem.c		\
@@ -123,6 +124,7 @@ LIBETHEREAL_INCLUDES = 		\
 	epan.h			\
 	epan_dissect.h		\
 	etypes.h		\
+	ex-opt.h		\
 	except.h		\
 	exceptions.h		\
 	expert.h		\
