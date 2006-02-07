@@ -833,6 +833,7 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 			#
 			# we got lua, now look for lualib
 			#
+			LIBS="$LIBS $LUA_LIBS -lm"
 
 			AC_CHECK_LIB(lualib, luaopen_base,
 			[
@@ -852,6 +853,11 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 					LIBS="$ethereal_save_LIBS"
 					LUA_LIBS=""
 				fi
+				# User requested --with-lua but it isn't available
+				if test "x$want_lua" = "xyes"
+				then
+					AC_MSG_ERROR(Linking with liblualib failed.)
+				fi
 				want_lua=no
 			])
 		],[  
@@ -866,9 +872,13 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 			LDFLAGS="$ethereal_save_LDFLAGS"
 			LIBS="$ethereal_save_LIBS"
 			LUA_LIBS=""
+			# User requested --with-lua but it isn't available
+			if test "x$want_lua" = "xyes"
+			then
+				AC_MSG_ERROR(Linking with liblua failed.)
+			fi
 			want_lua=no
 		])
-	
 	
 	CPPFLAGS="$ethereal_save_CPPFLAGS"
 	LDFLAGS="$ethereal_save_LDFLAGS"

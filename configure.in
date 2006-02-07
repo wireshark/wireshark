@@ -771,7 +771,7 @@ dnl lua check
 AC_MSG_CHECKING(whether to use liblua for the lua scripting plugin)
 
 AC_ARG_WITH(lua,
-[  --with-lua[[=DIR]]       use liblua (located in directory DIR, if supplied) for the lua scripting plugin.  [[default=no]]],
+[  --with-lua[[=DIR]]        use liblua (located in directory DIR, if supplied) for the lua scripting plugin.  [[default=no]]],
 [
 	if test $withval = no
 	then
@@ -785,7 +785,7 @@ AC_ARG_WITH(lua,
 	fi
 ],[
 	#
-	# Use liblua if it's present, otherwise don't.
+	# Don't use liblua by default (it isn't ready yet)
 	#
 	want_lua=no
 	lua_dir=
