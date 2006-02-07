@@ -231,6 +231,7 @@ static guint32 manufacturerCode;
 static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
 	{  2429,	"RFC 2429 - 1998 Version of ITU-T Rec. H.263 Video (H.263+)" },
+	{  3016,	"RFC 3016 - RTP Payload Format for MPEG-4 Audio/Visual Streams" },
 	{  3267,	"RFC 3267 - Adaptive Multi-Rate (AMR) and Adaptive Multi-Rate Wideband (AMR-WB)" },
 	{  0, NULL }
 };
@@ -1637,7 +1638,7 @@ static int hf_h245_timestamp = -1;                /* INTEGER_0_4294967295 */
 static int hf_h245_expirationTime = -1;           /* INTEGER_0_4294967295 */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 279 "packet-h245-template.c"
+#line 280 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -2117,7 +2118,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 282 "packet-h245-template.c"
+#line 283 "packet-h245-template.c"
 
 
 /*--- Included file: packet-h245-fn.c ---*/
@@ -17439,7 +17440,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 284 "packet-h245-template.c"
+#line 285 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -22905,7 +22906,7 @@ void proto_register_h245(void) {
         "Rtp/expirationTime", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 349 "packet-h245-template.c"
+#line 350 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -23388,7 +23389,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 355 "packet-h245-template.c"
+#line 356 "packet-h245-template.c"
   };
   module_t *h245_module;
 
