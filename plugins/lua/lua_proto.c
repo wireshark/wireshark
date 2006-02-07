@@ -874,7 +874,7 @@ static int Proto_set_init(lua_State* L) {
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
         lua_pushstring(L, LUA_INIT_ROUTINES);
-        lua_gettable(L, LUA_REGISTRYINDEX);
+        lua_gettable(L, LUA_GLOBALSINDEX);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
