@@ -30,6 +30,8 @@
 #include <epan/nstime.h>
 #include <math.h>
 #include <epan/expert.h>
+#include <epan/ex-opt.h>
+#include <epan/privileges.h>
 
 static lua_State* L = NULL;
 
@@ -216,33 +218,78 @@ static const char *getF(lua_State *L _U_, void *ud, size_t *size)
 
 static int lua_main_error_handler(lua_State* LS) {
     const gchar* error =  lua_tostring(LS,1);
-    report_failure("Lua: Error during registration:\n %s",error);
+    report_failure("Lua: Error during loading:\n %s",error);
     return 0;
 }
 
-void register_lua(void) {
+void lua_load_script(const gchar* filename) {
     FILE* file;
-    gchar* filename = getenv("ETHEREAL_LUA_INIT");
+
+    if (! ( file = fopen(filename,"r")) ) {
+        report_open_failure(filename,errno,FALSE);
+        return;
+    }
+    
+    lua_pushcfunction(L,lua_main_error_handler);
+    
+    switch (lua_load(L,getF,file,filename)) {
+        case 0:
+            lua_pcall(L,0,0,1);
+            fclose(file);
+            
+            lua_data_handle = NULL;
+            lua_pinfo = NULL;
+            lua_tree = NULL;
+            lua_tvb = NULL;
+            
+            lua_malformed = proto_get_id_by_filter_name("malformed");
+            
+            return;
+        case LUA_ERRSYNTAX: {
+            report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
+            return;
+        }
+        case LUA_ERRMEM:
+            report_failure("Lua: memory allocation error during execution of %s",filename);
+            return;
+    }
+    
+    lua_settop(L,0);
+}
+
+void register_lua(void) {
+    const gchar* filename;
+    GPtrArray* filenames = g_ptr_array_new();
+    guint i;
+    
+    filename = get_datafile_path("init.lua");
+    
+    if (( file_exists(filename))) {
+        g_ptr_array_add(filenames,(void*)filename);
+    }
     
 
-    /* TODO: 
-        disable if not running with the right credentials
+    if (! started_with_special_privs() ) {
+        filename = get_persconffile_path("init.lua", FALSE);
         
-        if (euid == 0 && euid != ruid) return;
-    */
+        if (( file_exists(filename))) {
+            g_ptr_array_add(filenames,(void*)filename);
+        }
+        
+        while((filename = ex_opt_get_next("lua_script"))) {
+            g_ptr_array_add(filenames,(void*)filename);
+        }
+    }
     
-    if (!filename) filename = get_persconffile_path("init.lua", FALSE);
-
-    file = fopen(filename,"r");
-
-    if (! file) return;
+    if (! filenames->len) {
+        g_ptr_array_free(filenames,TRUE);
+        return;
+    }
     
     register_init_routine(init_lua);    
     
     L = lua_open();
     
-    lua_pushcfunction(L,lua_main_error_handler);
-
     luaopen_base(L);
     luaopen_table(L);
     luaopen_io(L);
@@ -299,32 +346,13 @@ void register_lua(void) {
     lua_newtable (L);
     lua_settable(L, LUA_REGISTRYINDEX);
     
-    switch (lua_load(L,getF,file,filename)) {
-    case 0:
-	    lua_pcall(L,0,0,1);
-	    fclose(file);
-	    
-	    lua_data_handle = NULL;
-	    lua_pinfo = NULL;
-	    lua_tree = NULL;
-	    lua_tvb = NULL;
-	    
-	    lua_malformed = proto_get_id_by_filter_name("malformed");
-	    
-	    return;
-    case LUA_ERRSYNTAX: {
-		report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
-		lua_close(L);
-		L = NULL;
-		return;
+    for (i=0 ; i < filenames->len ; i++) {
+        filename = g_ptr_array_index(filenames,i);
+        lua_load_script(filename);
     }
-	case LUA_ERRMEM:
-		report_failure("Lua: memory allocation error during execution of %s",filename);
-		lua_close(L);
-		L = NULL;
-		return;
-    }
-
+    
+    g_ptr_array_free(filenames,TRUE);
+    
     /* after the body it is too late to register a menu */
     lua_pushstring(L, "register_menu");
     lua_pushcfunction(L, lua_not_register_menu);
