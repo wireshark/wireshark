@@ -43,6 +43,7 @@
 #include <epan/timestamp.h>
 #include <epan/plugins.h>
 #include <epan/filesystem.h>
+#include <epan/privileges.h>
 #include <epan/prefs.h>
 #include "util.h"
 #include "epan/dfilter/dfilter.h"
@@ -64,6 +65,11 @@ main(int argc, char **argv)
 	int		pf_open_errno, pf_read_errno;
 	e_prefs		*prefs;
 	dfilter_t	*df;
+
+	/*
+	 * Get credential information for later use.
+	 */
+	get_credential_info();
 
 	timestamp_set_type(TS_RELATIVE);
 
