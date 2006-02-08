@@ -3870,9 +3870,6 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, guint32 offset,
  * Standard Ethereal Protocol Registration and housekeeping
  *
  *********************************************************************/
-#ifndef SSL_SUFFIX
-#define SSL_SUFFIX ""
-#endif
 void
 proto_register_ssl(void)
 {
@@ -4271,8 +4268,8 @@ proto_register_ssl(void)
     };
 
     /* Register the protocol name and description */
-    proto_ssl = proto_register_protocol("Secure Socket Layer"SSL_SUFFIX,
-                                        "SSL"SSL_SUFFIX, "ssl"SSL_SUFFIX);
+    proto_ssl = proto_register_protocol("Secure Socket Layer",
+                                        "SSL", "ssl");
 
     /* Required function calls to register the header fields and
      * subtrees used */
@@ -4299,13 +4296,13 @@ proto_register_ssl(void)
              (const char **)&ssl_ports_list);
     }
 
-    register_dissector("ssl"SSL_SUFFIX, dissect_ssl, proto_ssl);
+    register_dissector("ssl", dissect_ssl, proto_ssl);
     
     register_init_routine(ssl_init);
     ssl_lib_init();
-    ssl_tap = register_tap("ssl"SSL_SUFFIX);
+    ssl_tap = register_tap("ssl");
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",
-        "ssl"SSL_SUFFIX, ssl_tap);
+        "ssl", ssl_tap);
 }
 
 /* If this dissector uses sub-dissector registration add a registration
@@ -4315,7 +4312,7 @@ proto_register_ssl(void)
 void
 proto_reg_handoff_ssl(void)
 {
-    ssl_handle = find_dissector("ssl"SSL_SUFFIX);
+    ssl_handle = find_dissector("ssl");
     
     /* add now dissector to default ports.*/
     ssl_parse();
