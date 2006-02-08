@@ -470,12 +470,10 @@ standard libpcap format.
         Specify an option to be passed to a Tethereal module. The eXtension
         option is in the form extension_key:value, where extension_key can
         be:
-            <varlistentry><term><command>lua_script</command>:lua_script_filename</term>
-                <listitem><para>
-                Tell Ethereal to load the given script in addition to the default Lua scripts. 
-                </para></listitem>
-            </varlistentry>
-		</para>
+        </para>
+        <para>
+        <command>lua_script</command>:lua_script_filename Tell Ethereal to load the given script in addition to the default Lua scripts. 
+        </para>
 	  </listitem>
 	</varlistentry>    
 	<varlistentry><term><command>-z &lt;statistics-string></command></term>
