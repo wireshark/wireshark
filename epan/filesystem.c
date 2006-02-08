@@ -780,20 +780,32 @@ file_exists(const char *fname)
    
 }
 
-
+/*
+ * Check that the from file is not the same as to file
+ * We do it here so we catch all cases ...
+ * Unfortunately, the file requester gives us an absolute file
+ * name and the read file name may be relative (if supplied on
+ * the command line), so we can't just compare paths. From Joerg Mayer.
+ */
 gboolean
 files_identical(const char *fname1, const char *fname2)
 {
     /* Two different implementations, because:
      * - _fullpath is not available on unix 
-     * - the stat inode will not work as expected on Win32, so two different implementations.
+     * - the stat inode will not work as expected on Win32,
+     *   so two different implementations.
      *
      * XXX - will _fullpath work with UNC?
      */
 #ifdef _WIN32
     char full1[MAX_PATH], full2[MAX_PATH];
 
-
+    /*
+     * Get the absolute full paths of the file and compare them.
+     * That won't work if you have hard links, which aren't
+     * much used on Windows, even though NTFS supports them.
+     * We can't use st_ino on Windows, as it's not supported on FAT.
+     */
     if( _fullpath( full1, fname1, MAX_PATH ) == NULL ) {
         return FALSE;
     }
@@ -808,30 +820,17 @@ files_identical(const char *fname1, const char *fname2)
         return FALSE;
     }
 #else
-  struct stat   infile, outfile;
+  struct stat   filestat1, filestat2;
 
-  /*
-   * Check that the from file is not the same as to file
-   * We do it here so we catch all cases ...
-   * Unfortunately, the file requester gives us an absolute file
-   * name and the read file name may be relative (if supplied on
-   * the command line). From Joerg Mayer.
-   *
-   * This is a bit tricky on win32. The st_ino field is documented as:
-   * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
-   * but it *is* set to zero if stat() returns without an error,
-   * so this is not working, as it only checks if both files existing. ULFL
-   */
-   infile.st_ino = 1;   /* These prevent us from getting equality         */
-   outfile.st_ino = 2;  /* If one or other of the files is not accessible */
-   eth_stat(fname1, &infile);
-   eth_stat(fname2, &outfile);
-   if (infile.st_ino == outfile.st_ino) {
-       return TRUE;
-   } else {
-       return FALSE;
-   }
-
+   /*
+    * Compare st_dev and st_ino.
+    */
+   if (eth_stat(fname1, &filestat1) == -1)
+       return FALSE;	/* can't get info about the first file */
+   if (eth_stat(fname2, &filestat2) == -1)
+       return FALSE;	/* can't get info about the second file */
+   return (filestat1.st_dev == filestat2.st_dev &&
+           filestat1.st_ino == filestat2.st_ino);
 #endif
 }
 
