@@ -791,20 +791,22 @@ gboolean
 files_identical(const char *fname1, const char *fname2)
 {
     /* Two different implementations, because:
-     * - _fullpath is not available on unix 
-     * - the stat inode will not work as expected on Win32,
-     *   so two different implementations.
      *
-     * XXX - will _fullpath work with UNC?
+     * - _fullpath is not available on UN*X, so we can't get full
+     *   paths and compare them (which wouldn't work with hard links
+     *   in any case);
+     *
+     * - st_ino isn't filled in with a meaningful value on Windows.
      */
 #ifdef _WIN32
     char full1[MAX_PATH], full2[MAX_PATH];
 
     /*
      * Get the absolute full paths of the file and compare them.
-     * That won't work if you have hard links, which aren't
+     * That won't work if you have hard links, but those aren't
      * much used on Windows, even though NTFS supports them.
-     * We can't use st_ino on Windows, as it's not supported on FAT.
+     *
+     * XXX - will _fullpath work with UNC?
      */
     if( _fullpath( full1, fname1, MAX_PATH ) == NULL ) {
         return FALSE;
