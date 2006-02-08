@@ -48,6 +48,7 @@
 
 #include <gmodule.h>
 #endif
+#include <glib.h>
 
 void proto_register_lua(void);
 
