@@ -697,10 +697,18 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 				val_to_str(name_type, ntlm_name_types,
 					   "Unknown"));
 			break;
+		case NTLM_NAME_CLIENT_TIME:
+			dissect_nt_64bit_time(
+				tvb, name_tree, offset, 
+				hf_ntlmssp_ntlmv2_response_client_time);
+			proto_item_append_text(
+				name_item, "Client Time");
+			break;
 		case NTLM_NAME_NB_HOST:
 		case NTLM_NAME_NB_DOMAIN:
 		case NTLM_NAME_DNS_HOST:
 		case NTLM_NAME_DNS_DOMAIN:
+		default:
 			name = tvb_get_ephemeral_faked_unicode(
 				tvb, offset, name_len / 2, TRUE);
 
@@ -711,13 +719,6 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 				name_item, "%s, %s",
 				val_to_str(name_type, ntlm_name_types,
 					   "Unknown"), name);
-			break;
-		case NTLM_NAME_CLIENT_TIME:
-			offset = dissect_nt_64bit_time(
-				tvb, name_tree, offset, 
-				hf_ntlmssp_ntlmv2_response_client_time);
-			proto_item_append_text(
-				name_item, "Client Time");
 			break;
 		}
 

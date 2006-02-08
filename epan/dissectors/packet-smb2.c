@@ -233,6 +233,7 @@ static gint ett_smb2_flags = -1;
 static int smb2_tap = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
+static dissector_handle_t ntlmssp_handle = NULL;
 
 static heur_dissector_list_t smb2_heur_subdissector_list;
 
@@ -1711,7 +1712,12 @@ dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 *le
 static void
 dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
 {
-	call_dissector(gssapi_handle, tvb, pinfo, tree);
+	if( (tvb_length(tvb)>=7)
+	&&  (!tvb_memeql(tvb, 0, "NTLMSSP", 7))){
+		call_dissector(ntlmssp_handle, tvb, pinfo, tree);
+	} else {
+		call_dissector(gssapi_handle, tvb, pinfo, tree);
+	}
 	return;
 }
 
@@ -4892,5 +4898,6 @@ void
 proto_reg_handoff_smb2(void)
 {
 	gssapi_handle = find_dissector("gssapi");
+	ntlmssp_handle = find_dissector("ntlmssp");
 	heur_dissector_add("netbios", dissect_smb2_heur, proto_smb2);
 }
