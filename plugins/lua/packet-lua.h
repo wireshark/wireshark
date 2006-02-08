@@ -209,7 +209,7 @@ extern tvbuff_t* lua_tvb;
 extern int lua_malformed;
 extern dissector_handle_t lua_data_handle;
 extern gboolean lua_initialized;
-
+extern int lua_dissectors_table_ref;
 
 #define LUA_CLASS_DECLARE(C,CN) \
 extern C to##C(lua_State* L, int index); \
@@ -250,9 +250,9 @@ extern const gchar* lua_shiftstring(lua_State* L,int idx);
 extern int lua_register_menu(lua_State* L);
 extern int lua_new_dialog(lua_State* L);
 extern int lua_gui_enabled(lua_State* L);
-
+extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);
-void lua_register_subtrees(void);
+extern void lua_register_subtrees(void);
 
 #endif

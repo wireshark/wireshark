@@ -39,6 +39,8 @@ packet_info* lua_pinfo;
 proto_tree* lua_tree;
 tvbuff_t* lua_tvb;
 int lua_malformed;
+int lua_dissectors_table_ref;
+
 dissector_handle_t lua_data_handle;
 
 
@@ -99,28 +101,13 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     /*
      * almost equivalent to Lua:
      * dissectors[current_proto](tvb,pinfo,tree)
-     * but it wont give an error if dissectors[current_proto] doesn't exist
      */
     
     lua_settop(L,0);
 
-    lua_pushstring(L, LUA_DISSECTORS_TABLE);
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    
-    if (!lua_istable(L, -1)) {
-        proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua: either `" LUA_DISSECTORS_TABLE "' does not exist or it is not a table!");
-        expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR,"Lua Error");
-
-        lua_pinfo = NULL;
-        lua_tree = NULL;
-        lua_tvb = NULL;
-        
-        return;
-    }
-    
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);    
     
     lua_pushstring(L, pinfo->current_proto);
-
     lua_gettable(L, -2);  
 
     lua_remove(L,1);
@@ -134,11 +121,15 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         
         if  ( lua_pcall(L,3,0,0) ) {
             const gchar* error = lua_tostring(L,-1);
+
             proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: %s",error);
             expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
         }
     } else {
-        /* XXX */   
+        proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: did not find the %s dissector"
+                                             " in the dissectors table",pinfo->current_proto);
+        
+        expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
     }
     
     lua_pinfo = NULL;
@@ -229,6 +220,8 @@ void lua_load_script(const gchar* filename) {
         report_open_failure(filename,errno,FALSE);
         return;
     }
+
+    lua_settop(L,0);
     
     lua_pushcfunction(L,lua_main_error_handler);
     
@@ -236,25 +229,18 @@ void lua_load_script(const gchar* filename) {
         case 0:
             lua_pcall(L,0,0,1);
             fclose(file);
-            
-            lua_data_handle = NULL;
-            lua_pinfo = NULL;
-            lua_tree = NULL;
-            lua_tvb = NULL;
-            
-            lua_malformed = proto_get_id_by_filter_name("malformed");
-            
             return;
         case LUA_ERRSYNTAX: {
             report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
+            fclose(file);
             return;
         }
         case LUA_ERRMEM:
             report_failure("Lua: memory allocation error during execution of %s",filename);
+            fclose(file);
             return;
     }
     
-    lua_settop(L,0);
 }
 
 void register_lua(void) {
@@ -342,9 +328,8 @@ void register_lua(void) {
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
-    lua_pushstring(L, LUA_DISSECTORS_TABLE);
     lua_newtable (L);
-    lua_settable(L, LUA_REGISTRYINDEX);
+    lua_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     for (i=0 ; i < filenames->len ; i++) {
         filename = g_ptr_array_index(filenames,i);
@@ -357,6 +342,13 @@ void register_lua(void) {
     lua_pushstring(L, "register_menu");
     lua_pushcfunction(L, lua_not_register_menu);
     lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pinfo = NULL;
+    lua_tree = NULL;
+    lua_tvb = NULL;
+    
+    lua_data_handle = find_dissector("data");
+    lua_malformed = proto_get_id_by_filter_name("malformed");
     
     return;
 }

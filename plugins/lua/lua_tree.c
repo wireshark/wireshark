@@ -141,7 +141,14 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
 
     tvbr = shiftTvbRange(L,1);
 
-    if (hfid > 0 && tvbr ) {
+    if (!tvbr) {
+        tvbr = ep_alloc(sizeof(struct _eth_tvbrange));
+        tvbr->tvb = lua_tvb;
+        tvbr->offset = 0;
+        tvbr->len = 0;
+    }
+    
+    if (hfid > 0 ) {
         if (lua_gettop(L)) {
             switch(type) {
                 case FT_PROTOCOL:

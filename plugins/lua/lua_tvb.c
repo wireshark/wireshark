@@ -26,6 +26,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/*
+ *  XXX: TODO
+ *
+ *  having Tvbs and TvbRanges have a lifetime of just the dissector callback
+ *  but being user able to save them in global variables for later use
+ *  every lua value created with these should be NULLified after the dissector's
+ *  callback, pushXxx() gives back a pointer to the pointer it saves that has to be pushed
+ *  to a queue and NULLified before returning from packet_lua.
+ *
+ *  in order to do that we need to verify that every function in this file yields an
+ *  error if the Xxx ptr it uses is NULL.  
+ *
+ * the same would applies to Pinfo, Item and Tree
+ * Item and Tree are protected in the sense that the callbacks to these  
+ */
+
 #include "packet-lua.h"
 
 LUA_CLASS_DEFINE(Tvb,TVB,if (! *p) luaL_error(L,"null tvb"))
@@ -35,7 +51,6 @@ LUA_CLASS_DEFINE(ByteArray,BYTE_ARRAY,if (! *p) luaL_argerror(L,index,"null byte
 static int ByteArray_new(lua_State* L) {
     GByteArray* ba = g_byte_array_new();
     const gchar* s;
-    /* XXX: slow! */
     int nibble[2];
     int i = 0;
     gchar c;
@@ -48,6 +63,7 @@ static int ByteArray_new(lua_State* L) {
             return 0;
         }
         
+        /* XXX: slow! */
         for (; (c = *s); s++) {
             switch(c) {
                 case '0': case '1': case '2': case '3': case '4': case '5' : case '6' : case '7': case '8' : case '9' :
@@ -120,8 +136,6 @@ static int ByteArray_set_index(lua_State* L) {
     int idx = luaL_checkint(L,2);
     int v = luaL_checkint(L,3);
     
-    g_warning(">%p %d",ba,idx);
-
     if (!ba) return 0;
 
     if (idx == 0 && ! g_str_equal(luaL_optstring(L,2,""),"0") ) {
@@ -149,8 +163,6 @@ static int ByteArray_get_index(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     int idx = luaL_checkint(L,2);
     
-    g_warning(">%p %d",ba,idx);
-
     if (!ba) return 0;
     
     if (idx == 0 && ! g_str_equal(luaL_optstring(L,2,""),"0") ) {
@@ -162,7 +174,6 @@ static int ByteArray_get_index(lua_State* L) {
         luaL_argerror(L,2,"index out of range");
         return 0;
     }
-    g_warning(">%d",idx);
     lua_pushnumber(L,ba->data[idx]);
     
     return 1;

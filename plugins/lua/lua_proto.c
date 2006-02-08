@@ -427,20 +427,27 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f = g_malloc(sizeof(eth_field_t));
     const gchar* abbr = luaL_checkstring(L,1); 
     const gchar* name = luaL_optstring(L,2,abbr);
-    const gchar* base = luaL_optstring(L, 3, "BASE_DEC");
+    const gchar* base_str = luaL_optstring(L, 3, "BASE_DEC");
     value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
     int mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,"");
+    base_display_e base = string_to_base(base_str);
 
+    if (base < BASE_DEC || base > BASE_HEX_DEC) {
+        luaL_argerror(L,3,"Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
+                      " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
+        return 0;
+    }
 
     f->hfid = -2;
     f->name = g_strdup(name);
     f->abbr = g_strdup(abbr);
     f->type = type;
     f->vs = vs;
-    f->base = string_to_base(base);
+    f->base = base;
     f->mask = mask;
     f->blob = g_strdup(blob);
+    
     
     pushProtoField(L,f);
     
@@ -844,9 +851,7 @@ static int Proto_set_dissector(lua_State* L) {
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
        
-        lua_pushstring(L, LUA_DISSECTORS_TABLE);
-        lua_gettable(L, LUA_REGISTRYINDEX);
-
+        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
@@ -1129,6 +1134,12 @@ static int DissectorTable_add (lua_State *L) {
         Proto p;
         p = toProto(L,3);
         handle = p->handle;
+        
+        if (! handle) {
+            luaL_error(L,"Protocol %s cannot be added to a table as it does not have a dissector",p->name);
+            return 0;
+        }
+        
     } else if ( isDissector(L,3) ) {
         handle = toDissector(L,3);
     } else {
@@ -1144,6 +1155,8 @@ static int DissectorTable_add (lua_State *L) {
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
         dissector_add(dt->name, port, handle);
+    } else {
+        luaL_error(L,"Strange type %d for a DissectorTable",type);
     }
     
     return 0;
