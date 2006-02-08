@@ -281,7 +281,7 @@ static const value_string bootp_nbnt_vals[] = {
     {0x2,   "P-node" },
     {0x4,   "M-node" },
     {0x8,   "H-node" },
-    {0,     NULL     } 
+    {0,     NULL     }
 };
 
 
@@ -596,7 +596,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	gboolean		skip_opaque = FALSE;
 	int			s_option;
 	int			ava_vid;
-	
+
 
 	static const value_string slpda_vals[] = {
 	    {0x00,   "Dynamic Discovery" },
@@ -795,8 +795,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	case 43:	/* Vendor-Specific Info */
 		s_option = tvb_get_guint8(tvb, optoff);
 
-		if (optlen == 5 && s_option == 58) 
-		{				
+		if (optlen == 5 && s_option == 58)
+		{
 				vti = proto_tree_add_text(bp_tree, tvb, voff,
 					consumed, "Option %d: %s (Alcatel AVA)", code, text);
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
@@ -2049,13 +2049,17 @@ static const value_string pkt_mdc_t38_ec_vals[] = {
 	{ 0,		NULL }
 };
 
-static const value_string pkt_mdc_mibs_vals[] = {
-	{ 0x3030,	"PacketCable 1.0" },
-	{ 0x3031,	"PacketCable 1.5" },
+static const value_string pkt_mdc_mib_orgs[] = {
+	{ 0x3030,	"CableLabs" },
+	{ 0x3031,	"IETF" },
 	{ 0x3032,	"Reserved" },
 	{ 0x3033,	"Reserved" },
 	{ 0x3034,	"Reserved" },
-	{ 0x3035,	"IETF" },
+	{ 0x3035,	"Reserved" },
+	{ 0x3036,	"Reserved" },
+	{ 0x3037,	"Reserved" },
+	{ 0x3038,	"Reserved" },
+	{ 0x3039,	"Reserved" },
 	{ 0,		NULL }
 };
 
@@ -2119,6 +2123,32 @@ static const value_string pkt_mdc_supp_flow_vals[] = {
 	{ 0, NULL }
 };
 
+#define PKT_MDC_MIB_CL 0x3030
+static const value_string pkt_mdc_cl_mib_vals[] = {
+	{ 1 << 0, "PacketCable 1.5 MTA MIB" },
+	{ 1 << 1, "PacketCable 1.5 Signaling MIB" },
+	{ 1 << 2, "PacketCable 1.5 Management Event MIB" },
+	{ 1 << 3, "PacketCable 1.5 MTA Extension MIB" },
+	{ 1 << 4, "PacketCable 1.5 Signaling Extension MIB" },
+	{ 1 << 5, "PacketCable 1.5 MEM Extension MIB" },
+	{ 1 << 6, "Reserved" },
+	{ 1 << 7, "Reserved" },
+	{ 0, NULL }
+};
+
+#define PKT_MDC_MIB_IETF 0x3031
+static const value_string pkt_mdc_ietf_mib_vals[] = {
+	{ 1 << 0, "IETF MTA MIB" },
+	{ 1 << 1, "IETF Signaling MIB" },
+	{ 1 << 2, "IETF Management Event MIB" },
+	{ 1 << 3, "Reserved" },
+	{ 1 << 4, "Reserved" },
+	{ 1 << 5, "Reserved" },
+	{ 1 << 6, "Reserved" },
+	{ 1 << 7, "Reserved" },
+	{ 0, NULL }
+};
+
 
 static void
 dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
@@ -2126,12 +2156,11 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	guint16 raw_val;
 	unsigned long flow_val = 0;
 	int off = PKT_MDC_TLV_OFF + voff;
-	guint tlv_len;
-	guint i;
+	int tlv_len, i, subopt_off, max_len, mib_val;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
 	char bit_fld[64];
-	proto_item *ti;
-	proto_tree *subtree;
+	proto_item *ti, *mib_ti;
+	proto_tree *subtree, *subtree2;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
 	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
@@ -2233,11 +2262,6 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_MIBS:
-						raw_val = tvb_get_ntohs(tvb, off + 4);
-						proto_item_append_text(ti,
-						    "%s (%s)",
-						    val_to_str(raw_val, pkt_mdc_mibs_vals, "unknown"),
-						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_VENDOR_TLV:
 					default:
@@ -2252,10 +2276,70 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 				for (i = 0 ; i < 3; i++) {
 					if (flow_val & pkt_mdc_supp_flow_vals[i].value) {
 						decode_bitfield_value(bit_fld, flow_val, pkt_mdc_supp_flow_vals[i].value, 16);
-						proto_tree_add_text(ti, tvb, off + 4, 4, "%s%s",
+						proto_tree_add_text(subtree, tvb, off + 4, 4, "%s%s",
 							bit_fld, pkt_mdc_supp_flow_vals[i].strptr);
 					}
 				}
+			} else if (raw_val == PKT_MDC_MIBS) {
+			/* 17 06 02 00 38 02 01 07 */
+				subopt_off = off + 4;
+				max_len = subopt_off + (tlv_len * 2);
+				while (subopt_off < max_len) {
+					raw_val = tvb_get_ntohs(tvb, subopt_off);
+					if (raw_val != 0x3032) { /* We only know how to handle a length of 2 */
+						tvb_memcpy(tvb, asc_val, subopt_off, 2);
+						proto_tree_add_text(subtree, tvb, subopt_off, 2,
+									"[Bogus length: %s]", asc_val);
+						return;
+					}
+
+					subopt_off += 2;
+					raw_val = tvb_get_ntohs(tvb, subopt_off);
+					tvb_memcpy(tvb, asc_val, subopt_off, 2);
+
+					mib_ti = proto_tree_add_text(subtree, tvb, subopt_off, 2, "%s (%s)",
+						val_to_str(raw_val, pkt_mdc_mib_orgs, "Unknown"), asc_val);
+					if (subopt_off > off + 4 + 2) {
+						proto_item_append_text(ti, ", ");
+					}
+					proto_item_append_text(ti, "%s", val_to_str(raw_val, pkt_mdc_mib_orgs, "Unknown"));
+
+					subopt_off += 2;
+					tvb_memcpy(tvb, asc_val, subopt_off, 2);
+					if (sscanf(asc_val, "%x", &mib_val) != 1) {
+						proto_tree_add_text(v_tree, tvb, subopt_off, 2,
+									"[Bogus bitfield: %s]", asc_val);
+						return;
+					}
+					switch (raw_val) {
+					    	case PKT_MDC_MIB_CL:
+					    		subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
+
+					    		for (i = 0; i < 8; i++) {
+							    	if (mib_val & pkt_mdc_cl_mib_vals[i].value) {
+								    	decode_bitfield_value(bit_fld, mib_val, pkt_mdc_cl_mib_vals[i].value, 8);
+								    	proto_tree_add_text(subtree2, tvb, subopt_off, 2,
+								    		"%s%s", bit_fld, pkt_mdc_cl_mib_vals[i].strptr);
+								}
+							}
+							break;
+					    	case PKT_MDC_MIB_IETF:
+					    		subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
+
+					    		for (i = 0; i < 8; i++) {
+							    	if (mib_val & pkt_mdc_ietf_mib_vals[i].value) {
+								    	decode_bitfield_value(bit_fld, mib_val, pkt_mdc_ietf_mib_vals[i].value, 8);
+								    	proto_tree_add_text(subtree2, tvb, subopt_off, 2,
+								    		"%s%s", bit_fld, pkt_mdc_ietf_mib_vals[i].strptr);
+								}
+							}
+							break;
+						default:
+							break;
+					}
+					subopt_off += 2;
+				}
+
 			}
 			off += (tlv_len * 2) + 4;
 		}
