@@ -756,6 +756,7 @@ file_exists(const char *fname)
   struct stat   file_stat;
 
 
+#ifdef _WIN32
   /*
    * This is a bit tricky on win32. The st_ino field is documented as:
    * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
@@ -769,7 +770,14 @@ file_exists(const char *fname)
    } else {
        return FALSE;
    }
-
+#else
+   if (eth_stat(fname, &file_stat) != 0 && errno == ENOENT) {
+       return FALSE;
+   } else {
+       return TRUE;
+   }
+#endif
+   
 }
 
 
