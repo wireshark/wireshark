@@ -127,6 +127,18 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	--noindex							\
 	$(srcdir)/text2pcap.pod > ../text2pcap.html
 
+../dumpcap.1: dumpcap.pod ../config.h
+	$(POD2MAN)					\
+	--center="The Ethereal Network Analyzer"	\
+	--release=$(VERSION)				\
+	$(srcdir)/dumpcap.pod > ../dumpcap.1
+
+../dumpcap.html: dumpcap.pod ../config.h
+	$(POD2HTML)                     \
+	--title="dumpcap - The Ethereal Network Analyzer $(VERSION)"	\
+	--noindex							\
+	$(srcdir)/dumpcap.pod > ../dumpcap.html
+
 CLEANFILES =		\
 	ethereal-filter.pod \
 	ethereal-tmp.pod \
@@ -144,6 +156,8 @@ CLEANFILES =		\
 	../tethereal.html	\
 	../text2pcap.1	\
 	../text2pcap.html	\
+	../dumpcap.1	\
+	../dumpcap.html	\
 	../idl2eth.1	\
 	../idl2eth.html
 

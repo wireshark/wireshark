@@ -27,10 +27,10 @@
 include ../config.nmake
 
 doc: ethereal.html tethereal.html ethereal-filter.html capinfos.html \
-	editcap.html idl2eth.html mergecap.html text2pcap.html
+	editcap.html idl2eth.html mergecap.html text2pcap.html dumpcap.html
 
 man: ethereal.1 tethereal.1 ethereal-filter.4 capinfos.1 editcap.1 \
-	idl2eth.1 mergecap.1 text2pcap.1
+	idl2eth.1 mergecap.1 text2pcap.1 dumpcap.1
 
 ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT-FORMAT
 	copy /B ethereal.pod + ..\AUTHORS-SHORT-FORMAT ethereal-tmp.pod
@@ -149,6 +149,18 @@ text2pcap.html: text2pcap.pod ../config.h
 	--noindex                                 \
 	text2pcap.pod > text2pcap.html
 
+dumpcap.1: dumpcap.pod ../config.h
+	$(POD2MAN)                      \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	dumpcap.pod > dumpcap.1
+
+dumpcap.html: dumpcap.pod ../config.h
+	$(POD2HTML)                     \
+	--title="dumpcap - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	dumpcap.pod > dumpcap.html
+
 clean:
 	rm -f ethereal.html ethereal.1 ethereal-tmp.pod
 	rm -f tethereal.html tethereal.1
@@ -158,6 +170,7 @@ clean:
 	rm -f idl2eth.html idl2eth.1
 	rm -f mergecap.html mergecap.1
 	rm -f text2pcap.html text2pcap.1
+	rm -f dumpcap.html dumpcap.1
 	rm -f pod2htm*
 
 distclean: clean
