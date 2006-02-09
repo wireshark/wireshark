@@ -398,7 +398,7 @@ static const value_string cops_cperror_vals[] = {
   {11, "invalidAttrType" },
   {12, "deletedInRef" },
   {13, "priSpecificError" },
- 	{0,  NULL },
+  {0,  NULL },
 };
 
 
@@ -547,6 +547,28 @@ static const value_string table_cops_mm_transaction_id[] = {
 	{13, "Gate Open"},
 	{14, "Gate Close"},
 	{15, "Gate Report State"},
+	{16, "Invalid Gate Cmd Err"},
+	{17, "PDP Config"},
+	{18, "PDP Config Ack"},
+	{19, "PDP Config Error"},
+	{20, "Synch Request"},
+	{21, "Synch Report"},
+	{22, "Synch Complete"},
+	{23, "Message Receipt"},
+	{0, NULL },
+};
+
+static const value_string pcmm_activation_state_vals[] = {
+	{0, "Inactive"},
+	{1, "Active"},
+	{0, NULL },
+};
+
+static const value_string pcmm_action_vals[] = {
+	{0, "Add classifier"},
+	{1, "Replace classifier"},
+	{2, "Delete classifier"},
+	{3, "No change"},
 	{0, NULL },
 };
 
@@ -554,6 +576,18 @@ static const value_string pcmm_flow_spec_service_vals[] = {
 	{2, "Guaranteed Rate"},
 	{5, "Controlled Load"},
 	{0, NULL },
+};
+
+static const value_string pcmm_report_type_vals[] = {
+	{0, "Standard Report Data"},
+	{1, "Complete Gate Data"},
+	{0, NULL},
+};
+
+static const value_string pcmm_synch_type_vals[] = {
+	{0, "Full Synchronization"},
+	{1, "Incremental Synchronization"},
+	{0, NULL},
 };
 
 static const value_string pcmm_packetcable_error_code[] = {
@@ -569,6 +603,14 @@ static const value_string pcmm_packetcable_error_code[] = {
 	{13, "Invalid SubscriberID"},
 	{14, "Unauthorized AMID"},
 	{15, "Number of Classifiers Not Supported"},
+	{16, "Policy Exception"},
+	{17, "Invalid Field Value in Object"},
+	{18, "Transport Error"},
+	{19, "Unknown Gate Command"},
+	{20, "Unauthorized PSID"},
+	{21, "No State for PDP"},
+	{22, "Unsupported Synch Type"},
+	{23, "Incremental Data Incomplete"},
 	{127, "Other, Unspecified Error"},
 	{0, NULL},
 };
@@ -583,15 +625,19 @@ static const value_string pcmm_gate_state[] = {
 };
 
 static const value_string pcmm_gate_state_reason[] = {
-	{1, "Close initiated by CMTS due to reservation reassignment"},
-	{2, "Close initiated by CMTS due to lack of DOCSIS MAC-layer responses"},
-	{3, "Close initiated by CMTS due to timer T1 expiration"},
-	{4, "Close initiated by CMTS due to timer T2 expiration"},
-	{5, "Inactivity timer expired due to Service Flow inactivity (timer T3 expiration)"},
-	{6, "Close initiated by CMTS due to lack of Reservation Maintenance"},
-	{7, "Gate state unchanged, but volume limit reached"},
-	{8, "Close initiated by CMTS due to timer T4 expiration"},
-	{9, "Gate state unchanged, but timer T2 expiration caused reservation reduction"},
+	{1,  "Close initiated by CMTS due to reservation reassignment"},
+	{2,  "Close initiated by CMTS due to lack of DOCSIS MAC-layer responses"},
+	{3,  "Close initiated by CMTS due to timer T1 expiration"},
+	{4,  "Close initiated by CMTS due to timer T2 expiration"},
+	{5,  "Inactivity timer expired due to Service Flow inactivity (timer T3 expiration)"},
+	{6,  "Close initiated by CMTS due to lack of Reservation Maintenance"},
+	{7,  "Gate state unchanged, but volume limit reached"},
+	{8,  "Close initiated by CMTS due to timer T4 expiration"},
+	{9,  "Gate state unchanged, but timer T2 expiration caused reservation reduction"},
+	{10, "Gate state unchanged, but time limit reached"},
+	{11, "Close initiated by Policy Server or CMTS, volume limit reached"},
+	{12, "Close initiated by Policy Server or CMTS, time limit reached"},
+	{13, "Close initiated by CMTS, other"},
 	{65535, "Other"},
 	{0, NULL},
 };
@@ -711,7 +757,8 @@ static gint hf_cops_pc_dfccc_ip_port = -1;
 static gint hf_cops_pc_dfccc_id = -1;
 
 /* PacketCable Multimedia */
-static gint hf_cops_pcmm_amid = -1;
+static gint hf_cops_pcmm_amid_app_type = -1;
+static gint hf_cops_pcmm_amid_am_tag = -1;
 static gint hf_cops_pcmm_gate_spec_flags = -1;
 static gint hf_cops_pcmm_gate_spec_dscp_tos_field = -1;
 static gint hf_cops_pcmm_gate_spec_dscp_tos_mask = -1;
@@ -727,10 +774,17 @@ static gint hf_cops_pcmm_classifier_protocol_id = -1;
 static gint hf_cops_pcmm_classifier_dscp_tos_field = -1;
 static gint hf_cops_pcmm_classifier_dscp_tos_mask = -1;
 static gint hf_cops_pcmm_classifier_src_addr = -1;
+static gint hf_cops_pcmm_classifier_src_mask = -1;
 static gint hf_cops_pcmm_classifier_dst_addr = -1;
+static gint hf_cops_pcmm_classifier_dst_mask = -1;
 static gint hf_cops_pcmm_classifier_src_port = -1;
+static gint hf_cops_pcmm_classifier_src_port_end = -1;
 static gint hf_cops_pcmm_classifier_dst_port = -1;
+static gint hf_cops_pcmm_classifier_dst_port_end = -1;
 static gint hf_cops_pcmm_classifier_priority = -1;
+static gint hf_cops_pcmm_classifier_classifier_id = -1;
+static gint hf_cops_pcmm_classifier_activation_state = -1;
+static gint hf_cops_pcmm_classifier_action = -1;
 static gint hf_cops_pcmm_flow_spec_envelope = -1;
 static gint hf_cops_pcmm_flow_spec_service_number = -1;
 static gint hf_cops_pcmm_docsis_scn = -1;
@@ -758,6 +812,10 @@ static gint hf_cops_pcmm_packetcable_gate_state = -1;
 static gint hf_cops_pcmm_packetcable_gate_state_reason = -1;
 static gint hf_cops_pcmm_packetcable_version_info_major = -1;
 static gint hf_cops_pcmm_packetcable_version_info_minor = -1;
+static gint hf_cops_pcmm_psid = -1;
+static gint hf_cops_pcmm_synch_options_report_type = -1;
+static gint hf_cops_pcmm_synch_options_synch_type = -1;
+static gint hf_cops_pcmm_msg_receipt_key = -1;
 
 
 /* Initialize the subtree pointers */
@@ -2134,10 +2192,15 @@ void proto_register_cops(void)
         "BCID Event Counter", HFILL }
     },
 
-    { &hf_cops_pcmm_amid,
-	    { "AMID", "cops.pc_mm_amid",
+    { &hf_cops_pcmm_amid_app_type,
+	    { "AMID Application Type", "cops.pc_mm_amid_application_type",
 	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia AMID", HFILL }
+	    "PacketCable Multimedia AMID Application Type", HFILL }
+    },
+    { &hf_cops_pcmm_amid_am_tag,
+	    { "AMID Application Manager Tag", "cops.pc_mm_amid_am_tag",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    "PacketCable Multimedia AMID Application Manager Tag", HFILL }
     },
 
     { &hf_cops_pcmm_gate_spec_flags,
@@ -2216,25 +2279,60 @@ void proto_register_cops(void)
 	    FT_IPv4, 0, NULL, 0,
 	    "PacketCable Multimedia Classifier Source IP Address", HFILL }
     },
+    { &hf_cops_pcmm_classifier_src_mask,
+	    { "Source mask", "cops.pc_mm_classifier_src_mask",
+	    FT_IPv4, 0, NULL, 0,
+	    "PacketCable Multimedia Classifier Source Mask", HFILL }
+    },
     { &hf_cops_pcmm_classifier_dst_addr,
 	    { "Destination address", "cops.pc_mm_classifier_dst_addr",
 	    FT_IPv4, 0, NULL, 0,
 	    "PacketCable Multimedia Classifier Destination IP Address", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_dst_mask,
+	    { "Destination address", "cops.pc_mm_classifier_dst_mask",
+	    FT_IPv4, 0, NULL, 0,
+	    "PacketCable Multimedia Classifier Destination Mask", HFILL }
     },
     { &hf_cops_pcmm_classifier_src_port,
 	    { "Source Port", "cops.pc_mm_classifier_src_port",
 	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "PacketCable Multimedia Classifier Source Port", HFILL }
     },
+    { &hf_cops_pcmm_classifier_src_port_end,
+	    { "Source Port End", "cops.pc_mm_classifier_src_port_end",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    "PacketCable Multimedia Classifier Source Port End", HFILL }
+    },
     { &hf_cops_pcmm_classifier_dst_port,
 	    { "Destination Port", "cops.pc_mm_classifier_dst_port",
 	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "PacketCable Multimedia Classifier Source Port", HFILL }
     },
+    { &hf_cops_pcmm_classifier_dst_port_end,
+	    { "Destination Port", "cops.pc_mm_classifier_dst_port_end",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    "PacketCable Multimedia Classifier Source Port End", HFILL }
+    },
     { &hf_cops_pcmm_classifier_priority,
 	    { "Priority", "cops.pc_mm_classifier_priority",
 	    FT_UINT8, BASE_HEX, NULL, 0,
 	    "PacketCable Multimedia Classifier Priority", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_classifier_id,
+	    { "Priority", "cops.pc_mm_classifier_id",
+	    FT_UINT16, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier ID", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_activation_state,
+	    { "Priority", "cops.pc_mm_classifier_activation_state",
+	    FT_UINT8, BASE_HEX, pcmm_activation_state_vals, 0,
+	    "PacketCable Multimedia Classifier Activation State", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_action,
+	    { "Priority", "cops.pc_mm_classifier_action",
+	    FT_UINT8, BASE_HEX, pcmm_action_vals, 0,
+	    "PacketCable Multimedia Classifier Action", HFILL }
     },
 
     { &hf_cops_pcmm_flow_spec_envelope,
@@ -2386,6 +2484,28 @@ void proto_register_cops(void)
 	    "PacketCable Multimedia Minor Version Number", HFILL }
     },
 
+    { &hf_cops_pcmm_psid,
+	    { "PSID", "cops.pc_mm_psid",
+	    FT_UINT32, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia PSID", HFILL }
+    },
+
+    { &hf_cops_pcmm_synch_options_report_type,
+	    { "Report Type", "cops.pc_mm_synch_options_report_type",
+	    FT_UINT8, BASE_DEC, pcmm_report_type_vals, 0,
+	    "PacketCable Multimedia Synch Options Report Type", HFILL }
+    },
+    { &hf_cops_pcmm_synch_options_synch_type,
+	    { "Synch Type", "cops.pc_mm_synch_options_synch_type",
+	    FT_UINT8, BASE_DEC, pcmm_synch_type_vals, 0,
+	    "PacketCable Multimedia Synch Options Synch Type", HFILL }
+    },
+
+    { &hf_cops_pcmm_msg_receipt_key,
+	    { "Msg Receipt Key", "cops.pc_mm_msg_receipt_key",
+	    FT_UINT32, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Msg Receipt Key", HFILL }
+    },
     /* End of addition for PacketCable */
 
   };
@@ -3070,8 +3190,12 @@ cops_amid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      stt = info_to_cops_subtree(tvb,st,n,offset,"AMID");
      offset += 4;
 
-     /* Gate Identifier */
-     info_to_display(tvb,stt,offset,4,"Application Manager ID", NULL,FMT_DEC,&hf_cops_pcmm_amid);
+     /* Application Type */
+     info_to_display(tvb,stt,offset,4,"Application Manager ID Application Type", NULL,FMT_DEC,&hf_cops_pcmm_amid_app_type);
+     offset += 4;
+
+     /* Application Manager Tag */
+     info_to_display(tvb,stt,offset,4,"Application Manager ID Application Manager Tag", NULL,FMT_DEC,&hf_cops_pcmm_amid_am_tag);
 }
 
 
@@ -3133,48 +3257,87 @@ cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Classifier */
 static void
-cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean extended) {
 
-     proto_tree *stt;
+    proto_tree *stt;
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,n,offset,"Classifier");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,n,offset,
+	extended ? "Extended Classifier" : "Classifier");
+    offset += 4;
 
-     /* Protocol ID */
-     info_to_display(tvb,stt,offset,2,"Protocol ID",NULL,FMT_DEC,&hf_cops_pcmm_classifier_protocol_id);
-     offset += 2;
+    /* Protocol ID */
+    info_to_display(tvb,stt,offset,2,"Protocol ID",NULL,FMT_DEC,&hf_cops_pcmm_classifier_protocol_id);
+    offset += 2;
 
-     /* DiffServ Code Point */
-     info_to_display(tvb,stt,offset,1,"DS Field (DSCP or TOS)",NULL,FMT_HEX,&hf_cops_pcmm_classifier_dscp_tos_field);
-     offset += 1;
+    /* DiffServ Code Point */
+    info_to_display(tvb,stt,offset,1,"DS Field (DSCP or TOS)",NULL,FMT_HEX,&hf_cops_pcmm_classifier_dscp_tos_field);
+    offset += 1;
 
-     /* DiffServ Code Point Mask */
-     info_to_display(tvb,stt,offset,1,"DS Field (DSCP or TOS) Mask",NULL,FMT_HEX,&hf_cops_pcmm_classifier_dscp_tos_mask);
-     offset += 1;
+    /* DiffServ Code Point Mask */
+    info_to_display(tvb,stt,offset,1,"DS Field (DSCP or TOS) Mask",NULL,FMT_HEX,&hf_cops_pcmm_classifier_dscp_tos_mask);
+    offset += 1;
 
-     /* Source IP Address */
-     info_to_display(tvb,stt,offset,4,"Source IP Address",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_src_addr);
-     offset += 4;
+    /* Source IP Address */
+    info_to_display(tvb,stt,offset,4,"Source IP Address",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_src_addr);
+    offset += 4;
 
-     /* Destination IP Address */
-     info_to_display(tvb,stt,offset,4,"Destination IP Address",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_dst_addr);
-     offset += 4;
+    if (extended) {
+	/* Source Mask */
+	info_to_display(tvb,stt,offset,4,"Source Mask",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_src_mask);
+	offset += 4;
+    }
 
-     /* Source IP Port */
-     info_to_display(tvb,stt,offset,2,"Source IP Port",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port);
-     offset += 2;
+    /* Destination IP Address */
+    info_to_display(tvb,stt,offset,4,"Destination IP Address",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_dst_addr);
+    offset += 4;
 
-     /* Destination IP Port */
-     info_to_display(tvb,stt,offset,2,"Destination IP Port",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port);
-     offset += 2;
+    if (extended) {
+	/* Destination Mask */
+	info_to_display(tvb,stt,offset,4,"Destination Mask",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_dst_mask);
+	offset += 4;
+    }
 
-     /* Priority */
-     info_to_display(tvb,stt,offset,1,"Priority",NULL,FMT_HEX,&hf_cops_pcmm_classifier_priority);
-     offset += 1;
+    /* Source IP Port */
+    info_to_display(tvb,stt,offset,2,"Source IP Port",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port);
+    offset += 2;
 
-     /* 3 octets Not specified */
-     offset += 3;
+    if (extended) {
+	/* Source Port End */
+	info_to_display(tvb,stt,offset,2,"Source Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port_end);
+	offset += 2;
+    }
+
+    /* Destination IP Port */
+    info_to_display(tvb,stt,offset,2,"Destination IP Port",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port);
+    offset += 2;
+
+    if (extended) {
+	/* Destination Port End */
+	info_to_display(tvb,stt,offset,2,"Destination Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port_end);
+	offset += 2;
+    }
+
+    /* Priority */
+    info_to_display(tvb,stt,offset,1,"Priority",NULL,FMT_HEX,&hf_cops_pcmm_classifier_priority);
+    offset += 1;
+
+    if (extended) {
+	/* ClassifierID */
+	info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
+	offset += 2;
+
+	/* Activation State */
+	info_to_display(tvb,stt,offset,1,"Activation State",NULL,FMT_HEX,&hf_cops_pcmm_classifier_activation_state);
+	offset += 1;
+
+	/* Action */
+	info_to_display(tvb,stt,offset,1,"Action",NULL,FMT_HEX,&hf_cops_pcmm_classifier_action);
+	offset += 1;
+    }
+
+    /* 3 octets Not specified */
+    offset += 3;
 }
 
 /* Cops - Section : Gate Specifications */
@@ -4270,6 +4433,55 @@ cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      offset += 2;
 }
 
+/* Cops - Section : PSID */
+static void
+cops_psid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+
+     proto_tree *stt;
+
+     /* Create a subtree */
+     stt = info_to_cops_subtree(tvb,st,n,offset,"PSID");
+     offset += 4;
+
+     /* PSID */
+     info_to_display(tvb,stt,offset,4,"PSID", NULL,FMT_HEX,&hf_cops_pcmm_psid);
+}
+
+/* Cops - Section : Synch Options */
+static void
+cops_synch_options(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+
+     proto_tree *stt;
+
+     /* Create a subtree */
+     stt = info_to_cops_subtree(tvb,st,n,offset,"Synch Options");
+     offset += 4;
+
+     proto_tree_add_text(stt, tvb, offset, 2, "Reserved");
+     offset += 2;
+
+     /* Report Type */
+     info_to_display(tvb,stt,offset,1,"Report Type", pcmm_report_type_vals,FMT_DEC,&hf_cops_pcmm_synch_options_report_type);
+     offset += 1;
+
+     /* Sych Type */
+     info_to_display(tvb,stt,offset,1,"Synch Type", pcmm_synch_type_vals,FMT_DEC,&hf_cops_pcmm_synch_options_synch_type);
+     offset += 1;
+}
+
+/* Cops - Section : Msg Receipt Key */
+static void
+cops_msg_receipt_key(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+
+     proto_tree *stt;
+
+     /* Create a subtree */
+     stt = info_to_cops_subtree(tvb,st,n,offset,"Msg Receipt Key");
+     offset += 4;
+
+     /* Msg Receipt Key */
+     info_to_display(tvb,stt,offset,4,"Msg Receipt Key", NULL,FMT_HEX,&hf_cops_pcmm_msg_receipt_key);
+}
 
 
 /* PacketCable D-QoS S-Num/S-Type globs */
@@ -4403,6 +4615,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 #define PCMM_GATE_ID                       0x0401
 #define PCMM_GATE_SPEC                     0x0501
 #define PCMM_CLASSIFIER                    0x0601
+#define PCMM_EXTENDED_CLASSIFIER           0x0602
 #define PCMM_FLOW_SPEC                     0x0701
 #define PCMM_DOCSIS_SERVICE_CLASS_NAME     0x0702
 #define PCMM_BEST_EFFORT_SERVICE           0x0703
@@ -4420,6 +4633,9 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 #define PCMM_PACKETCABLE_ERROR             0x0e01
 #define PCMM_GATE_STATE                    0x0f01
 #define PCMM_VERSION_INFO                  0x1001
+#define PCMM_PSID                          0x1101
+#define PCMM_SYNCH_OPTIONS                 0x1201
+#define PCMM_MSG_RECEIPT_KEY               0x1301
 
 
 static void
@@ -4469,7 +4685,10 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                cops_mm_gate_spec(tvb, tree, object_len, offset);
                break;
         case PCMM_CLASSIFIER:
-               cops_classifier(tvb, tree, object_len, offset);
+               cops_classifier(tvb, tree, object_len, offset, FALSE);
+               break;
+        case PCMM_EXTENDED_CLASSIFIER:
+               cops_classifier(tvb, tree, object_len, offset, TRUE);
                break;
         case PCMM_FLOW_SPEC:
                cops_flow_spec(tvb, tree, object_len, offset);
@@ -4521,6 +4740,15 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                break;
         case PCMM_VERSION_INFO:
                cops_version_info(tvb, tree, object_len, offset);
+               break;
+        case PCMM_PSID:
+               cops_psid(tvb, tree, object_len, offset);
+               break;
+        case PCMM_SYNCH_OPTIONS:
+               cops_synch_options(tvb, tree, object_len, offset);
+               break;
+        case PCMM_MSG_RECEIPT_KEY:
+               cops_msg_receipt_key(tvb, tree, object_len, offset);
                break;
        }
 
