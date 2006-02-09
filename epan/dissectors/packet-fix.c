@@ -868,8 +868,13 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
+        char *msg_type;
+
         value = tvb_get_ephemeral_string(tvb, value_offset, value_len);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", (char *)g_datalist_get_data(&msg_types, value));
+        msg_type = (char *)g_datalist_get_data(&msg_types, value);
+        if(msg_type) {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_type);
+        }
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
