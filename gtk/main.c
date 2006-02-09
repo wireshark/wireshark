@@ -2927,7 +2927,8 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   today = localtime(&curr);    
 
 #ifdef _WIN32
-  if (prefs.gui_console_open != console_open_never) {
+  if (prefs.gui_console_open != console_open_never || log_level & G_LOG_LEVEL_ERROR) {
+    /* the user wants a console or the application will terminate immediately */
     create_console();
   }
   if (has_console) {
@@ -2966,6 +2967,12 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
             log_domain != NULL ? log_domain : "",
             level, message);
 #ifdef _WIN32
+    if(log_level & G_LOG_LEVEL_ERROR) {
+        /* wait for a key press before the following error handler will terminate the program 
+           this way the user at least can read the error message */
+        printf("\n\nPress any key to exit\n");
+        _getch();
+    }
   } else {
     g_log_default_handler(log_domain, log_level, message, user_data);
   }
