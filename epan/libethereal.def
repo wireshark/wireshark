@@ -488,7 +488,6 @@ proto_tree_add_int
 proto_tree_add_int_format
 proto_tree_add_int_format_value
 proto_tree_add_int_hidden
-proto_tree_add_int_hidden
 proto_tree_add_int64
 proto_tree_add_int64_format
 proto_tree_add_int64_format_value
