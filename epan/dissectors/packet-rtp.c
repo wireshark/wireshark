@@ -48,6 +48,11 @@
  *    version 1, as documented in
  *
  *	ftp://gaia.cs.umass.edu/pub/hgschulz/rtp/draft-ietf-avt-rtp-04.txt
+ *
+ * It also dissects PacketCable CCC-encapsulated RTP data, as described in
+ * chapter 5 of the PacketCable Electronic Surveillance Specification:
+ *
+ *   http://www.packetcable.com/downloads/specs/PKT-SP-ESP1.5-I01-050128.pdf
  */
 
 
@@ -63,6 +68,7 @@
 
 #include "packet-rtp.h"
 #include <epan/rtp_pt.h>
+#include "packet-ntp.h"
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
@@ -72,6 +78,8 @@
 static dissector_handle_t rtp_handle;
 static dissector_handle_t stun_handle;
 static dissector_handle_t t38_handle;
+
+static dissector_handle_t pkt_ccc_handle;
 
 static int rtp_tap = -1;
 
@@ -109,6 +117,18 @@ static gint ett_rtp       = -1;
 static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
 static gint ett_rtp_setup = -1;
+
+
+/* PacketCable CCC header fields */
+static int proto_pkt_ccc       = -1;
+static int hf_pkt_ccc_id       = -1;
+static int hf_pkt_ccc_ts       = -1;
+
+/* PacketCable CCC field defining a sub tree */
+static gint ett_pkt_ccc = -1;
+
+/* PacketCable CCC port preference */
+static gboolean global_pkt_ccc_udp_port = 0;
 
 
 #define RTP0_INVALID 0
@@ -321,7 +341,7 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
  	unsigned int version;
 	unsigned int payload_type;
  	unsigned int offset = 0;
-   
+
 	/* This is a heuristic dissector, which means we get all the UDP
 	 * traffic not sent to a known dissector and not claimed by
 	 * a heuristic dissector called before us!
@@ -814,6 +834,99 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 }
 
+/* Dissect PacketCable CCC header */
+
+static void
+dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti            = NULL;
+	proto_tree *pkt_ccc_tree      = NULL;
+	gchar buff[NTP_TS_SIZE];
+ 	char *ptime = tvb_get_ptr(tvb, 4, 8);
+
+	if ( tree ) {
+		ti = proto_tree_add_item(tree, proto_pkt_ccc, tvb, 0, 12, FALSE);
+		pkt_ccc_tree = proto_item_add_subtree(ti, ett_pkt_ccc);
+
+		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, FALSE);
+		ntp_fmt_ts(ptime, buff);
+		proto_tree_add_string_format(pkt_ccc_tree, hf_pkt_ccc_ts, tvb,
+		    4, 8,  (const char*) &buff, "NTP timestamp: %s", &buff);
+	}
+
+	dissect_rtp(tvb, pinfo, tree);
+}
+
+
+/* Register PacketCable CCC */
+
+void
+proto_register_pkt_ccc(void)
+{
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_pkt_ccc_id,
+			{
+				"PacketCable CCC Identifier",
+				"pkt_ccc.ccc_id",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"CCC_ID", HFILL
+			}
+		},
+		{
+			&hf_pkt_ccc_ts,
+			{
+				"PacketCable CCC Timestamp",
+				"pkt_ccc.ts",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Timestamp", HFILL
+			}
+		},
+
+	};
+
+	static gint *ett[] =
+	{
+		&ett_pkt_ccc,
+	};
+
+	module_t *pkt_ccc_module;
+
+
+	proto_pkt_ccc = proto_register_protocol("PacketCable Call Content Connection",
+	    "PKT CCC", "pkt_ccc");
+	proto_register_field_array(proto_pkt_ccc, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("pkt_ccc", dissect_pkt_ccc, proto_pkt_ccc);
+
+	pkt_ccc_module = prefs_register_protocol(proto_pkt_ccc, NULL);
+
+	prefs_register_uint_preference(pkt_ccc_module, "udp_port",
+	                               "UDP port",
+	                               "Decode packets on this UDP port as PacketCable CCC",
+	                               10, &global_pkt_ccc_udp_port);
+}
+
+void
+proto_reg_handoff_pkt_ccc(void)
+{
+	/*
+	 * Register this dissector as one that can be selected by a
+	 * UDP port number.
+	 */
+	pkt_ccc_handle = find_dissector("pkt_ccc");
+	dissector_add_handle("udp.port", pkt_ccc_handle);
+}
+
+/* Register RTP */
 
 void
 proto_register_rtp(void)
