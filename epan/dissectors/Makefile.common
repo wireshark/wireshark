@@ -507,6 +507,7 @@ DISSECTOR_SRC =	\
 	packet-quake3.c	\
 	packet-quakeworld.c	\
 	packet-radius.c	\
+	packet-radius_packetcable.c	\
 	packet-radiotap.c	\
 	packet-ranap.c	\
 	packet-raw.c	\

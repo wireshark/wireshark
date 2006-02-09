@@ -33,6 +33,7 @@ $INCLUDE dictionary.altiga
 $INCLUDE dictionary.aptis
 $INCLUDE dictionary.bay
 $INCLUDE dictionary.bintec
+$INCLUDE dictionary.cablelabs
 $INCLUDE dictionary.cabletron
 $INCLUDE dictionary.cisco
 $INCLUDE dictionary.cisco.vpn3000

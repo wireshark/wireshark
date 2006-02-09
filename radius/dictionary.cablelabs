@@ -65,6 +65,22 @@ ATTRIBUTE CableLabs-Time-Usage-Limit 72 integer
 ATTRIBUTE CableLabs-Gate-Time-Info 73 integer
 ATTRIBUTE CableLabs-Account-Code 80 string
 ATTRIBUTE CableLabs-Authorization-Code 81 string
+ATTRIBUTE CableLabs-Jurisdiction-Information-Parameter 82 string
+ATTRIBUTE CableLabs-Called-Party-NP-Source 83 integer
+ATTRIBUTE CableLabs-Calling-Party-NP-Source 84 integer
+ATTRIBUTE CableLabs-Ported-In-Calling-Number 85 integer
+ATTRIBUTE CableLabs-Ported-In-Called-Number 86 integer
+ATTRIBUTE CableLabs-Billing-Type 87 integer
+ATTRIBUTE CableLabs-Signaled-To-Number 88 string
+ATTRIBUTE CableLabs-Signaled-From-Number 89 string
+ATTRIBUTE CableLabs-Communicating-Party 90 octets
+ATTRIBUTE CableLabs-Joined-Party 91 octets
+ATTRIBUTE CableLabs-Removed-Party 92 octets
+ATTRIBUTE CableLabs-RTCP-Data 93 string
+ATTRIBUTE CableLabs-Local-XR-Block 94 string
+ATTRIBUTE CableLabs-Remote-XR-Block 95 string
+ATTRIBUTE Surveillance-Stop-Type 96 integer
+ATTRIBUTE Surveillance-Stop-Destination 97 integer
 
 VALUE CableLabs-Event-Message Reserved 0
 VALUE CableLabs-Event-Message Signaling-Start 1

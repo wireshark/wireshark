@@ -83,6 +83,8 @@ static int hf_packetcable_terminal_display_info_general_display = -1;
 static int hf_packetcable_terminal_display_info_calling_number = -1;
 static int hf_packetcable_terminal_display_info_calling_name = -1;
 static int hf_packetcable_terminal_display_info_message_waiting = -1;
+static int hf_packetcable_party_ccc_id_valid = -1;
+static int hf_packetcable_party_ccc_id = -1;
 
 /* This is slightly ugly.  */
 static int hf_packetcable_qos_desc_flags[] =
@@ -144,7 +146,7 @@ static guint32 packetcable_qos_desc_mask[] =
 	PACKETCABLE_NOMINAL_POLLING_INTERVAL_MASK,
 	PACKETCABLE_TOLERATED_POLL_JITTER_MASK,
 	PACKETCABLE_IP_TYPE_OF_SERVICE_OVERRIDE_MASK,
-	PACKETCABLE_MAXIMUM_DOWNSTREAM_LATENCY_MASK,
+	PACKETCABLE_MAXIMUM_DOWNSTREAM_LATENCY_MASK
 };
 
 static value_string radius_vendor_packetcable_event_message_vals[] =
@@ -242,7 +244,7 @@ static value_string packetcable_state_indication_vals[] =
 static void decode_packetcable_bcid (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	guint8 packetcable_buf[64];
-	
+
 	proto_tree_add_item(tree, hf_packetcable_bcid_timestamp,
 						tvb, offset, 4, FALSE);
 	tvb_memcpy(tvb, packetcable_buf, offset + 4, 8); packetcable_buf[8] = '\0';
@@ -260,12 +262,12 @@ static gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb) {
 	guint8 packetcable_buf[64];
 	proto_item *ti;
 	proto_tree *obj_tree;
-	
+
 	proto_tree_add_item(tree, hf_packetcable_em_header_version_id, tvb,  0, 2, FALSE);
 	ti = proto_tree_add_text(tree, tvb,  2, 24, "BCID");
 	obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_bcid);
 	decode_packetcable_bcid(tvb, obj_tree,  2);
-	
+
 	proto_tree_add_item(tree, hf_packetcable_em_header_event_message_type, tvb,  26, 2, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_em_header_element_type, tvb,  28, 2, FALSE);
 	tvb_memcpy(tvb, packetcable_buf,  30, 8); packetcable_buf[8] = '\0';
@@ -275,13 +277,13 @@ static gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb) {
 	proto_tree_add_item(tree, hf_packetcable_em_header_sequence_number, tvb,  46, 4, FALSE);
 	tvb_memcpy(tvb, packetcable_buf,  50, 18); packetcable_buf[18] = '\0';
 	proto_tree_add_text(tree, tvb,  50, 18, "Event Time: %s", packetcable_buf);
-	
+
 	ti = proto_tree_add_item(tree, hf_packetcable_em_header_status, tvb,  68, 4, FALSE);
 	obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_status);
 	proto_tree_add_item(obj_tree, hf_packetcable_em_header_status_error_indicator, tvb,  68, 4, FALSE);
 	proto_tree_add_item(obj_tree, hf_packetcable_em_header_status_event_origin, tvb,  68, 4, FALSE);
 	proto_tree_add_item(obj_tree, hf_packetcable_em_header_status_event_message_proxied, tvb,  68, 4, FALSE);
-	
+
 	proto_tree_add_item(tree, hf_packetcable_em_header_priority, tvb,  72, 1, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_em_header_attribute_count, tvb,  73, 2, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_em_header_event_object, tvb,  75, 1, FALSE);
@@ -293,7 +295,7 @@ static gchar* dissect_packetcable_call_term_cause(proto_tree* tree, tvbuff_t* tv
 						tvb, 0, 2, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_call_termination_cause_code,
 						tvb, 2, 4, FALSE);
-	
+
 	return "";
 }
 
@@ -307,6 +309,7 @@ static gchar* dissect_packetcable_trunk_group_id(proto_tree* tree, tvbuff_t* tvb
 						tvb, 0, 2, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_trunk_group_id_trunk_number,
 						tvb, 2, 4, FALSE);
+	return "";
 }
 
 static gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb) {
@@ -315,20 +318,20 @@ static gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb
 	guint32 packetcable_qos_flags = tvb_get_ntohl(tvb, 0);
 	proto_item* ti = proto_tree_add_item(tree, hf_packetcable_qos_status, tvb, 0, 4, FALSE);
 	proto_tree* obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_qos_status);
-	
+
 	guint packetcable_qos_off = 20;
-	
+
 	proto_tree_add_item(obj_tree, hf_packetcable_qos_status_indication, tvb, 0, 4, FALSE);
-	
+
 	for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
 		proto_tree_add_item(obj_tree, hf_packetcable_qos_desc_flags[intval], tvb, 0, 4, FALSE);
 	}
-	
+
 	tvb_memcpy(tvb, packetcable_buf, 4, 16);
 	packetcable_buf[16] = '\0';
-	
+
 	proto_tree_add_text(tree, tvb, 4, 16, "Service Class Name: %s", packetcable_buf);
-	
+
 	for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
 		if (packetcable_qos_flags & packetcable_qos_desc_mask[intval]) {
 			proto_tree_add_item(tree, hf_packetcable_qos_desc_fields[intval],
@@ -336,38 +339,38 @@ static gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb
 			packetcable_qos_off += 4;
 		}
 	}
-	
+
 	return "";
 }
 
 static gchar* dissect_packetcable_time_adjustment(proto_tree* tree, tvbuff_t* tvb) {
 	proto_tree_add_item(tree, hf_packetcable_time_adjustment, tvb, 0, 8, FALSE);
-	
+
 	return "";
 }
 
 static gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, tvbuff_t* tvb) {
 	guint8 packetcable_buf[64];
-	
+
 	tvb_memcpy(tvb, packetcable_buf, 0, 20); packetcable_buf[20] = '\0';
 	proto_tree_add_text(tree, tvb, 0, 20,
 						"Last-Redirecting-Party: %s", packetcable_buf);
-	
+
 	tvb_memcpy(tvb, packetcable_buf, 20, 20); packetcable_buf[20] = '\0';
 	proto_tree_add_text(tree, tvb, 20, 20,
 						"Original-Called-Party: %s", packetcable_buf);
 
 	proto_tree_add_item(tree, hf_packetcable_redirected_from_info_number_of_redirections,
 						tvb, 40, 2, FALSE);
-	
+
 	return "";
 }
 
 static gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_t* tvb) {
-	
+
 	if (tvb_length(tvb) == 0)
 		return "None";
-	
+
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_cdc_address,
 						tvb, 0, 4, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_ccc_address,
@@ -377,7 +380,7 @@ static gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_ccc_port,
 						tvb, 10, 2, FALSE);
 	proto_tree_add_text(tree, tvb, 12, tvb_length(tvb) - 12, "DF-DF-Key");
-	
+
 	return "";
 }
 
@@ -396,7 +399,7 @@ static gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff_t* tv
 	proto_item* ti = proto_tree_add_item(tree, hf_packetcable_terminal_display_info_terminal_display_status_bitmask,
 							 tvb, 0, 1, FALSE);
 	proto_tree* obj_tree = proto_item_add_subtree(ti, ett_packetcable_term_dsply);
-	
+
 	proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_general_display,
 						tvb, 0, 1, bitmask);
 	proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_number,
@@ -405,38 +408,38 @@ static gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff_t* tv
 						tvb, 0, 1, bitmask);
 	proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_message_waiting,
 						tvb, 0, 1, bitmask);
-	
+
 	if (bitmask & PACKETCABLE_GENERAL_DISPLAY) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_general_display,
 							tvb, intval, 80, FALSE);
 		intval += 80;
 	}
-	
+
 	if (bitmask & PACKETCABLE_CALLING_NUMBER) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_number,
 							tvb, intval, 40, FALSE);
 		intval += 40;
 	}
-	
+
 	if (bitmask & PACKETCABLE_CALLING_NAME) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_name,
 							tvb, intval, 40, FALSE);
 		intval += 40;
 	}
-	
+
 	if (bitmask & PACKETCABLE_MESSAGE_WAITING) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_message_waiting,
 							tvb, intval, 40, FALSE);
 		intval += 40;
 	}
-	
+
 	return "";
 }
 
 
 void proto_register_packetcable(void) {
-	
-	hf_register_info hf[] = {
+
+	static hf_register_info hf[] = {
 		{ &hf_packetcable_em_header_version_id,
 		{ "Event Message Version ID","radius.vendor.pkt.emh.vid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -725,7 +728,7 @@ void proto_register_packetcable(void) {
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"PacketCable Electronic-Surveillance-Indication CCC-Port", HFILL }
 		},
-			
+
 		{ &hf_packetcable_terminal_display_info_terminal_display_status_bitmask,
 		{ "Terminal_Display_Status_Bitmask","radius.vendor.pkt.tdi.sbm",
 			FT_UINT8, BASE_HEX, NULL, 0xff,
@@ -773,24 +776,23 @@ void proto_register_packetcable(void) {
 		}
 	};
 
-	gint *ett[] = {
+	static gint *ett[] = {
 		&ett_radius_vendor_packetcable_bcid,
 		&ett_radius_vendor_packetcable_status,
 		&ett_radius_vendor_packetcable_qos_status,
 		&ett_packetcable_term_dsply
 	};
-	
-	proto_packetcable = proto_register_protocol("PacketCable AVPs", "PACKETCABLE", "paketcable_avps");
-	
-	proto_register_field_array(proto_packetcable, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett) );
 
+	proto_packetcable = proto_register_protocol("PacketCable AVPs", "PACKETCABLE", "paketcable_avps");
+
+	proto_register_field_array(proto_packetcable, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_packetcable(void)
 {
-	
+
 	radius_register_avp_dissector(VENDOR_CABLELABS, 1, dissect_packetcable_em_hdr);
 	radius_register_avp_dissector(VENDOR_CABLELABS, 11, dissect_packetcable_call_term_cause);
 	radius_register_avp_dissector(VENDOR_CABLELABS, 13, dissect_packetcable_rel_call_billing_correlation);
@@ -801,6 +803,8 @@ proto_reg_handoff_packetcable(void)
 	radius_register_avp_dissector(VENDOR_CABLELABS, 44, dissect_packetcable_time_electr_surv_ind);
 	radius_register_avp_dissector(VENDOR_CABLELABS, 47, dissect_packetcable_surv_df_sec);
 	radius_register_avp_dissector(VENDOR_CABLELABS, 54, dissect_packetcable_term_dsply_info);
-
+/*	radius_register_avp_dissector(VENDOR_CABLELABS, 90, dissect_packetcable_party_info);
+	radius_register_avp_dissector(VENDOR_CABLELABS, 91, dissect_packetcable_party_info);
+	radius_register_avp_dissector(VENDOR_CABLELABS, 92, dissect_packetcable_party_info); */
 }
 
