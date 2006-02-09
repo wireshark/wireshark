@@ -368,6 +368,13 @@ static int hf_juniper_lspic_cookie = -1;
 static int hf_juniper_aspic_cookie = -1;
 static int hf_juniper_vlan = -1;
 static int hf_juniper_proto = -1;
+static int hf_juniper_ext_ifd = -1;
+static int hf_juniper_ext_ifl = -1;
+static int hf_juniper_ext_unit = -1;
+static int hf_juniper_ext_ifmt = -1;
+static int hf_juniper_ext_ifle = -1;
+static int hf_juniper_ext_ttp_ifmt = -1;
+static int hf_juniper_ext_ttp_ifle = -1;
 
 static gint ett_juniper = -1;
 
@@ -445,7 +452,7 @@ static const value_string juniper_proto_vals[] = {
 static proto_tree *juniper_subtree = NULL;
 
 /* return a TLV value based on TLV length and TLV type (host/network order) */
-int
+static int
 juniper_ext_get_tlv_value(tvbuff_t *tvb, guint tlv_type, guint tlv_len, guint offset) {
    
     int tlv_value;
@@ -502,7 +509,7 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
   guint32    magic_number,ext_val;
 
   tvbuff_t   *next_tvb;
-  proto_tree *juniper_ext_subtree = NULL;
+  proto_tree *juniper_ext_subtree = NULL, *juniper_ext_subtree_item = NULL;
 
   magic_number = tvb_get_ntoh24(tvb, 0);
   *flags = tvb_get_guint8(tvb, 3);
@@ -548,29 +555,45 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
               break;
 
           tisub = proto_tree_add_text (juniper_ext_subtree, tvb, ext_offset, EXT_TLV_HEADER_SIZE + ext_len,
-                                       "%s Extension TLV #%u, length: %u, value: ",
+                                       "%s Extension TLV #%u, length: %u",
                                        val_to_str(ext_type, ext_tlv_vals, "Unknown"),
                                        ext_type,
                                        ext_len);
+
+          ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+EXT_TLV_HEADER_SIZE);
+          juniper_ext_subtree_item = proto_item_add_subtree(tisub, ett_juniper);
+
           switch (ext_type) {
-          case EXT_TLV_IFD_MEDIATYPE: /* fall through */
+          case EXT_TLV_IFD_MEDIATYPE:
+              tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifmt,
+                               tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
+              break;
           case EXT_TLV_TTP_IFD_MEDIATYPE:
-              ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+ EXT_TLV_HEADER_SIZE);
-              proto_item_append_text(tisub, "%s (%u)", val_to_str(ext_val, juniper_ifmt_vals, "Unknown"), ext_val);
+              tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ttp_ifmt,
+                               tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
               break;
-          case EXT_TLV_IFL_ENCAPS: /* fall through */
+          case EXT_TLV_IFL_ENCAPS:
+              tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifle,
+                               tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
+              break;
           case EXT_TLV_TTP_IFL_ENCAPS:
-              ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+ EXT_TLV_HEADER_SIZE);
-              proto_item_append_text(tisub, "%s (%u)", val_to_str(ext_val, juniper_ifle_vals, "Unknown"), ext_val);
+              tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ttp_ifle,
+                               tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
               break;
 
-          case EXT_TLV_IFL_IDX: /* fall through */
+          case EXT_TLV_IFL_IDX:
+              tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifl,
+                               tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
+              break;
+
           case EXT_TLV_IFL_UNIT:
-          case EXT_TLV_IFD_IDX:
-              ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+ EXT_TLV_HEADER_SIZE);
-              proto_item_append_text(tisub, "%u", ext_val);
+              tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_unit,
+                               tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
               break;
-
+          case EXT_TLV_IFD_IDX:
+              tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifd,
+                               tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
+              break;
           case EXT_TLV_IFD_NAME: /* FIXME print ifname string - lets fall-through for now */
           default:
               proto_item_append_text(tisub, "Unknown");              
@@ -1371,15 +1394,37 @@ proto_register_juniper(void)
     { &hf_juniper_lspic_cookie,
     { "Cookie", "juniper.lspic.cookie", FT_UINT32, BASE_HEX,
         NULL, 0x0, "", HFILL }},
-  { &hf_juniper_aspic_cookie,
-  { "Cookie", "juniper.aspic.cookie", FT_UINT64, BASE_HEX,
-      NULL, 0x0, "", HFILL }},
-  { &hf_juniper_vlan,
-  { "VLan ID", "juniper.vlan", FT_UINT16, BASE_DEC,
-      NULL, 0x0, "", HFILL }},
-  { &hf_juniper_proto,
-  { "Protocol", "juniper.proto", FT_UINT16, BASE_DEC,
+    { &hf_juniper_aspic_cookie,
+      { "Cookie", "juniper.aspic.cookie", FT_UINT64, BASE_HEX,
+        NULL, 0x0, "", HFILL }},
+    { &hf_juniper_vlan,
+      { "VLan ID", "juniper.vlan", FT_UINT16, BASE_DEC,
+        NULL, 0x0, "", HFILL }},
+    { &hf_juniper_proto,
+      { "Protocol", "juniper.proto", FT_UINT16, BASE_DEC,
       VALS(juniper_proto_vals), 0x0, "", HFILL }},
+    { &hf_juniper_ext_ifd,
+      /* Juniper PCAP extensions */
+      { "Device Interface Index", "juniper.ext.ifd", FT_UINT32, BASE_DEC,
+        NULL, 0x0, "", HFILL }},
+    { &hf_juniper_ext_ifl,
+      { "Logical Interface Index", "juniper.ext.ifl", FT_UINT32, BASE_DEC,
+        NULL, 0x0, "", HFILL }},
+    { &hf_juniper_ext_unit,
+      { "Logical Unit Number", "juniper.ext.unit", FT_UINT32, BASE_DEC,
+        NULL, 0x0, "", HFILL }},
+    { &hf_juniper_ext_ifmt,
+      { "Device Media Type", "juniper.ext.ifmt", FT_UINT16, BASE_DEC,
+        VALS(juniper_ifmt_vals), 0x0, "", HFILL }},
+    { &hf_juniper_ext_ifle,
+      { "Logical Interface Encapsulation", "juniper.ext.ifle", FT_UINT16, BASE_DEC,
+        VALS(juniper_ifle_vals), 0x0, "", HFILL }},
+    { &hf_juniper_ext_ttp_ifmt,
+      { "TTP derived Device Media Type", "juniper.ext.ttp_ifmt", FT_UINT16, BASE_DEC,
+        VALS(juniper_ifmt_vals), 0x0, "", HFILL }},
+    { &hf_juniper_ext_ttp_ifle,
+      { "TTP derived Logical Interface Encapsulation", "juniper.ext.ttp_ifle", FT_UINT16, BASE_DEC,
+        VALS(juniper_ifle_vals), 0x0, "", HFILL }},
   };
 
   static gint *ett[] = {
