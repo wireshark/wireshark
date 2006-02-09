@@ -244,6 +244,36 @@ static int      hf_cflow_sampling_interval = -1;
 static int      hf_cflow_sampling_algorithm = -1;
 static int      hf_cflow_flow_active_timeout = -1;
 static int      hf_cflow_flow_inactive_timeout = -1;
+static int      hf_cflow_mpls_top_label_type = -1;
+static int      hf_cflow_mpls_pe_addr = -1;
+const value_string special_mpls_top_label_type[] = {
+	{0,	"Unknown"},
+	{1,	"TE-MIDPT"},
+	{2,	"ATOM"},
+	{3,	"VPN"},
+	{4,	"BGP"},
+	{5,	"LDP"},
+
+	{0,	NULL }
+};
+
+void
+proto_tree_add_mpls_label(proto_tree * pdutree, tvbuff_t * tvb, int offset, int length, int level)
+{
+	if( length == 3) {
+		guint8 b0 = tvb_get_guint8(tvb, offset);
+		guint8 b1 = tvb_get_guint8(tvb, offset + 1);
+		guint8 b2 = tvb_get_guint8(tvb, offset + 2);
+		proto_tree_add_text(pdutree, tvb, offset, length,
+			"MPLS-Label%d: %u exp-bits: %u %s", level,
+			((b0<<12)+(b1<<4)+(b2>>4)), 
+			((b2>>1)&0x7), 
+			((b2&0x1)?"top-of-stack":""));
+	} else {
+		proto_tree_add_text(pdutree, tvb, offset, length,
+			"MPLS-Label%d: bad lengh %d", level, length);
+	}
+}
 
 void		proto_reg_handoff_netflow(void);
 
@@ -1139,6 +1169,26 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			    tvb, offset, length, FALSE);
 			break;
 
+		case 46: /* top MPLS label type*/ 
+			proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_type,
+			    tvb, offset, length, FALSE);
+			break;
+		case 47: /* top MPLS label PE address*/ 
+			proto_tree_add_item(pdutree, hf_cflow_mpls_pe_addr,
+			    tvb, offset, length, FALSE);
+			break;
+		case 70: /* MPLS label1*/ 
+			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 1);
+			break;
+		case 71: /* MPLS label2*/ 
+			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 2);
+			break;
+		case 72: /* MPLS label3*/ 
+			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 3);
+			break;
+		case 73: /* MPLS label4*/ 
+			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 4);
+			break;
 		default:
 			proto_tree_add_text(pdutree, tvb, offset, length,
 			    "Type %u", type);
@@ -1289,6 +1339,8 @@ static value_string v9_template_types[] = {
 	{ 20, "MUL_DOCTETS" },
 	{ 21, "LAST_SWITCHED" },
 	{ 22, "FIRST_SWITCHED" },
+	{ 23, "OUT_BYTES" },
+	{ 24, "OUT_PKTS" },
 	{ 27, "IPV6_SRC_ADDR" },
 	{ 28, "IPV6_DST_ADDR" },
 	{ 29, "IPV6_SRC_MASK" },
@@ -1302,10 +1354,15 @@ static value_string v9_template_types[] = {
 	{ 37, "FLOW_INACTIVE_TIMEOUT" },
 	{ 38, "ENGINE_TYPE" },
 	{ 39, "ENGINE_ID" },
-	{ 24, "OUT_PKTS" },
 	{ 40, "TOTAL_BYTES_EXP" },
 	{ 41, "TOTAL_PKTS_EXP" },
 	{ 42, "TOTAL_FLOWS_EXP" },
+	{ 46, "MPLS_TOP_LABEL_TYPE" },
+	{ 47, "MPLS_TOP_LABEL_ADDR" },
+	{ 48, "FLOW_SAMPLER_ID" },
+	{ 49, "FLOW_SAMPLER_MODE" },
+	{ 50, "FLOW_SAMPLER_RANDOM_INTERVAL" },
+	{ 55, "DST_TOS" },
 	{ 56, "SRC_MAC" },
 	{ 57, "DST_MAC" },
 	{ 58, "SRC_VLAN" },
@@ -1322,9 +1379,9 @@ static value_string v9_template_types[] = {
 	{ 74, "MPLS_LABEL_5" },
 	{ 75, "MPLS_LABEL_6" },
 	{ 76, "MPLS_LABEL_7" },
-	{ 71, "MPLS_LABEL_8" },
-	{ 72, "MPLS_LABEL_9" },
-	{ 72, "MPLS_LABEL_10" },
+	{ 77, "MPLS_LABEL_8" },
+	{ 78, "MPLS_LABEL_9" },
+	{ 79, "MPLS_LABEL_10" },
 	{ 0, NULL },
 };
 
@@ -1859,6 +1916,16 @@ proto_register_netflow(void)
 		 {"PacketsExp", "cflow.packetsexp",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Packets exported", HFILL}
+		 },
+		{&hf_cflow_mpls_top_label_type, 
+		 {"TopLabelType", "cflow.toplabeltype",
+		  FT_UINT8, BASE_DEC, VALS(special_mpls_top_label_type), 0x0,
+		  "Top MPLS label Type", HFILL}
+		 },
+		{&hf_cflow_mpls_pe_addr, 
+		 {"TopLabelAddr", "cflow.toplabeladdr",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  "Top MPLS label PE address", HFILL}
 		 },
 		{&hf_cflow_flows_exp,
 		 {"FlowsExp", "cflow.flowsexp",
