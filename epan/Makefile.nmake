@@ -45,6 +45,10 @@ EXTRA_OBJECTS = \
 	strptime.obj
 
 
+!IFDEF DOXYGEN
+DOXYGEN_DEP=doxygen
+!ENDIF
+
 !IFDEF ENABLE_LIBETHEREAL
 all: ftypes dfilter dissectors libethereal.dll
 !ELSE
@@ -55,7 +59,7 @@ all: ftypes dfilter dissectors ethereal.lib
 libethereal.lib: libethereal.dll
 libethereal.exp: libethereal.dll
 
-libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilter dissectors doxygen $(EXTRA_OBJECTS) ..\image\libethereal.res
+libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) ..\image\libethereal.res
 	@echo Linking libethereal.dll
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
