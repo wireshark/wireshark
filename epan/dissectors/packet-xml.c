@@ -51,6 +51,7 @@
 #include <epan/dtd.h>
 #include <epan/report_err.h>
 #include <epan/filesystem.h>
+#include <epan/prefs.h>
 
 typedef struct _xml_ns_t {
     /* the name of this namespace */ 
@@ -111,6 +112,7 @@ static dissector_handle_t xml_handle;
 /* parser definitions */
 static tvbparse_wanted_t* want;
 static tvbparse_wanted_t* want_ignore;
+static tvbparse_wanted_t* want_heur;
 
 static GHashTable* xmpli_names;
 static GHashTable* media_types;
@@ -118,6 +120,8 @@ static GHashTable* media_types;
 static xml_ns_t xml_ns = {"xml","/",-1,-1,-1,NULL,NULL,NULL};
 static xml_ns_t unknown_ns = {"unknown","?",-1,-1,-1,NULL,NULL,NULL};
 static xml_ns_t* root_ns;
+
+static gboolean pref_heuristic = FALSE;
 
 #define XML_CDATA -1000
 #define XML_SCOPED_NAME -1001
@@ -151,7 +155,6 @@ static const gchar* default_media_types[] = {
 	"application/vnd.wv.csp.xml",
 	"application/resource-lists+xml",
 };
-
 
 static void
 dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -191,6 +194,14 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while(( tok = tvbparse_get(tt, want) )) ;
 } 
 
+static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    if ( pref_heuristic && tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
+        dissect_xml(tvb, pinfo, tree);
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
 
 static void after_token(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
 	GPtrArray* stack = tvbparse_data;
@@ -568,6 +579,13 @@ static void init_xml_parser(void) {
 							  tvbparse_not_chars(-1,1,0," \t\r\n",NULL,NULL,unrecognized_token),
 							  NULL);
 	
+    want_heur = tvbparse_set_oneof(-1, NULL, NULL, NULL,
+                                   want_comment,
+                                   want_xmlpi,
+                                   want_doctype_start,
+                                   want_dtd_tag,
+                                   want_tag,
+                                   NULL);
 	
 }
 
@@ -1146,9 +1164,15 @@ static void init_xml_names(void) {
 #endif    
 }
 
+static void apply_prefs(void) {
+    if (pref_heuristic) {
+        heur_dissector_add("http", dissect_xml_heur, xml_ns.hf_tag);   
+        heur_dissector_add("media", dissect_xml_heur, xml_ns.hf_tag);   
+    }
+}
+
 void
 proto_register_xml(void) {
-	
 	static gint *ett_base[] = {
 		&unknown_ns.ett,
 		&xml_ns.ett,
@@ -1165,7 +1189,8 @@ proto_register_xml(void) {
 		{ &unknown_ns.hf_cdata, {"CDATA", "xml.cdata", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 		{ &unknown_ns.hf_tag, {"Tag", "xml.tag", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 		{ &xml_ns.hf_cdata, {"Unknown", "xml.unknown", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }}
-	};
+    };
+	module_t* xml_module;
 
 	hf_arr = g_array_new(FALSE,FALSE,sizeof(hf_register_info));
 	ett_arr = g_array_new(FALSE,FALSE,sizeof(gint*));
@@ -1179,7 +1204,12 @@ proto_register_xml(void) {
 
 	proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)hf_arr->data, hf_arr->len);
 	proto_register_subtree_array((gint**)ett_arr->data, ett_arr->len);
-	
+    
+	xml_module = prefs_register_protocol(xml_ns.hf_tag,apply_prefs);
+    prefs_register_bool_preference(xml_module, "heuristic", "Use Heuristics",
+                                   "Try to recognize XML for unknown HTTP media types",
+                                   &pref_heuristic);
+    
     g_array_free(hf_arr,FALSE);
     g_array_free(ett_arr,TRUE);
     
@@ -1200,5 +1230,5 @@ proto_reg_handoff_xml(void)
 	xml_handle = find_dissector("xml");
 	
 	g_hash_table_foreach(media_types,add_dissector_media,NULL);
-	
+    
 }

@@ -440,8 +440,19 @@ gboolean tvbparse_reset(tvbparse_t* tt, int offset, int len);
 guint tvbparse_curr_offset(tvbparse_t* tt);
 guint tvbparse_len_left(tvbparse_t* tt);
 
+
+
 /*
- * This ill look for the wanted token at the current offset or after any given
+ * This will look for the wanted token at the current offset or after any given
+ * number of ignored tokens returning FALSE if there's no match or TRUE if there
+ * is a match.
+ * The parser will be left in its original state and no callbacks will be called. 
+ */
+gboolean tvbparse_peek(tvbparse_t* tt,
+                        const tvbparse_wanted_t* wanted);
+
+/*
+ * This will look for the wanted token at the current offset or after any given
  * number of ignored tokens returning NULL if there's no match.
  * if there is a match it will set the offset of the current parser after
  * the end of the token 

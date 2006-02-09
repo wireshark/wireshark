@@ -67,8 +67,8 @@
 #define TVBPARSE_DEBUG_FIND 0x00000100
 #define TVBPARSE_DEBUG_NEWTOK 0x00000080
 #define TVBPARSE_DEBUG_IGNORE 0x00000040
-/*#define TVBPARSE_DEBUG_ 0x00000020
-#define TVBPARSE_DEBUG_ 0x00000010
+#define TVBPARSE_DEBUG_PEEK 0x00000020
+/*#define TVBPARSE_DEBUG_ 0x00000010
 #define TVBPARSE_DEBUG_ 0x00000008
 #define TVBPARSE_DEBUG_ 0x00000004
 #define TVBPARSE_DEBUG_ 0x00000002
@@ -1270,6 +1270,38 @@ static void execute_callbacks(tvbparse_t* tt, tvbparse_elem_t* curr) {
         }
     }
 
+}
+
+gboolean tvbparse_peek(tvbparse_t* tt,
+                              const tvbparse_wanted_t* wanted) {
+	tvbparse_elem_t* tok = NULL;
+	int consumed;
+    int offset = tt->offset;
+    
+#ifdef TVBPARSE_DEBUG
+    if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_PEEK) g_warning("tvbparse_peek: ENTER offset=%i",offset);
+#endif                            
+    
+    offset += ignore(tt,offset);
+    
+#ifdef TVBPARSE_DEBUG
+    if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_PEEK) g_warning("tvbparse_peek: after ignore offset=%i",offset);
+#endif                            
+    
+    consumed = wanted->condition(tt,offset,wanted,&tok);
+    
+    if (consumed >= 0) {
+#ifdef TVBPARSE_DEBUG
+        if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_PEEK) g_warning("tvbparse_peek: GOT len=%i",consumed);
+#endif                            
+        return TRUE;
+    } else {
+#ifdef TVBPARSE_DEBUG
+        if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_PEEK) g_warning("tvbparse_peek: NOT GOT");
+#endif                            
+        return FALSE;
+    }
+    
 }
 
 tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,

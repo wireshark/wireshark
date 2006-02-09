@@ -39,12 +39,17 @@
  * print routines
  */
 int proto_media = -1;
+static heur_dissector_list_t heur_subdissector_list;
 
 static void
 dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree)
 {
     int bytes;
 
+    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
+        return;
+    }
+    
     /* Add media type to the INFO column if it is visible */
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", pinfo->match_string);
@@ -79,6 +84,8 @@ proto_register_media(void)
 	    "media"		/* abbrev */
 	    );
     register_dissector("media", dissect_media, proto_media);
+	register_heur_dissector_list("media", &heur_subdissector_list);
+    
 
     /*
      * "Media" is used to dissect something whose normal dissector
