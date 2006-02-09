@@ -612,7 +612,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    1, octet2 );
 
 		item = proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
-		    offset, 1, octet2, "Payload type: %s (%u)", 
+		    offset, 1, octet2, "Payload type: %s (%u)",
 			payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown"),
 			payload_type);
 
@@ -841,17 +841,15 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti            = NULL;
 	proto_tree *pkt_ccc_tree      = NULL;
-	gchar buff[NTP_TS_SIZE];
- 	char *ptime = tvb_get_ptr(tvb, 4, 8);
+ 	const guint8 *ptime = tvb_get_ptr(tvb, 4, 8);
 
 	if ( tree ) {
 		ti = proto_tree_add_item(tree, proto_pkt_ccc, tvb, 0, 12, FALSE);
 		pkt_ccc_tree = proto_item_add_subtree(ti, ett_pkt_ccc);
 
 		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, FALSE);
-		ntp_fmt_ts(ptime, buff);
-		proto_tree_add_string_format(pkt_ccc_tree, hf_pkt_ccc_ts, tvb,
-		    4, 8,  (const char*) &buff, "NTP timestamp: %s", &buff);
+		proto_tree_add_bytes_format(pkt_ccc_tree, hf_pkt_ccc_ts, tvb,
+		    4, 8, "NTP timestamp: %s", ntp_fmt_ts(ptime));
 	}
 
 	dissect_rtp(tvb, pinfo, tree);
@@ -882,7 +880,7 @@ proto_register_pkt_ccc(void)
 			{
 				"PacketCable CCC Timestamp",
 				"pkt_ccc.ts",
-				FT_STRING,
+				FT_BYTES,
 				BASE_NONE,
 				NULL,
 				0x0,
