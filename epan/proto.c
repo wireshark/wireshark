@@ -122,6 +122,8 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb,
         gint start, gint *length, field_info **pfi);
 
 static void
+proto_tree_set_representation_value(proto_item *pi, const char *format, va_list ap);
+static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
 static void
@@ -1242,6 +1244,25 @@ proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 }
 
 proto_item *
+proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, const guint8 *start_ptr,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		gint length, const guint8 *start_ptr, const char *format, ...)
 {
@@ -1318,6 +1339,25 @@ proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 }
 
 proto_item *
+proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, nstime_t *value_ptr,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		nstime_t *value_ptr, const char *format, ...)
 {
@@ -1377,6 +1417,24 @@ proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 		return (NULL);
 
 	PROTO_ITEM_SET_HIDDEN(pi);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, guint32 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
 
 	return pi;
 }
@@ -1445,6 +1503,24 @@ proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 }
 
 proto_item *
+proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, guint32 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
@@ -1503,6 +1579,25 @@ proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 		return (NULL);
 
 	PROTO_ITEM_SET_HIDDEN(pi);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, const guint8* value_ptr,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
 
 	return pi;
 }
@@ -1578,6 +1673,25 @@ proto_tree_add_guid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 }
 
 proto_item *
+proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, const guint8* value_ptr,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		const guint8* value_ptr, const char *format, ...)
 {
@@ -1643,6 +1757,25 @@ proto_tree_add_oid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 		return (NULL);
 
 	PROTO_ITEM_SET_HIDDEN(pi);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, const guint8* value_ptr,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
 
 	return pi;
 }
@@ -1739,6 +1872,25 @@ proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 		return (NULL);
 
 	PROTO_ITEM_SET_HIDDEN(pi);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, const char* value, const char *format,
+		...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
 
 	return pi;
 }
@@ -1865,6 +2017,25 @@ proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 }
 
 proto_item *
+proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, const guint8* value,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		const guint8* value, const char *format, ...)
 {
@@ -1934,6 +2105,25 @@ proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 }
 
 proto_item *
+proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
+		tvbuff_t *tvb, gint start, gint length, guint32 value,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
@@ -1997,6 +2187,24 @@ proto_tree_add_float_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 }
 
 proto_item *
+proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, float value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		float value, const char *format, ...)
 {
@@ -2055,6 +2263,24 @@ proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 		return (NULL);
 
 	PROTO_ITEM_SET_HIDDEN(pi);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, double value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
 
 	return pi;
 }
@@ -2133,6 +2359,24 @@ proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 }
 
 proto_item *
+proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, guint32 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
@@ -2191,6 +2435,24 @@ proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_uint64(new_fi, value);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, guint64 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
 
 	return pi;
 }
@@ -2261,6 +2523,24 @@ proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 }
 
 proto_item *
+proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, gint32 value, const char *format, ...)
+{
+	proto_item		*pi = NULL;
+	va_list			ap;
+
+	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		gint32 value, const char *format, ...)
 {
@@ -2319,6 +2599,24 @@ proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_uint64(new_fi, (guint64)value);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, gint64 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
 
 	return pi;
 }
@@ -2593,8 +2891,38 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	return new_field_info(tree, hfinfo, tvb, start, item_length);
 }
 
-/* Set representation of a proto_tree entry, if the protocol tree is to
-   be visible. */
+/* If the protocol tree is to be visible, set the representation of a
+   proto_tree entry with the name of the field for the item and with
+   the value formatted with the supplied printf-style format and
+   argument list. */
+static void
+proto_tree_set_representation_value(proto_item *pi, const char *format, va_list ap)
+{
+	int	ret;	/*tmp return value */
+	int	replen;
+	field_info *fi = PITEM_FINFO(pi);
+
+	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
+		ITEM_LABEL_NEW(fi->rep);
+		replen = 0;
+		ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
+		    "%s: ", fi->hfinfo->name);
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
+			/* That's all we can put in the representation. */
+			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+			return;
+		}
+		replen = ret;
+		ret = g_vsnprintf(fi->rep->representation + replen,
+		    ITEM_LABEL_LENGTH - replen, format, ap);
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH - replen))
+			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+	}
+}
+
+/* If the protocol tree is to be visible, set the representation of a
+   proto_tree entry with the representation formatted with the supplied
+   printf-style format and argument list. */
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 {
@@ -2646,7 +2974,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 
 	fi = PITEM_FINFO(pi);
 
-    if (!PROTO_ITEM_IS_HIDDEN(pi)) {
+	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		va_start(ap, format);
 
 		/*

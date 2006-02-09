@@ -524,7 +524,25 @@ extern proto_item *
 proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr);
 
-/** Add a formatted FT_BYTES to a proto_tree.
+/** Add a formatted FT_BYTES to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param start_ptr pointer to the data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, const guint8* start_ptr, const char *format,
+	...) GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_BYTES to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -556,7 +574,26 @@ extern proto_item *
 proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, nstime_t* value_ptr);
 
-/** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree.
+/** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree, with
+    the format generating the string for the value and with the field name
+    being included automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value_ptr pointer to the data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, nstime_t* value_ptr, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree, with
+    the format generating the entire string for the entry, including any field
+    name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -588,7 +625,25 @@ extern proto_item *
 proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-/** Add a formatted FT_IPXNET to a proto_tree.
+/** Add a formatted FT_IPXNET to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, guint32 value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_IPXNET to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -620,7 +675,25 @@ extern proto_item *
 proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-/** Add a formatted FT_IPv4 to a proto_tree.
+/** Add a formatted FT_IPv4 to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, guint32 value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_IPv4 to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -652,7 +725,25 @@ extern proto_item *
 proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
-/** Add a formatted FT_IPv6 to a proto_tree.
+/** Add a formatted FT_IPv6 to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value_ptr data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, const guint8* value_ptr, const char *format,
+	...) GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_IPv6 to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -684,7 +775,25 @@ extern proto_item *
 proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value);
 
-/** Add a formatted FT_ETHER to a proto_tree.
+/** Add a formatted FT_ETHER to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, const guint8* value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_ETHER to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -716,7 +825,25 @@ extern proto_item *
 proto_tree_add_guid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
-/** Add a formatted FT_GUID to a proto_tree.
+/** Add a formatted FT_GUID to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value_ptr data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, const guint8* value_ptr, const char *format,
+	...) GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_GUID to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -748,7 +875,25 @@ extern proto_item *
 proto_tree_add_oid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
-/** Add a formatted FT_OID to a proto_tree.
+/** Add a formatted FT_OID to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value_ptr data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, const guint8* value_ptr, const char *format,
+	...) GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_OID to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -780,7 +925,25 @@ extern proto_item *
 proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value);
 
-/** Add a formatted FT_STRING to a proto_tree.
+/** Add a formatted FT_STRING to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, const char* value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_STRING to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -812,7 +975,25 @@ extern proto_item *
 proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-/** Add a formatted FT_BOOLEAN to a proto_tree.
+/** Add a formatted FT_BOOLEAN to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
+	tvbuff_t *tvb, gint start, gint length, guint32 value,
+	const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_BOOLEAN to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -844,7 +1025,25 @@ extern proto_item *
 proto_tree_add_float_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, float value);
 
-/** Add a formatted FT_FLOAT to a proto_tree.
+/** Add a formatted FT_FLOAT to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, float value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_FLOAT to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -876,7 +1075,25 @@ extern proto_item *
 proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value);
 
-/** Add a formatted FT_DOUBLE to a proto_tree.
+/** Add a formatted FT_DOUBLE to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, double value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_DOUBLE to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -902,13 +1119,32 @@ extern proto_item *
 proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-/** Add a hidden of one of FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree.
+/** Add a hidden FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree.
  @deprecated use proto_tree_add_uint() and a subsequent call to PROTO_ITEM_SET_HIDDEN() instead */
 extern proto_item *
 proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-/** Add a formatted of one of FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree.
+/** Add a formatted FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree,
+    with the format generating the string for the value and with the field
+    name being included automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, guint32 value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree,
+    with the format generating the entire string for the entry, including any
+    field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -934,7 +1170,25 @@ extern proto_item *
 proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint64 value);
 
-/** Add a formatted FT_UINT64 to a proto_tree.
+/** Add a formatted FT_UINT64 to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, guint64 value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_UINT64 to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -960,13 +1214,32 @@ extern proto_item *
 proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value);
 
-/** Add a hidden of one of FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree.
+/** Add a hidden FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree.
  @deprecated use proto_tree_add_int() and a subsequent call to PROTO_ITEM_SET_HIDDEN() instead */
 extern proto_item *
 proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value);
 
-/** Add a formatted of one of FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree.
+/** Add a formatted FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree,
+    with the format generating the string for the value and with the field
+    name being included automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, gint32 value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree,
+    with the format generating the entire string for the entry, including
+    any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -992,7 +1265,25 @@ extern proto_item *
 proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint64 value);
 
-/** Add a formatted FT_INT64 to a proto_tree.
+/** Add a formatted FT_INT64 to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, gint64 value, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add a formatted FT_INT64 to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
