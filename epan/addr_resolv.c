@@ -2056,7 +2056,7 @@ extern void add_ether_byip(guint ip, const guint8 *eth)
 
   /* first check that IP address can be resolved */
 
-  if ((host = host_name_lookup(ip, &found)) == NULL)
+  if (!(g_resolv_flags & RESOLV_NETWORK) || ((host = host_name_lookup(ip, &found)) == NULL))
     return;
 
   /* ok, we can add this entry in the ethers hashtable */
