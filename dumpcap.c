@@ -56,7 +56,6 @@
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
-/*#include "capture_wpcap_packet.h"*/
 #endif
 
 #include "capture.h"
@@ -70,9 +69,11 @@
 
 
 
+gboolean capture_child; /* True if this is an Ethereal capture child */
+
 /* Win32 console handling */
 #ifdef _WIN32
-static gboolean has_console = TRUE;	        /* TRUE if app has console */
+static gboolean has_console = FALSE;	        /* TRUE if app has console */
 static void create_console(void);
 static void destroy_console(void);
 #endif
@@ -90,6 +91,7 @@ void exit_main(int err) __attribute__ ((noreturn));
 void exit_main(int err);
 #endif
 
+const char *get_basename(const char *path);
 
 
 static void
@@ -225,6 +227,8 @@ void exit_main(int err)
   destroy_console();
 #endif
 
+  /* can be helpful for debugging */
+  /* _getch(); */
   exit(err);
 }
 
@@ -261,6 +265,7 @@ main(int argc, char *argv[])
     OPTSTRING_INIT OPTSTRING_WIN32;
 
 
+  capture_child = (strcmp(get_basename(argv[0]), CHILD_NAME) == 0);
 
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
@@ -430,8 +435,10 @@ main(int argc, char *argv[])
 /*  descr = get_interface_descriptive_name(capture_opts.iface);
   fprintf(stderr, "Capturing on %s\n", descr);
   g_free(descr);*/
-  fprintf(stderr, "Capturing on %s\n", capture_opts->iface);
-  
+
+  if(!capture_child) {
+    fprintf(stderr, "Capturing on %s\n", capture_opts->iface);
+  }  
 
   if (list_link_layer_types) {
     capture_opts_list_link_layer_types(capture_opts);
@@ -536,7 +543,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 
   /* ignore log message, if log_level isn't interesting */
-  if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO) /*prefs.console_log_level*/)) {
+  if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
     return;
   }
 
@@ -545,9 +552,9 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   today = localtime(&curr);    
 
 #ifdef _WIN32
-/*  if (prefs.gui_console_open != console_open_never) {*/
+  if(!capture_child) {
     create_console();
-/*  }*/
+  }
   if (has_console) {
     /* For some unknown reason, the above doesn't appear to actually cause
        anything to be sent to the standard output, so we'll just splat the
@@ -614,8 +621,9 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 
     /*g_warning("write %d enter", pipe);*/
 
-    /* XXX - find a suitable way to switch between pipe and console output */
-    return;
+    /* if we're not a capture child, we don't have to tell our none existing parent anything */
+    if(!capture_child)
+        return;
 
     g_assert(indicator < '0' || indicator > '9');
     g_assert(len <= SP_MAX_MSG_LEN);
@@ -646,23 +654,23 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 }
 
 
-int count = 0;
-
 void
 sync_pipe_packet_count_to_parent(int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
+    static int count = 0;
 
 
-    count += packet_count;
-    fprintf(stderr, "\r%u", count);
-    /* stderr could be line buffered */
-    fflush(stderr);
-
+    if(!capture_child) {
+        count += packet_count;
+        fprintf(stderr, "\r%u", count);
+        /* stderr could be line buffered */
+        fflush(stderr);
+    }
 
     g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
 
-    /*g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);*/
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);
 
     pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
@@ -670,6 +678,13 @@ sync_pipe_packet_count_to_parent(int packet_count)
 void
 sync_pipe_filename_to_parent(const char *filename)
 {
+
+    if(!capture_child) {
+        fprintf(stderr, "\nFile: %s\n", filename);
+        /* stderr could be line buffered */
+        fflush(stderr);
+    }
+
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "File: %s", filename);
 
     pipe_write_block(1, SP_FILE, strlen(filename)+1, filename);
@@ -757,5 +772,69 @@ _U_
 #else
 	return "ip";
 #endif
+}
+
+
+/****************************************************************************************************************/
+/* functions copied from epan */
+
+/*
+ * Given a pathname, return a pointer to the last pathname separator
+ * character in the pathname, or NULL if the pathname contains no
+ * separators.
+ */
+static char *
+find_last_pathname_separator(const char *path)
+{
+	char *separator;
+
+#ifdef _WIN32
+	char c;
+
+	/*
+	 * We have to scan for '\' or '/'.
+	 * Get to the end of the string.
+	 */
+	separator = strchr(path, '\0');		/* points to ending '\0' */
+	while (separator > path) {
+		c = *--separator;
+		if (c == '\\' || c == '/')
+			return separator;	/* found it */
+	}
+
+	/*
+	 * OK, we didn't find any, so no directories - but there might
+	 * be a drive letter....
+	 */
+	return strchr(path, ':');
+#else
+	separator = strrchr(path, '/');
+#endif
+	return separator;
+}
+
+/*
+ * Given a pathname, return the last component.
+ */
+const char *
+get_basename(const char *path)
+{
+	const char *filename;
+
+	g_assert(path != NULL);
+	filename = find_last_pathname_separator(path);
+	if (filename == NULL) {
+		/*
+		 * There're no directories, drive letters, etc. in the
+		 * name; the pathname *is* the file name.
+		 */
+		filename = path;
+	} else {
+		/*
+		 * Skip past the pathname or drive letter separator.
+		 */
+		filename++;
+	}
+	return filename;
 }
 
