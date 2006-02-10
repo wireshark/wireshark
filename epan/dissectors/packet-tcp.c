@@ -581,9 +581,11 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	 *
 	 * We only check for this if we have actually seen segments prior to this
 	 * one.
+	 * RST packets are not checked for this.
 	 */
 	if( tcpd->fwd->nextseq
-	&&  GT_SEQ(seq, tcpd->fwd->nextseq)) {
+	&&  GT_SEQ(seq, tcpd->fwd->nextseq)
+	&&  (flags&(TH_RST))==0 ){
 		if(!ta){
 			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 		}
