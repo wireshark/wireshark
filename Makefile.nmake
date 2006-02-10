@@ -630,6 +630,10 @@ install-gtk2-deps: install-required-deps
 !IFDEF NEED_LIBPNG_DLL
 	xcopy $(GTK2_DIR)\bin\libpng13.dll . /d
 !ENDIF
+!IFDEF NEED_CAIRO_DLL
+	xcopy $(GTK2_DIR)\bin\libcairo-2.dll . /d
+	xcopy $(GTK2_DIR)\bin\libpangocairo-1.0-0.dll . /d
+!ENDIF
 !ENDIF
 
 install-gtk1-deps: install-required-deps
