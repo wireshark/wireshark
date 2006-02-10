@@ -88,12 +88,12 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     val_to_str(type, asf_type_vals, "Unknown (0x%02x)"));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8, TRUE);
+		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8, FALSE);
 		asf_tree = proto_item_add_subtree(ti, ett_asf);
-		proto_tree_add_item(asf_tree, hf_asf_iana, tvb, 0, 4, TRUE);
-		proto_tree_add_item(asf_tree, hf_asf_type, tvb, 4, 1, TRUE);
-		proto_tree_add_item(asf_tree, hf_asf_tag, tvb, 5, 1, TRUE);
-		proto_tree_add_item(asf_tree, hf_asf_len, tvb, 7, 1, TRUE);
+		proto_tree_add_item(asf_tree, hf_asf_iana, tvb, 0, 4, FALSE);
+		proto_tree_add_item(asf_tree, hf_asf_type, tvb, 4, 1, FALSE);
+		proto_tree_add_item(asf_tree, hf_asf_tag, tvb, 5, 1, FALSE);
+		proto_tree_add_item(asf_tree, hf_asf_len, tvb, 7, 1, FALSE);
 	}
 
 	if (len) {
