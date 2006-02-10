@@ -505,6 +505,7 @@ ssl3_generate_export_iv(StringInfo* r1,
     SSL_MD5_CTX md5;
     guint8 tmp[16];
     
+    memset(&md5, 0, sizeof(md5));
     ssl_md5_init(&md5);
     ssl_md5_update(&md5,r1->data,r1->data_len);
     ssl_md5_update(&md5,r2->data,r2->data_len);
@@ -530,6 +531,7 @@ ssl3_prf(StringInfo* secret, const char* usage,
     
     rnd1=r1; rnd2=r2;
         
+    memset(&md5,0,sizeof(md5));
     ssl_md5_init(&md5);
     memset(&sha,0,sizeof(sha));
     ssl_sha_init(&sha);
@@ -729,6 +731,8 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             
             SSL_MD5_CTX md5;
             ssl_debug_printf("ssl_generate_keyring_material MD5(client_random)\n");
+            
+            memset(&md5, 0, sizeof(md5));
             ssl_md5_init(&md5);
             ssl_md5_update(&md5,c_wk,ssl_session->cipher_suite.eff_bits/8);
             ssl_md5_update(&md5,ssl_session->client_random.data,

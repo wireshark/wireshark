@@ -2007,6 +2007,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     /* PAOLO: here we can have all the data to build session key*/
                     StringInfo encrypted_pre_master;
                     int ret;
+                    unsigned encrlen = length, skip = 0;
     
                     if (!ssl)
                         break;
@@ -2021,11 +2022,23 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         break;
                     }
                                 
-                    /* get encrypted data, we must skip tls record len && version and
-                     * 2 bytes of record data */
-                    encrypted_pre_master.data = se_alloc(length - 2);
-                    encrypted_pre_master.data_len = length-2;
-                    tvb_memcpy(tvb, encrypted_pre_master.data, offset+2, length-2);
+                    /* get encrypted data, on tls1 we have to byte to skip
+                     * (it's the encrypted len and should be equal to record len - 2) 
+                     */
+                    if (ssl->version == SSL_VER_TLS)
+                    {
+                        encrlen  = tvb_get_ntohs(tvb, offset);
+                        skip = 2;
+                        if (encrlen > length - 2)
+                        {
+                            ssl_debug_printf("dissect_ssl3_handshake wrong encrypted length (%d max %d)\n",
+                                encrlen, length);
+                            break;
+                        }
+                    }
+                    encrypted_pre_master.data = se_alloc(encrlen);
+                    encrypted_pre_master.data_len = encrlen;
+                    tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
                     
                     if (!ssl->private_key) {
                         ssl_debug_printf("dissect_ssl3_handshake can't find private key\n");
