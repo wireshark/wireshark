@@ -463,8 +463,53 @@ sync_pipe_start(capture_options *capture_opts) {
     /* Spawn process */
 #if 0
     {
-        /* XXX - experiment to use dumpcap as the capture child */
-        /* currently not working, so commented out for now ... */
+        /* XXX - very experimental using dumpcap as the capture child */
+        /* currently not working, the pipe handles seem to make problems ... */
+        char *dirname;
+        GString *args = g_string_sized_new(200);
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+        int i;
+
+        memset(&si, 0, sizeof(si));
+        si.cb           = sizeof(si);
+        si.dwFlags      = STARTF_USESHOWWINDOW;
+        si.wShowWindow  = SW_SHOW /* SW_HIDE */;
+#if 0
+        si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
+        si.hStdInput = signal_pipe[PIPE_READ];
+        si.hStdOutput = sync_pipe[PIPE_WRITE];
+        si.hStdError = stderr;
+#endif
+
+        /* take the ethereal programs path and replace ethereal with dumpcap */
+        dirname = get_dirname(g_strdup(ethereal_path));
+        g_string_sprintfa(args, "\"%s" G_DIR_SEPARATOR_S "dumpcap\"", dirname);
+        g_free(dirname);
+
+        for(i=1; argv[i] != 0; i++) {
+            g_string_append_c(args, ' ');
+            g_string_append(args, argv[i]);
+        }
+        
+        /* call dumpcap */
+        /*capture_opts->fork_child = spawnvp(_P_NOWAIT, exename, argv);*/
+        if(!CreateProcess(NULL, args->str, NULL, NULL, TRUE,
+            CREATE_NEW_CONSOLE,
+            NULL,
+            NULL,
+            &si,
+            &pi)) {
+            g_error("couldn't open child!");
+        }
+        capture_opts->fork_child = (int) pi.hProcess;
+        g_string_free(args, TRUE);
+    }
+#endif
+#if 0
+    {
+        /* experiment to use dumpcap as the capture child */
+        /* Win32 will open a console window for the child, so very ugly ... */
         char *dirname;
         char *exename;
         
@@ -478,7 +523,10 @@ sync_pipe_start(capture_options *capture_opts) {
         g_free(exename);
     }
 #endif
+#if 1
+    /* use Ethereal itself as the capture child */
     capture_opts->fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
+#endif
     if (filterstring) {
       g_free(filterstring);
     }
