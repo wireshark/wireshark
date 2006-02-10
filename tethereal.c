@@ -683,6 +683,7 @@ main(int argc, char *argv[])
   e_prefs             *prefs;
   char                 badopt;
   GLogLevelFlags       log_flags;
+  int                  status;
 
 #define OPTSTRING_INIT "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
@@ -885,7 +886,10 @@ main(int argc, char *argv[])
       case 'B':        /* Buffer size */
 #endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
-        capture_opts_add_opt(&capture_opts, opt, optarg, &start_capture);
+        status = capture_opts_add_opt(&capture_opts, opt, optarg, &start_capture);
+        if(status != 0) {
+            exit(status);
+        }
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -897,8 +901,8 @@ main(int argc, char *argv[])
 	break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-        capture_opts_list_interfaces();
-        exit(0);
+        status = capture_opts_list_interfaces();
+        exit(status);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1386,8 +1390,8 @@ main(int argc, char *argv[])
 
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {
-        capture_opts_list_link_layer_types(&capture_opts);
-        exit(0);
+        status = capture_opts_list_link_layer_types(&capture_opts);
+        exit(status);
     }
 
     if (!quiet) {

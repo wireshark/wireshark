@@ -103,7 +103,7 @@ extern void
 capture_opts_init(capture_options *capture_opts, void *cfile);
 
 /* set a command line option value */
-extern void
+extern int
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);
 
 /* log content of capture_opts */
@@ -111,11 +111,11 @@ extern void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
 
 /* list link layer types */
-extern void 
+extern int
 capture_opts_list_link_layer_types(capture_options *capture_opts);
 
 /* list interfaces */
-extern void
+extern int
 capture_opts_list_interfaces(void);
 
 /* trim the snaplen entry */

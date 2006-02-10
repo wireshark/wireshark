@@ -252,6 +252,7 @@ main(int argc, char *argv[])
   struct pcap_stat     stats;
   GLogLevelFlags       log_flags;
   gboolean             list_link_layer_types = FALSE;
+  int                  status;
 
 #define OPTSTRING_INIT "a:b:c:Df:hi:Lps:vw:y:"
 
@@ -358,13 +359,16 @@ main(int argc, char *argv[])
       /* Hidden option supporting Sync mode */
       case 'Z':        /* Write to pipe FD x */
 #endif /* _WIN32 */
-        capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
+        status = capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
+        if(status != 0) {
+            exit_main(status);
+        }
         break;
 
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
-        capture_opts_list_interfaces();
-        exit_main(0);
+        status = capture_opts_list_interfaces();
+        exit_main(status);
         break;
       case 'L':        /* Print list of link-layer types and exit */
         list_link_layer_types = TRUE;
@@ -441,8 +445,8 @@ main(int argc, char *argv[])
   }  
 
   if (list_link_layer_types) {
-    capture_opts_list_link_layer_types(capture_opts);
-    exit_main(0);
+    status = capture_opts_list_link_layer_types(capture_opts);
+    exit_main(status);
   }
 
   capture_opts_trim_snaplen(capture_opts, MIN_PACKET_SIZE);

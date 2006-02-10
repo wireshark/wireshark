@@ -48,7 +48,7 @@
 #include <wiretap/file_util.h>
 
 
-static gboolean capture_opts_output_to_pipe(const char *save_file);
+static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
 
 
 void
@@ -292,7 +292,7 @@ get_pipe_arguments(capture_options *capture_opts, const char *arg)
 #endif
 
 
-void
+static int
 capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
 {
     long        adapter_index;
@@ -316,16 +316,16 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
     if (p != NULL && *p == '\0') {
       if (adapter_index < 0) {
         cmdarg_err("The specified adapter index is a negative number");
-       exit(1);
+        return 1;
       }
       if (adapter_index > INT_MAX) {
         cmdarg_err("The specified adapter index is too large (greater than %d)",
             INT_MAX);
-        exit(1);
+        return 1;
       }
       if (adapter_index == 0) {
         cmdarg_err("there is no interface with that adapter index");
-        exit(1);
+        return 1;
       }
       if_list = get_interface_list(&err, err_str);
       if (if_list == NULL) {
@@ -342,35 +342,39 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
             cmdarg_err("There are no interfaces on which a capture can be done");
             break;
         }
-        exit(2);
+        return 2;
       }
       if_info = g_list_nth_data(if_list, adapter_index - 1);
       if (if_info == NULL) {
         cmdarg_err("there is no interface with that adapter index");
-        exit(1);
+        return 1;
       }
       capture_opts->iface = g_strdup(if_info->name);
       free_interface_list(if_list);
     } else {
       capture_opts->iface = g_strdup(optarg);
     }
+
+    return 0;
 }
 
-void
+int
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture)
 {
+    int status;
+
     switch(opt) {
     case 'a':        /* autostop criteria */
         if (set_autostop_criterion(capture_opts, optarg) == FALSE) {
           cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg);
-          exit(1);
+          return 1;
         }
         break;
     case 'b':        /* Ringbuffer option */
         capture_opts->multi_files_on = TRUE;
         if (get_ring_arguments(capture_opts, optarg) == FALSE) {
           cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg);
-          exit(1);
+          return 1;
         }
         break;
 #ifdef _WIN32
@@ -391,7 +395,10 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->show_info = FALSE;
         break;
     case 'i':        /* Use interface xxx */
-        capture_opts_add_iface_opt(capture_opts, optarg);
+        status = capture_opts_add_iface_opt(capture_opts, optarg);
+        if(status != 0) {
+            return status;
+        }
         break;
     case 'k':        /* Start capture immediately */
         *start_capture = TRUE;
@@ -418,7 +425,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 #else
         capture_opts->save_file = g_strdup(optarg);
 #endif
-        capture_opts->output_to_pipe = capture_opts_output_to_pipe(capture_opts->save_file);
+        status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
+        return status;
 	    break;
     case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
@@ -426,7 +434,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         if (capture_opts->linktype == -1) {
           cmdarg_err("The specified data link type \"%s\" isn't valid",
                   optarg);
-          exit(1);
+          return 1;
         }
 #else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         /* XXX - just treat it as a number */
@@ -438,7 +446,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
     case 'Z':        /* Write to pipe FD XXX */
        if (get_pipe_arguments(capture_opts, optarg) == FALSE) {
           cmdarg_err("Invalid or unknown -Z flag \"%s\"", optarg);
-          exit(1);
+          return 1;
         }
         break;
 #endif /* _WIN32 */
@@ -446,10 +454,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         /* the caller is responsible to send us only the right opt's */
         g_assert_not_reached();
     }
+
+    return 0;
 }
 
 
-void capture_opts_list_link_layer_types(capture_options *capture_opts)
+int capture_opts_list_link_layer_types(capture_options *capture_opts)
 {
     gchar err_str[PCAP_ERRBUF_SIZE];
     GList *lt_list, *lt_entry;
@@ -464,7 +474,7 @@ void capture_opts_list_link_layer_types(capture_options *capture_opts)
 	  "you have the proper interface or pipe specified.\n", err_str);
       } else
 	cmdarg_err("The capture device has no data link types.");
-      exit(2);
+      return 2;
     }
     cmdarg_err_cont("Data link types (use option -y to set):");
     for (lt_entry = lt_list; lt_entry != NULL;
@@ -478,10 +488,12 @@ void capture_opts_list_link_layer_types(capture_options *capture_opts)
       putchar('\n');
     }
     free_pcap_linktype_list(lt_list);
+
+    return 0;
 }
 
 
-void capture_opts_list_interfaces()
+int capture_opts_list_interfaces()
 {
     GList       *if_list;
     GList       *if_entry;
@@ -505,7 +517,7 @@ void capture_opts_list_interfaces()
             cmdarg_err("There are no interfaces on which a capture can be done");
         break;
         }
-        exit(2);
+        return 2;
     }
 
     i = 1;  /* Interface id number */
@@ -518,6 +530,8 @@ void capture_opts_list_interfaces()
         printf("\n");
     }
     free_interface_list(if_list);
+
+    return 0;
 }
 
 
@@ -607,7 +621,7 @@ static int capture_opts_test_for_fifo(const char *path)
 		return 0;
 }
 
-static gboolean capture_opts_output_to_pipe(const char *save_file)
+static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
 {
   int err;
 
@@ -619,7 +633,7 @@ static gboolean capture_opts_output_to_pipe(const char *save_file)
          silly to do "-w - >output_file" rather than "-w output_file",
          but by not checking we might be violating the Principle Of
          Least Astonishment. */
-      return TRUE;
+      *is_pipe = TRUE;
     } else {
       /* not a capture file, test for a FIFO (aka named pipe) */
       err = capture_opts_test_for_fifo(save_file);
@@ -631,18 +645,20 @@ static gboolean capture_opts_output_to_pipe(const char *save_file)
         break;
 
       case ESPIPE:	/* it is a FIFO */
-        return TRUE;
+        *is_pipe = TRUE;
         break;
 
       default:		/* couldn't stat it */
         cmdarg_err("Error testing whether capture file is a pipe: %s",
                 strerror(errno));
-        exit(2);
+        return 2;
       }
     }
   }
 
-  return FALSE;
+  *is_pipe = FALSE;
+
+  return 0;
 }
 
 #endif /* HAVE_LIBPCAP */

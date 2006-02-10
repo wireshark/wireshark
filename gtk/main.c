@@ -1897,6 +1897,7 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
   int                  optind_initial;
+  int                  status;
 
 #define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:X:y:z:"
 
@@ -2295,7 +2296,10 @@ main(int argc, char *argv[])
       case 'Z':        /* Write to pipe FD XXX */
 #endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
-        capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
+        status = capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
+        if(status != 0) {
+            exit(status);
+        }
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2553,8 +2557,8 @@ main(int argc, char *argv[])
   }
 
   if (list_link_layer_types) {
-    capture_opts_list_link_layer_types(capture_opts);
-    exit(0);
+    status = capture_opts_list_link_layer_types(capture_opts);
+    exit(status);
   }
 
   capture_opts_trim_snaplen(capture_opts, MIN_PACKET_SIZE);
