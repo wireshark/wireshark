@@ -117,7 +117,7 @@ The HTML file is generated using xsltproc and the XSL stylesheets from
 Norman Walsh. This is a conversion into a single HTML page.
 output: eug_html
 
-make eug_htmlchunk
+make eug_html_chunked
 The HTML files are generated using xsltproc and the XSL stylesheets from 
 Norman Walsh. This is a conversion into chunked (multiple) HTML pages.
 output: eug_html_chunked
