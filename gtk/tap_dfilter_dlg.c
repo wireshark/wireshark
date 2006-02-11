@@ -75,7 +75,7 @@ register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
 {
 	char *full_name;
 
-	register_stat_cmd_arg(info->init_string, info->tap_init_cb);
+	register_stat_cmd_arg(info->init_string, info->tap_init_cb, NULL);
 
 	/*
 	 * This menu item will pop up a dialog box, so append "..."
@@ -123,7 +123,7 @@ tap_dfilter_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 	} else {
 		g_snprintf(str, sizeof(str), "%s,%s", dlg_data->cont.init_string, filter);
 	}
-	(dlg_data->cont.tap_init_cb)(str);
+	(dlg_data->cont.tap_init_cb)(str,NULL);
 }
 
 

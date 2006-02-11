@@ -60,7 +60,8 @@ eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 
 static void
-gtk_eth_hostlist_init(const char *optarg)
+gtk_eth_hostlist_init(const char *optarg,
+                      void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -78,14 +79,14 @@ gtk_eth_hostlist_init(const char *optarg)
 static void
 gtk_eth_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_eth_hostlist_init("hosts,eth");
+	gtk_eth_hostlist_init("hosts,eth",NULL);
 }
 
 
 void
 register_tap_listener_eth_hostlist(void)
 {
-	register_stat_cmd_arg("hosts,eth", gtk_eth_hostlist_init);
+	register_stat_cmd_arg("hosts,eth", gtk_eth_hostlist_init,NULL);
 
 	register_stat_menu_item("Ethernet", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_eth_hostlist_cb, NULL, NULL, NULL);

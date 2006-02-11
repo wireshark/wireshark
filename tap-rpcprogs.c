@@ -216,7 +216,7 @@ rpcprogs_draw(void *dummy _U_)
 
 
 static void
-rpcprogs_init(const char *optarg _U_)
+rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 {
 	GString *error_string;
 
@@ -238,7 +238,7 @@ rpcprogs_init(const char *optarg _U_)
 void
 register_tap_listener_rpcprogs(void)
 {
-	register_stat_cmd_arg("rpc,programs", rpcprogs_init);
+	register_stat_cmd_arg("rpc,programs", rpcprogs_init, NULL);
 }
 
 

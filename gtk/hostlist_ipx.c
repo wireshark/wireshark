@@ -60,7 +60,7 @@ ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 
 static void
-gtk_ipx_hostlist_init(const char *optarg)
+gtk_ipx_hostlist_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -78,14 +78,14 @@ gtk_ipx_hostlist_init(const char *optarg)
 static void
 gtk_ipx_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_ipx_hostlist_init("hosts,ipx");
+	gtk_ipx_hostlist_init("hosts,ipx",NULL);
 }
 
 
 void
 register_tap_listener_ipx_hostlist(void)
 {
-	register_stat_cmd_arg("hosts,ipx", gtk_ipx_hostlist_init);
+	register_stat_cmd_arg("hosts,ipx", gtk_ipx_hostlist_init,NULL);
 
 	register_stat_menu_item("IPX", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_ipx_hostlist_cb, NULL, NULL, NULL);

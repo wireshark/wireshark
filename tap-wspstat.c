@@ -214,7 +214,7 @@ wspstat_draw(void *psp)
  * new instance for the wsp tap.
  */
 static void
-wspstat_init(const char *optarg)
+wspstat_init(const char *optarg, void* userdata _U_)
 {
 	wspstat_t *sp;
 	const char *filter=NULL;
@@ -281,5 +281,5 @@ wspstat_init(const char *optarg)
 void 
 register_tap_listener_wspstat(void)
 {
-	register_stat_cmd_arg("wsp,stat,", wspstat_init);
+	register_stat_cmd_arg("wsp,stat,", wspstat_init,NULL);
 }

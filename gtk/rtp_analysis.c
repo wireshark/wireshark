@@ -3874,7 +3874,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 
 /****************************************************************************/
 static void
-rtp_analysis_init(const char *dummy _U_)
+rtp_analysis_init(const char *dummy _U_,void* userdata _U_)
 {
 	rtp_analysis_cb(NULL, NULL);
 }
@@ -3883,7 +3883,7 @@ rtp_analysis_init(const char *dummy _U_)
 void
 register_tap_listener_rtp_analysis(void)
 {
-	register_stat_cmd_arg("rtp", rtp_analysis_init);
+	register_stat_cmd_arg("rtp", rtp_analysis_init,NULL);
 
 	register_stat_menu_item("RTP/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
 	    rtp_analysis_cb, NULL, NULL, NULL);

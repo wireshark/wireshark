@@ -1035,7 +1035,7 @@ disable_graph(io_stat_graph_t *gio)
 }
 
 static void
-gtk_iostat_init(const char *optarg _U_)
+gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 {
 	io_stat_t *io;
 	int i=0;
@@ -1914,7 +1914,7 @@ init_io_stat_window(io_stat_t *io)
 static void 
 gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_iostat_init(NULL);
+	gtk_iostat_init(NULL,NULL);
 }
 
 
@@ -1923,7 +1923,7 @@ gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtk_iostat(void)
 {
-	register_stat_cmd_arg("io,stat", gtk_iostat_init);
+	register_stat_cmd_arg("io,stat", gtk_iostat_init,NULL);
 
 	register_stat_menu_item("_IO Graphs", REGISTER_STAT_GROUP_GENERIC,
         gtk_iostat_cb, NULL, NULL, NULL);

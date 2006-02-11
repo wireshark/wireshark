@@ -39,8 +39,10 @@
  */
 typedef struct _stat_cmd_arg {
 	const char *cmd;
-	void (*func)(const char *arg);
+	void (*func)(const char *arg, void* userdata);
+    void* userdata;
 } stat_cmd_arg;
+
 static GSList *stat_cmd_arg_list=NULL;
 
 /* structure to keep track of what stats have been specified on the
@@ -63,13 +65,14 @@ sort_by_name(gconstpointer a, gconstpointer b)
 	    ((const stat_cmd_arg *)b)->cmd);
 }
 void
-register_stat_cmd_arg(const char *cmd, void (*func)(const char *arg))
+register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* userdata)
 {
 	stat_cmd_arg *newsca;
 
 	newsca=g_malloc(sizeof(stat_cmd_arg));
 	newsca->cmd=cmd;
 	newsca->func=func;
+    newsca->userdata=userdata;
 	stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca,
 	    sort_by_name);
 }
@@ -122,7 +125,7 @@ start_requested_stats(void)
 
 	while(stats_requested){
 		sr=stats_requested->data;
-		(*sr->sca->func)(sr->arg);
+		(*sr->sca->func)(sr->arg,sr->sca->userdata);
 		g_free(sr->arg);
 		g_free(sr);
 		stats_requested=g_slist_remove(stats_requested, sr);

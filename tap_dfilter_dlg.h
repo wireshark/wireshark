@@ -58,7 +58,7 @@
 typedef struct _tap_dfilter_dlg {
 	const char *win_title;		/* title */
 	const char *init_string;	/* the string to call the tap without a filter via "-z" option */
-	void (* tap_init_cb)(const char *);	/* callback to init function of the tap */
+	void (* tap_init_cb)(const char *,void*);	/* callback to init function of the tap */
 	gint index;			/* initiate this value always with "-1" */
 } tap_dfilter_dlg;
 

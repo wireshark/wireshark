@@ -69,7 +69,7 @@ static void draw_stats_tree(void *psp) {
 	
 }
 
-static void  init_stats_tree(const char *optarg) {
+static void  init_stats_tree(const char *optarg,void* userdata _U_) {
 	guint8* abbr = stats_tree_get_abbr(optarg);
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;
@@ -92,7 +92,7 @@ static void  init_stats_tree(const char *optarg) {
 		g_free(abbr);
 		
 	} else {
-		report_failure("could not obtain stats_tree abbr (%s) from optarg '%s'",abbr,optarg);		
+		report_failure("could not obtain stats_tree abbr (%s) from grg '%s'",abbr,optarg);		
 		return;
 	}
 	
@@ -118,7 +118,7 @@ void register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
 	cfg->pr = g_malloc(sizeof(tree_cfg_pres));
 	cfg->pr->init_string = g_strdup_printf("%s,tree",cfg->abbr);
 
-	register_stat_cmd_arg(cfg->pr->init_string, init_stats_tree);
+	register_stat_cmd_arg(cfg->pr->init_string, init_stats_tree, NULL);
 	
 }
 

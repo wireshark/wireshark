@@ -154,7 +154,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static void
-expert_comp_init(const char *optarg)
+expert_comp_init(const char *optarg, void* userdata _U_)
 {
     expert_comp_dlg_t *ss;
     const char *filter=NULL;
@@ -241,13 +241,13 @@ expert_comp_init(const char *optarg)
 static void 
 expert_comp_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    expert_comp_init("");
+    expert_comp_init("", NULL);
 }
 
 void
 register_tap_listener_expert_comp(void)
 {
-    register_stat_cmd_arg("expert_comp", expert_comp_init);
+    register_stat_cmd_arg("expert_comp", expert_comp_init,NULL);
     register_stat_menu_item("Expert Info _Composite", REGISTER_ANALYZE_GROUP_NONE,
         expert_comp_dlg_cb, NULL, NULL, NULL);
 }

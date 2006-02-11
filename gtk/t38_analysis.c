@@ -74,7 +74,7 @@ static void t38_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 
 /****************************************************************************/
 static void
-t38_analysis_init(const char *dummy _U_)
+t38_analysis_init(const char *dummy _U_, void* userdata _U_)
 {
 	t38_analysis_cb(NULL, NULL);
 }
@@ -83,7 +83,7 @@ t38_analysis_init(const char *dummy _U_)
 void
 register_tap_listener_t38_analysis(void)
 {
-	register_stat_cmd_arg("t38", t38_analysis_init);
+	register_stat_cmd_arg("t38", t38_analysis_init,NULL);
 
 
 	register_stat_menu_item("Fax T38 Analysis...", REGISTER_STAT_GROUP_TELEPHONY,

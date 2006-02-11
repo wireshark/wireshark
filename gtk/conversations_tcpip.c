@@ -55,7 +55,7 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 
 
 static void
-tcpip_conversation_init(const char *optarg)
+tcpip_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -73,14 +73,14 @@ tcpip_conversation_init(const char *optarg)
 static void
 tcpip_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	tcpip_conversation_init("conv,tcp");
+	tcpip_conversation_init("conv,tcp",NULL);
 }
 
 
 void
 register_tap_listener_tcpip_conversation(void)
 {
-	register_stat_cmd_arg("conv,tcp", tcpip_conversation_init);
+	register_stat_cmd_arg("conv,tcp", tcpip_conversation_init,NULL);
 
 	register_stat_menu_item("TCP (IPv4 & IPv6)", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    tcpip_conversation_cb, NULL, NULL, NULL);

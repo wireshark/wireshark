@@ -328,7 +328,7 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 /* When called, this function will start rpcprogs
  */
 static void
-gtk_rpcprogs_init(const char *optarg _U_)
+gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 {
 	char *title_string;
 	GtkWidget *vbox;
@@ -409,13 +409,13 @@ gtk_rpcprogs_init(const char *optarg _U_)
 static void
 gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_rpcprogs_init("");
+	gtk_rpcprogs_init("",NULL);
 }
 
 void
 register_tap_listener_gtkrpcprogs(void)
 {
-	register_stat_cmd_arg("rpc,programs", gtk_rpcprogs_init);
+	register_stat_cmd_arg("rpc,programs", gtk_rpcprogs_init,NULL);
 
 	register_stat_menu_item("ONC-RPC Programs", REGISTER_STAT_GROUP_NONE,
 	gtk_rpcprogs_cb, NULL, NULL, NULL);

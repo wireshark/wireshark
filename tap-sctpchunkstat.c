@@ -220,7 +220,7 @@ sctpstat_draw(void *phs)
 
 
 static void
-sctpstat_init(const char *optarg)
+sctpstat_init(const char *optarg, void* userdata _U_)
 {
 	sctpstat_t *hs;
 	const char *filter=NULL;
@@ -257,5 +257,5 @@ sctpstat_init(const char *optarg)
 void
 register_tap_listener_sctpstat(void)
 {
-	register_stat_cmd_arg("sctp,stat", sctpstat_init);
+	register_stat_cmd_arg("sctp,stat", sctpstat_init,NULL);
 }

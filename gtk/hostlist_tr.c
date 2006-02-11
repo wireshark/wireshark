@@ -60,7 +60,7 @@ tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
 
 static void
-gtk_tr_hostlist_init(const char *optarg)
+gtk_tr_hostlist_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -78,14 +78,14 @@ gtk_tr_hostlist_init(const char *optarg)
 static void
 gtk_tr_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_tr_hostlist_init("hosts,tr");
+	gtk_tr_hostlist_init("hosts,tr",NULL);
 }
 
 
 void
 register_tap_listener_tr_hostlist(void)
 {
-	register_stat_cmd_arg("hosts,tr", gtk_tr_hostlist_init);
+	register_stat_cmd_arg("hosts,tr", gtk_tr_hostlist_init,NULL);
 
 	register_stat_menu_item("Token Ring", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_tr_hostlist_cb, NULL, NULL, NULL);

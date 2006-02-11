@@ -118,7 +118,7 @@ afpstat_draw(void *pss)
 
 
 static void
-afpstat_init(const char *optarg)
+afpstat_init(const char *optarg, void* userdata _U_)
 {
 	afpstat_t *ss;
 	guint32 i;
@@ -167,5 +167,5 @@ afpstat_init(const char *optarg)
 void
 register_tap_listener_afpstat(void)
 {
-	register_stat_cmd_arg("afp,rtt", afpstat_init);
+	register_stat_cmd_arg("afp,rtt", afpstat_init,NULL);
 }

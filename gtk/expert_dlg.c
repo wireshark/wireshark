@@ -475,7 +475,7 @@ expert_dlg_severity_cb(GtkWidget *w, gpointer data)
 
 
 static void
-expert_dlg_init(const char *optarg)
+expert_dlg_init(const char *optarg, void* userdata _U_)
 {
 	expert_tapdata_t * etd;
 	const char *filter=NULL;
@@ -583,7 +583,7 @@ expert_dlg_init(const char *optarg)
 static void 
 expert_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	expert_dlg_init("");
+	expert_dlg_init("", NULL);
 }
 
 
@@ -592,7 +592,7 @@ expert_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_expert(void)
 {
-	register_stat_cmd_arg("expert", expert_dlg_init);
+	register_stat_cmd_arg("expert", expert_dlg_init,NULL);
 
 	register_stat_menu_item("E_xpert Info", REGISTER_ANALYZE_GROUP_NONE,
         expert_dlg_cb, NULL, NULL, NULL);

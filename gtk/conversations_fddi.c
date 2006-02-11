@@ -55,7 +55,7 @@ fddi_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 
 static void
-fddi_conversation_init(const char *optarg)
+fddi_conversation_init(const char *optarg, void* userdata _U_ )
 {
 	const char *filter=NULL;
 
@@ -73,14 +73,14 @@ fddi_conversation_init(const char *optarg)
 static void
 fddi_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	fddi_conversation_init("conv,fddi");
+	fddi_conversation_init("conv,fddi",NULL);
 }
 
 
 void
 register_tap_listener_fddi_conversation(void)
 {
-	register_stat_cmd_arg("conv,fddi", fddi_conversation_init);
+	register_stat_cmd_arg("conv,fddi", fddi_conversation_init,NULL);
 
 	register_stat_menu_item("FDDI", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    fddi_endpoints_cb, NULL, NULL, NULL);

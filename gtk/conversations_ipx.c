@@ -55,7 +55,7 @@ ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 
 static void
-ipx_conversation_init(const char *optarg)
+ipx_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -73,14 +73,14 @@ ipx_conversation_init(const char *optarg)
 static void
 ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	ipx_conversation_init("conv,ipx");
+	ipx_conversation_init("conv,ipx",NULL);
 }
 
 
 void
 register_tap_listener_ipx_conversation(void)
 {
-	register_stat_cmd_arg("conv,ipx", ipx_conversation_init);
+	register_stat_cmd_arg("conv,ipx", ipx_conversation_init,NULL);
 
 	register_stat_menu_item("IPX", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    ipx_endpoints_cb, NULL, NULL, NULL);

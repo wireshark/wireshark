@@ -55,7 +55,7 @@ eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 
 static void
-eth_conversation_init(const char *optarg)
+eth_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -73,14 +73,14 @@ eth_conversation_init(const char *optarg)
 static void
 eth_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	eth_conversation_init("conv,eth");
+	eth_conversation_init("conv,eth",NULL);
 }
 
 
 void
 register_tap_listener_eth_conversation(void)
 {
-	register_stat_cmd_arg("conv,eth", eth_conversation_init);
+	register_stat_cmd_arg("conv,eth", eth_conversation_init,NULL);
 
 	register_stat_menu_item("Ethernet", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    eth_endpoints_cb, NULL, NULL, NULL);

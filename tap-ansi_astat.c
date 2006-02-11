@@ -135,7 +135,7 @@ ansi_a_stat_draw(
 
 
 static void
-ansi_a_stat_init(const char *optarg _U_)
+ansi_a_stat_init(const char *optarg _U_, void* userdata _U_)
 {
     ansi_a_stat_t	*stat_p;
     GString		*err_p;
@@ -163,5 +163,5 @@ ansi_a_stat_init(const char *optarg _U_)
 void
 register_tap_listener_ansi_astat(void)
 {
-    register_stat_cmd_arg("ansi_a,", ansi_a_stat_init);
+    register_stat_cmd_arg("ansi_a,", ansi_a_stat_init,NULL);
 }

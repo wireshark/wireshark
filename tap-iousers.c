@@ -579,7 +579,7 @@ iousers_draw(void *arg)
 }
 
 void
-iousers_init(const char *optarg)
+iousers_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 	const char *tap_type, *tap_type_name;
@@ -710,5 +710,5 @@ iousers_init(const char *optarg)
 void
 register_tap_listener_iousers(void)
 {
-	register_stat_cmd_arg("conv,", iousers_init);
+	register_stat_cmd_arg("conv,", iousers_init, NULL);
 }

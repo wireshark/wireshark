@@ -173,7 +173,7 @@ protohierstat_draw(void *prs)
 
 
 static void
-protohierstat_init(const char *optarg)
+protohierstat_init(const char *optarg, void* userdata _U_)
 {
 	phs_t *rs;
 	int pos=0;
@@ -223,6 +223,6 @@ protohierstat_init(const char *optarg)
 void
 register_tap_listener_protohierstat(void)
 {
-	register_stat_cmd_arg("io,phs", protohierstat_init);
+	register_stat_cmd_arg("io,phs", protohierstat_init, NULL);
 }
 

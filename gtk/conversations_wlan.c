@@ -55,7 +55,7 @@ wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 
 static void
-wlan_conversation_init(const char *optarg)
+wlan_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -73,14 +73,14 @@ wlan_conversation_init(const char *optarg)
 static void
 wlan_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	wlan_conversation_init("conv,wlan");
+	wlan_conversation_init("conv,wlan",NULL);
 }
 
 
 void
 register_tap_listener_wlan_conversation(void)
 {
-	register_stat_cmd_arg("conv,wlan", wlan_conversation_init);
+	register_stat_cmd_arg("conv,wlan", wlan_conversation_init,NULL);
 
 	register_stat_menu_item("WLAN", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    wlan_endpoints_cb, NULL, NULL, NULL);

@@ -270,7 +270,7 @@ gsm_a_stat_draw(
 
 
 static void
-gsm_a_stat_init(const char *optarg _U_)
+gsm_a_stat_init(const char *optarg _U_,void* userdata _U_)
 {
     gsm_a_stat_t	*stat_p;
     GString		*err_p;
@@ -298,5 +298,5 @@ gsm_a_stat_init(const char *optarg _U_)
 void
 register_tap_listener_gsm_astat(void)
 {
-    register_stat_cmd_arg("gsm_a,", gsm_a_stat_init);
+    register_stat_cmd_arg("gsm_a,", gsm_a_stat_init,NULL);
 }

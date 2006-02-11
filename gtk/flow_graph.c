@@ -1,5 +1,5 @@
 /* flow_graph.c
- * $Id:$
+ * $Id$
  * Allows to display a flow graph of the currently displayed packets
  *
  * Copyright 2004, Ericsson , Spain
@@ -628,7 +628,7 @@ static void flow_graph_dlg_create (void)
 
 /* init function for tap */
 static void
-flow_graph_init_tap(const char *dummy _U_)
+flow_graph_init_tap(const char *dummy _U_, void* userdata _U_)
 {
 
 	/* initialize graph items store */
@@ -653,14 +653,14 @@ flow_graph_init_tap(const char *dummy _U_)
 /* entry point when called via the GTK menu */
 static void flow_graph_launch(GtkWidget *w _U_, gpointer data _U_)
 {
-	flow_graph_init_tap("");
+	flow_graph_init_tap("",NULL);
 }
 
 /****************************************************************************/
 void
 register_tap_listener_flow_graph(void)
 {
-	register_stat_cmd_arg("flow_graph",flow_graph_init_tap);
+	register_stat_cmd_arg("flow_graph",flow_graph_init_tap,NULL);
 	register_stat_menu_item("Flo_w Graph...", REGISTER_STAT_GROUP_NONE,
 	    flow_graph_launch, NULL, NULL, NULL);
 	    

@@ -589,7 +589,7 @@ CALC_TYPE_AVG	5
 }
 
 void
-iostat_init(const char *optarg)
+iostat_init(const char *optarg, void* userdata _U_)
 {
 	float interval_float;
 	gint32 interval; 
@@ -665,5 +665,5 @@ iostat_init(const char *optarg)
 void
 register_tap_listener_iostat(void)
 {
-	register_stat_cmd_arg("io,stat,", iostat_init);
+	register_stat_cmd_arg("io,stat,", iostat_init, NULL);
 }

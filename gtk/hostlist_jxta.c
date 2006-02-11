@@ -57,7 +57,7 @@ jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 }
 
 static void
-gtk_jxta_hostlist_init(const char *optarg)
+gtk_jxta_hostlist_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -75,14 +75,14 @@ gtk_jxta_hostlist_init(const char *optarg)
 static void
 gtk_jxta_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_jxta_hostlist_init("hosts,jxta");
+	gtk_jxta_hostlist_init("hosts,jxta",NULL);
 }
 
 
 void
 register_tap_listener_jxta_hostlist(void)
 {
-	register_stat_cmd_arg("hosts,jxta", gtk_jxta_hostlist_init);
+	register_stat_cmd_arg("hosts,jxta", gtk_jxta_hostlist_init,NULL);
 
 	register_stat_menu_item("JXTA", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_jxta_hostlist_cb, NULL, NULL, NULL);

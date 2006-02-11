@@ -182,7 +182,7 @@ dcerpcstat_draw(void *prs)
 
 
 static void
-dcerpcstat_init(const char *optarg)
+dcerpcstat_init(const char *optarg, void* userdata _U_)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
@@ -301,5 +301,5 @@ dcerpcstat_init(const char *optarg)
 void
 register_tap_listener_dcerpcstat(void)
 {
-	register_stat_cmd_arg("dcerpc,rtt,", dcerpcstat_init);
+	register_stat_cmd_arg("dcerpc,rtt,", dcerpcstat_init,NULL);
 }

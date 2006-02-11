@@ -433,8 +433,7 @@ mtp3_stat_gtk_cb(
 
 
 static void
-mtp3_stat_gtk_init(
-    const char		*optarg _U_)
+mtp3_stat_gtk_init( const char *optarg _U_, void* userdata _U_)
 {
     mtp3_stat_gtk_cb(NULL, NULL);
 }
@@ -464,5 +463,5 @@ register_tap_listener_gtkmtp3_stat(void)
 
     register_stat_menu_item("MTP3/MSUs",  REGISTER_STAT_GROUP_TELEPHONY,
         mtp3_stat_gtk_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("mtp3,msus", mtp3_stat_gtk_init);
+    register_stat_cmd_arg("mtp3,msus", mtp3_stat_gtk_init,NULL);
 }

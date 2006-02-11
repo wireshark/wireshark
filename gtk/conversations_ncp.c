@@ -56,7 +56,7 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 }
 
 static void
-ncp_conversation_init(const char *optarg)
+ncp_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -73,14 +73,14 @@ ncp_conversation_init(const char *optarg)
 static void
 ncp_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	ncp_conversation_init("conv,ncp");
+	ncp_conversation_init("conv,ncp",NULL);
 }
 
 
 void
 register_tap_listener_ncp_conversation(void)
 {
-	register_stat_cmd_arg("conv,ncp", ncp_conversation_init);
+	register_stat_cmd_arg("conv,ncp", ncp_conversation_init,NULL);
 
 	register_stat_menu_item("NCP", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    ncp_endpoints_cb, NULL, NULL, NULL);

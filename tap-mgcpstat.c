@@ -177,7 +177,7 @@ mgcpstat_draw(void *pms)
 
 
 static void
-mgcpstat_init(const char *optarg)
+mgcpstat_init(const char *optarg, void* userdata _U_)
 {
 	mgcpstat_t *ms;
 	int i;
@@ -230,7 +230,7 @@ register_tap_listener_mgcpstat(void)
 {
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
 	if (find_tap_id("mgcp")) {
-		register_stat_cmd_arg("mgcp,rtd", mgcpstat_init);
+		register_stat_cmd_arg("mgcp,rtd", mgcpstat_init, NULL);
 	}
 }
 

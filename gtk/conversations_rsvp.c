@@ -53,7 +53,7 @@ rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 static void
-rsvp_conversation_init(const char *optarg)
+rsvp_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -72,14 +72,14 @@ rsvp_conversation_init(const char *optarg)
 static void
 rsvp_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	rsvp_conversation_init("conv,rsvp");
+	rsvp_conversation_init("conv,rsvp",NULL);
 }
 
 
 void
 register_tap_listener_rsvp_conversation(void)
 {
-	register_stat_cmd_arg("conv,rsvp", rsvp_conversation_init);
+	register_stat_cmd_arg("conv,rsvp", rsvp_conversation_init,NULL);
 
 	register_stat_menu_item("RSVP", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 			       rsvp_endpoints_cb, NULL, NULL, NULL);

@@ -44,7 +44,7 @@
 
 
 static int
-jxta_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
 	const jxta_tap_header *jxtahdr = (const jxta_tap_header *) vip;
 
@@ -63,7 +63,7 @@ jxta_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 static void
-jxta_conversation_init(const char *optarg)
+jxta_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -81,14 +81,14 @@ jxta_conversation_init(const char *optarg)
 static void
 jxta_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	jxta_conversation_init("conv,jxta");
+	jxta_conversation_init("conv,jxta",NULL);
 }
 
 
 void
 register_tap_listener_jxta_conversation(void)
 {
-	register_stat_cmd_arg("conv,jxta", jxta_conversation_init);
+	register_stat_cmd_arg("conv,jxta", jxta_conversation_init,NULL);
 
 	register_stat_menu_item("JXTA", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    jxta_conversation_cb, NULL, NULL, NULL);

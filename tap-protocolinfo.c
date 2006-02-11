@@ -87,7 +87,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 
 
 static void
-protocolinfo_init(const char *optarg)
+protocolinfo_init(const char *optarg, void* userdata _U_)
 {
 	pci_t *rs;
 	const char *field=NULL;
@@ -142,6 +142,6 @@ protocolinfo_init(const char *optarg)
 void
 register_tap_listener_protocolinfo(void)
 {
-	register_stat_cmd_arg("proto,colinfo,", protocolinfo_init);
+	register_stat_cmd_arg("proto,colinfo,", protocolinfo_init,NULL);
 }
 

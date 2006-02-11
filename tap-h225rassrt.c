@@ -212,7 +212,7 @@ h225rassrt_draw(void *phs)
 
 
 static void
-h225rassrt_init(const char *optarg)
+h225rassrt_init(const char *optarg, void* userdata _U_)
 {
 	h225rassrt_t *hs;
 	const char *filter=NULL;
@@ -247,5 +247,5 @@ h225rassrt_init(const char *optarg)
 void
 register_tap_listener_h225rassrt(void)
 {
-	register_stat_cmd_arg("h225,srt", h225rassrt_init);
+	register_stat_cmd_arg("h225,srt", h225rassrt_init,NULL);
 }

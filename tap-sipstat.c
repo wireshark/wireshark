@@ -345,7 +345,7 @@ sipstat_draw(void *psp  )
 }
 
 static void
-sipstat_init(const char *optarg)
+sipstat_init(const char *optarg, void* userdata _U_)
 {
 	sipstat_t *sp;
 	const char *filter=NULL;
@@ -391,5 +391,5 @@ sipstat_init(const char *optarg)
 void
 register_tap_listener_sipstat(void)
 {
-	register_stat_cmd_arg("sip,stat", sipstat_init);
+	register_stat_cmd_arg("sip,stat", sipstat_init,NULL);
 }

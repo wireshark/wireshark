@@ -186,7 +186,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk-dcerpcstat.
  */
 static void
-gtk_dcerpcstat_init(const char *optarg)
+gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
@@ -371,7 +371,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 		g_string_sprintfa(str, ",%s", filter);
 	}
 
-	gtk_dcerpcstat_init(str->str);
+	gtk_dcerpcstat_init(str->str,NULL);
 	g_string_free(str, TRUE);
 }
 
@@ -678,7 +678,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkdcerpcstat(void)
 {
-	register_stat_cmd_arg("dcerpc,srt,", gtk_dcerpcstat_init);
+	register_stat_cmd_arg("dcerpc,srt,", gtk_dcerpcstat_init,NULL);
 
 	register_stat_menu_item("DCE-RPC...", REGISTER_STAT_GROUP_RESPONSE_TIME,
 	    gtk_dcerpcstat_cb, NULL, NULL, NULL);

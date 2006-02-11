@@ -137,7 +137,7 @@ dhcpstat_draw(void *psp)
 /* When called, this function will create a new instance of tap-boopstat.
  */
 static void
-dhcpstat_init(const char *optarg)
+dhcpstat_init(const char *optarg, void* userdata _U_)
 {
 	dhcpstat_t *sp;
 	const char	*filter=NULL;
@@ -182,6 +182,6 @@ dhcpstat_init(const char *optarg)
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_stat_cmd_arg("bootp,stat,", dhcpstat_init);
+	register_stat_cmd_arg("bootp,stat,", dhcpstat_init,NULL);
 }
 

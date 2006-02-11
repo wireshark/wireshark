@@ -388,7 +388,7 @@ h225counter_draw(void *phs)
 
 
 static void
-h225counter_init(const char *optarg)
+h225counter_init(const char *optarg, void* userdata _U_)
 {
 	h225counter_t *hs;
 	const char *filter=NULL;
@@ -423,5 +423,5 @@ h225counter_init(const char *optarg)
 void
 register_tap_listener_h225counter(void)
 {
-	register_stat_cmd_arg("h225,counter", h225counter_init);
+	register_stat_cmd_arg("h225,counter", h225counter_init,NULL);
 }

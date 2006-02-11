@@ -60,7 +60,7 @@ udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 
 static void
-gtk_udpip_hostlist_init(const char *optarg)
+gtk_udpip_hostlist_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -78,14 +78,14 @@ gtk_udpip_hostlist_init(const char *optarg)
 static void
 gtk_udpip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_udpip_hostlist_init("endpoints,udp");
+	gtk_udpip_hostlist_init("endpoints,udp",NULL);
 }
 
 
 void
 register_tap_listener_udpip_hostlist(void)
 {
-	register_stat_cmd_arg("endpoints,udp", gtk_udpip_hostlist_init);
+	register_stat_cmd_arg("endpoints,udp", gtk_udpip_hostlist_init,NULL);
 
 	register_stat_menu_item("UDP (IPv4 & IPv6)", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_udpip_hostlist_cb, NULL, NULL, NULL);

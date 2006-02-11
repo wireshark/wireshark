@@ -408,7 +408,8 @@ ansi_map_stat_gtk_cb(
 
 static void
 ansi_map_stat_gtk_init(
-    const char		*optarg _U_)
+    const char		*optarg _U_,
+    void* userdata _U_ )
 {
     ansi_map_stat_gtk_cb(NULL, NULL);
 }
@@ -438,5 +439,5 @@ register_tap_listener_gtkansi_map_stat(void)
 
     register_stat_menu_item("ANSI/MAP Operation", REGISTER_STAT_GROUP_TELEPHONY,
         ansi_map_stat_gtk_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("ansi_map", ansi_map_stat_gtk_init);
+    register_stat_cmd_arg("ansi_map", ansi_map_stat_gtk_init,NULL);
 }

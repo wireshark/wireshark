@@ -404,7 +404,7 @@ ansi_a_stat_gtk_bsmap_cb(
 
 static void
 ansi_a_stat_gtk_bsmap_init(
-    const char		*optarg _U_)
+    const char		*optarg _U_, void* userdata _U_)
 {
     ansi_a_stat_gtk_bsmap_cb(NULL, NULL);
 }
@@ -451,7 +451,8 @@ ansi_a_stat_gtk_dtap_cb(
 
 static void
 ansi_a_stat_gtk_dtap_init(
-    const char		*optarg _U_)
+    const char		*optarg _U_,
+    void* userdata _U_)
 {
     ansi_a_stat_gtk_dtap_cb(NULL, NULL);
 }
@@ -481,9 +482,9 @@ register_tap_listener_gtkansi_a_stat(void)
 
     register_stat_menu_item("ANSI/A-Interface BSMAP", REGISTER_STAT_GROUP_TELEPHONY, 
         ansi_a_stat_gtk_bsmap_cb, NULL, NULL ,NULL);
-    register_stat_cmd_arg("ansi_a,bsmap", ansi_a_stat_gtk_bsmap_init);
+    register_stat_cmd_arg("ansi_a,bsmap", ansi_a_stat_gtk_bsmap_init,NULL);
 
     register_stat_menu_item("ANSI/A-Interface DTAP", REGISTER_STAT_GROUP_TELEPHONY,
         ansi_a_stat_gtk_dtap_cb, NULL, NULL ,NULL);
-    register_stat_cmd_arg("ansi_a,dtap", ansi_a_stat_gtk_dtap_init);
+    register_stat_cmd_arg("ansi_a,dtap", ansi_a_stat_gtk_dtap_init, NULL);
 }

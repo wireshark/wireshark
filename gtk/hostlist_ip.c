@@ -59,7 +59,7 @@ ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 }
 
 static void
-gtk_ip_hostlist_init(const char *optarg)
+gtk_ip_hostlist_init(const char *optarg, void* userdata)
 {
 	const char *filter=NULL;
 
@@ -77,14 +77,14 @@ gtk_ip_hostlist_init(const char *optarg)
 static void
 gtk_ip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_ip_hostlist_init("hosts,ip");
+	gtk_ip_hostlist_init("hosts,ip",NULL);
 }
 
 
 void
 register_tap_listener_ip_hostlist(void)
 {
-	register_stat_cmd_arg("hosts,ip", gtk_ip_hostlist_init);
+	register_stat_cmd_arg("hosts,ip", gtk_ip_hostlist_init,NULL);
 
 	register_stat_menu_item("IPv4", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 		gtk_ip_hostlist_cb, NULL, NULL, NULL);

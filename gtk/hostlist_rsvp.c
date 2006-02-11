@@ -61,7 +61,7 @@ rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static void
-gtk_rsvp_hostlist_init(const char *optarg)
+gtk_rsvp_hostlist_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -80,14 +80,14 @@ gtk_rsvp_hostlist_init(const char *optarg)
 static void
 gtk_rsvp_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_rsvp_hostlist_init("hosts,rsvp");
+	gtk_rsvp_hostlist_init("hosts,rsvp",NULL);
 }
 
 
 void
 register_tap_listener_rsvp_hostlist(void)
 {
-	register_stat_cmd_arg("hosts,rsvp", gtk_rsvp_hostlist_init);
+	register_stat_cmd_arg("hosts,rsvp", gtk_rsvp_hostlist_init,NULL);
 
 	register_stat_menu_item("RSVP", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 			       gtk_rsvp_hostlist_cb, NULL, NULL, NULL);

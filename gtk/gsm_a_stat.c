@@ -491,7 +491,8 @@ gsm_a_stat_gtk_bssmap_cb(
 
 static void
 gsm_a_stat_gtk_bssmap_init(
-    const char		*optarg _U_)
+    const char		*optarg _U_,
+    void* userdata _U_)
 {
     gsm_a_stat_gtk_bssmap_cb(NULL, NULL);
 }
@@ -549,8 +550,8 @@ gsm_a_stat_gtk_dtap_mm_cb(
 }
 
 static void
-gsm_a_stat_gtk_dtap_mm_init(
-    const char		*optarg _U_)
+gsm_a_stat_gtk_dtap_mm_init(const char		*optarg _U_,
+                            void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_mm_cb(NULL, NULL);
 }
@@ -566,8 +567,8 @@ gsm_a_stat_gtk_dtap_rr_cb(
 }
 
 static void
-gsm_a_stat_gtk_dtap_rr_init(
-    const char		*optarg _U_)
+gsm_a_stat_gtk_dtap_rr_init(const char		*optarg _U_,
+                            void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_rr_cb(NULL, NULL);
 }
@@ -583,8 +584,8 @@ gsm_a_stat_gtk_dtap_cc_cb(
 }
 
 static void
-gsm_a_stat_gtk_dtap_cc_init(
-    const char		*optarg _U_)
+gsm_a_stat_gtk_dtap_cc_init(const char		*optarg _U_,
+                            void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_cc_cb(NULL, NULL);
 }
@@ -600,8 +601,8 @@ gsm_a_stat_gtk_dtap_gmm_cb(
 }
 
 static void
-gsm_a_stat_gtk_dtap_gmm_init(
-    const char		*optarg _U_)
+gsm_a_stat_gtk_dtap_gmm_init(const char		*optarg _U_,
+                             void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_gmm_cb(NULL, NULL);
 }
@@ -617,8 +618,8 @@ gsm_a_stat_gtk_dtap_sms_cb(
 }
 
 static void
-gsm_a_stat_gtk_dtap_sms_init(
-    const char		*optarg _U_)
+gsm_a_stat_gtk_dtap_sms_init(const char		*optarg _U_,
+                             void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_sms_cb(NULL, NULL);
 }
@@ -634,8 +635,8 @@ gsm_a_stat_gtk_dtap_sm_cb(
 }
 
 static void
-gsm_a_stat_gtk_dtap_sm_init(
-    const char		*optarg _U_)
+gsm_a_stat_gtk_dtap_sm_init(const char		*optarg _U_,
+                            void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_sm_cb(NULL, NULL);
 }
@@ -682,33 +683,33 @@ register_tap_listener_gtkgsm_a_stat(void)
 
     register_stat_menu_item("GSM/A-Interface BSSMAP", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_bssmap_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,bssmap", gsm_a_stat_gtk_bssmap_init);
+    register_stat_cmd_arg("gsm_a,bssmap", gsm_a_stat_gtk_bssmap_init,NULL);
 
     register_stat_menu_item("GSM/A-Interface DTAP/Mobility Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_mm_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,dtap_mm", gsm_a_stat_gtk_dtap_mm_init);
+    register_stat_cmd_arg("gsm_a,dtap_mm", gsm_a_stat_gtk_dtap_mm_init,NULL);
 
     register_stat_menu_item("GSM/A-Interface DTAP/Radio Resource Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_rr_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,dtap_rr", gsm_a_stat_gtk_dtap_rr_init);
+    register_stat_cmd_arg("gsm_a,dtap_rr", gsm_a_stat_gtk_dtap_rr_init,NULL);
 
     register_stat_menu_item("GSM/A-Interface DTAP/Call Control", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_cc_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,dtap_cc", gsm_a_stat_gtk_dtap_cc_init);
+    register_stat_cmd_arg("gsm_a,dtap_cc", gsm_a_stat_gtk_dtap_cc_init,NULL);
 
     register_stat_menu_item("GSM/A-Interface DTAP/GPRS Mobility Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_gmm_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,dtap_gmm", gsm_a_stat_gtk_dtap_gmm_init);
+    register_stat_cmd_arg("gsm_a,dtap_gmm", gsm_a_stat_gtk_dtap_gmm_init,NULL);
 
     register_stat_menu_item("GSM/A-Interface DTAP/Short Message Service", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_sms_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,dtap_sms", gsm_a_stat_gtk_dtap_sms_init);
+    register_stat_cmd_arg("gsm_a,dtap_sms", gsm_a_stat_gtk_dtap_sms_init,NULL);
 
     register_stat_menu_item("GSM/A-Interface DTAP/GPRS Session Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_sm_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,dtap_sm", gsm_a_stat_gtk_dtap_sm_init);
+    register_stat_cmd_arg("gsm_a,dtap_sm", gsm_a_stat_gtk_dtap_sm_init,NULL);
 
     register_stat_menu_item("GSM/A-Interface DTAP/Supplementary Services", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_ss_cb, NULL, NULL, NULL);
-    register_stat_cmd_arg("gsm_a,dtap_ss", gsm_a_stat_gtk_dtap_ss_init);
+    register_stat_cmd_arg("gsm_a,dtap_ss", gsm_a_stat_gtk_dtap_ss_init,NULL);
 }

@@ -746,7 +746,7 @@ void voip_calls_dlg_reset(void *ptr _U_)
 /* init function for tap */
 /* Made extern only for "Fax T38 Analysis..." */
 void
-voip_calls_init_tap(const char *dummy _U_)
+voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 {
 	gint c;
 	gchar *data[NUM_COLS];
@@ -808,14 +808,14 @@ voip_calls_init_tap(const char *dummy _U_)
 /* entry point when called via the GTK menu */
 static void voip_calls_launch(GtkWidget *w _U_, gpointer data _U_)
 {
-	voip_calls_init_tap("");
+	voip_calls_init_tap("",NULL);
 }
 
 /****************************************************************************/
 void
 register_tap_listener_voip_calls_dlg(void)
 {
-	register_stat_cmd_arg("voip,calls",voip_calls_init_tap);
+	register_stat_cmd_arg("voip,calls",voip_calls_init_tap,NULL);
 	register_stat_menu_item("VoIP Calls", REGISTER_STAT_GROUP_TELEPHONY,
 	    voip_calls_launch, NULL, NULL, NULL);
 	    

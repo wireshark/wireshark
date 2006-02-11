@@ -69,7 +69,7 @@ smbsids_draw(void *pss _U_)
 
 
 static void
-smbsids_init(const char *optarg _U_)
+smbsids_init(const char *optarg _U_, void* userdata _U_)
 {
 	GString *error_string;
 
@@ -96,6 +96,6 @@ smbsids_init(const char *optarg _U_)
 void
 register_tap_listener_smbsids(void)
 {
-	register_stat_cmd_arg("smb,sids", smbsids_init);
+	register_stat_cmd_arg("smb,sids", smbsids_init,NULL);
 }
 

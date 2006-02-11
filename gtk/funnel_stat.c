@@ -269,12 +269,13 @@ static void text_window_set_text(funnel_text_window_t*  tw, const gchar* text)
 
 static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) {
     if (! tw->win) return; 
-
+    /* XXX todo */
 }
 
 static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
 
     if (! tw->win) return ""; 
+    /* XXX todo */
 
     return "";
 }
@@ -404,6 +405,16 @@ static void funnel_new_dialog(const gchar* title,
     gtk_widget_show(win);
 }
 
+
+/* XXX: finish this */
+static void funnel_logger(const gchar *log_domain _U_,
+                          GLogLevelFlags log_level _U_,
+                          const gchar *message,
+                          gpointer user_data _U_) {
+    fputs(message,stderr);
+}
+
+
 static const funnel_ops_t funnel_ops = {
     new_text_window,
     text_window_set_text,
@@ -414,7 +425,8 @@ static const funnel_ops_t funnel_ops = {
     text_window_set_close_cb,
     text_window_destroy,
     /*...,*/
-    funnel_new_dialog
+    funnel_new_dialog,
+    funnel_logger
 };
 
 

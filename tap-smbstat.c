@@ -206,7 +206,7 @@ smbstat_draw(void *pss)
 
 
 static void
-smbstat_init(const char *optarg)
+smbstat_init(const char *optarg,void* userdata _U_)
 {
 	smbstat_t *ss;
 	guint32 i;
@@ -276,6 +276,6 @@ smbstat_init(const char *optarg)
 void
 register_tap_listener_smbstat(void)
 {
-	register_stat_cmd_arg("smb,rtt", smbstat_init);
+	register_stat_cmd_arg("smb,rtt", smbstat_init,NULL);
 }
 

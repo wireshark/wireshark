@@ -281,7 +281,7 @@ httpstat_draw(void *psp  )
 /* When called, this function will create a new instance of gtk_httpstat.
  */
 static void
-gtk_httpstat_init(const char *optarg)
+gtk_httpstat_init(const char *optarg,void* userdata _U_)
 {
 	httpstat_t *sp;
 	const char *filter=NULL;
@@ -326,5 +326,5 @@ gtk_httpstat_init(const char *optarg)
 void
 register_tap_listener_gtkhttpstat(void)
 {
-	register_stat_cmd_arg("http,stat,", gtk_httpstat_init);
+	register_stat_cmd_arg("http,stat,", gtk_httpstat_init,NULL);
 }

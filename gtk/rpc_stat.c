@@ -216,7 +216,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-rpcstat.
  */
 static void
-gtk_rpcstat_init(const char *optarg)
+gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 {
 	rpcstat_t *rs;
 	guint32 i;
@@ -333,7 +333,7 @@ rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 		g_string_sprintfa(str, ",%s", filter);
 	}
 
-	gtk_rpcstat_init(str->str);
+	gtk_rpcstat_init(str->str,NULL);
 	g_string_free(str, TRUE);
 }
 
@@ -538,7 +538,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkrpcstat(void)
 {
-	register_stat_cmd_arg("rpc,srt,", gtk_rpcstat_init);
+	register_stat_cmd_arg("rpc,srt,", gtk_rpcstat_init, NULL);
 
 	register_stat_menu_item("ONC-RPC...", REGISTER_STAT_GROUP_RESPONSE_TIME,
 	    gtk_rpcstat_cb, NULL, NULL, NULL);

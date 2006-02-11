@@ -273,7 +273,7 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
  * new instance for the rpc tap.
  */
 static void
-rpcstat_init(const char *optarg)
+rpcstat_init(const char *optarg, void* userdata _U_)
 {
 	rpcstat_t *rs;
 	guint32 i;
@@ -356,6 +356,6 @@ rpcstat_init(const char *optarg)
 void
 register_tap_listener_rpcstat(void)
 {
-	register_stat_cmd_arg("rpc,rtt,", rpcstat_init);
+	register_stat_cmd_arg("rpc,rtt,", rpcstat_init,NULL);
 }
 

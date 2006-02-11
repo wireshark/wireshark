@@ -55,7 +55,7 @@ fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 
 static void
-fc_conversation_init(const char *optarg)
+fc_conversation_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
@@ -73,14 +73,14 @@ fc_conversation_init(const char *optarg)
 static void
 fc_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	fc_conversation_init("conv,fc");
+	fc_conversation_init("conv,fc",NULL);
 }
 
 
 void
 register_tap_listener_fc_conversation(void)
 {
-	register_stat_cmd_arg("conv,fc", fc_conversation_init);
+	register_stat_cmd_arg("conv,fc", fc_conversation_init, NULL);
 
 	register_stat_menu_item("Fibre Channel", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    fc_endpoints_cb, NULL, NULL, NULL);
