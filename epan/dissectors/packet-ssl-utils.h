@@ -38,6 +38,7 @@
 
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
+#define SSL_DEBUG_USE_STDERR "-"
 
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
 #ifdef SSL_FAST
@@ -211,6 +212,8 @@ extern void
 ssl_print_string(const char* name, const StringInfo* data);
 extern void 
 ssl_print_text_data(const char* name, const unsigned char* data, int len);
+extern void 
+ssl_set_debug(char* name);
 #else
 
 /* No debug: nullify debug operation*/
@@ -221,6 +224,8 @@ ssl_debug_printf(const char* fmt _U_,...)
 #define ssl_print_data(a, b, c)
 #define ssl_print_string(a, b)
 #define ssl_print_text_data(a, b, c)
+#define ssl_set_debug(name)
+
 #endif
 
 #endif

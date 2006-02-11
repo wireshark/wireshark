@@ -1180,22 +1180,10 @@ void ssl_free_key(SSL_PRIVATE_KEY* key)
 #endif
 }
 
-#ifdef SSL_DECRYPT_DEBUG
-static FILE* myout=NULL;
-#endif
 void 
 ssl_lib_init(void)
 {
     gnutls_global_init();
-
-#ifdef SSL_DECRYPT_DEBUG    
-#ifdef _WIN32
-    /* we don't have standard I/O file available, open a log */
-    myout = fopen("ssl-decrypt.txt","w");
-    if (!myout)
-#endif /* _WIN32 */
-        myout = stderr;
-#endif /* SSL_DECRYPT_DEBUG */
 }
 
 #else /* HAVE_LIBGNUTLS */
@@ -1268,41 +1256,70 @@ ssl_session_init(SslDecryptSession* ssl_session)
 }
 
 #ifdef SSL_DECRYPT_DEBUG
+
+static FILE* ssl_debug_file=NULL;
+
+void 
+ssl_set_debug(char* name)
+{
+    static int debug_file_must_be_closed = 0;
+    int use_stderr = name?(strcmp(name, SSL_DEBUG_USE_STDERR) == 0):0;
+    
+    if (debug_file_must_be_closed)
+        fclose(ssl_debug_file);
+    if (use_stderr)    
+        ssl_debug_file = stderr;    
+    else if (!name || (strcmp(name, "") ==0))
+        ssl_debug_file = NULL;
+    else
+        ssl_debug_file = fopen(name, "w");    
+    if (!use_stderr && ssl_debug_file)
+        debug_file_must_be_closed = 1;
+}
+
+
 void 
 ssl_debug_printf(const char* fmt, ...)
 {
-  va_list ap;
-  int ret=0;
-  va_start(ap, fmt);
-  ret += vfprintf(myout, fmt, ap);
-  va_end(ap);
-  fflush(myout);
+    va_list ap;
+    int ret=0;
+    if (!ssl_debug_file)  
+        return;
+    
+    va_start(ap, fmt);
+    ret += vfprintf(ssl_debug_file, fmt, ap);
+    va_end(ap);
+    fflush(ssl_debug_file);
 }
 
 void 
 ssl_print_text_data(const char* name, const unsigned char* data, int len)
 {
     int i;
-    fprintf(myout,"%s: ",name);
+    if (!ssl_debug_file)  
+        return;
+    fprintf(ssl_debug_file,"%s: ",name);
     for (i=0; i< len; i++) {
-      fprintf(myout,"%c",data[i]);
+      fprintf(ssl_debug_file,"%c",data[i]);
     }
-    fprintf(myout,"\n");
-    fflush(myout);
+    fprintf(ssl_debug_file,"\n");
+    fflush(ssl_debug_file);
 }
 
 void 
 ssl_print_data(const char* name, const unsigned char* data, int len)
 {
     int i;
-    fprintf(myout,"%s[%d]:\n",name, len);
+    if (!ssl_debug_file)  
+        return;
+    fprintf(ssl_debug_file,"%s[%d]:\n",name, len);
     for (i=0; i< len; i++) {
         if ((i>0) && (i%16 == 0))
-            fprintf(myout,"\n");
-        fprintf(myout,"%.2x ",data[i]&255);
+            fprintf(ssl_debug_file,"\n");
+        fprintf(ssl_debug_file,"%.2x ",data[i]&255);
     }
-    fprintf(myout,"\n");
-    fflush(myout);
+    fprintf(ssl_debug_file,"\n");
+    fflush(ssl_debug_file);
 }
 
 void 

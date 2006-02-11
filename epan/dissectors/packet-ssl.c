@@ -219,6 +219,7 @@ typedef struct {
 
 static char* ssl_keys_list = NULL;
 static char* ssl_ports_list = NULL;
+static char* ssl_debug_file_name = NULL;
 
 typedef struct _SslService {
     address addr;
@@ -340,7 +341,8 @@ ssl_association_remove_handle (gpointer key _U_,
     return 0;
 }
 
-static inline int ssl_packet_from_server(unsigned int port)
+static inline int 
+ssl_packet_from_server(unsigned int port)
 {
     register int ret = ssl_association_find(port) != 0;
     ssl_debug_printf("ssl_packet_from_server: is from server %d\n", ret);    
@@ -348,7 +350,8 @@ static inline int ssl_packet_from_server(unsigned int port)
 }    
 
 /* initialize/reset per capture state data (ssl sessions cache) */
-static void ssl_init(void)
+static void 
+ssl_init(void)
 {
     if (ssl_session_hash)
         g_hash_table_destroy(ssl_session_hash);
@@ -360,7 +363,8 @@ static void ssl_init(void)
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
-static void ssl_parse(void)
+static void 
+ssl_parse(void)
 {
     if (ssl_key_hash)
     {
@@ -497,6 +501,8 @@ static void ssl_parse(void)
         } while (end != NULL);
         free(tmp);
     }
+    
+    ssl_set_debug(ssl_debug_file_name);
 
     /* [re] add ssl dissection to defaults ports */
     ssl_association_add(443, 80, "Hypertext transfer protocol");
@@ -506,7 +512,8 @@ static void ssl_parse(void)
 }
 
 /* store master secret into session data cache */
-static void ssl_save_session(SslDecryptSession* ssl)
+static void 
+ssl_save_session(SslDecryptSession* ssl)
 {
     /* allocate stringinfo chunks for session id and master secret data*/
     StringInfo* session_id = se_alloc0(sizeof(StringInfo) + ssl->session_id.data_len);
@@ -522,7 +529,8 @@ static void ssl_save_session(SslDecryptSession* ssl)
     ssl_print_string("ssl_save_session stored master secret", master_secret);
 }
 
-static void ssl_restore_session(SslDecryptSession* ssl)
+static void 
+ssl_restore_session(SslDecryptSession* ssl)
 {
     StringInfo* ms = g_hash_table_lookup(ssl_session_hash, &ssl->session_id);
     if (!ms) {
