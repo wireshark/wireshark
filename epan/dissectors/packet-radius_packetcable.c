@@ -258,7 +258,7 @@ static void decode_packetcable_bcid (tvbuff_t *tvb, proto_tree *tree, int offset
 						tvb, offset + 20, 4, FALSE);
 }
 
-static gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb) {
 	guint8 packetcable_buf[64];
 	proto_item *ti;
 	proto_tree *obj_tree;
@@ -290,7 +290,7 @@ static gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb) {
 	return "";
 }
 
-static gchar* dissect_packetcable_call_term_cause(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_call_term_cause(proto_tree* tree, tvbuff_t* tvb) {
 	proto_tree_add_item(tree, hf_packetcable_call_termination_cause_source_document,
 						tvb, 0, 2, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_call_termination_cause_code,
@@ -299,12 +299,12 @@ static gchar* dissect_packetcable_call_term_cause(proto_tree* tree, tvbuff_t* tv
 	return "";
 }
 
-static gchar* dissect_packetcable_rel_call_billing_correlation(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_rel_call_billing_correlation(proto_tree* tree, tvbuff_t* tvb) {
 	decode_packetcable_bcid(tvb, tree, 0);
 	return "";
 }
 
-static gchar* dissect_packetcable_trunk_group_id(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_trunk_group_id(proto_tree* tree, tvbuff_t* tvb) {
 	proto_tree_add_item(tree, hf_packetcable_trunk_group_id_trunk_type,
 						tvb, 0, 2, FALSE);
 	proto_tree_add_item(tree, hf_packetcable_trunk_group_id_trunk_number,
@@ -312,7 +312,7 @@ static gchar* dissect_packetcable_trunk_group_id(proto_tree* tree, tvbuff_t* tvb
 	return "";
 }
 
-static gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb) {
 	guint8 packetcable_buf[64];
 	guint32 intval;
 	guint32 packetcable_qos_flags = tvb_get_ntohl(tvb, 0);
@@ -343,13 +343,13 @@ static gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb
 	return "";
 }
 
-static gchar* dissect_packetcable_time_adjustment(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_time_adjustment(proto_tree* tree, tvbuff_t* tvb) {
 	proto_tree_add_item(tree, hf_packetcable_time_adjustment, tvb, 0, 8, FALSE);
 
 	return "";
 }
 
-static gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, tvbuff_t* tvb) {
 	guint8 packetcable_buf[64];
 
 	tvb_memcpy(tvb, packetcable_buf, 0, 20); packetcable_buf[20] = '\0';
@@ -366,7 +366,7 @@ static gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, tvbuff_
 	return "";
 }
 
-static gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_t* tvb) {
 
 	if (tvb_length(tvb) == 0)
 		return "None";
@@ -384,7 +384,7 @@ static gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_
 	return "";
 }
 
-static gchar* dissect_packetcable_surv_df_sec(proto_tree* tree _U_, tvbuff_t* tvb _U_) {
+static const gchar* dissect_packetcable_surv_df_sec(proto_tree* tree _U_, tvbuff_t* tvb _U_) {
 		return "";
 }
 
@@ -393,7 +393,7 @@ static gchar* dissect_packetcable_surv_df_sec(proto_tree* tree _U_, tvbuff_t* tv
 #define PACKETCABLE_CALLING_NAME    (1 << 2)
 #define PACKETCABLE_MESSAGE_WAITING (1 << 3)
 
-static gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff_t* tvb) {
 	guint8 bitmask = tvb_get_guint8(tvb, 2);
 	guint intval = 1;
 	proto_item* ti = proto_tree_add_item(tree, hf_packetcable_terminal_display_info_terminal_display_status_bitmask,
