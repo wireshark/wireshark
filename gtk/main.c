@@ -178,7 +178,6 @@ GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
 
-gboolean             capture_child; /* True if this is the child for "-S" */
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
 static void destroy_console(void);
@@ -1869,9 +1868,6 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 int
 main(int argc, char *argv[])
 {
-#ifdef HAVE_LIBPCAP
-  const char          *command_name;
-#endif
   char                *s;
   int                  i;
   int                  opt;
@@ -1895,8 +1891,6 @@ main(int argc, char *argv[])
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
-  gboolean             stats_known;
-  struct pcap_stat     stats;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -2094,9 +2088,6 @@ main(int argc, char *argv[])
   g_log_set_handler(LOG_DOMAIN_CAPTURE,
 		    log_flags,
             console_log_handler, NULL /* user_data */);
-  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-		    log_flags,
-            console_log_handler, NULL /* user_data */);
 
   /* Set the initial values in the capture_opts. This might be overwritten 
      by preference settings and then again by the command line parameters. */
@@ -2104,22 +2095,10 @@ main(int argc, char *argv[])
 
   capture_opts->snaplen             = MIN_PACKET_SIZE;
   capture_opts->has_ring_num_files  = TRUE;
-
-  command_name = get_basename(ethereal_path);
-  /* Set "capture_child" to indicate whether this is going to be a child
-     process for a "-S" capture. */
-  capture_child = (strcmp(command_name, CHILD_NAME) == 0);
-  if (capture_child) {
-    strcat(optstring, OPTSTRING_CHILD);
-  }
 #endif
 
-  /* We want a splash screen only if we're not a child process.
-     We won't come till here, if we had a "console only" command line parameter. */
-#ifdef HAVE_LIBPCAP
-  if (!capture_child)
-#endif
-    splash_win = splash_new("Loading Ethereal ...");
+  /* We won't come till here, if we had a "console only" command line parameter. */
+  splash_win = splash_new("Loading Ethereal ...");
 
   splash_update(splash_win, "Init dissectors ...");
 
@@ -2209,23 +2188,12 @@ main(int argc, char *argv[])
 #endif
 
 #ifdef HAVE_LIBPCAP
-  /* If this is a capture child process, it should pay no attention
-     to the "prefs.capture_prom_mode" setting in the preferences file;
-     it should do what the parent process tells it to do, and if
-     the parent process wants it not to run in promiscuous mode, it'll
-     tell it so with a "-p" flag.
-
-     Otherwise, set promiscuous mode from the preferences setting. */
+  /* Set promiscuous mode from the preferences setting. */
   /* the same applies to other preferences settings as well. */
-  if (capture_child) {
-    auto_scroll_live             = FALSE;
-  } else {
     capture_opts->promisc_mode   = prefs->capture_prom_mode;
     capture_opts->show_info      = prefs->capture_show_info;
     capture_opts->real_time_mode = prefs->capture_real_time;
     auto_scroll_live             = prefs->capture_auto_scroll;
-  }
-
 #endif /* HAVE_LIBPCAP */
 
   /* Set the name resolution code's flags from the preferences. */
@@ -2625,42 +2593,10 @@ main(int argc, char *argv[])
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 
-#ifdef HAVE_LIBPCAP
-  font_init(capture_child);
-#else
   font_init(FALSE);
-#endif
 
   /* close the splash screen, as we are going to open the main window now */
   splash_destroy(splash_win);
-
-
-#ifdef HAVE_LIBPCAP
-  /* Is this a "child" ethereal, which is only supposed to pop up a
-     capture box to let us stop the capture, and run a capture
-     to a file that our parent will read? */
-  if (capture_child) {
-    /* This is the child process of a capture session,
-       so just do the low-level work of a capture - don't create
-       a temporary file and fork off *another* child process (so don't
-       call "capture_start()"). */
-
-    /* Pop up any queued-up alert boxes. */
-    display_queued_messages();
-
-    /* Now start the capture. 
-       After the capture is done; there's nothing more for us to do. */
-
-    /* XXX - hand these stats to the parent process */
-    if(capture_loop_start(capture_opts, &stats_known, &stats) == TRUE) {
-        /* capture ok */
-        gtk_exit(0);
-    } else {
-        /* capture failed */
-        gtk_exit(1);
-    }
-  }
-#endif
 
   /***********************************************************************/
   /* Everything is prepared now, preferences and command line was read in,
@@ -2895,18 +2831,14 @@ create_console(void)
        the message(s) we put in there). */
     atexit(destroy_console);
 
-	if(capture_child) {
-		SetConsoleTitle("Ethereal Capture Child Debug Console");
-	} else {
-		SetConsoleTitle("Ethereal Debug Console");
-	}
+	SetConsoleTitle("Ethereal Debug Console");
   }
 }
 
 static void
 destroy_console(void)
 {
-  if (has_console && !capture_child) {
+  if (has_console) {
     printf("\n\nPress any key to exit\n");
     _getch();
     FreeConsole();

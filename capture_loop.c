@@ -1100,19 +1100,22 @@ capture_loop_stop_signal_handler(int signo _U_)
 static gboolean
 signal_pipe_stopped(void)
 {
-    /* some news from our parent (signal pipe)? -> just stop the capture */
+    /* any news from our parent (stdin)? -> just stop the capture */
     HANDLE handle;
     DWORD avail = 0;
     gboolean result;
 
 
-    handle = (HANDLE) _get_osfhandle (0);
+    handle = (HANDLE) GetStdHandle(STD_INPUT_HANDLE);
     result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-    /*g_warning("check pipe: handle: %x result: %u avail: %u", handle, result, avail);*/
 
     if(!result || avail > 0) {
         /* peek failed or some bytes really available */
+
+        /* XXX - if not piping from stdin this fails */
+        /*g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+            "Signal pipe: handle: %x result: %u avail: %u", handle, result, avail);
+        return FALSE;*/
         return TRUE;
     } else {
         /* pipe ok and no bytes available */
@@ -1247,10 +1250,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
 
 #ifdef _WIN32
-    /*fprintf(stderr, "fd: %u ret: %u\n", capture_opts->signal_pipe_fd, signal_pipe_stopped());*/
+    /*fprintf(stderr, "signal pipe ret: %u\n", signal_pipe_stopped());*/
 
     /* any news from our parent (signal pipe)? -> just stop the capture */
-    if (capture_opts->signal_pipe_fd != -1 && signal_pipe_stopped()) {
+    if (signal_pipe_stopped()) {
       ld.go = FALSE;
     }
 #endif

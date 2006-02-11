@@ -136,7 +136,6 @@ ethereal_SOURCES =	\
 	alert_box.c	\
 	capture.c	\
 	capture_info.c	\
-	capture_loop.c	\
 	capture_opts.c \
 	capture_sync.c	\
 	color_filters.c	\

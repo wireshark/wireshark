@@ -89,7 +89,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 
   capture_opts->fork_child              = -1;               /* invalid process handle */
 #ifdef _WIN32
-  capture_opts->signal_pipe_fd          = -1;
+  capture_opts->signal_pipe_write_fd    = -1;
 #endif
   capture_opts->state                   = CAPTURE_STOPPED;
   capture_opts->output_to_pipe          = FALSE;
@@ -125,7 +125,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
     g_log(log_domain, log_level, "ForkChild          : %d", capture_opts->fork_child);
 #ifdef _WIN32
-    g_log(log_domain, log_level, "SignalPipeFd       : %d", capture_opts->signal_pipe_fd);
+    g_log(log_domain, log_level, "SignalPipeWrite    : %d", capture_opts->signal_pipe_write_fd);
 #endif
 }
 
@@ -229,67 +229,6 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
   *colonp = ':';	/* put the colon back */
   return TRUE;
 }
-
-
-#ifdef _WIN32
-/*
- * Given a string of the form "<pipe name>:<file descriptor>", as might appear
- * as an argument to a "-Z" option, parse it and set the arguments in
- * question.  Return an indication of whether it succeeded or failed
- * in some fashion.
- */
-static gboolean
-get_pipe_arguments(capture_options *capture_opts, const char *arg)
-{
-  gchar *p = NULL, *colonp;
-  int pipe_fd;
-
-
-  colonp = strchr(arg, ':');
-  if (colonp == NULL)
-    return TRUE;
-
-  p = colonp;
-  *p++ = '\0';
-
-  /*
-   * Skip over any white space (there probably won't be any, but
-   * as we allow it in the preferences file, we might as well
-   * allow it here).
-   */
-  while (isspace((guchar)*p))
-    p++;
-  if (*p == '\0') {
-    /*
-     * Put the colon back, so if our caller uses, in an
-     * error message, the string they passed us, the message
-     * looks correct.
-     */
-    *colonp = ':';
-    return FALSE;
-  }
-
-  if (strcmp(arg,"sync") == 0) {
-    /* associate stdout with sync pipe */
-    pipe_fd = get_natural_int(p, "sync pipe file descriptor");
-    if (dup2(pipe_fd, 1) < 0) {
-      cmdarg_err("Unable to dup sync pipe handle");
-      return FALSE;
-    }
-  } else if (strcmp(arg,"signal") == 0) {
-    /* associate stdin with signal pipe */
-    pipe_fd = get_natural_int(p, "signal pipe file descriptor");
-    if (dup2(pipe_fd, 0) < 0) {
-      cmdarg_err("Unable to dup signal pipe handle");
-      return FALSE;
-    }
-    capture_opts->signal_pipe_fd = pipe_fd;
-  }
-
-  *colonp = ':';	/* put the colon back */
-  return TRUE;
-}
-#endif
 
 
 static int
@@ -441,15 +380,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->linktype = get_natural_int(optarg, "data link type");
 #endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         break;
-#ifdef _WIN32
-      /* Hidden option supporting Sync mode */
-    case 'Z':        /* Write to pipe FD XXX */
-       if (get_pipe_arguments(capture_opts, optarg) == FALSE) {
-          cmdarg_err("Invalid or unknown -Z flag \"%s\"", optarg);
-          return 1;
-        }
-        break;
-#endif /* _WIN32 */
     default:
         /* the caller is responsible to send us only the right opt's */
         g_assert_not_reached();

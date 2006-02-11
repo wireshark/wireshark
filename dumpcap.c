@@ -42,10 +42,6 @@
 #include <netdb.h>
 #endif
 
-#ifdef _WIN32 /* Needed for console I/O */
-#include <conio.h>
-#endif
-
 #include "ringbuffer.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
@@ -69,14 +65,8 @@
 
 
 
-gboolean capture_child; /* True if this is an Ethereal capture child */
+gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Ethereal capture child */
 
-/* Win32 console handling */
-#ifdef _WIN32
-static gboolean has_console = FALSE;	        /* TRUE if app has console */
-static void create_console(void);
-static void destroy_console(void);
-#endif
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 		    const char *message, gpointer user_data _U_);
@@ -99,9 +89,6 @@ print_usage(gboolean print_ver) {
 
   FILE *output;
 
-#ifdef _WIN32
-  create_console();
-#endif
 
   if (print_ver) {
     output = stdout;
@@ -152,9 +139,6 @@ print_usage(gboolean print_ver) {
 static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-#ifdef _WIN32
-  create_console();
-#endif
 
   printf(
         "Dumpcap " VERSION "%s\n"
@@ -177,9 +161,6 @@ cmdarg_err(const char *fmt, ...)
 {
   va_list ap;
 
-#ifdef _WIN32
-  create_console();
-#endif
   va_start(ap, fmt);
   fprintf(stderr, "dumpcap: ");
   vfprintf(stderr, fmt, ap);
@@ -198,9 +179,6 @@ cmdarg_err_cont(const char *fmt, ...)
 {
   va_list ap;
 
-#ifdef _WIN32
-  create_console();
-#endif
   va_start(ap, fmt);
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
@@ -218,18 +196,20 @@ BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 }
 #endif
 
-void exit_main(int err)
+void exit_main(int status)
 {
 #ifdef _WIN32
   /* Shutdown windows sockets */
   WSACleanup();
-
-  destroy_console();
 #endif
 
   /* can be helpful for debugging */
-  /* _getch(); */
-  exit(err);
+#ifdef DEBUG_DUMPCAP
+  printf("Press any key\n");
+  _getch();
+#endif
+
+  exit(status);
 }
 
 
@@ -254,19 +234,16 @@ main(int argc, char *argv[])
   gboolean             list_link_layer_types = FALSE;
   int                  status;
 
-#define OPTSTRING_INIT "a:b:c:Df:hi:Lps:vw:y:"
+#define OPTSTRING_INIT "a:b:c:Df:hi:Lps:vw:y:Z"
 
 #ifdef _WIN32
-#define OPTSTRING_WIN32 "B:Z:"
+#define OPTSTRING_WIN32 "B:"
 #else
 #define OPTSTRING_WIN32 ""
 #endif  /* _WIN32 */
 
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
     OPTSTRING_INIT OPTSTRING_WIN32;
-
-
-  capture_child = (strcmp(get_basename(argv[0]), CHILD_NAME) == 0);
 
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
@@ -356,14 +333,16 @@ main(int argc, char *argv[])
       case 'y':        /* Set the pcap data link type */
 #ifdef _WIN32
       case 'B':        /* Buffer size */
-      /* Hidden option supporting Sync mode */
-      case 'Z':        /* Write to pipe FD x */
 #endif /* _WIN32 */
         status = capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
             exit_main(status);
         }
         break;
+      /*** hidden option: Ethereal child mode (using binary output messages) ***/
+      case 'Z':
+          capture_child = TRUE;
+          break;
 
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
@@ -454,7 +433,6 @@ main(int argc, char *argv[])
 
   /* Now start the capture. */
 
-  /* XXX - hand the stats to the parent process */
   if(capture_loop_start(capture_opts, &stats_known, &stats) == TRUE) {
       /* capture ok */
       exit_main(0);
@@ -463,68 +441,6 @@ main(int argc, char *argv[])
       exit_main(1);
   }
 }
-
-#ifdef _WIN32
-
-/* We build this as a GUI subsystem application on Win32, so
-   "WinMain()", not "main()", gets called.
-
-   Hack shamelessly stolen from the Win32 port of the GIMP. */
-#ifdef __GNUC__
-#define _stdcall  __attribute__((stdcall))
-#endif
-
-int _stdcall
-WinMain (struct HINSTANCE__ *hInstance,
-	 struct HINSTANCE__ *hPrevInstance,
-	 char               *lpszCmdLine,
-	 int                 nCmdShow)
-{
-  has_console = FALSE;
-  return main (__argc, __argv);
-}
-
-/*
- * If this application has no console window to which its standard output
- * would go, create one.
- */
-void
-create_console(void)
-{
-  if (!has_console) {
-    /* We have no console to which to print the version string, so
-       create one and make it the standard input, output, and error. */
-    if (!AllocConsole())
-      return;   /* couldn't create console */
-    eth_freopen("CONIN$", "r", stdin);
-    eth_freopen("CONOUT$", "w", stdout);
-    eth_freopen("CONOUT$", "w", stderr);
-
-    /* Well, we have a console now. */
-    has_console = TRUE;
-
-    /* Now register "destroy_console()" as a routine to be called just
-       before the application exits, so that we can destroy the console
-       after the user has typed a key (so that the console doesn't just
-       disappear out from under them, giving the user no chance to see
-       the message(s) we put in there). */
-    atexit(destroy_console);
-
-    SetConsoleTitle("Dumpcap Console");
-  }
-}
-
-static void
-destroy_console(void)
-{
-  if (has_console) {
-/* XXX - doesn't make sense while we're linked as a console application */
-/*    printf("\n\nPress any key to exit\n");
-    _getch();*/
-    FreeConsole();
-  }
-}
-#endif /* _WIN32 */
 
 
 /* This routine should not be necessary, at least as I read the GLib
@@ -548,22 +464,15 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
   /* ignore log message, if log_level isn't interesting */
   if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
+#ifndef DEBUG_DUMPCAP
     return;
+#endif
   }
 
   /* create a "timestamp" */
   time(&curr);
   today = localtime(&curr);    
 
-#ifdef _WIN32
-  if(!capture_child) {
-    create_console();
-  }
-  if (has_console) {
-    /* For some unknown reason, the above doesn't appear to actually cause
-       anything to be sent to the standard output, so we'll just splat the
-       message out directly, just to make sure it gets out. */
-#endif
     switch(log_level & G_LOG_LEVEL_MASK) {
     case G_LOG_LEVEL_ERROR:
         level = "Err ";
@@ -594,11 +503,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
             today->tm_hour, today->tm_min, today->tm_sec,
             log_domain != NULL ? log_domain : "",
             level, message);
-#ifdef _WIN32
-  } else {
-    g_log_default_handler(log_domain, log_level, message, user_data);
-  }
-#endif
 }
 
 /****************************************************************************************************************/
@@ -778,67 +682,4 @@ _U_
 #endif
 }
 
-
-/****************************************************************************************************************/
-/* functions copied from epan */
-
-/*
- * Given a pathname, return a pointer to the last pathname separator
- * character in the pathname, or NULL if the pathname contains no
- * separators.
- */
-static char *
-find_last_pathname_separator(const char *path)
-{
-	char *separator;
-
-#ifdef _WIN32
-	char c;
-
-	/*
-	 * We have to scan for '\' or '/'.
-	 * Get to the end of the string.
-	 */
-	separator = strchr(path, '\0');		/* points to ending '\0' */
-	while (separator > path) {
-		c = *--separator;
-		if (c == '\\' || c == '/')
-			return separator;	/* found it */
-	}
-
-	/*
-	 * OK, we didn't find any, so no directories - but there might
-	 * be a drive letter....
-	 */
-	return strchr(path, ':');
-#else
-	separator = strrchr(path, '/');
-#endif
-	return separator;
-}
-
-/*
- * Given a pathname, return the last component.
- */
-const char *
-get_basename(const char *path)
-{
-	const char *filename;
-
-	g_assert(path != NULL);
-	filename = find_last_pathname_separator(path);
-	if (filename == NULL) {
-		/*
-		 * There're no directories, drive letters, etc. in the
-		 * name; the pathname *is* the file name.
-		 */
-		filename = path;
-	} else {
-		/*
-		 * Skip past the pathname or drive letter separator.
-		 */
-		filename++;
-	}
-	return filename;
-}
 

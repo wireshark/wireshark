@@ -91,7 +91,7 @@ typedef struct capture_options_tag {
     /* internally used (don't touch from outside) */
     int fork_child;	            /**< If not -1, in parent, process ID of child */
 #ifdef _WIN32
-    int signal_pipe_fd;         /**< the pipe to signal the child */
+    int signal_pipe_write_fd;   /**< the pipe to signal the child */
 #endif
     capture_state state;        /**< current state of the capture engine */
     gboolean output_to_pipe;    /**< save_file is a pipe (named or stdout) */

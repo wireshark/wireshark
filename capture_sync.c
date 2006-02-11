@@ -153,6 +153,18 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
     /*g_warning("write %d leave", pipe);*/
 }
 
+#ifdef _WIN32
+static void
+signal_pipe_capquit_to_child(capture_options *capture_opts)
+{
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
+
+    pipe_write_block(capture_opts->signal_pipe_write_fd, SP_QUIT, 0, NULL);
+}
+#endif
+
+
 
 /* read a message from the sending pipe in the standard format 
    (1-byte message indicator, 3-byte message length (excluding length
@@ -195,7 +207,9 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
         return 4;
     }
 
-    g_assert(required <= len);
+    if(required > len) {
+        return -1;
+    }
     len = required;
 
     /* read value */
@@ -216,59 +230,6 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     return len + 4;
 }
 
-void
-sync_pipe_packet_count_to_parent(int packet_count)
-{
-    char tmp[SP_DECISIZE+1+1];
-
-    g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);
-
-    pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
-}
-
-void
-sync_pipe_filename_to_parent(const char *filename)
-{
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_filename_to_parent: %s", filename);
-
-    pipe_write_block(1, SP_FILE, strlen(filename)+1, filename);
-}
-
-void
-sync_pipe_errmsg_to_parent(const char *errmsg)
-{
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_errmsg_to_parent: %s", errmsg);
-
-    pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
-}
-
-void
-sync_pipe_drops_to_parent(int drops)
-{
-    char tmp[SP_DECISIZE+1+1];
-
-
-    g_snprintf(tmp, sizeof(tmp), "%d", drops);
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_drops_to_parent: %s", tmp);
-
-    pipe_write_block(1, SP_DROPS, strlen(tmp)+1, tmp);
-}
-
-
-#ifdef _WIN32
-
-static void
-signal_pipe_capquit_to_child(capture_options *capture_opts)
-{
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
-
-    pipe_write_block(capture_opts->signal_pipe_fd, SP_QUIT, 0, NULL);
-}
-#endif
 
 
 /* Add a string pointer to a NULL-terminated array of string pointers. */
@@ -311,18 +272,27 @@ sync_pipe_start(capture_options *capture_opts) {
     char sautostop_duration[ARGV_NUMBER_LEN];
 #ifdef _WIN32
     char buffer_size[ARGV_NUMBER_LEN];
-    char sync_pipe_fd[ARGV_NUMBER_LEN];
-    char signal_pipe_fd[ARGV_NUMBER_LEN];
     char *filterstring;
     char *savefilestring;
-    int signal_pipe[2];                     /* pipe used to send messages from parent to child (currently only stop) */
+    HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
+    HANDLE sync_pipe_write;                 /* pipe used to send messages from child to parent */
+    HANDLE signal_pipe_read;                /* pipe used to send messages from parent to child (currently only stop) */
+    HANDLE signal_pipe_write;               /* pipe used to send messages from parent to child (currently only stop) */
+    GString *args = g_string_sized_new(200);
+    SECURITY_ATTRIBUTES sa; 
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    int i;
 #else
     char errmsg[1024+1];
+    int sync_pipe[2];                       /* pipe used to send messages from child to parent */
+    enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #endif
+    int sync_pipe_read_fd;
+    char *dirname;
+    char *exename;
     int argc;
     const char **argv;
-    enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
-    int sync_pipe[2];                       /* pipe used to send messages from child to parent */
 
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_start");
@@ -335,9 +305,6 @@ sync_pipe_start(capture_options *capture_opts) {
     argc = 0;
     argv = g_malloc(sizeof (char *));
     *argv = NULL;
-
-    /* Now add those arguments used on all platforms. */
-    argv = sync_pipe_add_arg(argv, &argc, CHILD_NAME);
 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->iface);
@@ -406,43 +373,20 @@ sync_pipe_start(capture_options *capture_opts) {
     if (!capture_opts->promisc_mode)
       argv = sync_pipe_add_arg(argv, &argc, "-p");
 
+    /* dumpcap should be running in capture child mode (hidden feature) */
+#ifndef DEBUG_CHILD
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#endif
+
+    /* take ethereal's absolute program path and replace ethereal with dumpcap */
+    dirname = get_dirname(g_strdup(ethereal_path));
+    exename = g_strdup_printf("\"%s" G_DIR_SEPARATOR_S "dumpcap\"", dirname);
+    g_free(dirname);
+
 #ifdef _WIN32
-    /* Create a pipe for the child process */
-    /* (inrease this value if you have trouble while fast capture file switches) */
-    if(_pipe(sync_pipe, 5120, O_BINARY) < 0) {
-      /* Couldn't create the pipe between parent and child. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
-                        strerror(errno));
-      g_free( (gpointer) argv);
-      return FALSE;
-    }
-
-    /* Create a pipe for the parent process */
-    if(_pipe(signal_pipe, 512, O_BINARY) < 0) {
-      /* Couldn't create the signal pipe between parent and child. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create signal pipe: %s",
-                        strerror(errno));
-      eth_close(sync_pipe[PIPE_READ]);
-      eth_close(sync_pipe[PIPE_WRITE]);
-      g_free( (gpointer) argv);
-      return FALSE;
-    }
-
-    capture_opts->signal_pipe_fd = signal_pipe[PIPE_WRITE];
-
     argv = sync_pipe_add_arg(argv, &argc, "-B");
     g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d",capture_opts->buffer_size);
     argv = sync_pipe_add_arg(argv, &argc, buffer_size);
-
-    /* Convert sync pipe write handle to a string and pass to child */
-    argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    g_snprintf(sync_pipe_fd, ARGV_NUMBER_LEN, "sync:%d",sync_pipe[PIPE_WRITE]);
-    argv = sync_pipe_add_arg(argv, &argc, sync_pipe_fd);
-
-    /* Convert signal pipe read handle to a string and pass to child */
-    argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    g_snprintf(signal_pipe_fd, ARGV_NUMBER_LEN, "signal:%d",signal_pipe[PIPE_READ]);
-    argv = sync_pipe_add_arg(argv, &argc, signal_pipe_fd);
 
     /* Convert filter string to a quote delimited string and pass to child */
     filterstring = NULL;
@@ -460,73 +404,74 @@ sync_pipe_start(capture_options *capture_opts) {
       argv = sync_pipe_add_arg(argv, &argc, savefilestring);
     }
 
-    /* Spawn process */
-#if 0
-    {
-        /* XXX - very experimental using dumpcap as the capture child */
-        /* currently not working, the pipe handles seem to make problems ... */
-        char *dirname;
-        GString *args = g_string_sized_new(200);
-        STARTUPINFO si;
-        PROCESS_INFORMATION pi;
-        int i;
+    /* init SECURITY_ATTRIBUTES */
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES); 
+    sa.bInheritHandle = TRUE; 
+    sa.lpSecurityDescriptor = NULL; 
 
-        memset(&si, 0, sizeof(si));
-        si.cb           = sizeof(si);
-        si.dwFlags      = STARTF_USESHOWWINDOW;
-        si.wShowWindow  = SW_SHOW /* SW_HIDE */;
-#if 0
-        si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-        si.hStdInput = signal_pipe[PIPE_READ];
-        si.hStdOutput = sync_pipe[PIPE_WRITE];
-        si.hStdError = stderr;
+    /* Create a pipe for the child process */
+    /* (inrease this value if you have trouble while fast capture file switches) */
+    if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
+      /* Couldn't create the pipe between parent and child. */
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
+                        strerror(errno));
+      g_free( (gpointer) argv);
+      return FALSE;
+    }
+
+    /* Create a pipe for the parent process */
+    if (! CreatePipe(&signal_pipe_read, &signal_pipe_write, &sa, 512)) {
+      /* Couldn't create the signal pipe between parent and child. */
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create signal pipe: %s",
+                        strerror(errno));
+      CloseHandle(sync_pipe_read);
+      CloseHandle(sync_pipe_write);
+      g_free( (gpointer) argv);
+      return FALSE;
+    }
+
+    /* init STARTUPINFO */
+    memset(&si, 0, sizeof(si));
+    si.cb           = sizeof(si);
+#ifdef DEBUG_CHILD
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow  = SW_SHOW;
+#else
+    si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
+    si.wShowWindow  = SW_HIDE;  /* this hides the console window */
+    si.hStdInput = signal_pipe_read;
+    si.hStdOutput = sync_pipe_write;
+    si.hStdError = sync_pipe_write;
 #endif
 
-        /* take the ethereal programs path and replace ethereal with dumpcap */
-        dirname = get_dirname(g_strdup(ethereal_path));
-        g_string_sprintfa(args, "\"%s" G_DIR_SEPARATOR_S "dumpcap\"", dirname);
-        g_free(dirname);
+    g_string_append(args, exename);
 
-        for(i=1; argv[i] != 0; i++) {
-            g_string_append_c(args, ' ');
-            g_string_append(args, argv[i]);
-        }
-        
-        /* call dumpcap */
-        /*capture_opts->fork_child = spawnvp(_P_NOWAIT, exename, argv);*/
+    /* convert args array into a single string */
+    /* XXX - could change sync_pipe_add_arg() instead */
+    /* there is a drawback here: the length is internally limited to 1024 bytes */
+    for(i=0; argv[i] != 0; i++) {
+        g_string_append_c(args, ' ');
+        g_string_append(args, argv[i]);
+    }
+
+    /* call dumpcap */
         if(!CreateProcess(NULL, args->str, NULL, NULL, TRUE,
-            CREATE_NEW_CONSOLE,
-            NULL,
-            NULL,
-            &si,
-            &pi)) {
-            g_error("couldn't open child!");
-        }
-        capture_opts->fork_child = (int) pi.hProcess;
-        g_string_free(args, TRUE);
+        CREATE_NEW_CONSOLE,
+        NULL,
+        NULL,
+        &si,
+        &pi)) {
+        g_error("couldn't open dumpcap.exe!");
     }
-#endif
-#if 0
-    {
-        /* experiment to use dumpcap as the capture child */
-        /* Win32 will open a console window for the child, so very ugly ... */
-        char *dirname;
-        char *exename;
-        
-        /* take the ethereal programs path and replace ethereal with dumpcap */
-        dirname = get_dirname(g_strdup(ethereal_path));
-        exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", dirname);
-        g_free(dirname);
-        
-        /* call dumpcap */
-        capture_opts->fork_child = spawnvp(_P_NOWAIT, exename, argv);
-        g_free(exename);
-    }
-#endif
-#if 1
-    /* use Ethereal itself as the capture child */
-    capture_opts->fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
-#endif
+    capture_opts->fork_child = (int) pi.hProcess;
+    g_string_free(args, TRUE);
+
+    /* associate the operating system filehandle to a C run-time file handle */
+    sync_pipe_read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
+
+    /* associate the operating system filehandle to a C run-time file handle */
+    capture_opts->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe_write, _O_BINARY);
+
     if (filterstring) {
       g_free(filterstring);
     }
@@ -535,8 +480,8 @@ sync_pipe_start(capture_options *capture_opts) {
     }
 
     /* child own's the read side now, close our handle */
-    eth_close(signal_pipe[PIPE_READ]);
-#else
+    CloseHandle(signal_pipe_read);
+#else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
@@ -571,9 +516,9 @@ sync_pipe_start(capture_options *capture_opts) {
       eth_close(1);
       dup(sync_pipe[PIPE_WRITE]);
       eth_close(sync_pipe[PIPE_READ]);
-      execvp(ethereal_path, argv);
+      execvp(exename, argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
-		ethereal_path, strerror(errno));
+		exename, strerror(errno));
       sync_pipe_errmsg_to_parent(errmsg);
 
       /* Exit with "_exit()", so that we don't close the connection
@@ -582,7 +527,11 @@ sync_pipe_start(capture_options *capture_opts) {
 	 our parent). */
       _exit(2);
     }
+
+    sync_pipe_read_fd = sync_pipe[PIPE_READ];
 #endif
+
+    g_free(exename);
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
@@ -592,15 +541,19 @@ sync_pipe_start(capture_options *capture_opts) {
        open, and thus it completely closes, and thus returns to us
        an EOF indication, if the child closes it (either deliberately
        or by exiting abnormally). */
+#ifdef _WIN32
+    CloseHandle(sync_pipe_write);
+#else
     eth_close(sync_pipe[PIPE_WRITE]);
+#endif
 
     if (capture_opts->fork_child == -1) {
       /* We couldn't even create the child process. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Couldn't create child process: %s", strerror(errno));
-      eth_close(sync_pipe[PIPE_READ]);
+      eth_close(sync_pipe_read_fd);
 #ifdef _WIN32
-      eth_close(signal_pipe[PIPE_WRITE]);
+      eth_close(capture_opts->signal_pipe_write_fd);
 #endif
       return FALSE;
     }
@@ -614,7 +567,7 @@ sync_pipe_start(capture_options *capture_opts) {
        the child process wants to tell us something. */
 
     /* we have a running capture, now wait for the real capture filename */
-    pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) capture_opts, 
+    pipe_input_set_handler(sync_pipe_read_fd, (gpointer) capture_opts, 
         &capture_opts->fork_child, sync_pipe_input_cb);
 
     return TRUE;
@@ -642,7 +595,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     sync_pipe_wait_for_child(capture_opts);
 
 #ifdef _WIN32
-    eth_close(capture_opts->signal_pipe_fd);
+    eth_close(capture_opts->signal_pipe_write_fd);
 #endif
     capture_input_closed(capture_opts);
     return FALSE;
