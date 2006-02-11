@@ -67,6 +67,10 @@ typedef struct _funnel_ops_t {
                                    funnel_dlg_cb_t dlg_cb,
                                    void* data);
     
+    void (*logger)(const gchar *log_domain,
+                   GLogLevelFlags log_level,
+                   const gchar *message,
+                   gpointer user_data);
 } funnel_ops_t;
 
 
@@ -90,5 +94,7 @@ typedef void (*funnel_registration_cb_t)(const char *name,
 extern void funnel_register_all_menus(funnel_registration_cb_t r_cb);
 
 extern void initialize_funnel_ops(void);
+
+extern void funnel_dump_all_text_windows(void);
 
 #endif
