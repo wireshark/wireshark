@@ -2921,8 +2921,10 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   const char *level;
 
 
-  /* ignore log message, if log_level isn't interesting */
-  if( !(log_level & G_LOG_LEVEL_MASK & prefs.console_log_level)) {
+  /* ignore log message, if log_level isn't interesting.
+     If preferences aren't loaded yet, display message anyway */
+  if((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
+     prefs.console_log_level != 0) {
     return;
   }
 

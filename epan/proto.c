@@ -3264,7 +3264,9 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
         }
     }
     if (found_invalid) {
-        g_warning("Protocol filter name \"%s\" has one or more invalid characters.", filter_name);
+        g_error("Protocol filter name \"%s\" has one or more invalid characters."
+            " Allowed are lower characters, digits, '-', '_' and '.'."
+            " This might be caused by an inappropriate plugin or a development error.", filter_name);
     }
     key = g_malloc (sizeof(gint));
     *key = g_str_hash(filter_name);
