@@ -1166,7 +1166,8 @@ static void init_xml_names(void) {
 
 static void apply_prefs(void) {
     if (pref_heuristic) {
-        heur_dissector_add("http", dissect_xml_heur, xml_ns.hf_tag);   
+        heur_dissector_add("http", dissect_xml_heur, xml_ns.hf_tag);
+        heur_dissector_add("sip", dissect_xml_heur, xml_ns.hf_tag);
         heur_dissector_add("media", dissect_xml_heur, xml_ns.hf_tag);   
     }
 }

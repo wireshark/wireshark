@@ -443,6 +443,8 @@ static guint sip_is_packet_resend(packet_info *pinfo,
  * http://www.iana.org/assignments/media-types/index.html */
 static dissector_table_t media_type_dissector_table;
 
+static heur_dissector_list_t heur_subdissector_list;
+
 #define SIP2_HDR "SIP/2.0"
 #define SIP2_HDR_LEN (strlen (SIP2_HDR))
 
@@ -1686,16 +1688,20 @@ separator_found2:
 		}
 		if ( found_match != TRUE )
 		{
-			int tmp_offset = 0;
-			while (tvb_offset_exists(next_tvb, tmp_offset)) {
-				tvb_find_line_end(next_tvb, tmp_offset, -1, &next_offset, FALSE);
-				linelen = next_offset - tmp_offset;
-				if(message_body_tree) {
-					proto_tree_add_text(message_body_tree, next_tvb, tmp_offset, linelen,
-					                    "%s", tvb_format_text(next_tvb, tmp_offset, linelen));
-				}
-				tmp_offset = next_offset;
-			}/* end while */
+            if (!(dissector_try_heuristic(heur_subdissector_list,
+                                          next_tvb, pinfo, message_body_tree))) {
+                int tmp_offset = 0;
+                while (tvb_offset_exists(next_tvb, tmp_offset)) {
+                    tvb_find_line_end(next_tvb, tmp_offset, -1, &next_offset, FALSE);
+                    linelen = next_offset - tmp_offset;
+                    if(message_body_tree) {
+                        proto_tree_add_text(message_body_tree, next_tvb,
+                                            tmp_offset, linelen, "%s",
+                                            tvb_format_text(next_tvb, tmp_offset, linelen));
+                        }
+                    tmp_offset = next_offset;
+                    }/* end while */
+			}
 		}
 		offset += datalen;
 	}
@@ -2734,7 +2740,7 @@ void proto_register_sip(void)
 	    &sip_desegment_body);
 
 	register_init_routine(&sip_init_protocol);
-
+    register_heur_dissector_list("sip", &heur_subdissector_list);
 	/* Register for tapping */
 	sip_tap = register_tap("sip");
 }
