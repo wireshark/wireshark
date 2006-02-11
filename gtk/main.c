@@ -94,7 +94,6 @@
 #include <pcap.h>
 #include "capture-pcap-util.h"
 #include "capture.h"
-#include "capture_loop.h"
 #include "capture_sync.h"
 #endif
 
@@ -1908,20 +1907,13 @@ main(int argc, char *argv[])
 
 #define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:X:y:z:"
 
-#ifdef HAVE_LIBPCAP
-#ifdef _WIN32
-#define OPTSTRING_CHILD "Z:"
+#if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
 #else
-#define OPTSTRING_CHILD ""
 #define OPTSTRING_WIN32 ""
-#endif  /* _WIN32 */
-#else
-#define OPTSTRING_CHILD ""
-#define OPTSTRING_WIN32 ""
-#endif  /* HAVE_LIBPCAP */
+#endif
 
-  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_CHILD) + sizeof(OPTSTRING_WIN32) - 2] =
+  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
     OPTSTRING_INIT OPTSTRING_WIN32;
 
   /*
@@ -2065,9 +2057,6 @@ main(int argc, char *argv[])
 
   /* We might want to have component specific log levels later ... */
 
-  /* the default_log_handler will use stdout, which makes trouble with the */
-  /* capture child, as it uses stdout for it's sync_pipe */
-  /* so do the filtering in the console_log_handler and not here */
   log_flags = 
 		    G_LOG_LEVEL_ERROR|
 		    G_LOG_LEVEL_CRITICAL|
@@ -2273,8 +2262,6 @@ main(int argc, char *argv[])
       case 'y':        /* Set the pcap data link type */
 #ifdef _WIN32
       case 'B':        /* Buffer size */
-      /* Hidden option supporting Sync mode */
-      case 'Z':        /* Write to pipe FD XXX */
 #endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
         status = capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
@@ -2598,9 +2585,8 @@ main(int argc, char *argv[])
   /* close the splash screen, as we are going to open the main window now */
   splash_destroy(splash_win);
 
-  /***********************************************************************/
-  /* Everything is prepared now, preferences and command line was read in,
-       we are NOT a child window for a synced capture. */
+  /************************************************************************/
+  /* Everything is prepared now, preferences and command line was read in */
 
   /* Pop up the main window. */
   create_main_window(pl_size, tv_size, bv_size, prefs);
@@ -2912,7 +2898,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         g_assert_not_reached();
     }
 
-    /* don't use printf (stdout), as the capture child uses stdout for it's sync_pipe */
     fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
             today->tm_hour, today->tm_min, today->tm_sec,
             log_domain != NULL ? log_domain : "",
