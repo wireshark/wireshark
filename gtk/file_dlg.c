@@ -1161,20 +1161,8 @@ can_save_with_wiretap(int ft)
 }
 
 
-/* Generate a list of the file types we can save this file as.
-
-   "filetype" is the type it has now.
-
-   "encap" is the encapsulation for its packets (which could be
-   "unknown" or "per-packet").
-
-   "filtered" is TRUE if we're to save only the packets that passed
-   the display filter (in which case we have to save it using Wiretap)
-   and FALSE if we're to save the entire file (in which case, if we're
-   saving it in the type it has already, we can just copy it).
-
-   The same applies for sel_curr, sel_all, sel_m_only, sel_m_range and sel_man_range
-*/
+/* Generate a list of the file types we can save this file as, by
+   checking what Wiretap supports. */
 static void
 set_file_type_list(GtkWidget *option_menu)
 {
@@ -1192,23 +1180,19 @@ set_file_type_list(GtkWidget *option_menu)
   /* Check all file types. */
   index = 0;
   for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-    if (!packet_range_process_all(&range) || ft != cfile.cd_t) {
-      /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-      if (!can_save_with_wiretap(ft))
-        continue;	/* We can't. */
+    if (can_save_with_wiretap(ft)) {
+      /* OK, we can write it out in this type. */
+      ft_menu_item = gtk_menu_item_new_with_label(wtap_file_type_string(ft));
+      if (ft == filetype) {
+        /* Default to the same format as the file, if it's supported. */
+        item_to_select = index;
+      }
+      SIGNAL_CONNECT(ft_menu_item, "activate", select_file_type_cb,
+                     GINT_TO_POINTER(ft));
+      gtk_menu_append(GTK_MENU(ft_menu), ft_menu_item);
+      gtk_widget_show(ft_menu_item);
+      index++;
     }
-
-    /* OK, we can write it out in this type. */
-    ft_menu_item = gtk_menu_item_new_with_label(wtap_file_type_string(ft));
-    if (ft == filetype) {
-      /* Default to the same format as the file, if it's supported. */
-      item_to_select = index;
-    }
-    SIGNAL_CONNECT(ft_menu_item, "activate", select_file_type_cb,
-                   GINT_TO_POINTER(ft));
-    gtk_menu_append(GTK_MENU(ft_menu), ft_menu_item);
-    gtk_widget_show(ft_menu_item);
-    index++;
   }
 
   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), ft_menu);
@@ -1222,46 +1206,26 @@ select_file_type_cb(GtkWidget *w _U_, gpointer data)
   GtkWidget *compressed_cb;
 
   if (filetype != new_filetype) {
-    /* We can select only the filtered or marked packets to be saved if we can
-       use Wiretap to save the file. */
-    if (range_tb != NULL)
-       range_set_displayed_sensitive(range_tb, can_save_with_wiretap(new_filetype));
     filetype = new_filetype;
-    file_set_save_marked_sensitive();
-	compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
-	gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_filetype));
+    compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
+    gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_filetype));
   }
 }
 
 
 /*
- * Set the "Save only marked packets" toggle button as appropriate for
- * the current output file type and count of marked packets.
- *
- * Called when the "Save As..." dialog box is created and when either
- * the file type or the marked count changes.
+ * Update various dynamic parts of the range controls; called from outside
+ * the file dialog code whenever the packet counts change.
  */
 void
-file_set_save_marked_sensitive(void)
+file_save_update_dynamics(void)
 {
   if (file_save_as_w == NULL) {
     /* We don't currently have a "Save As..." dialog box up. */
     return;
   }
 	
-  /* We can request that only the marked packets be saved only if we
-     can use Wiretap to save the file and if there *are* marked packets. */
-  if (can_save_with_wiretap(filetype) && cfile.marked_count > 0) {
-    range_set_marked_sensitive(range_tb, TRUE);
-  }
-  else {
-    /* Force the "Save only marked packets" toggle to "false", turn
-       off the flag it controls, and update the list of types we can
-       save the file as. */
-    range.process = range_process_all;
-    set_file_type_list(ft_om);
-    range_set_marked_sensitive(range_tb, FALSE);
-  }
+  range_update_dynamics(range_tb);
 }
 
 
@@ -1345,15 +1309,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_om, FALSE, FALSE, 0);
   gtk_widget_show(ft_om);
 
-  /*
-   * Set the sensitivity of the "Save only marked packets" toggle
-   * button
-   *
-   * This has to be done after we create the file type menu option,
-   * as the routine that sets it also sets that menu.
-   */
-  file_set_save_marked_sensitive();
-	
   /* dynamic values in the range frame */
   range_update_dynamics(range_tb);
 

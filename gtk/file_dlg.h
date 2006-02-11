@@ -115,6 +115,6 @@ void file_color_export_cmd_cb(GtkWidget *widget, gpointer data);
  * Called when the "Save As..." dialog box is created and when either
  * the file type or the marked count changes.
  */
-void file_set_save_marked_sensitive(void);
+void file_save_update_dynamics(void);
 
 #endif /* file_dlg.h */

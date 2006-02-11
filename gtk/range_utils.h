@@ -65,18 +65,4 @@ extern GtkWidget *range_new(packet_range_t *range
  */
 extern void range_update_dynamics(gpointer data);
 
-/** Set the "Process only marked packets" toggle button as appropriate.
- *
- * @param data range widget
- * @param marked_valid TRUE, if marked packets available
- */
-extern void range_set_marked_sensitive(gpointer data, gboolean marked_valid);
-
-/** Set the "displayed" button as appropriate.
- *
- * @param data range widget
- * @param displayed_valid TRUE, if displayed packets available
- */
-extern void range_set_displayed_sensitive(gpointer data, gboolean displayed_valid);
-
 #endif

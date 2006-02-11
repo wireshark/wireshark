@@ -314,7 +314,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
 
 /* call this after last set_frame_mark is done */
 static void mark_frames_ready(void) {
-  file_set_save_marked_sensitive();
+  file_save_update_dynamics();
   packets_bar_update();
 }
 
