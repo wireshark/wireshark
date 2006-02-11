@@ -332,6 +332,8 @@ File "NEWS.txt"
 File "..\..\manuf"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
+File "..\..\dumpcap.exe"
+File "..\..\doc\dumpcap.html"
 
 ; global config files - don't overwrite if already existing 
 ;IfFileExists cfilters dont_overwrite_cfilters
