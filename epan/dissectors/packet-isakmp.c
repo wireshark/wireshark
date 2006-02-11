@@ -1637,7 +1637,7 @@ dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    packet_info *pinfo, int isakmp_version, int unused _U_)
+    packet_info *pinfo _U_, int isakmp_version, int unused _U_)
 {
   guint8		cert_type;
 
@@ -2946,6 +2946,7 @@ get_num(tvbuff_t *tvb, int offset, guint16 len, guint32 *num_p)
  * Protocol initialization
  */
 
+#ifdef HAVE_LIBNETTLE
 static guint
 isakmp_hash_func(gconstpointer c) {
   guint8 *i_cookie = (guint8 *) c;
@@ -2968,6 +2969,7 @@ isakmp_equal_func(gconstpointer ic1, gconstpointer ic2) {
 
   return 0;
 }
+#endif
 
 static void
 isakmp_init_protocol(void) {
