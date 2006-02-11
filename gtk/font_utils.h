@@ -38,7 +38,7 @@
 #define __FONT_UTILS_H__
 
 /** Init the application and user fonts at program start. */
-extern void font_init(gboolean capture_child);
+extern void font_init(void);
 
 /** Return value from font_apply() */
 typedef enum {

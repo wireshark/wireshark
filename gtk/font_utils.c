@@ -711,11 +711,7 @@ static void try_to_get_windows_font_gtk2(void)
 #endif /* _WIN32 */
 
 
-void font_init(gboolean capture_child
-#ifndef HAVE_LIBPCAP
-	_U_
-#endif
-)
+void font_init(void)
 {
 #if GTK_MAJOR_VERSION < 2
   gchar *bold_font_name;
@@ -736,18 +732,12 @@ void font_init(gboolean capture_child
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
-#ifdef HAVE_LIBPCAP
-      if (!capture_child)
-#endif
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		prefs.gui_font_name1);
     } else {
       gdk_font_unref(m_r_font);
     }
     if (m_b_font == NULL) {
-#ifdef HAVE_LIBPCAP
-      if (!capture_child)
-#endif
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		bold_font_name);
     } else {
@@ -772,18 +762,12 @@ void font_init(gboolean capture_child
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
-#ifdef HAVE_LIBPCAP
-      if (!capture_child)
-#endif
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to Monospace 9\n",
 		prefs.gui_font_name2);
     } else {
       pango_font_description_free(m_r_font);
     }
     if (m_b_font == NULL) {
-#ifdef HAVE_LIBPCAP
-      if (!capture_child)
-#endif
         fprintf(stderr, "ethereal: Warning: bold font %s not found - defaulting"
                         " to Monospace 9\n", prefs.gui_font_name2);
     } else {

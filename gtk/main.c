@@ -2593,7 +2593,7 @@ main(int argc, char *argv[])
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 
-  font_init(FALSE);
+  font_init();
 
   /* close the splash screen, as we are going to open the main window now */
   splash_destroy(splash_win);
