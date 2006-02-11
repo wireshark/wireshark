@@ -1566,7 +1566,11 @@ GtkWidget * stop_dlg = NULL;
 static void
 main_cf_cb_live_capture_update_finished(capture_file *cf)
 {
-	if(stop_dlg != NULL) {
+#if GTK_MAJOR_VERSION >= 2
+    static GList *icon_list = NULL;
+#endif
+
+    if(stop_dlg != NULL) {
 		simple_dialog_close(stop_dlg);
 		stop_dlg = NULL;
 	}
@@ -1587,6 +1591,13 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
+
+#if GTK_MAJOR_VERSION >= 2
+    if(icon_list == NULL) {
+        icon_list = icon_list_create(eicon3d16_xpm, eicon3d32_xpm, eicon3d48_xpm, eicon3d64_xpm);
+    }
+    gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
+#endif
 
     if(capture_opts->quit_after_cap) {
         /* command line asked us to quit after the capture */
@@ -1639,7 +1650,11 @@ main_cf_cb_live_capture_fixed_continue(capture_file *cf)
 static void
 main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 {
-	if(stop_dlg != NULL) {
+#if GTK_MAJOR_VERSION >= 2
+    static GList *icon_list = NULL;
+#endif
+
+    if(stop_dlg != NULL) {
 		simple_dialog_close(stop_dlg);
 		stop_dlg = NULL;
 	}
@@ -1660,6 +1675,13 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
     /* (just in case we have trouble opening the capture file). */
     set_main_window_name("The Ethereal Network Analyzer");
 
+#if GTK_MAJOR_VERSION >= 2
+    if(icon_list == NULL) {
+        icon_list = icon_list_create(eicon3d16_xpm, eicon3d32_xpm, eicon3d48_xpm, eicon3d64_xpm);
+    }
+    gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
+#endif
+
     /* We don't have loaded the capture file, this will be done later.
      * For now we still have simply a blank screen. */
 
@@ -1673,10 +1695,8 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 static void
 main_cf_cb_live_capture_stopping(capture_file *cf _U_)
 {
-#if GTK_MAJOR_VERSION >= 2
-    static GList *icon_list = NULL;
-#endif
-
+    /* Beware: this state won't be called, if the capture child 
+     * closes the capturing on it's own! */
 #if 0
 	/* XXX - the time to stop the capture has been reduced (this was only a 
 	 * problem on Win32 because of the capture piping), so showing a splash 
@@ -1690,13 +1710,6 @@ main_cf_cb_live_capture_stopping(capture_file *cf _U_)
 #else
 	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER);
 #endif
-#endif
-
-#if GTK_MAJOR_VERSION >= 2
-    if(icon_list == NULL) {
-        icon_list = icon_list_create(eicon3d16_xpm, eicon3d32_xpm, eicon3d48_xpm, eicon3d64_xpm);
-    }
-    gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 #endif
 }
 
