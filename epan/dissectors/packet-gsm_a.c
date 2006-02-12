@@ -2651,7 +2651,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	num_cells++;
     }
-    while ((len - (curr_offset - offset)) > 0);
+    while ((len - (curr_offset - offset)) > 0 && consumed > 0);
 
     if (add_string) {
 	g_snprintf(add_string, string_len, " - %u cell%s",
