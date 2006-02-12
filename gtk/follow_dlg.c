@@ -55,7 +55,7 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/charsets.h>
-#include "tempfile.h"
+#include "../tempfile.h"
 #include "gui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
