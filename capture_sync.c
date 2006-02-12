@@ -334,6 +334,13 @@ sync_pipe_start(capture_options *capture_opts) {
     argv = g_malloc(sizeof (char *));
     *argv = NULL;
 
+    /* take ethereal's absolute program path and replace ethereal with dumpcap */
+    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap",
+                              get_progfile_dir());
+
+    /* Make that the first argument in the argument list (argv[0]). */
+    argv = sync_pipe_add_arg(argv, &argc, exename);
+
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->iface);
 
@@ -405,10 +412,6 @@ sync_pipe_start(capture_options *capture_opts) {
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
 #endif
-
-    /* take ethereal's absolute program path and replace ethereal with dumpcap */
-    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap",
-                              get_progfile_dir());
 
 #ifdef _WIN32
     argv = sync_pipe_add_arg(argv, &argc, "-B");
