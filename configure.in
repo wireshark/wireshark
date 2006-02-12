@@ -562,7 +562,7 @@ AC_SUBST(editcap_man)
 # Enable/disable dumpcap
 
 AC_ARG_ENABLE(dumpcap,
-[  --enable-dumpcap        build dumpcap.  [default=no]],enable_dumpcap=$enableval,enable_dumpcap=no)
+[  --enable-dumpcap        build dumpcap.  [default=yes]],enable_dumpcap=$enableval,enable_dumpcap=yes)
 
 if test "x$enable_dumpcap" = "xyes" ; then
 	dumpcap_bin="dumpcap\$(EXEEXT)"
