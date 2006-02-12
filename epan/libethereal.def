@@ -336,6 +336,7 @@ get_manuf_name_if_known
 get_persconffile_path
 get_plugins_global_dir
 get_plugins_pers_dir
+get_progfile_dir
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
@@ -366,6 +367,7 @@ host_name_lookup_process
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
 init_dissection
+init_progfile_dir
 ip6_to_str
 ipv4_get_net_order_addr
 ip_to_str
