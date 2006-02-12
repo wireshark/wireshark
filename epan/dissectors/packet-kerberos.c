@@ -184,6 +184,7 @@ static gint hf_krb_adtype = -1;
 static gint hf_krb_advalue = -1;
 static gint hf_krb_etype = -1;
 static gint hf_krb_etypes = -1;
+static gint hf_krb_sq_tickets = -1;
 static gint hf_krb_LastReqs = -1;
 static gint hf_krb_IF_RELEVANT = -1;
 static gint hf_krb_addr_type = -1;
@@ -242,10 +243,22 @@ static gint hf_krb_KDCOptions_renew = -1;
 static gint hf_krb_KDCOptions_validate = -1;
 static gint hf_krb_KDC_REQ_BODY = -1;
 static gint hf_krb_PRIV_BODY = -1;
+static gint hf_krb_CRED_BODY = -1;
 static gint hf_krb_ENC_PRIV = -1;
 static gint hf_krb_authenticator_enc = -1;
+static gint hf_krb_CRED_enc = -1;
 static gint hf_krb_ticket_enc = -1;
 static gint hf_krb_e_checksum = -1;
+static gint hf_krb_gssapi_len = -1;
+static gint hf_krb_gssapi_bnd = -1;
+static gint hf_krb_gssapi_dlgopt = -1;
+static gint hf_krb_gssapi_dlglen = -1;
+static gint hf_krb_gssapi_c_flag_deleg = -1;
+static gint hf_krb_gssapi_c_flag_mutual = -1;
+static gint hf_krb_gssapi_c_flag_replay = -1;
+static gint hf_krb_gssapi_c_flag_sequence = -1;
+static gint hf_krb_gssapi_c_flag_conf = -1;
+static gint hf_krb_gssapi_c_flag_integ = -1;
 
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
@@ -270,6 +283,7 @@ static gint ett_krb_cname = -1;
 static gint ett_krb_AP_REP_enc = -1;
 static gint ett_krb_padata = -1;
 static gint ett_krb_etypes = -1;
+static gint ett_krb_sq_tickets = -1;
 static gint ett_krb_LastReqs = -1;
 static gint ett_krb_IF_RELEVANT = -1;
 static gint ett_krb_PA_DATA_tree = -1;
@@ -278,6 +292,7 @@ static gint ett_krb_s_address = -1;
 static gint ett_krb_HostAddress = -1;
 static gint ett_krb_HostAddresses = -1;
 static gint ett_krb_authenticator_enc = -1;
+static gint ett_krb_CRED_enc = -1;
 static gint ett_krb_AP_Options = -1;
 static gint ett_krb_KDC_Options = -1;
 static gint ett_krb_Ticket_Flags = -1;
@@ -285,6 +300,7 @@ static gint ett_krb_request = -1;
 static gint ett_krb_recordmark = -1;
 static gint ett_krb_ticket = -1;
 static gint ett_krb_ticket_enc = -1;
+static gint ett_krb_CRED = -1;
 static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
 static gint ett_krb_e_checksum = -1;
@@ -1329,6 +1345,7 @@ static int dissect_krb5_AP_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int dissect_krb5_AP_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_SAFE(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_krb5_CRED(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
 static const ber_choice_t kerberos_applications_choice[] = {
@@ -1347,6 +1364,7 @@ static const ber_choice_t kerberos_applications_choice[] = {
 	{ KRB5_MSG_ENC_KRB_PRIV_PART, BER_CLASS_APP, KRB5_MSG_ENC_KRB_PRIV_PART, 0, dissect_krb5_EncKrbPrivPart },
 	{ KRB5_MSG_SAFE,	BER_CLASS_APP,	KRB5_MSG_SAFE,		0,	dissect_krb5_SAFE },
 	{ KRB5_MSG_PRIV,	BER_CLASS_APP,	KRB5_MSG_PRIV,		0,	dissect_krb5_PRIV },
+	{ KRB5_MSG_CRED,	BER_CLASS_APP,	KRB5_MSG_CRED,		0,	dissect_krb5_CRED },
 	{ KRB5_MSG_ERROR,	BER_CLASS_APP,	KRB5_MSG_ERROR,		0,	dissect_krb5_ERROR },
 	{ 0, 0, 0, 0, NULL }
 };
@@ -1708,6 +1726,17 @@ dissect_krb5_HostAddresses(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
+/* sequence of tickets */
+static ber_sequence_t sequence_of_tickets[1] = {
+  { BER_CLASS_APP, 1, 0, dissect_krb5_Application_1},
+};
+static int
+dissect_krb5_sq_tickets(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence_of(FALSE, pinfo, tree, tvb, offset, sequence_of_tickets, hf_krb_sq_tickets, ett_krb_sq_tickets);
+
+	return offset;
+}
 
 static int
 dissect_krb5_msg_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -2832,17 +2861,117 @@ dissect_krb5_authenticator_vno(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 
 
+#define KRB5_GSS_C_DELEG_FLAG		0x01
+#define KRB5_GSS_C_MUTUAL_FLAG		0x02
+#define KRB5_GSS_C_REPLAY_FLAG		0x04
+#define KRB5_GSS_C_SEQUENCE_FLAG	0x08
+#define KRB5_GSS_C_CONF_FLAG		0x10
+#define KRB5_GSS_C_INTEG_FLAG		0x20
+static const true_false_string tfs_gss_flags_deleg = {
+	"Delegate credantials to remote peer",
+	"Do NOT delegate"
+};
+static const true_false_string tfs_gss_flags_mutual = {
+	"Request that remote peer authenticates itself",
+	"Mutual authentication NOT required"
+};
+static const true_false_string tfs_gss_flags_replay = {
+	"Enable replay protection for signed or sealed messages",
+	"Do NOT enable replay protection"
+};
+static const true_false_string tfs_gss_flags_sequence = {
+	"Enable Out-of-sequence detection for sign or sealed messages",
+	"Do NOT enable out-of-sequence detection"
+};
+static const true_false_string tfs_gss_flags_conf = {
+	"Confidentiality (sealing) may be invoked",
+	"Do NOT use Confidentiality (sealing)"
+};
+static const true_false_string tfs_gss_flags_integ = {
+	"Integrity protection (signing) may be invoked",
+	"Do NOT use integrity protection"
+};
+
+/* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
+ */
+static int
+dissect_krb5_rfc1964_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+{
+	int offset=0;
+	guint32 len;
+	guint16 dlglen;
+
+	/* Length of Bnd field */
+	len=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_gssapi_len, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* Bnd field */
+	proto_tree_add_item(tree, hf_krb_gssapi_bnd, tvb, offset, len, TRUE);
+	offset += len;
+
+
+	/* flags */
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_integ, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_conf, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_sequence, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_replay, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_mutual, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_deleg, tvb, offset, 4, TRUE);
+	offset += 4;
+	
+	/* the next fields are optional so we have to check that we have
+	 * more data in our buffers */
+	if(tvb_length_remaining(tvb, offset)<2){
+		return offset;
+	}
+	/* dlgopt identifier */
+	proto_tree_add_item(tree, hf_krb_gssapi_dlgopt, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	if(tvb_length_remaining(tvb, offset)<2){
+		return offset;
+	}
+	/* dlglen identifier */
+	dlglen=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	if(dlglen!=tvb_length_remaining(tvb, offset)){
+		proto_tree_add_text(tree, tvb, 0, 0, "Error: DlgLen:%d is not the same as number of bytes remaining:%d", dlglen, tvb_length_remaining(tvb, offset));
+		return offset;
+	}
+
+	/* this should now be a KRB_CRED message */
+	offset=dissect_ber_choice(pinfo, tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
+
+		
+	return offset;
+}
+
+static guint32 checksum_type;
+
 static int
 dissect_krb5_checksum_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_checksum_type, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_checksum_type, &checksum_type);
 
 	return offset;
 }
+
 static int
 dissect_krb5_checksum_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_checksum_checksum, NULL);
+	tvbuff_t *next_tvb;
+
+	switch(checksum_type){
+	case KRB5_CHKSUM_GSSAPI:
+		offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_checksum_checksum, &next_tvb);
+		dissect_krb5_rfc1964_checksum(pinfo, tree, next_tvb);
+		break;
+	default:
+		offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_checksum_checksum, NULL);
+	}
 	return offset;
 }
 
@@ -3038,6 +3167,47 @@ dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
 }
 
 
+
+static ber_sequence_t encrypted_CRED_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_etype },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
+		dissect_krb5_kvno },
+/*
+	{ BER_CLASS_CON, 2, 0,
+		dissect_krb5_encrypted_CRED_data },
+*/
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_encrypted_CRED(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, encrypted_CRED_sequence, hf_krb_CRED_enc, ett_krb_CRED_enc);
+
+	return offset;
+}
+
+static ber_sequence_t CRED_BODY_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_pvno },
+	{ BER_CLASS_CON, 1, 0,
+		dissect_krb5_msg_type },
+	{ BER_CLASS_CON, 2, 0,
+		dissect_krb5_sq_tickets },
+	{ BER_CLASS_CON, 3, 0,
+		dissect_krb5_encrypted_CRED },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_CRED(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, CRED_BODY_sequence, hf_krb_CRED_BODY, ett_krb_CRED);
+
+	return offset;
+}
+
+
 static int
 dissect_krb5_SAFE_BODY_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -3156,7 +3326,9 @@ static ber_sequence_t KDC_REQ_BODY_sequence[] = {
 		dissect_krb5_etype_sequence_of },
 	{ BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL,
 		dissect_krb5_HostAddresses },
-/* XXX [10] and [11] enc-authorization-data and additional-tickets should be added */
+/* XXX [10] enc-authorization-data should be added */
+	{ BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL,
+		dissect_krb5_sq_tickets },
 	{ 0, 0, 0, NULL }
 };
 static int
@@ -4161,6 +4333,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_PRIV_BODY, {
 	    "PRIV_BODY", "kerberos.priv_body", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos PRIVate BODY", HFILL }},
+	{ &hf_krb_CRED_BODY, {
+	    "CRED_BODY", "kerberos.cred_body", FT_NONE, BASE_NONE,
+	    NULL, 0, "Kerberos CREDential BODY", HFILL }},
 	{ &hf_krb_encrypted_PRIV, {
 	    "Encrypted PRIV", "kerberos.enc_priv", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos Encrypted PRIVate blob data", HFILL }},
@@ -4332,6 +4507,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_etypes, {
 	    "Encryption Types", "kerberos.etypes", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a list of Kerberos encryption types", HFILL }},
+	{ &hf_krb_sq_tickets, {
+	    "Tickets", "kerberos.sq.tickets", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a list of Kerberos Tickets", HFILL }},
 	{ &hf_krb_LastReqs, {
 	    "LastReqs", "kerberos.LastReqs", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a list of LastReq structures", HFILL }},
@@ -4344,6 +4522,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_authenticator_enc, {
 	    "Authenticator", "kerberos.authenticator", FT_NONE, BASE_DEC,
 	    NULL, 0, "Encrypted authenticator blob", HFILL }},
+	{ &hf_krb_CRED_enc, {
+	    "EncKrbCredPart", "kerberos.encrypted_cred", FT_NONE, BASE_DEC,
+	    NULL, 0, "Encrypted Cred blob", HFILL }},
 	{ &hf_krb_ticket_enc, {
 	    "enc-part", "kerberos.ticket.enc_part", FT_NONE, BASE_DEC,
 	    NULL, 0, "The structure holding the encrypted part of a ticket", HFILL }},
@@ -4392,6 +4573,36 @@ proto_register_kerberos(void)
 	{ &hf_krb_e_checksum, {
 	    "e-checksum", "kerberos.e_checksum", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a Kerberos e-checksum", HFILL }},
+	{ &hf_krb_gssapi_len, {
+	    "Length", "kerberos.gssapi.len", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Length of GSSAPI Bnd field", HFILL }},
+	{ &hf_krb_gssapi_bnd, {
+	    "Bnd", "kerberos.gssapi.bdn", FT_BYTES, BASE_HEX,
+	    NULL, 0, "GSSAPI Bnd field", HFILL }},
+	{ &hf_krb_gssapi_c_flag_deleg, {
+	    "Deleg", "kerberos.gssapi.checksum.flags.deleg", FT_BOOLEAN, 32,
+	    VALS(&tfs_gss_flags_deleg), KRB5_GSS_C_DELEG_FLAG, "", HFILL }},
+	{ &hf_krb_gssapi_c_flag_mutual, {
+	    "Mutual", "kerberos.gssapi.checksum.flags.mutual", FT_BOOLEAN, 32,
+	    VALS(&tfs_gss_flags_mutual), KRB5_GSS_C_MUTUAL_FLAG, "", HFILL }},
+	{ &hf_krb_gssapi_c_flag_replay, {
+	    "Replay", "kerberos.gssapi.checksum.flags.replay", FT_BOOLEAN, 32,
+	    VALS(&tfs_gss_flags_replay), KRB5_GSS_C_REPLAY_FLAG, "", HFILL }},
+	{ &hf_krb_gssapi_c_flag_sequence, {
+	    "Sequence", "kerberos.gssapi.checksum.flags.sequence", FT_BOOLEAN, 32,
+	    VALS(&tfs_gss_flags_sequence), KRB5_GSS_C_SEQUENCE_FLAG, "", HFILL }},
+	{ &hf_krb_gssapi_c_flag_conf, {
+	    "Conf", "kerberos.gssapi.checksum.flags.conf", FT_BOOLEAN, 32,
+	    VALS(&tfs_gss_flags_conf), KRB5_GSS_C_CONF_FLAG, "", HFILL }},
+	{ &hf_krb_gssapi_c_flag_integ, {
+	    "Integ", "kerberos.gssapi.checksum.flags.integ", FT_BOOLEAN, 32,
+	    VALS(&tfs_gss_flags_integ), KRB5_GSS_C_INTEG_FLAG, "", HFILL }},
+	{ &hf_krb_gssapi_dlgopt, {
+	    "DlgOpt", "kerberos.gssapi.dlgopt", FT_UINT16, BASE_DEC,
+	    NULL, 0, "GSSAPI DlgOpt", HFILL }},
+	{ &hf_krb_gssapi_dlglen, {
+	    "DlgLen", "kerberos.gssapi.dlglen", FT_UINT16, BASE_DEC,
+	    NULL, 0, "GSSAPI DlgLen", HFILL }},
     };
 
     static gint *ett[] = {
@@ -4402,6 +4613,7 @@ proto_register_kerberos(void)
 	&ett_krb_AP_REP_enc,
         &ett_krb_padata,
         &ett_krb_etypes,
+        &ett_krb_sq_tickets,
         &ett_krb_LastReqs,
         &ett_krb_IF_RELEVANT,
 	&ett_krb_PA_DATA_tree,
@@ -4409,6 +4621,7 @@ proto_register_kerberos(void)
         &ett_krb_HostAddress,
         &ett_krb_HostAddresses,
 	&ett_krb_authenticator_enc,
+	&ett_krb_CRED_enc,
         &ett_krb_AP_Options,
         &ett_krb_KDC_Options,
         &ett_krb_Ticket_Flags,
@@ -4416,6 +4629,7 @@ proto_register_kerberos(void)
         &ett_krb_recordmark,
         &ett_krb_ticket,
 	&ett_krb_ticket_enc,
+        &ett_krb_CRED,
         &ett_krb_PRIV,
         &ett_krb_PRIV_enc,
         &ett_krb_EncTicketPart,
