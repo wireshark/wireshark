@@ -473,6 +473,7 @@ sync_pipe_start(capture_options *capture_opts) {
     g_string_free(args, TRUE);
 
     /* associate the operating system filehandle to a C run-time file handle */
+    /* (good file handle infos at: http://www.flounder.com/handles.htm) */
     sync_pipe_read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
 
     /* associate the operating system filehandle to a C run-time file handle */
