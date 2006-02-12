@@ -467,12 +467,8 @@ sync_pipe_start(capture_options *capture_opts) {
     }
 
     /* call dumpcap */
-        if(!CreateProcess(NULL, args->str, NULL, NULL, TRUE,
-        CREATE_NEW_CONSOLE,
-        NULL,
-        NULL,
-        &si,
-        &pi)) {
+    if(!CreateProcess(NULL, args->str, NULL, NULL, TRUE,
+                      CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         g_error("couldn't open dumpcap.exe!");
     }
     capture_opts->fork_child = (int) pi.hProcess;
