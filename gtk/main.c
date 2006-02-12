@@ -2078,7 +2078,10 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   g_log_set_handler(LOG_DOMAIN_CAPTURE,
 		    log_flags,
-            console_log_handler, NULL /* user_data */);
+		    console_log_handler, NULL /* user_data */);
+  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
+		    log_flags,
+		    console_log_handler, NULL /* user_data */);
 
   /* Set the initial values in the capture_opts. This might be overwritten 
      by preference settings and then again by the command line parameters. */
