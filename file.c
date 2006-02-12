@@ -58,7 +58,7 @@
 #include "print.h"
 #include "file.h"
 #include "fileset.h"
-#include "util.h"
+#include "tempfile.h"
 #include "merge.h"
 #include "alert_box.h"
 #include "simple_dialog.h"

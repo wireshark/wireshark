@@ -29,14 +29,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-
-/* create a tempfile with the given prefix (e.g. "ether")
- * namebuf (and namebuflen) should be 128+1 bytes long (BTW: why?)
- * returns the file descriptor of the new tempfile and
- * the name of the new file in namebuf 
- */
-int create_tempfile(char *namebuf, int namebuflen, const char *pfx);
-
 /* Collect command-line arguments as a string consisting of the arguments,
  * separated by spaces.
  */

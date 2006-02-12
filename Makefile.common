@@ -145,7 +145,8 @@ ethereal_SOURCES =	\
 	g711.c \
 	merge.c	\
 	proto_hier_stats.c	\
-	summary.c
+	summary.c	\
+	tempfile.c
 
 # corresponding headers
 ethereal_INCLUDES =	\
@@ -177,7 +178,8 @@ tethereal_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC)	\
 	$(TETHEREAL_TAP_SRC)	\
 	capture_opts.c		\
-	capture_loop.c	\
+	capture_loop.c		\
+	tempfile.c		\
 	tethereal-tap-register.c	\
 	tethereal.c
 
@@ -208,17 +210,17 @@ randpkt_SOURCES = \
 # dumpcap specifics
 dumpcap_SOURCES =	\
 	$(PLATFORM_SRC) \
-	capture-pcap-util.c	\
-	capture_stop_conditions.c	\
-	getopt.c	\
-	clopts_common.c	\
-	conditions.c	\
-	ringbuffer.c	\
-	util.c	\
-	version_info.c \
 	capture_opts.c \
 	capture_loop.c	\
-	dumpcap.c
+	capture-pcap-util.c	\
+	capture_stop_conditions.c	\
+	clopts_common.c	\
+	conditions.c	\
+	dumpcap.c	\
+	getopt.c	\
+	ringbuffer.c	\
+	tempfile.c	\
+	version_info.c
 
 
 # this target needed for distribution only

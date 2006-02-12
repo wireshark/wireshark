@@ -42,10 +42,6 @@
 #include <netdb.h>
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
 #include "ringbuffer.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
@@ -665,25 +661,3 @@ const char *netsnmp_get_version(void) { return ""; }
 gboolean dfilter_compile(const gchar *text, dfilter_t **dfp) { (void)text; (void)dfp; return FALSE; }
 
 void dfilter_free(dfilter_t *df) { (void)df; }
-
-
-/*
- * Find out whether a hostname resolves to an ip or ipv6 address
- * Return "ip6" if it is IPv6, "ip" otherwise (including the case
- * that we don't know)
- */
-const char* host_ip_af(const char *host
-#ifndef HAVE_GETHOSTBYNAME2
-_U_
-#endif
-)
-{
-#ifdef HAVE_GETHOSTBYNAME2
-	struct hostent *h;
-	return (h = gethostbyname2(host, AF_INET6)) && h->h_addrtype == AF_INET6 ? "ip6" : "ip";
-#else
-	return "ip";
-#endif
-}
-
-

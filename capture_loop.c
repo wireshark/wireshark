@@ -81,7 +81,7 @@
 #include "ringbuffer.h"
 
 #include "simple_dialog.h"
-#include "util.h"
+#include "tempfile.h"
 #include "log.h"
 #include "file_util.h"
 
