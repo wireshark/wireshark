@@ -42,6 +42,10 @@
 #include <netdb.h>
 #endif
 
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
 #include "ringbuffer.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
