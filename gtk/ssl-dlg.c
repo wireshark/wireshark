@@ -141,8 +141,6 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     SslDecryptedRecord* rec;
     int proto_ssl = (int) ssl;
     StringInfo* data = p_get_proto_data(pinfo->fd, proto_ssl);
-    /*ssl_debug_printf("ssl_queue_packet_data: pinfo %p proto_ssl %d data %p\n",
-        pinfo, proto_ssl, data);*/
 
     /* skip packet without decrypted data payload*/    
     if (!data)
@@ -169,8 +167,6 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     rec->data = data;
     follow_info->ssl_decrypted_data = g_list_append(
         follow_info->ssl_decrypted_data,rec);
-    /*ssl_debug_printf("ssl_queue_packet_data: ssl_decrypted_data %p data len %d\n",
-        follow_info->ssl_decrypted_data, data->data_len);*/
 
     return 0;
 }
@@ -482,7 +478,6 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
     for (cur = follow_info->ssl_decrypted_data; cur; cur = g_list_next(cur))
         if (cur->data)
         {
-            /*ssl_debug_printf("follow_destroy_cb: freeing chunk %p\n", cur->data);*/
             g_free(cur->data);
             cur->data = NULL;
         }
@@ -588,9 +583,6 @@ follow_read_stream(follow_info_t *follow_info,
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
     
-    /*ssl_debug_printf("follow_read_stream: iplen %d list %p\n", iplen,
-        follow_info->ssl_decrypted_data);*/
-
     for (cur = follow_info->ssl_decrypted_data; cur; cur = g_list_next(cur)) {
         SslDecryptedRecord* rec = cur->data;
 	skip = FALSE;
@@ -610,9 +602,6 @@ follow_read_stream(follow_info_t *follow_info,
         if (!skip) {
             size_t nchars = rec->data->data_len;
             char* buffer = (char*) rec->data->data;
-            
-            /*ssl_debug_printf("follow_read_stream: chunk len %d is_server %d\n", 
-                nchars, rec->is_server);*/
             
             switch (follow_info->show_type) {
     
