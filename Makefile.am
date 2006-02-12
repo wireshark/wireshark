@@ -62,7 +62,7 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 #
 bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
 bin_SCRIPTS = @idl2eth_bin@
-man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
+man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @dumpcap_man@ @idl2eth_man@
 man4_MANS = @etherealfilter_man@
 man_MANS =
 
@@ -75,7 +75,7 @@ EXTRA_SCRIPTS = idl2eth
 #
 pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
 	ethereal-filter.html capinfos.html editcap.html \
-	idl2eth.html mergecap.html text2pcap.html \
+	idl2eth.html mergecap.html text2pcap.html dumpcap.html \
 	cfilters colorfilters dfilters
 
 #
@@ -556,6 +556,7 @@ EXTRA_DIST = \
 	doc/randpkt.txt		\
 	doc/tethereal.pod	\
 	doc/text2pcap.pod	\
+	doc/dumpcap.pod	\
 	docbook/Makefile.auto.am	\
 	doxygen.cfg.in		\
 	dumpcap.c	\
@@ -730,6 +731,10 @@ text2pcap.1: doc/text2pcap.pod
 	(cd doc ; \
 	$(MAKE) ../text2pcap.1 )
 
+dumpcap.1: doc/dumpcap.pod
+	(cd doc ; \
+	$(MAKE) ../dumpcap.1 )
+
 ethereal.html: doc/ethereal.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
 	$(MAKE) ../ethereal.html )
@@ -761,6 +766,10 @@ mergecap.html: doc/mergecap.pod
 text2pcap.html: doc/text2pcap.pod
 	(cd doc ; \
 	$(MAKE) ../text2pcap.html )
+
+dumpcap.html: doc/dumpcap.pod
+	(cd doc ; \
+	$(MAKE) ../dumpcap.html )
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
