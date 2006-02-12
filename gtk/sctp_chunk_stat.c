@@ -54,7 +54,7 @@
 #include "gui_utils.h"
 
 
-static void sctpstat_init(const char *optarg);
+static void sctpstat_init(const char *optarg, void *userdata);
 
 static tap_dfilter_dlg sctp_stat_dlg = {
 	"SCTP Statistics",
@@ -279,7 +279,7 @@ static const gchar *titles[]={
 			"ERROR" };
 
 static void
-sctpstat_init(const char *optarg)
+sctpstat_init(const char *optarg, void *userdata _U_)
 {
 	sctpstat_t *hs;
 	const char *filter=NULL;

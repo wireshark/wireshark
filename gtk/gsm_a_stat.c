@@ -653,7 +653,8 @@ gsm_a_stat_gtk_dtap_ss_cb(
 
 static void
 gsm_a_stat_gtk_dtap_ss_init(
-    const char		*optarg _U_)
+    const char		*optarg _U_,
+    void		*userdata _U_)
 {
     gsm_a_stat_gtk_dtap_ss_cb(NULL, NULL);
 }

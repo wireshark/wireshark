@@ -144,7 +144,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_ldapstat_init(const char *optarg)
+gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 {
 	ldapstat_t *ldap;
 	const char *filter=NULL;

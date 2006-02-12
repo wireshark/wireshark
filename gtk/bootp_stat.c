@@ -190,7 +190,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-dhcpstat.
  */
 static void
-dhcpstat_init(const char *optarg)
+dhcpstat_init(const char *optarg, void *userdata _U_)
 {
 	dhcpstat_t *sp;
 	const char	*filter=NULL;

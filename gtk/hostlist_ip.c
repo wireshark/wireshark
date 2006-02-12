@@ -59,7 +59,7 @@ ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 }
 
 static void
-gtk_ip_hostlist_init(const char *optarg, void* userdata)
+gtk_ip_hostlist_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
 

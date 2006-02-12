@@ -129,7 +129,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_smb2stat_init(const char *optarg)
+gtk_smb2stat_init(const char *optarg, void *userdata _U_)
 {
 	smb2stat_t *ss;
 	const char *filter=NULL;

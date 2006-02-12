@@ -251,7 +251,7 @@ static const gchar *titles[]={
 			"Max in Frame" };
 
 static void
-gtk_mgcpstat_init(const char *optarg)
+gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 {
 	mgcpstat_t *ms;
 	const char *filter=NULL;

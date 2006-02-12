@@ -53,7 +53,7 @@
 #include "gui_utils.h"
 
 
-static void gtk_h225counter_init(const char *optarg);
+static void gtk_h225counter_init(const char *optarg, void *userdata);
 
 static tap_dfilter_dlg h225_counter_dlg = {
 	"H.225 Messages and Message Reasons",
@@ -501,7 +501,7 @@ static const gchar *titles[]={
 			"Count" };
 
 static void
-gtk_h225counter_init(const char *optarg)
+gtk_h225counter_init(const char *optarg, void *userdata _U_)
 {
 	h225counter_t *hs;
 	const char *filter=NULL;

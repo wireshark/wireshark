@@ -303,7 +303,7 @@ wsp_init_table(wspstat_t *sp)
 /* When called, this function will create a new instance of gtk2-wspstat.
  */
 static void
-gtk_wspstat_init(const char *optarg)
+gtk_wspstat_init(const char *optarg, void *userdata _U_)
 {
 	wspstat_t *sp;
 	const char 	*filter=NULL;

@@ -204,7 +204,7 @@ static void reset_tap(void* p) {
 }
 
 /* initializes the stats_tree window */
-static void init_gtk_tree(const char* optarg) {
+static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	guint8* abbr = stats_tree_get_abbr(optarg);
 	stats_tree* st = NULL;
 	stats_tree_cfg* cfg = NULL;

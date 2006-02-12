@@ -129,7 +129,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_fcstat_init(const char *optarg)
+gtk_fcstat_init(const char *optarg, void *userdata _U_)
 {
 	fcstat_t *fc;
 	const char *filter=NULL;

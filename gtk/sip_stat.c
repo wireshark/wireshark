@@ -497,7 +497,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 /* Create a new instance of gtk_sipstat. */
 static void
-gtk_sipstat_init(const char *optarg)
+gtk_sipstat_init(const char *optarg, void *userdata _U_)
 {
     sipstat_t *sp;
     const char *filter = NULL;

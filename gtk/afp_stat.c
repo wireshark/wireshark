@@ -126,7 +126,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_afpstat_init(const char *optarg)
+gtk_afpstat_init(const char *optarg, void *userdata _U_)
 {
 	afpstat_t *ss;
 	const char *filter=NULL;

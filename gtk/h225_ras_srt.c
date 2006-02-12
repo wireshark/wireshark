@@ -54,7 +54,7 @@
 #include "gui_utils.h"
 
 
-static void gtk_h225rassrt_init(const char *optarg);
+static void gtk_h225rassrt_init(const char *optarg, void *userdata);
 
 static tap_dfilter_dlg h225_rassrt_dlg = {
 	"H.225 RAS Service Response Time",
@@ -281,7 +281,7 @@ static const gchar *titles[]={
 			"Repeated Responses" };
 
 static void
-gtk_h225rassrt_init(const char *optarg)
+gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
 {
 	h225rassrt_t *hs;
 	const char *filter=NULL;
