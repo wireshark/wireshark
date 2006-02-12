@@ -832,7 +832,7 @@ gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld,
 
 /* dispatch incoming packets (pcap or capture pipe) */
 static int
-capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
+capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 		      char *errmsg, int errmsg_len) {
   int       inpkts;
 #ifndef _WIN32
