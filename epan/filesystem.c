@@ -204,9 +204,218 @@ test_for_fifo(const char *path)
 		return 0;
 }
 
+static char *progfile_dir;
+
 /*
- * Get the directory in which Ethereal's global configuration and data
- * files are stored.
+ * Get the pathname of the directory from which the executable came,
+ * and save it for future use.
+ */
+void
+init_progfile_dir(const char *arg0
+#ifdef _WIN32
+	_U_
+#endif
+)
+{
+	char *dir_end;
+	char *path;
+#ifdef _WIN32
+	char prog_pathname[_MAX_PATH+2];
+	size_t progfile_dir_len;
+
+	/*
+	 * Attempt to get the full pathname of the currently running
+	 * program.
+	 */
+	if (GetModuleFileName(NULL, prog_pathname, sizeof prog_pathname) != 0) {
+		/*
+		 * We got it; strip off the last component, which would be
+		 * the file name of the executable, giving us the pathname
+		 * of the directory where the executable resies
+		 *
+		 * First, find the last "\\" in the directory, as that
+		 * marks the end of the directory pathname.
+		 *
+		 * XXX - Can the pathname be something such as
+		 * "C:ethereal.exe"?  Or is it always a full pathname
+		 * beginning with "\\" after the drive letter?
+		 */
+		dir_end = strrchr(prog_pathname, '\\');
+		if (dir_end != NULL) {
+			/*
+			 * Found it - now figure out how long the program
+			 * directory pathname will be.
+			 */
+			progfile_dir_len = (dir_end - prog_pathname);
+
+			/*
+			 * Allocate a buffer for the program directory
+			 * pathname, and construct it.
+			 */
+			path = g_malloc(progfile_dir_len + 1);
+			strncpy(path, prog_pathname, progfile_dir_len);
+			path[progfile_dir_len] = '\0';
+			progfile_dir = path;
+		}
+	}
+#else
+	char *prog_pathname;
+	char *curdir;
+	long path_max;
+	char *path_start, *path_end;
+	size_t path_component_len;
+
+	/*
+	 * Try to figure out the directory in which the currently running
+	 * program resides, given the argv[0] it was started with.  That
+	 * might be the absolute path of the program, or a path relative
+	 * to the current directory of the process that started it, or
+	 * just a name for the program if it was started from the command
+	 * line and was searched for in $PATH.  It's not guaranteed to be
+	 * any of those, however, so there are no guarantees....
+	 */
+	if (arg0[0] == '/') {
+		/*
+		 * It's an absolute path.
+		 */
+		prog_pathname = g_strdup(arg0);
+	} else if (strchr(arg0, '/') != NULL) {
+		/*
+		 * It's a relative path, with a directory in it.
+		 * Get the current directory, and combine it
+		 * with that directory.
+		 */
+		path_max = pathconf(".", _PC_PATH_MAX);
+		if (path_max == -1) {
+			/*
+			 * We have no idea how big a buffer to
+			 * allocate for the current directory.
+			 */
+			return;
+		}
+		curdir = g_malloc(path_max);
+		if (getcwd(curdir, sizeof curdir) == NULL) {
+			/*
+			 * It failed - give up, and just stick
+			 * with DATAFILE_DIR.
+			 */
+			g_free(curdir);
+			return;
+		}
+		path = g_malloc(strlen(curdir) + 1 + strlen(arg0) + 1);
+		strcpy(path, curdir);
+		strcat(path, "/");
+		strcat(path, arg0);
+		g_free(curdir);
+		prog_pathname = path;
+	} else {
+		/*
+		 * It's just a file name.
+		 * Search the path for a file with that name
+		 * that's executable.
+		 */
+		prog_pathname = NULL;	/* haven't found it yet */
+		path_start = getenv("PATH");
+		while (path_start != NULL) {
+			/*
+			 * Is there anything left in the path?
+			 */
+			if (*path_start == '\0')
+ 				break;	/* no */
+
+			path_end = strchr(path_start, ':');
+			if (path_end == NULL)
+				path_end = path_start + strlen(path_start);
+			path_component_len = path_end - path_start;
+			path = g_malloc(path_component_len + 1
+			    + strlen(arg0) + 1);
+			memcpy(path, path_start, path_component_len);
+			path[path_component_len] = '\0';
+			strcat(path, "/");
+			strcat(path, arg0);
+			if (access(path, X_OK) == 0) {
+				/*
+				 * Found it!
+				 */
+				prog_pathname = path;
+				break;
+			}
+
+			/*
+			 * That's not it.  If there are more
+			 * path components to test, try them.
+			 */
+			if (*path_end == '\0') {
+				/*
+				 * There's nothing more to try.
+				 */
+				break;
+			}
+			if (*path_start == ':')
+				path_start++;
+			g_free(path);
+		}
+	}
+
+	if (prog_pathname != NULL) {
+		/*
+		 * OK, we have what we think is the pathname
+		 * of the program.
+		 *
+		 * First, find the last "/" in the directory,
+		 * as that marks the end of the directory pathname.
+		 */
+		dir_end = strrchr(prog_pathname, '/');
+		if (dir_end != NULL) {
+			/*
+			 * Found it.  Strip off the last component,
+			 * as that's the path of the program.
+			 */
+			*dir_end = '\0';
+
+			/*
+			 * Is there a "/.libs" at the end?
+			 */
+			dir_end = strrchr(prog_pathname, '/');
+			if (dir_end != NULL) {
+				if (strcmp(dir_end, "/.libs") == 0) {
+					/*
+					 * Yup, it's ".libs".
+					 * Strip that off; it's an
+					 * artifact of libtool.
+					 */
+					*dir_end = '\0';
+				}
+			}
+						
+			/*
+			 * OK, we have the path we want.
+			 */
+			progfile_dir = prog_pathname;
+		} else {
+			/*
+			 * This "shouldn't happen"; we apparently
+			 * have no "/" in the pathname.
+			 * Just free up prog_pathname.
+			 */
+			g_free(prog_pathname);
+		}
+	}
+#endif
+}
+
+/*
+ * Get the directory in which the program resides.
+ */
+const char *
+get_progfile_dir(void)
+{
+	return progfile_dir;
+}
+
+/*
+ * Get the directory in which the global configuration and data files are
+ * stored.
  *
  * XXX - if we ever make libethereal a real library, used by multiple
  * applications (more than just Tethereal and versions of Ethereal with
@@ -233,68 +442,25 @@ const char *
 get_datafile_dir(void)
 {
 #ifdef _WIN32
-	char prog_pathname[_MAX_PATH+2];
-	char *dir_end;
-	size_t datafile_dir_len;
-	static char *datafile_dir;
-
 	/*
-	 * Have we already gotten the pathname?
-	 * If so, just return it.
-	 */
-	if (datafile_dir != NULL)
-		return datafile_dir;
-
-	/*
-	 * No, we haven't.
-	 * Start out by assuming it's the default installation directory.
-	 */
-	datafile_dir = "C:\\Program Files\\Ethereal\\";
-
-	/*
-	 * Now we attempt to get the full pathname of the currently running
-	 * program, under the assumption that we're running an installed
-	 * version of the program.  If we fail, we don't change "datafile_dir",
-	 * and thus end up using the default.
+	 * Do we have the pathname of the program?  If so, assume we're
+	 * running an installed version of the program.  If we fail,
+	 * we don't change "datafile_dir", and thus end up using the
+	 * default.
 	 *
 	 * XXX - does NSIS put the installation directory into
 	 * "\HKEY_LOCAL_MACHINE\SOFTWARE\Ethereal\InstallDir"?
 	 * If so, perhaps we should read that from the registry,
 	 * instead.
 	 */
-	if (GetModuleFileName(NULL, prog_pathname, sizeof prog_pathname) != 0) {
-		/*
-		 * If the program is an installed version, the full pathname
-		 * includes the pathname of the directory in which it was
-		 * installed; get that directory's pathname, and construct
-		 * from it the pathname of the directory in which the
-		 * plugins were installed.
-		 *
-		 * First, find the last "\\" in the directory, as that
-		 * marks the end of the directory pathname.
-		 *
-		 * XXX - Can the pathname be something such as
-		 * "C:ethereal.exe"?  Or is it always a full pathname
-		 * beginning with "\\" after the drive letter?
-		 */
-		dir_end = strrchr(prog_pathname, '\\');
-		if (dir_end != NULL) {
-			/*
-			 * Found it - now figure out how long the datafile
-			 * directory pathname will be.
-			 */
-			datafile_dir_len = (dir_end - prog_pathname);
+	if (progfile_dir != NULL)
+		return progfile_dir;
 
-			/*
-			 * Allocate a buffer for the plugin directory
-			 * pathname, and construct it.
-			 */
-			datafile_dir = g_malloc(datafile_dir_len + 1);
-			strncpy(datafile_dir, prog_pathname, datafile_dir_len);
-			datafile_dir[datafile_dir_len] = '\0';
-		}
-	}
-	return datafile_dir;
+	/*
+	 * No, we don't.
+	 * Fall back on the default installation directory.
+	 */
+	return "C:\\Program Files\\Ethereal\\";
 #else
 	/*
 	 * Just use DATAFILE_DIR, as that's what the configure script
@@ -307,8 +473,8 @@ get_datafile_dir(void)
 /*
  * Get the directory in which files that, at least on UNIX, are
  * system files (such as "/etc/ethers") are stored; on Windows,
- * there's no "/etc" directory, so we get them from the Ethereal
- * global configuration and data file directory.
+ * there's no "/etc" directory, so we get them from the global
+ * configuration and data file directory.
  */
 const char *
 get_systemfile_dir(void)

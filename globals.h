@@ -29,7 +29,6 @@
 #include <epan/timestamp.h>
 
 extern capture_file cfile;
-extern gchar       *ethereal_path;
 #ifdef HAVE_LIBPCAP
 /** @todo move this to the gtk dir */
 extern gboolean     auto_scroll_live;

@@ -242,11 +242,9 @@ about_folders_page_new(void)
       "\"ethers\", \"ipxnets\"");
 
   /* program */
-  path = g_strdup(ethereal_path);
-  path = get_dirname(path);
-  about_folders_row(table, "Program", path,
+  constpath = get_progfile_dir();
+  about_folders_row(table, "Program", constpath,
       "program files");
-  g_free((void *) path);
 
 #ifdef HAVE_PLUGINS
   /* pers plugins */

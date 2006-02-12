@@ -301,7 +301,6 @@ sync_pipe_start(capture_options *capture_opts) {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #endif
     int sync_pipe_read_fd;
-    char *dirname;
     char *exename;
     int argc;
     const char **argv;
@@ -391,9 +390,8 @@ sync_pipe_start(capture_options *capture_opts) {
 #endif
 
     /* take ethereal's absolute program path and replace ethereal with dumpcap */
-    dirname = get_dirname(g_strdup(ethereal_path));
-    exename = g_strdup_printf("\"%s" G_DIR_SEPARATOR_S "dumpcap\"", dirname);
-    g_free(dirname);
+    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap",
+                              get_progfile_dir());
 
 #ifdef _WIN32
     argv = sync_pipe_add_arg(argv, &argc, "-B");

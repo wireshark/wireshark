@@ -28,14 +28,14 @@
 /*
  * Given a pathname, return the last component.
  */
-const char *get_basename(const char *);
+extern const char *get_basename(const char *);
 
 /*
  * Given a pathname, return a string containing everything but the
  * last component.  NOTE: this overwrites the pathname handed into
  * it....
  */
-char *get_dirname(char *);
+extern char *get_dirname(char *);
 
 /*
  * Given a pathname, return:
@@ -48,7 +48,7 @@ char *get_dirname(char *);
  *	0, if the attempt succeeded and the file turned out not
  *	to be a directory.
  */
-int test_for_directory(const char *);
+extern int test_for_directory(const char *);
 
 /*
  * Given a pathname, return:
@@ -61,7 +61,18 @@ int test_for_directory(const char *);
  *	0, if the attempt succeeded and the file turned out not
  *	to be a FIFO.
  */
-int test_for_fifo(const char *);
+extern int test_for_fifo(const char *);
+
+/*
+ * Get the pathname of the directory from which the executable came,
+ * and save it for future use.
+ */
+extern void init_progfile_dir(const char *arg0);
+
+/*
+ * Get the directory in which the program resides.
+ */
+extern const char *get_progfile_dir(void);
 
 /*
  * Get the directory in which global configuration and data files are
@@ -81,7 +92,7 @@ extern char *get_datafile_path(const char *filename);
  * there's no "/etc" directory, so we get them from the Ethereal
  * global configuration and data file directory.
  */
-const char *get_systemfile_dir(void);
+extern const char *get_systemfile_dir(void);
 
 /*
  * Create the directory that holds personal configuration files, if
@@ -90,7 +101,7 @@ const char *get_systemfile_dir(void);
  * to create (it's g_mallocated, so our caller should free it); otherwise,
  * return 0.
  */
-int create_persconffile_dir(char **pf_dir_path_return);
+extern int create_persconffile_dir(char **pf_dir_path_return);
 
 /*
  * Construct the path name of a personal configuration file, given the
@@ -102,7 +113,7 @@ int create_persconffile_dir(char **pf_dir_path_return);
  * exists; if it does, we return that, so that configuration files
  * from earlier versions can be read.
  */
-char *get_persconffile_path(const char *filename, gboolean for_writing);
+extern char *get_persconffile_path(const char *filename, gboolean for_writing);
 
 /*
  * Construct the path name of a file in $TMP/%TEMP% directory.
@@ -113,19 +124,19 @@ char *get_persconffile_path(const char *filename, gboolean for_writing);
 extern char *get_tempfile_path(const char *filename);
 
 /* Delete a file */
-gboolean deletefile (const char *path);
+extern gboolean deletefile (const char *path);
 
 /*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
  */
-const char *file_open_error_message(int err, gboolean for_writing);
+extern const char *file_open_error_message(int err, gboolean for_writing);
 
 /*
  * Return an error message for UNIX-style errno indications on write
  * operations.
  */
-const char *file_write_error_message(int err);
+extern const char *file_write_error_message(int err);
 
 /*
  * Check, if file is existing.
@@ -141,7 +152,7 @@ extern gboolean files_identical(const char *fname1, const char *fname2);
 /*
  * utf8 version of getenv, needed to get win32 filename paths
  */
-char *getenv_utf8(const char *varname);
+extern char *getenv_utf8(const char *varname);
 #endif
 
 #endif /* FILESYSTEM_H */

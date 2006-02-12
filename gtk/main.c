@@ -174,7 +174,6 @@ static guint    main_ctx, file_ctx, help_ctx;
 static guint        packets_ctx;
 static gchar        *packets_str = NULL;
 GString *comp_info_str, *runtime_info_str;
-gchar       *ethereal_path = NULL;
 gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
 
 #ifdef _WIN32
@@ -1917,6 +1916,11 @@ main(int argc, char *argv[])
     OPTSTRING_INIT OPTSTRING_WIN32;
 
   /*
+   * Attempt to get the pathname of the executable file.
+   */
+  init_progfile_dir(argv[0]);
+
+  /*
    * Get credential information for later use.
    */
   get_credential_info();
@@ -2045,8 +2049,6 @@ main(int argc, char *argv[])
   /* initialize our GTK eth_clist_type */
   init_eth_clist_type();
 #endif
-
-  ethereal_path = argv[0];
 
   /* Arrange that if we have no console window, and a GLib message logging
      routine is called to log a message, we pop up a console window.
