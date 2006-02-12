@@ -611,11 +611,19 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
   nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer);
   if(nread <= 0) {
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: child has closed sync_pipe");
+    if (nread == 0)
+      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+            "sync_pipe_input_cb: child has closed sync_pipe");
+    else
+      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+            "sync_pipe_input_cb: error reading from sync pipe");
 
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
-       complain if it did anything other than exit with status 0. */
+       complain if it did anything other than exit with status 0.
+
+       XXX - what if we got an error from the sync pipe?  Do we have
+       to kill the child? */
     sync_pipe_wait_for_child(capture_opts);
 
 #ifdef _WIN32
