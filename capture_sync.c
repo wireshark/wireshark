@@ -123,7 +123,7 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
     guchar header[3+1]; /* indicator + 3-byte len */
     int ret;
 
-    /*g_warning("write %d enter", pipe);*/
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "write %d enter", pipe);
 
     g_assert(indicator < '0' || indicator > '9');
     g_assert(len <= SP_MAX_MSG_LEN);
@@ -136,21 +136,28 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 
     ret = write(pipe, header, sizeof header);
     if(ret == -1) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+              "write %d header: error %s", pipe, strerror(errno));
         return;
     }
 
     /* write value (if we have one) */
     if(len) {
-        /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe, indicator, len, msg);*/
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+              "write %d indicator: %c value len: %u msg: %s", pipe, indicator,
+              len, msg);
         ret = write(pipe, msg, len);
         if(ret == -1) {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+                  "write %d value: error %s", pipe, strerror(errno));
             return;
         }
     } else {
-        /*g_warning("write %d indicator: %c no value", pipe, indicator);*/
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+              "write %d indicator: %c no value", pipe, indicator);
     }
 
-    /*g_warning("write %d leave", pipe);*/
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "write %d leave", pipe);
 }
 
 
@@ -196,12 +203,14 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
         newly = read(pipe, &header[offset], required);
         if (newly == 0) {
             /* EOF */
-            /*g_warning("read %d header empty (capture closed)", pipe);*/
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read %d header empty (capture closed)", pipe);
             return newly;
         }
         if (newly < 0) {
             /* error */
-            /*g_warning("read %d header error: %s", pipe, strerror(errno));*/
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read %d header error: %s", pipe, strerror(errno));
             return newly;
         }
 
@@ -215,11 +224,15 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
 
     /* only indicator with no value? */
     if(required == 0) {
-        /*g_warning("read %d indicator: %c empty value", pipe, *indicator);*/
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+              "read %d indicator: %c empty value", pipe, *indicator);
         return 4;
     }
 
     if(required > len) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+              "read %d length error, required %d > len %d, indicator: %u",
+              pipe, required, len, *indicator);
         return -1;
     }
     len = required;
@@ -230,7 +243,9 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
         newly = read(pipe, &msg[offset], required);
         if (newly == -1) {
             /* error */
-            /*g_warning("read %d value error, indicator: %u", pipe, *indicator);*/
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read %d value error: %s, indicator: %u", pipe,
+                  strerror(errno), *indicator);
             return newly;
         }
 
@@ -238,7 +253,9 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
         offset += newly;
     }
 
-    /*g_warning("read %d ok indicator: %c len: %u msg: %s", pipe, *indicator, len, msg);*/
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+          "read %d ok indicator: %c len: %u msg: %s", pipe, *indicator,
+          len, msg);
     return len + 4;
 }
 
