@@ -153,6 +153,18 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
     /*g_warning("write %d leave", pipe);*/
 }
 
+
+#ifndef _WIN32
+void
+sync_pipe_errmsg_to_parent(const char *errmsg)
+{
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_errmsg_to_parent: %s", errmsg);
+
+    pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
+}
+#endif
+
+
 #ifdef _WIN32
 static void
 signal_pipe_capquit_to_child(capture_options *capture_opts)
