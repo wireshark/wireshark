@@ -85,6 +85,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	ps.h	\
 	register.h	\
 	ringbuffer.h	\
+	tempfile.h	\
 	timestats.h	\
 	util.h	\
 	version_info.h
