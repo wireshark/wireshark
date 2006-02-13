@@ -3,7 +3,7 @@
 @HSRP State Change@hsrp.state != 8 && hsrp.state != 16@[0,0,0][65535,63222,0]
 @Spanning Tree Topology  Change@stp.type == 0x80@[0,0,0][65535,63222,0]
 @OSPF State Change@ospf.msg != 1@[0,0,0][65535,63222,0]
-@ICMP errors@icmp.type eq 3 || icmp.type eq 4 || icmp.type eq 11@[0,0,0][0,65535,3616]
+@ICMP errors@icmp.type eq 3 || icmp.type eq 4 || icmp.type eq 11 || icmp.type eq 5@[0,0,0][0,65535,3616]
 @ARP@arp@[55011,59486,65534][0,0,0]
 @ICMP@icmp@[49680,49737,65535][0,0,0]
 @TCP RST@tcp.flags.reset eq 1@[37008,0,0][65535,63121,32911]
