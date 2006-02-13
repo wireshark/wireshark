@@ -4315,6 +4315,10 @@ proto_register_ssl(void)
              "each list entry must be in the form of <port>:<clear-text-port>"
              "<clear-text-port>   is the port numbert associated with the protocol tunneled over SSL for this port\n",
              (const char **)&ssl_ports_list);
+        prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
+             "redirect ssl debug to file name; leave empty to disable debug, "
+             "use %s to redirect output to stderr\n",
+             (const char **)&ssl_debug_file_name);
     }
 
     register_dissector("ssl", dissect_ssl, proto_ssl);

@@ -44,12 +44,9 @@ ssl_data_set(StringInfo* str, unsigned char* data, unsigned int len)
 static inline void 
 ssl_hmac_init(SSL_HMAC* md, const void * key, int len, int algo)
 {
-    if (*(md)) 
-        gcry_md_close(*(md)); 
     gcry_md_open(md,algo, GCRY_MD_FLAG_HMAC); 
     gcry_md_setkey (*(md), key, len);
 }
-
 static inline void 
 ssl_hmac_update(SSL_HMAC* md, const void* data, int len)
 {
@@ -75,8 +72,6 @@ ssl_hmac_cleanup(SSL_HMAC* md)
 static inline void 
 ssl_md_init(SSL_MD* md, int algo)
 {
-    if (*(md)) 
-        gcry_md_close(*(md));
     gcry_md_open(md,algo, 0); 
 }
 static inline void 
@@ -93,17 +88,18 @@ ssl_md_final(SSL_MD* md, unsigned char* data, unsigned int* datalen)
     *datalen = len;
 }
 static inline void 
-ssl_md_cleanup(SSL_MD* md) { gcry_md_close(*(md)); }
+ssl_md_cleanup(SSL_MD* md) 
+{ 
+    gcry_md_close(*(md)); 
+}
 
 /* md5 /sha abstraction layer */
 #define SSL_SHA_CTX gcry_md_hd_t
 #define SSL_MD5_CTX gcry_md_hd_t
 
-static void 
+static inline void 
 ssl_sha_init(SSL_SHA_CTX* md)
 {
-    if (*(md)) 
-        gcry_md_close(*(md));
     gcry_md_open(md,GCRY_MD_SHA1, 0); 
 }
 static inline void 
@@ -117,12 +113,15 @@ ssl_sha_final(unsigned char* buf, SSL_SHA_CTX* md)
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_SHA1), 
         gcry_md_get_algo_dlen(GCRY_MD_SHA1));
 }
+static inline void 
+ssl_sha_cleanup(SSL_SHA_CTX* md)
+{
+    gcry_md_close(*(md));
+}
 
 static inline int 
 ssl_md5_init(SSL_MD5_CTX* md)
 {
-    if (*(md)) 
-        gcry_md_close(*(md));
     return gcry_md_open(md,GCRY_MD_MD5, 0); 
 }
 static inline void 
@@ -135,6 +134,11 @@ ssl_md5_final(unsigned char* buf, SSL_MD5_CTX* md)
 {
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_MD5), 
         gcry_md_get_algo_dlen(GCRY_MD_MD5));
+}
+static inline void
+ssl_md5_cleanup(SSL_MD5_CTX* md)
+{
+    gcry_md_close(*(md));
 }
 
 
@@ -343,43 +347,43 @@ static const char *ciphers[]={
 
 /* look in openssl/ssl/ssl_lib.c for a complete list of available cipersuite*/
 static SslCipherSuite cipher_suites[]={
-     {1,KEX_RSA,SIG_RSA,ENC_NULL,0,0,0,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
-     {2,KEX_RSA,SIG_RSA,ENC_NULL,0,0,0,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {3,KEX_RSA,SIG_RSA,ENC_RC4,1,128,40,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
-     {4,KEX_RSA,SIG_RSA,ENC_RC4,1,128,128,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
-     {5,KEX_RSA,SIG_RSA,ENC_RC4,1,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {6,KEX_RSA,SIG_RSA,ENC_RC2,8,128,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {7,KEX_RSA,SIG_RSA,ENC_IDEA,8,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {8,KEX_RSA,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {9,KEX_RSA,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {10,KEX_RSA,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {11,KEX_DH,SIG_DSS,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {12,KEX_DH,SIG_DSS,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {13,KEX_DH,SIG_DSS,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {14,KEX_DH,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {15,KEX_DH,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {16,KEX_DH,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {17,KEX_DH,SIG_DSS,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {18,KEX_DH,SIG_DSS,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {19,KEX_DH,SIG_DSS,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {20,KEX_DH,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {21,KEX_DH,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {22,KEX_DH,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {23,KEX_DH,SIG_NONE,ENC_RC4,1,128,40,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
-     {24,KEX_DH,SIG_NONE,ENC_RC4,1,128,128,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
-     {25,KEX_DH,SIG_NONE,ENC_DES,8,64,40,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
-     {26,KEX_DH,SIG_NONE,ENC_DES,8,64,64,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
-     {27,KEX_DH,SIG_NONE,ENC_3DES,8,192,192,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
-     {47,KEX_RSA,SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
-     {53,KEX_RSA,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
-     {96,KEX_RSA,SIG_RSA,ENC_RC4,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
-     {97,KEX_RSA,SIG_RSA,ENC_RC2,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
-     {98,KEX_RSA,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {99,KEX_DH,SIG_DSS,ENC_DES,8,64,64,DIG_SHA,16,1, SSL_CIPHER_MODE_STREAM},
-     {100,KEX_RSA,SIG_RSA,ENC_RC4,1,128,56,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {101,KEX_DH,SIG_DSS,ENC_RC4,1,128,56,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-     {102,KEX_DH,SIG_DSS,ENC_RC4,1,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-     {-1, 0,0,0,0,0,0,0,0,0, 0}
+    {1,KEX_RSA,SIG_RSA,ENC_NULL,0,0,0,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
+    {2,KEX_RSA,SIG_RSA,ENC_NULL,0,0,0,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {3,KEX_RSA,SIG_RSA,ENC_RC4,1,128,40,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
+    {4,KEX_RSA,SIG_RSA,ENC_RC4,1,128,128,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
+    {5,KEX_RSA,SIG_RSA,ENC_RC4,1,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {6,KEX_RSA,SIG_RSA,ENC_RC2,8,128,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {7,KEX_RSA,SIG_RSA,ENC_IDEA,8,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {8,KEX_RSA,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {9,KEX_RSA,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {10,KEX_RSA,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {11,KEX_DH,SIG_DSS,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {12,KEX_DH,SIG_DSS,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {13,KEX_DH,SIG_DSS,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {14,KEX_DH,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {15,KEX_DH,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {16,KEX_DH,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {17,KEX_DH,SIG_DSS,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {18,KEX_DH,SIG_DSS,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {19,KEX_DH,SIG_DSS,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {20,KEX_DH,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {21,KEX_DH,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {22,KEX_DH,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {23,KEX_DH,SIG_NONE,ENC_RC4,1,128,40,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
+    {24,KEX_DH,SIG_NONE,ENC_RC4,1,128,128,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
+    {25,KEX_DH,SIG_NONE,ENC_DES,8,64,40,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
+    {26,KEX_DH,SIG_NONE,ENC_DES,8,64,64,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
+    {27,KEX_DH,SIG_NONE,ENC_3DES,8,192,192,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
+    {47,KEX_RSA,SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
+    {53,KEX_RSA,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
+    {96,KEX_RSA,SIG_RSA,ENC_RC4,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
+    {97,KEX_RSA,SIG_RSA,ENC_RC2,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
+    {98,KEX_RSA,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {99,KEX_DH,SIG_DSS,ENC_DES,8,64,64,DIG_SHA,16,1, SSL_CIPHER_MODE_STREAM},
+    {100,KEX_RSA,SIG_RSA,ENC_RC4,1,128,56,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {101,KEX_DH,SIG_DSS,ENC_RC4,1,128,56,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
+    {102,KEX_DH,SIG_DSS,ENC_RC4,1,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {-1, 0,0,0,0,0,0,0,0,0, 0}
 };
 
 #define MAX_BLOCK_SIZE 16
@@ -412,7 +416,6 @@ tls_hash(StringInfo* secret,
     unsigned int A_l,tmp_l;
     SSL_HMAC hm;
     
-    memset(&hm, 0, sizeof(hm));
     ssl_print_string("tls_hash: hash secret", secret);
     ssl_print_string("tls_hash: hash seed", seed);
     A=seed->data;
@@ -422,12 +425,14 @@ tls_hash(StringInfo* secret,
         ssl_hmac_init(&hm,secret->data,secret->data_len,md);
         ssl_hmac_update(&hm,A,A_l);
         ssl_hmac_final(&hm,_A,&A_l);
+        ssl_hmac_cleanup(&hm);
         A=_A;
         
         ssl_hmac_init(&hm,secret->data,secret->data_len,md);
         ssl_hmac_update(&hm,A,A_l);
         ssl_hmac_update(&hm,seed->data,seed->data_len);
         ssl_hmac_final(&hm,tmp,&tmp_l);
+        ssl_hmac_cleanup(&hm);
         
         tocpy=MIN(left,tmp_l);
         memcpy(ptr,tmp,tocpy);
@@ -435,7 +440,6 @@ tls_hash(StringInfo* secret,
         left-=tocpy;
     }
     
-    ssl_hmac_cleanup(&hm);
     ssl_print_string("hash out", out);
     return (0);
 }    
@@ -505,11 +509,11 @@ ssl3_generate_export_iv(StringInfo* r1,
     SSL_MD5_CTX md5;
     guint8 tmp[16];
     
-    memset(&md5, 0, sizeof(md5));
     ssl_md5_init(&md5);
     ssl_md5_update(&md5,r1->data,r1->data_len);
     ssl_md5_update(&md5,r2->data,r2->data_len);
     ssl_md5_final(tmp,&md5);
+    ssl_md5_cleanup(&md5);
     
     memcpy(out->data,tmp,out->data_len);
     ssl_print_string("export iv", out);
@@ -530,23 +534,19 @@ ssl3_prf(StringInfo* secret, const char* usage,
     guint8 buf[20];
     
     rnd1=r1; rnd2=r2;
-        
-    memset(&md5,0,sizeof(md5));
-    ssl_md5_init(&md5);
-    memset(&sha,0,sizeof(sha));
-    ssl_sha_init(&sha);
     
     for(off=0;off<out->data_len;off+=16){
         unsigned char outbuf[16];
         int tocpy;
         i++;
         
-        ssl_debug_printf("ssl3_prf: sha1_update(%d)\n",i);
+        ssl_debug_printf("ssl3_prf: sha1_hash(%d)\n",i);
         /* A, BB, CCC,  ... */
         for(j=0;j<i;j++){
             buf[j]=64+i;
         }
         
+        ssl_sha_init(&sha);
         ssl_sha_update(&sha,buf,i);
         if (secret) 
             ssl_sha_update(&sha,secret->data,secret->data_len);
@@ -561,17 +561,18 @@ ssl3_prf(StringInfo* secret, const char* usage,
         }
         
         ssl_sha_final(buf,&sha);
+        ssl_sha_cleanup(&sha);
         
-        ssl_sha_init(&sha);
-        
-        ssl_debug_printf("ssl3_prf: md5_update(%d)\n",i);
+        ssl_debug_printf("ssl3_prf: md5_hash(%d) datalen %d\n",i, 
+            secret->data_len);
+        ssl_md5_init(&md5);
         ssl_md5_update(&md5,secret->data,secret->data_len);
         ssl_md5_update(&md5,buf,20);
         ssl_md5_final(outbuf,&md5);
+        ssl_md5_cleanup(&md5);
+        
         tocpy=MIN(out->data_len-off,16);
         memcpy(out->data+off,outbuf,tocpy);
-        
-        ssl_md5_init(&md5);
     }
     
     return(0);
@@ -732,7 +733,6 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             SSL_MD5_CTX md5;
             ssl_debug_printf("ssl_generate_keyring_material MD5(client_random)\n");
             
-            memset(&md5, 0, sizeof(md5));
             ssl_md5_init(&md5);
             ssl_md5_update(&md5,c_wk,ssl_session->cipher_suite.eff_bits/8);
             ssl_md5_update(&md5,ssl_session->client_random.data,
@@ -740,6 +740,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             ssl_md5_update(&md5,ssl_session->server_random.data,
                 ssl_session->server_random.data_len);        
             ssl_md5_final(_key_c,&md5);
+            ssl_md5_cleanup(&md5);
             c_wk=_key_c;
             
             ssl_md5_init(&md5);
@@ -750,6 +751,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             ssl_md5_update(&md5,ssl_session->client_random.data,
                 ssl_session->client_random.data_len);
             ssl_md5_final(_key_s,&md5);
+            ssl_md5_cleanup(&md5);
             s_wk=_key_s;
         }
         else{
@@ -815,7 +817,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     return 0;
     
 fail:
-    free(key_block.data);
+    g_free(key_block.data);
     return -1;
 }
 
@@ -831,14 +833,6 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
         return(-1);
     }
 
-#if 0 
-    /* can't find any place where ephemeral_rsa is set ...*/
-    if(d->ephemeral_rsa) {
-        ssl_debug_printf("ssl_decrypt_pre_master_secret ephimeral RSA\n");
-        return(-1);
-    }
-#endif    
- 
     /* with tls key loading will fail if not rsa type, so no need to check*/
     ssl_print_string("pre master encrypted",entrypted_pre_master);
     ssl_debug_printf("ssl_decrypt_pre_master_secret:RSA_private_decrypt\n");
@@ -863,9 +857,6 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     return 0;
 }
  
-#define MSB(a) ((a>>8)&0xff)
-#define LSB(a) (a&0xff)
-
 /* convert network byte order 32 byte number to right-aligned host byte order *
  * 8 bytes buffer */
 static int fmt_seq(guint32 num, guint8* buf)
@@ -885,36 +876,36 @@ tls_check_mac(SslDecoder*decoder, int ct,int ver, guint8* data,
 {
     SSL_HMAC hm;
     int md;
-    guint32 l;
+    guint32 len;
     guint8 buf[20];
 
-    memset(&hm, 0, sizeof(hm));
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
     ssl_debug_printf("tls_check_mac mac type:%s md %d\n",
         digests[decoder->cipher_suite->dig-0x40], md);
     
     ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md);
     
+    /* hash sequence number */
     fmt_seq(decoder->seq,buf);
     decoder->seq++;
     ssl_hmac_update(&hm,buf,8);
     
+    /* hash content type */
     buf[0]=ct;
     ssl_hmac_update(&hm,buf,1);
 
-    buf[0]=MSB(ver);
-    buf[1]=LSB(ver);
+    /* hash version,data lenght and data*/
+    *((gint16*)buf) = g_htons(ver);
     ssl_hmac_update(&hm,buf,2); 
     
-    buf[0]=MSB(datalen);
-    buf[1]=LSB(datalen);
+    *((gint16*)buf) = g_htons(datalen);
     ssl_hmac_update(&hm,buf,2);
-
     ssl_hmac_update(&hm,data,datalen);
 
-    ssl_hmac_final(&hm,buf,&l);
-    ssl_print_data("Mac", buf, l);
-    if(memcmp(mac,buf,l))
+    /* get digest and digest len*/
+    ssl_hmac_final(&hm,buf,&len);
+    ssl_print_data("Mac", buf, len);
+    if(memcmp(mac,buf,len))
         return -1;
 
     ssl_hmac_cleanup(&hm);
@@ -927,7 +918,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 {
     SSL_MD mc;
     int md;
-    guint32 l;
+    guint32 len;
     guint8 buf[64],dgst[20];
     int pad_ct;
     
@@ -937,41 +928,48 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
     ssl_debug_printf("ssl3_check_mac digest%s md %d\n",
         digests[decoder->cipher_suite->dig-0x40], md);
-    memset(&mc, 0, sizeof(mc));
     ssl_md_init(&mc,md);
     ssl_debug_printf("ssl3_check_mac memory digest %p\n",mc);
 
     /* do hash computation on data && padding */
     ssl_md_update(&mc,decoder->mac_key.data,decoder->mac_key.data_len);
 
+    /* hash padding*/
     memset(buf,0x36,pad_ct);
     ssl_md_update(&mc,buf,pad_ct);
 
+    /* hash sequence number */
     fmt_seq(decoder->seq,buf);
     decoder->seq++;
     ssl_md_update(&mc,buf,8);
 
+    /* hash content type */
     buf[0]=ct;
     ssl_md_update(&mc,buf,1);
 
-    buf[0]=MSB(datalen);
-    buf[1]=LSB(datalen);
+    /* hash data lenght in network byte order and data*/ 
+    *((gint16* )buf) = g_htons(datalen);
     ssl_md_update(&mc,buf,2);
     ssl_md_update(&mc,data,datalen);
 
-    ssl_md_final(&mc,dgst,&l);
+    /* get partial digest */
+    ssl_md_final(&mc,dgst,&len);
+    ssl_md_cleanup(&mc);
 
     ssl_md_init(&mc,md);
 
+    /* hash mac key */
     ssl_md_update(&mc,decoder->mac_key.data,decoder->mac_key.data_len);
 
+    /* hash padding and partial digest*/
     memset(buf,0x5c,pad_ct);
     ssl_md_update(&mc,buf,pad_ct);
-    ssl_md_update(&mc,dgst,l);
+    ssl_md_update(&mc,dgst,len);
 
-    ssl_md_final(&mc,dgst,&l);
+    ssl_md_final(&mc,dgst,&len);
+    ssl_md_cleanup(&mc);
 
-    if(memcmp(mac,dgst,l))
+    if(memcmp(mac,dgst,len))
         return -1;
 
     return(0);
