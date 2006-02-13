@@ -83,8 +83,6 @@ static int hf_packetcable_terminal_display_info_general_display = -1;
 static int hf_packetcable_terminal_display_info_calling_number = -1;
 static int hf_packetcable_terminal_display_info_calling_name = -1;
 static int hf_packetcable_terminal_display_info_message_waiting = -1;
-static int hf_packetcable_party_ccc_id_valid = -1;
-static int hf_packetcable_party_ccc_id = -1;
 
 /* This is slightly ugly.  */
 static int hf_packetcable_qos_desc_flags[] =
