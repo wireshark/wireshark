@@ -137,10 +137,12 @@ void expert_dlg_reset(void *tapdata)
 
 int expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
-	expert_info_t	*ei = (expert_info_t *) pointer;
+    expert_info_t	*ei = se_memdup(pointer,sizeof(expert_info_t));
 	expert_tapdata_t * etd = tapdata;
-
-
+    
+    ei->protocol = se_strdup(ei->protocol);
+    ei->summary = se_strdup(ei->summary);
+    
 	switch(ei->severity) {
 	case(PI_CHAT):
 		etd->chat_events++;

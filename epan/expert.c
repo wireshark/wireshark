@@ -86,12 +86,12 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	if ((ret == -1) || (ret >= sizeof(formatted)))
 		formatted[sizeof(formatted) - 1] = '\0';
 
-	ei = se_alloc(sizeof(expert_info_t));
+	ei = ep_alloc(sizeof(expert_info_t));
 	ei->packet_num	= pinfo ? pinfo->fd->num : 0;
 	ei->group		= group;
 	ei->severity	= severity;
-	ei->protocol	= se_strdup(pinfo->current_proto);
-	ei->summary		= se_strdup(formatted);
+	ei->protocol	= ep_strdup(pinfo->current_proto);
+	ei->summary		= ep_strdup(formatted);
     ei->pitem       = NULL;
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
