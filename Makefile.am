@@ -682,7 +682,10 @@ EXTRA_DIST = \
 	text2pcap-scanner.l	\
 	text2pcap.c		\
 	text2pcap.h		\
-	wka.tmpl
+	wka.tmpl \
+	template-init.lua \
+	make-init-lua.pl \
+	init.lua
 
 if SETUID_INSTALL
 install-exec-hook:
@@ -841,3 +844,7 @@ test-splint: $(ethereal_SOURCES)
 		-I./tools/lemon \
 		-I./wiretap	\
 		$(ethereal_SOURCES)
+
+init.lua: template-init.lua make-init-lua.pl epan/ftypes/ftypes.h wiretap/wtap.h
+	$(PERL) make-init-lua.pl template-init.lua > init.lua
+

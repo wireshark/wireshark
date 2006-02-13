@@ -52,6 +52,7 @@
 #define LUA_DISSECTORS_TABLE "dissectors"
 #define LUA_INIT_ROUTINES "init_routines"
 #define LUA_HANDOFF_ROUTINES "handoff_routines"
+#define LOG_DOMAIN_LUA "Lua"
 
 struct _eth_tvbrange {
     tvbuff_t* tvb;
@@ -193,7 +194,7 @@ C* push##C(lua_State* L, C v) { \
 gboolean is##C(lua_State* L,int i) { \
         return (gboolean)(lua_isuserdata(L,i) && luaL_checkudata(L,3,CN)); \
 } \
-extern C shift##C(lua_State* L,int i) { \
+C shift##C(lua_State* L,int i) { \
     C* p; \
     if ((p = (C*)luaL_checkudata(L, i, CN))) {\
         lua_remove(L,i); \

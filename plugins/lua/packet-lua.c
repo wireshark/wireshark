@@ -92,6 +92,45 @@ static int lua_not_register_menu(lua_State* L) {
     return 0;    
 }
 
+static int lua_not_print(lua_State* L) {
+    luaL_error(L,"do not use print use either a TextWindow or critical(),\n"
+               "warn(), message(), info() or debug()");
+    return 0;        
+}
+
+int lua_log(lua_State* L, GLogLevelFlags log_level) {
+    GString* str = g_string_new("");
+    int n = lua_gettop(L);  /* number of arguments */
+    int i;
+    
+    lua_getglobal(L, "tostring");
+    for (i=1; i<=n; i++) {
+        const char *s;
+        lua_pushvalue(L, -1);  /* function to be called */
+        lua_pushvalue(L, i);   /* value to print */
+        lua_call(L, 1, 1);
+        s = lua_tostring(L, -1);  /* get result */
+        if (s == NULL)
+            return luaL_error(L, "`tostring' must return a string to `print'");
+        
+        if (i>1) g_string_append(str,"\t");
+        g_string_append(str,s);
+        
+        lua_pop(L, 1);  /* pop result */
+    }
+    
+    g_log(LOG_DOMAIN_LUA, log_level, "%s\n", str->str);
+    g_string_free(str,TRUE);
+    
+    return 0;
+}
+
+int lua_critical( lua_State* L ) { lua_log(L,G_LOG_LEVEL_CRITICAL); return 0; }
+int lua_warn( lua_State* L ) { lua_log(L,G_LOG_LEVEL_WARNING); return 0; }
+int lua_message( lua_State* L ) { lua_log(L,G_LOG_LEVEL_MESSAGE); return 0; }
+int lua_info( lua_State* L ) { lua_log(L,G_LOG_LEVEL_INFO); return 0; }
+int lua_debug( lua_State* L ) { lua_log(L,G_LOG_LEVEL_DEBUG); return 0; }
+
 
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
@@ -243,44 +282,37 @@ void lua_load_script(const gchar* filename) {
     
 }
 
+static void basic_logger(const gchar *log_domain _U_,
+                          GLogLevelFlags log_level _U_,
+                          const gchar *message,
+                          gpointer user_data _U_) {
+    fputs(message,stderr);
+}
+
 void register_lua(void) {
     const gchar* filename;
-    GPtrArray* filenames = g_ptr_array_new();
-    guint i;
+    const funnel_ops_t* ops = funnel_get_funnel_ops();
+    gboolean run_anyway = FALSE;
     
-    filename = get_datafile_path("init.lua");
+    /* set up the logger */
+    g_log_set_handler(LOG_DOMAIN_LUA, G_LOG_LEVEL_CRITICAL|
+                      G_LOG_LEVEL_WARNING|
+                      G_LOG_LEVEL_MESSAGE|
+                      G_LOG_LEVEL_INFO|
+                      G_LOG_LEVEL_DEBUG,
+                      ops ? ops->logger : basic_logger, NULL);
     
-    if (( file_exists(filename))) {
-        g_ptr_array_add(filenames,(void*)filename);
-    }
-    
-
-    if (! started_with_special_privs() ) {
-        filename = get_persconffile_path("init.lua", FALSE);
-        
-        if (( file_exists(filename))) {
-            g_ptr_array_add(filenames,(void*)filename);
-        }
-        
-        while((filename = ex_opt_get_next("lua_script"))) {
-            g_ptr_array_add(filenames,(void*)filename);
-        }
-    }
-    
-    if (! filenames->len) {
-        g_ptr_array_free(filenames,TRUE);
-        return;
-    }
-    
-    register_init_routine(init_lua);    
+    /* initialize the lua machine */
     
     L = lua_open();
     
+    /* load lua's standard library */ 
     luaopen_base(L);
     luaopen_table(L);
     luaopen_io(L);
     luaopen_string(L);
-
+    
+    /* load ethereal's API */
     ProtoField_register(L);
     ProtoFieldArray_register(L);
     SubTree_register(L);
@@ -299,7 +331,35 @@ void register_lua(void) {
     Tap_register(L);
     Address_register(L);
     TextWindow_register(L);
-
+    
+    /* print has been changed to yield an error if used */
+    lua_pushstring(L, "print");
+    lua_pushcfunction(L, lua_not_print);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    /* logger functions */
+    lua_pushstring(L, "critical");
+    lua_pushcfunction(L, lua_critical);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "warn");
+    lua_pushcfunction(L, lua_warn);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "message");
+    lua_pushcfunction(L, lua_message);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "info");
+    lua_pushcfunction(L, lua_info);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    lua_pushstring(L, "debug");
+    lua_pushcfunction(L, lua_debug);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    
+    
+    /* functions not registered by any other module */
     lua_pushstring(L, "format_date");
     lua_pushcfunction(L, lua_format_date);
     lua_settable(L, LUA_GLOBALSINDEX);
@@ -323,26 +383,73 @@ void register_lua(void) {
     lua_pushstring(L, "dialog");
     lua_pushcfunction(L, lua_new_dialog);
     lua_settable(L, LUA_GLOBALSINDEX);
-
+    
+    /* the init_routines table (accessible by the user) */
     lua_pushstring(L, LUA_INIT_ROUTINES);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
+    /* the dissectors table goes in the registry (not accessible) */
     lua_newtable (L);
     lua_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    /* set running_superuser variable to it's propper value */
+    lua_pushstring(L,"running_superuser");
+    lua_pushboolean(L,started_with_special_privs());
+    lua_settable(L, LUA_GLOBALSINDEX);    
+
+    /* load system's init.lua */
+    filename = get_datafile_path("init.lua");
     
-    for (i=0 ; i < filenames->len ; i++) {
-        filename = g_ptr_array_index(filenames,i);
+    if (( file_exists(filename))) {
         lua_load_script(filename);
     }
     
-    g_ptr_array_free(filenames,TRUE);
+    /* check if lua is to be disabled */
+    lua_pushstring(L,"lua_disabled");
+    lua_gettable(L, LUA_GLOBALSINDEX);
     
-    /* after the body it is too late to register a menu */
+    if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
+        /* disable lua */
+        lua_close(L);
+        L = NULL;
+        return;
+    }
+    
+    /* check whether we should run other scripts even if running superuser */
+    lua_pushstring(L,"run_user_scripts_when_superuser");
+    lua_gettable(L, LUA_GLOBALSINDEX);
+    
+    if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
+        run_anyway = TRUE;
+    }
+
+
+    /* if we are indeed superuser run user scripts only if told to do so */
+    if ( (!started_with_special_privs()) || run_anyway ) {
+        filename = get_persconffile_path("init.lua", FALSE);
+        
+        if (( file_exists(filename))) {
+            lua_load_script(filename);
+        }
+        
+        while((filename = ex_opt_get_next("lua_script"))) {
+            lua_load_script(filename);
+        }
+    }
+    
+    /* at this point we're set up so register the init routine */
+    register_init_routine(init_lua);    
+    
+    /*
+     * after this point it is too late to register a menu
+     * disable the function to avoid weirdness
+     */
     lua_pushstring(L, "register_menu");
     lua_pushcfunction(L, lua_not_register_menu);
     lua_settable(L, LUA_GLOBALSINDEX);
     
+    /* set up some essential globals */
     lua_pinfo = NULL;
     lua_tree = NULL;
     lua_tvb = NULL;

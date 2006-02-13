@@ -672,4 +672,8 @@ clean-deps:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..
 
+init.lua: template-init.lua make-init-lua.pl epan/ftypes/ftypes.h wiretap/wtap.h
+	$(PERL) make-init-lua.pl template-init.lua > init.lua
+
+
 
