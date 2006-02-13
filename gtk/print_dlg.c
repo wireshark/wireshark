@@ -50,6 +50,7 @@
 #include "range_utils.h"
 #include "help_dlg.h"
 #include "file_util.h"
+#include "tempfile.h"
 #include "util.h"
 
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
