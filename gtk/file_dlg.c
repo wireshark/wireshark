@@ -63,6 +63,12 @@
 #include <unistd.h>
 #endif
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#include <gdk/gdkwin32.h>
+#include <windows.h>
+#include "win32-file-dlg.h"
+#endif
+
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_merge_ok_cb(GtkWidget *w, gpointer fs);
@@ -209,7 +215,7 @@ preview_do(GtkWidget *prev, wtap *wth)
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-        phdr = wtap_phdr(wth);        
+        phdr = wtap_phdr(wth);
         cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
         if(packets == 0) {
             start_time 	= cur_time;
@@ -271,10 +277,10 @@ preview_do(GtkWidget *prev, wtap *wth)
     /* elapsed time */
     elapsed_time = (unsigned int)(stop_time-start_time);
     if(elapsed_time/86400) {
-      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u", 
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u",
         elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     } else {
-      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u", 
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u",
         elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     }
     if(is_breaked) {
@@ -426,6 +432,7 @@ file_open_cmd(GtkWidget *w)
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
+
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -434,6 +441,11 @@ file_open_cmd(GtkWidget *w)
   	FALSE,
     TRUE
   };
+
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_open_file(GDK_WINDOW_HWND(top_level->window));
+  return;
+#endif
 
   if (file_open_w != NULL) {
     /* There's already an "Open Capture File" dialog box; reactivate it. */
@@ -444,7 +456,7 @@ file_open_cmd(GtkWidget *w)
   file_open_w = file_selection_new("Ethereal: Open Capture File",
                                    FILE_SELECTION_OPEN);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  /* it's annoying, that the file chooser dialog is already shown here, 
+  /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
   WIDGET_SET_SIZE(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
 #else
@@ -479,7 +491,7 @@ file_open_cmd(GtkWidget *w)
     break;
   }
 
-  
+
   main_hb = gtk_hbox_new(FALSE, 3);
   file_selection_set_extra_widget(file_open_w, main_hb);
   gtk_widget_show(main_hb);
@@ -563,7 +575,7 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_open_w), "selection-changed", 
+  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_open_w), "selection-changed",
       file_open_entry_changed, file_open_w);
   file_open_entry_changed(file_open_w, file_open_w);
 
@@ -575,7 +587,7 @@ file_open_cmd(GtkWidget *w)
   }
   else window_destroy(file_open_w);
 #else
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->selection_entry, "changed", 
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->selection_entry, "changed",
       file_open_entry_changed, file_open_w);
 
   /* Connect the ok_button to file_open_ok_cb function and pass along a
@@ -587,7 +599,7 @@ file_open_cmd(GtkWidget *w)
                   E_DFILTER_TE_KEY, OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
-  window_set_cancel_button(file_open_w, 
+  window_set_cancel_button(file_open_w,
       GTK_FILE_SELECTION(file_open_w)->cancel_button, window_cancel_button_cb);
 
   SIGNAL_CONNECT(file_open_w, "delete_event", window_delete_event_cb, NULL);
@@ -765,6 +777,11 @@ file_merge_cmd(GtkWidget *w)
     TRUE
   };
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_merge_file(GDK_WINDOW_HWND(top_level->window));
+  return;
+#endif
+
   if (file_merge_w != NULL) {
     /* There's already an "Merge Capture File" dialog box; reactivate it. */
     reactivate_window(file_merge_w);
@@ -777,7 +794,7 @@ file_merge_cmd(GtkWidget *w)
   file_merge_w = file_selection_new("Ethereal: Merge with Capture File",
                                    FILE_SELECTION_OPEN);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  /* it's annoying, that the file chooser dialog is already shown here, 
+  /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
   WIDGET_SET_SIZE(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
 #else
@@ -811,7 +828,7 @@ file_merge_cmd(GtkWidget *w)
       file_selection_set_current_folder(file_merge_w, prefs.gui_fileopen_dir);
     break;
   }
-    
+
   main_hb = gtk_hbox_new(FALSE, 3);
   file_selection_set_extra_widget(file_merge_w, main_hb);
   gtk_widget_show(main_hb);
@@ -864,7 +881,7 @@ file_merge_cmd(GtkWidget *w)
 #endif
 
   prepend_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "Prepend packets to existing file", accel_group);
-  gtk_tooltips_set_tip(tooltips, prepend_rb, 
+  gtk_tooltips_set_tip(tooltips, prepend_rb,
       "The resulting file contains the packets from the selected, followed by the packets from the currently loaded file,"
       " the packet timestamps will be ignored.", NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), prepend_rb, FALSE, FALSE, 0);
@@ -878,7 +895,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_widget_show(prepend_rb);
 
   chrono_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Merge packets chronologically", accel_group);
-  gtk_tooltips_set_tip(tooltips, chrono_rb, 
+  gtk_tooltips_set_tip(tooltips, chrono_rb,
       "The resulting file contains all the packets from the currently loaded and the selected file,"
       " sorted by the packet timestamps.", NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chrono_rb), TRUE);
@@ -892,7 +909,7 @@ file_merge_cmd(GtkWidget *w)
 #endif
 
   append_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Append packets to existing file", accel_group);
-  gtk_tooltips_set_tip(tooltips, append_rb, 
+  gtk_tooltips_set_tip(tooltips, append_rb,
       "The resulting file contains the packets from the currently loaded, followed by the packets from the selected file,"
       " the packet timestamps will be ignored.", NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(append_rb),
@@ -916,7 +933,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_merge_w), "selection-changed", 
+  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_merge_w), "selection-changed",
       file_open_entry_changed, file_merge_w);
   file_open_entry_changed(file_merge_w, file_merge_w);
 
@@ -928,7 +945,7 @@ file_merge_cmd(GtkWidget *w)
   }
   else window_destroy(file_merge_w);
 #else
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->selection_entry, "changed", 
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->selection_entry, "changed",
       file_open_entry_changed, file_merge_w);
 
   /* Connect the ok_button to file_merge_ok_cb function and pass along a
@@ -940,7 +957,7 @@ file_merge_cmd(GtkWidget *w)
                   E_DFILTER_TE_KEY, OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
-  window_set_cancel_button(file_merge_w, 
+  window_set_cancel_button(file_merge_w,
       GTK_FILE_SELECTION(file_merge_w)->cancel_button, window_cancel_button_cb);
 
   SIGNAL_CONNECT(file_merge_w, "delete_event", window_delete_event_cb, NULL);
@@ -1042,7 +1059,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   }
 
   g_free(cf_name);
-  
+
   if (merge_status != CF_OK) {
     if (rfcode != NULL)
       dfilter_free(rfcode);
@@ -1224,7 +1241,7 @@ file_save_update_dynamics(void)
     /* We don't currently have a "Save As..." dialog box up. */
     return;
   }
-	
+
   range_update_dynamics(range_tb);
 }
 
@@ -1242,7 +1259,12 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
-	  
+
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_save_as_file(GDK_WINDOW_HWND(top_level->window), action_after_save, action_after_save_data);
+  return;
+#endif
+
   if (file_save_as_w != NULL) {
     /* There's already an "Save Capture File As" dialog box; reactivate it. */
     reactivate_window(file_save_as_w);
@@ -1257,7 +1279,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 
   /* Enable tooltips */
   tooltips = gtk_tooltips_new();
-	  
+
   /* build the file selection */
   file_save_as_w = file_selection_new ("Ethereal: Save Capture File As",
                                        FILE_SELECTION_SAVE);
@@ -1271,19 +1293,19 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(file_save_as_w), accel_group);
 #endif
-	
+
   /* Container for each row of widgets */
-       
+
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   file_selection_set_extra_widget(file_save_as_w, main_vb);
-  gtk_widget_show(main_vb);	
-		
+  gtk_widget_show(main_vb);
+
   /*** Packet Range frame ***/
   range_fr = gtk_frame_new("Packet Range");
   gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
-  
+
   /* range table */
   range_tb = range_new(&range
 #if GTK_MAJOR_VERSION < 2
@@ -1315,7 +1337,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* compressed */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
   gtk_container_add(GTK_CONTAINER(ft_hb), compressed_cb);
-  /* XXX - disable output compression for now, as this doesn't work with the 
+  /* XXX - disable output compression for now, as this doesn't work with the
    * current optimization to simply copy a capture file if it's using the same
    * encapsulation ... */
   /* the rest of the implementation is just working fine :-( */
@@ -1337,7 +1359,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_save_as_w)->ok_button, "clicked",
                  file_save_as_ok_cb, file_save_as_w);
 
-  window_set_cancel_button(file_save_as_w, 
+  window_set_cancel_button(file_save_as_w,
       GTK_FILE_SELECTION(file_save_as_w)->cancel_button, window_cancel_button_cb);
 
   SIGNAL_CONNECT(file_save_as_w, "delete_event", window_delete_event_cb, NULL);
@@ -1373,7 +1395,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
 
   /* Write out the packets (all, or only the ones from the current
      range) to the file with the specified name. */
-  if (cf_save(&cfile, cf_name, &range, filetype, 
+  if (cf_save(&cfile, cf_name, &range, filetype,
 	  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb))) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
@@ -1465,7 +1487,7 @@ static void
 file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gpointer  dialog;
-  
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
@@ -1602,6 +1624,12 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
+
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_import_color_file(GDK_WINDOW_HWND(top_level->window));
+  return;
+#endif
+
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
 
@@ -1653,7 +1681,7 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_color_import_w)->ok_button,
                   ARGUMENT_CL, data);
 
-  window_set_cancel_button(file_color_import_w, 
+  window_set_cancel_button(file_color_import_w,
       GTK_FILE_SELECTION(file_color_import_w)->cancel_button, window_cancel_button_cb);
 
   SIGNAL_CONNECT(file_color_import_w, "delete_event", window_delete_event_cb, NULL);
@@ -1670,7 +1698,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer fs) {
   gpointer  argument;
 
   argument = OBJECT_GET_DATA(w, ARGUMENT_CL);     /* to be passed back into color_filters_import */
-  
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
@@ -1758,6 +1786,11 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   GtkWidget *main_vb, *cfglobal_but;
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_export_color_file(GDK_WINDOW_HWND(top_level->window));
+  return;
+#endif
+
   if (file_color_export_w != NULL) {
     /* There's already an "Color Filter Export" dialog box; reactivate it. */
     reactivate_window(file_color_export_w);
@@ -1803,7 +1836,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
                  file_color_export_ok_cb, file_color_export_w);
 
-  window_set_cancel_button(file_color_export_w, 
+  window_set_cancel_button(file_color_export_w,
       GTK_FILE_SELECTION(file_color_export_w)->cancel_button, window_cancel_button_cb);
 
   SIGNAL_CONNECT(file_color_export_w, "delete_event", window_delete_event_cb, NULL);

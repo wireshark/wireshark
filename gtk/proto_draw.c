@@ -71,6 +71,12 @@
 #include "../ui_util.h"
 #include "file_util.h"
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#include <gdk/gdkwin32.h>
+#include <windows.h>
+#include "win32-file-dlg.h"
+#endif
+
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
 
@@ -223,9 +229,9 @@ redraw_hex_dump_all(void)
 
 #if GTK_MAJOR_VERSION >= 2
   /* XXX - this is a hack, to workaround a bug in GTK2.x!
-     when changing the font size, even refilling of the corresponding 
-     gtk_text_buffer doesn't seem to trigger an update.     
-     The only workaround is to freshly select the frame, which will remove any 
+     when changing the font size, even refilling of the corresponding
+     gtk_text_buffer doesn't seem to trigger an update.
+     The only workaround is to freshly select the frame, which will remove any
      existing notebook tabs and "restart" the whole byte view again. */
   if (cfile.current_frame != NULL)
     cf_goto_frame(&cfile, cfile.current_frame->num);
@@ -698,7 +704,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 			/* Horizontal */GTK_POLICY_NEVER,
 			/* Vertical*/	GTK_POLICY_ALWAYS);
 #else
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(byte_scrollw), 
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(byte_scrollw),
                                    GTK_SHADOW_IN);
 #endif
   /* Add scrolled pane to tabbed window */
@@ -745,7 +751,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
         gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), TRUE);
 
   /* set this page (this will print the packet data) */
-  gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb), 
+  gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb),
     gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_nb));
 
   return byte_view;
@@ -797,7 +803,7 @@ savehex_dlg_destroy_cb(void)
 }
 
 void
-copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)  
+copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
 	GtkWidget *bv;
 	int len;
@@ -805,16 +811,16 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)
 	const guint8 *data_p = NULL;
 	GString *ASCII_representation = g_string_new("");
 	GString *byte_str = g_string_new("");
-	
+
 	bv = get_notebook_bv_ptr(byte_nb_ptr);
 	if (bv == NULL) {
-		/* shouldn't happen */ 
+		/* shouldn't happen */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
 		return;
 	}
-	
+
 	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
-	
+
 	g_string_sprintfa(byte_str,"%04x  ",i); /* Offset 0000 */
 	for (i=0; i<len; i++){
 	  g_string_sprintfa(ASCII_representation,"%c",isprint(*data_p) ? *data_p : '.');
@@ -824,7 +830,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)
 	    g_string_assign (ASCII_representation,"");
 	  }
 	}
-	
+
 	if(ASCII_representation->len){
 	  for (i=ASCII_representation->len; i<16; i++){
 	    g_string_sprintfa(byte_str,"   ");
@@ -866,7 +872,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 		return;
 	}
 	/*
-	 * Retrieve the info we need 
+	 * Retrieve the info we need
 	 */
 	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
 	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
@@ -902,11 +908,15 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
 	int start, end, len;
 	const guint8 *data_p = NULL;
-    gchar *label;
+        gchar *label;
 
-    GtkWidget   *bv;
+        GtkWidget   *bv;
 	GtkWidget   *dlg_lb;
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+    win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
+    return;
+#endif
 
     /* don't show up the dialog, if no data has to be saved */
 	bv = get_notebook_bv_ptr(byte_nb_ptr);
@@ -936,7 +946,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     savehex_dlg = file_selection_new("Ethereal: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
 
     /* label */
-    label = g_strdup_printf("Will save %u %s of raw binary data to specified file.", 
+    label = g_strdup_printf("Will save %u %s of raw binary data to specified file.",
         end - start, plurality(end - start, "byte", "bytes"));
     dlg_lb = gtk_label_new(label);
     g_free(label);
@@ -957,7 +967,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     SIGNAL_CONNECT(GTK_FILE_SELECTION (savehex_dlg)->ok_button, "clicked",
         savehex_save_clicked_cb, savehex_dlg);
 
-    window_set_cancel_button(savehex_dlg, 
+    window_set_cancel_button(savehex_dlg,
     GTK_FILE_SELECTION(savehex_dlg)->cancel_button, window_cancel_button_cb);
 
     SIGNAL_CONNECT(savehex_dlg, "delete_event", window_delete_event_cb, NULL);
@@ -1607,7 +1617,7 @@ GdkColor	expert_color_note	= { 0, 0xa000, 0xff00, 0xff00 };	/* a bright turquois
 GdkColor	expert_color_warn	= { 0, 0xff00, 0xff00, 0 };			/* yellow */
 GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */
 
-void proto_draw_colors_init(void) 
+void proto_draw_colors_init(void)
 {
 	if(colors_ok) {
 		return;
@@ -1643,7 +1653,7 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 	 * color definitions can be found at:
 	 * http://cvs.gnome.org/viewcvs/gtk+/gdk-pixbuf/io-xpm.c?rev=1.42
 	 * (a good color overview: http://www.computerhope.com/htmcolor.htm)
-	 * 
+	 *
 	 * some experiences:
 	 * background-gdk: doesn't seem to work (probably the GdkColor must be allocated)
 	 * weight/style: doesn't take any effect
@@ -1788,7 +1798,7 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
   /* Tree view */
   tv_scrollw = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tv_scrollw), 
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tv_scrollw),
                                    GTK_SHADOW_IN);
 #endif
 
@@ -1920,7 +1930,7 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
         field_info   *fi;
 
 
-        if(gtk_clist_get_selection_info(GTK_CLIST(widget), 
+        if(gtk_clist_get_selection_info(GTK_CLIST(widget),
             (gint) (((GdkEventButton *)event)->x),
             (gint) (((GdkEventButton *)event)->y),
             &row, &column))

@@ -127,7 +127,9 @@ EXTRA_DIST = \
 	Makefile.common \
 	Makefile.nmake \
 	print_mswin.c  \
-	print_mswin.h
+	print_mswin.h  \
+	win32-file-dlg.c \
+	win32-file-dlg.h
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap

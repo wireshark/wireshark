@@ -31,6 +31,7 @@
 #include <gtk/gtk.h>
 
 #include "globals.h"
+#include "gtkglobals.h"
 #include "keys.h"
 #include "print.h"
 #include <epan/prefs.h>
@@ -51,6 +52,11 @@
 #include "file_util.h"
 #include "util.h"
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#include <gdk/gdkwin32.h>
+#include <windows.h>
+#include "win32-file-dlg.h"
+#endif
 
 /* dialog output action */
 typedef enum {
@@ -144,7 +150,7 @@ file_print_cmd(gboolean print_selected)
   if(print_selected) {
       args->range.process = range_process_selected;
   }
-  
+
   print_win = open_print_dialog("Ethereal: Print", output_action_print, args);
   SIGNAL_CONNECT(print_win, "destroy", print_destroy_cb, &print_win);
 }
@@ -178,6 +184,11 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_text_args;
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_text);
+  return;
+#endif
+
   if (export_text_win != NULL) {
     /* There's already a "Export text" dialog box; reactivate it. */
     reactivate_window(export_text_win);
@@ -196,7 +207,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
   }
-  
+
   /* init the printing range */
   packet_range_init(&args->range);
 
@@ -222,6 +233,11 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_ps_args;
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_ps);
+  return;
+#endif
+
   if (export_ps_win != NULL) {
     /* There's already a "Export ps" dialog box; reactivate it. */
     reactivate_window(export_ps_win);
@@ -240,7 +256,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
   }
-  
+
   /* init the printing range */
   packet_range_init(&args->range);
 
@@ -266,6 +282,11 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_psml_args;
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_psml);
+  return;
+#endif
+
   if (export_psml_win != NULL) {
     /* There's already a "Export psml" dialog box; reactivate it. */
     reactivate_window(export_psml_win);
@@ -284,7 +305,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
   }
-  
+
   /* init the printing range */
   packet_range_init(&args->range);
 
@@ -310,6 +331,11 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_pdml_args;
 
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_pdml);
+  return;
+#endif
+
   if (export_pdml_win != NULL) {
     /* There's already a "Export pdml" dialog box; reactivate it. */
     reactivate_window(export_pdml_win);
@@ -328,7 +354,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
   }
-  
+
   /* init the printing range */
   packet_range_init(&args->range);
 
@@ -351,6 +377,11 @@ void
 export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_csv_args;
+
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_csv);
+  return;
+#endif
 
   if (export_csv_win != NULL) {
     /* There's already a "Export csv" dialog box; reactivate it. */
@@ -522,7 +553,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), dest_cb, 0, 1, 0, 1);
   if(action == output_action_print)
     gtk_widget_show(dest_cb);
-  
+
   /* File text entry */
   file_te = gtk_entry_new();
   OBJECT_SET_DATA(dest_cb, PRINT_FILE_TE_KEY, file_te);
@@ -597,7 +628,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /*** packet format frame ***/
   format_fr = gtk_frame_new("Packet Format");
   gtk_box_pack_start(GTK_BOX(packet_hb), format_fr, TRUE, TRUE, 0);
-  if(   action == output_action_print || 
+  if(   action == output_action_print ||
         action == output_action_export_text ||
         action == output_action_export_ps)
     gtk_widget_show(format_fr);
@@ -805,7 +836,7 @@ print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
   gtk_widget_set_sensitive(expand_all_rb, print_detail);
 
   /* if user selected nothing to print at all, disable the "ok" button */
-  gtk_widget_set_sensitive(print_bt, 
+  gtk_widget_set_sensitive(print_bt,
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (summary_cb)) ||
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (details_cb)) ||
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_cb)));

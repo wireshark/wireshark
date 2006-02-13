@@ -28,7 +28,8 @@ include Makefile.common
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
 ETHEREAL_WIN32_GTK_SRC = \
 	$(ETHEREAL_GTK_SRC) \
-	print_mswin.c
+	print_mswin.c \
+	win32-file-dlg.c
 
 
 ETHEREAL_TAP_OBJECTS = $(ETHEREAL_TAP_SRC:.c=.obj)

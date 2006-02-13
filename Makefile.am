@@ -662,6 +662,7 @@ EXTRA_DIST = \
 	image/icon_layout_4.xpm \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
+	image/win32-file-dlg.rc \
 	image/wiretap.rc.in	\
 	make-authors-format.pl	\
 	make-authors-short.pl	\
