@@ -1,5 +1,11 @@
-/* packet-SQLOrcle.c
+/* packet-sqloracle.c
  * Routines for SQL ORcle packet dissection
+ *
+ * The initial Ethereal version of this file was imported from the
+ * ClearSight source code package.
+ * No author/copyright given in the original file.
+ *
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * 
@@ -17,17 +23,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#define TCP_PORT_TNS 1521
+#define TCP_PORT_TNS 1522 /* XXX 1521 collides with packet-tns.c */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include "column-utils.h"
-#include "packet.h"
+#include <glib.h>
+#include <ctype.h>
+#include <string.h>
+#include <epan/packet.h>
 #include "packet-sqloracle.h"
 #define SWAP_UI16(ui16)	(((ui16)>>8 & 0xff) | ((ui16)<<8 & 0xff00))
 
-//option flag 1
+/* option flag 1 */
 #define OPTION_CANCEL 0x80
 #define OPTION_FETCH  0x40
 #define OPTION_EXCUTE  0x20
@@ -36,7 +44,7 @@
 #define OPTION_DESC_BIND  0x04
 #define OPTION_PARSE  0x02
 
-//option flag 2
+/* option flag 2 */
 #define OPTION_PLSQL 0x80
 #define OPTION_PARSE2  0x40
 #define OPTION_VECTOR  0x04
@@ -46,15 +54,15 @@
 
 
 /* protocol */
-static int proto_sqloracle = -1;
+static gint proto_sqloracle = -1;
 static gint ett_sqloracle = -1;
 static gint ett_sqloracle_operation = -1;
 
 static int hf_sqloracle_operation = -1;
 static int hf_sqloracle_func_type = -1;
-static int hf_sqloracle_stmt_length = -1;
+/* static int hf_sqloracle_stmt_length = -1; */
 static int hf_sqloracle_stmt = -1;
-static int hf_sqloracle_v8ttluds_tname = -1;
+/* static int hf_sqloracle_v8ttluds_tname = -1;
 static int hf_sqloracle_v8ttluds_sname = -1;
 static int hf_sqloracle_v8ttluds_columnname = -1;
 static int hf_sqloracle_v8ttluds_scrlength = -1;
@@ -73,9 +81,10 @@ static int hf_sqloracle_ttloac_prefix = -1;
 static int hf_sqloracle_ttloac_flag1 = -1;
 static int hf_sqloracle_ttloac_type = -1;
 static int hf_sqloracle_ttloac_header = -1;
+*/
 static int hf_sqloracle_flag = -1;
 static int hf_sqloracle_num_column = -1;
-static int hf_sqloracle_v8ttloac_vsn = -1;
+/* static int hf_sqloracle_v8ttloac_vsn = -1; */
 static int hf_sqloracle_itemNum = -1;
 static int hf_sqloracle_numItersThisTime = -1;
 static int hf_sqloracle_uacBufLength = -1;
@@ -85,7 +94,7 @@ static	dissector_handle_t sqloracle_handle;
 static char m_pCurQuery[2025];
 
 static int m_numOfUpdate =0;
-static int m_tnsErrors = 0;
+/* static int m_tnsErrors = 0; */
 static int m_numOfSelect = 0;
 static int m_numOfInsert = 0;
 static int m_numOfDelete = 0;
@@ -95,13 +104,13 @@ static int m_numOfStart = 0;
 static int m_numOfCommit = 0;
 static int m_numOfOtherStatement = 0;
 static int m_numOfTransaction = 0;
-static int m_bReAssembling = 0;
+/* static int m_bReAssembling = 0; */
 /* SQLORACLE flags */
-static const true_false_string flags_set_truth =
+/*static const true_false_string flags_set_truth =
 {
   " ",
   "No "
-};
+}; */
 static const value_string sqloracle_operation_type[] = {
 	{NET8_TYPE_SETPROP,   "Set protocol" },
 	{NET8_TYPE_SETDATAREP,    "Set data representations" },
@@ -247,7 +256,8 @@ static const value_string sql_func_type[] = {
 };
 
 
-// jtse
+#if 0
+/* jtse */
 /*+------------------------------------------------------
  * 
  * Convert hex data to character string
@@ -282,12 +292,13 @@ char * convertHexToString(BYTE *pSrc, UI16_T length)
 	buf[length*2] = '\0';
     */
 
-    //hexString = buf;
+    /* hexString = buf; */
 	strcpy (hexString, buf);
 	return hexString;
 }
+#endif
 
-void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
+static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 {
 	char  *pSqlModifyData = (I8_P)m_pCurQuery;
 	int   i = 0;
@@ -310,99 +321,121 @@ void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 
 	*pSqlModifyData = '\0';
 
-//	appMsg = (I8_P)m_pCurQuery;
+#if 0
+	appMsg = (I8_P)m_pCurQuery;
+#endif
 
-	if (_strnicmp((I8_P)m_pCurQuery, "update", 6) == 0)
+	if (strncasecmp((I8_P)m_pCurQuery, "update", 6) == 0)
 	{
 		m_numOfUpdate++;
-//		pSummaryStat->m_numOfUpdate++;
-//        if (m_pServerNode != NULL)
-//		    m_pServerNode->m_numOfUpdate++;
+#if 0
+		pSummaryStat->m_numOfUpdate++;
+		if (m_pServerNode != NULL)
+		    m_pServerNode->m_numOfUpdate++;
+#endif
 	}
-	else if (_strnicmp((I8_P)m_pCurQuery, "select", 6) == 0)
+	else if (strncasecmp((I8_P)m_pCurQuery, "select", 6) == 0)
 	{
 		m_numOfSelect++;
-//		pSummaryStat->m_numOfSelect++;
-//        if (m_pServerNode != NULL)
-//		    m_pServerNode->m_numOfSelect++;
+#if 0
+		pSummaryStat->m_numOfSelect++;
+	        if (m_pServerNode != NULL)
+		    m_pServerNode->m_numOfSelect++;
+#endif
 	}
-	else if (_strnicmp((I8_P)m_pCurQuery, "insert", 6) == 0)
+	else if (strncasecmp((I8_P)m_pCurQuery, "insert", 6) == 0)
 	{
 		m_numOfInsert++;
-//		pSummaryStat->m_numOfInsert++;
-//        if (m_pServerNode != NULL)
-//			m_pServerNode->m_numOfInsert++;
+#if 0
+		pSummaryStat->m_numOfInsert++;
+	        if (m_pServerNode != NULL)
+			m_pServerNode->m_numOfInsert++;
+#endif
 	}
-	else if (_strnicmp((I8_P)m_pCurQuery, "delete", 6) == 0)
+	else if (strncasecmp((I8_P)m_pCurQuery, "delete", 6) == 0)
 	{
 		m_numOfDelete++;
-//		pSummaryStat->m_numOfDelete++;
-//        if (m_pServerNode != NULL)
-//			m_pServerNode->m_numOfDelete++;
+#if 0
+		pSummaryStat->m_numOfDelete++;
+	        if (m_pServerNode != NULL)
+			m_pServerNode->m_numOfDelete++;
+#endif
 	}
-	else if (_strnicmp((I8_P)m_pCurQuery, "rollback", 8) == 0)
+	else if (strncasecmp((I8_P)m_pCurQuery, "rollback", 8) == 0)
 	{
 		m_numOfRollback++;
-//		pSummaryStat->m_numOfRollback++;
-//        if (m_pServerNode != NULL)
-//			m_pServerNode->m_numOfRollback++;
+#if 0
+		pSummaryStat->m_numOfRollback++;
+	        if (m_pServerNode != NULL)
+			m_pServerNode->m_numOfRollback++;
+#endif
 	}
-	else if (_strnicmp((I8_P)m_pCurQuery, "set", 3) == 0)
+	else if (strncasecmp((I8_P)m_pCurQuery, "set", 3) == 0)
 	{
 		m_numOfSet++;
-//		pSummaryStat->m_numOfSet++;
-//        if (m_pServerNode != NULL)
-//			m_pServerNode->m_numOfSet++;
+#if 0
+		pSummaryStat->m_numOfSet++;
+	        if (m_pServerNode != NULL)
+			m_pServerNode->m_numOfSet++;
+#endif
 	}
-	else if (_strnicmp((I8_P)m_pCurQuery, "start", 5) == 0)
+	else if (strncasecmp((I8_P)m_pCurQuery, "start", 5) == 0)
 	{
 		m_numOfStart++;
-//		pSummaryStat->m_numOfStart++;
-//        if (m_pServerNode != NULL)
-//			m_pServerNode->m_numOfStart++;
+#if 0
+		pSummaryStat->m_numOfStart++;
+	        if (m_pServerNode != NULL)
+			m_pServerNode->m_numOfStart++;
+#endif
 	}
-	else if (_strnicmp((I8_P)m_pCurQuery, "commit", 6) == 0)
+	else if (strncasecmp((I8_P)m_pCurQuery, "commit", 6) == 0)
 	{
 		m_numOfCommit++;
-//		pSummaryStat->m_numOfCommit++;
-//        if (m_pServerNode != NULL)
-//			m_pServerNode->m_numOfCommit++;
+#if 0
+		pSummaryStat->m_numOfCommit++;
+	        if (m_pServerNode != NULL)
+			m_pServerNode->m_numOfCommit++;
+#endif
 	}
 	else 
 	{
 		m_numOfOtherStatement++;
-//		pSummaryStat->m_numOfOtherStatement++;
- //       if (m_pServerNode != NULL)
-//			m_pServerNode->m_numOfOtherStatement++;
+#if 0
+		pSummaryStat->m_numOfOtherStatement++;
+		if (m_pServerNode != NULL)
+			m_pServerNode->m_numOfOtherStatement++;
+#endif
 	}
 
 	m_numOfTransaction++;
-//	m_pSummaryStat->m_numOfTransaction++;
-//        if (m_pServerNode != NULL)
-//		m_pServerNode->m_numOfTransaction++;
+#if 0
+	m_pSummaryStat->m_numOfTransaction++;
+        if (m_pServerNode != NULL)
+		m_pServerNode->m_numOfTransaction++;
+#endif
 }
 
 
-BOOLEAN FindBeginningSQLString(UI8_P *pBuf, UI16_T *pDataLen, int lookSize)
+static gboolean FindBeginningSQLString(UI8_P *pBuf, UI16_T *pDataLen, int lookSize)
 {
-	// the position could still be off by x bytes, check if it happened to be landing on an address
-//	int i = 31;	/* allow upto 8 bad bytes */
+	/* the position could still be off by x bytes, check if it happened to be landing on an address */
+/*	int i = 31;	/+ allow upto 8 bad bytes */
 	UI8_P pString = *pBuf;
-	BOOLEAN bAlpha1 = isalpha(pString[0]) != 0;
-	BOOLEAN bAlpha2 = isalpha(pString[1]) != 0;
-	BOOLEAN bAlpha3 = isalpha(pString[2]) != 0;
-	BOOLEAN bAlpha4 = isalpha(pString[3]) != 0;
-	BOOLEAN bComment = FALSE;
+	gboolean bAlpha1 = isalpha(pString[0]) != 0;
+	gboolean bAlpha2 = isalpha(pString[1]) != 0;
+	gboolean bAlpha3 = isalpha(pString[2]) != 0;
+	gboolean bAlpha4 = isalpha(pString[3]) != 0;
+	gboolean bComment = FALSE;
 	UI16_T dataLen = *pDataLen;
 	while ( (dataLen > 2) && (lookSize > 0) && ((bAlpha1 == FALSE) || (bAlpha2 == FALSE) || (bAlpha3 == FALSE) || (bAlpha4 == FALSE)))
 	{
-		// check if we need to find the ending comment
+		/* check if we need to find the ending comment */
 		if (bComment)
 		{
-			if (*((UI16_P)pString) == 0x2F2A)	// ending comment '*/'
+			if (*((UI16_P)pString) == 0x2F2A)	/* ending comment */
 			{
 				bComment = FALSE;
-				pString ++;	// skip the comment
+				pString ++;	/* skip the comment */
 				dataLen --;
 			}
 			pString ++;
@@ -410,8 +443,8 @@ BOOLEAN FindBeginningSQLString(UI8_P *pBuf, UI16_T *pDataLen, int lookSize)
 		}
 		else
 		{
-			// check if there is a comment string prepended to the statement
-			if (*((UI16_P)pString) == 0x2A2F)	// "/*"  beginning of comment
+			/* check if there is a comment string prepended to the statement */
+			if (*((UI16_P)pString) == 0x2A2F)	/* beginning of comment */
 			{
 				bComment = TRUE;
 				dataLen -= 2;
@@ -427,7 +460,7 @@ BOOLEAN FindBeginningSQLString(UI8_P *pBuf, UI16_T *pDataLen, int lookSize)
 			bAlpha3 = isalpha(pString[2]) != 0;
 			bAlpha4 = isalpha(pString[3]) != 0;
 			dataLen --;
-            // don't count the zeros
+            /* don't count the zeros */
             if (*((UI8_P)pString) != 0x0)
 			    lookSize--;
 		}
@@ -442,7 +475,7 @@ BOOLEAN FindBeginningSQLString(UI8_P *pBuf, UI16_T *pDataLen, int lookSize)
 		return FALSE;
 }
 
-BOOLEAN ParseCommand(proto_tree *tree,tvbuff_t *tvb, int offset, packet_info *pinfo,UI16_T dataLen)
+static gboolean ParseCommand(proto_tree *tree,tvbuff_t *tvb, int offset, packet_info *pinfo,UI16_T dataLen)
 {
 	UI8_T pAddress[1024];
 	UI16_T SQLDataLen = dataLen;
@@ -454,7 +487,7 @@ BOOLEAN ParseCommand(proto_tree *tree,tvbuff_t *tvb, int offset, packet_info *pi
 	}
 	tvb_memcpy (tvb, pAddress,offset, dataLen);
 	pAddr = (UI8_P)pAddress;
-	// see if SQL statement is there
+	/* see if SQL statement is there */
 	if (FindBeginningSQLString((UI8_P*)&pAddr, &SQLDataLen, 0x30) == TRUE)
 	{
 		ParseSqlStatement( pAddr, dataLen);
@@ -470,10 +503,11 @@ BOOLEAN ParseCommand(proto_tree *tree,tvbuff_t *tvb, int offset, packet_info *pi
 	return FALSE;
 }
 
-BOOLEAN ParseNewCommand( proto_tree *tree,tvbuff_t *tvb, int offset, packet_info *pinfo, UI16_T dataLen)
+#if 0
+static gboolean ParseNewCommand( proto_tree *tree,tvbuff_t *tvb, int offset, packet_info *pinfo, UI16_T dataLen)
 {
 	UI8_T pAddress[1024];
-	// find the first sequence of zeros
+	/* find the first sequence of zeros */
 	int amount = dataLen - 12;
 	int i = 0, sqlamount;
 	UI8_P pAddr;
@@ -484,25 +518,25 @@ BOOLEAN ParseNewCommand( proto_tree *tree,tvbuff_t *tvb, int offset, packet_info
 		if (*((UI32_P)((UI8_P)pAddr++)) == 0x0000)
 			break;
 	}
-	// was there a sequence of 4 zeros
+	/* was there a sequence of 4 zeros */
 	if (i >= amount)
 	{
-	//	free(pAddr);
-		return FALSE;		// went past, can not be a sql command
+	/*	free(pAddr); */
+		return FALSE;		/* went past, can not be a sql command */
 	}
-	// look for the end of the zeros
-	amount = dataLen - i - 4;	// rest of the data
+	/* look for the end of the zeros */
+	amount = dataLen - i - 4;	/* rest of the data */
 	pAddr += 3;
 	for (i = 0; *pAddr++ == 0 && i < amount; i++);
 	if (i >= amount)
 	{
-		//free (pAddr);
-		return FALSE;	// no values after zeros
+		/* free (pAddr); */
+		return FALSE;	/* no values after zeros */
 	}
 
-	amount -= i + 1;	// rest of the data
+	amount -= i + 1;	/* rest of the data */
 
-	// see if SQL statement is there
+	/* see if SQL statement is there */
 	sqlamount = amount;
 	if (FindBeginningSQLString((UI8_P*)&pAddr, (UI16_P)&sqlamount, 13) == TRUE)
 	{
@@ -517,17 +551,16 @@ BOOLEAN ParseNewCommand( proto_tree *tree,tvbuff_t *tvb, int offset, packet_info
 	}
 	return FALSE;
 }
+#endif
 
 
 
 
-
-void
+static void
 dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
-	int sql_len = 0, name_size = 0;
-	proto_item	*ti = NULL, *tf = NULL;
-	proto_tree	*sqloracle_tree = NULL, *field_tree = NULL;
+	proto_item	*ti = NULL;
+	proto_tree	*sqloracle_tree = NULL;
 	int offset = 0,dataLen,nocol,numItersThisTime,flag,iterNum,uacBufLength;
 	guint8	header_operation,func_type=0;
 	m_pCurQuery[0] = '0';
@@ -560,7 +593,7 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (header_operation)
 	{
-		case NET8_TYPE_USERTOSERVER: //0x3
+		case NET8_TYPE_USERTOSERVER: /* 0x3 */
 			if ( check_col(pinfo->cinfo, COL_INFO))
 			{
                 col_append_fstr(pinfo->cinfo, COL_INFO, ":%s ", val_to_str(func_type, sql_func_type, ""));
@@ -572,29 +605,30 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				case NET8_USER_FUNC_OALL:
 				case NET8_USER_FUNC_OALL8:
-					// command could be embedded in this packet
-					// filtered_for_hh02_and_hh05.enc has commands that are not 0x2f offset
-					// try to detect the difference by looking at the offset 0x12 for 6 zeros
-					if (dataLen > (0x19 + 8))	// assume minimum of 8 chars for the command
+					/* command could be embedded in this packet
+					 * filtered_for_hh02_and_hh05.enc has commands that are not 0x2f offset
+					 * try to detect the difference by looking at the offset 0x12 for 6 zeros
+					 */
+					if (dataLen > (0x19 + 8))	/* assume minimum of 8 chars for the command */
 					{
-						// piggybacked functions will recursive call this routine to process the command
+						/* piggybacked functions will recursive call this routine to process the command */
 						if (ParseCommand(sqloracle_tree,tvb, offset+0x12, pinfo,dataLen - 0x12) == TRUE)
 							break;
 					}
 					break;
-				case NET8_USER_FUNC_OSQL7:			// 0x4A
-					// command could be embedded in this packet
-					// aig oracle.enc has smaller data
-					if (dataLen > (0x2A/*0x30/*0x14*/ + 8))	// minimum of 8 chars
+				case NET8_USER_FUNC_OSQL7:			/* 0x4A */
+					/* command could be embedded in this packet */
+					/* aig oracle.enc has smaller data */
+					if (dataLen > (0x2A /*0x30/0x14*/ + 8))	/* minimum of 8 chars */
 					{
-						if (ParseCommand(sqloracle_tree,tvb, offset + 0x2A/*0x30/*0x14*/, pinfo,dataLen - 0x2A/*0x30/*0x14*/) == TRUE)
+						if (ParseCommand(sqloracle_tree,tvb, offset + 0x2A /*0x30/0x14*/, pinfo,dataLen - 0x2A /*0x30/0x14*/) == TRUE)
 								break;
 					}
 					break;
 
-				case NET8_USER_FUNC_OALL7:			// 0x47
-					// command could be embedded in this packet
-					if (dataLen > (0x2A/*0x30/*0x14*/ + 8))	// minimum of 8 chars
+				case NET8_USER_FUNC_OALL7:			/* 0x47 */
+					/* command could be embedded in this packet */
+					if (dataLen > (0x2A /*0x30/0x14*/ + 8))	/* minimum of 8 chars */
 					{
 						if (ParseCommand(sqloracle_tree,tvb, offset + 0x14, pinfo,dataLen - 0x14) == TRUE)
 						{
@@ -603,14 +637,14 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							break;
 						}
 						else
-							// appdncr.enc has this smaller command
+							/* appdncr.enc has this smaller command */
 						if (ParseCommand(sqloracle_tree,tvb, offset + 0x30, pinfo,dataLen - 0x30) == TRUE)
 							break;
 					}
 					break;
 			}
 			break;
-		case NET8_TYPE_ROWTRANSFER:		// 0x06
+		case NET8_TYPE_ROWTRANSFER:		/* 0x06 */
 			flag = func_type;
 			proto_tree_add_uint(sqloracle_tree, hf_sqloracle_flag, tvb, offset+1, 1,flag);
 			nocol = tvb_get_guint8(tvb, offset+2);

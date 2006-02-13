@@ -1,28 +1,34 @@
-/*+
- * file:       Net8.h
+/* packet-sqloracle.h
+ * Abstract: this file contains Net8 related definiton and structure
+ *           gathered from jdbc thin driver
  *
- * Copyright (C) 2002 - 2002 AppDancer Networks, Inc.
- * All rights reserved.
+ * $Id$
  *
- * Abstract:    this file contains Net8 related definiton and structure
- *				gathered from jdbc thin driver
+ * Copyright (C) 2002 - 2002 AppDancer Networks, Inc. All rights reserved.
+ * Author:      Charles Tai 01/28/2003
  *
- * Author:      Charles Tai
+ * The initial Ethereal version of this file was imported from the
+ * ClearSight source code package.
  *
- * Revision History:
+ * Ethereal - Network traffic analyzer
  *
- *      ctai		01/28/2003     Initial entry
--*/
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
 
 
-#pragma warning(disable: 4200)
-
-#pragma pack(push, 1)
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 typedef unsigned char UI8_T, BYTE,*UI8_P;
 typedef unsigned short UI16_T, *UI16_P;
 typedef unsigned int UI32_T, *UI32_P;
@@ -40,19 +46,19 @@ typedef char	I8_T,  *I8_P;
  *	NET8 Command Header 
  *--------------------------------
 -*/
-#define NET8_TYPE_SETPROP		1		// Set PROtocol 
-#define NET8_TYPE_SETDATAREP	2		// Set Data Representation 
-#define NET8_TYPE_USERTOSERVER	3		// User to Server request 
-#define NET8_TYPE_ERRORSTATUS	4		// Error return status 
-#define NET8_TYPE_AUAS	5		// Access User Address space 
-#define NET8_TYPE_ROWTRANSFER	6		// Row Transfer Header 
-#define NET8_TYPE_ROWDATA		7		// I made this to handle spanning data rows 
-#define NET8_TYPE_OPIPARAM		8		// return OPI parameter 
-#define NET8_TYPE_FUNCCOMPLETE	9		// return Function Complete 
-#define NET8_TYPE_TTINOER  10 // for msdos/os2  N oerdefs follow 
-#define NET8_TYPE_TTIIOV  11 // Sending IO vec only for fast UPI 
-#define NET8_TYPE_TTISLG  12 // Send LonG for fast UPI
-#define NET8_TYPE_TTIICA  13 // Invoke user CAllback
+#define NET8_TYPE_SETPROP		1		/* Set PROtocol */
+#define NET8_TYPE_SETDATAREP	2		/* Set Data Representation */
+#define NET8_TYPE_USERTOSERVER	3		/* User to Server request */
+#define NET8_TYPE_ERRORSTATUS	4		/* Error return status */
+#define NET8_TYPE_AUAS	5		/* Access User Address space */
+#define NET8_TYPE_ROWTRANSFER	6		/* Row Transfer Header */
+#define NET8_TYPE_ROWDATA		7		/* I made this to handle spanning data rows */
+#define NET8_TYPE_OPIPARAM		8		/* return OPI parameter */
+#define NET8_TYPE_FUNCCOMPLETE	9		/* return Function Complete */
+#define NET8_TYPE_TTINOER  10 /* for msdos/os2  N oerdefs follow */
+#define NET8_TYPE_TTIIOV  11 /* Sending IO vec only for fast UPI */
+#define NET8_TYPE_TTISLG  12 /* Send LonG for fast UPI*/
+#define NET8_TYPE_TTIICA  13 /* Invoke user CAllback*/
 #define NET8_TYPE_TTILOBD 14 /* LOB/FILE data follows */
 #define NET8_TYPE_TTIWRN  15 /* warning messages - may be a set of them */
 
@@ -92,15 +98,15 @@ typedef char	I8_T,  *I8_P;
 #define NET8_USER_FUNC_OTEMP      19   /* until we get rid of OASQL */ 
 #define NET8_USER_FUNC_CANCEL    20   /* cancel the current operation */ 
 #define NET8_USER_FUNC_OGEM       21   /* get error message */ 
-// #define NET8_USER_FUNC_OEXIT      22   /* Exit oracle command */ 
+#define NET8_USER_FUNC_OEXIT      22   /* Exit oracle command */ 
 #define NET8_USER_FUNC_OSPECIAL   23   /* special function */ 
 #define NET8_USER_FUNC_OABORT     24   /* abort */ 
 #define NET8_USER_FUNC_ODQRID     25   /* deq by rowid */ 
 #define NET8_USER_FUNC_OLNGF6     26   /* fetch a long column value */ 
-// #define NET8_USER_FUNC_OCAM       27   /* Create Access Module */ 
-// #define NET8_USER_FUNC_OSAMS      28   /* Save Access Module Statement */ 
-// #define NET8_USER_FUNC_OSAM       29   /* Save Access Module */ 
-// #define NET8_USER_FUNC_OPAMS      30   /* Parse Access Module Statement */ 
+#define NET8_USER_FUNC_OCAM       27   /* Create Access Module */ 
+#define NET8_USER_FUNC_OSAMS      28   /* Save Access Module Statement */ 
+#define NET8_USER_FUNC_OSAM       29   /* Save Access Module */ 
+#define NET8_USER_FUNC_OPAMS      30   /* Parse Access Module Statement */ 
 #define NET8_USER_FUNC_OHOWMANY   31   /* How Many Items? */ 
 #define NET8_USER_FUNC_OINIT      32   /* Initialize Oracle */ 
 #define NET8_USER_FUNC_OCHANGEU   33   /* change user id */ 
@@ -117,11 +123,11 @@ typedef char	I8_T,  *I8_P;
 #define NET8_USER_FUNC_OLCCINI    44   /* init sys pars command table */ 
 #define NET8_USER_FUNC_OLCCFIN    45   /* finalize sys pars command table */ 
 #define NET8_USER_FUNC_OLCCPUT    46   /* put sys par in command table */ 
-// #define NET8_USER_FUNC_OLCCGPI    47   /* get sys pars info from command table */ 
+#define NET8_USER_FUNC_OLCCGPI    47   /* get sys pars info from command table */ 
 #define NET8_USER_FUNC_OV6STRT    48   /* start Oracle (V6) */ 
 #define NET8_USER_FUNC_OV6STOP    49   /* [poll for] shut down Oracle (V6) */ 
 #define NET8_USER_FUNC_ORIP       50   /* run independent process (V6) */ 
-// #define NET8_USER_FUNC_OTRAM      51   /* test RAM (V6) */ 
+#define NET8_USER_FUNC_OTRAM      51   /* test RAM (V6) */ 
 #define NET8_USER_FUNC_OARCHIVE   52   /* archive op (V6) */ 
 #define NET8_USER_FUNC_OMRSTART   53   /* media recovery - start (V6) */ 
 #define NET8_USER_FUNC_OMRRECTS   54   /* media recovery - record tablespace to recover (V6) */
@@ -149,7 +155,7 @@ typedef char	I8_T,  *I8_P;
 #define NET8_USER_FUNC_OSQL7      74   /* New ver 7 parse call to deal with various flavours*/ 
 #define NET8_USER_FUNC_OOBS       75   /* Please DO Not REUSE THIS CODE */ 
 #define NET8_USER_FUNC_ORPC       76   /* RPC Call from pl/sql */ 
-// #define NET8_USER_FUNC_OKGL       77   /* do a KGL operation */ 
+#define NET8_USER_FUNC_OKGL_OLD   77   /* do a KGL operation */ 
 #define NET8_USER_FUNC_OEXFEN     78   
 #define NET8_USER_FUNC_OXAOPN     79   /* X/Open XA operation */ 
 #define NET8_USER_FUNC_OKGL  80   /* New OKGL call */ 
@@ -245,5 +251,7 @@ typedef char	I8_T,  *I8_P;
 
 
 
-#pragma pack(pop, 1)
+
+void proto_register_sqloracle(void);
+void proto_reg_handoff_sqloracle(void);
 
