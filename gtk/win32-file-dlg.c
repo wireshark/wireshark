@@ -1008,6 +1008,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
 		    filter_tb_syntax_check(cur_ctrl, NULL);
 		    break;
+                case EWFD_FILTER_BTN:
+                    /* XXX - Integrate with the filter dialog? */
+                    break;
 		default:
 		    break;
 	    }
