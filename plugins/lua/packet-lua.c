@@ -171,6 +171,8 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
     }
     
+    clear_outstanding_tvbs();
+    
     lua_pinfo = NULL;
     lua_tree = NULL;
     lua_tvb = NULL;

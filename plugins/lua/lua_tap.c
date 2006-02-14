@@ -301,6 +301,7 @@ void lua_tap_draw(void *tapdata) {
             /* OK */
             break;
         case LUA_ERRRUN:
+            error = lua_tostring(tap->L,-1);
             g_warning("Runtime error while calling %s.draw(): %s",tap->name,error);
             break;
         case LUA_ERRMEM:
