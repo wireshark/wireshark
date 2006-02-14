@@ -200,6 +200,7 @@ se_init_chunk
 ep_alloc
 se_alloc
 ep_alloc0
+se_alloc0
 ep_strdup
 se_strdup
 ep_strdup_printf
@@ -207,8 +208,13 @@ ep_strdup_vprintf
 se_strdup_printf
 se_strdup_vprintf
 ep_strndup
+se_strndup
 ep_strsplit
 ep_memdup
+se_memdup
+ep_stack_new
+ep_stack_push
+ep_stack_pop
 ep_tvb_memdup
 epan_cleanup
 epan_dissect_fill_in_columns
