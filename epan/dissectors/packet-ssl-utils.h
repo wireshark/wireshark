@@ -29,7 +29,7 @@
 #ifdef HAVE_LIBGNUTLS
 #ifdef _WIN32
 #include <winposixtype.h>
-#endif
+#endif /* _WIN32 */
 
 #include <stdio.h>
 #include <gcrypt.h>
@@ -38,18 +38,17 @@
 
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
-#define SSL_DEBUG_USE_STDERR "-"
 
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
 #ifdef SSL_FAST
 #define SSL_PRIVATE_KEY gcry_mpi_t
-#else
+#else /* SSL_FAST */
 #define SSL_PRIVATE_KEY struct gcry_sexp
-#endif
-#else 
+#endif /* SSL_FAST */
+#else  /* HAVE_LIBGNUTLS */
 #define SSL_CIPHER_CTX void*
 #define SSL_PRIVATE_KEY void
-#endif
+#endif /* HAVE_LIBGNUTLS */
 
 typedef struct _StringInfo {
     unsigned char* data;
@@ -70,6 +69,8 @@ typedef struct _StringInfo {
 
 #define SSL_CIPHER_MODE_STREAM  0
 #define SSL_CIPHER_MODE_CBC     1
+
+#define SSL_DEBUG_USE_STDERR "-"
 
 typedef struct _SslCipherSuite {
      int number;

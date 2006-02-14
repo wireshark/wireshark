@@ -4317,7 +4317,7 @@ proto_register_ssl(void)
              (const char **)&ssl_ports_list);
         prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
              "redirect ssl debug to file name; leave empty to disable debug, "
-             "use \""SSL_DEBUG_USE_STDERR"\" to redirect output to stderr\n",
+             "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
              (const char **)&ssl_debug_file_name);
     }
 
