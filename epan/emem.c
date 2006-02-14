@@ -333,7 +333,7 @@ gchar* ep_strndup(const gchar* src, size_t len) {
 	return dst;
 }
 
-guint8* ep_memdup(const guint8* src, size_t len) {
+void* ep_memdup(const void* src, size_t len) {
 	return memcpy(ep_alloc(len), src, len);
 }
 
@@ -475,7 +475,7 @@ gchar* se_strndup(const gchar* src, size_t len) {
 	return dst;
 }
 
-guint8* se_memdup(const guint8* src, size_t len) {
+void* se_memdup(const void* src, size_t len) {
 	return memcpy(se_alloc(len), src, len);
 }
 
