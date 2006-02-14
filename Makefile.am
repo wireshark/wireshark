@@ -690,7 +690,7 @@ EXTRA_DIST = \
 
 if SETUID_INSTALL
 install-exec-hook:
-	-chmod +s $(DESTDIR)$(bindir)/ethereal
+	-chmod +s $(DESTDIR)$(bindir)/dumpcap
 	-chmod +s $(DESTDIR)$(bindir)/tethereal
 else
 install-exec-hook:

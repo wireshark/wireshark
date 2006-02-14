@@ -823,7 +823,11 @@ AC_MSG_CHECKING(whether to install ethereal setuid)
 if test "x$enable_setuid_install" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
+	if test "x$enable_dumpcap" = "xno" ; then
+		AC_MSG_ERROR(Setuid install works only with --enable-dumpcap, but dumpcap disabled)
+	else
+		AC_MSG_RESULT(yes)
+	fi
 fi
 
 AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
