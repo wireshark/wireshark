@@ -4,7 +4,12 @@
 # in the file README.win32.
 
 # The current Ethereal version
-VERSION=0.10.14
+# VERSION_EXTRA can be used for custom builds, e.g. "-SVN-12345"
+VERSION_MAJOR=0
+VERSION_MINOR=10
+VERSION_MICRO=14
+VERSION_EXTRA=
+VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)$(VERSION_EXTRA)
 
 #
 # The RC_VERSION should be comma-separated, not dot-separated, 
@@ -17,7 +22,7 @@ VERSION=0.10.14
 # number to be correctly displayed in the explorer properties dialog
 # for the executables, and XP's tooltip, rather than 0.0.0.0."
 #
-RC_VERSION=0,10,14
+RC_VERSION=$(VERSION_MAJOR),$(VERSION_MINOR),$(VERSION_MICRO)
 
 # The version of the wiretap library
 WTAP_VERSION=0.3

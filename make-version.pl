@@ -150,8 +150,8 @@ sub update_config_nmake
 	
 	open(CFGIN, "< config.nmake") || die "Can't read config.nmake!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^VERSION=(\d+)\.(\d+).(\d+)/) {
-			$line = "VERSION=$1.$2.$3$package_string\n";
+		if ($line =~ /^VERSION_EXTRA=/) {
+			$line = "VERSION_EXTRA=$package_string\n";
 		}
 		$contents .= $line
 	}
