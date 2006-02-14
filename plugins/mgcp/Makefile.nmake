@@ -15,7 +15,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=packet-mgcp.obj 
+OBJECTS=packet-mgcp.obj mgcp-plugin.obj
 
 mgcp.dll mgcp.exp mgcp.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	link -dll /out:mgcp.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \

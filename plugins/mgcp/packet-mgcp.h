@@ -62,3 +62,6 @@ typedef struct _mgcp_call_t
 	gboolean responded;
 } mgcp_call_t;
 
+void proto_register_mgcp(void);
+void proto_reg_handoff_mgcp(void);
+

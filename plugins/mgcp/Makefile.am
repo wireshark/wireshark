@@ -27,7 +27,11 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = mgcp.la
-mgcp_la_SOURCES = packet-mgcp.c packet-mgcp.h moduleinfo.h
+mgcp_la_SOURCES = \
+	packet-mgcp.c	\
+	packet-mgcp.h	\
+	plugin-mgcp.c
+
 mgcp_la_LDFLAGS = -module -avoid-version
 mgcp_la_LIBADD = @PLUGIN_LIBS@
 

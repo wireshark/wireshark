@@ -37,9 +37,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
-#include <gmodule.h>
 #include <ctype.h>
 #include <string.h>
 #include <epan/packet.h>
@@ -50,16 +47,10 @@
 #include <epan/tap.h>
 #include "packet-mgcp.h"
 
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
-
 #define TCP_PORT_MGCP_GATEWAY 2427
 #define UDP_PORT_MGCP_GATEWAY 2427
 #define TCP_PORT_MGCP_CALLAGENT 2727
 #define UDP_PORT_MGCP_CALLAGENT 2727
-
-void proto_reg_handoff_mgcp(void);
 
 
 /* Define the mgcp proto */
@@ -2250,27 +2241,3 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 	return tvb_current_len;
 }
 
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-	/* Register the new protocol, protocol fields, and subtrees */
-	if (proto_mgcp == -1)
-	{
-		/* Execute protocol initialization only once */
-		proto_register_mgcp();
-	}
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
-{
-	proto_reg_handoff_mgcp();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */
