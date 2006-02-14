@@ -1959,9 +1959,26 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
 	return node_data->enabled;
 }
 
+static int 
+packet_is_ssl(epan_dissect_t* edt)
+{
+  GPtrArray* array;
+  int ssl_id, is_ssl;
+  if (!edt || !edt->tree)
+      return 0;
+  ssl_id = proto_get_id_by_filter_name("ssl");
+  if (ssl_id < 0)
+      return 0;
+  array = proto_find_finfo(edt->tree, ssl_id);
+  is_ssl = array->len > 0;
+  g_ptr_array_free(array, FALSE);
+  return is_ssl;
+}
+
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
+  int is_ssl = packet_is_ssl(cf->edt);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
@@ -1995,11 +2012,11 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(tree_view_menu_factory, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Follow SSL Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+      cf->current_frame != NULL ? is_ssl : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Follow SSL Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+      cf->current_frame != NULL ? is_ssl : FALSE);
   set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+      cf->current_frame != NULL ? is_ssl : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(packet_list_menu_factory, "/Decode As...",

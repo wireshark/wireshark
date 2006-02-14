@@ -202,16 +202,6 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 
     follow_info = g_new0(follow_info_t, 1);
     
-    /* data will be passed via tap callback*/
-    msg = register_tap_listener("ssl", follow_info, NULL,
-	NULL, ssl_queue_packet_data, NULL);
-    if (msg)
-    {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Can't register ssl tap: %s\n",msg->str);
-        return;
-    }
-    
     /* Create a new filter that matches all packets in the SSL stream,
        and set the display filter entry accordingly */
     reset_tcp_reassembly();
@@ -242,7 +232,15 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
         "!(%s)", follow_filter);
     }
 
-
+    /* data will be passed via tap callback*/
+    msg = register_tap_listener("ssl", follow_info, follow_filter,
+	NULL, ssl_queue_packet_data, NULL);
+    if (msg)
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Can't register ssl tap: %s\n",msg->str);
+        return;
+    }
     gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
     /* Run the display filter so it goes in effect - even if it's the
