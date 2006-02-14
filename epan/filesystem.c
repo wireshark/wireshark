@@ -316,44 +316,41 @@ init_progfile_dir(const char *arg0
 		 */
 		prog_pathname = NULL;	/* haven't found it yet */
 		path_start = getenv("PATH");
-		while (path_start != NULL) {
-			/*
-			 * Is there anything left in the path?
-			 */
-			if (*path_start == '\0')
- 				break;	/* no */
+		if (path_start != NULL) {
+			while (*path_start != '\0') {
+				path_end = strchr(path_start, ':');
+				if (path_end == NULL)
+					path_end = path_start + strlen(path_start);
+				path_component_len = path_end - path_start;
+				path = g_malloc(path_component_len + 1
+				    + strlen(arg0) + 1);
+				memcpy(path, path_start, path_component_len);
+				path[path_component_len] = '\0';
+				strcat(path, "/");
+				strcat(path, arg0);
+				if (access(path, X_OK) == 0) {
+					/*
+					 * Found it!
+					 */
+					prog_pathname = path;
+					break;
+				}
 
-			path_end = strchr(path_start, ':');
-			if (path_end == NULL)
-				path_end = path_start + strlen(path_start);
-			path_component_len = path_end - path_start;
-			path = g_malloc(path_component_len + 1
-			    + strlen(arg0) + 1);
-			memcpy(path, path_start, path_component_len);
-			path[path_component_len] = '\0';
-			strcat(path, "/");
-			strcat(path, arg0);
-			if (access(path, X_OK) == 0) {
 				/*
-				 * Found it!
+				 * That's not it.  If there are more
+				 * path components to test, try them.
 				 */
-				prog_pathname = path;
-				break;
+				if (*path_end == '\0') {
+					/*
+					 * There's nothing more to try.
+					 */
+					break;
+				}
+				if (*path_end == ':')
+					path_end++;
+				path_start = path_end;
+				g_free(path);
 			}
-
-			/*
-			 * That's not it.  If there are more
-			 * path components to test, try them.
-			 */
-			if (*path_end == '\0') {
-				/*
-				 * There's nothing more to try.
-				 */
-				break;
-			}
-			if (*path_start == ':')
-				path_start++;
-			g_free(path);
 		}
 	}
 
