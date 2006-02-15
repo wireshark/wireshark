@@ -258,5 +258,6 @@ extern void lua_register_subtrees(void);
 extern void clear_outstanding_tvbs(void);
 extern void push_Pinfo(lua_State* L, Pinfo p);
 extern void clear_outstanding_pinfos(void);
+extern void clear_outstanding_trees(void);
 
 #endif

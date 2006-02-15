@@ -33,6 +33,17 @@ LUA_CLASS_DEFINE(ProtoTree,PROTO_TREE,NOP)
 LUA_CLASS_DEFINE(ProtoItem,ITEM,NOP)
 LUA_CLASS_DEFINE(SubTree,SUBTREE,NOP)
 
+static GPtrArray* outstanding_stuff = NULL;
+
+#define PUSH_PROTOITEM(L,i) g_ptr_array_add(outstanding_stuff,pushProtoItem(L,i))
+#define PUSH_PROTOTREE(L,t) g_ptr_array_add(outstanding_stuff,pushProtoTree(L,t))
+
+void clear_outstanding_trees(void) {
+    while (outstanding_stuff->len) {
+        void** p = (void**)g_ptr_array_remove_index_fast(outstanding_stuff,0);
+        *p = NULL;
+    }
+}
 
 /*
  * SubTree class
@@ -125,8 +136,6 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
         pushProtoItem(L,NULL);
         return 1;
     }
-    
-    if (!tree) return 0;
     
     if (! ( field = shiftProtoField(L,1) ) ) {
         if (( proto = shiftProto(L,1) )) {
@@ -233,7 +242,7 @@ static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
 
     }
     
-    pushProtoItem(L,item);
+    PUSH_PROTOITEM(L,item);
     
     return 1;
 }
@@ -257,7 +266,7 @@ static int ProtoTree_get_parent(lua_State *L) {
         item = proto_tree_get_parent(tree);
     }
     
-    pushProtoItem(L,item);
+    PUSH_PROTOITEM(L,item);
     
     return 1;
 }
@@ -298,19 +307,22 @@ static int ProtoItem_tostring(lua_State *L) {
 
 static int ProtoItem_add_subtree(lua_State *L) {
     ProtoItem item = checkProtoItem(L,1);
-    ProtoTree tree = NULL;
     
     if (item) {
         SubTree* ett = luaL_checkudata(L,2,SUBTREE);
+        ProtoTree tree;
         
         if (ett && *ett) {
             tree = proto_item_add_subtree(item,**ett);
         } else {
             tree = proto_item_add_subtree(item,lua_ett);
         }
+        
+        PUSH_PROTOTREE(L,tree);
+    } else {
+        pushProtoTree(L,NULL);
     }
     
-    pushProtoTree(L,tree);
     return 1;
 }
 
@@ -475,9 +487,11 @@ int ProtoItem_register(lua_State *L) {
     lua_rawset(L, -3);
     lua_pop(L, 1);
     
+    outstanding_stuff = g_ptr_array_new();
+
     for(s = severities; s->str; s++) {
         lua_pushstring(L, s->str);
-        lua_pushstring(L, s->str);
+        lua_pushnumber(L, s->val);
         lua_settable(L, LUA_GLOBALSINDEX);
     }
     
