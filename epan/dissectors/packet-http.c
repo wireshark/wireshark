@@ -923,7 +923,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (headers.transfer_encoding != NULL &&
 		    strcasecmp(headers.transfer_encoding, "identity") != 0) {
 			if (http_dechunk_body &&
-			    (strcasecmp(headers.transfer_encoding, "chunked")
+			    (strncasecmp(headers.transfer_encoding, "chunked", 7)
 			    == 0)) {
 
 				chunks_decoded = chunked_encoding_dissector(
