@@ -427,6 +427,9 @@ static GtkWidget *file_open_w;
 static void
 file_open_cmd(GtkWidget *w)
 {
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_open_file(GDK_WINDOW_HWND(top_level->window));
+#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
   GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
 #if GTK_MAJOR_VERSION < 2
@@ -441,11 +444,6 @@ file_open_cmd(GtkWidget *w)
   	FALSE,
     TRUE
   };
-
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
-  win32_open_file(GDK_WINDOW_HWND(top_level->window));
-  return;
-#endif
 
   if (file_open_w != NULL) {
     /* There's already an "Open Capture File" dialog box; reactivate it. */
@@ -586,7 +584,7 @@ file_open_cmd(GtkWidget *w)
     file_open_ok_cb(file_open_w, file_open_w);
   }
   else window_destroy(file_open_w);
-#else
+#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->selection_entry, "changed",
       file_open_entry_changed, file_open_w);
 
@@ -606,7 +604,8 @@ file_open_cmd(GtkWidget *w)
 
   gtk_widget_show(file_open_w);
   window_present(file_open_w);
-#endif
+#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
 }
 
 static void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -761,6 +760,9 @@ static GtkWidget *file_merge_w;
 static void
 file_merge_cmd(GtkWidget *w)
 {
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_merge_file(GDK_WINDOW_HWND(top_level->window));
+#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *filter_hbox,
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
 		*append_rb, *prev;
@@ -776,11 +778,6 @@ file_merge_cmd(GtkWidget *w)
   	FALSE,
     TRUE
   };
-
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
-  win32_merge_file(GDK_WINDOW_HWND(top_level->window));
-  return;
-#endif
 
   if (file_merge_w != NULL) {
     /* There's already an "Merge Capture File" dialog box; reactivate it. */
@@ -944,7 +941,7 @@ file_merge_cmd(GtkWidget *w)
     file_merge_ok_cb(file_merge_w, file_merge_w);
   }
   else window_destroy(file_merge_w);
-#else
+#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->selection_entry, "changed",
       file_open_entry_changed, file_merge_w);
 
@@ -964,7 +961,8 @@ file_merge_cmd(GtkWidget *w)
 
   gtk_widget_show(file_merge_w);
   window_present(file_merge_w);
-#endif
+#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
 }
 
 static void file_merge_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -1253,16 +1251,14 @@ gpointer            action_after_save_data_g;
 void
 file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
 {
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_save_as_file(GDK_WINDOW_HWND(top_level->window), action_after_save, action_after_save_data);
+#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *range_fr, *compressed_cb;
   GtkTooltips   *tooltips;
 
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
-#endif
-
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
-  win32_save_as_file(GDK_WINDOW_HWND(top_level->window), action_after_save, action_after_save_data);
-  return;
 #endif
 
   if (file_save_as_w != NULL) {
@@ -1353,7 +1349,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   } else {
     window_destroy(file_save_as_w);
   }
-#else
+#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_save_as_w)->ok_button, "clicked",
@@ -1366,7 +1362,8 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 
   gtk_widget_show(file_save_as_w);
   window_present(file_save_as_w);
-#endif
+#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
 }
 
 void
@@ -1620,14 +1617,12 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
 void
 file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_import_color_file(GDK_WINDOW_HWND(top_level->window));
+#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
   GtkWidget	*main_vb, *cfglobal_but;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
-#endif
-
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
-  win32_import_color_file(GDK_WINDOW_HWND(top_level->window));
-  return;
 #endif
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
@@ -1672,7 +1667,7 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
       file_color_import_ok_cb(file_color_import_w, file_color_import_w);
   }
   else window_destroy(file_color_import_w);
-#else
+#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
@@ -1689,7 +1684,8 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 
   gtk_widget_show(file_color_import_w);
   window_present(file_color_import_w);
-#endif
+#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
 }
 
 static void
@@ -1784,12 +1780,10 @@ color_toggle_marked_cb(GtkWidget *widget, gpointer data _U_)
 void
 file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget *main_vb, *cfglobal_but;
-
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
   win32_export_color_file(GDK_WINDOW_HWND(top_level->window));
-  return;
-#endif
+#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+  GtkWidget *main_vb, *cfglobal_but;
 
   if (file_color_export_w != NULL) {
     /* There's already an "Color Filter Export" dialog box; reactivate it. */
@@ -1830,7 +1824,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
       file_color_export_ok_cb(file_color_export_w, file_color_export_w);
   }
   else window_destroy(file_color_export_w);
-#else
+#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
   /* Connect the ok_button to file_export_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
@@ -1846,7 +1840,8 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show(file_color_export_w);
   window_present(file_color_export_w);
-#endif
+#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
 }
 
 static void
