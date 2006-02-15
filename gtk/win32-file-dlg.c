@@ -119,9 +119,15 @@ static packet_range_t range;
 static merge_action_e merge_action;
 static print_args_t   print_args;
 /* XXX - The reason g_sf_hwnd exists is so that we can call
- *       file_set_save_marked_sensitive() from anywhere.  However, the
- *       save file dialog hogs the foreground, so this may not be
- *       necessary.
+ *       range_update_dynamics() from anywhere; it's currently
+ *       static, but if we move to using the native Windows
+ *       print dialog and put range widgets in it as well,
+ *       it might be moved to a separate file.
+ *
+ *       However, the save file dialog hogs the foreground, so
+ *       this may not be necessary (and, in fact, the file dialogs
+ *       should arguably be modal to the window for the file
+ *       being opened/saved/etc., even on GTK+ 1.2[.x]).
  */
 static HWND           g_sf_hwnd = NULL;
 
