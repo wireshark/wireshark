@@ -208,10 +208,10 @@ randpkt.exe	: $(randpkt_OBJECTS) $(command_line_OBJECTS)
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) $(command_line_OBJECTS)
 <<
 
-dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) $(command_line_OBJECTS) mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
+dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj mkstemp.obj $(command_line_OBJECTS) wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) $(command_line_OBJECTS) mkstemp.obj image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj mkstemp.obj $(command_line_OBJECTS) image\dumpcap.res
 <<
 
 
