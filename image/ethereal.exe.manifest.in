@@ -6,7 +6,7 @@
     name="EtherealDevelopmentTeam.Ethereal"
     type="win32"
   />
-  <description>The world's most popular network protocol anlayzer</description>
+  <description>The world's most popular network protocol analyzer</description>
   <dependency>
     <dependentAssembly>
       <assemblyIdentity
