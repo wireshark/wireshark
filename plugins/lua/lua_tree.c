@@ -38,6 +38,11 @@ static GPtrArray* outstanding_stuff = NULL;
 #define PUSH_PROTOITEM(L,i) g_ptr_array_add(outstanding_stuff,pushProtoItem(L,i))
 #define PUSH_PROTOTREE(L,t) g_ptr_array_add(outstanding_stuff,pushProtoTree(L,t))
 
+void push_ProtoTree(lua_State*L, ProtoTree t) {
+    void** p = (void**)pushProtoTree(L,t);
+    g_ptr_array_add(outstanding_stuff,p);
+}
+
 void clear_outstanding_trees(void) {
     while (outstanding_stuff->len) {
         void** p = (void**)g_ptr_array_remove_index_fast(outstanding_stuff,0);

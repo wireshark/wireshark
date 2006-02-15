@@ -255,9 +255,14 @@ extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);
 extern void lua_register_subtrees(void);
+
+extern void push_Tvb(lua_State* L, Tvb tvb);
 extern void clear_outstanding_tvbs(void);
+
 extern void push_Pinfo(lua_State* L, Pinfo p);
 extern void clear_outstanding_pinfos(void);
+
+extern void push_ProtoTree(lua_State* L, ProtoTree t);
 extern void clear_outstanding_trees(void);
 
 #endif

@@ -302,6 +302,11 @@ void clear_outstanding_tvbs(void) {
     }
 }
 
+void push_Tvb(lua_State* L, Tvb tvb) {
+    void** p = (void**)pushTvb(L,tvb);
+    g_ptr_array_add(outstanding_stuff,p);
+}
+
 
 
 /*
