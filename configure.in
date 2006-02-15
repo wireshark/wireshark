@@ -1033,6 +1033,19 @@ AC_C_BIGENDIAN
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
 
+GETOPT_C=""
+GETOPT_O=""
+AC_CHECK_FUNC(getopt, GETOPT_O="",
+  [GETOPT_O="getopt.o"
+   AC_DEFINE(NEED_GETOPT_H, 1, [Define if getopt.h needs to be included])
+])
+if test "$ac_cv_func_getopt" = no ; then
+  GETOPT_C="getopt.c"
+  GETOPT_O="getopt.o"
+fi
+AC_SUBST(GETOPT_C)
+AC_SUBST(GETOPT_O)
+
 # If there's a system out there that has snprintf and _doesn't_ have vsnprintf,
 # then this won't work.
 SNPRINTF_C=""

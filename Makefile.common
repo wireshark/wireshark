@@ -116,19 +116,21 @@ TETHEREAL_TAP_SRC =	\
 
 # helpers already available on some platforms (and on others not)
 EXTRA_ethereal_SOURCES =	\
+	getopt.c	\
+	mkstemp.c	\
 	snprintf.c	\
 	strerror.c	\
 	strcasecmp.c	\
 	strncasecmp.c	\
-	mkstemp.c	\
 	strptime.c
 
 # corresponding headers
 EXTRA_ethereal_INCLUDES =	\
+	getopt.h	\
+	mkstemp.h	\
 	snprintf.h	\
 	snprintf-imp.h	\
 	strerror.h	\
-	mkstemp.h	\
 	strptime.h
 
 # ethereal specifics
@@ -218,7 +220,6 @@ dumpcap_SOURCES =	\
 	clopts_common.c	\
 	conditions.c	\
 	dumpcap.c	\
-	getopt.c	\
 	ringbuffer.c	\
 	tempfile.c	\
 	version_info.c
@@ -229,4 +230,3 @@ noinst_HEADERS =	\
 	$(ETHEREAL_COMMON_INCLUDES) \
 	$(ethereal_INCLUDES) \
 	$(EXTRA_ethereal_INCLUDES)
-

@@ -268,7 +268,7 @@ endif		# HAVE_PLUGINS
 # we should probably split this into stuff needed both
 # by ethereal and tethereal and stuff needed only by one or the
 # other.
-ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
+ethereal_optional_objects = @GETOPT_O@ @SNPRINTF_O@ @STRERROR_O@ \
 	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@
 
 # Additional libs that I know how to build. These will be
@@ -565,8 +565,6 @@ EXTRA_DIST = \
 	ethereal_be.py		\
 	ethereal_gen.py		\
 	ethereal.desktop	\
-	getopt.c		\
-	getopt.h		\
 	idl2eth.sh		\
 	image/Ethereal.icns	\
 	image/Makefile.nmake	\
