@@ -290,24 +290,18 @@ int ByteArray_register(lua_State* L) {
 LUA_CLASS_DEFINE(Tvb,TVB,if (! *p) luaL_error(L,"expired tvb"))
 LUA_CLASS_DEFINE(TvbRange,TVB_RANGE,if (! *p) luaL_error(L,"expired tvbrange"))
 
-GPtrArray* allocated_tvbs = NULL;
-GPtrArray* allocated_tvbrs = NULL;
+static GPtrArray* outstanding_stuff = NULL;
 
-#define PUSH_TVB(L,t) g_ptr_array_add(allocated_tvbs,pushTvb(L,t))
-#define PUSH_TVBRANGE(L,t) g_ptr_array_add(allocated_tvbs,pushTvbRange(L,t))
+#define PUSH_TVB(L,t) g_ptr_array_add(outstanding_stuff,pushTvb(L,t))
+#define PUSH_TVBRANGE(L,t) g_ptr_array_add(outstanding_stuff,pushTvbRange(L,t))
 
 void clear_outstanding_tvbs(void) {
-    while (allocated_tvbrs->len) {
-        Tvb* p = (Tvb*)g_ptr_array_remove_index_fast(allocated_tvbs,0);
+    while (outstanding_stuff->len) {
+        void** p = (void**)g_ptr_array_remove_index_fast(outstanding_stuff,0);
         *p = NULL;
     }
-    while (allocated_tvbrs->len) {
-        TvbRange* p = (TvbRange*)g_ptr_array_remove_index_fast(allocated_tvbrs,0);
-        if (p) g_free(*p);
-        *p = NULL;
-    }
-    
 }
+
 
 
 /*
@@ -412,9 +406,6 @@ static const luaL_reg Tvb_meta[] = {
 };
 
 int Tvb_register(lua_State* L) {
-
-    allocated_tvbs = g_ptr_array_new();
-
     luaL_openlib(L, TVB, Tvb_methods, 0);
     luaL_newmetatable(L, TVB);
     luaL_openlib(L, 0, Tvb_meta, 0);
@@ -448,7 +439,7 @@ TvbRange new_TvbRange(lua_State* L, tvbuff_t* tvb, int offset, int len) {
         return NULL;
     }
     
-    tvbr = g_malloc(sizeof(struct _eth_tvbrange));
+    tvbr = ep_alloc(sizeof(struct _eth_tvbrange));
     tvbr->tvb = tvb;
     tvbr->offset = offset;
     tvbr->len = len;
@@ -732,7 +723,7 @@ static const luaL_reg TvbRange_meta[] = {
 
 int TvbRange_register(lua_State* L) {
     
-    allocated_tvbrs = g_ptr_array_new();
+    outstanding_stuff = g_ptr_array_new();
     
     luaL_openlib(L, TVB_RANGE, TvbRange_methods, 0);
     luaL_newmetatable(L, TVB_RANGE);

@@ -155,7 +155,7 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     if (lua_isfunction(L,1)) {
         
         pushTvb(L,tvb);
-        pushPinfo(L,pinfo);
+        push_Pinfo(L,pinfo);
         pushProtoTree(L,tree);
         
         if  ( lua_pcall(L,3,0,0) ) {
@@ -172,6 +172,7 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     }
     
     clear_outstanding_tvbs();
+    clear_outstanding_pinfos();
     
     lua_pinfo = NULL;
     lua_tree = NULL;

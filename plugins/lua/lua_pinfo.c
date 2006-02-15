@@ -30,10 +30,35 @@
 #include <epan/addr_resolv.h>
 #include <string.h>
 
-LUA_CLASS_DEFINE(Column,COLUMN,NOP)
-LUA_CLASS_DEFINE(Columns,COLUMNS,NOP)
-LUA_CLASS_DEFINE(Pinfo,PINFO,if (! *p) luaL_error(L,"null pinfo"))
+LUA_CLASS_DEFINE(Column,COLUMN,if (! *p) luaL_error(L,"expired column"))
+LUA_CLASS_DEFINE(Columns,COLUMNS,if (! *p) luaL_error(L,"expired columns"))
+LUA_CLASS_DEFINE(Pinfo,PINFO,if (! *p) luaL_error(L,"expired pinfo"))
 LUA_CLASS_DEFINE(Address,ADDRESS,NOP)
+
+
+/*
+ * NULLify lua userdata to avoid crashing when trying to
+ * access saved copies of invalid stuff.
+ *
+ * see comment on lua_tvb.c
+ */
+
+static GPtrArray* outstanding_stuff = NULL;
+
+void clear_outstanding_pinfos(void) {
+    while (outstanding_stuff->len) {
+        void** p = (void**)g_ptr_array_remove_index_fast(outstanding_stuff,0);
+        *p = NULL;
+    }
+}
+
+void push_Pinfo(lua_State* L, Pinfo pinfo) {
+    void** p = (void**)pushPinfo(L,pinfo);
+    g_ptr_array_add(outstanding_stuff,p);
+}
+
+#define PUSH_COLUMN(L,c) g_ptr_array_add(outstanding_stuff,pushColumn(L,c))
+#define PUSH_COLUMNS(L,c) g_ptr_array_add(outstanding_stuff,pushColumns(L,c))
 
 static int Address_ip(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
@@ -372,13 +397,12 @@ static int Column_tostring(lua_State *L) {
     const gchar* name;
     
     if (!(c)) {
-        luaL_error(L,"Bad column");
         return 0;
-    } else {
-        /* TODO: format the column */
-        name = col_id_to_name(c->col);
-        lua_pushstring(L,name ? name : "Unknown Column");
     }
+    
+    /* XXX: can we format the column? */
+    name = col_id_to_name(c->col);
+    lua_pushstring(L,name ? name : "Unknown Column");
     
     return 1;
 }
@@ -429,13 +453,6 @@ static int Column_preppend(lua_State *L) {
     return 0;
 }
 
-static int Column_gc(lua_State *L) {
-    Column c = checkColumn(L,1);
-    if (!c) return 0;
-    g_free(c);
-    return 0;
-}
-
 static const luaL_reg Column_methods[] = {
     {"clear", Column_clear },
     {"set", Column_set },
@@ -446,7 +463,6 @@ static const luaL_reg Column_methods[] = {
 
 
 static const luaL_reg Column_meta[] = {
-    {"__gc", Column_gc },
     {"__tostring", Column_tostring },
     {0,0}
 };
@@ -508,11 +524,11 @@ static int Columns_index(lua_State *L) {
     const char* colname = luaL_checkstring(L,2);
 
     if (!cols) {
-        Column c = g_malloc(sizeof(struct _eth_col_info));
+        Column c = ep_alloc(sizeof(struct _eth_col_info));
         c->cinfo = NULL;
         c->col = col_name_to_id(colname);
         
-        pushColumn(L,c);
+        PUSH_COLUMN(L,c);
         return 1;
     }
     
@@ -522,11 +538,11 @@ static int Columns_index(lua_State *L) {
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
-            Column c = g_malloc(sizeof(struct _eth_col_info));
+            Column c = ep_alloc(sizeof(struct _eth_col_info));
             c->cinfo = cols;
             c->col = col_name_to_id(colname);
 
-            pushColumn(L,c);
+            PUSH_COLUMN(L,c);
             return 1;
         }
     }
@@ -628,10 +644,10 @@ static int Pinfo_columns(lua_State *L) {
     const gchar* colname = luaL_optstring(L,2,NULL);
 
     if (!colname) {
-        pushColumns(L,pinfo->cinfo);
+        PUSH_COLUMNS(L,pinfo->cinfo);
     } else {
         lua_settop(L,0);
-        pushColumns(L,pinfo->cinfo);
+        PUSH_COLUMNS(L,pinfo->cinfo);
         lua_pushstring(L,colname);
         return Columns_index(L);
     }
@@ -810,6 +826,8 @@ int Pinfo_register(lua_State* L) {
     luaL_newmetatable(L, PINFO);
     luaL_openlib(L, NULL, Pinfo_meta, 0);
 
+    outstanding_stuff = g_ptr_array_new();
+    
     return 1;
 }
 

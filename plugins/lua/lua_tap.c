@@ -210,7 +210,11 @@ struct _eth_tap {
 
 int tap_packet_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
+    
+    /* XXX: UGLY! this can flood the user with windows to close! */  
+    
     report_failure("Lua: Error During execution of Tap Packet Callback:\n %s",error);
+    
     return 0;    
 }
 
@@ -218,14 +222,16 @@ int tap_packet_cb_error_handler(lua_State* L) {
 int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_ , const void *data _U_) {
     Tap tap = tapdata;
     int retval = 0;
-    
+
     if (tap->packet_ref == LUA_NOREF) return 0;
 
     lua_settop(tap->L,0);
     
     lua_pushcfunction(tap->L,tap_packet_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->packet_ref);
-    pushPinfo(tap->L, pinfo);
+    
+    push_Pinfo(tap->L, pinfo);
+    
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->data_ref);
     
     switch ( lua_pcall(tap->L,2,1,1) ) {
@@ -247,6 +253,8 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_ , 
             g_assert_not_reached();
             break;
     }
+    
+    clear_outstanding_pinfos();
     
     return retval;
 }
