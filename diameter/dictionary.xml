@@ -1283,6 +1283,7 @@
 				<gavp name="Message-Body"/>
 				<gavp name="Cause-Code"/>
 			</grouped>
+		</avp>
 	</base>
 	<application id="0" name="Diameter Common Messages" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
