@@ -602,23 +602,44 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 	
 	switch(ProcedureCode){
 	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION:	/* 0 */
+		offset = dissect_id_commonTransportChannelResourcesInitialisation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESRELEASE:			/* 1 */
+		offset = dissect_id_commonTransportChannelResourcesRelease(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMPRESSEDMODECOMMAND:							 /* 2 */
+		offset = dissect_id_compressedModeCommand(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DOWNLINKPOWERCONTROL:								 /* 3 */
+		offset = dissect_id_downlinkPowerTimeslotControl(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DOWNLINKPOWERTIMESLOTCONTROL:						 /* 4 */
-		offset = offset + (length<<3);
+		offset = dissect_id_downlinkPowerTimeslotControl(tvb, offset, pinfo, value_tree);
+		break;
 		break;
 	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:						 /* 5 */
 		offset = dissect_id_downlinkSignallingTransfer(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_ERRORINDICATION:									 /* 6 */
+		offset = dissect_id_errorIndication(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTFAILURE:						 /* 7 */
+		offset = dissect_id_dedicatedMeasurementFailure(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTINITIATION:					 /* 8 */
+		offset = dissect_id_dedicatedMeasurementInitiation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTREPORTING:					 /* 9 */
+		offset = dissect_id_dedicatedMeasurementReporting(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTTERMINATION:					 /* 10 */
+		offset = dissect_id_dedicatedMeasurementTermination(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PAGING:											 /* 11 */
+		offset = dissect_id_paging(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PHYSICALCHANNELRECONFIGURATION:					 /* 12 */
-		offset = offset + (length<<3);
+		offset = dissect_id_physicalChannelReconfiguration(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_PRIVATEMESSAGE:									 /* 13 */
 		offset = dissect_id_privateMessage(tvb, offset, pinfo, value_tree);
@@ -631,11 +652,19 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 		}
 		break;
 	case RNSAP_ID_RADIOLINKCONGESTION:								 /* 34 */
+		offset = dissect_id_radioLinkCongestion(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RADIOLINKDELETION:								 /* 15 */
+		offset = dissect_id_radioLinkDeletion(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RADIOLINKFAILURE:									 /* 16 */
+		offset = dissect_id_radioLinkFailure(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RADIOLINKPREEMPTION:								 /* 17 */
+		offset = dissect_id_radioLinkPreemption(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RADIOLINKRESTORATION:								 /* 18 */
-		offset = offset + (length<<3);
+		offset = dissect_id_radioLinkRestoration(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
 		if (ddMode==RNSAP_FDD){
@@ -645,33 +674,105 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 		}
 		break;
 	case RNSAP_ID_RELOCATIONCOMMIT:									 /* 20 */
+		offset = dissect_id_relocationCommit(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONCANCELLATION:	 /* 21 */
+		offset = dissect_id_synchronisedRadioLinkReconfigurationCancellation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONCOMMIT:		 /* 22 */
+		offset = dissect_id_synchronisedRadioLinkReconfigurationCommit(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation_TDD(tvb, offset, pinfo, value_tree);
+		}
+		break;
 	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_unSynchronisedRadioLinkReconfiguration(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_unSynchronisedRadioLinkReconfiguration_TDD(tvb, offset, pinfo, value_tree);
+		}
+		break;
 	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:							 /* 25 */
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_uplinkSignallingTransfer(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_uplinkSignallingTransfer_TDD(tvb, offset, pinfo, value_tree);
+		}
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTFAILURE:							 /* 26 */
+		offset = dissect_id_commonMeasurementFailure(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTINITIATION:						 /* 27 */
+		offset = dissect_id_commonMeasurementInitiation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTREPORTING:						 /* 28 */
+		offset = dissect_id_commonMeasurementReporting(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTTERMINATION:						 /* 29 */
+		offset = dissect_id_commonMeasurementTermination(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONEXCHANGEFAILURE:						 /* 30 */
+		offset = dissect_id_informationExchangeFailure(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONEXCHANGEINITIATION:					 /* 31 */
+		offset = dissect_id_informationExchangeInitiation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONREPORTING:								 /* 32 */
+		offset = dissect_id_informationReporting(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONEXCHANGETERMINATION:					 /* 33 */
+		offset = dissect_id_informationExchangeTermination(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RESET:											 /* 35 */
+		offset = dissect_id_reset(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RADIOLINKACTIVATION: 								 /* 36 */
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_radioLinkActivation(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_radioLinkActivation_TDD(tvb, offset, pinfo, value_tree);
+		}
+		break;
 	case RNSAP_ID_GERANUPLINKSIGNALLINGTRANSFER:					 /* 37 */
+		offset = dissect_id_gERANuplinkSignallingTransfer(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RADIOLINKPARAMETERUPDATE:							 /* 38 */
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_radioLinkParameterUpdate(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_radioLinkParameterUpdate_TDD(tvb, offset, pinfo, value_tree);
+		}
+		break;
 	case RNSAP_ID_UEMEASUREMENTFAILURE:								 /* 39 */
+		offset = dissect_id_uEMeasurementFailure(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTINITIATION:							 /* 40 */
+		offset = dissect_id_uEMeasurementInitiation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTREPORTING:							 /* 41 */
+		offset = dissect_id_uEMeasurementReporting(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTTERMINATION:							 /* 42 */
+		offset = dissect_id_uEMeasurementTermination(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_IURDEACTIVATETRACE:								 /* 43 */
+		offset = dissect_id_iurDeactivateTrace(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_IURINVOKETRACE:									 /* 44 */
+		offset = dissect_id_iurInvokeTrace(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MBMSATTACH:										 /* 45 */
+		offset = dissect_id_mBMSAttach(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MBMSDETACH:										 /* 46 */
+		offset = dissect_id_mBMSDetach(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DIRECTINFORMATIONTRANSFER:						 /* 48 */
-		offset = offset + (length<<3);
+		offset = dissect_id_directInformationTransfer(tvb, offset, pinfo, value_tree);
 		break;
 	default:
 		offset = offset + (length<<3);
@@ -694,6 +795,61 @@ static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, 
 
 	
 	switch(ProcedureCode){
+	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION:
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_commonTransportChannelResourcesInitialisation1(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_commonTransportChannelResourcesInitialisation_TDD(tvb, offset, pinfo, value_tree);
+		}
+		break;
+	case RNSAP_ID_DEDICATEDMEASUREMENTINITIATION:					 /* 8 */
+		offset = dissect_id_dedicatedMeasurementInitiation2(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_PHYSICALCHANNELRECONFIGURATION:					 /* 12 */
+		offset = dissect_id_physicalChannelReconfiguration1(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_RADIOLINKADDITION:								 /* 14 */
+		if (ddMode==RNSAP_FDD){
+			offset = dissect_id_radioLinkAddition1(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_radioLinkAddition_TDD1(tvb, offset, pinfo, value_tree);
+		}
+		break;
+	case RNSAP_ID_RADIOLINKDELETION:								 /* 15 */
+		offset = dissect_id_radioLinkDeletion1(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_radioLinkSetup1(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_radioLinkSetupTdd1(tvb, offset, pinfo, value_tree);
+		}
+		break;
+	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
+		if (ddMode==RNSAP_FDD){
+			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation1(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation_TDD(tvb, offset, pinfo, value_tree);
+		}
+	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
+		if (ddMode==RNSAP_FDD){
+			offset = dissect_id_unSynchronisedRadioLinkReconfiguration1(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_unSynchronisedRadioLinkReconfiguration_TDD1(tvb, offset, pinfo, value_tree);
+		}
+		break;
+	case RNSAP_ID_COMMONMEASUREMENTINITIATION:						 /* 27 */
+		offset = dissect_id_commonMeasurementInitiation1(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_INFORMATIONEXCHANGEINITIATION:					 /* 31 */
+		offset = dissect_id_informationExchangeInitiation1(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_RESET:											 /* 35 */
+		offset = dissect_id_reset1(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_UEMEASUREMENTINITIATION:							 /* 40 */
+		offset = dissect_id_uEMeasurementInitiation1(tvb, offset, pinfo, value_tree);
+		break;
 
 	default:
 		offset = offset + (length<<3);
@@ -716,6 +872,48 @@ static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset
 
 	
 	switch(ProcedureCode){
+	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION:
+		offset = dissect_id_commonTransportChannelResourcesInitialisation2(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_DEDICATEDMEASUREMENTINITIATION:					 /* 8 */
+		offset = dissect_id_dedicatedMeasurementInitiation2(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_PHYSICALCHANNELRECONFIGURATION:					 /* 12 */
+		offset = dissect_id_physicalChannelReconfiguration2(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_RADIOLINKADDITION:								 /* 14 */
+		if (ddMode==RNSAP_FDD){
+			offset = dissect_id_radioLinkAddition2(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_radioLinkAddition_TDD2(tvb, offset, pinfo, value_tree);
+		}
+		break;
+	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
+		if (ddMode==RNSAP_FDD){
+			offset = offset = dissect_id_radioLinkSetup2(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_radioLinkSetupTdd2(tvb, offset, pinfo, value_tree);
+		}
+		break;
+	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
+		offset = offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation2(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
+		if (ddMode==RNSAP_FDD){
+			offset = dissect_id_unSynchronisedRadioLinkReconfiguration2(tvb, offset, pinfo, value_tree);
+		}else{
+			offset = dissect_id_unSynchronisedRadioLinkReconfiguration_TDD2(tvb, offset, pinfo, value_tree);
+		}
+		break;
+	case RNSAP_ID_COMMONMEASUREMENTINITIATION:						 /* 27 */
+		offset = dissect_id_commonMeasurementInitiation2(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_INFORMATIONEXCHANGEINITIATION:					 /* 31 */
+		offset = dissect_id_informationExchangeInitiation2(tvb, offset, pinfo, value_tree);
+		break;
+	case RNSAP_ID_UEMEASUREMENTINITIATION:							 /* 40 */
+		offset = dissect_id_uEMeasurementInitiation2(tvb, offset, pinfo, value_tree);
+		break;
 
 	default:
 		offset = offset + (length<<3);
@@ -791,22 +989,22 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 		offset = dissect_id_D_RNTI_ReleaseIndication(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DCHS_TO_ADD_FDD:												/*  26 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DCHs_to_Add_FDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DCHS_TO_ADD_TDD:												/*  27 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DCHs_to_Add_TDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DCH_DELETELIST_RL_RECONFPREPFDD:								/*  30 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DCH_DeleteList_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DCH_DELETELIST_RL_RECONFPREPTDD:								/*  31 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DCH_DeleteList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DCH_DELETELIST_RL_RECONFRQSTFDD:								/*  32 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DCH_DeleteList_RL_ReconfRqstFDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DCH_DELETELIST_RL_RECONFRQSTTDD:								/*  33 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DCH_DeleteList_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DCH_FDD_INFORMATION:											/*  34 */
 		offset = dissect_id_DCH_FDD_Information(tvb, offset, pinfo, value_tree);
@@ -815,49 +1013,109 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 		offset = dissect_id_DCH_TDD_Information(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_FDD_DCHS_TO_MODIFY:											/*  39 */
+		offset = dissect_id_FDD_DCHs_to_Modify(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_DCHS_TO_MODIFY:											/*  40 */
+		offset = dissect_id_TDD_DCHs_to_Modify(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DCH_INFORMATIONRESPONSE:										/*  43 */
+		offset = dissect_id_DCH_InformationResponse(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DCH_RATE_INFORMATIONITEM_RL_CONGESTIND:						/*  38 */
+		offset = dissect_id_DCH_Rate_InformationItem_RL_CongestInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONADDITEM_RL_RECONFPREPTDD:				/*  44 */
+		offset = dissect_id_DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONLISTIE_RL_RECONFREADYTDD:				/*  45 */
+		offset = dissect_id_DL_CCTrCH_InformationListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONDELETEITEM_RL_RECONFRQSTTDD:				/*  46 */
+		offset = dissect_id_DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONITEM_RL_SETUPRQSTTDD:					/*  47 */
+		offset = dissect_id_DL_CCTrCH_InformationItem_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONLISTIE_PHYCHRECONFRQSTTDD:				/*  48 */
+		offset = dissect_id_DL_CCTrCH_InformationListIE_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONLISTIE_RL_ADDITIONRSPTDD:				/*  49 */
+		offset = dissect_id_DL_CCTrCH_InformationListIE_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONLISTIE_RL_SETUPRSPTDD:					/*  50 */
+		offset = dissect_id_DL_CCTrCH_InformationListIE_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONADDLIST_RL_RECONFPREPTDD:				/*  51 */
+		offset = dissect_id_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONDELETELIST_RL_RECONFRQSTTDD:				/*  52 */
+		offset = dissect_id_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONLIST_RL_SETUPRQSTTDD:					/*  53 */
+		offset = dissect_id_DL_CCTrCH_InformationList_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_FDD_DL_CODEINFORMATION:										/*  54 */
+		offset = dissect_id_FDD_DL_CodeInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATION_RL_RECONFPREPFDD:							/*  59 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DL_DPCH_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DL_DPCH_INFORMATION_RL_SETUPRQSTFDD:							/*  60 */
 		offset = dissect_id_DL_DPCH_Information_RL_SetupRqstFDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DL_DPCH_INFORMATION_RL_RECONFRQSTFDD:							/*  61 */
+		offset = dissect_id_DL_DPCH_Information_RL_ReconfRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATIONITEM_PHYCHRECONFRQSTTDD:					/*  62 */
+		offset = dissect_id_DL_DPCH_InformationItem_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATIONITEM_RL_ADDITIONRSPTDD:					/*  63 */
+		offset = dissect_id_DL_DPCH_InformationItem_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATIONITEM_RL_SETUPRSPTDD:						/*  64 */
+		offset = dissect_id_DL_DPCH_InformationItem_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_TIMINGADJUSTMENT:										/*  278 */
+		offset = dissect_id_DL_DPCH_TimingAdjustment(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DLREFERENCEPOWER:												/*  67 */
+		offset = dissect_id_DLReferencePower(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DLREFERENCEPOWERLIST_DL_PC_RQST:								/*  68 */
+		offset = dissect_id_DLReferencePowerList_DL_PC_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_REFERENCEPOWERINFORMATION_DL_PC_RQST:						/*  69 */
-		offset = offset + (length<<3);
+		offset = dissect_id_DL_ReferencePowerInformation_DL_PC_Rqst(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DPC_MODE:														/*  12 */
 		offset = dissect_id_DPC_Mode(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DRXCYCLELENGTHCOEFFICIENT:									/*  70 */
+		offset = dissect_id_DRXCycleLengthCoefficient(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTOBJECTTYPE_DM_FAIL_IND:					/*  470 */
+		offset = dissect_id_DedicatedMeasurementObjectType_DM_Fail_Ind(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTOBJECTTYPE_DM_FAIL:						/*  471 */
+		offset = dissect_id_DedicatedMeasurementObjectType_DM_Fail(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTOBJECTTYPE_DM_RPRT:						/*  71 */
+		offset = dissect_id_DedicatedMeasurementObjectType_DM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTOBJECTTYPE_DM_RQST:						/*  72 */
+		offset = dissect_id_DedicatedMeasurementObjectType_DM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTOBJECTTYPE_DM_RSP:						/*  73 */
+		offset = dissect_id_DedicatedMeasurementObjectType_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DEDICATEDMEASUREMENTTYPE:										/*  74 */
+		offset = dissect_id_DedicatedMeasurementType(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_FACH_INFOFORUESELECTEDS_CCPCH_CTCH_RESOURCERSPFDD:			/*  82 */
+		offset = dissect_id_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_FACH_INFOFORUESELECTEDS_CCPCH_CTCH_RESOURCERSPTDD:			/*  83 */
-		offset = offset + (length<<3);
+		offset = dissect_id_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_GUARANTEED_RATE_INFORMATION:									/*  41 */
 		offset = dissect_id_Guaranteed_Rate_Information(tvb, offset, pinfo, value_tree);
@@ -875,16 +1133,34 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 		offset = dissect_id_AdjustmentPeriod(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_MAXADJUSTMENTSTEP:											/*  91 */
+		offset = dissect_id_MaxAdjustmentStep(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MEASUREMENTFILTERCOEFFICIENT:									/*  92 */
+		offset = dissect_id_MeasurementFilterCoefficient(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MESSAGESTRUCTURE:												/*  57 */
+		offset = dissect_id_MessageStructure(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MEASUREMENTID:												/*  93 */
+		offset = dissect_id_MeasurementID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NEIGHBOURING_GSM_CELLINFORMATION:								/*  13 */
+		offset = dissect_id_Neighbouring_GSM_CellInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NEIGHBOURING_UMTS_CELLINFORMATIONITEM:						/*  95 */
+		offset = dissect_id_Neighbouring_UMTS_CellInformationItem(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NRT_LOAD_INFORMATION_VALUE:									/*  305 */
+		offset = dissect_id_NRT_Load_Information_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NRT_LOAD_INFORMATION_VALUE_INCRDECRTHRES:						/*  306 */
+		offset = dissect_id_NRT_Load_Information_Value_IncrDecrThres(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PAGINGAREA_PAGINGRQST:										/*  102 */
+		offset = dissect_id_PagingArea_PagingRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_FACH_FLOWCONTROLINFORMATION:									/*  103 */
-		offset = offset + (length<<3);
+		offset = dissect_id_FACH_FlowControlInformation(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_PARTIALREPORTINGINDICATOR:									/*  472 */
 		offset = dissect_id_PartialReportingIndicator(tvb, offset, pinfo, value_tree);
@@ -893,64 +1169,166 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 		offset = dissect_id_Permanent_NAS_UE_Identity(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_POWERADJUSTMENTTYPE:											/*  107 */
+		offset = dissect_id_PowerAdjustmentType(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RANAP_RELOCATIONINFORMATION:									/*  109 */
+		offset = dissect_id_RANAP_RelocationInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_PHYCHRECONFRQSTFDD:							/*  110 */
+		offset = dissect_id_RL_Information_PhyChReconfRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_PHYCHRECONFRQSTTDD:							/*  111 */
+		offset = dissect_id_RL_Information_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_ADDITIONRQSTFDD:							/*  112 */
+		offset = dissect_id_RL_Information_RL_AdditionRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_ADDITIONRQSTTDD:							/*  113 */
+		offset = dissect_id_RL_Information_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_DELETIONRQST:								/*  114 */
+		offset = dissect_id_RL_Information_RL_DeletionRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_FAILUREIND:									/*  115 */
+		offset = dissect_id_RL_Information_RL_FailureInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_RECONFPREPFDD:								/*  116 */
+		offset = dissect_id_RL_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_RESTOREIND:									/*  117 */
+		offset = dissect_id_RL_Information_RL_RestoreInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_SETUPRQSTFDD:								/*  118 */
+		offset = dissect_id_RL_Information_RL_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_SETUPRQSTTDD:								/*  119 */
+		offset = dissect_id_RL_Information_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONITEM_RL_CONGESTIND:								/*  55 */
+		offset = dissect_id_RL_InformationItem_RL_CongestInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONITEM_DM_RPRT:									/*  120 */
+		offset = dissect_id_RL_InformationItem_DM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONITEM_DM_RQST:									/*  121 */
+		offset = dissect_id_RL_InformationItem_DM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONITEM_DM_RSP:									/*  122 */
+		offset = dissect_id_RL_InformationItem_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONITEM_RL_PREEMPTREQUIREDIND:						/*  2 */
+		offset = dissect_id_RL_InformationItem_RL_PreemptRequiredInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONITEM_RL_SETUPRQSTFDD:							/*  123 */
+		offset = dissect_id_RL_InformationItem_RL_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONLIST_RL_CONGESTIND:								/*  56 */
+		offset = dissect_id_RL_InformationList_RL_CongestInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONLIST_RL_ADDITIONRQSTFDD:						/*  124 */
+		offset = dissect_id_RL_InformationList_RL_AdditionRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONLIST_RL_DELETIONRQST:							/*  125 */
+		offset = dissect_id_RL_InformationList_RL_DeletionRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONLIST_RL_PREEMPTREQUIREDIND:						/*  1 */
+		offset = dissect_id_RL_InformationList_RL_PreemptRequiredInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONLIST_RL_RECONFPREPFDD:							/*  126 */
+		offset = dissect_id_RL_InformationList_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSE_RL_ADDITIONRSPTDD:						/*  127 */
+		offset = dissect_id_RL_InformationResponse_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSE_RL_RECONFREADYTDD:						/*  128 */
+		offset = dissect_id_RL_InformationResponse_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSE_RL_SETUPRSPTDD:						/*  129 */
+		offset = dissect_id_RL_InformationResponse_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSEITEM_RL_ADDITIONRSPFDD:					/*  130 */
+		offset = dissect_id_RL_InformationResponseItem_RL_AdditionRspFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSEITEM_RL_RECONFREADYFDD:					/*  131 */
+		offset = dissect_id_RL_InformationResponseItem_RL_ReconfReadyFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSEITEM_RL_RECONFRSPFDD:					/*  132 */
+		offset = dissect_id_RL_InformationResponseItem_RL_ReconfRspFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSEITEM_RL_SETUPRSPFDD:					/*  133 */
+		offset = dissect_id_RL_InformationResponseItem_RL_SetupRspFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSELIST_RL_ADDITIONRSPFDD:					/*  134 */
+		offset = dissect_id_RL_InformationResponseList_RL_AdditionRspFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSELIST_RL_RECONFREADYFDD:					/*  135 */
+		offset = dissect_id_RL_InformationResponseList_RL_ReconfReadyFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSELIST_RL_RECONFRSPFDD:					/*  136 */
+		offset = dissect_id_RL_InformationResponseList_RL_ReconfRspFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSE_RL_RECONFRSPTDD:						/*  28 */
+		offset = dissect_id_RL_InformationResponse_RL_ReconfRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATIONRESPONSELIST_RL_SETUPRSPFDD:					/*  137 */
+		offset = dissect_id_RL_InformationResponseList_RL_SetupRspFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_RECONFIGURATIONFAILURE_RL_RECONFFAIL:						/*  141 */
+		offset = dissect_id_RL_ReconfigurationFailure_RL_ReconfFail(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_INFORMATIONITEM_DM_RPRT:								/*  143 */
+		offset = dissect_id_RL_Set_InformationItem_DM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_INFORMATIONITEM_DM_RQST:								/*  144 */
+		offset = dissect_id_RL_Set_InformationItem_DM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_INFORMATIONITEM_DM_RSP:								/*  145 */
+		offset = dissect_id_RL_Set_InformationItem_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_INFORMATION_RL_FAILUREIND:								/*  146 */
+		offset = dissect_id_RL_Set_Information_RL_FailureInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_INFORMATION_RL_RESTOREIND:								/*  147 */
+		offset = dissect_id_RL_Set_Information_RL_RestoreInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_SUCCESSFUL_INFORMATIONITEM_DM_FAIL:					/*  473 */
+		offset = dissect_id_RL_Set_Successful_InformationItem_DM_Fail(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_UNSUCCESSFUL_INFORMATIONITEM_DM_FAIL:					/*  474 */
+		offset = dissect_id_RL_Set_Unsuccessful_InformationItem_DM_Fail(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SET_UNSUCCESSFUL_INFORMATIONITEM_DM_FAIL_IND:				/*  475 */
+		offset = dissect_id_RL_Set_Unsuccessful_InformationItem_DM_Fail_Ind(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SUCCESSFUL_INFORMATIONITEM_DM_FAIL:						/*  476 */
+		offset = dissect_id_RL_Successful_InformationItem_DM_Fail(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_UNSUCCESSFUL_INFORMATIONITEM_DM_FAIL:						/*  477 */
+		offset = dissect_id_RL_Unsuccessful_InformationItem_DM_Fail(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_UNSUCCESSFUL_INFORMATIONITEM_DM_FAIL_IND:					/*  478 */
+		offset = dissect_id_RL_Unsuccessful_InformationItem_DM_Fail_Ind(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_REPORTCHARACTERISTICS:										/*  152 */
+		offset = dissect_id_ReportCharacteristics(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_REPORTING_OBJECT_RL_FAILUREIND:								/*  153 */
+		offset = dissect_id_Reporting_Object_RL_FailureInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_REPORING_OBJECT_RL_RESTOREIND:								/*  154 */
+		offset = dissect_id_Reporing_Object_RL_RestoreInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RT_LOAD_VALUE:												/*  307 */
+		offset = dissect_id_RT_Load_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RT_LOAD_VALUE_INCRDECRTHRES:									/*  308 */
-		offset = offset + (length<<3);
+		offset = dissect_id_RT_Load_Value_IncrDecrThres(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_S_RNTI:														/*  155 */
 		offset = dissect_id_S_RNTI(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_RESETINDICATOR:												/*  244 */
-		offset = offset + (length<<3);
+		offset = dissect_id_ResetIndicator(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_RNC_ID:														/*  245 */
 		offset = dissect_id_RNC_ID(tvb, offset, pinfo, value_tree);
@@ -962,162 +1340,440 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 		offset = dissect_id_SRNC_ID(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_SUCCESSFULRL_INFORMATIONRESPONSE_RL_ADDITIONFAILUREFDD:		/*  159 */
-		offset = offset + (length<<3);
+		offset = dissect_id_SuccessfulRL_InformationResponse_RL_AdditionFailureFDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_SUCCESSFULRL_INFORMATIONRESPONSE_RL_SETUPFAILUREFDD:			/*  160 */
+		offset = dissect_id_SuccessfulRL_InformationResponse_RL_SetupFailureFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRANSPORTBEARERID:											/*  163 */
+		offset = dissect_id_TransportBearerID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRANSPORTBEARERREQUESTINDICATOR:								/*  164 */
+		offset = dissect_id_TransportBearerRequestIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRANSPORTLAYERADDRESS:										/*  165 */
+		offset = dissect_id_TransportLayerAddress(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TYPEOFERROR:													/*  140 */
+		offset = dissect_id_TypeOfError(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UC_ID:														/*  166 */
+		offset = dissect_id_UC_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_ADDINFORMATION_RL_RECONFPREPTDD:					/*  167 */
+		offset = dissect_id_UL_CCTrCH_AddInformation_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONADDLIST_RL_RECONFPREPTDD:				/*  169 */
+		offset = dissect_id_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONITEM_RL_SETUPRQSTTDD:					/*  171 */
+		offset = dissect_id_UL_CCTrCH_InformationItem_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONLIST_RL_SETUPRQSTTDD:					/*  172 */
+		offset = dissect_id_UL_CCTrCH_InformationList_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONLISTIE_PHYCHRECONFRQSTTDD:				/*  173 */
+		offset = dissect_id_UL_CCTrCH_InformationListIE_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONLISTIE_RL_ADDITIONRSPTDD:				/*  174 */
+		offset = dissect_id_UL_CCTrCH_InformationListIE_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONLISTIE_RL_RECONFREADYTDD:				/*  175 */
+		offset = dissect_id_UL_CCTrCH_InformationListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONLISTIE_RL_SETUPRSPTDD:					/*  176 */
+		offset = dissect_id_UL_CCTrCH_InformationListIE_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_INFORMATION_RL_RECONFPREPFDD:							/*  177 */
+		offset = dissect_id_UL_DPCH_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_INFORMATION_RL_RECONFRQSTFDD:							/*  178 */
+		offset = dissect_id_UL_DPCH_Information_RL_ReconfRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_INFORMATION_RL_SETUPRQSTFDD:							/*  179 */
 		offset = dissect_id_UL_DPCH_Information_RL_SetupRqstFDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_UL_DPCH_INFORMATIONITEM_PHYCHRECONFRQSTTDD:					/*  180 */
-		offset = offset + (length<<3);
+		offset = dissect_id_UL_DPCH_InformationItem_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_UL_DPCH_INFORMATIONITEM_RL_ADDITIONRSPTDD:					/*  181 */
+		offset = dissect_id_UL_DPCH_InformationItem_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_INFORMATIONITEM_RL_SETUPRSPTDD:						/*  182 */
+		offset = dissect_id_UL_DPCH_InformationItem_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_INFORMATIONADDLISTIE_RL_RECONFREADYTDD:				/*  183 */
+		offset = dissect_id_UL_DPCH_InformationAddListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_SIRTARGET:													/*  184 */
+		offset = dissect_id_UL_SIRTarget(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_URA_INFORMATION:												/*  185 */
+		offset = dissect_id_URA_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNSUCCESSFULRL_INFORMATIONRESPONSE_RL_ADDITIONFAILUREFDD:		/*  188 */
+		offset = dissect_id_UnsuccessfulRL_InformationResponse_RL_AdditionFailureFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNSUCCESSFULRL_INFORMATIONRESPONSE_RL_SETUPFAILUREFDD:		/*  189 */
+		offset = dissect_id_UnsuccessfulRL_InformationResponse_RL_SetupFailureFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNSUCCESSFULRL_INFORMATIONRESPONSE_RL_SETUPFAILURETDD:		/*  190 */
+		offset = dissect_id_UnsuccessfulRL_InformationResponse_RL_SetupFailureTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ACTIVE_PATTERN_SEQUENCE_INFORMATION:							/*  193 */
+		offset = dissect_id_Active_Pattern_Sequence_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ADJUSTMENTRATIO:												/*  194 */
+		offset = dissect_id_AdjustmentRatio(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CAUSELEVEL_RL_ADDITIONFAILUREFDD:								/*  197 */
+		offset = dissect_id_CauseLevel_RL_AdditionFailureFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CAUSELEVEL_RL_ADDITIONFAILURETDD:								/*  198 */
+		offset = dissect_id_CauseLevel_RL_AdditionFailureTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CAUSELEVEL_RL_RECONFFAILURE:									/*  199 */
+		offset = dissect_id_CauseLevel_RL_ReconfFailure(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CAUSELEVEL_RL_SETUPFAILUREFDD:								/*  200 */
+		offset = dissect_id_CauseLevel_RL_SetupFailureFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CAUSELEVEL_RL_SETUPFAILURETDD:								/*  201 */
+		offset = dissect_id_CauseLevel_RL_SetupFailureTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONDELETEITEM_RL_RECONFPREPTDD:				/*  205 */
+		offset = dissect_id_DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONMODIFYITEM_RL_RECONFPREPTDD:				/*  206 */
+		offset = dissect_id_DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONMODIFYITEM_RL_RECONFRQSTTDD:				/*  207 */
+		offset = dissect_id_DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONDELETELIST_RL_RECONFPREPTDD:				/*  208 */
+		offset = dissect_id_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONMODIFYLIST_RL_RECONFPREPTDD:				/*  209 */
+		offset = dissect_id_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONMODIFYLIST_RL_RECONFRQSTTDD:				/*  210 */
+		offset = dissect_id_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATIONADDLISTIE_RL_RECONFREADYTDD:				/*  212 */
+		offset = dissect_id_DL_DPCH_InformationAddListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATIONDELETELISTIE_RL_RECONFREADYTDD:			/*  213 */
+		offset = dissect_id_DL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATIONMODIFYLISTIE_RL_RECONFREADYTDD:			/*  214 */
+		offset = dissect_id_DL_DPCH_InformationModifyListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DSCHS_TO_ADD_TDD:												/*  215 */
+		offset = dissect_id_DSCHs_to_Add_TDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_216:								/*  216 */
+		break;
 	case RNSAP_ID_DSCH_DELETELIST_RL_RECONFPREPTDD:								/*  217 */
+		offset = dissect_id_DSCH_DeleteList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_218:								/*  218 */
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_219:								/*  219 */
+		break;
 	case RNSAP_ID_DSCH_INFORMATIONLISTIE_RL_ADDITIONRSPTDD:						/*  220 */
+		offset = dissect_id_DSCH_InformationListIE_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DSCH_INFORMATIONLISTIES_RL_SETUPRSPTDD:						/*  221 */
+		offset = dissect_id_DSCH_InformationListIEs_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DSCH_TDD_INFORMATION:											/*  222 */
+		offset = dissect_id_DSCH_TDD_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_223:								/*  223 */
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_226:								/*  226 */
+		break;
 	case RNSAP_ID_DSCH_MODIFYLIST_RL_RECONFPREPTDD:								/*  227 */
+		offset = dissect_id_DSCH_ModifyList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_228:								/*  228 */
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_324:								/*  324 */
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_229:								/*  229 */
+		break;
 	case RNSAP_ID_DSCHTOBEADDEDORMODIFIEDLIST_RL_RECONFREADYTDD:				/*  230 */
+		offset = dissect_id_DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_29:								/*  29 */
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_225:								/*  225 */
+		break;
 	case RNSAP_ID_GA_CELL:														/*  232 */
+		offset = dissect_id_GA_Cell(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_GA_CELLADDITIONALSHAPES:										/*  3 */
+		offset = dissect_id_GA_CellAdditionalShapes(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_246:								/*  246 */
+		break;
 	case RNSAP_ID_TRANSMISSION_GAP_PATTERN_SEQUENCE_INFORMATION:				/*  255 */
+		offset = dissect_id_Transmission_Gap_Pattern_Sequence_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_DELETEINFORMATION_RL_RECONFPREPTDD:					/*  256 */
+		offset = dissect_id_UL_CCTrCH_DeleteInformation_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_MODIFYINFORMATION_RL_RECONFPREPTDD:					/*  257 */
+		offset = dissect_id_UL_CCTrCH_ModifyInformation_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONMODIFYITEM_RL_RECONFRQSTTDD:				/*  258 */
+		offset = dissect_id_UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONDELETELIST_RL_RECONFPREPTDD:				/*  259 */
+		offset = dissect_id_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONMODIFYLIST_RL_RECONFPREPTDD:				/*  260 */
+		offset = dissect_id_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONMODIFYLIST_RL_RECONFRQSTTDD:				/*  261 */
+		offset = dissect_id_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONDELETEITEM_RL_RECONFRQSTTDD:				/*  262 */
+		offset = dissect_id_UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONDELETELIST_RL_RECONFRQSTTDD:				/*  263 */
+		offset = dissect_id_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_INFORMATIONDELETELISTIE_RL_RECONFREADYTDD:			/*  264 */
+		offset = dissect_id_UL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_INFORMATIONMODIFYLISTIE_RL_RECONFREADYTDD:			/*  265 */
+		offset = dissect_id_UL_DPCH_InformationModifyListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNSUCCESSFULRL_INFORMATIONRESPONSE_RL_ADDITIONFAILURETDD:		/*  266 */
+		offset = dissect_id_UnsuccessfulRL_InformationResponse_RL_AdditionFailureTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCHS_TO_ADD:													/*  267 */
+		offset = dissect_id_USCHs_to_Add(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCH_DELETELIST_RL_RECONFPREPTDD:								/*  268 */
+		offset = dissect_id_USCH_DeleteList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCH_INFORMATIONLISTIE_RL_ADDITIONRSPTDD:						/*  269 */
+		offset = dissect_id_USCH_InformationListIE_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCH_INFORMATIONLISTIES_RL_SETUPRSPTDD:						/*  270 */
+		offset = dissect_id_USCH_InformationListIEs_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCH_INFORMATION:												/*  271 */
+		offset = dissect_id_USCH_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCH_MODIFYLIST_RL_RECONFPREPTDD:								/*  272 */
+		offset = dissect_id_USCH_ModifyList_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCHTOBEADDEDORMODIFIEDLIST_RL_RECONFREADYTDD:				/*  273 */
+		offset = dissect_id_USCHToBeAddedOrModifiedList_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_PHYSICAL_CHANNEL_INFORMATION_RL_SETUPRQSTTDD:				/*  274 */
+		offset = dissect_id_DL_Physical_Channel_Information_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_PHYSICAL_CHANNEL_INFORMATION_RL_SETUPRQSTTDD:				/*  275 */
+		offset = dissect_id_UL_Physical_Channel_Information_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CLOSEDLOOPMODE1_SUPPORTINDICATOR:								/*  276 */
+		offset = dissect_id_ClosedLoopMode1_SupportIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_277:								/*  277 */
+		break;
 	case RNSAP_ID_STTD_SUPPORTINDICATOR:										/*  279 */
+		offset = dissect_id_STTD_SupportIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CFNREPORTINGINDICATOR:   										/*  14 */
+		offset = dissect_id_CFNReportingIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CNORIGINATEDPAGE_PAGINGRQST:									/*  23 */
+		offset = dissect_id_CNOriginatedPage_PagingRqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INNERLOOPDLPCSTATUS:											/*  24 */
+		offset = dissect_id_InnerLoopDLPCStatus(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PROPAGATIONDELAY:												/*  25 */
+		offset = dissect_id_PropagationDelay(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RXTIMINGDEVIATIONFORTA:										/*  36 */
+		offset = dissect_id_RxTimingDeviationForTA(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TIMESLOT_ISCP:												/*  37 */
+		offset = dissect_id_timeSlot_ISCP(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_INFORMATIONITEM_RL_FAILUREIND:							/*  15 */
+		offset = dissect_id_CCTrCH_InformationItem_RL_FailureInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_INFORMATIONITEM_RL_RESTOREIND:							/*  16 */
+		offset = dissect_id_CCTrCH_InformationItem_RL_RestoreInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTACCURACY:									/*  280 */
+		offset = dissect_id_CommonMeasurementAccuracy(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTOBJECTTYPE_CM_RPRT:							/*  281 */
+		offset = dissect_id_CommonMeasurementObjectType_CM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTOBJECTTYPE_CM_RQST:							/*  282 */
+		offset = dissect_id_CommonMeasurementObjectType_CM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTOBJECTTYPE_CM_RSP:							/*  283 */
+		offset = dissect_id_CommonMeasurementObjectType_CM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONMEASUREMENTTYPE:										/*  284 */
+		offset = dissect_id_CommonMeasurementType(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CONGESTIONCAUSE:												/*  18 */
+		offset = dissect_id_CongestionCause(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SFN:															/*  285 */
+		offset = dissect_id_SFN(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SFNREPORTINGINDICATOR:										/*  286 */
+		offset = dissect_id_SFNReportingIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONEXCHANGEID:										/*  287 */
+		offset = dissect_id_InformationExchangeID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONEXCHANGEOBJECTTYPE_INFEX_RPRT:						/*  288 */
+		offset = dissect_id_InformationExchangeObjectType_InfEx_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONEXCHANGEOBJECTTYPE_INFEX_RQST:						/*  289 */
+		offset = dissect_id_InformationExchangeObjectType_InfEx_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONEXCHANGEOBJECTTYPE_INFEX_RSP:						/*  290 */
+		offset = dissect_id_InformationExchangeObjectType_InfEx_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONREPORTCHARACTERISTICS:								/*  291 */
+		offset = dissect_id_InformationReportCharacteristics(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INFORMATIONTYPE:												/*  292 */
+		offset = dissect_id_InformationType(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NEIGHBOURING_LCR_TDD_CELLINFORMATION:							/*  58 */
+		offset = dissect_id_neighbouring_LCR_TDD_CellInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_TIMESLOT_ISCP_LCR_INFORMATION_RL_SETUPRQSTTDD:				/*  65 */
+		offset = dissect_id_DL_Timeslot_ISCP_LCR_Information_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_LCR_INFORMATIONRESPONSE_RL_SETUPRSPTDD:					/*  66 */
+		offset = dissect_id_RL_LCR_InformationResponse_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_LCR_INFORMATIONLISTIE_RL_SETUPRSPTDD:				/*  75 */
+		offset = dissect_id_UL_CCTrCH_LCR_InformationListIE_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_LCR_INFORMATIONITEM_RL_SETUPRSPTDD:					/*  76 */
+		offset = dissect_id_UL_DPCH_LCR_InformationItem_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_LCR_INFORMATIONLISTIE_RL_SETUPRSPTDD:				/*  77 */
+		offset = dissect_id_DL_CCTrCH_LCR_InformationListIE_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_LCR_INFORMATIONITEM_RL_SETUPRSPTDD:					/*  78 */
+		offset = dissect_id_DL_DPCH_LCR_InformationItem_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DSCH_LCR_INFORMATIONLISTIES_RL_SETUPRSPTDD:					/*  79 */
+		offset = dissect_id_DSCH_LCR_InformationListIEs_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCH_LCR_INFORMATIONLISTIES_RL_SETUPRSPTDD:					/*  80 */
+		offset = dissect_id_USCH_LCR_InformationListIEs_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_TIMESLOT_ISCP_LCR_INFORMATION_RL_ADDITIONRQSTTDD:			/*  81 */
+		offset = dissect_id_DL_Timeslot_ISCP_LCR_Information_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_LCR_INFORMATIONRESPONSE_RL_ADDITIONRSPTDD:					/*  86 */
+		offset = dissect_id_RL_LCR_InformationResponse_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_LCR_INFORMATIONLISTIE_RL_ADDITIONRSPTDD:			/*  87 */
+		offset = dissect_id_UL_CCTrCH_LCR_InformationListIE_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_LCR_INFORMATIONITEM_RL_ADDITIONRSPTDD:				/*  88 */
+		offset = dissect_id_UL_DPCH_LCR_InformationItem_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_LCR_INFORMATIONLISTIE_RL_ADDITIONRSPTDD:			/*  89 */
+		offset = dissect_id_DL_CCTrCH_LCR_InformationListIE_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_LCR_INFORMATIONITEM_RL_ADDITIONRSPTDD:				/*  94 */
+		offset = dissect_id_DL_DPCH_LCR_InformationItem_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DSCH_LCR_INFORMATIONLISTIES_RL_ADDITIONRSPTDD:				/*  96 */
+		offset = dissect_id_DSCH_LCR_InformationListIEs_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USCH_LCR_INFORMATIONLISTIES_RL_ADDITIONRSPTDD:				/*  97 */
+		offset = dissect_id_USCH_LCR_InformationListIEs_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPCH_LCR_INFORMATIONADDLISTIE_RL_RECONFREADYTDD:			/*  98 */
+		offset = dissect_id_UL_DPCH_LCR_InformationAddListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_TIMESLOT_LCR_INFORMATIONMODIFYLIST_RL_RECONFREADYTDD:		/*  100 */
+		offset = dissect_id_UL_Timeslot_LCR_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_LCR_INFORMATIONADDLISTIE_RL_RECONFREADYTDD:			/*  101 */
+		offset = dissect_id_DL_DPCH_LCR_InformationAddListIE_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_TIMESLOT_LCR_INFORMATIONMODIFYLIST_RL_RECONFREADYTDD:		/*  104 */
+		offset = dissect_id_DL_Timeslot_LCR_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_TIMESLOT_LCR_INFORMATIONLIST_PHYCHRECONFRQSTTDD:			/*  105 */
+		offset = dissect_id_UL_Timeslot_LCR_InformationList_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_TIMESLOT_LCR_INFORMATIONLIST_PHYCHRECONFRQSTTDD:			/*  106 */
+		offset = dissect_id_DL_Timeslot_LCR_InformationList_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TIMESLOT_ISCP_LCR_LIST_DL_PC_RQST_TDD:						/*  138 */
+		offset = dissect_id_timeSlot_ISCP_LCR_List_DL_PC_Rqst_TDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TSTD_SUPPORT_INDICATOR_RL_SETUPRQSTTDD:						/*  139 */
+		offset = dissect_id_TSTD_Support_Indicator_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RESTRICTIONSTATEINDICATOR:									/*  142 */
+		offset = dissect_id_RestrictionStateIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_LOAD_VALUE:													/*  233 */
+		offset = dissect_id_Load_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_LOAD_VALUE_INCRDECRTHRES:										/*  234 */
+		offset = dissect_id_Load_Value_IncrDecrThres(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ONMODIFICATION:												/*  235 */
+		offset = dissect_id_OnModification(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RECEIVED_TOTAL_WIDEBAND_POWER_VALUE:							/*  236 */
+		offset = dissect_id_Received_Total_Wideband_Power_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RECEIVED_TOTAL_WIDEBAND_POWER_VALUE_INCRDECRTHRES:			/*  237 */
+		offset = dissect_id_Received_Total_Wideband_Power_Value_IncrDecrThres(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SFNSFNMEASUREMENTTHRESHOLDINFORMATION:						/*  238 */
+		offset = dissect_id_SFNSFNMeasurementThresholdInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRANSMITTED_CARRIER_POWER_VALUE:								/*  239 */
+		offset = dissect_id_Transmitted_Carrier_Power_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRANSMITTED_CARRIER_POWER_VALUE_INCRDECRTHRES:				/*  240 */
+		offset = dissect_id_Transmitted_Carrier_Power_Value_IncrDecrThres(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TUTRANGPSMEASUREMENTTHRESHOLDINFORMATION:						/*  241 */
+		offset = dissect_id_TUTRANGPSMeasurementThresholdInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_TIMESLOT_ISCP_VALUE:										/*  242 */
+		offset = dissect_id_UL_Timeslot_ISCP_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_TIMESLOT_ISCP_VALUE_INCRDECRTHRES:							/*  243 */
+		offset = dissect_id_UL_Timeslot_ISCP_Value_IncrDecrThres(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RX_TIMING_DEVIATION_VALUE_LCR:								/*  293 */
+		offset = dissect_id_Rx_Timing_Deviation_Value_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DPC_MODE_CHANGE_SUPPORTINDICATOR:								/*  19 */
+		offset = dissect_id_DPC_Mode_Change_SupportIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_247:								/*  247 */
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_295:								/*  295 */
+		break;
 	case RNSAP_ID_PRIMARYCCPCH_RSCP_RL_RECONFPREPTDD:							/*  202 */
+		offset = dissect_id_PrimaryCCPCH_RSCP_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_TIMESLOT_ISCP_INFO_RL_RECONFPREPTDD:						/*  203 */
 	case RNSAP_ID_DL_TIMESLOT_ISCP_LCR_INFORMATION_RL_RECONFPREPTDD:			/*  204 */
 	case RNSAP_ID_DSCH_RNTI:													/*  249 */

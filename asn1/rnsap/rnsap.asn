@@ -436,84 +436,389 @@ OutcomeValue ::= ANY
 --	PROCEDURE ID		{ procedureCode id-physicalChannelReconfiguration, ddMode tdd }
 --	CRITICALITY		reject
 --}
+
+--dedicatedMeasurementInitiation RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	DedicatedMeasurementInitiationRequest
+--	SUCCESSFUL OUTCOME	DedicatedMeasurementInitiationResponse
+--	UNSUCCESSFUL OUTCOME	DedicatedMeasurementInitiationFailure
+--	PROCEDURE ID		{ procedureCode id-dedicatedMeasurementInitiation, ddMode common }
+--	CRITICALITY		reject
+--}
+
+--commonTransportChannelResourcesInitialisationFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	CommonTransportChannelResourcesRequest
+--	SUCCESSFUL OUTCOME	CommonTransportChannelResourcesResponseFDD
+--	UNSUCCESSFUL OUTCOME	CommonTransportChannelResourcesFailure
+--	PROCEDURE ID		{ procedureCode id-commonTransportChannelResourcesInitialisation, ddMode fdd }
+--	CRITICALITY		reject
+--}
+
+--commonTransportChannelResourcesInitialisationTDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	CommonTransportChannelResourcesRequest
+--	SUCCESSFUL OUTCOME	CommonTransportChannelResourcesResponseTDD
+--	UNSUCCESSFUL OUTCOME	CommonTransportChannelResourcesFailure
+--	PROCEDURE ID		{ procedureCode id-commonTransportChannelResourcesInitialisation, ddMode tdd }
+--	CRITICALITY		reject
+--}
+
+--uplinkSignallingTransferFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	UplinkSignallingTransferIndicationFDD
+--	PROCEDURE ID		{ procedureCode id-uplinkSignallingTransfer, ddMode fdd }
+--	CRITICALITY		ignore
+--}
+
+--uplinkSignallingTransferTDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	UplinkSignallingTransferIndicationTDD
+--	PROCEDURE ID		{ procedureCode id-uplinkSignallingTransfer, ddMode tdd }
+--	CRITICALITY		ignore
+--}
+
+--downlinkSignallingTransfer RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	DownlinkSignallingTransferRequest
+--	PROCEDURE ID		{ procedureCode id-downlinkSignallingTransfer, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--relocationCommit RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	RelocationCommit
+--	PROCEDURE ID		{ procedureCode id-relocationCommit, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--paging RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	PagingRequest
+--	PROCEDURE ID		{ procedureCode id-paging, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--synchronisedRadioLinkReconfigurationCommit RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	RadioLinkReconfigurationCommit
+--	PROCEDURE ID		{ procedureCode id-synchronisedRadioLinkReconfigurationCommit, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--synchronisedRadioLinkReconfigurationCancellation RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	RadioLinkReconfigurationCancel
+--	PROCEDURE ID		{ procedureCode id-synchronisedRadioLinkReconfigurationCancellation, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--radioLinkFailure RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	RadioLinkFailureIndication
+--	PROCEDURE ID		{ procedureCode id-radioLinkFailure, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--radioLinkPreemption RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	RadioLinkPreemptionRequiredIndication
+--	PROCEDURE ID		{ procedureCode id-radioLinkPreemption, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--radioLinkRestoration RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	RadioLinkRestoreIndication
+--	PROCEDURE ID		{ procedureCode id-radioLinkRestoration, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--dedicatedMeasurementReporting RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	DedicatedMeasurementReport
+--	PROCEDURE ID		{ procedureCode id-dedicatedMeasurementReporting, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--dedicatedMeasurementTermination RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	DedicatedMeasurementTerminationRequest
+--	PROCEDURE ID		{ procedureCode id-dedicatedMeasurementTermination, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--dedicatedMeasurementFailure RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	DedicatedMeasurementFailureIndication
+--	PROCEDURE ID		{ procedureCode id-dedicatedMeasurementFailure, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--radioLinkCongestion RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	RadioLinkCongestionIndication
+--	PROCEDURE ID		{ procedureCode id-radioLinkCongestion, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--downlinkPowerControlFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	DL-PowerControlRequest
+--	PROCEDURE ID		{ procedureCode id-downlinkPowerControl, ddMode fdd }
+--	CRITICALITY		ignore
+--}
+
+--downlinkPowerTimeslotControl RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	DL-PowerTimeslotControlRequest
+--	PROCEDURE ID		{ procedureCode id-downlinkPowerTimeslotControl, ddMode tdd }
+--	CRITICALITY		ignore
+--}
+
+--compressedModeCommandFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	CompressedModeCommand
+--	PROCEDURE ID		{ procedureCode id-compressedModeCommand, ddMode fdd }
+--	CRITICALITY		ignore
+--}
+
+--commonTransportChannelResourcesRelease RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	CommonTransportChannelResourcesReleaseRequest
+--	PROCEDURE ID		{ procedureCode id-commonTransportChannelResourcesRelease, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--errorIndication RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	ErrorIndication
+--	PROCEDURE ID		{ procedureCode id-errorIndication, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--commonMeasurementInitiation RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		CommonMeasurementInitiationRequest
+--	SUCCESSFUL OUTCOME		CommonMeasurementInitiationResponse
+--	UNSUCCESSFUL OUTCOME	CommonMeasurementInitiationFailure
+--	PROCEDURE ID			{ procedureCode id-commonMeasurementInitiation, ddMode common }
+--	CRITICALITY				reject
+--}
+
+--commonMeasurementReporting RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	CommonMeasurementReport
+--	PROCEDURE ID		{ procedureCode id-commonMeasurementReporting, ddMode common }
+--	CRITICALITY			ignore
+--}
+
+--commonMeasurementTermination RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	CommonMeasurementTerminationRequest
+--	PROCEDURE ID		{ procedureCode id-commonMeasurementTermination, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--commonMeasurementFailure RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	CommonMeasurementFailureIndication
+--	PROCEDURE ID		{ procedureCode id-commonMeasurementFailure, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--informationExchangeInitiation RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		InformationExchangeInitiationRequest
+--	SUCCESSFUL OUTCOME		InformationExchangeInitiationResponse
+--	UNSUCCESSFUL OUTCOME	InformationExchangeInitiationFailure
+--	PROCEDURE ID			{ procedureCode id-informationExchangeInitiation, ddMode common }
+--	CRITICALITY				reject
+--}
+
+--informationReporting RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		InformationReport
+--	PROCEDURE ID			{ procedureCode id-informationReporting, ddMode common }
+--	CRITICALITY				ignore
+--}
+
+--informationExchangeTermination RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		InformationExchangeTerminationRequest
+--	PROCEDURE ID			{ procedureCode id-informationExchangeTermination, ddMode common }
+--	CRITICALITY				ignore
+--}
+
+--informationExchangeFailure RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		InformationExchangeFailureIndication
+--	PROCEDURE ID			{ procedureCode id-informationExchangeFailure, ddMode common }
+--	CRITICALITY				ignore
+--}
+
+--privateMessage RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	PrivateMessage
+--	PROCEDURE ID		{ procedureCode id-privateMessage, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--reset RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		ResetRequest
+--	SUCCESSFUL OUTCOME		ResetResponse
+--	PROCEDURE ID 			{ procedureCode id-reset, ddMode common } 
+--	CRITICALITY 			reject
+--}
+
+--radioLinkActivationFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		RadioLinkActivationCommandFDD
+--	PROCEDURE ID			{ procedureCode id-radioLinkActivation, ddMode fdd }
+--	CRITICALITY				ignore
+--}
+
+--radioLinkActivationTDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		RadioLinkActivationCommandTDD
+--	PROCEDURE ID			{ procedureCode id-radioLinkActivation, ddMode tdd }
+--	CRITICALITY				ignore
+--}
+
+--gERANuplinkSignallingTransfer RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	GERANUplinkSignallingTransferIndication
+--	PROCEDURE ID		{ procedureCode id-gERANuplinkSignallingTransfer, ddMode common }
+--	CRITICALITY		ignore
+--}
+
+--radioLinkParameterUpdateFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		RadioLinkParameterUpdateIndicationFDD
+--	PROCEDURE ID 			{ procedureCode id-radioLinkParameterUpdate, ddMode fdd }
+--	CRITICALITY 			ignore
+--}
+
+--radioLinkParameterUpdateTDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		RadioLinkParameterUpdateIndicationTDD
+--	PROCEDURE ID 			{ procedureCode id-radioLinkParameterUpdate, ddMode tdd }
+--	CRITICALITY 			ignore
+--}
+
+--uEMeasurementInitiation RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	UEMeasurementInitiationRequest
+--	SUCCESSFUL OUTCOME	UEMeasurementInitiationResponse
+--	UNSUCCESSFUL OUTCOME	UEMeasurementInitiationFailure
+--	PROCEDURE ID		{ procedureCode id-uEMeasurementInitiation, ddMode tdd }
+--	CRITICALITY		reject
+--}
+
+--uEMeasurementReporting RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	UEMeasurementReport
+--	PROCEDURE ID		{ procedureCode id-uEMeasurementReporting, ddMode tdd }
+--	CRITICALITY		ignore
+--}
+
+--uEMeasurementTermination RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	UEMeasurementTerminationRequest
+--	PROCEDURE ID		{ procedureCode id-uEMeasurementTermination, ddMode tdd }
+--	CRITICALITY		ignore
+--}
+
+--uEMeasurementFailure RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	UEMeasurementFailureIndication
+--	PROCEDURE ID		{ procedureCode id-uEMeasurementFailure, ddMode tdd }
+--	CRITICALITY		ignore
+--}
+
+--iurInvokeTrace RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	IurInvokeTrace
+--	PROCEDURE ID		{ procedureCode id-iurInvokeTrace, ddMode common }
+--	CRITICALITY			ignore
+--}
+
+--iurDeactivateTrace RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE	IurDeactivateTrace
+--	PROCEDURE ID		{ procedureCode id-iurDeactivateTrace, ddMode common }
+--	CRITICALITY			ignore
+--}
+
+--mBMSAttach RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		MBMSAttachCommand
+--	PROCEDURE ID			{ procedureCode id-mBMSAttach, ddMode common }
+--	CRITICALITY				ignore
+--}
+
+--mBMSDetach RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		MBMSDetachCommand
+--	PROCEDURE ID			{ procedureCode id-mBMSDetach, ddMode common }
+--	CRITICALITY				ignore
+--}
+
+--directInformationTransfer RNSAP-ELEMENTARY-PROCEDURE ::= {
+--	INITIATING MESSAGE		DirectInformationTransfer
+--	PROCEDURE ID			{ procedureCode id-directInformationTransfer, ddMode common }
+--	CRITICALITY				ignore
+--}
+
 DummyInitiatingValue::= CHOICE {
---	id-commonTransportChannelResourcesInitialisation			( 0),
---	id-commonTransportChannelResourcesRelease					( 1),
---	id-compressedModeCommand									( 2),
---	id-downlinkPowerControl										( 3),
---	id-downlinkPowerTimeslotControl								( 4),
-	id-downlinkSignallingTransfer							DownlinkSignallingTransferRequest,	--	( 5),
---	id-errorIndication											( 6),
---	id-dedicatedMeasurementFailure								( 7),
---	id-dedicatedMeasurementInitiation							( 8),
---	id-dedicatedMeasurementReporting							( 9),
---	id-dedicatedMeasurementTermination							( 10),
---	id-paging													( 11),
+	id-commonTransportChannelResourcesInitialisation		CommonTransportChannelResourcesRequest,		--	( 0),
+	id-commonTransportChannelResourcesRelease				CommonTransportChannelResourcesReleaseRequest,	--	( 1),
+	id-compressedModeCommand								CompressedModeCommand,						--	( 2),
+	id-downlinkPowerControl									DL-PowerControlRequest,						--	( 3),
+	id-downlinkPowerTimeslotControl							DL-PowerTimeslotControlRequest,				--	( 4),
+	id-downlinkSignallingTransfer							DownlinkSignallingTransferRequest,			--	( 5),
+	id-errorIndication										ErrorIndication,							--	( 6),
+	id-dedicatedMeasurementFailure							DedicatedMeasurementFailureIndication,		--	( 7),
+	id-dedicatedMeasurementInitiation						DedicatedMeasurementInitiationRequest,		--	( 8),
+	id-dedicatedMeasurementReporting						DedicatedMeasurementReport,					--	( 9),
+	id-dedicatedMeasurementTermination						DedicatedMeasurementTerminationRequest,		--	( 10),
+	id-paging												PagingRequest,								--	( 11),
 	id-physicalChannelReconfiguration						PhysicalChannelReconfigurationRequestTDD,	--	( 12),
-	id-privateMessage										PrivateMessage,						--	( 13),
-	id-radioLinkAddition									RadioLinkAdditionRequestFDD,		--	( 14),
-	id-radioLinkAddition-TDD								RadioLinkAdditionRequestTDD,		--	( 14),
---	id-radioLinkCongestion										( 34),
-	id-radioLinkDeletion									RadioLinkDeletionRequest,			--	( 15),
---	id-radioLinkFailure											( 16),
---	id-radioLinkPreemption										( 17),
---	id-radioLinkRestoration										( 18),
-	id-radioLinkSetup										RadioLinkSetupRequestFDD,			--	( 19),
-	id-radioLinkSetupTdd									RadioLinkSetupRequestTDD,			--	( 19),
---	id-relocationCommit											( 20),
---	id-synchronisedRadioLinkReconfigurationCancellation			( 21),
---	id-synchronisedRadioLinkReconfigurationCommit				( 22),
-	id-synchronisedRadioLinkReconfigurationPreparation		RadioLinkReconfigurationPrepareFDD,	--	( 23),
-	id-synchronisedRadioLinkReconfigurationPreparation-TDD	RadioLinkReconfigurationReadyTDD,	--	( 23),
-	id-unSynchronisedRadioLinkReconfiguration				RadioLinkReconfigurationRequestFDD,	--	( 24),
-	id-unSynchronisedRadioLinkReconfiguration-TDD			RadioLinkReconfigurationRequestTDD,	--	( 24),
---	id-uplinkSignallingTransfer									( 25),
---	id-commonMeasurementFailure									( 26),
---	id-commonMeasurementInitiation								( 27),
---	id-commonMeasurementReporting								( 28),
---	id-commonMeasurementTermination								( 29),
---	id-informationExchangeFailure								( 30),
---	id-informationExchangeInitiation							( 31),
---	id-informationReporting										( 32),
---	id-informationExchangeTermination							( 33),
---	id-reset													( 35),
---	id-radioLinkActivation 										( 36),
---	id-gERANuplinkSignallingTransfer							( 37),
---	id-radioLinkParameterUpdate									( 38),
---	id-uEMeasurementFailure										( 39),
---	id-uEMeasurementInitiation									( 40),
---	id-uEMeasurementReporting									( 41),
---	id-uEMeasurementTermination									( 42),
---	id-iurDeactivateTrace										( 43),
---	id-iurInvokeTrace											( 44),
---	id-mBMSAttach												( 45),
---	id-mBMSDetach												( 46),
---	id-directInformationTransfer								( 48),
+	id-privateMessage										PrivateMessage,								--	( 13),
+	id-radioLinkAddition									RadioLinkAdditionRequestFDD,				--	( 14),
+	id-radioLinkAddition-TDD								RadioLinkAdditionRequestTDD,				--	( 14),
+	id-radioLinkCongestion									RadioLinkCongestionIndication,				--	( 34),
+	id-radioLinkDeletion									RadioLinkDeletionRequest,					--	( 15),
+	id-radioLinkFailure										RadioLinkFailureIndication,					--	( 16),
+	id-radioLinkPreemption									RadioLinkPreemptionRequiredIndication,		--	( 17),
+	id-radioLinkRestoration									RadioLinkRestoreIndication,					--	( 18),
+	id-radioLinkSetup										RadioLinkSetupRequestFDD,					--	( 19),
+	id-radioLinkSetupTdd									RadioLinkSetupRequestTDD,					--	( 19),
+	id-relocationCommit										RelocationCommit,							--	( 20),
+	id-synchronisedRadioLinkReconfigurationCancellation		RadioLinkReconfigurationCancel,				--	( 21),
+	id-synchronisedRadioLinkReconfigurationCommit			RadioLinkReconfigurationCommit,				--	( 22),
+	id-synchronisedRadioLinkReconfigurationPreparation		RadioLinkReconfigurationPrepareFDD,			--	( 23),
+	id-synchronisedRadioLinkReconfigurationPreparation-TDD	RadioLinkReconfigurationReadyTDD,			--	( 23),
+	id-unSynchronisedRadioLinkReconfiguration				RadioLinkReconfigurationRequestFDD,			--	( 24),
+	id-unSynchronisedRadioLinkReconfiguration-TDD			RadioLinkReconfigurationRequestTDD,			--	( 24),
+	id-uplinkSignallingTransfer								UplinkSignallingTransferIndicationFDD,		--	( 25),
+	id-uplinkSignallingTransfer-TDD							UplinkSignallingTransferIndicationTDD,		--	( 25),
+	id-commonMeasurementFailure								CommonMeasurementFailureIndication,			--	( 26),
+	id-commonMeasurementInitiation							CommonMeasurementInitiationRequest,			--	( 27),
+	id-commonMeasurementReporting							CommonMeasurementReport,					--	( 28),
+	id-commonMeasurementTermination							CommonMeasurementTerminationRequest,		--	( 29),
+	id-informationExchangeFailure							InformationExchangeFailureIndication,		--	( 30),
+	id-informationExchangeInitiation						InformationExchangeInitiationRequest,		--	( 31),
+	id-informationReporting									InformationReport,							--	( 32),
+	id-informationExchangeTermination						InformationExchangeTerminationRequest,		--	( 33),
+	id-reset												ResetRequest,								--	( 35),
+	id-radioLinkActivation 									RadioLinkActivationCommandFDD,				--	( 36),
+	id-radioLinkActivation-TDD								RadioLinkActivationCommandTDD,				--	( 36),
+	id-gERANuplinkSignallingTransfer						GERANUplinkSignallingTransferIndication,	--	( 37),
+	id-radioLinkParameterUpdate								RadioLinkParameterUpdateIndicationFDD,		--	( 38),
+	id-radioLinkParameterUpdate-TDD							RadioLinkParameterUpdateIndicationTDD,		--	( 38),
+	id-uEMeasurementFailure									UEMeasurementFailureIndication,				--	( 39),
+	id-uEMeasurementInitiation								UEMeasurementInitiationRequest,				--	( 40),
+	id-uEMeasurementReporting								UEMeasurementReport,						--	( 41),
+	id-uEMeasurementTermination								UEMeasurementTerminationRequest,			--	( 42),
+	id-iurDeactivateTrace									IurDeactivateTrace,							--	( 43),
+	id-iurInvokeTrace										IurInvokeTrace,								--	( 44),
+	id-mBMSAttach											MBMSAttachCommand,							--	( 45),
+	id-mBMSDetach											MBMSDetachCommand,							--	( 46),
+	id-directInformationTransfer							DirectInformationTransfer,					--	( 48),
 	...
 }
 
 DummySuccessfulOutcomeValue::= CHOICE {
-	id-physicalChannelReconfiguration						PhysicalChannelReconfigurationCommand,	--	( 12),
-	id-radioLinkAddition									RadioLinkAdditionResponseFDD,		--	( 14),
-	id-radioLinkAddition-TDD								RadioLinkAdditionResponseTDD,		--	( 14),
-	id-radioLinkDeletion									RadioLinkDeletionResponse,			--	( 15),
-	id-radioLinkSetup										RadioLinkSetupResponseFDD,			--	( 19),
-	id-radioLinkSetupTdd									RadioLinkSetupResponseTDD,			--	( 19),
-	id-synchronisedRadioLinkReconfigurationPreparation		RadioLinkReconfigurationReadyFDD,	--	( 23),
-	id-synchronisedRadioLinkReconfigurationPreparation-TDD	RadioLinkReconfigurationReadyTDD,	--	( 23),
-	id-unSynchronisedRadioLinkReconfiguration				RadioLinkReconfigurationResponseFDD,--	( 24),
-	id-unSynchronisedRadioLinkReconfiguration-TDD			RadioLinkReconfigurationResponseTDD,--	( 24),
+	id-commonTransportChannelResourcesInitialisation		CommonTransportChannelResourcesResponseFDD,		--	( 0),
+	id-commonTransportChannelResourcesInitialisation-TDD	CommonTransportChannelResourcesResponseTDD,		--	( 0),
+	id-dedicatedMeasurementInitiation						DedicatedMeasurementInitiationResponse,			--	( 8),
+	id-physicalChannelReconfiguration						PhysicalChannelReconfigurationCommand,			--	( 12),
+	id-radioLinkAddition									RadioLinkAdditionResponseFDD,					--	( 14),
+	id-radioLinkAddition-TDD								RadioLinkAdditionResponseTDD,					--	( 14),
+	id-radioLinkDeletion									RadioLinkDeletionResponse,						--	( 15),
+	id-radioLinkSetup										RadioLinkSetupResponseFDD,						--	( 19),
+	id-radioLinkSetupTdd									RadioLinkSetupResponseTDD,						--	( 19),
+	id-synchronisedRadioLinkReconfigurationPreparation		RadioLinkReconfigurationReadyFDD,				--	( 23),
+	id-synchronisedRadioLinkReconfigurationPreparation-TDD	RadioLinkReconfigurationReadyTDD,				--	( 23),
+	id-unSynchronisedRadioLinkReconfiguration				RadioLinkReconfigurationResponseFDD,			--	( 24),
+	id-unSynchronisedRadioLinkReconfiguration-TDD			RadioLinkReconfigurationResponseTDD,			--	( 24),
+	id-commonMeasurementInitiation							CommonMeasurementInitiationResponse,			--	( 27),
+	id-informationExchangeInitiation						InformationExchangeInitiationResponse,			--	( 31),
+	id-reset												ResetResponse,									--	( 35),
+	id-uEMeasurementInitiation								UEMeasurementInitiationResponse,				--	( 40),
 	...
 }
 DummyUnSuccessfulOutcomeValue::= CHOICE {
-	id-physicalChannelReconfiguration						PhysicalChannelReconfigurationFailure,	--	( 12),
-	id-radioLinkAddition									RadioLinkAdditionFailureFDD,		--	( 14),
-	id-radioLinkAddition-TDD								RadioLinkAdditionFailureTDD,		--	( 14),
-	id-radioLinkSetup										RadioLinkSetupFailureFDD,			--	( 19),
-	id-radioLinkSetupTdd									RadioLinkSetupFailureTDD,			--	( 19),
-	id-synchronisedRadioLinkReconfigurationPreparation		RadioLinkReconfigurationFailure,	--	( 23),
-	id-unSynchronisedRadioLinkReconfiguration				RadioLinkReconfigurationFailure,	--	( 24),
-	id-unSynchronisedRadioLinkReconfiguration-TDD			RadioLinkReconfigurationFailure,	--	( 24),
+	id-commonTransportChannelResourcesInitialisation		CommonTransportChannelResourcesFailure,			--	( 0),
+	id-dedicatedMeasurementInitiation						DedicatedMeasurementInitiationFailure,			--	( 8),
+	id-physicalChannelReconfiguration						PhysicalChannelReconfigurationFailure,			--	( 12),
+	id-radioLinkAddition									RadioLinkAdditionFailureFDD,					--	( 14),
+	id-radioLinkAddition-TDD								RadioLinkAdditionFailureTDD,					--	( 14),
+	id-radioLinkSetup										RadioLinkSetupFailureFDD,						--	( 19),
+	id-radioLinkSetupTdd									RadioLinkSetupFailureTDD,						--	( 19),
+	id-synchronisedRadioLinkReconfigurationPreparation		RadioLinkReconfigurationFailure,				--	( 23),
+	id-unSynchronisedRadioLinkReconfiguration				RadioLinkReconfigurationFailure,				--	( 24),
+	id-unSynchronisedRadioLinkReconfiguration-TDD			RadioLinkReconfigurationFailure,				--	( 24),
+	id-commonMeasurementInitiation							CommonMeasurementInitiationFailure,				--	( 27),
+	id-informationExchangeInitiation						InformationExchangeInitiationFailure,			--	( 31),
+	id-uEMeasurementInitiation								UEMeasurementInitiationFailure,					--	( 40),
 	...
 }
 
@@ -641,10 +946,10 @@ DummyProtocolIE ::= CHOICE {
 	id-RL-Set-Unsuccessful-InformationItem-DM-Fail-Ind					RL-Set-Unsuccessful-InformationItem-DM-Fail-Ind,--	( 475),
 	id-RL-Successful-InformationItem-DM-Fail							RL-Successful-InformationItem-DM-Fail,			--	( 476),
 	id-RL-Unsuccessful-InformationItem-DM-Fail							RL-Unsuccessful-InformationItem-DM-Fail,		--	( 477),
---	id-RL-Unsuccessful-InformationItem-DM-Fail-Ind								( 478),
---	id-ReportCharacteristics													( 152),
---	id-Reporting-Object-RL-FailureInd											( 153),
---	id-Reporing-Object-RL-RestoreInd											( 154),
+	id-RL-Unsuccessful-InformationItem-DM-Fail-Ind						RL-Unsuccessful-InformationItem-DM-Fail-Ind,	--	( 478),
+	id-ReportCharacteristics											ReportCharacteristics,							--	( 152),
+	id-Reporting-Object-RL-FailureInd									Reporting-Object-RL-FailureInd,					--	( 153),
+	id-Reporing-Object-RL-RestoreInd									Reporting-Object-RL-RestoreInd,					--	( 154),
 	id-RT-Load-Value													RT-Load-Value,						--	( 307),
 	id-RT-Load-Value-IncrDecrThres										RT-Load-Value-IncrDecrThres,		--	( 308),
 	id-S-RNTI															S-RNTI,								--	( 155),
@@ -652,303 +957,303 @@ DummyProtocolIE ::= CHOICE {
 	id-RNC-ID															RNC-ID,								--	( 245),
 	id-SAI																SAI,								--	( 156),
 	id-SRNC-ID															RNC-ID,								--	( 157),
---	id-SuccessfulRL-InformationResponse-RL-AdditionFailureFDD					( 159),
---	id-SuccessfulRL-InformationResponse-RL-SetupFailureFDD						( 160),
---	id-TransportBearerID														( 163),
---	id-TransportBearerRequestIndicator											( 164),
---	id-TransportLayerAddress													( 165),
---	id-TypeOfError																( 140),
---	id-UC-ID																	( 166),
---	id-UL-CCTrCH-AddInformation-RL-ReconfPrepTDD								( 167),
---	id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD							( 169),
---	id-UL-CCTrCH-InformationItem-RL-SetupRqstTDD								( 171),
---	id-UL-CCTrCH-InformationList-RL-SetupRqstTDD								( 172),
---	id-UL-CCTrCH-InformationListIE-PhyChReconfRqstTDD							( 173),
---	id-UL-CCTrCH-InformationListIE-RL-AdditionRspTDD							( 174),
---	id-UL-CCTrCH-InformationListIE-RL-ReconfReadyTDD							( 175),
---	id-UL-CCTrCH-InformationListIE-RL-SetupRspTDD								( 176),
---	id-UL-DPCH-Information-RL-ReconfPrepFDD										( 177),
---	id-UL-DPCH-Information-RL-ReconfRqstFDD										( 178),
-	id-UL-DPCH-Information-RL-SetupRqstFDD								UL-DPCH-Information-RL-SetupRqstFDD,	--	( 179),
---	id-UL-DPCH-InformationItem-PhyChReconfRqstTDD								( 180),
---	id-UL-DPCH-InformationItem-RL-AdditionRspTDD								( 181),
---	id-UL-DPCH-InformationItem-RL-SetupRspTDD									( 182),
---	id-UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD							( 183),
---	id-UL-SIRTarget																( 184),
---	id-URA-Information															( 185),
---	id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD					( 188),
---	id-UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD					( 189),
---	id-UnsuccessfulRL-InformationResponse-RL-SetupFailureTDD					( 190),
---	id-Active-Pattern-Sequence-Information										( 193),
---	id-AdjustmentRatio															( 194),
---	id-CauseLevel-RL-AdditionFailureFDD											( 197),
---	id-CauseLevel-RL-AdditionFailureTDD											( 198),
---	id-CauseLevel-RL-ReconfFailure												( 199),
---	id-CauseLevel-RL-SetupFailureFDD											( 200),
---	id-CauseLevel-RL-SetupFailureTDD											( 201),
---	id-DL-CCTrCH-InformationDeleteItem-RL-ReconfPrepTDD							( 205),
---	id-DL-CCTrCH-InformationModifyItem-RL-ReconfPrepTDD							( 206),
---	id-DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD							( 207),
---	id-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD							( 208),
---	id-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD							( 209),
---	id-DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD							( 210),
---	id-DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD							( 212),
---	id-DL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD						( 213),
---	id-DL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD						( 214),
---	id-DSCHs-to-Add-TDD															( 215),
+	id-SuccessfulRL-InformationResponse-RL-AdditionFailureFDD			SuccessfulRL-InformationResponse-RL-AdditionFailureFDD,	--	( 159),
+	id-SuccessfulRL-InformationResponse-RL-SetupFailureFDD				SuccessfulRL-InformationResponse-RL-SetupFailureFDD,	--	( 160),
+	id-TransportBearerID												TransportBearerID,										--	( 163),
+	id-TransportBearerRequestIndicator									TransportBearerRequestIndicator,						--	( 164),
+	id-TransportLayerAddress											TransportLayerAddress,									--	( 165),
+	id-TypeOfError														TypeOfError,											--	( 140),
+	id-UC-ID															UC-ID,													--	( 166),
+	id-UL-CCTrCH-AddInformation-RL-ReconfPrepTDD						UL-CCTrCH-AddInformation-RL-ReconfPrepTDD,				--	( 167),
+	id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD					UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD,			--	( 169),
+	id-UL-CCTrCH-InformationItem-RL-SetupRqstTDD						UL-CCTrCH-InformationItem-RL-SetupRqstTDD,				--	( 171),
+	id-UL-CCTrCH-InformationList-RL-SetupRqstTDD						UL-CCTrCH-InformationList-RL-SetupRqstTDD,				--	( 172),
+	id-UL-CCTrCH-InformationListIE-PhyChReconfRqstTDD					UL-CCTrCH-InformationListIE-PhyChReconfRqstTDD,			--	( 173),
+	id-UL-CCTrCH-InformationListIE-RL-AdditionRspTDD					UL-CCTrCHInformationListIE-RL-AdditionRspTDD,			--	( 174),
+	id-UL-CCTrCH-InformationListIE-RL-ReconfReadyTDD					UL-CCTrCHInformationListIE-RL-ReconfReadyTDD,			--	( 175),
+	id-UL-CCTrCH-InformationListIE-RL-SetupRspTDD						UL-CCTrCHInformationListIE-RL-SetupRspTDD,				--	( 176),
+	id-UL-DPCH-Information-RL-ReconfPrepFDD								UL-DPCH-Information-RL-ReconfPrepFDD,					--	( 177),
+	id-UL-DPCH-Information-RL-ReconfRqstFDD								UL-DPCH-Information-RL-ReconfRqstFDD,					--	( 178),
+	id-UL-DPCH-Information-RL-SetupRqstFDD								UL-DPCH-Information-RL-SetupRqstFDD,					--	( 179),
+	id-UL-DPCH-InformationItem-PhyChReconfRqstTDD						UL-DPCH-InformationItem-PhyChReconfRqstTDD,				--	( 180),
+	id-UL-DPCH-InformationItem-RL-AdditionRspTDD						UL-DPCH-InformationItem-RL-AdditionRspTDD,				--	( 181),
+	id-UL-DPCH-InformationItem-RL-SetupRspTDD							UL-DPCH-InformationItem-RL-SetupRspTDD,					--	( 182),
+	id-UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD					UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD,			--	( 183),
+	id-UL-SIRTarget														UL-SIR,													--	( 184),
+	id-URA-Information													URA-Information,										--	( 185),
+	id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD			UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD,	--	( 188),
+	id-UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD			UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD,	--	( 189),
+	id-UnsuccessfulRL-InformationResponse-RL-SetupFailureTDD			UnsuccessfulRL-InformationResponse-RL-SetupFailureTDD,	--	( 190),
+	id-Active-Pattern-Sequence-Information								Active-Pattern-Sequence-Information,					--	( 193),
+	id-AdjustmentRatio													ScaledAdjustmentRatio,										--	( 194),
+	id-CauseLevel-RL-AdditionFailureFDD									CauseLevel-RL-AdditionFailureFDD,						--	( 197),
+	id-CauseLevel-RL-AdditionFailureTDD									CauseLevel-RL-AdditionFailureTDD,						--	( 198),
+	id-CauseLevel-RL-ReconfFailure										CauseLevel-RL-ReconfFailure,							--	( 199),
+	id-CauseLevel-RL-SetupFailureFDD									CauseLevel-RL-SetupFailureFDD,							--	( 200),
+	id-CauseLevel-RL-SetupFailureTDD									CauseLevel-RL-SetupFailureTDD,							--	( 201),
+	id-DL-CCTrCH-InformationDeleteItem-RL-ReconfPrepTDD					DL-CCTrCH-InformationDeleteItem-RL-ReconfPrepTDD,		--	( 205),
+	id-DL-CCTrCH-InformationModifyItem-RL-ReconfPrepTDD					DL-CCTrCH-InformationModifyItem-RL-ReconfPrepTDD,		--	( 206),
+	id-DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD					DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD,		--	( 207),
+	id-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD					DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD,		--	( 208),
+	id-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD					DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD,		--	( 209),
+	id-DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD					DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD,		--	( 210),
+	id-DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD					DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD,			--	( 212),
+	id-DL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD				DL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD,		--	( 213),
+	id-DL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD				DL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD,		--	( 214),
+	id-DSCHs-to-Add-TDD													DSCH-TDD-Information,									--	( 215),
 --	id-Unused-ProtocolIE-ID-216													( 216),
---	id-DSCH-DeleteList-RL-ReconfPrepTDD											( 217),
+	id-DSCH-DeleteList-RL-ReconfPrepTDD									DSCH-DeleteList-RL-ReconfPrepTDD,						--	( 217),
 --	id-Unused-ProtocolIE-ID-218													( 218),
 --	id-Unused-ProtocolIE-ID-219													( 219),
---	id-DSCH-InformationListIE-RL-AdditionRspTDD									( 220),
---	id-DSCH-InformationListIEs-RL-SetupRspTDD									( 221),
---	id-DSCH-TDD-Information														( 222),
+	id-DSCH-InformationListIE-RL-AdditionRspTDD							DSCH-InformationListIE-RL-AdditionRspTDD,				--	( 220),
+	id-DSCH-InformationListIEs-RL-SetupRspTDD							DSCH-InformationListIEs-RL-SetupRspTDD,					--	( 221),
+	id-DSCH-TDD-Information												DSCH-TDD-Information,									--	( 222),
 --	id-Unused-ProtocolIE-ID-223													( 223),
 --	id-Unused-ProtocolIE-ID-226													( 226),
---	id-DSCH-ModifyList-RL-ReconfPrepTDD											( 227),
+	id-DSCH-ModifyList-RL-ReconfPrepTDD									DSCH-ModifyList-RL-ReconfPrepTDD,						--	( 227),
 --	id-Unused-ProtocolIE-ID-228													( 228),
 --	id-Unused-ProtocolIE-ID-324													( 324),
 --	id-Unused-ProtocolIE-ID-229													( 229),
---	id-DSCHToBeAddedOrModifiedList-RL-ReconfReadyTDD							( 230),
+	id-DSCHToBeAddedOrModifiedList-RL-ReconfReadyTDD					DSCHToBeAddedOrModifiedList-RL-ReconfReadyTDD,			--	( 230),
 --	id-Unused-ProtocolIE-ID-29													( 29),
 --	id-Unused-ProtocolIE-ID-225													( 225),
---	id-GA-Cell																	( 232),
---	id-GA-CellAdditionalShapes													( 3),
+	id-GA-Cell															GA-Cell,												--	( 232),
+	id-GA-CellAdditionalShapes											GA-CellAdditionalShapes,								--	( 3),
 --	id-Unused-ProtocolIE-ID-246													( 246),
---	id-Transmission-Gap-Pattern-Sequence-Information							( 255),
---	id-UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD								( 256),
---	id-UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD								( 257),
---	id-UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD							( 258),
---	id-UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD							( 259),
---	id-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD							( 260),
---	id-UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD							( 261),
---	id-UL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD							( 262),
---	id-UL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD							( 263),
---	id-UL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD						( 264),
---	id-UL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD						( 265),
---	id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureTDD					( 266),
---	id-USCHs-to-Add																( 267),
---	id-USCH-DeleteList-RL-ReconfPrepTDD											( 268),
---	id-USCH-InformationListIE-RL-AdditionRspTDD									( 269),
---	id-USCH-InformationListIEs-RL-SetupRspTDD									( 270),
---	id-USCH-Information															( 271),
---	id-USCH-ModifyList-RL-ReconfPrepTDD											( 272),
---	id-USCHToBeAddedOrModifiedList-RL-ReconfReadyTDD							( 273),
---	id-DL-Physical-Channel-Information-RL-SetupRqstTDD							( 274),
---	id-UL-Physical-Channel-Information-RL-SetupRqstTDD							( 275),
---	id-ClosedLoopMode1-SupportIndicator											( 276),
+	id-Transmission-Gap-Pattern-Sequence-Information					Transmission-Gap-Pattern-Sequence-Information,			--	( 255),
+	id-UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD						UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD,			--	( 256),
+	id-UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD						UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD,			--	( 257),
+	id-UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD					UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD,		--	( 258),
+	id-UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD					UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD,		--	( 259),
+	id-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD					UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD,		--	( 260),
+	id-UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD					UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD,		--	( 261),
+	id-UL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD					UL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD,		--	( 262),
+	id-UL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD					UL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD,		--	( 263),
+	id-UL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD				UL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD,		--	( 264),
+	id-UL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD				UL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD,		--	( 265),
+	id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureTDD			UnsuccessfulRL-InformationResponse-RL-AdditionFailureTDD,	--	( 266),
+	id-USCHs-to-Add														USCH-Information,										--	( 267),
+	id-USCH-DeleteList-RL-ReconfPrepTDD									USCH-DeleteList-RL-ReconfPrepTDD,						--	( 268),
+	id-USCH-InformationListIE-RL-AdditionRspTDD							USCH-InformationListIE-RL-AdditionRspTDD,				--	( 269),
+	id-USCH-InformationListIEs-RL-SetupRspTDD							USCH-InformationListIEs-RL-SetupRspTDD,					--	( 270),
+	id-USCH-Information													USCH-Information,										--	( 271),
+	id-USCH-ModifyList-RL-ReconfPrepTDD									USCH-ModifyList-RL-ReconfPrepTDD,						--	( 272),
+	id-USCHToBeAddedOrModifiedList-RL-ReconfReadyTDD					USCHToBeAddedOrModifiedList-RL-ReconfReadyTDD,			--	( 273),
+	id-DL-Physical-Channel-Information-RL-SetupRqstTDD					DL-Physical-Channel-Information-RL-SetupRqstTDD,		--	( 274),
+	id-UL-Physical-Channel-Information-RL-SetupRqstTDD					UL-Physical-Channel-Information-RL-SetupRqstTDD,		--	( 275),
+	id-ClosedLoopMode1-SupportIndicator									ClosedLoopMode1-SupportIndicator,						--	( 276),
 --	id-Unused-ProtocolIE-ID-277													( 277),
---	id-STTD-SupportIndicator													( 279),
---	id-CFNReportingIndicator             										( 14),
---	id-CNOriginatedPage-PagingRqst												( 23),
---	id-InnerLoopDLPCStatus														( 24),
---	id-PropagationDelay															( 25),
---	id-RxTimingDeviationForTA													( 36),
---	id-timeSlot-ISCP															( 37),
---	id-CCTrCH-InformationItem-RL-FailureInd										( 15),
---	id-CCTrCH-InformationItem-RL-RestoreInd										( 16),
---	id-CommonMeasurementAccuracy												( 280),
---	id-CommonMeasurementObjectType-CM-Rprt										( 281),
---	id-CommonMeasurementObjectType-CM-Rqst										( 282),
---	id-CommonMeasurementObjectType-CM-Rsp										( 283),
---	id-CommonMeasurementType													( 284),
---	id-CongestionCause 															( 18),
---	id-SFN																		( 285),
---	id-SFNReportingIndicator													( 286),
---	id-InformationExchangeID													( 287),
---	id-InformationExchangeObjectType-InfEx-Rprt									( 288),
---	id-InformationExchangeObjectType-InfEx-Rqst									( 289),
---	id-InformationExchangeObjectType-InfEx-Rsp									( 290),
---	id-InformationReportCharacteristics											( 291),
---	id-InformationType															( 292),
---	id-neighbouring-LCR-TDD-CellInformation										( 58),
---	id-DL-Timeslot-ISCP-LCR-Information-RL-SetupRqstTDD							( 65),
---	id-RL-LCR-InformationResponse-RL-SetupRspTDD								( 66),
---	id-UL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD							( 75),
---	id-UL-DPCH-LCR-InformationItem-RL-SetupRspTDD								( 76),
---	id-DL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD							( 77),
---	id-DL-DPCH-LCR-InformationItem-RL-SetupRspTDD								( 78),
---	id-DSCH-LCR-InformationListIEs-RL-SetupRspTDD								( 79),
---	id-USCH-LCR-InformationListIEs-RL-SetupRspTDD								( 80),
---	id-DL-Timeslot-ISCP-LCR-Information-RL-AdditionRqstTDD						( 81),
---	id-RL-LCR-InformationResponse-RL-AdditionRspTDD								( 86),
---	id-UL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD						( 87),
---	id-UL-DPCH-LCR-InformationItem-RL-AdditionRspTDD							( 88),
---	id-DL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD						( 89),
---	id-DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD							( 94),
---	id-DSCH-LCR-InformationListIEs-RL-AdditionRspTDD							( 96),
---	id-USCH-LCR-InformationListIEs-RL-AdditionRspTDD							( 97),
---	id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD						( 98),
---	id-UL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD					( 100),
---	id-DL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD						( 101),
---	id-DL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD					( 104),
---	id-UL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD						( 105),
---	id-DL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD						( 106),
---	id-timeSlot-ISCP-LCR-List-DL-PC-Rqst-TDD									( 138),
---	id-TSTD-Support-Indicator-RL-SetupRqstTDD									( 139),
---	id-RestrictionStateIndicator												( 142),
---	id-Load-Value																( 233),
---	id-Load-Value-IncrDecrThres													( 234),
---	id-OnModification															( 235),
---	id-Received-Total-Wideband-Power-Value										( 236),
---	id-Received-Total-Wideband-Power-Value-IncrDecrThres						( 237),
---	id-SFNSFNMeasurementThresholdInformation									( 238),
---	id-Transmitted-Carrier-Power-Value											( 239),
---	id-Transmitted-Carrier-Power-Value-IncrDecrThres							( 240),
---	id-TUTRANGPSMeasurementThresholdInformation									( 241),
---	id-UL-Timeslot-ISCP-Value													( 242),
---	id-UL-Timeslot-ISCP-Value-IncrDecrThres										( 243),
---	id-Rx-Timing-Deviation-Value-LCR											( 293),
---	id-DPC-Mode-Change-SupportIndicator											( 19),
+	id-STTD-SupportIndicator											STTD-SupportIndicator,									--	( 279),
+	id-CFNReportingIndicator             								FNReportingIndicator,									--	( 14),
+	id-CNOriginatedPage-PagingRqst										CNOriginatedPage-PagingRqst,							--	( 23),
+	id-InnerLoopDLPCStatus												InnerLoopDLPCStatus,									--	( 24),
+	id-PropagationDelay													PropagationDelay,										--	( 25),
+	id-RxTimingDeviationForTA											RxTimingDeviationForTA,									--	( 36),
+	id-timeSlot-ISCP													DL-TimeSlot-ISCP-Info,									--	( 37),
+	id-CCTrCH-InformationItem-RL-FailureInd								CCTrCH-InformationItem-RL-FailureInd,					--	( 15),
+	id-CCTrCH-InformationItem-RL-RestoreInd								CCTrCH-InformationItem-RL-RestoreInd,					--	( 16),
+	id-CommonMeasurementAccuracy										CommonMeasurementAccuracy,								--	( 280),
+	id-CommonMeasurementObjectType-CM-Rprt								CommonMeasurementObjectType-CM-Rprt,					--	( 281),
+	id-CommonMeasurementObjectType-CM-Rqst								CommonMeasurementObjectType-CM-Rqst,					--	( 282),
+	id-CommonMeasurementObjectType-CM-Rsp								CommonMeasurementObjectType-CM-Rsp,						--	( 283),
+	id-CommonMeasurementType											CommonMeasurementType,									--	( 284),
+	id-CongestionCause 													CongestionCause,										--	( 18),
+	id-SFN																SFN,													--	( 285),
+	id-SFNReportingIndicator											FNReportingIndicator,									--	( 286),
+	id-InformationExchangeID											InformationExchangeID,									--	( 287),
+	id-InformationExchangeObjectType-InfEx-Rprt							InformationExchangeObjectType-InfEx-Rprt,				--	( 288),
+	id-InformationExchangeObjectType-InfEx-Rqst							InformationExchangeObjectType-InfEx-Rqst,				--	( 289),
+	id-InformationExchangeObjectType-InfEx-Rsp							InformationReportCharacteristics,						--	( 290),
+	id-InformationReportCharacteristics									InformationReportCharacteristics,						--	( 291),
+	id-InformationType													InformationType,										--	( 292),
+	id-neighbouring-LCR-TDD-CellInformation								Neighbouring-LCR-TDD-CellInformation,					--	( 58),
+	id-DL-Timeslot-ISCP-LCR-Information-RL-SetupRqstTDD					DL-TimeSlot-ISCP-LCR-Information,						--	( 65),
+	id-RL-LCR-InformationResponse-RL-SetupRspTDD						RL-LCR-InformationResponse-RL-SetupRspTDD,				--	( 66),
+	id-UL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD					UL-LCR-CCTrCHInformationListIE-RL-SetupRspTDD,			--	( 75),
+	id-UL-DPCH-LCR-InformationItem-RL-SetupRspTDD						UL-DPCH-LCR-InformationItem-RL-SetupRspTDD,				--	( 76),
+	id-DL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD					DL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD,			--	( 77),
+	id-DL-DPCH-LCR-InformationItem-RL-SetupRspTDD						DL-DPCH-LCR-InformationItem-RL-SetupRspTDD,				--	( 78),
+	id-DSCH-LCR-InformationListIEs-RL-SetupRspTDD						DSCH-LCR-InformationListIEs-RL-SetupRspTDD,				--	( 79),
+	id-USCH-LCR-InformationListIEs-RL-SetupRspTDD						USCH-LCR-InformationListIEs-RL-SetupRspTDD,				--	( 80),
+	id-DL-Timeslot-ISCP-LCR-Information-RL-AdditionRqstTDD				DL-TimeSlot-ISCP-LCR-Information,						--	( 81),
+	id-RL-LCR-InformationResponse-RL-AdditionRspTDD						RL-LCR-InformationResponse-RL-AdditionRspTDD,			--	( 86),
+	id-UL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD				UL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD,		--	( 87),
+	id-UL-DPCH-LCR-InformationItem-RL-AdditionRspTDD					UL-DPCH-LCR-InformationItem-RL-AdditionRspTDD,			--	( 88),
+	id-DL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD				DL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD,		--	( 89),
+	id-DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD					DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD,			--	( 94),
+	id-DSCH-LCR-InformationListIEs-RL-AdditionRspTDD					DSCH-LCR-InformationListIEs-RL-AdditionRspTDD,			--	( 96),
+	id-USCH-LCR-InformationListIEs-RL-AdditionRspTDD					USCH-LCR-InformationListIEs-RL-AdditionRspTDD,			--	( 97),
+	id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD				UL-DPCH-LCR-InformationAddList-RL-ReconfReadyTDD,		--	( 98),
+	id-UL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD			UL-TimeslotLCR-InformationModifyList-RL-ReconfReadyTDD,	--	( 100),
+	id-DL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD				DL-DPCH-LCR-InformationAddList-RL-ReconfReadyTDD,		--	( 101),
+	id-DL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD			DL-TimeslotLCR-InformationModifyList-RL-ReconfReadyTDD,	--	( 104),
+	id-UL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD				UL-TimeslotLCR-InformationList-PhyChReconfRqstTDD,		--	( 105),
+	id-DL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD				DL-TimeslotLCR-InformationList-PhyChReconfRqstTDD,		--	( 106),
+	id-timeSlot-ISCP-LCR-List-DL-PC-Rqst-TDD							DL-TimeSlot-ISCP-LCR-Information,						--	( 138),
+	id-TSTD-Support-Indicator-RL-SetupRqstTDD							TSTD-Support-Indicator,									--	( 139),
+	id-RestrictionStateIndicator										RestrictionStateIndicator,								--	( 142),
+	id-Load-Value														Load-Value,												--	( 233),
+	id-Load-Value-IncrDecrThres											Load-Value-IncrDecrThres,								--	( 234),
+	id-OnModification													OnModification,											--	( 235),
+	id-Received-Total-Wideband-Power-Value								Received-Total-Wideband-Power-Value,					--	( 236),
+	id-Received-Total-Wideband-Power-Value-IncrDecrThres				SFNSFNMeasurementThresholdInformation,					--	( 237),
+	id-SFNSFNMeasurementThresholdInformation							SFNSFNMeasurementThresholdInformation,					--	( 238),
+	id-Transmitted-Carrier-Power-Value									Transmitted-Carrier-Power-Value,						--	( 239),
+	id-Transmitted-Carrier-Power-Value-IncrDecrThres					Transmitted-Carrier-Power-Value-IncrDecrThres,			--	( 240),
+	id-TUTRANGPSMeasurementThresholdInformation							UL-Timeslot-ISCP-Value,									--	( 241),
+	id-UL-Timeslot-ISCP-Value											UL-Timeslot-ISCP-Value,									--	( 242),
+	id-UL-Timeslot-ISCP-Value-IncrDecrThres								UL-Timeslot-ISCP-Value-IncrDecrThres,					--	( 243),
+	id-Rx-Timing-Deviation-Value-LCR									Rx-Timing-Deviation-Value-LCR,							--	( 293),
+	id-DPC-Mode-Change-SupportIndicator									DPC-Mode-Change-SupportIndicator,						--	( 19),
 --	id-Unused-ProtocolIE-ID-247													( 247),
 --	id-Unused-ProtocolIE-ID-295													( 295),
---	id-PrimaryCCPCH-RSCP-RL-ReconfPrepTDD										( 202),
---	id-DL-TimeSlot-ISCP-Info-RL-ReconfPrepTDD									( 203),
---	id-DL-Timeslot-ISCP-LCR-Information-RL-ReconfPrepTDD						( 204),
---	id-DSCH-RNTI																( 249),
---	id-DL-PowerBalancing-Information											( 296),
---	id-DL-PowerBalancing-ActivationIndicator									( 297),
---	id-DL-PowerBalancing-UpdatedIndicator										( 298),
---	id-DL-ReferencePowerInformation												( 299),
---	id-Enhanced-PrimaryCPICH-EcNo												( 224),
---	id-IPDL-TDD-ParametersLCR													( 252),
---	id-CellCapabilityContainer-FDD												( 300),
---	id-CellCapabilityContainer-TDD												( 301),
---	id-CellCapabilityContainer-TDD-LCR											( 302),
---	id-RL-Specific-DCH-Info														( 317),
---	id-RL-ReconfigurationRequestFDD-RL-InformationList 							( 318),
---	id-RL-ReconfigurationRequestFDD-RL-Information-IEs							( 319),
---	id-RL-ReconfigurationRequestTDD-RL-Information								( 321),
---	id-CommonTransportChannelResourcesInitialisationNotRequired					( 250),
---	id-DelayedActivation 														( 312),
---	id-DelayedActivationList-RL-ActivationCmdFDD								( 313),
---	id-DelayedActivationInformation-RL-ActivationCmdFDD							( 314),
---	id-DelayedActivationList-RL-ActivationCmdTDD								( 315),
---	id-DelayedActivationInformation-RL-ActivationCmdTDD							( 316),
---	id-neighbouringTDDCellMeasurementInformationLCR								( 251),
---	id-UL-SIR-Target-CCTrCH-InformationItem-RL-SetupRspTDD						( 150),
---	id-UL-SIR-Target-CCTrCH-LCR-InformationItem-RL-SetupRspTDD					( 151),
---	id-PrimCCPCH-RSCP-DL-PC-RqstTDD												( 451),
---	id-HSDSCH-FDD-Information													( 452),
---	id-HSDSCH-FDD-Information-Response											( 453),
---	id-HSDSCH-FDD-Update-Information											( 466),
---	id-HSDSCH-Information-to-Modify												( 456),
---	id-HSDSCHMacdFlowSpecificInformationList-RL-PreemptRequiredInd				( 516),
---	id-HSDSCHMacdFlowSpecificInformationItem-RL-PreemptRequiredInd				( 517),
---	id-HSDSCH-RNTI																( 457),
---	id-HSDSCH-TDD-Information													( 458),
---	id-HSDSCH-TDD-Information-Response											( 459),
---	id-HSDSCH-TDD-Update-Information											( 467),
---	id-HSPDSCH-RL-ID															( 463),
---	id-HSDSCH-MACdFlows-to-Add 													( 531),
---	id-HSDSCH-MACdFlows-to-Delete												( 532),
---	id-Angle-Of-Arrival-Value-LCR												( 148),
---	id-TrafficClass																( 158),
+	id-PrimaryCCPCH-RSCP-RL-ReconfPrepTDD								PrimaryCCPCH-RSCP,										--	( 202),
+	id-DL-TimeSlot-ISCP-Info-RL-ReconfPrepTDD							DL-TimeSlot-ISCP-Info,									--	( 203),
+	id-DL-Timeslot-ISCP-LCR-Information-RL-ReconfPrepTDD				DL-TimeSlot-ISCP-LCR-Information,						--	( 204),
+	id-DSCH-RNTI														DSCH-RNTI,												--	( 249),
+	id-DL-PowerBalancing-Information									DL-PowerBalancing-Information,							--	( 296),
+	id-DL-PowerBalancing-ActivationIndicator							DL-PowerBalancing-ActivationIndicator,					--	( 297),
+	id-DL-PowerBalancing-UpdatedIndicator								DL-PowerBalancing-UpdatedIndicator,						--	( 298),
+	id-DL-ReferencePowerInformation										DL-ReferencePowerInformation,							--	( 299),
+	id-Enhanced-PrimaryCPICH-EcNo										Enhanced-PrimaryCPICH-EcNo,								--	( 224),
+	id-IPDL-TDD-ParametersLCR											IPDL-TDD-ParametersLCR,									--	( 252),
+	id-CellCapabilityContainer-FDD										CellCapabilityContainer-FDD,							--	( 300),
+	id-CellCapabilityContainer-TDD										CellCapabilityContainer-TDD,							--	( 301),
+	id-CellCapabilityContainer-TDD-LCR									CellCapabilityContainer-TDD-LCR,						--	( 302),
+	id-RL-Specific-DCH-Info												RL-Specific-DCH-Info,									--	( 317),
+	id-RL-ReconfigurationRequestFDD-RL-InformationList 					RL-ReconfigurationRequestFDD-RL-InformationList,		--	( 318),
+	id-RL-ReconfigurationRequestFDD-RL-Information-IEs					RL-ReconfigurationRequestFDD-RL-Information-IEs,		--	( 319),
+	id-RL-ReconfigurationRequestTDD-RL-Information						RL-ReconfigurationRequestTDD-RL-Information,			--	( 321),
+	id-CommonTransportChannelResourcesInitialisationNotRequired			CommonTransportChannelResourcesInitialisationNotRequired,	--	( 250),
+	id-DelayedActivation 												DelayedActivation,										--	( 312),
+	id-DelayedActivationList-RL-ActivationCmdFDD						DelayedActivationInformationList-RL-ActivationCmdFDD,	--	( 313),
+	id-DelayedActivationInformation-RL-ActivationCmdFDD					DelayedActivationInformation-RL-ActivationCmdFDD,		--	( 314),
+	id-DelayedActivationList-RL-ActivationCmdTDD						DelayedActivationInformationList-RL-ActivationCmdTDD,	--	( 315),
+	id-DelayedActivationInformation-RL-ActivationCmdTDD					DelayedActivationInformation-RL-ActivationCmdTDD,		--	( 316),
+	id-neighbouringTDDCellMeasurementInformationLCR						NeighbouringTDDCellMeasurementInformationLCR,			--	( 251),
+	id-UL-SIR-Target-CCTrCH-InformationItem-RL-SetupRspTDD				UL-SIR,													--	( 150),
+	id-UL-SIR-Target-CCTrCH-LCR-InformationItem-RL-SetupRspTDD			UL-SIR,													--	( 151),
+	id-PrimCCPCH-RSCP-DL-PC-RqstTDD										PrimaryCCPCH-RSCP,										--	( 451),
+	id-HSDSCH-FDD-Information											HSDSCH-FDD-Information,									--	( 452),
+	id-HSDSCH-FDD-Information-Response									HSDSCH-FDD-Information-Response,						--	( 453),
+	id-HSDSCH-FDD-Update-Information									HSDSCH-FDD-Update-Information,							--	( 466),
+	id-HSDSCH-Information-to-Modify										HSDSCH-Information-to-Modify,							--	( 456),
+	id-HSDSCHMacdFlowSpecificInformationList-RL-PreemptRequiredInd		HSDSCHMacdFlowSpecificInformationList-RL-PreemptRequiredInd,	--	( 516),
+	id-HSDSCHMacdFlowSpecificInformationItem-RL-PreemptRequiredInd		HSDSCHMacdFlowSpecificInformationItem-RL-PreemptRequiredInd,	--	( 517),
+	id-HSDSCH-RNTI														HSDSCH-RNTI,											--	( 457),
+	id-HSDSCH-TDD-Information											HSDSCH-TDD-Information,									--	( 458),
+	id-HSDSCH-TDD-Information-Response									HSDSCH-TDD-Information-Response,						--	( 459),
+	id-HSDSCH-TDD-Update-Information									HSDSCH-TDD-Update-Information,							--	( 467),
+	id-HSPDSCH-RL-ID													RL-ID,													--	( 463),
+	id-HSDSCH-MACdFlows-to-Add 											HSDSCH-MACdFlows-Information,							--	( 531),
+	id-HSDSCH-MACdFlows-to-Delete										HSDSCH-MACdFlows-to-Delete,								--	( 532),
+	id-Angle-Of-Arrival-Value-LCR										Angle-Of-Arrival-Value-LCR,								--	( 148),
+	id-TrafficClass														TrafficClass,											--	( 158),
 --	id-Unused-ProtocolIE-ID-248													( 248),
 --	id-Unused-ProtocolIE-ID-253													( 253),
---	id-PDSCH-RL-ID																( 323),
---	id-TimeSlot-RL-SetupRspTDD													( 325),
---	id-GERAN-Cell-Capability													( 468),
---	id-GERAN-Classmark															( 469),
---	id-DSCH-InitialWindowSize													( 480),
---	id-UL-Synchronisation-Parameters-LCR										( 464),
---	id-SNA-Information															( 479),
---	id-MAChs-ResetIndicator														( 465),
---	id-TDD-DL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD				( 481),
---	id-TDD-UL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD				( 482),
---	id-TDD-TPC-UplinkStepSize-LCR-RL-SetupRqstTDD								( 483),
---	id-UL-CCTrCH-InformationList-RL-AdditionRqstTDD								( 484),
---	id-UL-CCTrCH-InformationItem-RL-AdditionRqstTDD								( 485),
---	id-DL-CCTrCH-InformationList-RL-AdditionRqstTDD								( 486),
---	id-DL-CCTrCH-InformationItem-RL-AdditionRqstTDD								( 487),
---	id-TDD-TPC-UplinkStepSize-InformationAdd-LCR-RL-ReconfPrepTDD				( 488),
---	id-TDD-TPC-UplinkStepSize-InformationModify-LCR-RL-ReconfPrepTDD			( 489),
---	id-TDD-TPC-DownlinkStepSize-InformationAdd-RL-ReconfPrepTDD					( 490),
---	id-TDD-TPC-DownlinkStepSize-InformationModify-RL-ReconfPrepTDD				( 491),
---	id-UL-TimingAdvanceCtrl-LCR													( 492),
---	id-HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD						( 493),
---	id-HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD					( 494),
---	id-HS-SICH-Reception-Quality 												( 495),
---	id-HS-SICH-Reception-Quality-Measurement-Value 								( 496),
---	id-HSSICH-Info-DM-Rprt														( 497),
---	id-HSSICH-Info-DM-Rqst														( 498),
---	id-HSSICH-Info-DM															( 499),
---	id-CCTrCH-Maximum-DL-Power-RL-SetupRspTDD									( 500),
---	id-CCTrCH-Minimum-DL-Power-RL-SetupRspTDD									( 501),
---	id-CCTrCH-Maximum-DL-Power-RL-AdditionRspTDD								( 502),
---	id-CCTrCH-Minimum-DL-Power-RL-AdditionRspTDD								( 503),
---	id-CCTrCH-Maximum-DL-Power-RL-ReconfReadyTDD								( 504),
---	id-CCTrCH-Minimum-DL-Power-RL-ReconfReadyTDD								( 505),
---	id-Maximum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD		( 506),
---	id-Minimum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD		( 507),
---	id-DL-CCTrCH-InformationList-RL-ReconfRspTDD								( 508),
---	id-DL-DPCH-InformationModifyItem-LCR-RL-ReconfRspTDD						( 509),
---	id-Maximum-DL-Power-TimeslotLCR-InformationItem								( 510),
---	id-Minimum-DL-Power-TimeslotLCR-InformationItem								( 511),
---	id-TDD-Support-8PSK															( 512),
---	id-TDD-maxNrDLPhysicalchannels												( 513),
---	id-ExtendedGSMCellIndividualOffset											( 514),
---	id-RL-ParameterUpdateIndicationFDD-RL-InformationList 						( 518),
---	id-Primary-CPICH-Usage-For-Channel-Estimation								( 519),
---	id-Secondary-CPICH-Information												( 520),
---	id-Secondary-CPICH-Information-Change										( 521),
+	id-PDSCH-RL-ID														RL-ID,													--	( 323),
+	id-TimeSlot-RL-SetupRspTDD											TimeSlot,												--	( 325),
+	id-GERAN-Cell-Capability											GERAN-Cell-Capability,									--	( 468),
+	id-GERAN-Classmark													GERAN-Classmark,										--	( 469),
+	id-DSCH-InitialWindowSize											DSCH-InitialWindowSize,									--	( 480),
+	id-UL-Synchronisation-Parameters-LCR								UL-Synchronisation-Parameters-LCR,						--	( 464),
+	id-SNA-Information													SNA-Information,										--	( 479),
+	id-MAChs-ResetIndicator												MAChs-ResetIndicator,									--	( 465),
+	id-TDD-DL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD		TDD-DL-DPCH-TimeSlotFormat-LCR,							--	( 481),
+	id-TDD-UL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD		TDD-UL-DPCH-TimeSlotFormat-LCR,								--	( 482),
+	id-TDD-TPC-UplinkStepSize-LCR-RL-SetupRqstTDD						TDD-TPC-UplinkStepSize-LCR,									--	( 483),
+	id-UL-CCTrCH-InformationList-RL-AdditionRqstTDD						UL-CCTrCH-InformationList-RL-AdditionRqstTDD,				--	( 484),
+	id-UL-CCTrCH-InformationItem-RL-AdditionRqstTDD						UL-CCTrCH-InformationItem-RL-AdditionRqstTDD,				--	( 485),
+	id-DL-CCTrCH-InformationList-RL-AdditionRqstTDD						DL-CCTrCH-InformationList-RL-AdditionRqstTDD,				--	( 486),
+	id-DL-CCTrCH-InformationItem-RL-AdditionRqstTDD						DL-CCTrCH-InformationItem-RL-AdditionRqstTDD,				--	( 487),
+	id-TDD-TPC-UplinkStepSize-InformationAdd-LCR-RL-ReconfPrepTDD		TDD-TPC-UplinkStepSize-LCR,									--	( 488),
+	id-TDD-TPC-UplinkStepSize-InformationModify-LCR-RL-ReconfPrepTDD	TDD-TPC-UplinkStepSize-LCR,									--	( 489),
+	id-TDD-TPC-DownlinkStepSize-InformationAdd-RL-ReconfPrepTDD			TDD-TPC-DownlinkStepSize,									--	( 490),
+	id-TDD-TPC-DownlinkStepSize-InformationModify-RL-ReconfPrepTDD		TDD-TPC-DownlinkStepSize,									--	( 491),
+	id-UL-TimingAdvanceCtrl-LCR											UL-TimingAdvanceCtrl-LCR,									--	( 492),
+	id-HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD				HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD,		--	( 493),
+	id-HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD			HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD,		--	( 494),
+	id-HS-SICH-Reception-Quality 										HS-SICH-Reception-Quality-Value,							--	( 495),
+	id-HS-SICH-Reception-Quality-Measurement-Value 						HS-SICH-Reception-Quality-Measurement-Value,				--	( 496),
+	id-HSSICH-Info-DM-Rprt												HS-SICH-ID,													--	( 497),
+	id-HSSICH-Info-DM-Rqst												HSSICH-Info-DM-Rqst,										--	( 498),
+	id-HSSICH-Info-DM													HS-SICH-ID,													--	( 499),
+	id-CCTrCH-Maximum-DL-Power-RL-SetupRspTDD							DL-Power,													--	( 500),
+	id-CCTrCH-Minimum-DL-Power-RL-SetupRspTDD							DL-Power,													--	( 501),
+	id-CCTrCH-Maximum-DL-Power-RL-AdditionRspTDD						DL-Power,													--	( 502),
+	id-CCTrCH-Minimum-DL-Power-RL-AdditionRspTDD						DL-Power,													--	( 503),
+	id-CCTrCH-Maximum-DL-Power-RL-ReconfReadyTDD						DL-Power,													--	( 504),
+	id-CCTrCH-Minimum-DL-Power-RL-ReconfReadyTDD						DL-Power,													--	( 505),
+	id-Maximum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD		DL-Power,											--	( 506),
+	id-Minimum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD		DL-Power,											--	( 507),
+	id-DL-CCTrCH-InformationList-RL-ReconfRspTDD						DL-CCTrCH-InformationList-RL-ReconfRspTDD,					--	( 508),
+	id-DL-DPCH-InformationModifyItem-LCR-RL-ReconfRspTDD				DL-DPCH-InformationModifyItem-LCR-RL-ReconfRspTDD,			--	( 509),
+	id-Maximum-DL-Power-TimeslotLCR-InformationItem						DL-Power,													--	( 510),
+	id-Minimum-DL-Power-TimeslotLCR-InformationItem						DL-Power,													--	( 511),
+	id-TDD-Support-8PSK													Support-8PSK,												--	( 512),
+	id-TDD-maxNrDLPhysicalchannels										MaxNrDLPhysicalchannelsTS,									--	( 513),
+	id-ExtendedGSMCellIndividualOffset									ExtendedGSMCellIndividualOffset,							--	( 514),
+	id-RL-ParameterUpdateIndicationFDD-RL-InformationList 				RL-ParameterUpdateIndicationFDD-RL-InformationList,			--	( 518),
+	id-Primary-CPICH-Usage-For-Channel-Estimation						Primary-CPICH-Usage-For-Channel-Estimation,					--	( 519),
+	id-Secondary-CPICH-Information										Secondary-CPICH-Information,								--	( 520),
+	id-Secondary-CPICH-Information-Change								Secondary-CPICH-Information-Change,							--	( 521),
 --	id-Unused-ProtocolIE-ID-522													( 522),
 --	id-Unused-ProtocolIE-ID-523													( 523),
---	id-RL-ParameterUpdateIndicationFDD-RL-Information-Item						( 524),
---	id-Phase-Reference-Update-Indicator											( 525),
---	id-Unidirectional-DCH-Indicator												( 526),
---	id-RL-Information-RL-ReconfPrepTDD											( 527),
---	id-Multiple-RL-InformationResponse-RL-ReconfReadyTDD						( 528),
---	id-RL-ReconfigurationResponseTDD-RL-Information								( 529),
---	id-Satellite-Almanac-Information-ExtItem									( 530),
---	id-HSDSCH-Information-to-Modify-Unsynchronised								( 533),
---	id-TnlQos																	( 534),
---	id-RTLoadValue																( 535),
---	id-NRTLoadInformationValue													( 536),
---	id-CellPortionID															( 537),
---	id-UpPTSInterferenceValue													( 538),
---	id-PrimaryCCPCH-RSCP-Delta													( 539),
---	id-UEMeasurementType														( 540),
---	id-UEMeasurementTimeslotInfoHCR												( 541),
---	id-UEMeasurementTimeslotInfoLCR												( 542),
---	id-UEMeasurementReportCharacteristics										( 543),
---	id-UEMeasurementParameterModAllow											( 544),
---	id-UEMeasurementValueInformation											( 545),
---	id-InterfacesToTraceItem													( 546),
---	id-ListOfInterfacesToTrace													( 547),
---	id-TraceDepth																( 548),
---	id-TraceRecordingSessionReference											( 549),
---	id-TraceReference															( 550),
---	id-UEIdentity																( 551),
---	id-NACC-Related-Data														( 552),
---	id-GSM-Cell-InfEx-Rqst														( 553),
---	id-MeasurementRecoveryBehavior												( 554),
---	id-MeasurementRecoveryReportingIndicator									( 555),
---	id-MeasurementRecoverySupportIndicator										( 556),
---	id-DL-DPCH-Power-Information-RL-ReconfPrepFDD								( 557),
---	id-F-DPCH-Information-RL-ReconfPrepFDD										( 558),
---	id-F-DPCH-Information-RL-SetupRqstFDD										( 559),
---	id-MBMS-Bearer-Service-List													( 560),
---	id-MBMS-Bearer-Service-List-InfEx-Rsp										( 561),
---	id-Active-MBMS-Bearer-ServiceFDD											( 562),
---	id-Active-MBMS-Bearer-ServiceTDD											( 563),
+	id-RL-ParameterUpdateIndicationFDD-RL-Information-Item				RL-ParameterUpdateIndicationFDD-RL-Information-Item,		--	( 524),
+	id-Phase-Reference-Update-Indicator									Phase-Reference-Update-Indicator,							--	( 525),
+	id-Unidirectional-DCH-Indicator										Unidirectional-DCH-Indicator,								--	( 526),
+	id-RL-Information-RL-ReconfPrepTDD									RL-Information-RL-ReconfPrepTDD,							--	( 527),
+	id-Multiple-RL-InformationResponse-RL-ReconfReadyTDD				Multiple-RL-InformationResponse-RL-ReconfReadyTDD,			--	( 528),
+	id-RL-ReconfigurationResponseTDD-RL-Information						Multiple-RL-InformationResponse-RL-ReconfRspTDD,			--	( 529),
+	id-Satellite-Almanac-Information-ExtItem							Satellite-Almanac-Information-ExtItem,						--	( 530),
+	id-HSDSCH-Information-to-Modify-Unsynchronised						HSDSCH-Information-to-Modify-Unsynchronised,				--	( 533),
+	id-TnlQos															TnlQos,														--	( 534),
+	id-RTLoadValue														RTLoadValue,												--	( 535),
+	id-NRTLoadInformationValue											NRTLoadInformationValue,									--	( 536),
+	id-CellPortionID													CellPortionID,												--	( 537),
+	id-UpPTSInterferenceValue											UpPTSInterferenceValue,										--	( 538),
+	id-PrimaryCCPCH-RSCP-Delta											PrimaryCCPCH-RSCP-Delta,									--	( 539),
+	id-UEMeasurementType													UEMeasurementType,											--	( 540),
+	id-UEMeasurementTimeslotInfoHCR											UEMeasurementTimeslotInfoHCR,								--	( 541),
+	id-UEMeasurementTimeslotInfoLCR											UEMeasurementTimeslotInfoLCR,								--	( 542),
+	id-UEMeasurementReportCharacteristics									UEMeasurementReportCharacteristics,							--	( 543),
+	id-UEMeasurementParameterModAllow										UEMeasurementParameterModAllow,								--	( 544),
+	id-UEMeasurementValueInformation										UEMeasurementValueInformation,								--	( 545),
+	id-InterfacesToTraceItem												InterfacesToTraceItem,										--	( 546),
+	id-ListOfInterfacesToTrace												ListOfInterfacesToTrace,									--	( 547),
+	id-TraceDepth															TraceDepth,													--	( 548),
+	id-TraceRecordingSessionReference										TraceRecordingSessionReference,								--	( 549),
+	id-TraceReference														TraceReference,												--	( 550),
+	id-UEIdentity															UEIdentity,													--	( 551),
+	id-NACC-Related-Data													NACC-Related-Data,											--	( 552),
+	id-GSM-Cell-InfEx-Rqst													GSM-Cell-InfEx-Rqst,										--	( 553),
+	id-MeasurementRecoveryBehavior											MeasurementRecoveryBehavior,								--	( 554),
+	id-MeasurementRecoveryReportingIndicator								MeasurementRecoveryReportingIndicator,						--	( 555),
+	id-MeasurementRecoverySupportIndicator									MeasurementRecoverySupportIndicator	,						--	( 556),
+	id-DL-DPCH-Power-Information-RL-ReconfPrepFDD							DL-DPCH-Power-Information-RL-ReconfPrepFDD,					--	( 557),
+	id-F-DPCH-Information-RL-ReconfPrepFDD									F-DPCH-Information-RL-ReconfPrepFDD,						--	( 558),
+	id-F-DPCH-Information-RL-SetupRqstFDD									F-DPCH-Information-RL-SetupRqstFDD,							--	( 559),
+	id-MBMS-Bearer-Service-List												MBMS-Bearer-Service-List,									--	( 560),
+	id-MBMS-Bearer-Service-List-InfEx-Rsp									MBMS-Bearer-Service-List-InfEx-Rsp,							--	( 561),
+	id-Active-MBMS-Bearer-ServiceFDD										Active-MBMS-Bearer-Service-ListFDD,								--	( 562),
+	id-Active-MBMS-Bearer-ServiceTDD										Active-MBMS-Bearer-Service-ListTDD,								--	( 563),
 	id-Old-URA-ID															URA-ID,				--	( 564),
 	id-UE-State																UE-State,			--	( 568),
 	id-URA-ID																URA-ID,				--	( 569),
 	id-HARQ-Preamble-Mode													HARQ-Preamble-Mode,	--	( 571),
-	id-SynchronisationIndicator												SynchronisationIndicator,	--	( 572),
-	id-UL-DPDCHIndicatorEDCH												UL-DPDCHIndicatorEDCH,		--	( 573),
---	id-EDPCH-Information														( 574),
---	id-RL-Specific-EDCH-Information												( 575),
---	id-EDCH-RL-Indication														( 576),
---	id-EDCH-FDD-Information														( 577),
---	id-EDCH-RLSet-Id															( 578),
---	id-Serving-EDCHRL-Id														( 579),
---	id-EDCH-FDD-DL-ControlChannelInformation									( 580),
---	id-EDCH-FDD-InformationResponse												( 581),
---	id-EDCH-MACdFlows-To-Add													( 582),
---	id-EDCH-FDD-Information-To-Modify											( 583),
---	id-EDCH-MACdFlows-To-Delete													( 584),
+	id-SynchronisationIndicator												SynchronisationIndicator,									--	( 572),
+	id-UL-DPDCHIndicatorEDCH												UL-DPDCHIndicatorEDCH,										--	( 573),
+	id-EDPCH-Information													EDPCH-Information-FDD,										--	( 574),
+	id-RL-Specific-EDCH-Information											RL-Specific-EDCH-Information,								--	( 575),
+	id-EDCH-RL-Indication													EDCH-RL-Indication,											--	( 576),
+	id-EDCH-FDD-Information													EDCH-FDD-Information,										--	( 577),
+	id-EDCH-RLSet-Id														RL-Set-ID,													--	( 578),
+	id-Serving-EDCHRL-Id													EDCH-Serving-RL,											--	( 579),
+	id-EDCH-FDD-DL-ControlChannelInformation								EDCH-FDD-DL-ControlChannelInformation,						--	( 580),
+	id-EDCH-FDD-InformationResponse											EDCH-FDD-InformationResponse,								--	( 581),
+	id-EDCH-MACdFlows-To-Add												RL-Specific-EDCH-Information,								--	( 582),
+	id-EDCH-FDD-Information-To-Modify										EDCH-FDD-Information-To-Modify,								--	( 583),
+	id-EDCH-MACdFlows-To-Delete												EDCH-MACdFlows-To-Delete,									--	( 584),
 	id-EDPCH-Information-RLReconfRequest-FDD								EDPCH-Information-RLReconfRequest-FDD,						--	( 585),
 	id-EDCH-MacdFlowSpecificInformationList-RL-PreemptRequiredInd			EDCH-MacdFlowSpecificInformationList-RL-PreemptRequiredInd,	--	( 586),
 	id-EDCH-MacdFlowSpecificInformationItem-RL-PreemptRequiredInd			EDCH-MacdFlowSpecificInformationItem-RL-PreemptRequiredInd,	--	( 587),
