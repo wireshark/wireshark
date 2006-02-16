@@ -395,9 +395,9 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(dhcpfo_tree,
 			    hf_dhcpfo_length, tvb, offset, 2, length);
 		} else {
-			proto_tree_add_uint_format(dhcpfo_tree,
+			proto_tree_add_uint_format_value(dhcpfo_tree,
 			    hf_dhcpfo_length, tvb, offset, 2, length,
-			    "Message length: %u (bogus, must be >= %u)",
+			    "%u (bogus, must be >= %u)",
 			    length, DHCPFO_FL_HDR_LEN);
 		}
 	}
@@ -418,17 +418,17 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (poffset < DHCPFO_FL_HDR_LEN) {
 		bogus_poffset = TRUE;
 		if (tree) {
-			proto_tree_add_uint_format(dhcpfo_tree,
+			proto_tree_add_uint_format_value(dhcpfo_tree,
 			    hf_dhcpfo_poffset, tvb, offset, 1, poffset,
-			    "Payload Offset: %u (bogus, must be >= %u)",
+			    "%u (bogus, must be >= %u)",
 			    poffset, DHCPFO_FL_HDR_LEN);
 		}
 	} else if (poffset > length) {
 		bogus_poffset = TRUE;
 		if (tree) {
-			proto_tree_add_uint_format(dhcpfo_tree,
+			proto_tree_add_uint_format_value(dhcpfo_tree,
 			    hf_dhcpfo_poffset, tvb, offset, 1, poffset,
-			    "Payload Offset: %u (bogus, must be <= length of message)",
+			    "%u (bogus, must be <= length of message)",
 			    poffset);
 		}
 	} else {
@@ -448,8 +448,8 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		time.secs = tvb_get_ntohl(tvb, offset);
 		time.nsecs = 0;
-		proto_tree_add_time_format(dhcpfo_tree, hf_dhcpfo_time, tvb,
-		    offset, 4, &time, "Time: %s",
+		proto_tree_add_time_format_value(dhcpfo_tree, hf_dhcpfo_time, tvb,
+		    offset, 4, &time, "%s",
 		    abs_time_secs_to_str(time.secs));
 	}
 	offset += 4;
@@ -678,11 +678,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(oi, ", %s",
 			    lease_expiration_time_str);
 
-			proto_tree_add_uint_format(option_tree,
+			proto_tree_add_uint_format_value(option_tree,
 			    hf_dhcpfo_lease_expiration_time, tvb,
 			    offset, option_length,
 			    lease_expiration_time,
-			    "Lease expiration time: %s",
+			    "%s",
 			    lease_expiration_time_str);
 			break;
 
@@ -702,11 +702,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(oi, ", %s",
 			    potential_expiration_time_str);
 
-			proto_tree_add_uint_format(option_tree,
+			proto_tree_add_uint_format_value(option_tree,
 			    hf_dhcpfo_potential_expiration_time, tvb,
 			    offset, option_length,
 			    potential_expiration_time,
-			    "Potential expiration time: %s",
+			    "%s",
 			    potential_expiration_time_str);
 			break;
 
@@ -726,11 +726,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(oi, ", %s",
 			    grace_expiration_time_str);
 
-			proto_tree_add_uint_format(option_tree,
+			proto_tree_add_uint_format_value(option_tree,
 			    hf_dhcpfo_grace_expiration_time, tvb,
 			    offset, option_length,
 			    grace_expiration_time,
-			    "Grace expiration time: %s",
+			    "%s",
 			    grace_expiration_time_str);
 			break;
 
@@ -749,11 +749,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(oi, ", %s",
 			    client_last_transaction_time_str);
 
-			proto_tree_add_uint_format(option_tree,
+			proto_tree_add_uint_format_value(option_tree,
 			    hf_dhcpfo_client_last_transaction_time, tvb,
 			    offset, option_length,
 			    client_last_transaction_time,
-			    "Last transaction time: %s",
+			    "%s",
 			    abs_time_secs_to_str(client_last_transaction_time));
 			break;
 
@@ -772,11 +772,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(oi, ", %s",
 			    start_time_of_state_str);
 
-			proto_tree_add_uint_format(option_tree,
+			proto_tree_add_uint_format_value(option_tree,
 			    hf_dhcpfo_start_time_of_state, tvb,
 			    offset, option_length,
 			    start_time_of_state,
-			    "Start time of state: %s",
+			    "%s",
 			    abs_time_secs_to_str(start_time_of_state));
 			break;
 
@@ -860,10 +860,10 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(oi,", %u seconds",
 			    receive_timer);
 
-			proto_tree_add_uint_format(option_tree,
+			proto_tree_add_uint_format_value(option_tree,
 			    hf_dhcpfo_receive_timer, tvb, offset,
 			    option_length, receive_timer,
-			    "Receive timer: %u seconds",
+			    "%u seconds",
 			    receive_timer);
 			break;
 

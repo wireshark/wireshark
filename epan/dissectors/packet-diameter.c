@@ -1380,9 +1380,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 3;
 
 	/* Flags */
-	tf = proto_tree_add_uint_format(diameter_tree, hf_diameter_flags, tvb,
-									offset , 1, flags, "Flags: 0x%02x (%s)", flags,
-									flagstr);
+	tf = proto_tree_add_uint_format_value(diameter_tree, hf_diameter_flags, tvb,
+					      offset, 1, flags, "0x%02x (%s)", flags,
+					      flagstr);
 	flags_tree = proto_item_add_subtree(tf, ett_diameter_avp_flags);
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_request, tvb, offset, 1, flags);
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_proxyable, tvb, offset, 1, flags);
@@ -1396,8 +1396,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1;
 
 	/* Command Code */
-	proto_tree_add_uint_format(diameter_tree, hf_diameter_code,
-							   tvb, offset, 3, commandCode, "Command Code: %s-%s", commandString, commandStringType);
+	proto_tree_add_uint_format_value(diameter_tree, hf_diameter_code,
+					 tvb, offset, 3, commandCode, "%s-%s", commandString, commandStringType);
 	offset += 3;
 
         switch(gbl_version) {
@@ -1714,13 +1714,13 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	if (avpi_tree !=NULL) {
 	  /* Command Code */
-	  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_code,
-								 tvb, offset, 4, avph.avp_code, "AVP Code: %s (%u)", avpNameString,avph.avp_code);
+	  proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_code,
+					   tvb, offset, 4, avph.avp_code, "%s (%u)", avpNameString,avph.avp_code);
 	  offset += 4;
 
-	  tf = proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_flags, tvb,
-									  offset , 1, flags, "Flags: 0x%02x (%s)", flags,
-									  flagstr);
+	  tf = proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_flags, tvb,
+						offset, 1, flags, "0x%02x (%s)", flags,
+						flagstr);
 	  flags_tree = proto_item_add_subtree(tf, ett_diameter_avp_flags);
 	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_vendor_specific, tvb, offset, 1, flags);
 	  proto_tree_add_boolean(flags_tree, hf_diameter_avp_flags_mandatory, tvb, offset, 1, flags);
@@ -1737,8 +1737,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	  offset += 3;
 
 	  if (flags & AVP_FLAGS_V) {
-		proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_vendor_id,
-								   tvb, offset, 4, vendorId, "Vendor-Id: %s", vendorName);
+		proto_tree_add_uint_format_value(avpi_tree, hf_diameter_avp_vendor_id,
+						 tvb, offset, 4, vendorId, "%s", vendorName);
 		offset += 4;
 	  }
 

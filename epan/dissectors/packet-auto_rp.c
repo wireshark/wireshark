@@ -150,8 +150,8 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset++;
 
                 holdtime = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_holdtime, tvb, offset, 2, holdtime,
-                                           "Holdtime: %u second%s", holdtime, plurality(holdtime, "", "s"));
+                proto_tree_add_uint_format_value(auto_rp_tree, hf_auto_rp_holdtime, tvb, offset, 2, holdtime,
+                                           "%u second%s", holdtime, plurality(holdtime, "", "s"));
                 offset+=2;
 
                 proto_tree_add_text(auto_rp_tree, tvb, offset, 4, "Reserved: 0x%x", tvb_get_ntohs(tvb, offset));

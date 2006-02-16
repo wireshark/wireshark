@@ -1028,7 +1028,7 @@ dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     if (tree) {
         if(data==0xffffffff){
             /* special case,   no time specified */
-            proto_tree_add_time_format(tree, hfindex, tvb, offset, 4, &tv, "%s: No time specified", proto_registrar_get_nth(hfindex)->name);
+            proto_tree_add_time_format_value(tree, hfindex, tvb, offset, 4, &tv, "No time specified");
         } else {
             proto_tree_add_time (tree, hfindex, tvb, offset, 4, &tv);
         }

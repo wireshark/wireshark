@@ -5701,11 +5701,11 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, FALSE);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
-    proto_tree_add_uint_format(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1, 
-			       pdutype,
-			       "PDU Type: %s (%#02x)",
-			       val_to_str(pdutype, tab_bssgp_pdu_types, 
-					  "Unknown"), pdutype);
+    proto_tree_add_uint_format_value(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1, 
+				     pdutype,
+				     "%s (%#02x)",
+				     val_to_str(pdutype, tab_bssgp_pdu_types, 
+						"Unknown"), pdutype);
     bi.bssgp_tree = bssgp_tree;
   }
   

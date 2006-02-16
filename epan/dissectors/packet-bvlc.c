@@ -152,23 +152,23 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
 			bvlc_length, FALSE);
 		bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
-		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_type, tvb, offset, 1,
-			bvlc_type,"Type: 0x%x (Version %s)",bvlc_type,
+		proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_type, tvb, offset, 1,
+			bvlc_type,"0x%x (Version %s)",bvlc_type,
 			(bvlc_type == 0x81)?"BACnet/IP (Annex J)":"unknown");
 		offset ++;
-		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_function, tvb,
-			offset, 1, bvlc_function,"Function: 0x%02x (%s)",
+		proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_function, tvb,
+			offset, 1, bvlc_function,"0x%02x (%s)",
 			bvlc_function, val_to_str (bvlc_function,
 				bvlc_function_names, "Unknown"));
 		offset ++;
 		if (length_remaining != packet_length)
-			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset,
+			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_length, tvb, offset,
 				2, bvlc_length, 
-				"BVLC-Length: %d of %d bytes (invalid length - expected %d bytes)",
+				"%d of %d bytes (invalid length - expected %d bytes)",
 				bvlc_length, packet_length, length_remaining);
 		else		
-			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset,
-				2, bvlc_length, "BVLC-Length: %d of %d bytes BACnet packet length",
+			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_length, tvb, offset,
+				2, bvlc_length, "%d of %d bytes BACnet packet length",
 				bvlc_length, packet_length);
 		offset += 2;
 		switch (bvlc_function) {
@@ -179,8 +179,8 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			/* We should bitmask the result correctly when we have a
 		 	* packet to dissect, see README.developer, 1.6.2, FID */
-			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_result, tvb,
-				offset, 2, bvlc_result,"Result: 0x%04x (%s)",
+			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_result, tvb,
+				offset, 2, bvlc_result,"0x%04x (%s)",
 				bvlc_result, val_to_str(bvlc_result << 4,
 					bvlc_result_names, "Unknown"));
 			offset += 2;
@@ -306,10 +306,10 @@ proto_register_bvlc(void)
 		{ &hf_bvlc_function,
 			{ "Function",           "bvlc.function",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"BLVC Function", HFILL }
+			"BVLC Function", HFILL }
 		},
 		{ &hf_bvlc_length,
-			{ "Length",           "bvlc.length",
+			{ "BVLC-Length",        "bvlc.length",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			"Length of BVLC", HFILL }
 		},

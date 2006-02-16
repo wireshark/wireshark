@@ -697,9 +697,9 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
     /* add flags subtree */
 	u32Flags = tvb_get_guint8(tvb, offset);
-	item = proto_tree_add_uint_format(tree, hf_cba_acco_serversrt_cr_flags, 
+	item = proto_tree_add_uint_format_value(tree, hf_cba_acco_serversrt_cr_flags, 
 		tvb, offset, 4, u32Flags,
-		"Flags: 0x%02x (%s, %s)", u32Flags,
+		"0x%02x (%s, %s)", u32Flags,
 		(u32Flags & 0x2) ? "Reconfigure" : "not Reconfigure",
 		(u32Flags & 0x1) ? "Timestamped" : "not Timestamped");
 	flags_tree = proto_item_add_subtree(item, ett_cba_acco_serversrt_cr_flags);

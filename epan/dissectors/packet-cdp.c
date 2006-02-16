@@ -161,10 +161,10 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* CDP header */
 	proto_tree_add_item(cdp_tree, hf_cdp_version, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_uint_format(cdp_tree, hf_cdp_ttl, tvb, offset, 1,
-				   tvb_get_guint8(tvb, offset),
-				   "TTL: %u seconds",
-				   tvb_get_guint8(tvb, offset));
+	proto_tree_add_uint_format_value(cdp_tree, hf_cdp_ttl, tvb, offset, 1,
+					 tvb_get_guint8(tvb, offset),
+					 "%u seconds",
+					 tvb_get_guint8(tvb, offset));
 	offset += 1;
 	proto_tree_add_item(cdp_tree, hf_cdp_checksum, tvb, offset, 2, FALSE);
 	offset += 2;

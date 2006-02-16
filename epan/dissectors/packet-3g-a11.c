@@ -1170,10 +1170,10 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8, reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
 	  offset += 8;
 		
 	} /* if tree */
@@ -1210,10 +1210,11 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8,
+					    reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
 	  offset += 8;
 	} /* if tree */
 	
@@ -1244,10 +1245,11 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8,
+					    reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */
@@ -1283,10 +1285,11 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8,
+					    reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */
@@ -1317,10 +1320,11 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8,
+					    reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */
@@ -1356,10 +1360,11 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8,
+					    reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */

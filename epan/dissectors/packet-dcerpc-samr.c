@@ -1189,8 +1189,7 @@ samr_dissect_connect_anon_rqst(tvbuff_t *tvb, int offset,
 			hf_samr_server, &server);
 	str[0]=server&0xff;
 	str[1]=0;
-	proto_tree_add_string_format(tree, hf_samr_server, tvb, offset-2, 2,
-		str, "Server: %s", str);
+	proto_tree_add_string(tree, hf_samr_server, tvb, offset-2, 2, str);
 
 	return offset;
 }

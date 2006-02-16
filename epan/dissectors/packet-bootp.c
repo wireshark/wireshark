@@ -2168,8 +2168,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 			"Bogus length: %s", asc_val);
 		return;
 	} else {
-		proto_tree_add_uint_format(v_tree, hf_bootp_pkt_mtacap_len, tvb, off, 2,
-				tlv_len, "MTA DC Length: %d", tlv_len);
+		proto_tree_add_uint_format_value(v_tree, hf_bootp_pkt_mtacap_len, tvb, off, 2,
+				tlv_len, "%d", tlv_len);
 		off += 2;
 
 		while (off - voff < len) {
@@ -2361,8 +2361,8 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 				    "Bogus length: %s", asc_val);
 		return;
 	} else {
-		proto_tree_add_uint_format(v_tree, hf_bootp_docsis_cmcap_len, tvb, off, 2,
-				tlv_len, "CM DC Length: %d", tlv_len);
+		proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off, 2,
+				tlv_len, "%d", tlv_len);
 		off += 2;
 
 		while (off - voff < len) {
@@ -2926,11 +2926,11 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
 					   0, 1,
 					   op);
-		proto_tree_add_uint_format(bp_tree, hf_bootp_hw_type, tvb,
-					   1, 1,
-					   htype,
-					   "Hardware type: %s",
-					   arphrdtype_to_str(htype,
+		proto_tree_add_uint_format_value(bp_tree, hf_bootp_hw_type, tvb,
+						 1, 1,
+						 htype,
+						 "%s",
+						 arphrdtype_to_str(htype,
 							     "Unknown (0x%02x)"));
 		proto_tree_add_uint(bp_tree, hf_bootp_hw_len, tvb,
 				    2, 1, hlen);
@@ -2967,10 +2967,10 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else
 				/* The chaddr element is 16 bytes in length,
 				   although only the first hlen bytes are used */
-				proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb,
+				proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb,
 						   28, 16,
 						   haddr,
-						   "Client hardware address: %s",
+						   "%s",
 						   arphrdaddr_to_str(haddr,
 								     hlen,
 								     htype));
@@ -3016,9 +3016,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tvb_get_ntohl(tvb, voff) == 0x63825363) {
 			if (tree) {
 				ip_addr = tvb_get_ipv4(tvb, voff);
-				proto_tree_add_ipv4_format(bp_tree, hf_bootp_cookie, tvb,
+				proto_tree_add_ipv4_format_value(bp_tree, hf_bootp_cookie, tvb,
 				    voff, 4, ip_addr,
-				    "Magic cookie: (OK)");
+				    "(OK)");
 			}
 			voff += 4;
 		}
@@ -3245,12 +3245,12 @@ proto_register_bootp(void)
       	"Name to register via DDNS", HFILL }},
 
     { &hf_bootp_pkt_mtacap_len,
-      { "PacketCable MTA Device Capabilities Length",	"bootp.vendor.pktc.mtacap_len",
+      { "MTA DC Length",	"bootp.vendor.pktc.mtacap_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "PacketCable MTA Device Capabilities Length", HFILL }},
 
     { &hf_bootp_docsis_cmcap_len,
-      { "DOCSIS CM Device Capabilities Length",	"bootp.vendor.docsis.cmcap_len",
+      { "CM DC Length",		"bootp.vendor.docsis.cmcap_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
 

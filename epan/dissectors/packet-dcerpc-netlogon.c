@@ -4781,8 +4781,8 @@ netlogon_dissect_DC_FLAGS(tvbuff_t *tvb, int offset,
 			hf_netlogon_dc_flags, &mask);
 
 	if(parent_tree){
-		item = proto_tree_add_uint_format(parent_tree, hf_netlogon_dc_flags,
-				tvb, offset-4, 4, mask, "Domain Controller Flags: 0x%08x%s", mask, (mask==0x0000ffff)?"  PING (mask==0x0000ffff)":"");
+		item = proto_tree_add_uint_format_value(parent_tree, hf_netlogon_dc_flags,
+				tvb, offset-4, 4, mask, "0x%08x%s", mask, (mask==0x0000ffff)?"  PING (mask==0x0000ffff)":"");
 		tree = proto_item_add_subtree(item, ett_dc_flags);
 	}
 
@@ -7155,7 +7155,7 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Negotiation Flags", HFILL }},
 
 	{ &hf_netlogon_dc_flags,
-		{ "Flags", "netlogon.dc.flags", FT_UINT32, BASE_HEX,
+		{ "Domain Controller Flags", "netlogon.dc.flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Domain Controller Flags", HFILL }},
 
 	{ &hf_netlogon_dc_flags_pdc_flag,

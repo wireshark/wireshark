@@ -242,7 +242,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_format(cpha_tree, hf_magic_number, tvb, offset, sizeof(hdr.magic_number), hdr.magic_number, "Magic Number: 0x%x (%s)", hdr.magic_number, ha_magic_num2str(hdr.magic_number));
     offset += sizeof(hdr.magic_number);
 
-    proto_tree_add_uint_format(cpha_tree, hf_cpha_protocol_ver, tvb, offset, sizeof(hdr.ha_protocol_ver), hdr.ha_protocol_ver, "Protocol Version: %d (%s)", hdr.ha_protocol_ver,version2str(hdr.ha_protocol_ver));
+    proto_tree_add_uint_format_value(cpha_tree, hf_cpha_protocol_ver, tvb, offset, sizeof(hdr.ha_protocol_ver), hdr.ha_protocol_ver, "%d (%s)", hdr.ha_protocol_ver,version2str(hdr.ha_protocol_ver));
     offset += sizeof(hdr.ha_protocol_ver);
 
     proto_tree_add_uint(cpha_tree, hf_cluster_number, tvb, offset, sizeof(hdr.cluster_number), g_ntohs(hdr.cluster_number));
@@ -314,10 +314,10 @@ static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   proto_tree_add_text(tree, tvb, offset, sizeof(hdr.report_code), "Report Code: %s",report_code2str(hdr.report_code));
   offset += sizeof(hdr.report_code);
 
-  proto_tree_add_uint_format(tree, hf_ha_mode, tvb, offset, sizeof(hdr.ha_mode), hdr.ha_mode, "HA mode: %d (%s)", hdr.ha_mode, ha_mode2str(hdr.ha_mode));
+  proto_tree_add_uint_format_value(tree, hf_ha_mode, tvb, offset, sizeof(hdr.ha_mode), hdr.ha_mode, "%d (%s)", hdr.ha_mode, ha_mode2str(hdr.ha_mode));
   offset += sizeof(hdr.ha_mode);
 
-  proto_tree_add_uint_format(tree, hf_ha_time_unit, tvb, offset, sizeof(hdr.ha_time_unit), hdr.ha_time_unit, "HA Time unit: %d miliseconds", hdr.ha_time_unit);
+  proto_tree_add_uint_format_value(tree, hf_ha_time_unit, tvb, offset, sizeof(hdr.ha_time_unit), hdr.ha_time_unit, "%d miliseconds", hdr.ha_time_unit);
   offset += sizeof(hdr.ha_time_unit);
 
   rep_mode = is_report_ifs(hdr.report_code);
@@ -513,7 +513,7 @@ proto_register_cpha(void)
     { &hf_ha_mode,
     { "HA mode", "cphap.ha_mode", FT_UINT16, BASE_DEC, NULL, 0x0, "HA Mode", HFILL}},
     { &hf_ha_time_unit,
-    { "HA Time unit (ms)", "cphap.ha_time_unit", FT_UINT16, BASE_DEC, NULL, 0x0, "HA Time unit", HFILL}},
+    { "HA Time unit", "cphap.ha_time_unit", FT_UINT16, BASE_DEC, NULL, 0x0, "HA Time unit (ms)", HFILL}},
     { &hf_num_reported_ifs,
     { "Reported Interfaces", "cphap.reported_ifs", FT_UINT32, BASE_DEC, NULL, 0x0, "Reported Interfaces", HFILL}},
     { &hf_ethernet_add,

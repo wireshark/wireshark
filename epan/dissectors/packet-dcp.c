@@ -650,10 +650,10 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		dcp_tree = proto_item_add_subtree(dcp_item, ett_dcp);
 		
-		proto_tree_add_uint_format(dcp_tree, hf_dcp_srcport, tvb, offset, 2, dcph->sport,
-					   "Source port: %s (%u)", get_dccp_port(dcph->sport), dcph->sport);
-		proto_tree_add_uint_format(dcp_tree, hf_dcp_dstport, tvb, offset + 2, 2, dcph->dport,
-					   "Destination port: %s (%u)", get_dccp_port(dcph->dport), dcph->dport);
+		proto_tree_add_uint_format_value(dcp_tree, hf_dcp_srcport, tvb, offset, 2, dcph->sport,
+					   "%s (%u)", get_dccp_port(dcph->sport), dcph->sport);
+		proto_tree_add_uint_format_value(dcp_tree, hf_dcp_dstport, tvb, offset + 2, 2, dcph->dport,
+					   "%s (%u)", get_dccp_port(dcph->dport), dcph->dport);
 
 		proto_tree_add_uint_hidden(dcp_tree, hf_dcp_port, tvb, offset, 2, dcph->sport);
 		proto_tree_add_uint_hidden(dcp_tree, hf_dcp_port, tvb, offset + 2, 2, dcph->dport);
@@ -668,8 +668,8 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		len = tvb_length(tvb);
 		if (dcph->checksum == 0) {
 			/* No checksum supplied in the packet */
-			proto_tree_add_uint_format(dcp_tree, hf_dcp_checksum, tvb,
-						   offset + 6, 2, dcph->checksum, "Checksum: 0x%04x (none)", dcph->checksum);
+			proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb,
+							 offset + 6, 2, dcph->checksum, "0x%04x (none)", dcph->checksum);
 		} else if (!pinfo->fragmented && len >= reported_len) {
 
 			/* The packet isn't part of a fragmented datagram and isn't
@@ -706,22 +706,22 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				cksum_vec[3].len = reported_len;
 				computed_cksum = in_cksum(&cksum_vec[0], 4);
 				if (computed_cksum == 0) {
-					proto_tree_add_uint_format(dcp_tree, hf_dcp_checksum, tvb,
-								   offset + 6, 2, dcph->checksum, 
-								   "Checksum: 0x%04x [correct]", dcph->checksum);
+					proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb,
+									 offset + 6, 2, dcph->checksum, 
+									 "0x%04x [correct]", dcph->checksum);
 				} else {
 					proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_checksum_bad, tvb, offset + 6, 2, TRUE);
-					proto_tree_add_uint_format(dcp_tree, hf_dcp_checksum, tvb, offset + 6, 2, dcph->checksum,
-								   "Checksum: 0x%04x [incorrect, should be 0x%04x]", dcph->checksum,
-								   in_cksum_shouldbe(dcph->checksum, computed_cksum));
+					proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb, offset + 6, 2, dcph->checksum,
+									 "0x%04x [incorrect, should be 0x%04x]", dcph->checksum,
+									 in_cksum_shouldbe(dcph->checksum, computed_cksum));
 				}
 			} else {
-				proto_tree_add_uint_format(dcp_tree, hf_dcp_checksum, tvb, 
-							   offset + 6, 2, dcph->checksum, "Checksum: 0x%04x", dcph->checksum);
+				proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb, 
+								 offset + 6, 2, dcph->checksum, "0x%04x", dcph->checksum);
 			}
 		} else {
-			proto_tree_add_uint_format(dcp_tree, hf_dcp_checksum, tvb, 
-						   offset + 6, 2, dcph->checksum, "Checksum: 0x%04x", dcph->checksum);
+			proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb, 
+							 offset + 6, 2, dcph->checksum, "0x%04x", dcph->checksum);
 		}
 				
 		proto_tree_add_uint_hidden(dcp_tree, hf_dcp_res1, tvb, offset + 8, 1, dcph->reserved1);

@@ -234,13 +234,15 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     if (ar_pln != 0) {
       if (AARP_PRO_IS_ATALK(ar_pro, ar_pln)) {
-        proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_proto_id, tvb, spa_offset, ar_pln,
-			       spa_val,
-			       "Sender ID: %s", spa_str);
+        proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_src_proto_id, tvb,
+					  spa_offset, ar_pln,
+					  spa_val,
+					  "%s", spa_str);
       } else {
-        proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_proto, tvb, spa_offset, ar_pln,
-			       spa_val,
-			       "Sender protocol address: %s", spa_str);
+        proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_src_proto, tvb,
+					  spa_offset, ar_pln,
+					  spa_val,
+					  "%s", spa_str);
       }
     }
 
@@ -252,13 +254,15 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     if (ar_pln != 0) {
       if (AARP_PRO_IS_ATALK(ar_pro, ar_pln)) {
-        proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_proto_id, tvb, tpa_offset, ar_pln,
-			       tpa_val,
-			       "Target ID: %s", tpa_str);
+        proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_dst_proto_id, tvb,
+					  tpa_offset, ar_pln,
+					  tpa_val,
+					  "%s", tpa_str);
       } else {
-        proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_proto, tvb, tpa_offset, ar_pln,
-			       tpa_val,
-			       "Target protocol address: %s", tpa_str);
+        proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_dst_proto, tvb,
+					  tpa_offset, ar_pln,
+					  tpa_val,
+					  "%s", tpa_str);
       }
     }
   }

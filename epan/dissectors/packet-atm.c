@@ -1573,9 +1573,9 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
     }
 
-    proto_tree_add_uint_format(atm_tree, hf_atm_aal, tvb, 0, 0,
+    proto_tree_add_uint_format_value(atm_tree, hf_atm_aal, tvb, 0, 0,
 	pinfo->pseudo_header->atm.aal,
-	"AAL: %s",
+	"%s",
 	val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
 	  "Unknown AAL (%u)"));
   }

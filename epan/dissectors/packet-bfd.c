@@ -158,12 +158,11 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                                               bfd_control_flag_values,
                                                               "%s"));
 
-        ti = proto_tree_add_uint_format(bfd_tree, hf_bfd_detect_time_multiplier, tvb, 2,
-                                        1, bfd_detect_time_multiplier,
-                                        "%s: %u (= %u ms Detection time)",
-                                        proto_registrar_get_nth(hf_bfd_detect_time_multiplier) -> name,
-                                        bfd_detect_time_multiplier,
-                                        bfd_detect_time_multiplier * bfd_desired_min_tx_interval/1000);
+        ti = proto_tree_add_uint_format_value(bfd_tree, hf_bfd_detect_time_multiplier, tvb, 2,
+                                              1, bfd_detect_time_multiplier,
+                                              "%u (= %u ms Detection time)",
+                                              bfd_detect_time_multiplier,
+                                              bfd_detect_time_multiplier * bfd_desired_min_tx_interval/1000);
 
         ti = proto_tree_add_text ( bfd_tree, tvb, 3, 1, "Message Length: %u Bytes", bfd_length );
         
@@ -173,23 +172,20 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         ti = proto_tree_add_uint(bfd_tree, hf_bfd_your_discriminator, tvb, 8,
                                  4, bfd_your_discriminator);
 
-        ti = proto_tree_add_uint_format(bfd_tree, hf_bfd_desired_min_tx_interval, tvb, 12,
-                                        4, bfd_desired_min_tx_interval,
-                                        "%s: %4u ms",
-                                        proto_registrar_get_nth(hf_bfd_desired_min_tx_interval) -> name,
-                                        bfd_desired_min_tx_interval/1000);
+        ti = proto_tree_add_uint_format_value(bfd_tree, hf_bfd_desired_min_tx_interval, tvb, 12,
+                                              4, bfd_desired_min_tx_interval,
+                                              "%4u ms",
+                                              bfd_desired_min_tx_interval/1000);
 
-        ti = proto_tree_add_uint_format(bfd_tree, hf_bfd_required_min_rx_interval, tvb, 16,
-                                        4, bfd_required_min_rx_interval,
-                                        "%s: %4u ms",
-                                        proto_registrar_get_nth(hf_bfd_required_min_rx_interval) -> name,
-                                        bfd_required_min_rx_interval/1000);
+        ti = proto_tree_add_uint_format_value(bfd_tree, hf_bfd_required_min_rx_interval, tvb, 16,
+                                              4, bfd_required_min_rx_interval,
+                                              "%4u ms",
+                                              bfd_required_min_rx_interval/1000);
 
-        ti = proto_tree_add_uint_format(bfd_tree, hf_bfd_required_min_echo_interval, tvb, 20,
-                                        4, bfd_required_min_echo_interval,
-                                        "%s: %4u ms",
-                                        proto_registrar_get_nth(hf_bfd_required_min_echo_interval) -> name,
-                                        bfd_required_min_echo_interval/1000);
+        ti = proto_tree_add_uint_format_value(bfd_tree, hf_bfd_required_min_echo_interval, tvb, 20,
+                                              4, bfd_required_min_echo_interval,
+                                              "%4u ms",
+                                              bfd_required_min_echo_interval/1000);
 
     }
     return;
