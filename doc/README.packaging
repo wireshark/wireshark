@@ -1,0 +1,32 @@
+Here's a brief list of information that might be useful to anyone
+distributing a software package containing Ethereal:
+
+1.  The canonical location for every Ethereal source release is
+
+    http://www.ethereal.com/distribution/all-versions/, e.g.
+
+    http://www.ethereal.com/distribution/all-versions/ethereal-0.55.71.tar.bz2
+
+    If your packaging system downloads a copy of the Ethereal sources,
+    use this location.
+
+2.  The Ethereal web site URL is http://www.ethereal.com/ .
+
+3.  Ethereal is released under the GNU General Public License.  Make sure
+    your package complies with this license, or we send in the marmots.
+
+4.  Ethereal and the "e" logo are registered trademarks of Ethereal, Inc.
+
+5.  Custom version information can be added by creating a file called
+    "version.conf".  See make-version.pl for details.  We recommend that
+    you use this to differentiate your package from official Ethereal
+    releases.
+
+6.  Ethereal icons can be found in the "image" directory of the Ethereal 
+    sources.  Larger versions of the logo can be found at
+    http://www.ethereal.com/~gerald/ethereal_logo/povray/ .
+
+If you have a question not addressed here, send it to
+ethereal-dev@ethereal.com.
+
+$Id$
