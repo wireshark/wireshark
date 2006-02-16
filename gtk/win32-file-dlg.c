@@ -35,7 +35,6 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <commdlg.h>
-#include <commctrl.h>
 #include <richedit.h>
 
 #include <stdlib.h>
@@ -113,7 +112,6 @@ static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
 
-static gboolean       initialized = FALSE;
 static int            filetype;
 static packet_range_t range;
 static merge_action_e merge_action;
@@ -131,36 +129,12 @@ static print_args_t   print_args;
  */
 static HWND           g_sf_hwnd = NULL;
 
-static void
-win32_file_init() {
-    INITCOMMONCONTROLSEX   comm_ctrl;
-
-    if (initialized)
-        return;
-    initialized = TRUE;
-
-    /* Initialize our controls. */
-    memset (&comm_ctrl, 0, sizeof(comm_ctrl));
-    comm_ctrl.dwSize = sizeof(comm_ctrl);
-    /* Includes the animate, header, hot key, list view, progress bar,
-     * status bar, tab, tooltip, toolbar, trackbar, tree view, and
-     * up-down controls
-     */
-    comm_ctrl.dwICC = ICC_WIN95_CLASSES;
-    InitCommonControlsEx(&comm_ctrl);
-
-    /* RichEd20.DLL is needed for filter entries. */
-    LoadLibrary("riched20.dll");
-}
-
 gboolean
 win32_open_file (HWND h_wnd) {
     static OPENFILENAME ofn;
     gchar  file_name[MAX_PATH] = "";
     int    err;
     char *dirname;
-
-    win32_file_init();
 
     /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
        where appropriate */
@@ -198,15 +172,13 @@ win32_open_file (HWND h_wnd) {
 
     if (GetOpenFileName(&ofn)) {
 	if (cf_open(&cfile, file_name, FALSE, &err) != CF_OK) {
-	    epan_cleanup();
-	    exit(2);
+	    return FALSE;
 	}
 	switch (cf_read(&cfile)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
                 dirname = get_dirname(file_name);
                 set_last_open_dir(dirname);
-//                menu_name_resolution_changed(h_wnd);
                 return TRUE;
                 break;
 	}
@@ -387,7 +359,9 @@ win32_merge_file (HWND h_wnd) {
 	       try again. */
 //	    if (rfcode != NULL)
 //		dfilter_free(rfcode);
-	    return;
+            sprintf(file_name, "failed open: %s (%d)",  tmpname, err);
+            MessageBox(NULL, file_name, "Eth", MB_OK);
+            return;
 	}
 
 	/* Attach the new read filter to "cf" ("cf_open()" succeeded, so
@@ -405,10 +379,6 @@ win32_merge_file (HWND h_wnd) {
             case CF_READ_ABORTED:
                 break;
         }
-
-    } else if (CommDlgExtendedError() != 0) {
-        sprintf(file_name, "failed: %d/%d (%p)",  CommDlgExtendedError(), GetLastError(), h_wnd);
-        MessageBox(NULL, file_name, "Eth", MB_OK);
     }
 }
 

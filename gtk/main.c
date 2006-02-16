@@ -100,7 +100,10 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include "capture_wpcap_packet.h"
-#endif
+#if GTK_MAJOR_VERSION >= 2
+#include <commctrl.h>
+#endif /* GTK_MAJOR_VERSION >= 2 */
+#endif /* _WIN32 */
 
 #if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
 #include "ethclist.h"
@@ -306,7 +309,7 @@ static void selected_ptree_info_answered_cb(gpointer dialog _U_, gint btn, gpoin
 }
 
 
-void 
+void
 selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     int field_id;
@@ -350,7 +353,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 }
 
 
-void 
+void
 selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     int field_id;
@@ -443,7 +446,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
      a new filter is added. */
     li = g_list_first(dfilter_list);
     while (li) {
-        /* If the filter is already in the list, remove the old one and 
+        /* If the filter is already in the list, remove the old one and
 		 * append the new one at the latest position (at g_list_append() below) */
 		if (li->data && strcmp(s, li->data) == 0) {
           dfilter_list = g_list_remove(dfilter_list, li->data);
@@ -461,7 +464,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 }
 
 
-/* write all non empty display filters (until maximum count) 
+/* write all non empty display filters (until maximum count)
  * of the combo box GList to the user's recent file */
 void
 dfilter_recent_combo_write_all(FILE *rf) {
@@ -520,7 +523,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 
   /* we'll crash later on if dftext is NULL */
   g_assert(dftext != NULL);
-  
+
   s = g_strdup(dftext);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
@@ -592,7 +595,7 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
   cf_reftime_packets(&cfile);
 }
 
-void 
+void
 reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
 {
 
@@ -766,7 +769,7 @@ void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
 }
 
 void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
-#if GTK_MAJOR_VERSION < 2    
+#if GTK_MAJOR_VERSION < 2
   GtkCTreeNode *node;
 #else
   GtkTreePath  *path;
@@ -855,10 +858,10 @@ void packets_bar_update(void)
         /* do we have any packets? */
         if(cfile.count) {
             if(cfile.drops_known) {
-                packets_str = g_strdup_printf(" P: %u D: %u M: %u Drops: %u", 
+                packets_str = g_strdup_printf(" P: %u D: %u M: %u Drops: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
             } else {
-                packets_str = g_strdup_printf(" P: %u D: %u M: %u", 
+                packets_str = g_strdup_printf(" P: %u D: %u M: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count);
             }
         } else {
@@ -1024,7 +1027,7 @@ main_save_window_geometry(GtkWidget *widget)
     }
 
     if (prefs.gui_geometry_save_size) {
-        recent.gui_geometry_main_width  = geom.width, 
+        recent.gui_geometry_main_width  = geom.width,
         recent.gui_geometry_main_height = geom.height;
     }
 
@@ -1223,7 +1226,7 @@ cmdarg_err_cont(const char *fmt, ...)
 }
 
 #if defined(_WIN32) || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
-/* 
+/*
    Once every 3 seconds we get a callback here which we use to update
    the tap extensions. Since Gtk1 is single threaded we dont have to
    worry about any locking or critical regions.
@@ -1237,10 +1240,10 @@ update_cb(gpointer data _U_)
 #else
 
 /* if these three functions are copied to gtk1 ethereal, since gtk1 does not
-   use threads all updte_thread_mutex can be dropped and protect/unprotect 
+   use threads all updte_thread_mutex can be dropped and protect/unprotect
    would just be empty functions.
 
-   This allows gtk2-rpcstat.c and friends to be copied unmodified to 
+   This allows gtk2-rpcstat.c and friends to be copied unmodified to
    gtk1-ethereal and it will just work.
  */
 static GStaticMutex update_thread_mutex = G_STATIC_MUTEX_INIT;
@@ -1292,7 +1295,7 @@ set_display_filename(capture_file *cf)
   gchar       *win_name;
 
   name_ptr = cf_get_display_name(cf);
-	
+
   if (!cf->is_tempfile && cf->filename) {
     /* Add this filename to the list of recent files in the "Recent Files" submenu */
     add_menu_recent_capture_file(cf->filename);
@@ -1308,7 +1311,7 @@ set_display_filename(capture_file *cf)
   }
 
   /* statusbar */
-  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu", 
+  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
     (cf->filename) ? cf->filename : "", size_str,
     (long)cf->elapsed_time.secs/3600,
     (long)cf->elapsed_time.secs%3600/60,
@@ -1331,10 +1334,10 @@ main_cf_cb_file_closing(capture_file *cf)
 
 	/* if we have more than 10000 packets, show a splash screen while closing */
 	/* XXX - don't know a better way to decide wether to show or not,
-	 * as most of the time is spend in a single eth_clist_clear function, 
+	 * as most of the time is spend in a single eth_clist_clear function,
 	 * so we can't use a progress bar here! */
 	if(cf->count > 10000) {
-		close_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sClosing file!%s\n\nPlease wait ...", 
+		close_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sClosing file!%s\n\nPlease wait ...",
 			simple_dialog_primary_start(), simple_dialog_primary_end());
 #if GTK_MAJOR_VERSION >= 2
 		gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -1415,9 +1418,9 @@ main_cf_cb_file_read_finished(capture_file *cf)
 
 #if GTK_MAJOR_VERSION >= 2
 GList *icon_list_create(
-    const char **icon16_xpm, 
-    const char **icon32_xpm, 
-    const char **icon48_xpm, 
+    const char **icon16_xpm,
+    const char **icon32_xpm,
+    const char **icon48_xpm,
     const char **icon64_xpm)
 {
   GList *icon_list = NULL;
@@ -1518,8 +1521,8 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 
     statusbar_pop_file_msg();
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
-        get_interface_descriptive_name(capture_opts->iface), 
+    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
+        get_interface_descriptive_name(capture_opts->iface),
         (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
@@ -1539,18 +1542,18 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
     statusbar_pop_file_msg();
 
     if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB", 
-            get_interface_descriptive_name(capture_opts->iface), 
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB",
+            get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB", 
-            get_interface_descriptive_name(capture_opts->iface), 
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB",
+            get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen/1024);
     } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes", 
-            get_interface_descriptive_name(capture_opts->iface), 
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes",
+            get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
             cf->f_datalen);
     }
@@ -1615,8 +1618,8 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 
     statusbar_pop_file_msg();
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
-        get_interface_descriptive_name(capture_opts->iface), 
+    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
+        get_interface_descriptive_name(capture_opts->iface),
         (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
@@ -1632,11 +1635,11 @@ static void
 main_cf_cb_live_capture_fixed_continue(capture_file *cf)
 {
     gchar *capture_msg;
-    
+
 
 	gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
 
-    capture_msg = g_strdup_printf(" P: %u", 
+    capture_msg = g_strdup_printf(" P: %u",
         cf_get_packet_count(cf));
 
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, capture_msg);
@@ -1692,15 +1695,15 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 static void
 main_cf_cb_live_capture_stopping(capture_file *cf _U_)
 {
-    /* Beware: this state won't be called, if the capture child 
+    /* Beware: this state won't be called, if the capture child
      * closes the capturing on it's own! */
 #if 0
-	/* XXX - the time to stop the capture has been reduced (this was only a 
-	 * problem on Win32 because of the capture piping), so showing a splash 
-	 * isn't really necessary any longer. Unfortunately, the GTKClist packet 
-	 * list seems to have problems updating after the dialog is closed, so 
+	/* XXX - the time to stop the capture has been reduced (this was only a
+	 * problem on Win32 because of the capture piping), so showing a splash
+	 * isn't really necessary any longer. Unfortunately, the GTKClist packet
+	 * list seems to have problems updating after the dialog is closed, so
 	 * this was disabled here. */
-    stop_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sCapture stop!%s\n\nPlease wait ...", 
+    stop_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sCapture stop!%s\n\nPlease wait ...",
 		simple_dialog_primary_start(), simple_dialog_primary_end());
 #if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -1928,10 +1931,10 @@ main(int argc, char *argv[])
   /* initialize memory allocation subsystem */
   ep_init_chunk();
   se_init_chunk();
-  
+
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
-  
+
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
@@ -2012,7 +2015,7 @@ main(int argc, char *argv[])
        must be set to 1 before the second and each additional set of calls to
        getopt(), and the variable optind must be reinitialized.
 
-           ...             
+           ...
 
        The optreset variable was added to make it possible to call the getopt()
        function multiple times.  This is an extension to the IEEE Std 1003.2
@@ -2059,7 +2062,7 @@ main(int argc, char *argv[])
 
   /* We might want to have component specific log levels later ... */
 
-  log_flags = 
+  log_flags =
 		    G_LOG_LEVEL_ERROR|
 		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
@@ -2083,7 +2086,7 @@ main(int argc, char *argv[])
 		    log_flags,
 		    console_log_handler, NULL /* user_data */);
 
-  /* Set the initial values in the capture_opts. This might be overwritten 
+  /* Set the initial values in the capture_opts. This might be overwritten
      by preference settings and then again by the command line parameters. */
   capture_opts_init(capture_opts, &cfile);
 
@@ -2117,7 +2120,7 @@ main(int argc, char *argv[])
 #endif
 
   register_all_tap_listeners();
-  
+
   splash_update(splash_win, "Loading module preferences ...");
 
   /* Now register the preferences for any non-dissector modules.
@@ -2393,9 +2396,9 @@ main(int argc, char *argv[])
           exit(1);
         }
         break;
-      case 'X': 
+      case 'X':
           /* ext ops were already processed just ignore them this time*/
-          break;          
+          break;
       case 'z':
         /* We won't call the init function for the stat this soon
            as it would disallow MATE's fields (which are registered
@@ -2523,7 +2526,7 @@ main(int argc, char *argv[])
 
   if (start_capture || list_link_layer_types) {
     /* Did the user specify an interface to use? */
-    if (!capture_opts_trim_iface(capture_opts, 
+    if (!capture_opts_trim_iface(capture_opts,
         (prefs->capture_device) ? get_if_name(prefs->capture_device) : NULL)) {
         exit(2);
     }
@@ -2572,7 +2575,7 @@ main(int argc, char *argv[])
       for (j = 0; j < NUM_COL_FMTS; j++) {
          if (!cfile.cinfo.fmt_matx[i][j])
              continue;
-         
+
          if (cfile.cinfo.col_first[j] == -1)
              cfile.cinfo.col_first[j] = i;
          cfile.cinfo.col_last[j] = i;
@@ -2626,7 +2629,7 @@ main(int argc, char *argv[])
       /* turn off zooming - zoom level is unavailable */
   default:
       /* in any other case than FA_SUCCESS, turn off zooming */
-      recent.gui_zoom_level = 0;	
+      recent.gui_zoom_level = 0;
       /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
   }
 
@@ -2694,7 +2697,7 @@ main(int argc, char *argv[])
            argument. */
         s = get_dirname(cf_name);
         /* we might already set this from the recent file, don't overwrite this */
-        if(get_last_open_dir() == NULL) 
+        if(get_last_open_dir() == NULL)
           set_last_open_dir(s);
         g_free(cf_name);
         cf_name = NULL;
@@ -2712,7 +2715,7 @@ main(int argc, char *argv[])
       if (capture_opts->save_file != NULL) {
         /* Save the directory name for future file dialogs. */
         /* (get_dirname overwrites filename) */
-        s = get_dirname(g_strdup(capture_opts->save_file));  
+        s = get_dirname(g_strdup(capture_opts->save_file));
         set_last_open_dir(s);
         g_free(s);
       }
@@ -2792,6 +2795,23 @@ WinMain (struct HINSTANCE__ *hInstance,
 	 char               *lpszCmdLine,
 	 int                 nCmdShow)
 {
+#if GTK_MAJOR_VERSION >= 2
+  INITCOMMONCONTROLSEX comm_ctrl;
+
+  /* Initialize our controls. Required for native Windows file dialogs. */
+  memset (&comm_ctrl, 0, sizeof(comm_ctrl));
+  comm_ctrl.dwSize = sizeof(comm_ctrl);
+  /* Includes the animate, header, hot key, list view, progress bar,
+   * status bar, tab, tooltip, toolbar, trackbar, tree view, and
+   * up-down controls
+   */
+  comm_ctrl.dwICC = ICC_WIN95_CLASSES;
+  InitCommonControlsEx(&comm_ctrl);
+
+  /* RichEd20.DLL is needed for filter entries. */
+  LoadLibrary("riched20.dll");
+#endif /* GTK_MAJOR_VERSION >= 2 */
+
   has_console = FALSE;
   return main (__argc, __argv);
 }
@@ -2866,7 +2886,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
   /* create a "timestamp" */
   time(&curr);
-  today = localtime(&curr);    
+  today = localtime(&curr);
 
 #ifdef _WIN32
   if (prefs.gui_console_open != console_open_never || log_level & G_LOG_LEVEL_ERROR) {
@@ -2909,7 +2929,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
             level, message);
 #ifdef _WIN32
     if(log_level & G_LOG_LEVEL_ERROR) {
-        /* wait for a key press before the following error handler will terminate the program 
+        /* wait for a key press before the following error handler will terminate the program
            this way the user at least can read the error message */
         printf("\n\nPress any key to exit\n");
         _getch();
@@ -3194,27 +3214,27 @@ welcome_new(void)
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
 
 #ifdef HAVE_LIBPCAP
-    item_hb = welcome_item(ETHEREAL_STOCK_CAPTURE_START, 
+    item_hb = welcome_item(ETHEREAL_STOCK_CAPTURE_START,
         "Capture",
-        "Capture live data from your network", 
+        "Capture live data from your network",
         GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 #endif
 
-    item_hb = welcome_item(GTK_STOCK_OPEN, 
+    item_hb = welcome_item(GTK_STOCK_OPEN,
         "Open",
         "Open a previously captured file",
         GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 
 #if (GLIB_MAJOR_VERSION >= 2)
-    item_hb = welcome_item(GTK_STOCK_HOME, 
+    item_hb = welcome_item(GTK_STOCK_HOME,
         "Home",
         "Visit the Ethereal homepage",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 
-    item_hb = welcome_item(ETHEREAL_STOCK_WEB_SUPPORT, 
+    item_hb = welcome_item(ETHEREAL_STOCK_WEB_SUPPORT,
         "User's Guide",
         "Open the Ethereal User's Guide",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
@@ -3369,7 +3389,7 @@ window_state_event_cb (GtkWidget *widget _U_,
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
-    GtkWidget     
+    GtkWidget
                   *filter_bt, *filter_cm, *filter_te,
                   *filter_add_expr_bt,
                   *filter_apply,
@@ -3397,13 +3417,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     tooltips = gtk_tooltips_new();
 
-#ifdef _WIN32 
+#ifdef _WIN32
 #if GTK_MAJOR_VERSION < 2
     /* has to be done, after top_level window is created */
     app_font_gtk1_init(top_level);
 #endif
 #endif
-    
+
     gtk_widget_set_name(top_level, "main window");
     SIGNAL_CONNECT(top_level, "delete_event", main_window_delete_event_cb,
                    NULL);
@@ -3487,7 +3507,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(filter_bt);
     OBJECT_SET_DATA(top_level, E_FILT_BT_PTR_KEY, filter_bt);
 
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt, 
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt,
         "Open the \"Display Filter\" dialog, to edit/apply filters", "Private");
 
     /* Create the filter combobox */
@@ -3505,12 +3525,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
     WIDGET_SET_SIZE(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm, 
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm,
         NULL, NULL);
     /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
-    gtk_tooltips_set_tip(tooltips, filter_te, 
+    gtk_tooltips_set_tip(tooltips, filter_te,
         "Enter a display filter, or choose one of your recently used filters. "
-        "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).", 
+        "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).",
         NULL);
 
     /* Create the "Add Expression..." button, to pop up a dialog
@@ -3519,7 +3539,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(filter_tb, E_FILT_FILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_add_expr_bt, "clicked", filter_add_expr_bt_cb, filter_tb);
     gtk_widget_show(filter_add_expr_bt);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_add_expr_bt, 
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_add_expr_bt,
         "Add an expression to this filter string", "Private");
 
     /* Create the "Clear" button */
@@ -3527,7 +3547,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(filter_reset, E_DFILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
     gtk_widget_show(filter_reset);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset, 
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset,
         "Clear this filter string and update the display", "Private");
 
     /* Create the "Apply" button */
@@ -3535,7 +3555,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
     gtk_widget_show(filter_apply);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply, 
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply,
         "Apply this filter string to the display", "Private");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
@@ -3547,7 +3567,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     set_menu_object_data("/Analyze/Follow TCP Stream", E_DFILTER_TE_KEY,
                          filter_te);
     set_menu_object_data("/Analyze/Follow SSL Stream", E_DFILTER_TE_KEY,
-                         filter_te);                         
+                         filter_te);
     set_menu_object_data("/Analyze/Apply as Filter/Selected", E_DFILTER_TE_KEY,
                          filter_te);
     set_menu_object_data("/Analyze/Apply as Filter/Not Selected", E_DFILTER_TE_KEY,
