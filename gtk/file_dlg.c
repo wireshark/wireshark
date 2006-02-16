@@ -762,6 +762,8 @@ file_merge_cmd(GtkWidget *w)
 {
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
   win32_merge_file(GDK_WINDOW_HWND(top_level->window));
+  packet_list_freeze();
+  packet_list_thaw();
 #else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *filter_hbox,
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
