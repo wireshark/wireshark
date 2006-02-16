@@ -427,12 +427,14 @@ static int
 dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 #line 112 "x509af.cnf"
 
+  const char* str;
     offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  SubjectName_choice, hf_index, ett_x509af_SubjectName,
                                  NULL);
 
 
-  proto_item_append_text(proto_item_get_parent(tree), " (%s)", x509if_get_last_dn());
+  str = x509if_get_last_dn();
+  proto_item_append_text(proto_item_get_parent(tree), " (%s)", str?str:"");
 
 
 
@@ -1419,7 +1421,7 @@ void proto_register_x509af(void) {
         "AttributeCertificateAssertion/attType", HFILL }},
     { &hf_x509af_attType_item,
       { "Item", "x509af.attType_item",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "AttributeCertificateAssertion/attType/_item", HFILL }},
     { &hf_x509af_p,
       { "p", "x509af.p",

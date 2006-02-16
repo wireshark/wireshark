@@ -110,8 +110,10 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
 #.FN_BODY SubjectName
 
+  const char* str;
   %(DEFAULT_BODY)s
 
-  proto_item_append_text(proto_item_get_parent(tree), " (%%s)", x509if_get_last_dn());
+  str = x509if_get_last_dn();
+  proto_item_append_text(proto_item_get_parent(tree), " (%%s)", str?str:"");
 
 #.END
