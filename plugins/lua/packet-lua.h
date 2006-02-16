@@ -155,7 +155,7 @@ typedef proto_item* ProtoItem;
 typedef address* Address;
 
 #define FIELD "Field"
-typedef header_field_info* Field;
+typedef header_field_info** Field;
 
 #define TAP "Tap"
 typedef struct _eth_tap* Tap;

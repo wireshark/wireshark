@@ -33,36 +33,43 @@ LUA_CLASS_DEFINE(Field,FIELD,NOP)
 
 static GPtrArray* wanted_fields = NULL;
 
-/* XXX this will be used in the future, called from somewhere in packet.c */
-#if 0
-void lua_prime_all_fields(proto_tree* tree) {
-    guint i;
-    
-    for(i=0; i < wanted_fields->len; i++) {
-        Field f = g_ptr_array_index(wanted_fields,i);
-        for (;f;f = f->same_name_next) {
-            proto_tree_prime_hfid(tree,f->id);
-        }
-    }
-}
-#else
-/* XXX - this will be used while we are a plugin */
+/*
+ * field extractor registartion is tricky, In order to allow
+ * the user to define them in the body of the script we will
+ * populate the Field value with a pointer of the abbrev of it
+ * to later replace it with the hfi.
+ *
+ * This will be added to the wanted_fields array that will
+ * exists only while they can be defined, and be cleared right
+ * after the fields are primed.
+ */
 
 void lua_prime_all_fields(proto_tree* tree _U_) {
     GString* fake_tap_filter = g_string_new("frame");
     guint i;
-    static gboolean fake_tap;
-    
-    
-    if ( !wanted_fields || fake_tap ) return;
-
-    fake_tap = FALSE;
+    static gboolean fake_tap = FALSE;
     
     for(i=0; i < wanted_fields->len; i++) {
         Field f = g_ptr_array_index(wanted_fields,i);
-        g_string_sprintfa(fake_tap_filter," || %s",f->abbrev);
+        gchar* name = *((gchar**)f);
+
+        *f = proto_registrar_get_byname(name);
+
+        if (!*f) {
+            report_failure("Could not find field `%s'",name);
+            *f = NULL;
+            g_free(name);
+            continue;
+        }
+
+        g_free(name);
+        
+        g_string_sprintfa(fake_tap_filter," || %s",(*f)->abbrev);
         fake_tap = TRUE;
     }
+    
+    g_ptr_array_free(wanted_fields,TRUE);
+    wanted_fields = NULL;
     
     if (fake_tap) {
         /* a boring tap :-) */
@@ -78,7 +85,6 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
     }
     
 }
-#endif
 
 static int Field_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,1);
@@ -86,25 +92,34 @@ static int Field_get (lua_State *L) {
     
     if (!name) return 0;
     
-    f = proto_registrar_get_byname(name);
-    
-    if (!f) {
-        luaL_error(L,"Could not find field `%s'",name);
+    if (!wanted_fields) {
+        luaL_error(L,"too late to define a Field extractor");
         return 0;
     }
     
-    if (!wanted_fields)
-        wanted_fields = g_ptr_array_new();
+    f = g_malloc(sizeof(void*));
+    *f = (header_field_info*)g_strdup(name); /* cheating */
     
     g_ptr_array_add(wanted_fields,f);
     
     pushField(L,f);
     return 1;
-}    
+}
 
 static int Field_fetch (lua_State* L) {
-    Field in = checkField(L,1);
+    Field f = checkField(L,1);
     int items_found = 0;
+    header_field_info* in = *f;
+
+    if (! in) {
+        luaL_error(L,"invalid field");
+        return 0;            
+    }
+
+    if (! lua_tree ) {
+        luaL_error(L,"fields cannot be used outside dissectors or taps");
+        return 0;
+    }
     
     for (;in;in = in->same_name_next) {
         GPtrArray* found = proto_find_finfo(lua_tree, in->id);
@@ -137,7 +152,7 @@ static int Field_fetch (lua_State* L) {
                     case FT_IPv4:
                     case FT_IPv6:
                     case FT_IPXNET:
-                        /* XXX -> Address */
+                        /* XXX: use Address ??? */
                     case FT_STRING:
                     case FT_STRINGZ:
                     case FT_BYTES:
@@ -158,35 +173,39 @@ static int Field_fetch (lua_State* L) {
     
 }
 
-static int Field_tostring (lua_State* L) {
-    Field in = checkField(L,1);
+static int Field_tostring(lua_State* L) {
+    Field f = checkField(L,1);
+
+    if ( !(f && *f) ) {
+        luaL_error(L,"invalid Field");
+        return 0;
+    }
     
-    lua_pushfstring(L,"Field: %s",in->abbrev);
+    if (wanted_fields) {
+        lua_pushstring(L,*((gchar**)f));
+    } else {
+        lua_pushstring(L,(*f)->abbrev);
+    }
+    
     return 1;
 }
 
-static const luaL_reg Field_methods[] = {
-    {"get", Field_get},
-    {"fetch", Field_fetch },
-    {0,0}
-};
-
 static const luaL_reg Field_meta[] = {
     {"__tostring", Field_tostring},
+    {"__call", Field_fetch},
     {0, 0}
 };
 
 int Field_register(lua_State* L) {
-    luaL_openlib(L, FIELD, Field_methods, 0);
+
+    wanted_fields = g_ptr_array_new();
+
     luaL_newmetatable(L, FIELD);
     luaL_openlib(L, 0, Field_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
+    
+    lua_pushstring(L, "Field");
+    lua_pushcfunction(L, Field_get);
+    lua_settable(L, LUA_GLOBALSINDEX);
     
     return 1;
 }
