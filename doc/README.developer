@@ -1623,6 +1623,10 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_bytes_format_value(tree, id, tvb, start, length,
+	    start_ptr, format, ...);
+
+	proto_item *
 	proto_tree_add_time(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
@@ -1631,6 +1635,10 @@ protocol or field labels to the proto_tree:
 	proto_item *
 	proto_tree_add_time_format(tree, id, tvb, start, length, value_ptr,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_time_format_value(tree, id, tvb, start, length,
+	    value_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_ipxnet(tree, id, tvb, start, length, value);
@@ -1643,6 +1651,10 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_ipxnet_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
+
+	proto_item *
 	proto_tree_add_ipv4(tree, id, tvb, start, length, value);
 
 	proto_item *
@@ -1651,6 +1663,10 @@ protocol or field labels to the proto_tree:
 	proto_item *
 	proto_tree_add_ipv4_format(tree, id, tvb, start, length, value,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_ipv4_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
 
 	proto_item *
 	proto_tree_add_ipv6(tree, id, tvb, start, length, value_ptr);
@@ -1663,6 +1679,10 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_ipv6_format_value(tree, id, tvb, start, length,
+	    value_ptr, format, ...);
+
+	proto_item *
 	proto_tree_add_ether(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
@@ -1671,6 +1691,10 @@ protocol or field labels to the proto_tree:
 	proto_item *
 	proto_tree_add_ether_format(tree, id, tvb, start, length, value_ptr,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_ether_format_value(tree, id, tvb, start, length,
+	    value_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_string(tree, id, tvb, start, length, value_ptr);
@@ -1683,6 +1707,10 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_string_format_value(tree, id, tvb, start, length,
+	    value_ptr, format, ...);
+
+	proto_item *
 	proto_tree_add_boolean(tree, id, tvb, start, length, value);
 
 	proto_item *
@@ -1691,6 +1719,10 @@ protocol or field labels to the proto_tree:
 	proto_item *
 	proto_tree_add_boolean_format(tree, id, tvb, start, length, value,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_boolean_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
 
 	proto_item *
 	proto_tree_add_float(tree, id, tvb, start, length, value);
@@ -1703,6 +1735,10 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_float_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
+
+	proto_item *
 	proto_tree_add_double(tree, id, tvb, start, length, value);
 
 	proto_item *
@@ -1711,6 +1747,10 @@ protocol or field labels to the proto_tree:
 	proto_item *
 	proto_tree_add_double_format(tree, id, tvb, start, length, value,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_double_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
 
 	proto_item *
 	proto_tree_add_uint(tree, id, tvb, start, length, value);
@@ -1723,11 +1763,19 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_uint_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
+
+	proto_item *
 	proto_tree_add_uint64(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_uint64_format(tree, id, tvb, start, length, value,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_uint64_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
 
 	proto_item *
 	proto_tree_add_int(tree, id, tvb, start, length, value);
@@ -1740,11 +1788,19 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_int_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
+
+	proto_item *
 	proto_tree_add_int64(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_int64_format(tree, id, tvb, start, length, value,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_int64_format_value(tree, id, tvb, start, length,
+	    value, format, ...);
 
 	proto_item*
 	proto_tree_add_text(tree, tvb, start, length, format, ...);
@@ -2005,6 +2061,31 @@ the same as the corresponding proto_tree_add_XXX() function; the rest of
 the arguments are a "printf"-style format and any arguments for that
 format.  The caller must include the name of the field in the format; it
 is not added automatically as in the proto_tree_add_XXX() functions.
+
+proto_tree_add_bytes_format_value()
+proto_tree_add_time_format_value()
+proto_tree_add_ipxnet_format_value()
+proto_tree_add_ipv4_format_value()
+proto_tree_add_ipv6_format_value()
+proto_tree_add_ether_format_value()
+proto_tree_add_string_format_value()
+proto_tree_add_boolean_format_value()
+proto_tree_add_float_format_value()
+proto_tree_add_double_format_value()
+proto_tree_add_uint_format_value()
+proto_tree_add_uint64_format_value()
+proto_tree_add_int_format_value()
+proto_tree_add_int64_format_value()
+----------------------------
+
+These routines are used to add items to the protocol tree when the
+dissector routines wants complete control over how the value will be
+represented on the GUI tree.  The argument giving the value is the same
+as the corresponding proto_tree_add_XXX() function; the rest of the
+arguments are a "printf"-style format and any arguments for that format. 
+With these routines, unlike the proto_tree_add_XXX_format() routines,
+the name of the field is added automatically as in the
+proto_tree_add_XXX() functions; only the value is added with the format.
 
 proto_tree_add_text()
 ---------------------
