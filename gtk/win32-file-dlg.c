@@ -28,7 +28,7 @@
 
 #include "globals.h"
 
-#include <glib.h>
+#include <gtk/gtk.h>
 
 #include <stdio.h>
 
@@ -53,19 +53,9 @@
 #include "simple_dialog.h"
 #include "util.h"
 
-// XXX - declarations from gtk/file_dlg.h.  These should be moved
-// somewhere less GTK-specific.
-/** the action to take, after save has been done */
-typedef enum {
-    after_save_no_action,           /**< no action to take */
-    after_save_close_file,          /**< close the file */
-    after_save_open_dialog,         /**< open the file open dialog */
-    after_save_open_recent_file,    /**< open the specified recent file */
-    after_save_open_dnd_file,       /**< open the specified file from drag and drop */
-    after_save_merge_dialog,        /**< open the file merge dialog */
-    after_save_capture_dialog,      /**< open the capture dialog */
-    after_save_exit                 /**< exit program */
-} action_after_save_e;
+#include "file_dlg.h"
+#include "main.h"
+#include "menu.h"
 
 #include "win32-file-dlg.h"
 
@@ -78,11 +68,6 @@ extern void set_last_open_dir(char *dirname);
 /* capture start confirmed by "Save unsaved capture", so do it now */
 void capture_start_confirmed(void);
 
-// gtk/main.h:
-extern gboolean main_do_quit(void);
-
-
-
 
 typedef enum {
     merge_append,
@@ -90,6 +75,10 @@ typedef enum {
     merge_prepend
 } merge_action_e;
 
+/*
+ * XXX - There should be separate open and save lists, and they should
+ * come from Wiretap.
+ */
 #define FILE_TYPE_LIST 	\
     "Accellent 5Views (*.5vw)\0"		"*.5vw\0"               \
     "Ethereal/tcpdump (*.cap, *.pcap)\0"	"*.cap;*.pcap\0"        \
@@ -245,13 +234,13 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 		win32_open_file(h_wnd);
 		break;
 	    case(after_save_open_recent_file):
-//		menu_open_recent_file_cmd(action_after_save_data_g);
+		menu_open_recent_file_cmd(action_after_save_data);
 		break;
 	    case(after_save_open_dnd_file):
-//		dnd_open_file_cmd(action_after_save_data_g);
+		dnd_open_file_cmd(action_after_save_data);
 		break;
 	    case(after_save_merge_dialog):
-//		file_merge_cmd(action_after_save_data_g);
+		win32_merge_file(h_wnd);
 		break;
 #ifdef HAVE_LIBPCAP
 	    case(after_save_capture_dialog):
@@ -374,7 +363,7 @@ win32_merge_file (HWND h_wnd) {
             case CF_READ_ERROR:
                 dirname = get_dirname(file_name);
                 set_last_open_dir(dirname);
-//                menu_name_resolution_changed(h_wnd);
+                menu_name_resolution_changed();
                 break;
             case CF_READ_ABORTED:
                 break;
