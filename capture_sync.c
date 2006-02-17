@@ -100,6 +100,8 @@
 #endif
 
 
+/*#define DEBUG_DUMPCAP*/
+
 #ifndef _WIN32
 static const char *sync_pipe_signame(int);
 #endif
@@ -304,10 +306,10 @@ sync_pipe_add_arg(const char **args, int *argc, const char *arg)
  * if that string is constructed by gluing those strings together.
  */
 static gchar *
-protect_arg (gchar *argv)
+protect_arg (const gchar *argv)
 {
     gchar *new_arg;
-    gchar *p = argv;
+    const gchar *p = argv;
     gchar *q;
     gint len = 0;
     gboolean need_dblquotes = FALSE;
@@ -318,7 +320,7 @@ protect_arg (gchar *argv)
         else if (*p == '"')
             len++;
         else if (*p == '\\') {
-            gchar *pp = p;
+            const gchar *pp = p;
 
             while (*pp && *pp == '\\')
                 pp++;
@@ -339,7 +341,7 @@ protect_arg (gchar *argv)
         if (*p == '"')
             *q++ = '\\';
         else if (*p == '\\') {
-            gchar *pp = p;
+            const gchar *pp = p;
 
             while (*pp && *pp == '\\')
                 pp++;
@@ -374,8 +376,6 @@ sync_pipe_start(capture_options *capture_opts) {
     char sautostop_duration[ARGV_NUMBER_LEN];
 #ifdef _WIN32
     char buffer_size[ARGV_NUMBER_LEN];
-    char *filterstring;
-    char *savefilestring;
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from child to parent */
     HANDLE signal_pipe_read;                /* pipe used to send messages from parent to child (currently only stop) */
@@ -493,7 +493,7 @@ sync_pipe_start(capture_options *capture_opts) {
     argv = sync_pipe_add_arg(argv, &argc, buffer_size);
 #endif
 
-    if (capture_opts->cfilter) {
+    if (capture_opts->cfilter != NULL && strlen(capture_opts->cfilter) != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
       argv = sync_pipe_add_arg(argv, &argc, capture_opts->cfilter);
     }
@@ -545,19 +545,11 @@ sync_pipe_start(capture_options *capture_opts) {
     /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
 #endif
 
-    /*
-     * XXX - is this necessary?  argv[0] should be the full path of
-     * dumpcap.
-     */
-    quoted_arg = protect_arg(exename);
-    g_string_append(args, quoted_arg);
-    g_free(quoted_arg);
-
     /* convert args array into a single string */
     /* XXX - could change sync_pipe_add_arg() instead */
     /* there is a drawback here: the length is internally limited to 1024 bytes */
     for(i=0; argv[i] != 0; i++) {
-        g_string_append_c(args, ' ');
+        if(i != 0) g_string_append_c(args, ' ');    /* don't prepend a space before the path!!! */
         quoted_arg = protect_arg(argv[i]);
         g_string_append(args, quoted_arg);
         g_free(quoted_arg);
@@ -566,9 +558,11 @@ sync_pipe_start(capture_options *capture_opts) {
     /* call dumpcap */
     if(!CreateProcess(NULL, args->str, NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        g_error("couldn't open dumpcap.exe!");
+        g_warning("Couldn't open dumpcap (Error: %u): %s", GetLastError(), args->str);
+        capture_opts->fork_child = -1;
+    } else {
+        capture_opts->fork_child = (int) pi.hProcess;
     }
-    capture_opts->fork_child = (int) pi.hProcess;
     g_string_free(args, TRUE);
 
     /* associate the operating system filehandle to a C run-time file handle */
@@ -577,13 +571,6 @@ sync_pipe_start(capture_options *capture_opts) {
 
     /* associate the operating system filehandle to a C run-time file handle */
     capture_opts->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe_write, _O_BINARY);
-
-    if (filterstring) {
-      g_free(filterstring);
-    }
-    if(savefilestring) {
-      g_free(savefilestring);
-    }
 
     /* child own's the read side now, close our handle */
     CloseHandle(signal_pipe_read);
