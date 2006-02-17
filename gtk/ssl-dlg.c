@@ -171,6 +171,10 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     return 0;
 }
 
+extern int 
+packet_is_ssl(epan_dissect_t* edt);
+
+
 /* Follow the SSL stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
@@ -193,19 +197,25 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     GString* msg;
 
     /* we got ssl so we can follow */
-    if (cfile.edt->pi.ipproto != 6) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Error following stream.  Please make\n"
-                          "sure you have an SSL packet selected.");
-            return;
+    if (!packet_is_ssl(cfile.edt)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Error following stream.  Please make\n"
+                      "sure you have an SSL packet selected.");
+        return;
     }
 
     follow_info = g_new0(follow_info_t, 1);
-    
     /* Create a new filter that matches all packets in the SSL stream,
        and set the display filter entry accordingly */
     reset_tcp_reassembly();
     follow_filter = build_follow_filter(&cfile.edt->pi);
+    if (!follow_filter)
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Error creating filter for this stream.\n"
+                      "A network layer header is needed");
+        return;
+    }
 
     /* Set the display filter entry accordingly */
     filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);

@@ -1216,11 +1216,11 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             
         /* we need to know witch side of conversation is speaking*/
         if (ssl_packet_from_server(pinfo->srcport)) {
-            dummy.addr = pinfo->net_src;
+            dummy.addr = pinfo->src;
             dummy.port = pinfo->srcport;
         }
         else {
-            dummy.addr = pinfo->net_dst;
+            dummy.addr = pinfo->dst;
             dummy.port = pinfo->destport;
         }
         ssl_debug_printf("dissect_ssl server %hhd.%hhd.%hhd.%hhd:%d\n", 

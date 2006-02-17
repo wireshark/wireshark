@@ -1959,7 +1959,7 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
 	return node_data->enabled;
 }
 
-static int 
+int 
 packet_is_ssl(epan_dissect_t* edt)
 {
   GPtrArray* array;
