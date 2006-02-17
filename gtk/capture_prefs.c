@@ -28,7 +28,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <pcap.h>
 #include <string.h>
 #include <gtk/gtk.h>
 
@@ -85,7 +84,7 @@ capture_prefs_show(void)
 	GtkWidget	*ifopts_lb, *ifopts_bt;
 	GList		*if_list, *combo_list;
 	int		err;
-	char		err_str[PCAP_ERRBUF_SIZE];
+	char		err_str[CAPTURE_PCAP_ERRBUF_SIZE];
     int         row = 0;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
@@ -695,7 +694,7 @@ ifopts_if_clist_add(void)
 {
 	GList		*if_list;
 	int		err;
-	char		err_str[PCAP_ERRBUF_SIZE];
+	char		err_str[CAPTURE_PCAP_ERRBUF_SIZE];
 	gchar		*cant_get_if_list_errstr;
 	if_info_t	*if_info;
 	guint		i;

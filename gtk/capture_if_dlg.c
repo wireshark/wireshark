@@ -33,8 +33,6 @@
 #endif
 
 
-#include <pcap.h>
-
 #include <gtk/gtk.h>
 
 #include "globals.h"
@@ -160,7 +158,7 @@ capture_details_cb(GtkWidget *details_bt _U_, gpointer if_data)
 static void
 open_if(gchar *name, if_dlg_data_t *if_dlg_data)
 {
-  gchar       open_err_str[PCAP_ERRBUF_SIZE];
+  gchar       open_err_str[CAPTURE_PCAP_ERRBUF_SIZE];
 
   /*
    * XXX - on systems with BPF, the number of BPF devices limits the
@@ -328,7 +326,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   GtkTooltips   *tooltips;
   int           err;
-  char          err_str[PCAP_ERRBUF_SIZE];
+  char          err_str[CAPTURE_PCAP_ERRBUF_SIZE];
   gchar         *cant_get_if_list_errstr;
   int           row;
   if_dlg_data_t *if_dlg_data;

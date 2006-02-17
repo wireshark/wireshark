@@ -40,10 +40,6 @@
 #include <pcre.h>	/* to get the libpcre version number */
 #endif /* HAVE_LIBPCRE */
 
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif
-
 #ifdef HAVE_SOME_SNMP
 
 #ifdef HAVE_NET_SNMP
@@ -64,6 +60,11 @@
 #include "capture-pcap-util.h"
 
 #include "svnversion.h"
+
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
+#endif
+
 
 #ifdef SVNVERSION
 	const char *svnversion = " (" SVNVERSION ")";

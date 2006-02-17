@@ -26,10 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#endif
-
 #include <gtk/gtk.h>
 
 #include "globals.h"

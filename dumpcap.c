@@ -81,8 +81,6 @@ void exit_main(int err) __attribute__ ((noreturn));
 void exit_main(int err);
 #endif
 
-const char *get_basename(const char *path);
-
 
 static void
 print_usage(gboolean print_ver) {
@@ -152,44 +150,50 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
 
 /*
  * Report an error in command-line arguments.
- * Creates a console on Windows.
- * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
- * terminal isn't the standard error?
  */
 void
 cmdarg_err(const char *fmt, ...)
 {
   va_list ap;
 
-  va_start(ap, fmt);
-  fprintf(stderr, "dumpcap: ");
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
-  va_end(ap);
+  if(capture_child) {
+    /* XXX - convert to g_log */
+  } else {
+    va_start(ap, fmt);
+    fprintf(stderr, "dumpcap: ");
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    va_end(ap);
+  }
 }
 
 /*
  * Report additional information for an error in command-line arguments.
- * Creates a console on Windows.
- * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
- * terminal isn't the standard error?
  */
 void
 cmdarg_err_cont(const char *fmt, ...)
 {
   va_list ap;
 
-  va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
-  va_end(ap);
+  if(capture_child) {
+    /* XXX - convert to g_log */
+  } else {
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    va_end(ap);
+  }
 }
 
 
 #ifdef _WIN32
 BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
 {
-    /*printf("Event: %u", dwCtrlType);*/
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+        "Console: Ctrl+C");
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+        "Console: Ctrl+C CtrlType: %u", dwCtrlType);
+
     capture_loop_stop();
 
     return TRUE;
@@ -415,13 +419,8 @@ main(int argc, char *argv[])
   }
 
   /* Let the user know what interface was chosen. */
-/*  descr = get_interface_descriptive_name(capture_opts.iface);
-  fprintf(stderr, "Capturing on %s\n", descr);
-  g_free(descr);*/
-
-  if(!capture_child) {
-    fprintf(stderr, "Capturing on %s\n", capture_opts->iface);
-  }  
+  /* get_interface_descriptive_name() is not available! */
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Interface: %s\n", capture_opts->iface);
 
   if (list_link_layer_types) {
     status = capture_opts_list_link_layer_types(capture_opts);
@@ -462,6 +461,10 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   const char *level;
 
 
+  if(capture_child) {
+    return;
+  }
+
   /* ignore log message, if log_level isn't interesting */
   if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
 #ifndef DEBUG_DUMPCAP
@@ -498,15 +501,25 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         g_assert_not_reached();
     }
 
-    /* don't use printf (stdout), as the capture child uses stdout for it's sync_pipe */
-    fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
-            today->tm_hour, today->tm_min, today->tm_sec,
-            log_domain != NULL ? log_domain : "",
-            level, message);
+    /* don't use printf (stdout), in child mode we're using stdout for the sync_pipe */
+    if(log_level & G_LOG_LEVEL_MESSAGE) {
+        /* normal user messages without additional infos */
+        fprintf(stderr, "%s\n", message);
+        fflush(stderr);
+    } else {
+        /* info/debug messages with additional infos */
+        fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
+                today->tm_hour, today->tm_min, today->tm_sec,
+                log_domain != NULL ? log_domain : "",
+                level, message);
+        fflush(stderr);
+    }
 }
 
+
 /****************************************************************************************************************/
-/* sync_pipe stubs */
+/* sync_pipe handling */
+
 
 /*
  * Maximum length of sync pipe message data.  Must be < 2^24, as the
@@ -528,10 +541,6 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
     int ret;
 
     /*g_warning("write %d enter", pipe);*/
-
-    /* if we're not a capture child, we don't have to tell our none existing parent anything */
-    if(!capture_child)
-        return;
 
     g_assert(indicator < '0' || indicator > '9');
     g_assert(len <= SP_MAX_MSG_LEN);
@@ -569,41 +578,39 @@ sync_pipe_packet_count_to_parent(int packet_count)
     static int count = 0;
 
 
-    if(!capture_child) {
+    if(capture_child) {
+        g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
+        pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
+    } else {
         count += packet_count;
-        fprintf(stderr, "\r%u", count);
+        fprintf(stderr, "\rPackets: %u ", count);
         /* stderr could be line buffered */
         fflush(stderr);
     }
 
-    g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);
-
-    pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
 
 void
 sync_pipe_filename_to_parent(const char *filename)
 {
 
-    if(!capture_child) {
-        fprintf(stderr, "\nFile: %s\n", filename);
-        /* stderr could be line buffered */
-        fflush(stderr);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "File: %s", filename);
+
+    if(capture_child) {
+        pipe_write_block(1, SP_FILE, strlen(filename)+1, filename);
     }
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "File: %s", filename);
-
-    pipe_write_block(1, SP_FILE, strlen(filename)+1, filename);
 }
 
 void
 sync_pipe_errmsg_to_parent(const char *errmsg)
 {
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_errmsg_to_parent: %s", errmsg);
 
-    pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Error: %s", errmsg);
+
+    if(capture_child) {
+        pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
+    }
 }
 
 void
@@ -613,12 +620,50 @@ sync_pipe_drops_to_parent(int drops)
 
 
     g_snprintf(tmp, sizeof(tmp), "%d", drops);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Packets dropped: %s", tmp);
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_drops_to_parent: %s", tmp);
-
-    pipe_write_block(1, SP_DROPS, strlen(tmp)+1, tmp);
+    if(capture_child) {
+        pipe_write_block(1, SP_DROPS, strlen(tmp)+1, tmp);
+    }
 }
 
+
+/****************************************************************************************************************/
+/* signal_pipe handling */
+
+
+#ifdef _WIN32
+gboolean
+signal_pipe_check_running(void)
+{
+    /* any news from our parent (stdin)? -> just stop the capture */
+    HANDLE handle;
+    DWORD avail = 0;
+    gboolean result;
+
+
+    /* if we are running standalone, no check required */
+    if(!capture_child) {
+        return TRUE;
+    }
+
+    handle = (HANDLE) GetStdHandle(STD_INPUT_HANDLE);
+    result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+    if(!result || avail > 0) {
+        /* peek failed or some bytes really available */
+        /* (if not piping from stdin this would fail) */
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+            "Signal pipe: Stop capture");
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+            "Signal pipe: handle: %x result: %u avail: %u", handle, result, avail);
+        return FALSE;
+    } else {
+        /* pipe ok and no bytes available */
+        return TRUE;
+    }
+}
+#endif
 
 
 /****************************************************************************************************************/
@@ -651,6 +696,7 @@ simple_dialog_format_message(const char *msg)
     }
     return str;
 }
+
 
 /****************************************************************************************************************/
 /* Stub functions */

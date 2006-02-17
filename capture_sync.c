@@ -28,8 +28,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <pcap.h>
-
 #include <glib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -41,9 +39,15 @@
 
 #include <signal.h>
 
+#ifdef _WIN32
+#include <fcntl.h>
+#endif
+
 #ifdef HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif
+
+#include "capture-pcap-util.h"
 
 #ifndef _WIN32
 /*
@@ -353,7 +357,7 @@ sync_pipe_start(capture_options *capture_opts) {
     if (capture_opts->linktype != -1) {
       argv = sync_pipe_add_arg(argv, &argc, "-y");
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
-      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%s",pcap_datalink_val_to_name(capture_opts->linktype));
+      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%s",linktype_val_to_name(capture_opts->linktype));
 #else
       /* XXX - just treat it as a number */
       g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d",capture_opts->linktype);
@@ -472,6 +476,7 @@ sync_pipe_start(capture_options *capture_opts) {
     si.hStdInput = signal_pipe_read;
     si.hStdOutput = sync_pipe_write;
     si.hStdError = sync_pipe_write;
+    /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
 #endif
 
     g_string_append(args, exename);

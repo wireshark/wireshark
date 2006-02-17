@@ -43,8 +43,6 @@
 #include <signal.h>
 #include <errno.h>
 
-#include <pcap.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>

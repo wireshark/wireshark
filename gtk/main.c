@@ -91,7 +91,6 @@
 #include "merge.h"
 
 #ifdef HAVE_LIBPCAP
-#include <pcap.h>
 #include "capture-pcap-util.h"
 #include "capture.h"
 #include "capture_sync.h"

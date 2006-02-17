@@ -28,7 +28,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <pcap.h>
 #include <string.h>
 #include <glib.h>
 
@@ -110,7 +109,7 @@ get_interface_descriptive_name(const char *if_name)
   GList *if_entry;
   if_info_t *if_info;
   int err;
-  char err_buf[PCAP_ERRBUF_SIZE];
+  char err_buf[CAPTURE_PCAP_ERRBUF_SIZE];
 
   /* Do we have a user-supplied description? */
   descr = capture_dev_user_descr_find(if_name);

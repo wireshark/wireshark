@@ -31,8 +31,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <pcap.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -44,7 +42,6 @@
 #include "cmdarg_err.h"
 
 #include "capture-pcap-util.h"
-#include "capture_ui_utils.h"
 #include <wiretap/file_util.h>
 
 
@@ -239,7 +236,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
     GList       *if_list;
     if_info_t   *if_info;
     int         err;
-    gchar       err_str[PCAP_ERRBUF_SIZE];
+    gchar       err_str[CAPTURE_PCAP_ERRBUF_SIZE];
     gchar       *cant_get_if_list_errstr;
 
 
@@ -369,7 +366,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 	    break;
     case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
-        capture_opts->linktype = pcap_datalink_name_to_val(optarg);
+        capture_opts->linktype = linktype_name_to_val(optarg);
         if (capture_opts->linktype == -1) {
           cmdarg_err("The specified data link type \"%s\" isn't valid",
                   optarg);
@@ -391,7 +388,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 
 int capture_opts_list_link_layer_types(capture_options *capture_opts)
 {
-    gchar err_str[PCAP_ERRBUF_SIZE];
+    gchar err_str[CAPTURE_PCAP_ERRBUF_SIZE];
     GList *lt_list, *lt_entry;
     data_link_info_t *data_link_info;
 
@@ -399,11 +396,11 @@ int capture_opts_list_link_layer_types(capture_options *capture_opts)
     lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
     if (lt_list == NULL) {
       if (err_str[0] != '\0') {
-	cmdarg_err("The list of data link types for the capture device could not be obtained (%s)."
+	cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
 	  "Please check to make sure you have sufficient permissions, and that\n"
-	  "you have the proper interface or pipe specified.\n", err_str);
+	  "you have the proper interface or pipe specified.\n", capture_opts->iface, err_str);
       } else
-	cmdarg_err("The capture device has no data link types.");
+	cmdarg_err("The capture device \"%s\" has no data link types.", capture_opts->iface);
       return 2;
     }
     cmdarg_err_cont("Data link types (use option -y to set):");
@@ -429,7 +426,7 @@ int capture_opts_list_interfaces()
     GList       *if_entry;
     if_info_t   *if_info;
     int         err;
-    gchar       err_str[PCAP_ERRBUF_SIZE];
+    gchar       err_str[CAPTURE_PCAP_ERRBUF_SIZE];
     gchar       *cant_get_if_list_errstr;
     int         i;
 
@@ -491,7 +488,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
     GList       *if_list;
     if_info_t   *if_info;
     int         err;
-    gchar       err_str[PCAP_ERRBUF_SIZE];
+    gchar       err_str[CAPTURE_PCAP_ERRBUF_SIZE];
     gchar       *cant_get_if_list_errstr;
 
 

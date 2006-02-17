@@ -33,6 +33,12 @@ extern "C" {
 
 #include <epan/address.h>
 
+#include <pcap.h>
+
+/* declaration of pcap_t here, to reduce pcap dependencies */
+/*typedef struct pcap pcap_t;*/
+
+
 /*
  * XXX - this is also the traditional default snapshot size in
  * tcpdump - but, if IPv6 is enabled, it defaults to 96, to get an
@@ -43,27 +49,28 @@ extern "C" {
  */
 #define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
 
-#define MAX_WIN_IF_NAME_LEN 511
+/* XXX - this must be optimized, removing the dependency!!! */
+#define CAPTURE_PCAP_ERRBUF_SIZE PCAP_ERRBUF_SIZE
 
 /*
  * The list of interfaces returned by "get_interface_list()" is
  * a list of these structures.
  */
 typedef struct {
-	char	*name;
-	char	*description;
-	GSList  *ip_addr;       /* containing address values */
-	gboolean loopback;
+	char	*name;          /* e.g. "eth0" */
+	char	*description;   /* from OS, e.g. "Local Area Connection" or NULL */
+	GSList  *ip_addr;       /* containing address values of if_addr_t */
+	gboolean loopback;      /* TRUE if loopback, FALSE otherwise */
 } if_info_t;
 
 /*
  * An address in the "ip_addr" list.
  */
 typedef struct {
-	address_type type;
+	address_type type;      /* AF_INET or AF_INET6 */
 	union {
-		guint32 ip4_addr;
-		guint8 ip6_addr[16];
+		guint32 ip4_addr;   /*  4 byte IP V4 address, or */
+		guint8 ip6_addr[16];/* 16 byte IP V6 address */
 	} ip_addr;
 } if_addr_t;
 
@@ -86,15 +93,26 @@ gchar *cant_get_if_list_error_message(const char *err_str);
  * a list of these structures.
  */
 typedef struct {
-	int	dlt;
-	char	*name;
-	char	*description;
+	int	dlt;                /* e.g. DLT_EN10MB (which is 1) */
+	char	*name;          /* e.g. "EN10MB" or "DLT 1" */
+	char	*description;   /* descriptive name from wiretap e.g. "Ethernet", NULL if unknown */
 } data_link_info_t;
 
-int get_pcap_linktype(pcap_t *pch, const char *devname);
 GList *get_pcap_linktype_list(const char *devname, char *err_buf);
 void free_pcap_linktype_list(GList *linktype_list);
+
+/* get/set the link type of an interface */
+/* (only used in capture_loop.c / capture-pcap-util.c) */
+int get_pcap_linktype(pcap_t *pch, const char *devname);
 const char *set_pcap_linktype(pcap_t *pch, char *devname, int dlt);
+
+
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+const char *linktype_val_to_name(int dlt);
+#endif
+#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
+int linktype_name_to_val(const char *linktype);
+#endif
 
 #ifdef __cplusplus
 }

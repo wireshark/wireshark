@@ -34,7 +34,6 @@
 #include "cfilter_combo_utils.h"
 #include "recent.h"
 #ifdef HAVE_LIBPCAP
-#include <pcap.h>
 #endif
 
 /* XXX: use a preference for this setting! */

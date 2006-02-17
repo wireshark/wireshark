@@ -94,4 +94,10 @@ extern void
 sync_pipe_errmsg_to_parent(const char *errmsg);
 
 
+/** does the parent signalled the child to stop */
+#ifdef _WIN32
+extern gboolean
+signal_pipe_check_running(void);
+#endif
+
 #endif /* capture_sync.h */

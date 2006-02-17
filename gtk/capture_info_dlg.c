@@ -30,7 +30,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <pcap.h>
 #include <gtk/gtk.h>
 #include "gtk/compat_macros.h"
 
@@ -38,7 +37,6 @@
 
 #include <epan/packet.h>
 #include "capture.h"
-#include "capture_loop.h"
 #include "capture_info.h"
 #include "globals.h"
 #include "capture_ui_utils.h"

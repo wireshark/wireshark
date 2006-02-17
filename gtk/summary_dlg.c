@@ -36,7 +36,6 @@
 #include "globals.h"
 #include "file.h"
 #ifdef HAVE_LIBPCAP
-#include <pcap.h>
 #include "capture.h"
 #include "main.h"
 #endif

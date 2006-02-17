@@ -26,7 +26,6 @@
 #define __SUMMARY_H__
 
 #ifdef HAVE_LIBPCAP
-#include <pcap.h>
 #include "capture.h"
 #endif
 

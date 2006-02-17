@@ -2908,6 +2908,23 @@ sync_pipe_errmsg_to_parent(const char *errmsg)
 
 
 /****************************************************************************************************************/
+/* signal pipe "dummies", needed for capture_loop.c */
+
+#ifdef HAVE_LIBPCAP
+
+#ifdef _WIN32
+gboolean
+signal_pipe_check_running(void)
+{
+    /* currently, no check required */
+    return TRUE;
+}
+#endif  /* _WIN32 */
+
+#endif /* HAVE_LIBPCAP */
+
+
+/****************************************************************************************************************/
 /* simple_dialog "dummies", needed for capture_loop.c */
 
 

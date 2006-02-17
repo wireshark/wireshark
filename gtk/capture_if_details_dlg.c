@@ -38,7 +38,6 @@
 
 #include "globals.h"
 #include "file.h"
-#include <pcap.h>
 #include "capture.h"
 #include "main.h"
 #include "dlg_utils.h"

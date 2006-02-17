@@ -1086,6 +1086,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 static void
 capture_loop_stop_signal_handler(int signo _U_)
 {
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Signal: Stop capture");
   capture_loop_stop();
 }
 #endif
@@ -1095,35 +1096,6 @@ capture_loop_stop_signal_handler(int signo _U_)
 #else
 #define TIME_GET() time(NULL)
 #endif
-
-#ifdef _WIN32
-static gboolean
-signal_pipe_stopped(void)
-{
-    /* any news from our parent (stdin)? -> just stop the capture */
-    HANDLE handle;
-    DWORD avail = 0;
-    gboolean result;
-
-
-    handle = (HANDLE) GetStdHandle(STD_INPUT_HANDLE);
-    result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-    if(!result || avail > 0) {
-        /* peek failed or some bytes really available */
-
-        /* XXX - if not piping from stdin this fails */
-        /*g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Signal pipe: handle: %x result: %u avail: %u", handle, result, avail);
-        return FALSE;*/
-        return TRUE;
-    } else {
-        /* pipe ok and no bytes available */
-        return FALSE;
-    }
-}
-#endif
-
 
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
@@ -1178,7 +1150,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     signal(SIGUSR1, capture_loop_stop_signal_handler);
 #endif
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child starting ...");
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop starting ...");
   capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
 
   /* open the output file (temporary/specified name/ringbuffer) */
@@ -1241,7 +1213,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   start_time = TIME_GET();
   upd_time = TIME_GET();
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child running!");
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running!");
 
   /* WOW, everything is prepared! */
   /* please fasten your seat belts, we will enter now the actual capture loop */
@@ -1250,10 +1222,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
 
 #ifdef _WIN32
-    /*fprintf(stderr, "signal pipe ret: %u\n", signal_pipe_stopped());*/
-
     /* any news from our parent (signal pipe)? -> just stop the capture */
-    if (signal_pipe_stopped()) {
+    if (!signal_pipe_check_running()) {
       ld.go = FALSE;
     }
 #endif
@@ -1280,8 +1250,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
               cnd_reset(cnd_file_duration);
             }
             wtap_dump_flush(ld.wtap_pdh);
-            sync_pipe_filename_to_parent(capture_opts->save_file);
+            sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
 			inpkts_to_sync_pipe = 0;
+            sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1347,8 +1318,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
             wtap_dump_flush(ld.wtap_pdh);
-            sync_pipe_filename_to_parent(capture_opts->save_file);
+            sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
 			inpkts_to_sync_pipe = 0;
+            sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
 	        ld.go = FALSE;
@@ -1364,7 +1336,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   } /* while (ld.go) */
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopping ...");
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopping ...");
 
   /* delete stop conditions */
   if (cnd_file_duration != NULL)
@@ -1399,6 +1371,13 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* close the wiretap (output) file */
   close_ok = capture_loop_close_output(capture_opts, &ld, &err_close);
+
+  /* there might be packets not yet notified to the parent */
+  /* (do this after closing the file, so all packets are already flushed) */
+  if(inpkts_to_sync_pipe) {
+    sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
+    inpkts_to_sync_pipe = 0;
+  }
 
   /* If we've displayed a message about a write error, there's no point
      in displaying another message about an error on close. */
@@ -1437,7 +1416,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* close the input file (pcap or capture pipe) */
   capture_loop_close_input(&ld);
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopped!");
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped!");
 
   /* ok, if the write and the close were successful. */
   return write_ok && close_ok;
@@ -1462,7 +1441,7 @@ error:
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopped with error");
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped with error");
 
   return FALSE;
 }

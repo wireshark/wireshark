@@ -28,7 +28,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <pcap.h>
 #include <string.h>
 #include <gtk/gtk.h>
 
@@ -159,7 +158,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   if_info_t *if_info;
   GList *lt_list;
   int err;
-  char err_buf[PCAP_ERRBUF_SIZE];
+  char err_buf[CAPTURE_PCAP_ERRBUF_SIZE];
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
   data_link_info_t *data_link_info;
@@ -525,7 +524,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GList         *if_list, *combo_list, *cfilter_list;
   int           err;
   int           row;
-  char          err_str[PCAP_ERRBUF_SIZE];
+  char          err_str[CAPTURE_PCAP_ERRBUF_SIZE];
   gchar         *cant_get_if_list_errstr;
 #ifdef _WIN32
   GtkAdjustment *buffer_size_adj;

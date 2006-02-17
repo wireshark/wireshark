@@ -41,6 +41,10 @@
 /* XXX - yes, I know, I should move cppmagic.h to a generic location. */
 #include "tools/lemon/cppmagic.h"
 
+
+#define MAX_WIN_IF_NAME_LEN 511
+
+
 gboolean has_wpcap = FALSE;
 
 #ifdef HAVE_LIBPCAP

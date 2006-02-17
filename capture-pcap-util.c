@@ -430,4 +430,20 @@ set_pcap_linktype(pcap_t *pch, char *devname
 #endif
 }
 
+
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+const char *
+linktype_val_to_name(int dlt)
+{
+    return pcap_datalink_val_to_name(dlt);
+}
+#endif
+
+#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
+int linktype_name_to_val(const char *linktype)
+{
+    return pcap_datalink_name_to_val(linktype);
+}
+#endif
+
 #endif /* HAVE_LIBPCAP */
