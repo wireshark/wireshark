@@ -1775,168 +1775,486 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 		offset = dissect_id_PrimaryCCPCH_RSCP_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_DL_TIMESLOT_ISCP_INFO_RL_RECONFPREPTDD:						/*  203 */
+		offset = dissect_id_DL_TimeSlot_ISCP_Info_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_TIMESLOT_ISCP_LCR_INFORMATION_RL_RECONFPREPTDD:			/*  204 */
+		offset = dissect_id_DL_Timeslot_ISCP_LCR_Information_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DSCH_RNTI:													/*  249 */
+		offset = dissect_id_DSCH_RNTI(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_POWERBALANCING_INFORMATION:								/*  296 */
+		offset = dissect_id_DL_PowerBalancing_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_POWERBALANCING_ACTIVATIONINDICATOR:						/*  297 */
+		offset = dissect_id_DL_PowerBalancing_ActivationIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_POWERBALANCING_UPDATEDINDICATOR:							/*  298 */
+		offset = dissect_id_DL_PowerBalancing_UpdatedIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_REFERENCEPOWERINFORMATION:									/*  299 */
+		offset = dissect_id_DL_ReferencePowerInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ENHANCED_PRIMARYCPICH_ECNO:									/*  224 */
+		offset = dissect_id_Enhanced_PrimaryCPICH_EcNo(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_IPDL_TDD_PARAMETERSLCR:										/*  252 */
+		offset = dissect_id_IPDL_TDD_ParametersLCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CELLCAPABILITYCONTAINER_FDD:									/*  300 */
+		offset = dissect_id_CellCapabilityContainer_FDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CELLCAPABILITYCONTAINER_TDD:									/*  301 */
+		offset = dissect_id_CellCapabilityContainer_TDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CELLCAPABILITYCONTAINER_TDD_LCR:								/*  302 */
+		offset = dissect_id_CellCapabilityContainer_TDD_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SPECIFIC_DCH_INFO:											/*  317 */
+		offset = dissect_id_RL_Specific_DCH_Info(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_RECONFIGURATIONREQUESTFDD_RL_INFORMATIONLIST:				/*  318 */
+		offset = dissect_id_RL_ReconfigurationRequestFDD_RL_InformationList(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_RECONFIGURATIONREQUESTFDD_RL_INFORMATION_IES:				/*  319 */
+		offset = dissect_id_RL_ReconfigurationRequestFDD_RL_Information_IEs(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_RECONFIGURATIONREQUESTTDD_RL_INFORMATION:					/*  321 */
+		offset = dissect_id_RL_ReconfigurationRequestTDD_RL_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATIONNOTREQUIRED:		/*  250 */
+		offset = dissect_id_CommonTransportChannelResourcesInitialisationNotRequired(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DELAYEDACTIVATION:											/*  312 */
+		offset = dissect_id_DelayedActivation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DELAYEDACTIVATIONLIST_RL_ACTIVATIONCMDFDD:					/*  313 */
+		offset = dissect_id_DelayedActivationList_RL_ActivationCmdFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DELAYEDACTIVATIONINFORMATION_RL_ACTIVATIONCMDFDD:				/*  314 */
+		offset = dissect_id_DelayedActivationInformation_RL_ActivationCmdFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DELAYEDACTIVATIONLIST_RL_ACTIVATIONCMDTDD:					/*  315 */
+		offset = dissect_id_DelayedActivationList_RL_ActivationCmdTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DELAYEDACTIVATIONINFORMATION_RL_ACTIVATIONCMDTDD:				/*  316 */
+		offset = dissect_id_DelayedActivationInformation_RL_ActivationCmdTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NEIGHBOURINGTDDCELLMEASUREMENTINFORMATIONLCR:					/*  251 */
+		offset = dissect_id_neighbouringTDDCellMeasurementInformationLCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_SIR_TARGET_CCTRCH_INFORMATIONITEM_RL_SETUPRSPTDD:			/*  150 */
+		offset = dissect_id_UL_SIR_Target_CCTrCH_InformationItem_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_SIR_TARGET_CCTRCH_LCR_INFORMATIONITEM_RL_SETUPRSPTDD:		/*  151 */
+		offset = dissect_id_UL_SIR_Target_CCTrCH_LCR_InformationItem_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PRIMCCPCH_RSCP_DL_PC_RQSTTDD:									/*  451 */
+		offset = dissect_id_PrimCCPCH_RSCP_DL_PC_RqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_FDD_INFORMATION:										/*  452 */
+		offset = dissect_id_HSDSCH_FDD_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_FDD_INFORMATION_RESPONSE:								/*  453 */
+		offset = dissect_id_HSDSCH_FDD_Information_Response(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_FDD_UPDATE_INFORMATION:								/*  466 */
+		offset = dissect_id_HSDSCH_FDD_Update_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_INFORMATION_TO_MODIFY:									/*  456 */
+		offset = dissect_id_HSDSCH_Information_to_Modify(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCHMACDFLOWSPECIFICINFORMATIONLIST_RL_PREEMPTREQUIREDIND:	/*  516 */
+		offset = dissect_id_HSDSCHMacdFlowSpecificInformationList_RL_PreemptRequiredInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCHMACDFLOWSPECIFICINFORMATIONITEM_RL_PREEMPTREQUIREDIND:	/*  517 */
+		offset = dissect_id_HSDSCHMacdFlowSpecificInformationItem_RL_PreemptRequiredInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_RNTI:													/*  457 */
+		offset = dissect_id_HSDSCH_RNTI(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_TDD_INFORMATION:										/*  458 */
+		offset = dissect_id_HSDSCH_TDD_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_TDD_INFORMATION_RESPONSE:								/*  459 */
+		offset = dissect_id_HSDSCH_TDD_Information_Response(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_TDD_UPDATE_INFORMATION:								/*  467 */
+		offset = dissect_id_HSDSCH_TDD_Update_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSPDSCH_RL_ID:												/*  463 */
+		offset = dissect_id_HSPDSCH_RL_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_MACDFLOWS_TO_ADD:										/*  531 */
+		offset = dissect_id_HSDSCH_MACdFlows_to_Add(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_MACDFLOWS_TO_DELETE:									/*  532 */
+		offset = dissect_id_HSDSCH_MACdFlows_to_Delete(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ANGLE_OF_ARRIVAL_VALUE_LCR:									/*  148 */
+		offset = dissect_id_Angle_Of_Arrival_Value_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRAFFICCLASS:													/*  158 */
+		offset = dissect_id_TrafficClass(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_248:								/*  248 */
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_253:								/*  253 */
+		break;
 	case RNSAP_ID_PDSCH_RL_ID:													/*  323 */
+		offset = dissect_id_PDSCH_RL_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TIMESLOT_RL_SETUPRSPTDD:										/*  325 */
+		offset = dissect_id_TimeSlot_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_GERAN_CELL_CAPABILITY:										/*  468 */
+		offset = dissect_id_GERAN_Cell_Capability(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_GERAN_CLASSMARK:												/*  469 */
+		offset = dissect_id_GERAN_Classmark(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DSCH_INITIALWINDOWSIZE:										/*  480 */
+		offset = dissect_id_DSCH_InitialWindowSize(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_SYNCHRONISATION_PARAMETERS_LCR:							/*  464 */
+		offset = dissect_id_UL_Synchronisation_Parameters_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SNA_INFORMATION:												/*  479 */
+		offset = dissect_id_SNA_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MACHS_RESETINDICATOR:											/*  465 */
+		offset = dissect_id_MAChs_ResetIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_DL_DPCH_TIMESLOTFORMATMODIFYITEM_LCR_RL_RECONFREADYTDD:	/*  481 */
+		offset = dissect_id_TDD_DL_DPCH_TimeSlotFormatModifyItem_LCR_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_UL_DPCH_TIMESLOTFORMATMODIFYITEM_LCR_RL_RECONFREADYTDD:	/*  482 */
+		offset = dissect_id_TDD_UL_DPCH_TimeSlotFormatModifyItem_LCR_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_TPC_UPLINKSTEPSIZE_LCR_RL_SETUPRQSTTDD:					/*  483 */
+		offset = dissect_id_TDD_TPC_UplinkStepSize_LCR_RL_SetupRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONLIST_RL_ADDITIONRQSTTDD:					/*  484 */
+		offset = dissect_id_UL_CCTrCH_InformationList_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_CCTRCH_INFORMATIONITEM_RL_ADDITIONRQSTTDD:					/*  485 */
+		offset = dissect_id_UL_CCTrCH_InformationItem_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONLIST_RL_ADDITIONRQSTTDD:					/*  486 */
+		offset = dissect_id_DL_CCTrCH_InformationList_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONITEM_RL_ADDITIONRQSTTDD:					/*  487 */
+		offset = dissect_id_DL_CCTrCH_InformationItem_RL_AdditionRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_TPC_UPLINKSTEPSIZE_INFORMATIONADD_LCR_RL_RECONFPREPTDD:	/*  488 */
+		offset = dissect_id_TDD_TPC_UplinkStepSize_InformationAdd_LCR_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_TPC_UPLINKSTEPSIZE_INFORMATIONMODIFY_LCR_RL_RECONFPREPTDD:/*  489 */
+		offset = dissect_id_TDD_TPC_UplinkStepSize_InformationModify_LCR_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_TPC_DOWNLINKSTEPSIZE_INFORMATIONADD_RL_RECONFPREPTDD:		/*  490 */
+		offset = dissect_id_TDD_TPC_DownlinkStepSize_InformationAdd_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_TPC_DOWNLINKSTEPSIZE_INFORMATIONMODIFY_RL_RECONFPREPTDD:	/*  491 */
+		offset = dissect_id_TDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_TIMINGADVANCECTRL_LCR:										/*  492 */
+		offset = dissect_id_UL_TimingAdvanceCtrl_LCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSPDSCH_TIMESLOT_INFORMATIONLIST_PHYCHRECONFRQSTTDD:			/*  493 */
+		offset = dissect_id_HSPDSCH_Timeslot_InformationList_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSPDSCH_TIMESLOT_INFORMATIONLISTLCR_PHYCHRECONFRQSTTDD:		/*  494 */
+		offset = dissect_id_HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HS_SICH_RECEPTION_QUALITY: 									/*  495 */
+		offset = dissect_id_HS_SICH_Reception_Quality(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HS_SICH_RECEPTION_QUALITY_MEASUREMENT_VALUE:					/*  496 */
+		offset = dissect_id_HS_SICH_Reception_Quality_Measurement_Value(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSSICH_INFO_DM_RPRT:											/*  497 */
+		offset = dissect_id_HSSICH_Info_DM_Rprt(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSSICH_INFO_DM_RQST:											/*  498 */
+		offset = dissect_id_HSSICH_Info_DM_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSSICH_INFO_DM:												/*  499 */
+		offset = dissect_id_HSSICH_Info_DM(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_MAXIMUM_DL_POWER_RL_SETUPRSPTDD:						/*  500 */
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_MINIMUM_DL_POWER_RL_SETUPRSPTDD:						/*  501 */
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_RL_SetupRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_MAXIMUM_DL_POWER_RL_ADDITIONRSPTDD:					/*  502 */
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_MINIMUM_DL_POWER_RL_ADDITIONRSPTDD:					/*  503 */
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_RL_AdditionRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_MAXIMUM_DL_POWER_RL_RECONFREADYTDD:					/*  504 */
+		offset = dissect_id_CCTrCH_Maximum_DL_Power_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CCTRCH_MINIMUM_DL_POWER_RL_RECONFREADYTDD:					/*  505 */
+		offset = dissect_id_CCTrCH_Minimum_DL_Power_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MAXIMUM_DL_POWER_TIMESLOTLCR_INFORMATIONMODIFYITEM_RL_RECONFREADYTDD:	/*  506 */
+		offset = dissect_id_Maximum_DL_Power_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MINIMUM_DL_POWER_TIMESLOTLCR_INFORMATIONMODIFYITEM_RL_RECONFREADYTDD:	/*  507 */
+		offset = dissect_id_Minimum_DL_Power_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_CCTRCH_INFORMATIONLIST_RL_RECONFRSPTDD:					/*  508 */
+		offset = dissect_id_DL_CCTrCH_InformationList_RL_ReconfRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_INFORMATIONMODIFYITEM_LCR_RL_RECONFRSPTDD:			/*  509 */
+		offset = dissect_id_DL_DPCH_InformationModifyItem_LCR_RL_ReconfRspTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MAXIMUM_DL_POWER_TIMESLOTLCR_INFORMATIONITEM:					/*  510 */
+		offset = dissect_id_Maximum_DL_Power_TimeslotLCR_InformationItem(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MINIMUM_DL_POWER_TIMESLOTLCR_INFORMATIONITEM:					/*  511 */
+		offset = dissect_id_Minimum_DL_Power_TimeslotLCR_InformationItem(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_SUPPORT_8PSK:												/*  512 */
+		offset = dissect_id_TDD_Support_8PSK(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TDD_MAXNRDLPHYSICALCHANNELS:									/*  513 */
+		offset = dissect_id_TDD_maxNrDLPhysicalchannels(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EXTENDEDGSMCELLINDIVIDUALOFFSET:								/*  514 */
+		offset = dissect_id_ExtendedGSMCellIndividualOffset(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_PARAMETERUPDATEINDICATIONFDD_RL_INFORMATIONLIST:			/*  518 */
+		offset = dissect_id_RL_ParameterUpdateIndicationFDD_RL_InformationList(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PRIMARY_CPICH_USAGE_FOR_CHANNEL_ESTIMATION:					/*  519 */
+		offset = dissect_id_Primary_CPICH_Usage_For_Channel_Estimation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SECONDARY_CPICH_INFORMATION:									/*  520 */
+		offset = dissect_id_Secondary_CPICH_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SECONDARY_CPICH_INFORMATION_CHANGE:							/*  521 */
+		offset = dissect_id_Secondary_CPICH_Information_Change(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_522:								/*  522 */
+		break;
 	case RNSAP_ID_UNUSED_PROTOCOLIE_RNSAP_ID_523:								/*  523 */
+		break;
 	case RNSAP_ID_RL_PARAMETERUPDATEINDICATIONFDD_RL_INFORMATION_ITEM:			/*  524 */
+		offset = dissect_id_RL_ParameterUpdateIndicationFDD_RL_Information_Item(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PHASE_REFERENCE_UPDATE_INDICATOR:								/*  525 */
+		offset = dissect_id_Phase_Reference_Update_Indicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UNIDIRECTIONAL_DCH_INDICATOR:									/*  526 */
+		offset = dissect_id_Unidirectional_DCH_Indicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_INFORMATION_RL_RECONFPREPTDD:								/*  527 */
+		offset = dissect_id_RL_Information_RL_ReconfPrepTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MULTIPLE_RL_INFORMATIONRESPONSE_RL_RECONFREADYTDD:			/*  528 */
+		offset = dissect_id_Multiple_RL_InformationResponse_RL_ReconfReadyTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_RECONFIGURATIONRESPONSETDD_RL_INFORMATION:					/*  529 */
+		offset = dissect_id_RL_ReconfigurationResponseTDD_RL_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SATELLITE_ALMANAC_INFORMATION_EXTITEM:						/*  530 */
+		offset = dissect_id_Satellite_Almanac_Information_ExtItem(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HSDSCH_INFORMATION_TO_MODIFY_UNSYNCHRONISED:					/*  533 */
+		offset = dissect_id_HSDSCH_Information_to_Modify_Unsynchronised(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TNLQOS:														/*  534 */
+		offset = dissect_id_TnlQos(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RTLOADVALUE:													/*  535 */
+		offset = dissect_id_RTLoadValue(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NRTLOADINFORMATIONVALUE:										/*  536 */
+		offset = dissect_id_NRTLoadInformationValue(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_CELLPORTIONID:												/*  537 */
+		offset = dissect_id_CellPortionID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UPPTSINTERFERENCEVALUE:										/*  538 */
+		offset = dissect_id_UpPTSInterferenceValue(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PRIMARYCCPCH_RSCP_DELTA:										/*  539 */
+		offset = dissect_id_PrimaryCCPCH_RSCP_Delta(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTTYPE:											/*  540 */
+		offset = dissect_id_UEMeasurementType(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTTIMESLOTINFOHCR:									/*  541 */
+		offset = dissect_id_UEMeasurementTimeslotInfoHCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTTIMESLOTINFOLCR:									/*  542 */
+		offset = dissect_id_UEMeasurementTimeslotInfoLCR(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTREPORTCHARACTERISTICS:							/*  543 */
+		offset = dissect_id_UEMeasurementReportCharacteristics(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTPARAMETERMODALLOW:								/*  544 */
+		offset = dissect_id_UEMeasurementParameterModAllow(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEMEASUREMENTVALUEINFORMATION:								/*  545 */
+		offset = dissect_id_UEMeasurementValueInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INTERFACESTOTRACEITEM:										/*  546 */
+		offset = dissect_id_InterfacesToTraceItem(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_LISTOFINTERFACESTOTRACE:										/*  547 */
+		offset = dissect_id_ListOfInterfacesToTrace(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRACEDEPTH:													/*  548 */
+		offset = dissect_id_TraceDepth(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRACERECORDINGSESSIONREFERENCE:								/*  549 */
+		offset = dissect_id_TraceRecordingSessionReference(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_TRACEREFERENCE:												/*  550 */
+		offset = dissect_id_TraceReference(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UEIDENTITY:													/*  551 */
+		offset = dissect_id_UEIdentity(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_NACC_RELATED_DATA:											/*  552 */
+		offset = dissect_id_NACC_Related_Data(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_GSM_CELL_INFEX_RQST:											/*  553 */
+		offset = dissect_id_GSM_Cell_InfEx_Rqst(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MEASUREMENTRECOVERYBEHAVIOR:									/*  554 */
+		offset = dissect_id_MeasurementRecoveryBehavior(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MEASUREMENTRECOVERYREPORTINGINDICATOR:						/*  555 */
+		offset = dissect_id_MeasurementRecoveryReportingIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MEASUREMENTRECOVERYSUPPORTINDICATOR:							/*  556 */
+		offset = dissect_id_MeasurementRecoverySupportIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_DL_DPCH_POWER_INFORMATION_RL_RECONFPREPFDD:					/*  557 */
+		offset = dissect_id_DL_DPCH_Power_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_F_DPCH_INFORMATION_RL_RECONFPREPFDD:							/*  558 */
+		offset = dissect_id_F_DPCH_Information_RL_ReconfPrepFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_F_DPCH_INFORMATION_RL_SETUPRQSTFDD:							/*  559 */
+		offset = dissect_id_F_DPCH_Information_RL_SetupRqstFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MBMS_BEARER_SERVICE_LIST:										/*  560 */
+		offset = dissect_id_MBMS_Bearer_Service_List(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MBMS_BEARER_SERVICE_LIST_INFEX_RSP:							/*  561 */
+		offset = dissect_id_MBMS_Bearer_Service_List_InfEx_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ACTIVE_MBMS_BEARER_SERVICEFDD:								/*  562 */
+		offset = dissect_id_Active_MBMS_Bearer_ServiceFDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ACTIVE_MBMS_BEARER_SERVICETDD:								/*  563 */
+		offset = dissect_id_Active_MBMS_Bearer_ServiceTDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_OLD_URA_ID:													/*  564 */
+		offset = dissect_id_Old_URA_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UE_STATE:														/*  568 */
+		offset = dissect_id_UE_State(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_URA_ID:														/*  569 */
+		offset = dissect_id_URA_ID(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HARQ_PREAMBLE_MODE:											/*  571 */
+		offset = dissect_id_HARQ_Preamble_Mode(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SYNCHRONISATIONINDICATOR:										/*  572 */
+		offset = dissect_id_SynchronisationIndicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_UL_DPDCHINDICATOREDCH:										/*  573 */
+		offset = dissect_id_UL_DPDCHIndicatorEDCH(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDPCH_INFORMATION:											/*  574 */
+		offset = dissect_id_EDPCH_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_RL_SPECIFIC_EDCH_INFORMATION:									/*  575 */
+		offset = dissect_id_RL_Specific_EDCH_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_RL_INDICATION:											/*  576 */
+		offset = dissect_id_EDCH_RL_Indication(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_FDD_INFORMATION:											/*  577 */
+		offset = dissect_id_EDCH_FDD_Information(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_RLSET_ID:												/*  578 */
+		offset = dissect_id_EDCH_RLSet_Id(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_SERVING_EDCHRL_ID:											/*  579 */
+		offset = dissect_id_Serving_EDCHRL_Id(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_FDD_DL_CONTROLCHANNELINFORMATION:						/*  580 */
+		offset = dissect_id_EDCH_FDD_DL_ControlChannelInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_FDD_INFORMATIONRESPONSE:									/*  581 */
+		offset = dissect_id_EDCH_FDD_InformationResponse(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_MACDFLOWS_TO_ADD:										/*  582 */
+		offset = dissect_id_EDCH_MACdFlows_To_Add(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_FDD_INFORMATION_TO_MODIFY:								/*  583 */
+		offset = dissect_id_EDCH_FDD_Information_To_Modify(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_MACDFLOWS_TO_DELETE:										/*  584 */
+		offset = dissect_id_EDCH_MACdFlows_To_Delete(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDPCH_INFORMATION_RLRECONFREQUEST_FDD:						/*  585 */
+		offset = dissect_id_EDPCH_Information_RLReconfRequest_FDD(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_MACDFLOWSPECIFICINFORMATIONLIST_RL_PREEMPTREQUIREDIND:	/*  586 */
+		offset = dissect_id_EDCH_MacdFlowSpecificInformationList_RL_PreemptRequiredInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_MACDFLOWSPECIFICINFORMATIONITEM_RL_PREEMPTREQUIREDIND:	/*  587 */
+		offset = dissect_id_EDCH_MacdFlowSpecificInformationItem_RL_PreemptRequiredInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_MACDFLOWSPECIFICINFORMATIONLIST_RL_CONGESTIND:			/*  588 */
+		offset = dissect_id_EDCH_MacdFlowSpecificInformationList_RL_CongestInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_EDCH_MACDFLOWSPECIFICINFORMATIONITEM_RL_CONGESTIND:			/*  589 */
+		offset = dissect_id_EDCH_MacdFlowSpecificInformationItem_RL_CongestInd(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MBMS_BEARER_SERVICE_FULL_ADDRESS:								/*  590 */
+		offset = dissect_id_MBMS_Bearer_Service_Full_Address(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INITIAL_DL_DPCH_TIMINGADJUSTMENT:								/*  591 */
+		offset = dissect_id_Initial_DL_DPCH_TimingAdjustment(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_INITIAL_DL_DPCH_TIMINGADJUSTMENT_ALLOWED:						/*  592 */
+		offset = dissect_id_Initial_DL_DPCH_TimingAdjustment_Allowed(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_USER_PLANE_CONGESTION_FIELDS_INCLUSION:						/*  593 */
+		offset = dissect_id_User_Plane_Congestion_Fields_Inclusion(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_HARQ_PREAMBLE_MODE_ACTIVATION_INDICATOR:						/*  594 */
+		offset = dissect_id_HARQ_Preamble_Mode_Activation_Indicator(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MULTIPLE_DEDICATEDMEASUREMENTVALUELIST_TDD_DM_RSP:			/*  595 */
+		offset = dissect_id_multiple_DedicatedMeasurementValueList_TDD_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_MULTIPLE_DEDICATEDMEASUREMENTVALUELIST_LCR_TDD_DM_RSP:		/*  596 */
+		offset = dissect_id_multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_PROVIDEDINFORMATION:											/*  597 */
+		offset = dissect_id_ProvidedInformation(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ACTIVE_MBMS_BEARER_SERVICEFDD_PFL:							/*  598 */
+		offset = dissect_id_Active_MBMS_Bearer_ServiceFDD_PFL(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_ACTIVE_MBMS_BEARER_SERVICETDD_PFL:							/*  599 */
+		offset = dissect_id_Active_MBMS_Bearer_ServiceTDD_PFL(tvb, offset, pinfo, value_tree);
+		break;
 	case RNSAP_ID_FREQUENCYBANDINDICATOR:										/*  600	*/
-		offset = offset + (length<<3);
+		offset = dissect_id_FrequencyBandIndicator(tvb, offset, pinfo, value_tree);
 		break;
 	default:
 		offset = offset + (length<<3);
