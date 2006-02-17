@@ -1229,13 +1229,68 @@
 			</grouped>
 		</avp>
 		<avp name="Cause-Code" code="861" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Integer32"/>
+			<type type-name="Enumerated"/>
 			<enum name="End of SUBSCRIBE dialog" code="-2"/>
 			<enum name="Successful transaction" code="-1"/>
 			<enum name="Normal end of session" code="0"/>
 			<enum name="Unspecified error" code="1"/>
 			<enum name="Unsuccessful session setup" code="2"/>
 			<enum name="Internal error" code="3"/>
+			<enum name="Multiple Choices" code="300"/>
+			<enum name="Moved Permanently" code="301"/>
+ 			<enum name="Moved Temporarily" code="302"/>
+			<enum name="Use Proxy" code="305"/>
+			<enum name="Alternative Service" code="380"/>
+			<enum name="Bad Request" code="400"/>
+			<enum name="Unauthorized" code="401"/>
+			<enum name="Payment Required" code="402"/>
+			<enum name="Forbidden" code="403"/>
+			<enum name="Not Found" code="404"/>
+			<enum name="Method Not Allowed" code="405"/>
+ 			<enum name="Not Acceptable" code="406"/>
+			<enum name="Proxy Authentication Required" code="407"/>
+			<enum name="Request Timeout" code="408"/>
+			<enum name="Gone" code="410"/>
+			<enum name="Conditional Request Failed" code="412"/>
+			<enum name="Request Entity Too Large" code="413"/>
+			<enum name="Request-URI Too Long" code="414"/>
+			<enum name="Unsupported Media Type" code="415"/>
+ 			<enum name="Unsupported URI Scheme" code="416"/>
+			<enum name="Unknown Resource-Priority" code="417"/>
+ 			<enum name="Bad Extension" code="420"/>
+ 			<enum name="Extension Required" code="421"/>
+			<enum name="Session Interval Too Small" code="422"/>
+			<enum name="Interval Too Brief" code="423"/>
+ 			<enum name="Use Identity Header" code="428"/>
+			<enum name="Provide Referrer Identity" code="429"/>
+			<enum name="Bad Identity-Info" code="436"/>
+ 			<enum name="Unsupported Certificate" code="437"/>
+			<enum name="Invalid Identity Header" code="438"/>
+ 			<enum name="Temporarily Unavailable" code="480"/>
+ 			<enum name="Call/Transaction Does Not Exist" code="481"/>
+			<enum name="Loop Detected" code="482"/>
+			<enum name="Too Many Hops" code="483"/>
+			<enum name="Address Incomplete" code="484"/>
+			<enum name="Ambiguous" code="485"/>
+			<enum name="Busy Here" code="486"/>
+			<enum name="Request Terminated" code="487"/>
+ 			<enum name="Not Acceptable Here" code="488"/>
+ 			<enum name="Bad Event" code="489"/>
+			<enum name="Request Pending" code="491"/>
+			<enum name="Undecipherable" code="493"/>
+			<enum name="Security Agreement Required" code="494"/>
+			<enum name="Server Internal Error" code="500"/>
+			<enum name="Not Implemented" code="501"/>
+			<enum name="Bad Gateway" code="502"/>
+			<enum name="Service Unavailable" code="503"/>
+			<enum name="Server Time-out" code="504"/>
+			<enum name="Version Not Supported" code="505"/>
+			<enum name="Message Too Large" code="513"/>
+			<enum name="Precondition Failure" code="580"/> 
+  			<enum name="Busy Everywhere" code="600"/>
+			<enum name="Decline" code="603"/>
+			<enum name="Does Not Exist Anywhere" code="604"/>
+			<enum name="Not Acceptable" code="606"/>
 		</avp>
 		<avp name="Node-Functionality" code="862" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
