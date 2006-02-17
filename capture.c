@@ -96,6 +96,7 @@ capture_start(capture_options *capture_opts)
           capture_opts->save_file = NULL;
       }
 
+      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start failed!");
       capture_opts->state = CAPTURE_STOPPED;
   } else {
       /* the capture child might not respond shortly after bringing it up */
