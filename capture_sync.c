@@ -491,23 +491,19 @@ sync_pipe_start(capture_options *capture_opts) {
     argv = sync_pipe_add_arg(argv, &argc, "-B");
     g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d",capture_opts->buffer_size);
     argv = sync_pipe_add_arg(argv, &argc, buffer_size);
+#endif
 
-    /* Convert filter string to a quote delimited string and pass to child */
-    filterstring = NULL;
-    if (capture_opts->cfilter != NULL && strlen(capture_opts->cfilter) != 0) {
+    if (capture_opts->cfilter) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
-      filterstring = g_strdup_printf("\"%s\"", capture_opts->cfilter);
-      argv = sync_pipe_add_arg(argv, &argc, filterstring);
+      argv = sync_pipe_add_arg(argv, &argc, capture_opts->cfilter);
     }
 
-    /* Convert save file name to a quote delimited string and pass to child */
-    savefilestring = NULL;
     if(capture_opts->save_file) {
       argv = sync_pipe_add_arg(argv, &argc, "-w");
-      savefilestring = g_strdup_printf("\"%s\"", capture_opts->save_file);
-      argv = sync_pipe_add_arg(argv, &argc, savefilestring);
+      argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
     }
 
+#ifdef _WIN32
     /* init SECURITY_ATTRIBUTES */
     sa.nLength = sizeof(SECURITY_ATTRIBUTES); 
     sa.bInheritHandle = TRUE; 
@@ -598,16 +594,6 @@ sync_pipe_start(capture_options *capture_opts) {
 			strerror(errno));
       g_free(argv);
       return FALSE;
-    }
-
-    if (capture_opts->cfilter != NULL && capture_opts->cfilter != 0) {
-      argv = sync_pipe_add_arg(argv, &argc, "-f");
-      argv = sync_pipe_add_arg(argv, &argc, capture_opts->cfilter);
-    }
-
-    if(capture_opts->save_file) {
-      argv = sync_pipe_add_arg(argv, &argc, "-w");
-      argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
     }
 
     if ((capture_opts->fork_child = fork()) == 0) {
