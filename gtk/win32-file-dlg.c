@@ -56,17 +56,10 @@
 #include "file_dlg.h"
 #include "main.h"
 #include "menu.h"
+#include "dlg_utils.h"
+#include "capture_dlg.h"
 
 #include "win32-file-dlg.h"
-
-// XXX - declarations from gtk/dlg_utils.h.  These should be moved
-// somewhere less GTK-specific.
-extern void set_last_open_dir(char *dirname);
-
-// XXX - declarations from gtk/capture_dlg.h.  These should be moved
-// somewhere less GTK-specific.
-/* capture start confirmed by "Save unsaved capture", so do it now */
-void capture_start_confirmed(void);
 
 
 typedef enum {
