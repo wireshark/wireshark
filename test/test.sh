@@ -111,7 +111,11 @@ do
 		exit 0
 	;;
 		"T" | "t" | "")
+LIMIT=1
+for ((a=1; a <= LIMIT ; a++))  # Double parentheses, and "LIMIT" with no "$".
+do
 		test_suite_run "${menu_title[MENU_LEVEL]}" "${menu_function[MENU_LEVEL]}"
+done
 		echo "----------------------------------------------------------------------"
 	;;
 		"U" | "u")
