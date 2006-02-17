@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-rnsap.c                                                           */
+/* ./packet-rnsap.c                                                           */
 /* ../../tools/asn2eth.py -X -e -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
 
 /* Input file: packet-rnsap-template.c */
@@ -30287,8 +30287,8 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 	proto_tree	*value_tree = NULL;
 	guint length;
 
-    value_item = proto_tree_add_item(tree, hf_rnsap_initiatingMessageValue, tvb, 0, -1, FALSE);
-    value_tree = proto_item_add_subtree(value_item, ett_rnsap_initiatingMessageValue);
+	value_item = proto_tree_add_item(tree, hf_rnsap_initiatingMessageValue, tvb, 0, -1, FALSE);
+	value_tree = proto_item_add_subtree(value_item, ett_rnsap_initiatingMessageValue);
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, value_tree, hf_rnsap_pdu_length, &length);
 	proto_item_set_len(value_item,length);
@@ -30378,21 +30378,21 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 		break;
 	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation_TDD(tvb, offset, pinfo, value_tree);
 		}
 		break;
 	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_unSynchronisedRadioLinkReconfiguration(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_unSynchronisedRadioLinkReconfiguration(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_unSynchronisedRadioLinkReconfiguration_TDD(tvb, offset, pinfo, value_tree);
 		}
 		break;
 	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:							 /* 25 */
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_uplinkSignallingTransfer(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_uplinkSignallingTransfer(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_uplinkSignallingTransfer_TDD(tvb, offset, pinfo, value_tree);
 		}
@@ -30426,7 +30426,7 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 		break;
 	case RNSAP_ID_RADIOLINKACTIVATION: 								 /* 36 */
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_radioLinkActivation(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_radioLinkActivation(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_radioLinkActivation_TDD(tvb, offset, pinfo, value_tree);
 		}
@@ -30436,7 +30436,7 @@ static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, 
 		break;
 	case RNSAP_ID_RADIOLINKPARAMETERUPDATE:							 /* 38 */
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_radioLinkParameterUpdate(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_radioLinkParameterUpdate(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_radioLinkParameterUpdate_TDD(tvb, offset, pinfo, value_tree);
 		}
@@ -30481,8 +30481,8 @@ static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, 
 	proto_tree	*value_tree = NULL;
 	guint length;
 
-    value_item = proto_tree_add_item(tree, hf_rnsap_successfulOutcomeValue, tvb, 0, -1, FALSE);
-    value_tree = proto_item_add_subtree(value_item, ett_rnsap_initiatingMessageValue);
+	value_item = proto_tree_add_item(tree, hf_rnsap_successfulOutcomeValue, tvb, 0, -1, FALSE);
+	value_tree = proto_item_add_subtree(value_item, ett_rnsap_initiatingMessageValue);
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, value_tree, hf_rnsap_pdu_length, &length);
 	proto_item_set_len(value_item,length);
@@ -30491,7 +30491,7 @@ static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, 
 	switch(ProcedureCode){
 	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION:
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_commonTransportChannelResourcesInitialisation1(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_commonTransportChannelResourcesInitialisation1(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_commonTransportChannelResourcesInitialisation_TDD(tvb, offset, pinfo, value_tree);
 		}
@@ -30514,7 +30514,7 @@ static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, 
 		break;
 	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_radioLinkSetup1(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_radioLinkSetup1(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_radioLinkSetupTdd1(tvb, offset, pinfo, value_tree);
 		}
@@ -30558,8 +30558,8 @@ static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset
 	proto_tree	*value_tree = NULL;
 	guint length;
 
-    value_item = proto_tree_add_item(tree, hf_rnsap_unsuccessfulOutcomeValue, tvb, 0, -1, FALSE);
-    value_tree = proto_item_add_subtree(value_item, ett_rnsap_UnsuccessfulOutcomeValue);
+	value_item = proto_tree_add_item(tree, hf_rnsap_unsuccessfulOutcomeValue, tvb, 0, -1, FALSE);
+	value_tree = proto_item_add_subtree(value_item, ett_rnsap_UnsuccessfulOutcomeValue);
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, value_tree, hf_rnsap_pdu_length, &length);
 	proto_item_set_len(value_item,length);
@@ -30584,13 +30584,13 @@ static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset
 		break;
 	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
 		if (ddMode==RNSAP_FDD){
-			offset = offset = dissect_id_radioLinkSetup2(tvb, offset, pinfo, value_tree);
+			offset = dissect_id_radioLinkSetup2(tvb, offset, pinfo, value_tree);
 		}else{
 			offset = dissect_id_radioLinkSetupTdd2(tvb, offset, pinfo, value_tree);
 		}
 		break;
 	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
-		offset = offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation2(tvb, offset, pinfo, value_tree);
+		offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation2(tvb, offset, pinfo, value_tree);
 		break;
 	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
 		if (ddMode==RNSAP_FDD){
@@ -30622,8 +30622,8 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 	proto_tree	*value_tree = NULL;
 	guint length;
 
-    value_item = proto_tree_add_item(tree, hf_rnsap_value, tvb, 0, -1, FALSE);
-    value_tree = proto_item_add_subtree(value_item, ett_rnsap_ProtocolIEValueValue);
+	value_item = proto_tree_add_item(tree, hf_rnsap_value, tvb, 0, -1, FALSE);
+	value_tree = proto_item_add_subtree(value_item, ett_rnsap_ProtocolIEValueValue);
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, value_tree, hf_rnsap_IE_length, &length);
 	proto_item_set_len(value_item,length);
@@ -31644,7 +31644,6 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*rnsap_item = NULL;
 	proto_tree	*rnsap_tree = NULL;
-	int			offset = 0;
 
 	top_tree = tree;
 
@@ -31652,9 +31651,9 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RNSAP");
 
-    /* create the rnsap protocol tree */
-    rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, FALSE);
-    rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
+	/* create the rnsap protocol tree */
+	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, FALSE);
+	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
 
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
 }
@@ -38547,7 +38546,7 @@ void proto_register_rnsap(void) {
         "PrivateIE-Field/privateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 1980 "packet-rnsap-template.c"
+#line 1979 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39410,7 +39409,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 1990 "packet-rnsap-template.c"
+#line 1989 "packet-rnsap-template.c"
   };
 
 
