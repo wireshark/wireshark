@@ -336,6 +336,9 @@ void register_lua(void) {
     Tap_register(L);
     Address_register(L);
     TextWindow_register(L);
+    PseudoHeader_register(L);
+    Dumper_register(L);
+    
     
     /* print has been changed to yield an error if used */
     lua_pushstring(L, "print");

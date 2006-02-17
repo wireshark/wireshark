@@ -238,7 +238,7 @@ int tap_packet_cb_error_handler(lua_State* L) {
 }
 
 
-int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_ , const void *data _U_) {
+int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_) {
     Tap tap = tapdata;
     int retval = 0;
 
@@ -250,10 +250,11 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_ , 
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->packet_ref);
     
     push_Pinfo(tap->L, pinfo);
+    push_Tvb(tap->L, edt->tvb);
     
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->data_ref);
     
-    switch ( lua_pcall(tap->L,2,1,1) ) {
+    switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
             
             if (lua_gettop(tap->L) == 1)

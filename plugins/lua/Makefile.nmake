@@ -23,6 +23,7 @@ OBJECTS= \
 	lua_pinfo.obj \
 	lua_tap.obj \
 	lua_gui.obj \
+	lua_dumper.obj \
 	packet-lua.obj \
 	plugin.obj
 
