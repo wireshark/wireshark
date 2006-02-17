@@ -69,6 +69,7 @@ const char *get_if_name(const char *if_text);
 
 /** Convert plain interface name to the displayed name in the combo box.
  *
+ * @param if_list The list of interfaces returned by build_capture_combo_list()
  * @param if_name The name of the interface.
  *
  * @return The descriptive name (must be g_free'd later)
