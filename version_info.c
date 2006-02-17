@@ -26,10 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#endif /* HAVE_LIBPCAP */
-
 #include <glib.h>
 
 #include <stdlib.h>
@@ -44,12 +40,6 @@
 #include <pcre.h>	/* to get the libpcre version number */
 #endif /* HAVE_LIBPCRE */
 
-/*
- * This has to come after the include of <pcap.h>, as the include of
- * <pcap.h> might cause <winsock2.h> to be included, and if we've
- * already included <winsock.h> as a result of including <windows.h>,
- * we get a bunch of redefinitions.
- */
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
