@@ -202,13 +202,16 @@ DistinguishedName	B	"2.5.4.49"	"id-at-distinguishedName"
   proto_item_append_text(top_of_rdn, " (%%s)", last_rdn);
 
   /* now append this to the DN */
-  if(*last_dn) {
-     temp_dn = ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
-     g_snprintf(temp_dn, MAX_DN_STR_LEN, "%%s,%%s", last_rdn, last_dn);
-     last_dn[0] = '\0';
-     g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
-  } else
-     g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
+  if (last_dn) {
+    if(*last_dn) {
+      temp_dn = ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
+      g_snprintf(temp_dn, MAX_DN_STR_LEN, "%%s,%%s", last_rdn, last_dn);
+      last_dn[0] = '\0';
+      g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
+    } else {
+      g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
+    }
+  }
 
   doing_dn = FALSE;
   last_rdn = NULL; /* it will get freed when the next packet is dissected */
