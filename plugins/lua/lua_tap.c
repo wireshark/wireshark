@@ -227,12 +227,38 @@ struct _eth_tap {
     int data_ref;
 };
 
+
 int tap_packet_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
+    static gchar* last_error = NULL;
+    static int repeated = 0;
+    static int next = 2;
+
+    /* show the error the 1st, 3rd, 5th, 9th, 17th, 33th... time it appears to avoid window flooding */ 
+    /* XXX the last series of identical errors won't be shown (the user however gets at least one message) */
     
-    /* XXX: UGLY! this can flood the user with windows to close! */  
+    if (! last_error) {
+        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback:\n %s",lua_pinfo->fd->num,error);
+        last_error = g_strdup(error);
+        repeated = 0;
+        next = 2;
+        return 0;
+    }
     
-    report_failure("Lua: Error During execution of Tap Packet Callback:\n %s",error);
+    if (g_str_equal(last_error,error) ) {
+        repeated++;
+        if ( repeated == next ) {
+            report_failure("Lua: on packet %i Error During execution of Tap Packet Callback happened %i times:\n %s",lua_pinfo->fd->num,repeated,error);
+            next *= 2;
+        }
+    } else {
+        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback happened %i times:\n %s",lua_pinfo->fd->num,repeated,last_error);
+        g_free(last_error);
+        last_error = g_strdup(error);
+        repeated = 0;
+        next = 2;
+        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback:\n %s",error);
+    }
     
     return 0;    
 }
@@ -254,6 +280,9 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->data_ref);
     
+    lua_pinfo = pinfo; 
+    lua_tvb = edt->tvb;
+    
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
             
@@ -264,7 +293,6 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
             
             break;
         case LUA_ERRRUN:
-            g_warning("Runtime error while calling %s.packet() ",tap->name);
             break;
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling %s.packet() ",tap->name);
@@ -275,7 +303,11 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     }
     
     clear_outstanding_pinfos();
+    clear_outstanding_tvbs();
     
+    lua_pinfo = NULL; 
+    lua_tvb = NULL;
+
     return retval;
 }
 

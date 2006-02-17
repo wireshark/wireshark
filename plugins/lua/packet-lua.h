@@ -248,7 +248,7 @@ LUA_CLASS_DECLARE(DissectorTable,DISSECTOR_TABLE);
 LUA_CLASS_DECLARE(Address,ADDRESS);
 LUA_CLASS_DECLARE(TextWindow,TEXT_WINDOW);
 LUA_CLASS_DECLARE(Dumper,DUMPER);
-LUA_CLASS_DECLARE(PseudoHeader,PSEUDOHEADER)
+LUA_CLASS_DECLARE(PseudoHeader,PSEUDOHEADER);
 
 extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_);

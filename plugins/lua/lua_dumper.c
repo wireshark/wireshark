@@ -241,8 +241,8 @@ static int Dumper_dump(lua_State* L) {
 
 static int Dumper_new_for_current(lua_State* L) {
     Dumper d  = checkDumper(L,1);
-    const char* filename = luaL_checkstring(L,1);
-    int filetype = luaL_optint(L,2,WTAP_FILE_PCAP);
+    const char* filename = luaL_checkstring(L,2);
+    int filetype = luaL_optint(L,3,WTAP_FILE_PCAP);
     int encap;
     int err = 0;
     
