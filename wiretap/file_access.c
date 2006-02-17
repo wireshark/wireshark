@@ -799,7 +799,10 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 			}
 			ret = FALSE;
 		}
-	}
+    } else {
+        /* as we don't close stdout, at least try to flush it */
+        wtap_dump_flush(wdh);
+    }
 	if (wdh->dump.opaque != NULL)
 		g_free(wdh->dump.opaque);
 	g_free(wdh);
