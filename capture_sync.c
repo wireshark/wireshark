@@ -291,6 +291,75 @@ sync_pipe_add_arg(const char **args, int *argc, const char *arg)
 
 
 
+#ifdef _WIN32
+/* Quote the argument element if necessary, so that it will get
+ * reconstructed correctly in the C runtime startup code.  Note that
+ * the unquoting algorithm in the C runtime is really weird, and
+ * rather different than what Unix shells do. See stdargv.c in the C
+ * runtime sources (in the Platform SDK, in src/crt).
+ *
+ * Stolen from GLib's protect_argv(), an internal routine that quotes
+ * string in an argument list so that they arguments will be handled
+ * correctly in the command-line string passed to CreateProcess()
+ * if that string is constructed by gluing those strings together.
+ */
+static gchar *
+protect_arg (gchar *argv)
+{
+    gchar *new_arg;
+    gchar *p = argv;
+    gchar *q;
+    gint len = 0;
+    gboolean need_dblquotes = FALSE;
+
+    while (*p) {
+        if (*p == ' ' || *p == '\t')
+            need_dblquotes = TRUE;
+        else if (*p == '"')
+            len++;
+        else if (*p == '\\') {
+            gchar *pp = p;
+
+            while (*pp && *pp == '\\')
+                pp++;
+            if (*pp == '"')
+                len++;
+	}
+        len++;
+        p++;
+    }
+
+    q = new_arg = g_malloc (len + need_dblquotes*2 + 1);
+    p = argv;
+
+    if (need_dblquotes)
+        *q++ = '"';
+
+    while (*p) {
+        if (*p == '"')
+            *q++ = '\\';
+        else if (*p == '\\') {
+            gchar *pp = p;
+
+            while (*pp && *pp == '\\')
+                pp++;
+            if (*pp == '"')
+                *q++ = '\\';
+	}
+	*q++ = *p;
+	p++;
+    }
+
+    if (need_dblquotes)
+        *q++ = '"';
+    *q++ = '\0';
+
+    return new_arg;
+}
+#endif
+
+
+
 #define ARGV_NUMBER_LEN 24
 
 gboolean
@@ -312,6 +381,7 @@ sync_pipe_start(capture_options *capture_opts) {
     HANDLE signal_pipe_read;                /* pipe used to send messages from parent to child (currently only stop) */
     HANDLE signal_pipe_write;               /* pipe used to send messages from parent to child (currently only stop) */
     GString *args = g_string_sized_new(200);
+    gchar *quoted_arg;
     SECURITY_ATTRIBUTES sa; 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -479,14 +549,22 @@ sync_pipe_start(capture_options *capture_opts) {
     /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
 #endif
 
-    g_string_append(args, exename);
+    /*
+     * XXX - is this necessary?  argv[0] should be the full path of
+     * dumpcap.
+     */
+    quoted_arg = protect_arg(exename);
+    g_string_append(args, quoted_arg);
+    g_free(quoted_arg);
 
     /* convert args array into a single string */
     /* XXX - could change sync_pipe_add_arg() instead */
     /* there is a drawback here: the length is internally limited to 1024 bytes */
     for(i=0; argv[i] != 0; i++) {
         g_string_append_c(args, ' ');
-        g_string_append(args, argv[i]);
+        quoted_arg = protect_arg(argv[i]);
+        g_string_append(args, quoted_arg);
+        g_free(quoted_arg);
     }
 
     /* call dumpcap */
@@ -548,7 +626,7 @@ sync_pipe_start(capture_options *capture_opts) {
       eth_close(1);
       dup(sync_pipe[PIPE_WRITE]);
       eth_close(sync_pipe[PIPE_READ]);
-      execvp(exename, argv);
+      execv(exename, argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		exename, strerror(errno));
       sync_pipe_errmsg_to_parent(errmsg);
