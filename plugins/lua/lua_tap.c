@@ -116,7 +116,8 @@ static int Field_fetch (lua_State* L) {
         return 0;            
     }
 
-    if (! lua_tree ) {
+    if (! lua_pinfo ) {
+        g_warning("pinfo: %p",lua_pinfo);
         luaL_error(L,"fields cannot be used outside dissectors or taps");
         return 0;
     }
@@ -257,7 +258,7 @@ int tap_packet_cb_error_handler(lua_State* L) {
         last_error = g_strdup(error);
         repeated = 0;
         next = 2;
-        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback:\n %s",error);
+        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback:\n %s",lua_pinfo->fd->num,error);
     }
     
     return 0;    
@@ -282,6 +283,7 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     
     lua_pinfo = pinfo; 
     lua_tvb = edt->tvb;
+    lua_tree = edt->tree;
     
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
@@ -307,7 +309,8 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     
     lua_pinfo = NULL; 
     lua_tvb = NULL;
-
+    lua_tree = NULL;
+    
     return retval;
 }
 
