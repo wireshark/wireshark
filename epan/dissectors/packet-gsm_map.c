@@ -14651,7 +14651,12 @@ dissect_gsm_map_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 }
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-
+ 
+  gint8 bug_class;
+  gboolean bug_pc, bug_ind_field;
+  gint32 bug_tag;
+  guint32 bug_len1;
+  
   guint8 octet;
 
   switch(opcode){
@@ -14660,8 +14665,12 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case  3: /*cancelLocation*/
  	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /*   */
-		offset = offset +2;
+	if ( octet == 3){ /*   */ 
+	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	   * XXX is some conformance file magic to work around that bug
+	   */
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 		offset=dissect_gsm_map_CancelLocationArg(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
     offset=dissect_gsm_map_CancelLocationArgV2(FALSE, tvb, offset, pinfo, tree, -1);
@@ -14728,8 +14737,12 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 29: /*sendEndSignal*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+	if ( octet == 3){ /* This is a V3 message ??? */ 
+	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	   * XXX is some conformance file magic to work around that bug
+	   */
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 		offset=dissect_gsm_map_SendEndSignalArgV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
 	}else{
 		offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
@@ -14743,8 +14756,12 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 33: /*processAccessSignalling*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+	if ( octet == 3){ /* This is a V3 message ??? */ 
+	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	   * XXX is some conformance file magic to work around that bug
+	   */
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 		offset = dissect_gsm_map_ProcessAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
 	}else{
     offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
@@ -14753,7 +14770,11 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 34: /*forwardAccessSignalling*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	   * XXX is some conformance file magic to work around that bug
+	   */
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 		offset=dissect_gsm_map_ForwardAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
 		 offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
@@ -14844,8 +14865,12 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+	if ( octet == 3){ /* This is a V3 message ??? */ 
+	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	   * XXX is some conformance file magic to work around that bug
+	   */
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 		offset=dissect_gsm_map_PrepareHO_ArgV3(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
 		offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -14910,6 +14935,11 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+
+ gint8 bug_class;
+ gboolean bug_pc, bug_ind_field;
+ gint32 bug_tag;
+ guint32 bug_len1;
 	
   guint8 octet;
   switch(opcode){
@@ -14926,7 +14956,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_CancelLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  4: /*provideRoamingNumber*/
-    offset=dissect_gsm_map_ProvideRoamingNumberRes(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_ProvideRoamingNumberRes(FALSE, tvb, offset, pinfo, tree, -1); // TRUE florent
     break;
   case  6: /*resumeCallHandling*/
     offset=dissect_gsm_map_ResumeCallHandlingRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -14971,7 +15001,8 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
   case 22: /*sendRoutingInfo*/
 	  /* This is done to get around a problem with IMPLICIT tag:s */
-    offset = offset +2;
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
     offset=dissect_gsm_map_SendRoutingInfoRes(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 23: /*updateGprsLocation*/
@@ -15030,20 +15061,29 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
 			* however if the tag (3) is stripped of it should work with the 'new' def.(?) 
 			*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+	if ( octet == 3){ /* This is a V3 message ??? */ 
+	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	   * XXX is some conformance file magic to work around that bug
+	   */
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 	}
 	offset=dissect_gsm_map_SendIdentificationRes(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
-	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset + 2;
-		offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
-	}else{
-		offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
-	}
-	break;
+    octet = tvb_get_guint8(tvb,0) & 0xf;
+    if ( octet == 3){ /* This is a V3 message ??? */
+      /* XXX  asn2eth can not yet handle tagged assignment yes so this
+       * XXX is some conformance file magic to work around that bug
+       */
+      offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+      offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
+ 
+      offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
+    }else{
+      offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
+    }
+    break;
   case 57: /*restoreData*/
     offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -15075,7 +15115,11 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
-		offset = offset +2;
+	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
+	   * XXX is some conformance file magic to work around that bug
+	   */
+	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 		offset=dissect_gsm_map_PrepareHO_ResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
 	}else{
 		offset=dissect_gsm_map_PrepareHO_Res(FALSE, tvb, offset, pinfo, tree, -1);
@@ -19212,7 +19256,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 1847 "packet-gsm_map-template.c"
+#line 1891 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -19631,7 +19675,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 1865 "packet-gsm_map-template.c"
+#line 1909 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */

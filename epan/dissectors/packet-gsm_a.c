@@ -2765,6 +2765,7 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     return(curr_offset - offset);
 }
 
+
 /*
  * [2] 3.2.2.35
  */
@@ -2792,6 +2793,23 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
     return(curr_offset - offset);
 }
+
+/*
+ * [2] 3.2.2.36 Channel Needed
+ */static guint8 
+be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    
+    len = len;
+    curr_offset = offset;
+    
+    /* no length check possible */
+   	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
+
+    return(curr_offset - offset);
+}
+
 
 /*
  * [2] 3.2.2.43
@@ -12429,7 +12447,7 @@ static guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offs
     be_chosen_chan,	/* Chosen Channel */
     NULL,	/* Total Resource Accessible */
     be_ciph_resp_mode,	/* Cipher Response Mode */
-    NULL,	/* Channel Needed */
+    be_cha_needed,	/* Channel Needed */
     NULL,	/* Trace Type */
     NULL,	/* TriggerID */
     NULL,	/* Trace Reference */
