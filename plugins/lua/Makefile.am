@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-INCLUDES = -I$(top_srcdir) 
+INCLUDES = -I$(top_srcdir) @LUA_INCLUDES@
 
 plugindir = @plugindir@
 
@@ -42,12 +42,10 @@ lua_la_SOURCES = \
 lua_la_LDFLAGS = -module -avoid-version
 lua_la_LIBADD = @PLUGIN_LIBS@ @LUA_LIBS@
 
-
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
 
 CLEANFILES = \
 	*~
@@ -63,4 +61,3 @@ EXTRA_DIST = \
 
 dummy:
 	touch dummy
-
