@@ -197,7 +197,7 @@ static void text_window_clear(funnel_text_window_t*  tw)
 
     if (! tw->win) return; 
     
-    txt = tw->txt;
+    txt = GTK_TEXT(tw->txt);
     
     gtk_text_set_point(txt, 0);
     /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
@@ -255,14 +255,14 @@ static void text_window_set_text(funnel_text_window_t*  tw, const gchar* text)
     if (! tw->win) return; 
     
 #if GTK_MAJOR_VERSION < 2
-    gtk_text_freeze(tw->txt);
+    gtk_text_freeze(GTK_TEXT(tw->txt));
 #endif
 
     text_window_clear(tw);
     text_window_append(tw, text);
 
 #if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(tw->txt);
+    gtk_text_thaw(GTK_TEXT(tw->txt));
 #endif
 }
 
