@@ -89,6 +89,8 @@ FONT 8, "MS Shell Dlg"
 }
 
 // XXX - The width value appears to have no effect, at least on Windows XP.
+// yes, this seems to be a bug, see:
+// http://softwareforums.intel.com/ids/board/message?board.id=5&message.id=7382
 ETHEREAL_EXPORTFILENAME_TEMPLATE DIALOG 0, 0, 5000, 97
 STYLE WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | DS_3DLOOK | DS_CONTROL
 FONT 8, "MS Shell Dlg"
