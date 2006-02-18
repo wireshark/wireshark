@@ -36,14 +36,22 @@
 #endif
 
 /* Name of package */
+#ifdef HAVE_LUA_5_1
+#define PACKAGE "lua_plugin_5.1"
+#else
 #define PACKAGE "lua_plugin_5.0.2"
+#endif
 
 #ifdef VERSION
 #undef VERSION
 #endif
 
 /* Version number of package */
-#define VERSION "0.0"
+#ifdef HAVE_LUA_5_1
+#define VERSION "510.0.1"
+#else
+#define VERSION "502.0.1"
+#endif
 
 
 #include <gmodule.h>
