@@ -37,7 +37,7 @@ lua_la_SOURCES = \
 	lua_dumper.c \
 	packet-lua.c \
 	packet-lua.h \
-	plugin.c
+	lua_plugin.c
 
 lua_la_LDFLAGS = -module -avoid-version
 lua_la_LIBADD = @PLUGIN_LIBS@ @LUA_LIBS@
