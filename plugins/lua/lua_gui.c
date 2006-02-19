@@ -362,16 +362,7 @@ int TextWindow_register(lua_State* L) {
     
     ops = funnel_get_funnel_ops();
     
-    luaL_openlib(L, TEXT_WINDOW, TextWindow_methods, 0);
-    luaL_newmetatable(L, TEXT_WINDOW);
-    luaL_openlib(L, 0, TextWindow_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
+	REGISTER_FULL_CLASS(TEXT_WINDOW, TextWindow_methods, TextWindow_meta);
     
     return 1;
 }

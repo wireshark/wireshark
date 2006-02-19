@@ -307,15 +307,7 @@ void register_lua(void) {
                       G_LOG_LEVEL_DEBUG,
                       ops ? ops->logger : basic_logger, NULL);
     
-    /* initialize the lua machine */
-    
-    L = lua_open();
-    
-    /* load lua's standard library */ 
-    luaopen_base(L);
-    luaopen_table(L);
-    luaopen_io(L);
-    luaopen_string(L);
+	INIT_LUA(L);
     
     /* load ethereal's API */
     ProtoField_register(L);

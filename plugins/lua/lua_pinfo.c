@@ -300,17 +300,7 @@ static const luaL_reg Address_meta[] = {
 
 
 int Address_register(lua_State *L) {
-    luaL_openlib(L, ADDRESS, Address_methods, 0);
-    luaL_newmetatable(L, ADDRESS);
-    luaL_openlib(L, 0, Address_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(ADDRESS, Address_methods, Address_meta);
     return 1;
 }
 
@@ -469,17 +459,7 @@ static const luaL_reg Column_meta[] = {
 
 
 int Column_register(lua_State *L) {
-    luaL_openlib(L, COLUMN, Column_methods, 0);
-    luaL_newmetatable(L, COLUMN);
-    luaL_openlib(L, 0, Column_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-
+	REGISTER_FULL_CLASS(COLUMN, Column_methods, Column_methods);
     return 1;
 }
 
@@ -560,9 +540,7 @@ static const luaL_reg Columns_meta[] = {
 
 
 int Columns_register(lua_State *L) {
-    luaL_newmetatable(L, COLUMNS);
-    luaL_openlib(L, NULL, Columns_meta, 0);
-    
+	REGISTER_META(COLUMNS,Columns_meta);
     return 1;
 }
 
@@ -823,11 +801,8 @@ static const luaL_reg Pinfo_meta[] = {
 };
 
 int Pinfo_register(lua_State* L) {
-    luaL_newmetatable(L, PINFO);
-    luaL_openlib(L, NULL, Pinfo_meta, 0);
-
+	REGISTER_META(PINFO,Pinfo_meta);
     outstanding_stuff = g_ptr_array_new();
-    
     return 1;
 }
 

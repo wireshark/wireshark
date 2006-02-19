@@ -111,13 +111,8 @@ static int PseudoHeader_nettl(lua_State* L) { luaL_error(L,"not implemented"); r
 static int PseudoHeader_k12(lua_State* L) { luaL_error(L,"not implemented"); return 0; }
 #endif
 
-static luaL_reg PseudoHeader_meta[] = {
-    {0,0}
-};
-
 int PseudoHeader_register(lua_State* L) {
     luaL_newmetatable(L, PSEUDOHEADER);
-    luaL_openlib(L, NULL, PseudoHeader_meta, 0);
     
     lua_pushstring(L, "PH_MTP2");
     lua_pushcfunction(L, PseudoHeader_mtp2);
@@ -321,24 +316,11 @@ static const luaL_reg Dumper_methods[] =
 
 static const luaL_reg Dumper_meta[] = 
 {
-    {"__index",       Dumper_new},
     {0, 0}
 };
 
 int Dumper_register(lua_State* L) {
-    
     dumper_encaps = g_hash_table_new(g_direct_hash,g_direct_equal);
-    
-    luaL_openlib(L, DUMPER, Dumper_methods, 0);
-    luaL_newmetatable(L, DUMPER);
-    luaL_openlib(L, 0, Dumper_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-
+    REGISTER_FULL_CLASS(DUMPER, Dumper_methods, Dumper_meta)
     return 1;
 }

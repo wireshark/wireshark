@@ -201,9 +201,8 @@ int Field_register(lua_State* L) {
 
     wanted_fields = g_ptr_array_new();
 
-    luaL_newmetatable(L, FIELD);
-    luaL_openlib(L, 0, Field_meta, 0);
-    
+    REGISTER_META(FIELD, Field_meta);
+
     lua_pushstring(L, "Field");
     lua_pushcfunction(L, Field_get);
     lua_settable(L, LUA_GLOBALSINDEX);
@@ -476,16 +475,10 @@ static const luaL_reg Tap_meta[] = {
 };
 
 int Tap_register(lua_State* L) {
-    luaL_newmetatable(L, TAP);
-    luaL_openlib(L, 0, Tap_meta, 0);
-
-
-    lua_pushstring(L, "new_tap");
+    REGISTER_META(TAP, Tap_meta);
+	
+	lua_pushstring(L, "Tap");
     lua_pushcfunction(L, Tap_new);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "remove_tap");
-    lua_pushcfunction(L, Tap_remove);
     lua_settable(L, LUA_GLOBALSINDEX);
     
     return 1;

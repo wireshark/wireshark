@@ -110,17 +110,7 @@ static const luaL_reg SubTree_meta[] = {
 };
 
 int SubTree_register(lua_State* L) {
-    luaL_openlib(L, SUBTREE, SubTree_methods, 0);
-    luaL_newmetatable(L, SUBTREE);
-    luaL_openlib(L, 0, SubTree_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+    REGISTER_FULL_CLASS(SUBTREE, SubTree_methods, SubTree_meta);
     return 1;
 }
 
@@ -289,17 +279,7 @@ static const luaL_reg ProtoTree_meta[] = {
 };
 
 int ProtoTree_register(lua_State* L) {
-    luaL_openlib(L, PROTO_TREE, ProtoTree_methods, 0);
-    luaL_newmetatable(L, PROTO_TREE);
-    luaL_openlib(L, 0, ProtoTree_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(PROTO_TREE, ProtoTree_methods, ProtoTree_meta);
     return 1;
 }
 
@@ -479,21 +459,11 @@ static const luaL_reg ProtoItem_meta[] = {
 
 
 int ProtoItem_register(lua_State *L) {
-   const struct _expert_severity* s;
-    
-    luaL_openlib(L, ITEM, ProtoItem_methods, 0);
-    luaL_newmetatable(L, ITEM);
-    luaL_openlib(L, 0, ProtoItem_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	const struct _expert_severity* s;
+	
+	REGISTER_FULL_CLASS(ITEM, ProtoItem_methods, ProtoItem_meta);    
     outstanding_stuff = g_ptr_array_new();
-
+	
     for(s = severities; s->str; s++) {
         lua_pushstring(L, s->str);
         lua_pushnumber(L, s->val);

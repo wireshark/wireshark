@@ -211,6 +211,48 @@ C shift##C(lua_State* L,int i) { \
     } \
 }
 
+
+#ifdef HAVE_LUA_5_1
+
+#define REGISTER_FULL_CLASS(CN,methods,meta) { \
+	luaL_register (L, CN, methods); \
+	luaL_newmetatable (L, CN); \
+	luaL_register (L, NULL, meta); \
+	lua_pushliteral(L, "__index"); \
+	lua_pushvalue(L, -3); \
+	lua_rawset(L, -3); \
+	lua_pushliteral(L, "__metatable"); \
+	lua_pushvalue(L, -3); \
+	lua_rawset(L, -3); \
+	lua_pop(L, 1); \
+}
+
+#define REGISTER_META(CN,meta) luaL_newmetatable (L, CN);   luaL_register (L, NULL, meta); 
+
+#define INIT_LUA(L) L = luaL_newstate(); luaL_openlibs(L);
+
+#else /* Lua 5.0 */
+
+#define REGISTER_FULL_CLASS(CN,methods,meta) { \
+	luaL_openlib(L, CN, methods, 0); \
+	luaL_newmetatable(L, CN); \
+	luaL_openlib(L, 0, meta, 0); \
+	lua_pushliteral(L, "__index"); \
+	lua_pushvalue(L, -3); \
+	lua_rawset(L, -3); \
+	lua_pushliteral(L, "__metatable"); \
+	lua_pushvalue(L, -3); \
+	lua_rawset(L, -3); \
+	lua_pop(L, 1); \
+}
+
+#define REGISTER_META(CN,meta) luaL_newmetatable (L, CN); luaL_openlib (L, NULL, meta, 0);
+
+#define INIT_LUA(L) L = lua_open(); luaopen_base(L); luaopen_table(L); luaopen_io(L); luaopen_string(L);
+
+#endif
+
+
 extern packet_info* lua_pinfo;
 extern proto_tree* lua_tree;
 extern tvbuff_t* lua_tvb;

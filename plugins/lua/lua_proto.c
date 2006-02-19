@@ -119,17 +119,7 @@ static const luaL_reg Pref_meta[] = {
 
 
 static int Pref_register(lua_State* L) {
-    luaL_openlib(L, PREF, Pref_methods, 0);
-    luaL_newmetatable(L, PREF);
-    luaL_openlib(L, 0, Pref_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(PREF, Pref_methods, Pref_meta);
     return 1;
 }
 
@@ -238,9 +228,7 @@ static const luaL_reg Prefs_meta[] = {
 };
 
 static int Prefs_register(lua_State* L) {
-    luaL_newmetatable(L, PREFS);
-    luaL_openlib(L, NULL, Prefs_meta, 0);
-    
+	REGISTER_META(PREFS, Prefs_meta);
     return 1;
 }
 
@@ -579,16 +567,7 @@ int ProtoField_register(lua_State* L) {
     const eth_ft_types_t* ts;
     const struct base_display_string_t* b;
     
-    luaL_openlib(L, PROTO_FIELD, ProtoField_methods, 0);
-    luaL_newmetatable(L, PROTO_FIELD);
-    luaL_openlib(L, 0, ProtoField_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
+REGISTER_FULL_CLASS(PROTO_FIELD, ProtoField_methods, ProtoField_meta);
     
     /* add a global FT_* variable for each FT_ type */
     for (ts = ftenums; ts->str; ts++) {
@@ -711,17 +690,7 @@ static const luaL_reg ProtoFieldArray_meta[] = {
 };
 
 int ProtoFieldArray_register(lua_State* L) {
-    luaL_openlib(L, PROTO_FIELD_ARRAY, ProtoFieldArray_methods, 0);
-    luaL_newmetatable(L, PROTO_FIELD_ARRAY);
-    luaL_openlib(L, 0, ProtoFieldArray_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(PROTO_FIELD_ARRAY, ProtoFieldArray_methods, ProtoFieldArray_meta);
     return 1;
 }
 
@@ -968,9 +937,9 @@ static const luaL_reg Proto_meta[] = {
 };
 
 int Proto_register(lua_State* L) {
-    luaL_newmetatable(L, PROTO);
-    luaL_openlib(L, NULL, Proto_meta, 0);
-    
+
+	REGISTER_META(PROTO, Proto_meta);
+
     lua_pushstring(L, "register_postdissector");
     lua_pushcfunction(L, Proto_register_postdissector);
     lua_settable(L, LUA_GLOBALSINDEX);
@@ -1046,17 +1015,7 @@ static const luaL_reg Dissector_meta[] = {
 };
 
 int Dissector_register(lua_State* L) {
-    luaL_openlib(L, DISSECTOR, Dissector_methods, 0);
-    luaL_newmetatable(L, DISSECTOR);
-    luaL_openlib(L, 0, Dissector_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(DISSECTOR, Dissector_methods, Dissector_meta);
     return 1;
 }
 
@@ -1310,17 +1269,7 @@ static const luaL_reg DissectorTable_meta[] = {
 };
 
 int DissectorTable_register(lua_State* L) {
-    luaL_openlib(L, DISSECTOR_TABLE, DissectorTable_methods, 0);
-    luaL_newmetatable(L, DISSECTOR_TABLE);
-    luaL_openlib(L, 0, DissectorTable_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(DISSECTOR_TABLE, DissectorTable_methods, DissectorTable_meta);
     return 1;
 }
 

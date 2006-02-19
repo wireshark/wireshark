@@ -253,17 +253,7 @@ static const luaL_reg ByteArray_meta[] = {
 };
 
 int ByteArray_register(lua_State* L) {
-    luaL_openlib(L, BYTE_ARRAY, ByteArray_methods, 0);
-    luaL_newmetatable(L, BYTE_ARRAY);
-    luaL_openlib(L, 0, ByteArray_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(BYTE_ARRAY, ByteArray_methods, ByteArray_methods);
     return 1;
 }
 
@@ -411,17 +401,7 @@ static const luaL_reg Tvb_meta[] = {
 };
 
 int Tvb_register(lua_State* L) {
-    luaL_openlib(L, TVB, Tvb_methods, 0);
-    luaL_newmetatable(L, TVB);
-    luaL_openlib(L, 0, Tvb_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+	REGISTER_FULL_CLASS(TVB, Tvb_methods, Tvb_meta);
     return 1;
 }
 
@@ -727,19 +707,7 @@ static const luaL_reg TvbRange_meta[] = {
 };
 
 int TvbRange_register(lua_State* L) {
-    
     outstanding_stuff = g_ptr_array_new();
-    
-    luaL_openlib(L, TVB_RANGE, TvbRange_methods, 0);
-    luaL_newmetatable(L, TVB_RANGE);
-    luaL_openlib(L, 0, TvbRange_meta, 0);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3);
-    lua_rawset(L, -3);
-    lua_pop(L, 1);
-    
+    REGISTER_FULL_CLASS(TVB_RANGE, TvbRange_methods, TvbRange_meta);
     return 1;
 }
