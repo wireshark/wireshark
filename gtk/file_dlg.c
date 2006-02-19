@@ -1559,8 +1559,9 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
 
   /* the file exists, ask the user to remove it first */
   dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-      PRIMARY_TEXT_START "Capture file: \"%s\" already exists!" PRIMARY_TEXT_END "\n\n"
-      "Replace the current file?", cf_name);
+      PRIMARY_TEXT_START "A file named \"%s\" already exists."
+      PRIMARY_TEXT_END "\n\n"
+      "Do you want to replace it with the capture you are saving?", cf_name);
   simple_dialog_set_cb(dialog, file_save_as_exists_answered_cb, fs);
 
   g_free(cf_name);
