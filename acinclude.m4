@@ -815,6 +815,11 @@ AC_DEFUN([AC_ETHEREAL_LIBLUA_CHECK],[
 		#
 		# let's check if the libs are there
 		#
+
+		# At least on Suse 9.3 systems, liblualib needs linking
+		# against libm.
+		LIBS="$LIBS $LUA_LIBS -lm"
+
 		AC_CHECK_LIB(lua, lua_call,
 		[
 			if test "x$lua_dir" != "x"
