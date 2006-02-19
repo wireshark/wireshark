@@ -184,7 +184,7 @@
 #define OAMPDU_EFSSE_WINDOW_SZ          2
 #define OAMPDU_EFSSE_THRESHOLD_SZ       2
 #define OAMPDU_EFSSE_ERRORS_SZ          2
-#define OAMPDU_EFSSE_ERR_TOTAL_SZ       8
+#define OAMPDU_EFSSE_ERR_TOTAL_SZ       4
 #define OAMPDU_EFSSE_TOTAL_SZ           4
 
 /* Variable Branch Type */
@@ -2038,9 +2038,9 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
 
                 offset += OAMPDU_EFSSE_ERRORS_SZ;
 
-                big = tvb_get_ntoh64(tvb, offset);
-                proto_tree_add_uint64(event_tree, hf_oampdu_event_efsseTotalErrors,
-                        tvb, offset, 8, big);
+                dword = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_uint(event_tree, hf_oampdu_event_efsseTotalErrors,
+                        tvb, offset, 4, dword);
 
                 offset += OAMPDU_EFSSE_ERR_TOTAL_SZ;
 
@@ -2871,7 +2871,7 @@ proto_register_slow_protocols(void)
 
     { &hf_oampdu_event_efsseTotalErrors,
       { "Error Running Total",    "oam.event.efsseTotalErrors",
-        FT_UINT64,    BASE_DEC,    NULL,    0x0,
+        FT_UINT32,    BASE_DEC,    NULL,    0x0,
         "Number of frames in error since reset of the sublayer", HFILL }},
 
     { &hf_oampdu_event_efsseTotalEvents,
