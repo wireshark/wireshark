@@ -91,6 +91,7 @@ static int hf_http_server = -1;
 static int hf_http_location = -1;
 static int hf_http_set_cookie = -1;
 static int hf_http_last_modified = -1;
+static int hf_http_x_forwarded_for = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -1603,6 +1604,7 @@ static const header_info headers[] = {
 	{ "Location", &hf_http_location, HDR_NO_SPECIAL },
 	{ "Set-Cookie", &hf_http_set_cookie, HDR_NO_SPECIAL },
 	{ "Last-Modified", &hf_http_last_modified, HDR_NO_SPECIAL },
+	{ "X-Forwarded-For", &hf_http_x_forwarded_for, HDR_NO_SPECIAL },
 };
 
 static void
@@ -2006,6 +2008,10 @@ proto_register_http(void)
 	      { "Last-Modified",	"http.last_modified",
 	        FT_STRING, BASE_NONE, NULL, 0x0,
 	        "HTTP Last Modified", HFILL }},
+	    { &hf_http_x_forwarded_for,
+	      { "X-Forwarded-For",	"http.x_forwarded_for",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP X-Forwarded-For", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
