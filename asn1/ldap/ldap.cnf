@@ -22,17 +22,179 @@ ModifyRequest/modification modifyRequest_modification
 SubstringFilter/substrings substringFilter_substrings
 
 #.TYPE_ATTR
-LDAPDN TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
-RelativeLDAPDN TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
-AttributeType TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
-AttributeDescription TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
-MatchingRuleId TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
-ErrorMessage TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+LDAPString TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 LDAPURL TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+LDAPOID  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
-ControlType  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
-ResponseName  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+
+#.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
+#.FN_HDR LDAPOID
+
+	tvbuff_t	*parameter_tvb;
+	const gchar *name;
+	proto_item	*item = NULL;
+
+
+#.FN_FTR LDAPOID
+	if (!parameter_tvb)
+		return offset;
+	item = get_ber_last_created_item();
+	name = get_oid_str_name(tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0)));
+	if(name){
+		proto_item_append_text(item, " (%s)", name);
+	}
+
 
 #.FN_PARS MessageID VAL_PTR = &MessageID
-#.FN_PARS AuthenticationChoice VAL_PTR = &AuthenticationChoice
+#.FN_BODY MessageID
+gint MessageID;
 
+%(DEFAULT_BODY)s
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "MsgId=%%u, ",MessageID);
+
+#.FN_PARS ProtocolOp VAL_PTR = &ProtocolOp
+
+#.FN_BODY ProtocolOp
+
+gint ProtocolOp;
+
+%(DEFAULT_BODY)s
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(ProtocolOp, ldap_ProtocolOp_choice_vals, "Unknown (%%u)"));
+
+#.FN_BODY Simple
+ldap_conv_info_t *ldap_info;
+
+%(DEFAULT_BODY)s
+	
+	ldap_info = pinfo->private_data;
+	ldap_info->auth_type = LDAP_AUTH_SIMPLE;
+
+	pinfo->private_data = ldap_info;
+
+#.FN_PARS Mechanism VAL_PTR = &parameter_tvb
+#.FN_BODY Mechanism
+
+ldap_conv_info_t *ldap_info;
+tvbuff_t	*parameter_tvb;
+char *mechanism = NULL;
+%(DEFAULT_BODY)s
+	ldap_info = pinfo->private_data;
+	ldap_info->auth_type = LDAP_AUTH_SASL;
+
+	if (!parameter_tvb)
+		return offset;
+
+    /*
+     * We need to remember the authentication type and mechanism for this
+     * conversation.
+     *
+     * XXX - actually, we might need to remember more than one
+     * type and mechanism, if you can unbind and rebind with a
+     * different type and/or mechanism.
+     */
+    mechanism = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+    ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
+    /*
+     * If the mechanism in this request is an empty string (which is
+     * returned as a null pointer), use the saved mechanism instead.
+     * Otherwise, if the saved mechanism is an empty string (null),
+     * save this mechanism.
+     */
+    if (mechanism == NULL)
+        mechanism = ldap_info->auth_mech;
+    else {
+      if (ldap_info->auth_mech == NULL) {
+        g_free(ldap_info->auth_mech);
+      }
+      ldap_info->auth_mech = mechanism;
+    }
+	pinfo->private_data = ldap_info;
+
+#.FN_PARS Credentials VAL_PTR = &parameter_tvb
+#.FN_BODY Credentials
+
+tvbuff_t	*parameter_tvb;
+ldap_conv_info_t *ldap_info;
+
+%(DEFAULT_BODY)s
+	if (!parameter_tvb)
+		return offset;
+
+	ldap_info = pinfo->private_data;
+	if (ldap_info->auth_mech != NULL && strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
+		/*
+         * This is a GSS-API token ancapsulated within GSS-SPNEGO.
+		 */
+		 if (parameter_tvb)
+			call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+	} else if (ldap_info->auth_mech != NULL && strcmp(ldap_info->auth_mech, "GSSAPI") == 0) {
+        /*
+         * This is a raw GSS-API token.
+         */
+		 if (parameter_tvb)
+			call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+	}
+	pinfo->private_data = ldap_info;
+
+#.FN_PARS ServerSaslCreds VAL_PTR = &parameter_tvb
+#.FN_BODY ServerSaslCreds
+
+tvbuff_t	*parameter_tvb;
+ldap_conv_info_t *ldap_info;
+
+%(DEFAULT_BODY)s
+	if (!parameter_tvb)
+		return offset;
+	ldap_info = pinfo->private_data;
+    switch (ldap_info->auth_type) {
+
+      /* For Kerberos V4, dissect it as a ticket. */
+      /* XXX - what about LDAP_AUTH_SIMPLE? */
+
+    case LDAP_AUTH_SASL:
+      /*
+       * All frames after this are assumed to use a security layer.
+       *
+       * XXX - won't work if there's another reply, with the security
+       * layer, starting in the same TCP segment that ends this
+       * reply, but as LDAP is a request/response protocol, and
+       * as the client probably can't start using authentication until
+       * it gets the bind reply and the server won't send a reply until
+       * it gets a request, that probably won't happen.
+       *
+       * XXX - that assumption is invalid; it's not clear where the
+       * hell you find out whether there's any security layer.  In
+       * one capture, we have two GSS-SPNEGO negotiations, both of
+       * which select MS KRB5, and the only differences in the tokens
+       * is in the RC4-HMAC ciphertext.  The various
+       * draft-ietf--cat-sasl-gssapi-NN.txt drafts seem to imply
+       * that the RFC 2222 spoo with the bitmask and maximum
+       * output message size stuff is done - but where does that
+       * stuff show up?  Is it in the ciphertext, which means it's
+       * presumably encrypted?
+       *
+       * Grrr.  We have to do a gross heuristic, checking whether the
+       * putative LDAP message begins with 0x00 or not, making the
+       * assumption that we won't have more than 2^24 bytes of
+       * encapsulated stuff.
+       */
+      ldap_info->first_auth_frame = pinfo->fd->num + 1;
+      if (ldap_info->auth_mech != NULL &&
+          strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
+        /*
+         * This is a GSS-API token.
+         */
+        call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+      } else if (ldap_info->auth_mech != NULL &&
+          strcmp(ldap_info->auth_mech, "GSSAPI") == 0) {
+        /*
+         * This is a GSS-API token.
+         */
+        call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+		}
+	break;
+	}
+	pinfo->private_data = ldap_info;

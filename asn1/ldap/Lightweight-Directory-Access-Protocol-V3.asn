@@ -1,6 +1,7 @@
 -- Module Lightweight-Directory-Access-Protocol-V3 (RFC 2251:12/1997)
 Lightweight-Directory-Access-Protocol-V3
 --
+-- $Id:$
 -- Copyright (C) The Internet Society (1997). This version of
 -- this ASN.1 module is part of RFC 2251;
 -- see the RFC itself for full legal notices.
@@ -9,9 +10,15 @@ DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
 
 LDAPMessage ::= SEQUENCE {
-  messageID   MessageID,
-  protocolOp
-    CHOICE {bindRequest      BindRequest,
+  messageID		MessageID,
+  protocolOp	ProtocolOp,
+  controls		[0]  Controls OPTIONAL
+}
+
+MessageID ::= INTEGER(0..maxInt)
+
+ProtocolOp ::=     CHOICE { 
+			bindRequest      BindRequest,
             bindResponse     BindResponse,
             unbindRequest    UnbindRequest,
             searchRequest    SearchRequest,
@@ -30,11 +37,9 @@ LDAPMessage ::= SEQUENCE {
             compareResponse  CompareResponse,
             abandonRequest   AbandonRequest,
             extendedReq      ExtendedRequest,
-            extendedResp     ExtendedResponse},
-  controls    [0]  Controls OPTIONAL
-}
+            extendedResp     ExtendedResponse
+			}
 
-MessageID ::= INTEGER(0..maxInt)
 
 maxInt INTEGER ::= 2147483647 -- (2^^31 - 1) 
 
@@ -127,17 +132,33 @@ BindRequest ::= [APPLICATION 0]  SEQUENCE {
 }
 
 AuthenticationChoice ::= CHOICE {
-  simple  [0]  OCTET STRING,
+  simple  [0]  Simple,
   -- 1 and 2 reserved
   sasl    [3]  SaslCredentials
 }
 
+Simple ::= OCTET STRING
+
 SaslCredentials ::= SEQUENCE {
   mechanism    Mechanism,
-  credentials  OCTET STRING OPTIONAL
+  credentials  Credentials OPTIONAL
 }
 
-Mechanism ::=  LDAPString
+--4.1.2. String Types
+--
+-- The LDAPString is a notational convenience to indicate that, although
+-- strings of LDAPString type encode as OCTET STRING types, the ISO
+-- 10646 [13] character set (a superset of Unicode) is used, encoded
+-- following the UTF-8 algorithm [14]. Note that in the UTF-8 algorithm
+-- characters which are the same as ASCII (0x0000 through 0x007F) are
+-- represented as that same ASCII character in a single byte.  The other
+-- byte values are used to form a variable-length encoding of an
+-- arbitrary character.
+
+-- Mechanism ::= LDAPString
+Mechanism ::= OCTET STRING
+
+Credentials ::= OCTET STRING
 
 BindResponse ::= [APPLICATION 1]  SEQUENCE {
 --  COMPONENTS OF LDAPResult,
@@ -179,8 +200,10 @@ BindResponse ::= [APPLICATION 1]  SEQUENCE {
   referral      [3]  Referral OPTIONAL,
 
 -- end of components
-  serverSaslCreds  [7]  OCTET STRING OPTIONAL
+  serverSaslCreds  [7] ServerSaslCreds  OPTIONAL
 }
+
+ServerSaslCreds ::= OCTET STRING
 
 ErrorMessage ::= LDAPString
 
