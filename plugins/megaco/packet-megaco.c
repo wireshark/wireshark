@@ -2793,7 +2793,7 @@ static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset ){
 
 	for(counter = offset; counter < end &&
 		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
-		tempchar == '\t'|| tempchar == '\n');counter++);
+		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter++);
 	return (counter);
 }
 static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
@@ -2804,7 +2804,7 @@ static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
 
 	for(counter = offset; counter > end &&
 		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
-		tempchar == '\t'|| tempchar == '\n');counter--);
+		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter--);
 	counter++;
 	return (counter);
 }
