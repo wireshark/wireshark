@@ -26,14 +26,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "packet-lua.h"
+#include "elua.h"
+
 #include <epan/addr_resolv.h>
 #include <string.h>
-
-LUA_CLASS_DEFINE(Column,COLUMN,if (! *p) luaL_error(L,"expired column"))
-LUA_CLASS_DEFINE(Columns,COLUMNS,if (! *p) luaL_error(L,"expired columns"))
-LUA_CLASS_DEFINE(Pinfo,PINFO,if (! *p) luaL_error(L,"expired pinfo"))
-LUA_CLASS_DEFINE(Address,ADDRESS,NOP)
 
 
 /*
@@ -60,10 +56,13 @@ void push_Pinfo(lua_State* L, Pinfo pinfo) {
 #define PUSH_COLUMN(L,c) g_ptr_array_add(outstanding_stuff,pushColumn(L,c))
 #define PUSH_COLUMNS(L,c) g_ptr_array_add(outstanding_stuff,pushColumns(L,c))
 
-static int Address_ip(lua_State* L) {
+ELUA_CLASS_DEFINE(Address,NOP)
+
+ELUA_CONSTRUCTOR Address_ip(lua_State* L) { /* Creates an Address Object representing an IP address. */
+#define ELUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = g_malloc(sizeof(address));
     guint32* ip_addr = g_malloc(sizeof(guint32));
-    const gchar* name = luaL_checkstring(L,1);
+    const gchar* name = luaL_checkstring(L,ELUA_ARG_Address_ip_HOSTNAME);
     
     if (! get_host_ipaddr(name, (guint32*)ip_addr)) {
         *ip_addr = 0;
@@ -71,7 +70,7 @@ static int Address_ip(lua_State* L) {
         
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr); 
     pushAddress(L,addr);
-    return 1;
+    ELUA_RETURN(1); /* the Address object */
 }
 
 #if 0
@@ -182,7 +181,7 @@ static int Address_tipc(lua_State* L) {
 }
 #endif
 
-static const luaL_reg Address_methods[] = {
+ELUA_METHODS Address_methods[] = {
 	{"ip", Address_ip },
 	{"ipv4", Address_ip },
 #if 0
@@ -203,12 +202,12 @@ static const luaL_reg Address_methods[] = {
     {0,0}
 };
 
-static int Address_tostring(lua_State* L) {
+ELUA_METAMETHOD Address_tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
     
     lua_pushstring(L,get_addr_name(addr));
     
-    return 1;
+    ELUA_RETURN(1); /* The string representing the address. */
 }
 
 static int Address_gc(lua_State* L) {
@@ -222,7 +221,7 @@ static int Address_gc(lua_State* L) {
     return 0;
 }
 
-static int Address_gt(lua_State* L) {
+ELUA_METAMETHOD Address_gt(lua_State* L) {
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -235,7 +234,7 @@ static int Address_gt(lua_State* L) {
     return 1;
 }
 
-static int Address_ge(lua_State* L) {
+ELUA_METAMETHOD Address_ge(lua_State* L) {
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -248,7 +247,7 @@ static int Address_ge(lua_State* L) {
     return 1;
 }
 
-static int Address_eq(lua_State* L) {
+ELUA_METAMETHOD Address_eq(lua_State* L) {
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -261,7 +260,7 @@ static int Address_eq(lua_State* L) {
     return 1;
 }
 
-static int Address_le(lua_State* L) {
+ELUA_METAMETHOD Address_le(lua_State* L) {
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -274,7 +273,7 @@ static int Address_le(lua_State* L) {
     return 1;
 }
 
-static int Address_lt(lua_State* L) {
+ELUA_METAMETHOD Address_lt(lua_State* L) {
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -287,7 +286,7 @@ static int Address_lt(lua_State* L) {
     return 1;
 }
 
-static const luaL_reg Address_meta[] = {
+ELUA_META Address_meta[] = {
     {"__gc", Address_gc },
     {"__tostring", Address_tostring },
     {"__gt",Address_gt},
@@ -300,11 +299,13 @@ static const luaL_reg Address_meta[] = {
 
 
 int Address_register(lua_State *L) {
-	REGISTER_FULL_CLASS(ADDRESS, Address_methods, Address_meta);
+	ELUA_REGISTER_CLASS(Address);
     return 1;
 }
 
-/* Column class */
+
+ELUA_CLASS_DEFINE(Column,if (! *p) luaL_error(L,"expired column"))
+
 struct col_names_t {
     const gchar* name;
     int id;
@@ -382,7 +383,7 @@ static const gchar*  col_id_to_name(gint id) {
 }
 
 
-static int Column_tostring(lua_State *L) {
+ELUA_METAMETHOD Column_tostring(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* name;
     
@@ -397,7 +398,7 @@ static int Column_tostring(lua_State *L) {
     return 1;
 }
 
-static int Column_clear(lua_State *L) {
+ELUA_METHOD Column_clear(lua_State *L) {
     Column c = checkColumn(L,1);
     
     if (!(c && c->cinfo)) return 0;
@@ -408,7 +409,7 @@ static int Column_clear(lua_State *L) {
     return 0;
 }
 
-static int Column_set(lua_State *L) {
+ELUA_METHOD Column_set(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
@@ -420,7 +421,7 @@ static int Column_set(lua_State *L) {
     return 0;
 }
 
-static int Column_append(lua_State *L) {
+ELUA_METHOD Column_append(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
@@ -431,7 +432,8 @@ static int Column_append(lua_State *L) {
     
     return 0;
 }
-static int Column_preppend(lua_State *L) {
+
+ELUA_METHOD Column_preppend(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,2);
     
@@ -459,7 +461,7 @@ static const luaL_reg Column_meta[] = {
 
 
 int Column_register(lua_State *L) {
-	REGISTER_FULL_CLASS(COLUMN, Column_methods, Column_methods);
+	ELUA_REGISTER_CLASS(Column);
     return 1;
 }
 
@@ -468,14 +470,14 @@ int Column_register(lua_State *L) {
 
 
 
-
+ELUA_CLASS_DEFINE(Columns,if (! *p) luaL_error(L,"expired columns"))
 
 static int Columns_tostring(lua_State *L) {
     lua_pushstring(L,"Columns");
     return 1;
 }
 
-static int Columns_newindex(lua_State *L) {
+ELUA_METAMETHOD Columns_newindex(lua_State *L) {
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;    
     const char* colname;
@@ -498,7 +500,7 @@ static int Columns_newindex(lua_State *L) {
     return 0;
 }
 
-static int Columns_index(lua_State *L) {
+ELUA_METAMETHOD Columns_index(lua_State *L) {
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;    
     const char* colname = luaL_checkstring(L,2);
@@ -540,12 +542,13 @@ static const luaL_reg Columns_meta[] = {
 
 
 int Columns_register(lua_State *L) {
-	REGISTER_META(COLUMNS,Columns_meta);
+	ELUA_REGISTER_META(Columns);
     return 1;
 }
 
 
-/* Pinfo class */
+ELUA_CLASS_DEFINE(Pinfo,if (! *p) luaL_error(L,"expired pinfo"))
+
 static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 
 #define PINFO_GET_NUMBER(name,val) static int name(lua_State *L) {  \
@@ -801,7 +804,7 @@ static const luaL_reg Pinfo_meta[] = {
 };
 
 int Pinfo_register(lua_State* L) {
-	REGISTER_META(PINFO,Pinfo_meta);
+	ELUA_REGISTER_META(Pinfo);
     outstanding_stuff = g_ptr_array_new();
     return 1;
 }

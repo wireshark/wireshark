@@ -26,10 +26,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "packet-lua.h"
+#include "elua.h"
 
-LUA_CLASS_DEFINE(Tap,TAP,NOP)
-LUA_CLASS_DEFINE(Field,FIELD,NOP)
+ELUA_CLASS_DEFINE(Field,NOP)
 
 static GPtrArray* wanted_fields = NULL;
 
@@ -201,7 +200,7 @@ int Field_register(lua_State* L) {
 
     wanted_fields = g_ptr_array_new();
 
-    REGISTER_META(FIELD, Field_meta);
+    ELUA_REGISTER_META(Field);
 
     lua_pushstring(L, "Field");
     lua_pushcfunction(L, Field_get);
@@ -212,10 +211,7 @@ int Field_register(lua_State* L) {
 
 
 
-
-/*
- *  Tap
- */
+ELUA_CLASS_DEFINE(Tap,NOP)
 
 struct _eth_tap {
     gchar* name;
@@ -233,12 +229,15 @@ int tap_packet_cb_error_handler(lua_State* L) {
     static gchar* last_error = NULL;
     static int repeated = 0;
     static int next = 2;
-
+	const gchar* where =  (lua_pinfo) ?
+		ep_strdup_printf("Lua: on packet %i Error During execution of Tap Packet Callback",lua_pinfo->fd->num) :
+		ep_strdup_printf("Lua: Error During execution of Tap Packet Callback") ;
+	
     /* show the error the 1st, 3rd, 5th, 9th, 17th, 33th... time it appears to avoid window flooding */ 
     /* XXX the last series of identical errors won't be shown (the user however gets at least one message) */
     
     if (! last_error) {
-        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback:\n %s",lua_pinfo->fd->num,error);
+        report_failure("%s:\n%s",where,error);
         last_error = g_strdup(error);
         repeated = 0;
         next = 2;
@@ -248,16 +247,16 @@ int tap_packet_cb_error_handler(lua_State* L) {
     if (g_str_equal(last_error,error) ) {
         repeated++;
         if ( repeated == next ) {
-            report_failure("Lua: on packet %i Error During execution of Tap Packet Callback happened %i times:\n %s",lua_pinfo->fd->num,repeated,error);
+            report_failure("%s happened %i times:\n %s",where,repeated,error);
             next *= 2;
         }
     } else {
-        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback happened %i times:\n %s",lua_pinfo->fd->num,repeated,last_error);
+        report_failure("%s happened %i times:\n %s",where,repeated,last_error);
         g_free(last_error);
         last_error = g_strdup(error);
         repeated = 0;
         next = 2;
-        report_failure("Lua: on packet %i Error During execution of Tap Packet Callback:\n %s",lua_pinfo->fd->num,error);
+        report_failure("%s:\n %s",where,error);
     }
     
     return 0;    
@@ -316,7 +315,7 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
 int tap_reset_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Tap init Callback:\n %s",error);
-    return 0;
+    return 1;
 }
 
 void lua_tap_reset(void *tapdata) {
@@ -346,7 +345,7 @@ void lua_tap_reset(void *tapdata) {
 int tap_draw_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Tap Draw Callback:\n %s",error);
-    return 0;
+    return 1;
 }
 
 void lua_tap_draw(void *tapdata) {
@@ -475,10 +474,14 @@ static const luaL_reg Tap_meta[] = {
 };
 
 int Tap_register(lua_State* L) {
-    REGISTER_META(TAP, Tap_meta);
+    ELUA_REGISTER_META(Tap);
 	
 	lua_pushstring(L, "Tap");
     lua_pushcfunction(L, Tap_new);
+    lua_settable(L, LUA_GLOBALSINDEX);
+	
+	lua_pushstring(L, "tap_remove");
+    lua_pushcfunction(L, Tap_remove);
     lua_settable(L, LUA_GLOBALSINDEX);
     
     return 1;

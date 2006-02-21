@@ -26,12 +26,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "packet-lua.h"
+#include "elua.h"
 #include <epan/expert.h>
-
-LUA_CLASS_DEFINE(ProtoTree,PROTO_TREE,NOP)
-LUA_CLASS_DEFINE(ProtoItem,ITEM,NOP)
-LUA_CLASS_DEFINE(SubTree,SUBTREE,NOP)
 
 static GPtrArray* outstanding_stuff = NULL;
 
@@ -50,10 +46,7 @@ void clear_outstanding_trees(void) {
     }
 }
 
-/*
- * SubTree class
- */
-
+ELUA_CLASS_DEFINE(SubTree,NOP)
 
 static GArray* lua_etts = NULL;
 static gint lua_ett = -1;
@@ -110,10 +103,11 @@ static const luaL_reg SubTree_meta[] = {
 };
 
 int SubTree_register(lua_State* L) {
-    REGISTER_FULL_CLASS(SUBTREE, SubTree_methods, SubTree_meta);
+    ELUA_REGISTER_CLASS(SubTree);
     return 1;
 }
 
+ELUA_CLASS_DEFINE(ProtoTree,NOP)
 
 /* ProtoTree class */
 static int ProtoTree_add_item_any(lua_State *L, gboolean little_endian) {
@@ -279,11 +273,12 @@ static const luaL_reg ProtoTree_meta[] = {
 };
 
 int ProtoTree_register(lua_State* L) {
-	REGISTER_FULL_CLASS(PROTO_TREE, ProtoTree_methods, ProtoTree_meta);
+	ELUA_REGISTER_CLASS(ProtoTree);
     return 1;
 }
 
-/* ProtoItem class */
+ELUA_CLASS_DEFINE(ProtoItem,NOP)
+
 static int ProtoItem_tostring(lua_State *L) {
     ProtoItem item = checkProtoItem(L,1);
     lua_pushstring(L,ep_strdup_printf("ProtoItem %p",item));
@@ -294,7 +289,7 @@ static int ProtoItem_add_subtree(lua_State *L) {
     ProtoItem item = checkProtoItem(L,1);
     
     if (item) {
-        SubTree* ett = luaL_checkudata(L,2,SUBTREE);
+        SubTree* ett = luaL_checkudata(L,2,"SubTree");
         ProtoTree tree;
         
         if (ett && *ett) {
@@ -461,7 +456,7 @@ static const luaL_reg ProtoItem_meta[] = {
 int ProtoItem_register(lua_State *L) {
 	const struct _expert_severity* s;
 	
-	REGISTER_FULL_CLASS(ITEM, ProtoItem_methods, ProtoItem_meta);    
+	ELUA_REGISTER_CLASS(ProtoItem);    
     outstanding_stuff = g_ptr_array_new();
 	
     for(s = severities; s->str; s++) {

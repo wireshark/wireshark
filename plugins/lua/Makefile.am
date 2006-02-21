@@ -27,17 +27,20 @@ plugindir = @plugindir@
 
 plugin_LTLIBRARIES = lua.la
 
+lua_modules = 	\
+	elua_tvb.c \
+	elua_proto.c \
+	elua_tree.c \
+	elua_pinfo.c \
+	elua_tap.c \
+	elua_gui.c \
+	elua_dumper.c
+
 lua_la_SOURCES = \
-	lua_tvb.c \
-	lua_proto.c \
-	lua_tree.c \
-	lua_pinfo.c \
-	lua_tap.c \
-	lua_gui.c \
-	lua_dumper.c \
-	packet-lua.c \
-	packet-lua.h \
-	lua_plugin.c
+	$(lua_modules) \
+	elua.c \
+	elua.h \
+	elua_plugin.c
 
 lua_la_LDFLAGS = -module -avoid-version
 lua_la_LIBADD = @PLUGIN_LIBS@ @LUA_LIBS@
@@ -57,7 +60,16 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
-	dummy
+	elua_register.h \
+	elua_makereg.pl
+
+packet-lua.h: elua_register.h
+
+elua_register.h: elua_makereg.pl $(lua_modules)
+	$(PERL) elua_makereg.pl $(lua_modules) > elua_register.h
+
+doc: $(lua_modules)
+	$(PERL) elua_makedoc.pl $^
 
 dummy:
 	touch dummy

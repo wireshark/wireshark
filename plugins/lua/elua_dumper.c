@@ -5,7 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: lua_tvb.c 17307 2006-02-15 02:10:07Z lego $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,11 +26,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "packet-lua.h"
+#include "elua.h"
 #include <math.h>
 
-LUA_CLASS_DEFINE(Dumper,DUMPER,NOP)
-LUA_CLASS_DEFINE(PseudoHeader,PSEUDOHEADER,NOP)
+ELUA_CLASS_DEFINE(PseudoHeader,NOP)
 
 enum lua_pseudoheader_type {
     PHDR_NONE,
@@ -112,7 +111,7 @@ static int PseudoHeader_k12(lua_State* L) { luaL_error(L,"not implemented"); ret
 #endif
 
 int PseudoHeader_register(lua_State* L) {
-    luaL_newmetatable(L, PSEUDOHEADER);
+    luaL_newmetatable(L, "PseudoHeader");
     
     lua_pushstring(L, "PH_MTP2");
     lua_pushcfunction(L, PseudoHeader_mtp2);
@@ -132,6 +131,11 @@ int PseudoHeader_register(lua_State* L) {
     
     return 0;
 }
+
+
+
+ELUA_CLASS_DEFINE(Dumper,NOP)
+
 
 static GHashTable* dumper_encaps = NULL;
 #define DUMPER_ENCAP(d) GPOINTER_TO_INT(g_hash_table_lookup(dumper_encaps,d))
@@ -241,8 +245,6 @@ static int Dumper_new_for_current(lua_State* L) {
     int encap;
     int err = 0;
     
-    if (!d) return 0;
-    
     if (! lua_pinfo ) {
         luaL_error(L,"Dumper.new_for_current cannot be used outside a tap or a dissector");
         return 0;
@@ -321,6 +323,6 @@ static const luaL_reg Dumper_meta[] =
 
 int Dumper_register(lua_State* L) {
     dumper_encaps = g_hash_table_new(g_direct_hash,g_direct_equal);
-    REGISTER_FULL_CLASS(DUMPER, Dumper_methods, Dumper_meta)
+    ELUA_REGISTER_CLASS(Dumper);
     return 1;
 }

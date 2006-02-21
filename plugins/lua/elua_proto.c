@@ -26,20 +26,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "packet-lua.h"
+#include "elua.h"
 
-#define PREFS "Prefs"
-#define PREF "Pref"
-typedef eth_pref_t* Pref;
-typedef eth_pref_t* Prefs;
-
-LUA_CLASS_DEFINE(ProtoField,PROTO_FIELD,if (! *p) luaL_error(L,"null ProtoField"))
-LUA_CLASS_DEFINE(ProtoFieldArray,PROTO_FIELD_ARRAY,if (! *p) luaL_error(L,"null ProtoFieldArray"))
-LUA_CLASS_DEFINE(Dissector,DISSECTOR,NOP)
-LUA_CLASS_DEFINE(DissectorTable,DISSECTOR_TABLE,NOP)
-LUA_CLASS_DEFINE(Pref,PREF,NOP)
-LUA_CLASS_DEFINE(Prefs,PREFS,NOP)
-LUA_CLASS_DEFINE(Proto,PROTO,NOP)
+ELUA_CLASS_DEFINE(Pref,NOP) /* A preference of a Protocol. */
 
 static int new_pref(lua_State* L, pref_type_t type) {
     const gchar* label = luaL_optstring(L,1,NULL);
@@ -80,15 +69,15 @@ static int new_pref(lua_State* L, pref_type_t type) {
     
 }
 
-static int Pref_bool(lua_State* L) {
+ELUA_CONSTRUCTOR Pref_bool(lua_State* L) {
     return new_pref(L,PREF_BOOL);
 }
 
-static int Pref_uint(lua_State* L) {
+ELUA_CONSTRUCTOR Pref_uint(lua_State* L) {
     return new_pref(L,PREF_UINT);
 }
 
-static int Pref_string(lua_State* L) {
+ELUA_CONSTRUCTOR Pref_string(lua_State* L) {
     return new_pref(L,PREF_STRING);
 }
 
@@ -105,37 +94,49 @@ static int Pref_gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg Pref_methods[] = {
+ELUA_METHODS Pref_methods[] = {
     {"bool",   Pref_bool},
     {"uint",   Pref_uint},
     {"string",   Pref_string},
     {0,0}
 };
 
-static const luaL_reg Pref_meta[] = {
+ELUA_META Pref_meta[] = {
     {"__gc",   Pref_gc},
     {0,0}
 };
 
 
-static int Pref_register(lua_State* L) {
-	REGISTER_FULL_CLASS(PREF, Pref_methods, Pref_meta);
+ELUA_REGISTER Pref_register(lua_State* L) {
+	ELUA_REGISTER_CLASS(Pref);
     return 1;
 }
 
+ELUA_CLASS_DEFINE(Prefs,NOP) /* The table of preferences of a protocol */
 
-static int Prefs_newindex(lua_State* L) {
+ELUA_METAMETHOD Prefs__newindex(lua_State* L) { /* creates a new preference */
+#define ELUA_ARG_Prefs__newindex_NAME 2 /* The abbreviation of this preference of  */
+#define ELUA_ARG_Prefs__newindex_PREF 3 /* A valid still unassigned Pref object */
+
     Pref prefs = checkPrefs(L,1);
-    const gchar* name = luaL_checkstring(L,2);
-    Pref pref = checkPref(L,3);
+    const gchar* name = luaL_checkstring(L,ELUA_ARG_Prefs__newindex_NAME);
+    Pref pref = checkPref(L,ELUA_ARG_Prefs__newindex_PREF);
     Pref p;
-    if (! ( name && prefs && pref) ) return 0;
+
+	if (! prefs ) return 0;
+
+	if (! name ) 
+		ELUA_ARG_ERROR(Prefs__newindex,NAME,"must be a string");
+
+	if (! pref )
+		ELUA_ARG_ERROR(Prefs__newindex,PREF,"must be a valid Pref");
     
-    if (pref->name) {
-        luaL_error(L,"this preference has already been registered to another protocol");
-        return 0;
-    }
-    
+    if (pref->name)
+        ELUA_ARG_ERROR(Prefs__newindex,NAME,"cannot change existing preference");
+
+	if (pref->proto)
+		ELUA_ARG_ERROR(Prefs__newindex,PREF,"cannot be added to more than one protocol");
+
     p = prefs;
     
     do {
@@ -181,22 +182,23 @@ static int Prefs_newindex(lua_State* L) {
                                                      &(pref->value.s));
                     break;
                 default:
-                    g_assert_not_reached();
-                    break;
+                    ELUA_ERROR(Prefs__newindex,"unknow Pref type");
             }
             
             pref->proto = p->proto;
             
-            return 0;
+            ELUA_RETURN(0);
         }
     } while (( p = p->next ));
 
-    g_assert_not_reached();
+	luaL_error(L,"this should not happen!");
     
-    return 0;
+    ELUA_FINAL_RETURN(0);
 }
 
-static int Prefs_index(lua_State* L) {
+ELUA_METAMETHOD Prefs__index(lua_State* L) {
+#define ELUA_ARG_Prefs__index_NAME 2 /* The abbreviation of this preference  */
+
     Pref prefs = checkPrefs(L,1);
     const gchar* name = luaL_checkstring(L,2);
     
@@ -210,30 +212,29 @@ static int Prefs_index(lua_State* L) {
                 case PREF_BOOL: lua_pushboolean(L, prefs->value.b); break;
                 case PREF_UINT: lua_pushnumber(L,(lua_Number)prefs->value.u); break;
                 case PREF_STRING: lua_pushstring(L,prefs->value.s); break;
-                default: g_assert_not_reached(); break;
+                default: ELUA_ERROR(Prefs__index,"unknow Pref type");
             }
-            return 1;
+            ELUA_RETURN(1); /* the current value of the preference */
         }
     } while (( prefs = prefs->next ));
 
-    luaL_error(L,"no such preference `%s'",name);
-    lua_pushnil(L);
-    return 1;
+    ELUA_ARG_ERROR(Prefs__index,NAME,"no preference named like this");
+    ELUA_FINAL_RETURN(0);
 }
 
-static const luaL_reg Prefs_meta[] = {
-    {"__newindex",   Prefs_newindex},
-    {"__index",   Prefs_index},
+ELUA_META Prefs_meta[] = {
+    {"__newindex",   Prefs__newindex},
+    {"__index",   Prefs__index},
     {0,0}
 };
 
-static int Prefs_register(lua_State* L) {
-	REGISTER_META(PREFS, Prefs_meta);
+ELUA_REGISTER Prefs_register(lua_State* L) {
+	ELUA_REGISTER_META(Prefs);
     return 1;
 }
 
 
-
+ELUA_CLASS_DEFINE(ProtoField,if (! *p) luaL_error(L,"null ProtoField"))
 /*
  * ProtoField class
  */
@@ -368,18 +369,26 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
     
 }    
 
-static int ProtoField_new(lua_State* L) {
+ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be used in a protocol. */
+#define ELUA_ARG_ProtoField_new_ABBR 1 /* abbreviated name of the field (the string used in filters). */
+#define ELUA_ARG_ProtoField_new_NAME 2 /* Actual name of the field (the string that appears in the tree).  */
+#define ELUA_ARG_ProtoField_new_TYPE 3 /* Field Type (FT_*).  */
+#define ELUA_OPTARG_ProtoField_new_VALUESTRING 5 /* a ValueString object. */
+#define ELUA_OPTARG_ProtoField_new_BASE 5 /* The representation BASE_*. */
+#define ELUA_OPTARG_ProtoField_new_MASK 6 /* the bitmask to be used.  */
+#define ELUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
+	
     ProtoField f = g_malloc(sizeof(eth_field_t));
     value_string* vs;
     
     /* will be using -2 as far as the field has not been added to an array then it will turn -1 */
     f->hfid = -2;
-    f->name = g_strdup(luaL_checkstring(L,1));
-    f->abbr = g_strdup(luaL_checkstring(L,2));
-    f->type = get_ftenum(luaL_checkstring(L,3));
+    f->name = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_ABBR));
+    f->abbr = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_NAME));
+    f->type = get_ftenum(luaL_checkstring(L,ELUA_ARG_ProtoField_new_TYPE));
     
     if (f->type == FT_NONE) {
-        luaL_argerror(L, 3, "invalid FT_type");
+        ELUA_ARG_ERROR(ProtoField_new,TYPE,"invalid FT_type");
         return 0;
     }
     
@@ -399,16 +408,14 @@ static int ProtoField_new(lua_State* L) {
     }
     
     /* XXX: need BASE_ERROR */
-    f->base = string_to_base(luaL_optstring(L, 5, "BASE_NONE"));
-    f->mask = luaL_optint(L, 6, 0x0);
-    f->blob = g_strdup(luaL_optstring(L,7,""));
+    f->base = string_to_base(luaL_optstring(L, ELUA_OPTARG_ProtoField_new_BASE, "BASE_NONE"));
+    f->mask = luaL_optint(L, ELUA_OPTARG_ProtoField_new_MASK, 0x0);
+    f->blob = g_strdup(luaL_optstring(L,ELUA_OPTARG_ProtoField_new_DESCR,""));
     
     pushProtoField(L,f);
     
-    return 1;
+    ELUA_FINAL_RETURN(1); /* The newly created ProtoField object */ 
 }
-
-
 
 
 static int ProtoField_integer(lua_State* L, enum ftenum type) {
@@ -444,6 +451,23 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 
 #define PROTOFIELD_INTEGER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_integer(L,FT); }
 PROTOFIELD_INTEGER(uint8,FT_UINT8)
+/* ELUA_SECTION Protofield integer constructors */
+/* ELUA_TEXT integer type ProtoField constructors use the following arguments */
+/* ELUA_ARG_DESC Protofield_integer ABBR abbreviated name of the field (the string used in filters)  */
+/* ELUA_OPTARG_DESC Protofield_integer NAME Actual name of the field (the string that appears in the tree)  */
+/* ELUA_ARGDESC Protofield_integer DESC description of the field  */
+/* ELUA_RETURNS Protofield_integer a protofiled item to be added to a ProtoFieldArray */
+/* ELUA_CONSTRUCTOR ProtoField uint8 */
+/* ELUA_CONSTRUCTOR ProtoField uint16 */
+/* ELUA_CONSTRUCTOR ProtoField uint24 */
+/* ELUA_CONSTRUCTOR ProtoField uint32 */
+/* ELUA_CONSTRUCTOR ProtoField uint64 */
+/* ELUA_CONSTRUCTOR ProtoField int8 */
+/* ELUA_CONSTRUCTOR ProtoField int16 */
+/* ELUA_CONSTRUCTOR ProtoField int24 */
+/* ELUA_CONSTRUCTOR ProtoField int32 */
+/* ELUA_CONSTRUCTOR ProtoField int64 */
+/* ELUA_CONSTRUCTOR ProtoField framenum */
 PROTOFIELD_INTEGER(uint16,FT_UINT16)
 PROTOFIELD_INTEGER(uint24,FT_UINT24)
 PROTOFIELD_INTEGER(uint32,FT_UINT32)
@@ -567,7 +591,7 @@ int ProtoField_register(lua_State* L) {
     const eth_ft_types_t* ts;
     const struct base_display_string_t* b;
     
-REGISTER_FULL_CLASS(PROTO_FIELD, ProtoField_methods, ProtoField_meta);
+ELUA_REGISTER_CLASS(ProtoField);
     
     /* add a global FT_* variable for each FT_ type */
     for (ts = ftenums; ts->str; ts++) {
@@ -587,10 +611,7 @@ REGISTER_FULL_CLASS(PROTO_FIELD, ProtoField_methods, ProtoField_meta);
 }
 
 
-/*
- * ProtoFieldArray class
- */
-
+ELUA_CLASS_DEFINE(ProtoFieldArray,if (! *p) luaL_error(L,"null ProtoFieldArray"))
 
 static int ProtoFieldArray_new(lua_State* L) {
     ProtoFieldArray fa;
@@ -690,18 +711,13 @@ static const luaL_reg ProtoFieldArray_meta[] = {
 };
 
 int ProtoFieldArray_register(lua_State* L) {
-	REGISTER_FULL_CLASS(PROTO_FIELD_ARRAY, ProtoFieldArray_methods, ProtoFieldArray_meta);
+	ELUA_REGISTER_CLASS(ProtoFieldArray);
     return 1;
 }
 
 
 
-
-
-/*
- * Proto class
- */
-
+ELUA_CLASS_DEFINE(Proto,NOP)
 
 static int Proto_new(lua_State* L) {
     const gchar* name = luaL_checkstring(L,1);
@@ -938,13 +954,13 @@ static const luaL_reg Proto_meta[] = {
 
 int Proto_register(lua_State* L) {
 
-	REGISTER_META(PROTO, Proto_meta);
+	ELUA_REGISTER_META(Proto);
 
     lua_pushstring(L, "register_postdissector");
     lua_pushcfunction(L, Proto_register_postdissector);
     lua_settable(L, LUA_GLOBALSINDEX);
 
-    lua_pushstring(L, PROTO);
+    lua_pushstring(L, "Proto");
     lua_pushcfunction(L, Proto_new);
     lua_settable(L, LUA_GLOBALSINDEX);
     
@@ -954,9 +970,7 @@ int Proto_register(lua_State* L) {
     return 1;
 }
 
-/*
- * Dissector class
- */
+ELUA_CLASS_DEFINE(Dissector,NOP)
 
 static int Dissector_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,1);
@@ -1015,14 +1029,13 @@ static const luaL_reg Dissector_meta[] = {
 };
 
 int Dissector_register(lua_State* L) {
-	REGISTER_FULL_CLASS(DISSECTOR, Dissector_methods, Dissector_meta);
+	ELUA_REGISTER_CLASS(Dissector);
     return 1;
 }
 
 
-/*
- * DissectorTable class
- */
+ELUA_CLASS_DEFINE(DissectorTable,NOP)
+
 static int DissectorTable_new (lua_State *L) {
     gchar* name = (void*)luaL_checkstring(L,1);
     gchar* ui_name = (void*)luaL_optstring(L,2,name);
@@ -1102,7 +1115,7 @@ static int DissectorTable_add (lua_State *L) {
     } else if ( isDissector(L,3) ) {
         handle = toDissector(L,3);
     } else {
-        luaL_argerror(L,3,"Must be either " PROTO " or " DISSECTOR );
+        luaL_argerror(L,3,"Must be either Proto or Dissector" );
         return 0;
     }
     
@@ -1129,10 +1142,10 @@ static int DissectorTable_remove (lua_State *L) {
     
     if (!dt) return 0;
     
-    if(( p = luaL_checkudata(L,3,PROTO) )) {
+    if(( p = luaL_checkudata(L,3,"Proto") )) {
         handle = p->handle;
-    } else if (! ( handle  = luaL_checkudata(L,3,DISSECTOR) )) {
-        luaL_argerror(L,3,"Must be either " PROTO " or " DISSECTOR );
+    } else if (! ( handle  = luaL_checkudata(L,3,"Dissector") )) {
+        luaL_argerror(L,3,"Must be either Proto or Dissector" );
         return 0;
     }
     
@@ -1269,7 +1282,7 @@ static const luaL_reg DissectorTable_meta[] = {
 };
 
 int DissectorTable_register(lua_State* L) {
-	REGISTER_FULL_CLASS(DISSECTOR_TABLE, DissectorTable_methods, DissectorTable_meta);
+	ELUA_REGISTER_CLASS(DissectorTable);
     return 1;
 }
 

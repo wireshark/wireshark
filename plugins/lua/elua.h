@@ -50,6 +50,8 @@
 #include <epan/emem.h>
 #include <epan/funnel.h>
 
+#include "elua_register.h"
+
 #define LUA_DISSECTORS_TABLE "dissectors"
 #define LUA_INIT_ROUTINES "init_routines"
 #define LUA_HANDOFF_ROUTINES "handoff_routines"
@@ -101,73 +103,39 @@ typedef struct _eth_proto_t {
     gboolean is_postdissector;
 } eth_proto_t;
 
+struct _eth_distbl_t {
+    dissector_table_t table;
+    gchar* name;
+};
+
+struct _eth_col_info {
+    column_info* cinfo;
+    gint col;
+};
 
 typedef struct {const gchar* str; enum ftenum id; } eth_ft_types_t;
 
-#define PROTO_FIELD "ProtoField"
+typedef eth_pref_t* Pref;
+typedef eth_pref_t* Prefs;
 typedef struct _eth_field_t* ProtoField;
-
-#define PROTO_FIELD_ARRAY "ProtoFieldArray"
 typedef GArray* ProtoFieldArray;
-
-#define SUBTREE "SubTree"
 typedef int* SubTree;
-
-#define PROTO "Protocol"
 typedef struct _eth_proto_t* Proto;
-
-#define DISSECTOR_TABLE "DissectorTable"
-typedef struct _eth_distbl_t {
-    dissector_table_t table;
-    gchar* name;
-}* DissectorTable;
-
-#define DISSECTOR "Dissector"
+typedef struct _eth_distbl_t* DissectorTable;
 typedef dissector_handle_t Dissector;
-
-#define BYTE_ARRAY "ByteArray"
 typedef GByteArray* ByteArray;
-
-#define TVB "Tvb"
 typedef tvbuff_t* Tvb;
-
-#define TVB_RANGE "TvbRange"
 typedef struct _eth_tvbrange* TvbRange; 
-
-#define COLUMN "Column"
-typedef struct _eth_col_info {
-    column_info* cinfo;
-    gint col;
-}* Column;
-
-#define COLUMNS "Columns"
+typedef struct _eth_col_info* Column;
 typedef column_info* Columns;
-
-#define PINFO "Pinfo"
 typedef packet_info* Pinfo;
-
-#define PROTO_TREE "ProtoTree"
 typedef proto_tree* ProtoTree;
-
-#define ITEM "ProtoItem"
 typedef proto_item* ProtoItem;
-
-#define ADDRESS "Address"
 typedef address* Address;
-
-#define FIELD "Field"
 typedef header_field_info** Field;
-
-#define TAP "Tap"
 typedef struct _eth_tap* Tap;
-
-#define TEXT_WINDOW "TextWindow"
 typedef funnel_text_window_t* TextWindow;
-
-#define DUMPER "Dumper"
 typedef wtap_dumper* Dumper;
-
-#define PSEUDOHEADER "PseudoHeader"
 typedef struct lua_pseudo_header* PseudoHeader;
 
 #define NOP
@@ -180,30 +148,30 @@ typedef struct lua_pseudo_header* PseudoHeader;
  *
  * LUA_CLASS_DEFINE must be used without trailing ';'
  */
-#define LUA_CLASS_DEFINE(C,CN,check_code) \
+#define ELUA_CLASS_DEFINE(C,check_code) \
 C to##C(lua_State* L, int index) { \
     C* v = (C*)lua_touserdata (L, index); \
-    if (!v) luaL_typerror(L,index,CN); \
+    if (!v) luaL_typerror(L,index,#C); \
     return *v; \
 } \
 C check##C(lua_State* L, int index) { \
     C* p; \
     luaL_checktype(L,index,LUA_TUSERDATA); \
-    p = (C*)luaL_checkudata(L, index, CN); \
+    p = (C*)luaL_checkudata(L, index, #C); \
     check_code; \
     return p ? *p : NULL; \
 } \
 C* push##C(lua_State* L, C v) { \
     C* p = lua_newuserdata(L,sizeof(C)); *p = v; \
-    luaL_getmetatable(L, CN); lua_setmetatable(L, -2); \
+    luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
     return p; \
 }\
 gboolean is##C(lua_State* L,int i) { \
-        return (gboolean)(lua_isuserdata(L,i) && luaL_checkudata(L,3,CN)); \
+        return (gboolean)(lua_isuserdata(L,i) && luaL_checkudata(L,3,#C)); \
 } \
 C shift##C(lua_State* L,int i) { \
     C* p; \
-    if ((p = (C*)luaL_checkudata(L, i, CN))) {\
+    if ((p = (C*)luaL_checkudata(L, i, #C))) {\
         lua_remove(L,i); \
         return *p; \
     } else { \
@@ -214,10 +182,10 @@ C shift##C(lua_State* L,int i) { \
 
 #ifdef HAVE_LUA_5_1
 
-#define REGISTER_FULL_CLASS(CN,methods,meta) { \
-	luaL_register (L, CN, methods); \
-	luaL_newmetatable (L, CN); \
-	luaL_register (L, NULL, meta); \
+#define ELUA_REGISTER_CLASS(C) { \
+	luaL_register (L, #C, C ## _methods); \
+	luaL_newmetatable (L, #C); \
+	luaL_register (L, NULL, C ## _meta); \
 	lua_pushliteral(L, "__index"); \
 	lua_pushvalue(L, -3); \
 	lua_rawset(L, -3); \
@@ -227,16 +195,16 @@ C shift##C(lua_State* L,int i) { \
 	lua_pop(L, 1); \
 }
 
-#define REGISTER_META(CN,meta) luaL_newmetatable (L, CN);   luaL_register (L, NULL, meta); 
+#define ELUA_REGISTER_META(C) luaL_newmetatable (L, #C);   luaL_register (L, NULL, C ## _meta); 
 
-#define INIT_LUA(L) L = luaL_newstate(); luaL_openlibs(L);
+#define ELUA_INIT(L) L = luaL_newstate(); luaL_openlibs(L);
 
 #else /* Lua 5.0 */
 
-#define REGISTER_FULL_CLASS(CN,methods,meta) { \
-	luaL_openlib(L, CN, methods, 0); \
-	luaL_newmetatable(L, CN); \
-	luaL_openlib(L, 0, meta, 0); \
+#define ELUA_REGISTER_CLASS(C) { \
+	luaL_openlib(L, #C, C ## _methods, 0); \
+	luaL_newmetatable(L, #C); \
+	luaL_openlib(L, 0, C ## _meta, 0); \
 	lua_pushliteral(L, "__index"); \
 	lua_pushvalue(L, -3); \
 	lua_rawset(L, -3); \
@@ -246,12 +214,32 @@ C shift##C(lua_State* L,int i) { \
 	lua_pop(L, 1); \
 }
 
-#define REGISTER_META(CN,meta) luaL_newmetatable (L, CN); luaL_openlib (L, NULL, meta, 0);
+#define ELUA_REGISTER_META(C) luaL_newmetatable (L, #C); luaL_openlib (L, NULL, C ## _meta, 0);
 
-#define INIT_LUA(L) L = lua_open(); luaopen_base(L); luaopen_table(L); luaopen_io(L); luaopen_string(L);
+#define ELUA_INIT(L) L = lua_open(); luaopen_base(L); luaopen_table(L); luaopen_io(L); luaopen_string(L);
 
 #endif
 
+#define ELUA_FUNCTION extern int 
+#define ELUA_REGISTER_FUNCTION(name)     { lua_pushstring(L, #name); lua_pushcfunction(L, elua_## name); lua_settable(L, LUA_GLOBALSINDEX); }
+#define ELUA_REGISTER extern int
+
+#define ELUA_METHOD static int 
+#define ELUA_CONSTRUCTOR static int 
+#define ELUA_ATTR_SET static int 
+#define ELUA_ATTR_GET static int 
+#define ELUA_METAMETHOD static int
+
+#define ELUA_METHODS static const luaL_reg 
+#define ELUA_META static const luaL_reg
+#define ELUA_CLASS_FNREG(class,name) { #name, class##_##name }
+
+#define ELUA_ERROR(name,error) { luaL_error(L, #name  ": " error); return 0; }
+#define ELUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,ELUA_ARG_ ## name ## _ ## attr, #name  ": " error); return 0; }
+#define ELUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,ELUA_OPTARG_##name##_ ##attr, #name  ": " error); return 0; }
+
+#define ELUA_RETURN(i) return (i);
+#define ELUA_FINAL_RETURN(i) return (i);
 
 extern packet_info* lua_pinfo;
 extern proto_tree* lua_tree;
@@ -261,7 +249,7 @@ extern dissector_handle_t lua_data_handle;
 extern gboolean lua_initialized;
 extern int lua_dissectors_table_ref;
 
-#define LUA_CLASS_DECLARE(C,CN) \
+#define ELUA_CLASS_DECLARE(C) \
 extern C to##C(lua_State* L, int index); \
 extern C check##C(lua_State* L, int index); \
 extern C* push##C(lua_State* L, C v); \
@@ -269,28 +257,8 @@ extern int C##_register(lua_State* L); \
 extern gboolean is##C(lua_State* L,int i); \
 extern C shift##C(lua_State* L,int i)
 
-
-
-LUA_CLASS_DECLARE(Tap,TAP);
-LUA_CLASS_DECLARE(Field,FIELD);
-LUA_CLASS_DECLARE(ProtoField,PROTO_FIELD);
-LUA_CLASS_DECLARE(ProtoFieldArray,PROTO_FIELD_ARRAY);
-LUA_CLASS_DECLARE(SubTree,SUBTREE);
-LUA_CLASS_DECLARE(Proto,PROTO);
-LUA_CLASS_DECLARE(ByteArray,BYTE_ARRAY);
-LUA_CLASS_DECLARE(Tvb,TVB);
-LUA_CLASS_DECLARE(TvbRange,TVB_RANGE);
-LUA_CLASS_DECLARE(Column,COLUMN);
-LUA_CLASS_DECLARE(Columns,COLUMNS);
-LUA_CLASS_DECLARE(Pinfo,PINFO);
-LUA_CLASS_DECLARE(ProtoTree,TREE);
-LUA_CLASS_DECLARE(ProtoItem,ITEM);
-LUA_CLASS_DECLARE(Dissector,DISSECTOR);
-LUA_CLASS_DECLARE(DissectorTable,DISSECTOR_TABLE);
-LUA_CLASS_DECLARE(Address,ADDRESS);
-LUA_CLASS_DECLARE(TextWindow,TEXT_WINDOW);
-LUA_CLASS_DECLARE(Dumper,DUMPER);
-LUA_CLASS_DECLARE(PseudoHeader,PSEUDOHEADER);
+ELUA_DECLARE_CLASSES();
+ELUA_DECLARE_FUNCTIONS();
 
 extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_);

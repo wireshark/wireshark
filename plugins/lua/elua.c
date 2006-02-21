@@ -26,7 +26,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "packet-lua.h"
+#include "elua.h"
 #include <epan/nstime.h>
 #include <math.h>
 #include <epan/expert.h>
@@ -55,7 +55,7 @@ const gchar* lua_shiftstring(lua_State* L, int i) {
     }
 }
 
-static int lua_format_date(lua_State* LS) {
+static int elua_format_date(lua_State* LS) {
     lua_Number time = luaL_checknumber(LS,1);
     nstime_t then;
     gchar* str;
@@ -68,7 +68,7 @@ static int lua_format_date(lua_State* LS) {
     return 1;
 }
 
-static int lua_format_time(lua_State* LS) {
+static int elua_format_time(lua_State* LS) {
     lua_Number time = luaL_checknumber(LS,1);
     nstime_t then;
     gchar* str;
@@ -81,24 +81,24 @@ static int lua_format_time(lua_State* LS) {
     return 1;
 }
 
-static int lua_report_failure(lua_State* LS) {
+static int elua_report_failure(lua_State* LS) {
     const gchar* s = luaL_checkstring(LS,1);
     report_failure("%s",s);
     return 0;
 }
 
-static int lua_not_register_menu(lua_State* L) {
+static int elua_not_register_menu(lua_State* L) {
     luaL_error(L,"too late to register a menu");
     return 0;    
 }
 
-static int lua_not_print(lua_State* L) {
+static int elua_not_print(lua_State* L) {
     luaL_error(L,"do not use print use either a TextWindow or critical(),\n"
                "warn(), message(), info() or debug()");
     return 0;        
 }
 
-int lua_log(lua_State* L, GLogLevelFlags log_level) {
+int elua_log(lua_State* L, GLogLevelFlags log_level) {
     GString* str = g_string_new("");
     int n = lua_gettop(L);  /* number of arguments */
     int i;
@@ -125,11 +125,11 @@ int lua_log(lua_State* L, GLogLevelFlags log_level) {
     return 0;
 }
 
-int lua_critical( lua_State* L ) { lua_log(L,G_LOG_LEVEL_CRITICAL); return 0; }
-int lua_warn( lua_State* L ) { lua_log(L,G_LOG_LEVEL_WARNING); return 0; }
-int lua_message( lua_State* L ) { lua_log(L,G_LOG_LEVEL_MESSAGE); return 0; }
-int lua_info( lua_State* L ) { lua_log(L,G_LOG_LEVEL_INFO); return 0; }
-int lua_debug( lua_State* L ) { lua_log(L,G_LOG_LEVEL_DEBUG); return 0; }
+int elua_critical( lua_State* L ) { elua_log(L,G_LOG_LEVEL_CRITICAL); return 0; }
+int elua_warn( lua_State* L ) { elua_log(L,G_LOG_LEVEL_WARNING); return 0; }
+int elua_message( lua_State* L ) { elua_log(L,G_LOG_LEVEL_MESSAGE); return 0; }
+int elua_info( lua_State* L ) { elua_log(L,G_LOG_LEVEL_INFO); return 0; }
+int elua_debug( lua_State* L ) { elua_log(L,G_LOG_LEVEL_DEBUG); return 0; }
 
 
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
@@ -307,82 +307,30 @@ void register_lua(void) {
                       G_LOG_LEVEL_DEBUG,
                       ops ? ops->logger : basic_logger, NULL);
     
-	INIT_LUA(L);
+	ELUA_INIT(L);
     
     /* load ethereal's API */
-    ProtoField_register(L);
-    ProtoFieldArray_register(L);
-    SubTree_register(L);
-    ByteArray_register(L);
-    Tvb_register(L);
-    TvbRange_register(L);
-    Proto_register(L);
-    Column_register(L);
-    Pinfo_register(L);
-    ProtoTree_register(L);
-    ProtoItem_register(L);
-    Dissector_register(L);
-    DissectorTable_register(L);
-    Field_register(L);
-    Columns_register(L);
-    Tap_register(L);
-    Address_register(L);
-    TextWindow_register(L);
-    PseudoHeader_register(L);
-    Dumper_register(L);
-    
+	ELUA_REGISTER_CLASSES(L);    
     
     /* print has been changed to yield an error if used */
     lua_pushstring(L, "print");
-    lua_pushcfunction(L, lua_not_print);
+    lua_pushcfunction(L, elua_not_print);
     lua_settable(L, LUA_GLOBALSINDEX);
     
     /* logger functions */
-    lua_pushstring(L, "critical");
-    lua_pushcfunction(L, lua_critical);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "warn");
-    lua_pushcfunction(L, lua_warn);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "message");
-    lua_pushcfunction(L, lua_message);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "info");
-    lua_pushcfunction(L, lua_info);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "debug");
-    lua_pushcfunction(L, lua_debug);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    
-    /* functions not registered by any other module */
-    lua_pushstring(L, "format_date");
-    lua_pushcfunction(L, lua_format_date);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "format_time");
-    lua_pushcfunction(L, lua_format_time);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "report_failure");
-    lua_pushcfunction(L, lua_report_failure);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "register_menu");
-    lua_pushcfunction(L, lua_register_menu);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "gui_enabled");
-    lua_pushcfunction(L, lua_gui_enabled);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "dialog");
-    lua_pushcfunction(L, lua_new_dialog);
-    lua_settable(L, LUA_GLOBALSINDEX);
+	ELUA_REGISTER_FUNCTION(critical);
+	ELUA_REGISTER_FUNCTION(warn);
+	ELUA_REGISTER_FUNCTION(info);
+	ELUA_REGISTER_FUNCTION(message);
+	ELUA_REGISTER_FUNCTION(debug);
+	
+	/* Utility functions */
+	ELUA_REGISTER_FUNCTION(format_date);
+	ELUA_REGISTER_FUNCTION(format_time);
+	ELUA_REGISTER_FUNCTION(report_failure);
+
+	/* Functions declared in  modules */
+	ELUA_REGISTER_FUNCTIONS();
     
     /* the init_routines table (accessible by the user) */
     lua_pushstring(L, LUA_INIT_ROUTINES);
@@ -446,7 +394,7 @@ void register_lua(void) {
      * disable the function to avoid weirdness
      */
     lua_pushstring(L, "register_menu");
-    lua_pushcfunction(L, lua_not_register_menu);
+    lua_pushcfunction(L, elua_not_register_menu);
     lua_settable(L, LUA_GLOBALSINDEX);
     
     /* set up some essential globals */

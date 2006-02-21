@@ -26,11 +26,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "packet-lua.h"
+#include "elua.h"
 
-LUA_CLASS_DEFINE(ByteArray,BYTE_ARRAY,if (! *p) luaL_argerror(L,index,"null bytearray"))
+ELUA_CLASS_DEFINE(ByteArray,if (! *p) luaL_argerror(L,index,"null bytearray"))
 
-static int ByteArray_new(lua_State* L) {
+ELUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* creates a ByteArray Object */
+#define ELUA_OPTARG_ByteArray_new_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d" */
     GByteArray* ba = g_byte_array_new();
     const gchar* s;
     int nibble[2];
@@ -38,10 +39,10 @@ static int ByteArray_new(lua_State* L) {
     gchar c;
 
     if (lua_gettop(L) == 1) {
-        s = luaL_checkstring(L,1);
+        s = luaL_checkstring(L,ELUA_OPTARG_ByteArray_new_HEXBYTES);
         
         if (!s) {
-            luaL_argerror(L,1,"not a string");
+            ELUA_OPTARG_ERROR(ByteArray_new,HEXBYTES,"must be a string");
             return 0;
         }
         
@@ -71,7 +72,7 @@ static int ByteArray_new(lua_State* L) {
     
     pushByteArray(L,ba);
 
-    return 1;
+    ELUA_FINAL_RETURN(1); /* The new ByteArray object. */
 }
 
 static int ByteArray_gc(lua_State* L) {
@@ -83,27 +84,50 @@ static int ByteArray_gc(lua_State* L) {
     return 0;
 }
 
-static int ByteArray_append(lua_State* L) {
+ELUA_METAMETHOD ByteArray__concat(lua_State* L) {
+#define ELUA_ARG_ByteArray__cat_FIRST 1
+#define ELUA_ARG_ByteArray__cat_SECOND 1
+	
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,2);
 
+	if (! (ba  && ba2) )
+		ELUA_ERROR(ByteArray__cat,"both arguments must be ByteArrays");
+	
     g_byte_array_append(ba,ba2->data,ba2->len);
 
     pushByteArray(L,ba);
-    return 1;
+    ELUA_FINAL_RETURN(1); /* The new composite ByteArray. */
 }
 
-static int ByteArray_prepend(lua_State* L) {
+ELUA_METHOD ByteArray_prepend(lua_State* L) {
+#define ELUA_ARG_ByteArray_prepend_BYTES 1
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,2);
     
+	if (! (ba  && ba2) )
+		ELUA_ERROR(ByteArray_prepend,"both arguments must be ByteArrays");
+
     g_byte_array_prepend(ba,ba2->data,ba2->len);
     
     pushByteArray(L,ba);
     return 1;
 }
 
-static int ByteArray_set_size(lua_State* L) {
+ELUA_METHOD ByteArray_append(lua_State* L) {
+    ByteArray ba = checkByteArray(L,1);
+    ByteArray ba2 = checkByteArray(L,2);
+    
+	if (! (ba  && ba2) )
+		ELUA_ERROR(ByteArray_prepend,"both arguments must be ByteArrays");
+	
+    g_byte_array_prepend(ba,ba2->data,ba2->len);
+    
+    pushByteArray(L,ba);
+    return 1;
+}
+
+ELUA_METHOD ByteArray_set_size(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     int siz = luaL_checkint(L,2);
 
@@ -113,7 +137,7 @@ static int ByteArray_set_size(lua_State* L) {
     return 0;
 }
 
-static int ByteArray_set_index(lua_State* L) {
+ELUA_METHOD ByteArray_set_index(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     int idx = luaL_checkint(L,2);
     int v = luaL_checkint(L,3);
@@ -141,7 +165,7 @@ static int ByteArray_set_index(lua_State* L) {
 }
 
 
-static int ByteArray_get_index(lua_State* L) {
+ELUA_METHOD ByteArray_get_index(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     int idx = luaL_checkint(L,2);
     
@@ -161,7 +185,7 @@ static int ByteArray_get_index(lua_State* L) {
     return 1;
 }
 
-static int ByteArray_len(lua_State* L) {
+ELUA_METHOD ByteArray_len(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     
     if (!ba) return 0;
@@ -171,7 +195,7 @@ static int ByteArray_len(lua_State* L) {
     return 1;
 }
 
-static int ByteArray_subset(lua_State* L) {
+ELUA_METHOD ByteArray_subset(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     int offset = luaL_checkint(L,2);
     int len = luaL_checkint(L,3);
@@ -247,13 +271,13 @@ static const luaL_reg ByteArray_methods[] = {
 static const luaL_reg ByteArray_meta[] = {
     {"__tostring", ByteArray_tostring},
     {"__gc",       ByteArray_gc},
-    {"__concat", ByteArray_append},
+    {"__concat", ByteArray__concat},
     {"__call",ByteArray_subset},
     {0, 0}
 };
 
 int ByteArray_register(lua_State* L) {
-	REGISTER_FULL_CLASS(BYTE_ARRAY, ByteArray_methods, ByteArray_methods);
+	ELUA_REGISTER_CLASS(ByteArray);
     return 1;
 }
 
@@ -277,8 +301,7 @@ int ByteArray_register(lua_State* L) {
  * and report an error to the lua machine if it happens to be NULLified.
  */
 
-LUA_CLASS_DEFINE(Tvb,TVB,if (! *p) luaL_error(L,"expired tvb"))
-LUA_CLASS_DEFINE(TvbRange,TVB_RANGE,if (! *p) luaL_error(L,"expired tvbrange"))
+ELUA_CLASS_DEFINE(Tvb,if (! *p) luaL_error(L,"expired tvb"))
 
 static GPtrArray* outstanding_stuff = NULL;
 
@@ -401,7 +424,7 @@ static const luaL_reg Tvb_meta[] = {
 };
 
 int Tvb_register(lua_State* L) {
-	REGISTER_FULL_CLASS(TVB, Tvb_methods, Tvb_meta);
+	ELUA_REGISTER_CLASS(Tvb);
     return 1;
 }
 
@@ -452,6 +475,7 @@ static int Tvb_range(lua_State* L) {
 
 }
 
+ELUA_CLASS_DEFINE(TvbRange,if (! *p) luaL_error(L,"expired tvbrange"))
 
 /*
  *  read access to tvbr's data
@@ -708,6 +732,6 @@ static const luaL_reg TvbRange_meta[] = {
 
 int TvbRange_register(lua_State* L) {
     outstanding_stuff = g_ptr_array_new();
-    REGISTER_FULL_CLASS(TVB_RANGE, TvbRange_methods, TvbRange_meta);
+    ELUA_REGISTER_CLASS(TvbRange);
     return 1;
 }
