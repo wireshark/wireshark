@@ -1657,7 +1657,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  cur_offset += 4;
 
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Altitude: %g m",
-				(tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
+				((gint32)tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
 	} else
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
       }
