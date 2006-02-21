@@ -53,7 +53,7 @@ static const value_string short_lev[] = {
   { 5,      "NOTICE" },
   { 6,      "INFO" },
   { 7,      "DEBUG" },
-  { 0, NULL },
+  { 0, NULL }
 };
 
 static const value_string short_fac[] = {
@@ -69,6 +69,9 @@ static const value_string short_fac[] = {
   { 9,     "CRON" },		/* The BSDs, Linux, and others */
   { 10,    "AUTHPRIV" },
   { 11,    "FTP" },
+  { 12,    "NTP" },
+  { 13,    "LOGAUDIT" },
+  { 14,    "LOGALERT" },
   { 15,    "CRON" },		/* Solaris */
   { 16,    "LOCAL0" },
   { 17,    "LOCAL1" },
@@ -78,7 +81,7 @@ static const value_string short_fac[] = {
   { 21,    "LOCAL5" },
   { 22,    "LOCAL6" },
   { 23,    "LOCAL7" },
-  { 0, NULL },
+  { 0, NULL }
 };
 
 static const value_string long_lev[] = {
@@ -90,7 +93,7 @@ static const value_string long_lev[] = {
   { 5,      "NOTICE - normal but significant condition" },
   { 6,      "INFO - informational" },
   { 7,      "DEBUG - debug-level messages" },
-  { 0, NULL },
+  { 0, NULL }
 };
 
 static const value_string long_fac[] = {
@@ -106,6 +109,9 @@ static const value_string long_fac[] = {
   { 9,     "CRON - clock daemon (BSD, Linux)" },
   { 10,    "AUTHPRIV - security/authorization messages (private)" },
   { 11,    "FTP - ftp daemon" },
+  { 12,    "NTP - ntp subsystem" },
+  { 13,    "LOGAUDIT - log audit" },
+  { 14,    "LOGALERT - log alert" },
   { 15,    "CRON - clock daemon (Solaris)" },
   { 16,    "LOCAL0 - reserved for local use" },
   { 17,    "LOCAL1 - reserved for local use" },
@@ -115,7 +121,7 @@ static const value_string long_fac[] = {
   { 21,    "LOCAL5 - reserved for local use" },
   { 22,    "LOCAL6 - reserved for local use" },
   { 23,    "LOCAL7 - reserved for local use" },
-  { 0, NULL },
+  { 0, NULL }
 };
 
 static gint proto_syslog = -1;
@@ -125,12 +131,7 @@ static gint hf_syslog_msg = -1;
 
 static gint ett_syslog = -1;
 
-/* I couldn't find any documentation for the syslog message format.
-   According to the BSD sources, the message format is '<', P, '>', and
-   T.  P is a decimal value, which should be treated as an 8 bit
-   unsigned integer.  The lower three bits comprise the level, and the
-   upper five bits are the facility.  T is the message text.
- */
+/* The message format is defined in RFC 3164 */
 
 static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
