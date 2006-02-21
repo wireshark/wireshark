@@ -922,7 +922,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
                 top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2+label_height/4,
                 label_string);
 #else
-        /*
 		pango_layout_set_text(small_layout, label_string, -1);
 		pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments)) {
@@ -932,7 +931,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2,
 							small_layout);
 		}
-         */
 #endif
 		/* select colors */
 		if ( current_item+first_item == user_data->dlg.selected_item ){
@@ -975,10 +973,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		label_width=gdk_string_width(big_font, label_string);
 		label_height=gdk_string_height(big_font, label_string);
 #else
-        /*
 		pango_layout_set_text(big_layout, label_string, -1);
 		pango_layout_get_pixel_size(big_layout, &label_width, &label_height);
-         */
         
         label_width = label_height = 0;
 #endif
@@ -1004,7 +1000,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 			top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2+label_height/4-3,
 			label_string);
 #else
-        /*
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
 			gdk_draw_layout(user_data->dlg.pixmap,
 							frame_fg_color,
@@ -1012,7 +1007,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2-3,
 							big_layout);
 		}
-        */
 #endif
 
 
@@ -1022,10 +1016,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		label_width=gdk_string_width(small_font, label_string);
 		label_height=gdk_string_height(small_font, label_string);
 #else
-        /*
 		pango_layout_set_text(small_layout, label_string, -1);
 		pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
-         */
 #endif
 		if (start_arrow<end_arrow){
 			src_port_x = start_arrow - label_width - 2;
@@ -1041,7 +1033,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 			top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2+label_height/4-2,
 			label_string);
 #else
-        /*
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
 			gdk_draw_layout(user_data->dlg.pixmap,
 							div_line_color,
@@ -1049,7 +1040,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2,
 							small_layout);
 		}
-         */
 #endif
 
 		/* draw the destination port number */
@@ -1058,10 +1048,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		label_width=gdk_string_width(small_font, label_string);
 		label_height=gdk_string_height(small_font, label_string);
 #else
-        /*
 		pango_layout_set_text(small_layout, label_string, -1);
 		pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
-         */
 #endif
 		if (start_arrow<end_arrow){
 			dst_port_x = end_arrow + 2;
