@@ -281,6 +281,7 @@ static const value_string sccp_ssn_values[] = {
   { 0x8e,  "RANAP" },
   { 0x8f,  "RANSAP" },
   { 0x91,  "GMLC(MAP)" },
+  { 0x92,  "CAP" },
   { 0x93,  "gsmSCF (MAP) or IM-SSF (MAP) or Presence Network Agent" },
   { 0x94,  "SIWF (MAP)" },
   { 0x95,  "SGSN (MAP)" },
@@ -1260,10 +1261,7 @@ dissect_sccp_class_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 static void
 dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
-  guint8 more;
-
-  more = tvb_get_guint8(tvb, 0) & SEGMENTING_REASSEMBLING_MASK;
-  proto_tree_add_uint(tree, hf_sccp_more, tvb, 0, length, more);
+  proto_tree_add_item(tree, hf_sccp_more, tvb, 0, length, FALSE);
 }
 
 static void
@@ -1716,6 +1714,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   guint16 offset = 0;
   guint8 parameter_type;
   gboolean   save_fragmented;
+  tvbuff_t *new_tvb = NULL;
+  fragment_data *frag_msg = NULL;
+  guint32 source_local_ref=0;
+  guint8 more;
 
 /* Macro for getting pointer to mandatory variable parameters */
 #define VARIABLE_POINTER(var, hf_var, ptr_size) \
@@ -1852,19 +1854,57 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case MESSAGE_TYPE_DT1:
+	source_local_ref = tvb_get_letoh24(tvb, offset);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      
-      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
-      
-    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+	
+	binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
+	
+	more = tvb_get_guint8(tvb, offset) & SEGMENTING_REASSEMBLING_MASK;
+
+	offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SEGMENTING_REASSEMBLING,
 				     offset, SEGMENTING_REASSEMBLING_LENGTH);
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
+	/* Reasemble */
+
+	if (!sccp_xudt_desegment){
+		proto_tree_add_text(sccp_tree, tvb, variable_pointer1, tvb_get_guint8(tvb, variable_pointer1)+1, "Segmented Data"  );
+		dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer1);
+
+	}else{
+		save_fragmented = pinfo->fragmented;
+		pinfo->fragmented = TRUE;
+		frag_msg = fragment_add_seq_next(tvb, variable_pointer1 + 1, pinfo,
+			source_local_ref,									/* ID for fragments belonging together */  
+			sccp_xudt_msg_fragment_table,						/* list of message fragments */
+			sccp_xudt_msg_reassembled_table,					/* list of reassembled messages */
+			tvb_get_guint8(tvb,variable_pointer1),				/* fragment length - to the end */
+			more);												/* More fragments? */
+			
+
+		new_tvb = process_reassembled_data(tvb, variable_pointer1 + 1, pinfo,
+			"Reassembled Message", frag_msg, &sccp_xudt_msg_frag_items,
+			NULL, tree);
+
+		if (frag_msg) { /* Reassembled */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO, 
+				" (Message Reassembled)");
+		} else { /* Not last packet of reassembled Short Message */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO,
+				" (Message fragment )");
+		}		
+		pinfo->fragmented = save_fragmented;
+		if (new_tvb)
+			dissect_sccp_data_param(new_tvb, pinfo, tree);
+	}
+
+/* End reassemble */
     break;
 
   case MESSAGE_TYPE_DT2:
@@ -1872,9 +1912,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
-      
-    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+
+	binding = sccp_binding(&(pinfo->src), &(pinfo->dst), slr, dlr);
+
+	offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SEQUENCING_SEGMENTING, offset,
 				     SEQUENCING_SEGMENTING_LENGTH);
     break;
@@ -2050,9 +2091,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 		}else{
 			guint8 octet;
 			gboolean more_frag = TRUE;
-			guint32 source_local_ref=0;
-			tvbuff_t *new_tvb = NULL;
-			fragment_data *frag_msg = NULL;
+
 
 			/* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
 			 * Bit 8 of octet 1 is used for First segment indication
