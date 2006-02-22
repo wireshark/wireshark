@@ -1002,6 +1002,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	subid_t *vb_oid;
 	guint vb_oid_length;
 	gchar *vb_display_string;
+	gint64 i64;
 
 #ifdef HAVE_SOME_SNMP
 	struct variable_list variable;
@@ -1093,13 +1094,25 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 			}
 		}
 		break;
-
+	case SNMP_COUNTER64:
+		i64=0;
+		if(tvb_get_guint8(asn1->tvb, asn1->offset)&0x80){
+			i64=-1;
+		}
+		while(tvb_length_remaining(asn1->tvb, asn1->offset)){
+			i64=(i64<<8)|tvb_get_guint8(asn1->tvb, asn1->offset);
+			asn1->offset++;
+		}
+		proto_tree_add_text(snmp_tree, asn1->tvb, start,
+		    asn1->offset-start,
+		    "Value: %s: %" PRId64, vb_type_name,
+		    i64);
+		break;
 	case SNMP_OCTETSTR:
 	case SNMP_IPADDR:
 	case SNMP_OPAQUE:
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
-	case SNMP_COUNTER64:
 		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, asn1->tvb, start, -1, out_tvb);
 		vb_octet_string = ep_tvb_memdup(asn1->tvb, vb_value_start, vb_length);
 
