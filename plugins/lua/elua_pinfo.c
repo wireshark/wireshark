@@ -304,7 +304,7 @@ int Address_register(lua_State *L) {
 }
 
 
-ELUA_CLASS_DEFINE(Column,if (! *p) luaL_error(L,"expired column"))
+ELUA_CLASS_DEFINE(Column,FAIL_ON_NULL("expired column"))
 
 struct col_names_t {
     const gchar* name;
@@ -470,7 +470,7 @@ int Column_register(lua_State *L) {
 
 
 
-ELUA_CLASS_DEFINE(Columns,if (! *p) luaL_error(L,"expired columns"))
+ELUA_CLASS_DEFINE(Columns,FAIL_ON_NULL("expired columns"))
 
 static int Columns_tostring(lua_State *L) {
     lua_pushstring(L,"Columns");
@@ -547,7 +547,7 @@ int Columns_register(lua_State *L) {
 }
 
 
-ELUA_CLASS_DEFINE(Pinfo,if (! *p) luaL_error(L,"expired pinfo"))
+ELUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL("expired pinfo"))
 
 static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 

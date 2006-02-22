@@ -52,10 +52,8 @@
 
 #include "elua_register.h"
 
-#define LUA_DISSECTORS_TABLE "dissectors"
-#define LUA_INIT_ROUTINES "init_routines"
-#define LUA_HANDOFF_ROUTINES "handoff_routines"
-#define LOG_DOMAIN_LUA "Lua"
+#define ELUA_INIT_ROUTINES "init_routines"
+#define LOG_DOMAIN_LUA "eLua"
 
 struct _eth_tvbrange {
     tvbuff_t* tvb;
@@ -138,8 +136,6 @@ typedef funnel_text_window_t* TextWindow;
 typedef wtap_dumper* Dumper;
 typedef struct lua_pseudo_header* PseudoHeader;
 
-#define NOP
-
 /*
  * toXxx(L,idx) gets a Xxx from an index (Lua Error if fails)
  * checkXxx(L,idx) gets a Xxx from an index after calling check_code (No Lua Error if it fails)
@@ -197,7 +193,12 @@ C shift##C(lua_State* L,int i) { \
 
 #define ELUA_REGISTER_META(C) luaL_newmetatable (L, #C);   luaL_register (L, NULL, C ## _meta); 
 
-#define ELUA_INIT(L) L = luaL_newstate(); luaL_openlibs(L);
+#define ELUA_INIT(L) \
+	L = luaL_newstate(); \
+	luaL_openlibs(L); \
+	ELUA_REGISTER_CLASSES(); \
+	ELUA_REGISTER_FUNCTIONS();
+
 
 #else /* Lua 5.0 */
 
@@ -216,7 +217,14 @@ C shift##C(lua_State* L,int i) { \
 
 #define ELUA_REGISTER_META(C) luaL_newmetatable (L, #C); luaL_openlib (L, NULL, C ## _meta, 0);
 
-#define ELUA_INIT(L) L = lua_open(); luaopen_base(L); luaopen_table(L); luaopen_io(L); luaopen_string(L);
+#define ELUA_INIT(L) \
+	L = lua_open(); \
+	luaopen_base(L); \
+	luaopen_table(L); \
+	luaopen_io(L); \
+	luaopen_string(L); \
+	ELUA_REGISTER_CLASSES(); \
+	ELUA_REGISTER_FUNCTIONS();
 
 #endif
 
@@ -238,16 +246,18 @@ C shift##C(lua_State* L,int i) { \
 #define ELUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,ELUA_ARG_ ## name ## _ ## attr, #name  ": " error); return 0; }
 #define ELUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,ELUA_OPTARG_##name##_ ##attr, #name  ": " error); return 0; }
 
-#define ELUA_RETURN(i) return (i);
-#define ELUA_FINAL_RETURN(i) return (i);
+#define ELUA_REG_GLOBAL_BOOL(L,n,v) { lua_pushstring(L,n); lua_pushboolean(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
+#define ELUA_REG_GLOBAL_STRING(n,v) { lua_pushstring(L,n); lua_pushstring(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
+#define ELUA_REG_GLOBAL_NUMBER(n,v) { lua_pushstring(L,n); lua_pushnumber(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
 
-extern packet_info* lua_pinfo;
-extern proto_tree* lua_tree;
-extern tvbuff_t* lua_tvb;
-extern int lua_malformed;
-extern dissector_handle_t lua_data_handle;
-extern gboolean lua_initialized;
-extern int lua_dissectors_table_ref;
+#define ELUA_RETURN(i) return (i);
+
+#define ELUA_API extern
+
+#define NOP
+#define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,index,s)
+
+
 
 #define ELUA_CLASS_DECLARE(C) \
 extern C to##C(lua_State* L, int index); \
@@ -256,6 +266,15 @@ extern C* push##C(lua_State* L, C v); \
 extern int C##_register(lua_State* L); \
 extern gboolean is##C(lua_State* L,int i); \
 extern C shift##C(lua_State* L,int i)
+
+
+extern packet_info* lua_pinfo;
+extern proto_tree* lua_tree;
+extern tvbuff_t* lua_tvb;
+extern int lua_malformed;
+extern dissector_handle_t lua_data_handle;
+extern gboolean lua_initialized;
+extern int lua_dissectors_table_ref;
 
 ELUA_DECLARE_CLASSES();
 ELUA_DECLARE_FUNCTIONS();

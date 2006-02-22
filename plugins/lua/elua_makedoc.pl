@@ -26,7 +26,7 @@
 # (-: I don't even think writing this in Lua  :-)
 
 use strict;
-use V2P;
+#use V2P;
 
 sub deb {
 #warn $_[0] if $_[0] =~ /^>e/;
@@ -47,6 +47,7 @@ my %template = %{{
 	function_descr => "%s\n",
 	function_arg_header => "==== %s ====\n",
 	function_arg_descr => "%s\n",
+	function_argerrors_header => "'''Errors:'''\n",
 	function_argerror => "  * %s\n",
 	function_returns_header => "==== returns ====\n",
 	function_returns => "  * %s\n",
@@ -185,13 +186,14 @@ while ( $file =  shift) {
 			
 			printf D $template{class_methods_footer}, $cname;
 		}
-		
 	}
 
-	print D $template{non_method_functions_header};
+	if ($#functions >= 0) {
+		print D $template{non_method_functions_header};
 
-	for my $f (@functions) {
-		function_descr($f);
+		for my $f (@functions) {
+			function_descr($f);
+		}
 	}
 
 	%classes = ();

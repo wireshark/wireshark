@@ -28,7 +28,7 @@
 
 #include "elua.h"
 
-ELUA_CLASS_DEFINE(ByteArray,if (! *p) luaL_argerror(L,index,"null bytearray"))
+ELUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("null bytearray"))
 
 ELUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* creates a ByteArray Object */
 #define ELUA_OPTARG_ByteArray_new_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d" */
@@ -72,7 +72,7 @@ ELUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* creates a ByteArray Object */
     
     pushByteArray(L,ba);
 
-    ELUA_FINAL_RETURN(1); /* The new ByteArray object. */
+    ELUA_RETURN(1); /* The new ByteArray object. */
 }
 
 static int ByteArray_gc(lua_State* L) {
@@ -97,7 +97,7 @@ ELUA_METAMETHOD ByteArray__concat(lua_State* L) {
     g_byte_array_append(ba,ba2->data,ba2->len);
 
     pushByteArray(L,ba);
-    ELUA_FINAL_RETURN(1); /* The new composite ByteArray. */
+    ELUA_RETURN(1); /* The new composite ByteArray. */
 }
 
 ELUA_METHOD ByteArray_prepend(lua_State* L) {
@@ -301,7 +301,7 @@ int ByteArray_register(lua_State* L) {
  * and report an error to the lua machine if it happens to be NULLified.
  */
 
-ELUA_CLASS_DEFINE(Tvb,if (! *p) luaL_error(L,"expired tvb"))
+ELUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL("expired tvb"))
 
 static GPtrArray* outstanding_stuff = NULL;
 
@@ -475,7 +475,7 @@ static int Tvb_range(lua_State* L) {
 
 }
 
-ELUA_CLASS_DEFINE(TvbRange,if (! *p) luaL_error(L,"expired tvbrange"))
+ELUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"))
 
 /*
  *  read access to tvbr's data

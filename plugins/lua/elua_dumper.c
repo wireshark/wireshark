@@ -52,42 +52,54 @@ struct lua_pseudo_header {
     union wtap_pseudo_header* wph;   
 };
 
-static int PseudoHeader_none(lua_State* L) {
+ELUA_CONSTRUCTOR PseudoHeader_none(lua_State* L) { /* creates a "no" pseudoheader */
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_NONE;
     ph->wph = NULL;
     
     pushPseudoHeader(L,ph);
-    return 1;
+    ELUA_RETURN(1); /* A null pseudoheader */
 }
 
-static int PseudoHeader_eth(lua_State* L) {
+ELUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) { /* creates an ethernet pseudoheader */
+#define ELUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* the fcs lenght */
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ETH;
     ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
     ph->wph->eth.fcs_len = luaL_optint(L,1,-1);
     
     pushPseudoHeader(L,ph);
-    return 1;
+	ELUA_RETURN(1); /* The ethernet pseudoheader */
 }
 
-static int PseudoHeader_atm(lua_State* L) { 
+ELUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) { /* Creates an ATM pseudoheader */
+#define ELUA_OPTARG_PseudoHeader_atm_AAL 1 /* AAL number */
+#define ELUA_OPTARG_PseudoHeader_atm_VPI 2 /* VPI */
+#define ELUA_OPTARG_PseudoHeader_atm_VCI 3 /* VCI */
+#define ELUA_OPTARG_PseudoHeader_atm_CHANNEL 4 /* Channel */
+#define ELUA_OPTARG_PseudoHeader_atm_CELLS 5 /* Number of cells in the PDU */
+#define ELUA_OPTARG_PseudoHeader_atm_AAL5U2U 6 /* AAL5 User to User indicator */
+#define ELUA_OPTARG_PseudoHeader_atm_AAL5LEN 7 /* AAL5 Len */
+
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ATM;
     ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->atm.aal = luaL_optint(L,1,5);
-    ph->wph->atm.vpi = luaL_optint(L,2,1);
-    ph->wph->atm.vci = luaL_optint(L,3,1);
-    ph->wph->atm.channel = luaL_optint(L,4,0);
-    ph->wph->atm.cells = luaL_optint(L,5,1);
-    ph->wph->atm.aal5t_u2u = luaL_optint(L,6,1);
-    ph->wph->atm.aal5t_len = luaL_optint(L,7,0);
+    ph->wph->atm.aal = luaL_optint(L,ELUA_OPTARG_PseudoHeader_atm_AAL,5);
+    ph->wph->atm.vpi = luaL_optint(L,ELUA_OPTARG_PseudoHeader_atm_VPI,1);
+    ph->wph->atm.vci = luaL_optint(L,ELUA_OPTARG_PseudoHeader_atm_VCI,1);
+    ph->wph->atm.channel = luaL_optint(L,ELUA_OPTARG_PseudoHeader_atm_CHANNEL,0);
+    ph->wph->atm.cells = luaL_optint(L,ELUA_OPTARG_PseudoHeader_atm_CELLS,1);
+    ph->wph->atm.aal5t_u2u = luaL_optint(L,ELUA_OPTARG_PseudoHeader_atm_AAL5U2U,1);
+    ph->wph->atm.aal5t_len = luaL_optint(L,ELUA_OPTARG_PseudoHeader_atm_AAL5LEN,0);
     
     pushPseudoHeader(L,ph);
-    return 1;
+	ELUA_RETURN(1); /* The ATM pseudoheader */
 }
 
-static int PseudoHeader_mtp2(lua_State* L) {
+ELUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
+#define ELUA_OPTARG_PseudoHeader_mtp2_SENT /* True if the packet is sent, False if received. */
+#define ELUA_OPTARG_PseudoHeader_mtp2_ANNEXA /* True if annex A is used  */
+#define ELUA_OPTARG_PseudoHeader_mtp2_LINKNUM /* Link Number */
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_MTP2;
     ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
@@ -96,7 +108,7 @@ static int PseudoHeader_mtp2(lua_State* L) {
     ph->wph->mtp2.link_number = luaL_optint(L,3,0);
 
     pushPseudoHeader(L,ph);
-    return 1;
+	ELUA_RETURN(1); /* The MTP2 pseudoheader */
 }
 
 #if 0
@@ -110,37 +122,34 @@ static int PseudoHeader_nettl(lua_State* L) { luaL_error(L,"not implemented"); r
 static int PseudoHeader_k12(lua_State* L) { luaL_error(L,"not implemented"); return 0; }
 #endif
 
+ELUA_METHODS PseudoHeader_methods[] = {
+	ELUA_CLASS_FNREG(PseudoHeader,mtp2),
+	ELUA_CLASS_FNREG(PseudoHeader,atm),
+	ELUA_CLASS_FNREG(PseudoHeader,eth),
+	ELUA_CLASS_FNREG(PseudoHeader,none),
+	{0,0}
+};
+
+ELUA_META PseudoHeader_meta[] = {
+	{0,0}
+};
+
 int PseudoHeader_register(lua_State* L) {
-    luaL_newmetatable(L, "PseudoHeader");
-    
-    lua_pushstring(L, "PH_MTP2");
-    lua_pushcfunction(L, PseudoHeader_mtp2);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "PH_ATM");
-    lua_pushcfunction(L, PseudoHeader_atm);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "PH_ETH");
-    lua_pushcfunction(L, PseudoHeader_eth);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    lua_pushstring(L, "PH_NONE");
-    lua_pushcfunction(L, PseudoHeader_none);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
+	ELUA_REGISTER_CLASS(PseudoHeader)
     return 0;
 }
 
 
-
-ELUA_CLASS_DEFINE(Dumper,NOP)
+ELUA_CLASS_DEFINE(Dumper,FAIL_ON_NULL("Dumper already closed"))
 
 
 static GHashTable* dumper_encaps = NULL;
 #define DUMPER_ENCAP(d) GPOINTER_TO_INT(g_hash_table_lookup(dumper_encaps,d))
 
-static int Dumper_new(lua_State* L) {
+ELUA_CONSTRUCTOR Dumper_new(lua_State* L) {
+#define ELUA_ARG_Dumper_new_FILENAME 1 /* The name of the capture file to be created */
+#define ELUA_OPTARG_Dumper_new_FILETYPE 3 /* The type of the file to be created */
+#define ELUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created */
     Dumper d;
     const char* filename = luaL_checkstring(L,1);
     int filetype = luaL_optint(L,2,WTAP_FILE_PCAP);
@@ -149,16 +158,13 @@ static int Dumper_new(lua_State* L) {
     
     if (! filename) return 0;
     
-    if (!wtap_dump_can_write_encap(filetype, encap)) {
-        luaL_error(L,"Cannot write encap %s in filetype %s",
-                   wtap_encap_short_string(encap),
-                   wtap_file_type_string(filetype));
-        return 0;
-    }
+    if (!wtap_dump_can_write_encap(filetype, encap))
+        ELUA_ERROR(Dumper_new,"not every filetype handles every encap");
     
     d = wtap_dump_open(filename, filetype, encap,0 , FALSE, &err);
     
     if (! d ) {
+		/* ELUA_ERROR("error while opening file for writing"); */
         luaL_error(L,"error while opening `%s': %s",
                    filename,
                    wtap_strerror(err));
@@ -168,27 +174,33 @@ static int Dumper_new(lua_State* L) {
     g_hash_table_insert(dumper_encaps,d,GINT_TO_POINTER(encap));
     
     pushDumper(L,d);
-    return 1;
+    ELUA_RETURN(1); /* The newly created Dumper object */
 }
 
-static int Dumper_close(lua_State* L) {
-    Dumper d = checkDumper(L,1);
+ELUA_METHOD Dumper_close(lua_State* L) { /* close a dumper */
+	Dumper* dp;
     int err;
     
-    if (!d) return 0;
+	luaL_checktype(L,1,LUA_TUSERDATA);
+	dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
 
-    g_hash_table_remove(dumper_encaps,d);
+    if (! *dp)
+		ELUA_ERROR(Dumper_close,"Dumper already closed");
 
-    if (!wtap_dump_close(d, &err)) {
+    g_hash_table_remove(dumper_encaps,*dp);
+
+    if (!wtap_dump_close(*dp, &err)) {
         luaL_error(L,"error closing: %s",
                    wtap_strerror(err));
     }
 
+	/* this way if we close a dumper any attempt to use it (for everything but GC) will yield an error */
+	dp = NULL;
+
     return 0;
-   
 }
 
-static int Dumper_flush(lua_State* L) {
+ELUA_METHOD Dumper_flush(lua_State* L) { /* writes all unsaved data of a dumper to the disk. */
     Dumper d = checkDumper(L,1);
 
     if (!d) return 0;
@@ -198,8 +210,12 @@ static int Dumper_flush(lua_State* L) {
     return 0;
 }
 
-static int Dumper_dump(lua_State* L) {
-    Dumper d = checkDumper(L,1);
+ELUA_METHOD Dumper_dump(lua_State* L) { /* Dumps an arbitrary packet. Dumper:dump_current() will be better used in most occasions. */
+#define ELUA_ARG_Dumper_dump_TIMESTAMP 2 /* The absolute timestamp the packet will have */
+#define ELUA_ARG_Dumper_dump_PSEUDOHEADER 3 /* The Pseudoheader to use. */
+#define ELUA_ARG_Dumper_dump_BYTEARRAY 4 /* the data to be saved */
+
+	Dumper d = checkDumper(L,1);
     PseudoHeader ph;
     ByteArray ba;
     struct wtap_pkthdr pkthdr;
@@ -208,20 +224,14 @@ static int Dumper_dump(lua_State* L) {
     
     if (!d) return 0;
     
-    ts = luaL_checknumber(L,2);
-    ph = checkPseudoHeader(L,3);
+    ts = luaL_checknumber(L,ELUA_ARG_Dumper_dump_TIMESTAMP);
+    ph = checkPseudoHeader(L,ELUA_ARG_Dumper_dump_PSEUDOHEADER);
     
-    if (!ph) {
-        luaL_error(L,"Cannot do without a Pseudo Header");
-        return 0;
-    }
+    if (!ph) ELUA_ARG_ERROR(Dumper_dump,TIMESTAMP,"Need a PseudoHeader");
     
-    ba = checkByteArray(L,4);
+    ba = checkByteArray(L,ELUA_ARG_Dumper_dump_BYTEARRAY);
     
-    if (! ba) {
-        luaL_error(L,"No data to dump!");
-        return 0;
-    }
+	if (! ba) ELUA_ARG_ERROR(Dumper_dump,BYTEARRAY,"must be a ByteArray");
     
     pkthdr.ts.secs = floor(ts);
     pkthdr.ts.nsecs = floor(ts - pkthdr.ts.secs) * 1000000000;
@@ -238,17 +248,15 @@ static int Dumper_dump(lua_State* L) {
     
 }
 
-static int Dumper_new_for_current(lua_State* L) {
-    Dumper d;
+ELUA_METHOD Dumper_new_for_current(lua_State* L) { /* Creates a capture file using the same encapsulation as the one of the cuurrent packet */
+#define ELUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
+	Dumper d;
     const char* filename = luaL_checkstring(L,1);
     int filetype = luaL_optint(L,2,WTAP_FILE_PCAP);
     int encap;
     int err = 0;
     
-    if (! lua_pinfo ) {
-        luaL_error(L,"Dumper.new_for_current cannot be used outside a tap or a dissector");
-        return 0;
-    }
+    if (! lua_pinfo ) ELUA_ERROR(Dumper_new_for_current,"cannot be used outside a tap or a dissector");
     
     encap = lua_pinfo->fd->lnk_t;
     
@@ -269,11 +277,11 @@ static int Dumper_new_for_current(lua_State* L) {
     }
     
     pushDumper(L,d);
-    return 1;
+    ELUA_RETURN(1); /* The newly created Dumper Object */
     
 }
 
-static int Dumper_dump_current(lua_State* L) {
+ELUA_METHOD Dumper_dump_current(lua_State* L) { /* Dumps the current packet as it is. */
     Dumper d = checkDumper(L,1);
     struct wtap_pkthdr pkthdr;
     const guchar* data;
@@ -282,10 +290,7 @@ static int Dumper_dump_current(lua_State* L) {
     
     if (!d) return 0;
     
-    if (! lua_pinfo ) {
-        luaL_error(L,"dump_current cannot be used outside a tap or a dissector");
-        return 0;
-    }
+	if (! lua_pinfo ) ELUA_ERROR(Dumper_new_for_current,"cannot be used outside a tap or a dissector");
 
     data_src = ((data_source*)(lua_pinfo->data_src->data))->tvb;
 
@@ -305,8 +310,28 @@ static int Dumper_dump_current(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg Dumper_methods[] = 
-{
+ELUA_METAMETHOD Dumper__gc(lua_State* L) { /* closes a dumper and releases the memory it uses */
+	Dumper* dp;
+	int err;
+
+	luaL_checktype(L,1,LUA_TUSERDATA);
+	dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
+
+	if (! *dp)
+		return 0; /* already closed, nothing to do! */
+
+	g_hash_table_remove(dumper_encaps,*dp);
+
+	if (!wtap_dump_close(*dp, &err)) {
+		luaL_error(L,"error closing: %s",
+				   wtap_strerror(err));
+	}
+
+	return 0;
+}
+
+
+ELUA_METHODS Dumper_methods[] = {
     {"new",       Dumper_new},
     {"new_for_current",       Dumper_new_for_current},
     {"close",       Dumper_close},
@@ -316,8 +341,8 @@ static const luaL_reg Dumper_methods[] =
     {0, 0}
 };
 
-static const luaL_reg Dumper_meta[] = 
-{
+ELUA_META Dumper_meta[] = {
+	{"__gc", Dumper__gc},
     {0, 0}
 };
 
@@ -326,3 +351,4 @@ int Dumper_register(lua_State* L) {
     ELUA_REGISTER_CLASS(Dumper);
     return 1;
 }
+

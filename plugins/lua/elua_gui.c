@@ -40,9 +40,9 @@ static int menu_cb_error_handler(lua_State* L) {
     return 0;    
 }
 
-int lua_gui_enabled(lua_State* L) {
+ELUA_FUNCTION lua_gui_enabled(lua_State* L) { /* Checks whether the GUI facility is enabled. */
     lua_pushboolean(L,GPOINTER_TO_INT(ops));
-    return 1;
+    ELUA_RETURN(1); /* A boolean: true if it is enabled, false if it isn't. */
 }
 
 void lua_menu_callback(gpointer data) {
@@ -96,7 +96,7 @@ ELUA_FUNCTION elua_register_menu(lua_State* L) { /*  Register a menu item in the
                          md,
                          retap);
 
-    ELUA_FINAL_RETURN(0);
+    ELUA_RETURN(0);
 }
 
 
@@ -151,7 +151,7 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
 ELUA_FUNCTION elua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 #define ELUA_ARG_new_dialog_TITLE 1 /* Title of the dialog's window. */
 #define ELUA_ARG_new_dialog_ACTION 1 /* Action to be performed when OKd. */
-/* ELUA_EXTRARGS new_dialog : a series of strings to be used as labels of the dialog */
+/* ELUA_MOREARGS new_dialog A series of strings to be used as labels of the dialog's fields */
 
     const gchar* title;
     int top = lua_gettop(L);
@@ -160,7 +160,7 @@ ELUA_FUNCTION elua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     struct _dlg_cb_data* dcbd;
     
     if (! ops) {
-        luaL_error(L,"GUI not available");
+        luaL_error(L,"the GUI facility has to be enabled");
         return 0;
     }
     
@@ -202,7 +202,7 @@ ELUA_FUNCTION elua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 		
 		/* XXX leaks labels on error */
 		if (! label) 
-			ELUA_ERROR(new_dialog,"fields must be strings");
+			ELUA_ERROR(new_dialog,"all fields must be strings");
 		
         g_ptr_array_add(labels,label);
     }
@@ -213,7 +213,7 @@ ELUA_FUNCTION elua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     
     g_ptr_array_free(labels,TRUE);
     
-    ELUA_FINAL_RETURN(0);
+    ELUA_RETURN(0);
 }
 
 
@@ -230,7 +230,7 @@ ELUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
     tw = ops->new_text_window(title);
     pushTextWindow(L,tw);
     
-	ELUA_FINAL_RETURN(1); /* A TextWindow object */
+	ELUA_RETURN(1); /* The newly created TextWindow object. */
 }
 
 struct _close_cb_data {
@@ -288,7 +288,7 @@ ELUA_METHOD TextWindow_at_close(lua_State* L) { /* Set the function that will be
     ops->set_close_cb(tw,text_win_close_cb,cbd);
     
     pushTextWindow(L,tw);
-	ELUA_FINAL_RETURN(1); /* The TextWindow object. */
+	ELUA_RETURN(1); /* The TextWindow object. */
 }
 
 ELUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
@@ -303,7 +303,7 @@ ELUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
     ops->set_text(tw,text);
     
     pushTextWindow(L,tw);
-	ELUA_FINAL_RETURN(1); /* The TextWindow object. */
+	ELUA_RETURN(1); /* The TextWindow object. */
 }
 
 ELUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
@@ -317,7 +317,7 @@ ELUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
     ops->append_text(tw,text);
     
     pushTextWindow(L,tw);
-	ELUA_FINAL_RETURN(1); /* The TextWindow object. */
+	ELUA_RETURN(1); /* The TextWindow object. */
 }
 
 ELUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
@@ -331,7 +331,7 @@ ELUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
     ops->prepend_text(tw,text);
     
     pushTextWindow(L,tw);
-	ELUA_FINAL_RETURN(1); /* The TextWindow object. */
+	ELUA_RETURN(1); /* The TextWindow object. */
 }
 
 ELUA_METHOD TextWindow_clear(lua_State* L) { /* Errases all text in the window. */
@@ -340,7 +340,7 @@ ELUA_METHOD TextWindow_clear(lua_State* L) { /* Errases all text in the window. 
     ops->clear_text(tw);
     
     pushTextWindow(L,tw);
-	ELUA_FINAL_RETURN(1); /* The TextWindow object. */
+	ELUA_RETURN(1); /* The TextWindow object. */
 }
 
 ELUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window */
@@ -348,7 +348,7 @@ ELUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window */
     const gchar* text = ops->get_text(tw);
     
     lua_pushstring(L,text);
-	ELUA_FINAL_RETURN(1); /* The TextWindow's text. */
+	ELUA_RETURN(1); /* The TextWindow's text. */
 }
 
 static int TextWindow_gc(lua_State* L) {
@@ -370,7 +370,7 @@ ELUA_METHODS TextWindow_methods[] = {
     {0, 0}
 };
 
-static const luaL_reg TextWindow_meta[] = {
+ELUA_META TextWindow_meta[] = {
     {"__tostring", TextWindow_get_text},
     {"__gc", TextWindow_gc},
     {0, 0}

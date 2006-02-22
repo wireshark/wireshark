@@ -193,7 +193,7 @@ ELUA_METAMETHOD Prefs__newindex(lua_State* L) { /* creates a new preference */
 
 	luaL_error(L,"this should not happen!");
     
-    ELUA_FINAL_RETURN(0);
+    ELUA_RETURN(0);
 }
 
 ELUA_METAMETHOD Prefs__index(lua_State* L) {
@@ -219,7 +219,7 @@ ELUA_METAMETHOD Prefs__index(lua_State* L) {
     } while (( prefs = prefs->next ));
 
     ELUA_ARG_ERROR(Prefs__index,NAME,"no preference named like this");
-    ELUA_FINAL_RETURN(0);
+    ELUA_RETURN(0);
 }
 
 ELUA_META Prefs_meta[] = {
@@ -234,7 +234,7 @@ ELUA_REGISTER Prefs_register(lua_State* L) {
 }
 
 
-ELUA_CLASS_DEFINE(ProtoField,if (! *p) luaL_error(L,"null ProtoField"))
+ELUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"))
 /*
  * ProtoField class
  */
@@ -414,7 +414,7 @@ ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be use
     
     pushProtoField(L,f);
     
-    ELUA_FINAL_RETURN(1); /* The newly created ProtoField object */ 
+    ELUA_RETURN(1); /* The newly created ProtoField object */ 
 }
 
 
@@ -611,7 +611,7 @@ ELUA_REGISTER_CLASS(ProtoField);
 }
 
 
-ELUA_CLASS_DEFINE(ProtoFieldArray,if (! *p) luaL_error(L,"null ProtoFieldArray"))
+ELUA_CLASS_DEFINE(ProtoFieldArray,FAIL_ON_NULL("null ProtoFieldArray"))
 
 static int ProtoFieldArray_new(lua_State* L) {
     ProtoFieldArray fa;
@@ -863,7 +863,7 @@ static int Proto_set_init(lua_State* L) {
     
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
-        lua_pushstring(L, LUA_INIT_ROUTINES);
+        lua_pushstring(L, ELUA_INIT_ROUTINES);
         lua_gettable(L, LUA_GLOBALSINDEX);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);

@@ -44,49 +44,6 @@ int lua_dissectors_table_ref;
 dissector_handle_t lua_data_handle;
 
 
-const gchar* lua_shiftstring(lua_State* L, int i) {
-    const gchar* p = luaL_checkstring(L, i);
-
-    if (p) {
-        lua_remove(L,i);
-        return p;
-    } else {
-        return NULL;
-    }
-}
-
-static int elua_format_date(lua_State* LS) {
-    lua_Number time = luaL_checknumber(LS,1);
-    nstime_t then;
-    gchar* str;
-    
-    then.secs = (guint32)floor(time);
-    then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
-    str = abs_time_to_str(&then);    
-    lua_pushstring(LS,str);
-    
-    return 1;
-}
-
-static int elua_format_time(lua_State* LS) {
-    lua_Number time = luaL_checknumber(LS,1);
-    nstime_t then;
-    gchar* str;
-    
-    then.secs = (guint32)floor(time);
-    then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
-    str = rel_time_to_str(&then);    
-    lua_pushstring(LS,str);
-    
-    return 1;
-}
-
-static int elua_report_failure(lua_State* LS) {
-    const gchar* s = luaL_checkstring(LS,1);
-    report_failure("%s",s);
-    return 0;
-}
-
 static int elua_not_register_menu(lua_State* L) {
     luaL_error(L,"too late to register a menu");
     return 0;    
@@ -97,40 +54,6 @@ static int elua_not_print(lua_State* L) {
                "warn(), message(), info() or debug()");
     return 0;        
 }
-
-int elua_log(lua_State* L, GLogLevelFlags log_level) {
-    GString* str = g_string_new("");
-    int n = lua_gettop(L);  /* number of arguments */
-    int i;
-    
-    lua_getglobal(L, "tostring");
-    for (i=1; i<=n; i++) {
-        const char *s;
-        lua_pushvalue(L, -1);  /* function to be called */
-        lua_pushvalue(L, i);   /* value to print */
-        lua_call(L, 1, 1);
-        s = lua_tostring(L, -1);  /* get result */
-        if (s == NULL)
-            return luaL_error(L, "`tostring' must return a string to `print'");
-        
-        if (i>1) g_string_append(str,"\t");
-        g_string_append(str,s);
-        
-        lua_pop(L, 1);  /* pop result */
-    }
-    
-    g_log(LOG_DOMAIN_LUA, log_level, "%s\n", str->str);
-    g_string_free(str,TRUE);
-    
-    return 0;
-}
-
-int elua_critical( lua_State* L ) { elua_log(L,G_LOG_LEVEL_CRITICAL); return 0; }
-int elua_warn( lua_State* L ) { elua_log(L,G_LOG_LEVEL_WARNING); return 0; }
-int elua_message( lua_State* L ) { elua_log(L,G_LOG_LEVEL_MESSAGE); return 0; }
-int elua_info( lua_State* L ) { elua_log(L,G_LOG_LEVEL_INFO); return 0; }
-int elua_debug( lua_State* L ) { elua_log(L,G_LOG_LEVEL_DEBUG); return 0; }
-
 
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
@@ -237,7 +160,7 @@ static void init_lua(void) {
     }
     
     if (L) {
-        iter_table_and_call(L, LUA_GLOBALSINDEX, LUA_INIT_ROUTINES,init_error_handler);
+        iter_table_and_call(L, LUA_GLOBALSINDEX, ELUA_INIT_ROUTINES,init_error_handler);
     }
 
 }
@@ -309,31 +232,13 @@ void register_lua(void) {
     
 	ELUA_INIT(L);
     
-    /* load ethereal's API */
-	ELUA_REGISTER_CLASSES(L);    
-    
     /* print has been changed to yield an error if used */
     lua_pushstring(L, "print");
     lua_pushcfunction(L, elua_not_print);
     lua_settable(L, LUA_GLOBALSINDEX);
     
-    /* logger functions */
-	ELUA_REGISTER_FUNCTION(critical);
-	ELUA_REGISTER_FUNCTION(warn);
-	ELUA_REGISTER_FUNCTION(info);
-	ELUA_REGISTER_FUNCTION(message);
-	ELUA_REGISTER_FUNCTION(debug);
-	
-	/* Utility functions */
-	ELUA_REGISTER_FUNCTION(format_date);
-	ELUA_REGISTER_FUNCTION(format_time);
-	ELUA_REGISTER_FUNCTION(report_failure);
-
-	/* Functions declared in  modules */
-	ELUA_REGISTER_FUNCTIONS();
-    
     /* the init_routines table (accessible by the user) */
-    lua_pushstring(L, LUA_INIT_ROUTINES);
+    lua_pushstring(L, ELUA_INIT_ROUTINES);
     lua_newtable (L);
     lua_settable(L, LUA_GLOBALSINDEX);
     
@@ -342,9 +247,7 @@ void register_lua(void) {
     lua_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     /* set running_superuser variable to it's propper value */
-    lua_pushstring(L,"running_superuser");
-    lua_pushboolean(L,started_with_special_privs());
-    lua_settable(L, LUA_GLOBALSINDEX);    
+	ELUA_REG_GLOBAL_BOOL(L,"running_superuser",started_with_special_privs());
 
     /* load system's init.lua */
     filename = get_datafile_path("init.lua");
