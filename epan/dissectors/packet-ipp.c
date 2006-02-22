@@ -34,9 +34,12 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
+#include <epan/to_str.h>
 #include "packet-http.h"
 
 static int proto_ipp = -1;
+static int hf_ipp_timestamp = -1;
 
 static gint ett_ipp = -1;
 static gint ett_ipp_as = -1;
@@ -152,7 +155,7 @@ static proto_tree *add_charstring_tree(proto_tree *tree, tvbuff_t *tvb,
 static void add_charstring_value(const gchar *tag_desc, proto_tree *tree,
     tvbuff_t *tvb, int offset, int name_length, int value_length);
 static int add_value_head(const gchar *tag_desc, proto_tree *tree,
-    tvbuff_t *tvb, int offset, int name_length, int value_length);
+    tvbuff_t *tvb, int offset, int name_length, int value_length, char **name_val);
 
 static void
 dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -472,12 +475,30 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
 			    value_length);
 		} else {
-			ti = proto_tree_add_text(tree, tvb, offset,
-			    1 + 2 + name_length + 2 + value_length,
-			    "%.*s: %u",
-			    name_length,
-			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
-			    tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
+			char *name_val;
+			/* Some fields in IPP are really unix timestamps but IPP
+			 * transports these as 4 byte integers.
+			 * A simple heuristic to make the display of these fields
+		 	 * more human readable is to assume that if the field name
+		 	 * ends in '-time' then assume they are timestamps instead
+		 	 * of integers.
+		 	 */
+			name_val=tvb_get_ptr(tvb, offset + 1 + 2, name_length);
+			if( (name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2 + name_length - 5, "-time", 5)){
+				ti = proto_tree_add_text(tree, tvb, offset,
+				    1 + 2 + name_length + 2 + value_length,
+				    "%.*s: %s",
+				    name_length,
+				    name_val,
+				    abs_time_secs_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2)));
+			} else {
+				ti = proto_tree_add_text(tree, tvb, offset,
+				    1 + 2 + name_length + 2 + value_length,
+				    "%.*s: %u",
+				    name_length,
+				    name_val,
+				    tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
+			}
 		}
 		break;
 
@@ -498,9 +519,10 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length, guint8 tag)
 {
 	guint8 bool_val;
+	char *name_val;
 
 	offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
-	    value_length);
+	    value_length, &name_val);
 
 	switch (tag) {
 
@@ -515,9 +537,24 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 
 	case TAG_INTEGER:
 	case TAG_ENUM:
+		/* Some fields in IPP are really unix timestamps but IPP
+		 * transports these as 4 byte integers.
+		 * A simple heuristic to make the display of these fields
+		 * more human readable is to assume that if the field name
+		 * ends in '-time' then assume they are timestamps instead
+		 * of integers.
+		 */
 		if (value_length == 4) {
-			proto_tree_add_text(tree, tvb, offset, value_length,
-			    "Value: %u", tvb_get_ntohl(tvb, offset));
+			if( (name_length > 5) && name_val && !strcmp(name_val+name_length-5, "-time")){
+			 	nstime_t ns;
+
+				ns.secs=tvb_get_ntohl(tvb, offset);
+				ns.nsecs=0;
+				proto_tree_add_time(tree, hf_ipp_timestamp, tvb, offset, 4, &ns);
+			} else {
+				proto_tree_add_text(tree, tvb, offset, value_length,
+				    "Value: %u", tvb_get_ntohl(tvb, offset));
+			}
 		}
 		break;
 	}
@@ -543,7 +580,7 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length)
 {
 	offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
-	    value_length);
+	    value_length, NULL);
 	proto_tree_add_text(tree, tvb, offset, value_length,
 	    "Value: %s", tvb_bytes_to_str(tvb, offset, value_length));
 }
@@ -569,14 +606,17 @@ add_charstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length)
 {
 	offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
-	    value_length);
+	    value_length, NULL);
 	proto_tree_add_text(tree, tvb, offset, value_length,
 	    "Value: %.*s", value_length, tvb_get_ptr(tvb, offset, value_length));
 }
 
+/* If name_val is !NULL then return the pointer to an emem allocated string in
+ * this variable.
+ */
 static int
 add_value_head(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
-    int offset, int name_length, int value_length)
+    int offset, int name_length, int value_length, char **name_val)
 {
 	proto_tree_add_text(tree, tvb, offset, 1, "Tag: %s", tag_desc);
 	offset += 1;
@@ -584,9 +624,15 @@ add_value_head(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 	    name_length);
 	offset += 2;
 	if (name_length != 0) {
+		guint8 *nv;
+		nv=ep_alloc(name_length+1);
+		tvb_memcpy(tvb, nv, offset, name_length);
+		nv[name_length]=0;
 		proto_tree_add_text(tree, tvb, offset, name_length,
-		    "Name: %.*s", name_length,
-		    tvb_get_ptr(tvb, offset, name_length));
+		    "Name: %.*s", name_length, nv);
+		if(name_val){
+			*name_val=nv;
+		}
 	}
 	offset += name_length;
 	proto_tree_add_text(tree, tvb, offset, 2, "Value length: %u",
@@ -598,10 +644,11 @@ add_value_head(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 void
 proto_register_ipp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "ipp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+        static hf_register_info hf[] = {
+                { &hf_ipp_timestamp,
+                  { "Time", "ipp.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+                    NULL, 0, "", HFILL }},
+        };
 	static gint *ett[] = {
 		&ett_ipp,
 		&ett_ipp_as,
@@ -610,7 +657,7 @@ proto_register_ipp(void)
 
         proto_ipp = proto_register_protocol("Internet Printing Protocol",
 	    "IPP", "ipp");
- /*       proto_register_field_array(proto_ipp, hf, array_length(hf));*/
+        proto_register_field_array(proto_ipp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
