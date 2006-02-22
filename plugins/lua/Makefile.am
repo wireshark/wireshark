@@ -57,13 +57,14 @@ DISTCLEANFILES = \
 	dummy
 
 MAINTAINERCLEANFILES = \
-	Makefile.in
+	Makefile.in \
+	elua_register.h
 
 EXTRA_DIST = \
 	elua_register.h \
 	elua_makereg.pl
 
-packet-lua.h: elua_register.h
+elua.h: elua_register.h
 
 elua_register.h: elua_makereg.pl $(lua_modules)
 	$(PERL) elua_makereg.pl $(lua_modules) > elua_register.h
