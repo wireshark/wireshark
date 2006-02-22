@@ -1,0 +1,22 @@
+#.IMPORT_TAG
+RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+ObjectClass              BER_CLASS_ANY/*choice*/ -1/*choice*/
+ObjectInstance           BER_CLASS_ANY/*choice*/ -1/*choice*/
+Attribute                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+InvokeIDType             BER_CLASS_ANY/*choice*/ -1/*choice*/
+ROS                      BER_CLASS_ANY/*choice*/ -1/*choice*/
+CMIPAbortInfo            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+CMIPUserInfo             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+ObjectClass              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ObjectClass_vals)  BITMASK = 0
+ObjectInstance           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ObjectInstance_vals)  BITMASK = 0
+Attribute                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+InvokeIDType             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_InvokeId_vals)  BITMASK = 0
+ROS                      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ROS_vals)  BITMASK = 0
+CMIPAbortInfo            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+CMIPUserInfo             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

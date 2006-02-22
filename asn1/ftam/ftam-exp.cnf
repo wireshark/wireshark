@@ -1,0 +1,24 @@
+#.IMPORT_TAG
+Concurrency-Access       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Date-and-Time-Attribute  BER_CLASS_ANY/*choice*/ -1/*choice*/
+Object-Availability-Attribute BER_CLASS_ANY/*choice*/ -1/*choice*/
+Object-Size-Attribute    BER_CLASS_ANY/*choice*/ -1/*choice*/
+Legal-Qualification-Attribute BER_CLASS_ANY/*choice*/ -1/*choice*/
+Permitted-Actions-Attribute BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+Private-Use-Attribute    BER_CLASS_ANY/*choice*/ -1/*choice*/
+Attribute-Extensions     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Pathname                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+Concurrency-Access       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+Date-and-Time-Attribute  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ftam_Date_and_Time_Attribute_vals)  BITMASK = 0
+Object-Availability-Attribute TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ftam_Object_Availability_Attribute_vals)  BITMASK = 0
+Object-Size-Attribute    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ftam_Object_Size_Attribute_vals)  BITMASK = 0
+Legal-Qualification-Attribute TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ftam_Legal_Qualification_Attribute_vals)  BITMASK = 0
+Permitted-Actions-Attribute TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+Private-Use-Attribute    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ftam_Private_Use_Attribute_vals)  BITMASK = 0
+Attribute-Extensions     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+Pathname                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+#.END
+
