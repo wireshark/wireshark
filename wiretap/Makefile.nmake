@@ -54,9 +54,9 @@ config.h	: config.h.win32 ..\config.nmake
 
 clean :
 	rm -f $(OBJECTS) \
-		wiretap-$(WTAP_VERSION).lib \
-		wiretap-$(WTAP_VERSION).exp \
-		wiretap-$(WTAP_VERSION).dll \
+		wiretap-*.lib \
+		wiretap-*.exp \
+		wiretap-*.dll \
 		$(PDB_FILE)
 
 #
