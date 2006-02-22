@@ -822,7 +822,6 @@ proto_reg_handoff_bpdu(void)
 
   bpdu_handle = find_dissector("bpdu");
   dissector_add("llc.dsap", SAP_BPDU, bpdu_handle);
-  dissector_add("ppp.protocol", PPP_BPDU, bpdu_handle);
   dissector_add("chdlctype", CHDLCTYPE_BPDU, bpdu_handle);
   dissector_add("llc.cisco_pid", 0x010b, bpdu_handle);
 }

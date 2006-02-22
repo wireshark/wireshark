@@ -86,6 +86,8 @@ static gint ett_osicp = -1;
 static gint ett_osicp_options = -1;
 static gint ett_osicp_align_npdu_opt = -1;
 
+static int proto_bcp = -1;
+
 static int proto_ccp = -1;
 
 static gint ett_ccp = -1;
@@ -186,6 +188,8 @@ static gint ett_ipv6cp_compress_opt = -1;
 static dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t eth_withfcs_handle;
+
 
 /* options */
 static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
@@ -2820,6 +2824,17 @@ dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
+ * RFC 3518
+ */
+static void
+dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  tvbuff_t    *next_tvb;
+  next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+  call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
+}
+
+/*
  * RFC 1377.
  */
 static void
@@ -3903,6 +3918,12 @@ proto_reg_handoff_ipcp(void)
 }
 
 void
+proto_register_bcp(void)
+{
+  proto_bcp = proto_register_protocol("PPP Bridge Control Protocol", "PPP BCP",                                      "bcp");
+}
+
+void
 proto_register_osicp(void)
 {
   static gint *ett[] = {
@@ -3914,6 +3935,16 @@ proto_register_osicp(void)
   proto_osicp = proto_register_protocol("PPP OSI Control Protocol", "PPP OSICP",
                                       "osicp");
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_bcp(void)
+{
+  dissector_handle_t bcp_handle;
+  eth_withfcs_handle = find_dissector("eth_withfcs");
+
+  bcp_handle = create_dissector_handle(dissect_bcp, proto_bcp);
+  dissector_add("ppp.protocol", PPP_BPDU, bcp_handle);
 }
 
 void
