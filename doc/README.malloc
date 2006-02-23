@@ -1,4 +1,4 @@
-$Id:$
+$Id$
 
 1. Introduction
 
@@ -71,5 +71,9 @@ ep_stack_new() : creates an ephemeral stack.
 ep_stack_push() : pushes an element into the stack.
 ep_stack_pop() : pops an element from the stack.
 ep_stack_peek() : returns the top element of the stack without popping it.
+
+3.4 tvbuff related functions
+
+ep_tvb_memdup(): create an ephemeral duplicate of part of the tvbuff
 
 
