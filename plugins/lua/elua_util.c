@@ -40,37 +40,37 @@ ELUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
 
 ELUA_FUNCTION elua_format_date(lua_State* LS) { /* Formats an absolute timestamp into a human readable date */ 
 #define ELUA_ARG_format_date_TIMESTAMP 1 /* A timestamp value to convert. */
-lua_Number time = luaL_checknumber(LS,ELUA_ARG_format_date_TIMESTAMP);
-nstime_t then;
-gchar* str;
+	lua_Number time = luaL_checknumber(LS,ELUA_ARG_format_date_TIMESTAMP);
+	nstime_t then;
+	gchar* str;
 
-then.secs = (guint32)floor(time);
-then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
-str = abs_time_to_str(&then);    
-lua_pushstring(LS,str);
+	then.secs = (guint32)floor(time);
+	then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
+	str = abs_time_to_str(&then);    
+	lua_pushstring(LS,str);
 
-ELUA_RETURN(1); /* a string with the formated date */
+	ELUA_RETURN(1); /* a string with the formated date */
 }
 
 ELUA_FUNCTION elua_format_time(lua_State* LS) { /* Formats an absolute timestamp in a human readable form */
 #define ELUA_ARG_format_time_TIMESTAMP 1 /* a timestamp value to convert */
-lua_Number time = luaL_checknumber(LS,ELUA_ARG_format_time_TIMESTAMP);
-nstime_t then;
-gchar* str;
+	lua_Number time = luaL_checknumber(LS,ELUA_ARG_format_time_TIMESTAMP);
+	nstime_t then;
+	gchar* str;
 
-then.secs = (guint32)floor(time);
-then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
-str = rel_time_to_str(&then);    
-lua_pushstring(LS,str);
+	then.secs = (guint32)floor(time);
+	then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
+	str = rel_time_to_str(&then);    
+	lua_pushstring(LS,str);
 
-ELUA_RETURN(1); /* a string with the formated time */
+	ELUA_RETURN(1); /* a string with the formated time */
 }
 
 ELUA_FUNCTION elua_report_failure(lua_State* LS) { /* reports a failure to the user */
 #define ELUA_ARG_report_failure_TEXT 1 /* message */
-const gchar* s = luaL_checkstring(LS,ELUA_ARG_report_failure_TEXT);
-report_failure("%s",s);
-return 0;
+	const gchar* s = luaL_checkstring(LS,ELUA_ARG_report_failure_TEXT);
+	report_failure("%s",s);
+	return 0;
 }
 
 static int elua_log(lua_State* L, GLogLevelFlags log_level) {
@@ -86,7 +86,7 @@ static int elua_log(lua_State* L, GLogLevelFlags log_level) {
         lua_call(L, 1, 1);
         s = lua_tostring(L, -1);  /* get result */
         if (s == NULL)
-            return luaL_error(L, "`tostring' must return a string to `print'");
+            return luaL_error(L, "`tostring' must return a string");
         
         if (i>1) g_string_append(str,"\t");
         g_string_append(str,s);
@@ -102,27 +102,27 @@ static int elua_log(lua_State* L, GLogLevelFlags log_level) {
 
 ELUA_FUNCTION elua_critical( lua_State* L ) { /* Will add a log entry with critical severity*/
 /* ELUA_MOREARGS critical objects to be printed	*/
-elua_log(L,G_LOG_LEVEL_CRITICAL);
-return 0;
+	elua_log(L,G_LOG_LEVEL_CRITICAL);
+	return 0;
 }
 ELUA_FUNCTION elua_warn( lua_State* L ) { /* Will add a log entry with warn severity */
-/* ELUA_MOREARGS critical objects to be printed	*/
-elua_log(L,G_LOG_LEVEL_WARNING);
-return 0;
+/* ELUA_MOREARGS warn objects to be printed	*/
+	elua_log(L,G_LOG_LEVEL_WARNING);
+	return 0;
 }
 ELUA_FUNCTION elua_message( lua_State* L ) { /* Will add a log entry with message severity */
-/* ELUA_MOREARGS critical objects to be printed	*/
-elua_log(L,G_LOG_LEVEL_MESSAGE);
-return 0;
+/* ELUA_MOREARGS message objects to be printed	*/
+	elua_log(L,G_LOG_LEVEL_MESSAGE);
+	return 0;
 }
 ELUA_FUNCTION elua_info( lua_State* L ) { /* Will add a log entry with info severity */
-/* ELUA_MOREARGS critical objects to be printed	*/
-elua_log(L,G_LOG_LEVEL_INFO);
-return 0;
+/* ELUA_MOREARGS info objects to be printed	*/
+	elua_log(L,G_LOG_LEVEL_INFO);
+	return 0;
 }
 ELUA_FUNCTION elua_debug( lua_State* L ) { /* Will add a log entry with debug severity */
-/* ELUA_MOREARGS critical objects to be printed	*/
-elua_log(L,G_LOG_LEVEL_DEBUG);
-return 0;
+/* ELUA_MOREARGS debug objects to be printed	*/
+	elua_log(L,G_LOG_LEVEL_DEBUG);
+	return 0;
 }
 

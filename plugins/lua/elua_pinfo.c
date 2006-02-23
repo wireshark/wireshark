@@ -202,7 +202,7 @@ ELUA_METHODS Address_methods[] = {
     {0,0}
 };
 
-ELUA_METAMETHOD Address_tostring(lua_State* L) {
+ELUA_METAMETHOD Address__tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
     
     lua_pushstring(L,get_addr_name(addr));
@@ -221,33 +221,7 @@ static int Address_gc(lua_State* L) {
     return 0;
 }
 
-ELUA_METAMETHOD Address_gt(lua_State* L) {
-    Address addr1 = checkAddress(L,1);
-    Address addr2 = checkAddress(L,2);
-    gboolean result = FALSE;
-    
-    if (CMP_ADDRESS(addr1, addr2) > 0)
-        result = TRUE;
-
-    lua_pushboolean(L,result);
-    
-    return 1;
-}
-
-ELUA_METAMETHOD Address_ge(lua_State* L) {
-    Address addr1 = checkAddress(L,1);
-    Address addr2 = checkAddress(L,2);
-    gboolean result = FALSE;
-    
-    if (CMP_ADDRESS(addr1, addr2) >= 0)
-        result = TRUE;
-    
-    lua_pushboolean(L,result);
-    
-    return 1;
-}
-
-ELUA_METAMETHOD Address_eq(lua_State* L) {
+ELUA_METAMETHOD Address__eq(lua_State* L) { /* compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -260,7 +234,7 @@ ELUA_METAMETHOD Address_eq(lua_State* L) {
     return 1;
 }
 
-ELUA_METAMETHOD Address_le(lua_State* L) {
+ELUA_METAMETHOD Address__le(lua_State* L) { /* compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -273,7 +247,7 @@ ELUA_METAMETHOD Address_le(lua_State* L) {
     return 1;
 }
 
-ELUA_METAMETHOD Address_lt(lua_State* L) {
+ELUA_METAMETHOD Address__lt(lua_State* L) { /* compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -287,13 +261,11 @@ ELUA_METAMETHOD Address_lt(lua_State* L) {
 }
 
 ELUA_META Address_meta[] = {
-    {"__gc", Address_gc },
-    {"__tostring", Address_tostring },
-    {"__gt",Address_gt},
-    {"__ge",Address_ge},
-    {"__eq",Address_eq},
-    {"__le",Address_le},
-    {"__lt",Address_lt},
+    {"__gc", Address__gc },
+    {"__tostring", Address__tostring },
+    {"__eq",Address__eq},
+    {"__le",Address__le},
+    {"__lt",Address__lt},
     {0,0}
 };
 
@@ -304,7 +276,7 @@ int Address_register(lua_State *L) {
 }
 
 
-ELUA_CLASS_DEFINE(Column,FAIL_ON_NULL("expired column"))
+ELUA_CLASS_DEFINE(Column,FAIL_ON_NULL("expired column")) /* A Column in the packet list */
 
 struct col_names_t {
     const gchar* name;
@@ -383,7 +355,7 @@ static const gchar*  col_id_to_name(gint id) {
 }
 
 
-ELUA_METAMETHOD Column_tostring(lua_State *L) {
+ELUA_METAMETHOD Column__tostring(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* name;
     
@@ -391,14 +363,14 @@ ELUA_METAMETHOD Column_tostring(lua_State *L) {
         return 0;
     }
     
-    /* XXX: can we format the column? */
+    /* XXX: should return the column's text ! */
     name = col_id_to_name(c->col);
     lua_pushstring(L,name ? name : "Unknown Column");
     
-    return 1;
+    ELUA_RETURN(1); /* A string representing the column */
 }
 
-ELUA_METHOD Column_clear(lua_State *L) {
+ELUA_METHOD Column_clear(lua_State *L) { /* Clears a Column */
     Column c = checkColumn(L,1);
     
     if (!(c && c->cinfo)) return 0;
@@ -409,11 +381,15 @@ ELUA_METHOD Column_clear(lua_State *L) {
     return 0;
 }
 
-ELUA_METHOD Column_set(lua_State *L) {
-    Column c = checkColumn(L,1);
-    const gchar* s = luaL_checkstring(L,2);
+ELUA_METHOD Column_set(lua_State *L) { /* Sets the text of a Column */
+#define ELUA_ARG_Column_set_TEXT 2 /* The text to which to set the Column */
+	Column c = checkColumn(L,1);
+    const gchar* s = luaL_checkstring(L,ELUA_ARG_Column_set_TEXT);
     
-    if (!(c && c->cinfo && s)) return 0;
+    if (!(c && c->cinfo))
+		return 0;
+
+	if (!s) ELUA_ARG_ERROR(Column_set,TEXT,"must be a string");
 
     if (check_col(c->cinfo, c->col))
         col_set_str(c->cinfo, c->col, s);
@@ -421,31 +397,40 @@ ELUA_METHOD Column_set(lua_State *L) {
     return 0;
 }
 
-ELUA_METHOD Column_append(lua_State *L) {
+ELUA_METHOD Column_append(lua_State *L) { /* Appends text to a Column */
+#define ELUA_ARG_Column_append_TEXT 2 /* The text to append to the Column */
     Column c = checkColumn(L,1);
-    const gchar* s = luaL_checkstring(L,2);
+    const gchar* s = luaL_checkstring(L,ELUA_ARG_Column_append_TEXT);
     
-    if (!(c && c->cinfo && s)) return 0;
-    
+	if (!(c && c->cinfo))
+		return 0;
+
+	if (!s) ELUA_ARG_ERROR(Column_append,TEXT,"must be a string");
+
+
     if (check_col(c->cinfo, c->col))
         col_append_str(c->cinfo, c->col, s);
     
     return 0;
 }
 
-ELUA_METHOD Column_preppend(lua_State *L) {
+ELUA_METHOD Column_preppend(lua_State *L) { /* Prepends text to a Column */
+#define ELUA_ARG_Column_prepend_TEXT 2 /* The text to prepend to the Column */
     Column c = checkColumn(L,1);
-    const gchar* s = luaL_checkstring(L,2);
+    const gchar* s = luaL_checkstring(L,ELUA_ARG_Column_prepend_TEXT);
     
-    if (!(c && c->cinfo && s)) return 0;
-    
+	if (!(c && c->cinfo))
+		return 0;
+
+	if (!s) ELUA_ARG_ERROR(Column_prepend,TEXT,"must be a string");
+
     if (check_col(c->cinfo, c->col))
         col_prepend_fstr(c->cinfo, c->col, "%s",s);
     
     return 0;
 }
 
-static const luaL_reg Column_methods[] = {
+ELUA_METHODS Column_methods[] = {
     {"clear", Column_clear },
     {"set", Column_set },
     {"append", Column_append },
@@ -454,8 +439,8 @@ static const luaL_reg Column_methods[] = {
 };
 
 
-static const luaL_reg Column_meta[] = {
-    {"__tostring", Column_tostring },
+ELUA_META Column_meta[] = {
+    {"__tostring", Column__tostring },
     {0,0}
 };
 
@@ -470,14 +455,16 @@ int Column_register(lua_State *L) {
 
 
 
-ELUA_CLASS_DEFINE(Columns,FAIL_ON_NULL("expired columns"))
+ELUA_CLASS_DEFINE(Columns,FAIL_ON_NULL("expired columns")) /* The Columns of the packet list. */
 
-static int Columns_tostring(lua_State *L) {
+ELUA_METAMETHOD Columns__tostring(lua_State *L) {
     lua_pushstring(L,"Columns");
-    return 1;
+    ELUA_RETURN(1); /* A string, mostly for debugging purposes */
 }
 
-ELUA_METAMETHOD Columns_newindex(lua_State *L) {
+ELUA_METAMETHOD Columns__newindex(lua_State *L) { /* Sets the text of a specific column */
+#define ELUA_ARG_Columns__newindex_COLUMN 2 /* the name of the column to set */
+#define ELUA_ARG_Columns__newindex_TEXT 2 /* the text for the column */
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;    
     const char* colname;
@@ -485,9 +472,8 @@ ELUA_METAMETHOD Columns_newindex(lua_State *L) {
     
     if (!cols) return 0;
     
-    colname = luaL_checkstring(L,2);
-    text = luaL_checkstring(L,3);
-    
+    colname = luaL_checkstring(L,ELUA_ARG_Columns__newindex_COLUMN);
+    text = luaL_checkstring(L,ELUA_ARG_Columns__newindex_TEXT);
     
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
@@ -496,6 +482,8 @@ ELUA_METAMETHOD Columns_newindex(lua_State *L) {
             return 0;
         }
     }
+
+	ELUA_ARG_ERROR(Columsn__newindex,COLUMN,"the column name must be a valid column");
     
     return 0;
 }
@@ -547,7 +535,7 @@ int Columns_register(lua_State *L) {
 }
 
 
-ELUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL("expired pinfo"))
+ELUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL("expired pinfo")) /* Packet information */
 
 static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 
@@ -587,7 +575,6 @@ PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->circuit_id)
 PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ptype)
 PINFO_GET_NUMBER(Pinfo_src_port,pinfo->srcport)
 PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->destport)
-
 
 PINFO_GET_STRING(Pinfo_curr_proto,pinfo->current_proto)
 
@@ -720,28 +707,71 @@ typedef struct _pinfo_method_t {
 
 
 static const pinfo_method_t Pinfo_methods[] = {
+	
+	/* ELUA_ATTRIBUTE Pinfo_number RO The number of this packet in the current file */
     {"number", Pinfo_number, pushnil_param, PARAM_NONE},
+
+  	/* ELUA_ATTRIBUTE Pinfo_len  RO The length of the frame */
     {"len", Pinfo_len, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_caplen RO The captured length of the frame */
     {"caplen", Pinfo_caplen, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_abs_ts RO When the packet was captured */
     {"abs_ts",Pinfo_abs_ts, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_rel_ts RO Number of seconds passed since beginning of capture */
     {"rel_ts",Pinfo_rel_ts, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_delta_ts RO Number of seconds passed since the last packet */
     {"delta_ts",Pinfo_delta_ts, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_visited RO Whether this packet hass been already visited */
     {"visited",Pinfo_visited, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_src RW Source Address of this Packet */
     {"src", Pinfo_src, Pinfo_set_addr, PARAM_ADDR_SRC },
+	
+	/* ELUA_ATTRIBUTE Pinfo_dst RW Destination Address of this Packet */
     {"dst", Pinfo_dst, Pinfo_set_addr, PARAM_ADDR_DST },
+	
+	/* ELUA_ATTRIBUTE Pinfo_dl_src RW Data Link Source Address of this Packet */
     {"dl_src", Pinfo_dl_src, Pinfo_set_addr, PARAM_ADDR_DL_SRC },
+	
+	/* ELUA_ATTRIBUTE Pinfo_dl_dst RW Data Link Destination Address of this Packet */
     {"dl_dst", Pinfo_dl_dst, Pinfo_set_addr, PARAM_ADDR_DL_DST },
+	
+	/* ELUA_ATTRIBUTE Pinfo_net_src RW Network Layer Source Address of this Packet */
     {"net_src", Pinfo_net_src, Pinfo_set_addr, PARAM_ADDR_NET_SRC },
+	
+	/* ELUA_ATTRIBUTE Pinfo_net_dst RW Network Layer Destination Address of this Packet */
     {"net_dst", Pinfo_net_dst, Pinfo_set_addr, PARAM_ADDR_NET_DST },
-    {"src_port", Pinfo_src_port, Pinfo_set_int,  PARAM_PORT_SRC },
-    {"dst_port", Pinfo_dst_port, Pinfo_set_int,  PARAM_PORT_SRC },
-    {"ipproto", Pinfo_ipproto, pushnil_param,  PARAM_NONE },
-    {"circuit_id", Pinfo_circuit_id, Pinfo_set_int, PARAM_CIRCUIT_ID },
+
+	/* ELUA_ATTRIBUTE Pinfo_ptype RW Type of Port of .src_port and .dst_port */
     {"port_type", Pinfo_ptype, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_src_port RW Source Port of this Packet */
+    {"src_port", Pinfo_src_port, Pinfo_set_int,  PARAM_PORT_SRC },
+	
+	/* ELUA_ATTRIBUTE Pinfo_dst_port RW Source Address of this Packet */
+    {"dst_port", Pinfo_dst_port, Pinfo_set_int,  PARAM_PORT_SRC },
+	
+	/* ELUA_ATTRIBUTE Pinfo_ipproto RO IP Protocol id */
+    {"ipproto", Pinfo_ipproto, pushnil_param,  PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_circuit_id RO For circuit based protocols */
+    {"circuit_id", Pinfo_circuit_id, Pinfo_set_int, PARAM_CIRCUIT_ID },
+	
+	/* ELUA_ATTRIBUTE Pinfo_match RO Port/Data we are matching */	
     {"match", Pinfo_match, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_match RO Which Protocol are we dissecting */	
     {"curr_proto", Pinfo_curr_proto, pushnil_param, PARAM_NONE },
+	
+	/* ELUA_ATTRIBUTE Pinfo_columns RO Accesss to the packet list columns */	
     {"cols", Pinfo_columns, pushnil_param, PARAM_NONE },
-    {NULL,NULL,NULL,PARAM_NONE}
+    
+	{NULL,NULL,NULL,PARAM_NONE}
 };
 
 
