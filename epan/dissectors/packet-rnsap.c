@@ -11,7 +11,7 @@
  * UTRAN Iur interface Radio Network Subsystem
  * Application Part (RNSAP) signalling
  * (3GPP TS 25.423 version 6.7.0 Release 6) packet dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2006, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -54,6 +54,8 @@
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
 #define PSNAME "RNSAP"
 #define PFNAME "rnsap"
+
+#define SCCP_SSN_RNSAP 143
 
 #define RNSAP_FDD 1
 /* Procedure codes */
@@ -2284,7 +2286,7 @@ static int hf_rnsap_privateIEid = -1;             /* PrivateIE_ID */
 static int hf_rnsap_privateIEvalue = -1;          /* PrivateIEvalue */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 557 "packet-rnsap-template.c"
+#line 559 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -3146,7 +3148,7 @@ static gint ett_rnsap_PrivateIE_Container = -1;
 static gint ett_rnsap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 566 "packet-rnsap-template.c"
+#line 568 "packet-rnsap-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -30279,7 +30281,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 589 "packet-rnsap-template.c"
+#line 591 "packet-rnsap-template.c"
 
 
 static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree){
@@ -31957,6 +31959,8 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 	BYTE_ALIGN_OFFSET(offset);	
 	return offset;
 }
+
+
 static void
 dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -31975,6 +31979,19 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
 }
+/*
+static gboolean
+dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 temp;
+
+	dissect_rnsap(tvb, pinfo, tree);
+     * Is it a rnsap packet?
+     *
+	 * 
+	return TRUE;
+}
+/*
 /*--- proto_register_rnsap -------------------------------------------*/
 void proto_register_rnsap(void) {
 
@@ -38864,7 +38881,7 @@ void proto_register_rnsap(void) {
         "PrivateIE-Field/privateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 2297 "packet-rnsap-template.c"
+#line 2314 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39727,7 +39744,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 2307 "packet-rnsap-template.c"
+#line 2324 "packet-rnsap-template.c"
   };
 
 
@@ -39750,6 +39767,12 @@ proto_reg_handoff_rnsap(void)
 {
 
 	rnsap_handle = find_dissector("rnsap");
+	dissector_add("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
+	/* Add heuristic dissector
+	 * Perhaps we want a preference whether the heuristic dissector
+	 * is or isn't enabled
+	 */
+	/*heur_dissector_add("sccp", dissect_sccp_rnsap_heur, proto_rnsap); */
 
 }
 

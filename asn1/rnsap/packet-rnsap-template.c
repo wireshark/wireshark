@@ -3,7 +3,7 @@
  * UTRAN Iur interface Radio Network Subsystem
  * Application Part (RNSAP) signalling
  * (3GPP TS 25.423 version 6.7.0 Release 6) packet dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2006, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -46,6 +46,8 @@
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
 #define PSNAME "RNSAP"
 #define PFNAME "rnsap"
+
+#define SCCP_SSN_RNSAP 143
 
 #define RNSAP_FDD 1
 /* Procedure codes */
@@ -2263,6 +2265,8 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, packet_
 	BYTE_ALIGN_OFFSET(offset);	
 	return offset;
 }
+
+
 static void
 dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2281,6 +2285,19 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
 }
+/*
+static gboolean
+dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 temp;
+
+	dissect_rnsap(tvb, pinfo, tree);
+     * Is it a rnsap packet?
+     *
+	 * 
+	return TRUE;
+}
+/*
 /*--- proto_register_rnsap -------------------------------------------*/
 void proto_register_rnsap(void) {
 
@@ -2326,6 +2343,12 @@ proto_reg_handoff_rnsap(void)
 {
 
 	rnsap_handle = find_dissector("rnsap");
+	dissector_add("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
+	/* Add heuristic dissector
+	 * Perhaps we want a preference whether the heuristic dissector
+	 * is or isn't enabled
+	 */
+	/*heur_dissector_add("sccp", dissect_sccp_rnsap_heur, proto_rnsap); */
 
 }
 
