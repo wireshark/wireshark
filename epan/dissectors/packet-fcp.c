@@ -168,7 +168,7 @@ static const true_false_string fcp_mgmt_flags_abort_task_set_tfs = {
 };
 
 static void
-dissect_task_mgmt_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+dissect_task_mgmt_flags (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -187,57 +187,64 @@ dissect_task_mgmt_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 				
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_obsolete, tvb, offset, 1, flags);
 	if (flags&0x80){
-		proto_item_append_text(item, " OBSOLETE");
-		if (flags & (~( 0x80 )))
-			proto_item_append_text(item, ",");
+		proto_item_append_text(item, "  OBSOLETE");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[FCP OBSOLETE] ");
+		}
 	}
 	flags&=(~( 0x80 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_clear_aca, tvb, offset, 1, flags);
 	if (flags&0x40){
-		proto_item_append_text(item, " CLEAR ACA");
-		if (flags & (~( 0x40 )))
-			proto_item_append_text(item, ",");
+		proto_item_append_text(item, "  CLEAR ACA");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[FCP CLEAR_ACA] ");
+		}
 	}
 	flags&=(~( 0x40 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_target_reset, tvb, offset, 1, flags);
 	if (flags&0x20){
-		proto_item_append_text(item, " TARGET RESET");
-		if (flags & (~( 0x20 )))
-			proto_item_append_text(item, ",");
+		proto_item_append_text(item, "  TARGET RESET");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[FCP TARGET_RESET] ");
+		}
 	}
 	flags&=(~( 0x20 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_lu_reset, tvb, offset, 1, flags);
 	if (flags&0x10){
-		proto_item_append_text(item, " LU RESET");
-		if (flags & (~( 0x10 )))
-			proto_item_append_text(item, ",");
+		proto_item_append_text(item, "  LU RESET");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[FCP LU_RESET] ");
+		}
 	}
 	flags&=(~( 0x10 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_rsvd, tvb, offset, 1, flags);
 	if (flags&0x08){
-		proto_item_append_text(item, " RSVD");
-		if (flags & (~( 0x08 )))
-			proto_item_append_text(item, ",");
+		proto_item_append_text(item, "  RSVD");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[FCP RSVD] ");
+		}
 	}
 	flags&=(~( 0x08 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_clear_task_set, tvb, offset, 1, flags);
 	if (flags&0x04){
-		proto_item_append_text(item, " CLEAR TASK SET");
-		if (flags & (~( 0x04 )))
-			proto_item_append_text(item, ",");
+		proto_item_append_text(item, "  CLEAR TASK SET");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[FCP CLEAR_TASK_SET] ");
+		}
 	}
 	flags&=(~( 0x04 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_abort_task_set, tvb, offset, 1, flags);
 	if (flags&0x02){
-		proto_item_append_text(item, " ABORT TASK SET");
-		if (flags & (~( 0x02 )))
-			proto_item_append_text(item, ",");
+		proto_item_append_text(item, "  ABORT TASK SET");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[FCP ABORT_TASK_SET] ");
+		}
 	}
 	flags&=(~( 0x02 ));
 
@@ -447,7 +454,7 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item (fcp_tree, hf_fcp_crn, tvb, offset+8, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_taskattr, tvb, offset+9, 1, 0);
-    dissect_task_mgmt_flags(fcp_tree, tvb, offset+10);
+    dissect_task_mgmt_flags(pinfo, fcp_tree, tvb, offset+10);
     proto_tree_add_item (fcp_tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_rddata, tvb, offset+11, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_wrdata, tvb, offset+11, 1, 0);
