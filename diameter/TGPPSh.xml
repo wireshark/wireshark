@@ -17,10 +17,10 @@
                                 <gavp name="MSISDN"/>
                         </grouped>
 		</avp>
-		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="User-Data" code="702" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+		<avp name="User-Data" code="702" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Data-Reference" code="703" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -34,7 +34,7 @@
                         <enum name="UserState" code="15"/>
                         <enum name="ChargingInformation" code="16"/>
 		</avp>
-		<avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
+		<avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Subs-Req-Type" code="705" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
