@@ -526,8 +526,8 @@ ep_free_all(void)
 	while (npc != NULL) {
 #ifndef EP_DEBUG_FREE
 		for (i = 0; i < npc->c_count; i++) {
-			/* XXX - This isn't very graceful */
-			g_assert(memcmp(npc->canary[i], &ep_canary, npc->cmp_len[i]) == 0);
+			if (memcmp(npc->canary[i], &ep_canary, npc->cmp_len[i]) != 0)
+				g_error("Per-packet memory corrupted.");
 		}
 		npc->c_count = 0;
 		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
@@ -554,7 +554,7 @@ se_free_all(void)
 	emem_chunk_t *npc;
 	guint i;
 
-	/* move all used chunks ove to the free list */
+	/* move all used chunks over to the free list */
 	while(se_packet_mem.used_list){
 		npc=se_packet_mem.used_list;
 		se_packet_mem.used_list=se_packet_mem.used_list->next;
@@ -567,8 +567,8 @@ se_free_all(void)
 	while (npc != NULL) {
 #ifndef SE_DEBUG_FREE
 		for (i = 0; i < npc->c_count; i++) {
-			/* XXX - This isn't very graceful */
-			g_assert(memcmp(npc->canary[i], &se_canary, npc->cmp_len[i]) == 0);
+			if (memcmp(npc->canary[i], &se_canary, npc->cmp_len[i]) != 0)
+				g_error("Per-session memory corrupted.");
 		}
 		npc->c_count = 0;
 		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
