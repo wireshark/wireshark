@@ -152,20 +152,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
-	if ((force_docsis_encap) && (docsis_handle)) {
-		/*
-		 * XXX - setting it here makes it impossible to
-		 * turn the "Treat all frames as DOCSIS frames"
-		 * option off.
-		 *
-		 * The TCP Graph code currently uses "fd->lnk_t";
-		 * it should eventually just get the information
-		 * it needs from a full-blown dissection, so that
-		 * can handle any link-layer type.
-		 */
-		pinfo->fd->lnk_t = WTAP_ENCAP_DOCSIS;
-	}
-
 	/* Put in frame header information. */
 	if (tree) {
 	  cap_len = tvb_length(tvb);
@@ -177,7 +163,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 	}
 
-	/* if IP is not referenced from any filters we dont need to worry about
+	/* if FRAME is not referenced from any filters we dont need to worry about
 	   generating any tree items.  We must do this after we created the actual
 	   protocol above so that proto hier stat still works though.
 	*/
@@ -273,8 +259,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     /* (a running debugger will be called before the except part below) */
     __try {
 #endif
-        if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
-            tvb, pinfo, parent_tree)) {
+	if ((force_docsis_encap) && (docsis_handle)) {
+	    call_dissector(docsis_handle, tvb, pinfo, tree);
+	} else {
+            if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
+                tvb, pinfo, parent_tree)) {
 
 			if (check_col(pinfo->cinfo, COL_PROTOCOL))
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
@@ -283,6 +272,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				    pinfo->fd->lnk_t);
 			call_dissector(data_handle,tvb, pinfo, parent_tree);
 		}
+	}
 #ifdef _MSC_VER
     } __except(TRUE /* handle all exceptions */) {
         switch(GetExceptionCode()) {
