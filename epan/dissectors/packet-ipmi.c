@@ -374,7 +374,7 @@ static int hf_GetLedColorCapabilities_datafield_LEDID = -1;
 static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_Reserved_7 = -1;
 static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_WHITE = -1;
 static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_ORANGE = -1;
-static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_ARMBER = -1;
+static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_AMBER = -1;
 static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_GREEN = -1;
 static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_RED = -1;
 static int hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_BLUE = -1;
@@ -1275,7 +1275,7 @@ static const value_string cmd_GetLedColorCapabilities_data_DefaultLEDColor_vals[
 	{ 0x01,	"BLUE" },
 	{ 0x02,	"RED" },
 	{ 0x03,	"GREEN" },
-	{ 0x04,	"ARMBER" },
+	{ 0x04,	"AMBER" },
 	{ 0x05,	"ORANGE" },
 	{ 0x06,	"WHITE" },
 	{ 0x07,	"Reserved" },
@@ -2804,7 +2804,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 				    					tvb, *poffset, 1, TRUE);
 				proto_tree_add_item(field_tree, hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_ORANGE,
 				   					tvb, *poffset, 1, TRUE);
-				proto_tree_add_item(field_tree, hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_ARMBER,
+				proto_tree_add_item(field_tree, hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_AMBER,
 				    					tvb, *poffset, 1, TRUE);
 				proto_tree_add_item(field_tree, hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_GREEN,
 				    					tvb, *poffset, 1, TRUE);
@@ -4773,10 +4773,10 @@ proto_register_ipmi(void)
 			"LED Support ORANGE ?", "GetLedColorCapabilities.datafield.LEDColorCapabilities.ORANGE",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetLedColorCapabilities_data_LEDColorCapabilities_vals), 0x20,
 			"LED Support ORANGE ?", HFILL }},
-		{ &hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_ARMBER, {
-			"LED Support ARMBER ?", "GetLedColorCapabilities.datafield.LEDColorCapabilities.ARMBER",
+		{ &hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_AMBER, {
+			"LED Support AMBER ?", "GetLedColorCapabilities.datafield.LEDColorCapabilities.AMBER",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetLedColorCapabilities_data_LEDColorCapabilities_vals), 0x10,
-			"LED Support ARMBER ?", HFILL }},
+			"LED Support AMBER ?", HFILL }},
 		{ &hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_GREEN, {
 			"LED Support GREEN ?", "GetLedColorCapabilities.datafield.LEDColorCapabilities.GREEN",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetLedColorCapabilities_data_LEDColorCapabilities_vals), 0x08,
