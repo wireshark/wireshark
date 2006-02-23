@@ -72,7 +72,7 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 static dissector_handle_t h263_handle = NULL;
 static dissector_handle_t amr_handle = NULL;
 
-static void reset_h245_packet_info(h245_packet_info *pi);
+static void init_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
 static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
@@ -316,6 +316,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
+		init_h245_packet_info(h245_pi);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
@@ -420,7 +421,7 @@ void proto_reg_handoff_h245(void) {
 	h223_lc_init();
 }
 
-static void reset_h245_packet_info(h245_packet_info *pi)
+static void init_h245_packet_info(h245_packet_info *pi)
 {
         if(pi == NULL) {
                 return;

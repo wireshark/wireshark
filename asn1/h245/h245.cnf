@@ -279,7 +279,7 @@ OpenLogicalChannel
     else
                 g_snprintf(h245_pi->frame_label, 50, "%%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
 
-    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
 
     /* if it is OLC or RM*/
     if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
@@ -307,7 +307,8 @@ OpenLogicalChannel
 
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY IndicationMessage  VAL_PTR = &value
@@ -330,7 +331,8 @@ OpenLogicalChannel
 	col_set_fence(pinfo->cinfo,COL_INFO);
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY CommandMessage  VAL_PTR = &value
@@ -353,7 +355,7 @@ OpenLogicalChannel
 	col_set_fence(pinfo->cinfo,COL_INFO);
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
 
 #.END
 #----------------------------------------------------------------------------------------
