@@ -22,7 +22,7 @@ $(DISSECTOR_FILES): ../../tools/asn2eth.py AuthenticationFramework.asn packet-x5
 !ENDIF
 
 clean:
-	rm -f parsetab.py $(DISSECTOR_FILES)
+	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES)
 
 # Fix EOL in generated dissectors. Cygwin's python generates files with 
 # mixed EOL styles, which can't be commited to the SVN repository.
