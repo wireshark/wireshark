@@ -155,14 +155,7 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
 
 /* g_strlcat() does not exist in GLib 1.2[.x] */
 #if GLIB_MAJOR_VERSION < 2
-#define g_strlcat(dst, src, size)					\
-	{								\
-	int strl;							\
-	strl=strlen(dst);						\
-	if(strl<size)							\
-		g_snprintf(dst+strl, size-strl, "%s", src);		\
-	dst[size-1]=0;							\
-	}
+gsize g_strlcat(gchar *dst, gchar *src, gsize size);
 #endif
 
 /* g_ascii_isprint() does not exist in GLib 1.2[.x].

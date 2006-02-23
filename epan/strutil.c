@@ -642,4 +642,18 @@ convert_string_case(const char *string, gboolean case_insensitive)
   return out_string;
 }
 
+/* g_strlcat() does not exist in GLib 1.2[.x] */
+#if GLIB_MAJOR_VERSION < 2
+gsize
+g_strlcat(gchar *dst, gchar *src, gsize size)
+{
+	int strl, strs;
+	strl=strlen(dst);
+	strs=strlen(src);
+	if(strl<size)
+		g_snprintf(dst+strl, size-strl, "%s", src);
+	dst[size-1]=0;
+	return strl+strs;
+}
+#endif
 
