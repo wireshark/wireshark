@@ -80,7 +80,7 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 static dissector_handle_t h263_handle = NULL;
 static dissector_handle_t amr_handle = NULL;
 
-static void reset_h245_packet_info(h245_packet_info *pi);
+static void init_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
 static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
@@ -2283,7 +2283,7 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 682 "h245.cnf"
+#line 684 "h245.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
@@ -2291,7 +2291,7 @@ dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_H221NonStandardID, H221NonStandardID_sequence);
 
-#line 686 "h245.cnf"
+#line 688 "h245.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
 
@@ -2316,7 +2316,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 663 "h245.cnf"
+#line 665 "h245.cnf"
 	guint32 value;
 
 	nsiOID = "";
@@ -2351,7 +2351,7 @@ static int dissect_vendor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_h245_T_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 697 "h245.cnf"
+#line 699 "h245.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
@@ -2377,7 +2377,7 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 static int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 695 "h245.cnf"
+#line 697 "h245.cnf"
   nsp_handle = NULL;
 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
@@ -2507,7 +2507,7 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDetermination, MasterSlaveDetermination_sequence);
 
-#line 446 "h245.cnf"
+#line 448 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDet;
 
@@ -5292,7 +5292,7 @@ static int
 dissect_h245_T_standard(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_index, &standard_oid_str);
 
-#line 485 "h245.cnf"
+#line 487 "h245.cnf"
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
 	h245_lc_dissector = amr_handle;
 
@@ -5648,7 +5648,7 @@ static const per_choice_t Application_choice[] = {
 
 static int
 dissect_h245_Application(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 379 "h245.cnf"
+#line 381 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -7542,7 +7542,7 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 370 "h245.cnf"
+#line 372 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -7927,7 +7927,7 @@ static const per_choice_t AudioCapability_choice[] = {
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 361 "h245.cnf"
+#line 363 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -8571,7 +8571,7 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySet, TerminalCapabilitySet_sequence);
 
-#line 461 "h245.cnf"
+#line 463 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSet;
 
@@ -9879,7 +9879,7 @@ static int dissect_v76LogicalChannelParameters(tvbuff_t *tvb, int offset, packet
 
 static int
 dissect_h245_Ipv4_network(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 497 "h245.cnf"
+#line 499 "h245.cnf"
 
   tvbuff_t *value_tvb;
 
@@ -9904,7 +9904,7 @@ static int dissect_ip4_network(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static int
 dissect_h245_TsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 510 "h245.cnf"
+#line 512 "h245.cnf"
   guint32 tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
@@ -10223,14 +10223,14 @@ static int dissect_signalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 static int
 dissect_h245_T_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 528 "h245.cnf"
+#line 530 "h245.cnf"
 
 
 	media_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
-#line 558 "h245.cnf"
+#line 560 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -10245,14 +10245,14 @@ static int dissect_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 static int
 dissect_h245_T_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 540 "h245.cnf"
+#line 542 "h245.cnf"
 
 
 	media_control_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
-#line 564 "h245.cnf"
+#line 566 "h245.cnf"
 
 
 	media_control_channel = FALSE;
@@ -10495,7 +10495,7 @@ static const per_choice_t OLC_rev_multiplexParameters_choice[] = {
 
 static int
 dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 614 "h245.cnf"
+#line 616 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -10506,7 +10506,7 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info 
                                  ett_h245_OLC_rev_multiplexParameters, OLC_rev_multiplexParameters_choice,
                                  NULL);
 
-#line 622 "h245.cnf"
+#line 624 "h245.cnf"
 	
 	if (!pinfo->fd->flags.visited) {
 		if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
@@ -10815,7 +10815,7 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U
   }
 
 
-#line 472 "h245.cnf"
+#line 474 "h245.cnf"
 
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
 
@@ -10890,7 +10890,7 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_CloseLogicalChannel, CloseLogicalChannel_sequence);
 
-#line 426 "h245.cnf"
+#line 428 "h245.cnf"
 
   h245_pi->msg_type = H245_CloseLogChn;
 
@@ -11461,7 +11461,7 @@ static const per_choice_t VideoMode_choice[] = {
 
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 395 "h245.cnf"
+#line 397 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -11824,7 +11824,7 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 387 "h245.cnf"
+#line 389 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -11895,7 +11895,7 @@ static const per_choice_t DataModeApplication_choice[] = {
 
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 403 "h245.cnf"
+#line 405 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -12989,7 +12989,7 @@ static int dissect_logicalChannelRateRequest(tvbuff_t *tvb, int offset, packet_i
 
 static int
 dissect_h245_T_subMessageIdentifer(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 490 "h245.cnf"
+#line 492 "h245.cnf"
   guint32 subMessageIdentifer;
 
 
@@ -13107,7 +13107,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
     else
                 g_snprintf(h245_pi->frame_label, 50, "%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
 
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
 
     /* if it is OLC or RM*/
     if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
@@ -13156,7 +13156,7 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb, int offset, packet_info 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationAck, MasterSlaveDeterminationAck_sequence);
 
-#line 411 "h245.cnf"
+#line 413 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetAck;
 
@@ -13200,7 +13200,7 @@ dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb, int offset, packet_in
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationReject, MasterSlaveDeterminationReject_sequence);
 
-#line 416 "h245.cnf"
+#line 418 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetRjc;
 
@@ -13221,7 +13221,7 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetAck, TerminalCapabilitySetAck_sequence);
 
-#line 441 "h245.cnf"
+#line 443 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetAck;
 
@@ -13297,7 +13297,7 @@ dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet_info 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetReject, TerminalCapabilitySetReject_sequence);
 
-#line 451 "h245.cnf"
+#line 453 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetRjc;
 
@@ -13371,14 +13371,14 @@ static int dissect_olc_ack_reverseLogicalChannelParameters(tvbuff_t *tvb, int of
 
 static int
 dissect_h245_Ack_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 522 "h245.cnf"
+#line 524 "h245.cnf"
 
 
 	media_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
-#line 546 "h245.cnf"
+#line 548 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -13393,14 +13393,14 @@ static int dissect_ack_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_h245_Ack_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 534 "h245.cnf"
+#line 536 "h245.cnf"
 
 
 	media_control_channel = TRUE;
 
   offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
 
-#line 552 "h245.cnf"
+#line 554 "h245.cnf"
 
 
 	media_control_channel = FALSE;
@@ -13447,7 +13447,7 @@ static const per_choice_t T_forwardMultiplexAckParameters_choice[] = {
 
 static int
 dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 570 "h245.cnf"
+#line 572 "h245.cnf"
 
 
 	media_channel = FALSE;
@@ -13458,7 +13458,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_i
                                  ett_h245_T_forwardMultiplexAckParameters, T_forwardMultiplexAckParameters_choice,
                                  NULL);
 
-#line 578 "h245.cnf"
+#line 580 "h245.cnf"
 	
 	if (!pinfo->fd->flags.visited) {
 		if (codec_type && strcmp(codec_type, "t38fax")==0) {
@@ -13543,7 +13543,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo
   pinfo->p2p_dir = p2p_dir;
 
 
-#line 478 "h245.cnf"
+#line 480 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnAck;
 
@@ -13614,7 +13614,7 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_OpenLogicalChannelReject, OpenLogicalChannelReject_sequence);
 
-#line 421 "h245.cnf"
+#line 423 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnRjc;
 
@@ -13635,7 +13635,7 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinf
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_CloseLogicalChannelAck, CloseLogicalChannelAck_sequence);
 
-#line 431 "h245.cnf"
+#line 433 "h245.cnf"
 
   h245_pi->msg_type = H245_CloseLogChnAck;
 
@@ -14963,7 +14963,8 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+
 
 
   return offset;
@@ -16144,7 +16145,7 @@ static const per_choice_t CommandMessage_choice[] = {
 
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 337 "h245.cnf"
+#line 339 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -16167,7 +16168,7 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 	col_set_fence(pinfo->cinfo,COL_INFO);
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
 
 
 
@@ -16214,7 +16215,7 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_i
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
 
-#line 456 "h245.cnf"
+#line 458 "h245.cnf"
 
   h245_pi->msg_type = H245_MastSlvDetRls;
 
@@ -16234,7 +16235,7 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetRelease, TerminalCapabilitySetRelease_sequence);
 
-#line 466 "h245.cnf"
+#line 468 "h245.cnf"
 
   h245_pi->msg_type = H245_TermCapSetRls;
 
@@ -16255,7 +16256,7 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb, int offset, packet_info *p
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_OpenLogicalChannelConfirm, OpenLogicalChannelConfirm_sequence);
 
-#line 436 "h245.cnf"
+#line 438 "h245.cnf"
 
   h245_pi->msg_type = H245_OpenLogChnCnf;
 
@@ -17352,7 +17353,7 @@ static const per_choice_t IndicationMessage_choice[] = {
 
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 314 "h245.cnf"
+#line 315 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -17375,7 +17376,8 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	col_set_fence(pinfo->cinfo,COL_INFO);
     /* Add to packet info */
     g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
+	g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+
 
 
   return offset;
@@ -17475,6 +17477,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
+		init_h245_packet_info(h245_pi);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
@@ -22906,7 +22909,7 @@ void proto_register_h245(void) {
         "Rtp/expirationTime", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 350 "packet-h245-template.c"
+#line 351 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -23389,7 +23392,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 356 "packet-h245-template.c"
+#line 357 "packet-h245-template.c"
   };
   module_t *h245_module;
 
@@ -23457,7 +23460,7 @@ void proto_reg_handoff_h245(void) {
 	h223_lc_init();
 }
 
-static void reset_h245_packet_info(h245_packet_info *pi)
+static void init_h245_packet_info(h245_packet_info *pi)
 {
         if(pi == NULL) {
                 return;
