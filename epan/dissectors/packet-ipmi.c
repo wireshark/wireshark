@@ -388,6 +388,7 @@ static int hf_SetFRULedState_datafield_PICMGIdentifier = -1;
 static int hf_SetFRULedState_datafield_FRUDeviceID = -1;
 static int hf_SetFRULedState_datafield_LEDID = -1;
 static int hf_SetFRULedState_datafield_LEDFunction = -1;
+static int hf_SetFRULedState_datafield_Offduration = -1;
 static int hf_SetFRULedState_datafield_Onduration = -1;
 static int hf_SetFRULedState_datafield_Color_Reserved = -1;
 static int hf_SetFRULedState_datafield_Color_ColorVal = -1;
@@ -400,10 +401,12 @@ static int hf_GetFRULedState_datafield_LEDState_Bit2 = -1;
 static int hf_GetFRULedState_datafield_LEDState_Bit1 = -1;
 static int hf_GetFRULedState_datafield_LEDState_Bit0 = -1;
 static int hf_GetFRULedState_datafield_LocalControlLEDFunction = -1;
+static int hf_GetFRULedState_datafield_LocalControlOffduration = -1;
 static int hf_GetFRULedState_datafield_LocalControlOnduration = -1;
 static int hf_GetFRULedState_datafield_LocalControlColor_Reserved = -1;
 static int hf_GetFRULedState_datafield_LocalControlColor_ColorVal = -1;
 static int hf_GetFRULedState_datafield_OverrideStateLEDFunction = -1;
+static int hf_GetFRULedState_datafield_OverrideStateOffduration = -1;
 static int hf_GetFRULedState_datafield_OverrideStateOnduration = -1;
 static int hf_GetFRULedState_datafield_OverrideStateColor_Reserved = -1;
 static int hf_GetFRULedState_datafield_OverrideStateColor_ColorVal = -1;
@@ -1307,6 +1310,7 @@ static const value_string cmd_SetFRULedState_data_LEDID_vals[] = {
 static const value_string cmd_SetFRULedState_data_LEDFunction_vals[] = {
 	{ 0x00,	"LED off override" },
 	{ 0x01,	"LED BLINKING override" },
+	/* ... */
 	{ 0xfa,	"LED BLINKING override" },
 	{ 0xfb,	"LAMP TEST state" },
 	{ 0xfc,	"LED state restored to Local Control state" },
@@ -1361,6 +1365,7 @@ static const value_string cmd_GetFRULedState_data_LEDState_Bit0_vals[] = {
 static const value_string cmd_GetFRULedState_data_LocalControlLEDFunction_vals[] = {
 	{ 0x00,	"LED is off" },
 	{ 0x01,	"LED is BLINKING" },
+	/* ... */
 	{ 0xfa,	"LED is BLINKING" },
 	{ 0xfb,	"Reserved" },
 	{ 0xfc,	"Reserved" },
@@ -1393,6 +1398,7 @@ static const value_string cmd_GetFRULedState_data_ColorVal_vals[] = {
 static const value_string cmd_GetFRULedState_data_OverrideStateLEDFunction_vals[] = {
 	{ 0x00,	"LED Override State is off" },
 	{ 0x01,	"LED Override State is BLINKING" },
+	/* ... */
 	{ 0xfa,	"LED Override State is BLINKING" },
 	{ 0xfb,	"Reserved" },
 	{ 0xfc,	"Reserved" },
@@ -2905,8 +2911,14 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			}
 			/* LED Function */
 			if (tree) {
-				proto_tree_add_item(ipmi_tree, hf_SetFRULedState_datafield_LEDFunction,
-		    							tvb, (*poffset)++, 1, TRUE);
+				guint8 LEDFunction = tvb_get_guint8(tvb, *poffset);
+				if ((LEDFunction < 0x01) || (LEDFunction > 0xfa)) {
+					proto_tree_add_item(ipmi_tree, hf_SetFRULedState_datafield_LEDFunction,
+									tvb, (*poffset)++, 1, TRUE);
+				} else {
+					proto_tree_add_item(ipmi_tree, hf_SetFRULedState_datafield_Offduration,
+									tvb, (*poffset)++, 1, TRUE);
+				}
 			}
 			/*On-duration */
 			if (tree) {
@@ -2973,8 +2985,14 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			}
 			/* Local Control LED Function */
 			if (tree) {
-				proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LocalControlLEDFunction,
-		    							tvb, (*poffset)++, 1, TRUE);
+				guint8 LEDFunction = tvb_get_guint8(tvb, *poffset);
+				if ((LEDFunction < 0x01) || (LEDFunction > 0xfa)) {
+					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LocalControlLEDFunction,
+									tvb, (*poffset)++, 1, TRUE);
+				} else {
+					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LocalControlOffduration,
+									tvb, (*poffset)++, 1, TRUE);
+				}
 			}
 			/* Local Control On-duration */
 			if (tree) {
@@ -3000,8 +3018,14 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			}
 			/* Override State LED Function */
 			if (tree) {
-				proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateLEDFunction,
+				guint8 LEDFunction = tvb_get_guint8(tvb, *poffset);
+				if ((LEDFunction < 0x01) || (LEDFunction > 0xfa)) {
+					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateLEDFunction,
 		    							tvb, (*poffset)++, 1, TRUE);
+				} else {
+					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateOffduration,
+		    							tvb, (*poffset)++, 1, TRUE);
+				}
 			}
 			/* Override State On-duration */
 			if (tree) {
@@ -4807,6 +4831,10 @@ proto_register_ipmi(void)
 			"LED Function", "SetFRULedState.datafield.LEDFunction",
 			FT_UINT8, BASE_HEX, VALS(cmd_SetFRULedState_data_LEDFunction_vals), 0,
 			"LED Function", HFILL }},
+		{ &hf_SetFRULedState_datafield_Offduration, {
+			"Off-duration", "SetFRULedState.datafield.Offduration",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"Off-duration", HFILL }},
 		{ &hf_SetFRULedState_datafield_Onduration, {
 			"On-duration", "SetFRULedState.datafield.Onduration",
 			FT_UINT8, BASE_HEX, NULL, 0,
@@ -4855,6 +4883,10 @@ proto_register_ipmi(void)
 			"Local Control LED Function", "GetFRULedState.datafield.LocalControlLEDFunction",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRULedState_data_LocalControlLEDFunction_vals), 0,
 			"Local Control LED Function", HFILL }},
+		{ &hf_GetFRULedState_datafield_LocalControlOffduration, {
+			"Local Control Off-duration", "GetFRULedState.datafield.LocalControlOffduration",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"Local Control Off-duration", HFILL }},
 		{ &hf_GetFRULedState_datafield_LocalControlOnduration, {
 			"Local Control On-duration", "GetFRULedState.datafield.LocalControlOnduration",
 			FT_UINT8, BASE_HEX, NULL, 0,
@@ -4871,6 +4903,10 @@ proto_register_ipmi(void)
 			"Override State LED Function", "GetFRULedState.datafield.OverrideStateLEDFunction",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRULedState_data_OverrideStateLEDFunction_vals), 0,
 			"Override State LED Function", HFILL }},
+		{ &hf_GetFRULedState_datafield_OverrideStateOffduration, {
+			"Override State Off-duration", "GetFRULedState.datafield.OverrideStateOffduration",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"Override State Off-duration", HFILL }},
 		{ &hf_GetFRULedState_datafield_OverrideStateOnduration, {
 			"Override State On-duration", "GetFRULedState.datafield.OverrideStateOnduration",
 			FT_UINT8, BASE_HEX, NULL, 0,
