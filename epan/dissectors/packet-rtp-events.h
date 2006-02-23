@@ -255,5 +255,6 @@ static const value_string rtp_event_type_values[] =
 struct _rtp_event_info {
 	guint8      info_rtp_evt;
 	guint32		info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
+	gboolean	info_end;
 };
 

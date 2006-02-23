@@ -975,8 +975,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 #else
 		pango_layout_set_text(big_layout, label_string, -1);
 		pango_layout_get_pixel_size(big_layout, &label_width, &label_height);
-        
-        label_width = label_height = 0;
 #endif
 		if (start_arrow<end_arrow){
 			arrow_width = end_arrow-start_arrow;

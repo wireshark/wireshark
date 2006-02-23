@@ -376,36 +376,26 @@ void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, cons
 /* ***************************TAP for RTP Events*****************************/
 /****************************************************************************/
 
+static guint32 rtp_evt_frame_num = 0;
+static guint8 rtp_evt = 0;
+static gboolean rtp_evt_end = FALSE;
+/*static guint32 rtp_evt_setup_frame_num = 0;*/
+
 /****************************************************************************/
 /* whenever a rtp event packet is seen by the tap listener */
 static int 
 rtp_event_packet(void *ptr _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rtp_event_info)
 {
 	const struct _rtp_event_info *pi = rtp_event_info;
-	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
-	voip_rtp_stream_info_t *tmp_listinfo;
-	voip_rtp_stream_info_t *strinfo = NULL;
-	GList* list;
 
 	/* do not consider RTP events packets without a setup frame */
 	if (pi->info_setup_frame_num == 0){
 		return 0;
 	}
 
-	/* check wether we already have a RTP stream with this setup frame in the list */
-	list = g_list_first(tapinfo->list);
-	while (list)
-	{
-		tmp_listinfo=list->data;
-		if ( (tmp_listinfo->setup_frame_number == pi->info_setup_frame_num) 
-			&& (tmp_listinfo->end_stream == FALSE) && (tmp_listinfo->rtp_event == -1)){
-				strinfo = (voip_rtp_stream_info_t*)(list->data);
-				strinfo->rtp_event = pi->info_rtp_evt;
-				break;
-		}
-		list = g_list_next (list);
-	}
-
+	rtp_evt_frame_num = pinfo->fd->num;
+	rtp_evt = pi->info_rtp_evt;
+	rtp_evt_end = pi->info_end;
 
 	return 0;
 }
@@ -500,14 +490,19 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 			&& (tmp_listinfo->ssrc == pi->info_sync_src) && (tmp_listinfo->end_stream == FALSE)){
 			/* if the payload type has changed, we mark the stream as finished to create a new one
 			   this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */	   
-			if ( tmp_listinfo->pt != pi->info_payload_type ) 
+			if ( tmp_listinfo->pt != pi->info_payload_type ) {
 				tmp_listinfo->end_stream = TRUE;
-			else {
+			} else {
 				strinfo = (voip_rtp_stream_info_t*)(list->data);
 				break;
 			}
 		}
 		list = g_list_next (list);
+	}
+
+	/* if this is a duplicated RTP Event End, just return */
+	if ((rtp_evt_frame_num == pinfo->fd->num) && !strinfo && (rtp_evt_end == TRUE)) {
+		return 0;
 	}
 
 	/* not in the list? then create a new entry */
@@ -543,6 +538,14 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		strinfo->npackets++;
 		strinfo->stop_rel_sec = pinfo->fd->rel_ts.secs;
 		strinfo->stop_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
+
+		/* process RTP Event */
+		if (rtp_evt_frame_num == pinfo->fd->num) {
+			strinfo->rtp_event = rtp_evt;
+			if (rtp_evt_end == TRUE) {
+				strinfo->end_stream = TRUE;
+			}
+		}
 	}
 
 	the_tapinfo_struct.redraw = TRUE;
@@ -572,13 +575,15 @@ static void RTP_packet_draw(void *prs _U_)
 
 		/* using the setup frame number of the RTP stream, we get the call number that it belongs */
 		voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list);
-		item = 0;
 		while (voip_calls_graph_list)
 		{			
 			gai = voip_calls_graph_list->data;
 			conv_num = gai->conv_num;
 			/* if we get the setup frame number, then get the time position to graph the RTP arrow */
 			if (rtp_listinfo->setup_frame_number == gai->frame_num){
+				/* look again from the begining because there are cases where the Setup frame is after the RTP */
+				voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list);
+				item = 0;
 				while(voip_calls_graph_list){
 					gai = voip_calls_graph_list->data;
 					/* if RTP was already in the Graph, just update the comment information */
@@ -613,7 +618,6 @@ static void RTP_packet_draw(void *prs _U_)
 				break;
 			}
 			voip_calls_graph_list = g_list_next(voip_calls_graph_list);
-			item++;
 		}
 		rtp_streams_list = g_list_next(rtp_streams_list);
 	}

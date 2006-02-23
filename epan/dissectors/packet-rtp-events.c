@@ -115,27 +115,33 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    val_to_str( rtp_evt, rtp_event_type_values, "Unknown (%u)" ));
 	  }
 
-	if ( tree )
-	  {
-	    ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, FALSE );
-	    rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
+    ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, FALSE );
+    rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
 
-	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
+    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
 
-	    octet = tvb_get_guint8(tvb, offset +1 );
-	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset+1, 1, octet);
-	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset+1, 1, octet);
-	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset+1, 1, octet);
+    octet = tvb_get_guint8(tvb, offset +1 );
+    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset+1, 1, octet);
+    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset+1, 1, octet);
+    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset+1, 1, octet);
 
-	    proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset+2, 2, FALSE);
+    proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset+2, 2, FALSE);
 
-	    /* Make end-of-event packets obvious in the info column */
-	    if ((octet & 0x80) && check_col(pinfo->cinfo, COL_INFO))
-	    {
-		    col_append_str(pinfo->cinfo, COL_INFO, " (end)");
-	    }
+	/* set the end info for the tap */
+	if (octet & 0x80)
+	{
+		rtp_event_info.info_end = TRUE;
+	} else
+	{
+		rtp_event_info.info_end = FALSE;
+	}
 
-	  }
+    /* Make end-of-event packets obvious in the info column */
+    if ((octet & 0x80) && check_col(pinfo->cinfo, COL_INFO))
+    {
+	    col_append_str(pinfo->cinfo, COL_INFO, " (end)");
+    }
+
 	tap_queue_packet(rtp_event_tap, pinfo, &rtp_event_info);
 }
 
