@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
+#include <gtk/menu.h>
 
 #include <epan/packet.h>
 #include "capture.h"
@@ -1197,6 +1198,7 @@ capture_start_confirmed(void) {
     }
 
     /* XXX - we might need to init other pref data as well... */
+    menu_auto_scroll_live_changed(auto_scroll_live);
 
     if (capture_start(capture_opts)) {
         /* The capture succeeded, which means the capture filter syntax is
