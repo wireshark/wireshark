@@ -49,6 +49,7 @@ pcre_tuple_new(const char *value)
 
 	tuple = g_malloc(sizeof(pcre_tuple_t));
 	tuple->string = g_strdup(value); /* The RE as string */
+	tuple->ex = NULL;
 	/* Compile the RE */
 	tuple->re = pcre_compile(
 			value,				/* pattern */
