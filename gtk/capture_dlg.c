@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
+#include <stdio.h>        /* menu.h needs FILE */
 #include <gtk/menu.h>
 
 #include <epan/packet.h>
