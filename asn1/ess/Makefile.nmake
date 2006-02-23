@@ -22,7 +22,7 @@ $(DISSECTOR_FILES): ../../tools/asn2eth.py ExtendedSecurityServices.asn packet-$
 !ENDIF
 
 clean:
-	rm -f parsetab.py $(DISSECTOR_FILES)	\
+	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES)	\
 		packet-ess-ettarr.c	\
 		packet-ess-hfarr.c	\
 		packet-ess-dis-tab.c	\

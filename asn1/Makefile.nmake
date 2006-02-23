@@ -56,6 +56,163 @@ all: \
 	x509if	\
 	x509sat	
 	
+clean:
+	cd acse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
+	cd ..
+	cd camel
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd cdt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd cmip
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd cms
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd dap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd dop
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd disp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd dsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd ess
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd ftam
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd ftbp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd gnm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd gsm_ss
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd gsmmap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd h225
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd h235
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd h245
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd h248
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd h450
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd inap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd logotype-cert-extn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd MAP_Dialogue
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd mms
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd nbap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd ns-cert-exts
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd ocsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkcs1
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkinit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkix1explicit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkix1implicit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkixcmp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkixcrmf
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkixproxy
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkixqualified
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pkixtsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd pres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd ranap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd rnsap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd ros
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd rtse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd s4406
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd smrse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd spnego
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd tcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd wlancertextn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd x411
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd x420
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd x509af
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd x509ce
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd x509if
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
+	cd x509sat
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd..
 	
 ber: \	
 	acse	\
