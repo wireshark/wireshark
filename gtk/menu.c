@@ -399,6 +399,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, topic_menu_cb, LOCALPAGE_MAN_ETHEREAL_FILTER, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Tethereal", NULL, topic_menu_cb, LOCALPAGE_MAN_TETHEREAL, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Dumpcap", NULL, topic_menu_cb, LOCALPAGE_MAN_DUMPCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Mergecap", NULL, topic_menu_cb, LOCALPAGE_MAN_MERGECAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Editcap", NULL, topic_menu_cb, LOCALPAGE_MAN_EDITCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Text2pcap", NULL, topic_menu_cb, LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL),

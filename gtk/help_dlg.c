@@ -332,6 +332,9 @@ topic_action(topic_action_e action)
     case(LOCALPAGE_MAN_TETHEREAL):
         browser_open_data_file("tethereal.html");
         break;
+    case(LOCALPAGE_MAN_DUMPCAP):
+        browser_open_data_file("dumpcap.html");
+        break;
     case(LOCALPAGE_MAN_MERGECAP):
         browser_open_data_file("mergecap.html");
         break;
