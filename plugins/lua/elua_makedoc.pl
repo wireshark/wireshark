@@ -73,7 +73,7 @@ my %template = %{{
 my %metamethods = %{{
 	__tostring => "tostring(__)",
 	__index => "__[]",
-	__newindex => "__[] => ",
+	__newindex => "__[] = ",
 	__add => "__ + __",
 	__sub => "__ - __",
 	__mul => "__ * __",

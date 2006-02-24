@@ -210,7 +210,7 @@ ELUA_METAMETHOD Address__tostring(lua_State* L) {
     ELUA_RETURN(1); /* The string representing the address. */
 }
 
-static int Address_gc(lua_State* L) {
+static int Address__gc(lua_State* L) {
     Address addr = checkAddress(L,1);
     
     if (addr) {
@@ -483,7 +483,7 @@ ELUA_METAMETHOD Columns__newindex(lua_State *L) { /* Sets the text of a specific
         }
     }
 
-	ELUA_ARG_ERROR(Columsn__newindex,COLUMN,"the column name must be a valid column");
+	ELUA_ARG_ERROR(Columns__newindex,COLUMN,"the column name must be a valid column");
     
     return 0;
 }
@@ -522,8 +522,8 @@ ELUA_METAMETHOD Columns_index(lua_State *L) {
 
 
 static const luaL_reg Columns_meta[] = {
-    {"__tostring", Columns_tostring },
-    {"__newindex", Columns_newindex },
+    {"__tostring", Columns__tostring },
+    {"__newindex", Columns__newindex },
     {"__index",  Columns_index},
     {0,0}
 };
