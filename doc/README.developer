@@ -899,7 +899,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 1.4.2 Extracting data from packets.
 
-NOTE: See the README.tvbuff file for more details
+NOTE: See the tvbuff.h file for more details
 
 The "tvb" argument to a dissector points to a buffer containing the raw
 data to be analyzed by the dissector; for example, for a protocol
@@ -1015,10 +1015,12 @@ Copies into the specified target the specified length's worth of data
 from the specified tvbuff, starting at the specified offset.
 
 guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
+guint8* ep_tvb_memdup(tvbuff_t*, gint offset, gint length);
 
 Returns a buffer, allocated with "g_malloc()", containing the specified
 length's worth of data from the specified tvbuff, starting at the
-specified offset.
+specified offset. The ephemeral variant is freed automatically after the 
+packet is dissected.
 
 Pointer-retrieval:
 /* WARNING! This function is possibly expensive, temporarily allocating
