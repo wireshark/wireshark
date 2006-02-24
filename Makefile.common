@@ -96,6 +96,7 @@ TETHEREAL_TAP_SRC =	\
 	tap-ansi_astat.c	\
 	tap-bootpstat.c	\
 	tap-dcerpcstat.c	\
+	tap-funnel.c \
 	tap-gsm_astat.c	\
 	tap-h225counter.c	\
 	tap-h225rassrt.c	\
