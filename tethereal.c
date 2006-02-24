@@ -105,6 +105,7 @@
 #endif /* HAVE_LIBPCAP */
 #include "epan/emem.h"
 #include "log.h"
+#include <epan/funnel.h>
 
 /*
  * This is the template for the decode as option; it is shared between the
@@ -723,6 +724,8 @@ main(int argc, char *argv[])
   /* initialize memory allocation subsystem */
   ep_init_chunk();
   se_init_chunk();
+  
+  initialize_funnel_ops();
   
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&capture_opts, NULL /* cfile */);
@@ -1418,6 +1421,7 @@ main(int argc, char *argv[])
   }
 
   draw_tap_listeners(TRUE);
+  funnel_dump_all_text_windows();
   epan_cleanup();
 
   return 0;
