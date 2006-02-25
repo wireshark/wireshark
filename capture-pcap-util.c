@@ -366,8 +366,10 @@ get_pcap_linktype_list(const char *devname, char *err_buf)
 	deflt = get_pcap_linktype(pch, devname);
 #ifdef HAVE_PCAP_LIST_DATALINKS
 	nlt = pcap_list_datalinks(pch, &linktypes);
-	if (nlt == 0 || linktypes == NULL)
+    if (nlt == 0 || linktypes == NULL) {
+		pcap_close(pch);
 		return NULL;
+    }
 	for (i = 0; i < nlt; i++) {
 		data_link_info = create_data_link_info(linktypes[i]);
 
