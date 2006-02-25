@@ -119,6 +119,7 @@ static const value_string vals_status_code[] = {
     { 407, "Proxy Authentication Required"},
     { 408, "Request Timeout"},
     { 410, "Gone"},
+    { 412, "Conditional Request Failed"},
     { 413, "Request Entity Too Large"},
     { 414, "Request-URI Too Long"},
     { 415, "Unsupported Media Type"},
