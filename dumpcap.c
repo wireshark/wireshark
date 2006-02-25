@@ -273,17 +273,8 @@ main(int argc, char *argv[])
   runtime_info_str = g_string_new("Running ");
   get_runtime_version_info(runtime_info_str);
 
-  /* Arrange that if we have no console window, and a GLib message logging
-     routine is called to log a message, we pop up a console window.
-
-     We do that by inserting our own handler for all messages logged
-     to the default domain; that handler pops up a console if necessary,
-     and then calls the default handler. */
-
-  /* We might want to have component specific log levels later ... */
-
-  /* the default_log_handler will use stdout, which makes trouble with the */
-  /* capture child, as it uses stdout for it's sync_pipe */
+  /* the default_log_handler will use stdout, which makes trouble in */
+  /* capture child mode, as it uses stdout for it's sync_pipe */
   /* so do the filtering in the console_log_handler and not here */
   log_flags = 
 		    G_LOG_LEVEL_ERROR|
@@ -442,16 +433,6 @@ main(int argc, char *argv[])
 }
 
 
-/* This routine should not be necessary, at least as I read the GLib
-   source code, as it looks as if GLib is, on Win32, *supposed* to
-   create a console window into which to display its output.
-
-   That doesn't happen, however.  I suspect there's something completely
-   broken about that code in GLib-for-Win32, and that it may be related
-   to the breakage that forces us to just call "printf()" on the message
-   rather than passing the message on to "g_log_default_handler()"
-   (which is the routine that does the aforementioned non-functional
-   console window creation). */
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 		    const char *message, gpointer user_data _U_)
