@@ -276,8 +276,8 @@ extern dissector_handle_t lua_data_handle;
 extern gboolean lua_initialized;
 extern int lua_dissectors_table_ref;
 
-ELUA_DECLARE_CLASSES();
-ELUA_DECLARE_FUNCTIONS();
+ELUA_DECLARE_CLASSES()
+ELUA_DECLARE_FUNCTIONS()
 
 extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_);

@@ -40,6 +40,15 @@ lua.dll lua.exp lua.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	link -dll /out:lua.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS) $(LUA_LIBS)
 
+
+elua_register.h: elua_makereg.pl $(MODULES)
+	$(PERL) elua_makereg.pl $(MODULES) > elua_register.h
+
+doc: $(MODULES)
+	$(PERL) elua_makedoc.pl $(MODULES)
+
+elua.c: LuaLib.lib
+
 !ENDIF
 !ENDIF
 
@@ -49,17 +58,3 @@ clean:
 distclean: clean
 
 maintainer-clean: distclean
-
-
-elua_register.h: elua_makereg.pl $(MODULES)
-	$(PERL) elua_makereg.pl $(MODULES) > elua_register.h
-
-doc: $(MODULES)
-	$(PERL) elua_makedoc.pl $^
-
-
-elua.c: LuaLib.lib
-
-	
-
-

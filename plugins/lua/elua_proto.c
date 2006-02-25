@@ -70,14 +70,32 @@ static int new_pref(lua_State* L, pref_type_t type) {
 }
 
 ELUA_CONSTRUCTOR Pref_bool(lua_State* L) {
+	/*
+	 * Creates a boolean preference to be added to a Protocol's prefs table.
+	 */
+#define ELUA_ATTR_Pref_bool_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
+#define ELUA_ATTR_Pref_bool_DEFAULT 2 /* The default value for this preference */
+#define ELUA_ATTR_Pref_bool_DESCR 3 /* A description of what this preference is */
     return new_pref(L,PREF_BOOL);
 }
 
 ELUA_CONSTRUCTOR Pref_uint(lua_State* L) {
+	/*
+	 * Creates an (unsigned) integer preference to be added to a Protocol's prefs table.
+	 */
+#define ELUA_ATTR_Pref_uint_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
+#define ELUA_ATTR_Pref_uint_DEFAULT 2 /* The default value for this preference */
+#define ELUA_ATTR_Pref_uint_DESCR 3 /* A description of what this preference is */
     return new_pref(L,PREF_UINT);
 }
 
 ELUA_CONSTRUCTOR Pref_string(lua_State* L) {
+	/*
+	 * Creates a string preference to be added to a Protocol's prefs table.
+	 */
+#define ELUA_ATTR_Pref_string_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
+#define ELUA_ATTR_Pref_string_DEFAULT 2 /* The default value for this preference */
+#define ELUA_ATTR_Pref_string_DESCR 3 /* A description of what this preference is */
     return new_pref(L,PREF_STRING);
 }
 
@@ -114,8 +132,9 @@ ELUA_REGISTER Pref_register(lua_State* L) {
 
 ELUA_CLASS_DEFINE(Prefs,NOP) /* The table of preferences of a protocol */
 
-ELUA_METAMETHOD Prefs__newindex(lua_State* L) { /* creates a new preference */
-#define ELUA_ARG_Prefs__newindex_NAME 2 /* The abbreviation of this preference of  */
+ELUA_METAMETHOD Prefs__newindex(lua_State* L) {
+	/* creates a new preference */
+#define ELUA_ARG_Prefs__newindex_NAME 2 /* The abbreviation of this preference */
 #define ELUA_ARG_Prefs__newindex_PREF 3 /* A valid still unassigned Pref object */
 
     Pref prefs = checkPrefs(L,1);
@@ -197,6 +216,7 @@ ELUA_METAMETHOD Prefs__newindex(lua_State* L) { /* creates a new preference */
 }
 
 ELUA_METAMETHOD Prefs__index(lua_State* L) {
+	/* get the value of a preference setting */
 #define ELUA_ARG_Prefs__index_NAME 2 /* The abbreviation of this preference  */
 
     Pref prefs = checkPrefs(L,1);
@@ -236,7 +256,7 @@ ELUA_REGISTER Prefs_register(lua_State* L) {
 
 ELUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"))
 /*
- * ProtoField class
+ * A Protocol field (to be used when adding items to the dissection tree)
  */
 
 static const eth_ft_types_t ftenums[] = {
@@ -313,6 +333,7 @@ static const gchar* base_to_string(base_display_e base) {
     return NULL;
 }
 
+#if 0
 static base_display_e string_to_base(const gchar* str) {
     const struct base_display_string_t* b;
     for (b=base_displays;b->str;b++) {
@@ -321,6 +342,7 @@ static base_display_e string_to_base(const gchar* str) {
     }
     return BASE_NONE;
 }
+#endif
 
 static value_string* value_string_from_table(lua_State* L, int idx) {
     GArray* vs = g_array_new(TRUE,TRUE,sizeof(value_string));
@@ -408,7 +430,7 @@ ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be use
     }
     
     /* XXX: need BASE_ERROR */
-    f->base = string_to_base(luaL_optstring(L, ELUA_OPTARG_ProtoField_new_BASE, "BASE_NONE"));
+    f->base = luaL_optint(L, ELUA_OPTARG_ProtoField_new_BASE, BASE_NONE);
     f->mask = luaL_optint(L, ELUA_OPTARG_ProtoField_new_MASK, 0x0);
     f->blob = g_strdup(luaL_optstring(L,ELUA_OPTARG_ProtoField_new_DESCR,""));
     
@@ -422,11 +444,10 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f = g_malloc(sizeof(eth_field_t));
     const gchar* abbr = luaL_checkstring(L,1); 
     const gchar* name = luaL_optstring(L,2,abbr);
-    const gchar* base_str = luaL_optstring(L, 3, "BASE_DEC");
+    base_display_e base = luaL_optint(L, 3, BASE_DEC);
     value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
     int mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,"");
-    base_display_e base = string_to_base(base_str);
 
     if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L,3,"Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
@@ -450,24 +471,24 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 }
 
 #define PROTOFIELD_INTEGER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_integer(L,FT); }
-PROTOFIELD_INTEGER(uint8,FT_UINT8)
 /* ELUA_SECTION Protofield integer constructors */
 /* ELUA_TEXT integer type ProtoField constructors use the following arguments */
 /* ELUA_ARG_DESC Protofield_integer ABBR abbreviated name of the field (the string used in filters)  */
 /* ELUA_OPTARG_DESC Protofield_integer NAME Actual name of the field (the string that appears in the tree)  */
 /* ELUA_ARGDESC Protofield_integer DESC description of the field  */
-/* ELUA_RETURNS Protofield_integer a protofiled item to be added to a ProtoFieldArray */
-/* ELUA_CONSTRUCTOR ProtoField uint8 */
-/* ELUA_CONSTRUCTOR ProtoField uint16 */
-/* ELUA_CONSTRUCTOR ProtoField uint24 */
-/* ELUA_CONSTRUCTOR ProtoField uint32 */
-/* ELUA_CONSTRUCTOR ProtoField uint64 */
-/* ELUA_CONSTRUCTOR ProtoField int8 */
-/* ELUA_CONSTRUCTOR ProtoField int16 */
-/* ELUA_CONSTRUCTOR ProtoField int24 */
-/* ELUA_CONSTRUCTOR ProtoField int32 */
-/* ELUA_CONSTRUCTOR ProtoField int64 */
-/* ELUA_CONSTRUCTOR ProtoField framenum */
+/* _ELUA_RETURNS_ Protofield_integer a protofiled item to be added to a ProtoFieldArray */
+/* _ELUA_CONSTRUCTOR_ ProtoField_uint8 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_uint16 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_uint24 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_uint32 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_uint64 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_int8 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_int16 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_int24 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_int32 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_int64 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_framenum */
+PROTOFIELD_INTEGER(uint8,FT_UINT8)
 PROTOFIELD_INTEGER(uint16,FT_UINT16)
 PROTOFIELD_INTEGER(uint24,FT_UINT24)
 PROTOFIELD_INTEGER(uint32,FT_UINT32)
@@ -500,6 +521,24 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 }
 
 #define PROTOFIELD_OTHER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_other(L,FT); }
+/* ELUA_SECTION Protofield integer constructors */
+/* ELUA_TEXT integer type ProtoField constructors use the following arguments */
+/* ELUA_ARG_DESC Protofield_integer ABBR abbreviated name of the field (the string used in filters)  */
+/* ELUA_OPTARG_DESC Protofield_integer NAME Actual name of the field (the string that appears in the tree)  */
+/* ELUA_ARGDESC Protofield_integer DESC : description of the field  */
+/* _ELUA_RETURNS_ Protofield non integer : a protofiled item to be added to a ProtoFieldArray */
+/* _ELUA_CONSTRUCTOR_ ProtoField_ipv4 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_ipv6 */
+/* _ELUA_CONSTRUCTOR_ ProtoField_ether */
+/* _ELUA_CONSTRUCTOR_ ProtoField_float */
+/* _ELUA_CONSTRUCTOR_ ProtoField_double */
+/* _ELUA_CONSTRUCTOR_ ProtoField_string */
+/* _ELUA_CONSTRUCTOR_ ProtoField_strigz */
+/* _ELUA_CONSTRUCTOR_ ProtoField_bytes */
+/* _ELUA_CONSTRUCTOR_ ProtoField_ubytes */
+/* _ELUA_CONSTRUCTOR_ ProtoField_guid */
+/* _ELUA_CONSTRUCTOR_ ProtoField_oid */
+/* _ELUA_CONSTRUCTOR_ ProtoField_bool */
 PROTOFIELD_OTHER(ipv4,FT_IPv4)
 PROTOFIELD_OTHER(ipv6,FT_IPv6)
 PROTOFIELD_OTHER(ipx,FT_IPXNET)
@@ -591,7 +630,7 @@ int ProtoField_register(lua_State* L) {
     const eth_ft_types_t* ts;
     const struct base_display_string_t* b;
     
-ELUA_REGISTER_CLASS(ProtoField);
+	ELUA_REGISTER_CLASS(ProtoField);
     
     /* add a global FT_* variable for each FT_ type */
     for (ts = ftenums; ts->str; ts++) {
@@ -612,8 +651,16 @@ ELUA_REGISTER_CLASS(ProtoField);
 
 
 ELUA_CLASS_DEFINE(ProtoFieldArray,FAIL_ON_NULL("null ProtoFieldArray"))
+/*
+   A ProtoField group to be assigned to
+   (only) one Proto using proto.fields = FieldArray
+*/
 
-static int ProtoFieldArray_new(lua_State* L) {
+ELUA_CONSTRUCTOR ProtoFieldArray_new(lua_State* L) {
+	/*
+	 Creates a new protocol field array using
+	 */
+/* ELUA_MOREARGS zero or more ProtoFields to be added to the new ProtoFieldArray*/
     ProtoFieldArray fa;
     guint i;
     guint num_args = lua_gettop(L);
@@ -625,7 +672,8 @@ static int ProtoFieldArray_new(lua_State* L) {
         hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
         
         if (f->hfid != -2) {
-            luaL_argerror(L, i, "field has already been added to an array");
+			/* ELUA_ERROR(ProtoFieldArray_new,"ProtoFields can be assigned only to one ProtoFieldArray")*/
+            luaL_argerror(L, i, "ProtoFields can be assigned only to one ProtoFieldArray");
             return 0;
         }
         
@@ -635,11 +683,13 @@ static int ProtoFieldArray_new(lua_State* L) {
     }
     
     pushProtoFieldArray(L,fa);
-    return 1;
+    ELUA_RETURN(1);
+	/* The newly created ProtoFieldArray */
 }
 
 
-static int ProtoFieldArray_add(lua_State* L) {
+ELUA_METHOD ProtoFieldArray_add(lua_State* L) {
+/* ELUA_MOREARGS zero or more ProtoFields to be added to the ProtoFieldArray*/
     ProtoFieldArray fa = checkProtoFieldArray(L,1);
     guint i;
     guint num_args = lua_gettop(L);
@@ -649,7 +699,8 @@ static int ProtoFieldArray_add(lua_State* L) {
         hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
         
         if (f->hfid != -2) {
-            luaL_argerror(L, i, "field has already been added to an array");
+			/* ELUA_ERROR(ProtoFieldArray_new,"ProtoFields can be assigned only to one ProtoFieldArray")*/
+            luaL_argerror(L, i, "ProtoFields can be assigned only to one ProtoFieldArray");
             return 0;
         }
         
@@ -718,20 +769,31 @@ int ProtoFieldArray_register(lua_State* L) {
 
 
 ELUA_CLASS_DEFINE(Proto,NOP)
-
-static int Proto_new(lua_State* L) {
+/*
+  A new protocol in ethereal. Protocols have more uses, the main one is to dissect
+  a protocol. But they can be just dummies used to register preferences for
+  other purposes.
+ */
+ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
+#define ELUA_ARG_Proto_new_NAME 1 /* The name of the protocol */
+#define ELUA_ARG_Proto_new_DESC 1 /* A Long Text description of the protocol (usually lowercase) */
     const gchar* name = luaL_checkstring(L,1);
     const gchar* desc = luaL_checkstring(L,2);
     
     if ( name ) {
-        if ( proto_get_id_by_filter_name(name) > 0 ) { 
-            luaL_argerror(L,1,"Protocol exists already");
-            return 0;
+		gchar* loname = ep_strdup(name);
+		g_strdown(loname);
+        if ( proto_get_id_by_filter_name(loname) > 0 ) { 
+            ELUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
         } else {
             Proto proto = g_malloc(sizeof(eth_proto_t));
-            
-            /* XXX - using the same name and filtername to have to deal just with one name */
-            proto->name = g_strdup(name);
+			gchar* loname = g_strdup(name);
+			gchar* hiname = g_strdup(name);
+			
+			g_strdown(loname);
+			g_strup(hiname);
+
+            proto->name = loname;
             proto->desc = g_strdup(desc);
             proto->hfarray = NULL;
             proto->prefs_module = NULL;
@@ -742,23 +804,24 @@ static int Proto_new(lua_State* L) {
             proto->prefs.next = NULL;
             proto->prefs.proto = proto;
             proto->is_postdissector = FALSE;
-            proto->hfid = proto_register_protocol(proto->desc,proto->name,proto->name);
+            proto->hfid = proto_register_protocol(proto->desc,loname,hiname);
             proto->handle = NULL;
             
             pushProto(L,proto);
-            return 1;
+            ELUA_RETURN(1); /* The newly created protocol */
         }
      } else {
-        luaL_argerror(L,1,"missing name");
-        return 0;
+        ELUA_ARG_ERROR(Proto_new,NAME,"must be a string");
      }
+
+	return 0;
 }
 
 
 
 static int Proto_register_field_array(lua_State* L) {
     Proto proto = toProto(L,1);
-    ProtoFieldArray fa = checkProtoFieldArray(L,3);
+    ProtoFieldArray fa = checkProtoFieldArray(L,2);
     
     if (! fa) {
         luaL_argerror(L,2,"not a good field_array");
@@ -892,10 +955,19 @@ typedef struct {
 } proto_actions_t;
 
 static const proto_actions_t proto_actions[] = {
+	/* ELUA_ATTRIBUTE Pinfo_dissector RW the protocol's dissector, a function you define */
     {"dissector",Proto_get_dissector, Proto_set_dissector},
+
+	/* ELUA_ATTRIBUTE Pinfo_fields WO the ProtoFieldArray of this dissector */
     {"fields",NULL,Proto_register_field_array},
+	
+	/* ELUA_ATTRIBUTE Proto_get_prefs RO the preferences of this dissector */
     {"prefs",Proto_get_prefs,NULL},
+
+	/* ELUA_ATTRIBUTE Proto_init WO the init routine of this dissector, a function you define */
     {"init",NULL,Proto_set_init},
+
+	/* ELUA_ATTRIBUTE Proto_init RO the name given to this dissector */
     {"name",Proto_get_name,NULL},
     {NULL,NULL,NULL}
 };
@@ -971,38 +1043,50 @@ int Proto_register(lua_State* L) {
 }
 
 ELUA_CLASS_DEFINE(Dissector,NOP)
+/*
+   A refererence to a dissector, used to call a dissector against a packet or a part of it.
+ */
 
-static int Dissector_get (lua_State *L) {
+ELUA_CONSTRUCTOR Dissector_get (lua_State *L) {
+	/*
+	 *  Obtains a dissector reference by name
+	 */
+#define ELUA_ARG_Dissector_get_NAME 1 /* The name of the dissector */
     const gchar* name = luaL_checkstring(L,1);
     Dissector d;
     
-    if (!name) {
-        return 0;
-    }
+    if (!name)
+        ELUA_ARG_ERROR(Dissector_get,NAME,"must be a string");
     
     if ((d = find_dissector(name))) {
         pushDissector(L, d);
-        return 1;
-    } else {
-        luaL_argerror(L,1,"No such dissector");
-        return 0;
-    }
+        ELUA_RETURN(1); /* The Dissector reference */
+    } else
+        ELUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
     
 }
 
-static int Dissector_call(lua_State* L) {
+ELUA_METHOD Dissector_call(lua_State* L) {
+	/*
+	 *  Calls a dissector against a given packet (or part of it)
+	 */
+#define ELUA_ARG_Dissector_call_TVB 2 /* The buffer to dissect */
+#define ELUA_ARG_Dissector_call_PINFO 3 /* The packet info */
+#define ELUA_ARG_Dissector_call_TREE 4 /* The tree on which to add the protocol items */
+	
     Dissector d = checkDissector(L,1);
-    Tvb tvb = checkTvb(L,2);
-    Pinfo pinfo = checkPinfo(L,3);
-    ProtoTree tree = checkProtoTree(L,4);
+    Tvb tvb = checkTvb(L,ELUA_ARG_Dissector_call_TVB);
+    Pinfo pinfo = checkPinfo(L,ELUA_ARG_Dissector_call_PINFO);
+    ProtoTree tree = checkProtoTree(L,ELUA_ARG_Dissector_call_TREE);
     
     if (! ( d && tvb && pinfo) ) return 0;
     
     TRY {
         call_dissector(d, tvb, pinfo, tree);
+		/* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH(ReportedBoundsError) {
         proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-        luaL_error(L,"Malformed Frame");
+        ELUA_ERROR(Dissector_call,"malformed frame");
         return 0;
     } ENDTRY;
     
@@ -1035,19 +1119,27 @@ int Dissector_register(lua_State* L) {
 
 
 ELUA_CLASS_DEFINE(DissectorTable,NOP)
+/*
+ A table of subdissectors of a particular protocol (e.g. TCP subdissectors like http, smtp, sip are added to table "tcp.port").
+ Useful to add more dissectors to a table so that they appear in the Decode As... dialog. 
+ */
 
-static int DissectorTable_new (lua_State *L) {
-    gchar* name = (void*)luaL_checkstring(L,1);
-    gchar* ui_name = (void*)luaL_optstring(L,2,name);
-    const gchar* ftstr = luaL_optstring(L,3,"FT_UINT32");
-    enum ftenum type;
+ELUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
+	/*
+	 Creates a new DissectorTable for your dissector's use .
+	 */
+#define ELUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. */
+#define ELUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface (defaults to the name given). */
+#define ELUA_OPTARG_DissectorTable_new_TYPE 3 /* either FT_UINT* or FT_STRING (defaults to FT_UINT32) */
+    gchar* name = (void*)luaL_checkstring(L,ELUA_ARG_DissectorTable_new_TABLENAME);
+    gchar* ui_name = (void*)luaL_optstring(L,ELUA_OPTARG_DissectorTable_new_UINAME,name);
+    enum ftenum type = luaL_optint(L,ELUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
     base_display_e base = luaL_optint(L,4,BASE_DEC);
     
-    if(!(name && ui_name && ftstr)) return 0;
+    if(!(name && ui_name)) return 0;
     
     name = g_strdup(name);
     ui_name = g_strdup(ui_name);
-    type = get_ftenum(ftstr);
     
     switch(type) {
         case FT_STRING:
@@ -1063,16 +1155,19 @@ static int DissectorTable_new (lua_State *L) {
             dt->name = name;
             pushDissectorTable(L, dt);
         }
-            return 1;
+            ELUA_RETURN(1); /* The newly created DissectorTable */
         default:
-            luaL_argerror(L,3,"Invalid ft_type");
-            return 0;
+            ELUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be FTUINT* or FT_STRING");
     }
-    
+	return 0;    
 }
 
-static int DissectorTable_get (lua_State *L) {
-    const gchar* name = luaL_checkstring(L,1);
+ELUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
+	/*
+	 Obtain a reference to an existing dissector table.
+	 */
+#define ELUA_ARG_DissectorTable_get_TABLENAME 1 /* The short name of the table. */
+    const gchar* name = luaL_checkstring(L,ELUA_ARG_DissectorTable_get_TABLENAME);
     dissector_table_t table;
     
     if(!name) return 0;
@@ -1086,46 +1181,46 @@ static int DissectorTable_get (lua_State *L) {
         
         pushDissectorTable(L, dt);
         
-        return 1;
-    } else {
-        luaL_error(L,"No such dissector_table");
-        return 0;
-    }
+		ELUA_RETURN(1); /* The DissectorTable */
+    } else
+        ELUA_ARG_ERROR(DissectorTable_get,TABLENAME,"no such dissector_table");
     
 }
 
 
-static int DissectorTable_add (lua_State *L) {
+ELUA_METHOD DissectorTable_add (lua_State *L) {
+	/*
+	 Add a dissector to a table.
+	 */
+#define ELUA_ARG_DissectorTable_add_PATTERN 2 /* The pattern to match (either an integer or a string depending on the table's type). */
+#define ELUA_ARG_DissectorTable_add_DISSECTOR 3 /* The dissector to add (either an Proto or a Dissector). */
+	
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
     Dissector handle;
 
     if (!dt) return 0;
 
-    if( isProto(L,3) ) {
+    if( isProto(L,ELUA_ARG_DissectorTable_add_DISSECTOR) ) {
         Proto p;
-        p = toProto(L,3);
+        p = toProto(L,ELUA_ARG_DissectorTable_add_DISSECTOR);
         handle = p->handle;
         
-        if (! handle) {
-            luaL_error(L,"Protocol %s cannot be added to a table as it does not have a dissector",p->name);
-            return 0;
-        }
+        if (! handle)
+            ELUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"a Protocol that does not have a dissector cannot be added to a table");
         
-    } else if ( isDissector(L,3) ) {
-        handle = toDissector(L,3);
-    } else {
-        luaL_argerror(L,3,"Must be either Proto or Dissector" );
-        return 0;
-    }
+    } else if ( isDissector(L,ELUA_ARG_DissectorTable_add_DISSECTOR) ) {
+        handle = toDissector(L,ELUA_ARG_DissectorTable_add_DISSECTOR);
+    } else
+		ELUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"must be either Proto or Dissector");
     
     type = get_dissector_table_selector_type(dt->name);
     
     if (type == FT_STRING) {
-        gchar* pattern = g_strdup(luaL_checkstring(L,2));
+        gchar* pattern = g_strdup(luaL_checkstring(L,ELUA_ARG_DissectorTable_add_PATTERN));
         dissector_add_string(dt->name, pattern,handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, 2);
+        int port = luaL_checkint(L, ELUA_ARG_DissectorTable_add_PATTERN);
         dissector_add(dt->name, port, handle);
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
@@ -1134,20 +1229,27 @@ static int DissectorTable_add (lua_State *L) {
     return 0;
 }
 
-static int DissectorTable_remove (lua_State *L) {
+ELUA_METHOD DissectorTable_remove (lua_State *L) {
+	/*
+	 Remove a dissector from a table
+	 */
+#define ELUA_ARG_DissectorTable_remove_PATTERN 2 /* The pattern to match (either an integer or a string depending on the table's type). */
+#define ELUA_ARG_DissectorTable_remove_DISSECTOR 3 /* The dissector to add (either an Proto or a Dissector). */
     DissectorTable dt = checkDissectorTable(L,1);
-    Proto p;
     ftenum_t type;
     Dissector handle;
     
     if (!dt) return 0;
     
-    if(( p = luaL_checkudata(L,3,"Proto") )) {
+    if( isProto(L,ELUA_ARG_DissectorTable_remove_DISSECTOR) ) {
+        Proto p;
+        p = toProto(L,ELUA_ARG_DissectorTable_remove_DISSECTOR);
         handle = p->handle;
-    } else if (! ( handle  = luaL_checkudata(L,3,"Dissector") )) {
-        luaL_argerror(L,3,"Must be either Proto or Dissector" );
-        return 0;
-    }
+        
+    } else if ( isDissector(L,ELUA_ARG_DissectorTable_remove_DISSECTOR) ) {
+        handle = toDissector(L,ELUA_ARG_DissectorTable_remove_DISSECTOR);
+	} else
+		ELUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"must be either Proto or Dissector");
     
     type = get_dissector_table_selector_type(dt->name);
     
@@ -1163,7 +1265,14 @@ static int DissectorTable_remove (lua_State *L) {
 }
 
 
-static int DissectorTable_try (lua_State *L) {
+ELUA_METHOD DissectorTable_try (lua_State *L) {
+	/*
+	 Try to call a dissector from a table
+	 */
+#define ELUA_ARG_DissectorTable_try_PATTERN 2 /* The pattern to be matched (either an integer or a string depending on the table's type). */
+#define ELUA_ARG_DissectorTable_try_TVB 3 /* The buffer to dissect */
+#define ELUA_ARG_DissectorTable_try_PINFO 4 /* The packet info */
+#define ELUA_ARG_DissectorTable_try_TREE 5 /* The tree on which to add the protocol items */
     DissectorTable dt = checkDissectorTable(L,1);
     Tvb tvb = checkTvb(L,3);
     Pinfo pinfo = checkPinfo(L,4);
@@ -1174,41 +1283,44 @@ static int DissectorTable_try (lua_State *L) {
     
     type = get_dissector_table_selector_type(dt->name);
     
-    if (type == FT_STRING) {
-        const gchar* pattern = luaL_checkstring(L,2);
-        
-        if (!pattern) return 0;
-        
-        TRY {
-            if (dissector_try_string(dt->table,pattern,tvb,pinfo,tree))
-                return 0;
-        } CATCH(ReportedBoundsError) {
-            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-            luaL_error(L,"Malformed Frame");
-            return 0;
-        } ENDTRY;
-        
-    } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, 2);
+	TRY {
+		
+		if (type == FT_STRING) {
+			const gchar* pattern = luaL_checkstring(L,2);
+			
+			if (!pattern) return 0;
+			
+			if (dissector_try_string(dt->table,pattern,tvb,pinfo,tree))
+				return 0;
+			
+		} else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
+			int port = luaL_checkint(L, 2);
+		
+			if (dissector_try_port(dt->table,port,tvb,pinfo,tree)) 
+				return 0;
+			
+		} else {
+			luaL_error(L,"No such type of dissector_table");
+		}
+		
+		call_dissector(lua_data_handle,tvb,pinfo,tree);
+	
+		/* XXX Are we sure about this??? is this the right/only thing to catch */
+	} CATCH(ReportedBoundsError) {
+		proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+		ELUA_ERROR(DissectorTable_try,"malformed frame");
+	} ENDTRY;
 
-        TRY {
-            if (dissector_try_port(dt->table,port,tvb,pinfo,tree))
-                return 0;
-        } CATCH(ReportedBoundsError) {
-            proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-            luaL_error(L,"Malformed Frame");
-            return 0;
-        } ENDTRY;
-        
-    } else {
-        luaL_error(L,"No such type of dissector_table");
-    }
-    
-    call_dissector(lua_data_handle,tvb,pinfo,tree);
-    return 0;
+	return 0;
+	
 }
 
-static int DissectorTable_get_dissector (lua_State *L) {
+ELUA_METHOD DissectorTable_get_dissector (lua_State *L) {
+	/*
+	 Try to obtain a dissector from a table.
+	 */
+#define ELUA_ARG_DissectorTable_try_PATTERN 2 /* The pattern to be matched (either an integer or a string depending on the table's type). */
+
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
     dissector_handle_t handle = lua_data_handle;
@@ -1218,21 +1330,28 @@ static int DissectorTable_get_dissector (lua_State *L) {
     type = get_dissector_table_selector_type(dt->name);
     
     if (type == FT_STRING) {
-        const gchar* pattern = luaL_checkstring(L,2);
+        const gchar* pattern = luaL_checkstring(L,ELUA_ARG_DissectorTable_try_PATTERN);
+		
+		if (!pattern) ELUA_ARG_ERROR(DissectorTable_try,PATTERN,"must be a string");
+		
         handle = dissector_get_string_handle(dt->table,pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, 2);
+        int port = luaL_checkint(L, ELUA_ARG_DissectorTable_try_PATTERN);
         handle = dissector_get_port_handle(dt->table,port);
     }
     
-    pushDissector(L,handle);
-    
-    return 1;
-    
+	if (handle) {
+		pushDissector(L,handle);
+		ELUA_RETURN(1); /* The dissector handle if found */
+	} else {
+		lua_pushnil(L);
+		ELUA_RETURN(1); /* nil if not found */
+	}
 }
 
 
 static int DissectorTable_tostring(lua_State* L) {
+	/* XXX It would be nice to iterate and print which dissectors it has */
     DissectorTable dt = checkDissectorTable(L,1);
     GString* s;
     ftenum_t type;
