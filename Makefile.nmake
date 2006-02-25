@@ -289,6 +289,9 @@ clean: gtk2_distclean
 		dftest.obj dftest.exe randpkt.obj randpkt.ext dumpcap.obj \
 		doxygen.cfg \
 		$(RESOURCES) libethereal.dll wiretap-$(WTAP_VERSION).dll
+	cd asn1
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gtk
