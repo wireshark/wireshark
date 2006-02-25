@@ -2195,9 +2195,6 @@ be passed as arguments to a routine using those strings.)
 
 1.8 Calling Other Dissectors
 
-NOTE: This is discussed in the README.tvbuff file.  For more 
-information on tvbuffers consult that file.
-
 As each dissector completes its portion of the protocol analysis, it
 is expected to create a new tvbuff of type TVBUFF_SUBSET which
 contains the payload portion of the protocol (that is, the bytes

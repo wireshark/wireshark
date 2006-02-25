@@ -544,7 +544,6 @@ EXTRA_DIST = \
 	doc/README.regression   \
 	doc/README.stats_tree	\
 	doc/README.tapping	\
-	doc/README.tvbuff	\
 	doc/README.xml-output	\
 	doc/capinfos.pod		\
 	doc/dfilter2pod.pl	\
