@@ -492,6 +492,7 @@ typedef struct
 {
 	guint32 cseq;
 	transaction_state_t transaction_state;
+	gchar method[MAX_CSEQ_METHOD_SIZE];
 	guint32 response_code;
 	gint frame_number;
 } sip_hash_value;
@@ -2095,6 +2096,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		p_key->source_port = pinfo->srcport;
 
 		p_val->cseq = cseq_number;
+		strncpy(&p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE-1);
+		p_val->method[MAX_CSEQ_METHOD_SIZE] = '\0';
 		p_val->transaction_state = nothing_seen;
 		p_val->frame_number = 0;
 
@@ -2109,20 +2112,24 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	/******************************************/
 	/* Is it a resend???                      */
 
-	/* Does this look like a resent request (discount ACK, CANCEL) ? */
+	/* Does this look like a resent request (discount ACK, CANCEL, or a
+	   different method from the original one) ? */
+
 	if ((line_type == REQUEST_LINE) && (cseq_number == cseq_to_compare) &&
-		(p_val->transaction_state == request_seen) &&
-		(strcmp(cseq_method, "ACK") != 0) &&
-		(strcmp(cseq_method, "CANCEL") != 0))
+	    (p_val->transaction_state == request_seen) &&
+	    (strcmp(cseq_method, p_val->method) == 0) &&
+	    (strcmp(cseq_method, "ACK") != 0) &&
+	    (strcmp(cseq_method, "CANCEL") != 0))
 	{
 		result = p_val->frame_number;
 	}
 
 	/* Does this look like a resent final response ? */
 	if ((line_type == STATUS_LINE) && (cseq_number == cseq_to_compare) &&
-		(p_val->transaction_state == final_response_seen) &&
-		(stat_info->response_code >= 200) &&
-		(stat_info->response_code == p_val->response_code))
+	    (p_val->transaction_state == final_response_seen) &&
+	    (strcmp(cseq_method, p_val->method) == 0) &&
+	    (stat_info->response_code >= 200) &&
+	    (stat_info->response_code == p_val->response_code))
 	{
 		result = p_val->frame_number;
 	}
