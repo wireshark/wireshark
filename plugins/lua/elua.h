@@ -163,7 +163,13 @@ C* push##C(lua_State* L, C v) { \
     return p; \
 }\
 gboolean is##C(lua_State* L,int i) { \
-        return (gboolean)(lua_isuserdata(L,i) && luaL_checkudata(L,3,#C)); \
+	void *p; \
+	if(lua_isuserdata(L,i)) return FALSE; \
+	p = lua_touserdata(L, i); \
+	lua_getfield(L, LUA_REGISTRYINDEX, #C); \
+	if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
+	lua_pop(L, 2); \
+	return p ? TRUE : FALSE; \
 } \
 C shift##C(lua_State* L,int i) { \
     C* p; \

@@ -203,12 +203,9 @@ ELUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 
 ELUA_METHOD Dumper_close(lua_State* L) {
 	/* Closes a dumper */
-	Dumper* dp;
+	Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
     
-	luaL_checktype(L,1,LUA_TUSERDATA);
-	dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
-
     if (! *dp)
 		ELUA_ERROR(Dumper_close,"Cannot operate on a closed dumper");
 
@@ -350,13 +347,11 @@ ELUA_METHOD Dumper_dump_current(lua_State* L) {
 }
 
 static int Dumper__gc(lua_State* L) {
-	Dumper* dp;
+	Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
 	int err;
 
 	/* If we are Garbage Collected it means the Dumper is no longer usable. Close it */ 
-	luaL_checktype(L,1,LUA_TUSERDATA);
-	dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
-
+	
 	if (! *dp)
 		return 0; /* already closed, nothing to do! */
 
