@@ -36,7 +36,7 @@ case "$1" in
 			APP_LOC=`which $APP_PATH 2> /dev/null`
 		fi
 		if [ "$APP_LOC" = "" ] ; then
-			err_exit "Can't find $APP"
+			err_exit "Can't find $APP. This is probably an optional cygwin package not yet installed. Try to install it using cygwin's setup.exe!"
 		fi
 		echo "	$APP: $APP_LOC $res"
 	done
