@@ -20,18 +20,24 @@
 	<itemizedlist>
   	<listitem>
 	<para>
-	UNIX: as described above, the tools should be commonly available on the
-	supported UNIX platforms, and for Win32 platforms by the Cygwin UNIX 
-	emulation
+	UNIX (or Win32 Cygwin): as described above, the tools should be commonly 
+	available on the supported UNIX platforms, and for Win32 platforms by the 
+	Cygwin UNIX emulation
 	</para>
   	</listitem>
   	<listitem>
 	<para>
 	Win32 native: some tools are available as native Win32 tools, no 
-	emulation is required
+	emulation is required (however, as the installation can be complicated, 
+	using the Cygwin tools is recommended)
 	</para>
   	</listitem>
 	</itemizedlist>
+	</para>
+	<para>
+	General instructions to install the tools are given in:
+	<xref linkend="ChToolsInstallUNIX"/> and 
+	<xref linkend="ChToolsInstallWin32"/>.
 	</para>
 	<para>
 	The following sections give a very brief description of 
@@ -50,27 +56,17 @@
 	You will find explanations of the tool usage for some of the specific 
 	development tasks in <xref linkend="ChapterSources"/>.
 	</para>
-	<para>
-	Some recommendations are given for the
-	easiest way to get a Win32 development platform up and running, see 
-	<xref linkend="ChToolsWin32Recommended"/>.
-	</para>
   </section>
   
-  <section id="ChToolsInstall">
-	<title>Installation</title>
-	<para>
-	The installation of the tools depend on the platform you use:
-	</para>
-	
-	<section id="ChToolsInstallUnix">
-	<title>UNIX</title>
+  <section id="ChToolsInstallUNIX">
+	<title>UNIX: Installation</title>	
 	<para>
 	All the tools required are usually installed on a UNIX developer machine.
 	</para>
 	<para>
 	If a tool is not already installed on your system, you will typically use 
-	the installation package from your distribution.
+	the installation package from your distribution (by your favourite package 
+	manager: apt, yum, synaptics, ...).
 	</para>
 	<para>
 	If an install package is not available, or you have a reason not to use 
@@ -78,61 +74,226 @@
 	from source code. The following sections will provide you with the webpage
 	addresses where you can get these sources. 
 	</para>
-	</section>
-	
-	<section id="ChToolsInstallWin32Native">
-	<title>Win32 native</title>
+  </section>
+
+  <section id="ChToolsInstallWin32">
+  <title>Win32: Installation</title>
 	<para>
-	The native tools will typically be a bit faster, but more complicated to 
-	install. You will have to download a lot of tools from different webpages, 
-	and install them in the ways they have to be installed. The default 
-	installation location will typically not be the 
-	<filename>C:\Program Files</filename> folder. Have a look at 
-	<xref linkend="ChToolsWin32Recommended"/> for an overview of the 
-	recommended tools.
+	The tool installation on Win32 can be quite confusing as there are several 
+	ways to do so. 
+	The following will give you a step-by-step guide to install the 
+	development tools in the recommended way.
+	<warning><title>Warning!</title>
+	<para>
+	<command>Unless you know exactly what you are doing, you should strictly 
+	follow the recommendations!</command>
+	</para>
+	</warning>
+	</para>
+
+	<section id="ChToolsInstallWin32Recommended">
+	<title>Recommendations (Cygwin vs. Win32 native)</title>
+	<para>
+	Cygwin provides a lot of UNIX based tools on the Win32 platform. It uses
+	a UNIX emulation layer which might be a bit slower compared to the native 
+	Win32 tools, but at an acceptable level.
+	The installation and update is pretty easy and done through a single 
+	(web based) setup.exe.
+	</para>
+	<para>
+	The native Win32 tools will typically be a bit faster, but more 
+	complicated to install. 
+	You will have to download the tools from different webpages, 
+	and install them in different ways, tweaking the PATH and alike. 
+	</para>
+	<note><title>Note!</title>
+	<para>
+	As there's no Win32 native bash version available, at least a basic 
+	installation of cygwin is required in any case.
+	</para>
+	</note>
+	<para>
+	For all these reasons, the following recommends to use Cygwin tools where 
+	appropriate.
+	</para>
+	
+	<para>
+	<table frame='all'><title>The recommended tools</title>
+	<tgroup cols='4' align='left' colsep='1' rowsep='1'>
+	<colspec colname='c1'/>
+	<colspec colname='c2'/>
+	<colspec colname='c3'/>
+	<colspec colname='c4'/>
+	<thead>
+	<row>
+	  <entry>Tool</entry>
+	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> (Category/Package)</entry>
+	  <entry>Win32 native</entry>
+	  <entry>Remark</entry>
+	</row>
+	</thead>
+	<tbody>
+	<row>
+	  <entry><xref linkend="ChToolsCompiler"/></entry>
+	  <entry>-</entry>
+	  <entry>cl.exe (MSVC V6)</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsDebugger"/></entry>
+	  <entry>-</entry>
+	  <entry>integrated debugger (MSVC V6)</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsMake"/></entry>
+	  <entry>-</entry>
+	  <entry>nmake.exe (MSVC V6)</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsBash"/></entry>
+	  <entry>Base/bash</entry>
+	  <entry>-</entry>
+	  <entry>No Win32 native version available!</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsSed"/></entry>
+	  <entry>Base/sed</entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsPython"/></entry>
+	  <entry>Interpreters/python</entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsPerl"/></entry>
+	  <entry>Interpreters/perl</entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsYacc"/></entry>
+	  <entry>Devel/bison</entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsLexx"/></entry>
+	  <entry>Devel/flex</entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsWget"/></entry>
+	  <entry>Web/wget</entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsUnzip"/></entry>
+	  <entry>Archive/unzip</entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsSubversion"/></entry>
+	  <entry>-</entry>
+	  <entry><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></entry>
+	  <entry>Only needed if you access the Ethereal sources using 
+	  the subversion repository (the recommended way).</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsNSIS"/></entry>
+	  <entry>-</entry>
+	  <entry><ulink url="http://nsis.sourceforge.net">NSIS</ulink></entry>
+	  <entry>Only needed if you want to build your own 
+	  ethereal-setup.exe.</entry>
+	</row>
+	</tbody>
+	</tgroup>
+	</table>
+	Don't get confused by the (optional) marker at some of the items in the 
+	"Tool" column. 
+	Although these tools are not required to <command>build</command> 
+	Ethereal they can make development life much easier and some are even 
+	required by the following installation procedure.
 	</para>
 	</section>
-	
+
+	<section id="ChToolsInstallMSVC">
+	<title>Install Microsoft Visual Studio Version 6</title>
+	<para>
+	Install MSVC the usual way. Don't forget to install vcvars32.bat or call 
+	it manually before building Ethereal. vcvars32.bat will set some required 
+	environment settings.
+	</para>
+	<warning><title>Warning!</title>
+	<para>
+	Using any other MSVC version is not recommended and will certainly not 
+	work (at least without a lot of advanced tweaking). 
+	For further details on this topic, see <xref linkend="ChToolsCompiler"/>.
+	</para>
+	</warning>
+	</section>
 	<section id="ChToolsInstallCygwin">
-	<title>Win32 Cygwin</title>
+	<title>Install Cygwin</title>
 	<para>
-	Installation of the Cygwin tools is very simple. As Cygwin uses an 
-	UNIX emulation layer,
-	it might be a bit slower compared to the native tools, but at an 
-	acceptable level. All tools will be installed into one base folder, the 
-	default is <filename>C:\cygwin</filename>.
-	</para>
-	<para>
-	Cygwin provides a UNIX emulation layer with a lot of UNIX based tools
-	on the Win32 platform. Although Cygwin consists of several
-	seperate packages, the installation and update is done through a
-	single setup.exe, which acts similar to other web based installers.
+	Although Cygwin consists of several	seperate packages, the installation 
+	and update is done through a single setup.exe, which acts similar to other 
+	web based installers.
+	All tools will be installed into one base folder, the default is 
+	<filename>C:\cygwin</filename>.
 	</para>
 	<para>
 	You will find this network based setup.exe at: <ulink 
-	url="http://www.cygwin.com/"/>. Click on one
-	of the "Install Cygwin now" appearances. This will start the download
-	of the setup.exe.
+	url="http://www.cygwin.com/"/>. Click on one of the "Install Cygwin now" 
+	appearances to download the <filename>setup.exe</filename>.
+	After the download completed, start this <filename>setup.exe</filename> 
+	on your machine. 
 	</para>
 	<para>
-	After the download completed, start this setup.exe on your machine. It
-	will ask you for some
-	settings, the defaults should usually work well. The setup will
-	then download and install a basic set of packages.
-	</para>
+	The setup will ask you for some settings, the defaults should usually 
+	work well for a first start. 
+	At the "Select Packages" page, you'll need to select some additional 
+	packages, which are not installed by default. 
+	Navigate to the required Category/Package row and click on the "Skip" 
+	item in the "New" column so it shows a version number for:
+	<itemizedlist>
+	<listitem><para>
+	Archive/unzip
+	</para></listitem>
+	<listitem><para>
+	Devel/bison
+	</para></listitem>
+	<listitem><para>
+	Devel/flex
+	</para></listitem>
+	<listitem><para>
+	Interpreters/perl
+	</para></listitem>
+	<listitem><para>
+	Interpreters/python
+	</para></listitem>
+	<listitem><para>
+	Utils/patch
+	</para></listitem>
+	<listitem><para>
+	Web/wget
+	</para></listitem>
+	</itemizedlist>
+	</para>	
+	After clicking the Next button several times, the setup will then 
+	download and install the selected packages (this may take a while).
 	<para>
 	Under: "Start -&gt; Programs -&gt; Cygwin -&gt; Cygwin Bash Shell" you
 	should now be able to start a new Cygwin bash shell, which is similar to 
 	the command line (command.exe/cmd.exe) in Win32, but much more powerful.
 	</para>
+	<section id="ChToolsInstallCygwinPackages">
+	<title>Add/Update/Remove Cygwin Packages</title>	
 	<para>
-	If you want to add additional, update installed or remove packages, you 
-	should start the setup.exe again. At the "Select Packages" page, the 
-	entry in the "New" column will control what is done (or not) with the 
-	package. If a new version of a package is available, the new version 
-	number will be displayed, so it will be automatically updated. You can 
-	change the current setting by simply clicking at it, it will change 
-	between:
+	If you want to add additional, update installed or remove packages later, 
+	you have to start the setup.exe again. 
+	At the "Select Packages" page, the entry in the "New" column will control 
+	what is done (or not) with the package. If a new version of a package is 
+	available, the new version number will be displayed, so it will be 
+	automatically updated. 
+	You can change the current setting by simply clicking at it, it will 
+	change between:
 	<itemizedlist>
 	<listitem>
 	<para>
@@ -162,182 +323,99 @@
 	</listitem>
 	</itemizedlist>
 	</para>
-	<!--
-	<para>
-	You will find a list of required / recommended packages needed to develop 
-	Ethereal in <xref linkend="ChToolsWin32Recommended"/>.
-	</para>	
-	-->
 	</section>
-  </section>
-
-	<section id="ChToolsWin32Recommended">
-	<title>Win32: Recommended tools</title>
-	<para>
-	As there are different forms of the Win32 tools available, the following 
-	will give an overview of the recommended tools (which are highlighted in 
-	bold face).
-	<note><title>Note!</title>
-	<para>
-	<command>Unless you know exactly what you are doing, you should strictly 
-	following these recommendations!</command>
-	</para>
-	</note>
-	
-	<table frame='all'><title>The mandatory tools</title>
-	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
-	<colspec colname='c1'/>
-	<colspec colname='c2'/>
-	<colspec colname='c3'/>
-	<thead>
-	<row>
-	  <entry>Tool</entry>
-	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> package</entry>
-	  <entry>Win32 native</entry>
-	</row>
-	</thead>
-	<tbody>
-	<row>
-	  <entry><xref linkend="ChToolsBash"/></entry>
-	  <entry><command>bash</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsCompiler"/></entry>
-	  <entry>gcc</entry>
-	  <entry><command>cl.exe (MSVC)</command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsDebugger"/></entry>
-	  <entry>DDD</entry>
-	  <entry><command>integrated debugger (MSVC)</command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsMake"/></entry>
-	  <entry>make</entry>
-	  <entry><command>nmake.exe (MSVC)</command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsPython"/></entry>
-	  <entry><command>python</command></entry>
-	  <entry><ulink url="http://python.org/download/"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsPerl"/></entry>
-	  <entry><command>perl</command></entry>
-	  <entry><ulink url="http://www.ActiveState.com"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsSed"/></entry>
-	  <entry><command>sed (default installed)</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsYacc"/></entry>
-	  <entry><command>bison</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsLexx"/></entry>
-	  <entry><command>flex</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
-	</row>
-	</tbody>
-	</tgroup>
-	</table>	
-	
-	<table frame='all'><title>The optional tools</title>
-	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
-	<colspec colname='c1'/>
-	<colspec colname='c2'/>
-	<colspec colname='c3'/>
-	<thead>
-	<row>
-	  <entry>Tool</entry>
-	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> package</entry>
-	  <entry>Win32 native</entry>
-	</row>
-	</thead>
-	<tbody>
-	<row>
-	  <entry><xref linkend="ChToolsSubversion"/></entry>
-	  <entry>svn</entry>
-	  <entry><command><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsDiff"/></entry>
-	  <entry><command>diff (default installed)</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsPatch"/></entry>
-	  <entry><command>patch (default installed)</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsWget"/></entry>
-	  <entry><command>wget</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsUnzip"/></entry>
-	  <entry><command>unzip</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsNSIS"/></entry>
-	  <entry>-</entry>
-	  <entry>
-	  <command><ulink url="http://nsis.sourceforge.net">NSIS</ulink></command>
-	  </entry>
-	</row>
-	</tbody>
-	</tgroup>
-	</table>	
-	</para>
 	</section>
 
-	<section id="ChToolsBash">
-	<title>bash</title>
+	<section id="ChToolsInstallAdditional">
+	<title>Install Additional Tools</title>	
 	<para>
-	The bash shell is needed to run several shell scripts.
+	Depending on your actual task the following tools are recommended. 
+	Please note that they are not required to build Ethereal but can be 
+	quite helpful.
 	</para>
-	
-	<section id="ChToolsGNUBash">
-	<title>UNIX or Win32 Cygwin: GNU bash</title>
+	<section>
+	<title>TortoiseSVN</title>
 	<para>
-	The bash is available for most of the UNIX-like platforms and as the 
-	<application>bash</application> package from the <link 
-	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
+	If you want to work with the Ethereal subversion source repositories 
+	(which is highly recommended, see <xref linkend="ChSrcObtain"/>), 
+	it's recommended to use TortoiseSVN. You can download the setup from 
+	<ulink url="http://tortoisesvn.tigris.org/"/> and simply install it.
+	</para>
+	</section>
+	<section>
+	<title>Nullsoft Scriptable Install System (NSIS)</title>
+	<para>
+	If you want to build your own ethereal-setup.exe, you'll need NSIS. 
+	You can download the NSIS setup from 
+	<ulink url="http://nsis.sourceforge.net"/> and simply install it.
 	</para>
 	<para>
-	If the bash isn't already installed and also not available as a package 
-	for your platform, you can get it at: 
-	<ulink url="http://www.gnu.org/software/bash/bash.html"/>.
+	You may check the MAKENSIS setting in the file 
+	<filename>config.nmake</filename> of the Ethereal sources.
+	</para>
+	</section>
+	</section>
+
+	<section id="ChToolsWin32Verify">
+	<title>Verify installed tools</title>
+	<para>
+	After you've installed the Ethereal sources (see <xref 
+	linkend="ChSrcObtain"/>), you can check the correct installation of 
+	all tools by using the verify_tools target of the 
+	<filename>Makefile.nmake</filename> from the source package.
+	</para>
+	<warning><title>Warning!</title>
+	<para>
+	You will need the Ethereal sources and some tools (nmake, bash) installed, 
+	before this verification is able to work.
+	</para>
+	</warning>
+	<para>
+	Enter at the command line (cmd.exe, not Cygwin's bash!):
 	</para>
 	<para>
-	After correct installation, typing inside any shell:
+	<prompt>&gt;</prompt> 
+	<userinput>nmake -f Makefile.nmake verify_tools</userinput>
 	</para>
 	<para>
-	<prompt>$</prompt> <userinput>bash --version</userinput>
+	This will check for the various tools needed to build Ethereal:
 	</para>
 	<para>
-	should result in something like:
 	<programlisting>
-<![CDATA[GNU bash, version 2.05b.0(1)-release (i686-pc-cygwin)
-Copyright (C) 2002 Free Software Foundation, Inc.]]>
-	</programlisting>
-	However, the version string may vary.
-	</para>
-	</section>
-	
-	<section id="ChToolsWin32Bash">
-	<title>Win32 native: -</title>
-	<para>
-	The authors don't know of any working Win32 native bash implementation.
-	</para>
-	</section>
+<![CDATA[Checking for required applications:
+        cl: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/cl
+        link: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/link
+        nmake: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/nmake
 
+        bash: /usr/bin/bash
+        bison: /usr/bin/bison
+        flex: /usr/bin/flex
+        env: /usr/bin/env
+        grep: /usr/bin/grep
+        /usr/bin/find: /usr/bin/find
+        perl: /usr/bin/perl
+        env: /usr/bin/env
+        python: /usr/bin/python
+        sed: /usr/bin/sed
+        unzip: /usr/bin/unzip
+        wget: /usr/bin/wget]]>
+	</programlisting>
+	</para>	
+	<para>	
+	If you have problems with all the first three ones, check if you called 
+	...\Microsoft Visual Studio\VC98\Bin\vcvars32.bat before 
+	(which will "fix" your PATH settings).
+	</para>	
+	<para>	
+	Unfortunately, the link command is defined both from cygwin and from MSVC 
+	with completely different purpose, you'll need the MSVC link. 
+	If your link command looks something like: /usr/bin/link, the link command 
+	of cygwin takes precedence over the MSVC one. To fix this, you can change 
+	your PATH environment setting or simply renaming the link.exe in cygwin. 
+	If you rename it, make sure to remember that a cygwin update may provide 
+	a new version of it.
+	</para>	
+	</section>
 	</section>
 
 	<section id="ChToolsCompiler">
@@ -354,7 +432,7 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	</note>
 	<para>
 	The GCC C compiler is available for most of the UNIX-like platforms and 
-	as the <application>gcc</application> package from the <link 
+	as the <application>Devel/gcc</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
@@ -490,7 +568,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	<title>UNIX or Win32 Cygwin: GDB (GNU project debugger)</title>
 	<para>
 	GDB is the debugger for the GCC compiler. It is available for many (if 
-	not all) UNIX-like platforms and as the <application>gdb</application> 
+	not all) UNIX-like platforms and as the <application>Devel/gdb</application> 
 	package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>	
 	</para>
@@ -504,7 +582,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	<ulink url="http://www.gnu.org/software/gdb/gdb.html"/>.
 	</para>
 	<para>
-	After correct installation, typing inside the bash:
+	After correct installation:
 	</para>
 	<para>
 	<prompt>$</prompt> <userinput>gdb --version</userinput>
@@ -583,7 +661,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	</note>
 	<para>
 	GNU Make is available for most of the UNIX-like platforms and 
-	also as the <application>make</application> package from the <link 
+	also as the <application>Devel/make</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
@@ -592,7 +670,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	<ulink url="http://www.gnu.org/software/make/"/>.
 	</para>
 	<para>
-	After correct installation, typing inside the bash:
+	After correct installation:
 	</para>
 	<para>
 	<prompt>$</prompt> <userinput>make --version</userinput>
@@ -669,6 +747,49 @@ Stop.]]>
 	-> "Microsoft Platform SDK February 2003"
 	-> "Open build environment window"
 	-> (choose your OS Win2K/WinXP/Win2003)
+	</para>
+	</section>
+
+	</section>
+
+	<section id="ChToolsBash">
+	<title>bash</title>
+	<para>
+	The bash shell is needed to run several shell scripts.
+	</para>
+	
+	<section id="ChToolsGNUBash">
+	<title>UNIX or Win32 Cygwin: GNU bash</title>
+	<para>
+	The bash is available for most of the UNIX-like platforms and as the 
+	<application>bash</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
+	</para>
+	<para>
+	If the bash isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/bash/bash.html"/>.
+	</para>
+	<para>
+	After correct installation, typing inside any shell:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>bash --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[GNU bash, version 2.05b.0(1)-release (i686-pc-cygwin)
+Copyright (C) 2002 Free Software Foundation, Inc.]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+	
+	<section id="ChToolsWin32Bash">
+	<title>Win32 native: -</title>
+	<para>
+	The authors don't know of any working Win32 native bash implementation.
 	</para>
 	</section>
 
@@ -973,10 +1094,10 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 
 	<section id="ChToolsUnixSVN">
-	<title>UNIX or Win32 Cygwin: svn</title>
+	<title>UNIX or Win32 Cygwin: svn (subversion)</title>
 	<para>
 	SVN is available for most of the UNIX-like platforms and as the 
-	<application>SVN</application> package from the <link 
+	<application>Devel/subversion</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>
 	</para>
 	<para>
@@ -1251,67 +1372,6 @@ written by Larry Wall and Paul Eggert]]>
 	</para>
 	</section>
 
-
-	<section id="ChToolsWin32Verify">
-	<title>Win32: Verify installed tools</title>
-	<para>
-	After you've installed the Ethereal sources (see <xref 
-	linkend="ChSrcObtain"/>), you can check the correct installation of 
-	all tools by using the verify_tools target of the 
-	<filename>Makefile.nmake</filename> from the source package.
-	</para>
-	<warning><title>Warning!</title>
-	<para>
-	You will need the Ethereal sources and some tools (nmake, bash) installed, 
-	before this verification is able to work.
-	</para>
-	</warning>
-	<para>
-	Enter at the command line:
-	</para>
-	<para>
-	<prompt>&gt;</prompt> 
-	<userinput>nmake -f Makefile.nmake verify_tools</userinput>
-	</para>
-	<para>
-	This will check for the various tools needed to build Ethereal:
-	</para>
-	<para>
-	<programlisting>
-<![CDATA[Checking for required applications:
-        cl: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/cl
-        link: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/link
-        nmake: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/nmake
-
-        bash: /usr/bin/bash
-        bison: /usr/bin/bison
-        flex: /usr/bin/flex
-        env: /usr/bin/env
-        grep: /usr/bin/grep
-        /usr/bin/find: /usr/bin/find
-        perl: /usr/bin/perl
-        env: /usr/bin/env
-        python: /usr/bin/python
-        sed: /usr/bin/sed
-        unzip: /usr/bin/unzip
-        wget: /usr/bin/wget]]>
-	</programlisting>
-	</para>	
-	<para>	
-	If you have problems with all the first three ones, check if you called 
-	...\Microsoft Visual Studio\VC98\Bin\vcvars32.bat before 
-	(which will "fix" your PATH settings).
-	</para>	
-	<para>	
-	Unfortunately, the link command is defined both from cygwin and from MSVC 
-	with completely different purpose, you'll need the MSVC link. 
-	If your link command looks something like: /usr/bin/link, the link command 
-	of cygwin takes precedence over the MSVC one. To fix this, you can change 
-	your PATH environment setting or simply renaming the link.exe in cygwin. 
-	If you rename it, make sure to remember that a cygwin update may provide 
-	a new version of it.
-	</para>	
-	</section>
 
 </chapter>
 <!-- End of EUG Chapter Tools -->
