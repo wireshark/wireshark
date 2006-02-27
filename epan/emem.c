@@ -41,6 +41,7 @@
 #endif
 
 #ifdef _WIN32
+#include <windows.h>	/* VirtualAlloc, VirtualProtect */
 #include <process.h>    /* getpid */
 #endif
 
@@ -48,6 +49,13 @@
 #include <proto.h>
 #include "emem.h"
 #include <wiretap/file_util.h>
+
+/* Add guard pages at each end of our allocated memory */
+#if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT)
+#include <sys/types.h>
+#include <sys/mman.h>
+#define USE_GUARD_PAGES 1
+#endif
 
 /* When required, allocate more memory from the OS in this size chunks */
 #define EMEM_PACKET_CHUNK_SIZE 10485760
@@ -73,7 +81,9 @@ guint8  ep_canary[EMEM_CANARY_DATA_SIZE], se_canary[EMEM_CANARY_DATA_SIZE];
 
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
+	unsigned int	amount_free_init;
 	unsigned int	amount_free;
+	unsigned int	free_offset_init;
 	unsigned int	free_offset;
 	char *buf;
 #if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
@@ -169,18 +179,81 @@ se_init_chunk(void)
 	emem_canary(se_canary);
 }
 
-#define EMEM_CREATE_CHUNK(FREE_LIST) \
-	/* we dont have any free data, so we must allocate a new one */ \
-	if(!FREE_LIST){ \
-		emem_chunk_t *npc; \
-		npc=g_malloc(sizeof(emem_chunk_t)); \
-		npc->next=NULL; \
-		npc->amount_free=EMEM_PACKET_CHUNK_SIZE; \
-		npc->free_offset=0; \
-		npc->buf=g_malloc(EMEM_PACKET_CHUNK_SIZE); \
-		npc->c_count = 0; \
-		FREE_LIST=npc; \
+static void
+emem_create_chunk(emem_chunk_t **free_list) {
+#if defined (_WIN32)
+	SYSTEM_INFO sysinfo;
+	int pagesize;
+	BOOL ret;
+	char *buf_end, *prot1, *prot2;
+	DWORD oldprot;
+#elif defined(USE_GUARD_PAGES)
+	int pagesize = sysconf(_SC_PAGESIZE), ret;
+	char *buf_end, *prot1, *prot2;
+#endif
+	/* we dont have any free data, so we must allocate a new one */
+	if(!*free_list){
+		emem_chunk_t *npc;
+		npc = g_malloc(sizeof(emem_chunk_t));
+		npc->next = NULL;
+		npc->c_count = 0;
+		*free_list = npc;
+#if defined (_WIN32)
+		/*
+		 * MSDN documents VirtualAlloc/VirtualProtect at
+		 * http://msdn.microsoft.com/library/en-us/memory/base/creating_guard_pages.asp
+		 */
+		GetSystemInfo(&sysinfo);
+		pagesize = sysinfo.dwPageSize;
+
+		/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
+		npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
+			MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+		g_assert(npc->buf != NULL);
+		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
+
+		/* Align our guard pages on page-sized boundaries */
+		prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
+		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+
+		ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
+		g_assert(ret == TRUE);
+		ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
+		g_assert(ret == TRUE);
+
+		npc->amount_free_init = prot2 - prot1 - pagesize;
+		npc->amount_free = npc->amount_free_init;
+		npc->free_offset_init = (prot1 - npc->buf) + pagesize;
+		npc->free_offset = npc->free_offset_init;
+
+#elif defined(USE_GUARD_PAGES)
+		npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
+			PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+		g_assert(npc->buf != MAP_FAILED);
+		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
+
+		/* Align our guard pages on page-sized boundaries */
+		prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
+		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+		ret = mprotect(prot1, pagesize, PROT_NONE);
+		g_assert(ret != -1);
+		ret = mprotect(prot2, pagesize, PROT_NONE);
+		g_assert(ret != -1);
+
+		npc->amount_free_init = prot2 - prot1 - pagesize;
+		npc->amount_free = npc->amount_free_init;
+		npc->free_offset_init = (prot1 - npc->buf) + pagesize;
+		npc->free_offset = npc->free_offset_init;
+
+#else /* Is there a draft in here? */
+		npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
+		npc->amount_free = npc->amount_free_init;
+		npc->free_offset_init = 0;
+		npc->free_offset = npc->free_offset_init;
+		npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
+#endif /* USE_GUARD_PAGES */
 	}
+}
 
 /* allocate 'size' amount of memory with an allocation lifetime until the
  * next packet.
@@ -201,7 +274,7 @@ ep_alloc(size_t size)
 	/* make sure we dont try to allocate too much (arbitrary limit) */
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
-	EMEM_CREATE_CHUNK(ep_packet_mem.free_list);
+	emem_create_chunk(&ep_packet_mem.free_list);
 
 	/* oops, we need to allocate more memory to serve this request
          * than we have free. move this node to the used list and try again
@@ -214,7 +287,7 @@ ep_alloc(size_t size)
 		ep_packet_mem.used_list=npc;
 	}
 
-	EMEM_CREATE_CHUNK(ep_packet_mem.free_list);
+	emem_create_chunk(&ep_packet_mem.free_list);
 
 	free_list = ep_packet_mem.free_list;
 
@@ -262,7 +335,7 @@ se_alloc(size_t size)
 	/* make sure we dont try to allocate too much (arbitrary limit) */
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
-	EMEM_CREATE_CHUNK(se_packet_mem.free_list);
+	emem_create_chunk(&se_packet_mem.free_list);
 
 	/* oops, we need to allocate more memory to serve this request
          * than we have free. move this node to the used list and try again
@@ -275,7 +348,7 @@ se_alloc(size_t size)
 		se_packet_mem.used_list=npc;
 	}
 
-	EMEM_CREATE_CHUNK(se_packet_mem.free_list);
+	emem_create_chunk(&se_packet_mem.free_list);
 
 	free_list = se_packet_mem.free_list;
 
@@ -530,8 +603,8 @@ ep_free_all(void)
 				g_error("Per-packet memory corrupted.");
 		}
 		npc->c_count = 0;
-		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
-		npc->free_offset=0;
+		npc->amount_free = npc->amount_free_init;
+		npc->free_offset = npc->free_offset_init;
 		npc = npc->next;
 #else /* EP_DEBUG_FREE */
 		emem_chunk_t *next = npc->next;
@@ -571,8 +644,8 @@ se_free_all(void)
 				g_error("Per-session memory corrupted.");
 		}
 		npc->c_count = 0;
-		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
-		npc->free_offset=0;
+		npc->amount_free = npc->amount_free_init;
+		npc->free_offset = npc->free_offset_init;
 		npc = npc->next;
 #else /* SE_DEBUG_FREE */
 		emem_chunk_t *next = npc->next;
