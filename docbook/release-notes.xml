@@ -80,6 +80,12 @@ Gnu info
 	  Versions affected: 0.10.14.
         </para></listitem>
         <listitem><para>
+	  The UMA dissector could go into an infinite loop.
+	  <!-- Fixed in r17119, r17273 -->
+	  <!-- Bug IDs: ??? -->
+	  Versions affected: ???.
+        </para></listitem>
+        <listitem><para>
 	  Win32: Unicode characters in the users profile path causes problems 
 	  reading/writing the preferences (and alike) files.
 	  <!-- Fixed in r17024 -->
@@ -93,6 +99,8 @@ Gnu info
 	  <!-- Bug IDs: 661 -->
 	  Versions affected: 0.10.14.
         </para></listitem>
+
+<!-- FIX (17235), canary bugs -->
 
       </itemizedlist>
     </para>
