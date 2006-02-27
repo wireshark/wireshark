@@ -276,8 +276,10 @@
 	</para></listitem>
 	</itemizedlist>
 	</para>	
+	<para>
 	After clicking the Next button several times, the setup will then 
 	download and install the selected packages (this may take a while).
+	</para>
 	<para>
 	Under: "Start -&gt; Programs -&gt; Cygwin -&gt; Cygwin Bash Shell" you
 	should now be able to start a new Cygwin bash shell, which is similar to 
