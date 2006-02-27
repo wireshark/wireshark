@@ -4441,7 +4441,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * return.
 				 */
 				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = 4 - length_remaining;
+				pinfo->desegment_len = 8 - length_remaining;
 				return;
 		  	}
 	    	}
