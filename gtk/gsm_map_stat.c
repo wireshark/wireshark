@@ -168,7 +168,9 @@ gsm_map_stat_draw(
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.2f", stat_p->size[i]/stat_p->opr_code[i]);
+		if (stat_p->opr_code[i] >0)
+				strp = g_strdup_printf("%.2f",stat_p->size[i]/stat_p->opr_code[i]);
+		else strp=g_strdup_printf("--");
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 4, strp);
 	    g_free(strp);
 
@@ -180,7 +182,9 @@ gsm_map_stat_draw(
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 6, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.2f", stat_p->size_rr[i]/stat_p->opr_code_rr[i]);
+		if (stat_p->opr_code_rr[i]>0)
+			strp = g_strdup_printf("%.2f",stat_p->size_rr[i]/stat_p->opr_code_rr[i]);
+		else strp=g_strdup_printf("--");
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 7, strp);
 	    g_free(strp);
 
@@ -188,8 +192,10 @@ gsm_map_stat_draw(
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 8, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.2f",
-		(stat_p->size[i] + stat_p->size_rr[i])/(stat_p->opr_code[i] + stat_p->opr_code_rr[i]));
+		if ((stat_p->opr_code[i] + stat_p->opr_code_rr[i])>0)
+			strp = g_strdup_printf("%.2f",
+						(stat_p->size[i] +stat_p->size_rr[i])/(stat_p->opr_code[i] + stat_p->opr_code_rr[i]));
+		else strp=g_strdup_printf("--");
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 9, strp);
 	    g_free(strp);
 
@@ -398,7 +404,7 @@ gsm_map_stat_gtk_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
-    int			i;
+    int			i,j;
 
 
     /*
@@ -423,9 +429,9 @@ gsm_map_stat_gtk_cb(
         /*
          * set the rest of the columns
          */
-        for (i = 2; i < GSM_MAP_INIT_TABLE_NUM_COLUMNS; i++)
+        for (j = 2; j < GSM_MAP_INIT_TABLE_NUM_COLUMNS; i++)
         {
-            dlg.entries[i] = g_strdup("0");
+            dlg.entries[j] = g_strdup("0");
         }
 
 	gtk_clist_insert(GTK_CLIST(dlg.table), i, dlg.entries);
