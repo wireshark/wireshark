@@ -146,7 +146,7 @@ static void
 http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, char * format)
 {
 	if (data==NULL) {
-		g_warning("C'est quoi ce borderl key=%d\n", *key);
+		g_warning("No data available, key=%d\n", *key);
 		exit(EXIT_FAILURE);
 	}
 	if (data->packets==0)
@@ -183,7 +183,7 @@ httpstat_reset(void *psp  )
 	httpstat_t *sp=psp;
 	if (!sp) {
 		g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
-		g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_requests, NULL);
+		g_hash_table_foreach( sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
 	}
 }
 
