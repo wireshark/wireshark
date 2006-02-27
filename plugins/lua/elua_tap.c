@@ -29,6 +29,9 @@
 #include "elua.h"
 
 ELUA_CLASS_DEFINE(Field,NOP)
+/*
+ A Field extractor to to obtain field values.
+ */
 
 static GPtrArray* wanted_fields = NULL;
 
@@ -85,16 +88,21 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
     
 }
 
-static int Field_get (lua_State *L) {
-    const gchar* name = luaL_checkstring(L,1);
+ELUA_FUNCTION new_field(lua_State *L) {
+	/*
+	 Create a Field extractor
+	 */
+#define ELUA_ARG_Field_get_FIELDNAME 1 /* The filter name of the field (e.g. ip.addr) */
+    const gchar* name = luaL_checkstring(L,ELUA_ARG_Field_get_FIELDNAME);
     Field f;
     
     if (!name) return 0;
     
-    if (!wanted_fields) {
-        luaL_error(L,"too late to define a Field extractor");
-        return 0;
-    }
+	if (!proto_registrar_get_byname(name)) 
+		ELUA_ARG_ERROR(Field_get,FIELDNAME,"a field with this name must exist");
+	
+    if (!wanted_fields)
+		ELUA_ERROR(Field_get,"a Field extractor must be defined before Taps or Dissectors get called");
     
     f = g_malloc(sizeof(void*));
     *f = (header_field_info*)g_strdup(name); /* cheating */
@@ -102,10 +110,10 @@ static int Field_get (lua_State *L) {
     g_ptr_array_add(wanted_fields,f);
     
     pushField(L,f);
-    return 1;
+    ELUA_RETURN(1); /* The field extractor */
 }
 
-static int Field_fetch (lua_State* L) {
+ELUA_METAMETHOD Field__call (lua_State* L) {
     Field f = checkField(L,1);
     int items_found = 0;
     header_field_info* in = *f;
@@ -116,8 +124,7 @@ static int Field_fetch (lua_State* L) {
     }
 
     if (! lua_pinfo ) {
-        g_warning("pinfo: %p",lua_pinfo);
-        luaL_error(L,"fields cannot be used outside dissectors or taps");
+        ELUA_ERROR(Field__call,"fields cannot be used outside dissectors or taps");
         return 0;
     }
     
@@ -169,8 +176,7 @@ static int Field_fetch (lua_State* L) {
             }
         }
     }
-    return items_found;
-    
+    ELUA_RETURN(items_found); /* All the values of this field */
 }
 
 static int Field_tostring(lua_State* L) {
@@ -192,7 +198,7 @@ static int Field_tostring(lua_State* L) {
 
 static const luaL_reg Field_meta[] = {
     {"__tostring", Field_tostring},
-    {"__call", Field_fetch},
+    {"__call", Field__call},
     {0, 0}
 };
 
@@ -202,17 +208,15 @@ int Field_register(lua_State* L) {
 
     ELUA_REGISTER_META(Field);
 
-    lua_pushstring(L, "Field");
-    lua_pushcfunction(L, Field_get);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
     return 1;
 }
 
 
 
 ELUA_CLASS_DEFINE(Tap,NOP)
-
+/*
+ 
+ */
 struct _eth_tap {
     gchar* name;
     gchar* filter;

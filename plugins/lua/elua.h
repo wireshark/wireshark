@@ -164,7 +164,7 @@ C* push##C(lua_State* L, C v) { \
 }\
 gboolean is##C(lua_State* L,int i) { \
 	void *p; \
-	if(lua_isuserdata(L,i)) return FALSE; \
+	if(!lua_isuserdata(L,i)) return FALSE; \
 	p = lua_touserdata(L, i); \
 	lua_getfield(L, LUA_REGISTRYINDEX, #C); \
 	if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
