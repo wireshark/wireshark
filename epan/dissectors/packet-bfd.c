@@ -68,7 +68,8 @@ static const value_string bfd_control_sta_values[] = {
     { 0, "AdminDown" },
     { 1, "Down" },
     { 2, "Init" },
-    { 3, "Up" }
+    { 3, "Up" },
+    { 0, NULL }
 };
 
 static gint proto_bfd = -1;
