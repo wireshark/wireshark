@@ -142,9 +142,9 @@
 
 typedef struct hashipv4 {
   guint			addr;
-  gchar   		name[MAXNAMELEN];
   gboolean              is_dummy_entry;	/* name is IPv4 address in dot format */
   struct hashipv4 	*next;
+  gchar   		name[MAXNAMELEN];
 } hashipv4_t;
 
 /* hash table used for IPv6 lookup */
@@ -1063,6 +1063,7 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
 {
   int hash_idx;
   hashether_t *tp;
+  int new_one = TRUE;
 
   hash_idx = HASH_ETH_ADDRESS(addr);
 
@@ -1078,6 +1079,7 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
 	  return tp;
 	} else {
 	  /* replace this dummy (manuf) entry with a real name */
+	  new_one = FALSE;
 	  break;
 	}
       }
@@ -1090,10 +1092,12 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
     }
   }
 
-  memcpy(tp->addr, addr, sizeof(tp->addr));
   strncpy(tp->name, name, MAXNAMELEN);
   tp->name[MAXNAMELEN-1] = '\0';
-  tp->next = NULL;
+  if (new_one) {
+      memcpy(tp->addr, addr, sizeof(tp->addr));
+      tp->next = NULL;
+  }
   tp->is_dummy_entry = FALSE;
 
   return tp;
@@ -1795,6 +1799,7 @@ extern void add_ipv4_name(guint addr, const gchar *name)
 {
   int hash_idx;
   hashipv4_t *tp;
+  int new_one = TRUE;
 
   hash_idx = HASH_IPV4_ADDRESS(addr);
 
@@ -1810,6 +1815,7 @@ extern void add_ipv4_name(guint addr, const gchar *name)
 	  return;
 	} else {
 	  /* replace this dummy entry with the new one */
+	  new_one = FALSE;
 	  break;
 	}
       }
@@ -1824,8 +1830,10 @@ extern void add_ipv4_name(guint addr, const gchar *name)
 
   strncpy(tp->name, name, MAXNAMELEN);
   tp->name[MAXNAMELEN-1] = '\0';
-  tp->addr = addr;
-  tp->next = NULL;
+  if (new_one) {
+      tp->addr = addr;
+      tp->next = NULL;
+  }
   tp->is_dummy_entry = FALSE;
 
 } /* add_ipv4_name */
@@ -1834,6 +1842,7 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
 {
   int hash_idx;
   hashipv6_t *tp;
+  int new_one = TRUE;
 
   hash_idx = HASH_IPV6_ADDRESS(*addrp);
 
@@ -1849,6 +1858,7 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
 	  return;
 	} else {
 	  /* replace this dummy entry with the new one */
+	  new_one = FALSE;
 	  break;
 	}
       }
@@ -1863,8 +1873,10 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
 
   strncpy(tp->name, name, MAXNAMELEN);
   tp->name[MAXNAMELEN-1] = '\0';
-  tp->addr = *addrp;
-  tp->next = NULL;
+  if (new_one) {
+      tp->addr = *addrp;
+      tp->next = NULL;
+  }
   tp->is_dummy_entry = FALSE;
 
 } /* add_ipv6_name */

@@ -2742,6 +2742,7 @@ find_packet(capture_file *cf,
   gchar       status_str[100];
   int         progbar_nextstep;
   int         progbar_quantum;
+  char       *title;
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
@@ -2763,6 +2764,7 @@ find_packet(capture_file *cf,
     g_get_current_time(&start_time);
 
     fdata = start_fd;
+    title = cf->sfilter?cf->sfilter:"";
     for (;;) {
       /* Create the progress bar if necessary.
          We check on every iteration of the loop, so that it takes no
@@ -2770,7 +2772,7 @@ find_packet(capture_file *cf,
          large file, we might take considerably longer than that standard
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
-         progbar = delayed_create_progress_dlg("Searching", cf->sfilter, 
+         progbar = delayed_create_progress_dlg("Searching", title, 
            FALSE, &stop_flag, &start_time, progbar_val);
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
