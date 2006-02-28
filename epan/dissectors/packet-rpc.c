@@ -1568,14 +1568,21 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if ( tree )
 	{
+		proto_item *tmp_item;
+
 		/* Put the program, version, and procedure into the tree. */
-		proto_tree_add_uint_format(tree, prog_id, tvb,
+		tmp_item=proto_tree_add_uint_format(tree, prog_id, tvb,
 			0, 0, rpc_call->prog, "Program: %s (%u)",
 			rpc_prog_name(rpc_call->prog), rpc_call->prog);
-		proto_tree_add_uint(tree, vers_id, tvb, 0, 0, rpc_call->vers);
-		proto_tree_add_uint_format(tree, proc_id, tvb,
+		PROTO_ITEM_SET_GENERATED(tmp_item);
+
+		tmp_item=proto_tree_add_uint(tree, vers_id, tvb, 0, 0, rpc_call->vers);
+		PROTO_ITEM_SET_GENERATED(tmp_item);
+
+		tmp_item=proto_tree_add_uint_format(tree, proc_id, tvb,
 			0, 0, rpc_call->proc, "Procedure: %s (%u)",
 			procname, rpc_call->proc);
+		PROTO_ITEM_SET_GENERATED(tmp_item);
 	}
 
 	if (dissect_function == NULL) {
@@ -2166,10 +2173,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if(rpc_call && rpc_call->rep_num){
-			proto_tree_add_uint_format(rpc_tree, hf_rpc_repframe,
+			proto_item *tmp_item;
+
+			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_repframe,
 			    tvb, 0, 0, rpc_call->rep_num,
 			    "The reply to this request is in frame %u",
 			    rpc_call->rep_num);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
 		}
 
 		offset += 16;
@@ -2256,14 +2266,18 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (rpc_tree) {
-			proto_tree_add_uint_format(rpc_tree,
+			proto_item *tmp_item;
+			tmp_item=proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_program, tvb, 0, 0, prog,
 				"Program: %s (%u)", progname, prog);
-			proto_tree_add_uint(rpc_tree,
+			PROTO_ITEM_SET_GENERATED(tmp_item);
+			tmp_item=proto_tree_add_uint(rpc_tree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
-			proto_tree_add_uint_format(rpc_tree,
+			PROTO_ITEM_SET_GENERATED(tmp_item);
+			tmp_item=proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_procedure, tvb, 0, 0, proc,
 				"Procedure: %s (%u)", procname, proc);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
 		}
 
 		reply_state = tvb_get_ntohl(tvb,offset+0);
@@ -2275,13 +2289,18 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Indicate the frame to which this is a reply. */
 		if(rpc_call && rpc_call->req_num){
-			proto_tree_add_uint_format(rpc_tree, hf_rpc_reqframe,
+			proto_item *tmp_item;
+
+			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_reqframe,
 			    tvb, 0, 0, rpc_call->req_num,
 			    "This is a reply to a request in frame %u",
 			    rpc_call->req_num);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
+
 			nstime_delta(&ns, &pinfo->fd->abs_ts, &rpc_call->req_time);
-			proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
+			tmp_item=proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
 				&ns);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
 
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
@@ -2298,16 +2317,21 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* We have seen a reply to this call - but was it
 			   *this* reply? */
 			if (rpc_call->rep_num != pinfo->fd->num) {
+				proto_item *tmp_item;
+
 				/* No, so it's a duplicate reply.
 				   Mark it as such. */
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_prepend_fstr(pinfo->cinfo, COL_INFO,
 						"[RPC duplicate of #%d]", rpc_call->rep_num);
 				}
-				proto_tree_add_item(rpc_tree,
+				tmp_item=proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, TRUE);
-				proto_tree_add_uint(rpc_tree,
+				PROTO_ITEM_SET_GENERATED(tmp_item);
+
+				tmp_item=proto_tree_add_uint(rpc_tree,
 					hf_rpc_reply_dup, tvb, 0,0, rpc_call->rep_num);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
 			}
 		}
 
@@ -2441,8 +2465,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (ptree) {
-			proto_tree_add_uint(ptree,
+			proto_item *tmp_item;
+
+			tmp_item=proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
 			if (rpc_prog->procedure_hfs->len > vers)
 				procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
 			else {
@@ -2452,12 +2479,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				procedure_hf = 0;
 			}
 			if (procedure_hf != 0 && procedure_hf != -1) {
-				proto_tree_add_uint(ptree,
+				tmp_item=proto_tree_add_uint(ptree,
 					procedure_hf, tvb, 0, 0, proc);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
 			} else {
-				proto_tree_add_uint_format(ptree,
+				tmp_item=proto_tree_add_uint_format(ptree,
 					hf_rpc_procedure, tvb, 0, 0, proc,
 					"Procedure: %s (%u)", procname, proc);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
 			}
 		}
 	}
