@@ -214,6 +214,7 @@ static const sip_header_t sip_headers[] = {
                 { "Warning",		 			NULL },  /*  81 RFC3261  */
                 { "WWW-Authenticate",			NULL },  /*  82 RFC3261  */
                 { "Refer-To",					"r"  },  /*  83 RFC3515  */
+                { "History-Info", 				NULL },  /*  84 RFC4244  */
 
 };
 
@@ -301,6 +302,7 @@ static const sip_header_t sip_headers[] = {
 #define POS_WARNING							81
 #define POS_WWW_AUTHENTICATE				82
 #define POS_REFER_TO						83
+#define POS_HISTORY_INFO					84
 
 static gint hf_header_array[] = {
                 -1, /* 0"Unknown-header" - Pad so that the real headers start at index 1 */
@@ -387,6 +389,7 @@ static gint hf_header_array[] = {
                 -1, /* 81"Warning",								RFC3261 */
                 -1, /* 82"WWW-Authenticate",					RFC3261 */
                 -1, /* 83"Refer-To",							RFC3515 */
+                -1, /* 84"History-Info",						RFC4244 */
 
 };
 
@@ -2669,9 +2672,14 @@ void proto_register_sip(void)
 			"RFC 3261: WWW-Authenticate Header", HFILL }
 		},
 		{ &hf_header_array[POS_REFER_TO],
-		       { "Refer-To", 			"sip.Refer-To",
+			{ "Refer-To", 			"sip.Refer-To",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"Refer-To Header", HFILL }
+		},
+		{ &hf_header_array[POS_HISTORY_INFO],
+			{ "History-Info", 			"sip.History-Info",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 4244: Request History Information", HFILL }
 		},
 		{ &hf_sip_resend,
 			{ "Resent Packet", "sip.resend",
