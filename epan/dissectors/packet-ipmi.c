@@ -2916,14 +2916,19 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 					proto_tree_add_item(ipmi_tree, hf_SetFRULedState_datafield_LEDFunction,
 									tvb, (*poffset)++, 1, TRUE);
 				} else {
-					proto_tree_add_item(ipmi_tree, hf_SetFRULedState_datafield_Offduration,
-									tvb, (*poffset)++, 1, TRUE);
+					proto_tree_add_item_hidden(ipmi_tree, hf_SetFRULedState_datafield_Offduration,
+									tvb, *poffset, 1, TRUE);
+					proto_tree_add_text(ipmi_tree, tvb, (*poffset)++, 1,
+									"Off-duration: %u ms (0x%02x)", LEDFunction * 10, LEDFunction);
 				}
 			}
 			/*On-duration */
 			if (tree) {
-				proto_tree_add_item(ipmi_tree, hf_SetFRULedState_datafield_Onduration,
-		    							tvb, (*poffset)++, 1, TRUE);
+				guint8 duration = tvb_get_guint8(tvb, *poffset);
+				proto_tree_add_item_hidden(ipmi_tree, hf_SetFRULedState_datafield_Onduration,
+		    							tvb, *poffset, 1, TRUE);
+				proto_tree_add_text(ipmi_tree, tvb, (*poffset)++, 1,
+									"On-duration: %u ms (0x%02x)", duration * 10, duration);
 			}
 			/* Color when illuminated */
 			if (tree) {
@@ -2990,14 +2995,19 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LocalControlLEDFunction,
 									tvb, (*poffset)++, 1, TRUE);
 				} else {
-					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LocalControlOffduration,
-									tvb, (*poffset)++, 1, TRUE);
+					proto_tree_add_item_hidden(ipmi_tree, hf_GetFRULedState_datafield_LocalControlOffduration,
+									tvb, *poffset, 1, TRUE);
+					proto_tree_add_text(ipmi_tree, tvb, (*poffset)++, 1,
+									"Local Control Off-duration: %u ms (0x%02x)", LEDFunction * 10, LEDFunction);
 				}
 			}
 			/* Local Control On-duration */
 			if (tree) {
-				proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LocalControlOnduration,
-		    							tvb, (*poffset)++, 1, TRUE);
+				guint8 duration = tvb_get_guint8(tvb, *poffset);
+				proto_tree_add_item_hidden(ipmi_tree, hf_GetFRULedState_datafield_LocalControlOnduration,
+		    							tvb, *poffset, 1, TRUE);
+				proto_tree_add_text(ipmi_tree, tvb, (*poffset)++, 1,
+									"Local Control On-duration: %u ms (0x%02x)", duration * 10, duration);
 			}
 			/* Local Control Color */
 			if (tree) {
@@ -3023,14 +3033,19 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateLEDFunction,
 		    							tvb, (*poffset)++, 1, TRUE);
 				} else {
-					proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateOffduration,
-		    							tvb, (*poffset)++, 1, TRUE);
+					proto_tree_add_item_hidden(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateOffduration,
+		    							tvb, *poffset, 1, TRUE);
+					proto_tree_add_text(ipmi_tree, tvb, (*poffset)++, 1,
+									"Override State Off-duration: %u ms (0x%02x)", LEDFunction * 10, LEDFunction);
 				}
 			}
 			/* Override State On-duration */
 			if (tree) {
-				proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateOnduration,
+				guint8 duration = tvb_get_guint8(tvb, *poffset);
+				proto_tree_add_item_hidden(ipmi_tree, hf_GetFRULedState_datafield_OverrideStateOnduration,
 		    							tvb, (*poffset)++, 1, TRUE);
+				proto_tree_add_text(ipmi_tree, tvb, (*poffset)++, 1,
+									"Override State On-duration: %u ms (0x%02x)", duration * 10, duration);
 			}
 			/* Override State Color */
 			if (tree) {
