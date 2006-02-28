@@ -793,7 +793,7 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinf
 DEBUG_ENTRY("dissect_per_constrained_integer");
 	if(has_extension){
 		gboolean extension_present;
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_present_bit, &extension_present, pi);
+		offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_present_bit, &extension_present, &pi);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 		if(extension_present){
 			offset=dissect_per_integer(tvb, offset, pinfo, tree,
