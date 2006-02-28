@@ -2841,15 +2841,8 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 				proto_tree_add_uint_format(bat_ase_element_tree, hf_Local_BCU_ID , parameter_tvb, offset, 4, Local_BCU_ID , "Local BCU ID : 0x%08x", Local_BCU_ID );
 				offset = offset + 4;
 			break;
-			case SIGNAL :          	
-				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_bat_ase_signal , parameter_tvb, offset, 1, tempdata );
-				offset = offset + 1;
-				if ( content_len > 1){
-				duration = tvb_get_letohs(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_bat_ase_duration , parameter_tvb, offset, 2, duration );
-				offset = offset + 2;
-				}
+			case SIGNAL : 
+				/* As type is Constructor new elements follow, return to main loop */
 			break;
 			case BEARER_REDIRECTION_CAPABILITY :            	
 				tempdata = tvb_get_guint8(parameter_tvb, offset);
