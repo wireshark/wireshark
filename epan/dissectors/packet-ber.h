@@ -90,6 +90,8 @@ extern int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 extern int dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
 extern int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func);
 
+extern int dissect_ber_integer64(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint64 *value);
+
 extern int dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value);
 
 extern int dissect_ber_null(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);

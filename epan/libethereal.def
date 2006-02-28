@@ -140,6 +140,7 @@ dissect_ber_choice
 dissect_ber_GeneralizedTime
 dissect_ber_identifier
 dissect_ber_integer
+dissect_ber_integer64
 dissect_ber_length
 dissect_ber_null
 dissect_ber_object_identifier

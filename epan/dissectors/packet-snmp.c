@@ -173,6 +173,7 @@ static int hf_snmp_engineid_mac = -1;
 static int hf_snmp_engineid_text = -1;
 static int hf_snmp_engineid_time = -1;
 static int hf_snmp_engineid_data = -1;
+static int hf_snmp_counter64 = -1;
 
 static int proto_smux = -1;
 
@@ -1002,7 +1003,6 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	subid_t *vb_oid;
 	guint vb_oid_length;
 	gchar *vb_display_string;
-	gint64 i64;
 
 #ifdef HAVE_SOME_SNMP
 	struct variable_list variable;
@@ -1095,18 +1095,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		}
 		break;
 	case SNMP_COUNTER64:
-		i64=0;
-		if(tvb_get_guint8(asn1->tvb, asn1->offset)&0x80){
-			i64=-1;
-		}
-		while(tvb_length_remaining(asn1->tvb, asn1->offset)){
-			i64=(i64<<8)|tvb_get_guint8(asn1->tvb, asn1->offset);
-			asn1->offset++;
-		}
-		proto_tree_add_text(snmp_tree, asn1->tvb, start,
-		    asn1->offset-start,
-		    "Value: %s: %" PRId64, vb_type_name,
-		    i64);
+		asn1->offset=dissect_ber_integer64(TRUE, pinfo, snmp_tree, asn1->tvb, asn1->offset, hf_snmp_counter64, NULL);
 		break;
 	case SNMP_OCTETSTR:
 	case SNMP_IPADDR:
@@ -2768,6 +2757,9 @@ proto_register_snmp(void)
 		{ &hf_snmp_engineid_data, {
 		    "Engine ID Data", "snmp.engineid.data", FT_BYTES, BASE_HEX,
 		    NULL, 0, "Engine ID Data", HFILL }},
+		{ &hf_snmp_counter64, {
+		    "Value", "snmp.counter64", FT_INT64, BASE_DEC,
+		    NULL, 0, "A counter64 value", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_snmp,

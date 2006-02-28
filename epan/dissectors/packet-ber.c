@@ -797,14 +797,13 @@ if (!implicit_tag)
 }
 
 int
-dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
+dissect_ber_integer64(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint64 *value)
 {
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
-	gint32 val;
-	gint64 val64;
+	gint64 val;
 	guint32 i;
 
 #ifdef DEBUG_BER
@@ -833,18 +832,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 	  len=tvb_length_remaining(tvb, offset);
 	}
 
-	/* ok,  we cant handle >4 byte integers so lets fake them */
-	/*
-	 * XXX - should we handle large integers with a bignum type,
-	 * and an FT_BIGNUM field type?  This code currently has trouble
-	 * with, for example, INTEGER (0..4294967295), as a value in the
-	 * range 2147483648 to 0..4294967295 is represented as 5 bytes.
-	 *
-	 * There should at least be a way to indicate that the value we
-	 * returned didn't fit in a 32-bit signed integer, so our caller
-	 * can, if they didn't supply an hf_id, indicate that the value
-	 * didn't fit.
-	 */
+	/* we cant handle integers > 64 bits */
 	if(len>8){
 		header_field_info *hfinfo;
 		proto_item *pi = NULL;
@@ -863,49 +851,68 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 		}
 		return offset;
 	}
-	if(len>4){
-		header_field_info *hfinfo;
-
-		val64=0;
-		if(len > 0) {
-			/* extend sign bit */
-			val64 = (gint8)tvb_get_guint8(tvb, offset);
-			offset++;
-		}
-		for(i=1;i<len;i++){
-			val64=(val64<<8)|tvb_get_guint8(tvb, offset);
-			offset++;
-		}
-		if (hf_id >= 0) {
-			hfinfo = proto_registrar_get_nth(hf_id);
-			proto_tree_add_text(tree, tvb, offset-len, len, "%s: %" PRIu64, hfinfo->name, val64);
-		}
-		return offset;
-	}
 	
 	val=0;
 	if(len > 0) {
 		/* extend sign bit */
-		val = (gint8)tvb_get_guint8(tvb, offset);
-		offset++;
-	}
-	for(i=1;i<len;i++){
-		val=(val<<8)|tvb_get_guint8(tvb, offset);
-		offset++;
+		if(tvb_get_guint8(tvb, offset)&0x80){
+			val=-1;
+		}
+		for(i=0;i<len;i++){
+			val=(val<<8)|tvb_get_guint8(tvb, offset);
+			offset++;
+		}
 	}
 
 	ber_last_created_item=NULL;
 
 	if(hf_id >= 0){	
 		/*  */
-		if(len < 1 || len > 4) {
+		if(len < 1 || len > 8) {
 			proto_tree_add_text(tree, tvb, offset-len, len, "Can't handle integer length: %u", len);
 		} else {
-			ber_last_created_item=proto_tree_add_item(tree, hf_id, tvb, offset-len, len, FALSE);
+			header_field_info* hfi;
+
+			hfi = proto_registrar_get_nth(hf_id);
+			switch(hfi->type){
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+				ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-len, len, (guint32)val);
+				break;
+			case FT_INT8:
+			case FT_INT16:
+			case FT_INT24:
+			case FT_INT32:
+				ber_last_created_item=proto_tree_add_int(tree, hf_id, tvb, offset-len, len, (gint32)val);
+				break;
+			case FT_INT64:
+				ber_last_created_item=proto_tree_add_int64(tree, hf_id, tvb, offset-len, len, val);
+				break;
+			case FT_UINT64:
+				ber_last_created_item=proto_tree_add_uint64(tree, hf_id, tvb, offset-len, len, (guint64)val);
+				break;
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+			}
 		}
 	}
 	if(value){
 		*value=val;
+	}
+
+	return offset;
+}
+
+int
+dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
+{
+	gint64 val;
+
+	offset=dissect_ber_integer64(implicit_tag, pinfo, tree, tvb, offset, hf_id, &val);
+	if(value){
+		*value=(guint32)val;
 	}
 
 	return offset;
