@@ -190,7 +190,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
 
   colonp = strchr(arg, ':');
   if (colonp == NULL)
-    return TRUE;
+    return FALSE;
 
   p = colonp;
   *p++ = '\0';
