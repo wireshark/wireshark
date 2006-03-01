@@ -34,6 +34,7 @@
 /* XXX - try to remove this later */
 #include <epan/prefs.h>
 /* XXX - try to remove this later */
+#include <epan/filesystem.h>
 
 #include "capture_info.h"
 
@@ -95,11 +96,111 @@ void capture_info_open(const char *iface)
 }
 
 
+static const char *
+cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
+                      int file_type)
+{
+  const char *errmsg;
+  static char errmsg_errno[1024+1];
+
+  if (err < 0) {
+    /* Wiretap error. */
+    switch (err) {
+
+    case WTAP_ERR_NOT_REGULAR_FILE:
+      errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
+      break;
+
+    case WTAP_ERR_FILE_UNKNOWN_FORMAT:
+      /* Seen only when opening a capture file for reading. */
+      errmsg = "The file \"%s\" isn't a capture file in a format Tethereal understands.";
+      break;
+
+    case WTAP_ERR_UNSUPPORTED:
+      /* Seen only when opening a capture file for reading. */
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The file \"%%s\" isn't a capture file in a format Tethereal understands.\n"
+               "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
+      break;
+
+    case WTAP_ERR_CANT_WRITE_TO_PIPE:
+      /* Seen only when opening a capture file for writing. */
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "The file \"%%s\" is a pipe, and %s capture files can't be "
+	       "written to a pipe.", wtap_file_type_string(file_type));
+      errmsg = errmsg_errno;
+      break;
+
+    case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+      /* Seen only when opening a capture file for writing. */
+      errmsg = "Tethereal doesn't support writing capture files in that format.";
+      break;
+
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+      if (for_writing)
+        errmsg = "Tethereal can't save this capture in that format.";
+      else {
+        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "The file \"%%s\" is a capture for a network type that Tethereal doesn't support.\n"
+                 "(%s)", err_info);
+        g_free(err_info);
+        errmsg = errmsg_errno;
+      }
+      break;
+
+    case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+      if (for_writing)
+        errmsg = "Tethereal can't save this capture in that format.";
+      else
+        errmsg = "The file \"%s\" is a capture for a network type that Tethereal doesn't support.";
+      break;
+
+    case WTAP_ERR_BAD_RECORD:
+      /* Seen only when opening a capture file for reading. */
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The file \"%%s\" appears to be damaged or corrupt.\n"
+               "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
+      break;
+
+    case WTAP_ERR_CANT_OPEN:
+      if (for_writing)
+        errmsg = "The file \"%s\" could not be created for some unknown reason.";
+      else
+        errmsg = "The file \"%s\" could not be opened for some unknown reason.";
+      break;
+
+    case WTAP_ERR_SHORT_READ:
+      errmsg = "The file \"%s\" appears to have been cut short"
+               " in the middle of a packet or other data.";
+      break;
+
+    case WTAP_ERR_SHORT_WRITE:
+      errmsg = "A full header couldn't be written to the file \"%s\".";
+      break;
+
+    default:
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "The file \"%%s\" could not be %s: %s.",
+	       for_writing ? "created" : "opened",
+	       wtap_strerror(err));
+      errmsg = errmsg_errno;
+      break;
+    }
+  } else
+    errmsg = file_open_error_message(err, for_writing);
+  return errmsg;
+}
+
 /* new file arrived */
-void capture_info_new_file(const char *new_filename)
+gboolean capture_info_new_file(const char *new_filename)
 {
     int err;
     gchar *err_info;
+    char err_msg[2048+1];
 
 
     if(info_data.wtap != NULL) {
@@ -108,9 +209,13 @@ void capture_info_new_file(const char *new_filename)
 
     info_data.wtap = wtap_open_offline(new_filename, &err, &err_info, FALSE);
     if (!info_data.wtap) {
-        g_warning("capture_info_new_file: wtap open failed: %s", err_info);
-    }
-
+        g_snprintf(err_msg, sizeof err_msg,
+                   cf_open_error_message(err, err_info, FALSE, WTAP_FILE_PCAP),
+                   new_filename);
+        g_warning("capture_info_new_file: %s", err_msg);
+        return FALSE;
+    } else
+        return TRUE;
 }
 
 

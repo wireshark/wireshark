@@ -279,7 +279,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if(capture_opts->real_time_mode) {
     /* Attempt to open the capture file and set up to read from it. */
-       switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:
@@ -290,15 +290,18 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
       return FALSE;
       break;
     }
+  }
 
+  if(capture_opts->show_info) {
+    if (!capture_info_new_file(new_file))
+      return FALSE;
+  }
+
+  if(capture_opts->real_time_mode) {
     cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts);
   } else {
     cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts);
   }
-
-  if(capture_opts->show_info)
-    capture_info_new_file(new_file);
-
   capture_opts->state = CAPTURE_RUNNING;
 
   return TRUE;

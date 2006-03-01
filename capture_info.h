@@ -37,7 +37,7 @@
 extern void capture_info_open(const char *iface);
 
 /* new file arrived - (eventually close old wtap), open wtap */
-extern void capture_info_new_file(const char *new_filename);
+extern gboolean capture_info_new_file(const char *new_filename);
 
 /* new packets arrived - read from wtap, count */
 extern void capture_info_new_packets(int to_read);
