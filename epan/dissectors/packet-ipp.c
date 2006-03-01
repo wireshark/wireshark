@@ -449,18 +449,16 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 		if (value_length != 1) {
 			ti = proto_tree_add_text(tree, tvb, offset,
 			    1 + 2 + name_length + 2 + value_length,
-			    "%.*s: Invalid boolean (length is %u, should be 1)",
-			    name_length,
-			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+			    "%s: Invalid boolean (length is %u, should be 1)",
+			    tvb_format_text(tvb, offset + 1 + 2, name_length),
 			    value_length);
 		} else {
 			bool_val = tvb_get_guint8(tvb,
 			    offset + 1 + 2 + name_length + 2);
 			ti = proto_tree_add_text(tree, tvb, offset,
 			    1 + 2 + name_length + 2 + value_length,
-			    "%.*s: %s",
-			    name_length,
-			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+			    "%s: %s",
+			    tvb_format_text(tvb, offset + 1 + 2, name_length),
 			    val_to_str(bool_val, bool_vals, "Unknown (0x%02x)"));
 		}
 		break;
@@ -470,12 +468,11 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 		if (value_length != 4) {
 			ti = proto_tree_add_text(tree, tvb, offset,
 			    1 + 2 + name_length + 2 + value_length,
-			    "%.*s: Invalid integer (length is %u, should be 4)",
-			    name_length,
-			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+			    "%s: Invalid integer (length is %u, should be 4)",
+			    tvb_format_text(tvb, offset + 1 + 2, name_length),
 			    value_length);
 		} else {
-			char *name_val;
+			const char *name_val;
 			/* Some fields in IPP are really unix timestamps but IPP
 			 * transports these as 4 byte integers.
 			 * A simple heuristic to make the display of these fields
@@ -487,16 +484,14 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 			if( (name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2 + name_length - 5, "-time", 5)){
 				ti = proto_tree_add_text(tree, tvb, offset,
 				    1 + 2 + name_length + 2 + value_length,
-				    "%.*s: %s",
-				    name_length,
-				    name_val,
+				    "%s: %s",
+				    format_text(name_val, name_length),
 				    abs_time_secs_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2)));
 			} else {
 				ti = proto_tree_add_text(tree, tvb, offset,
 				    1 + 2 + name_length + 2 + value_length,
-				    "%.*s: %u",
-				    name_length,
-				    name_val,
+				    "%s: %u",
+				    format_text(name_val, name_length),
 				    tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
 			}
 		}
@@ -505,9 +500,8 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 	default:
 		ti = proto_tree_add_text(tree, tvb, offset,
 		    1 + 2 + name_length + 2 + value_length,
-		    "%.*s: Unknown integer type 0x%02x",
-		    name_length,
-		    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+		    "%s: Unknown integer type 0x%02x",
+		    tvb_format_text(tvb, offset + 1 + 2, name_length),
 		    tag);
 		break;
 	}
@@ -568,9 +562,8 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 	ti = proto_tree_add_text(tree, tvb, offset,
 	    1 + 2 + name_length + 2 + value_length,
-	    "%.*s: %s",
-	    name_length,
-	    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+	    "%s: %s",
+	    tvb_format_text(tvb, offset + 1 + 2, name_length),
 	    tvb_bytes_to_str(tvb, offset + 1 + 2 + name_length + 2, value_length));
 	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
@@ -593,11 +586,9 @@ add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 	ti = proto_tree_add_text(tree, tvb, offset,
 	    1 + 2 + name_length + 2 + value_length,
-	    "%.*s: %.*s",
-	    name_length,
-	    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
-	    value_length,
-	    tvb_get_ptr(tvb, offset + 1 + 2 + name_length + 2, value_length));
+	    "%s: %s",
+	    tvb_format_text(tvb, offset + 1 + 2, name_length),
+	    tvb_format_text(tvb, offset + 1 + 2 + name_length + 2, value_length));
 	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
@@ -608,7 +599,7 @@ add_charstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 	offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
 	    value_length, NULL);
 	proto_tree_add_text(tree, tvb, offset, value_length,
-	    "Value: %.*s", value_length, tvb_get_ptr(tvb, offset, value_length));
+	    "Value: %s", tvb_format_text(tvb, offset, value_length));
 }
 
 /* If name_val is !NULL then return the pointer to an emem allocated string in
@@ -625,11 +616,9 @@ add_value_head(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 	offset += 2;
 	if (name_length != 0) {
 		guint8 *nv;
-		nv=ep_alloc(name_length+1);
-		tvb_memcpy(tvb, nv, offset, name_length);
-		nv[name_length]=0;
+		nv = tvb_get_ephemeral_string(tvb, offset, name_length);
 		proto_tree_add_text(tree, tvb, offset, name_length,
-		    "Name: %.*s", name_length, nv);
+		    "Name: %s", format_text(nv, name_length));
 		if(name_val){
 			*name_val=nv;
 		}
