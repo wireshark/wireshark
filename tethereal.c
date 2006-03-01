@@ -155,7 +155,7 @@ static gboolean infoprint;	/* if TRUE, print capture info after clearing infodel
 #endif /* HAVE_LIBPCAP */
 
 
-static int capture(int);
+static int capture(void);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void report_counts(void);
@@ -1169,40 +1169,86 @@ main(int argc, char *argv[])
       exit(1);
     }
 
-    if (capture_opts.multi_files_on) {
-      /* Multiple-file mode works only under certain conditions:
-	 a) it doesn't work if you're not saving the capture to a file;
-	 b) it doesn't work if you're writing to the standard output;
-	 c) it doesn't work if you're writing to a pipe;
-	 d) it only works if you're saving in libpcap format;
-	 e) it makes no sense if the maximum file size is set to "infinite"
-	    (XXX - shouldn't that be "if there is no stop criterion",
-	    as you might want to switch files based on a packet count
-	    or a time). */
-      if (capture_opts.save_file == NULL) {
-	cmdarg_err("Multiple capture files requested, but "
-	  "the capture isn't being saved to a file.");
-	exit(1);
+    if (cf_name) {
+      /*
+       * "-r" was specified, so we're reading a capture file.
+       * Capture options don't apply here.
+       */
+      if (capture_opts.multi_files_on) {
+        cmdarg_err("Multiple capture files requested, but "
+          "a capture isn't being done.");
+        exit(1);
       }
-      if (strcmp(capture_opts.save_file, "-") == 0) {
-	cmdarg_err("Multiple capture files requested, but "
-	  "the capture is being written to the standard output.");
-	exit(1);
+      if (capture_opts.has_file_duration) {
+	cmdarg_err("Switching capture files after a time interval was specified, but "
+          "a capture isn't being done.");
+        exit(1);
       }
-      if (capture_opts.output_to_pipe) {
-	cmdarg_err("Multiple capture files requested, but "
-	  "the capture file is a pipe.");
-	exit(1);
+      if (capture_opts.has_ring_num_files) {
+	cmdarg_err("A ring buffer of capture files was specified, but "
+          "a capture isn't being done.");
+        exit(1);
       }
+      if (capture_opts.has_autostop_files) {
+	cmdarg_err("A maximum number of capture files was specified, but "
+          "a capture isn't being done.");
+        exit(1);
+      }
+      if (capture_opts.has_autostop_packets) {
+	cmdarg_err("A maximum number of captured packets was specified, but "
+          "a capture isn't being done.");
+        exit(1);
+      }
+      if (capture_opts.has_autostop_filesize) {
+	cmdarg_err("A maximum capture file size was specified, but "
+          "a capture isn't being done.");
+        exit(1);
+      }
+      if (capture_opts.has_autostop_duration) {
+	cmdarg_err("A maximum capture time was specified, but "
+          "a capture isn't being done.");
+        exit(1);
+      }
+    } else {
+      /*
+       * "-r" wasn't specified, so we're doing a live capture.
+       * We only support doing that in libpcap format.
+       */
       if (out_file_type != WTAP_FILE_PCAP) {
-	cmdarg_err("Multiple capture files requested, but "
-	  "the capture isn't being saved in libpcap format.");
+	cmdarg_err("A capture is being done; captures can only be "
+	  "saved in libpcap format.");
 	exit(1);
       }
-      if (!capture_opts.has_autostop_filesize) {
-	cmdarg_err("Multiple capture files requested, but "
-	  "no maximum capture file size was specified.");
-	exit(1);
+      if (capture_opts.multi_files_on) {
+        /* Multiple-file mode works only under certain conditions:
+	   a) it doesn't work if you're not saving the capture to a file;
+	   b) it doesn't work if you're writing to the standard output;
+	   c) it doesn't work if you're writing to a pipe;
+	   d) it only works if you're saving in libpcap format;
+	   e) it makes no sense if the maximum file size is set to "infinite"
+	      (XXX - shouldn't that be "if there is no stop criterion",
+	      as you might want to switch files based on a packet count
+	      or a time). */
+        if (capture_opts.save_file == NULL) {
+	  cmdarg_err("Multiple capture files requested, but "
+	    "the capture isn't being saved to a file.");
+	  exit(1);
+        }
+        if (strcmp(capture_opts.save_file, "-") == 0) {
+	  cmdarg_err("Multiple capture files requested, but "
+	    "the capture is being written to the standard output.");
+	  exit(1);
+        }
+        if (capture_opts.output_to_pipe) {
+	  cmdarg_err("Multiple capture files requested, but "
+	    "the capture file is a pipe.");
+	  exit(1);
+        }
+        if (!capture_opts.has_autostop_filesize) {
+	  cmdarg_err("Multiple capture files requested, but "
+	    "no maximum capture file size was specified.");
+	  exit(1);
+	}
       }
     }
   }
@@ -1408,7 +1454,7 @@ main(int argc, char *argv[])
     /* For now, assume libpcap gives microsecond precision. */
     timestamp_set_precision(TS_PREC_AUTO_USEC);
 
-    capture(out_file_type);
+    capture();
 
     if (capture_opts.multi_files_on) {
       ringbuf_free();
@@ -1434,7 +1480,7 @@ main(int argc, char *argv[])
 static condition  *volatile cnd_file_duration = NULL; /* this must be visible in process_packet */
 
 static int
-capture(int out_file_type)
+capture(void)
 {
   int         err = 0;
   int         volatile volatile_err = 0;
@@ -2815,7 +2861,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
 fail:
   g_snprintf(err_msg, sizeof err_msg,
-           cf_open_error_message(*err, err_info, FALSE, 0), fname);
+             cf_open_error_message(*err, err_info, FALSE, cf->cd_t), fname);
   cmdarg_err("%s", err_msg);
   return CF_ERROR;
 }
