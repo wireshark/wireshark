@@ -982,10 +982,10 @@ parse_token (token_t token, char *str)
 }
 
 /*----------------------------------------------------------------------
- * Print helpstring and exit
+ * Print usage string and exit
  */
 static void
-help (char *progname)
+usage (void)
 {
     fprintf(stderr,
             "Text2pcap %s"
@@ -1065,8 +1065,8 @@ parse_options (int argc, char *argv[])
     /* Scan CLI parameters */
     while ((c = getopt(argc, argv, "dhqe:i:l:m:o:u:s:S:t:T:")) != -1) {
         switch(c) {
-        case '?': help(argv[0]); break;
-        case 'h': help(argv[0]); break;
+        case '?': usage(); break;
+        case 'h': usage(); break;
         case 'd': if (!quiet) debug++; break;
         case 'q': quiet = TRUE; debug = FALSE; break;
         case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
@@ -1074,7 +1074,7 @@ parse_options (int argc, char *argv[])
         case 'o':
             if (optarg[0]!='h' && optarg[0] != 'o') {
                 fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
-                help(argv[0]);
+                usage();
             }
             offset_base = (optarg[0]=='o') ? 8 : 16;
             break;
@@ -1082,7 +1082,7 @@ parse_options (int argc, char *argv[])
             hdr_ethernet = TRUE;
             if (sscanf(optarg, "%lx", &hdr_ethernet_proto) < 1) {
                 fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
-                help(argv[0]);
+                usage();
             }
             break;
 
@@ -1092,7 +1092,7 @@ parse_options (int argc, char *argv[])
             if (p == optarg || *p != '\0' || hdr_ip_proto < 0 ||
                   hdr_ip_proto > 255) {
                 fprintf(stderr, "Bad argument for '-i': %s\n", optarg);
-                help(argv[0]);
+                usage();
             }
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
@@ -1103,29 +1103,29 @@ parse_options (int argc, char *argv[])
             hdr_sctp_src   = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
             p++;
             optarg = p;
             hdr_sctp_dest = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
-                help(argv[0]);
+                usage();
             }
             if (*p == '\0') {
                 fprintf(stderr, "No tag specified for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
             p++;
             optarg = p;
             hdr_sctp_tag = strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad tag for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
 
             hdr_ip = TRUE;
@@ -1139,28 +1139,29 @@ parse_options (int argc, char *argv[])
             hdr_sctp_src   = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
             p++;
             optarg = p;
             hdr_sctp_dest = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
-                help(argv[0]);
-            }            if (*p == '\0') {
+                usage();
+            }
+            if (*p == '\0') {
                 fprintf(stderr, "No ppi specified for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
             p++;
             optarg = p;
             hdr_data_chunk_ppid = strtoul(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad ppi for '-%c'\n", c);
-                help(argv[0]);
+                usage();
             }
 
             hdr_ip = TRUE;
@@ -1179,18 +1180,18 @@ parse_options (int argc, char *argv[])
             hdr_src_port = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-u'\n");
-                help(argv[0]);
+                usage();
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-u'\n");
-                help(argv[0]);
+                usage();
             }
             p++;
             optarg = p;
             hdr_dest_port = strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-u'\n");
-                help(argv[0]);
+                usage();
             }
             hdr_ip = TRUE;
             hdr_ip_proto = 17;
@@ -1204,18 +1205,18 @@ parse_options (int argc, char *argv[])
             hdr_src_port = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-T'\n");
-                help(argv[0]);
+                usage();
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-u'\n");
-                help(argv[0]);
+                usage();
             }
             p++;
             optarg = p;
             hdr_dest_port = strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-T'\n");
-                help(argv[0]);
+                usage();
             }
             hdr_ip = TRUE;
             hdr_ip_proto = 6;
@@ -1224,13 +1225,13 @@ parse_options (int argc, char *argv[])
             break;
 
         default:
-            help(argv[0]);
+            usage();
         }
     }
 
     if (optind >= argc || argc-optind < 2) {
         fprintf(stderr, "Must specify input and output filename\n");
-        help(argv[0]);
+        usage();
     }
 
     if (strcmp(argv[optind], "-")) {
