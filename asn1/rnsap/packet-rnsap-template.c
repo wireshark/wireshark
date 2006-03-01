@@ -2285,19 +2285,22 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
 }
-/*
+
+#if 0
 static gboolean
 dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 temp;
 
-	dissect_rnsap(tvb, pinfo, tree);
+    dissect_rnsap(tvb, pinfo, tree);
+
+    /*
      * Is it a rnsap packet?
-     *
-	 * 
-	return TRUE;
+     */
+    return TRUE;
 }
-/*
+#endif
+
 /*--- proto_register_rnsap -------------------------------------------*/
 void proto_register_rnsap(void) {
 
