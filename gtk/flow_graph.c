@@ -304,16 +304,16 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 /* Add a new tcp frame into the graph */
 static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
 {
-	graph_analysis_item_t *gai;
-	/* copied from packet-tcp */
-	const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
-	guint i, bpos;
-	guint fpos = 0;
-	gchar flags[64] = "<None>";
+  graph_analysis_item_t *gai;
+  /* copied from packet-tcp */
+  const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
+  guint i, bpos;
+  guint fpos = 0;
+  gchar flags[64] = "<None>";
 
-	gai = g_malloc(sizeof(graph_analysis_item_t));
-	gai->frame_num = pinfo->fd->num;
-	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
+  gai = g_malloc(sizeof(graph_analysis_item_t));
+  gai->frame_num = pinfo->fd->num;
+  gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
   if (node_addr_type == NET_SRCDST) {
     COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
     COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
@@ -321,37 +321,37 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
     COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
     COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
   }
-	gai->port_src=pinfo->srcport;
-	gai->port_dst=pinfo->destport;
+  gai->port_src=pinfo->srcport;
+  gai->port_dst=pinfo->destport;
 
-    for (i = 0; i < 8; i++) {
-      bpos = 1 << i;
-      if (tcph->th_flags & bpos) {
-        if (fpos) {
-          strcpy(&flags[fpos], ", ");
-          fpos += 2;
-        }
-        strcpy(&flags[fpos], fstr[i]);
-        fpos += 3;
+  for (i = 0; i < 8; i++) {
+    bpos = 1 << i;
+    if (tcph->th_flags & bpos) {
+      if (fpos) {
+        strcpy(&flags[fpos], ", ");
+        fpos += 2;
       }
+      strcpy(&flags[fpos], fstr[i]);
+      fpos += 3;
     }
-    flags[fpos] = '\0';
-    if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){
-      gai->frame_label = g_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
-  	}
-  	else{
-      gai->frame_label = g_strdup(flags);
-	}      
+  }
+  flags[fpos] = '\0';
+  if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){
+    gai->frame_label = g_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
+  }
+  else{
+    gai->frame_label = g_strdup(flags);
+  }
 
-	gai->comment = g_strdup_printf("Seq = %lu Ack = %lu",tcph->th_seq, tcph->th_ack);
+  gai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
 
-	gai->line_style=1;
-	gai->conv_num=0;
-	gai->display=TRUE;
+  gai->line_style=1;
+  gai->conv_num=0;
+  gai->display=TRUE;
 
-	graph_analysis->list = g_list_append(graph_analysis->list, gai);
+  graph_analysis->list = g_list_append(graph_analysis->list, gai);
 
-	return 1;
+  return 1;
 
 }
 
