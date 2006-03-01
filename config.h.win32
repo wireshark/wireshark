@@ -193,8 +193,11 @@
 /* Define to use the Nettle library */
 @HAVE_NETTLE@
 
-/* Define to use the gnutls library*/
+/* Define to use the gnutls library */
 @HAVE_GNUTLS@
+
+/* Define to use Lua */
+@HAVE_LUA@
 
 #ifndef WIN32
 #define WIN32			1

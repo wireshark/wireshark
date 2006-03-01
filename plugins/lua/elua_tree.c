@@ -289,7 +289,7 @@ static int ProtoItem_add_subtree(lua_State *L) {
     ProtoItem item = checkProtoItem(L,1);
     
     if (item) {
-        SubTree* ett;;
+        SubTree* ett;
         ProtoTree tree;
         
         if (isSubTree(L,2)) {

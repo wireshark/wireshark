@@ -16,7 +16,8 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
 	/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32 \
-	$(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) -D_U_="" -D_NEED_VAR_IMPORT_
+	$(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) $(LUA_CFLAGS) \
+	-D_U_="" -D_NEED_VAR_IMPORT_
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -227,7 +228,8 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_PCAP_DATALINK_VAL_TO_NAME@/$(PCAP_DATALINK_VAL_TO_NAME_CONFIG)/" \
 	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
-		-e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
+	    -e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
+	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
@@ -507,6 +509,10 @@ setup: verify_tools
 !IFDEF ZLIB_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		zlib123-dll zlib123-dll.zip
+!ENDIF
+!IFDEF LUA_DIR
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		. lua5_1b1_vc6.zip
 !ENDIF
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.8"

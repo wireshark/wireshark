@@ -65,6 +65,9 @@
 #include <windows.h>
 #endif
 
+#ifdef HAVE_LUA
+#include <lua.h>
+#endif
 
 #ifdef SVNVERSION
 	const char *svnversion = " (" SVNVERSION ")";
@@ -193,6 +196,16 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without ADNS");
 #endif /* HAVE_GNU_ADNS */
+	g_string_append(str, ",");
+
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+#ifdef HAVE_LUA
+	g_string_append(str, "with ");
+	g_string_append(str, LUA_VERSION);
+#else
+	g_string_append(str, "without Lua");
+#endif /* HAVE_LUA */
 
 	g_string_append(str, ".");
 	do_word_wrap(str, break_point);

@@ -17,37 +17,41 @@ LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
 MODULES= \
-	elua_tvb.c \
-	elua_proto.c \
-	elua_tree.c \
-	elua_pinfo.c \
-	elua_tap.c \
+	elua_dumper.c \
 	elua_gui.c \
-	elua_dumper.c
-	
+	elua_pinfo.c \
+	elua_proto.c \
+	elua_tap.c \
+	elua_tree.c \
+	elua_tvb.c \
+	elua_util.c
+
 OBJECTS= \
-	elua_tvb.obj \
-	elua_proto.obj \
-	elua_tree.obj \
-	elua_pinfo.obj \
-	elua_tap.obj \
-	elua_gui.obj \
-	elua_dumper.obj \
 	elua.obj \
-	elua_plugin.obj
+	elua_dumper.obj \
+	elua_gui.obj \
+	elua_pinfo.obj \
+	elua_plugin.obj \
+	elua_proto.obj \
+	elua_tap.obj \
+	elua_tree.obj \
+	elua_tvb.obj \
+	elua_util.obj
 
 lua.dll lua.exp lua.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	link -dll /out:lua.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
-	$(GLIB_LIBS) $(LUA_LIBS)
+	$(GLIB_LIBS) $(LUA_LIBS) ..\..\wiretap\wiretap-$(WTAP_VERSION).lib
 
 
 elua_register.h: elua_makereg.pl $(MODULES)
 	$(PERL) elua_makereg.pl $(MODULES) > elua_register.h
 
+$(OBJECTS): elua_register.h
+
 doc: $(MODULES)
 	$(PERL) elua_makedoc.pl $(MODULES)
 
-elua.c: LuaLib.lib
+#elua.c: $(LUA_LIBS)
 
 !ENDIF
 !ENDIF

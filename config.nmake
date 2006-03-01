@@ -168,7 +168,7 @@ PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.4
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-# LUA_DIR=$(ETHEREAL_LIBS)\lua-5.0.2
+LUA_DIR=$(ETHEREAL_LIBS)\lua5_1b1_vc6
 
 #
 # Set ICONV_DIR to the pathname of the directory in which the
@@ -435,7 +435,7 @@ GNUTLS_CONFIG=
 
 !IFDEF LUA_DIR
 LUA_CFLAGS=/I$(LUA_DIR)\include
-LUA_LIBS=$(LUA_DIR)\bin\LibLua.lib $(LUA_DIR)\bin\LibLuaLib.lib
+LUA_LIBS=$(LUA_DIR)\lib\vc6\lua51.lib
 # Nmake uses carets to escape special characters
 LUA_CONFIG=^#define HAVE_LUA 1
 !else
