@@ -2169,10 +2169,10 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 	char cl, il;
 	proto_item *item;
 	int hfindex;
-	value_string dummy_value_string[] = {
+	static const value_string dummy_value_string[] = {
 		{ 0, NULL }
 	};
-	value_string *vs;
+	const value_string *vs;
 
 	if(si->flags & SMB2_FLAGS_RESPONSE){
 		if(!si->saved){
