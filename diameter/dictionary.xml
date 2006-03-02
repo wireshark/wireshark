@@ -1112,7 +1112,7 @@
 <!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml --> 
 <!-- 466-479    Unallocated -->
 		<avp name="Accounting-Record-Type" code="480" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="Event Record" code="1"/>
 			<enum name="Start Record" code="2"/>
 			<enum name="Interim Record" code="3"/>
@@ -1167,7 +1167,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Role-Of-Node" code="829" mandatory="must" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP" >
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="ORIGINATING_ROLE" code="0"/>
 			<enum name="TERMINATING_ROLE" code="1"/>
 		</avp>
