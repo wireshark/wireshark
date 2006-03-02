@@ -80,6 +80,7 @@ static dissector_handle_t tei_handle;
 #define	LAPD_CR		0x0200	/* Command/Response bit */
 #define	LAPD_EA1	0x0100	/* First Address Extension bit */
 #define	LAPD_TEI	0x00fe	/* Terminal Endpoint Identifier */
+#define LAPD_TEI_SHIFT	1
 #define	LAPD_EA2	0x0001	/* Second Address Extension bit */
 
 static const value_string lapd_sapi_vals[] = {
@@ -123,9 +124,11 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*lapd_ti, *addr_ti;
 	guint16		control;
 	int		lapd_header_len;
-	guint16		address, cr, sapi;
-	gboolean	is_response;
+	guint16		address, cr, sapi, tei;
+	gboolean	is_response = 0;
 	tvbuff_t	*next_tvb;
+	char		*srcname = "?";
+	char		*dstname = "?";
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPD");
@@ -134,24 +137,60 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	address = tvb_get_ntohs(tvb, 0);
 	cr = address & LAPD_CR;
+	tei = (address & LAPD_TEI) >> LAPD_TEI_SHIFT;
 	sapi = (address & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
 	lapd_header_len = 2;	/* address */
 
-	if (pinfo->p2p_dir == P2P_DIR_SENT) {
-		is_response = cr ? TRUE : FALSE;
-		if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-			col_set_str(pinfo->cinfo, COL_RES_DL_DST, "Network");
-		if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-			col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "User");
+	if (check_col(pinfo->cinfo, COL_TEI))
+		col_add_fstr(pinfo->cinfo, COL_TEI, "%u", tei);
+
+	if (pinfo->fd->lnk_t == WTAP_ENCAP_LINUX_LAPD) {
+		/* frame is captured via libpcap */
+		if (pinfo->pseudo_header->lapd.pkttype == 4 /*PACKET_OUTGOING*/) {
+			if (pinfo->pseudo_header->lapd.we_network) {
+				is_response = cr ? FALSE : TRUE;
+				srcname = "Local Network";
+				dstname = "Remote User";
+			} else {
+				srcname = "Local User";
+				dstname = "Remote Network";
+			}
+		}
+		else if (pinfo->pseudo_header->lapd.pkttype == 3 /*PACKET_OTHERHOST*/) {
+			// We must be a TE, sniffing what other TE transmit
+
+			is_response = cr ? TRUE : FALSE;
+			srcname = "Remote User";
+			dstname = "Remote Network";
+		}
+		else {
+			// The frame is incoming
+			if (pinfo->pseudo_header->lapd.we_network) {
+				is_response = cr ? TRUE : FALSE;
+				srcname = "Remote User";
+				dstname = "Local Network";
+			} else {
+				is_response = cr ? FALSE : TRUE;
+				srcname = "Remote Network";
+				dstname = "Local User";
+			}
+		}
 	}
-	else {
-		/* XXX - what if the direction is unknown? */
+	else if (pinfo->p2p_dir == P2P_DIR_SENT) {
 		is_response = cr ? FALSE : TRUE;
-		if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-		    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "User");
-		if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-		    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "Network");
+		srcname = "Network";
+		dstname = "User";
 	}
+	else if (pinfo->p2p_dir == P2P_DIR_RECV) {
+		is_response = cr ? TRUE : FALSE;
+		srcname = "User";
+		dstname = "Network";
+	}
+
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, srcname);
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, dstname);
 
 	if (tree) {
 		lapd_ti = proto_tree_add_item(tree, proto_lapd, tvb, 0, -1,
@@ -291,6 +330,12 @@ proto_register_lapd(void)
 void
 proto_reg_handoff_lapd(void)
 {
+	dissector_handle_t lapd_handle;
+
 	data_handle = find_dissector("data");
 	tei_handle = find_dissector("tei");
+
+
+	lapd_handle = create_dissector_handle(dissect_lapd, proto_lapd);
+	dissector_add("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 }
