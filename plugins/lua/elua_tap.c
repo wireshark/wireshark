@@ -388,7 +388,7 @@ ELUA_CONSTRUCTOR Tap_new(lua_State* L) {
 	/* Creates a new Tap listener */
 #define ELUA_ARG_Tap_new_NAME 1 /* the name of the tap */
 #define ELUA_ARG_Tap_new_FILTER 2 /* a filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
-#define ELUA_OPTARG_Tap_new_USERDATA 2 /* a datum that will be passed as last argument to all tap functions when they get called */
+#define ELUA_OPTARG_Tap_new_USERDATA 3 /* a datum that will be passed as last argument to all tap functions when they get called */
 
     const gchar* name = luaL_checkstring(L,ELUA_ARG_Tap_new_NAME);
     const gchar* filter = luaL_optstring(L,ELUA_ARG_Tap_new_FILTER,NULL);
@@ -510,7 +510,7 @@ static const luaL_reg Tap_meta[] = {
 };
 
 int Tap_register(lua_State* L) {
-    ELUA_REGISTER_META(Tap);
+    ELUA_REGISTER_CLASS(Tap);
 	return 1;
 }
 

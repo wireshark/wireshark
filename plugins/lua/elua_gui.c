@@ -150,7 +150,7 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
 
 ELUA_FUNCTION elua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 #define ELUA_ARG_new_dialog_TITLE 1 /* Title of the dialog's window. */
-#define ELUA_ARG_new_dialog_ACTION 1 /* Action to be performed when OKd. */
+#define ELUA_ARG_new_dialog_ACTION 2 /* Action to be performed when OKd. */
 /* ELUA_MOREARGS new_dialog A series of strings to be used as labels of the dialog's fields */
 
     const gchar* title;
