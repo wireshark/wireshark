@@ -262,8 +262,8 @@ ELUA_METHOD Dumper_dump(lua_State* L) {
     
 	if (! ba) ELUA_ARG_ERROR(Dumper_dump,BYTEARRAY,"must be a ByteArray");
     
-    pkthdr.ts.secs = floor(ts);
-    pkthdr.ts.nsecs = floor(ts - pkthdr.ts.secs) * 1000000000;
+    pkthdr.ts.secs = (int)floor(ts);
+    pkthdr.ts.nsecs = (int)floor(ts - pkthdr.ts.secs) * 1000000000;
     pkthdr.len  = ba->len;
     pkthdr.caplen  = ba->len;    
     pkthdr.pkt_encap = DUMPER_ENCAP(d);

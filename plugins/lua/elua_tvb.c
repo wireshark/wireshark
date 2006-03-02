@@ -512,7 +512,7 @@ static int TvbRange_set_index(lua_State* L) {
     if (!tvbr) return 0;
     
     if (g_str_equal(index,"offset")) {
-        int offset = lua_tonumber(L,3);
+        int offset = (int)lua_tonumber(L,3);
     
         if ( (guint)(tvbr->len + offset) > tvb_length(tvbr->tvb)) {
             luaL_error(L,"out of bounds");
@@ -523,7 +523,7 @@ static int TvbRange_set_index(lua_State* L) {
             return 1;
         }
     } else if (g_str_equal(index,"len")) {
-        int len = lua_tonumber(L,3);
+        int len = (int)lua_tonumber(L,3);
         
         if ( (guint)(tvbr->offset + len) > tvb_length(tvbr->tvb)) {
             luaL_error(L,"out of bounds");

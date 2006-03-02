@@ -88,18 +88,18 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
     
 }
 
-ELUA_FUNCTION new_field(lua_State *L) {
+ELUA_CONSTRUCTOR Field_new(lua_State *L) {
 	/*
 	 Create a Field extractor
 	 */
-#define ELUA_ARG_Field_get_FIELDNAME 1 /* The filter name of the field (e.g. ip.addr) */
-    const gchar* name = luaL_checkstring(L,ELUA_ARG_Field_get_FIELDNAME);
+#define ELUA_ARG_Field_new_FIELDNAME 1 /* The filter name of the field (e.g. ip.addr) */
+    const gchar* name = luaL_checkstring(L,ELUA_ARG_Field_new_FIELDNAME);
     Field f;
     
     if (!name) return 0;
     
 	if (!proto_registrar_get_byname(name)) 
-		ELUA_ARG_ERROR(Field_get,FIELDNAME,"a field with this name must exist");
+		ELUA_ARG_ERROR(Field_new,FIELDNAME,"a field with this name must exist");
 	
     if (!wanted_fields)
 		ELUA_ERROR(Field_get,"a Field extractor must be defined before Taps or Dissectors get called");
@@ -196,6 +196,11 @@ static int Field_tostring(lua_State* L) {
     return 1;
 }
 
+static const luaL_reg Field_methods[] = {
+    {"new", Field_new},
+    {0, 0}
+};
+
 static const luaL_reg Field_meta[] = {
     {"__tostring", Field_tostring},
     {"__call", Field__call},
@@ -206,7 +211,7 @@ int Field_register(lua_State* L) {
 
     wanted_fields = g_ptr_array_new();
 
-    ELUA_REGISTER_META(Field);
+    ELUA_REGISTER_CLASS(Field);
 
     return 1;
 }
@@ -215,7 +220,8 @@ int Field_register(lua_State* L) {
 
 ELUA_CLASS_DEFINE(Tap,NOP)
 /*
- 
+    A Tap Listener, is once for called every packet that matches a certain filter.
+    It can read the tree and the packet's buffer but it cannot add elements to the tree. 
  */
 struct _eth_tap {
     gchar* name;
@@ -378,13 +384,18 @@ void lua_tap_draw(void *tapdata) {
     }
 }
 
-static int Tap_new(lua_State* L) {
-    const gchar* name = luaL_checkstring(L,1);
-    const gchar* filter = luaL_optstring(L,2,NULL);
+ELUA_CONSTRUCTOR Tap_new(lua_State* L) {
+	/* Creates a new Tap listener */
+#define ELUA_ARG_Tap_new_NAME 1 /* the name of the tap */
+#define ELUA_ARG_Tap_new_FILTER 2 /* a filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
+#define ELUA_OPTARG_Tap_new_USERDATA 2 /* a datum that will be passed as last argument to all tap functions when they get called */
+
+    const gchar* name = luaL_checkstring(L,ELUA_ARG_Tap_new_NAME);
+    const gchar* filter = luaL_optstring(L,ELUA_ARG_Tap_new_FILTER,NULL);
     Tap tap;
     GString* error;
 
-    if (!name) return 0;
+    if (!name) ELUA_ARG_ERROR(Tap_new,NAME,"must be a string");
     
     tap = g_malloc(sizeof(struct _eth_tap));
     
@@ -396,7 +407,7 @@ static int Tap_new(lua_State* L) {
     tap->init_ref = LUA_NOREF;
 
     if (lua_gettop(L) > 2) {
-        lua_pushvalue(L, 3);
+        lua_pushvalue(L, ELUA_OPTARG_Tap_new_USERDATA);
         tap->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     } else {
         tap->data_ref = LUA_NOREF;
@@ -405,6 +416,7 @@ static int Tap_new(lua_State* L) {
     error = register_tap_listener("frame", tap, tap->filter, lua_tap_reset, lua_tap_packet, lua_tap_draw);
 
     if (error) {
+		/* ELUA_ERROR(new_tap,"tap registration error"); */
         luaL_error(L,"Error while registering tap:\n%s",error->str);
         g_string_free(error,TRUE);
         if (tap->filter) g_free(tap->filter);
@@ -414,10 +426,11 @@ static int Tap_new(lua_State* L) {
     }
     
     pushTap(L,tap);
-    return 1;
+    ELUA_RETURN(1); /* The newly created Tap listener object */
 }
 
-static int Tap_remove(lua_State* L) {
+ELUA_METHOD Tap_remove(lua_State* L) {
+	/* Removes a tap listener */
     Tap tap = checkTap(L,1);
     
     if (!tap) return 0;
@@ -442,6 +455,19 @@ static int Tap_tostring(lua_State* L) {
 
 
 static int Tap_newindex(lua_State* L) { 
+	/* ELUA_ATTRIBUTE Tap_packet WO A function that will be called once every packet matches the Tap listener filter.
+	
+		function tap.packet(pinfo,tvb,userdata) ... end
+	*/
+	/* ELUA_ATTRIBUTE Tap_draw WO A function that will be called once every few seconds to redraw the gui objects
+				in tethereal this funtion is called oly at the very end of the capture file.
+	
+		function tap.draw(userdata) ... end
+	*/
+	/* ELUA_ATTRIBUTE Tap_reset WO A function that will be called at the end of the capture run.
+	
+		function tap.reset(userdata) ... end
+	*/
     Tap tap = shiftTap(L,1);
     const gchar* index = lua_shiftstring(L,1);
     int* refp = NULL;
@@ -452,7 +478,7 @@ static int Tap_newindex(lua_State* L) {
         refp = &(tap->packet_ref);
     } else if (g_str_equal(index,"draw")) {
         refp = &(tap->draw_ref);
-    } else if (g_str_equal(index,"init")) {
+    } else if (g_str_equal(index,"reset")) {
         refp = &(tap->init_ref);
     } else {
         luaL_error(L,"No such attribute `%s' for a tap",index);
@@ -471,6 +497,12 @@ static int Tap_newindex(lua_State* L) {
 }
 
 
+static const luaL_reg Tap_methods[] = {
+    {"new", Tap_new},
+    {"remove", Tap_remove},
+    {0, 0}
+};
+
 static const luaL_reg Tap_meta[] = {
     {"__tostring", Tap_tostring},
     {"__newindex", Tap_newindex},
@@ -479,15 +511,6 @@ static const luaL_reg Tap_meta[] = {
 
 int Tap_register(lua_State* L) {
     ELUA_REGISTER_META(Tap);
-	
-	lua_pushstring(L, "Tap");
-    lua_pushcfunction(L, Tap_new);
-    lua_settable(L, LUA_GLOBALSINDEX);
-	
-	lua_pushstring(L, "tap_remove");
-    lua_pushcfunction(L, Tap_remove);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
-    return 1;
+	return 1;
 }
 
