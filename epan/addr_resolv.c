@@ -1640,6 +1640,15 @@ host_name_lookup_init(void) {
   }
   g_free(hostspath);
 
+  /*
+   * Load the global hosts file, if we have one.
+   */
+  hostspath = get_datafile_path(ENAME_HOSTS);
+  if (!read_hosts_file(hostspath) && errno != ENOENT) {
+    report_open_failure(hostspath, errno, FALSE);
+  }
+  g_free(hostspath);
+
 #ifdef HAVE_GNU_ADNS
   /*
    * We're using GNU ADNS, which doesn't check the system hosts file;
