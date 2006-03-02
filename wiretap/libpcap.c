@@ -81,6 +81,21 @@ struct mtp2_hdr {
 	guint16 link_number;
 };
 
+#ifndef ETH_P_LAPD
+#define ETH_P_LAPD 0x0030
+#endif
+
+/*
+ * The fake link-layer header of LAPD packets 
+ */
+struct lapd_sll_hdr {
+    guint16 sll_pkttype;    /* packet type */
+    guint16 sll_hatype;
+    guint16 sll_halen;
+    guint8 sll_addr[8];
+    guint16 sll_protocol;   /* protocol, should be ETH_P_LAPD */
+};
+
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
 
@@ -118,6 +133,10 @@ static gboolean libpcap_read_irda_pseudoheader(FILE_T fh,
 static gboolean libpcap_get_mtp2_pseudoheader(const struct mtp2_hdr *mtp2_hdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_mtp2_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+static gboolean libpcap_get_lapd_pseudoheader(const struct lapd_sll_hdr *lapd_phdr,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+static gboolean libpcap_read_lapd_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
@@ -378,6 +397,8 @@ static const struct {
 	/* Registered by Gcom, Inc. */
 	{ 172,		WTAP_GCOM_TIE1 },
 	{ 173,		WTAP_GCOM_SERIAL },
+
+	{ 177,		WTAP_ENCAP_LINUX_LAPD },
 
         /* Ethernet frames prepended with meta-information */
         { 178,          WTAP_ENCAP_JUNIPER_ETHER },
@@ -1296,6 +1317,29 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		packet_size -= sizeof (struct mtp2_hdr);
 		wth->data_offset += sizeof (struct mtp2_hdr);
 		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
+		if (packet_size < sizeof (struct lapd_sll_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: LAPD file has a %u-byte packet, too small to have even a LAPD pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!libpcap_read_lapd_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err, err_info))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct lapd_sll_hdr);
+		packet_size -= sizeof (struct lapd_sll_hdr);
+		wth->data_offset += sizeof (struct lapd_sll_hdr);
+		break;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -1401,6 +1445,14 @@ libpcap_seek_read(wtap *wth, long seek_off,
 		break;
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
 		if (!libpcap_read_mtp2_pseudoheader(wth->random_fh, pseudo_header,
+		    err, err_info)) {
+			/* Read error */
+			return FALSE;
+		}
+		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
+		if (!libpcap_read_lapd_pseudoheader(wth->random_fh, pseudo_header,
 		    err, err_info)) {
 			/* Read error */
 			return FALSE;
@@ -1760,6 +1812,43 @@ libpcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_heade
 }
 
 static gboolean
+libpcap_get_lapd_pseudoheader(const struct lapd_sll_hdr *lapd_phdr,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+{
+	if (pntohs(&lapd_phdr->sll_protocol) != ETH_P_LAPD) {
+		*err = WTAP_ERR_BAD_RECORD;
+		if (err_info != NULL)
+			*err_info = g_strdup("libpcap: LAPD capture has a packet with an invalid sll_protocol field\n");
+		return FALSE;
+	}
+
+	pseudo_header->lapd.pkttype = pntohs(&lapd_phdr->sll_pkttype);
+	pseudo_header->lapd.we_network = !!lapd_phdr->sll_addr[0];
+
+	return TRUE;
+}
+
+static gboolean
+libpcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int *err, gchar **err_info)
+{
+	struct lapd_sll_hdr lapd_phdr;
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&lapd_phdr, 1, sizeof (struct lapd_sll_hdr), fh);
+	if (bytes_read != sizeof (struct lapd_sll_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	return libpcap_get_lapd_pseudoheader(&lapd_phdr, pseudo_header, err,
+	    err_info);
+}
+
+static gboolean
 libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
@@ -1944,6 +2033,28 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->caplen -= sizeof (struct mtp2_hdr);
 		pd += sizeof (struct mtp2_hdr);
 	}
+	else if (linktype == WTAP_ENCAP_LINUX_LAPD) {
+		if (whdr->caplen < sizeof (struct lapd_sll_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: LAPD capture has a %u-byte packet, too small to have even an LAPD pseudo-header\n",
+			    whdr->caplen);
+			*err = WTAP_ERR_BAD_RECORD;
+			return NULL;
+		}
+		if (!libpcap_get_lapd_pseudoheader((const struct lapd_sll_hdr *)pd,
+			pseudo_header, err, NULL))
+			return NULL;
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= sizeof (struct lapd_sll_hdr);
+		whdr->caplen -= sizeof (struct lapd_sll_hdr);
+		pd += sizeof (struct lapd_sll_hdr);
+	}
 	return pd;
 }
 #endif
@@ -2056,6 +2167,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	size_t nwritten;
 	struct sunatm_hdr atm_hdr;
 	struct irda_sll_hdr irda_hdr;
+	struct lapd_sll_hdr lapd_hdr;
 	struct mtp2_hdr mtp2_hdr;
 	int hdrsize;
 
@@ -2063,6 +2175,8 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		hdrsize = sizeof (struct sunatm_hdr);
 	else if (wdh->encap == WTAP_ENCAP_IRDA)
 		hdrsize = sizeof (struct irda_sll_hdr);
+	else if (wdh->encap == WTAP_ENCAP_LINUX_LAPD)
+		hdrsize = sizeof (struct lapd_sll_hdr);
 	else
 		hdrsize = 0;
 
@@ -2223,6 +2337,24 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(mtp2_hdr);
+	}
+	else if (wdh->encap == WTAP_ENCAP_LINUX_LAPD) {
+		/*
+		 * Write the LAPD header.
+		 */
+		memset(&lapd_hdr, 0, sizeof(lapd_hdr));
+		lapd_hdr.sll_pkttype  = phtons(&pseudo_header->lapd.pkttype);
+		lapd_hdr.sll_protocol = g_htons(ETH_P_LAPD);
+		lapd_hdr.sll_addr[0] = pseudo_header->lapd.we_network?0x01:0x00;
+		nwritten = fwrite(&lapd_hdr, 1, sizeof(lapd_hdr), wdh->fh);
+		if (nwritten != sizeof(lapd_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(lapd_hdr);
 	}
 
 	nwritten = wtap_dump_file_write(wdh, pd, phdr->caplen);

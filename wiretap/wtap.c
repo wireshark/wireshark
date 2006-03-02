@@ -286,6 +286,9 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_NETTL_RAW_ICMPV6 */
 	{ "Raw ICMPv6 with nettl headers", "raw-icmpv6-nettl" },
 
+	/* UNUSED */
+	{ "", "" },
+
 	/* WTAP_ENCAP_GPRS_LLC */
 	{ "GPRS LLC", "gprs-llc" },
 
@@ -328,6 +331,9 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_NETTL_X25 */
 	{ "X25 with nettl headers", "x25-nettl" },
 
+	/* WTAP_ENCAP_K12 */
+	{ "K12 protocol analyzer", "k12" },
+
 	/* WTAP_ENCAP_JUNIPER_MLPPP */
 	{ "Juniper MLPPP", "juniper-mlppp" },
 
@@ -345,6 +351,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_JUNIPER_CHDLC */
 	{ "Juniper C-HDLC", "juniper-chdlc" },
+
+ 	/* WTAP_ENCAP_LINUX_LAPD */
+ 	{ "LAPD", "lapd" },
 };
 
 /* Name that should be somewhat descriptive. */

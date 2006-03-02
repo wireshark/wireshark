@@ -178,9 +178,10 @@
 #define WTAP_ENCAP_JUNIPER_FRELAY               86
 #define WTAP_ENCAP_JUNIPER_CHDLC                87
 #define WTAP_ENCAP_JUNIPER_GGSN                 88
+#define WTAP_ENCAP_LINUX_LAPD			89
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			89
+#define WTAP_NUM_ENCAP_TYPES			90
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -496,6 +497,11 @@ struct k12_phdr {
 #define K12_PORT_DS1       0x00100008
 #define K12_PORT_ATMPVC    0x01020000
 
+struct lapd_phdr {
+	guint16 pkttype;    /* packet type */
+	guint8 we_network;
+};
+
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -509,6 +515,7 @@ union wtap_pseudo_header {
 	struct nettl_phdr	nettl;
 	struct mtp2_phdr        mtp2;
 	struct k12_phdr		k12;
+	struct lapd_phdr	lapd;
 };
 
 struct wtap_nstime {
