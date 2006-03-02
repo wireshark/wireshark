@@ -309,7 +309,10 @@ static int hf_sbc2_wrverify_xferlen = -1;
 static int hf_sbc2_wrverify_lba64 = -1;
 static int hf_sbc2_wrverify_xferlen32 = -1;
 static int hf_sbc2_verify_bytchk = -1;
-
+static int hf_ssc3_space6_count = -1;
+static int hf_ssc3_space16_count = -1;
+static int hf_ssc3_locate10_loid = -1;
+static int hf_ssc3_locate16_loid = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -4976,6 +4979,97 @@ dissect_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
+dissect_ssc2_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (!tree)
+            return;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "BT: %u, CP: %u, IMMED: %u",
+                             (flags & 0x04) >> 2, 
+                             (flags & 0x02) >> 1, 
+                             flags & 0x01);
+
+        proto_tree_add_item (tree, hf_ssc3_locate10_loid, tvb, offset+2, 4, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+7);
+        proto_tree_add_text (tree, tvb, offset+7, 1,
+                             "Partition: %u",
+                            flags);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_ssc2_locate16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (!tree)
+            return;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "DEST_TYPE: %u, CP: %u, IMMED: %u",
+                             (flags & 0x18) >> 3, 
+                             (flags & 0x02) >> 1, 
+                             flags & 0x01);
+
+        flags = tvb_get_guint8 (tvb, offset+2);
+        proto_tree_add_text (tree, tvb, offset+2, 1,
+                             "Partition: %u",
+                            flags);
+
+        proto_tree_add_item (tree, hf_ssc3_locate16_loid, tvb, offset+3, 8, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_ssc2_erase6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (!tree)
+            return;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "IMMED: %u, LONG: %u",
+                             (flags & 0x02) >> 1, 
+                             flags & 0x01);
+
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
 dissect_ssc2_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -5007,6 +5101,62 @@ dissect_ssc2_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                              tvb_get_guint8(tvb,offset+8),
                              tvb_get_guint8(tvb,offset+9),
                              tvb_get_guint8(tvb,offset+10));
+
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_ssc2_space6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (!tree)
+            return;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "CODE: %u",
+                             flags & 0x0f);
+
+        proto_tree_add_item (tree, hf_ssc3_space6_count, tvb, offset+1, 3, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_ssc2_space16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (!tree)
+            return;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "CODE: %u",
+                             flags & 0x0f);
+
+        proto_tree_add_item (tree, hf_ssc3_space16_count, tvb, offset+3, 8, 0);
+
+        proto_tree_add_text (tree, tvb, offset+11, 2,
+                             "Parameter Len: %u",
+                             tvb_get_ntohs (tvb, offset+11));
 
         flags = tvb_get_guint8 (tvb, offset+14);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
@@ -6064,7 +6214,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x0e*/{NULL},
 /*SSC 0x0f*/{NULL},
 /*SSC 0x10*/{dissect_ssc2_writefilemarks6},
-/*SSC 0x11*/{NULL},
+/*SSC 0x11*/{dissect_ssc2_space6},
 /*SSC 0x12*/{NULL},
 /*SSC 0x13*/{NULL},
 /*SSC 0x14*/{NULL},
@@ -6072,7 +6222,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x16*/{NULL},
 /*SSC 0x17*/{NULL},
 /*SSC 0x18*/{NULL},
-/*SSC 0x19*/{NULL},
+/*SSC 0x19*/{dissect_ssc2_erase6},
 /*SSC 0x1a*/{NULL},
 /*SSC 0x1b*/{dissect_ssc2_loadunload},
 /*SSC 0x1c*/{NULL},
@@ -6090,7 +6240,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x28*/{NULL},
 /*SSC 0x29*/{NULL},
 /*SSC 0x2a*/{NULL},
-/*SSC 0x2b*/{NULL},
+/*SSC 0x2b*/{dissect_ssc2_locate10},
 /*SSC 0x2c*/{NULL},
 /*SSC 0x2d*/{NULL},
 /*SSC 0x2e*/{NULL},
@@ -6192,8 +6342,8 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x8e*/{NULL},
 /*SSC 0x8f*/{NULL},
 /*SSC 0x90*/{NULL},
-/*SSC 0x91*/{NULL},
-/*SSC 0x92*/{NULL},
+/*SSC 0x91*/{dissect_ssc2_space16},
+/*SSC 0x92*/{dissect_ssc2_locate16},
 /*SSC 0x93*/{dissect_ssc2_erase16},
 /*SSC 0x94*/{NULL},
 /*SSC 0x95*/{NULL},
@@ -7728,6 +7878,18 @@ proto_register_scsi (void)
         { &hf_sbc2_wrverify_xferlen32,
           {"Transfer Length", "scsi.sbc2.wrverify.xferlen32", FT_UINT32,
            BASE_DEC, NULL, 0x0, "", HFILL}},
+        { &hf_ssc3_space6_count,
+          {"Count", "scsi.space6.count", FT_UINT24, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
+        { &hf_ssc3_space16_count,
+          {"Count", "scsi.space16.count", FT_UINT64, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
+        { &hf_ssc3_locate10_loid,
+          {"Logical Object Identifier", "scsi.locate10.loid", FT_UINT32, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
+        { &hf_ssc3_locate16_loid,
+          {"Logical Identifier", "scsi.locate16.loid", FT_UINT64, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
     };
 
     /* Setup protocol subtree array */
