@@ -49,8 +49,9 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
     guint32 connection;
 
     connection = (ncph->conn_high * 256)+ncph->conn_low;
-
-	add_conversation_table_data((conversations_table *)pct, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NCP);
+    if (connection < 65535) {
+        add_conversation_table_data((conversations_table *)pct, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NCP);
+    }
 
 	return 1;
 }
@@ -66,7 +67,7 @@ ncp_conversation_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "NCP", "ncp_hdr", filter, ncp_conversation_packet);
+	init_conversation_table(FALSE, "NCP", "ncp_hdr", filter, ncp_conversation_packet);
 }
 
 
@@ -85,5 +86,5 @@ register_tap_listener_ncp_conversation(void)
 	register_stat_menu_item("NCP", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    ncp_endpoints_cb, NULL, NULL, NULL);
 
-	register_conversation_table(TRUE, "NCP", "ncp_hdr", NULL /*filter*/, ncp_conversation_packet);
+	register_conversation_table(FALSE, "NCP", "ncp_hdr", NULL /*filter*/, ncp_conversation_packet);
 }

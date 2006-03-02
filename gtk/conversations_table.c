@@ -1209,6 +1209,10 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     conversations->default_titles[7]="Bytes A->B";
     conversations->default_titles[8]="Packets A<-B";
     conversations->default_titles[9]="Bytes A<-B";
+    if (strcmp(table_name, "NCP")==0) {
+        conversations->default_titles[1]="Connection A";
+        conversations->default_titles[3]="Connection B";
+    }
 
     g_snprintf(title, 255, "%s Conversations", table_name);
     label=gtk_label_new(title);

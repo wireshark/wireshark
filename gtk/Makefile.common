@@ -141,6 +141,7 @@ ETHEREAL_TAP_SRC = \
 	hostlist_ip.c \
 	hostlist_ipx.c \
 	hostlist_jxta.c	\
+        hostlist_ncp.c \
 	hostlist_tcpip.c \
 	hostlist_tr.c \
 	hostlist_udpip.c \
