@@ -86,9 +86,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 guint (*get_pdu_len)(tvbuff_t *, int),
 		 dissector_t dissect_pdu);
 
-extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *,
-	proto_tree *, int, int);
-
 
 typedef struct _tcp_unacked_t {
 	struct _tcp_unacked_t *next;
@@ -170,6 +167,12 @@ struct tcp_analysis {
 	 */
 	tcp_flow_t	*fwd;
 	tcp_flow_t	*rev;
+
+	/* This pointer is NULL   or points to a tcp_acked struct if this
+	 * packet has "interesting" properties such as being a KeepAlive or
+	 * similar 
+	 */
+	struct tcp_acked *ta;
 };
 
 
@@ -180,5 +183,8 @@ extern void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				struct tcp_analysis *tcpd);
 
 extern struct tcp_analysis *get_tcp_conversation_data(packet_info *pinfo);
+
+extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, int, int, struct tcp_analysis *);
+
 
 #endif

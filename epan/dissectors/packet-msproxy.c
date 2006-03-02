@@ -235,7 +235,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	if ( redirect_info->proto == PT_TCP)
 		decode_tcp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
-			pinfo->destport);
+			pinfo->destport, NULL);
 	else
 		decode_udp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
 			pinfo->destport, -1);
