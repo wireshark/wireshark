@@ -1747,7 +1747,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     guint iSCSIPdusDissected = 0;
     guint offset = 0;
     guint32 available_bytes = tvb_length_remaining(tvb, offset);
-    guint32 pduLen = 48;
     int digestsActive = 1;
     conversation_t *conversation = NULL;
     iscsi_session_t *iscsi_session=NULL;
@@ -1763,6 +1762,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     while(available_bytes >= 48 || (iscsi_desegment && available_bytes >= 8)) {
 	const char *opcode_str = NULL;
 	guint32 data_segment_len;
+	guint32 pduLen = 48;
 	guint8 opcode = tvb_get_guint8(tvb, offset + 0);
 	guint8 secondPduByte = tvb_get_guint8(tvb, offset + 1);
 	int badPdu = FALSE;
