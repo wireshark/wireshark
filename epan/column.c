@@ -50,7 +50,7 @@ col_format_to_string(gint fmt) {
 	"%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
 	"%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
 	"%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
-	"%Xd", "%V", "%x", "%e", "%H", "%P", "%y", "%v"
+	"%Xd", "%V", "%x", "%e", "%H", "%P", "%y", "%v", "%E"
 };
                      
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
@@ -109,6 +109,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"HP-UX Device ID",
 	"DCE/RPC call (cn_call_id / dg_seqnum)",
        "802.1Q VLAN id",
+	"TEI",
 };
 
 const gchar *
@@ -208,6 +209,9 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_8021Q_VLAN_ID:
       fmt_list[COL_8021Q_VLAN_ID] = TRUE;
+      break;
+    case COL_TEI:
+      fmt_list[COL_TEI] = TRUE;
       break;
     default:
       break;
@@ -429,6 +433,9 @@ get_column_longest_string(gint format)
     case COL_8021Q_VLAN_ID:
       return "0000";
       break;
+    case COL_TEI:
+      return "127";
+      break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
       break;
@@ -577,6 +584,9 @@ get_column_format_from_str(gchar *str) {
 	break;
       case 'v':
 	return COL_8021Q_VLAN_ID;
+	break;
+      case 'E':
+	return COL_TEI;
 	break;
     }
     cptr++;

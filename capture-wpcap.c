@@ -359,6 +359,9 @@ static struct dlt_choice dlt_choices[] = {
 #ifdef DLT_LINUX_IRDA
 	DLT_CHOICE(DLT_LINUX_IRDA, "Linux IrDA"),
 #endif
+#ifdef DLT_LINUX_LAPD
+	DLT_CHOICE(DLT_LINUX_LAPD, "Linux vISDN LAPD"),
+#endif
 #ifdef DLT_LANE8023
 	DLT_CHOICE(DLT_LANE8023, "Linux 802.3 LANE"),
 #endif

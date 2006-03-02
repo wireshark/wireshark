@@ -141,6 +141,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			pinfo->p2p_dir = pinfo->pseudo_header->isdn.uton ?
 			    P2P_DIR_SENT : P2P_DIR_RECV;
 			break;
+
+		case WTAP_ENCAP_LINUX_LAPD:
+			pinfo->p2p_dir = (pinfo->pseudo_header->lapd.pkttype == 3 ||
+				pinfo->pseudo_header->lapd.pkttype == 4) ?
+				P2P_DIR_SENT : P2P_DIR_RECV;
+			break;
+
 		case WTAP_ENCAP_MTP2_WITH_PHDR:
 			pinfo->p2p_dir = pinfo->pseudo_header->mtp2.sent ?
 			    P2P_DIR_SENT : P2P_DIR_RECV;

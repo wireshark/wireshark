@@ -99,6 +99,7 @@ enum {
   COL_HPUX_DEVID,     /* HP-UX Nettl Device ID */
   COL_DCE_CALL,       /* DCE/RPC call id OR datagram sequence number */
   COL_8021Q_VLAN_ID,  /* 802.1Q vlan ID */
+  COL_TEI,            /* q.921 TEI */
   NUM_COL_FMTS        /* Should always be last */
 };
 
