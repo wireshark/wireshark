@@ -2099,7 +2099,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		p_key->source_port = pinfo->srcport;
 
 		p_val->cseq = cseq_number;
-		strncpy(&p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE-1);
+		strncpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE-1);
 		p_val->method[MAX_CSEQ_METHOD_SIZE-1] = '\0';
 		p_val->transaction_state = nothing_seen;
 		p_val->frame_number = 0;
