@@ -51,7 +51,8 @@
 #include <wiretap/file_util.h>
 
 /* Add guard pages at each end of our allocated memory */
-#if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT)
+#if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #define USE_GUARD_PAGES 1
@@ -188,7 +189,8 @@ emem_create_chunk(emem_chunk_t **free_list) {
 	char *buf_end, *prot1, *prot2;
 	DWORD oldprot;
 #elif defined(USE_GUARD_PAGES)
-	int pagesize = sysconf(_SC_PAGESIZE), ret;
+	intptr_t pagesize = sysconf(_SC_PAGESIZE);
+	int ret;
 	char *buf_end, *prot1, *prot2;
 #endif
 	/* we dont have any free data, so we must allocate a new one */
@@ -233,8 +235,8 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
 		/* Align our guard pages on page-sized boundaries */
-		prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
-		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+		prot1 = (char *) ((((intptr_t) npc->buf + pagesize - 1) / pagesize) * pagesize);
+		prot2 = (char *) ((((intptr_t) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 		ret = mprotect(prot1, pagesize, PROT_NONE);
 		g_assert(ret != -1);
 		ret = mprotect(prot2, pagesize, PROT_NONE);
