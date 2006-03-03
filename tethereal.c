@@ -745,8 +745,8 @@ main(int argc, char *argv[])
      as the "-z" argument can specify a registered tap. */
   
   /* we register the plugin taps before the other taps because
-	  stats_tree taps plugins will be registered as tap listeners
-	  by stats_tree_stat.c and need to registered before that */
+     stats_tree taps plugins will be registered as tap listeners
+     by stats_tree_stat.c and need to registered before that */
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
 #endif
@@ -827,17 +827,15 @@ main(int argc, char *argv[])
 
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-			    &dp_path, &dp_open_errno, &dp_read_errno);
+                            &dp_path, &dp_open_errno, &dp_read_errno);
   if (gdp_path != NULL) {
     if (gdp_open_errno != 0) {
-      cmdarg_err(
-        "Could not open global disabled protocols file\n\"%s\": %s.",
-	gdp_path, strerror(gdp_open_errno));
+      cmdarg_err("Could not open global disabled protocols file\n\"%s\": %s.",
+                 gdp_path, strerror(gdp_open_errno));
     }
     if (gdp_read_errno != 0) {
-      cmdarg_err(
-        "I/O error reading global disabled protocols file\n\"%s\": %s.",
-	gdp_path, strerror(gdp_read_errno));
+      cmdarg_err("I/O error reading global disabled protocols file\n\"%s\": %s.",
+                 gdp_path, strerror(gdp_read_errno));
     }
     g_free(gdp_path);
   }
@@ -901,7 +899,7 @@ main(int argc, char *argv[])
       case 'd':        /* Decode as rule */
         if (!add_decode_as(optarg))
           exit(1);
-	break;
+        break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
         status = capture_opts_list_interfaces();
@@ -914,31 +912,30 @@ main(int argc, char *argv[])
       case 'F':
         out_file_type = wtap_short_string_to_file_type(optarg);
         if (out_file_type < 0) {
-          cmdarg_err("\"%s\" isn't a valid capture file type",
-			optarg);
+          cmdarg_err("\"%s\" isn't a valid capture file type", optarg);
           list_capture_types();
           exit(1);
         }
         break;
       case 'h':        /* Print help and exit */
-	print_usage(TRUE);
-	exit(0);
+        print_usage(TRUE);
+        exit(0);
         break;
       case 'l':        /* "Line-buffer" standard output */
-	/* This isn't line-buffering, strictly speaking, it's just
-	   flushing the standard output after the information for
-	   each packet is printed; however, that should be good
-	   enough for all the purposes to which "-l" is put (and
-	   is probably actually better for "-V", as it does fewer
-	   writes).
+        /* This isn't line-buffering, strictly speaking, it's just
+           flushing the standard output after the information for
+           each packet is printed; however, that should be good
+           enough for all the purposes to which "-l" is put (and
+           is probably actually better for "-V", as it does fewer
+           writes).
 
-	   See the comment in "process_packet()" for an explanation of
-	   why we do that, and why we don't just use "setvbuf()" to
-	   make the standard output line-buffered (short version: in
-	   Windows, "line-buffered" is the same as "fully-buffered",
-	   and the output buffer is only flushed when it fills up). */
-	line_buffered = TRUE;
-	break;
+           See the comment in "process_packet()" for an explanation of
+           why we do that, and why we don't just use "setvbuf()" to
+           make the standard output line-buffered (short version: in
+           Windows, "line-buffered" is the same as "fully-buffered",
+           and the output buffer is only flushed when it fills up). */
+        line_buffered = TRUE;
+        break;
       case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP
         list_link_layer_types = TRUE;
@@ -957,22 +954,21 @@ main(int argc, char *argv[])
         badopt = string_to_name_resolve(optarg, &g_resolv_flags);
         if (badopt != '\0') {
           cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
-			badopt);
+                     badopt);
           exit(1);
         }
         break;
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {
 
-	case PREFS_SET_SYNTAX_ERR:
+        case PREFS_SET_SYNTAX_ERR:
           cmdarg_err("Invalid -o flag \"%s\"", optarg);
           exit(1);
           break;
 
         case PREFS_SET_NO_SUCH_PREF:
         case PREFS_SET_OBSOLETE:
-          cmdarg_err("-o flag \"%s\" specifies unknown preference",
-			optarg);
+          cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
           exit(1);
           break;
         }
@@ -1008,23 +1004,23 @@ main(int argc, char *argv[])
         break;
       case 'T':        /* printing Type */
         if (strcmp(optarg, "text") == 0) {
-	  output_action = WRITE_TEXT;
-	  print_format = PR_FMT_TEXT;
-	} else if (strcmp(optarg, "ps") == 0) {
-	  output_action = WRITE_TEXT;
-	  print_format = PR_FMT_PS;
-	} else if (strcmp(optarg, "pdml") == 0) {
-	  output_action = WRITE_XML;
-	  verbose = TRUE;
-	} else if (strcmp(optarg, "psml") == 0) {
-	  output_action = WRITE_XML;
-	  verbose = FALSE;
-	} else {
-	  cmdarg_err("Invalid -T parameter.");
-	  cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", or \"psml\".");
-	  exit(1);
-	}
-	break;
+          output_action = WRITE_TEXT;
+          print_format = PR_FMT_TEXT;
+        } else if (strcmp(optarg, "ps") == 0) {
+          output_action = WRITE_TEXT;
+          print_format = PR_FMT_PS;
+        } else if (strcmp(optarg, "pdml") == 0) {
+          output_action = WRITE_XML;
+          verbose = TRUE;
+        } else if (strcmp(optarg, "psml") == 0) {
+          output_action = WRITE_XML;
+          verbose = FALSE;
+        } else {
+          cmdarg_err("Invalid -T parameter.");
+          cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", or \"psml\".");
+          exit(1);
+        }
+        break;
       case 'v':        /* Show version and exit */
         printf("Tethereal " VERSION "%s\n"
                "\n"
@@ -1033,8 +1029,8 @@ main(int argc, char *argv[])
                "%s"
                "\n"
                "%s",
-	    svnversion, get_copyright_info(), comp_info_str->str,
-	    runtime_info_str->str);
+               svnversion, get_copyright_info(), comp_info_str->str,
+               runtime_info_str->str);
         exit(0);
         break;
       case 'V':        /* Verbose */
@@ -1053,23 +1049,23 @@ main(int argc, char *argv[])
            part of a tap filter.  Instead, we just add the argument
            to a list of stat arguments. */
         if (!process_stat_cmd_arg(optarg)) {
-	  cmdarg_err("invalid -z argument.");
-	  cmdarg_err_cont("  -z argument must be one of :");
-	  list_stat_cmd_args();
-	  exit(1);
-	}
+          cmdarg_err("invalid -z argument.");
+          cmdarg_err_cont("  -z argument must be one of :");
+          list_stat_cmd_args();
+          exit(1);
+        }
         break;
       default:
       case '?':        /* Bad flag - print usage message */
-      switch(optopt) {
-      case'F':
-        list_capture_types();
+        switch(optopt) {
+        case'F':
+          list_capture_types();
+          break;
+        default:
+          print_usage(TRUE);
+        }
+        exit(1);
         break;
-      default:
-        print_usage(TRUE);
-      }
-      exit(1);
-      break;
     }
   }
 
@@ -1176,79 +1172,89 @@ main(int argc, char *argv[])
        */
       if (capture_opts.multi_files_on) {
         cmdarg_err("Multiple capture files requested, but "
-          "a capture isn't being done.");
+                   "a capture isn't being done.");
         exit(1);
       }
       if (capture_opts.has_file_duration) {
-	cmdarg_err("Switching capture files after a time interval was specified, but "
-          "a capture isn't being done.");
+        cmdarg_err("Switching capture files after a time interval was specified, but "
+                   "a capture isn't being done.");
         exit(1);
       }
       if (capture_opts.has_ring_num_files) {
-	cmdarg_err("A ring buffer of capture files was specified, but "
+        cmdarg_err("A ring buffer of capture files was specified, but "
           "a capture isn't being done.");
         exit(1);
       }
       if (capture_opts.has_autostop_files) {
-	cmdarg_err("A maximum number of capture files was specified, but "
+        cmdarg_err("A maximum number of capture files was specified, but "
           "a capture isn't being done.");
         exit(1);
       }
       if (capture_opts.has_autostop_packets) {
-	cmdarg_err("A maximum number of captured packets was specified, but "
+        cmdarg_err("A maximum number of captured packets was specified, but "
           "a capture isn't being done.");
         exit(1);
       }
       if (capture_opts.has_autostop_filesize) {
-	cmdarg_err("A maximum capture file size was specified, but "
+        cmdarg_err("A maximum capture file size was specified, but "
           "a capture isn't being done.");
         exit(1);
       }
       if (capture_opts.has_autostop_duration) {
-	cmdarg_err("A maximum capture time was specified, but "
+        cmdarg_err("A maximum capture time was specified, but "
           "a capture isn't being done.");
         exit(1);
       }
     } else {
       /*
        * "-r" wasn't specified, so we're doing a live capture.
-       * We only support doing that in libpcap format.
        */
-      if (out_file_type != WTAP_FILE_PCAP) {
-	cmdarg_err("A capture is being done; captures can only be "
-	  "saved in libpcap format.");
-	exit(1);
-      }
-      if (capture_opts.multi_files_on) {
-        /* Multiple-file mode works only under certain conditions:
-	   a) it doesn't work if you're not saving the capture to a file;
-	   b) it doesn't work if you're writing to the standard output;
-	   c) it doesn't work if you're writing to a pipe;
-	   d) it only works if you're saving in libpcap format;
-	   e) it makes no sense if the maximum file size is set to "infinite"
-	      (XXX - shouldn't that be "if there is no stop criterion",
-	      as you might want to switch files based on a packet count
-	      or a time). */
-        if (capture_opts.save_file == NULL) {
-	  cmdarg_err("Multiple capture files requested, but "
-	    "the capture isn't being saved to a file.");
-	  exit(1);
+      if (capture_opts.save_file != NULL) {
+        /* They specified a "-w" flag, so we'll be saving to a capture file. */
+  
+        /* When capturing, we only support writing libpcap format. */
+        if (out_file_type != WTAP_FILE_PCAP) {
+          cmdarg_err("Live captures can only be saved in libpcap format.");
+          exit(1);
         }
-        if (strcmp(capture_opts.save_file, "-") == 0) {
-	  cmdarg_err("Multiple capture files requested, but "
-	    "the capture is being written to the standard output.");
-	  exit(1);
+        if (capture_opts.multi_files_on) {
+          /* Multiple-file mode works only under certain conditions:
+             a) it doesn't work if you're writing to the standard output;
+             b) it doesn't work if you're writing to a pipe;
+             c) it makes no sense if the maximum file size is set to "infinite"
+                (XXX - shouldn't that be "if there is no stop criterion",
+                as you might want to switch files based on a packet count
+                or a time). */
+          if (strcmp(capture_opts.save_file, "-") == 0) {
+            cmdarg_err("Multiple capture files requested, but "
+              "the capture is being written to the standard output.");
+            exit(1);
+          }
+          if (capture_opts.output_to_pipe) {
+            cmdarg_err("Multiple capture files requested, but "
+              "the capture file is a pipe.");
+            exit(1);
+          }
+          if (!capture_opts.has_autostop_filesize) {
+            cmdarg_err("Multiple capture files requested, but "
+              "no maximum capture file size was specified.");
+            exit(1);
+          }
         }
-        if (capture_opts.output_to_pipe) {
-	  cmdarg_err("Multiple capture files requested, but "
-	    "the capture file is a pipe.");
-	  exit(1);
+      } else {
+        /* They didn't specify a "-w" flag, so we won't be saving to a
+           capture file.  Check for options that only make sense if
+           we're saving to a file. */
+        if (capture_opts.has_autostop_filesize) {
+          cmdarg_err("Maximum capture file size specified, but "
+           "capture isn't being saved to a file.");
+          exit(1);
         }
-        if (!capture_opts.has_autostop_filesize) {
-	  cmdarg_err("Multiple capture files requested, but "
-	    "no maximum capture file size was specified.");
-	  exit(1);
-	}
+        if (capture_opts.multi_files_on) {
+          cmdarg_err("Multiple capture files requested, but "
+            "the capture isn't being saved to a file.");
+          exit(1);
+        }
       }
     }
   }
@@ -1257,7 +1263,7 @@ main(int argc, char *argv[])
 #ifdef _WIN32
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
-#endif	/* _WIN32 */
+#endif /* _WIN32 */
 
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command
@@ -1357,11 +1363,11 @@ main(int argc, char *argv[])
 
   /* We have to dissect each packet if:
 
-	we're printing information about each packet;
+        we're printing information about each packet;
 
-	we're using a read filter on the packets;
+        we're using a read filter on the packets;
 
-	we're using any taps. */
+        we're using any taps. */
   do_dissection = print_packet_info || rfcode || have_tap_listeners();
 
   if (cf_name) {
@@ -1584,8 +1590,7 @@ capture(void)
                                (gint32)capture_opts.autostop_duration);
 
   if (capture_opts.multi_files_on && capture_opts.has_file_duration)
-    cnd_file_duration = cnd_new(CND_CLASS_TIMEOUT, 
-			       capture_opts.file_duration);
+    cnd_file_duration = cnd_new(CND_CLASS_TIMEOUT, capture_opts.file_duration);
 
   if (!setjmp(ld.stopenv)) {
     ld.go = TRUE;
@@ -1683,9 +1688,9 @@ capture(void)
           if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts.save_file, &save_file_fd, &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_autostop_size);
-	    if (cnd_file_duration) {
-	      cnd_reset(cnd_file_duration);
-	    }
+            if (cnd_file_duration) {
+              cnd_reset(cnd_file_duration);
+            }
           } else {
             /* File switch failed: stop here */
             volatile_err = loop_err;
@@ -1724,14 +1729,12 @@ capture(void)
 #ifndef _WIN32
     if (ld.from_cap_pipe) {
       if (ld.cap_pipe_err == PIPERR) {
-        cmdarg_err("Error while capturing packets: %s",
-	  errmsg);
+        cmdarg_err("Error while capturing packets: %s", errmsg);
       }
     } else
 #endif
     {
-      cmdarg_err("Error while capturing packets: %s",
-	  pcap_geterr(ld.pcap_h));
+      cmdarg_err("Error while capturing packets: %s", pcap_geterr(ld.pcap_h));
     }
   }
 
@@ -1765,8 +1768,7 @@ capture(void)
         fprintf(stderr, "%u packets dropped\n", stats.ps_drop);
       }
     } else {
-      cmdarg_err("Can't get packet-drop statistics: %s",
-	  pcap_geterr(ld.pcap_h));
+      cmdarg_err("Can't get packet-drop statistics: %s", pcap_geterr(ld.pcap_h));
     }
     pcap_close(ld.pcap_h);
   }
@@ -1813,7 +1815,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      If that fails, ignore the packet (wtap_process_pcap_packet has
      written an error message). */
   pd = wtap_process_pcap_packet(ld->wtap_linktype, phdr, pd, &pseudo_header,
-				&whdr, &err);
+                                &whdr, &err);
   if (pd == NULL)
     return;
 
@@ -1927,7 +1929,7 @@ report_counts(void)
     fprintf(stderr, "%u packets captured\n", ld.packet_count);
   }
 #ifdef SIGINFO
-  infoprint = FALSE;	/* we just reported it */
+  infoprint = FALSE; /* we just reported it */
 #endif /* SIGINFO */
 }
 
@@ -1970,8 +1972,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
-    pdh = wtap_dump_open(save_file, out_file_type,
-		linktype, snapshot_length, FALSE /* compressed */, &err);
+    pdh = wtap_dump_open(save_file, out_file_type, linktype, snapshot_length,
+                         FALSE /* compressed */, &err);
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
@@ -1994,12 +1996,12 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
 
       case WTAP_ERR_SHORT_WRITE:
         cmdarg_err("A full header couldn't be written to the %s.",
-		save_file_string);
+                   save_file_string);
         break;
 
       default:
         cmdarg_err("The %s could not be created: %s.", save_file_string,
-		wtap_strerror(err));
+                   wtap_strerror(err));
         break;
       }
       goto out;
@@ -2030,27 +2032,27 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       cmdarg_err("\"%s\" has a packet with a network type that Tethereal doesn't support.\n(%s)",
-	cf->filename, err_info);
+                 cf->filename, err_info);
       break;
 
     case WTAP_ERR_CANT_READ:
       cmdarg_err("An attempt to read from \"%s\" failed for some unknown reason.",
-	cf->filename);
+                 cf->filename);
       break;
 
     case WTAP_ERR_SHORT_READ:
       cmdarg_err("\"%s\" appears to have been cut short in the middle of a packet.",
-	cf->filename);
+                 cf->filename);
       break;
 
     case WTAP_ERR_BAD_RECORD:
       cmdarg_err("\"%s\" appears to be damaged or corrupt.\n(%s)",
-	cf->filename, err_info);
+                 cf->filename, err_info);
       break;
 
     default:
       cmdarg_err("An error occurred while reading \"%s\": %s.",
-	cf->filename, wtap_strerror(err));
+                 cf->filename, wtap_strerror(err));
       break;
     }
     if (save_file != NULL) {
@@ -2085,7 +2087,7 @@ out:
 
 static void
 fill_in_fdata(frame_data *fdata, capture_file *cf,
-	const struct wtap_pkthdr *phdr, long offset)
+              const struct wtap_pkthdr *phdr, long offset)
 {
   fdata->next = NULL;
   fdata->prev = NULL;
@@ -2225,7 +2227,7 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
         return FALSE;
 #ifdef HAVE_LIBPCAP
       if (print_packet_counts) {
-      	/* We're printing packet counts. */
+              /* We're printing packet counts. */
         if (ld.packet_count != 0) {
           fprintf(stderr, "\r%u ", ld.packet_count);
           /* stderr could be line buffered */
@@ -2287,35 +2289,35 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 
   case ENOSPC:
     cmdarg_err("Not all the packets could be written to the %s because there is "
-"no space left on the file system.",
-	save_file_string);
+               "no space left on the file system.",
+               save_file_string);
     break;
 
 #ifdef EDQUOT
   case EDQUOT:
     cmdarg_err("Not all the packets could be written to the %s because you are "
-"too close to, or over your disk quota.",
-	save_file_string);
+               "too close to, or over your disk quota.",
+               save_file_string);
   break;
 #endif
 
   case WTAP_ERR_CANT_CLOSE:
     cmdarg_err("The %s couldn't be closed for some unknown reason.",
-	save_file_string);
+               save_file_string);
     break;
 
   case WTAP_ERR_SHORT_WRITE:
     cmdarg_err("Not all the packets could be written to the %s.",
-	save_file_string);
+               save_file_string);
     break;
 
   default:
     if (is_close) {
-      cmdarg_err("The %s could not be closed: %s.",
-	save_file_string, wtap_strerror(err));
+      cmdarg_err("The %s could not be closed: %s.", save_file_string,
+                 wtap_strerror(err));
     } else {
       cmdarg_err("An error occurred while writing to the %s: %s.",
-	save_file_string, wtap_strerror(err));
+                 save_file_string, wtap_strerror(err));
     }
     break;
   }
@@ -2405,7 +2407,7 @@ print_columns(capture_file *cf)
     case COL_CLS_TIME:
     case COL_REL_TIME:
     case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:	/* XXX - wider */
+    case COL_ABS_DATE_TIME: /* XXX - wider */
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 10)
         column_len = 10;
@@ -2734,8 +2736,8 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
       /* Seen only when opening a capture file for writing. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "The file \"%%s\" is a pipe, and %s capture files can't be "
-	       "written to a pipe.", wtap_file_type_string(file_type));
+                 "The file \"%%s\" is a pipe, and %s capture files can't be "
+                 "written to a pipe.", wtap_file_type_string(file_type));
       errmsg = errmsg_errno;
       break;
 
@@ -2790,9 +2792,9 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     default:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "The file \"%%s\" could not be %s: %s.",
-	       for_writing ? "created" : "opened",
-	       wtap_strerror(err));
+                 "The file \"%%s\" could not be %s: %s.",
+                 for_writing ? "created" : "opened",
+                 wtap_strerror(err));
       errmsg = errmsg_errno;
       break;
     }
@@ -2829,7 +2831,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   init_dissection();
 
   cf->wth = wth;
-  cf->f_datalen = 0;	/* not used, but set it anyway */
+  cf->f_datalen = 0; /* not used, but set it anyway */
 
   /* Set the file name because we need it to set the follow stream filter.
      XXX - is that still true?  We need it for other reasons, though,
