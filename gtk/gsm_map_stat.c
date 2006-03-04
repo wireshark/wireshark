@@ -429,7 +429,7 @@ gsm_map_stat_gtk_cb(
         /*
          * set the rest of the columns
          */
-        for (j = 2; j < GSM_MAP_INIT_TABLE_NUM_COLUMNS; i++)
+        for (j = 2; j < GSM_MAP_INIT_TABLE_NUM_COLUMNS; j++)
         {
             dlg.entries[j] = g_strdup("0");
         }
