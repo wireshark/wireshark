@@ -635,6 +635,7 @@ static const value_string scsi_select_report_val[] = {
 #define SCSI_EVPD_OPER            0x81
 #define SCSI_EVPD_ASCIIOPER       0x82
 #define SCSI_EVPD_DEVID           0x83
+#define SCSI_EVPD_BLKLIMITS       0xb0
 
 static const value_string scsi_evpd_pagecode_val[] = {
     {SCSI_EVPD_SUPPPG,    "Supported Vital Product Data Pages"},
@@ -650,6 +651,7 @@ static const value_string scsi_evpd_pagecode_val[] = {
     {SCSI_EVPD_OPER,      "Implemented Operating Definition Page"},
     {SCSI_EVPD_ASCIIOPER, "ASCII Implemented Operating Definition Page"},
     {SCSI_EVPD_DEVID,     "Device Identification Page"},
+    {SCSI_EVPD_BLKLIMITS, "Block Limits Page"},
     {0, NULL},
 };
 
@@ -1038,6 +1040,8 @@ static const value_string scsi_sensekey_val[] = {
 static const value_string scsi_sns_errtype_val[] = {
     {0x70, "Current Error"},
     {0x71, "Deferred Error"},
+    {0x72, "Current Error"},
+    {0x73, "Deferred Error"},
     {0x7F, "Vendor Specific"},
     {0, NULL},
 };
@@ -2421,7 +2425,56 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                                          "Unknown (0x%08x)"));
         break;
     case SCSI_SSC2_MODEPAGE_DEVCONF:
-        return FALSE;
+        flags = tvb_get_guint8 (tvb, offset+2);
+        proto_tree_add_text (tree, tvb, offset+2, 1,
+                             "CAF: %u, Active Format: %u",
+                             (flags & 0x20) >> 5, (flags & 0x1f));
+        flags = tvb_get_guint8 (tvb, offset+3);
+        proto_tree_add_text (tree, tvb, offset+3, 1,
+                             "Active Partition: %u",
+                             flags);
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_text (tree, tvb, offset+4, 1,
+                             "Write Object Buffer Full Ratio: %u",
+                             flags);
+        flags = tvb_get_guint8 (tvb, offset+5);
+        proto_tree_add_text (tree, tvb, offset+5, 1,
+                             "Read Object Buffer Empty Ratio: %u",
+                             flags);
+        proto_tree_add_text (tree, tvb, offset+6, 2,
+                             "Write Delay time: %u 100ms",
+                             tvb_get_ntohs (tvb, offset+6));
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_text (tree, tvb, offset+8, 1,
+                             "OBR: %u, LOIS: %u, RSMK: %u, AVC: %u, SOCF: %u, ROBO: %u, REW: %u",
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6,
+                             (flags & 0x20) >> 5, (flags & 0x10) >> 4,
+                             (flags & 0x0c) >> 2, (flags & 0x02) >> 1,
+			     (flags & 0x01));
+        flags = tvb_get_guint8 (tvb, offset+9);
+        proto_tree_add_text (tree, tvb, offset+9, 1,
+                             "Gap Size: %u",
+                             flags);
+        flags = tvb_get_guint8 (tvb, offset+10);
+        proto_tree_add_text (tree, tvb, offset+10, 1,
+                             "EOD Defined: %u, EEG: %u, SEW: %u, SWP: %u, BAML: %u, BAM: %u",
+                             (flags & 0xe0) >> 5, (flags & 0x10) >> 4,
+                             (flags & 0x08) >> 3, (flags & 0x04) >> 2,
+                             (flags & 0x02) >> 1, (flags & 0x01));
+        proto_tree_add_text (tree, tvb, offset+11, 3,
+                             "Object Buffer Size At Early Warning: %u",
+                             tvb_get_ntohs (tvb, offset+11));
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_text (tree, tvb, offset+14, 1,
+                             "Select Data Compression Algorithm: %u",
+                             flags);
+        flags = tvb_get_guint8 (tvb, offset+15);
+        proto_tree_add_text (tree, tvb, offset+15, 1,
+                             "OIR: %u, ReWind on Reset: %u, ASOCWP: %u, PERSWP: %u, PRMWP: %u",
+                             (flags & 0x20) >> 5, (flags & 0x18) >> 3,
+                             (flags & 0x04) >> 2, (flags & 0x02) >> 1,
+                             (flags & 0x01));
+        break;
     case SCSI_SSC2_MODEPAGE_MEDPAR1:
         return FALSE;
     case SCSI_SSC2_MODEPAGE_MEDPAR2:
@@ -3247,6 +3300,37 @@ dissect_spc3_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static void
+dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
+{
+    guint8 flags;
+
+    flags = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_text (sns_tree, tvb, offset, 1, "Valid: %u",
+                         (flags & 0x80) >> 7);
+    proto_tree_add_item (sns_tree, hf_scsi_sns_errtype, tvb, offset, 1, 0);
+    flags = tvb_get_guint8 (tvb, offset+2);
+    proto_tree_add_text (sns_tree, tvb, offset+2, 1,
+                             "Filemark: %u, EOM: %u, ILI: %u",
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6,
+                             (flags & 0x20) >> 5);
+    proto_tree_add_item (sns_tree, hf_scsi_snskey, tvb, offset+2, 1, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_snsinfo, tvb, offset+3, 4, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_addlsnslen, tvb, offset+7, 1, 0);
+    proto_tree_add_text (sns_tree, tvb, offset+8, 4,
+                             "Command-Specific Information: %s",
+                             tvb_bytes_to_str (tvb, offset+8, 4));
+    proto_tree_add_item (sns_tree, hf_scsi_ascascq, tvb, offset+12, 2, 0);
+    proto_tree_add_item_hidden (sns_tree, hf_scsi_asc, tvb, offset+12, 1, 0);
+    proto_tree_add_item_hidden (sns_tree, hf_scsi_ascq, tvb, offset+13,
+                                    1, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_fru, tvb, offset+14, 1, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_sksv, tvb, offset+15, 1, 0);
+    proto_tree_add_text (sns_tree, tvb, offset+15, 3,
+                             "Sense Key Specific: %s",
+                             tvb_bytes_to_str (tvb, offset+15, 3));
+}
+
+static void
 dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -3265,6 +3349,8 @@ dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+    else if (!isreq)
+	dissect_scsi_fix_snsinfo(tvb, tree, offset);    
 }
 
 static void
@@ -3394,7 +3480,7 @@ dissect_sbc2_readwrite6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     guint8 flags;
 
-    if (isreq) {
+    if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%06x, Len: %u)",
                              tvb_get_ntoh24 (tvb, offset),
@@ -3420,7 +3506,7 @@ dissect_sbc2_readwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 {
     guint8 flags;
 
-    if (isreq) {
+    if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
                              tvb_get_ntohl (tvb, offset+1),
@@ -3451,7 +3537,7 @@ dissect_sbc2_readwrite12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 {
     guint8 flags;
 
-    if (isreq) {
+    if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
                              tvb_get_ntohl (tvb, offset+1),
@@ -4661,7 +4747,7 @@ dissect_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     guint8 flags;
 
-    if (isreq) {
+    if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
                              tvb_get_ntoh24 (tvb, offset+1));
@@ -5621,7 +5707,6 @@ void
 dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, guint snslen, guint16 lun)
 {
-    guint8 flags;
     proto_item *ti;
     proto_tree *sns_tree=NULL;
 
@@ -5640,31 +5725,7 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          col_append_fstr (pinfo->cinfo, COL_INFO, " LUN:0x%02x ", lun);
     }
 
-
-    flags = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_text (sns_tree, tvb, offset, 1, "Valid: %u",
-                         (flags & 0x80) >> 7);
-    proto_tree_add_item (sns_tree, hf_scsi_sns_errtype, tvb, offset, 1, 0);
-    flags = tvb_get_guint8 (tvb, offset+2);
-    proto_tree_add_text (sns_tree, tvb, offset+2, 1,
-                             "Filemark: %u, EOM: %u, ILI: %u",
-                             (flags & 0x80) >> 7, (flags & 0x40) >> 6,
-                             (flags & 0x20) >> 5);
-    proto_tree_add_item (sns_tree, hf_scsi_snskey, tvb, offset+2, 1, 0);
-    proto_tree_add_item (sns_tree, hf_scsi_snsinfo, tvb, offset+3, 4, 0);
-    proto_tree_add_item (sns_tree, hf_scsi_addlsnslen, tvb, offset+7, 1, 0);
-    proto_tree_add_text (sns_tree, tvb, offset+8, 4,
-                             "Command-Specific Information: %s",
-                             tvb_bytes_to_str (tvb, offset+8, 4));
-    proto_tree_add_item (sns_tree, hf_scsi_ascascq, tvb, offset+12, 2, 0);
-    proto_tree_add_item_hidden (sns_tree, hf_scsi_asc, tvb, offset+12, 1, 0);
-    proto_tree_add_item_hidden (sns_tree, hf_scsi_ascq, tvb, offset+13,
-                                    1, 0);
-    proto_tree_add_item (sns_tree, hf_scsi_fru, tvb, offset+14, 1, 0);
-    proto_tree_add_item (sns_tree, hf_scsi_sksv, tvb, offset+15, 1, 0);
-    proto_tree_add_text (sns_tree, tvb, offset+15, 3,
-                             "Sense Key Specific: %s",
-                             tvb_bytes_to_str (tvb, offset+15, 3));
+    dissect_scsi_fix_snsinfo (tvb, sns_tree, offset);
 }
 
 
