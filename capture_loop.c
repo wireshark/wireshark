@@ -68,8 +68,7 @@
 
 #include <pcap.h>
 
-#include "wiretap/wtap.h"
-#include "wiretap/wtap-capture.h"
+#include "pcapio.h"
 
 #include "capture-pcap-util.h"
 
@@ -640,7 +639,7 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
 }
 
 
-/* open the capture input file (pcap or capture pipe) */
+/* close the capture input file (pcap or capture pipe) */
 static void capture_loop_close_input(loop_data *ld) {
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input");
@@ -746,14 +745,14 @@ gboolean capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const 
 }
 
 
-/* open the wiretap part of the capture output file */
-gboolean capture_loop_init_wiretap_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
+/* set up to write to the already-opened capture output file/files */
+gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
   int         pcap_encap;
   int         file_snaplen;
   int         err;
 
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_wiretap_output");
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
 
   /* get packet encapsulation type and snaplen */
 #ifndef _WIN32
@@ -768,22 +767,15 @@ gboolean capture_loop_init_wiretap_output(capture_options *capture_opts, int sav
   }
 
   /* Set up to write to the capture file. */
-  ld->wtap_linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
-  if (ld->wtap_linktype == WTAP_ENCAP_UNKNOWN) {
-    g_snprintf(errmsg, errmsg_len,
-	"The network you're capturing from is of a type"
-	" that (T)Ethereal doesn't support (data link type %d).", pcap_encap);
-    return FALSE;
-  }
+  ld->linktype = pcap_encap;
   if (capture_opts->multi_files_on) {
-    ld->wtap_pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld->wtap_linktype,
-      file_snaplen, &err);
+    ld->pdh = ringbuf_init_libpcap_fdopen(ld->linktype, file_snaplen, &err);
   } else {
-    ld->wtap_pdh = wtap_dump_fdopen(save_file_fd, WTAP_FILE_PCAP,
-      ld->wtap_linktype, file_snaplen, FALSE /* compressed */, &err);
+    ld->pdh = libpcap_fdopen(save_file_fd, ld->linktype, file_snaplen,
+                             &ld->bytes_written, &err);
   }
 
-  if (ld->wtap_pdh == NULL) {
+  if (ld->pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
     /* XXX - use cf_open_error_message from tethereal instead? */
     switch (err) {
@@ -824,9 +816,9 @@ gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld,
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
 
   if (capture_opts->multi_files_on) {
-    return ringbuf_wtap_dump_close(&capture_opts->save_file, err_close);
+    return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
   } else {
-    return wtap_dump_close(ld->wtap_pdh, err_close);
+    return libpcap_dump_close(ld->pdh, err_close);
   }
 }
 
@@ -1129,7 +1121,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   ld.wtap_linktype      = WTAP_ENCAP_UNKNOWN;
   ld.pcap_err           = FALSE;
   ld.from_cap_pipe      = FALSE;
-  ld.wtap_pdh           = NULL;
+  ld.pdh                = NULL;
 #ifndef _WIN32
   ld.cap_pipe_fd        = -1;
 #endif
@@ -1168,8 +1160,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     goto error;
   }
 
-  /* open the wiretap part of the output file (the output file is already open) */
-  if (!capture_loop_init_wiretap_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
+  /* set up to write to the already-opened capture output file/files */
+  if (!capture_loop_init_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1186,7 +1178,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      message to our parent so that they'll open the capture file and
      update its windows to indicate that we have a live capture in
      progress. */
-  wtap_dump_flush(ld.wtap_pdh);
+  libpcap_dump_flush(ld.pdh, NULL);
   sync_pipe_filename_to_parent(capture_opts->save_file);
 
   /* initialize capture stop (and alike) conditions */
@@ -1233,7 +1225,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
       /* check capture size condition */
       if (cnd_autostop_size != NULL && cnd_eval(cnd_autostop_size,
-                    (guint32)wtap_get_bytes_dumped(ld.wtap_pdh))){
+                    (guint32)ld.bytes_written)){
         /* Capture size limit reached, do we have another file? */
         if (capture_opts->multi_files_on) {
           if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
@@ -1243,15 +1235,15 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
               cnd_reset(cnd_file_duration);
             }
-            wtap_dump_flush(ld.wtap_pdh);
+            libpcap_dump_flush(ld.pdh, NULL);
             sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
-			inpkts_to_sync_pipe = 0;
+            inpkts_to_sync_pipe = 0;
             sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
@@ -1265,7 +1257,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         }
       } /* cnd_autostop_size */
       if (capture_opts->output_to_pipe) {
-        wtap_dump_flush(ld.wtap_pdh);
+        libpcap_dump_flush(ld.pdh, NULL);
       }
     } /* inpkts */
 
@@ -1285,10 +1277,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       /* Let the parent process know. */
       if (inpkts_to_sync_pipe) {
         /* do sync here */
-        wtap_dump_flush(ld.wtap_pdh);
+        libpcap_dump_flush(ld.pdh, NULL);
 
-	  /* Send our parent a message saying we've written out "inpkts_to_sync_pipe"
-	     packets to the capture file. */
+        /* Send our parent a message saying we've written out "inpkts_to_sync_pipe"
+           packets to the capture file. */
         sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
 
         inpkts_to_sync_pipe = 0;
@@ -1312,14 +1304,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
-            wtap_dump_flush(ld.wtap_pdh);
+            libpcap_dump_flush(ld.pdh, NULL);
             sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
-			inpkts_to_sync_pipe = 0;
+            inpkts_to_sync_pipe = 0;
             sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
@@ -1517,8 +1509,6 @@ static void
 capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd)
 {
-  struct wtap_pkthdr whdr;
-  union wtap_pseudo_header pseudo_header;
   loop_data *ld = (loop_data *) user;
   int err;
 
@@ -1529,22 +1519,11 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
      ld->go = FALSE;
   }
 
-  /* Convert from libpcap to Wiretap format.
-     If that fails, set "ld->go" to FALSE, to stop the capture, and set
-     "ld->err" to the error. */
-  pd = wtap_process_pcap_packet(ld->wtap_linktype, phdr, pd, &pseudo_header,
-				&whdr, &err);
-  if (pd == NULL) {
-    ld->go = FALSE;
-    ld->err = err;
-    return;
-  }
-
-  if (ld->wtap_pdh) {
+  if (ld->pdh) {
     /* We're supposed to write the packet to a file; do so.
        If this fails, set "ld->go" to FALSE, to stop the capture, and set
        "ld->err" to the error. */
-    if (!wtap_dump(ld->wtap_pdh, &whdr, &pseudo_header, pd, &err)) {
+    if (!libpcap_write_packet(ld->pdh, phdr, pd, &ld->bytes_written, &err)) {
       ld->go = FALSE;
       ld->err = err;
     }

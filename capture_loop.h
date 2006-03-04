@@ -118,9 +118,11 @@ typedef struct _loop_data {
   enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
 #endif
 
-  /* wiretap (output file) */
-  wtap_dumper   *wtap_pdh;
+  /* output file */
+  FILE          *pdh;
+  int            linktype;
   gint           wtap_linktype;
+  long           bytes_written;
 
 } loop_data;
 
@@ -152,7 +154,7 @@ extern gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd, char *errmsg, int errmsg_len);
 
 extern gboolean
-capture_loop_init_wiretap_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len);
+capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len);
 
 extern gboolean 
 capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close);

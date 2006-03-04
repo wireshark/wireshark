@@ -40,10 +40,9 @@
 
 int ringbuf_init(const char *capture_name, guint num_files);
 const gchar *ringbuf_current_filename(void);
-wtap_dumper* ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
-  int snaplen, int *err);
-gboolean ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int *err);
-gboolean ringbuf_wtap_dump_close(gchar **save_file, int *err);
+FILE *ringbuf_init_libpcap_fdopen(int linktype, int snaplen, int *err);
+gboolean ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err);
+gboolean ringbuf_libpcap_dump_close(gchar **save_file, int *err);
 void ringbuf_free(void);
 void ringbuf_error_cleanup(void);
 

@@ -58,6 +58,7 @@ ETHEREAL_COMMON_SRC =	\
 	packet-range.c	\
 	print.c	\
 	ps.c	\
+	pcapio.c	\
 	ringbuffer.c	\
 	timestats.c	\
 	util.c	\
@@ -81,6 +82,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	fileset.h	\
 	isprint.h	\
 	packet-range.h	\
+	pcapio.h	\
 	print.h	\
 	ps.h	\
 	register.h	\
@@ -221,6 +223,7 @@ dumpcap_SOURCES =	\
 	clopts_common.c	\
 	conditions.c	\
 	dumpcap.c	\
+	pcapio.c	\
 	ringbuffer.c	\
 	tempfile.c	\
 	version_info.c

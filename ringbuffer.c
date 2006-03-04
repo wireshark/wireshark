@@ -61,7 +61,11 @@
 #include <time.h>
 #include <errno.h>
 
-#include <wiretap/wtap.h>
+#include <pcap.h>
+
+#include <glib.h>
+
+#include "pcapio.h"
 #include "ringbuffer.h"
 #include "file_util.h"
 
@@ -79,12 +83,12 @@ typedef struct _ringbuf_data {
   gchar        *fprefix;             /* Filename prefix */
   gchar        *fsuffix;             /* Filename suffix */
   gboolean      unlimited;           /* TRUE if unlimited number of files */
-  int           filetype;
   int           linktype;
   int           snaplen;
 
   int           fd;		     /* Current ringbuffer file descriptor */
-  wtap_dumper  *pdh;  
+  FILE         *pdh;
+  long          bytes_written;	     /* Bytes written to the current file */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
@@ -224,18 +228,17 @@ const gchar *ringbuf_current_filename(void)
 }
 
 /*
- * Calls wtap_dump_fdopen() for the current ringbuffer file
+ * Calls libpcap_fdopen() for the current ringbuffer file
  */
-wtap_dumper*
-ringbuf_init_wtap_dump_fdopen(int filetype, int linktype, int snaplen, int *err)
+FILE *
+ringbuf_init_libpcap_fdopen(int linktype, int snaplen, int *err)
 {
 
-  rb_data.filetype = filetype;
   rb_data.linktype = linktype;
   rb_data.snaplen  = snaplen;
 
-  rb_data.pdh = wtap_dump_fdopen(rb_data.fd, filetype, linktype, snaplen, FALSE /* compressed */, err);
-
+  rb_data.pdh = libpcap_fdopen(rb_data.fd, linktype, snaplen,
+                               &rb_data.bytes_written, err);
   return rb_data.pdh;
 }
 
@@ -243,14 +246,14 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype, int snaplen, int *err)
  * Switches to the next ringbuffer file
  */
 gboolean
-ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int *err)
+ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
 {
   int     next_file_num;
   rb_file *next_rfile = NULL;
 
   /* close current file */
 
-  if (!wtap_dump_close(rb_data.pdh, err)) {
+  if (!libpcap_dump_close(rb_data.pdh, err)) {
     eth_close(rb_data.fd);	/* XXX - the above should have closed this already */
     rb_data.pdh = NULL;	/* it's still closed, we just got an error while closing */
     rb_data.fd = -1;
@@ -270,8 +273,8 @@ ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int
     return FALSE;
   }
 
-  if (ringbuf_init_wtap_dump_fdopen(rb_data.filetype, rb_data.linktype,
-				    rb_data.snaplen, err) == NULL) {
+  if (ringbuf_init_libpcap_fdopen(rb_data.linktype, rb_data.snaplen,
+                                  err) == NULL) {
     return FALSE;
   }
 
@@ -284,16 +287,16 @@ ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int
 }
 
 /*
- * Calls wtap_dump_close() for the current ringbuffer file
+ * Calls libpcap_dump_close() for the current ringbuffer file
  */
 gboolean
-ringbuf_wtap_dump_close(gchar **save_file, int *err)
+ringbuf_libpcap_dump_close(gchar **save_file, int *err)
 {
   gboolean  ret_val = TRUE;
 
   /* close current file, if it's open */
   if (rb_data.pdh != NULL) {
-    if (!wtap_dump_close(rb_data.pdh, err)) {
+    if (!libpcap_dump_close(rb_data.pdh, err)) {
       eth_close(rb_data.fd);
       ret_val = FALSE;
     }
@@ -345,14 +348,14 @@ ringbuf_error_cleanup(void)
 
   /* try to close via wtap */
   if (rb_data.pdh != NULL) {
-    if (wtap_dump_close(rb_data.pdh, NULL)) {
+    if (libpcap_dump_close(rb_data.pdh, NULL)) {
       rb_data.fd = -1;
     }
     rb_data.pdh = NULL;
   }
 
   /* close directly if still open */
-  /* XXX - it shouldn't still be open; "wtap_dump_close()" should leave the
+  /* XXX - it shouldn't still be open; "libpcap_dump_close()" should leave the
      file closed even if it fails */
   if (rb_data.fd != -1) {
     eth_close(rb_data.fd);

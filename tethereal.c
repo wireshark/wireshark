@@ -95,6 +95,7 @@
 #include <pcap.h>
 #include <setjmp.h>
 #include "capture-pcap-util.h"
+#include "pcapio.h"
 #include <wiretap/wtap-capture.h>
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -170,9 +171,9 @@ static void report_counts_siginfo(int);
 #endif /* HAVE_LIBPCAP */
 
 static int load_cap_file(capture_file *, char *, int);
-static gboolean process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
+static gboolean process_packet(capture_file *cf, long offset,
     const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
-    const guchar *pd, int *err);
+    const guchar *pd);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
@@ -1449,10 +1450,16 @@ main(int argc, char *argv[])
         exit(status);
     }
 
-    if (!quiet) {
+    if (!print_packet_info && !quiet) {
       /*
-       * The user didn't ask us not to print a count of packets as
-       * they arrive, so do so.
+       * We're not printing information for each packet, and the user
+       * didn't ask us not to print a count of packets as they arrive,
+       * so print that count so the user knows that packets are arriving.
+       *
+       * XXX - what if the user wants to do a live capture, doesn't want
+       * to save it to a file, doesn't want information printed for each
+       * packet, does want some "-z" statistic, and wants packet counts
+       * so they know whether they're seeing any packets?
        */
       print_packet_counts = TRUE;
     }
@@ -1509,7 +1516,7 @@ capture(void)
   init_dissection();
 
   ld.wtap_linktype  = WTAP_ENCAP_UNKNOWN;
-  ld.wtap_pdh       = NULL;
+  ld.pdh            = NULL;
   ld.packet_cb      = capture_pcap_cb;
 
 
@@ -1545,11 +1552,13 @@ capture(void)
       goto error;
   }
 
-  /* open the wiretap part of the output file (the output file is already open) */
-  if(!capture_loop_init_wiretap_output(&capture_opts, save_file_fd, &ld, errmsg, sizeof errmsg))
+  /* set up to write to the already-opened capture output file/files */
+  if(!capture_loop_init_output(&capture_opts, save_file_fd, &ld, errmsg, sizeof errmsg))
   {
       goto error;
   }
+
+  ld.wtap_linktype = wtap_pcap_encap_to_wtap_encap(ld.linktype);
 
   /* Save the capture file name. */
   ld.save_file = capture_opts.save_file;
@@ -1679,13 +1688,12 @@ capture(void)
            in effect. */
         ld.go = FALSE;
       } else if (cnd_autostop_size != NULL &&
-                    cnd_eval(cnd_autostop_size,
-                              (guint32)wtap_get_bytes_dumped(ld.wtap_pdh))) {
+                    cnd_eval(cnd_autostop_size, (guint32)ld.bytes_written)) {
         /* We're saving the capture to a file, and the capture file reached
            its maximum size. */
         if (capture_opts.multi_files_on) {
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts.save_file, &save_file_fd, &loop_err)) {
+          if (ringbuf_switch_file(&ld.pdh, &capture_opts.save_file, &save_file_fd, &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1703,7 +1711,7 @@ capture(void)
       }
       if (capture_opts.output_to_pipe) {
         if (ld.packet_count > packet_count_prev) {
-          wtap_dump_flush(ld.wtap_pdh);
+          libpcap_dump_flush(ld.pdh, NULL);
           packet_count_prev = ld.packet_count;
         }
       }
@@ -1806,18 +1814,12 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
 {
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;
+  const guchar *wtap_pd;
   loop_data *ld = (loop_data *) user;
   int loop_err;
   int err;
   int save_file_fd;
-
-  /* Convert from libpcap to Wiretap format.
-     If that fails, ignore the packet (wtap_process_pcap_packet has
-     written an error message). */
-  pd = wtap_process_pcap_packet(ld->wtap_linktype, phdr, pd, &pseudo_header,
-                                &whdr, &err);
-  if (pd == NULL)
-    return;
+  gboolean packet_accepted;
 
 #ifdef SIGINFO
   /*
@@ -1835,7 +1837,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
    */
   if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
     /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&ld->wtap_pdh, &ld->save_file, &save_file_fd, &loop_err)) {
+    if (ringbuf_switch_file(&ld->pdh, &ld->save_file, &save_file_fd, &loop_err)) {
       /* File switch succeeded: reset the condition */
       cnd_reset(cnd_file_duration);
     } else {
@@ -1845,17 +1847,51 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     }
   }
 
-  if (!process_packet(&cfile, ld->wtap_pdh, 0, &whdr, &pseudo_header, pd, &err)) {
-    /* Error writing to a capture file */
-    if (print_packet_counts) {
-      /* We're printing counts of packets captured; move to the line after
-         the count. */
-      fprintf(stderr, "\n");
+  if (do_dissection) {
+    /* We're goint to print packet information, run a read filter, or
+       process taps.  Use process_packet() to handle that; in order
+       to do that, we need to convert from libpcap to Wiretap format.
+       If that fails, ignore the packet (wtap_process_pcap_packet has
+       written an error message). */
+    wtap_pd = wtap_process_pcap_packet(ld->wtap_linktype, phdr, pd,
+                                       &pseudo_header, &whdr, &err);
+    if (wtap_pd == NULL)
+      return;
+
+    packet_accepted = process_packet(&cfile, 0, &whdr, &pseudo_header, wtap_pd);
+  } else {
+    /* We're just writing out packets. */
+    packet_accepted = TRUE;
+  }
+
+  if (packet_accepted) {
+    /* Count this packet. */
+#ifdef HAVE_LIBPCAP
+    ld->packet_count++;
+#endif
+
+    if (ld->pdh != NULL) {
+      if (!libpcap_write_packet(ld->pdh, phdr, pd, &ld->bytes_written, &err)) {
+        /* Error writing to a capture file */
+        if (print_packet_counts) {
+          /* We're printing counts of packets captured; move to the line after
+             the count. */
+          fprintf(stderr, "\n");
+        }
+        show_capture_file_io_error(ld->save_file, err, FALSE);
+        pcap_close(ld->pcap_h);
+        libpcap_dump_close(ld->pdh, &err);
+        exit(2);
+      }
     }
-    show_capture_file_io_error(ld->save_file, err, FALSE);
-    pcap_close(ld->pcap_h);
-    wtap_dump_close(ld->wtap_pdh, &err);
-    exit(2);
+    if (print_packet_counts) {
+      /* We're printing packet counts. */
+      if (ld->packet_count != 0) {
+        fprintf(stderr, "\r%u ", ld->packet_count);
+        /* stderr could be line buffered */
+        fflush(stderr);
+      }
+    }
   }
 
 #ifdef SIGINFO
@@ -2017,13 +2053,21 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
     pdh = NULL;
   }
   while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-    if (!process_packet(cf, pdh, data_offset, wtap_phdr(cf->wth),
-                        wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
-                        &err)) {
-      /* Error writing to a capture file */
-      show_capture_file_io_error(save_file, err, FALSE);
-      wtap_dump_close(pdh, &err);
-      exit(2);
+    if (process_packet(cf, data_offset, wtap_phdr(cf->wth),
+                       wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth))) {
+      /* Either there's no read filtering or this packet passed the
+         filter, so, if we're writing to a capture file, write
+         this packet out. */
+      if (pdh != NULL) {
+        if (!wtap_dump(pdh, wtap_phdr(cf->wth),
+                       wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                       &err)) {
+          /* Error writing to a capture file */
+          show_capture_file_io_error(save_file, err, FALSE);
+          wtap_dump_close(pdh, &err);
+          exit(2);
+        }
+      }
     }
   }
   if (err != 0) {
@@ -2148,10 +2192,8 @@ clear_fdata(frame_data *fdata)
 }
 
 static gboolean
-process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
-               const struct wtap_pkthdr *whdr,
-               union wtap_pseudo_header *pseudo_header, const guchar *pd,
-               int *err)
+process_packet(capture_file *cf, long offset, const struct wtap_pkthdr *whdr,
+               union wtap_pseudo_header *pseudo_header, const guchar *pd)
 {
   frame_data fdata;
   gboolean create_proto_tree;
@@ -2215,27 +2257,7 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
   }
 
   if (passed) {
-    /* Count this packet. */
-#ifdef HAVE_LIBPCAP
-    ld.packet_count++;
-#endif
-
     /* Process this packet. */
-    if (pdh != NULL) {
-      /* We're writing to a capture file; write this packet. */
-      if (!wtap_dump(pdh, whdr, pseudo_header, pd, err))
-        return FALSE;
-#ifdef HAVE_LIBPCAP
-      if (print_packet_counts) {
-              /* We're printing packet counts. */
-        if (ld.packet_count != 0) {
-          fprintf(stderr, "\r%u ", ld.packet_count);
-          /* stderr could be line buffered */
-          fflush(stderr);
-        }
-      }
-#endif
-    }
     if (print_packet_info) {
       /* We're printing packet information; print the information for
          this packet. */
@@ -2275,7 +2297,7 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
     epan_dissect_free(edt);
     clear_fdata(&fdata);
   }
-  return TRUE;
+  return passed;
 }
 
 static void
