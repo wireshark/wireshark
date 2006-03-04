@@ -1310,7 +1310,7 @@ static int hf_supported_code_set_6_70  = -1;
 static int hf_supported_code_set_5_90  = -1;
 static int hf_supported_code_set_5_15  = -1;
 static int hf_supported_code_set_4_75  = -1;
-static int hf_initial_codec_mode  = -1;
+static int hf_optimisation_mode  = -1;
 static int hf_max_codec_modes  = -1;
 static int hf_bearer_control_tunneling			= -1;
 static int hf_Local_BCU_ID						= -1;
@@ -2379,6 +2379,12 @@ static const value_string bat_initial_codec_mode_vals[] = {
 	{0, NULL}
 };
 
+static const value_string optimisation_mode_vals[] = {
+	{ 0,	"Optimisation of the ACS not supported,"},
+	{ 1,	"Optimisation of the ACS supported,"},
+	{ 0,	NULL }
+};
+
 static const value_string bearer_network_connection_characteristics_vals[] = {
 
 	{ 0x00,	"no indication"},
@@ -2550,7 +2556,7 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
 			}
 			if ( len > 4 )	{
 				offset = offset + 1;
-				proto_tree_add_item(tree, hf_initial_codec_mode, tvb, offset, 1, TRUE);
+				proto_tree_add_item(tree, hf_optimisation_mode, tvb, offset, 1, TRUE);
 				proto_tree_add_item(tree, hf_max_codec_modes, tvb, offset, 1, TRUE);
 			}
 			offset = offset + 1;
@@ -6645,15 +6651,15 @@ proto_register_isup(void)
 			FT_UINT8, BASE_HEX, NULL,0x01,
 			"", HFILL }},
 		
-		{ &hf_initial_codec_mode,
-			{ "Initial Codec Mode",  "bat_ase.icm",
-			FT_UINT8, BASE_HEX, VALS(bat_initial_codec_mode_vals),0x38,
-			"", HFILL }},
+		{ &hf_optimisation_mode,
+			{ "Optimisation Mode for ACS , OM",  "bat_ase.optimisation_mode",
+			FT_UINT8, BASE_HEX, VALS(optimisation_mode_vals),0x8,
+			"Optimisation Mode for ACS , OM", HFILL }},
 		
 		{ &hf_max_codec_modes,
-			{ "Maximal number of Codec Modes",  "bat_ase.macs",
+			{ "Maximal number of Codec Modes, MACS",  "bat_ase.macs",
 			FT_UINT8, BASE_DEC, NULL,0x07,
-			"", HFILL }},
+			"Maximal number of Codec Modes, MACS", HFILL }},
 		
 		
 		{ &hf_bearer_control_tunneling,
