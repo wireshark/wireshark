@@ -386,3 +386,10 @@ int TextWindow_register(lua_State* L) {
 }
 
 
+ELUA_FUNCTION elua_retap_packets(lua_State* L) {
+	if ( ops->retap_packets )
+		ops->retap_packets();
+	return 0;
+}
+
+
