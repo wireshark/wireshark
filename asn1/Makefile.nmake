@@ -3,6 +3,7 @@
 
 all: \
 	acse	\
+	acp133 \
 	camel	\
 	cdt	\
 	cmip	\
@@ -58,6 +59,9 @@ all: \
 	
 clean:
 	cd acse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
+	cd ..
+	cd acp133
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
 	cd ..
 	cd camel
@@ -216,6 +220,7 @@ clean:
 	
 ber: \	
 	acse	\
+	acp133 \
 	camel	\
 	cdt	\
 	cmip	\
@@ -272,6 +277,11 @@ per: \
 
 acse::
 	cd acse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	cd ..
+
+acp133::
+	cd acp133
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
 	cd ..
 
