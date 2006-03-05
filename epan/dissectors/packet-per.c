@@ -798,7 +798,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		if(extension_present){
 			offset=dissect_per_integer(tvb, offset, pinfo, tree,
 				hf_index,
-				NULL, NULL);
+				value, NULL);
 			return offset;
 		}
 	}
@@ -947,6 +947,79 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	if (item) *item = it;
 	if (value) *value = val;
 	return offset;}
+
+/* 13 Enemerated */
+guint32
+dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item, gboolean has_extension, guint32 ext_min, guint32 ext_max)
+{
+
+	proto_item *it=NULL;
+	guint32 val;
+	proto_item *pi;
+	guint32 start_offset = offset;
+	gboolean extension_present;
+	header_field_info *hfi;
+
+	if (!has_extension){
+		/* 13.2  */
+		offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index, min, max, value, item, has_extension);
+		return offset;
+	}
+	/* Just get the extension bit, don't advance offset as it will be done in
+	 * dissect_per_constrained_integer
+	 */
+	dissect_per_boolean(tvb, offset, pinfo, tree, -1, &extension_present, &pi);
+	if(extension_present){
+		/* Add extension bit to the tree */
+		offset = dissect_per_boolean(tvb, offset, pinfo, tree, -1, &extension_present, &pi);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+
+		hfi = proto_registrar_get_nth(hf_index);
+		/* 13.3  */
+		if ( ext_min == ext_max ){
+		
+			/* 10.5.4	If "range" has the value 1,
+			 * then the result of the encoding shall be
+			 * an empty bit-field (no bits).
+			 */
+			val = max + 1;
+			if (IS_FT_UINT(hfi->type)) {
+				it = proto_tree_add_uint(tree, hf_index, tvb, start_offset, 1, val);
+			} else {
+				THROW(ReportedBoundsError);
+			}
+
+			/* byte aligned */
+			BYTE_ALIGN_OFFSET(offset);
+			if (item) *item = it;
+			if (value) *value = val;
+			return offset;
+
+		}else{
+			/* 13.3 ".. and the value shall be added to the field-list as a
+			 * normally small non-negative whole number whose value is the 
+			 * enumeration index of the additional enumeration and with "lb" set to 0.."
+			 */
+			offset=dissect_per_integer(tvb, offset, pinfo, tree,
+				hf_index, &val, item);
+			val = val + max;
+			if (IS_FT_UINT(hfi->type)) {
+				it = proto_tree_add_uint(tree, hf_index, tvb, start_offset, 1, val);
+			} else {
+				THROW(ReportedBoundsError);
+			}
+			if (item) *item = it;
+			if (value) *value = val;
+			return offset;
+		}
+
+	}
+	/* Extension not present */
+
+	offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index, min, max, value, item, has_extension);
+
+	return offset;
+}
 
 /* 22 Encoding the choice type */
 guint32

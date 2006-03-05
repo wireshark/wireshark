@@ -90,6 +90,17 @@ VAL_PTR = &parameter_tvb
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
 
+#.FN_BODY PagingCause
+# Remove once asn2eth is fixed to handle PER Enummeration extensions
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+									0, 4, NULL, NULL, TRUE, 0, 0);
+
+#.FN_BODY Event
+# Remove once asn2eth is fixed to handle PER Enummeration extensions
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+									0, 2, NULL, NULL, TRUE, 0, 0);
+
+
 #.END
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ranap_ProtocolIE_ID_vals)
