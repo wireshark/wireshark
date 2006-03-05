@@ -120,25 +120,42 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts);
 #define SP_MAX_MSG_LEN	4096
 
 
- /* write a message to the recipient pipe in the standard format 
+/* write a message to the recipient pipe in the standard format 
    (3 digit message length (excluding length and indicator field), 
-   1 byte message indicator and the rest is the message) */
+   1 byte message indicator and the rest is the message).
+   If msg is NULL, the message has only a length and indicator.
+   Otherwise, if secondary_msg isn't NULL, send both msg and
+   secondary_msg as null-terminated strings, otherwise just send
+   msg as a null-terminated string and follow it with an empty string. */
 static void
-pipe_write_block(int pipe, char indicator, int len, const char *msg)
+pipe_write_block(int pipe, char indicator, const char *msg,
+                 const char *secondary_msg)
 {
     guchar header[3+1]; /* indicator + 3-byte len */
     int ret;
+    size_t len, secondary_len, total_len;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "write %d enter", pipe);
 
+    len = 0;
+    secondary_len = 0;
+    total_len = 0;
+    if(msg != NULL) {
+      len = strlen(msg) + 1;	/* include the terminating '\0' */
+      total_len = len;
+      if(secondary_msg == NULL)
+        secondary_msg = "";	/* default to an empty string */
+      secondary_len = strlen(secondary_msg) + 1;
+      total_len += secondary_len;
+    }
     g_assert(indicator < '0' || indicator > '9');
-    g_assert(len <= SP_MAX_MSG_LEN);
+    g_assert(total_len <= SP_MAX_MSG_LEN);
 
     /* write header (indicator + 3-byte len) */
     header[0] = indicator;
-    header[1] = (len >> 16) & 0xFF;
-    header[2] = (len >> 8) & 0xFF;
-    header[3] = (len >> 0) & 0xFF;
+    header[1] = (total_len >> 16) & 0xFF;
+    header[2] = (total_len >> 8) & 0xFF;
+    header[3] = (total_len >> 0) & 0xFF;
 
     ret = write(pipe, header, sizeof header);
     if(ret == -1) {
@@ -150,9 +167,16 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
     /* write value (if we have one) */
     if(len) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-              "write %d indicator: %c value len: %u msg: %s", pipe, indicator,
-              len, msg);
+              "write %d indicator: %c value len: %lu msg: \"%s\" secondary len: %lu secondary msg: \"%s\"", pipe, indicator,
+              (unsigned long)len, msg, (unsigned long)secondary_len,
+              secondary_msg);
         ret = write(pipe, msg, len);
+        if(ret == -1) {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+                  "write %d value: error %s", pipe, strerror(errno));
+            return;
+        }
+        ret = write(pipe, msg, secondary_len);
         if(ret == -1) {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
                   "write %d value: error %s", pipe, strerror(errno));
@@ -169,11 +193,12 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 
 #ifndef _WIN32
 void
-sync_pipe_errmsg_to_parent(const char *errmsg)
+sync_pipe_errmsg_to_parent(const char *error_msg,
+                           const char *secondary_error_msg)
 {
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_errmsg_to_parent: %s", errmsg);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_errmsg_to_parent: %s", error_msg);
 
-    pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
+    pipe_write_block(1, SP_ERROR_MSG, error_msg, secondary_error_msg);
 }
 #endif
 
@@ -185,7 +210,7 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
 
-    pipe_write_block(capture_opts->signal_pipe_write_fd, SP_QUIT, 0, NULL);
+    pipe_write_block(capture_opts->signal_pipe_write_fd, SP_QUIT, NULL, NULL);
 }
 #endif
 
@@ -602,7 +627,7 @@ sync_pipe_start(capture_options *capture_opts) {
       execv(exename, argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		exename, strerror(errno));
-      sync_pipe_errmsg_to_parent(errmsg);
+      sync_pipe_errmsg_to_parent(errmsg, NULL);
 
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but
@@ -694,21 +719,21 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
   switch(indicator) {
   case SP_FILE:
-      if(!capture_input_new_file(capture_opts, buffer)) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: file failed, closing capture");
+    if(!capture_input_new_file(capture_opts, buffer)) {
+      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: file failed, closing capture");
 
-        /* We weren't able to open the new capture file; user has been
-           alerted. Close the sync pipe. */
-        eth_close(source);
+      /* We weren't able to open the new capture file; user has been
+         alerted. Close the sync pipe. */
+      eth_close(source);
 
-        /* the child has send us a filename which we couldn't open.
-           this probably means, the child is creating files faster than we can handle it.
-           this should only be the case for very fast file switches
-           we can't do much more than telling the child to stop
-           (this is the "emergency brake" if user e.g. wants to switch files every second) */
-        sync_pipe_stop(capture_opts);
-      }
-      break;
+      /* the child has send us a filename which we couldn't open.
+         this probably means, the child is creating files faster than we can handle it.
+         this should only be the case for very fast file switches
+         we can't do much more than telling the child to stop
+         (this is the "emergency brake" if user e.g. wants to switch files every second) */
+      sync_pipe_stop(capture_opts);
+    }
+    break;
   case SP_PACKET_COUNT:
     nread = atoi(buffer);
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", nread);
@@ -718,11 +743,15 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     capture_input_error_message(capture_opts, buffer);
     /* the capture child will close the sync_pipe, nothing to do for now */
     break;
+  case SP_BAD_FILTER:
+    capture_input_cfilter_error_message(capture_opts, buffer);
+    /* the capture child will close the sync_pipe, nothing to do for now */
+    break;
   case SP_DROPS:
     capture_input_drops(capture_opts, atoi(buffer));
     break;
   default:
-      g_assert_not_reached();
+    g_assert_not_reached();
   }
 
   return TRUE;

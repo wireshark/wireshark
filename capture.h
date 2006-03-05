@@ -51,27 +51,33 @@ extern void capture_restart(capture_options *capture_opts);
 extern void capture_kill_child(capture_options *capture_opts);
 
 /**
- * Capture child told us, we have a new (or the first) capture file.
+ * Capture child told us we have a new (or the first) capture file.
  */
 extern gboolean capture_input_new_file(capture_options *capture_opts, gchar *new_file);
 
 /**
- * Capture child told us, we have new packets to read.
+ * Capture child told us we have new packets to read.
  */
 extern void capture_input_new_packets(capture_options *capture_opts, int to_read);
 
 /**
- * Capture child told us, how many dropped packets it counted.
+ * Capture child told us how many dropped packets it counted.
  */
 extern void capture_input_drops(capture_options *capture_opts, int dropped);
 
 /**
- * Capture child told us, that an error has occurred while starting the capture.
+ * Capture child told us that an error has occurred while starting the capture.
  */
 extern void capture_input_error_message(capture_options *capture_opts, char *error_message);
 
 /**
- * Capture child closed it's side ot the pipe, do the required cleanup.
+ * Capture child told us that an error has occurred while parsing a
+ * capture filter when starting/running the capture.
+ */
+extern void capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message);
+
+/**
+ * Capture child closed its side of the pipe, do the required cleanup.
  */
 extern void capture_input_closed(capture_options *capture_opts);
 

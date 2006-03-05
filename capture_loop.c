@@ -87,7 +87,11 @@
 
 #include "capture_loop.h"
 
-
+/*
+ * Standard secondary message for unexpected errors.
+ */
+static const char please_report[] =
+    "Please report this to the Ethereal developers";
 
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
@@ -429,7 +433,11 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 
 
 /* open the capture input file (pcap or capture pipe) */
-gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len) {
+gboolean
+capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
+                        char *errmsg, size_t errmsg_len,
+                        char *secondary_errmsg, size_t secondary_errmsg_len)
+{
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar      *sync_msg_str;
   const char *set_linktype_err_str;
@@ -489,6 +497,7 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
         "Couldn't initialize Windows Sockets: error %d", err);
       break;
     }
+    g_snprintf(secondary_errmsg, secondary_errmsg_len, please_report);
     return FALSE;
   }
 #endif
@@ -509,16 +518,15 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
 #ifdef _WIN32
     /* try to set the capture buffer size */
     if (pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
-        sync_msg_str = g_strdup_printf(
-          "%sCouldn't set the capture buffer size!%s\n"
-          "\n"
+        sync_secondary_msg_str = g_strdup_printf(
           "The capture buffer size of %luMB seems to be too high for your machine,\n"
           "the default of 1MB will be used.\n"
           "\n"
           "Nonetheless, the capture is started.\n",
-          simple_dialog_primary_start(), simple_dialog_primary_end(), capture_opts->buffer_size);
-        sync_pipe_errmsg_to_parent(sync_msg_str);
-        g_free(sync_msg_str);
+          capture_opts->buffer_size);
+        sync_pipe_errmsg_to_parent("Couldn't set the capture buffer size!",
+                                   sync_secondary_msg_str);
+        g_free(sync_secondary_msg_str);
     }
 #endif
 
@@ -528,7 +536,9 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
 	capture_opts->linktype);
       if (set_linktype_err_str != NULL) {
 	g_snprintf(errmsg, errmsg_len, "Unable to set data link type (%s).",
-	  set_linktype_err_str);
+	           set_linktype_err_str);
+        g_snprintf(secondary_errmsg, secondary_errmsg_len,
+                   "Please report this to the Ethereal developers");
 	return FALSE;
       }
     }
@@ -543,9 +553,9 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
        Do, however, warn about the lack of 64-bit support, and warn that
        WAN devices aren't supported. */
     g_snprintf(errmsg, errmsg_len,
-"%sThe capture session could not be initiated!%s\n"
-"\n"
-"(%s)\n"
+"The capture session could not be initiated (%s).",
+               open_err_str);
+    g_snprintf(secondary_errmsg, secondary_errmsg_len,
 "\n"
 "Please check that \"%s\" is the proper interface.\n"
 "\n"
@@ -555,7 +565,7 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
 "       %shttp://wiki.ethereal.com/CaptureSetup%s\n"
 "\n"
 "64-bit Windows:\n"
-"WinPcap does not support 64-bit Windows, you will have to use some other\n"
+"WinPcap does not support 64-bit Windows; you will have to use some other\n"
 "tool to capture traffic, such as netcap.\n"
 "For netcap details see: http://support.microsoft.com/?id=310875\n"
 "\n"
@@ -565,10 +575,7 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
 "Server 2003.\n"
 "WinPcap 3.1 has support for it on Windows 2000 / XP / Server 2003, but has no\n"
 "support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
-	simple_dialog_primary_start(), simple_dialog_primary_end(),
-    open_err_str,
-    capture_opts->iface,
-	simple_dialog_primary_start(), simple_dialog_primary_end());
+    open_err_str, capture_opts->iface);
     return FALSE;
 #else
     /* try to open iface as a pipe */
@@ -599,10 +606,10 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
 	else
 	  libpcap_warn = "";
 	g_snprintf(errmsg, errmsg_len,
-	  "The capture session could not be initiated (%s).\n"
-	  "Please check to make sure you have sufficient permissions, and that\n"
-	  "you have the proper interface or pipe specified.%s", open_err_str,
-	  libpcap_warn);
+	  "The capture session could not be initiated (%s).", open_err_str);
+	g_snprintf(secondary_errmsg, secondary_errmsg_len,
+"Please check to make sure you have sufficient permissions, and that\n"
+"you have the proper interface or pipe specified.%s", libpcap_warn);
       }
       /*
        * Else pipe (or file) does exist and cap_pipe_open_live() has
@@ -631,7 +638,7 @@ gboolean capture_loop_open_input(capture_options *capture_opts, loop_data *ld, c
      returned a warning; print it, but keep capturing. */
   if (open_err_str[0] != '\0') {
     sync_msg_str = g_strdup_printf("%s.", open_err_str);
-    sync_pipe_errmsg_to_parent(sync_msg_str);
+    sync_pipe_errmsg_to_parent(sync_msg_str, "");
     g_free(sync_msg_str);
   }
 
@@ -666,7 +673,7 @@ static void capture_loop_close_input(loop_data *ld) {
 
 
 /* init the capture filter */
-gboolean capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter, char *errmsg, int errmsg_len) {
+initfilter_status_t capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter) {
   bpf_u_int32 netnum, netmask;
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   struct bpf_program fcode;
@@ -692,56 +699,23 @@ gboolean capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const 
       netmask = 0;
     }
     if (pcap_compile(pcap_h, &fcode, cfilter, 1, netmask) < 0) {
-      dfilter_t   *rfcode = NULL;
-      gchar *safe_cfilter = simple_dialog_format_message(cfilter);
-      gchar *safe_cfilter_error_msg = simple_dialog_format_message(
-	  pcap_geterr(pcap_h));
-
-      /* filter string invalid, did the user tried a display filter? */
-#ifndef DUMPCAP
-      if (dfilter_compile(cfilter, &rfcode) && rfcode != NULL) {
-        g_snprintf(errmsg, errmsg_len,
-          "%sInvalid capture filter: \"%s\"!%s\n"
-          "\n"
-          "That string looks like a valid display filter; however, it isn't a valid\n"
-          "capture filter (%s).\n"
-          "\n"
-          "Note that display filters and capture filters don't have the same syntax,\n"
-          "so you can't use most display filter expressions as capture filters.\n"
-          "\n"
-          "See the User's Guide for a description of the capture filter syntax.",
-          simple_dialog_primary_start(), safe_cfilter,
-          simple_dialog_primary_end(), safe_cfilter_error_msg);
-	dfilter_free(rfcode);
-      } else 
-#endif
-      {
-        g_snprintf(errmsg, errmsg_len,
-          "%sInvalid capture filter: \"%s\"!%s\n"
-          "\n"
-          "That string isn't a valid capture filter (%s).\n"
-          "See the User's Guide for a description of the capture filter syntax.",
-          simple_dialog_primary_start(), safe_cfilter,
-          simple_dialog_primary_end(), safe_cfilter_error_msg);
-      }
-      g_free(safe_cfilter_error_msg);
-      g_free(safe_cfilter);
-      return FALSE;
+      /* Treat this specially - our caller might try to compile this
+         as a display filter and, if that succeeds, warn the user that
+         the display and capture filter syntaxes are different. */
+      return INITFILTER_BAD_FILTER;
     }
     if (pcap_setfilter(pcap_h, &fcode) < 0) {
-      g_snprintf(errmsg, errmsg_len, "Can't install filter (%s).",
-	pcap_geterr(pcap_h));
 #ifdef HAVE_PCAP_FREECODE
       pcap_freecode(&fcode);
 #endif
-      return FALSE;
+      return INITFILTER_OTHER_ERROR;
     }
 #ifdef HAVE_PCAP_FREECODE
     pcap_freecode(&fcode);
 #endif
   }
 
-  return TRUE;
+  return INITFILTER_NO_ERROR;
 }
 
 
@@ -850,7 +824,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
         if (sel_ret < 0 && errno != EINTR) {
           g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
-          sync_pipe_errmsg_to_parent(errmsg);
+          sync_pipe_errmsg_to_parent(errmsg, please_report);
           ld->go = FALSE;
         }
       } else {
@@ -930,7 +904,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
           if (sel_ret < 0 && errno != EINTR) {
             g_snprintf(errmsg, errmsg_len,
               "Unexpected error from select: %s", strerror(errno));
-            sync_pipe_errmsg_to_parent(errmsg);
+            sync_pipe_errmsg_to_parent(errmsg, please_report);
             ld->go = FALSE;
           }
         }
@@ -1106,7 +1080,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   guint32     autostop_files = 0;
   gboolean    write_ok;
   gboolean    close_ok;
+  gboolean    cfilter_error = FALSE;
   char        errmsg[4096+1];
+  char        secondary_errmsg[4096+1];
   int         save_file_fd;
 
 
@@ -1147,21 +1123,38 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* open the output file (temporary/specified name/ringbuffer) */
   if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
+    *secondary_errmsg = '\0';
     goto error;    
   }
 
   /* open the "input file" from network interface or capture pipe */
-  if (!capture_loop_open_input(capture_opts, &ld, errmsg, sizeof(errmsg))) {
+  if (!capture_loop_open_input(capture_opts, &ld, errmsg, sizeof(errmsg),
+                               secondary_errmsg, sizeof(secondary_errmsg))) {
     goto error;
   }
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
-  if (!capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts->iface, capture_opts->cfilter, errmsg, sizeof(errmsg))) {
+  switch (capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts->iface, capture_opts->cfilter)) {
+
+  case INITFILTER_NO_ERROR:
+    break;
+
+  case INITFILTER_BAD_FILTER:
+    cfilter_error = TRUE;
+    g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(ld.pcap_h));
+    *secondary_errmsg = '\0';
+    goto error;
+
+  case INITFILTER_OTHER_ERROR:
+    g_snprintf(errmsg, sizeof(errmsg), "Can't install filter (%s).",
+               pcap_geterr(ld.pcap_h));
+    g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report);
     goto error;
   }
 
   /* set up to write to the already-opened capture output file/files */
   if (!capture_loop_init_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
+    *secondary_errmsg = '\0';
     goto error;
   }
 
@@ -1344,11 +1337,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (ld.pcap_err) {
     g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
       pcap_geterr(ld.pcap_h));
-    sync_pipe_errmsg_to_parent(errmsg);
+    sync_pipe_errmsg_to_parent(errmsg, please_report);
   }
 #ifndef _WIN32
     else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
-      sync_pipe_errmsg_to_parent(errmsg);
+      sync_pipe_errmsg_to_parent(errmsg, "");
 #endif
 
   /* did we had an error while capturing? */
@@ -1357,7 +1350,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   } else {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, ld.err,
 			      FALSE);
-    sync_pipe_errmsg_to_parent(errmsg);
+    sync_pipe_errmsg_to_parent(errmsg, please_report);
     write_ok = FALSE;
   }
 
@@ -1376,7 +1369,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (!close_ok && write_ok) {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, err_close,
 		TRUE);
-    sync_pipe_errmsg_to_parent(errmsg);
+    sync_pipe_errmsg_to_parent(errmsg, "");
   }
 
   /*
@@ -1401,7 +1394,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       g_snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
 		pcap_geterr(ld.pcap_h));
-      sync_pipe_errmsg_to_parent(errmsg);
+      sync_pipe_errmsg_to_parent(errmsg, please_report);
     }
   }
 
@@ -1418,7 +1411,7 @@ error:
     /* cleanup ringbuffer */
     ringbuf_error_cleanup();
   } else {
-    /* We can't use the save file, and we have no wtap_dump stream
+    /* We can't use the save file, and we have no FILE * for the stream
        to close in order to close it, so close the FD directly. */
     eth_close(save_file_fd);
 
@@ -1428,7 +1421,10 @@ error:
     g_free(capture_opts->save_file);
   }
   capture_opts->save_file = NULL;
-  sync_pipe_errmsg_to_parent(errmsg);
+  if (cfilter_error)
+    sync_pipe_cfilter_error_to_parent(capture_opts->cfilter, errmsg);
+  else
+    sync_pipe_errmsg_to_parent(errmsg, secondary_errmsg);
 
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);

@@ -129,8 +129,14 @@ typedef struct _loop_data {
 
 
 /** init the capture filter */
-extern gboolean 
-capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter, char *errmsg, int errmsg_len);
+typedef enum {
+  INITFILTER_NO_ERROR,
+  INITFILTER_BAD_FILTER,
+  INITFILTER_OTHER_ERROR
+} initfilter_status_t;
+
+extern initfilter_status_t
+capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter);
 
 /** Take care of byte order in the libpcap headers read from pipes. */
 extern void
@@ -148,7 +154,9 @@ cap_pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
 #endif
 
 extern gboolean 
-capture_loop_open_input(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len);
+capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
+                        char *errmsg, size_t errmsg_len,
+                        char *secondary_errmsg, size_t secondary_errmsg_len);
 
 extern gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd, char *errmsg, int errmsg_len);

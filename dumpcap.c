@@ -512,25 +512,42 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 #define SP_MAX_MSG_LEN	4096
 
 
- /* write a message to the recipient pipe in the standard format 
+/* write a message to the recipient pipe in the standard format 
    (3 digit message length (excluding length and indicator field), 
-   1 byte message indicator and the rest is the message) */
+   1 byte message indicator and the rest is the message).
+   If msg is NULL, the message has only a length and indicator.
+   Otherwise, if secondary_msg isn't NULL, send both msg and
+   secondary_msg as null-terminated strings, otherwise just send
+   msg as a null-terminated string and follow it with an empty string. */
 static void
-pipe_write_block(int pipe, char indicator, int len, const char *msg)
+pipe_write_block(int pipe, char indicator, const char *msg,
+                 const char *secondary_msg)
 {
     guchar header[3+1]; /* indicator + 3-byte len */
     int ret;
+    size_t len, secondary_len, total_len;
 
     /*g_warning("write %d enter", pipe);*/
 
+    len = 0;
+    secondary_len = 0;
+    total_len = 0;
+    if(msg != NULL) {
+      len = strlen(msg) + 1;	/* include the terminating '\0' */
+      total_len = len;
+      if(secondary_msg == NULL)
+        secondary_msg = "";	/* default to an empty string */
+      secondary_len = strlen(secondary_msg) + 1;
+      total_len += secondary_len;
+    }
     g_assert(indicator < '0' || indicator > '9');
-    g_assert(len <= SP_MAX_MSG_LEN);
+    g_assert(total_len <= SP_MAX_MSG_LEN);
 
     /* write header (indicator + 3-byte len) */
     header[0] = indicator;
-    header[1] = (len >> 16) & 0xFF;
-    header[2] = (len >> 8) & 0xFF;
-    header[3] = (len >> 0) & 0xFF;
+    header[1] = (total_len >> 16) & 0xFF;
+    header[2] = (total_len >> 8) & 0xFF;
+    header[3] = (total_len >> 0) & 0xFF;
 
     ret = write(pipe, header, sizeof header);
     if(ret == -1) {
@@ -541,6 +558,10 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
     if(len) {
         /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe, indicator, len, msg);*/
         ret = write(pipe, msg, len);
+        if(ret == -1) {
+            return;
+        }
+        ret = write(pipe, secondary_msg, secondary_len);
         if(ret == -1) {
             return;
         }
@@ -562,7 +583,7 @@ sync_pipe_packet_count_to_parent(int packet_count)
     if(capture_child) {
         g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
-        pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
+        pipe_write_block(1, SP_PACKET_COUNT, tmp, NULL);
     } else {
         count += packet_count;
         fprintf(stderr, "\rPackets: %u ", count);
@@ -579,18 +600,33 @@ sync_pipe_filename_to_parent(const char *filename)
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "File: %s", filename);
 
     if(capture_child) {
-        pipe_write_block(1, SP_FILE, strlen(filename)+1, filename);
+        pipe_write_block(1, SP_FILE, filename, NULL);
+    }
+}
+
+
+void
+sync_pipe_cfilter_error_to_parent(const char *cfilter _U_, const char *errmsg)
+{
+
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
+
+    if (capture_child) {
+        pipe_write_block(1, SP_BAD_FILTER, errmsg, NULL);
     }
 }
 
 void
-sync_pipe_errmsg_to_parent(const char *errmsg)
+sync_pipe_errmsg_to_parent(const char *error_msg, const char *secondary_error_msg)
 {
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Error: %s", errmsg);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Error: %s", error_msg);
+    if (secondary_error_msg != NULL)
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Secondary error: %s",
+              secondary_error_msg);
 
     if(capture_child) {
-        pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
+        pipe_write_block(1, SP_ERROR_MSG, error_msg, secondary_error_msg);
     }
 }
 
@@ -604,7 +640,7 @@ sync_pipe_drops_to_parent(int drops)
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Packets dropped: %s", tmp);
 
     if(capture_child) {
-        pipe_write_block(1, SP_DROPS, strlen(tmp)+1, tmp);
+        pipe_write_block(1, SP_DROPS, tmp, NULL);
     }
 }
 
@@ -648,43 +684,7 @@ signal_pipe_check_running(void)
 
 
 /****************************************************************************************************************/
-/* simple_dialog stubs */
-
-
-char *simple_dialog_primary_start(void)
-{
-    return "";
-}
-
-char *simple_dialog_primary_end(void)
-{
-    return "";
-}
-
-char *
-simple_dialog_format_message(const char *msg)
-{
-    char *str;
-
-    if (msg) {
-#if GTK_MAJOR_VERSION < 2
-	str = g_strdup(msg);
-#else
-	str = xml_escape(msg);
-#endif
-    } else {
-	str = NULL;
-    }
-    return str;
-}
-
-
-/****************************************************************************************************************/
 /* Stub functions */
 
 
 const char *netsnmp_get_version(void) { return ""; }
-
-gboolean dfilter_compile(const gchar *text, dfilter_t **dfp) { (void)text; (void)dfp; return FALSE; }
-
-void dfilter_free(dfilter_t *df) { (void)df; }

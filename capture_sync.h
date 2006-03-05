@@ -44,6 +44,7 @@
  */
 #define SP_FILE         'F'     /* the name of the recently opened file */
 #define SP_ERROR_MSG    'E'     /* error message */
+#define SP_BAD_FILTER   'B'     /* error message for bad capture filter */
 #define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
 #define SP_DROPS        'D'     /* count of packets dropped in capture */
 /*
@@ -89,9 +90,14 @@ sync_pipe_packet_count_to_parent(int packet_count);
 extern void
 sync_pipe_drops_to_parent(int drops);
 
+/** the child encountered an error with a capture filter, notify the parent */
+extern void
+sync_pipe_cfilter_error_to_parent(const char *cfilter, const char *errmsg);
+
 /** the child encountered an error, notify the parent */
 extern void 
-sync_pipe_errmsg_to_parent(const char *errmsg);
+sync_pipe_errmsg_to_parent(const char *error_msg,
+                           const char *secondary_error_msg);
 
 
 /** does the parent signalled the child to stop */

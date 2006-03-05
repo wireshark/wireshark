@@ -136,6 +136,12 @@ static guint32 cum_bytes = 0;
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
 
+/*
+ * Standard secondary message for unexpected errors.
+ */
+static const char please_report[] =
+    "Please report this to the Ethereal developers";
+
 #ifdef HAVE_LIBPCAP
 /*
  * TRUE if we're to print packet counts to keep track of captured packets.
@@ -1499,7 +1505,6 @@ capture(void)
   int         volatile volatile_err = 0;
   int         volatile inpkts = 0;
   int         pcap_cnt;
-  char        errmsg[1024+1];
   condition  *volatile cnd_autostop_size = NULL;
   condition  *volatile cnd_autostop_duration = NULL;
   char       *descr;
@@ -1510,6 +1515,9 @@ capture(void)
   struct pcap_stat stats;
   gboolean    write_ok;
   gboolean    close_ok;
+  gboolean    cfilter_error = FALSE;
+  char        errmsg[1024+1];
+  char        secondary_errmsg[4096+1];
   int         save_file_fd;
 
   /* Initialize all data structures used for dissection. */
@@ -1521,8 +1529,8 @@ capture(void)
 
 
   /* open the "input file" from network interface or capture pipe */
-  if (!capture_loop_open_input(&capture_opts, &ld, errmsg, sizeof(errmsg)))
-  {
+  if (!capture_loop_open_input(&capture_opts, &ld, errmsg, sizeof(errmsg),
+                               secondary_errmsg, sizeof(secondary_errmsg))) {
     goto error;
   }
 
@@ -1542,20 +1550,33 @@ capture(void)
 
   /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
   if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
+    *secondary_errmsg = '\0';
     goto error;    
   }
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
-  if(!capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, 
-      capture_opts.iface, capture_opts.cfilter, errmsg, sizeof errmsg)) 
-  {
-      goto error;
+  switch (capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts.iface, capture_opts.cfilter)) {
+
+  case INITFILTER_NO_ERROR:
+    break;
+
+  case INITFILTER_BAD_FILTER:
+    cfilter_error = TRUE;
+    g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(ld.pcap_h));
+    *secondary_errmsg = '\0';
+    goto error;
+
+  case INITFILTER_OTHER_ERROR:
+    g_snprintf(errmsg, sizeof(errmsg), "Can't install filter (%s).",
+               pcap_geterr(ld.pcap_h));
+    g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report);
+    goto error;
   }
 
   /* set up to write to the already-opened capture output file/files */
-  if(!capture_loop_init_output(&capture_opts, save_file_fd, &ld, errmsg, sizeof errmsg))
-  {
-      goto error;
+  if(!capture_loop_init_output(&capture_opts, save_file_fd, &ld, errmsg, sizeof errmsg)) {
+    *secondary_errmsg = '\0';
+    goto error;
   }
 
   ld.wtap_linktype = wtap_pcap_encap_to_wtap_encap(ld.linktype);
@@ -1793,7 +1814,36 @@ error:
   }
   g_free(capture_opts.save_file);
   capture_opts.save_file = NULL;
-  cmdarg_err("%s", errmsg);
+  if (cfilter_error) {
+    dfilter_t   *rfcode = NULL;
+    if (dfilter_compile(capture_opts.cfilter, &rfcode) && rfcode != NULL) {
+      cmdarg_err(
+        "Invalid capture filter: \"%s\"!\n"
+        "\n"
+        "That string looks like a valid display filter; however, it isn't a valid\n"
+        "capture filter (%s).\n"
+        "\n"
+        "Note that display filters and capture filters don't have the same syntax,\n"
+        "so you can't use most display filter expressions as capture filters.\n"
+        "\n"
+        "See the User's Guide for a description of the capture filter syntax.",
+        capture_opts.cfilter, errmsg);
+      dfilter_free(rfcode);
+    } else {
+      cmdarg_err(
+        "Invalid capture filter: \"%s\"!\n"
+        "\n"
+        "That string isn't a valid capture filter (%s).\n"
+        "See the User's Guide for a description of the capture filter syntax.",
+        capture_opts.cfilter, errmsg);
+    }
+  } else {
+    cmdarg_err("%s", errmsg);
+    if (*secondary_errmsg != '\0') {
+      fprintf(stderr, "\n");
+      cmdarg_err_cont("%s", secondary_errmsg);
+    }
+  }
 #ifndef _WIN32
   if (ld.from_cap_pipe) {
     if (ld.cap_pipe_fd >= 0)
@@ -2971,6 +3021,19 @@ sync_pipe_drops_to_parent(int drops)
     g_assert(0);
 }
 
+/** the child encountered an error with a capture filter, notify the parent */
+void
+sync_pipe_cfilter_error_to_parent(const char *cfilter, const char *errmsg)
+{
+
+    cmdarg_err(
+      "Invalid capture filter: \"%s\"!\n"
+      "\n"
+      "That string isn't a valid capture filter (%s).\n"
+      "See the User's Guide for a description of the capture filter syntax.",
+      cfilter, errmsg);
+}
+
 /** the child encountered an error, notify the parent */
 void 
 sync_pipe_errmsg_to_parent(const char *errmsg)
@@ -2996,44 +3059,3 @@ signal_pipe_check_running(void)
 #endif  /* _WIN32 */
 
 #endif /* HAVE_LIBPCAP */
-
-
-/****************************************************************************************************************/
-/* simple_dialog "dummies", needed for capture_loop.c */
-
-
-#ifdef HAVE_LIBPCAP
-
-char *simple_dialog_primary_start(void)
-{
-    return "";
-}
-
-char *simple_dialog_primary_end(void)
-{
-    return "";
-}
-
-
-/* XXX - do we need to convert the string for the console? */
-char *
-simple_dialog_format_message(const char *msg)
-{
-    char *str;
-
-
-    if (msg) {
-#if GTK_MAJOR_VERSION < 2
-	str = g_strdup(msg);
-#else
-	str = xml_escape(msg);
-#endif
-    } else {
-	str = NULL;
-    }
-    return str;
-}
-
-#endif /* HAVE_LIBPCAP */
-
-

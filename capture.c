@@ -240,7 +240,7 @@ guint32 drops)
 }
 
 
-/* capture child tells us, we have a new (or the first) capture file */
+/* capture child tells us we have a new (or the first) capture file */
 gboolean
 capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 {
@@ -308,7 +308,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 }
 
     
-/* capture child tells us, we have new packets to read */
+/* capture child tells us we have new packets to read */
 void
 capture_input_new_packets(capture_options *capture_opts, int to_read)
 {
@@ -353,7 +353,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 }
 
 
-/* Capture child told us, how many dropped packets it counted.
+/* Capture child told us how many dropped packets it counted.
  */
 void
 capture_input_drops(capture_options *capture_opts, int dropped)
@@ -367,21 +367,91 @@ capture_input_drops(capture_options *capture_opts, int dropped)
 }
 
 
-/* Capture child told us, that an error has occurred while starting/running the capture. */
+/* Capture child told us that an error has occurred while starting/running
+   the capture.
+   The buffer we're handed has *two* null-terminated strings in it - a
+   primary message and a secondary message, one right after the other.
+   The secondary message might be a null string.
+ */
 void
-capture_input_error_message(capture_options *capture_opts, char *error_message)
+capture_input_error_message(capture_options *capture_opts, char *error_msg)
 {
-  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\"", error_message);
+  char *secondary_error_msg = strchr(error_msg, '\0') + 1;
+  gchar *safe_error_msg;
+  gchar *safe_secondary_error_msg;
+
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\", \"%s\"",
+        error_msg, secondary_error_msg);
 
   g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
 
-  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_message);
+  safe_error_msg = simple_dialog_format_message(error_msg);
+  if (*secondary_error_msg != '\0') {
+    /* We have both primary and secondary messages. */
+    safe_secondary_error_msg = simple_dialog_format_message(secondary_error_msg);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s%s%s\n\n%s",
+                  simple_dialog_primary_start(), safe_error_msg,
+                  simple_dialog_primary_end(), safe_secondary_error_msg);
+    g_free(safe_secondary_error_msg);
+  } else {
+    /* We have only a primary message. */
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s%s%s",
+                  simple_dialog_primary_start(), safe_error_msg,
+                  simple_dialog_primary_end());
+  }
+  g_free(safe_error_msg);
 
   /* the capture child will close the sync_pipe if required, nothing to do for now */
 }
 
 
-/* capture child closed it's side ot the pipe, do the required cleanup */
+
+/* Capture child told us that an error has occurred while parsing a
+   capture filter when starting/running the capture.
+ */
+void
+capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message)
+{
+  dfilter_t   *rfcode = NULL;
+  gchar *safe_cfilter = simple_dialog_format_message(capture_opts->cfilter);
+  gchar *safe_cfilter_error_msg = simple_dialog_format_message(error_message);
+
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture filter error message from child: \"%s\"", error_message);
+
+  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+
+  /* Did the user try a display filter? */
+  if (dfilter_compile(capture_opts->cfilter, &rfcode) && rfcode != NULL) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "%sInvalid capture filter: \"%s\"!%s\n"
+      "\n"
+      "That string looks like a valid display filter; however, it isn't a valid\n"
+      "capture filter (%s).\n"
+      "\n"
+      "Note that display filters and capture filters don't have the same syntax,\n"
+      "so you can't use most display filter expressions as capture filters.\n"
+      "\n"
+      "See the User's Guide for a description of the capture filter syntax.",
+      simple_dialog_primary_start(), safe_cfilter,
+      simple_dialog_primary_end(), safe_cfilter_error_msg);
+      dfilter_free(rfcode);
+  } else {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "%sInvalid capture filter: \"%s\"!%s\n"
+      "\n"
+      "That string isn't a valid capture filter (%s).\n"
+      "See the User's Guide for a description of the capture filter syntax.",
+      simple_dialog_primary_start(), safe_cfilter,
+      simple_dialog_primary_end(), safe_cfilter_error_msg);
+  }
+  g_free(safe_cfilter_error_msg);
+  g_free(safe_cfilter);
+
+  /* the capture child will close the sync_pipe if required, nothing to do for now */
+}
+
+
+/* capture child closed its side of the pipe, do the required cleanup */
 void
 capture_input_closed(capture_options *capture_opts)
 {
