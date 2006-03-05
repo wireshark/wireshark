@@ -456,7 +456,7 @@ static void funnel_logger(const gchar *log_domain _U_,
     fputs(message,stderr);
 }
 
-static void elua_retap_packets(void) {
+static void funnel_retap_packets(void) {
 	cf_retap_packets(&cfile, FALSE);
 }
 
