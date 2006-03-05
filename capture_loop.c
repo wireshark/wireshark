@@ -115,7 +115,7 @@ static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fna
 #ifndef _WIN32
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
-void
+static void
 cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
 {
   if (byte_swapped) {
@@ -149,7 +149,7 @@ cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcapr
  * header.
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
  * because we can't seek on pipes (see wiretap/libpcap.c for details) */
-int
+static int
 cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
                  char *errmsg, int errmsgl)
 {

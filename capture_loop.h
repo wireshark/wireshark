@@ -138,15 +138,8 @@ typedef enum {
 extern initfilter_status_t
 capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter);
 
-/** Take care of byte order in the libpcap headers read from pipes. */
-extern void
-cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr);
-
 #ifdef HAVE_LIBPCAP
 #ifndef _WIN32
-extern int 
-cap_pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
-
 extern int 
 cap_pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
                 struct pcaprec_modified_hdr *, guchar *, char *, int);
