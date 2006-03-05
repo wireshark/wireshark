@@ -155,4 +155,43 @@ gchar* se_strdup_printf(const gchar* fmt, ...)
 void se_free_all(void);
 
 
+
+
+/**************************************************************
+ * binary trees with SE allocation 
+ **************************************************************/
+#define SE_TREE_RB_COLOR_RED	0x00
+#define SE_TREE_RB_COLOR_BLACK	0x01
+typedef struct _se_tree_node_t {
+	struct _se_tree_node_t *parent;
+	struct _se_tree_node_t *left;
+	struct _se_tree_node_t *right;
+	union {
+		guint32 rb_color;
+	};
+	guint32 key32;
+	void *data;
+} se_tree_node_t;
+
+/* list of all se trees so they can all be reset automatically when
+ * we free all se memory
+ */
+/* Right now we only do basic red/black trees   but in the future we might want
+ * to try something different, such as a tree where each node keeps track
+ * of how many times it has been looked up, and letting often looked up
+ * nodes bubble upwards in the tree using rotate_right/left.
+ * That would probably be good for things like nfs filehandles 
+ */
+#define SE_TREE_TYPE_RED_BLACK	1
+typedef struct _se_tree_t {
+	struct _se_tree_t *next;
+	int type;
+	se_tree_node_t *tree;
+} se_tree_t;
+extern se_tree_t *se_trees;
+
+se_tree_t *se_tree_create(int type);
+void se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
+void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
+
 #endif /* emem.h */

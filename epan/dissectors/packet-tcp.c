@@ -211,7 +211,7 @@ static GHashTable *tcp_analyze_acked_table = NULL;
 
 static GHashTable *tcp_pdu_tracking_table = NULL;
 static GHashTable *tcp_pdu_skipping_table = NULL;
-static GHashTable *tcp_pdu_time_table = NULL;
+static se_tree_t *tcp_pdu_time_table = NULL;
 
 static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
@@ -397,7 +397,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 	} else {
 		guint32 pduseq;
 
-		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_time_table, GINT_TO_POINTER(pinfo->fd->num));
+		tnp=(struct tcp_next_pdu *)se_tree_lookup32(tcp_pdu_time_table, pinfo->fd->num);
 		if(tnp){
 			proto_item *item;
 		 	nstime_t ns;
@@ -448,7 +448,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	  Add check for ACKs and purge list of sequence numbers
 	  already acked.
 	*/
-	g_hash_table_insert(tcp_pdu_time_table, GINT_TO_POINTER(pinfo->fd->num), (void *)tnp);
+	se_tree_insert32(tcp_pdu_time_table, pinfo->fd->num, (void *)tnp);
 }
 
 /* This is called for SYN+ACK packets and the purpose is to verify that we
@@ -1097,12 +1097,6 @@ tcp_analyze_seq_init(void)
 		g_hash_table_destroy(tcp_pdu_tracking_table);
 		tcp_pdu_tracking_table = NULL;
 	}
-	if( tcp_pdu_time_table ){
-		g_hash_table_foreach_remove(tcp_pdu_time_table,
-			free_all_acked, NULL);
-		g_hash_table_destroy(tcp_pdu_time_table);
-		tcp_pdu_time_table = NULL;
-	}
 	if( tcp_pdu_skipping_table ){
 		g_hash_table_foreach_remove(tcp_pdu_skipping_table,
 			free_all_acked, NULL);
@@ -1112,8 +1106,6 @@ tcp_analyze_seq_init(void)
 
 	if(tcp_analyze_seq){
 		tcp_analyze_acked_table = g_hash_table_new(tcp_acked_hash,
-			tcp_acked_equal);
-		tcp_pdu_time_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
 		tcp_pdu_tracking_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
@@ -3091,6 +3083,7 @@ proto_register_tcp(void)
 	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
 	    &try_heuristic_first);
 
+	tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
 	register_init_routine(tcp_analyze_seq_init);
 	register_init_routine(tcp_desegment_init);
 	register_init_routine(tcp_fragment_init);

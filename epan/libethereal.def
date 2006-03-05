@@ -217,6 +217,9 @@ ep_stack_new
 ep_stack_push
 ep_stack_pop
 ep_tvb_memdup
+se_tree_create
+se_tree_insert32
+se_tree_lookup32
 epan_cleanup
 epan_dissect_fill_in_columns
 epan_dissect_free
