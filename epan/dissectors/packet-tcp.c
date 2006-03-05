@@ -207,10 +207,12 @@ static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
 #define TCP_A_FAST_RETRANSMISSION	0x0400
 #define TCP_A_WINDOW_UPDATE		0x0800
 #define TCP_A_WINDOW_FULL		0x1000
-static GHashTable *tcp_analyze_acked_table = NULL;
+
 
 static GHashTable *tcp_pdu_tracking_table = NULL;
 static GHashTable *tcp_pdu_skipping_table = NULL;
+
+static se_tree_t *tcp_analyze_acked_table = NULL;
 static se_tree_t *tcp_pdu_time_table = NULL;
 
 static void
@@ -493,7 +495,7 @@ tcp_get_relative_seq_ack(guint32 *seq, guint32 *ack, guint32 *win, struct tcp_an
 static void
 tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_analysis *tcpd)
 {
-	tcpd->ta=g_hash_table_lookup(tcp_analyze_acked_table, GUINT_TO_POINTER(frame));
+	tcpd->ta=se_tree_lookup32(tcp_analyze_acked_table, frame);
 	if((!tcpd->ta) && createflag){
 		tcpd->ta=se_alloc(sizeof(struct tcp_acked));
 		tcpd->ta->frame_acked=0;
@@ -502,7 +504,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_anal
 		tcpd->ta->flags=0;
 		tcpd->ta->dupack_num=0;
 		tcpd->ta->dupack_frame=0;
-		g_hash_table_insert(tcp_analyze_acked_table, GUINT_TO_POINTER(frame), tcpd->ta);
+		se_tree_insert32(tcp_analyze_acked_table, frame, (void *)tcpd->ta);
 	}
 }
 
@@ -1085,12 +1087,6 @@ static void
 tcp_analyze_seq_init(void)
 {
 	/* first destroy the tables */
-	if( tcp_analyze_acked_table ){
-		g_hash_table_foreach_remove(tcp_analyze_acked_table,
-			free_all_acked, NULL);
-		g_hash_table_destroy(tcp_analyze_acked_table);
-		tcp_analyze_acked_table = NULL;
-	}
 	if( tcp_pdu_tracking_table ){
 		g_hash_table_foreach_remove(tcp_pdu_tracking_table,
 			free_all_acked, NULL);
@@ -1105,8 +1101,6 @@ tcp_analyze_seq_init(void)
 	}
 
 	if(tcp_analyze_seq){
-		tcp_analyze_acked_table = g_hash_table_new(tcp_acked_hash,
-			tcp_acked_equal);
 		tcp_pdu_tracking_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
 		tcp_pdu_skipping_table = g_hash_table_new(tcp_acked_hash,
@@ -3084,6 +3078,7 @@ proto_register_tcp(void)
 	    &try_heuristic_first);
 
 	tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	tcp_analyze_acked_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
 	register_init_routine(tcp_analyze_seq_init);
 	register_init_routine(tcp_desegment_init);
 	register_init_routine(tcp_fragment_init);
