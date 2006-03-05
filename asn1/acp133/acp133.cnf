@@ -1,0 +1,164 @@
+# acp133.cnf
+# ACP133 conformation file
+
+#.MODULE_IMPORT
+CertificateExtensions 	x509ce
+AuthenticationFramework	x509af
+InformationFramework	x509if
+MTSAbstractService 	x411
+
+#.INCLUDE ../x509ce/x509ce-exp.cnf
+#.INCLUDE ../x509if/x509if-exp.cnf
+#.INCLUDE ../x509af/x509af-exp.cnf
+#.INCLUDE ../x411/x411-exp.cnf
+
+#.PDU
+ACPPreferredDelivery
+ALType
+Community
+OnSupported
+ACPLegacyFormat
+Addressees
+DistributionCode
+JPEG
+MonthlyUKMs
+RIParameters
+Kmid
+
+#.REGISTER
+
+# X.402
+
+# ContentLength B "2.6.5.2.0" "id-at-mhs-maximum-content-length" - see x411.cnf
+# ExtendedContentType B "2.6.5.2.1" "id-at-mhs-deliverable-content-types" - see x411.cnf
+# ExtendedEncodedInformationType B "2.6.5.2.2" "id-at-mhs-exclusively-acceptable-eits" - see x411.cnf
+# ORName B "2.6.5.2.3" "id-at-mhs-dl-members" - see x411.cnf
+DLSubmitPermission B "2.6.5.2.4" "id-at-mhs-dl-submit-permissions"
+# DistinguishedName B "2.6.5.2.5" "id-at-mhs-message-store-dn" - see x509if.cnf
+# ORAddress B "2.6.5.2.6" "id-at-mhs-or-addresses" - see x411.cnf
+# ObjectIdentifier B "2.6.5.2.8" "id-at-mhs-supported-automatic-actions" - see x509sat.cnf
+# ExtendedContentType B "2.6.5.2.9" "id-at-mhs-supported-content-types" - see x411.cnf
+# ObjectIdentifier B "2.6.5.2.10" "id-at-mhs-supported-attributes" - see x509sat.cnf
+# ObjectIdentifier B "2.6.5.2.11" "id-at-mhs-supported-matching-rules" - see x509sat.cnf
+# ORName B "2.6.5.2.12" "id-at-mhs-dl-archive-service" - see x411.cnf
+DLPolicy  B "2.6.5.2.13" "id-at-mhs-dl-policy"
+# DistinguishedName B "2.6.5.2.14" "id-at-mhs-dl-related-lists" - see x509if.cnf
+# ORName B "2.6.5.2.15" "id-at-mhs-dl-subscription-service" - see x411.cnf
+AddressCapabilities B "2.6.5.2.16" "id-at-mhs-or-addresses-with-capabilities"
+# ExtendedEncodedInformationType B "2.6.5.2.17" "id-at-mhs-acceptable-eits" see x411.cnf
+# ExtendedEncodedInformationType B "2.6.5.2.18" "id-at-mhs-unacceptable-eits" - see x411.cnf
+Capability B "2.6.5.2.19" "id-at-mhs-deliverable-classes"
+
+
+# SDN.701 
+Kmid B "2.16.840.1.101.2.1.5.14" "id-at-alid"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.20" "id-at-janUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.21" "id-at-febUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.22" "id-at-marUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.23" "id-at-aprUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.24" "id-at-mayUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.25" "id-at-junUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.26" "id-at-julUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.27" "id-at-augUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.28" "id-at-sepUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.29" "id-at-octUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.30" "id-at-novUKMs"
+MonthlyUKMs B "2.16.840.1.101.2.1.5.31" "id-at-decUKMs"
+# ORName B "2.16.840.1.101.2.1.5.47" "id-at-aLExemptedAddressProcessor - see x411.cnf
+
+# ACP133
+# DistinguishedName B "2.16.840.1.101.2.2.1.3" "id-at-alternateRecipient" - see x509if.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.4" "id-at-associatedOrganization" - see x509if.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.6" "id-at-associatedPLA" - see x509if.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.45" "id-at-releaseAuthorityName" - see x509sat.cnf
+Addressees B "2.16.840.1.101.2.2.1.46" "id-at-actionAddressees"
+Addressees B "2.16.840.1.101.2.2.1.47" "id-at-additionalAddressees"
+Addressees B "2.16.840.1.101.2.2.1.48" "id-at-additionalSecondPartyAddressees"
+# DistinguishedName B "2.16.840.1.101.2.2.1.49" "id-at-aliasPointer" - see x509if.cnf
+Addressees B "2.16.840.1.101.2.2.1.50" "id-at-allowableOriginators"
+#PrintableString B "2.16.840.1.101.2.2.1.51" "id-at-cognizantAuthority" - see x509sat.cnf
+Community B "2.16.840.1.101.2.2.1.52" "id-at-community"
+# PrintableString B "2.16.840.1.101.2.2.1.53" "id-at-accountingCode" - see x509sat.cnf
+# Boolean B "2.16.840.1.101.2.2.1.54" "id-at-dualRoute" - see x509sat.cnf
+# GeneralizedTime B "2.16.840.1.101.2.2.1.55" "id-at-effectiveDate" - see x509sat.cnf
+Classification B "2.16.840.1.101.2.2.1.56" "id-at-entryClassification"
+# GeneralizedTime B "2.16.840.1.101.2.2.1.57" "id-at-expirationDate" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.58" "id-at-hostOrgACP127" - see x509sat.cnf
+Addressees B "2.16.840.1.101.2.2.1.59" "id-at-infoAddressees"
+# GeneralizedTime B "2.16.840.1.101.2.2.1.60" "id-at-lastRecapDate" - see x509sat.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.61" "id-at-listPointer" - see x509if.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.62" "id-at-lmf" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.63" "id-at-longTitle" - see x509sat.cnf
+# Boolean B "2.16.840.1.101.2.2.1.64" "id-at-minimize" - see x509sat.cnf
+# Boolean B "2.16.840.1.101.2.2.1.65" "id-at-minimizeOverride" - see x509sat.cnf
+Classification B "2.16.840.1.101.2.2.1.67" "id-at-nameClassification"
+# PrintableString B "2.16.840.1.101.2.2.1.68" "id-at-nationality" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.68.1" "id-at-collectiveNationality" - see x509sat.cnf
+# Boolean B "2.16.840.1.101.2.2.1.69" "id-at-transferStation" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.70" "id-at-plaNameACP127" - see x509sat.cnf
+Addressees B "2.16.840.1.101.2.2.1.71" "id-at-plaAddressees"
+# Boolean B "2.16.840.1.101.2.2.1.72" "id-at-plaReplace" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.73" "id-at-primarySpellingACP127" - see x509sat.cnf
+# Boolean B "2.16.840.1.101.2.2.1.74" "id-at-publish" - see x509sat.cnf
+# GeneralizedTime B "2.16.840.1.101.2.2.1.75" "id-at-recapDueDate" - see x509sat.cnf
+Remarks B "2.16.840.1.101.2.2.1.76" "id-at-remarks"
+# PrintableString B "2.16.840.1.101.2.2.1.77" "id-at-rI" - see x509sat.cnf
+Classification B "2.16.840.1.101.2.2.1.78" "id-at-rIClassification"
+RIParameters B "2.16.840.1.101.2.2.1.79" "id-at-rIInfo"
+Addressees B "2.16.840.1.101.2.2.1.80" "id-at-secondPartyAddressees"
+# Boolean B "2.16.840.1.101.2.2.1.81" "id-at-section" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.82" "id-at-serviceOrAgency" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.83" "id-at-sHD" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.84" "id-at-shortTitle" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.85" "id-at-sigad" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.86" "id-at-spot" - see x509sat.cnf
+# Boolean B "2.16.840.1.101.2.2.1.87" "id-at-tARE" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.94" "id-at-aCPMobileTelephoneNumber" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.95" "id-at-aCPPagerTelephoneNumber" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.96" "id-at-tCC" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.97" "id-at-tRC" - see x509sat.cnf
+DistributionCode B "2.16.840.1.101.2.2.1.104" "id-at-distributionCodeAction"
+DistributionCode B "2.16.840.1.101.2.2.1.105" "id-at-distributionCodeInfo"
+# PrintableString B "2.16.840.1.101.2.2.1.106" "id-at-accessCodes" - see x509sat.cnf
+# GraphicString B "2.16.840.1.101.2.2.1.107" "id-at-accessSchema" - see x509sat.cnf
+ACPPreferredDelivery B "2.16.840.1.101.2.2.1.108" "id-at-aCPPreferredDelivery"
+# TelephoneNumber B "2.16.840.1.101.2.2.1.109" "id-at-aCPTelephoneFaxNumber" - see x509sat.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.110" "id-at-administrator" - see x509if.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.111" "id-at-aigsExpanded" - see x509if.cnf
+ALType B "2.16.840.1.101.2.2.1.112" "id-at-aLType"
+# DistinguishedName B "2.16.840.1.101.2.2.1.113" "id-at-associatedAL" - see x509if.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.114" "id-at-copyMember" - see x509if.cnf
+# ObjectIdentifier B "2.16.840.1.101.2.2.1.115" "id-at-gatewayType" - see x509sat.cnf
+# ObjectIdentifier B "2.16.840.1.101.2.2.1.116" "id-at-ghpType" - see x509sat.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.117" "id-at-guard" - see x509if.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.118" "id-at-mailDomains" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.119" "id-at-militaryFacsimileNumber" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.119.1" "id-at-collectiveMilitaryFacsimileNumber" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.120" "id-at-militaryTelephoneNumber" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.120.1" "id-at-collectiveMilitaryTelephoneNumber" - see x509sat.cnf
+# DistingishedName B "2.16.840.1.101.2.2.1.121" "id-at-networkDN" - see x509if.cnf
+# GraphicString B "2.16.840.1.101.2.2.1.122" "id-at-networkSchema" - see x509sat.cnf
+OnSupported B "2.16.840.1.101.2.2.1.123" "id-at-onSupported"
+# DirectoryString B "2.16.840.1.101.2.2.1.124" "id-at-operationName" - see x509sat.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.125" "id-at-positionNumber" - see x509sat.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.126" "id-at-proprietaryMailboxes" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.127" "id-at-secureFacsimileNumber" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.127.1" "id-at-collectiveSecureFacsimileNumber" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.128" "id-at-secureTelephoneNumber" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.128.1" "id-at-collectiveSecureTelephoneNumber" - see x509sat.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.129" "id-at-serviceNumber" - see x509sat.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.133" "id-at-rank" - see x509sat.cnf
+# B "2.16.840.1.101.2.2.1.134" "id-at-misc-collectives"
+# ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses" - see x411.cnf
+MLReceiptPolicy B "2.16.840.1.101.2.2.1.135" "id-at-aLReceiptPolicy"
+# DistinguishedName B "2.16.840.1.101.2.2.1.138" "id-at-plasServed" - see x509if.cnf
+#DistinguishedName B "2.16.840.1.101.2.2.1.139" "id-at-deployed"  - see x509if.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"  - see x509if.cnf
+ACPLegacyFormat B "2.16.840.1.101.2.2.1.142" "id-at-aCPLegacyFormat"
+# DirectoryString B "2.16.840.1.101.2.2.1.143" "id-at-adminConversion" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.144" "id-at-tCCG" - see x509sat.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.145" "id-at-usdConversion" - see x509sat.cnf
+JPEG B "2.16.840.1.101.2.2.1.146" "id-at-aCPNetwAccessSchemaEdB"
+JPEG B "2.16.840.1.101.2.2.1.147" "id-at-aCPNetworkSchemaEdB"
+
+

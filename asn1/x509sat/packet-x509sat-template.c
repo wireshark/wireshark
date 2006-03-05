@@ -78,6 +78,36 @@ void proto_register_x509sat(void) {
 /*--- proto_reg_handoff_x509sat -------------------------------------------*/
 void proto_reg_handoff_x509sat(void) {
 #include "packet-x509sat-dis-tab.c"
+
+  /* OBJECT CLASSES */
+
+  register_ber_oid_name("2.5.6.0", "top");
+  register_ber_oid_name("2.5.6.1", "alias");
+  register_ber_oid_name("2.5.6.2", "country");
+  register_ber_oid_name("2.5.6.3", "locality");
+  register_ber_oid_name("2.5.6.4", "organization");
+  register_ber_oid_name("2.5.6.1", "organizationalUnit");
+  register_ber_oid_name("2.5.6.6", "person");
+  register_ber_oid_name("2.5.6.7", "organizationalPerson");
+  register_ber_oid_name("2.5.6.8", "organizationalRole");
+  register_ber_oid_name("2.5.6.9", "groupOfNames");
+  register_ber_oid_name("2.5.6.10", "residentialPerson");
+  register_ber_oid_name("2.5.6.11", "applicationProcess");
+  register_ber_oid_name("2.5.6.12", "applicationEntity");
+  register_ber_oid_name("2.5.6.13", "dSA");
+  register_ber_oid_name("2.5.6.14", "device");
+  register_ber_oid_name("2.5.6.15", "strongAuthenticationUser");
+  register_ber_oid_name("2.5.6.16", "certificationAuthority");
+  register_ber_oid_name("2.5.6.16.2", "certificationAuthorityV2");
+  register_ber_oid_name("2.5.6.17", "groupOfUniqueNames");
+  register_ber_oid_name("2.5.6.18", "userSecurityInformation");
+  register_ber_oid_name("2.5.6.19", "cRLDistributionPoint");
+  register_ber_oid_name("2.5.6.20", "dmd");
+  register_ber_oid_name("2.5.6.21", "pkiUser");
+  register_ber_oid_name("2.5.6.22", "pkiCA");
+  
+  register_ber_oid_name("2.5.6.28", "parent");
+  register_ber_oid_name("2.5.6.29", "child");
 }
 
 

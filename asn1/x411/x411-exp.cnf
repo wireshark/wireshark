@@ -1,13 +1,19 @@
 #.IMPORT_TAG
+SecurityContext          BER_CLASS_UNI BER_UNI_TAG_SET
+EncodedInformationTypesConstraints BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 MessageSubmissionEnvelope BER_CLASS_UNI BER_UNI_TAG_SET
 OtherMessageDeliveryFields BER_CLASS_UNI BER_UNI_TAG_SET
+ExtendedContentType      BER_CLASS_UNI BER_UNI_TAG_OID
+ContentLength            BER_CLASS_UNI BER_UNI_TAG_INTEGER
 MessageDeliveryIdentifier BER_CLASS_APP 4
 MessageDeliveryTime      BER_CLASS_UNI BER_UNI_TAG_UTCTime
 SupplementaryInformation BER_CLASS_UNI BER_UNI_TAG_PrintableString
+RequestedDeliveryMethod  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 OriginatingMTACertificate BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ProofOfSubmission        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ExtendedCertificates     BER_CLASS_UNI BER_UNI_TAG_SET
 ORName                   BER_CLASS_APP 0
+ORAddress                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 UniversalOrBMPString     BER_CLASS_UNI BER_UNI_TAG_SET
 EncodedInformationTypes  BER_CLASS_APP 5
 G3FacsimileNonBasicParameters BER_CLASS_UNI BER_UNI_TAG_BITSTRING
@@ -16,15 +22,21 @@ SecurityLabel            BER_CLASS_UNI BER_UNI_TAG_SET
 #.END
 
 #.TYPE_ATTR
+SecurityContext          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+EncodedInformationTypesConstraints TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 MessageSubmissionEnvelope TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 OtherMessageDeliveryFields TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ExtendedContentType      TYPE = FT_OID     DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ContentLength            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 MessageDeliveryIdentifier TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 MessageDeliveryTime      TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SupplementaryInformation TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RequestedDeliveryMethod  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 OriginatingMTACertificate TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ProofOfSubmission        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ExtendedCertificates     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 ORName                   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ORAddress                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 UniversalOrBMPString     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 EncodedInformationTypes  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 G3FacsimileNonBasicParameters TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0

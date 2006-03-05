@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-x509sat.c                                                         */
+/* ./packet-x509sat.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
@@ -2831,10 +2831,98 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.5.4.65", dissect_DirectoryString_PDU, proto_x509sat, "id-at-pseudonym");
   register_ber_oid_dissector("2.5.4.66", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsService");
   register_ber_oid_dissector("2.5.4.67", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsNetwork");
+  register_ber_oid_dissector("2.6.5.2.8", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-mhs-supported-automatic-actions");
+  register_ber_oid_dissector("2.6.5.2.10", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-mhs-supported-attributes");
+  register_ber_oid_dissector("2.6.5.2.11", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-mhs-supported-matching-rules");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.45", dissect_DirectoryString_PDU, proto_x509sat, "id-at-releaseAuthorityName");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.51", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-cognizantAuthority");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.53", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-accountingCode");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.54", dissect_Boolean_PDU, proto_x509sat, "id-at-dualRoute");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.55", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-at-effectiveDate");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.57", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-at-expirationDate");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.58", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-hostOrgACP127");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.60", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-at-lastRecapDate");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.62", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-lmf");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.63", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-longTitle");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.64", dissect_Boolean_PDU, proto_x509sat, "id-at-minimize");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.65", dissect_Boolean_PDU, proto_x509sat, "id-at-minimizeOverride");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.68", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-nationality");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.68.1", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-collectiveNationality");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.69", dissect_Boolean_PDU, proto_x509sat, "id-at-transferStation");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.70", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-plaNameACP127");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.72", dissect_Boolean_PDU, proto_x509sat, "id-at-plaReplace");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.73", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-primarySpellingACP127");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.74", dissect_Boolean_PDU, proto_x509sat, "id-at-publish");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.75", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-at-recapDueDate");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.77", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-rI");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.81", dissect_Boolean_PDU, proto_x509sat, "id-at-section");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.82", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-serviceOrAgency");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.83", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-sHD");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.84", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-shortTitle");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.85", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-sigad");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.86", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-spot");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.87", dissect_Boolean_PDU, proto_x509sat, "id-at-tARE");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.94", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-aCPMobileTelephoneNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.95", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-aCPPagerTelephoneNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.96", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-tCC");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.97", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-tRC");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.106", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-accessCodes");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.107", dissect_SyntaxGraphicString_PDU, proto_x509sat, "id-at-accessSchema");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.109", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-aCPTelephoneFaxNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.115", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-gatewayType");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.116", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-ghpType");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.118", dissect_DirectoryString_PDU, proto_x509sat, "id-at-mailDomains");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.119", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-militaryFacsimileNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.119.1", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-collectiveMilitaryFacsimileNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.120", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-militaryTelephoneNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.120.1", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-collectiveMilitaryTelephoneNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.122", dissect_SyntaxGraphicString_PDU, proto_x509sat, "id-at-networkSchema");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.124", dissect_DirectoryString_PDU, proto_x509sat, "id-at-operationName");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.125", dissect_DirectoryString_PDU, proto_x509sat, "id-at-positionNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.126", dissect_DirectoryString_PDU, proto_x509sat, "id-at-proprietaryMailboxes");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.127", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-secureFacsimileNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.127.1", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-collectiveSecureFacsimileNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.128", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-secureTelephoneNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.128.1", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-collectiveSecureTelephoneNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.129", dissect_DirectoryString_PDU, proto_x509sat, "id-at-serviceNumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.133", dissect_DirectoryString_PDU, proto_x509sat, "id-at-rank");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.143", dissect_DirectoryString_PDU, proto_x509sat, "id-at-adminConversion");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.144", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-tCCG");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.145", dissect_DirectoryString_PDU, proto_x509sat, "id-at-usdConversion");
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
 #line 81 "packet-x509sat-template.c"
+
+  /* OBJECT CLASSES */
+
+  register_ber_oid_name("2.5.6.0", "top");
+  register_ber_oid_name("2.5.6.1", "alias");
+  register_ber_oid_name("2.5.6.2", "country");
+  register_ber_oid_name("2.5.6.3", "locality");
+  register_ber_oid_name("2.5.6.4", "organization");
+  register_ber_oid_name("2.5.6.1", "organizationalUnit");
+  register_ber_oid_name("2.5.6.6", "person");
+  register_ber_oid_name("2.5.6.7", "organizationalPerson");
+  register_ber_oid_name("2.5.6.8", "organizationalRole");
+  register_ber_oid_name("2.5.6.9", "groupOfNames");
+  register_ber_oid_name("2.5.6.10", "residentialPerson");
+  register_ber_oid_name("2.5.6.11", "applicationProcess");
+  register_ber_oid_name("2.5.6.12", "applicationEntity");
+  register_ber_oid_name("2.5.6.13", "dSA");
+  register_ber_oid_name("2.5.6.14", "device");
+  register_ber_oid_name("2.5.6.15", "strongAuthenticationUser");
+  register_ber_oid_name("2.5.6.16", "certificationAuthority");
+  register_ber_oid_name("2.5.6.16.2", "certificationAuthorityV2");
+  register_ber_oid_name("2.5.6.17", "groupOfUniqueNames");
+  register_ber_oid_name("2.5.6.18", "userSecurityInformation");
+  register_ber_oid_name("2.5.6.19", "cRLDistributionPoint");
+  register_ber_oid_name("2.5.6.20", "dmd");
+  register_ber_oid_name("2.5.6.21", "pkiUser");
+  register_ber_oid_name("2.5.6.22", "pkiCA");
+  
+  register_ber_oid_name("2.5.6.28", "parent");
+  register_ber_oid_name("2.5.6.29", "child");
 }
 
 

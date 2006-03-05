@@ -14,20 +14,26 @@ AuthenticationFramework x509af
 #.INCLUDE ../x509af/x509af-exp.cnf
 
 #.EXPORTS
+ContentLength
 EncodedInformationTypes
+EncodedInformationTypesConstraints
 ExtendedCertificates
+ExtendedContentType
 G3FacsimileNonBasicParameters
+MessageDeliveryIdentifier
 MessageDeliveryTime
+MessageSubmissionEnvelope
+ORAddress
 ORName
+OriginatingMTACertificate
 OtherMessageDeliveryFields
+ProofOfSubmission
+RequestedDeliveryMethod
+SecurityContext
+SecurityLabel
 SupplementaryInformation
 TeletexNonBasicParameters
-SecurityLabel
 UniversalOrBMPString
-MessageDeliveryIdentifier
-ProofOfSubmission
-OriginatingMTACertificate
-MessageSubmissionEnvelope
 
 #.TYPE_RENAME
 MTABindArgument/authenticated	AuthenticatedArgument
@@ -192,6 +198,26 @@ UniversalPersonalName B "x411.extension-attribute.26" "universal-personal-name"
 UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-organizational-unit-names"
 
 ReportDeliveryArgument	B	"2.6.1.4.14"	"id-et-report"
+
+# X402 - see master list in acp133.cnf
+
+ContentLength B "2.6.5.2.0" "id-at-mhs-maximum-content-length"
+ExtendedContentType B "2.6.5.2.1" "id-at-mhs-deliverable-content-types"
+ExtendedEncodedInformationType B "2.6.5.2.2" "id-at-mhs-exclusively-acceptable-eits"
+ORName B "2.6.5.2.3" "id-at-mhs-dl-members"
+ORAddress B "2.6.5.2.6" "id-at-mhs-or-addresses"
+ExtendedContentType B "2.6.5.2.9" "id-at-mhs-supported-content-types"
+ORName B "2.6.5.2.12" "id-at-mhs-dl-archive-service"
+ORName B "2.6.5.2.15" "id-at-mhs-dl-subscription-service"
+ExtendedEncodedInformationType B "2.6.5.2.17" "id-at-mhs-acceptable-eits"
+ExtendedEncodedInformationType B "2.6.5.2.18" "id-at-mhs-unacceptable-eits"
+
+
+# ACP133 - see master list in acp133.cnf
+ORName B "2.16.840.1.101.2.1.5.47" "id-at-aLExemptedAddressProcessor"
+ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
+
+
 
 #.FN_BODY AdditionalInformation
 /*XXX not implemented yet */

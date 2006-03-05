@@ -1,0 +1,185 @@
+ACP133CommonContent { joint-iso-ccitt(2) country(16) us(840) organization(1) gov(101) dod(2) ds(2) module(0) commonContent(2) editionB (3) }
+DEFINITIONS ::=
+BEGIN
+IMPORTS
+  GeneralNames, CertificateAssertion
+    FROM CertificateExtensions {joint-iso-ccitt ds(5)
+               module(1) certificateExtensions(26) 0}
+  AlgorithmIdentifier
+    --==
+    FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
+      authenticationFramework(7) 3}
+  ContentLength, EncodedInformationTypesConstraints, ExtendedContentType,
+    ORAddress, ORName, RequestedDeliveryMethod, SecurityContext
+    --==
+    FROM MTSAbstractService {joint-iso-itu-t mhs(6) mts(3) modules(0)
+      mts-abstract-service(1) version-1999(1)}
+    Name
+    --==
+    FROM InformationFramework {joint-iso-itu-t ds(5) module(1)
+      informationFramework(1) 3};
+
+
+
+ACPPreferredDelivery ::= ENUMERATED { smtp(0), acp127(1), mhs(2) }
+
+ALType ::= INTEGER { aig(0), type(1), cad(2), taskforce(3), dag(4) }
+
+Community ::= ENUMERATED { genser(0), si(1), both(2) }
+
+OnSupported ::= BIT STRING { acp127-nn(0), acp127-pn(1), acp127-tn(2) }
+
+ACPLegacyFormat ::= INTEGER {
+	janap128(0),
+	acp126(1),
+	doi103(2),
+	doi103-special(3),
+	acp127(4),
+	acp127-converted(5),
+	reserved-1(6), -- hold for ACP127Standard if needed
+	acp127-state(7),
+	acp127-modified(8),
+	socomm-special(9),
+	socomm-narrative(10),
+	reserved-2(11), -- hold for SOCOMMNarrativeTTY if needed
+	socomm-narrative-special(12),
+	socomm-data(13),
+	socomm-internal(14),
+	socomm-external(15) }
+	-- Note: Values 32 through 48 are not defined
+	-- by this ACP and may be used nationally or
+	-- bilaterally.
+
+
+Addressees ::= SEQUENCE OF PrintableString (SIZE (1..55))
+
+Classification ::= ENUMERATED { unmarked(0), unclassified(1), restricted(2),
+confidential(3), secret(4), top-secret(5) }
+
+DistributionCode ::= PrintableString
+
+JPEG ::= OCTET STRING -- a JPEG image
+
+MonthlyUKMs ::= --SIGNED { SEQUENCE OF UKMEntry }-- SEQUENCE {
+  ukm-entries			SEQUENCE OF UKMEntry,
+  algorithm-identifier		AlgorithmIdentifier,
+  encrypted			BIT STRING
+}
+
+Remarks ::= SEQUENCE OF PrintableString
+
+RIParameters ::= SET {
+	rI 		[0] PrintableString,
+	rIType 		[1] ENUMERATED 
+	{ normal(0), off-line(1), partTimeTerminal(2) },
+	minimize 	[2] BOOLEAN, -- not used any more --
+	sHD 		[3] PrintableString,
+	classification 	[4] Classification
+}
+
+UKMEntry ::= SEQUENCE {
+	tag PairwiseTag,
+	ukm OCTET STRING
+}
+
+-- these are imported directly from SDN.701
+
+PairwiseTag  			::= SEQUENCE  {
+	kmid		Kmid,
+	edition		INTEGER --(1..ub-edition-size)--,
+	date		UTCTime OPTIONAL }
+
+Kmid 			::=  OCTET STRING
+
+MLReceiptPolicy		::=  CHOICE  {
+     none		[0] NULL,
+     insteadOf		[1] SEQUENCE -- (SIZE (1..ub-insteadOf))
+						OF GeneralNames,
+     inAdditionTo	[2] SEQUENCE --(SIZE (1..ub-inAdditionTo))
+						OF GeneralNames }
+
+-- X.402 syntaxes imported here to save a separate dissector
+
+-- DL Submit Permission
+DLSubmitPermission ::= CHOICE {
+  individual       [0]  ORName,
+  member-of-dl     [1]  ORName,
+  pattern-match    [2]  ORNamePattern,
+  member-of-group  [3]  Name
+}
+
+ORNamePattern ::= ORName
+
+--any-user-may-submit DLSubmitPermission ::=
+--  pattern-match:{built-in-standard-attributes {}}
+
+-- DL Policy
+DLPolicy ::= SET {
+  report-propagation
+    [0]  INTEGER {previous-dl-or-originator(0), dl-owner(1),
+                  both-previous-and-owner(2)} DEFAULT previous-dl-or-originator,
+  report-from-dl
+    [1]  INTEGER {whenever-requested(0), when-no-propagation(1)}
+      DEFAULT whenever-requested,
+  originating-MTA-report
+    [2]  INTEGER {unchanged(0), report(2), non-delivery-report(3),
+                  audited-report(4)} DEFAULT unchanged,
+  originator-report
+    [3]  INTEGER {unchanged(0), no-report(1), report(2), non-delivery-report(3)}
+      DEFAULT unchanged,
+  return-of-content
+    [4]  ENUMERATED {unchanged(0), content-return-not-requested(1),
+                     content-return-requested(2)} DEFAULT unchanged,
+  priority
+    [5]  INTEGER {unchanged(0), normal(1), non-urgent(2), urgent(3)}
+      DEFAULT unchanged,
+  disclosure-of-other-recipients
+    [6]  ENUMERATED {unchanged(0),
+                     disclosure-of-other-recipients-prohibited(1),
+                     disclosure-of-other-recipients-allowed(2)}
+      DEFAULT unchanged,
+  implicit-conversion-prohibited
+    [7]  ENUMERATED {unchanged(0), implicit-conversion-allowed(1),
+                     implicit-conversion-prohibited(2)} DEFAULT unchanged,
+  conversion-with-loss-prohibited
+    [8]  ENUMERATED {unchanged(0), conversion-with-loss-allowed(1),
+                     conversion-with-loss-prohibited(2)} DEFAULT unchanged,
+  further-dl-expansion-allowed                      [9]  BOOLEAN DEFAULT TRUE,
+  originator-requested-alternate-recipient-removed  [10]  BOOLEAN DEFAULT TRUE,
+  proof-of-delivery
+    [11]  INTEGER {dl-expansion-point(0), dl-members(1), both(2), neither(3)}
+      DEFAULT dl-members,
+  requested-delivery-method
+    [12]  CHOICE {unchanged  [0]  NULL,
+                  removed    [1]  NULL,
+                  replaced   RequestedDeliveryMethod} OPTIONAL -- DEFAULT unchanged:NULL --,
+  token-encryption-algorithm-preference
+    [13]  SEQUENCE OF AlgorithmInformation OPTIONAL,
+  token-signature-algorithm-preference
+    [14]  SEQUENCE OF AlgorithmInformation OPTIONAL,
+  ...
+}
+
+AlgorithmInformation ::= SEQUENCE {
+  algorithm-identifier             [0]  AlgorithmIdentifier,
+  originator-certificate-selector  [1]  CertificateAssertion OPTIONAL,
+  recipient-certificate-selector   [2]  CertificateAssertion OPTIONAL
+}
+
+-- OR-Address with Capabilities
+AddressCapabilities ::= SEQUENCE {
+  description   GeneralString OPTIONAL,
+  address       ORAddress,
+  capabilities  SET OF Capability
+}
+
+Capability ::= SET {
+  content-types
+    [0]  SET OF ExtendedContentType OPTIONAL,
+  maximum-content-length                 [1]  ContentLength OPTIONAL,
+  encoded-information-types-constraints
+    [2]  EncodedInformationTypesConstraints OPTIONAL,
+  security-labels                        [3]  SecurityContext OPTIONAL
+}
+
+END

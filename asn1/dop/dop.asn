@@ -221,10 +221,10 @@ SupplierAndConsumers ::= SET {
 --BEGIN
 
 -- EXPORTS All 
---ÿThe types and values defined in this module are exported for use in the other ASN.1 modules contained 
---ÿwithin the Directory Specifications, and for the use of other applications which will use them to access 
---ÿDirectory services. Other applications may use them for their own purposes, but this will not constrain
---ÿextensions and modifications needed to maintain or improve the Directory service.
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
+-- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- Directory services. Other applications may use them for their own purposes, but this will not constrain
+-- extensions and modifications needed to maintain or improve the Directory service.
 --IMPORTS
   -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
 --  directoryAbstractService, directoryShadowAbstractService,

@@ -14,7 +14,6 @@ AttributeTypeAndDistinguishedValue BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 SubtreeSpecification     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 LocalName                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ChopSpecification        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-BaseDistance             BER_CLASS_UNI BER_UNI_TAG_INTEGER
 Refinement               BER_CLASS_ANY/*choice*/ -1/*choice*/
 AttributeUsage           BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
 DITStructureRule         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -57,7 +56,6 @@ AttributeTypeAndDistinguishedValue TYPE = FT_NONE    DISPLAY = BASE_NONE  STRING
 SubtreeSpecification     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 LocalName                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 ChopSpecification        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-BaseDistance             TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 Refinement               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509if_Refinement_vals)  BITMASK = 0
 AttributeUsage           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509if_AttributeUsage_vals)  BITMASK = 0
 DITStructureRule         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0

@@ -142,6 +142,6 @@ void proto_register_x509if(void) {
 
 /*--- proto_reg_handoff_x509if -------------------------------------------*/
 void proto_reg_handoff_x509if(void) {
-
+#include "packet-x509if-dis-tab.c"
 }
 
