@@ -234,6 +234,7 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
     
     
 #if GTK_MAJOR_VERSION < 2
+	gtk_text_set_point(GTK_TEXT(txt),gtk_text_get_length(GTK_TEXT(txt)));
     gtk_text_insert(GTK_TEXT(txt), user_font_get_regular(), NULL, NULL, str, nchars);
 #else
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
@@ -268,16 +269,57 @@ static void text_window_set_text(funnel_text_window_t*  tw, const gchar* text)
 
 
 static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) {
+    GtkWidget *txt;
+    int nchars = strlen(str);
+#if GTK_MAJOR_VERSION >= 2
+    GtkTextBuffer *buf;
+    GtkTextIter    iter;
+#endif
+	
     if (! tw->win) return; 
-    /* XXX todo */
+	
+    txt = tw->txt;
+    nchars = strlen(str);
+    
+    
+#if GTK_MAJOR_VERSION < 2
+	gtk_text_set_point(GTK_TEXT(txt),0);
+    gtk_text_insert(GTK_TEXT(txt), user_font_get_regular(), NULL, NULL, str, nchars);
+#else
+    buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
+    
+    gtk_text_buffer_get_start_iter(buf, &iter);
+    gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
+    
+    if (!g_utf8_validate(str, -1, NULL))
+        printf("Invalid utf8 encoding: %s\n", str);
+    
+    gtk_text_buffer_insert(buf, &iter, str, nchars);
+#endif
 }
 
 static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
-
+    GtkWidget *txt;
+#if GTK_MAJOR_VERSION >= 2
+    GtkTextBuffer *buf;
+    GtkTextIter    start;
+    GtkTextIter    end;
+#endif
+	
     if (! tw->win) return ""; 
-    /* XXX todo */
 
-    return "";
+	txt = tw->txt;
+
+#if GTK_MAJOR_VERSION < 2
+	/* to do */
+	return "";
+#else
+    buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
+	gtk_text_buffer_get_start_iter(buf, &start);
+	gtk_text_buffer_get_end_iter(buf, &end);
+    
+	return gtk_text_buffer_get_text(buf, &start, &end, FALSE);
+#endif
 }
 
 static void text_window_set_close_cb(funnel_text_window_t*  tw, text_win_close_cb_t cb, void* data) {
@@ -414,6 +456,10 @@ static void funnel_logger(const gchar *log_domain _U_,
     fputs(message,stderr);
 }
 
+static void elua_retap_packets(void) {
+	cf_retap_packets(&cfile, FALSE);
+}
+
 
 static const funnel_ops_t funnel_ops = {
     new_text_window,
@@ -426,7 +472,8 @@ static const funnel_ops_t funnel_ops = {
     text_window_destroy,
     /*...,*/
     funnel_new_dialog,
-    funnel_logger
+    funnel_logger,
+	funnel_retap_packets
 };
 
 

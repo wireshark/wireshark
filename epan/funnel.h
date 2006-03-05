@@ -71,6 +71,8 @@ typedef struct _funnel_ops_t {
                    GLogLevelFlags log_level,
                    const gchar *message,
                    gpointer user_data);
+	
+	void (*retap_packets)(void);
 } funnel_ops_t;
 
 

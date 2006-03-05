@@ -72,7 +72,8 @@ static const funnel_ops_t funnel_ops = {
     NULL,
     /*...,*/
     NULL,
-    funnel_logger
+    funnel_logger,
+	NULL
 };
 
 

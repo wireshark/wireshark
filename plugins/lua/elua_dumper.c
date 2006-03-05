@@ -117,9 +117,9 @@ ELUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) {
 
 ELUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
 	/* Creates an MTP2 PseudoHeader */
-#define ELUA_OPTARG_PseudoHeader_mtp2_SENT /* True if the packet is sent, False if received. */
-#define ELUA_OPTARG_PseudoHeader_mtp2_ANNEXA /* True if annex A is used  */
-#define ELUA_OPTARG_PseudoHeader_mtp2_LINKNUM /* Link Number */
+#define ELUA_OPTARG_PseudoHeader_mtp2_SENT 1 /* True if the packet is sent, False if received. */
+#define ELUA_OPTARG_PseudoHeader_mtp2_ANNEXA 2 /* True if annex A is used  */
+#define ELUA_OPTARG_PseudoHeader_mtp2_LINKNUM 3 /* Link Number */
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_MTP2;
     ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
@@ -171,7 +171,7 @@ ELUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 	 Dumper:new_for_current() will probably be a better choice. 
 	*/
 #define ELUA_ARG_Dumper_new_FILENAME 1 /* The name of the capture file to be created */
-#define ELUA_OPTARG_Dumper_new_FILETYPE 3 /* The type of the file to be created */
+#define ELUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created */
 #define ELUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created */
     Dumper d;
     const char* filename = luaL_checkstring(L,1);

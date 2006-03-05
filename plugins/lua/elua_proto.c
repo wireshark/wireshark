@@ -627,25 +627,9 @@ static const luaL_reg ProtoField_meta[] = {
 };
 
 int ProtoField_register(lua_State* L) {
-    const eth_ft_types_t* ts;
-    const struct base_display_string_t* b;
     
 	ELUA_REGISTER_CLASS(ProtoField);
-    
-    /* add a global FT_* variable for each FT_ type */
-    for (ts = ftenums; ts->str; ts++) {
-        lua_pushstring(L, ts->str);
-        lua_pushstring(L, ts->str);
-        lua_settable(L, LUA_GLOBALSINDEX);
-    }
-    
-    /* add a global BASE_* variable for each BASE_ */
-    for (b=base_displays;b->str;b++) {
-        lua_pushstring(L, b->str);
-        lua_pushstring(L, b->str);
-        lua_settable(L, LUA_GLOBALSINDEX);
-    }
-    
+        
     return 1;
 }
 
@@ -862,7 +846,7 @@ static int Proto_tostring(lua_State* L) {
     return 1;
 }
 
-static int Proto_register_postdissector(lua_State* L) { 
+ELUA_FUNCTION elua_register_postdissector(lua_State* L) { 
     Proto proto = checkProto(L,1);
     if (!proto) return 0;
     
@@ -1027,10 +1011,6 @@ static const luaL_reg Proto_meta[] = {
 int Proto_register(lua_State* L) {
 
 	ELUA_REGISTER_META(Proto);
-
-    lua_pushstring(L, "register_postdissector");
-    lua_pushcfunction(L, Proto_register_postdissector);
-    lua_settable(L, LUA_GLOBALSINDEX);
 
     lua_pushstring(L, "Proto");
     lua_pushcfunction(L, Proto_new);
