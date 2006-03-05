@@ -440,6 +440,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar      *sync_msg_str;
+#ifdef _WIN32
+  gchar      *sync_secondary_msg_str;
+#endif
   const char *set_linktype_err_str;
 #ifdef _WIN32
   int         err;
