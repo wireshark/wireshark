@@ -1548,12 +1548,6 @@ capture(void)
    */
   relinquish_special_privs_perm();
 
-  /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
-  if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
-    *secondary_errmsg = '\0';
-    goto error;    
-  }
-
   /* init the input filter from the network interface (capture pipe will do nothing) */
   switch (capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts.iface, capture_opts.cfilter)) {
 
@@ -1571,6 +1565,12 @@ capture(void)
                pcap_geterr(ld.pcap_h));
     g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report);
     goto error;
+  }
+
+  /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
+  if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
+    *secondary_errmsg = '\0';
+    goto error;    
   }
 
   /* set up to write to the already-opened capture output file/files */

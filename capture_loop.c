@@ -608,8 +608,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	g_snprintf(errmsg, errmsg_len,
 	  "The capture session could not be initiated (%s).", open_err_str);
 	g_snprintf(secondary_errmsg, secondary_errmsg_len,
-"Please check to make sure you have sufficient permissions, and that\n"
-"you have the proper interface or pipe specified.%s", libpcap_warn);
+"Please check to make sure you have sufficient permissions, and that you have\n"
+"the proper interface or pipe specified.%s", libpcap_warn);
       }
       /*
        * Else pipe (or file) does exist and cap_pipe_open_live() has
@@ -1121,12 +1121,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop starting ...");
   capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
 
-  /* open the output file (temporary/specified name/ringbuffer) */
-  if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
-    *secondary_errmsg = '\0';
-    goto error;    
-  }
-
   /* open the "input file" from network interface or capture pipe */
   if (!capture_loop_open_input(capture_opts, &ld, errmsg, sizeof(errmsg),
                                secondary_errmsg, sizeof(secondary_errmsg))) {
@@ -1150,6 +1144,12 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                pcap_geterr(ld.pcap_h));
     g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report);
     goto error;
+  }
+
+  /* open the output file (temporary/specified name/ringbuffer) */
+  if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
+    *secondary_errmsg = '\0';
+    goto error;    
   }
 
   /* set up to write to the already-opened capture output file/files */
