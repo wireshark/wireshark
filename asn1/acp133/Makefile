@@ -1,4 +1,4 @@
-# $Id: Makefile 15679 2005-09-04 16:22:12Z etxrab $
+# $Id$
 
 DISSECTOR_FILES=packet-acp133.c packet-acp133.h
 

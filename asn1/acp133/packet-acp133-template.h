@@ -2,7 +2,7 @@
  * Routines for ACP133 specific syntaxes in X.500 packet dissection
  * Graeme Lunt 2005
  *
- * $Id: packet-acp133-template.h 15680 2005-09-04 20:30:31Z etxrab $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
