@@ -1162,6 +1162,8 @@ static const value_string registration_status_values[] = {
   {  8, "Error - Insufficient Resources" },
   {  9, "Error - Unsupported RK parameter Field" },
   { 10, "Error - Unsupported/Invalid Traffic Handling Mode" },
+  { 11, "Error - Routing Key Change Refused" },
+  { 12, "Error - Routing Key Already Registered" },
   {  0, NULL } };
 
 static void
