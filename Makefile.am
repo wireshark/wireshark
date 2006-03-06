@@ -834,15 +834,6 @@ debian-package: debian/rules
 clean-local:
 	rm -rf $(top_stagedir)
 
-test-splint: $(ethereal_SOURCES)
-	splint \
-		-gnu-extensions	-D_U_=""	\
-		-I. `glib-config --cflags` \
-		-I./epan \
-		-I./tools/lemon \
-		-I./wiretap	\
-		$(ethereal_SOURCES)
-
 init.lua: template-init.lua make-init-lua.pl epan/ftypes/ftypes.h wiretap/wtap.h
 	$(PERL) make-init-lua.pl template-init.lua > init.lua
 
