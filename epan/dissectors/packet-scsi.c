@@ -115,6 +115,7 @@ static int hf_scsi_spcpagecode           = -1;
 static int hf_scsi_sbcpagecode           = -1;
 static int hf_scsi_sscpagecode           = -1;
 static int hf_scsi_smcpagecode           = -1;
+static int hf_scsi_mmcpagecode           = -1;
 static int hf_scsi_modesns_flags         = -1;
 static int hf_scsi_persresvin_svcaction  = -1;
 static int hf_scsi_persresvout_svcaction = -1;
@@ -503,6 +504,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_SYNCHRONIZECACHE       0x35
 #define SCSI_MMC_READTOCPMAATIP         0x43
 #define SCSI_MMC_GETCONFIGURATION       0x46
+#define SCSI_MMC_GETEVENTSTATUSNOTIFY   0x4a
 #define SCSI_MMC_READDISCINFORMATION    0x51
 #define SCSI_MMC_READTRACKINFORMATION   0x52
 #define SCSI_MMC_RESERVETRACK           0x53
@@ -512,12 +514,14 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_WRITE12                0xaa
 #define SCSI_MMC_SETSTREAMING           0xb6
 static const value_string scsi_mmc_val[] = {
+    {SCSI_SBC2_STARTSTOPUNIT, "Start Stop Unit"},
     {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
     {SCSI_MMC_READ10,		"Read(10)"},
     {SCSI_MMC_WRITE10,		"Write(10)"},
     {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
     {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
+    {SCSI_MMC_GETEVENTSTATUSNOTIFY, "Get Event Status Notification"},
     {SCSI_MMC_READDISCINFORMATION, "Read Disc Information"},
     {SCSI_MMC_READTRACKINFORMATION, "Read Track Information"},
     {SCSI_MMC_RESERVETRACK,	"Reserve Track"},
@@ -768,6 +772,14 @@ static const value_string scsi_smc2_modepage_val[] = {
     {SCSI_SMC2_MODEPAGE_EAA,      "Element Address Assignment"},
     {SCSI_SMC2_MODEPAGE_TRANGEOM, "Transport Geometry Parameters"},
     {SCSI_SMC2_MODEPAGE_DEVCAP,   "Device Capabilities"},
+    {0x3F,                        "Return All Mode Pages"},
+    {0, NULL},
+};
+
+#define SCSI_MMC3_MODEPAGE_MMCAP   0x2A  /* device capabilities */
+
+static const value_string scsi_mmc5_modepage_val[] = {
+    {SCSI_MMC3_MODEPAGE_MMCAP,   "MM Capabilities and Mechanical Status"},
     {0x3F,                        "Return All Mode Pages"},
     {0, NULL},
 };
@@ -2490,6 +2502,19 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 static gboolean
+dissect_scsi_mmc5_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
+		            proto_tree *tree, guint offset, guint8 pcode)
+{
+    switch (pcode) {
+    case SCSI_MMC3_MODEPAGE_MMCAP:
+        break;
+    default:
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static gboolean
 dissect_scsi_smc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 		            proto_tree *tree, guint offset, guint8 pcode)
 {
@@ -2636,6 +2661,12 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
             modepage_val = scsi_smc2_modepage_val;
             hf_pagecode = hf_scsi_smcpagecode;
             dissect_modepage = dissect_scsi_smc2_modepage;
+            break;
+
+        case SCSI_DEV_CDROM:
+            modepage_val = scsi_mmc5_modepage_val;
+            hf_pagecode = hf_scsi_mmcpagecode;
+            dissect_modepage = dissect_scsi_mmc5_modepage;
             break;
 
         default:
@@ -2907,6 +2938,10 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
 
         case SCSI_DEV_SMC:
             hf_pagecode = hf_scsi_smcpagecode;
+            break;
+
+        case SCSI_DEV_CDROM:
+            hf_pagecode = hf_scsi_mmcpagecode;
             break;
 
         default:
@@ -4110,6 +4145,35 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                 old_offset+=additional_length;
                 len-=4+additional_length;
         }
+    }
+}
+
+static void
+dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (tree && isreq && iscdb) {
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "Polled: %u",
+                             flags & 0x01);
+
+        flags = tvb_get_guint8 (tvb, offset+3);
+        proto_tree_add_text (tree, tvb, offset+3, 1,
+                             "Notification Class Request: %u",
+                             flags);
+
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
     }
 }
 
@@ -6803,7 +6867,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x18*/{NULL},
 /*MMC 0x19*/{NULL},
 /*MMC 0x1a*/{NULL},
-/*MMC 0x1b*/{NULL},
+/*MMC 0x1b*/{dissect_sbc2_startstopunit},
 /*MMC 0x1c*/{NULL},
 /*MMC 0x1d*/{NULL},
 /*MMC 0x1e*/{NULL},
@@ -6850,7 +6914,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x47*/{NULL},
 /*MMC 0x48*/{NULL},
 /*MMC 0x49*/{NULL},
-/*MMC 0x4a*/{NULL},
+/*MMC 0x4a*/{dissect_mmc4_geteventstatusnotification},
 /*MMC 0x4b*/{NULL},
 /*MMC 0x4c*/{NULL},
 /*MMC 0x4d*/{NULL},
@@ -7354,6 +7418,9 @@ proto_register_scsi (void)
         { &hf_scsi_sscpagecode,
           {"SSC-2 Page Code", "scsi.mode.ssc.pagecode", FT_UINT8, BASE_HEX,
            VALS (scsi_ssc2_modepage_val), 0x3F, "", HFILL}},
+        { &hf_scsi_mmcpagecode,
+          {"MMC-5 Page Code", "scsi.mode.mmc.pagecode", FT_UINT8, BASE_HEX,
+           VALS (scsi_mmc5_modepage_val), 0x3F, "", HFILL}},
         { &hf_scsi_smcpagecode,
           {"SMC-2 Page Code", "scsi.mode.smc.pagecode", FT_UINT8, BASE_HEX,
            VALS (scsi_smc2_modepage_val), 0x3F, "", HFILL}},
