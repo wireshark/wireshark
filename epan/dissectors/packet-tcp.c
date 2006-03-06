@@ -1458,7 +1458,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				for(ipfd=ipfd_head->next; ipfd->next; ipfd=ipfd->next){
 					old_tsk.seq = tsk->start_seq + ipfd->offset;
 					new_tsk = g_hash_table_lookup(tcp_segment_table, &old_tsk);
-					new_tsk->tot_len = tsk->tot_len;
+					if (new_tsk)
+						new_tsk->tot_len = tsk->tot_len;
 				}
 
 				/* this is the next segment in the sequence we want */
