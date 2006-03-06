@@ -718,7 +718,6 @@ void* ep_stack_pop(ep_stack_t stack) {
 /* routines to manage se allocated red-black trees */
 se_tree_t *se_trees=NULL;
 
-/* keylen is length of key in number of guint32 fields */
 se_tree_t *
 se_tree_create(int type)
 {
@@ -1030,3 +1029,70 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 }
 
 
+/* When the se data is released, this entire tree will dissapear as if it 
+ * never existed including all metadata associated with the tree.
+ */
+se_tree_t *
+se_tree_create_non_persistent(int type)
+{
+	se_tree_t *tree_list;
+
+	tree_list=se_alloc(sizeof(se_tree_t));
+	tree_list->next=NULL;
+	tree_list->type=type;
+	tree_list->tree=NULL;
+
+	return tree_list;
+}
+
+/* insert a new node in the tree. if this node matches an already existing node
+ * then just replace the data for that node */
+void 
+se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data)
+{
+	se_tree_t *next_tree;
+
+	if((key[0].length<1)||(key[0].length>100)){
+	        DISSECTOR_ASSERT_NOT_REACHED();
+	}
+	if((key[0].length==1)&&(key[1].length==0)){
+		se_tree_insert32(se_tree, *key[0].key, data);
+		return;
+	}
+	next_tree=se_tree_lookup32(se_tree, *key[0].key);
+	if(!next_tree){
+		next_tree=se_tree_create_non_persistent(se_tree->type);
+		se_tree_insert32(se_tree, *key[0].key, next_tree);
+	}
+	if(key[0].length==1){
+		key++;
+	} else {
+		key[0].length--;
+		key[0].key++;
+	}
+	se_tree_insert32_array(next_tree, key, data);
+}
+
+void *
+se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key)
+{
+	se_tree_t *next_tree;
+
+	if((key[0].length<1)||(key[0].length>100)){
+	        DISSECTOR_ASSERT_NOT_REACHED();
+	}
+	if((key[0].length==1)&&(key[1].length==0)){
+		return se_tree_lookup32(se_tree, *key[0].key);
+	}
+	next_tree=se_tree_lookup32(se_tree, *key[0].key);
+	if(!next_tree){
+		return NULL;
+	}
+	if(key[0].length==1){
+		key++;
+	} else {
+		key[0].length--;
+		key[0].key++;
+	}
+	se_tree_lookup32_array(next_tree, key);
+}

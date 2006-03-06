@@ -521,7 +521,7 @@ static GHashTable *nfs_name_snoop_unmatched = NULL;
 
 static GHashTable *nfs_name_snoop_matched = NULL;
 
-static GHashTable *nfs_name_snoop_known = NULL;
+static se_tree_t *nfs_name_snoop_known = NULL;
 
 static gint
 nfs_name_snoop_matched_equal(gconstpointer k1, gconstpointer k2)
@@ -608,15 +608,6 @@ nfs_name_snoop_init(void)
 		nfs_name_snoop_matched=g_hash_table_new(nfs_name_snoop_matched_hash,
 			nfs_name_snoop_matched_equal);
 	}
-	if (nfs_name_snoop_known != NULL) {
-		g_hash_table_foreach_remove(nfs_name_snoop_known,
-				nfs_name_snoop_unmatched_free_all, NULL);
-	} else {
-		/* The fragment table does not exist. Create it */
-		nfs_name_snoop_known=g_hash_table_new(nfs_name_snoop_matched_hash,
-			nfs_name_snoop_matched_equal);
-	}
-
 }
 
 void
@@ -780,12 +771,16 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
 		if(nns){
-			nfs_name_snoop_key_t *k;
-			k=se_alloc(sizeof(nfs_name_snoop_key_t));
-			k->key=pinfo->fd->num;
-			k->fh_length=nns->fh_length;
-			k->fh=nns->fh;
-			g_hash_table_insert(nfs_name_snoop_known, k, nns);
+			guint32 fhlen;
+			se_tree_key_t fhkey[3];
+
+			fhlen=nns->fh_length;
+			fhkey[0].length=1;
+			fhkey[0].key=&fhlen;
+			fhkey[1].length=fhlen/4;
+			fhkey[1].key=nns->fh;
+			fhkey[2].length=0;
+			se_tree_insert32_array(nfs_name_snoop_known, &fhkey[0], nns);
 
 			if(nfs_file_name_full_snooping){
 				unsigned char *name=NULL, *pos=NULL;
@@ -802,11 +797,17 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 	/* see if we know this mapping */
 	if(!nns){
-		key.key=pinfo->fd->num;
-		key.fh_length=fh_length;
-		key.fh=(const unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
+		guint32 fhlen;
+		se_tree_key_t fhkey[3];
 
-		nns=g_hash_table_lookup(nfs_name_snoop_known, &key);
+		fhlen=fh_length;
+		fhkey[0].length=1;
+		fhkey[0].key=&fhlen;
+		fhkey[1].length=fhlen/4;
+		fhkey[1].key=tvb_get_ptr(tvb, fh_offset, fh_length);
+		fhkey[2].length=0;
+		
+		nns=se_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
 	}
 
 	/* if we know the mapping, print the filename */
@@ -8826,6 +8827,7 @@ proto_register_nfs(void)
 				       "Fhandle filters finds both request/response",
 				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
 					&nfs_fhandle_reqrep_matching);
+	nfs_name_snoop_known=se_tree_create(SE_TREE_TYPE_RED_BLACK);
 	register_init_routine(nfs_name_snoop_init);
 	register_init_routine(nfs_fhandle_reqrep_matching_init);
 }

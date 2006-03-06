@@ -190,8 +190,75 @@ typedef struct _se_tree_t {
 } se_tree_t;
 extern se_tree_t *se_trees;
 
+
+/* This function is used to create a se based tree with monitoring.
+ * When the SE heap is released back to the system the pointer to the 
+ * tree is automatically reset to NULL.
+ *
+ * type is : SE_TREE_TYPE_RED_BLACK for a standard red/black tree.
+ */
 se_tree_t *se_tree_create(int type);
+
+/* This function is used to insert a node indexed by a guint32 key value.
+ * The data pointer should be allocated by SE allocators so that the
+ * data will be released at the same time as the tree itself is destroyed.
+ */
 void se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
+
+/* This function will look up a node in the tree indexed by a guint32 integer
+ * value.
+ */
 void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
+
+
+/* This function is similar to the se_tree_create() call but with the
+ * difference that when the se memory is release everything including the 
+ * pointer to the tree itself will be released.
+ * This tree will not be just reset to zero  it will be completely forgotten
+ * by the allocator.
+ * Use this function for when you want to store the pointer to a tree inside
+ * another structure that is also se allocated so that when the structure is
+ * released, the tree will be completely released as well.
+ */
+se_tree_t *se_tree_create_non_persistent(int type);
+
+typedef struct _se_tree_key_t {
+	guint32 length;			/*length in guint32 words */
+	guint32 *key;
+} se_tree_key_t;
+
+/* This function is used to insert a node indexed by a sequence of guint32 
+ * key values.
+ * The data pointer should be allocated by SE allocators so that the
+ * data will be released at the same time as the tree itself is destroyed.
+ *
+ * If you use ...32_array() calls you MUST make sure that every single node
+ * you add to a specific tree always has a key of exactly the same number of 
+ * keylen words or things will most likely crash. Or at least that every single
+ * item that sits behind the same top level node always have exactly the same
+ * number of words.
+ *
+ * One way to guarantee this is the way that NFS does this for the
+ * nfs_name_snoop_known  tree which holds filehandles for both v2 and v3.
+ * v2 filehandles are always 32 bytes (8 words) while v3 filehandles can have
+ * any length (though 32bytes are most common).
+ * The NFS dissector handles this by providing a guint32 containing the length
+ * as the very first item in this vector :
+ *
+ *			se_tree_key_t fhkey[3];
+ *
+ *			fhlen=nns->fh_length;
+ *			fhkey[0].length=1;
+ *			fhkey[0].key=&fhlen;
+ *			fhkey[1].length=fhlen/4;
+ *			fhkey[1].key=nns->fh;
+ *			fhkey[2].length=0;
+ */
+void se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data);
+
+/* This function will look up a node in the tree indexed by a sequence of
+ * guint32 integer values.
+ */
+void *se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key);
 
 #endif /* emem.h */
