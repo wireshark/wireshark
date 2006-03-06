@@ -414,46 +414,8 @@ static gint ett_nfs_acemask4 = -1;
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
 gboolean nfs_fhandle_reqrep_matching = FALSE;
-static GHashTable *nfs_fhandle_data_table = NULL;
 GHashTable *nfs_fhandle_frame_table = NULL;
 
-static gint
-nfs_fhandle_data_equal(gconstpointer k1, gconstpointer k2)
-{
-	const nfs_fhandle_data_t *key1 = (const nfs_fhandle_data_t *)k1;
-	const nfs_fhandle_data_t *key2 = (const nfs_fhandle_data_t *)k2;
-
-	return (key1->len==key2->len)
-	     &&(!memcmp(key1->fh, key2->fh, key1->len));
-}
-static guint
-nfs_fhandle_data_hash(gconstpointer k)
-{
-	const nfs_fhandle_data_t *key = (const nfs_fhandle_data_t *)k;
-	int i;
-	int hash;
-
-	hash=0;
-	for(i=0;i<key->len;i++)
-		hash ^= key->fh[i];
-
-	return hash;
-}
-static gboolean
-nfs_fhandle_data_free_all(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
-{
-	nfs_fhandle_data_t *nns = (nfs_fhandle_data_t *)value;
-
-	if(nns->fh){
-		tvb_free(nns->tvb);
-		nns->tvb=NULL;
-		g_free((gpointer)nns->fh);
-		nns->fh=NULL;
-		nns->len=0;
-	}
-
-	return TRUE;
-}
 static gint
 nfs_fhandle_frame_equal(gconstpointer k1, gconstpointer k2)
 {
@@ -484,16 +446,6 @@ nfs_fhandle_reqrep_matching_init(void)
 		nfs_fhandle_frame_table=g_hash_table_new(nfs_fhandle_frame_hash,
 			nfs_fhandle_frame_equal);
 	}
-
-
-	if (nfs_fhandle_data_table != NULL) {
-		g_hash_table_foreach_remove(nfs_fhandle_data_table,
-				nfs_fhandle_data_free_all, NULL);
-	} else {
-		nfs_fhandle_data_table=g_hash_table_new(nfs_fhandle_data_hash,
-			nfs_fhandle_data_equal);
-	}
-
 }
 
 
@@ -522,6 +474,55 @@ static GHashTable *nfs_name_snoop_unmatched = NULL;
 static GHashTable *nfs_name_snoop_matched = NULL;
 
 static se_tree_t *nfs_name_snoop_known = NULL;
+static se_tree_t *nfs_file_handles = NULL;
+
+/* This function will store one nfs filehandle in our global tree of 
+ * filehandles.
+ * We store all filehandles we see in this tree so that every unique
+ * filehandle is only stored once with a unique pointer.
+ * We need to store pointers to filehandles in several of our other
+ * structures and this is a way to make sure we dont keep any redundant
+ * copiesd around for a specific filehandle.
+ *
+ * If this is the first time this filehandle has been seen an se block
+ * is allocated to store the filehandle in.
+ * If this filehandle has already been stored in the tree this function returns
+ * a pointer to the original copy.
+ */
+static nfs_fhandle_data_t *
+store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
+{
+	guint32 fhlen;
+	se_tree_key_t fhkey[3];
+	nfs_fhandle_data_t *new_nfs_fh;
+
+	fhlen=nfs_fh->len/4;
+	fhkey[0].length=1;
+	fhkey[0].key=&fhlen;
+	fhkey[1].length=fhlen;
+	fhkey[1].key=nfs_fh->fh;
+	fhkey[2].length=0;
+
+	new_nfs_fh=se_tree_lookup32_array(nfs_file_handles, &fhkey[0]);
+	if(new_nfs_fh){
+		return new_nfs_fh;
+	}
+
+	new_nfs_fh=se_alloc(sizeof(nfs_fhandle_data_t));
+	new_nfs_fh->len=nfs_fh->len;
+	new_nfs_fh->fh=se_alloc(sizeof(guint32)*(nfs_fh->len/4));
+	memcpy(new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
+	new_nfs_fh->tvb=tvb_new_real_data(new_nfs_fh->fh, new_nfs_fh->len, new_nfs_fh->len);
+	fhlen=nfs_fh->len/4;
+	fhkey[0].length=1;
+	fhkey[0].key=&fhlen;
+	fhkey[1].length=fhlen;
+	fhkey[1].key=nfs_fh->fh;
+	fhkey[2].length=0;
+	se_tree_insert32_array(nfs_file_handles, &fhkey[0], new_nfs_fh);
+
+	return new_nfs_fh;
+} 
 
 static gint
 nfs_name_snoop_matched_equal(gconstpointer k1, gconstpointer k2)
@@ -1433,7 +1434,6 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   of an RPC call */
 	if(nfs_fhandle_reqrep_matching && (!hidden) ){
 		nfs_fhandle_data_t *old_fhd=NULL;
-		unsigned char *fh;
 
 		if( !pinfo->fd->flags.visited ){
 			nfs_fhandle_data_t fhd;
@@ -1441,19 +1441,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/* first check if we have seen this fhandle before */
 			fhd.len=fhlen;
 			fhd.fh=(const unsigned char *)tvb_get_ptr(tvb, offset, fhlen);
-			old_fhd=g_hash_table_lookup(nfs_fhandle_data_table,
-				(gconstpointer)&fhd);
-			if(!old_fhd){
-				/* oh, a new fhandle, alloc struct and store it in the table*/
-				old_fhd=se_alloc(sizeof(nfs_fhandle_data_t));
-				old_fhd->len=fhlen;
-				fh=g_malloc(fhlen);
-				memcpy(fh, fhd.fh, fhlen);
-				old_fhd->fh=fh;
-				old_fhd->tvb=tvb_new_real_data(old_fhd->fh, old_fhd->len, old_fhd->len);
-				g_hash_table_insert(nfs_fhandle_data_table,
-					(gpointer)old_fhd, (gpointer)old_fhd);
-			}
+			old_fhd=store_nfs_file_handle(&fhd);
 
 			/* XXX here we should really check that we havent stored
 			   this fhandle for this frame number already.
@@ -8828,6 +8816,7 @@ proto_register_nfs(void)
 				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
 					&nfs_fhandle_reqrep_matching);
 	nfs_name_snoop_known=se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	nfs_file_handles=se_tree_create(SE_TREE_TYPE_RED_BLACK);
 	register_init_routine(nfs_name_snoop_init);
 	register_init_routine(nfs_fhandle_reqrep_matching_init);
 }
