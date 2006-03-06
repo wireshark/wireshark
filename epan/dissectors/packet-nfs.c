@@ -5979,7 +5979,7 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 i;
 	gint j;
 	guint32 fattr;
-	guint32 *bitmap;
+	guint32 *bitmap=NULL;
 	guint32 sl;
 	int attr_vals_offset;
 
@@ -5997,7 +5997,9 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	attr_vals_offset = offset + 4 + bitmap_len * 4;
 
-	bitmap = g_malloc(bitmap_len * sizeof(guint32));
+	if(bitmap_len)
+		bitmap = ep_alloc(bitmap_len * sizeof(guint32));
+
 	if (bitmap == NULL) return offset;
 
 	for (i = 0; i < bitmap_len; i++)
@@ -6311,8 +6313,6 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset += 4;
 	}
-
-	g_free(bitmap);
 
 	return offset;
 }
