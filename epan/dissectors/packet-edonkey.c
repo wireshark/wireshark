@@ -76,6 +76,7 @@ static int hf_emule_aich_hash = -1;
 static int hf_emule_multipacket_entry = -1;
 static int hf_emule_multipacket_opcode = -1;
 static int hf_emule_source_count = -1;
+static int hf_emule_zlib = -1;
 static int hf_overnet_peer = -1;
 
 static gint ett_edonkey = -1;
@@ -87,6 +88,7 @@ static gint ett_edonkey_serverinfo = -1;
 static gint ett_edonkey_clientinfo = -1;
 static gint ett_emule_aichhash = -1;
 static gint ett_emule_multipacket = -1;
+static gint ett_emule_zlib = -1;
 static gint ett_overnet_peer = -1;
 
 /* desegmentation of eDonkey over TCP */
@@ -155,11 +157,15 @@ static const value_string emule_tcp_msgs[] = {
 	{ EMULE_MSG_SOURCES_REQUEST,         "Sources Request"          },
 	{ EMULE_MSG_SOURCES_ANSWER,          "Sources Answer"           },
 	{ EMULE_MSG_MULTIPACKET,             "MultiPacket"              },
+	{ EMULE_MSG_MULTIPACKET_EXT,         "MultiPacketExt"           },
 	{ EMULE_MSG_MULTIPACKET_ANSWER,      "MultiPacket Answer"       },
 	{ EMULE_MSG_AICH_REQUEST,            "AICH Hashset Request"     },
 	{ EMULE_MSG_AICH_ANSWER,             "AICH Hashset Answer"      },
 	{ EMULE_MSG_AICHFILEHASH_ANSWER,     "AICH Master Hash Request" },
 	{ EMULE_MSG_AICHFILEHASH_REQUEST,    "AICH Master Hash Answer"  },
+	{ EMULE_MSG_DATA_COMPRESSED_64,      "Data Compressed (64bit)"  },
+	{ EMULE_MSG_SENDING_PART_64,         "Sending Part (64bit)"     },
+	{ EMULE_MSG_REQUEST_PARTS_64,        "Request Parts (64bit)"    },
     { 0,                                 NULL                       }
 };
 
@@ -239,6 +245,9 @@ static const value_string edonkey_special_tags[] = {
     { EMULE_STAG_COMMENTS,              "Comments"                  },
     { EMULE_STAG_EXTENDED_REQUEST,      "Extended Request"          },
     { EMULE_STAG_COMPATIBLE_CLIENT,     "Compatible Client"         },
+    { EMULE_STAG_COMPLETE_SOURCES,      "Complete Sources"          },
+    { EMULE_STAG_SIZE_HI,               "Size (High Byte)"          },
+    { EMULE_STAG_SERVER_VERSION,        "Server Version"            },
     { EMULE_STAG_COMPAT_OPTIONS1,       "Compatible Options"        },
     { EMULE_STAG_UDPPORTS,              "UDP Ports"                 },
     { EMULE_STAG_MISCOPTIONS1,          "Misc Options 1"            },
@@ -353,7 +362,7 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <Tag Name> ::= <Special Tag> iff Tag Type had the top bit set */
     proto_item *ti;
     proto_tree *metatag_tree;
-    guint8 real_tag_type, tag_type, special_tagtype, tag_value_guint8;
+    guint8 real_tag_type, tag_type, special_tagtype, trans_tagtype, tag_value_guint8;
     guint16 tag_name_size, string_length, array_length, tag_value_guint16;
     guint32 tag_length, blob_length, tag_value_guint32;
     int tag_offset;
@@ -409,9 +418,16 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
             if (tag_type==real_tag_type)
                 proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
             edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
-            if (edonkey_metatag_name_get_type(tvb, offset+3, tag_name_size, special_tagtype) == EDONKEY_STAG_IP) {
+	    trans_tagtype = edonkey_metatag_name_get_type(tvb, offset+3, tag_name_size, special_tagtype);
+            if (trans_tagtype == EDONKEY_STAG_IP) {
                 proto_tree_add_item(metatag_tree, hf_edonkey_ip, tvb, tag_offset, 4, FALSE);
             }
+	    else if (trans_tagtype == EMULE_STAG_SERVER_VERSION) {
+	        guint16 maj, min;
+		min = tvb_get_letohs(tvb, tag_offset);
+		maj = tvb_get_letohs(tvb, tag_offset+2);
+		proto_tree_add_text(metatag_tree, tvb, tag_offset, 4, "Meta Tag Value: %u.%u", maj, min);
+	    }  
             else {
                 tag_value_guint32 = tvb_get_letohl(tvb, tag_offset);
                 proto_tree_add_text(metatag_tree, tvb, tag_offset, 4, "Meta Tag Value: %u", tag_value_guint32);
@@ -670,12 +686,22 @@ static int dissect_edonkey_client_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 /* Dissects the eDonkey client ID */
 static int dissect_edonkey_client_id(tvbuff_t *tvb, packet_info *pinfo _U_, 
-                                     int offset, proto_tree *tree)
+                                     int offset, proto_tree *tree, gboolean fileinfo)
 {
+    proto_item *ti;
     /* <Client ID> ::= guint32 */
 /*    guint32 ip = tvb_get_letohl(tvb, offset);
       proto_tree_add_ipv4(tree, hf_edonkey_client_id, tvb, offset, 4, ip); */
-    proto_tree_add_item(tree, hf_edonkey_client_id, tvb, offset, 4, FALSE);
+    ti = proto_tree_add_item(tree, hf_edonkey_client_id, tvb, offset, 4, FALSE);
+    if (fileinfo) {
+      guint32 ip = tvb_get_letohl(tvb, offset);
+      guint16 port = tvb_get_letohs(tvb, offset+4);
+      if (ip==0xfcfcfcfc && port==0xfcfc) {
+	proto_item_append_text(ti, " (myself, incomplete file)");
+      } else if (ip==0xfbfbfbfb && port==0xfbfb) {
+	proto_item_append_text(ti, " (myself, complete file)");
+      }
+    }
     return offset+4;
 }
 
@@ -698,6 +724,15 @@ static int dissect_edonkey_start_offset(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset+4;
 }
 
+static int dissect_edonkey_start_offset_64(tvbuff_t *tvb, packet_info *pinfo _U_, 
+					   int offset, proto_tree *tree)
+{
+    /* <Start Offset> ::= guint64 */
+    guint64 start = tvb_get_letoh64(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 8, "Start Offset: %llu", start);
+    return offset+8;
+}
+
 /* Dissects the eDonkey end offset */
 static int dissect_edonkey_end_offset(tvbuff_t *tvb, packet_info *pinfo _U_, 
                                       int offset, proto_tree *tree)
@@ -706,6 +741,15 @@ static int dissect_edonkey_end_offset(tvbuff_t *tvb, packet_info *pinfo _U_,
     guint32 end = tvb_get_letohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "End Offset: %u", end);
     return offset+4;
+}
+
+static int dissect_edonkey_end_offset_64(tvbuff_t *tvb, packet_info *pinfo _U_, 
+					 int offset, proto_tree *tree)
+{
+    /* <End Offset> ::= guint64 */
+    guint64 end = tvb_get_letoh64(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 8, "End Offset: %llu", end);
+    return offset+8;
 }
 
 /* Dissects the eDonkey client info */
@@ -719,7 +763,7 @@ static int dissect_edonkey_client_info(tvbuff_t *tvb, packet_info *pinfo _U_,
     ti = proto_tree_add_item(tree, hf_edonkey_clientinfo, tvb, offset, 0, FALSE);
     clientinfo_tree = proto_item_add_subtree(ti, ett_edonkey_clientinfo);        
     offset = dissect_edonkey_client_hash(tvb, pinfo, offset, clientinfo_tree);
-    offset = dissect_edonkey_client_id(tvb, pinfo, offset, clientinfo_tree);
+    offset = dissect_edonkey_client_id(tvb, pinfo, offset, clientinfo_tree, FALSE);
     offset = dissect_edonkey_port(tvb, pinfo, offset, clientinfo_tree); 
     offset = dissect_edonkey_metatag_list(tvb, pinfo, offset, clientinfo_tree); 
     return offset;
@@ -755,14 +799,17 @@ static int dissect_edonkey_file_info(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     /* <File info> ::= <File hash> <Client ID> <Port> <Meta tag list> */
     proto_item *ti;
-    proto_tree *fileinfo_tree;    
+    proto_tree *fileinfo_tree;
+    int startoff;
     /* Add subtree for file info */
     ti = proto_tree_add_item(tree, hf_edonkey_fileinfo, tvb, offset, 0, FALSE);
+    startoff = offset;
     fileinfo_tree = proto_item_add_subtree(ti, ett_edonkey_fileinfo);        
     offset = dissect_edonkey_file_hash(tvb, pinfo, offset, fileinfo_tree);
-    offset = dissect_edonkey_client_id(tvb, pinfo, offset, fileinfo_tree);
+    offset = dissect_edonkey_client_id(tvb, pinfo, offset, fileinfo_tree, TRUE);
     offset = dissect_edonkey_port(tvb, pinfo, offset, fileinfo_tree); 
-    offset = dissect_edonkey_metatag_list(tvb, pinfo, offset, fileinfo_tree); 
+    offset = dissect_edonkey_metatag_list(tvb, pinfo, offset, fileinfo_tree);
+    proto_item_set_len(ti, offset-startoff);
     return offset;
 }
 
@@ -814,7 +861,7 @@ static int dissect_emule_aich_hash_list(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static int dissect_emule_multipacket(tvbuff_t *tvb, packet_info *pinfo _U_,
-				     int offset, int eoffset, proto_tree *tree)
+				     int offset, int eoffset, proto_tree *tree, int isext)
 {
   guint8 opcode, nextop;
   guint16 namelen, partcount, arrlen, oplen;
@@ -823,7 +870,14 @@ static int dissect_emule_multipacket(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *mp_tree;
 
   /* <MultiPacket> ::= <File Hash> <Opcodes>* */
+  /* <MultiPacketExt> ::= <File Hash> <FileLength> <Opcodes>* */
   offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+
+  if (isext) {
+    guint64 filelen = tvb_get_letoh64(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 8, "File Length: %llu", filelen);
+    offset += 8;
+  }
 
   while (offset<eoffset) {
     opcode = tvb_get_guint8(tvb, offset);
@@ -1156,12 +1210,12 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
         case EDONKEY_MSG_CLIENT_CB_REQ:  /* Client Callback Request: <Client ID> */
         case EDONKEY_MSG_CALLBACK_FAIL:  /* Callback Fail:           <Client ID> */
         case EDONKEY_MSG_ID_CHANGE:      /* ID Change:               <Client ID> */
-            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree, FALSE);
             break;
 
         case EDONKEY_MSG_NEW_CLIENT_ID:  /* New Client ID: <Client ID> <Client ID> */
-            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree, FALSE);
+            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree, FALSE);
             break;
 
         case EDONKEY_MSG_SERVER_MESSAGE: /* Server Message: <String> */
@@ -1278,12 +1332,45 @@ static void dissect_emule_tcp_message(guint8 msg_type,
             offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
             offset = dissect_edonkey_start_offset(tvb, pinfo, offset, tree);
             packed_length = tvb_get_letohl(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, packed_length, "Packed Length: %u", packed_length);
+            proto_tree_add_text(tree, tvb, offset, 4, "Packed Length: %u", packed_length);
             offset += 4;
             if (msg_end > offset) {
                 bytes_remaining = msg_end - offset;
                 proto_tree_add_text(tree, tvb, offset, bytes_remaining, 
                                     "Compressed Message Data (%d bytes)", bytes_remaining);
+            }
+            break;
+
+        case EMULE_MSG_DATA_COMPRESSED_64: /* Data Compressed: <File Hash> <Start Offset (guint64)> <Length (guint32)> <DATA> */
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_start_offset_64(tvb, pinfo, offset, tree);
+            packed_length = tvb_get_letohl(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 4, "Packed Length: %u", packed_length);
+            offset += 4;
+            if (msg_end > offset) {
+                bytes_remaining = msg_end - offset;
+                proto_tree_add_text(tree, tvb, offset, bytes_remaining, 
+                                    "Compressed Message Data (%d bytes)", bytes_remaining);
+            }
+            break;
+
+        case EMULE_MSG_REQUEST_PARTS_64:  /* Request Parts: <File hash> <Start offset>(3) <End offset>(3) */
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_start_offset_64(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_start_offset_64(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_start_offset_64(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_end_offset_64(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_end_offset_64(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_end_offset_64(tvb, pinfo, offset, tree);
+            break;
+
+        case EMULE_MSG_SENDING_PART_64:  /* Sending Part: <File hash> <Start offset> <End offset> DATA */
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_start_offset_64(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_end_offset_64(tvb, pinfo, offset, tree);
+            if (msg_end > offset) {
+                bytes_remaining = msg_end - offset;
+                proto_tree_add_text(tree, tvb, offset, bytes_remaining, "Message Data (%d bytes)", bytes_remaining);
             }
             break;
 
@@ -1306,7 +1393,8 @@ static void dissect_emule_tcp_message(guint8 msg_type,
 
         case EMULE_MSG_MULTIPACKET: /* MultiPacket: <Hash> <Opcodes> */
         case EMULE_MSG_MULTIPACKET_ANSWER:
-            offset = dissect_emule_multipacket(tvb, pinfo, offset, offset+length, tree);
+        case EMULE_MSG_MULTIPACKET_EXT: /* MultiPacketExt: <Hash> <FileLength> <Opcodes> */
+            offset = dissect_emule_multipacket(tvb, pinfo, offset, offset+length, tree, msg_type==EMULE_MSG_MULTIPACKET_EXT);
             break;
 
         default:
@@ -1323,6 +1411,8 @@ static void dissect_edonkey_udp_message(guint8 msg_type,
     int msg_start, msg_end, bytes_remaining;
     guint8 type;
     guint16 min, max;
+    guint16 ischal;
+    guint32 chal;
     guint32 nusers, nfiles;
 
     if (tree == NULL) return;
@@ -1338,16 +1428,36 @@ static void dissect_edonkey_udp_message(guint8 msg_type,
         /* EDonkey UDP Messages */
         case EDONKEY_MSG_UDP_CALLBACK_REQUEST: /* Callback Request: <Address> <Client ID> */
             offset = dissect_edonkey_address(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree, FALSE);
             break;
 
         case EDONKEY_MSG_UDP_CALLBACK_FAIL: /* Callback Fail: <Client ID> */
-            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree, FALSE);
+            break;
+
+        case EDONKEY_MSG_UDP_GET_SERVER_INFO: /* Get Server Info: <Challenge> */
+	    if (length>=2) {
+	      ischal = tvb_get_letohs(tvb, offset);
+	      if (ischal==0xf0ff) {
+		chal = tvb_get_letohl(tvb, offset);
+		proto_tree_add_text(tree, tvb, offset, 4, "Challenge: 0x%08x", chal);
+		offset += 4;
+	      } else {
+		offset = dissect_edonkey_string(tvb, pinfo, offset, tree);
+	      }
+	    }
             break;
 
         case EDONKEY_MSG_UDP_SERVER_INFO: /* Server Info: <String> <String>*/
-            offset = dissect_edonkey_string(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_string(tvb, pinfo, offset, tree);
+	    ischal = tvb_get_letohs(tvb, offset);
+	    if (ischal==0xf0ff) {
+	      chal = tvb_get_letohl(tvb, offset);
+	      proto_tree_add_text(tree, tvb, offset, 4, "Challenge: 0x%08x", chal);
+	      offset = dissect_edonkey_metatag_list(tvb, pinfo, offset+4, tree);
+	    } else {
+	      offset = dissect_edonkey_string(tvb, pinfo, offset, tree);
+	      offset = dissect_edonkey_string(tvb, pinfo, offset, tree);
+	    }
             break;
 
         case EDONKEY_MSG_UDP_SERVER_LIST: /* Server List: <Address List> */
@@ -1371,7 +1481,15 @@ static void dissect_edonkey_udp_message(guint8 msg_type,
             offset = dissect_edonkey_address_list(tvb, pinfo, offset, tree);
             break;
 
+        case EDONKEY_MSG_UDP_SERVER_STATUS_REQUEST:  /* Server Status Request: <guint32> */
+	    chal = tvb_get_letohl(tvb, offset);
+	    proto_tree_add_text(tree, tvb, offset, 4, "Challenge: 0x%08x", chal);
+            offset += 4;
+	    break;
+
         case EDONKEY_MSG_UDP_SERVER_STATUS:  /* Server Status: <guint32> <Nusers> <Nfiles> <Nusersmax> */
+	    chal = tvb_get_letohl(tvb, offset);
+	    proto_tree_add_text(tree, tvb, offset, 4, "Challenge: 0x%08x", chal);
             offset += 4;
             nusers = tvb_get_letohl(tvb, offset); 
             nfiles = tvb_get_letohl(tvb, offset+4);
@@ -1436,7 +1554,7 @@ static void dissect_edonkey_udp_message(guint8 msg_type,
             break;
 
         case OVERNET_MSG_UDP_IP_QUERY_ANSWER:  /* IP Query Answer: <IP> */
-            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree);
+            offset = dissect_edonkey_client_id(tvb, pinfo, offset, tree, FALSE);
             break;
 
         case OVERNET_MSG_UDP_IDENTIFY_REPLY:  /* Identify Reply: <Contact (sender)> */
@@ -1517,12 +1635,13 @@ static guint get_edonkey_tcp_pdu_len(tvbuff_t *tvb, int offset)
 static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
     proto_item *ti;
-    proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL;
+    proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL, *emule_zlib_tree = NULL;
     int offset, bytes, messages;
     guint8 protocol, msg_type;
     guint32 msg_len;
     const gchar *protocol_name, *message_name;
     void  (*dissector)(guint8, tvbuff_t*, packet_info*, int, int, proto_tree*);
+    tvbuff_t *tvbraw = NULL;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
@@ -1592,6 +1711,19 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             dissector = dissect_emule_tcp_message;
             break;
 
+        case EDONKEY_PROTO_EMULE_COMP:
+	  /*
+	   * These ought to be exactly the same as standard eDonkey (0xe5) messages,
+	   * except that the payload (after the type byte) is a zlib compressed
+	   * stream.
+	   */
+            message_name = val_to_str(msg_type, edonkey_tcp_msgs, "Unknown");
+	    tvbraw = tvb_uncompress(tvb, offset+1, msg_len-1);
+	    if (tvbraw) {
+	      dissector = dissect_edonkey_tcp_message;
+	      break;
+	    }
+
         default:
             message_name = "Unknown";
             dissector = NULL;
@@ -1606,8 +1738,18 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (edonkey_msg_tree) {
         proto_tree_add_uint_format(edonkey_msg_tree, hf_edonkey_message_type, tvb, offset, 1, msg_type,
                                    "Message Type: %s (0x%02x)", message_name, msg_type);
-        if (dissector && (msg_len > 1)) 
-            (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
+	if (dissector && (msg_len > 1)) {
+	  if (!tvbraw) {
+	    (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
+	  } else {
+	    ti = proto_tree_add_item(edonkey_msg_tree, hf_emule_zlib, tvb, 
+				     offset+1, msg_len-1, FALSE);
+	    emule_zlib_tree = proto_item_add_subtree(ti, ett_emule_zlib);
+	    tvb_set_child_real_data_tvbuff(tvb, tvbraw);
+	    add_new_data_source(pinfo, tvbraw, "Decompressed Data");
+	    (*dissector)(msg_type, tvbraw, pinfo, 0, tvb_length(tvbraw), emule_zlib_tree);
+	  }
+	}
     }
 }
 
@@ -1778,6 +1920,9 @@ void proto_register_edonkey(void) {
 	{ &hf_emule_source_count,
 	  { "Compeleted Sources Count", "emule.source_count",
 	    FT_UINT16, BASE_DEC, NULL, 0, "eMule Completed Sources Count", HFILL } },
+	{ &hf_emule_zlib,
+	  { "Compressed Data", "emule.zlib",
+	    FT_NONE, BASE_NONE, NULL, 0, "eMule Compressed Data", HFILL } },
         { &hf_overnet_peer,  
           { "Overnet Peer", "overnet.peer",
             FT_NONE, BASE_NONE, NULL, 0, "Overnet Peer", HFILL } },
@@ -1793,6 +1938,7 @@ void proto_register_edonkey(void) {
 		&ett_edonkey_clientinfo,
 		&ett_emule_aichhash,
 		&ett_emule_multipacket,
+		&ett_emule_zlib,
 		&ett_overnet_peer
 	};
 	module_t *edonkey_module;

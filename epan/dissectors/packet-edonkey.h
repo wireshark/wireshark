@@ -109,6 +109,10 @@ void proto_register_edonkey(void);
 #define EMULE_MSG_AICH_ANSWER            0x9c
 #define EMULE_MSG_AICHFILEHASH_ANSWER    0x9d
 #define EMULE_MSG_AICHFILEHASH_REQUEST   0x9e
+#define EMULE_MSG_DATA_COMPRESSED_64     0xa1
+#define EMULE_MSG_SENDING_PART_64        0xa2
+#define EMULE_MSG_REQUEST_PARTS_64       0xa3
+#define EMULE_MSG_MULTIPACKET_EXT        0xa4
 
 /* EDONKEY UDP MESSAGES */
 #define EDONKEY_MSG_UDP_SERVER_STATUS_REQUEST      0x96
@@ -205,6 +209,9 @@ void proto_register_edonkey(void);
 #define EMULE_STAG_COMMENTS            0x24
 #define EMULE_STAG_EXTENDED_REQUEST    0x25
 #define EMULE_STAG_COMPATIBLE_CLIENT   0x26
+#define EMULE_STAG_COMPLETE_SOURCES    0x30
+#define EMULE_STAG_SIZE_HI             0x3a
+#define EMULE_STAG_SERVER_VERSION      0x91
 #define EMULE_STAG_COMPAT_OPTIONS1     0xef
 #define EMULE_STAG_UDPPORTS            0xf9
 #define EMULE_STAG_MISCOPTIONS1        0xfa
