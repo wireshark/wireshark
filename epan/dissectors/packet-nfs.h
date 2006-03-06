@@ -111,13 +111,12 @@ void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_l
 
 
 extern gboolean nfs_fhandle_reqrep_matching;
-extern GHashTable *nfs_fhandle_frame_table;
 typedef struct nfs_fhandle_data {
 	int len;
 	const unsigned char *fh;
 	tvbuff_t *tvb;
 } nfs_fhandle_data_t;
-void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t *nfd);
+void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame);
 
 typedef int (diss_p)(tvbuff_t *tvb, int offset, proto_tree *tree, int hf);
 

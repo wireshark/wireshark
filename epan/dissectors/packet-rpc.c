@@ -2649,28 +2649,17 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* XXX this should really loop over all fhandles registred for the frame */
 	if(nfs_fhandle_reqrep_matching){
-		nfs_fhandle_data_t *fhd;
 		switch (msg_type) {
 		case RPC_CALL:
 			if(rpc_call && rpc_call->rep_num){
-				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-					nfs_fhandle_frame_table,
-					GINT_TO_POINTER(rpc_call->rep_num));
-				if(fhd){
-					dissect_fhandle_hidden(pinfo,
-						ptree, fhd);
-				}
+				dissect_fhandle_hidden(pinfo,
+						ptree, rpc_call->rep_num);
 			}
 			break;
 		case RPC_REPLY:
 			if(rpc_call && rpc_call->req_num){
-				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-					nfs_fhandle_frame_table,
-					GINT_TO_POINTER(rpc_call->req_num));
-				if(fhd){
-					dissect_fhandle_hidden(pinfo,
-						ptree, fhd);
-				}
+				dissect_fhandle_hidden(pinfo,
+						ptree, rpc_call->req_num);
 			}
 			break;
 		}

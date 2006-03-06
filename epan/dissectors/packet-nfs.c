@@ -414,39 +414,7 @@ static gint ett_nfs_acemask4 = -1;
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
 gboolean nfs_fhandle_reqrep_matching = FALSE;
-GHashTable *nfs_fhandle_frame_table = NULL;
-
-static gint
-nfs_fhandle_frame_equal(gconstpointer k1, gconstpointer k2)
-{
-	guint32 key1 = GPOINTER_TO_UINT(k1);
-	guint32 key2 = GPOINTER_TO_UINT(k2);
-
-	return key1==key2;
-}
-static guint
-nfs_fhandle_frame_hash(gconstpointer k)
-{
-	guint32 key = GPOINTER_TO_UINT(k);
-
-	return key;
-}
-static gboolean
-nfs_fhandle_frame_free_all(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
-{
-	return TRUE;
-}
-static void
-nfs_fhandle_reqrep_matching_init(void)
-{
-	if (nfs_fhandle_frame_table != NULL) {
-		g_hash_table_foreach_remove(nfs_fhandle_frame_table,
-				nfs_fhandle_frame_free_all, NULL);
-	} else {
-		nfs_fhandle_frame_table=g_hash_table_new(nfs_fhandle_frame_hash,
-			nfs_fhandle_frame_equal);
-	}
-}
+static se_tree_t *nfs_fhandle_frame_table = NULL;
 
 
 /* file name snooping */
@@ -1450,9 +1418,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   	   nfs calls. For now, we dont handle this and those calls will
 		   	   not work properly with this feature
 			*/
-			g_hash_table_insert(nfs_fhandle_frame_table,
-					GINT_TO_POINTER(pinfo->fd->num),
-					(gpointer)old_fhd);
+			se_tree_insert32(nfs_fhandle_frame_table, pinfo->fd->num, old_fhd);
 		}
 	}
 
@@ -1591,8 +1557,11 @@ type_ready:
 }
 
 void
-dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t *nfd)
+dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame)
 {
+	nfs_fhandle_data_t *nfd;
+
+	nfd=se_tree_lookup32(nfs_fhandle_frame_table, frame);
 	if(nfd && nfd->len){
 		dissect_fhandle_data(nfd->tvb, 0, pinfo, tree, nfd->len, TRUE, NULL);
 	}
@@ -8817,8 +8786,8 @@ proto_register_nfs(void)
 					&nfs_fhandle_reqrep_matching);
 	nfs_name_snoop_known=se_tree_create(SE_TREE_TYPE_RED_BLACK);
 	nfs_file_handles=se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	nfs_fhandle_frame_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
 	register_init_routine(nfs_name_snoop_init);
-	register_init_routine(nfs_fhandle_reqrep_matching_init);
 }
 
 void

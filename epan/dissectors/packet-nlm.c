@@ -230,14 +230,8 @@ nlm_match_fhandle_reply(packet_info *pinfo, proto_tree *tree)
 
 	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md && md->rep_frame){
-		nfs_fhandle_data_t *fhd;
-		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-			nfs_fhandle_frame_table,
-			GINT_TO_POINTER(md->req_frame));
-		if(fhd){
-			dissect_fhandle_hidden(pinfo,
-				tree, fhd);
-		}
+		dissect_fhandle_hidden(pinfo,
+				tree, md->req_frame);
 	}
 }
 static void
@@ -247,14 +241,8 @@ nlm_match_fhandle_request(packet_info *pinfo, proto_tree *tree)
 
 	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md && md->rep_frame){
-		nfs_fhandle_data_t *fhd;
-		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-			nfs_fhandle_frame_table,
-			GINT_TO_POINTER(md->rep_frame));
-		if(fhd){
-			dissect_fhandle_hidden(pinfo,
-				tree, fhd);
-		}
+		dissect_fhandle_hidden(pinfo,
+				tree, md->rep_frame);
 	}
 }
 
