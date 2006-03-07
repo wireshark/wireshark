@@ -1510,17 +1510,17 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 		if (dtbl_entry->protocol != NULL) {
 			pinfo->current_proto =
 			    proto_get_protocol_short_name(dtbl_entry->protocol);
-		}
 
-		/*
-		 * Add the protocol name to the layers; we'll remove it
-		 * if the dissector fails.
-		 */
-		if (pinfo->layer_names) {
-			if (pinfo->layer_names->len > 0)
-				g_string_append(pinfo->layer_names, ":");
-			g_string_append(pinfo->layer_names,
-			    proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol)));
+			/*
+			 * Add the protocol name to the layers; we'll remove it
+			 * if the dissector fails.
+			 */
+			if (pinfo->layer_names) {
+				if (pinfo->layer_names->len > 0)
+					g_string_append(pinfo->layer_names, ":");
+				g_string_append(pinfo->layer_names,
+					proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol)));
+			}
 		}
 
 		if ((*dtbl_entry->dissector)(tvb, pinfo, tree)) {
