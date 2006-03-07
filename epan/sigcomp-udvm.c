@@ -1100,10 +1100,11 @@ execute_next_instruction:
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
 
+		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
+
 		if (address >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
 
-		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
 		value = (buff[address] << 8) 
 			   | buff[(address+1) & 0xFFFF];
 
