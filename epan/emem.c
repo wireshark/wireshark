@@ -1097,13 +1097,8 @@ se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key)
 	se_tree_lookup32_array(next_tree, key);
 }
 
-se_string_hash_t* se_string_hash_new(void) {
-	return se_tree_create(SE_TREE_TYPE_RED_BLACK);
-}
 
-
-
-void se_string_hash_insert(se_string_hash_t* se_tree, const gchar* k, void* v) {
+void se_tree_insert_string(se_string_hash_t* se_tree, const gchar* k, void* v) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;
@@ -1138,7 +1133,7 @@ void se_string_hash_insert(se_string_hash_t* se_tree, const gchar* k, void* v) {
 	se_tree_insert32_array(se_tree,key,v);
 }
 
-void* se_string_hash_lookup(se_string_hash_t* se_tree, const gchar* k) {
+void* se_tree_lookup_string(se_string_hash_t* se_tree, const gchar* k) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
 	guint32 residual = 0;

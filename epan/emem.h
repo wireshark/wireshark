@@ -267,13 +267,13 @@ void *se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key);
 typedef struct _se_tree_t se_string_hash_t;
 
 /* Create a new string based hash table */
-se_string_hash_t* se_string_hash_new(void);
+#define se_tree_create_string() se_tree_create(SE_TREE_TYPE_RED_BLACK)
 
 /* Insert a new value under a string key */
-void se_string_hash_insert(se_string_hash_t* h, const gchar* k, void* v);
+void se_tree_insert_string(se_string_hash_t* h, const gchar* k, void* v);
 
 /* Lookup the value under a string key */
-void* se_string_hash_lookup(se_string_hash_t* h, const gchar* k);
+void* se_tree_lookup_string(se_string_hash_t* h, const gchar* k);
 
 
 #endif /* emem.h */
