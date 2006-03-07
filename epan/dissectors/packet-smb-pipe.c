@@ -3532,7 +3532,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	proto_item *pipe_item = NULL;
 	proto_tree *pipe_tree = NULL;
 	int offset;
-	int trans_subcmd;
+	int trans_subcmd=0;
 	int function;
 	int fid = -1;
 	guint16 info_level;
@@ -3674,8 +3674,13 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 		if (!pinfo->fd->flags.visited)
 			tri->trans_subcmd = trans_subcmd;
-	} else
-		trans_subcmd = tri->trans_subcmd;
+	} else {
+		if(tri){
+			trans_subcmd = tri->trans_subcmd;
+		} else {
+			return FALSE;
+		}
+        }
 
 	if (tri == NULL) {
 		/*
