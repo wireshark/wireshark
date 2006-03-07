@@ -1097,72 +1097,78 @@ se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key)
 	se_tree_lookup32_array(next_tree, key);
 }
 
-
-typedef struct _string_hash_node_t {
-	const gchar* key;
-	void* data;
-	struct _string_hash_node_t* next;
-} string_hash_node_t;
-
 se_string_hash_t* se_string_hash_new(void) {
 	return se_tree_create(SE_TREE_TYPE_RED_BLACK);
 }
 
-void se_string_hash_insert(se_string_hash_t* h, const gchar* k, void* v) {
-	string_hash_node_t* o;
-	guint32 k32 = g_str_hash(k);
+
+
+void se_string_hash_insert(se_string_hash_t* se_tree, const gchar* k, void* v) {
+	guint32 len = strlen(k);
+	guint32 div = (len-1)/4;
+	guint32 residual = 0;
+	se_tree_key_t key[] = {
+		{1,&len},
+		{div,(guint32*)(&k[0])},
+		{1,&residual},
+		{0,NULL}
+	};
 	
-	
-	o = se_tree_lookup32(h, k32);
-	
-	if (o) {
-		string_hash_node_t* c;
-		for(c = o; c->next; c = c->next) {
-			if ( g_str_equal(k,c->key) ) {
-				c->data = v;
-				return;
-			}
-		}
-		
-		if ( g_str_equal(k,c->key) ) {
-			c->data = v;
-			return;
-		} else {
-			string_hash_node_t* n = se_alloc(sizeof(string_hash_node_t));
-			c->next = n;
-			
-			n->data = v;
-			n->key = se_strdup(k);
-			n->next = NULL;
-			
-			return;
-		}
-		
-	} else {
-		string_hash_node_t* n = se_alloc(sizeof(string_hash_node_t));
-		n->next = NULL;
-		n->data = v;
-		n->key = se_strdup(k);
-		
-		se_tree_insert32(h,k32,n);
+	if (! div) {
+		key[1].length = key[2].length;
+		key[1].key = key[2].key;
+		key[2].length = 0;
+		key[2].key = NULL;
 	}
-    
+	
+	div *= 4;
+	
+	switch(len%4) {
+		case 0:
+			residual |= ( k[div+3] << 24 );
+		case 3:
+			residual |= ( k[div+2] << 16 );
+		case 2:
+			residual |= ( k[div+1] << 8  );
+		case 1:
+			residual |= k[div];
+			break;
+	}
+	
+	se_tree_insert32_array(se_tree,key,v);
 }
 
-void* se_string_hash_lookup(se_string_hash_t* h, const gchar* k) {
-	string_hash_node_t* o;
-	guint32 k32 = g_str_hash(k);
+void* se_string_hash_lookup(se_string_hash_t* se_tree, const gchar* k) {
+	guint32 len = strlen(k);
+	guint32 div = (len-1)/4;
+	guint32 residual = 0;
+	se_tree_key_t key[] = {
+		{1,&len},
+		{div,(guint32*)(&k[0])},
+		{1,&residual},
+		{0,NULL}
+	};
 	
-	o = se_tree_lookup32(h, k32);
-	
-	if (o) {
-		string_hash_node_t* c;
-		for(c = o; c; c = c->next) {
-			if ( g_str_equal(k, c->key) ) {
-				return c->data;
-			}
-		}
+	if (! div) {
+		key[1].length = key[2].length;
+		key[1].key = key[2].key;
+		key[2].length = 0;
+		key[2].key = NULL;
 	}
 	
-	return NULL;
+	div *= 4;
+	
+	switch(len%4) {
+		case 0:
+			residual |= k[div+3] << 24;
+		case 3:
+			residual |= k[div+2] << 16;
+		case 2:
+			residual |= k[div+1] << 8;
+		case 1:
+			residual |= k[div];
+			break;
+	}
+	
+	return se_tree_lookup32_array(se_tree, key);
 }
