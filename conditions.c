@@ -86,9 +86,11 @@ condition* cnd_new(const char* class_id, ...){
 
 void cnd_delete(condition *cnd){
   _cnd_class *cls = NULL;
-  const char* class_id = cnd->class_id;
+  const char* class_id;
   /* check for valid pointer */
   if(cnd == NULL) return;
+
+  class_id = cnd->class_id;
   /* check if hash table is already initialized */
   _cnd_init();
   /* get the condition class */
