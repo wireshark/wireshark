@@ -193,6 +193,8 @@ sip_draw_hash_requests(gchar *key _U_ , sip_request_method_t *data, gchar * unus
 {
     gchar string_buff[SUM_STR_MAX];
 
+    g_assert(data!=NULL);
+
     if (data->packets==0)
     {
         return;
@@ -222,10 +224,8 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
 {
     gchar string_buff[SUM_STR_MAX];
 
-    if (data==NULL)
-    {
-        g_warning("C'est quoi ce borderl key=%d\n", *key);
-    }
+    g_assert(data!=NULL);
+
     if (data->packets==0)
     {
         return;
