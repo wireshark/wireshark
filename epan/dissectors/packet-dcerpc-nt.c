@@ -816,7 +816,7 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      e_ctx_hnd *pdata, proto_item **pitem,
 		      gboolean is_open, gboolean is_close, int type)
 {
-	proto_item *item;
+	proto_item *item=NULL;
 	proto_tree *subtree;
 	e_ctx_hnd hnd;
 	guint32 open_frame = 0, close_frame = 0;
