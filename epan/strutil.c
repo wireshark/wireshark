@@ -202,11 +202,6 @@ format_text(const guchar *string, int len)
       column++;
       switch (c) {
 
-      case '\\':
-	fmtbuf[idx][column] = '\\';
-	column++;
-	break;
-
       case '\a':
 	fmtbuf[idx][column] = 'a';
 	column++;
