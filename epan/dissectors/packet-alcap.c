@@ -541,8 +541,7 @@ static gchar* dissect_fields_desea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
     
     e164->e164_number_type = CALLED_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
-    e164->E164_number_str = ep_tvb_memdup(tvb,offset+1,len);
-    e164->E164_number_str[len] = '\0';
+    e164->E164_number_str = tvb_get_ephemeral_string(tvb,offset+1,len);
     e164->E164_number_length = len-1;
     
     dissect_e164_number(tvb, tree, offset-1, len, *e164);
@@ -569,8 +568,7 @@ static gchar* dissect_fields_oesea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_
     
     e164->e164_number_type = CALLING_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
-    e164->E164_number_str = ep_tvb_memdup(tvb,offset+1,len);
-    e164->E164_number_str[len] = '\0';
+    e164->E164_number_str = tvb_get_ephemeral_string(tvb,offset+1,len);
     e164->E164_number_length = len-1;
     
     dissect_e164_number(tvb, tree, offset-1, len, *e164);
