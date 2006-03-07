@@ -1500,6 +1500,7 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
     gchar *capture_msg;
     gchar *title;
 
+    g_assert(capture_opts != NULL);
 
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
