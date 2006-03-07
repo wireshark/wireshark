@@ -372,7 +372,10 @@ static const gchar *titles[9] =  {
 #define SAVE_REVERSE_DIRECTION_MASK 0x02	
 #define SAVE_BOTH_DIRECTION_MASK	(SAVE_FORWARD_DIRECTION_MASK|SAVE_REVERSE_DIRECTION_MASK) 
 
+#define SAVE_NONE_FORMAT 0
+#define SAVE_WAV_FORMAT	1
 #define SAVE_AU_FORMAT	2
+#define SAVE_SW_FORMAT	3
 #define SAVE_RAW_FORMAT	4
 
 
@@ -647,6 +650,8 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	}else{ /* dynamic PT */
 		if ( rtpinfo->info_payload_type_str != NULL )
 			clock_rate = get_dyn_pt_clock_rate(rtpinfo-> info_payload_type_str);
+		else
+			clock_rate = 1;
 	}
 
 	/* store the current time and calculate the current jitter */
@@ -2487,8 +2492,8 @@ static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data 
 static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 {
 	int to_fd, forw_fd, rev_fd, fread = 0, rread = 0, fwritten, rwritten;
-	gchar f_pd[1];
-	gchar r_pd[1];
+	gchar f_pd[1] = {0};
+	gchar r_pd[1] = {0};
 	gint16 tmp;
 	gchar pd[1];
 	guint32 f_write_silence = 0;
@@ -2892,14 +2897,15 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	}
 	
 	/*if (GTK_TOGGLE_BUTTON (wav)->active)
-	format = 1;
+	format = SAVE_WAV_FORMAT;
 	else */if (GTK_TOGGLE_BUTTON (au)->active)
-	format = SAVE_AU_FORMAT;/*
-	else if (GTK_TOGGLE_BUTTON (sw)->active)
-	format = 3;*/
+	format = SAVE_AU_FORMAT;
+	/*else if (GTK_TOGGLE_BUTTON (sw)->active)
+	format = SAVE_SW_FORMAT;*/
 	else if (GTK_TOGGLE_BUTTON (raw)->active)
-		format =SAVE_RAW_FORMAT;
-	
+	format = SAVE_RAW_FORMAT;
+	else
+	format = SAVE_NONE_FORMAT;
 	
 	if (GTK_TOGGLE_BUTTON (rev)->active)
 		channels = SAVE_REVERSE_DIRECTION_MASK;
