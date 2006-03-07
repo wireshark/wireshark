@@ -129,7 +129,7 @@ ELUA_METAMETHOD Field__call (lua_State* L) {
     }
     
     for (;in;in = in->same_name_next) {
-        GPtrArray* found = proto_find_finfo(lua_tree, in->id);
+        GPtrArray* found = proto_find_finfo(lua_tree->tree, in->id);
         guint i;
         if (found) {
             for (i=0; i<found->len; i++) {
@@ -291,7 +291,9 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     
     lua_pinfo = pinfo; 
     lua_tvb = edt->tvb;
-    lua_tree = edt->tree;
+    lua_tree = ep_alloc(sizeof(struct _eth_treeitem));
+	lua_tree->tree = edt->tree;
+	lua_tree->item = NULL;
     
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:

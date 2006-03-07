@@ -126,3 +126,33 @@ ELUA_FUNCTION elua_debug( lua_State* L ) { /* Will add a log entry with debug se
 	return 0;
 }
 
+
+ELUA_FUNCTION elua_test_strhash(lua_State* L) {
+	se_string_hash_t* hash = se_string_hash_new();
+	
+	se_string_hash_insert(hash,"tttttttt1","tt");
+	se_string_hash_insert(hash,"t2","t2");
+	se_string_hash_insert(hash,"t3","t3");
+	se_string_hash_insert(hash,"tttttttt2","tt2");
+	se_string_hash_insert(hash,"tttttttt3","tt3");
+	se_string_hash_insert(hash,"tttttttt4","tt4");
+	se_string_hash_insert(hash,"aaaa","aaa");
+	se_string_hash_insert(hash,"ccc","c");
+	se_string_hash_insert(hash,"cccdddd","cd");
+	se_string_hash_insert(hash,"cccdd","cc");
+	
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"tttttttt1"));
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"tttttttt2"));
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"tttttttt3"));
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"aaaa"));
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"ccc"));
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"cccdddd"));
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"cccdd"));
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"x"));
+
+	se_string_hash_insert(hash,"ccc","X");
+	printf("%s\n",(char*)se_string_hash_lookup(hash,"ccc"));
+	
+	return 0;
+}
+

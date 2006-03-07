@@ -48,9 +48,10 @@ void clear_outstanding_pinfos(void) {
     }
 }
 
-void push_Pinfo(lua_State* L, Pinfo pinfo) {
+void* push_Pinfo(lua_State* L, Pinfo pinfo) {
     void** p = (void**)pushPinfo(L,pinfo);
     g_ptr_array_add(outstanding_stuff,p);
+	return p;
 }
 
 #define PUSH_COLUMN(L,c) g_ptr_array_add(outstanding_stuff,pushColumn(L,c))

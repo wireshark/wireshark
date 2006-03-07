@@ -36,7 +36,7 @@
 static lua_State* L = NULL;
 
 packet_info* lua_pinfo;
-proto_tree* lua_tree;
+struct _eth_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
 int lua_malformed;
 int lua_dissectors_table_ref;
@@ -57,9 +57,13 @@ static int elua_not_print(lua_State* L) {
 
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
-    lua_tree = tree;
     lua_tvb = tvb;
 
+	lua_tree = ep_alloc(sizeof(struct _eth_treeitem));
+	lua_tree->tree = tree;
+	lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
+	PROTO_ITEM_SET_HIDDEN(lua_tree->item);
+	
     /*
      * almost equivalent to Lua:
      * dissectors[current_proto](tvb,pinfo,tree)
@@ -79,7 +83,7 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         
         push_Tvb(L,tvb);
         push_Pinfo(L,pinfo);
-        push_ProtoTree(L,tree);
+        push_TreeItem(L,lua_tree);
         
         if  ( lua_pcall(L,3,0,0) ) {
             const gchar* error = lua_tostring(L,-1);
@@ -154,8 +158,6 @@ static void init_lua(void) {
 
         lua_prime_all_fields(NULL);
         
-        lua_register_subtrees();
-            
         lua_initialized = TRUE;
     }
     

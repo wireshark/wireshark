@@ -63,6 +63,7 @@ struct _eth_tvbrange {
 
 typedef struct _eth_field_t {
     int hfid;
+    int ett;
     char* name;
     char* abbr;
     char* blob;
@@ -83,6 +84,7 @@ typedef struct _eth_pref_t {
         gboolean b;
         guint u;
         const gchar* s;
+		void* p;
     } value;
     
     struct _eth_pref_t* next;
@@ -90,15 +92,15 @@ typedef struct _eth_pref_t {
 } eth_pref_t;
 
 typedef struct _eth_proto_t {
-    int hfid;
-    char* name;
-    char* desc;
-    hf_register_info* hfarray;
-    gboolean hf_registered;
-    module_t *prefs_module;
+	gchar* name;
+	gchar* desc;
+	int hfid;
+	int ett;
     eth_pref_t prefs;
+	int fields;
+    module_t *prefs_module;
     dissector_handle_t handle;
-    gboolean is_postdissector;
+	gboolean is_postdissector;
 } eth_proto_t;
 
 struct _eth_distbl_t {
@@ -111,13 +113,16 @@ struct _eth_col_info {
     gint col;
 };
 
+struct _eth_treeitem {
+	proto_item* item;
+	proto_tree* tree;
+};
+
 typedef struct {const gchar* str; enum ftenum id; } eth_ft_types_t;
 
 typedef eth_pref_t* Pref;
 typedef eth_pref_t* Prefs;
 typedef struct _eth_field_t* ProtoField;
-typedef GArray* ProtoFieldArray;
-typedef int* SubTree;
 typedef struct _eth_proto_t* Proto;
 typedef struct _eth_distbl_t* DissectorTable;
 typedef dissector_handle_t Dissector;
@@ -127,8 +132,7 @@ typedef struct _eth_tvbrange* TvbRange;
 typedef struct _eth_col_info* Column;
 typedef column_info* Columns;
 typedef packet_info* Pinfo;
-typedef proto_tree* ProtoTree;
-typedef proto_item* ProtoItem;
+typedef struct _eth_treeitem* TreeItem;
 typedef address* Address;
 typedef header_field_info** Field;
 typedef struct _eth_tap* Tap;
@@ -275,7 +279,7 @@ extern C shift##C(lua_State* L,int i)
 
 
 extern packet_info* lua_pinfo;
-extern proto_tree* lua_tree;
+extern TreeItem lua_tree;
 extern tvbuff_t* lua_tvb;
 extern int lua_malformed;
 extern dissector_handle_t lua_data_handle;
@@ -298,15 +302,14 @@ extern int lua_gui_enabled(lua_State* L);
 extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);
-extern void lua_register_subtrees(void);
 
-extern void push_Tvb(lua_State* L, Tvb tvb);
+extern void* push_Tvb(lua_State* L, Tvb tvb);
 extern void clear_outstanding_tvbs(void);
 
-extern void push_Pinfo(lua_State* L, Pinfo p);
+extern void* push_Pinfo(lua_State* L, Pinfo p);
 extern void clear_outstanding_pinfos(void);
 
-extern void push_ProtoTree(lua_State* L, ProtoTree t);
+extern void* push_TreeItem(lua_State* L, TreeItem ti);
 extern void clear_outstanding_trees(void);
 
 #endif

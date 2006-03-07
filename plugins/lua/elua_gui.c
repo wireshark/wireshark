@@ -60,8 +60,7 @@ void lua_menu_callback(gpointer data) {
 ELUA_FUNCTION elua_register_menu(lua_State* L) { /*  Register a menu item in the Statistics menu. */
 #define ELUA_ARG_register_menu_NAME 1 /* The name of the menu item. */
 #define ELUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. */
-#define ELUA_OPTARG_register_menu_RETAP 3 /* Whether to rerun the packet list after the menu is invoked. */
-#define ELUA_OPTARG_register_menu_USERDATA 4 /* To be passed to the action. */
+#define ELUA_OPTARG_register_menu_USERDATA 3 /* To be passed to the action. */
 	
     const gchar* name = luaL_checkstring(L,ELUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
@@ -80,10 +79,6 @@ ELUA_FUNCTION elua_register_menu(lua_State* L) { /*  Register a menu item in the
     md->cb_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     if ( lua_gettop(L) > 2) {
-        retap = lua_toboolean(L,ELUA_OPTARG_register_menu_RETAP);
-    }
-
-    if ( lua_gettop(L) > 3) {
         lua_pushvalue(L, ELUA_OPTARG_register_menu_USERDATA);
         md->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     } else {
@@ -387,8 +382,15 @@ int TextWindow_register(lua_State* L) {
 
 
 ELUA_FUNCTION elua_retap_packets(lua_State* L) {
-	if ( ops->retap_packets )
+	/*
+	 Rescan all packets and just run taps - don't reconstruct the display.
+	 */
+	if ( ops->retap_packets ) {
 		ops->retap_packets();
+	} else {
+		ELUA_ERROR(elua_retap_packets, "does not work on tethereal");
+	}
+	
 	return 0;
 }
 

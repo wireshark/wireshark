@@ -287,6 +287,7 @@ static const eth_ft_types_t ftenums[] = {
 {NULL,FT_NONE}
 };
 
+#if 0
 static enum ftenum get_ftenum(const gchar* type) {
     const eth_ft_types_t* ts;
     for (ts = ftenums; ts->str; ts++) {
@@ -297,6 +298,7 @@ static enum ftenum get_ftenum(const gchar* type) {
     
     return FT_NONE;
 }
+#endif
 
 static const gchar* ftenum_to_string(enum ftenum ft) {
     const eth_ft_types_t* ts;
@@ -392,24 +394,26 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
 }    
 
 ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be used in a protocol. */
-#define ELUA_ARG_ProtoField_new_ABBR 1 /* abbreviated name of the field (the string used in filters). */
-#define ELUA_ARG_ProtoField_new_NAME 2 /* Actual name of the field (the string that appears in the tree).  */
+#define ELUA_ARG_ProtoField_new_NAME 1 /* Actual name of the field (the string that appears in the tree).  */
+#define ELUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that is used in filters).  */
 #define ELUA_ARG_ProtoField_new_TYPE 3 /* Field Type (FT_*).  */
-#define ELUA_OPTARG_ProtoField_new_VALUESTRING 5 /* a ValueString object. */
-#define ELUA_OPTARG_ProtoField_new_BASE 5 /* The representation BASE_*. */
-#define ELUA_OPTARG_ProtoField_new_MASK 6 /* the bitmask to be used.  */
-#define ELUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
+#define ELUA_OPTARG_ProtoField_new_VALUESTRING 3 /* a ValueString object. */
+#define ELUA_OPTARG_ProtoField_new_BASE 4 /* The representation BASE_*. */
+#define ELUA_OPTARG_ProtoField_new_MASK 5 /* the bitmask to be used.  */
+#define ELUA_OPTARG_ProtoField_new_DESCR 6 /* The description of the field.  */
 	
     ProtoField f = g_malloc(sizeof(eth_field_t));
     value_string* vs;
     
     /* will be using -2 as far as the field has not been added to an array then it will turn -1 */
     f->hfid = -2;
-    f->name = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_ABBR));
-    f->abbr = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_NAME));
-    f->type = get_ftenum(luaL_checkstring(L,ELUA_ARG_ProtoField_new_TYPE));
+	f->ett = -1;
+    f->name = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_NAME));
+    f->abbr = g_strdup(luaL_checkstring(L,ELUA_ARG_ProtoField_new_ABBR));
+    f->type = luaL_checkint(L,ELUA_ARG_ProtoField_new_TYPE);
     
-    if (f->type == FT_NONE) {
+	/*XXX do it better*/
+    if (f->type == FT_NONE) { 
         ELUA_ARG_ERROR(ProtoField_new,TYPE,"invalid FT_type");
         return 0;
     }
@@ -442,7 +446,7 @@ ELUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be use
 
 static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f = g_malloc(sizeof(eth_field_t));
-    const gchar* abbr = luaL_checkstring(L,1); 
+	const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     base_display_e base = luaL_optint(L, 3, BASE_DEC);
     value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
@@ -450,14 +454,15 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     const gchar* blob = luaL_optstring(L,6,"");
 
     if (base < BASE_DEC || base > BASE_HEX_DEC) {
-        luaL_argerror(L,3,"Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
+        luaL_argerror(L,2,"Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
                       " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
         return 0;
     }
 
     f->hfid = -2;
+	f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = g_strdup(abbr);
+    f->abbr = NULL;
     f->type = type;
     f->vs = vs;
     f->base = base;
@@ -502,13 +507,14 @@ PROTOFIELD_INTEGER(framenum,FT_FRAMENUM)
 
 static int ProtoField_other(lua_State* L,enum ftenum type) {
     ProtoField f = g_malloc(sizeof(eth_field_t));
-    const gchar* abbr = luaL_checkstring(L,1); 
+    const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* blob = luaL_optstring(L,3,"");
     
     f->hfid = -2;
+	f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = g_strdup(abbr);
+    f->abbr = NULL;
     f->type = type;
     f->vs = NULL;
     f->base = ( type == FT_FLOAT || type == FT_DOUBLE) ? BASE_DEC : BASE_NONE;
@@ -633,131 +639,15 @@ int ProtoField_register(lua_State* L) {
     return 1;
 }
 
-
-ELUA_CLASS_DEFINE(ProtoFieldArray,FAIL_ON_NULL("null ProtoFieldArray"))
-/*
-   A ProtoField group to be assigned to
-   (only) one Proto using proto.fields = FieldArray
-*/
-
-ELUA_CONSTRUCTOR ProtoFieldArray_new(lua_State* L) {
-	/*
-	 Creates a new protocol field array using
-	 */
-/* ELUA_MOREARGS zero or more ProtoFields to be added to the new ProtoFieldArray*/
-    ProtoFieldArray fa;
-    guint i;
-    guint num_args = lua_gettop(L);
-    
-    fa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
-    
-    for ( i = 1; i <= num_args; i++) {
-        ProtoField f = checkProtoField(L,i);
-        hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
-        
-        if (f->hfid != -2) {
-			/* ELUA_ERROR(ProtoFieldArray_new,"ProtoFields can be assigned only to one ProtoFieldArray")*/
-            luaL_argerror(L, i, "ProtoFields can be assigned only to one ProtoFieldArray");
-            return 0;
-        }
-        
-        f->hfid = -1;
-        
-        g_array_append_val(fa,hfri);
-    }
-    
-    pushProtoFieldArray(L,fa);
-    ELUA_RETURN(1);
-	/* The newly created ProtoFieldArray */
-}
-
-
-ELUA_METHOD ProtoFieldArray_add(lua_State* L) {
-/* ELUA_MOREARGS zero or more ProtoFields to be added to the ProtoFieldArray*/
-    ProtoFieldArray fa = checkProtoFieldArray(L,1);
-    guint i;
-    guint num_args = lua_gettop(L);
-    
-    for ( i = 2; i <= num_args; i++) {
-        ProtoField f = checkProtoField(L,i);
-        hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
-        
-        if (f->hfid != -2) {
-			/* ELUA_ERROR(ProtoFieldArray_new,"ProtoFields can be assigned only to one ProtoFieldArray")*/
-            luaL_argerror(L, i, "ProtoFields can be assigned only to one ProtoFieldArray");
-            return 0;
-        }
-        
-        f->hfid = -1;
-        
-        g_array_append_val(fa,hfri);
-    }
-    
-    return 0;
-}
-
-static int ProtoFieldArray_tostring(lua_State* L) {
-    GString* s = g_string_new("ProtoFieldArray:\n");
-    hf_register_info* f;
-    ProtoFieldArray fa = checkProtoFieldArray(L,1);
-    unsigned i;
-    
-    for(i = 0; i< fa->len; i++) {
-        f = &(((hf_register_info*)(fa->data))[i]);
-        g_string_sprintfa(s,"%i %s %s %s %u %p %.8x %s\n",*(f->p_id),f->hfinfo.name,f->hfinfo.abbrev,ftenum_to_string(f->hfinfo.type),f->hfinfo.display,f->hfinfo.strings,f->hfinfo.bitmask,f->hfinfo.blurb);
-    };
-    
-    lua_pushstring(L,s->str);
-    g_string_free(s,TRUE);
-    
-    return 1;
-}
-
-static int ProtoFieldArray_gc(lua_State* L) {
-    ProtoFieldArray fa = checkProtoFieldArray(L,1);
-    gboolean free_it = FALSE;
-    
-    /* we'll keep the data if the array was registered to a protocol */
-    if (fa->len) {
-        hf_register_info* f = (hf_register_info*)fa->data;
-        
-        if ( *(f->p_id) == -1)
-            free_it = TRUE;
-    } else {
-        free_it = TRUE;        
-    }
-    
-    g_array_free(fa,free_it);
-    
-    return 0;
-}
-
-
-static const luaL_reg ProtoFieldArray_methods[] = {
-    {"new",   ProtoFieldArray_new},
-    {"add",   ProtoFieldArray_add},
-    {0,0}
-};
-
-static const luaL_reg ProtoFieldArray_meta[] = {
-    {"__gc",       ProtoFieldArray_gc},
-    {"__tostring", ProtoFieldArray_tostring},
-    {0, 0}
-};
-
-int ProtoFieldArray_register(lua_State* L) {
-	ELUA_REGISTER_CLASS(ProtoFieldArray);
-    return 1;
-}
-
-
-
 ELUA_CLASS_DEFINE(Proto,NOP)
 /*
   A new protocol in ethereal. Protocols have more uses, the main one is to dissect
   a protocol. But they can be just dummies used to register preferences for
   other purposes.
  */
+
+static int protocols_table_ref = 0;
+
 ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
 #define ELUA_ARG_Proto_new_NAME 1 /* The name of the protocol */
 #define ELUA_ARG_Proto_new_DESC 1 /* A Long Text description of the protocol (usually lowercase) */
@@ -779,56 +669,41 @@ ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
             proto->name = loname;
             proto->desc = g_strdup(desc);
-            proto->hfarray = NULL;
-            proto->prefs_module = NULL;
+			proto->hfid = proto_register_protocol(proto->desc,loname,hiname);
+			proto->ett = -1;
+			
+			lua_newtable (L);
+			proto->fields = luaL_ref(L, LUA_REGISTRYINDEX);
+			
             proto->prefs.name = NULL;
             proto->prefs.label = NULL;
             proto->prefs.desc = NULL;
             proto->prefs.value.u = 0;
             proto->prefs.next = NULL;
             proto->prefs.proto = proto;
-            proto->is_postdissector = FALSE;
-            proto->hfid = proto_register_protocol(proto->desc,loname,hiname);
+			
+            proto->prefs_module = NULL;
             proto->handle = NULL;
             
-            pushProto(L,proto);
-            ELUA_RETURN(1); /* The newly created protocol */
+			if (! protocols_table_ref) {
+				lua_newtable(L);
+				protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+			}
+			
+			lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
+			pushProto(L,proto);
+			lua_pushstring(L,loname);
+			lua_settable(L, -3);
+			
+			pushProto(L,proto);
+			
+			ELUA_RETURN(1); /* The newly created protocol */
         }
      } else {
         ELUA_ARG_ERROR(Proto_new,NAME,"must be a string");
      }
 
 	return 0;
-}
-
-
-
-static int Proto_register_field_array(lua_State* L) {
-    Proto proto = toProto(L,1);
-    ProtoFieldArray fa = checkProtoFieldArray(L,2);
-    
-    if (! fa) {
-        luaL_argerror(L,2,"not a good field_array");
-        return 0;
-    }
-
-    if( ! fa->len ) {
-        luaL_argerror(L,2,"empty field_array");
-        return 0;
-    }
-
-    if (proto->hfarray) {
-        luaL_argerror(L,1,"field_array already registered for this protocol");
-    }
-    
-    if ( *(((hf_register_info*)(fa->data))->p_id) != -1 ) {
-        luaL_argerror(L,1,"this field_array has been already registered to another protocol");
-    }
-        
-    proto->hfarray = (hf_register_info*)(fa->data);
-    proto_register_field_array(proto->hfid,proto->hfarray,fa->len);
-    
-    return 0;
 }
 
 
@@ -922,7 +797,6 @@ static int Proto_set_init(lua_State* L) {
         luaL_argerror(L,3,"The initializer of a protocol must be a function");
         return 0;
     } 
-    
 }
 
 static int Proto_get_name(lua_State* L) { 
@@ -931,6 +805,44 @@ static int Proto_get_name(lua_State* L) {
     lua_pushstring(L,proto->name);
     return 1;
 }
+
+
+static int Proto_get_fields(lua_State* L) { 
+    Proto proto = toProto(L,1);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
+    return 1;
+}
+
+static int Proto_set_fields(lua_State* L) {
+	int i = 0;
+    Proto proto = toProto(L,1);
+    /* "fields" string in pos 2 */
+	/* assigned value in pos 3 */
+	lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields); /* fields table in pos 4 */
+	lua_replace(L,2); /* fields table now in pos 2 */
+	
+	for (lua_pushnil(L); lua_next(L, 2); lua_pop(L, 1)) { i++; } /* find last index of table */
+	
+	if( lua_istable(L,3)) {
+
+		for (lua_pushnil(L); lua_next(L, 3); lua_pop(L, 1)) {
+			if (! isProtoField(L,-1)) {
+				return luaL_error(L,"only ProtoFields should be in the table");
+			}
+			lua_rawseti(L,4,i++);
+		}
+	} else if (isProtoField(L,3)){
+		lua_pushvalue(L, 3);
+		lua_rawseti(L,4,i++);
+	} else {
+		return luaL_error(L,"either a ProtoField or an array of protofields");
+	}
+	
+	lua_pushvalue(L, 3);
+    return 1;
+}
+
+
 
 typedef struct {
     gchar* name;
@@ -942,8 +854,8 @@ static const proto_actions_t proto_actions[] = {
 	/* ELUA_ATTRIBUTE Pinfo_dissector RW the protocol's dissector, a function you define */
     {"dissector",Proto_get_dissector, Proto_set_dissector},
 
-	/* ELUA_ATTRIBUTE Pinfo_fields WO the ProtoFieldArray of this dissector */
-    {"fields",NULL,Proto_register_field_array},
+	/* ELUA_ATTRIBUTE Pinfo_fields RO the Fields Table of this dissector */
+    {"fields" ,Proto_get_fields, Proto_set_fields},
 	
 	/* ELUA_ATTRIBUTE Proto_get_prefs RO the preferences of this dissector */
     {"prefs",Proto_get_prefs,NULL},
@@ -1022,6 +934,43 @@ int Proto_register(lua_State* L) {
     return 1;
 }
 
+int Proto_commit(lua_State* L) {
+	lua_settop(L,0);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
+	
+	for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
+		GArray* hfa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
+		GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
+		Proto proto = checkProto(L,-1);
+		
+		lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
+		
+		for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
+			ProtoField f = checkProtoField(L,-1);
+			hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
+
+			if (f->hfid != -2) {
+				return luaL_error(L,"fields can be registered only once");
+			}
+			
+			f->hfid = -1;
+			g_array_append_val(hfa,hfri);
+
+			g_array_set_size(etta,etta->len+1);
+			g_array_index(etta,gint*,etta->len) = &(f->ett);
+		}
+		
+		proto_register_field_array(proto->hfid,(hf_register_info*)hfa->data,hfa->len);
+		proto_register_subtree_array((gint**)etta->data,etta->len);
+		
+		g_array_free(hfa,FALSE);
+		g_array_free(etta,FALSE);
+	}
+	
+	return 0;
+}
+
+
 ELUA_CLASS_DEFINE(Dissector,NOP)
 /*
    A refererence to a dissector, used to call a dissector against a packet or a part of it.
@@ -1057,15 +1006,15 @@ ELUA_METHOD Dissector_call(lua_State* L) {
     Dissector d = checkDissector(L,1);
     Tvb tvb = checkTvb(L,ELUA_ARG_Dissector_call_TVB);
     Pinfo pinfo = checkPinfo(L,ELUA_ARG_Dissector_call_PINFO);
-    ProtoTree tree = checkProtoTree(L,ELUA_ARG_Dissector_call_TREE);
+    TreeItem ti = checkTreeItem(L,ELUA_ARG_Dissector_call_TREE);
     
     if (! ( d && tvb && pinfo) ) return 0;
     
     TRY {
-        call_dissector(d, tvb, pinfo, tree);
+        call_dissector(d, tvb, pinfo, ti->tree);
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH(ReportedBoundsError) {
-        proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+        proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
         ELUA_ERROR(Dissector_call,"malformed frame");
         return 0;
     } ENDTRY;
@@ -1256,10 +1205,10 @@ ELUA_METHOD DissectorTable_try (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
     Tvb tvb = checkTvb(L,3);
     Pinfo pinfo = checkPinfo(L,4);
-    ProtoTree tree = checkProtoTree(L,5);
+    TreeItem ti = checkTreeItem(L,5);
     ftenum_t type;
     
-    if (! (dt && tvb && pinfo && tree) ) return 0;
+    if (! (dt && tvb && pinfo && ti) ) return 0;
     
     type = get_dissector_table_selector_type(dt->name);
     
@@ -1270,24 +1219,24 @@ ELUA_METHOD DissectorTable_try (lua_State *L) {
 			
 			if (!pattern) return 0;
 			
-			if (dissector_try_string(dt->table,pattern,tvb,pinfo,tree))
+			if (dissector_try_string(dt->table,pattern,tvb,pinfo,ti->tree))
 				return 0;
 			
 		} else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
 			int port = luaL_checkint(L, 2);
 		
-			if (dissector_try_port(dt->table,port,tvb,pinfo,tree)) 
+			if (dissector_try_port(dt->table,port,tvb,pinfo,ti->tree)) 
 				return 0;
 			
 		} else {
 			luaL_error(L,"No such type of dissector_table");
 		}
 		
-		call_dissector(lua_data_handle,tvb,pinfo,tree);
+		call_dissector(lua_data_handle,tvb,pinfo,ti->tree);
 	
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
 	} CATCH(ReportedBoundsError) {
-		proto_tree_add_protocol_format(lua_tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+		proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
 		ELUA_ERROR(DissectorTable_try,"malformed frame");
 	} ENDTRY;
 
