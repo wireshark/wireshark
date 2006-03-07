@@ -1096,3 +1096,73 @@ se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key)
 	}
 	se_tree_lookup32_array(next_tree, key);
 }
+
+
+typedef struct _string_hash_node_t {
+	const gchar* key;
+	void* data;
+	struct _string_hash_node_t* next;
+} string_hash_node_t;
+
+se_string_hash_t* se_string_hash_new(void) {
+	return se_tree_create(SE_TREE_TYPE_RED_BLACK);
+}
+
+void se_string_hash_insert(se_string_hash_t* h, const gchar* k, void* v) {
+	string_hash_node_t* o;
+	guint32 k32 = g_str_hash(k);
+	
+	
+	o = se_tree_lookup32(h, k32);
+	
+	if (o) {
+		string_hash_node_t* c;
+		for(c = o; c->next; c = c->next) {
+			if ( g_str_equal(k,c->key) ) {
+				c->data = v;
+				return;
+			}
+		}
+		
+		if ( g_str_equal(k,c->key) ) {
+			c->data = v;
+			return;
+		} else {
+			string_hash_node_t* n = se_alloc(sizeof(string_hash_node_t));
+			c->next = n;
+			
+			n->data = v;
+			n->key = se_strdup(k);
+			n->next = NULL;
+			
+			return;
+		}
+		
+	} else {
+		string_hash_node_t* n = se_alloc(sizeof(string_hash_node_t));
+		n->next = NULL;
+		n->data = v;
+		n->key = se_strdup(k);
+		
+		se_tree_insert32(h,k32,n);
+	}
+    
+}
+
+void* se_string_hash_lookup(se_string_hash_t* h, const gchar* k) {
+	string_hash_node_t* o;
+	guint32 k32 = g_str_hash(k);
+	
+	o = se_tree_lookup32(h, k32);
+	
+	if (o) {
+		string_hash_node_t* c;
+		for(c = o; c; c = c->next) {
+			if ( g_str_equal(k, c->key) ) {
+				return c->data;
+			}
+		}
+	}
+	
+	return NULL;
+}

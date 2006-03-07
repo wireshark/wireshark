@@ -261,4 +261,19 @@ void se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data);
  */
 void *se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key);
 
+/*
+ * A hash table with string keys based on the red/black tree
+ */
+typedef struct _se_tree_t se_string_hash_t;
+
+/* Create a new string based hash table */
+se_string_hash_t* se_string_hash_new(void);
+
+/* Insert a new value under a string key */
+void se_string_hash_insert(se_string_hash_t* h, const gchar* k, void* v);
+
+/* Lookup the value under a string key */
+void* se_string_hash_lookup(se_string_hash_t* h, const gchar* k);
+
+
 #endif /* emem.h */
