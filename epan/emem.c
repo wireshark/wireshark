@@ -140,6 +140,7 @@ emem_canary(guint8 *canary) {
 #endif /* GLIB_MAJOR_VERSION >= 2 */
 }
 
+#if !defined(SE_DEBUG_FREE)
 /*
  * Given an allocation size, return the amount of padding needed for
  * the canary value.
@@ -154,6 +155,7 @@ emem_canary_pad (size_t allocation) {
 
 	return pad;
 }
+#endif
 
 /* Initialize the packet-lifetime memory allocation pool.
  * This function should be called only once when Ethereal or Tethereal starts
@@ -180,6 +182,7 @@ se_init_chunk(void)
 	emem_canary(se_canary);
 }
 
+#if !defined(SE_DEBUG_FREE)
 static void
 emem_create_chunk(emem_chunk_t **free_list) {
 #if defined (_WIN32)
@@ -198,7 +201,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		emem_chunk_t *npc;
 		npc = g_malloc(sizeof(emem_chunk_t));
 		npc->next = NULL;
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 		npc->c_count = 0;
+#endif
 		*free_list = npc;
 #if defined (_WIN32)
 		/*
@@ -256,6 +261,7 @@ emem_create_chunk(emem_chunk_t **free_list) {
 #endif /* USE_GUARD_PAGES */
 	}
 }
+#endif
 
 /* allocate 'size' amount of memory with an allocation lifetime until the
  * next packet.
@@ -263,9 +269,12 @@ emem_create_chunk(emem_chunk_t **free_list) {
 void *
 ep_alloc(size_t size)
 {
-	void *buf, *cptr;
+	void *buf;
+#ifndef EP_DEBUG_FREE
+	void *cptr;
 	guint8 pad = emem_canary_pad(size);
 	emem_chunk_t *free_list;
+#endif
 
 #ifndef EP_DEBUG_FREE
 	/* Round up to an 8 byte boundary.  Make sure we have at least
@@ -324,9 +333,12 @@ ep_alloc(size_t size)
 void *
 se_alloc(size_t size)
 {
-	void *buf, *cptr;
+	void *buf;
+#ifndef SE_DEBUG_FREE
+	void *cptr;
 	guint8 pad = emem_canary_pad(size);
 	emem_chunk_t *free_list;
+#endif
 
 #ifndef SE_DEBUG_FREE
 	/* Round up to an 8 byte boundary.  Make sure we have at least
@@ -586,7 +598,9 @@ void
 ep_free_all(void)
 {
 	emem_chunk_t *npc;
+#ifndef EP_DEBUG_FREE
 	guint i;
+#endif
 
 	/* move all used chunks over to the free list */
 	while(ep_packet_mem.used_list){
@@ -627,8 +641,10 @@ void
 se_free_all(void)
 {
 	emem_chunk_t *npc;
-	guint i;
 	se_tree_t *se_tree_list;
+#ifndef SE_DEBUG_FREE
+	guint i;
+#endif
 
 
 	/* move all used chunks over to the free list */
@@ -907,7 +923,7 @@ rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
 	se_tree_node_t *grandparent;
 	se_tree_node_t *parent;
 	se_tree_node_t *uncle;
-	
+
 	uncle=se_tree_uncle(node);
 	if(uncle && (uncle->rb_color==SE_TREE_RB_COLOR_RED)){
 		parent=se_tree_parent(node);
@@ -920,7 +936,7 @@ rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
 	} else {
 		rb_insert_case4(se_tree, node);
 	}
-}		
+}
 
 static inline void
 rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node)
@@ -947,10 +963,10 @@ rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node)
 	}
 	rb_insert_case2(se_tree, node);
 }
-	
+
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
-void 
+void
 se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 {
 	se_tree_node_t *node;
@@ -986,7 +1002,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 		if(key<node->key32) {
 			if(!node->left){
 				/* new node to the left */
-				se_tree_node_t *new_node;	
+				se_tree_node_t *new_node;
 				new_node=se_alloc(sizeof(se_tree_node_t));
 				node->left=new_node;
 				new_node->parent=node;
@@ -1003,7 +1019,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 		if(key>node->key32) {
 			if(!node->right){
 				/* new node to the right */
-				se_tree_node_t *new_node;	
+				se_tree_node_t *new_node;
 				new_node=se_alloc(sizeof(se_tree_node_t));
 				node->right=new_node;
 				new_node->parent=node;
@@ -1029,7 +1045,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 }
 
 
-/* When the se data is released, this entire tree will dissapear as if it 
+/* When the se data is released, this entire tree will dissapear as if it
  * never existed including all metadata associated with the tree.
  */
 se_tree_t *
@@ -1047,7 +1063,7 @@ se_tree_create_non_persistent(int type)
 
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
-void 
+void
 se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data)
 {
 	se_tree_t *next_tree;
@@ -1108,16 +1124,16 @@ void se_tree_insert_string(se_string_hash_t* se_tree, const gchar* k, void* v) {
 		{1,&residual},
 		{0,NULL}
 	};
-	
+
 	if (! div) {
 		key[1].length = key[2].length;
 		key[1].key = key[2].key;
 		key[2].length = 0;
 		key[2].key = NULL;
 	}
-	
+
 	div *= 4;
-	
+
 	switch(len%4) {
 		case 0:
 			residual |= ( k[div+3] << 24 );
@@ -1129,7 +1145,7 @@ void se_tree_insert_string(se_string_hash_t* se_tree, const gchar* k, void* v) {
 			residual |= k[div];
 			break;
 	}
-	
+
 	se_tree_insert32_array(se_tree,key,v);
 }
 
@@ -1143,16 +1159,16 @@ void* se_tree_lookup_string(se_string_hash_t* se_tree, const gchar* k) {
 		{1,&residual},
 		{0,NULL}
 	};
-	
+
 	if (! div) {
 		key[1].length = key[2].length;
 		key[1].key = key[2].key;
 		key[2].length = 0;
 		key[2].key = NULL;
 	}
-	
+
 	div *= 4;
-	
+
 	switch(len%4) {
 		case 0:
 			residual |= k[div+3] << 24;
@@ -1164,6 +1180,6 @@ void* se_tree_lookup_string(se_string_hash_t* se_tree, const gchar* k) {
 			residual |= k[div];
 			break;
 	}
-	
+
 	return se_tree_lookup32_array(se_tree, key);
 }
