@@ -1500,8 +1500,6 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
     gchar *capture_msg;
     gchar *title;
 
-    g_assert(capture_opts != NULL);
-
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
     if(capture_opts->iface) {
@@ -1521,9 +1519,14 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 
     statusbar_pop_file_msg();
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-        get_interface_descriptive_name(capture_opts->iface),
-        (capture_opts->save_file) ? capture_opts->save_file : "");
+    if(capture_opts->iface) {
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
+            get_interface_descriptive_name(capture_opts->iface),
+            (capture_opts->save_file) ? capture_opts->save_file : "");
+    } else {
+        capture_msg = g_strdup_printf(" <live capture in progress> to file: %s",
+            (capture_opts->save_file) ? capture_opts->save_file : "");
+    }
 
     statusbar_push_file_msg(capture_msg);
 
