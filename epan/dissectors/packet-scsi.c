@@ -88,6 +88,8 @@
 #include <epan/emem.h>
 #include "packet-scsi.h"
 
+#define MIN(x,y) (((x)>(y))?(y):(x))
+
 static int proto_scsi                    = -1;
 static int hf_scsi_lun                   = -1;
 static int hf_scsi_status                = -1;
@@ -1990,152 +1992,77 @@ dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-static gboolean
+static void
 dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
-                        proto_tree *scsi_tree, guint offset,
-                        guint payload_len, guint desclen,
+                        proto_tree *scsi_tree,
                         scsi_task_data_t *cdata, gboolean longlba)
 {
+    int offset=0;
 
     /* without cdata there is no point in continuing */
     if (!cdata)
-        return FALSE;
+        return;
 
-    while (desclen != 0) {
+    while (tvb_length_remaining(tvb, offset)) {
         if (longlba) {
-            if (payload_len < 8)
-                return FALSE;
-            if (desclen < 8) {
-                offset += desclen;
-                payload_len -= desclen;
-                break;
-            }
+            if(tvb_length_remaining(tvb, offset)<8)
+                return;
             proto_tree_add_text (scsi_tree, tvb, offset, 8, "No. of Blocks: %" PRIu64,
                                  tvb_get_ntoh64 (tvb, offset));
             offset += 8;
-            payload_len -= 8;
-            desclen -= 8;
 
-            if (payload_len < 1)
-                return FALSE;
-            if (desclen < 1)
-                break;
+            if(tvb_length_remaining(tvb, offset)<1)
+                return;
             proto_tree_add_text (scsi_tree, tvb, offset, 1, "Density Code: 0x%02x",
                                  tvb_get_guint8 (tvb, offset));
             offset += 1;
-            payload_len -= 1;
-            desclen -= 1;
 
-            if (payload_len < 3)
-                return FALSE;
-            if (desclen < 3) {
-                offset += desclen;
-                payload_len -= desclen;
-                break;
-            }
             /* 3 reserved bytes */
             offset += 3;
-            payload_len -= 3;
-            desclen -= 3;
 
-            if (payload_len < 4)
-                return FALSE;
-            if (desclen < 4) {
-                offset += desclen;
-                payload_len -= desclen;
-                break;
-            }
+            if(tvb_length_remaining(tvb, offset)<4)
+                return;
             proto_tree_add_text (scsi_tree, tvb, offset, 4, "Block Length: %u",
                                      tvb_get_ntohl (tvb, offset));
             offset += 4;
-            payload_len -= 4;
-            desclen -= 4;
         } else {
             if (cdata->devtype == SCSI_DEV_SBC) {
-                if (payload_len < 4)
-                    return FALSE;
-                if (desclen < 4) {
-                    offset += desclen;
-                    payload_len -= desclen;
-                    break;
-                }
+                if(tvb_length_remaining(tvb, offset)<4)
+                    return;
                 proto_tree_add_text (scsi_tree, tvb, offset, 4, "No. of Blocks: %u",
                                      tvb_get_ntohl (tvb, offset));
                 offset += 4;
-                payload_len -= 4;
-                desclen -= 4;
 
-                if (payload_len < 1)
-                    return FALSE;
-                if (desclen < 1)
-                    break;
-                proto_tree_add_text (scsi_tree, tvb, offset, 1, "Density Code: 0x%02x",
-                                     tvb_get_guint8 (tvb, offset));
-                offset += 1;
-                payload_len -= 1;
-                desclen -= 1;
+		offset++;  /* reserved */
 
-                if (payload_len < 3)
-                    return FALSE;
-                if (desclen < 3) {
-                    offset += desclen;
-                    payload_len -= desclen;
-                    break;
-                }
+                if(tvb_length_remaining(tvb, offset)<3)
+                    return;
                 proto_tree_add_text (scsi_tree, tvb, offset, 3, "Block Length: %u",
                                          tvb_get_ntoh24 (tvb, offset));
                 offset += 3;
-                payload_len -= 3;
-                desclen -= 3;
             } else {
-                if (payload_len < 1)
-                    return FALSE;
-                if (desclen < 1)
-                    break;
+                if(tvb_length_remaining(tvb, offset)<1)
+                    return;
                 proto_tree_add_text (scsi_tree, tvb, offset, 1, "Density Code: 0x%02x",
                                      tvb_get_guint8 (tvb, offset));
                 offset += 1;
-                payload_len -= 1;
-                desclen -= 1;
 
-                if (payload_len < 3)
-                    return FALSE;
-                if (desclen < 3) {
-                    offset += desclen;
-                    payload_len -= desclen;
-                    break;
-                }
+                if(tvb_length_remaining(tvb, offset)<3)
+                    return;
                 proto_tree_add_text (scsi_tree, tvb, offset, 3, "No. of Blocks: %u",
-                                     tvb_get_ntoh24 (tvb, offset));
+                                     tvb_get_ntohl (tvb, offset));
                 offset += 3;
-                payload_len -= 3;
-                desclen -= 3;
 
-                if (payload_len < 1)
-                    return FALSE;
-                if (desclen < 1)
-                    break;
-                /* Reserved byte */
-                offset += 1;
-                payload_len -= 1;
-                desclen -= 1;
+		offset++; /* reserved */
 
-                if (payload_len < 3)
-                    return FALSE;
-                if (desclen < 3) {
-                    offset += desclen;
-                    payload_len -= desclen;
-                    break;
-                }
+                if(tvb_length_remaining(tvb, offset)<3)
+                    return;
                 proto_tree_add_text (scsi_tree, tvb, offset, 3, "Block Length: %u",
                                          tvb_get_ntoh24 (tvb, offset));
                 offset += 3;
-                payload_len -= 3;
-                desclen -= 3;
             }
         }
     }
-    return TRUE;
 }
 
 static gboolean
@@ -2714,7 +2641,9 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
-    guint tot_len, desclen, plen;
+    guint plen;
+    gint tot_len, desclen;
+    tvbuff_t *blockdesc_tvb;
 
     if (!tree)
         return;
@@ -2746,7 +2675,7 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (payload_len < 1)
             return;
         tot_len = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1, "Mode Data Length: %u",
+        proto_tree_add_text (tree, tvb, offset, 1, "Mode Data Length: %d",
                              tot_len);
         offset += 1;
         payload_len -= 1;
@@ -2784,13 +2713,14 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         desclen = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
-                             "Block Descriptor Length: %u", desclen);
+                             "Block Descriptor Length: %d", desclen);
         offset += 1;
         payload_len -= 1;
 
-        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
-                                     desclen, cdata, FALSE))
-            return;
+        if(tvb_length_remaining(tvb, offset)>0){
+            blockdesc_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
+            dissect_scsi_blockdescs (blockdesc_tvb, pinfo, tree, cdata, FALSE);
+        }
         offset += desclen;
         payload_len -= desclen;
 
@@ -2810,7 +2740,9 @@ dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 flags;
     gboolean longlba;
-    guint tot_len, desclen, plen;
+    gint tot_len, desclen;
+    guint plen;
+    tvbuff_t *blockdesc_tvb;
 
     if (!tree)
         return;
@@ -2891,9 +2823,10 @@ dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
         payload_len -= 2;
 
-        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
-                                     desclen, cdata, longlba))
-            return;
+        if(tvb_length_remaining(tvb, offset)>0){
+            blockdesc_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
+            dissect_scsi_blockdescs (blockdesc_tvb, pinfo, tree, cdata, longlba);
+        }
         offset += desclen;
         payload_len -= desclen;
 
@@ -2960,7 +2893,9 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
-    guint tot_len, desclen, plen;
+    guint plen;
+    gint tot_len, desclen;
+    tvbuff_t *blockdesc_tvb;
 
     if (!tree)
         return;
@@ -3002,7 +2937,7 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * really should subtract the length of the length field from
          * the payload length - but can it really be zero here?
          */
-        if (payload_len && (tot_len > payload_len))
+        if (payload_len && (tot_len > (gint)payload_len))
             tot_len = payload_len;
 
         if (tot_len < 1)
@@ -3024,13 +2959,15 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         desclen = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
-                             "Block Descriptor Length: %u", desclen);
+                             "Block Descriptor Length: %d", desclen);
         offset += 1;
         tot_len -= 1;
 
-        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
-                                     desclen, cdata, FALSE))
-            return;
+      
+        if(tvb_length_remaining(tvb, offset)>0){
+            blockdesc_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
+            dissect_scsi_blockdescs (blockdesc_tvb, pinfo, tree, cdata, FALSE);
+        }
         offset += desclen;
         tot_len -= desclen;
 
@@ -3050,7 +2987,9 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 flags;
     gboolean longlba;
-    guint tot_len, desclen, plen;
+    gint tot_len, desclen;
+    guint plen;
+    tvbuff_t *blockdesc_tvb;
 
     if (!tree)
         return;
@@ -3092,7 +3031,7 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * really should subtract the length of the length field from
          * the payload length - but can it really be zero here?
          */
-        if (payload_len && (tot_len > payload_len))
+        if (payload_len && (tot_len > (gint)payload_len))
             tot_len = payload_len;
 
         if (tot_len < 1)
@@ -3125,9 +3064,10 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
         tot_len -= 2;
 
-        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
-                                     desclen, cdata, longlba))
-            return;
+        if(tvb_length_remaining(tvb, offset)>0){
+            blockdesc_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
+            dissect_scsi_blockdescs (blockdesc_tvb, pinfo, tree, cdata, longlba);
+        }
         offset += desclen;
         tot_len -= desclen;
 
