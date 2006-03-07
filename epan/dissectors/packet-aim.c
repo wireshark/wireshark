@@ -773,7 +773,7 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
   }
   
   if (check_col(pinfo->cinfo, COL_INFO)) {
-	 if(subtype) {
+	 if(subtype && family) {
 		 col_set_str(pinfo->cinfo, COL_INFO, family->name);
 		 col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", subtype->name);
 	 } else {
