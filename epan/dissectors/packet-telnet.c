@@ -1288,7 +1288,7 @@ telnet_will_wont_do_dont(proto_tree *telnet_tree, tvbuff_t *tvb,
 
   offset += 2;	/* skip IAC and WILL,WONT,DO,DONT} */
   opt_byte = tvb_get_guint8(tvb, offset);
-  if (opt_byte > NOPTIONS)
+  if (opt_byte >= NOPTIONS)
     opt = "<unknown option>";
   else
     opt = options[opt_byte].name;

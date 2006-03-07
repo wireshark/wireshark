@@ -1373,7 +1373,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset;
     proto_item* pi;
     proto_tree* compat_tree;
-    alcap_msg_type_info_t* msg_type;
+    const alcap_msg_type_info_t* msg_type;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
