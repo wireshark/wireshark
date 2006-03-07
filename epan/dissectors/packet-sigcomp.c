@@ -680,12 +680,12 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 		proto_tree_add_string(sigcomp_tree,hf_sigcomp_partial_state,
 			tvb, offset, partial_state_len, partial_state_str);
 		offset = offset + partial_state_len;
+		msg_len = tvb_reported_length_remaining(tvb, offset);
+
 		if(msg_len>0)
-			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
-				tvb_reported_length_remaining(tvb, offset));
+			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes", msg_len);
 
 		if ( decompress ) {
-			msg_len = tvb_reported_length_remaining(tvb, offset);
 			msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
 			/*
 			 * buff					= Where "state" will be stored
