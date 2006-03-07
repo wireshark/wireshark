@@ -63,86 +63,6 @@ extern int access(const char *, int);
 
 char *msort(char *, char **, int (*)(const void *, const void *));
 
-/******** From the file "action.h" *************************************/
-struct action *Action_new(void);
-struct action *Action_sort(struct action *);
-void Action_add(struct action **, enum e_action, struct symbol *, void *);
-
-/********* From the file "assert.h" ************************************/
-void myassert(const char *, int);
-#ifndef NDEBUG
-#  define assert(X) if(!(X))myassert(__FILE__,__LINE__)
-#else
-#  define assert(X)
-#endif
-
-/********** From the file "build.h" ************************************/
-void FindRulePrecedences(struct lemon *);
-void FindFirstSets(struct lemon *);
-void FindStates(struct lemon *);
-void FindLinks(struct lemon *);
-void FindFollowSets(struct lemon *);
-void FindActions(struct lemon *);
-
-/********* From the file "configlist.h" *********************************/
-void Configlist_init(void);
-struct config *Configlist_add(struct rule *, int);
-struct config *Configlist_addbasis(struct rule *, int);
-void Configlist_closure(struct lemon *);
-void Configlist_sort(void);
-void Configlist_sortbasis(void);
-struct config *Configlist_return(void);
-struct config *Configlist_basis(void);
-void Configlist_eat(struct config *);
-void Configlist_reset(void);
-
-/********* From the file "error.h" ***************************************/
-#if __GNUC__ >= 2
-void ErrorMsg( const char *, int, const char *, ... )
-  __attribute__((format (printf, 3, 4)));
-#else
-void ErrorMsg( const char *, int, const char *, ... );
-#endif
-
-/****** From the file "option.h" ******************************************/
-struct s_options {
-  enum { OPT_FLAG=1,  OPT_INT,  OPT_DBL,  OPT_STR,
-         OPT_FFLAG, OPT_FINT, OPT_FDBL, OPT_FSTR} type;
-  const char *label;
-  char *arg;
-  const char *message;
-};
-int    optinit(char**,struct s_options*,FILE*);
-int    optnargs(void);
-char  *get_optarg(int);
-void   get_opterr(int);
-void   optprint(void);
-
-/******** From the file "parse.h" *****************************************/
-void Parse(struct lemon *lemp);
-
-/********* From the file "plink.h" ***************************************/
-struct plink *Plink_new(void);
-void Plink_add(struct plink **, struct config *);
-void Plink_copy(struct plink **, struct plink *);
-void Plink_delete(struct plink *);
-
-/********** From the file "report.h" *************************************/
-void Reprint(struct lemon *);
-void ReportOutput(struct lemon *);
-void ReportTable(struct lemon *, int);
-void ReportHeader(struct lemon *);
-void CompressTables(struct lemon *);
-
-/********** From the file "set.h" ****************************************/
-void  SetSize(int N);             /* All sets will be of size N */
-char *SetNew(void);               /* A new set for element 0..N */
-void  SetFree(char*);             /* Deallocate a set */
-
-int SetAdd(char*,int);            /* Add element to a set */
-int SetUnion(char *A,char *B);    /* A <- A U B, thru element N */
-
-#define SetFind(X,Y) (X[Y])       /* True if Y is in set X */
 
 /********** From the file "struct.h" *************************************/
 /*
@@ -308,6 +228,87 @@ void memory_error(void);
 #define MemoryCheck(X) if((X)==0){ \
   memory_error(); \
 }
+
+/******** From the file "action.h" *************************************/
+struct action *Action_new(void);
+struct action *Action_sort(struct action *);
+void Action_add(struct action **, enum e_action, struct symbol *, void *);
+
+/********* From the file "assert.h" ************************************/
+void myassert(const char *, int);
+#ifndef NDEBUG
+#  define assert(X) if(!(X))myassert(__FILE__,__LINE__)
+#else
+#  define assert(X)
+#endif
+
+/********** From the file "build.h" ************************************/
+void FindRulePrecedences(struct lemon *);
+void FindFirstSets(struct lemon *);
+void FindStates(struct lemon *);
+void FindLinks(struct lemon *);
+void FindFollowSets(struct lemon *);
+void FindActions(struct lemon *);
+
+/********* From the file "configlist.h" *********************************/
+void Configlist_init(void);
+struct config *Configlist_add(struct rule *, int);
+struct config *Configlist_addbasis(struct rule *, int);
+void Configlist_closure(struct lemon *);
+void Configlist_sort(void);
+void Configlist_sortbasis(void);
+struct config *Configlist_return(void);
+struct config *Configlist_basis(void);
+void Configlist_eat(struct config *);
+void Configlist_reset(void);
+
+/********* From the file "error.h" ***************************************/
+#if __GNUC__ >= 2
+void ErrorMsg( const char *, int, const char *, ... )
+  __attribute__((format (printf, 3, 4)));
+#else
+void ErrorMsg( const char *, int, const char *, ... );
+#endif
+
+/****** From the file "option.h" ******************************************/
+struct s_options {
+  enum { OPT_FLAG=1,  OPT_INT,  OPT_DBL,  OPT_STR,
+         OPT_FFLAG, OPT_FINT, OPT_FDBL, OPT_FSTR} type;
+  const char *label;
+  char *arg;
+  const char *message;
+};
+int    optinit(char**,struct s_options*,FILE*);
+int    optnargs(void);
+char  *get_optarg(int);
+void   get_opterr(int);
+void   optprint(void);
+
+/******** From the file "parse.h" *****************************************/
+void Parse(struct lemon *lemp);
+
+/********* From the file "plink.h" ***************************************/
+struct plink *Plink_new(void);
+void Plink_add(struct plink **, struct config *);
+void Plink_copy(struct plink **, struct plink *);
+void Plink_delete(struct plink *);
+
+/********** From the file "report.h" *************************************/
+void Reprint(struct lemon *);
+void ReportOutput(struct lemon *);
+void ReportTable(struct lemon *, int);
+void ReportHeader(struct lemon *);
+void CompressTables(struct lemon *);
+
+/********** From the file "set.h" ****************************************/
+void  SetSize(int N);             /* All sets will be of size N */
+char *SetNew(void);               /* A new set for element 0..N */
+void  SetFree(char*);             /* Deallocate a set */
+
+int SetAdd(char*,int);            /* Add element to a set */
+int SetUnion(char *A,char *B);    /* A <- A U B, thru element N */
+
+#define SetFind(X,Y) (X[Y])       /* True if Y is in set X */
 
 /**************** From the file "table.h" *********************************/
 /*
