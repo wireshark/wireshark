@@ -1077,7 +1077,7 @@ asn1_err_to_str(int err)
 
     default:
 	g_snprintf(errstrbuf, sizeof errstrbuf, "Unknown error (%d)", err);
-	errstr = errstrbuf;
+	errstr = ep_strdup(errstrbuf);
 	break;
     }
     return errstr;
