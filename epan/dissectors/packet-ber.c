@@ -829,7 +829,8 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 	  offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 	  offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	} else {
-	  len=tvb_length_remaining(tvb, offset);
+	  gint32 remaining=tvb_length_remaining(tvb, offset);
+	  len=remaining>0 ? remaining : 0;
 	}
 
 	/* we cant handle integers > 64 bits */
