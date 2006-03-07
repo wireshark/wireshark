@@ -615,7 +615,7 @@ extern int stats_tree_tick_range(stats_tree* st,
 	}
 	
 	if ( node == NULL ) 
-		return node->id;
+		g_assert_not_reached();
 	
 	for ( child = node->children; child; child = child->next) {
 		floor =  child->rng->floor;
