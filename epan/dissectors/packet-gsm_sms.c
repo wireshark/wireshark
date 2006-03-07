@@ -1756,17 +1756,19 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 }
 
 /* 9.2.3.24 */
+#define NUM_FILL_BITS_MASKS 6
 static void
 dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gboolean udhi, guint8 udl,
     gboolean seven_bit, gboolean eight_bit, gboolean ucs2, gboolean compressed)
 {
-    static guint8	fill_bits_mask[] = { 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc };
+    static guint8	fill_bits_mask[NUM_FILL_BITS_MASKS] =
+	{ 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc };
     proto_item	*item;
     proto_item	*udh_item;
     proto_tree	*subtree = NULL;
     proto_tree	*udh_subtree = NULL;
-    guint8	oct;
-    guint8	fill_bits;
+    guint	oct;
+    guint	fill_bits;
     guint32	out_len;
     char	*ustr;
 
@@ -1813,7 +1815,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		    /* step over fill bits ? */
 
 		    fill_bits = 7 - (((oct + 1) * 8) % 7);
-		    if (fill_bits != 7)
+		    if (fill_bits < NUM_FILL_BITS_MASKS)
 			    {
 				oct = tvb_get_guint8(tvb, offset);
 
@@ -2353,7 +2355,7 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     offset++;
 	/* Parameter indicating the presence of any of
 	 * the optional parameters which follow
-	 * 4) Mandatory if any of the optional parameters following TP-PI is present, 
+	 * 4) Mandatory if any of the optional parameters following TP-PI is present,
 	 * otherwise optional.
 	 */
 	if (length <= (offset - saved_offset))

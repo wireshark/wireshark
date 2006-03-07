@@ -20,7 +20,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.15">
+  <!ENTITY EtherealCurrentVersion "0.99.0">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -67,7 +67,7 @@ Gnu info
   <section id="WhatsNew"><title>What's New</title>
     <section><title>Bug Fixes</title>
     <para>
-      Three security vulnerabilities have been fixed since the
+      Many security vulnerabilities have been fixed since the
       previous release.  See the
       <ulink url="http://www.ethereal.com/appnotes/enpa-sa-00022.html">application
       advisory</ulink> for more details.
@@ -85,25 +85,36 @@ Gnu info
 	  <!-- Bug IDs: ??? -->
 	  Versions affected: ???.
         </para></listitem>
-        <listitem><para>
-	  Win32: Unicode characters in the users profile path causes problems 
-	  reading/writing the preferences (and alike) files.
-	  <!-- Fixed in r17024 -->
-	  <!-- Bug IDs: 648 -->
-	  Versions affected: 0.10.14.
-        </para></listitem>
-        <listitem><para>
-	  Win32: Unicode characters in filenames given to the Ethereal command 
-	  line doesn't work (used e.g. when "double-clicking" in explorer).
-	  <!-- Fixed in r17025 -->
-	  <!-- Bug IDs: 661 -->
-	  Versions affected: 0.10.14.
-        </para></listitem>
 
 <!-- FIX (17235), canary bugs -->
 
+
+      </itemizedlist>
+
+      Under a grant funded by the U.S. Department of Homeland Security, 
+      <ulink url="http://www.coverity.com">Coverity</a> has uncovered 
+      a number of vulnerabilities in Ethereal:
+      <itemizedlist>
+          
+        <listitem><para>
+	  The GSM SMS dissector could crash Ethereal.
+	  <!-- Fixed in r17506 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity run 12, CID 104 -->
+	  Versions affected: ???.
+        </para></listitem>
+
       </itemizedlist>
     </para>
+
+    <para>
+      Win32: Unicode characters in the users profile path causes problems 
+      reading/writing the preferences (and alike) files.
+      <!-- Fixed in r17024,r17025 -->
+      <!-- Bug IDs: 648 -->
+      Versions affected: 0.10.14.
+    </para>
+
     </section>
 
     <section><title>New and Updated Features</title>
