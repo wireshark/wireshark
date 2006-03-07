@@ -365,7 +365,7 @@ struct dissector_handle {
  *
  * The only time this function will return 0 is if it is a new style dissector
  * and if the dissector rejected the packet.
- */ 
+ */
 static int
 call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
@@ -415,7 +415,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	packet_info *volatile pinfo = pinfo_arg;
 	const char *saved_proto;
 	guint16 saved_can_desegment;
-	volatile int ret;
+	volatile int ret = 0;
 	gboolean save_writable;
 	volatile address save_dl_src;
 	volatile address save_dl_dst;
@@ -463,7 +463,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 		if (pinfo->layer_names) {
 			if (pinfo->layer_names->len > 0)
 				g_string_append(pinfo->layer_names, ":");
-			g_string_append(pinfo->layer_names, 
+			g_string_append(pinfo->layer_names,
 			    proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
 		}
 	}
@@ -1789,7 +1789,7 @@ static guint num_of_postdissectors = 0;
 void register_postdissector(dissector_handle_t handle) {
     if (!post_dissectors)
         post_dissectors = g_ptr_array_new();
-    
+
     g_ptr_array_add(post_dissectors, handle);
     num_of_postdissectors++;
 }
