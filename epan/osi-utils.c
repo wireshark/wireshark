@@ -168,10 +168,11 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
        )
      ) {    /* AFI is good and length is long enough  */
 
-    if ( length > RFC1237_FULLAREA_LEN + 1 ) {  /* Special Case Designated IS */
-      g_snprintf(buf, buf_len, "<Invalid length of AREA for DCC / GOSIP AFI>");
-      return;
-    }
+    /* there used to be a check for (length > RFC1237_FULLAREA_LEN + 1) here,
+     * in order to report an invalied length of AREA for DCC / GOSIP AFI,
+     * but that can *never* be the case because the if() test above explicitly
+     * tests for (length == RFC1237_FULLAREA_LEN) or (length == RFC1237_FULLAREA_LEN + 1)
+     */
 
     cur += g_snprintf(cur, buf_len-(cur-buf), "[%02x|%02x:%02x][%02x|%02x:%02x:%02x|%02x:%02x]",
                     ad[0], ad[1], ad[2], ad[3], ad[4],
