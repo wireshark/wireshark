@@ -36,6 +36,8 @@
 #include <windowsx.h>
 #include <commdlg.h>
 #include <richedit.h>
+#include <tchar.h>
+#include <wchar.h>
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -52,6 +54,7 @@
 #include "print.h"
 #include "simple_dialog.h"
 #include "util.h"
+#include "epan/strutil.h"
 
 #include "file_dlg.h"
 #include "main.h"
@@ -60,7 +63,6 @@
 #include "capture_dlg.h"
 
 #include "win32-file-dlg.h"
-
 
 typedef enum {
     merge_append,
@@ -72,17 +74,43 @@ typedef enum {
  * XXX - There should be separate open and save lists, and they should
  * come from Wiretap.
  */
-#define FILE_TYPE_LIST 	\
-    "Accellent 5Views (*.5vw)\0"		"*.5vw\0"               \
-    "Ethereal/tcpdump (*.cap, *.pcap)\0"	"*.cap;*.pcap\0"        \
-    "Novell LANalyzer (*.tr1)\0"		"*.tr1\0"               \
-    "NG/NAI Sniffer (*.cap, *.enc, *.trc)\0"	"*.cap;*.enc;*.trc\0"   \
-    "Sun snoop (*.snoop)\0"			"*.snoop\0"             \
-    "WildPackets EtherPeek (*.pkt)\0"		"*.pkt\0"               \
-    "All Files (*.*)\0"				"*.*\0"                 \
-    "\0"
+#define FILE_TYPES_OPEN \
+    _T("Accellent 5Views (*.5vw)\0")			_T("*.5vw\0")               \
+    _T("Ethereal/tcpdump (*.cap, *.pcap)\0")		_T("*.cap;*.pcap\0")        \
+    _T("Novell LANalyzer (*.tr1)\0")			_T("*.tr1\0")               \
+    _T("NG/NAI Sniffer (*.cap, *.enc, *.trc)\0")	_T("*.cap;*.enc;*.trc\0")   \
+    _T("Sun snoop (*.snoop)\0")				_T("*.snoop\0")             \
+    _T("WildPackets EtherPeek (*.pkt)\0")		_T("*.pkt\0")               \
+    _T("All Files (*.*)\0")				_T("*.*\0")
 
-#define FILE_TYPE_DEFAULT 2 /* Ethereal/tcpdump */
+#define FILE_OPEN_DEFAULT 2 /* Ethereal/tcpdump */
+
+#define FILE_TYPES_SAVE FILE_TYPES_OPEN
+
+#define FILE_SAVE_DEFAULT FILE_OPEN_DEFAULT
+
+#define FILE_TYPES_MERGE FILE_TYPES_OPEN
+
+#define FILE_MERGE_DEFAULT FILE_OPEN_DEFAULT
+
+#define FILE_TYPES_EXPORT \
+    _T("Plain text (*.txt)\0")		        	_T("*.txt\0")	\
+    _T("PostScript (*.ps)\0")			        _T("*.ps\0")	\
+    _T("CSV (Comma Separated Values summary (*.csv)\0")	_T("*.csv\0")	\
+    _T("PSML (XML packet summary) (*.psml)\0") 		_T("*.psml\0")	\
+    _T("PDML (XML packet detail) (*.pdml)\0")  		_T("*.pdml\0")
+
+#define FILE_TYPES_RAW \
+    _T("Raw data (*.bin, *.dat, *.raw)\0")	_T("*.bin;*.dat;*.raw\0")	\
+    _T("All Files (*.*)\0")			_T("*.*\0")
+
+#define FILE_RAW_DEFAULT 1
+
+#define FILE_TYPES_COLOR \
+    _T("Text Files (*.txt)\0")	_T("*.txt\0")	\
+    _T("All Files (*.*)\0")	_T("*.*\0")
+
+#define FILE_DEFAULT_COLOR 2
 
 
 static UINT CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
@@ -114,9 +142,9 @@ static HWND           g_sf_hwnd = NULL;
 gboolean
 win32_open_file (HWND h_wnd) {
     static OPENFILENAME ofn;
-    gchar  file_name[MAX_PATH] = "";
+    TCHAR  file_name[MAX_PATH] = _T("");
     int    err;
-    char *dirname;
+    char  *dirname;
 
     /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
        where appropriate */
@@ -129,37 +157,38 @@ win32_open_file (HWND h_wnd) {
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
     /* XXX - Grab the rest of the extension list from ethereal.nsi. */
-    ofn.lpstrFilter = FILE_TYPE_LIST;
+    ofn.lpstrFilter = FILE_TYPES_OPEN;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_TYPE_DEFAULT;
+    ofn.nFilterIndex = FILE_OPEN_DEFAULT;
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
+    /* XXX - Assuming that we're using UTF8 elsewhere. */
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
 	ofn.lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = "Ethereal: Select a capture file";
+    ofn.lpstrTitle = _T("Ethereal: Select a capture file");
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
 	    OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = open_file_hook_proc;
-    ofn.lpTemplateName = "ETHEREAL_OPENFILENAME_TEMPLATE";
+    ofn.lpTemplateName = _T("ETHEREAL_OPENFILENAME_TEMPLATE");
 
     /* XXX - Get our filter */
 
     if (GetOpenFileName(&ofn)) {
-	if (cf_open(&cfile, file_name, FALSE, &err) != CF_OK) {
+	if (cf_open(&cfile, utf_16to8(file_name), FALSE, &err) != CF_OK) {
 	    return FALSE;
 	}
 	switch (cf_read(&cfile)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
-                dirname = get_dirname(file_name);
+                dirname = get_dirname(utf_16to8(file_name));
                 set_last_open_dir(dirname);
                 return TRUE;
                 break;
@@ -172,7 +201,7 @@ win32_open_file (HWND h_wnd) {
 void
 win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer action_after_save_data) {
     static OPENFILENAME ofn;
-    gchar  file_name[MAX_PATH] = "";
+    TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
 
     /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
@@ -182,26 +211,26 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
     /* XXX - Grab the rest of the extension list from ethereal.nsi. */
-    ofn.lpstrFilter = FILE_TYPE_LIST;
+    ofn.lpstrFilter = FILE_TYPES_SAVE;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_TYPE_DEFAULT;
+    ofn.nFilterIndex = FILE_SAVE_DEFAULT;
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
 	ofn.lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = "Ethereal: Save file as";
+    ofn.lpstrTitle = _T("Ethereal: Save file as");
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = save_as_file_hook_proc;
-    ofn.lpTemplateName = "ETHEREAL_SAVEFILENAME_TEMPLATE";
+    ofn.lpTemplateName = _T("ETHEREAL_SAVEFILENAME_TEMPLATE");
 
     if (GetSaveFileName(&ofn)) {
 	g_sf_hwnd = NULL;
@@ -209,14 +238,14 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 	   range) to the file with the specified name. */
 	/* XXX - If we're overwriting a file, GetSaveFileName does the
 	   standard windows confirmation.  cf_save() then rejects the overwrite. */
-	if (cf_save(&cfile, file_name, &range, filetype, FALSE) != CF_OK) {
+	if (cf_save(&cfile, utf_16to8(file_name), &range, filetype, FALSE) != CF_OK) {
 	    /* The write failed.  Try again. */
 	    win32_save_as_file(h_wnd, action_after_save, action_after_save_data);
 	    return;
 	}
 
 	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
 
 	/* we have finished saving, do we have pending things to do? */
@@ -257,7 +286,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 void
 win32_merge_file (HWND h_wnd) {
     static      OPENFILENAME ofn;
-    gchar       file_name[MAX_PATH] = "";
+    TCHAR       file_name[MAX_PATH] = _T("");
     char       *dirname;
     cf_status_t merge_status;
     char       *in_filenames[2];
@@ -273,26 +302,26 @@ win32_merge_file (HWND h_wnd) {
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
     /* XXX - Grab the rest of the extension list from ethereal.nsi. */
-    ofn.lpstrFilter = FILE_TYPE_LIST;
+    ofn.lpstrFilter = FILE_TYPES_MERGE;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_TYPE_DEFAULT;
+    ofn.nFilterIndex = FILE_MERGE_DEFAULT;
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
 	ofn.lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = "Ethereal: Merge with capture file";
+    ofn.lpstrTitle = _T("Ethereal: Merge with capture file");
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
 	    OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = merge_file_hook_proc;
-    ofn.lpTemplateName = "ETHEREAL_MERGEFILENAME_TEMPLATE";
+    ofn.lpTemplateName = _T("ETHEREAL_MERGEFILENAME_TEMPLATE");
 
     if (GetOpenFileName(&ofn)) {
 	filetype = cfile.cd_t;
@@ -303,20 +332,20 @@ win32_merge_file (HWND h_wnd) {
 	switch (merge_action) {
 	    case merge_append:
 		/* append file */
-		in_filenames[0] = file_name;
+		in_filenames[0] = utf_16to8(file_name);
 		in_filenames[1] = cfile.filename;
 		merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
 		break;
 	    case merge_chrono:
 		/* chonological order */
 		in_filenames[0] = cfile.filename;
-		in_filenames[1] = file_name;
+		in_filenames[1] = utf_16to8(file_name);
                 merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, FALSE);
 		break;
 	    case merge_prepend:
 		/* prepend file */
 		in_filenames[0] = cfile.filename;
-		in_filenames[1] = file_name;
+		in_filenames[1] = utf_16to8(file_name);
                 merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
 		break;
 	    default:
@@ -341,8 +370,6 @@ win32_merge_file (HWND h_wnd) {
 	       try again. */
 //	    if (rfcode != NULL)
 //		dfilter_free(rfcode);
-            sprintf(file_name, "failed open: %s (%d)",  tmpname, err);
-            MessageBox(NULL, file_name, "Eth", MB_OK);
             return;
 	}
 
@@ -354,7 +381,7 @@ win32_merge_file (HWND h_wnd) {
 	switch (cf_read(&cfile)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
-                dirname = get_dirname(file_name);
+                dirname = get_dirname(utf_16to8(file_name));
                 set_last_open_dir(dirname);
                 menu_name_resolution_changed();
                 break;
@@ -367,7 +394,7 @@ win32_merge_file (HWND h_wnd) {
 void
 win32_export_file(HWND h_wnd, export_type_e export_type) {
     static            OPENFILENAME ofn;
-    gchar             file_name[MAX_PATH] = "";
+    TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
     cf_print_status_t status;
 
@@ -377,13 +404,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter =
-	"Plain text (*.txt)\0"		        	"*.txt\0"
-	"PostScript (*.ps)\0"			        "*.ps\0"
-        "CSV (Comma Separated Values summary (*.csv)\0" "*.csv\0"
-	"PSML (XML packet summary) (*.psml)\0"  	"*.psml\0"
-	"PDML (XML packet detail) (*.pdml)\0"   	"*.pdml\0"
-	"\0";
+    ofn.lpstrFilter = FILE_TYPES_EXPORT;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
     ofn.nFilterIndex = export_type;
@@ -392,23 +413,23 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
 	ofn.lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = "Ethereal: Export";
+    ofn.lpstrTitle = _T("Ethereal: Export");
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = export_file_hook_proc;
-    ofn.lpTemplateName = "ETHEREAL_EXPORTFILENAME_TEMPLATE";
+    ofn.lpTemplateName = _T("ETHEREAL_EXPORTFILENAME_TEMPLATE");
 
     /* Fill in our print (and export) args */
 
     print_args.format              = PR_FMT_TEXT;
     print_args.to_file             = TRUE;
-    print_args.file                = file_name;
+    print_args.file                = utf_16to8(file_name);
     print_args.cmd                 = NULL;
     print_args.print_summary       = TRUE;
     print_args.print_dissections   = print_dissections_as_displayed;
@@ -457,7 +478,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 		break;
 	}
 	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
     }
 }
@@ -465,7 +486,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 void
 win32_export_raw_file(HWND h_wnd) {
     static        OPENFILENAME ofn;
-    gchar         file_name[MAX_PATH] = "";
+    TCHAR         file_name[MAX_PATH] = _T("");
     char         *dirname;
     const guint8 *data_p = NULL;
     const char   *file = NULL;
@@ -482,30 +503,27 @@ win32_export_raw_file(HWND h_wnd) {
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
     /* XXX - Grab the rest of the extension list from ethereal.nsi. */
-    ofn.lpstrFilter =
-	"Raw data (*.bin, *.dat, *.raw)\0"	"*.bin;*.dat;*.raw\0"
-	"All Files (*.*)\0"				"*.*\0"
-	"\0";
+    ofn.lpstrFilter = FILE_TYPES_RAW;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = 1;
+    ofn.nFilterIndex = FILE_RAW_DEFAULT;
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
 	ofn.lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = "Ethereal: Export Raw Data";
+    ofn.lpstrTitle = _T("Ethereal: Export Raw Data");
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lCustData = cfile.finfo_selected->length;
     ofn.lpfnHook = export_raw_file_hook_proc;
-    ofn.lpTemplateName = "ETHEREAL_EXPORTRAWFILENAME_TEMPLATE";
+    ofn.lpTemplateName = _T("ETHEREAL_EXPORTRAWFILENAME_TEMPLATE");
 
     /*
      * XXX - The GTK+ code uses get_byte_view_data_and_length().  We just
@@ -513,10 +531,9 @@ win32_export_raw_file(HWND h_wnd) {
      */
 
     if (GetSaveFileName(&ofn)) {
-
 	data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
 		cfile.finfo_selected->start;
-        fd = open(file_name, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        fd = open(utf_16to8(file_name), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
 	    open_failure_alert_box(file, errno, TRUE);
 	    return;
@@ -532,7 +549,7 @@ win32_export_raw_file(HWND h_wnd) {
         }
 
 	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
     }
 }
@@ -540,27 +557,24 @@ win32_export_raw_file(HWND h_wnd) {
 void
 win32_export_color_file(HWND h_wnd) {
     static OPENFILENAME ofn;
-    gchar  file_name[MAX_PATH] = "";
-    char  *dirname;
+    TCHAR  file_name[MAX_PATH] = _T("");
+    gchar *dirname;
 
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
     /* XXX - Grab the rest of the extension list from ethereal.nsi. */
-    ofn.lpstrFilter =
-	"Text Files (*.txt)\0"	"*.txt\0"
-	"All Files (*.*)\0"	"*.*\0"
-	"\0";
+    ofn.lpstrFilter = FILE_TYPES_COLOR;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = 2;
+    ofn.nFilterIndex = FILE_DEFAULT_COLOR;
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
-    ofn.lpstrTitle = "Ethereal: Export Color Filters";
+    ofn.lpstrTitle = _T("Ethereal: Export Color Filters");
     ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
@@ -572,11 +586,11 @@ win32_export_color_file(HWND h_wnd) {
 
     /* XXX - Support marked filters */
     if (GetSaveFileName(&ofn)) {
-	if (!color_filters_export(file_name, FALSE))
+	if (!color_filters_export(utf_16to8(file_name), FALSE))
 	    return;
 
 	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
     }
 }
@@ -584,27 +598,24 @@ win32_export_color_file(HWND h_wnd) {
 void
 win32_import_color_file(HWND h_wnd) {
     static OPENFILENAME ofn;
-    gchar  file_name[MAX_PATH] = "";
-    char  *dirname;
+    TCHAR  file_name[MAX_PATH] = _T("");
+    gchar *dirname;
 
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = h_wnd;
     ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
     /* XXX - Grab the rest of the extension list from ethereal.nsi. */
-    ofn.lpstrFilter =
-	"Text Files (*.txt)\0"	"*.txt\0"
-	"All Files (*.*)\0"	"*.*\0"
-	"\0";
+    ofn.lpstrFilter = FILE_TYPES_COLOR;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = 2;
+    ofn.nFilterIndex = FILE_DEFAULT_COLOR;
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
-    ofn.lpstrTitle = "Ethereal: Import Color Filters";
+    ofn.lpstrTitle = _T("Ethereal: Import Color Filters");
     ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
@@ -614,11 +625,11 @@ win32_import_color_file(HWND h_wnd) {
 
     /* XXX - Support marked filters */
     if (GetOpenFileName(&ofn)) {
-	if (!color_filters_import(file_name, NULL))
+	if (!color_filters_import(utf_16to8(file_name), NULL))
 	    return;
 
 	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
     }
 }
@@ -736,8 +747,8 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
     const struct wtap_pkthdr *phdr;
     int         err = 0;
     gchar      *err_info;
+    TCHAR       string_buff[PREVIEW_STR_MAX];
     long        data_offset;
-    gchar       string_buff[PREVIEW_STR_MAX];
     guint       packet = 0;
     guint64     filesize;
     time_t      ti_time;
@@ -764,35 +775,34 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
     for (i = EWFD_PTX_FILENAME; i <= EWFD_PTX_ELAPSED; i++) {
 	cur_ctrl = GetDlgItem(of_hwnd, i);
 	if (cur_ctrl) {
-	    SetWindowText(cur_ctrl, "-");
+	    SetWindowText(cur_ctrl, _T("-"));
 	}
     }
 
     if (enable) {
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FILENAME);
-	SetWindowText(cur_ctrl, get_basename(preview_file));
+	SetWindowText(cur_ctrl, utf_8to16(get_basename(preview_file)));
 
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
 	wth = wtap_open_offline(preview_file, &err, &err_info, TRUE);
 	if (cur_ctrl && wth == NULL) {
 	    if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
-		SetWindowText(cur_ctrl, "unknown file format");
+		SetWindowText(cur_ctrl, _T("unknown file format"));
 	    } else {
-		SetWindowText(cur_ctrl, "error opening file");
+		SetWindowText(cur_ctrl, _T("error opening file"));
 	    }
 	    return FALSE;
 	}
 
 	/* size */
         filesize = wtap_file_size(wth, &err);
-	g_snprintf(string_buff, PREVIEW_STR_MAX, "%" PRIu64 " bytes", filesize);
+	_snwprintf(string_buff, PREVIEW_STR_MAX, _T("%") _T(PRIu64) _T(" bytes"), filesize);
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
 	SetWindowText(cur_ctrl, string_buff);
 
 	/* type */
-	g_snprintf(string_buff, PREVIEW_STR_MAX, "%s", wtap_file_type_string(wtap_file_type(wth)));
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-	SetWindowText(cur_ctrl, string_buff);
+	SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
 
 	time(&time_preview);
 	while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
@@ -819,7 +829,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 	}
 
 	if(err != 0) {
-	    g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packet);
+	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packet);
 	    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
 	    SetWindowText(cur_ctrl, string_buff);
 	    wtap_close(wth);
@@ -828,9 +838,9 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 
 	/* packet count */
 	if(is_breaked) {
-	    g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packet);
+	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
 	} else {
-	    g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packet);
+	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packet);
 	}
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
 	SetWindowText(cur_ctrl, string_buff);
@@ -838,8 +848,8 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 	/* first packet */
 	ti_time = (long)start_time;
 	ti_tm = localtime( &ti_time );
-	g_snprintf(string_buff, PREVIEW_STR_MAX,
-		 "%04d-%02d-%02d %02d:%02d:%02d",
+	_snwprintf(string_buff, PREVIEW_STR_MAX,
+		 _T("%04d-%02d-%02d %02d:%02d:%02d"),
 		 ti_tm->tm_year + 1900,
 		 ti_tm->tm_mon + 1,
 		 ti_tm->tm_mday,
@@ -852,14 +862,14 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 	/* elapsed time */
 	elapsed_time = (unsigned int)(stop_time-start_time);
 	if(elapsed_time/86400) {
-	    g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u",
+	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%02u days %02u:%02u:%02u"),
 	    elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
 	} else {
-	    g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u",
+	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%02u:%02u:%02u"),
 	    elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
 	}
 	if(is_breaked) {
-	    g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
+	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("unknown"));
 	}
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_ELAPSED);
 	SetWindowText(cur_ctrl, string_buff);
@@ -876,16 +886,17 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
  * in the "real" filter string in the case of a CBN_SELCHANGE notification message.
  */
 void
-filter_tb_syntax_check(HWND hwnd, gchar *filter_text) {
-    gchar     *strval = NULL;
+filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
+    TCHAR     *strval = NULL;
     gint       len;
     dfilter_t *dfp;
 
     /* If filter_text is non-NULL, use it.  Otherwise, grab the text from
      * the window */
     if (filter_text) {
-        strval = g_strdup(filter_text);
-        len = lstrlen(filter_text);
+        len = (lstrlen(filter_text) + 1) * sizeof(TCHAR);
+        strval = g_malloc(len);
+        memcpy(strval, filter_text, len);
     } else {
         len = GetWindowTextLength(hwnd);
         if (len > 0) {
@@ -899,7 +910,7 @@ filter_tb_syntax_check(HWND hwnd, gchar *filter_text) {
         /* Default window background */
         SendMessage(hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, COLOR_WINDOW);
         return;
-    } else if (dfilter_compile(strval, &dfp)) { /* colorize filter string entry */
+    } else if (dfilter_compile(utf_16to8(strval), &dfp)) { /* colorize filter string entry */
         if (dfp != NULL)
             dfilter_free(dfp);
         /* Valid (light green) */
@@ -917,7 +928,7 @@ static UINT CALLBACK
 open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
-    gchar     sel_name[MAX_PATH];
+    TCHAR     sel_name[MAX_PATH];
 
     switch(msg) {
 	case WM_INITDIALOG:
@@ -954,7 +965,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		       selections, etc. */
 		    parent = GetParent(of_hwnd);
 		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
-		    preview_set_filename(of_hwnd, sel_name);
+		    preview_set_filename(of_hwnd, utf_16to8(sel_name));
 		    break;
 		default:
 		    break;
@@ -1031,7 +1042,7 @@ build_file_format_list(HWND sf_hwnd) {
 	}
 
 	/* OK, we can write it out in this type. */
-	SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) wtap_file_type_string(ft));
+	SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(wtap_file_type_string(ft)));
 	SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) index, (WPARAM) ft);
 	if (ft == filetype) {
 	    /* Default to the same format as the file, if it's supported. */
@@ -1111,7 +1122,7 @@ static void
 range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     HWND     cur_ctrl;
     gboolean filtered_active = FALSE;
-    gchar    static_val[100];
+    TCHAR    static_val[100];
     gint     selected_num;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
@@ -1121,24 +1132,24 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     /* RANGE_SELECT_ALL */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", cfile.count);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.count);
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_DISP);
     EnableWindow(cur_ctrl, filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_cnt);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_CURR */
     selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_CAP);
     EnableWindow(cur_ctrl, selected_num && !filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", selected_num ? 1 : 0);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_DISP);
     EnableWindow(cur_ctrl, selected_num && filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", selected_num ? 1 : 0);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_MARKED */
@@ -1147,12 +1158,12 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_CAP);
     EnableWindow(cur_ctrl, cfile.marked_count && !filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", cfile.marked_count);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.marked_count);
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_DISP);
     EnableWindow(cur_ctrl, cfile.marked_count && filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_marked_cnt);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_marked_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_MARKED_RANGE */
@@ -1161,23 +1172,23 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_CAP);
     EnableWindow(cur_ctrl, range->mark_range_cnt && !filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range->mark_range_cnt);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->mark_range_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_DISP);
     EnableWindow(cur_ctrl, range->displayed_mark_range_cnt && filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_mark_range_cnt);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_mark_range_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_USER */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range->user_range_cnt);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->user_range_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
     EnableWindow(cur_ctrl, filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_user_range_cnt);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_user_range_cnt);
     SetWindowText(cur_ctrl, static_val);
 }
 
@@ -1281,7 +1292,7 @@ static UINT CALLBACK
 merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
-    gchar     sel_name[MAX_PATH];
+    TCHAR     sel_name[MAX_PATH];
 
     switch(msg) {
 	case WM_INITDIALOG:
@@ -1315,7 +1326,7 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		       selections, etc. */
 		    parent = GetParent(mf_hwnd);
 		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
-		    preview_set_filename(mf_hwnd, sel_name);
+		    preview_set_filename(mf_hwnd, utf_16to8(sel_name));
 		    break;
 		default:
 		    break;
@@ -1398,11 +1409,11 @@ static UINT CALLBACK
 export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND          cur_ctrl;
     OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
-    gchar         raw_msg[100];
+    TCHAR         raw_msg[100];
 
     switch(msg) {
 	case WM_INITDIALOG:
-	    g_snprintf(raw_msg, sizeof(raw_msg), "%d byte%s of raw binary data will be written",
+	    _snwprintf(raw_msg, sizeof(raw_msg), _T("%d byte%s of raw binary data will be written"),
 		    ofnp->lCustData, plurality(ofnp->lCustData, "", "s"));
 	    cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
 	    SetWindowText(cur_ctrl, raw_msg);

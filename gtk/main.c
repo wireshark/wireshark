@@ -99,6 +99,7 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include "capture_wpcap_packet.h"
+#include <tchar.h> /* Needed for Unicode */
 #if GTK_MAJOR_VERSION >= 2
 #include <commctrl.h>
 #endif /* GTK_MAJOR_VERSION >= 2 */
@@ -2812,7 +2813,7 @@ WinMain (struct HINSTANCE__ *hInstance,
   InitCommonControlsEx(&comm_ctrl);
 
   /* RichEd20.DLL is needed for filter entries. */
-  LoadLibrary("riched20.dll");
+  LoadLibrary(_T("riched20.dll"));
 #endif /* GTK_MAJOR_VERSION >= 2 */
 
   has_console = FALSE;
@@ -2845,7 +2846,7 @@ create_console(void)
        the message(s) we put in there). */
     atexit(destroy_console);
 
-	SetConsoleTitle("Ethereal Debug Console");
+	SetConsoleTitle(_T("Ethereal Debug Console"));
   }
 }
 

@@ -20,6 +20,10 @@
 #define __STDC__ 0
 #endif
 
+/* Use Unicode in Windows runtime functions. */
+#define UNICODE 1
+#define _UNICODE 1
+
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS 1
 

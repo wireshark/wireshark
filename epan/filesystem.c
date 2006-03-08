@@ -47,6 +47,8 @@
 
 #ifndef _WIN32
 #include <pwd.h>
+#include <tchar.h>
+#include "epan/strutil.h"
 #endif
 
 #include "filesystem.h"
@@ -220,14 +222,20 @@ init_progfile_dir(const char *arg0
 	char *dir_end;
 	char *path;
 #ifdef _WIN32
-	char prog_pathname[_MAX_PATH+2];
+	TCHAR prog_pathname_w[_MAX_PATH+2];
 	size_t progfile_dir_len;
+        char *prog_pathname;
 
 	/*
 	 * Attempt to get the full pathname of the currently running
 	 * program.
 	 */
-	if (GetModuleFileName(NULL, prog_pathname, sizeof prog_pathname) != 0) {
+	if (GetModuleFileName(NULL, prog_pathname_w, sizeof prog_pathname_w) != 0) {
+                /*
+                 * XXX - Should we use g_utf16_to_utf8(), as in
+                 * getenv_utf8()?
+                 */
+                prog_pathname = utf_16to8(prog_pathname_w);
 		/*
 		 * We got it; strip off the last component, which would be
 		 * the file name of the executable, giving us the pathname

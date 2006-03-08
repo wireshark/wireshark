@@ -699,6 +699,8 @@ tvb_strnlen
 tvb_strsize
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
+utf_8to16
+utf_16to8
 vals_pdu_type                   DATA
 vals_status                     DATA
 val_to_str

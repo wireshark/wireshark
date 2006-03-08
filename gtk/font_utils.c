@@ -35,6 +35,8 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <tchar.h>
+#include <epan/strutil.h>
 #endif
 
 #include "main.h"
@@ -583,10 +585,10 @@ static int get_windows_font_gtk1(char *fontspec, int fontspec_len)
     HDC h_dc;
     HGDIOBJ h_font;
     TEXTMETRIC tm;
-    char name[NAME_BUFFER_LEN];
+    TCHAR name[NAME_BUFFER_LEN];
     int len, pix_height;
 
-    h_dc = CreateDC("DISPLAY", NULL, NULL, NULL);
+    h_dc = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
     if (h_dc == NULL) return 1;
     h_font = GetStockObject(DEFAULT_GUI_FONT);
     if (h_font == NULL || !SelectObject(h_dc, h_font)) {
@@ -604,8 +606,8 @@ static int get_windows_font_gtk1(char *fontspec, int fontspec_len)
     }
     pix_height = tm.tmHeight;
     DeleteDC(h_dc);
-    g_snprintf(fontspec, fontspec_len, "-*-%s-*-*-*-*-%i-*-*-*-p-*-iso8859-1", name,
-            pix_height);
+    g_snprintf(fontspec, fontspec_len, "-*-%s-*-*-*-*-%i-*-*-*-p-*-iso8859-1",
+            utf_16to8(name), pix_height);
     return 0;
 }
 

@@ -50,6 +50,9 @@
 #if defined(G_OS_WIN32)
 /* Win32 - use Windows shell services to start a browser */
 #include <windows.h>
+/* We're using Unicode */
+#include <tchar.h>
+#include <epan/strutil.h>
 /* if WIN32_LEAN_AND_MEAN is defined, shellapi.h is needed too */
 #include <shellapi.h>
 #elif defined (HAVE_OS_X_FRAMEWORKS)
@@ -95,7 +98,7 @@ browser_open_url (const gchar *url)
 {
 #if defined(G_OS_WIN32)
 
-  return ((gint) ShellExecute (HWND_DESKTOP, "open", url, NULL, NULL, SW_SHOWNORMAL) > 32);
+  return ((gint) ShellExecute (HWND_DESKTOP, _T("open"), utf_8to16(url), NULL, NULL, SW_SHOWNORMAL) > 32);
 
 #elif defined(HAVE_OS_X_FRAMEWORKS)
 

@@ -486,12 +486,12 @@ int ResolveWin32UUID(e_uuid_t if_id, char *UUID_NAME, int UUID_NAME_MAX_LEN)
 	char REG_UUID_NAME[MAX_PATH];
 	HKEY hKey = NULL;
 	DWORD UUID_MAX_SIZE = MAX_PATH;
-	char REG_UUID_STR[MAX_PATH];
+	TCHAR REG_UUID_STR[MAX_PATH];
 
 	if(UUID_NAME_MAX_LEN < 2)
 		return 0;
 	REG_UUID_NAME[0] = '\0';
-	g_snprintf(REG_UUID_STR, MAX_PATH, "SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
+	_snwprintf(REG_UUID_STR, MAX_PATH, "SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
 			if_id.Data1, if_id.Data2, if_id.Data3,
 			if_id.Data4[0], if_id.Data4[1],
 			if_id.Data4[2], if_id.Data4[3],

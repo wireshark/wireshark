@@ -166,4 +166,26 @@ gsize g_strlcat(gchar *dst, gchar *src, gsize size);
 	(((c<0x20)||(c>=0x80))?FALSE:TRUE)
 #endif
 
+#ifdef _WIN32
+
+/** Given a UTF-8 string, convert it to UTF-16.  This is meant to be used
+ * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).
+ *
+ * @param utf8str The string to convert.  May be NULL.
+ * @return The string converted to UTF-16.  If utf8str is NULL, returns
+ * NULL.  The return value should NOT be freed by the caller.
+ */
+wchar_t * utf_8to16(const char *utf8str);
+
+/** Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
+ * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).
+ *
+ * @param utf16str The string to convert.  May be NULL.
+ * @return The string converted to UTF-8.  If utf16str is NULL, returns
+ * NULL.  The return value should NOT be freed by the caller.
+ */
+gchar * utf_16to8(const wchar_t *utf16str);
+
+#endif /* _WIN32 */
+
 #endif /* __STRUTIL_H__ */
