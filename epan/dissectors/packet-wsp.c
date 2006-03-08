@@ -2623,7 +2623,7 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		off = val_start + val_len_len;
 		peek = tvb_get_guint8(tvb, off);
 		if (is_short_integer(peek)) {
-			switch (val_id) {
+			switch (peek) {
 				case 0x80: /* gzip */
 					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 					ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
