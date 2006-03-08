@@ -2671,6 +2671,10 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		    cmd);
 		offset += 2;
 
+		if(!trp){
+			return FALSE; /* cant dissect this request */
+		}
+
 		/*
 		 * If we haven't already done so, save the function code in
 		 * the structure we were handed, so that it's available to
