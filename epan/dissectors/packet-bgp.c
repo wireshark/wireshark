@@ -2741,7 +2741,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Scan through the TCP payload looking for a BGP marker.
      */
     while ((reported_length_remaining = tvb_reported_length_remaining(tvb, offset))
-		!= 0) {
+		> 0) {
 	/*
 	 * "reported_length_remaining" is the number of bytes of TCP payload
 	 * remaining.  If it's more than the length of a BGP marker,
@@ -2789,7 +2789,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * offset, in which case we can replace the loop below with
      * a call to "tcp_dissect_pdus()".
      */
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
 	/*
 	 * This will throw an exception if we don't have any data left.
 	 * That's what we want.  (See "tcp_dissect_pdus()", which is
