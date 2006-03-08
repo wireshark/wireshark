@@ -342,7 +342,8 @@ static const char *ciphers[]={
      "RC2",
      "IDEA",
      "AES",
-     "AES256"
+     "AES256",
+	 "*UNKNOWN*"
 };
 
 /* look in openssl/ssl/ssl_lib.c for a complete list of available cipersuite*/
@@ -591,7 +592,7 @@ ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite,
     }
     if (ciph == 0) {
         ssl_debug_printf("ssl_create_decoder can't find cipher %s\n", 
-            ciphers[cipher_suite->enc-0x30]);
+						 ciphers[(cipher_suite->enc-0x30) > 7 ? 7 : (cipher_suite->enc-0x30)]);
         return -1;
     }
     
