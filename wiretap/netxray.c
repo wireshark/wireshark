@@ -485,7 +485,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			switch (hdr.captype) {
 
 			case CAPTYPE_NDIS:
-				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS) {
 					*err = WTAP_ERR_UNSUPPORTED;
 					*err_info = g_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/CAPTYPE_NDIS version %.8s capture",
