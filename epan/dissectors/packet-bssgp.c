@@ -1010,7 +1010,7 @@ translate_abqp_max_bit_rate_for_dl_extended(guint8 value, build_info_t *bi _U_) 
   if (value == 0) {
     return "Use the value indicated by the Maximum bit rate for downlink";
   }
-  if ((value >= 1) || (value <= 0x4a)) {
+  if ((value >= 1) && (value <= 0x4a)) {
     g_snprintf(result, BSSGP_TRANSLATION_MAX_LEN, "%u kbps", 8600 + value * 100);
     return result;
   }
@@ -1025,7 +1025,7 @@ translate_abqp_guaranteed_bit_rate_for_dl_extended(guint8 value, build_info_t *b
   if (value == 0) {
     return "Use the value indicated by the Guaranteed bit rate for downlink";
   }
-  if ((value >= 1) || (value <= 0x4a)) {
+  if ((value >= 1) && (value <= 0x4a)) {
     g_snprintf(result, BSSGP_TRANSLATION_MAX_LEN, "%u kbps", 8600 + value * 100);
     return result;
   }
