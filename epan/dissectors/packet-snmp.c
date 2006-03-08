@@ -148,18 +148,18 @@ static gint ett_global = -1;
 static gint ett_flags = -1;
 static gint ett_secur = -1;
 static gint ett_engineid = -1;
+static gint ett_snmp_NetworkAddress = -1;
 
 static int hf_snmp_version = -1;
 static int hf_snmp_community = -1;
 static int hf_snmp_request_id = -1;
 static int hf_snmp_pdutype = -1;
-static int hf_snmp_agent = -1;
 static int hf_snmp_enterprise = -1;
 static int hf_snmp_error_status = -1;
 static int hf_snmp_oid = -1;
-static int hf_snmp_traptype = -1;
-static int hf_snmp_spectraptype = -1;
-static int hf_snmp_timestamp = -1;
+static int hf_snmp_generic_trap = -1;
+static int hf_snmp_specific_trap = -1;
+static int hf_snmp_time_stamp = -1;
 static int hf_snmpv3_flags = -1;
 static int hf_snmpv3_flags_auth = -1;
 static int hf_snmpv3_flags_crypt = -1;
@@ -174,6 +174,8 @@ static int hf_snmp_engineid_text = -1;
 static int hf_snmp_engineid_time = -1;
 static int hf_snmp_engineid_data = -1;
 static int hf_snmp_counter64 = -1;
+static int hf_snmp_internet = -1;
+static int hf_snmp_agent_addr = -1;
 
 static int proto_smux = -1;
 
@@ -418,16 +420,6 @@ static const value_string error_statuses[] = {
 #define SNMP_TRAP_ENTERPRISESPECIFIC	6
 #endif
 
-static const value_string trap_types[] = {
-	{ SNMP_TRAP_COLDSTART,		"COLD START" },
-	{ SNMP_TRAP_WARMSTART,		"WARM START" },
-	{ SNMP_TRAP_LINKDOWN,		"LINK DOWN" },
-	{ SNMP_TRAP_LINKUP,		"LINK UP" },
-	{ SNMP_TRAP_AUTHFAIL,		"AUTHENTICATION FAILED" },
-	{ SNMP_TRAP_EGPNEIGHBORLOSS,	"EGP NEIGHBORLOSS" },
-	{ SNMP_TRAP_ENTERPRISESPECIFIC,	"ENTERPRISE SPECIFIC" },
-	{ 0,				NULL }
-};
 
 /* Security Models */
 
@@ -588,7 +580,6 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, FALSE);
 
     /* 4-byte enterprise number/name */
-    if (len_remain<4) return offset;
     enterpriseid = tvb_get_ntohl(tvb, offset);
     if (conformance)
       enterpriseid -= 0x80000000; /* ignore first bit */
@@ -1245,11 +1236,102 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	return ASN1_ERR_NOERROR;
 }
 
+static int
+dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+static int dissect_time_stamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_time_stamp);
+}
+
+static int
+dissect_snmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+static const value_string snmp_T_generic_trap_vals[] = {
+  {   0, "coldStart" },
+  {   1, "warmStart" },
+  {   2, "linkDown" },
+  {   3, "linkUp" },
+  {   4, "authenticationFailure" },
+  {   5, "egpNeighborLoss" },
+  {   6, "enterpriseSpecific" },
+  { 0, NULL }
+};
+
+static int dissect_specific_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_specific_trap);
+}
+
+static int
+dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_generic_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_generic_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_generic_trap);
+}
+
+
+static int
+dissect_snmp_IpAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_internet(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet);
+}
+
+
+static const value_string snmp_NetworkAddress_vals[] = {
+  {   0, "internet" },
+  { 0, NULL }
+};
+
+static const ber_choice_t NetworkAddress_choice[] = {
+  {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_internet },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_NetworkAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 NetworkAddress_choice, hf_index, ett_snmp_NetworkAddress,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_agent_addr(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_NetworkAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_agent_addr);
+}
+
+static int
+dissect_snmp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+static int dissect_enterprise(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_snmp_enterprise);
+}
+
 static void
 dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, proto_tree *root_tree, ASN1_SCK *asn1p, guint pdu_type, int start)
 {
-	gboolean def;
 	guint length;
 	guint sequence_length;
 
@@ -1261,22 +1343,6 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	const char *pdu_type_string;
 
-	subid_t *enterprise;
-	guint enterprise_length;
-
-	guint32 agent_ipaddr;
-
-	guint8 *agent_address;
-	guint agent_address_length;
-
-	guint32 trap_type;
-
-	guint32 specific_type;
-
-	guint timestamp;
-	guint timestamp_length;
-
-	gchar *oid_string;
 	gchar *decoded_oid;
 	gchar *non_decoded_oid;
 
@@ -1290,7 +1356,6 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	tvbuff_t *next_tvb;
 
 	int ret;
-	guint cls, con, tag;
 
 	pdu_type_string = val_to_str(pdu_type, pdu_types,
 	    "Unknown PDU type %#x");
@@ -1372,121 +1437,25 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	case SNMP_MSG_TRAP:
 		/* enterprise */
-		ret = asn1_oid_decode (asn1p, &enterprise, &enterprise_length,
-		    &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "enterprise OID", ret);
-			return;
-		}
-		if (tree) {
-			oid_string = format_oid(enterprise, enterprise_length);
-			proto_tree_add_string(tree, hf_snmp_enterprise, tvb,
-			    offset, length, oid_string);
-		}
-		g_free(enterprise);
-		offset += length;
-
+		offset = dissect_enterprise(pinfo, tree, tvb, offset);
+		asn1p->offset = offset;
+		
 		/* agent address */
-		start = asn1p->offset;
-		ret = asn1_header_decode (asn1p, &cls, &con, &tag,
-		    &def, &agent_address_length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "agent address", ret);
-			return;
-		}
-		if (!((cls == ASN1_APL && con == ASN1_PRI && tag == SNMP_IPA) ||
-		    (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_OTS))) {
-			/* GXSNMP 0.0.15 says the latter is "needed for
-			   Banyan" */
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "agent_address", ASN1_ERR_WRONG_TYPE);
-			return;
-		}
-		if (agent_address_length != 4) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "agent_address", ASN1_ERR_WRONG_LENGTH_FOR_TYPE);
-			return;
-		}
-		ret = asn1_string_value_decode (asn1p,
-		    agent_address_length, &agent_address);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "agent address", ret);
-			return;
-		}
-		length = asn1p->offset - start;
-		if (tree) {
-			if (agent_address_length != 4) {
-				proto_tree_add_text(tree, tvb, offset,
-				    length,
-				    "Agent address: <length is %u, not 4>",
-				    agent_address_length);
-			} else {
-				memcpy((guint8 *)&agent_ipaddr, agent_address,
-				    agent_address_length);
-				proto_tree_add_ipv4(tree, hf_snmp_agent, tvb,
-				    offset, length, agent_ipaddr);
-			}
-		}
-		g_free(agent_address);
-		offset += length;
+		offset = dissect_agent_addr(pinfo, tree, tvb, offset);
+		asn1p->offset = offset;
 
-	        /* generic trap type */
-		ret = asn1_uint32_decode (asn1p, &trap_type, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "generic trap type", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_uint(tree, hf_snmp_traptype, tvb,
-			    offset, length, trap_type);
-		}
-		offset += length;
+	    /* generic trap type */
+		offset = dissect_generic_trap(pinfo, tree, tvb, offset);
+		asn1p->offset = offset;
 
-	        /* specific trap type */
-		ret = asn1_uint32_decode (asn1p, &specific_type, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "specific trap type", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_uint(tree, hf_snmp_spectraptype, tvb,
-			    offset, length, specific_type);
-		}
-		offset += length;
+		/* specific trap type */
+		offset = dissect_specific_trap(pinfo, tree, tvb, offset);
+		asn1p->offset = offset;
 
-	        /* timestamp */
-		start = asn1p->offset;
-		ret = asn1_header_decode (asn1p, &cls, &con, &tag,
-		    &def, &timestamp_length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "timestamp", ret);
-			return;
-		}
-		if (!((cls == ASN1_APL && con == ASN1_PRI && tag == SNMP_TIT) ||
-		    (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_INT))) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "timestamp", ASN1_ERR_WRONG_TYPE);
-			return;
-		}
-		ret = asn1_uint32_value_decode(asn1p, timestamp_length,
-		    &timestamp);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "timestamp", ret);
-			return;
-		}
-		length = asn1p->offset - start;
-		if (tree) {
-			proto_tree_add_uint(tree, hf_snmp_timestamp, tvb,
-			    offset, length, timestamp);
-		}
-		offset += length;
+
+		/* timestamp */
+		offset = dissect_time_stamp(pinfo, tree, tvb, offset);
+		asn1p->offset = offset;
 		break;
 	}
 
@@ -2697,27 +2666,30 @@ proto_register_snmp(void)
 		{ &hf_snmp_pdutype,
 		{ "PDU type", "snmp.pdutype", FT_UINT8, BASE_DEC, VALS(pdu_types),
 		    0x0, "", HFILL }},
-		{ &hf_snmp_agent,
-		{ "Agent address", "snmp.agent", FT_IPv4, BASE_NONE, NULL,
-		    0x0, "", HFILL }},
+		{ &hf_snmp_agent_addr,
+		{ "agent-addr", "snmp.agent_addr", FT_UINT32, BASE_DEC, VALS(snmp_NetworkAddress_vals),
+			0x0, "Trap-PDU/agent-addr", HFILL }},
+		{ &hf_snmp_internet,
+		{ "internet", "snmp.internet", FT_IPv4, BASE_NONE, NULL, 
+			0x0,"NetworkAddress/internet", HFILL }},
 		{ &hf_snmp_enterprise,
-		{ "Enterprise", "snmp.enterprise", FT_STRING, BASE_NONE, NULL,
-		    0x0, "", HFILL }},
+		{ "enterprise", "snmp.enterprise",FT_OID, BASE_NONE, NULL,
+			0x0, "Trap-PDU/enterprise", HFILL }},
 		{ &hf_snmp_error_status,
 		{ "Error Status", "snmp.error", FT_UINT8, BASE_DEC, VALS(error_statuses),
 		    0x0, "", HFILL }},
 		{ &hf_snmp_oid,
 		{ "Object identifier", "snmp.oid", FT_STRING, BASE_NONE, NULL,
 		    0x0, "", HFILL }},
-		{ &hf_snmp_traptype,
-		{ "Trap type", "snmp.traptype", FT_UINT8, BASE_DEC, VALS(trap_types),
-		    0x0, "", HFILL }},
-		{ &hf_snmp_spectraptype,
-		{ "Specific trap type", "snmp.spectraptype", FT_UINT32, BASE_DEC, NULL,
-		    0x0, "", HFILL }},
-		{ &hf_snmp_timestamp,
-		{ "Timestamp", "snmp.timestamp", FT_UINT8, BASE_DEC, NULL,
-		    0x0, "", HFILL }},
+		{ &hf_snmp_generic_trap,
+		{ "generic-trap", "snmp.generic_trap", FT_INT32, BASE_DEC, VALS(snmp_T_generic_trap_vals),
+			0x0, "Trap-PDU/generic-trap", HFILL }},
+		{ &hf_snmp_specific_trap,
+		{ "specific-trap", "snmp.specific_trap", FT_INT32, BASE_DEC, NULL,
+			0x0, "Trap-PDU/specific-trap", HFILL }},
+		{ &hf_snmp_time_stamp,
+		{ "time-stamp", "snmp.time_stamp", FT_UINT32, BASE_DEC, NULL,
+			0x0, "Trap-PDU/time-stamp", HFILL }},
 		{ &hf_snmpv3_flags,
 		{ "SNMPv3 Flags", "snmpv3.flags", FT_UINT8, BASE_HEX, NULL,
 		    0x0, "", HFILL }},
@@ -2769,6 +2741,7 @@ proto_register_snmp(void)
 		&ett_flags,
 		&ett_secur,
 		&ett_engineid,
+		&ett_snmp_NetworkAddress,
 	};
 	module_t *snmp_module;
 
