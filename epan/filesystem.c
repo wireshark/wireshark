@@ -41,14 +41,12 @@
 #include <sys/stat.h>
 #endif
 
-#ifdef HAVE_WINDOWS_H
+#ifdef _WIN32
 #include <windows.h>
-#endif
-
-#ifndef _WIN32
-#include <pwd.h>
 #include <tchar.h>
 #include "epan/strutil.h"
+#else
+#include <pwd.h>
 #endif
 
 #include "filesystem.h"
@@ -392,7 +390,7 @@ init_progfile_dir(const char *arg0
 					*dir_end = '\0';
 				}
 			}
-						
+
 			/*
 			 * OK, we have the path we want.
 			 */
@@ -587,7 +585,7 @@ get_persconffile_dir(void)
 		/*
 		 * Concatenate %APPDATA% with "\Ethereal".
 		 */
-		pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", 
+		pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 			appdatadir, PF_DIR);
 	} else {
 		/*
@@ -948,7 +946,7 @@ file_exists(const char *fname)
        return TRUE;
    }
 #endif
-   
+
 }
 
 /*
@@ -986,7 +984,7 @@ files_identical(const char *fname1, const char *fname2)
     if( _fullpath( full2, fname2, MAX_PATH ) == NULL ) {
         return FALSE;
     }
-    
+
     if(strcmp(full1, full2) == 0) {
         return TRUE;
     } else {
