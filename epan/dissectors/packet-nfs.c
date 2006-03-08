@@ -7493,16 +7493,10 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_SETCLIENTID:
-			if (status == NFS4_OK)
-			{
-				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4,
-					offset);
-				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_verifier4,
-					offset);
-			}
-			else
-			if (status == NFS4ERR_CLID_INUSE)
-				offset = dissect_nfs_clientaddr4(tvb, offset, newftree);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4,
+				offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_verifier4,
+				offset);
 			break;
 
 		case NFS4_OP_WRITE:
