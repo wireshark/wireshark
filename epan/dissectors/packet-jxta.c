@@ -627,7 +627,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                               address_to_str(&pinfo->src), pinfo->srcport,
                               address_to_str(&pinfo->dst), pinfo->destport,
                               tvb_reported_length_remaining(tvb, 0),
-                              content_type, (guint) content_length);
+                              (content_type) ? content_type : "[unknown content type]", (guint) content_length);
 
         if ((0 == headers_len) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
             /** Buffer did not begin with valid framing headers */
