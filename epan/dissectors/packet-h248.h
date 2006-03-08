@@ -5,7 +5,7 @@
 
 /* Input file: packet-h248-template.h */
 
-#line 1 "packet-h248-template.h"
+/* #line 1 "packet-h248-template.h"*/
 /* packet-h248.h
  * Definitions for H.248/MEGACO packet dissection
  *
