@@ -676,7 +676,7 @@ dissect_PNDCP_Suboption_All(tvbuff_t *tvb, int offset, packet_info *pinfo,
                             proto_tree *tree, proto_item *block_item, proto_item *dcp_item, int length)
 {
     guint8 suboption;
-    guint16 block_length;
+    guint16 block_length=0;
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_all, &suboption);
     length--;
@@ -692,9 +692,11 @@ dissect_PNDCP_Suboption_All(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, "All/All");
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
-            "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_ALLSELECTOR, suboption, block_length);
-        offset += block_length;
+	if(block_length){
+	        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        	    "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_ALLSELECTOR, suboption, block_length);
+	        offset += block_length;
+	}
     }
 
     return offset;
