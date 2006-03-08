@@ -339,7 +339,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	display_items = current_item;
 
 	/* if not items to display */
-	if (display_items == 0)	return TRUE;
+	if (display_items == 0)	goto exit;
 
 	display_nodes = user_data->num_nodes;
 
@@ -462,6 +462,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 		fprintf(of,"%s\n",tmp_str->str);
 	}
 
+exit:
 	g_string_free(label_string, TRUE);
 	g_string_free(empty_line, TRUE);
 	g_string_free(separator_line, TRUE);
@@ -946,19 +947,19 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap) ) {
 			gdk_draw_line(user_data->dlg.pixmap, frame_fg_color,
-						  start_arrow,
-						  top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7,
-						  end_arrow,
-						  top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7);
-		}
-
-		/* draw the additional line when line style is 2 pixels width */
-		if (user_data->dlg.items[current_item].line_style == 2 && GDK_IS_DRAWABLE(user_data->dlg.pixmap)){
-			gdk_draw_line(user_data->dlg.pixmap, frame_fg_color,
 				start_arrow,
-				top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-6,
+				top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7,
 				end_arrow,
-				top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-6);
+				top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7);
+
+			/* draw the additional line when line style is 2 pixels width */
+			if (user_data->dlg.items[current_item].line_style == 2) {
+				gdk_draw_line(user_data->dlg.pixmap, frame_fg_color,
+					start_arrow,
+					top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-6,
+					end_arrow,
+					top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-6);
+			}
 		}
 
 		/* draw the arrow */
@@ -1444,7 +1445,7 @@ static gint configure_event_time(GtkWidget *widget, GdkEventConfigure *event _U_
 }
 #if GTK_MAJOR_VERSION >= 2
 /****************************************************************************/
-static gint pane_callback(GtkWidget *widget, GParamSpec *pspec, gpointer data)
+static gint pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer data)
 {
         graph_analysis_data_t *user_data=(graph_analysis_data_t *)data;
 
