@@ -2651,7 +2651,7 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   static char templatename[] = "lempar.c";
   char buf[1000];
   FILE *in;
-  char *tpltname;
+  char *tpltname = NULL;
   char *cp;
 
   if (lemp->templatename) {
@@ -2682,6 +2682,7 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
     lemp->errorcnt++;
     return 0;
   }
+  if (tpltname) free(tpltname);
   return in;
 }
 
