@@ -195,7 +195,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8         addr_field, comp_field, npdu_field1, nsapi, dcomp=0, pcomp=0;
   guint16        offset=0, npdu=0, segment=0, npdu_field2;
   tvbuff_t	*next_tvb, *npdu_tvb;
-  guint32        len;
+  gint           len;
   gboolean       first, more_frags, unack;
 
   /* Set up structures needed to add the protocol subtree and manage it 
@@ -324,6 +324,10 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean        save_fragmented = pinfo->fragmented;
     
     len = tvb_length_remaining(tvb, offset);
+    if(len<=0){
+        return;
+    }
+
     pinfo->fragmented = TRUE;
 
     if (unack) 
