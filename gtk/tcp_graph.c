@@ -3346,19 +3346,19 @@ static void tseq_get_bounds (struct graph *g)
 	struct segment *tmp;
 	double   tim;
 	gboolean data_frame_seen=FALSE;
-	double   data_tim_low;
-	double   data_tim_high;
+	double   data_tim_low=0;
+	double   data_tim_high=0;
 	guint32  data_seq_cur;
 	guint32  data_seq_nxt;
-	guint32  data_seq_low;
-	guint32  data_seq_high;
+	guint32  data_seq_low=0;
+	guint32  data_seq_high=0;
 	gboolean ack_frame_seen=FALSE;
-	double   ack_tim_low;
-	double   ack_tim_high;
+	double   ack_tim_low=0;
+	double   ack_tim_high=0;
 	guint32  ack_seq_cur;
-	guint32  ack_seq_low;
+	guint32  ack_seq_low=0;
 	guint32  win_seq_cur;
-	guint32  win_seq_high;
+	guint32  win_seq_high=0;
 
 	/* go thru all segments to determine "bounds" */
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
@@ -3403,7 +3403,7 @@ static void tseq_get_bounds (struct graph *g)
 		}
 	}
 
-        /* if 'stevens':  use only data segments to determine bounds         */
+	/* if 'stevens':  use only data segments to determine bounds         */
 	/* if 'tcptrace': use both data and ack segments to determine bounds */
 	switch (g->type) {
 	case GRAPH_TSEQ_STEVENS:
@@ -3413,10 +3413,14 @@ static void tseq_get_bounds (struct graph *g)
 		g->bounds.height = data_seq_high - data_seq_low;
 		break;
 	case GRAPH_TSEQ_TCPTRACE:
-		g->bounds.x0     = (data_tim_low <= ack_tim_low)    ? data_tim_low  : ack_tim_low;
-		g->bounds.width  = ((data_tim_high >= ack_tim_high) ? data_tim_high : ack_tim_high) - g->bounds.x0; ;
-		g->bounds.y0     = (data_seq_low <= ack_seq_low)    ? data_seq_low  : ack_seq_low;;
-		g->bounds.height = ((data_seq_high >= win_seq_high) ? data_seq_high : win_seq_high) - g->bounds.y0; ;
+		/* If (ack_frame_seen == false) -> use 'data' segments.
+		 * Else If (data_frame_seen == false) -> use 'ack' segments.
+		 * Else -> use both data and ack segments.
+		 */
+		g->bounds.x0     =  ((data_tim_low <= ack_tim_low   && data_frame_seen) || (! ack_frame_seen)) ? data_tim_low  : ack_tim_low;
+		g->bounds.width  = (((data_tim_high >= ack_tim_high && data_frame_seen) || (! ack_frame_seen)) ? data_tim_high : ack_tim_high) - g->bounds.x0;
+		g->bounds.y0     =  ((data_seq_low <= ack_seq_low   && data_frame_seen) || (! ack_frame_seen)) ? data_seq_low  : ack_seq_low;
+		g->bounds.height = (((data_seq_high >= win_seq_high && data_frame_seen) || (! ack_frame_seen)) ? data_seq_high : win_seq_high) - g->bounds.y0;
 		break;
 	}
 
