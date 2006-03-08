@@ -2470,7 +2470,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
     const struct lanman_desc *lanman, gboolean has_ent_count,
     guint16 ent_count)
 {
-	smb_transact_info_t *trp = NULL;
+	smb_transact_info_t *trp;
 	const item_list_t *resp_data_list;
 	int offset, start_offset;
 	const char *label;
@@ -2483,8 +2483,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 	guint i, j;
 	guint16 aux_count;
 
-	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
-		trp = smb_info->sip->extra_info;
+	trp = smb_info->sip->extra_info;
 
 	/*
 	 * Find the item table for the matching request's detail level.
