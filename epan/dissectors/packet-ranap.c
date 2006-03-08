@@ -6458,7 +6458,7 @@ static int
 dissect_ranap_PagingCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 #line 95 "ranap.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									0, 4, NULL, NULL, TRUE, 0, 0);
+									5, NULL, NULL, TRUE, 1, NULL);
 
 
 
@@ -8469,7 +8469,7 @@ static int
 dissect_ranap_Event(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 #line 100 "ranap.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									0, 2, NULL, NULL, TRUE, 0, 0);
+									3, NULL, NULL, TRUE, 1, NULL);
 
 
 

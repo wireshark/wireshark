@@ -50,6 +50,8 @@ static int hf_per_extension_bit = -1;
 static int hf_per_extension_present_bit = -1;
 static int hf_per_choice_index = -1;
 static int hf_per_choice_extension_index = -1;
+static int hf_per_enum_index = -1;
+static int hf_per_enum_extension_index = -1;
 static int hf_per_num_sequence_extensions = -1;
 static int hf_per_small_number_bit = -1;
 static int hf_per_optional_field_bit = -1;
@@ -950,74 +952,56 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 /* 13 Enemerated */
 guint32
-dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item, gboolean has_extension, guint32 ext_min, guint32 ext_max)
+dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, proto_item **item, gboolean has_extension, guint32 ext_num, guint32 *value_map)
 {
 
 	proto_item *it=NULL;
-	guint32 val;
+	guint32 enum_index, val;
 	proto_item *pi;
 	guint32 start_offset = offset;
-	gboolean extension_present;
+	gboolean extension_present = FALSE;
 	header_field_info *hfi;
 
-	if (!has_extension){
-		/* 13.2  */
-		offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index, min, max, value, item, has_extension);
-		return offset;
-	}
-	/* Just get the extension bit, don't advance offset as it will be done in
-	 * dissect_per_constrained_integer
-	 */
-	dissect_per_boolean(tvb, offset, pinfo, tree, -1, &extension_present, &pi);
-	if(extension_present){
-		/* Add extension bit to the tree */
-		offset = dissect_per_boolean(tvb, offset, pinfo, tree, -1, &extension_present, &pi);
+	if (has_extension) {
+		/* Extension bit */
+		offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_present_bit, &extension_present, &pi);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+	}
 
-		hfi = proto_registrar_get_nth(hf_index);
+	if (!extension_present) {
+		/* 13.2  */
+		offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_per_enum_index, 0, root_num - 1, &enum_index, &pi, FALSE);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+	} else {
 		/* 13.3  */
-		if ( ext_min == ext_max ){
-		
+		if (ext_num == 1) {
 			/* 10.5.4	If "range" has the value 1,
 			 * then the result of the encoding shall be
 			 * an empty bit-field (no bits).
 			 */
-			val = max + 1;
-			if (IS_FT_UINT(hfi->type)) {
-				it = proto_tree_add_uint(tree, hf_index, tvb, start_offset, 1, val);
-			} else {
-				THROW(ReportedBoundsError);
-			}
-
-			/* byte aligned */
-			BYTE_ALIGN_OFFSET(offset);
-			if (item) *item = it;
-			if (value) *value = val;
-			return offset;
-
-		}else{
+			enum_index = 0;
+		} else {
 			/* 13.3 ".. and the value shall be added to the field-list as a
 			 * normally small non-negative whole number whose value is the 
 			 * enumeration index of the additional enumeration and with "lb" set to 0.."
+			 *
+			 * Byte align after reading Extension bit 
+			 *
 			 */
-			offset=dissect_per_integer(tvb, offset, pinfo, tree,
-				hf_index, &val, item);
-			val = val + max;
-			if (IS_FT_UINT(hfi->type)) {
-				it = proto_tree_add_uint(tree, hf_index, tvb, start_offset, 1, val);
-			} else {
-				THROW(ReportedBoundsError);
-			}
-			if (item) *item = it;
-			if (value) *value = val;
-			return offset;
+			BYTE_ALIGN_OFFSET(offset);
+			offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tree, hf_per_enum_extension_index, &enum_index);
 		}
-
+		enum_index += root_num;
 	}
-	/* Extension not present */
-
-	offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index, min, max, value, item, has_extension);
-
+    val = (value_map && (enum_index<(root_num+ext_num))) ? value_map[enum_index] : enum_index;
+	hfi = proto_registrar_get_nth(hf_index);
+	if (IS_FT_UINT(hfi->type)) {
+		it = proto_tree_add_uint(tree, hf_index, tvb, start_offset>>3, BLEN(start_offset, offset), val);
+	} else {
+		THROW(ReportedBoundsError);
+	}
+	if (item) *item = it;
+	if (value) *value = val;
 	return offset;
 }
 
@@ -1550,6 +1534,12 @@ proto_register_per(void)
 	{ &hf_per_choice_extension_index,
 		{ "Choice Extension Index", "per.choice_extension_index", FT_UINT32, BASE_DEC,
 		NULL, 0, "Which index of the Choice within extension addition is encoded", HFILL }},
+	{ &hf_per_enum_index,
+		{ "Enumerated Index", "per.enum_index", FT_UINT32, BASE_DEC,
+		NULL, 0, "Which index of the Enumerated within extension root is encoded", HFILL }},
+	{ &hf_per_enum_extension_index,
+		{ "Enumerated Extension Index", "per.enum_extension_index", FT_UINT32, BASE_DEC,
+		NULL, 0, "Which index of the Enumerated within extension addition is encoded", HFILL }},
 	{ &hf_per_GeneralString_length,
 		{ "GeneralString Length", "per.generalstring_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of the GeneralString", HFILL }},

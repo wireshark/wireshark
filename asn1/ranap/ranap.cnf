@@ -93,12 +93,12 @@ VAL_PTR = &parameter_tvb
 #.FN_BODY PagingCause
 # Remove once asn2eth is fixed to handle PER Enummeration extensions
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									0, 4, NULL, NULL, TRUE, 0, 0);
+									5, NULL, NULL, TRUE, 1, NULL);
 
 #.FN_BODY Event
 # Remove once asn2eth is fixed to handle PER Enummeration extensions
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									0, 2, NULL, NULL, TRUE, 0, 0);
+									3, NULL, NULL, TRUE, 1, NULL);
 
 
 #.END
