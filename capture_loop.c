@@ -565,7 +565,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 "\n"
 "Help can be found at:\n"
 "\n"
-"       %shttp://wiki.ethereal.com/CaptureSetup%s\n"
+"       http://wiki.ethereal.com/CaptureSetup\n"
 "\n"
 "64-bit Windows:\n"
 "WinPcap does not support 64-bit Windows; you will have to use some other\n"
@@ -578,7 +578,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 "Server 2003.\n"
 "WinPcap 3.1 has support for it on Windows 2000 / XP / Server 2003, but has no\n"
 "support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
-    open_err_str, capture_opts->iface);
+    capture_opts->iface);
     return FALSE;
 #else
     /* try to open iface as a pipe */
@@ -1086,7 +1086,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   gboolean    cfilter_error = FALSE;
   char        errmsg[4096+1];
   char        secondary_errmsg[4096+1];
-  int         save_file_fd;
+  int         save_file_fd = -1;
 
 
   /* init the loop data */
@@ -1416,12 +1416,16 @@ error:
   } else {
     /* We can't use the save file, and we have no FILE * for the stream
        to close in order to close it, so close the FD directly. */
-    eth_close(save_file_fd);
+    if(save_file_fd != -1) {
+      eth_close(save_file_fd);
+    }
 
     /* We couldn't even start the capture, so get rid of the capture
        file. */
-    eth_unlink(capture_opts->save_file); /* silently ignore error */
-    g_free(capture_opts->save_file);
+    if(capture_opts->save_file != NULL) {
+      eth_unlink(capture_opts->save_file);
+      g_free(capture_opts->save_file);
+    }
   }
   capture_opts->save_file = NULL;
   if (cfilter_error)
