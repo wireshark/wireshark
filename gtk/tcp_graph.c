@@ -328,7 +328,6 @@ struct graph {
 	} s;
 };
 
-static struct graph *graphs = NULL;
 static GdkGC *xor_gc = NULL;
 static int refnum=0;
 
@@ -511,7 +510,6 @@ static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action
 
 	refnum++;
 	graph_initialize_values (g);
-	graph_put (g);
 
 	g->type = graph_type;
 	if (!(thdr=select_tcpip_session (&cfile, &current))) {
@@ -549,7 +547,7 @@ static void create_text_widget (struct graph *g)
 
 	txt_scrollw = scrolled_window_new (NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_SHADOW_IN);
 #endif
 	gtk_box_pack_start (GTK_BOX (box), txt_scrollw, TRUE, TRUE, 0);
@@ -674,11 +672,13 @@ static void create_drawing_area (struct graph *g)
 			thdr->th_dport
 	);
 	g->toplevel = dlg_window_new ("Tcp Graph");
-    gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
+	gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
+	OBJECT_SET_DATA(g->toplevel, "graph", g);
 
 	/* Create the drawing area */
 	g->drawing_area = gtk_drawing_area_new ();
+	OBJECT_SET_DATA(g->drawing_area, "graph", g);
 	g->x_axis->drawing_area = g->y_axis->drawing_area = g->drawing_area;
 	gtk_drawing_area_size (GTK_DRAWING_AREA (g->drawing_area),
 					g->wp.width + g->wp.x + RMARGIN_WIDTH,
@@ -1000,7 +1000,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 
 	scroll = scrolled_window_new (NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll),
                                    GTK_SHADOW_IN);
 #endif
 	gtk_box_pack_start (GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
@@ -1649,16 +1649,6 @@ static void graph_initialize_values (struct graph *g)
 	g->magnify.flags = 0;
 }
 
-static void graph_put (struct graph *graph)
-{
-	struct graph *g;
-	if (graphs) {
-		for (g=graphs; g->next; g=g->next);
-		g->next = graph;
-	} else
-		graphs = graph;
-}
-
 static void graph_init_sequence (struct graph *g)
 {
 	debug(DBS_FENTRY) puts ("graph_init_sequence()");
@@ -1704,15 +1694,7 @@ static void graph_type_dependent_initialize (struct graph *g)
 
 static void graph_destroy (struct graph *g)
 {
-	struct graph *gtmp;
-	struct graph *p=NULL;
-	/* struct graph *tmp; */
-
 	debug(DBS_FENTRY) puts ("graph_destroy()");
-
-	for (gtmp=graphs; gtmp; p=gtmp, gtmp=gtmp->next)
-		if (gtmp == g)
-			break;
 
 	axis_destroy (g->x_axis);
 	axis_destroy (g->y_axis);
@@ -1732,21 +1714,8 @@ static void graph_destroy (struct graph *g)
 	g_free ( (gpointer) (g->title) );
 	graph_segment_list_free (g);
 	graph_element_lists_free (g);
-#if 0
-	for (tmp=graphs; tmp; tmp=tmp->next)
-		printf ("%p next: %p\n", tmp, tmp->next);
-	printf ("p=%p, g=%p, p->next=%p, g->next=%p\n",
-									p, g, p ? p->next : NULL, g->next);
-#endif
-	if (g==graphs)
-		graphs = g->next;
-	else
-		p->next = g->next;
+
 	g_free (g);
-#if 0
-	for (tmp=graphs; tmp; tmp=tmp->next)
-		printf ("%p next: %p\n", tmp, tmp->next);
-#endif
 }
 
 
@@ -1957,7 +1926,7 @@ static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, gu
 		(dport1==dport2));
 
 	if(dir==COMPARE_CURR_DIR){
-		return dir1;	
+		return dir1;
 	} else {
 		dir2 = ((!(CMP_ADDRESS(saddr1, daddr2))) &&
 			(!(CMP_ADDRESS(daddr1, saddr2))) &&
@@ -2862,7 +2831,7 @@ static void magnify_draw (struct graph *g)
 
 static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
 {
-	struct graph *g;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 	struct {
 		double x, y;
 	} zoom;
@@ -2870,10 +2839,6 @@ static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
 	int cur_wp_width, cur_wp_height;
 
 	debug(DBS_FENTRY) puts ("configure_event()");
-
-	for (g=graphs; g; g=g->next)
-		if (g->drawing_area == widget)
-			break;
 
 	cur_wp_width = g->wp.width;
 	cur_wp_height = g->wp.height;
@@ -2925,16 +2890,12 @@ static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
 
 static gint expose_event (GtkWidget *widget, GdkEventExpose *event)
 {
-	struct graph *g;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 
 	debug(DBS_FENTRY) puts ("expose_event()");
 
 	if (event->count)
 		return TRUE;
-
-	for (g=graphs; g; g=g->next)
-		if (g->drawing_area == widget)
-			break;
 
 	/* lower left corner */
 	gdk_draw_rectangle (g->drawing_area->window, g->bg_gc, TRUE, 0,
@@ -2953,13 +2914,9 @@ static gint expose_event (GtkWidget *widget, GdkEventExpose *event)
 
 static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
-	struct graph *g;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 
 	debug(DBS_FENTRY) puts ("button_press_event()");
-
-	for (g=graphs; g; g=g->next)
-		if (g->drawing_area == widget)
-			break;
 
 	if (event->button == 3) {
 		if (event->state & GDK_CONTROL_MASK)
@@ -3052,15 +3009,11 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 
 static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 {
-	struct graph *g;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 	int x, y;
 	GdkModifierType state;
 
 	/* debug(DBS_FENTRY) puts ("motion_notify_event()"); */
-
-	for (g=graphs; g; g=g->next)
-		if (g->drawing_area == widget)
-			break;
 
 	if (event->is_hint)
 		gdk_window_get_pointer (event->window, &x, &y, &state);
@@ -3113,13 +3066,9 @@ static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 
 static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
 {
-	struct graph *g;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 
 	debug(DBS_FENTRY) puts ("button_release_event()");
-
-	for (g=graphs; g; g=g->next)
-		if (g->drawing_area == widget)
-			break;
 
 	if (event->button == 3)
 		g->grab.grabbed = FALSE;
@@ -3131,13 +3080,9 @@ static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
 
 static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
 {
-	struct graph *g;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 
 	debug(DBS_FENTRY) puts ("key_press_event()");
-
-	for (g=graphs; g; g=g->next)
-		if (g->toplevel == widget)
-			break;
 
 	if (event->keyval == 32 /*space*/) {
 		g->cross.draw ^= 1;
@@ -3169,13 +3114,9 @@ static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
 
 static gint key_release_event (GtkWidget *widget, GdkEventKey *event)
 {
-	struct graph *g;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 
 	debug(DBS_FENTRY) puts ("key_release_event()");
-
-	for (g=graphs; g; g=g->next)
-		if (g->toplevel == widget)
-			break;
 
 	if (event->keyval == GDK_Shift_L || event->keyval == GDK_ISO_Prev_Group) {
 		/* g->zoom.flags &= ~ZOOM_OUT; */
@@ -3186,11 +3127,7 @@ static gint key_release_event (GtkWidget *widget, GdkEventKey *event)
 
 static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 {
-	struct graph *g;
-
-	for (g=graphs; g; g=g->next)
-		if (g->drawing_area == widget)
-			break;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 
 	if (g->cross.erase_needed)
 		cross_erase (g);
@@ -3200,11 +3137,7 @@ static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 
 static gint enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 {
-	struct graph *g;
-
-	for (g=graphs; g; g=g->next)
-		if (g->drawing_area == widget)
-			break;
+	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
 
 	/* graph_pixmap_display (g); */
 	if (g->cross.draw) {
@@ -3333,7 +3266,7 @@ static void tseq_initialize (struct graph *g)
 
 /* Determine "bounds"
  *  Essentially: look for lowest/highest time and seq in the list of segments
- *  Note that for tcptrace the "(ack + window) sequence number" would normally be expected 
+ *  Note that for tcptrace the "(ack + window) sequence number" would normally be expected
  *   to be the upper bound; However, just to be safe, include the data seg sequence numbers
  *   in the comparison for tcptrace
  *   (e.g. to handle the case of only data segments).
@@ -4075,7 +4008,7 @@ static int rint (double x)
 #endif
 
 
-static gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt) 
+static gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt)
 {
     return current_frame != NULL ? (edt->pi.ipproto == IP_PROTO_TCP) : FALSE;
 }
