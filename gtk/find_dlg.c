@@ -540,9 +540,9 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   const gchar     *filter_text, *string_type;
   search_charset_t scs_type = SCS_ASCII_AND_UNICODE;
   guint8          *bytes = NULL;
-  size_t           nbytes;
+  size_t           nbytes = 0;
   char            *string = NULL;
-  dfilter_t       *sfcode;
+  dfilter_t       *sfcode = NULL;
   gboolean        found_packet;
 
   filter_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILT_KEY);
