@@ -265,6 +265,11 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
               "read %d length error, required %d > len %d, indicator: %u",
               pipe, required, len, *indicator);
+
+        /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
+        memcpy(msg, header, sizeof(header));
+        newly = read(pipe, &msg[sizeof(header)], len-sizeof(header));
+        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
         return -1;
     }
     len = required;
