@@ -4567,7 +4567,9 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				if (asn1_verbose)
 					g_message("    immediate choice [push], %c%d, %s",
 						  tag_class[info->tclass], info->tag, GETNAME);
-				pos.node = makechoice(pos.node, class, tag);
+				if (pos.node) {
+					pos.node = makechoice(pos.node, class, tag);
+				}
 				if (pos.node == 0) {
 					pos = POPSTATE;
 					PDUerrcount++;
