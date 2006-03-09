@@ -51,10 +51,6 @@
 #include <tchar.h>
 #endif
 
-#ifndef MIN
-#define MIN(x,y) ((x)<(y))?(x):(y)
-#endif
-
 static int dcerpc_tap = -1;
 
 

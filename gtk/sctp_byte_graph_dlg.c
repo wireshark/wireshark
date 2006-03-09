@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
  * $Id$
@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -60,8 +60,6 @@
 #define BOTTOM_BORDER 50
 
 #define SUB_32(a, b)	a-b
-#define MINI(a,b) (a<b)?a:b
-#define MAXI(a,b) (a>b)?a:b
 
 struct chunk_header {
 	guint8  type;
@@ -261,7 +259,7 @@ gint diff, width;
 		}
 	}
 	width = u_data->io->max_x - u_data->io->min_x;
-	
+
 	for (i=0; i<size; i++)
 	{
 		diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array, i)))->secs*1000000 + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->usecs-u_data->io->min_x;
@@ -529,14 +527,14 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	gdk_draw_line(u_data->io->pixmap,
 	              u_data->io->draw_area->style->black_gc,
 	              LEFT_BORDER,
-	              TOP_BORDER - u_data->io->offset, 
-	              LEFT_BORDER - 5, 
+	              TOP_BORDER - u_data->io->offset,
+	              LEFT_BORDER - 5,
 	              TOP_BORDER - u_data->io->offset + 5);
 	gdk_draw_line(u_data->io->pixmap,
 	              u_data->io->draw_area->style->black_gc,
 	              LEFT_BORDER,
-	              TOP_BORDER - u_data->io->offset, 
-	              LEFT_BORDER + 5, 
+	              TOP_BORDER - u_data->io->offset,
+	              LEFT_BORDER + 5,
 	              TOP_BORDER - u_data->io->offset + 5);
 
 	u_data->io->y_interval = (float)(((u_data->io->pixmap_height - TOP_BORDER - BOTTOM_BORDER) * 1.0)/(u_data->io->max_y - u_data->io->min_y));
@@ -611,7 +609,7 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 			draw_sack_graph(u_data);
 			draw_tsn_graph(u_data);
 			break;
-		case 1: 
+		case 1:
 			draw_tsn_graph(u_data);
 			break;
 		case 2:
@@ -813,8 +811,8 @@ on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata
 	{
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->white_gc,
 		                   FALSE,
-		                   (gint)floor(MINI(u_data->io->x_old,u_data->io->x_new)),
-		                   (gint)floor(MINI(u_data->io->y_old,u_data->io->y_new)),
+		                   (gint)floor(MIN(u_data->io->x_old,u_data->io->x_new)),
+		                   (gint)floor(MIN(u_data->io->y_old,u_data->io->y_new)),
 		                   (gint)abs((long)(u_data->io->x_new-u_data->io->x_old)),
 		                   (gint)abs((long)(u_data->io->y_new-u_data->io->y_old)));
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
@@ -883,7 +881,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 	{
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
 		                   FALSE,
-		                  (gint)floor(MINI(u_data->io->x_old,event->x)), (gint)floor(MINI(u_data->io->y_old,event->y)),
+		                  (gint)floor(MIN(u_data->io->x_old,event->x)), (gint)floor(MIN(u_data->io->y_old,event->y)),
 		                 (gint)abs((long)(event->x-u_data->io->x_old)),
 		                 (gint)abs((long)(event->y-u_data->io->y_old)));
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
@@ -902,7 +900,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 
 		x1_tmp=(unsigned int)floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
 		x2_tmp=(unsigned int)floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
-		helpx=MINI(x1_tmp, x2_tmp);
+		helpx=MIN(x1_tmp, x2_tmp);
 		if (helpx==x2_tmp)
 		{
 			x2_tmp=x1_tmp;
@@ -915,8 +913,8 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 
 		u_data->io->y1_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-u_data->io->y_old)/u_data->io->y_interval);
 		u_data->io->y2_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y)/u_data->io->y_interval);
-		helpy = MINI(u_data->io->y1_tmp, u_data->io->y2_tmp);
-		u_data->io->y2_tmp = MAXI(u_data->io->y1_tmp, u_data->io->y2_tmp);
+		helpy = MIN(u_data->io->y1_tmp, u_data->io->y2_tmp);
+		u_data->io->y2_tmp = MAX(u_data->io->y1_tmp, u_data->io->y2_tmp);
 		u_data->io->y1_tmp = helpy;
 		u_data->io->x_new=event->x;
 		u_data->io->y_new=event->y;
@@ -936,14 +934,14 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			text_color = u_data->io->draw_area->style->black_gc;
 			g_snprintf(label_string, 30, "(%.6lf, %u)", x_value, y_value);
 			label_set = TRUE;
-		
+
 			gdk_draw_line(u_data->io->pixmap,text_color, event->x-2, event->y, event->x+2, event->y);
 			gdk_draw_line(u_data->io->pixmap,text_color, event->x, event->y-2, event->x, event->y+2);
 			if (event->x+150>=u_data->io->pixmap_width)
 				position = event->x - 150;
 			else
 				position = event->x + 5;
-		
+
 #if GTK_MAJOR_VERSION < 2
 			lwidth=gdk_string_width(font, label_string);
 		                            gdk_draw_string(u_data->io->pixmap,font,text_color,
@@ -954,14 +952,14 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
-	
+
 			gdk_draw_layout(u_data->io->pixmap,text_color,
 							position,
 							event->y-10,
 							layout);
 	#endif
 			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
-	
+
 			if(!ios){
 				exit(10);
 			}
@@ -1046,7 +1044,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_release_event",(GtkSignalFunc)on_button_release, u_data);
 	gtk_widget_set_events(u_data->io->draw_area, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK);
 	/* dlg_set_cancel(u_data->io->window, bt_close); */
-	
+
 
 	gtk_widget_show(u_data->io->window);
 }
@@ -1181,7 +1179,7 @@ static void set_arw_offsets(struct sctp_udata *u_data)
 				j++;
 			}
 			((struct tsn_sort*)(g_ptr_array_index(s_array,i)))->offset = ((struct tsn_sort*)(g_ptr_array_index(t_array, j)))->offset
-			  + ((struct tsn_sort*)(g_ptr_array_index(t_array, j)))->length;			 
+			  + ((struct tsn_sort*)(g_ptr_array_index(t_array, j)))->length;
 		}
 
 		u_data->assoc->sort_sack1=s_array;
@@ -1265,9 +1263,9 @@ void create_byte_graph(guint16 dir, struct sctp_analyse* userdata)
 	else
 	{
 		set_child(u_data, u_data->parent);
-		increase_childcount(u_data->parent);		
-		compute_offsets(u_data);		
-		set_arw_offsets(u_data);		
+		increase_childcount(u_data->parent);
+		compute_offsets(u_data);
+		set_arw_offsets(u_data);
 		gtk_sctpgraph_init(u_data);
 	}
 

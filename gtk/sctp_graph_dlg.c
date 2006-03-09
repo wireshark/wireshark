@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
  * $Id$
@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -61,8 +61,6 @@
 #define BOTTOM_BORDER 50
 
 #define SUB_32(a, b)	a-b
-#define MINI(a,b) (a<b)?a:b
-#define MAXI(a,b) (a>b)?a:b
 #define POINT_SIZE	3
 
 struct chunk_header {
@@ -218,7 +216,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 								diff = sack->secs*1000000+sack->usecs-u_data->io->min_x;
 								xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
 								yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(j+tsnumber,min_tsn))*u_data->io->y_interval));
-								if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+								if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 								    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
 								    yvalue >= TOP_BORDER-u_data->io->offset &&
 								    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
@@ -433,7 +431,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	if (u_data->io->offset!=0)
 	{
 		g_snprintf(label_string, 15, "%u", u_data->io->x1_tmp_sec);
-		
+
 #if GTK_MAJOR_VERSION < 2
 		lwidth=gdk_string_width(font, label_string);
 		gdk_draw_string(u_data->io->pixmap,font,u_data->io->draw_area->style->black_gc,
@@ -637,7 +635,7 @@ sctp_graph_t *ios;
 			draw_sack_graph(u_data);
 			draw_tsn_graph(u_data);
 			break;
-		case 1: 
+		case 1:
 			draw_tsn_graph(u_data);
 			break;
 		case 2:
@@ -840,8 +838,8 @@ on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata
 	{
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->white_gc,
 		                   FALSE,
-		                   (gint)floor(MINI(u_data->io->x_old,u_data->io->x_new)),
-		                   (gint)floor(MINI(u_data->io->y_old,u_data->io->y_new)),
+		                   (gint)floor(MIN(u_data->io->x_old,u_data->io->x_new)),
+		                   (gint)floor(MIN(u_data->io->y_old,u_data->io->y_new)),
 		                   (gint)floor(abs((long)(u_data->io->x_new-u_data->io->x_old))),
 		                   (gint)floor(abs((long)(u_data->io->y_new-u_data->io->y_old))));
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
@@ -910,10 +908,10 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 	{
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
 		                   FALSE,
-		                   (gint)floor(MINI(u_data->io->x_old,event->x)), (gint)floor(MINI(u_data->io->y_old,event->y)),
+		                   (gint)floor(MIN(u_data->io->x_old,event->x)), (gint)floor(MIN(u_data->io->y_old,event->y)),
 		                   (gint)abs((long)(event->x-u_data->io->x_old)),
 						   (gint)abs((long)(event->y-u_data->io->y_old))+POINT_SIZE);
-	
+
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
 		if(!ios){
@@ -930,7 +928,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 
 		x1_tmp=(unsigned int)floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
 		x2_tmp=(unsigned int)floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
-		helpx=MINI(x1_tmp, x2_tmp);
+		helpx=MIN(x1_tmp, x2_tmp);
 		if (helpx==x2_tmp)
 		{
 			x2_tmp=x1_tmp;
@@ -942,13 +940,13 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		u_data->io->x2_tmp_usec=x2_tmp%1000000;
 		u_data->io->y1_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-u_data->io->y_old)/u_data->io->y_interval);
 		u_data->io->y2_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y)/u_data->io->y_interval);
-		helpy = MINI(u_data->io->y1_tmp, u_data->io->y2_tmp);
-		u_data->io->y2_tmp = MAXI(u_data->io->y1_tmp, u_data->io->y2_tmp);
+		helpy = MIN(u_data->io->y1_tmp, u_data->io->y2_tmp);
+		u_data->io->y2_tmp = MAX(u_data->io->y1_tmp, u_data->io->y2_tmp);
 		u_data->io->y1_tmp = helpy;
 		u_data->io->x_new=event->x;
 		u_data->io->y_new=event->y;
 		u_data->io->rectangle=TRUE;
-	
+
 	}
 	else
 	{
@@ -964,14 +962,14 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			text_color = u_data->io->draw_area->style->black_gc;
 			g_snprintf(label_string, 30, "(%.6lf, %u)", x_value, y_value);
 			label_set = TRUE;
-		
+
 			gdk_draw_line(u_data->io->pixmap,text_color, event->x-2, event->y, event->x+2, event->y);
 			gdk_draw_line(u_data->io->pixmap,text_color, event->x, event->y-2, event->x, event->y+2);
 			if (event->x+150>=u_data->io->pixmap_width)
 				position = event->x - 150;
 			else
 				position = event->x + 5;
-		
+
 #if GTK_MAJOR_VERSION < 2
 			lwidth=gdk_string_width(font, label_string);
 		                            gdk_draw_string(u_data->io->pixmap,font,text_color,
@@ -982,14 +980,14 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
-	
+
 			gdk_draw_layout(u_data->io->pixmap,text_color,
 							position,
 							event->y-10,
 							layout);
 	#endif
 			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
-	
+
 			if(!ios){
 				exit(10);
 			}
@@ -1076,7 +1074,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	/*gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"motion_notify_event",(GtkSignalFunc)on_mouse_notify, u_data);*/
 	gtk_widget_set_events(u_data->io->draw_area, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK);
 	/* dlg_set_cancel(u_data->io->window, bt_close); */
-	
+
 	gtk_widget_show(u_data->io->window);
 }
 

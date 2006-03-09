@@ -27,8 +27,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#define MIN(x,y) ((x)<(y)?(x):(y))
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -304,13 +302,13 @@ static const value_string smb2_file_info_levels[] = {
 
 
 
-#define SMB2_FS_INFO_01		0x01 
-#define SMB2_FS_INFO_03		0x03 
-#define SMB2_FS_INFO_04		0x04 
-#define SMB2_FS_INFO_05		0x05 
-#define SMB2_FS_INFO_06		0x06 
-#define SMB2_FS_INFO_07		0x07 
-#define SMB2_FS_OBJECTID_INFO	0x08 
+#define SMB2_FS_INFO_01		0x01
+#define SMB2_FS_INFO_03		0x03
+#define SMB2_FS_INFO_04		0x04
+#define SMB2_FS_INFO_05		0x05
+#define SMB2_FS_INFO_06		0x06
+#define SMB2_FS_INFO_07		0x07
+#define SMB2_FS_OBJECTID_INFO	0x08
 static const value_string smb2_fs_info_levels[] = {
 	{SMB2_FS_INFO_01,	"SMB2_FS_INFO_01" },
 	{SMB2_FS_INFO_03,	"SMB2_FS_INFO_03" },
@@ -430,7 +428,7 @@ static int dissect_smb2_file_info_0f(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  * This function is called twice, first to decode the offset/length and
  * second time to dissect the actual string.
  * It is done this way since there is no guarantee that we have the full packet and we dont
- * want to abort dissection too early if the packet ends somewhere between the 
+ * want to abort dissection too early if the packet ends somewhere between the
  * length/offset and the actual buffer.
  *
  */
@@ -567,7 +565,7 @@ dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		proto_tree_add_item(tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, TRUE);
 		proto_tree_add_item(tree, hf_smb2_olb_offset, tvb, olb->off_offset, 4, TRUE);
 		break;
-	}		
+	}
 
 	return name;
 }
@@ -936,7 +934,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 }
 
 
-/* this info level is unique to SMB2 and differst from the corresponding 
+/* this info level is unique to SMB2 and differst from the corresponding
  * SMB_FILE_ALL_INFO in SMB
  */
 static int
@@ -1705,7 +1703,7 @@ dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 *le
 	if(length){
 		*length=buffer_code&0xfffe;
 	}
-	
+
 	return offset;
 }
 
@@ -1728,11 +1726,11 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	ntlmssp_header_t *ntlmssph;
 	static int ntlmssp_tap_id = 0;
 	int idx;
-	
+
 	if(!ntlmssp_tap_id){
 		GString *error_string;
 		/* We dont specify any callbacks at all.
-		 * Instead we manually fetch the tapped data after the 
+		 * Instead we manually fetch the tapped data after the
 		 * security blob has been fully dissected and before
 		 * we exit from this dissector.
 		 */
@@ -1825,7 +1823,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &olb);
 
-	/* treelen  +1 is overkill here if the string is unicode,   
+	/* treelen  +1 is overkill here if the string is unicode,
 	 * but who ever has more than a handful of TCON in a trace anyways
 	 */
 	if(!pinfo->fd->flags.visited && si->saved && buf && olb.len){
@@ -2227,8 +2225,8 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 		 * as well.
 		 */
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s", 
-				val_to_str(cl, smb2_class_vals, "(Class:0x%08x)"), 
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s",
+				val_to_str(cl, smb2_class_vals, "(Class:0x%08x)"),
 				val_to_str(il, vs, "(Level:0x%08x)"));
 		}
 	}
@@ -2596,7 +2594,7 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_
 	return offset;
 }
 
-	
+
 static int
 dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
@@ -2714,7 +2712,7 @@ dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, p
 		if(!len){
 			break;
 		}
-	}	
+	}
 
 	return;
 }
@@ -2841,7 +2839,7 @@ static void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si, gboolean data_in)
 {
 	switch(si->ioctl_function){
-	case 0x0011c017: 
+	case 0x0011c017:
 		dissect_smb2_IOCTL_DO_DCERPC(tvb, pinfo, tree, 0, si, data_in);
 		break;
 	case 0x00144064: /* FSCTL_GET_SHADOW_COPY_DATA */
@@ -3063,7 +3061,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 8;
 
 	/* data or dcerpc ?
-	 * If the pidvalid flag is set we assume it is a deferred 
+	 * If the pidvalid flag is set we assume it is a deferred
 	 * STATUS_PENDING read and thus a named pipe (==dcerpc)
 	 */
 	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC)||(si->flags & SMB2_FLAGS_PID_VALID))){
@@ -3167,7 +3165,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	/* tag  offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &tag_olb, OLB_O_UINT16_S_UINT32, hf_smb2_tag);
-	
+
 	/* data  offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &data_olb, OLB_O_UINT16_S_UINT32, hf_smb2_chain_data);
 
@@ -3264,7 +3262,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 
-	/* If extrainfo_offset is non-null then this points to another 
+	/* If extrainfo_offset is non-null then this points to another
 	 * buffer. The offset is relative to the start of the smb packet
 	 */
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &e_olb, si, dissect_smb2_create_extra_info);
@@ -3329,7 +3327,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* extrainfo offset */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &e_olb, OLB_O_UINT32_S_UINT32, hf_smb2_extrainfo);
 
-	/* If extrainfo_offset is non-null then this points to another 
+	/* If extrainfo_offset is non-null then this points to another
 	 * buffer. The offset is relative to the start of the smb packet
 	 */
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &e_olb, si, dissect_smb2_create_extra_info);
@@ -3662,34 +3660,34 @@ static const char *decode_smb2_name(guint16 cmd)
 }
 
 static smb2_function smb2_dissector[256] = {
-  /* 0x00 NegotiateProtocol*/  
+  /* 0x00 NegotiateProtocol*/
 	{NULL,
 	 dissect_smb2_negotiate_protocol_response},
-  /* 0x01 SessionSetup*/  
-	{dissect_smb2_session_setup_request, 
+  /* 0x01 SessionSetup*/
+	{dissect_smb2_session_setup_request,
 	 dissect_smb2_session_setup_response},
   /* 0x02 SessionLogoff*/
-	{dissect_smb2_sessionlogoff_request, 
+	{dissect_smb2_sessionlogoff_request,
 	 dissect_smb2_sessionlogoff_response},
-  /* 0x03 TreeConnect*/  
+  /* 0x03 TreeConnect*/
 	{dissect_smb2_tree_connect_request,
 	 dissect_smb2_tree_connect_response},
   /* 0x04 TreeDisconnect*/
 	{dissect_smb2_tree_disconnect_request,
 	 dissect_smb2_tree_disconnect_response},
-  /* 0x05 Create*/  
+  /* 0x05 Create*/
 	{dissect_smb2_create_request,
 	 dissect_smb2_create_response},
-  /* 0x06 Close*/  
+  /* 0x06 Close*/
 	{dissect_smb2_close_request,
 	 dissect_smb2_close_response},
   /* 0x07 Flush*/
 	{dissect_smb2_flush_request,
 	 dissect_smb2_flush_response},
-  /* 0x08 Read*/  
+  /* 0x08 Read*/
 	{dissect_smb2_read_request,
 	 dissect_smb2_read_response},
-  /* 0x09 Writew*/  
+  /* 0x09 Writew*/
 	{dissect_smb2_write_request,
 	 dissect_smb2_write_response},
   /* 0x0a Lock */
@@ -3698,22 +3696,22 @@ static smb2_function smb2_dissector[256] = {
   /* 0x0b Ioctl*/
 	{dissect_smb2_ioctl_request,
 	 dissect_smb2_ioctl_response},
-  /* 0x0c Cancel*/  
+  /* 0x0c Cancel*/
 	{dissect_smb2_cancel_request,
 	 NULL},
   /* 0x0d KeepAlive*/
 	{dissect_smb2_keepalive_request,
 	 dissect_smb2_keepalive_response},
-  /* 0x0e Find*/  
+  /* 0x0e Find*/
 	{dissect_smb2_find_request,
 	 dissect_smb2_find_response},
-  /* 0x0f Notify*/  
+  /* 0x0f Notify*/
 	{dissect_smb2_notify_request,
 	 dissect_smb2_notify_response},
-  /* 0x10 GetInfo*/  
+  /* 0x10 GetInfo*/
 	{dissect_smb2_getinfo_request,
 	 dissect_smb2_getinfo_response},
-  /* 0x11 SetInfo*/  
+  /* 0x11 SetInfo*/
 	{dissect_smb2_setinfo_request,
 	 dissect_smb2_setinfo_response},
   /* 0x12 */  {NULL, NULL},
@@ -4022,7 +4020,7 @@ dissect_smb2_tid_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, in
 	if(!si->session) {
 		if (si->opcode != 0x03) return offset;
 
-		/* if we come to a session that is unknown, and the operation is 
+		/* if we come to a session that is unknown, and the operation is
 		 * a tree connect, we create a dummy sessison, so we can hang the
 		 * tree data on it
 		 */
@@ -4182,7 +4180,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_pid_valid, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_response, tvb, offset, 4, si->flags);
- 
+
 	offset += 4;
 
 	/* some unknown bytes */
@@ -4231,9 +4229,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(!(si->flags & SMB2_FLAGS_RESPONSE)){
 			/* This is a request */
 			if(ssi){
-				/* this is a request and we already found 
-				 * an older ssi so just delete the previous 
-				 * one 
+				/* this is a request and we already found
+				 * an older ssi so just delete the previous
+				 * one
 				 */
 				g_hash_table_remove(si->conv->unmatched, ssi);
 				ssi=NULL;
@@ -4241,7 +4239,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 			if(!ssi){
 				/* no we couldnt find it, so just add it then
-				 * if was a request we are decoding 
+				 * if was a request we are decoding
 				 */
 				ssi=se_alloc(sizeof(smb2_saved_info_t));
 				ssi->class=0;
@@ -4482,24 +4480,24 @@ proto_register_smb2(void)
 		{ "In Data", "smb2.ioctl.in", FT_NONE, BASE_NONE,
 		NULL, 0, "Ioctl In", HFILL }},
 
-	{ &hf_smb2_server_guid, 
-	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE, 
+	{ &hf_smb2_server_guid,
+	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE,
 		NULL, 0, "Server GUID", HFILL }},
 
-	{ &hf_smb2_object_id, 
-	  { "ObjectId", "smb2.object_id", FT_GUID, BASE_NONE, 
+	{ &hf_smb2_object_id,
+	  { "ObjectId", "smb2.object_id", FT_GUID, BASE_NONE,
 		NULL, 0, "ObjectID for this FID", HFILL }},
 
-	{ &hf_smb2_birth_volume_id, 
-	  { "BirthVolumeId", "smb2.birth_volume_id", FT_GUID, BASE_NONE, 
+	{ &hf_smb2_birth_volume_id,
+	  { "BirthVolumeId", "smb2.birth_volume_id", FT_GUID, BASE_NONE,
 		NULL, 0, "ObjectID for the volume where this FID was originally created", HFILL }},
 
-	{ &hf_smb2_birth_object_id, 
-	  { "BirthObjectId", "smb2.birth_object_id", FT_GUID, BASE_NONE, 
+	{ &hf_smb2_birth_object_id,
+	  { "BirthObjectId", "smb2.birth_object_id", FT_GUID, BASE_NONE,
 		NULL, 0, "ObjectID for this FID when it was originally created", HFILL }},
 
-	{ &hf_smb2_domain_id, 
-	  { "DomainId", "smb2.domain_id", FT_GUID, BASE_NONE, 
+	{ &hf_smb2_domain_id,
+	  { "DomainId", "smb2.domain_id", FT_GUID, BASE_NONE,
 		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_create_timestamp,
@@ -4507,15 +4505,15 @@ proto_register_smb2(void)
 		NULL, 0, "Time when this object was created", HFILL }},
 
 	{ &hf_smb2_fid,
-		{ "File Id", "smb2.fid", FT_GUID, BASE_NONE, 
+		{ "File Id", "smb2.fid", FT_GUID, BASE_NONE,
 		NULL, 0, "SMB2 File Id", HFILL }},
 
 	{ &hf_smb2_write_data,
-		{ "Write Data", "smb2.write_data", FT_BYTES, BASE_HEX, 
+		{ "Write Data", "smb2.write_data", FT_BYTES, BASE_HEX,
 		NULL, 0, "SMB2 Data to be written", HFILL }},
 
 	{ &hf_smb2_read_data,
-		{ "Read Data", "smb2.read_data", FT_BYTES, BASE_HEX, 
+		{ "Read Data", "smb2.read_data", FT_BYTES, BASE_HEX,
 		NULL, 0, "SMB2 Data that is read", HFILL }},
 
 	{ &hf_smb2_last_access_timestamp,

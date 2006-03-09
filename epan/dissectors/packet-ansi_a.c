@@ -53,10 +53,6 @@
 
 void proto_reg_handoff_ansi_a(void);
 
-#define ANSI_A_MAX(x,y)	(((x) < (y)) ? (y) : (x))
-
-#define ANSI_A_MIN(x,y)	(((x) < (y)) ? (x) : (y))
-
 const value_string ansi_a_ios401_bsmap_strings[] = {
     { 0x69,	"Additional Service Notification" },
     { 0x65,	"ADDS Page" },
@@ -8313,8 +8309,8 @@ proto_register_ansi_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	MAX_NUM_DTAP_MSG	ANSI_A_MAX(ANSI_A_IOS401_DTAP_NUM_MSG, 0)
-#define	MAX_NUM_BSMAP_MSG	ANSI_A_MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, 0)
+#define	MAX_NUM_DTAP_MSG	MAX(ANSI_A_IOS401_DTAP_NUM_MSG, 0)
+#define	MAX_NUM_BSMAP_MSG	MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, 0)
 #define	NUM_INDIVIDUAL_ELEMS	9
     gint **ett;
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC) * sizeof(gint *);
