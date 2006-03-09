@@ -3414,8 +3414,8 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
 							val_to_str (cache_control_directive & 0x7F, vals_cache_control,
 								"<Unknown cache control directive 0x%02X>"));
 					/* TODO: split multiple entries */
+					ok = TRUE;
 					while (ok && (off < offset)) { /* 1*( Field-name ) */
-						ok = TRUE;
 						peek = tvb_get_guint8(tvb, off);
 						if (peek & 0x80) { /* Well-known-field-name */
 							proto_item_append_string(ti,
