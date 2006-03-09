@@ -2470,7 +2470,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			tmp_item=proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
-			if (rpc_prog->procedure_hfs->len > vers)
+			if (rpc_prog && (rpc_prog->procedure_hfs->len > vers) )
 				procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
 			else {
 				/*
