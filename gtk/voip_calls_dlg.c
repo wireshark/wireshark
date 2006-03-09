@@ -417,7 +417,7 @@ voip_calls_on_select_row(GtkCList *clist,
 	else
 		calls_ns--;
 
-	g_snprintf(label_text, 256,
+	g_snprintf(label_text, 80,
 	        "Detected %d VoIP %s. Selected %d %s.",
 	        calls_nb, 
             plurality(calls_nb, "Call", "Calls"),
