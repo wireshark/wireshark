@@ -549,7 +549,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     proto_item *jxta_tree_item = NULL;
     proto_tree *jxta_tree = NULL;
     
-    g_message("Dissecting %s : %d", (NULL != tree) ? "for display" : "", pinfo->fd->num );
+    /*g_message("Dissecting %s : %d", (NULL != tree) ? "for display" : "", pinfo->fd->num );*/
 
     if (available < sizeof(JXTA_WELCOME_MSG_SIG)) {
         needed = (gint) (sizeof(JXTA_WELCOME_MSG_SIG) - available);
@@ -623,11 +623,11 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         gchar *content_type = NULL;
         gint headers_len = dissect_jxta_message_framing(tvb, pinfo, jxta_tree, &content_length, &content_type);
 
-        g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %u", pinfo->fd->num, 
+        /*g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %u", pinfo->fd->num, 
                               address_to_str(&pinfo->src), pinfo->srcport,
                               address_to_str(&pinfo->dst), pinfo->destport,
                               tvb_reported_length_remaining(tvb, 0),
-                              (content_type) ? content_type : "[unknown content type]", (guint) content_length);
+                              (content_type) ? content_type : "[unknown content type]", (guint) content_length);*/
 
         if ((0 == headers_len) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
             /** Buffer did not begin with valid framing headers */
@@ -680,24 +680,24 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 saved_dst_addr = pinfo->dst;
                 saved_dst_port = pinfo->destport;
                 saved_port_type = pinfo->ptype;
-                g_message("%d Tpt %s:%d -> %s:%d", pinfo->fd->num, ip_to_str(tpt_conv_data->initiator_tpt_address.data),
+                /*g_message("%d Tpt %s:%d -> %s:%d", pinfo->fd->num, ip_to_str(tpt_conv_data->initiator_tpt_address.data),
                           tpt_conv_data->initiator_tpt_port, ip_to_str(tpt_conv_data->receiver_tpt_address.data),
-                          tpt_conv_data->receiver_tpt_port);
+                          tpt_conv_data->receiver_tpt_port);*/
                 if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
                     && tpt_conv_data->initiator_tpt_port == pinfo->srcport) {
-                    g_message("%d From initiator : %s -> %s ", pinfo->fd->num, tpt_conv_data->initiator_address.data,
-                              tpt_conv_data->receiver_address.data);
+                    /*g_message("%d From initiator : %s -> %s ", pinfo->fd->num, tpt_conv_data->initiator_address.data,
+                              tpt_conv_data->receiver_address.data);*/
                     pinfo->src = tpt_conv_data->initiator_address;
                     pinfo->dst = tpt_conv_data->receiver_address;
                 } else if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
                            tpt_conv_data->receiver_tpt_port == pinfo->srcport) {
-                    g_message("%d From receiver : %s -> %s ", pinfo->fd->num, tpt_conv_data->receiver_address.data,
-                              tpt_conv_data->initiator_address.data);
+                    /*g_message("%d From receiver : %s -> %s ", pinfo->fd->num, tpt_conv_data->receiver_address.data,
+                              tpt_conv_data->initiator_address.data);*/
                     pinfo->src = tpt_conv_data->receiver_address;
                     pinfo->dst = tpt_conv_data->initiator_address;
                 } else {
-                    g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->fd->num, ip_to_str(pinfo->src.data), pinfo->srcport,
-                              ip_to_str(pinfo->dst.data), pinfo->destport);
+                    /*g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->fd->num, ip_to_str(pinfo->src.data), pinfo->srcport,
+                              ip_to_str(pinfo->dst.data), pinfo->destport);*/
                 }
                 /* JXTA doesn't use ports */
                 pinfo->ptype = PT_NONE;
@@ -733,7 +733,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
 Common_Exit:
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        g_message( "Requesting %d more bytes", needed );
+        /*g_message( "Requesting %d more bytes", needed );*/
         pinfo->desegment_offset = offset;
         pinfo->desegment_len = needed;
         return -needed;
