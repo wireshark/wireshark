@@ -1,0 +1,213 @@
+$Id: README.binarytrees 17381 2006-02-23 16:52:13Z jake $
+
+1. Introduction
+
+Binary trees is a well known and popular device in computer science to handle
+storage of object based on a search key or identity.
+One particular class of binary trees are Red/Black trees which have nice 
+properties such as being self-balanced.
+Such trees are often very fast for accessing data, and may average O(log(n))
+for lookups, compared to linked lists that are of order O(n).
+
+Benefits of using binary trees are that they are incredibly fast for 
+accessing data and they scale very well with good characteristics even to
+very large number of objects.
+
+Ethereal provides its own version of red black binary trees designed in 
+particular to be easy to use and to eliminate most of the memory management
+often associated with such trees.
+
+The trees supported by ethereal are currently all created using SEasonal 
+storage which means that when you load a new trace into ethereal, the SEasonal
+memory management will automatically release every single byte of data
+associated with the tree.
+
+Please see README.malloc for a description of EmPhereal and SEasonal storage.
+
+
+2. Basic Usage
+For most users it will be sufficiant to only know and use three functions
+se_tree_t *se_tree_create(int type);
+void se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
+void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
+
+
+2.1 se_tree_create(int type);
+se_tree_create() is used to initialize a tree that will be automatically 
+cleared and reset everytime ethereal is resetting all SEasonal storage,
+that is every time you load a new capture file into ethereal or when
+you rescan the entire capture file from scratch.
+
+This function is most likely called once from your 
+proto_register_<yourprotocol>() function.
+
+Example (from packet-tcp.c):
+#include <epan/emem.h>
+...
+static se_tree_t *tcp_pdu_time_table = NULL;
+...
+void proto_register_...(void) {
+   ...
+   tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
+   ...
+}
+
+That is how easy it is to create a binary tree. You only need to create it once
+when ethereal starts and the tree will remain there until you exit ethereal.
+Everytime a new capture is loaded, all nodes allocated to the tree is 
+automatically and the tree is reset without you having to do anything at all.
+
+
+2.2 se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
+This function is used to add a new node into the tree. 
+This function is used for such trees where you always use a guint32 as the 
+identifier/key for the node. Most trees you want to use are likely in this 
+category.
+
+As data you should specify a pointer to the data structure you want to be
+able to retreive later when you look for that same key.
+
+NOTE: If you insert a node to a key that already exists in the tree
+this function will allow you to do that. It will just drop the old pointer
+to data and replace it with the new one you just provided.
+This should not be a problem as long as the old and the new data blobs
+are se_allocated() since you cant free() such memory explicitely anyway
+and the old one will be release automatically anyway when the SEasonal
+system reclaims all the SE data.
+
+NOTE: It is a good idea to only provide data that point to blobs allocated
+bu se_alloc(). By doing that you will have a tree where the tree and all 
+the data pointed to will be automatically released by the system at the same 
+time.
+This is very neat and makes real difficult to have memory leaks in your code.
+
+NOTE: When you insert items in the tree, it is very likely that you only
+want to add any data to the tree during the very first time you process
+a particular packet.
+Ethereal may reprocess the same packet multiple times afterwards by the user
+clicking on the packet or for other reasons. 
+You probably DO want to protect the insert call within an if statement such
+as
+
+Example:
+    /* only TRUE first time we process this packet*/
+    if(!pinfo->fd->flags.visited){ 
+       ...
+       data=se_alloc(...);
+       data->...
+       ...
+       se_tree_insert32(se_tree, key, data);
+       ...
+    }
+
+Please do think about how and when you want to add items to the tree.
+If you dont think you should not use the if statement to protect the insert
+please reconsider and think it through one extra time.
+
+
+2.3 se_tree_lookup32(se_tree_t *se_tree, guint32 key);
+This function is used to read back from the tree the data value that is 
+associated with this key.
+If no such node was found the function will return NULL.
+
+Example:
+    ...
+    data_structure = se_tree_lookup32(se_tree, key);
+    if(data_structure){
+      ...
+    }
+
+Dont forget to check that the returned pointer is non-NULL before you 
+dereference it, please.
+
+
+Simple as that, can it be easier?
+
+
+
+
+3. Advanced Usage
+This will list some of the more unconventional and hopefully rarely used 
+functions.
+
+3.1 se_tree_create_non_persistent(int type);
+Sometimes you dont want a tree that is automatically reset to become an empty
+tree. You might want a tree that is completely destroyed once the next
+capture file is read and even the pointer to the tree itself becomes invalid.
+
+This would most likely be the case when you do NOT want a global tree
+but instead a tree that is held inside some other SE allocated structure.
+So that when that encapsulating structure is released the entire tree will
+dissapear completely as well.
+
+Maybe you have a normal tree to track all conversations for your protocol
+and for each conversation you se_alloc() a structure to maintain some 
+data about that conversation. Assume you want to add to that structure
+another binary tree   a binary tree that is private to that structure/
+conversation to hold some other data.
+In that case, this is the function you want.
+
+
+3.2 se_tree_insert32_array / se_tree_lookup32_array
+typedef struct _se_tree_key_t {
+	guint32 length;			/*length in guint32 words */
+	guint32 *key;
+} se_tree_key_t;
+void se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data);
+void *se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key);
+
+NOTE: the *key parameter taken by these functions WILL be modified by
+these functions   so if you want to reuse the key for a second call
+you will have to reinitialize key.
+
+
+These functions are used to insert and lookup a tree where nodes are NOT 
+indexed by a single guint32 but more like an array of guint32 elements.
+
+These functions take as key an array of guint32 vectors : se_tree_key_t.
+The fucntions will use vector by vector to search further down the tree 
+until an array element where length==0 is found indicating the end of the 
+array.
+
+NOTE: you MUST terminate the se_tree_key_t array by {0, NULL}
+If you forget to do this ethereal will immediately crash.
+
+NOTE: length indicates the number of guint32 values in the vector, not number 
+of bytes.
+
+If your keys are always of exactly the same length, always, and you are willing
+to bet that there can never ever be a key of a different length you can
+get away with a simple :
+  se_tree_key_t key[2];
+  key[0].length= LEN;
+  key[0].key= KEY;
+  key[1].length=0;
+  key[1].key=NULL;
+  se_tree_insert32_array(se_tree, &key[0], data);
+But IF you would accidentally pass a key with a different number of guint32s
+in its vectors to this same se_tree  you will crash.
+Dont use key like this. Please.
+
+
+Instead use this simple workaround to make it all safe :
+Specify the first index as 1 guint32 holding the total number of guints in the
+rest of the key.
+See NFS that does this to handle filehandes that may be of different lengths
+in the same tree :
+  se_tree_key_t fhkey[3];
+  guint32 tmplen;
+
+  tmplen = <length of filehandle/4>;
+  fhkey[0].length = 1;
+  fhkey[0].key    = &tmplen;
+  fhkey[1].length = tmplen;
+  fhkey[1].key    = <filehandle>;
+  fhkey[2].length = 0;
+  fhkey[2].key    = NULL;
+
+( /4 since we specify the length here in number of guint32 not number of bytes)
+
+
+3.3 se_tree_insert_string / se_tree_lookup_string
+to be added...
+
