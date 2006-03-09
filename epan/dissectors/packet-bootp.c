@@ -113,6 +113,9 @@ static int hf_bootp_pkt_mtacap_len = -1;
 static int hf_bootp_docsis_cmcap_len = -1;
 static int hf_bootp_hw_ether_addr = -1;
 static int hf_bootp_alcatel_vid = -1;
+static int hf_bootp_client_identifier_uuid = -1;
+static int hf_bootp_client_network_id_major_ver = -1;
+static int hf_bootp_client_network_id_minor_ver = -1;
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
@@ -284,6 +287,15 @@ static const value_string bootp_nbnt_vals[] = {
     {0,     NULL     }
 };
 
+static const value_string bootp_client_arch[] = {
+	{ 0x0000, "IA x86 PC" },
+	{ 0x0001, "NEC/PC98" },
+	{ 0x0002, "IA64 PC" },
+	{ 0x0003, "DEC Alpha" },
+	{ 0x0004, "ArcX86" },
+	{ 0x0005, "Intel Lean Client" },
+	{ 0,      NULL }
+};
 
 static struct opt_info bootp_opt[] = {
 /*   0 */ { "Padding",					none, NULL },
@@ -379,11 +391,11 @@ static struct opt_info bootp_opt[] = {
 /*  90 */ { "Authentication",				special, NULL },
 /*  91 */ { "Vines TCP/IP Server Option",		opaque, NULL },
 /*  92 */ { "Server Selection Option",			opaque, NULL },
-/*  93 */ { "Client System Architecture",		opaque, NULL },
-/*  94 */ { "Client Network Device Interface",		opaque, NULL },
+/*  93 */ { "Client System Architecture",		val_u_short, VALS(bootp_client_arch) },
+/*  94 */ { "Client Network Device Interface",		special, NULL },
 /*  95 */ { "Lightweight Directory Access Protocol",	opaque, NULL },
 /*  96 */ { "IPv6 Transitions",				opaque, NULL },
-/*  97 */ { "UUID/GUID-based Client Identifier",	opaque, NULL },
+/*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL },
 /*  98 */ { "Open Group's User Authentication",		opaque, NULL },
 /*  99 */ { "Unassigned",				opaque, NULL },
 /* 100 */ { "Printer Name",				opaque, NULL },
@@ -944,6 +956,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 61:	/* Client Identifier */
+	case 97:        /* Client Identifier (UUID) */
 		if (optlen > 0)
 			byte = tvb_get_guint8(tvb, optoff);
 		else
@@ -975,6 +988,18 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 					"Client hardware address: %s",
 					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 6),
 					6, byte));
+
+		} else if (optlen == 17 && byte == 0) {
+
+			/* Identifier is a UUID */
+
+			vti = proto_tree_add_text(bp_tree, tvb, voff,
+			          consumed, "Option %d: %s", code, text);
+
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
+					    tvb, optoff + 1, 16, TRUE);
+			
 		} else {
 			/* otherwise, it's opaque data */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -1113,6 +1138,25 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			}
         	}
 	        break;
+
+	case 94: {	/* Client network interface identifier */
+		guint8 id_type;
+
+		vti = proto_tree_add_text(bp_tree, tvb, voff,
+		          consumed, "Option %d: %s", code, text);
+
+		id_type = tvb_get_guint8(tvb, optoff);
+
+		if (id_type == 0x01) {
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_item(v_tree, hf_bootp_client_network_id_major_ver,
+					    tvb, optoff + 1, 1, TRUE);
+			proto_tree_add_item(v_tree, hf_bootp_client_network_id_minor_ver,
+					    tvb, optoff + 2, 1, TRUE);
+		}
+
+		break;
+	}
 
 	case 90:	/* DHCP Authentication */
 	case 210:	/* Was this used for authentication at one time? */
@@ -1337,15 +1381,26 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			proto_item_append_text(vti, " = %u", byte);
 		break;
 
-	case val_u_short:
+	case val_u_short: {
+		gushort vd;
+
 		if (optlen != 2) {
 			proto_item_append_text(vti,
 			    " - length isn't 2");
 			break;
 		}
-		proto_item_append_text(vti, " = %u",
-		    tvb_get_ntohs(tvb, optoff));
+
+		vs = (const value_string *) bootp_get_opt_data(code);
+		vd = tvb_get_ntohs(tvb, optoff);
+
+		if (vs != NULL) {
+			proto_item_append_text(vti, " = %s",
+                            val_to_str(vd, vs, "Unknown (%u)"));
+		} else
+			proto_item_append_text(vti, " = %u", vd);
+
 		break;
+	}
 
 	case val_u_short_list:
 		if (optlen == 2) {
@@ -3258,6 +3313,21 @@ proto_register_bootp(void)
       { "Voice VLAN ID",	"bootp.vendor.alcatel.vid",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Alcatel VLAN ID to define Voice VLAN", HFILL }},
+
+    { &hf_bootp_client_identifier_uuid,
+      { "Client Identifier (UUID)",    "bootp.client_id_uuid",
+	FT_GUID, BASE_NONE, NULL, 0x0,
+	"Client Machine Identifier (UUID)", HFILL }},
+
+    { &hf_bootp_client_network_id_major_ver,
+      { "Client Network ID Major Version",    "bootp.client_network_id_major",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"Client Machine Identifier, Major Version", HFILL }},
+
+    { &hf_bootp_client_network_id_minor_ver,
+      { "Client Network ID Minor Version",    "bootp.client_network_id_minor",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"Client Machine Identifier, Major Version", HFILL }},
   };
 
   static gint *ett[] = {
