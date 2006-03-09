@@ -2649,16 +2649,17 @@ PRIVATE void tplt_xfer(const char *name, FILE *in, FILE *out, int *lineno)
 PRIVATE FILE *tplt_open(struct lemon *lemp)
 {
   static char templatename[] = "lempar.c";
-  char buf[1000];
+  char* buf;
   FILE *in;
   char *tpltname = NULL;
   char *cp;
 
   if (lemp->templatename) {
-	  tpltname = lemp->templatename;
+	  tpltname = strdup(lemp->templatename);
   }
   else {
 	  cp = strrchr(lemp->filename,'.');
+	  buf = malloc(1000);
 	  if( cp ){
 	    sprintf(buf,"%.*s.lt",(int)(cp - lemp->filename),lemp->filename);
 	  }else{
@@ -2668,21 +2669,25 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 	    tpltname = buf;
 	  }else{
 	    tpltname = pathsearch(lemp->argv0,templatename,0);
+		free(buf);
 	  }
   }
   if( tpltname==0 ){
     fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
     templatename);
     lemp->errorcnt++;
+	free(tpltname);
     return 0;
   }
   in = fopen(tpltname,"r");
+  free(tpltname);
+
   if( in==0 ){
     fprintf(stderr,"Can't open the template file \"%s\".\n",templatename);
     lemp->errorcnt++;
-    return 0;
+	return 0;
   }
-  if (tpltname) free(tpltname);
+
   return in;
 }
 
