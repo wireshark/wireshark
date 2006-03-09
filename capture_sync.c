@@ -41,6 +41,7 @@
 
 #ifdef _WIN32
 #include <fcntl.h>
+#include "epan/strutil.h"
 #endif
 
 #ifdef HAVE_SYS_WAIT_H
@@ -120,8 +121,8 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts);
 #define SP_MAX_MSG_LEN	4096
 
 
-/* write a message to the recipient pipe in the standard format 
-   (3 digit message length (excluding length and indicator field), 
+/* write a message to the recipient pipe in the standard format
+   (3 digit message length (excluding length and indicator field),
    1 byte message indicator and the rest is the message).
    If msg is NULL, the message has only a length and indicator.
    Otherwise, if secondary_msg isn't NULL, send both msg and
@@ -216,7 +217,7 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
 
 
 
-/* read a message from the sending pipe in the standard format 
+/* read a message from the sending pipe in the standard format
    (1-byte message indicator, 3-byte message length (excluding length
    and indicator field), and the rest is the message) */
 static int
@@ -407,7 +408,7 @@ sync_pipe_start(capture_options *capture_opts) {
     HANDLE signal_pipe_write;               /* pipe used to send messages from parent to child (currently only stop) */
     GString *args = g_string_sized_new(200);
     gchar *quoted_arg;
-    SECURITY_ATTRIBUTES sa; 
+    SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     int i;
@@ -530,9 +531,9 @@ sync_pipe_start(capture_options *capture_opts) {
 
 #ifdef _WIN32
     /* init SECURITY_ATTRIBUTES */
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES); 
-    sa.bInheritHandle = TRUE; 
-    sa.lpSecurityDescriptor = NULL; 
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
 
     /* Create a pipe for the child process */
     /* (inrease this value if you have trouble while fast capture file switches) */
@@ -581,7 +582,7 @@ sync_pipe_start(capture_options *capture_opts) {
     }
 
     /* call dumpcap */
-    if(!CreateProcess(NULL, args->str, NULL, NULL, TRUE,
+    if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         g_warning("Couldn't open dumpcap (Error: %u): %s", GetLastError(), args->str);
         capture_opts->fork_child = -1;
@@ -675,7 +676,7 @@ sync_pipe_start(capture_options *capture_opts) {
        the child process wants to tell us something. */
 
     /* we have a running capture, now wait for the real capture filename */
-    pipe_input_set_handler(sync_pipe_read_fd, (gpointer) capture_opts, 
+    pipe_input_set_handler(sync_pipe_read_fd, (gpointer) capture_opts,
         &capture_opts->fork_child, sync_pipe_input_cb);
 
     return TRUE;
@@ -684,7 +685,7 @@ sync_pipe_start(capture_options *capture_opts) {
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
-static gboolean 
+static gboolean
 sync_pipe_input_cb(gint source, gpointer user_data)
 {
   capture_options *capture_opts = (capture_options *)user_data;
@@ -925,7 +926,7 @@ sync_pipe_stop(capture_options *capture_opts)
     /* send the SIGUSR1 signal to close the capture child gracefully. */
     kill(capture_opts->fork_child, SIGUSR1);
 #else
-    /* Win32 doesn't have the kill() system call, use the special signal pipe 
+    /* Win32 doesn't have the kill() system call, use the special signal pipe
        instead to close the capture child gracefully. */
     signal_pipe_capquit_to_child(capture_opts);
 #endif
@@ -945,7 +946,7 @@ sync_pipe_kill(capture_options *capture_opts)
       /* XXX: this is not the preferred method of closing a process!
        * the clean way would be getting the process id of the child process,
        * then getting window handle hWnd of that process (using EnumChildWindows),
-       * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0) 
+       * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0)
        *
        * Unfortunately, I don't know how to get the process id from the
        * handle.  OpenProcess will get an handle (not a window handle)
@@ -953,7 +954,7 @@ sync_pipe_kill(capture_options *capture_opts)
        * process ID.  (How could it?  A process can have more than one
        * window.)
        *
-       * Hint: GenerateConsoleCtrlEvent() will only work if both processes are 
+       * Hint: GenerateConsoleCtrlEvent() will only work if both processes are
        * running in the same console; that's not necessarily the case for
        * us, as we might not be running in a console.
        * And this also will require to have the process id.
