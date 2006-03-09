@@ -88,7 +88,7 @@ static void add_value_list_item(GtkWidget *value_list, const gchar *string,
                                 const gpointer data);
 static void display_value_fields(header_field_info *hfinfo,
                                  gboolean is_comparison, GtkWidget *value_label,
-                                 GtkWidget *value_entry, 
+                                 GtkWidget *value_entry,
                                  GtkWidget *value_list_label, GtkWidget *value_list,
                                  GtkWidget *value_list_scrolled_win,
                                  GtkWidget *range_label,
@@ -787,12 +787,8 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     gtk_label_get(GTK_LABEL(item_label), &item_str);
 #else
     if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)),
-                                        &model, &iter))
+                                        &model, &iter)) {
         gtk_tree_model_get(model, &iter, 0, &item_str, -1);
-    else {
-    	/* XXX - the relation list is in GTK_SELECTION_BROWSE mode; how
-    	   can this ever be null? */
-        item_str = NULL;
     }
 #endif
 
@@ -1112,7 +1108,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     tree_scrolled_win = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_scrolled_win), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_scrolled_win),
                                    GTK_SHADOW_IN);
 #endif
     gtk_box_pack_start(GTK_BOX(field_vb), tree_scrolled_win, TRUE, TRUE, 0);
@@ -1164,7 +1160,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(relation_list_scrolled_win),
                                    GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 #if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(relation_list_scrolled_win), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(relation_list_scrolled_win),
                                    GTK_SHADOW_IN);
 #endif
 
