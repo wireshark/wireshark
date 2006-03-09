@@ -3609,6 +3609,8 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 				return TRUE;
 			}
 		}
+		if(!ptree_node)
+			return FALSE;
 	}
 
 	proto_sibling_node = ptree_node->next;
