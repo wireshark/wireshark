@@ -64,7 +64,8 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	elua_register.h \
-	elua_makereg.pl
+	elua_makereg.pl \
+	Makefile.nmake
 
 elua.h: elua_register.h
 
