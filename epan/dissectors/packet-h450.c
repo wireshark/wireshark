@@ -1515,23 +1515,70 @@ dissect_h450_CallTransferAbandon(tvbuff_t *tvb, int offset, packet_info *pinfo _
 }
 
 
-static const value_string h450_DummyRes_vals[] = {
+
+static int
+dissect_h450_CallIdentity(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_NumericString(tvb, offset, pinfo, tree, hf_index,
+                                          0, 4);
+
+  return offset;
+}
+static int dissect_callIdentity(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_CallIdentity(tvb, offset, pinfo, tree, hf_h450_callIdentity);
+}
+
+
+static const value_string h450_ArgumentExtension_vals[] = {
   {   0, "extensionSeq" },
   {   1, "nonStandardData" },
   { 0, NULL }
 };
 
-static const per_choice_t DummyRes_choice[] = {
+static const per_choice_t ArgumentExtension_choice[] = {
   {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
   {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_h450_DummyRes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h450_ArgumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h450_DummyRes, DummyRes_choice,
+                                 ett_h450_ArgumentExtension, ArgumentExtension_choice,
                                  NULL);
+
+  return offset;
+}
+static int dissect_cTInitiateArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTInitiateArg_argumentExtension);
+}
+static int dissect_cTSetupArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTSetupArg_argumentExtension);
+}
+static int dissect_cTUpdateArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTUpdateArg_argumentExtension);
+}
+static int dissect_subaddressTransferArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_subaddressTransferArg_argumentExtension);
+}
+static int dissect_cTCompleteArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTCompleteArg_argumentExtension);
+}
+static int dissect_cTActiveArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTActiveArg_argumentExtension);
+}
+
+
+static const per_sequence_t CTInitiateArg_sequence[] = {
+  { "callIdentity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callIdentity },
+  { "reroutingNumber"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_reroutingNumber },
+  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTInitiateArg_argumentExtension },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h450_CTInitiateArg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h450_CTInitiateArg, CTInitiateArg_sequence);
 
   return offset;
 }
@@ -1540,7 +1587,23 @@ dissect_h450_DummyRes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 static int
 dissect_h450_CallTransferInitiate(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_h450_DummyRes(tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h450_CTInitiateArg(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t CTSetupArg_sequence[] = {
+  { "callIdentity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callIdentity },
+  { "transferringNumber"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_transferringNumber },
+  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTSetupArg_argumentExtension },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h450_CTSetupArg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h450_CTSetupArg, CTSetupArg_sequence);
 
   return offset;
 }
@@ -1549,7 +1612,7 @@ dissect_h450_CallTransferInitiate(tvbuff_t *tvb, int offset, packet_info *pinfo 
 
 static int
 dissect_h450_CallTransferSetup(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_h450_DummyRes(tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h450_CTSetupArg(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -1596,46 +1659,6 @@ static int dissect_basicCallInfoElements(tvbuff_t *tvb, int offset, packet_info 
 }
 static int dissect_h225InfoElement(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h450_H225InformationElement(tvb, offset, pinfo, tree, hf_h450_h225InfoElement);
-}
-
-
-static const value_string h450_ArgumentExtension_vals[] = {
-  {   0, "extensionSeq" },
-  {   1, "nonStandardData" },
-  { 0, NULL }
-};
-
-static const per_choice_t ArgumentExtension_choice[] = {
-  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
-  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_h450_ArgumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h450_ArgumentExtension, ArgumentExtension_choice,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_cTInitiateArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTInitiateArg_argumentExtension);
-}
-static int dissect_cTSetupArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTSetupArg_argumentExtension);
-}
-static int dissect_cTUpdateArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTUpdateArg_argumentExtension);
-}
-static int dissect_subaddressTransferArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_subaddressTransferArg_argumentExtension);
-}
-static int dissect_cTCompleteArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTCompleteArg_argumentExtension);
-}
-static int dissect_cTActiveArg_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_ArgumentExtension(tvb, offset, pinfo, tree, hf_h450_cTActiveArg_argumentExtension);
 }
 
 
@@ -1781,46 +1804,23 @@ dissect_h450_CallTransferActive(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 
 
+static const value_string h450_DummyRes_vals[] = {
+  {   0, "extensionSeq" },
+  {   1, "nonStandardData" },
+  { 0, NULL }
+};
 
-static int
-dissect_h450_CallIdentity(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_NumericString(tvb, offset, pinfo, tree, hf_index,
-                                          0, 4);
-
-  return offset;
-}
-static int dissect_callIdentity(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_CallIdentity(tvb, offset, pinfo, tree, hf_h450_callIdentity);
-}
-
-
-static const per_sequence_t CTInitiateArg_sequence[] = {
-  { "callIdentity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callIdentity },
-  { "reroutingNumber"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_reroutingNumber },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTInitiateArg_argumentExtension },
-  { NULL, 0, 0, NULL }
+static const per_choice_t DummyRes_choice[] = {
+  {   0, "extensionSeq"                , ASN1_NO_EXTENSIONS     , dissect_extensionSeq },
+  {   1, "nonStandardData"             , ASN1_NO_EXTENSIONS     , dissect_nonStandardData },
+  { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_h450_CTInitiateArg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h450_CTInitiateArg, CTInitiateArg_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t CTSetupArg_sequence[] = {
-  { "callIdentity"                , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_callIdentity },
-  { "transferringNumber"          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_transferringNumber },
-  { "argumentExtension"           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cTSetupArg_argumentExtension },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_h450_CTSetupArg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h450_CTSetupArg, CTSetupArg_sequence);
+dissect_h450_DummyRes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                                 ett_h450_DummyRes, DummyRes_choice,
+                                 NULL);
 
   return offset;
 }
@@ -4904,11 +4904,11 @@ void proto_register_h450(void) {
         "CallTransferAbandon", HFILL }},
     { &hf_h450_CallTransferInitiate_PDU,
       { "CallTransferInitiate", "h450.CallTransferInitiate",
-        FT_UINT32, BASE_DEC, VALS(h450_DummyRes_vals), 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CallTransferInitiate", HFILL }},
     { &hf_h450_CallTransferSetup_PDU,
       { "CallTransferSetup", "h450.CallTransferSetup",
-        FT_UINT32, BASE_DEC, VALS(h450_DummyRes_vals), 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CallTransferSetup", HFILL }},
     { &hf_h450_CallTransferUpdate_PDU,
       { "CallTransferUpdate", "h450.CallTransferUpdate",

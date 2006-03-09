@@ -177,8 +177,8 @@ PresentationAllowedIndicator ::= BOOLEAN
 
 CallTransferIdentify ::= DummyArg
 CallTransferAbandon ::= DummyArg
-CallTransferInitiate ::= DummyRes
-CallTransferSetup ::= DummyRes
+CallTransferInitiate ::= CTInitiateArg
+CallTransferSetup ::= CTSetupArg
 CallTransferUpdate ::= CTUpdateArg
 SubaddressTransfer ::= SubaddressTransferArg
 CallTransferComplete ::= CTCompleteArg
