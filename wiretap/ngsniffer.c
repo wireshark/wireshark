@@ -2591,7 +2591,7 @@ ng_file_seek_rand(wtap *wth, long offset, int whence, int *err)
 	       the uncompressed byte stream, starting with the blob
 	       following the current blob. */
 	    new = g_list_next(ngsniffer->current_blob);
-	    for (;;) {
+	    while (new) {
 		next = g_list_next(new);
 		if (next == NULL) {
 		    /* No more blobs; the current one is it. */
@@ -2615,7 +2615,7 @@ ng_file_seek_rand(wtap *wth, long offset, int whence, int *err)
 	       the uncompressed byte stream, starting with the blob
 	       preceding the current blob. */
 	    new = g_list_previous(ngsniffer->current_blob);
-	    for (;;) {
+	    while (new) {
 		/* Does this blob start at or before the target offset?
 		   If so, the current blob is the one we want. */
 		new_blob = new->data;
