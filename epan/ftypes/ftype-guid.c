@@ -25,6 +25,7 @@
 #endif
 
 #include <string.h>
+#include <ctype.h>
 
 #include <ftypes-int.h>
 #include <epan/guid-utils.h>
@@ -32,9 +33,9 @@
 #define GUID_LEN	16
 
 static void
-set_guid(fvalue_t *fv, e_guid_t *value)
+guid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
-	fv->value.guid = *value;
+	fv->value.guid = *(e_guid_t*)value;
 }
 
 static gpointer
@@ -87,7 +88,7 @@ get_guid(char *s, e_guid_t *guid)
 }
 
 static gboolean
-guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	 e_guid_t guid;
 
@@ -96,7 +97,7 @@ guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc 
 		return FALSE;
 	}
 
-	set_guid(fv, &guid);
+	fv->value.guid = guid;
 	return TRUE;
 }
 
@@ -139,7 +140,7 @@ ftype_register_guid(void)
 		guid_to_repr,		/* val_to_string_repr */
 		guid_repr_len,		/* len_string_repr */
 
-		set_guid,			/* set_value */
+		guid_fvalue_set,	/* set_value */
 		NULL,				/* set_value_integer */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
