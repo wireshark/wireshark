@@ -885,8 +885,7 @@ gchar* guid_to_str_buf(const guint8 *guid, gchar *buf, int buf_len) {
           guid[0], guid[1], guid[2], guid[3],
           guid[4], guid[5],
           guid[6], guid[7],
-          guid[8], guid[9],
-          guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
+          guid[8], guid[9], guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
   return buf;
 }
 
