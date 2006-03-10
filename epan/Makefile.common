@@ -141,6 +141,7 @@ LIBETHEREAL_INCLUDES = 		\
 	ipproto.h		\
 	ipv4.h			\
 	ipv6-utils.h		\
+	guid-utils.h		\
 	lapd_sapi.h		\
 	llcsaps.h		\
 	nlpid.h			\

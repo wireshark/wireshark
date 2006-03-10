@@ -1415,8 +1415,6 @@ tvb_get_ipv6(tvbuff_t *tvb, gint offset, struct e_in6_addr *addr)
 void
 tvb_get_ntohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid)
 {
-	const guint8* ptr;
-
 	ensure_contiguous(tvb, offset, sizeof(*guid));
 	guid->data1 = tvb_get_ntohl(tvb, offset);
 	guid->data2 = tvb_get_ntohs(tvb, offset + 4);
@@ -1427,8 +1425,6 @@ tvb_get_ntohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid)
 void
 tvb_get_letohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid)
 {
-	const guint8* ptr;
-
 	ensure_contiguous(tvb, offset, sizeof(*guid));
 	guid->data1 = tvb_get_letohl(tvb, offset);
 	guid->data2 = tvb_get_letohs(tvb, offset + 4);
