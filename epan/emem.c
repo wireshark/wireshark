@@ -1163,7 +1163,7 @@ se_tree_lookup32_array(se_tree_t *se_tree, se_tree_key_t *key)
 		key[0].length--;
 		key[0].key++;
 	}
-	se_tree_lookup32_array(next_tree, key);
+	return se_tree_lookup32_array(next_tree, key);
 }
 
 
