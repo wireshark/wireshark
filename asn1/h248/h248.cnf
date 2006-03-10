@@ -268,18 +268,24 @@ ServiceChangeReply/terminationID			terminationIDList
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 	
-    term->len = tvb_length(new_tvb);
-    term->type = 0; /* unknown */
+	if (new_tvb) {
+		term->len = tvb_length(new_tvb);
+		term->type = 0; /* unknown */
 
-    if (term->len) {
-        term->buffer = ep_tvb_memdup(new_tvb,0,term->len);
-        term->str = bytes_to_str(term->buffer,term->len);
-    }
+		if (term->len) {
+			term->buffer = ep_tvb_memdup(new_tvb,0,term->len);
+			term->str = bytes_to_str(term->buffer,term->len);
+		}
 
-    term = h248_cmd_add_term(msg, trx, cmd, term, wild_term);
+		term = h248_cmd_add_term(msg, trx, cmd, term, wild_term);
 
-	if (new_tvb && h248_term_handle) {
-		call_dissector(h248_term_handle, new_tvb, pinfo, tree);
+		if (h248_term_handle) {
+			call_dissector(h248_term_handle, new_tvb, pinfo, tree);
+		}
+	} else {
+		term->len = 0;
+		term->buffer = (guint8*)ep_strdup("");
+		term->str = ep_strdup("?");
 	}
 #.END
 

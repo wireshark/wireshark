@@ -72,8 +72,9 @@ typedef enum {
 
 
 typedef struct _h248_msg_t {
-    gchar* addr_label;
-    guint framenum;
+    guint32 lo_addr;
+    guint32 hi_addr;
+    guint32 framenum;
     struct _h248_trx_msg_t* trxs;
     gboolean commited;
 } h248_msg_t;
@@ -91,7 +92,7 @@ typedef struct _h248_cmd_msg_t {
 } h248_cmd_msg_t;
 
 typedef struct _h248_trx_t {
-    gchar* key;
+    h248_msg_t* initial;
     guint32 id;
     h248_trx_type_t type;
     guint pendings;
@@ -155,9 +156,8 @@ typedef struct _h248_cmd_t {
 
 
 typedef struct _h248_ctx_t {
-    gchar* key;
+    h248_msg_t* initial;
     guint32 id;
-    guint first_frame;
     struct _h248_cmd_msg_t* cmds;
     struct _h248_ctx_t* prev;
     h248_terms_t terms;
