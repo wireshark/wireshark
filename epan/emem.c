@@ -50,19 +50,6 @@
 #include "emem.h"
 #include <wiretap/file_util.h>
 
-/* Add guard pages at each end of our allocated memory */
-#if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#define USE_GUARD_PAGES 1
-#endif
-
-/* When required, allocate more memory from the OS in this size chunks */
-#define EMEM_PACKET_CHUNK_SIZE 10485760
-
-/* The maximum number of allocations per chunk */
-#define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 512)
 
 /*
  * Tools like Valgrind and ElectricFence don't work well with memchunks.
@@ -72,9 +59,25 @@
 /* #define EP_DEBUG_FREE 1 */
 /* #define SE_DEBUG_FREE 1 */
 
-#if GLIB_MAJOR_VERSION >= 2
-GRand   *rand_state = NULL;
+/* Do we want to use guardpages? if available */
+#define WANT_GUARD_PAGES 1
+
+#ifdef WANT_GUARD_PAGES
+/* Add guard pages at each end of our allocated memory */
+#if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
+#include <stdint.h>
+#include <sys/types.h>
+#include <sys/mman.h>
+#define USE_GUARD_PAGES 1
 #endif
+#endif
+
+/* When required, allocate more memory from the OS in this size chunks */
+#define EMEM_PACKET_CHUNK_SIZE 10485760
+
+/* The maximum number of allocations per chunk */
+#define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 512)
+
 
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
@@ -109,6 +112,10 @@ static emem_header_t se_packet_mem;
 void
 emem_canary(guint8 *canary) {
 	int i;
+#if GLIB_MAJOR_VERSION >= 2
+	static GRand   *rand_state = NULL;
+#endif
+
 
 	/* First, use GLib's random function if we have it */
 #if GLIB_MAJOR_VERSION >= 2
