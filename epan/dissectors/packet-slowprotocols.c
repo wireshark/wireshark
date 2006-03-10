@@ -1646,16 +1646,13 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
         info_type = tvb_get_guint8(tvb, offset);
 
-        if (info_type == 0) break;
+        if (info_type == OAMPDU_INFO_TYPE_ENDMARKER) break;
 
         info_item = proto_tree_add_uint(tree, hf_oampdu_info_type, tvb,
                             offset, 1, info_type);
 
         switch (info_type)
         {
-         case OAMPDU_INFO_TYPE_ENDMARKER:
-            info_tree = NULL;
-           break;
          case OAMPDU_INFO_TYPE_LOCAL:
            info_tree = proto_item_add_subtree(info_item, ett_oampdu_local_info);
            break;
