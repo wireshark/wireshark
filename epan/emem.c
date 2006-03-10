@@ -1097,6 +1097,82 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 	}
 }
 
+static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud) {
+	se_tree_node_t *node;
+	
+	node=se_tree->tree;
+	
+	/* is this the first node ?*/
+	if(!node){
+		node=se_alloc(sizeof(se_tree_node_t));
+		switch(se_tree->type){
+			case SE_TREE_TYPE_RED_BLACK:
+				node->rb_color=SE_TREE_RB_COLOR_BLACK;
+				break;
+		}
+		node->parent=NULL;
+		node->left=NULL;
+		node->right=NULL;
+		node->key32=key;
+		node->data= func(ud);
+		se_tree->tree=node;
+		return node->data;
+	}
+	
+	/* it was not the new root so walk the tree until we find where to
+		* insert this new leaf.
+		*/
+	while(1){
+		/* this node already exists, so just return the data pointer*/
+		if(key==node->key32){
+			return node->data;
+		}
+		if(key<node->key32) {
+			if(!node->left){
+				/* new node to the left */
+				se_tree_node_t *new_node;
+				new_node=se_alloc(sizeof(se_tree_node_t));
+				node->left=new_node;
+				new_node->parent=node;
+				new_node->left=NULL;
+				new_node->right=NULL;
+				new_node->key32=key;
+				new_node->data= func(ud);
+				node=new_node;
+				break;
+			}
+			node=node->left;
+			continue;
+		}
+		if(key>node->key32) {
+			if(!node->right){
+				/* new node to the right */
+				se_tree_node_t *new_node;
+				new_node=se_alloc(sizeof(se_tree_node_t));
+				node->right=new_node;
+				new_node->parent=node;
+				new_node->left=NULL;
+				new_node->right=NULL;
+				new_node->key32=key;
+				new_node->data= func(ud);
+				node=new_node;
+				break;
+			}
+			node=node->right;
+			continue;
+		}
+	}
+	
+	/* node will now point to the newly created node */
+	switch(se_tree->type){
+		case SE_TREE_TYPE_RED_BLACK:
+			node->rb_color=SE_TREE_RB_COLOR_RED;
+			rb_insert_case1(se_tree, node);
+			break;
+	}
+	
+	return node->data;
+}
 
 /* When the se data is released, this entire tree will dissapear as if it
  * never existed including all metadata associated with the tree.
@@ -1114,8 +1190,14 @@ se_tree_create_non_persistent(int type)
 	return tree_list;
 }
 
+static void* create_sub_tree(void* d) {
+	se_tree_t *se_tree = d;
+	return se_tree_create_non_persistent(se_tree->type);
+}
+
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
+
 void
 se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data)
 {
@@ -1128,11 +1210,9 @@ se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data)
 		se_tree_insert32(se_tree, *key[0].key, data);
 		return;
 	}
-	next_tree=se_tree_lookup32(se_tree, *key[0].key);
-	if(!next_tree){
-		next_tree=se_tree_create_non_persistent(se_tree->type);
-		se_tree_insert32(se_tree, *key[0].key, next_tree);
-	}
+	
+	next_tree=lookup_or_insert32(se_tree, *key[0].key, create_sub_tree, se_tree);
+
 	if(key[0].length==1){
 		key++;
 	} else {
