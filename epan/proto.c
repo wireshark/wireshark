@@ -151,9 +151,9 @@ proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr);
 static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start);
 static void
-proto_tree_set_guid(field_info *fi, const guint8* value_ptr);
+proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr);
 static void
-proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start);
+proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian);
 static void
 proto_tree_set_oid(field_info *fi, const guint8* value_ptr, gint length);
 static void
@@ -902,7 +902,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 
 		case FT_GUID:
 			DISSECTOR_ASSERT(length == 16);
-			proto_tree_set_guid_tvb(new_fi, tvb, start);
+			proto_tree_set_guid_tvb(new_fi, tvb, start, little_endian);
 			break;
 
 		case FT_OID:
@@ -1637,7 +1637,7 @@ proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 /* Add a FT_GUID to a proto_tree */
 proto_item *
 proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		const guint8* value_ptr)
+		const e_guid_t *value_ptr)
 {
 	proto_item		*pi;
 	field_info		*new_fi;
@@ -1659,7 +1659,7 @@ proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 
 proto_item *
 proto_tree_add_guid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		const guint8* value_ptr)
+		const e_guid_t *value_ptr)
 {
 	proto_item		*pi;
 
@@ -1674,7 +1674,7 @@ proto_tree_add_guid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 
 proto_item *
 proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-		gint start, gint length, const guint8* value_ptr,
+		gint start, gint length, const e_guid_t *value_ptr,
 		const char *format, ...)
 {
 	proto_item		*pi;
@@ -1693,7 +1693,7 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		const guint8* value_ptr, const char *format, ...)
+		const e_guid_t *value_ptr, const char *format, ...)
 {
 	proto_item		*pi;
 	va_list			ap;
@@ -1711,16 +1711,19 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 
 /* Set the FT_GUID value */
 static void
-proto_tree_set_guid(field_info *fi, const guint8* value_ptr)
+proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr)
 {
 	DISSECTOR_ASSERT(value_ptr != NULL);
 	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
 }
 
 static void
-proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start)
+proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian)
 {
-	proto_tree_set_guid(fi, tvb_get_ptr(tvb, start, 16));
+	e_guid_t guid;
+	
+	tvb_get_guid(tvb, start, &guid, little_endian);
+	proto_tree_set_guid(fi, &guid);
 }
 
 /* Add a FT_OID to a proto_tree */
@@ -3669,6 +3672,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint8				*bytes;
 	guint32				integer;
 	ipv4_addr			*ipv4;
+	e_guid_t			*guid;
 	guint32				n_addr; /* network-order IPv4 address */
 	const gchar			*name;
 	int					ret;	/*tmp return value */
@@ -3827,10 +3831,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_GUID:
-			bytes = fvalue_get(&fi->value);
+			guid = fvalue_get(&fi->value);
 			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
-				 guid_to_str(bytes));
+				 guid_to_str(guid));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;

@@ -39,7 +39,6 @@
 
 #define ETHER_LEN	6
 #define IPv6_LEN	16
-#define GUID_LEN	16
 
 static void
 bytes_fvalue_new(fvalue_t *fv)
@@ -74,18 +73,6 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 	/* 3 bytes for each byte of the byte "NN:" minus 1 byte
 	 * as there's no trailing ":". */
 	return fv->value.bytes->len * 3 - 1;
-}
-
-static int
-guid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
-{
-	return GUID_STR_LEN;
-}
-
-static void
-guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
-{
-	guid_to_str_buf(fv->value.bytes->data, buf, GUID_STR_LEN);
 }
 
 static int
@@ -145,13 +132,6 @@ ipv6_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
 	common_fvalue_set(fv, value, IPv6_LEN);
-}
-
-static void
-guid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
-{
-	g_assert(!already_copied);
-	common_fvalue_set(fv, value, GUID_LEN);
 }
 
 static void
@@ -276,69 +256,6 @@ static void
 ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
 	ip6_to_str_buf((struct e_in6_addr *)fv->value.bytes->data, buf);
-}
-
-static gboolean
-get_guid(char *s, guint8 *buf)
-{
-	size_t i, n;
-	char *p, two_digits[3];
-	static const char fmt[] = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
-
-	n = strlen(s);
-	if (n != strlen(fmt))
-		return FALSE;
-	for (i=0; i<n; i++) {
-		if (fmt[i] == 'X') {
-			if (!isxdigit((guchar)s[i]))
-				return FALSE;
-		} else {
-			if (s[i] != fmt[i])
-				return FALSE;
-		}
-	}
-	for (p=s,i=0; i<GUID_LEN; i++) {
-		if (*p == '-') p++;
-		two_digits[0] = *(p++);
-		two_digits[1] = *(p++);
-		two_digits[2] = '\0';
-		buf[i] = (guint8)strtoul(two_digits, NULL, 16);
-	}
-	return TRUE;
-}
-
-static gboolean
-guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
-{
-	guint8	buffer[GUID_LEN];
-
-	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as an GUID if it does, and if that fails,
-	 * we'll log a message.
-	 */
-	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
-		if (fv->value.bytes->len > GUID_LEN) {
-			logfunc("\"%s\" contains too many bytes to be a valid Globally Unique Identifier.",
-			    s);
-			return FALSE;
-		}
-		else if (fv->value.bytes->len < GUID_LEN && !allow_partial_value) {
-			logfunc("\"%s\" contains too few bytes to be a valid Globally Unique Identifier.",
-			    s);
-			return FALSE;
-		}
-
-		return TRUE;
-	}
-
-	if (!get_guid(s, buffer)) {
-		logfunc("\"%s\" is not a valid GUID.", s);
-		return FALSE;
-	}
-
-	guid_fvalue_set(fv, buffer, FALSE);
-	return TRUE;
 }
 
 static gboolean
@@ -702,41 +619,6 @@ ftype_register_bytes(void)
 		slice,
 	};
 
-	static ftype_t guid_type = {
-		"GUID",			/* name */
-		"Globally Unique Identifier",			/* pretty_name */
-		GUID_LEN,			/* wire_size */
-		bytes_fvalue_new,		/* new_value */
-		bytes_fvalue_free,		/* free_value */
-		guid_from_unparsed,		/* val_from_unparsed */
-		NULL,				/* val_from_string */
-		guid_to_repr,			/* val_to_string_repr */
-		guid_repr_len,			/* len_string_repr */
-
-		guid_fvalue_set,		/* set_value */
-		NULL,				/* set_value_integer */
-		NULL,				/* set_value_integer64 */
-		NULL,				/* set_value_floating */
-
-		value_get,			/* get_value */
-		NULL,				/* get_value_integer */
-		NULL,				/* get_value_integer64 */
-		NULL,				/* get_value_floating */
-
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
-		cmp_bytes_bitwise_and,
-		cmp_contains,
-		NULL,				/* cmp_matches */
-
-		len,
-		slice,
-	};
-
 	static ftype_t oid_type = {
 		"OID",			/* name */
 		"OBJECT IDENTIFIER",			/* pretty_name */
@@ -776,6 +658,5 @@ ftype_register_bytes(void)
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
-	ftype_register(FT_GUID, &guid_type);
 	ftype_register(FT_OID, &oid_type);
 }

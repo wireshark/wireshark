@@ -22,6 +22,7 @@ OBJECTS = \
 	ftype-double.obj	\
 	ftype-integer.obj	\
 	ftype-ipv4.obj		\
+	ftype-guid.obj		\
 	ftype-none.obj		\
 	ftype-pcre.obj		\
 	ftype-string.obj	\

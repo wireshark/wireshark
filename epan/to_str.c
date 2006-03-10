@@ -873,19 +873,17 @@ gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf, int buf_len) 
   return buf;
 }
 
-gchar* guid_to_str(const guint8 *guid) {
+gchar* guid_to_str(const e_guid_t *guid) {
   gchar *buf;
 
   buf=ep_alloc(GUID_STR_LEN);
   return guid_to_str_buf(guid, buf, GUID_STR_LEN);
 }
 
-gchar* guid_to_str_buf(const guint8 *guid, gchar *buf, int buf_len) {
-  g_snprintf(buf, buf_len, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-          guid[0], guid[1], guid[2], guid[3],
-          guid[4], guid[5],
-          guid[6], guid[7],
-          guid[8], guid[9], guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
+gchar* guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len) {
+  g_snprintf(buf, buf_len, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+          guid->data1, guid->data2, guid->data3,
+          guid->data4[0], guid->data4[1], guid->data4[2], guid->data4[3], guid->data4[4], guid->data4[5], guid->data4[6], guid->data4[7]);
   return buf;
 }
 

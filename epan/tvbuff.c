@@ -1411,6 +1411,41 @@ tvb_get_ipv6(tvbuff_t *tvb, gint offset, struct e_in6_addr *addr)
 	memcpy(addr, ptr, sizeof *addr);
 }
 
+/* Fetch a GUID. */
+void
+tvb_get_ntohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid)
+{
+	const guint8* ptr;
+
+	ensure_contiguous(tvb, offset, sizeof(*guid));
+	guid->data1 = tvb_get_ntohl(tvb, offset);
+	guid->data2 = tvb_get_ntohs(tvb, offset + 4);
+	guid->data3 = tvb_get_ntohs(tvb, offset + 6);
+	tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
+}
+
+void
+tvb_get_letohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid)
+{
+	const guint8* ptr;
+
+	ensure_contiguous(tvb, offset, sizeof(*guid));
+	guid->data1 = tvb_get_letohl(tvb, offset);
+	guid->data2 = tvb_get_letohs(tvb, offset + 4);
+	guid->data3 = tvb_get_letohs(tvb, offset + 6);
+	tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
+}
+
+void
+tvb_get_guid(tvbuff_t *tvb, gint offset, e_guid_t *guid, gboolean little_endian)
+{
+	if (little_endian) {
+		tvb_get_letohguid(tvb, offset, guid);
+	} else {
+		tvb_get_ntohguid(tvb, offset, guid);
+	}
+}
+
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
  * at most maxlength number of bytes; if maxlength is -1, searches to
  * end of tvbuff.

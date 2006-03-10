@@ -138,6 +138,7 @@ ftype_can_matches(enum ftenum ftype);
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
+#include <epan/guid-utils.h>
 
 #include <epan/tvbuff.h>
 #include <epan/nstime.h>
@@ -156,6 +157,7 @@ typedef struct _fvalue_t {
 		GByteArray	*bytes;
 		GString		*gstring;
 		ipv4_addr	ipv4;
+		e_guid_t	guid;
 		nstime_t	time;
 		tvbuff_t	*tvb;
 #ifdef HAVE_LIBPCRE

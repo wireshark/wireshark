@@ -817,13 +817,13 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
  @return the newly created item */
 extern proto_item *
 proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value_ptr);
+	gint length, const e_guid_t *value_ptr);
 
 /** Add a hidden FT_GUID to a proto_tree.
  @deprecated use proto_tree_add_guid() and a subsequent call to PROTO_ITEM_SET_HIDDEN() instead */
 extern proto_item *
 proto_tree_add_guid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value_ptr);
+	gint length, const e_guid_t *value_ptr);
 
 /** Add a formatted FT_GUID to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -839,7 +839,7 @@ proto_tree_add_guid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
  @return the newly created item */
 extern proto_item *
 proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-	gint start, gint length, const guint8* value_ptr, const char *format,
+	gint start, gint length, const e_guid_t *value_ptr, const char *format,
 	...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /** Add a formatted FT_GUID to a proto_tree, with the format generating
@@ -855,7 +855,7 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, const e_guid_t *value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /** Add a FT_OID to a proto_tree.
  @param tree the tree to append this item to
@@ -870,7 +870,7 @@ proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
 /** Add a hidden FT_OID to a proto_tree.
- @deprecated use proto_tree_add_guid() and a subsequent call to PROTO_ITEM_SET_HIDDEN() instead */
+ @deprecated use proto_tree_add_oid() and a subsequent call to PROTO_ITEM_SET_HIDDEN() instead */
 extern proto_item *
 proto_tree_add_oid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);

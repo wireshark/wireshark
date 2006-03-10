@@ -76,8 +76,8 @@ extern gchar*	rel_time_to_str(nstime_t*);
 extern gchar*	rel_time_to_secs_str(nstime_t*);
 extern gchar*	oid_to_str(const guint8*, gint);
 extern gchar*	oid_to_str_buf(const guint8*, gint, gchar*, int);
-extern gchar*	guid_to_str(const guint8*);
-extern gchar*	guid_to_str_buf(const guint8*, gchar*, int);
+extern gchar*	guid_to_str(const e_guid_t*);
+extern gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
 
 void tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len);
 

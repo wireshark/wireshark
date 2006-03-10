@@ -41,6 +41,7 @@ libftypes_la_SOURCES =	\
 	ftype-double.c	\
 	ftype-integer.c	\
 	ftype-ipv4.c	\
+	ftype-guid.c	\
 	ftype-none.c	\
 	ftype-pcre.c	\
 	ftype-string.c	\
