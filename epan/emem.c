@@ -62,6 +62,10 @@
 /* Do we want to use guardpages? if available */
 #define WANT_GUARD_PAGES 1
 
+/* Do we want to use canaries ? */
+#define DEBUG_USE_CANARIES 1
+
+ 
 #ifdef WANT_GUARD_PAGES
 /* Add guard pages at each end of our allocated memory */
 #if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
@@ -79,9 +83,11 @@
 #define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 512)
 
 
+#ifdef DEBUG_USE_CANARIES
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
 guint8  ep_canary[EMEM_CANARY_DATA_SIZE], se_canary[EMEM_CANARY_DATA_SIZE];
+#endif /* DEBUG_USE_CANARIES */
 
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
@@ -90,11 +96,13 @@ typedef struct _emem_chunk_t {
 	unsigned int	free_offset_init;
 	unsigned int	free_offset;
 	char *buf;
+#ifdef DEBUG_USE_CANARIES
 #if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 	unsigned int	c_count;
 	void		*canary[EMEM_ALLOCS_PER_CHUNK];
 	guint8		cmp_len[EMEM_ALLOCS_PER_CHUNK];
 #endif
+#endif /* DEBUG_USE_CANARIES */
 } emem_chunk_t;
 
 typedef struct _emem_header_t {
@@ -105,10 +113,11 @@ typedef struct _emem_header_t {
 static emem_header_t ep_packet_mem;
 static emem_header_t se_packet_mem;
 
+
+#ifdef DEBUG_USE_CANARIES
 /*
  * Set a canary value to be placed between memchunks.
  */
-
 void
 emem_canary(guint8 *canary) {
 	int i;
@@ -163,6 +172,8 @@ emem_canary_pad (size_t allocation) {
 	return pad;
 }
 #endif
+#endif /* DEBUG_USE_CANARIES */
+
 
 /* Initialize the packet-lifetime memory allocation pool.
  * This function should be called only once when Ethereal or Tethereal starts
@@ -174,7 +185,9 @@ ep_init_chunk(void)
 	ep_packet_mem.free_list=NULL;
 	ep_packet_mem.used_list=NULL;
 
+#ifdef DEBUG_USE_CANARIES
 	emem_canary(ep_canary);
+#endif /* DEBUG_USE_CANARIES */
 }
 /* Initialize the capture-lifetime memory allocation pool.
  * This function should be called only once when Ethereal or Tethereal starts
@@ -186,7 +199,9 @@ se_init_chunk(void)
 	se_packet_mem.free_list=NULL;
 	se_packet_mem.used_list=NULL;
 
+#ifdef DEBUG_USE_CANARIES
 	emem_canary(se_canary);
+#endif /* DEBUG_USE_CANARIES */
 }
 
 #if !defined(SE_DEBUG_FREE)
@@ -208,9 +223,12 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		emem_chunk_t *npc;
 		npc = g_malloc(sizeof(emem_chunk_t));
 		npc->next = NULL;
+#ifdef DEBUG_USE_CANARIES
 #if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 		npc->c_count = 0;
 #endif
+#endif /* DEBUG_USE_CANARIES */
+
 		*free_list = npc;
 #if defined (_WIN32)
 		/*
@@ -278,8 +296,12 @@ ep_alloc(size_t size)
 {
 	void *buf;
 #ifndef EP_DEBUG_FREE
+#ifdef DEBUG_USE_CANARIES
 	void *cptr;
 	guint8 pad = emem_canary_pad(size);
+#else
+	static guint8 pad=8;
+#endif /* DEBUG_USE_CANARIES */
 	emem_chunk_t *free_list;
 #endif
 
@@ -297,7 +319,11 @@ ep_alloc(size_t size)
 	/* oops, we need to allocate more memory to serve this request
          * than we have free. move this node to the used list and try again
 	 */
-	if(size>ep_packet_mem.free_list->amount_free || ep_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK){
+	if(size>ep_packet_mem.free_list->amount_free
+#ifdef DEBUG_USE_CANARIES
+              || ep_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
+#endif /* DEBUG_USE_CANARIES */
+        ){
 		emem_chunk_t *npc;
 		npc=ep_packet_mem.free_list;
 		ep_packet_mem.free_list=ep_packet_mem.free_list->next;
@@ -314,11 +340,13 @@ ep_alloc(size_t size)
 	free_list->amount_free -= size;
 	free_list->free_offset += size;
 
+#ifdef DEBUG_USE_CANARIES
 	cptr = (char *)buf + size - pad;
 	memcpy(cptr, &ep_canary, pad);
 	free_list->canary[free_list->c_count] = cptr;
 	free_list->cmp_len[free_list->c_count] = pad;
 	free_list->c_count++;
+#endif /* DEBUG_USE_CANARIES */
 
 #else /* EP_DEBUG_FREE */
 	emem_chunk_t *npc;
@@ -342,8 +370,12 @@ se_alloc(size_t size)
 {
 	void *buf;
 #ifndef SE_DEBUG_FREE
+#ifdef DEBUG_USE_CANARIES
 	void *cptr;
 	guint8 pad = emem_canary_pad(size);
+#else
+	static guint8 pad=8;
+#endif /* DEBUG_USE_CANARIES */
 	emem_chunk_t *free_list;
 #endif
 
@@ -361,7 +393,11 @@ se_alloc(size_t size)
 	/* oops, we need to allocate more memory to serve this request
          * than we have free. move this node to the used list and try again
 	 */
-	if(size>se_packet_mem.free_list->amount_free || se_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK){
+	if(size>se_packet_mem.free_list->amount_free
+#ifdef DEBUG_USE_CANARIES
+        || se_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
+#endif /* DEBUG_USE_CANARIES */
+        ){
 		emem_chunk_t *npc;
 		npc=se_packet_mem.free_list;
 		se_packet_mem.free_list=se_packet_mem.free_list->next;
@@ -378,11 +414,13 @@ se_alloc(size_t size)
 	free_list->amount_free -= size;
 	free_list->free_offset += size;
 
+#ifdef DEBUG_USE_CANARIES
 	cptr = (char *)buf + size - pad;
 	memcpy(cptr, &se_canary, pad);
 	free_list->canary[free_list->c_count] = cptr;
 	free_list->cmp_len[free_list->c_count] = pad;
 	free_list->c_count++;
+#endif /* DEBUG_USE_CANARIES */
 
 #else /* SE_DEBUG_FREE */
 	emem_chunk_t *npc;
@@ -606,7 +644,9 @@ ep_free_all(void)
 {
 	emem_chunk_t *npc;
 #ifndef EP_DEBUG_FREE
+#ifdef DEBUG_USE_CANARIES
 	guint i;
+#endif /* DEBUG_USE_CANARIES */
 #endif
 
 	/* move all used chunks over to the free list */
@@ -621,11 +661,13 @@ ep_free_all(void)
 	npc = ep_packet_mem.free_list;
 	while (npc != NULL) {
 #ifndef EP_DEBUG_FREE
+#ifdef DEBUG_USE_CANARIES
 		for (i = 0; i < npc->c_count; i++) {
 			if (memcmp(npc->canary[i], &ep_canary, npc->cmp_len[i]) != 0)
 				g_error("Per-packet memory corrupted.");
 		}
 		npc->c_count = 0;
+#endif /* DEBUG_USE_CANARIES */
 		npc->amount_free = npc->amount_free_init;
 		npc->free_offset = npc->free_offset_init;
 		npc = npc->next;
@@ -650,7 +692,9 @@ se_free_all(void)
 	emem_chunk_t *npc;
 	se_tree_t *se_tree_list;
 #ifndef SE_DEBUG_FREE
+#ifdef DEBUG_USE_CANARIES
 	guint i;
+#endif /* DEBUG_USE_CANARIES */
 #endif
 
 
@@ -666,11 +710,13 @@ se_free_all(void)
 	npc = se_packet_mem.free_list;
 	while (npc != NULL) {
 #ifndef SE_DEBUG_FREE
+#ifdef DEBUG_USE_CANARIES
 		for (i = 0; i < npc->c_count; i++) {
 			if (memcmp(npc->canary[i], &se_canary, npc->cmp_len[i]) != 0)
 				g_error("Per-session memory corrupted.");
 		}
 		npc->c_count = 0;
+#endif /* DEBUG_USE_CANARIES */
 		npc->amount_free = npc->amount_free_init;
 		npc->free_offset = npc->free_offset_init;
 		npc = npc->next;
