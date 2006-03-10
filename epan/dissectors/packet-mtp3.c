@@ -317,6 +317,22 @@ mtp3_addr_to_str_buf(
   }
 }
 
+guint32 mtp3_pc_hash(const guint8* data) {
+	const mtp3_addr_pc_t  *addr_pc_p = (const mtp3_addr_pc_t *)data;
+	guint32 pc;
+	
+	switch (addr_pc_p->type)
+	{
+		case ITU_STANDARD:
+			pc = (addr_pc_p->pc & ITU_PC_MASK) | ((addr_pc_p->ni % 4) << 14) ;
+		default:
+			/* assuming 24-bit */
+			pc = (addr_pc_p->pc & ANSI_PC_MASK) | ((addr_pc_p->ni) << 24) ;
+	}
+	
+	return;
+}
+
 static void
 dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
 {

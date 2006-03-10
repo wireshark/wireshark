@@ -68,7 +68,7 @@ extern void     mtp3_addr_to_str_buf(const guint8 *data, gchar *buf, int buf_len
 extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len);
 extern gchar*   mtp3_pc_to_str(const guint32 pc);
 extern gboolean mtp3_pc_structured(void);
-
+extern guint32  mtp3_pc_hash(const guint8* data);
 
 /*
  * the following allows TAP code access to the messages
