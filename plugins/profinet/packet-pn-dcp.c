@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 static int proto_pn_dcp = -1;
@@ -467,7 +468,7 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                                proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
-                               int length, gboolean is_response)
+                               gboolean is_response)
 {
     guint8 suboption;
     guint16 block_length;
@@ -477,38 +478,28 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 device_id;
     guint8* typeofstation;
     guint8* nameofstation;
-    guint16 status;
+    guint16 status=0;
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device, &suboption);
-    length--;
-
-    if(length) {
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
-        if(is_response) {
-            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_res_status, &status);
-            block_length -= 2;
-        }
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
+    if(is_response) {
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_res_status, &status);
+        block_length -= 2;
     }
 
     switch(suboption) {
     case(PNDCP_SUBOPTION_DEVICE_MANUF):
-/*        if(is_response) {*/
-            typeofstation = g_malloc(block_length+1);
-            tvb_memcpy(tvb, typeofstation, offset, block_length);
-            typeofstation[block_length] = '\0';
-            proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
-            pn_append_info(pinfo, dcp_item, ", TypeOfStation");
-            proto_item_append_text(block_item, "Device/Manufacturer specific");
-            if(is_response)
-                proto_item_append_text(block_item, ", Status: %u", status);
-            proto_item_append_text(block_item, ", TypeOfStation: \"%s\"", typeofstation);
-            g_free(typeofstation);
-            offset += block_length;
-/*        } else {
-            pn_append_info(pinfo, dcp_item, ", TypeOfStation");
-            proto_item_append_text(block_item, "Device/Manufacturer specific(TypeOfStation)");
-            offset += block_length;
-        }*/
+        typeofstation = g_malloc(block_length+1);
+        tvb_memcpy(tvb, typeofstation, offset, block_length);
+        typeofstation[block_length] = '\0';
+        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
+        pn_append_info(pinfo, dcp_item, ", TypeOfStation");
+        proto_item_append_text(block_item, "Device/Manufacturer specific");
+        if(is_response)
+            proto_item_append_text(block_item, ", Status: %u", status);
+        proto_item_append_text(block_item, ", TypeOfStation: \"%s\"", typeofstation);
+        g_free(typeofstation);
+        offset += block_length;
         break;
     case(PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION):
         nameofstation = g_malloc(block_length+1);
@@ -575,7 +566,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                                 proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
-								int length)
+								gboolean is_response _U_)
 {
     /*guint8 result;*/
     guint8 suboption;
@@ -585,11 +576,7 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp, &suboption);
-    length--;
-
-    if(length) {
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
-    }
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
 
     switch(suboption) {
 	case(PNDCP_SUBOPTION_DHCP_CLIENT_ID):
@@ -608,10 +595,32 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
+/* dissect the "LLDP" suboption */
+static int
+dissect_PNDCP_Suboption_LLDP(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                                proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
+								gboolean is_response _U_)
+{
+    /*guint8 result;*/
+    guint8 suboption;
+    /*guint16 block_length;*/
+    /*gchar *info_str;*/
+    /*guint16 status;*/
+
+
+    offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_lldp, &suboption);
+
+    /* XXX - improve this */
+
+    return offset;
+}
+
+
 /* dissect the "control" suboption */
 static int
 dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-                                proto_tree *tree, proto_item *block_item, proto_item *dcp_item, int length)
+                                proto_tree *tree, proto_item *block_item, proto_item *dcp_item, 
+                                gboolean is_response _U_)
 {
     guint8 result;
     guint8 suboption;
@@ -621,11 +630,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_control, &suboption);
-    length--;
-
-    if(length) {
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
-    }
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
 
     switch(suboption) {
     case(PNDCP_SUBOPTION_CONTROL_START_TRANS):
@@ -654,7 +659,6 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_status, 
             FALSE /* append_col */);
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_result, &result);
-        length = 0;
         info_str = g_strdup_printf(", Response(%s)", val_to_str(result, pn_dcp_result, "Unknown"));
         pn_append_info(pinfo, dcp_item, info_str);
         g_free(info_str);
@@ -673,18 +677,14 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* dissect the "all" suboption */
 static int
 dissect_PNDCP_Suboption_All(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-                            proto_tree *tree, proto_item *block_item, proto_item *dcp_item, int length)
+                            proto_tree *tree, proto_item *block_item, proto_item *dcp_item,
+                            gboolean is_response _U_)
 {
     guint8 suboption;
-    guint16 block_length=0;
+    guint16 block_length;
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_all, &suboption);
-    length--;
-
-    if(length) {
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
-        length-=2;
-    }
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
 
     switch(suboption) {
     case(255):    /* All */
@@ -692,11 +692,9 @@ dissect_PNDCP_Suboption_All(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, "All/All");
         break;
     default:
-	if(block_length){
-	        proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
-        	    "Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_ALLSELECTOR, suboption, block_length);
-	        offset += block_length;
-	}
+	    proto_tree_add_string_format(tree, hf_pn_dcp_data, tvb, offset, block_length, "data", 
+        	"Block data(0x%x/0x%x): %d bytes", PNDCP_OPTION_ALLSELECTOR, suboption, block_length);
+	    offset += block_length;
     }
 
     return offset;
@@ -706,18 +704,14 @@ dissect_PNDCP_Suboption_All(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* dissect the "manufacturer" suboption */
 static int
 dissect_PNDCP_Suboption_Manuf(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-                            proto_tree *tree, proto_item *block_item, proto_item *dcp_item, int length)
+                            proto_tree *tree, proto_item *block_item, proto_item *dcp_item,
+                            gboolean is_response _U_)
 {
     guint8 suboption;
     guint16 block_length;
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_manuf, &suboption);
-    length--;
-
-    if(length) {
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
-        length-=2;
-    }
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
 
     switch(suboption) {
     default:
@@ -736,54 +730,49 @@ dissect_PNDCP_Suboption_Manuf(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                     proto_tree *tree, proto_item *dcp_item, 
-                    int length, gboolean is_response)
+                    gboolean is_response)
 {
     guint8 option;
-    guint8 suboption;
     proto_item *block_item;
     proto_tree *block_tree;
-    guint16 block_length;
-
-    block_length = tvb_get_ntohs(tvb, offset + 2) + 4;
-    if(block_length > length) 
-        block_length = length;
+    int ori_offset = offset;
 
     /* subtree for block */
 	block_item = proto_tree_add_none_format(tree, hf_pn_dcp_block, 
-		tvb, offset, block_length, "Block: ");
+		tvb, offset, 0, "Block: ");
 	block_tree = proto_item_add_subtree(block_item, ett_pn_dcp_block);
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, block_tree, hf_pn_dcp_option, &option);
-    length--;
 
     switch(option) {
     case(PNDCP_OPTION_IP):
         offset = dissect_PNDCP_Suboption_IP(tvb, offset, pinfo, block_tree, block_item, dcp_item, is_response);
         break;
     case(PNDCP_OPTION_DEVICE):
-        offset = dissect_PNDCP_Suboption_Device(tvb, offset, pinfo, block_tree, block_item, dcp_item, length, is_response);
+        offset = dissect_PNDCP_Suboption_Device(tvb, offset, pinfo, block_tree, block_item, dcp_item, is_response);
         break;
     case(PNDCP_OPTION_DHCP):
-        offset = dissect_PNDCP_Suboption_DHCP(tvb, offset, pinfo, block_tree, block_item, dcp_item, length);
+        offset = dissect_PNDCP_Suboption_DHCP(tvb, offset, pinfo, block_tree, block_item, dcp_item, is_response);
         break;
     case(PNDCP_OPTION_LLDP):
-        /* XXX - improve this */
-        offset = dissect_pn_uint8(tvb, offset, pinfo, block_tree, hf_pn_dcp_suboption_lldp, &suboption);
+        offset = dissect_PNDCP_Suboption_LLDP(tvb, offset, pinfo, block_tree, block_item, dcp_item, is_response);
         break;
     case(PNDCP_OPTION_CONTROL):
-        offset = dissect_PNDCP_Suboption_Control(tvb, offset, pinfo, block_tree, block_item, dcp_item, length);
+        offset = dissect_PNDCP_Suboption_Control(tvb, offset, pinfo, block_tree, block_item, dcp_item, is_response);
         break;
     case(PNDCP_OPTION_ALLSELECTOR):
-        offset = dissect_PNDCP_Suboption_All(tvb, offset, pinfo, block_tree, block_item, dcp_item, length);
+        offset = dissect_PNDCP_Suboption_All(tvb, offset, pinfo, block_tree, block_item, dcp_item, is_response);
         break;
     case(PNDCP_OPTION_MANUF_X80):
     case(PNDCP_OPTION_MANUF_X81):
     default:
-        offset = dissect_PNDCP_Suboption_Manuf(tvb, offset, pinfo, block_tree, block_item, dcp_item, length);
+        offset = dissect_PNDCP_Suboption_Manuf(tvb, offset, pinfo, block_tree, block_item, dcp_item, is_response);
     }
 
-    if(block_length & 1) {
+    proto_item_set_len(block_item, offset-ori_offset);
+
+    if((offset-ori_offset) & 1) {
         /* we have an odd number of bytes in this block, add a padding byte */
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
     }
@@ -860,15 +849,19 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
     /* dissect a number of blocks (depending on the remaining length) */
     while(data_length) {
         int ori_offset = offset;
+
         if(service_id == PNDCP_SERVICE_ID_GET && service_type == PNDCP_SERVICE_TYPE_REQUEST) {
             /* Selectors */
             offset = dissect_PNDCP_Option(tvb, offset, pinfo, 
                                  tree, dcp_item, hf_pn_dcp_option, TRUE /* append_col */);
         } else {
-            offset = dissect_PNDCP_Block(tvb, offset, pinfo, tree, dcp_item, data_length, is_response);
+            offset = dissect_PNDCP_Block(tvb, offset, pinfo, tree, dcp_item, is_response);
         }
-        ori_offset= offset - ori_offset;
-        data_length -= ori_offset;
+        /* prevent an infinite loop */
+        if(offset <= ori_offset || data_length < (offset - ori_offset)) {
+            THROW(ReportedBoundsError);
+        }
+        data_length -= (offset - ori_offset);
     }
 }
 
