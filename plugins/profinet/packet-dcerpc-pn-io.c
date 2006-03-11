@@ -58,6 +58,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 
