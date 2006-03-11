@@ -8778,9 +8778,9 @@ proto_register_nfs(void)
 				       "Fhandle filters finds both request/response",
 				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
 					&nfs_fhandle_reqrep_matching);
-	nfs_name_snoop_known=se_tree_create(SE_TREE_TYPE_RED_BLACK);
-	nfs_file_handles=se_tree_create(SE_TREE_TYPE_RED_BLACK);
-	nfs_fhandle_frame_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	nfs_name_snoop_known=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_name_snoop_known");
+	nfs_file_handles=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_file_handles");
+	nfs_fhandle_frame_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "nfs_fhandle_frame_table");
 	register_init_routine(nfs_name_snoop_init);
 }
 

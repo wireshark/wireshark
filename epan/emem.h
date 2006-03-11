@@ -186,6 +186,7 @@ typedef struct _se_tree_node_t {
 typedef struct _se_tree_t {
 	struct _se_tree_t *next;
 	int type;
+	char *name;    /* just a string to make debugging easier */
 	se_tree_node_t *tree;
 } se_tree_t;
 extern se_tree_t *se_trees;
@@ -197,7 +198,7 @@ extern se_tree_t *se_trees;
  *
  * type is : SE_TREE_TYPE_RED_BLACK for a standard red/black tree.
  */
-se_tree_t *se_tree_create(int type);
+se_tree_t *se_tree_create(int type, char *name);
 
 /* This function is used to insert a node indexed by a guint32 key value.
  * The data pointer should be allocated by SE allocators so that the
@@ -220,7 +221,7 @@ void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
  * another structure that is also se allocated so that when the structure is
  * released, the tree will be completely released as well.
  */
-se_tree_t *se_tree_create_non_persistent(int type);
+se_tree_t *se_tree_create_non_persistent(int type, char *name);
 
 typedef struct _se_tree_key_t {
 	guint32 length;			/*length in guint32 words */

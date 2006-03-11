@@ -812,7 +812,7 @@ void print_tree(se_tree_node_t *node){
 se_tree_t *se_trees=NULL;
 
 se_tree_t *
-se_tree_create(int type)
+se_tree_create(int type, char *name)
 {
 	se_tree_t *tree_list;
 
@@ -820,6 +820,7 @@ se_tree_create(int type)
 	tree_list->next=se_trees;
 	tree_list->type=type;
 	tree_list->tree=NULL;
+	tree_list->name=name;
 	se_trees=tree_list;
 
 	return tree_list;
@@ -1177,7 +1178,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
  * never existed including all metadata associated with the tree.
  */
 se_tree_t *
-se_tree_create_non_persistent(int type)
+se_tree_create_non_persistent(int type, char *name)
 {
 	se_tree_t *tree_list;
 
@@ -1185,13 +1186,14 @@ se_tree_create_non_persistent(int type)
 	tree_list->next=NULL;
 	tree_list->type=type;
 	tree_list->tree=NULL;
+	tree_list->name=name;
 
 	return tree_list;
 }
 
 static void* create_sub_tree(void* d) {
 	se_tree_t *se_tree = d;
-	return se_tree_create_non_persistent(se_tree->type);
+	return se_tree_create_non_persistent(se_tree->type, "subtree");
 }
 
 /* insert a new node in the tree. if this node matches an already existing node

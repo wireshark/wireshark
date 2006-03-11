@@ -2116,10 +2116,10 @@ void proto_register_h248(void) {
   
   register_init_routine( &h248_init );
 
-  msgs = se_tree_create(SE_TREE_TYPE_RED_BLACK);
-  trxs = se_tree_create(SE_TREE_TYPE_RED_BLACK);
-  ctxs_by_trx = se_tree_create(SE_TREE_TYPE_RED_BLACK);
-  ctxs = se_tree_create(SE_TREE_TYPE_RED_BLACK);
+  msgs = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_msgs");
+  trxs = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_trxs");
+  ctxs_by_trx = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_ctxs_by_trx");
+  ctxs = se_tree_create(SE_TREE_TYPE_RED_BLACK, "h248_ctxs");
 
 }
 

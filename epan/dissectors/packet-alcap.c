@@ -1788,9 +1788,9 @@ proto_register_alcap(void)
                                    "Whether persistent call leg information is to be kept",
                                    &keep_persistent_info);
     
-	legs_by_dsaid = se_tree_create(SE_TREE_TYPE_RED_BLACK);
-	legs_by_osaid = se_tree_create(SE_TREE_TYPE_RED_BLACK);
-	legs_by_bearer = se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	legs_by_dsaid = se_tree_create(SE_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
+	legs_by_osaid = se_tree_create(SE_TREE_TYPE_RED_BLACK, "legs_by_osaid");
+	legs_by_bearer = se_tree_create(SE_TREE_TYPE_RED_BLACK, "legs_by_bearer");
 	
 }
 

@@ -3078,8 +3078,8 @@ proto_register_tcp(void)
 	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
 	    &try_heuristic_first);
 
-	tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
-	tcp_analyze_acked_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "tcp_pdu_time_table");
+	tcp_analyze_acked_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 	register_init_routine(tcp_analyze_seq_init);
 	register_init_routine(tcp_desegment_init);
 	register_init_routine(tcp_fragment_init);
