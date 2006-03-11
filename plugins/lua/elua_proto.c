@@ -950,28 +950,21 @@ int Proto_register(lua_State* L) {
 int Proto_commit(lua_State* L) {
 	lua_settop(L,0);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
-	elua_print_stack("Proto_commit 0 ",L);
 	
 	for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 2)) {
 		GArray* hfa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
 		GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
 		Proto proto;
 		const gchar* proto_name;
-		elua_print_stack("Proto_commit 1 ",L);
 		proto_name = lua_tostring(L,2);
 		proto = checkProto(L,3);
 		
-		elua_print_stack("Proto_commit 2 ",L);
-		
 		lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
 
-		elua_print_stack("Proto_commit 3 ",L);
-		
 		for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
 			ProtoField f = checkProtoField(L,6);
 			hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
 			gint* ettp = &(f->ett);
-			elua_print_stack("Proto_commit 4.2 ",L);
 
 			if (f->hfid != -2) {
 				return luaL_error(L,"fields can be registered only once");
@@ -987,9 +980,6 @@ int Proto_commit(lua_State* L) {
 		
 		g_array_free(hfa,FALSE);
 		g_array_free(etta,FALSE);
-		
-		elua_print_stack("Proto_commit 5 ",L);
-
 	}
 	
 	return 0;
