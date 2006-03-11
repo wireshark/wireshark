@@ -782,6 +782,30 @@ void* ep_stack_pop(ep_stack_t stack) {
 
 
 
+#ifdef REMOVED
+void print_tree_item(se_tree_node_t *node, int level){
+	int i;
+	for(i=0;i<level;i++){
+		printf("   ");
+	}
+	printf("%s  KEY:0x%08x node:0x%08x parent:0x%08x left:0x%08x right:0x%08x\n",node->rb_color==SE_TREE_RB_COLOR_BLACK?"BLACK":"RED",node->key32,(int)node,(int)node->parent,(int)node->left,(int)node->right);
+	if(node->left)
+		print_tree_item(node->left,level+1);
+	if(node->right)
+		print_tree_item(node->right,level+1);
+}
+
+void print_tree(se_tree_node_t *node){
+	if(!node){
+		return;
+	}
+	while(node->parent){
+		node=node->parent;
+	}
+	print_tree_item(node,0);
+}
+#endif
+
 
 
 /* routines to manage se allocated red-black trees */
@@ -866,27 +890,6 @@ se_tree_uncle(se_tree_node_t *node)
 static inline void rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node);
 static inline void rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node);
 
-#ifdef REMOVED
-void print_tree_item(se_tree_node_t *node, int level){
-	int i;
-	for(i=0;i<level;i++){
-		printf("   ");
-	}
-	printf("%s  KEY:0x%08x node:0x%08x parent:0x%08x left:0x%08x right:0x%08x\n",node->rb_color==SE_TREE_RB_COLOR_BLACK?"BLACK":"RED",node->key32,(int)node,(int)node->parent,(int)node->left,(int)node->right);
-	if(node->left)
-		print_tree_item(node->left,level+1);
-	if(node->right)
-		print_tree_item(node->right,level+1);
-}
-
-void print_tree(se_tree_node_t *node){
-	while(node->parent){
-		node=node->parent;
-	}
-	print_tree_item(node,0);
-}
-#endif
-
 static inline void
 rotate_left(se_tree_t *se_tree, se_tree_node_t *node)
 {
@@ -936,11 +939,8 @@ rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node)
 	se_tree_node_t *parent;
 
 	parent=se_tree_parent(node);
-	parent->rb_color=SE_TREE_RB_COLOR_BLACK;
 	grandparent=se_tree_parent(parent);
-	if(!grandparent){
-		return;
-	}
+	parent->rb_color=SE_TREE_RB_COLOR_BLACK;
 	grandparent->rb_color=SE_TREE_RB_COLOR_RED;
 	if( (node==parent->left) && (parent==grandparent->left) ){
 		rotate_right(se_tree, grandparent);
@@ -983,9 +983,8 @@ rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
 		parent->rb_color=SE_TREE_RB_COLOR_BLACK;
 		uncle->rb_color=SE_TREE_RB_COLOR_BLACK;
 		grandparent=se_tree_grandparent(node);
-		if(grandparent){
-			rb_insert_case1(se_tree, grandparent);
-		}
+		grandparent->rb_color=SE_TREE_RB_COLOR_RED;
+		rb_insert_case1(se_tree, grandparent);
 	} else {
 		rb_insert_case4(se_tree, node);
 	}
