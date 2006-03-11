@@ -124,6 +124,16 @@ Gnu info
       <itemizedlist>
 
         <listitem><para>
+		The new command line tool <command>dumpcap</command> makes it 
+		possible to capture network data without the drawbacks of (t)ethereal 
+		(memory usage, security problems, ...) while keeping the benefit of 
+		advanced techniques like multiple (ringbuffer) files and alike.
+		</para>
+		<para>
+		The manpage of <command>dumpcap</command> in HTML format is available 
+		at: <ulink url="http://www.ethereal.com/docs/"/>
+        </para></listitem>
+        <listitem><para>
 	  Win32: Catch hardware exceptions caused by buggy dissectors. 
 	  If e.g. a NULL pointer exceptions occurs, Ethereal won't crash now 
 	  but displays the exception and tries to continue decoding packets.
