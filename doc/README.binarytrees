@@ -27,16 +27,21 @@ Please see README.malloc for a description of EmPhereal and SEasonal storage.
 
 2. Basic Usage
 For most users it will be sufficiant to only know and use three functions
-se_tree_t *se_tree_create(int type);
+se_tree_t *se_tree_create(int type, char *name);
 void se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
 void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
 
 
-2.1 se_tree_create(int type);
+2.1 se_tree_create(int type, char *name);
 se_tree_create() is used to initialize a tree that will be automatically 
 cleared and reset everytime ethereal is resetting all SEasonal storage,
 that is every time you load a new capture file into ethereal or when
 you rescan the entire capture file from scratch.
+
+Name is just a literal text string and serves no other purpose than making
+debugging of the trees easier. Specify a name here that uniquely identifies
+both the protocol you create the tree for and its purpose.
+
 
 This function is most likely called once from your 
 proto_register_<yourprotocol>() function.
@@ -48,7 +53,7 @@ static se_tree_t *tcp_pdu_time_table = NULL;
 ...
 void proto_register_...(void) {
    ...
-   tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK);
+   tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "PROTO_my_tree");
    ...
 }
 
@@ -130,7 +135,7 @@ Simple as that, can it be easier?
 This will list some of the more unconventional and hopefully rarely used 
 functions.
 
-3.1 se_tree_create_non_persistent(int type);
+3.1 se_tree_create_non_persistent(int type, char *name);
 Sometimes you dont want a tree that is automatically reset to become an empty
 tree. You might want a tree that is completely destroyed once the next
 capture file is read and even the pointer to the tree itself becomes invalid.
