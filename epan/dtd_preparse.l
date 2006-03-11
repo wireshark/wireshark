@@ -184,7 +184,9 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 	BEGIN OUTSIDE;
 
 	yylex();
-		
+	
+	fclose(yyin);
+	
 	yyrestart(NULL);
 
 	g_hash_table_foreach_remove(entities,free_gstring_hash_items,NULL);

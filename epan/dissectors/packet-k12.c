@@ -146,6 +146,7 @@ static GHashTable* k12_load_config(const gchar* filename) {
 
 	if (( fp = fopen(filename,"r") )) {
 		len = fread(buffer,1,0xFFFF,fp);
+		fclose(fp);
 	} else {
 		report_open_failure(filename, errno, FALSE);
 		return NULL;
