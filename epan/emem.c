@@ -853,8 +853,35 @@ se_tree_lookup32(se_tree_t *se_tree, guint32 key)
 
 
 static inline se_tree_node_t *
-se_tree_uncle(se_tree_node_t *parent, se_tree_node_t *grandparent)
+se_tree_parent(se_tree_node_t *node)
 {
+	return node->parent;
+}
+
+static inline se_tree_node_t *
+se_tree_grandparent(se_tree_node_t *node)
+{
+	se_tree_node_t *parent;
+
+	parent=se_tree_parent(node);
+	if(parent){
+		return parent->parent;
+	}
+	return NULL;
+}
+static inline se_tree_node_t *
+se_tree_uncle(se_tree_node_t *node)
+{
+	se_tree_node_t *parent, *grandparent;
+
+	parent=se_tree_parent(node);
+	if(!parent){
+		return NULL;
+	}
+	grandparent=se_tree_parent(parent);
+	if(!grandparent){
+		return NULL;
+	}
 	if(parent==grandparent->left){
 		return grandparent->right;
 	}
@@ -862,7 +889,7 @@ se_tree_uncle(se_tree_node_t *parent, se_tree_node_t *grandparent)
 }
 
 static inline void rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node);
-static inline void rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent);
+static inline void rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node);
 
 static inline void
 rotate_left(se_tree_t *se_tree, se_tree_node_t *node)
@@ -907,8 +934,13 @@ rotate_right(se_tree_t *se_tree, se_tree_node_t *node)
 }
 
 static inline void
-rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent, se_tree_node_t *grandparent)
+rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node)
 {
+	se_tree_node_t *grandparent;
+	se_tree_node_t *parent;
+
+	parent=se_tree_parent(node);
+	grandparent=se_tree_parent(parent);
 	parent->rb_color=SE_TREE_RB_COLOR_BLACK;
 	grandparent->rb_color=SE_TREE_RB_COLOR_RED;
 	if( (node==parent->left) && (parent==grandparent->left) ){
@@ -919,8 +951,16 @@ rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent
 }
 
 static inline void
-rb_insert_case4(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent, se_tree_node_t *grandparent)
+rb_insert_case4(se_tree_t *se_tree, se_tree_node_t *node)
 {
+	se_tree_node_t *grandparent;
+	se_tree_node_t *parent;
+
+	parent=se_tree_parent(node);
+	grandparent=se_tree_parent(parent);
+	if(!grandparent){
+		return;
+	}
 	if( (node==parent->right) && (parent==grandparent->left) ){
 		rotate_left(se_tree, parent);
 		node=node->left;
@@ -928,39 +968,40 @@ rb_insert_case4(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent
 		rotate_right(se_tree, parent);
 		node=node->right;
 	}
-	rb_insert_case5(se_tree, node, parent, grandparent);
+	rb_insert_case5(se_tree, node);
 }
 
-/* parent is guaranteed to be non-NULL */
 static inline void
-rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent)
+rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
 {
 	se_tree_node_t *grandparent;
+	se_tree_node_t *parent;
 	se_tree_node_t *uncle;
 
-	grandparent=parent->parent;
-	if(!grandparent){
-		return;
-	}
-	uncle=se_tree_uncle(parent, grandparent);
+	uncle=se_tree_uncle(node);
 	if(uncle && (uncle->rb_color==SE_TREE_RB_COLOR_RED)){
+		parent=se_tree_parent(node);
 		parent->rb_color=SE_TREE_RB_COLOR_BLACK;
 		uncle->rb_color=SE_TREE_RB_COLOR_BLACK;
+		grandparent=se_tree_grandparent(node);
 		grandparent->rb_color=SE_TREE_RB_COLOR_RED;
 		rb_insert_case1(se_tree, grandparent);
 	} else {
-		rb_insert_case4(se_tree, node, parent, grandparent);
+		rb_insert_case4(se_tree, node);
 	}
 }
 
-/* parent is guaranteed to be non-NULL */
 static inline void
-rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent)
+rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node)
 {
+	se_tree_node_t *parent;
+
+	parent=se_tree_parent(node);
+	/* parent is always non-NULL here */
 	if(parent->rb_color==SE_TREE_RB_COLOR_BLACK){
 		return;
 	}
-	rb_insert_case3(se_tree, node, parent);
+	rb_insert_case3(se_tree, node);
 }
 
 static inline void
@@ -968,12 +1009,12 @@ rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node)
 {
 	se_tree_node_t *parent;
 
-	parent=node->parent;
+	parent=se_tree_parent(node);
 	if(!parent){
 		node->rb_color=SE_TREE_RB_COLOR_BLACK;
 		return;
 	}
-	rb_insert_case2(se_tree, node, parent);
+	rb_insert_case2(se_tree, node);
 }
 
 /* insert a new node in the tree. if this node matches an already existing node
