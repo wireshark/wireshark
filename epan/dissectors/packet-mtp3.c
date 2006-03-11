@@ -479,6 +479,9 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case CHINESE_ITU_STANDARD:
     payload_tvb = tvb_new_subset(tvb, ANSI_MTP_PAYLOAD_OFFSET, -1, -1);
     break;
+  default:
+	  DISSECTOR_ASSERT_NOT_REACHED();
+	  return;
   }
 
   if (check_col(pinfo->cinfo, COL_INFO))
