@@ -1385,6 +1385,8 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     
     msg_info->dsaid = tvb_get_ntohl(tvb, 0);
     msg_info->msg_type = tvb_get_guint8(tvb, 4);
+
+	/* coverity[overrun-local] */
     msg_type = GET_MSG_TYPE(msg_info->msg_type);
     
     expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, msg_type->severity, " ");
