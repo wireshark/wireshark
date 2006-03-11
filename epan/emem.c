@@ -939,6 +939,9 @@ rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node, se_tree_node_t *parent
 	se_tree_node_t *uncle;
 
 	grandparent=parent->parent;
+	if(!grandparent){
+		return;
+	}
 	uncle=se_tree_uncle(parent, grandparent);
 	if(uncle && (uncle->rb_color==SE_TREE_RB_COLOR_RED)){
 		parent->rb_color=SE_TREE_RB_COLOR_BLACK;
