@@ -867,11 +867,10 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    pu8StationName = g_malloc(u16NameLength+1);
+    pu8StationName = ep_alloc(u16NameLength+1);
     tvb_memcpy(tvb, pu8StationName, offset, u16NameLength);
     pu8StationName[u16NameLength] = '\0';
     proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pu8StationName);
-    g_free(pu8StationName);
     offset += u16NameLength;
 
     /*if (check_col(pinfo->cinfo, COL_INFO))
@@ -1157,11 +1156,10 @@ dissect_MCRBlockReq(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    pu8StationName = g_malloc(u16NameLength+1);
+    pu8StationName = ep_alloc(u16NameLength+1);
     tvb_memcpy(tvb, pu8StationName, offset, u16NameLength);
     pu8StationName[u16NameLength] = '\0';
     proto_tree_add_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, pu8StationName);
-    g_free(pu8StationName);
     offset += u16NameLength;    
 
     return offset;

@@ -489,7 +489,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     switch(suboption) {
     case(PNDCP_SUBOPTION_DEVICE_MANUF):
-        typeofstation = g_malloc(block_length+1);
+        typeofstation = ep_alloc(block_length+1);
         tvb_memcpy(tvb, typeofstation, offset, block_length);
         typeofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
@@ -498,11 +498,10 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if(is_response)
             proto_item_append_text(block_item, ", Status: %u", status);
         proto_item_append_text(block_item, ", TypeOfStation: \"%s\"", typeofstation);
-        g_free(typeofstation);
         offset += block_length;
         break;
     case(PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION):
-        nameofstation = g_malloc(block_length+1);
+        nameofstation = ep_alloc(block_length+1);
         tvb_memcpy(tvb, nameofstation, offset, block_length);
         nameofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, nameofstation);
@@ -511,7 +510,6 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if(is_response)
             proto_item_append_text(block_item, ", Status: %u", status);
         proto_item_append_text(block_item, ", \"%s\"", nameofstation);
-        g_free(nameofstation);
         offset += block_length;
         break;
     case(PNDCP_SUBOPTION_DEVICE_DEV_ID):
@@ -540,9 +538,8 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(block_item, ", PN-Supervisor");
         break;
     case(PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS):
-        info_str = g_strdup_printf(", Dev-Options(%u)", block_length/2);
+        info_str = ep_strdup_printf(", Dev-Options(%u)", block_length/2);
         pn_append_info(pinfo, dcp_item, info_str);
-        g_free(info_str);
         proto_item_append_text(block_item, "Device/Device Options");
         if(is_response)
             proto_item_append_text(block_item, ", Status: %u", status);
@@ -659,9 +656,8 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_status, 
             FALSE /* append_col */);
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_result, &result);
-        info_str = g_strdup_printf(", Response(%s)", val_to_str(result, pn_dcp_result, "Unknown"));
+        info_str = ep_strdup_printf(", Response(%s)", val_to_str(result, pn_dcp_result, "Unknown"));
         pn_append_info(pinfo, dcp_item, info_str);
-        g_free(info_str);
         proto_item_append_text(block_item, ", Result: %s", val_to_str(result, pn_dcp_result, "Unknown"));
         break;
     default:
@@ -842,9 +838,8 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         return;
     }
 
-    xid_str = g_strdup_printf(", Xid:0x%x", xid);
+    xid_str = ep_strdup_printf(", Xid:0x%x", xid);
     pn_append_info(pinfo, dcp_item, xid_str);
-    g_free(xid_str);
 
     /* dissect a number of blocks (depending on the remaining length) */
     while(data_length) {
