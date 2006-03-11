@@ -68,6 +68,7 @@
 
 #include <epan/tvbuff.h>
 #include <epan/asn1.h>
+#include <epan/emem.h>
 
 /*
  * NAME:        asn1_open                                   [API]
