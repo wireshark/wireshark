@@ -58,7 +58,7 @@ static int elua_not_print(lua_State* L) {
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
     lua_tvb = tvb;
-
+	
 	lua_tree = ep_alloc(sizeof(struct _eth_treeitem));
 	lua_tree->tree = tree;
 	lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
@@ -70,14 +70,14 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
      */
     
     lua_settop(L,0);
-
+	
     lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);    
     
     lua_pushstring(L, pinfo->current_proto);
     lua_gettable(L, -2);  
-
+	
     lua_remove(L,1);
-
+	
     
     if (lua_isfunction(L,1)) {
         
@@ -87,7 +87,7 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         
         if  ( lua_pcall(L,3,0,0) ) {
             const gchar* error = lua_tostring(L,-1);
-
+			
             proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: %s",error);
             expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
         }
@@ -101,12 +101,12 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     clear_outstanding_tvbs();
     clear_outstanding_pinfos();
     clear_outstanding_trees();
-
+	
     
     lua_pinfo = NULL;
     lua_tree = NULL;
     lua_tvb = NULL;
-
+	
 }
 
 static void iter_table_and_call(lua_State* LS, int env, const gchar* table_name, lua_CFunction error_handler) {
@@ -155,9 +155,7 @@ static int init_error_handler(lua_State* L) {
 
 static void init_lua(void) {
     if ( ! lua_initialized ) {
-
         lua_prime_all_fields(NULL);
-        
         lua_initialized = TRUE;
     }
     
@@ -219,6 +217,11 @@ static void basic_logger(const gchar *log_domain _U_,
     fputs(message,stderr);
 }
 
+static int elua_panic(lua_State* LS) {
+	g_error("LUA PANIC: %s",lua_tostring(LS,-1));
+	return 0;
+}
+
 void register_lua(void) {
     const gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
@@ -234,6 +237,8 @@ void register_lua(void) {
     
 	ELUA_INIT(L);
     
+	lua_atpanic(L,elua_panic);
+	
     /* print has been changed to yield an error if used */
     lua_pushstring(L, "print");
     lua_pushcfunction(L, elua_not_print);
@@ -310,6 +315,8 @@ void register_lua(void) {
     lua_data_handle = find_dissector("data");
     lua_malformed = proto_get_id_by_filter_name("malformed");
     
+	Proto_commit(L);
+
     return;
 }
 

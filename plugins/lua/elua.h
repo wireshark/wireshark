@@ -289,19 +289,14 @@ extern int lua_dissectors_table_ref;
 ELUA_DECLARE_CLASSES()
 ELUA_DECLARE_FUNCTIONS()
 
-extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
-extern int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data _U_);
-extern void lua_tap_reset(void *tapdata);
-extern void lua_tap_draw(void *tapdata);
-
 extern const gchar* lua_shiftstring(lua_State* L,int idx);
+extern void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 
-extern int lua_register_menu(lua_State* L);
-extern int lua_new_dialog(lua_State* L);
-extern int lua_gui_enabled(lua_State* L);
 extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
 extern void lua_prime_all_fields(proto_tree* tree);
+
+extern int Proto_commit(lua_State* L);
 
 extern void* push_Tvb(lua_State* L, Tvb tvb);
 extern void clear_outstanding_tvbs(void);
@@ -311,5 +306,7 @@ extern void clear_outstanding_pinfos(void);
 
 extern void* push_TreeItem(lua_State* L, TreeItem ti);
 extern void clear_outstanding_trees(void);
+
+extern void elua_print_stack(char* s, lua_State* L);
 
 #endif

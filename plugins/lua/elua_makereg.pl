@@ -35,17 +35,17 @@ while (<>) {
 
 print "/* This file is automatically genrated by elua_makereg.pl do not edit */\n\n";
 
-print "#define ELUA_REGISTER_CLASSES() { \\\n"; 
-for (@classes) {
-	print "\t${_}_register(L);\\\n"
-}
-print "}\n\n";
-
 print "#define ELUA_DECLARE_CLASSES() \\\n"; 
 for (@classes) {
 	print "\tELUA_CLASS_DECLARE($_);\\\n"
 }
 print "\n\n";
+
+print "#define ELUA_REGISTER_CLASSES() { \\\n"; 
+for (@classes) {
+	print "\t${_}_register(L);\\\n"
+}
+print "}\n\n";
 
 print "#define ELUA_DECLARE_FUNCTIONS() \\\n"; 
 for (@functions) {

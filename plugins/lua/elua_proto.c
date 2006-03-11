@@ -462,7 +462,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     f->hfid = -2;
 	f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = NULL;
+    f->abbr = g_strdup(abbr);
     f->type = type;
     f->vs = vs;
     f->base = base;
@@ -514,7 +514,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     f->hfid = -2;
 	f->ett = -1;
     f->name = g_strdup(name);
-    f->abbr = NULL;
+    f->abbr = g_strdup(abbr);
     f->type = type;
     f->vs = NULL;
     f->base = ( type == FT_FLOAT || type == FT_DOUBLE) ? BASE_DEC : BASE_NONE;
@@ -646,7 +646,7 @@ ELUA_CLASS_DEFINE(Proto,NOP)
   other purposes.
  */
 
-static int protocols_table_ref = 0;
+static int protocols_table_ref = LUA_NOREF;
 
 ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
 #define ELUA_ARG_Proto_new_NAME 1 /* The name of the protocol */
@@ -669,7 +669,7 @@ ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
             proto->name = loname;
             proto->desc = g_strdup(desc);
-			proto->hfid = proto_register_protocol(proto->desc,loname,hiname);
+			proto->hfid = proto_register_protocol(proto->desc,hiname,loname);
 			proto->ett = -1;
 			
 			lua_newtable (L);
@@ -685,14 +685,16 @@ ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
             proto->prefs_module = NULL;
             proto->handle = NULL;
             
-			if (! protocols_table_ref) {
+			if ( protocols_table_ref == LUA_NOREF) {
 				lua_newtable(L);
 				protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 			}
 			
 			lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
-			pushProto(L,proto);
+
 			lua_pushstring(L,loname);
+			pushProto(L,proto);
+
 			lua_settable(L, -3);
 			
 			pushProto(L,proto);
@@ -813,32 +815,43 @@ static int Proto_get_fields(lua_State* L) {
     return 1;
 }
 
-static int Proto_set_fields(lua_State* L) {
-	int i = 0;
-    Proto proto = toProto(L,1);
-    /* "fields" string in pos 2 */
-	/* assigned value in pos 3 */
-	lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields); /* fields table in pos 4 */
-	lua_replace(L,2); /* fields table now in pos 2 */
+void elua_print_stack(char* s, lua_State* L) {
+	int i;
 	
-	for (lua_pushnil(L); lua_next(L, 2); lua_pop(L, 1)) { i++; } /* find last index of table */
-	
-	if( lua_istable(L,3)) {
+	for (i=1;i<=lua_gettop(L);i++) {
+		printf("%s-%i: %s\n",s,i,lua_typename (L,lua_type(L, i)));
+	}
+	printf("\n");
+}
 
-		for (lua_pushnil(L); lua_next(L, 3); lua_pop(L, 1)) {
-			if (! isProtoField(L,-1)) {
+static int Proto_set_fields(lua_State* L) {
+    Proto proto = toProto(L,1);
+#define FIELDS_TABLE 2
+#define NEW_TABLE 3
+#define NEW_FIELD 3
+
+	lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
+	lua_replace(L,FIELDS_TABLE);
+
+
+	if( lua_istable(L,NEW_TABLE)) {
+		for (lua_pushnil(L); lua_next(L, NEW_TABLE); ) {
+			if (isProtoField(L,5)) {
+				luaL_ref(L,FIELDS_TABLE);
+			} else if (! lua_isnil(L,5) ) {
 				return luaL_error(L,"only ProtoFields should be in the table");
 			}
-			lua_rawseti(L,4,i++);
 		}
-	} else if (isProtoField(L,3)){
-		lua_pushvalue(L, 3);
-		lua_rawseti(L,4,i++);
+	} else if (isProtoField(L,NEW_FIELD)){
+		lua_pushvalue(L, NEW_FIELD);
+		luaL_ref(L,FIELDS_TABLE);
+
 	} else {
 		return luaL_error(L,"either a ProtoField or an array of protofields");
 	}
 	
 	lua_pushvalue(L, 3);
+	
     return 1;
 }
 
@@ -937,17 +950,28 @@ int Proto_register(lua_State* L) {
 int Proto_commit(lua_State* L) {
 	lua_settop(L,0);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
+	elua_print_stack("Proto_commit 0 ",L);
 	
-	for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
+	for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 2)) {
 		GArray* hfa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
 		GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
-		Proto proto = checkProto(L,-1);
+		Proto proto;
+		const gchar* proto_name;
+		elua_print_stack("Proto_commit 1 ",L);
+		proto_name = lua_tostring(L,2);
+		proto = checkProto(L,3);
+		
+		elua_print_stack("Proto_commit 2 ",L);
 		
 		lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
+
+		elua_print_stack("Proto_commit 3 ",L);
 		
-		for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
-			ProtoField f = checkProtoField(L,-1);
+		for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
+			ProtoField f = checkProtoField(L,6);
 			hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
+			gint* ettp = &(f->ett);
+			elua_print_stack("Proto_commit 4.2 ",L);
 
 			if (f->hfid != -2) {
 				return luaL_error(L,"fields can be registered only once");
@@ -955,9 +979,7 @@ int Proto_commit(lua_State* L) {
 			
 			f->hfid = -1;
 			g_array_append_val(hfa,hfri);
-
-			g_array_set_size(etta,etta->len+1);
-			g_array_index(etta,gint*,etta->len) = &(f->ett);
+			g_array_append_val(etta,ettp);
 		}
 		
 		proto_register_field_array(proto->hfid,(hf_register_info*)hfa->data,hfa->len);
@@ -965,16 +987,21 @@ int Proto_commit(lua_State* L) {
 		
 		g_array_free(hfa,FALSE);
 		g_array_free(etta,FALSE);
+		
+		elua_print_stack("Proto_commit 5 ",L);
+
 	}
 	
 	return 0;
 }
 
 
+
 ELUA_CLASS_DEFINE(Dissector,NOP)
 /*
    A refererence to a dissector, used to call a dissector against a packet or a part of it.
  */
+
 
 ELUA_CONSTRUCTOR Dissector_get (lua_State *L) {
 	/*
