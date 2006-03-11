@@ -496,7 +496,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				break;
 
 			case ETH_CAPTYPE_GIGPOD:
-				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_GIGPOD
+				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_GIGPOD
 				    || TpS_gigpod[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
 					*err_info = g_strdup_printf(
@@ -516,7 +516,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				break;
 
 			case ETH_CAPTYPE_OTHERPOD:
-				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_OTHERPOD
+				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_OTHERPOD
 				    || TpS_otherpod[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
 					*err_info = g_strdup_printf(
@@ -536,7 +536,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				break;
 
 			case ETH_CAPTYPE_OTHERPOD2:
-				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_OTHERPOD2
+				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_OTHERPOD2
 				    || TpS_otherpod2[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
 					*err_info = g_strdup_printf(
@@ -558,7 +558,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				break;
 
 			case ETH_CAPTYPE_GIGPOD2:
-				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_GIGPOD2
+				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_GIGPOD2
 				    || TpS_gigpod2[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
 					*err_info = g_strdup_printf(
@@ -579,7 +579,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			break;
 
 		default:
-			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+			if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS) {
 				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf(
 				    "netxray: Unknown timeunit %u for %u/%u version %.8s capture",
