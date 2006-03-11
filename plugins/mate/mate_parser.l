@@ -147,6 +147,7 @@ blk_cmnt_stop  "*/"
 	if (!yyin) {
 		yy_delete_buffer( YY_CURRENT_BUFFER );
 		
+		/* coverity[negative_sink] */
 		yy_switch_to_buffer(include_stack[--include_stack_ptr] );
 		
 		if (errno)
@@ -167,6 +168,7 @@ blk_cmnt_stop  "*/"
 }
 
 <<EOF>>	{	
+	/* coverity[check_after_sink] */
 	if ( --include_stack_ptr < 0 ) {
 		yyterminate();
 	} else {
