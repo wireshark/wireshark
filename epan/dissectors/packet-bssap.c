@@ -660,7 +660,7 @@ check_ie(tvbuff_t *tvb, proto_tree *tree, int *offset, guint8 expected_ie){
 	if (ie_type != expected_ie){
 		proto_tree_add_text(tree, tvb, *offset, 1, "Mandatory IE %s expected but IE %s Found",
 			val_to_str(expected_ie,bssap_plus_ie_id_values,"Unknown %u"), val_to_str(ie_type,bssap_plus_ie_id_values,"Unknown %u"));
-		*offset++;
+		offset++;
 		ie_len = tvb_get_guint8(tvb,*offset);
 		*offset = *offset + ie_len;
 		return FALSE;
