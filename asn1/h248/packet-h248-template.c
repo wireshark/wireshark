@@ -1143,6 +1143,11 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
     h248_msg_t* m;
     guint32 framenum = (guint32)pinfo->fd->num;
 	guint32 offset = (guint32)o;
+	address* src = &(pinfo->src);
+	address* dst = &(pinfo->dst);
+	address* lo_addr;
+	address* hi_addr;
+	
 	
     if (keep_persistent_data) {
 		se_tree_key_t key[] = {
@@ -1169,11 +1174,6 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
         m->commited = FALSE;
     }
 
-	address* src = &(pinfo->src);
-	address* dst = &(pinfo->dst);
-	address* lo_addr;
-	address* hi_addr;
-	
 	if (CMP_ADDRESS(src, dst) < 0)  {
 		lo_addr = src;
 		hi_addr = dst;
