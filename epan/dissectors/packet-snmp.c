@@ -686,16 +686,18 @@ dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, const char *field_name, int ret)
 {
 	const char *errstr;
+    proto_item *item;
 
 	errstr = asn1_err_to_str(ret);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
+		    "[ERROR: Couldn't parse %s: %s]", field_name, errstr);
 	}
 	if (tree != NULL) {
-		proto_tree_add_text(tree, tvb, offset, 0,
+		item = proto_tree_add_text(tree, tvb, offset, 0,
 		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
+        PROTO_ITEM_SET_GENERATED(item);
 		call_dissector(data_handle,
 		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 	}
