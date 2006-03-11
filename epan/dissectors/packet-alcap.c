@@ -404,10 +404,9 @@ static int hf_alcap_leg_release_cause = -1;
 
 static gboolean keep_persistent_info = TRUE;
 
-GHashTable* legs_by_dsaid = NULL;
-GHashTable* legs_by_osaid = NULL;
-GHashTable* legs_by_circuit_id = NULL;
-GHashTable* legs_by_bearer = NULL;
+se_tree_t* legs_by_dsaid = NULL;
+se_tree_t* legs_by_osaid = NULL;
+se_tree_t* legs_by_bearer = NULL;
 
 static gchar* dissect_fields_unknown(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
     proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,FALSE);
@@ -1355,7 +1354,7 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info
 
 
 extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  gchar* key) {
-    alcap_leg_info_t* leg = g_hash_table_lookup(legs_by_bearer,key);
+    alcap_leg_info_t* leg = se_tree_lookup_string(legs_by_bearer,key);
     
     if (leg) {
         alcap_leg_tree(tree,tvb,leg);
@@ -1438,7 +1437,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         alcap_leg_info_t* leg = NULL;
         switch (msg_info->msg_type) {
             case 5: /* ERQ */
-                if( ! ( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->osaid)) )) { 
+                if( ! ( leg = se_tree_lookup32(legs_by_osaid,msg_info->osaid) )) { 
                     leg = se_alloc(sizeof(alcap_leg_info_t));
                     
                     leg->dsaid = 0;
@@ -1453,11 +1452,9 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
                         leg->orig_nsap = se_strdup(msg_info->orig_nsap);
                         
-                        if (!g_hash_table_lookup(legs_by_bearer,key)) {
-                            g_hash_table_insert(legs_by_bearer,key,leg);
+                        if (!se_tree_lookup_string(legs_by_bearer,key)) {
+                            se_tree_insert_string(legs_by_bearer,key,leg);
                         }
-                        
-                        proto_tree_add_text(alcap_tree,tvb,0,0,"Key=>%s",key);
                     }
                     
                     if (msg_info->dest_nsap) {
@@ -1466,29 +1463,29 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
                         leg->dest_nsap = se_strdup(msg_info->dest_nsap);
 
-                        if (!g_hash_table_lookup(legs_by_bearer,key)) {
-                            g_hash_table_insert(legs_by_bearer,key,leg);
+                        if (!se_tree_lookup_string(legs_by_bearer,key)) {
+                            se_tree_insert_string(legs_by_bearer,key,leg);
                         }
                     }
                     
                     leg->msgs = NULL;
                     leg->release_cause = 0;
                     
-                    g_hash_table_insert(legs_by_osaid,GUINT_TO_POINTER(leg->osaid),leg);
+                    se_tree_insert32(legs_by_osaid,leg->osaid,leg);
                 }
                 break;
             case 4: /* ECF */
-                if(( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )) { 
+                if(( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) { 
                     leg->dsaid = msg_info->osaid;
-                    g_hash_table_insert(legs_by_dsaid,GUINT_TO_POINTER(leg->dsaid),leg);	
+                    se_tree_insert32(legs_by_dsaid,leg->dsaid,leg);	
                 }
                 break;
             case 6: /* RLC */
             case 12:  /* MOA */
             case 13: /* MOR */
             case 14: /* MOD */
-                if( ( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )
-                    || ( leg = g_hash_table_lookup(legs_by_dsaid,GUINT_TO_POINTER(msg_info->dsaid)) ) ) { 
+                if( ( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )
+                    || ( leg = se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) { 
                     
                     if(msg_info->release_cause)
                         leg->release_cause =  msg_info->release_cause;
@@ -1496,11 +1493,11 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 }
                 break;
             case 7: /* REL */
-                leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid));
+                leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid);
                 
                 if(leg) {
                     leg->release_cause =  msg_info->release_cause;
-                } else if (( leg = g_hash_table_lookup(legs_by_dsaid,GUINT_TO_POINTER(msg_info->dsaid)) )) {
+                } else if (( leg = se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) )) {
                     leg->release_cause =  msg_info->release_cause;
                 }
                     break;
@@ -1527,20 +1524,6 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         
         if (tree && leg) alcap_leg_tree(alcap_tree,tvb,leg);
     }
-}
-
-static gboolean just_do_it(gpointer k _U_, gpointer v _U_, gpointer p _U_) { return TRUE; }
-
-static void alcap_init(void) {
-	if (legs_by_dsaid == NULL) {
-		legs_by_dsaid = g_hash_table_new(g_direct_hash,g_direct_equal);
-		legs_by_osaid = g_hash_table_new(g_direct_hash,g_direct_equal);
-        legs_by_bearer = g_hash_table_new(g_str_hash,g_str_equal);
-	} else {
-		g_hash_table_foreach_remove(legs_by_dsaid,just_do_it,NULL);
-		g_hash_table_foreach_remove(legs_by_osaid,just_do_it,NULL);
-		g_hash_table_foreach_remove(legs_by_bearer,just_do_it,NULL);
-	}
 }
 
 void
@@ -1796,14 +1779,17 @@ proto_register_alcap(void)
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 	
-    alcap_module = prefs_register_protocol(proto_alcap, alcap_init);
+    alcap_module = prefs_register_protocol(proto_alcap, NULL);
     
     prefs_register_bool_preference(alcap_module, "leg_info",
                                    "Keep Leg Information",
                                    "Whether persistent call leg information is to be kept",
                                    &keep_persistent_info);
     
-	register_init_routine( &alcap_init );
+	legs_by_dsaid = se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	legs_by_osaid = se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	legs_by_bearer = se_tree_create(SE_TREE_TYPE_RED_BLACK);
+	
 }
 
 
