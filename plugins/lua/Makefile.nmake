@@ -53,11 +53,14 @@ doc: $(MODULES)
 
 #elua.c: $(LUA_LIBS)
 
+init.lua: template-init.lua make-init-lua.pl ../../epan/ftypes/ftypes.h ../../wiretap/wtap.h  ../../epan/proto.h
+	$(PERL) make-init-lua.pl template-init.lua > init.lua
+
 !ENDIF
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) lua.dll lua.exp lua.lib *.pdb
+	rm -f $(OBJECTS) lua.dll lua.exp lua.lib *.pdb init.lua
 
 distclean: clean
 
