@@ -29,6 +29,8 @@
 #include "elua.h"
 #include <epan/expert.h>
 
+static gint elua_ett = -1;
+
 static GPtrArray* outstanding_stuff = NULL;
 
 #define PUSH_TREEITEM(L,i) g_ptr_array_add(outstanding_stuff,push_TreeItem(L,i))
@@ -62,7 +64,6 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     if (!tree_item) {
         return luaL_error(L,"not a TreeItem!");
     }
-	    
     if (! ( field = shiftProtoField(L,1) ) ) {
         if (( proto = shiftProto(L,1) )) {
             hfid = proto->hfid;
@@ -159,19 +160,20 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
             lua_remove(L,1);
         }
     }
-    
+
     while(lua_gettop(L)) {
         const gchar* s = lua_tostring(L,1);
-        
+
         if (s) proto_item_append_text(item, " %s", s);
 
         lua_remove(L,1);
 
     }
     
+
 	tree_item = ep_alloc(sizeof(struct _eth_treeitem));
 	tree_item->item = item;
-	tree_item->tree = proto_item_add_subtree(item,ett);;
+	tree_item->tree = proto_item_add_subtree(item,ett > 0 ? ett : elua_ett);
 
     PUSH_TREEITEM(L,tree_item);
     
@@ -330,6 +332,7 @@ static const luaL_reg TreeItem_meta[] = {
 
 int TreeItem_register(lua_State *L) {
 	const struct _expert_severity* s;
+	gint* etts[] = { &elua_ett };
 	
 	ELUA_REGISTER_CLASS(TreeItem);    
     outstanding_stuff = g_ptr_array_new();
@@ -340,5 +343,7 @@ int TreeItem_register(lua_State *L) {
         lua_settable(L, LUA_GLOBALSINDEX);
     }
     
+	proto_register_subtree_array(etts,1);
+	
     return 1;
 }
