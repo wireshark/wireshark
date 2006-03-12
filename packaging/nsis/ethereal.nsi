@@ -726,7 +726,6 @@ Section "LUA Plugin" SecLua
 ;-------------------------------------------
 SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\lua\lua.dll"
-SectionEnd
 SetOutPath $INSTDIR
 File "..\..\plugins\lua\init.lua"
 SectionEnd
