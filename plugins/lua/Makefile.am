@@ -46,6 +46,8 @@ lua_la_SOURCES = \
 lua_la_LDFLAGS = -module -avoid-version
 lua_la_LIBADD = @PLUGIN_LIBS@ @LUA_LIBS@
 
+pkgdata_DATA = init.lua
+
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
 # add them here.
@@ -60,11 +62,14 @@ DISTCLEANFILES = \
 MAINTAINERCLEANFILES = \
 	doc/*.pod	\
 	Makefile.in	\
-	elua_register.h
+	elua_register.h \
+	init.lua
 
 EXTRA_DIST = \
 	elua_register.h \
 	elua_makereg.pl \
+	template-init.lua \
+	make-init-lua.pl \
 	Makefile.nmake
 
 elua.h: elua_register.h
@@ -79,3 +84,6 @@ doc: $(lua_modules)
 
 dummy:
 	touch dummy
+
+init.lua: template-init.lua make-init-lua.pl ../../epan/ftypes/ftypes.h ../../wiretap/wtap.h  ../../epan/proto.h
+	$(PERL) make-init-lua.pl template-init.lua > init.lua
