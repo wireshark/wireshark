@@ -667,10 +667,11 @@ ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
 			g_strdown(loname);
 			g_strup(hiname);
 
-            proto->name = loname;
+            proto->name = hiname;
             proto->desc = g_strdup(desc);
 			proto->hfid = proto_register_protocol(proto->desc,hiname,loname);
 			proto->ett = -1;
+			proto->is_postdissector = FALSE;
 			
 			lua_newtable (L);
 			proto->fields = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -684,12 +685,7 @@ ELUA_CONSTRUCTOR Proto_new(lua_State* L) {
 			
             proto->prefs_module = NULL;
             proto->handle = NULL;
-            
-			if ( protocols_table_ref == LUA_NOREF) {
-				lua_newtable(L);
-				protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-			}
-			
+            			
 			lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
 
 			lua_pushstring(L,loname);
@@ -756,8 +752,8 @@ static int Proto_get_dissector(lua_State* L) {
 
 static int Proto_set_dissector(lua_State* L) { 
     Proto proto = toProto(L,1);
-    
-    if (lua_isfunction(L,3)) {
+
+	if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
        
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
@@ -937,6 +933,9 @@ int Proto_register(lua_State* L) {
 
 	ELUA_REGISTER_META(Proto);
 
+	lua_newtable(L);
+	protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+				
     lua_pushstring(L, "Proto");
     lua_pushcfunction(L, Proto_new);
     lua_settable(L, LUA_GLOBALSINDEX);
