@@ -93,6 +93,7 @@ lua::
 !IFDEF LUA_DIR
 	cd lua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake init.lua
 	cd ..
 !ENDIF
 
