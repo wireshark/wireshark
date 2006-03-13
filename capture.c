@@ -374,9 +374,8 @@ capture_input_drops(capture_options *capture_opts, int dropped)
    The secondary message might be a null string.
  */
 void
-capture_input_error_message(capture_options *capture_opts, char *error_msg)
+capture_input_error_message(capture_options *capture_opts, char *error_msg, char *secondary_error_msg)
 {
-  char *secondary_error_msg = strchr(error_msg, '\0') + 1;
   gchar *safe_error_msg;
   gchar *safe_secondary_error_msg;
 

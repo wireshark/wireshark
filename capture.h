@@ -68,7 +68,7 @@ extern void capture_input_drops(capture_options *capture_opts, int dropped);
 /**
  * Capture child told us that an error has occurred while starting the capture.
  */
-extern void capture_input_error_message(capture_options *capture_opts, char *error_message);
+extern void capture_input_error_message(capture_options *capture_opts, char *error_message, char *secondary_error_msg);
 
 /**
  * Capture child told us that an error has occurred while parsing a

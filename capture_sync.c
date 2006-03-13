@@ -215,7 +215,44 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
 }
 #endif
 
+static int
+pipe_read_bytes(int pipe, char *bytes, int required) {
+    int newly;
+    int offset = 0;
 
+
+    while(required) {
+        newly = read(pipe, &bytes[offset], required);
+        if (newly == 0) {
+            /* EOF */
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read from pipe %d: EOF (capture closed?)", pipe);
+            return newly;
+        }
+        if (newly < 0) {
+            /* error */
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read from pipe %d: error(%u): %s", pipe, errno, strerror(errno));
+            return newly;
+        }
+
+        required -= newly;
+        offset += newly;
+    }
+
+    return newly;
+}
+
+/* convert header values (indicator and 4-byte length) */
+static void
+pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {    
+
+    g_assert(header_len == 4);
+
+    /* convert header values */
+    *indicator = header[0];
+    *block_len = header[1]<<16 | header[2]<<8 | header[3];
+}
 
 /* read a message from the sending pipe in the standard format
    (1-byte message indicator, 3-byte message length (excluding length
@@ -225,34 +262,18 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     int required;
     int newly;
     guchar header[4];
-    int offset;
 
 
     /* read header (indicator and 3-byte length) */
-    required = 4;
-    offset = 0;
-    while(required) {
-        newly = read(pipe, &header[offset], required);
-        if (newly == 0) {
-            /* EOF */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read %d header empty (capture closed)", pipe);
-            return newly;
-        }
-        if (newly < 0) {
-            /* error */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read %d header error: %s", pipe, strerror(errno));
-            return newly;
-        }
-
-        required -= newly;
-        offset += newly;
+    newly = pipe_read_bytes(pipe, header, 4);
+    if(newly != 4) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+              "read %d failed to read header: %u", pipe, newly);
+        return -1;
     }
 
     /* convert header values */
-    *indicator = header[0];
-    required = header[1]<<16 | header[2]<<8 | header[3];
+    pipe_convert_header(header, 4, indicator, &required);
 
     /* only indicator with no value? */
     if(required == 0) {
@@ -261,6 +282,7 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
         return 4;
     }
 
+    /* does the data fit into the given buffer? */
     if(required > len) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
               "read %d length error, required %d > len %d, indicator: %u",
@@ -274,26 +296,17 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     }
     len = required;
 
-    /* read value */
-    offset = 0;
-    while(required) {
-        newly = read(pipe, &msg[offset], required);
-        if (newly == -1) {
-            /* error */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read %d value error: %s, indicator: %u", pipe,
-                  strerror(errno), *indicator);
-            return newly;
-        }
-
-        required -= newly;
-        offset += newly;
+    /* read the actual block data */
+    newly = pipe_read_bytes(pipe, msg, required);
+    if(newly != required) {
+        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
+        return -1;
     }
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
           "read %d ok indicator: %c len: %u msg: %s", pipe, *indicator,
           len, msg);
-    return len + 4;
+    return newly + 4;
 }
 
 
@@ -633,7 +646,7 @@ sync_pipe_start(capture_options *capture_opts) {
       execv(exename, argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		exename, strerror(errno));
-      sync_pipe_errmsg_to_parent(errmsg, NULL);
+      sync_pipe_errmsg_to_parent(errmsg, "");
 
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but
@@ -697,6 +710,10 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   char buffer[SP_MAX_MSG_LEN+1];
   int  nread;
   char indicator;
+  int  primary_len;
+  char * primary_msg;
+  int  secondary_len;
+  char * secondary_msg;
 
 
   nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer);
@@ -746,8 +763,16 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     capture_input_new_packets(capture_opts, nread);
     break;
   case SP_ERROR_MSG:
-    capture_input_error_message(capture_opts, buffer);
+    /* convert primary message */
+    pipe_convert_header(buffer, 4, &indicator, &primary_len);
+    primary_msg = buffer+4;
+    /* convert secondary message */
+    pipe_convert_header(primary_msg + primary_len, 4, &indicator, &secondary_len);
+    secondary_msg = primary_msg + primary_len + 4;
+    /* message output */
+    capture_input_error_message(capture_opts, primary_msg, secondary_msg);
     /* the capture child will close the sync_pipe, nothing to do for now */
+    /* (an error message doesn't mean we have to stop capturing) */
     break;
   case SP_BAD_FILTER:
     capture_input_cfilter_error_message(capture_opts, buffer);

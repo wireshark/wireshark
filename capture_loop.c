@@ -556,7 +556,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
        Do, however, warn about the lack of 64-bit support, and warn that
        WAN devices aren't supported. */
     g_snprintf(errmsg, errmsg_len,
-"The capture session could not be initiated (%s).",
+"The capture session could not be initiated.\n"
+"\"%s\"",
                open_err_str);
     g_snprintf(secondary_errmsg, secondary_errmsg_len,
 "\n"
