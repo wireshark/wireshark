@@ -3983,7 +3983,7 @@ dissect_mmc4_setcdspeed (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags, type;
+    guint8 flags;
 
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_setcdspeed_rc, tvb, offset+0, 1, 0);
