@@ -319,6 +319,48 @@ static int hf_ssc3_locate16_loid = -1;
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
 
+
+/* These two defines are used to handle cases where data coming back from
+ * the device is truncated due to a too short allocation_length specified
+ * in the command CDB.
+ * This is semi-common in SCSI and it would be wrong to mark these packets
+ * as [malformed packets].
+ * These macros will reset the reported length to what the data pdu specified
+ * and if a BoundsError is generated we will instead throw ScsiBoundsError
+ *
+ * Please see dissect_mmc4_getconfiguration() for an example how to use these
+ * macros.
+ */
+#define TRY_SCSI_SHORT_TRANSFER(tvb, length)				\
+    {									\
+	gboolean short_packet;						\
+	tvbuff_t *new_tvb;						\
+									\
+	short_packet=tvb_length(tvb) < tvb_reported_length(tvb);	\
+	new_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);\
+	tvb=new_tvb;							\
+	offset=0;							\
+	TRY {
+
+#define END_TRY_SCSI_SHORT_TRANSFER 					\
+	    } /* TRY */							\
+	CATCH(BoundsError) {						\
+		if(short_packet){					\
+			/* this was a short packet */			\
+			RETHROW;					\
+		} else {						\
+			/* this packet was not really short but limited	\
+			 * due to a short SCSI allocation length	\
+			 */						\
+			THROW(ScsiBoundsError);				\
+		}							\
+	    }								\
+	CATCH_ALL {							\
+		RETHROW;						\
+	}								\
+	ENDTRY;								\
+    }
+
 typedef guint32 scsi_cmnd_type;
 typedef guint32 scsi_device_type;
 
@@ -4060,7 +4102,10 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     }
     if(tree && (!isreq)) {
         len=tvb_get_ntohl(tvb, offset+0);
-        proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset+0, 4, 0);
+
+	TRY_SCSI_SHORT_TRANSFER(tvb, len); /* offset is reset to 0 */
+
+        proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 4, 0);
         proto_tree_add_item (tree, hf_scsi_getconf_current_profile, tvb, offset+6, 2, 0);
 	offset+=8;
         len-=4;
@@ -4153,6 +4198,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                 old_offset+=additional_length;
                 len-=4+additional_length;
         }
+	END_TRY_SCSI_SHORT_TRANSFER;
     }
 }
 

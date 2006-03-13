@@ -56,6 +56,18 @@
 **/
 #define DissectorError		4	
 
+/**
+    Index is out of range.
+    An attempt was made to read past the end of a buffer.
+    This error is specific to SCSI data transfers where for some CDBs
+    it is normal that the data PDU might be short.
+    I.e. ReportLuns initially called with allocation_length=8, just enough
+    to get the "size" of lun list back after which the initiator will
+    reissue the command with an allocation_length that is big enough.
+**/
+#define ScsiBoundsError		5	
+
+
 /* Usage:
  *
  * TRY {
