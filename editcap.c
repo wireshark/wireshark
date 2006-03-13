@@ -36,6 +36,10 @@
 #include <process.h>    /* getpid */
 #endif
 
+#ifdef NEED_STRPTIME_H
+# include "strptime.h"
+#endif
+
 #include "svnversion.h"
 
 /*
@@ -78,6 +82,9 @@ static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
 static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
 static double err_prob = 0.0;
+static guint32 starttime = 0;
+static guint32 stoptime = 4294967295;
+static gboolean check_startstop = FALSE;
 
 /* Add a selection item, a simple parser for now */
 
@@ -139,6 +146,12 @@ static int selected(int recno)
 
   return 0;
 
+}
+
+/* is the packet in the selected timeframe */
+static gboolean check_timestamp(wtap *wth) {
+	struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
+	return ((guint32) pkthdr->ts.secs >= starttime ) && ( (guint32) pkthdr->ts.secs <= stoptime );
 }
 
 static void
@@ -229,6 +242,10 @@ static void usage(void)
   fprintf(stderr, "  -s <snaplen>           truncate packets to max. <snaplen> bytes of data\n");
   fprintf(stderr, "  -t <time adjustment>   adjust the timestamp of selected packets,\n");
   fprintf(stderr, "                         <time adjustment> is in relative seconds (e.g. -0.5)\n");
+  fprintf(stderr, "  -A <start time>        don't output packets whose timestamp is before the\n");
+  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh-mm-ss)\n");
+  fprintf(stderr, "  -B <stop time>         don't output packets whose timestamp is after the\n");
+  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh-mm-ss)\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Output File(s):\n");
   fprintf(stderr, "  -c <packets per file>  split the packet output to different files,\n");
@@ -294,7 +311,7 @@ int main(int argc, char *argv[])
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "c:C:E:F:hrs:t:T:v")) !=-1) {
+  while ((opt = getopt(argc, argv, "A:B:c:C:E:F:hrs:t:T:v")) !=-1) {
 
     switch (opt) {
 
@@ -391,10 +408,37 @@ int main(int argc, char *argv[])
       verbose = !verbose;  /* Just invert */
       break;
 
+	case 'A':
+	{
+		struct tm timecode;
+		
+		if(!strptime(optarg,"%F %T",&timecode)) {
+			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
+					optarg);
+			exit(1);
+		}
+		
+		starttime = mktime(&timecode);
+		check_startstop = TRUE;
+		break;
+	}	
+	case 'B':
+	{
+		struct tm timecode;
+
+		if(!strptime(optarg,"%F %T",&timecode)) {
+			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
+					optarg);
+			exit(1);
+		}
+		check_startstop = TRUE;
+		stoptime = mktime(&timecode);
+		break;
+	}
     }
 
   }
-
+  
 #ifdef DEBUG
   printf("Optind = %i, argc = %i\n", optind, argc);
 #endif
@@ -406,6 +450,11 @@ int main(int argc, char *argv[])
 
   }
 
+  if (starttime > stoptime) {
+	  fprintf(stderr, "editcap: start time is after the stop time\n");
+	  exit(1);
+  }
+  
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
   if (!wth) {
@@ -491,8 +540,8 @@ int main(int argc, char *argv[])
 	}
       }
 
-      if ((!selected(count) && !keep_em) ||
-          (selected(count) && keep_em)) {
+      if ( ((check_startstop && check_timestamp(wth)) || (!check_startstop && !check_timestamp(wth))) && ((!selected(count) && !keep_em) ||
+          (selected(count) && keep_em)) ) {
 
         if (verbose)
           printf("Packet: %u\n", count);
@@ -576,7 +625,7 @@ int main(int argc, char *argv[])
 
               if (err_type < ERR_WT_FMT) {
                 if ((unsigned int)i < phdr->caplen - 2)
-                  strcpy(&buf[i],  "%s");
+                  strcpy((char*) &buf[i],  "%s");
                 err_type = ERR_WT_TOTAL;
               } else {
                 err_type -= ERR_WT_FMT;

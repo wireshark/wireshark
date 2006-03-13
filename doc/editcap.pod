@@ -10,6 +10,8 @@ S<[ B<-c> E<lt>packets per fileE<gt> ]>
 S<[ B<-C> E<lt>choplenE<gt> ]>
 S<[ B<-E> E<lt>error probabilityE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
+S<[ B<-A> E<lt>start timeE<gt> ]>
+S<[ B<-B> E<lt>stop timeE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-r> ]>
 S<[ B<-s> E<lt>snaplenE<gt> ]>
@@ -83,6 +85,16 @@ Sets the file format of the output capture file.
 B<Editcap> can write the file in several formats, B<editcap -F> 
 provides a list of the available output formats. The default
 is the B<libpcap> format.
+
+=item -A  E<lt>start timeE<gt>
+
+Saves only the packets whose timestamp is on or after start time.
+The time is given in the following format YYYY-MM-DD HH:MM:SS
+
+=item -B  E<lt>stop timeE<gt>
+
+Saves only the packets whose timestamp is on or before stop time.
+The time is given in the following format YYYY-MM-DD HH:MM:SS
 
 =item -h
 
