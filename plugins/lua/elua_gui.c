@@ -266,12 +266,15 @@ static void text_win_close_cb(void* data) {
 ELUA_METHOD TextWindow_at_close(lua_State* L) { /* Set the function that will be called when the window closes */
 #define ELUA_ARG_TextWindow_at_close_ACTION 2 /* A function to be executed when the user closes the window */
 
-    TextWindow tw = shiftTextWindow(L,1);
+    TextWindow tw = checkTextWindow(L,1);
     struct _close_cb_data* cbd;
 
-    lua_settop(L,2);
+	if (!tw)
+		ELUA_ERROR(TextWindow_at_close,"cannot be called for something not a TextWindow");
 
-    if (! lua_isfunction(L,1))
+    lua_settop(L,3);
+
+    if (! lua_isfunction(L,2))
         ELUA_ARG_ERROR(TextWindow_at_close,ACTION,"must be a function");
     
     cbd = g_malloc(sizeof(struct _close_cb_data));
@@ -289,8 +292,11 @@ ELUA_METHOD TextWindow_at_close(lua_State* L) { /* Set the function that will be
 ELUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 #define ELUA_ARG_TextWindow_set_TEXT 2 /* The text to be used. */
 
-    TextWindow tw = shiftTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,1);
+    TextWindow tw = checkTextWindow(L,1);
+    const gchar* text = luaL_checkstring(L,2);
+
+	if (!tw)
+		ELUA_ERROR(TextWindow_set,"cannot be called for something not a TextWindow");
 
     if (!text)
 		ELUA_ARG_ERROR(TextWindow_set,TEXT,"must be a string");
@@ -303,9 +309,12 @@ ELUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 
 ELUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 #define ELUA_ARG_TextWindow_append_TEXT 2 /* The text to be appended */ 
-    TextWindow tw = shiftTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,1);
+    TextWindow tw = checkTextWindow(L,1);
+    const gchar* text = luaL_checkstring(L,2);
     
+	if (!tw)
+		ELUA_ERROR(TextWindow_append,"cannot be called for something not a TextWindow");
+
 	if (!text)
 		ELUA_ARG_ERROR(TextWindow_append,TEXT,"must be a string");
 
@@ -317,9 +326,12 @@ ELUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 
 ELUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 #define ELUA_ARG_TextWindow_prepend_TEXT 2 /* The text to be appended */ 
-    TextWindow tw = shiftTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,1);
+    TextWindow tw = checkTextWindow(L,1);
+    const gchar* text = luaL_checkstring(L,2);
     
+	if (!tw)
+		ELUA_ERROR(TextWindow_prepend,"cannot be called for something not a TextWindow");
+
  	if (!text)
 		ELUA_ARG_ERROR(TextWindow_prepend,TEXT,"must be a string");
    
@@ -330,8 +342,11 @@ ELUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 }
 
 ELUA_METHOD TextWindow_clear(lua_State* L) { /* Errases all text in the window. */
-    TextWindow tw = shiftTextWindow(L,1);
+    TextWindow tw = checkTextWindow(L,1);
     
+	if (!tw)
+		ELUA_ERROR(TextWindow_clear,"cannot be called for something not a TextWindow");
+
     ops->clear_text(tw);
     
     pushTextWindow(L,tw);
@@ -339,16 +354,24 @@ ELUA_METHOD TextWindow_clear(lua_State* L) { /* Errases all text in the window. 
 }
 
 ELUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window */
-    TextWindow tw = shiftTextWindow(L,1);
-    const gchar* text = ops->get_text(tw);
-    
+    TextWindow tw = checkTextWindow(L,1);
+	const gchar* text;
+
+	if (!tw)
+		ELUA_ERROR(TextWindow_get_text,"cannot be called for something not a TextWindow");
+
+	text = ops->get_text(tw);
+
     lua_pushstring(L,text);
 	ELUA_RETURN(1); /* The TextWindow's text. */
 }
 
 static int TextWindow_gc(lua_State* L) {
-    TextWindow tw = shiftTextWindow(L,1);
-    
+    TextWindow tw = checkTextWindow(L,1);
+
+	if (!tw)
+		ELUA_ERROR(TextWindow_gc,"cannot be called for something not a TextWindow");
+
     ops->destroy_text_window(tw);
     return 1;
 }
