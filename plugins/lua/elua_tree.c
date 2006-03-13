@@ -218,64 +218,13 @@ ELUA_METHOD TreeItem_set_len(lua_State *L) {
     return 0;
 }
 
-/* XXX: expensive use of strings or variables should think in lpp */
-struct _expert_severity {
-    const gchar* str;
-    int val;
-};
-
-static const struct _expert_severity severities[] = {
-    {"PI_CHAT",PI_CHAT},
-    {"PI_NOTE",PI_NOTE},
-    {"PI_WARN",PI_WARN},
-    {"PI_ERROR",PI_ERROR},
-    {"PI_CHECKSUM",PI_CHECKSUM},
-    {"PI_SEQUENCE",PI_SEQUENCE},
-    {"PI_RESPONSE_CODE",PI_RESPONSE_CODE},
-    {"PI_UNDECODED",PI_UNDECODED},
-    {"PI_REASSEMBLE",PI_REASSEMBLE},
-    {"PI_MALFORMED",PI_MALFORMED},
-    {"PI_DEBUG",PI_DEBUG},
-    {NULL,0}
-};
-
-static int str_to_expert(const gchar* str) {
-    const struct _expert_severity* s;
-
-    if (!str) return 0;
-    
-    for(s = severities; s->str; s++) {
-        if (g_str_equal(str,s->str)) {
-            return s->val;
-        }
-    }
-    return 0;
-}
-
-#if 0
-static const gchar* expert_to_str(int val) {
-    const struct _expert_severity* s;
-    for(s = severities; s->str; s++) {
-        if (s->val == val) {
-            return s->str;
-        }
-    }
-    return NULL;
-}
-#endif
-
 ELUA_METHOD TreeItem_set_expert_flags(lua_State *L) {
     TreeItem ti = checkTreeItem(L,1);
-    int group;
-    int severity;
+	int group = luaL_checkint(L,2);
+	int severity = luaL_checkint(L,3);
 
-    if (ti) {
-        group = str_to_expert(luaL_checkstring(L,2));
-        severity = str_to_expert(luaL_checkstring(L,3));
-
-        if (group && severity) {
+    if ( ti && ti->item ) {
             proto_item_set_expert_flags(ti->item,group,severity);
-        }
     }
 
     return 0;
@@ -283,12 +232,11 @@ ELUA_METHOD TreeItem_set_expert_flags(lua_State *L) {
 
 ELUA_METHOD TreeItem_add_expert_info(lua_State *L) {
     TreeItem ti = checkTreeItem(L,1);
+	int group = luaL_checkint(L,2);
+	int severity = luaL_checkint(L,3);
+	const gchar* str = luaL_optstring(L,4,"Expert Info");
 	
-    if (ti) {
-        int group = str_to_expert(luaL_checkstring(L,2));
-        int severity = str_to_expert(luaL_checkstring(L,3));
-        const gchar* str = luaL_optstring(L,4,"Expert Info");
-        
+    if ( ti && ti->item ) {
         expert_add_info_format(lua_pinfo, ti->item, group, severity, "%s", str);
     }
     
@@ -331,19 +279,12 @@ static const luaL_reg TreeItem_meta[] = {
 
 
 int TreeItem_register(lua_State *L) {
-	const struct _expert_severity* s;
 	gint* etts[] = { &elua_ett };
 	
 	ELUA_REGISTER_CLASS(TreeItem);    
     outstanding_stuff = g_ptr_array_new();
 	
-    for(s = severities; s->str; s++) {
-        lua_pushstring(L, s->str);
-        lua_pushnumber(L, s->val);
-        lua_settable(L, LUA_GLOBALSINDEX);
-    }
-    
 	proto_register_subtree_array(etts,1);
-	
+
     return 1;
 }
