@@ -193,6 +193,7 @@ static int hf_scsi_report_key_vendor_resets = -1;
 static int hf_scsi_report_key_user_changes = -1;
 static int hf_scsi_report_key_region_mask = -1;
 static int hf_scsi_report_key_rpc_scheme = -1;
+static int hf_scsi_setcdspeed_rc = -1;
 static int hf_scsi_getconf_rt = -1;
 static int hf_scsi_getconf_starting_feature = -1;
 static int hf_scsi_getconf_current_profile = -1;
@@ -512,7 +513,10 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_REPORTKEY		0xa4
 #define SCSI_MMC_READ12                 0xa8
 #define SCSI_MMC_WRITE12                0xaa
+#define SCSI_MMC_GETPERFORMANCE         0xac
+#define SCSI_MMC_READDISCSTRUCTURE      0xad
 #define SCSI_MMC_SETSTREAMING           0xb6
+#define SCSI_MMC_SETCDSPEED             0xbb
 static const value_string scsi_mmc_val[] = {
     {SCSI_SBC2_STARTSTOPUNIT, "Start Stop Unit"},
     {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
@@ -529,7 +533,10 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_REPORTKEY,	"Report Key"},
     {SCSI_MMC_READ12,		"Read(12)"},
     {SCSI_MMC_WRITE12,		"Write(12)"},
+    {SCSI_MMC_GETPERFORMANCE,   "Get Performance"},
+    {SCSI_MMC_READDISCSTRUCTURE, "Read DISC Structure"},
     {SCSI_MMC_SETSTREAMING,	"Set Streaming"},
+    {SCSI_MMC_SETCDSPEED,       "Set CD Speed"},
     {0, NULL},
 };
 
@@ -776,10 +783,14 @@ static const value_string scsi_smc2_modepage_val[] = {
     {0, NULL},
 };
 
+#define SCSI_MMC5_MODEPAGE_MRW     0x03  /* MRW */
+#define SCSI_MMC5_MODEPAGE_WRPARAM 0x05  /* Write Parameters */
 #define SCSI_MMC3_MODEPAGE_MMCAP   0x2A  /* device capabilities */
 
 static const value_string scsi_mmc5_modepage_val[] = {
-    {SCSI_MMC3_MODEPAGE_MMCAP,   "MM Capabilities and Mechanical Status"},
+    {SCSI_MMC5_MODEPAGE_MRW,      "MRW"},
+    {SCSI_MMC5_MODEPAGE_WRPARAM,  "Write Parameters"},
+    {SCSI_MMC3_MODEPAGE_MMCAP,    "MM Capabilities and Mechanical Status"},
     {0x3F,                        "Return All Mode Pages"},
     {0, NULL},
 };
@@ -3079,6 +3090,30 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb,
+                          guint payload_len, scsi_task_data_t *cdata)
+{
+    guint8 flags;
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+        flags = tvb_get_guint8 (tvb, offset+3);
+        proto_tree_add_text (tree, tvb, offset+3, 1, 
+                             "Persistent: %u, Prevent: %u",
+                             flags & 0x02, flags & 0x01);
+
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
 dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len, scsi_task_data_t *cdata)
@@ -3847,6 +3882,7 @@ static const value_string scsi_setstreaming_type_val[] = {
     {0x05,	"DBI cache zone descriptor"},
     {0,NULL}
 };
+
 static void
 dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
@@ -3888,6 +3924,40 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	    PROTO_ITEM_SET_GENERATED(ti);
 	    break;
         }
+    }
+}
+
+static const value_string scsi_setcdspeed_rc_val[] = {
+    {0x00,	"CLV and none-pure CAV"},
+    {0x01,	"Pure CAV"},
+    {0x02,	"Reserved"},
+    {0x03,	"Reserved"},
+    {0,NULL}
+};
+
+static void
+dissect_mmc4_setcdspeed (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags, type;
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_setcdspeed_rc, tvb, offset+0, 1, 0);
+
+        proto_tree_add_text (tree, tvb, offset+1, 2,
+                             "Logical Unit Read Speed(bytes/sec): %u",
+                             tvb_get_ntohs (tvb, offset+1));
+        proto_tree_add_text (tree, tvb, offset+3, 2,
+                             "Logical Unit Write Speed(bytes/sec): %u",
+                             tvb_get_ntohs (tvb, offset+3));
+
+        flags = tvb_get_guint8 (tvb, offset+10);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
     }
 }
 
@@ -4222,6 +4292,41 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
 }
 
+static void
+dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (tree && isreq && iscdb) {
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1, 
+                             "Data Type: %u",
+                             flags & 0x1f);
+
+        proto_tree_add_text (tree, tvb, offset+1, 4, 
+                             "Starting LBA: %u",
+                             tvb_get_ntohs (tvb, offset+1));
+
+        proto_tree_add_text (tree, tvb, offset+7, 2, 
+                             "Maximum Number of Descriptors: %u",
+                             tvb_get_ntohs (tvb, offset+7));
+
+        flags = tvb_get_guint8 (tvb, offset+9);
+        proto_tree_add_text (tree, tvb, offset+9, 1, 
+                             "Type: %u",
+                             flags);
+
+        flags = tvb_get_guint8 (tvb, offset+10);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
+    }
+}
 
 static void
 dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -4245,6 +4350,7 @@ dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     }
 }
+
 static void
 dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
@@ -4282,6 +4388,7 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }
     }
 }
+
 static void
 dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
@@ -4308,6 +4415,7 @@ static const value_string scsi_rti_address_type_val[] = {
     {0x02,	"Session Number"},
     {0,NULL}
 };
+
 static void
 dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
@@ -4376,6 +4484,7 @@ static const value_string scsi_disc_info_sols_val[] = {
     {0x03,	"Complete Session"},
     {0,NULL}
 };
+
 static const value_string scsi_disc_info_disc_status_val[] = {
     {0x00,	"Empty Disc"},
     {0x01,	"Incomplete Disc"},
@@ -4383,6 +4492,7 @@ static const value_string scsi_disc_info_disc_status_val[] = {
     {0x03,	"Others"},
     {0,NULL}
 };
+
 static const value_string scsi_disc_info_bgfs_val[] = {
     {0x00,	"Blank or not CD-RW/DVD-RW"},
     {0x01,	"Background Format started but is not running nor complete"},
@@ -4390,6 +4500,7 @@ static const value_string scsi_disc_info_bgfs_val[] = {
     {0x03,	"Backgroung Format has completed"},
     {0,NULL}
 };
+
 static const value_string scsi_disc_info_disc_type_val[] = {
     {0x00,	"CD-DA or CD-ROM Disc"},
     {0x10,	"CD-I Disc"},
@@ -4440,6 +4551,47 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_item (tree, hf_scsi_disc_info_last_possible_lead_out_start_address, tvb, offset+20, 4, 0);
         proto_tree_add_item (tree, hf_scsi_disc_info_disc_bar_code, tvb, offset+24, 8, 0);
 	/* XXX should add OPC table decoding here ... */
+    }
+}
+
+static void
+dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (tree && isreq && iscdb) {
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "Sub-Command: %u",
+                             flags & 0x0f);
+
+        proto_tree_add_text (tree, tvb, offset+1, 4,
+                             "Address: %u",
+                             tvb_get_ntohs (tvb, offset+1));
+
+        proto_tree_add_text (tree, tvb, offset+5, 1,
+                             "Layer Number: %u",
+                             tvb_get_ntohs (tvb, offset+5));
+
+        proto_tree_add_text (tree, tvb, offset+6, 1,
+                             "Format Code: %u",
+                             tvb_get_ntohs (tvb, offset+6));
+
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+9);
+        proto_tree_add_text (tree, tvb, offset+9, 1,
+                             "AGID: %u",
+                             flags & 0xc0);
+
+        flags = tvb_get_guint8 (tvb, offset+10);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
     }
 }
 
@@ -5772,7 +5924,7 @@ static scsi_cdb_table_t spc[256] = {
 /*SPC 0x1b*/{NULL},
 /*SPC 0x1c*/{NULL},
 /*SPC 0x1d*/{dissect_spc3_senddiagnostic},
-/*SPC 0x1e*/{NULL},
+/*SPC 0x1e*/{dissect_spc3_preventallowmediaremoval},
 /*SPC 0x1f*/{NULL},
 /*SPC 0x20*/{NULL},
 /*SPC 0x21*/{NULL},
@@ -6031,7 +6183,7 @@ static scsi_cdb_table_t sbc[256] = {
 /*SBC 0x1b*/{dissect_sbc2_startstopunit},
 /*SBC 0x1c*/{NULL},
 /*SBC 0x1d*/{NULL},
-/*SBC 0x1e*/{NULL},
+/*SBC 0x1e*/{dissect_spc3_preventallowmediaremoval},
 /*SBC 0x1f*/{NULL},
 /*SBC 0x20*/{NULL},
 /*SBC 0x21*/{NULL},
@@ -6290,7 +6442,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x1b*/{dissect_ssc2_loadunload},
 /*SSC 0x1c*/{NULL},
 /*SSC 0x1d*/{NULL},
-/*SSC 0x1e*/{NULL},
+/*SSC 0x1e*/{dissect_spc3_preventallowmediaremoval},
 /*SSC 0x1f*/{NULL},
 /*SSC 0x20*/{NULL},
 /*SSC 0x21*/{NULL},
@@ -6549,7 +6701,7 @@ static scsi_cdb_table_t smc[256] = {
 /*SMC 0x1b*/{NULL},
 /*SMC 0x1c*/{NULL},
 /*SMC 0x1d*/{NULL},
-/*SMC 0x1e*/{NULL},
+/*SMC 0x1e*/{dissect_spc3_preventallowmediaremoval},
 /*SMC 0x1f*/{NULL},
 /*SMC 0x20*/{NULL},
 /*SMC 0x21*/{NULL},
@@ -6808,7 +6960,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x1b*/{dissect_sbc2_startstopunit},
 /*MMC 0x1c*/{NULL},
 /*MMC 0x1d*/{NULL},
-/*MMC 0x1e*/{NULL},
+/*MMC 0x1e*/{dissect_spc3_preventallowmediaremoval},
 /*MMC 0x1f*/{NULL},
 /*MMC 0x20*/{NULL},
 /*MMC 0x21*/{NULL},
@@ -6950,8 +7102,8 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0xa9*/{NULL},
 /*MMC 0xaa*/{dissect_sbc2_readwrite12},
 /*MMC 0xab*/{NULL},
-/*MMC 0xac*/{NULL},
-/*MMC 0xad*/{NULL},
+/*MMC 0xac*/{dissect_mmc4_getperformance},
+/*MMC 0xad*/{dissect_mmc4_readdiscstructure},
 /*MMC 0xae*/{NULL},
 /*MMC 0xaf*/{NULL},
 /*MMC 0xb0*/{NULL},
@@ -6965,7 +7117,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0xb8*/{NULL},
 /*MMC 0xb9*/{NULL},
 /*MMC 0xba*/{NULL},
-/*MMC 0xbb*/{NULL},
+/*MMC 0xbb*/{dissect_mmc4_setcdspeed},
 /*MMC 0xbc*/{NULL},
 /*MMC 0xbd*/{NULL},
 /*MMC 0xbe*/{NULL},
@@ -7590,6 +7742,9 @@ proto_register_scsi (void)
         { &hf_scsi_report_key_rpc_scheme,
           {"RPC Scheme", "scsi.report_key.rpc_scheme", FT_UINT8, BASE_HEX,
            VALS(scsi_report_key_rpc_scheme_val), 0, "", HFILL}},
+        { &hf_scsi_setcdspeed_rc,
+          {"Rotational Control", "scsi.setcdspeed.rc", FT_UINT8, BASE_HEX,
+           VALS(scsi_setcdspeed_rc_val), 0x03, "", HFILL}},
         { &hf_scsi_getconf_rt,
           {"RT", "scsi.getconf.rt", FT_UINT8, BASE_HEX,
            VALS(scsi_getconf_rt_val), 0x03, "", HFILL}},
