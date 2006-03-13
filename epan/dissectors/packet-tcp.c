@@ -2591,6 +2591,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Checksum is valid, so we're willing to desegment it. */
         desegment_ok = TRUE;
+      } else if (th_sum == 0) {
+        /* checksum is probably fine but checksum offload is used */
+        proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+          offset + 16, 2, th_sum, "Checksum: 0x%04x [Checksum Offloaded]", th_sum);
+
+        /* Checksum is (probably) valid, so we're willing to desegment it. */
+        desegment_ok = TRUE;
       } else {
         proto_item *item;
 
