@@ -331,12 +331,12 @@ static gint ett_scsi_page    = -1;
  * Please see dissect_mmc4_getconfiguration() for an example how to use these
  * macros.
  */
-#define TRY_SCSI_SHORT_TRANSFER(tvb, length)				\
+#define TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, length)		\
     {									\
 	gboolean short_packet;						\
 	tvbuff_t *new_tvb;						\
 									\
-	short_packet=tvb_length(tvb) < tvb_reported_length(tvb);	\
+	short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
 	new_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);\
 	tvb=new_tvb;							\
 	offset=0;							\
@@ -360,6 +360,7 @@ static gint ett_scsi_page    = -1;
 	}								\
 	ENDTRY;								\
     }
+
 
 typedef guint32 scsi_cmnd_type;
 typedef guint32 scsi_device_type;
@@ -4103,7 +4104,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     if(tree && (!isreq)) {
         len=tvb_get_ntohl(tvb, offset+0);
 
-	TRY_SCSI_SHORT_TRANSFER(tvb, len); /* offset is reset to 0 */
+	TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, len+4); 
 
         proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 4, 0);
         proto_tree_add_item (tree, hf_scsi_getconf_current_profile, tvb, offset+6, 2, 0);
@@ -5909,6 +5910,10 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *sns_tree=NULL;
+    char *old_proto;
+
+    old_proto=pinfo->current_proto;
+    pinfo->current_proto="SCSI";
 
     scsi_end_task (pinfo);
 
@@ -5926,6 +5931,8 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     dissect_scsi_fix_snsinfo (tvb, sns_tree, offset);
+
+    pinfo->current_proto=old_proto;
 }
 
 
@@ -7251,6 +7258,10 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_cdb_table_t *cdb_table=NULL;
     const value_string *cdb_vals = NULL;
     int hf_opcode=-1;
+    char *old_proto;
+
+    old_proto=pinfo->current_proto;
+    pinfo->current_proto="SCSI";
 
     opcode = tvb_get_guint8 (tvb, offset);
 
@@ -7390,6 +7401,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else {
         call_dissector (data_handle, tvb, pinfo, scsi_tree);
     }
+
+    pinfo->current_proto=old_proto;
 }
 
 void
@@ -7403,6 +7416,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_device_type devtype;
     scsi_task_data_t *cdata = NULL;
     int payload_len;
+    char *old_proto;
 
     payload_len=tvb_length(tvb);
     cdata = scsi_find_task (pinfo);
@@ -7413,6 +7427,9 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         return;
     }
+
+    old_proto=pinfo->current_proto;
+    pinfo->current_proto="SCSI";
 
     opcode = cdata->opcode;
     devtype = cdata->devtype;
@@ -7470,6 +7487,8 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             call_dissector (data_handle, tvb, pinfo, scsi_tree);
         }
     }
+
+    pinfo->current_proto=old_proto;
 }
 
 void
