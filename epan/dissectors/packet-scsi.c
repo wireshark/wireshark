@@ -5898,7 +5898,7 @@ dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 void
-dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
                   proto_tree *tree, guint16 lun, guint8 scsi_status)
 {
     proto_item *ti;
@@ -7472,9 +7472,46 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
     }
 
-    if(tree){
-	ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
-	PROTO_ITEM_SET_GENERATED(ti);
+    ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    switch(cdata->cmd){
+    case SCSI_DEV_SBC:
+            ti=proto_tree_add_uint_format (scsi_tree, hf_scsi_sbcopcode, tvb,
+                                        offset, 0, opcode,
+                                        "Opcode: %s (0x%02x)",
+                                        val_to_str (opcode, cdata->cdb_vals,
+                                            "0x%02x"),
+                                        opcode);
+            PROTO_ITEM_SET_GENERATED(ti);
+	    break;
+    case SCSI_DEV_CDROM:
+            ti=proto_tree_add_uint_format (scsi_tree, hf_scsi_mmcopcode, tvb,
+                                        offset, 0, opcode,
+                                        "Opcode: %s (0x%02x)",
+                                        val_to_str (opcode, cdata->cdb_vals,
+                                            "0x%02x"),
+                                        opcode);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
+    case SCSI_DEV_SSC:
+            ti=proto_tree_add_uint_format (scsi_tree, hf_scsi_sscopcode, tvb,
+                                        offset, 0, opcode,
+                                        "Opcode: %s (0x%02x)",
+                                        val_to_str (opcode, cdata->cdb_vals,
+                                            "0x%02x"),
+                                        opcode);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
+    case SCSI_DEV_SMC:
+            ti=proto_tree_add_uint_format (scsi_tree, hf_scsi_smcopcode, tvb,
+                                        offset, 0, opcode,
+                                        "Opcode: %s (0x%02x)",
+                                        val_to_str (opcode, cdata->cdb_vals,
+                                            "0x%02x"),
+                                        opcode);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
     }
 
     if (tree == NULL) {
