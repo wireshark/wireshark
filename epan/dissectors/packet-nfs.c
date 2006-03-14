@@ -7007,7 +7007,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 4;
 
 		/* the opcodes are not contiguous */
-		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_WRITE)	&&
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RELEASE_LOCKOWNER)	&&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
