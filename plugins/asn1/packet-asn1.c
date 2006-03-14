@@ -3170,7 +3170,10 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 		case TBL_TYPEREF: {	/* may have a tag ... */
 			TypeRef *tr;
 			guint i;
-			if ( q && (((TBLTag *)q->data)->type == TBLTYPE_Tag)) {
+			if(!q){
+				break;
+			}
+			if ( ((TBLTag *)q->data)->type == TBLTYPE_Tag) {
 				if ((p->flags & PDU_IMPLICIT) == 0) { /* not implicit, use this tag */
 					p->tclass = ((TBLTag *)q->data)->tclass;
 					p->tag = ((TBLTag *)q->data)->code;
