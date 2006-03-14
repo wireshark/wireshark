@@ -222,16 +222,26 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 	protocol=NULL;
 	colinfo=NULL;
 
-	gai = g_malloc(sizeof(graph_analysis_item_t));
+	if (node_addr_type == NET_SRCDST) {
+		if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
+			gai = g_malloc(sizeof(graph_analysis_item_t));
+			COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
+			COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
+		}
+		else return 0;
+		
+	} else {
+		if (pinfo->src.type!=AT_NONE && pinfo->dst.type!=AT_NONE) {
+			gai = g_malloc(sizeof(graph_analysis_item_t));
+			COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
+			COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+		}
+		else return 0;
+	}
+
 	gai->frame_num = pinfo->fd->num;
 	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
-	if (node_addr_type == NET_SRCDST) {
-		COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
-	    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
-	} else {
-		COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
-		COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
-	}
+
 	gai->port_src=pinfo->srcport;
 	gai->port_dst=pinfo->destport;
 	gai->comment=NULL;

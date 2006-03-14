@@ -1685,11 +1685,9 @@ static void get_nodes(graph_analysis_data_t* user_data)
 						gai->src_node = NODE_OVERFLOW;
 						break;
 					case -1: /* not in array */
-						if (MAX_NUM_NODES > user_data->num_nodes) { 
-							COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
-							gai->src_node = user_data->num_nodes;
-							user_data->num_nodes++;
-						}
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
+						gai->src_node = user_data->num_nodes;
+						user_data->num_nodes++;
 						break;
 					default: /* it is in the array, just update the src_node */
 						gai->src_node = (guint16)index;
@@ -1702,11 +1700,9 @@ static void get_nodes(graph_analysis_data_t* user_data)
 						gai->dst_node = NODE_OVERFLOW;
 						break;
 					case -1: /* not in array */
-						if (MAX_NUM_NODES > user_data->num_nodes) { 
-							COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
-							gai->dst_node = user_data->num_nodes;
-							user_data->num_nodes++;
-						}
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
+						gai->dst_node = user_data->num_nodes;
+						user_data->num_nodes++;
 						break;
 					default: /* it is in the array, just update the dst_node */
 						gai->dst_node = (guint16)index;
@@ -1719,11 +1715,9 @@ static void get_nodes(graph_analysis_data_t* user_data)
 						gai->dst_node = NODE_OVERFLOW;
 						break;
 					case -1: /* not in array */
-						if (MAX_NUM_NODES > user_data->num_nodes) { 
-							COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
-							gai->dst_node = user_data->num_nodes;
-							user_data->num_nodes++;
-						}
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
+						gai->dst_node = user_data->num_nodes;
+						user_data->num_nodes++;
 						break;
 					default: /* it is in the array, just update the dst_node */
 						gai->dst_node = (guint16)index;
@@ -1736,11 +1730,9 @@ static void get_nodes(graph_analysis_data_t* user_data)
 						gai->src_node = NODE_OVERFLOW;
 						break;
 					case -1: /* not in array */
-						if (MAX_NUM_NODES > user_data->num_nodes) { 
-							COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
-							gai->src_node = user_data->num_nodes;
-							user_data->num_nodes++;
-						}
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
+						gai->src_node = user_data->num_nodes;
+						user_data->num_nodes++;
 						break;
 					default: /* it is in the array, just update the src_node */
 						gai->src_node = (guint16)index;
