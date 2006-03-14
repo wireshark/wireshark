@@ -722,7 +722,12 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		end_offset = reassemble_octet_string(pinfo, tree, tvb, offset, len, ind, out_tvb);
 	} else {
 		/* primitive */
-		gint length_remaining = tvb_length_remaining(tvb, offset);
+		gint length_remaining;
+
+		length_remaining = tvb_length_remaining(tvb, offset);
+		if(length_remaining<1){
+			return end_offset;
+		}
 
 		if(len<=(guint32)length_remaining){
 			length_remaining=len;
