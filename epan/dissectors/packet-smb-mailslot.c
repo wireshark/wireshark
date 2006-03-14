@@ -140,7 +140,11 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 				tri->trans_subcmd = trans_subcmd;
 		}
 	} else {
-		trans_subcmd = tri->trans_subcmd;
+		if(!tri){
+			return FALSE;
+		} else {
+			trans_subcmd = tri->trans_subcmd;
+		}
 	}
 
 	/* Only do these ones if we have them. For fragmented SMB Transactions
