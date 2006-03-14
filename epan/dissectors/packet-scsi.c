@@ -318,6 +318,7 @@ static int hf_ssc3_locate16_loid = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
+static gint ett_scsi_profile = -1;
 
 
 /* These two defines are used to handle cases where data coming back from
@@ -2481,8 +2482,8 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 static gboolean
-dissect_scsi_mmc5_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
-		            proto_tree *tree, guint offset, guint8 pcode)
+dissect_scsi_mmc5_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+		            proto_tree *tree _U_, guint offset _U_, guint8 pcode)
 {
     switch (pcode) {
     case SCSI_MMC3_MODEPAGE_MMCAP:
@@ -3133,9 +3134,9 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
-                          guint payload_len, scsi_task_data_t *cdata)
+                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -4129,8 +4130,26 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                 switch(feature){
                 case 0x0000: /* profile list */
                     while(offset<(old_offset+additional_length)){
-                        proto_tree_add_item (tree, hf_scsi_feature_profile, tvb, offset, 2, 0);
-                        proto_tree_add_item (tree, hf_scsi_feature_profile_current, tvb, offset+2, 1, 0);
+			proto_item *it=NULL;
+			proto_tree *tr=NULL;
+			guint16 profile;
+			guint8  cur_profile;
+
+			if(tree){
+				it=proto_tree_add_text(tree, tvb, offset, 4, "Profile:");
+				tr=proto_item_add_subtree(it, ett_scsi_profile);
+			}
+
+			profile=tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item (tr, hf_scsi_feature_profile, tvb, offset, 2, 0);
+			proto_item_append_text(it, "%s", val_to_str(profile, scsi_getconf_current_profile_val, "Unknown 0x%04x"));
+
+			cur_profile=tvb_get_guint8(tvb, offset+2);
+                        proto_tree_add_item (tr, hf_scsi_feature_profile_current, tvb, offset+2, 1, 0);
+			if(cur_profile&0x01){
+				proto_item_append_text(it, "  [CURRENT]");
+			}
+
                         offset+=4;
                     }
                     break;
@@ -8182,6 +8201,7 @@ proto_register_scsi (void)
     static gint *ett[] = {
         &ett_scsi,
         &ett_scsi_page,
+        &ett_scsi_profile,
     };
     module_t *scsi_module;
 
