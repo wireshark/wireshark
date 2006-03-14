@@ -451,10 +451,12 @@ add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
 
 	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
 		trp = smb_info->sip->extra_info;
-
+		
 	level = tvb_get_letohs(tvb, offset);
 	if (!pinfo->fd->flags.visited)
-		trp->info_level = level;	/* remember this for the response */
+		if (trp)
+			trp->info_level = level;	/* remember this for the response */
+
 	proto_tree_add_uint(tree, hf_index, tvb, offset, 2, level);
 	offset += 2;
 	return offset;
