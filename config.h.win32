@@ -202,6 +202,7 @@
 
 /* Define to use Lua */
 @HAVE_LUA@
+@HAVE_LUA_5_1@
 
 #ifndef WIN32
 #define WIN32			1
