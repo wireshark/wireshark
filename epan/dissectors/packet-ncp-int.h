@@ -67,6 +67,7 @@ extern gboolean nds_echo_eid;
 extern gboolean ncp_echo_err;
 extern gboolean ncp_echo_conn;
 extern gboolean ncp_echo_server;
+extern gboolean ncp_echo_file;
 
 struct _sub_ptvc_record {
 	gint			*ett;

@@ -186,14 +186,29 @@ static value_string ncp_type_vals[] = {
 	{ 0,			NULL }
 };
 
-/* Conversation Struct so we can store whether the conversation is using Packet Signature */
+static value_string ncp_oplock_vals[] = {
+    { 0x21, "Message Waiting" },
+    { 0x24, "Clear Op-lock" },
+    { 0, NULL }
+};
+
+/* Conversation Struct so we can detect NCP server sessions */
 
 typedef struct {
 	conversation_t	*conversation;
+    guint32         nwconnection;
+    guint8          nwtask;
 } mncp_rhash_key;
 
+/* Store the packet number for the start of the NCP session.
+ * Note sessions are defined as
+ * NCP Connection + NCP Task == Unique NCP server session
+ * It is normal for multiple sessions per connection to exist
+ * These are normally different applications running on multi-tasking
+ * Operating Systems.
+ */
 typedef struct {
-        gboolean            packet_signature;
+        guint32  session_start_packet_num;
 } mncp_rhash_value;
 
 static GHashTable *mncp_rhash = NULL;
@@ -205,7 +220,7 @@ mncp_equal(gconstpointer v, gconstpointer v2)
 	const mncp_rhash_key	*val1 = (const mncp_rhash_key*)v;
 	const mncp_rhash_key	*val2 = (const mncp_rhash_key*)v2;
 
-	if (val1->conversation == val2->conversation ) {
+	if (val1->conversation == val2->conversation && val1->nwconnection == val2->nwconnection && val1->nwtask == val2->nwtask) {
 		return 1;
 	}
 	return 0;
@@ -215,7 +230,7 @@ static guint
 mncp_hash(gconstpointer v)
 {
 	const mncp_rhash_key	*mncp_key = (const mncp_rhash_key*)v;
-	return GPOINTER_TO_UINT(mncp_key->conversation);
+	return GPOINTER_TO_UINT(mncp_key->conversation)+mncp_key->nwconnection+mncp_key->nwtask;
 }
 
 /* Initializes the hash table and the mem_chunk area each time a new
@@ -238,31 +253,40 @@ mncp_postseq_cleanup(void)
 }
 
 static mncp_rhash_value*
-mncp_hash_insert(conversation_t *conversation)
+mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwtask, packet_info *pinfo)
 {
 	mncp_rhash_key		*key;
 	mncp_rhash_value	*value;
 
 	/* Now remember the request, so we can find it if we later
-	   a reply to it. */
+	   a reply to it. Track by conversation, connection, and task number.
+       in NetWare these values determine each unique session */
 	key = se_alloc(sizeof(mncp_rhash_key));
 	key->conversation = conversation;
+    key->nwconnection = nwconnection;
+    key->nwtask = nwtask;
 
 	value = se_alloc(sizeof(mncp_rhash_value));
-	value->packet_signature = FALSE;
        
 	g_hash_table_insert(mncp_rhash, key, value);
+    
+    if (ncp_echo_conn && nwconnection != 65535) {
+        expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Detected New Server Session. Connection %d, Task %d", nwconnection, nwtask);
+        value->session_start_packet_num = pinfo->fd->num;
+    }
 
 	return value;
 }
 
 /* Returns the ncp_rec*, or NULL if not found. */
 static mncp_rhash_value*
-mncp_hash_lookup(conversation_t *conversation)
+mncp_hash_lookup(conversation_t *conversation, guint32 nwconnection, guint8 nwtask)
 {
 	mncp_rhash_key		key;
 
 	key.conversation = conversation;
+    key.nwconnection = nwconnection;
+    key.nwtask = nwtask;
 
 	return g_hash_table_lookup(mncp_rhash, &key);
 }
@@ -288,13 +312,13 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16				flags = 0;
 	proto_tree			*flags_tree = NULL;
 	int				hdr_offset = 0;
-	int				commhdr;
+	int				commhdr = 0;
 	int				offset = 0;
 	gint				length_remaining;
 	tvbuff_t       			*next_tvb;
 	guint32				testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
 	guint8				subfunction;
-	guint32				nw_connection, data_offset;
+	guint32				nw_connection = 0, data_offset;
 	guint16				data_len = 0;
 	guint16				missing_fraglist_count = 0;
 	mncp_rhash_value		*request_value = NULL;
@@ -307,138 +331,129 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	hdr_offset = 0;
 	ncp_hdr = &header;
-	if (is_tcp) {
-		if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
-			hdr_offset += 1;
-		ncpiph.signature	= tvb_get_ntohl(tvb, hdr_offset);
-		ncpiph.length		= tvb_get_ntohl(tvb, hdr_offset+4);
-		hdr_offset += 8;
-		if (ncpiph.signature == NCPIP_RQST) {
-			ncpiphrq.version	= tvb_get_ntohl(tvb, hdr_offset);
-			hdr_offset += 4;
-			ncpiphrq.rplybufsize	= tvb_get_ntohl(tvb, hdr_offset);
-			hdr_offset += 4;
-		}
-		/* Ok, we need to track the conversation so that we can
-		 * determine if packet signature is occuring for this
-		 * connection. We will store the conversation the first
-		 * time and that state of packet signature will be stored
-		 * later in our logic. This way when we dissect reply
-		 * packets we will be able to determine if we need 
-		 * to also dissect with a signature.
-		 */
-		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		    PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
-		    0);
-		if ((ncpiph.length & 0x80000000) ||
-		    ncpiph.signature == NCPIP_RPLY) {
-			/* First time through we will store packet signature
-			 * state
-			 */
-			if (!pinfo->fd->flags.visited) {
-				if (conversation != NULL) {
-					/* find the record telling us the
-					 * request made that caused this
-					 * reply
-					 */
-					request_value =
-					    mncp_hash_lookup(conversation);
-					/* if for some reason we have no
-					 * conversation in our hash, create
-					 * one */
-					if (request_value == NULL) {
-						request_value =
-						    mncp_hash_insert(conversation);
-					}
-				} else {
-					/* It's not part of any conversation
-					 * - create a new one.
-					 */
-					conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-					    &pinfo->dst, PT_NCP,
-					    (guint32) pinfo->srcport,
-					    (guint32) pinfo->destport, 0);
-					request_value =
-					    mncp_hash_insert(conversation);
-				}
-				/* If this is a request packet then we know
-				 * that we have a signature
-				 */
-				if (ncpiph.signature == NCPIP_RQST) {
-					hdr_offset += 8;
-					ncpiph.length &= 0x7fffffff;
-					request_value->packet_signature=TRUE;
-				} else {
-					/* Now on reply packets we have to
-					 * use the state of the original
-					 * request packet, so look up the
-					 * request value and check the state
-					 * of packet signature
-					 */
-					request_value =
-					    mncp_hash_lookup(conversation);
-					if (request_value->packet_signature) {
-						hdr_offset += 8;
-						ncpiph.length &= 0x7fffffff;
-						/* XXX - it already *is* TRUE */
-						request_value->packet_signature=TRUE;
-					} else {
-						/* XXX - it already *is* FALSE */
-						request_value->packet_signature=FALSE;
-					}
-				}
-			} else {
-				/* Get request value data */
-				request_value = mncp_hash_lookup(conversation);
-				if (request_value->packet_signature) {
-					hdr_offset += 8;
-					ncpiph.length &= 0x7fffffff;
-				}
-			}
-		} else {
-			if (!pinfo->fd->flags.visited) {
-				if (conversation != NULL) {
-					/* find the record telling us the
-					 * request made that caused this
-					 * reply
-					 */
-					request_value =
-					    mncp_hash_lookup(conversation);
-					/* if for some reason we have no
-					 * conversation in our hash, create
-					 * one */
-					if (request_value == NULL) {
-						request_value =
-						    mncp_hash_insert(conversation);
-					}
-				} else {
-					/* It's not part of any conversation
-					 * - create a new one.
-					 */
-					conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-					    &pinfo->dst, PT_NCP,
-					    (guint32) pinfo->srcport,
-					    (guint32) pinfo->destport, 0);
-					request_value =
-					    mncp_hash_insert(conversation);
-				}
-				/* find the record telling us the request
-				 * made that caused this reply
-				 */
-				request_value->packet_signature=FALSE;
-			} else {
-				request_value = mncp_hash_lookup(conversation);
-			}
-		}
+    commhdr = hdr_offset;
+
+    ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
+    ncp_tree = proto_item_add_subtree(ti, ett_ncp);
+    if (is_tcp) {
+        if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
+            commhdr += 1;
+        /* Get NCPIP Header data */
+        ncpiph.signature	= tvb_get_ntohl(tvb, commhdr);
+        proto_tree_add_uint(ncp_tree, hf_ncp_ip_sig, tvb, commhdr, 4, ncpiph.signature);
+        ncpiph.length		= (0x7fffffff & tvb_get_ntohl(tvb, commhdr+4));
+        proto_tree_add_uint(ncp_tree, hf_ncp_ip_length, tvb, commhdr+4, 4, ncpiph.length);
+        commhdr += 8;
+        if (ncpiph.signature == NCPIP_RQST) {
+            ncpiphrq.version	= tvb_get_ntohl(tvb, commhdr);
+            proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, tvb, commhdr, 4, ncpiphrq.version);
+            commhdr += 4;
+            ncpiphrq.rplybufsize	= tvb_get_ntohl(tvb, commhdr);
+            proto_tree_add_uint(ncp_tree, hf_ncp_ip_rplybufsize, tvb, commhdr, 4, ncpiphrq.rplybufsize);
+            commhdr += 4;
+        }
+        /* Check to see if this is a valid offset, otherwise increment for packet signature */
+        if (match_strval(tvb_get_ntohs(tvb, commhdr), ncp_type_vals)==NULL) {
+            proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, commhdr, 8, FALSE);
+            commhdr += 8;
+        }
+    }
+    header.type		    = tvb_get_ntohs(tvb, commhdr);
+    header.sequence		= tvb_get_guint8(tvb, commhdr+2);
+    header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
+    header.task         = tvb_get_guint8(tvb, commhdr+4);
+    header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
+    proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr, 2, header.type);
+    nw_connection = (header.conn_high*256)+header.conn_low;
+    
+    /* Ok, we need to track the conversation so that we can
+     * determine if a new server session is occuring for this
+     * connection.
+     */
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
+        0);
+    if ((ncpiph.length & 0x80000000) || ncpiph.signature == NCPIP_RPLY) {
+        /* First time through we will record the initial connection and task
+         * values
+         */
+        if (!pinfo->fd->flags.visited) {
+            if (conversation != NULL) {
+                /* find the record telling us the
+                 * request made that caused this
+                 * reply
+                 */
+                request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
+                /* if for some reason we have no
+                 * conversation in our hash, create
+                 * one */
+                if (request_value == NULL) {
+                    request_value = mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
+                }
+            } else {
+                /* It's not part of any conversation
+                 * - create a new one.
+                 */
+                conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+                    &pinfo->dst, PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                request_value = mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
+            }
+            /* If this is a request packet then we 
+             * might have a new task
+             */
+            if (ncpiph.signature == NCPIP_RPLY) {
+                /* Now on reply packets we have to
+                 * use the state of the original
+                 * request packet, so look up the
+                 * request value and check the task number
+                 */
+                request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
+            }
+        } else {
+            /* Get request value data */
+            request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
+            if (request_value) {
+                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn)
+                {
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
+                }
+            }
+        }
+    } else {
+        if (!pinfo->fd->flags.visited) {
+            if (conversation != NULL) {
+                /* find the record telling us the
+                 * request made that caused this
+                 * reply
+                 */
+                request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
+                /* if for some reason we have no
+                 * conversation in our hash, create
+                 * one */
+                if (request_value == NULL) {
+                    request_value = mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
+                }
+            } else {
+                /* It's not part of any conversation
+                 * - create a new one.
+                 */
+                conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+                    &pinfo->dst, PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                request_value = mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
+            }
+            /* find the record telling us the request
+             * made that caused this reply
+             */
+        } else {
+            request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
+            if (request_value) {
+                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn)
+                {
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
+                }
+            }
+        }
 	}
-
-	/* Record the offset where the NCP common header starts */
-	commhdr = hdr_offset;
-
-	header.type		= tvb_get_ntohs(tvb, commhdr);
-	header.sequence		= tvb_get_guint8(tvb, commhdr+2);
-	header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
-	header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
 
 	tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
 
@@ -446,28 +461,6 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "%s",
 		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
-	}
-
-	nw_connection = (header.conn_high*256)+header.conn_low;
-
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
-		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
-
-		if (is_tcp) {
-			proto_tree_add_uint(ncp_tree, hf_ncp_ip_sig, tvb, 0, 4, ncpiph.signature);
-			proto_tree_add_uint(ncp_tree, hf_ncp_ip_length, tvb, 4, 4, ncpiph.length);
-			if (ncpiph.signature == NCPIP_RQST) {
-				proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, tvb, 8, 4, ncpiphrq.version);
-				proto_tree_add_uint(ncp_tree, hf_ncp_ip_rplybufsize, tvb, 12, 4, ncpiphrq.rplybufsize);
-				if (request_value->packet_signature==TRUE)
-					proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 16, 8, FALSE);
-			} else {
-				if (request_value->packet_signature==TRUE)
-					proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 8, 8, FALSE);
-			}
-		}
-		proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr + 0, 2, header.type);
 	}
 
 	/*
@@ -479,8 +472,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
 		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, tvb_get_guint8(tvb, commhdr+9));
 		proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, FALSE);
+        if ((tvb_get_guint8(tvb, commhdr+9)==0x24) && ncp_echo_file)
+        {
+            expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server requesting station to clear oplock on handle - %08x", tvb_get_ntohl(tvb, commhdr+10));
+        }
 		break;
 
 	case NCP_LIP_ECHO:    /* Lip Echo Packet */
@@ -700,20 +697,20 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/*break;*/
 			}
 		}
-		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
 		dissect_ncp_request(next_tvb, pinfo, nw_connection,
 		    header.sequence, header.type, ncp_tree);
 		break;
 
 	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
 		dissect_ncp_request(next_tvb, pinfo, nw_connection,
 		    header.sequence, header.type, ncp_tree);
 		break;
 
 	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
 	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
-		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
 		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
 			subfunction = tvb_get_guint8(tvb, commhdr+7);
 			switch (subfunction) {
@@ -743,7 +740,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
-		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
 		nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
 		    header.type, ncp_tree, &ncp_tap);
 		break;
@@ -754,7 +751,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * clear out "frags".  Was that the right thing to
 		 * do?
 		 */
-		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
 		    header.sequence, header.type, ncp_tree, &ncp_tap);
 		break;
@@ -922,8 +919,8 @@ proto_register_ncp(void)
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }},
     { &hf_ncp_oplock_flag,
-      { "Oplock Flag",    "ncp.oplock_flag",
-	FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "Broadcast Message Flag",    "ncp.msg_flag",
+	FT_UINT8, BASE_HEX, VALS(ncp_oplock_vals), 0x0,
 	"", HFILL }},
     { &hf_ncp_oplock_handle,
       { "File Handle",    "ncp.oplock_handle",
@@ -1086,6 +1083,10 @@ proto_register_ncp(void)
     "Expert: Server Information?",
     "Whether the NCP dissector should echo server information to the expert table.",
     &ncp_echo_server);
+  prefs_register_bool_preference(ncp_module, "file_2_expert",
+    "Expert: File Information?",
+    "Whether the NCP dissector should echo file information to the expert table.",
+    &ncp_echo_file);
   register_init_routine(&mncp_init_protocol);
   ncp_tap.stat=register_tap("ncp_srt");
   ncp_tap.hdr=register_tap("ncp_hdr");

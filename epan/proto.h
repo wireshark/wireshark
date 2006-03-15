@@ -259,6 +259,8 @@ typedef proto_node proto_item;
 #define PI_SEQUENCE			0x0200
 /** The protocol field indicates a bad application response code (e.g. HTTP 404), usually PI_NOTE */
 #define PI_RESPONSE_CODE	0x0400
+/** The protocol field indicates an application request (e.g. File Handle == xxxx), usually PI_CHAT */
+#define PI_REQUEST_CODE	    0x0500
 /** The data is undecoded, the protocol dissection is incomplete here, usually PI_WARN */
 #define PI_UNDECODED		0x0800
 /** The protocol field indicates a reassemble (e.g. DCE/RPC defragmentation), usually PI_CHAT (or PI_ERROR) */

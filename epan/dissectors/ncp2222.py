@@ -3180,7 +3180,7 @@ ObjectType			= val_string16("object_type", "Object Type", [
 OCRetFlags			= val_string8("o_c_ret_flags", "Open Create Return Flags", [
 	[ 0x00, "No CallBack has been registered (No Op-Lock)" ],
 	[ 0x01, "Request has been registered for CallBack (Op-Lock)" ],
-])
+])     
 OldestDeletedFileAgeInTicks	= uint32("oldest_deleted_file_age_in_ticks", "Oldest Deleted File Age in Ticks")
 OldFileName			= bytes("old_file_name", "Old File Name", 15)
 OldFileSize			= uint32("old_file_size", "Old File Size")
@@ -4861,7 +4861,7 @@ ObjectFlagsStruct               = struct("object_flags_struct", [
         ObjectFlags,
 ])
 ObjectTypeStruct                = struct("object_type_struct", [
-        ObjectType,
+        endian(ObjectType, BE),
         Reserved2,
 ])
 ObjectNameStruct                = struct("object_name_struct", [
@@ -9387,14 +9387,15 @@ def define_ncp2222():
 	pkt = NCP(0x1720, "Scan Bindery Object (List)", 'bindery')
 	pkt.Request((23,70), [
 		rec( 10, 4, NextObjectID, BE ),
-		rec( 14, 4, ObjectType, BE ),
+		rec( 14, 2, ObjectType, BE ),
+        rec( 16, 2, Reserved2 ),
 		rec( 18, 4, InfoFlags ),
 		rec( 22, (1,48), ObjectName ),
 	], info_str=(ObjectName, "Scan Bindery Object: %s", ", %s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
 		rec( 8, 4, ObjectInfoReturnCount ),
 		rec( 12, 4, NextObjectID, BE ),
-		rec( 16, 4, ObjectIDInfo ),
+		rec( 16, 4, ObjectID ),
                 srec(ObjectTypeStruct, req_cond="ncp.info_flags_type == TRUE"),
                 srec(ObjectSecurityStruct, req_cond="ncp.info_flags_security == TRUE"),
                 srec(ObjectFlagsStruct, req_cond="ncp.info_flags_flags == TRUE"),
@@ -13130,7 +13131,7 @@ def define_ncp2222():
 	])
 	pkt.Reply(16, [
 		rec( 8, 4, FileHandle, BE ),
-		rec( 12, 4, EffectiveRights ),
+		rec( 12, 4, EffectiveRights, LE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -14068,7 +14069,7 @@ def define_ncp2222():
 		rec( 29, (2,255), Path16, repeat="x" ),
 	], info_str=(Path16, "Get Effective Rights for: %s", "/%s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
-		rec( 8, 2, EffectiveRights ),
+		rec( 8, 2, EffectiveRights, LE ),
                 srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
                 srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
                 srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
