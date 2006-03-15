@@ -44,25 +44,31 @@ SimpleSyntax ::=
     CHOICE {
         -- INTEGERs with a more restrictive range
         -- may also be used
-        integer-value               -- includes Integer32
-            INTEGER (-2147483648..2147483647),
+        integer-value		Integer-value,
 
         -- OCTET STRINGs with a more restrictive size
         -- may also be used
-        string-value	String-value,
+        string-value		String-value,
 
-        objectID-value
-            OBJECT IDENTIFIER,
-		empty							-- Added from RFC 1155 for Ethereal
-			NULL
+        objectID-value		ObjectID-value,
+		empty				Empty
+		-- Added from RFC 1155 for Ethereal
 							      }
 String-value ::= OCTET STRING (SIZE (0..65535))
 
+Integer-value ::=               -- includes Integer32
+            INTEGER (-2147483648..2147483647)
+        -- OCTET STRINGs with a more restrictive size
+        -- may also be used
+
 -- indistinguishable from INTEGER, but never needs more than
 -- 32-bits for a two's complement representation
-Integer32 ::=
-        INTEGER (-2147483648..2147483647)
+Integer32 ::= INTEGER (-2147483648..2147483647)
 
+ObjectID-value ::= OBJECT IDENTIFIER
+
+Empty ::= NULL
+							-- Added from RFC 1155 for Ethereal
 
 -- application-wide types
 
@@ -261,7 +267,20 @@ SnmpEngineID ::= OCTET STRING
                                   SetRequest-PDU,
 
                               trap
-                                  Trap-PDU
+                                  Trap-PDU,
+								  -- v2 added ?
+
+							  getBulkRequest
+								  GetBulkRequest-PDU,
+
+							  informRequest
+								  InformRequest-PDU,
+
+							  sNMPv2-Trap
+								  SNMPv2-Trap-PDU,
+
+							  report
+								  Report-PDU	  	
                           }
 
           -- PDUs

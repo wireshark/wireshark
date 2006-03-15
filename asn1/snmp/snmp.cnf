@@ -15,6 +15,18 @@ SMUX-PDUs
 Messagev2u/datav2u/plaintext v2u_plaintext
 BulkPDU/request-id bulkPDU_request-id
 
+#.FN_PARS PDUs
+
+	VAL_PTR = &pdu_type 
+
+#.FN_BODY PDUs
+
+gint pdu_type;
+
+%(DEFAULT_BODY)s
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdu_type, snmp_PDUs_vals,"Unknown PDU type (%%u)"));
+
 #.FN_BODY PDUs/get-request
  gint8 class;
  gboolean pc, ind_field;
@@ -75,6 +87,7 @@ BulkPDU/request-id bulkPDU_request-id
  }
  offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
 
+
 #.FN_BODY PDUs/trap
  gint8 class;
  gboolean pc, ind_field;
@@ -89,6 +102,66 @@ BulkPDU/request-id bulkPDU_request-id
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+#.FN_BODY PDUs/getBulkRequest
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+#.FN_BODY PDUs/informRequest
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+#.FN_BODY PDUs/sNMPv2-Trap
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+#.FN_BODY PDUs/report
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
 
 #.FN_PARS HeaderData/msgSecurityModel
 
@@ -141,6 +214,30 @@ BulkPDU/request-id bulkPDU_request-id
 	VAL_PTR = &oid_tvb 
 
 #.FN_BODY String-value
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+#.FN_BODY Integer-value
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+#.FN_BODY ObjectID-value
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+#.FN_BODY Empty
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+#.FN_BODY TimeTicks
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);

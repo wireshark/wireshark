@@ -739,7 +739,13 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     return offset;
 }
 
-
+/* This code is copied from the original SNMP dissector with minor changes to adapt it to use packet-ber.c routines
+ * TODO: 
+ * - Rewrite it completly as OID as subid_t could be returned from dissect_ber_objectidentifier
+ * - vb_type_name is known when calling this routine(?)
+ * - All branches not needed(?)
+ * ...
+ */
 
 static void
 snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tvbuff_t *oid_tvb,
