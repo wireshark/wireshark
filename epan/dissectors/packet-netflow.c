@@ -158,6 +158,7 @@ static int      ett_netflow = -1;
 static int      ett_unixtime = -1;
 static int      ett_flow = -1;
 static int      ett_template = -1;
+static int      ett_field = -1;
 static int      ett_dataflowset = -1;
 
 /*
@@ -294,7 +295,7 @@ static void	dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb,
 static int	dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb,
 			       int offset);
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb,
-				    int offset);
+				    int offset, int len);
 static void	v9_template_add(struct v9_template * template);
 static struct v9_template *v9_template_get(guint16 id, guint32 src_addr,
 					   guint32 src_id);
@@ -407,9 +408,15 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	ts.secs = tvb_get_ntohl(tvb, offset);
 	ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
-	timeitem = proto_tree_add_time(netflow_tree,
-				       hf_cflow_timestamp, tvb, offset,
-				       8, &ts);
+	if (ver != 9)
+	  timeitem = proto_tree_add_time(netflow_tree,
+					 hf_cflow_timestamp, tvb, offset,
+					 8, &ts);
+	else
+	  timeitem = proto_tree_add_time(netflow_tree,
+					 hf_cflow_timestamp, tvb, offset,
+					 4, &ts);
+
 	timetree = proto_item_add_subtree(timeitem, ett_unixtime);
 
 	proto_tree_add_item(timetree, hf_cflow_unix_secs, tvb,
@@ -860,7 +867,7 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 		    offset, 2, FALSE);
 		offset += 2;
 
-		dissect_v9_template(pdutree, tvb, offset);
+		dissect_v9_template(pdutree, tvb, offset, length - 4);
 	} else if (flowset_id == 1) {
 		/* Options */
 		proto_tree_add_item(pdutree, hf_cflow_options_flowset_id, tvb,
@@ -1264,53 +1271,66 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 }
 
 static int
-dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
+dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len)
 {
 	struct v9_template template;
 	proto_tree *template_tree;
 	proto_item *template_item;
+	proto_tree *field_tree;
+	proto_item *field_item;
 	guint16 id, count;
+	int remaining = len;
 	gint32 i;
 
-	id = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
-	    offset, 2, FALSE);
-	offset += 2;
+	while (remaining > 0) {
 
-	count = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(pdutree, hf_cflow_template_field_count, tvb,
-	    offset, 2, FALSE);
-	offset += 2;
+	  id = tvb_get_ntohs(tvb, offset);
+	  count = tvb_get_ntohs(tvb, offset + 2);
 
-	/* Cache template */
-	memset(&template, 0, sizeof(template));
-	template.id = id;
-	template.count = count;
-	template.source_addr = 0;	/* XXX */
-	template.source_id = 0;		/* XXX */
-	template.option_template = 0;   /* Data template */
-	template.entries = g_malloc(count * sizeof(struct v9_template_entry));
-	tvb_memcpy(tvb, (guint8 *)template.entries, offset,
-	    count * sizeof(struct v9_template_entry));
-	v9_template_add(&template);
+	  template_item = proto_tree_add_text(pdutree, tvb, offset, 
+	      4 + sizeof(struct v9_template_entry) * count, 
+	      "Template (Id = %u, Count = %u)", id, count);
+	  template_tree = proto_item_add_subtree(template_item, ett_template);
 
-	for (i = 1; i <= count; i++) {
-		guint16 type, length;
+	  proto_tree_add_item(template_tree, hf_cflow_template_id, tvb,
+	      offset, 2, FALSE);
+	  offset += 2;
 
-		type = tvb_get_ntohs(tvb, offset);
-		length = tvb_get_ntohs(tvb, offset + 2);
+	  proto_tree_add_item(template_tree, hf_cflow_template_field_count, 
+	      tvb, offset, 2, FALSE);
+	  offset += 2;
 
-		template_item = proto_tree_add_text(pdutree, tvb,
-		    offset, 4, "Field (%u/%u)", i, count);
-		template_tree = proto_item_add_subtree(template_item, ett_template);
+	  /* Cache template */
+	  memset(&template, 0, sizeof(template));
+	  template.id = id;
+	  template.count = count;
+	  template.source_addr = 0;	/* XXX */
+	  template.source_id = 0;		/* XXX */
+	  template.option_template = 0;   /* Data template */
+	  template.entries = g_malloc(count * sizeof(struct v9_template_entry));
+	  tvb_memcpy(tvb, (guint8 *)template.entries, offset,
+	      count * sizeof(struct v9_template_entry));
+	  v9_template_add(&template);
 
-		proto_tree_add_item(template_tree,
-		    hf_cflow_template_field_type, tvb, offset, 2, FALSE);
-		offset += 2;
+	  for (i = 1; i <= count; i++) {
+	    guint16 type, length;
 
-		proto_tree_add_item(template_tree,
-		    hf_cflow_template_field_length, tvb, offset, 2, FALSE);
-		offset += 2;
+	    type = tvb_get_ntohs(tvb, offset);
+	    length = tvb_get_ntohs(tvb, offset + 2);
+
+	    field_item = proto_tree_add_text(template_tree, tvb,
+		offset, 4, "Field (%u/%u)", i, count);
+	    field_tree = proto_item_add_subtree(field_item, ett_field);
+
+	    proto_tree_add_item(field_tree,
+		hf_cflow_template_field_type, tvb, offset, 2, FALSE);
+	    offset += 2;
+
+	    proto_tree_add_item(field_tree,
+		hf_cflow_template_field_length, tvb, offset, 2, FALSE);
+	    offset += 2;
+	  }
+	  remaining -= 4 + sizeof(struct v9_template_entry) * count;
 	}
 
 	return (0);
@@ -1942,6 +1962,7 @@ proto_register_netflow(void)
 		&ett_unixtime,
 		&ett_flow,
 		&ett_template,
+		&ett_field,
 		&ett_dataflowset
 	};
 
