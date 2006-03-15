@@ -5,6 +5,7 @@
 
 
 #.PDU
+SMUX-PDUs
 
 #.NO_EMIT
 
@@ -134,6 +135,16 @@ BulkPDU/request-id bulkPDU_request-id
 	proto_tree_add_item(tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
   }
+
+#.FN_PARS ObjectName
+
+	VAL_PTR = &oid_tvb 
+
+#.FN_BODY String-value
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
 
 #.TYPE_ATTR
 IpAddress  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL

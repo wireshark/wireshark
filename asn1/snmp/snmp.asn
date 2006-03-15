@@ -49,14 +49,14 @@ SimpleSyntax ::=
 
         -- OCTET STRINGs with a more restrictive size
         -- may also be used
-        string-value
-            OCTET STRING (SIZE (0..65535)),
+        string-value	String-value,
 
         objectID-value
             OBJECT IDENTIFIER,
 		empty							-- Added from RFC 1155 for Ethereal
 			NULL
 							      }
+String-value ::= OCTET STRING (SIZE (0..65535))
 
 -- indistinguishable from INTEGER, but never needs more than
 -- 32-bits for a two's complement representation

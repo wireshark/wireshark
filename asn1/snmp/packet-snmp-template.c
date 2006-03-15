@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  * Updated to use the asn2eth compiler made by Tomas Kukosa
- * Copyright (C) 2005 Anders Broman [AT] ericsson.com
+ * Copyright (C) 2005 - 2006 Anders Broman [AT] ericsson.com
  *
  *
  * $Id$
@@ -50,6 +50,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/strutil.h>
 #include <epan/conversation.h>
 #include "etypes.h"
 #include <epan/prefs.h>
@@ -111,6 +112,12 @@
 #include "packet-snmp.h"
 #include "format-oid.h"
 
+/* Take a pointer that may be null and return a pointer that's not null
+   by turning null pointers into pointers to the above null string,
+   and, if the argument pointer wasn't null, make sure we handle
+   non-printable characters in the string by escaping them. */
+#define	SAFE_STRING(s, l)	(((s) != NULL) ? format_text((s), (l)) : "")
+
 #define PNAME  "Simple Network Management Protocol"
 #define PSNAME "SNMP"
 #define PFNAME "snmp"
@@ -154,6 +161,7 @@ static gboolean snmp_desegment = TRUE;
 /* Global variables */
 
 guint32 MsgSecurityModel;
+tvbuff_t *oid_tvb=NULL;
 
 static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
@@ -171,6 +179,8 @@ static int hf_snmp_engineid_mac = -1;
 static int hf_snmp_engineid_text = -1;
 static int hf_snmp_engineid_time = -1;
 static int hf_snmp_engineid_data = -1;
+static int hf_snmp_counter64 = -1;
+
 #include "packet-snmp-hf.c"
 
 static int hf_smux_version = -1;
@@ -184,6 +194,19 @@ static gint ett_msgFlags = -1;
 
 #include "packet-snmp-ett.c"
 
+/* defined in net-SNMP; include/net-snmp/library/snmp.h */
+#undef SNMP_MSG_GET
+#undef SNMP_MSG_SET
+#undef SNMP_MSG_GETNEXT
+#undef SNMP_MSG_RESPONSE
+#undef SNMP_MSG_TRAP
+#undef SNMP_MSG_GETBULK
+#undef SNMP_MSG_INFORM
+#undef SNMP_MSG_TRAP2
+#undef SNMP_MSG_REPORT
+#undef SNMP_NOSUCHOBJECT
+#undef SNMP_NOSUCHINSTANCE
+#undef SNMP_ENDOFMIBVIEW
 
 /* Security Models */
 
@@ -215,6 +238,108 @@ static const value_string smux_types[] = {
 	{ SMUX_MSG_SOUT,	"Commit Or Rollback" },
 	{ 0,			NULL }
 };
+
+/* SNMP Tags */
+
+#define SNMP_IPA    0		/* IP Address */
+#define SNMP_CNT    1		/* Counter (Counter32) */
+#define SNMP_GGE    2		/* Gauge (Gauge32) */
+#define SNMP_TIT    3		/* TimeTicks */
+#define SNMP_OPQ    4		/* Opaque */
+#define SNMP_NSP    5		/* NsapAddress */
+#define SNMP_C64    6		/* Counter64 */
+#define SNMP_U32    7		/* Uinteger32 */
+
+#define SERR_NSO    0
+#define SERR_NSI    1
+#define SERR_EOM    2
+
+/* SNMPv1 Types */
+
+#define SNMP_NULL                0
+#define SNMP_INTEGER             1    /* l  */
+#define SNMP_OCTETSTR            2    /* c  */
+#define SNMP_DISPLAYSTR          2    /* c  */
+#define SNMP_OBJECTID            3    /* ul */
+#define SNMP_IPADDR              4    /* uc */
+#define SNMP_COUNTER             5    /* ul */
+#define SNMP_GAUGE               6    /* ul */
+#define SNMP_TIMETICKS           7    /* ul */
+#define SNMP_OPAQUE              8    /* c  */
+
+/* additional SNMPv2 Types */
+
+#define SNMP_UINTEGER            5    /* ul */
+#define SNMP_BITSTR              9    /* uc */
+#define SNMP_NSAP               10    /* uc */
+#define SNMP_COUNTER64          11    /* ul */
+#define SNMP_NOSUCHOBJECT       12
+#define SNMP_NOSUCHINSTANCE     13
+#define SNMP_ENDOFMIBVIEW       14
+
+
+typedef struct _SNMP_CNV SNMP_CNV;
+
+struct _SNMP_CNV
+{
+  guint class;
+  guint tag;
+  gint  syntax;
+  const gchar *name;
+};
+
+static SNMP_CNV SnmpCnv [] =
+{
+  {BER_CLASS_UNI, BER_UNI_TAG_NULL,			SNMP_NULL,      "NULL"},
+  {BER_CLASS_UNI, BER_UNI_TAG_INTEGER,		SNMP_INTEGER,   "INTEGER"},
+  {BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING,	SNMP_OCTETSTR,  "OCTET STRING"},
+  {BER_CLASS_UNI, BER_UNI_TAG_OID,			SNMP_OBJECTID,  "OBJECTID"},
+  {BER_CLASS_APP, SNMP_IPA,					SNMP_IPADDR,    "IPADDR"},
+  {BER_CLASS_APP, SNMP_CNT,					SNMP_COUNTER,   "COUNTER"},  /* Counter32 */
+  {BER_CLASS_APP, SNMP_GGE,					SNMP_GAUGE,     "GAUGE"},    /* Gauge32 == Unsigned32  */
+  {BER_CLASS_APP, SNMP_TIT,					SNMP_TIMETICKS, "TIMETICKS"},
+  {BER_CLASS_APP, SNMP_OPQ,					SNMP_OPAQUE,    "OPAQUE"},
+
+/* SNMPv2 data types and errors */
+
+  {BER_CLASS_UNI, BER_UNI_TAG_BITSTRING,	SNMP_BITSTR,         "BITSTR"},
+  {BER_CLASS_APP, SNMP_C64,					SNMP_COUNTER64,      "COUNTER64"},
+  {BER_CLASS_CON, SERR_NSO,					SNMP_NOSUCHOBJECT,   "NOSUCHOBJECT"},
+  {BER_CLASS_CON, SERR_NSI,					SNMP_NOSUCHINSTANCE, "NOSUCHINSTANCE"},
+  {BER_CLASS_CON, SERR_EOM,					SNMP_ENDOFMIBVIEW,   "ENDOFMIBVIEW"},
+  {0,		0,         -1,                  NULL}
+};
+
+/*
+ * NAME:        g_snmp_tag_cls2syntax
+ * SYNOPSIS:    gboolean g_snmp_tag_cls2syntax
+ *                  (
+ *                      guint    tag,
+ *                      guint    cls,
+ *                      gushort *syntax
+ *                  )
+ * DESCRIPTION: Converts ASN1 tag and class to Syntax tag and name.
+ *              See SnmpCnv for conversion.
+ * RETURNS:     name on success, NULL on failure
+ */
+
+static const gchar *
+snmp_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
+{
+    SNMP_CNV *cnv;
+
+    cnv = SnmpCnv;
+    while (cnv->syntax != -1)
+    {
+        if (cnv->tag == tag && cnv->class == cls)
+        {
+            *syntax = cnv->syntax;
+            return cnv->name;
+        }
+        cnv++;
+    }
+    return NULL;
+}
 
 int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len) {
    int i, out_len;
@@ -346,6 +471,127 @@ new_format_oid(subid_t *oid, guint oid_length,
 	  buf += len;
 	}
 }
+
+#ifdef HAVE_SOME_SNMP
+static gboolean
+check_var_length(guint vb_length, guint required_length, guchar **errmsg)
+{
+	gchar *buf;
+	static const char badlen_fmt[] = "Length is %u, should be %u";
+
+	if (vb_length != required_length) {
+		/* Enough room for the largest "Length is XXX,
+		   should be XXX" message - 10 digits for each
+		   XXX. */
+		buf = malloc(sizeof badlen_fmt + 10 + 10);
+		if (buf != NULL) {
+			g_snprintf(buf, sizeof badlen_fmt + 10 + 10,
+			    badlen_fmt, vb_length, required_length);
+		}
+		*errmsg = buf;
+		return FALSE;
+	}
+	return TRUE;	/* length is OK */
+}
+
+static gchar *
+format_var(struct variable_list *variable, subid_t *variable_oid,
+    guint variable_oid_length, gushort vb_type, guint val_len)
+{
+	guchar *buf;
+	size_t buf_len;
+	size_t out_len;
+
+	switch (vb_type) {
+
+	case SNMP_IPADDR:
+		/* Length has to be 4 bytes. */
+		if (!check_var_length(val_len, 4, &buf))
+			return buf;	/* it's not 4 bytes */
+		break;
+
+#ifdef REMOVED
+	/* not all counters are encoded as a full 64bit integer */
+	case SNMP_COUNTER64:
+		/* Length has to be 8 bytes. */
+		if (!check_var_length(val_len, 8, &buf))
+			return buf;	/* it's not 8 bytes */
+		break;
+#endif
+	default:
+		break;
+	}
+
+	variable->next_variable = NULL;
+	variable->name = variable_oid;
+	variable->name_length = variable_oid_length;
+	switch (vb_type) {
+
+	case SNMP_INTEGER:
+		variable->type = VALTYPE_INTEGER;
+		break;
+
+	case SNMP_COUNTER:
+		variable->type = VALTYPE_COUNTER;
+		break;
+
+	case SNMP_GAUGE:
+		variable->type = VALTYPE_GAUGE;
+		break;
+
+	case SNMP_TIMETICKS:
+		variable->type = VALTYPE_TIMETICKS;
+		break;
+
+	case SNMP_OCTETSTR:
+		variable->type = VALTYPE_STRING;
+		break;
+
+	case SNMP_IPADDR:
+		variable->type = VALTYPE_IPADDR;
+		break;
+
+	case SNMP_OPAQUE:
+		variable->type = VALTYPE_OPAQUE;
+		break;
+
+	case SNMP_NSAP:
+		variable->type = VALTYPE_NSAP;
+		break;
+
+	case SNMP_OBJECTID:
+		variable->type = VALTYPE_OBJECTID;
+		break;
+
+	case SNMP_BITSTR:
+		variable->type = VALTYPE_BITSTR;
+		break;
+
+	case SNMP_COUNTER64:
+		variable->type = VALTYPE_COUNTER64;
+		break;
+	}
+	variable->val_len = val_len;
+
+	/*
+	 * XXX - check for "sprint_realloc_objid()" failure.
+	 */
+
+	/*
+	 * XXX - if we convert this to ep_alloc(), make sure the fourth
+	 * argument to sprint_realloc_objid() is FALSE.
+	 */
+	buf_len = 256;
+	buf = malloc(buf_len);
+	if (buf != NULL) {
+		*buf = '\0';
+		out_len = 0;
+		sprint_realloc_value(&buf, &buf_len, &out_len, TRUE,
+		    variable_oid, variable_oid_length, variable);
+	}
+	return buf;
+}
+#endif
 
 
 #define F_SNMP_ENGINEID_CONFORM 0x80
@@ -491,6 +737,270 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       offset+=len_remain;
     }
     return offset;
+}
+
+
+
+static void
+snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tvbuff_t *oid_tvb,
+					 int offset, guint *lengthp, tvbuff_t **out_tvb)
+{
+	int start, vb_value_start;
+	guint length;
+	guint vb_length;
+	gushort vb_type;
+	const gchar *vb_type_name;
+	gint32 vb_integer_value;
+	guint32 vb_uinteger_value;
+	guint8 *vb_octet_string;
+	const guint8 *oid_buf;
+	subid_t *vb_oid;
+	guint vb_oid_length;
+	gchar *vb_display_string;
+	subid_t *variable_oid = NULL;
+	gint oid_len;
+	guint variable_oid_length = 0;
+	const guint8 *var_oid_buf;
+#ifdef HAVE_SOME_SNMP
+	struct variable_list variable;
+	long value;
+#endif
+	unsigned int i;
+	gchar *buf;
+	int len;
+	gint8 class;
+	gboolean pc, ind = 0;
+	gint32 ber_tag;
+
+	start = offset;
+	/* parse the type of the object */
+	offset = dissect_ber_identifier(pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
+	offset = dissect_ber_length(pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
+
+	vb_value_start = offset;
+
+	/* Convert the class, constructed flag, and tag to a type. */
+	vb_type_name = snmp_tag_cls2syntax(ber_tag, class, &vb_type);
+
+	if (vb_type_name == NULL) {
+		/*
+		 * Unsupported type.
+		 * Dissect the value as an opaque string of octets.
+		 */
+		vb_type_name = "unsupported type";
+		vb_type = SNMP_OPAQUE;
+	}
+	/* construct subid_t variable_oid from oid_tvb */
+	if (oid_tvb){
+		oid_len = tvb_length_remaining(oid_tvb,0);
+		var_oid_buf = tvb_get_ptr(oid_tvb, 0, oid_len);
+		variable_oid = g_malloc((oid_len+1) * sizeof(gulong));
+		variable_oid_length = oid_to_subid_buf(var_oid_buf, oid_len, variable_oid, ((oid_len+1) * sizeof(gulong)));
+	}
+	/* parse the value */
+	switch (vb_type) {
+
+	case SNMP_INTEGER:
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_integer_value);
+		length = offset - vb_value_start;
+		if (snmp_tree) {
+#ifdef HAVE_SOME_SNMP
+			value = vb_integer_value;
+			variable.val.integer = &value;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+#else
+			vb_display_string = NULL;
+#endif
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s", vb_display_string);
+				free(vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree,tvb,
+				    vb_value_start, length,
+				    "Value: %s: %d (%#x)", vb_type_name,
+				    vb_integer_value, vb_integer_value);
+			}
+		}
+		break;
+
+	case SNMP_COUNTER:
+	case SNMP_GAUGE:
+	case SNMP_TIMETICKS:
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_uinteger_value);
+		length = offset - vb_value_start;
+		if (snmp_tree) {
+#ifdef HAVE_SOME_SNMP
+			value = vb_uinteger_value;
+			variable.val.integer = &value;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+#else
+			vb_display_string = NULL;
+#endif
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s", vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s: %u (%#x)", vb_type_name,
+				    vb_uinteger_value, vb_uinteger_value);
+			}
+		}
+		break;
+	case SNMP_COUNTER64:
+		offset=dissect_ber_integer64(TRUE, pinfo, snmp_tree, tvb, offset, hf_snmp_counter64, NULL);
+		break;
+	case SNMP_OCTETSTR:
+	case SNMP_IPADDR:
+	case SNMP_OPAQUE:
+	case SNMP_NSAP:
+	case SNMP_BITSTR:
+		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, start, -1, out_tvb);
+		vb_octet_string = ep_tvb_memdup(tvb, vb_value_start, vb_length);
+
+		length = offset - vb_value_start;
+		if (snmp_tree) {
+#ifdef HAVE_SOME_SNMP
+			variable.val.string = vb_octet_string;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+#else
+			vb_display_string = NULL;
+#endif
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s", vb_display_string);
+				free(vb_display_string);
+			} else {
+				/*
+				 * If some characters are not printable,
+				 * display the string as bytes.
+				 */
+				for (i = 0; i < vb_length; i++) {
+					if (!(isprint(vb_octet_string[i])
+					    || isspace(vb_octet_string[i])))
+						break;
+				}
+				if (i < vb_length) {
+					/*
+					 * We stopped, due to a non-printable
+					 * character, before we got to the end
+					 * of the string.
+					 */
+					vb_display_string = ep_alloc(4*vb_length);
+					buf = vb_display_string;
+					len = g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
+					buf += len;
+					for (i = 1; i < vb_length; i++) {
+						len = g_snprintf(buf, 4*vb_length-(buf-vb_display_string), ".%03u",
+						    vb_octet_string[i]);
+						buf += len;
+					}
+					proto_tree_add_text(snmp_tree, tvb, vb_value_start,
+					    length,
+					    "Value: %s: %s", vb_type_name,
+					    vb_display_string);
+				} else {
+					proto_tree_add_text(snmp_tree, tvb, vb_value_start,
+					    length,
+					    "Value: %s: %s", vb_type_name,
+					    SAFE_STRING(vb_octet_string, vb_length));
+				}
+			}
+		}
+		break;
+
+	case SNMP_NULL:
+		dissect_ber_null(FALSE, pinfo, NULL, tvb, start, -1);
+		length = offset - vb_value_start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, tvb, vb_value_start, length,
+			    "Value: %s", vb_type_name);
+		}
+		break;
+
+	case SNMP_OBJECTID:
+		/* XXX Redo this using dissect_ber_object_identifier when
+		   it returns tvb or some other binary form of an OID */
+		oid_buf = tvb_get_ptr(tvb, vb_value_start, vb_length);
+		vb_oid = g_malloc((vb_length+1) * sizeof(gulong));
+		vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
+
+		offset = offset + vb_length;
+		length = offset - vb_value_start;
+		if (snmp_tree) {
+#ifdef HAVE_SOME_SNMP
+			variable.val.objid = vb_oid;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_oid_length * sizeof (subid_t));
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s", vb_display_string);
+				free(vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s: [Out of memory]", vb_type_name);
+			}
+#else /* HAVE_SOME_SNMP */
+			vb_display_string = format_oid(vb_oid, vb_oid_length);
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s: %s", vb_type_name,
+				    vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree, tvb,
+				    vb_value_start, length,
+				    "Value: %s: [Out of memory]", vb_type_name);
+			}
+#endif /* HAVE_SOME_SNMP */
+		}
+		g_free(vb_oid);
+		break;
+
+	case SNMP_NOSUCHOBJECT:
+		length = offset - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
+			    "Value: %s: no such object", vb_type_name);
+		}
+		break;
+
+	case SNMP_NOSUCHINSTANCE:
+		length = offset - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
+			    "Value: %s: no such instance", vb_type_name);
+		}
+		break;
+
+	case SNMP_ENDOFMIBVIEW:
+		length = offset - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
+			    "Value: %s: end of mib view", vb_type_name);
+		}
+		break;
+
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return;
+	}
+	length = offset - start;
+	*lengthp = length;
+	return;
 }
 
 #include "packet-snmp-fn.c"
@@ -721,17 +1231,24 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += message_len;
 	}
 }
-static void
-dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, int proto, gint ett)
-{
-	/* FIX ME */
-}
+
 static void
 dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_smux_pdu(tvb, 0, pinfo, tree, proto_smux, ett_smux);
+	proto_tree *smux_tree = NULL;
+	proto_item *item = NULL;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
+
+	if (tree) {
+		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, FALSE);
+		smux_tree = proto_item_add_subtree(item, ett_smux);
+	}
+
+	dissect_SMUX_PDUs_PDU(tvb, pinfo, tree);
 }
+
 static void
 process_prefs(void)
 {
@@ -835,6 +1352,9 @@ void proto_register_snmp(void) {
 		{ &hf_snmp_engineid_data, {
 		    "Engine ID Data", "snmp.engineid.data", FT_BYTES, BASE_HEX,
 		    NULL, 0, "Engine ID Data", HFILL }},
+		{ &hf_snmp_counter64, {
+		    "Value", "snmp.counter64", FT_INT64, BASE_DEC,
+		    NULL, 0, "A counter64 value", HFILL }},
 
 #include "packet-snmp-hfarr.c"
   };
