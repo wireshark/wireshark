@@ -246,6 +246,7 @@ static gboolean allow_zero_as_app_id = TRUE;
 /* Suppress console output at unknown AVP:s,Flags etc */
 static gboolean suppress_console_output = TRUE;
 
+static gboolean gbl_use_xml_dictionary = TRUE;
 #define DICT_FN  "diameter/dictionary.xml"
 static const gchar *gbl_diameterDictionary;
 
@@ -665,7 +666,7 @@ dictionaryAddApplication(char *name, guint32 id)
   ApplicationId *entry;
 
   if (!name || (id == 0 && !allow_zero_as_app_id)) {
-	report_failure( "Diameter Error: Invalid application (name=%p, id=%d)",
+	report_failure( "Diameter Error: Invalid application (name=%s, id=%d)",
 			   name, id);
 	return (-1);
   } /* Sanity Checks */
@@ -836,10 +837,12 @@ loadXMLDictionary(void)
   XmlStub.xmlSubstituteEntitiesDefault(1);            /* Substitute entities automagically */
   doc = xmlParseFilePush(gbl_diameterDictionary, 1);  /* Parse the XML (do validity checks)*/
 
-  /* Check for invalid xml */
+  /* Check for invalid xml.
+     Note that xmlParseFilePush reports details of problems found,
+     and it should be obvious from the default filename that the error relates
+     to Diameter.
+  */
   if (doc == NULL) {
-	report_failure("Diameter: Unable to parse xmldictionary %s",
-			  gbl_diameterDictionary);
 	return -1;
   }
 
@@ -918,9 +921,9 @@ initializeDictionaryDefaults(void)
 } /* initializeDictionaryDefaults */
 
 /*
- * This routine will attempt to load the XML dictionary, and on
- * failure, will call initializeDictionaryDefaults to load in
- * our static dictionary.
+ * This routine will attempt to load the XML dictionary if configured to.
+ * Otherwise, or if load fails, it will call initializeDictionaryDefaults
+ * to load in our static dictionary instead.
  */
 static void
 initializeDictionary(void)
@@ -930,12 +933,17 @@ initializeDictionary(void)
    * loadXMLDictionary will be called.  This is one of the few times when
    * I think this is prettier than the nested if alternative.
    */
-  if (loadLibXML() ||
-	  (loadXMLDictionary() != 0)) {
-	/* Something failed.  Use the static dictionary */
-	report_failure("Diameter: Using static dictionary! (Unable to use XML)");
-	initializeDictionaryDefaults();
-  }
+   if (gbl_use_xml_dictionary) {
+      if (loadLibXML() || (loadXMLDictionary() != 0)) {
+	     /* Something failed.  Use the static dictionary */
+	     report_failure("Diameter: Using static dictionary! (Unable to use XML)");
+	     initializeDictionaryDefaults();
+      }
+   }
+   else {
+      initializeDictionaryDefaults();
+   }
+
 } /* initializeDictionary */
 
 
@@ -1207,6 +1215,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Only parse in dictionary if there are diameter packets to
    * dissect.
+   * TODO: should keep track of preference settings and free/reinitialize the
+   * dictionary when appropriate.
    */
   if (!initialized) {
 	  /* Read in our dictionary, if it exists. */
@@ -2224,7 +2234,7 @@ proto_register_diameter(void)
 	diameter_module = prefs_register_protocol(proto_diameter,
 											  proto_reg_handoff_diameter);
 	/* Register a configuration option for Diameter version */
-  prefs_register_enum_preference(diameter_module, "version", "Diameter version", "Standard version used for decoding", (gint *)&gbl_version, options, FALSE);
+	prefs_register_enum_preference(diameter_module, "version", "Diameter version", "Standard version used for decoding", (gint *)&gbl_version, options, FALSE);
 
 	prefs_register_uint_preference(diameter_module, "tcp.port",
 								   "Diameter TCP Port",
@@ -2257,6 +2267,16 @@ proto_register_diameter(void)
 	 * "prefs_register_string_preference()").
 	 */
 	g_free(default_diameterDictionary);
+
+	/*
+	 * Make use of the dictionary optional.  Avoids error popups if xml library
+	 * or dictionary file aren't available.
+	 */
+	prefs_register_bool_preference(diameter_module, "dictionary.use",
+	                               "Attempt to load/use Diameter XML Dictionary",
+	                               "Only attempt to load and use the Diameter XML "
+	                               "Dictionary when this option is selected",
+	                               &gbl_use_xml_dictionary);
 
 	/* Desegmentation */
 	prefs_register_bool_preference(diameter_module, "desegment",
