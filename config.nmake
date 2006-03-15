@@ -438,6 +438,7 @@ LUA_CFLAGS=/I$(LUA_DIR)\include
 LUA_LIBS=$(LUA_DIR)\lib\vc6\lua51.lib
 # Nmake uses carets to escape special characters
 LUA_CONFIG=^#define HAVE_LUA 1
+LUA_VERSION=^#define HAVE_LUA_5_1 1
 !else
 LUA_CFLAGS=
 LUA_LIBS=

@@ -230,6 +230,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
 	    -e "s/@HAVE_GNUTLS@/$(GNUTLS_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
+	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
