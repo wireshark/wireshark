@@ -831,7 +831,7 @@ loadXMLDictionary(void)
   xmlNodePtr cur;
 
   /*
-   * build an XML tree from a the file;
+   * build an XML tree from the file;
    */
   XmlStub.xmlKeepBlanksDefault(0);                    /* Strip leading and trailing blanks */
   XmlStub.xmlSubstituteEntitiesDefault(1);            /* Substitute entities automagically */
@@ -928,6 +928,52 @@ initializeDictionaryDefaults(void)
 static void
 initializeDictionary(void)
 {
+  /*
+   * First, empty the dictionary of any previous contents
+   */
+
+  ApplicationId *tmpApplicationId = ApplicationIdHead;
+  VendorId      *tmpVendorId = vendorListHead;
+  CommandCode   *tmpCommandCode = commandListHead;
+  avpInfo       *tmpAvpInfo = avpListHead;
+
+  /* ApplicationId list */
+  while (tmpApplicationId != NULL) {
+    g_free(tmpApplicationId->name);
+    tmpApplicationId = tmpApplicationId->next;
+  }
+  ApplicationIdHead = NULL;
+
+  /* VendorId list */
+  while (tmpVendorId != NULL) {
+    g_free(tmpVendorId->name);
+    g_free(tmpVendorId->longName);
+    tmpVendorId = tmpVendorId->next;
+  }
+  vendorListHead = NULL;
+
+  /* CommandCode list */
+  while (tmpCommandCode != NULL) {
+    g_free(tmpCommandCode->name);
+    g_free(tmpCommandCode->vendorName);
+    tmpCommandCode = tmpCommandCode->next;
+  }
+  commandListHead = NULL;
+
+  /* avpInfo list */
+  while (tmpAvpInfo != NULL) {
+    ValueName *valueNamePtr = tmpAvpInfo->values;
+    g_free(tmpAvpInfo->name);
+    g_free(tmpAvpInfo->vendorName);
+    while (valueNamePtr) {
+      g_free(valueNamePtr->name);
+      valueNamePtr = valueNamePtr->next;
+    }
+    tmpAvpInfo = tmpAvpInfo->next;
+  }
+  avpListHead = NULL;
+
+
   /*
    * Using ugly ordering here.  If loadLibXML succeeds, then
    * loadXMLDictionary will be called.  This is one of the few times when
@@ -1212,16 +1258,29 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      bpos;
   static  int initialized=FALSE;
 
+  /* Keep track of preference settings affecting dictionary source */
+  static  gboolean previous_use_xml_dictionary=FALSE;
+  #define MAX_DICT_NAME_SIZE 256
+  static  gchar    previous_diameterDictionary[MAX_DICT_NAME_SIZE];
+
   /*
    * Only parse in dictionary if there are diameter packets to
    * dissect.
-   * TODO: should keep track of preference settings and free/reinitialize the
+   * Keeps track of preference settings and frees/reinitializes the
    * dictionary when appropriate.
    */
-  if (!initialized) {
-	  /* Read in our dictionary, if it exists. */
-	  initializeDictionary();
-	  initialized=TRUE;
+  if (!initialized ||
+      (gbl_use_xml_dictionary != previous_use_xml_dictionary) ||
+      (strncmp(gbl_diameterDictionary,
+               previous_diameterDictionary,
+               MAX_DICT_NAME_SIZE) != 0)) {
+      /* Populate dictionary according to preferences */
+      initializeDictionary();
+      initialized=TRUE;
+
+      /* Record current preference settings */
+      previous_use_xml_dictionary = gbl_use_xml_dictionary;
+      strncpy(previous_diameterDictionary, gbl_diameterDictionary, MAX_DICT_NAME_SIZE);
   }
 
   /* Make entries in Protocol column and Info column on summary display */
