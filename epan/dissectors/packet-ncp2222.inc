@@ -48,6 +48,7 @@ gboolean        nds_echo_eid = TRUE;
 gboolean        ncp_echo_err = TRUE;
 gboolean        ncp_echo_conn = TRUE;
 gboolean        ncp_echo_server = TRUE;
+gboolean        ncp_echo_file = TRUE;
 
 extern dissector_handle_t nds_data_handle;
 typedef struct {
