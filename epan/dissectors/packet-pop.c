@@ -1,5 +1,6 @@
 /* packet-pop.c
  * Routines for pop packet dissection
+ * RFC 1939
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
  * $Id$
@@ -37,8 +38,16 @@
 #include <epan/strutil.h>
 
 static int proto_pop = -1;
+
 static int hf_pop_response = -1;
+static int hf_pop_response_indicator = -1;
+static int hf_pop_response_description = -1;
+static int hf_pop_response_data = -1;
+
 static int hf_pop_request = -1;
+static int hf_pop_request_command = -1;
+static int hf_pop_request_parameter = -1;
+static int hf_pop_request_data = -1;
 
 static gint ett_pop = -1;
 static gint ett_pop_reqresp = -1;
@@ -52,16 +61,16 @@ static gboolean response_is_continuation(const guchar *data);
 static void
 dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        gboolean        is_request;
-        gboolean	is_continuation;
-        proto_tree      *pop_tree, *reqresp_tree;
-	proto_item	*ti;
-	gint		offset = 0;
-	const guchar	*line;
-	gint		next_offset;
-	int		linelen;
-	int		tokenlen;
-	const guchar	*next_token;
+	gboolean     is_request;
+	gboolean     is_continuation;
+	proto_tree   *pop_tree, *reqresp_tree;
+	proto_item   *ti;
+	gint         offset = 0;
+	const guchar *line;
+	gint         next_offset;
+	int          linelen;
+	int          tokenlen;
+	const guchar *next_token;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
@@ -112,20 +121,17 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 		}
 
-		if (is_request) {
-			proto_tree_add_boolean_hidden(pop_tree,
-			    hf_pop_request, tvb, 0, 0, TRUE);
-		} else {
-			proto_tree_add_boolean_hidden(pop_tree,
-			    hf_pop_response, tvb, 0, 0, TRUE);
-		}
-
 		/*
 		 * Put the line into the protocol tree.
 		 */
-		ti = proto_tree_add_text(pop_tree, tvb, offset,
-		    next_offset - offset, "%s",
-		    tvb_format_text(tvb, offset, next_offset - offset));
+		ti = proto_tree_add_string_format(pop_tree,
+		                                  (is_request) ?
+		                                      hf_pop_request :
+		                                      hf_pop_response,
+		                                  tvb, offset,
+		                                  next_offset - offset,
+		                                  "", "%s",
+		                                  tvb_format_text(tvb, offset, next_offset - offset));
 		reqresp_tree = proto_item_add_subtree(ti, ett_pop_reqresp);
 
 		/*
@@ -134,15 +140,12 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		tokenlen = get_token_len(line, line + linelen, &next_token);
 		if (tokenlen != 0) {
-			if (is_request) {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    tokenlen, "Request: %s",
-				    format_text(line, tokenlen));
-			} else {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    tokenlen, "Response: %s",
-				    format_text(line, tokenlen));
-			}
+			proto_tree_add_item(reqresp_tree,
+			                    (is_request) ?
+			                        hf_pop_request_command :
+			                        hf_pop_response_indicator,
+			                    tvb, offset, tokenlen, FALSE);
+
 			offset += next_token - line;
 			linelen -= next_token - line;
 			line = next_token;
@@ -150,18 +153,14 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/*
 		 * Add the rest of the first line as request or
-		 * reply data.
+		 * reply param/description.
 		 */
 		if (linelen != 0) {
-			if (is_request) {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    linelen, "Request Arg: %s",
-				    format_text(line, linelen));
-			} else {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    linelen, "Response Arg: %s",
-				    format_text(line, linelen));
-			}
+			proto_tree_add_item(reqresp_tree,
+			                    (is_request) ?
+			                        hf_pop_request_parameter :
+			                        hf_pop_response_description,
+			                    tvb, offset, linelen, FALSE);
 		}
 		offset = next_offset;
 
@@ -179,9 +178,14 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Put this line.
 			 */
-			proto_tree_add_text(pop_tree, tvb, offset,
-			    next_offset - offset, "%s",
-			    tvb_format_text(tvb, offset, next_offset - offset));
+			proto_tree_add_string_format(pop_tree,
+			                             (is_request) ?
+			                                 hf_pop_request_data :
+			                                 hf_pop_response_data,
+			                             tvb, offset,
+			                             next_offset - offset,
+			                             "", "%s",
+			                             tvb_format_text(tvb, offset, next_offset - offset));
 			offset = next_offset;
 		}
 	}
@@ -205,13 +209,38 @@ proto_register_pop(void)
   static hf_register_info hf[] = {
     { &hf_pop_response,
       { "Response",           "pop.response",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if POP response", HFILL }},
+	    FT_STRING, BASE_NONE, NULL, 0x0,
+      	"Response", HFILL }},
+    { &hf_pop_response_indicator,
+      { "Response indicator",           "pop.response.indicator",
+	    FT_STRING, BASE_NONE, NULL, 0x0,
+      	"Response indicator", HFILL }},
+    { &hf_pop_response_description,
+      { "Response description",           "pop.response.description",
+	     FT_STRING, BASE_NONE, NULL, 0x0,
+	     "Response description", HFILL }},
+    { &hf_pop_response_data,
+      { "Data",           "pop.response.data",
+	     FT_STRING, BASE_NONE, NULL, 0x0,
+	     "Response Data", HFILL }},
 
     { &hf_pop_request,
-      { "Request",            "pop.request",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if POP request", HFILL }}
+      { "Request",           "pop.request",
+	    FT_STRING, BASE_NONE, NULL, 0x0,
+      	"Request", HFILL }},
+    { &hf_pop_request_command,
+      { "Request command",            "pop.request.command",
+	    FT_STRING, BASE_NONE, NULL, 0x0,
+      	"Request command", HFILL }},
+    { &hf_pop_request_parameter,
+      { "Request parameter",            "pop.request.parameter",
+	    FT_STRING, BASE_NONE, NULL, 0x0,
+      	"Request parameter", HFILL }},
+    { &hf_pop_request_data,
+      { "Data",           "pop.request.data",
+	     FT_STRING, BASE_NONE, NULL, 0x0,
+	     "Request data", HFILL }},
+
   };
   static gint *ett[] = {
     &ett_pop,
