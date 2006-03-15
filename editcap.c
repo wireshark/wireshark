@@ -82,8 +82,8 @@ static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
 static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
 static double err_prob = 0.0;
-static guint32 starttime = 0;
-static guint32 stoptime = 4294967295;
+static time_t starttime = 0;
+static time_t stoptime = 4294967295;
 static gboolean check_startstop = FALSE;
 
 /* Add a selection item, a simple parser for now */
@@ -151,7 +151,7 @@ static int selected(int recno)
 /* is the packet in the selected timeframe */
 static gboolean check_timestamp(wtap *wth) {
 	struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
-	return ((guint32) pkthdr->ts.secs >= starttime ) && ( (guint32) pkthdr->ts.secs <= stoptime );
+	return ( (time_t) pkthdr->ts.secs >= starttime ) && ( (time_t) pkthdr->ts.secs <= stoptime );
 }
 
 static void
