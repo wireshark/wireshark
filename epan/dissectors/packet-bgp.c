@@ -769,7 +769,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             plen -= (labnum * 3*8);
 
             rd_type = tvb_get_ntohs(tvb, offset);
-            if (plen <= 8*8) {
+            if (plen < 8*8) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
                         "%s Labeled VPN IPv4 prefix length %u invalid",
                         tag, plen + (labnum * 3*8));
@@ -946,7 +946,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             plen -= (labnum * 3*8);
 
             rd_type = tvb_get_ntohs(tvb,offset);
-            if (plen <= 8*8) {
+            if (plen < 8*8) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
                         "%s Labeled VPN IPv6 prefix length %u invalid",
                         tag, plen + (labnum * 3*8));
