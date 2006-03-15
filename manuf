@@ -1324,7 +1324,7 @@
 00:04:F7	OmegaBand              # Omega Band, Inc.
 00:04:F8	Qualicable             # QUALICABLE TV Industria E Com., Ltda
 00:04:F9	XteraCommu             # Xtera Communications, Inc.
-00:04:FA	Mist                   # MIST Inc.
+00:04:FA	NbsTechnol             # NBS Technologies Inc.
 00:04:FB	Commtech               # Commtech, Inc.
 00:04:FC	StratusCom             # Stratus Computer (DE), Inc.
 00:04:FD	JapanContr             # Japan Control Engineering Co., Ltd.
@@ -3049,7 +3049,7 @@
 00:0B:DB	DellEsgPcb             # Dell ESG PCBA Test
 00:0B:DC	Akcp
 00:0B:DD	TohokuRico             # TOHOKU RICOH Co., LTD.
-00:0B:DE	Private
+00:0B:DE	Teldix                 # TELDIX GmbH
 00:0B:DF	ShenzhenRo             # Shenzhen RouterD Networks Limited
 00:0B:E0	Serconet               # SercoNet Ltd.
 00:0B:E1	NokiaNetPr             # Nokia NET Product Operations
@@ -3060,7 +3060,7 @@
 00:0B:E6	DatelElect             # Datel Electronics
 00:0B:E7	ComfluxTec             # COMFLUX TECHNOLOGY INC.
 00:0B:E8	Aoip
-00:0B:E9	Private
+00:0B:E9	Actel                  # Actel Corporation
 00:0B:EA	ZultysTech             # Zultys Technologies
 00:0B:EB	Systegra               # Systegra AG
 00:0B:EC	NipponElec             # NIPPON ELECTRIC INSTRUMENT, INC.
@@ -3077,7 +3077,7 @@
 00:0B:F7	Nidek                  # NIDEK CO.,LTD
 00:0B:F8	Infinera
 00:0B:F9	GemstoneCo             # Gemstone communications, Inc.
-00:0B:FA	Private
+00:0B:FA	ExemysSrl              # EXEMYS SRL
 00:0B:FB	D-NetInter             # D-NET International Corporation
 00:0B:FC	Cisco                  # Cisco Systems
 00:0B:FD	Cisco                  # Cisco Systems
@@ -6052,6 +6052,27 @@
 00:17:97	TelsyElett             # Telsy Elettronica S.p.A.
 00:17:98	AzonicTech             # Azonic Technology Co., LTD
 00:17:99	Smartire               # SmarTire Systems Inc.
+00:17:9A	D-Link                 # D-Link Corporation
+00:17:9B	ChantSince             # Chant Sincere CO., LTD.
+00:17:9C	DepragSchu             # DEPRAG SCHULZ GMBH u. CO.
+00:17:9D	Kelman                 # Kelman Limited
+00:17:9E	SamsysTech             # Samsys Technologies Inc
+00:17:9F	Apricorn
+00:17:A0	RobotechSr             # RoboTech srl
+00:17:A1	3soft                  # 3soft inc.
+00:17:A2	Camrivox               # Camrivox Ltd.
+00:17:A3	MixSRL                 # MIX s.r.l.
+00:17:A4	GlobalData             # Global Data Services
+00:17:A5	TrendchipT             # TrendChip Technologies Corp.
+00:17:A6	YosinElect             # YOSIN ELECTRONICS CO., LTD.
+00:17:A7	MobileComp             # Mobile Computing Promotion Consortium
+00:17:A8	Edm                    # EDM Corporation
+00:17:A9	Sentivisio             # Sentivision
+00:17:AA	Elab-Exper             # elab-experience inc.
+00:17:AB	Nintendo               # Nintendo Co., Ltd.
+00:17:AC	ONeilProdu             # O'Neil Product Development Inc.
+00:17:AD	Acenet                 # AceNet Corporation
+00:17:AE	Gai-Tronic             # GAI-Tronics
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
 00:20:01	DspSolutio             # DSP SOLUTIONS, INC.
@@ -6271,7 +6292,7 @@
 00:20:D7	JapanMinic             # JAPAN MINICOMPUTER SYSTEMS CO., Ltd.
 00:20:D8	NortelNetw             # Nortel Networks
 00:20:D9	PanasonicT             # PANASONIC TECHNOLOGIES, INC./MIECO-US
-00:20:DA	Xylan                  # XYLAN CORPORATION
+00:20:DA	AlcatelNor             # Alcatel North America ESD
 00:20:DB	XnetTechno             # XNET TECHNOLOGY, INC.
 00:20:DC	DensitronT             # DENSITRON TAIWAN LTD.
 00:20:DD	CybertecPt             # Cybertec Pty Ltd
@@ -7821,7 +7842,7 @@
 00:90:ED	CentralSys             # CENTRAL SYSTEM RESEARCH CO., LTD.
 00:90:EE	PersonalCo             # PERSONAL COMMUNICATIONS TECHNOLOGIES
 00:90:EF	Integrix               # INTEGRIX, INC.
-00:90:F0	HarmonicLi             # HARMONIC LIGHTWAVES, LTD.
+00:90:F0	HarmonicVi             # Harmonic Video Systems Ltd.
 00:90:F1	DotHill                # DOT HILL SYSTEMS CORPORATION
 00:90:F2	Cisco                  # CISCO SYSTEMS, INC.
 00:90:F3	AspectComm             # ASPECT COMMUNICATIONS
@@ -8544,7 +8565,7 @@
 00:D0:92	GlenayreWe             # GLENAYRE WESTERN MULTIPLEX
 00:D0:93	Tq-Compone             # TQ - COMPONENTS GMBH
 00:D0:94	TimelineVi             # TIMELINE VISTA, INC.
-00:D0:95	Xylan                  # XYLAN CORPORATION
+00:D0:95	AlcatelNor             # Alcatel North America ESD
 00:D0:96	3comEurope             # 3COM EUROPE LTD.
 00:D0:97	Cisco                  # CISCO SYSTEMS, INC.
 00:D0:98	PhotonDyna             # Photon Dynamics Canada Inc.
@@ -8844,7 +8865,7 @@
 00:E0:AE	Xaqti                  # XAQTI CORPORATION
 00:E0:AF	GeneralDyn             # GENERAL DYNAMICS INFORMATION SYSTEMS
 00:E0:B0	Cisco                  # CISCO SYSTEMS, INC.
-00:E0:B1	PacketEngi             # PACKET ENGINES, INC.
+00:E0:B1	AlcatelNor             # Alcatel North America ESD
 00:E0:B2	TelmaxComm             # TELMAX COMMUNICATIONS CORP.
 00:E0:B3	Etherwan               # EtherWAN Systems, Inc.
 00:E0:B4	TechnoScop             # TECHNO SCOPE CO., LTD.
@@ -8885,7 +8906,7 @@
 00:E0:D7	SunshineEl             # SUNSHINE ELECTRONICS, INC.
 00:E0:D8	LanbitComp             # LANBit Computer, Inc.
 00:E0:D9	Tazmo                  # TAZMO CO., LTD.
-00:E0:DA	AssuredAcc             # ASSURED ACCESS TECHNOLOGY, INC.
+00:E0:DA	AlcatelNor             # Alcatel North America ESD
 00:E0:DB	ViavideoCo             # ViaVideo Communications, Inc.
 00:E0:DC	Nexware                # NEXWARE CORP.
 00:E0:DD	ZenithElec             # ZENITH ELECTRONICS CORPORATION
@@ -9168,7 +9189,10 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 00-E0-2B-00-00-04	Extreme-EAPSv1
 00-E0-2B-00-00-08	Extreme-ESRP-Master
 01-00-0C-00-00/40	ISL-Frame
-01-00-0C-CC-CC-CC	CDP/VTP
+01-00-0C-CC-CC-CC	CDP/VTP/DTP/PAgP/UDLD
+01-00-0C-CC-CC-CD	PVST+
+01-00-0C-CD-CD-CD	STP-UplinkFast
+01-00-0C-CD-CD-CE	VLAN-bridge
 01-00-0C-DD-DD-DD	CGMP
 01-00-10-00-00-20	Hughes-Lan-Systems-Terminal-Server-S/W-download
 01-00-10-FF-FF-20	Hughes-Lan-Systems-Terminal-Server-S/W-request
