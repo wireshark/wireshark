@@ -111,7 +111,8 @@ struct _stats_tree_cfg {
 	guint8*			name;
 	guint8*			tapname;
 	
-	
+	gboolean in_use;
+
 	/* dissector defined callbacks */
 	stat_tree_packet_cb packet;
 	stat_tree_init_cb init;

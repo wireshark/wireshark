@@ -341,6 +341,7 @@ static void setup_tree_presentation(gpointer k _U_, gpointer v, gpointer p) {
 	stats_tree_cfg* cfg = v;
 	struct _stats_tree_pres_cbs *d = p;
 	
+	cfg->in_use = FALSE;
 	cfg->setup_node_pr = d->setup_node_pr;
 	cfg->new_tree_pr = d->new_tree_pr;
 	cfg->free_node_pr = d->free_node_pr;

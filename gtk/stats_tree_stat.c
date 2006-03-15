@@ -190,17 +190,39 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 		st->root.pr->iter = NULL;
 #endif
 	
+	st->cfg->in_use = FALSE;
 	stats_tree_free(st);
 	
 }
 
+static void clear_node_pr(stat_node* n) {
+	stat_node* c;
+	for (c = n->children; c; c = c->next) {
+		clear_node_pr(c);
+	}
+	
+#if GTK_MAJOR_VERSION >= 2
+	if (n->pr->iter) {
+		gtk_tree_store_remove(n->st->pr->store, n->pr->iter);
+		n->pr->iter = NULL;
+	}
+#else
+	if (n->pr->node) {
+		gtk_ctree_remove_node(n->st->pr->ctree,n->pr->node);
+		n->pr->node = NULL;
+	}
+#endif
+
+}
+
 static void reset_tap(void* p) {
     stats_tree* st = p;
-    
-    if (st->start > -1.0) {
-        remove_tap_listener(st);
-    }
-    
+	stat_node* c;
+	for (c = st->root.children; c; c = c->next) {
+		clear_node_pr(c);
+	}
+	
+	st->cfg->init(st);
 }
 
 /* initializes the stats_tree window */
@@ -231,6 +253,12 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	if (abbr) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
 		
+		if (cfg->in_use) {
+			/* XXX: ! */
+			report_failure("cannot open more than one tree of the same type at once");
+			return;
+		}
+		
 		if (cfg != NULL) {
 			init_strlen = strlen(cfg->pr->stat_dlg->init_string);
 			
@@ -257,6 +285,8 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 		return;
 	}
 
+	cfg->in_use = TRUE;
+	
 	window_name = g_strdup_printf("%s Stats Tree", cfg->name);
 	
 	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
@@ -370,8 +400,6 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
 #endif
 	
-    st->cfg->init(st);
-
 	cf_retap_packets(&cfile, FALSE);
 }
 
