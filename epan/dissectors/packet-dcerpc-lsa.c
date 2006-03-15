@@ -2475,6 +2475,65 @@ lsa_dissect_LSA_TRANSLATED_SIDS(tvbuff_t *tvb, int offset,
 }
 
 static int
+lsa_dissect_LSA_TRANSLATED_SID2(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	/* sid type */
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_sid_type, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_rid, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_index, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRANSLATED_SIDS2_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SID2);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRANSLATED_SIDS2(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_TRANSLATED_SIDS:");
+		tree = proto_item_add_subtree(item, ett_LSA_TRANSLATED_SIDS);
+	}
+
+	/* count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_count, NULL);
+
+	/* settings */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SIDS2_array, NDR_POINTER_UNIQUE,
+		"Translated SIDS", -1);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
 lsa_dissect_lsarlookupnames_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -2493,7 +2552,7 @@ lsa_dissect_lsarlookupnames_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
+		lsa_dissect_LSA_TRANSLATED_SIDS2, NDR_POINTER_REF,
 		"LSA_TRANSLATED_SIDS pointer: rids", -1);
 
 	/* [in] USHORT level */
@@ -2519,7 +2578,7 @@ lsa_dissect_lsarlookupnames_reply(tvbuff_t *tvb, int offset,
 
 	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
+		lsa_dissect_LSA_TRANSLATED_SIDS2, NDR_POINTER_REF,
 		"LSA_TRANSLATED_SIDS pointer: rids", -1);
 
 	/* [in, out, ref] ULONG *num_mapped */
