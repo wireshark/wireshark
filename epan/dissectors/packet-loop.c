@@ -60,7 +60,9 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *ti;
   guint16     function;
   int         offset = 0;
-  gboolean    set_info = FALSE;
+  int         skip_offset;
+  gboolean    set_info = TRUE;
+  gboolean    more_function;
   tvbuff_t    *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -69,21 +71,24 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_loop, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_loop, tvb, offset, -1, FALSE);
     loop_tree = proto_item_add_subtree(ti, ett_loop);
-  }
 
-  for (;;) {
-    if (tree)
-      proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, TRUE);
-    offset += 2;
+    proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, TRUE);
+  }
+  skip_offset = 2 + tvb_get_ntohs(tvb, offset);
+  offset += 2;
+
+  do {
     function = tvb_get_letohs(tvb, offset);
-    if (!set_info) {
+    if (offset == skip_offset) {
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(function, function_vals, "Unknown function (%u)"));
       }
-      set_info = TRUE;
+      if (tree)
+        proto_tree_add_text(loop_tree, tvb, offset, 2, "Relevant function:"); 
+      set_info = FALSE;
     }
     if (tree)
       proto_tree_add_uint(loop_tree, hf_loop_function, tvb, offset, 2, function);
@@ -95,22 +100,31 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(loop_tree, hf_loop_receipt_number, tvb, offset, 2,
                             TRUE);
       offset += 2;
-      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-      call_dissector(data_handle, next_tvb, pinfo, tree);
-      return;
+      more_function = FALSE;
+      break;
 
     case FUNC_FORWARD_DATA:
       if (tree)
         proto_tree_add_item(loop_tree, hf_loop_forwarding_address, tvb, offset,
                             6, FALSE);
       offset += 6;
+      more_function = TRUE;
       break;
 
     default:
-      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-      call_dissector(data_handle, next_tvb, pinfo, tree);
-      return;
+      more_function = FALSE;
+      break;
     }
+  } while (more_function);
+
+  if (set_info && check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_str(pinfo->cinfo, COL_INFO, "No valid function found");
+  }
+
+  if (tvb_length_remaining(tvb, offset) > 0)
+  {
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    call_dissector(data_handle, next_tvb, pinfo, tree);
   }
 }
 
