@@ -14,11 +14,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <glib.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+
+/*
+ * Just make sure we include the prototype for strptime as well
+ * (needed for glibc 2.2)
+ */
+#define __USE_XOPEN
 
 #include <time.h>
 #ifdef HAVE_SYS_TIME_H
@@ -83,7 +91,7 @@ static int verbose = 0;                      /* Not so verbose         */
 static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
 static double err_prob = 0.0;
 static time_t starttime = 0;
-static time_t stoptime = 4294967295;
+static time_t stoptime = 0;
 static gboolean check_startstop = FALSE;
 
 /* Add a selection item, a simple parser for now */
@@ -243,9 +251,9 @@ static void usage(void)
   fprintf(stderr, "  -t <time adjustment>   adjust the timestamp of selected packets,\n");
   fprintf(stderr, "                         <time adjustment> is in relative seconds (e.g. -0.5)\n");
   fprintf(stderr, "  -A <start time>        don't output packets whose timestamp is before the\n");
-  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh-mm-ss)\n");
+  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh:mm:ss)\n");
   fprintf(stderr, "  -B <stop time>         don't output packets whose timestamp is after the\n");
-  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh-mm-ss)\n");
+  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh:mm:ss)\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Output File(s):\n");
   fprintf(stderr, "  -c <packets per file>  split the packet output to different files,\n");
@@ -410,29 +418,33 @@ int main(int argc, char *argv[])
 
 	case 'A':
 	{
-		struct tm timecode;
-		
-		if(!strptime(optarg,"%F %T",&timecode)) {
+		struct tm starttm;
+
+		memset(&starttm,0,sizeof(struct tm));
+
+		if(!strptime(optarg,"%F %T",&starttm)) {
 			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
 					optarg);
 			exit(1);
 		}
 		
-		starttime = mktime(&timecode);
 		check_startstop = TRUE;
+		starttime = mktime(&starttm);
 		break;
 	}	
 	case 'B':
 	{
-		struct tm timecode;
+		struct tm stoptm;
 
-		if(!strptime(optarg,"%F %T",&timecode)) {
+		memset(&stoptm,0,sizeof(struct tm));
+
+		if(!strptime(optarg,"%F %T",&stoptm)) {
 			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
 					optarg);
 			exit(1);
 		}
 		check_startstop = TRUE;
-		stoptime = mktime(&timecode);
+		stoptime = mktime(&stoptm);
 		break;
 	}
     }
@@ -450,6 +462,17 @@ int main(int argc, char *argv[])
 
   }
 
+  if (check_startstop && !stoptime) {
+	  struct tm stoptm;
+	  /* XXX: will work until 2035 */
+	  memset(&stoptm,0,sizeof(struct tm));
+	  stoptm.tm_year = 135;
+	  stoptm.tm_mday = 31;
+	  stoptm.tm_mon = 11;
+	  
+	  stoptime = mktime(&stoptm);
+  }
+  
   if (starttime > stoptime) {
 	  fprintf(stderr, "editcap: start time is after the stop time\n");
 	  exit(1);
