@@ -549,8 +549,7 @@ ssl3_prf(StringInfo* secret, const char* usage,
         
         ssl_sha_init(&sha);
         ssl_sha_update(&sha,buf,i);
-        if (secret) 
-            ssl_sha_update(&sha,secret->data,secret->data_len);
+        ssl_sha_update(&sha,secret->data,secret->data_len);
         
         if(!strcmp(usage,"client write key") || !strcmp(usage,"server write key")){
             ssl_sha_update(&sha,rnd2->data,rnd2->data_len);
