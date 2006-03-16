@@ -49,12 +49,6 @@ static int elua_not_register_menu(lua_State* L) {
     return 0;    
 }
 
-static int elua_not_print(lua_State* L) {
-    luaL_error(L,"do not use print use either a TextWindow or critical(),\n"
-               "warn(), message(), info() or debug()");
-    return 0;        
-}
-
 void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
     lua_tvb = tvb;
@@ -239,11 +233,6 @@ void register_lua(void) {
     
 	lua_atpanic(L,elua_panic);
 	
-    /* print has been changed to yield an error if used */
-    lua_pushstring(L, "print");
-    lua_pushcfunction(L, elua_not_print);
-    lua_settable(L, LUA_GLOBALSINDEX);
-    
     /* the init_routines table (accessible by the user) */
     lua_pushstring(L, ELUA_INIT_ROUTINES);
     lua_newtable (L);
