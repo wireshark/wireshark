@@ -253,7 +253,7 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	if (abbr) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
 		
-		if (cfg->in_use) {
+		if (cfg && cfg->in_use) {
 			/* XXX: ! */
 			report_failure("cannot open more than one tree of the same type at once");
 			return;
