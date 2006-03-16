@@ -325,12 +325,14 @@ guint32 mtp3_pc_hash(const guint8* data) {
 	{
 		case ITU_STANDARD:
 			pc = (addr_pc_p->pc & ITU_PC_MASK) | ((addr_pc_p->ni % 4) << 14) ;
+			break;
 		default:
 			/* assuming 24-bit */
 			pc = (addr_pc_p->pc & ANSI_PC_MASK) | ((addr_pc_p->ni) << 24) ;
+			break;
 	}
 	
-	return;
+	return pc;
 }
 
 static void
