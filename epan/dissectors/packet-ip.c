@@ -144,6 +144,7 @@ static const fragment_items ip_frag_items = {
 static dissector_table_t ip_dissector_table;
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
 
 static int proto_icmp = -1;
@@ -885,6 +886,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
   iph->ip_v_hl = tvb_get_guint8(tvb, offset);
+  if ( hi_nibble(iph->ip_v_hl) == 6){
+	  call_dissector(ipv6_handle, tvb, pinfo, parent_tree);
+	  return;
+  }
+
   hlen = lo_nibble(iph->ip_v_hl) * 4;	/* IP header length, in bytes */
 
   if (tree) {
@@ -2367,6 +2373,7 @@ proto_reg_handoff_icmp(void)
    * Get handle for the IP dissector.
    */
   ip_handle = find_dissector("ip");
+  ipv6_handle = find_dissector("ipv6");
 
   icmp_handle = create_dissector_handle(dissect_icmp, proto_icmp);
   dissector_add("ip.proto", IP_PROTO_ICMP, icmp_handle);
