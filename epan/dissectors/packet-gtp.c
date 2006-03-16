@@ -180,6 +180,10 @@ static int hf_gtp_cipher_algorithm = -1;
 static int hf_gtp_cksn_ksi = -1;
 static int hf_gtp_cksn = -1;
 static int hf_gtp_ksi = -1;
+static int hf_gtp_ext_length = -1;
+static int hf_gtp_ext_apn_res = -1;
+static int hf_gtp_ext_rat_type = -1;
+static int hf_gtp_ext_imeisv = -1;
 
 
 /* Initialize the subtree pointers */
@@ -214,6 +218,9 @@ static gint ett_gtp_can_pack		= -1;
 static gint ett_gtp_data_resp		= -1;
 static gint ett_gtp_priv_ext		= -1;
 static gint ett_gtp_net_cap			= -1;
+static gint ett_gtp_ext_tree_apn_res = -1;
+static gint ett_gtp_ext_rat_type	= -1;
+static gint ett_gtp_ext_imeisv		= -1;
 
 static gboolean	gtp_tpdu		= TRUE;
 static gboolean	gtp_over_tcp		= TRUE;
@@ -242,13 +249,13 @@ static const value_string pt_types[] = {
 	{ 0, NULL }
 };
 
-#define GTP_PT_MASK		0x10
+#define GTP_PT_MASK			0x10
 #define GTP_SPARE1_MASK		0x0E
 #define GTP_SPARE2_MASK		0x08
-#define GTP_E_MASK		0x04
-#define GTP_S_MASK		0x02
+#define GTP_E_MASK			0x04
+#define GTP_S_MASK			0x02
 #define GTP_SNN_MASK		0x01
-#define GTP_PN_MASK		0x01
+#define GTP_PN_MASK			0x01
 
 /* Definition of 3G charging characteristics masks */
 #define GTP_MASK_CHRG_CHAR_S	0xF000
@@ -390,7 +397,7 @@ static const value_string message_type[] = {
 /* definitions of fields in extension header */
 #define GTP_EXT_CAUSE		0x01
 #define GTP_EXT_IMSI		0x02
-#define GTP_EXT_RAI		0x03
+#define GTP_EXT_RAI			0x03
 #define GTP_EXT_TLLI		0x04
 #define GTP_EXT_PTMSI		0x05
 #define GTP_EXT_QOS_GPRS	0x06
@@ -402,19 +409,19 @@ static const value_string message_type[] = {
 #define GTP_EXT_RECOVER		0x0E
 #define GTP_EXT_SEL_MODE	0x0F
 
-#define GTP_EXT_16		0x10
+#define GTP_EXT_16			0x10
 #define GTP_EXT_FLOW_LABEL	0x10
 #define GTP_EXT_TEID		0x10 	/* 0xFF10 3G */
 
-#define GTP_EXT_17		0x11
+#define GTP_EXT_17			0x11
 #define GTP_EXT_FLOW_SIG	0x11
 #define GTP_EXT_TEID_CP		0x11	/* 0xFF11 3G */
 
-#define GTP_EXT_18		0x12
+#define GTP_EXT_18			0x12
 #define GTP_EXT_FLOW_II		0x12
 #define GTP_EXT_TEID_II		0x12	/* 0xFF12 3G*/
 
-#define GTP_EXT_19		0x13
+#define GTP_EXT_19			0x13
 #define GTP_EXT_MS_REASON	0x13	/* same as 0x1D GTPv1_EXT_MS_REASON */
 #define GTP_EXT_TEAR_IND	0x13	/* 0xFF13 3G*/
 
@@ -422,7 +429,7 @@ static const value_string message_type[] = {
 #define GTP_EXT_RANAP_CAUSE	0x15	/* 3G */
 #define GTP_EXT_RAB_CNTXT	0x16	/* 3G */
 #define GTP_EXT_RP_SMS		0x17	/* 3G */
-#define GTP_EXT_RP		0x18	/* 3G */
+#define GTP_EXT_RP			0x18	/* 3G */
 #define GTP_EXT_PKT_FLOW_ID	0x19	/* 3G */
 #define GTP_EXT_CHRG_CHAR	0x1A	/* 3G */
 #define GTP_EXT_TRACE_REF	0x1B	/* 3G */
@@ -433,21 +440,24 @@ static const value_string message_type[] = {
 #define GTP_EXT_USER_ADDR	0x80
 #define GTP_EXT_MM_CNTXT	0x81
 #define GTP_EXT_PDP_CNTXT	0x82
-#define GTP_EXT_APN		0x83
+#define GTP_EXT_APN			0x83
 #define GTP_EXT_PROTO_CONF	0x84
 #define GTP_EXT_GSN_ADDR	0x85
 #define GTP_EXT_MSISDN		0x86
 #define GTP_EXT_QOS_UMTS	0x87	/* 3G */
 #define GTP_EXT_AUTH_QUI	0x88	/* 3G */
-#define GTP_EXT_TFT		0x89	/* 3G */
+#define GTP_EXT_TFT			0x89	/* 3G */
 #define GTP_EXT_TARGET_ID	0x8A	/* 3G */
 #define GTP_EXT_UTRAN_CONT	0x8B	/* 3G */
 #define GTP_EXT_RAB_SETUP	0x8C	/* 3G */
 #define GTP_EXT_HDR_LIST	0x8D	/* 3G */
 #define GTP_EXT_TRIGGER_ID	0x8E	/* 3G */
 #define GTP_EXT_OMC_ID		0x8F	/* 3G */
-#define GTP_EXT_C1		0xC1
-#define GTP_EXT_C2		0xC2
+#define GTP_EXT_APN_RES		0x95	/* 3G */
+#define GTP_EXT_RAT_TYPE	0x97	/* 3G */
+#define GTP_EXT_IMEISV		0x9A	/* 3G */
+#define GTP_EXT_C1			0xC1
+#define GTP_EXT_C2			0xC2
 #define GTP_EXT_REL_PACK	0xF9	/* charging */
 #define GTP_EXT_CAN_PACK	0xFA	/* charging */
 #define GTP_EXT_CHRG_ADDR	0xFB
@@ -502,25 +512,28 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_USER_ADDR,	"End user address" },
 	{ GTP_EXT_MM_CNTXT,	"MM context" },
 	{ GTP_EXT_PDP_CNTXT,	"PDP context" },
-	{ GTP_EXT_APN,		"Access Point Name" },
+	{ GTP_EXT_APN,			"Access Point Name" },
 	{ GTP_EXT_PROTO_CONF,	"Protocol configuration options" },
-	{ GTP_EXT_GSN_ADDR,	"GSN address" },
-	{ GTP_EXT_MSISDN,	"MS international PSTN/ISDN number" },
-	{ GTP_EXT_QOS_UMTS,	"Quality of service (UMTS)" },			/* 3G */
-	{ GTP_EXT_AUTH_QUI,	"Authentication quintuplets" },			/* 3G */
-	{ GTP_EXT_TFT,		"Traffic Flow Template (TFT)" },			/* 3G */
-	{ GTP_EXT_TARGET_ID,	"Target (RNC) identification" },			/* 3G */
-	{ GTP_EXT_UTRAN_CONT,	"UTRAN transparent field" },				/* 3G */
-	{ GTP_EXT_RAB_SETUP,	"RAB setup information" },				/* 3G */
-	{ GTP_EXT_HDR_LIST,	"Extension Header Types List" },			/* 3G */
-	{ GTP_EXT_TRIGGER_ID,	"Trigger Id" },					/* 3G */
-	{ GTP_EXT_OMC_ID,	"OMC Identity" },					/* 3G */
-	{ GTP_EXT_REL_PACK,	"Sequence numbers of released packets IE" },		/* charging */
-	{ GTP_EXT_CAN_PACK,	"Sequence numbers of canceled packets IE" },		/* charging */
-	{ GTP_EXT_CHRG_ADDR,	"Charging Gateway address" },
-	{ GTP_EXT_DATA_REQ,	"Data record packet" },				/* charging */
-	{ GTP_EXT_DATA_RESP,	"Requests responded" },				/* charging */
-	{ GTP_EXT_NODE_ADDR,	"Address of recommended node" },			/* charging */
+	{ GTP_EXT_GSN_ADDR,		"GSN address" },
+	{ GTP_EXT_MSISDN,		"MS international PSTN/ISDN number" },
+	{ GTP_EXT_QOS_UMTS,		"Quality of service (UMTS)" },						/* 3G */
+	{ GTP_EXT_AUTH_QUI,		"Authentication quintuplets" },						/* 3G */
+	{ GTP_EXT_TFT,			"Traffic Flow Template (TFT)" },					/* 3G */
+	{ GTP_EXT_TARGET_ID,	"Target (RNC) identification" },					/* 3G */
+	{ GTP_EXT_UTRAN_CONT,	"UTRAN transparent field" },						/* 3G */
+	{ GTP_EXT_RAB_SETUP,	"RAB setup information" },							/* 3G */
+	{ GTP_EXT_HDR_LIST,		"Extension Header Types List" },					/* 3G */
+	{ GTP_EXT_TRIGGER_ID,	"Trigger Id" },										/* 3G */
+	{ GTP_EXT_OMC_ID,		"OMC Identity" },									/* 3G */
+	{ GTP_EXT_APN_RES,		"APN Restriction" },								/* 3G */
+	{ GTP_EXT_RAT_TYPE,		"RAT Type" },										/* 3G */
+	{ GTP_EXT_IMEISV,		"IMEI(SV)" },										/* 3G */
+	{ GTP_EXT_REL_PACK,		"Sequence numbers of released packets IE" },		/* charging */
+	{ GTP_EXT_CAN_PACK,		"Sequence numbers of canceled packets IE" },		/* charging */
+	{ GTP_EXT_CHRG_ADDR,	"Charging Gateway address" },	
+	{ GTP_EXT_DATA_REQ,		"Data record packet" },								/* charging */
+	{ GTP_EXT_DATA_RESP,	"Requests responded" },								/* charging */
+	{ GTP_EXT_NODE_ADDR,	"Address of recommended node" },					/* charging */
 	{ GTP_EXT_PRIV_EXT, 	"Private Extension" },
 	{ 0, NULL }
 };
@@ -1012,6 +1025,15 @@ static const value_string gtp_cipher_algorithm[] = {
 	{ 0, NULL }
 };
 
+static const value_string gtp_ext_rat_type_vals[] = {
+	{ 0,	"Reserved" },
+	{ 1,	"UTRAN" },
+	{ 2,	"GERAN" },
+	{ 3,	"WLAN" },
+	{ 0,	NULL }
+};
+
+
 
 #define MM_PROTO_GROUP_CALL_CONTROL	0x00
 #define MM_PROTO_BROADCAST_CALL_CONTROL	0x01
@@ -1090,6 +1112,11 @@ static int decode_gtp_rab_setup		(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int decode_gtp_hdr_list		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_trigger_id	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_omc_id		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+static int decode_gtp_apn_res		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_rat_type		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_imeisv		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
 static int decode_gtp_chrg_addr		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_rel_pack		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_can_pack		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
@@ -1137,26 +1164,31 @@ static const gtp_opt_t gtpopt[] = {
 	{ GTP_EXT_USER_ADDR,	decode_gtp_user_addr },
 	{ GTP_EXT_MM_CNTXT,	decode_gtp_mm_cntxt },
 	{ GTP_EXT_PDP_CNTXT,	decode_gtp_pdp_cntxt },
-	{ GTP_EXT_APN,		decode_gtp_apn },
+	{ GTP_EXT_APN,			decode_gtp_apn },
 	{ GTP_EXT_PROTO_CONF,	decode_gtp_proto_conf },
-	{ GTP_EXT_GSN_ADDR,	decode_gtp_gsn_addr },
-	{ GTP_EXT_MSISDN,	decode_gtp_msisdn },
-	{ GTP_EXT_QOS_UMTS,	decode_gtp_qos_umts },				/* 3G */
-	{ GTP_EXT_AUTH_QUI,	decode_gtp_auth_qui },				/* 3G */
-	{ GTP_EXT_TFT,		decode_gtp_tft },				/* 3G */
-	{ GTP_EXT_TARGET_ID,	decode_gtp_target_id },			/* 3G */
+	{ GTP_EXT_GSN_ADDR,		decode_gtp_gsn_addr },
+	{ GTP_EXT_MSISDN,		decode_gtp_msisdn },
+	{ GTP_EXT_QOS_UMTS,		decode_gtp_qos_umts },				/* 3G */
+	{ GTP_EXT_AUTH_QUI,		decode_gtp_auth_qui },				/* 3G */
+	{ GTP_EXT_TFT,			decode_gtp_tft },					/* 3G */
+	{ GTP_EXT_TARGET_ID,	decode_gtp_target_id },				/* 3G */
 	{ GTP_EXT_UTRAN_CONT,	decode_gtp_utran_cont },			/* 3G */
-	{ GTP_EXT_RAB_SETUP,	decode_gtp_rab_setup },			/* 3G */
-	{ GTP_EXT_HDR_LIST,	decode_gtp_hdr_list },				/* 3G */
+	{ GTP_EXT_RAB_SETUP,	decode_gtp_rab_setup },				/* 3G */
+	{ GTP_EXT_HDR_LIST,		decode_gtp_hdr_list },				/* 3G */
 	{ GTP_EXT_TRIGGER_ID,	decode_gtp_trigger_id },			/* 3G */
-	{ GTP_EXT_OMC_ID,	decode_gtp_omc_id },				/* 3G */
-	{ GTP_EXT_REL_PACK,	decode_gtp_rel_pack },				/* charging */
-	{ GTP_EXT_CAN_PACK,	decode_gtp_can_pack }, 			/* charging */
+	{ GTP_EXT_OMC_ID,		decode_gtp_omc_id },				/* 3G */
+	/* TS 29 060 V6.11.0 */
+	{ GTP_EXT_APN_RES,		decode_gtp_apn_res },				/* 3G */
+	{ GTP_EXT_RAT_TYPE,		decode_gtp_rat_type, },				/* 3G */
+	{ GTP_EXT_IMEISV,		decode_gtp_imeisv, },				/* 3G */
+
+	{ GTP_EXT_REL_PACK,		decode_gtp_rel_pack },				/* charging */
+	{ GTP_EXT_CAN_PACK,		decode_gtp_can_pack },	 			/* charging */
 	{ GTP_EXT_CHRG_ADDR,	decode_gtp_chrg_addr },
-	{ GTP_EXT_DATA_REQ,	decode_gtp_data_req },				/* charging */
-	{ GTP_EXT_DATA_RESP,	decode_gtp_data_resp },			/* charging */
+	{ GTP_EXT_DATA_REQ,		decode_gtp_data_req },				/* charging */
+	{ GTP_EXT_DATA_RESP,	decode_gtp_data_resp },				/* charging */
 	{ GTP_EXT_NODE_ADDR,	decode_gtp_node_addr },
-	{ GTP_EXT_PRIV_EXT,	decode_gtp_priv_ext },
+	{ GTP_EXT_PRIV_EXT,		decode_gtp_priv_ext },
 	{ 0, 			decode_gtp_unknown }
 };
 
@@ -1321,17 +1353,17 @@ static _gtp_mess_items gprs_mess_items[] = {
 {
 	GTP_MSG_CREATE_PDP_REQ, {
 		{ GTP_EXT_QOS_GPRS, 	GTP_MANDATORY },
-		{ GTP_EXT_RECOVER, 	GTP_OPTIONAL },
+		{ GTP_EXT_RECOVER, 		GTP_OPTIONAL },
 		{ GTP_EXT_SEL_MODE, 	GTP_MANDATORY },
 		{ GTP_EXT_FLOW_LABEL,	GTP_MANDATORY },
-		{ GTP_EXT_FLOW_SIG,	GTP_MANDATORY },
-		{ GTP_EXT_MSISDN,	GTP_MANDATORY },
+		{ GTP_EXT_FLOW_SIG,		GTP_MANDATORY },
+		{ GTP_EXT_MSISDN,		GTP_MANDATORY },
 		{ GTP_EXT_USER_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_APN,		GTP_MANDATORY },
+		{ GTP_EXT_APN,			GTP_MANDATORY },
 		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0, 			0 }
 	}
 },
@@ -1649,27 +1681,36 @@ static _gtp_mess_items umts_mess_items[] = {
 },
 {
 	GTP_MSG_CREATE_PDP_REQ, {
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_RECOVER, 	GTP_OPTIONAL },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_RECOVER, 		GTP_OPTIONAL },
 		{ GTP_EXT_SEL_MODE, 	GTP_CONDITIONAL },
-		{ GTP_EXT_TEID,		GTP_MANDATORY },
-		{ GTP_EXT_TEID_CP,	GTP_CONDITIONAL },
-		{ GTP_EXT_NSAPI,	GTP_MANDATORY },
-		{ GTP_EXT_NSAPI,	GTP_CONDITIONAL },
+		{ GTP_EXT_TEID,			GTP_MANDATORY },
+		{ GTP_EXT_TEID_CP,		GTP_CONDITIONAL },
+		{ GTP_EXT_NSAPI,		GTP_MANDATORY },
+		{ GTP_EXT_NSAPI,		GTP_CONDITIONAL },
 		{ GTP_EXT_CHRG_CHAR,	GTP_OPTIONAL },
 		{ GTP_EXT_TRACE_REF,	GTP_OPTIONAL },
 		{ GTP_EXT_TRACE_TYPE,	GTP_OPTIONAL },
 		{ GTP_EXT_USER_ADDR,	GTP_CONDITIONAL },
-		{ GTP_EXT_APN,		GTP_CONDITIONAL },
+		{ GTP_EXT_APN,			GTP_CONDITIONAL },
 		{ GTP_EXT_PROTO_CONF,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
-		{ GTP_EXT_MSISDN,	GTP_CONDITIONAL },
-		{ GTP_EXT_QOS_UMTS,	GTP_MANDATORY },
-		{ GTP_EXT_TFT,		GTP_CONDITIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
+		{ GTP_EXT_GSN_ADDR,		GTP_MANDATORY },
+		{ GTP_EXT_MSISDN,		GTP_CONDITIONAL },
+		{ GTP_EXT_QOS_UMTS,		GTP_MANDATORY },
+		{ GTP_EXT_TFT,			GTP_CONDITIONAL },
 		{ GTP_EXT_TRIGGER_ID,	GTP_OPTIONAL },
-		{ GTP_EXT_OMC_ID,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_OMC_ID,		GTP_OPTIONAL },
+		/* TS 29.060 V6.11.0 */
+		{ GTP_EXT_APN_RES,		GTP_OPTIONAL },
+		{ GTP_EXT_RAT_TYPE,		GTP_OPTIONAL },
+		/* User Location infor,ation */
+		/* MS Time zone */
+		{ GTP_EXT_IMEISV,		GTP_OPTIONAL },
+		/* CAMEL Charging information Container */
+		/* Additionaö Trace Info */
+
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0, 			0 }
 	}
 },
@@ -3861,6 +3902,101 @@ decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	return 3 + length;
 }
 
+/* GPRS:	?
+ * UMTS:	29.060 v6.11.0, chapter 7.7.49
+ */
+static int
+decode_gtp_apn_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
+
+	guint16		length;
+	proto_tree	*ext_tree_apn_res;
+	proto_item	*te;
+
+	length = tvb_get_ntohs(tvb, offset+1);
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_APN_RES, gtp_val, "Unknown"));
+	ext_tree_apn_res = proto_item_add_subtree(te, ett_gtp_ext_tree_apn_res);
+	
+	offset++;
+	proto_tree_add_item(ext_tree_apn_res, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
+
+	/* Restriction Type value */
+	proto_tree_add_item(ext_tree_apn_res, hf_gtp_ext_apn_res, tvb, offset, length, FALSE);
+	return 3 + length;
+}
+
+/* GPRS:	?
+ * UMTS:	29.060 v6.11.0, chapter 7.7.50
+ * RAT Type
+ * Type = 151 (Decimal)
+ */
+static int
+decode_gtp_rat_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
+
+	guint16		length;
+	proto_tree	*ext_tree_rat_type;
+	proto_item	*te;
+
+	length = tvb_get_ntohs(tvb, offset+1);
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_RAT_TYPE, gtp_val, "Unknown"));
+	ext_tree_rat_type = proto_item_add_subtree(te, ett_gtp_ext_rat_type);
+	
+	offset++;
+	proto_tree_add_item(ext_tree_rat_type, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
+
+	/* RAT Type value */
+	proto_tree_add_item(ext_tree_rat_type, hf_gtp_ext_rat_type, tvb, offset, length, FALSE);
+	
+	return 3 + length;
+}
+/* GPRS:	?
+ * UMTS:	29.060 v6.11.0, chapter 7.7.51 
+ * User Location Information
+ * Type = 152 (Decimal)
+ */
+
+/* GPRS:	?
+ * UMTS:	29.060 v6.11.0, chapter 7.7.52 
+ * MS Time Zone
+ * Type = 153 (Decimal)
+ */
+/* GPRS:	?
+ * UMTS:	29.060 v6.11.0, chapter 7.7.53
+ * International Mobile Equipment Identity (and Software Version) (IMEI(SV))
+ * Type = 154 (Decimal)
+ */
+static int
+decode_gtp_imeisv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
+
+	guint16		length;
+	proto_tree	*ext_imeisv;
+	proto_item	*te;
+
+	length = tvb_get_ntohs(tvb, offset+1);
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_IMEISV, gtp_val, "Unknown"));
+	ext_imeisv = proto_item_add_subtree(te, ett_gtp_ext_imeisv);
+	
+	offset++;
+	proto_tree_add_item(ext_imeisv, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
+
+	/* IMEI(SV) */
+	proto_tree_add_item(ext_imeisv, hf_gtp_ext_imeisv, tvb, offset, length, FALSE);
+	
+	return 3 + length;
+}
+/* GPRS:	?
+ * UMTS:	29.060 v6.11.0, chapter 7.7.54 
+ * CAMEL Charging Information Container
+ * Type = 155 (Decimal)
+ */
+/* GPRS:	?
+ * UMTS:	29.060 v6.11.0, chapter 7.7.62 
+ * Additional Trace Info
+ * Type =162 (Decimal)
+ */
+
 /* GPRS:	12.15
  * UMTS:	33.015
  */
@@ -4287,7 +4423,7 @@ proto_register_gtp(void)
 		{ &hf_gtp_chrg_ipv4, { "CG address IPv4", "gtp.chrg_ipv4", FT_IPv4, BASE_DEC, NULL, 0, "Charging Gateway address IPv4", HFILL }},
 		{ &hf_gtp_chrg_ipv6, { "CG address IPv6", "gtp.chrg_ipv6", FT_IPv6, BASE_HEX, NULL, 0, "Charging Gateway address IPv6", HFILL }},
 		{ &hf_gtp_ext_flow_label, { "Flow Label Data I", "gtp.ext_flow_label", FT_UINT16, BASE_HEX, NULL, 0, "Flow label data", HFILL }},
-		{ &hf_gtp_ext_id, { "Extension identifier", "gtp.ext_id", FT_UINT16, BASE_DEC, NULL, 0, "Extension Identifier", HFILL }},
+		{ &hf_gtp_ext_id, { "Extension identifier", "gtp.ext_id", FT_UINT16, BASE_DEC, VALS(sminmpec_values), 0, "Extension Identifier", HFILL }},
 		{ &hf_gtp_ext_val, { "Extension value", "gtp.ext_val", FT_STRING, BASE_DEC, NULL, 0, "Extension Value", HFILL }},
 		{ &hf_gtp_flags, { "Flags", "gtp.flags", FT_UINT8, BASE_HEX, NULL, 0, "Ver/PT/Spare...", HFILL }},
 		{ &hf_gtp_flags_ver,
@@ -4423,6 +4559,26 @@ proto_register_gtp(void)
 			FT_UINT8, BASE_DEC, NULL, 0x07,
 			"KSI", HFILL }
 		},
+		{ &hf_gtp_ext_length,
+			{ "Length", "gtp.ext_length",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			"IE Length", HFILL }
+		},
+		{ &hf_gtp_ext_apn_res,
+			{ "Restriction Type", "gtp.ext_apn_res",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Restriction Type", HFILL }
+		},
+		{ &hf_gtp_ext_rat_type,
+			{ "RAT Type", "gtp.ext_rat_type",
+			FT_UINT8, BASE_DEC, VALS(gtp_ext_rat_type_vals), 0x0,
+			"RAT Type", HFILL }
+		},
+		{ &hf_gtp_ext_imeisv,
+			{ "IMEI(SV)", "gtp.ext_imeisv",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			"IMEI(SV)", HFILL }
+		},
 	};
 
 	static gint *ett_gtp_array[] = {
@@ -4457,6 +4613,9 @@ proto_register_gtp(void)
 		&ett_gtp_data_resp,
 		&ett_gtp_priv_ext,
 		&ett_gtp_net_cap,
+		&ett_gtp_ext_tree_apn_res,
+		&ett_gtp_ext_rat_type,
+		&ett_gtp_ext_imeisv,
 	};
 
 	module_t	*gtp_module;
