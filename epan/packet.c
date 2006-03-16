@@ -217,12 +217,12 @@ free_data_sources(packet_info *pinfo)
 }
 
 /* Allow dissectors to register a "final_registration" routine
- * that is run like the proto_register_XXX() routine, but the end
+ * that is run like the proto_register_XXX() routine, but at the
  * end of the epan_init() function; that is, *after* all other
  * subsystems, like dfilters, have finished initializing. This is
  * useful for dissector registration routines which need to compile
  * display filters. dfilters can't initialize itself until all protocols
- * have registereed themselves. */
+ * have registered themselves. */
 static GSList *final_registration_routines;
 
 void
