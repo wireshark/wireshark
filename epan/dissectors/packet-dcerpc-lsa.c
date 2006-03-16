@@ -2552,7 +2552,7 @@ lsa_dissect_lsarlookupnames_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_TRANSLATED_SIDS2, NDR_POINTER_REF,
+		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
 		"LSA_TRANSLATED_SIDS pointer: rids", -1);
 
 	/* [in] USHORT level */
@@ -2578,7 +2578,7 @@ lsa_dissect_lsarlookupnames_reply(tvbuff_t *tvb, int offset,
 
 	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_TRANSLATED_SIDS2, NDR_POINTER_REF,
+		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
 		"LSA_TRANSLATED_SIDS pointer: rids", -1);
 
 	/* [in, out, ref] ULONG *num_mapped */
@@ -3399,7 +3399,7 @@ lsa_dissect_lsarlookupnames2_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
+		lsa_dissect_LSA_TRANSLATED_SIDS2, NDR_POINTER_REF,
 		"LSA_TRANSLATED_SIDS pointer: rids", -1);
 
 	/* [in] USHORT level */
@@ -3433,7 +3433,7 @@ lsa_dissect_lsarlookupnames2_reply(tvbuff_t *tvb, int offset,
 
 	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
+		lsa_dissect_LSA_TRANSLATED_SIDS2, NDR_POINTER_REF,
 		"LSA_TRANSLATED_SIDS pointer: rids", -1);
 
 	/* [in, out, ref] ULONG *num_mapped */
