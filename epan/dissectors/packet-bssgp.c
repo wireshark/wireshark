@@ -3047,7 +3047,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti, *pi;
   proto_tree *tf;
 
-  if (bi->bssgp_tree) {
+  if (!bi->bssgp_tree) {
     bi->offset += ie->value_length;
     return;
   }
@@ -3067,6 +3067,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item_append_text(pi, "Reliability Class: %s (%#x)",
 			 translate_abqp_reliability_class(value, bi), value);
   bi->offset++;
+  /* Octet 4 */
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_PEAK_THROUGHPUT);
@@ -3081,6 +3082,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item_append_text(pi, "Precedence Class: %s (%#x)",
 			 translate_abqp_precedence_class(value, bi), value);
   bi->offset++;
+  /* Octet 5 */
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_MEAN_THROUGHPUT);
@@ -3088,7 +3090,14 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 				MASK_MEAN_THROUGHPUT);
   proto_item_append_text(pi, "Mean Throughput: %s (%#02x)",
 			 translate_abqp_mean_throughput(value, bi), value);
+  /*
+   * A QoS IE received without octets 6-16, without octets 14-16, or without octets 15-16 shall be accepted by the
+   * receiving entity.
+   */
   bi->offset++;
+  if (ie->value_length == 3)
+	  return;
+  /* Octet 6 */
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   traffic_class = get_masked_guint8(data, MASK_TRAFFIC_CLASS);
@@ -3113,23 +3122,27 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 			 translate_abqp_delivery_of_erroneous_sdu(value, bi),
 			 value);
   bi->offset++;
+  /* Octet 7 */
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
 		      "Maximum SDU Size: %s",
 		      translate_abqp_max_sdu_size(value, bi));
+  /* Octet 8 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
 		      "Maximum bit rate for uplink: %s",
 		      translate_abqp_max_bit_rate_for_ul(value, bi));
+  /* Octet 9 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
 		      "Maximum bit rate for downlink: %s",
 		      translate_abqp_max_bit_rate_for_dl(value, bi));
+  /* Octet 10 */
   bi->offset++;
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
@@ -3143,6 +3156,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 				MASK_SDU_ERROR_RATIO);
   proto_item_append_text(pi, "SDU Error Ratio: %s (%#x)",
 			 translate_abqp_sdu_error_ratio(value, bi), value);
+  /* Octet 11 */
   bi->offset++;
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
@@ -3162,19 +3176,28 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
       (traffic_class == TRAFFIC_CLASS_BACKGROUND)) {
     proto_item_append_text(pi, " (ignored)");
   }
+  /* Octet 12 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
 		      "Guaranteed bit rate for uplink: %s",
 		      translate_abqp_guaranteed_bit_rate_for_ul(value, bi));
+  /* Octet 13 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
 		      "Guaranteed bit rate for downlink: %s",
 		      translate_abqp_guaranteed_bit_rate_for_dl(value, bi));
+  /*
+   * A QoS IE received without octets 6-16, without octets 14-16, or without octets 15-16 shall be accepted by the
+   * receiving entity.
+   */
+ /* Octet 14 */
   bi->offset++;
+  if (ie->value_length == 11)
+	  return;
 
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
@@ -3199,12 +3222,20 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
       (traffic_class == TRAFFIC_CLASS_BACKGROUND)) {
     proto_item_append_text(pi, " (ignored)");
   }
+  /*
+   * A QoS IE received without octets 6-16, without octets 14-16, or without octets 15-16 shall be accepted by the
+   * receiving entity.
+   */
+  /* Octet 15 */
   bi->offset++;
+  if (ie->value_length == 12)
+	  return;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
 		      "Maximum bit rate for downlink (extended): %s",
 		      translate_abqp_max_bit_rate_for_dl_extended(value, bi));
+  /* Octet 16 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
@@ -5085,6 +5116,7 @@ decode_pdu_download_bss_pfc(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
+/* 10.4.17 CREATE-BSS-PFC */
 static void 
 decode_pdu_create_bss_pfc(build_info_t *bi) {
   bssgp_ie_t ies[] = {
@@ -5114,6 +5146,7 @@ decode_pdu_create_bss_pfc(build_info_t *bi) {
 
     { BSSGP_IEI_GPRS_TIMER, "T10", 
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+	  /* Inter RAT Handover Info 11.3.94 3GPP TS 48.018 version 6.11.0 Release 6 */
   };
   bi->dl_data = TRUE;
   bi->ul_data = FALSE;
