@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
 
 <!-- $Id$ -->
@@ -9,48 +9,10 @@ DOCUMENT SECTION
 -Use this section to encode all document information
 -->
 
-  <!ENTITY DocumentTitle "<application>Ethereal</application> Release Notes">
-  <!ENTITY DocumentSubTitle "&DocumentVersion; (&SvnVersion;) for Ethereal &EtherealCurrentVersion;">
-  <!ENTITY DocumentTitleAbbreviation "Relnotes">
-
-  <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
-  %SvnVersionFile;
-<!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
-
 <!--
 Ethereal Info
 -->
   <!ENTITY EtherealCurrentVersion "0.99.0">
-  <!ENTITY EtherealWebSite "http://www.ethereal.com">
-  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
-  <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
-  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#releases">
-  <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
-  <!ENTITY EtherealProtocolsPage "&EtherealWebSite;/docs/dfref/">
-  <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
-  <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
-  <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
-  <!ENTITY EtherealWikiPage "http://wiki.ethereal.com">
-  <!ENTITY EtherealWikiCaptureFiltersPage "&EtherealWikiPage;/CaptureFilters">
-  <!ENTITY EtherealWikiDisplayFiltersPage "&EtherealWikiPage;/DisplayFilters">
-  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
-  <!ENTITY EtherealWikiColoringRulesPage "&EtherealWikiPage;/ColoringRules">
-  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
-
-  <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
-  <!ENTITY EtherealUsersMailList "ethereal-users[AT]ethereal.com">
-
-  
-<!--
-Winpcap Info
--->
-  <!ENTITY WinPcapWebsite "http://www.winpcap.org">
-  <!ENTITY WinPcapDownloadWebsite "http://www.winpcap.org/install/default.htm">
-
-<!--
-Gnu info
--->
-  <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
 
 ]>
 
@@ -79,36 +41,36 @@ Gnu info
 	  <!-- Bug IDs: 651 -->
 	  Versions affected: 0.10.14.
         </para></listitem>
+
         <listitem><para>
 	  The UMA dissector could go into an infinite loop.
 	  <!-- Fixed in r17119, r17273 -->
-	  <!-- Bug IDs: ??? -->
-	  Versions affected: ???.
+	  <!-- Bug IDs: 716 -->
+	  Versions affected: 0.10.12.
         </para></listitem>
 
-<!-- FIX (17235), canary bugs -->
-
+        <!-- Canary bugs found after r17235 -->
 
       </itemizedlist>
 
-      Under a grant funded by the U.S. Department of Homeland Security, 
-      <ulink url="http://www.coverity.com">Coverity</ulink> has uncovered 
+      Under a grant funded by the U.S. Department of Homeland Security,
+      <ulink url="http://www.coverity.com">Coverity</ulink> has uncovered
       a number of vulnerabilities in Ethereal:
       <itemizedlist>
-          
+
         <listitem><para>
 	  The GSM SMS dissector could crash Ethereal.
 	  <!-- Fixed in r17506 -->
 	  <!-- Bug IDs: None -->
-          <!-- Coverity run 12, CID 104 -->
-	  Versions affected: ???.
+          <!-- Coverity CID 104 -->
+	  Versions affected: 0.9.16.
         </para></listitem>
 
       </itemizedlist>
     </para>
 
     <para>
-      Win32: Unicode characters in the users profile path causes problems 
+      Win32: Unicode characters in the users profile path causes problems
       reading/writing the preferences (and alike) files.
       <!-- Fixed in r17024,r17025 -->
       <!-- Bug IDs: 648 -->
@@ -124,18 +86,18 @@ Gnu info
       <itemizedlist>
 
         <listitem><para>
-		The new command line tool <command>dumpcap</command> makes it 
-		possible to capture network data without the drawbacks of (t)ethereal 
-		(memory usage, security problems, ...) while keeping the benefit of 
+		The new command line tool <command>dumpcap</command> makes it
+		possible to capture network data without the drawbacks of (t)ethereal
+		(memory usage, security problems, ...) while keeping the benefit of
 		advanced techniques like multiple (ringbuffer) files and alike.
 		</para>
 		<para>
-		The manpage of <command>dumpcap</command> in HTML format is available 
+		The manpage of <command>dumpcap</command> in HTML format is available
 		at: <ulink url="http://www.ethereal.com/docs/"/>
         </para></listitem>
         <listitem><para>
-	  Win32: Catch hardware exceptions caused by buggy dissectors. 
-	  If e.g. a NULL pointer exceptions occurs, Ethereal won't crash now 
+	  Win32: Catch hardware exceptions caused by buggy dissectors.
+	  If e.g. a NULL pointer exceptions occurs, Ethereal won't crash now
 	  but displays the exception and tries to continue decoding packets.
         </para></listitem>
       </itemizedlist>
@@ -166,7 +128,7 @@ Gnu info
       <para>
 	Download ethereal-setup-&EtherealCurrentVersion;.exe from the
 	<ulink url="http://www.ethereal.com/distribution/win32/">Windows
-	download area</ulink> on the main web site.  Double-click the 
+	download area</ulink> on the main web site.  Double-click the
 	installer executable.
       </para>
     </section>
@@ -200,7 +162,7 @@ Gnu info
 
   </section>
 
-  <!-- XXX needs to be written 
+  <!-- XXX needs to be written
   <section id="RemovingEthereal"><title>Removing Ethereal</title>
     <para>
     </para>
