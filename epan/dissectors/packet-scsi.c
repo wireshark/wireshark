@@ -2455,7 +2455,7 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                              (flags & 0x02) >> 1, (flags & 0x01));
         proto_tree_add_text (tree, tvb, offset+11, 3,
                              "Object Buffer Size At Early Warning: %u",
-                             tvb_get_ntohs (tvb, offset+11));
+                             tvb_get_ntohl (tvb, offset+11));
         flags = tvb_get_guint8 (tvb, offset+14);
         proto_tree_add_text (tree, tvb, offset+14, 1,
                              "Select Data Compression Algorithm: %u",
@@ -2485,8 +2485,127 @@ static gboolean
 dissect_scsi_mmc5_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 		            proto_tree *tree _U_, guint offset _U_, guint8 pcode)
 {
+    guint8 flags;
+    guint8 i;
+    guint16 n;
+
     switch (pcode) {
+    case SCSI_MMC5_MODEPAGE_MRW:
+        flags = tvb_get_guint8 (tvb, offset+3);
+        proto_tree_add_text (tree, tvb, offset+3, 1,
+                             "LBA Space: %u",
+                             (flags & 0x01));
+        break;
+    case SCSI_MMC5_MODEPAGE_WRPARAM:
+        flags = tvb_get_guint8 (tvb, offset+2);
+        proto_tree_add_text (tree, tvb, offset+2, 1,
+                             "BUFE: %u, LS_V: %u, Test Write: %u, Write Type: %u",
+                             (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, (flags & 0x0f));
+        flags = tvb_get_guint8 (tvb, offset+3);
+        proto_tree_add_text (tree, tvb, offset+3, 1,
+                             "Multi-session: %u, FP: %u, Copy: %u, Track Mode: %u",
+                             (flags & 0xc0) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, (flags & 0x0f));
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_text (tree, tvb, offset+4, 1,
+                             "Data Block Type: %u",
+                             (flags & 0x0f));
+        flags = tvb_get_guint8 (tvb, offset+5);
+        proto_tree_add_text (tree, tvb, offset+5, 1,
+                             "Link Size: %u",
+                             flags);
+        flags = tvb_get_guint8 (tvb, offset+7);
+        proto_tree_add_text (tree, tvb, offset+7, 1,
+                             "Initiator Application Code: %u",
+                             (flags & 0x3f));
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_text (tree, tvb, offset+8, 1,
+                             "Session Format: %u",
+                             flags);
+        proto_tree_add_text (tree, tvb, offset+10, 4,
+                             "Packet Size: %u",
+                             tvb_get_ntohs (tvb, offset+10));
+        proto_tree_add_text (tree, tvb, offset+14, 2,
+                             "Audio Pause Length: %u",
+                             tvb_get_ntohs (tvb, offset+14));
+        proto_tree_add_text (tree, tvb, offset+16, 16,
+                             "Media Catalog Number: %s",
+                             tvb_format_stringzpad (tvb, offset+16, 16));
+        proto_tree_add_text (tree, tvb, offset+32, 16,
+                             "International Standard Recording Code: %s",
+                             tvb_format_stringzpad (tvb, offset+32, 16));
+        for (i = 0; i < 4; i++) {
+            flags = tvb_get_guint8 (tvb, offset+48+i);
+            proto_tree_add_text (tree, tvb, offset+48+i, 1,
+                                 "Sub-header Byte %u: %u",
+                                 i, flags);
+        }
+        if (0x36 == tvb_get_guint8 (tvb, offset+1))
+            proto_tree_add_text (tree, tvb, offset+52, 4,
+                                 "Vendor Specific: %u",
+                                 tvb_get_ntohs (tvb, offset+52));
+        break;
     case SCSI_MMC3_MODEPAGE_MMCAP:
+        flags = tvb_get_guint8 (tvb, offset+2);
+        proto_tree_add_text (tree, tvb, offset+2, 1,
+                             "DVD-RAM Read: %u, DVD-R Read: %u, DVD-ROM Read: %u,"
+                             "Method 2: %u, CD-RW Read: %u, CD-R Read: %u",
+                             (flags & 0x20) >> 5, (flags & 0x10) >> 4, (flags & 0x08) >> 3,
+                             (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
+        flags = tvb_get_guint8 (tvb, offset+3);
+        proto_tree_add_text (tree, tvb, offset+3, 1,
+                             "DVD-RAM Write: %u, DVD-R Write: %u, DVD-ROM Write: %u,"
+                             "Test Write: %u, CD-RW Write: %u, CD-R Write: %u",
+                             (flags & 0x20) >> 5, (flags & 0x10) >> 4, (flags & 0x08) >> 3,
+                             (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_text (tree, tvb, offset+4, 1,
+                             "BUF: %u, Multi Session: %u, Mode 2 Form 2: %u, Mode 2 Form 1,"
+                             "Digital Port (2): %u, Digital Port (1): %u, Composite: %u, Audio Play: %u",
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, 
+                             (flags & 0x08) >> 3, (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
+        flags = tvb_get_guint8 (tvb, offset+5);
+        proto_tree_add_text (tree, tvb, offset+5, 1,
+                             "Read Bar Code: %u, UPC: %u, ISRC: %u, C2 Pointers supported,"
+                             "R-W Deinterleaved & corrected: %u, R-W Supported: %u, CD-DA Stream is Accurate: %u, CD-DA Cmds Supported: %u",
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, 
+                             (flags & 0x08) >> 3, (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
+        flags = tvb_get_guint8 (tvb, offset+6);
+        proto_tree_add_text (tree, tvb, offset+6, 1,
+                             "Loading Mechanism Type: %u, Eject: %u, Prevent Jumper: %u,"
+                             "Lock State: %u, Lock: %u",
+                             (flags & 0xe0) >> 5, (flags & 0x08) >> 3,
+                             (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
+        flags = tvb_get_guint8 (tvb, offset+7);
+        proto_tree_add_text (tree, tvb, offset+7, 1,
+                             "R-W in Lead-in: %u, Side Change Capable: %u, S/W Slot Selection: %u,"
+                             "Changer Supports Disc Present: %u, Separate Channel Mute: %u, Separate volume levels: %u",
+                             (flags & 0x20) >> 5, (flags & 0x10) >> 4, (flags & 0x08) >> 3,
+                             (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
+        proto_tree_add_text (tree, tvb, offset+10, 2,
+                             "Number of Volume Levels Supported: %u",
+                             tvb_get_ntohs (tvb, offset+10));
+        proto_tree_add_text (tree, tvb, offset+12, 2,
+                             "Buffer Size Supported: %u",
+                             tvb_get_ntohs (tvb, offset+12));
+        flags = tvb_get_guint8 (tvb, offset+17);
+        proto_tree_add_text (tree, tvb, offset+17, 1,
+                             "Length: %u, LSBF: %u, RCK: %u, BCKF: %u",
+                             (flags & 0x30) >> 4, (flags & 0x08) >> 3,
+                             (flags & 0x04) >> 2, (flags & 0x02) >> 1);
+        proto_tree_add_text (tree, tvb, offset+22, 2,
+                             "Copy Management Revision Support: %u",
+                             tvb_get_ntohs (tvb, offset+22));
+        flags = tvb_get_guint8 (tvb, offset+27);
+        proto_tree_add_text (tree, tvb, offset+27, 1,
+                             "Rotation Control Selected: %u",
+                             (flags & 0x03));
+        proto_tree_add_text (tree, tvb, offset+28, 2,
+                             "Current Write Speed Selected: %u",
+                             tvb_get_ntohs (tvb, offset+28));
+        n = tvb_get_ntohs (tvb, offset+30);
+        proto_tree_add_text (tree, tvb, offset+30, 2,
+                             "Number of Logical Unit Write Speed Performance Descriptor Tables: %u",
+                             n);
         break;
     default:
         return FALSE;
@@ -4374,7 +4493,7 @@ dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
         proto_tree_add_text (tree, tvb, offset+1, 4, 
                              "Starting LBA: %u",
-                             tvb_get_ntohs (tvb, offset+1));
+                             tvb_get_ntohl (tvb, offset+1));
 
         proto_tree_add_text (tree, tvb, offset+7, 2, 
                              "Maximum Number of Descriptors: %u",
@@ -4636,7 +4755,7 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
         proto_tree_add_text (tree, tvb, offset+1, 4,
                              "Address: %u",
-                             tvb_get_ntohs (tvb, offset+1));
+                             tvb_get_ntohl (tvb, offset+1));
 
         proto_tree_add_text (tree, tvb, offset+5, 1,
                              "Layer Number: %u",
