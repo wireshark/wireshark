@@ -726,6 +726,8 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 
 		length_remaining = tvb_length_remaining(tvb, offset);
 		if(length_remaining<1){
+			if(out_tvb)
+				*out_tvb=NULL;
 			return end_offset;
 		}
 
