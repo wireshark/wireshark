@@ -3145,8 +3145,12 @@ end_cn_stub:
 	    tvbuff_t *next_tvb;
         proto_item *frag_tree_item;
 
-		next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-	    tvb_set_child_real_data_tvbuff(decrypted_tvb, next_tvb);
+	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
+	    if(decrypted_tvb){
+		tvb_set_child_real_data_tvbuff(decrypted_tvb, next_tvb);
+	    } else {
+		tvb_set_child_real_data_tvbuff(payload_tvb, next_tvb);
+	    }
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    show_fragment_tree(fd_head, &dcerpc_frag_items,
 			tree, pinfo, next_tvb, &frag_tree_item);
@@ -3167,8 +3171,13 @@ end_cn_stub:
 		next_tvb, hdr->drep, di, auth_info);
 
 	} else {
-	    pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
+	    if(decrypted_tvb){
+		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
 				decrypted_tvb, 0, 0, fd_head->reassembled_in);
+	    } else {
+		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
+				payload_tvb, 0, 0, fd_head->reassembled_in);
+	    }
         PROTO_ITEM_SET_GENERATED(pi);
         parent_pi = proto_tree_get_parent(dcerpc_tree);
         if(parent_pi != NULL) {
