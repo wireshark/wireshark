@@ -127,6 +127,7 @@
 #define ISERIES_PKT_MAGIC_LEN   5
 #define ISERIES_LINE_LENGTH     135
 #define ISERIES_HDR_LINES_TO_CHECK  50
+#define ISERIES_PKT_LINES_TO_CHECK  4
 #define ISERIES_MAX_PACKET_LEN  16384
 #define ISERIES_MAX_TRACE_LEN   99999999
 #define ISERIES_PKT_ALLOC_SIZE (cap_len*2)+1
@@ -416,7 +417,7 @@ iseries_parse_packet(wtap *wth, FILE_T fh,
 {
   long cur_off;
   gboolean isValid,isCurrentPacket,IPread,TCPread,isDATA;
-  int	num_items_scanned, line, bytes_to_read;
+  int	num_items_scanned, line, bytes_to_read, pktline;
   int	pkt_len,cap_len, pktnum, month, day, year, hr, min, sec, csec;
   char	direction[2],destmac[13],srcmac[13],type[5],ipheader[41],tcpheader[81];
   char  hex1[17],hex2[17],hex3[17],hex4[17];
@@ -450,7 +451,7 @@ iseries_parse_packet(wtap *wth, FILE_T fh,
    * read both the captured and packet lengths.
    */
   isValid = FALSE;
-  for (line = 1; line < 3; line++) {
+  for (line = 1; line < ISERIES_PKT_LINES_TO_CHECK; line++) {
     /* Determine bytes to read based on format type */
     bytes_to_read = iseries_bytes_to_read(wth);
     if (bytes_to_read == -1) {
@@ -528,7 +529,9 @@ iseries_parse_packet(wtap *wth, FILE_T fh,
   workbuf = g_malloc(ISERIES_PKT_ALLOC_SIZE);
   g_snprintf(workbuf,1,"%s","");
   /* loop through packet lines and breakout when the next packet header is read */
+  pktline=0;
   while (isCurrentPacket) {
+    pktline++;
     /* Determine bytes to read based on format type */
     bytes_to_read = iseries_bytes_to_read(wth);
     if (bytes_to_read == -1) {
@@ -601,7 +604,7 @@ iseries_parse_packet(wtap *wth, FILE_T fh,
      * If we see the identifier for the next packet then rewind and set 
      * isCurrentPacket FALSE 
      */
-    if(strncmp(data+80,ISERIES_PKT_MAGIC_STR,ISERIES_PKT_MAGIC_LEN) == 0) {
+    if((strncmp(data+80,ISERIES_PKT_MAGIC_STR,ISERIES_PKT_MAGIC_LEN) == 0) && pktline>1) {
       isCurrentPacket=FALSE;
       cur_off = file_tell(fh);
       if (cur_off == -1) {
