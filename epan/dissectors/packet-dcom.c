@@ -208,7 +208,8 @@ static int hf_dcom_vt_r4 = -1;
 static int hf_dcom_vt_r8 = -1;
 static int hf_dcom_vt_date = -1;
 static int hf_dcom_vt_bstr = -1;
-
+static int hf_dcom_vt_byref = -1;
+static int hf_dcom_vt_dispatch = -1;
 
 
 /*
@@ -292,6 +293,7 @@ const value_string dcom_variant_type_vals[] = {
 	{ ETHEREAL_VT_CY,		"VT_CY"},
 	{ ETHEREAL_VT_DATE,		"VT_DATE"},
 	{ ETHEREAL_VT_BSTR,		"VT_BSTR"},
+	{ ETHEREAL_VT_DISPATCH, "VT_DISPATCH"},
 	{ ETHEREAL_VT_ERROR,	"VT_ERROR"},
 	{ ETHEREAL_VT_BOOL,		"VT_BOOL"},
 	{ ETHEREAL_VT_I1,		"VT_I1"},
@@ -319,6 +321,10 @@ const value_string dcom_variant_type_vals[] = {
     { ETHEREAL_VT_ARRAY | ETHEREAL_VT_UI4,   "VT_ARRAY|VT_UI4"},
     { ETHEREAL_VT_ARRAY | ETHEREAL_VT_I8,    "VT_ARRAY|VT_I8"},
     { ETHEREAL_VT_ARRAY | ETHEREAL_VT_UI8,   "VT_ARRAY|VT_UI8"},
+
+    { ETHEREAL_VT_BYREF | ETHEREAL_VT_I2,    "VT_BYREF|VT_I2"},
+    { ETHEREAL_VT_BYREF | ETHEREAL_VT_BSTR,  "VT_BYREF|VT_BSTR"},
+    { ETHEREAL_VT_BYREF | ETHEREAL_VT_VARIANT,"VT_BYREF|VT_VARIANT"},
 	{ 0,          NULL }
 /* XXX: append more types here */
 };
@@ -343,7 +349,13 @@ const value_string dcom_hresult_vals[] = {
 	{ 0x80010108, "RPC_E_DISCONNECTED" },
 	{ 0x80010113, "RPC_E_INVALID_IPID" },
 
+	{ 0x80020003, "DISP_E_MEMBERNOTFOUND" },
 	{ 0x80020004, "DISP_E_PARAMNOTFOUND" },
+	{ 0x80020005, "DISP_E_TYPEMISMATCH" },
+	{ 0x80020006, "DISP_E_UNKNOWNNAME" },
+	{ 0x80020008, "DISP_E_BADVARTYPE" },
+	{ 0x80020009, "DISP_E_EXCEPTION" },
+	{ 0x8002000A, "DISP_E_OVERFLOW" },
 
 	{ 0x80040154, "REGDB_E_CLASSNOTREG" },
 	{ 0x80040201, "CO_E_FAILEDTOGETSECCTX" },
@@ -1001,6 +1013,8 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			case(ETHEREAL_VT_I8):
 				offset = dissect_dcom_I8(tvb, offset, pinfo, sub_tree, drep, 
 									hf_dcom_vt_i8, NULL);
+                /* take care of the 8 byte alignment */
+                u32VariableOffset = offset;
 				break;
 			case(ETHEREAL_VT_BSTR):
 				offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
@@ -1156,6 +1170,13 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 								hf_dcom_vt_bstr, cData, sizeof(cData) );
 			}
 			break;
+		case(ETHEREAL_VT_DISPATCH):
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
+			if (u32Pointer) {
+				offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, sub_tree, drep, 
+								hf_dcom_vt_dispatch);
+			}
+			break;
 		case(ETHEREAL_VT_ARRAY):
 			offset = dissect_dcom_SAFEARRAY(tvb, offset, pinfo, sub_tree, drep,
 								0);
@@ -1163,6 +1184,13 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case(ETHEREAL_VT_ERROR):
 			offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								0);
+			break;
+		case(ETHEREAL_VT_VARIANT):
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
+			if (u32Pointer) {
+			    offset = dissect_dcom_VARIANT(tvb, offset, pinfo, sub_tree, drep,
+								    hf_dcom_vt_byref /* must be BYREF */);
+            }
 			break;
 		case(ETHEREAL_VT_UNKNOWN):
 			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
@@ -1815,7 +1843,11 @@ proto_register_dcom (void)
 		{ &hf_dcom_vt_date,
 		{ "VT_DATE", "dcom.vt.date", FT_DOUBLE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_vt_bstr,
-		{ "VT_BSTR", "dcom.vt.bstr", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+		{ "VT_BSTR", "dcom.vt.bstr", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_vt_byref,
+		{ "BYREF", "dcom.vt.byref", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_dcom_vt_dispatch,
+		{ "VT_DISPATCH", "dcom.vt.dispatch", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }}
 	};
 
 	static hf_register_info hf_dcom_sa_array[] = {
