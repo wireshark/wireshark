@@ -1067,7 +1067,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	     i < array_length(auth_parameters_hf_array);
 	     i++, auth_parameter++)
 	{
-		if (strcmp(name, auth_parameter->param_name) == 0)
+		if (strcasecmp(name, auth_parameter->param_name) == 0)
 		{
 			proto_tree_add_item(tree, *(auth_parameter->hf_item), tvb,
 			                    equals_offset+1, current_offset-equals_offset-1,
@@ -2066,7 +2066,7 @@ sip_parse_line(tvbuff_t *tvb, int offset, gint linelen, guint *token_1_lenp)
 		token_1_len == SIP2_HDR_LEN
 		&& tvb_strneql(tvb, token_1_start, SIP2_HDR, SIP2_HDR_LEN) == 0)
 	) || (! strict_sip_version && (
-		tvb_strneql(tvb, token_1_start, "SIP/", 4) == 0)
+		tvb_strncaseeql(tvb, token_1_start, "SIP/", 4) == 0)
 	)) {
 		/*
 		 * Yes, so this is either a Status-Line or something
@@ -2121,7 +2121,7 @@ sip_parse_line(tvbuff_t *tvb, int offset, gint linelen, guint *token_1_lenp)
 			token_3_len != SIP2_HDR_LEN
 			|| tvb_strneql(tvb, token_3_start, SIP2_HDR, SIP2_HDR_LEN) == -1)
 		) || (! strict_sip_version && (
-			tvb_strneql(tvb, token_3_start, "SIP/", 4) == -1)
+			tvb_strncaseeql(tvb, token_3_start, "SIP/", 4) == -1)
 		)) {
 			/*
 			 * The version string isn't an SIP version 2.0 version
