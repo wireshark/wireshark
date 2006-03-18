@@ -59,7 +59,8 @@ all: ftypes dfilter dissectors ethereal.lib
 libethereal.lib: libethereal.dll
 libethereal.exp: libethereal.dll
 
-libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) ..\image\libethereal.res
+libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                 ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib ..\image\libethereal.res
 	@echo Linking libethereal.dll
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
@@ -69,7 +70,8 @@ libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilt
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
-ethereal.lib	: ..\config.h $(LIBETHEREAL_OBJECTS) $(EXTRA_OBJECTS) 
+ethereal.lib	: ..\config.h $(LIBETHEREAL_OBJECTS) ftypes dfilter dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                  ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib
 	link /lib /out:ethereal.lib $(LIBETHEREAL_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
