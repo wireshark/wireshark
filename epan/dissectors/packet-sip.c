@@ -621,11 +621,11 @@ static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
 		end = tvb_len;
 	}
 
-	/* Skip past spaces and tabs until run out or meet something else */
+	/* Skip past spaces, tabs, CRs and LFs until run out or meet something else */
 	for (counter = offset;
 	     counter < end &&
 	      ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
-	      tempchar == '\t');
+	      tempchar == '\t' || tempchar == '\r' || tempchar == '\n');
 	     counter++);
 
 	return (counter);
@@ -1349,7 +1349,20 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			offset = next_offset;
 			break;
 		}
+
 		line_end_offset = offset + linelen;
+		while ((c = tvb_get_guint8(tvb, next_offset)) == ' ' || c == '\t')
+		{
+			/*
+			 * This line end is not a header seperator.
+			 * It just extends the header with another line.
+			 * Look for next line end:
+			 */
+			linelen += (next_offset - line_end_offset);
+			linelen += tvb_find_line_end(tvb, next_offset, -1, &next_offset, FALSE);
+			line_end_offset = offset + linelen;
+		}
+
 		colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
 		if (colon_offset == -1) {
 			/*
@@ -1374,11 +1387,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 				/*
 				 * Skip whitespace after the colon.
 				 */
-				value_offset = colon_offset + 1;
-				while (value_offset < line_end_offset &&
-				       ((c = tvb_get_guint8(tvb, value_offset)) == ' ' ||
-				         c == '\t'))
-					value_offset++;
+				value_offset = tvb_skip_wsp(tvb, colon_offset + 1, line_end_offset - (colon_offset + 1));
+
 				/*
 				 * Fetch the value.
 				 */
@@ -1710,18 +1720,15 @@ separator_found2:
 							                             tvb_format_text(tvb, offset, linelen));
 						}
 						content_type_len = value_len;
-						semi_colon_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
+						semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
 						if ( semi_colon_offset != -1) {
-							parameter_offset = semi_colon_offset +1;
 							/*
 							 * Skip whitespace after the semicolon.
 							 */
-							while (parameter_offset < line_end_offset
-							       && ((c = tvb_get_guint8(tvb, parameter_offset)) == ' '
-							         || c == '\t'))
-								parameter_offset++;
+							parameter_offset = tvb_skip_wsp(tvb, semi_colon_offset +1, value_offset + value_len - (semi_colon_offset +1));
+
 							content_type_len = semi_colon_offset - value_offset;
-							content_type_parameter_str_len = line_end_offset - parameter_offset;
+							content_type_parameter_str_len = value_offset + value_len - parameter_offset;
 							content_type_parameter_str = tvb_get_ephemeral_string(tvb, parameter_offset,
 							                             content_type_parameter_str_len);
 						}
@@ -1796,8 +1803,6 @@ separator_found2:
 						}
 
 						/* Parse each individual parameter in the line */
-						/* skip Spaces and Tabs */
-						value_offset = tvb_skip_wsp(tvb, value_offset, line_end_offset - value_offset);
 						comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n");
 						
 						proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
