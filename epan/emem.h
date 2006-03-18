@@ -217,7 +217,7 @@ void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
  * equal to or smaller than the search key, or NULL if no such key was
  * found.
  */
-void *se_tree_lookup32_less_than_or_equal(se_tree_t *se_tree, guint32 key);
+void *se_tree_lookup32_le(se_tree_t *se_tree, guint32 key);
 
 
 /* This function is similar to the se_tree_create() call but with the

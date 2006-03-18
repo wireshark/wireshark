@@ -852,7 +852,7 @@ se_tree_lookup32(se_tree_t *se_tree, guint32 key)
 }
 
 void *
-se_tree_lookup32_less_than_or_equal(se_tree_t *se_tree, guint32 key)
+se_tree_lookup32_le(se_tree_t *se_tree, guint32 key)
 {
 	se_tree_node_t *node;
 
