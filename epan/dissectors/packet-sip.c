@@ -88,6 +88,20 @@ static gint hf_sip_contact_item		= -1;
 static gint hf_sip_resend			= -1;
 static gint hf_sip_original_frame	= -1;
 
+static gint hf_sip_auth_scheme           = -1;
+static gint hf_sip_auth_digest_response  = -1;
+static gint hf_sip_auth_nc               = -1;
+static gint hf_sip_auth_username         = -1;
+static gint hf_sip_auth_realm            = -1;
+static gint hf_sip_auth_nonce            = -1;
+static gint hf_sip_auth_algorithm        = -1;
+static gint hf_sip_auth_opaque           = -1;
+static gint hf_sip_auth_qop              = -1;
+static gint hf_sip_auth_cnonce           = -1;
+static gint hf_sip_auth_uri              = -1;
+static gint hf_sip_auth_domain           = -1;
+static gint hf_sip_auth_stale            = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sip 				= -1;
 static gint ett_sip_reqresp 		= -1;
@@ -391,6 +405,28 @@ static gint hf_header_array[] = {
                 -1, /* 83"Refer-To",							RFC3515 */
                 -1, /* 84"History-Info",						RFC4244 */
 
+};
+
+/* Track associations between parameter name and hf item */
+typedef struct {
+	const char  *param_name;
+	const gint  *hf_item;
+} auth_parameter_t;
+
+static auth_parameter_t auth_parameters_hf_array[] =
+{
+	{"response",        &hf_sip_auth_digest_response},
+	{"nc",              &hf_sip_auth_nc},
+	{"username",        &hf_sip_auth_username},
+	{"realm",           &hf_sip_auth_realm},
+	{"nonce",           &hf_sip_auth_nonce},
+	{"algorithm",       &hf_sip_auth_algorithm},
+	{"opaque",          &hf_sip_auth_opaque},
+	{"qop",             &hf_sip_auth_qop},
+	{"cnonce",          &hf_sip_auth_cnonce},
+	{"uri",             &hf_sip_auth_uri},
+	{"domain",          &hf_sip_auth_domain},
+	{"stale",           &hf_sip_auth_stale},
 };
 
 /*
@@ -841,6 +877,7 @@ static gint
 dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
 	gchar c;
+	gint i;
 	proto_item *ti = NULL;
 	proto_tree *contact_item_tree = NULL, *uri_tree = NULL;
 
@@ -893,13 +930,16 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 				queried_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
 				if(queried_offset == -1)
 				{
-					/* malformed URI */
+					/* malformed Contact header */
 					return -1;
 				}
 				current_offset = queried_offset;
 
-				/* Is it escaped? */
-			} while (tvb_get_guint8(tvb, queried_offset - 1) == '\\');
+				/* Is it escaped? 
+				 * Look for uneven number of backslashes before '"' */
+				for(i=0;tvb_get_guint8(tvb, queried_offset - (i+1) ) == '\\';i++);
+				i=i%2;
+			} while (i == 1);
 		}
 
 		if(c == ',')
@@ -948,6 +988,105 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
 	return current_offset;
 }
+
+/* Code to parse an authorization header item
+ * Returns offset at end of parsing, or -1 for unsuccessful parsing
+ */
+static gint
+dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+{
+	gchar c;
+	gint current_offset;
+	gint equals_offset = 0;
+	gchar *name;
+	auth_parameter_t *auth_parameter;
+	guint i = 0;
+	gboolean in_quoted_string = FALSE;
+
+	/* skip Spaces and Tabs */
+	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+
+	if (start_offset >= line_end_offset)
+	{
+		/* Nothing to parse */
+		return -1;
+	}
+
+	current_offset = start_offset;
+	
+	/* Now look for the end of the parameter */
+	while (current_offset < line_end_offset)
+	{
+		c = tvb_get_guint8(tvb, current_offset);
+		
+		if (c == '=')
+		{
+			equals_offset = current_offset;
+		}
+		
+		if(c == '"')
+		{
+			/* look for the next unescaped '"' */
+			do
+			{
+				current_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
+				if(current_offset == -1)
+				{
+					/* malformed parameter */
+					return -1;
+				}
+
+				/* Is it escaped? 
+				 * Look for uneven number of backslashes before '"' */
+				for(i=0;tvb_get_guint8(tvb, current_offset - (i+1) ) == '\\';i++);
+				i=i%2;
+			} while (i == 1);
+			current_offset++;
+			current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+			continue;
+		}
+
+		if (c == ',')
+		{
+			break;
+		}
+		current_offset++;
+	}
+
+	if (equals_offset == 0)
+	{
+		/* Give up if equals not found */
+		return -1;
+	}
+
+	/* Extract the parameter name */
+	name = tvb_get_ephemeral_string(tvb, start_offset, equals_offset-start_offset);
+
+	/* Try to add parameter as a filterable item */
+	for (auth_parameter = &auth_parameters_hf_array[i];
+	     i < array_length(auth_parameters_hf_array);
+	     i++, auth_parameter++)
+	{
+		if (strcmp(name, auth_parameter->param_name) == 0)
+		{
+			proto_tree_add_item(tree, *(auth_parameter->hf_item), tvb,
+			                    equals_offset+1, current_offset-equals_offset-1,
+			                    FALSE);
+			break;
+		}
+	}
+
+	/* If not matched, just add as text... */
+	if (i == array_length(auth_parameters_hf_array))
+	{
+		proto_tree_add_text(tree, tvb, start_offset, current_offset-start_offset,
+		                    tvb_get_ephemeral_string(tvb, start_offset,
+		                                             current_offset-start_offset));
+	}
+
+	return current_offset;
+}
+
 
 /* Code to actually dissect the packets */
 static int
@@ -1627,6 +1766,46 @@ separator_found2:
 						{
 							contacts++;
 							if(comma_offset == next_offset)
+							{
+								/* Line End reached: Stop Parsing */
+								break;
+							}
+
+							if(tvb_get_guint8(tvb, comma_offset) != ',')
+							{
+								/* Undefined value reached: Stop Parsing */
+								break;
+							}
+							comma_offset++; /* skip comma */
+						}
+					break;
+                    
+					case POS_AUTHORIZATION:
+					case POS_WWW_AUTHENTICATE:
+					case POS_PROXY_AUTHENTICATE:
+					case POS_PROXY_AUTHORIZATION:
+						/* Add tree using whole text of line */
+						if (hdr_tree) {
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							                   hf_header_array[hf_index], tvb,
+							                   offset, next_offset - offset,
+							                   value, "%s",
+							                   tvb_format_text(tvb, offset, linelen));
+							sip_element_tree = proto_item_add_subtree( sip_element_item,
+							                   ett_sip_element);
+						}
+
+						/* Parse each individual parameter in the line */
+						/* skip Spaces and Tabs */
+						value_offset = tvb_skip_wsp(tvb, value_offset, line_end_offset - value_offset);
+						comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n");
+						
+						proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
+							                tvb, value_offset, comma_offset - value_offset,
+							                FALSE);
+						while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset)) != -1)
+						{
+							if(comma_offset == line_end_offset)
 							{
 								/* Line End reached: Stop Parsing */
 								break;
@@ -2689,8 +2868,74 @@ void proto_register_sip(void)
 		{ &hf_sip_original_frame,
 			{ "Suspected resend of frame",  "sip.resend-original",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		    	"Original transmission of frame", HFILL}}
-		};
+		    	"Original transmission of frame", HFILL}
+		},
+		{ &hf_sip_auth_scheme,
+			{ "Authentication Scheme",  "sip.auth.scheme",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication Scheme", HFILL}
+		},
+		{ &hf_sip_auth_digest_response,
+			{ "Digest Authentication Response",  "sip.auth.digest.response",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Digest Authentication Response Value ", HFILL}
+		},
+		{ &hf_sip_auth_nc,
+			{ "Nonce Count",  "sip.auth.nc",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication nonce count", HFILL}
+		},
+		{ &hf_sip_auth_username,
+			{ "Username",  "sip.auth.username",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"Sip authentication username", HFILL}
+		},
+		{ &hf_sip_auth_realm,
+			{ "Realm",  "sip.auth.realm",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"Sip Authentication realm", HFILL}
+		},
+		{ &hf_sip_auth_nonce,
+			{ "Nonce Value",  "sip.auth.nonce",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication nonce value", HFILL}
+		},
+		{ &hf_sip_auth_algorithm,
+			{ "Algorithm",  "sip.auth.algorithm",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication Algorithm", HFILL}
+		},
+		{ &hf_sip_auth_opaque,
+			{ "Opaque Value",  "sip.auth.opaque",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication opaque value", HFILL}
+		},
+		{ &hf_sip_auth_qop,
+			{ "QOP",  "sip.auth.qop",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication QOP", HFILL}
+		},
+		{ &hf_sip_auth_cnonce,
+			{ "CNonce Value",  "sip.auth.cnonce",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication Client Nonce value ", HFILL}
+		},
+		{ &hf_sip_auth_uri,
+			{ "Authentication URI",  "sip.auth.uri",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication URI", HFILL}
+		},
+		{ &hf_sip_auth_domain,
+			{ "Authentication Domain",  "sip.auth.domain",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication Domain", HFILL}
+		},
+		{ &hf_sip_auth_stale,
+			{ "Stale Flag",  "sip.auth.stale",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication Stale Flag", HFILL}
+		}};
+
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
