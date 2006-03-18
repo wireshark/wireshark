@@ -851,6 +851,94 @@ se_tree_lookup32(se_tree_t *se_tree, guint32 key)
 	return NULL;
 }
 
+void *
+se_tree_lookup32_less_than_or_equal(se_tree_t *se_tree, guint32 key)
+{
+	se_tree_node_t *node;
+
+	node=se_tree->tree;
+
+	if(!node){
+		return NULL;
+	}
+
+
+	while(node){
+		if(key==node->key32){
+			return node->data;
+		}
+		if(key<node->key32){
+			if(node->left){
+				node=node->left;
+				continue;
+			} else {
+				break;
+			}
+		}
+		if(key>node->key32){
+			if(node->right){
+				node=node->right;
+				continue;
+			} else {
+				break;
+			}
+		}
+	}
+
+
+	/* If we are still at the root of the tree this means that this node 
+	 * is either smaller thant the search key and then we return this
+	 * node or else there is no smaller key availabel and then
+	 * we return NULL.
+	 */
+	if(!node->parent){
+		if(key>node->key32){
+			return node->data;
+		} else {
+			return NULL;
+		}
+	}
+
+	if(node->parent->left==node){
+		/* left child */	
+
+		if(key>node->key32){
+			/* if this is a left child and its key is smaller than
+			 * the search key, then this is the node we want.
+			 */
+			return node->data;
+		} else {
+			/* if this is a left child and its key is bigger than
+			 * the search key, we have to check if any
+			 * of our ancestors are smaller than the search key.
+			 */
+			while(node){
+				if(key>node->key32){
+					return node->data;
+				}
+				node=node->parent;
+			}
+			return NULL;
+		}
+	} else {
+		/* right child */	
+
+		if(node->key32<key){
+			/* if this is the right child and its key is smaller 
+			 * than the search key then this is the one we want.
+			 */
+			return node->data;
+		} else {
+			/* if this is the right child and its key is larger 
+			 * than the search key then our parent is the one we 
+			 * want.
+			 */
+			return node->parent->data;
+		}
+	}
+
+}
+
 
 static inline se_tree_node_t *
 se_tree_parent(se_tree_node_t *node)

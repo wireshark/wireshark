@@ -211,6 +211,14 @@ void se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data);
  */
 void *se_tree_lookup32(se_tree_t *se_tree, guint32 key);
 
+/* This function will look up a node in the tree indexed by a guint32 integer
+ * value.
+ * The function will return the node that has the largest key that is 
+ * equal to or smaller than the search key, or NULL if no such key was
+ * found.
+ */
+void *se_tree_lookup32_less_than_or_equal(se_tree_t *se_tree, guint32 key);
+
 
 /* This function is similar to the se_tree_create() call but with the
  * difference that when the se memory is release everything including the 
