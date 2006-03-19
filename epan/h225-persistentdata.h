@@ -37,7 +37,7 @@
 /* Item of ras request list*/
 typedef struct _h225ras_call_t {
 	guint32 requestSeqNum;
-	guint8 guid[16];
+	e_guid_t guid;
 	guint32	req_num;	/* frame number request seen */
 	guint32	rsp_num;	/* frame number response seen */
 	nstime_t req_time;	/* arrival time of request */
@@ -54,8 +54,8 @@ typedef struct _h225ras_call_info_key {
 
 /* functions, needed using ras-request and halfcall matching*/
 h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_key ,int category);
-h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packet_info *pinfo, guint8 *guid, int category);
-h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pinfo, guint8 *guid, int category);
+h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packet_info *pinfo, e_guid_t *guid, int category);
+h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pinfo, e_guid_t *guid, int category);
 
 void h225_init_routine(void); /* init routine, used by ethereal */
 

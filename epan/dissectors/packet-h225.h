@@ -63,7 +63,7 @@ typedef struct _h225_packet_info {
 	gint msg_tag;			/* message tag*/
 	gint reason;			/* reason tag, if available */
 	guint requestSeqNum;		/* request sequence number of ras-message, if available */
-	guint8 guid[16];		/* globally unique call id */
+	e_guid_t guid;			/* globally unique call id */
 	gboolean is_duplicate;		/* true, if this is a repeated message */
 	gboolean request_available;	/* true, if response matches to a request */
 	nstime_t delta_time; 		/* this is the RAS response time delay */

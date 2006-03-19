@@ -449,8 +449,8 @@ ReleaseCompleteReason     VAL_PTR = &value
 #.FN_BODY CallIdentifier/guid
   tvbuff_t *guid_tvb;
 
-  offset = dissect_per_octet_string(tvb,offset,pinfo,tree,hf_index,16,16,&guid_tvb);
-  tvb_memcpy(guid_tvb,h225_pi->guid,0,tvb_length(guid_tvb));
+  offset = dissect_per_octet_string(tvb,offset,pinfo,tree,hf_index,GUID_LEN,GUID_LEN,&guid_tvb);
+  tvb_memcpy(guid_tvb,(guint8 *)&h225_pi->guid,0,GUID_LEN);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_PARS RequestSeqNum  VAL_PTR = &(h225_pi->requestSeqNum)

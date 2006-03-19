@@ -1319,8 +1319,7 @@ remove_tap_listener_mtp3_calls(void)
 /* ***************************TAP for Q931 **********************************/
 /****************************************************************************/
 void h245_add_to_graph(guint32 new_frame_num);
-#define GUID_LEN	16
-static const guint8 guid_allzero[GUID_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static const e_guid_t guid_allzero = {0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 /* defines specific H323 data */
 
 static gchar *q931_calling_number;
@@ -1421,7 +1420,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 						
 						/* check if the called number match a LRQ/LCF */
 						if ( (strcmp(strinfo->to_identity, tmp_listinfo->to_identity)==0)  
-							 && (memcmp(tmp2_h323info->guid, guid_allzero, GUID_LEN) == 0) ){ 
+							 && (memcmp(&tmp2_h323info->guid, &guid_allzero, GUID_LEN) == 0) ){ 
 							/* change the call graph to the LRQ/LCF to belong to this call */
 							strinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, strinfo->call_num);
 							
@@ -1668,7 +1667,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	
 	/* if not guid and RAS and not LRQ, LCF or LRJ return because did not belong to a call */
 	/* OR, if not guid and is H225 return because doesn't belong to a call */
-	if ((memcmp(pi->guid, guid_allzero, GUID_LEN) == 0))
+	if ((memcmp(&pi->guid, &guid_allzero, GUID_LEN) == 0))
 		if ( ((pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20))) || (pi->msg_type != H225_RAS) )
 			return 0;
 	
@@ -1699,7 +1698,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_listinfo=list->data;
 			if (tmp_listinfo->protocol == VOIP_H323){
 				tmp_h323info = tmp_listinfo->prot_info;
-				if ( (memcmp(tmp_h323info->guid, guid_allzero, GUID_LEN) != 0) && (memcmp(tmp_h323info->guid, pi->guid,GUID_LEN)==0) ){ 
+				if ( (memcmp(&tmp_h323info->guid, &guid_allzero, GUID_LEN) != 0) && (memcmp(&tmp_h323info->guid, &pi->guid,GUID_LEN)==0) ){ 
 					strinfo = (voip_calls_info_t*)(list->data);
 					break;
 				}
@@ -1726,7 +1725,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		strinfo->protocol=VOIP_H323;
 		strinfo->prot_info=g_malloc(sizeof(h323_calls_info_t));
 		tmp_h323info = strinfo->prot_info;
-		tmp_h323info->guid = (guint8 *) g_memdup(pi->guid,GUID_LEN);
+		tmp_h323info->guid = g_memdup(&pi->guid, sizeof pi->guid);
 		tmp_h323info->h225SetupAddr.type = AT_NONE;
 		tmp_h323info->h225SetupAddr.len = 0;
 		tmp_h323info->h245_list = NULL;

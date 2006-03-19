@@ -317,13 +317,12 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 			case VOIP_H323:
 				tmp_h323info = selected_call_fwd->prot_info;
 				g_string_sprintfa(filter_string_fwd,
-				   "((h225.guid == %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x || q931.call_ref == %x:%x || q931.call_ref == %x:%x) ",
-				   (guint8)tmp_h323info->guid[0], (guint8)tmp_h323info->guid[1], (guint8)tmp_h323info->guid[2],
-				   (guint8)tmp_h323info->guid[3], (guint8)tmp_h323info->guid[4], (guint8)tmp_h323info->guid[5], (guint8)tmp_h323info->guid[6],
-			   (guint8)tmp_h323info->guid[7], (guint8)tmp_h323info->guid[8], (guint8)tmp_h323info->guid[9], (guint8)tmp_h323info->guid[10],
-				   (guint8)tmp_h323info->guid[11], (guint8)tmp_h323info->guid[12], (guint8)tmp_h323info->guid[13], (guint8)tmp_h323info->guid[14],
-				   (guint8)tmp_h323info->guid[15], (guint8)(tmp_h323info->q931_crv & 0xff), (guint8)((tmp_h323info->q931_crv & 0xff00)>>8)
-				   , (guint8)(tmp_h323info->q931_crv2 & 0xff), (guint8)((tmp_h323info->q931_crv2 & 0xff00)>>8));
+				   "((h225.guid == %s || q931.call_ref == %x:%x || q931.call_ref == %x:%x) ",
+				   guid_to_str(&tmp_h323info->guid[0]),
+				   (guint8)(tmp_h323info->q931_crv & 0xff),
+				   (guint8)((tmp_h323info->q931_crv & 0xff00)>>8),
+				   (guint8)(tmp_h323info->q931_crv2 & 0xff),
+				   (guint8)((tmp_h323info->q931_crv2 & 0xff00)>>8));
 				list = g_list_first(tmp_h323info->h245_list);
 				while (list)
 				{

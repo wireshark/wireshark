@@ -28,6 +28,10 @@
 #ifndef __GUID_UTILS_H__
 #define __GUID_UTILS_H__
 
+#define GUID_LEN	16
+
+/* Note: this might be larger than GUID_LEN, so don't overlay data in packets
+   with this. */
 typedef struct _e_guid_t {
     guint32 data1;
     guint16 data2;

@@ -378,7 +378,7 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 	pi->msg_tag = -1;
 	pi->reason = -1;
 	pi->requestSeqNum = 0;
-	memset(pi->guid,0,16);
+	memset(&pi->guid,0,sizeof pi->guid);
 	pi->is_duplicate = FALSE;
 	pi->request_available = FALSE;
 	pi->is_faststart = FALSE;
@@ -477,7 +477,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 							   and last request occured more than 1800 seconds ago,
 							   we decide that we have a new request */
 							/* Append new ras call to list */
-							h225ras_call = append_h225ras_call(h225ras_call, pinfo, pi->guid, msg_category);
+							h225ras_call = append_h225ras_call(h225ras_call, pinfo, &pi->guid, msg_category);
 						} else {
 							/* No, so it's a duplicate request.
 							   Mark it as such. */
@@ -490,7 +490,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				} while (h225ras_call != NULL );
 			}
 			else {
-				h225ras_call = new_h225ras_call(&h225ras_call_key, pinfo, pi->guid, msg_category);
+				h225ras_call = new_h225ras_call(&h225ras_call_key, pinfo, &pi->guid, msg_category);
 			}
 
 			/* add link to response frame, if available */
@@ -531,8 +531,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 					/* if this is an ACF, ARJ or DCF, DRJ, give guid to tap and make it filterable */
 					if (msg_category == 3 || msg_category == 5) {
-						memcpy(pi->guid, h225ras_call->guid,16);
-						proto_tree_add_guid_hidden(tree, hf_h225_guid, tvb, 0, 16, pi->guid);
+						pi->guid = h225ras_call->guid;
+						proto_tree_add_guid_hidden(tree, hf_h225_guid, tvb, 0, GUID_LEN, &pi->guid);
 					}
 
 					if (h225ras_call->rsp_num == 0) {

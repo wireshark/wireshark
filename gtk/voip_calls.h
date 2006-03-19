@@ -39,6 +39,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <epan/address.h>
+#include <epan/guid-utils.h>
 
 /****************************************************************************/
 /* defines voip call state */
@@ -100,7 +101,7 @@ typedef struct _h245_address {
 
 /* defines specific H323 data */
 typedef struct _h323_calls_info {
-	guint8 *guid;	/* Call ID to identify a H225 */
+	e_guid_t *guid;	/* Call ID to identify a H225 */
 	GList*  h245_list;   /* list of H245 Address and ports for tunneling off calls*/
 	address h225SetupAddr; /* we use the SETUP H225 IP to determine if packets are forward or reverse */					
 	gboolean is_h245;
