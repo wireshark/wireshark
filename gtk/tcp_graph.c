@@ -388,7 +388,6 @@ static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, gu
 static int get_num_dsegs (struct graph * );
 static int get_num_acks (struct graph * );
 static void graph_type_dependent_initialize (struct graph * );
-static void graph_put (struct graph * );
 static struct graph *graph_new (void);
 static void graph_destroy (struct graph * );
 static void graph_initialize_values (struct graph * );
