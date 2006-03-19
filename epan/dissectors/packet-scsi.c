@@ -2559,13 +2559,13 @@ dissect_scsi_mmc5_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                              (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_text (tree, tvb, offset+4, 1,
-                             "BUF: %u, Multi Session: %u, Mode 2 Form 2: %u, Mode 2 Form 1,"
+                             "BUF: %u, Multi Session: %u, Mode 2 Form 2: %u, Mode 2 Form 1: %u,"
                              "Digital Port (2): %u, Digital Port (1): %u, Composite: %u, Audio Play: %u",
                              (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, 
                              (flags & 0x08) >> 3, (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
         flags = tvb_get_guint8 (tvb, offset+5);
         proto_tree_add_text (tree, tvb, offset+5, 1,
-                             "Read Bar Code: %u, UPC: %u, ISRC: %u, C2 Pointers supported,"
+                             "Read Bar Code: %u, UPC: %u, ISRC: %u, C2 Pointers supported: %u,"
                              "R-W Deinterleaved & corrected: %u, R-W Supported: %u, CD-DA Stream is Accurate: %u, CD-DA Cmds Supported: %u",
                              (flags & 0x80) >> 7, (flags & 0x40) >> 6, (flags & 0x20) >> 5, (flags & 0x10) >> 4, 
                              (flags & 0x08) >> 3, (flags & 0x04) >> 2, (flags & 0x02) >> 1, (flags & 0x01));
@@ -6048,7 +6048,7 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *sns_tree=NULL;
-    char *old_proto;
+    const char *old_proto;
 
     old_proto=pinfo->current_proto;
     pinfo->current_proto="SCSI";
@@ -7396,7 +7396,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_cdb_table_t *cdb_table=NULL;
     const value_string *cdb_vals = NULL;
     int hf_opcode=-1;
-    char *old_proto;
+    const char *old_proto;
 
     old_proto=pinfo->current_proto;
     pinfo->current_proto="SCSI";
@@ -7554,7 +7554,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_device_type devtype;
     scsi_task_data_t *cdata = NULL;
     int payload_len;
-    char *old_proto;
+    const char *old_proto;
 
     payload_len=tvb_length(tvb);
     cdata = scsi_find_task (pinfo);
