@@ -1716,14 +1716,18 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	proto_tree *subtree;
 
 	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	year = tvb_get_guint8(tvb, offset+tag_len) + 1900;
+	year = tvb_get_guint8(tvb, offset+tag_len);
 	month = tvb_get_guint8(tvb, offset+tag_len+1);
 	day = tvb_get_guint8(tvb, offset+tag_len+2);
 	weekday = tvb_get_guint8(tvb, offset+tag_len+3);
 	if ((year == 255) && (day == 255) && (month == 255) && (weekday == 255))
+	{
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%sany", label);
-	else
+	}
+	else if (year != 255)
+	{
+		year += 1900;
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s%s %d, %d, (Day of Week = %s)",
 			label, val_to_str(month,
@@ -1732,6 +1736,14 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 			day, year, val_to_str(weekday,
 				days,
 				"(%d) not found"));
+	}
+	else
+	{
+		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
+			"%s%s %d, any year, (Day of Week = %s)",
+			label, val_to_str(month, months, "month (%d) not found"),
+			day, val_to_str(weekday, days, "(%d) not found"));
+	}
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 
@@ -1741,28 +1753,28 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 static guint
 fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
-	guint32 year, month, day, weekday, lvt;
+	guint32 hour, minute, second, msec, lvt;
 	guint8 tag_no, tag_info;
 	guint tag_len;
 	proto_item *ti;
 	proto_tree *subtree;
 
 	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	year = tvb_get_guint8(tvb, offset+tag_len);
-	month = tvb_get_guint8(tvb, offset+tag_len+1);
-	day = tvb_get_guint8(tvb, offset+tag_len+2);
-	weekday = tvb_get_guint8(tvb, offset+tag_len+3);
-	if ((year == 255) && (day == 255) && (month == 255) && (weekday == 255))
+	hour = tvb_get_guint8(tvb, offset+tag_len);
+	minute = tvb_get_guint8(tvb, offset+tag_len+1);
+	second = tvb_get_guint8(tvb, offset+tag_len+2);
+	msec = tvb_get_guint8(tvb, offset+tag_len+3);
+	if ((hour == 255) && (minute == 255) && (second == 255) && (msec == 255))
 		ti = proto_tree_add_text(tree, tvb, offset,
 			lvt+tag_len, "%sany", label);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s%d:%02d:%02d.%d %s = %02d:%02d:%02d.%d",
 			label,
-			year > 12 ? year -12 : year,
-			month, day, weekday,
-			year > 12 ? "P.M." : "A.M.",
-			year, month, day, weekday);
+			hour > 12 ? hour - 12 : hour,
+			minute, second, msec,
+			hour > 12 ? "P.M." : "A.M.",
+			hour, minute, second, msec);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	
@@ -1805,26 +1817,26 @@ fTimeValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+    guint8 tag_no, tag_info;
+    guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-		lastoffset = offset;
-	
-		switch (fTagNo(tvb, offset)) {
-		case 0:	/* Date */
-			offset = fDate    (tvb, tree, offset, "Date: ");
-			break;
-		case 1:	/* dateRange */
-			offset = fDateRange (tvb, tree, offset);
-			break;
-		case 2:	/* BACnetWeekNDay */
-			offset = fWeekNDay (tvb, tree, offset);
-			break;
-		default:
-			return offset;
-			break;
-		}
+	switch (fTagNo(tvb, offset)) {
+	case 0:	/* Date */
+		offset = fDate    (tvb, tree, offset, "Date: ");
+		break;
+	case 1:	/* dateRange */
+        offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
+		offset = fDateRange (tvb, tree, offset);
+        offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
+		break;
+	case 2:	/* BACnetWeekNDay */
+		offset = fWeekNDay (tvb, tree, offset);
+		break;
+	default:
+		return offset;
+		break;
 	}
+
 	return offset;
 }
 
@@ -2623,27 +2635,26 @@ fDailySchedule (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
-			return offset;
-		}
-		
-		switch (tag_no) {
-		case 0: /* day-schedule */
-			if (tag_is_opening(tag_info)) {
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-				offset = fTimeValue (tvb, subtree, offset);
-				break;
+	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+	if (tag_is_opening(tag_info) && tag_no == 0)
+	{
+		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt); /* opening context tag 0 */
+		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
+			fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+			if (tag_is_closing(tag_info)) {
+				/* should be closing context tag 0 */
+				offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &tag_info, &lvt);
+				return offset;
 			}
-			FAULT;
-			break;
-		default:
-			return offset;
+			
+			offset = fTimeValue (tvb, subtree, offset);
 		}
+	}
+	else if (tag_no == 0 && lvt == 0)
+	{
+		/* not sure null (empty array element) is legal */
+		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	}
 	return offset;
 }
@@ -2662,9 +2673,7 @@ fWeeklySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, tree, offset,
-				&tag_no, &tag_info, &lvt);
-			return offset;
+			return offset; /* outer encoding will print out closing tag */
 		}
 		tt = proto_tree_add_text(tree, tvb, offset, 0, val_to_str(i++, days, "day of week (%d) not found"));
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
@@ -3484,9 +3493,11 @@ fUnconfirmedCOVNotificationRequest (tvbuff_t *tvb, proto_tree *tree, guint offse
 }
 
 static guint
-fAcknowlegdeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
+fAcknowledgeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
+	guint8 tag_no = 0, tag_info = 0;
+	guint32 lvt = 0;
 
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -3502,13 +3513,17 @@ fAcknowlegdeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 				"event State Acknowledged: ", BACnetEventState, 64);
 			break;
 		case 3:	/* timeStamp */
-			offset = fTime (tvb, tree, offset, "time Stamp: ");
+			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
+			offset = fTimeStamp(tvb, tree, offset);
+			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		case 4:	/* acknowledgementSource */
 			offset = fCharacterString (tvb, tree, offset, "acknowledgement Source: ");
 			break;
 		case 5:	/* timeOfAcknowledgement */
-			offset = fTime (tvb, tree, offset, "time Of Acknowledgement: ");
+			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
+			offset = fTimeStamp(tvb, tree, offset);
+			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		default:
 			return offset;
@@ -4220,21 +4235,26 @@ fSpecialEvent (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {   
-			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 			continue;
 		}
         
-		switch (fTagNo(tvb,offset)) {
+		switch (tag_no) {
 		case 0:	/* calendaryEntry */
-			offset = fCalendaryEntry (tvb, subtree, offset);
+            if (tag_is_opening(tag_info))
+            {
+				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+    			offset = fCalendaryEntry (tvb, subtree, offset);
+				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+            }
 			break;
 		case 1:	/* calendarReference */
 			offset = fObjectIdentifier (tvb, subtree, offset);
 			break;
-		case 2:	/* calendarReference */
+		case 2:	/* list of BACnetTimeValue */
 			if (tag_is_opening(tag_info)) {
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fTimeValue (tvb, subtree, offset);
+				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				break;
 			}
 			FAULT;
@@ -4550,11 +4570,12 @@ fReadRangeRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			FAULT;
 			break;
 		case 4:	/* range byTime */
+        case 7: /* 2004 spec */
 			if (tag_is_opening(tag_info)) {
 				tt = proto_tree_add_text(subtree, tvb, offset, 1, "range byTime");
 				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-				offset = fApplicationTypes (tvb, subtree, offset, "reference Time: ");
+				offset = fDateTime(tvb, subtree, offset, "reference Date/Time: ");
 				offset = fApplicationTypes (tvb, subtree, offset, "reference Count: ");
 				break;
 			}
@@ -4569,6 +4590,17 @@ fReadRangeRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 				offset = fApplicationTypes (tvb, subtree, offset, "ending Time: ");
 				break;
 			}
+			FAULT;
+			break;
+        case 6: /* range bySequenceNumber, 2004 spec */
+            if (tag_is_opening(tag_info)) {
+				tt = proto_tree_add_text(subtree, tvb, offset, 1, "range bySequenceNumber");
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+				offset = fApplicationTypes (tvb, subtree, offset, "referenceIndex: ");
+				offset = fApplicationTypes (tvb, subtree, offset, "reference Count: ");
+				break;
+            }
 			FAULT;
 			break;
 		default:
@@ -4794,7 +4826,7 @@ fConfirmedServiceRequest (tvbuff_t *tvb, proto_tree *tree, guint offset, gint se
 
 	switch (service_choice) {
 	case 0:	/* acknowledgeAlarm */
-		offset = fAcknowlegdeAlarmRequest (tvb, tree, offset);
+		offset = fAcknowledgeAlarmRequest (tvb, tree, offset);
 		break;
 	case 1: /* confirmedCOVNotification */
 		offset = fConfirmedCOVNotificationRequest (tvb, tree, offset);
