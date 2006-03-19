@@ -808,13 +808,16 @@ static gint ett_nt_policy_hnd = -1;
  * as used in dcerpc  but it has shown VERY useful to also use it for tracking
  * GUIDs such as for the file ids in smb2.
  */
-#define HND_TYPE_CTX_HANDLE	0
-#define HND_TYPE_GUID		1
+typedef enum {
+	HND_TYPE_CTX_HANDLE,
+	HND_TYPE_GUID
+} e_hnd_type;
+
 static int
 dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
-		      gboolean is_open, gboolean is_close, int type)
+		      gboolean is_open, gboolean is_close, e_hnd_type type)
 {
 	proto_item *item=NULL;
 	proto_tree *subtree;
@@ -856,6 +859,9 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		hnd.attributes=0;
 		offset=dissect_ndr_uuid_t(tvb, offset, pinfo, subtree, drep, hfindex, &hnd.uuid);
 		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return offset;
 	}
 
 	/*
