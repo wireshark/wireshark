@@ -227,7 +227,7 @@ pipe_read_bytes(int pipe, char *bytes, int required) {
             /* EOF */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                   "read from pipe %d: EOF (capture closed?)", pipe);
-            return newly;
+            return offset;
         }
         if (newly < 0) {
             /* error */
@@ -240,7 +240,7 @@ pipe_read_bytes(int pipe, char *bytes, int required) {
         offset += newly;
     }
 
-    return newly;
+    return offset;
 }
 
 /* convert header values (indicator and 4-byte length) */
