@@ -191,6 +191,19 @@ static const char *yyTokenName[] = {
 #endif
 
 /*
+** This function returns the symbolic name associated with a token
+** value.
+*/
+const char *ParseTokenName(int tokenType){
+  if( tokenType>0 && tokenType<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
+    return yyTokenName[tokenType];
+  }else{
+    return "Unknown";
+  }
+}
+
+
+/*
 ** This function allocates a new parser.
 ** The only argument is a pointer to a function which works like
 ** malloc.

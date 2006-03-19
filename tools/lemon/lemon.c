@@ -196,6 +196,7 @@ struct lemon {
   char *name;              /* Name of the generated parser */
   char *arg;               /* Declaration of the 3th argument to parser */
   char *tokentype;         /* Type of terminal symbols in the parser stack */
+  char *vartype;           /* The default type of non-terminal symbols */
   char *start;             /* Name of the start symbol for the grammar */
   char *stacksize;         /* Size of the parser stack */
   char *include;           /* Code to put at the start of the C file */
@@ -212,6 +213,8 @@ struct lemon {
   int  extracodeln;        /* Line number for the start of the extra code */
   char *tokendest;         /* Code to execute to destroy token data */
   int  tokendestln;        /* Line number for token destroyer code */
+  char *vardest;           /* Code for the default non-terminal destructor */
+  int  vardestln;          /* Line number for default non-term destructor code*/
   char *filename;          /* Name of the input file */
   char *basename;          /* Basename of inputer file (no directory or path */
   char *outname;           /* Name of the current output file */
@@ -1242,9 +1245,11 @@ int main(int argc _U_, char **argv)
   lem.basisflag = basisflag;
   lem.nconflict = 0;
   lem.name = lem.include = lem.arg = lem.tokentype = lem.start = 0;
+  lem.vartype = 0;
   lem.stacksize = 0;
   lem.error = lem.overflow = lem.failure = lem.accept = lem.tokendest =
      lem.tokenprefix = lem.outname = lem.extracode = 0;
+  lem.vardest = 0;
   lem.tablesize = 0;
   Symbol_new("$");
   lem.errsym = Symbol_new("error");
@@ -1980,6 +1985,9 @@ to follow the previous rule.");
 	}else if( strcmp(x,"token_destructor")==0 ){
           psp->declargslot = &psp->gp->tokendest;
           psp->decllnslot = &psp->gp->tokendestln;
+	}else if( strcmp(x,"default_destructor")==0 ){
+          psp->declargslot = &psp->gp->vardest;
+          psp->decllnslot = &psp->gp->vardestln;
 	}else if( strcmp(x,"token_prefix")==0 ){
           psp->declargslot = &psp->gp->tokenprefix;
 	}else if( strcmp(x,"syntax_error")==0 ){
@@ -1998,6 +2006,8 @@ to follow the previous rule.");
           psp->declargslot = &(psp->gp->arg);
         }else if( strcmp(x,"token_type")==0 ){
           psp->declargslot = &(psp->gp->tokentype);
+        }else if( strcmp(x,"default_type")==0 ){
+          psp->declargslot = &(psp->gp->vartype);
         }else if( strcmp(x,"stack_size")==0 ){
           psp->declargslot = &(psp->gp->stacksize);
         }else if( strcmp(x,"start_symbol")==0 ){
@@ -2223,7 +2233,7 @@ void Parse(struct lemon *gp)
 	}
       }
       if( c==0 ){
-        ErrorMsg(ps.filename,startline,
+        ErrorMsg(ps.filename,ps.tokenlineno,
 "C code starting on this line is not terminated before the end of the file.");
         ps.errorcnt++;
         nextcp = cp;
@@ -2667,6 +2677,8 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 	  }
 	  if( access(buf,004)==0 ){
 	    tpltname = buf;
+	  }else if( access(templatename,004)==0 ){
+	    tpltname = templatename;
 	  }else{
 	    tpltname = pathsearch(lemp->argv0,templatename,0);
 		free(buf);
@@ -2720,10 +2732,13 @@ PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *le
    cp = lemp->tokendest;
    if( cp==0 ) return;
    fprintf(out,"#line %d \"%s\"\n{",lemp->tokendestln,lemp->filename);
- }else{
+ }else if( sp->destructor ){
    cp = sp->destructor;
-   if( cp==0 ) return;
    fprintf(out,"#line %d \"%s\"\n{",sp->destructorln,lemp->filename);
+ }else if( lemp->vardest ){
+   cp = lemp->vardest;
+   if( cp==0 ) return;
+   fprintf(out,"#line %d \"%s\"\n{",lemp->vardestln,lemp->filename);
  }
  for(; *cp; cp++){
    if( *cp=='$' && cp[1]=='$' ){
@@ -2740,7 +2755,7 @@ PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *le
 }
 
 /*
-** Return TRUE (non-zero) if the given symbol has a distructor.
++** Return TRUE (non-zero) if the given symbol has a destructor.
 */
 PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
 {
@@ -2748,7 +2763,7 @@ PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
   if( sp->type==TERMINAL ){
     ret = lemp->tokendest!=0;
   }else{
-    ret = sp->destructor!=0;
+    ret = lemp->vardest!=0 || sp->destructor!=0;
   }
   return ret;
 }
@@ -2814,7 +2829,7 @@ PRIVATE void emit_code(FILE *out, struct rule *rp, struct lemon *lemp,
  for(i=0; i<rp->nrhs; i++){
    if( rp->rhsalias[i] && !used[i] ){
      ErrorMsg(lemp->filename,rp->ruleline,
-       "Label $%s$ for \"%s(%s)\" is never used.",
+       "Label %s for \"%s(%s)\" is never used.",
        rp->rhsalias[i],rp->rhs[i]->name,rp->rhsalias[i]);
      lemp->errorcnt++;
    }else if( rp->rhsalias[i]==0 ){
@@ -2858,6 +2873,9 @@ PRIVATE void print_stack_union(
   types = (char**)malloc( arraysize * sizeof(char*) );
   for(i=0; i<arraysize; i++) types[i] = 0;
   maxdtlength = 0;
+  if( lemp->vartype ){
+    maxdtlength = strlen(lemp->vartype);
+  }
   for(i=0; i<lemp->nsymbol; i++){
     int len;
     struct symbol *sp = lemp->symbols[i];
@@ -2873,8 +2891,10 @@ PRIVATE void print_stack_union(
 
   /* Build a hash table of datatypes. The ".dtnum" field of each symbol
   ** is filled in with the hash index plus 1.  A ".dtnum" value of 0 is
-  ** used for terminal symbols and for nonterminals which don't specify
-  ** a datatype using the %type directive. */
+  ** used for terminal symbols.  If there is no %default_type defined then
+  ** 0 is also used as the .dtnum value for nonterminals which do not specify
+  ** a datatype using the %type directive.
+  */
   for(i=0; i<lemp->nsymbol; i++){
     struct symbol *sp = lemp->symbols[i];
     char *cp;
@@ -2882,11 +2902,12 @@ PRIVATE void print_stack_union(
       sp->dtnum = arraysize+1;
       continue;
     }
-    if( sp->type!=NONTERMINAL || sp->datatype==0 ){
+    if( sp->type!=NONTERMINAL || (sp->datatype==0 && lemp->vartype==0) ){
       sp->dtnum = 0;
       continue;
     }
     cp = sp->datatype;
+	if( cp==0 ) cp = lemp->vartype;
     j = 0;
     while( safe_isspace(*cp) ) cp++;
     while( *cp ) stddt[j++] = *cp++;
@@ -3175,6 +3196,20 @@ void ReportTable(
     fprintf(out,"    case %d:\n",sp->index); lineno++;
     emit_destructor_code(out,lemp->symbols[i],lemp,&lineno);
     fprintf(out,"      break;\n"); lineno++;
+  }
+  if( lemp->vardest ){
+    struct symbol *dflt_sp = 0;
+    for(i=0; i<lemp->nsymbol; i++){
+      struct symbol *sp = lemp->symbols[i];
+      if( sp==0 || sp->type==TERMINAL ||
+          sp->index<=0 || sp->destructor!=0 ) continue;
+      fprintf(out,"    case %d:\n",sp->index); lineno++;
+      dflt_sp = sp;
+    }
+    if( dflt_sp!=0 ){
+      emit_destructor_code(out,dflt_sp,lemp,&lineno);
+      fprintf(out,"      break;\n"); lineno++;
+    }
   }
   tplt_xfer(lemp->name,in,out,&lineno);
 
