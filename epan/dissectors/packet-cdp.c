@@ -87,7 +87,6 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_VTP_MGMT_DOMAIN    0x0009 /* VTP Domain, CTPv2 - see second URL */
 #define TYPE_NATIVE_VLAN        0x000a /* Native VLAN, CTPv2 - see second URL */
 #define TYPE_DUPLEX             0x000b /* Full/Half Duplex - see second URL */
-/*                                     Somewhere in here there's a Power Draw TLV */
 /*                              0x000c */
 /*                              0x000d */
 #define TYPE_VOIP_VLAN_REPLY    0x000e /* VoIP VLAN reply */
@@ -505,7 +504,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      break;
 	    case TYPE_POWER:
 		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "Power consumption: %d mW",
+			    offset, length, "Power consumption: %u mW",
 					   tvb_get_ntohs(tvb, offset + 4));
 		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
@@ -513,7 +512,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 			    offset + TLV_LENGTH, 2, length);
 		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Power consumption: %d mW",
+			    length - 4, "Power consumption: %u mW",
 				    tvb_get_ntohs(tvb, offset + 4));
 		offset += length;
 		break;
