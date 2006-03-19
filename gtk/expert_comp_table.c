@@ -196,23 +196,23 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 static void
 error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int action, type, selection;
-	error_equiv_table *err = (error_equiv_table *)callback_data;
-	char str[256];
-	const char *current_filter;
+    int action, type, selection;
+    error_equiv_table *err = (error_equiv_table *)callback_data;
+    char str[256];
+    const char *current_filter;
 
     action=(callback_action>>8)&0xff;
-	type=callback_action&0xff;
+    type=callback_action&0xff;
 
-	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(err->table)->selection, 0));
-	if(selection>=(int)err->num_procs){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No items are selected");
-		return;
-	}
-	/* translate it back from row index to index in procedures array */
-	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(err->table, selection));
+    selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(err->table)->selection, 0));
+    if(selection>=(int)err->num_procs){
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No items are selected");
+        return;
+    }
+    /* translate it back from row index to index in procedures array */
+    selection=GPOINTER_TO_INT(gtk_clist_get_row_data(err->table, selection));
 
-	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 
     /* Some expert data doesn't pass an expert item. Without this we cannot create a filter */
     /* But allow for searching of internet for error string */
@@ -223,9 +223,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                 return;
             }
         }
-    	switch(type){
-    	case 0:
-    		/* selected */
+        switch(type){
+        case 0:
+            /* selected */
             /* if no expert item was passed */
             if (err->procedures[selection].fvalue_value==NULL) {
                 g_snprintf(str, 255, "%s", err->procedures[selection].entries[2]);
@@ -235,9 +235,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                 /* expert item exists. Use it. */
                 g_snprintf(str, 255, "%s", err->procedures[selection].fvalue_value);
             }
-    		break;
-    	case 1:
-    		/* not selected */
+            break;
+        case 1:
+            /* not selected */
             /* if no expert item was passed */
             if (err->procedures[selection].fvalue_value==NULL) {
                 g_snprintf(str, 255, "!%s", err->procedures[selection].entries[2]);
@@ -247,50 +247,50 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                 /* expert item exists. Use it. */
                 g_snprintf(str, 255, "!(%s)", err->procedures[selection].fvalue_value);
             }
-    		break;
+            break;
             /* the remaining cases will only exist if the expert item exists so no need to check */
-    	case 2:
-    		/* and selected */
-    		g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
-    	case 3:
-    		/* or selected */
-    		g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
-    	case 4:
-    		/* and not selected */
-    		g_snprintf(str, 255, "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
-    	case 5:
-    		/* or not selected */
-    		g_snprintf(str, 255, "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
+        case 2:
+            /* and selected */
+            g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
+        case 3:
+            /* or selected */
+            g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
+        case 4:
+            /* and not selected */
+            g_snprintf(str, 255, "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
+        case 5:
+            /* or not selected */
+            g_snprintf(str, 255, "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
         default:
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu type - %u", type);
-    	}
+        }
     }
 
-	switch(action){
-	case 0:
-		/* match */
-		main_filter_packets(&cfile, str, FALSE);
+    switch(action){
+    case 0:
+        /* match */
+        main_filter_packets(&cfile, str, FALSE);
         break;
-	case 1:
-		/* prepare */
+    case 1:
+        /* prepare */
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-		break;
-	case 2:
-		/* find frame */
+        break;
+    case 2:
+        /* find frame */
         /* When trying to perform a find without expert item, we must pass
          * the expert string to the find window. The user might need to modify
          * the string and click on the text search to locate the packet in question.
          * So regardless of the type we will just bring up the find window and allow
          * the user to modify the search criteria and options.
          */
-            find_frame_with_filter(str);
-		break;
-	case 3:
-		/* find next */
+        find_frame_with_filter(str);
+        break;
+    case 3:
+        /* find next */
         /* In the case of find next, if there was no expert item, then most likely the expert
          * string was modified to locate the text inside the message. So we can't just perform
          * a find with the expert string or we will not really be performing a find next.
@@ -305,11 +305,11 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         else
         { 
             /* We have an expert item so just continue search without find dialog. */
-		    find_previous_next_frame_with_filter(str, FALSE);
+            find_previous_next_frame_with_filter(str, FALSE);
         }
-		break;
-	case 4:
-		/* find previous */
+        break;
+    case 4:
+        /* find previous */
         /* In the case of find previous, if there was no expert item, then most likely the expert
          * string was modified to locate the text inside the message. So we can't just perform
          * a find with the expert string or we will not really be performing a find previous.
@@ -324,25 +324,25 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         else
         { 
             /* We have an expert item so just continue search without find dialog. */
-		    find_previous_next_frame_with_filter(str, TRUE);
+            find_previous_next_frame_with_filter(str, TRUE);
         }
-		break;
-	case 5:
-		/* colorize procedure */
-		color_display_with_filter(str);
-		break;
-	case 6:
-		/* Lookup expert string on internet. Default search via www.google.com */
-		g_snprintf(str, 255, "http://www.google.com/search?hl=en&q=%s+'%s'", err->procedures[selection].entries[1], err->procedures[selection].entries[2]);
+        break;
+    case 5:
+        /* colorize procedure */
+        color_display_with_filter(str);
+        break;
+    case 6:
+        /* Lookup expert string on internet. Default search via www.google.com */
+        g_snprintf(str, 255, "http://www.google.com/search?hl=en&q=%s+'%s'", err->procedures[selection].entries[1], err->procedures[selection].entries[2]);
         browser_open_url(str);
-		break;
+        break;
     case 7:
         /* Goto the first occurance (packet) in the trace */
         cf_goto_frame(&cfile, err->procedures[selection].packet_num);
         break;
     default:
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu action - %u", action);
-	}
+    }
 
 }
 
@@ -444,85 +444,85 @@ error_create_popup_menu(error_equiv_table *err)
 void
 init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
 {
-	guint16 i, j;
-	column_arrows *col_arrows;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
-	GtkStyle *win_style;
-	GtkWidget *column_lb;
+    guint16 i, j;
+    column_arrows *col_arrows;
+    GdkBitmap *ascend_bm, *descend_bm;
+    GdkPixmap *ascend_pm, *descend_pm;
+    GtkStyle *win_style;
+    GtkWidget *column_lb;
 #if (GTK_MAJOR_VERSION >= 2)
     GtkWidget *copy_bt;
 #endif
     GtkTooltips *tooltips = gtk_tooltips_new();
-	const char *default_titles[] = { "Group", "Protocol", "Summary", "Count"};
+    const char *default_titles[] = { "Group", "Protocol", "Summary", "Count"};
 
-	err->scrolled_window=scrolled_window_new(NULL, NULL);
-	gtk_box_pack_start(GTK_BOX(vbox), err->scrolled_window, TRUE, TRUE, 0);
+    err->scrolled_window=scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), err->scrolled_window, TRUE, TRUE, 0);
 
-	err->table=(GtkCList *)gtk_clist_new(4);
+    err->table=(GtkCList *)gtk_clist_new(4);
 
-	gtk_widget_show(GTK_WIDGET(err->table));
-	gtk_widget_show(err->scrolled_window);
+    gtk_widget_show(GTK_WIDGET(err->table));
+    gtk_widget_show(err->scrolled_window);
 
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * 4);
-	win_style = gtk_widget_get_style(err->scrolled_window);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
-	for (i = 0; i < 4; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(default_titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
+    col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * 4);
+    win_style = gtk_widget_get_style(err->scrolled_window);
+    ascend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
+            &ascend_bm,
+            &win_style->bg[GTK_STATE_NORMAL],
+            (gchar **)clist_ascend_xpm);
+    descend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
+            &descend_bm,
+            &win_style->bg[GTK_STATE_NORMAL],
+            (gchar **)clist_descend_xpm);
+    for (i = 0; i < 4; i++) {
+        col_arrows[i].table = gtk_table_new(2, 2, FALSE);
+        gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
+        column_lb = gtk_label_new(default_titles[i]);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_widget_show(column_lb);
 
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		if (i == 3) {
-			gtk_widget_show(col_arrows[i].descend_pm);
-		}
-		gtk_clist_set_column_widget(GTK_CLIST(err->table), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
-	}
-	gtk_clist_column_titles_show(GTK_CLIST(err->table));
+        col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        if (i == 3) {
+            gtk_widget_show(col_arrows[i].descend_pm);
+        }
+        gtk_clist_set_column_widget(GTK_CLIST(err->table), i, col_arrows[i].table);
+        gtk_widget_show(col_arrows[i].table);
+    }
+    gtk_clist_column_titles_show(GTK_CLIST(err->table));
 
-	gtk_clist_set_compare_func(err->table, error_sort_column);
-	gtk_clist_set_sort_column(err->table, 3);
-	gtk_clist_set_sort_type(err->table, GTK_SORT_DESCENDING);
-
-
-	/*XXX instead of this we should probably have some code to
-		dynamically adjust the width of the columns */
-	gtk_clist_set_column_width(err->table, 0, 75);
-	gtk_clist_set_column_width(err->table, 1, 75);
-	gtk_clist_set_column_width(err->table, 2, 400);
-	gtk_clist_set_column_width(err->table, 3, 50);
+    gtk_clist_set_compare_func(err->table, error_sort_column);
+    gtk_clist_set_sort_column(err->table, 3);
+    gtk_clist_set_sort_type(err->table, GTK_SORT_DESCENDING);
 
 
-	gtk_clist_set_shadow_type(err->table, GTK_SHADOW_IN);
-	gtk_clist_column_titles_show(err->table);
-	gtk_container_add(GTK_CONTAINER(err->scrolled_window), (GtkWidget *)err->table);
-
-	SIGNAL_CONNECT(err->table, "click-column", error_click_column_cb, col_arrows);
-
-	gtk_widget_show(GTK_WIDGET(err->table));
-	gtk_widget_show(err->scrolled_window);
+    /*XXX instead of this we should probably have some code to
+        dynamically adjust the width of the columns */
+    gtk_clist_set_column_width(err->table, 0, 75);
+    gtk_clist_set_column_width(err->table, 1, 75);
+    gtk_clist_set_column_width(err->table, 2, 400);
+    gtk_clist_set_column_width(err->table, 3, 50);
 
 
-	err->num_procs=num_procs;
-	err->procedures=g_malloc(sizeof(error_procedure_t)*(num_procs+1));
-	for(i=0;i<num_procs;i++){
-		for(j=0;j<3;j++){
-			err->procedures[i].entries[j]=NULL; /* reset all values */
-		}
-	}
+    gtk_clist_set_shadow_type(err->table, GTK_SHADOW_IN);
+    gtk_clist_column_titles_show(err->table);
+    gtk_container_add(GTK_CONTAINER(err->scrolled_window), (GtkWidget *)err->table);
+
+    SIGNAL_CONNECT(err->table, "click-column", error_click_column_cb, col_arrows);
+
+    gtk_widget_show(GTK_WIDGET(err->table));
+    gtk_widget_show(err->scrolled_window);
+
+
+    err->num_procs=num_procs;
+    err->procedures=g_malloc(sizeof(error_procedure_t)*(num_procs+1));
+    for(i=0;i<num_procs;i++){
+        for(j=0;j<3;j++){
+            err->procedures[i].entries[j]=NULL; /* reset all values */
+        }
+    }
 
 #if (GTK_MAJOR_VERSION >= 2)
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
@@ -534,8 +534,8 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
     gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0);
 #endif
 
-	/* create popup menu for this table */
-  	error_create_popup_menu(err);
+    /* create popup menu for this table */
+    error_create_popup_menu(err);
 }
 
 static gint find_summary_data(error_equiv_table *err, const expert_info_t *expert_data)
@@ -561,22 +561,22 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
     guint16 j;
     gint row=0;
 
-	/* we have discovered a new procedure. Extend the table accordingly */
+    /* we have discovered a new procedure. Extend the table accordingly */
     row = find_summary_data(err, expert_data);
-	if(row==-1){
+    if(row==-1){
         row = 0;
         old_num_procs++;
-		err->procedures=g_realloc(err->procedures, (sizeof(error_procedure_t)*(old_num_procs+1)));
+        err->procedures=g_realloc(err->procedures, (sizeof(error_procedure_t)*(old_num_procs+1)));
         err->procedures[err->num_procs].count=0;
-		for(j=0;j<4;j++){
-			err->procedures[err->num_procs].entries[j]=NULL;
-		}
+        for(j=0;j<4;j++){
+            err->procedures[err->num_procs].entries[j]=NULL;
+        }
         err->procedures[err->num_procs].packet_num = (guint32)expert_data->packet_num;                        /* First packet num */
-	}
-	err->procedures[err->num_procs].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL);   /* Group */
-    err->procedures[err->num_procs].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol, NULL);    /* Protocol */
-    err->procedures[err->num_procs].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary, NULL);     /* Summary */
-	err->procedures[err->num_procs].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
+    }
+    err->procedures[err->num_procs].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));   /* Group */
+    err->procedures[err->num_procs].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol);    /* Protocol */
+    err->procedures[err->num_procs].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary);     /* Summary */
+    err->procedures[err->num_procs].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
     err->procedures[err->num_procs].fvalue_value = NULL;
     if (expert_data->pitem && strcmp(expert_data->pitem->finfo->value.ftype->name,"FT_NONE")!=0) {
         err->procedures[err->num_procs].fvalue_value = g_strdup_printf("%s", proto_construct_dfilter_string(expert_data->pitem->finfo, NULL));
@@ -587,8 +587,8 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 void
 add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
 {
-	error_procedure_t *errp;
-	gint row;
+    error_procedure_t *errp;
+    gint row;
     gint index;
 
     index = find_summary_data(err,expert_data);
@@ -600,22 +600,22 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find expert data. Aborting");
         return;
     }
-	errp=&err->procedures[index];
+    errp=&err->procedures[index];
 
-	/*
-	 * If the count of calls for this procedure is currently zero, it's
-	 * going to become non-zero, so add a row for it (we don't want
-	 * rows for procedures that have no calls - especially if the
-	 * procedure has no calls because the index doesn't correspond
-	 * to a procedure, but is an unused/reserved value).
-	 *
-	 * (Yes, this means that the rows aren't in order by anything
-	 * interesting.  That's why we have the table sorted by a column.)
-	 */
-	if (errp->count==0){
-		row=gtk_clist_append(err->table, err->procedures[index].entries);
-		gtk_clist_set_row_data(err->table, row, (gpointer) index);
-	}
+    /*
+     * If the count of calls for this procedure is currently zero, it's
+     * going to become non-zero, so add a row for it (we don't want
+     * rows for procedures that have no calls - especially if the
+     * procedure has no calls because the index doesn't correspond
+     * to a procedure, but is an unused/reserved value).
+     *
+     * (Yes, this means that the rows aren't in order by anything
+     * interesting.  That's why we have the table sorted by a column.)
+     */
+    if (errp->count==0){
+        row=gtk_clist_append(err->table, err->procedures[index].entries);
+        gtk_clist_set_row_data(err->table, row, (gpointer) index);
+    }
     errp->count++;
     err->procedures[index].entries[3] = (char *)g_strdup_printf("%d", errp->count);
 }
@@ -623,56 +623,56 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
 void
 draw_error_table_data(error_equiv_table *err)
 {
-	int i,j;
-	char *strp;
+    int i,j;
+    char *strp;
 
-	for(i=0;i<err->num_procs;i++){
-		/* ignore procedures with no calls (they don't have CList rows) */
-		if(err->procedures[i].count==0){
-			continue;
-		}
+    for(i=0;i<err->num_procs;i++){
+        /* ignore procedures with no calls (they don't have CList rows) */
+        if(err->procedures[i].count==0){
+            continue;
+        }
 
-		j=gtk_clist_find_row_from_data(err->table, (gpointer)i);
-		strp=g_strdup_printf("%d", err->procedures[i].count);
-		gtk_clist_set_text(err->table, j, 3, strp);
-		err->procedures[i].entries[3]=(char *)strp;
+        j=gtk_clist_find_row_from_data(err->table, (gpointer)i);
+        strp=g_strdup_printf("%d", err->procedures[i].count);
+        gtk_clist_set_text(err->table, j, 3, strp);
+        err->procedures[i].entries[3]=(char *)strp;
 
 
-	}
-	gtk_clist_sort(err->table);
+    }
+    gtk_clist_sort(err->table);
 }
 
 
 void
 reset_error_table_data(error_equiv_table *err)
 {
-	guint16 i;
+    guint16 i;
 
-	for(i=0;i<err->num_procs;i++){
-		err->procedures[i].entries[0] = NULL;
-		err->procedures[i].entries[1] = NULL;
-		err->procedures[i].entries[2] = NULL;
-		err->procedures[i].entries[3] = NULL;
+    for(i=0;i<err->num_procs;i++){
+        err->procedures[i].entries[0] = NULL;
+        err->procedures[i].entries[1] = NULL;
+        err->procedures[i].entries[2] = NULL;
+        err->procedures[i].entries[3] = NULL;
         err->procedures[i].packet_num=0;
-	}
-	gtk_clist_clear(err->table);
+    }
+    gtk_clist_clear(err->table);
     err->num_procs = 0;
 }
 
 void
 free_error_table_data(error_equiv_table *err)
 {
-	guint16 i,j;
+    guint16 i,j;
 
-	for(i=0;i<err->num_procs;i++){
-		for(j=0;j<4;j++){
-			if(err->procedures[i].entries[j]){
-				err->procedures[i].entries[j]=NULL;
-			}
+    for(i=0;i<err->num_procs;i++){
+        for(j=0;j<4;j++){
+            if(err->procedures[i].entries[j]){
+                err->procedures[i].entries[j]=NULL;
+            }
             err->procedures[i].fvalue_value=NULL;
             err->procedures[i].packet_num=0;
-		}
-	}
-	err->procedures=NULL;
-	err->num_procs=0;
+        }
+    }
+    err->procedures=NULL;
+    err->num_procs=0;
 }
