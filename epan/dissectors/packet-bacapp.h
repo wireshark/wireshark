@@ -357,7 +357,7 @@ fConfirmedServiceAck (tvbuff_t *tvb, proto_tree *tree, guint offset, gint servic
  * @return modified offset
  */
 static guint
-fAcknowlegdeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAcknowledgeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
  * ConfirmedCOVNotification-Request ::= SEQUENCE {
