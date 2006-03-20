@@ -2733,7 +2733,7 @@ PRIVATE void tplt_print(FILE *out, struct lemon *lemp, char *str,
 PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *lemp,
     int *lineno)
 {
- char *cp;
+ char *cp = 0;
 
  int linecnt = 0;
  if( sp->type==TERMINAL ){
@@ -2763,7 +2763,7 @@ PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *le
 }
 
 /*
-+** Return TRUE (non-zero) if the given symbol has a destructor.
+** Return TRUE (non-zero) if the given symbol has a destructor.
 */
 PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
 {
@@ -2796,9 +2796,9 @@ PRIVATE void emit_code(FILE *out, struct rule *rp, struct lemon *lemp,
  if( rp->code ){
    fprintf(out,"#line %d \"%s\"\n{",rp->line,lemp->filename);
    for(cp=rp->code; *cp; cp++){
-     if( safe_isalpha(*cp) && (cp==rp->code || !safe_isalnum(cp[-1])) ){
+     if( safe_isalpha(*cp) && (cp==rp->code || (!safe_isalnum(cp[-1]) && cp[-1]!='_')) ){
        char saved;
-       for(xp= &cp[1]; safe_isalnum(*xp); xp++);
+       for(xp= &cp[1]; safe_isalnum(*xp)|| *xp=='_'; xp++);
        saved = *xp;
        *xp = 0;
        if( rp->lhsalias && strcmp(cp,rp->lhsalias)==0 ){
@@ -2966,6 +2966,21 @@ PRIVATE void print_stack_union(
   *plineno = lineno;
 }
 
+/*
+** Return the name of a C datatype able to represent values between
+** 0 and N, inclusive.
+*/
+static const char *minimum_size_type(int N){
+  if( N<=255 ){
+    return "unsigned char";
+  }else if( N<65535 ){
+    return "unsigned short int";
+  }else{
+    return "unsigned int";
+  }
+}
+
+
 /* Generate C source code for the parser */
 void ReportTable(
     struct lemon *lemp,
@@ -3017,10 +3032,10 @@ void ReportTable(
   /* Generate the defines */
   fprintf(out,"/* \001 */\n");
   fprintf(out,"#define YYCODETYPE %s\n",
-    lemp->nsymbol>250?"int":"unsigned char");  lineno++;
+    minimum_size_type(lemp->nsymbol+5)); lineno++;
   fprintf(out,"#define YYNOCODE %d\n",lemp->nsymbol+1);  lineno++;
   fprintf(out,"#define YYACTIONTYPE %s\n",
-    lemp->nstate+lemp->nrule>250?"int":"unsigned char");  lineno++;
+    minimum_size_type(lemp->nstate+lemp->nrule+5));  lineno++;
   print_stack_union(out,lemp,&lineno,mhflag);
   if( lemp->stacksize ){
     if( atoi(lemp->stacksize)<=0 ){
@@ -3066,13 +3081,16 @@ void ReportTable(
   ** structure:
   **   struct yyActionEntry {
   **       YYCODETYPE            lookahead;
+  **       YYCODETYPE            next;
   **       YYACTIONTYPE          action;
-  **       struct yyActionEntry *next;
   **   }
   **
   ** The entries are grouped into hash tables, one hash table for each
-  ** parser state.  The hash table has a size which is the smallest
-  ** power of two needed to hold all entries.
+  ** parser state.  The hash table has a size which is the number of
+  ** entries in that table.  In case of a collision, the "next" value
+  ** contains one more than the index into the hash table of the next
+  ** entry in the collision chain.  A "next" value of 0 means the end
+  ** of the chain has been reached.
   */
   tablecnt = 0;
 
@@ -3092,8 +3110,7 @@ void ReportTable(
         stp->naction++;
       }
     }
-    tablesize = 1;
-    while( tablesize<stp->naction ) tablesize += tablesize;
+    tablesize = stp->naction;
     assert( tablesize<= sizeof(table)/sizeof(table[0]) );
     for(j=0; j<tablesize; j++){
       table[j] = 0;
@@ -3108,7 +3125,7 @@ void ReportTable(
       if( ap->sp->index==lemp->nsymbol ){
         stp->tabdfltact = action;
       }else if( action>=0 ){
-        h = ap->sp->index & (tablesize-1);
+        h = ap->sp->index % tablesize;
         ap->collide = table[h];
         table[h] = ap;
       }
@@ -3126,24 +3143,18 @@ void ReportTable(
     }
 
     /* Print the hash table */
-    fprintf(out,"/* State %d */\n",stp->index); lineno++;
+    if( tablesize>0 ){
+      fprintf(out,"/* State %d */\n",stp->index); lineno++;
+    }
     for(j=0; j<tablesize; j++){
-      if( table[j]==0 ){
-        fprintf(out,
-          "  {YYNOCODE,0,0}, /* Unused */\n");
-      }else{
-        fprintf(out,"  {%4d,%4d, ",
+      assert( table[j]!=0 );
+      fprintf(out,"  {%4d,%4d,%4d}, /* %2d: ",
           table[j]->sp->index,
-          compute_action(lemp,table[j]));
-        if( collide[j]>=0 ){
-          fprintf(out,"&yyActionTable[%4d] }, /* ",
-            collide[j] + tablecnt);
-        }else{
-          fprintf(out,"0                    }, /* ");
-        }
-        PrintAction(table[j],out,22);
-        fprintf(out," */\n");
-      }
+		  collide[j]+1,
+          compute_action(lemp,table[j]),
+		  j+1);
+      PrintAction(table[j],out,22);
+      fprintf(out," */\n"); 
       lineno++;
     }
 
@@ -3158,18 +3169,15 @@ void ReportTable(
   ** Each entry is an element of the following structure:
   **    struct yyStateEntry {
   **      struct yyActionEntry *hashtbl;
-  **      int mask;
+  **      YYCODETYPE nEntry;
   **      YYACTIONTYPE actionDefault;
   **    }
   */
   for(i=0; i<lemp->nstate; i++){
-    size_t tablesize;
     stp = lemp->sorted[i];
-    tablesize = 1;
-    while( tablesize<stp->naction ) tablesize += tablesize;
-    fprintf(out,"  { &yyActionTable[%d], %lu, %d},\n",
+	fprintf(out,"  { &yyActionTable[%d],%4d,%4d },\n",
       stp->tabstart,
-      (unsigned long)tablesize - 1,
+	  stp->naction,
       stp->tabdfltact); lineno++;
   }
   tplt_xfer(lemp->name,in,out,&lineno);
