@@ -196,7 +196,6 @@ struct lemon {
   char *name;              /* Name of the generated parser */
   char *arg;               /* Declaration of the 3th argument to parser */
   char *tokentype;         /* Type of terminal symbols in the parser stack */
-  char *vartype;           /* The default type of non-terminal symbols */
   char *start;             /* Name of the start symbol for the grammar */
   char *stacksize;         /* Size of the parser stack */
   char *include;           /* Code to put at the start of the C file */
@@ -213,8 +212,6 @@ struct lemon {
   int  extracodeln;        /* Line number for the start of the extra code */
   char *tokendest;         /* Code to execute to destroy token data */
   int  tokendestln;        /* Line number for token destroyer code */
-  char *vardest;           /* Code for the default non-terminal destructor */
-  int  vardestln;          /* Line number for default non-term destructor code*/
   char *filename;          /* Name of the input file */
   char *basename;          /* Basename of inputer file (no directory or path */
   char *outname;           /* Name of the current output file */
@@ -792,7 +789,7 @@ void FindActions(struct lemon *lemp)
     stp = lemp->sorted[i];
     assert( stp->ap );
     stp->ap = Action_sort(stp->ap);
-    for(ap=stp->ap; ap && ap->next; ap=ap->next){
+    for(ap=stp->ap; ap && ap->next; ap=nap){
       for(nap=ap->next; nap && nap->sp==ap->sp; nap=nap->next){
          /* The two actions "ap" and "nap" have the same lookahead.
          ** Figure out which one should be used */
@@ -869,17 +866,9 @@ static int resolve_conflict(
       apx->type = RD_RESOLVED;
     }
   }else{
-    assert( 
-      apx->type==SH_RESOLVED ||
-      apx->type==RD_RESOLVED ||
-      apx->type==CONFLICT ||
-      apy->type==SH_RESOLVED ||
-      apy->type==RD_RESOLVED ||
-      apy->type==CONFLICT
-    );
-    /* The REDUCE/SHIFT case cannot happen because SHIFTs come before
-    ** REDUCEs on the list.  If we reach this point it must be because
-    ** the parser conflict had already been resolved. */
+    /* Can't happen.  Shifts have to come before Reduces on the
+    ** list because the reduces were added last.  Hence, if apx->type==REDUCE
+    ** then it is impossible for apy->type==SHIFT */
   }
   return errcnt;
 }
@@ -1253,11 +1242,9 @@ int main(int argc _U_, char **argv)
   lem.basisflag = basisflag;
   lem.nconflict = 0;
   lem.name = lem.include = lem.arg = lem.tokentype = lem.start = 0;
-  lem.vartype = 0;
   lem.stacksize = 0;
   lem.error = lem.overflow = lem.failure = lem.accept = lem.tokendest =
      lem.tokenprefix = lem.outname = lem.extracode = 0;
-  lem.vardest = 0;
   lem.tablesize = 0;
   Symbol_new("$");
   lem.errsym = Symbol_new("error");
@@ -1551,7 +1538,6 @@ static int handleswitch(int i, FILE *err)
   int j;
   int errcnt = 0;
   cp = strchr(argv[i],'=');
-  assert( cp!=0 );
   *cp = 0;
   for(j=0; op[j].label; j++){
     if( strcmp(argv[i],op[j].label)==0 ) break;
@@ -1993,9 +1979,6 @@ to follow the previous rule.");
 	}else if( strcmp(x,"token_destructor")==0 ){
           psp->declargslot = &psp->gp->tokendest;
           psp->decllnslot = &psp->gp->tokendestln;
-	}else if( strcmp(x,"default_destructor")==0 ){
-          psp->declargslot = &psp->gp->vardest;
-          psp->decllnslot = &psp->gp->vardestln;
 	}else if( strcmp(x,"token_prefix")==0 ){
           psp->declargslot = &psp->gp->tokenprefix;
 	}else if( strcmp(x,"syntax_error")==0 ){
@@ -2014,8 +1997,6 @@ to follow the previous rule.");
           psp->declargslot = &(psp->gp->arg);
         }else if( strcmp(x,"token_type")==0 ){
           psp->declargslot = &(psp->gp->tokentype);
-        }else if( strcmp(x,"default_type")==0 ){
-          psp->declargslot = &(psp->gp->vartype);
         }else if( strcmp(x,"stack_size")==0 ){
           psp->declargslot = &(psp->gp->stacksize);
         }else if( strcmp(x,"start_symbol")==0 ){
@@ -2241,7 +2222,7 @@ void Parse(struct lemon *gp)
 	}
       }
       if( c==0 ){
-        ErrorMsg(ps.filename,ps.tokenlineno,
+        ErrorMsg(ps.filename,startline,
 "C code starting on this line is not terminated before the end of the file.");
         ps.errorcnt++;
         nextcp = cp;
@@ -2667,17 +2648,16 @@ PRIVATE void tplt_xfer(const char *name, FILE *in, FILE *out, int *lineno)
 PRIVATE FILE *tplt_open(struct lemon *lemp)
 {
   static char templatename[] = "lempar.c";
-  char* buf;
+  char buf[1000];
   FILE *in;
-  char *tpltname = NULL;
+  char *tpltname;
   char *cp;
 
   if (lemp->templatename) {
-	  tpltname = strdup(lemp->templatename);
+	  tpltname = lemp->templatename;
   }
   else {
 	  cp = strrchr(lemp->filename,'.');
-	  buf = malloc(1000);
 	  if( cp ){
 	    sprintf(buf,"%.*s.lt",(int)(cp - lemp->filename),lemp->filename);
 	  }else{
@@ -2685,29 +2665,22 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 	  }
 	  if( access(buf,004)==0 ){
 	    tpltname = buf;
-	  }else if( access(templatename,004)==0 ){
-	    tpltname = templatename;
 	  }else{
 	    tpltname = pathsearch(lemp->argv0,templatename,0);
-		free(buf);
 	  }
   }
   if( tpltname==0 ){
     fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
     templatename);
     lemp->errorcnt++;
-	free(tpltname);
     return 0;
   }
   in = fopen(tpltname,"r");
-  free(tpltname);
-
   if( in==0 ){
     fprintf(stderr,"Can't open the template file \"%s\".\n",templatename);
     lemp->errorcnt++;
-	return 0;
+    return 0;
   }
-
   return in;
 }
 
@@ -2740,13 +2713,10 @@ PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *le
    cp = lemp->tokendest;
    if( cp==0 ) return;
    fprintf(out,"#line %d \"%s\"\n{",lemp->tokendestln,lemp->filename);
- }else if( sp->destructor ){
+ }else{
    cp = sp->destructor;
-   fprintf(out,"#line %d \"%s\"\n{",sp->destructorln,lemp->filename);
- }else if( lemp->vardest ){
-   cp = lemp->vardest;
    if( cp==0 ) return;
-   fprintf(out,"#line %d \"%s\"\n{",lemp->vardestln,lemp->filename);
+   fprintf(out,"#line %d \"%s\"\n{",sp->destructorln,lemp->filename);
  }
  for(; *cp; cp++){
    if( *cp=='$' && cp[1]=='$' ){
@@ -2763,7 +2733,7 @@ PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *le
 }
 
 /*
-+** Return TRUE (non-zero) if the given symbol has a destructor.
+** Return TRUE (non-zero) if the given symbol has a distructor.
 */
 PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
 {
@@ -2771,7 +2741,7 @@ PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
   if( sp->type==TERMINAL ){
     ret = lemp->tokendest!=0;
   }else{
-    ret = lemp->vardest!=0 || sp->destructor!=0;
+    ret = sp->destructor!=0;
   }
   return ret;
 }
@@ -2837,7 +2807,7 @@ PRIVATE void emit_code(FILE *out, struct rule *rp, struct lemon *lemp,
  for(i=0; i<rp->nrhs; i++){
    if( rp->rhsalias[i] && !used[i] ){
      ErrorMsg(lemp->filename,rp->ruleline,
-       "Label %s for \"%s(%s)\" is never used.",
+       "Label $%s$ for \"%s(%s)\" is never used.",
        rp->rhsalias[i],rp->rhs[i]->name,rp->rhsalias[i]);
      lemp->errorcnt++;
    }else if( rp->rhsalias[i]==0 ){
@@ -2881,9 +2851,6 @@ PRIVATE void print_stack_union(
   types = (char**)malloc( arraysize * sizeof(char*) );
   for(i=0; i<arraysize; i++) types[i] = 0;
   maxdtlength = 0;
-  if( lemp->vartype ){
-    maxdtlength = strlen(lemp->vartype);
-  }
   for(i=0; i<lemp->nsymbol; i++){
     int len;
     struct symbol *sp = lemp->symbols[i];
@@ -2899,10 +2866,8 @@ PRIVATE void print_stack_union(
 
   /* Build a hash table of datatypes. The ".dtnum" field of each symbol
   ** is filled in with the hash index plus 1.  A ".dtnum" value of 0 is
-  ** used for terminal symbols.  If there is no %default_type defined then
-  ** 0 is also used as the .dtnum value for nonterminals which do not specify
-  ** a datatype using the %type directive.
-  */
+  ** used for terminal symbols and for nonterminals which don't specify
+  ** a datatype using the %type directive. */
   for(i=0; i<lemp->nsymbol; i++){
     struct symbol *sp = lemp->symbols[i];
     char *cp;
@@ -2910,12 +2875,11 @@ PRIVATE void print_stack_union(
       sp->dtnum = arraysize+1;
       continue;
     }
-    if( sp->type!=NONTERMINAL || (sp->datatype==0 && lemp->vartype==0) ){
+    if( sp->type!=NONTERMINAL || sp->datatype==0 ){
       sp->dtnum = 0;
       continue;
     }
     cp = sp->datatype;
-	if( cp==0 ) cp = lemp->vartype;
     j = 0;
     while( safe_isspace(*cp) ) cp++;
     while( *cp ) stddt[j++] = *cp++;
@@ -2925,7 +2889,8 @@ PRIVATE void print_stack_union(
     for(j=0; stddt[j]; j++){
       hash = hash*53 + stddt[j];
     }
-    hash = (hash & 0x7fffffff)%arraysize;
+    if( hash<0 ) hash = -hash;
+    hash = hash%arraysize;
     while( types[hash] ){
       if( strcmp(types[hash],stddt)==0 ){
         sp->dtnum = hash + 1;
@@ -3205,20 +3170,6 @@ void ReportTable(
     emit_destructor_code(out,lemp->symbols[i],lemp,&lineno);
     fprintf(out,"      break;\n"); lineno++;
   }
-  if( lemp->vardest ){
-    struct symbol *dflt_sp = 0;
-    for(i=0; i<lemp->nsymbol; i++){
-      struct symbol *sp = lemp->symbols[i];
-      if( sp==0 || sp->type==TERMINAL ||
-          sp->index<=0 || sp->destructor!=0 ) continue;
-      fprintf(out,"    case %d:\n",sp->index); lineno++;
-      dflt_sp = sp;
-    }
-    if( dflt_sp!=0 ){
-      emit_destructor_code(out,dflt_sp,lemp,&lineno);
-      fprintf(out,"      break;\n"); lineno++;
-    }
-  }
   tplt_xfer(lemp->name,in,out,&lineno);
 
   /* Generate code which executes whenever the parser stack overflows */
@@ -3302,58 +3253,47 @@ void ReportHeader(struct lemon *lemp)
 /* Reduce the size of the action tables, if possible, by making use
 ** of defaults.
 **
-** In this version, we take the most frequent REDUCE action and make
-** it the default.  Only default a reduce if there are more than one.
-
+** In this version, if all REDUCE actions use the same rule, make
+** them the default.  Only default them if there are more than one.
 */
 void CompressTables(struct lemon *lemp)
 {
   struct state *stp;
-  struct action *ap, *ap2;
-  struct rule *rp, *rp2, *rbest;
-  int nbest, n;
+  struct action *ap;
+  struct rule *rp;
   int i;
   int cnt;
 
   for(i=0; i<lemp->nstate; i++){
     stp = lemp->sorted[i];
-    nbest = 0;
-    rbest = 0;
 
-    for(ap=stp->ap; ap; ap=ap->next){
-      if( ap->type!=REDUCE ) continue;
-      rp = ap->x.rp;
-      if( rp==rbest ) continue;
-      n = 1;
-      for(ap2=ap->next; ap2; ap2=ap2->next){
-        if( ap2->type!=REDUCE ) continue;
-        rp2 = ap2->x.rp;
-        if( rp2==rbest ) continue;
-        if( rp2==rp ) n++;
-      }
-      if( n>nbest ){
-        nbest = n;
-        rbest = rp;
+    /* Find the first REDUCE action */
+    for(ap=stp->ap; ap && ap->type!=REDUCE; ap=ap->next);
+    if( ap==0 ) continue;
+
+    /* Remember the rule used */
+    rp = ap->x.rp;
+
+    /* See if all other REDUCE acitons use the same rule */
+    cnt = 1;
+    for(ap=ap->next; ap; ap=ap->next){
+      if( ap->type==REDUCE ){
+        if( ap->x.rp!=rp ) break;
+        cnt++;
       }
     }
- 
-    /* Do not make a default if the number of rules to default
-    ** is not at least 2 */
-    if( nbest<2 ) continue;
+    if( ap || cnt==1 ) continue;
 
-    /* Combine matching REDUCE actions into a single default */
-    for(ap=stp->ap; ap; ap=ap->next){
-      if( ap->type==REDUCE && ap->x.rp==rbest ) break;
-	}
+    /* Combine all REDUCE actions into a single default */
+    for(ap=stp->ap; ap && ap->type!=REDUCE; ap=ap->next);
     assert( ap );
     ap->sp = Symbol_new("{default}");
     for(ap=ap->next; ap; ap=ap->next){
-      if( ap->type==REDUCE && ap->x.rp==rbest ) ap->type = NOT_USED;
+      if( ap->type==REDUCE ) ap->type = NOT_USED;
     }
     stp->ap = Action_sort(stp->ap);
   }
 }
-
 /***************** From the file "set.c" ************************************/
 /*
 ** Set manipulation routines for the LEMON parser generator.
