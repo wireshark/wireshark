@@ -34,6 +34,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-tcp.h"
 
 static int proto_dlsw = -1;

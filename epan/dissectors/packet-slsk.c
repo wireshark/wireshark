@@ -42,6 +42,7 @@
 
 #include <epan/packet.h>
 #include <epan/tvbuff.h>
+#include <epan/emem.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>

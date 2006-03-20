@@ -37,6 +37,7 @@
 #include <epan/ip_opts.h>
 #include <epan/follow.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-tcp.h"
 #include "packet-ip.h"
 #include "packet-frame.h"
@@ -44,7 +45,6 @@
 #include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/slab.h>
 #include <epan/expert.h>
 
@@ -212,7 +212,6 @@ static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
 static GHashTable *tcp_pdu_tracking_table = NULL;
 static GHashTable *tcp_pdu_skipping_table = NULL;
 
-static se_tree_t *tcp_analyze_acked_table = NULL;
 static se_tree_t *tcp_pdu_time_table = NULL;
 
 static void
@@ -266,6 +265,8 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow2.window=0;
 		tcpd->flow2.win_scale=-1;
 		tcpd->flow2.pdu_seq=NULL;
+		tcpd->acked_table=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
+
 
 		conversation_add_proto_data(conv, proto_tcp, tcpd);
 	}
@@ -495,7 +496,7 @@ tcp_get_relative_seq_ack(guint32 *seq, guint32 *ack, guint32 *win, struct tcp_an
 static void
 tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_analysis *tcpd)
 {
-	tcpd->ta=se_tree_lookup32(tcp_analyze_acked_table, frame);
+	tcpd->ta=se_tree_lookup32(tcpd->acked_table, frame);
 	if((!tcpd->ta) && createflag){
 		tcpd->ta=se_alloc(sizeof(struct tcp_acked));
 		tcpd->ta->frame_acked=0;
@@ -504,7 +505,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_anal
 		tcpd->ta->flags=0;
 		tcpd->ta->dupack_num=0;
 		tcpd->ta->dupack_frame=0;
-		se_tree_insert32(tcp_analyze_acked_table, frame, (void *)tcpd->ta);
+		se_tree_insert32(tcpd->acked_table, frame, (void *)tcpd->ta);
 	}
 }
 
@@ -3086,7 +3087,6 @@ proto_register_tcp(void)
 	    &try_heuristic_first);
 
 	tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "tcp_pdu_time_table");
-	tcp_analyze_acked_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 	register_init_routine(tcp_analyze_seq_init);
 	register_init_routine(tcp_desegment_init);
 	register_init_routine(tcp_fragment_init);

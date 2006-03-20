@@ -33,12 +33,12 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dns.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
-#include <epan/emem.h>
 
 static int proto_nbns = -1;
 static int hf_nbns_flags = -1;

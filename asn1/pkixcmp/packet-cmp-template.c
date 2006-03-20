@@ -39,6 +39,7 @@
 #include "packet-crmf.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include <epan/emem.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/nstime.h>

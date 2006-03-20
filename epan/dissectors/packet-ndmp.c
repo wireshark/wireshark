@@ -40,6 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 #include "packet-rpc.h"
 #include "packet-tcp.h"
 #include "packet-scsi.h"

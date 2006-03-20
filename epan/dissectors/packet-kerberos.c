@@ -82,6 +82,7 @@
 #include <epan/strutil.h>
 
 #include <epan/conversation.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-kerberos.h>
 #include <epan/dissectors/packet-netbios.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -95,7 +96,6 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <epan/dissectors/packet-gssapi.h>
-#include <epan/emem.h>
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88

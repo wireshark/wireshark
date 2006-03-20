@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
+#include <epan/emem.h>
 #include <epan/stat_cmd_args.h>
 #include "../stat_menu.h"
 #include "gui_stat_menu.h"

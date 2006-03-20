@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include "packet-tcp.h"
 #include <epan/reassemble.h>

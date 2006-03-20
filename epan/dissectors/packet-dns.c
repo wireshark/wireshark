@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include "packet-dns.h"

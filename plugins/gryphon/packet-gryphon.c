@@ -36,6 +36,7 @@
 
 #include <gmodule.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-gryphon.h"
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>

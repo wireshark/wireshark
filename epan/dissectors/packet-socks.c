@@ -77,10 +77,10 @@
 #include <epan/addr_resolv.h>
 #include <epan/conversation.h>
 
+#include <epan/emem.h>
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 
 #define compare_packet(X) (X == (pinfo->fd->num))

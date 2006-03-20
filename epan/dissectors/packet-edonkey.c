@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-edonkey.h"
 #include "packet-tcp.h"
 

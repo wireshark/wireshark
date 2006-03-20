@@ -81,6 +81,7 @@
 #include <epan/strutil.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>
 #include <wiretap/file_util.h>

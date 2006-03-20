@@ -53,7 +53,8 @@
 #include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
-#include <epan/dissectors/packet-tcp.h>
+#include <epan/emem.h>
+#include "packet-tcp.h"
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 

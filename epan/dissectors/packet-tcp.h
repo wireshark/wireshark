@@ -173,6 +173,10 @@ struct tcp_analysis {
 	 * similar 
 	 */
 	struct tcp_acked *ta;
+	/* This structure contains a tree containing all the various ta's
+	 * keyed by frame number.
+	 */
+	se_tree_t *acked_table;
 };
 
 

@@ -39,7 +39,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/dissectors/packet-tcp.h>
+#include <epan/emem.h>
+#include "packet-tcp.h"
 
 /*
  * See

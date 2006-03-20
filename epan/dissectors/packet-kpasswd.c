@@ -30,7 +30,8 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
+#include <epan/emem.h>
+#include "packet-tcp.h"
 #include "packet-kerberos.h"
 #include "packet-ber.h"
 #include <epan/prefs.h>

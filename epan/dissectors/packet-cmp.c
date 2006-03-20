@@ -47,6 +47,7 @@
 #include "packet-crmf.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include <epan/emem.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/nstime.h>
@@ -182,7 +183,7 @@ static int hf_cmp_PKIFailureInfo_missingTimeStamp = -1;
 static int hf_cmp_PKIFailureInfo_badPOP = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 64 "packet-cmp-template.c"
+#line 65 "packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -226,7 +227,7 @@ static gint ett_cmp_GenRepContent = -1;
 static gint ett_cmp_ErrorMsgContent = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 68 "packet-cmp-template.c"
+#line 69 "packet-cmp-template.c"
 
 static const char *object_identifier_id;
 
@@ -1315,7 +1316,7 @@ dissect_cmp_OOBCertHash(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 73 "packet-cmp-template.c"
+#line 74 "packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1488,7 +1489,7 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_cmp);
 	}
 
-	return dissect_cmp_pdu(tvb, pinfo, tree);
+	dissect_cmp_pdu(tvb, pinfo, tree);
 }
 
 
@@ -1958,7 +1959,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 279 "packet-cmp-template.c"
+#line 280 "packet-cmp-template.c"
   };
 
   /* List of subtrees */
@@ -2004,7 +2005,7 @@ void proto_register_cmp(void) {
     &ett_cmp_ErrorMsgContent,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 285 "packet-cmp-template.c"
+#line 286 "packet-cmp-template.c"
   };
   module_t *cmp_module;
 

@@ -48,6 +48,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-arp.h"
 #include "packet-tcp.h"
 

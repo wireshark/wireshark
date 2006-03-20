@@ -53,8 +53,8 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/emem.h>
+#include "packet-tcp.h"
 
 #if 0
 #define DBG(str, args...)       do {\

@@ -48,9 +48,9 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-tcp.h"
 #include <epan/reassemble.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 
 static proto_item *expert_item = NULL;

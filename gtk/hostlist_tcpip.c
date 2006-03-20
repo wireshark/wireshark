@@ -37,6 +37,7 @@
 #include "../stat_menu.h"
 #include "gui_stat_menu.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 #include "../register.h"
 #include "hostlist_table.h"
 #include <epan/dissectors/packet-tcp.h>

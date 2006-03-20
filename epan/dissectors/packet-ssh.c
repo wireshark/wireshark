@@ -37,11 +37,11 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include "packet-tcp.h"
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 
 /* get from openssh ssh2.h */
 #define SSH2_MSG_DISCONNECT				1

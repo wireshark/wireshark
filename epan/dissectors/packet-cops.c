@@ -63,6 +63,7 @@
 #include "isprint.h"
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-ipv6.h"
 #include "packet-tcp.h"
 

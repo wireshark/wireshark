@@ -32,12 +32,12 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-ipx.h"
 #include "packet-tcp.h"
 #include <epan/conversation.h>
 #include "packet-ndps.h"
 #include <epan/reassemble.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 
 /* Limit the number of items we can add to the tree. */

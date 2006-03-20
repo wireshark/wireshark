@@ -35,6 +35,7 @@
 #include <ctype.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 #include "packet-rpc.h"
 #include "packet-frame.h"
 #include "packet-tcp.h"
@@ -43,7 +44,6 @@
 #include <epan/dissectors/rpc_defrag.h>
 #include "packet-nfs.h"
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/strutil.h>
 
 /*

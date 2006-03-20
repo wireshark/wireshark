@@ -40,6 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
 
 #include "packet-tcp.h"
 #include "packet-aim.h"
