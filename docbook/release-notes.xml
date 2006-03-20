@@ -37,7 +37,7 @@ Ethereal Info
 
         <listitem><para>
 	  The H.248 dissector could crash.
-	  <!-- Fixed in r16967 -->
+	  <!-- Fixed in r16967, r17015 -->
 	  <!-- Bug IDs: 651 -->
 	  Versions affected: 0.10.14.
         </para></listitem>
@@ -50,6 +50,44 @@ Ethereal Info
         </para></listitem>
 
         <!-- Canary bugs found after r17235 -->
+
+        <listitem><para>
+	  The X.509if dissector could crash.
+	  <!-- Fixed in r16995, r17337 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.10.14.
+        </para></listitem>
+
+        <listitem><para>
+	  The SRVLOC dissector could crash.
+	  <!-- Fixed in r17001 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.10.0.
+        </para></listitem>
+
+        <listitem><para>
+	  The H.245 dissector could crash.
+	  <!-- Fixed in r17022 -->
+	  <!-- Bug IDs: 667 -->
+	  Versions affected: 0.10.13.
+        </para></listitem>
+
+        <listitem><para>
+	  Ethereal's OID printing routine was susceptible to an
+          off-by-one error.
+	  <!-- Fixed in r17048 -->
+	  <!-- Bug IDs: 698 -->
+	  Versions affected: 0.10.14.
+        </para></listitem>
+
+        <listitem><para>
+	  The COPS dissector could overflow a buffer.
+	  <!-- Fixed in r17051 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.9.15.
+        </para></listitem>
+
+        <!-- Coverity bugs (r17499 and above) -->
 
       </itemizedlist>
 
@@ -86,20 +124,50 @@ Ethereal Info
       <itemizedlist>
 
         <listitem><para>
-		The new command line tool <command>dumpcap</command> makes it
-		possible to capture network data without the drawbacks of (t)ethereal
-		(memory usage, security problems, ...) while keeping the benefit of
-		advanced techniques like multiple (ringbuffer) files and alike.
-		</para>
-		<para>
-		The manpage of <command>dumpcap</command> in HTML format is available
-		at: <ulink url="http://www.ethereal.com/docs/"/>
+          The new command line tool <command>dumpcap</command> makes it
+          possible to capture network data without the drawbacks of (t)ethereal
+          (memory usage, security problems, ...) while keeping the benefit of
+          advanced techniques like multiple (ringbuffer) files and alike.
+          </para>
+          <para>
+          The manpage of <command>dumpcap</command> in HTML format is available
+          at: <ulink url="http://www.ethereal.com/docs/"/>
         </para></listitem>
+
         <listitem><para>
 	  Win32: Catch hardware exceptions caused by buggy dissectors.
 	  If e.g. a NULL pointer exceptions occurs, Ethereal won't crash now
 	  but displays the exception and tries to continue decoding packets.
         </para></listitem>
+
+        <listitem><para>
+	  The Windows version of Ethereal now uses native open and save
+          file dialogs.
+        </para>
+        <para>
+          In related news, Ethereal now runs as a full-fledged Unicode
+          application under Windows.
+        </para></listitem>
+
+        <listitem><para>
+	  Recent versions of Ethereal were flagging packets with an
+          incorrect TCP checksum as malformed.  False positives were
+          being triggered on systems that use TCP checksum offloading.
+          We now check to see if the checksum is <emphasis>not</emphasis>
+          0x0000 before flagging the packet as malformed.
+
+          <note>Please Note</note>
+          <para>
+            If your system uses TCP checksum offloading <emphasis>and</emphasis>
+            Ethereal still shows bad checksums for outgoing TCP packets
+            <emphasis>and</emphasis> the checksums for outgoing TCP packets
+            are <emphasis>not</emphasis> 0x0000, this could mean that your
+            operating system is exposing kernel memory unneccessarily.  If
+            this is the case, you should report the problem to your OS
+            vendor.
+          </para>
+        </para></listitem>
+
       </itemizedlist>
     </para>
     </section>
@@ -179,13 +247,20 @@ Ethereal Info
   </section>
 
   <section id="KnownProblems"><title>Known Problems</title>
+
     <para>
-    On Windows systems the packet list scroll bar can sometimes disappear
-    or become unusable.  Until the problem is fixed you can work around it
-    by resizing the packet list or the main window.
-    (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220">Bug
-    #220</ulink>)
+      On Windows systems the packet list scroll bar can sometimes disappear
+      or become unusable.  Until the problem is fixed you can work around it
+      by resizing the packet list or the main window.
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220">Bug
+      #220</ulink>)
     </para>
+
+    <para>
+      The <userinput>Filter</userinput> button is nonfunctional in the
+      file dialogs under Windows.
+    </para>
+
   </section>
 
   <section id="GettingHelp"><title>Getting Help</title>
