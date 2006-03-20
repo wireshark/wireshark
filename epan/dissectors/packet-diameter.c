@@ -1086,9 +1086,9 @@ diameter_app_to_str(guint32 appId) {
   gchar *buffer;
 
   for (probe=ApplicationIdHead; probe; probe=probe->next) {
-	if (appId == probe->id) {
-	  return probe->name;
-	}
+    if (appId == probe->id) {
+      return probe->name;
+    }
   }
 
   buffer=ep_alloc(64);
@@ -1319,9 +1319,13 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dh2.hopByHopId = g_ntohl(dh2.hopByHopId);
       dh2.endToEndId = g_ntohl(dh2.endToEndId);
       if (dh2.applicationId) {
- 	applicationName=diameter_app_to_str(dh2.applicationId);
+        applicationName=diameter_app_to_str(dh2.applicationId);
+        /* If not found, it might be a vendor ID? */
+        if (strcmp(applicationName, "Unknown") == 0){
+          applicationName=diameter_vendor_to_str(dh2.applicationId,FALSE);
+        }
       } else {
-  	applicationName="None";
+        applicationName="None";
       }
       /* Do the bit twiddling */
       version = DIAM_GET_VERSION(dh2);
@@ -1392,34 +1396,34 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO)) {
     switch(gbl_version) {
       case DIAMETER_V16:
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-				 "%s%s%s%s%s-%s vendor=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
-				 (BadPacket)?"***** Bad Packet!: ":"",
-				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
-				 (flags & DIAM_FLAGS_E)?" Error":"",
-				 ((BadPacket ||
-				   (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
-				   ": " : ""),
-				 commandString, commandStringType, vendorName,
-				 dh.hopByHopId, dh.endToEndId,
-				 (flags & DIAM_FLAGS_R)?1:0,
-				 (flags & DIAM_FLAGS_P)?1:0,
-				 (flags & DIAM_FLAGS_E)?1:0);
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                     "%s%s%s%s%s-%s vendor=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
+                     (BadPacket)?"***** Bad Packet!: ":"",
+                     (flags & DIAM_FLAGS_P)?"Proxyable ":"",
+                     (flags & DIAM_FLAGS_E)?" Error":"",
+                     ((BadPacket ||
+                       (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
+                       ": " : ""),
+                     commandString, commandStringType, vendorName,
+                     dh.hopByHopId, dh.endToEndId,
+                     (flags & DIAM_FLAGS_R)?1:0,
+                     (flags & DIAM_FLAGS_P)?1:0,
+                     (flags & DIAM_FLAGS_E)?1:0);
       break;
       case DIAMETER_RFC:
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-				 "%s%s%s%s%s-%s app=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
-				 (BadPacket)?"***** Bad Packet!: ":"",
-				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
-				 (flags & DIAM_FLAGS_E)?" Error":"",
-				 ((BadPacket ||
-				   (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
-				   ": " : ""),
-				 commandString, commandStringType, applicationName,
-				 dh2.hopByHopId, dh2.endToEndId,
-				 (flags & DIAM_FLAGS_R)?1:0,
-				 (flags & DIAM_FLAGS_P)?1:0,
-				 (flags & DIAM_FLAGS_E)?1:0);
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                     "%s%s%s%s%s-%s app=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
+                     (BadPacket)?"***** Bad Packet!: ":"",
+                     (flags & DIAM_FLAGS_P)?"Proxyable ":"",
+                     (flags & DIAM_FLAGS_E)?" Error":"",
+                     ((BadPacket ||
+                       (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
+                       ": " : ""),
+                     commandString, commandStringType, applicationName,
+                     dh2.hopByHopId, dh2.endToEndId,
+                     (flags & DIAM_FLAGS_R)?1:0,
+                     (flags & DIAM_FLAGS_P)?1:0,
+                     (flags & DIAM_FLAGS_E)?1:0);
       break;
     }
   }
@@ -1466,7 +1470,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Command Code */
 	proto_tree_add_uint_format_value(diameter_tree, hf_diameter_code,
-					 tvb, offset, 3, commandCode, "%s-%s", commandString, commandStringType);
+	                                 tvb, offset, 3, commandCode, "%s-%s (%d)",
+	                                 commandString, commandStringType, commandCode);
 	offset += 3;
 
         switch(gbl_version) {
@@ -2050,8 +2055,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		  valstr = diameter_app_to_str(data);
 		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
 					     tvb, offset, avpDataLength, data,
-					     "Application ID: %s (0x%08x)",
-					     valstr, data);
+					     "Application ID: %s %d (0x%08x)",
+					     valstr, data, data);
 		} else {
 		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 					      tvb, offset, avpDataLength,
