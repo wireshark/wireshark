@@ -141,8 +141,7 @@ capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * i
 #ifdef HAVE_LIBPCAP
 #ifndef _WIN32
 extern int 
-cap_pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
-                struct pcaprec_modified_hdr *, guchar *, char *, int);
+cap_pipe_dispatch(loop_data *, guchar *, char *, int);
 #endif /* _WIN32 */
 #endif
 

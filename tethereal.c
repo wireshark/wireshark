@@ -1689,11 +1689,10 @@ capture(void)
     }
 #ifndef _WIN32
     if (ld.from_cap_pipe) {
-      inpkts = cap_pipe_dispatch(ld.cap_pipe_fd, &ld, &ld.cap_pipe_hdr, &ld.cap_pipe_rechdr, pcap_data,
-        errmsg, sizeof errmsg);
+      inpkts = cap_pipe_dispatch(&ld, pcap_data, errmsg, sizeof errmsg);
     } else
 #endif
-      inpkts = pcap_dispatch(ld.pcap_h, pcap_cnt, capture_pcap_cb, (u_char *) &ld);
+      inpkts = pcap_dispatch(ld.pcap_h, pcap_cnt, ld.packet_cb, (u_char *) &ld);
     if (inpkts < 0) {
       /* Error from "pcap_dispatch()", or error or "no more packets" from
          "cap_pipe_dispatch(). */

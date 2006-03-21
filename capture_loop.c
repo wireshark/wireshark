@@ -322,9 +322,7 @@ error:
 /* We read one record from the pipe, take care of byte order in the record
  * header, write the record to the capture file, and update capture statistics. */
 int
-cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
-		struct pcaprec_modified_hdr *rechdr, guchar *data,
-		char *errmsg, int errmsgl)
+cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
 {
   struct pcap_pkthdr phdr;
   int b;
@@ -346,8 +344,8 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     /* Fall through */
 
   case STATE_READ_REC_HDR:
-    b = read(fd, ((char *)rechdr)+ld->cap_pipe_bytes_read,
-      ld->cap_pipe_bytes_to_read - ld->cap_pipe_bytes_read);
+    b = read(ld->cap_pipe_fd, ((char *)&ld->cap_pipe_rechdr)+ld->cap_pipe_bytes_read,
+             ld->cap_pipe_bytes_to_read - ld->cap_pipe_bytes_read);
     if (b <= 0) {
       if (b == 0)
         result = PD_PIPE_EOF;
@@ -366,7 +364,8 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     /* Fall through */
 
   case STATE_READ_DATA:
-    b = read(fd, data+ld->cap_pipe_bytes_read, rechdr->hdr.incl_len - ld->cap_pipe_bytes_read);
+    b = read(ld->cap_pipe_fd, data+ld->cap_pipe_bytes_read,
+             ld->cap_pipe_rechdr.hdr.incl_len - ld->cap_pipe_bytes_read);
     if (b <= 0) {
       if (b == 0)
         result = PD_PIPE_EOF;
@@ -374,7 +373,7 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
         result = PD_PIPE_ERR;
       break;
     }
-    if ((ld->cap_pipe_bytes_read += b) < rechdr->hdr.incl_len)
+    if ((ld->cap_pipe_bytes_read += b) < ld->cap_pipe_rechdr.hdr.incl_len)
       return 0;
     result = PD_DATA_READ;
     break;
@@ -392,10 +391,11 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 
   case PD_REC_HDR_READ:
     /* We've read the header. Take care of byte order. */
-    cap_pipe_adjust_header(ld->cap_pipe_byte_swapped, hdr, &rechdr->hdr);
-    if (rechdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+    cap_pipe_adjust_header(ld->cap_pipe_byte_swapped, &ld->cap_pipe_hdr,
+                           &ld->cap_pipe_rechdr.hdr);
+    if (ld->cap_pipe_rechdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
       g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
-        ld->packet_count+1, rechdr->hdr.incl_len);
+        ld->packet_count+1, ld->cap_pipe_rechdr.hdr.incl_len);
       break;
     }
     ld->cap_pipe_state = STATE_EXPECT_DATA;
@@ -403,10 +403,10 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 
   case PD_DATA_READ:
     /* Fill in a "struct pcap_pkthdr", and process the packet. */
-    phdr.ts.tv_sec = rechdr->hdr.ts_sec;
-    phdr.ts.tv_usec = rechdr->hdr.ts_usec;
-    phdr.caplen = rechdr->hdr.incl_len;
-    phdr.len = rechdr->hdr.orig_len;
+    phdr.ts.tv_sec = ld->cap_pipe_rechdr.hdr.ts_sec;
+    phdr.ts.tv_usec = ld->cap_pipe_rechdr.hdr.ts_usec;
+    phdr.caplen = ld->cap_pipe_rechdr.hdr.incl_len;
+    phdr.len = ld->cap_pipe_rechdr.hdr.orig_len;
 
     ld->packet_cb((u_char *)ld, &phdr, data);
 
@@ -835,8 +835,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 	/*
 	 * "select()" says we can read from the pipe without blocking
 	 */
-	inpkts = cap_pipe_dispatch(ld->cap_pipe_fd, ld, &ld->cap_pipe_hdr, &ld->cap_pipe_rechdr, pcap_data,
-          errmsg, errmsg_len);
+	inpkts = cap_pipe_dispatch(ld, pcap_data, errmsg, errmsg_len);
 	if (inpkts < 0) {
 	  ld->go = FALSE;
         }
