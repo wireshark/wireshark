@@ -45,6 +45,10 @@
 #define safe_isalnum(c)	isalnum((unsigned char)(c))
 #define safe_isspace(c)	isspace((unsigned char)(c))
 
+/*
+ * XXX - on modern UN*Xes, this is declared in <unistd.h>, but that's
+ * not available on Windows; what header declares it on Windows?
+ */
 extern int access(const char *, int);
 
 #ifndef __WIN32__
@@ -53,8 +57,8 @@ extern int access(const char *, int);
 #   endif
 #endif
 
-/* #define PRIVATE static */
 #define PRIVATE static
+/* #define PRIVATE */
 
 #ifdef TEST
 #define MAXRHS 5       /* Set low to exercise exception code */
@@ -345,8 +349,7 @@ char *Strsafe_find(const char *);
 /* Routines for handling symbols of the grammar */
 
 struct symbol *Symbol_new(const char *x);
-/*int Symbolcmpp(const void *, const void *);*/
-int Symbolcmpp(struct symbol **, struct symbol **);
+int Symbolcmpp(const void *, const void *);
 void Symbol_init(void);
 int Symbol_insert(struct symbol *, char *);
 struct symbol *Symbol_find(const char *);
@@ -417,7 +420,7 @@ struct action *Action_sort(struct action *ap)
   return ap;
 }
 
-void Action_add(struct action **app, enum e_action type, struct symbol *sp,
+static void Action_add(struct action **app, enum e_action type, struct symbol *sp,
     void *arg)
 {
   struct action *new;
@@ -466,15 +469,8 @@ struct acttab {
 /* The value for the N-th entry in yy_lookahead */
 #define acttab_yylookahead(X,N)  ((X)->aAction[N].lookahead)
 
-/* Free all memory associated with the given acttab */
-void acttab_free(acttab *p){
-  free( p->aAction );
-  free( p->aLookahead );
-  free( p );
-}
-
 /* Allocate a new acttab structure */
-acttab *acttab_alloc(void){
+static acttab *acttab_alloc(void){
   acttab *p = malloc( sizeof(*p) );
   if( p==0 ){
     fprintf(stderr,"Unable to allocate memory for a new acttab.");
@@ -486,7 +482,7 @@ acttab *acttab_alloc(void){
 
 /* Add a new action to the current transaction set
 */
-void acttab_action(acttab *p, int lookahead, int action){
+static void acttab_action(acttab *p, int lookahead, int action){
   if( p->nLookahead>=p->nLookaheadAlloc ){
     p->nLookaheadAlloc += 25;
     p->aLookahead = realloc( p->aLookahead,
@@ -519,7 +515,7 @@ void acttab_action(acttab *p, int lookahead, int action){
 **
 ** Return the offset into the action table of the new transaction.
 */
-int acttab_insert(acttab *p){
+static int acttab_insert(acttab *p){
   int i, j, k, n;
   assert( p->nLookahead>0 );
 
@@ -529,7 +525,7 @@ int acttab_insert(acttab *p){
   */
   n = p->mxLookahead + 1;
   if( p->nAction + n >= p->nActionAlloc ){
-	int oldAlloc = p->nActionAlloc;
+    int oldAlloc = p->nActionAlloc;
     p->nActionAlloc = p->nAction + n + p->nActionAlloc + 20;
     p->aAction = realloc( p->aAction,
                           sizeof(p->aAction[0])*p->nActionAlloc);
@@ -596,7 +592,6 @@ int acttab_insert(acttab *p){
   return i - p->mnLookahead;
 }
 
-
 /********************** From the file "assert.c" ****************************/
 /*
 ** A more efficient way of handling assertions.
@@ -644,6 +639,7 @@ void FindRulePrecedences(struct lemon *xp)
   }
   return;
 }
+
 /* Find all nonterminals which will generate the empty string.
 ** Then go back and compute the first sets of every nonterminal.
 ** The first set is the set of all terminal symbols which can begin
@@ -814,8 +810,7 @@ PRIVATE struct state *getstate(struct lemon *lemp)
 /*
 ** Return true if two symbols are the same.
 */
-
-int same_symbol(struct symbol *a,struct symbol *b)
+static int same_symbol(struct symbol *a,struct symbol *b)
 {
   int i;
   if( a==b ) return 1;
@@ -827,7 +822,6 @@ int same_symbol(struct symbol *a,struct symbol *b)
   }
   return 1;
 }
-
 
 /* Construct all successor states to the given state.  A "successor"
 ** state is any state which can be reached by a shift action.
@@ -1044,7 +1038,7 @@ void FindActions(struct lemon *lemp)
 static int resolve_conflict(
     struct action *apx,
     struct action *apy,
-	struct symbol _U_ *errsym)
+    struct symbol *errsym _U_)
 {
   struct symbol *spx, *spy;
   int errcnt = 0;
@@ -1082,7 +1076,7 @@ static int resolve_conflict(
       apx->type = RD_RESOLVED;
     }
   }else{
-    assert( 
+    assert(
       apx->type==SH_RESOLVED ||
       apx->type==RD_RESOLVED ||
       apx->type==CONFLICT ||
@@ -1444,6 +1438,7 @@ static void handle_D_option(char *z){
   *z = 0;
 }
 
+
 /* The main program.  Parse the command line and do it... */
 int main(int argc _U_, char **argv)
 {
@@ -1523,7 +1518,7 @@ int main(int argc _U_, char **argv)
   lem.symbols = Symbol_arrayof();
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
   qsort(lem.symbols,lem.nsymbol+1,sizeof(struct symbol*),
-        (int(*)())Symbolcmpp);
+        Symbolcmpp);
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
   for(i=1; safe_isupper(lem.symbols[i]->name[0]); i++);
   lem.nterminal = i;
@@ -2432,9 +2427,9 @@ to follow the previous rule.");
 static void preprocess_input(char *z){
   int i, j, k, n;
   int exclude = 0;
-  int start;
+  int start = 0;
   int lineno = 1;
-  int start_lineno;
+  int start_lineno = 0;
   for(i=0; z[i]; i++){
     if( z[i]=='\n' ) lineno++;
     if( z[i]!='%' || (i>0 && z[i-1]!='\n') ) continue;
@@ -2807,11 +2802,11 @@ void Reprint(struct lemon *lemp)
           printf("|%s", sp->subsym[j]->name);
         }
       }
-	/* if( rp->rhsalias[i] ) printf("(%s)",rp->rhsalias[i]); */
+      /* if( rp->rhsalias[i] ) printf("(%s)",rp->rhsalias[i]); */
     }
     printf(".");
     if( rp->precsym ) printf(" [%s]",rp->precsym->name);
-	/*    if( rp->code ) printf("\n    %s",rp->code); */
+    /* if( rp->code ) printf("\n    %s",rp->code); */
     printf("\n");
   }
 }
@@ -3075,9 +3070,8 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   if( in==0 ){
     fprintf(stderr,"Can't open the template file \"%s\".\n",templatename);
     lemp->errorcnt++;
-	return 0;
+    return 0;
   }
-
   return in;
 }
 
@@ -3112,7 +3106,7 @@ PRIVATE void tplt_print(FILE *out, struct lemon *lemp, char *str,
     putc('\n',out);
     (*lineno)++;
   }
-  tplt_linedir(out,*lineno+2,lemp->outname); 
+  tplt_linedir(out,*lineno+2,lemp->outname);
   (*lineno)+=2;
   return;
 }
@@ -3141,9 +3135,9 @@ PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *le
    if( cp==0 ) return;
    tplt_linedir(out,lemp->vardestln,lemp->filename);
    fprintf(out,"{");
-  }else{
+ }else{
    assert( 0 );  /* Cannot happen */
-  }
+ }
  for(; *cp; cp++){
    if( *cp=='$' && cp[1]=='$' ){
      fprintf(out,"(yypminor->yy%d)",sp->dtnum);
@@ -3393,7 +3387,7 @@ PRIVATE void print_stack_union(
       continue;
     }
     cp = sp->datatype;
-	if( cp==0 ) cp = lemp->vartype;
+    if( cp==0 ) cp = lemp->vartype;
     j = 0;
     while( safe_isspace(*cp) ) cp++;
     while( *cp ) stddt[j++] = *cp++;
@@ -3543,7 +3537,7 @@ void ReportTable(
     minimum_size_type(0, lemp->nsymbol+5)); lineno++;
   fprintf(out,"#define YYNOCODE %d\n",lemp->nsymbol+1);  lineno++;
   fprintf(out,"#define YYACTIONTYPE %s\n",
-     minimum_size_type(0, lemp->nstate+lemp->nrule+5));  lineno++;
+    minimum_size_type(0, lemp->nstate+lemp->nrule+5));  lineno++;
   print_stack_union(out,lemp,&lineno,mhflag);
   if( lemp->stacksize ){
     if( atoi(lemp->stacksize)<=0 ){
@@ -3565,7 +3559,7 @@ void ReportTable(
     int i;
     i = strlen(lemp->arg);
     while( i>=1 && safe_isspace(lemp->arg[i-1]) ) i--;
-	while( i>=1 && (safe_isalnum(lemp->arg[i-1]) || lemp->arg[i-1]=='_') ) i--;
+    while( i>=1 && (safe_isalnum(lemp->arg[i-1]) || lemp->arg[i-1]=='_') ) i--;
     fprintf(out,"#define %sARG_SDECL %s;\n",name,lemp->arg);  lineno++;
     fprintf(out,"#define %sARG_PDECL ,%s\n",name,lemp->arg);  lineno++;
     fprintf(out,"#define %sARG_FETCH %s = yypParser->%s\n",
@@ -3661,7 +3655,7 @@ void ReportTable(
   for(i=j=0; i<n; i++){
     int action = acttab_yyaction(pActtab, i);
     if( action<0 ) action = lemp->nsymbol + lemp->nrule + 2;
-	if( j==0 ) fprintf(out," /* %5d */ ", i);
+    if( j==0 ) fprintf(out," /* %5d */ ", i);
     fprintf(out, " %4d,", action);
     if( j==9 || i==n-1 ){
       fprintf(out, "\n"); lineno++;
@@ -3677,7 +3671,7 @@ void ReportTable(
   for(i=j=0; i<n; i++){
     int la = acttab_yylookahead(pActtab, i);
     if( la<0 ) la = lemp->nsymbol;
-	if( j==0 ) fprintf(out," /* %5d */ ", i);
+    if( j==0 ) fprintf(out," /* %5d */ ", i);
     fprintf(out, " %4d,", la);
     if( j==9 || i==n-1 ){
       fprintf(out, "\n"); lineno++;
@@ -3693,14 +3687,14 @@ void ReportTable(
   n = lemp->nstate;
   while( n>0 && lemp->sorted[n-1]->iTknOfst==NO_OFFSET ) n--;
   fprintf(out, "#define YY_SHIFT_MAX %d\n", n-1); lineno++;
-  fprintf(out, "static const %s yy_shift_ofst[] = {\n", 
+  fprintf(out, "static const %s yy_shift_ofst[] = {\n",
           minimum_size_type(mnTknOfst-1, mxTknOfst)); lineno++;
   for(i=j=0; i<n; i++){
     int ofst;
     stp = lemp->sorted[i];
     ofst = stp->iTknOfst;
     if( ofst==NO_OFFSET ) ofst = mnTknOfst - 1;
-	if( j==0 ) fprintf(out," /* %5d */ ", i);
+    if( j==0 ) fprintf(out," /* %5d */ ", i);
     fprintf(out, " %4d,", ofst);
     if( j==9 || i==n-1 ){
       fprintf(out, "\n"); lineno++;
@@ -3723,7 +3717,7 @@ void ReportTable(
     stp = lemp->sorted[i];
     ofst = stp->iNtOfst;
     if( ofst==NO_OFFSET ) ofst = mnNtOfst - 1;
-	if( j==0 ) fprintf(out," /* %5d */ ", i);
+    if( j==0 ) fprintf(out," /* %5d */ ", i);
     fprintf(out, " %4d,", ofst);
     if( j==9 || i==n-1 ){
       fprintf(out, "\n"); lineno++;
@@ -3739,7 +3733,7 @@ void ReportTable(
   n = lemp->nstate;
   for(i=j=0; i<n; i++){
     stp = lemp->sorted[i];
-	if( j==0 ) fprintf(out," /* %5d */ ", i);
+    if( j==0 ) fprintf(out," /* %5d */ ", i);
     fprintf(out, " %4d,", stp->iDflt);
     if( j==9 || i==n-1 ){
       fprintf(out, "\n"); lineno++;
@@ -3970,7 +3964,7 @@ void CompressTables(struct lemon *lemp)
         rbest = rp;
       }
     }
- 
+
     /* Do not make a default if the number of rules to default
     ** is not at least 1 */
     if( nbest<1 ) continue;
@@ -3979,7 +3973,7 @@ void CompressTables(struct lemon *lemp)
     /* Combine matching REDUCE actions into a single default */
     for(ap=stp->ap; ap; ap=ap->next){
       if( ap->type==REDUCE && ap->x.rp==rbest ) break;
-	}
+    }
     assert( ap );
     ap->sp = Symbol_new("{default}");
     for(ap=ap->next; ap; ap=ap->next){
@@ -4268,7 +4262,7 @@ struct symbol *Symbol_new(const char *x)
     sp->name = Strsafe(x);
     sp->type = safe_isupper(*x) ? TERMINAL : NONTERMINAL;
     sp->rule = 0;
-	sp->fallback = 0;
+    sp->fallback = 0;
     sp->prec = -1;
     sp->assoc = UNK;
     sp->firstset = 0;
@@ -4290,7 +4284,9 @@ struct symbol *Symbol_new(const char *x)
 ** order (the order they appeared in the grammar file) gives the
 ** smallest parser tables in SQLite.
 */
-int Symbolcmpp(struct symbol **a, struct symbol **b){
+int Symbolcmpp(const void *a_arg, const void *b_arg){
+  struct symbol *const *a = a_arg;
+  struct symbol *const *b = b_arg;
   int i1 = (**a).index + 10000000*((**a).name[0]>'Z');
   int i2 = (**b).index + 10000000*((**b).name[0]>'Z');
   return i1-i2;
@@ -4764,4 +4760,3 @@ void Configtable_clear(int(*f)(struct config *))
   x4a->count = 0;
   return;
 }
-
