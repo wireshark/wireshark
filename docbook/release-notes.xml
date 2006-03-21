@@ -156,7 +156,7 @@ Ethereal Info
           We now check to see if the checksum is <emphasis>not</emphasis>
           0x0000 before flagging the packet as malformed.
 
-          <note>Please Note</note>
+          <note><title>Please Note</title>
           <para>
             If your system uses TCP checksum offloading <emphasis>and</emphasis>
             Ethereal still shows bad checksums for outgoing TCP packets
@@ -166,6 +166,7 @@ Ethereal Info
             this is the case, you should report the problem to your OS
             vendor.
           </para>
+		  </note>
         </para></listitem>
 
       </itemizedlist>
