@@ -1493,7 +1493,7 @@ int main(int argc _U_, char **argv)
   lem.nconflict = 0;
   lem.name = lem.include = lem.arg = lem.tokentype = lem.start = 0;
   lem.vartype = 0;
-  lem.stacksize = 0;
+  lem.stacksize = NULL;
   lem.error = lem.overflow = lem.failure = lem.accept = lem.tokendest =
      lem.tokenprefix = lem.outname = lem.extracode = 0;
   lem.vardest = 0;
@@ -1775,7 +1775,7 @@ static int handleflags(int i, FILE *err)
   }else if( op[j].type==OPT_FFLAG ){
     ((opt_func_int_t*)(op[j].arg))(v);
   }else if( op[j].type==OPT_FSTR ){
-    (*(void(*)())(op[j].arg))(&argv[i][2]);
+    ((opt_func_string_t*)(op[j].arg))(&argv[i][2]);
   }else{
     if( err ){
       fprintf(err,"%smissing argument on switch.\n",emsg);
@@ -2210,7 +2210,7 @@ to follow the previous rule.");
         msp->nsubsym++;
         msp->subsym = realloc(msp->subsym, sizeof(struct symbol*)*msp->nsubsym);
         msp->subsym[msp->nsubsym-1] = Symbol_new(&x[1]);
-        if( islower(x[1]) || islower(msp->subsym[0]->name[0]) ){
+        if( safe_islower(x[1]) || safe_islower(msp->subsym[0]->name[0]) ){
           ErrorMsg(psp->filename,psp->tokenlineno,
             "Cannot form a compound containing a non-terminal");
           psp->errorcnt++;
@@ -2602,9 +2602,9 @@ void Parse(struct lemon *gp)
     }else if( c==':' && cp[1]==':' && cp[2]=='=' ){ /* The operator "::=" */
       cp += 3;
       nextcp = cp;
-    }else if( (c=='/' || c=='|') && isalpha(cp[1]) ){
+    }else if( (c=='/' || c=='|') && safe_isalpha(cp[1]) ){
       cp += 2;
-      while( (c = *cp)!=0 && (isalnum(c) || c=='_') ) cp++;
+      while( (c = *cp)!=0 && (safe_isalnum(c) || c=='_') ) cp++;
       nextcp = cp;
     }else{                          /* All other (one character) operators */
       cp++;
@@ -3076,10 +3076,7 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 }
 
 /* Print a #line directive line to the output file. */
-PRIVATE void tplt_linedir(out,lineno,filename)
-FILE *out;
-int lineno;
-char *filename;
+PRIVATE void tplt_linedir(FILE *out, int lineno, char *filename)
 {
   fprintf(out,"#line %d \"",lineno);
   while( *filename ){
@@ -3179,7 +3176,7 @@ PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
 **
 ** If n==-1, then the previous character is overwritten.
 */
-PRIVATE char *append_str(char *zText, int n, int p1, int p2){
+PRIVATE char *append_str(const char *zText, int n, int p1, int p2){
   static char *z = 0;
   static int alloced = 0;
   static int used = 0;
@@ -3476,8 +3473,8 @@ struct axset {
 ** Compare to axset structures for sorting purposes
 */
 static int axset_compare(const void *a, const void *b){
-  struct axset *p1 = (struct axset*)a;
-  struct axset *p2 = (struct axset*)b;
+  const struct axset *p1 = (const struct axset*)a;
+  const struct axset *p2 = (const struct axset*)b;
   return p2->nAction - p1->nAction;
 }
 
@@ -3991,8 +3988,8 @@ void CompressTables(struct lemon *lemp)
 ** token actions.
 */
 static int stateResortCompare(const void *a, const void *b){
-  const struct state *pA = *(const struct state**)a;
-  const struct state *pB = *(const struct state**)b;
+  const struct state *pA = *(struct state *const *)a;
+  const struct state *pB = *(struct state *const *)b;
   int n;
 
   n = pB->nNtAct - pA->nNtAct;
