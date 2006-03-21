@@ -345,7 +345,8 @@ char *Strsafe_find(const char *);
 /* Routines for handling symbols of the grammar */
 
 struct symbol *Symbol_new(const char *x);
-int Symbolcmpp(const void *, const void *);
+/*int Symbolcmpp(const void *, const void *);*/
+int Symbolcmpp(struct symbol **, struct symbol **);
 void Symbol_init(void);
 int Symbol_insert(struct symbol *, char *);
 struct symbol *Symbol_find(const char *);
@@ -1043,7 +1044,7 @@ void FindActions(struct lemon *lemp)
 static int resolve_conflict(
     struct action *apx,
     struct action *apy,
-	struct symbol *errsym)
+	struct symbol _U_ *errsym)
 {
   struct symbol *spx, *spy;
   int errcnt = 0;
@@ -1521,7 +1522,8 @@ int main(int argc _U_, char **argv)
   Symbol_new("{default}");
   lem.symbols = Symbol_arrayof();
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
-  qsort(lem.symbols,lem.nsymbol+1,sizeof(struct symbol*),Symbolcmpp);
+  qsort(lem.symbols,lem.nsymbol+1,sizeof(struct symbol*),
+        (int(*)())Symbolcmpp);
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
   for(i=1; safe_isupper(lem.symbols[i]->name[0]); i++);
   lem.nterminal = i;
