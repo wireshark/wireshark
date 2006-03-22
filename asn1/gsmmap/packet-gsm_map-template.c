@@ -701,7 +701,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 43: /*checkIMEI*/
 	  if (application_context_version < 2 ){
-		  offset=dissect_gsm_map_CheckIMEIArgV2(FALSE, tvb, offset, pinfo, tree, -1);
+		  offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
 	  }else{
 		  offset=dissect_gsm_map_CheckIMEIArgV2(FALSE, tvb, offset, pinfo, tree, -1);
 	  }
@@ -729,7 +729,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 56: /*sendAuthenticationInfo*/
 	  if (application_context_version < 3 ){
-		  offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
+		  offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);
 	  }else{
 		  offset=dissect_gsm_map_SendAuthenticationInfoArgV2(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);
 	  }
@@ -992,7 +992,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 58: /*sendIMSI*/
-    offset=dissect_gsm_map_IMSI(FALSE, tvb, offset, pinfo, tree,hf_gsm_map_imsi);
+    offset=dissect_gsm_map_IMSI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
     break;
   case 59: /*unstructuredSS-Request*/
     offset=dissect_gsm_map_Ussd_Res(FALSE, tvb, offset, pinfo, tree, -1);
