@@ -271,7 +271,7 @@ get_value_length(nsip_ie_t *ie, build_info_t *bi) {
   else {
     length_len++;
     length <<= 8;
-    length |= tvb_get_guint8(bi->tvb, bi->offset);
+    length |= tvb_get_guint8(bi->tvb, bi->offset+1);
   }
   ie->value_length = length;
   ie->total_length += length_len + length;
@@ -811,10 +811,7 @@ decode_pdu_sns_changeweight(build_info_t *bi) {
 
 static void 
 decode_pdu_sns_config(build_info_t *bi) {
-  int use520 = 1; 
-  
-  if (use520) {
-    /* According to v. 5.2.0 */
+
     nsip_ie_t ies[] = { 
       { 0, NSIP_IE_PRESENCE_M, NSIP_IE_FORMAT_V, 0, 1 }, /* End flag */
       { NSIP_IE_NSEI, NSIP_IE_PRESENCE_M, NSIP_IE_FORMAT_TLV, 0, 4 },
@@ -825,21 +822,6 @@ decode_pdu_sns_config(build_info_t *bi) {
     };
     decode_iei_end_flag(ies, bi, bi->offset);
     decode_pdu_general(&ies[1], 3, bi);
-  }
-  else { /* According to v. 5.3.0 */
-    nsip_ie_t ies[] = { 
-      { NSIP_IE_NSEI, NSIP_IE_PRESENCE_M, NSIP_IE_FORMAT_TLV, 0, 4 },
-      { 0, NSIP_IE_PRESENCE_M, NSIP_IE_FORMAT_V, 0, 1 }, /* End flag */
-      { NSIP_IE_NSEI, NSIP_IE_PRESENCE_M, NSIP_IE_FORMAT_TLV, 0, 4 },
-      { NSIP_IE_IP4_ELEMENTS, NSIP_IE_PRESENCE_C, NSIP_IE_FORMAT_TLV, 0, 0 },
-      /* Unknown length */
-      { NSIP_IE_IP6_ELEMENTS, NSIP_IE_PRESENCE_C, NSIP_IE_FORMAT_TLV, 0, 0 },
-      /* Unknown length */
-    };
-    decode_pdu_general(ies, 1, bi);
-    decode_iei_end_flag(&ies[1], bi, bi->offset);
-    decode_pdu_general(&ies[2], 3, bi);
-   }
 }
 
 static void 
