@@ -87,14 +87,110 @@ Ethereal Info
 	  Versions affected: 0.9.15.
         </para></listitem>
 
-        <!-- Coverity bugs (r17499 and above) -->
+        <listitem><para>
+	  The ALCAP dissector could overflow a buffer.
+	  <!-- Fixed in r17495 -->
+	  <!-- Bug IDs: 794 -->
+	  Versions affected: 0.10.14.
+        </para></listitem>
 
       </itemizedlist>
+
+     <!-- Coverity bugs (r17489 and above) -->
 
       Under a grant funded by the U.S. Department of Homeland Security,
       <ulink url="http://www.coverity.com">Coverity</ulink> has uncovered
       a number of vulnerabilities in Ethereal:
       <itemizedlist>
+
+        <!-- CID 1 - 30: DEADCODE -->
+
+        <!-- CID 31 - 63: FORWARD_NULL -->
+
+        <!-- CID 31: Post-0.10.14 -->
+
+        <listitem><para>
+	  The statistics counter could crash Ethereal.
+	  <!-- Fixed in r17497 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 32 -->
+	  Versions affected: 0.10.10.
+        </para></listitem>
+
+        <listitem><para>
+	  Ethereal could crash while reading a malformed Sniffer capture.
+	  <!-- Fixed in r17556 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 33 -->
+	  Versions affected: 0.8.12.
+        </para></listitem>
+
+        <listitem><para>
+	  An invalid display filter could crash Ethereal.
+	  <!-- Fixed in r17555 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 34 -->
+	  Versions affected: 0.9.16.
+        </para></listitem>
+
+        <listitem><para>
+	  The general packet dissector could crash Ethereal.
+	  <!-- Fixed in r17494 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 35 -->
+	  Versions affected: 0.10.9.
+        </para></listitem>
+
+        <!-- CID 36 - 38: Bogus -->
+
+        <listitem><para>
+	  The AIM dissector could crash Ethereal.
+	  <!-- Fixed in r17512 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 39 -->
+	  Versions affected: 0.10.7.
+        </para></listitem>
+
+        <listitem><para>
+	  The RPC dissector could crash Ethereal.
+	  <!-- Fixed in r17546 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 40 -->
+	  Versions affected: 0.9.8.
+        </para></listitem>
+
+        <listitem><para>
+	  The DCERPC dissector could crash Ethereal.
+	  <!-- Fixed in r17657 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 41 -->
+	  Versions affected: 0.9.16.
+        </para></listitem>
+
+        <listitem><para>
+	  The ASN.1 dissector could crash Ethereal.
+	  <!-- Fixed in r17548 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 42, 43 -->
+	  Versions affected: 0.9.8.
+        </para></listitem>
+
+        <!-- Left off at CID 44 -->
+
+
+
+
+        <listitem><para>
+	  The SIP statistics feature could crash Ethereal.
+	  <!-- Fixed in r17493 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 60 -->
+	  Versions affected: 0.10.4.
+        </para></listitem>
+
+        <!-- CID 71: Bogus -->
+
+        <!-- CID 81: Post-0.10.14 -->
 
         <listitem><para>
 	  The GSM SMS dissector could crash Ethereal.
@@ -103,6 +199,16 @@ Ethereal Info
           <!-- Coverity CID 104 -->
 	  Versions affected: 0.9.16.
         </para></listitem>
+
+        <listitem><para>
+	  The ASN.1 dissector could crash Ethereal.
+	  <!-- Fixed in r17489 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 109 -->
+	  Versions affected: 0.9.10.
+        </para></listitem>
+
+        <!-- CID 127: Bogus -->
 
       </itemizedlist>
     </para>
@@ -258,7 +364,7 @@ Ethereal Info
     </para>
 
     <para>
-      The <userinput>Filter</userinput> button is nonfunctional in the
+      The <guibutton>Filter</guibutton> button is nonfunctional in the
       file dialogs under Windows.
     </para>
 
