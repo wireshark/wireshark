@@ -537,10 +537,21 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     case FCM_H1_TFC:
-	if (mtp3_standard == ITU_STANDARD) {
+	if (mtp3_standard == ITU_STANDARD)
+	{
+	    proto_item *apc_item;
 
-	    proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_apc, tvb, 0,
-				ITU_PC_LENGTH, TRUE);
+	    apc_item = proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_apc, tvb, 0,
+					   ITU_PC_LENGTH, TRUE);
+
+	    if (mtp3_pc_structured())
+	    {
+		guint32 apc;
+
+		apc = tvb_get_letohs(tvb, 0) & ITU_PC_MASK;
+		proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+	    }
+
 
 	    /* Congestion level is a national option */
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_status, tvb, 0,
@@ -608,8 +619,19 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    if (h1 == TFM_H1_TCP || h1 == TFM_H1_TCR || h1 == TFM_H1_TCA)
 		dissect_mtp3mg_unknown_message(tvb, tree);
 	    else if (mtp3_standard == ITU_STANDARD)
-		proto_tree_add_item(tree, hf_mtp3mg_tfm_itu_apc, tvb, 0,
-				    ITU_PC_LENGTH, TRUE);
+	    {
+		proto_item *apc_item;
+
+		apc_item = proto_tree_add_item(tree, hf_mtp3mg_tfm_itu_apc,
+					       tvb, 0, ITU_PC_LENGTH, TRUE);
+		if (mtp3_pc_structured())
+		{
+		    guint32 apc;
+
+		    apc = tvb_get_letohs(tvb, 0) & ITU_PC_MASK;
+		    proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+		}
+	    }
 	    else /* CHINESE_ITU_STANDARD */
 		dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_tfm_apc,
 					&hf_mtp3mg_tfm_chinese_apc,
@@ -651,9 +673,20 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    if (h1 == RSM_H1_RST || h1 == RSM_H1_RSR)
 	    {
 		if (mtp3_standard == ITU_STANDARD)
-		    proto_tree_add_item(tree, hf_mtp3mg_rsm_itu_apc, tvb, 0,
-					ITU_PC_LENGTH, TRUE);
+		{
+		    proto_item *apc_item;
 
+		    apc_item = proto_tree_add_item(tree, hf_mtp3mg_rsm_itu_apc,
+						   tvb, 0, ITU_PC_LENGTH, TRUE);
+
+		    if (mtp3_pc_structured())
+		    {
+			guint32 apc;
+
+			apc = tvb_get_letohs(tvb, 0) & ITU_PC_MASK;
+			proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+		    }
+		}
 		else /* CHINESE_ITU_STANDARD */
 		    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_rsm_apc,
 					    &hf_mtp3mg_rsm_chinese_apc,
@@ -790,8 +823,18 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
 				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	} else /* ITU_STANDARD */ {
-	    proto_tree_add_item(tree, hf_mtp3mg_upu_itu_apc, tvb, 0,
-				ITU_PC_LENGTH, TRUE);
+	    proto_item *apc_item;
+
+	    apc_item = proto_tree_add_item(tree, hf_mtp3mg_upu_itu_apc, tvb, 0,
+					   ITU_PC_LENGTH, TRUE);
+	    if (mtp3_pc_structured())
+	    {
+		guint32 apc;
+
+		apc = tvb_get_letohs(tvb, 0) & ITU_PC_MASK;
+		proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+	    }
+
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
 				ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
