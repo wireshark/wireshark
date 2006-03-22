@@ -388,10 +388,12 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (ver == 9) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
-			    "total: %u (v%u) FlowSets", pdus, ver);
+			    "total: %u (v%u) record%s", pdus, ver,
+                            plurality(pdus, "", "s"));
 		} else {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
-			    "total: %u (v%u) flows", pdus, ver);
+			    "total: %u (v%u) flow%s", pdus, ver,
+                            plurality(pdus, "", "s"));
 		}
 	}
 
@@ -407,15 +409,17 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	offset += 4;
 
 	ts.secs = tvb_get_ntohl(tvb, offset);
-	ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
-	if (ver != 9)
+	if (ver != 9) {
+	  ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
 	  timeitem = proto_tree_add_time(netflow_tree,
 					 hf_cflow_timestamp, tvb, offset,
 					 8, &ts);
-	else
+        } else {
+	  ts.nsecs = 0;
 	  timeitem = proto_tree_add_time(netflow_tree,
 					 hf_cflow_timestamp, tvb, offset,
 					 4, &ts);
+        }
 
 	timetree = proto_item_add_subtree(timeitem, ett_unixtime);
 
@@ -534,7 +538,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		if (ver == 9) {
 			pduitem = proto_tree_add_text(netflow_tree, tvb,
-			    offset, pdusize, "FlowSet %u/%u", x, pdus);
+			    offset, pdusize, "FlowSet %u", x);
 		} else {
 			pduitem = proto_tree_add_text(netflow_tree, tvb,
 			    offset, pdusize, "pdu %u/%u", x, pdus);
@@ -588,14 +592,17 @@ static int
 flow_process_timeperiod(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 {
 	nstime_t        ts;
+	guint32         msec;
 
-	ts.secs = tvb_get_ntohl(tvb, offset) / 1000;
-	ts.nsecs = ((tvb_get_ntohl(tvb, offset) % 1000) * 1000000);
+	msec = tvb_get_ntohl(tvb, offset);
+	ts.secs = msec / 1000;
+	ts.nsecs = (msec % 1000) * 1000000;
 	proto_tree_add_time(pdutree, hf_cflow_timestart, tvb, offset, 4, &ts);
 	offset += 4;
 
-	ts.secs = tvb_get_ntohl(tvb, offset) / 1000;
-	ts.nsecs = ((tvb_get_ntohl(tvb, offset) % 1000) * 1000000);
+	msec = tvb_get_ntohl(tvb, offset);
+	ts.secs = msec / 1000;
+	ts.nsecs = (msec % 1000) * 1000000;
 	proto_tree_add_time(pdutree, hf_cflow_timeend, tvb, offset, 4, &ts);
 	offset += 4;
 
@@ -962,6 +969,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	for (i = 0; i < template->count; i++) {
 		guint16 type, length;
 		nstime_t ts;
+		guint32 msec;
 
 		type = template->entries[i].type;
 		length = template->entries[i].length;
@@ -1128,15 +1136,17 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			break;
 
 		case 21: /* last switched */
-			ts.secs = tvb_get_ntohl(tvb, offset) / 1000;
-			ts.nsecs = 0;
+		        msec = tvb_get_ntohl(tvb, offset);
+			ts.secs = msec / 1000;
+			ts.nsecs = (msec % 1000) * 1000000;
 			proto_tree_add_time(pdutree, hf_cflow_timeend,
 			    tvb, offset, length, &ts);
 			break;
 
 		case 22: /* first switched */
-			ts.secs = tvb_get_ntohl(tvb, offset) / 1000;
-			ts.nsecs = 0;
+		        msec = tvb_get_ntohl(tvb, offset);
+			ts.secs = msec / 1000;
+			ts.nsecs = (msec % 1000) * 1000000;
 			proto_tree_add_time(pdutree, hf_cflow_timestart,
 			    tvb, offset, length, &ts);
 			break;
