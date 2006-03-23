@@ -175,10 +175,18 @@ Ethereal Info
 	  Versions affected: 0.9.8.
         </para></listitem>
 
-        <!-- Left off at CID 44 -->
+        <listitem><para>
+	  The SMB PIPE dissector could crash Ethereal.
+	  <!-- Fixed in r17509, r17523, r17621, r17708 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 44, 46, 47, 48 -->
+	  Versions affected: 0.8.20.
+        </para></listitem>
 
-
-
+        <!-- CID 45: Bogus -->
+        <!-- CID 46 - 48: See CID 44 -->
+        <!-- CID 49: Bogus -->
+        <!-- CID 50-59: Not security-related -->
 
         <listitem><para>
 	  The SIP statistics feature could crash Ethereal.
@@ -188,9 +196,49 @@ Ethereal Info
 	  Versions affected: 0.10.4.
         </para></listitem>
 
-        <!-- CID 71: Bogus -->
+        <!-- CID 61 - 62: Not security-related -->
+        <!-- CID 63 - 66: Bogus -->
 
+        <listitem><para>
+	  The BER dissector could loop excessively.
+	  <!-- Fixed in r17498, r17625 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 67, 68, 136 -->
+	  Versions affected: 0.10.4.
+        </para></listitem>
+
+        <!-- CID 69 - 72: Bogus -->
+
+        <listitem><para>
+	  The SNDCP dissector could abort.
+	  <!-- Fixed in r17518 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 73 -->
+	  Versions affected: 0.10.4.
+        </para></listitem>
+
+        <!-- CID 74 - 78: Bogus -->
+        <!-- CID 79: Lemon is a build-time tool -->
+        <!-- CID 80: Bogus -->
         <!-- CID 81: Post-0.10.14 -->
+
+        <listitem><para>
+	  The Network Instruments file code could overrun a buffer.
+	  <!-- Fixed in r17520 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 82 -->
+	  Versions affected: 0.10.0.
+        </para></listitem>
+
+        <listitem><para>
+	  The NetXray/Windows Sniffer file code could overrun a buffer.
+	  <!-- Fixed in r17580 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 83 -->
+	  Versions affected: 0.10.13.
+        </para></listitem>
+
+        <!-- CID 83 - 103: Bogus -->
 
         <listitem><para>
 	  The GSM SMS dissector could crash Ethereal.
@@ -200,6 +248,19 @@ Ethereal Info
 	  Versions affected: 0.9.16.
         </para></listitem>
 
+        <!-- CID 105: Bogus -->
+
+        <listitem><para>
+	  The telnet dissector could overrun a buffer.
+	  <!-- Fixed in r17487 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 106 -->
+	  Versions affected: 0.8.5.
+        </para></listitem>
+
+        <!-- CID 107: See CID 79 -->
+        <!-- CID 108: Not security-related -->
+
         <listitem><para>
 	  The ASN.1 dissector could crash Ethereal.
 	  <!-- Fixed in r17489 -->
@@ -208,7 +269,23 @@ Ethereal Info
 	  Versions affected: 0.9.10.
         </para></listitem>
 
+
+
+
+
+        <!-- CID 115, 116: See CID 79 -->
+
         <!-- CID 127: Bogus -->
+
+        <!-- CID 129: Bogus -->
+
+        <!-- CID 132 - 134: Not security-related -->
+
+        <!-- CID 136: See CID 67 -->
+
+        <!-- CID 140: Bogus -->
+
+        <!-- CID 144: See CID 79 -->
 
       </itemizedlist>
     </para>
