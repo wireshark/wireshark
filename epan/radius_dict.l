@@ -8,7 +8,7 @@
 %option outfile="radius_dict.c"
 
 %{
-	/* packet-radius.c
+	/* radius_dict.l
 	*
 	* RADIUS dictionary parser
 	*
@@ -129,9 +129,9 @@
 <ATTR_W_ID>date				{ attr_type = radius_date;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ifid				{ attr_type = radius_ifid;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>[0-9a-z_-]+			{ attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_TYPE>has_tag[,]?		{ has_tag = TRUE; attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
-<ATTR_W_TYPE>encrypt=1[,]?		{ encrypted=TRUE;  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
-<ATTR_W_TYPE>[,0-9a-z_-]+=([^\n]+)	{ /* ignore other parameters */  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
+<ATTR_W_TYPE>has_tag[,]?		{ has_tag = TRUE; }
+<ATTR_W_TYPE>encrypt=1[,]?		{ encrypted=TRUE; }
+<ATTR_W_TYPE>[0-9a-z_-]+=([^\n]*)	;
 <ATTR_W_TYPE>[0-9a-z_-]+		{
     attr_vendor = g_strdup(yytext);
     add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag);
@@ -148,6 +148,8 @@
     g_free(attr_id);
     g_free(attr_name);
     linenums[include_stack_ptr]++;
+    has_tag = FALSE;
+    encrypted=FALSE;
     BEGIN OUT;
 }
 <ATTR_W_VENDOR>\n					{
