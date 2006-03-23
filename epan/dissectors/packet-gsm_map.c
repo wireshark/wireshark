@@ -80,7 +80,8 @@ static int hf_gsm_map_global_errorCode = -1;
 static int hf_gsm_map_SendAuthenticationInfoArg = -1;
 static int hf_gsm_map_SendAuthenticationInfoRes = -1;
 static int hf_gsm_mapSendEndSignal = -1;
-static int hf_gsm_map_getPassword = -1;  
+static int hf_gsm_map_getPassword = -1;
+static int hf_gsm_map_CheckIMEIArg = -1;
 static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
 static int hf_gsm_map_nature_of_number = -1;
@@ -940,7 +941,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 113 "packet-gsm_map-template.c"
+#line 114 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1024,7 +1025,7 @@ static gint ett_gsm_map_SendAuthenticationInfoRes = -1;
 static gint ett_gsm_map_SendAuthenticationInfoRes_item = -1;
 static gint ett_gsm_map_SendAuthenticationInfoResV3 = -1;
 static gint ett_gsm_map_Re_synchronisationInfo = -1;
-static gint ett_gsm_map_CheckIMEIArgV2 = -1;
+static gint ett_gsm_map_CheckIMEIArgV3 = -1;
 static gint ett_gsm_map_CheckIMEIRes = -1;
 static gint ett_gsm_map_RequestedEquipmentInfo = -1;
 static gint ett_gsm_map_UESBI_Iu = -1;
@@ -1357,7 +1358,7 @@ static gint ett_gsm_map_SecureTransportErrorParam = -1;
 static gint ett_gsm_map_ExtensionContainer = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 129 "packet-gsm_map-template.c"
+#line 130 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
@@ -4914,15 +4915,6 @@ dissect_gsm_map_SendAuthenticationInfoResV3(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-
-static int
-dissect_gsm_map_CheckIMEIArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_gsm_map_IMEI(implicit_tag, tvb, offset, pinfo, tree, hf_index);
-
-  return offset;
-}
-
-
 static const asn_namedbit RequestedEquipmentInfo_bits[] = {
   {  0, &hf_gsm_map_RequestedEquipmentInfo_equipmentStatus, -1, -1, "equipmentStatus", NULL },
   {  1, &hf_gsm_map_RequestedEquipmentInfo_bmuef, -1, -1, "bmuef", NULL },
@@ -4942,7 +4934,7 @@ static int dissect_requestedEquipmentInfo(packet_info *pinfo, proto_tree *tree, 
 }
 
 
-static const ber_sequence_t CheckIMEIArgV2_sequence[] = {
+static const ber_sequence_t CheckIMEIArgV3_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imei },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_requestedEquipmentInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -4950,9 +4942,9 @@ static const ber_sequence_t CheckIMEIArgV2_sequence[] = {
 };
 
 static int
-dissect_gsm_map_CheckIMEIArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_CheckIMEIArgV3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   CheckIMEIArgV2_sequence, hf_index, ett_gsm_map_CheckIMEIArgV2);
+                                   CheckIMEIArgV3_sequence, hf_index, ett_gsm_map_CheckIMEIArgV3);
 
   return offset;
 }
@@ -14439,7 +14431,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 347 "packet-gsm_map-template.c"
+#line 348 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -14762,7 +14754,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
 	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset = dissect_gsm_map_ProcessAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+		offset = dissect_gsm_map_ProcessAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
     offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
 	}
@@ -14796,10 +14788,10 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ProcessGroupCallSignallingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-	  if (application_context_version < 2 ){
-		  offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  if (application_context_version < 3 ){
+		  offset = dissect_gsm_map_IMEI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
 	  }else{
-		  offset=dissect_gsm_map_CheckIMEIArgV2(FALSE, tvb, offset, pinfo, tree, -1);
+		  offset=dissect_gsm_map_CheckIMEIArgV3(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CheckIMEIArg);
 	  }
     break;
   case 44: /*mt-forwardSM*/
@@ -14834,7 +14826,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	offset=dissect_gsm_map_RestoreDataArg(FALSE, tvb, offset, pinfo, tree, -1);
 	break;
   case 58: /*sendIMSI*/
-	offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, -1);
+	offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn);
 	break;
   case 59: /*processUnstructuredSS-Request*/
     offset=dissect_gsm_map_Ussd_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -15845,6 +15837,10 @@ void proto_register_gsm_map(void) {
       { "mapSendEndSignalArg", "gsm_map.mapsendendsignalarg",
         FT_BYTES, BASE_NONE, NULL, 0,
         "mapSendEndSignalArg", HFILL }},
+	{ &hf_gsm_map_CheckIMEIArg,
+      { "gsm_CheckIMEIArg", "gsm_map.CheckIMEIArg",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_CheckIMEIArg", HFILL }},
     { &hf_gsm_map_extension,
       { "Extension", "gsm_map.extension",
         FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,
@@ -16569,7 +16565,7 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_requestedEquipmentInfo,
       { "requestedEquipmentInfo", "gsm_map.requestedEquipmentInfo",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "CheckIMEIArgV2/requestedEquipmentInfo", HFILL }},
+        "CheckIMEIArgV3/requestedEquipmentInfo", HFILL }},
     { &hf_gsm_map_equipmentStatus,
       { "equipmentStatus", "gsm_map.equipmentStatus",
         FT_UINT32, BASE_DEC, VALS(gsm_map_EquipmentStatus_vals), 0,
@@ -19256,7 +19252,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 1891 "packet-gsm_map-template.c"
+#line 1896 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -19342,7 +19338,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_SendAuthenticationInfoRes_item,
     &ett_gsm_map_SendAuthenticationInfoResV3,
     &ett_gsm_map_Re_synchronisationInfo,
-    &ett_gsm_map_CheckIMEIArgV2,
+    &ett_gsm_map_CheckIMEIArgV3,
     &ett_gsm_map_CheckIMEIRes,
     &ett_gsm_map_RequestedEquipmentInfo,
     &ett_gsm_map_UESBI_Iu,
@@ -19675,7 +19671,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 1909 "packet-gsm_map-template.c"
+#line 1914 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
