@@ -1689,7 +1689,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
     gperror_tree = proto_item_add_subtree(ti, ett_cops_gperror);
     proto_tree_add_uint(gperror_tree, hf_cops_gperror, tvb, offset, 2, gperror);
     offset += 2;
-    if (cperror == 13) {
+    if (gperror == 13) {
       proto_tree_add_text(gperror_tree, tvb, offset, 2, "Error Sub-code: "
                           "Unknown object's C-Num %u, C-Type %u",
                           tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
