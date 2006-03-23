@@ -7,7 +7,7 @@
  * - RFC 3758
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-15.txt
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-13.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-01.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-02.txt
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-02.txt
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctpstrrst-01.txt
  * - http://www.ietf.org/internet-drafts/draft-ladha-sctp-nonce-02.txt
@@ -217,10 +217,10 @@ static dissector_handle_t data_handle;
 #define SCTP_ECNE_CHUNK_ID              12
 #define SCTP_CWR_CHUNK_ID               13
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
+#define SCTP_AUTH_CHUNK_ID              15
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID         0x81
 #define SCTP_STREAM_RESET_CHUNK_ID    0x82
-#define SCTP_AUTH_CHUNK_ID            0x83
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
 #define SCTP_ASCONF_CHUNK_ID          0xC1
 #define SCTP_IETF_EXT                 0xFF
