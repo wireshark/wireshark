@@ -923,14 +923,14 @@ RequestingNodeType ::= ENUMERATED {
 
 --checkIMEI  OPERATION
 --   ARGUMENT
-CheckIMEIArg ::= IMEI
+-- CheckIMEIArg ::= IMEI calling dissect_gsm_map_IMEI directly from template
 
 
 -- V2
 -- checkIMEI  OPERATION  ::=  {
 --   ARGUMENT     SEQUENCE {
 
-CheckIMEIArgV2 ::= SEQUENCE {
+CheckIMEIArgV3 ::= SEQUENCE {
 	imei IMEI,
 	requestedEquipmentInfo	RequestedEquipmentInfo,
 	extensionContainer	ExtensionContainer OPTIONAL,

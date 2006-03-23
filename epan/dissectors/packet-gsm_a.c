@@ -530,6 +530,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Descriptive group or broadcast call reference" },
     { 0x00,	"Group Cipher Key Number" },
     { 0x00,	"PD and SAPI $(CCBS)$" },
+	/* Pos 10 */
     { 0x00,	"Priority Level" },
     { 0x00,	"PLMN List" },
     /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
@@ -555,10 +556,11 @@ static const value_string gsm_dtap_elem_strings[] = {
 /* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
  * [3]  10.5.2.7b	(void) */
 	{ 0x00, "Classmark Enquiry Mask" },			/* [3]  10.5.2.7c */
-/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
- * [3]  10.5.2.8	Channel Needed
- * [3]  10.5.2.8a	(void)	
- * [3]  10.5.2.8b	Channel Request Description 2 */
+/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element */
+	{ 0x00, "Channel Needed"},					/* [3]  10.5.2.8	*/
+ /* [3]  10.5.2.8a	(void)	
+ /* [3]  10.5.2.8b	Channel Request Description 2 */
+		/* Pos 20 */
  	{ 0x00, "Cipher Mode Setting" },				/* [3]  10.5.2.9	*/
 /* [3]  10.5.2.10	Cipher Response
  * [3]  10.5.2.11	Control Channel Description
@@ -585,6 +587,7 @@ static const value_string gsm_dtap_elem_strings[] = {
  	{ 0x00, "Mobile Allocation" },				/* [3] 10.5.2.21	*/ 
  	{ 0x00, "Mobile Time Difference" },			/* [3] 10.5.2.21a	*/
  	{ 0x00, "MultiRate configuration" },		/* [3] 10.5.2.21aa	*/
+	/* Pos 30 */
 	{ 0x00, "Multislot Allocation" },			/* [3] 10.5.2.21b	*/ 
  /*
  * [3] 10.5.2.21c NC mode
@@ -639,6 +642,7 @@ static const value_string gsm_dtap_elem_strings[] = {
 /*
  * [3] 10.5.2.42 TMSI/P-TMSI */
 	{ 0x00,	"VGCS target mode Indication" },	/* [3] 10.5.2.42a								*/ 
+	/* Pos 40 */
 	{ 0x00,	"VGCS Ciphering Parameters" },		/* [3] 10.5.2.42b								*/
 /* [3] 10.5.2.43 Wait Indication
  * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
@@ -665,6 +669,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Authentication Failure Parameter (UMTS authentication challenge only)" },
     { 0x00,	"CM Service Type" },
     { 0x00,	"Identity Type" },
+	/* Pos 50 */
     { 0x00,	"Location Updating Type" },
     { 0x00,	"Network Name" },
     { 0x00,	"Reject Cause" },
@@ -676,6 +681,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Daylight Saving Time" },
     { 0x00, "Emergency Number List" },
     /* Call Control Information Elements 10.5.4 */
+	/* Pos 60 */
     { 0x00,	"Auxiliary States" },
     { 0x00,	"Bearer Capability" },
     { 0x00,	"Call Control Capabilities" },
@@ -3130,18 +3136,20 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 typedef enum
 {
     /* Common Information Elements 10.5.1 */
-    DE_CELL_ID,	/* Cell Identity */
+	/* Pos 0 */
+    DE_CELL_ID,				/* Cell Identity */
     DE_CIPH_KEY_SEQ_NUM,	/* Ciphering Key Sequence Number */
-    DE_LAI,	/* Location Area Identification */
-    DE_MID,	/* Mobile Identity */
-    DE_MS_CM_1,	/* Mobile Station Classmark 1 */
-    DE_MS_CM_2,	/* Mobile Station Classmark 2 */
-    DE_MS_CM_3,	/* Mobile Station Classmark 3 */
-    DE_D_GB_CALL_REF,	/* Descriptive group or broadcast call reference */
-    DE_G_CIPH_KEY_NUM,	/* Group Cipher Key Number */
-    DE_PD_SAPI,	/* PD and SAPI $(CCBS)$ */
-    DE_PRIO,	/* Priority Level */
-    DE_PLMN_LIST,	/* PLMN List */
+    DE_LAI,					/* Location Area Identification */
+    DE_MID,					/* Mobile Identity */
+    DE_MS_CM_1,				/* Mobile Station Classmark 1 */
+    DE_MS_CM_2,				/* Mobile Station Classmark 2 */
+    DE_MS_CM_3,				/* Mobile Station Classmark 3 */
+    DE_D_GB_CALL_REF,		/* Descriptive group or broadcast call reference */
+    DE_G_CIPH_KEY_NUM,		/* Group Cipher Key Number */
+    DE_PD_SAPI,				/* PD and SAPI $(CCBS)$ */
+	/* Pos 10 */
+    DE_PRIO,				/* Priority Level */
+    DE_PLMN_LIST,			/* PLMN List */
 
     /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1	*/
 /*
@@ -3171,6 +3179,7 @@ typedef enum
 	DE_RR_CHNL_NEEDED,				/* [3]  10.5.2.8	Channel Needed
  * [3]  10.5.2.8a	(void)	
  * [3]  10.5.2.8b	Channel Request Description 2 */
+	/* Pos 20 */
 	DE_RR_CIP_MODE_SET,				/* [3]  10.5.2.9	Cipher Mode Setting			*/
 /* [3]  10.5.2.10	Cipher Response
  * [3]  10.5.2.11	Control Channel Description
@@ -3198,6 +3207,7 @@ typedef enum
 	DE_RR_MOB_ALL,					/* [3] 10.5.2.21 Mobile Allocation				*/
 	DE_RR_MOB_TIME_DIFF,			/* [3] 10.5.2.21a Mobile Time Difference		*/
 	DE_RR_MULTIRATE_CONF,			/* [3] 10.5.2.21aa MultiRate configuration		*/
+	/* Pos 30 */
 	DE_RR_MULT_ALL,					/* [3] 10.5.2.21b Multislot Allocation			*/
 
 /*
@@ -3253,6 +3263,7 @@ typedef enum
 /*
  * [3] 10.5.2.42 TMSI/P-TMSI */
 	DE_RR_VGCS_TAR_MODE_IND,		/* [3] 10.5.2.42a VGCS target mode Indication	*/
+	/* Pos 40 */
 	DE_RR_VGCS_CIP_PAR,				/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
 
 /* [3] 10.5.2.43 Wait Indication
@@ -3280,6 +3291,7 @@ typedef enum
     DE_AUTH_FAIL_PARAM,				/* Authentication Failure Parameter (UMTS authentication challenge only) */
     DE_CM_SRVC_TYPE,				/* CM Service Type */
     DE_ID_TYPE,						/* Identity Type */
+	/* Pos 50 */
     DE_LOC_UPD_TYPE,				/* Location Updating Type */
     DE_NETWORK_NAME,				/* Network Name */
     DE_REJ_CAUSE,					/* Reject Cause */
@@ -3291,6 +3303,7 @@ typedef enum
     DE_DAY_SAVING_TIME,				/* Daylight Saving Time */
     DE_EMERGENCY_NUM_LIST,			/* Emergency Number List */
     /* Call Control Information Elements 10.5.4 */
+	/* Pos 60 */
     DE_AUX_STATES,					/* Auxiliary States */
     DE_BEARER_CAP,					/* Bearer Capability */
     DE_CC_CAP,						/* Call Control Capabilities */
@@ -12503,6 +12516,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_d_gb_call_ref,	/* Descriptive group or broadcast call reference */
     NULL /* handled inline */,	/* Group Cipher Key Number */
     de_pd_sapi,	/* PD and SAPI $(CCBS)$ */
+	/* Pos 10 */
     de_prio /* handled inline */,	/* Priority Level */
     de_plmn_list,	/* PLMN List */
     /* Radio Resource Management  Information Elements 10.5.2, most are from 10.5.1 */
@@ -12534,6 +12548,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	de_rr_chnl_needed,				/* [3]  10.5.2.8	Channel Needed
  * [3]  10.5.2.8a	(void)	
  * [3]  10.5.2.8b	Channel Request Description 2 */
+	/* Pos 20 */
 	de_rr_cip_mode_set,					/* [3]  10.5.2.9	Cipher Mode Setting		*/
 /* [3]  10.5.2.10	Cipher Response
  * [3]  10.5.2.11	Control Channel Description
@@ -12560,6 +12575,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	de_rr_mob_all,					/* [3] 10.5.2.21 Mobile Allocation				*/
 	de_rr_mob_time_diff,			/* [3] 10.5.2.21a Mobile Time Difference		*/
 	de_rr_multirate_conf,			/* [3] 10.5.2.21aa MultiRate configuration		*/
+	/* Pos 30 */
 	de_rr_mult_all,					/* [3] 10.5.2.21b Multislot Allocation			*/
 /*
  * [3] 10.5.2.21c NC mode
@@ -12614,6 +12630,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 /*
  * [3] 10.5.2.42 TMSI/P-TMSI */
 	de_rr_vgcs_tar_mode_ind,			/* [3] 10.5.2.42a VGCS target mode Indication	*/
+	/* Pos 40 */
 	de_rr_vgcs_cip_par,					/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
 /* [3] 10.5.2.43 Wait Indication
  * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
@@ -12640,6 +12657,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_auth_fail_param,	/* Authentication Failure Parameter (UMTS authentication challenge only) */
     NULL /* handled inline */,	/* CM Service Type */
     NULL /* handled inline */,	/* Identity Type */
+	/* Pos 50 */
     NULL /* handled inline */,	/* Location Updating Type */
     de_network_name,	/* Network Name */
     de_rej_cause,	/* Reject Cause */
@@ -12651,6 +12669,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_day_saving_time,	/* Daylight Saving Time */
     NULL, /* Emergency Number List */
     /* Call Control Information Elements 10.5.4 */
+	/* Pos 60 */
     de_aux_states,	/* Auxiliary States */
     de_bearer_cap,	/* Bearer Capability */
     de_cc_cap,	/* Call Control Capabilities */

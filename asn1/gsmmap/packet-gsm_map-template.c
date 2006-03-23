@@ -72,7 +72,8 @@ static int hf_gsm_map_global_errorCode = -1;
 static int hf_gsm_map_SendAuthenticationInfoArg = -1;
 static int hf_gsm_map_SendAuthenticationInfoRes = -1;
 static int hf_gsm_mapSendEndSignal = -1;
-static int hf_gsm_map_getPassword = -1;  
+static int hf_gsm_map_getPassword = -1;
+static int hf_gsm_map_CheckIMEIArg = -1;
 static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
 static int hf_gsm_map_nature_of_number = -1;
@@ -666,7 +667,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	   */
 	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
 	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset = dissect_gsm_map_ProcessAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+		offset = dissect_gsm_map_ProcessAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
     offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
 	}
@@ -700,10 +701,10 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ProcessGroupCallSignallingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-	  if (application_context_version < 2 ){
-		  offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  if (application_context_version < 3 ){
+		  offset = dissect_gsm_map_IMEI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
 	  }else{
-		  offset=dissect_gsm_map_CheckIMEIArgV2(FALSE, tvb, offset, pinfo, tree, -1);
+		  offset=dissect_gsm_map_CheckIMEIArgV3(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CheckIMEIArg);
 	  }
     break;
   case 44: /*mt-forwardSM*/
@@ -738,7 +739,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	offset=dissect_gsm_map_RestoreDataArg(FALSE, tvb, offset, pinfo, tree, -1);
 	break;
   case 58: /*sendIMSI*/
-	offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, -1);
+	offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn);
 	break;
   case 59: /*processUnstructuredSS-Request*/
     offset=dissect_gsm_map_Ussd_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1749,6 +1750,10 @@ void proto_register_gsm_map(void) {
       { "mapSendEndSignalArg", "gsm_map.mapsendendsignalarg",
         FT_BYTES, BASE_NONE, NULL, 0,
         "mapSendEndSignalArg", HFILL }},
+	{ &hf_gsm_map_CheckIMEIArg,
+      { "gsm_CheckIMEIArg", "gsm_map.CheckIMEIArg",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_CheckIMEIArg", HFILL }},
     { &hf_gsm_map_extension,
       { "Extension", "gsm_map.extension",
         FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,
