@@ -36,7 +36,7 @@
  * the ASN.1 definition of the messages it reads. To this end, it can read
  * the 'type-table' output file of the ASN.1 to C compiler 'snacc'. The
  * version I have used came from: http://packages.debian.org/testing/devel/snacc.html
- * 
+ *
  * The type-table files produced by snacc are themselves ASN.1 BER encoded
  * data structures. Knowledge of the structure of that table, as specified
  * in the tbl.asn1 file in the snacc distribution, is hand coded in some
@@ -125,7 +125,7 @@ static int ett_pdu[MAXPDU];
 #define MAX_NEST 32		/* max nesting level for ASN.1 elements */
 static int ett_seq[MAX_NEST];
 
-/* 
+/*
  * Global variables associated with the preferences for asn1
  */
 
@@ -171,9 +171,9 @@ static char *asn1_logfile = NULL;
 static int pcount = 0;
 
 static tvbuff_t *asn1_desc;	/* the PDU description */
-static GNode *asn1_nodes = 0;	/* GNode tree pointing to every asn1 data element */
-static GNode *data_nodes = 0;	/* GNode tree describing the syntax data */
-static GNode *PDUtree = 0;	/* GNode tree describing the expected PDU format */
+static GNode *asn1_nodes = NULL;	/* GNode tree pointing to every asn1 data element */
+static GNode *data_nodes = NULL;	/* GNode tree describing the syntax data */
+static GNode *PDUtree = NULL;	/* GNode tree describing the expected PDU format */
 
 static guint PDUerrcount = 0;   /* count of parse errors in one ASN.1 message */
 
@@ -312,8 +312,8 @@ static const char *tbl_types_asn1[] = {
 		       /* 15 */ "TYPEREF nopop",
 		       /* 16 */ "CHOICE done",
 		       /* 17 */ "Reserved",
-		       /* 18 */	"CHOICE immediate",			
-		       
+		       /* 18 */	"CHOICE immediate",
+
 		       /* 19 */ "INVALID entry",
 };
 /* conversion from snacc type to appropriate ethereal type */
@@ -339,7 +339,7 @@ static guint tbl_types_ethereal[] = {
 		       /* 17 */ FT_NONE,	/* TBL_reserved */
 		       /* 18 */ FT_NONE,	/* TBL_CHOICE_immediate */
 
-		       /* 19 */ FT_NONE,	/* TBL_INVALID */		
+		       /* 19 */ FT_NONE,	/* TBL_INVALID */
 };
 
 static const char *tbl_types_ethereal_txt[] = {
@@ -364,7 +364,7 @@ static const char *tbl_types_ethereal_txt[] = {
 		       /* 17 */ "FT_NONE",	/* TBL_reserved */
 		       /* 18 */ "FT_NONE",	/* TBL_CHOICE_immediate */
 
-		       /* 19 */ "FT_NONE",	/* TBL_INVALID */		
+		       /* 19 */ "FT_NONE",	/* TBL_INVALID */
 };
 
 typedef struct _PDUinfo PDUinfo;
@@ -518,7 +518,7 @@ showbitnames(guchar *val, guint count, PDUprops *props, guint offset)
 	if (count > 32)
 		return "*too many bits, no names...*";
 
-	if (val != 0) {
+	if (val != NULL) {
 		for(i=0; i<count; i++) {
 			if (val[i>>3] & (0x80 >> (i & 7))) { /* bit i is set */
 				p += sprintf(p,"%s,", getPDUenum(props, offset, 0, 0, i));
@@ -542,7 +542,7 @@ static char *showoid(subid_t *oid, guint len)
 	guint i;
 	char *p = str;
 
-	if (oid != 0) {
+	if (oid != NULL) {
 		for(i=0; i<len; i++) {
 			if (i) *p++ = '.';
 			p += sprintf(p, "%lu", (unsigned long)oid[i]);
@@ -690,7 +690,7 @@ checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 		default:
 			if (len > 131071)
 				newlen = 64;
-			break;                                                  
+			break;
 		}
 	}
 
@@ -706,9 +706,9 @@ checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 static guint decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint len, proto_tree *pt, int level);
 static void PDUreset(int count, int counr2);
 
-static void 
+static void
 dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  
+
   ASN1_SCK asn1;
   guint cls, con, tag, def, len, offset, reassembled;
   char lenstr[BUFLS];
@@ -744,7 +744,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if(check_col(pinfo->cinfo, COL_PROTOCOL)){
     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ASN.1 %s", current_pduname);
   }
-  
+
   if(check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -776,7 +776,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	  g_snprintf(headstr, sizeof(headstr), "first%s: (%s)%s %d %s, %s, %s, len=%s, off=%d, size=%d ",
 		   offstr,
 		   tname,
-		   name,   
+		   name,
 		   pcount,
 		   asn1_cls[cls],
 		   asn1_con[con],
@@ -798,7 +798,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_add_str(pinfo->cinfo, COL_INFO, headstr );
   }
 
-  /* 
+  /*
    * If we have a non-null tree (ie we are building the proto_tree
    * instead of just filling out the columns ), then add a BER
    * tree node
@@ -814,7 +814,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					    "ASN.1 %s", current_pduname);
 
 	tree2 = proto_item_add_subtree(ti, ett_asn1);
-	
+
 	proto_tree_add_item_hidden(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
 				   def? (int) (offset - boffset + len) :  -1, TRUE);
 
@@ -831,7 +831,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    getPDUprops(&props, boffset, cls, tag, con);
 	    name = props.name;
 	    tname = props.typename;
-	    
+
 	    if (!def)
 		    len = tvb_length_remaining(tvb, offset);
 
@@ -863,7 +863,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			     if (props.type_id != -1)
 			         proto_tree_add_item_hidden(tree2, props.type_id, tvb, boffset,
 			     			      def? (int) (offset - boffset + len) :  -1, TRUE);
-			     
+
 	 	    }
 	    } else {
 		    if (props.flags & OUT_FLAG_noname) {
@@ -897,7 +897,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_item_set_len(ti2, offset - boffset); /* mark length for hex display */
 
 	    i++; /* one more full message handled */
-	
+
 	    if (ti2 && PDUerrcount && asn1_debug) /* show error counts only when in debug mode.... */
 		    proto_item_append_text(ti2," (%d error%s)", PDUerrcount, (PDUerrcount>1)?"s":empty);
 	}
@@ -959,7 +959,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
   PDUprops props;
 
   ti = 0;			/* suppress gcc warning */
-  
+
   soffset = offset; /* where this sequence starts */
   eos = offset + tlen;
   while (offset < eos) {	/* while this entity has not ended... */
@@ -1005,7 +1005,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		  tname = tagstr;
 		  name = nnbuf; /* this is better than just empty.... */
 	  }
-  
+
 #ifdef NEST
 	  taglist[level].cls = cls;
 	  taglist[level].tag = tag;
@@ -1300,7 +1300,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      }
 		      getPDUprops(&props, soffset, ASN1_EOI, 1, 0); /* mark end of this sequence */
 		      return offset;
-		      
+
 		case ASN1_OJI:
 		      ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
 		      asn1_close(&asn1, &offset); /* mark where we are now */
@@ -1357,7 +1357,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		case ASN1_VIDSTR:
 		case ASN1_GRASTR:
 		case ASN1_VISSTR:
-		      
+
 	        default:
 		      if (asn1_debug) {
 			      ti = proto_tree_add_text(pt, tvb, boffset, offset - boffset + len,
@@ -1370,7 +1370,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      proto_item_append_text(ti, " *"); /* indicate default is used */
 		      offset += len; /* skip value ... */
 		      break;
-	      };	
+	      };
 	      break;
 
 	    case ASN1_CTX:		/* fprintf(stderr, "Context\n"); */
@@ -1619,7 +1619,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					ename = ", noshow";
 			      	if ( (props.flags & OUT_FLAG_constructed))
 					ename = ", unexpected constructed";
-				
+
 				if (props.value_id == -1)
 				      ti = proto_tree_add_text(pt, tvb, boffset, offset - boffset + len,
 								 textfmt_c, boffset, clsstr, constr,
@@ -1668,7 +1668,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				pt2 = proto_item_add_subtree(ti, ett_seq[level]);
 			else
 				pt2 = pt;
-	
+
 			offset = decode_asn1_sequence(tvb, offset, len, pt2, level+1); /* recurse */
 
 			if ( ( ! asn1_full) && (asn1_debug || ((props.flags & OUT_FLAG_dontshow) == 0)))
@@ -1695,7 +1695,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
   /* proto_tree_add_text(pt, tvb, offset, 1, "Marker: offset=%d", offset); */
 
   getPDUprops(&props, soffset, ASN1_EOI, 0, 0); /* mark end of this sequence */
-  
+
   return offset;
 }
 #define READSYNTAX
@@ -1792,7 +1792,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 
 			case ASN1_EOC:
 				return offset;
-		      
+
 			case ASN1_OJI:
 				ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
 				asn1_close(&asn1, &offset); /* mark where we are */
@@ -1809,12 +1809,12 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			case ASN1_VIDSTR:
 			case ASN1_GRASTR:
 			case ASN1_VISSTR:
-		      
+
 			default:
 				if (asn1_verbose) g_message("%d skip1 %d", offset, len);
 				offset += len; /* skip value ... */
 				break;
-			};	
+			};
 			break;
 
 		case ASN1_CTX:		/* fprintf(stderr, "Context\n"); */
@@ -2100,7 +2100,7 @@ static guint
 get_asn1_uint(guint offset)
 {
 	ASN1_SCK asn1;
-	guint ret, len, value;	
+	guint ret, len, value;
 
 	/* g_message( "%d get_asn1_uint", offset); */
 
@@ -2163,13 +2163,13 @@ define_constraint(GNode *p, GNode *q)
 {
 	TBLRange *range = g_malloc(sizeof(TBLRange));
 	g_node_append_data(q, range);
-	
+
 	range->type = TBLTYPE_Range;
-	
+
 	/* g_message("define_constraint %p, %p", p, q); */
 
 	p = g_node_first_child(p);
-	
+
 	range->from = get_asn1_int(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
@@ -2182,13 +2182,13 @@ define_namednumber(GNode *p, GNode *q)
 {
 	TBLNamedNumber *num = g_malloc(sizeof(TBLNamedNumber));
 	g_node_append_data(q, num);
-	
+
 	num->type = TBLTYPE_NamedNumber;
-	
+
 	/* g_message("define_namednumber %p, %p", p, q); */
-	
+
 	p = g_node_first_child(p);
-	
+
 	num->name = get_asn1_string(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
@@ -2200,9 +2200,9 @@ define_typeref(GNode *p, GNode *q)
 {
 	TBLTypeRef *ref = g_malloc(sizeof(TBLTypeRef));
 	g_node_append_data(q, ref);
-	
+
 	ref->type = TBLTYPE_TypeRef;
-	
+
 	/* g_message("define_typeref %p, %p", p, q); */
 
 	p = g_node_first_child(p);
@@ -2224,12 +2224,12 @@ define_tag(GNode *p, GNode *q)
 	/* g_message("define_tag %p, %p", p, q); */
 
 	p = g_node_first_child(p);
-	
+
 	type->tclass = get_asn1_int(ASN1_ENUM, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
 	type->code = get_asn1_int(ASN1_INT, GPOINTER_TO_UINT(p->data));
-	
+
 }
 
 static void
@@ -2277,7 +2277,7 @@ define_type(GNode *p, GNode *q)
 				define_type(g_node_first_child(r), t);
 				r = g_node_next_sibling(r);
 			}
-			break;			
+			break;
 		case TBLTYPETYPE_TypeRef:
 			define_typeref(r, t);
 			break;
@@ -2302,7 +2302,7 @@ define_type(GNode *p, GNode *q)
 		define_constraint(p, t);
 		p = g_node_next_sibling(p);
 	}
-	
+
 	if (p && check_tag(6, GPOINTER_TO_UINT(p->data))) {
 		r =  g_node_first_child(p);
 		while(r) {
@@ -2320,20 +2320,20 @@ define_typedef(GNode *p, GNode *q)
 	GNode *t = g_node_append_data(q, type_def);
 
 	/* g_message("define_typedef %p, %p", p, q); */
-	
+
 	type_def->type = TBLTYPE_TypeDef;
 
 	p = g_node_first_child(p);
-	
+
 	type_def->typeDefId = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	
+
 	type_def->typeName = get_asn1_string(ASN1_PRNSTR, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	
+
 	define_type(g_node_first_child(p), t);
 	p = g_node_next_sibling(p);
-	
+
 	type_def->isPdu = (p != 0);  /* true if it exists, value ignored */
 }
 
@@ -2343,22 +2343,22 @@ define_module(GNode *p, GNode *q)
 	TBLModule *module = g_malloc(sizeof(TBLModule));
 
 	GNode *m = g_node_append_data(q, module);
-	
+
 	/* g_message("define_module %p %p", p, q); */
 
 	module->type = TBLTYPE_Module;
-	
+
 	p = g_node_first_child(p);
-	
+
 	module->name = get_asn1_string(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	
+
 	module->id = 0;
-	if (check_tag(1, GPOINTER_TO_UINT(p->data))) { /* optional */ 
+	if (check_tag(1, GPOINTER_TO_UINT(p->data))) { /* optional */
 		module->id = get_asn1_oid(1, GPOINTER_TO_UINT(p->data));
 		p = g_node_next_sibling(p);
 	}
-	
+
 	module->isUseful = get_asn1_int(2, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
@@ -2429,7 +2429,7 @@ is_named(GNode *node, gpointer data)
 	}
 	if (num->value > n->used)  /* track max used value, there may be holes... */
 		n->used = num->value;
-	
+
 	n->info[num->value].name = num->name;
 
 	return FALSE;
@@ -2446,7 +2446,7 @@ index_typedef(GNode *node, gpointer data)
 
 	if (d == 0) return FALSE;
 	if (d->type != TBLTYPE_TypeDef) return FALSE;
-	
+
 	if (d->typeDefId >= n->max) { /* need larger array */
 		oldmax = n->max;
 		n->max = d->typeDefId + ALLOC_INCR;
@@ -2486,7 +2486,7 @@ index_typedef(GNode *node, gpointer data)
 			break;
 		}
 	}
-	
+
 	return FALSE;
 }
 
@@ -2502,7 +2502,7 @@ free_node_data(GNode *node, gpointer data _U_)
 
 static void
 get_values(void)		/* collect values from ASN.1 tree */
-				/* coded according to the tbl.asn1 description of snacc output */ 
+				/* coded according to the tbl.asn1 description of snacc output */
 {				/* This routine does not leave references to the tvbuff or */
 				/* to the asn1_nodes, both can be freed by the caller of this.*/
 	GNode *p;
@@ -2515,17 +2515,17 @@ get_values(void)		/* collect values from ASN.1 tree */
 
 	if (asn1_verbose) g_message("interpreting tree");
 	typeDef_names = 0;  /* just forget allocated any data .... */
-	
+
 	if (data_nodes) {
 		g_node_traverse(data_nodes, G_POST_ORDER, G_TRAVERSE_ALL, -1,
 		    free_node_data, NULL);
 		g_node_destroy(data_nodes);
 	}
-			
+
 	data_nodes = g_node_new(0);
 
 	p = g_node_first_child(asn1_nodes); /* top of the data tree */
-	
+
 	p = g_node_first_child(p);
 	TT.totalNumModules = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
@@ -2545,7 +2545,7 @@ get_values(void)		/* collect values from ASN.1 tree */
 		define_module(p, data_nodes);
 		p = g_node_next_sibling(p);
 	}
-	
+
 	/* g_message("finished with tree"); */
 
 	if (!tbl_types_verified) { /* verify snacc TBLTypeId contents */
@@ -2776,7 +2776,7 @@ read_asn1_type_table(const char *filename)
 		return;
 	}
 	if (asn1_verbose) g_message("reading %d bytes from %s", size, filename);
-	
+
 	data = g_malloc(size);
 	if (fread(data, size, 1, f) < 1) {
 		g_warning("error reading %s, %s", filename, strerror(errno));
@@ -2791,7 +2791,7 @@ read_asn1_type_table(const char *filename)
 	   */
 
 		static guint mylogh = 0;
-		
+
 		g_message("logging to file %s", asn1_logfile);
 
 		if (mylogh == 0) {
@@ -2803,7 +2803,7 @@ read_asn1_type_table(const char *filename)
 	asn1_desc = tvb_new_real_data(data, size, size);
 
 	tt_build_tree();
-	if (asn1_verbose) g_message("read %d items from %s", icount, filename);	
+	if (asn1_verbose) g_message("read %d items from %s", icount, filename);
 
 #if 0
 	list_modules();
@@ -2820,10 +2820,11 @@ read_asn1_type_table(const char *filename)
 
 	showGNodes(data_nodes, 0);
 
-	debug_dump_TT();  
+	debug_dump_TT();
 }
 
 
+/* XXX - Shoudn't we make sure we're not dereferencing a NULL pointer here? */
 #define CHECKTYPE(p,x) {if (((TBLTag *)(p)->data)->type != (x)) \
         g_warning("**** unexpected type %s, want %s, at line %d", \
 			data_types[((TBLTag *)p->data)->type], data_types[(x)], __LINE__);}
@@ -2836,7 +2837,7 @@ save_reference(PDUinfo *p)
 
 	if (i == -1)
 		i = p->basetype;
-	
+
 	g_ptr_array_add(typeDef_names[i].refs, (gpointer)p);
 }
 
@@ -2858,7 +2859,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 		g_warning("****tbl_typeref: n>40, return [recursion too deep] ****************");
 		return;
 	}
-	
+
 	CHECKTYPE(tree, TBLTYPE_TypeDef);
 
 	if (asn1_verbose) g_message("%*s+tbl_typeref %s [%s, tag %c%d]", n*2, empty,
@@ -2901,7 +2902,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 						  xtag,
 						  tag_class[((TBLTag *)q->data)->tclass],
 						  ((TBLTag *)q->data)->code);
-		
+
 			}
 		}
 	} else {
@@ -2911,7 +2912,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 		if (p->tclass==CLASSREF)
 			g_snprintf(ss, 128, ", CLASSREF %d", p->tag);
 		if (asn1_verbose) g_message("%*sno typeref tag%s", n*2, empty, ss);
-		
+
 		if (p->tclass==CLASSREF) {
 			TypeRef *tr;
 			int i = p->basetype;
@@ -2926,7 +2927,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 					  p->tag, tr->name, tr->pdu);
 
 			tbl_typeref(n+1, pdu, tr->type, fullindex);
-		
+
 			return;
 		}
 	}
@@ -2942,11 +2943,11 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 		if (asn1_verbose) g_message("%*s*collection T %s", n*2, empty, p->name);
 			/* read the enumeration [save min-max somewhere ?] */
 		p->value_hf.hfinfo.type = tbl_types_ethereal[p->type]; /* XXX change field type... */
-		
+
 		proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
 		save_reference(p);
-		
+
 		if (asn1_verbose)
 			g_message("regtype1: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 				  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
@@ -2965,7 +2966,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			if (asn1_verbose) g_message("%*s  %3d %s", n*2, empty, p->tag, p->name);
 			g_node_append_data(pdu, p);
 		}
-		
+
 		/* list all enum values in the field structure for matching */
 		p1->value_hf.hfinfo.strings = v = g_malloc0((nvals+1) * sizeof(value_string));
 		q = g_node_first_child(pdu);
@@ -2979,7 +2980,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			q = g_node_next_sibling(q);
 		}
 		/* last entry is already initialized to { 0, NULL } */
-		
+
 		break;
 
 	case TBL_CHOICE:
@@ -2988,7 +2989,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
 			save_reference(p);
-		
+
 			if (asn1_verbose)
 				g_message("regtype2: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
@@ -3003,7 +3004,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			p->value_hf.hfinfo.type = tbl_types_ethereal[p->type];
 			proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
-			save_reference(p);			
+			save_reference(p);
 
 			if (asn1_verbose)
 				g_message("regtype3: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
@@ -3046,11 +3047,11 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 		}
 
 		/******* change to positive comparation, but leave comment for reference
-		 * if (((TBLTag *)list->data)->type != TBLTYPE_TypeRef) { 
+		 * if (((TBLTag *)list->data)->type != TBLTYPE_TypeRef) {
 		 *	CHECKTYPE(list, TBLTYPE_Type);
 		 */
 
-                if (((TBLTag *)list->data)->type == TBLTYPE_Type) { 
+                if (((TBLTag *)list->data)->type == TBLTYPE_Type) {
 			CHECKTYPE(list, TBLTYPE_Type);
 
 			p = g_malloc0(sizeof(PDUinfo));
@@ -3064,18 +3065,18 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			p->flags = PDUinfo_initflags;
 			p->flags |= (((TBLType *)list->data)->anonymous ? PDU_ANONYMOUS : 0);
 			p->flags |= (((TBLType *)list->data)->optional ? PDU_OPTIONAL : 0);
-	
+
 			if (((TBLType *)list->data)->fieldName == 0) { /* no name assigned */
 				/* assign an anonymous name [XXX refer to parent typename...] */
 				((TBLType *)list->data)->fieldName =
 							g_strdup_printf("anon%d", anonCount++);
 			}
 			p->name = ((TBLType *)list->data)->fieldName;
-			
+
 			ni = fullindex;
 			ni += snprintf(&fieldname[ni], sizeof(fieldname) - ni, ".%s", p->name);
 			p->fullname = g_strdup(fieldname);
-			
+
 			/* initialize field info */
 			p->value_id = -1;
 			p->type_id = -1;
@@ -3099,7 +3100,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 						  p->typename, p->name, p->fullname,
 						  tbl_types_ethereal_txt[p->type], p->value_id);
 			}
-			
+
 			q = g_node_first_child(list);
 		} else {
 			p = (PDUinfo *)pdu->data;
@@ -3108,7 +3109,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 
 
 		if (asn1_verbose) g_message("%*s*switch %s %s", n*2, empty, p->name, TBLTYPE(p->type));
-		
+
 		switch (p->type) {
 		case TBL_BOOLEAN:
 		case TBL_INTEGER:
@@ -3120,7 +3121,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			p->tclass = ((TBLTag *)q->data)->tclass;
 			p->tag = ((TBLTag *)q->data)->code;
 			break;
-			
+
 		case TBL_BITSTRING:
 		case TBL_ENUMERATED:
 			CHECKTYPE(q, TBLTYPE_Tag);
@@ -3155,7 +3156,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				q = g_node_next_sibling(q);
 			}
 			/* last entry is already initialized to { 0, NULL } */
-			
+
 			break;
 
 		case TBL_SEQUENCE:
@@ -3167,7 +3168,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			q = g_node_first_child(list);
 			tbl_type(n+1, pdu, q, ni);
 			break;
-			
+
 		case TBL_TYPEREF: {	/* may have a tag ... */
 			TypeRef *tr;
 			guint i;
@@ -3182,7 +3183,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 						g_message("%*s*insert type tag %c%d", n*2, empty,
 							  tag_class[p->tclass], p->tag);
 				}
-				q = g_node_next_sibling(q);				
+				q = g_node_next_sibling(q);
 			} else { /* use default tag for this type */
 				tr = &typeDef_names[((TBLTypeRef *)q->data)->typeDefId];
 				if ((((p->flags & PDU_IMPLICIT) == 0) && (tr->defclass != ASN1_UNI)) ||
@@ -3220,7 +3221,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				p->flags |= ((TBLTypeRef *)q->data)->implicit? PDU_IMPLICIT : 0;
 				if (asn1_verbose)
 					g_message("%*s*typeref %s > %s%s at %p", n*2, empty,
-						  p->name, 
+						  p->name,
 						  ((TBLTypeRef *)q->data)->implicit?"implicit ":empty,
 						  tr->name,
 						  pdu);
@@ -3249,7 +3250,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
 			save_reference(p);
-			
+
 			if (asn1_verbose)
 				g_message("regist-2: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
@@ -3389,7 +3390,7 @@ build_pdu_tree(const char *pduname)
 	info->value_hf.hfinfo.blurb = info->fullname;
 
 	anonCount = 0; /* anonymous types counter */
-	
+
 	PDUtree = g_node_new(info);
 	pabbrev_pdu_len = sprintf(fieldname, "%s.%s.", pabbrev, pduname);
 	sav_len = pabbrev_pdu_len;
@@ -3435,7 +3436,7 @@ build_pdu_tree(const char *pduname)
 			info->value_hf.hfinfo.type = tbl_types_ethereal[info->type];
 			info->value_hf.hfinfo.display = BASE_DEC;
 			info->value_hf.hfinfo.blurb = info->fullname;
-			
+
 			tr->typetree = g_node_new(info);
 			pabbrev_pdu_len = sprintf(fieldname, "%s.--.%s.", pabbrev, tr->name);
 			tbl_typeref(0, tr->typetree, tr->type, pabbrev_pdu_len-1);
@@ -3455,7 +3456,7 @@ build_pdu_tree(const char *pduname)
 		gint defid;
 		PDUinfo *p, *q;
 		char text[400];
-		
+
 		if (tr->pdu == 0) /* skip if not used */
 			continue;
 
@@ -3492,7 +3493,7 @@ build_pdu_tree(const char *pduname)
 							 * base-base type...... XXX */
 							p->type_id = q->value_id;
 							break;
-						}	
+						}
 					}
 				}
 			}
@@ -3503,7 +3504,7 @@ build_pdu_tree(const char *pduname)
 			}
 		}
 	}
-	
+
 	if (asn1_verbose)
 		g_message("The resulting PDU tree:");
 	showPDUtree(PDUtree, 0);
@@ -3778,7 +3779,7 @@ menuitem_cb (gpointer             callback_data,
 				    "response",
 				    G_CALLBACK (gtk_widget_destroy),
 				    NULL);
-  
+
 		  gtk_widget_show (dialog);
 		  break;
 	  }
@@ -3798,7 +3799,7 @@ static GtkItemFactoryEntry menu_items[] = {
   { "/Save",	"<control>S", menuitem_cb, 3, NULL, 0 },
 };
 
-static gint button_press_callback( GtkWidget      *widget, 
+static gint button_press_callback( GtkWidget      *widget,
                                    GdkEventButton *event,
                                    gpointer        data )
 {
@@ -3834,7 +3835,7 @@ create_message_window(void)
 	gint nmenu_items = sizeof (menu_items) / sizeof (menu_items[0]);
 
     if ( ! window) {
-	    
+
 	/* create window, etc */
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (window), current_pduname);
@@ -3895,7 +3896,7 @@ create_message_window(void)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(treeview),
 						     TITLE_COLUMN, "asn1 entities", renderer,
 						     "text", TITLE_COLUMN, NULL );
-	
+
 	/* renderer = gtk_cell_renderer_text_new ();
 	 * gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(treeview),
 	 *					     DEF_COLUMN, "type definition", renderer,
@@ -3933,7 +3934,7 @@ create_message_window(void)
 	 */
 
 	item_factory = gtk_item_factory_new (GTK_TYPE_MENU, "<menu>", accel_group);
-	
+
 	/* This function generates the menu items. Pass the item factory,
 	   the number of items in the array, the array itself, and any
 	   callback data for the the menu items. */
@@ -3953,7 +3954,7 @@ create_message_window(void)
 			  G_CALLBACK (button_press_callback), item_factory);
 
 	/* g_signal_connect_swapped (treeview, "event",
-	 *			 	 G_CALLBACK (button_press_handler), 
+	 *			 	 G_CALLBACK (button_press_handler),
 	 *				menu);
 	 */
 	gtk_window_set_default_size (GTK_WINDOW (window), 650, 400);
@@ -3985,6 +3986,7 @@ static gint PDUstatec = 0;
 #define STORENODE(x)  { PDUstate[PDUstatec-1] = (x); }
 #define POPSTATE      PDUstate[--PDUstatec]
 #define GETSTATE      PDUstate[PDUstatec-1]
+/* XXX - We do a lot of dereferencing here.  Shouldn't we check for NULLs? */
 #define GETNAME	      (((PDUinfo *)pos.node->data)->name)
 #define TYPENAME      (((PDUinfo *)pos.node->data)->typename)
 #define GETTYPE	      (((PDUinfo *)pos.node->data)->type & TBL_TYPEmask)
@@ -4001,7 +4003,7 @@ static gint PDUstatec = 0;
 
 #undef CHECKP
 #define CHECKP(p) {if ((p==0)||(PDUstatec<0)){g_warning("pointer==0, line %d **********", __LINE__);\
-				pos.node=0;PUSHNODE(pos);return ret;}}
+				pos.node=NULL;PUSHNODE(pos);return ret;}}
 
 
 static void
@@ -4017,7 +4019,7 @@ showstack(statestack *pos, char *txt, int n)
 
 	if ( ! asn1_verbose)
 		return;
-	
+
 	if (n>PDUstatec)
 		n = PDUstatec;
 	if (n<0) {
@@ -4138,8 +4140,8 @@ PDUreset(int count, int count2)
 
 	PDUstatec = 0; /* stackpointer */
 	PDUerrcount = 0; /* error counter per asn.1 message */
-	
-	pos.node = 0; /* sentinel */
+
+	pos.node = NULL; /* sentinel */
 	pos.name = "sentinel";
 	pos.type = TBL_SEQUENCEOF;
 	pos.offset = 0;
@@ -4169,7 +4171,7 @@ makechoice(GNode *p, guint class, guint tag)
 		if (info->type == TBL_CHOICE) {
 			if (asn1_verbose)
 				g_message("    using sub choice (%s)%s", info->typename, info->name);
-			
+
 			q = makechoice(p, class, tag);
 			if (q) { /* found it */
 				p = q;
@@ -4212,7 +4214,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	if (PDUstatec > 0) 	/* don't read from below the stack */
 		pos = POPSTATE;
 	/* pos refers to the last asn1 node handled */
-	
+
 	/* a very simple, too simple??, way to handle constructed entities */
 	if ((PDUstatec > 0) && (pos.type & TBL_CONSTRUCTED)) {
 	       		/* unexpectedly constructed, return same info as last time */
@@ -4261,7 +4263,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	ret = noname;
 
 	if (class == ASN1_EOI) { /* end of this input sequence */
-		
+
 		if (pos.type & TBL_REFERENCE_pop) { /* reference finished, return to caller */
 			if (asn1_verbose) g_message("    EOI: reference pop");
 			pos = POPSTATE;
@@ -4283,8 +4285,8 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 
 
 		pos = POPSTATE;	/* this is pushed back on the stack later */
-		if (pos.node == 0) {
-			if (asn1_verbose) g_message("  EOI, pos.node == 0");
+		if (pos.node == NULL) {
+			if (asn1_verbose) g_message("  EOI, pos.node == NULL");
 			out->name = "*no-name-EOI*";
 			out->flags |= OUT_FLAG_noname;
 			PDUerrcount++;
@@ -4323,8 +4325,8 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 
 		/* find appropriate node for this tag */
 
-		if (pos.node == 0) {
-			if (asn1_verbose) g_message("  pos.node == 0");
+		if (pos.node == NULL) {
+			if (asn1_verbose) g_message("  pos.node == NULL");
 			out->name = "*no-name*";
 			out->flags |= OUT_FLAG_noname;
 			PDUerrcount++;
@@ -4428,7 +4430,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		pos.offset = offset;
 
 		ret = pos.name;	/* for the debug messages */
-		
+
 		if (donext) {
 			if (asn1_verbose) g_message("    donext");
 			NEXT;
@@ -4469,7 +4471,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					g_message("    choice [push], %c%d, %s",
 						  tag_class[info->tclass], info->tag, GETNAME);
 				pos.node = makechoice(pos.node, class, tag);
-				if (pos.node == 0) {
+				if (pos.node == NULL) {
 					pos = POPSTATE;
 					out->flags |= OUT_FLAG_noname;
 					PDUerrcount++;
@@ -4504,7 +4506,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 			}
 		}
 
-		if (pos.node == 0) {
+		if (pos.node == NULL) {
 			ret = "*no-name-2*";
 			if (asn1_verbose) g_message("  return '%s'", ret);
 			out->name = ret;
@@ -4515,20 +4517,20 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		ret = pos.name = GETNAME;
 		pos.type = GETTYPE  | (pos.type & ~TBL_TYPEmask);
 		info = GETINFO;
-		
+
 		/* pos now points to the prospective current node, go check it ********************/
 		if (asn1_verbose) g_message("  candidate %s '%s'%s%s, %c%d", TBLTYPE(pos.type), ret,
 				(ISOPTIONAL)?", optional":empty,
 				(ISIMPLICIT)?", implicit":empty,
 				tag_class[info->tclass], info->tag );
-		
+
 		if (ISOPTIONAL) { /* must check the tag */
 			while(! MATCH) {   /* check optional here again...? */
 				if (asn1_verbose)
 					g_message("    got %c%d, found %c%d", tag_class[class], tag,
 							tag_class[info->tclass], info->tag);
 				NEXT;
-				if (pos.node == 0) {
+				if (pos.node == NULL) {
 					ret = "------";
 					if (cons) {
 						pos = save_pos; /* reset for next time */
@@ -4557,7 +4559,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 			}
 			/* pos now refers to node with name we want, optional nodes skipped */
 		}
-		
+
 		if (pos.type == TBL_CHOICE) { /* may be an immediate choice */
 			pos2 = pos; /* save current state */
 			if ( ! MATCH) {
@@ -4568,13 +4570,13 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					typeflags &= ~TBL_CHOICE_made;
 				}
 
-				if (asn1_verbose)
+				if (asn1_verbose && info)
 					g_message("    immediate choice [push], %c%d, %s",
 						  tag_class[info->tclass], info->tag, GETNAME);
 				if (pos.node) {
 					pos.node = makechoice(pos.node, class, tag);
 				}
-				if (pos.node == 0) {
+				if (pos.node == NULL) {
 					pos = POPSTATE;
 					PDUerrcount++;
 				}
@@ -4627,7 +4629,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 			else
 				g_message("  using: unknown '%s'", ret);
 		}
-		
+
 		/* must follow references now */
 		if (pos.type == TBL_TYPEREF) {
 			out->typename = info->typename;
@@ -4646,7 +4648,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					tmp = asn1_tag[info->tag];
 					pos.type = asn1_uni_type[info->tag]; /* get univsrsal type */
 				}
-				if (asn1_verbose)
+				if (asn1_verbose && info)
 					g_message("  indirect typeref to %s:%s, %s [%c%d]",
 						  TBLTYPE(pos.type), info->typename, tmp,
 						  tag_class[info->tclass], info->tag );
@@ -4736,7 +4738,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		PDUerrcount++;
 		out->flags |= OUT_FLAG_noname;
 	}
-	
+
 	if (info && ((out->flags & OUT_FLAG_typename) == 0)) {
 		out->typename = info->typename;
 		out->type_id = info->typenum;
@@ -4767,7 +4769,7 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 	PDUinfo *info;
 	const char *ret, *name;
 	static char unnamed[] = "*unnamed*";
-	
+
 	(void) cls; (void) tag;		/* make a reference */
 
 	if (props->flags & OUT_FLAG_noname)
@@ -4775,13 +4777,13 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 
 	ret = unnamed;
 	list = (GNode *)props->data;
-	
+
 	if (list == 0) {
 		if (asn1_verbose) g_message("--off=%d named number list not initialized", offset);
 		PDUerrcount++;
 		return "*list-still-0*";
 	}
-	
+
 	if ((PDUinfo *)list->data)
 		name = ((PDUinfo *)list->data)->name;
 	else
@@ -4796,7 +4798,7 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 	}
 	if (ret == unnamed)
 		PDUerrcount++;
-	
+
 	if (asn1_verbose)
 		g_message("--off=%d namednumber %d=%s from list %s", offset, value, ret, name);
 	return ret;
@@ -4804,7 +4806,7 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 
 #endif /* READSYNTAX */
 
-void 
+void
 proto_register_asn1(void) {
 
   static const enum_val_t type_recursion_opts[] = {
@@ -4838,7 +4840,7 @@ proto_register_asn1(void) {
 
   proto_asn1 = proto_register_protocol("ASN.1 decoding",
 				       "ASN1", pabbrev);
-  
+
   ett[0] = &ett_asn1;
   for (i=0, j=1; i<MAX_NEST; i++, j++) {
 	  ett[j] = &ett_seq[i];
@@ -4872,13 +4874,13 @@ proto_register_asn1(void) {
 #else
   g_snprintf(tmpstr, sizeof(tmpstr), "%u", TCP_PORT_ASN1);
   range_convert_str(&global_tcp_ports_asn1, tmpstr, 65535);
-  
+
   g_snprintf(tmpstr, sizeof(tmpstr), "%u", UDP_PORT_ASN1);
   range_convert_str(&global_udp_ports_asn1, tmpstr, 65535);
-  
+
   g_snprintf(tmpstr, sizeof(tmpstr), "%u", SCTP_PORT_ASN1);
   range_convert_str(&global_sctp_ports_asn1, tmpstr, 65535);
-  
+
   prefs_register_range_preference(asn1_module, "tcp_ports",
 				 "ASN.1 TCP Ports",
 				 "The TCP ports on which "
@@ -5030,7 +5032,7 @@ proto_reg_handoff_asn1(void) {
       range_foreach(udp_ports_asn1, unregister_udp_port);
       g_free(udp_ports_asn1);
     }
-    
+
     if (sctp_ports_asn1 != NULL) {
       range_foreach(sctp_ports_asn1, unregister_sctp_port);
       g_free(sctp_ports_asn1);
