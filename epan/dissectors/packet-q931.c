@@ -503,7 +503,7 @@ static const value_string q931_uil1_vals[] = {
 	{ 0x07, "Non-ITU-T-standardized rate adaption" },
 	{ 0x08, "V.120 rate adaption" },
 	{ 0x09, "X.31 HDLC flag stuffing" },
-	{ 0,    NULL },
+	{ 0,    NULL }
 };
 
 static const value_string q931_l1_user_rate_vals[] = {
@@ -1396,8 +1396,6 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
 	guint8 octet;
-	int identifier_offset;
-	int identifier_len;
 	guint8 coding_standard;
 
 	if (len == 0)
@@ -1430,8 +1428,9 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 	len -= 1;
 
 	if (octet & Q931_INTERFACE_IDENTIFIED) {
-		identifier_offset = offset;
-		identifier_len = 0;
+		guint8 octet;
+		int identifier_offset = offset;
+		int identifier_len = 0;
 		do {
 			if (len == 0)
 				break;
@@ -1479,10 +1478,30 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		    (octet & Q931_IS_SLOT_MAP) ? "Map element" : "Channel",
 		    val_to_str(octet & 0x0F, q931_element_type_vals,
 		        "Unknown (0x%02X)"));
+		offset += 1;
+		len -= 1;
 
-		/*
-		 * XXX - dump the channel number or slot map.
-		 */
+		if (octet & Q931_IS_SLOT_MAP) {
+			guint8 octet;
+			while (len) {
+				octet = tvb_get_guint8(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 1,
+					"Slot map: 0x%02x", octet);
+				offset += 1;
+				len -= 1;
+			} 
+		} else {
+			guint8 octet;
+			do {
+				if (len == 0)
+					break;
+				octet = tvb_get_guint8(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 1,
+					"Channel number: %u", octet & ~Q931_IE_VL_EXTENSION);
+				offset += 1;
+				len -= 1;
+			} while (!(octet & Q931_IE_VL_EXTENSION));
+		}
 	}
 }
 
