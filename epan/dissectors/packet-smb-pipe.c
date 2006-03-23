@@ -451,7 +451,7 @@ add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
 
 	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
 		trp = smb_info->sip->extra_info;
-		
+
 	level = tvb_get_letohs(tvb, offset);
 	if (!pinfo->fd->flags.visited)
 		if (trp)
@@ -3298,7 +3298,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 
 	/* below this line, we know we are doing reassembly */
-	
+
 	/*
 	 * We have to keep track of reassemblies by FID, because
 	 * we could have more than one pipe operation in a frame
@@ -3349,7 +3349,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			 * tree; that's not necessarily the case.
 			 */
 			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, NULL);
-			
+
 			/* no this didnt look like something we know */
 			if(!result){
 				goto clean_up_and_exit;
@@ -3426,7 +3426,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	    dcerpc_reassembled_table, 0, 0, TRUE);
 	if(!fd_head){
 		/* we didnt find it, try any of the heuristic dissectors
-		   and bail out 
+		   and bail out
 		*/
 		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
 		goto clean_up_and_exit;
@@ -3460,7 +3460,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 	/* dissect the full PDU */
 	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
-	
+
 
 
 clean_up_and_exit:
@@ -3677,14 +3677,15 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			trans_subcmd=PIPE_DCERPC;
 		}
 
-		if (!pinfo->fd->flags.visited)
+		if (!pinfo->fd->flags.visited) {
+			if (tri == NULL)
+				return FALSE;
 			tri->trans_subcmd = trans_subcmd;
-	} else {
-		if(tri){
-			trans_subcmd = tri->trans_subcmd;
-		} else {
-			return FALSE;
 		}
+	} else {
+		if(tri == NULL)
+			return FALSE;
+		trans_subcmd = tri->trans_subcmd;
         }
 
 	if (tri == NULL) {
