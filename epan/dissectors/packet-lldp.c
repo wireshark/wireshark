@@ -117,7 +117,7 @@ static gint ett_802_3_power = -1;
 static gint ett_802_3_aggregation = -1;
 static gint ett_media_capabilities = -1;
 
-const value_string tlv_types[] = {
+static const value_string tlv_types[] = {
 	{ END_OF_LLDPDU_TLV_TYPE, 			"End of LLDPDU"},
 	{ CHASSIS_ID_TLV_TYPE,				"Chassis Id"},
 	{ PORT_ID_TLV_TYPE,					"Port Id"},
@@ -131,7 +131,7 @@ const value_string tlv_types[] = {
 	{ 0, NULL} 
 };
 
-const value_string chassis_id_subtypes[] = {
+static const value_string chassis_id_subtypes[] = {
 	{ 0,	"Reserved"},
 	{ 1,	"Chassis component"},
 	{ 2,	"Interface alias"},
@@ -143,7 +143,7 @@ const value_string chassis_id_subtypes[] = {
 	{ 0, NULL} 
 };
 
-const value_string port_id_subtypes[] = {
+static const value_string port_id_subtypes[] = {
 	{ 0,	"Reserved"},
 	{ 1,	"Interface alias"},
 	{ 2,	"Port component"},
@@ -155,14 +155,14 @@ const value_string port_id_subtypes[] = {
 	{ 0, NULL} 
 };
 
-const value_string interface_subtype_values[] = {
+static const value_string interface_subtype_values[] = {
 	{ 1,	"Unknown"},
 	{ 2,	"ifIndex"},
 	{ 3, 	"System port number"},
 	{ 0, NULL} 
 };
 
-const value_string tlv_oui_subtype_vals[] = {
+static const value_string tlv_oui_subtype_vals[] = {
 	{ OUI_IEEE_802_1,     	"IEEE 802.1" },
 	{ OUI_IEEE_802_3,     	"IEEE 802.3" },
 	{ OUI_MEDIA_ENDPOINT,	"TIA" },
@@ -171,7 +171,7 @@ const value_string tlv_oui_subtype_vals[] = {
 };
 
 /* IEEE 802.1 Subtypes */
-const value_string ieee_802_1_subtypes[] = {
+static const value_string ieee_802_1_subtypes[] = {
 	{ 0x01,	"Port VLAN ID" },
 	{ 0x02, "Port and Protocol VLAN ID" },
 	{ 0x03, "VLAN Name" },
@@ -180,7 +180,7 @@ const value_string ieee_802_1_subtypes[] = {
 };
 
 /* IEEE 802.3 Subtypes */
-const value_string ieee_802_3_subtypes[] = {
+static const value_string ieee_802_3_subtypes[] = {
 	{ 0x01,	"MAC/PHY Configuration/Status" },
 	{ 0x02,	"Power Via MDI" },
 	{ 0x03,	"Link Aggregation" },
@@ -189,7 +189,7 @@ const value_string ieee_802_3_subtypes[] = {
 };
 
 /* Media Subtypes */
-const value_string media_subtypes[] = {
+static const value_string media_subtypes[] = {
 	{ 1,	"Media Capabilities" },
 	{ 2, 	"Network Policy" },
 	{ 3, 	"Location Identification" },
@@ -205,7 +205,7 @@ const value_string media_subtypes[] = {
 };
 
 /* Media Class Values */
-const value_string media_class_values[] = {
+static const value_string media_class_values[] = {
 	{ 0,	"Type Not Defined" },
 	{ 1,	"Endpoint Class I" },
 	{ 2,	"Endpoint Class II" },
@@ -215,7 +215,7 @@ const value_string media_class_values[] = {
 };
 
 /* Media Application Types */
-const value_string media_application_type[] = {
+static const value_string media_application_type[] = {
 	{ 0,	"Reserved" },
 	{ 1,	"Voice" },
 	{ 2,	"Voice Signaling" },
@@ -229,7 +229,7 @@ const value_string media_application_type[] = {
 };
 
 /* PROFINET subtypes */
-const value_string profinet_subtypes[] = {
+static const value_string profinet_subtypes[] = {
 	{ 1, "Measured Delay Values" },
 	{ 2, "Port Status" },
 	{ 3, "Alias" },
@@ -237,14 +237,14 @@ const value_string profinet_subtypes[] = {
 };
 
 /* Power Type */
-const value_string media_power_type[] = {
+static const value_string media_power_type[] = {
 	{ 0,	"PSE Device" },
 	{ 1,	"PD Device" },
 	{ 0, NULL }
 };
 
 /* Power Priority */
-const value_string media_power_priority[] = {
+static const value_string media_power_priority[] = {
 	{ 0, 	"Unknown" },
 	{ 1,	"Critical" },
 	{ 2,	"High" },
@@ -253,14 +253,14 @@ const value_string media_power_priority[] = {
 };
 
 /* Power Sources */
-const value_string media_power_pd_device[] = {
+static const value_string media_power_pd_device[] = {
 	{ 0,	"Unknown" },
 	{ 1,	"PSE" },
 	{ 2,	"Local" },
 	{ 3,	"PSE and Local" },
 	{ 0, NULL }
 };
-const value_string media_power_pse_device[] = {
+static const value_string media_power_pse_device[] = {
 	{ 0,	"Unknown" },
 	{ 1,	"Primary Power Source" },
 	{ 2,	"Backup Power Source" },
@@ -268,7 +268,7 @@ const value_string media_power_pse_device[] = {
 };
 
 /* Location data format */
-const value_string location_data_format[] = {
+static const value_string location_data_format[] = {
 	{ 0, 	"Invalid " },
 	{ 1,	"Coordinate-based LCI" },
 	{ 2,	"Civic Address LCI" },
@@ -277,7 +277,7 @@ const value_string location_data_format[] = {
 };
 
 /* Civic Address LCI - What field */
-const value_string civic_address_what_values[] = {
+static const value_string civic_address_what_values[] = {
 	{ 0,	"Location of the DHCP server" },
 	{ 1,	"Location of the network element believed to be closest to the client" },
 	{ 2,	"Location of the client"},
@@ -285,7 +285,7 @@ const value_string civic_address_what_values[] = {
 };
 
 /* Civic Address Type field */
-const value_string civic_address_type_values[] = {
+static const value_string civic_address_type_values[] = {
 	{ 0,	"Language" },
 	{ 1,	"National subdivisions (province, state, etc)" },
 	{ 2,	"County, parish, district" },
@@ -319,7 +319,7 @@ const value_string civic_address_type_values[] = {
  * objects defined in RFC 3636 (or subsequent revisions).
  */
  
-const value_string operational_mau_type_values[] = {
+static const value_string operational_mau_type_values[] = {
 	{ 1,	"AUI - no internal MAU, view from AUI" },
 	{ 2,	"10Base5 - thick coax MAU" },
 	{ 3,	"Foirl - FOIRL MAU" },
@@ -388,21 +388,21 @@ const value_string operational_mau_type_values[] = {
  * object defined in RFC 3636.
  */
 
-#define AUTONEG_OTHER		0x8000 /* bOther(0),        -- other or unknown */
-#define AUTONEG_10BASE_T	0x4000 /* b10baseT(1),      -- 10BASE-T  half duplex mode */
-#define AUTONEG_10BASET_FD	0x2000 /* b10baseTFD(2),    -- 10BASE-T  full duplex mode */
-#define AUTONEG_100BASE_T4	0x1000 /* b100baseT4(3),    -- 100BASE-T4 */
-#define AUTONEG_100BASE_TX	0x0800 /* b100baseTX(4),    -- 100BASE-TX half duplex mode */
+#define AUTONEG_OTHER			0x8000 /* bOther(0),        -- other or unknown */
+#define AUTONEG_10BASE_T		0x4000 /* b10baseT(1),      -- 10BASE-T  half duplex mode */
+#define AUTONEG_10BASET_FD		0x2000 /* b10baseTFD(2),    -- 10BASE-T  full duplex mode */
+#define AUTONEG_100BASE_T4		0x1000 /* b100baseT4(3),    -- 100BASE-T4 */
+#define AUTONEG_100BASE_TX		0x0800 /* b100baseTX(4),    -- 100BASE-TX half duplex mode */
 #define AUTONEG_100BASE_TXFD	0x0400 /* b100baseTXFD(5),  -- 100BASE-TX full duplex mode */
-#define AUTONEG_100BASE_T2	0x0200 /* b100baseT2(6),    -- 100BASE-T2 half duplex mode */
+#define AUTONEG_100BASE_T2		0x0200 /* b100baseT2(6),    -- 100BASE-T2 half duplex mode */
 #define AUTONEG_100BASE_T2FD	0x0100 /* b100baseT2FD(7),  -- 100BASE-T2 full duplex mode */
-#define AUTONEG_FDX_PAUSE	0x0080 /* bFdxPause(8),     -- PAUSE for full-duplex links */
-#define AUTONEG_FDX_APAUSE	0x0040 /* bFdxAPause(9),    -- Asymmetric PAUSE for full-duplex links */
-#define AUTONEG_FDX_SPAUSE	0x0020 /* bFdxSPause(10),   -- Symmetric PAUSE for full-duplex links */
-#define AUTONEG_FDX_BPAUSE	0x0010 /* bFdxBPause(11),   -- Asymmetric and Symmetric PAUSE for full-duplex links */
-#define AUTONEG_1000BASE_X	0x0008 /* b1000baseX(12),   -- 1000BASE-X, -LX, -SX, -CX half duplex mode */
+#define AUTONEG_FDX_PAUSE		0x0080 /* bFdxPause(8),     -- PAUSE for full-duplex links */
+#define AUTONEG_FDX_APAUSE		0x0040 /* bFdxAPause(9),    -- Asymmetric PAUSE for full-duplex links */
+#define AUTONEG_FDX_SPAUSE		0x0020 /* bFdxSPause(10),   -- Symmetric PAUSE for full-duplex links */
+#define AUTONEG_FDX_BPAUSE		0x0010 /* bFdxBPause(11),   -- Asymmetric and Symmetric PAUSE for full-duplex links */
+#define AUTONEG_1000BASE_X		0x0008 /* b1000baseX(12),   -- 1000BASE-X, -LX, -SX, -CX half duplex mode */
 #define AUTONEG_1000BASE_XFD	0x0004 /* b1000baseXFD(13), -- 1000BASE-X, -LX, -SX, -CX full duplex mode */
-#define AUTONEG_1000BASE_T	0x0002 /* b1000baseT(14),   -- 1000BASE-T half duplex mode */
+#define AUTONEG_1000BASE_T		0x0002 /* b1000baseT(14),   -- 1000BASE-T half duplex mode */
 #define AUTONEG_1000BASE_TFD	0x0001 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
 
 #define MAX_MAC_LEN	6
