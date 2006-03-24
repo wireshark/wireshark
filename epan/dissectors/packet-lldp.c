@@ -2110,6 +2110,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		break;
 	}
 	/*case 3:*/		/* XXX - Alias */
+    /*case 4:*/     /* XXX - MRT Port Status */
 	default:
 		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2, FALSE);
 	}
