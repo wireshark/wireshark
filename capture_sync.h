@@ -35,6 +35,16 @@
 #define __CAPTURE_SYNC_H__
 
 
+/*
+ * Maximum length of sync pipe message data.  Must be < 2^24, as the
+ * message length is 3 bytes.
+ * XXX - this must be large enough to handle a Really Big Filter
+ * Expression, as the error message for an incorrect filter expression
+ * is a bit larger than the filter expression.
+ */
+#define SP_MAX_MSG_LEN	4096
+
+
 /* Size of buffer to hold decimal representation of
    signed/unsigned 64-bit int */
 #define SP_DECISIZE 20

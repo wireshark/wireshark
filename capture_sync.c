@@ -101,7 +101,6 @@
 #endif
 
 
-/*#define DEBUG_DUMPCAP*/
 
 #ifndef _WIN32
 static const char *sync_pipe_signame(int);
@@ -111,207 +110,10 @@ static const char *sync_pipe_signame(int);
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static void sync_pipe_wait_for_child(capture_options *capture_opts);
 
-/*
- * Maximum length of sync pipe message data.  Must be < 2^24, as the
- * message length is 3 bytes.
- * XXX - this must be large enough to handle a Really Big Filter
- * Expression, as the error message for an incorrect filter expression
- * is a bit larger than the filter expression.
- */
-#define SP_MAX_MSG_LEN	4096
 
 
-/* write a message to the recipient pipe in the standard format
-   (3 digit message length (excluding length and indicator field),
-   1 byte message indicator and the rest is the message).
-   If msg is NULL, the message has only a length and indicator.
-   Otherwise, if secondary_msg isn't NULL, send both msg and
-   secondary_msg as null-terminated strings, otherwise just send
-   msg as a null-terminated string and follow it with an empty string. */
-static void
-pipe_write_block(int pipe, char indicator, const char *msg,
-                 const char *secondary_msg)
-{
-    guchar header[3+1]; /* indicator + 3-byte len */
-    int ret;
-    size_t len, secondary_len, total_len;
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "write %d enter", pipe);
-
-    len = 0;
-    secondary_len = 0;
-    total_len = 0;
-    if(msg != NULL) {
-      len = strlen(msg) + 1;	/* include the terminating '\0' */
-      total_len = len;
-      if(secondary_msg == NULL)
-        secondary_msg = "";	/* default to an empty string */
-      secondary_len = strlen(secondary_msg) + 1;
-      total_len += secondary_len;
-    }
-    g_assert(indicator < '0' || indicator > '9');
-    g_assert(total_len <= SP_MAX_MSG_LEN);
-
-    /* write header (indicator + 3-byte len) */
-    header[0] = indicator;
-    header[1] = (total_len >> 16) & 0xFF;
-    header[2] = (total_len >> 8) & 0xFF;
-    header[3] = (total_len >> 0) & 0xFF;
-
-    ret = write(pipe, header, sizeof header);
-    if(ret == -1) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-              "write %d header: error %s", pipe, strerror(errno));
-        return;
-    }
-
-    /* write value (if we have one) */
-    if(len) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-              "write %d indicator: %c value len: %lu msg: \"%s\" secondary len: %lu secondary msg: \"%s\"", pipe, indicator,
-              (unsigned long)len, msg, (unsigned long)secondary_len,
-              secondary_msg);
-        ret = write(pipe, msg, len);
-        if(ret == -1) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-                  "write %d value: error %s", pipe, strerror(errno));
-            return;
-        }
-        ret = write(pipe, msg, secondary_len);
-        if(ret == -1) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-                  "write %d value: error %s", pipe, strerror(errno));
-            return;
-        }
-    } else {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-              "write %d indicator: %c no value", pipe, indicator);
-    }
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "write %d leave", pipe);
-}
-
-
-#ifndef _WIN32
-void
-sync_pipe_errmsg_to_parent(const char *error_msg,
-                           const char *secondary_error_msg)
-{
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_errmsg_to_parent: %s", error_msg);
-
-    pipe_write_block(1, SP_ERROR_MSG, error_msg, secondary_error_msg);
-}
-#endif
-
-
-#ifdef _WIN32
-static void
-signal_pipe_capquit_to_child(capture_options *capture_opts)
-{
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
-
-    pipe_write_block(capture_opts->signal_pipe_write_fd, SP_QUIT, NULL, NULL);
-}
-#endif
-
-static int
-pipe_read_bytes(int pipe, char *bytes, int required) {
-    int newly;
-    int offset = 0;
-
-
-    while(required) {
-        newly = read(pipe, &bytes[offset], required);
-        if (newly == 0) {
-            /* EOF */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: EOF (capture closed?)", pipe);
-            return offset;
-        }
-        if (newly < 0) {
-            /* error */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe, errno, strerror(errno));
-            return newly;
-        }
-
-        required -= newly;
-        offset += newly;
-    }
-
-    return offset;
-}
-
-/* convert header values (indicator and 4-byte length) */
-static void
-pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {    
-
-    g_assert(header_len == 4);
-
-    /* convert header values */
-    *indicator = header[0];
-    *block_len = header[1]<<16 | header[2]<<8 | header[3];
-}
-
-/* read a message from the sending pipe in the standard format
-   (1-byte message indicator, 3-byte message length (excluding length
-   and indicator field), and the rest is the message) */
-static int
-pipe_read_block(int pipe, char *indicator, int len, char *msg) {
-    int required;
-    int newly;
-    guchar header[4];
-
-
-    /* read header (indicator and 3-byte length) */
-    newly = pipe_read_bytes(pipe, header, 4);
-    if(newly != 4) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d failed to read header: %u", pipe, newly);
-        return -1;
-    }
-
-    /* convert header values */
-    pipe_convert_header(header, 4, indicator, &required);
-
-    /* only indicator with no value? */
-    if(required == 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d indicator: %c empty value", pipe, *indicator);
-        return 4;
-    }
-
-    /* does the data fit into the given buffer? */
-    if(required > len) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d length error, required %d > len %d, indicator: %u",
-              pipe, required, len, *indicator);
-
-        /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
-        memcpy(msg, header, sizeof(header));
-        newly = read(pipe, &msg[sizeof(header)], len-sizeof(header));
-        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
-        return -1;
-    }
-    len = required;
-
-    /* read the actual block data */
-    newly = pipe_read_bytes(pipe, msg, required);
-    if(newly != required) {
-        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
-        return -1;
-    }
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-          "read %d ok indicator: %c len: %u msg: %s", pipe, *indicator,
-          len, msg);
-    return newly + 4;
-}
-
-
-
-/* Add a string pointer to a NULL-terminated array of string pointers. */
+/* Append an arg (realloc) to an argc/argv array */
+/* (add a string pointer to a NULL-terminated array of string pointers) */
 static const char **
 sync_pipe_add_arg(const char **args, int *argc, const char *arg)
 {
@@ -408,6 +210,7 @@ protect_arg (const gchar *argv)
 
 #define ARGV_NUMBER_LEN 24
 
+/* a new capture run: start a new dumpcap task and hand over parameters through command line */
 gboolean
 sync_pipe_start(capture_options *capture_opts) {
     char ssnap[ARGV_NUMBER_LEN];
@@ -452,7 +255,7 @@ sync_pipe_start(capture_options *capture_opts) {
     argv = g_malloc(sizeof (char *));
     *argv = NULL;
 
-    /* take ethereal's absolute program path and replace ethereal with dumpcap */
+    /* take ethereal's absolute program path and replace "ethereal" with "dumpcap" */
     exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap",
                               get_progfile_dir());
 
@@ -473,7 +276,7 @@ sync_pipe_start(capture_options *capture_opts) {
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
       g_snprintf(ssnap, ARGV_NUMBER_LEN, "%s",linktype_val_to_name(capture_opts->linktype));
 #else
-      /* XXX - just treat it as a number */
+      /* we can't get the type name, just treat it as a number */
       g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d",capture_opts->linktype);
 #endif
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
@@ -632,13 +435,6 @@ sync_pipe_start(capture_options *capture_opts) {
        * Child process - run Ethereal with the right arguments to make
        * it just pop up the live capture dialog box and capture with
        * the specified capture parameters, writing to the specified file.
-       *
-       * args: -i interface specification
-       * -w file to write
-       * -c count to capture
-       * -s snaplen
-       * -m / -b fonts
-       * -f "filter expression"
        */
       eth_close(1);
       dup(sync_pipe[PIPE_WRITE]);
@@ -700,6 +496,105 @@ sync_pipe_start(capture_options *capture_opts) {
     return TRUE;
 }
 
+
+
+/* read a number of bytes from a pipe */
+/* (blocks until enough bytes read or an error occurs) */
+static int
+pipe_read_bytes(int pipe, char *bytes, int required) {
+    int newly;
+    int offset = 0;
+
+
+    while(required) {
+        newly = read(pipe, &bytes[offset], required);
+        if (newly == 0) {
+            /* EOF */
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read from pipe %d: EOF (capture closed?)", pipe);
+            return offset;
+        }
+        if (newly < 0) {
+            /* error */
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read from pipe %d: error(%u): %s", pipe, errno, strerror(errno));
+            return newly;
+        }
+
+        required -= newly;
+        offset += newly;
+    }
+
+    return offset;
+}
+
+/* convert header values (indicator and 4-byte length) */
+static void
+pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {    
+
+    g_assert(header_len == 4);
+
+    /* convert header values */
+    *indicator = header[0];
+    *block_len = header[1]<<16 | header[2]<<8 | header[3];
+}
+
+/* read a message from the sending pipe in the standard format
+   (1-byte message indicator, 3-byte message length (excluding length
+   and indicator field), and the rest is the message) */
+static int
+pipe_read_block(int pipe, char *indicator, int len, char *msg) {
+    int required;
+    int newly;
+    guchar header[4];
+
+
+    /* read header (indicator and 3-byte length) */
+    newly = pipe_read_bytes(pipe, header, 4);
+    if(newly != 4) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+              "read %d failed to read header: %u", pipe, newly);
+        return -1;
+    }
+
+    /* convert header values */
+    pipe_convert_header(header, 4, indicator, &required);
+
+    /* only indicator with no value? */
+    if(required == 0) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+              "read %d indicator: %c empty value", pipe, *indicator);
+        return 4;
+    }
+
+    /* does the data fit into the given buffer? */
+    if(required > len) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+              "read %d length error, required %d > len %d, indicator: %u",
+              pipe, required, len, *indicator);
+
+        /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
+        memcpy(msg, header, sizeof(header));
+        newly = read(pipe, &msg[sizeof(header)], len-sizeof(header));
+        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
+        return -1;
+    }
+    len = required;
+
+    /* read the actual block data */
+    newly = pipe_read_bytes(pipe, msg, required);
+    if(newly != required) {
+        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
+        return -1;
+    }
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+          "read %d ok indicator: %c len: %u msg: %s", pipe, *indicator,
+          len, msg);
+    return newly + 4;
+}
+
+
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
@@ -729,8 +624,11 @@ sync_pipe_input_cb(gint source, gpointer user_data)
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0.
 
-       XXX - what if we got an error from the sync pipe?  Do we have
-       to kill the child? */
+       We don't have to worry about killing the child, if the sync pipe 
+       returned an error. Usually this error is caused as the child killed itself 
+       while going down. Even in the rare cases that this isn't the case, 
+       the child will get an error when writing to the broken pipe the next time, 
+       cleaning itself up then. */
     sync_pipe_wait_for_child(capture_opts);
 
 #ifdef _WIN32
@@ -740,6 +638,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     return FALSE;
   }
 
+  /* we got a valid message block from the child, process it */
   switch(indicator) {
   case SP_FILE:
     if(!capture_input_new_file(capture_opts, buffer)) {
@@ -801,12 +700,9 @@ sync_pipe_wait_for_child(capture_options *capture_opts)
   g_assert(capture_opts->fork_child != -1);
 
 #ifdef _WIN32
-  /* XXX - analyze the wait status and display more information
-     in the dialog box?
-     XXX - set "fork_child" to -1 if we find it exited? */
   if (_cwait(&wstatus, capture_opts->fork_child, _WAIT_CHILD) == -1) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"Child capture process stopped unexpectedly");
+		"Child capture process stopped unexpectedly (errno:%u)", errno);
   }
 #else
   if (wait(&wstatus) != -1) {
@@ -815,7 +711,7 @@ sync_pipe_wait_for_child(capture_options *capture_opts)
       /* the child will inform us about errors through the sync_pipe, which will popup */
       /* an error message, so don't popup another one */
 
-      /* XXX - if there are situations where the child won't send us such an error message, */
+      /* If there are situations where the child won't send us such an error message, */
       /* this should be fixed in the child and not here! */
       if (WEXITSTATUS(wstatus) != 0 && WEXITSTATUS(wstatus) != 1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -840,10 +736,10 @@ sync_pipe_wait_for_child(capture_options *capture_opts)
 		    "Child capture process died: wait status %#o", wstatus);
     }
   }
+#endif
 
   /* No more child process. */
   capture_opts->fork_child = -1;
-#endif
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed");
 }
@@ -936,7 +832,7 @@ sync_pipe_signame(int sig)
     break;
 
   default:
-	/* XXX - returning a static buffer is ok in the context we use it here */
+	/* Returning a static buffer is ok in the context we use it here */
     g_snprintf(sigmsg_buf, sizeof sigmsg_buf, "Signal %d", sig);
     sigmsg = sigmsg_buf;
     break;
@@ -946,12 +842,34 @@ sync_pipe_signame(int sig)
 #endif
 
 
+#ifdef _WIN32
+/* tell the child through the signal pipe that we want to quit the capture */
+static void
+signal_pipe_capquit_to_child(capture_options *capture_opts)
+{
+    const char quit_msg[] = "QUIT";
+    int ret;
+
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
+
+    /* it doesn't matter *what* we send here, the first byte will stop the capture */
+    /* simply sending a "QUIT" string */
+    /*pipe_write_block(capture_opts->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
+    ret = write(capture_opts->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
+    if(ret == -1) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+              "signal_pipe_capquit_to_child: %d header: error %s", capture_opts->signal_pipe_write_fd, strerror(errno));
+    }
+}
+#endif
+
+
 /* user wants to stop the capture run */
 void
 sync_pipe_stop(capture_options *capture_opts)
 {
-  /* XXX - in which cases this will be 0? */
-  if (capture_opts->fork_child != -1 && capture_opts->fork_child != 0) {
+  if (capture_opts->fork_child != -1) {
 #ifndef _WIN32
     /* send the SIGUSR1 signal to close the capture child gracefully. */
     kill(capture_opts->fork_child, SIGUSR1);
@@ -968,12 +886,11 @@ sync_pipe_stop(capture_options *capture_opts)
 void
 sync_pipe_kill(capture_options *capture_opts)
 {
-  /* XXX - in which cases this will be 0? */
-  if (capture_opts->fork_child != -1 && capture_opts->fork_child != 0) {
+  if (capture_opts->fork_child != -1) {
 #ifndef _WIN32
       kill(capture_opts->fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
 #else
-      /* XXX: this is not the preferred method of closing a process!
+      /* Remark: This is not the preferred method of closing a process!
        * the clean way would be getting the process id of the child process,
        * then getting window handle hWnd of that process (using EnumChildWindows),
        * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0)

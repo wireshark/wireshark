@@ -64,6 +64,7 @@
 #include "file_util.h"
 
 
+/*#define DEBUG_DUMPCAP*/
 
 gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Ethereal capture child */
 
@@ -506,15 +507,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 /* sync_pipe handling */
 
 
-/*
- * Maximum length of sync pipe message data.  Must be < 2^24, as the
- * message length is 3 bytes.
- * XXX - this should be large enough to handle a Really Big Filter
- * Expression, as the error message for an incorrect filter expression
- * is a bit larger than the filter expression.
- */
-#define SP_MAX_MSG_LEN	4096
-
 /* write a single message header to the recipient pipe */
 static int
 pipe_write_header(int pipe, char indicator, int length)
@@ -533,6 +525,7 @@ pipe_write_header(int pipe, char indicator, int length)
     /* write header */
     return write(pipe, header, sizeof header);
 }
+
 
 /* write a message to the recipient pipe in the standard format 
    (3 digit message length (excluding length and indicator field), 
@@ -590,7 +583,6 @@ sync_pipe_packet_count_to_parent(int packet_count)
         /* stderr could be line buffered */
         fflush(stderr);
     }
-
 }
 
 void
@@ -603,7 +595,6 @@ sync_pipe_filename_to_parent(const char *filename)
         pipe_write_block(1, SP_FILE, filename);
     }
 }
-
 
 void
 sync_pipe_cfilter_error_to_parent(const char *cfilter _U_, const char *errmsg)

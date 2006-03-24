@@ -103,6 +103,7 @@
 #endif /* _WIN32 */
 #include "capture.h"
 #include "capture_loop.h"
+#include "capture_sync.h"
 #endif /* HAVE_LIBPCAP */
 #include "epan/emem.h"
 #include "log.h"
@@ -3035,9 +3036,10 @@ sync_pipe_cfilter_error_to_parent(const char *cfilter, const char *errmsg)
 
 /** the child encountered an error, notify the parent */
 void 
-sync_pipe_errmsg_to_parent(const char *errmsg)
+sync_pipe_errmsg_to_parent(const char *errmsg, const char *secondary_error_msg)
 {
     cmdarg_err(errmsg);
+    cmdarg_err_cont(secondary_error_msg);
 }
 
 #endif /* HAVE_LIBPCAP */
