@@ -899,7 +899,9 @@ sync_pipe_kill(capture_options *capture_opts)
        * handle.  OpenProcess will get an handle (not a window handle)
        * from the process ID; it will not get a window handle from the
        * process ID.  (How could it?  A process can have more than one
-       * window.)
+       * window.  For that matter, a process might have *no* windows,
+       * as a process running dumpcap, the normal child process program,
+       * probably does.)
        *
        * Hint: GenerateConsoleCtrlEvent() will only work if both processes are
        * running in the same console; that's not necessarily the case for
