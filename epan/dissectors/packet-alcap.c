@@ -1263,7 +1263,7 @@ static alcap_param_info_t param_infos[]  = {
     {-1, "TCS", dissect_fields_none, FALSE}
 };
 
-#define GET_PARAM_INFO(id) ( array_length(param_infos) < id ? &(param_infos[0]) : &(param_infos[id]) )
+#define GET_PARAM_INFO(id) ( array_length(param_infos) <= id ? &(param_infos[0]) : &(param_infos[id]) )
 
 typedef struct _alcap_msg_type_info_t {
     gchar* abbr;
@@ -1361,7 +1361,7 @@ extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  g
     }
 }
 
-#define GET_MSG_TYPE(id) ( array_length(msg_types) < id ? &(msg_types[0]) : &(msg_types[id]) )
+#define GET_MSG_TYPE(id) ( array_length(msg_types) <= id ? &(msg_types[0]) : &(msg_types[id]) )
 
 static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree	*alcap_tree = NULL;
@@ -1386,7 +1386,6 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     msg_info->dsaid = tvb_get_ntohl(tvb, 0);
     msg_info->msg_type = tvb_get_guint8(tvb, 4);
 
-	/* coverity[overrun-local] */
     msg_type = GET_MSG_TYPE(msg_info->msg_type);
     
     expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, msg_type->severity, " ");
@@ -1447,24 +1446,26 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     leg->pathid = msg_info->pathid;
                     leg->cid = msg_info->cid;
                     leg->sugr = msg_info->sugr;
-                    
-                    if (msg_info->orig_nsap) {
+					leg->orig_nsap = NULL;
+					leg->dest_nsap = NULL;
+					
+					if (msg_info->orig_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->orig_nsap,leg->sugr);
                         g_strdown(key);
-
+						
                         leg->orig_nsap = se_strdup(msg_info->orig_nsap);
                         
                         if (!se_tree_lookup_string(legs_by_bearer,key)) {
                             se_tree_insert_string(legs_by_bearer,key,leg);
                         }
-                    }
-                    
+					}
+					
                     if (msg_info->dest_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->dest_nsap,leg->sugr);
                         g_strdown(key);
-
+						
                         leg->dest_nsap = se_strdup(msg_info->dest_nsap);
-
+						
                         if (!se_tree_lookup_string(legs_by_bearer,key)) {
                             se_tree_insert_string(legs_by_bearer,key,leg);
                         }
@@ -1542,7 +1543,7 @@ proto_register_alcap(void)
     { &hf_alcap_compat_general_sni, { "General SNI", "alcap.compat.general.sni", FT_UINT8, BASE_DEC, VALS(send_notification), 0x04, "Send Notificaation Indicator", HFILL }},
     { &hf_alcap_compat_general_ii, { "General II", "alcap.compat.general.ii", FT_UINT8, BASE_DEC, VALS(instruction_indicator), 0x03, "Instruction Indicator", HFILL }},
         
-    { &hf_alcap_unknown, { "Unknown Field Data", "alcap.unknown.fields", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+    { &hf_alcap_unknown, { "Unknown Field Data", "alcap.unknown.field", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
         
     { &hf_alcap_param_id, { "Parameter", "alcap.param", FT_UINT8, BASE_DEC, VALS(msg_parm_strings), 0, "Parameter Id", HFILL }},
     { &hf_alcap_param_len, { "Length", "alcap.param.len", FT_UINT8, BASE_DEC, NULL, 0, "Parameter Length", HFILL }},
@@ -1717,7 +1718,6 @@ proto_register_alcap(void)
     { &hf_alcap_vbwt_sust_bucket_bw, { "Sustainable Backwards CPS Bucket Size", "alcap.vbwt.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_alcap_vbwt_size_fw, { "Forward CPS Packet Size", "alcap.vbwt.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_alcap_vbwt_size_bw, { "Backwards CPS Packet Size", "alcap.vbwt.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-        
         
 	{ &hf_alcap_leg_osaid, { "Leg's ERQ OSA id",	"alcap.leg.osaid", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
 	{ &hf_alcap_leg_dsaid, { "Leg's ECF OSA id",	"alcap.leg.dsaid", FT_UINT32, BASE_HEX, NULL, 0,"", HFILL } },
