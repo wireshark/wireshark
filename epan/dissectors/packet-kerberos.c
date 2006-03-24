@@ -3832,6 +3832,7 @@ dissect_krb5_e_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 {
 	switch(krb5_errorcode){
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
+	case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_e_data, dissect_krb5_padata);
 
 		break;
