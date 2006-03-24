@@ -440,9 +440,10 @@ sync_pipe_start(capture_options *capture_opts) {
       dup(sync_pipe[PIPE_WRITE]);
       eth_close(sync_pipe[PIPE_READ]);
       execv(exename, argv);
-      g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+      /* XXX - find a way to send this message to the parent in a clean way */
+      /*g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		exename, strerror(errno));
-      sync_pipe_errmsg_to_parent(errmsg, "");
+      sync_pipe_errmsg_to_parent(errmsg, "");*/
 
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but
