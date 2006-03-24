@@ -52,6 +52,7 @@ static int hf_gre_key = -1;
 static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
 static gint ett_gre_wccp2_redirect_header = -1;
+static gint ett_3gpp2_attribs = -1;
 
 static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
@@ -83,8 +84,90 @@ static const value_string typevals[] = {
 	{ ETHERTYPE_IPv6,      "IPv6" },
 	{ ETHERTYPE_MPLS,      "MPLS label switched packet" },
 	{ ETHERTYPE_CDMA2000_A10_UBS,"CDMA2000 A10 Unstructured byte stream" },
+        { ETHERTYPE_3GPP2,       "CDMA2000 A10 3GPP2 Packet" },
 	{ 0,                   NULL }
 };
+
+#define ID_3GPP2_SDI_FLAG 1
+#define ID_3GPP2_FLOW_CTRL 2
+#define ID_3GPP2_FLOW_DISCRIMINATOR 3
+#define ID_3GPP2_SEG 4
+
+static const value_string segvals[] = {
+   { 0x00, "Packet Started" },
+   { 0x01, "Packet Continuing" },
+   { 0x02, "Packet Ended" },
+   { 0,    NULL }
+};
+
+static int
+dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  gboolean	last_attrib = FALSE;
+
+  proto_item* ti = 
+      proto_tree_add_text(tree, tvb, offset, 0, "3GPP2 Attributes");
+
+  proto_tree* atree = proto_item_add_subtree(ti, ett_3gpp2_attribs);
+
+  while(last_attrib != TRUE)
+  {
+     guint8 attrib_id = tvb_get_guint8(tvb, offset);
+     guint8 attrib_length = tvb_get_guint8(tvb, offset + 1);
+
+     offset += 2;
+     last_attrib = (attrib_id & 0x80)?TRUE:FALSE;
+     attrib_id &= 0x7F;
+
+     switch(attrib_id)
+     {
+        case ID_3GPP2_FLOW_DISCRIMINATOR:
+             {
+              guint8 flow_disc = tvb_get_guint8(tvb, offset);
+              proto_tree_add_text
+                (atree, tvb, offset, 1, "Flow Discriminator: %d (0x%02x)", 
+                        (int)flow_disc,
+                        (int)flow_disc);
+             }
+             break;
+        case ID_3GPP2_SDI_FLAG:
+             {
+              guint8 sdi_attr = tvb_get_guint8(tvb, offset);
+              proto_tree_add_text
+                 (atree, tvb, offset, 2, "1x SDB/HRPD DoS Indicator: %s",
+                      decode_boolean_bitfield(sdi_attr, 0x80, 8,
+                                              "Set", "Not Set"));
+             }
+             break;
+        case ID_3GPP2_SEG:
+             {
+              guint8 seg_ind = tvb_get_guint8(tvb, offset);
+              seg_ind = (seg_ind >> 6) & 0x03;
+              proto_tree_add_text
+                 (atree, tvb, offset, 2, "Segmentation Indicator: %s",
+                      val_to_str(seg_ind, segvals, "0x%02X - Unknown"));
+             }
+             break;
+        case ID_3GPP2_FLOW_CTRL:
+             {
+              guint8 flow_control = tvb_get_guint8(tvb, offset);
+              proto_tree_add_text
+                 (atree, tvb, offset, 2, "Flow Control Indicator: %s",
+                      decode_boolean_bitfield(flow_control, 0x80, 8,
+                                              "XOFF", "XON"));
+              proto_tree_add_text
+                 (atree, tvb, offset, 2, "Duration Indicator: %s",
+                      decode_boolean_bitfield(flow_control, 0x40, 8,
+                                              "INDEFINITE", "TEMPORARY"));
+             }
+             break;
+     }
+
+     offset += attrib_length;
+  } 
+
+  return offset;
+}
 
 static void
 dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -125,6 +208,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       len += 4;
     is_ppp = TRUE;
     break;
+  case ETHERTYPE_3GPP2: 
   case ETHERTYPE_CDMA2000_A10_UBS:
     if (flags_and_ver & GH_P_A)
       len += 4;
@@ -266,6 +350,11 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
+  if(type == ETHERTYPE_3GPP2) {
+     offset = dissect_gre_3gpp2_attribs(tvb, offset, gre_tree);
+  }
+  
+
   /* If the S bit is not set, this packet might not have a payload, so
      check whether there's any data left, first.
 
@@ -375,6 +464,7 @@ proto_register_gre(void)
 		&ett_gre,
 		&ett_gre_flags,
 		&ett_gre_wccp2_redirect_header,
+		&ett_3gpp2_attribs,
 	};
 
 	proto_gre = proto_register_protocol("Generic Routing Encapsulation",

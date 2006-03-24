@@ -126,7 +126,15 @@ static int hf_a11_rqi_requested_qos = -1;
 static int hf_a11_rqi_granted_qoslen = -1;
 static int hf_a11_rqi_granted_qos = -1;
 
-/* Initialize the subtree pointers */
+/* QoS Update Information */
+static int hf_a11_fqui_flowcount = -1;
+static int hf_a11_rqui_flowcount = -1;
+static int hf_a11_fqui_updated_qoslen = -1;
+static int hf_a11_fqui_updated_qos = -1;
+static int hf_a11_rqui_updated_qoslen = -1;
+static int hf_a11_rqui_updated_qos = -1;
+static int hf_a11_subsciber_profile = -1;
+static int hf_a11_subsciber_profile_len = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_a11 = -1;
@@ -141,6 +149,9 @@ static gint ett_a11_rqi_flowentry = -1;
 static gint ett_a11_fqi_flags = -1;
 static gint ett_a11_fqi_entry_flags = -1;
 static gint ett_a11_rqi_entry_flags = -1;
+static gint ett_a11_fqui_flowentry = -1;
+static gint ett_a11_rqui_flowentry = -1;
+static gint ett_a11_subscriber_profile = -1;
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
@@ -313,9 +324,11 @@ static const value_string a11_ext_app[]= {
   {0x0B01, "PCF Enabled Features (Short Data Indication Supported)"},
   {0x0B02, "PCF Enabled Features (GRE Segmentation Enabled)"},
   {0x0C01, "Additional Session Info"},
-  {0x0D01, "Forward QoS Info"},
-  {0x0D02, "Reverse QoS Info"},
-  {0x0D08, "Subscriber QoS Profile"},
+  {0x0D01, "Forward QoS Information"},
+  {0x0D02, "Reverse QoS Information"},
+  {0x0D03, "Subscriber QoS Profile"},
+  {0x0DFE, "Forward QoS Update Information"},
+  {0x0DFF, "Reverse QoS Update Information"},
   {0, NULL},
 };
 
@@ -653,6 +666,7 @@ static void dissect_fwd_qosinfo_flags
       }
 }
 
+
 #define A11_FQI_DSCP 0x7E
 #define A11_FQI_FLOW_STATE 0x01
 
@@ -846,6 +860,119 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
       {
         proto_tree_add_item
           (exts_tree, hf_a11_rqi_granted_qos, tvb, offset+clen, granted_qos_len, FALSE);
+        clen += granted_qos_len;
+      }
+   }
+}
+
+
+/* Code to dissect Subscriber QoS Profile */
+static void dissect_subscriber_qos_profile(tvbuff_t* tvb, int offset, int ext_len, proto_tree* ext_tree)
+{
+    proto_tree* exts_tree = 0;
+
+    int qos_profile_len = ext_len;
+
+    proto_item* ti = 
+       proto_tree_add_text (ext_tree, tvb, offset, 0, 
+                            "Subscriber Qos Profile (%d bytes)", 
+                            qos_profile_len);
+
+    exts_tree = proto_item_add_subtree(ti, ett_a11_subscriber_profile);
+
+    proto_tree_add_item
+        (exts_tree,  hf_a11_subsciber_profile_len, tvb, offset, 0, FALSE);
+
+    /* Subscriber QoS profile */
+    if(qos_profile_len)
+    {
+        proto_tree_add_item
+          (exts_tree,  hf_a11_subsciber_profile, tvb, offset, 
+              qos_profile_len, FALSE);
+    }
+}
+
+/* Code to dissect Forward QoS Update Info */
+static void dissect_fwd_qosupdate_info(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
+{
+   int clen = 0; /* consumed length */
+   guint8 flow_count = 0;
+   guint8 flow_index = 0;
+   guint8 dscp_enabled = 0;
+
+   /* Flow Count */
+   flow_count = tvb_get_guint8(tvb, offset+clen);
+   proto_tree_add_item(ext_tree, hf_a11_fqui_flowcount, tvb, offset+clen, 1, FALSE);
+   clen++;
+
+   for(flow_index=0; flow_index<flow_count; flow_index++)
+   {
+      proto_tree* exts_tree = 0;
+      guint8 granted_qos_len = 0;
+
+      guint8 flow_id = tvb_get_guint8(tvb, offset+clen);
+
+      proto_item* ti = proto_tree_add_text
+          (ext_tree, tvb, offset+clen, 1, "Forward Flow Entry (Flow Id: %d)", flow_id);
+
+      clen++;
+      exts_tree = proto_item_add_subtree(ti, ett_a11_fqui_flowentry);
+   
+      /* Forward QoS Sub Blob Length */
+      granted_qos_len = tvb_get_guint8(tvb, offset+clen);
+      proto_tree_add_item
+        (exts_tree, hf_a11_fqui_updated_qoslen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Forward QoS Sub Blob */
+      if(granted_qos_len)
+      {
+        proto_tree_add_item
+          (exts_tree, hf_a11_fqui_updated_qos, tvb, offset+clen, 
+              granted_qos_len, FALSE);
+        clen += granted_qos_len;
+      }
+   }
+}
+
+
+/* Code to dissect Reverse QoS Update Info */
+static void dissect_rev_qosupdate_info(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
+{
+   int clen = 0; /* consumed length */
+   guint8 flow_count = 0;
+   guint8 flow_index = 0;
+   guint8 dscp_enabled = 0;
+
+   /* Flow Count */
+   flow_count = tvb_get_guint8(tvb, offset+clen);
+   proto_tree_add_item(ext_tree, hf_a11_rqui_flowcount, tvb, offset+clen, 1, FALSE);
+   clen++;
+
+   for(flow_index=0; flow_index<flow_count; flow_index++)
+   {
+      proto_tree* exts_tree = 0;
+      guint8 granted_qos_len = 0;
+
+      guint8 flow_id = tvb_get_guint8(tvb, offset+clen);
+
+      proto_item* ti = proto_tree_add_text
+          (ext_tree, tvb, offset+clen, 1, "Reverse Flow Entry (Flow Id: %d)", flow_id);
+      clen++;
+      exts_tree = proto_item_add_subtree(ti, ett_a11_rqui_flowentry);
+  
+      /* Reverse QoS Sub Blob Length */
+      granted_qos_len = tvb_get_guint8(tvb, offset+clen);
+      proto_tree_add_item
+        (exts_tree, hf_a11_rqui_updated_qoslen, tvb, offset+clen, 1, FALSE);
+      clen++;
+
+      /* Reverse QoS Sub Blob */
+      if(granted_qos_len)
+      {
+        proto_tree_add_item
+          (exts_tree, hf_a11_rqui_updated_qos, tvb, offset+clen,
+              granted_qos_len, FALSE);
         clen += granted_qos_len;
       }
    }
@@ -1079,6 +1206,15 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
           break;
         case 0x0D02:
           dissect_rev_qosinfo(tvb, offset, ext_tree);
+          break;
+        case 0x0D03:
+          dissect_subscriber_qos_profile(tvb, offset, ext_len, ext_tree);
+          break;
+        case 0x0DFE:
+          dissect_fwd_qosupdate_info(tvb, offset, ext_tree);
+          break;
+        case 0x0DFF:
+          dissect_rev_qosupdate_info(tvb, offset, ext_tree);
           break;
       }
 
@@ -1716,6 +1852,46 @@ void proto_register_a11(void)
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"Reverse Granted QoS.", HFILL }
 	  },
+	  { &hf_a11_fqui_flowcount,
+		 { "Forward QoS Update Flow Count",   "a11.ext.fqui.flowcount",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Forward QoS Update Flow Count.", HFILL }
+	  },
+	  { &hf_a11_rqui_flowcount,
+		 { "Reverse QoS Update Flow Count",   "a11.ext.rqui.flowcount",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse QoS Update Flow Count.", HFILL }
+	  },
+	  { &hf_a11_fqui_updated_qoslen,
+		 { "Foward Updated QoS Sub-Blob Length",   "a11.ext.fqui.updatedqoslen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Foward Updated QoS Sub-Blob Length.", HFILL }
+	  },
+	  { &hf_a11_fqui_updated_qos,
+		 { "Foward Updated QoS Sub-Blob",   "a11.ext.fqui.updatedqos",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Foward Updated QoS Sub-Blob.", HFILL }
+	  },
+	  { &hf_a11_rqui_updated_qoslen,
+		 { "Reverse Updated QoS Sub-Blob Length",   "a11.ext.rqui.updatedqoslen",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Reverse Updated QoS Sub-Blob Length.", HFILL }
+	  },
+	  { &hf_a11_rqui_updated_qos,
+		 { "Reverse Updated QoS Sub-Blob",   "a11.ext.rqui.updatedqos",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Reverse Updated QoS Sub-Blob.", HFILL }
+	  },
+	  { & hf_a11_subsciber_profile_len,
+		 { "Subscriber QoS Profile Length",   "a11.ext.sqp.profilelen",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Subscriber QoS Profile Length.", HFILL }
+	  },
+	  { & hf_a11_subsciber_profile,
+		 { "Subscriber QoS Profile",   "a11.ext.sqp.profile",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Subscriber QoS Profile.", HFILL }
+	  },
 	};
 
 	/* Setup protocol subtree array */
@@ -1732,6 +1908,9 @@ void proto_register_a11(void)
 		&ett_a11_fqi_flags,
 		&ett_a11_fqi_entry_flags,
 		&ett_a11_rqi_entry_flags,
+		&ett_a11_fqui_flowentry,
+		&ett_a11_rqui_flowentry,
+		&ett_a11_subscriber_profile,
 	};
 
 	/* Register the protocol name and description */
