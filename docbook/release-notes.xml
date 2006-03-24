@@ -269,23 +269,58 @@ Ethereal Info
 	  Versions affected: 0.9.10.
         </para></listitem>
 
+        <listitem><para>
+	  The ASN.1 dissector could crash Ethereal.
+	  <!-- Fixed in r17489 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 109 -->
+	  Versions affected: 0.9.10.
+        </para></listitem>
 
+        <!-- CID 110: Not security-related -->
+        <!-- CID 111: Bogus -->
+        <!-- CID 112: Not security-related -->
 
-
+        <listitem><para>
+	  The H.248 dissector could crash Ethereal.
+	  <!-- Fixed in r17571 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 113,114 -->
+	  Versions affected: 0.10.11.
+        </para></listitem>
 
         <!-- CID 115, 116: See CID 79 -->
-
+        <!-- CID 117: Bogus -->
+        <!-- CID 118 - 119: Not security-related -->
+        <!-- CID 120 - 121: Bogus -->
+        <!-- CID 122 - 126: Not security-related -->
         <!-- CID 127: Bogus -->
 
-        <!-- CID 129: Bogus -->
+        <listitem><para>
+	  The DCERPC NT dissector could crash Ethereal.
+	  <!-- Fixed in r17511 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 128 -->
+	  Versions affected: 0.9.14.
+        </para></listitem>
 
-        <!-- CID 132 - 134: Not security-related -->
+        <!-- CID 129: Bogus -->
+        <!-- CID 130 - 134: Not security-related -->
+
+        <listitem><para>
+	  The PER dissector could crash Ethereal.
+	  <!-- Fixed in r17511 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 135 -->
+	  Versions affected: 0.9.14.
+        </para></listitem>
 
         <!-- CID 136: See CID 67 -->
-
-        <!-- CID 140: Bogus -->
-
-        <!-- CID 144: See CID 79 -->
+        <!-- CID 137 - 139: Not security-releated -->
+        <!-- CID 140 - 141: Bogus -->
+        <!-- CID 142: Not security-releated -->
+        <!-- CID 143 - 144: See CID 79 -->
+        <!-- CID 145: Post-0.10.14 -->
 
       </itemizedlist>
     </para>
