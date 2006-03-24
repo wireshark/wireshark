@@ -774,6 +774,9 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
   struct atalk_ddp_addr ddp_addr;
 
   switch(addr->type){
+  case AT_NONE:
+    g_snprintf(buf, buf_len, "");
+    break;
   case AT_ETHER:
     g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
     break;

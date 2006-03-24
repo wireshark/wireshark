@@ -5872,8 +5872,8 @@ static int msg_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_diss
 	int msg_node;
 	int dir_node;
 	
-	address_to_str_buf(&(pinfo->net_src), src, sizeof src);
-	address_to_str_buf(&(pinfo->net_dst), dst, sizeof dst);
+	address_to_str_buf(&(pinfo->src), src, sizeof src);
+	address_to_str_buf(&(pinfo->dst), dst, sizeof dst);
 	g_snprintf(dir,sizeof(dir),"%s->%s",src,dst);
 	
 	msg_node = tick_stat_node(st, msg, st_node_msg, TRUE);
