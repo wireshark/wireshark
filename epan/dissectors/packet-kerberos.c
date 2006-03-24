@@ -259,6 +259,8 @@ static gint hf_krb_gssapi_c_flag_replay = -1;
 static gint hf_krb_gssapi_c_flag_sequence = -1;
 static gint hf_krb_gssapi_c_flag_conf = -1;
 static gint hf_krb_gssapi_c_flag_integ = -1;
+static gint hf_krb_smb_nt_status = -1;
+static gint hf_krb_smb_unknown = -1;
 
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
@@ -2064,6 +2066,33 @@ dissect_krb5_PA_ENCTYPE_INFO2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	return offset;
 }
 
+
+static int
+dissect_krb5_PW_SALT(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	/* Microsoft stores a special 12 byte blob here
+	 * guint32 NT_status    
+	 * guint32 unknown
+	 * guint32 unknown
+	 * decode everything as this blob for now until we see if anyone
+	 * else ever uses it   or we learn how to tell wether this
+	 * is such an MS blob or not.
+	 */
+	proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	return offset;
+}
+
 /*
  * PA-DATA ::=        SEQUENCE {
  *          padata-type[1]        INTEGER,
@@ -2119,6 +2148,9 @@ dissect_krb5_PA_DATA_value(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
  		break;
 	case KRB5_PA_ENCTYPE_INFO2:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO2);
+ 		break;
+	case KRB5_PA_PW_SALT:
+		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PW_SALT);
  		break;
 	default:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, NULL);
@@ -4604,6 +4636,13 @@ proto_register_kerberos(void)
 	{ &hf_krb_gssapi_dlglen, {
 	    "DlgLen", "kerberos.gssapi.dlglen", FT_UINT16, BASE_DEC,
 	    NULL, 0, "GSSAPI DlgLen", HFILL }},
+	{ &hf_krb_smb_nt_status,
+		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
+		VALS(NT_errors), 0, "NT Status code", HFILL }},
+	{ &hf_krb_smb_unknown,
+		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
+		NULL, 0, "unknown", HFILL }},
+
     };
 
     static gint *ett[] = {
