@@ -318,7 +318,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->buffer_size = get_positive_int(optarg, "buffer size");
         break;
 #endif
-    case 'c':        /* Capture xxx packets */
+    case 'c':        /* Capture n packets */
         capture_opts->has_autostop_packets = TRUE;
         capture_opts->autostop_packets = get_positive_int(optarg, "packet count");
         break;
@@ -330,7 +330,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
     case 'H':        /* Hide capture info dialog box */
         capture_opts->show_info = FALSE;
         break;
-    case 'i':        /* Use interface xxx */
+    case 'i':        /* Use interface x */
         status = capture_opts_add_iface_opt(capture_opts, optarg);
         if(status != 0) {
             return status;
@@ -354,7 +354,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
     case 'S':        /* "Real-Time" mode: used for following file ala tail -f */
         capture_opts->real_time_mode = TRUE;
         break;
-    case 'w':        /* Write to capture file xxx */
+    case 'w':        /* Write to capture file x */
 #if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
         /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
         capture_opts->save_file = g_locale_to_utf8(optarg, -1, NULL, NULL, NULL);
@@ -373,7 +373,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
           return 1;
         }
 #else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
-        /* XXX - just treat it as a number */
+        /* we can't get the type name, just treat it as a number */
         capture_opts->linktype = get_natural_int(optarg, "data link type");
 #endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         break;

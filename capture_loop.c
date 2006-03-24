@@ -590,11 +590,11 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       if (ld->cap_pipe_err == PIPNEXIST) {
 	/* Pipe doesn't exist, so output message for interface */
 
-	/* If we got a "can't find PPA for XXX" message, warn the user (who
+	/* If we got a "can't find PPA for X" message, warn the user (who
 	   is running (T)Ethereal on HP-UX) that they don't have a version
 	   of libpcap that properly handles HP-UX (libpcap 0.6.x and later
 	   versions, which properly handle HP-UX, say "can't find /dev/dlpi
-	   PPA for XXX" rather than "can't find PPA for XXX"). */
+	   PPA for X" rather than "can't find PPA for X"). */
 	if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	  libpcap_warn =
 	    "\n\n"
