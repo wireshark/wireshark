@@ -124,10 +124,12 @@ ReportDeliveryEnvelope/per-recipient-fields/_item	per-recipient-report-delivery-
 
 MessageTransferEnvelope/per-recipient-fields/_item	per-recipient-message-fields-item
 
-
-
 MessageTransferEnvelope/per-recipient-fields		per-recipient-message-fields
 ReportTransferContent/per-recipient-fields		per-recipient-report-fields
+
+AsymmetricTokenData/name/mta				token-mta
+AsymmetricTokenData/name/recipient-name			token-recipient-name
+
 
 #.PDU
 MTABindArgument
@@ -199,6 +201,9 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
 
 ReportDeliveryArgument	B	"2.6.1.4.14"	"id-et-report"
 
+AsymmetricToken		B	"2.6.3.6.0"	"id-tok-asymmetricToken"
+MTANameAndOptionalGDI	B	"2.6.5.6.0"	"id-on-mtaName"
+
 # X402 - see master list in acp133.cnf
 
 ContentLength B "2.6.5.2.0" "id-at-mhs-maximum-content-length"
@@ -216,8 +221,6 @@ ExtendedEncodedInformationType B "2.6.5.2.18" "id-at-mhs-unacceptable-eits"
 # ACP133 - see master list in acp133.cnf
 ORName B "2.16.840.1.101.2.1.5.47" "id-at-aLExemptedAddressProcessor"
 ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
-
-
 
 #.FN_BODY AdditionalInformation
 /*XXX not implemented yet */
@@ -557,6 +560,15 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	doing_address = FALSE;
 
+#.FN_BODY MTANameAndOptionalGDI
+
+	doing_address = TRUE;
+
+	%(DEFAULT_BODY)s
+
+	doing_address = FALSE;
+	proto_item_append_text(tree, ")");
+
 #.FN_BODY BuiltInStandardAttributes
 
 	address_item = tree;	
@@ -578,7 +590,6 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	%(DEFAULT_BODY)s
 
 	doing_address = FALSE;
-
 
 #.FN_BODY DomainSuppliedInformation
 
@@ -606,7 +617,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	%(DEFAULT_BODY)s
 
-	if(arrival)
+	if(arrival && doing_address)
 		proto_item_append_text(address_item, " %%s", tvb_format_text(arrival, 0, tvb_length(arrival)));
 
 #.FN_PARS RoutingAction
@@ -628,5 +639,25 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
   if((error != -1) && check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(error, x411_MTABindError_vals, "error(%%d)"));
 
+#.FN_PARS TokenTypeIdentifier
+	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
+
+#.FN_BODY TokenTypeData
+	
+	if(object_identifier_id) 
+   	   call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_PARS Credentials
+	VAL_PTR = &credentials
+
+#.FN_BODY Credentials
+  guint32 credentials;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	if(credentials == -1) credentials = 0;
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%%d)"));
+  }
 
 #.END

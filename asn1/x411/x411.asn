@@ -764,7 +764,7 @@ ResponderCredentials ::= Credentials
 
 Credentials ::= CHOICE {
   simple     Password,
---  strong     [0]  StrongCredentials,
+  strong     [0]  StrongCredentials,
 --  ...,
   protected  [1]  ProtectedPassword
 }
@@ -774,12 +774,12 @@ Password ::= CHOICE {
   octet-string  OCTET STRING --(SIZE (0..ub-password-length))
 }
 
---StrongCredentials ::= SET {
---  bind-token               [0]  Token OPTIONAL,
---  certificate              [1]  Certificates OPTIONAL,
+StrongCredentials ::= SET {
+  bind-token               [0]  Token OPTIONAL,
+  certificate              [1]  Certificates OPTIONAL,
 --  ...,
---  certificate-selector     [2]  CertificateAssertion OPTIONAL
---}
+  certificate-selector     [2]  CertificateAssertion OPTIONAL
+}
 
 ProtectedPassword ::= SET {
   signature
@@ -2810,13 +2810,15 @@ TeletexNonBasicParameters ::= SET {
 
 -- as defined in CCITT Recommendation T.62
 --	Token
---Token ::= SEQUENCE {
---  token-type-identifier  [0]  TOKEN.&id({TokensTable}),
---  token
---    [1]  TOKEN.&Type({TokensTable}{@token-type-identifier})
---}
+Token ::= SEQUENCE {
+  token-type-identifier  [0]  -- TOKEN.&id({TokensTable})-- TokenTypeIdentifier,
+  token
+    [1]  --TOKEN.&Type({TokensTable}{@token-type-identifier})-- TokenTypeData
+}
 
 --TOKEN ::= TYPE-IDENTIFIER
+TokenTypeIdentifier ::= OBJECT IDENTIFIER
+TokenTypeData ::= ANY
 
 --TokensTable TOKEN ::= {asymmetric-token, ...}
 
@@ -2825,22 +2827,29 @@ TeletexNonBasicParameters ::= SET {
 --  IDENTIFIED BY  id-tok-asymmetricToken
 --}
 
---AsymmetricToken ::=
+AsymmetricTokenData ::=
 --  SIGNED
---    {SEQUENCE {signature-algorithm-identifier   AlgorithmIdentifier,
---               name
---                 CHOICE {recipient-name  RecipientName,
---                         mta
---                           [3]  SEQUENCE {global-domain-identifier
---                                            GlobalDomainIdentifier OPTIONAL,
---                                          mta-name                  MTAName
---                         }},
---               time                             Time,
---               signed-data                      [0]  TokenData OPTIONAL,
---               encryption-algorithm-identifier
---                 [1]  AlgorithmIdentifier OPTIONAL,
---               encrypted-data
---                 [2]  ENCRYPTED{TokenData} OPTIONAL}}
+--    {--SEQUENCE {signature-algorithm-identifier   AlgorithmIdentifier,
+               name
+                 CHOICE {recipient-name  MTSRecipientName,
+                         mta  [3]  MTANameAndOptionalGDI },
+               time                             Time,
+               signed-data                      [0]  TokenData OPTIONAL,
+               encryption-algorithm-identifier
+                 [1]  AlgorithmIdentifier OPTIONAL,
+               encrypted-data
+                 [2] -- ENCRYPTED{TokenData}-- BIT STRING OPTIONAL} --}
+
+MTANameAndOptionalGDI ::= SEQUENCE {
+     global-domain-identifier       GlobalDomainIdentifier OPTIONAL,
+     mta-name                  MTAName
+}
+
+AsymmetricToken ::= SEQUENCE {
+  asymmetric-token-data		AsymmetricTokenData,
+  algorithm-identifier		AlgorithmIdentifier,
+  encrypted			BIT STRING
+}
 
 --TokenData ::= SEQUENCE {
 --  type   [0]  TOKEN-DATA.&id({TokenDataTable}),
@@ -2861,9 +2870,12 @@ TeletexNonBasicParameters ::= SET {
 --                                       IDENTIFIED BY  1
 --}
 
---BindTokenSignedData ::= RandomNumber
+-- This is the only Token Data we know
+TokenData ::= BindTokenSignedData
 
---RandomNumber ::= BIT STRING
+BindTokenSignedData ::= RandomNumber
+
+RandomNumber ::= BIT STRING
 
 --message-token-signed-data TOKEN-DATA ::= {
 --  MessageTokenSignedData
