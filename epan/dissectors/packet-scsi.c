@@ -2455,7 +2455,7 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                              (flags & 0x02) >> 1, (flags & 0x01));
         proto_tree_add_text (tree, tvb, offset+11, 3,
                              "Object Buffer Size At Early Warning: %u",
-                             tvb_get_ntohl (tvb, offset+11));
+                             tvb_get_ntoh24 (tvb, offset+11));
         flags = tvb_get_guint8 (tvb, offset+14);
         proto_tree_add_text (tree, tvb, offset+14, 1,
                              "Select Data Compression Algorithm: %u",
@@ -2523,7 +2523,7 @@ dissect_scsi_mmc5_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                              flags);
         proto_tree_add_text (tree, tvb, offset+10, 4,
                              "Packet Size: %u",
-                             tvb_get_ntohs (tvb, offset+10));
+                             tvb_get_ntohl (tvb, offset+10));
         proto_tree_add_text (tree, tvb, offset+14, 2,
                              "Audio Pause Length: %u",
                              tvb_get_ntohs (tvb, offset+14));
@@ -2542,7 +2542,7 @@ dissect_scsi_mmc5_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         if (0x36 == tvb_get_guint8 (tvb, offset+1))
             proto_tree_add_text (tree, tvb, offset+52, 4,
                                  "Vendor Specific: %u",
-                                 tvb_get_ntohs (tvb, offset+52));
+                                 tvb_get_ntohl (tvb, offset+52));
         break;
     case SCSI_MMC3_MODEPAGE_MMCAP:
         flags = tvb_get_guint8 (tvb, offset+2);
@@ -4748,22 +4748,17 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint8 flags;
 
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "Sub-Command: %u",
-                             flags & 0x0f);
-
         proto_tree_add_text (tree, tvb, offset+1, 4,
                              "Address: %u",
                              tvb_get_ntohl (tvb, offset+1));
 
         proto_tree_add_text (tree, tvb, offset+5, 1,
                              "Layer Number: %u",
-                             tvb_get_ntohs (tvb, offset+5));
+                             tvb_get_guint8 (tvb, offset+5));
 
         proto_tree_add_text (tree, tvb, offset+6, 1,
                              "Format Code: %u",
-                             tvb_get_ntohs (tvb, offset+6));
+                             tvb_get_guint8 (tvb, offset+6));
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, 0);
 
