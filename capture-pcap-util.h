@@ -67,7 +67,7 @@ typedef struct {
  * An address in the "ip_addr" list.
  */
 typedef struct {
-	address_type type;      /* AF_INET or AF_INET6 */
+	address_type type;      /* AT_IPv4 or AT_IPv6 */
 	union {
 		guint32 ip4_addr;   /*  4 byte IP V4 address, or */
 		guint8 ip6_addr[16];/* 16 byte IP V6 address */
