@@ -39,6 +39,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
+#include "packet-x411.h"
 
 #define PNAME  "X.509 Certificate Extensions"
 #define PSNAME "X509CE"

@@ -47,6 +47,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
+#include "packet-x411.h"
 
 #define PNAME  "X.509 Certificate Extensions"
 #define PSNAME "X509CE"
@@ -101,13 +102,17 @@ static int hf_x509ce_PolicyMappingsSyntax_item = -1;  /* PolicyMappingsSyntax_it
 static int hf_x509ce_issuerDomainPolicy = -1;     /* CertPolicyId */
 static int hf_x509ce_subjectDomainPolicy = -1;    /* CertPolicyId */
 static int hf_x509ce_GeneralNames_item = -1;      /* GeneralName */
+static int hf_x509ce_otherName = -1;              /* OtherName */
 static int hf_x509ce_rfc822Name = -1;             /* IA5String */
 static int hf_x509ce_dNSName = -1;                /* IA5String */
+static int hf_x509ce_x400Address = -1;            /* ORAddress */
 static int hf_x509ce_directoryName = -1;          /* Name */
 static int hf_x509ce_ediPartyName = -1;           /* EDIPartyName */
 static int hf_x509ce_uniformResourceIdentifier = -1;  /* IA5String */
 static int hf_x509ce_iPAddress = -1;              /* T_iPAddress */
 static int hf_x509ce_registeredID = -1;           /* OBJECT_IDENTIFIER */
+static int hf_x509ce_type_id = -1;                /* OtherNameType */
+static int hf_x509ce_value = -1;                  /* OtherNameValue */
 static int hf_x509ce_nameAssigner = -1;           /* DirectoryString */
 static int hf_x509ce_partyName = -1;              /* DirectoryString */
 static int hf_x509ce_AttributesSyntax_item = -1;  /* Attribute */
@@ -208,7 +213,7 @@ static int hf_x509ce_ReasonFlags_privilegeWithdrawn = -1;
 static int hf_x509ce_ReasonFlags_aACompromise = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-#line 54 "packet-x509ce-template.c"
+#line 55 "packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -226,6 +231,7 @@ static gint ett_x509ce_PolicyMappingsSyntax = -1;
 static gint ett_x509ce_PolicyMappingsSyntax_item = -1;
 static gint ett_x509ce_GeneralNames = -1;
 static gint ett_x509ce_GeneralName = -1;
+static gint ett_x509ce_OtherName = -1;
 static gint ett_x509ce_EDIPartyName = -1;
 static gint ett_x509ce_AttributesSyntax = -1;
 static gint ett_x509ce_BasicConstraintsSyntax = -1;
@@ -259,7 +265,7 @@ static gint ett_x509ce_CertificateListAssertion = -1;
 static gint ett_x509ce_PkiPathMatchSyntax = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-#line 57 "packet-x509ce-template.c"
+#line 58 "packet-x509ce-template.c"
 
 static const char *object_identifier_id;
 
@@ -270,6 +276,9 @@ static const char *object_identifier_id;
 
 static int dissect_authorityCertSerialNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_authorityCertSerialNumber);
+}
+static int dissect_x400Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_ORAddress(TRUE, tvb, offset, pinfo, tree, hf_x509ce_x400Address);
 }
 static int dissect_directoryName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_directoryName);
@@ -327,6 +336,51 @@ static int dissect_keyIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 
 static int
+dissect_x509ce_OtherNameType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+
+  return offset;
+}
+static int dissect_type_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_OtherNameType(FALSE, tvb, offset, pinfo, tree, hf_x509ce_type_id);
+}
+
+
+
+static int
+dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 123 "x509ce.cnf"
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_OtherNameValue(FALSE, tvb, offset, pinfo, tree, hf_x509ce_value);
+}
+
+
+static const ber_sequence_t OtherName_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type_id },
+  { BER_CLASS_CON, 0, 0, dissect_value },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_OtherName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   OtherName_sequence, hf_index, ett_x509ce_OtherName);
+
+  return offset;
+}
+static int dissect_otherName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_OtherName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_otherName);
+}
+
+
+
+static int
 dissect_x509ce_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             pinfo, tree, tvb, offset, hf_index,
@@ -366,7 +420,7 @@ static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 114 "x509ce.cnf"
+#line 116 "x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
 
@@ -398,8 +452,10 @@ static int dissect_otherNameForm(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 
 const value_string x509ce_GeneralName_vals[] = {
+  {   0, "otherName" },
   {   1, "rfc822Name" },
   {   2, "dNSName" },
+  {   3, "x400Address" },
   {   4, "directoryName" },
   {   5, "ediPartyName" },
   {   6, "uniformResourceIdentifier" },
@@ -409,8 +465,10 @@ const value_string x509ce_GeneralName_vals[] = {
 };
 
 static const ber_choice_t GeneralName_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_otherName_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rfc822Name_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_dNSName_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_x400Address_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_directoryName_impl },
   {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ediPartyName_impl },
   {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_uniformResourceIdentifier_impl },
@@ -638,7 +696,7 @@ static int dissect_policyQualifierId(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 111 "x509ce.cnf"
+#line 113 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1599,7 +1657,7 @@ static void dissect_BaseCRLNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-#line 61 "packet-x509ce-template.c"
+#line 62 "packet-x509ce-template.c"
 
 
 static void
@@ -1797,6 +1855,10 @@ void proto_register_x509ce(void) {
       { "Item", "x509ce.GeneralNames_item",
         FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralNames/_item", HFILL }},
+    { &hf_x509ce_otherName,
+      { "otherName", "x509ce.otherName",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GeneralName/otherName", HFILL }},
     { &hf_x509ce_rfc822Name,
       { "rfc822Name", "x509ce.rfc822Name",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1805,6 +1867,10 @@ void proto_register_x509ce(void) {
       { "dNSName", "x509ce.dNSName",
         FT_STRING, BASE_NONE, NULL, 0,
         "GeneralName/dNSName", HFILL }},
+    { &hf_x509ce_x400Address,
+      { "x400Address", "x509ce.x400Address",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GeneralName/x400Address", HFILL }},
     { &hf_x509ce_directoryName,
       { "directoryName", "x509ce.directoryName",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
@@ -1825,13 +1891,21 @@ void proto_register_x509ce(void) {
       { "registeredID", "x509ce.registeredID",
         FT_OID, BASE_NONE, NULL, 0,
         "GeneralName/registeredID", HFILL }},
+    { &hf_x509ce_type_id,
+      { "type-id", "x509ce.type_id",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OtherName/type-id", HFILL }},
+    { &hf_x509ce_value,
+      { "value", "x509ce.value",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OtherName/value", HFILL }},
     { &hf_x509ce_nameAssigner,
       { "nameAssigner", "x509ce.nameAssigner",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "EDIPartyName/nameAssigner", HFILL }},
     { &hf_x509ce_partyName,
       { "partyName", "x509ce.partyName",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "EDIPartyName/partyName", HFILL }},
     { &hf_x509ce_AttributesSyntax_item,
       { "Item", "x509ce.AttributesSyntax_item",
@@ -1863,11 +1937,11 @@ void proto_register_x509ce(void) {
         "GeneralSubtree/base", HFILL }},
     { &hf_x509ce_minimum,
       { "minimum", "x509ce.minimum",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GeneralSubtree/minimum", HFILL }},
     { &hf_x509ce_maximum,
       { "maximum", "x509ce.maximum",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GeneralSubtree/maximum", HFILL }},
     { &hf_x509ce_requireExplicitPolicy,
       { "requireExplicitPolicy", "x509ce.requireExplicitPolicy",
@@ -2215,7 +2289,7 @@ void proto_register_x509ce(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 96 "packet-x509ce-template.c"
+#line 97 "packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2235,6 +2309,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_PolicyMappingsSyntax_item,
     &ett_x509ce_GeneralNames,
     &ett_x509ce_GeneralName,
+    &ett_x509ce_OtherName,
     &ett_x509ce_EDIPartyName,
     &ett_x509ce_AttributesSyntax,
     &ett_x509ce_BasicConstraintsSyntax,
@@ -2268,7 +2343,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_PkiPathMatchSyntax,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 101 "packet-x509ce-template.c"
+#line 102 "packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2316,7 +2391,7 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 116 "packet-x509ce-template.c"
+#line 117 "packet-x509ce-template.c"
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }

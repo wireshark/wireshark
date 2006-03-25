@@ -7,10 +7,12 @@
 InformationFramework x509if
 AuthenticationFramework x509af
 SelectedAttributeTypes x509sat
+MTSAbstractService	x411
 
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
 #.INCLUDE ../x509sat/x509sat-exp.cnf
+#.INCLUDE ../x411/x411-exp.cnf
 
 #.EXPORTS
 AltNameType
@@ -113,6 +115,12 @@ CertificatePairExactAssertion/issuedByThisCAAssertion	cpea_issuedByThisCAAsserti
 #.FN_BODY GeneralName/iPAddress
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
+
+#.FN_PARS OtherNameType
+  FN_VARIANT = _str  VAL_PTR = &object_identifier_id
+
+#.FN_BODY OtherNameValue
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 #.END
 

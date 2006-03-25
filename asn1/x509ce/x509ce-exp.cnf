@@ -73,7 +73,7 @@ BasicConstraintsSyntax   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 NameConstraintsSyntax    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 GeneralSubtrees          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 GeneralSubtree           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-BaseDistance             TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+BaseDistance             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 PolicyConstraintsSyntax  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SkipCerts                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 CRLNumber                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0

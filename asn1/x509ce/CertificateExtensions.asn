@@ -146,10 +146,10 @@ PolicyMappingsSyntax ::=
 GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
 
 GeneralName ::= CHOICE {
---   otherName                  [0]  IMPLICIT INSTANCE OF OTHER-NAME,
+  otherName                  [0]  IMPLICIT --INSTANCE OF OTHER-NAME-- OtherName,
   rfc822Name                 [1]  IMPLICIT IA5String,
   dNSName                    [2]  IMPLICIT IA5String,
---  x400Address                [3]  IMPLICIT ORAddress,
+  x400Address                [3]  IMPLICIT ORAddress,
   directoryName              [4]  IMPLICIT Name,
   ediPartyName               [5]  IMPLICIT EDIPartyName,
   uniformResourceIdentifier  [6]  IMPLICIT IA5String,
@@ -159,6 +159,14 @@ GeneralName ::= CHOICE {
 
 -- OTHER-NAME ::= TYPE-IDENTIFIER
 
+OtherName ::= SEQUENCE {
+  type-id	OtherNameType,
+  value		[0] EXPLICIT OtherNameValue
+}
+
+OtherNameType ::= OBJECT IDENTIFIER
+OtherNameValue ::= ANY
+ 
 EDIPartyName ::= SEQUENCE {
   nameAssigner  [0]  IMPLICIT DirectoryString OPTIONAL,
   partyName     [1]  IMPLICIT DirectoryString
