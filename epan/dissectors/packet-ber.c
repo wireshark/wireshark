@@ -2142,7 +2142,14 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	  end_offset = offset + len;
 
 	  /* sanity check: we only handle Universal BitSrings */
-	  if(!implicit_tag) {
+
+	  /* for an IMPLICIT APPLICATION tag asn2eth seems to call this
+	     function with implicit_tag = FALSE. BER_FLAGS_NOOWNTAG was
+	     set so the APPLICATION tag was still present.
+	     So here we relax it for APPLICATION tags. CONTEXT tags may
+	     still cause a problem. */
+	     
+	  if(!implicit_tag && (class!=BER_CLASS_APP)) {
 		if( (class!=BER_CLASS_UNI)
 		  ||(tag!=BER_UNI_TAG_BITSTRING) ){
 		    tvb_ensure_bytes_exist(tvb, offset-2, 2);

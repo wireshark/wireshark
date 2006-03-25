@@ -918,6 +918,8 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			switch(param_type)
 			{
 			case Extended_User_Data:
+				call_pres_dissector(tvb, offset, param_len,
+				    pinfo, tree, param_tree, session);
 				break;
 
 			case User_Data:
@@ -973,6 +975,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	type = tvb_get_guint8(tvb, offset);
 	session.spdu_type = type;
 	session.abort_type = SESSION_NO_ABORT;
+	session.ros_op = 0;
 
 	if (tokens) {
 	  	if (check_col(pinfo->cinfo, COL_INFO))
