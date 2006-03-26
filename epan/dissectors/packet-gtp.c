@@ -2845,7 +2845,7 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset+4, 1, FALSE);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset+5, 8));
 
-			offset = offset + decode_triplet(tvb, offset+13, ext_tree_mm, count) + 14;
+			offset = offset + decode_triplet(tvb, offset+13, ext_tree_mm, count) + 13;
 
 			break;
 		case 2:				/* UMTS key and quintuplets */
