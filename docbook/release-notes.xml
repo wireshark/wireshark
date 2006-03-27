@@ -248,7 +248,13 @@ Ethereal Info
 	  Versions affected: 0.9.16.
         </para></listitem>
 
-        <!-- CID 105: Bogus -->
+        <listitem><para>
+	  The ALCAP dissector could overrun a buffer.
+	  <!-- Fixed in r17724 -->
+	  <!-- Bug IDs: None -->
+          <!-- Coverity CID 105 -->
+	  Versions affected: 0.10.14.
+        </para></listitem>
 
         <listitem><para>
 	  The telnet dissector could overrun a buffer.
