@@ -3542,9 +3542,11 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    */
 
 
+  /* Comment out to please Coverity, See TODO item 43?
   if(repoid) {
     exres = try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
   }
+  */
 
   /* Only call heuristic if no explicit dissector was found */
 
