@@ -1475,6 +1475,10 @@ extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
  * proto_get_finfo_ptr_array because it has to search through the tree. */
 extern GPtrArray* proto_find_finfo(proto_tree *tree, int hfindex);
 
+/* Return GPtrArray* of field_info pointers containg all hfindexes that appear in
+* tree. */
+extern GPtrArray* proto_all_finfos(proto_tree *tree);
+
 /** Dumps a glossary of the protocol registrations to STDOUT */
 extern void proto_registrar_dump_protocols(void);
 

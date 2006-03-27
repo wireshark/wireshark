@@ -1033,6 +1033,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
 	if (new_fi->hfinfo->ref_count) {
+		/*HERE*/
 		hash = PTREE_DATA(tree)->interesting_hfids;
 		ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
 		if (ptrs) {
@@ -2708,6 +2709,7 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
 	if (fi->hfinfo->ref_count) {
+		/*HERE*/
 		hash = PTREE_DATA(tree)->interesting_hfids;
 		ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
 		if (ptrs) {
@@ -4572,12 +4574,13 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 }
 
 
-/* Helper struct and function for proto_find_info() */
+/* Helper struct for proto_find_info() and  proto_all_finfos() */
 typedef struct {
 	GPtrArray	*array;
 	int		id;
 } ffdata_t;
 
+/* Helper function for proto_find_info() */
 static gboolean
 find_finfo(proto_node *node, gpointer data)
 {
@@ -4587,27 +4590,54 @@ find_finfo(proto_node *node, gpointer data)
 			g_ptr_array_add(((ffdata_t*)data)->array, fi);
 		}
 	}
-
+	
 	/* Don't stop traversing. */
 	return FALSE;
 }
 
 /* Return GPtrArray* of field_info pointers for all hfindex that appear in a tree.
- * This works on any proto_tree, primed or unprimed, but actually searches
- * the tree, so it is slower than using proto_get_finfo_ptr_array on a primed tree.
- * The caller does need to free the returned GPtrArray with
- * g_ptr_array_free(<array>, FALSE).
- */
+* This works on any proto_tree, primed or unprimed, but actually searches
+* the tree, so it is slower than using proto_get_finfo_ptr_array on a primed tree.
+* The caller does need to free the returned GPtrArray with
+* g_ptr_array_free(<array>, FALSE).
+*/
 GPtrArray*
 proto_find_finfo(proto_tree *tree, int id)
 {
 	ffdata_t	ffdata;
-
+	
 	ffdata.array = g_ptr_array_new();
 	ffdata.id = id;
-
+	
 	proto_tree_traverse_pre_order(tree, find_finfo, &ffdata);
+	
+	return ffdata.array;
+}	
 
+/* Helper function for proto_all_finfos() */
+static gboolean
+every_finfo(proto_node *node, gpointer data)
+{
+	field_info *fi = PITEM_FINFO(node);
+	if (fi && fi->hfinfo) {
+		g_ptr_array_add(((ffdata_t*)data)->array, fi);
+	}
+	
+	/* Don't stop traversing. */
+	return FALSE;
+}
+
+/* Return GPtrArray* of field_info pointers containing all hfindexes that appear in a tree. */
+GPtrArray*
+proto_all_finfos(proto_tree *tree)
+{
+	ffdata_t	ffdata;
+	
+	ffdata.array = g_ptr_array_new();
+	ffdata.id = 0;
+	
+	proto_tree_traverse_pre_order(tree, every_finfo, &ffdata);
+	
 	return ffdata.array;
 }	
 
