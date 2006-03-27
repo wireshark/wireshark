@@ -3973,21 +3973,44 @@ create_message_window(void)
 /************************************************************************************************
  *    routines to find names to go with the decoded data stream	 				*
  ************************************************************************************************/
+#define PDUSTATE_STACK_SIZE 1024
 typedef struct _statestack statestack;
 static struct _statestack {
 	GNode *node;
 	guint type;
 	guint offset;
 	const char *name;
-} PDUstate[1024];
+} PDUstate[PDUSTATE_STACK_SIZE];
 static gint PDUstatec = 0;
 
+/* XXX - Shouldn't we do bounds checking here? */
 #define PUSHNODE(x)   { PDUstate[PDUstatec++] = (x); }
 #define POPSTATE      PDUstate[--PDUstatec]
-/* XXX - We do a lot of dereferencing here.  Shouldn't we check for NULLs? */
-#define GETNAME	      (((PDUinfo *)pos.node->data)->name)
-#define GETTYPE	      (((PDUinfo *)pos.node->data)->type & TBL_TYPEmask)
-#define GETINFO	      ((PDUinfo *)pos.node->data)
+
+static const char *
+getname(GNode *node) {
+	if (node == NULL || node->data == NULL)
+		THROW(ReportedBoundsError);
+
+	return ((PDUinfo *)node->data)->name;
+}
+
+static guint
+gettype(GNode *node) {
+	if (node == NULL || node->data == NULL)
+		THROW(ReportedBoundsError);
+
+	return ((PDUinfo *)node->data)->type & TBL_TYPEmask;
+}
+
+static gpointer
+getinfo(GNode *node) {
+	if (node == NULL)
+		THROW(ReportedBoundsError);
+
+	return node->data;
+}
+
 #define NEXT	      {pos.node = g_node_next_sibling(pos.node);pos.type=0;}
 #define CHILD	      {pos.node = g_node_first_child(pos.node);pos.type=0;}
 #define MATCH	      ((class == info->tclass) && (tag == info->tag))
@@ -4145,8 +4168,8 @@ PDUreset(int count, int count2)
 
 	if (PDUtree) {
 		pos.node = PDUtree; /* root of the tree */
-		pos.name = GETNAME;
-		pos.type = GETTYPE | TBL_REPEAT;
+		pos.name = getname(pos.node);
+		pos.type = gettype(pos.node) | TBL_REPEAT;
 		pos.offset = 0;
 		PUSHNODE(pos);
 	}
@@ -4289,7 +4312,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 			return out;
 		}
 
-		info = GETINFO;
+		info = getinfo(pos.node);
 		ret = info->name;
 		tmp = TBLTYPE(info->type);
 		if (offset != pos.offset) {
@@ -4343,7 +4366,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 			break;
 		}
 
-		info = GETINFO;
+		info = getinfo(pos.node);
 
 		if (pos.type & TBL_REPEAT) { /* start of a repeat */
 			switch(pos.type & TBL_TYPEmask) { /* type of previous node */
@@ -4361,7 +4384,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				if ( MATCH ) {
 					/* This is the start of repeating */
 					PUSHNODE(pos);
-					ret = GETNAME;
+					ret = getname(pos.node);
 					if (asn1_verbose) g_message("  return for repeat '%s'", ret);
 					out->type = (pos.type & TBL_TYPEmask);
 					out->typename = info->typename;
@@ -4381,7 +4404,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					pos2 = pos;
 					CHILD;	/* assume sequence is repeated */
 					if (pos.node) {
-						info = GETINFO;	/* needed for MATCH to look ahead */
+						info = getinfo(pos.node);	/* needed for MATCH to look ahead */
 						if (asn1_verbose)
 						    g_message("    seqof: child: got %c%d, found %c%d",
 							      tag_class[class], tag,
@@ -4391,7 +4414,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 						pos = POPSTATE;
 						if (asn1_verbose)
 							g_message("    repeating a choice, %s",
-								  GETNAME);
+								  getname(pos.node));
 						pos.type = TBL_CHOICE_immediate;
 					} else {
 						if ( pos.node && ! MATCH) { /* no, repeat ends, */
@@ -4465,16 +4488,16 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				pos.type = 0; /* clear all type flags */
 				if (asn1_verbose)
 					g_message("    choice [push], %c%d, %s",
-						  tag_class[info->tclass], info->tag, GETNAME);
+						  tag_class[info->tclass], info->tag, getname(pos.node));
 				pos.node = makechoice(pos.node, class, tag);
 				if (pos.node == NULL) {
 					pos = POPSTATE;
 					out->flags |= OUT_FLAG_noname;
 					PDUerrcount++;
 				}
-				info = GETINFO;
+				info = getinfo(pos.node);
 
-				ret = GETNAME;
+				ret = getname(pos.node);
 				if (asn1_verbose)
 					g_message("    '%s' %c%d will be used",
 						  ret, tag_class[info->tclass], info->tag);
@@ -4510,9 +4533,9 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 			PDUerrcount++;
 			return out;
 		}
-		ret = pos.name = GETNAME;
-		pos.type = GETTYPE  | (pos.type & ~TBL_TYPEmask);
-		info = GETINFO;
+		ret = pos.name = getname(pos.node);
+		pos.type = gettype(pos.node) | (pos.type & ~TBL_TYPEmask);
+		info = getinfo(pos.node);
 
 		/* pos now points to the prospective current node, go check it ********************/
 		if (asn1_verbose) g_message("  candidate %s '%s'%s%s, %c%d", TBLTYPE(pos.type), ret,
@@ -4546,12 +4569,12 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					}
 					break;  /* end of list */
 				}
-				info = GETINFO;
-				if (asn1_verbose) g_message("  optional, %s", GETNAME);
+				info = getinfo(pos.node);
+				if (asn1_verbose) g_message("  optional, %s", getname(pos.node));
 			}
 			if (pos.node && ! cons_handled) {
-				ret = pos.name = GETNAME;
-				pos.type = GETTYPE;
+				ret = pos.name = getname(pos.node);
+				pos.type = gettype(pos.node);
 			}
 			/* pos now refers to node with name we want, optional nodes skipped */
 		}
@@ -4568,7 +4591,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 
 				if (asn1_verbose && info)
 					g_message("    immediate choice [push], %c%d, %s",
-						  tag_class[info->tclass], info->tag, GETNAME);
+						  tag_class[info->tclass], info->tag, getname(pos.node));
 				if (pos.node) {
 					pos.node = makechoice(pos.node, class, tag);
 				}
@@ -4576,12 +4599,12 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					pos = POPSTATE;
 					PDUerrcount++;
 				}
-				info = GETINFO;
-				pos.type = GETTYPE;
+				info = getinfo(pos.node);
+				pos.type = gettype(pos.node);
 				out->type = (pos.type & TBL_TYPEmask);
 				out->flags |= OUT_FLAG_type;
 
-				sprintf(namestr, "%s!%s", ret, GETNAME);
+				sprintf(namestr, "%s!%s", ret, getname(pos.node));
 				ret = namestr;
 				if (asn1_verbose)
 					g_message("    %s:%s will be used", TBLTYPE(pos.type), ret);
@@ -4637,8 +4660,8 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 			typeflags |= TBL_REFERENCE;
 			if (info->reference == 0) { /* resolved ref to universal type.... */
 				/* showNode(pos.node, 3, 4); */
-				pos.type = GETTYPE; /* the resulting type */
-				info = GETINFO;
+				pos.type = gettype(pos.node); /* the resulting type */
+				info = getinfo(pos.node);
 				tmp = "inknown tag";
 				if ((info->tclass == ASN1_UNI) && (info->tag < 31)) {
 					tmp = asn1_tag[info->tag];
@@ -4652,20 +4675,20 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				out->fullname = info->fullname;
 				donext = (ISANONYMOUS);	/* refereing entity has no name ? */
 				pos.node = info->reference;
-				pos.type = GETTYPE;
-				info = GETINFO;
+				pos.type = gettype(pos.node);
+				info = getinfo(pos.node);
 				if (asn1_verbose)
-					g_message("  typeref %s %s", TBLTYPE(pos.type), GETNAME);
+					g_message("  typeref %s %s", TBLTYPE(pos.type), getname(pos.node));
 			/* keep name from before going through the reference, unless anonymous */
 				if (donext) /* refering entity has no name */
-					ret = GETNAME; /* a better name */
+					ret = getname(pos.node); /* a better name */
 
 				/* handle choice here ? !!mm!! */
 
 				out->type = (pos.type & TBL_TYPEmask);
 				out->flags |= OUT_FLAG_type;
 				/* showNode(pos.node, 3, 4); */
-				/* ret = GETNAME;*/
+				/* ret = getname(pos.node);*/
 
 				out->data = pos.node;
 				out->flags |= OUT_FLAG_data;
