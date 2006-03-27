@@ -3983,14 +3983,10 @@ static struct _statestack {
 static gint PDUstatec = 0;
 
 #define PUSHNODE(x)   { PDUstate[PDUstatec++] = (x); }
-#define STORENODE(x)  { PDUstate[PDUstatec-1] = (x); }
 #define POPSTATE      PDUstate[--PDUstatec]
-#define GETSTATE      PDUstate[PDUstatec-1]
 /* XXX - We do a lot of dereferencing here.  Shouldn't we check for NULLs? */
 #define GETNAME	      (((PDUinfo *)pos.node->data)->name)
-#define TYPENAME      (((PDUinfo *)pos.node->data)->typename)
 #define GETTYPE	      (((PDUinfo *)pos.node->data)->type & TBL_TYPEmask)
-#define GETFLAGS      (((PDUinfo *)pos.node->data)->flags)
 #define GETINFO	      ((PDUinfo *)pos.node->data)
 #define NEXT	      {pos.node = g_node_next_sibling(pos.node);pos.type=0;}
 #define CHILD	      {pos.node = g_node_first_child(pos.node);pos.type=0;}
