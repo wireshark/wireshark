@@ -30,6 +30,7 @@ MODULES= \
 OBJECTS= \
 	elua.obj \
 	elua_dumper.obj \
+	elua_field.c \
 	elua_gui.obj \
 	elua_pinfo.obj \
 	elua_plugin.obj \
