@@ -49,6 +49,15 @@ static int proto_gre = -1;
 static int hf_gre_proto = -1;
 static int hf_gre_key = -1;
 
+/* Ref 3GPP2 A.S0012-C v2.0 and A.S0008-A v1.0 */
+static int hf_gre_3ggp2_attrib_id =-1;
+static int hf_gre_3ggp2_attrib_length = -1;
+static int hf_gre_3ggp2_sdi = -1;
+static int hf_gre_3ggp2_fci = -1;
+static int hf_gre_3ggp2_di = -1;
+static int hf_gre_3ggp2_flow_disc = -1;
+static int hf_gre_3ggp2_seg = -1;
+
 static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
 static gint ett_gre_wccp2_redirect_header = -1;
@@ -93,11 +102,37 @@ static const value_string typevals[] = {
 #define ID_3GPP2_FLOW_DISCRIMINATOR 3
 #define ID_3GPP2_SEG 4
 
-static const value_string segvals[] = {
+static const value_string gre_3ggp2_seg_vals[] = {
    { 0x00, "Packet Started" },
-   { 0x01, "Packet Continuing" },
+   { 0x01, "Packet continued" },
    { 0x02, "Packet Ended" },
    { 0,    NULL }
+};
+/* 3GPP2 A.S0012-C v2.0 
+ * 2.6.1 GRE Attributes
+ */
+static const value_string gre_3ggp2_attrib_id_vals[] = {
+   { 0x01, "Short Data Indicator" },
+   { 0x02, "Flow Control Indication" },
+   /* A.S0008-A v1.0 */
+   { 0x03, "IP Flow Discriminator" },
+   { 0x04, "Segmentation Indication" },
+   { 0,    NULL }
+};
+
+static const true_false_string gre_3ggp2_sdi_val = {
+  "packet suitable for 1x SDB or HRPD DOS transmission",
+  "Reserved"
+};
+
+static const true_false_string gre_3ggp2_fci_val = {
+  "XOFF",
+  "XON"
+};
+
+static const true_false_string gre_3ggp2_di_val = {
+  "INDEFINITE:",
+  "TEMPORARY"
 };
 
 static int
@@ -115,6 +150,9 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
      guint8 attrib_id = tvb_get_guint8(tvb, offset);
      guint8 attrib_length = tvb_get_guint8(tvb, offset + 1);
 
+ 	 proto_tree_add_item(atree, hf_gre_3ggp2_attrib_id, tvb, offset, 1, FALSE);
+ 	 proto_tree_add_item(atree, hf_gre_3ggp2_attrib_length, tvb, offset+1, 1, FALSE);
+
      offset += 2;
      last_attrib = (attrib_id & 0x80)?TRUE:FALSE;
      attrib_id &= 0x7F;
@@ -123,42 +161,23 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
      {
         case ID_3GPP2_FLOW_DISCRIMINATOR:
              {
-              guint8 flow_disc = tvb_get_guint8(tvb, offset);
-              proto_tree_add_text
-                (atree, tvb, offset, 1, "Flow Discriminator: %d (0x%02x)", 
-                        (int)flow_disc,
-                        (int)flow_disc);
+              proto_tree_add_item(atree, hf_gre_3ggp2_flow_disc, tvb, offset, 2, FALSE);
              }
              break;
         case ID_3GPP2_SDI_FLAG:
              {
-              guint8 sdi_attr = tvb_get_guint8(tvb, offset);
-              proto_tree_add_text
-                 (atree, tvb, offset, 2, "1x SDB/HRPD DoS Indicator: %s",
-                      decode_boolean_bitfield(sdi_attr, 0x80, 8,
-                                              "Set", "Not Set"));
+              proto_tree_add_item(atree, hf_gre_3ggp2_sdi, tvb, offset, 2, FALSE);
              }
              break;
         case ID_3GPP2_SEG:
              {
-              guint8 seg_ind = tvb_get_guint8(tvb, offset);
-              seg_ind = (seg_ind >> 6) & 0x03;
-              proto_tree_add_text
-                 (atree, tvb, offset, 2, "Segmentation Indicator: %s",
-                      val_to_str(seg_ind, segvals, "0x%02X - Unknown"));
+              proto_tree_add_item(atree, hf_gre_3ggp2_seg, tvb, offset, 2, FALSE);
              }
              break;
         case ID_3GPP2_FLOW_CTRL:
              {
-              guint8 flow_control = tvb_get_guint8(tvb, offset);
-              proto_tree_add_text
-                 (atree, tvb, offset, 2, "Flow Control Indicator: %s",
-                      decode_boolean_bitfield(flow_control, 0x80, 8,
-                                              "XOFF", "XON"));
-              proto_tree_add_text
-                 (atree, tvb, offset, 2, "Duration Indicator: %s",
-                      decode_boolean_bitfield(flow_control, 0x40, 8,
-                                              "INDEFINITE", "TEMPORARY"));
+              proto_tree_add_item(atree, hf_gre_3ggp2_fci, tvb, offset, 2, FALSE);
+              proto_tree_add_item(atree, hf_gre_3ggp2_di, tvb, offset, 2, FALSE);
              }
              break;
      }
@@ -458,6 +477,34 @@ proto_register_gre(void)
 		{ &hf_gre_key,
 		  { "GRE Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
 			"", HFILL }
+		},
+		{ &hf_gre_3ggp2_attrib_id,
+		  { "Type", "gre.ggp2_attrib_id", FT_UINT8, BASE_HEX, VALS(gre_3ggp2_attrib_id_vals), 0x7f,
+			"Type", HFILL }
+		},
+		{ &hf_gre_3ggp2_attrib_length,
+		  { "Length", "gre.ggp2_attrib_length", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"Length", HFILL }
+		},
+		{ &hf_gre_3ggp2_sdi,
+		  { "Short Data Indicator(SDI)", "gre.3ggp2_sdi", FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
+			"Short Data Indicator", HFILL }
+		},
+		{ &hf_gre_3ggp2_fci,
+		  { "Flow Control Indicator", "gre.3ggp2_fci", FT_BOOLEAN, 16, TFS(&gre_3ggp2_fci_val), 0x8000,
+			"Flow Control Indicator", HFILL }
+		},
+		{ &hf_gre_3ggp2_di,
+		  { "Duration Indicator", "gre.3ggp2_di", FT_BOOLEAN, 16, TFS(&gre_3ggp2_di_val), 0x4000,
+			"Duration Indicator", HFILL }
+		},
+		{ &hf_gre_3ggp2_flow_disc,
+		  { "Flow ID", "gre.ggp2_flow_disc", FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Flow ID", HFILL }
+		},
+		{ &hf_gre_3ggp2_seg,
+		  { "Type", "gre.ggp2_3ggp2_seg", FT_UINT16, BASE_HEX, VALS(gre_3ggp2_seg_vals), 0xc000,
+			"Type", HFILL }
 		},
 	};
 	static gint *ett[] = {

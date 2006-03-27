@@ -3449,6 +3449,7 @@ proto_reg_handoff_ppp_raw_hdlc(void)
 
   ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
   dissector_add("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
+  dissector_add("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
 }
 
 /*
