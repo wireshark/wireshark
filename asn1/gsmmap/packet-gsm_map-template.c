@@ -48,6 +48,8 @@
 #include "packet-gsm_a.h"
 #include "packet-tcap.h"
 #include "packet-e212.h"
+#include "packet-smpp.h"
+#include "packet-gsm_sms.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"

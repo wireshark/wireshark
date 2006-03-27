@@ -1203,7 +1203,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
     }
 }
 
-static void
+void
 smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
     guint8	 val;

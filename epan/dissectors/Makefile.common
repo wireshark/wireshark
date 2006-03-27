@@ -887,6 +887,7 @@ DISSECTOR_INCLUDES =	\
 	packet-smb-mailslot.h	\
 	packet-smb-pipe.h	\
 	packet-smb-sidsnooping.h	\
+	packet-smpp.h	\
 	packet-smrse.h	\
 	packet-snmp.h	\
 	packet-spray.h	\

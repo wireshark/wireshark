@@ -404,6 +404,43 @@ Component
 		break;
 
  }
+ 
+#----------------------------------------------------------------------------------------
+#.FN_BODY USSD-DataCodingScheme
+
+ guint8		octet;
+ guint8		length;
+ tvbuff_t	*next_tvb;
+
+  octet = tvb_get_guint8(tvb,0);
+  length = tvb_get_guint8(tvb,1);
+  if ( octet == 4) {
+    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+    smpp_handle_dcs(tree, next_tvb, &offset);
+	}
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY USSD-String
+
+  guint8		octet;
+  guint8		length;
+  guint8		out_len;
+  static char bigbuf[1024];
+
+  octet = tvb_get_guint8(tvb,0);
+  length = tvb_get_guint8(tvb,1);
+
+  out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
+              tvb_get_ptr(tvb, offset+2, length), bigbuf);
+  bigbuf[out_len] = '\0';
+  gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
+  bigbuf[1024] = '\0';
+  
+  proto_tree_add_text(tree, tvb, offset+2, length, "USSD String: %%s", bigbuf);
+
+#.END
+
 #----------------------------------------------------------------------------------------
 #.FN_BODY PrivateExtension/extType
 
