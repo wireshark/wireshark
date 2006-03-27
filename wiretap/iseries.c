@@ -1,5 +1,7 @@
 /* iseries.c
  *
+ * $Id$
+ *
  * Wiretap Library
  * Copyright (c) 2005 by Martin Warnes <Martin_Warnes@Stercomm.com>
  *
@@ -20,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* 
+/*
  * This module will read the contents of the iSeries (OS/400) Communication trace
  * Both ASCII & Unicode formatted traces are supported.
  *
@@ -31,12 +33,12 @@
  *
  * 1. Object protocol = ETHERNET (Default)
  * 2. ASCII or UNICODE file formats.
- * 
+ *
  * The above can be acheived by passing option ASCII(*YES) with the trace command
  *
  */
 
-/* iSeries header page 
+/* iSeries header page
 
  COMMUNICATIONS TRACE       Title: OS400 - OS400 trace               10/28/05  11:44:50                           Page:       1
    Trace Description  . . . . . :   OS400 - OS400 trace
@@ -72,16 +74,16 @@
  * Thereafter there will be a formated display of the IP and TCP headers as well as a hex string dump
  * of the headers themselves displayed in the the "IP Header" and "TCP header" fields.
  *
- * If the packet contains data this is displayed as 4 groups of 16 hex digits followed by an ASCII 
+ * If the packet contains data this is displayed as 4 groups of 16 hex digits followed by an ASCII
  * representaion of the data line.
  *
  * Information from the header line, IP header, TCP header and if available data lines are extracted
  * by the module for displaying.
- * 
  *
- Record       Data    Record           Controller  Destination   Source        Frame   
- Number  S/R  Length  Timer            Name        MAC Address   MAC Address   Format  
- ------  ---  ------  ---------------  ----------  ------------  ------------  ------  
+ *
+ Record       Data    Record           Controller  Destination   Source        Frame
+ Number  S/R  Length  Timer            Name        MAC Address   MAC Address   Format
+ ------  ---  ------  ---------------  ----------  ------------  ------------  ------
       8   S      145  11:43:59.82956               0006299C14AE  0006299C14FE   ETHV2   Type: 0800
                       Frame Type :  IP          DSCP: 0   ECN: 00-NECT  Length:   145   Protocol: TCP         Datagram ID: 388B
                                     Src Addr: 10.20.144.150       Dest Addr: 10.20.144.151       Fragment Flags: DON'T,LAST
@@ -96,7 +98,7 @@
                            FC276228786B3EB0 EF34F5F1D27EF8DF  20926820E7B322AA 739F1FB20D         **'B(XK>**4***.** *H **"*S*.*.   *
 */
 
-/* iSeries unformatted packet record consist of the same header record as the formatted trace but all 
+/* iSeries unformatted packet record consist of the same header record as the formatted trace but all
  * other records are simply unformatted data containing IP, TCP and packet data combined.
  *
  Record       Data    Record           Controller  Destination   Source        Frame            Number  Number    Poll/
@@ -158,12 +160,12 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
   /* UNICODE identification */
   char unicodemagic[ISERIES_HDR_MAGIC_LEN] =
     { '\xFF', '\xFE', '\x20', '\x00', '\x43', '\x00', '\x4F', '\x00', '\x4D',
-      '\x00', '\x4D', '\x00', '\x55', '\x00', '\x4E', '\x00', '\x49', '\x00', 
+      '\x00', '\x4D', '\x00', '\x55', '\x00', '\x4E', '\x00', '\x49', '\x00',
       '\x43', '\x00', '\x41'
     };
 
   /*
-   * Check that file starts with a valid iSeries COMMS TRACE header 
+   * Check that file starts with a valid iSeries COMMS TRACE header
    */
   errno = WTAP_ERR_CANT_READ;
   bytes_read = file_read (&magic, 1, sizeof magic, wth->fh);
@@ -183,8 +185,8 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
 	  return 0;
 	}
       /*
-       * Do some basic sanity checking to ensure we can handle the 
-       * contents of this trace                                    
+       * Do some basic sanity checking to ensure we can handle the
+       * contents of this trace
        */
       if (!iseries_check_file_type (wth, err, ISERIES_FORMAT_ASCII))
 	{
@@ -215,8 +217,8 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
 	  return 0;
 	}
       /*
-       * Do some basic sanity checking to ensure we can handle the 
-       * contents of this trace                                    
+       * Do some basic sanity checking to ensure we can handle the
+       * contents of this trace
        */
       if (!iseries_check_file_type (wth, err, ISERIES_FORMAT_UNICODE))
 	{
@@ -244,9 +246,9 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
 }
 
 /*
- * Do some basic sanity checking to ensure we can handle the 
+ * Do some basic sanity checking to ensure we can handle the
  * contents of this trace by checking the header page for
- * requisit requirements and additional information.                                    
+ * requisit requirements and additional information.
  */
 static gboolean
 iseries_check_file_type (wtap * wth, int *err, int format)
@@ -271,8 +273,8 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	}
       if (file_gets (buf, bytes_to_read, wth->fh) != NULL)
 	{
-	  /* 
-	   * Check that we are dealing with an ETHERNET trace 
+	  /*
+	   * Check that we are dealing with an ETHERNET trace
 	   */
 	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
@@ -287,7 +289,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 		return FALSE;
 	    }
 
-	  /* 
+	  /*
 	   * Determine if the data has been formatted or not
 	   */
 	  num_items_scanned = sscanf (buf,
@@ -305,7 +307,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 		}
 	    }
 
-	  /* 
+	  /*
 	   * The header is the only place where the date part of the timestamp is held, so
 	   * extract it here and store for all packets to access
 	   */
@@ -331,8 +333,8 @@ iseries_check_file_type (wtap * wth, int *err, int format)
   return TRUE;
 }
 
-/* 
- * Find the next packet and parse it; called from wtap_read(). 
+/*
+ * Find the next packet and parse it; called from wtap_read().
  */
 static gboolean
 iseries_read (wtap * wth, int *err, gchar ** err_info, long *data_offset)
@@ -340,15 +342,15 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, long *data_offset)
   long offset;
   int pkt_len;
 
-  /* 
-   * Locate the next packet 
+  /*
+   * Locate the next packet
    */
   offset = iseries_seek_next_packet (wth, err);
   if (offset < 1)
     return FALSE;
 
-  /* 
-   * Parse the packet and extract the various fields  
+  /*
+   * Parse the packet and extract the various fields
    */
   pkt_len =
     iseries_parse_packet (wth, wth->fh, &wth->pseudo_header, NULL, err,
@@ -361,9 +363,9 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, long *data_offset)
   return TRUE;
 }
 
-/* 
+/*
  * Seeks to the beginning of the next packet, and returns the
- * byte offset.  Returns -1 on failure, and sets "*err" to the error. 
+ * byte offset.  Returns -1 on failure, and sets "*err" to the error.
  */
 static long
 iseries_seek_next_packet (wtap * wth, int *err)
@@ -378,9 +380,9 @@ iseries_seek_next_packet (wtap * wth, int *err)
     {
       return -1;
     }
-  /* 
+  /*
    * Seeks to the beginning of the next packet, and returns the
-   * byte offset.  Returns -1 on failure, and sets "*err" to the error. 
+   * byte offset.  Returns -1 on failure, and sets "*err" to the error.
    */
   for (line = 0; line < ISERIES_MAX_TRACE_LEN; line++)
     {
@@ -437,8 +439,8 @@ iseries_seek_next_packet (wtap * wth, int *err)
   return -1;
 }
 
-/* 
- * Read packets in random-access fashion 
+/*
+ * Read packets in random-access fashion
  */
 static gboolean
 iseries_seek_read (wtap * wth, long seek_off,
@@ -451,8 +453,8 @@ iseries_seek_read (wtap * wth, long seek_off,
   if (file_seek (wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
     return FALSE;
 
-  /* 
-   * Parse the packet and extract the various fields  
+  /*
+   * Parse the packet and extract the various fields
    */
   pkt_len = iseries_parse_packet (wth, wth->random_fh, pseudo_header, pd,
 				  err, err_info);
@@ -495,9 +497,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
     {
       return -1;
     }
-  
-  /* 
-   * Check for packet headers in first 3 lines this should handle page breaks 
+
+  /*
+   * Check for packet headers in first 3 lines this should handle page breaks
    * situations and the header lines output at each page throw and ensure we
    * read both the captured and packet lengths.
    */
@@ -529,7 +531,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	{
 	  /* OK! We found the packet header line */
 	  isValid = TRUE;
-	  /* 
+	  /*
 	   * XXX - The Capture length returned by the iSeries trace doesn't seem to include the src/dest MAC
 	   * addresses or the packet type. So we add them here.
 	   */
@@ -538,7 +540,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	}
     }
 
-  /* 
+  /*
    * If no packet header found we exit at this point and inform the user.
    */
   if (!isValid)
@@ -548,10 +550,10 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       return -1;
     }
 
-  /* 
+  /*
    * If we have Wiretap Header then populate it here
    *
-   * XXX - Timer resolution on the iSeries is hardware dependant, the value for csec may be 
+   * XXX - Timer resolution on the iSeries is hardware dependant, the value for csec may be
    * different on other platforms though all the traces I've seen seem so show resolution
    * to 5 digits (i.e HH:MM:SS.nnnnn) so hopefully this will not require special handling
    */
@@ -573,7 +575,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       pseudo_header->eth.fcs_len = -1;
     }
 
-  /* 
+  /*
    * Start Reading packet contents
    */
   isCurrentPacket = TRUE;
@@ -635,7 +637,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	  TCPread = TRUE;
 	}
 
-      /* 
+      /*
        * If there is data in the packet handle it here.
        *
        * The data header line will have the "Data . . " identifier, subsequent lines don't
@@ -650,7 +652,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	   * Scan the data line for data blocks, depending on the number of blocks scanned
 	   * add them along with current tcpdata buffer to the work buffer and then copy
 	   * work buffer to tcpdata buffer to continue building up tcpdata buffer to contain
-	   * a single hex string. 
+	   * a single hex string.
 	   */
 	  switch (num_items_scanned)
 	    {
@@ -673,9 +675,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	  memcpy (tcpdatabuf, workbuf, ISERIES_PKT_ALLOC_SIZE);
 	}
 
-      /* 
-       * If we see the identifier for the next packet then rewind and set 
-       * isCurrentPacket FALSE 
+      /*
+       * If we see the identifier for the next packet then rewind and set
+       * isCurrentPacket FALSE
        */
       if ((strncmp (data + 80, ISERIES_PKT_MAGIC_STR, ISERIES_PKT_MAGIC_LEN)
 	   == 0) && pktline > 1)
@@ -696,7 +698,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
     }
 
   /*
-   * For a formated trace ensure we have read at least the IP and TCP headers otherwise 
+   * For a formated trace ensure we have read at least the IP and TCP headers otherwise
    * exit and pass error message to user.
    */
   if (wth->capture.iseries->tcp_formatted)
@@ -715,7 +717,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	}
     }
 
-  /* 
+  /*
    * Create a buffer to hold all the ASCII Hex data and populate with all the
    * extracted data.
    */
@@ -743,8 +745,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 		  srcmac, type, ipheader, tcpheader);
     }
 
-  /* 
-   * Extract the packet length from the actual IP header, this may differ from the capture length 
+  /*
+   * Extract the packet length from the actual IP header, this may differ from the capture length
    * reported by the formatted trace
    */
   num_items_scanned = sscanf (asciibuf + 32, "%4x", &pkt_len);
@@ -774,12 +776,15 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 
 /*
  * Return number of bytes to read from file based on Trace type
- * 
+ *
  */
 static int
 iseries_bytes_to_read (wtap * wth)
 {
   int bytes_to_read = 0;
+
+  if (wth == NULL)
+    return -1;
 
   /* Determine number of bytes to read from file based on trace format */
   switch (wth->capture.iseries->format)
@@ -798,7 +803,7 @@ iseries_bytes_to_read (wtap * wth)
 
 /*
  * Simple routine to convert an UNICODE buffer to ASCII
- * 
+ *
  * XXX - This may be possible with iconv or similar
  */
 static int
