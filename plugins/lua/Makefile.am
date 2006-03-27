@@ -35,6 +35,7 @@ lua_modules = 	\
 	elua_tap.c \
 	elua_gui.c \
 	elua_util.c \
+	elua_field.c \
 	elua_dumper.c
 
 lua_la_SOURCES = \

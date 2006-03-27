@@ -18,6 +18,7 @@ CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
 MODULES= \
 	elua_dumper.c \
+	elua_field.c \
 	elua_gui.c \
 	elua_pinfo.c \
 	elua_proto.c \

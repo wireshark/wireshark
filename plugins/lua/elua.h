@@ -135,6 +135,7 @@ typedef packet_info* Pinfo;
 typedef struct _eth_treeitem* TreeItem;
 typedef address* Address;
 typedef header_field_info** Field;
+typedef field_info* FieldInfo;
 typedef struct _eth_tap* Tap;
 typedef funnel_text_window_t* TextWindow;
 typedef wtap_dumper* Dumper;
