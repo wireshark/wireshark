@@ -169,7 +169,7 @@ Ethereal Info
 
         <listitem><para>
 	  The ASN.1 dissector could crash Ethereal.
-	  <!-- Fixed in r17548 -->
+	  <!-- Fixed in r17548, r17710, r17736 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 42, 43 -->
 	  Versions affected: 0.9.8.
