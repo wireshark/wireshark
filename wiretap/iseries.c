@@ -127,7 +127,7 @@
 #define ISERIES_HDR_MAGIC_LEN   21
 #define ISERIES_PKT_MAGIC_STR   "ETHV2"
 #define ISERIES_PKT_MAGIC_LEN   5
-#define ISERIES_LINE_LENGTH     135
+#define ISERIES_LINE_LENGTH     270
 #define ISERIES_HDR_LINES_TO_CHECK  50
 #define ISERIES_PKT_LINES_TO_CHECK  4
 #define ISERIES_MAX_PACKET_LEN  16384
@@ -147,7 +147,6 @@ static long iseries_seek_next_packet (wtap * wth, int *err);
 static int iseries_parse_packet (wtap * wth, FILE_T fh,
 				 union wtap_pseudo_header *pseudo_header,
 				 guint8 * pd, int *err, gchar ** err_info);
-static int iseries_bytes_to_read (wtap * wth);
 static int iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes);
 static gboolean iseries_parse_hex_string (guint8 * ascii, guint8 * buf,
 					  int len);
@@ -254,8 +253,8 @@ static gboolean
 iseries_check_file_type (wtap * wth, int *err, int format)
 {
   guint line;
-  int bytes_to_read, num_items_scanned;
-  char buf[ISERIES_LINE_LENGTH * 2], protocol[8], tcpformat[1];
+  int num_items_scanned;
+  char buf[ISERIES_LINE_LENGTH], protocol[8], tcpformat[1];
   guint8 *sdate;
 
   /* Save trace format for passing between packets */
@@ -265,20 +264,14 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 
   for (line = 0; line < ISERIES_HDR_LINES_TO_CHECK; line++)
     {
-      /* Determine bytes to read based on format type */
-      bytes_to_read = iseries_bytes_to_read (wth);
-      if (bytes_to_read == -1)
-	{
-	  return -1;
-	}
-      if (file_gets (buf, bytes_to_read, wth->fh) != NULL)
+      if (file_gets (buf, ISERIES_LINE_LENGTH, wth->fh) != NULL)
 	{
 	  /*
 	   * Check that we are dealing with an ETHERNET trace
 	   */
 	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
-	      iseries_UNICODE_to_ASCII (buf, bytes_to_read);
+	      iseries_UNICODE_to_ASCII (buf, ISERIES_LINE_LENGTH);
 	    }
 	  num_items_scanned = sscanf (buf,
 				      "   Object protocol  . . . . . . :  %8s",
@@ -370,23 +363,17 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, long *data_offset)
 static long
 iseries_seek_next_packet (wtap * wth, int *err)
 {
-  char buf[ISERIES_LINE_LENGTH * 2];
-  int line, bytes_to_read;
+  char buf[ISERIES_LINE_LENGTH];
+  int line;
   long cur_off, buflen;
 
-  /* Determine bytes to read based on format type */
-  bytes_to_read = iseries_bytes_to_read (wth);
-  if (bytes_to_read == -1)
-    {
-      return -1;
-    }
   /*
    * Seeks to the beginning of the next packet, and returns the
    * byte offset.  Returns -1 on failure, and sets "*err" to the error.
    */
   for (line = 0; line < ISERIES_MAX_TRACE_LEN; line++)
     {
-      if (file_gets (buf, bytes_to_read, wth->fh) != NULL)
+      if (file_gets (buf, ISERIES_LINE_LENGTH, wth->fh) != NULL)
 	{
 
 	  /* Convert UNICODE to ASCII if required and determine    */
@@ -394,7 +381,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
 	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
 	      /* buflen is #bytes to 1st 0x0A */
-	      buflen = iseries_UNICODE_to_ASCII (buf, bytes_to_read);
+	      buflen = iseries_UNICODE_to_ASCII (buf, ISERIES_LINE_LENGTH);
 	    }
 	  else
 	    {
@@ -482,7 +469,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 {
   long cur_off;
   gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA;
-  int num_items_scanned, line, bytes_to_read, pktline, buflen;
+  int num_items_scanned, line, pktline, buflen;
   int pkt_len, cap_len, pktnum, month, day, year, hr, min, sec, csec;
   char direction[2], destmac[13], srcmac[13], type[5], ipheader[41],
     tcpheader[81];
@@ -490,13 +477,6 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   char data[ISERIES_LINE_LENGTH * 2];
   guint8 *buf, *asciibuf, *tcpdatabuf, *workbuf;
   struct tm tm;
-
-  /* Determine bytes to read based on format type */
-  bytes_to_read = iseries_bytes_to_read (wth);
-  if (bytes_to_read == -1)
-    {
-      return -1;
-    }
 
   /*
    * Check for packet headers in first 3 lines this should handle page breaks
@@ -507,7 +487,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   for (line = 1; line < ISERIES_PKT_LINES_TO_CHECK; line++)
     {
       cur_off = file_tell (fh);
-      if (file_gets (data, bytes_to_read, fh) == NULL)
+      if (file_gets (data, ISERIES_LINE_LENGTH, fh) == NULL)
 	{
 	  *err = file_error (fh);
 	  if (*err == 0)
@@ -519,7 +499,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /* Convert UNICODE data to ASCII */
       if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	{
-	  iseries_UNICODE_to_ASCII (data, bytes_to_read);
+	  iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
 	}
       /* look for packet header */
       num_items_scanned =
@@ -595,7 +575,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
     {
       pktline++;
       /* Read the next line */
-      if (file_gets (data, bytes_to_read, fh) == NULL)
+      if (file_gets (data, ISERIES_LINE_LENGTH, fh) == NULL)
 	{
 	  if (file_eof (fh))
 	    {
@@ -615,7 +595,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /* Convert UNICODE data to ASCII and determine line length*/
       if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	{
-	  buflen = iseries_UNICODE_to_ASCII (data, bytes_to_read);
+	  buflen = iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
 	}
       else
 	{
@@ -772,33 +752,6 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   free (tcpdatabuf);
   free (workbuf);
   return wth->phdr.len;
-}
-
-/*
- * Return number of bytes to read from file based on Trace type
- *
- */
-static int
-iseries_bytes_to_read (wtap * wth)
-{
-  int bytes_to_read = 0;
-
-  if (wth == NULL)
-    return -1;
-
-  /* Determine number of bytes to read from file based on trace format */
-  switch (wth->capture.iseries->format)
-    {
-      /* Standard line length for read */
-    case ISERIES_FORMAT_ASCII:
-      bytes_to_read = ISERIES_LINE_LENGTH;
-      break;
-      /* UNICODE line length twice as long */
-    case ISERIES_FORMAT_UNICODE:
-      bytes_to_read = ISERIES_LINE_LENGTH * 2;
-      break;
-    }
-  return bytes_to_read;
 }
 
 /*
