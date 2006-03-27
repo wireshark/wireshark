@@ -2271,10 +2271,26 @@ proto_register_ipsec(void)
 	    
       prefs_register_string_preference(esp_module, str_sa,
 				       str_sa_comment,
-				       "This field uses the following syntax : \"<Protocol|Source Address|Destination Adress|SPI\". <Protocol>: either IPv4, IPv6 (upper and/or lowercase letters). <SPI> : the Security Parameter Index of the Security Association. You may indicate it in decimal (ex: 123) or in hexadecimal (ex: 0x45). The special keywords '*' may be used to match any SPI.Nevertheless, if you use more than one '*', it will restrict the length of the SPI in decimal to as many '*' as indicated. For example '**' will match 23 but not 234. 234 will be match by '***'. No checking will be done on the SPI value. Thus you have to take into account that the SPI is 4 bytes length. <Addresses> : In this field we may have IPv6 or IPv4 address. Any address is a combination of an address or a prefix and a Prefixlen/Netmask separated by '/'. You may omit the Prefixlen/Netmask, assuming that the Adress is 128 bits length for IPv6 and 32 bits length for IPv4. The character '*' used at the Prefixlen/Netmask p
- osition will be as if you had omit it. <IPv6 Addresses> : Any valid IPv6 address is accepted. ex: 3FFE::1/128, 3FFE:4:5:6666::/64, ::1/128, 3FFE:4::5 . If your address is incorrect and longer than 16 bytes, only the last 16 bytes will be taken into account. You also may use the special character '*' to indicate any 4 bits block. ie : 3ffe::45*6. If you use only one '*' in the Address field it will accept any IPv6 address. <IPv4 Addresses> : Any valid IPv4 address is accepted. ex : 190.0.0.1/24, 10.0.0.2 .You also may use the special character '*' to indicate any 8 bits block. ie : 190.*.*.3. If you use only one '*' in the Address field it will accept any IPv4 address. No checking of correct IPv4 address will be done. For example 456.345.567.890 will be accepted. Thus you have to take care about what you write. Nevertheless only 3 characters will be taken into account for one byte. Ex : 190.0.0.0184 will not be considered correct. (Instead a kind of LRU Mechanism will be used
-  and the address taken into account will be 190.0.0.418). Moreover only the four first values will be used (Ie 190.0.0.12.13 will be considered as 190.0.0.12)."
-				       ,
+				       "This field uses the following syntax : \042<Protocol|Source Address|Destination Adress|SPI\042. "
+					   "<Protocol>: either IPv4, IPv6 (upper and/or lowercase letters). <SPI> : the Security Parameter Index "
+					   "of the Security Association. You may indicate it in decimal (ex: 123) or in hexadecimal (ex: 0x45). "
+					   "The special keywords '*' may be used to match any SPI.Nevertheless, if you use more than one '*', "
+					   "it will restrict the length of the SPI in decimal to as many '*' as indicated. For example '**' will "
+					   "match 23 but not 234. 234 will be match by '***'. No checking will be done on the SPI value. Thus you"
+					   "have to take into account that the SPI is 4 bytes length. <Addresses> : In this field we may have IPv6 "
+					   "or IPv4 address. Any address is a combination of an address or a prefix and a Prefixlen/Netmask separated "
+					   "by '/'. You may omit the Prefixlen/Netmask, assuming that the Adress is 128 bits length for IPv6 and 32 "
+					   "bits length for IPv4. The character '*' used at the Prefixlen/Netmask position will be as if you had omit it."
+					   " <IPv6 Addresses> : Any valid IPv6 address is accepted. ex: 3FFE::1/128, 3FFE:4:5:6666::/64, ::1/128, 3FFE:4::5 ."
+					   "If your address is incorrect and longer than 16 bytes, only the last 16 bytes will be taken into account. You also "
+					   "may use the special character '*' to indicate any 4 bits block. ie : 3ffe::45*6. If you use only one '*' in the "
+					   "Address field it will accept any IPv6 address. <IPv4 Addresses> : Any valid IPv4 address is accepted."
+					   " ex : 190.0.0.1/24, 10.0.0.2 .You also may use the special character '*' to indicate any 8 bits block."
+					   " ie : 190.*.*.3. If you use only one '*' in the Address field it will accept any IPv4 address. No checking "
+					   "of correct IPv4 address will be done. For example 456.345.567.890 will be accepted. Thus you have to take care "
+					   "about what you write. Nevertheless only 3 characters will be taken into account for one byte. "
+					   "Ex : 190.0.0.0184 will not be considered correct. (Instead a kind of LRU Mechanism will be used and the address taken into "
+					   "account will be 190.0.0.418). Moreover only the four first values will be used (Ie 190.0.0.12.13 will be considered as 190.0.0.12).",
 				       &g_esp_sad.table[i].sa);
       
       
