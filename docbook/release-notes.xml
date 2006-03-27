@@ -104,9 +104,6 @@ Ethereal Info
       <itemizedlist>
 
         <!-- CID 1 - 30: DEADCODE -->
-
-        <!-- CID 31 - 63: FORWARD_NULL -->
-
         <!-- CID 31: Post-0.10.14 -->
 
         <listitem><para>
@@ -186,17 +183,7 @@ Ethereal Info
         <!-- CID 45: Bogus -->
         <!-- CID 46 - 48: See CID 44 -->
         <!-- CID 49: Bogus -->
-        <!-- CID 50-59: Not security-related -->
-
-        <listitem><para>
-	  The SIP statistics feature could crash Ethereal.
-	  <!-- Fixed in r17493 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 60 -->
-	  Versions affected: 0.10.4.
-        </para></listitem>
-
-        <!-- CID 61 - 62: Not security-related -->
+        <!-- CID 50 - 62: Not security-related -->
         <!-- CID 63 - 66: Bogus -->
 
         <listitem><para>
@@ -337,6 +324,11 @@ Ethereal Info
       <!-- Fixed in r17024,r17025 -->
       <!-- Bug IDs: 648 -->
       Versions affected: 0.10.14.
+    </para>
+
+    <para>
+      The Coverity audit turned up several UI-related bugs that could
+      make Ethereal crash.
     </para>
 
     </section>
