@@ -102,6 +102,7 @@ dcerpc_get_transport_salt
 dcerpc_hooks_init_protos        DATA
 dcerpc_init_uuid
 dcerpc_uuids                    DATA
+decode_bitfield_value
 decode_boolean_bitfield
 decode_enumerated_bitfield
 decode_enumerated_bitfield_shifted
@@ -408,6 +409,7 @@ nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
 offset_from_real_beginning
+other_decode_bitfield_value
 plugin_list                     DATA
 postseq_cleanup_all_protocols
 prefs                           DATA
@@ -663,11 +665,13 @@ tvb_find_line_end
 tvb_find_line_end_unquoted
 tvb_format_text
 tvb_get_ephemeral_string
+tvb_get_guid
 tvb_get_guint8
 tvb_get_ipv4
 tvb_get_ipv6
 tvb_get_letoh24
 tvb_get_letoh64
+tvb_get_letohguid
 tvb_get_letohl
 tvb_get_letohs
 tvb_get_letohieee_double
@@ -676,6 +680,7 @@ tvb_get_nstringz
 tvb_get_nstringz0
 tvb_get_ntoh24
 tvb_get_ntoh64
+tvb_get_ntohguid
 tvb_get_ntohieee_double
 tvb_get_ntohieee_float
 tvb_get_ntohl
