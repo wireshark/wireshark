@@ -4459,7 +4459,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             while(len>0){
                 proto_tree_add_item (tree, hf_scsi_q_subchannel_adr, tvb, offset+1, 1, 0);
                 proto_tree_add_item (tree, hf_scsi_q_subchannel_control, tvb, offset+1, 1, 0);
-                proto_tree_add_item (tree, hf_scsi_track, tvb, offset+2, 4, 0);
+                proto_tree_add_item (tree, hf_scsi_track, tvb, offset+2, 1, 0);
                 if(cdata->flags&0x0100){
                     proto_tree_add_item (tree, hf_scsi_track_start_time, tvb, offset+4, 4, 0);
                 } else {
