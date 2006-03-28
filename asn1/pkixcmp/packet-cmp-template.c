@@ -243,7 +243,7 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_cmp);
 	}
 
-	dissect_cmp_pdu(tvb, pinfo, tree);
+	return dissect_cmp_pdu(tvb, pinfo, tree);
 }
 
 
