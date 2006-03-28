@@ -652,9 +652,9 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
 
     /* Set the "Packet details" combo */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) "All collapsed");
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) "As displayed");
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) "All expanded");
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, _T("All collapsed"));
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, _T("As displayed"));
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, _T("All expanded"));
 
     switch (args->print_dissections) {
 	case print_dissections_none:
