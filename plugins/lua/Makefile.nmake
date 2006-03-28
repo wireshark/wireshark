@@ -30,7 +30,7 @@ MODULES= \
 OBJECTS= \
 	elua.obj \
 	elua_dumper.obj \
-	elua_field.c \
+	elua_field.obj \
 	elua_gui.obj \
 	elua_pinfo.obj \
 	elua_plugin.obj \
@@ -48,7 +48,7 @@ lua.dll lua.exp lua.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 elua_register.h: elua_makereg.pl $(MODULES)
 	$(PERL) elua_makereg.pl $(MODULES) > elua_register.h
 
-$(OBJECTS): elua_register.h
+elua.h: elua_register.h
 
 doc: $(MODULES)
 	$(PERL) elua_makedoc.pl $(MODULES)
