@@ -512,8 +512,8 @@ again:
     goto again;
 }
 
-	static void
-dissect_icmpv6fmip6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_icmpv6fmip6opt(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree *icmp6opt_tree;
 	proto_item *ti;
@@ -716,7 +716,7 @@ static void
 dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *field_tree;
-	proto_item *tf;
+    proto_item *tf;
     struct icmp6_nodeinfo icmp6_nodeinfo, *ni;
     int off;
     unsigned int j;
@@ -974,7 +974,7 @@ static void
 dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *field_tree, *opt_tree;
-	proto_item *tf;
+    proto_item *tf;
     struct icmp6_router_renum icmp6_router_renum, *rr;
     struct rr_pco_match rr_pco_match, *match;
     struct rr_pco_use rr_pco_use, *use;
@@ -1832,7 +1832,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(icmp6_tree, tvb,
 							offset + 6, 2,
 							"Identifier: %d", pntohs(&rtsolpr->fmip6_rtsolpr_id));
-					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), icmp6_tree);
 					break;
 				}
 			case FMIP6_SUBTYPE_PRRTADV:
@@ -1845,7 +1845,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(icmp6_tree, tvb,
 							offset + 6, 2,
 							"Identifier: %d", pntohs(&prrtadv->fmip6_prrtadv_id));
-					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), icmp6_tree);
 					break;
 				}
 			case FMIP6_SUBTYPE_HI:
@@ -1871,7 +1871,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(icmp6_tree, tvb,
 							offset + 6, 2,
 							"Identifier: %d", pntohs(&hi->fmip6_hi_id));
-					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), icmp6_tree);
 					break;
 				}
 			case FMIP6_SUBTYPE_HACK:
@@ -1884,7 +1884,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(icmp6_tree, tvb,
 							offset + 6, 2,
 							"Identifier: %d", pntohs(&hack->fmip6_hack_id));
-					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
+					dissect_icmpv6fmip6opt(tvb, offset + sizeof(*dp), icmp6_tree);
 					break;
 				}
 		}
