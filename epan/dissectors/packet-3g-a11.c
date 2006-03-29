@@ -895,7 +895,6 @@ static void dissect_fwd_qosupdate_info(tvbuff_t* tvb, int offset, proto_tree* ex
    int clen = 0; /* consumed length */
    guint8 flow_count = 0;
    guint8 flow_index = 0;
-   guint8 dscp_enabled = 0;
 
    /* Flow Count */
    flow_count = tvb_get_guint8(tvb, offset+clen);
@@ -939,7 +938,6 @@ static void dissect_rev_qosupdate_info(tvbuff_t* tvb, int offset, proto_tree* ex
    int clen = 0; /* consumed length */
    guint8 flow_count = 0;
    guint8 flow_index = 0;
-   guint8 dscp_enabled = 0;
 
    /* Flow Count */
    flow_count = tvb_get_guint8(tvb, offset+clen);
