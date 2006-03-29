@@ -63,7 +63,6 @@ static const char *content_type_id; /* content type identifier */
 #define MAX_ORA_STR_LEN     256
 static char *oraddress = NULL;
 static gboolean doing_address=FALSE;
-static gboolean doing_mtaname=FALSE;
 static proto_item *address_item;
 
 static proto_tree *top_tree=NULL;

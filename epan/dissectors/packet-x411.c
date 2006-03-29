@@ -71,7 +71,6 @@ static const char *content_type_id; /* content type identifier */
 #define MAX_ORA_STR_LEN     256
 static char *oraddress = NULL;
 static gboolean doing_address=FALSE;
-static gboolean doing_mtaname=FALSE;
 static proto_item *address_item;
 
 static proto_tree *top_tree=NULL;
@@ -538,7 +537,7 @@ static int hf_x411_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_x411_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-x411-hf.c ---*/
-#line 75 "packet-x411-template.c"
+#line 74 "packet-x411-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
@@ -717,7 +716,7 @@ static gint ett_x411_SecurityCategories = -1;
 static gint ett_x411_SecurityCategory = -1;
 
 /*--- End of included file: packet-x411-ett.c ---*/
-#line 79 "packet-x411-template.c"
+#line 78 "packet-x411-template.c"
 
 
 /*--- Included file: packet-x411-fn.c ---*/
@@ -7199,7 +7198,7 @@ static void dissect_AsymmetricToken_PDU(tvbuff_t *tvb, packet_info *pinfo, proto
 
 
 /*--- End of included file: packet-x411-fn.c ---*/
-#line 81 "packet-x411-template.c"
+#line 80 "packet-x411-template.c"
 
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -9143,7 +9142,7 @@ void proto_register_x411(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x411-hfarr.c ---*/
-#line 208 "packet-x411-template.c"
+#line 207 "packet-x411-template.c"
   };
 
   /* List of subtrees */
@@ -9324,7 +9323,7 @@ void proto_register_x411(void) {
     &ett_x411_SecurityCategory,
 
 /*--- End of included file: packet-x411-ettarr.c ---*/
-#line 214 "packet-x411-template.c"
+#line 213 "packet-x411-template.c"
   };
 
   /* Register protocol */
@@ -9412,7 +9411,7 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 231 "packet-x411-template.c"
+#line 230 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 
