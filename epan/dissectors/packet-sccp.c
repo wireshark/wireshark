@@ -273,7 +273,7 @@ static const value_string sccp_ssn_values[] = {
    * between GSM/UMTS networks:
    */
   { 0x8e,  "RANAP" },
-  { 0x8f,  "RANSAP" },
+  { 0x8f,  "RNSAP" },
   { 0x91,  "GMLC(MAP)" },
   { 0x92,  "CAP" },
   { 0x93,  "gsmSCF (MAP) or IM-SSF (MAP) or Presence Network Agent" },

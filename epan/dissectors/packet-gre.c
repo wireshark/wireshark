@@ -62,6 +62,7 @@ static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
 static gint ett_gre_wccp2_redirect_header = -1;
 static gint ett_3gpp2_attribs = -1;
+static gint ett_3gpp2_attr = -1;
 
 static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
@@ -93,7 +94,7 @@ static const value_string typevals[] = {
 	{ ETHERTYPE_IPv6,      "IPv6" },
 	{ ETHERTYPE_MPLS,      "MPLS label switched packet" },
 	{ ETHERTYPE_CDMA2000_A10_UBS,"CDMA2000 A10 Unstructured byte stream" },
-        { ETHERTYPE_3GPP2,       "CDMA2000 A10 3GPP2 Packet" },
+	{ ETHERTYPE_3GPP2,       "CDMA2000 A10 3GPP2 Packet" },
 	{ 0,                   NULL }
 };
 
@@ -112,7 +113,7 @@ static const value_string gre_3ggp2_seg_vals[] = {
  * 2.6.1 GRE Attributes
  */
 static const value_string gre_3ggp2_attrib_id_vals[] = {
-   { 0x01, "Short Data Indicator" },
+   { 0x01, "1x SDB/HRPD DOS Indicator" },
    { 0x02, "Flow Control Indication" },
    /* A.S0008-A v1.0 */
    { 0x03, "IP Flow Discriminator" },
@@ -121,7 +122,7 @@ static const value_string gre_3ggp2_attrib_id_vals[] = {
 };
 
 static const true_false_string gre_3ggp2_sdi_val = {
-  "packet suitable for 1x SDB or HRPD DOS transmission",
+  "Packet suitable for 1x SDB or HRPD DOS transmission",
   "Reserved"
 };
 
@@ -139,6 +140,10 @@ static int
 dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
   gboolean	last_attrib = FALSE;
+  proto_item* attr_item;
+  proto_tree* attr_tree;
+  guint8 value;
+  int start_offset = offset;
 
   proto_item* ti = 
       proto_tree_add_text(tree, tvb, offset, 0, "3GPP2 Attributes");
@@ -150,8 +155,12 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
      guint8 attrib_id = tvb_get_guint8(tvb, offset);
      guint8 attrib_length = tvb_get_guint8(tvb, offset + 1);
 
- 	 proto_tree_add_item(atree, hf_gre_3ggp2_attrib_id, tvb, offset, 1, FALSE);
- 	 proto_tree_add_item(atree, hf_gre_3ggp2_attrib_length, tvb, offset+1, 1, FALSE);
+	 attr_item = proto_tree_add_text(atree, tvb, offset, attrib_length + 1, "%s",
+		 val_to_str((attrib_id&0x7f), gre_3ggp2_attrib_id_vals, "%u (Unknown)"));
+	 attr_tree = proto_item_add_subtree(attr_item, ett_3gpp2_attr);
+
+ 	 proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_id, tvb, offset, 1, FALSE);
+ 	 proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_length, tvb, offset+1, 1, FALSE);
 
      offset += 2;
      last_attrib = (attrib_id & 0x80)?TRUE:FALSE;
@@ -161,29 +170,43 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
      {
         case ID_3GPP2_FLOW_DISCRIMINATOR:
              {
-              proto_tree_add_item(atree, hf_gre_3ggp2_flow_disc, tvb, offset, 2, FALSE);
+			  value = tvb_get_guint8(tvb,offset);	
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_flow_disc, tvb, offset, attrib_length, FALSE);
+			  proto_item_append_text(attr_item," - 0x%x",value);
              }
              break;
         case ID_3GPP2_SDI_FLAG:
              {
-              proto_tree_add_item(atree, hf_gre_3ggp2_sdi, tvb, offset, 2, FALSE);
+			  value = tvb_get_guint8(tvb,offset);
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_sdi, tvb, offset, attrib_length, FALSE);
+			  proto_item_append_text(attr_item," - %s",
+				  (value & 0x80) ? "Packet suitable for 1x SDB or HRPD DOS transmission" : "Reserved");
+
              }
              break;
         case ID_3GPP2_SEG:
              {
-              proto_tree_add_item(atree, hf_gre_3ggp2_seg, tvb, offset, 2, FALSE);
+			  value = tvb_get_guint8(tvb,offset) >>6;
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_seg, tvb, offset, attrib_length, FALSE);
+			  proto_item_append_text(attr_item," - %s",val_to_str(value, gre_3ggp2_seg_vals, "0x%02X - Unknown"));
              }
              break;
         case ID_3GPP2_FLOW_CTRL:
              {
-              proto_tree_add_item(atree, hf_gre_3ggp2_fci, tvb, offset, 2, FALSE);
-              proto_tree_add_item(atree, hf_gre_3ggp2_di, tvb, offset, 2, FALSE);
+			  value = tvb_get_guint8(tvb,offset);	
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_fci, tvb, offset, attrib_length, FALSE);
+			  proto_item_append_text(attr_item," - %s",
+				  (value & 0x80) ? "XON" : "XOFF");
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_di, tvb, offset, attrib_length, FALSE);
+			  proto_item_append_text(attr_item,"/%s",
+				  (value & 0x40) ? "INDEFINITE" : "TEMPORARY");
              }
              break;
      }
 
      offset += attrib_length;
   } 
+  proto_item_set_len(ti, offset - start_offset);
 
   return offset;
 }
@@ -487,8 +510,8 @@ proto_register_gre(void)
 			"Length", HFILL }
 		},
 		{ &hf_gre_3ggp2_sdi,
-		  { "Short Data Indicator(SDI)", "gre.3ggp2_sdi", FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
-			"Short Data Indicator", HFILL }
+		  { "SDI/DOS", "gre.3ggp2_sdi", FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
+			"Short Data Indicator(SDI)/Data Over Signaling (DOS)", HFILL }
 		},
 		{ &hf_gre_3ggp2_fci,
 		  { "Flow Control Indicator", "gre.3ggp2_fci", FT_BOOLEAN, 16, TFS(&gre_3ggp2_fci_val), 0x8000,
@@ -512,6 +535,7 @@ proto_register_gre(void)
 		&ett_gre_flags,
 		&ett_gre_wccp2_redirect_header,
 		&ett_3gpp2_attribs,
+		&ett_3gpp2_attr,
 	};
 
 	proto_gre = proto_register_protocol("Generic Routing Encapsulation",
