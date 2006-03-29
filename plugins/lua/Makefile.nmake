@@ -48,7 +48,7 @@ lua.dll lua.exp lua.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 elua_register.h: elua_makereg.pl $(MODULES)
 	$(PERL) elua_makereg.pl $(MODULES) > elua_register.h
 
-elua.h: elua_register.h
+elua.c: elua_register.h
 
 doc: $(MODULES)
 	$(PERL) elua_makedoc.pl $(MODULES)
