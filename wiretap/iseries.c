@@ -260,7 +260,9 @@ iseries_check_file_type (wtap * wth, int *err, int format)
   /* Save trace format for passing between packets */
   sdate = g_malloc (10);
   wth->capture.iseries = g_malloc (sizeof (iseries_t));
+  wth->capture.iseries->sdate = NULL;
   wth->capture.iseries->format = format;
+  wth->capture.iseries->tcp_formatted = FALSE;
 
   for (line = 0; line < ISERIES_HDR_LINES_TO_CHECK; line++)
     {
@@ -537,7 +539,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    * different on other platforms though all the traces I've seen seem so show resolution
    * to 5 digits (i.e HH:MM:SS.nnnnn) so hopefully this will not require special handling
    */
-  if (wth)
+  if (wth->capture.iseries->sdate)
     {
       num_items_scanned =
 	sscanf (wth->capture.iseries->sdate, "%d/%d/%d", &month, &day, &year);
