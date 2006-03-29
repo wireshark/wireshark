@@ -4703,7 +4703,7 @@ proto_registrar_dump_protocols(void)
 {
 	protocol_t		*protocol;
 	int			i;
-	void			*cookie;
+	void			*cookie = NULL;
 
 	for (i = proto_get_first_protocol(&cookie); i != -1;
 	    i = proto_get_next_protocol(&cookie)) {
