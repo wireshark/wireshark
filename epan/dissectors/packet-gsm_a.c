@@ -558,7 +558,7 @@ static const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00, "Classmark Enquiry Mask" },			/* [3]  10.5.2.7c */
 /* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element */
 	{ 0x00, "Channel Needed"},					/* [3]  10.5.2.8	*/
- /* [3]  10.5.2.8a	(void)	
+ /* [3]  10.5.2.8a	(void) */
  /* [3]  10.5.2.8b	Channel Request Description 2 */
 		/* Pos 20 */
  	{ 0x00, "Cipher Mode Setting" },				/* [3]  10.5.2.9	*/
