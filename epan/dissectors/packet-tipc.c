@@ -1370,7 +1370,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guchar		*src_addr, *dst_addr;
 	tvbuff_t *data_tvb, *tipc_tvb;
 	gboolean datatype_hdr = FALSE;
-	guint8 msg_type;
+	guint8 msg_type = 0;
 
 		/* Make entry in Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -1513,31 +1513,31 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->ptype = PT_TIPC;
 	pinfo->srcport = dword;
 	proto_tree_add_item(tipc_tree, hf_tipc_org_port, tipc_tvb, offset, 4, FALSE);
-		offset = offset + 4;
-		if(user != TIPC_NAME_DISTRIBUTOR){
-			dword = tvb_get_ntohl(tipc_tvb,offset);
-			pinfo->destport = dword;
-			proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tipc_tvb, offset, 4, FALSE);
-		}
-		offset = offset + 4;
-		/* 20 - 24 Bytes 
-			20 bytes: Used in subnetwork local, connection oriented messages, where error code, reroute
-			counter and activity identity are zero. A recipient finding that the header size field is 20 does
-			by default know both user (DATA), message type (CONNECTED_MSG), error code
-			(MSG_OK), reroute counter (0), and activity identity (undefined). Since no more testing for
-			this is needed these fields can be left out in the header. Furthermore, since such messages
-			only will do zero or one inter-processor hop, we know that previous processor is the real
-			origin of the message. Hence the field originating processor can be omitted. For the same
-			reason, the recipient processor will know that it is identical to destination processor, so even
-			this field can be skipped. Finally, because the link layer guarantees delivery and sequence
-			order for this single hop, even the connection sequence number is redundant. So the message
-			can just be passed directly on to the destination port. Since this type of message statistically
-			should be by far the most frequent one this small optimization pays off.
-		*/
-		if ( hdr_size <= 5 ){
-				proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
-		}else{
-			switch (user){
+	offset = offset + 4;
+	if(user != TIPC_NAME_DISTRIBUTOR){
+		dword = tvb_get_ntohl(tipc_tvb,offset);
+		pinfo->destport = dword;
+		proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tipc_tvb, offset, 4, FALSE);
+	}
+	offset = offset + 4;
+	/* 20 - 24 Bytes 
+		20 bytes: Used in subnetwork local, connection oriented messages, where error code, reroute
+		counter and activity identity are zero. A recipient finding that the header size field is 20 does
+		by default know both user (DATA), message type (CONNECTED_MSG), error code
+		(MSG_OK), reroute counter (0), and activity identity (undefined). Since no more testing for
+		this is needed these fields can be left out in the header. Furthermore, since such messages
+		only will do zero or one inter-processor hop, we know that previous processor is the real
+		origin of the message. Hence the field originating processor can be omitted. For the same
+		reason, the recipient processor will know that it is identical to destination processor, so even
+		this field can be skipped. Finally, because the link layer guarantees delivery and sequence
+		order for this single hop, even the connection sequence number is redundant. So the message
+		can just be passed directly on to the destination port. Since this type of message statistically
+		should be by far the most frequent one this small optimization pays off.
+	*/
+	if ( hdr_size <= 5 ){
+		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data",(msg_size - hdr_size *4));
+	}else{
+		switch (user){
 			case TIPC_NAME_DISTRIBUTOR:
 				proto_tree_add_item(tipc_tree, hf_tipc_nd_msg_type, tipc_tvb, offset, 4, FALSE);
 				break;
