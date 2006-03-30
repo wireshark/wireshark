@@ -67,7 +67,6 @@
 struct _funnel_text_window_t {
 	GtkWidget* win;
     GtkWidget* txt;
-    GtkWidget* hbox;
     GtkWidget* button_hbox;
     GtkWidget* bt_close;
     text_win_close_cb_t close_cb;
@@ -135,7 +134,7 @@ static gboolean text_window_delete_event_cb(GtkWidget *win _U_, GdkEvent *event 
 
 static funnel_text_window_t* new_text_window(const gchar* title) {
     funnel_text_window_t* tw = g_malloc(sizeof(funnel_text_window_t));
-	GtkWidget *txt_scrollw, *main_vb;
+	GtkWidget *txt_scrollw, *main_vb, *hbox;
 
     tw->close_cb = NULL;
     tw->close_data = NULL;
@@ -172,22 +171,22 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     gtk_text_view_set_right_margin(GTK_TEXT_VIEW(tw->txt), 4);
 #endif
 
-	tw->hbox = gtk_hbox_new(FALSE, 0);
-    gtk_widget_show(tw->hbox);
+	hbox = gtk_hbox_new(FALSE, 0);
+    gtk_widget_show(hbox);
 	
     tw->button_hbox = gtk_hbutton_box_new();
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(tw->button_hbox), GTK_BUTTONBOX_START);
 	
-    gtk_box_pack_start(GTK_BOX(tw->hbox), tw->button_hbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), tw->button_hbox, TRUE, TRUE, 0);
     gtk_widget_show(tw->button_hbox);
 	
-	gtk_box_pack_start(GTK_BOX(main_vb), tw->hbox, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), hbox, FALSE, FALSE, 0);
 
 	tw->bt_close = gtk_button_new_with_label("Close");
 	GTK_WIDGET_SET_FLAGS(tw->bt_close, GTK_CAN_DEFAULT);
-	OBJECT_SET_DATA(tw->hbox, "Close", tw->bt_close);
+	OBJECT_SET_DATA(hbox, "Close", tw->bt_close);
 
-	gtk_box_pack_end(GTK_BOX(tw->hbox), tw->bt_close, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(hbox), tw->bt_close, FALSE, FALSE, 0);
 	gtk_widget_show(tw->bt_close);
 
 	SIGNAL_CONNECT(tw->bt_close, "clicked", text_window_cancel_button_cb, tw);
@@ -389,7 +388,6 @@ static void text_window_add_button(funnel_text_window_t*  tw, funnel_bt_t* cbd, 
 	
 	button = gtk_button_new_with_label(label);
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-	OBJECT_SET_DATA(tw->hbox, label, button);
 	
 	gtk_box_pack_start(GTK_BOX(tw->button_hbox), button, FALSE, FALSE, 0);
 	
