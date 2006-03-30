@@ -58,6 +58,9 @@ ELUA_METAMETHOD FieldInfo__call(lua_State* L) {
 	FieldInfo fi = checkFieldInfo(L,1);
 
 	switch(fi->hfinfo->type) {
+		case FT_NONE:
+			lua_pushnil(L);
+			return 1;
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
@@ -80,30 +83,62 @@ ELUA_METAMETHOD FieldInfo__call(lua_State* L) {
 			 */
 			lua_pushnumber(L,(lua_Number)(gint64)fvalue_get_integer64(&(fi->value)));
 			return 1;
-		case FT_ETHER:
-		case FT_IPv4:
-		case FT_IPv6:
-		case FT_IPXNET:
-			/* XXX: use Address ??? */
-
+		case FT_ETHER: {
+			Address eth = g_malloc(sizeof(address));
+			eth->type = AT_ETHER;
+			eth->len = fi->length;
+			eth->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
+			pushAddress(L,eth);
+			return 1;
+		}
+		case FT_IPv4:{
+			Address ipv4 = g_malloc(sizeof(address));
+			ipv4->type = AT_IPv4;
+			ipv4->len = fi->length;
+			ipv4->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
+			pushAddress(L,ipv4);
+			return 1;
+		}
+		case FT_IPv6: {
+			Address ipv6 = g_malloc(sizeof(address));
+			ipv6->type = AT_IPv6;
+			ipv6->len = fi->length;
+			ipv6->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
+			pushAddress(L,ipv6);
+			return 1;
+		}
+		case FT_IPXNET:{
+			Address ipx = g_malloc(sizeof(address));
+			ipx->type = AT_IPX;
+			ipx->len = fi->length;
+			ipx->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
+			pushAddress(L,ipx);
+			return 1;
+		}
 		case FT_STRING:
 		case FT_STRINGZ:
+			lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+			return 1;
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 		case FT_GUID:
-		case FT_OID:
-			lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+		case FT_OID: {
+			ByteArray ba = g_byte_array_new();
+			g_byte_array_append(ba, ep_tvb_memdup(fi->ds_tvb,fi->start,fi->length),fi->length);
+			pushByteArray(L,ba);
 			return 1;
+		}
 		default:
 			luaL_error(L,"FT_ not yet supported");
 			return 1;
 	}
-
 }
 
 ELUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
 	FieldInfo fi = checkFieldInfo(L,1);
-	lua_pushstring(L,fi->rep->representation);
+	if (fi) {
+		lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+	}
 	return 1;
 }
 
@@ -138,11 +173,18 @@ ELUA_ATTR_GET FieldInfo_get_generated(lua_State* L) {
 	return 1;
 }
 
+ELUA_ATTR_GET FieldInfo_get_name(lua_State* L) {
+	FieldInfo fi = checkFieldInfo(L,1);
+	lua_pushstring(L,fi->hfinfo->abbrev);
+	return 1;
+}
+
 static const luaL_reg FieldInfo_get[] = {
     {"data_source", FieldInfo_get_data_source },
     {"range", FieldInfo_get_range},
     {"hidden", FieldInfo_get_hidden},
     {"generated", FieldInfo_get_generated},
+    {"name", FieldInfo_get_name},
     {"label", FieldInfo__tostring},
     {"value", FieldInfo__call},
     {"len", FieldInfo__len},
@@ -233,7 +275,7 @@ int FieldInfo_register(lua_State* L) {
 
 
 ELUA_FUNCTION elua_all_field_infos(lua_State* L) {
-	GPtrArray* found = proto_all_finfos(lua_tree->tree);
+	GPtrArray* found = lua_tree->tree ? proto_all_finfos(lua_tree->tree) : NULL;
 	int items_found = 0;
 	guint i;
 
@@ -242,7 +284,10 @@ ELUA_FUNCTION elua_all_field_infos(lua_State* L) {
 			pushFieldInfo(L,g_ptr_array_index(found,i));
 			items_found++;
 		}
+		
+		g_ptr_array_free(found,TRUE);
 	}
+	
 	return items_found;
 }
 
@@ -355,8 +400,6 @@ ELUA_METAMETHOD Field__call (lua_State* L) {
 				items_found++;
 			}
         }
-
-		g_ptr_array_free(found,TRUE);
     }
 
     ELUA_RETURN(items_found); /* All the values of this field */
