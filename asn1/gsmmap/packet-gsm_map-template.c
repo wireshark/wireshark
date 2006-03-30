@@ -146,6 +146,7 @@ static proto_tree *top_tree;
 static int application_context_version;
 gint protocolId;
 gint AccessNetworkProtocolId;
+const char *obj_id = NULL;
 static int gsm_map_tap = -1;
 
 /* Forward declarations */
@@ -1927,6 +1928,10 @@ void proto_register_gsm_map(void) {
 						 BASE_DEC);
 
   gsm_map_tap = register_tap("gsm_map");
+
+/* #include "packet-gsm_map-dis-tab.c" */
+  register_ber_oid_name("1.2.826.0.1249.58.1.0","iso(1) member-body(2) bsi(826) disc(0) ericsson(1249) gsmNetworkApplicationsDefinition(58) gsm-Map(1) gsm-Map-Ext(0)" );
+  register_ber_oid_name("1.3.12.2.1107.3.66.1.2","accessTypeNotAllowed-id" );
   /*register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
    *
    * Register our configuration options, particularly our ssn:s

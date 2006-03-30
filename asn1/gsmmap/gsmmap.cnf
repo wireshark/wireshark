@@ -445,9 +445,15 @@ Component
 #----------------------------------------------------------------------------------------
 #.FN_BODY PrivateExtension/extType
 
+	
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
-  call_dissector(data_handle, tvb, pinfo, tree);	
-  offset = tvb_length_remaining(tvb,offset);		
+  if (obj_id){
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, pinfo, tree);
+  }else{
+	 call_dissector(data_handle, tvb, pinfo, tree);
+	 offset = tvb_length_remaining(tvb,offset);
+  }	
+ 		
 
 #.END
 #.FN_FTR ForwardingOptions
@@ -582,6 +588,9 @@ Component
         item = get_ber_last_created_item(); 
         subtree = proto_item_add_subtree(item, ett_gsm_map_LAIFixedLength); 
         dissect_e212_mcc_mnc(parameter_tvb, subtree, 0); 
+
+#.FN_PARS OBJECT_IDENTIFIER
+  FN_VARIANT = _str  VAL_PTR = &obj_id
 
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR

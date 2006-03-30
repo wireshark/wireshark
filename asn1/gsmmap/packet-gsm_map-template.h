@@ -1,6 +1,6 @@
 /* packet-gsm_map-template.h
  * Routines for GSM MAP packet dissection
- * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2004 - 2006, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *

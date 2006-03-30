@@ -51,7 +51,6 @@ all: \
 	wlancertextn	\
 	x411	\
 	x420	\
-	x501	\
 	x509af	\
 	x509ce	\
 	x509if	\
@@ -260,7 +259,6 @@ ber: \
 	wlancertextn	\
 	x411	\
 	x420	\
-	x501	\
 	x509af	\
 	x509ce	\
 	x509if	\

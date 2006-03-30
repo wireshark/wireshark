@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.h                                                         */
+/* .\packet-gsm_map.h                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.h */
@@ -8,7 +8,7 @@
 #line 1 "packet-gsm_map-template.h"
 /* packet-gsm_map-template.h
  * Routines for GSM MAP packet dissection
- * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2004 - 2006, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
