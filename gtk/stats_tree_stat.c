@@ -134,7 +134,7 @@ static void draw_gtk_node(stat_node* node) {
 	stats_tree_get_strs_from_node(node, value, rate, percent);
 	
 #if GTK_MAJOR_VERSION >= 2
-	if (node->st->pr->store) {
+	if (node->st->pr->store && node->pr->iter) {
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
 						   RATE_COLUMN, rate,
 						   COUNT_COLUMN, value,
@@ -166,10 +166,12 @@ static void draw_gtk_tree( void *psp  ) {
 		draw_gtk_node(child);
 
 #if GTK_MAJOR_VERSION >= 2
-		gtk_tree_view_expand_row(GTK_TREE_VIEW(st->pr->tree),
+		if (child->pr->iter && st->pr->store) {
+			gtk_tree_view_expand_row(GTK_TREE_VIEW(st->pr->tree),
 								 gtk_tree_model_get_path(GTK_TREE_MODEL(st->pr->store),
 														 child->pr->iter),
 								 FALSE);
+		}
 #endif
 	}
 
