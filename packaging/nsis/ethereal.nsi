@@ -941,6 +941,7 @@ SectionIn 1 2
 Delete "$INSTDIR\cfilters"
 Delete "$INSTDIR\colorfilters"
 Delete "$INSTDIR\dfilters"
+Delete "$INSTDIR\init.lua"
 RMDir "$INSTDIR"
 SectionEnd
 
