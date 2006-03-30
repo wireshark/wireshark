@@ -351,6 +351,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_JUNIPER_CHDLC */
 	{ "Juniper C-HDLC", "juniper-chdlc" },
+    
+	/* WTAP_ENCAP_JUNIPER_GGSN */
+	{ "Juniper GGSN", "juniper-ggsn" },
 
  	/* WTAP_ENCAP_LINUX_LAPD */
  	{ "LAPD", "lapd" },

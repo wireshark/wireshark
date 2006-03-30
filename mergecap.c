@@ -116,7 +116,7 @@ usage(void)
 static void list_capture_types(void) {
     int i;
 
-    fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
+    fprintf(stderr, "mergecap: The available capture file types for \"F\":\n");
     for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
       if (wtap_dump_can_open(i))
         fprintf(stderr, "    %s - %s\n",
@@ -128,7 +128,7 @@ static void list_encap_types(void) {
     int i;
     const char *string;
 
-    fprintf(stderr, "editcap: The available encapsulation types for \"T\":\n");
+    fprintf(stderr, "mergecap: The available encapsulation types for \"T\":\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
         string = wtap_encap_short_string(i);
         if (string != NULL)

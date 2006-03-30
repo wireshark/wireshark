@@ -31,6 +31,7 @@ all: \
 	rtnet \
 	rudp \
 	stats_tree \
+	udp_trace \
 	v5ua
 
 
@@ -156,6 +157,11 @@ stats_tree::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+udp_trace:: 
+	cd udp_trace
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 v5ua:: 
 	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -211,6 +217,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../udp_trace
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -264,6 +272,8 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../udp_trace
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
@@ -315,6 +325,8 @@ maintainer-clean: distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../udp_trace
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -354,6 +366,7 @@ install-plugins:
 	xcopy rtnet\*.dll $(VERSION) /d
 	xcopy rudp\*.dll $(VERSION) /d
 	xcopy stats_tree\*.dll $(VERSION) /d
+	xcopy udp_trace\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d
 !ENDIF
 

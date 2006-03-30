@@ -23,8 +23,7 @@ To add the ability to read a new capture file format, you have to:
 
 	write a "seek and read" routine, if necessary, and have the
 	"open" routine set the "subtype_seek_read" member of the "wtap"
-	structure to point to that routine, otherwise set it to
-	"wtap_def_seek_read";
+	structure to point to that routine.
 
 	write a "close" routine, if necessary (if, for example, the
 	"open" routine allocates any memory), and set the
