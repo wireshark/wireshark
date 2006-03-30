@@ -88,6 +88,7 @@ static gint hf_sip_contact_item		= -1;
 static gint hf_sip_resend			= -1;
 static gint hf_sip_original_frame	= -1;
 
+static gint hf_sip_auth                  = -1;
 static gint hf_sip_auth_scheme           = -1;
 static gint hf_sip_auth_digest_response  = -1;
 static gint hf_sip_auth_nc               = -1;
@@ -1793,6 +1794,7 @@ separator_found2:
 					case POS_PROXY_AUTHORIZATION:
 						/* Add tree using whole text of line */
 						if (hdr_tree) {
+							proto_item *ti;
 							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
 							                   offset, next_offset - offset,
@@ -1800,6 +1802,10 @@ separator_found2:
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
+							ti = proto_tree_add_item(hdr_tree, hf_sip_auth, tvb,
+							                         offset, next_offset-offset,
+							                         FALSE);
+							PROTO_ITEM_SET_HIDDEN(ti);
 						}
 
 						/* Parse each individual parameter in the line */
@@ -2874,6 +2880,11 @@ void proto_register_sip(void)
 			{ "Suspected resend of frame",  "sip.resend-original",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    	"Original transmission of frame", HFILL}
+		},
+		{ &hf_sip_auth,
+			{ "Authentication",  "sip.auth",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Authentication", HFILL}
 		},
 		{ &hf_sip_auth_scheme,
 			{ "Authentication Scheme",  "sip.auth.scheme",
