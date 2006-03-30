@@ -255,7 +255,7 @@ Ethereal Info
         <!-- CID 108: Not security-related -->
 
         <listitem><para>
-	  The ASN.1 dissector could crash Ethereal.
+	  ASN.1-based dissectors could crash Ethereal.
 	  <!-- Fixed in r17489 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 109 -->
@@ -305,8 +305,10 @@ Ethereal Info
         <!-- CID 140 - 141: Bogus -->
         <!-- CID 142: Not security-releated -->
         <!-- CID 143 - 144: See CID 79 -->
+        <!-- CID 144: Lemon is a build-time tool -->
         <!-- CID 145: Post-0.10.14 -->
         <!-- CID 146: See CID 42 -->
+        <!-- CID 147 - 148: Post-0.10.14 -->
 
       </itemizedlist>
     </para>

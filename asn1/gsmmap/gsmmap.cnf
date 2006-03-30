@@ -426,6 +426,7 @@ Component
   guint8		octet;
   guint8		length;
   guint8		out_len;
+  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? */
   static char bigbuf[1024];
 
   octet = tvb_get_guint8(tvb,0);
@@ -435,7 +436,7 @@ Component
               tvb_get_ptr(tvb, offset+2, length), bigbuf);
   bigbuf[out_len] = '\0';
   gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
-  bigbuf[1024] = '\0';
+  bigbuf[1023] = '\0';
   
   proto_tree_add_text(tree, tvb, offset+2, length, "USSD String: %%s", bigbuf);
 
