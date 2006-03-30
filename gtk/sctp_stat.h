@@ -147,7 +147,7 @@ typedef struct _sctp_assoc_info {
 	guint32   n_adler32_correct;
 	guint32   n_crc32c_calculated;
 	guint32   n_crc32c_correct;
-	guint8    checksum_type[8];
+	gchar     checksum_type[8];
 	guint32   n_checksum_errors;
 	guint32   n_bundling_errors;
 	guint32   n_padding_errors;
@@ -267,10 +267,19 @@ typedef struct _sctp_graph_t {
 	guint16   length;
 	gboolean  tmp;
 	gboolean  rectangle;
+	gboolean  rectangle_present;
+	guint32   rect_x_min;
+	guint32   rect_x_max;
+	guint32   rect_y_min;
+	guint32   rect_y_max;
 	guint32   x1_tmp_sec;
 	guint32   x2_tmp_sec;
 	guint32   x1_tmp_usec;
 	guint32   x2_tmp_usec;
+	guint32   x1_akt_sec;
+	guint32   x2_akt_sec;
+	guint32   x1_akt_usec;
+	guint32   x2_akt_usec;
 	guint32   tmp_width;
 	guint32   axis_width;
 	guint32   y1_tmp;

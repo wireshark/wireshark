@@ -346,7 +346,7 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	return(ASSOC_NOT_FOUND);
 }
 
-
+/*
 static gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 {
 	GList *srclist, *dstlist;
@@ -570,7 +570,7 @@ static gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 	g_free(dst);
 	return ASSOC_NOT_FOUND;
 }
-
+*/
 
 
 
