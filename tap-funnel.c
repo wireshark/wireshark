@@ -70,6 +70,8 @@ static const funnel_ops_t funnel_ops = {
     text_window_get_text,
     NULL,
     NULL,
+    NULL,
+	NULL,
     /*...,*/
     NULL,
     funnel_logger,

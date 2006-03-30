@@ -43,6 +43,14 @@ typedef void (*text_win_close_cb_t)(void*);
 
 typedef void (*funnel_dlg_cb_t)(gchar** user_input, void* data);
 
+typedef gboolean (*funnel_bt_cb_t)(funnel_text_window_t* tw, void* data);
+
+typedef struct _funnel_bt_t {
+	funnel_text_window_t* tw;
+	funnel_bt_cb_t func;
+	void* data;
+} funnel_bt_t;
+
 typedef struct _funnel_ops_t {
     funnel_text_window_t* (*new_text_window)(const gchar* label);
     void (*set_text)(funnel_text_window_t*  win, const gchar* text);
@@ -51,7 +59,9 @@ typedef struct _funnel_ops_t {
     void (*clear_text)(funnel_text_window_t*  win);
     const gchar* (*get_text)(funnel_text_window_t*  win);
     void (*set_close_cb)(funnel_text_window_t*  win, text_win_close_cb_t cb, void* data);
+    void (*set_editable)(funnel_text_window_t*  win, gboolean editable);
     void (*destroy_text_window)(funnel_text_window_t*  win);
+    void (*add_button)(funnel_text_window_t*  win, funnel_bt_t* cb, const gchar* label);
 #if 0
     funnel_node_t* (*new_tree_window)(const gchar* title, gchar** columns);
     funnel_node_t* (*add_node)(funnel_node_t* node, gchar** values);

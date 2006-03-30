@@ -67,6 +67,8 @@
 struct _funnel_text_window_t {
 	GtkWidget* win;
     GtkWidget* txt;
+    GtkWidget* hbox;
+    GtkWidget* button_hbox;
     GtkWidget* bt_close;
     text_win_close_cb_t close_cb;
     void* close_data;
@@ -103,6 +105,7 @@ static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
     g_free(tw);
 }
 
+
 static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data) {
     funnel_text_window_t* tw = user_data;
     
@@ -132,7 +135,7 @@ static gboolean text_window_delete_event_cb(GtkWidget *win _U_, GdkEvent *event 
 
 static funnel_text_window_t* new_text_window(const gchar* title) {
     funnel_text_window_t* tw = g_malloc(sizeof(funnel_text_window_t));
-	GtkWidget *txt_scrollw, *main_vb, *bbox;
+	GtkWidget *txt_scrollw, *main_vb;
 
     tw->close_cb = NULL;
     tw->close_data = NULL;
@@ -168,16 +171,29 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tw->txt), 4);
     gtk_text_view_set_right_margin(GTK_TEXT_VIEW(tw->txt), 4);
 #endif
-    
-    
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-    tw->bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(tw->bt_close, "clicked", text_window_cancel_button_cb, tw);
+	tw->hbox = gtk_hbox_new(FALSE, 0);
+    gtk_widget_show(tw->hbox);
+	
+    tw->button_hbox = gtk_hbutton_box_new();
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(tw->button_hbox), GTK_BUTTONBOX_START);
+	
+    gtk_box_pack_start(GTK_BOX(tw->hbox), tw->button_hbox, TRUE, TRUE, 0);
+    gtk_widget_show(tw->button_hbox);
+	
+	gtk_box_pack_start(GTK_BOX(main_vb), tw->hbox, FALSE, FALSE, 0);
+
+	tw->bt_close = gtk_button_new_with_label("Close");
+	GTK_WIDGET_SET_FLAGS(tw->bt_close, GTK_CAN_DEFAULT);
+	OBJECT_SET_DATA(tw->hbox, "Close", tw->bt_close);
+
+	gtk_box_pack_end(GTK_BOX(tw->hbox), tw->bt_close, FALSE, FALSE, 0);
+	gtk_widget_show(tw->bt_close);
+
+	SIGNAL_CONNECT(tw->bt_close, "clicked", text_window_cancel_button_cb, tw);
     gtk_widget_grab_default(tw->bt_close);
 
-    gtk_container_add(GTK_CONTAINER(txt_scrollw), tw->txt);
+	gtk_container_add(GTK_CONTAINER(txt_scrollw), tw->txt);
 #if GTK_MAJOR_VERSION >= 2
     gtk_window_resize(GTK_WINDOW(tw->win),400,300);
 #else
@@ -322,6 +338,8 @@ static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
 #endif
 }
 
+
+	
 static void text_window_set_close_cb(funnel_text_window_t*  tw, text_win_close_cb_t cb, void* data) {
     tw->close_cb = cb;
     tw->close_data = data;
@@ -342,6 +360,42 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
          */
         g_free(tw);
     }
+}
+
+static void text_window_set_editable(funnel_text_window_t*  tw, gboolean editable){
+#if GTK_MAJOR_VERSION < 2
+    gtk_text_set_editable(GTK_TEXT(tw->txt), editable);
+#else 	
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(tw->txt), editable);
+	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(tw->txt), editable);
+#endif
+}
+
+static gboolean text_window_button_cb(GtkWidget *bt _U_, gpointer user_data)
+{
+	funnel_bt_t* cbd = user_data;
+	
+	if (cbd->func) {
+		return cbd->func(cbd->tw,cbd->data);
+	} else {
+		return TRUE;
+	}
+}
+
+static void text_window_add_button(funnel_text_window_t*  tw, funnel_bt_t* cbd, const gchar* label) {
+	GtkWidget *button;
+	
+	cbd->tw = tw;
+	
+	button = gtk_button_new_with_label(label);
+	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+	OBJECT_SET_DATA(tw->hbox, label, button);
+	
+	gtk_box_pack_start(GTK_BOX(tw->button_hbox), button, FALSE, FALSE, 0);
+	
+	gtk_widget_show(button);
+	SIGNAL_CONNECT(button, "clicked", text_window_button_cb, cbd);
+
 }
 
 
@@ -469,7 +523,9 @@ static const funnel_ops_t funnel_ops = {
     text_window_clear,
     text_window_get_text,
     text_window_set_close_cb,
+	text_window_set_editable,
     text_window_destroy,
+	text_window_add_button,
     /*...,*/
     funnel_new_dialog,
     funnel_logger,

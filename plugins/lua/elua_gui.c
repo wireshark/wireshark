@@ -263,7 +263,7 @@ static void text_win_close_cb(void* data) {
     }
 }
 
-ELUA_METHOD TextWindow_at_close(lua_State* L) { /* Set the function that will be called when the window closes */
+ELUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that will be called when the window closes */
 #define ELUA_ARG_TextWindow_at_close_ACTION 2 /* A function to be executed when the user closes the window */
 
     TextWindow tw = checkTextWindow(L,1);
@@ -366,7 +366,7 @@ ELUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window */
 	ELUA_RETURN(1); /* The TextWindow's text. */
 }
 
-static int TextWindow_gc(lua_State* L) {
+static int TextWindow__gc(lua_State* L) {
     TextWindow tw = checkTextWindow(L,1);
 
 	if (!tw)
@@ -376,6 +376,91 @@ static int TextWindow_gc(lua_State* L) {
     return 1;
 }
 
+ELUA_METHOD TextWindow_set_editable(lua_State* L) { /* Set the function that will be called when the window closes */
+#define ELUA_OPTARG_TextWindow_at_close_EDITABLE 2 /* A boolean flag, defaults to true */
+
+	TextWindow tw = checkTextWindow(L,1);
+	gboolean editable = luaL_optint(L,2,1);
+
+	if (!tw)
+		ELUA_ERROR(TextWindow_at_close,"cannot be called for something not a TextWindow");
+
+	if (ops->set_editable)
+		ops->set_editable(tw,editable);
+	
+	pushTextWindow(L,tw);
+	ELUA_RETURN(1); /* The TextWindow object. */
+}
+
+typedef struct _elua_bt_cb_t {
+	lua_State* L;
+	int func_ref;
+	int data_ref;
+} elua_bt_cb_t;
+
+static gboolean elua_button_callback(funnel_text_window_t* tw, void* data) {
+	elua_bt_cb_t* cbd = data;
+	lua_State* L = cbd->L;
+	
+	lua_settop(L,0);
+	lua_pushcfunction(L,dlg_cb_error_handler);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
+	pushTextWindow(L,tw);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->data_ref);
+	
+	switch ( lua_pcall(L,2,0,1) ) {
+		case 0:
+			break;
+		case LUA_ERRRUN:
+			g_warning("Runtime error while calling button callback");
+			break;
+		case LUA_ERRMEM:
+			g_warning("Memory alloc error while calling button callback");
+			break;
+		default:
+			g_assert_not_reached();
+			break;
+	}
+	
+	return TRUE;
+}
+
+ELUA_METHOD TextWindow_add_button(lua_State* L) {
+#define ELUA_ARG_TextWindow_add_button_LABEL 2 /* The label of the button */ 
+#define ELUA_ARG_TextWindow_add_button_FUNCTION 3 /* The function to be called when clicked */ 
+#define ELUA_ARG_TextWindow_add_button_DATA 4 /* The data to be passed to the function (other than the window) */ 
+	TextWindow tw = checkTextWindow(L,1);
+	const gchar* label = luaL_checkstring(L,ELUA_ARG_TextWindow_add_button_LABEL);
+	
+	funnel_bt_t* fbt;
+	elua_bt_cb_t* cbd;
+	
+	if (!tw)
+		ELUA_ERROR(TextWindow_at_close,"cannot be called for something not a TextWindow");
+	
+	if (! lua_isfunction(L,ELUA_ARG_TextWindow_add_button_FUNCTION) )
+		ELUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
+
+	lua_settop(L,4);
+
+	if (ops->add_button) {
+		fbt = ep_alloc(sizeof(funnel_bt_t));
+		cbd = ep_alloc(sizeof(elua_bt_cb_t));
+
+		fbt->tw = tw;
+		fbt->func = elua_button_callback;
+		fbt->data = cbd;
+		
+		cbd->L = L;
+		cbd->data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+		cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+		ops->add_button(tw,fbt,label);
+	}
+	
+	pushTextWindow(L,tw);
+	ELUA_RETURN(1); /* The TextWindow object. */
+}
 
 ELUA_METHODS TextWindow_methods[] = {
 	ELUA_CLASS_FNREG(TextWindow,new),
@@ -384,13 +469,16 @@ ELUA_METHODS TextWindow_methods[] = {
 	ELUA_CLASS_FNREG(TextWindow,append),
 	ELUA_CLASS_FNREG(TextWindow,prepend),
 	ELUA_CLASS_FNREG(TextWindow,clear),
-	ELUA_CLASS_FNREG(TextWindow,at_close),
+	ELUA_CLASS_FNREG(TextWindow,set_atclose),
+	ELUA_CLASS_FNREG(TextWindow,set_editable),
+	ELUA_CLASS_FNREG(TextWindow,get_text),
+	ELUA_CLASS_FNREG(TextWindow,add_button),
     {0, 0}
 };
 
 ELUA_META TextWindow_meta[] = {
     {"__tostring", TextWindow_get_text},
-    {"__gc", TextWindow_gc},
+    {"__gc", TextWindow__gc},
     {0, 0}
 };
 
