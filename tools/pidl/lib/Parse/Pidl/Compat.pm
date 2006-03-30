@@ -124,10 +124,6 @@ sub CheckElement($)
 		warning($e, "compression() property not supported");
 	}
 
-	if (has_property($e, "obfuscation")) {
-		warning($e, "obfuscation() property not supported");
-	}
-
 	if (has_property($e, "sptr")) {
 		warning($e, "sptr() pointer property not supported");
 	}

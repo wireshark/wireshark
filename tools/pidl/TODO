@@ -11,6 +11,10 @@
 
 - auto-alloc [ref] pointers for Samba4 during pull if they were NULL
  
-- replace subcontext() with represent_as()
+- improve represent_as()
 
 - --explain-ndr option that dumps out parse tree ?
+
+- seperate tables for NDR and DCE/RPC
+
+- allow data structures outside of interfaces

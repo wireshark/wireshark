@@ -19,8 +19,8 @@ my $tabs = "";
 sub indent() { $tabs.="\t"; }
 sub deindent() { $tabs = substr($tabs, 1); }
 sub pidl($) { $res .= $tabs.(shift)."\n"; }
-sub fatal($$) { my ($e,$s) = @_; die("$e->{FILE}:$e->{LINE}: $s\n"); }
-sub warning($$) { my ($e,$s) = @_; warn("$e->{FILE}:$e->{LINE}: $s\n"); }
+sub fatal($$) { my ($e,$s) = @_; die("$e->{ORIGINAL}->{FILE}:$e->{ORIGINAL}->{LINE}: $s\n"); }
+sub warning($$) { my ($e,$s) = @_; warn("$e->{ORIGINAL}->{FILE}:$e->{ORIGINAL}->{LINE}: $s\n"); }
 
 sub ParseElement($)
 {
@@ -32,7 +32,8 @@ sub ParseElement($)
 			pidl "\tuint32 ptr$l->{POINTER_INDEX}_$e->{NAME};";
 		} elsif ($l->{TYPE} eq "SWITCH") {
 		} elsif ($l->{TYPE} eq "DATA") {
-			pidl "\t" . DeclShort($e) . ";";
+			my $n = DeclShort($e);
+			pidl "\t$n;" if ($n);
 		} elsif ($l->{TYPE} eq "ARRAY" and $l->{IS_ZERO_TERMINATED}) {
 			my ($t,$f) = StringType($e,$l);
 			pidl "\t" . uc($t) . " $e->{NAME};";

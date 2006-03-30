@@ -279,7 +279,8 @@ Datagram support (ncadg_*)
 
 in, out, ref, length_is, switch_is, size_is, uuid, case, default, string, 
 unique, ptr, pointer_default, v1_enum, object, helpstring, range, local, 
-call_as, endpoint, switch_type, progid, coclass, iid_is, represent_as.
+call_as, endpoint, switch_type, progid, coclass, iid_is, represent_as, 
+transmit_as.
 
 =head2 PIDL Specific properties
 
@@ -357,7 +358,7 @@ helpstringdll, hidden, idl_module, idl_quote, id, immediatebind, importlib,
 import, include, includelib, last_is, lcid, licensed, max_is, module, 
 ms_union, no_injected_text, nonbrowsable, noncreatable, nonextensible, odl, 
 oleautomation, optional, pragma, propget, propputref, propput, readonly, 
-requestedit, restricted, retval, source, transmit_as, uidefault, 
+requestedit, restricted, retval, source, uidefault, 
 usesgetlasterror, vararg, vi_progid, wire_marshal. 
 
 =head1 EXAMPLES
@@ -613,27 +614,22 @@ sub process_file($)
 		unlink($tempfile);
 	}
 
+
+	my $comh_filename = ($opt_com_header or "$outputdir/com_$basename.h");
 	if (defined($opt_com_header)) {
 		require Parse::Pidl::Samba4::COM::Header;
-		my $res = Parse::Pidl::Samba4::COM::Header::Parse($pidl);
+		my $res = Parse::Pidl::Samba4::COM::Header::Parse($pidl,"$outputdir/ndr_$basename.h");
 		if ($res) {
-			my $comh_filename = ($opt_com_header or "$outputdir/com_$basename.h");
-			FileSave($comh_filename, 
-			"#include \"librpc/gen_ndr/ndr_orpc.h\"\n" . 
-			"#include \"$outputdir/ndr_$basename.h\"\n" . 
-			$res);
+			FileSave($comh_filename, $res);
 		}
 	}
 
 	if (defined($opt_dcom_proxy)) {
 		require Parse::Pidl::Samba4::COM::Proxy;
-		my $res = Parse::Pidl::Samba4::COM::Proxy::Parse($pidl);
+		my $res = Parse::Pidl::Samba4::COM::Proxy::Parse($pidl,$comh_filename);
 		if ($res) {
 			my ($client) = ($opt_dcom_proxy or "$outputdir/$basename\_p.c");
-			FileSave($client, 
-			"#include \"includes.h\"\n" .
-			"#include \"$outputdir/com_$basename.h\"\n" . 
-			"#include \"lib/com/dcom/dcom.h\"\n" .$res);
+			FileSave($client, $res);
 		}
 	}
 
@@ -648,7 +644,7 @@ sub process_file($)
 	    defined($opt_client) or defined($opt_server) or 
 	    defined($opt_ndr_parser) or defined($opt_ejs) or 
 		defined($opt_dump_ndr_tree) or defined($opt_samba3_header) or 
-	    defined($opt_samba3_header) or defined($opt_samba3_server) or 
+	    defined($opt_samba3_parser) or defined($opt_samba3_server) or 
 		defined($opt_samba3_template) or defined($opt_samba3_client)) {
 		require Parse::Pidl::NDR;
 		$ndr = Parse::Pidl::NDR::Parse($pidl);
@@ -668,9 +664,15 @@ sub process_file($)
 	my $h_filename = "$outputdir/ndr_$basename.h";
 	if (defined($opt_client)) {
 		require Parse::Pidl::Samba4::NDR::Client;
-		my ($client) = ($opt_client or "$outputdir/ndr_$basename\_c.c");
+		my ($c_client) = ($opt_client or "$outputdir/ndr_$basename\_c.c");
+		my ($c_header) = $c_client;
+		$c_header =~ s/\.c$/.h/;
 
-		FileSave($client, Parse::Pidl::Samba4::NDR::Client::Parse($ndr,$h_filename));
+		my ($srcd,$hdrd) = Parse::Pidl::Samba4::NDR::Client::Parse(
+			$ndr,$gen_header,$h_filename,$c_header);
+
+		FileSave($c_client, $srcd);
+		FileSave($c_header, $hdrd);
 	}
 
 	if (defined($opt_ejs)) {
@@ -684,12 +686,12 @@ sub process_file($)
 		require Parse::Pidl::Samba4::NDR::Server;
 		my $dcom = "";
 
-		foreach my $x (@{$pidl}) {
-			next if ($x->{TYPE} ne "INTERFACE");
+		foreach (@{$pidl}) {
+			next if ($_->{TYPE} ne "INTERFACE");
 
-			if (Parse::Pidl::Util::has_property($x, "object")) {
+			if (Parse::Pidl::Util::has_property($_, "object")) {
 				require Parse::Pidl::Samba4::COM::Stub;
-				$dcom .= Parse::Pidl::Samba4::COM::Stub::ParseInterface($x);
+				$dcom .= Parse::Pidl::Samba4::COM::Stub::ParseInterface($_);
 			}
 		}
 
@@ -711,25 +713,16 @@ $dcom
 	if (defined($opt_ndr_parser)) {
 		my $parser_fname = ($opt_ndr_parser or "$outputdir/ndr_$basename.c");
 		require Parse::Pidl::Samba4::NDR::Parser;
-		my $header_fname = $parser_fname; 
-		$header_fname =~ s/\.c$/\.h/;
-		my ($header,$parser) = Parse::Pidl::Samba4::NDR::Parser::Parse($ndr, $basename);
+		my ($header,$parser) = Parse::Pidl::Samba4::NDR::Parser::Parse($ndr, $gen_header, $h_filename);
 
-		my $baseheader = $h_filename; $baseheader =~ s/\/ndr_/\//;
-		$header = "#include \"$baseheader\"\n$header";
-
-		$parser = "#include \"includes.h\"\n"
-		. "#include \"librpc/gen_ndr/ndr_misc.h\"\n"
-		. "#include \"librpc/gen_ndr/ndr_dcerpc.h\"\n"
-		. "#include \"$header_fname\"\n\n$parser";
 
 		FileSave($parser_fname, $parser);
-		FileSave($header_fname, $header);
+		FileSave($h_filename, $header);
 
 		if (defined($opt_swig)) {
 		  require Parse::Pidl::Samba4::SWIG;
 		  my($filename) = ($opt_swig or "$outputdir/$basename.i");
-		  Parse::Pidl::Samba4::SWIG::RewriteHeader($pidl, $header_fname, $filename);
+		  Parse::Pidl::Samba4::SWIG::RewriteHeader($pidl, $h_filename, $filename);
 		}
 	}
 

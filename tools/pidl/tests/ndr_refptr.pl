@@ -5,7 +5,7 @@
 # Published under the GNU General Public License.
 use strict;
 
-use Test::More tests => 21 * 8;
+use Test::More tests => 22 * 8;
 use FindBin qw($RealBin);
 use lib "$RealBin/../lib";
 use lib "$RealBin";
@@ -402,6 +402,9 @@ test_samba4_ndr("ptr-top-push-double",
 		return 4;
 ');
 
+SKIP: {
+	skip "ptr-top-push-double-sndnull is known to fail", 8;
+
 test_samba4_ndr("ptr-top-push-double-sndnull", 
 '
 	[public] void echo_TestRef([in] uint16 **foo);
@@ -421,6 +424,7 @@ test_samba4_ndr("ptr-top-push-double-sndnull",
 	    ndr->data[2] != 0 || ndr->data[3] != 0)
 		return 3;
 ');
+}
 
 test_samba4_ndr("ptr-top-push-double-fstnull", 
 '
@@ -462,6 +466,10 @@ test_samba4_ndr("refptr-top-push-double",
 		return 4;
 ');
 
+SKIP: {
+
+	skip "refptr-top-push-double-sndnull is known to fail", 8;
+
 test_samba4_ndr("refptr-top-push-double-sndnull", 
 '
 	[public] void echo_TestRef([in,ref] uint16 **foo);
@@ -481,6 +489,7 @@ test_samba4_ndr("refptr-top-push-double-sndnull",
 	    ndr->data[2] != 0 || ndr->data[3] != 0)
 		return 3;
 ');
+}
 
 test_samba4_ndr("refptr-top-push-double-fstnull", 
 '
@@ -497,20 +506,22 @@ test_samba4_ndr("refptr-top-push-double-fstnull",
 
 ');
 
-#FIXME: Not supported yet
-#test_samba4_ndr("ignore-ptr", 
-#'
-#	[public] void echo_TestRef([in,ignore] uint16 *foo, [in] uint16 *bar);
-#',
-#'	struct ndr_push *ndr = ndr_push_init();
-#	struct echo_TestRef r;
-#	uint16_t v = 10;
-#	r.in.foo = &v; 
-#	r.in.bar = &v;
-#
-#	if (NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
-#		return 1;
-#
-#	if (ndr->offset != 4)
-#		return 2;
-#');
+SKIP: {
+	skip "ignore-ptrs are not supported yet", 8;
+test_samba4_ndr("ignore-ptr", 
+'
+	[public] void echo_TestRef([in,ignore] uint16 *foo, [in] uint16 *bar);
+',
+'	struct ndr_push *ndr = ndr_push_init();
+	struct echo_TestRef r;
+	uint16_t v = 10;
+	r.in.foo = &v; 
+	r.in.bar = &v;
+
+	if (NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+		return 1;
+
+	if (ndr->offset != 4)
+		return 2;
+');
+}

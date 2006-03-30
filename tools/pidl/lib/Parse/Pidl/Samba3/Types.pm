@@ -18,7 +18,7 @@ $VERSION = '0.01';
 
 # TODO: Find external types somehow?
 
-sub warning($$) { my ($e,$s) = @_; print STDERR "$e->{FILE}:$e->{LINE}: $s\n"; }
+sub warning($$) { my ($e,$s) = @_; print STDERR "$e->{ORIGINAL}->{FILE}:$e->{ORIGINAL}->{LINE}: $s\n"; }
 
 sub init_scalar($$$$)
 {
@@ -144,6 +144,12 @@ my $known_types =
 		INIT => \&init_scalar,
 		DISSECT_P => \&dissect_scalar,
 	},
+	int32 =>
+	{
+		DECL => "int32",
+		INIT => \&init_scalar,
+		DISSECT_P => \&dissect_scalar,
+	},
 	string => 
 	{
 		DECL => \&decl_string,
@@ -199,6 +205,15 @@ my $known_types =
 			return "smb_io_pol_hnd(\"$e->{NAME}\", &n, ps, depth)";
 		}
 	},
+	security_descriptor => 
+	{
+		DECL => "SEC_DESC",
+		INIT => "",
+		DISSECT_P => sub {
+			my ($e,$l,$n,$w,$a) = @_;
+			return "sec_io_desc(\"$e->{NAME}\", &n, ps, depth)";
+		}
+	},
 	hyper => 
 	{
 		DECL => "uint64",
@@ -228,7 +243,7 @@ sub DeclShort($)
 	my $t = $known_types->{$e->{TYPE}};
 
 	if (not $t) {
-		warning($e, "Can't declare unknown type $e->{TYPE}");
+		warning($e, "Can't declare unknown type `$e->{TYPE}'");
 		return undef;
 	}
 
@@ -262,7 +277,7 @@ sub DeclLong($)
 	my $t = $known_types->{$e->{TYPE}};
 
 	if (not $t) {
-		warning($e, "Can't declare unknown type $e->{TYPE}");
+		warning($e, "Can't declare unknown type `$e->{TYPE}'");
 		return undef;
 	}
 

@@ -73,6 +73,11 @@ my $scalars = {
 				C_TYPE		=> "uint64_t",
 				IS_REFERENCE	=> 0,
 			},
+	# assume its a 8 byte type, but cope with either
+	"pointer"	=> {
+				C_TYPE		=> "void*",
+				IS_REFERENCE	=> 0,
+			},
 
 	# DATA_BLOB types
 	"DATA_BLOB"	=> {

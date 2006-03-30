@@ -196,17 +196,21 @@ sub RegistrationFunction($$)
 	return $res;
 }
 
-sub Parse($)
+sub Parse($$)
 {
-	my $pidl = shift;
+	my ($pidl,$comh_filename) = @_;
 	my $res = "";
 
-	foreach my $x (@{$pidl}) {
-		next if ($x->{TYPE} ne "INTERFACE");
-		next if has_property($x, "local");
-		next unless has_property($x, "object");
+	$res .=	"#include \"includes.h\"\n" .
+			"#include \"lib/com/dcom/dcom.h\"\n" .
+			"#include \"$comh_filename\"\n";
 
-		$res .= ParseInterface($x);
+	foreach (@{$pidl}) {
+		next if ($_->{TYPE} ne "INTERFACE");
+		next if has_property($_, "local");
+		next unless has_property($_, "object");
+
+		$res .= ParseInterface($_);
 	}
 
 	return $res;

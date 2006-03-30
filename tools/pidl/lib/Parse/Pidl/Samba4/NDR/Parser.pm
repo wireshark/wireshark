@@ -2,7 +2,7 @@
 # Samba4 NDR parser generator for IDL structures
 # Copyright tridge@samba.org 2000-2003
 # Copyright tpot@samba.org 2001
-# Copyright jelmer@samba.org 2004-2005
+# Copyright jelmer@samba.org 2004-2006
 # released under the GNU GPL
 
 package Parse::Pidl::Samba4::NDR::Parser;
@@ -11,6 +11,7 @@ use strict;
 use Parse::Pidl::Typelist qw(hasType getType mapType);
 use Parse::Pidl::Util qw(has_property ParseExpr print_uuid);
 use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
+use Parse::Pidl::Samba4 qw(is_intree choose_header);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -199,7 +200,7 @@ sub fn_declare($$)
 
 	if (has_property($fn, "public")) {
 		pidl_hdr "$decl;";
-		pidl "$decl";
+		pidl "_PUBLIC_ $decl";
 	} else {
 		pidl "static $decl";
 	}
@@ -463,42 +464,6 @@ sub ParseCompressionPullEnd($$$$)
 	pidl "}";
 }
 
-sub ParseObfuscationPushStart($$)
-{
-	my ($e,$ndr) = @_;
-	my $obfuscation = has_property($e, "obfuscation");
-
-	pidl "NDR_CHECK(ndr_push_obfuscation_start($ndr, $obfuscation));";
-
-	return $ndr;
-}
-
-sub ParseObfuscationPushEnd($$)
-{
-	my ($e,$ndr) = @_;
-	my $obfuscation = has_property($e, "obfuscation");
-
-	pidl "NDR_CHECK(ndr_push_obfuscation_end($ndr, $obfuscation));";
-}
-
-sub ParseObfuscationPullStart($$)
-{
-	my ($e,$ndr) = @_;
-	my $obfuscation = has_property($e, "obfuscation");
-
-	pidl "NDR_CHECK(ndr_pull_obfuscation_start($ndr, $obfuscation));";
-
-	return $ndr;
-}
-
-sub ParseObfuscationPullEnd($$)
-{
-	my ($e,$ndr) = @_;
-	my $obfuscation = has_property($e, "obfuscation");
-
-	pidl "NDR_CHECK(ndr_pull_obfuscation_end($ndr, $obfuscation));";
-}
-
 sub ParseSubcontextPushStart($$$$)
 {
 	my ($e,$l,$ndr,$env) = @_;
@@ -514,10 +479,6 @@ sub ParseSubcontextPushStart($$$$)
 		$subndr = ParseCompressionPushStart($e, $l, $subndr, $env);
 	}
 
-	if (defined $l->{OBFUSCATION}) {
-		$subndr = ParseObfuscationPushStart($e, $subndr);
-	}
-
 	return $subndr;
 }
 
@@ -529,10 +490,6 @@ sub ParseSubcontextPushEnd($$$$)
 
 	if (defined $l->{COMPRESSION}) {
 		ParseCompressionPushEnd($e, $l, $subndr, $env);
-	}
-
-	if (defined $l->{OBFUSCATION}) {
-		ParseObfuscationPushEnd($e, $subndr);
 	}
 
 	pidl "NDR_CHECK(ndr_push_subcontext_end($ndr, $subndr, $l->{HEADER_SIZE}, $subcontext_size));";
@@ -555,10 +512,6 @@ sub ParseSubcontextPullStart($$$$)
 		$subndr = ParseCompressionPullStart($e, $l, $subndr, $env);
 	}
 
-	if (defined $l->{OBFUSCATION}) {
-		$subndr = ParseObfuscationPullStart($e, $subndr);
-	}
-	
 	return $subndr;
 }
 
@@ -570,10 +523,6 @@ sub ParseSubcontextPullEnd($$$$)
 
 	if (defined $l->{COMPRESSION}) {
 		ParseCompressionPullEnd($e, $l, $subndr, $env);
-	}
-
-	if (defined $l->{OBFUSCATION}) {
-		ParseObfuscationPullEnd($e, $subndr);
 	}
 
 	pidl "NDR_CHECK(ndr_pull_subcontext_end($ndr, $subndr, $l->{HEADER_SIZE}, $subcontext_size));";
@@ -669,9 +618,19 @@ sub ParseElementPush($$$$$$)
 
 	my $var_name = $var_prefix.$e->{NAME};
 
-	$var_name = append_prefix($e, $var_name);
-
 	return unless $primitives or ($deferred and ContainsDeferred($e, $e->{LEVELS}[0]));
+
+	# Representation type is different from transmit_as
+	if ($e->{REPRESENTATION_TYPE}) {
+		pidl "{";
+		indent;
+		my $transmit_name = "_transmit_$e->{NAME}";
+		pidl mapType($e->{TYPE}) ." $transmit_name;";
+		pidl "NDR_CHECK(ndr_$e->{REPRESENTATION_TYPE}_to_$e->{TYPE}($var_name, " . get_pointer_to($transmit_name) . "));";
+		$var_name = $transmit_name;
+	}
+
+	$var_name = append_prefix($e, $var_name);
 
 	start_flags($e);
 
@@ -682,6 +641,11 @@ sub ParseElementPush($$$$$$)
 	ParseElementPushLevel($e, $e->{LEVELS}[0], $ndr, $var_name, $env, $primitives, $deferred);
 
 	end_flags($e);
+
+	if ($e->{REPRESENTATION_TYPE}) {
+		deindent;
+		pidl "}";
+	}
 }
 
 #####################################################################
@@ -713,8 +677,14 @@ sub ParseElementPrint($$$)
 {
 	my($e,$var_name,$env) = @_;
 
-	$var_name = append_prefix($e, $var_name);
 	return if (has_property($e, "noprint"));
+
+	if ($e->{REPRESENTATION_TYPE}) {
+		pidl "ndr_print_$e->{REPRESENTATION_TYPE}(ndr, \"$e->{NAME}\", $var_name);";
+		return;
+	}
+
+	$var_name = append_prefix($e, $var_name);
 
 	if (my $value = has_property($e, "value")) {
 		$var_name = "(ndr->flags & LIBNDR_PRINT_SET_VALUES)?" . ParseExpr($value,$env) . ":$var_name";
@@ -1056,16 +1026,34 @@ sub ParseElementPull($$$$$$)
 	my($e,$ndr,$var_prefix,$env,$primitives,$deferred) = @_;
 
 	my $var_name = $var_prefix.$e->{NAME};
-
-	$var_name = append_prefix($e, $var_name);
+	my $represent_name;
+	my $transmit_name;
 
 	return unless $primitives or ($deferred and ContainsDeferred($e, $e->{LEVELS}[0]));
+
+	if ($e->{REPRESENTATION_TYPE}) {
+		pidl "{";
+		indent;
+		$represent_name = $var_name;
+		$transmit_name = "_transmit_$e->{NAME}";
+		$var_name = $transmit_name;
+		pidl mapType($e->{TYPE})." $var_name;";
+	}
+
+	$var_name = append_prefix($e, $var_name);
 
 	start_flags($e);
 
 	ParseElementPullLevel($e,$e->{LEVELS}[0],$ndr,$var_name,$env,$primitives,$deferred);
 
 	end_flags($e);
+
+	# Representation type is different from transmit_as
+	if ($e->{REPRESENTATION_TYPE}) {
+		pidl "NDR_CHECK(ndr_$e->{TYPE}_to_$e->{REPRESENTATION_TYPE}($transmit_name, ".get_pointer_to($represent_name)."));";
+		deindent;
+		pidl "}";
+	}
 }
 
 #####################################################################
@@ -1377,18 +1365,15 @@ sub ParseStructPrint($$)
 
 	EnvSubstituteValue($env, $struct);
 
-	foreach my $e (@{$struct->{ELEMENTS}}) {
-		DeclareArrayVariables($e);
-	}
+	DeclareArrayVariables($_) foreach (@{$struct->{ELEMENTS}});
 
 	pidl "ndr_print_struct(ndr, name, \"$name\");";
 
 	start_flags($struct);
 
 	pidl "ndr->depth++;";
-	foreach my $e (@{$struct->{ELEMENTS}}) {
-		ParseElementPrint($e, "r->$e->{NAME}", $env);
-	}
+	
+	ParseElementPrint($_, "r->$_->{NAME}", $env) foreach (@{$struct->{ELEMENTS}});
 	pidl "ndr->depth--;";
 
 	end_flags($struct);
@@ -1867,7 +1852,7 @@ sub ParseTypedefPrint($)
 
 	my $args = $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e,"print");
 
-	pidl "void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args)";
+	pidl "_PUBLIC_ void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args)";
 	pidl_hdr "void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args);";
 	pidl "{";
 	indent;
@@ -1904,7 +1889,7 @@ sub ParseFunctionPrint($)
 
 	return if has_property($fn, "noprint");
 
-	pidl "void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r)";
+	pidl "_PUBLIC_ void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r)";
 	pidl_hdr "void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r);";
 	pidl "{";
 	indent;
@@ -2215,8 +2200,10 @@ sub FunctionTable($)
 
 	pidl "\nconst struct dcerpc_interface_table dcerpc_table_$interface->{NAME} = {";
 	pidl "\t.name\t\t= \"$interface->{NAME}\",";
-	pidl "\t.uuid\t\t= ". print_uuid($interface->{UUID}) .",";
-	pidl "\t.if_version\t= DCERPC_$uname\_VERSION,";
+	pidl "\t.syntax_id\t= {";
+	pidl "\t\t" . print_uuid($interface->{UUID}) .",";
+	pidl "\t\tDCERPC_$uname\_VERSION";
+	pidl "\t},";
 	pidl "\t.helpstring\t= DCERPC_$uname\_HELPSTRING,";
 	pidl "\t.num_calls\t= $count,";
 	pidl "\t.calls\t\t= $interface->{NAME}\_calls,";
@@ -2237,15 +2224,22 @@ sub HeaderInterface($)
 
 	my $count = 0;
 
-	pidl_hdr "#ifndef _HEADER_RPC_$interface->{NAME}";
-	pidl_hdr "#define _HEADER_RPC_$interface->{NAME}";
+	pidl_hdr choose_header("librpc/ndr/libndr.h", "ndr.h");
 
-	pidl_hdr "";
+	if (has_property($interface, "object")) {
+		pidl choose_header("librpc/gen_ndr/ndr_orpc.h", "ndr/orpc.h");
+	}
 
 	if (defined $interface->{PROPERTIES}->{depends}) {
 		my @d = split / /, $interface->{PROPERTIES}->{depends};
 		foreach my $i (@d) {
-			pidl_hdr "#include \"librpc/gen_ndr/ndr_$i\.h\"";
+			pidl choose_header("librpc/gen_ndr/ndr_$i\.h", "gen_ndr/ndr_$i.h");
+		}
+	}
+
+	if (defined $interface->{PROPERTIES}->{helper}) {
+		foreach (split / /, $interface->{PROPERTIES}->{helper}) {
+			pidl_hdr "#include $_";
 		}
 	}
 
@@ -2278,9 +2272,6 @@ sub HeaderInterface($)
 		
 		pidl_hdr "#define DCERPC_$u_name ($val)";
 
-		pidl_hdr "NTSTATUS dcerpc_$_->{NAME}(struct dcerpc_pipe *p, TALLOC_CTX *mem_ctx, struct $_->{NAME} *r);";
-	   	pidl_hdr "struct rpc_request *dcerpc_$_->{NAME}\_send(struct dcerpc_pipe *p, TALLOC_CTX *mem_ctx, struct $_->{NAME} *r);";
-
 		pidl_hdr "";
 		$count++;
 	}
@@ -2293,7 +2284,6 @@ sub HeaderInterface($)
 
 	pidl_hdr "#define DCERPC_" . uc $interface->{NAME} . "_CALL_COUNT ($val)";
 
-	pidl_hdr "#endif /* _HEADER_RPC_$interface->{NAME} */";
 }
 
 #####################################################################
@@ -2301,6 +2291,15 @@ sub HeaderInterface($)
 sub ParseInterface($$)
 {
 	my($interface,$needed) = @_;
+
+	pidl_hdr "#ifndef _HEADER_NDR_$interface->{NAME}";
+	pidl_hdr "#define _HEADER_NDR_$interface->{NAME}";
+
+	pidl_hdr "";
+
+	if ($needed->{"compression"}) {
+		pidl choose_header("librpc/ndr/ndr_compression.h", "ndr/compression.h");
+	}
 
 	HeaderInterface($interface);
 
@@ -2329,22 +2328,42 @@ sub ParseInterface($$)
 	}
 
 	FunctionTable($interface);
+
+	pidl_hdr "#endif /* _HEADER_NDR_$interface->{NAME} */";
 }
 
 #####################################################################
 # parse a parsed IDL structure back into an IDL file
-sub Parse($$)
+sub Parse($$$)
 {
-	my($ndr,$basename) = @_;
+	my($ndr,$gen_header,$ndr_header) = @_;
 
 	$tabs = "";
 	$res = "";
 
 	$res_hdr = "";
-    pidl_hdr "/* header auto-generated by pidl */";
+	pidl_hdr "/* header auto-generated by pidl */";
+	pidl_hdr "";
+	pidl_hdr "#include \"$gen_header\"" if ($gen_header);
 	pidl_hdr "";
 
 	pidl "/* parser auto-generated by pidl */";
+	pidl "";
+	if (is_intree()) {
+		pidl "#include \"includes.h\"";
+	} else {
+		pidl "#define _GNU_SOURCE";
+		pidl "#include <stdint.h>";
+		pidl "#include <stdlib.h>";
+		pidl "#include <stdio.h>";
+		pidl "#include <stdarg.h>";
+		pidl "#include <string.h>";
+	}
+	pidl choose_header("libcli/util/nterr.h", "core/nterr.h");
+	pidl choose_header("librpc/gen_ndr/ndr_misc.h", "gen_ndr/ndr_misc.h");
+	pidl choose_header("librpc/gen_ndr/ndr_dcerpc.h", "gen_ndr/ndr_dcerpc.h");
+	pidl "#include \"$ndr_header\"" if ($ndr_header);
+	pidl choose_header("librpc/rpc/dcerpc.h", "dcerpc.h"); #FIXME: This shouldn't be here!
 	pidl "";
 
 	my %needed = ();
@@ -2396,6 +2415,9 @@ sub NeededTypedef($$)
 
 		for my $e (@{$t->{DATA}->{ELEMENTS}}) {
 			$e->{PARENT} = $t->{DATA};
+			if (has_property($e, "compression")) { 
+				$needed->{"compression"} = 1;
+			}
 			if ($needed->{"pull_$t->{NAME}"} and
 				not defined($needed->{"pull_$e->{TYPE}"})) {
 				$needed->{"pull_$e->{TYPE}"} = 1;
@@ -2422,4 +2444,3 @@ sub NeededInterface($$)
 }
 
 1;
-

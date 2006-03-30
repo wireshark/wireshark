@@ -2,7 +2,7 @@
 # Samba4 NDR info tree generator
 # Copyright tridge@samba.org 2000-2003
 # Copyright tpot@samba.org 2001
-# Copyright jelmer@samba.org 2004-2005
+# Copyright jelmer@samba.org 2004-2006
 # released under the GNU GPL
 
 =pod
@@ -51,6 +51,7 @@ my $scalar_alignment = {
 	'int32' => 4,
 	'uint32' => 4,
 	'hyper' => 8,
+	'pointer' => 8,
 	'dlong' => 4,
 	'udlong' => 4,
 	'udlongr' => 4,
@@ -231,7 +232,6 @@ sub GetElementLevelTable($)
 			SUBCONTEXT_SIZE => $subsize,
 			IS_DEFERRED => $is_deferred,
 			COMPRESSION => has_property($e, "compression"),
-			OBFUSCATION => has_property($e, "obfuscation")
 		});
 	}
 
@@ -257,6 +257,8 @@ sub GetElementLevelTable($)
 
 	push (@$order, {
 		TYPE => "DATA",
+		CONVERT_TO => has_property($e, ""),
+		CONVERT_FROM => has_property($e, ""),
 		DATA_TYPE => $e->{TYPE},
 		IS_DEFERRED => $is_deferred,
 		CONTAINS_DEFERRED => can_contain_deferred($e),
@@ -316,8 +318,10 @@ sub find_largest_alignment($)
 
 		if ($e->{POINTERS}) {
 			$a = 4; 
-		} elsif (has_property($e, "subcontext")){ 
+		} elsif (has_property($e, "subcontext")) { 
 			$a = 1;
+		} elsif (has_property($e, "transmit_as")) {
+			$a = align_type($e->{PROPERTIES}->{transmit_as});
 		} else {
 			$a = align_type($e->{TYPE}); 
 		}
@@ -365,6 +369,7 @@ sub ParseElement($)
 		TYPE => $e->{TYPE},
 		PROPERTIES => $e->{PROPERTIES},
 		LEVELS => GetElementLevelTable($e),
+		REPRESENTATION_TYPE => $e->{PROPERTIES}->{represent_as},
 		ALIGN => align_type($e->{TYPE}),
 		ORIGINAL => $e
 	};
@@ -749,6 +754,7 @@ my %property_list = (
 	"pointer_default"	=> ["INTERFACE"],
 	"pointer_default_top"	=> ["INTERFACE"],
 	"depends"		=> ["INTERFACE"],
+	"helper"		=> ["INTERFACE"],
 	"authservice"		=> ["INTERFACE"],
 
 	# dcom
@@ -791,11 +797,13 @@ my %property_list = (
 	"case"			=> ["ELEMENT"],
 	"default"		=> ["ELEMENT"],
 
+	"represent_as"		=> ["ELEMENT"],
+	"transmit_as"		=> ["ELEMENT"],
+
 	# subcontext
 	"subcontext"		=> ["ELEMENT"],
 	"subcontext_size"	=> ["ELEMENT"],
 	"compression"		=> ["ELEMENT"],
-	"obfuscation"		=> ["ELEMENT"],
 
 	# enum
 	"enum8bit"		=> ["TYPEDEF"],
@@ -894,16 +902,29 @@ sub ValidElement($)
 		}
 	}
 
+
+	if (has_property($e, "subcontext") and has_property($e, "represent_as")) {
+		fatal($e, el_name($e) . " : subcontext() and represent_as() can not be used on the same element");
+	}
+
+	if (has_property($e, "subcontext") and has_property($e, "transmit_as")) {
+		fatal($e, el_name($e) . " : subcontext() and transmit_as() can not be used on the same element");
+	}
+
+	if (has_property($e, "represent_as") and has_property($e, "transmit_as")) {
+		fatal($e, el_name($e) . " : represent_as() and transmit_as() can not be used on the same element");
+	}
+
+	if (has_property($e, "represent_as") and has_property($e, "value")) {
+		fatal($e, el_name($e) . " : represent_as() and value() can not be used on the same element");
+	}
+
 	if (defined (has_property($e, "subcontext_size")) and not defined(has_property($e, "subcontext"))) {
 		fatal($e, el_name($e) . " : subcontext_size() on non-subcontext element");
 	}
 
 	if (defined (has_property($e, "compression")) and not defined(has_property($e, "subcontext"))) {
 		fatal($e, el_name($e) . " : compression() on non-subcontext element");
-	}
-
-	if (defined (has_property($e, "obfuscation")) and not defined(has_property($e, "subcontext"))) {
-		fatal($e, el_name($e) . " : obfuscation() on non-subcontext element");
 	}
 
 	if (!$e->{POINTERS} && (

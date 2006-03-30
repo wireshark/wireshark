@@ -117,19 +117,22 @@ sub ParseCoClass($)
 	return $res;
 }
 
-sub Parse($)
+sub Parse($$)
 {
-	my $idl = shift;
+	my ($idl,$ndr_header) = @_;
 	my $res = "";
 
-	foreach my $x (@{$idl})
+	$res .= "#include \"librpc/gen_ndr/orpc.h\"\n" . 
+			"#include \"$ndr_header\"\n\n";
+
+	foreach (@{$idl})
 	{
-		if ($x->{TYPE} eq "INTERFACE" && has_property($x, "object")) {
-			$res.=ParseInterface($x);
+		if ($_->{TYPE} eq "INTERFACE" && has_property($_, "object")) {
+			$res.=ParseInterface($_);
 		} 
 
-		if ($x->{TYPE} eq "COCLASS") {
-			$res.=ParseCoClass($x);
+		if ($_->{TYPE} eq "COCLASS") {
+			$res.=ParseCoClass($_);
 		}
 	}
 
