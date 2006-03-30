@@ -264,7 +264,7 @@ static int asn1_uni_type[] = {
 #define TBL_CONSTRUCTED		0x01000000 /* unexpectedly constructed entry */
 #define TBL_TYPEmask		0x0000FFFF /* Mask just the type */
 
-
+/* XXX - Should we use val_to_str here? */
 #define TBLTYPE(x) (tbl_types[x&TBL_TYPEmask])
 
 /* text tables for debugging and GUI */
@@ -4650,7 +4650,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		}
 
 		/* must follow references now */
-		if (pos.type == TBL_TYPEREF) {
+		if (pos.type == TBL_TYPEREF && info) {
 			out->typename = info->typename;
 			out->type_id = info->typenum;
 			out->flags |= OUT_FLAG_typename;

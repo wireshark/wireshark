@@ -166,9 +166,9 @@ Ethereal Info
 
         <listitem><para>
 	  The ASN.1 dissector could crash Ethereal.
-	  <!-- Fixed in r17548, r17710, r17736 -->
+	  <!-- Fixed in r17548, r17710, r17736, r17770 -->
 	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 42, 43 -->
+          <!-- Coverity CID 42, 43, 146 -->
 	  Versions affected: 0.9.8.
         </para></listitem>
 
@@ -262,14 +262,6 @@ Ethereal Info
 	  Versions affected: 0.9.10.
         </para></listitem>
 
-        <listitem><para>
-	  The ASN.1 dissector could crash Ethereal.
-	  <!-- Fixed in r17489 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 109 -->
-	  Versions affected: 0.9.10.
-        </para></listitem>
-
         <!-- CID 110: Not security-related -->
         <!-- CID 111: Bogus -->
         <!-- CID 112: Not security-related -->
@@ -314,6 +306,7 @@ Ethereal Info
         <!-- CID 142: Not security-releated -->
         <!-- CID 143 - 144: See CID 79 -->
         <!-- CID 145: Post-0.10.14 -->
+        <!-- CID 146: See CID 42 -->
 
       </itemizedlist>
     </para>
