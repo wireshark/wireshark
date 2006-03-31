@@ -3,6 +3,9 @@
  * Author: Carlos Pignataro <cpignata@cisco.com>
  * Copyright 2005, cisco Systems, Inc.
  *
+ * (c) Copyright 2006, _FF_ Francesco Fondelli <francesco.fondelli@gmail.com>  
+ *                     added MPLS OAM support, ITU-T Y.1711
+ *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
@@ -33,7 +36,7 @@ enum {
     LABEL_ROUTER_ALERT,
     LABEL_IP6_EXPLICIT_NULL,
     LABEL_IMPLICIT_NULL,
-
+    LABEL_OAM_ALERT = 14,
     LABEL_MAX_RESERVED = 15
 };
 
