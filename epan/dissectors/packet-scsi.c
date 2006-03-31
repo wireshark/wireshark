@@ -2989,8 +2989,8 @@ dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (payload_len < 1)
             return;
-        desclen = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
+        desclen = tvb_get_ntohs (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 2,
                              "Block Descriptor Length: %u", desclen);
         offset += 2;
         payload_len -= 2;
