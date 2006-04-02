@@ -411,6 +411,14 @@ static gint ett_nfs_aceflag4 = -1;
 static gint ett_nfs_acemask4 = -1;
 
 
+/* For dissector helpers which take a "levels" argument to indicate how
+ * many expansions up they should populate the expansion items with
+ * text to enhance useability, this flag to "levels" specify that the
+ * text should also be appended to COL_INFO
+ */
+#define COL_INFO_LEVEL 0x80000000
+
+
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
 gboolean nfs_fhandle_reqrep_matching = FALSE;
@@ -2825,13 +2833,16 @@ dissect_writeverf3(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 /* RFC 1813, Page 16 */
 static int
-dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
+dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name, guint32 *mode)
 {
 	guint32 mode3;
 	proto_item* mode3_item = NULL;
 	proto_tree* mode3_tree = NULL;
 
 	mode3 = tvb_get_ntohl(tvb, offset+0);
+	if(mode){
+		*mode=mode3;
+	}
 
 	if (tree) {
 		mode3_item = proto_tree_add_text(tree, tvb, offset, 4,
@@ -3102,14 +3113,19 @@ dissect_nfstime3(tvbuff_t *tvb, int offset,
 }
 
 
-/* RFC 1813, Page 22 */
+/* RFC 1813, Page 22 
+ * The levels parameter tells this helper how many levels up in the tree it 
+ * should display useful info such as type,mode,uid,gid
+ * If level has the COL_INFO_LEVEL flag set it will also display
+ * this info in the info column.
+ */
 static int
-dissect_nfs_fattr3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
+dissect_nfs_fattr3(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, const char* name, guint32 levels)
 {
 	proto_item* fattr3_item = NULL;
 	proto_tree* fattr3_tree = NULL;
 	int old_offset = offset;
-	guint32 type;
+	guint32 type, mode, uid, gid;
 
 	if (tree) {
 		fattr3_item = proto_tree_add_text(tree, tvb, offset, -1,
@@ -3117,30 +3133,84 @@ dissect_nfs_fattr3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name
 		fattr3_tree = proto_item_add_subtree(fattr3_item, ett_nfs_fattr3);
 	}
 
+	/* ftype */
 	offset = dissect_ftype3(tvb,offset,fattr3_tree,hf_nfs_fattr3_type,&type);
-	offset = dissect_mode3(tvb,offset,fattr3_tree,"mode");
+
+	/* mode */
+	offset = dissect_mode3(tvb,offset,fattr3_tree,"mode",&mode);
+
+	/* nlink */
 	offset = dissect_rpc_uint32(tvb, fattr3_tree, hf_nfs_fattr3_nlink,
 		offset);
+
+	/* uid */
+	uid=tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, fattr3_tree, hf_nfs_fattr3_uid,
 		offset);
+
+	/* gid */
+	gid=tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, fattr3_tree, hf_nfs_fattr3_gid,
 		offset);
+
+	/* size*/
 	offset = dissect_rpc_uint64(tvb, fattr3_tree, hf_nfs_fattr3_size,
 		offset);
+
+	/* used */
 	offset = dissect_rpc_uint64(tvb, fattr3_tree, hf_nfs_fattr3_used,
 		offset);
+
+	/* rdev */
 	offset = dissect_specdata3(tvb,offset,fattr3_tree,"rdev");
+
+	/* fsid */
 	offset = dissect_rpc_uint64(tvb, fattr3_tree, hf_nfs_fattr3_fsid,
 		offset);
+
+	/* fileid */
 	offset = dissect_rpc_uint64(tvb, fattr3_tree, hf_nfs_fattr3_fileid,
 		offset);
+
+	/* atime */
 	offset = dissect_nfstime3 (tvb,offset,fattr3_tree,hf_nfs_atime,hf_nfs_atime_sec,hf_nfs_atime_nsec);
+
+	/* mtime */
 	offset = dissect_nfstime3 (tvb,offset,fattr3_tree,hf_nfs_mtime,hf_nfs_mtime_sec,hf_nfs_mtime_nsec);
+
+	/* ctime */
 	offset = dissect_nfstime3 (tvb,offset,fattr3_tree,hf_nfs_ctime,hf_nfs_ctime_sec,hf_nfs_ctime_nsec);
 
 	/* now we know, that fattr3 is shorter */
 	if (fattr3_item) {
 		proto_item_set_len(fattr3_item, offset - old_offset);
+	}
+
+
+	/* put some nice info in COL_INFO for GETATTR replies */
+	if(levels&COL_INFO_LEVEL){
+		levels&=(~COL_INFO_LEVEL);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				"  %s mode:%04o uid:%d gid:%d",
+				val_to_str(type, names_nfs_ftype3,"Unknown Type:0x%x"),
+				mode&0x0fff,
+				uid,
+				gid
+			);
+		}
+	}
+	/* populate the expansion lines with some nice useable info */
+	while( fattr3_tree && levels-- ){
+		if(fattr3_tree){
+			proto_item_append_text(fattr3_tree, "  %s mode:%04o uid:%d gid:%d",
+				val_to_str(type, names_nfs_ftype3,"Unknown Type:0x%x"),
+				mode&0x0fff,
+				uid,
+				gid
+			);
+		}
+		fattr3_tree=fattr3_tree->parent;
 	}
 
 	return offset;
@@ -3157,7 +3227,7 @@ static const value_string value_follows[] =
 
 /* RFC 1813, Page 23 */
 int
-dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, 
+dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 		const char* name)
 {
 	proto_item* post_op_attr_item = NULL;
@@ -3179,8 +3249,8 @@ dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree,
 	offset += 4;
 	switch (attributes_follow) {
 		case TRUE:
-			offset = dissect_nfs_fattr3(tvb, offset, post_op_attr_tree,
-					"attributes");
+			offset = dissect_nfs_fattr3(pinfo, tvb, offset, post_op_attr_tree,
+					"attributes",2);
 		break;
 		case FALSE:
 			/* void */
@@ -3266,7 +3336,7 @@ dissect_pre_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char* nam
 
 /* RFC 1813, Page 24 */
 static int
-dissect_wcc_data(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
+dissect_wcc_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char* name)
 {
 	proto_item* wcc_data_item = NULL;
 	proto_tree* wcc_data_tree = NULL;
@@ -3280,7 +3350,7 @@ dissect_wcc_data(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	}
 
 	offset = dissect_pre_op_attr (tvb, offset, wcc_data_tree, "before");
-	offset = dissect_nfs_post_op_attr(tvb, offset, wcc_data_tree, "after" );
+	offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, wcc_data_tree, "after" );
 
 	/* now we know, that wcc_data is shorter */
 	if (wcc_data_item) {
@@ -3361,7 +3431,7 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	switch (set_it) {
 		case 1:
 			offset = dissect_mode3(tvb, offset, set_mode3_tree,
-					"mode");
+					"mode", NULL);
 		break;
 		default:
 			/* void */
@@ -3818,20 +3888,19 @@ dissect_nfs3_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 status;
 	const char *err;
 
+	proto_item_append_text(tree, ", GETATTR Reply");
+
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_fattr3(tvb, offset, tree, "obj_attributes");
-			proto_item_append_text(tree, ", GETATTR Reply");
+			offset = dissect_nfs_fattr3(pinfo, tvb, offset, tree, "obj_attributes",2|COL_INFO_LEVEL);
 		break;
 		default:
-			/* void */
-
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
-			proto_item_append_text(tree, ", GETATTR Reply  Error:%s", err);
+			proto_item_append_text(tree, "  Error:%s", err);
 		break;
 	}
 
@@ -3915,11 +3984,11 @@ dissect_nfs3_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_wcc_data(tvb, offset, tree, "obj_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "obj_wcc");
 			proto_item_append_text(tree, ", SETATTR Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "obj_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "obj_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -3965,9 +4034,9 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (status) {
 		case 0:
 			offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &hash);
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -3976,7 +4045,7 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_append_text(tree, ", LOOKUP Reply FH:0x%08x", hash);
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -4021,14 +4090,14 @@ dissect_nfs3_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 			offset = dissect_access(tvb, offset, tree, "access");
 
 			proto_item_append_text(tree, ", ACCESS Reply");
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -4070,7 +4139,7 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"symlink_attributes");
 			offset = dissect_nfspath3(tvb, offset, tree,
 				hf_nfs_readlink_data, &name);
@@ -4081,7 +4150,7 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_item_append_text(tree, ", READLINK Reply Path:%s", name);
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"symlink_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -4135,7 +4204,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"file_attributes");
 			len=tvb_get_ntohl(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_count3,
@@ -4149,7 +4218,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"file_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -4235,7 +4304,7 @@ dissect_nfs3_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_wcc_data  (tvb, offset, tree, "file_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "file_wcc");
 			len=tvb_get_ntohl(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_count3,
 				offset);
@@ -4250,7 +4319,7 @@ dissect_nfs3_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_item_append_text(tree, ", WRITE Reply Len:%d %s", len, val_to_str(stable, names_stable_how, "Stable:%u"));
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "file_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "file_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4333,13 +4402,13 @@ dissect_nfs3_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_fh3 (tvb, offset, pinfo, tree, "obj");
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			proto_item_append_text(tree, ", CREATE Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4383,13 +4452,13 @@ dissect_nfs3_mkdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_fh3 (tvb, offset, pinfo, tree, "obj");
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			proto_item_append_text(tree, ", MKDIR Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4434,13 +4503,13 @@ dissect_nfs3_symlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_fh3 (tvb, offset, pinfo, tree, "obj");
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			proto_item_append_text(tree, ", SYMLINK Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4500,13 +4569,13 @@ dissect_nfs3_mknod_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_fh3 (tvb, offset, pinfo, tree, "obj");
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			proto_item_append_text(tree, ", MKNOD Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4531,11 +4600,11 @@ dissect_nfs3_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			proto_item_append_text(tree, ", REMOVE Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
@@ -4556,11 +4625,11 @@ dissect_nfs3_rmdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			proto_item_append_text(tree, ", RMDIR Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
@@ -4606,13 +4675,13 @@ dissect_nfs3_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_wcc_data(tvb, offset, tree, "fromdir_wcc");
-			offset = dissect_wcc_data(tvb, offset, tree, "todir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "fromdir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "todir_wcc");
 			proto_item_append_text(tree, ", RENAME Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "fromdir_wcc");
-			offset = dissect_wcc_data(tvb, offset, tree, "todir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "fromdir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "todir_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4658,15 +4727,15 @@ dissect_nfs3_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"file_attributes");
-			offset = dissect_wcc_data(tvb, offset, tree, "linkdir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "linkdir_wcc");
 			proto_item_append_text(tree, ", LINK Reply");
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"file_attributes");
-			offset = dissect_wcc_data(tvb, offset, tree, "linkdir_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "linkdir_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4755,7 +4824,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case 0:
 			proto_item_append_text(tree, ", READDIR Reply");
 
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 			offset = dissect_cookieverf3(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -4767,7 +4836,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset += 4;
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -4853,7 +4922,7 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_uint64(tvb, entry_tree, hf_nfs_readdirplus_entry_cookie,
 		offset);
 
-	offset = dissect_nfs_post_op_attr(tvb, offset, entry_tree,
+	offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, entry_tree,
 		"name_attributes");
 
 	offset = dissect_post_op_fh3(tvb, offset, pinfo, entry_tree, "name_handle");
@@ -4881,7 +4950,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case 0:
 			proto_item_append_text(tree, ", READDIRPLUS Reply");
 
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 			offset = dissect_cookieverf3(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -4893,7 +4962,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset += 4;
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -4936,7 +5005,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 			offset = dissect_rpc_uint64(tvb, tree, hf_nfs_fsstat3_resok_tbytes,
 				offset);
@@ -4959,7 +5028,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_item_append_text(tree, ", FSSTAT Reply");
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -5015,7 +5084,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 			rtmax = tvb_get_ntohl(tvb, offset+0);
 			if (tree)
@@ -5099,7 +5168,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_item_append_text(tree, ", FSINFO Reply");
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -5141,7 +5210,7 @@ dissect_nfs3_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 			linkmax = tvb_get_ntohl(tvb, offset + 0);
 			if (tree)
@@ -5165,7 +5234,7 @@ dissect_nfs3_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_item_append_text(tree, ", PATHCONF Reply");
 		break;
 		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
@@ -5211,13 +5280,13 @@ dissect_nfs3_commit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_wcc_data  (tvb, offset, tree, "file_wcc");
+			offset = dissect_wcc_data  (tvb, offset, pinfo, tree, "file_wcc");
 			offset = dissect_writeverf3(tvb, offset, tree);
 
 			proto_item_append_text(tree, ", COMMIT Reply");
 		break;
 		default:
-			offset = dissect_wcc_data(tvb, offset, tree, "file_wcc");
+			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "file_wcc");
 
 			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {

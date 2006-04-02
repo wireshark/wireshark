@@ -447,7 +447,7 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	if (entry_tree)
-		offset = dissect_nfs_post_op_attr(tvb, offset, entry_tree, "attr");
+		offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, entry_tree, "attr");
 
 	if (status != ACL3_OK)
 		return offset;
@@ -495,7 +495,7 @@ dissect_nfsacl3_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset += 4;
 
-	offset = dissect_nfs_post_op_attr(tvb, offset, tree, "attr");
+	offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree, "attr");
 
 	return offset;
 }
@@ -528,7 +528,7 @@ dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, int offset,
 	if (status == ACL3_OK)
 	{
 		offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
-		offset = dissect_nfs_post_op_attr(tvb, offset, tree, "attr");
+		offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree, "attr");
 	}
 
 	return offset;
