@@ -789,21 +789,26 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 	/* if we know the mapping, print the filename */
 	if(nns){
+		proto_item *fh_item;
+
 		if(hidden){
-			proto_tree_add_string_hidden(tree, hf_nfs_name, tvb,
+			fh_item=proto_tree_add_string_hidden(tree, hf_nfs_name, tvb,
 				fh_offset, 0, nns->name);
 		}else {
-			proto_tree_add_string_format(tree, hf_nfs_name, tvb,
+			fh_item=proto_tree_add_string_format(tree, hf_nfs_name, tvb,
 				fh_offset, 0, nns->name, "Name: %s", nns->name);
 		}
+		PROTO_ITEM_SET_GENERATED(fh_item);
+
 		if(nns->full_name){
 			if(hidden){
-				proto_tree_add_string_hidden(tree, hf_nfs_full_name, tvb,
+				fh_item=proto_tree_add_string_hidden(tree, hf_nfs_full_name, tvb,
 					fh_offset, 0, nns->name);
 			} else {
-				proto_tree_add_string_format(tree, hf_nfs_full_name, tvb,
+				fh_item=proto_tree_add_string_format(tree, hf_nfs_full_name, tvb,
 					fh_offset, 0, nns->name, "Full Name: %s", nns->full_name);
 			}
+			PROTO_ITEM_SET_GENERATED(fh_item);
 		}
 	}
 }
@@ -1434,6 +1439,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		guint32 fhhash;
 		guint32 i;
+		proto_item *fh_item;
 
 		for(fhhash=0,i=0;i<(fhlen-3);i+=4){
 			guint32 val;
@@ -1442,12 +1448,13 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			fhhash += val;
 		}
 		if(hidden){
-			proto_tree_add_uint_hidden(tree, hf_nfs_fh_hash, tvb, offset,
+			fh_item=proto_tree_add_uint_hidden(tree, hf_nfs_fh_hash, tvb, offset,
 				fhlen, fhhash);
 		} else {
-			proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
+			fh_item=proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
 				fhlen, fhhash);
 		}
+		PROTO_ITEM_SET_GENERATED(fh_item);
 		if(hash){
 			*hash=fhhash;
 		}
