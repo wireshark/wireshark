@@ -65,7 +65,6 @@ static gint   hf_msmms_command_prefix1                     = -1;
 static gint   hf_msmms_command_prefix1_error               = -1;
 static gint   hf_msmms_command_prefix1_command_level       = -1;
 static gint   hf_msmms_command_prefix2                     = -1;
-static gint   hf_msmms_command_unknown                     = -1;
 
 static gint   hf_msmms_command_client_transport_info       = -1;
 static gint   hf_msmms_command_client_player_info          = -1;
@@ -398,7 +397,8 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     /* Add hidden filter for "msmms.command" */
-    proto_tree_add_item_hidden(tree, hf_msmms_command, tvb, 0, 0, FALSE);
+    ti = proto_tree_add_item(tree, hf_msmms_command, tvb, 0, 0, FALSE);
+    PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Create MSMMS control protocol tree */
     if (tree)
@@ -431,7 +431,6 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     /* Format of 1st 4 bytes unknown.  May be version... */
-    proto_tree_add_item_hidden(msmms_common_command_tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Signature (already verified by main dissection function) */
@@ -682,7 +681,8 @@ gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Add hidden filter for "msmms.data" */
-    proto_tree_add_item_hidden(tree, hf_msmms_data, tvb, 0, 0, FALSE);
+    proto_tree_add_item(tree, hf_msmms_data, tvb, 0, 0, FALSE);
+    PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Create MSMMS data protocol tree */
     if (tree)
@@ -779,11 +779,8 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     offset += 4;
 
     /* These 12 bytes are not understood */
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Extract and show the string in tree and info column */
@@ -858,21 +855,13 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 4;
 
     /* Next 8 words are not understood */
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
 
@@ -964,7 +953,6 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     offset += 4;
 
     /* These 4 bytes are not understood */
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Extract and show the string in tree and info column */
@@ -991,25 +979,15 @@ void dissect_start_sending_from_info(tvbuff_t *tvb, proto_tree *tree, guint offs
     offset += 4;
 
     /* 40 bytes follow the prefixes... */
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 }
 
@@ -1046,21 +1024,15 @@ void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
     /* Number of 4 byte fields in structure */
     proto_tree_add_item(tree, hf_msmms_command_number_of_words, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Client ID */
     proto_tree_add_item(tree, hf_msmms_command_client_id, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 }
 
@@ -1076,9 +1048,7 @@ void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, TRUE);
     offset += 4;
 
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* File path on server */
@@ -1108,9 +1078,7 @@ void dissect_media_details(tvbuff_t *tvb, proto_tree *tree, guint offset)
     proto_tree_add_item(tree, hf_msmms_command_result_flags, tvb, offset, 4, TRUE);
     offset += 4;
 
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Broadcast flags. */
@@ -1119,25 +1087,19 @@ void dissect_media_details(tvbuff_t *tvb, proto_tree *tree, guint offset)
     offset += 4;
 
     /* These 8 bytes may be a time field... */
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Media length in seconds */
     proto_tree_add_item(tree, hf_msmms_command_recorded_media_length, tvb, offset, 4, TRUE);
     offset += 4;
 
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
-    /* Media length in seconds */
+    /* Packet length in bytes */
     proto_tree_add_item(tree, hf_msmms_command_media_packet_length, tvb, offset, 4, TRUE);
     offset += 4;
 }
@@ -1152,9 +1114,7 @@ void dissect_header_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, TRUE);
     offset += 4;
 
-    proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 }
 
@@ -1222,7 +1182,6 @@ void dissect_header_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
     /* Skip 8 unknown words */
     for (n=0; n < 8; n++)
     {
-        proto_tree_add_item_hidden(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
         offset += 4;
     }
 
@@ -1487,18 +1446,6 @@ void proto_register_msmms(void)
             {
                 "Prefix 2",
                 "msmms.command.prefix2",
-                FT_UINT32,
-                BASE_HEX,
-                NULL,
-                0x0,
-                "", HFILL
-            }
-        },
-        {
-            &hf_msmms_command_unknown,
-            {
-                "Unknown",
-                "msmms.command.unknown",
                 FT_UINT32,
                 BASE_HEX,
                 NULL,
