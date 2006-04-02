@@ -135,6 +135,692 @@ static const value_string es_type[] = {
 	{ 0,	NULL }
 };
 
+static const value_string ncp_rights_vals[] = {
+  { 0x00, "No Rights"},
+  { 0x01, "Read"},
+  { 0x02, "Write"},
+  { 0x03, "Read, Write"},
+  { 0x04, "Deny Read"},
+  { 0x05, "Read, Deny Read"},
+  { 0x06, "Write, Deny Read"},
+  { 0x07, "Read, Write, Deny Read"},
+  { 0x08, "Deny Write"},
+  { 0x09, "Read, Deny Write"},
+  { 0x0a, "Write, Deny Write"},
+  { 0x0b, "Read, Write, Deny Write"},
+  { 0x0c, "Deny Read, Deny Write"},
+  { 0x0d, "Read, Deny Read, Deny Write"},
+  { 0x0e, "Write, Deny Read, Deny Write"},
+  { 0x0f, "Read, Write, Deny Read, Deny Write"},
+  { 0x10, "Compatibility"},
+  { 0x11, "Read, Compatibility"},
+  { 0x12, "Write, Compatibility"},
+  { 0x13, "Read, Write, Compatibility"},
+  { 0x14, "Deny Read, Compatibility"},
+  { 0x15, "Read, Deny Read, Compatibility"},
+  { 0x16, "Write, Deny Read, Compatibility"},
+  { 0x17, "Read, Write, Deny Read, Compatibility"},
+  { 0x18, "Deny Write, Compatibility"},
+  { 0x19, "Read, Deny Write, Compatibility"},
+  { 0x1a, "Write, Deny Write, Compatibility"},
+  { 0x1b, "Read, Write, Deny Write, Compatibility"},
+  { 0x1c, "Deny Read, Deny Write, Compatibility"},
+  { 0x1d, "Read, Deny Read, Deny Write, Compatibility"},
+  { 0x1e, "Write, Deny Read, Deny Write, Compatibility"},
+  { 0x1f, "Read, Write, Deny Read, Deny Write, Compatibility"},
+  { 0x40, "File Write Through"},
+  { 0x41, "Read, File Write Through"},
+  { 0x42, "Write, File Write Through"},
+  { 0x43, "Read, Write, File Write Through"},
+  { 0x44, "Deny Read, File Write Through"},
+  { 0x45, "Read, Deny Read, File Write Through"},
+  { 0x46, "Write, Deny Read, File Write Through"},
+  { 0x47, "Read, Write, Deny Read, File Write Through"},
+  { 0x48, "Deny Write, File Write Through"},
+  { 0x49, "Read, Deny Write, File Write Through"},
+  { 0x4a, "Write, Deny Write, File Write Through"},
+  { 0x4b, "Read, Write, Deny Write, File Write Through"},
+  { 0x4c, "Deny Read, Deny Write, File Write Through"},
+  { 0x4d, "Read, Deny Read, Deny Write, File Write Through"},
+  { 0x4e, "Write, Deny Read, Deny Write, File Write Through"},
+  { 0x4f, "Read, Write, Deny Read, Deny Write, File Write Through"},
+  { 0x50, "Compatibility, File Write Through"},
+  { 0x51, "Read, Compatibility, File Write Through"},
+  { 0x52, "Write, Compatibility, File Write Through"},
+  { 0x53, "Read, Write, Compatibility, File Write Through"},
+  { 0x54, "Deny Read, Compatibility, File Write Through"},
+  { 0x55, "Read, Deny Read, Compatibility, File Write Through"},
+  { 0x56, "Write, Deny Read, Compatibility, File Write Through"},
+  { 0x57, "Read, Write, Deny Read, Compatibility, File Write Through"},
+  { 0x58, "Deny Write, Compatibility, File Write Through"},
+  { 0x59, "Read, Deny Write, Compatibility, File Write Through"},
+  { 0x5a, "Write, Deny Write, Compatibility, File Write Through"},
+  { 0x5b, "Read, Write, Deny Write, Compatibility, File Write Through"},
+  { 0x5c, "Deny Read, Deny Write, Compatibility, File Write Through"},
+  { 0x5d, "Read, Deny Read, Deny Write, Compatibility, File Write Through"},
+  { 0x5e, "Write, Deny Read, Deny Write, Compatibility, File Write Through"},
+  { 0x5f, "Read, Write, Deny Read, Deny Write, Compatibility, File Write Through"},
+  { 0,    NULL }
+};
+
+static const value_string open_create_mode_vals[] = {
+    { 0x01, "Open"},
+    { 0x02, "Replace"},
+    { 0x03, "Open, Replace"},
+    { 0x08, "Create"},
+    { 0x09, "Open, Create"},
+    { 0x0a, "Replace, Create"},
+    { 0x0b, "Open, Replace, Create"},
+    { 0x20, "64-bit"},
+    { 0x21, "Open, 64-bit"},
+    { 0x22, "Replace, 64-bit"},
+    { 0x23, "Open, Replace, 64-bit"},
+    { 0x28, "Create, 64-bit"},
+    { 0x29, "Open, Create, 64-bit"},
+    { 0x2a, "Replace, Create, 64-bit"},
+    { 0x2b, "Open, Replace, Create, 64-bit"},
+    { 0x40, "Read Only"},
+    { 0x41, "Open, Read Only"},
+    { 0x42, "Replace, Read Only"},
+    { 0x43, "Open, Replace, Read Only"},
+    { 0x48, "Create, Read Only"},
+    { 0x49, "Open, Create, Read Only"},
+    { 0x4a, "Replace, Create, Read Only"},
+    { 0x4b, "Open, Replace, Create, Read Only"},
+    { 0x60, "64-bit, Read Only"},
+    { 0x61, "Open, 64-bit, Read Only"},
+    { 0x62, "Replace, 64-bit, Read Only"},
+    { 0x63, "Open, Replace, 64-bit, Read Only"},
+    { 0x68, "Create, 64-bit, Read Only"},
+    { 0x69, "Open, Create, 64-bit, Read Only"},
+    { 0x6a, "Replace, Create, 64-bit, Read Only"},
+    { 0x6b, "Open, Replace, Create, 64-bit, Read Only"},
+    { 0x80, "Op-Lock"},
+    { 0x81, "Open, Op-Lock"},
+    { 0x82, "Replace, Op-Lock"},
+    { 0x83, "Open, Replace, Op-Lock"},
+    { 0x88, "Create, Op-Lock"},
+    { 0x89, "Open, Create, Op-Lock"},
+    { 0x8a, "Replace, Create, Op-Lock"},
+    { 0x8b, "Open, Replace, Create, Op-Lock"},
+    { 0xa0, "64-bit, Op-Lock"},
+    { 0xa1, "Open, 64-bit, Op-Lock"},
+    { 0xa2, "Replace, 64-bit, Op-Lock"},
+    { 0xa3, "Open, Replace, 64-bit, Op-Lock"},
+    { 0xa8, "Create, 64-bit, Op-Lock"},
+    { 0xa9, "Open, Create, 64-bit, Op-Lock"},
+    { 0xaa, "Replace, Create, 64-bit, Op-Lock"},
+    { 0xab, "Open, Replace, Create, 64-bit, Op-Lock"},
+    { 0xc0, "Read Only, Op-Lock"},
+    { 0xc1, "Open, Read Only, Op-Lock"},
+    { 0xc2, "Replace, Read Only, Op-Lock"},
+    { 0xc3, "Open, Replace, Read Only, Op-Lock"},
+    { 0xc8, "Create, Read Only, Op-Lock"},
+    { 0xc9, "Open, Create, Read Only, Op-Lock"},
+    { 0xca, "Replace, Create, Read Only, Op-Lock"},
+    { 0xcb, "Open, Replace, Create, Read Only, Op-Lock"},
+    { 0xe0, "64-bit, Read Only, Op-Lock"},
+    { 0xe1, "Open, 64-bit, Read Only, Op-Lock"},
+    { 0xe2, "Replace, 64-bit, Read Only, Op-Lock"},
+    { 0xe3, "Open, Replace, 64-bit, Read Only, Op-Lock"},
+    { 0xe8, "Create, 64-bit, Read Only, Op-Lock"},
+    { 0xe9, "Open, Create, 64-bit, Read Only, Op-Lock"},
+    { 0xea, "Replace, Create, 64-bit, Read Only, Op-Lock"},
+    { 0xeb, "Open, Replace, Create, 64-bit, Read Only, Op-Lock"},
+    { 0,    NULL }
+};
+
+static const value_string open_create_action_vals[] = {
+    { 0x01, "Opened"},
+    { 0x02, "Created"},
+    { 0x03, "Opened, Created"},
+    { 0x04, "Replaced"},
+    { 0x05, "Opened, Replaced"},
+    { 0x06, "Created, Replaced"},
+    { 0x07, "Opened, Created, Replaced"},
+    { 0x08, "Compressed"},
+    { 0x09, "Opened, Compressed"},
+    { 0x0a, "Created, Compressed"},
+    { 0x0b, "Opened, Created, Compressed"},
+    { 0x0c, "Replaced, Compressed"},
+    { 0x0d, "Opened, Replaced, Compressed"},
+    { 0x0e, "Created, Replaced, Compressed"},
+    { 0x0f, "Opened, Created, Replaced, Compressed"},
+    { 0x80, "Read Only"},
+    { 0x81, "Opened, Read Only"},
+    { 0x82, "Created, Read Only"},
+    { 0x83, "Opened, Created, Read Only"},
+    { 0x84, "Replaced, Read Only"},
+    { 0x85, "Opened, Replaced, Read Only"},
+    { 0x86, "Created, Replaced, Read Only"},
+    { 0x87, "Opened, Created, Replaced, Read Only"},
+    { 0x88, "Compressed, Read Only"},
+    { 0x89, "Opened, Compressed, Read Only"},
+    { 0x8a, "Created, Compressed, Read Only"},
+    { 0x8b, "Opened, Created, Compressed, Read Only"},
+    { 0x8c, "Replaced, Compressed, Read Only"},
+    { 0x8d, "Opened, Replaced, Compressed, Read Only"},
+    { 0x8e, "Created, Replaced, Compressed, Read Only"},
+    { 0x8f, "Opened, Created, Replaced, Compressed, Read Only"},
+    { 0,    NULL }
+};
+
+static const value_string access_rights_vals[] = {
+    { 0x0000, "No Rights"},
+	{ 0x0001, "Read"},
+    { 0x0002, "Write"},
+    { 0x0003, "Read, Write"},
+    { 0x0004, "Open"},
+	{ 0x0005, "Read, Open"},
+    { 0x0006, "Write, Open"},
+    { 0x0007, "Read, Write, Open"},
+    { 0x0008, "Create"},
+	{ 0x0009, "Read, Create"},
+    { 0x000a, "Write, Create"},
+    { 0x000b, "Read, Write, Create"},
+    { 0x000c, "Open, Create"},
+	{ 0x000d, "Read, Open, Create"},
+    { 0x000e, "Write, Open, Create"},
+    { 0x000f, "Read, Write, Open, Create"},
+    { 0x0010, "Delete"},
+	{ 0x0011, "Read, Delete"},
+    { 0x0012, "Write, Delete"},
+    { 0x0013, "Read, Write, Delete"},
+    { 0x0014, "Open, Delete"},
+	{ 0x0015, "Read, Open, Delete"},
+    { 0x0016, "Write, Open, Delete"},
+    { 0x0017, "Read, Write, Open, Delete"},
+    { 0x0018, "Create, Delete"},
+	{ 0x0019, "Read, Create, Delete"},
+    { 0x001a, "Write, Create, Delete"},
+    { 0x001b, "Read, Write, Create, Delete"},
+    { 0x001c, "Open, Create, Delete"},
+	{ 0x001d, "Read, Open, Create, Delete"},
+    { 0x001e, "Write, Open, Create, Delete"},
+    { 0x001f, "Read, Write, Open, Create, Delete"},
+    { 0x0020, "Parental"},
+	{ 0x0021, "Read, Parental"},
+    { 0x0022, "Write, Parental"},
+    { 0x0023, "Read, Write, Parental"},
+    { 0x0024, "Open, Parental"},
+	{ 0x0025, "Read, Open, Parental"},
+    { 0x0026, "Write, Open, Parental"},
+    { 0x0027, "Read, Write, Open, Parental"},
+    { 0x0028, "Create, Parental"},
+	{ 0x0029, "Read, Create, Parental"},
+    { 0x002a, "Write, Create, Parental"},
+    { 0x002b, "Read, Write, Create, Parental"},
+    { 0x002c, "Open, Create, Parental"},
+	{ 0x002d, "Read, Open, Create, Parental"},
+    { 0x002e, "Write, Open, Create, Parental"},
+    { 0x002f, "Read, Write, Open, Create, Parental"},
+    { 0x0030, "Delete, Parental"},
+	{ 0x0031, "Read, Delete, Parental"},
+    { 0x0032, "Write, Delete, Parental"},
+    { 0x0033, "Read, Write, Delete, Parental"},
+    { 0x0034, "Open, Delete, Parental"},
+	{ 0x0035, "Read, Open, Delete, Parental"},
+    { 0x0036, "Write, Open, Delete, Parental"},
+    { 0x0037, "Read, Write, Open, Delete, Parental"},
+    { 0x0038, "Create, Delete, Parental"},
+	{ 0x0039, "Read, Create, Delete, Parental"},
+    { 0x003a, "Write, Create, Delete, Parental"},
+    { 0x003b, "Read, Write, Create, Delete, Parental"},
+    { 0x003c, "Open, Create, Delete, Parental"},
+	{ 0x003d, "Read, Open, Create, Delete, Parental"},
+    { 0x003e, "Write, Open, Create, Delete, Parental"},
+    { 0x003f, "Read, Write, Open, Create, Delete, Parental"},
+    { 0x0040, "Search"},
+	{ 0x0041, "Read, Search"},
+    { 0x0042, "Write, Search"},
+    { 0x0043, "Read, Write, Search"},
+    { 0x0044, "Open, Search"},
+	{ 0x0045, "Read, Open, Search"},
+    { 0x0046, "Write, Open, Search"},
+    { 0x0047, "Read, Write, Open, Search"},
+    { 0x0048, "Create, Search"},
+	{ 0x0049, "Read, Create, Search"},
+    { 0x004a, "Write, Create, Search"},
+    { 0x004b, "Read, Write, Create, Search"},
+    { 0x004c, "Open, Create, Search"},
+	{ 0x004d, "Read, Open, Create, Search"},
+    { 0x004e, "Write, Open, Create, Search"},
+    { 0x004f, "Read, Write, Open, Create, Search"},
+    { 0x0050, "Delete, Search"},
+	{ 0x0051, "Read, Delete, Search"},
+    { 0x0052, "Write, Delete, Search"},
+    { 0x0053, "Read, Write, Delete, Search"},
+    { 0x0054, "Open, Delete, Search"},
+	{ 0x0055, "Read, Open, Delete, Search"},
+    { 0x0056, "Write, Open, Delete, Search"},
+    { 0x0057, "Read, Write, Open, Delete, Search"},
+    { 0x0058, "Create, Delete, Search"},
+	{ 0x0059, "Read, Create, Delete, Search"},
+    { 0x005a, "Write, Create, Delete, Search"},
+    { 0x005b, "Read, Write, Create, Delete, Search"},
+    { 0x005c, "Open, Create, Delete, Search"},
+	{ 0x005d, "Read, Open, Create, Delete, Search"},
+    { 0x005e, "Write, Open, Create, Delete, Search"},
+    { 0x005f, "Read, Write, Open, Create, Delete, Search"},
+    { 0x0060, "Parental, Search"},
+	{ 0x0061, "Read, Parental, Search"},
+    { 0x0062, "Write, Parental, Search"},
+    { 0x0063, "Read, Write, Parental, Search"},
+    { 0x0064, "Open, Parental, Search"},
+	{ 0x0065, "Read, Open, Parental, Search"},
+    { 0x0066, "Write, Open, Parental, Search"},
+    { 0x0067, "Read, Write, Open, Parental, Search"},
+    { 0x0068, "Create, Parental, Search"},
+	{ 0x0069, "Read, Create, Parental, Search"},
+    { 0x006a, "Write, Create, Parental, Search"},
+    { 0x006b, "Read, Write, Create, Parental, Search"},
+    { 0x006c, "Open, Create, Parental, Search"},
+	{ 0x006d, "Read, Open, Create, Parental, Search"},
+    { 0x006e, "Write, Open, Create, Parental, Search"},
+    { 0x006f, "Read, Write, Open, Create, Parental, Search"},
+    { 0x0070, "Delete, Parental, Search"},
+	{ 0x0071, "Read, Delete, Parental, Search"},
+    { 0x0072, "Write, Delete, Parental, Search"},
+    { 0x0073, "Read, Write, Delete, Parental, Search"},
+    { 0x0074, "Open, Delete, Parental, Search"},
+	{ 0x0075, "Read, Open, Delete, Parental, Search"},
+    { 0x0076, "Write, Open, Delete, Parental, Search"},
+    { 0x0077, "Read, Write, Open, Delete, Parental, Search"},
+    { 0x0078, "Create, Delete, Parental, Search"},
+	{ 0x0079, "Read, Create, Delete, Parental, Search"},
+    { 0x007a, "Write, Create, Delete, Parental, Search"},
+    { 0x007b, "Read, Write, Create, Delete, Parental, Search"},
+    { 0x007c, "Open, Create, Delete, Parental, Search"},
+	{ 0x007d, "Read, Open, Create, Delete, Parental, Search"},
+    { 0x007e, "Write, Open, Create, Delete, Parental, Search"},
+    { 0x007f, "Read, Write, Open, Create, Delete, Parental, Search"},
+    { 0x0080, "Modify"},
+	{ 0x0081, "Read, Modify"},
+    { 0x0082, "Write, Modify"},
+    { 0x0083, "Read, Write, Modify"},
+    { 0x0084, "Open, Modify"},
+	{ 0x0085, "Read, Open, Modify"},
+    { 0x0086, "Write, Open, Modify"},
+    { 0x0087, "Read, Write, Open, Modify"},
+    { 0x0088, "Create, Modify"},
+	{ 0x0089, "Read, Create, Modify"},
+    { 0x008a, "Write, Create, Modify"},
+    { 0x008b, "Read, Write, Create, Modify"},
+    { 0x008c, "Open, Create, Modify"},
+	{ 0x008d, "Read, Open, Create, Modify"},
+    { 0x008e, "Write, Open, Create, Modify"},
+    { 0x008f, "Read, Write, Open, Create, Modify"},
+    { 0x0090, "Delete, Modify"},
+	{ 0x0091, "Read, Delete, Modify"},
+    { 0x0092, "Write, Delete, Modify"},
+    { 0x0093, "Read, Write, Delete, Modify"},
+    { 0x0094, "Open, Delete, Modify"},
+	{ 0x0095, "Read, Open, Delete, Modify"},
+    { 0x0096, "Write, Open, Delete, Modify"},
+    { 0x0097, "Read, Write, Open, Delete, Modify"},
+    { 0x0098, "Create, Delete, Modify"},
+	{ 0x0099, "Read, Create, Delete, Modify"},
+    { 0x009a, "Write, Create, Delete, Modify"},
+    { 0x009b, "Read, Write, Create, Delete, Modify"},
+    { 0x009c, "Open, Create, Delete, Modify"},
+	{ 0x009d, "Read, Open, Create, Delete, Modify"},
+    { 0x009e, "Write, Open, Create, Delete, Modify"},
+    { 0x009f, "Read, Write, Open, Create, Delete, Modify"},
+    { 0x00a0, "Parental, Modify"},
+	{ 0x00a1, "Read, Parental, Modify"},
+    { 0x00a2, "Write, Parental, Modify"},
+    { 0x00a3, "Read, Write, Parental, Modify"},
+    { 0x00a4, "Open, Parental, Modify"},
+	{ 0x00a5, "Read, Open, Parental, Modify"},
+    { 0x00a6, "Write, Open, Parental, Modify"},
+    { 0x00a7, "Read, Write, Open, Parental, Modify"},
+    { 0x00a8, "Create, Parental, Modify"},
+	{ 0x00a9, "Read, Create, Parental, Modify"},
+    { 0x00aa, "Write, Create, Parental, Modify"},
+    { 0x00ab, "Read, Write, Create, Parental, Modify"},
+    { 0x00ac, "Open, Create, Parental, Modify"},
+	{ 0x00ad, "Read, Open, Create, Parental, Modify"},
+    { 0x00ae, "Write, Open, Create, Parental, Modify"},
+    { 0x00af, "Read, Write, Open, Create, Parental, Modify"},
+    { 0x00b0, "Delete, Parental, Modify"},
+	{ 0x00b1, "Read, Delete, Parental, Modify"},
+    { 0x00b2, "Write, Delete, Parental, Modify"},
+    { 0x00b3, "Read, Write, Delete, Parental, Modify"},
+    { 0x00b4, "Open, Delete, Parental, Modify"},
+	{ 0x00b5, "Read, Open, Delete, Parental, Modify"},
+    { 0x00b6, "Write, Open, Delete, Parental, Modify"},
+    { 0x00b7, "Read, Write, Open, Delete, Parental, Modify"},
+    { 0x00b8, "Create, Delete, Parental, Modify"},
+	{ 0x00b9, "Read, Create, Delete, Parental, Modify"},
+    { 0x00ba, "Write, Create, Delete, Parental, Modify"},
+    { 0x00bb, "Read, Write, Create, Delete, Parental, Modify"},
+    { 0x00bc, "Open, Create, Delete, Parental, Modify"},
+	{ 0x00bd, "Read, Open, Create, Delete, Parental, Modify"},
+    { 0x00be, "Write, Open, Create, Delete, Parental, Modify"},
+    { 0x00bf, "Read, Write, Open, Create, Delete, Parental, Modify"},
+    { 0x00c0, "Search, Modify"},
+	{ 0x00c1, "Read, Search, Modify"},
+    { 0x00c2, "Write, Search, Modify"},
+    { 0x00c3, "Read, Write, Search, Modify"},
+    { 0x00c4, "Open, Search, Modify"},
+	{ 0x00c5, "Read, Open, Search, Modify"},
+    { 0x00c6, "Write, Open, Search, Modify"},
+    { 0x00c7, "Read, Write, Open, Search, Modify"},
+    { 0x00c8, "Create, Search, Modify"},
+	{ 0x00c9, "Read, Create, Search, Modify"},
+    { 0x00ca, "Write, Create, Search, Modify"},
+    { 0x00cb, "Read, Write, Create, Search, Modify"},
+    { 0x00cc, "Open, Create, Search, Modify"},
+	{ 0x00cd, "Read, Open, Create, Search, Modify"},
+    { 0x00ce, "Write, Open, Create, Search, Modify"},
+    { 0x00cf, "Read, Write, Open, Create, Search, Modify"},
+    { 0x00d0, "Delete, Search, Modify"},
+	{ 0x00d1, "Read, Delete, Search, Modify"},
+    { 0x00d2, "Write, Delete, Search, Modify"},
+    { 0x00d3, "Read, Write, Delete, Search, Modify"},
+    { 0x00d4, "Open, Delete, Search, Modify"},
+	{ 0x00d5, "Read, Open, Delete, Search, Modify"},
+    { 0x00d6, "Write, Open, Delete, Search, Modify"},
+    { 0x00d7, "Read, Write, Open, Delete, Search, Modify"},
+    { 0x00d8, "Create, Delete, Search, Modify"},
+	{ 0x00d9, "Read, Create, Delete, Search, Modify"},
+    { 0x00da, "Write, Create, Delete, Search, Modify"},
+    { 0x00db, "Read, Write, Create, Delete, Search, Modify"},
+    { 0x00dc, "Open, Create, Delete, Search, Modify"},
+	{ 0x00dd, "Read, Open, Create, Delete, Search, Modify"},
+    { 0x00de, "Write, Open, Create, Delete, Search, Modify"},
+    { 0x00df, "Read, Write, Open, Create, Delete, Search, Modify"},
+    { 0x00e0, "Parental, Search, Modify"},
+	{ 0x00e1, "Read, Parental, Search, Modify"},
+    { 0x00e2, "Write, Parental, Search, Modify"},
+    { 0x00e3, "Read, Write, Parental, Search, Modify"},
+    { 0x00e4, "Open, Parental, Search, Modify"},
+	{ 0x00e5, "Read, Open, Parental, Search, Modify"},
+    { 0x00e6, "Write, Open, Parental, Search, Modify"},
+    { 0x00e7, "Read, Write, Open, Parental, Search, Modify"},
+    { 0x00e8, "Create, Parental, Search, Modify"},
+	{ 0x00e9, "Read, Create, Parental, Search, Modify"},
+    { 0x00ea, "Write, Create, Parental, Search, Modify"},
+    { 0x00eb, "Read, Write, Create, Parental, Search, Modify"},
+    { 0x00ec, "Open, Create, Parental, Search, Modify"},
+	{ 0x00ed, "Read, Open, Create, Parental, Search, Modify"},
+    { 0x00ee, "Write, Open, Create, Parental, Search, Modify"},
+    { 0x00ef, "Read, Write, Open, Create, Parental, Search, Modify"},
+    { 0x00f0, "Delete, Parental, Search, Modify"},
+	{ 0x00f1, "Read, Delete, Parental, Search, Modify"},
+    { 0x00f2, "Write, Delete, Parental, Search, Modify"},
+    { 0x00f3, "Read, Write, Delete, Parental, Search, Modify"},
+    { 0x00f4, "Open, Delete, Parental, Search, Modify"},
+	{ 0x00f5, "Read, Open, Delete, Parental, Search, Modify"},
+    { 0x00f6, "Write, Open, Delete, Parental, Search, Modify"},
+    { 0x00f7, "Read, Write, Open, Delete, Parental, Search, Modify"},
+    { 0x00f8, "Create, Delete, Parental, Search, Modify"},
+	{ 0x00f9, "Read, Create, Delete, Parental, Search, Modify"},
+    { 0x00fa, "Write, Create, Delete, Parental, Search, Modify"},
+    { 0x00fb, "Read, Write, Create, Delete, Parental, Search, Modify"},
+    { 0x00fc, "Open, Create, Delete, Parental, Search, Modify"},
+	{ 0x00fd, "Read, Open, Create, Delete, Parental, Search, Modify"},
+    { 0x00fe, "Write, Open, Create, Delete, Parental, Search, Modify"},
+    { 0x00ff, "Read, Write, Open, Create, Delete, Parental, Search, Modify"},
+    { 0x0100, "Supervisor"},
+	{ 0x0101, "Read, Supervisor"},
+    { 0x0102, "Write, Supervisor"},
+    { 0x0103, "Read, Write, Supervisor"},
+    { 0x0104, "Open, Supervisor"},
+	{ 0x0105, "Read, Open, Supervisor"},
+    { 0x0106, "Write, Open, Supervisor"},
+    { 0x0107, "Read, Write, Open, Supervisor"},
+    { 0x0108, "Create, Supervisor"},
+	{ 0x0109, "Read, Create, Supervisor"},
+    { 0x010a, "Write, Create, Supervisor"},
+    { 0x010b, "Read, Write, Create, Supervisor"},
+    { 0x010c, "Open, Create, Supervisor"},
+	{ 0x010d, "Read, Open, Create, Supervisor"},
+    { 0x010e, "Write, Open, Create, Supervisor"},
+    { 0x010f, "Read, Write, Open, Create, Supervisor"},
+    { 0x0110, "Delete, Supervisor"},
+	{ 0x0111, "Read, Delete, Supervisor"},
+    { 0x0112, "Write, Delete, Supervisor"},
+    { 0x0113, "Read, Write, Delete, Supervisor"},
+    { 0x0114, "Open, Delete, Supervisor"},
+	{ 0x0115, "Read, Open, Delete, Supervisor"},
+    { 0x0116, "Write, Open, Delete, Supervisor"},
+    { 0x0117, "Read, Write, Open, Delete, Supervisor"},
+    { 0x0118, "Create, Delete, Supervisor"},
+	{ 0x0119, "Read, Create, Delete, Supervisor"},
+    { 0x011a, "Write, Create, Delete, Supervisor"},
+    { 0x011b, "Read, Write, Create, Delete, Supervisor"},
+    { 0x011c, "Open, Create, Delete, Supervisor"},
+	{ 0x011d, "Read, Open, Create, Delete, Supervisor"},
+    { 0x011e, "Write, Open, Create, Delete, Supervisor"},
+    { 0x011f, "Read, Write, Open, Create, Delete, Supervisor"},
+    { 0x0120, "Parental, Supervisor"},
+	{ 0x0121, "Read, Parental, Supervisor"},
+    { 0x0122, "Write, Parental, Supervisor"},
+    { 0x0123, "Read, Write, Parental, Supervisor"},
+    { 0x0124, "Open, Parental, Supervisor"},
+	{ 0x0125, "Read, Open, Parental, Supervisor"},
+    { 0x0126, "Write, Open, Parental, Supervisor"},
+    { 0x0127, "Read, Write, Open, Parental, Supervisor"},
+    { 0x0128, "Create, Parental, Supervisor"},
+	{ 0x0129, "Read, Create, Parental, Supervisor"},
+    { 0x012a, "Write, Create, Parental, Supervisor"},
+    { 0x012b, "Read, Write, Create, Parental, Supervisor"},
+    { 0x012c, "Open, Create, Parental, Supervisor"},
+	{ 0x012d, "Read, Open, Create, Parental, Supervisor"},
+    { 0x012e, "Write, Open, Create, Parental, Supervisor"},
+    { 0x012f, "Read, Write, Open, Create, Parental, Supervisor"},
+    { 0x0130, "Delete, Parental, Supervisor"},
+	{ 0x0131, "Read, Delete, Parental, Supervisor"},
+    { 0x0132, "Write, Delete, Parental, Supervisor"},
+    { 0x0133, "Read, Write, Delete, Parental, Supervisor"},
+    { 0x0134, "Open, Delete, Parental, Supervisor"},
+	{ 0x0135, "Read, Open, Delete, Parental, Supervisor"},
+    { 0x0136, "Write, Open, Delete, Parental, Supervisor"},
+    { 0x0137, "Read, Write, Open, Delete, Parental, Supervisor"},
+    { 0x0138, "Create, Delete, Parental, Supervisor"},
+	{ 0x0139, "Read, Create, Delete, Parental, Supervisor"},
+    { 0x013a, "Write, Create, Delete, Parental, Supervisor"},
+    { 0x013b, "Read, Write, Create, Delete, Parental, Supervisor"},
+    { 0x013c, "Open, Create, Delete, Parental, Supervisor"},
+	{ 0x013d, "Read, Open, Create, Delete, Parental, Supervisor"},
+    { 0x013e, "Write, Open, Create, Delete, Parental, Supervisor"},
+    { 0x013f, "Read, Write, Open, Create, Delete, Parental, Supervisor"},
+    { 0x0140, "Search, Supervisor"},
+	{ 0x0141, "Read, Search, Supervisor"},
+    { 0x0142, "Write, Search, Supervisor"},
+    { 0x0143, "Read, Write, Search, Supervisor"},
+    { 0x0144, "Open, Search, Supervisor"},
+	{ 0x0145, "Read, Open, Search, Supervisor"},
+    { 0x0146, "Write, Open, Search, Supervisor"},
+    { 0x0147, "Read, Write, Open, Search, Supervisor"},
+    { 0x0148, "Create, Search, Supervisor"},
+	{ 0x0149, "Read, Create, Search, Supervisor"},
+    { 0x014a, "Write, Create, Search, Supervisor"},
+    { 0x014b, "Read, Write, Create, Search, Supervisor"},
+    { 0x014c, "Open, Create, Search, Supervisor"},
+	{ 0x014d, "Read, Open, Create, Search, Supervisor"},
+    { 0x014e, "Write, Open, Create, Search, Supervisor"},
+    { 0x014f, "Read, Write, Open, Create, Search, Supervisor"},
+    { 0x0150, "Delete, Search, Supervisor"},
+	{ 0x0151, "Read, Delete, Search, Supervisor"},
+    { 0x0152, "Write, Delete, Search, Supervisor"},
+    { 0x0153, "Read, Write, Delete, Search, Supervisor"},
+    { 0x0154, "Open, Delete, Search, Supervisor"},
+	{ 0x0155, "Read, Open, Delete, Search, Supervisor"},
+    { 0x0156, "Write, Open, Delete, Search, Supervisor"},
+    { 0x0157, "Read, Write, Open, Delete, Search, Supervisor"},
+    { 0x0158, "Create, Delete, Search, Supervisor"},
+	{ 0x0159, "Read, Create, Delete, Search, Supervisor"},
+    { 0x015a, "Write, Create, Delete, Search, Supervisor"},
+    { 0x015b, "Read, Write, Create, Delete, Search, Supervisor"},
+    { 0x015c, "Open, Create, Delete, Search, Supervisor"},
+	{ 0x015d, "Read, Open, Create, Delete, Search, Supervisor"},
+    { 0x015e, "Write, Open, Create, Delete, Search, Supervisor"},
+    { 0x015f, "Read, Write, Open, Create, Delete, Search, Supervisor"},
+    { 0x0160, "Parental, Search, Supervisor"},
+	{ 0x0161, "Read, Parental, Search, Supervisor"},
+    { 0x0162, "Write, Parental, Search, Supervisor"},
+    { 0x0163, "Read, Write, Parental, Search, Supervisor"},
+    { 0x0164, "Open, Parental, Search, Supervisor"},
+	{ 0x0165, "Read, Open, Parental, Search, Supervisor"},
+    { 0x0166, "Write, Open, Parental, Search, Supervisor"},
+    { 0x0167, "Read, Write, Open, Parental, Search, Supervisor"},
+    { 0x0168, "Create, Parental, Search, Supervisor"},
+	{ 0x0169, "Read, Create, Parental, Search, Supervisor"},
+    { 0x016a, "Write, Create, Parental, Search, Supervisor"},
+    { 0x016b, "Read, Write, Create, Parental, Search, Supervisor"},
+    { 0x016c, "Open, Create, Parental, Search, Supervisor"},
+	{ 0x016d, "Read, Open, Create, Parental, Search, Supervisor"},
+    { 0x016e, "Write, Open, Create, Parental, Search, Supervisor"},
+    { 0x016f, "Read, Write, Open, Create, Parental, Search, Supervisor"},
+    { 0x0170, "Delete, Parental, Search, Supervisor"},
+	{ 0x0171, "Read, Delete, Parental, Search, Supervisor"},
+    { 0x0172, "Write, Delete, Parental, Search, Supervisor"},
+    { 0x0173, "Read, Write, Delete, Parental, Search, Supervisor"},
+    { 0x0174, "Open, Delete, Parental, Search, Supervisor"},
+	{ 0x0175, "Read, Open, Delete, Parental, Search, Supervisor"},
+    { 0x0176, "Write, Open, Delete, Parental, Search, Supervisor"},
+    { 0x0177, "Read, Write, Open, Delete, Parental, Search, Supervisor"},
+    { 0x0178, "Create, Delete, Parental, Search, Supervisor"},
+	{ 0x0179, "Read, Create, Delete, Parental, Search, Supervisor"},
+    { 0x017a, "Write, Create, Delete, Parental, Search, Supervisor"},
+    { 0x017b, "Read, Write, Create, Delete, Parental, Search, Supervisor"},
+    { 0x017c, "Open, Create, Delete, Parental, Search, Supervisor"},
+	{ 0x017d, "Read, Open, Create, Delete, Parental, Search, Supervisor"},
+    { 0x017e, "Write, Open, Create, Delete, Parental, Search, Supervisor"},
+    { 0x017f, "Read, Write, Open, Create, Delete, Parental, Search, Supervisor"},
+    { 0x0180, "Modify, Supervisor"},
+	{ 0x0181, "Read, Modify, Supervisor"},
+    { 0x0182, "Write, Modify, Supervisor"},
+    { 0x0183, "Read, Write, Modify, Supervisor"},
+    { 0x0184, "Open, Modify, Supervisor"},
+	{ 0x0185, "Read, Open, Modify, Supervisor"},
+    { 0x0186, "Write, Open, Modify, Supervisor"},
+    { 0x0187, "Read, Write, Open, Modify, Supervisor"},
+    { 0x0188, "Create, Modify, Supervisor"},
+	{ 0x0189, "Read, Create, Modify, Supervisor"},
+    { 0x018a, "Write, Create, Modify, Supervisor"},
+    { 0x018b, "Read, Write, Create, Modify, Supervisor"},
+    { 0x018c, "Open, Create, Modify, Supervisor"},
+	{ 0x018d, "Read, Open, Create, Modify, Supervisor"},
+    { 0x018e, "Write, Open, Create, Modify, Supervisor"},
+    { 0x018f, "Read, Write, Open, Create, Modify, Supervisor"},
+    { 0x0190, "Delete, Modify, Supervisor"},
+	{ 0x0191, "Read, Delete, Modify, Supervisor"},
+    { 0x0192, "Write, Delete, Modify, Supervisor"},
+    { 0x0193, "Read, Write, Delete, Modify, Supervisor"},
+    { 0x0194, "Open, Delete, Modify, Supervisor"},
+	{ 0x0195, "Read, Open, Delete, Modify, Supervisor"},
+    { 0x0196, "Write, Open, Delete, Modify, Supervisor"},
+    { 0x0197, "Read, Write, Open, Delete, Modify, Supervisor"},
+    { 0x0198, "Create, Delete, Modify, Supervisor"},
+	{ 0x0199, "Read, Create, Delete, Modify, Supervisor"},
+    { 0x019a, "Write, Create, Delete, Modify, Supervisor"},
+    { 0x019b, "Read, Write, Create, Delete, Modify, Supervisor"},
+    { 0x019c, "Open, Create, Delete, Modify, Supervisor"},
+	{ 0x019d, "Read, Open, Create, Delete, Modify, Supervisor"},
+    { 0x019e, "Write, Open, Create, Delete, Modify, Supervisor"},
+    { 0x019f, "Read, Write, Open, Create, Delete, Modify, Supervisor"},
+    { 0x01a0, "Parental, Modify, Supervisor"},
+	{ 0x01a1, "Read, Parental, Modify, Supervisor"},
+    { 0x01a2, "Write, Parental, Modify, Supervisor"},
+    { 0x01a3, "Read, Write, Parental, Modify, Supervisor"},
+    { 0x01a4, "Open, Parental, Modify, Supervisor"},
+	{ 0x01a5, "Read, Open, Parental, Modify, Supervisor"},
+    { 0x01a6, "Write, Open, Parental, Modify, Supervisor"},
+    { 0x01a7, "Read, Write, Open, Parental, Modify, Supervisor"},
+    { 0x01a8, "Create, Parental, Modify, Supervisor"},
+	{ 0x01a9, "Read, Create, Parental, Modify, Supervisor"},
+    { 0x01aa, "Write, Create, Parental, Modify, Supervisor"},
+    { 0x01ab, "Read, Write, Create, Parental, Modify, Supervisor"},
+    { 0x01ac, "Open, Create, Parental, Modify, Supervisor"},
+	{ 0x01ad, "Read, Open, Create, Parental, Modify, Supervisor"},
+    { 0x01ae, "Write, Open, Create, Parental, Modify, Supervisor"},
+    { 0x01af, "Read, Write, Open, Create, Parental, Modify, Supervisor"},
+    { 0x01b0, "Delete, Parental, Modify, Supervisor"},
+	{ 0x01b1, "Read, Delete, Parental, Modify, Supervisor"},
+    { 0x01b2, "Write, Delete, Parental, Modify, Supervisor"},
+    { 0x01b3, "Read, Write, Delete, Parental, Modify, Supervisor"},
+    { 0x01b4, "Open, Delete, Parental, Modify, Supervisor"},
+	{ 0x01b5, "Read, Open, Delete, Parental, Modify, Supervisor"},
+    { 0x01b6, "Write, Open, Delete, Parental, Modify, Supervisor"},
+    { 0x01b7, "Read, Write, Open, Delete, Parental, Modify, Supervisor"},
+    { 0x01b8, "Create, Delete, Parental, Modify, Supervisor"},
+	{ 0x01b9, "Read, Create, Delete, Parental, Modify, Supervisor"},
+    { 0x01ba, "Write, Create, Delete, Parental, Modify, Supervisor"},
+    { 0x01bb, "Read, Write, Create, Delete, Parental, Modify, Supervisor"},
+    { 0x01bc, "Open, Create, Delete, Parental, Modify, Supervisor"},
+	{ 0x01bd, "Read, Open, Create, Delete, Parental, Modify, Supervisor"},
+    { 0x01be, "Write, Open, Create, Delete, Parental, Modify, Supervisor"},
+    { 0x01bf, "Read, Write, Open, Create, Delete, Parental, Modify, Supervisor"},
+    { 0x01c0, "Search, Modify, Supervisor"},
+	{ 0x01c1, "Read, Search, Modify, Supervisor"},
+    { 0x01c2, "Write, Search, Modify, Supervisor"},
+    { 0x01c3, "Read, Write, Search, Modify, Supervisor"},
+    { 0x01c4, "Open, Search, Modify, Supervisor"},
+	{ 0x01c5, "Read, Open, Search, Modify, Supervisor"},
+    { 0x01c6, "Write, Open, Search, Modify, Supervisor"},
+    { 0x01c7, "Read, Write, Open, Search, Modify, Supervisor"},
+    { 0x01c8, "Create, Search, Modify, Supervisor"},
+	{ 0x01c9, "Read, Create, Search, Modify, Supervisor"},
+    { 0x01ca, "Write, Create, Search, Modify, Supervisor"},
+    { 0x01cb, "Read, Write, Create, Search, Modify, Supervisor"},
+    { 0x01cc, "Open, Create, Search, Modify, Supervisor"},
+	{ 0x01cd, "Read, Open, Create, Search, Modify, Supervisor"},
+    { 0x01ce, "Write, Open, Create, Search, Modify, Supervisor"},
+    { 0x01cf, "Read, Write, Open, Create, Search, Modify, Supervisor"},
+    { 0x01d0, "Delete, Search, Modify, Supervisor"},
+	{ 0x01d1, "Read, Delete, Search, Modify, Supervisor"},
+    { 0x01d2, "Write, Delete, Search, Modify, Supervisor"},
+    { 0x01d3, "Read, Write, Delete, Search, Modify, Supervisor"},
+    { 0x01d4, "Open, Delete, Search, Modify, Supervisor"},
+	{ 0x01d5, "Read, Open, Delete, Search, Modify, Supervisor"},
+    { 0x01d6, "Write, Open, Delete, Search, Modify, Supervisor"},
+    { 0x01d7, "Read, Write, Open, Delete, Search, Modify, Supervisor"},
+    { 0x01d8, "Create, Delete, Search, Modify, Supervisor"},
+	{ 0x01d9, "Read, Create, Delete, Search, Modify, Supervisor"},
+    { 0x01da, "Write, Create, Delete, Search, Modify, Supervisor"},
+    { 0x01db, "Read, Write, Create, Delete, Search, Modify, Supervisor"},
+    { 0x01dc, "Open, Create, Delete, Search, Modify, Supervisor"},
+	{ 0x01dd, "Read, Open, Create, Delete, Search, Modify, Supervisor"},
+    { 0x01de, "Write, Open, Create, Delete, Search, Modify, Supervisor"},
+    { 0x01df, "Read, Write, Open, Create, Delete, Search, Modify, Supervisor"},
+    { 0x01e0, "Parental, Search, Modify, Supervisor"},
+	{ 0x01e1, "Read, Parental, Search, Modify, Supervisor"},
+    { 0x01e2, "Write, Parental, Search, Modify, Supervisor"},
+    { 0x01e3, "Read, Write, Parental, Search, Modify, Supervisor"},
+    { 0x01e4, "Open, Parental, Search, Modify, Supervisor"},
+	{ 0x01e5, "Read, Open, Parental, Search, Modify, Supervisor"},
+    { 0x01e6, "Write, Open, Parental, Search, Modify, Supervisor"},
+    { 0x01e7, "Read, Write, Open, Parental, Search, Modify, Supervisor"},
+    { 0x01e8, "Create, Parental, Search, Modify, Supervisor"},
+	{ 0x01e9, "Read, Create, Parental, Search, Modify, Supervisor"},
+    { 0x01ea, "Write, Create, Parental, Search, Modify, Supervisor"},
+    { 0x01eb, "Read, Write, Create, Parental, Search, Modify, Supervisor"},
+    { 0x01ec, "Open, Create, Parental, Search, Modify, Supervisor"},
+	{ 0x01ed, "Read, Open, Create, Parental, Search, Modify, Supervisor"},
+    { 0x01ee, "Write, Open, Create, Parental, Search, Modify, Supervisor"},
+    { 0x01ef, "Read, Write, Open, Create, Parental, Search, Modify, Supervisor"},
+    { 0x01f0, "Delete, Parental, Search, Modify, Supervisor"},
+	{ 0x01f1, "Read, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01f2, "Write, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01f3, "Read, Write, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01f4, "Open, Delete, Parental, Search, Modify, Supervisor"},
+	{ 0x01f5, "Read, Open, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01f6, "Write, Open, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01f7, "Read, Write, Open, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01f8, "Create, Delete, Parental, Search, Modify, Supervisor"},
+	{ 0x01f9, "Read, Create, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01fa, "Write, Create, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01fb, "Read, Write, Create, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01fc, "Open, Create, Delete, Parental, Search, Modify, Supervisor"},
+	{ 0x01fd, "Read, Open, Create, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01fe, "Write, Open, Create, Delete, Parental, Search, Modify, Supervisor"},
+    { 0x01ff, "Read, Write, Open, Create, Delete, Parental, Search, Modify, Supervisor"},
+    { 0,    NULL }
+};
+
 #define NDS_PTYPE_IPX		0x00000000
 #define NDS_PTYPE_IP		0x00000001
 #define NDS_PTYPE_SDLC		0x00000002
@@ -1778,12 +2464,13 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
  * and their associated values. Store results in passed buffer.
  */
 static void
-build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer)
+build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_lookup)
 {
 	proto_tree		*tree_pointer;
 	proto_tree		*tree_loc;
-
-	tree_loc = ncp_tree->first_child;
+    char            temp_buffer[256]="\0";
+       
+    tree_loc = ncp_tree->first_child;
 	for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
 	{
 		if (strcmp(tree_pointer->finfo->hfinfo->abbrev, hf_name)==0)
@@ -1791,20 +2478,54 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer)
 			switch (tree_pointer->finfo->hfinfo->type)
 			{
             case 3:				/* uint8 */
-                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo)+1, "%i",get_finfo_value_integer(tree_pointer->finfo));
-				return;
             case 4:				/* uint16 */
-                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo), "%d",get_finfo_value_integer(tree_pointer->finfo));
-				return;
-			case 17:			/* string */
+                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo)*4, "%d", get_finfo_value_integer(tree_pointer->finfo));
+				break;
+
+            case 6:             /* uint32 */
+                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo)*4, "%08x", get_finfo_value_integer(tree_pointer->finfo));
+				break;
+            case 17:
+			case 19:			/* string */
 		        uni_to_string(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo), buffer);
-				return;
-			default:			/* Dont currently handle. Only need string and integers */
-				buffer = NULL;
+                if (repeat_lookup > 0) {
+                    if (strlen(temp_buffer) + strlen(buffer) < 250) {
+                        strcat(temp_buffer, buffer);
+                        repeat_lookup--;
+                        if (repeat_lookup == 0) {
+                            strcpy(buffer, temp_buffer);
+                            break;
+                        }
+                        else
+                        {
+                            strcat(temp_buffer, "/");
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            case 21:             /* Bytes */
+                g_snprintf(buffer, (get_finfo_length(tree_pointer->finfo))*4, "%s", bytes_to_str(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo)));
+                break;
+			default:			/* Dont currently handle. Only need string, integers, and bytes */
+				buffer = "Unsupported Expert Type\0";
 				return;
 			}				
+            if (repeat_lookup ==0) {
+                break;
+            }
 		}
 	}
+    if (strlen(buffer)==0) {
+        buffer = "No Value\0";
+    }
     return;
 }
 
@@ -1812,26 +2533,117 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer)
  * But to extract we must have visability to the tree
  * This means that to extract the data we can only perform
  * this code path on the first dissection or a redissect.
+ *
+ * Should the dissector store this info in memory so that 
+ * the data can be reported wihout a complete redissection?
  */
 static void
-trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record *ncp_rec)
-{
-    /* The following allows for specific NCP server info to be echoed to the expert tap. */
-    if (ncp_rec->func == 23 && ncp_rec->subfunc == 17 && ncp_echo_server) {
-        char fsname[50]="\0";
-        char p_maj_ver[3]="\0";
-        char p_min_ver[3]="\0";
-        char p_rev[3]="\0";
-        char p_lang[3]="\0";
+trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record *ncp_rec, int request_reply)
+{   
+    /* Request == 0, Reply == 1 */
+    if (request_reply==0) {
+        if (ncp_echo_file) {
+            /* The following allows for Update file handle rights echoed to expert tap. */
+            if (ncp_rec->func == 66) { 
+                char p_filehandle[15]="\0";
 
-        /* Get Server name and version info */
-        build_expert_data(ncp_tree, "ncp.server_name", fsname);
-        build_expert_data(ncp_tree, "ncp.product_major_version", p_maj_ver);
-        build_expert_data(ncp_tree, "ncp.product_minor_version", p_min_ver);
-        build_expert_data(ncp_tree, "ncp.product_revision_version", p_rev);
-        build_expert_data(ncp_tree, "ncp.os_language_id", p_lang);
-        expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server %s, Version %s.%s, Support Pack %s, Language %s", fsname, 
-                               p_maj_ver, p_min_ver, p_rev, p_lang);
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
+
+                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Close file handle %s", p_filehandle);
+            }
+            /* The following allows for oplock level 1 file opens echoed to expert tap. */
+            if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 1 || ncp_rec->subfunc == 30 || ncp_rec->subfunc == 32 || ncp_rec->subfunc == 33)) { 
+                char oaction[2]="\0";
+                char p_filename[256]="\0";
+                char p_rights[2]="\0";
+                char p_path_count[2]="\0";
+
+                build_expert_data(ncp_tree, "ncp.open_create_mode", oaction, 0);
+                build_expert_data(ncp_tree, "ncp.desired_access_rights", p_rights, 0);
+                build_expert_data(ncp_tree, "ncp.path_count", p_path_count, 0);
+
+                if (ncp_rec->func == 87) {
+                    build_expert_data(ncp_tree, "ncp.path", p_filename, atoi(p_path_count));
+                }
+                else
+                {
+                    build_expert_data(ncp_tree, "ncp.path16", p_filename, atoi(p_path_count));
+                }
+
+                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "%s: %s, Rights:(%s)", match_strval((atoi(oaction) & 0xeb), open_create_mode_vals), p_filename, match_strval((atoi(p_rights) & 0x5f), ncp_rights_vals));
+            }
+            /* The following allows for oplock ack's and level 2 request echoed to expert tap. */
+            if (ncp_rec->func == 87 && ncp_rec->subfunc == 34) {
+                char cc_function[2]="\0";
+                char p_filehandle[15]="\0";
+
+                build_expert_data(ncp_tree, "ncp.cc_file_handle", p_filehandle, 0);
+                build_expert_data(ncp_tree, "ncp.cc_function", cc_function, 0);
+
+                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle %s - %s", p_filehandle, match_strval(atoi(cc_function), ncp_cc_function_vals));
+            }
+            /* The following allows for Update file handle rights echoed to expert tap. */
+            if (ncp_rec->func == 87 && ncp_rec->subfunc == 44) { 
+                char p_rights[20]="\0";
+                char n_rights[20]="\0";
+                char p_filehandle[15]="\0";
+
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
+                build_expert_data(ncp_tree, "ncp.access_rights_mask_word", p_rights, 0);
+                build_expert_data(ncp_tree, "ncp.new_access_rights_mask", n_rights, 0);
+                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Change handle %s rights from:(%s) to:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals), match_strval((atoi(n_rights) & 0x1ff), access_rights_vals));
+            }
+        }
+    }
+    else
+    {
+
+        if (ncp_echo_file) { /* Echo File System Data */
+            /* The following allows for oplock level 1 file opens echoed to expert tap. */
+            if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 32 || ncp_rec->subfunc == 1)) { 
+                char oaction[2]="\0";
+                char oplockflg[2]="\0";
+                char p_filehandle[15]="\0";
+
+                build_expert_data(ncp_tree, "ncp.open_create_action", oaction, 0);
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
+
+                if (ncp_rec->subfunc == 1) {
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle);
+                }
+                else
+                {
+                    build_expert_data(ncp_tree, "ncp.o_c_ret_flags", oplockflg, 0);
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s, %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle, match_strval(atoi(oplockflg), ncp_o_c_ret_flags_vals));
+                }
+            }
+            /* The following allows for Update file handle rights echoed to expert tap. */
+            if (ncp_rec->func == 87 && ncp_rec->subfunc == 44) { 
+                char p_rights[20]="\0";
+                char p_filehandle[15]="\0";
+
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0);
+                build_expert_data(ncp_tree, "ncp.effective_rights", p_rights, 0);
+                expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Handle %s effective rights:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals));
+            }
+        }
+        /* The following allows for specific NCP server info to be echoed to the expert tap. */
+        if (ncp_rec->func == 23 && ncp_rec->subfunc == 17 && ncp_echo_server) {
+            char fsname[50]="\0";
+            char p_maj_ver[3]="\0";
+            char p_min_ver[3]="\0";
+            char p_rev[3]="\0";
+            char p_lang[3]="\0";
+
+            /* Get Server name and version info */
+            build_expert_data(ncp_tree, "ncp.server_name", fsname, 0);
+            build_expert_data(ncp_tree, "ncp.product_major_version", p_maj_ver, 0);
+            build_expert_data(ncp_tree, "ncp.product_minor_version", p_min_ver, 0);
+            build_expert_data(ncp_tree, "ncp.product_revision_version", p_rev, 0);
+            build_expert_data(ncp_tree, "ncp.os_language_id", p_lang, 0);
+            expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server %s, version %s.%s, support pack %s, language %s", fsname, 
+                                   p_maj_ver, p_min_ver, p_rev, p_lang);
+        }
     }
 }
 
@@ -4898,6 +5710,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			}
 		}
 
+        /* Check to see if we need to report to the expert table */
+        trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 0);
 		/* Free the temporary proto_tree */
 		CLEANUP_CALL_AND_POP;
 
@@ -5322,6 +6136,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[1].vtype = VTYPE_UINT32;
                                                         pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                         add_eid = TRUE;
+                                                        resolve_eid = TRUE;
                                                         strcpy(global_object_name, request_value->object_name);
                                                         global_eid = pvalues[1].vvalue;
                                                         pvalues[1].vlength = 4;
@@ -5342,6 +6157,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[1].vtype = VTYPE_UINT32;
                                                         pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                         add_eid = TRUE;
+                                                        resolve_eid = TRUE;
                                                         global_eid = pvalues[1].vvalue;
                                                         strcpy(global_object_name, request_value->object_name);
                                                         pvalues[1].vlength = 4;
@@ -5403,6 +6219,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[2].vtype = VTYPE_UINT32;
                                                         pvalues[2].vdesc = "Entry ID: 0x%08x";
                                                         add_eid = TRUE;
+                                                        resolve_eid = TRUE;
                                                         global_eid = pvalues[2].vvalue;
                                                         strcpy(global_object_name, request_value->object_name);
                                                         pvalues[2].vlength = 4;
@@ -5451,6 +6268,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[2].vtype = VTYPE_UINT32;
                                                         pvalues[2].vdesc = "Entry ID: 0x%08x";
                                                         add_eid = TRUE;
+                                                        resolve_eid = TRUE;
                                                         global_eid = pvalues[2].vvalue;
                                                         strcpy(global_object_name, request_value->object_name);
                                                         pvalues[2].vlength = 4;
@@ -5469,6 +6287,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset += 4;   /* GUINT32 reserved field */
                                                         pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         add_eid = TRUE;
+                                                        resolve_eid = TRUE;
                                                         global_eid = pvalues[2].vvalue;
                                                         strcpy(global_object_name, request_value->object_name);
                                                         pvalues[2].vtype = VTYPE_UINT32;
@@ -5532,6 +6351,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[3].vtype = VTYPE_UINT32;
                                                         pvalues[3].vdesc = "Entry ID: 0x%08x";
                                                         add_eid = TRUE;
+                                                        resolve_eid = TRUE;
                                                         strcpy(global_object_name, request_value->object_name);
                                                         global_eid = pvalues[3].vvalue;
                                                         pvalues[3].vlength = 4;
@@ -6316,9 +7136,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                             nds_error_string, request_value, conversation);
                 }
                 /* Echo expert data for connection request/reply */
-                if (ncp_rec->func == 241 && ncp_echo_conn) {
+                /*if (ncp_rec->func == 241 && ncp_echo_conn) {
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection %d Established", nw_connection);
-                }
+                } */
                 if (ncp_rec->func == 245 && ncp_echo_conn) {
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Connection Destroyed");
                 }
@@ -6361,7 +7181,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                         ptvcursor_free(ptvc);
                 }
                 /* Check to see if we need to report to the expert table */
-                trap_for_expert_event(ncp_tree, pinfo, ncp_rec);
+                trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 1);
         } else {
                 if (tvb_length(tvb) > 8) {
                         expert_item = proto_tree_add_text(ncp_tree, tvb, 8, -1,
