@@ -327,7 +327,8 @@ static gint ett_scsi_profile = -1;
  * This is semi-common in SCSI and it would be wrong to mark these packets
  * as [malformed packets].
  * These macros will reset the reported length to what the data pdu specified
- * and if a BoundsError is generated we will instead throw ScsiBoundsError
+ * and if a ReportedBoundsError is generated we will instead throw 
+ * ScsiBoundsError
  *
  * Please see dissect_mmc4_getconfiguration() for an example how to use these
  * macros.
@@ -345,7 +346,7 @@ static gint ett_scsi_profile = -1;
 
 #define END_TRY_SCSI_SHORT_TRANSFER 					\
 	    } /* TRY */							\
-	CATCH(BoundsError) {						\
+	CATCH(ReportedBoundsError) {					\
 		if(short_packet){					\
 			/* this was a short packet */			\
 			RETHROW;					\
@@ -1512,6 +1513,10 @@ typedef struct _scsi_task_data {
     guint16 flags;
     struct _scsi_cdb_table_t *cdb_table;
     const value_string *cdb_vals;
+    guint32 alloc_len;	/* we need to track alloc_len between the CDB and 
+			 * the DATA pdus for some opcodes. 
+			 */
+
 } scsi_task_data_t;
 
 /*
@@ -1851,7 +1856,8 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_devtype_data_t *devdata = NULL;
     scsi_devtype_key_t dkey, *req_key;
 
-    if (!isreq && (cdata == NULL || !(cdata->flags & 0x3))) {
+    if (!isreq && (cdata == NULL || !(cdata->flags & 0x3)) 
+    && (tvb_length_remaining(tvb, offset)>=1) ) {
         /*
          * INQUIRY response with device type information; add device type
          * to list of known devices & their types if not already known.
@@ -1872,8 +1878,7 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             devdata->devtype = tvb_get_guint8 (tvb, offset) & SCSI_DEV_BITS;
 
             g_hash_table_insert (scsidev_req_hash, req_key, devdata);
-	}
-        else {
+	} else {
             devtype = tvb_get_guint8 (tvb, offset);
             if ((devtype & SCSI_DEV_BITS) != SCSI_DEV_NOLUN) {
                 /* Some initiators probe more than the available LUNs which
@@ -1891,7 +1896,7 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        if (cdata != NULL) {
+        if (cdata) {
             cdata->flags = flags;
         }
 
@@ -1908,54 +1913,80 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
+	/* we need the alloc_len in the response */
+	if(cdata){
+		cdata->alloc_len=tvb_get_guint8(tvb, offset+3);
+	}
+
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
-    }
-    else if (!isreq) {
-        if (cdata && (cdata->flags & 0x1)) {
-            dissect_scsi_evpd (tvb, pinfo, tree, offset, payload_len);
-            return;
-        }
-        else if (cdata && (cdata->flags & 0x2)) {
-            dissect_scsi_cmddt (tvb, pinfo, tree, offset, payload_len);
-            return;
-        }
+    } else if (!isreq) {
+	if (!cdata) {
+		return;
+	}
 
+        if (cdata->flags & 0x1) {
+       	    dissect_scsi_evpd (tvb, pinfo, tree, offset, payload_len);
+       	    return;
+       	}
+	if (cdata->flags & 0x2) {
+       	    dissect_scsi_cmddt (tvb, pinfo, tree, offset, payload_len);
+       	    return;
+       	}
+
+
+	/* These pdus are sometimes truncated by SCSI allocation length */
+	TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, cdata->alloc_len); 
+
+	/* Qualifier and DeviceType */
         proto_tree_add_item (tree, hf_scsi_inq_qualifier, tvb, offset,
                              1, 0);
         proto_tree_add_item (tree, hf_scsi_inq_devtype, tvb, offset, 1, 0);
-	proto_tree_add_item (tree, hf_scsi_inq_rmb,  tvb, offset+1, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_inq_version, tvb, offset+2, 1, 0);
+	offset+=1;
 
-        flags = tvb_get_guint8 (tvb, offset+3);
+	/* RMB */
+	proto_tree_add_item (tree, hf_scsi_inq_rmb,  tvb, offset, 1, 0);
+	offset+=1;
+
+	/* Version */
+        proto_tree_add_item (tree, hf_scsi_inq_version, tvb, offset, 1, 0);
+	offset+=1;
+
+	/* flags */
+        flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_item_hidden (tree, hf_scsi_inq_normaca, tvb,
-                                    offset+3, 1, 0);
-        proto_tree_add_text (tree, tvb, offset+3, 1, "NormACA: %u, HiSup: %u",
+                                    offset, 1, 0);
+        proto_tree_add_text (tree, tvb, offset, 1, "NormACA: %u, HiSup: %u",
                              ((flags & 0x20) >> 5), ((flags & 0x10) >> 4));
-        tot_len = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_text (tree, tvb, offset+4, 1, "Additional Length: %u",
+	offset+=1;
+
+	/* Additional Length */
+        tot_len = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1, "Additional Length: %u",
                              tot_len);
-        flags = tvb_get_guint8 (tvb, offset+6);
-        proto_tree_add_text (tree, tvb, offset+6, 1,
+	offset+=1;
+
+        flags = tvb_get_guint8 (tvb, offset+1);
+        proto_tree_add_text (tree, tvb, offset+1, 1,
                              "BQue: %u, SES: %u, MultiP: %u, Addr16: %u",
                              ((flags & 0x80) >> 7), (flags & 0x40) >> 6,
                              (flags & 0x10) >> 4, (flags & 0x01));
-        flags = tvb_get_guint8 (tvb, offset+7);
-        proto_tree_add_text (tree, tvb, offset+7, 1,
+        flags = tvb_get_guint8 (tvb, offset+2);
+        proto_tree_add_text (tree, tvb, offset+2, 1,
                              "RelAdr: %u, Linked: %u, CmdQue: %u",
                              (flags & 0x80) >> 7, (flags & 0x08) >> 3,
                              (flags & 0x02) >> 1);
-        proto_tree_add_text (tree, tvb, offset+8, 8, "Vendor Id: %s",
-                             tvb_format_stringzpad (tvb, offset+8, 8));
-        proto_tree_add_text (tree, tvb, offset+16, 16, "Product ID: %s",
-                             tvb_format_stringzpad (tvb, offset+16, 16));
-        proto_tree_add_text (tree, tvb, offset+32, 4, "Product Revision: %s",
-                             tvb_format_stringzpad (tvb, offset+32, 4));
+        proto_tree_add_text (tree, tvb, offset+3, 8, "Vendor Id: %s",
+                             tvb_format_stringzpad (tvb, offset+3, 8));
+        proto_tree_add_text (tree, tvb, offset+11, 16, "Product ID: %s",
+                             tvb_format_stringzpad (tvb, offset+11, 16));
+        proto_tree_add_text (tree, tvb, offset+27, 4, "Product Revision: %s",
+                             tvb_format_stringzpad (tvb, offset+27, 4));
 
-        offset += 58;
+        offset += 53;
         if ((tot_len > 58) && tvb_bytes_exist (tvb, offset, 16)) {
             for (i = 0; i < 8; i++) {
                 proto_tree_add_text (tree, tvb, offset, 2,
@@ -1967,6 +1998,8 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
             }
         }
+
+	END_TRY_SCSI_SHORT_TRANSFER;
     }
 }
 
@@ -4214,6 +4247,10 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         proto_tree_add_item (tree, hf_scsi_getconf_starting_feature, tvb, offset+1, 2, 0);
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+	/* we need the alloc_len in the response */
+	if(cdata){
+		cdata->alloc_len=tvb_get_ntohs(tvb, offset+6);
+	}
 
         flags = tvb_get_guint8 (tvb, offset+8);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
@@ -4221,11 +4258,14 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
-    if(tree && (!isreq)) {
+    if(!isreq) {
+	if(!cdata){
+		return;
+	}
+
+	TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, cdata->alloc_len); 
+
         len=tvb_get_ntohl(tvb, offset+0);
-
-	TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, len+4); 
-
         proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 4, 0);
         proto_tree_add_item (tree, hf_scsi_getconf_current_profile, tvb, offset+6, 2, 0);
 	offset+=8;
@@ -4266,7 +4306,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			cur_profile=tvb_get_guint8(tvb, offset+2);
                         proto_tree_add_item (tr, hf_scsi_feature_profile_current, tvb, offset+2, 1, 0);
 			if(cur_profile&0x01){
-				proto_item_append_text(it, "  [CURRENT]");
+				proto_item_append_text(it, "  [CURRENT PROFILE]");
 			}
 
                         offset+=4;
@@ -7496,6 +7536,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	cdata->flags = 0;
 	cdata->cdb_table = cdb_table;
 	cdata->cdb_vals = cdb_vals;
+	cdata->alloc_len=0;
     }
 
     if (tree) {
