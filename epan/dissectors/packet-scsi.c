@@ -142,7 +142,12 @@ static int hf_scsi_rdwr10_xferlen        = -1;
 static int hf_scsi_readdefdata_flags     = -1;
 static int hf_scsi_cdb_defectfmt         = -1;
 static int hf_scsi_reassignblks_flags    = -1;
+static int hf_scsi_inq_add_len           = -1;
 static int hf_scsi_inq_qualifier         = -1;
+static int hf_scsi_inq_vendor_id         = -1;
+static int hf_scsi_inq_product_id        = -1;
+static int hf_scsi_inq_product_rev       = -1;
+static int hf_scsi_inq_version_desc      = -1;
 static int hf_scsi_inq_devtype           = -1;
 static int hf_scsi_inq_rmb		 = -1;
 static int hf_scsi_inq_version           = -1;
@@ -354,13 +359,14 @@ static gint ett_scsi_inq_reladrflags = -1;
  * and if a ReportedBoundsError is generated we will instead throw 
  * ScsiBoundsError
  *
- * Please see dissect_mmc4_getconfiguration() for an example how to use these
+ * Please see dissect_spc3_inquiry() for an example how to use these
  * macros.
  */
-#define TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, length)		\
+#define TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, length)		\
     {									\
 	gboolean short_packet;						\
 	tvbuff_t *new_tvb;						\
+	guint32 end_data_offset=0;					\
 									\
 	short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
 	new_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);\
@@ -368,8 +374,28 @@ static gint ett_scsi_inq_reladrflags = -1;
 	offset=0;							\
 	TRY {
 
-#define END_TRY_SCSI_SHORT_TRANSFER 					\
+#define END_TRY_SCSI_CDB_ALLOC_LEN 					\
+		    if(end_data_offset){				\
+			/* just verify we can read all the bytes we were\
+			 * supposed to.					\
+			 */						\
+			tvb_get_guint8(tvb,end_data_offset);		\
+	    	}							\
 	    } /* TRY */							\
+	CATCH(BoundsError) {						\
+		if(short_packet){					\
+			/* this was a short packet */			\
+			RETHROW;					\
+		} else {						\
+			/* We probably tried to dissect beyond the end	\
+			 * of the alloc len reported in the data	\
+			 * pdu. This is not an error so dont flag it as	\
+			 * one						\
+			 * it is the alloc_len in the CDB that is the	\
+			 * important one				\
+			 */						\
+		}							\
+	    }								\
 	CATCH(ReportedBoundsError) {					\
 		if(short_packet){					\
 			/* this was a short packet */			\
@@ -386,6 +412,18 @@ static gint ett_scsi_inq_reladrflags = -1;
 	}								\
 	ENDTRY;								\
     }
+
+/* If the data pdu contains an alloc_len as well, this macro can be set
+ * to registe this offset for the TRY section above.
+ * At the end of the TRY section we will, if set, verify that the data
+ * pdu contained all bytes that was specified in the data alloc len.
+ *
+ * This macro does currently not do anything but we might enhance it in
+ * the future. There is no harm in teaching the dissector about how long
+ * the data pdu is supposed to be according to alloc_len in the data pdu
+ */
+#define SET_SCSI_DATA_END(offset)					\
+	end_data_offset=offset;
 
 
 typedef guint32 scsi_cmnd_type;
@@ -2177,7 +2215,6 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint32 payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags, i, devtype;
-    guint tot_len;
     scsi_devtype_data_t *devdata = NULL;
     scsi_devtype_key_t dkey, *req_key;
 
@@ -2215,9 +2252,6 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
     }
-
-    if (!tree)
-        return;
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
@@ -2263,8 +2297,10 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        	}
 
 
-	/* These pdus are sometimes truncated by SCSI allocation length */
-	TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, cdata->alloc_len); 
+	/* These pdus are sometimes truncated by SCSI allocation length
+	 * in the CDB
+	 */
+	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->alloc_len); 
 
 	/* Qualifier and DeviceType */
         proto_tree_add_item (tree, hf_scsi_inq_qualifier, tvb, offset,
@@ -2273,7 +2309,7 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset+=1;
 
 	/* RMB */
-	proto_tree_add_item (tree, hf_scsi_inq_rmb,  tvb, offset, 1, 0);
+	proto_tree_add_item(tree, hf_scsi_inq_rmb,  tvb, offset, 1, 0);
 	offset+=1;
 
 	/* Version */
@@ -2284,9 +2320,8 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset=dissect_spc3_inq_acaflags(tvb, offset, tree);
 
 	/* Additional Length */
-        tot_len = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1, "Additional Length: %u",
-                             tot_len);
+	SET_SCSI_DATA_END(tvb_get_guint8(tvb, offset)+offset);
+        proto_tree_add_item(tree, hf_scsi_inq_add_len, tvb, offset, 1, 0);
 	offset+=1;
 
 	/* sccs flags */
@@ -2298,28 +2333,34 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* reladdr flags */
 	offset=dissect_spc3_inq_reladrflags(tvb, offset, tree);
 
+	/* vendor id */
+	proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb, offset, 8, 0);
+	offset+=8;
 
-        proto_tree_add_text (tree, tvb, offset, 8, "Vendor Id: %s",
-                             tvb_format_stringzpad (tvb, offset, 8));
-        proto_tree_add_text (tree, tvb, offset+8, 16, "Product ID: %s",
-                             tvb_format_stringzpad (tvb, offset+8, 16));
-        proto_tree_add_text (tree, tvb, offset+24, 4, "Product Revision: %s",
-                             tvb_format_stringzpad (tvb, offset+24, 4));
+	/* product id */
+	proto_tree_add_item(tree, hf_scsi_inq_product_id, tvb, offset, 16, 0);
+	offset+=16;
 
-        offset += 50;
-        if ((tot_len > 58) && tvb_bytes_exist (tvb, offset, 16)) {
-            for (i = 0; i < 8; i++) {
-                proto_tree_add_text (tree, tvb, offset, 2,
-                                     "Vendor Descriptor %u: %s",
-                                     i,
-                                     val_to_str (tvb_get_ntohs (tvb, offset),
-                                                 scsi_verdesc_val,
-                                                 "Unknown (0x%04x)"));
-                offset += 2;
-            }
-        }
+	/* product revision level */
+	proto_tree_add_item(tree, hf_scsi_inq_product_rev, tvb, offset, 4, 0);
+	offset+=4;
 
-	END_TRY_SCSI_SHORT_TRANSFER;
+	/* vendor specific, 20 bytes */
+	offset+=20;
+
+	/* clocking, qas, ius */
+	offset++;
+
+	/* reserved */
+	offset++;
+
+	/* version descriptors */
+	for(i=0;i<8;i++){
+		proto_tree_add_item(tree, hf_scsi_inq_version_desc, tvb, offset, 2, 0);
+		offset+=2;
+	}
+
+	END_TRY_SCSI_CDB_ALLOC_LEN;
     }
 }
 
@@ -4583,7 +4624,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		return;
 	}
 
-	TRY_SCSI_SHORT_TRANSFER(pinfo, tvb, offset, cdata->alloc_len); 
+	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->alloc_len); 
 
         len=tvb_get_ntohl(tvb, offset+0);
         proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 4, 0);
@@ -4697,7 +4738,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                 old_offset+=additional_length;
                 len-=4+additional_length;
         }
-	END_TRY_SCSI_SHORT_TRANSFER;
+	END_TRY_SCSI_CDB_ALLOC_LEN;
     }
 }
 
@@ -8182,9 +8223,24 @@ proto_register_scsi (void)
         { &hf_scsi_reassignblks_flags,
           {"Flags", "scsi.reassignblks.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
+        { &hf_scsi_inq_add_len,
+          {"Additional Length", "scsi.inquiry.add_len", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
         { &hf_scsi_inq_qualifier,
           {"Peripheral Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
            VALS (scsi_qualifier_val), 0xE0, "", HFILL}},
+        { &hf_scsi_inq_vendor_id,
+          {"Vendor Id", "scsi.inquiry.vendor_id", FT_STRING, BASE_NONE,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_inq_product_id,
+          {"Product Id", "scsi.inquiry.product_id", FT_STRING, BASE_NONE,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_inq_product_rev,
+          {"Product Revision Level", "scsi.inquiry.product_rev", FT_STRING, BASE_NONE,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_inq_version_desc,
+          {"Version Description", "scsi.inquiry.version_desc", FT_UINT16, BASE_HEX,
+           VALS(scsi_verdesc_val), 0, "", HFILL}},
         { &hf_scsi_inq_devtype,
           {"Peripheral Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
            VALS (scsi_devtype_val), SCSI_DEV_BITS, "", HFILL}},
