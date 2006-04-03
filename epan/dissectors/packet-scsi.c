@@ -1,3 +1,4 @@
+/* TODO audit value parameter for proto_tree_add_boolean() calls */
 /* packet-scsi.c
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
@@ -163,7 +164,12 @@ static int hf_scsi_ascascq               = -1;
 static int hf_scsi_ascq                  = -1;
 static int hf_scsi_fru                   = -1;
 static int hf_scsi_sksv                  = -1;
+static int hf_scsi_inq_acaflags          = -1;
 static int hf_scsi_inq_normaca           = -1;
+static int hf_scsi_inq_hisup             = -1;
+static int hf_scsi_inq_aerc              = -1;
+static int hf_scsi_inq_trmtsk            = -1;
+static int hf_scsi_inq_rdf               = -1;
 static int hf_scsi_persresv_key          = -1;
 static int hf_scsi_persresv_scopeaddr    = -1;
 static int hf_scsi_add_cdblen = -1;
@@ -319,7 +325,7 @@ static int hf_ssc3_locate16_loid = -1;
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
 static gint ett_scsi_profile = -1;
-
+static gint ett_scsi_inq_acaflags = -1;
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
@@ -1050,6 +1056,26 @@ static const value_string scsi_modesns_qmod_val[] = {
 static const true_false_string scsi_modesns_qerr_val = {
     "All blocked tasks shall be aborted on CHECK CONDITION",
     "Blocked tasks shall resume after ACA/CA is cleared",
+};
+
+static const true_false_string normaca_tfs = {
+    "NormACA is SUPPORTED",
+    "Normaca is NOT supported",
+};
+
+static const true_false_string hisup_tfs = {
+    "Hierarchical Addressing Mode is SUPPORTED",
+    "Hierarchical addressing mode is NOT supported",
+};
+
+static const true_false_string aerc_tfs = {
+    "Async Event Reporting Capability is SUPPORTED",
+    "Async event reporting capability is NOT supported",
+};
+
+static const true_false_string trmtsk_tfs = {
+    "Terminate Task management functions are SUPPORTED",
+    "Terminate task management functions are NOT supported",
 };
 
 static const true_false_string scsi_removable_val = {
@@ -1846,6 +1872,68 @@ dissect_scsi_cmddt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
+
+#define SCSI_INQ_ACAFLAGS_AERC		0x80
+#define SCSI_INQ_ACAFLAGS_TRMTSK	0x40
+#define SCSI_INQ_ACAFLAGS_NORMACA	0x20
+#define SCSI_INQ_ACAFLAGS_HISUP		0x10
+
+static const value_string inq_rdf_vals[] = {
+	{ 2, "SPC-2/SPC-3" },
+	{ 0, NULL }
+};
+
+/* This dissects byte 3 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
+static int
+dissect_spc3_inq_acaflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+{
+	guint8 flags;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item=proto_tree_add_item(parent_tree, hf_scsi_inq_acaflags, tvb, offset, 1, 0);
+		tree = proto_item_add_subtree (item, ett_scsi_inq_acaflags);
+	}
+
+        flags=tvb_get_guint8 (tvb, offset);
+
+	/* AERC (obsolete in spc3 and forward) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_aerc, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_ACAFLAGS_AERC){
+		proto_item_append_text(item, "  AERC");
+	}
+	flags&=(~SCSI_INQ_ACAFLAGS_AERC);
+
+	/* TRMTSK (obsolete in spc2 and forward) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_trmtsk, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_ACAFLAGS_TRMTSK){
+		proto_item_append_text(item, "  TrmTsk");
+	}
+	flags&=(~SCSI_INQ_ACAFLAGS_TRMTSK);
+
+	/* NormACA */
+	proto_tree_add_boolean(tree, hf_scsi_inq_normaca, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_ACAFLAGS_NORMACA){
+		proto_item_append_text(item, "  NormACA");
+	}
+	flags&=(~SCSI_INQ_ACAFLAGS_NORMACA);
+
+	/* HiSup */
+	proto_tree_add_boolean(tree, hf_scsi_inq_hisup, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_ACAFLAGS_HISUP){
+		proto_item_append_text(item, "  HiSup");
+	}
+	flags&=(~SCSI_INQ_ACAFLAGS_HISUP);
+
+	/* Response Data Format */
+	proto_tree_add_item (tree, hf_scsi_inq_rdf, tvb, offset, 1, 0);
+	proto_item_append_text(item, "  RDF:%s", val_to_str(flags&0x0f, inq_rdf_vals, "Unknown:%d"));
+
+	offset+=1;
+	return offset;
+}
+
 static void
 dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
@@ -1955,13 +2043,8 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item (tree, hf_scsi_inq_version, tvb, offset, 1, 0);
 	offset+=1;
 
-	/* flags */
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_item_hidden (tree, hf_scsi_inq_normaca, tvb,
-                                    offset, 1, 0);
-        proto_tree_add_text (tree, tvb, offset, 1, "NormACA: %u, HiSup: %u",
-                             ((flags & 0x20) >> 5), ((flags & 0x10) >> 4));
-	offset+=1;
+	/* aca flags */
+	offset=dissect_spc3_inq_acaflags(tvb, offset, tree);
 
 	/* Additional Length */
         tot_len = tvb_get_guint8 (tvb, offset);
@@ -7874,8 +7957,23 @@ proto_register_scsi (void)
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS (scsi_inquiry_vers_val), 0x0, "", HFILL}},
+        { &hf_scsi_inq_acaflags,
+          {"ACA Flags", "scsi.inquiry.acaflags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
         { &hf_scsi_inq_normaca,
-          {"NormACA", "scsi.inquiry.normaca", FT_UINT8, BASE_HEX, NULL, 0x20,
+          {"NormACA", "scsi.inquiry.normaca", FT_BOOLEAN, 8, TFS(&normaca_tfs), SCSI_INQ_ACAFLAGS_NORMACA,
+           "", HFILL}},
+        { &hf_scsi_inq_hisup,
+          {"HiSup", "scsi.inquiry.hisup", FT_BOOLEAN, 8, TFS(&hisup_tfs), SCSI_INQ_ACAFLAGS_HISUP,
+           "", HFILL}},
+        { &hf_scsi_inq_aerc,
+          {"AERC", "scsi.inquiry.aerc", FT_BOOLEAN, 8, TFS(&aerc_tfs), SCSI_INQ_ACAFLAGS_AERC,
+           "AERC is obsolete from SPC-3 and forward", HFILL}},
+        { &hf_scsi_inq_trmtsk,
+          {"TrmTsk", "scsi.inquiry.trmtsk", FT_BOOLEAN, 8, TFS(&trmtsk_tfs), SCSI_INQ_ACAFLAGS_TRMTSK,
+           "TRMTSK is obsolete from SPC-2 and forward", HFILL}},
+        { &hf_scsi_inq_rdf,
+          {"Response Data Format", "scsi.inquiry.rdf", FT_UINT8, BASE_DEC, VALS(inq_rdf_vals), 0x0f,
            "", HFILL}},
         { &hf_scsi_rluns_lun,
           {"LUN", "scsi.reportluns.lun", FT_UINT8, BASE_DEC, NULL, 0x0, "",
@@ -8391,9 +8489,10 @@ proto_register_scsi (void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_scsi,
-        &ett_scsi_page,
-        &ett_scsi_profile,
+	&ett_scsi,
+	&ett_scsi_page,
+	&ett_scsi_profile,
+	&ett_scsi_inq_acaflags,
     };
     module_t *scsi_module;
 
