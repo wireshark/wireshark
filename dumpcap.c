@@ -424,7 +424,7 @@ main(int argc, char *argv[])
 
   /* Let the user know what interface was chosen. */
   /* get_interface_descriptive_name() is not available! */
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Interface: %s\n", capture_opts->iface);
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", capture_opts->iface);
 
   if (list_link_layer_types) {
     status = capture_opts_list_link_layer_types(capture_opts);
