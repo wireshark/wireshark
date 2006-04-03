@@ -131,7 +131,7 @@ FTAM-Quality-of-Service ::= [6] IMPLICIT INTEGER {
 Contents-Type-List ::=
   [7] IMPLICIT
     SEQUENCE OF
-      CHOICE {document-type-name    Document-Type-Name,
+      CHOICE {document-type-name    [APPLICATION 14] IMPLICIT Document-Type-Name,
               abstract-Syntax-name  Abstract-Syntax-Name}
 
 F-TERMINATE-request ::= SEQUENCE {
@@ -742,7 +742,9 @@ Entity-Reference ::= INTEGER {
 -- XXX Bug in asn2eth that can not handle tagged assignements
 -- XXX woraround implemented in teh conformance file
 --
-Document-Type-Name ::= [APPLICATION 14] IMPLICIT OBJECT IDENTIFIER
+-- Document-Type-Name ::= [APPLICATION 14] IMPLICIT OBJECT IDENTIFIER
+-- Changed where used instead. 20060403 Anders Broman (Bug 850)
+Document-Type-Name ::= OBJECT IDENTIFIER
 
 --
 -- XXX Bug in asn2eth that can not handle tagged assignements
@@ -926,7 +928,7 @@ Account-Attribute ::= CHOICE {
 
 Contents-Type-Attribute ::= CHOICE {
   document-type
-    [0] IMPLICIT SEQUENCE {document-type-name  Document-Type-Name,
+    [0] IMPLICIT SEQUENCE {document-type-name  [APPLICATION 14] IMPLICIT Document-Type-Name,
                            parameter
                              [0]  ANY OPTIONAL},
   -- The actual types to be used for values of the Parameter field

@@ -5,7 +5,7 @@
  * also based on original handwritten dissector by
  * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
  *
- * Anders Broman and Ronnie Sahlberg 2005
+ * Anders Broman and Ronnie Sahlberg 2005 - 2006
  *
  * $Id$
  *
@@ -127,7 +127,10 @@ void proto_reg_handoff_ftam(void) {
 
 	/* Unstructured text file document type FTAM-1 */
 	register_ber_oid_name("1.0.8571.5.1","ISO FTAM unstructured text");
+	register_ber_oid_name("1.0.8571.5.2","ISO FTAM sequential text");
 	register_ber_oid_name("1.0.8571.2.3","FTAM unstructured text abstract syntax");
+	register_ber_oid_name("1.0.8571.2.4","FTAM sequential text abstract syntax");
+	register_ber_oid_name("1.0.8571.2.5","FTAM simple-hierarchy");
 	register_ber_oid_name("1.0.8571.3.1","FTAM hierarchical file model");
 	register_ber_oid_name("1.0.8571.4.1","FTAM unstructured constraint set");
 
