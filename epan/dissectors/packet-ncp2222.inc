@@ -2540,6 +2540,9 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_
 static void
 trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record *ncp_rec, int request_reply)
 {   
+    if (ncp_rec == NULL)
+        return;
+
     /* Request == 0, Reply == 1 */
     if (request_reply==0) {
         if (ncp_echo_file) {
