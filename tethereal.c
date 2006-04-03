@@ -1103,22 +1103,22 @@ main(int argc, char *argv[])
     }
   }
 
-  /* If we're not writing to a file and "-q" wasn't specified
-     we should print packet information */
-  if (capture_opts.save_file == NULL && !quiet)
-    print_packet_info = TRUE;
-
-  if (capture_opts.save_file != NULL && 
-      strcmp(capture_opts.save_file, "-") == 0 
-      && print_packet_info) {
-      /* If we're writing to the standard output.
-         and we'll also be writing dissected packets to the standard
-         output, reject the request.  At best, we could redirect that
-         to the standard error; we *can't* write both to the standard
-         output and have either of them be useful. */
+  if (!capture_opts.saving_to_file) {
+    /* We're not saving the capture to a file; if "-q" wasn't specified,
+       we should print packet information */
+    if (!quiet)
+      print_packet_info = TRUE;
+  } else {
+    /* We're saving to a file; if we're writing to the standard output.
+       and we'll also be writing dissected packets to the standard
+       output, reject the request.  At best, we could redirect that
+       to the standard error; we *can't* write both to the standard
+       output and have either of them be useful. */
+    if (strcmp(capture_opts.save_file, "-") == 0 && print_packet_info) {
       cmdarg_err("You can't write both raw packet data and dissected packets"
           " to the standard output.");
       exit(1);
+    }
   }
 
 #ifndef HAVE_LIBPCAP
@@ -1217,7 +1217,7 @@ main(int argc, char *argv[])
       /*
        * "-r" wasn't specified, so we're doing a live capture.
        */
-      if (capture_opts.save_file != NULL) {
+      if (capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
   
         /* When capturing, we only support writing libpcap format. */
@@ -1568,22 +1568,24 @@ capture(void)
     goto error;
   }
 
-  /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
-  if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
-    *secondary_errmsg = '\0';
-    goto error;    
-  }
+  if (capture_opts.saving_to_file) {
+    /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
+    if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
+      *secondary_errmsg = '\0';
+      goto error;    
+    }
 
-  /* set up to write to the already-opened capture output file/files */
-  if(!capture_loop_init_output(&capture_opts, save_file_fd, &ld, errmsg, sizeof errmsg)) {
-    *secondary_errmsg = '\0';
-    goto error;
+    /* set up to write to the already-opened capture output file/files */
+    if(!capture_loop_init_output(&capture_opts, save_file_fd, &ld, errmsg, sizeof errmsg)) {
+      *secondary_errmsg = '\0';
+      goto error;
+    }
+
+    /* Save the capture file name. */
+    ld.save_file = capture_opts.save_file;
   }
 
   ld.wtap_linktype = wtap_pcap_encap_to_wtap_encap(ld.linktype);
-
-  /* Save the capture file name. */
-  ld.save_file = capture_opts.save_file;
 
 #ifdef _WIN32
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */

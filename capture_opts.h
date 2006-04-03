@@ -35,9 +35,9 @@
 
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {
-	CAPTURE_STOPPED,		/**< stopped */
+    CAPTURE_STOPPED,        /**< stopped */
     CAPTURE_PREPARING,      /**< preparing, but still no response from capture child */
-	CAPTURE_RUNNING		    /**< capture child signalled ok, capture is running now */
+    CAPTURE_RUNNING         /**< capture child signalled ok, capture is running now */
 } capture_state;
 
 
@@ -57,6 +57,7 @@ typedef struct capture_options_tag {
     gboolean promisc_mode;  /**< Capture in promiscuous mode */
     int      linktype;      /**< Data link type to use, or -1 for
                                  "use default" */
+    gboolean saving_to_file; /**< TRUE if capture is writing to a file */
     gchar    *save_file;    /**< the capture file name */
 
     /* GUI related */
@@ -68,18 +69,18 @@ typedef struct capture_options_tag {
     /* multiple files (and ringbuffer) */
     gboolean multi_files_on;    /**< TRUE if ring buffer in use */
 
-    gboolean has_file_duration;	/**< TRUE if ring duration specified */
+    gboolean has_file_duration;    /**< TRUE if ring duration specified */
     gint32 file_duration;       /* Switch file after n seconds */
     gboolean has_ring_num_files;/**< TRUE if ring num_files specified */
     guint32 ring_num_files;     /**< Number of multiple buffer files */
 
     /* autostop conditions */
     gboolean has_autostop_files;/**< TRUE if maximum number of capture files
-					   are specified */
+                       are specified */
     gint32 autostop_files;      /**< Maximum number of capture files */
 
-    gboolean has_autostop_packets;	/**< TRUE if maximum packet count is
-					   specified */
+    gboolean has_autostop_packets;    /**< TRUE if maximum packet count is
+                       specified */
     int autostop_packets;               /**< Maximum packet count */
     gboolean has_autostop_filesize;     /**< TRUE if maximum capture file size
                                              is specified */
@@ -89,7 +90,7 @@ typedef struct capture_options_tag {
     gint32 autostop_duration;           /**< Maximum capture duration */
 
     /* internally used (don't touch from outside) */
-    int fork_child;	            /**< If not -1, in parent, process ID of child */
+    int fork_child;                  /**< If not -1, in parent, process ID of child */
 #ifdef _WIN32
     int signal_pipe_write_fd;   /**< the pipe to signal the child */
 #endif

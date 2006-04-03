@@ -300,6 +300,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
     hdr->snaplen = BSWAP32(hdr->snaplen);
     hdr->network = BSWAP32(hdr->network);
   }
+  ld->linktype = hdr->network;
 
   if (hdr->version_major < 2) {
     g_snprintf(errmsg, errmsgl, "Unable to read old libpcap format");
@@ -540,11 +541,11 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       if (set_linktype_err_str != NULL) {
 	g_snprintf(errmsg, errmsg_len, "Unable to set data link type (%s).",
 	           set_linktype_err_str);
-        g_snprintf(secondary_errmsg, secondary_errmsg_len,
-                   "Please report this to the Ethereal developers");
+        g_snprintf(secondary_errmsg, secondary_errmsg_len, please_report);
 	return FALSE;
       }
     }
+    ld->linktype = get_pcap_linktype(ld->pcap_h, capture_opts->iface);
   } else {
     /* We couldn't open "iface" as a network device. */
 #ifdef _WIN32
@@ -725,27 +726,23 @@ initfilter_status_t capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_p
 
 /* set up to write to the already-opened capture output file/files */
 gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
-  int         pcap_encap;
   int         file_snaplen;
   int         err;
 
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
 
-  /* get packet encapsulation type and snaplen */
+  /* get snaplen */
 #ifndef _WIN32
   if (ld->from_cap_pipe) {
-    pcap_encap = ld->cap_pipe_hdr.network;
     file_snaplen = ld->cap_pipe_hdr.snaplen;
   } else
 #endif
   {
-    pcap_encap = get_pcap_linktype(ld->pcap_h, capture_opts->iface);
     file_snaplen = pcap_snapshot(ld->pcap_h);
   }
 
   /* Set up to write to the capture file. */
-  ld->linktype = pcap_encap;
   if (capture_opts->multi_files_on) {
     ld->pdh = ringbuf_init_libpcap_fdopen(ld->linktype, file_snaplen, &err);
   } else {
@@ -1118,7 +1115,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
    * Catch SIGUSR1, so that we exit cleanly if the parent process
    * kills us with it due to the user selecting "Capture->Stop".
    */
-    signal(SIGUSR1, capture_loop_stop_signal_handler);
+  signal(SIGUSR1, capture_loop_stop_signal_handler);
 #endif
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop starting ...");
@@ -1149,17 +1146,19 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     goto error;
   }
 
-  /* open the output file (temporary/specified name/ringbuffer) */
-  if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
-    *secondary_errmsg = '\0';
-    goto error;    
-  }
+  /* If we're supposed to write to a capture file, open it for output
+     (temporary/specified name/ringbuffer) */
+  if (capture_opts->saving_to_file) {
+    if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
+      *secondary_errmsg = '\0';
+      goto error;    
+    }
 
-  /* set up to write to the already-opened capture output file/files */
-  if (!capture_loop_init_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
-    *secondary_errmsg = '\0';
-    goto error;
-  }
+    /* set up to write to the already-opened capture output file/files */
+    if (!capture_loop_init_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
+      *secondary_errmsg = '\0';
+      goto error;
+    }
 
   /* XXX - capture SIGTERM and close the capture, in case we're on a
      Linux 2.0[.x] system and you have to explicitly close the capture
@@ -1167,15 +1166,16 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      in other places as well - and I don't think that works all the
      time in any case, due to libpcap bugs. */
 
-  /* Well, we should be able to start capturing.
+    /* Well, we should be able to start capturing.
 
-     Sync out the capture file, so the header makes it to the file system,
-     and send a "capture started successfully and capture file created"
-     message to our parent so that they'll open the capture file and
-     update its windows to indicate that we have a live capture in
-     progress. */
-  libpcap_dump_flush(ld.pdh, NULL);
-  sync_pipe_filename_to_parent(capture_opts->save_file);
+       Sync out the capture file, so the header makes it to the file system,
+       and send a "capture started successfully and capture file created"
+       message to our parent so that they'll open the capture file and
+       update its windows to indicate that we have a live capture in
+       progress. */
+    libpcap_dump_flush(ld.pdh, NULL);
+    sync_pipe_filename_to_parent(capture_opts->save_file);
+  }
 
   /* initialize capture stop (and alike) conditions */
   init_capture_stop_conditions();
@@ -1220,18 +1220,20 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       inpkts_to_sync_pipe += inpkts;
 
       /* check capture size condition */
-      if (cnd_autostop_size != NULL && cnd_eval(cnd_autostop_size,
-                    (guint32)ld.bytes_written)){
+      if (cnd_autostop_size != NULL &&
+          cnd_eval(cnd_autostop_size, (guint32)ld.bytes_written)){
         /* Capture size limit reached, do we have another file? */
         if (capture_opts->multi_files_on) {
-          if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
-            /* no files left: stop here */
+          if (cnd_autostop_files != NULL &&
+              cnd_eval(cnd_autostop_files, ++autostop_files)) {
+             /* no files left: stop here */
             ld.go = FALSE;
             continue;
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file,
+              &save_file_fd, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1293,7 +1295,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
         /* duration limit reached, do we have another file? */
         if (capture_opts->multi_files_on) {
-          if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
+          if (cnd_autostop_files != NULL &&
+              cnd_eval(cnd_autostop_files, ++autostop_files)) {
             /* no files left: stop here */
             ld.go = FALSE;
             continue;
@@ -1311,7 +1314,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
-	        ld.go = FALSE;
+            ld.go = FALSE;
             continue;
           }
         } else {
@@ -1357,8 +1360,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     write_ok = FALSE;
   }
 
-  /* close the wiretap (output) file */
-  close_ok = capture_loop_close_output(capture_opts, &ld, &err_close);
+  if (capture_opts->saving_to_file) {
+    /* close the wiretap (output) file */
+    close_ok = capture_loop_close_output(capture_opts, &ld, &err_close);
+  } else
+    close_ok = TRUE;
 
   /* there might be packets not yet notified to the parent */
   /* (do this after closing the file, so all packets are already flushed) */

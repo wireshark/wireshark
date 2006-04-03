@@ -52,16 +52,17 @@ void
 capture_opts_init(capture_options *capture_opts, void *cfile)
 {
   capture_opts->cf                      = cfile;            
-  capture_opts->cfilter		            = g_strdup("");     /* No capture filter string specified */
+  capture_opts->cfilter                 = g_strdup("");     /* No capture filter string specified */
   capture_opts->iface                   = NULL;             /* Default is "pick the first interface" */
 #ifdef _WIN32
   capture_opts->buffer_size             = 1;                /* 1 MB */
 #endif
   capture_opts->has_snaplen             = FALSE;
   capture_opts->snaplen                 = WTAP_MAX_PACKET_SIZE; /* snapshot length - default is
-                                                                    infinite, in effect */
+                                                                   infinite, in effect */
   capture_opts->promisc_mode            = TRUE;             /* promiscuous mode is the default */
   capture_opts->linktype                = -1;               /* the default linktype */
+  capture_opts->saving_to_file          = FALSE;
   capture_opts->save_file               = NULL;
   capture_opts->real_time_mode          = TRUE;
   capture_opts->show_info               = TRUE;
@@ -106,6 +107,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
     g_log(log_domain, log_level, "Promisc            : %u", capture_opts->promisc_mode);
     g_log(log_domain, log_level, "LinkType           : %d", capture_opts->linktype);
+    g_log(log_domain, log_level, "SavingToFile       : %u", capture_opts->saving_to_file);
     g_log(log_domain, log_level, "SaveFile           : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
     g_log(log_domain, log_level, "RealTimeMode       : %u", capture_opts->real_time_mode);
     g_log(log_domain, log_level, "ShowInfo           : %u", capture_opts->show_info);
@@ -223,7 +225,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     capture_opts->file_duration = get_positive_int(p, "ring buffer duration");
   }
 
-  *colonp = ':';	/* put the colon back */
+  *colonp = ':';    /* put the colon back */
   return TRUE;
 }
 
@@ -355,6 +357,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->real_time_mode = TRUE;
         break;
     case 'w':        /* Write to capture file x */
+        capture_opts->saving_to_file = TRUE;
 #if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
         /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
         capture_opts->save_file = g_locale_to_utf8(optarg, -1, NULL, NULL, NULL);
@@ -363,7 +366,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 #endif
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
-	    break;
+        break;
     case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts->linktype = linktype_name_to_val(optarg);
@@ -396,11 +399,11 @@ int capture_opts_list_link_layer_types(capture_options *capture_opts)
     lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
     if (lt_list == NULL) {
       if (err_str[0] != '\0') {
-	cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
-	  "Please check to make sure you have sufficient permissions, and that\n"
-	  "you have the proper interface or pipe specified.\n", capture_opts->iface, err_str);
+        cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
+         "Please check to make sure you have sufficient permissions, and that\n"
+         "you have the proper interface or pipe specified.\n", capture_opts->iface, err_str);
       } else
-	cmdarg_err("The capture device \"%s\" has no data link types.", capture_opts->iface);
+        cmdarg_err("The capture device \"%s\" has no data link types.", capture_opts->iface);
       return 2;
     }
     cmdarg_err_cont("Data link types (use option -y to set):");
@@ -409,9 +412,9 @@ int capture_opts_list_link_layer_types(capture_options *capture_opts)
       data_link_info = lt_entry->data;
       cmdarg_err_cont("  %s", data_link_info->name);
       if (data_link_info->description != NULL)
-	cmdarg_err_cont(" (%s)", data_link_info->description);
+        cmdarg_err_cont(" (%s)", data_link_info->description);
       else
-	cmdarg_err_cont(" (not supported)");
+        cmdarg_err_cont(" (not supported)");
       putchar('\n');
     }
     free_pcap_linktype_list(lt_list);

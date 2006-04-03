@@ -206,13 +206,14 @@ void exit_main(int status)
 #ifdef _WIN32
   /* Shutdown windows sockets */
   WSACleanup();
-#endif
 
   /* can be helpful for debugging */
 #ifdef DEBUG_DUMPCAP
   printf("Press any key\n");
   _getch();
 #endif
+
+#endif /* _WIN32 */
 
   exit(status);
 }
@@ -303,7 +304,12 @@ main(int argc, char *argv[])
      by the command line parameters. */
   capture_opts_init(capture_opts, NULL);
 
-  capture_opts->snaplen             = MIN_PACKET_SIZE;
+  /* Default to capturing the entire packet. */
+  capture_opts->snaplen             = WTAP_MAX_PACKET_SIZE;
+
+  /* We always save to a file - if no file was specified, we save to a
+     temporary file. */
+  capture_opts->saving_to_file      = TRUE;
   capture_opts->has_ring_num_files  = TRUE;
 
   /* Now get our args */
@@ -447,10 +453,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   const char *level;
 
 
-  if(capture_child) {
-    return;
-  }
-
   /* ignore log message, if log_level isn't interesting */
   if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
 #ifndef DEBUG_DUMPCAP
@@ -462,44 +464,44 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   time(&curr);
   today = localtime(&curr);    
 
-    switch(log_level & G_LOG_LEVEL_MASK) {
-    case G_LOG_LEVEL_ERROR:
-        level = "Err ";
-        break;
-    case G_LOG_LEVEL_CRITICAL:
-        level = "Crit";
-        break;
-    case G_LOG_LEVEL_WARNING:
-        level = "Warn";
-        break;
-    case G_LOG_LEVEL_MESSAGE:
-        level = "Msg ";
-        break;
-    case G_LOG_LEVEL_INFO:
-        level = "Info";
-        break;
-    case G_LOG_LEVEL_DEBUG:
-        level = "Dbg ";
-        break;
-    default:
-        fprintf(stderr, "unknown log_level %u\n", log_level);
-        level = NULL;
-        g_assert_not_reached();
-    }
+  switch(log_level & G_LOG_LEVEL_MASK) {
+  case G_LOG_LEVEL_ERROR:
+    level = "Err ";
+    break;
+  case G_LOG_LEVEL_CRITICAL:
+    level = "Crit";
+    break;
+  case G_LOG_LEVEL_WARNING:
+    level = "Warn";
+    break;
+  case G_LOG_LEVEL_MESSAGE:
+    level = "Msg ";
+    break;
+  case G_LOG_LEVEL_INFO:
+    level = "Info";
+    break;
+  case G_LOG_LEVEL_DEBUG:
+    level = "Dbg ";
+    break;
+  default:
+    fprintf(stderr, "unknown log_level %u\n", log_level);
+    level = NULL;
+    g_assert_not_reached();
+  }
 
-    /* don't use printf (stdout), in child mode we're using stdout for the sync_pipe */
-    if(log_level & G_LOG_LEVEL_MESSAGE) {
-        /* normal user messages without additional infos */
-        fprintf(stderr, "%s\n", message);
-        fflush(stderr);
-    } else {
-        /* info/debug messages with additional infos */
-        fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
-                today->tm_hour, today->tm_min, today->tm_sec,
-                log_domain != NULL ? log_domain : "",
-                level, message);
-        fflush(stderr);
-    }
+  /* don't use printf (stdout), in child mode we're using stdout for the sync_pipe */
+  if(log_level & G_LOG_LEVEL_MESSAGE) {
+    /* normal user messages without additional infos */
+    fprintf(stderr, "%s\n", message);
+    fflush(stderr);
+  } else {
+    /* info/debug messages with additional infos */
+    fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
+            today->tm_hour, today->tm_min, today->tm_sec,
+            log_domain != NULL ? log_domain : "",
+            level, message);
+    fflush(stderr);
+  }
 }
 
 
