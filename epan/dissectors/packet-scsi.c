@@ -164,6 +164,12 @@ static int hf_scsi_ascascq               = -1;
 static int hf_scsi_ascq                  = -1;
 static int hf_scsi_fru                   = -1;
 static int hf_scsi_sksv                  = -1;
+static int hf_scsi_inq_sccsflags         = -1;
+static int hf_scsi_inq_sccs              = -1;
+static int hf_scsi_inq_acc               = -1;
+static int hf_scsi_inq_tpc               = -1;
+static int hf_scsi_inq_protect           = -1;
+static int hf_scsi_inq_tpgs              = -1;
 static int hf_scsi_inq_acaflags          = -1;
 static int hf_scsi_inq_normaca           = -1;
 static int hf_scsi_inq_hisup             = -1;
@@ -326,6 +332,7 @@ static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
 static gint ett_scsi_profile = -1;
 static gint ett_scsi_inq_acaflags = -1;
+static gint ett_scsi_inq_sccsflags = -1;
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
@@ -1061,6 +1068,26 @@ static const true_false_string scsi_modesns_qerr_val = {
 static const true_false_string normaca_tfs = {
     "NormACA is SUPPORTED",
     "Normaca is NOT supported",
+};
+
+static const true_false_string sccs_tfs = {
+    "SCC is SUPPORTED",
+    "Scc is NOT supported",
+};
+
+static const true_false_string acc_tfs = {
+    "Access Control Coordinator is SUPPORTED",
+    "Access control coordinator NOT supported",
+};
+
+static const true_false_string tpc_tfs = {
+    "Third Party Copy is SUPPORTED",
+    "Third party copy is NOT supported",
+};
+
+static const true_false_string protect_tfs = {
+    "Protection Information is SUPPORTED",
+    "Protection information NOT supported",
 };
 
 static const true_false_string hisup_tfs = {
@@ -1934,6 +1961,71 @@ dissect_spc3_inq_acaflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	return offset;
 }
 
+#define SCSI_INQ_SCCSFLAGS_SCCS		0x80
+#define SCSI_INQ_SCCSFLAGS_ACC		0x40
+#define SCSI_INQ_SCCSFLAGS_TPC		0x08
+#define SCSI_INQ_SCCSFLAGS_PROTECT	0x01
+
+static const value_string inq_tpgs_vals[] = {
+	{ 0, "Assymetric LU Access not supported" },
+	{ 1, "Implicit Assymetric LU Access supported" },
+	{ 2, "Explicit LU Access supported" },
+	{ 3, "Both Implicit and Explicit LU Access supported" },
+	{ 0, NULL }
+};
+
+/* This dissects byte 5 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
+static int
+dissect_spc3_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+{
+	guint8 flags;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item=proto_tree_add_item(parent_tree, hf_scsi_inq_sccsflags, tvb, offset, 1, 0);
+		tree = proto_item_add_subtree (item, ett_scsi_inq_sccsflags);
+	}
+
+        flags=tvb_get_guint8 (tvb, offset);
+
+	/* SCCS (introduced in SPC-2) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_sccs, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_SCCSFLAGS_SCCS){
+		proto_item_append_text(item, "  SCCS");
+	}
+	flags&=(~SCSI_INQ_SCCSFLAGS_SCCS);
+
+	/* ACC (introduced in SPC-3) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_acc, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_SCCSFLAGS_ACC){
+		proto_item_append_text(item, "  ACC");
+	}
+	flags&=(~SCSI_INQ_SCCSFLAGS_ACC);
+
+	/* TPGS (introduced in SPC-3) */
+	proto_tree_add_item (tree, hf_scsi_inq_tpgs, tvb, offset, 1, 0);
+	flags&=0xcf;
+
+	/* TPC (introduced in SPC-3) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_tpc, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_SCCSFLAGS_TPC){
+		proto_item_append_text(item, "  3PC");
+	}
+	flags&=(~SCSI_INQ_SCCSFLAGS_TPC);
+
+	/* Protect (introduced in SPC-3) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_protect, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_SCCSFLAGS_PROTECT){
+		proto_item_append_text(item, "  PROTECT");
+	}
+	flags&=(~SCSI_INQ_SCCSFLAGS_PROTECT);
+
+
+	offset+=1;
+	return offset;
+}
+
 static void
 dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
@@ -2052,24 +2144,27 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              tot_len);
 	offset+=1;
 
-        flags = tvb_get_guint8 (tvb, offset+1);
-        proto_tree_add_text (tree, tvb, offset+1, 1,
+	/* sccs flags */
+	offset=dissect_spc3_inq_sccsflags(tvb, offset, tree);
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
                              "BQue: %u, SES: %u, MultiP: %u, Addr16: %u",
                              ((flags & 0x80) >> 7), (flags & 0x40) >> 6,
                              (flags & 0x10) >> 4, (flags & 0x01));
-        flags = tvb_get_guint8 (tvb, offset+2);
-        proto_tree_add_text (tree, tvb, offset+2, 1,
+        flags = tvb_get_guint8 (tvb, offset+1);
+        proto_tree_add_text (tree, tvb, offset+1, 1,
                              "RelAdr: %u, Linked: %u, CmdQue: %u",
                              (flags & 0x80) >> 7, (flags & 0x08) >> 3,
                              (flags & 0x02) >> 1);
-        proto_tree_add_text (tree, tvb, offset+3, 8, "Vendor Id: %s",
-                             tvb_format_stringzpad (tvb, offset+3, 8));
-        proto_tree_add_text (tree, tvb, offset+11, 16, "Product ID: %s",
-                             tvb_format_stringzpad (tvb, offset+11, 16));
-        proto_tree_add_text (tree, tvb, offset+27, 4, "Product Revision: %s",
-                             tvb_format_stringzpad (tvb, offset+27, 4));
+        proto_tree_add_text (tree, tvb, offset+2, 8, "Vendor Id: %s",
+                             tvb_format_stringzpad (tvb, offset+2, 8));
+        proto_tree_add_text (tree, tvb, offset+10, 16, "Product ID: %s",
+                             tvb_format_stringzpad (tvb, offset+10, 16));
+        proto_tree_add_text (tree, tvb, offset+26, 4, "Product Revision: %s",
+                             tvb_format_stringzpad (tvb, offset+26, 4));
 
-        offset += 53;
+        offset += 52;
         if ((tot_len > 58) && tvb_bytes_exist (tvb, offset, 16)) {
             for (i = 0; i < 8; i++) {
                 proto_tree_add_text (tree, tvb, offset, 2,
@@ -7957,6 +8052,24 @@ proto_register_scsi (void)
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS (scsi_inquiry_vers_val), 0x0, "", HFILL}},
+        { &hf_scsi_inq_sccsflags,
+          {"SCCS Flags", "scsi.inquiry.sccsflags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_inq_sccs,
+          {"SCCS", "scsi.inquiry.sccs", FT_BOOLEAN, 8, TFS(&sccs_tfs), SCSI_INQ_SCCSFLAGS_SCCS,
+           "", HFILL}},
+        { &hf_scsi_inq_acc,
+          {"ACC", "scsi.inquiry.acc", FT_BOOLEAN, 8, TFS(&acc_tfs), SCSI_INQ_SCCSFLAGS_ACC,
+           "", HFILL}},
+        { &hf_scsi_inq_tpc,
+          {"3PC", "scsi.inquiry.tpc", FT_BOOLEAN, 8, TFS(&tpc_tfs), SCSI_INQ_SCCSFLAGS_TPC,
+           "", HFILL}},
+        { &hf_scsi_inq_protect,
+          {"Protect", "scsi.inquiry.protect", FT_BOOLEAN, 8, TFS(&protect_tfs), SCSI_INQ_SCCSFLAGS_PROTECT,
+           "", HFILL}},
+        { &hf_scsi_inq_tpgs,
+          {"TPGS", "scsi.inquiry.tpgs", FT_UINT8, BASE_DEC, VALS(inq_tpgs_vals), 0x30,
+           "", HFILL}},
         { &hf_scsi_inq_acaflags,
           {"ACA Flags", "scsi.inquiry.acaflags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
@@ -8493,6 +8606,7 @@ proto_register_scsi (void)
 	&ett_scsi_page,
 	&ett_scsi_profile,
 	&ett_scsi_inq_acaflags,
+	&ett_scsi_inq_sccsflags,
     };
     module_t *scsi_module;
 
