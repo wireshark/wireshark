@@ -164,6 +164,12 @@ static int hf_scsi_ascascq               = -1;
 static int hf_scsi_ascq                  = -1;
 static int hf_scsi_fru                   = -1;
 static int hf_scsi_sksv                  = -1;
+static int hf_scsi_inq_bqueflags         = -1;
+static int hf_scsi_inq_bque              = -1;
+static int hf_scsi_inq_encserv           = -1;
+static int hf_scsi_inq_vs                = -1;
+static int hf_scsi_inq_multip            = -1;
+static int hf_scsi_inq_mchngr            = -1;
 static int hf_scsi_inq_sccsflags         = -1;
 static int hf_scsi_inq_sccs              = -1;
 static int hf_scsi_inq_acc               = -1;
@@ -333,6 +339,7 @@ static gint ett_scsi_page    = -1;
 static gint ett_scsi_profile = -1;
 static gint ett_scsi_inq_acaflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
+static gint ett_scsi_inq_bqueflags = -1;
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
@@ -1078,6 +1085,31 @@ static const true_false_string sccs_tfs = {
 static const true_false_string acc_tfs = {
     "Access Control Coordinator is SUPPORTED",
     "Access control coordinator NOT supported",
+};
+
+static const true_false_string bque_tfs = {
+    "BQUE is SUPPORTED",
+    "Bque is NOT supported",
+};
+
+static const true_false_string encserv_tfs = {
+    "Enclosed Services is SUPPORTED",
+    "Enclosed services is NOT supported",
+};
+
+static const true_false_string vs_tfs = {
+    "VS bit is SET",
+    "Vs bit is clear",
+};
+
+static const true_false_string multip_tfs = {
+    "This is a MULTIPORT device",
+    "This is NOT a multiport device",
+};
+
+static const true_false_string mchngr_tfs = {
+    "This device is attached to a MEDIUMCHANGER",
+    "This is a normal device",
 };
 
 static const true_false_string tpc_tfs = {
@@ -2026,6 +2058,69 @@ dissect_spc3_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	return offset;
 }
 
+
+#define SCSI_INQ_BQUEFLAGS_BQUE		0x80
+#define SCSI_INQ_BQUEFLAGS_ENCSERV	0x40
+#define SCSI_INQ_BQUEFLAGS_VS		0x20
+#define SCSI_INQ_BQUEFLAGS_MULTIP	0x10
+#define SCSI_INQ_BQUEFLAGS_MCHNGR	0x08
+
+/* This dissects byte 6 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
+static int
+dissect_spc3_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+{
+	guint8 flags;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item=proto_tree_add_item(parent_tree, hf_scsi_inq_bqueflags, tvb, offset, 1, 0);
+		tree = proto_item_add_subtree (item, ett_scsi_inq_bqueflags);
+	}
+
+        flags=tvb_get_guint8 (tvb, offset);
+
+	/* BQUE (introduced in SPC-2) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_bque, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_BQUEFLAGS_BQUE){
+		proto_item_append_text(item, "  BQue");
+	}
+	flags&=(~SCSI_INQ_BQUEFLAGS_BQUE);
+
+	/* EncServ */
+	proto_tree_add_boolean(tree, hf_scsi_inq_encserv, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_BQUEFLAGS_ENCSERV){
+		proto_item_append_text(item, "  EncServ");
+	}
+	flags&=(~SCSI_INQ_BQUEFLAGS_ENCSERV);
+
+	/* VS */
+	proto_tree_add_boolean(tree, hf_scsi_inq_vs, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_BQUEFLAGS_VS){
+		proto_item_append_text(item, "  VS");
+	}
+	flags&=(~SCSI_INQ_BQUEFLAGS_VS);
+
+	/* MultiP */
+	proto_tree_add_boolean(tree, hf_scsi_inq_multip, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_BQUEFLAGS_MULTIP){
+		proto_item_append_text(item, "  MultiP");
+	}
+	flags&=(~SCSI_INQ_BQUEFLAGS_MULTIP);
+
+	/* MChngr */
+	proto_tree_add_boolean(tree, hf_scsi_inq_mchngr, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_BQUEFLAGS_MCHNGR){
+		proto_item_append_text(item, "  MChngr");
+	}
+	flags&=(~SCSI_INQ_BQUEFLAGS_MCHNGR);
+
+
+	offset+=1;
+	return offset;
+}
+
+
 static void
 dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
@@ -2147,24 +2242,23 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* sccs flags */
 	offset=dissect_spc3_inq_sccsflags(tvb, offset, tree);
 
+	/* bque flags */
+	offset=dissect_spc3_inq_bqueflags(tvb, offset, tree);
+
+
         flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
-                             "BQue: %u, SES: %u, MultiP: %u, Addr16: %u",
-                             ((flags & 0x80) >> 7), (flags & 0x40) >> 6,
-                             (flags & 0x10) >> 4, (flags & 0x01));
-        flags = tvb_get_guint8 (tvb, offset+1);
-        proto_tree_add_text (tree, tvb, offset+1, 1,
                              "RelAdr: %u, Linked: %u, CmdQue: %u",
                              (flags & 0x80) >> 7, (flags & 0x08) >> 3,
                              (flags & 0x02) >> 1);
-        proto_tree_add_text (tree, tvb, offset+2, 8, "Vendor Id: %s",
-                             tvb_format_stringzpad (tvb, offset+2, 8));
-        proto_tree_add_text (tree, tvb, offset+10, 16, "Product ID: %s",
-                             tvb_format_stringzpad (tvb, offset+10, 16));
-        proto_tree_add_text (tree, tvb, offset+26, 4, "Product Revision: %s",
-                             tvb_format_stringzpad (tvb, offset+26, 4));
+        proto_tree_add_text (tree, tvb, offset+1, 8, "Vendor Id: %s",
+                             tvb_format_stringzpad (tvb, offset+1, 8));
+        proto_tree_add_text (tree, tvb, offset+9, 16, "Product ID: %s",
+                             tvb_format_stringzpad (tvb, offset+9, 16));
+        proto_tree_add_text (tree, tvb, offset+25, 4, "Product Revision: %s",
+                             tvb_format_stringzpad (tvb, offset+25, 4));
 
-        offset += 52;
+        offset += 51;
         if ((tot_len > 58) && tvb_bytes_exist (tvb, offset, 16)) {
             for (i = 0; i < 8; i++) {
                 proto_tree_add_text (tree, tvb, offset, 2,
@@ -8052,6 +8146,24 @@ proto_register_scsi (void)
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS (scsi_inquiry_vers_val), 0x0, "", HFILL}},
+        { &hf_scsi_inq_bqueflags,
+          {"BQUE Flags", "scsi.inquiry.bqueflags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_inq_bque,
+          {"BQue", "scsi.inquiry.bque", FT_BOOLEAN, 8, TFS(&bque_tfs), SCSI_INQ_BQUEFLAGS_BQUE,
+           "", HFILL}},
+        { &hf_scsi_inq_encserv,
+          {"EncServ", "scsi.inquiry.encserv", FT_BOOLEAN, 8, TFS(&encserv_tfs), SCSI_INQ_BQUEFLAGS_ENCSERV,
+           "", HFILL}},
+        { &hf_scsi_inq_multip,
+          {"MultiP", "scsi.inquiry.multip", FT_BOOLEAN, 8, TFS(&multip_tfs), SCSI_INQ_BQUEFLAGS_MULTIP,
+           "", HFILL}},
+        { &hf_scsi_inq_mchngr,
+          {"MChngr", "scsi.inquiry.mchngr", FT_BOOLEAN, 8, TFS(&mchngr_tfs), SCSI_INQ_BQUEFLAGS_MCHNGR,
+           "", HFILL}},
+        { &hf_scsi_inq_vs,
+          {"VS", "scsi.inquiry.vs", FT_BOOLEAN, 8, TFS(&vs_tfs), SCSI_INQ_BQUEFLAGS_VS,
+           "", HFILL}},
         { &hf_scsi_inq_sccsflags,
           {"SCCS Flags", "scsi.inquiry.sccsflags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
@@ -8607,6 +8719,7 @@ proto_register_scsi (void)
 	&ett_scsi_profile,
 	&ett_scsi_inq_acaflags,
 	&ett_scsi_inq_sccsflags,
+	&ett_scsi_inq_bqueflags,
     };
     module_t *scsi_module;
 
