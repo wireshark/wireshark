@@ -1399,7 +1399,7 @@ capture_dlg_prep(gpointer parent_w) {
   capture_opts->cfilter = g_strdup(filter_text);
 
   /* Ethereal always saves to a capture file. */
-  capture_opts->save_file = TRUE;
+  capture_opts->saving_to_file = TRUE;
   g_save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
   if (g_save_file && g_save_file[0]) {
     /* User specified a file to which the capture should be written. */
