@@ -6449,6 +6449,8 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
     }
     if (check_col (pinfo->cinfo, COL_INFO)) {
          col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
+
+	col_set_fence(pinfo->cinfo, COL_INFO);
      }
 
 }
@@ -6477,6 +6479,8 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     PROTO_ITEM_SET_GENERATED(ti);
     if (check_col (pinfo->cinfo, COL_INFO)) {
          col_append_fstr (pinfo->cinfo, COL_INFO, " LUN:0x%02x ", lun);
+
+	col_set_fence(pinfo->cinfo, COL_INFO);
     }
 
     dissect_scsi_fix_snsinfo (tvb, sns_tree, offset);
@@ -7893,14 +7897,14 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         hf_opcode=hf_scsi_spcopcode;
     }
 
-    if (valstr != NULL) {
-        if (check_col (pinfo->cinfo, COL_INFO)) {
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+        if (valstr != NULL) {
             col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: %s LUN: 0x%02x ", valstr, lun);
-        }
-    } else {
-        if (check_col (pinfo->cinfo, COL_INFO)) {
+        } else {
             col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI Command: 0x%02x LUN:0x%02x ", opcode, lun);
         }
+	/* make sure no one will overwrite this in the info column */
+	col_set_fence(pinfo->cinfo, COL_INFO);
     }
 
     cdata = scsi_new_task (pinfo);
@@ -7992,16 +7996,20 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                          cdata->cdb_vals,
                                                          "0x%02x"),
                                              isreq ? "Request" : "Response");
-	if (check_col (pinfo->cinfo, COL_INFO)) {
-	    col_add_fstr (pinfo->cinfo, COL_INFO,
-			"SCSI: Data %s LUN: 0x%02x (%s %s) ",
-			isreq ? "Out" : "In",
-			lun,
-			val_to_str (opcode, cdata->cdb_vals, "0x%02x"),
-			isreq ? "Request" : "Response");
-	}
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
     }
+
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+	col_add_fstr (pinfo->cinfo, COL_INFO,
+		"SCSI: Data %s LUN: 0x%02x (%s %s) ",
+		isreq ? "Out" : "In",
+		lun,
+		val_to_str (opcode, cdata->cdb_vals, "0x%02x"),
+		isreq ? "Request" : "Response");
+
+	col_set_fence(pinfo->cinfo, COL_INFO);
+    }
+
 
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
     PROTO_ITEM_SET_GENERATED(ti);
