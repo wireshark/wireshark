@@ -164,10 +164,13 @@ static int hf_scsi_ascascq               = -1;
 static int hf_scsi_ascq                  = -1;
 static int hf_scsi_fru                   = -1;
 static int hf_scsi_sksv                  = -1;
+static int hf_scsi_inq_reladrflags       = -1;
+static int hf_scsi_inq_reladr            = -1;
+static int hf_scsi_inq_linked            = -1;
+static int hf_scsi_inq_cmdque            = -1;
 static int hf_scsi_inq_bqueflags         = -1;
 static int hf_scsi_inq_bque              = -1;
 static int hf_scsi_inq_encserv           = -1;
-static int hf_scsi_inq_vs                = -1;
 static int hf_scsi_inq_multip            = -1;
 static int hf_scsi_inq_mchngr            = -1;
 static int hf_scsi_inq_sccsflags         = -1;
@@ -340,6 +343,7 @@ static gint ett_scsi_profile = -1;
 static gint ett_scsi_inq_acaflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
 static gint ett_scsi_inq_bqueflags = -1;
+static gint ett_scsi_inq_reladrflags = -1;
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
@@ -1097,9 +1101,19 @@ static const true_false_string encserv_tfs = {
     "Enclosed services is NOT supported",
 };
 
-static const true_false_string vs_tfs = {
-    "VS bit is SET",
-    "Vs bit is clear",
+static const true_false_string reladr_tfs = {
+    "Relative Addressing mode is SUPPORTED",
+    "Relative addressing mode is NOT supported",
+};
+
+static const true_false_string linked_tfs = {
+    "Linked Commands are SUPPORTED",
+    "Linked commands are NOT supported",
+};
+
+static const true_false_string cmdque_tfs = {
+    "Command queuing is SUPPORTED",
+    "Command queuing is NOT supported",
 };
 
 static const true_false_string multip_tfs = {
@@ -2061,7 +2075,6 @@ dissect_spc3_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 #define SCSI_INQ_BQUEFLAGS_BQUE		0x80
 #define SCSI_INQ_BQUEFLAGS_ENCSERV	0x40
-#define SCSI_INQ_BQUEFLAGS_VS		0x20
 #define SCSI_INQ_BQUEFLAGS_MULTIP	0x10
 #define SCSI_INQ_BQUEFLAGS_MCHNGR	0x08
 
@@ -2094,13 +2107,6 @@ dissect_spc3_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	}
 	flags&=(~SCSI_INQ_BQUEFLAGS_ENCSERV);
 
-	/* VS */
-	proto_tree_add_boolean(tree, hf_scsi_inq_vs, tvb, offset, 1, flags);
-	if(flags&SCSI_INQ_BQUEFLAGS_VS){
-		proto_item_append_text(item, "  VS");
-	}
-	flags&=(~SCSI_INQ_BQUEFLAGS_VS);
-
 	/* MultiP */
 	proto_tree_add_boolean(tree, hf_scsi_inq_multip, tvb, offset, 1, flags);
 	if(flags&SCSI_INQ_BQUEFLAGS_MULTIP){
@@ -2120,6 +2126,50 @@ dissect_spc3_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	return offset;
 }
 
+#define SCSI_INQ_RELADRFLAGS_RELADR		0x80
+#define SCSI_INQ_RELADRFLAGS_LINKED		0x08
+#define SCSI_INQ_RELADRFLAGS_CMDQUE		0x02
+
+/* This dissects byte 7 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
+static int
+dissect_spc3_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+{
+	guint8 flags;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item=proto_tree_add_item(parent_tree, hf_scsi_inq_reladrflags, tvb, offset, 1, 0);
+		tree = proto_item_add_subtree (item, ett_scsi_inq_reladrflags);
+	}
+
+        flags=tvb_get_guint8 (tvb, offset);
+
+	/* RelAdr (obsolete in SPC-3 and later) */
+	proto_tree_add_boolean(tree, hf_scsi_inq_reladr, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_RELADRFLAGS_RELADR){
+		proto_item_append_text(item, "  RelAdr");
+	}
+	flags&=(~SCSI_INQ_RELADRFLAGS_RELADR);
+
+	/* Linked */
+	proto_tree_add_boolean(tree, hf_scsi_inq_linked, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_RELADRFLAGS_LINKED){
+		proto_item_append_text(item, "  Linked");
+	}
+	flags&=(~SCSI_INQ_RELADRFLAGS_LINKED);
+
+	/* CmdQue */
+	proto_tree_add_boolean(tree, hf_scsi_inq_cmdque, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_RELADRFLAGS_CMDQUE){
+		proto_item_append_text(item, "  CmdQue");
+	}
+	flags&=(~SCSI_INQ_RELADRFLAGS_CMDQUE);
+
+
+	offset+=1;
+	return offset;
+}
 
 static void
 dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -2245,20 +2295,18 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* bque flags */
 	offset=dissect_spc3_inq_bqueflags(tvb, offset, tree);
 
+	/* reladdr flags */
+	offset=dissect_spc3_inq_reladrflags(tvb, offset, tree);
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "RelAdr: %u, Linked: %u, CmdQue: %u",
-                             (flags & 0x80) >> 7, (flags & 0x08) >> 3,
-                             (flags & 0x02) >> 1);
-        proto_tree_add_text (tree, tvb, offset+1, 8, "Vendor Id: %s",
-                             tvb_format_stringzpad (tvb, offset+1, 8));
-        proto_tree_add_text (tree, tvb, offset+9, 16, "Product ID: %s",
-                             tvb_format_stringzpad (tvb, offset+9, 16));
-        proto_tree_add_text (tree, tvb, offset+25, 4, "Product Revision: %s",
-                             tvb_format_stringzpad (tvb, offset+25, 4));
 
-        offset += 51;
+        proto_tree_add_text (tree, tvb, offset, 8, "Vendor Id: %s",
+                             tvb_format_stringzpad (tvb, offset, 8));
+        proto_tree_add_text (tree, tvb, offset+8, 16, "Product ID: %s",
+                             tvb_format_stringzpad (tvb, offset+8, 16));
+        proto_tree_add_text (tree, tvb, offset+24, 4, "Product Revision: %s",
+                             tvb_format_stringzpad (tvb, offset+24, 4));
+
+        offset += 50;
         if ((tot_len > 58) && tvb_bytes_exist (tvb, offset, 16)) {
             for (i = 0; i < 8; i++) {
                 proto_tree_add_text (tree, tvb, offset, 2,
@@ -8146,8 +8194,20 @@ proto_register_scsi (void)
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS (scsi_inquiry_vers_val), 0x0, "", HFILL}},
+        { &hf_scsi_inq_reladrflags,
+          {"Flags", "scsi.inquiry.reladrflags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_inq_reladr,
+          {"RelAdr", "scsi.inquiry.reladr", FT_BOOLEAN, 8, TFS(&reladr_tfs), SCSI_INQ_RELADRFLAGS_RELADR,
+           "", HFILL}},
+        { &hf_scsi_inq_linked,
+          {"Linked", "scsi.inquiry.linked", FT_BOOLEAN, 8, TFS(&linked_tfs), SCSI_INQ_RELADRFLAGS_LINKED,
+           "", HFILL}},
+        { &hf_scsi_inq_cmdque,
+          {"CmdQue", "scsi.inquiry.cmdque", FT_BOOLEAN, 8, TFS(&cmdque_tfs), SCSI_INQ_RELADRFLAGS_CMDQUE,
+           "", HFILL}},
         { &hf_scsi_inq_bqueflags,
-          {"BQUE Flags", "scsi.inquiry.bqueflags", FT_UINT8, BASE_HEX, NULL, 0,
+          {"Flags", "scsi.inquiry.bqueflags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
         { &hf_scsi_inq_bque,
           {"BQue", "scsi.inquiry.bque", FT_BOOLEAN, 8, TFS(&bque_tfs), SCSI_INQ_BQUEFLAGS_BQUE,
@@ -8160,9 +8220,6 @@ proto_register_scsi (void)
            "", HFILL}},
         { &hf_scsi_inq_mchngr,
           {"MChngr", "scsi.inquiry.mchngr", FT_BOOLEAN, 8, TFS(&mchngr_tfs), SCSI_INQ_BQUEFLAGS_MCHNGR,
-           "", HFILL}},
-        { &hf_scsi_inq_vs,
-          {"VS", "scsi.inquiry.vs", FT_BOOLEAN, 8, TFS(&vs_tfs), SCSI_INQ_BQUEFLAGS_VS,
            "", HFILL}},
         { &hf_scsi_inq_sccsflags,
           {"SCCS Flags", "scsi.inquiry.sccsflags", FT_UINT8, BASE_HEX, NULL, 0,
@@ -8183,7 +8240,7 @@ proto_register_scsi (void)
           {"TPGS", "scsi.inquiry.tpgs", FT_UINT8, BASE_DEC, VALS(inq_tpgs_vals), 0x30,
            "", HFILL}},
         { &hf_scsi_inq_acaflags,
-          {"ACA Flags", "scsi.inquiry.acaflags", FT_UINT8, BASE_HEX, NULL, 0,
+          {"Flags", "scsi.inquiry.acaflags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
         { &hf_scsi_inq_normaca,
           {"NormACA", "scsi.inquiry.normaca", FT_BOOLEAN, 8, TFS(&normaca_tfs), SCSI_INQ_ACAFLAGS_NORMACA,
@@ -8720,6 +8777,7 @@ proto_register_scsi (void)
 	&ett_scsi_inq_acaflags,
 	&ett_scsi_inq_sccsflags,
 	&ett_scsi_inq_bqueflags,
+	&ett_scsi_inq_reladrflags,
     };
     module_t *scsi_module;
 
