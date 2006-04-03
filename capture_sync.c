@@ -410,6 +410,9 @@ sync_pipe_start(capture_options *capture_opts) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Couldn't run %s in child process: error %u",
                     args->str, GetLastError());
+      CloseHandle(sync_pipe_read);
+      CloseHandle(sync_pipe_write);
+      g_free( (gpointer) argv);
       return FALSE;
     }
     capture_opts->fork_child = (int) pi.hProcess;
