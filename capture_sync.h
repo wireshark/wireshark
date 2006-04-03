@@ -35,36 +35,6 @@
 #define __CAPTURE_SYNC_H__
 
 
-/*
- * Maximum length of sync pipe message data.  Must be < 2^24, as the
- * message length is 3 bytes.
- * XXX - this must be large enough to handle a Really Big Filter
- * Expression, as the error message for an incorrect filter expression
- * is a bit larger than the filter expression.
- */
-#define SP_MAX_MSG_LEN	4096
-
-
-/* Size of buffer to hold decimal representation of
-   signed/unsigned 64-bit int */
-#define SP_DECISIZE 20
-
-/*
- * Indications sent out on the sync pipe (from child to parent).
- */
-#define SP_FILE         'F'     /* the name of the recently opened file */
-#define SP_ERROR_MSG    'E'     /* error message */
-#define SP_BAD_FILTER   'B'     /* error message for bad capture filter */
-#define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
-#define SP_DROPS        'D'     /* count of packets dropped in capture */
-/*
- * Win32 only: Indications sent out on the signal pipe (from parent to child)
- * (UNIX-like sends signals for this)
- */
-#define SP_QUIT         'Q'     /* "gracefully" capture quit message (SIGUSR1) */
-
-
-
 /** 
  * Start a new capture session.
  *  Create a capture child which is doing the real capture work.
@@ -86,29 +56,6 @@ sync_pipe_stop(capture_options *capture_opts);
 /** User wants to stop the program, just kill the child as soon as possible */
 extern void
 sync_pipe_kill(capture_options *capture_opts);
-
-
-/** the child has opened a new capture file, notify the parent */
-extern void
-sync_pipe_filename_to_parent(const char *filename);
-
-/** the child captured some new packets, notify the parent */
-extern void
-sync_pipe_packet_count_to_parent(int packet_count);
-
-/** the child stopped capturing, notify the parent */
-extern void
-sync_pipe_drops_to_parent(int drops);
-
-/** the child encountered an error with a capture filter, notify the parent */
-extern void
-sync_pipe_cfilter_error_to_parent(const char *cfilter, const char *errmsg);
-
-/** the child encountered an error, notify the parent */
-extern void 
-sync_pipe_errmsg_to_parent(const char *error_msg,
-                           const char *secondary_error_msg);
-
 
 /** does the parent signalled the child to stop */
 #ifdef _WIN32

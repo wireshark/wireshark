@@ -528,7 +528,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
           "\n"
           "Nonetheless, the capture is started.\n",
           capture_opts->buffer_size);
-        sync_pipe_errmsg_to_parent("Couldn't set the capture buffer size!",
+        report_capture_error("Couldn't set the capture buffer size!",
                                    sync_secondary_msg_str);
         g_free(sync_secondary_msg_str);
     }
@@ -643,7 +643,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
      returned a warning; print it, but keep capturing. */
   if (open_err_str[0] != '\0') {
     sync_msg_str = g_strdup_printf("%s.", open_err_str);
-    sync_pipe_errmsg_to_parent(sync_msg_str, "");
+    report_capture_error(sync_msg_str, "");
     g_free(sync_msg_str);
   }
 
@@ -825,7 +825,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
         if (sel_ret < 0 && errno != EINTR) {
           g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
-          sync_pipe_errmsg_to_parent(errmsg, please_report);
+          report_capture_error(errmsg, please_report);
           ld->go = FALSE;
         }
       } else {
@@ -904,7 +904,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
           if (sel_ret < 0 && errno != EINTR) {
             g_snprintf(errmsg, errmsg_len,
               "Unexpected error from select: %s", strerror(errno));
-            sync_pipe_errmsg_to_parent(errmsg, please_report);
+            report_capture_error(errmsg, please_report);
             ld->go = FALSE;
           }
         }
@@ -1174,7 +1174,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
        update its windows to indicate that we have a live capture in
        progress. */
     libpcap_dump_flush(ld.pdh, NULL);
-    sync_pipe_filename_to_parent(capture_opts->save_file);
+    report_new_capture_file(capture_opts->save_file);
   }
 
   /* initialize capture stop (and alike) conditions */
@@ -1240,9 +1240,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
               cnd_reset(cnd_file_duration);
             }
             libpcap_dump_flush(ld.pdh, NULL);
-            sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
+            report_packet_count(inpkts_to_sync_pipe);
             inpkts_to_sync_pipe = 0;
-            sync_pipe_filename_to_parent(capture_opts->save_file);
+            report_new_capture_file(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1279,7 +1279,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
         /* Send our parent a message saying we've written out "inpkts_to_sync_pipe"
            packets to the capture file. */
-        sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
+        report_packet_count(inpkts_to_sync_pipe);
 
         inpkts_to_sync_pipe = 0;
       }
@@ -1309,9 +1309,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
             libpcap_dump_flush(ld.pdh, NULL);
-            sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
+            report_packet_count(inpkts_to_sync_pipe);
             inpkts_to_sync_pipe = 0;
-            sync_pipe_filename_to_parent(capture_opts->save_file);
+            report_new_capture_file(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1343,11 +1343,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (ld.pcap_err) {
     g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
       pcap_geterr(ld.pcap_h));
-    sync_pipe_errmsg_to_parent(errmsg, please_report);
+    report_capture_error(errmsg, please_report);
   }
 #ifndef _WIN32
     else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
-      sync_pipe_errmsg_to_parent(errmsg, "");
+      report_capture_error(errmsg, "");
 #endif
 
   /* did we had an error while capturing? */
@@ -1356,7 +1356,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   } else {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, ld.err,
 			      FALSE);
-    sync_pipe_errmsg_to_parent(errmsg, please_report);
+    report_capture_error(errmsg, please_report);
     write_ok = FALSE;
   }
 
@@ -1369,7 +1369,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* there might be packets not yet notified to the parent */
   /* (do this after closing the file, so all packets are already flushed) */
   if(inpkts_to_sync_pipe) {
-    sync_pipe_packet_count_to_parent(inpkts_to_sync_pipe);
+    report_packet_count(inpkts_to_sync_pipe);
     inpkts_to_sync_pipe = 0;
   }
 
@@ -1378,7 +1378,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (!close_ok && write_ok) {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, err_close,
 		TRUE);
-    sync_pipe_errmsg_to_parent(errmsg, "");
+    report_capture_error(errmsg, "");
   }
 
   /*
@@ -1398,12 +1398,12 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     if (pcap_stats(ld.pcap_h, stats) >= 0) {
       *stats_known = TRUE;
       /* Let the parent process know. */
-      sync_pipe_drops_to_parent(stats->ps_drop);
+      report_packet_drops(stats->ps_drop);
     } else {
       g_snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
 		pcap_geterr(ld.pcap_h));
-      sync_pipe_errmsg_to_parent(errmsg, please_report);
+      report_capture_error(errmsg, please_report);
     }
   }
 
@@ -1435,9 +1435,9 @@ error:
   }
   capture_opts->save_file = NULL;
   if (cfilter_error)
-    sync_pipe_cfilter_error_to_parent(capture_opts->cfilter, errmsg);
+    report_cfilter_error(capture_opts->cfilter, errmsg);
   else
-    sync_pipe_errmsg_to_parent(errmsg, secondary_errmsg);
+    report_capture_error(errmsg, secondary_errmsg);
 
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);

@@ -54,6 +54,8 @@
 #include "capture-wpcap.h"
 #endif
 
+#include "sync_pipe.h"
+
 #include "capture.h"
 #include "capture_loop.h"
 #include "capture_sync.h"
@@ -506,70 +508,11 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 
 /****************************************************************************************************************/
-/* sync_pipe handling */
-
-
-/* write a single message header to the recipient pipe */
-static int
-pipe_write_header(int pipe, char indicator, int length)
-{
-    guchar header[1+3]; /* indicator + 3-byte len */
-
-
-    g_assert(length <= SP_MAX_MSG_LEN);
-
-    /* write header (indicator + 3-byte len) */
-    header[0] = indicator;
-    header[1] = (length >> 16) & 0xFF;
-    header[2] = (length >> 8) & 0xFF;
-    header[3] = (length >> 0) & 0xFF;
-
-    /* write header */
-    return write(pipe, header, sizeof header);
-}
-
-
-/* write a message to the recipient pipe in the standard format 
-   (3 digit message length (excluding length and indicator field), 
-   1 byte message indicator and the rest is the message).
-   If msg is NULL, the message has only a length and indicator. */
-static void
-pipe_write_block(int pipe, char indicator, const char *msg)
-{
-    int ret;
-    size_t len;
-
-    /*g_warning("write %d enter", pipe);*/
-
-    if(msg != NULL) {
-        len = strlen(msg) + 1;    /* including the terminating '\0'! */
-    } else {
-        len = 0;
-    }
-
-    /* write header (indicator + 3-byte len) */
-    ret = pipe_write_header(pipe, indicator, len);
-    if(ret == -1) {
-        return;
-    }
-
-    /* write value (if we have one) */
-    if(len) {
-        /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe, indicator, len, msg);*/
-        ret = write(pipe, msg, len);
-        if(ret == -1) {
-            return;
-        }
-    } else {
-        /*g_warning("write %d indicator: %c no value", pipe, indicator);*/
-    }
-
-    /*g_warning("write %d leave", pipe);*/
-}
+/* indication report routines */
 
 
 void
-sync_pipe_packet_count_to_parent(int packet_count)
+report_packet_count(int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
     static int count = 0;
@@ -588,10 +531,10 @@ sync_pipe_packet_count_to_parent(int packet_count)
 }
 
 void
-sync_pipe_filename_to_parent(const char *filename)
+report_new_capture_file(const char *filename)
 {
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "File: %s", filename);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
 
     if(capture_child) {
         pipe_write_block(1, SP_FILE, filename);
@@ -599,7 +542,7 @@ sync_pipe_filename_to_parent(const char *filename)
 }
 
 void
-sync_pipe_cfilter_error_to_parent(const char *cfilter _U_, const char *errmsg)
+report_cfilter_error(const char *cfilter _U_, const char *errmsg)
 {
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
@@ -610,30 +553,27 @@ sync_pipe_cfilter_error_to_parent(const char *cfilter _U_, const char *errmsg)
 }
 
 void
-sync_pipe_errmsg_to_parent(const char *error_msg, const char *secondary_error_msg)
+report_capture_error(const char *error_msg, const char *secondary_error_msg)
 {
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, 
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
         "Primary Error: %s", error_msg);
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, 
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
         "Secondary Error: %s", secondary_error_msg);
 
     if(capture_child) {
-        /* first write a "master header" with the length of the two messages plus their "slave headers" */
-        pipe_write_header(1, SP_ERROR_MSG, strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4);
-        pipe_write_block(1, SP_ERROR_MSG, error_msg);
-        pipe_write_block(1, SP_ERROR_MSG, secondary_error_msg);
+    	sync_pipe_errmsg_to_parent(error_msg, secondary_error_msg);
     }
 }
 
 void
-sync_pipe_drops_to_parent(int drops)
+report_packet_drops(int drops)
 {
     char tmp[SP_DECISIZE+1+1];
 
 
     g_snprintf(tmp, sizeof(tmp), "%d", drops);
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_MESSAGE, "Packets dropped: %s", tmp);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets dropped: %s", tmp);
 
     if(capture_child) {
         pipe_write_block(1, SP_DROPS, tmp);

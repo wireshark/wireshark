@@ -89,6 +89,8 @@
 #include "capture_sync.h"
 #include "simple_dialog.h"
 
+#include "sync_pipe.h"
+
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
@@ -405,11 +407,12 @@ sync_pipe_start(capture_options *capture_opts) {
     /* call dumpcap */
     if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        g_warning("Couldn't open dumpcap (Error: %u): %s", GetLastError(), args->str);
-        capture_opts->fork_child = -1;
-    } else {
-        capture_opts->fork_child = (int) pi.hProcess;
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Couldn't run %s in child process: error %u",
+                    args->str, GetLastError());
+      return FALSE;
     }
+    capture_opts->fork_child = (int) pi.hProcess;
     g_string_free(args, TRUE);
 
     /* associate the operating system filehandle to a C run-time file handle */
@@ -440,10 +443,9 @@ sync_pipe_start(capture_options *capture_opts) {
       dup(sync_pipe[PIPE_WRITE]);
       eth_close(sync_pipe[PIPE_READ]);
       execv(exename, argv);
-      /* XXX - find a way to send this message to the parent in a clean way */
-      /*g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+      g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		exename, strerror(errno));
-      sync_pipe_errmsg_to_parent(errmsg, "");*/
+      sync_pipe_errmsg_to_parent(errmsg, "");
 
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but

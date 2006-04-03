@@ -2995,37 +2995,45 @@ cmdarg_err_cont(const char *fmt, ...)
 
 
 /****************************************************************************************************************/
-/* sync pipe "dummies", needed for capture_loop.c */
+/* indication report "dummies", needed for capture_loop.c */
 
 #ifdef HAVE_LIBPCAP
 
-/** the child has opened a new capture file, notify the parent */
+/** Report a new capture file having been opened. */
 void
-sync_pipe_filename_to_parent(const char *filename)
+report_new_capture_file(const char *filename)
 {
     /* shouldn't happen */
-    g_assert(0);
+    g_assert_not_reached();
 }
 
-/** the child captured some new packets, notify the parent */
+/** Report a number of new packets captured. */
 void
-sync_pipe_packet_count_to_parent(int packet_count)
+report_packet_count(int packet_count)
 {
     /* shouldn't happen */
-    g_assert(0);
+    g_assert_not_reached();
 }
 
-/** the child stopped capturing, notify the parent */
+/** Report the packet drops once the capture finishes. */
 void
-sync_pipe_drops_to_parent(int drops)
+report_packet_drops(int drops)
 {
     /* shouldn't happen */
-    g_assert(0);
+    g_assert_not_reached();
 }
 
-/** the child encountered an error with a capture filter, notify the parent */
+/** Report an error in the capture. */
+void 
+report_capture_error(const char *errmsg, const char *secondary_error_msg)
+{
+    cmdarg_err(errmsg);
+    cmdarg_err_cont(secondary_error_msg);
+}
+
+/** Report an error with a capture filter. */
 void
-sync_pipe_cfilter_error_to_parent(const char *cfilter, const char *errmsg)
+report_cfilter_error(const char *cfilter, const char *errmsg)
 {
 
     cmdarg_err(
@@ -3034,14 +3042,6 @@ sync_pipe_cfilter_error_to_parent(const char *cfilter, const char *errmsg)
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
       cfilter, errmsg);
-}
-
-/** the child encountered an error, notify the parent */
-void 
-sync_pipe_errmsg_to_parent(const char *errmsg, const char *secondary_error_msg)
-{
-    cmdarg_err(errmsg);
-    cmdarg_err_cont(secondary_error_msg);
 }
 
 #endif /* HAVE_LIBPCAP */

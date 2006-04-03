@@ -159,4 +159,29 @@ capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_d
 extern gboolean 
 capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close);
 
+/*
+ * Routines called by the capture loop code to report things.
+ */
+
+/** Report a new capture file having been opened. */
+extern void
+report_new_capture_file(const char *filename);
+
+/** Report a number of new packets captured. */
+extern void
+report_packet_count(int packet_count);
+
+/** Report the packet drops once the capture finishes. */
+extern void
+report_packet_drops(int drops);
+
+/** Report an error in the capture. */
+extern void 
+report_capture_error(const char *error_msg, const char *secondary_error_msg);
+
+/** Report an error with a capture filter. */
+extern void
+report_cfilter_error(const char *cfilter, const char *errmsg);
+
+
 #endif /* capture_loop.h */

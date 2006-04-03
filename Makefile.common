@@ -151,6 +151,7 @@ ethereal_SOURCES =	\
 	g711.c \
 	merge.c	\
 	proto_hier_stats.c	\
+	sync_pipe_write.c	\
 	summary.c	\
 	tempfile.c
 
@@ -176,6 +177,7 @@ ethereal_INCLUDES =	\
 	stat_menu.h	\
 	statusbar.h	\
 	summary.h	\
+	sync_pipe.h	\
 	tap_dfilter_dlg.h	\
 	ui_util.h
 
@@ -225,6 +227,7 @@ dumpcap_SOURCES =	\
 	dumpcap.c	\
 	pcapio.c	\
 	ringbuffer.c	\
+	sync_pipe_write.c	\
 	tempfile.c	\
 	version_info.c
 
