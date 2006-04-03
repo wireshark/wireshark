@@ -1,4 +1,5 @@
 /* TODO audit value parameter for proto_tree_add_boolean() calls */
+/* TODO scsi_verdesc_val needs to be updated from appendix D in spc-3 */
 /* packet-scsi.c
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
@@ -170,6 +171,7 @@ static int hf_scsi_ascq                  = -1;
 static int hf_scsi_fru                   = -1;
 static int hf_scsi_sksv                  = -1;
 static int hf_scsi_inq_reladrflags       = -1;
+static int hf_scsi_inq_sync              = -1;
 static int hf_scsi_inq_reladr            = -1;
 static int hf_scsi_inq_linked            = -1;
 static int hf_scsi_inq_cmdque            = -1;
@@ -1003,48 +1005,48 @@ static const value_string scsi_modesense_medtype_sbc_val[] = {
 };
 
 static const value_string scsi_verdesc_val[] = {
-    {0x0d40, "FC-AL (No Version)"},
-    {0x0d5c, "FC-AL ANSI X3.272:1996"},
-    {0x0d60, "FC-AL-2 (no version claimed)"},
-    {0x0d7c, "FC-AL-2 ANSI NCITS.332:1999"},
-    {0x0d61, "FC-AL-2 T11/1133 revision 7.0"},
-    {0x1320, "FC-FLA (no version claimed)"},
-    {0x133c, "FC-FLA ANSI NCITS TR-20:1998"},
-    {0x133b, "FC-FLA T11/1235 revision 7"},
-    {0x0da0, "FC-FS (no version claimed)"},
-    {0x0db7, "FC-FS T11/1331 revision 1.2"},
-    {0x08c0, "FCP (no version claimed)"},
-    {0x08dc, "FCP ANSI X3.269:1996"},
-    {0x08db, "FCP T10/0993 revision 12"},
-    {0x1340, "FC-PLDA (no version claimed)"},
-    {0x135c, "FC-PLDA ANSI NCITS TR-19:1998"},
-    {0x135b, "FC-PLDA T11/1162 revision 2.1"},
-    {0x0900, "FCP-2 (no version claimed)"},
-    {0x0901, "FCP-2 T10/1144 revision 4"},
+    {0x0020, "SAM (no version claimed)"},
     {0x003c, "SAM ANSI X3.270:1996"},
     {0x003b, "SAM T10/0994 revision 18"},
     {0x0040, "SAM-2 (no version claimed)"},
-    {0x0020, "SAM (no version claimed)"},
+    {0x0120, "SPC (no version claimed)"},
+    {0x013c, "SPC ANSI X3.301:1997"},
+    {0x013b, "SPC T10/0995 revision 11a"},
     {0x0180, "SBC (no version claimed)"},
     {0x019c, "SBC ANSI NCITS.306:1998"},
     {0x019b, "SBC T10/0996 revision 08c"},
-    {0x0320, "SBC-2 (no version claimed)"},
     {0x01c0, "SES (no version claimed)"},
     {0x01dc, "SES ANSI NCITS.305:1998"},
     {0x01db, "SES T10/1212 revision 08b"},
     {0x01de, "SES ANSI NCITS.305:1998 w/ Amendment ANSI NCITS.305/AM1:2000"},
     {0x01dd, "SES T10/1212 revision 08b w/ Amendment ANSI NCITS.305/AM1:2000"},
-    {0x0120, "SPC (no version claimed)"},
-    {0x013c, "SPC ANSI X3.301:1997"},
-    {0x013b, "SPC T10/0995 revision 11a"},
     {0x0260, "SPC-2 (no version claimed)"},
     {0x0267, "SPC-2 T10/1236 revision 12"},
     {0x0269, "SPC-2 T10/1236 revision 18"},
     {0x0300, "SPC-3 (no version claimed)"},
+    {0x0320, "SBC-2 (no version claimed)"},
+    {0x08c0, "FCP (no version claimed)"},
+    {0x08dc, "FCP ANSI X3.269:1996"},
+    {0x08db, "FCP T10/0993 revision 12"},
+    {0x0900, "FCP-2 (no version claimed)"},
+    {0x0901, "FCP-2 T10/1144 revision 4"},
     {0x0960, "iSCSI (no version claimed)"},
+    {0x0d20, "FC-PH (no version claimed)"},
+    {0x0d40, "FC-AL (No Version)"},
+    {0x0d5c, "FC-AL ANSI X3.272:1996"},
+    {0x0d60, "FC-AL-2 (no version claimed)"},
+    {0x0d61, "FC-AL-2 T11/1133 revision 7.0"},
+    {0x0d7c, "FC-AL-2 ANSI NCITS.332:1999"},
     {0x0d80, "FC-PH-3 (no version claimed)"},
     {0x0d9c, "FC-PH-3 ANSI X3.303-1998"},
-    {0x0d20, "FC-PH (no version claimed)"},
+    {0x0da0, "FC-FS (no version claimed)"},
+    {0x0db7, "FC-FS T11/1331 revision 1.2"},
+    {0x1320, "FC-FLA (no version claimed)"},
+    {0x133c, "FC-FLA ANSI NCITS TR-20:1998"},
+    {0x133b, "FC-FLA T11/1235 revision 7"},
+    {0x1340, "FC-PLDA (no version claimed)"},
+    {0x135c, "FC-PLDA ANSI NCITS TR-19:1998"},
+    {0x135b, "FC-PLDA T11/1162 revision 2.1"},
     {0, NULL},
 };
 
@@ -1142,6 +1144,11 @@ static const true_false_string encserv_tfs = {
 static const true_false_string reladr_tfs = {
     "Relative Addressing mode is SUPPORTED",
     "Relative addressing mode is NOT supported",
+};
+
+static const true_false_string sync_tfs = {
+    "Synchronous data transfer is SUPPORTED",
+    "Synchronous data transfer is NOT supported",
 };
 
 static const true_false_string linked_tfs = {
@@ -2165,6 +2172,7 @@ dissect_spc3_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 #define SCSI_INQ_RELADRFLAGS_RELADR		0x80
+#define SCSI_INQ_RELADRFLAGS_SYNC		0x10
 #define SCSI_INQ_RELADRFLAGS_LINKED		0x08
 #define SCSI_INQ_RELADRFLAGS_CMDQUE		0x02
 
@@ -2189,6 +2197,13 @@ dissect_spc3_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 		proto_item_append_text(item, "  RelAdr");
 	}
 	flags&=(~SCSI_INQ_RELADRFLAGS_RELADR);
+
+	/* Sync */
+	proto_tree_add_boolean(tree, hf_scsi_inq_sync, tvb, offset, 1, flags);
+	if(flags&SCSI_INQ_RELADRFLAGS_SYNC){
+		proto_item_append_text(item, "  Sync");
+	}
+	flags&=(~SCSI_INQ_RELADRFLAGS_SYNC);
 
 	/* Linked */
 	proto_tree_add_boolean(tree, hf_scsi_inq_linked, tvb, offset, 1, flags);
@@ -8255,6 +8270,9 @@ proto_register_scsi (void)
            "", HFILL}},
         { &hf_scsi_inq_reladr,
           {"RelAdr", "scsi.inquiry.reladr", FT_BOOLEAN, 8, TFS(&reladr_tfs), SCSI_INQ_RELADRFLAGS_RELADR,
+           "", HFILL}},
+        { &hf_scsi_inq_sync,
+          {"Sync", "scsi.inquiry.sync", FT_BOOLEAN, 8, TFS(&sync_tfs), SCSI_INQ_RELADRFLAGS_SYNC,
            "", HFILL}},
         { &hf_scsi_inq_linked,
           {"Linked", "scsi.inquiry.linked", FT_BOOLEAN, 8, TFS(&linked_tfs), SCSI_INQ_RELADRFLAGS_LINKED,
