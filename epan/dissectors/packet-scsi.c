@@ -8304,7 +8304,7 @@ proto_register_scsi (void)
           {"MChngr", "scsi.inquiry.mchngr", FT_BOOLEAN, 8, TFS(&mchngr_tfs), SCSI_INQ_BQUEFLAGS_MCHNGR,
            "", HFILL}},
         { &hf_scsi_inq_sccsflags,
-          {"SCCS Flags", "scsi.inquiry.sccsflags", FT_UINT8, BASE_HEX, NULL, 0,
+          {"Flags", "scsi.inquiry.sccsflags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
         { &hf_scsi_inq_sccs,
           {"SCCS", "scsi.inquiry.sccs", FT_BOOLEAN, 8, TFS(&sccs_tfs), SCSI_INQ_SCCSFLAGS_SCCS,
