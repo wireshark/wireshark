@@ -64,6 +64,7 @@ static int hf_fcp_dl         = -1;
 static int hf_fcp_data_ro    = -1;
 static int hf_fcp_burstlen   = -1;
 static int hf_fcp_rspflags   = -1;
+static int hf_fcp_retry_delay_timer   = -1;
 static int hf_fcp_resid      = -1;
 static int hf_fcp_snslen     = -1;
 static int hf_fcp_rsplen     = -1;
@@ -77,6 +78,9 @@ static int hf_fcp_mgmt_flags_lu_reset = -1;
 static int hf_fcp_mgmt_flags_rsvd = -1;
 static int hf_fcp_mgmt_flags_clear_task_set = -1;
 static int hf_fcp_mgmt_flags_abort_task_set = -1;
+static int hf_fcp_rsp_flags_bidi = -1;
+static int hf_fcp_rsp_flags_bidi_rru = -1;
+static int hf_fcp_rsp_flags_bidi_rro = -1;
 static int hf_fcp_rsp_flags_conf_req = -1;
 static int hf_fcp_rsp_flags_resid_under = -1;
 static int hf_fcp_rsp_flags_resid_over = -1;
@@ -90,6 +94,46 @@ static gint ett_fcp_rsp_flags = -1;
 
 static dissector_table_t fcp_dissector;
 static dissector_handle_t data_handle;
+
+/* Information Categories based on lower 4 bits of R_CTL */
+#define FCP_IU_DATA              0x1
+#define FCP_IU_CONFIRM           0x3
+#define FCP_IU_XFER_RDY          0x5
+#define FCP_IU_CMD               0x6
+#define FCP_IU_RSP               0x7
+
+static const value_string fcp_iu_val[] = {
+    {FCP_IU_DATA      , "FCP_DATA"},
+    {FCP_IU_CONFIRM   , "Confirm"},
+    {FCP_IU_XFER_RDY  , "XFER_RDY"},
+    {FCP_IU_CMD       , "FCP_CMND"},
+    {FCP_IU_RSP       , "FCP_RSP"},
+    {0, NULL},
+};
+
+
+/* Task Attribute Values */
+static const value_string fcp_task_attr_val[] = {
+    {0, "Simple"},
+    {1, "Head of Queue"},
+    {2, "Ordered"},
+    {4, "ACA"},
+    {5, "Untagged"},
+    {0, NULL},
+};
+
+/* RSP Code Definitions (from FCP_RSP_INFO) */
+static const value_string fcp_rsp_code_val[] = {
+    {0, "Task Management Function Complete"},
+    {1, "FCP_DATA length Different from FCP_BURST_LEN"},
+    {2, "FCP_CMND Fields Invalid"},
+    {3, "FCP_DATA Parameter Mismatch With FCP_DATA_RO"},
+    {4, "Task Management Function Rejected"},
+    {5, "Task Management Function Failed"},
+    {9, "Task Management Function Incorrect LUN"},
+    {0, NULL},
+};
+
 
 typedef struct _fcp_conv_key {
     guint32 conv_idx;
@@ -253,6 +297,18 @@ dissect_task_mgmt_flags (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *
 	}
 }
 
+static const true_false_string fcp_rsp_flags_bidi_tfs = {
+   "Bidirectional residual fields are PRESENT",
+   "Bidirectional residual fields are NOT present",
+};
+static const true_false_string fcp_rsp_flags_bidi_rru_tfs = {
+   "Bidirectional residual underflow is PRESENT",
+   "Bidirectional residual underflow is NOT present",
+};
+static const true_false_string fcp_rsp_flags_bidi_rro_tfs = {
+   "Bidirectional residual overflow is PRESENT",
+   "Bidirectional residual overflow is NOT present",
+};
 static const true_false_string fcp_rsp_flags_conf_req_tfs = {
    "CONF REQ is SET",
    "Conf req set is NOT set",
@@ -279,7 +335,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-
+	gboolean bidi_resid_present=FALSE;
 	guint8 flags;
 
 	if(parent_tree) {
@@ -292,6 +348,38 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	if (!flags)
 		proto_item_append_text(item, " (No values set)");
 
+	/* BIDI RSP */
+	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_bidi, tvb, offset, 1, flags);
+	if (flags&0x80){
+		bidi_resid_present=TRUE;
+		proto_item_append_text(item, " BIDI_RSP");
+		if (flags & (~( 0x80 )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( 0x80 ));
+
+	/* these two bits are only defined if the bidi bit is set */
+	if(bidi_resid_present){
+		/* BIDI READ RESID UNDER */
+		proto_tree_add_boolean(tree, hf_fcp_rsp_flags_bidi_rru, tvb, offset, 1, flags);
+		if (flags&0x40){
+			proto_item_append_text(item, " BIDI_RRU");
+			if (flags & (~( 0x40 )))
+				proto_item_append_text(item, ",");
+		}
+		flags&=(~( 0x40 ));
+
+		/* BIDI READ RESID OVER */
+		proto_tree_add_boolean(tree, hf_fcp_rsp_flags_bidi_rro, tvb, offset, 1, flags);
+		if (flags&0x20){
+			proto_item_append_text(item, " BIDI_RRO");
+			if (flags & (~( 0x20 )))
+				proto_item_append_text(item, ",");
+		}
+		flags&=(~( 0x20 ));
+	}
+
+	/* Conf Req */
 	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_conf_req, tvb, offset, 1, flags);
 	if (flags&0x10){
 		proto_item_append_text(item, " CONF REQ");
@@ -300,6 +388,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	}
 	flags&=(~( 0x10 ));
 
+	/* Resid Under */
 	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_resid_under, tvb, offset, 1, flags);
 	if (flags&0x08){
 		proto_item_append_text(item, " RESID UNDER");
@@ -308,6 +397,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	}
 	flags&=(~( 0x08 ));
 
+	/* Resid Over */
 	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_resid_over, tvb, offset, 1, flags);
 	if (flags&0x04){
 		proto_item_append_text(item, " RESID OVER");
@@ -316,6 +406,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	}
 	flags&=(~( 0x04 ));
 
+	/* SNS len valid */
 	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_sns_vld, tvb, offset, 1, flags);
 	if (flags&0x02){
 		proto_item_append_text(item, " SNS VLD");
@@ -324,6 +415,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	}
 	flags&=(~( 0x02 ));
 
+	/* rsp len valid */
 	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_res_vld, tvb, offset, 1, flags);
 	if (flags&0x01){
 		proto_item_append_text(item, " RES VLD");
@@ -514,12 +606,27 @@ dissect_fcp_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+/* fcp-3  9.5 table 24 */
+static void
+dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	/* 2 reserved bytes */
+	offset+=2;
+
+        /* rsp code */
+	proto_tree_add_item(tree, hf_fcp_rspcode, tvb, offset, 1, 0);
+	offset++;
+
+        /* 4 reserved bytes */
+	offset+=4;
+}
+
 static void
 dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint32 offset = 0,
         del_usecs = 0;
-    guint32 snslen = 0,
+    gint32 snslen = 0,
            rsplen = 0;
     guint8 flags;
     proto_item *ti;
@@ -533,7 +640,7 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     status = tvb_get_guint8 (tvb, offset+11);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, " , %s",
+        col_append_fstr (pinfo->cinfo, COL_INFO, ":%s",
                          val_to_str (status, scsi_status_val, "0x%x"));
     }
 
@@ -572,35 +679,69 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint_hidden (fcp_tree, hf_fcp_singlelun, tvb,
                                             offset, 0, cdata->fcp_lun);
         }
-        flags = tvb_get_guint8 (tvb, offset+10);
-	dissect_rsp_flags(fcp_tree, tvb, offset+10);
-        proto_tree_add_item (fcp_tree, hf_fcp_scsistatus, tvb, offset+11, 1, 0);
-        if (flags & 0xC)
-            proto_tree_add_item (fcp_tree, hf_fcp_resid, tvb, offset+12, 4, 0);
+
+
+
+        /* 8 reserved bytes */
+        offset+=8;
+
+        /* retry delay timer */
+        proto_tree_add_item(fcp_tree, hf_fcp_retry_delay_timer, tvb, offset, 2, 0);
+        offset+=2;
+
+        /* flags */
+        flags = tvb_get_guint8 (tvb, offset);
+        dissect_rsp_flags(fcp_tree, tvb, offset);
+        offset++;
+
+        /* scsi status code */
+        proto_tree_add_item(fcp_tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
+        offset++;
+
+        /* residual count */
+        if(flags & 0x0e){
+            proto_tree_add_item(fcp_tree, hf_fcp_resid, tvb, offset, 4, 0);
+        }
+        offset+=4;
+
+        /* sense length */
         if (flags & 0x2) {
-            snslen = tvb_get_ntohl (tvb, offset+16);
-            proto_tree_add_uint (fcp_tree, hf_fcp_snslen, tvb, offset+16, 4,
+            snslen=tvb_get_ntohl(tvb, offset);
+            proto_tree_add_uint(fcp_tree, hf_fcp_snslen, tvb, offset, 4,
                                  snslen);
         }
+        offset+=4;
+
+        /* response length */
         if (flags & 0x1) {
-            rsplen = tvb_get_ntohl (tvb, offset+20);
-            proto_tree_add_uint (fcp_tree, hf_fcp_rsplen, tvb, offset+20, 4,
+            rsplen=tvb_get_ntohl(tvb, offset);
+            proto_tree_add_uint (fcp_tree, hf_fcp_rsplen, tvb, offset, 4,
                                  rsplen);
-            /* XXX - must rsplen be >= 4?  What other than the code is there? */
-            proto_tree_add_item (fcp_tree, hf_fcp_rspcode, tvb, offset+27, 1,
-                                 0);
         }
-        /* This handles too-large rsplen values (including ones > 2^31-1) */
-        if (flags & 0x2) {
-            tvb_ensure_bytes_exist (tvb, offset+24, rsplen);
-            offset += 24+rsplen;
-            dissect_scsi_snsinfo (tvb, pinfo, tree, offset,
+        offset+=4;
+
+        /* rsp_info */
+        if(rsplen){
+            tvbuff_t *rspinfo_tvb;
+       
+            rspinfo_tvb=tvb_new_subset(tvb, offset, MIN(rsplen, tvb_length_remaining(tvb, offset)), rsplen);
+            dissect_fcp_rspinfo(tvb, fcp_tree, 0);
+
+            offset+=rsplen;
+        }
+
+        /* sense info */
+        if(snslen){
+            tvbuff_t *sns_tvb;
+       
+            sns_tvb=tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
+            dissect_scsi_snsinfo (sns_tvb, pinfo, tree, 0,
                                   snslen,
 				  (guint16) (cdata?cdata->fcp_lun:0xffff) );
+
+            offset+=snslen;
         }
-        /* This handles too-large snslen values (including ones > 2^31-1) */
-        tvb_ensure_bytes_exist (tvb, offset, snslen);
-        offset += snslen;
+
         proto_item_set_end (ti, tvb, offset);
         if (cdata) {
             /*
@@ -766,6 +907,9 @@ proto_register_fcp (void)
         { &hf_fcp_burstlen,
           {"Burst Length", "fcp.burstlen", FT_UINT32, BASE_DEC, NULL, 0x0, "",
            HFILL}},
+        { &hf_fcp_retry_delay_timer,
+          {"Retry Delay Timer", "fcp.rsp.retry_delay_timer", FT_UINT16, BASE_DEC, NULL, 0x0, "",
+           HFILL}},
         { &hf_fcp_rspflags,
           {"FCP_RSP Flags", "fcp.rspflags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
@@ -798,6 +942,12 @@ proto_register_fcp (void)
 	  { "Clear Task Set", "fcp.mgmt.flags.clear_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_clear_task_set_tfs), 0x04, "", HFILL }},
 	{ &hf_fcp_mgmt_flags_abort_task_set, 
 	  { "Abort Task Set", "fcp.mgmt.flags.abort_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_abort_task_set_tfs), 0x02, "", HFILL }},
+	{ &hf_fcp_rsp_flags_bidi, 
+	  { "Bidi Rsp", "fcp.rsp.flags.bidi", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_bidi_tfs), 0x80, "", HFILL }},
+	{ &hf_fcp_rsp_flags_bidi_rru, 
+	  { "Bidi Read Resid Under", "fcp.rsp.flags.bidi_rru", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_bidi_rru_tfs), 0x40, "", HFILL }},
+	{ &hf_fcp_rsp_flags_bidi_rro, 
+	  { "Bidi Read Resid Over", "fcp.rsp.flags.bidi_rro", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_bidi_rro_tfs), 0x20, "", HFILL }},
 	{ &hf_fcp_rsp_flags_conf_req, 
 	  { "Conf Req", "fcp.rsp.flags.conf_req", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_conf_req_tfs), 0x10, "", HFILL }},
 	{ &hf_fcp_rsp_flags_resid_under, 
