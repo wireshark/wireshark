@@ -26,43 +26,6 @@
 #ifndef __PACKET_FCP_H_
 #define __PACKET_FCP_H_
 
-/* Information Categories based on lower 4 bits of R_CTL */
-#define FCP_IU_DATA              0x1
-#define FCP_IU_CONFIRM           0x3
-#define FCP_IU_XFER_RDY          0x5
-#define FCP_IU_CMD               0x6
-#define FCP_IU_RSP               0x7
-
-static const value_string fcp_iu_val[] = {
-    {FCP_IU_DATA      , "FCP_DATA"},
-    {FCP_IU_CONFIRM   , "Confirm"},
-    {FCP_IU_XFER_RDY  , "XFER_RDY"},
-    {FCP_IU_CMD       , "FCP_CMND"},
-    {FCP_IU_RSP       , "FCP_RSP"},
-    {0, NULL},
-};
-
-/* Task Attribute Values */
-static const value_string fcp_task_attr_val[] = {
-    {0, "Simple"},
-    {1, "Head of Queue"},
-    {2, "Ordered"},
-    {4, "ACA"},
-    {5, "Untagged"},
-    {0, NULL},
-};
-
-/* RSP Code Definitions (from FCP_RSP_INFO) */
-static const value_string fcp_rsp_code_val[] = {
-    {0, "Task Management Function Complete"},
-    {1, "FCP_DATA length Different from FCP_BURST_LEN"},
-    {2, "FCP_CMND Fields Invalid"},
-    {3, "FCP_DATA Parameter Mismatch With FCP_DATA_RO"},
-    {4, "Task Management Function Rejected"},
-    {5, "Task Management Function Failed"},
-    {0, NULL},
-};
-
 #define FCP_DEF_CMND_LEN         32 /* by default cmnd is 32 bytes */
 #define FCP_DEF_RSP_LEN          24 /* default FCP_RSP len */
 
