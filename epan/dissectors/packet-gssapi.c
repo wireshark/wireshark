@@ -104,6 +104,9 @@ gssapi_oid_value *
 gssapi_lookup_oid_str(const char *oid_key)
 {
 	gssapi_oid_value *value;
+	if(!oid_key){
+		return NULL;
+	}
 	value = g_hash_table_lookup(gssapi_oids, oid_key);
 	return value;
 }
