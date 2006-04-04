@@ -544,7 +544,11 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt2, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt2);
 	SIGNAL_CONNECT(graph_bt2, "clicked", on_graph_byte1_dlg,u_data);
-
+	if (u_data->assoc->n_array_tsn1==0)
+	{
+		gtk_widget_set_sensitive(graph_bt1, FALSE);
+		gtk_widget_set_sensitive(graph_bt2, FALSE);
+	}
 	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
@@ -643,13 +647,15 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt1);
 	SIGNAL_CONNECT(graph_bt1, "clicked", on_graph2_dlg, u_data);
-
 	graph_bt2 = gtk_button_new_with_label("Graph Bytes");
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt2, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt2);
 	SIGNAL_CONNECT(graph_bt2, "clicked", on_graph_byte2_dlg,u_data);
-
-
+	if (u_data->assoc->n_array_tsn2==0)
+	{
+		gtk_widget_set_sensitive(graph_bt1, FALSE);
+		gtk_widget_set_sensitive(graph_bt2, FALSE);
+	}
 	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
