@@ -583,11 +583,11 @@ dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         pinfo->private_data = NULL;
     }
 
-    if (cdata->fcp_lun >= 0)
-        proto_tree_add_uint_hidden(tree, hf_fcp_singlelun, tvb,
-                                    0, 0, cdata->fcp_lun);
-
     if (cdata) {
+        if (cdata->fcp_lun >= 0)
+            proto_tree_add_uint_hidden(tree, hf_fcp_singlelun, tvb,
+                                        0, 0, cdata->fcp_lun);
+
         dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, (guint16) cdata->fcp_lun);
     } else {
         dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, 0xffff);
@@ -750,7 +750,7 @@ dissect_fcp_xfer_rdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
         cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
                                                         &ckey);
-        if (cdata != NULL) {
+        if (cdata) {
             cdata->fcp_dl = tvb_get_ntohl (tvb, offset+4);
         }
         else {
