@@ -24,7 +24,8 @@
 typedef enum {
   ITU_STANDARD  = 1,
   ANSI_STANDARD = 2,
-  CHINESE_ITU_STANDARD = 3
+  CHINESE_ITU_STANDARD = 3,
+  JAPAN_STANDARD = 4
 } Standard_Type;
 
 extern gint mtp3_standard;
@@ -63,6 +64,9 @@ typedef struct _mtp3_tap_rec_t {
 #define ANSI_CLUSTER_MASK 0x00FF00
 #define ANSI_MEMBER_MASK  0xFF0000
 #define ANSI_PC_STRING_LENGTH 16
+
+#define JAPAN_PC_LENGTH   2
+#define JAPAN_PC_MASK     0xffff
 
 extern void     mtp3_addr_to_str_buf(const guint8 *data, gchar *buf, int buf_len);
 extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len);

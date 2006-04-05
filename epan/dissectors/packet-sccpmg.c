@@ -5,6 +5,10 @@
  *   ANSI T1.112.3-1996
  *   ITU-T Q.713 7/1996
  *   YDN 038-1997 (Chinese ITU variant)
+ *   JT-Q714 and NTT-Q714 (Japan)
+ *
+ *   Note that NTT Annex E (SCCP Management Procedure (Global Title Status
+ *   Management)) is not implemented (yet)
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
@@ -109,7 +113,8 @@ static const value_string sccpmg_message_type_acro_values[] = {
 static int proto_sccpmg = -1;
 static int hf_sccpmg_message_type = -1;
 static int hf_sccpmg_affected_ssn = -1;
-static int hf_sccpmg_affected_pc = -1;
+static int hf_sccpmg_affected_itu_pc = -1;
+static int hf_sccpmg_affected_japan_pc = -1;
 static int hf_sccpmg_affected_ansi_pc = -1;
 static int hf_sccpmg_affected_chinese_pc = -1;
 static int hf_sccpmg_affected_pc_member = -1;
@@ -152,8 +157,11 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 	char pc[ANSI_PC_STRING_LENGTH];
 
 	if (mtp3_standard == ITU_STANDARD) {
-		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_pc, tvb,
+		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_itu_pc, tvb,
 				    offset, ITU_PC_LENGTH, TRUE);
+	} else if (mtp3_standard == JAPAN_STANDARD) {
+		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_japan_pc,
+				    tvb, offset, JAPAN_PC_LENGTH, TRUE);
 	} else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */ {
 		int *hf_affected_pc;
 
@@ -196,7 +204,7 @@ dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
 	guint8 offset = 0;
 
-	if (mtp3_standard == ITU_STANDARD)
+	if (mtp3_standard == ITU_STANDARD || mtp3_standard == JAPAN_STANDARD)
 		offset = ITU_SCCPMG_SMI_OFFSET;
 	else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */
 		offset = ANSI_SCCPMG_SMI_OFFSET;
@@ -212,7 +220,7 @@ dissect_sccpmg_congestion_level(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 
 	if (mtp3_standard == CHINESE_ITU_STANDARD)
 		offset = CHINESE_ITU_SCCPMG_CONGESTION_OFFSET;
-	else /* ITU_STANDARD */
+	else /* ITU_STANDARD or JAPAN_STANDARD */
 		offset = ITU_SCCPMG_CONGESTION_OFFSET;
 
 	proto_tree_add_item(sccpmg_tree, hf_sccpmg_congestion_level, tvb,
@@ -229,8 +237,8 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	message_type   = tvb_get_guint8(tvb, SCCPMG_MESSAGE_TYPE_OFFSET);
 	offset = SCCPMG_MESSAGE_TYPE_LENGTH;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, sccpmg_message_type_acro_values, "Unknown"));
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, sccpmg_message_type_acro_values, "Unknown"));
 
 	if (sccpmg_tree) {
 		/* add the message type to the protocol tree */
@@ -321,9 +329,13 @@ proto_register_sccpmg(void)
 	    { "Affected SubSystem Number", "sccpmg.ssn",
 	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL}},
-	  { &hf_sccpmg_affected_pc,
+	  { &hf_sccpmg_affected_itu_pc,
 	    { "Affected Point Code", "sccpmg.pc",
 	      FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
+	      "", HFILL}},
+	  { &hf_sccpmg_affected_japan_pc,
+	    { "Affected Point Code", "sccpmg.pc",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL}},
 	  { &hf_sccpmg_affected_ansi_pc,
 	    { "Affected Point Code", "sccpmg.ansi_pc",

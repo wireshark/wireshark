@@ -5,9 +5,14 @@
  *   ANSI T1.111.4-1996
  *   ITU-T Q.704 7/1996
  *   GF 001-9001 (Chinese ITU variant)
+ *   JT-Q704 and NTT-Q704 (Japan)
+ *
+ *   Note that the division of the Japan SLS into the SLC and A/B bit (for
+ *   management messages) is not done.
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
- * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
+ * Updated for ANSI Chinese ITU, and Japan support by
+ *  Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
  * $Id$
  *
@@ -75,6 +80,13 @@ static int hf_mtp3_itu_sls = -1;
 static int hf_mtp3_ansi_5_bit_sls = -1;
 static int hf_mtp3_ansi_8_bit_sls = -1;
 static int hf_mtp3_chinese_itu_sls = -1;
+static int hf_mtp3_japan_dpc = -1;
+static int hf_mtp3_japan_opc = -1;
+static int hf_mtp3_japan_pc = -1;
+static int hf_mtp3_japan_4_bit_sls = -1;
+static int hf_mtp3_japan_4_bit_sls_spare = -1;
+static int hf_mtp3_japan_5_bit_sls = -1;
+static int hf_mtp3_japan_5_bit_sls_spare = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mtp3 = -1;
@@ -91,50 +103,69 @@ typedef enum {
   ITU_PC_STRUCTURE_4_3_4_3 = 3
 } ITU_PC_Structure_Type;
 
+typedef enum {
+  JAPAN_PC_STRUCTURE_NONE    = 1,
+  JAPAN_PC_STRUCTURE_7_4_5   = 2,
+  JAPAN_PC_STRUCTURE_3_4_4_5 = 3
+} JAPAN_PC_Structure_Type;
+
 gint itu_pc_structure = ITU_PC_STRUCTURE_NONE;
+gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
 
 #include <packet-mtp3.h>
 gint mtp3_standard = ITU_STANDARD;
 
 static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
+static gboolean mtp3_use_japan_5_bit_sls = FALSE;
 static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 
 #define SIO_LENGTH                1
+#define SLS_LENGTH                1
+#define SIO_OFFSET                0
+#define ROUTING_LABEL_OFFSET      (SIO_OFFSET + SIO_LENGTH)
 
 #define ITU_ROUTING_LABEL_LENGTH  4
 #define ITU_HEADER_LENGTH         (SIO_LENGTH + ITU_ROUTING_LABEL_LENGTH)
-#define ITU_SLS_LENGTH            1
 
-#define SIO_OFFSET                0
-#define ITU_SLS_OFFSET            (SIO_OFFSET + ITU_HEADER_LENGTH - ITU_SLS_LENGTH)
-#define ITU_ROUTING_LABEL_OFFSET  (SIO_OFFSET + SIO_LENGTH)
+#define ITU_SLS_OFFSET            (SIO_OFFSET + ITU_HEADER_LENGTH - SLS_LENGTH)
 #define ITU_MTP_PAYLOAD_OFFSET    (SIO_OFFSET + ITU_HEADER_LENGTH)
 
-#define ANSI_SLS_LENGTH           1
-#define ANSI_ROUTING_LABEL_LENGTH (ANSI_PC_LENGTH + ANSI_PC_LENGTH + ANSI_SLS_LENGTH)
+#define ANSI_ROUTING_LABEL_LENGTH (ANSI_PC_LENGTH + ANSI_PC_LENGTH + SLS_LENGTH)
 #define ANSI_HEADER_LENGTH        (SIO_LENGTH + ANSI_ROUTING_LABEL_LENGTH)
 
-#define ANSI_ROUTING_LABEL_OFFSET (SIO_OFFSET + SIO_LENGTH)
-#define ANSI_DPC_OFFSET           ANSI_ROUTING_LABEL_OFFSET
+#define ANSI_DPC_OFFSET           ROUTING_LABEL_OFFSET
 #define ANSI_OPC_OFFSET           (ANSI_DPC_OFFSET + ANSI_PC_LENGTH)
 #define ANSI_SLS_OFFSET           (ANSI_OPC_OFFSET + ANSI_PC_LENGTH)
 #define ANSI_MTP_PAYLOAD_OFFSET   (SIO_OFFSET + ANSI_HEADER_LENGTH)
 
-#define SERVICE_INDICATOR_MASK         0x0F
-#define SPARE_MASK                     0x30
-#define ANSI_PRIORITY_MASK             SPARE_MASK
-#define NETWORK_INDICATOR_MASK         0xC0
-#define ITU_DPC_MASK                   0x00003FFF
-#define ITU_OPC_MASK                   0x0FFFC000
-#define ITU_SLS_MASK                   0xF0000000
+#define JAPAN_SLS_SPARE_LENGTH           1
+#define JAPAN_ROUTING_LABEL_LENGTH (JAPAN_PC_LENGTH + JAPAN_PC_LENGTH + JAPAN_SLS_SPARE_LENGTH)
+#define JAPAN_HEADER_LENGTH        (SIO_LENGTH + JAPAN_ROUTING_LABEL_LENGTH)
 
-#define ANSI_NETWORK_MASK              0x0000FF
-#define ANSI_CLUSTER_MASK              0x00FF00
-#define ANSI_MEMBER_MASK               0xFF0000
-#define ANSI_5BIT_SLS_MASK             0x1F
-#define ANSI_8BIT_SLS_MASK             0xFF
-#define CHINESE_ITU_SLS_MASK           0xF
+#define JAPAN_OPC_OFFSET           (ROUTING_LABEL_OFFSET + JAPAN_PC_LENGTH)
+#define JAPAN_SLS_OFFSET           (JAPAN_OPC_OFFSET + JAPAN_PC_LENGTH)
+#define JAPAN_SPARE_OFFSET         (ROUTING_LABEL_OFFSET + JAPAN_ROUTING_LABEL_LENGTH)
+#define JAPAN_MTP_PAYLOAD_OFFSET   (SIO_OFFSET + JAPAN_HEADER_LENGTH)
+
+#define SERVICE_INDICATOR_MASK     0x0F
+#define SPARE_MASK                 0x30
+#define ANSI_PRIORITY_MASK         SPARE_MASK
+#define NETWORK_INDICATOR_MASK     0xC0
+#define ITU_DPC_MASK               0x00003FFF
+#define ITU_OPC_MASK               0x0FFFC000
+#define ITU_SLS_MASK               0xF0000000
+
+#define ANSI_NETWORK_MASK          0x0000FF
+#define ANSI_CLUSTER_MASK          0x00FF00
+#define ANSI_MEMBER_MASK           0xFF0000
+#define ANSI_5BIT_SLS_MASK         0x1F
+#define ANSI_8BIT_SLS_MASK         0xFF
+#define CHINESE_ITU_SLS_MASK       0xF
+#define JAPAN_4_BIT_SLS_MASK       0xF
+#define JAPAN_4_BIT_SLS_SPARE_MASK 0xF0
+#define JAPAN_5_BIT_SLS_MASK       0x1F
+#define JAPAN_5_BIT_SLS_SPARE_MASK 0xE0
 
 /* the higher values are taken from the M3UA RFC */
 static const value_string mtp3_service_indicator_code_vals[] = {
@@ -216,6 +247,23 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
     case CHINESE_ITU_STANDARD:
       g_snprintf(buf, buf_len, "%u-%u-%u", (pc & ANSI_NETWORK_MASK), (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK) >> 16);
       break;
+    case JAPAN_STANDARD:
+      switch (japan_pc_structure) {
+        case JAPAN_PC_STRUCTURE_NONE:
+	  g_snprintf(buf, buf_len, "%u", pc);
+	  break;
+        case JAPAN_PC_STRUCTURE_7_4_5:
+	  /* This format is specified by NTT */
+	  g_snprintf(buf, buf_len, "%u-%u-%u", (pc & 0xfe00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
+	  break;
+        case JAPAN_PC_STRUCTURE_3_4_4_5:
+	  /* Where does this format come from? */
+	  g_snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0xe000)>>13, (pc & 0x1e00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
+	  break;
+        default:
+          DISSECTOR_ASSERT_NOT_REACHED();
+      }
+      break;
     default:
       DISSECTOR_ASSERT_NOT_REACHED();
   }
@@ -237,6 +285,8 @@ gboolean
 mtp3_pc_structured(void)
 {
   if ((mtp3_standard == ITU_STANDARD) && (itu_pc_structure == ITU_PC_STRUCTURE_NONE))
+    return FALSE;
+  else if ((mtp3_standard == JAPAN_STANDARD) && (japan_pc_structure == JAPAN_PC_STRUCTURE_NONE))
     return FALSE;
   else
     return TRUE;
@@ -262,6 +312,9 @@ mtp3_addr_to_str_buf(
     case ITU_STANDARD:
       g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & ITU_PC_MASK);
       break;
+    case JAPAN_STANDARD:
+      g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & JAPAN_PC_MASK);
+      break;
     default:
       /* assuming 24-bit */
       g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & ANSI_PC_MASK);
@@ -274,6 +327,9 @@ mtp3_addr_to_str_buf(
     {
     case ITU_STANDARD:
       g_snprintf(buf, buf_len, "%x", addr_pc_p->pc & ITU_PC_MASK);
+      break;
+    case JAPAN_STANDARD:
+      g_snprintf(buf, buf_len, "%x", addr_pc_p->pc & JAPAN_PC_MASK);
       break;
     default:
       /* assuming 24-bit */
@@ -288,6 +344,9 @@ mtp3_addr_to_str_buf(
     case ITU_STANDARD:
       g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
       break;
+    case JAPAN_STANDARD:
+      g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
+      break;
     default:
       /* assuming 24-bit */
       g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
@@ -300,6 +359,9 @@ mtp3_addr_to_str_buf(
     {
     case ITU_STANDARD:
       g_snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
+      break;
+    case JAPAN_STANDARD:
+      g_snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
       break;
     default:
       /* assuming 24-bit */
@@ -357,6 +419,7 @@ dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
     break;
   case ITU_STANDARD:
   case CHINESE_ITU_STANDARD:
+  case JAPAN_STANDARD:
     proto_tree_add_uint(sio_tree, hf_mtp3_itu_spare, tvb, SIO_OFFSET, SIO_LENGTH, sio);
     break;
   }
@@ -379,26 +442,26 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
   switch (mtp3_standard) {
   case ITU_STANDARD:
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, "Routing label");
+    label_item = proto_tree_add_text(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
-    label = tvb_get_letohl(tvb, ITU_ROUTING_LABEL_OFFSET);
+    label = tvb_get_letohl(tvb, ROUTING_LABEL_OFFSET);
 
     opc = (label & ITU_OPC_MASK) >> 14;
     dpc =  label & ITU_DPC_MASK;
 
-    proto_tree_add_uint_hidden(label_tree, hf_mtp3_itu_pc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, opc);
-    proto_tree_add_uint_hidden(label_tree, hf_mtp3_itu_pc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
+    proto_tree_add_uint_hidden(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, opc);
+    proto_tree_add_uint_hidden(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
 
-    label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
+    label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
       proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
 
-    label_opc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
+    label_opc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
       proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
 
-    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
+    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     break;
 
   case ANSI_STANDARD:
@@ -413,7 +476,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     }
 
     /* Create the Routing Label Tree */
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ANSI_ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, "Routing label");
+    label_item = proto_tree_add_text(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     /* create the DPC tree */
@@ -445,13 +508,44 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     /* SLS */
     if (mtp3_standard == ANSI_STANDARD) {
       if (mtp3_use_ansi_5_bit_sls)
-        proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb, ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
+        proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, TRUE);
       else
-        proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb, ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
+        proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, TRUE);
     } else /* CHINESE_ITU_STANDARD */ {
-      proto_tree_add_item(label_tree, hf_mtp3_chinese_itu_sls, tvb, ANSI_SLS_OFFSET, ITU_SLS_LENGTH, FALSE);
+      proto_tree_add_item(label_tree, hf_mtp3_chinese_itu_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, FALSE);
     }
     break;
+
+  case JAPAN_STANDARD:
+    label_item = proto_tree_add_text(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, JAPAN_ROUTING_LABEL_LENGTH, "Routing label");
+    label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
+
+    label_dpc_item = proto_tree_add_item(label_tree, hf_mtp3_japan_dpc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    if (mtp3_pc_structured()) {
+      dpc = tvb_get_letohs(tvb, ROUTING_LABEL_OFFSET);
+      proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
+    }
+
+    label_opc_item = proto_tree_add_item(label_tree, hf_mtp3_japan_opc, tvb, JAPAN_OPC_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    if (mtp3_pc_structured()) {
+      opc = tvb_get_letohs(tvb, JAPAN_OPC_OFFSET);
+      proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
+    }
+
+    proto_tree_add_item_hidden(label_tree, hf_mtp3_japan_pc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    proto_tree_add_item_hidden(label_tree, hf_mtp3_japan_pc, tvb, JAPAN_OPC_OFFSET, JAPAN_PC_LENGTH, TRUE);
+
+    if (mtp3_use_japan_5_bit_sls) {
+	proto_tree_add_item(label_tree, hf_mtp3_japan_5_bit_sls, tvb, JAPAN_SLS_OFFSET, JAPAN_SLS_SPARE_LENGTH, TRUE);
+	proto_tree_add_item(label_tree, hf_mtp3_japan_5_bit_sls_spare, tvb, JAPAN_SLS_OFFSET, JAPAN_SLS_SPARE_LENGTH, TRUE);
+    } else {
+	proto_tree_add_item(label_tree, hf_mtp3_japan_4_bit_sls, tvb, JAPAN_SLS_OFFSET, JAPAN_SLS_SPARE_LENGTH, TRUE);
+	proto_tree_add_item(label_tree, hf_mtp3_japan_4_bit_sls_spare, tvb, JAPAN_SLS_OFFSET, JAPAN_SLS_SPARE_LENGTH, TRUE);
+    }
+
+    break;
+  default:
+    DISSECTOR_ASSERT_NOT_REACHED();
   }
 
   mtp3_addr_opc.type = mtp3_standard;
@@ -481,9 +575,11 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case CHINESE_ITU_STANDARD:
     payload_tvb = tvb_new_subset(tvb, ANSI_MTP_PAYLOAD_OFFSET, -1, -1);
     break;
+  case JAPAN_STANDARD:
+    payload_tvb = tvb_new_subset(tvb, JAPAN_MTP_PAYLOAD_OFFSET, -1, -1);
+    break;
   default:
-	  DISSECTOR_ASSERT_NOT_REACHED();
-	  return;
+    DISSECTOR_ASSERT_NOT_REACHED();
   }
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -515,6 +611,9 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case CHINESE_ITU_STANDARD:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Chin. ITU)");
         break;
+      case JAPAN_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
+        break;
     };      
 
   if (tree) {
@@ -526,6 +625,9 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ANSI_STANDARD:
     case CHINESE_ITU_STANDARD:
       mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, ANSI_HEADER_LENGTH, TRUE);
+      break;
+    case JAPAN_STANDARD:
+      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, JAPAN_HEADER_LENGTH, TRUE);
       break;
     }
     mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
@@ -556,30 +658,37 @@ proto_register_mtp3(void)
 
   /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    { &hf_mtp3_service_indicator, { "Service indicator",        "mtp3.service_indicator", FT_UINT8,  BASE_HEX,  VALS(mtp3_service_indicator_code_vals), SERVICE_INDICATOR_MASK, "", HFILL }},
-    { &hf_mtp3_network_indicator, { "Network indicator",        "mtp3.network_indicator", FT_UINT8,  BASE_HEX,  VALS(network_indicator_vals),           NETWORK_INDICATOR_MASK, "", HFILL }},
-    { &hf_mtp3_itu_spare,         { "Spare",                    "mtp3.spare",             FT_UINT8,  BASE_HEX,  NULL,                                   SPARE_MASK,             "", HFILL }},
-    { &hf_mtp3_ansi_priority,     { "Priority",                 "mtp3.priority",          FT_UINT8,  BASE_HEX,  NULL,                                   ANSI_PRIORITY_MASK,     "", HFILL }},
-    { &hf_mtp3_itu_opc,           { "OPC",                      "mtp3.opc",               FT_UINT32, BASE_DEC,  NULL,                                   ITU_OPC_MASK,           "", HFILL }},
-    { &hf_mtp3_itu_pc,            { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   0x0,                    "", HFILL }},
-    { &hf_mtp3_24bit_pc,          { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,           "", HFILL }},
-    { &hf_mtp3_24bit_opc,         { "OPC",                      "mtp3.opc",               FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,           "", HFILL }},
-    { &hf_mtp3_ansi_opc,          { "DPC",                      "mtp3.ansi_opc",          FT_STRING, BASE_NONE, NULL,                                   0x0,                    "", HFILL }},
-    { &hf_mtp3_chinese_opc,       { "DPC",                      "mtp3.chinese_opc",       FT_STRING, BASE_NONE, NULL,                                   0x0,                    "", HFILL }},
-    { &hf_mtp3_opc_network,       { "OPC Network",              "mtp3.opc.network",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_NETWORK_MASK,      "", HFILL }},
-    { &hf_mtp3_opc_cluster,       { "OPC Cluster",              "mtp3.opc.cluster",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_CLUSTER_MASK,      "", HFILL }},
-    { &hf_mtp3_opc_member,        { "OPC Member",               "mtp3.opc.member",        FT_UINT24, BASE_DEC,  NULL,                                   ANSI_MEMBER_MASK,       "", HFILL }},
-    { &hf_mtp3_itu_dpc,           { "DPC",                      "mtp3.dpc",               FT_UINT32, BASE_DEC,  NULL,                                   ITU_DPC_MASK,           "", HFILL }},
-    { &hf_mtp3_24bit_dpc,         { "DPC",                      "mtp3.dpc",               FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,           "", HFILL }},
-    { &hf_mtp3_ansi_dpc,          { "DPC",                      "mtp3.ansi_dpc",          FT_STRING, BASE_NONE, NULL,                                   0x0,                    "", HFILL }},
-    { &hf_mtp3_chinese_dpc,       { "DPC",                      "mtp3.chinese_dpc",       FT_STRING, BASE_NONE, NULL,                                   0x0,                    "", HFILL }},
-    { &hf_mtp3_dpc_network,       { "DPC Network",              "mtp3.dpc.network",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_NETWORK_MASK,      "", HFILL }},
-    { &hf_mtp3_dpc_cluster,       { "DPC Cluster",              "mtp3.dpc.cluster",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_CLUSTER_MASK,      "", HFILL }},
-    { &hf_mtp3_dpc_member,        { "DPC Member",               "mtp3.dpc.member",        FT_UINT24, BASE_DEC,  NULL,                                   ANSI_MEMBER_MASK,       "", HFILL }},
-    { &hf_mtp3_itu_sls,           { "Signalling Link Selector", "mtp3.sls",               FT_UINT32, BASE_DEC,  NULL,                                   ITU_SLS_MASK,           "", HFILL }},
-    { &hf_mtp3_ansi_5_bit_sls,    { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   ANSI_5BIT_SLS_MASK,     "", HFILL }},
-    { &hf_mtp3_ansi_8_bit_sls,    { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   ANSI_8BIT_SLS_MASK,     "", HFILL }},
-    { &hf_mtp3_chinese_itu_sls,   { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   CHINESE_ITU_SLS_MASK,   "", HFILL }}
+    { &hf_mtp3_service_indicator,     { "Service indicator",        "mtp3.service_indicator", FT_UINT8,  BASE_HEX,  VALS(mtp3_service_indicator_code_vals), SERVICE_INDICATOR_MASK,     "", HFILL }},
+    { &hf_mtp3_network_indicator,     { "Network indicator",        "mtp3.network_indicator", FT_UINT8,  BASE_HEX,  VALS(network_indicator_vals),           NETWORK_INDICATOR_MASK,     "", HFILL }},
+    { &hf_mtp3_itu_spare,             { "Spare",                    "mtp3.spare",             FT_UINT8,  BASE_HEX,  NULL,                                   SPARE_MASK,                 "", HFILL }},
+    { &hf_mtp3_ansi_priority,         { "Priority",                 "mtp3.priority",          FT_UINT8,  BASE_HEX,  NULL,                                   ANSI_PRIORITY_MASK,         "", HFILL }},
+    { &hf_mtp3_itu_opc,               { "OPC",                      "mtp3.opc",               FT_UINT32, BASE_DEC,  NULL,                                   ITU_OPC_MASK,               "", HFILL }},
+    { &hf_mtp3_itu_pc,                { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   0x0,                        "", HFILL }},
+    { &hf_mtp3_24bit_pc,              { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,               "", HFILL }},
+    { &hf_mtp3_24bit_opc,             { "OPC",                      "mtp3.opc",               FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,               "", HFILL }},
+    { &hf_mtp3_ansi_opc,              { "DPC",                      "mtp3.ansi_opc",          FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
+    { &hf_mtp3_chinese_opc,           { "DPC",                      "mtp3.chinese_opc",       FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
+    { &hf_mtp3_opc_network,           { "OPC Network",              "mtp3.opc.network",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_NETWORK_MASK,          "", HFILL }},
+    { &hf_mtp3_opc_cluster,           { "OPC Cluster",              "mtp3.opc.cluster",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_CLUSTER_MASK,          "", HFILL }},
+    { &hf_mtp3_opc_member,            { "OPC Member",               "mtp3.opc.member",        FT_UINT24, BASE_DEC,  NULL,                                   ANSI_MEMBER_MASK,           "", HFILL }},
+    { &hf_mtp3_japan_opc,             { "OPC",                      "mtp3.opc",               FT_UINT16, BASE_DEC,  NULL,                                   JAPAN_PC_MASK,              "", HFILL }},
+    { &hf_mtp3_japan_pc,              { "PC",                       "mtp3.pc",                FT_UINT16, BASE_DEC,  NULL,                                   JAPAN_PC_MASK,              "", HFILL }},
+    { &hf_mtp3_itu_dpc,               { "DPC",                      "mtp3.dpc",               FT_UINT32, BASE_DEC,  NULL,                                   ITU_DPC_MASK,               "", HFILL }},
+    { &hf_mtp3_24bit_dpc,             { "DPC",                      "mtp3.dpc",               FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,               "", HFILL }},
+    { &hf_mtp3_ansi_dpc,              { "DPC",                      "mtp3.ansi_dpc",          FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
+    { &hf_mtp3_chinese_dpc,           { "DPC",                      "mtp3.chinese_dpc",       FT_STRING, BASE_NONE, NULL,                                   0x0,                        "", HFILL }},
+    { &hf_mtp3_dpc_network,           { "DPC Network",              "mtp3.dpc.network",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_NETWORK_MASK,          "", HFILL }},
+    { &hf_mtp3_dpc_cluster,           { "DPC Cluster",              "mtp3.dpc.cluster",       FT_UINT24, BASE_DEC,  NULL,                                   ANSI_CLUSTER_MASK,          "", HFILL }},
+    { &hf_mtp3_dpc_member,            { "DPC Member",               "mtp3.dpc.member",        FT_UINT24, BASE_DEC,  NULL,                                   ANSI_MEMBER_MASK,           "", HFILL }},
+    { &hf_mtp3_japan_dpc,             { "DPC",                      "mtp3.dpc",               FT_UINT16, BASE_DEC,  NULL,                                   JAPAN_PC_MASK,              "", HFILL }},
+    { &hf_mtp3_itu_sls,               { "Signalling Link Selector", "mtp3.sls",               FT_UINT32, BASE_DEC,  NULL,                                   ITU_SLS_MASK,               "", HFILL }},
+    { &hf_mtp3_japan_4_bit_sls,       { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   JAPAN_4_BIT_SLS_MASK,       "", HFILL }},
+    { &hf_mtp3_japan_4_bit_sls_spare, { "SLS Spare",                "mtp3.sls_spare",         FT_UINT8,  BASE_HEX,  NULL,                                   JAPAN_4_BIT_SLS_SPARE_MASK, "", HFILL }},
+    { &hf_mtp3_japan_5_bit_sls,       { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   JAPAN_5_BIT_SLS_MASK,       "", HFILL }},
+    { &hf_mtp3_japan_5_bit_sls_spare, { "SLS Spare",                "mtp3.sls_spare",         FT_UINT8,  BASE_HEX,  NULL,                                   JAPAN_5_BIT_SLS_SPARE_MASK, "", HFILL }},
+    { &hf_mtp3_ansi_5_bit_sls,        { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   ANSI_5BIT_SLS_MASK,         "", HFILL }},
+    { &hf_mtp3_ansi_8_bit_sls,        { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   ANSI_8BIT_SLS_MASK,         "", HFILL }},
+    { &hf_mtp3_chinese_itu_sls,       { "Signalling Link Selector", "mtp3.sls",               FT_UINT8,  BASE_DEC,  NULL,                                   CHINESE_ITU_SLS_MASK,       "", HFILL }}
   };
 
   /* Setup protocol subtree array */
@@ -595,6 +704,7 @@ proto_register_mtp3(void)
     { "itu",         "ITU",         ITU_STANDARD },
     { "ansi",        "ANSI",        ANSI_STANDARD },
     { "chinese-itu", "Chinese ITU", CHINESE_ITU_STANDARD },
+    { "japan",       "Japan",       JAPAN_STANDARD },
     { NULL, NULL, 0 }
   };
 
@@ -611,6 +721,13 @@ proto_register_mtp3(void)
     { "unstructured", "Unstructured", ITU_PC_STRUCTURE_NONE},
     { "3-8-3",        "3-8-3",        ITU_PC_STRUCTURE_3_8_3 },
     { "4-3-4-3",      "4-3-4-3",      ITU_PC_STRUCTURE_4_3_4_3 },
+    { NULL,           NULL,           0 }
+  };
+
+  static enum_val_t japan_pc_structures[] = {
+    { "unstructured", "Unstructured", JAPAN_PC_STRUCTURE_NONE},
+    { "7-4-5",        "7-4-5",        JAPAN_PC_STRUCTURE_7_4_5 },
+    { "3-4-4-5",      "3-4-4-5",      JAPAN_PC_STRUCTURE_3_4_4_5 },
     { NULL,           NULL,           0 }
   };
   
@@ -639,10 +756,19 @@ proto_register_mtp3(void)
                                  "The structure of the pointcodes in ITU networks",
                                  &itu_pc_structure, itu_pc_structures, FALSE);
 
+  prefs_register_enum_preference(mtp3_module, "japan_pc_structure", "Japan Pointcode structure",
+                                 "The structure of the pointcodes in Japan networks",
+                                 &japan_pc_structure, japan_pc_structures, FALSE);
+
   prefs_register_bool_preference(mtp3_module, "ansi_5_bit_sls",
                                  "Use 5-bit SLS (ANSI only)",
                                  "Use 5-bit (instead of 8-bit) SLS in ANSI MTP3 packets",
                                  &mtp3_use_ansi_5_bit_sls);
+
+  prefs_register_bool_preference(mtp3_module, "japan_5_bit_sls",
+                                 "Use 5-bit SLS (Japan only)",
+                                 "Use 5-bit (instead of 4-bit) SLS in Japan MTP3 packets",
+                                 &mtp3_use_japan_5_bit_sls);
 
   prefs_register_enum_preference(mtp3_module, "addr_format", "Address Format",
                                  "Format for point code in the address columns",

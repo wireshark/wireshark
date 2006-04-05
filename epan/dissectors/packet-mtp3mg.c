@@ -7,6 +7,10 @@
  *   ITU-T Q.707 7/1996 and ANSI T1.111.7-1996 (for SLT message formats)
  *   portions of ITU-T Q.2210 7/1996 (for XCO/XCA message formats)
  *   GF 001-9001 (Chinese ITU variant)
+ *   JT-Q704, JT-Q707v2, and NTT-Q704 (Japan)
+ *
+ *   Note that the division of the Japan SLS into the SLC and A/B bit is not
+ *   done.
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
@@ -59,10 +63,10 @@
 #define H0_FCM 0x03
 #define H0_TFM 0x04
 #define H0_RSM 0x05
-#define H0_MIM 0x06
-#define H0_TRM 0x07
-#define H0_DLM 0x08
-#define H0_UFC 0x0a
+#define H0_MIM 0x06	/* not used in Japan */
+#define H0_TRM 0x07	/* not used in Japan */
+#define H0_DLM 0x08	/* not used in Japan */
+#define H0_UFC 0x0a	/* not used in Japan */
 static const value_string h0_message_type_values[] = {
   { H0_CHM, "Changeover and changeback messages" },
   { H0_ECM, "Emergency changeover messages" },
@@ -267,6 +271,19 @@ static const value_string test_h1_message_type_acro_values[] = {
   { TEST_H1_SLTA, "SLTA" },
   { 0,            NULL } };
 
+#define JAPAN_TEST_SRT 0x23
+#define JAPAN_TEST_SRA 0x84
+static const value_string japan_test_message_type_values[] = {
+  { JAPAN_TEST_SRT, "Signalling routing test message" },
+  { JAPAN_TEST_SRA, "Signalling routing test acknowledgement message" },
+  { 0,              NULL } };
+
+/* Same as above but in acronym form (for the Info column) */
+static const value_string japan_test_message_type_acro_values[] = {
+  { JAPAN_TEST_SRT, "SRT" },
+  { JAPAN_TEST_SRA, "SRA" },
+  { 0,              NULL } };
+
 #define COO_LENGTH         2
 #define ANSI_COO_SLC_MASK  0x000f
 #define ANSI_COO_FSN_MASK  0x07f0
@@ -279,15 +296,26 @@ static const value_string test_h1_message_type_acro_values[] = {
 #define ANSI_CBD_SLC_MASK  0x000f
 #define ANSI_CBD_CBC_MASK  0x0ff0
 #define ITU_CBD_LENGTH     1
+#define JAPAN_CBD_CBC_MASK 0x3
 
 #define ANSI_ECO_LENGTH   1
 #define ANSI_ECO_SLC_MASK 0x0f
 
-#define ANSI_TFC_STATUS_LENGTH 1
-#define ANSI_TFC_STATUS_OFFSET ANSI_PC_LENGTH
-#define ANSI_TFC_STATUS_MASK   0x03
-#define ITU_TFC_STATUS_LENGTH  ITU_PC_LENGTH
-#define ITU_TFC_STATUS_MASK    0xc000
+#define ANSI_TFC_STATUS_LENGTH       1
+#define ANSI_TFC_STATUS_OFFSET       ANSI_PC_LENGTH
+#define ANSI_TFC_STATUS_MASK         0x03
+#define ITU_TFC_STATUS_LENGTH        ITU_PC_LENGTH
+#define ITU_TFC_STATUS_MASK          0xc000
+#define JAPAN_TFC_SPARE_OFFSET        0
+#define JAPAN_TFC_SPARE_LENGTH        1
+#define JAPAN_TFC_APC_OFFSET          JAPAN_TFC_SPARE_LENGTH
+#define JAPAN_TFC_STATUS_OFFSET       (JAPAN_TFC_SPARE_LENGTH + JAPAN_PC_LENGTH)
+#define JAPAN_TFC_STATUS_LENGTH       1
+#define JAPAN_TFC_STATUS_MASK         0x03
+#define JAPAN_TFC_STATUS_SPARE_MASK   0xfc
+
+#define JAPAN_TFM_COUNT_OFFSET 0
+#define JAPAN_TFM_COUNT_LENGTH 1
 
 #define ANSI_MIM_LENGTH   1
 #define ANSI_MIM_SLC_MASK 0x0f
@@ -309,6 +337,16 @@ static const value_string test_h1_message_type_acro_values[] = {
 #define TEST_LENGTH_SHIFT   4
 #define TEST_PATTERN_OFFSET TEST_LENGTH
 #define ANSI_TEST_SLC_MASK  0x000f
+
+#define JAPAN_SPARE_LENGTH 1
+#define JAPAN_H0H1_OFFSET JAPAN_SPARE_LENGTH
+
+#define JAPAN_TEST_SPARE_OFFSET   JAPAN_SPARE_LENGTH + H0H1_LENGTH
+#define JAPAN_TEST_SPARE_LENGTH   1
+#define JAPAN_TEST_PATTERN_OFFSET (JAPAN_TEST_SPARE_OFFSET + JAPAN_TEST_SPARE_LENGTH)
+#define JAPAN_TEST_PATTERN_LENGTH 2
+#define JAPAN_TEST_PATTERN 0x7711
+
 
 /* This list is slightly different from that in packet-mtp3.c */
 static const value_string service_indicator_code_vals[] = {
@@ -352,6 +390,7 @@ static int hf_mtp3mg_xco_itu_fsn = -1;
 static int hf_mtp3mg_cbd_ansi_slc = -1;
 static int hf_mtp3mg_cbd_ansi_cbc = -1;
 static int hf_mtp3mg_cbd_itu_cbc = -1;
+static int hf_mtp3mg_cbd_japan_cbc = -1;
 static int hf_mtp3mg_eco_ansi_slc = -1;
 static int hf_mtp3mg_tfc_ansi_apc = -1;
 static int hf_mtp3mg_tfc_apc_member = -1;
@@ -361,18 +400,28 @@ static int hf_mtp3mg_tfc_ansi_status = -1;
 static int hf_mtp3mg_tfc_itu_apc = -1;
 static int hf_mtp3mg_tfc_itu_status = -1;
 static int hf_mtp3mg_tfc_chinese_apc = -1;
+static int hf_mtp3mg_tfc_japan_spare = -1;
+static int hf_mtp3mg_tfc_japan_apc = -1;
+static int hf_mtp3mg_tfc_japan_status = -1;
+static int hf_mtp3mg_tfc_japan_status_spare = -1;
 static int hf_mtp3mg_tfm_ansi_apc = -1;
 static int hf_mtp3mg_tfm_apc_member = -1;
 static int hf_mtp3mg_tfm_apc_cluster = -1;
 static int hf_mtp3mg_tfm_apc_network = -1;
 static int hf_mtp3mg_tfm_itu_apc = -1;
 static int hf_mtp3mg_tfm_chinese_apc = -1;
+static int hf_mtp3mg_tfm_japan_count = -1;
+static int hf_mtp3mg_tfm_japan_apc = -1;
+static int hf_mtp3mg_tfm_japan_spare = -1;
 static int hf_mtp3mg_rsm_ansi_apc = -1;
 static int hf_mtp3mg_rsm_apc_member = -1;
 static int hf_mtp3mg_rsm_apc_cluster = -1;
 static int hf_mtp3mg_rsm_apc_network = -1;
 static int hf_mtp3mg_rsm_itu_apc = -1;
 static int hf_mtp3mg_rsm_chinese_apc = -1;
+static int hf_mtp3mg_rsm_japan_count = -1;
+static int hf_mtp3mg_rsm_japan_apc = -1;
+static int hf_mtp3mg_rsm_japan_spare = -1;
 static int hf_mtp3mg_mim_ansi_slc = -1;
 static int hf_mtp3mg_dlc_ansi_slc = -1;
 static int hf_mtp3mg_dlc_ansi_link = -1;
@@ -383,12 +432,17 @@ static int hf_mtp3mg_upu_apc_cluster = -1;
 static int hf_mtp3mg_upu_apc_network = -1;
 static int hf_mtp3mg_upu_itu_apc = -1;
 static int hf_mtp3mg_upu_chinese_apc = -1;
+static int hf_mtp3mg_upu_japan_apc = -1;
 static int hf_mtp3mg_upu_user = -1;
 static int hf_mtp3mg_upu_cause = -1;
 static int hf_mtp3test_h0 = -1;
 static int hf_mtp3mg_test_h1 = -1;
 static int hf_mtp3mg_test_ansi_slc = -1;
 static int hf_mtp3mg_test_length = -1;
+static int hf_mtp3mg_japan_test = -1;
+static int hf_mtp3mg_japan_test_spare = -1;
+static int hf_mtp3mg_japan_test_pattern = -1;
+static int hf_mtp3mg_japan_spare = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mtp3mg = -1;
@@ -426,7 +480,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				COO_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_fsn, tvb, 0,
 				COO_LENGTH, TRUE);
-	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
+	} else /* ITU_STANDARD, CHINESE_ITU_STANDARD, and JAPAN_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_itu_fsn, tvb, 0,
 				COO_LENGTH, TRUE);
 	}
@@ -440,7 +494,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_XCO_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_xco_ansi_fsn, tvb, 0,
 				ANSI_XCO_LENGTH, TRUE);
-	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
+	} else /* ITU_STANDARD, CHINESE_ITU_STANDARD, and JAPAN_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_xco_itu_fsn, tvb, 0,
 				ITU_XCO_LENGTH, TRUE);
 	}
@@ -454,6 +508,9 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_CBD_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_cbd_ansi_cbc, tvb, 0,
 				ANSI_CBD_LENGTH, TRUE);
+	} else if (mtp3_standard == JAPAN_STANDARD) {
+	    proto_tree_add_item(tree, hf_mtp3mg_cbd_japan_cbc, tvb, 0,
+				ITU_CBD_LENGTH, TRUE);
 	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_cbd_itu_cbc, tvb, 0,
 				ITU_CBD_LENGTH, TRUE);
@@ -526,6 +583,8 @@ static void
 dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
+    proto_item *apc_item;
+
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, fcm_h1_message_type_acro_values, "Unknown"));
@@ -539,7 +598,6 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case FCM_H1_TFC:
 	if (mtp3_standard == ITU_STANDARD)
 	{
-	    proto_item *apc_item;
 
 	    apc_item = proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_apc, tvb, 0,
 					   ITU_PC_LENGTH, TRUE);
@@ -552,12 +610,35 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
 	    }
 
-
 	    /* Congestion level is a national option */
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_status, tvb, 0,
 				ITU_TFC_STATUS_LENGTH, TRUE);
 
 
+
+	} else if (mtp3_standard == JAPAN_STANDARD) {
+
+	    proto_tree_add_item(tree, hf_mtp3mg_tfc_japan_spare, tvb,
+				JAPAN_TFC_SPARE_OFFSET,
+				JAPAN_TFC_SPARE_LENGTH, TRUE);
+
+	    apc_item = proto_tree_add_item(tree, hf_mtp3mg_tfc_japan_apc, tvb,
+					   JAPAN_TFC_APC_OFFSET,
+					   JAPAN_PC_LENGTH, TRUE);
+	    if (mtp3_pc_structured())
+	    {
+		guint32 apc;
+
+		apc = tvb_get_letohs(tvb, JAPAN_TFC_APC_OFFSET);
+		proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+	    }
+
+	    proto_tree_add_item(tree, hf_mtp3mg_tfc_japan_status, tvb,
+				JAPAN_TFC_STATUS_OFFSET,
+				JAPAN_TFC_STATUS_LENGTH, TRUE);
+	    proto_tree_add_item(tree, hf_mtp3mg_tfc_japan_status_spare, tvb,
+				JAPAN_TFC_STATUS_OFFSET,
+				JAPAN_TFC_STATUS_LENGTH, TRUE);
 
 	} else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */ {
 
@@ -594,6 +675,8 @@ static void
 dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
+    proto_item *apc_item;
+
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, tfm_h1_message_type_acro_values, "Unknown"));
@@ -614,14 +697,42 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    &hf_mtp3mg_tfm_apc_cluster,
 				    &hf_mtp3mg_tfm_apc_network);
 
+	} else if (mtp3_standard == JAPAN_STANDARD) {
+	    guint8 count, i;
+	    guint32 offset;
+
+	    if (h1 == TFM_H1_TCP || h1 == TFM_H1_TCR || h1 == TFM_H1_TCA
+	        || h1 == TFM_H1_TFR)
+		dissect_mtp3mg_unknown_message(tvb, tree);
+
+	    proto_tree_add_item(tree, hf_mtp3mg_tfm_japan_count, tvb,
+				JAPAN_TFM_COUNT_OFFSET,
+				JAPAN_TFM_COUNT_LENGTH, TRUE);
+
+	    count = tvb_get_guint8(tvb, JAPAN_TFM_COUNT_OFFSET);
+	    offset = JAPAN_TFM_COUNT_LENGTH;
+	    for (i = 0; i < count; i++)
+	    {
+		apc_item = proto_tree_add_item(tree, hf_mtp3mg_tfm_japan_apc, tvb,
+				    offset, JAPAN_PC_LENGTH, TRUE);
+		if (mtp3_pc_structured())
+		{
+		    guint32 apc;
+
+		    apc = tvb_get_letohs(tvb, offset);
+		    proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+		}
+		offset += JAPAN_PC_LENGTH;
+		proto_tree_add_item(tree, hf_mtp3mg_tfm_japan_spare, tvb,
+				    offset, JAPAN_PC_LENGTH, TRUE);
+		offset += JAPAN_PC_LENGTH;
+	    }
 	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 
 	    if (h1 == TFM_H1_TCP || h1 == TFM_H1_TCR || h1 == TFM_H1_TCA)
 		dissect_mtp3mg_unknown_message(tvb, tree);
 	    else if (mtp3_standard == ITU_STANDARD)
 	    {
-		proto_item *apc_item;
-
 		apc_item = proto_tree_add_item(tree, hf_mtp3mg_tfm_itu_apc,
 					       tvb, 0, ITU_PC_LENGTH, TRUE);
 		if (mtp3_pc_structured())
@@ -632,7 +743,7 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
 		}
 	    }
-	    else /* CHINESE_ITU_STANDARD */
+	    else if (mtp3_standard == CHINESE_ITU_STANDARD)
 		dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_tfm_apc,
 					&hf_mtp3mg_tfm_chinese_apc,
 					&hf_mtp3mg_tfm_apc_member,
@@ -650,6 +761,8 @@ static void
 dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
+    proto_item *apc_item;
+
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, rsm_h1_message_type_acro_values, "Unknown"));
@@ -668,17 +781,47 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    &hf_mtp3mg_rsm_apc_cluster,
 				    &hf_mtp3mg_rsm_apc_network);
 
+	} else if (mtp3_standard == JAPAN_STANDARD) {
+	    if (h1 == RSM_H1_RST)
+	    {
+		guint32 offset;
+		guint8 count, i;
+
+		proto_tree_add_item(tree, hf_mtp3mg_rsm_japan_count, tvb,
+				    JAPAN_TFM_COUNT_OFFSET,
+				    JAPAN_TFM_COUNT_LENGTH, TRUE);
+
+		count = tvb_get_guint8(tvb, JAPAN_TFM_COUNT_OFFSET);
+		offset = JAPAN_TFM_COUNT_LENGTH;
+		for (i = 0; i < count; i++)
+		{
+		    apc_item = proto_tree_add_item(tree,
+						   hf_mtp3mg_rsm_japan_apc,
+						   tvb, offset,
+						   JAPAN_PC_LENGTH, TRUE);
+		    if (mtp3_pc_structured())
+		    {
+			guint32 apc;
+
+			apc = tvb_get_letohs(tvb, 0);
+			proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+		    }
+		    offset += JAPAN_PC_LENGTH;
+		    proto_tree_add_item(tree, hf_mtp3mg_rsm_japan_spare, tvb,
+					offset, JAPAN_PC_LENGTH, TRUE);
+		    offset += JAPAN_PC_LENGTH;
+		}
+	    } else
+		dissect_mtp3mg_unknown_message(tvb, tree);
+
 	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 
 	    if (h1 == RSM_H1_RST || h1 == RSM_H1_RSR)
 	    {
 		if (mtp3_standard == ITU_STANDARD)
 		{
-		    proto_item *apc_item;
-
 		    apc_item = proto_tree_add_item(tree, hf_mtp3mg_rsm_itu_apc,
 						   tvb, 0, ITU_PC_LENGTH, TRUE);
-
 		    if (mtp3_pc_structured())
 		    {
 			guint32 apc;
@@ -795,6 +938,8 @@ static void
 dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
+    proto_item *apc_item;
+
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, ufc_h1_message_type_acro_values, "Unknown"));
@@ -822,8 +967,7 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
 				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
-	} else /* ITU_STANDARD */ {
-	    proto_item *apc_item;
+	} else if (mtp3_standard == ITU_STANDARD) {
 
 	    apc_item = proto_tree_add_item(tree, hf_mtp3mg_upu_itu_apc, tvb, 0,
 					   ITU_PC_LENGTH, TRUE);
@@ -832,6 +976,22 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 apc;
 
 		apc = tvb_get_letohs(tvb, 0) & ITU_PC_MASK;
+		proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
+	    }
+
+	    proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
+				ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
+	    proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
+				ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
+	} else { /* JAPAN_STANDARD */
+
+	    apc_item = proto_tree_add_item(tree, hf_mtp3mg_upu_japan_apc, tvb,
+					   0, JAPAN_PC_LENGTH, TRUE);
+	    if (mtp3_pc_structured())
+	    {
+		guint32 apc;
+
+		apc = tvb_get_letohs(tvb, 0);
 		proto_item_append_text(apc_item, " (%s)", mtp3_pc_to_str(apc));
 	    }
 
@@ -904,12 +1064,14 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case CHINESE_ITU_STANDARD:
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Chin. ITU)");
           break;
+        case JAPAN_STANDARD:
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Japan)");
+          break;
       };      
 
     if (tree) {
 	/* create display subtree for the protocol */
-	mtp3mg_item = proto_tree_add_item(tree, proto_mtp3mg, tvb, 0, -1,
-					  TRUE);
+	mtp3mg_item = proto_tree_add_item(tree, proto_mtp3mg, tvb, 0, -1, TRUE);
 	mtp3mg_tree = proto_item_add_subtree(mtp3mg_item, ett_mtp3mg);
     }
 
@@ -920,31 +1082,85 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        pinfo->private_data == (void *)MTP3MG_ITU_TEST_SI)
     {	/* Test messages */
 
-	proto_tree_add_item(mtp3mg_tree, hf_mtp3test_h0, tvb, 0, H0H1_LENGTH,
-			    TRUE);
-	/* H1 is added below */
-
-	h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
-	h1 = (tvb_get_guint8(tvb, 0) & H1_MASK) >> H1_SHIFT;
-
-	payload_tvb = tvb_new_subset(tvb, H0H1_LENGTH, -1, -1);
-
-	switch (h0)
+	if (mtp3_standard == JAPAN_STANDARD)
 	{
-	case TEST_H0_SLT:
-	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_test_h1, tvb, 0,
-				H0H1_LENGTH, TRUE);
-	    dissect_mtp3mg_test(payload_tvb, pinfo, mtp3mg_tree, h1);
-	    break;
+	    guint8 h0h1;
+	    guint16 test_pattern;
+	    proto_item *pattern_item;
 
-	default:
+	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_spare, tvb, 0,
+				JAPAN_SPARE_LENGTH, TRUE);
+
+	    h0h1 = tvb_get_guint8(tvb, JAPAN_H0H1_OFFSET);
+
+	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_test, tvb,
+				JAPAN_SPARE_LENGTH, H0H1_LENGTH, TRUE);
+
 	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			     val_to_str(h0h1, japan_test_message_type_acro_values, "Unknown"));
 
-	    dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
-	} /* switch */
+	    switch (h0h1)
+	    {
+	    case JAPAN_TEST_SRT:
+	    case JAPAN_TEST_SRA:
+		proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_test_spare,
+				    tvb, JAPAN_TEST_SPARE_OFFSET,
+				    JAPAN_TEST_SPARE_LENGTH, TRUE);
+
+		test_pattern = tvb_get_letohl(tvb, JAPAN_TEST_PATTERN_OFFSET);
+		pattern_item = proto_tree_add_item(mtp3mg_tree,
+						   hf_mtp3mg_japan_test_pattern,
+						   tvb,
+						   JAPAN_TEST_PATTERN_OFFSET,
+						   JAPAN_TEST_PATTERN_LENGTH,
+						   TRUE);
+		proto_item_append_text(pattern_item, " (%s)",
+				       test_pattern == JAPAN_TEST_PATTERN
+				       ? "correct" : "incorrect");
+		break;
+
+	    default:
+		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+	    }
+
+	} else { /* not JAPAN */
+	    proto_tree_add_item(mtp3mg_tree, hf_mtp3test_h0, tvb, 0, H0H1_LENGTH, TRUE);
+	    /* H1 is added below */
+
+	    h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
+	    h1 = (tvb_get_guint8(tvb, 0) & H1_MASK) >> H1_SHIFT;
+
+	    payload_tvb = tvb_new_subset(tvb, H0H1_LENGTH, -1, -1);
+
+	    switch (h0)
+	    {
+	    case TEST_H0_SLT:
+		proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_test_h1, tvb, 0,
+				    H0H1_LENGTH, TRUE);
+		dissect_mtp3mg_test(payload_tvb, pinfo, mtp3mg_tree, h1);
+		break;
+
+	    default:
+		if (check_col(pinfo->cinfo, COL_INFO))
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ");
+
+		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+	    } /* switch */
+
+	}
 
     } else {	/* Real management messages */
+
+
+	if (mtp3_standard == JAPAN_STANDARD)
+	{
+	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_spare, tvb, 0,
+				JAPAN_SPARE_LENGTH, TRUE);
+
+	    /*  Get a tvb w/o the spare byte--it makes for less code below */
+	    tvb = tvb_new_subset(tvb, JAPAN_SPARE_LENGTH, -1, -1);
+	}
 
 	proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_h0, tvb, 0, H0H1_LENGTH,
 			    TRUE);
@@ -983,24 +1199,40 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    dissect_mtp3mg_rsm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_MIM:
-	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_mim_h1, tvb, 0,
-				H0H1_LENGTH, TRUE);
-	    dissect_mtp3mg_mim(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    if (mtp3_standard != JAPAN_STANDARD)
+	    {
+		proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_mim_h1, tvb, 0,
+				    H0H1_LENGTH, TRUE);
+		dissect_mtp3mg_mim(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    } else
+		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	    break;
 	case H0_TRM:
-	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_trm_h1, tvb, 0,
-				H0H1_LENGTH, TRUE);
-	    dissect_mtp3mg_trm(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    if (mtp3_standard != JAPAN_STANDARD)
+	    {
+		proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_trm_h1, tvb, 0,
+				    H0H1_LENGTH, TRUE);
+		dissect_mtp3mg_trm(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    } else
+		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	    break;
 	case H0_DLM:
-	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_dlm_h1, tvb, 0,
-				H0H1_LENGTH, TRUE);
-	    dissect_mtp3mg_dlm(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    if (mtp3_standard != JAPAN_STANDARD)
+	    {
+		proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_dlm_h1, tvb, 0,
+				    H0H1_LENGTH, TRUE);
+		dissect_mtp3mg_dlm(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    } else
+		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	    break;
 	case H0_UFC:
-	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_ufc_h1, tvb, 0,
-				H0H1_LENGTH, TRUE);
-	    dissect_mtp3mg_ufc(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    if (mtp3_standard != JAPAN_STANDARD)
+	    {
+		proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_ufc_h1, tvb, 0,
+				    H0H1_LENGTH, TRUE);
+		dissect_mtp3mg_ufc(payload_tvb, pinfo, mtp3mg_tree, h1);
+	    } else
+		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	    break;
 
 	default:
@@ -1095,6 +1327,10 @@ proto_register_mtp3mg(void)
 	    { "Change Back Code", "mtp3mg.cbc",
 	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }},
+	{ &hf_mtp3mg_cbd_japan_cbc,
+	    { "Change Back Code", "mtp3mg.cbc",
+	      FT_UINT8, BASE_DEC, NULL, JAPAN_CBD_CBC_MASK,
+	      "", HFILL }},
 	{ &hf_mtp3mg_eco_ansi_slc,
 	    { "Signalling Link Code", "mtp3mg.slc",
 	      FT_UINT8, BASE_DEC, NULL, ANSI_ECO_SLC_MASK,
@@ -1121,7 +1357,7 @@ proto_register_mtp3mg(void)
 	      "Congestion status", HFILL }},
 	{ &hf_mtp3mg_tfc_itu_apc,
 	    { "Affected Point Code (ITU)", "mtp3mg.apc",
-	      FT_UINT8, BASE_DEC, NULL, ITU_PC_MASK,
+	      FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
 	      "", HFILL }},
 	{ &hf_mtp3mg_tfc_itu_status,
 	    { "Status", "mtp3mg.status",
@@ -1130,6 +1366,22 @@ proto_register_mtp3mg(void)
 	{ &hf_mtp3mg_tfc_chinese_apc,
 	    { "Affected Point Code", "mtp3mg.chinese_apc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_tfc_japan_spare,
+	    { "TFC spare (Japan)", "mtp3mg.japan_spare",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_tfc_japan_apc,
+	    { "Affected Point Code", "mtp3mg.japan_apc",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_tfc_japan_status,
+	    { "Status", "mtp3mg.japan_status",
+	      FT_UINT8, BASE_DEC, NULL, JAPAN_TFC_STATUS_MASK,
+	      "", HFILL }},
+	{ &hf_mtp3mg_tfc_japan_status_spare,
+	    { "Spare (Japan)", "mtp3mg.japan_spare",
+	      FT_UINT8, BASE_HEX, NULL, JAPAN_TFC_STATUS_SPARE_MASK,
 	      "", HFILL }},
 	{ &hf_mtp3mg_tfm_ansi_apc,
 	    { "Affected Point Code", "mtp3mg.ansi_apc",
@@ -1149,11 +1401,23 @@ proto_register_mtp3mg(void)
 	      "", HFILL }},
 	{ &hf_mtp3mg_tfm_itu_apc,
 	    { "Affected Point Code (ITU)", "mtp3mg.apc",
-	      FT_UINT8, BASE_DEC, NULL, ITU_PC_MASK,
+	      FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
 	      "", HFILL }},
 	{ &hf_mtp3mg_tfm_chinese_apc,
 	    { "Affected Point Code", "mtp3mg.chinese_apc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_tfm_japan_count,
+	    { "Count of Affected Point Codes (Japan)", "mtp3mg.japan_count",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_tfm_japan_apc,
+	    { "Affected Point Code", "mtp3mg.japan_apc",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_tfm_japan_spare,
+	    { "Spare (Japan)", "mtp3mg.japan_spare",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }},
 	{ &hf_mtp3mg_rsm_ansi_apc,
 	    { "Affected Point Code", "mtp3mg.ansi_apc",
@@ -1173,11 +1437,23 @@ proto_register_mtp3mg(void)
 	      "", HFILL }},
 	{ &hf_mtp3mg_rsm_itu_apc,
 	    { "Affected Point Code (ITU)", "mtp3mg.apc",
-	      FT_UINT8, BASE_DEC, NULL, ITU_PC_MASK,
+	      FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
 	      "", HFILL }},
 	{ &hf_mtp3mg_rsm_chinese_apc,
 	    { "Affected Point Code", "mtp3mg.chinese_apc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_rsm_japan_count,
+	    { "Count of Affected Point Codes (Japan)", "mtp3mg.japan_count",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_rsm_japan_apc,
+	    { "Affected Point Code", "mtp3mg.japan_apc",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_rsm_japan_spare,
+	    { "Spare (Japan)", "mtp3mg.japan_spare",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }},
 	{ &hf_mtp3mg_mim_ansi_slc,
 	    { "Signalling Link Code", "mtp3mg.slc",
@@ -1213,11 +1489,15 @@ proto_register_mtp3mg(void)
 	      "", HFILL }},
 	{ &hf_mtp3mg_upu_itu_apc,
 	    { "Affected Point Code", "mtp3mg.apc",
-	      FT_UINT8, BASE_DEC, NULL, ITU_PC_MASK,
+	      FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
 	      "", HFILL }},
 	{ &hf_mtp3mg_upu_chinese_apc,
 	    { "Affected Point Code", "mtp3mg.chinese_apc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL }},
+	{ &hf_mtp3mg_upu_japan_apc,
+	    { "Affected Point Code", "mtp3mg.apc",
+	      FT_UINT16, BASE_DEC, NULL, JAPAN_PC_MASK,
 	      "", HFILL }},
 	{ &hf_mtp3mg_upu_user,
 	    { "User", "mtp3mg.user",
@@ -1239,6 +1519,22 @@ proto_register_mtp3mg(void)
 	    { "Test length", "mtp3mg.test.length",
 	      FT_UINT8, BASE_DEC, NULL, H1_MASK,
 	      "Signalling link test pattern length", HFILL }},
+	{ &hf_mtp3mg_japan_test,
+	    { "Japan test message", "mtp3mg.test",
+	      FT_UINT8, BASE_HEX, VALS(japan_test_message_type_values), 0x0,
+	      "Japan test message type", HFILL }},
+	{ &hf_mtp3mg_japan_test_spare,
+	    { "Japan test message spare", "mtp3mg.test.spare",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      "Japan test message spare", HFILL }},
+	{ &hf_mtp3mg_japan_test_pattern,
+	    { "Japan test message pattern", "mtp3mg.test.pattern",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
+	      "Japan test message pattern", HFILL }},
+	{ &hf_mtp3mg_japan_spare,
+	    { "Japan management spare", "mtp3mg.spare",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      "Japan management spare", HFILL }},
 	{ &hf_mtp3mg_test_ansi_slc,
 	    { "Signalling Link Code", "mtp3mg.slc",
 	      FT_UINT8, BASE_DEC, NULL, ANSI_TEST_SLC_MASK,

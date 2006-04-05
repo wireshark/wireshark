@@ -5,6 +5,10 @@
  *   ANSI T1.112.3-1996
  *   ITU-T Q.713 7/1996
  *   YDN 038-1997 (Chinese ITU variant)
+ *   JT-Q713 and NTT-Q713 (Japan)
+ *
+ *   Note that Japan-specific GTT is incomplete; in particular, the specific
+ *   TTs that are defined in TTC and NTT are not decoded in detail.
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
@@ -253,6 +257,9 @@ static const value_string sccp_ai_ssni_values[] = {
 #define ADDRESS_SSN_LENGTH    1
 #define INVALID_SSN 0xff
   /* Some values from 3GPP TS 23.003 */
+  /*  Japan TTC and NTT define a lot of SSNs, some of which conflict with
+   *  these.  They are not added for now.
+   */
 static const value_string sccp_ssn_values[] = {
   { 0x00,  "SSN not known/not used" },
   { 0x01,  "SCCP management" },
@@ -596,6 +603,7 @@ static int hf_sccp_called_pc_network = -1;
 static int hf_sccp_called_ansi_pc = -1;
 static int hf_sccp_called_chinese_pc = -1;
 static int hf_sccp_called_itu_pc = -1;
+static int hf_sccp_called_japan_pc = -1;
 static int hf_sccp_called_gt_nai = -1;
 static int hf_sccp_called_gt_oe = -1;
 static int hf_sccp_called_gt_tt = -1;
@@ -619,6 +627,7 @@ static int hf_sccp_calling_pc_network = -1;
 static int hf_sccp_calling_ansi_pc = -1;
 static int hf_sccp_calling_chinese_pc = -1;
 static int hf_sccp_calling_itu_pc = -1;
+static int hf_sccp_calling_japan_pc = -1;
 static int hf_sccp_calling_gt_nai = -1;
 static int hf_sccp_calling_gt_oe = -1;
 static int hf_sccp_calling_gt_tt = -1;
@@ -1076,7 +1085,6 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
   proto_tree *call_tree = 0, *call_ai_tree = 0;
   guint offset;
   guint8 national = -1, routing_ind, gti, pci, ssni, ssn;
-  guint32 dpc;
   tvbuff_t *gt_tvb;
   dissector_handle_t ssn_dissector = NULL, tcap_ssn_dissector = NULL;
   const char *ssn_dissector_short_name = NULL;
@@ -1112,6 +1120,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
   if (decode_mtp3_standard == ITU_STANDARD ||
       decode_mtp3_standard == CHINESE_ITU_STANDARD ||
+      decode_mtp3_standard == JAPAN_STANDARD ||
       national == 0) {
 
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator
@@ -1132,15 +1141,22 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect PC (if present) */
     if (pci) {
-      if (decode_mtp3_standard == ITU_STANDARD)
-      {
+      if (decode_mtp3_standard == ITU_STANDARD) {
 
-	dpc = tvb_get_letohs(tvb, offset) & ITU_PC_MASK;
-	proto_tree_add_uint(call_tree, called ? hf_sccp_called_itu_pc
+	proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
 					      : hf_sccp_calling_itu_pc,
-			    tvb, offset, ITU_PC_LENGTH, dpc);
+			    tvb, offset, ITU_PC_LENGTH, TRUE);
+
 	offset += ITU_PC_LENGTH;
 
+      } else if (decode_mtp3_standard == JAPAN_STANDARD) {
+
+	proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc
+					      : hf_sccp_calling_japan_pc,
+			    tvb, offset, JAPAN_PC_LENGTH, TRUE);
+
+	offset += JAPAN_PC_LENGTH;
+      
       } else /* CHINESE_ITU_STANDARD */ {
 
 	offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
@@ -1165,27 +1181,25 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 				 ADDRESS_SSN_LENGTH, ssn);
       offset += ADDRESS_SSN_LENGTH;
 
-	  /* Get the dissector handle of the dissector registered for this ssn
-	   * And print it's name.
-	   */
-	
-	  ssn_dissector = dissector_get_port_handle(sccp_ssn_dissector_table, ssn);
-	  if (ssn_dissector){
-		  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
-		  if(ssn_dissector_short_name){
-			  item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH,"Linked to %s",ssn_dissector_short_name);
-			  PROTO_ITEM_SET_GENERATED(item);
-			  if (strncasecmp("TCAP",ssn_dissector_short_name,4)== 0){
-				  tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
-				  if(tcap_ssn_dissector){
-					  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
-					  proto_item_append_text(item,", TCAP ssn Linked to %s",tcap_ssn_dissector_short_name);
-				  }
-			  }
-		  }
-
-	  }
-    }
+      /* Get the dissector handle of the dissector registered for this ssn
+       * And print it's name.
+       */
+      ssn_dissector = dissector_get_port_handle(sccp_ssn_dissector_table, ssn);
+      if (ssn_dissector) {
+	  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+	  if(ssn_dissector_short_name) {
+	      item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH,"Linked to %s",ssn_dissector_short_name);
+	      PROTO_ITEM_SET_GENERATED(item);
+	      if (strncasecmp("TCAP",ssn_dissector_short_name,4)== 0) {
+		      tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
+		      if(tcap_ssn_dissector){
+			  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
+			  proto_item_append_text(item,", TCAP ssn Linked to %s",tcap_ssn_dissector_short_name);
+		      }
+	      }
+	  } /* short name */
+      } /* ssn_dissector */
+    } /* ssni */
 
     if (!tree)
       return;	/* got SSN, that's all we need here... */
@@ -1736,7 +1750,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 		     proto_tree *tree)
 {
   guint16 variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
-  guint16 optional_pointer = 0;
+  guint16 optional_pointer = 0, orig_opt_ptr = 0;
   guint16 offset = 0;
   guint8 parameter_type;
   gboolean   save_fragmented;
@@ -1761,9 +1775,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 /* Macro for getting pointer to optional parameters */
 #define OPTIONAL_POINTER(ptr_size) \
     if (ptr_size == POINTER_LENGTH) \
-	optional_pointer = tvb_get_guint8(tvb, offset); \
+	orig_opt_ptr = optional_pointer = tvb_get_guint8(tvb, offset); \
     else \
-	optional_pointer = tvb_get_letohs(tvb, offset); \
+	orig_opt_ptr = optional_pointer = tvb_get_letohs(tvb, offset); \
     proto_tree_add_uint(sccp_tree, hf_sccp_optional_pointer, tvb, \
 			offset, ptr_size, optional_pointer); \
     optional_pointer += offset; \
@@ -1794,6 +1808,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   
   switch(message_type) {
   case MESSAGE_TYPE_CR:
+  /*  TTC and NTT (Japan) say that the connection-oriented messages are
+   *  deleted (not standardized), but they appear to be used anyway, so
+   *  we'll dissect it...
+   */ 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
@@ -2252,7 +2270,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     dissect_sccp_unknown_message(tvb, sccp_tree);
   }
 
-  if (optional_pointer)
+  if (orig_opt_ptr)
     dissect_sccp_optional_parameters(tvb, pinfo, sccp_tree, tree,
 				     optional_pointer);
 
@@ -2294,6 +2312,9 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
       case CHINESE_ITU_STANDARD:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Chin. ITU)");
+        break;
+      case JAPAN_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Japan)");
         break;
     };      
 
@@ -2429,6 +2450,10 @@ proto_register_sccp(void)
       { "PC", "sccp.called.chinese_pc",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL}},
+    { &hf_sccp_called_japan_pc,
+      { "PC", "sccp.called.pc",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"", HFILL}},
     { &hf_sccp_called_pc_network,
       { "PC Network",
 	"sccp.called.network",
@@ -2522,6 +2547,10 @@ proto_register_sccp(void)
     { &hf_sccp_calling_chinese_pc,
       { "PC", "sccp.calling.chinese_pc",
 	FT_STRING, BASE_NONE, NULL, 0x0,
+	"", HFILL}},
+    { &hf_sccp_calling_japan_pc,
+      { "PC", "sccp.calling.pc",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL}},
     { &hf_sccp_calling_pc_network,
       { "PC Network",
