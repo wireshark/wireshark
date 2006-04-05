@@ -66,6 +66,7 @@ static int hf_fcp_burstlen   = -1;
 static int hf_fcp_rspflags   = -1;
 static int hf_fcp_retry_delay_timer   = -1;
 static int hf_fcp_resid      = -1;
+static int hf_fcp_bidir_resid = -1;
 static int hf_fcp_snslen     = -1;
 static int hf_fcp_rsplen     = -1;
 static int hf_fcp_rspcode    = -1;
@@ -742,6 +743,15 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset+=snslen;
         }
 
+        /* bidir read resid (only present for bidirectional responses) */
+        if(flags&0x80){
+            if(flags&0x60){
+                proto_tree_add_item(fcp_tree, hf_fcp_bidir_resid, tvb, offset, 4, 0);
+            }
+            offset+=4;
+        }
+
+
         proto_item_set_end (ti, tvb, offset);
         if (cdata) {
             /*
@@ -915,6 +925,9 @@ proto_register_fcp (void)
            HFILL}},
         { &hf_fcp_resid,
           {"FCP_RESID", "fcp.resid", FT_UINT32, BASE_DEC, NULL, 0x0, "",
+           HFILL}},
+        { &hf_fcp_bidir_resid,
+          {"Bidirectional Read Resid", "fcp.bidir_resid", FT_UINT32, BASE_DEC, NULL, 0x0, "",
            HFILL}},
         { &hf_fcp_snslen,
           {"FCP_SNS_LEN", "fcp.snslen", FT_UINT32, BASE_DEC, NULL, 0x0, "",
