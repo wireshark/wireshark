@@ -697,6 +697,9 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* scsi status code */
         proto_tree_add_item(fcp_tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
+        if(cdata){
+            dissect_scsi_rsp(tvb, pinfo, tree, (guint16) cdata->fcp_lun, tvb_get_guint8(tvb, offset));
+        }
         offset++;
 
         /* residual count */

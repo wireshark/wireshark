@@ -6443,12 +6443,12 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, 0,
                                              0, "SCSI Response");
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
-
-	ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
-	PROTO_ITEM_SET_GENERATED(ti);
-	ti=proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
-	PROTO_ITEM_SET_GENERATED(ti);
     }
+
+    ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
+    PROTO_ITEM_SET_GENERATED(ti);
+    ti=proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
+    PROTO_ITEM_SET_GENERATED(ti);
     if (check_col (pinfo->cinfo, COL_INFO)) {
          col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
 
