@@ -396,6 +396,7 @@ DISSECTOR_SRC =	\
 	packet-laplink.c	\
 	packet-ldap.c	\
 	packet-ldp.c	\
+	packet-lge_monitor.c	\
 	packet-logotypecertextn.c	\
 	packet-llc.c	\
 	packet-lldp.c	\
