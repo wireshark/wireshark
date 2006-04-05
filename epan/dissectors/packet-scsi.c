@@ -3838,44 +3838,46 @@ proto_tree *tree _U_,
 static void
 dissect_spc3_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
-                         guint payload_len, scsi_task_data_t *cdata _U_)
+                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
-    guint listlen, i;
-
-    if (!tree)
-        return;
+    gint listlen;
 
     if (isreq && iscdb) {
 	proto_tree_add_item (tree, hf_scsi_select_report, tvb, offset+1, 1, 0);
 
         proto_tree_add_item (tree, hf_scsi_alloclen32, tvb, offset+5, 4, 0);
+	if(cdata){
+		cdata->alloc_len=tvb_get_ntohl(tvb, offset+5);
+	}
 
         flags = tvb_get_guint8 (tvb, offset+10);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
-    }
-    else if (!isreq) {
-        listlen = tvb_get_ntohl (tvb, offset);
+    } else if (!isreq) {
+	if (!cdata) {
+		return;
+	}
+
+	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->alloc_len); 
+        listlen = tvb_get_ntohl(tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 4, "LUN List Length: %u",
                              listlen);
         offset += 8;
-        payload_len -= 8;
-        if (payload_len != 0) {
-            listlen = (listlen < payload_len) ? listlen : payload_len;
-        }
 
-        for (i = 0; i < listlen/8; i++) {
+	while(listlen>0){
             if (!tvb_get_guint8 (tvb, offset))
                 proto_tree_add_item (tree, hf_scsi_rluns_lun, tvb, offset+1, 1,
                                      0);
             else
                 proto_tree_add_item (tree, hf_scsi_rluns_multilun, tvb, offset,
                                      8, 0);
-            offset += 8;
+            offset+=8;
+            listlen-=8;
         }
+	END_TRY_SCSI_CDB_ALLOC_LEN;
     }
 }
 
