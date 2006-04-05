@@ -53,12 +53,14 @@ extern const value_string gsm_map_etsi_defined_pdp_vals[];
 
 /*--- Included file: packet-gsm_map-exp.h ---*/
 #line 1 "packet-gsm_map-exp.h"
+extern const value_string gsm_map_LocalErrorcode_vals[];
 extern const value_string gsm_map_NotificationToMSUser_vals[];
 extern const value_string gsm_map_SubscriberState_vals[];
 extern const value_string gsm_map_SS_Info_vals[];
 extern const value_string gsm_map_InterrogateSS_Res_vals[];
 extern const value_string gsm_map_GetPasswordArg_vals[];
 extern const value_string gsm_map_Ext_BasicServiceCode_vals[];
+int dissect_gsm_map_LocalErrorcode(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_SupportedCamelPhases(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

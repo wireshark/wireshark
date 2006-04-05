@@ -43,6 +43,7 @@
 #include "packet-radius.h"
 #include "packet-bssap.h"
 #include "packet-gsm_a.h"
+#include "packet-gsm_map.h"
 
 static dissector_table_t ppp_subdissector_table;
 
@@ -690,28 +691,8 @@ static const value_string cause_type[] = {
 
 /* GPRS:	9.02 v7.7.0
  * UMTS:	29.002 v4.2.1, chapter 17.5, page 268
- * TODO: Check if all map_cause values are included
+ * Imported gsm_map_LocalErrorcode_vals from gsm_map
  */
-static const value_string map_cause_type[] = {
-	{ 1, "Unknown subscriber" },
-	{ 8, "Roaming not allowed" },
-	{ 10, "Bearer service not provisioned" },
-	{ 11, "Teleservice not provisioned" },
-	{ 13, "Call barred" },
-	{ 21, "Facility not supported" },
-	{ 23, "Update GPRS location" },
-	{ 24, "Send routing info for GPRS" },
-	{ 26, "Note MS present for GPRS" },
-	{ 27, "Absent subscriber" },
-	{ 34, "System failure" },
-	{ 35, "Data missing" },
-	{ 36, "Unexpected data value" },
-	{ 44, "Number chenged" },
-	{ 45, "Busy subscriber" },
-	{ 46, "No subscriber reply" },
-	{ 48, "Facility not allowed" },
-	{ 0, NULL }
-};
 
 static const value_string gsn_addr_type[] = {
 	{ 0x00, "IPv4" },
@@ -1080,6 +1061,24 @@ static const value_string ranap_cause_type[] = {
 	{ 44, "Relocation not supported in Target RNC or Target System" },
 	{ 45, "Directed Retry" },
 	{ 46, "Radio Connection With UE Lost" },
+	{  47, "rNC-unable-to-establish-all-RFCs" },
+	{  48, "deciphering-keys-not-available" },
+	{  49, "dedicated-assistance-data-not-available" },
+	{  50, "relocation-target-not-allowed" },
+	{  51, "location-reporting-congestion" },
+	{  52, "reduce-load-in-serving-cell" },
+	{  53, "no-radio-resources-available-in-target-cell" },
+	{  54, "gERAN-Iumode-failure" },
+	{  55, "access-restricted-due-to-shared-networks" },
+	{  56, "incoming-relocation-not-supported-due-to-PUESBINE-feature" },
+	{  57, "traffic-load-in-the-target-cell-higher-than-in-the-source-cell" },
+	{  58, "mBMS-no-multicast-service-for-this-UE" },
+	{  59, "mBMS-unknown-UE-ID" },
+	{  60, "successful-MBMS-session-start-no-data-bearer-necessary" },
+	{  61, "mBMS-superseded-due-to-NNSF" },
+	{  62, "mBMS-UE-linking-already-done" },
+	{  63, "mBMS-UE-de-linking-failure-no-existing-UE-linking" },
+	{  64, "tMGI-unknown" },
 /* Transport Layer Cause (65-->80) */
 	{ 65, "Signalling Transport Resource Failure" },
 	{ 66, "Iu Transport Connection Failed to Establish" },
@@ -1100,6 +1099,15 @@ static const value_string ranap_cause_type[] = {
 	{ 115, "Unspecified Failure" },
 	{ 116, "Network Opimisation" },
 /* Non-standard Cause (129-->255) */
+
+/* ranap_CauseRadioNetworkExtension ??
+	{ 257, "iP-multicast-address-and-APN-not-valid" },
+	{ 258, "mBMS-de-registration-rejected-due-to-implicit-registration" },
+	{ 259, "mBMS-request-superseded" },
+	{ 260, "mBMS-de-registration-during-session-not-allowed" },
+	{ 261, "mBMS-no-data-bearer-necessary" },
+  */
+
 	{ 0, NULL }
 };
 
@@ -1858,31 +1866,34 @@ static _gtp_mess_items umts_mess_items[] = {
 		/* TS 29.060 V6.11.0 */
 		{ GTP_EXT_APN_RES,		GTP_OPTIONAL },
 		{ GTP_EXT_RAT_TYPE,		GTP_OPTIONAL },
-		/* User Location infor,ation */
-		/* MS Time zone */
+		{ GTP_EXT_USR_LOC_INF,	GTP_OPTIONAL },
+		{ GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL },
 		{ GTP_EXT_IMEISV,		GTP_OPTIONAL },
-		/* CAMEL Charging information Container */
-		/* Additionaö Trace Info */
-
+		{ GTP_EXT_CAMEL_CHG_INF_CON, GTP_OPTIONAL },
+		{ GTP_EXT_ADD_TRS_INF,	GTP_OPTIONAL },
 		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0, 			0 }
 	}
 },
 {
 	GTP_MSG_CREATE_PDP_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_REORDER,	GTP_CONDITIONAL },
-		{ GTP_EXT_RECOVER,	GTP_OPTIONAL },
-		{ GTP_EXT_TEID,		GTP_CONDITIONAL },
-		{ GTP_EXT_TEID_CP,	GTP_CONDITIONAL },
-		{ GTP_EXT_CHRG_ID,	GTP_CONDITIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_REORDER,		GTP_CONDITIONAL },
+		{ GTP_EXT_RECOVER,		GTP_OPTIONAL },
+		{ GTP_EXT_TEID,			GTP_CONDITIONAL },
+		{ GTP_EXT_TEID_CP,		GTP_CONDITIONAL },
+		{ GTP_EXT_CHRG_ID,		GTP_CONDITIONAL },
 		{ GTP_EXT_USER_ADDR,	GTP_CONDITIONAL },
 		{ GTP_EXT_PROTO_CONF,	GTP_OPTIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
-		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
-		{ GTP_EXT_QOS_UMTS,	GTP_CONDITIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
+		{ GTP_EXT_GSN_ADDR,		GTP_CONDITIONAL },
+		{ GTP_EXT_QOS_UMTS,		GTP_CONDITIONAL },
 		{ GTP_EXT_CHRG_ADDR,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		/* TS 29.060 V6.11.0 */
+		/* Alternative Charging Gateway Address Optional 7.7.44 */
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
+		/* Common Flags Optional 7.7.48 */
+		{ GTP_EXT_APN_RES,		GTP_OPTIONAL },		/* APN Restriction Optional 7.7.49 */
 		{ 0,			0 }
 	}
 },
@@ -1902,6 +1913,10 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ GTP_EXT_TRIGGER_ID,	GTP_OPTIONAL },
 		{ GTP_EXT_OMC_ID,	GTP_OPTIONAL },
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_RAT_TYPE,		GTP_OPTIONAL },		/* RAT Type Optional 7.7.50 */
+		{ GTP_EXT_USR_LOC_INF,	GTP_OPTIONAL },		/* User Location Information Optional 7.7.51 */
+		{ GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL },		/* MS Time Zone Optional 7.7.52 */
+		{ GTP_EXT_ADD_TRS_INF,	GTP_OPTIONAL },		/* Additonal Trace Info Optional 7.7.62 */
 		{ 0,			0 }
 	}
 },
@@ -1916,7 +1931,10 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ GTP_EXT_GSN_ADDR,	GTP_CONDITIONAL },
 		{ GTP_EXT_QOS_UMTS,	GTP_CONDITIONAL },
 		{ GTP_EXT_CHRG_ADDR,	GTP_OPTIONAL },
+		/* Alternative Charging Gateway Address Optional 7.7.44 */
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		/* Common Flags Optional 7.7.48 */
+		/* APN Restriction Optional 7.7.49 */
 		{ 0,			0 }
 	}
 },
@@ -1924,6 +1942,7 @@ static _gtp_mess_items umts_mess_items[] = {
 	GTP_MSG_DELETE_PDP_REQ, {
 		{ GTP_EXT_TEAR_IND,	GTP_CONDITIONAL },
 		{ GTP_EXT_NSAPI,	GTP_MANDATORY },
+		/* Protocol Configuration Options Optional 7.7.31 */
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
 		{ 0,			0 }
 	}
@@ -1931,6 +1950,7 @@ static _gtp_mess_items umts_mess_items[] = {
 {
 	GTP_MSG_DELETE_PDP_RESP, {
 		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
+		/* Protocol Configuration Options Optional 7.7.31 */
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
 		{ 0,			0 }
 	}
@@ -1938,6 +1958,7 @@ static _gtp_mess_items umts_mess_items[] = {
 {
 	GTP_MSG_ERR_IND, {
 		{ GTP_EXT_TEID,		GTP_MANDATORY },
+		/* GSN Address Mandatory 7.7.32 */
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
 		{ 0,			0 }
 	}
@@ -1948,6 +1969,7 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ GTP_EXT_TEID_CP,	GTP_MANDATORY },
 		{ GTP_EXT_USER_ADDR,	GTP_MANDATORY },
 		{ GTP_EXT_APN,		GTP_MANDATORY },
+		/* Protocol Configuration Options Optional 7.7.31 */
 		{ GTP_EXT_GSN_ADDR,	GTP_MANDATORY },
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
 		{ 0,			0 }
@@ -1966,6 +1988,7 @@ static _gtp_mess_items umts_mess_items[] = {
 		{ GTP_EXT_TEID_CP,	GTP_MANDATORY },
 		{ GTP_EXT_USER_ADDR,	GTP_MANDATORY },
 		{ GTP_EXT_APN,		GTP_MANDATORY },
+		/* Protocol Configuration Options Optional 7.7.31 */
 		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
 		{ 0,			0 }
 	}
@@ -4043,7 +4066,7 @@ decode_gtp_omc_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 }
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.25
- * UMTS:	29.060 v4.0, chapter 7.7.43
+ * UMTS:	29.060 v4.0, chapter 7.7.43 ( 7.7.44 in v6 ).
  */
 static int
 decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
@@ -5330,7 +5353,7 @@ proto_register_gtp(void)
 		{ &hf_gtp_gsn_ipv6, { "GSN address IPv6", "gtp.gsn_ipv6", FT_IPv6, BASE_DEC, NULL, 0, "GSN address IPv6", HFILL }},
 		{ &hf_gtp_imsi, { "IMSI", "gtp.imsi", FT_STRING, BASE_DEC, NULL, 0, "International Mobile Subscriber Identity number", HFILL }},
 		{ &hf_gtp_length, { "Length", "gtp.length", FT_UINT16, BASE_DEC, NULL, 0, "Length (i.e. number of octets after TID or TEID)", HFILL }},
-		{ &hf_gtp_map_cause, { "MAP cause", "gtp.map_cause", FT_UINT8, BASE_DEC, VALS(map_cause_type), 0, "MAP cause", HFILL }},
+		{ &hf_gtp_map_cause, { "MAP cause", "gtp.map_cause", FT_UINT8, BASE_DEC, VALS(gsm_map_LocalErrorcode_vals), 0, "MAP cause", HFILL }},
 		{ &hf_gtp_message_type, { "Message Type", "gtp.message", FT_UINT8, BASE_HEX, VALS(message_type), 0x0, "GTP Message Type", HFILL }},
 		{ &hf_gtp_ms_reason, { "MS not reachable reason", "gtp.ms_reason", FT_UINT8, BASE_DEC, VALS(ms_not_reachable_type), 0, "MS Not Reachable Reason", HFILL }},
 		{ &hf_gtp_ms_valid, { "MS validated", "gtp.ms_valid", FT_BOOLEAN, BASE_NONE,NULL, 0, "MS validated", HFILL }},

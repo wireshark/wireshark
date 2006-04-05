@@ -1,4 +1,5 @@
 #.IMPORT_TAG
+LocalErrorcode           BER_CLASS_UNI BER_UNI_TAG_INTEGER
 SupportedCamelPhases     BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 ISDN-AddressString       BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 QoS-Subscribed           BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
@@ -63,6 +64,7 @@ ExtensionContainer       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
 
 #.TYPE_ATTR
+LocalErrorcode           TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_LocalErrorcode_vals)  BITMASK = 0
 SupportedCamelPhases     TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 ISDN-AddressString       TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 QoS-Subscribed           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0

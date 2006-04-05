@@ -67,6 +67,7 @@ USSD-String
 Ussd-Arg
 Ussd-Res
 UU-Data
+LocalErrorcode
 
 #.PDU
 
