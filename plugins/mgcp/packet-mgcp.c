@@ -1072,12 +1072,27 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 		switch (tempchar)
 		{
 			case 'K':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_rspack;
 				break;
 			case 'B':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_bearerinfo;
 				break;
 			case 'C':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_callid;
 				break;
 			case 'I':
@@ -1095,6 +1110,11 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'N':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_notifiedentity;
 				break;
 			case 'X':
@@ -1142,6 +1162,11 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'L':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_localconnoptions;
 				break;
 			case 'M':
@@ -1178,14 +1203,29 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'S':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_signalreq;
 				buf = &(mi->signalReq);
 				break;
 			case 'D':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_digitmap;
 				mi->hasDigitMap = TRUE;
 				break;
 			case 'O':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_observedevent;
 				buf = &(mi->observedEvents);
 				break;
@@ -1232,15 +1272,35 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'F':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_reqinfo;
 				break;
 			case 'Q':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_quarantinehandling;
 				break;
 			case 'T':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_detectedevents;
 				break;
 			case 'A':
+				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				{
+					*hf = &hf_mgcp_param_invalid;
+					break;
+				}
 				*hf = &hf_mgcp_param_capabilities;
 				break;
 
