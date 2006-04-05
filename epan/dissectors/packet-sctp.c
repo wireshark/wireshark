@@ -265,6 +265,8 @@ static const value_string sctp_payload_proto_id_values[] = {
   { ASAP_PAYLOAD_PROTOCOL_ID,            "ASAP" },
   { ENRP_PAYLOAD_PROTOCOL_ID,            "ENRP" },
   { H323_PAYLOAD_PROTOCOL_ID,            "H.323" },
+  { QIPC_PAYLOAD_PROTOCOL_ID,            "Q.IPC/Q.2150.3" },
+  { SIMCO_PAYLOAD_PROTOCOL_ID,           "SIMCO" },
   { 0,                                   NULL } };
 
 

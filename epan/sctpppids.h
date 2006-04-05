@@ -42,6 +42,8 @@
 #define ASAP_PAYLOAD_PROTOCOL_ID  11
 #define ENRP_PAYLOAD_PROTOCOL_ID  12
 #define H323_PAYLOAD_PROTOCOL_ID  13
+#define QIPC_PAYLOAD_PROTOCOL_ID  14
+#define SIMCO_PAYLOAD_PROTOCOL_ID 15
 #define M2TP_PAYLOAD_PROTOCOL_ID  99    /* s-link */
 
 #endif /* sctpppids.h */
