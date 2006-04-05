@@ -3393,6 +3393,26 @@ dissect_smb2_setinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
+static int
+dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+{
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
+	offset += 6;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 24, TRUE);
+	offset += 24;
+
+	return offset;
+}
+
 /* names here are just until we find better names for these functions */
 const value_string smb2_cmd_vals[] = {
   { 0x00, "NegotiateProtocol" },
@@ -3714,7 +3734,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x11 SetInfo*/
 	{dissect_smb2_setinfo_request,
 	 dissect_smb2_setinfo_response},
-  /* 0x12 */  {NULL, NULL},
+  /* 0x12 Break */
+  	{NULL,
+	 dissect_smb2_break_response},
   /* 0x13 */  {NULL, NULL},
   /* 0x14 */  {NULL, NULL},
   /* 0x15 */  {NULL, NULL},
@@ -4074,6 +4096,7 @@ dissect_smb2_tid_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, in
 static void
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
+	proto_item *seqnum_item;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	proto_item *header_item=NULL;
@@ -4190,7 +4213,10 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* command sequence number*/
 	si->seqnum=tvb_get_letoh64(tvb, offset);
 	ssi_key.seqnum=si->seqnum;
-	proto_tree_add_item(header_tree, hf_smb2_seqnum, tvb, offset, 8, TRUE);
+	seqnum_item=proto_tree_add_item(header_tree, hf_smb2_seqnum, tvb, offset, 8, TRUE);
+	if(seqnum_item && (si->seqnum==-1)){
+		proto_item_append_text(seqnum_item, " (unsolicited response)");
+	}
 	offset += 8;
 
 	/* Process ID */
@@ -4344,7 +4370,7 @@ proto_register_smb2(void)
 		{ "NT Status", "smb2.nt_status", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0, "NT Status code", HFILL }},
 	{ &hf_smb2_seqnum,
-		{ "Command Sequence Number", "smb2.seq_num", FT_UINT64, BASE_DEC,
+		{ "Command Sequence Number", "smb2.seq_num", FT_INT64, BASE_DEC,
 		NULL, 0, "SMB2 Command Sequence Number", HFILL }},
 	{ &hf_smb2_tid,
 		{ "Tree Id", "smb2.tid", FT_UINT32, BASE_DEC,

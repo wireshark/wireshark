@@ -89,7 +89,7 @@ typedef struct _smb2_info_t {
 	guint32 status;
 	guint32 tid;
 	guint64 uid;
-	guint64 seqnum;
+	gint64  seqnum;
 	guint32 flags;
 	smb2_conv_info_t	*conv;
 	smb2_saved_info_t	*saved;
