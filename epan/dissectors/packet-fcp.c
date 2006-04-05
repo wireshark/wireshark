@@ -625,8 +625,7 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 offset = 0,
-        del_usecs = 0;
+    guint32 offset = 0;
     gint32 snslen = 0,
            rsplen = 0;
     guint8 flags;
@@ -664,23 +663,7 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fcp_tree = proto_item_add_subtree (ti, ett_fcp);
         proto_tree_add_uint_hidden (fcp_tree, hf_fcp_type, tvb, offset, 0, 0);
 
-        if (cdata) {
-			/* XXX - this is ugly and should be replaced by a "standard way" */
-            del_usecs = (pinfo->fd->abs_ts.secs - cdata->abs_ts.secs)* 1000000 +
-                (pinfo->fd->abs_ts.nsecs - cdata->abs_ts.nsecs) / 1000;
-            if (del_usecs > 1000)
-                proto_tree_add_text (fcp_tree, tvb, offset, 0,
-                                     "Cmd Response Time: %d msecs",
-                                     del_usecs/1000);
-            else
-                proto_tree_add_text (fcp_tree, tvb, offset, 0,
-                                     "Cmd Response Time: %d usecs",
-                                     del_usecs);
-            if (cdata->fcp_lun >= 0)
-                proto_tree_add_uint_hidden (fcp_tree, hf_fcp_singlelun, tvb,
-                                            offset, 0, cdata->fcp_lun);
-        }
-
+    }
 
 
         /* 8 reserved bytes */
@@ -762,7 +745,6 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             g_hash_table_remove (fcp_req_hash, &ckey);
         }
-    }
 }
 
 static void
@@ -771,7 +753,6 @@ dissect_fcp_xfer_rdy (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
     proto_item *ti;
     proto_tree *fcp_tree;
-    guint del_usecs;
 
     conversation_t *conversation;
     fcp_conv_data_t *cdata = NULL;
@@ -812,26 +793,10 @@ dissect_fcp_xfer_rdy (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              "FCP_XFER_RDY");
         fcp_tree = proto_item_add_subtree (ti, ett_fcp);
         proto_tree_add_uint_hidden (fcp_tree, hf_fcp_type, tvb, offset, 0, 0);
-
-        if (cdata) {
-			/* XXX - this is ugly and should be replaced by a "standard way" */
-            del_usecs = (pinfo->fd->abs_ts.secs - cdata->abs_ts.secs)* 1000000 +
-                (pinfo->fd->abs_ts.nsecs - cdata->abs_ts.nsecs) / 1000;
-            if (del_usecs > 1000)
-                proto_tree_add_text (fcp_tree, tvb, offset, 0,
-                                     "Cmd Response Time: %d msecs",
-                                     del_usecs/1000);
-            else
-                proto_tree_add_text (fcp_tree, tvb, offset, 0,
-                                     "Cmd Response Time: %d usecs",
-                                     del_usecs);
-            if (cdata->fcp_lun >= 0)
-                proto_tree_add_uint_hidden (fcp_tree, hf_fcp_singlelun, tvb,
-                                            offset, 0, cdata->fcp_lun);
-        }
-        proto_tree_add_item (fcp_tree, hf_fcp_data_ro, tvb, offset, 4, 0);
-        proto_tree_add_item (fcp_tree, hf_fcp_burstlen, tvb, offset+4, 4, 0);
     }
+
+    proto_tree_add_item (fcp_tree, hf_fcp_data_ro, tvb, offset, 4, 0);
+    proto_tree_add_item (fcp_tree, hf_fcp_burstlen, tvb, offset+4, 4, 0);
 }
 
 static void
