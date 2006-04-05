@@ -129,9 +129,6 @@ ETH_VAR_IMPORT const value_string fc_fc4_val[];
    frames and time deltas 
 */
 typedef struct _fc_exchange_data {
-    address s_id;
-    address d_id;
-    guint16 oxid;
     guint32 first_exchange_frame;
     guint32 last_exchange_frame;
     nstime_t fc_time;

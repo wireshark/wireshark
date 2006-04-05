@@ -134,6 +134,11 @@ static dissector_handle_t data_handle;
 
 static int fc_tap = -1;
 
+typedef struct _fc_conv_data_t {
+    se_tree_t *exchanges;
+} fc_conv_data_t;
+
+
 /* Reassembly stuff */
 static gboolean fc_reassemble = TRUE;
 static guint32  fc_max_frame_size = 1024;
@@ -148,9 +153,6 @@ typedef struct _fcseq_conv_data {
 } fcseq_conv_data_t;
 
 GHashTable *fcseq_req_hash = NULL;
-
-static GHashTable *fc_exchange_unmatched = NULL;
-static GHashTable *fc_exchange_matched = NULL;
 
 /*
  * Hash Functions
@@ -175,87 +177,9 @@ fcseq_hash (gconstpointer v)
     return val;
 }
 
-static guint
-fc_exchange_hash_unmatched(gconstpointer v)
-{
-    const fc_exchange_data *fced=(const fc_exchange_data *)v;
-
-    return fced->oxid;
-}
-static gint
-fc_exchange_equal_unmatched(gconstpointer v1, gconstpointer v2)
-{
-    const fc_exchange_data *fced1=(const fc_exchange_data *)v1;
-    const fc_exchange_data *fced2=(const fc_exchange_data *)v2;
-
-    /* oxid must match */
-    if(fced1->oxid!=fced2->oxid){
-        return 0;
-    }
-    /* compare s_id, d_id and treat the fc address
-       s_id==00.00.00 as a wildcard matching anything */
-    if( ((fced1->s_id.data[0]!=0)||(fced1->s_id.data[1]!=0)||(fced1->s_id.data[2]!=0)) && CMP_ADDRESS(&fced1->s_id, &fced2->s_id) ){
-        return 0;
-    }
-    if(CMP_ADDRESS(&fced1->d_id, &fced2->d_id)){
-        return 0;
-    }
-
-    return 1;
-}
-
-static guint
-fc_exchange_hash_matched(gconstpointer v)
-{
-    const fc_exchange_data *fced=(const fc_exchange_data *)v;
-
-    return fced->oxid;
-}
-static gint
-fc_exchange_equal_matched(gconstpointer v1, gconstpointer v2)
-{
-    const fc_exchange_data *fced1=(const fc_exchange_data *)v1;
-    const fc_exchange_data *fced2=(const fc_exchange_data *)v2;
-    guint32 fef1, fef2, lef1, lef2;
-
-    /* oxid must match */
-    if(fced1->oxid!=fced2->oxid){
-        return 0;
-    }
-    fef1=fced1->first_exchange_frame;
-    fef2=fced2->first_exchange_frame;
-    lef1=fced1->last_exchange_frame;
-    lef2=fced2->last_exchange_frame;
-    if(!fef1)fef1=fef2;
-    if(!fef2)fef2=fef1;
-    if(!lef1)lef1=lef2;
-    if(!lef2)lef2=lef1;
-
-    if(fef1!=fef2){
-        return 0;
-    }
-    if(lef1!=lef2){
-        return 0;
-    }
-
-    return 1;
-}
-
 static void
 fc_exchange_init_protocol(void)
 {
-    if(fc_exchange_unmatched){
-        g_hash_table_destroy(fc_exchange_unmatched);
-        fc_exchange_unmatched=NULL;
-    }
-    if(fc_exchange_matched){
-        g_hash_table_destroy(fc_exchange_matched);
-        fc_exchange_matched=NULL;
-    }
-
-    fc_exchange_unmatched=g_hash_table_new(fc_exchange_hash_unmatched, fc_exchange_equal_unmatched);
-    fc_exchange_matched=g_hash_table_new(fc_exchange_hash_matched, fc_exchange_equal_matched);
-
     fragment_table_init(&fc_fragment_table);
 
     if (fcseq_req_hash)
@@ -669,6 +593,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     static fc_hdr fchdr;
     fc_exchange_data *fc_ex=NULL;
+    fc_conv_data_t *fc_conv_data=NULL;
 
     conversation_t *conversation;
     fcseq_conv_data_t *cdata;
@@ -705,8 +630,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 	pinfo->srcport=0;
 	pinfo->destport=0;
     }
-    SET_ADDRESS (&fchdr.d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
-    SET_ADDRESS (&fchdr.s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+    SET_ADDRESS(&fchdr.d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
+    SET_ADDRESS(&fchdr.s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 
     fchdr.cs_ctl = tvb_get_guint8 (tvb, offset+4);
     fchdr.type  = tvb_get_guint8 (tvb, offset+8);
@@ -721,6 +646,76 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     pinfo->rxid = fchdr.rxid;
     pinfo->ptype = PT_EXCHG;
     pinfo->r_ctl = fchdr.r_ctl;
+
+    /* set up a conversation and conversation data */
+    /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */
+    conversation=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                   pinfo->ptype, pinfo->srcport,
+                                   pinfo->destport, 0);
+    if(!conversation){
+        conversation=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                      pinfo->ptype, pinfo->srcport,
+                                      pinfo->destport, 0);
+    }        
+    fc_conv_data=conversation_get_proto_data(conversation, proto_fc);
+    if(!fc_conv_data){
+        fc_conv_data=se_alloc(sizeof(fc_conv_data_t));
+        fc_conv_data->exchanges=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "FC Exchanges");
+        conversation_add_proto_data(conversation, proto_fc, fc_conv_data);
+    }
+
+    /* set up the exchange data */
+    /* XXX we should come up with a way to handle when the 16bit oxid wraps
+     * so that large traces will work
+     */
+    fc_ex=(fc_exchange_data *)se_tree_lookup32(fc_conv_data->exchanges, fchdr.oxid);
+    if(!fc_ex){
+        fc_ex=se_alloc(sizeof(fc_exchange_data));
+        fc_ex->first_exchange_frame=0;
+        fc_ex->last_exchange_frame=0;
+        fc_ex->fc_time=pinfo->fd->abs_ts;
+	se_tree_insert32(fc_conv_data->exchanges, fchdr.oxid, fc_ex);
+    }
+    /* populate the exchange struct */
+    if(!pinfo->fd->flags.visited){
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
+	    fc_ex->first_exchange_frame=pinfo->fd->num;
+            fc_ex->fc_time = pinfo->fd->abs_ts;
+        }
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
+            fc_ex->last_exchange_frame=pinfo->fd->num;
+        }
+    }
+
+
+    /* In the interest of speed, if "tree" is NULL, don't do any work not
+       necessary to generate protocol tree items. */
+    if (tree) {
+        ti = proto_tree_add_protocol_format (tree, proto_fc, tvb, offset,
+                                             FC_HEADER_SIZE, "Fibre Channel");
+        fc_tree = proto_item_add_subtree (ti, ett_fc);
+    }
+
+
+    /* put some nice exchange data in the tree */
+    if(!(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST)){
+        proto_item *it;
+        it=proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
+            nstime_t delta_ts;
+            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fc_ex->fc_time);
+            it=proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+    }
+    if(!(fchdr.fctl&FC_FCTL_EXCHANGE_LAST)){
+        proto_item *it;
+        it=proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
+    fchdr.fced=fc_ex;
 
     is_ack = ((fchdr.r_ctl == 0xC0) || (fchdr.r_ctl == 0xC1));
 
@@ -751,86 +746,11 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                           "LCTL 0x%x"));
     }
     
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-       necessary to generate protocol tree items. */
-    if (tree) {
-        ti = proto_tree_add_protocol_format (tree, proto_fc, tvb, offset,
-                                             FC_HEADER_SIZE, "Fibre Channel");
-        fc_tree = proto_item_add_subtree (ti, ett_fc);
-    }
-
     /* Highlight EISL header, if present */
     if (eisl_offset != -1) {
         proto_tree_add_item (fc_tree, hf_fc_eisl, tvb, eisl_offset, 8, 0);
     }
 
-    /* match first exchange with last exchange */
-    if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
-        if(!pinfo->fd->flags.visited){
-            fc_exchange_data fced, *old_fced;
-
-            /* first check if we already have seen this exchange and it
-               is still open/unmatched. 
-            */
-            fced.oxid=fchdr.oxid;
-            SET_ADDRESS(&fced.s_id, fchdr.s_id.type, fchdr.s_id.len, fchdr.s_id.data);
-            SET_ADDRESS(&fced.d_id, fchdr.d_id.type, fchdr.d_id.len, fchdr.d_id.data);
-            old_fced=g_hash_table_lookup(fc_exchange_unmatched, &fced);
-            if(old_fced){
-                g_hash_table_remove(fc_exchange_unmatched, old_fced);
-            }
-            old_fced=se_alloc(sizeof(fc_exchange_data));
-            old_fced->oxid=fchdr.oxid;
-            COPY_ADDRESS(&old_fced->s_id, &fchdr.s_id);
-            COPY_ADDRESS(&old_fced->d_id, &fchdr.d_id);
-	    old_fced->first_exchange_frame=pinfo->fd->num;
-            old_fced->fc_time = pinfo->fd->abs_ts;
-            g_hash_table_insert(fc_exchange_unmatched, old_fced, old_fced);
-            fc_ex=old_fced;
-        } else {
-            fc_exchange_data fced, *old_fced;
-            fced.oxid=fchdr.oxid;
-            fced.first_exchange_frame=pinfo->fd->num;
-            fced.last_exchange_frame=0;
-            old_fced=g_hash_table_lookup(fc_exchange_matched, &fced);
-            fc_ex=old_fced;
-        }
-    }
-    if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
-        if(!pinfo->fd->flags.visited){
-            fc_exchange_data fced, *old_fced;
-
-            fced.oxid=fchdr.oxid;
-            SET_ADDRESS(&fced.s_id, fchdr.d_id.type, fchdr.d_id.len, fchdr.d_id.data);
-            SET_ADDRESS(&fced.d_id, fchdr.s_id.type, fchdr.s_id.len, fchdr.s_id.data);
-            old_fced=g_hash_table_lookup(fc_exchange_unmatched, &fced);
-            if(old_fced){
-                g_hash_table_remove(fc_exchange_unmatched, old_fced);
-                old_fced->last_exchange_frame=pinfo->fd->num;
-                g_hash_table_insert(fc_exchange_matched, old_fced, old_fced);
-            }
-            fc_ex=old_fced;
-        } else {
-            fc_exchange_data fced, *old_fced;
-            fced.oxid=fchdr.oxid;
-            fced.first_exchange_frame=0;
-            fced.last_exchange_frame=pinfo->fd->num;
-            old_fced=g_hash_table_lookup(fc_exchange_matched, &fced);
-            fc_ex=old_fced;
-        }
-    }
-    if(fc_ex){
-        if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
-            proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
-        }
-        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
-            nstime_t delta_ts;
-            proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
-            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fc_ex->fc_time);
-            proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
-        }
-    }
-    fchdr.fced=fc_ex;
 
     switch (fchdr.r_ctl & 0xF0) {
 
@@ -1079,15 +999,6 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
          * SEQ_CNT of the first frame in sequence and use this value to
          * determine the actual offset into a frame.
          */
-        conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, NO_PORT2);
-        if (!conversation) {
-            conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                             pinfo->ptype, pinfo->oxid,
-                                             pinfo->rxid, NO_PORT2);
-        }
-        
         ckey.conv_idx = conversation->index;
         
         cdata = (fcseq_conv_data_t *)g_hash_table_lookup (fcseq_req_hash,
