@@ -141,7 +141,10 @@ main(int argc, char **argv)
 
 	printf("\n\n");
 
-	dfilter_dump(df);
+	if (df == NULL)
+		printf("Filter is empty\n");
+	else
+		dfilter_dump(df);
 
 	epan_cleanup();
 	exit(0);
