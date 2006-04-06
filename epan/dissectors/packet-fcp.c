@@ -141,7 +141,6 @@ typedef struct _fcp_conv_key {
 } fcp_conv_key_t;
 
 typedef struct _fcp_conv_data {
-    guint32 fcp_dl;
     gint32 fcp_lun;
 } fcp_conv_data_t;
 
@@ -472,27 +471,12 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
      * XXX - the fetch of the fcp_dl value will throw an exception on
      * a short frame before we get a chance to dissect the stuff before
      * it.
-     *
-     * XXX - this doesn't appear to store the data length with the
-     * FCP packet with the data, so this might not work correctly
-     * if you select a command packet, select the corresponding data
-     * packet, and then select another data packet with a different
-     * length.
      */
-    if (cdata) {
-        /* Since we never free the memory used by an exchange, this maybe a
-         * case of another request using the same exchange as a previous
-         * req.
-         */
-        cdata->fcp_dl = tvb_get_ntohl (tvb, offset+12+16+add_len);
-    }
-    else {
+    if (!cdata) {
         req_key = se_alloc (sizeof(fcp_conv_key_t));
         req_key->conv_idx = conversation->index;
 
         cdata = se_alloc (sizeof(fcp_conv_data_t));
-        cdata->fcp_dl = tvb_get_ntohl (tvb, offset+12+16+add_len);
-
         g_hash_table_insert (fcp_req_hash, req_key, cdata);
     }
 
@@ -719,15 +703,11 @@ dissect_fcp_xfer_rdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
         cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
                                                         &ckey);
-        if (cdata) {
-            cdata->fcp_dl = tvb_get_ntohl (tvb, offset+4);
-        }
-        else {
+        if (!cdata) {
             req_key = se_alloc (sizeof(fcp_conv_key_t));
             req_key->conv_idx = conversation->index;
 
             cdata = se_alloc (sizeof(fcp_conv_data_t));
-            cdata->fcp_dl = tvb_get_ntohl (tvb, offset+4);
             cdata->fcp_lun = -1;
 
             g_hash_table_insert (fcp_req_hash, req_key, cdata);
