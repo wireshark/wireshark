@@ -636,7 +636,6 @@ typedef struct _iscsi_conv_data {
     guint32 data_in_frame;
     guint32 data_out_frame;
     guint32 response_frame;
-    guint32 iscsi_dl;
     nstime_t req_time;
 } iscsi_conv_data_t;
 static GHashTable *iscsi_req_unmatched = NULL;
