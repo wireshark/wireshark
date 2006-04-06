@@ -139,50 +139,6 @@ static const value_string fcp_rsp_code_val[] = {
 };
 
 
-typedef struct _fcp_conv_key {
-    guint32 conv_idx;
-} fcp_conv_key_t;
-
-typedef struct _fcp_conv_data {
-    gint32 fcp_lun;
-} fcp_conv_data_t;
-
-GHashTable *fcp_req_hash = NULL;
-
-/*
- * Hash Functions
- */
-static gint
-fcp_equal(gconstpointer v, gconstpointer w)
-{
-  const fcp_conv_key_t *v1 = v;
-  const fcp_conv_key_t *v2 = w;
-
-  return (v1->conv_idx == v2->conv_idx);
-}
-
-static guint
-fcp_hash (gconstpointer v)
-{
-	const fcp_conv_key_t *key = v;
-	guint val;
-
-	val = key->conv_idx;
-
-	return val;
-}
-
-/*
- * Protocol initialization
- */
-static void
-fcp_init_protocol(void)
-{
-    if (fcp_req_hash)
-        g_hash_table_destroy(fcp_req_hash);
-
-    fcp_req_hash = g_hash_table_new(fcp_hash, fcp_equal);
-}
 
 static const true_false_string fcp_mgmt_flags_obsolete_tfs = {
    "OBSOLETE BIT is SET",
@@ -431,16 +387,13 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	}
 }
 
-/* Code to actually dissect the packets */
 static void
-dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
+dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr)
 {
     int offset = 0;
     int len,
         add_len = 0;
     guint8 flags, lun0;
-    fcp_conv_data_t *cdata;
-    fcp_conv_key_t ckey, *req_key;
     scsi_task_id_t task_key;
     guint16 lun=0xffff;
     tvbuff_t *cdb_tvb;
@@ -458,35 +411,9 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         len = FCP_DEF_CMND_LEN;
     }
 
-    /* We use conversations to track how many bytes are required in the data
-     * part of the transaction.
-     * This state is later destroyed when we see the response.
-     * XXX this is broken and can only work for single scan of the capture file
-     */
-    ckey.conv_idx = conversation->index;
     task_key.conv_id = conversation->index;
     task_key.task_id = conversation->index;
     pinfo->private_data = (void *)&task_key;
-
-    cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
-                                                    &ckey);
-    /*
-     * XXX - the fetch of the fcp_dl value will throw an exception on
-     * a short frame before we get a chance to dissect the stuff before
-     * it.
-     */
-    if (!cdata) {
-        req_key = se_alloc (sizeof(fcp_conv_key_t));
-        req_key->conv_idx = conversation->index;
-
-        cdata = se_alloc (sizeof(fcp_conv_data_t));
-        g_hash_table_insert (fcp_req_hash, req_key, cdata);
-    }
-
-    /* XXX this one is redundant  right?  ronnie
-    dissect_scsi_cdb (tvb, pinfo, tree, offset+12, 16+add_len,
-                      SCSI_DEV_UNKNOWN, lun);
-    */
 
     proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
 
@@ -498,14 +425,13 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
      * real single-level LUN, all 8 bytes except byte 1 must be 0.
      */
     if (lun0) {
-      cdata->fcp_lun = -1;
       proto_tree_add_item(tree, hf_fcp_multilun, tvb, offset, 8, 0);
       lun=tvb_get_guint8(tvb, offset)&0x3f;
       lun<<=8;
       lun|=tvb_get_guint8(tvb, offset+1);
     }
     else {
-      cdata->fcp_lun = tvb_get_guint8 (tvb, offset+1);
+      fchdr->fced->lun=tvb_get_guint8 (tvb, offset+1);
       proto_tree_add_item(tree, hf_fcp_singlelun, tvb, offset+1,
 			   1, 0);
       lun=tvb_get_guint8(tvb, offset+1);
@@ -532,30 +458,15 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 }
 
 static void
-dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
+dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation, fc_hdr *fchdr)
 {
-    fcp_conv_data_t *cdata = NULL;
-    fcp_conv_key_t ckey;
     scsi_task_id_t task_key;
 
-    /* use conversations to find the expected payload */
-    ckey.conv_idx = conversation->index;
-
-    cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
-                                                        &ckey);
     task_key.conv_id = conversation->index;
     task_key.task_id = conversation->index;
     pinfo->private_data = (void *)&task_key;
 
-    if (cdata) {
-        if (cdata->fcp_lun >= 0)
-            proto_tree_add_uint_hidden(tree, hf_fcp_singlelun, tvb,
-                                        0, 0, cdata->fcp_lun);
-
-        dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, (guint16) cdata->fcp_lun);
-    } else {
-        dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, 0xffff);
-    }
+    dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->fced->lun);
 }
 
 /* fcp-3  9.5 table 24 */
@@ -574,15 +485,13 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
+dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr)
 {
     guint32 offset = 0;
     gint32 snslen = 0,
            rsplen = 0;
     guint8 flags;
     guint8 status;
-    fcp_conv_data_t *cdata = NULL;
-    fcp_conv_key_t ckey;
     scsi_task_id_t task_key;
 
     status = tvb_get_guint8 (tvb, offset+11);
@@ -592,15 +501,8 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
                          val_to_str (status, scsi_status_val, "0x%x"));
     }
 
-    /* Response marks the end of the conversation. So destroy state */
-    if (conversation) {
-        ckey.conv_idx = conversation->index;
-
-        cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
-                                                        &ckey);
-        task_key.conv_id = task_key.task_id = conversation->index;
-        pinfo->private_data = (void *)&task_key;
-    }
+    task_key.conv_id = task_key.task_id = conversation->index;
+    pinfo->private_data = (void *)&task_key;
 
     proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
 
@@ -620,9 +522,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
         /* scsi status code */
         proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
-        if(cdata){
-            dissect_scsi_rsp(tvb, pinfo, parent_tree, (guint16) cdata->fcp_lun, tvb_get_guint8(tvb, offset));
-        }
+        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->fced->lun, tvb_get_guint8(tvb, offset));
         offset++;
 
         /* residual count */
@@ -664,7 +564,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
             sns_tvb=tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
             dissect_scsi_snsinfo (sns_tvb, pinfo, parent_tree, 0,
                                   snslen,
-				  (guint16) (cdata?cdata->fcp_lun:0xffff) );
+				  fchdr->fced->lun);
 
             offset+=snslen;
         }
@@ -676,46 +576,13 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
             }
             offset+=4;
         }
-
-
-        if (cdata) {
-            /*
-             * XXX - this isn't done if an exception is thrown.
-             */
-            g_hash_table_remove (fcp_req_hash, &ckey);
-        }
 }
 
 static void
-dissect_fcp_xfer_rdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
+dissect_fcp_xfer_rdy(tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 0;
-    fcp_conv_data_t *cdata = NULL;
-    fcp_conv_key_t ckey, *req_key;
 
-
-    /* use conversation state to determine expected payload */
-    if (!conversation) {
-        conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                         pinfo->ptype, pinfo->oxid,
-                                         pinfo->rxid, NO_PORT2);
-    }
-
-    if (conversation) {
-        ckey.conv_idx = conversation->index;
-
-        cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
-                                                        &ckey);
-        if (!cdata) {
-            req_key = se_alloc (sizeof(fcp_conv_key_t));
-            req_key->conv_idx = conversation->index;
-
-            cdata = se_alloc (sizeof(fcp_conv_data_t));
-            cdata->fcp_lun = -1;
-
-            g_hash_table_insert (fcp_req_hash, req_key, cdata);
-        }
-    }
 
     proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
 
@@ -776,6 +643,8 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* put a request_in in all frames except the command frame */
     if((r_ctl!=FCP_IU_CMD)&&(fchdr->fced->first_exchange_frame)){
         proto_item *it;
+        it=proto_tree_add_uint(fcp_tree, hf_fcp_singlelun, tvb, 0, 0, fchdr->fced->lun);
+        PROTO_ITEM_SET_GENERATED(it);
         it=proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, fchdr->fced->first_exchange_frame);
         PROTO_ITEM_SET_GENERATED(it);
         /* only put the response time in the actual response frame */
@@ -795,19 +664,19 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (r_ctl) {
     case FCP_IU_DATA:
-        dissect_fcp_data(tvb, pinfo, tree, fcp_tree, conversation);
+        dissect_fcp_data(tvb, pinfo, tree, conversation, fchdr);
         break;
     case FCP_IU_CONFIRM:
         /* Nothing to be done here */
         break;
     case FCP_IU_XFER_RDY:
-        dissect_fcp_xfer_rdy(tvb, pinfo, tree, fcp_tree, conversation);
+        dissect_fcp_xfer_rdy(tvb, fcp_tree);
         break;
     case FCP_IU_CMD:
-        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree, conversation);
+        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree, conversation, fchdr);
         break;
     case FCP_IU_RSP:
-        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, conversation);
+        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, conversation, fchdr);
         break;
     default:
         call_dissector(data_handle, tvb, pinfo, tree);
@@ -836,7 +705,7 @@ proto_register_fcp (void)
          {"Multi-Level LUN", "fcp.multilun", FT_BYTES, BASE_HEX, NULL, 0x0,
           "", HFILL}},
         { &hf_fcp_singlelun,
-          {"LUN", "fcp.lun", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+          {"LUN", "fcp.lun", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
         { &hf_fcp_crn,
           {"Command Ref Num", "fcp.crn", FT_UINT8, BASE_DEC, NULL, 0x0, "",
            HFILL}},
@@ -942,7 +811,6 @@ proto_register_fcp (void)
     proto_register_subtree_array(ett, array_length(ett));
     fcp_dissector = register_dissector_table ("fcp.type", "FCP Type", FT_UINT8,
                                               BASE_HEX);
-    register_init_routine (&fcp_init_protocol);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.

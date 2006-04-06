@@ -673,6 +673,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         fc_ex=se_alloc(sizeof(fc_exchange_data));
         fc_ex->first_exchange_frame=0;
         fc_ex->last_exchange_frame=0;
+        fc_ex->lun=0xffff;
         fc_ex->fc_time=pinfo->fd->abs_ts;
 	se_tree_insert32(fc_conv_data->exchanges, fchdr.oxid, fc_ex);
     }
