@@ -131,7 +131,8 @@ ETH_VAR_IMPORT const value_string fc_fc4_val[];
 typedef struct _fc_exchange_data {
     guint32 first_exchange_frame;
     guint32 last_exchange_frame;
-    guint16 lun;  /* used by FCP, initialized to 0xffff == unknown */
+    guint16 lun;         /* initialized to 0xffff == unknown */
+    guint16 scsi_opcode; /* initialized to 0xffff == unknown */
     nstime_t fc_time;
 } fc_exchange_data;
 
