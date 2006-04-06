@@ -746,15 +746,16 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
     if (assoc)
         return assoc;
     
-    if (!src_lr && !dst_lr)
+    if (!src_lr && !dst_lr){
         return &no_assoc;
-    
+	}
 	opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
 	dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
 	
     switch (message_type) {
         case MESSAGE_TYPE_CR:
         {
+			/* Calling and called is seen from initiator of CR */
 			se_tree_key_t key[] = {
 				{1,&dpck},
 				{1,&opck},
@@ -780,16 +781,17 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
         }
         case MESSAGE_TYPE_CC:
         {
+			/* Calling and called is seen from initiator of CR */
 			se_tree_key_t called_key[] = {
-				{1,&dpck},
-				{1,&opck},
-				{1,&src_lr},
-				{0,NULL}
-			};
-			se_tree_key_t calling_key[] = {
 				{1,&opck},
 				{1,&dpck},
 				{1,&dst_lr},
+				{0,NULL}
+			};
+			se_tree_key_t calling_key[] = {
+				{1,&dpck},
+				{1,&opck},
+				{1,&src_lr},
 				{0,NULL}
 			};
 
@@ -818,7 +820,6 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
                 se_tree_insert32_array(assocs,calling_key,assoc);
                 se_tree_insert32_array(assocs,called_key,assoc);
             }
-            
             break;
         }
         default:
@@ -831,7 +832,16 @@ static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, g
 			};
 			
             assoc = se_tree_lookup32_array(assocs,calling_key);
-
+			/* Should a check be made on pinfo->p2p_dir ??? */
+			if (!assoc){
+				se_tree_key_t called_key[] = {
+					{1,&dpck},
+					{1,&opck},
+					{1,&dst_lr},
+					{0,NULL}
+				};
+				assoc = se_tree_lookup32_array(assocs,called_key);
+			}
             break;
         }
     }
@@ -1801,11 +1811,19 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   };
 
-  /* Starting a new message dissection; clear the global SSN and DLR values */
+  /* Starting a new message dissection; clear the global assoc,SLR and DLR values */
   dlr = 0;
   slr = 0;
   assoc = NULL;
-  
+  no_assoc.calling_dpc = 0;
+  no_assoc.called_dpc = 0;
+  no_assoc.calling_ssn = INVALID_SSN;
+  no_assoc.called_ssn = INVALID_SSN;
+  no_assoc.has_calling_key = FALSE;
+  no_assoc.has_called_key = FALSE;
+  no_assoc.pload = SCCP_PLOAD_NONE;
+  no_assoc.private_data = NULL;
+
   switch(message_type) {
   case MESSAGE_TYPE_CR:
   /*  TTC and NTT (Japan) say that the connection-oriented messages are
