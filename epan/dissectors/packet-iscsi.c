@@ -612,8 +612,6 @@ calculateCRC32(const void *buf, int len, guint32 crc) {
  * COMMAND/DATA_IN/DATA_OUT/RESPONSE matching 
  */
 typedef struct _iscsi_conv_data {
-    guint32 conv_idx;
-    guint32 itt;
     guint16 lun;
     guint32 request_frame;
     guint32 data_in_frame;
@@ -621,83 +619,6 @@ typedef struct _iscsi_conv_data {
     guint32 response_frame;
     nstime_t req_time;
 } iscsi_conv_data_t;
-static GHashTable *iscsi_req_unmatched = NULL;
-static GHashTable *iscsi_req_matched = NULL;
-
-static gint
-iscsi_equal_unmatched(gconstpointer v, gconstpointer w)
-{
-  const iscsi_conv_data_t *v1 = (const iscsi_conv_data_t *)v;
-  const iscsi_conv_data_t *v2 = (const iscsi_conv_data_t *)w;
-
-  return (v1->conv_idx == v2->conv_idx)&&(v1->itt == v2->itt);
-}
-
-static guint
-iscsi_hash_unmatched (gconstpointer v)
-{
-	const iscsi_conv_data_t *key = (const iscsi_conv_data_t *)v;
-	guint val;
-
-	val = key->conv_idx + key->itt;
-
-	return val;
-}
-
-static gint
-iscsi_equal_matched(gconstpointer v, gconstpointer w)
-{
-  const iscsi_conv_data_t *v1 = (const iscsi_conv_data_t *)v;
-  const iscsi_conv_data_t *v2 = (const iscsi_conv_data_t *)w;
-  int check_frame;
-
-  check_frame=0;
-  if (v1->request_frame && (v1->request_frame==v2->request_frame))
-      check_frame=1;
-  if (v1->data_in_frame && (v1->data_in_frame==v2->data_in_frame))
-      check_frame=1;
-  if (v1->data_out_frame && (v1->data_out_frame==v2->data_out_frame))
-      check_frame=1;
-  if (v1->response_frame && (v1->response_frame==v2->response_frame))
-      check_frame=1;
-
-  return check_frame&&(v1->conv_idx == v2->conv_idx)&&(v1->itt == v2->itt);
-}
-
-static guint
-iscsi_hash_matched (gconstpointer v)
-{
-	const iscsi_conv_data_t *key = (const iscsi_conv_data_t *)v;
-	guint val;
-
-	val = key->conv_idx + key->itt;
-
-	return val;
-}
-
-
-
-
-
-
-/*
- * Protocol initialization
- */
-static void
-iscsi_init_protocol(void)
-{
-    if (iscsi_req_unmatched) {
-        g_hash_table_destroy(iscsi_req_unmatched);
-	iscsi_req_unmatched=NULL;
-    }
-    if (iscsi_req_matched) {
-        g_hash_table_destroy(iscsi_req_matched);
-	iscsi_req_matched=NULL;
-    }
-
-    iscsi_req_unmatched = g_hash_table_new(iscsi_hash_unmatched, iscsi_equal_unmatched);
-    iscsi_req_matched = g_hash_table_new(iscsi_hash_matched, iscsi_equal_matched);
-}
 
 static int
 iscsi_min(int a, int b) {
@@ -839,61 +760,29 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     if ((opcode == ISCSI_OPCODE_SCSI_RESPONSE) ||
         (opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
         (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
-        if (!pinfo->fd->flags.visited){
-            iscsi_conv_data_t ckey;
-            ckey.conv_idx = (int)iscsi_session;
-            ckey.itt = tvb_get_ntohl (tvb, offset+16);
-
-            /* first time we see this packet. check if we can find the request */
-            cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
-            if (cdata){
-                if (cdata->data_in_frame+cdata->data_out_frame+cdata->response_frame==0){
-                    /* this is the first response to the request, add it to the matched table */
-                    g_hash_table_insert (iscsi_req_matched, cdata, cdata);
-                }
-                switch(opcode){
-                case ISCSI_OPCODE_SCSI_RESPONSE:
-                    cdata->response_frame=pinfo->fd->num;
-                    break;
-                case ISCSI_OPCODE_SCSI_DATA_IN:
-                    /* a bit ugly but we need to check the S bit here */
-                    if(tvb_get_guint8(tvb, offset+1)&ISCSI_SCSI_DATA_FLAG_S){
-                        cdata->response_frame=pinfo->fd->num;
-                    }
-                    cdata->data_in_frame=pinfo->fd->num;
-                    break;
-                case ISCSI_OPCODE_SCSI_DATA_OUT:
-                    cdata->data_out_frame=pinfo->fd->num;
-                    break;
-                }
-            }
-        } else {
-            iscsi_conv_data_t ckey;
-            ckey.conv_idx = (int)iscsi_session;
-            ckey.itt = tvb_get_ntohl (tvb, offset+16);
-            ckey.request_frame=0;
-            ckey.data_in_frame=0;
-            ckey.data_out_frame=0;
-            ckey.response_frame=0;
+        cdata=(iscsi_conv_data_t *)se_tree_lookup32(iscsi_session->exchanges, tvb_get_ntohl(tvb, offset+16));
+        /* first time we see this packet. check if we can find the request */
+        if(cdata){
             switch(opcode){
             case ISCSI_OPCODE_SCSI_RESPONSE:
-                ckey.response_frame=pinfo->fd->num;
+                cdata->response_frame=pinfo->fd->num;
                 break;
             case ISCSI_OPCODE_SCSI_DATA_IN:
-                ckey.data_in_frame=pinfo->fd->num;
+                /* a bit ugly but we need to check the S bit here */
+                if(tvb_get_guint8(tvb, offset+1)&ISCSI_SCSI_DATA_FLAG_S){
+                    cdata->response_frame=pinfo->fd->num;
+                }
+                cdata->data_in_frame=pinfo->fd->num;
                 break;
             case ISCSI_OPCODE_SCSI_DATA_OUT:
-                ckey.data_out_frame=pinfo->fd->num;
+                cdata->data_out_frame=pinfo->fd->num;
                 break;
             }
-
-            /* we have seen this one before,   pick it up from the matched table */
-            cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_matched, &ckey);
         }
 
         if (cdata){
-            task_key.conv_id = cdata->conv_idx;
-            task_key.task_id = cdata->itt;
+            task_key.conv_id = (int)iscsi_session;
+            task_key.task_id = tvb_get_ntohl(tvb, offset+16);
             pinfo->private_data = &task_key;
         } else {
             pinfo->private_data = NULL;
@@ -920,22 +809,10 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         } else {
           lun=tvb_get_guint8(tvb,offset+9);
         }
-        if (!pinfo->fd->flags.visited){
-            iscsi_conv_data_t ckey;
-
-            /* first time we see this packet. */
-            /*check if we have seen this request before and delete it in that case */
-            ckey.conv_idx = (int)iscsi_session;
-            ckey.itt = tvb_get_ntohl (tvb, offset+16);
-            cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
-            if (cdata){
-                g_hash_table_remove(iscsi_req_unmatched, &ckey);
-            }
-
+        cdata=(iscsi_conv_data_t *)se_tree_lookup32(iscsi_session->exchanges, tvb_get_ntohl(tvb, offset+16));
+        if(!cdata){
             /* add this new transaction to the unmatched table */
             cdata = se_alloc (sizeof(iscsi_conv_data_t));
-            cdata->conv_idx = (int)iscsi_session;
-            cdata->itt = tvb_get_ntohl (tvb, offset+16);
             cdata->lun=lun;
             cdata->request_frame=pinfo->fd->num;
             cdata->data_in_frame=0;
@@ -943,35 +820,14 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdata->response_frame=0;
             cdata->req_time = pinfo->fd->abs_ts;
 
-            g_hash_table_insert (iscsi_req_unmatched, cdata, cdata);
-        } else {
-                iscsi_conv_data_t ckey;
-                ckey.conv_idx = (int)iscsi_session;
-                ckey.itt = tvb_get_ntohl (tvb, offset+16);
-                ckey.request_frame=pinfo->fd->num;
-                ckey.data_in_frame=0;
-                ckey.data_out_frame=0;
-                ckey.response_frame=0;
-
-                /* we have seen this one before,   pick it up from the matched table */
-                cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_matched, &ckey);
-            
-                /* We have seen this CDB before but could not find it in the
-                 * matching table, meaning we never saw any DATA or RESPONSES
-                 * to it, so instead pick up the original one from the
-                 * unmatched table.
-                 */
-                if(!cdata){
-                    cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
-                }
+            se_tree_insert32(iscsi_session->exchanges, tvb_get_ntohl(tvb, offset+16), cdata);
         }
-
 
         if (cdata){
             /* The SCSI protocol uses this as the key to detect a
              * SCSI-level conversation. */
-            task_key.conv_id = cdata->conv_idx;
-            task_key.task_id = cdata->itt;
+            task_key.conv_id = (int)iscsi_session;
+            task_key.task_id = tvb_get_ntohl(tvb, offset+16);
             pinfo->private_data = &task_key;
         } else {
             pinfo->private_data=NULL;
@@ -2508,7 +2364,6 @@ proto_register_iscsi(void)
      * subtrees used */
     proto_register_field_array(proto_iscsi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_init_routine (&iscsi_init_protocol);
 
     {
 	module_t *iscsi_module = prefs_register_protocol(proto_iscsi, NULL);
