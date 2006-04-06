@@ -269,6 +269,8 @@ static int hf_rtcp_pt                = -1;
 static int hf_rtcp_length            = -1;
 static int hf_rtcp_ssrc_sender       = -1;
 static int hf_rtcp_ntp               = -1;
+static int hf_rtcp_ntp_msw           = -1;
+static int hf_rtcp_ntp_lsw           = -1;
 static int hf_rtcp_rtp_timestamp     = -1;
 static int hf_rtcp_sender_pkt_cnt    = -1;
 static int hf_rtcp_sender_oct_cnt    = -1;
@@ -367,9 +369,8 @@ static int hf_rtcp_setup_frame  = -1;
 static int hf_rtcp_setup_method = -1;
 
 /* RTCP roundtrip delay fields */
-static int hf_rtcp_roundtrip_delay        = -1;
-static int hf_rtcp_roundtrip_delay_frame  = -1;
-static int hf_rtcp_roundtrip_delay_delay  = -1;
+static int hf_rtcp_last_sr_timestamp_frame  = -1;
+static int hf_rtcp_roundtrip_delay  = -1;
 
 
 
@@ -1445,7 +1446,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		/* Do roundtrip calculation */
 		if (global_rtcp_show_roundtrip_calculation)
 		{
-			/* Based on delay since SR was send in other direction */
+			/* Based on delay since SR was sent in other direction */
 			calculate_roundtrip_delay(tvb, pinfo, ssrc_tree, lsr, dlsr);
 		}
 
@@ -1459,33 +1460,22 @@ static int
 dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
-#if 0
-	gchar *buff;
-
-	/* Retreive the NTP timestamp. Using the NTP dissector for this */
-	buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset, 8 ));
-	proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) buff, "NTP timestamp: %s", buff );
-	offset += 8;
-#else
-	/*
-	 * XXX - RFC 1889 says this is an NTP timestamp, but that appears
-	 * not to be the case.
-	 */
 	proto_item* item;
 	guint32 ts_msw, ts_lsw;
 	gchar *buff;
 
+	/* NTP timestamp */
 	ts_msw = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, MSW: %u", ts_msw);
-	offset += 4;
-	ts_lsw = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, LSW: %u", ts_lsw);
-	offset += 4;
+	proto_tree_add_item(tree, hf_rtcp_ntp_msw, tvb, offset, 4, FALSE);
+
+	ts_lsw = tvb_get_ntohl(tvb, offset+4);
+	proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset, 4, FALSE);
 
 	buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset, 8 ));
-	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset-8, 8, ( const char* ) buff, "MSW and LSW as NTP timestamp: %s", buff );
+	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) buff, "MSW and LSW as NTP timestamp: %s", buff );
 	PROTO_ITEM_SET_GENERATED(item);
-#endif
+	offset += 8;
+
 	/* RTP timestamp, 32 bits */
 	proto_tree_add_uint( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 	offset += 4;
@@ -1698,9 +1688,9 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 
 
 	/*************************************************/
-	/* Look for previously stored calculation result */
+	/* Look for previous result                      */
 	p_packet_data = p_get_proto_data(pinfo->fd, proto_rtcp);
-	if (p_packet_data && p_packet_data->calculated_delay_set)
+	if (p_packet_data && p_packet_data->lsr_matched)
 	{
 		/* Show info. */
 		add_roundtrip_delay_info(tvb, pinfo, tree,
@@ -1766,15 +1756,15 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 			                 (nseconds_between_packets / 1000000);
 			gint delay = total_gap - (int)(((double)dlsr/(double)65536) * 1000.0);
 
-			/* No useful calculation can be done if dlsr not set... */
-			if (!dlsr)
-			{
-				return;
-			}
+            /* Record that the LSR matches */
+            p_packet_data->lsr_matched = TRUE;
 
-			p_packet_data->calculated_delay_set = TRUE;
-			p_packet_data->calculated_delay = delay;
-			p_packet_data->calculated_delay_used_frame = p_conv_data->last_received_frame_number;
+			/* No useful calculation can be done if dlsr not set... */
+			if (dlsr)
+			{
+				p_packet_data->calculated_delay = delay;
+				p_packet_data->calculated_delay_used_frame = p_conv_data->last_received_frame_number;
+			}
 
 			/* Show info. */
 			add_roundtrip_delay_info(tvb, pinfo, tree, p_conv_data->last_received_frame_number, delay);
@@ -1787,42 +1777,33 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, guint frame, guint delay)
 {
-	proto_tree *rtcp_roundtrip_delay_tree;
-	proto_item *ti;
+	/* 'Last SR' frame used in calculation.  Show this even if no delay shown */
+	proto_item* item = proto_tree_add_uint(tree,
+	                                       hf_rtcp_last_sr_timestamp_frame,
+	                                       tvb, 0, 0, frame);
+	PROTO_ITEM_SET_GENERATED(item);
 
-	/* Don't report on calculated delays below the threshold */
+	/* Don't report on calculated delays below the threshold.
+	   Won't report a delay of 0 (which also indicates no valid
+	   calculated value to report) */
 	if (delay < global_rtcp_show_roundtrip_calculation_minimum)
 	{
 		return;
 	}
 
-	/* Add labelled subtree for roundtrip delay info */
-	ti =  proto_tree_add_string_format(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0,
-	                                   "",
-	                                   "Calculated Roundtrip delay <-> %s = %ums, using frame %u",
-	                                   address_to_str(&pinfo->net_src), delay,
-	                                   frame);
-
-	PROTO_ITEM_SET_GENERATED(ti);
-	rtcp_roundtrip_delay_tree = proto_item_add_subtree(ti, ett_rtcp_roundtrip_delay);
-	if (rtcp_roundtrip_delay_tree)
-	{
-		/* Add details into subtree */
-		proto_item* item = proto_tree_add_uint(rtcp_roundtrip_delay_tree,
-		                                       hf_rtcp_roundtrip_delay_frame,
-		                                       tvb, 0, 0, frame);
-		PROTO_ITEM_SET_GENERATED(item);
-		item = proto_tree_add_uint(rtcp_roundtrip_delay_tree, hf_rtcp_roundtrip_delay_delay,
-		                           tvb, 0, 0, delay);
-		PROTO_ITEM_SET_GENERATED(item);
-	}
+	/* Calculated delay in ms */
+	item = proto_tree_add_uint(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0, delay);
+	PROTO_ITEM_SET_GENERATED(item);
 
 	/* Report delay in INFO column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-		                " (roundtrip delay <-> %s = %ums, using frame %u)",
-						address_to_str(&pinfo->net_src), delay, frame);
+		if (delay > 0)
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			                " (roundtrip delay <-> %s = %ums, using frame %u)",
+			                address_to_str(&pinfo->net_src), delay, frame);
+		}
 	}
 }
 
@@ -2110,6 +2091,30 @@ proto_register_rtcp(void)
 				"rtcp.senderssrc",
 				FT_UINT32,
 				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_ntp_msw,
+			{
+				"Timestamp, MSW",
+				"rtcp.timestamp.ntp.msw",
+				FT_UINT32,
+				BASE_DEC_HEX,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_ntp_lsw,
+			{
+				"Timestamp, LSW",
+				"rtcp.timestamp.ntp.lsw",
+				FT_UINT32,
+				BASE_DEC_HEX,
 				NULL,
 				0x0,
 				"", HFILL
@@ -2800,34 +2805,22 @@ proto_register_rtcp(void)
 			}
 		},
 		{
-			&hf_rtcp_roundtrip_delay,
+			&hf_rtcp_last_sr_timestamp_frame,
 			{
-				"Roundtrip Delay",
-				"rtcp.roundtrip-delay",
-				FT_STRING,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Calculated roundtrip delay, frame and ms value", HFILL
-			}
-		},
-		{
-			&hf_rtcp_roundtrip_delay_frame,
-			{
-				"Previous SR frame used in calculation",
-				"rtcp.roundtrip-previous-sr-frame",
+				"Frame matching Last SR timestamp",
+				"rtcp.lsr-frame",
 				FT_FRAMENUM,
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Frame used to calculate roundtrip delay", HFILL
+				"Frame matching LSR field (used to calculate roundtrip delay)", HFILL
 			}
 		},
 		{
-			&hf_rtcp_roundtrip_delay_delay,
+			&hf_rtcp_roundtrip_delay,
 			{
 				"Roundtrip Delay(ms)",
-				"rtcp.roundtrip-delay-delay",
+				"rtcp.roundtrip-delay",
 				FT_UINT32,
 				BASE_DEC,
 				NULL,

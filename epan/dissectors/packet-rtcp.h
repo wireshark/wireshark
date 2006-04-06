@@ -39,13 +39,13 @@ struct _rtcp_conversation_info
     guint32 setup_frame_number;
 
     /* Info used for roundtrip calculations */
-    guchar  last_received_set;
-    guint32 last_received_frame_number;
+    guchar   last_received_set;
+    guint32  last_received_frame_number;
     nstime_t last_received_timestamp;
-    guint32 last_received_ts;
+    guint32  last_received_ts;
 
-    /* Stored result of calculation (ms) */
-    guchar  calculated_delay_set;
+    /* Stored result of calculation */
+    guchar  lsr_matched;
     guint32 calculated_delay_used_frame;
     guint32 calculated_delay;
 };
