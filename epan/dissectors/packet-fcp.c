@@ -432,13 +432,12 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
 /* Code to actually dissect the packets */
 static void
-dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree)
+dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
 {
     int offset = 0;
     int len,
         add_len = 0;
     guint8 flags, lun0;
-    conversation_t *conversation;
     fcp_conv_data_t *cdata;
     fcp_conv_key_t ckey, *req_key;
     scsi_task_id_t task_key;
@@ -458,21 +457,11 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         len = FCP_DEF_CMND_LEN;
     }
 
-    /* We track the conversation to determine how many bytes is required */
-    /* by the data that is sent back or sent next by the initiator as part */
-    /* of this command. The state is destroyed in the response dissector */
-
-    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->oxid,
-                                      pinfo->rxid, NO_PORT2);
-    if (!conversation) {
-	/* NO_PORT2: Dont check RXID, iFCP traces i have all have 
-	 * RXID==0xffff in the command PDU.   ronnie */
-        conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                         pinfo->ptype, pinfo->oxid,
-                                         pinfo->rxid, NO_PORT2);
-    }
-
+    /* We use conversations to track how many bytes are required in the data
+     * part of the transaction.
+     * This state is later destroyed when we see the response.
+     * XXX this is broken and can only work for single scan of the capture file
+     */
     ckey.conv_idx = conversation->index;
     task_key.conv_id = conversation->index;
     task_key.task_id = conversation->index;
@@ -559,29 +548,20 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 }
 
 static void
-dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree)
+dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
 {
-    conversation_t *conversation;
     fcp_conv_data_t *cdata = NULL;
     fcp_conv_key_t ckey;
     scsi_task_id_t task_key;
 
-    /* Retrieve conversation state to determine expected payload */
-    conversation = find_conversation (pinfo->fd->num, &pinfo->dst, &pinfo->src,
-                                      pinfo->ptype, pinfo->oxid,
-                                      pinfo->rxid, NO_PORT2);
-    if (conversation) {
-        ckey.conv_idx = conversation->index;
+    /* use conversations to find the expected payload */
+    ckey.conv_idx = conversation->index;
 
-        cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
+    cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
                                                         &ckey);
-        task_key.conv_id = conversation->index;
-        task_key.task_id = conversation->index;
-        pinfo->private_data = (void *)&task_key;
-    }
-    else {
-        pinfo->private_data = NULL;
-    }
+    task_key.conv_id = conversation->index;
+    task_key.task_id = conversation->index;
+    pinfo->private_data = (void *)&task_key;
 
     if (cdata) {
         if (cdata->fcp_lun >= 0)
@@ -610,14 +590,13 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree)
+dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
 {
     guint32 offset = 0;
     gint32 snslen = 0,
            rsplen = 0;
     guint8 flags;
     guint8 status;
-    conversation_t *conversation;
     fcp_conv_data_t *cdata = NULL;
     fcp_conv_key_t ckey;
     scsi_task_id_t task_key;
@@ -630,9 +609,6 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     }
 
     /* Response marks the end of the conversation. So destroy state */
-    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->oxid,
-                                      pinfo->rxid, NO_PORT2);
     if (conversation) {
         ckey.conv_idx = conversation->index;
 
@@ -727,18 +703,14 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 }
 
 static void
-dissect_fcp_xfer_rdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree)
+dissect_fcp_xfer_rdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation)
 {
     int offset = 0;
-    conversation_t *conversation;
     fcp_conv_data_t *cdata = NULL;
     fcp_conv_key_t ckey, *req_key;
 
 
-    /* Retrieve conversation state to determine expected payload */
-    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->oxid,
-                                      pinfo->rxid, NO_PORT2);
+    /* use conversation state to determine expected payload */
     if (!conversation) {
         conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                          pinfo->ptype, pinfo->oxid,
@@ -776,6 +748,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *fcp_tree = NULL;
+    conversation_t *conversation;
 
 /* Set up structures needed to add the protocol subtree and manage it */
     guint8 r_ctl;
@@ -800,21 +773,41 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fcp_tree = proto_item_add_subtree(ti, ett_fcp);
     }
 
+
+    /* find the conversation for this transaction and create a new one if it 
+     * doesnt exist already.
+     * XXX since FCP is always transported atop FC and FC also keeps track of
+     * transactions we should grab the conversation off FC instead
+     * we guarantee that conversation is non-NULL so the helpers we call
+     * do not need to check it before dereferencing.
+     */
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                      pinfo->ptype, pinfo->oxid,
+                                      pinfo->rxid, NO_PORT2);
+    if (!conversation) {
+	/* NO_PORT2: Dont check RXID, iFCP traces i have all have 
+	 * RXID==0xffff in the command PDU.   ronnie */
+        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                         pinfo->ptype, pinfo->oxid,
+                                         pinfo->rxid, NO_PORT2);
+    }
+
+
     switch (r_ctl) {
     case FCP_IU_DATA:
-        dissect_fcp_data(tvb, pinfo, tree, fcp_tree);
+        dissect_fcp_data(tvb, pinfo, tree, fcp_tree, conversation);
         break;
     case FCP_IU_CONFIRM:
         /* Nothing to be done here */
         break;
     case FCP_IU_XFER_RDY:
-        dissect_fcp_xfer_rdy(tvb, pinfo, tree, fcp_tree);
+        dissect_fcp_xfer_rdy(tvb, pinfo, tree, fcp_tree, conversation);
         break;
     case FCP_IU_CMD:
-        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree);
+        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree, conversation);
         break;
     case FCP_IU_RSP:
-        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree);
+        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, conversation);
         break;
     default:
         call_dissector(data_handle, tvb, pinfo, tree);
