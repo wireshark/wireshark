@@ -208,28 +208,11 @@ static gint ett_iscsi_ISID = -1;
 #define ISCSI_HEADER_DIGEST_AUTO	0
 #define ISCSI_HEADER_DIGEST_NONE	1
 #define ISCSI_HEADER_DIGEST_CRC32	2
-/* this structure contains session wide state for all iscsi sessions */
+/* this structure contains session wide state for a specific tcp conversation */
 typedef struct _iscsi_session_t {
-	guint32	conv_idx;	/* unique ID for conversation */
 	guint32 header_digest;
+	se_tree_t *exchanges;	/* indexed by ITT */
 } iscsi_session_t;
-static GHashTable *iscsi_session_table = NULL;
-static gint
-iscsi_session_equal(gconstpointer v, gconstpointer w)
-{
-  const iscsi_session_t *v1 = (const iscsi_session_t *)v;
-  const iscsi_session_t *v2 = (const iscsi_session_t *)w;
-
-  return (v1->conv_idx == v2->conv_idx);
-}
-
-static guint
-iscsi_session_hash (gconstpointer v)
-{
-	const iscsi_session_t *key = (const iscsi_session_t *)v;
-
-	return key->conv_idx;
-}
 
 
 
@@ -711,14 +694,9 @@ iscsi_init_protocol(void)
         g_hash_table_destroy(iscsi_req_matched);
 	iscsi_req_matched=NULL;
     }
-    if (iscsi_session_table) {
-        g_hash_table_destroy(iscsi_session_table);
-	iscsi_session_table=NULL;
-    }
 
     iscsi_req_unmatched = g_hash_table_new(iscsi_hash_unmatched, iscsi_equal_unmatched);
     iscsi_req_matched = g_hash_table_new(iscsi_hash_matched, iscsi_equal_matched);
-    iscsi_session_table = g_hash_table_new(iscsi_session_hash, iscsi_session_equal);
 }
 
 static int
@@ -863,7 +841,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
         if (!pinfo->fd->flags.visited){
             iscsi_conv_data_t ckey;
-            ckey.conv_idx = iscsi_session->conv_idx;
+            ckey.conv_idx = (int)iscsi_session;
             ckey.itt = tvb_get_ntohl (tvb, offset+16);
 
             /* first time we see this packet. check if we can find the request */
@@ -891,7 +869,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             }
         } else {
             iscsi_conv_data_t ckey;
-            ckey.conv_idx = iscsi_session->conv_idx;
+            ckey.conv_idx = (int)iscsi_session;
             ckey.itt = tvb_get_ntohl (tvb, offset+16);
             ckey.request_frame=0;
             ckey.data_in_frame=0;
@@ -947,7 +925,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
             /* first time we see this packet. */
             /*check if we have seen this request before and delete it in that case */
-            ckey.conv_idx = iscsi_session->conv_idx;
+            ckey.conv_idx = (int)iscsi_session;
             ckey.itt = tvb_get_ntohl (tvb, offset+16);
             cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
             if (cdata){
@@ -956,7 +934,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
             /* add this new transaction to the unmatched table */
             cdata = se_alloc (sizeof(iscsi_conv_data_t));
-            cdata->conv_idx = iscsi_session->conv_idx;
+            cdata->conv_idx = (int)iscsi_session;
             cdata->itt = tvb_get_ntohl (tvb, offset+16);
             cdata->lun=lun;
             cdata->request_frame=pinfo->fd->num;
@@ -968,7 +946,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             g_hash_table_insert (iscsi_req_unmatched, cdata, cdata);
         } else {
                 iscsi_conv_data_t ckey;
-                ckey.conv_idx = iscsi_session->conv_idx;
+                ckey.conv_idx = (int)iscsi_session;
                 ckey.itt = tvb_get_ntohl (tvb, offset+16);
                 ckey.request_frame=pinfo->fd->num;
                 ckey.data_in_frame=0;
@@ -1859,28 +1837,20 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                              pinfo->ptype, pinfo->srcport,
                                              pinfo->destport, 0);
-            iscsi_session=se_alloc(sizeof(iscsi_session_t));
-            iscsi_session->conv_idx=conversation->index;
-            iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
-            g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
         }
+        iscsi_session=conversation_get_proto_data(conversation, proto_iscsi);
         if(!iscsi_session){
-            iscsi_session_t key;
-            key.conv_idx=conversation->index;
-            /* this should never return NULL */
-            iscsi_session = (iscsi_session_t *)g_hash_table_lookup (iscsi_session_table, &key);
-            if(!iscsi_session){
-                iscsi_session=se_alloc(sizeof(iscsi_session_t));
-                iscsi_session->conv_idx=conversation->index;
-                iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
-                g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
-		/* DataOut PDUs are often mistaken by DCERPC heuristics to be
-		   that protocol. Now that we know this is iscsi, set a 
-		   dissector for conversation to block other heuristic
-		   dissectors. 
-		*/
-		conversation_set_dissector(conversation, iscsi_handle);
-            }
+            iscsi_session=se_alloc(sizeof(iscsi_session_t));
+            iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
+            iscsi_session->exchanges=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "iSCSI Exchanges");
+            conversation_add_proto_data(conversation, proto_iscsi, iscsi_session);
+
+            /* DataOut PDUs are often mistaken by DCERPC heuristics to be
+             * that protocol. Now that we know this is iscsi, set a 
+             * dissector for this conversation to block other heuristic
+             * dissectors. 
+             */
+            conversation_set_dissector(conversation, iscsi_handle);
         }
         /* try to autodetect if header digest is used or not */
 	if(digestsActive && (available_bytes>=52) && (iscsi_session->header_digest==ISCSI_HEADER_DIGEST_AUTO) ){
