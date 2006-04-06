@@ -1089,10 +1089,14 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 	if( (fchdr.fctl&FC_FCTL_REL_OFFSET) && param ){
             call_dissector (data_handle, next_tvb, pinfo, tree);
 	} else {
+	    void *saved_private_data;
+	    saved_private_data = pinfo->private_data;
+	    pinfo->private_data = &fchdr;
 	    if (!dissector_try_port (fcftype_dissector_table, ftype, 
 				next_tvb, pinfo, tree)) {
 	        call_dissector (data_handle, next_tvb, pinfo, tree);
             }
+	    pinfo->private_data = saved_private_data;
         }
     } else if (ftype == FC_FTYPE_BLS) {
         if ((fchdr.r_ctl & 0x0F) == FC_BLS_BAACC) {
@@ -1276,6 +1280,9 @@ proto_register_fc(void)
     proto_register_field_array(proto_fc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* subdissectors called through this table will find the fchdr structure
+     * through pinfo->private_data
+     */
     fcftype_dissector_table = register_dissector_table ("fc.ftype",
                                                         "FC Frame Type",
                                                         FT_UINT8, BASE_HEX);
