@@ -1469,7 +1469,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_tree_add_item(tree, hf_rtcp_ntp_msw, tvb, offset, 4, FALSE);
 
 	ts_lsw = tvb_get_ntohl(tvb, offset+4);
-	proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, FALSE);
 
 	buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset, 8 ));
 	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) buff, "MSW and LSW as NTP timestamp: %s", buff );
