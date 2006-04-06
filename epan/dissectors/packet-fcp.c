@@ -87,6 +87,9 @@ static int hf_fcp_rsp_flags_resid_under = -1;
 static int hf_fcp_rsp_flags_resid_over = -1;
 static int hf_fcp_rsp_flags_sns_vld = -1;
 static int hf_fcp_rsp_flags_res_vld = -1;
+static int hf_fcp_request_in = -1;
+static int hf_fcp_response_in = -1;
+static int hf_fcp_time = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcp = -1;
@@ -723,12 +726,13 @@ dissect_fcp_xfer_rdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 static void
 dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti;
+    proto_item *ti=NULL;
     proto_tree *fcp_tree = NULL;
     conversation_t *conversation;
-
-/* Set up structures needed to add the protocol subtree and manage it */
+    fc_hdr *fchdr;
     guint8 r_ctl;
+
+    fchdr=(fc_hdr *)pinfo->private_data;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -769,6 +773,25 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          pinfo->rxid, NO_PORT2);
     }
 
+    /* put a request_in in all frames except the command frame */
+    if((r_ctl!=FCP_IU_CMD)&&(fchdr->fced->first_exchange_frame)){
+        proto_item *it;
+        it=proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, fchdr->fced->first_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+        /* only put the response time in the actual response frame */
+        if(r_ctl==FCP_IU_RSP){
+            nstime_t delta_ts;
+            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fchdr->fced->fc_time);
+            it=proto_tree_add_time(ti, hf_fcp_time, tvb, 0, 0, &delta_ts);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+    }
+    /* put a response_in in all frames except the response frame */
+    if((r_ctl!=FCP_IU_RSP)&&(fchdr->fced->last_exchange_frame)){
+        proto_item *it;
+        it=proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, fchdr->fced->last_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
 
     switch (r_ctl) {
     case FCP_IU_DATA:
@@ -892,6 +915,15 @@ proto_register_fcp (void)
 	  { "SNS Vld", "fcp.rsp.flags.sns_vld", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_sns_vld_tfs), 0x02, "", HFILL }},
 	{ &hf_fcp_rsp_flags_res_vld, 
 	  { "RES Vld", "fcp.rsp.flags.res_vld", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_res_vld_tfs), 0x01, "", HFILL }},
+        { &hf_fcp_request_in,
+          { "Request In", "fcp.request_in", FT_FRAMENUM, BASE_NONE, NULL,
+           0, "The frame number for the request", HFILL }},
+        { &hf_fcp_response_in,
+          { "Response In", "fcp.response_in", FT_FRAMENUM, BASE_NONE, NULL,
+           0, "The frame number of the response", HFILL }},
+        { &hf_fcp_time,
+          { "Time from FCP_CMND", "fcp.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
+           0, "Time since the FCP_CMND frame", HFILL }},
     };
 
     /* Setup protocol subtree array */
