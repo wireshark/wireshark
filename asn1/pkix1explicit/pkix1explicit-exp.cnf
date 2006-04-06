@@ -1,0 +1,24 @@
+#.IMPORT_TAG
+CertificateSerialNumber  BER_CLASS_UNI BER_UNI_TAG_INTEGER
+Extensions               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Extension                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+AttributeTypeAndValue    BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+RelativeDistinguishedName BER_CLASS_UNI BER_UNI_TAG_SET
+DirectoryString          BER_CLASS_UNI BER_UNI_TAG_PrintableString
+TerminalType             BER_CLASS_UNI BER_UNI_TAG_INTEGER
+TeletexDomainDefinedAttribute BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+CertificateSerialNumber  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+Extensions               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+Extension                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+AttributeTypeAndValue    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+RelativeDistinguishedName TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+DirectoryString          TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TerminalType             TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(pkix1explicit_TerminalType_vals)  BITMASK = 0
+TeletexDomainDefinedAttribute TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

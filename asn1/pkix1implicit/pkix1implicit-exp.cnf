@@ -1,0 +1,10 @@
+#.IMPORT_TAG
+AuthorityInfoAccessSyntax BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+UserNotice               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+AuthorityInfoAccessSyntax TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+UserNotice               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
