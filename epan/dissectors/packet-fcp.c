@@ -143,7 +143,6 @@ typedef struct _fcp_conv_key {
 typedef struct _fcp_conv_data {
     guint32 fcp_dl;
     gint32 fcp_lun;
-	nstime_t abs_ts;
 } fcp_conv_data_t;
 
 GHashTable *fcp_req_hash = NULL;
@@ -486,7 +485,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
          * req.
          */
         cdata->fcp_dl = tvb_get_ntohl (tvb, offset+12+16+add_len);
-        cdata->abs_ts = pinfo->fd->abs_ts;
     }
     else {
         req_key = se_alloc (sizeof(fcp_conv_key_t));
@@ -494,7 +492,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 
         cdata = se_alloc (sizeof(fcp_conv_data_t));
         cdata->fcp_dl = tvb_get_ntohl (tvb, offset+12+16+add_len);
-        cdata->abs_ts = pinfo->fd->abs_ts;
 
         g_hash_table_insert (fcp_req_hash, req_key, cdata);
     }
