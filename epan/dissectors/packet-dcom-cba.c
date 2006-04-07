@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
+#include "packet-dcom-dispatch.h"
 
 
 static int hf_cba_opnum = -1;
@@ -1058,10 +1059,10 @@ static dcerpc_sub_dissector ICBAPhysicalDevice_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "get_Producer", dissect_dcom_simple_rqst, dissect_get_Producer_resp },
     { 8, "get_Product", dissect_dcom_simple_rqst, dissect_get_Product_resp },
@@ -1083,10 +1084,10 @@ static dcerpc_sub_dissector ICBABrowse_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "get_Count", dissect_dcom_simple_rqst, dissect_ICBABrowse_get_Count_resp },
     { 8, "BrowseItems", dissect_ICBABrowse_BrowseItems_rqst, dissect_ICBABrowse_BrowseItems_resp },
@@ -1103,10 +1104,10 @@ static dcerpc_sub_dissector ICBAPersist_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "Save", dissect_dcom_simple_rqst, dissect_dcom_simple_resp },
 	/* stage 2 */
@@ -1152,10 +1153,10 @@ static dcerpc_sub_dissector ICBALogicalDevice_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "get_Name", dissect_dcom_simple_rqst, dissect_get_Name_resp },
     { 8, "get_Producer", dissect_dcom_simple_rqst, dissect_get_Producer_resp },
@@ -1178,10 +1179,10 @@ static dcerpc_sub_dissector ICBAState_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "get_State", dissect_dcom_simple_rqst, dissect_ICBAState_get_State_resp },
     { 8, "Activate", dissect_dcom_simple_rqst, dissect_dcom_simple_resp },
@@ -1210,10 +1211,10 @@ static dcerpc_sub_dissector ICBATime_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "get_Time", dissect_dcom_simple_rqst, dissect_ICBATime_get_Time_resp },
     { 8, "put_Time", dissect_ICBATime_put_Time_rqst, dissect_dcom_simple_resp },
@@ -1227,10 +1228,10 @@ static dcerpc_sub_dissector ICBAGroupError_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "GroupError", dissect_dcom_simple_rqst, dissect_ICBAGroupError_GroupError_resp },
     { 8, "AdviseGroupError", dissect_Advise_rqst, dissect_Advise_resp },
@@ -1256,10 +1257,10 @@ static dcerpc_sub_dissector ICBARTAuto_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "get_Name", dissect_dcom_simple_rqst, dissect_get_Name_resp },
     { 8, "Revision", dissect_dcom_simple_rqst, dissect_Revision_resp },
@@ -1278,10 +1279,10 @@ static dcerpc_sub_dissector ICBASystemProperties_dissectors[] = {
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
 
-    { 3, "GetTypeInfoCount", NULL, NULL },
-    { 4, "GetTypeInfo", NULL, NULL },
-    { 5, "GetIDsOfNames", NULL, NULL },
-    { 6, "Invoke", NULL, NULL },
+    { 3, "GetTypeInfoCount", dissect_dcom_simple_rqst, dissect_IDispatch_GetTypeInfoCount_resp },
+    { 4, "GetTypeInfo", dissect_IDispatch_GetTypeInfo_rqst, dissect_IDispatch_GetTypeInfo_resp },
+    { 5, "GetIDsOfNames", dissect_IDispatch_GetIDsOfNames_rqst, dissect_IDispatch_GetIDsOfNames_resp },
+    { 6, "Invoke", dissect_IDispatch_Invoke_rqst, dissect_IDispatch_Invoke_resp },
 
     { 7, "StateCollection", dissect_dcom_simple_rqst, NULL },
     { 8, "StampCollection", dissect_dcom_simple_rqst, NULL },
