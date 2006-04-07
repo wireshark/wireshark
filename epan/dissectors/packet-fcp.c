@@ -522,7 +522,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
         /* scsi status code */
         proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
-        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->fced->lun, tvb_get_guint8(tvb, offset));
+        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->fced, tvb_get_guint8(tvb, offset));
         offset++;
 
         /* residual count */

@@ -47,10 +47,10 @@
  *   The final parameter is the length of the response field that is negotiated
  *   as part of the SCSI transport layer. If this is not tracked by the
  *   transport, it can be set to 0.
- * o dissect_scsi_rsp - invoked to destroy the data structures associated with a
+ * o dissect_scsi_rsp - invoked to dissect the scsi status code in a response
  *                      SCSI task.
- *   void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, guint16,
- *                          guint8);
+ *   void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *,
+ *                          fc_exchange_data *, guint8);
  * o dissect_scsi_snsinfo - invoked to decode the sense data provided in case of
  *                          an error.
  *   void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint,
@@ -88,9 +88,13 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include "packet-fc.h"
 #include "packet-scsi.h"
 
 static int proto_scsi                    = -1;
+static int hf_scsi_time                  = -1;
+static int hf_scsi_request_frame         = -1;
+static int hf_scsi_response_frame        = -1;
 static int hf_scsi_lun                   = -1;
 static int hf_scsi_status                = -1;
 static int hf_scsi_spcopcode             = -1;
@@ -6431,13 +6435,12 @@ dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
-                  proto_tree *tree, guint16 lun, guint8 scsi_status)
+                  proto_tree *tree, fc_exchange_data *scsi_ed, guint8 scsi_status)
 {
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
 
     /* Nothing really to do here, just print some stuff passed to us
-     * and blow up the data structures for this SCSI task.
      */
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, 0,
@@ -6445,12 +6448,22 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
     }
 
-    ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
+    ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, scsi_ed->lun);
     PROTO_ITEM_SET_GENERATED(ti);
+
+    if(scsi_ed->first_exchange_frame){
+        nstime_t delta_time;
+        ti=proto_tree_add_uint(scsi_tree, hf_scsi_request_frame, tvb, 0, 0, scsi_ed->first_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
+        nstime_delta(&delta_time, &pinfo->fd->abs_ts, &scsi_ed->fc_time);
+        ti=proto_tree_add_time(scsi_tree, hf_scsi_time, tvb, 0, 0, &delta_time);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
     PROTO_ITEM_SET_GENERATED(ti);
     if (check_col (pinfo->cinfo, COL_INFO)) {
-         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
+         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", scsi_ed->lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
      }
@@ -8851,6 +8864,18 @@ proto_register_scsi (void)
         { &hf_ssc3_locate16_loid,
           {"Logical Identifier", "scsi.locate16.loid", FT_UINT64, BASE_DEC, NULL, 0x0,
            "", HFILL}},
+	{ &hf_scsi_request_frame,
+	  { "Request in", "scsi.request_frame", FT_FRAMENUM, BASE_NONE, NULL, 0,
+	    "The request to this transaction is in this frame", HFILL }},
+
+	{ &hf_scsi_time,
+	  { "Time from request", "scsi.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+	    "Time between the Command and the Response", HFILL }},
+
+	{ &hf_scsi_response_frame,
+	  { "Response in", "scsi.response_frame", FT_FRAMENUM, BASE_NONE, NULL, 0,
+	    "The response to this transaction is in this frame", HFILL }},
+
     };
 
     /* Setup protocol subtree array */
