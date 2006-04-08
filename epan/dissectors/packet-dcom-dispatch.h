@@ -1,7 +1,7 @@
 /* packet-dcom-dispatch.h
  * Routines for DCOM IDispatch
  *
- * $Id: packet-dcom-dispatch.c 17658 2006-03-17 21:41:56Z ulfl $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
