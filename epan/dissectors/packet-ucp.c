@@ -43,10 +43,19 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/emem.h>
+#include "packet-tcp.h"
+
 /* #include "packet-ucp.h" */			/* We autoregister	*/
 
 /* Prototypes	*/
-static void dissect_ucp(tvbuff_t *, packet_info *, proto_tree *);
+static void dissect_ucp_common(tvbuff_t *, packet_info *, proto_tree *);
+
+/* Preferences */
+gboolean ucp_desegment = TRUE;
+/* STX + TRN 2 num. char.+ LEN 5 num. char. + O/R Char 'O' or 'R' + OT 2 num. char. */
+#define UCP_HEADER_SIZE 11
 
 /*
  * Convert ASCII-hex character to binary equivalent. No checks, assume
@@ -59,7 +68,7 @@ static void dissect_ucp(tvbuff_t *, packet_info *, proto_tree *);
 
 #define UCP_MALFORMED	-1			/* Not a valid PDU	*/
 #define UCP_SHORTENED	-2			/* May be valid but short */
-#define UCP_INV_CHK	-3			/* Checksum doesn't add up */
+#define UCP_INV_CHK	-3				/* Checksum doesn't add up */
 
 #define	UCP_O_R_OFFSET 10			/* Location of O/R field*/
 #define UCP_OT_OFFSET  12			/* Location of OT field	*/
@@ -629,7 +638,6 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
 
     length = tvb_find_guint8(tvb, offset, -1, UCP_ETX);
     if (length == -1) {
-	/* XXX - should we have an option to request reassembly? */
 	*endpkt = tvb_reported_length_remaining(tvb, offset);
 	return UCP_SHORTENED;
     }
@@ -1627,15 +1635,39 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Ok, looks like a valid packet, go dissect.
      */
-    dissect_ucp(tvb, pinfo, tree);
+
+    dissect_ucp_common(tvb, pinfo, tree);
     return TRUE;
 }
 
+static guint
+get_ucp_pdu_len(tvbuff_t *tvb, int offset)
+{
+    guint	 intval=0;
+    int		 i;
+
+	offset = offset + 4;
+	for (i = 0; i < UCP_LEN_LEN; i++) {	/* Length	*/
+	    intval = 10 * intval +
+			(tvb_get_guint8(tvb, offset) - '0');
+		offset++;
+	}
+
+	return intval + 2;
+}
+
+
+static void
+dissect_ucp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, ucp_desegment, UCP_HEADER_SIZE,
+	    get_ucp_pdu_len, dissect_ucp_common);
+}
 /*
  * The actual dissector
  */
 static void
-dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int		 offset = 0;	/* Offset in packet within tvbuff	*/
     int		 tmpoff;	/* Local offset value (per field)	*/
@@ -1651,6 +1683,20 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree	*sub_tree;
     tvbuff_t	*tmp_tvb;
 
+    /* Make entries in Protocol column */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
+
+    /* This runs atop TCP, so we are guaranteed that there is at least one
+       byte in the tvbuff. */
+    if (tvb_get_guint8(tvb, 0) != UCP_STX){
+		proto_tree_add_text(tree, tvb, 0, -1,"UCP_STX missing, this is not a new packet");
+		return;
+	}
+
+	/* Get data needed for dissect_ucp_common */
+	result = check_ucp(tvb, &endpkt);
+
     O_R = tvb_get_guint8(tvb, UCP_O_R_OFFSET);
     /*
      * So do an atoi() on the operation type
@@ -1658,11 +1704,10 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     OT  = tvb_get_guint8(tvb, UCP_OT_OFFSET) - '0';
     OT  = 10 * OT + (tvb_get_guint8(tvb, UCP_OT_OFFSET + 1) - '0');
 
-    /* Make entries in Protocol column and Info column on summary display */
+     /* Make entries in  Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
-
-    if (check_col(pinfo->cinfo, COL_INFO)) {
+   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
 		     val_to_str(OT,  vals_hdr_OT,  "unknown operation"),
@@ -2560,13 +2605,24 @@ proto_register_ucp(void)
 	&ett_sub,
 	&ett_XSer
     };
-    /* Register the protocol name and description */
+   module_t *ucp_module;
+
+   /* Register the protocol name and description */
     proto_ucp = proto_register_protocol("Universal Computer Protocol",
 					"UCP", "ucp");
 
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_ucp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+  /* register preferences */
+  ucp_module = prefs_register_protocol(proto_ucp, NULL);
+  prefs_register_bool_preference(ucp_module, "desegment_ucp_messages",
+    "Reassemble UCP messages spanning multiple TCP segments",
+    "Whether the UCP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &ucp_desegment);
+
 }
 
 /*
@@ -2588,6 +2644,6 @@ proto_reg_handoff_ucp(void)
     /*
      * Also register as one that can be selected by a TCP port number.
      */
-    ucp_handle = create_dissector_handle(dissect_ucp, proto_ucp);
+    ucp_handle = create_dissector_handle(dissect_ucp_tcp, proto_ucp);
     dissector_add_handle("tcp.port", ucp_handle);
 }
