@@ -728,6 +728,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc.h	\
 	packet-dcom.h	\
 	packet-dcom-cba-acco.h	\
+	packet-dcom-dispatch.h	\
 	packet-ddtp.h	\
 	packet-diameter-defs.h	\
 	packet-diffserv-mpls-common.h	\
