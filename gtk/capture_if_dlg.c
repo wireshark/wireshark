@@ -317,7 +317,7 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 void
 capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  GtkWidget     *main_vb, *bbox, *close_bt, *help_bt;
+  GtkWidget     *main_vb, *main_sw, *bbox, *close_bt, *help_bt;
 
   GtkWidget     *if_tb;
   GtkWidget     *if_lb;
@@ -328,7 +328,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   int           err;
   char          err_str[CAPTURE_PCAP_ERRBUF_SIZE];
   gchar         *cant_get_if_list_errstr;
-  int           row;
+  GtkRequisition requisition;
+  int           row, height;
   if_dlg_data_t *if_dlg_data;
   int           ifs;
   GList         *curr;
@@ -377,17 +378,22 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_window_add_accel_group(GTK_WINDOW(cap_if_w), accel_group);
 #endif
 
+  main_sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(cap_if_w), main_sw);
+
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_container_add(GTK_CONTAINER(cap_if_w), main_vb);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), main_vb);
 
 
   if_tb = gtk_table_new(6,1, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(if_tb), 3);
   gtk_table_set_col_spacings(GTK_TABLE(if_tb), 3);
-  gtk_container_add(GTK_CONTAINER(main_vb), if_tb);
+  gtk_box_pack_start(GTK_BOX(main_vb), if_tb, FALSE, FALSE, 0);
 
   row = 0;
+  height = 0;
 
 #ifndef _WIN32
   /*
@@ -422,6 +428,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   SIGNAL_CONNECT(stop_bt, "clicked", capture_stop_cb, NULL);
 
   row++;
+  gtk_widget_size_request(stop_bt, &requisition);
+  height += requisition.height + 15;
 
   for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
       g_string_assign(if_tool_str, "");
@@ -522,6 +530,11 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       if_data = g_list_append(if_data, if_dlg_data);
 
       row++;
+      if (row <= 10) {
+          /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
+          gtk_widget_size_request(GTK_WIDGET(if_dlg_data->prepare_bt), &requisition);
+          height += requisition.height;
+      }
   }
 
   g_string_free(if_tool_str, TRUE);
@@ -542,6 +555,10 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
     SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_INTERFACES_DIALOG);
   }
+
+  gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
+  height += requisition.height + 25;
+  gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
   gtk_widget_grab_default(close_bt);
 
