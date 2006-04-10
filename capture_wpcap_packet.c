@@ -270,8 +270,7 @@ wpcap_packet_request_uint(void *adapter, ULONG Oid, UINT *value)
 
 
     Status = wpcap_packet_request(adapter, Oid, FALSE /* !set */, (char *) value, &length);
-    if(Status) {
-        g_assert(length == sizeof(UINT));
+    if(Status && length == sizeof(UINT)) {
         return 1;
     } else {
         return 0;
@@ -288,8 +287,7 @@ wpcap_packet_request_ulong(void *adapter, ULONG Oid, ULONG *value)
 
 
     Status = wpcap_packet_request(adapter, Oid, FALSE /* !set */, (char *) value, &length);
-    if(Status) {
-        g_assert(length == sizeof(ULONG));
+    if(Status && length == sizeof(ULONG)) {
         return 1;
     } else {
         return 0;
