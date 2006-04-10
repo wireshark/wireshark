@@ -557,7 +557,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
-  height += requisition.height + 25;
+  height += requisition.height + 27;
   gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
   gtk_widget_grab_default(close_bt);
