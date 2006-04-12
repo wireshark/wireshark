@@ -513,7 +513,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		. lua5_1b1_vc6.zip
+		. lua5_1_vc6.zip
 !ENDIF
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.8"

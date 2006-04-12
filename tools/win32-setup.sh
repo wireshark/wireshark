@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # DOWNLOAD_PREFIX="http://www.ethereal.com/distribution/win32/development"
-DOWNLOAD_PREFIX="http://anonsvn.ethereal.com/ethereal-win32-libs/tags/2006-03-01/packages"
+DOWNLOAD_PREFIX="http://anonsvn.ethereal.com/ethereal-win32-libs/tags/2006-04-12/packages"
 
 err_exit () {
 	echo ""
@@ -71,7 +71,7 @@ case "$1" in
 		err_exit "Can't download $DOWNLOAD_PREFIX/$PACKAGE_PATH"
 	cd "$DEST_SUBDIR" || err_exit "Can't find $DEST_SUBDIR"
 	echo "Extracting $DEST_PATH/$PACKAGE into $DEST_PATH/$DEST_SUBDIR"
-	unzip -nq "$DEST_PATH/$PACKAGE" || 
+	unzip -nq "$DEST_PATH/$PACKAGE" ||
 		err_exit "Couldn't unpack $DEST_PATH/$PACKAGE"
 	echo "Verifying that the DLLs in $DEST_PATH/$DEST_SUBDIR are executable."
 	for i in `/usr/bin/find $DEST_PATH/$DEST_SUBDIR -name \*\.dll` ; do
@@ -80,7 +80,7 @@ case "$1" in
 			echo "$i"
 			chmod a+x "$i"
 		fi
-	done		
+	done
 	;;
 *)
 	usage
