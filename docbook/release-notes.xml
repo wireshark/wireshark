@@ -488,7 +488,7 @@ Ethereal Info
 
     <para>
       Multiple tap interfaces may cause a crash under FreeBSD.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=57">Bug
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=757">Bug
       #757</ulink>)
     </para>
 
