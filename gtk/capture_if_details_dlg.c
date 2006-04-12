@@ -1015,10 +1015,15 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
     add_string_to_table(table, row, "Maximum Packet Size", string_buff);
+}
 
 
-    /* Statistics */
-    add_string_to_table(table, row, "", "");
+static void
+capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter) {
+    gchar           string_buff[DETAILS_STR_MAX];
+    unsigned int    uint_value;
+
+
     add_string_to_table(table, row, "Statistics", "");
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_XMIT_OK, &uint_value)) {
@@ -1181,7 +1186,7 @@ capture_if_details_open_win(char *iface)
 {
     GtkWidget   *details_open_w,
                 *main_vb, *bbox, *close_bt, *help_bt;
-    GtkWidget   *page_general, *page_802_3, *page_802_11;
+    GtkWidget   *page_general, *page_stats, *page_802_3, *page_802_11;
     GtkWidget   *page_lb;
     GtkWidget   *table, *notebook, *label;
     guint       row;
@@ -1210,6 +1215,13 @@ capture_if_details_open_win(char *iface)
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_general, page_lb);
     row = 0;
     capture_if_details_general(table, page_general, &row, adapter, iface);
+
+    /* Statistics page */
+    page_stats = capture_if_details_page_new(&table);
+    page_lb = gtk_label_new("Statistics");
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_stats, page_lb);
+    row = 0;
+    capture_if_details_stats(table, page_stats, &row, adapter);
 
     /* 802.3 (Ethernet) page */
     page_802_3 = capture_if_details_page_new(&table);
