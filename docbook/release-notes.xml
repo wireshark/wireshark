@@ -309,6 +309,7 @@ Ethereal Info
         <!-- CID 145: Post-0.10.14 -->
         <!-- CID 146: See CID 42 -->
         <!-- CID 147 - 148: Post-0.10.14 -->
+        <!-- CID 149: DEADCODE -->
 
       </itemizedlist>
     </para>
@@ -471,6 +472,30 @@ Ethereal Info
     <para>
       The <guibutton>Filter</guibutton> button is nonfunctional in the
       file dialogs under Windows.
+    </para>
+
+    <para>
+      Trying to save flow data may crash Ethereal.
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=396">Bug
+      #396</ulink>)
+    </para>
+
+    <para>
+      It may not be possible to re-order coloring rules under Windows.
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=699">Bug
+      #699</ulink>)
+    </para>
+
+    <para>
+      Multiple tap interfaces may cause a crash under FreeBSD.
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=57">Bug
+      #757</ulink>)
+    </para>
+
+    <para>
+      Ethereal may crash while viewing TCP streams.
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=852">Bug
+      #852</ulink>)
     </para>
 
   </section>
