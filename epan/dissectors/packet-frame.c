@@ -267,7 +267,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     __try {
 #endif
 	if ((force_docsis_encap) && (docsis_handle)) {
-	    call_dissector(docsis_handle, tvb, pinfo, tree);
+	    call_dissector(docsis_handle, tvb, pinfo, parent_tree);
 	} else {
             if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
                 tvb, pinfo, parent_tree)) {
