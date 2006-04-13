@@ -959,6 +959,15 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
 		pinfo->pseudo_header->atm.vci);
 
+  /* Also show vpi/vci in info column */
+  if (check_col(pinfo->cinfo, COL_INFO))
+  {
+      col_append_fstr(pinfo->cinfo, COL_INFO, " VPI=%u, VCI=%u",
+                      pinfo->pseudo_header->atm.vpi,
+                      pinfo->pseudo_header->atm.vci);
+  }
+
+
   next_tvb = tvb;
   if (truncated) {
     /*
@@ -1644,6 +1653,7 @@ proto_register_atm(void)
 	    "ATM LANE", "lane");
 
 	register_dissector("lane", dissect_lane, proto_atm_lane);
+	register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
 }
 
 void

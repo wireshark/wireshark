@@ -519,9 +519,11 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	packet_type = tvb_get_guint8(tvb, offset + 1);
 
 	/* First packet within compound packet is supposed to be a sender
-	   or receiver report.  Also see BYE so allow this...  */
+	   or receiver report.
+       - allow BYE because this happens anyway
+       - allow APP because TBCP ("PoC1") packets aren't compound... */
 	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
-           packet_type == RTCP_BYE))
+           packet_type == RTCP_BYE) || (packet_type == RTCP_APP))
 	{
 		return FALSE;
 	}
@@ -2258,7 +2260,7 @@ proto_register_rtcp(void)
 				"Last SR timestamp",
 				"rtcp.ssrc.lsr",
 				FT_UINT32,
-				BASE_DEC,
+				BASE_DEC_HEX,
 				NULL,
 				0x0,
 				"", HFILL
