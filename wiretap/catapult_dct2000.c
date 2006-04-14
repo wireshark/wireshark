@@ -1,6 +1,6 @@
 /* catapult_dct2000.c
  *
- * $Id: netmon.c 15534 2005-08-25 21:29:54Z ulfl $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

@@ -1,6 +1,6 @@
 /* catapult_dct2000.h
 *
-* $Id: k12.h 14682 2005-06-17 17:26:43Z lego $
+* $Id$
 *
 * Wiretap Library
 * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
