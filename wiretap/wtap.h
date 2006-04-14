@@ -179,9 +179,10 @@
 #define WTAP_ENCAP_JUNIPER_CHDLC                87
 #define WTAP_ENCAP_JUNIPER_GGSN                 88
 #define WTAP_ENCAP_LINUX_LAPD			89
+#define WTAP_ENCAP_CATAPULT_DCT2000             90
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			90
+#define WTAP_NUM_ENCAP_TYPES			91
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -230,9 +231,10 @@
 #define WTAP_FILE_K12				41
 #define WTAP_FILE_ISERIES			42
 #define WTAP_FILE_ISERIES_UNICODE		43
+#define WTAP_FILE_CATAPULT_DCT2000		44
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			44
+#define WTAP_NUM_FILE_TYPES			45
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC		0
@@ -497,6 +499,19 @@ struct k12_phdr {
 #define K12_PORT_DS1       0x00100008
 #define K12_PORT_ATMPVC    0x01020000
 
+struct wtap;
+struct catapult_dct2000_phdr
+{
+    long seek_off;
+    struct wtap *wth;
+    union
+    {
+        struct isdn_phdr  isdn;
+        struct atm_phdr   atm;
+        struct p2p_phdr   p2p;
+    } inner_pseudo_header;
+};
+
 struct lapd_phdr {
 	guint16 pkttype;    /* packet type */
 	guint8 we_network;
@@ -516,6 +531,7 @@ union wtap_pseudo_header {
 	struct mtp2_phdr        mtp2;
 	struct k12_phdr		k12;
 	struct lapd_phdr	lapd;
+	struct catapult_dct2000_phdr dct2000;
 };
 
 struct wtap_nstime {

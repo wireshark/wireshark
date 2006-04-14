@@ -162,6 +162,17 @@ DBS Etherwatch (text format)
 Text output from DBS Etherwatch is supported.  DBS Etherwatch is available
 from: http://www.users.bigpond.com/dbsneddon/software.htm.
 
+Catapult DCT2000 (.out files)
+-----------------------------
+DCT2000 test systems produce ascii text-based .out files for ports
+that have logging enabled. When being read, the data part of the message is
+prefixed with a short header that provides some context (context+port,
+direction, original timestamp, etc).
+
+You can choose to suppress the reading of non-standard protocols
+(i.e. messages between layers rather than the well-known link-level protocols
+usually found on board ports).
+
 
 Gilbert Ramirez <gram@alumni.rice.edu>
 Guy Harris <guy@alum.mit.edu>
