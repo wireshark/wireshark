@@ -1,7 +1,7 @@
 /* packet-catapult-dct2000.c
  * Routines for Catapult DCT2000 packet stub header disassembly
  *
- * $Id: packet-sipfrag.c 15270 2005-08-10 13:41:13Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
