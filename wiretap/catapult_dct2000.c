@@ -156,7 +156,7 @@ static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
 static gint prefix_equal(gconstpointer v, gconstpointer v2);
 static guint prefix_hash_func(gconstpointer v);
 static gboolean get_file_time_stamp(time_t *secs, guint32 *usecs);
-static void free_header_prefix(void *data);
+static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer user_data);
 
 
 
@@ -168,6 +168,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     long    offset = 0;
     time_t  timestamp;
     guint32 usecs;
+    gint firstline_length;
     dct2000_file_externals_t *file_externals;
 
     /* Clear errno before reading from the file */
@@ -180,23 +181,15 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Create file externals table if it doesn't yet exist */
     if (file_externals_table == NULL)
     {
-        file_externals_table = g_hash_table_new_full(prefix_hash_func, prefix_equal, NULL, g_free);
+        file_externals_table = g_hash_table_new(prefix_hash_func, prefix_equal);
     }
-
-    /* Allocate a new file_externals structure */
-    file_externals = g_malloc(sizeof(dct2000_file_externals_t));
-    memset((void*)file_externals, '\0', sizeof(dct2000_file_externals_t));
-
-    /* Add an entry into the table for this wtap structure */
-    g_hash_table_insert(file_externals_table,
-                        (void*)wth, (void*)file_externals);
 
 
     /********************************************************************/
     /* First line needs to contain at least as many characters as magic */
 
-    read_new_line(wth->fh, &offset, &(file_externals->firstline_length));
-    if ((size_t)file_externals->firstline_length < strlen(catapult_dct2000_magic))
+    read_new_line(wth->fh, &offset, &firstline_length);
+    if ((size_t)firstline_length < strlen(catapult_dct2000_magic))
     {
         return 0;
     }
@@ -207,8 +200,14 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
         return 0;
     }
 
+
+    /* Allocate a new file_externals structure */
+    file_externals = g_malloc(sizeof(dct2000_file_externals_t));
+    memset((void*)file_externals, '\0', sizeof(dct2000_file_externals_t));
+
     /* Copy this first line into buffer so could write out later */
-    strncpy(file_externals->firstline, linebuff, file_externals->firstline_length);
+    strncpy(file_externals->firstline, linebuff, firstline_length);
+    file_externals->firstline_length = firstline_length;
 
 
     /***********************************************************/
@@ -219,6 +218,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     if (!get_file_time_stamp(&timestamp, &usecs))
     {
         /* Give up if time wasn't valid */
+        g_free(file_externals);
         return 0;
     }
 
@@ -249,14 +249,13 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 
 
     /**********************************************/
-    /* (Re)-initialise line_header_prefixes_table */
-  	if (file_externals->line_header_prefixes_table)
-    {
-		g_hash_table_destroy(file_externals->line_header_prefixes_table);
-    }
-    /* Values (line prefix strings) will be automatically freed... */
+    /* Initialise line_header_prefixes_table      */
     file_externals->line_header_prefixes_table =
-        g_hash_table_new_full(prefix_hash_func, prefix_equal, NULL, free_header_prefix);
+        g_hash_table_new(prefix_hash_func, prefix_equal);
+
+    /* Add file_externals for this wtap into the global table */
+    g_hash_table_insert(file_externals_table,
+                        (void*)wth, (void*)file_externals);
 
     *err = errno;
     return 1;
@@ -279,6 +278,12 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
     /* Find wtap external structure for this wtap */
     dct2000_file_externals_t *file_externals =
         (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table, wth);
+
+    /* There *has* to be an entry for this wth */
+    if (!file_externals)
+    {
+        return FALSE;
+    }
 
     /* Search for a line containing a usable board-port frame */
     while (1)
@@ -351,7 +356,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             /* Write stub header */
 
             /* Context name */
-            strcpy(frame_buffer, context_name);
+            strcpy((char*)frame_buffer, context_name);
             stub_offset += (strlen(context_name) + 1);
 
             /* Context port number */
@@ -359,11 +364,11 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             stub_offset++;
 
             /* Timestamp within file */
-            strcpy(&frame_buffer[stub_offset], timestamp_string);
+            strcpy((char*)&frame_buffer[stub_offset], timestamp_string);
             stub_offset += (strlen(timestamp_string) + 1);
 
             /* Protocol name */
-            strcpy(&frame_buffer[stub_offset], protocol_name);
+            strcpy((char*)&frame_buffer[stub_offset], protocol_name);
             stub_offset += (strlen(protocol_name) + 1);
 
             /* Direction */
@@ -400,7 +405,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                    dollar_offset - after_time_offset);
             line_prefix_info->after_time[dollar_offset - after_time_offset-1] = '\0';
 
-            /* Add entry into table */
+            /* Add packet entry into table */
             g_hash_table_insert(file_externals->line_header_prefixes_table,
                                 (void*)this_offset, line_prefix_info);
 
@@ -468,7 +473,7 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
         /*********************/
         /* Write stub header */
 
-        strcpy(pd, context_name);
+        strcpy((char*)pd, context_name);
         stub_offset += (strlen(context_name) + 1);
 
         /* Context port number */
@@ -476,11 +481,11 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
         stub_offset++;
 
         /* Timestamp within file */
-        strcpy(&pd[stub_offset], timestamp_string);
+        strcpy((char*)&pd[stub_offset], timestamp_string);
         stub_offset += (strlen(timestamp_string) + 1);
 
         /* Protocol name */
-        strcpy(&pd[stub_offset], protocol_name);
+        strcpy((char*)&pd[stub_offset], protocol_name);
         stub_offset += (strlen(protocol_name) + 1);
 
         /* Direction */
@@ -519,13 +524,27 @@ catapult_dct2000_seek_read(wtap *wth, long seek_off,
 /******************************************/
 void catapult_dct2000_close(wtap *wth)
 {
-    /* Destroy line prefix table for this entry */
+    /* Look up externals for this file */
     dct2000_file_externals_t *file_externals =
         (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table, wth);
+
+    /* The entry *has* to be found */
+    if (!file_externals)
+    {
+        return;
+    }
+
+    /* Free up its line prefix values */
+    g_hash_table_foreach_remove(file_externals->line_header_prefixes_table,
+                                free_line_prefix_info, NULL);
+    /* Free up its line prefix table */
     g_hash_table_destroy(file_externals->line_header_prefixes_table);
 
-    /* And remove the entry itself */
+    /* And remove the externals entry from the global table */
     g_hash_table_remove(file_externals_table, (void*)wth);
+
+    /* And free up file_externals itself */
+    g_free(file_externals);
 
     /* Also free this capture info */
     g_free(wth->capture.catapult_dct2000);
@@ -1270,9 +1289,10 @@ gboolean get_file_time_stamp(time_t *secs, guint32 *usecs)
 }
 
 /* Free the data allocated inside a line_prefix_info_t */
-void free_header_prefix(void *data)
+gboolean free_line_prefix_info(gpointer key _U_, gpointer value,
+                               gpointer user_data _U_)
 {
-    line_prefix_info_t *info = (line_prefix_info_t*)data;
+    line_prefix_info_t *info = (line_prefix_info_t*)value;
 
     /* Free the strings inside */
     g_free(info->before_time);
@@ -1280,5 +1300,8 @@ void free_header_prefix(void *data)
 
     /* And the structure itself */
     g_free(info);
+
+    /* Item will always be removed from table */
+    return TRUE;
 }
 
