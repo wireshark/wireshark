@@ -883,8 +883,40 @@ nextcontext:
 							}
 							break;
 
-						case 'S':
+						case 'P':
+							/*
+							PackagesToken	= ("Packages"	/ "PG")
+							PendingToken	= ("Pending"	/ "PN")
+							PriorityToken	= ("Priority"	/ "PR")
+							ProfileToken	= ("Profile"	/ "PF")
+							*/
+							tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
 
+							switch ( tempchar ){
+							case 'G':
+								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
+									tvb_command_start_offset, tokenlen,
+									"Packages");
+								break;
+							case 'N':
+								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
+									tvb_command_start_offset, tokenlen,
+									"Pending");
+								break;
+							case 'R':
+								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
+									tvb_command_start_offset, tokenlen,
+									"Priority");
+								break;
+							case 'F':
+								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
+									tvb_command_start_offset, tokenlen,
+									"Profile");
+								break;
+							}
+							break;
+
+						case 'S':
 							tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
 
 							switch ( tempchar ){
