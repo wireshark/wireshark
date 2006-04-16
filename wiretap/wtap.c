@@ -286,9 +286,6 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_NETTL_RAW_ICMPV6 */
 	{ "Raw ICMPv6 with nettl headers", "raw-icmpv6-nettl" },
 
-	/* UNUSED */
-	{ "", "" },
-
 	/* WTAP_ENCAP_GPRS_LLC */
 	{ "GPRS LLC", "gprs-llc" },
 

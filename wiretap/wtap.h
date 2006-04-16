@@ -156,33 +156,33 @@
 #define WTAP_ENCAP_BACNET_MS_TP			63
 #define WTAP_ENCAP_NETTL_RAW_ICMP		64
 #define WTAP_ENCAP_NETTL_RAW_ICMPV6		65
-#define WTAP_ENCAP_GPRS_LLC			67
-#define WTAP_ENCAP_JUNIPER_ATM1			68
-#define WTAP_ENCAP_JUNIPER_ATM2			69
-#define WTAP_ENCAP_REDBACK			70
-#define WTAP_ENCAP_NETTL_RAW_IP			71
-#define WTAP_ENCAP_NETTL_ETHERNET		72
-#define WTAP_ENCAP_NETTL_TOKEN_RING		73
-#define WTAP_ENCAP_NETTL_FDDI			74
-#define WTAP_ENCAP_NETTL_UNKNOWN		75
-#define WTAP_ENCAP_MTP2_WITH_PHDR               76
-#define WTAP_ENCAP_JUNIPER_PPPOE       		77
-#define WTAP_GCOM_TIE1				78
-#define WTAP_GCOM_SERIAL			79
-#define WTAP_ENCAP_NETTL_X25			80
-#define WTAP_ENCAP_K12					81
-#define WTAP_ENCAP_JUNIPER_MLPPP                82
-#define WTAP_ENCAP_JUNIPER_MLFR                 83
-#define WTAP_ENCAP_JUNIPER_ETHER                84
-#define WTAP_ENCAP_JUNIPER_PPP                  85
-#define WTAP_ENCAP_JUNIPER_FRELAY               86
-#define WTAP_ENCAP_JUNIPER_CHDLC                87
-#define WTAP_ENCAP_JUNIPER_GGSN                 88
-#define WTAP_ENCAP_LINUX_LAPD			89
-#define WTAP_ENCAP_CATAPULT_DCT2000             90
+#define WTAP_ENCAP_GPRS_LLC			66
+#define WTAP_ENCAP_JUNIPER_ATM1			67
+#define WTAP_ENCAP_JUNIPER_ATM2			68
+#define WTAP_ENCAP_REDBACK			69
+#define WTAP_ENCAP_NETTL_RAW_IP			70
+#define WTAP_ENCAP_NETTL_ETHERNET		71
+#define WTAP_ENCAP_NETTL_TOKEN_RING		72
+#define WTAP_ENCAP_NETTL_FDDI			73
+#define WTAP_ENCAP_NETTL_UNKNOWN		74
+#define WTAP_ENCAP_MTP2_WITH_PHDR               75
+#define WTAP_ENCAP_JUNIPER_PPPOE       		76
+#define WTAP_GCOM_TIE1				77
+#define WTAP_GCOM_SERIAL			78
+#define WTAP_ENCAP_NETTL_X25			79
+#define WTAP_ENCAP_K12				80
+#define WTAP_ENCAP_JUNIPER_MLPPP                81
+#define WTAP_ENCAP_JUNIPER_MLFR                 82
+#define WTAP_ENCAP_JUNIPER_ETHER                83
+#define WTAP_ENCAP_JUNIPER_PPP                  84
+#define WTAP_ENCAP_JUNIPER_FRELAY               85
+#define WTAP_ENCAP_JUNIPER_CHDLC                86
+#define WTAP_ENCAP_JUNIPER_GGSN                 87
+#define WTAP_ENCAP_LINUX_LAPD			88
+#define WTAP_ENCAP_CATAPULT_DCT2000             89
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			91
+#define WTAP_NUM_ENCAP_TYPES			90
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
