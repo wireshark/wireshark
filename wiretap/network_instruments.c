@@ -106,11 +106,15 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
-
+	int offset;
 	capture_file_header file_header;
+	guint i;
+	tlv_header tlvh;
+	int seek_increment;
 	packet_entry_header packet_header;
 
 	errno = WTAP_ERR_CANT_READ;
+	offset = 0;
 
 	/* Read in the buffer file header */
 	bytes_read = file_read(&file_header, sizeof file_header, 1, wth->fh);
@@ -120,6 +124,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
+	offset += bytes_read;
 
 	/* check the magic number */
 	if (memcmp(file_header.observer_version, network_instruments_magic, true_magic_length)!=0) {
@@ -133,14 +138,48 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	}
 
+	/* process extra information */
+	for (i = 0; i < file_header.number_of_information_elements; i++) {
+		/* read the TLV header */
+		bytes_read = file_read(&tlvh, sizeof tlvh, 1, wth->fh);
+		if (bytes_read != sizeof tlvh) {
+			*err = file_error(wth->fh);
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		offset += bytes_read;
+
+		tlvh.length = GUINT16_FROM_LE(tlvh.length);
+		if (tlvh.length < sizeof tlvh) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("Observer: bad record (TLV length %u < %lu)",
+			    tlvh.length, (unsigned long)sizeof tlvh);
+			return -1;
+		}
+
+		/* skip the TLV data */
+		seek_increment = tlvh.length - sizeof tlvh;
+		if (seek_increment > 0) {
+			if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
+				return -1;
+		}
+		offset += seek_increment;
+	}
+
 	/* get to the first packet */
 	file_header.offset_to_first_packet =
 	    GUINT16_FROM_LE(file_header.offset_to_first_packet);
-	if (file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET,
-	    err) == -1) {
-		if (*err != 0)
+	if (file_header.offset_to_first_packet < offset) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("Observer: bad record (offset to first packet %d < %d)",
+		    file_header.offset_to_first_packet, offset);
+		return FALSE;
+	}
+	seek_increment = file_header.offset_to_first_packet - offset;
+	if (seek_increment > 0) {
+		if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
 			return -1;
-		return 0;
 	}
 
 	/* pull off the packet header */
@@ -175,16 +214,13 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = observer_seek_read;
 	wth->subtype_close = NULL;
 	wth->subtype_sequential_close = NULL;
-	wth->snapshot_length = 0;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->snapshot_length = 0;	/* not available in header */
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	/* reset the pointer to the first packet */
 	if (file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET,
-	    err) == -1) {
-		if (*err != 0)
-			return -1;
-		return 0;
-	}
+	    err) == -1)
+		return -1;
 	wth->data_offset = file_header.offset_to_first_packet;
 
 	init_time_offset();
@@ -356,7 +392,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 
 		/* skip the TLV data */
 		seek_increment = tlvh.length - sizeof tlvh;
-		if(seek_increment>0) {
+		if (seek_increment > 0) {
 			if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1)
 				return -1;
 		}
@@ -378,12 +414,12 @@ read_packet_data(FILE_T fh, int offset_to_frame, int offset, guint8 *pd,
 	/* get to the packet data */
 	if (offset_to_frame < offset) {
 		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("Observer: bad record (offset to frame %d < %d)",
+		*err_info = g_strdup_printf("Observer: bad record (offset to packet data %d < %d)",
 		    offset_to_frame, offset);
 		return FALSE;
 	}
 	seek_increment = offset_to_frame - offset;
-	if(seek_increment>0) {
+	if (seek_increment > 0) {
 		if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1)
 			return FALSE;
 	}
@@ -406,7 +442,7 @@ skip_to_next_packet(wtap *wth, int offset, int offset_to_next_packet, int *err,
 		return FALSE;
 	}
 	seek_increment = offset_to_next_packet - offset;
-	if(seek_increment>0) {
+	if (seek_increment > 0) {
 		if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
 			return FALSE;
 	}
