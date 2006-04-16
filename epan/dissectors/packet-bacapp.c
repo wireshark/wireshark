@@ -1339,29 +1339,49 @@ fUnsigned32 (tvbuff_t *tvb, guint offset, guint32 lvt, guint32 *val)
 static gboolean
 fUnsigned64 (tvbuff_t *tvb, guint offset, guint32 lvt, guint64 *val)
 {
-	gboolean valid = TRUE;
+	gboolean valid = FALSE;
+	gint64 value = 0;
+	guint8 data, i;
 	
-	switch (lvt) {
-		case 1:
-			*val = tvb_get_guint8(tvb, offset);
-			break;
-		case 2:
-			*val = tvb_get_ntohs(tvb, offset);
-			break;
-		case 3:
-			*val = tvb_get_ntoh24(tvb, offset);
-			break;
-		case 4:
-			*val = tvb_get_ntohl(tvb, offset);
-			break;
-		case 8:
-			*val = tvb_get_ntoh64(tvb, offset);
-			break;
-		default:
-			valid = FALSE;
-			break;
+	if (lvt && (lvt <= 8)) {
+		valid = TRUE;
+		data = tvb_get_guint8(tvb, offset);
+		for (i = 0; i < lvt; i++) {
+			data = tvb_get_guint8(tvb, offset+i);
+			value = (value << 8) + data;
+		}
+		*val = value;
 	}
 	
+	return valid;
+}
+
+/* BACnet Signed Value uses 2's compliment notation, but with a twist:
+   All signed integers shall be encoded in the smallest number of octets
+   possible.  That is, the first octet of any multi-octet encoded value
+   shall not be X'00' if the most significant bit (bit 7) of the second
+   octet is 0, and the first octet shall not be X'FF' if the most
+   significant bit of the second octet is 1. ASHRAE-135-2004-20.2.5 */
+static gboolean
+fSigned64 (tvbuff_t *tvb, guint offset, guint32 lvt, gint64 *val)
+{
+	gboolean valid = FALSE;
+	gint64 value = 0;
+	guint8 data, i;
+
+	/* we can only handle 7 bytes for a 64-bit value due to signed-ness */
+	if (lvt && (lvt <= 7)) {
+		valid = TRUE;
+		data = tvb_get_guint8(tvb, offset);
+		if ((data & 0x80) != 0)
+			value = (-1 << 8) | data;
+		for (i = 1; i < lvt; i++) {
+			data = tvb_get_guint8(tvb, offset+i);
+			value = (value << 8) + data;
+		}
+		*val = value;
+	}
+
 	return valid;
 }
 
@@ -1574,7 +1594,7 @@ fEnumeratedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *labe
 static guint
 fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
-	guint64 val = 0;
+	gint64 val = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	guint tag_len;
@@ -1582,9 +1602,9 @@ fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	proto_tree *subtree;
 
 	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	if (fUnsigned64 (tvb, offset + tag_len, lvt, &val))
+	if (fSigned64 (tvb, offset + tag_len, lvt, &val))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s(Signed) %" PRId64, label, (gint64) val);
+			"%s(Signed) %" PRId64, label, val);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s - %u octets (Signed)", label, lvt);
@@ -2136,7 +2156,7 @@ fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	propertyIdentifier = 0; /* global Variable */
 	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	if (fUnsigned32 (tvb, offset+tag_len, lvt, &propertyIdentifier))
+	if (fUnsigned32 (tvb, offset+tag_len, lvt, (guint32 *)&propertyIdentifier))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"property Identifier: %s",
 			val_to_split_str(propertyIdentifier, 512,
