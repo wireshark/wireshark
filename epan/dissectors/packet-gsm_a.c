@@ -5295,16 +5295,11 @@ static guint8
 de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
-	guint8 hour;
-	guint8 minute;
     guint32	curr_offset;
+    char sign;
 
     len = len;
     curr_offset = offset;
-
-    oct = tvb_get_guint8(tvb, curr_offset);
-	hour = (oct&0x3f)>>2;
-	minute = (oct&0x3)*15;
 
 	/* 3GPP TS 23.040 version 6.6.0 Release 6 
 	 * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
@@ -5315,11 +5310,14 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	 * represents the algebraic sign of this difference (0: positive, 1: negative).
 	 */
 
-	if ((oct&0x40)== 0x40 ){/* + */
-		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT +%u:%u",hour,minute);
-	}else{
-		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT -%u:%u",hour,minute);
-	}
+    oct = tvb_get_guint8(tvb, curr_offset);
+    sign = (oct & 0x08)?'-':'+';
+    oct = (oct >> 4) + (oct & 0x07) * 10;
+
+    proto_tree_add_text(tree,
+	tvb, offset, 1,
+	"Timezone: GMT %c %d hours %d minutes",
+	sign, oct / 4, oct % 4 * 15);
     curr_offset++;
 
     /* no length check possible */
@@ -5335,8 +5333,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint8	oct, oct2, oct3;
     guint32	curr_offset;
-	guint8 hour;
-	guint8 minute;
+    char sign;
 
     len = len;
     curr_offset = offset;
@@ -5373,11 +5370,6 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     curr_offset += 3;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-	hour = (oct&0x3f)>>2;
-	minute = (oct&0x3)*15;
-
 	/* 3GPP TS 23.040 version 6.6.0 Release 6 
 	 * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
 	 * :
@@ -5387,11 +5379,14 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	 * represents the algebraic sign of this difference (0: positive, 1: negative).
 	 */
 
-	if ((oct&0x40)== 0x40 ){/* + */
-		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT +%u:%u",hour,minute);
-	}else{
-		proto_tree_add_text(tree,tvb, curr_offset, 1,"Time Zone GMT -%u:%u",hour,minute);
-	}
+    oct = tvb_get_guint8(tvb, curr_offset);
+    sign = (oct & 0x08)?'-':'+';
+    oct = (oct >> 4) + (oct & 0x07) * 10;
+
+    proto_tree_add_text(tree,
+	tvb, offset, 1,
+	"Timezone: GMT %c %d hours %d minutes",
+	sign, oct / 4, oct % 4 * 15);
 
     curr_offset++;
 
