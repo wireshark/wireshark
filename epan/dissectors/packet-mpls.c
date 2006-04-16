@@ -471,7 +471,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 ttl;
     guint8 ipvers;
 
-    proto_tree  *mpls_tree;
+    proto_tree  *mpls_tree = NULL;
     proto_item  *ti;
     tvbuff_t *next_tvb;
 
