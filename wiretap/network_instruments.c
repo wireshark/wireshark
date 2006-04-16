@@ -500,6 +500,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	memset(&file_header, 0x00, sizeof(capture_file_header));
 	strcpy(file_header.observer_version, network_instruments_magic);
 	file_header.offset_to_first_packet = sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment);
+	file_header.offset_to_first_packet = GUINT16_TO_LE(file_header.offset_to_first_packet);
 	file_header.number_of_information_elements = 1;
 	if(!fwrite(&file_header, sizeof(capture_file_header), 1, wdh->fh)) {
 		*err = errno;
@@ -507,8 +508,9 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	}
 
 	/* create the comment entry */
-	comment_header.type = INFORMATION_TYPE_COMMENT;
+	comment_header.type = GUINT16_TO_LE(INFORMATION_TYPE_COMMENT);
 	comment_header.length = sizeof(tlv_header) + strlen(comment);
+	comment_header.length = GUINT16_TO_LE(comment_header.length);
 	if(!fwrite(&comment_header, sizeof(tlv_header), 1, wdh->fh)) {
 		*err = errno;
 		return FALSE;
@@ -532,16 +534,16 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	niobserver_dump_t *niobserver = wdh->dump.niobserver;
 	packet_entry_header packet_header;
 	size_t nwritten;
-	guint64 capture_nanoseconds = 0;
+	guint64 capture_nanoseconds;
 
-	if(phdr->ts.secs<(long)seconds1970to2000) {
-		if(phdr->ts.secs<0)
+	if (phdr->ts.secs < seconds1970to2000) {
+		if (phdr->ts.secs < 0)
 			capture_nanoseconds = 0;
 		else
 			capture_nanoseconds = phdr->ts.secs;
 	} else
 		capture_nanoseconds = phdr->ts.secs - seconds1970to2000;
-	capture_nanoseconds = ((capture_nanoseconds*1000000) + (guint64)phdr->ts.nsecs);
+	capture_nanoseconds = capture_nanoseconds*1000000000 + phdr->ts.nsecs;
 
 	memset(&packet_header, 0x00, sizeof(packet_entry_header));
 	packet_header.packet_magic = GUINT32_TO_LE(observer_packet_magic);
