@@ -1302,7 +1302,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
 
   if (fp == NULL) {
     if (errno == EACCES)
-      fprintf(stderr, "Error opening file IOR.txt for reading: %s\n",strerror(errno));
+      fprintf(stderr, "Error opening file %s for reading: %s\n", name, strerror(errno));
     return;
   }
 
@@ -2751,7 +2751,8 @@ guint32 get_CDR_wstring(tvbuff_t *tvb, gchar **seq, int *offset, gboolean stream
 
 static void
 dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tree * tree,
-		       gboolean stream_is_big_endian)
+		       gboolean stream_is_big_endian, guint32 *object_key_len,
+		       gchar **object_key_val)
 {
    guint16 discriminant;
    gchar *object_key;
@@ -2759,6 +2760,7 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
    guint32 len = 0;
    guint32 u_octet4;
 
+   object_key = NULL;
    discriminant = get_CDR_ushort(tvb, offset, stream_is_big_endian,GIOP_HEADER_SIZE);
    if(tree)
    {
@@ -2787,7 +2789,14 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
 					       "KeyAddr (object key): %s", p_object_key);
 		       }
 		     g_free( p_object_key );
-		     g_free( object_key );
+		     if (object_key_len) {
+		       *object_key_len = len;
+		     }
+		     if (object_key_val) {
+		       *object_key_val = object_key;
+		     } else {
+		       g_free( object_key );
+		     }
 		   }
 		   break;
            case 1: /* ProfileAddr */
@@ -3443,8 +3452,9 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   proto_item *tf;
   gboolean exres = FALSE;		/* result of trying explicit dissectors */
 
-  gchar *repoid = NULL;
-
+  guint32 objkey_len = 0;	/* object key length */
+  gchar *objkey = NULL;		/* object key sequence */
+  gchar *repoid = NULL;		/* from object key lookup in objkey hash */
 
   if (tree)
     {
@@ -3481,7 +3491,12 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    }
   g_free(reserved);
 
-  dissect_target_address(tvb, pinfo, &offset, request_tree, stream_is_big_endian);
+  dissect_target_address(tvb, pinfo, &offset, request_tree, stream_is_big_endian,
+			 &objkey_len, &objkey);
+  if (objkey) {
+    repoid = get_repoid_from_objkey(giop_objkey_hash, objkey, objkey_len);
+    g_free(objkey);
+  }
 
   /* length of operation string */
   len = get_CDR_string(tvb, &operation, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
@@ -3541,12 +3556,9 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    * fails, try the heuristic method.
    */
 
-
-  /* Comment out to please Coverity, See TODO item 43?
   if(repoid) {
     exres = try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
   }
-  */
 
   /* Only call heuristic if no explicit dissector was found */
 
@@ -3633,8 +3645,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
   else     /* GIOP 1.2 and higher */
   {
       dissect_target_address(tvb, pinfo, &offset, locate_request_tree,
-			     stream_is_big_endian);
-
+			     stream_is_big_endian, NULL, NULL);
   }
 }
 

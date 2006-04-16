@@ -846,9 +846,10 @@ class ethereal_gen_C:
 
     def genOpDelegator(self,oplist):
         for op in oplist:
+            iname = "/".join(op.scopedName()[:-1])
             opname = op.identifier()
             sname = self.namespace(op, "_")
-            self.st.out(self.template_op_delegate_code, sname=sname)
+            self.st.out(self.template_op_delegate_code, interface=iname, sname=sname)
 
     #
     # Delegator for Attributes
@@ -1657,13 +1658,11 @@ void proto_register_handoff_giop_@dissector_name@(void) {
 """
 
     template_proto_reg_handoff_body = """
-#if 0
 
 /* Register for Explicit Dissection */
 
 register_giop_user_module(dissect_@dissector_name@, \"@protocol_name@\", \"@interface@\", proto_@dissector_name@ );     /* explicit dissector */
 
-#endif
 
 """
 
@@ -1793,7 +1792,8 @@ void proto_register_giop_@dissector_name@(void) {
     #
 
     template_op_delegate_code = """\
-if (strcmp(operation, @sname@_op) == 0) {
+if (strcmp(operation, @sname@_op) == 0
+    && (!idlname || strcmp(idlname, \"@interface@\") == 0)) {
    tree = start_dissecting(tvb, pinfo, ptree, offset);
    decode_@sname@(tvb, pinfo, tree, offset, header, operation);
    return TRUE;
@@ -2256,7 +2256,7 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return tree;
 }
 
-static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
+static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
 
     gboolean be;                        /* big endianess */
     proto_tree *tree _U_;
