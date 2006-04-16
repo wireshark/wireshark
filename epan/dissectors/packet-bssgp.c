@@ -1220,18 +1220,21 @@ bssgp_proto_tree_add_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static void
 bssgp_proto_handoff(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, dissector_handle_t handle) {
-  tvbuff_t *next_tvb;
+  tvbuff_t *next_tvb=NULL;
 
-  next_tvb = tvb_new_subset(bi->tvb, bi->offset, -1, -1);
+  if(ie->value_length > 0)
+	  next_tvb = tvb_new_subset(bi->tvb, bi->offset, -1, -1);
 
   if (bi->bssgp_tree) {
     bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   }
-  if (handle) {
-    call_dissector(handle, next_tvb, bi->pinfo, bi->parent_tree);    
-  }
-  else if (data_handle) {
-    call_dissector(data_handle, next_tvb, bi->pinfo, bi->parent_tree);
+  if(next_tvb){
+	  if (handle) {
+		  call_dissector(handle, next_tvb, bi->pinfo, bi->parent_tree);
+	  }
+	  else if (data_handle) {
+		  call_dissector(data_handle, next_tvb, bi->pinfo, bi->parent_tree);
+	  }
   }
 }
 
@@ -1602,7 +1605,7 @@ get_value_length(bssgp_ie_t *ie, build_info_t *bi) {
   else {
     length_len++;
     length <<= 8;
-    length |= tvb_get_guint8(bi->tvb, bi->offset);
+    length |= tvb_get_guint8(bi->tvb, bi->offset+1);
   }
   ie->value_length = length;
   ie->total_length += length_len + length;

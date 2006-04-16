@@ -17222,7 +17222,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 9.5.9 Modify PDP context request (Network to MS direction)
+ * [8] 9.5.9 Modify PDP context request (Network to MS direction)
  */
 static void
 dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -17237,6 +17237,7 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     is_uplink = IS_UPLINK_UNKNOWN;
     g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP,DE_RAD_PRIO);
 #if 0	
     /* This is done automatically */
     ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE );
