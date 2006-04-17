@@ -264,7 +264,7 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     remove_tap_listener(follow_info);
 
     /* The data_out_filename file now has all the text that was in the session */
-    streamwindow = dlg_window_new("Follow SSL stream");
+    streamwindow = dlg_window_new("Follow SSL Stream");
 
     /* needed in follow_filter_out_stream(), is there a better way? */
     follow_info->streamwindow = streamwindow;
@@ -436,7 +436,7 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
     /* Create exclude stream button */
-    button = gtk_button_new_with_label("Filter out this stream");
+    button = gtk_button_new_with_label("Filter Out This Stream");
     SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
     gtk_tooltips_set_tip (tooltips, button,
     "Build a display filter which cuts this stream from the capture", NULL);
