@@ -1525,8 +1525,9 @@ class ethereal_gen_C:
             sn = idlutil.slashName(sc1)         # penguin/tux
             if not int_hash.has_key(sn):
                 int_hash[sn] = 0;       # dummy val, but at least key is unique
-
-        return int_hash.keys()
+        ret = int_hash.keys()
+        ret.sort()
+        return ret
 
 
 
@@ -1547,8 +1548,9 @@ class ethereal_gen_C:
                     ex_hash[ex] = 0; # dummy val, but at least key is unique
                     if self.DEBUG:
                         print "XXX Exception = " + ex.identifier()
-
-        return ex_hash.keys()
+        ret = ex_hash.keys()
+        ret.sort()
+        return ret
 
 
 

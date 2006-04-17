@@ -698,7 +698,7 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return tree;
 }
 
-static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
+static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
 
     gboolean be;                        /* big endianess */
     proto_tree *tree _U_;
@@ -721,43 +721,50 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     case Reply:
 
 
-        if (strcmp(operation, CosEventComm_PushConsumer_push_op) == 0) {
+        if (strcmp(operation, CosEventComm_PushConsumer_push_op) == 0
+            && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PushConsumer_disconnect_push_consumer_op) == 0) {
+        if (strcmp(operation, CosEventComm_PushConsumer_disconnect_push_consumer_op) == 0
+            && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PushSupplier_disconnect_push_supplier_op) == 0) {
+        if (strcmp(operation, CosEventComm_PushSupplier_disconnect_push_supplier_op) == 0
+            && (!idlname || strcmp(idlname, "CosEventComm/PushSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullSupplier_pull_op) == 0) {
+        if (strcmp(operation, CosEventComm_PullSupplier_pull_op) == 0
+            && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_pull(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullSupplier_try_pull_op) == 0) {
+        if (strcmp(operation, CosEventComm_PullSupplier_try_pull_op) == 0
+            && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_try_pull(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullSupplier_disconnect_pull_supplier_op) == 0) {
+        if (strcmp(operation, CosEventComm_PullSupplier_disconnect_pull_supplier_op) == 0
+            && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullConsumer_disconnect_pull_consumer_op) == 0) {
+        if (strcmp(operation, CosEventComm_PullConsumer_disconnect_pull_consumer_op) == 0
+            && (!idlname || strcmp(idlname, "CosEventComm/PullConsumer") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
@@ -828,43 +835,35 @@ void proto_register_handoff_giop_coseventcomm(void) {
 
 
     
-    #if 0
-
-    /* Register for Explicit Dissection */
-
-    register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PullSupplier", proto_coseventcomm );     /* explicit dissector */
-
-    #endif
-
-
-    
-    #if 0
-
-    /* Register for Explicit Dissection */
-
-    register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PushConsumer", proto_coseventcomm );     /* explicit dissector */
-
-    #endif
-
-
-    
-    #if 0
 
     /* Register for Explicit Dissection */
 
     register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PullConsumer", proto_coseventcomm );     /* explicit dissector */
 
-    #endif
 
 
     
-    #if 0
+
+    /* Register for Explicit Dissection */
+
+    register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PullSupplier", proto_coseventcomm );     /* explicit dissector */
+
+
+
+    
+
+    /* Register for Explicit Dissection */
+
+    register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PushConsumer", proto_coseventcomm );     /* explicit dissector */
+
+
+
+    
 
     /* Register for Explicit Dissection */
 
     register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PushSupplier", proto_coseventcomm );     /* explicit dissector */
 
-    #endif
 
 
     
