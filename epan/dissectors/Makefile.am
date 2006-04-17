@@ -33,8 +33,6 @@ libdissectors_la_SOURCES = \
 EXTRA_DIST = \
 	Makefile.common		\
 	Makefile.nmake		\
-	make-reg-dotc		\
-	make-reg-dotc.py	\
 	ncp2222.py		\
 	packet-ncp2222.inc	\
 	process-x11-fields.pl	\
@@ -77,13 +75,14 @@ x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 # The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc $(srcdir)/make-reg-dotc.py
+register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-reg-dotc \
+    $(top_srcdir)/tools/make-reg-dotc.py
 	@if test -n $(PYTHON); then \
 		echo Making register.c with python ; \
-		$(PYTHON) $(srcdir)/make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
+		$(PYTHON) $(top_srcdir)/tools/make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
 	else \
 		echo Making register.c with shell script ; \
-		$(srcdir)/make-reg-dotc register.c $(srcdir) \
+		$(top_srcdir)/tools/make-reg-dotc register.c $(srcdir) \
 			$(plugin_src) $(DISSECTOR_SRC) ; \
 	fi
 

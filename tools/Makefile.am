@@ -72,6 +72,8 @@ EXTRA_DIST = \
 	dfilter-test.py 				\
 	fuzz-test.sh					\
 	lex.py						\
+	make-reg-dotc					\
+	make-reg-dotc.py				\
 	msnchat						\
 	netscreen2dump.py				\
 	pkt-from-core.py				\
