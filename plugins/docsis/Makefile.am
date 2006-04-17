@@ -24,10 +24,17 @@
 
 INCLUDES = -I$(top_srcdir) -I$(includedir)
 
+include Makefile.common
+
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = docsis.la
-docsis_la_SOURCES = packet-intrngreq.c packet-type29ucd.c packet-docsis.c packet-bpkmattr.c packet-dsarsp.c packet-macmgmt.c packet-rngrsp.c packet-bpkmreq.c packet-dscack.c packet-map.c packet-tlv.c packet-bpkmrsp.c packet-dscreq.c packet-regack.c packet-uccreq.c packet-dscrsp.c packet-regreq.c packet-uccrsp.c packet-dsaack.c packet-dsdreq.c packet-regrsp.c packet-ucd.c packet-dsareq.c packet-dsdrsp.c packet-rngreq.c packet-vendor.c packet-docsis.h packet-tlv.h moduleinfo.h packet-dccack.c packet-dccreq.c  packet-dccrsp.c  packet-dcd.c
+docsis_la_SOURCES = \
+	plugin.c \
+	register.c \
+	moduleinfo.h \
+	$(DISSECTOR_SRC) \
+	$(DISSECTOR_INCLUDES)
 docsis_la_LDFLAGS = -module -avoid-version
 docsis_la_LIBADD = @PLUGIN_LIBS@
 
@@ -35,6 +42,59 @@ docsis_la_LIBADD = @PLUGIN_LIBS@
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
+
+#
+# Build "register.c", which contains a function "register_all_protocols()"
+# that calls the register routines for all protocols.
+#
+# We do this by scanning sources.  If that turns out to be too slow,
+# maybe we could just require every .o file to have an register routine
+# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
+#
+# Formatting conventions:  The name of the proto_register_* routines must
+# start in column zero, or must be preceded only by "void " starting in
+# column zero, and must not be inside #if.
+#
+# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+#
+# For some unknown reason, having a big "for" loop in the Makefile
+# to scan all the files doesn't work with some "make"s; they seem to
+# pass only the first few names in the list to the shell, for some reason.
+#
+# Therefore, we have a script to generate the "register.c" file.
+#
+# The first argument is the name of the file to write.
+# The second argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
+register.c: $(DISSECTOR_SRC) $(top_srcdir)/tools/make-reg-dotc \
+    $(top_srcdir)/tools/make-reg-dotc.py
+	@if test -n $(PYTHON); then \
+		echo Making register.c with python ; \
+		$(PYTHON) $(top_srcdir)/tools/make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
+	else \
+		echo Making register.c with shell script ; \
+		$(top_srcdir)/tools/make-reg-dotc register.c $(srcdir) \
+			$(plugin_src) $(DISSECTOR_SRC) ; \
+	fi
+
+#
+# Currently register.c can be included in the distribution because
+# we always build all protocol dissectors. We used to have to check
+# whether or not to build the snmp dissector. If we again need to
+# variably build something, making register.c non-portable, uncomment
+# the dist-hook line below.
+#
+# Oh, yuk.  We don't want to include "register.c" in the distribution, as
+# its contents depend on the configuration, and therefore we want it
+# to be built when the first "make" is done; however, Automake insists
+# on putting *all* source into the distribution.
+#
+# We work around this by having a "dist-hook" rule that deletes
+# "register.c", so that "dist" won't pick it up.
+#
+#dist-hook:
+#	@rm -f $(distdir)/register.c
 
 CLEANFILES = \
 	docsis \
@@ -44,5 +104,6 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
-	Makefile.nmake \
+	Makefile.common		\
+	Makefile.nmake		\
 	README
