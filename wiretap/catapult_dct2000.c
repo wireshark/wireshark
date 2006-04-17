@@ -34,13 +34,13 @@
 
 #include "catapult_dct2000.h"
 
-#define MAX_FIRST_LINE_LENGTH      1024
+#define MAX_FIRST_LINE_LENGTH      200
 #define MAX_TIMESTAMP_LINE_LENGTH  100
 #define MAX_LINE_LENGTH            32000
+#define MAX_SECONDS_CHARS          16
 #define MAX_SUBSECOND_DECIMALS     4
 #define MAX_CONTEXT_NAME           64
 #define MAX_PROTOCOL_NAME          64
-#define MAX_SECONDS_CHARS          16
 #define MAX_PORT_DIGITS            2
 #define AAL_HEADER_CHARS           12
 
@@ -189,7 +189,8 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* First line needs to contain at least as many characters as magic */
 
     read_new_line(wth->fh, &offset, &firstline_length);
-    if ((size_t)firstline_length < strlen(catapult_dct2000_magic))
+    if (((size_t)firstline_length < strlen(catapult_dct2000_magic)) ||
+        firstline_length >= MAX_FIRST_LINE_LENGTH)
     {
         return 0;
     }
@@ -215,9 +216,10 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Store this offset in in wth->capture->catapult_dct2000  */
 
     read_new_line(wth->fh, &offset, &(file_externals->secondline_length));
-    if (!get_file_time_stamp(&timestamp, &usecs))
+    if ((file_externals->secondline_length >= MAX_TIMESTAMP_LINE_LENGTH) ||
+        (!get_file_time_stamp(&timestamp, &usecs)))
     {
-        /* Give up if time wasn't valid */
+        /* Give up if file time line wasn't valid */
         g_free(file_externals);
         return 0;
     }
@@ -775,10 +777,12 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     int  port_digits = 0;
     char port_number_string[MAX_PORT_DIGITS+1];
     int  protocol_chars = 0;
-    char seconds_buff[MAX_SECONDS_CHARS];
+
+    char seconds_buff[MAX_SECONDS_CHARS+1];
     int  seconds_chars;
-    char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS];
+    char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS+1];
     int  subsecond_decimals_chars;
+
     gboolean atm_header_present = FALSE;
 
     /* Read context name until find '.' */
@@ -826,7 +830,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
 
     /* Now for the protocol name */
     for (protocol_chars = 0;
-         (linebuff[n] != '/') && (protocol_chars <= MAX_PROTOCOL_NAME) &&
+         (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) &&
          (n < MAX_LINE_LENGTH);
          n++, protocol_chars++)
     {

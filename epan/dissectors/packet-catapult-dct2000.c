@@ -88,7 +88,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8      direction;
     tvbuff_t    *next_tvb;
     int         encap;
-    union wtap_pseudo_header temp_pseudo_header;
     dissector_handle_t protocol_handle = 0;
     int sub_dissector_result = 0;
 
@@ -158,14 +157,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                            tvb_get_ephemeral_string(tvb, protocol_start, protocol_length));
 
 
-
-    /* Copy pseudo header info stored in dct2000 entry back up to start
-       of structure. Use a temp buffer as address ranges will overlap!
-    */
-    memcpy(&temp_pseudo_header, &(pinfo->pseudo_header->dct2000.inner_pseudo_header),
-           sizeof(pinfo->pseudo_header->dct2000.inner_pseudo_header));
-    memcpy((pinfo->pseudo_header), &temp_pseudo_header,
-           sizeof(pinfo->pseudo_header->dct2000.inner_pseudo_header));
+    /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
+       the pseudo-header needed (in some cases) by the ethereal dissector */
 
 
     /***********************************************************************/
@@ -327,16 +320,16 @@ void proto_register_catapult_dct2000(void)
     register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
 
     /* Preferences */
-	catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000,
-											          proto_reg_handoff_catapult_dct2000);
+    catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000,
+                                                      proto_reg_handoff_catapult_dct2000);
 
     /* Determines whether non-supported protocols should be shown anyway */
-	prefs_register_bool_preference(catapult_dct2000_module, "board_ports_only",
-	                               "Only show known 'board-port' protocols",
-	                               "Don't show other protocols, i.e. unknown board-port "
+    prefs_register_bool_preference(catapult_dct2000_module, "board_ports_only",
+                                   "Only show known 'board-port' protocols",
+                                   "Don't show other protocols, i.e. unknown board-port "
                                    "protocols and non-standard primitives between "
                                    "contexts on the same card.  The capture file "
                                    "needs to be (re)-loaded before effect will be seen",
-	                               &catapult_dct2000_board_ports_only);
+                                   &catapult_dct2000_board_ports_only);
 }
 

@@ -502,14 +502,14 @@ struct k12_phdr {
 struct wtap;
 struct catapult_dct2000_phdr
 {
-    long seek_off;
-    struct wtap *wth;
-    union
-    {
-        struct isdn_phdr  isdn;
-        struct atm_phdr   atm;
-        struct p2p_phdr   p2p;
-    } inner_pseudo_header;
+	union
+	{
+		struct isdn_phdr  isdn;
+		struct atm_phdr   atm;
+		struct p2p_phdr   p2p;
+	} inner_pseudo_header;
+	long seek_off;
+	struct wtap *wth;
 };
 
 struct lapd_phdr {
