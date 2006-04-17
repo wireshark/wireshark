@@ -236,7 +236,7 @@
 	of the world. 
 	</para>
 	<para>
-	For that reason, the earth is splitted into several different time zones, 
+	For that reason, the earth is split into several different time zones, 
 	each zone with a local time that corresponds to the local sunset.
 	</para>
 	<para>
@@ -338,18 +338,51 @@
 	So what's the relationship between Ethereal and time zones anyway? 
 	</para>
 	<para>
-	All capture file formats known save the time stamps in UTC format. The 
-	capturing computer may have to convert the time stamps from local time to 
-	UTC before it saves them to the capture file. 
+	Ethereal's native capture file format (libpcap format), and some
+	other capture file formats, such as the Windows Sniffer,
+	EtherPeek, AiroPeek, and Sun snoop formats, save the arrival
+	time of packets as UTC values.  UN*X systems, and "Windows NT"
+	systems (Windows NT 4.0, Windows 2000, Windows XP, Windows
+	Server 2003, Windows Vista), represent time internally as UTC,
+	so, when Ethereal or tcpdump/WinDump is capturing, no conversion
+	is necessary; however, if the system time zone is not set
+	correctly, the system's UTC time might not be correctly set even
+	if the system clock appears to display correct local time. 
+	"Windows OT" systems (Windows 95, Windows 98, Windows Me)
+	represent time internally as local time, so, when capturing,
+	WinPcap has to convert the time to UTC before supplying it to
+	Ethereal or WinDump; if the system's time zone is not set
+	correctly, that conversion will not be done correctly.
 	</para>
 	<para>
-	Ethereal in turn will display the time stamps always in local time. The 
-	displaying computer will convert them from UTC to local time and displays 
-	this (local) time.
+	Other capture file formats, such as the Microsoft Network
+	Monitor, DOS-based Sniffer, and Network Instruments Observer
+	formats, save the arrival time of packets as local time values.
+	</para>
+	<para>
+	Internally to Ethereal, time stamps are represented in UTC; this
+	means that, when reading capture files that save the arrival
+	time of packets as local time values, Ethereal must convert
+	those local time values to UTC values.
+	</para>
+	Ethereal in turn will display the time stamps always in local
+	time.  The displaying computer will convert them from UTC to
+	local time and displays this (local) time.  For capture files
+	saving the arrival time of packets as UTC values, this means
+	that the arrival time will be displayed as the local time in
+	your time zone, which might not be the same as the arrival time
+	in the time zone in which the packet was captured.  For capture
+	files saving the arrival time of packets as local time values,
+	the conversion to UTC will be done using your time zone's offset
+	from UTC and DST rules, which means the conversion will not be
+	done correctly; the conversion back to local time for display
+	might undo this correctly, in which case the arrival time will
+	be displayed as the arrival time in which the packet was
+	captured.
 	</para>
 	<para>
     <table id="ChAdvTabTimezones" frame="none">
-      <title>Time zone examples (without DST)</title>
+      <title>Time zone examples for UTC arrival times (without DST)</title>
       <tgroup cols="7">
 <!--	<colspec colnum="1" colwidth="72pt"/>
 	  <colspec colnum="2" colwidth="80pt"/>
@@ -399,10 +432,11 @@
 	</para>
 	<para>
 	An example:
-	Let's assume that someone in Los Angeles captured a packet at exactly 2 
-	o'clock local time and sents you this capture file. The capture 
-	file's time stamp will be represented in UTC as 10 o'clock. You are located 
-	in Berlin and will see 11 o'clock on your Ethereal display. 
+	Let's assume that someone in Los Angeles captured a packet with
+	Ethereal at exactly 2 o'clock local time and sents you this
+	capture file.  The capture file's time stamp will be represented
+	in UTC as 10 o'clock.  You are located in Berlin and will see 11
+	o'clock on your Ethereal display.
 	</para>
 	<para>
 	Now you have a phone call, video conference or internet meeting with that 
