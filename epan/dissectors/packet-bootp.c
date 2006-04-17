@@ -24,14 +24,14 @@
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  * DOCSIS(TM) 2.0 Radio Frequency Interface Specification
- *     http://www.cablemodem.com/downloads/specs/CM-SP-RFIv2.0-I08-050408.pdf
+ *     http://www.cablemodem.com/downloads/specs/CM-SP-RFI2.0-I10-051209.pdf
  * PacketCable(TM) 1.0 MTA Device Provisioning Specification
- *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I10-040730.pdf
+ *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I11-050812.pdf
  *     http://www.cablelabs.com/specifications/archives/PKT-SP-PROV-I05-021127.pdf (superseded by above)
  * PacketCable(TM) 1.5 MTA Device Provisioning Specification
- *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV1.5-I01-050128.pdf
+ *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV1.5-I02-050812.pdf
  * CableHome(TM) 1.1 Specification
- *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I08-050408.pdf
+ *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I11-060407.pdf
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1745,14 +1745,21 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 		case special:
 			if ( subopt == 8 ) {	/* OUI */
-				if (subopt_len != 3) {
+				/* CableLabs specs treat 43.8 inconsistently 
+				 * as either binary (3b) or string (6b) */
+				if (subopt_len == 3) {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: suboption length isn't 3", subopt);
-					break;
-				}
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: OUI = %s",
-					subopt, bytes_to_str_punct(tvb_get_ptr(tvb, suboptoff, 3), 3, ':'));
+						"Suboption %d: OUI = %s", subopt,
+						bytes_to_str_punct(tvb_get_ptr(tvb, suboptoff, 3), 3, ':'));
+				} else if (subopt_len == 6) {
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+						"Suboption %d: OUI = \"%s\"", subopt,
+						tvb_format_stringzpad(tvb, suboptoff, subopt_len));
+				} else {
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+						"Suboption %d: suboption length isn't 3 or 6", subopt);
+                                }
+				break;
 			} else if ( subopt == 11 ) { /* Address Realm */
 				if (subopt_len != 1) {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
@@ -2119,52 +2126,59 @@ static const value_string pkt_mdc_mib_orgs[] = {
 };
 
 /* DOCSIS Cable Modem device capabilities (option 60). */
-/* XXX we should rename all PKT_CM_* variables to DOCSIS_CM_* */
-#define PKT_CM_TLV_OFF 12
+#define DOCS_CM_TLV_OFF 12
 
-#define PKT_CM_CONCAT_SUP	0x3031  /* "01" */
-#define PKT_CM_DOCSIS_VER	0x3032  /* "02" */
-#define PKT_CM_FRAG_SUP		0x3033  /* "03" */
-#define PKT_CM_PHS_SUP		0x3034  /* "04" */
-#define PKT_CM_IGMP_SUP		0x3035  /* "05" */
-#define PKT_CM_PRIV_SUP		0x3036  /* "06" */
-#define PKT_CM_DSAID_SUP	0x3037  /* "07" */
-#define PKT_CM_USID_SUP		0x3038  /* "08" */
-#define PKT_CM_FILT_SUP		0x3039  /* "09" */
-#define PKT_CM_TET_MI		0x3041  /* "0A" */
-#define PKT_CM_TET_MI_LC	0x3061  /* "0a" */
-#define PKT_CM_TET		0x3042  /* "0B" */
-#define PKT_CM_TET_LC		0x3062  /* "0b" */
-#define PKT_CM_DCC_SUP		0x3043  /* "0C" */
-#define PKT_CM_DCC_SUP_LC	0x3063  /* "0c" */
+#define DOCS_CM_CONCAT_SUP	0x3031  /* "01" */
+#define DOCS_CM_DOCSIS_VER	0x3032  /* "02" */
+#define DOCS_CM_FRAG_SUP	0x3033  /* "03" */
+#define DOCS_CM_PHS_SUP		0x3034  /* "04" */
+#define DOCS_CM_IGMP_SUP	0x3035  /* "05" */
+#define DOCS_CM_PRIV_SUP	0x3036  /* "06" */
+#define DOCS_CM_DSAID_SUP	0x3037  /* "07" */
+#define DOCS_CM_USID_SUP	0x3038  /* "08" */
+#define DOCS_CM_FILT_SUP	0x3039  /* "09" */
+#define DOCS_CM_TET_MI		0x3041  /* "0A" */
+#define DOCS_CM_TET_MI_LC	0x3061  /* "0a" */
+#define DOCS_CM_TET		0x3042  /* "0B" */
+#define DOCS_CM_TET_LC		0x3062  /* "0b" */
+#define DOCS_CM_DCC_SUP		0x3043  /* "0C" */
+#define DOCS_CM_DCC_SUP_LC	0x3063  /* "0c" */
+#define DOCS_CM_IPFILT_SUP	0x3044  /* "0D" */
+#define DOCS_CM_IPFILT_SUP_LC	0x3064  /* "0d" */
+#define DOCS_CM_LLCFILT_SUP	0x3045  /* "0E" */
+#define DOCS_CM_LLCFILT_SUP_LC	0x3065  /* "0e" */
 
-static const value_string pkt_cm_type_vals[] = {
-	{ PKT_CM_CONCAT_SUP,	"Concatenation Support" },
-	{ PKT_CM_DOCSIS_VER,	"DOCSIS Version" },
-	{ PKT_CM_FRAG_SUP,	"Fragmentation Support" },
-	{ PKT_CM_PHS_SUP,	"PHS Support" },
-	{ PKT_CM_IGMP_SUP,	"IGMP Support" },
-	{ PKT_CM_PRIV_SUP,	"Privacy Support" },
-	{ PKT_CM_DSAID_SUP,	"Downstream SAID Support" },
-	{ PKT_CM_USID_SUP,	"Upstream SID Support" },
-	{ PKT_CM_FILT_SUP,	"Optional Filtering Support" },
-	{ PKT_CM_TET_MI,	"Transmit Equalizer Taps per Modulation Interval" },
-	{ PKT_CM_TET_MI_LC,	"Transmit Equalizer Taps per Modulation Interval" },
-	{ PKT_CM_TET,		"Number of Transmit Equalizer Taps" },
-	{ PKT_CM_TET_LC,	"Number of Transmit Equalizer Taps" },
-	{ PKT_CM_DCC_SUP,	"DCC Support" },
-	{ PKT_CM_DCC_SUP_LC,	"DCC Support" },
+static const value_string docs_cm_type_vals[] = {
+	{ DOCS_CM_CONCAT_SUP,	"Concatenation Support" },
+	{ DOCS_CM_DOCSIS_VER,	"DOCSIS Version" },
+	{ DOCS_CM_FRAG_SUP,	"Fragmentation Support" },
+	{ DOCS_CM_PHS_SUP,	"PHS Support" },
+	{ DOCS_CM_IGMP_SUP,	"IGMP Support" },
+	{ DOCS_CM_PRIV_SUP,	"Privacy Support" },
+	{ DOCS_CM_DSAID_SUP,	"Downstream SAID Support" },
+	{ DOCS_CM_USID_SUP,	"Upstream SID Support" },
+	{ DOCS_CM_FILT_SUP,	"Optional Filtering Support" },
+	{ DOCS_CM_TET_MI,	"Transmit Equalizer Taps per Modulation Interval" },
+	{ DOCS_CM_TET_MI_LC,	"Transmit Equalizer Taps per Modulation Interval" },
+	{ DOCS_CM_TET,		"Number of Transmit Equalizer Taps" },
+	{ DOCS_CM_TET_LC,	"Number of Transmit Equalizer Taps" },
+	{ DOCS_CM_DCC_SUP,	"DCC Support" },
+	{ DOCS_CM_DCC_SUP_LC,	"DCC Support" },
+	{ DOCS_CM_IPFILT_SUP,	"IP Filters Support" },
+	{ DOCS_CM_IPFILT_SUP_LC,	"IP Filters Support" },
+	{ DOCS_CM_LLCFILT_SUP,	"LLC Filters Support" },
+	{ DOCS_CM_LLCFILT_SUP_LC,	"LLC Filters Support" },
 	{ 0, NULL }
 };
 
-static const value_string pkt_cm_version_vals[] = {
+static const value_string docs_cm_version_vals[] = {
 	{ 0x3030,	"DOCSIS 1.0" },
 	{ 0x3031,	"DOCSIS 1.1" },
 	{ 0x3032,	"DOCSIS 2.0" },
 	{ 0,		NULL }
 };
 
-static const value_string pkt_cm_privacy_vals[] = {
+static const value_string docs_cm_privacy_vals[] = {
 	{ 0x3030,	"BPI Support" },
 	{ 0x3031,	"BPI Plus Support" },
 	{ 0,		NULL }
@@ -2405,7 +2419,7 @@ static void
 dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
 	unsigned long raw_val;
-	int off = PKT_CM_TLV_OFF + voff;
+	int off = DOCS_CM_TLV_OFF + voff;
 	int tlv_len, i;
 	guint8 asc_val[3] = "  ";
 	proto_item *ti;
@@ -2436,14 +2450,14 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 				    (tlv_len * 2) + 4,
 				    "0x%s: %s = ",
 				    tvb_format_text(tvb, off, 2),
-				    val_to_str(raw_val, pkt_cm_type_vals, "unknown"));
+				    val_to_str(raw_val, docs_cm_type_vals, "unknown"));
 				switch (raw_val) {
-					case PKT_CM_CONCAT_SUP:
-					case PKT_CM_FRAG_SUP:
-					case PKT_CM_PHS_SUP:
-					case PKT_CM_IGMP_SUP:
-					case PKT_CM_DCC_SUP:
-					case PKT_CM_DCC_SUP_LC:
+					case DOCS_CM_CONCAT_SUP:
+					case DOCS_CM_FRAG_SUP:
+					case DOCS_CM_PHS_SUP:
+					case DOCS_CM_IGMP_SUP:
+					case DOCS_CM_DCC_SUP:
+					case DOCS_CM_DCC_SUP_LC:
 						for (i = 0; i < tlv_len; i++) {
 							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
 							proto_item_append_text(ti,
@@ -2453,32 +2467,41 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 							    tvb_format_text(tvb, off + 4 + (i * 2), 2) );
 						}
 						break;
-					case PKT_CM_DOCSIS_VER:
+					case DOCS_CM_DOCSIS_VER:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
 						proto_item_append_text(ti,
 						    "%s (%s)",
-						    val_to_str(raw_val, pkt_cm_version_vals, "Reserved"),
+						    val_to_str(raw_val, docs_cm_version_vals, "Reserved"),
 						    tvb_format_text(tvb, off + 4, 2) );
 						break;
-					case PKT_CM_PRIV_SUP:
+					case DOCS_CM_PRIV_SUP:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
 						proto_item_append_text(ti,
 						    "%s (%s)",
-						    val_to_str(raw_val, pkt_cm_privacy_vals, "Reserved"),
+						    val_to_str(raw_val, docs_cm_privacy_vals, "Reserved"),
 						    tvb_format_text(tvb, off + 4, 2) );
 						break;
-					case PKT_CM_DSAID_SUP:
-					case PKT_CM_USID_SUP:
-					case PKT_CM_TET_MI:
-					case PKT_CM_TET_MI_LC:
-					case PKT_CM_TET:
-					case PKT_CM_TET_LC:
+					case DOCS_CM_DSAID_SUP:
+					case DOCS_CM_USID_SUP:
+					case DOCS_CM_TET_MI:
+					case DOCS_CM_TET_MI_LC:
+					case DOCS_CM_TET:
+					case DOCS_CM_TET_LC:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
 						proto_item_append_text(ti,
 						    "%lu", raw_val);
 						break;
-					case PKT_CM_FILT_SUP:
+					case DOCS_CM_IPFILT_SUP:
+					case DOCS_CM_IPFILT_SUP_LC:
+					case DOCS_CM_LLCFILT_SUP:
+					case DOCS_CM_LLCFILT_SUP_LC:
+						tvb_memcpy (tvb, asc_val, off + 4, 4);
+						raw_val = strtoul(asc_val, NULL, 16);
+						proto_item_append_text(ti,
+						    "%lu", raw_val);
+						break;
+					case DOCS_CM_FILT_SUP:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
 						if (raw_val & 0x01)
