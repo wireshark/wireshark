@@ -376,7 +376,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 
 # create txt single page file
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
-	@ echo --- RELEASE NOTES - HTML ---
+	@ echo --- RELEASE NOTES - TXT ---
 	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(ELINKS) -dump -dump-width 72 > $@
 	
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
