@@ -56,6 +56,10 @@
 	XXX - What about line wrapping (maximum line length) and CRNL conversions?
     </para>
     <para>
+	The stream content won't be updated while doing a live capture. 
+	To get the latest content you'll have to reopen the dialog.
+    </para>
+    <para>
       You can choose from the following actions:
       <orderedlist>
 	<listitem>
