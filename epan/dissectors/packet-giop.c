@@ -790,6 +790,7 @@ GHashTable *giop_objkey_hash = NULL; /* hash */
 
 
 gboolean giop_desegment = TRUE;
+static const char *giop_ior_file = "IOR.txt";
 
 /*
  * ------------------------------------------------------------------------------------------+
@@ -1391,7 +1392,7 @@ static void giop_init(void) {
   giop_complete_reply_hash = g_hash_table_new(complete_reply_hash_fn, complete_reply_equal_fn);
 
 
-  read_IOR_strings_from_file("IOR.txt", 600); /* testing */
+  read_IOR_strings_from_file(giop_ior_file, 600);
 
 
 }
@@ -4312,6 +4313,8 @@ proto_register_giop (void)
     "Whether the GIOP dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &giop_desegment);
+  prefs_register_string_preference(giop_module, "ior_txt", "Stringified IORs",
+    "File containing stringified IORs, one per line.", &giop_ior_file);
 
   /*
    * Init the giop user module hash tables here, as giop users
