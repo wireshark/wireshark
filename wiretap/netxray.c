@@ -210,7 +210,7 @@ static double TpS_otherpod2[] = { 1e6, 0.0, 0.0 };
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD2. 
  */
-static double TpS_gigpod2[] = { 1e9, 0.0, 0.0 };
+static double TpS_gigpod2[] = { 1e9, 0.0, 20000000.0 };
 #define NUM_NETXRAY_TIMEUNITS_GIGPOD2 (sizeof TpS_gigpod2 / sizeof TpS_gigpod2[0])
 
 /* Version number strings. */
@@ -567,6 +567,16 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_gigpod2[hdr.timeunit];
+                                /*
+                                 * XXX: start time stamp in the one capture file examined of this type was 0;
+                                 *      We'll assume the start time handling is the same as for other pods.
+                                 *
+                                 * At least for 002.002 and 002.003
+                                 * captures, the start time stamp is 0,
+                                 * not the value in the file.
+                                 */
+                                if (version_minor == 2 || version_minor == 3)
+                                        start_timestamp = 0.0;
 				break;
 
 			default:
