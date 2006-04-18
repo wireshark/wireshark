@@ -2613,7 +2613,15 @@ v1_attrval2str(int ike_p1, guint16 att_type, guint32 value)
     { 16,	"4096 bit MODP group" },
     { 17,	"6144 bit MODP group" },
     { 18,	"8192 bit MODP group" },
-    { 0,	NULL },
+    { 19,       "256-bit random curve group" },
+    { 20,       "384-bit random curve group" },
+    { 21,       "521-bit random curve group" },
+    { 22,       "192-bit random curve group" },
+    { 23,       "EC2N group over GF[2^163]" },
+    { 24,       "224-bit random curve group" },
+    { 25,       "EC2N group over GF[2^233]" },
+    { 26,       "EC2N group over GF[2^233]" },
+    { 0,	NULL }
   };
 
   static const value_string vs_v1_attrval_grptype[] = {
