@@ -7,30 +7,54 @@
   
   <section id="ChAdvIntroduction"><title>Introduction</title>
   <para>
-  In this chapter some advanced features of Ethereal will be described.
+  In this chapter some of the advanced features of Ethereal will be described.
   </para>
   </section>
   
   <section id="ChAdvFollowTCPSection"><title>Following TCP streams</title>
     <para>
-      There will be occasions when you would like to see the data from a TCP 
-      session in the order that the application layer sees it. Perhaps 
-      you are looking for passwords in a Telnet stream, or you are 
-      trying to make sense of a data stream.  If so, Ethereal's ability to 
-      follow a TCP stream will be useful to you. 
+	  If you are working with TCP based protocols it can be very helpful
+      to see the data from a TCP stream in the way that the application 
+	  layer sees it. 
+	  Perhaps you are looking for passwords in a Telnet stream, or you 
+	  are trying to make sense of a data stream.
+	  Maybe you just need a display filter to show only the packets of that 
+	  TCP stream.
+	  If so, Ethereal's ability to follow a TCP stream will be useful to you. 
     </para>
     <para>
-      Simply select a TCP packet in the stream/connection you are interested 
-      in and then select the Follow TCP Stream menu item from the Ethereal 
-      Tools menu.  Ethereal will pop up a separate window with all the data 
-      from the TCP stream laid out in order, as shown in 
-      <xref linkend="ChAdvFollowStream"/>.
+      Simply select a TCP packet in the packet list of the stream/connection 
+	  you are interested in and then select the Follow TCP Stream menu item 
+	  from the Ethereal Tools menu (or use the context menu in the packet 
+	  list).
+	  Ethereal will set an appropriate display filter and pop up a dialog
+	  box with all the data from the TCP stream laid out in order, 
+	  as shown in <xref linkend="ChAdvFollowStream"/>.
     </para>
-	<section><title>The "Follow TCP stream" dialog box </title>
+    <note>
+      <title>Note!</title>
+      <para>
+	It is worthwhile noting that Follow TCP Stream installs a display filter 
+	to select all the packets in the TCP stream you have selected.
+      </para>
+    </note>
+	<section><title>The "Follow TCP Stream" dialog box </title>
     <figure id="ChAdvFollowStream">
       <title>The "Follow TCP Stream" dialog box</title>
       <graphic entityref="EtherealFollowStream" format="PNG"/>
     </figure>
+    <para>
+	The stream content is displayed in the same sequence as it appeared on 
+	the network. 
+	Traffic from A to B is marked in red, while traffic from B to A is 
+	marked in blue. 
+	If you like, you can change these colors in the Edit/Preferences 
+	"Colors" page.
+    </para>
+    <para>
+	None printable characters will be replaced by dots.
+	XXX - What about line wrapping (maximum line length) and CRNL conversions?
+    </para>
     <para>
       You can choose from the following actions:
       <orderedlist>
@@ -61,20 +85,20 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Close</command> Close this dialog box.
+	    <command>Close</command> Close this dialog box, leaving the current 
+		display filter in effect.
 	  </para>
 	</listitem>
       </orderedlist>
     </para>
     <para>
-      You can then choose to view the data in one of the following formats:
+      You can choose to view the data in one of the following formats:
       <orderedlist>
 	<listitem>
 	  <para>
 	    <command>ASCII</command>. In this view you see the data from 
-	    each end in ASCII, but alternating according to when each 
-	    end sent data. Unfortunately, non-printing characters do not 
-	    print.
+	    each direction in ASCII. Obviously best for ASCII based protocols, 
+		e.g. HTTP.
 	  </para>
 	</listitem>
 	<listitem>
@@ -85,7 +109,9 @@
 	<listitem>
 	  <para>
 	    <command>HEX Dump</command>. This allows you to see all the 
-	    data, but you lose the ability to read it in ASCII.
+	    data. 
+		This will require a lot of screen space and is best used with 
+		binary protocols.
 	  </para>
 	</listitem>
 	<listitem>
@@ -97,18 +123,13 @@
 	<listitem>
 	  <para>
 	    <command>Raw</command>. This allows you to load the unaltered stream 
-		data into a different program for further examination.
+		data into a different program for further examination. 
+		The display will look the same as the ASCII setting, but "Save As" 
+		will result in a binary file.
 	  </para>
 	</listitem>
       </orderedlist>
     </para>
-    <note>
-      <title>Note!</title>
-      <para>
-	It is worthwhile noting that Follow TCP Stream installs a filter 
-	to select all the packets in the TCP stream you have selected.
-      </para>
-    </note>
   </section>
   </section>
 
@@ -120,7 +141,7 @@
 	</para>
     <para>
 	While packets are captured, each packet is time stamped as it comes in.
-	These time stamps will be saved to the capture file, so they will be 
+	These time stamps will be saved to the capture file, so they also will be 
 	available for (later) analysis. 
 	</para>
 	<para>
@@ -135,7 +156,8 @@
 	The internal format that Ethereal uses to keep a packet time stamp consists 
 	of the date (in days since 1.1.1970) and the time of day (in nanoseconds 
 	since midnight). You can adjust the way Ethereal displays the time stamp data 
-	in the packet list, see <xref linkend="ChUseViewMenuSection"/> for details.
+	in the packet list, see the "Time Display Format" item in the 
+	<xref linkend="ChUseViewMenuSection"/> for details.
 	</para>
 	<para>
 	While reading or writing capture files, Ethereal converts the time stamp 
@@ -152,7 +174,7 @@
 	Every capture file format that Ethereal knows support time stamps. 
 	The time stamp precision 
 	supported by a specific capture file format differs widely and varies 
-	from one second "0" to one nanosecond "0.123456789" (or even beyond?). 
+	from one second "0" to one nanosecond "0.123456789". 
 	Most file formats store the time stamps with a fixed precision 
 	(e.g. microseconds), while some file formats are even capable to store the 
 	time stamp precision itself (whatever the benefit may be).
@@ -244,8 +266,8 @@
 	Time (military and aviation). The older term GMT (Greenwich Mean Time) 
 	shouldn't be used as it is slightly incorrect (up to 0.9 seconds 
 	difference to UTC). 
-	The UTC base time equals to 0 and all time zones have an offset to UTC
-	between -12 to +14 hours!
+	The UTC base time equals to 0 (based at Greenwich, England) and all 
+	time zones have an offset to UTC between -12 to +14 hours!
 	</para>
 	<para>
 	For example: If you live in 
@@ -462,21 +484,23 @@
   <section id="ChAdvReassemblySection"><title>Packet Reassembling</title>
     <section><title>What is it?</title>
     <para>
-	Often network protocols needs to transport large chunks of data, which are 
+	Network protocols often need to transport large chunks of data, which are 
 	complete in itself, e.g. when transferring a file. The underlying 
 	protocol might not be able to handle that chunk size (e.g. limitation of 
 	the network packet size), or is stream-based like TCP, which doesn't know 
 	data chunks at all.
     </para>
     <para>
-	In that case the network protocol has to handle that chunks itself and 
-	(if required) spreading the data over multiple packets. It also needs a 
-	mechanism to find back the chunk boundaries on the receiving side.
+	In that case the network protocol has to handle that chunk boundaries 
+	itself and (if required) spreading the data over multiple packets. 
+	It obviously also needs a mechanism to find back the chunk boundaries on 
+	the receiving side.
     </para>
 	<tip><title>Tip!</title>
     <para>
 	Ethereal calls this mechanism reassembling, although a specific protocol  
-	specification might use a different term for this.
+	specification might use a different term for this (e.g. desegmentation, 
+	defragmentation, ...).
 	</para>
 	</tip>
     </section>
@@ -486,8 +510,17 @@
 	implemented to find, decode and display these chunks of data. 
 	Ethereal will try to find the corresponding packets of this chunk, 
 	and will show the combined data as additional pages in the 
-	"Packet Bytes" pane, see <xref linkend="ChUsePacketBytesPaneSection"/>.
+	"Packet Bytes" pane
+	(for information about this pane, see <xref 
+	linkend="ChUsePacketBytesPaneSection"/>).
     </para>
+    <para>
+    <figure id="ChAdvEtherealBytesPaneTabs">
+      <title>The "Packet Bytes" pane with a reassembled tab</title>
+      <graphic entityref="EtherealBytesPaneTabs" format="PNG"/>
+    </figure>
+    </para>
+	
     <note><title>Note!</title>
     <para>
 	Reassembling might take place at several protocol layers, so it's possible 
@@ -541,48 +574,83 @@
 
   <section id="ChAdvNameResolutionSection"><title>Name Resolution</title>
     <para>
-	Name resolution tries to resolve some of the numerical address values to 
-	human readable names. There are two possible ways to do this 
+	Name resolution tries to resolve some of the numerical address values into 
+	a human readable format. There are two possible ways to do this 
 	conversations, depending on the resolution to be done: calling 
 	system/network services (like the gethostname function) and/or evaluate 
-	from Ethereal specific configuration files. If there are both features 
-	available, Ethereal will first try the system services and then fall back 
-	to it's own configuration files. XXX - is this really true? For details 
-	about the configuration files Ethereal uses for name resolution and alike, 
-	see <xref linkend="AppFiles"/>.
+	from Ethereal specific configuration files. 
+	For details about the configuration files Ethereal uses for name 
+	resolution and alike, see <xref linkend="AppFiles"/>.
 	</para>
+    <para>
+	The name resolution feature can be en-/disabled separately for the 
+	protocol layers of the following sections.
+    </para>
+	
+	<section><title>Name Resolution drawbacks</title>
+    <para>
+	Name resolution can be invaluable while working with Ethereal and may 
+	save you even hours of work. Unfortunately, it also has it's drawbacks.
+    </para>
+      <itemizedlist>
+	<listitem>
 	<para>
-	However, be prepared that this conversion often will fail, e.g. the name 
-	to be resolved might simply be unknown by the servers asked and not found 
-	in the configuration files.
+	<command>Name resolution will often fail.</command> The name to be 
+	resolved might simply be unknown by the name servers asked or the servers 
+	are just not available and the name is also not found in Ethereal's 
+	configuration files.
     </para>
-    <note><title>Note!</title>
+	</listitem>
+	<listitem>
     <para>
-	You may see packets to/from your machine in your capture file, which are
-	caused by name resolution network services (e.g. DNS packets).
-    </para>
-    </note>
-    <note><title>Note!</title>
-    <para>
-	The resolved names are not stored in the capture file or somewhere else, 
-	so the resolved names might not be available if you open the capture file
+	<command>The resolved names are not stored in the capture file or 
+	somewhere else.</command>
+	So the resolved names might not be available if you open the capture file
 	later or on a different machine.
+	Each time you open a capture file it may look "slightly different", 
+	maybe simply because you can't connect a name server (which you could 
+	connect before).
     </para>
-    </note>
+	</listitem>
+	<listitem>
+    <para>
+	<command>DNS may add additional packets to your capture file.</command>
+	You may see packets to/from your machine in your capture file, which are
+	caused by name resolution network services of the machine Ethereal 
+	captures from. 
+	XXX - are there any other such packets than DNS ones?
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+	<command>Resolved DNS names are cached by Ethereal.</command>
+	This is required for acceptable performance.
+	However, if the name resolution information
+	should change while Ethereal is running, 
+	Ethereal won't notice a change to the name resolution information once 
+	it's get cached. If this information changes while Ethereal is running, 
+	e.g. a new DHCP lease takes effect, Ethereal won't notice it.
+	XXX - is this true for all or only for DNS info?
+    </para>
+	</listitem>
+      </itemizedlist>
     <tip><title>Tip!</title>
     <para>
 	The name resolution in the packet list is done while the list is filled.
 	If a name could be resolved after a packet was added to the list, that 
-	entry won't be changed. As the name resolution results are cached, you 
-	can use "View/Reload" to rebuild the packet list, this time with the 
-	correctly resolved names.
+	former entry won't be changed. As the name resolution results are cached, 
+	you can use "View/Reload" to rebuild the packet list, this time with the 
+	correctly resolved names. However, this isn't possible while a capture is
+	in progress.
     </para>
     </tip>
-    <para>
-	The name resolution feature can be en-/disabled separately for the 
-	following protocol layers (in brackets):
-    </para>
+	</section>
+	
 	<section><title>Ethernet name resolution (MAC layer)</title>
+	<para>
+	Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to 
+	something more "human readable".
+	</para>
     <para><command>ARP name resolution (system service)</command>
 	Ethereal will ask the operating system to convert an ethernet address 
 	to the corresponding IP address (e.g. 00:09:5b:01:02:03 -> 192.168.0.1). 
@@ -599,7 +667,12 @@
 	(e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
     </para>
 	</section>
+	
 	<section><title>IP name resolution (network layer)</title>
+	<para>
+	Try to resolve an IP address (e.g. 65.208.228.223) to 
+	something more "human readable".
+	</para>
     <para><command>DNS/ADNS name resolution (system/library service)</command>
 	Ethereal will ask the operating system (or the ADNS library), 
 	to convert an IP address to the hostname associated with it 
@@ -627,15 +700,19 @@
 	DNS server(s) about the name.
 	</para>
 	<para>
-	So the real difference between DNS and ADNS comes when the system has to wait for 
-	the DNS server about a name resolution. The system call gethostname() will wait until 
-	a name is resolved or an error occurs. 
+	So the real difference between DNS and ADNS comes when the system has 
+	to wait for the DNS server about a name resolution. 
+	The system call gethostname() will wait until a name is resolved or an 
+	error occurs. 
 	If the DNS server is unavailable, this might take quite 
-	a while (several seconds).  The ADNS service will work a bit differently.
-	It will also ask the DNS server, but it won't wait for the answer. It will
-	just return to Ethereal in a very short amount of time. 
-	XXX - what does happen with the actual address field at that run? Will the 
-	response be ignored for that field?
+	a while (several seconds).
+	The ADNS service will work a bit differently.
+	It will also ask the DNS server, but it won't wait for the answer. 
+	It will	just return to Ethereal in a very short amount of time. 
+	The actual (and the following) address fields won't show the resolved 
+	name until the ADNS call returned. As mentioned above, the values get 
+	cached, so you can use View/Reload to "update" these fields to show the 
+	resolved values.
 	</para>
     <para><command>hosts name resolution (hosts file)</command>
 	If DNS name resolution failed, Ethereal will try to convert an IP address 
@@ -643,15 +720,25 @@
 	user (e.g. 65.208.228.223 -> www.ethereal.com).
     </para>
 	</section>
+	
 	<section><title>IPX name resolution (network layer)</title>
     <para><command>ipxnet name resolution (ipxnets file)</command>
 	XXX - add ipxnets name resolution explanation.
     </para>
 	</section>
+	
 	<section><title>TCP/UDP port name resolution (transport layer)</title>
+	<para>
+	Try to resolve a TCP/UDP port (e.g. 80) to 
+	something more "human readable".
+	</para>
     <para><command>TCP/UDP port conversion (system service)</command>
 	Ethereal will ask the operating system to convert a TCP or UDP port to 
 	its well known name (e.g. 80 -> http).
+    </para>
+    <para>
+	XXX - mention the role of the /etc/services file 
+	(but don't forget the files and folders section)!
     </para>
 	</section>
   </section>
@@ -713,7 +800,7 @@
 	calculation, the performance needed and many other things.
 	</para>
 	<para>
-	Further information can be found at:
+	Further information about checksums can be found at:
 	<ulink url="http://en.wikipedia.org/wiki/Checksum"/>.
 	</para>
 	</sidebar>
@@ -739,7 +826,7 @@
 	</para>
   </section>
   
-  <section><title>Checksum calculation / validation in hardware</title>
+  <section><title>Checksum offloading</title>
 	<para>
 	The checksum calculation might be done by the network driver, protocol 
 	driver or even in hardware.
@@ -760,7 +847,7 @@
 	Recent network hardware can perform advanced features such as IP checksum 
 	calculation, also known as checksum offloading.
 	The network driver won't calculate the checksum itself but simply hand 
-	over an empty (usually zero filled) checksum field to the hardware.
+	over an empty (zero or garbage filled) checksum field to the hardware.
 	</para>
 	<note><title>Note!</title>
 	<para>
@@ -772,12 +859,6 @@
 	leave the network hardware later.
 	</para>
 	</note>
-	<tip><title>Tip!</title>
-	<para>
-	The term used for checksum offloading varies between manufacturers, so 
-	you may find slightly different terms in the documentation and elsewhere.
-	</para>
-	</tip>
 	<para>
 	Checksum offloading can be confusing and having a lot of [invalid] 
 	messages on the screen can be quite annoying.
