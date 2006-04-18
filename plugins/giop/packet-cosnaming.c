@@ -1471,23 +1471,25 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
-       if (u_octet4 > 0)
-          proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_id = %s",seq);
-
+       if (u_octet4 > 0) {
+          proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_id[%u] = %s", seq, u_octet4);
+       }
+       else {
+          proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
+       }
     }
-
     g_free(seq);          /*  free buffer  */
     seq = NULL;
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
-       if (u_octet4 > 0)
-          proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_kind = %s",seq);
-
+       if (u_octet4 > 0) {
+          proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_kind[%u] = %s", seq, u_octet4);
+       }
+       else {
+          proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
+       }
     }
-
     g_free(seq);          /*  free buffer  */
     seq = NULL;
 
@@ -1568,7 +1570,7 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return tree;
 }
 
-static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
+static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
 
     gboolean be;                        /* big endianess */
     proto_tree *tree _U_;
@@ -1591,79 +1593,92 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     case Reply:
 
 
-        if (strcmp(operation, CosNaming_NamingContext_bind_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_bind_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_rebind_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_rebind_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_rebind(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_bind_context_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_bind_context_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_rebind_context_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_rebind_context_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_rebind_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_resolve_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_resolve_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_resolve(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_unbind_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_unbind_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_unbind(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_new_context_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_new_context_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_new_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_bind_new_context_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_bind_new_context_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind_new_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_destroy_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_destroy_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_destroy(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_list_op) == 0) {
+        if (strcmp(operation, CosNaming_NamingContext_list_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_list(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_BindingIterator_next_one_op) == 0) {
+        if (strcmp(operation, CosNaming_BindingIterator_next_one_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_next_one(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_BindingIterator_next_n_op) == 0) {
+        if (strcmp(operation, CosNaming_BindingIterator_next_n_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_next_n(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_BindingIterator_destroy_op) == 0) {
+        if (strcmp(operation, CosNaming_BindingIterator_destroy_op) == 0
+            && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_destroy(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
@@ -1734,23 +1749,19 @@ void proto_register_handoff_giop_cosnaming(void) {
 
 
     
-    #if 0
 
     /* Register for Explicit Dissection */
 
     register_giop_user_module(dissect_cosnaming, "COSNAMING", "CosNaming/BindingIterator", proto_cosnaming );     /* explicit dissector */
 
-    #endif
 
 
     
-    #if 0
 
     /* Register for Explicit Dissection */
 
     register_giop_user_module(dissect_cosnaming, "COSNAMING", "CosNaming/NamingContext", proto_cosnaming );     /* explicit dissector */
 
-    #endif
 
 
     
