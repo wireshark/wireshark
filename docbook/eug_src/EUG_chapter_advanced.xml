@@ -387,6 +387,7 @@
 	time of packets as local time values, Ethereal must convert
 	those local time values to UTC values.
 	</para>
+	<para>
 	Ethereal in turn will display the time stamps always in local
 	time.  The displaying computer will convert them from UTC to
 	local time and displays this (local) time.  For capture files
