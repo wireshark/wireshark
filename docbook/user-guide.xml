@@ -287,21 +287,22 @@ FILE SECTION
   &ChapterStatistics;  
   &ChapterCustomize;
 
-  <!-- Removed, as this chapter has to be reworked first
-  &ChapterTroubleshoot; 
-  -->
-  
   &AppFiles;
   &AppProtocols;
   &AppMessages;  
   &AppTools;
-  <!-- Removed, as this chapter is not finished 
-  &AppHowItWorks;
+  <!--
   -->
   
   &AppGPL;
-  <!-- Removed, as these chapters must be reworked
+  <!-- 
+  Removed, as these chapters must be reworked
   &Glossary;
   &Index;
+  Removed, as this chapter is not finished 
+  &AppHowItWorks;
+  Removed, as this chapter has to be reworked
+  &ChapterTroubleshoot;   
   -->
+  
 </book>
