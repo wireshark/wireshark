@@ -848,14 +848,18 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 	/* first packet */
 	ti_time = (long)start_time;
 	ti_tm = localtime( &ti_time );
-	_snwprintf(string_buff, PREVIEW_STR_MAX,
-		 _T("%04d-%02d-%02d %02d:%02d:%02d"),
-		 ti_tm->tm_year + 1900,
-		 ti_tm->tm_mon + 1,
-		 ti_tm->tm_mday,
-		 ti_tm->tm_hour,
-		 ti_tm->tm_min,
-		 ti_tm->tm_sec);
+	if(ti_tm) {
+	    _snwprintf(string_buff, PREVIEW_STR_MAX,
+		     _T("%04d-%02d-%02d %02d:%02d:%02d"),
+		     ti_tm->tm_year + 1900,
+		     ti_tm->tm_mon + 1,
+		     ti_tm->tm_mday,
+		     ti_tm->tm_hour,
+		     ti_tm->tm_min,
+		     ti_tm->tm_sec);
+	} else {
+		_snwprintf(string_buff, PREVIEW_STR_MAX, "?");
+    }
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FIRST_PKT);
 	SetWindowText(cur_ctrl, string_buff);
 

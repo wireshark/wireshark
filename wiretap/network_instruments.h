@@ -34,6 +34,23 @@ typedef struct capture_file_header
 	char	extra_information_present;
 } capture_file_header;
 
+#define TYPE_DATA_PACKET		0
+#define TYPE_EXPERT_INFORMATION_PACKET	1
+
+/*
+ * The Observer document indicates that the types of expert information
+ * packets are:
+ *
+ *	Network Load (markers used by Expert Time Interval and What If
+ *	analysis modes)
+ *
+ *	Start/Stop Packet Capture marker frames (with time stamps when
+ *	captures start and stop)
+ *
+ *	Wireless Channel Change (markers showing what channel was being
+ *	currently listened to)
+ */
+
 typedef struct packet_entry_header
 {
 	guint32 packet_magic;

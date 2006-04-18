@@ -206,24 +206,52 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 	
 	observer_time packet_time;
 
-	*data_offset = wth->data_offset;
+	/*
+	 * Skip records other than data records.
+	 */
+	for (;;) {
+		*data_offset = wth->data_offset;
 
-	/* pull off the packet header */
-	bytes_read = file_read(&packet_header, sizeof packet_header, 1, wth->fh);
-	if (bytes_read != sizeof packet_header) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		return 0;
-	}
-	wth->data_offset += bytes_read;
+		/* pull off the packet header */
+		bytes_read = file_read(&packet_header, sizeof packet_header, 1, wth->fh);
+		if (bytes_read != sizeof packet_header) {
+			*err = file_error(wth->fh);
+			if (*err != 0)
+				return -1;
+			return 0;
+		}
+		wth->data_offset += bytes_read;
 
-	/* check the packet's magic number; the magic number is all 8's,
-	   so the byte order doesn't matter */
-	if (packet_header.packet_magic != observer_packet_magic) {
-		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup("Observer: bad record");
-		return FALSE;
+		/* check the packet's magic number; the magic number is all 8's,
+		   so the byte order doesn't matter */
+		if (packet_header.packet_magic != observer_packet_magic) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("Observer: bad record: Invalid magic number 0x%08x",
+			    GUINT32_FROM_LE(packet_header.packet_magic));
+			return FALSE;
+		}
+
+		/* check the packet's record type, and skip non-data
+		   packets */
+		if (packet_header.packet_type == TYPE_DATA_PACKET)
+			break;
+
+		/* skip to next packet */
+		packet_header.offset_to_next_packet =
+		    GUINT16_FROM_LE(packet_header.offset_to_next_packet);
+		if (packet_header.offset_to_next_packet < sizeof(packet_header)) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("Observer: bad record (offset to next packet %u < %lu)",
+			    packet_header.offset_to_next_packet,
+			    (unsigned long)sizeof(packet_header));
+			return FALSE;
+		}
+		seek_increment = packet_header.offset_to_next_packet - sizeof(packet_header);
+		if(seek_increment>0) {
+			if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
+				return FALSE;
+		}
+		wth->data_offset += seek_increment;
 	}
 
 	/* convert from observer time to wiretap time */
