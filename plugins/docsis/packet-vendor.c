@@ -287,7 +287,7 @@ proto_register_docsis_vsif (void)
 
 /* Register the protocol name and description */
   proto_docsis_vsif =
-    proto_register_protocol ("DOCSIS Vendor Specific Endodings",
+    proto_register_protocol ("DOCSIS Vendor Specific Encodings",
 			     "DOCSIS VSIF", "docsis_vsif");
 
 /* Required function calls to register the header fields and subtrees used */
