@@ -523,7 +523,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
        - allow BYE because this happens anyway
        - allow APP because TBCP ("PoC1") packets aren't compound... */
 	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
-           packet_type == RTCP_BYE) || (packet_type == RTCP_APP))
+           (packet_type == RTCP_BYE) || (packet_type == RTCP_APP)))
 	{
 		return FALSE;
 	}
@@ -720,7 +720,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				 * a SSRC field and SDES items, CNAME and MAY carry SDES item NAME to identify the
 				 * PoC Client that has been granted permission to send a Talk Burst. 
 				 * The SDES item NAME SHALL be included if it is known by the PoC Server. 
-				 * Therefore the length of the packet will vary depending on numbwe of SDES items 
+				 * Therefore the length of the packet will vary depending on number of SDES items 
 				 * and the size of the SDES items.
 				 */
 				if ( packet_len == 0 )
