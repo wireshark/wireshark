@@ -15,24 +15,32 @@ import os
 import sys
 import re
 
-tmp_filename = "register.c-tmp"
-final_filename = "register.c"
-
 #
 # The first argument is the directory in which the source files live.
 #
 srcdir = sys.argv[1]
 
 #
+# The second argument is either "plugin" or "dissectors"; if it's
+# "plugin", we build a plugin.c for a plugin, and if it's
+# "dissectors", we build a register.c for libethereal.
+#
+registertype = sys.argv[2]
+if registertype == "plugin":
+	tmp_filename = "plugin.c-tmp"
+	final_filename = "plugin.c"
+elif registertype == "dissectors":
+	tmp_filename = "register.c-tmp"
+	final_filename = "register.c"
+else:
+	print "Unknown output type '%s'" % registertype
+	sys.exit(1)
+	
+
+#
 # All subsequent arguments are the files to scan.
 #
-files = sys.argv[2:]
-
-reg_code = open(tmp_filename, "w")
-
-reg_code.write("/* Do not modify this file.  */\n")
-reg_code.write("/* It is created automatically by the Makefile.  */\n")
-reg_code.write('#include "register.h"\n')
+files = sys.argv[3:]
 
 # Create the proper list of filenames
 filenames = []
@@ -83,8 +91,39 @@ for filename in filenames:
 proto_reg.sort()
 handoff_reg.sort()
 
-# Make register_all_protocols()
-reg_code.write("void register_all_protocols(void) {\n")
+reg_code = open(tmp_filename, "w")
+
+reg_code.write("/* Do not modify this file.  */\n")
+reg_code.write("/* It is created automatically by the Makefile.  */\n")
+
+# Make the routine to register all protocols
+if registertype == "plugin":
+	reg_code.write("""
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <gmodule.h>
+#include "register.h"
+
+#include "moduleinfo.h"
+
+#ifndef ENABLE_STATIC
+G_MODULE_EXPORT const gchar version[] = VERSION;
+
+/* Start the functions we need for the plugin stuff */
+
+G_MODULE_EXPORT void
+plugin_register (void)
+{
+""");
+else:
+	reg_code.write("""
+#include "register.h"
+void
+register_all_protocols(void)
+{
+""");
 
 for symbol in proto_reg:
 	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
@@ -93,14 +132,28 @@ for symbol in proto_reg:
 reg_code.write("}\n")
 
 
-# Make register_all_protocol_handoffs()
-reg_code.write("void register_all_protocol_handoffs(void) {\n")
+# Make the routine to register all protocol handoffs
+if registertype == "plugin":
+	reg_code.write("""
+G_MODULE_EXPORT void
+plugin_reg_handoff(void)
+{
+""");
+else:
+	reg_code.write("""
+void
+register_all_protocol_handoffs(void)
+{
+""");
 
 for symbol in handoff_reg:
 	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	reg_code.write(line)
 
 reg_code.write("}\n")
+
+if registertype == "plugin":
+	reg_code.write("#endif");
 
 # Close the file
 reg_code.close()

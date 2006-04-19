@@ -51,39 +51,44 @@ x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 	$(PERL) $(PROC_X11_FIELDS) < $(X11_FIELDS)
 
 #
-# Build "register.c", which contains a function "register_all_protocols()"
-# that calls the register routines for all protocols.
+# Build register.c, which contains a function register_all_protocols()
+# that calls the register routines for all protocols and a function
+# register_all_protocol_handoffs() that calls the handoff registration
+# routines for all protocols.
 #
-# We do this by grepping through sources.  If that turns out to be too slow,
+# We do this by scanning through sources.  If that turns out to be too slow,
 # maybe we could just require every .o file to have an register routine
 # of a given name (packet-aarp.o -> proto_register_aarp, etc.).
 #
-# Formatting conventions:  The name of the proto_register_* routines must
-# start in column zero, or must be preceded only by "void " starting in
-# column zero, and must not be inside #if.
+# Formatting conventions:  The name of the proto_register_* routines an
+# proto_reg_handoff_* routines must start in column zero, or must be
+# preceded only by "void " starting in column zero, and must not be
+# inside #if.
 #
-# We assume that all dissector routines are in "packet-XXX.c" files.
+# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
-# to scan all the "packet-XXX.c" files doesn't work with some "make"s;
-# they seem to pass only the first few names in the list to the shell,
-# for some reason.
+# to scan all the files doesn't work with some "make"s; they seem to
+# pass only the first few names in the list to the shell, for some
+# reason.
 #
-# Therefore, we have a script to generate the "register.c" file.
+# Therefore, we have a script to generate the register.c file.
 #
-# The first argument is the name of the file to write.
-# The second argument is the directory in which the source files live.
+# The first argument is the directory in which the source files live.
+# The second argument is "dissectors", to indicate that we should build
+# a register.c file for libethereal.
 # All subsequent arguments are the files to scan.
 #
 register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-reg-dotc \
     $(top_srcdir)/tools/make-reg-dotc.py
 	@if test -n $(PYTHON); then \
 		echo Making register.c with python ; \
-		$(PYTHON) $(top_srcdir)/tools/make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
+		$(PYTHON) $(top_srcdir)/tools/make-reg-dotc.py $(srcdir) \
+		    dissectors $(DISSECTOR_SRC) ; \
 	else \
 		echo Making register.c with shell script ; \
-		$(top_srcdir)/tools/make-reg-dotc register.c $(srcdir) \
-			$(plugin_src) $(DISSECTOR_SRC) ; \
+		$(top_srcdir)/tools/make-reg-dotc $(srcdir) \
+		   $(plugin_src) dissectors $(DISSECTOR_SRC) ; \
 	fi
 
 #
