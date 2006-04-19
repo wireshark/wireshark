@@ -46,7 +46,7 @@ Ethereal Info
 	  The UMA dissector could go into an infinite loop.
 	  <!-- Fixed in r17119, r17273 -->
 	  <!-- Bug IDs: 716 -->
-	  Versions affected: 0.10.12.
+	  Versions affected: 0.10.12 - 0.10.14.
         </para></listitem>
 
         <!-- Canary bugs found after r17235 -->
@@ -62,14 +62,14 @@ Ethereal Info
 	  The SRVLOC dissector could crash.
 	  <!-- Fixed in r17001 -->
 	  <!-- Bug IDs: None -->
-	  Versions affected: 0.10.0.
+	  Versions affected: 0.10.0 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
 	  The H.245 dissector could crash.
 	  <!-- Fixed in r17022 -->
 	  <!-- Bug IDs: 667 -->
-	  Versions affected: 0.10.13.
+	  Versions affected: 0.10.13 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -84,7 +84,7 @@ Ethereal Info
 	  The COPS dissector could overflow a buffer.
 	  <!-- Fixed in r17051 -->
 	  <!-- Bug IDs: None -->
-	  Versions affected: 0.9.15.
+	  Versions affected: 0.9.15 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -111,7 +111,7 @@ Ethereal Info
 	  <!-- Fixed in r17497 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 32 -->
-	  Versions affected: 0.10.10.
+	  Versions affected: 0.10.10 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -119,7 +119,7 @@ Ethereal Info
 	  <!-- Fixed in r17556 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 33 -->
-	  Versions affected: 0.8.12.
+	  Versions affected: 0.8.12 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -127,7 +127,7 @@ Ethereal Info
 	  <!-- Fixed in r17555 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 34 -->
-	  Versions affected: 0.9.16.
+	  Versions affected: 0.9.16 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -135,7 +135,7 @@ Ethereal Info
 	  <!-- Fixed in r17494 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 35 -->
-	  Versions affected: 0.10.9.
+	  Versions affected: 0.10.9 - 0.10.14.
         </para></listitem>
 
         <!-- CID 36 - 38: Bogus -->
@@ -145,7 +145,7 @@ Ethereal Info
 	  <!-- Fixed in r17512 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 39 -->
-	  Versions affected: 0.10.7.
+	  Versions affected: 0.10.7 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -153,7 +153,7 @@ Ethereal Info
 	  <!-- Fixed in r17546 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 40 -->
-	  Versions affected: 0.9.8.
+	  Versions affected: 0.9.8 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -161,7 +161,7 @@ Ethereal Info
 	  <!-- Fixed in r17657 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 41 -->
-	  Versions affected: 0.9.16.
+	  Versions affected: 0.9.16 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -169,7 +169,7 @@ Ethereal Info
 	  <!-- Fixed in r17548, r17710, r17736, r17770 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 42, 43, 146 -->
-	  Versions affected: 0.9.8.
+	  Versions affected: 0.9.8 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -177,7 +177,7 @@ Ethereal Info
 	  <!-- Fixed in r17509, r17523, r17621, r17708 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 44, 46, 47, 48 -->
-	  Versions affected: 0.8.20.
+	  Versions affected: 0.8.20 - 0.10.14.
         </para></listitem>
 
         <!-- CID 45: Bogus -->
@@ -191,7 +191,7 @@ Ethereal Info
 	  <!-- Fixed in r17498, r17625 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 67, 68, 136 -->
-	  Versions affected: 0.10.4.
+	  Versions affected: 0.10.4 - 0.10.14.
         </para></listitem>
 
         <!-- CID 69 - 72: Bogus -->
@@ -201,7 +201,7 @@ Ethereal Info
 	  <!-- Fixed in r17518 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 73 -->
-	  Versions affected: 0.10.4.
+	  Versions affected: 0.10.4 - 0.10.14.
         </para></listitem>
 
         <!-- CID 74 - 78: Bogus -->
@@ -214,7 +214,7 @@ Ethereal Info
 	  <!-- Fixed in r17520 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 82 -->
-	  Versions affected: 0.10.0.
+	  Versions affected: 0.10.0 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -222,7 +222,7 @@ Ethereal Info
 	  <!-- Fixed in r17580 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 83 -->
-	  Versions affected: 0.10.13.
+	  Versions affected: 0.10.13 - 0.10.14.
         </para></listitem>
 
         <!-- CID 83 - 103: Bogus -->
@@ -232,7 +232,7 @@ Ethereal Info
 	  <!-- Fixed in r17506 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 104 -->
-	  Versions affected: 0.9.16.
+	  Versions affected: 0.9.16 - 0.10.14.
         </para></listitem>
 
         <listitem><para>
@@ -248,7 +248,7 @@ Ethereal Info
 	  <!-- Fixed in r17487 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 106 -->
-	  Versions affected: 0.8.5.
+	  Versions affected: 0.8.5 - 0.10.14.
         </para></listitem>
 
         <!-- CID 107: See CID 79 -->
@@ -259,7 +259,7 @@ Ethereal Info
 	  <!-- Fixed in r17489 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 109 -->
-	  Versions affected: 0.9.10.
+	  Versions affected: 0.9.10 - 0.10.14.
         </para></listitem>
 
         <!-- CID 110: Not security-related -->
@@ -271,7 +271,7 @@ Ethereal Info
 	  <!-- Fixed in r17571 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 113,114 -->
-	  Versions affected: 0.10.11.
+	  Versions affected: 0.10.11 - 0.10.14.
         </para></listitem>
 
         <!-- CID 115, 116: See CID 79 -->
@@ -286,7 +286,7 @@ Ethereal Info
 	  <!-- Fixed in r17511 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 128 -->
-	  Versions affected: 0.9.14.
+	  Versions affected: 0.9.14 - 0.10.14.
         </para></listitem>
 
         <!-- CID 129: Bogus -->
@@ -297,7 +297,7 @@ Ethereal Info
 	  <!-- Fixed in r17511 -->
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 135 -->
-	  Versions affected: 0.9.14.
+	  Versions affected: 0.9.14 - 0.10.14.
         </para></listitem>
 
         <!-- CID 136: See CID 67 -->
@@ -347,6 +347,13 @@ Ethereal Info
         </para></listitem>
 
         <listitem><para>
+	  The source distribution of Ethereal now supports SSL,
+	  IPsec ESP, and ISAKMP decryption.  (This feature has
+	  <emphasis>not</emphasis> yet been enabled in the Windows
+	  installer.)
+        </para></listitem>
+
+        <listitem><para>
 	  Win32: Catch hardware exceptions caused by buggy dissectors.
 	  If e.g. a NULL pointer exceptions occurs, Ethereal won't crash now
 	  but displays the exception and tries to continue decoding packets.
@@ -356,6 +363,7 @@ Ethereal Info
 	  The Windows version of Ethereal now uses native open and save
           file dialogs.
         </para>
+
         <para>
           In related news, Ethereal now runs as a full-fledged Unicode
           application under Windows.
@@ -381,6 +389,10 @@ Ethereal Info
 		  </note>
         </para></listitem>
 
+        <listitem><para>
+	  The expert analysis feature has been enhanced.
+        </para></listitem>
+
       </itemizedlist>
     </para>
     </section>
@@ -388,16 +400,151 @@ Ethereal Info
     <section><title>New Protocol Support</title>
     <para>
 
+ACP133,
+E.212,
+Nortel LGE Monitor,
+OICQ
+
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
+
+3G A11,
+802.11,
+802.1Q,
+802.3 Slow Protocols,
+AIM,
+ALCAP,
+ANSI MAP,
+ASF,
+ASN.1 BER,
+ASN.1 PER,
+BACapp,
+BACnet,
+BFD,
+BGP,
+BPDU,
+BSSAP,
+BSSGP,
+Camel,
+CDP,
+CLNP,
+CMP,
+COPS,
+DCERPC (DCERPC, LSA, NT, PNP),
+DCOM (CBA, DCOM, Dispatch),
+DHCP,
+DIAMETER,
+DNS,
+DOCSIS DCC,
+eDonkey,
+Ethernet,
+FC,
+FCP,
+FIX,
+G.723,
+GIOP,
+GRE,
+GSM A,
+GSM MAP,
+GSSAPI,
+GTP,
+H.245,
+H.248,
+H.450,
+HTTP,
+IAPP,
+ICMPv6,
+iFCP,
+IP,
+IPMI,
+IPP,
+IPsec,
+IPv6,
+ISAKMP,
+iSCSI,
+ISUP,
+IuUP,
+Juniper GGSN,
+JXTA,
+K12,
+Kerberos,
+LAPD,
+LDAP,
+LLDP,
+LOOP,
+M3UA,
+MEGACO,
+MPLS,
+MS MMS,
+MS NLB,
+MS Proxy,
+MTP3,
+NBNS,
+NCP 2222,
+NDPS,
+Netflow,
+NFS,
+NJACK,
+NLM,
+NSIP,
+NTLMSSP,
+PN-DCP,
+POP,
+PPP,
+Q.931,
+Radiotap,
+RADIUS,
+RANAP,
+RNSAP,
+RPC,
+RSYNC,
+RTCP,
+RTP,
+SCCP,
+SCCP MG,
+SCSI,
+SDP,
+Sebek,
+SES,
+SIGCOMP,
+SIGCOMP UDVM,
+SIP,
+SKINNY,
+SMB2,
+SMB (Mailslot, PIPE, SMB),
+SMPP,
+SNDCP,
+SNMP,
+SOCKS,
+SPNEGO,
+SRVLOC,
+SSL,
+STUN,
+Syslog,
+T.38,
+TACACS,
+TCAP,
+TCP,
+TDS,
+Telnet,
+TIPC,
+UDP,
+UMA,
+WSP,
+X11,
+X.411,
+X.509,
+XML,
 
     </para>
     </section>
 
     <section><title>New and Updated Capture File Support</title>
     <para>
+
+iSeries, Snoop, Windows Sniffer
 
     </para>
     </section>
