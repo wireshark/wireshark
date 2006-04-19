@@ -21,7 +21,7 @@ CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
-OBJECTS=$(DISSECTOR_OBJECTS) plugin.obj register.obj
+OBJECTS=$(DISSECTOR_OBJECTS) plugin.obj
 
 docsis.dll docsis.exp docsis.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
 	link -dll /out:docsis.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \
@@ -62,10 +62,10 @@ docsis.dll docsis.exp docsis.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 #
 plugin.c: $(DISSECTOR_SRC)
 !IFDEF PYTHON
-	@echo Making register.c (using python)
+	@echo Making plugin.c (using python)
 	@$(PYTHON) ../../tools/make-reg-dotc.py . plugin $(DISSECTOR_SRC)
 !ELSE
-	@echo Making register.c (using sh)
+	@echo Making plugin.c (using sh)
 	@$(SH) ../../tools/make-reg-dotc . plugin $(DISSECTOR_SRC)
 !ENDIF
 
