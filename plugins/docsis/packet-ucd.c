@@ -656,7 +656,7 @@ static void
 
 
 void
-  proto_register_docsis_ucd (void)
+proto_register_docsis_ucd (void)
 {
    
    /* Setup list of header fields  See Section 1.6.1 for details*/
@@ -827,7 +827,7 @@ void
  create the code that calls these routines.
  */
 void
-  proto_reg_handoff_docsis_ucd (void)
+proto_reg_handoff_docsis_ucd (void)
 {
    dissector_handle_t docsis_ucd_handle;
    
