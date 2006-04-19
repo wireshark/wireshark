@@ -5469,7 +5469,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint8 tmp, bacapp_type;
 	tvbuff_t *next_tvb;
 	guint offset = 0;
-    guint8 bacapp_service, bacapp_reason;
+	guint8 bacapp_service, bacapp_reason;
+	guint8 bacapp_invoke_id;
 	proto_item *ti;
 	proto_tree *bacapp_tree;
 
@@ -5478,7 +5479,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, "BACnet APDU ");
 	
-    tmp = (gint) tvb_get_guint8(tvb, 0);
+	tmp = (gint) tvb_get_guint8(tvb, 0);
 	bacapp_type = (tmp >> 4) & 0x0f;
 
 	/* show some descriptive text in the INFO column */
@@ -5492,10 +5493,17 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:
 				/* segmented messages have 2 additional bytes */
 				if (tmp & BACAPP_SEGMENTED_REQUEST)
+				{
+					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 4);
 					bacapp_service = tvb_get_guint8(tvb, offset + 5);
+				}
 				else
+				{
+					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
 					bacapp_service = tvb_get_guint8(tvb, offset + 3);
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+					bacapp_invoke_id,
 					val_to_str(bacapp_service, 
 						BACnetConfirmedServiceChoice,
 						bacapp_unknown_service_str));
@@ -5508,8 +5516,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						bacapp_unknown_service_str));
 				break;
 			case BACAPP_TYPE_SIMPLE_ACK:
+				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_service = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+					bacapp_invoke_id,
 					val_to_str(bacapp_service, 
 						BACnetConfirmedServiceChoice,
 						bacapp_unknown_service_str));
@@ -5517,10 +5527,17 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case BACAPP_TYPE_COMPLEX_ACK:
 				/* segmented messages have 2 additional bytes */
 				if (tmp & BACAPP_SEGMENTED_REQUEST)
+				{
+					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 3);
 					bacapp_service = tvb_get_guint8(tvb, offset + 4);
+				}
 				else
+				{
+					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 					bacapp_service = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+					bacapp_invoke_id,
 					val_to_str(bacapp_service, 
 						BACnetConfirmedServiceChoice,
 						bacapp_unknown_service_str));
@@ -5529,15 +5546,19 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* nothing more to add */
 				break;
 			case BACAPP_TYPE_ERROR:
+				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_service = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+					bacapp_invoke_id,
 					val_to_str(bacapp_service, 
 						BACnetConfirmedServiceChoice,
 						bacapp_unknown_service_str));
 				break;
 			case BACAPP_TYPE_REJECT:
+				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_reason = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s", 
+					bacapp_invoke_id,
 					val_to_split_str(bacapp_reason,
 						64,
 						BACnetRejectReason,
@@ -5545,8 +5566,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						Vendor_Proprietary_Fmt));
 				break;
 			case BACAPP_TYPE_ABORT:
+				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_reason = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+					bacapp_invoke_id,
 					val_to_split_str(bacapp_reason,
 						64,
 						BACnetAbortReason,
