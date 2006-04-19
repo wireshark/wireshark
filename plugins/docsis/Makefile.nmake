@@ -60,7 +60,7 @@ docsis.dll docsis.exp docsis.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(DISSECTOR_SRC)
+plugin.c: $(DISSECTOR_SRC)
 !IFDEF PYTHON
 	@echo Making register.c (using python)
 	@$(PYTHON) ../../tools/make-reg-dotc.py . plugin $(DISSECTOR_SRC)
