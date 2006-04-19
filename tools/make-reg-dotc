@@ -21,6 +21,7 @@ if [ "$registertype" = plugin ]
 then
 	outfile="plugin.c"
 elif [ "$registertype" = dissectors ]
+then
 	outfile="register.c"
 else
 	echo "Unknown output type '$registertype'" 1>&2
@@ -104,6 +105,7 @@ void
 register_all_protocol_handoffs(void)
 {
 EOF
+fi
 for f in "$@"
 do
 	if [ -f $f ]
@@ -125,4 +127,8 @@ do
 	grep '^void proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
 done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>${outfile}-tmp
 echo '}' >>${outfile}-tmp
+if [ "$registertype" = plugin ]
+then
+	echo '#endif' >>${outfile}-tmp
+fi
 mv ${outfile}-tmp ${outfile}
