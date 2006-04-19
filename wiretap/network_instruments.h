@@ -106,13 +106,13 @@ typedef struct packet_entry_header
  */
 typedef struct tlv_network_load
 {
+	guint32 utilization;	/* network utilization, in .1% units */
 	guint32 unknown1;
 	guint32 unknown2;
-	guint32 unknown3;
 	guint32 packets_per_second;
-	guint32 unknown4;
+	guint32 unknown3;
 	guint32 bytes_per_second;
-	guint32 unknown5;
+	guint32 unknown4;
 } tlv_network_load;
 
 typedef struct tlv_capture_start_stop
