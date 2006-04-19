@@ -1471,25 +1471,19 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
-       if (u_octet4 > 0) {
-          proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_id[%u] = %s", seq, u_octet4);
-       }
-       else {
-          proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
-       }
+       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_id (%u) = %s",
+          u_octet4, (u_octet4 > 0) ? seq : "");
     }
+
     g_free(seq);          /*  free buffer  */
     seq = NULL;
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
-       if (u_octet4 > 0) {
-          proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_kind[%u] = %s", seq, u_octet4);
-       }
-       else {
-          proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
-       }
+       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_kind (%u) = %s",
+          u_octet4, (u_octet4 > 0) ? seq : "");
     }
+
     g_free(seq);          /*  free buffer  */
     seq = NULL;
 
