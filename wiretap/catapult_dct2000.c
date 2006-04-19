@@ -840,6 +840,11 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
         }
         protocol_name[protocol_chars] = linebuff[n];
     }
+    if (protocol_chars == MAX_PROTOCOL_NAME)
+    {
+        /* If doesn't fit, fail rather than truncate */
+        return FALSE;
+    }
     protocol_name[protocol_chars] = '\0';
 
     /* Slash char must follow protocol name */
@@ -984,10 +989,17 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     {
         if (!isdigit(linebuff[n]))
         {
+            /* Found a non-digit before decimal point. Fail */
             return FALSE;
         }
         seconds_buff[seconds_chars] = linebuff[n];
     }
+    if (seconds_chars > MAX_SECONDS_CHARS)
+    {
+        /* Didn't fit in buffer.  Fail rather than use truncated */
+        return FALSE;
+    }
+    
     /* Convert found value into number */
     seconds_buff[seconds_chars] = '\0';
     *seconds = atoi(seconds_buff);
@@ -1012,6 +1024,11 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
             return FALSE;
         }
         subsecond_decimals_buff[subsecond_decimals_chars] = linebuff[n];
+    }
+    if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS)
+    {
+        /* More numbers than expected - give up */
+        return FALSE;
     }
     /* Convert found value into microseconds */
     subsecond_decimals_buff[subsecond_decimals_chars] = '\0';
