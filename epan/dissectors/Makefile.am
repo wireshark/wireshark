@@ -73,6 +73,10 @@ x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 # reason.
 #
 # Therefore, we have a script to generate the register.c file.
+# The shell script runs slowly, as multiple greps and seds are run
+# for each input file; this is especially slow on Windows.  Therefore,
+# if Python is present (as indicated by PYTHON being defined), we run
+# a faster Python script to do that work instead.
 #
 # The first argument is the directory in which the source files live.
 # The second argument is "dissectors", to indicate that we should build
@@ -88,7 +92,7 @@ register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-reg-dotc \
 	else \
 		echo Making register.c with shell script ; \
 		$(top_srcdir)/tools/make-reg-dotc $(srcdir) \
-		   $(plugin_src) dissectors $(DISSECTOR_SRC) ; \
+		   dissectors $(plugin_src) $(DISSECTOR_SRC) ; \
 	fi
 
 #

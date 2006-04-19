@@ -65,6 +65,10 @@ LIBS =
 # reason.
 #
 # Therefore, we have a script to generate the plugin.c file.
+# The shell script runs slowly, as multiple greps and seds are run
+# for each input file; this is especially slow on Windows.  Therefore,
+# if Python is present (as indicated by PYTHON being defined), we run
+# a faster Python script to do that work instead.
 #
 # The first argument is the directory in which the source files live.
 # The second argument is "plugin", to indicate that we should build

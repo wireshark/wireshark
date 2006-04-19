@@ -40,44 +40,45 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 	$(PERL) process-x11-fields.pl <x11-fields
 
 #
-# Build "register.c", which contains a function "register_all_protocols()"
-# that calls the register routines for all protocols.
+# Build register.c, which contains a function register_all_protocols()
+# that calls the register routines for all protocols and a function
+# register_all_protocol_handoffs() that calls the handoff registration
+# routines for all protocols.
 #
-# We do this by grepping through sources.  If that turns out to be too slow,
+# We do this by scanning through sources.  If that turns out to be too slow,
 # maybe we could just require every .o file to have an register routine
 # of a given name (packet-aarp.o -> proto_register_aarp, etc.).
 #
-# Formatting conventions:  The name of the proto_register_* routines must
-# start in column zero, or must be preceded only by "void " starting in
-# column zero, and must not be inside #if.
+# Formatting conventions:  The name of the proto_register_* routines an
+# proto_reg_handoff_* routines must start in column zero, or must be
+# preceded only by "void " starting in column zero, and must not be
+# inside #if.
 #
-# We assume that all dissector routines are in "packet-XXX.c" files.
+# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
-# to scan all the "packet-XXX.c" files doesn't work with some "make"s;
-# they seem to pass only the first few names in the list to the shell,
-# for some reason.
+# to scan all the files doesn't work with some "make"s; they seem to
+# pass only the first few names in the list to the shell, for some
+# reason.
 #
-# Therefore, we have a script to generate the "register.c" file.
+# Therefore, we have a script to generate the register.c file.
+# The shell script runs slowly, as multiple greps and seds are run
+# for each input file; this is especially slow on Windows.  Therefore,
+# if Python is present (as indicated by PYTHON being defined), we run
+# a faster Python script to do that work instead.
 #
-# The first argument is the name of the file to write.
-# The second argument is the directory in which the source files live.
+# The first argument is the directory in which the source files live.
+# The second argument is "dissectors", to indicate that we should build
+# a register.c file for libethereal.
 # All subsequent arguments are the files to scan.
-#
-# On Windows, however, that script runs slowly, as multiple greps
-# and seds are run for each input file, so, if Python is present
-# (as indicated by PYTHON being defined), we run a faster Python
-# script to do that work instead.  That script doesn't take the name
-# of the file to write as an argument; it always writes to
-# "register.c".
 #
 register.c: $(DISSECTOR_SRC)
 !IFDEF PYTHON
 	@echo Making register.c (using python)
-	@$(PYTHON) ../../tools/make-reg-dotc.py . $(DISSECTOR_SRC)
+	@$(PYTHON) ../../tools/make-reg-dotc.py . dissectors $(DISSECTOR_SRC)
 !ELSE
 	@echo Making register.c (using sh)
-	@$(SH) ../../tools/make-reg-dotc register.c . $(DISSECTOR_SRC)
+	@$(SH) ../../tools/make-reg-dotc . dissectors $(DISSECTOR_SRC)
 !ENDIF
 
 packet-ncp2222.c : ncp2222.py
