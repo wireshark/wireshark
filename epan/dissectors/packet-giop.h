@@ -333,10 +333,8 @@ extern gdouble get_CDR_long_double(tvbuff_t *tvb, int *offset,
  * have been processed.
  */
 
-#ifdef G_HAVE_GINT64
 extern gint64 get_CDR_long_long(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
-#endif
 
 /*
  * Decode an Object type, and display it on the tree.
@@ -435,11 +433,8 @@ extern guint32 get_CDR_ulong(tvbuff_t *tvb, int *offset,
  * have been processed.
  */
 
-#ifdef G_HAVE_GINT64
 extern guint64 get_CDR_ulong_long(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
-#endif
-
 
 /* Copy a 2 octet sequence from the tvbuff
  * which represents an unsigned short value, and convert
