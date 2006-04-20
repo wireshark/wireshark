@@ -49,6 +49,7 @@
 #include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "compat_macros.h"
+#include "help_dlg.h"
 
 #include <epan/prefs-int.h>
 
@@ -408,7 +409,7 @@ void
 prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 {
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb,
-                    *ok_bt, *apply_bt, *save_bt, *cancel_bt;
+                    *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
   GtkWidget         *gui_font_pg;
   gchar             label_str[MAX_TREE_NODE_NAME_LEN];
   struct ct_struct  cts;
@@ -612,7 +613,12 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   prefs_module_list_foreach(NULL, module_prefs_show, &cts);
 
   /* Button row: OK and cancel buttons */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+  
+  if(topic_available(HELP_PREFERENCES_DIALOG)) {
+    bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+  } else {
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+  }
   gtk_box_pack_start(GTK_BOX(cts.main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -630,6 +636,11 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   window_set_cancel_button(prefs_w, cancel_bt, NULL);
 
   gtk_widget_grab_default(ok_bt);
+
+  if(topic_available(HELP_PREFERENCES_DIALOG)) {
+    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PREFERENCES_DIALOG);
+  }
 
   SIGNAL_CONNECT(prefs_w, "delete_event", prefs_main_delete_event_cb, prefs_w);
   SIGNAL_CONNECT(prefs_w, "destroy", prefs_main_destroy_cb, prefs_w);
