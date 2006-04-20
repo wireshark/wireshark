@@ -221,6 +221,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define ETHEREAL_STOCK_FILE_SET_LIST            "List Files"
 #define ETHEREAL_STOCK_FILE_SET_NEXT            "Next File"
 #define ETHEREAL_STOCK_FILE_SET_PREVIOUS        "Previous File"
+#define ETHEREAL_STOCK_FILTER_OUT_STREAM        "Filter Out This Stream"
 
 /** Create a stock button. Will create a "normal" button for GTK1.
  *
@@ -353,6 +354,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_FILE_SET_LIST            "List Files"
 #define ETHEREAL_STOCK_LABEL_FILE_SET_NEXT            "Next File"
 #define ETHEREAL_STOCK_LABEL_FILE_SET_PREVIOUS        "Previous File"
+#define ETHEREAL_STOCK_LABEL_FILTER_OUT_STREAM        "Filter Out This Stream"
 
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_INTERFACES       "Ethereal_Stock_CaptureInterfaces"
@@ -390,6 +392,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_FILE_SET_LIST            "Ethereal_Stock_File_Set_List"
 #define ETHEREAL_STOCK_FILE_SET_NEXT            "Ethereal_Stock_File_Set_Next"
 #define ETHEREAL_STOCK_FILE_SET_PREVIOUS        "Ethereal_Stock_File_Set_Previous"
+#define ETHEREAL_STOCK_FILTER_OUT_STREAM        "Ethereal_Stock_Filter_Out_This_Stream"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);

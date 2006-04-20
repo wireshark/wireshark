@@ -153,6 +153,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             yes = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_NO) == 0) {
             no = stock_id;
+        } else if (strcmp(stock_id, ETHEREAL_STOCK_FILTER_OUT_STREAM) == 0) {
+            start = stock_id;
         } else {
             /* we don't know that button! */
             g_assert_not_reached();

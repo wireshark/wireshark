@@ -63,6 +63,7 @@
 #include <epan/ipproto.h>
 #include "print_mswin.h"
 #include "font_utils.h"
+#include "help_dlg.h"
 
 /* This is backwards-compatibility code for old versions of GTK+ (2.2.1 and
  * earlier).  It defines the new wrap behavior (unknown in earlier versions)
@@ -161,7 +162,7 @@ void
 follow_stream_cb(GtkWidget * w, gpointer data _U_)
 {
 	GtkWidget	*streamwindow, *vbox, *txt_scrollw, *text, *filter_te;
-	GtkWidget	*hbox, *button_hbox, *button, *radio_bt;
+	GtkWidget	*hbox, *bbox, *button, *radio_bt;
     GtkWidget   *stream_fr, *stream_vb;
 	GtkWidget	*stream_om, *stream_menu, *stream_mi;
 	GtkTooltips *tooltips;
@@ -441,27 +442,30 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
                        follow_info);
 	follow_info->raw_bt = radio_bt;
 
-	/* button hbox */
-	button_hbox = gtk_hbutton_box_new();
-	gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
-	gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
-	gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
+    /* Button row: (help), filter out, close button */
+    if(topic_available(HELP_FILESET_DIALOG)) {
+      bbox = dlg_button_row_new(ETHEREAL_STOCK_FILTER_OUT_STREAM, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    } else {
+      bbox = dlg_button_row_new(ETHEREAL_STOCK_FILTER_OUT_STREAM, GTK_STOCK_CLOSE, NULL);
+    }
+    gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 5);
 
-	/* Create exclude stream button */
-	button = gtk_button_new_with_label("Filter Out This Stream");
-	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
+
+    button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_FILTER_OUT_STREAM);
 	gtk_tooltips_set_tip (tooltips, button,
         "Build a display filter which cuts this stream from the capture", NULL);
-	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
+	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
 
-	/* Create Close Button */
-	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+    button = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
 	gtk_tooltips_set_tip (tooltips, button,
 	    "Close the dialog and keep the current display filter", NULL);
-	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
-	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+    gtk_widget_grab_default(button);
 
-	window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
+    if(topic_available(HELP_FILESET_DIALOG)) {
+      button = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      SIGNAL_CONNECT(button, "clicked", topic_cb, HELP_FOLLOW_TCP_STREAM_DIALOG);
+    }
 
 	/* Tuck away the follow_info object into the window */
 	OBJECT_SET_DATA(streamwindow, E_FOLLOW_INFO_KEY, follow_info);

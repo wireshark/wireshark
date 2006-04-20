@@ -208,7 +208,8 @@ static void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_CHECKBOX,              ETHEREAL_STOCK_LABEL_CHECKBOX,              0, 0, NULL },
         { ETHEREAL_STOCK_FILE_SET_LIST,         ETHEREAL_STOCK_LABEL_FILE_SET_LIST,         0, 0, NULL },
         { ETHEREAL_STOCK_FILE_SET_NEXT,         ETHEREAL_STOCK_LABEL_FILE_SET_NEXT,         0, 0, NULL },
-        { ETHEREAL_STOCK_FILE_SET_PREVIOUS,     ETHEREAL_STOCK_LABEL_FILE_SET_PREVIOUS,     0, 0, NULL }
+        { ETHEREAL_STOCK_FILE_SET_PREVIOUS,     ETHEREAL_STOCK_LABEL_FILE_SET_PREVIOUS,     0, 0, NULL },
+        { ETHEREAL_STOCK_FILTER_OUT_STREAM,     ETHEREAL_STOCK_LABEL_FILTER_OUT_STREAM,     0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -247,6 +248,7 @@ static void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_FILE_SET_LIST,         file_set_list_16_xpm},
         { ETHEREAL_STOCK_FILE_SET_NEXT,         file_set_next_16_xpm},
         { ETHEREAL_STOCK_FILE_SET_PREVIOUS,     file_set_previous_16_xpm},
+        { ETHEREAL_STOCK_FILTER_OUT_STREAM,     display_filter_24_xpm},
         { NULL, NULL }
     };
 
