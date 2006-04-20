@@ -247,6 +247,10 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
          case WTAP_ENCAP_NETTL_X25:
+	    if (pinfo->pseudo_header->nettl.kind == NETTL_HDR_PDUIN)
+            	pinfo->p2p_dir = P2P_DIR_RECV;
+	    else if (pinfo->pseudo_header->nettl.kind == NETTL_HDR_PDUOUT)
+            	pinfo->p2p_dir = P2P_DIR_SENT;
 	    if (pinfo->pseudo_header->nettl.subsys == NETTL_SUBSYS_SX25L2)
             	call_dissector(lapb_handle, tvb, pinfo, tree);
 	    else
