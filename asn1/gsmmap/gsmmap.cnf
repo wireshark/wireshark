@@ -118,6 +118,7 @@ CallForwardingData/forwardingFeatureList ext-forwardingFeatureList
 Ext-ForwardingInfoFor-CSE/forwardingFeatureList ext-forwardingFeatureList
 Ext-ForwFeature/noReplyConditionTime ext-noReplyConditionTime
 ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
+ReturnError/errorCode returnErrorCode
 #----------------------------------------------------------------------------------------
 #.PDU 
 Component 
