@@ -117,6 +117,10 @@
 #define MESSAGE_TYPE_PRE_RELEASE_INFO  66
 #define MESSAGE_TYPE_SUBSEQUENT_DIR_NUM 67
 
+#define MESSAGE_TYPE_CIRCUIT_RES_ACK	0xE9
+#define MESSAGE_TYPE_CIRCUIT_RES		0xEA
+#define MESSAGE_TYPE_CCT_VAL_TEST_RSP	0xEB
+#define MESSAGE_TYPE_CCT_VAL_TEST		0xEC
 
 const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,          "Initial address"},
@@ -168,7 +172,10 @@ const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_APPLICATION_TRANS,	"Application transport"},
   { MESSAGE_TYPE_PRE_RELEASE_INFO,	"Pre-release information"},	
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"Subsequent Directory Number (national use)"},
-
+  { MESSAGE_TYPE_CIRCUIT_RES_ACK,		"Circuit Reservation Acknowledge"},
+  { MESSAGE_TYPE_CIRCUIT_RES        ,	"Circuit Reservation"},
+  { MESSAGE_TYPE_CCT_VAL_TEST_RSP   ,	"Circuit Validation Test Response"},
+  { MESSAGE_TYPE_CCT_VAL_TEST       ,	"Circuit Validation Test"},	  
   { 0,                                  NULL}};
 
 /* Same as above but in acronym form (for the Info column) */
@@ -222,7 +229,10 @@ const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_APPLICATION_TRANS,		"APM"},
   { MESSAGE_TYPE_PRE_RELEASE_INFO,		"PRI"}, 	
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"SDN"},
-
+  { MESSAGE_TYPE_CIRCUIT_RES_ACK,		"CRA"},
+  { MESSAGE_TYPE_CIRCUIT_RES        ,	"CRM"},
+  { MESSAGE_TYPE_CCT_VAL_TEST_RSP   ,	"CVR"},
+  { MESSAGE_TYPE_CCT_VAL_TEST       ,	"CVT"},	  
   { 0,                                  NULL}};
 
 const value_string isup_parameter_type_value[] = {
@@ -378,6 +388,11 @@ const value_string isup_parameter_type_value[] = {
 #define USER_TO_USER_IND_LENGTH                1
 #define RANGE_LENGTH                           1
 
+#define CVR_RESP_IND_LENGTH						1
+#define CG_CHAR_IND_LENGTH						1
+#define CI_NAME_IND								28
+#define CLLI_CODE_LENGTH						13
+
 #define CALL_ID_LENGTH        3 /* for parameter Call Reference */
 #define SPC_LENGTH            2 /* for parameter Call Reference, Connection request */
 #define LOCAL_REF_LENGTH      3 /* for parameter Connection request */
@@ -494,6 +509,68 @@ const value_string isup_calling_partys_category_value[] = {
   { 14,									"IEPS call marking for preferential call set up"},
   { PAYPHONE,                           "payphone"},
   { 0,                                 NULL}};
+
+#define CVR_RSP_IND_FAILURE		0
+#define CVR_RSP_IND_SUCCESS		1
+
+const value_string isup_cvr_rsp_ind_value[ ] = {
+	{ CVR_RSP_IND_FAILURE, "CVR Response Fail" },
+	{ CVR_RSP_IND_SUCCESS, "CVR Response Success" },
+	{ 0,					NULL }
+};
+
+#define CVR_CG_IND_DOUBLE_SEIZE_NONE 0
+#define CVR_CG_IND_DOUBLE_SEIZE_ODD  1
+#define CVR_CG_IND_DOUBLE_SEIZE_EVEN 2
+#define CVR_CG_IND_DOUBLE_SEIZE_ALL  3
+
+const value_string isup_cvr_cg_double_seize_value[ ] = {
+	{ CVR_CG_IND_DOUBLE_SEIZE_NONE, "Double Seize control NONE" },
+	{ CVR_CG_IND_DOUBLE_SEIZE_ODD, "Double Seize control odd circuits"},
+	{ CVR_CG_IND_DOUBLE_SEIZE_EVEN, "Double Seize control even circuits"},
+	{ CVR_CG_IND_DOUBLE_SEIZE_ALL, "Double Seize control all circuits"},
+	{0, NULL }
+};
+
+#define CVR_CG_IND_CAR_IND_UNKNOWN		0
+#define CVR_CG_IND_CAR_IND_ANALOG		1
+#define CVR_CG_IND_CAR_IND_DIGITAL		2
+#define CVR_CG_IND_CAR_IND_ANALOG_DIG	3
+
+const value_string isup_cvr_cg_car_ind_value[ ] = {
+{ CVR_CG_IND_CAR_IND_UNKNOWN   , "Carrier Type Unknown" },   
+{ CVR_CG_IND_CAR_IND_ANALOG    ,   "Carrier Type Analog" },
+{ CVR_CG_IND_CAR_IND_DIGITAL   ,   "Carrier Type Digital"},
+{ CVR_CG_IND_CAR_IND_ANALOG_DIG, "Carrier Type Digital And Analog"},
+{ 0, NULL }
+};
+
+#define CVR_CG_IND_ALARM_CAR_IND_UNKNOW		0
+#define CVR_CG_IND_ALARM_CAR_IND_SOFTWARE	1
+#define CVR_CG_IND_ALARM_CAR_IND_HARDWARE	2
+#define CVR_CG_IND_ALARM_CAR_IND_SPARE		3
+
+const value_string isup_cvr_alarm_car_ind_value[ ] = {
+	{ CVR_CG_IND_ALARM_CAR_IND_UNKNOW     ,	"Alarm Carrier Ind Default"},
+	{ CVR_CG_IND_ALARM_CAR_IND_SOFTWARE   , "Alarm Carrier Ind Software"},
+	{ CVR_CG_IND_ALARM_CAR_IND_HARDWARE   , "Alarm Carrier Ind Hardware"},
+	{ CVR_CG_IND_ALARM_CAR_IND_SPARE 	  , "Alarm Carrier Ind Spare"},
+	{ 0, NULL }
+};
+
+#define CVR_CG_IND_CONT_CHK_UNKNOWN  0
+#define CVR_CG_IND_CONT_CHK_NONE	 1
+#define CVR_CG_IND_CONT_CHK_STAT	 2
+#define CVR_CG_IND_CONT_CHK_PER_CALL 3
+
+const value_string isup_cvr_cont_chk_ind_value[ ] = {
+
+	{ CVR_CG_IND_CONT_CHK_UNKNOWN  , "Continuity Check Unknown"},
+	{ CVR_CG_IND_CONT_CHK_NONE     , "Continuity Check NONE"},
+	{ CVR_CG_IND_CONT_CHK_STAT     ,"Continuity Check Statistical"},
+	{ CVR_CG_IND_CONT_CHK_PER_CALL 	,"Continuity Check Per Call"},
+	{ 0, NULL }
+};
 
 #define MEDIUM_SPEECH                        0
 #define MEDIUM_64KBS                         2
@@ -1129,6 +1206,12 @@ static int hf_isup_parameter_length = -1;
 static int hf_isup_mandatory_variable_parameter_pointer = -1;
 static int hf_isup_pointer_to_start_of_optional_part = -1;
 
+static int hf_isup_cvr_rsp_ind = -1;
+static int hf_isup_cvr_cg_car_ind = -1;
+static int hf_isup_cvr_cg_double_seize = -1;
+static int hf_isup_cvr_cg_alarm_car_ind = -1;
+static int hf_isup_cvr_cont_chk_ind = -1;
+
 static int hf_isup_satellite_indicator = -1;
 static int hf_isup_continuity_check_indicator = -1;
 static int hf_isup_echo_control_device_indicator = -1;
@@ -1402,7 +1485,6 @@ static char number_to_char(int number)
     return ((char) number + ASCII_LETTER_DELTA);
 }
 
-
 /* ------------------------------------------------------------------ */
 /* Dissectors for all used parameter types                            */
 /* ------------------------------------------------------------------ */
@@ -1410,6 +1492,38 @@ static char number_to_char(int number)
 /* length indicator is already dissected in dissect_isup_message() or */
 /* dissect_isup_optional_parameter()                                  */
 /* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------
+ Dissector Parameter circuit validation response indicator
+ */
+
+static void
+dissect_isup_cvr_response_ind_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+	guint8 cvr_response_ind;
+	
+	cvr_response_ind = tvb_get_guint8(parameter_tvb, 0);
+	proto_tree_add_uint(parameter_tree, hf_isup_cvr_rsp_ind, parameter_tvb, 0, CVR_RESP_IND_LENGTH, cvr_response_ind );
+	proto_item_set_text(parameter_item, "Circuit Validation Test Response Indicator: 0x%x", cvr_response_ind );
+
+}
+
+/* ------------------------------------------------------------------
+ Dissector Parameter circuit validation response - circuit group
+ characters
+ */
+static void
+dissect_isup_circuit_group_char_ind_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+	guint8 cvr_cg_char_ind;
+
+	cvr_cg_char_ind = tvb_get_guint8(parameter_tvb, 0);
+	proto_tree_add_uint(parameter_tree, hf_isup_cvr_cg_car_ind, parameter_tvb, 0, CG_CHAR_IND_LENGTH, cvr_cg_char_ind );
+	proto_tree_add_uint(parameter_tree, hf_isup_cvr_cg_double_seize, parameter_tvb, 0, CG_CHAR_IND_LENGTH, cvr_cg_char_ind );
+	proto_tree_add_uint(parameter_tree, hf_isup_cvr_cg_alarm_car_ind, parameter_tvb, 0, CG_CHAR_IND_LENGTH, cvr_cg_char_ind );
+	proto_tree_add_uint(parameter_tree, hf_isup_cvr_cont_chk_ind, parameter_tvb, 0, CG_CHAR_IND_LENGTH, cvr_cg_char_ind );
+	
+	proto_item_set_text(parameter_item, "Circuit Validation Test Response Circuit Group Characterstics: 0x%x", cvr_cg_char_ind );
+}
 
 /* ------------------------------------------------------------------
  Dissector Parameter nature of connection flags
@@ -4869,6 +4983,48 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
 /* call parameter dissectors in order of mandatory parameters         */
 /* (since not labeled)                                                */
 /* ------------------------------------------------------------------
+  Dissector Message Type Circuit Validation Test Response
+ */
+static gint
+dissect_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+{
+  proto_item* parameter_item;
+  proto_tree* parameter_tree;
+  tvbuff_t *parameter_tvb;
+  gint offset = 0;
+  gint parameter_type, parameter_pointer, parameter_length, actual_length;
+
+  /* Do stuff for first mandatory fixed parameter: CVR Repsonse Indicator */
+  parameter_type = PARAM_TYPE_CVR_RESP_IND;
+  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
+									   CVR_RESP_IND_LENGTH,
+								       "CVR Reponse Indicator");
+  
+  parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
+  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"CVR Reponse Indicator"));
+  
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
+  
+  parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(CVR_RESP_IND_LENGTH, actual_length), CVR_RESP_IND_LENGTH);
+  dissect_isup_cvr_response_ind_parameter(parameter_tvb, parameter_tree, parameter_item);
+  offset += CVR_RESP_IND_LENGTH;
+
+  /* Do stuff for second mandatory fixed parameter: CG Characterstics Indicator */
+  parameter_type = PARAM_TYPE_CG_CHAR_IND;
+  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
+									   CG_CHAR_IND_LENGTH,
+								       "Circuit Group Characterstics Indicators");
+  parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
+  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"Circuit Group Characters"));
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
+  parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(CG_CHAR_IND_LENGTH, actual_length), CG_CHAR_IND_LENGTH);
+  dissect_isup_circuit_group_char_ind_parameter(parameter_tvb, parameter_tree, parameter_item);
+  offset += CG_CHAR_IND_LENGTH;
+
+  return offset;
+}
+
+/* ------------------------------------------------------------------
   Dissector Message Type Initial address message
  */
 static gint
@@ -5690,7 +5846,24 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
         proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
       break;
 
-    default:
+   case MESSAGE_TYPE_CIRCUIT_RES_ACK:
+	   /* no dissector necessary since no mandatory parameters included */
+	   break;
+	   
+   case MESSAGE_TYPE_CIRCUIT_RES:
+	   /* dissect_isup_circuit_reservation_message( parameter_tvb, isup_tree ); */
+	   break;
+	   
+   case MESSAGE_TYPE_CCT_VAL_TEST_RSP:
+	   opt_part_possible = TRUE;
+	   dissect_isup_circuit_validation_test_resp_message( parameter_tvb, isup_tree );
+	   break;
+	   
+   case MESSAGE_TYPE_CCT_VAL_TEST:
+	   /* no dissector necessary since no mandatory parameters included */
+	   break;
+
+   default:
       bufferlength = tvb_length_remaining(message_tvb, offset);
       if (bufferlength != 0)
         proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
@@ -6769,7 +6942,26 @@ proto_register_isup(void)
 			{"Reassembled in", "isup_apm.msg.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
 		},
-
+		{&hf_isup_cvr_rsp_ind,
+		 {"CVR Response Ind", "conn_rsp_ind",
+		  FT_UINT8, BASE_DEC, VALS(isup_cvr_rsp_ind_value), BA_8BIT_MASK,
+		  "", HFILL }},
+		{&hf_isup_cvr_cg_car_ind,
+		 {"CVR Circuit Group Carrier","cg_carrier_ind",
+		 FT_UINT8, BASE_HEX, VALS(isup_cvr_cg_car_ind_value), BA_8BIT_MASK,
+		  "", HFILL }},
+		{&hf_isup_cvr_cg_double_seize,
+		 {"Doube Seize Control", "cg_char_ind.doubleSeize",
+		  FT_UINT8, BASE_HEX, VALS(isup_cvr_cg_double_seize_value), DC_8BIT_MASK,
+		  "", HFILL }},
+		{&hf_isup_cvr_cg_alarm_car_ind,
+		 {"Alarm Carrier Indicator", "cg_alarm_car_ind",
+		  FT_UINT8, BASE_HEX, VALS(isup_cvr_alarm_car_ind_value), FE_8BIT_MASK,
+		  "", HFILL }},
+		{&hf_isup_cvr_cont_chk_ind,
+		 {"Continuity Check Indicator","cg_alarm_cnt_chk",
+		  FT_UINT8, BASE_HEX, VALS(isup_cvr_cont_chk_ind_value), HG_8BIT_MASK,
+		  "",HFILL }}
 	};
 
 /* Setup protocol subtree array */

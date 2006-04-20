@@ -131,6 +131,12 @@ ETH_VAR_IMPORT const value_string q850_cause_code_vals[];
 #define PARAM_TYPE_GENERIC_NR           192
 #define PARAM_TYPE_GENERIC_DIGITS       193
 
+
+#define PARAM_TYPE_CG_CHAR_IND			229
+#define PARAM_TYPE_CVR_RESP_IND			230
+#define PARAM_TYPE_CI_NAME_IND			232
+#define PARAM_CLLI_CODE					233
+
 extern const value_string isup_parameter_type_value[]; 
 extern const value_string isup_transmission_medium_requirement_value[];
 extern const value_string isup_calling_partys_category_value[];
