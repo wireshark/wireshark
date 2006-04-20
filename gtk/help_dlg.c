@@ -44,6 +44,13 @@
 #include "webbrowser.h"
 #include "file_util.h"
 
+#ifdef HHC_DIR
+#include <windows.h>
+#include <htmlhelp.h>
+#include "epan/strutil.h"
+#endif
+
+
 #define HELP_DIR	"help"
 
 
@@ -188,15 +195,12 @@ void help_dialog(void)
 gboolean topic_available(topic_action_e action) {
 
 #ifdef ETHEREAL_EUG_DIR
-    /* online: we have almost all pages available */
-    switch(action) {
-    case(HELP_FILESET_DIALOG):
-        /* currently not available */
+    if(action == HELP_CAPTURE_INTERFACES_DETAILS_DIALOG) {
+        /* page currently not existing in user's guide */
         return FALSE;
-        break;
-    default:
-        return TRUE;
     }
+    /* online: we have almost all possible pages available */
+    return TRUE;
 #else
     /* offline: we have only some pages available */
     switch(action) {
@@ -225,6 +229,27 @@ gboolean topic_available(topic_action_e action) {
  * Open the help dialog and show a specific help page.
  */
 static void help_topic(const gchar *topic) {
+
+#ifdef HHC_DIR
+    HWND hw;
+    GString *url = g_string_new("");
+
+    g_string_append_printf(url, "%s\\user-guide.chm::/%s>Ethereal Help", 
+        get_datafile_dir(), topic);
+
+    hw = HtmlHelpW(NULL, 
+        utf_8to16(url->str), 
+        HH_DISPLAY_TOPIC, 0); 
+
+    if(hw == NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open help file: %s\\user-guide.chm",
+            get_datafile_dir());
+    }
+
+    g_string_free(url, TRUE /* free_segment */);
+
+    return;
+#else
     gchar       *page_topic;
     GtkWidget   *help_nb;
     GSList      *help_page_ent;
@@ -250,6 +275,7 @@ static void help_topic(const gchar *topic) {
         }
         page_num++;
     }
+#endif
 
     /* topic page not found, default (first page) will be shown */
 }
@@ -297,6 +323,14 @@ void help_redraw(void)
   }
 }
 
+
+#ifdef HHC_DIR
+#define ONLINE_HELP_CALL help_topic
+#define ONLINE_HELP_PREFIX "eug_chm/"
+#else
+#define ONLINE_HELP_CALL browser_open_data_file
+#define ONLINE_HELP_PREFIX "eug_html_chunked/"
+#endif
 
 static void
 topic_action(topic_action_e action)
@@ -348,58 +382,67 @@ topic_action(topic_action_e action)
 #ifdef ETHEREAL_EUG_DIR
     /* local help pages (User's Guide) */
     case(HELP_CONTENT):
-        browser_open_data_file("eug_html_chunked/index.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "index.html");
         break;
     case(HELP_CAPTURE_OPTIONS_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChCapCaptureOptions.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "ChCapCaptureOptions.html");
         break;
     case(HELP_CAPTURE_FILTERS_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChWorkDefineFilterSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "ChWorkDefineFilterSection.html");
         break;
     case(HELP_DISPLAY_FILTERS_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChWorkDefineFilterSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "ChWorkDefineFilterSection.html");
         break;
     case(HELP_COLORING_RULES_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChCustColorizationSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustColorizationSection.html");
         break;
     case(HELP_PRINT_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChIOPrintSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOPrintSection.html");
         break;
     case(HELP_FIND_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChWorkFindPacketSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChWorkFindPacketSection.html");
         break;
     case(HELP_GOTO_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChWorkGoToPacketSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChWorkGoToPacketSection.html");
         break;
     case(HELP_CAPTURE_INTERFACES_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChCapInterfaceSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCapInterfaceSection.html");
         break;
     case(HELP_ENABLED_PROTOCOLS_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChCustProtocolDissectionSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustProtocolDissectionSection.html");
         break;
     case(HELP_DECODE_AS_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChCustProtocolDissectionSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustProtocolDissectionSection.html");
         break;
     case(HELP_DECODE_AS_SHOW_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChCustProtocolDissectionSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustProtocolDissectionSection.html");
         break;
     case(HELP_FOLLOW_TCP_STREAM_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChAdvFollowTCPSection.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChAdvFollowTCPSection.html");
         break;
     case(HELP_STATS_SUMMARY_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChStatSummary.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatSummary.html");
         break;
     case(HELP_STATS_PROTO_HIERARCHY_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChStatHierarchy.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatHierarchy.html");
         break;
     case(HELP_STATS_ENDPOINTS_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChStatEndpoints.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatEndpoints.html");
         break;
     case(HELP_STATS_CONVERSATIONS_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChStatConversations.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatConversations.html");
         break;
     case(HELP_STATS_IO_GRAPH_DIALOG):
-        browser_open_data_file("eug_html_chunked/ChStatIOGraphs.html");
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatIOGraphs.html");
+        break;
+    case(HELP_FILESET_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOFileSetSection.html");
+        break;
+    case(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCapInterfaceDetailsSection.html");
+        break;
+    case(HELP_PREFERENCES_DIALOG):
+        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustPreferencesSection.html");
         break;
 #else
     /* only some help pages are available for offline reading */
