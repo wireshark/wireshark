@@ -392,7 +392,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
 #if (GLIB_MAJOR_VERSION >= 2)
 #ifdef ETHEREAL_EUG_DIR
-    ITEM_FACTORY_ENTRY("/Help/User's Guide", NULL, url_page_menu_cb, HELP_CONTENT, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/User's Guide", NULL, topic_menu_cb, HELP_CONTENT, NULL, NULL),
 #endif
     ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal", NULL, topic_menu_cb, LOCALPAGE_MAN_ETHEREAL, NULL, NULL),
