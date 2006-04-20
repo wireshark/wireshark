@@ -1356,8 +1356,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      "Verify Transport Mechanism: 0x%0x", 
 				      tvb_get_ntohs(tvb, offset2+10));
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2+12, 4,
-				      "Transmission Rate: %.10g", 
-				      tvb_get_ntohieee_float(tvb, offset2+12));
+				      "Transmission Rate: %.3f Mbps", 
+				      tvb_get_ntohieee_float(tvb, offset2+12)*8/1000000);
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2+16, 4,
 				      "Wavelength: %d", 
 				      tvb_get_ntohl(tvb, offset2+16));
@@ -1561,13 +1561,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		      proto_item_set_text(ti2, "Interface Switching Capability: "
 					  "Switching Cap: %s, Encoding Type: %s, "
-					  "Min BW: %.10g, Max BW: %.10g",
+					  "Min BW: %.3f Mbps, Max BW: %.3f Mbps",
 					  val_to_str(tvb_get_guint8(tvb, offset2+l+2),
 						     gmpls_switching_type_str, "Unknown (%d)"),
 					  val_to_str(tvb_get_guint8(tvb, offset2+l+3),
 						     gmpls_lsp_enc_str, "Unknown (%d)"),
-					  tvb_get_ntohieee_float(tvb, offset2+l+4),
-					  tvb_get_ntohieee_float(tvb, offset2+l+8));
+					  tvb_get_ntohieee_float(tvb, offset2+l+4)*8/1000000,
+					  tvb_get_ntohieee_float(tvb, offset2+l+8)*8/1000000);
 		      proto_tree_add_item(lmp_subobj_tree,
 					  lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
 					  tvb, offset2+l+2, 1, FALSE);
@@ -1575,11 +1575,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
 					  tvb, offset2+l+3, 1, FALSE);
 		      proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
-					  "Minimum Reservable Bandwidth: %.10g bytes/s",
-					  tvb_get_ntohieee_float(tvb, offset2+l+4));
+					  "Minimum Reservable Bandwidth: %.3f Mbps",
+					  tvb_get_ntohieee_float(tvb, offset2+l+4)*8/1000000);
 		      proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8, 4,
-					  "Maximum Reservable Bandwidth: %.10g bytes/s",
-					  tvb_get_ntohieee_float(tvb, offset2+l+8));
+					  "Maximum Reservable Bandwidth: %.3f Mbps",
+					  tvb_get_ntohieee_float(tvb, offset2+l+8)*8/1000000);
 		      break;
 		      
 		  case 2:
