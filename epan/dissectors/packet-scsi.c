@@ -50,7 +50,7 @@
  * o dissect_scsi_rsp - invoked to dissect the scsi status code in a response
  *                      SCSI task.
  *   void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *,
- *                          fc_exchange_data *, guint8);
+ *                          itlq_nexus_t *, guint8);
  * o dissect_scsi_snsinfo - invoked to decode the sense data provided in case of
  *                          an error.
  *   void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint,
@@ -6435,7 +6435,7 @@ dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
-                  proto_tree *tree, fc_exchange_data *scsi_ed, guint8 scsi_status)
+                  proto_tree *tree, itlq_nexus_t *scsi_ed, guint8 scsi_status)
 {
     proto_item *ti;
     proto_tree *scsi_tree = NULL;

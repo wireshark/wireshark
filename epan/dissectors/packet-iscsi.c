@@ -615,7 +615,7 @@ calculateCRC32(const void *buf, int len, guint32 crc) {
 typedef struct _iscsi_conv_data {
     guint32 data_in_frame;
     guint32 data_out_frame;
-    fc_exchange_data scsi_ed;
+    itlq_nexus_t scsi_ed;
 } iscsi_conv_data_t;
 
 static int

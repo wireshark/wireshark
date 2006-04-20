@@ -592,7 +592,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     gboolean is_ack;
 
     static fc_hdr fchdr;
-    fc_exchange_data *fc_ex=NULL;
+    itlq_nexus_t *fc_ex=NULL;
     fc_conv_data_t *fc_conv_data=NULL;
 
     conversation_t *conversation;
@@ -668,9 +668,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* XXX we should come up with a way to handle when the 16bit oxid wraps
      * so that large traces will work
      */
-    fc_ex=(fc_exchange_data *)se_tree_lookup32(fc_conv_data->exchanges, fchdr.oxid);
+    fc_ex=(itlq_nexus_t *)se_tree_lookup32(fc_conv_data->exchanges, fchdr.oxid);
     if(!fc_ex){
-        fc_ex=se_alloc(sizeof(fc_exchange_data));
+        fc_ex=se_alloc(sizeof(itlq_nexus_t));
         fc_ex->first_exchange_frame=0;
         fc_ex->last_exchange_frame=0;
         fc_ex->lun=0xffff;

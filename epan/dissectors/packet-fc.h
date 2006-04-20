@@ -125,16 +125,18 @@ ETH_VAR_IMPORT const value_string fc_fc4_val[];
 #define FC_FCTL_ABTS_MASK		0x000030
 #define FC_FCTL_REL_OFFSET		0x000008
 
-/* structure and functions to keep track of first/last exchange
-   frames and time deltas 
-*/
-typedef struct _fc_exchange_data {
+/* Structure containing itlq nexus data :
+ * The itlq nexus is a structure containing data specific
+ * for a initiator target lun queue/commandid combination.
+ */
+/* XXX the LUN field will later be moved into an itl_nexusu_t structure */
+typedef struct _itlq_nexus_t {
     guint32 first_exchange_frame;
     guint32 last_exchange_frame;
     guint16 lun;         /* initialized to 0xffff == unknown */
     guint16 scsi_opcode; /* initialized to 0xffff == unknown */
     nstime_t fc_time;
-} fc_exchange_data;
+} itlq_nexus_t;
 
 /* FC header structure */
 typedef struct _fc_hdr {
@@ -147,7 +149,7 @@ typedef struct _fc_hdr {
     guint16 rxid;
     guint8 r_ctl;
     guint8 cs_ctl;
-    fc_exchange_data *fced;
+    itlq_nexus_t *fced;
 } fc_hdr;
 
 #endif /* __PACKET_FC_H_ */

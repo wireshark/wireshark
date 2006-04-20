@@ -64,7 +64,7 @@ extern const value_string scsi_status_val[];
  */
 void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *,
                        gint, guint16);
-void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, fc_exchange_data *, guint8);
+void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, itlq_nexus_t *, guint8);
 void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
                            gboolean, guint16);
 void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, guint16);
