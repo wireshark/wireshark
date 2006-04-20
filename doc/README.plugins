@@ -1,163 +1,56 @@
 $Id$
 
-Plugins
+1. Plugins
 
-Writing a "plugin" dissector is not very different from writing a standard one.
-In fact all of the functions described in the README.developer can be 
-used in the plugins exactly as the are used in standard dissectors.
+Writing a "plugin" dissector is not very different from writing a
+standard one.  In fact all of the functions described in
+README.developer can be used in the plugins exactly as the are used in
+standard dissectors.
 
 (Note, however, that not all OSes on which Ethereal runs can support
 plugins.)
 
-Once you have written a packet-xxx.c to create your plugin 
-( where xxx is the name of the protocol you are dissecting ) there are 
-only a few changes you need to make to "pluginize" your dissector.
+If you've chosen "xxx" as the name of your plugin (typically, that would
+be a short name for your protocol, in all lower case), the following
+instructions tell you how to implement it as a plugin.  All occurrences
+of "xxx" below should be replaced by the name of your plugin.
 
-1 New headers needed in packet-xxx.c
+2. The directory for the plugin, and its files
 
-#include "moduleinfo.h"
-
-This header is optional and is described in greater detail further on.
-
-#include <gmodule.h>
-This header is required to define G_MODULE_EXPORT, which must be used
-when defining constants and functions exported by the plugin.
-
-"gmodule.h" includes "glib.h", so you don't need to include "glib.h" if
-you include "gmodule.h"; however, "glib.h" is protected from multiple
-inclusion by #ifdefs, so it's safe to include it after including
-"gmodule.h".
-
-2 New exported constants in packet-xxx.c
-
-Plugins need to provide the following exported constants:
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif 
-
-version       : a version number associated with the plugin.
-
-the #ifndef is to allow for the building of a non-plugin version of 
-the object for linking into a static ethereal binary.
-
-3 New exported functions in packet-xxx.c
-
-The following two functions need to be exported by the plugin:
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT void
-plugin_register(void)
-#endif
-
-This function is called by Ethereal when the plugin is initialized; it's
-similar to the "proto_register_XXX()" routine for a non-plugin
-dissector, except for the name.
-
-Here is a sample code for the function:
-
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_xxx == -1) { /* execute protocol initialization only once */
-		proto_register_xxx();
-	}
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
-#endif
-
-This function is called by Ethereal after all dissectors, including all
-plugins, are initialized; it's similar to the "proto_reg_handoff_XXX()"
-routine for a non-plugin dissector, except for the name. 
-
-Here is a sample code for the function:
-
-  proto_reg_handoff_xxx();
-
-As you can see, the plugin_reg_handoff and plugin_register functions are
-just wrappers for the proto_reg_handoff_xxx and proto_register_xxx
-functions.
-
-4 Directory structure and other file changes
-
-Plugins should be places in plugins/xxx/ which should contain minimally 
-the following files:
+The plugin should be placed in a new plugins/xxx directory which should
+contain minimally the following files:
 
 AUTHORS
 COPYING
 ChangeLog
 Makefile.am
+Makefile.common
 Makefile.nmake
 moduleinfo.h
-packet-xxx.c
+The source files and header files for your dissector
+
+2.1 AUTHORS, COPYING, and ChangeLog
 
 The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project 
-files, see plugins/mgcp for examples.  You will also need to change 
-the plugins/Makefile.am toplevel Makefile.am, the plugins/Makefile.nmake
-toplevel Makefile.nmake, and toplevel configure.in files.
+files; see plugins/docsis for examples.
 
-3.4.1 plugins/xxx/Makefile.am
+2.2 Makefile.am and Makefile.nmake
 
-An example of the Makefile.am follows (note that the @foo@ constructs will be
-replaced with their actual values when running configure):
+For your plugins/xxx/Makefile.am and plugins/xxx/Makefile.nmake files,
+see the corresponding files in plugins/docsis.  Replace all occurrences
+of "docsis" in those files with "xxx".
 
-INCLUDES = -I$(top_srcdir)
+2.3 Makefile.common
 
-plugindir = @plugindir@
+Your plugins/xxx/Makefile.common should list the source files for your
+dissector, in the DISSECTOR_SRC variable, and the header files for your
+dissector, if any, in the DISSECTOR_INCLUDES variable.  (The
+DISSECTOR_INCLUDES variable should not include moduleinfo.h.)
 
-plugin_LTLIBRARIES = xxx.la
-xxx_la_SOURCES = packet-xxx.c moduleinfo.h
-xxx_la_LDFLAGS = -module -avoid-version
-xxx_la_LIBADD = @PLUGIN_LIBS@
+2.4 moduleinfo.h
 
-# Libs must be cleared, or else libtool won't create a shared module.
-# If your module needs to be linked against any particular libraries,
-# add them here.
-LIBS =
-
-CLEANFILES = \
-        xxx
-
-EXTRA_DIST = \
-        Makefile.nmake
-
-
-4.2 plugins/xxx/Makefile.nmake
-
-Makefile.nmake is used for building the plugin for for Windows.
-
-include ..\..\config.nmake
-
-############### no need to modify below this line #########
-
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
-	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
-
-LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
-
-!IFDEF ENABLE_LIBETHEREAL
-LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
-CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
-
-OBJECTS=packet-xxx.obj 
-
-xxx.dll xxx.exp xxx.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
-	link -dll /out:xxx.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
-	$(GLIB_LIBS)
-
-!ENDIF
-
-clean:
-	rm -f $(OBJECTS) xxx.dll xxx.exp xxx.lib *.pdb
-
-distclean: clean
-
-maintainer-clean: distclean
-
-4.3 plugins/xxx/moduleinfo.h
-	
-moduleinfo.h is used to set the version information for the plugin.  
-An example follows:
+Your plugins/xxx/moduleinfo.h file is used to set the version
+information for the plugin.  An example follows:
 
 /* Included *after* config.h, in order to re-define these macros */
 
@@ -168,7 +61,6 @@ An example follows:
 /* Name of package */
 #define PACKAGE "xxx"
 
-
 #ifdef VERSION
 #undef VERSION
 #endif
@@ -176,7 +68,13 @@ An example follows:
 /* Version number of package */
 #define VERSION "0.0.8"
 
-4.4  Changes to plugins/Makefile.am
+3. Changes to existing Ethereal files
+
+You will also need to change the plugins/Makefile.am toplevel
+Makefile.am, the plugins/Makefile.nmake toplevel Makefile.nmake, the
+toplevel Makefile.am file, and the toplevel configure.in file.
+
+3.1  Changes to plugins/Makefile.am
 
 The plugins directory contains a Makefile.am.
 You need to change the SUBDIRS directive to reflect the addition of 
@@ -188,7 +86,7 @@ SUBDIRS = \
 	xxx
 
 
-4.5 Changes to plugins/Makefile.nmake
+3.2 Changes to plugins/Makefile.nmake
 
 To the Makefile.nmake you need to add your plugin to the all: rule
 
@@ -240,7 +138,7 @@ maintainer-clean: clean
 	cd ..
 
 
-4.6 Changes to the top level Makefile.am
+3.3 Changes to the top level Makefile.am
 
 Unfortunately there are quite some several places in the top level
 Makefile.am that need to be altered for adding a plugin.
@@ -265,7 +163,7 @@ plugin_ldadd = \
         "-dlopen" plugins/mgcp/mgcp.la \
         "-dlopen" plugins/xxx/xxx.la 
 
-4.7  Changes to top level configure.in
+3.4  Changes to top level configure.in
 
 You need to add your plugins Makefile to the AC_OUTPUT rule in the 
 configure.in
@@ -290,7 +188,7 @@ AC_OUTPUT(
   ,)
 
 
-5	Development and plugins
+4. Development and plugins
 
 Plugins make some aspects of development easier and some harder.
 
@@ -312,61 +210,28 @@ by going to the plugins/xxx directory and running
 
 make install
 
-
-6	How to update an "old style" plugin (using plugin_init function)
+5. How to update an "old style" plugin (using plugin_init function)
 
 The plugin registering has changed between 0.10.9 and 0.10.10; everyone
 is encouraged to update their plugins as outlined below:
 
---- Remove following include statements from all plugin sources ---
+    o Remove following include statements from all plugin sources:
 
-#include "plugins/plugin_api.h"
-#include "plugins/plugin_api_defs.h"
+	#include "plugins/plugin_api.h"
+	#include "plugins/plugin_api_defs.h"
 
---- Change init function from this ---
+    o Remove the init function.
 
-G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-){
-   /* initialise the table of pointers needed in Win32 DLLs */
-   plugin_address_table_init(pat);
-   /* register the new protocol, protocol fields, and subtrees */
-   if (proto_xxx == -1) { /* execute protocol initialization only once */
-     proto_register_xxx();
-   }
-}
+    o Add a new Makefile.common file with the lists of source files and
+      headers.
 
------- to this ------
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-   /* register the new protocol, protocol fields, and subtrees */
-   if (proto_xxx == -1) { /* execute protocol initialization only once */
-     proto_register_xxx();
-   }
-}
-
---- Changes to plugin's Makefile.nmake ---
-change
-!IFDEF LINK_PLUGINS_WITH_LIBETHEREAL
-to
-!IFDEF ENABLE_LIBETHEREAL
-
-remove
-!ELSE
-LINK_PLUGIN_WITH=..\plugin_api.obj
-
-move
-!ENDIF
-to the line just before the clean target
+    o Change the Makefile.am and Makefile.nmake files to match those of
+      the DOCSIS plugin.
 
 ----------------
 
 Ed Warnicke <hagbard@physics.rutgers.edu>
+Guy Harris <guy@alum.mit.edu>
 
 Derived and expanded from the plugin section of README.developers
 which was originally written by
