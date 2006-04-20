@@ -612,8 +612,7 @@ iSeries, Snoop, Windows Sniffer
       On Windows systems the packet list scroll bar can sometimes disappear
       or become unusable.  Until the problem is fixed you can work around it
       by resizing the packet list or the main window.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220">Bug
-      &num;220</ulink>)
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220">Bug #220</ulink>)
     </para>
 
     <para>
@@ -623,26 +622,22 @@ iSeries, Snoop, Windows Sniffer
 
     <para>
       Trying to save flow data may crash Ethereal.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=396">Bug
-      &num;396</ulink>)
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=396">Bug #396</ulink>)
     </para>
 
     <para>
       It may not be possible to re-order coloring rules under Windows.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=699">Bug
-      &num;699</ulink>)
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=699">Bug #699</ulink>)
     </para>
 
     <para>
       Multiple tap interfaces may cause a crash under FreeBSD.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=57">Bug
-      &num;757</ulink>)
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=57">Bug #757</ulink>)
     </para>
 
     <para>
       Ethereal may crash while viewing TCP streams.
-      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=852">Bug
-      &num;852</ulink>)
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=852">Bug #852</ulink>)
     </para>
 
   </section>
