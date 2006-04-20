@@ -42,7 +42,6 @@ then
 #endif
 
 #include <gmodule.h>
-#include "register.h"
 
 #include "moduleinfo.h"
 

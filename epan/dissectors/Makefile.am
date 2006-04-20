@@ -83,15 +83,15 @@ x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 # a register.c file for libethereal.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-reg-dotc \
-    $(top_srcdir)/tools/make-reg-dotc.py
+register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-reg \
+    $(top_srcdir)/tools/make-dissector-reg.py
 	@if test -n $(PYTHON); then \
 		echo Making register.c with python ; \
-		$(PYTHON) $(top_srcdir)/tools/make-reg-dotc.py $(srcdir) \
+		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
 		    dissectors $(DISSECTOR_SRC) ; \
 	else \
 		echo Making register.c with shell script ; \
-		$(top_srcdir)/tools/make-reg-dotc $(srcdir) \
+		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
 		   dissectors $(plugin_src) $(DISSECTOR_SRC) ; \
 	fi
 

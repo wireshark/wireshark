@@ -104,7 +104,6 @@ if registertype == "plugin":
 #endif
 
 #include <gmodule.h>
-#include "register.h"
 
 #include "moduleinfo.h"
 

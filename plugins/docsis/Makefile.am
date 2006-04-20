@@ -75,15 +75,15 @@ LIBS =
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-plugin.c: $(DISSECTOR_SRC) $(top_srcdir)/tools/make-reg-dotc \
-    $(top_srcdir)/tools/make-reg-dotc.py
+plugin.c: $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-reg \
+    $(top_srcdir)/tools/make-dissector-reg.py
 	@if test -n $(PYTHON); then \
 		echo Making plugin.c with python ; \
-		$(PYTHON) $(top_srcdir)/tools/make-reg-dotc.py $(srcdir) \
+		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
 		    plugin $(DISSECTOR_SRC) ; \
 	else \
 		echo Making plugin.c with shell script ; \
-		$(top_srcdir)/tools/make-reg-dotc $(srcdir) \
+		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
 		    $(plugin_src) plugin $(DISSECTOR_SRC) ; \
 	fi
 

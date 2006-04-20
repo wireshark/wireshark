@@ -75,10 +75,10 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 register.c: $(DISSECTOR_SRC)
 !IFDEF PYTHON
 	@echo Making register.c (using python)
-	@$(PYTHON) ../../tools/make-reg-dotc.py . dissectors $(DISSECTOR_SRC)
+	@$(PYTHON) ../../tools/make-dissector-reg.py . dissectors $(DISSECTOR_SRC)
 !ELSE
 	@echo Making register.c (using sh)
-	@$(SH) ../../tools/make-reg-dotc . dissectors $(DISSECTOR_SRC)
+	@$(SH) ../../tools/make-dissector-reg . dissectors $(DISSECTOR_SRC)
 !ENDIF
 
 packet-ncp2222.c : ncp2222.py
