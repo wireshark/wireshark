@@ -27,7 +27,7 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = profinet.la
-profinet_la_SOURCES = profinet.c packet-dcerpc-pn-io.c packet-pn-dcp.c moduleinfo.h
+profinet_la_SOURCES = profinet.c packet-dcerpc-pn-io.c packet-pn-dcp.c packet-pn-ptcp.c moduleinfo.h
 profinet_la_LDFLAGS = -module -avoid-version
 profinet_la_LIBADD = @PLUGIN_LIBS@
 

@@ -15,7 +15,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=profinet.obj packet-dcerpc-pn-io.obj packet-pn-dcp.obj
+OBJECTS=profinet.obj packet-dcerpc-pn-io.obj packet-pn-dcp.obj packet-pn-ptcp.obj
 
 profinet.dll profinet.exp profinet.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	link -dll /out:profinet.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \

@@ -46,8 +46,8 @@ extern void proto_register_pn_io (void);
 extern void proto_reg_handoff_pn_io (void);
 extern void proto_register_pn_dcp (void);
 extern void proto_reg_handoff_pn_dcp (void);
-
-
+extern void proto_register_pn_ptcp (void);
+extern void proto_reg_handoff_pn_ptcp (void);
 
 /* Start the functions we need for the plugin stuff */
 
@@ -60,6 +60,7 @@ plugin_register(void)
   if (plugin_registered == FALSE) { /* execute protocol initialization only once */
     proto_register_pn_io();
     proto_register_pn_dcp();
+    proto_register_pn_ptcp();
 	  
 	plugin_registered = TRUE;
   }
@@ -69,6 +70,7 @@ G_MODULE_EXPORT void
 plugin_reg_handoff(void){
   proto_reg_handoff_pn_io();
   proto_reg_handoff_pn_dcp();
+  proto_reg_handoff_pn_ptcp();
 }
 
 #endif

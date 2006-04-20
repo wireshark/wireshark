@@ -21,3 +21,8 @@ Version 0.1.1:
 Version 0.1.2:
 
 * PN-DCP: dissection of "DHCP/DHCP client identifier" suboption was added
+
+Version 0.2.0:
+
+* PN-PTCP: add whole new Precision Time Control Protocol dissector
+
