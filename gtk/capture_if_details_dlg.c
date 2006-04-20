@@ -1249,7 +1249,7 @@ capture_if_details_open_win(char *iface)
     gtk_container_add(GTK_CONTAINER(main_vb), label);
 
     /* Button row. */
-    if(topic_available(HELP_STATS_SUMMARY_DIALOG)) {
+    if(topic_available(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG)) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -1259,9 +1259,9 @@ capture_if_details_open_win(char *iface)
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(details_open_w, close_bt, window_cancel_button_cb);
 
-    if(topic_available(HELP_STATS_SUMMARY_DIALOG)) {
+    if(topic_available(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_SUMMARY_DIALOG);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_INTERFACES_DETAILS_DIALOG);
     }
 
     gtk_widget_grab_focus(close_bt);
