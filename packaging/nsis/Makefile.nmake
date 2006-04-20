@@ -150,6 +150,9 @@ $(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
 !IFDEF LUA_DIR
 	/DLUA_DIR=$(LUA_DIR) \
 !ENDIF
+!IFDEF HHC_DIR
+	/DHHC_DIR=$(HHC_DIR) \
+!ENDIF
 	ethereal.nsi
 
 clean:

@@ -787,6 +787,16 @@ SectionEnd
 
 SectionGroupEnd	; "Tools"
 
+!ifdef HHC_DIR
+Section "User's Guide" SecUsersGuide
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR
+File "..\..\docbook\user-guide.chm"
+SectionEnd
+!endif
 
 Section "Uninstall" un.SecUinstall
 ;-------------------------------------------
@@ -886,6 +896,7 @@ Delete "$INSTDIR\FAQ"
 Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\pcrepattern.3.txt"
+Delete "$INSTDIR\user-guide.chm"
 Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
@@ -1006,6 +1017,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "The user's guide as the online help system."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN 
