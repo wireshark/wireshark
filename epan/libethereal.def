@@ -316,6 +316,7 @@ get_CDR_fixed
 get_CDR_float
 get_CDR_interface
 get_CDR_long
+get_CDR_long_long
 get_CDR_object
 get_CDR_octet
 get_CDR_octet_seq
@@ -323,6 +324,7 @@ get_CDR_short
 get_CDR_string
 get_CDR_typeCode
 get_CDR_ulong
+get_CDR_ulong_long
 get_CDR_ushort
 get_CDR_wchar
 get_CDR_wstring

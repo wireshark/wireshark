@@ -2277,6 +2277,30 @@ gint32 get_CDR_long(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, i
   return val;
 }
 
+/* Copy a 8 octet sequence from the tvbuff
+ * which represents a signed long long value, and convert
+ * it to an signed long long vaule, taking into account byte order.
+ * offset is first incremented so that it falls on a proper alignment
+ * boundary for long long values.
+ * offset is then incremented by 8, to indicate the 8 octets which
+ * have been processed.
+ */
+
+gint64 get_CDR_long_long(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, int boundary) {
+
+  gint64 val;
+
+  /* unsigned long long values must be aligned on a 8 byte boundary */
+  while( ( (*offset + boundary) % 8) != 0)
+	  ++(*offset);
+
+  val = (stream_is_big_endian) ? tvb_get_ntoh64 (tvb, *offset) :
+                                 tvb_get_letoh64 (tvb, *offset);
+
+  *offset += 4;
+  return val;
+}
+
 /*
  * Decode an Object type, and display it on the tree.
  */
@@ -2567,6 +2591,29 @@ guint32 get_CDR_ulong(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian,
   return val;
 }
 
+/* Copy a 8 octet sequence from the tvbuff
+ * which represents an unsigned long long value, and convert
+ * it to an unsigned long long vaule, taking into account byte order.
+ * offset is first incremented so that it falls on a proper alignment
+ * boundary for unsigned long long values.
+ * offset is then incremented by 4, to indicate the 4 octets which
+ * have been processed.
+ */
+
+guint64 get_CDR_ulong_long(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, int boundary) {
+
+  guint64 val;
+
+  /* unsigned long long values must be aligned on a 8 byte boundary */
+  while( ( (*offset + boundary) % 8) != 0)
+	  ++(*offset);
+
+  val = (stream_is_big_endian) ? tvb_get_ntoh64 (tvb, *offset) :
+                                 tvb_get_letoh64 (tvb, *offset);
+
+  *offset += 8;
+  return val;
+}
 
 /* Copy a 2 octet sequence from the tvbuff
  * which represents an unsigned short value, and convert
