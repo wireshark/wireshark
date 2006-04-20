@@ -149,7 +149,7 @@ typedef struct _fc_hdr {
     guint16 rxid;
     guint8 r_ctl;
     guint8 cs_ctl;
-    itlq_nexus_t *fced;
+    itlq_nexus_t *itlq;
 } fc_hdr;
 
 #endif /* __PACKET_FC_H_ */

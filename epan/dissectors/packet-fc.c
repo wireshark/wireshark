@@ -599,7 +599,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     fcseq_conv_data_t *cdata;
     fcseq_conv_key_t ckey, *req_key;
 
-    fchdr.fced=NULL;
+    fchdr.itlq=NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -717,7 +717,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         PROTO_ITEM_SET_GENERATED(it);
     }
 
-    fchdr.fced=fc_ex;
+    fchdr.itlq=fc_ex;
 
     is_ack = ((fchdr.r_ctl == 0xC0) || (fchdr.r_ctl == 0xC1));
 

@@ -431,7 +431,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
       lun|=tvb_get_guint8(tvb, offset+1);
     }
     else {
-      fchdr->fced->lun=tvb_get_guint8 (tvb, offset+1);
+      fchdr->itlq->lun=tvb_get_guint8 (tvb, offset+1);
       proto_tree_add_item(tree, hf_fcp_singlelun, tvb, offset+1,
 			   1, 0);
       lun=tvb_get_guint8(tvb, offset+1);
@@ -466,7 +466,7 @@ dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, con
     task_key.task_id = conversation->index;
     pinfo->private_data = (void *)&task_key;
 
-    dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->fced->lun);
+    dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->itlq->lun);
 }
 
 /* fcp-3  9.5 table 24 */
@@ -522,7 +522,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
         /* scsi status code */
         proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
-        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->fced, tvb_get_guint8(tvb, offset));
+        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, tvb_get_guint8(tvb, offset));
         offset++;
 
         /* residual count */
@@ -564,7 +564,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
             sns_tvb=tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
             dissect_scsi_snsinfo (sns_tvb, pinfo, parent_tree, 0,
                                   snslen,
-				  fchdr->fced->lun);
+				  fchdr->itlq->lun);
 
             offset+=snslen;
         }
@@ -641,24 +641,24 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* put a request_in in all frames except the command frame */
-    if((r_ctl!=FCP_IU_CMD)&&(fchdr->fced->first_exchange_frame)){
+    if((r_ctl!=FCP_IU_CMD)&&(fchdr->itlq->first_exchange_frame)){
         proto_item *it;
-        it=proto_tree_add_uint(fcp_tree, hf_fcp_singlelun, tvb, 0, 0, fchdr->fced->lun);
+        it=proto_tree_add_uint(fcp_tree, hf_fcp_singlelun, tvb, 0, 0, fchdr->itlq->lun);
         PROTO_ITEM_SET_GENERATED(it);
-        it=proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, fchdr->fced->first_exchange_frame);
+        it=proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, fchdr->itlq->first_exchange_frame);
         PROTO_ITEM_SET_GENERATED(it);
         /* only put the response time in the actual response frame */
         if(r_ctl==FCP_IU_RSP){
             nstime_t delta_ts;
-            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fchdr->fced->fc_time);
+            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fchdr->itlq->fc_time);
             it=proto_tree_add_time(ti, hf_fcp_time, tvb, 0, 0, &delta_ts);
             PROTO_ITEM_SET_GENERATED(it);
         }
     }
     /* put a response_in in all frames except the response frame */
-    if((r_ctl!=FCP_IU_RSP)&&(fchdr->fced->last_exchange_frame)){
+    if((r_ctl!=FCP_IU_RSP)&&(fchdr->itlq->last_exchange_frame)){
         proto_item *it;
-        it=proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, fchdr->fced->last_exchange_frame);
+        it=proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, fchdr->itlq->last_exchange_frame);
         PROTO_ITEM_SET_GENERATED(it);
     }
 
