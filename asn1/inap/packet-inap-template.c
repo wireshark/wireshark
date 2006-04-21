@@ -64,12 +64,11 @@ static int hf_inap_currentPassword = -1;
 static int hf_inap_genproblem = -1;
 #include "packet-inap-hf.c"
 
-static guint tcap_itu_ssn = 106;
-static guint tcap_itu_ssn1 = 241;
+#define MAX_SSN 254
+static range_t *global_ssn_range;
+static range_t *ssn_range;
 
-
-static guint global_tcap_itu_ssn = 1;
-static guint global_tcap_itu_ssn1 = 1;
+dissector_handle_t	inap_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;
@@ -595,24 +594,37 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 /*--- proto_reg_handoff_inap ---------------------------------------*/
+static void range_delete_callback(guint32 ssn)
+{
+    if (ssn) {
+	delete_itu_tcap_subdissector(ssn, inap_handle);
+    }
+}
+
+static void range_add_callback(guint32 ssn)
+{
+    if (ssn) {
+	add_itu_tcap_subdissector(ssn, inap_handle);
+    }
+}
+
 void proto_reg_handoff_inap(void) {
-    dissector_handle_t	inap_handle;
-	static int inap_prefs_initialized = FALSE;
+
+    static int inap_prefs_initialized = FALSE;
     
     inap_handle = create_dissector_handle(dissect_inap, proto_inap);
 	
-	if (!inap_prefs_initialized) {
-		inap_prefs_initialized = TRUE;
-	}
-	else {
-		delete_itu_tcap_subdissector(tcap_itu_ssn, inap_handle);
-		delete_itu_tcap_subdissector(tcap_itu_ssn1, inap_handle);
-	}
-	tcap_itu_ssn = global_tcap_itu_ssn;
-	tcap_itu_ssn1 = global_tcap_itu_ssn1;
-    add_itu_tcap_subdissector(global_tcap_itu_ssn, inap_handle);
-    add_itu_tcap_subdissector(global_tcap_itu_ssn1, inap_handle);
-   
+    if (!inap_prefs_initialized) {
+	    inap_prefs_initialized = TRUE;
+    }
+    else {
+	    range_foreach(ssn_range, range_delete_callback);
+    }
+
+    g_free(ssn_range);
+    ssn_range = range_copy(global_ssn_range);
+
+    range_foreach(ssn_range, range_add_callback);
 }
 
 
@@ -683,19 +695,15 @@ void proto_register_inap(void) {
   proto_register_field_array(proto_inap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   
+  /* Set default SSNs */
+  range_convert_str(&global_ssn_range, "106,241", MAX_SSN);
+  ssn_range = range_empty();
   
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
-  
-  prefs_register_uint_preference(inap_module, "tcap.itu_ssn",
-		"Subsystem number used for INAP",
-		"Set Subsystem number used for INAP",
-		10, &global_tcap_itu_ssn);
 
- prefs_register_uint_preference(inap_module, "tcap.itu_ssn1",
-		"Subsystem number used for INAP",
-		"Set Subsystem number used for INAP",
-		10, &global_tcap_itu_ssn1);
-
+  prefs_register_range_preference(inap_module, "ssn", "TCAP SSNs",
+				  "TCAP Subsystem numbers used for INAP",
+				  &global_ssn_range, MAX_SSN);
 }
 
 
