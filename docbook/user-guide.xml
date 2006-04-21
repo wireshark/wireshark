@@ -195,6 +195,7 @@ FILE SECTION
   <!ENTITY EtherealEnabledProtocols SYSTEM "./graphics/ethereal-enabled-protocols.png" NDATA PNG>
   <!ENTITY EtherealDecodeAs SYSTEM "./graphics/ethereal-decode-as.png" NDATA PNG>
   <!ENTITY EtherealDecodeAsShow SYSTEM "./graphics/ethereal-decode-as-show.png" NDATA PNG>
+  <!ENTITY EtherealFileSetDialog SYSTEM "./graphics/ethereal-file-set-dialog.png" NDATA PNG>
 
   <!-- Third Chapter Toolbar-->
   <!ENTITY EtherealToolbarCaptureInterfaces SYSTEM "./graphics/toolbar/capture_interfaces_24.png" NDATA PNG>

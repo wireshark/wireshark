@@ -403,16 +403,37 @@
   
   <section id="ChIOFileSetSection"><title>File Sets</title>
     <para>
-      When using the "Multiple Files" option while doing a capture,
+      When using the "Multiple Files" option while doing a capture
+	  (see: <xref linkend="ChCapCaptureFiles"/>), 
 	  the capture data is spreaded over several capture files, called a file 
-	  set. Ethereal tries to find the files matching the same filename pattern 
-	  than the currently loaded file. This will only work, if all the files 
-	  of the file set are located in the same directory.
+	  set. 
     </para>
     <para>
 	  As it can become tedious to work with a file set by hand, Ethereal 
-	  provides some features in the "File" menu to handle these file sets in 
-	  a more convenient way:
+	  provides some features to handle these file sets in a convenient way.
+    </para>
+    <sidebar><title>How does Ethereal detect the files of a file set?</title>
+    <para>
+	  A filename in a file set uses the format Prefix_Number_DateTimeSuffix 
+	  which might look like this: "test_00001_20060420183910.pcap".
+	  All files of a file set share the same prefix (e.g. "test") and suffix 
+	  (e.g. ".pcap") and a varying middle part.
+    </para>
+    <para>
+	  To find the files of a file set, Ethereal scans the directory where the 
+	  currently loaded file resides and scans for files matching the same filename 
+	  pattern (prefix and suffix) than the currently loaded file. 
+    </para>
+    <para>
+	  This simple mechanism usually works well, but has it's drawbacks. If several 
+	  file sets were captured with the same prefix and suffix, Ethereal will detect 
+	  them as a single file set. If files were renamed or spreaded over several 
+	  directories the mechanism will fail to find all files of a set.
+    </para>
+	</sidebar>
+    <para>
+	  The following features in the "File Set" submenu of the "File" menu are 
+	  available to work with file sets in a convenient way:
     </para>
 	<itemizedlist>
 		<listitem><para>
@@ -420,28 +441,27 @@
 		Ethereal has recognized as being part of the current file set.
 		</para></listitem>
 		<listitem><para>
-		<command>Next File</command> opens the next file in the file set.
+		<command>Next File</command> closes the current and opens the next 
+		file in the file set.
 		</para></listitem>
 		<listitem><para>
-		<command>Previous File</command> opens the previous file in 
-		the file set.
+		<command>Previous File</command> closes the current and opens the 
+		previous file in the file set.
 		</para></listitem>
 	</itemizedlist>
-    <para>
-	XXX - add icons from the menu
-    </para>
 	<section id="ChIOFileSetListDialog">
 	<title>The "List Files" dialog box</title>
-    <!--<figure>
+    <figure>
       <title>The "List Files" dialog box</title>
-      <graphic entityref="EtherealExportPlainDialog" format="PNG"/>
-    </figure>-->
-	  <para>XXX - add screenshot</para>
+      <graphic entityref="EtherealFileSetDialog" format="PNG"/>
+    </figure>
 	  <para>
 	  Each line contains information about a file of the file set:
 	<itemizedlist>
 		<listitem><para>
-		<command>Filename</command> the name of the file
+		<command>Filename</command> the name of the file. If you click on 
+		the filename (or the radio button left to it), the current file will
+		be closed and the corresponding capture file will be opened. 
 		</para></listitem>
 		<listitem><para>
 		<command>Created</command> the creation time of the file
@@ -461,9 +481,7 @@
 	  opened/closed.
 	  </para>
 	  <para>
-	  If you click on the radio button to the left of the line, the 
-	  corresponding capture file will be opened. The Close button will, well, 
-	  close the dialog box.
+	  The Close button will, well, close the dialog box.
 	  </para>
 	</section>
   </section>

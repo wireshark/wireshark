@@ -89,6 +89,7 @@ EUG_GRAPHICS =	\
 	graphics/ethereal-export-psml.png		\
 	graphics/ethereal-export-selected.png		\
 	graphics/ethereal-file-menu.png			\
+	graphics/ethereal-file-set-dialog.png		\
 	graphics/ethereal-filter-add-expression.png	\
 	graphics/ethereal-filter-toolbar.png		\
 	graphics/ethereal-filters-2.png			\
