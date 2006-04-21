@@ -367,18 +367,20 @@
 	Ethereal's native capture file format (libpcap format), and some
 	other capture file formats, such as the Windows Sniffer,
 	EtherPeek, AiroPeek, and Sun snoop formats, save the arrival
-	time of packets as UTC values.  UN*X systems, and "Windows NT"
-	systems (Windows NT 4.0, Windows 2000, Windows XP, Windows
-	Server 2003, Windows Vista), represent time internally as UTC,
-	so, when Ethereal or tcpdump/WinDump is capturing, no conversion
-	is necessary; however, if the system time zone is not set
+	time of packets as UTC values.  
+	UN*X systems, and "Windows NT based" systems (Windows NT 4.0, 
+	Windows 2000, Windows XP, Windows Server 2003, Windows Vista) 
+	represent time internally as UTC.
+	When Ethereal is capturing, no conversion is necessary.
+	However, if the system time zone is not set
 	correctly, the system's UTC time might not be correctly set even
 	if the system clock appears to display correct local time. 
-	"Windows OT" systems (Windows 95, Windows 98, Windows Me)
-	represent time internally as local time, so, when capturing,
-	WinPcap has to convert the time to UTC before supplying it to
-	Ethereal or WinDump; if the system's time zone is not set
-	correctly, that conversion will not be done correctly.
+	"Windows 9x based" systems (Windows 95, Windows 98, Windows Me)
+	represent time internally as local time. 
+	When capturing, WinPcap has to convert the time to UTC before 
+	supplying it to Ethereal. 
+	If the system's time zone is not set correctly, that conversion will 
+	not be done correctly.
 	</para>
 	<para>
 	Other capture file formats, such as the Microsoft Network
