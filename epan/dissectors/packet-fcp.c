@@ -96,6 +96,10 @@ static gint ett_fcp = -1;
 static gint ett_fcp_taskmgmt = -1;
 static gint ett_fcp_rsp_flags = -1;
 
+typedef struct _fcp_conv_data_t {
+    se_tree_t *luns;
+} fcp_conv_data_t;
+
 static dissector_table_t fcp_dissector;
 static dissector_handle_t data_handle;
 
@@ -388,7 +392,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 }
 
 static void
-dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr)
+dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr, fcp_conv_data_t *fcp_conv_data)
 {
     int offset = 0;
     int len,
@@ -398,6 +402,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     guint16 lun=0xffff;
     tvbuff_t *cdb_tvb;
     int tvb_len, tvb_rlen;
+    itl_nexus_t *itl=NULL;
 
     /* Determine the length of the FCP part of the packet */
     flags = tvb_get_guint8 (tvb, offset+10);
@@ -429,12 +434,18 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
       lun=tvb_get_guint8(tvb, offset)&0x3f;
       lun<<=8;
       lun|=tvb_get_guint8(tvb, offset+1);
-    }
-    else {
-      fchdr->itlq->lun=tvb_get_guint8 (tvb, offset+1);
+    } else {
       proto_tree_add_item(tree, hf_fcp_singlelun, tvb, offset+1,
 			   1, 0);
       lun=tvb_get_guint8(tvb, offset+1);
+    }
+    fchdr->itlq->lun=lun;
+
+    itl=(itl_nexus_t *)se_tree_lookup32(fcp_conv_data->luns, lun);
+    if(!itl){
+        itl=se_alloc(sizeof(itl_nexus_t));
+        itl->cmdset=0xff;
+        se_tree_insert32(fcp_conv_data->luns, lun, itl);
     }
 
     proto_tree_add_item(tree, hf_fcp_crn, tvb, offset+8, 1, 0);
@@ -451,14 +462,14 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if(tvb_rlen>(16+add_len))
       tvb_rlen=16+add_len;
     cdb_tvb=tvb_new_subset(tvb, offset+12, tvb_len, tvb_rlen);
-    dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, lun);
+    dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, lun, itl);
 
     proto_tree_add_item(tree, hf_fcp_dl, tvb, offset+12+16+add_len,
 			 4, 0);
 }
 
 static void
-dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation, fc_hdr *fchdr)
+dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation, fc_hdr *fchdr, itl_nexus_t *itl)
 {
     scsi_task_id_t task_key;
 
@@ -466,7 +477,7 @@ dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, con
     task_key.task_id = conversation->index;
     pinfo->private_data = (void *)&task_key;
 
-    dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->itlq->lun);
+    dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->itlq->lun, itl);
 }
 
 /* fcp-3  9.5 table 24 */
@@ -485,7 +496,7 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr)
+dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr, itl_nexus_t *itl)
 {
     guint32 offset = 0;
     gint32 snslen = 0,
@@ -522,7 +533,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
         /* scsi status code */
         proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
-        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, tvb_get_guint8(tvb, offset));
+        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, itl, tvb_get_guint8(tvb, offset));
         offset++;
 
         /* residual count */
@@ -595,9 +606,10 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti=NULL;
     proto_tree *fcp_tree = NULL;
-    conversation_t *conversation;
     fc_hdr *fchdr;
     guint8 r_ctl;
+    fcp_conv_data_t *fcp_conv_data=NULL;
+    itl_nexus_t *itl=NULL;
 
     fchdr=(fc_hdr *)pinfo->private_data;
 
@@ -622,22 +634,15 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 
-    /* find the conversation for this transaction and create a new one if it 
-     * doesnt exist already.
-     * XXX since FCP is always transported atop FC and FC also keeps track of
-     * transactions we should grab the conversation off FC instead
-     * we guarantee that conversation is non-NULL so the helpers we call
-     * do not need to check it before dereferencing.
-     */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->oxid,
-                                      pinfo->rxid, NO_PORT2);
-    if (!conversation) {
-	/* NO_PORT2: Dont check RXID, iFCP traces i have all have 
-	 * RXID==0xffff in the command PDU.   ronnie */
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                         pinfo->ptype, pinfo->oxid,
-                                         pinfo->rxid, NO_PORT2);
+    fcp_conv_data=conversation_get_proto_data(fchdr->conversation, proto_fcp);
+    if(!fcp_conv_data){
+        fcp_conv_data=se_alloc(sizeof(fcp_conv_data_t));
+        fcp_conv_data->luns=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "FCP Luns");
+        conversation_add_proto_data(fchdr->conversation, proto_fcp, fcp_conv_data);
+    }
+
+    if(r_ctl!=FCP_IU_CMD){
+        itl=(itl_nexus_t *)se_tree_lookup32(fcp_conv_data->luns, fchdr->itlq->lun);
     }
 
     /* put a request_in in all frames except the command frame */
@@ -664,7 +669,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (r_ctl) {
     case FCP_IU_DATA:
-        dissect_fcp_data(tvb, pinfo, tree, conversation, fchdr);
+        dissect_fcp_data(tvb, pinfo, tree, fchdr->conversation, fchdr, itl);
         break;
     case FCP_IU_CONFIRM:
         /* Nothing to be done here */
@@ -673,10 +678,10 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_fcp_xfer_rdy(tvb, fcp_tree);
         break;
     case FCP_IU_CMD:
-        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree, conversation, fchdr);
+        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree, fchdr->conversation, fchdr, fcp_conv_data);
         break;
     case FCP_IU_RSP:
-        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, conversation, fchdr);
+        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, fchdr->conversation, fchdr, itl);
         break;
     default:
         call_dissector(data_handle, tvb, pinfo, tree);

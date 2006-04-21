@@ -63,10 +63,10 @@ extern const value_string scsi_status_val[];
  * FCP/iSCSI
  */
 void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *,
-                       gint, guint16);
-void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, itlq_nexus_t *, guint8);
+                       gint, guint16, itl_nexus_t *);
+void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, itlq_nexus_t *, itl_nexus_t *, guint8);
 void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
-                           gboolean, guint16);
+                           gboolean, guint16, itl_nexus_t *);
 void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, guint16);
 
 /*

@@ -212,7 +212,8 @@ static gint ett_iscsi_ISID = -1;
 /* this structure contains session wide state for a specific tcp conversation */
 typedef struct _iscsi_session_t {
 	guint32 header_digest;
-	se_tree_t *exchanges;	/* indexed by ITT */
+	se_tree_t *itlq;	/* indexed by ITT */
+	se_tree_t *itl;		/* indexed by LUN */
 } iscsi_session_t;
 
 
@@ -742,6 +743,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint16 lun=0xffff;
     guint immediate_data_length=0;
     guint immediate_data_offset=0;
+    itl_nexus_t *itl=NULL;
 
     if(paddedDataSegmentLength & 3)
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -751,7 +753,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
     /* XXX we need a way to handle replayed iscsi itt here */
-    cdata=(iscsi_conv_data_t *)se_tree_lookup32(iscsi_session->exchanges, tvb_get_ntohl(tvb, offset+16));
+    cdata=(iscsi_conv_data_t *)se_tree_lookup32(iscsi_session->itlq, tvb_get_ntohl(tvb, offset+16));
     if(!cdata){
         cdata = se_alloc (sizeof(iscsi_conv_data_t));
         cdata->itlq.lun=0xffff;
@@ -762,7 +764,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->data_in_frame=0;
         cdata->data_out_frame=0;
 
-        se_tree_insert32(iscsi_session->exchanges, tvb_get_ntohl(tvb, offset+16), cdata);
+        se_tree_insert32(iscsi_session->itlq, tvb_get_ntohl(tvb, offset+16), cdata);
     }
 
     if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
@@ -819,6 +821,14 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->itlq.lun=lun;
         cdata->itlq.first_exchange_frame=pinfo->fd->num;
 
+        itl=(itl_nexus_t *)se_tree_lookup32(iscsi_session->itl, lun);
+        if(!itl){
+            itl=se_alloc(sizeof(itl_nexus_t));
+            itl->cmdset=0xff;
+            se_tree_insert32(iscsi_session->itl, lun, itl);
+        }
+
+
         /* The SCSI protocol uses this as the key to detect a
          * SCSI-level conversation. */
         task_key.conv_id = (int)iscsi_session;
@@ -828,6 +838,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     else {
         pinfo->private_data = NULL;
     }
+
+
+    if(!itl){
+        itl=(itl_nexus_t *)se_tree_lookup32(iscsi_session->itl, cdata->itlq.lun);
+    }
+
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 
@@ -1494,7 +1510,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	if(tvb_rlen>16)
 	    tvb_rlen=16;
 	cdb_tvb=tvb_new_subset(tvb, cdb_offset, tvb_len, tvb_rlen);
-        dissect_scsi_cdb (cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, lun);
+        dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, lun, itl);
 	/* we dont want the immediata below to overwrite our CDB info */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_set_fence(pinfo->cinfo, COL_INFO);
@@ -1511,7 +1527,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    data_tvb=tvb_new_subset(tvb, immediate_data_offset, tvb_len, tvb_rlen);
             dissect_scsi_payload (data_tvb, pinfo, tree,
 		  	          TRUE,
-			          lun );
+			          lun, itl);
 	}
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
@@ -1541,7 +1557,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
         }
         else {
-            dissect_scsi_rsp(tvb, pinfo, tree, &cdata->itlq, scsi_status);
+            dissect_scsi_rsp(tvb, pinfo, tree, &cdata->itlq, itl, scsi_status);
         }
     }
     else if ((opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
@@ -1559,11 +1575,11 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
         dissect_scsi_payload (data_tvb, pinfo, tree,
 			      (opcode==ISCSI_OPCODE_SCSI_DATA_OUT),
-			      cdata->itlq.lun);
+			      cdata->itlq.lun, itl);
     }
 
     if(S_bit){
-        dissect_scsi_rsp(tvb, pinfo, tree, &cdata->itlq, scsi_status);
+        dissect_scsi_rsp(tvb, pinfo, tree, &cdata->itlq, itl, scsi_status);
     }
 }
 
@@ -1691,7 +1707,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         if(!iscsi_session){
             iscsi_session=se_alloc(sizeof(iscsi_session_t));
             iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
-            iscsi_session->exchanges=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "iSCSI Exchanges");
+            iscsi_session->itlq=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "iSCSI ITLQ");
+            iscsi_session->itl=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "iSCSI ITL");
             conversation_add_proto_data(conversation, proto_iscsi, iscsi_session);
 
             /* DataOut PDUs are often mistaken by DCERPC heuristics to be

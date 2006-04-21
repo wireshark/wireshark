@@ -39,6 +39,7 @@
 #include <epan/tap.h>
 #include "../register.h"
 #include "hostlist_table.h"
+#include <epan/conversation.h>
 #include <epan/dissectors/packet-fc.h>
 
 

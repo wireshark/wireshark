@@ -1116,7 +1116,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if(tvb_rlen>16)
 			tvb_rlen=16;
 		cdb_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
-		dissect_scsi_cdb(cdb_tvb, pinfo, tree, devtype, 0xffff);
+		dissect_scsi_cdb(cdb_tvb, pinfo, tree, devtype, 0xffff, NULL);
 		offset += cdb_len_full;
 	}
 
@@ -1159,7 +1159,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
 		dissect_scsi_payload(data_tvb, pinfo, tree, isreq,
-		    0xffff);
+		    0xffff, NULL);
 		offset += payload_len_full;
 	}
 

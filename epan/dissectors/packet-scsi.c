@@ -40,17 +40,17 @@
  * There are four main routines that are provided:
  * o dissect_scsi_cdb - invoked on receiving a SCSI Command
  *   void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *,
- *   guint, guint16);
+ *   guint, guint16, itl_nexus_t *);
  * o dissect_scsi_payload - invoked to decode SCSI responses
  *   void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *, guint,
- *                              gboolean, guint32, guint16);
+ *                              gboolean, guint32, guint16, itl_nexus_t *);
  *   The final parameter is the length of the response field that is negotiated
  *   as part of the SCSI transport layer. If this is not tracked by the
  *   transport, it can be set to 0.
  * o dissect_scsi_rsp - invoked to dissect the scsi status code in a response
  *                      SCSI task.
  *   void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *,
- *                          itlq_nexus_t *, guint8);
+ *                          itlq_nexus_t *, itl_nexus_t *, guint8);
  * o dissect_scsi_snsinfo - invoked to decode the sense data provided in case of
  *                          an error.
  *   void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint,
@@ -88,6 +88,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/conversation.h>
 #include "packet-fc.h"
 #include "packet-scsi.h"
 
@@ -1665,34 +1666,11 @@ typedef struct _scsi_task_data {
 			 * the DATA pdus for some opcodes. 
 			 */
 
+
+    itl_nexus_t *itl;
 } scsi_task_data_t;
 
-/*
- * The next two data structures are used to track SCSI device type.
- *
- * XXX - it might not be sufficient to use the address of the server
- * to which SCSI CDBs are being sent to identify the device, as
- *
- *	1) a server might have multiple targets or logical units;
- *
- *	2) a server might make a different logical unit refer to
- *	   different devices for different clients;
- *
- * so we should really base this on the connection index for the
- * connection and on a device identifier supplied to us by our caller,
- * not on a network-layer address.
- */
-typedef struct _scsi_devtype_key {
-    address devid;
-} scsi_devtype_key_t;
-
-typedef struct _scsi_devtype_data {
-    scsi_device_type devtype;
-} scsi_devtype_data_t;
-
 static GHashTable *scsi_req_hash = NULL;
-
-static GHashTable *scsidev_req_hash = NULL;
 
 static dissector_handle_t data_handle;
 
@@ -1717,33 +1695,6 @@ scsi_hash (gconstpointer v)
 	val = key->conv_id + key->task_id;
 
 	return val;
-}
-
-static gint
-scsidev_equal (gconstpointer v, gconstpointer w)
-{
-    const scsi_devtype_key_t *k1 = (const scsi_devtype_key_t *)v;
-    const scsi_devtype_key_t *k2 = (const scsi_devtype_key_t *)w;
-
-    if (ADDRESSES_EQUAL (&k1->devid, &k2->devid))
-        return 1;
-    else
-        return 0;
-}
-
-static guint
-scsidev_hash (gconstpointer v)
-{
-    const scsi_devtype_key_t *key = (const scsi_devtype_key_t *)v;
-    guint val;
-    int i;
-
-    val = 0;
-    for (i = 0; i < key->devid.len; i++)
-        val += key->devid.data[i];
-    val += key->devid.type;
-
-    return val;
 }
 
 static scsi_task_data_t *
@@ -1800,44 +1751,14 @@ scsi_end_task (packet_info *pinfo)
     }
 }
 
-/*
- * Protocol initialization
- */
-static void
-free_devtype_key_dev_info(gpointer key_arg, gpointer value_arg _U_,
-    gpointer user_data _U_)
-{
-	scsi_devtype_key_t *key = key_arg;
-
-	if (key->devid.data != NULL) {
-		g_free((gpointer)key->devid.data);
-		key->devid.data = NULL;
-	}
-}
-
-
 
 static void
 scsi_init_protocol(void)
 {
-	/*
-	 * First, free up the data for the addresses attached to
-	 * scsi_devtype_key_t structures.  Do so before we free
-	 * those structures or destroy the hash table in which
-	 * they're stored.
-	 */
-	if (scsidev_req_hash != NULL) {
-		g_hash_table_foreach(scsidev_req_hash, free_devtype_key_dev_info,
-		    NULL);
-	}
-
 	if (scsi_req_hash)
             g_hash_table_destroy(scsi_req_hash);
-        if (scsidev_req_hash)
-            g_hash_table_destroy (scsidev_req_hash);
 
 	scsi_req_hash = g_hash_table_new(scsi_hash, scsi_equal);
-        scsidev_req_hash = g_hash_table_new (scsidev_hash, scsidev_equal);
 }
 
 static void
@@ -2233,42 +2154,16 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
                       guint32 payload_len, scsi_task_data_t *cdata)
 {
-    guint8 flags, i, devtype;
-    scsi_devtype_data_t *devdata = NULL;
-    scsi_devtype_key_t dkey, *req_key;
+    guint8 flags, i;
 
     if (!isreq && (cdata == NULL || !(cdata->flags & 0x3)) 
     && (tvb_length_remaining(tvb, offset)>=1) ) {
         /*
          * INQUIRY response with device type information; add device type
          * to list of known devices & their types if not already known.
-         *
-         * We don't use COPY_ADDRESS because "dkey.devid" isn't
-         * persistent, and therefore it can point to the stuff
-         * in "pinfo->src".  (Were we to use COPY_ADDRESS, we'd
-         * have to free the address data it allocated before we return.)
          */
-        dkey.devid = pinfo->src;
-        devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
-                                                              &dkey);
-        if (!devdata) {
-            req_key = se_alloc (sizeof(scsi_devtype_key_t));
-            COPY_ADDRESS (&(req_key->devid), &(pinfo->src));
-
-            devdata = se_alloc (sizeof(scsi_devtype_data_t));
-            devdata->devtype = tvb_get_guint8 (tvb, offset) & SCSI_DEV_BITS;
-
-            g_hash_table_insert (scsidev_req_hash, req_key, devdata);
-	} else {
-            devtype = tvb_get_guint8 (tvb, offset);
-            if ((devtype & SCSI_DEV_BITS) != SCSI_DEV_NOLUN) {
-                /* Some initiators probe more than the available LUNs which
-                 * results in Inquiry data being returned indicating that a LUN
-                 * is not supported. We don't want to overwrite the device type
-                 * with such responses.
-                 */
-                devdata->devtype = (devtype & SCSI_DEV_BITS);
-            }
+        if(cdata && cdata->itl){
+            cdata->itl->cmdset=tvb_get_guint8(tvb, offset)&SCSI_DEV_BITS;
         }
     }
 
@@ -6435,7 +6330,8 @@ dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
-                  proto_tree *tree, itlq_nexus_t *scsi_ed, guint8 scsi_status)
+                  proto_tree *tree, itlq_nexus_t *itlq, itl_nexus_t *itl,
+                  guint8 scsi_status)
 {
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
@@ -6448,14 +6344,19 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
     }
 
-    ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, scsi_ed->lun);
+    ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    if(scsi_ed->first_exchange_frame){
-        nstime_t delta_time;
-        ti=proto_tree_add_uint(scsi_tree, hf_scsi_request_frame, tvb, 0, 0, scsi_ed->first_exchange_frame);
+    if(itl){
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset, "Command Set:%s (0x%02x)", val_to_str(itl->cmdset, scsi_devtype_val, "Unknown"), itl->cmdset);
         PROTO_ITEM_SET_GENERATED(ti);
-        nstime_delta(&delta_time, &pinfo->fd->abs_ts, &scsi_ed->fc_time);
+    }
+
+    if(itlq->first_exchange_frame){
+        nstime_t delta_time;
+        ti=proto_tree_add_uint(scsi_tree, hf_scsi_request_frame, tvb, 0, 0, itlq->first_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
+        nstime_delta(&delta_time, &pinfo->fd->abs_ts, &itlq->fc_time);
         ti=proto_tree_add_time(scsi_tree, hf_scsi_time, tvb, 0, 0, &delta_time);
         PROTO_ITEM_SET_GENERATED(ti);
     }
@@ -6463,7 +6364,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
     PROTO_ITEM_SET_GENERATED(ti);
     if (check_col (pinfo->cinfo, COL_INFO)) {
-         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", scsi_ed->lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
+         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", itlq->lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
      }
@@ -7811,7 +7712,7 @@ static scsi_cdb_table_t mmc[256] = {
 
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  gint devtype_arg, guint16 lun)
+                  gint devtype_arg, guint16 lun, itl_nexus_t *itl)
 {
     int offset = 0;
     proto_item *ti;
@@ -7821,8 +7722,6 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_cmnd_type cmd = 0;     /* 0 is undefined type */
     const gchar *valstr;
     scsi_task_data_t *cdata;
-    scsi_devtype_key_t dkey;
-    scsi_devtype_data_t *devdata;
     scsi_cdb_table_t *cdb_table=NULL;
     const value_string *cdb_vals = NULL;
     int hf_opcode=-1;
@@ -7836,20 +7735,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (devtype_arg != SCSI_DEV_UNKNOWN) {
         devtype = devtype_arg;
     } else {
-        /*
-         * Try to look up the device data for this device.
-         *
-         * We don't use COPY_ADDRESS because "dkey.devid" isn't
-         * persistent, and therefore it can point to the stuff
-         * in "pinfo->src".  (Were we to use COPY_ADDRESS, we'd
-         * have to free the address data it allocated before we return.)
-         */
-        dkey.devid = pinfo->dst;
-
-        devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
-                                                              &dkey);
-        if (devdata != NULL) {
-            devtype = devdata->devtype;
+        if (itl) {
+            devtype = itl->cmdset;
         } else {
             devtype = (scsi_device_type)scsi_def_devtype;
         }
@@ -7932,6 +7819,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	cdata->cdb_table = cdb_table;
 	cdata->cdb_vals = cdb_vals;
 	cdata->alloc_len=0;
+        cdata->itl=itl;
     }
 
     if (tree) {
@@ -7976,7 +7864,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 void
 dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      gboolean isreq, guint16 lun)
+                      gboolean isreq, guint16 lun, itl_nexus_t *itl)
 {
     int offset=0;
     proto_item *ti;
@@ -7996,6 +7884,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         return;
     }
+    cdata->itl=itl;
 
     old_proto=pinfo->current_proto;
     pinfo->current_proto="SCSI";

@@ -657,6 +657,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                       pinfo->ptype, pinfo->srcport,
                                       pinfo->destport, 0);
     }        
+    fchdr.conversation=conversation;
     fc_conv_data=conversation_get_proto_data(conversation, proto_fc);
     if(!fc_conv_data){
         fc_conv_data=se_alloc(sizeof(fc_conv_data_t));

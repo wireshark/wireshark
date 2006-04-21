@@ -44,6 +44,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/etypes.h>
+#include <epan/conversation.h>
 #include "packet-fc.h"
 #include "packet-fclctl.h"
 

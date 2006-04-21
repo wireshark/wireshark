@@ -36,6 +36,7 @@
 #include <epan/bridged_pids.h>
 #include <epan/ppptypes.h>
 #include <epan/arcnet_pids.h>
+#include <epan/conversation.h>
 #include "packet-fc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
