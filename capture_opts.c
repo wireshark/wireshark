@@ -432,6 +432,11 @@ int capture_opts_list_interfaces()
     gchar       err_str[CAPTURE_PCAP_ERRBUF_SIZE];
     gchar       *cant_get_if_list_errstr;
     int         i;
+#if 0
+    GSList      *ip_addr;
+    if_addr_t   *if_addr;
+    guint8      ipv4[4];
+#endif
 
 
     if_list = get_interface_list(&err, err_str);
@@ -457,6 +462,25 @@ int capture_opts_list_interfaces()
         printf("%d. %s", i++, if_info->name);
         if (if_info->description != NULL)
             printf(" (%s)", if_info->description);
+#if 0
+        for(ip_addr = g_slist_nth(if_info->ip_addr, 0); ip_addr != NULL;
+        ip_addr = g_slist_next(ip_addr)) {
+            if_addr = ip_addr->data;
+            switch(if_addr->type) {
+            case AT_IPv4:
+                memcpy(ipv4, (void *) &if_addr->ip_addr.ip4_addr, 4);
+                printf(" %u.%u.%u.%u", ipv4[0], ipv4[1], ipv4[2], ipv4[3]);
+                break;
+            case AT_IPv6:
+                /* XXX - display the IPv6 address without using stuff from epan */
+                printf(" XXX-IPv6");
+                break;
+            default:
+                printf(" unknown address type %u", if_addr->type);
+            }
+        }
+#endif
+
         printf("\n");
     }
     free_interface_list(if_list);
