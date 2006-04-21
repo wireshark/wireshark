@@ -264,7 +264,8 @@ user-guide.html: $(EUG_SOURCE)
 	mkdir -p eug_html/graphics/toolbar
 	cp graphics/*.* eug_html/graphics
 	cp graphics/toolbar/* eug_html/graphics/toolbar
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > eug_html/$@
+	cp eth.css eug_html
+	$(XSLTPROC) --stringparam base.dir eug_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > eug_html/$@
 	-chmod -R og+rX eug_html
 	
 # create html chunked page files
@@ -273,7 +274,8 @@ eug_html_chunked: $(EUG_SOURCE)
 	mkdir -p eug_html_chunked/graphics/toolbar
 	cp graphics/*.* eug_html_chunked/graphics
 	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	cp eth.css eug_html_chunked
+	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX eug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
@@ -299,7 +301,7 @@ ifdef HHC
 	mkdir -p eug_chm/graphics/toolbar
 	-cp graphics/*.* eug_chm/graphics/
 	-cp graphics/toolbar/* eug_chm/graphics/toolbar/
-	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
@@ -320,7 +322,8 @@ developer-guide.html: $(EDG_SOURCE)
 	@ echo --- EDG - HTML SINGLE PAGE ---
 	mkdir -p edg_html/edg_graphics
 	cp edg_graphics/* edg_html/edg_graphics
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
+	cp eth.css edg_html
+	$(XSLTPROC) --stringparam base.dir edg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
 	-chmod -R og+rX edg_html
 	
 # create html chunked page files
@@ -329,8 +332,9 @@ edg_html_chunked: $(EDG_SOURCE)
 	mkdir -p edg_html_chunked
 	mkdir -p edg_html_chunked/edg_graphics
 	cp edg_graphics/* edg_html_chunked/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
-	-chmod -R og+rX edg_html
+	cp eth.css edg_html_chunked
+	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	-chmod -R og+rX edg_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
@@ -354,7 +358,7 @@ ifdef HHC
 	@ echo --- EDG - MICROSOFT HTML HELP ---
 	mkdir -p edg_chm/edg_graphics
 	cp edg_graphics/* edg_chm/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet eth.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
