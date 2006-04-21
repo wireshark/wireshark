@@ -1108,6 +1108,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (cdb_len != 0) {
 		tvbuff_t *cdb_tvb;
 		int tvb_len, tvb_rlen;
+		itlq_nexus_t itlq;
 
 		tvb_len=tvb_length_remaining(tvb, offset);
 		if(tvb_len>16)
@@ -1116,7 +1117,16 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if(tvb_rlen>16)
 			tvb_rlen=16;
 		cdb_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
-		dissect_scsi_cdb(cdb_tvb, pinfo, tree, devtype, 0xffff, NULL);
+
+		/* create a fake itlq structure until we have proper
+		 * tracking in ndmp 
+		 */
+		itlq.lun=0xffff;
+
+		itlq.first_exchange_frame=0;
+		itlq.last_exchange_frame=0;
+		itlq.scsi_opcode=0xffff;
+		dissect_scsi_cdb(cdb_tvb, pinfo, tree, devtype, &itlq, NULL);
 		offset += cdb_len_full;
 	}
 
@@ -1149,6 +1159,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	if (payload_len != 0) {
 		tvbuff_t *data_tvb;
 		int tvb_len, tvb_rlen;
+		itlq_nexus_t itlq;
 
 		tvb_len=tvb_length_remaining(tvb, offset);
 		if(tvb_len>(int)payload_len)
@@ -1158,8 +1169,16 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	    		tvb_rlen=payload_len;
 		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
+		/* create a fake itlq structure until we have proper
+		 * tracking in ndmp 
+		 */
+		itlq.lun=0xffff;
+
+		itlq.first_exchange_frame=0;
+		itlq.last_exchange_frame=0;
+		itlq.scsi_opcode=0xffff;
 		dissect_scsi_payload(data_tvb, pinfo, tree, isreq,
-		    0xffff, NULL);
+		    &itlq, NULL);
 		offset += payload_len_full;
 	}
 

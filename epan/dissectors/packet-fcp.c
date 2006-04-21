@@ -462,7 +462,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if(tvb_rlen>(16+add_len))
       tvb_rlen=16+add_len;
     cdb_tvb=tvb_new_subset(tvb, offset+12, tvb_len, tvb_rlen);
-    dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, lun, itl);
+    dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, fchdr->itlq, itl);
 
     proto_tree_add_item(tree, hf_fcp_dl, tvb, offset+12+16+add_len,
 			 4, 0);
@@ -477,7 +477,7 @@ dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, con
     task_key.task_id = conversation->index;
     pinfo->private_data = (void *)&task_key;
 
-    dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->itlq->lun, itl);
+    dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->itlq, itl);
 }
 
 /* fcp-3  9.5 table 24 */

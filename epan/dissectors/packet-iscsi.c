@@ -1510,7 +1510,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	if(tvb_rlen>16)
 	    tvb_rlen=16;
 	cdb_tvb=tvb_new_subset(tvb, cdb_offset, tvb_len, tvb_rlen);
-        dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, lun, itl);
+        dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, &cdata->itlq, itl);
 	/* we dont want the immediata below to overwrite our CDB info */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_set_fence(pinfo->cinfo, COL_INFO);
@@ -1527,7 +1527,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    data_tvb=tvb_new_subset(tvb, immediate_data_offset, tvb_len, tvb_rlen);
             dissect_scsi_payload (data_tvb, pinfo, tree,
 		  	          TRUE,
-			          lun, itl);
+			          &cdata->itlq, itl);
 	}
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
@@ -1575,7 +1575,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
         dissect_scsi_payload (data_tvb, pinfo, tree,
 			      (opcode==ISCSI_OPCODE_SCSI_DATA_OUT),
-			      cdata->itlq.lun, itl);
+			      &cdata->itlq, itl);
     }
 
     if(S_bit){
