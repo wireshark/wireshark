@@ -298,10 +298,10 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	const struct _sctp_assoc_info* b = bb;
 
 	if (a == b)
-		return(0);
+		return(FORWARD_STREAM);
 
 	if (a == NULL || b == NULL)
-		return(1);
+		return(ASSOC_NOT_FOUND);
 
 	/* assoc known*/
 	if ((a->port1 == b->port1) &&
@@ -313,12 +313,14 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 
 	if ((a->port1 == b->port2) &&
 	    (a->port2 == b->port1) &&
-	    (a->verification_tag1 == b->verification_tag2))
+	    (a->verification_tag1 == b->verification_tag2) &&
+	    (a->verification_tag1 != 0))
 		return(BACKWARD_STREAM);
 		
 	if ((a->port1 == b->port2) &&
 	    (a->port2 == b->port1) &&
-	    (a->verification_tag2 == b->verification_tag1))
+	    (a->verification_tag2 == b->verification_tag1) &&
+	    (a->verification_tag2 != 0))
 		return(BACKWARD_STREAM);
 
 	/*forward stream verifivation tag can be added*/
@@ -584,7 +586,7 @@ static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 	guint8 cmp;
 
 	assoc_info = &sctp_tapinfo_struct;
-	if ((list = g_list_first(assoc_info->assoc_info_list))!=NULL)
+	if ((list = g_list_last(assoc_info->assoc_info_list))!=NULL)
 	{
 		while (list)
 		{
@@ -648,7 +650,7 @@ static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 				return info;
 			}
 
-			list = g_list_next(list);
+			list = g_list_previous(list);
 		}
 	}
 	return NULL;
