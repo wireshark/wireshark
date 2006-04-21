@@ -40,6 +40,7 @@ Ethereal Info
 	  <!-- Fixed in r16967, r17015 -->
 	  <!-- Bug IDs: 651 -->
 	  Versions affected: 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -47,6 +48,7 @@ Ethereal Info
 	  <!-- Fixed in r17119, r17273 -->
 	  <!-- Bug IDs: 716 -->
 	  Versions affected: 0.10.12 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1933">CVE-2006-1933</ulink>
         </para></listitem>
 
         <!-- Canary bugs found after r17235 -->
@@ -56,6 +58,7 @@ Ethereal Info
 	  <!-- Fixed in r16995, r17337 -->
 	  <!-- Bug IDs: None -->
 	  Versions affected: 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -63,6 +66,7 @@ Ethereal Info
 	  <!-- Fixed in r17001 -->
 	  <!-- Bug IDs: None -->
 	  Versions affected: 0.10.0 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -70,6 +74,7 @@ Ethereal Info
 	  <!-- Fixed in r17022 -->
 	  <!-- Bug IDs: 667 -->
 	  Versions affected: 0.10.13 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -78,6 +83,7 @@ Ethereal Info
 	  <!-- Fixed in r17048 -->
 	  <!-- Bug IDs: 698 -->
 	  Versions affected: 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1932">CVE-2006-1932</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -85,6 +91,7 @@ Ethereal Info
 	  <!-- Fixed in r17051 -->
 	  <!-- Bug IDs: None -->
 	  Versions affected: 0.9.15 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1935">CVE-2006-1935</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -92,6 +99,7 @@ Ethereal Info
 	  <!-- Fixed in r17495 -->
 	  <!-- Bug IDs: 794 -->
 	  Versions affected: 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934">CVE-2006-1934</ulink>
         </para></listitem>
 
       </itemizedlist>
@@ -112,6 +120,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 32 -->
 	  Versions affected: 0.10.10 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -120,6 +129,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 33 -->
 	  Versions affected: 0.8.12 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1938">CVE-2006-1938</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -128,6 +138,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 34 -->
 	  Versions affected: 0.9.16 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -136,6 +147,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 35 -->
 	  Versions affected: 0.10.9 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <!-- CID 36 - 38: Bogus -->
@@ -146,6 +158,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 39 -->
 	  Versions affected: 0.10.7 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -154,6 +167,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 40 -->
 	  Versions affected: 0.9.8 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -162,6 +176,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 41 -->
 	  Versions affected: 0.9.16 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -170,6 +185,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 42, 43, 146 -->
 	  Versions affected: 0.9.8 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -178,6 +194,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 44, 46, 47, 48 -->
 	  Versions affected: 0.8.20 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1938">CVE-2006-1938</ulink>
         </para></listitem>
 
         <!-- CID 45: Bogus -->
@@ -192,6 +209,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 67, 68, 136 -->
 	  Versions affected: 0.10.4 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1933">CVE-2006-1933</ulink>
         </para></listitem>
 
         <!-- CID 69 - 72: Bogus -->
@@ -202,6 +220,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 73 -->
 	  Versions affected: 0.10.4 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1940">CVE-2006-1940</ulink>
         </para></listitem>
 
         <!-- CID 74 - 78: Bogus -->
@@ -215,6 +234,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 82 -->
 	  Versions affected: 0.10.0 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934">CVE-2006-1934</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -223,6 +243,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 83 -->
 	  Versions affected: 0.10.13 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934">CVE-2006-1934</ulink>
         </para></listitem>
 
         <!-- CID 83 - 103: Bogus -->
@@ -233,6 +254,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 104 -->
 	  Versions affected: 0.9.16 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -241,6 +263,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 105 -->
 	  Versions affected: 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934">CVE-2006-1934</ulink>
         </para></listitem>
 
         <listitem><para>
@@ -249,6 +272,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 106 -->
 	  Versions affected: 0.8.5 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1936">CVE-2006-1936</ulink>
         </para></listitem>
 
         <!-- CID 107: See CID 79 -->
@@ -260,6 +284,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 109 -->
 	  Versions affected: 0.9.10 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <!-- CID 110: Not security-related -->
@@ -272,6 +297,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 113,114 -->
 	  Versions affected: 0.10.11 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937">CVE-2006-1937</ulink>
         </para></listitem>
 
         <!-- CID 115, 116: See CID 79 -->
@@ -287,6 +313,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 128 -->
 	  Versions affected: 0.9.14 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <!-- CID 129: Bogus -->
@@ -298,6 +325,7 @@ Ethereal Info
 	  <!-- Bug IDs: None -->
           <!-- Coverity CID 135 -->
 	  Versions affected: 0.9.14 - 0.10.14.
+	  CVE: <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939">CVE-2006-1939</ulink>
         </para></listitem>
 
         <!-- CID 136: See CID 67 -->
