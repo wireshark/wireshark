@@ -266,6 +266,112 @@ struct ndis_bssid_list {
 
 
 /******************************************************************************************************************************/
+/* OID_TCP_TASK_OFFLOAD specific definitions that would usually come from the windows DDK (device driver kit) */
+/* and are not part of the ntddndis.h file delivered with WinPcap */
+
+/* optional OID (from http://www.ndis.com/papers/ieee802_11_log.htm) */
+#define OID_TCP_TASK_OFFLOAD    0xFC010201
+
+/* task id's (from ReactOS) */
+typedef enum _NDIS_TASK {
+  TcpIpChecksumNdisTask,
+  IpSecNdisTask,
+  TcpLargeSendNdisTask,
+  MaxNdisTask
+} NDIS_TASK, *PNDIS_TASK;
+
+/* TaskBuffer content on TcpIpChecksumNdisTask (from ReactOS) */
+typedef struct _NDIS_TASK_TCP_IP_CHECKSUM
+{
+  struct
+  {
+    ULONG    IpOptionsSupported:1;
+    ULONG    TcpOptionsSupported:1;
+    ULONG    TcpChecksum:1;
+    ULONG    UdpChecksum:1;
+    ULONG    IpChecksum:1;
+  } V4Transmit;
+ 
+  struct
+  {
+    ULONG    IpOptionsSupported:1;
+    ULONG    TcpOptionsSupported:1;
+    ULONG    TcpChecksum:1;
+    ULONG    UdpChecksum:1;
+    ULONG    IpChecksum:1;
+  } V4Receive;
+ 
+  struct
+  {
+    ULONG    IpOptionsSupported:1;
+    ULONG    TcpOptionsSupported:1;
+    ULONG    TcpChecksum:1;
+    ULONG    UdpChecksum:1;
+  } V6Transmit;
+ 
+  struct
+  {
+    ULONG    IpOptionsSupported:1;
+    ULONG    TcpOptionsSupported:1;
+    ULONG    TcpChecksum:1;
+    ULONG    UdpChecksum:1;
+  } V6Receive;
+} NDIS_TASK_TCP_IP_CHECKSUM, *PNDIS_TASK_TCP_IP_CHECKSUM;
+
+/* TaskBuffer content on TcpLargeSendNdisTask (from ReactOS) */
+typedef struct _NDIS_TASK_TCP_LARGE_SEND
+{
+  ULONG  Version;
+  ULONG  MaxOffLoadSize;
+  ULONG  MinSegmentCount;
+  BOOLEAN  TcpOptions;
+  BOOLEAN  IpOptions;
+} NDIS_TASK_TCP_LARGE_SEND, *PNDIS_TASK_TCP_LARGE_SEND;
+
+/* Encapsulations (from ReactOs) */
+typedef enum _NDIS_ENCAPSULATION {
+  UNSPECIFIED_Encapsulation,
+  NULL_Encapsulation,
+  IEEE_802_3_Encapsulation,
+  IEEE_802_5_Encapsulation,
+  LLC_SNAP_ROUTED_Encapsulation,
+  LLC_SNAP_BRIDGED_Encapsulation
+} NDIS_ENCAPSULATION;
+
+/* Encapsulation format (from ReactOs) */
+typedef struct _NDIS_ENCAPSULATION_FORMAT {
+  NDIS_ENCAPSULATION  Encapsulation;
+  struct {
+    ULONG  FixedHeaderSize : 1;
+    ULONG  Reserved : 31;
+  } Flags;
+  ULONG  EncapsulationHeaderSize;
+} NDIS_ENCAPSULATION_FORMAT, *PNDIS_ENCAPSULATION_FORMAT;
+
+/* request struct (from http://www.microsoft.com/whdc/archive/netdrv_up.mspx) */
+typedef struct _NDIS_TASK_OFFLOAD_HEADER
+{
+  ULONG  Version;
+  ULONG  Size;
+  ULONG  Reserved;
+  UCHAR  OffsetFirstTask;
+  NDIS_ENCAPSULATION_FORMAT  EncapsulationFormat;
+} NDIS_TASK_OFFLOAD_HEADER, *PNDIS_TASK_OFFLOAD_HEADER;
+
+/* response struct (from ReactOS) */
+#define NDIS_TASK_OFFLOAD_VERSION 1
+typedef struct _NDIS_TASK_OFFLOAD
+{
+  ULONG  Version;
+  ULONG  Size;
+  NDIS_TASK  Task;
+  ULONG  OffsetNextTask;
+  ULONG  TaskBufferLength;
+  UCHAR  TaskBuffer[1];
+} NDIS_TASK_OFFLOAD, *PNDIS_TASK_OFFLOAD;
+
+
+/******************************************************************************************************************************/
 /* value_string's for info functions */
 
 
@@ -360,6 +466,56 @@ static const value_string win32_802_11_channel_vals[] = {
 };
 
 
+
+/******************************************************************************************************************************/
+/* debug functions, query or list supported NDIS OID's */
+
+
+static void
+supported_list(LPADAPTER adapter) 
+{
+    unsigned char       values[10000];
+    int                 length;
+
+    
+    length = sizeof(values);
+    if (wpcap_packet_request(adapter, OID_GEN_SUPPORTED_LIST, FALSE /* !set */, values, &length)) {
+        guint32 *value = (guint32 *) values;
+
+        while (length>=4) {
+            g_warning("OID: 0x%08X", *value);
+
+            value++;
+            length-=4;
+        }
+    }
+}
+
+
+static gboolean
+supported_query_oid(LPADAPTER adapter, guint32 oid) 
+{
+    unsigned char       values[10000];
+    int                 length;
+
+    
+    length = sizeof(values);
+    if (wpcap_packet_request(adapter, OID_GEN_SUPPORTED_LIST, FALSE /* !set */, values, &length)) {
+        guint32 *value = (guint32 *) values;
+
+        while (length>=4) {
+            if(*value == oid) {
+                return TRUE;
+            }
+            value++;
+            length-=4;
+        }
+    }
+
+    return FALSE;
+}
+
+
 /******************************************************************************************************************************/
 /* info functions, get and display various NDIS driver values */
 
@@ -414,9 +570,9 @@ ssid_details(GtkWidget *table, guint *row, struct ndis_essid *ssid_in) {
 
     if(ssid->length != 0) {
         ssid->essid[ssid->length] = '\0';
-        add_string_to_table(table, row, "SSID", ssid->essid);
+        add_string_to_table(table, row, "SSID (Service Set IDentifier)", ssid->essid);
     } else {
-        add_string_to_table(table, row, "SSID", "(currently not associated with an SSID)");
+        add_string_to_table(table, row, "SSID (Service Set IDentifier)", "(currently not associated with an SSID)");
     }
 }
 
@@ -569,7 +725,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
-    add_string_to_table(table, row, "BSSID", string_buff);
+    add_string_to_table(table, row, "BSSID (Basic Service Set IDentifier)", string_buff);
 
     /* SSID */
     length = sizeof(struct ndis_essid);
@@ -578,7 +734,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         ssid_details(table, row, &ssid);
         entries++;
     } else {
-        add_string_to_table(table, row, "SSID", "-");
+        add_string_to_table(table, row, "SSID (Service Set IDentifier)", "-");
     }
 
     /* Network type in use */
@@ -628,11 +784,11 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* RSSI */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_RSSI, &long_value)) {
-        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm", long_value);
-        add_string_to_table(table, row, "RSSI", string_buff);
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm (typical -10 through -200)", long_value);
+        add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", string_buff);
         entries++;
     } else {
-        add_string_to_table(table, row, "RSSI", "-");
+        add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", "-");
     }
 
     /* Supported Rates */
@@ -842,6 +998,167 @@ capture_if_details_802_3(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     return entries;
 }
 
+static int
+task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter) {
+    NDIS_TASK_OFFLOAD_HEADER *offload;
+    unsigned char   values[10000];
+    int             length;
+    gchar           string_buff[DETAILS_STR_MAX];
+    int             entries = 0;
+    int             TcpIpChecksumSupported = 0;
+    int             IpSecSupported = 0;
+    int             TcpLargeSendSupported = 0;
+
+
+    /* Task Offload */
+    offload = (NDIS_TASK_OFFLOAD_HEADER *) values;
+    offload->Version = NDIS_TASK_OFFLOAD_VERSION;
+    offload->Size = sizeof(NDIS_TASK_OFFLOAD_HEADER);
+    offload->Reserved = 0;
+    offload->OffsetFirstTask = 0;
+    /* the EncapsulationFormat seems to be ignored on a query (using Ethernet values) */
+    offload->EncapsulationFormat.Encapsulation = IEEE_802_3_Encapsulation;
+    offload->EncapsulationFormat.Flags.FixedHeaderSize = 1;
+    offload->EncapsulationFormat.Flags.Reserved = 0;
+    offload->EncapsulationFormat.EncapsulationHeaderSize = 14; /* sizeof(struct ether_header) */;
+    
+    length = sizeof(values);
+    if (wpcap_packet_request(adapter, OID_TCP_TASK_OFFLOAD, FALSE /* !set */, values, &length)) {
+        NDIS_TASK_OFFLOAD *of;
+        /* XXX - hmmm, using a tvb for this? */
+        unsigned char *valuep = values + offload->OffsetFirstTask;
+        length -= offload->OffsetFirstTask;
+
+        do {
+            of = (NDIS_TASK_OFFLOAD *) valuep;
+
+            switch(of->Task) {
+            case TcpIpChecksumNdisTask:
+                {
+                    NDIS_TASK_TCP_IP_CHECKSUM *tic = (NDIS_TASK_TCP_IP_CHECKSUM *) (of->TaskBuffer);
+
+                    entries++;
+                    TcpIpChecksumSupported++;
+
+                    add_string_to_table(table, row, "TCP/IP Checksum", "");
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "");
+                    add_string_to_table(table, row, "V4 transmit checksum", "");
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, UDP: %s, IP: %s",
+                        tic->V4Transmit.TcpChecksum ? "Yes" : "No",
+                        tic->V4Transmit.UdpChecksum ? "Yes" : "No",
+                        tic->V4Transmit.IpChecksum ? "Yes" : "No");
+                    add_string_to_table(table, row, "Calculation supported", string_buff);
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, IP: %s",
+                        tic->V4Transmit.TcpOptionsSupported ? "Yes" : "No",
+                        tic->V4Transmit.IpOptionsSupported ? "Yes" : "No");
+                    add_string_to_table(table, row, "Options fields supported", string_buff);
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "");
+                    add_string_to_table(table, row, "V4 receive checksum", "");
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, UDP: %s, IP: %s",
+                        tic->V4Receive.TcpChecksum ? "Yes" : "No",
+                        tic->V4Receive.UdpChecksum ? "Yes" : "No",
+                        tic->V4Receive.IpChecksum ? "Yes" : "No");
+                    add_string_to_table(table, row, "Validation supported", string_buff);
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, IP: %s",
+                        tic->V4Receive.TcpOptionsSupported ? "Yes" : "No",
+                        tic->V4Receive.IpOptionsSupported ? "Yes" : "No");
+                    add_string_to_table(table, row, "Options fields supported", string_buff);
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "");
+                    add_string_to_table(table, row, "V6 transmit checksum", "");
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, UDP: %s",
+                        tic->V6Transmit.TcpChecksum ? "Yes" : "No",
+                        tic->V6Transmit.UdpChecksum ? "Yes" : "No");
+                    add_string_to_table(table, row, "Calculation supported", string_buff);
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, IP: %s",
+                        tic->V6Transmit.TcpOptionsSupported ? "Yes" : "No",
+                        tic->V6Transmit.IpOptionsSupported ? "Yes" : "No");
+                    add_string_to_table(table, row, "Options fields supported", string_buff);
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "");
+                    add_string_to_table(table, row, "V6 receive checksum", "");
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, UDP: %s",
+                        tic->V6Receive.TcpChecksum ? "Yes" : "No",
+                        tic->V6Receive.UdpChecksum ? "Yes" : "No");
+                    add_string_to_table(table, row, "Validation supported", string_buff);
+
+                    g_snprintf(string_buff, DETAILS_STR_MAX, "TCP: %s, IP: %s",
+                        tic->V6Receive.TcpOptionsSupported ? "Yes" : "No",
+                        tic->V6Receive.IpOptionsSupported ? "Yes" : "No");
+                    add_string_to_table(table, row, "Options fields supported", string_buff);
+                }
+                break;
+            case IpSecNdisTask:
+                entries++;
+                IpSecSupported++;
+
+                add_string_to_table(table, row, "IPSEC", "");
+                g_snprintf(string_buff, DETAILS_STR_MAX, "IPSEC (TaskID 1) not decoded yet");
+                add_string_to_table(table, row, "Task", string_buff);
+                break;
+            case TcpLargeSendNdisTask:
+                {
+                    NDIS_TASK_TCP_LARGE_SEND *tls = (NDIS_TASK_TCP_LARGE_SEND *) (of->TaskBuffer);
+
+                    entries++;
+                    TcpLargeSendSupported++;
+
+                    add_string_to_table(table, row, "TCP large send", "");
+                    /* XXX - while MSDN tells about version 0, we see version 1?!? */
+                    if(tls->Version == 1) {
+                        g_snprintf(string_buff, DETAILS_STR_MAX, "%u", tls->MaxOffLoadSize);
+                        add_string_to_table(table, row, "Max Offload Size", string_buff);
+                        g_snprintf(string_buff, DETAILS_STR_MAX, "%u", tls->MinSegmentCount);
+                        add_string_to_table(table, row, "Min Segment Count", string_buff);
+                        g_snprintf(string_buff, DETAILS_STR_MAX, "%s", tls->TcpOptions ? "Yes" : "No");
+                        add_string_to_table(table, row, "TCP option fields", string_buff);
+                        g_snprintf(string_buff, DETAILS_STR_MAX, "%s", tls->IpOptions ? "Yes" : "No");
+                        add_string_to_table(table, row, "IP option fields", string_buff);
+                    } else {
+                        g_snprintf(string_buff, DETAILS_STR_MAX, "%u (unknown)", tls->Version);
+                        add_string_to_table(table, row, "Version", string_buff);
+                    }
+                }
+                break;
+            default:
+                g_snprintf(string_buff, DETAILS_STR_MAX, "Unknown task %u", of->Task);
+                add_string_to_table(table, row, "Task", string_buff);
+
+            }
+            
+            add_string_to_table(table, row, "", "");
+
+            valuep += of->OffsetNextTask;
+            length -= of->OffsetNextTask;
+        } while(of->OffsetNextTask != 0);
+    } 
+
+    if(TcpIpChecksumSupported == 0) {
+        add_string_to_table(table, row, "TCP/IP Checksum", "");
+        add_string_to_table(table, row, "Offload not supported", "-");
+    }
+
+    if(IpSecSupported == 0) {
+        add_string_to_table(table, row, "IpSec", "");
+        add_string_to_table(table, row, "Offload not supported", "-");
+    }
+        
+    if(TcpLargeSendSupported == 0) {
+        add_string_to_table(table, row, "TCP Large Send", "");
+        add_string_to_table(table, row, "Offload not supported", "-");
+    }
+
+    return entries;
+}
 
 static void
 capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter, gchar *iface) {
@@ -1186,7 +1503,7 @@ capture_if_details_open_win(char *iface)
 {
     GtkWidget   *details_open_w,
                 *main_vb, *bbox, *close_bt, *help_bt;
-    GtkWidget   *page_general, *page_stats, *page_802_3, *page_802_11;
+    GtkWidget   *page_general, *page_stats, *page_802_3, *page_802_11, *page_task_offload;
     GtkWidget   *page_lb;
     GtkWidget   *table, *notebook, *label;
     guint       row;
@@ -1239,6 +1556,16 @@ capture_if_details_open_win(char *iface)
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_802_11, page_lb);
     row = 0;
     entries = capture_if_details_802_11(table, page_802_11, &row, adapter);
+    if(entries == 0) {
+        gtk_widget_set_sensitive(page_lb, FALSE);
+    }
+
+    /* task offload page */
+    page_task_offload = capture_if_details_page_new(&table);
+    page_lb = gtk_label_new("Task Offload");
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_task_offload, page_lb);
+    row = 0;
+    entries = task_offload(table, page_task_offload, &row, adapter);
     if(entries == 0) {
         gtk_widget_set_sensitive(page_lb, FALSE);
     }
