@@ -7737,20 +7737,25 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                          "0x%02x")
                                              );
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
+    }
 
-	ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
-	PROTO_ITEM_SET_GENERATED(ti);
+    ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    if(itlq->last_exchange_frame){
+        ti=proto_tree_add_uint(scsi_tree, hf_scsi_response_frame, tvb, 0, 0, itlq->last_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
 
 
-        if (valstr != NULL) {
-            proto_tree_add_uint_format (scsi_tree, csdata->hf_opcode, tvb,
-                                        offset, 1,
-                                        tvb_get_guint8 (tvb, offset),
-                                        "Opcode: %s (0x%02x)", valstr,
-                                        opcode);
-        } else {
-            proto_tree_add_item (scsi_tree, hf_scsi_spcopcode, tvb, offset, 1, 0);
-        }
+    if (valstr != NULL) {
+        proto_tree_add_uint_format (scsi_tree, csdata->hf_opcode, tvb,
+                                    offset, 1,
+                                    tvb_get_guint8 (tvb, offset),
+                                    "Opcode: %s (0x%02x)", valstr,
+                                    opcode);
+    } else {
+        proto_tree_add_item (scsi_tree, hf_scsi_spcopcode, tvb, offset, 1, 0);
     }
 
     if(csdata->cdb_table[opcode].func){
@@ -7826,13 +7831,26 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    ti=proto_tree_add_uint_format(scsi_tree, csdata->hf_opcode, tvb,
-                                        offset, 0, opcode,
-                                        "Opcode: %s (0x%02x)",
-                                        val_to_str(opcode, csdata->cdb_vals,
-                                            "0x%02x"),
-                                        opcode);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if(itl){
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset, "Command Set:%s (0x%02x)", val_to_str(itl->cmdset, scsi_devtype_val, "Unknown"), itl->cmdset);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        if(itlq && itlq->scsi_opcode!=0xffff){
+            ti=proto_tree_add_uint(scsi_tree, csdata->hf_opcode, tvb, 0, 0, itlq->scsi_opcode);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+    }
+
+    if(itlq->first_exchange_frame){
+        ti=proto_tree_add_uint(scsi_tree, hf_scsi_request_frame, tvb, 0, 0, itlq->first_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
+    if(itlq->last_exchange_frame){
+        ti=proto_tree_add_uint(scsi_tree, hf_scsi_response_frame, tvb, 0, 0, itlq->last_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
 
     if (tree == NULL) {
         /*
