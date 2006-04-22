@@ -1160,7 +1160,7 @@ task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter
     return entries;
 }
 
-static void
+static int
 capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter, gchar *iface) {
     gchar           string_buff[DETAILS_STR_MAX];
     const gchar     *manuf_name;
@@ -1172,6 +1172,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     unsigned char   values[100];
     int             length;
     unsigned short  ushort_value;
+    int             entries = 0;
 
 
     /* general */
@@ -1181,6 +1182,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     length = sizeof(values);
     if (wpcap_packet_request(adapter, OID_GEN_VENDOR_DESCRIPTION, FALSE /* !set */, values, &length)) {
         g_snprintf(string_buff, DETAILS_STR_MAX, "%s", values);
+        entries++;
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
@@ -1191,6 +1193,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     /* link status (connected/disconnected) */
     if (wpcap_packet_request_uint(adapter, OID_GEN_MEDIA_CONNECT_STATUS, &uint_value)) {
+        entries++;
         if(uint_value == 0) {
             add_string_to_table(table, row, "Link status", "Connected");
         } else {
@@ -1202,6 +1205,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     /* link speed */
     if (wpcap_packet_request_uint(adapter, OID_GEN_LINK_SPEED, &uint_value)) {
+        entries++;
         uint_value *= 100;
         if(uint_value >= 1000 * 1000) {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%d MBits/s", uint_value / 1000 / 1000);
@@ -1221,6 +1225,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     uint_array_size = sizeof(uint_array);
     if (wpcap_packet_request(adapter, OID_GEN_MEDIA_SUPPORTED, FALSE /* !set */, (char *) uint_array, &uint_array_size)) {
+        entries++;
         uint_array_size /= sizeof(unsigned int);
         i=0;
         while(uint_array_size--) {
@@ -1234,6 +1239,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     uint_array_size = sizeof(uint_array);
     if (wpcap_packet_request(adapter, OID_GEN_MEDIA_IN_USE, FALSE /* !set */, (char *) uint_array, &uint_array_size)) {
+        entries++;
         uint_array_size /= sizeof(unsigned int);
         i=0;
         while(uint_array_size--) {
@@ -1246,6 +1252,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     }
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_PHYSICAL_MEDIUM, &physical_medium)) {
+        entries++;
         add_string_to_table(table, row, "Physical medium", 
             val_to_str(physical_medium, win32_802_3_physical_medium_vals, "(0x%x)"));
     } else {
@@ -1254,6 +1261,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     length = sizeof(ushort_value);
     if (wpcap_packet_request(adapter, OID_GEN_DRIVER_VERSION, FALSE /* !set */, (char *) &ushort_value, &length)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%u.%u", ushort_value / 0x100, ushort_value % 0x100);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1262,6 +1270,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     length = sizeof(uint_value);
     if (wpcap_packet_request(adapter, OID_GEN_VENDOR_DRIVER_VERSION, FALSE /* !set */, (char *) &uint_value, &length)) {
+        entries++;
         /* XXX - what's the correct output format? */
         g_snprintf(string_buff, DETAILS_STR_MAX, "%u.%u (Hex: %X.%X)", 
             (uint_value / 0x10000  ) % 0x10000,
@@ -1275,6 +1284,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     length = sizeof(values);
     if (wpcap_packet_request(adapter, OID_GEN_VENDOR_ID, FALSE /* !set */, values, &length)) {
+        entries++;
         manuf_name = get_manuf_name_if_known(values);
         if(manuf_name != NULL) {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) NIC: %02X", 
@@ -1289,6 +1299,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     add_string_to_table(table, row, "Vendor ID", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_VLAN_ID, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%u", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1299,6 +1310,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     /* XXX - OID_GEN_MAC_OPTIONS (bitfield, VLAN, ...) */
     
     if (wpcap_packet_request_uint(adapter, OID_GEN_TRANSMIT_BUFFER_SPACE, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1306,6 +1318,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     add_string_to_table(table, row, "Transmit Buffer Space", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_RECEIVE_BUFFER_SPACE, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1313,6 +1326,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     add_string_to_table(table, row, "Receive Buffer Space", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_TRANSMIT_BLOCK_SIZE , &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1320,6 +1334,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     add_string_to_table(table, row, "Transmit Block Size", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_RECEIVE_BLOCK_SIZE, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1327,23 +1342,28 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     add_string_to_table(table, row, "Receive Block Size", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_MAXIMUM_TOTAL_SIZE, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
     add_string_to_table(table, row, "Maximum Packet Size", string_buff);
+
+    return entries;
 }
 
 
-static void
+static int
 capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter) {
     gchar           string_buff[DETAILS_STR_MAX];
     unsigned int    uint_value;
+    int             entries = 0;
 
 
     add_string_to_table(table, row, "Statistics", "");
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_XMIT_OK, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1351,6 +1371,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Transmit OK", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_XMIT_ERROR, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1359,6 +1380,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
 
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_RCV_OK, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1366,6 +1388,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Receive OK", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_RCV_ERROR, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1373,6 +1396,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Receive Error", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_RCV_NO_BUFFER, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1380,6 +1404,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Receive but no Buffer", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_DIRECTED_BYTES_XMIT, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1387,6 +1412,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Directed bytes transmitted w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_DIRECTED_FRAMES_XMIT, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1394,6 +1420,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Directed packets transmitted w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_MULTICAST_BYTES_XMIT, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1401,6 +1428,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Multicast bytes transmitted w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_MULTICAST_FRAMES_XMIT, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1408,6 +1436,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Multicast packets transmitted w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_BROADCAST_BYTES_XMIT, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1415,6 +1444,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Broadcast bytes transmitted w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_BROADCAST_FRAMES_XMIT, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1422,6 +1452,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Broadcast packets transmitted w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_DIRECTED_BYTES_RCV, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1429,6 +1460,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Directed bytes received w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_DIRECTED_FRAMES_RCV, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1436,6 +1468,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Directed packets received w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_MULTICAST_BYTES_RCV, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1443,6 +1476,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Multicast bytes received w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_MULTICAST_FRAMES_RCV, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1450,6 +1484,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Multicast packets received w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_BROADCAST_BYTES_RCV, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1457,6 +1492,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Broadcast bytes received w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_BROADCAST_FRAMES_RCV, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1464,6 +1500,7 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Broadcast packets received w/o errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_RCV_CRC_ERROR, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
@@ -1471,12 +1508,14 @@ capture_if_details_stats(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
     add_string_to_table(table, row, "Packets received with CRC or FCS errors", string_buff);
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_TRANSMIT_QUEUE_LENGTH, &uint_value)) {
+        entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
     add_string_to_table(table, row, "Packets queued for transmission", string_buff);
 
+    return entries;
 }
 
 
@@ -1531,14 +1570,20 @@ capture_if_details_open_win(char *iface)
     page_lb = gtk_label_new("General");
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_general, page_lb);
     row = 0;
-    capture_if_details_general(table, page_general, &row, adapter, iface);
+    entries = capture_if_details_general(table, page_general, &row, adapter, iface);
+    if(entries == 0) {
+        gtk_widget_set_sensitive(page_lb, FALSE);
+    }
 
     /* Statistics page */
     page_stats = capture_if_details_page_new(&table);
     page_lb = gtk_label_new("Statistics");
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_stats, page_lb);
     row = 0;
-    capture_if_details_stats(table, page_stats, &row, adapter);
+    entries = capture_if_details_stats(table, page_stats, &row, adapter);
+    if(entries == 0) {
+        gtk_widget_set_sensitive(page_lb, FALSE);
+    }
 
     /* 802.3 (Ethernet) page */
     page_802_3 = capture_if_details_page_new(&table);
