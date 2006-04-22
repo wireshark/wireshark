@@ -398,8 +398,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     int len,
         add_len = 0;
     guint8 flags, lun0;
-    scsi_task_id_t task_key;
-    guint16 lun=0xffff;
+        guint16 lun=0xffff;
     tvbuff_t *cdb_tvb;
     int tvb_len, tvb_rlen;
     itl_nexus_t *itl=NULL;
@@ -415,10 +414,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     else {
         len = FCP_DEF_CMND_LEN;
     }
-
-    task_key.conv_id = conversation->index;
-    task_key.task_id = conversation->index;
-    pinfo->private_data = (void *)&task_key;
 
     proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
 
@@ -471,12 +466,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 static void
 dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation, fc_hdr *fchdr, itl_nexus_t *itl)
 {
-    scsi_task_id_t task_key;
-
-    task_key.conv_id = conversation->index;
-    task_key.task_id = conversation->index;
-    pinfo->private_data = (void *)&task_key;
-
     dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->itlq, itl);
 }
 
@@ -503,7 +492,6 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
            rsplen = 0;
     guint8 flags;
     guint8 status;
-    scsi_task_id_t task_key;
 
     status = tvb_get_guint8 (tvb, offset+11);
 
@@ -512,11 +500,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
                          val_to_str (status, scsi_status_val, "0x%x"));
     }
 
-    task_key.conv_id = task_key.task_id = conversation->index;
-    pinfo->private_data = (void *)&task_key;
-
     proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
-
 
 
         /* 8 reserved bytes */

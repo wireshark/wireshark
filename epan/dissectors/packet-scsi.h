@@ -69,15 +69,4 @@ void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
                            gboolean, itlq_nexus_t *, itl_nexus_t *);
 void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, guint16);
 
-/*
- * Private data to be supplied to those functions via "pinfo->private_data";
- * the structure contains a 32-bit conversation ID and a 32-bit task
- * ID, where the former identifies a conversation between initiator and
- * target and the latter identifies a SCSI task within that conversation.
- */
-typedef struct {
-	guint32	conv_id;
-	guint32 task_id;
-} scsi_task_id_t;
-
 #endif

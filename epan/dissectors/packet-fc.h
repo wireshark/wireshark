@@ -142,6 +142,10 @@ typedef struct _itlq_nexus_t {
     guint32 last_exchange_frame;
     guint16 lun;         /* initialized to 0xffff == unknown */
     guint16 scsi_opcode; /* initialized to 0xffff == unknown */
+    guint16 flags;
+    guint32 alloc_len;	/* we need to track alloc_len between the CDB and 
+			 * the DATA pdus for some opcodes. 
+			 */
     nstime_t fc_time;
 } itlq_nexus_t;
 

@@ -677,6 +677,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         fc_ex->lun=0xffff;
         fc_ex->scsi_opcode=0xffff;
         fc_ex->fc_time=pinfo->fd->abs_ts;
+        fc_ex->flags=0;
+        fc_ex->alloc_len=0;
 	se_tree_insert32(fc_conv_data->exchanges, fchdr.oxid, fc_ex);
     }
     /* populate the exchange struct */

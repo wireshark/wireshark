@@ -738,7 +738,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
     guint end_offset = offset + tvb_length_remaining(tvb, offset);
     iscsi_conv_data_t *cdata = NULL;
-    scsi_task_id_t task_key;
     int paddedDataSegmentLength = data_segment_len;
     guint16 lun=0xffff;
     guint immediate_data_length=0;
@@ -761,6 +760,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->itlq.fc_time = pinfo->fd->abs_ts;
         cdata->itlq.first_exchange_frame=0;
         cdata->itlq.last_exchange_frame=0;
+        cdata->itlq.flags=0;
+        cdata->itlq.alloc_len=0;
         cdata->data_in_frame=0;
         cdata->data_out_frame=0;
 
@@ -791,10 +792,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdata->data_out_frame=pinfo->fd->num;
             break;
         }
-
-        task_key.conv_id = (int)iscsi_session;
-        task_key.task_id = tvb_get_ntohl(tvb, offset+16);
-        pinfo->private_data = &task_key;
 
     } else if (opcode == ISCSI_OPCODE_SCSI_COMMAND) {
         /*we need the LUN value for some of the commands so we can pass it
@@ -828,17 +825,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             se_tree_insert32(iscsi_session->itl, lun, itl);
         }
 
-
-        /* The SCSI protocol uses this as the key to detect a
-         * SCSI-level conversation. */
-        task_key.conv_id = (int)iscsi_session;
-        task_key.task_id = tvb_get_ntohl(tvb, offset+16);
-        pinfo->private_data = &task_key;
     }
-    else {
-        pinfo->private_data = NULL;
-    }
-
 
     if(!itl){
         itl=(itl_nexus_t *)se_tree_lookup32(iscsi_session->itl, cdata->itlq.lun);

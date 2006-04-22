@@ -1205,7 +1205,6 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq, gint devtype)
 {
 	conversation_t *conversation;
-	scsi_task_id_t task_key;
 
 	/*
 	 * We need to provide SCSI task information to the SCSI
@@ -1219,9 +1218,6 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
-	task_key.conv_id = conversation->index;
-	task_key.task_id = seq;
-	pinfo->private_data = &task_key;
 
 	/* flags */
 	offset = dissect_execute_cdb_flags(tvb, offset, pinfo, tree);
@@ -1294,7 +1290,6 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq)
 {
 	conversation_t *conversation;
-	scsi_task_id_t task_key;
 
 	/*
 	 * We need to provide SCSI task information to the SCSI
@@ -1304,14 +1299,6 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (conversation != NULL) {
-		task_key.conv_id = conversation->index;
-		task_key.task_id = seq;
-	        pinfo->private_data = &task_key;
-	} else {
-		/* no conversation, meaning we didn't see the request */
-		pinfo->private_data = NULL;
-	}
 
 	/* error */
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
