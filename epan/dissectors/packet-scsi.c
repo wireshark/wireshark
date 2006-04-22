@@ -33,7 +33,7 @@
  * via a dissector chain. There are multiple reasons for this:
  * - The SCSI CDB is typically embedded inside the transport along with other
  *   header fields that have nothing to do with SCSI. So, it is required to be
- *   invoked on a embedded subset of the packet.
+
  * - Originally, Ethereal couldn't do filtering on protocol trees that were not
  *   on the top level.
  *
@@ -561,6 +561,7 @@ static const value_string scsi_spc2_val[] = {
 
 
 static const value_string scsi_sbc2_val[] = {
+    {SCSI_SPC2_INQUIRY           , "Inquiry"},
     {SCSI_SBC2_FORMATUNIT    , "Format Unit"},
     {SCSI_SBC2_LOCKUNLKCACHE10, "Lock Unlock Cache(10)"},
     {SCSI_SBC2_LOCKUNLKCACHE16, "Lock Unlock Cache(16)"},
@@ -586,6 +587,7 @@ static const value_string scsi_sbc2_val[] = {
     {SCSI_SBC2_STARTSTOPUNIT, "Start Stop Unit"},
     {SCSI_SBC2_SYNCCACHE10, "Synchronize Cache(10)"},
     {SCSI_SBC2_SYNCCACHE16, "Synchronize Cache(16)"},
+    {SCSI_SPC2_TESTUNITRDY       , "Test Unit Ready"},
     {SCSI_SBC2_VERIFY10, "Verify(10)"},
     {SCSI_SBC2_VERIFY12, "Verify(12)"},
     {SCSI_SBC2_VERIFY16, "Verify(16)"},
@@ -632,25 +634,27 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_SETSTREAMING           0xb6
 #define SCSI_MMC_SETCDSPEED             0xbb
 static const value_string scsi_mmc_val[] = {
-    {SCSI_SBC2_STARTSTOPUNIT, "Start Stop Unit"},
-    {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
-    {SCSI_MMC_READ10,		"Read(10)"},
-    {SCSI_MMC_WRITE10,		"Write(10)"},
-    {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
-    {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
     {SCSI_MMC_GETEVENTSTATUSNOTIFY, "Get Event Status Notification"},
-    {SCSI_MMC_READDISCINFORMATION, "Read Disc Information"},
-    {SCSI_MMC_READTRACKINFORMATION, "Read Track Information"},
-    {SCSI_MMC_RESERVETRACK,	"Reserve Track"},
-    {SCSI_MMC_READBUFFERCAPACITY,"Read Buffer Capacity"},
-    {SCSI_MMC_REPORTKEY,	"Report Key"},
-    {SCSI_MMC_READ12,		"Read(12)"},
-    {SCSI_MMC_WRITE12,		"Write(12)"},
     {SCSI_MMC_GETPERFORMANCE,   "Get Performance"},
+    {SCSI_SPC2_INQUIRY           , "Inquiry"},
+    {SCSI_MMC_READ10,		"Read(10)"},
+    {SCSI_MMC_READ12,		"Read(12)"},
+    {SCSI_MMC_READBUFFERCAPACITY,"Read Buffer Capacity"},
+    {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
+    {SCSI_MMC_READDISCINFORMATION, "Read Disc Information"},
     {SCSI_MMC_READDISCSTRUCTURE, "Read DISC Structure"},
-    {SCSI_MMC_SETSTREAMING,	"Set Streaming"},
+    {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
+    {SCSI_MMC_READTRACKINFORMATION, "Read Track Information"},
+    {SCSI_MMC_REPORTKEY,	"Report Key"},
+    {SCSI_MMC_RESERVETRACK,	"Reserve Track"},
     {SCSI_MMC_SETCDSPEED,       "Set CD Speed"},
+    {SCSI_MMC_SETSTREAMING,	"Set Streaming"},
+    {SCSI_SBC2_STARTSTOPUNIT, "Start Stop Unit"},
+    {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
+    {SCSI_SPC2_TESTUNITRDY       , "Test Unit Ready"},
+    {SCSI_MMC_WRITE10,		"Write(10)"},
+    {SCSI_MMC_WRITE12,		"Write(12)"},
     {0, NULL},
 };
 
@@ -672,6 +676,7 @@ static const value_string scsi_smc2_val[] = {
     {SCSI_SMC2_EXCHANGE_MEDIUM                , "Exchange Medium"},
     {SCSI_SMC2_INITIALIZE_ELEMENT_STATUS      , "Initialize Element Status"},
     {SCSI_SMC2_INITIALIZE_ELEMENT_STATUS_RANGE, "Initialize Element Status With Range"},
+    {SCSI_SPC2_INQUIRY                        , "Inquiry"},
     {SCSI_SMC2_MOVE_MEDIUM                    , "Move Medium"},
     {SCSI_SMC2_MOVE_MEDIUM_ATTACHED           , "Move Medium Attached"},
     {SCSI_SMC2_POSITION_TO_ELEMENT            , "Position To Element"},
@@ -680,6 +685,7 @@ static const value_string scsi_smc2_val[] = {
     {SCSI_SMC2_READ_ELEMENT_STATUS_ATTACHED   , "Read Element Status Attached"},
     {SCSI_SMC2_REQUEST_VOLUME_ELEMENT_ADDRESS , "Request Volume Element Address"},
     {SCSI_SMC2_SEND_VOLUME_TAG                , "Send Volume Tag"},
+    {SCSI_SPC2_TESTUNITRDY       , "Test Unit Ready"},
     {SCSI_SMC2_WRITE_ATTRIBUTE                , "Write Attribute"},
     {0, NULL},
 };
@@ -718,6 +724,7 @@ static const value_string scsi_smc2_val[] = {
 static const value_string scsi_ssc2_val[] = {
     {SCSI_SSC2_ERASE_16                    , "Erase(16)"},
     {SCSI_SSC2_FORMAT_MEDIUM               , "Format Medium"},
+    {SCSI_SPC2_INQUIRY                     , "Inquiry"},
     {SCSI_SSC2_LOAD_UNLOAD                 , "Load Unload"},
     {SCSI_SSC2_LOCATE_16                   , "Locate(16)"},
     {SCSI_SSC2_READ_16                     , "Read(16)"},
@@ -738,6 +745,7 @@ static const value_string scsi_ssc2_val[] = {
     {SCSI_SSC2_READ6                       , "Read(6)"},
     {SCSI_SSC2_READ_REVERSE_6              , "Read Reverse(6)"},
     {SCSI_SSC2_SPACE_6                     , "Space(6)"},
+    {SCSI_SPC2_TESTUNITRDY                 , "Test Unit Ready"},
     {SCSI_SSC2_VERIFY_6                    , "Verify(6)"},
     {SCSI_SSC2_WRITE6                      , "Write(6)"},
     {SCSI_SSC2_WRITE_FILEMARKS_6           , "Write Filemarks(6)"},
@@ -6244,24 +6252,27 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
+    cmdset_t *csdata;
+
+    csdata=get_cmdset_data(itlq, itl);
 
     /* Nothing really to do here, just print some stuff passed to us
      */
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, 0,
-                                             0, "SCSI Response");
+                                             0, "SCSI Response (%s)",
+                                             val_to_str (itlq->scsi_opcode,
+                                                         csdata->cdb_vals,
+                                                         "CDB:0x%02x"));
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
     }
 
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     PROTO_ITEM_SET_GENERATED(ti);
 
+
     if(itl){
-        cmdset_t *csdata;
-
-        csdata=get_cmdset_data(itlq, itl);
-
-        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset, "Command Set:%s (0x%02x)", val_to_str(itl->cmdset, csdata->cdb_vals, "Unknown"), itl->cmdset);
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset, "Command Set:%s (0x%02x)", val_to_str(itl->cmdset, scsi_devtype_val, "Unknown"), itl->cmdset);
         PROTO_ITEM_SET_GENERATED(ti);
 
         if(itlq && itlq->scsi_opcode!=0xffff){
@@ -6282,7 +6293,9 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
     PROTO_ITEM_SET_GENERATED(ti);
     if (check_col (pinfo->cinfo, COL_INFO)) {
-         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", itlq->lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
+         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s) (%s)", itlq->lun, 
+	val_to_str(itlq->scsi_opcode, csdata->cdb_vals, "CDB:0x%02x"),
+	val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
      }
@@ -6581,7 +6594,7 @@ static scsi_cdb_table_t spc[256] = {
 };
 
 static scsi_cdb_table_t sbc[256] = {
-/*SBC 0x00*/{NULL},
+/*SPC 0x00*/{dissect_spc3_testunitready},
 /*SBC 0x01*/{NULL},
 /*SBC 0x02*/{NULL},
 /*SBC 0x03*/{NULL},
@@ -6599,7 +6612,7 @@ static scsi_cdb_table_t sbc[256] = {
 /*SBC 0x0f*/{NULL},
 /*SBC 0x10*/{NULL},
 /*SBC 0x11*/{NULL},
-/*SBC 0x12*/{NULL},
+/*SPC 0x12*/{dissect_spc3_inquiry},
 /*SBC 0x13*/{NULL},
 /*SBC 0x14*/{NULL},
 /*SBC 0x15*/{NULL},
@@ -6840,7 +6853,7 @@ static scsi_cdb_table_t sbc[256] = {
 };
 
 static scsi_cdb_table_t ssc[256] = {
-/*SSC 0x00*/{NULL},
+/*SPC 0x00*/{dissect_spc3_testunitready},
 /*SSC 0x01*/{dissect_ssc2_rewind},
 /*SSC 0x02*/{NULL},
 /*SSC 0x03*/{NULL},
@@ -6858,7 +6871,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x0f*/{NULL},
 /*SSC 0x10*/{dissect_ssc2_writefilemarks6},
 /*SSC 0x11*/{dissect_ssc2_space6},
-/*SSC 0x12*/{NULL},
+/*SPC 0x12*/{dissect_spc3_inquiry},
 /*SSC 0x13*/{NULL},
 /*SSC 0x14*/{NULL},
 /*SSC 0x15*/{NULL},
@@ -7099,7 +7112,7 @@ static scsi_cdb_table_t ssc[256] = {
 };
 
 static scsi_cdb_table_t smc[256] = {
-/*SMC 0x00*/{NULL},
+/*SPC 0x00*/{dissect_spc3_testunitready},
 /*SMC 0x01*/{NULL},
 /*SMC 0x02*/{NULL},
 /*SMC 0x03*/{NULL},
@@ -7117,7 +7130,7 @@ static scsi_cdb_table_t smc[256] = {
 /*SMC 0x0f*/{NULL},
 /*SMC 0x10*/{NULL},
 /*SMC 0x11*/{NULL},
-/*SMC 0x12*/{NULL},
+/*SPC 0x12*/{dissect_spc3_inquiry},
 /*SMC 0x13*/{NULL},
 /*SMC 0x14*/{NULL},
 /*SMC 0x15*/{NULL},
@@ -7358,7 +7371,7 @@ static scsi_cdb_table_t smc[256] = {
 };
 
 static scsi_cdb_table_t mmc[256] = {
-/*MMC 0x00*/{NULL},
+/*SPC 0x00*/{dissect_spc3_testunitready},
 /*MMC 0x01*/{NULL},
 /*MMC 0x02*/{NULL},
 /*MMC 0x03*/{NULL},
@@ -7376,7 +7389,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x0f*/{NULL},
 /*MMC 0x10*/{NULL},
 /*MMC 0x11*/{NULL},
-/*MMC 0x12*/{NULL},
+/*SPC 0x12*/{dissect_spc3_inquiry},
 /*MMC 0x13*/{NULL},
 /*MMC 0x14*/{NULL},
 /*MMC 0x15*/{NULL},
@@ -7747,8 +7760,8 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                              "SCSI Payload (%s %s)",
                                              val_to_str (opcode,
                                                          csdata->cdb_vals,
-                                                         "0x%02x"),
-                                             isreq ? "Request" : "Response");
+                                                         "CDB:0x%02x"),
+                                             isreq ? "Request Data" : "Response Data");
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
     }
 
@@ -7758,7 +7771,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		isreq ? "Out" : "In",
 		itlq->lun,
 		val_to_str (opcode, csdata->cdb_vals, "0x%02x"),
-		isreq ? "Request" : "Response");
+		isreq ? "Request Data" : "Response Data");
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
     }
