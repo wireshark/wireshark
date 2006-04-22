@@ -629,46 +629,52 @@ static const value_string scsi_sbc2_val[] = {
 };
 
 /* MMC Commands */
-#define SCSI_MMC_READCAPACITY10         0x25
-#define SCSI_MMC_READ10                 0x28
-#define SCSI_MMC_WRITE10                0x2a
-#define SCSI_MMC_SYNCHRONIZECACHE       0x35
-#define SCSI_MMC_READTOCPMAATIP         0x43
-#define SCSI_MMC_GETCONFIGURATION       0x46
-#define SCSI_MMC_GETEVENTSTATUSNOTIFY   0x4a
-#define SCSI_MMC_READDISCINFORMATION    0x51
-#define SCSI_MMC_READTRACKINFORMATION   0x52
-#define SCSI_MMC_RESERVETRACK           0x53
-#define SCSI_MMC_READBUFFERCAPACITY     0x5c
-#define SCSI_MMC_REPORTKEY		0xa4
-#define SCSI_MMC_READ12                 0xa8
-#define SCSI_MMC_WRITE12                0xaa
-#define SCSI_MMC_GETPERFORMANCE         0xac
-#define SCSI_MMC_READDISCSTRUCTURE      0xad
-#define SCSI_MMC_SETSTREAMING           0xb6
-#define SCSI_MMC_SETCDSPEED             0xbb
+#define SCSI_MMC4_READCAPACITY10         0x25
+#define SCSI_MMC4_READ10                 0x28
+#define SCSI_MMC4_WRITE10                0x2a
+#define SCSI_MMC4_SYNCHRONIZECACHE       0x35
+#define SCSI_MMC4_READTOCPMAATIP         0x43
+#define SCSI_MMC4_GETCONFIGURATION       0x46
+#define SCSI_MMC4_GETEVENTSTATUSNOTIFY   0x4a
+#define SCSI_MMC4_READDISCINFORMATION    0x51
+#define SCSI_MMC4_READTRACKINFORMATION   0x52
+#define SCSI_MMC4_RESERVETRACK           0x53
+#define SCSI_MMC4_READBUFFERCAPACITY     0x5c
+#define SCSI_MMC4_REPORTKEY		0xa4
+#define SCSI_MMC4_READ12                 0xa8
+#define SCSI_MMC4_WRITE12                0xaa
+#define SCSI_MMC4_GETPERFORMANCE         0xac
+#define SCSI_MMC4_READDISCSTRUCTURE      0xad
+#define SCSI_MMC4_SETSTREAMING           0xb6
+#define SCSI_MMC4_SETCDSPEED             0xbb
 static const value_string scsi_mmc_val[] = {
-    {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
-    {SCSI_MMC_GETEVENTSTATUSNOTIFY, "Get Event Status Notification"},
-    {SCSI_MMC_GETPERFORMANCE,   "Get Performance"},
-    {SCSI_SPC2_INQUIRY           , "Inquiry"},
-    {SCSI_MMC_READ10,		"Read(10)"},
-    {SCSI_MMC_READ12,		"Read(12)"},
-    {SCSI_MMC_READBUFFERCAPACITY,"Read Buffer Capacity"},
-    {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
-    {SCSI_MMC_READDISCINFORMATION, "Read Disc Information"},
-    {SCSI_MMC_READDISCSTRUCTURE, "Read DISC Structure"},
-    {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
-    {SCSI_MMC_READTRACKINFORMATION, "Read Track Information"},
-    {SCSI_MMC_REPORTKEY,	"Report Key"},
-    {SCSI_MMC_RESERVETRACK,	"Reserve Track"},
-    {SCSI_MMC_SETCDSPEED,       "Set CD Speed"},
-    {SCSI_MMC_SETSTREAMING,	"Set Streaming"},
-    {SCSI_SBC2_STARTSTOPUNIT, "Start Stop Unit"},
-    {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
-    {SCSI_SPC2_TESTUNITRDY       , "Test Unit Ready"},
-    {SCSI_MMC_WRITE10,		"Write(10)"},
-    {SCSI_MMC_WRITE12,		"Write(12)"},
+    {SCSI_MMC4_GETCONFIGURATION      , "Get Configuraion"},
+    {SCSI_MMC4_GETEVENTSTATUSNOTIFY  , "Get Event Status Notification"},
+    {SCSI_MMC4_GETPERFORMANCE        , "Get Performance"},
+    {SCSI_SPC2_INQUIRY               , "Inquiry"},
+    {SCSI_SPC2_MODESELECT10          , "Mode Select(10)"},
+    {SCSI_SPC2_MODESENSE10           , "Mode Sense(10)"},
+    {SCSI_SPC2_PREVMEDREMOVAL        , "Prevent/Allow Medium Removal"},
+    {SCSI_MMC4_READ10                , "Read(10)"},
+    {SCSI_MMC4_READ12                , "Read(12)"},
+    {SCSI_MMC4_READBUFFERCAPACITY    , "Read Buffer Capacity"},
+    {SCSI_MMC4_READCAPACITY10        , "Read Capacity(10)"},
+    {SCSI_MMC4_READDISCINFORMATION   , "Read Disc Information"},
+    {SCSI_MMC4_READDISCSTRUCTURE     , "Read DISC Structure"},
+    {SCSI_MMC4_READTOCPMAATIP        , "Read TOC/PMA/ATIP"},
+    {SCSI_MMC4_READTRACKINFORMATION  , "Read Track Information"},
+    {SCSI_MMC4_REPORTKEY             , "Report Key"},
+    {SCSI_SPC2_REPORTLUNS            , "Report LUNs"},
+    {SCSI_SPC2_REQSENSE              , "Request Sense"},
+    {SCSI_MMC4_RESERVETRACK          , "Reserve Track"},
+    {SCSI_MMC4_SETCDSPEED            , "Set CD Speed"},
+    {SCSI_MMC4_SETSTREAMING          , "Set Streaming"},
+    {SCSI_SBC2_STARTSTOPUNIT         , "Start Stop Unit"},
+    {SCSI_MMC4_SYNCHRONIZECACHE      , "Synchronize Cache"},
+    {SCSI_SPC2_TESTUNITRDY           , "Test Unit Ready"},
+    {SCSI_MMC4_WRITE10               , "Write(10)"},
+    {SCSI_MMC4_WRITE12               , "Write(12)"},
+    {SCSI_SPC2_WRITEBUFFER           , "Write Buffer"},
     {0, NULL},
 };
 
@@ -7414,7 +7420,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*SPC 0x00*/{dissect_spc3_testunitready},
 /*MMC 0x01*/{NULL},
 /*MMC 0x02*/{NULL},
-/*MMC 0x03*/{NULL},
+/*SPC 0x03*/{dissect_spc3_requestsense},
 /*MMC 0x04*/{NULL},
 /*MMC 0x05*/{NULL},
 /*MMC 0x06*/{NULL},
@@ -7470,7 +7476,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x38*/{NULL},
 /*MMC 0x39*/{NULL},
 /*MMC 0x3a*/{NULL},
-/*MMC 0x3b*/{NULL},
+/*SPC 0x3b*/{dissect_spc3_writebuffer},
 /*MMC 0x3c*/{NULL},
 /*MMC 0x3d*/{NULL},
 /*MMC 0x3e*/{NULL},
@@ -7496,12 +7502,12 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x52*/{dissect_mmc4_readtrackinformation},
 /*MMC 0x53*/{dissect_mmc4_reservetrack},
 /*MMC 0x54*/{NULL},
-/*MMC 0x55*/{NULL},
+/*SPC 0x55*/{dissect_spc3_modeselect10},
 /*MMC 0x56*/{NULL},
 /*MMC 0x57*/{NULL},
 /*MMC 0x58*/{NULL},
 /*MMC 0x59*/{NULL},
-/*MMC 0x5a*/{NULL},
+/*SPC 0x5a*/{dissect_spc3_modesense10},
 /*MMC 0x5b*/{NULL},
 /*MMC 0x5c*/{dissect_mmc4_readbuffercapacity},
 /*MMC 0x5d*/{NULL},
@@ -7571,7 +7577,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x9d*/{NULL},
 /*MMC 0x9e*/{NULL},
 /*MMC 0x9f*/{NULL},
-/*MMC 0xa0*/{NULL},
+/*SPC 0xa0*/{dissect_spc3_reportluns},
 /*MMC 0xa1*/{NULL},
 /*MMC 0xa2*/{NULL},
 /*MMC 0xa3*/{NULL},
