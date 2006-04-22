@@ -110,6 +110,10 @@ struct sockaddr_storage {
 #define OID_GEN_MEDIA_CAPABILITIES		0x00010201
 #define OID_GEN_PHYSICAL_MEDIUM			0x00010202
 
+/* Optional OIDs (from http://www.ndis.com/papers/ieee802_11_log.htm) */
+#define OID_GEN_NETWORK_LAYER_ADDRESSES 0x00010118
+#define OID_GEN_TRANSPORT_HEADER_OFFSET 0x00010119
+
 
 /* Physical medium (OID_GEN_PHYSICAL_MEDIUM) (from ndiswrapper) */
 typedef enum ndis_phys_medium {
@@ -125,6 +129,15 @@ typedef enum ndis_phys_medium {
 	NdisPhysicalMediumMax
 };
 
+/* flag definitions for OID_GEN_MAC_OPTIONS */
+#define NDIS_MAC_OPTION_COPY_LOOKAHEAD_DATA     0x00000001
+#define NDIS_MAC_OPTION_RECEIVE_SERIALIZED      0x00000002
+#define NDIS_MAC_OPTION_TRANSFERS_NOT_PEND      0x00000004
+#define NDIS_MAC_OPTION_NO_LOOPBACK             0x00000008
+#define NDIS_MAC_OPTION_FULL_DUPLEX             0x00000010
+#define NDIS_MAC_OPTION_EOTX_INDICATION         0x00000020
+#define NDIS_MAC_OPTION_8021P_PRIORITY          0x00000040
+#define NDIS_MAC_OPTION_8021Q_VLAN              0x00000080
 
 /* 802.11 OIDs (from ndiswrapper), see also: */
 /* http://www.ndis.com/papers/ieee802_11_log.htm */
@@ -163,6 +176,17 @@ typedef enum ndis_phys_medium {
 #define OID_802_11_TEST				0x0D010120
 #define OID_802_11_CAPABILITY			0x0D010122
 #define OID_802_11_PMKID			0x0D010123
+
+
+/* PnP and power management OIDs */
+#define OID_PNP_CAPABILITIES			0xFD010100
+#define OID_PNP_SET_POWER			0xFD010101
+#define OID_PNP_QUERY_POWER			0xFD010102
+#define OID_PNP_ADD_WAKE_UP_PATTERN		0xFD010103
+#define OID_PNP_REMOVE_WAKE_UP_PATTERN		0xFD010104
+#define OID_PNP_WAKE_UP_PATTERN_LIST		0xFD010105
+#define OID_PNP_ENABLE_WAKE_UP			0xFD010106
+
 
 /* Currently associated SSID (OID_802_11_SSID) (from ndiswrapper) */
 #define NDIS_ESSID_MAX_SIZE 32
@@ -417,10 +441,10 @@ static const value_string win32_802_11_auth_mode_vals[] = {
 	{ Ndis802_11AuthModeShared,     "Shared Key" },
 	{ Ndis802_11AuthModeAutoSwitch, "Auto Switch" },
 	{ Ndis802_11AuthModeWPA,        "WPA" },
-	{ Ndis802_11AuthModeWPAPSK,     "WPA (pre shared key)" },
+	{ Ndis802_11AuthModeWPAPSK,     "WPA-PSK (pre shared key)" },
 	{ Ndis802_11AuthModeWPANone,    "WPA (ad hoc)" },
 	{ Ndis802_11AuthModeWPA2,       "WPA2" },
-	{ Ndis802_11AuthModeWPA2PSK,    "WPA2 (pre shared key)" },
+	{ Ndis802_11AuthModeWPA2PSK,    "WPA2-PSK (pre shared key)" },
     { 0, NULL }
 };
 
@@ -435,14 +459,14 @@ static const value_string win32_802_11_network_type_vals[] = {
 
 /* XXX - add some explanations */
 static const value_string win32_802_11_encryption_status_vals[] = {
-	{ Ndis802_11Encryption1Enabled,     "Encryption 1 Enabled" },
-	{ Ndis802_11EncryptionDisabled,     "Encryption Disabled" },
-	{ Ndis802_11Encryption1KeyAbsent,   "Encryption 1 Key Absent" },
-	{ Ndis802_11EncryptionNotSupported, "Encryption Not Supported" },
-	{ Ndis802_11Encryption2Enabled,     "Encryption 2 Enabled" },
-	{ Ndis802_11Encryption2KeyAbsent,   "Encryption 2 Key Absent" },
-	{ Ndis802_11Encryption3Enabled,     "Encryption 3 Enabled" },
-	{ Ndis802_11Encryption3KeyAbsent,   "Encryption 3 Key Absent" },
+	{ Ndis802_11Encryption1Enabled,     "Encryption 1 Enabled  (WEP enabled, TKIP & AES disabled, transmit key available)" },
+	{ Ndis802_11EncryptionDisabled,     "Encryption Disabled  (WEP & TKIP & AES disabled, transmit key available)" },
+	{ Ndis802_11Encryption1KeyAbsent,   "Encryption 1 Key Absent (WEP enabled, TKIP & AES disabled, transmit key unavailable)" },
+	{ Ndis802_11EncryptionNotSupported, "Encryption Not Supported (WEP & TKIP & AES not supported)" },
+	{ Ndis802_11Encryption2Enabled,     "Encryption 2 Enabled (WEP & TKIP enabled, AES disabled, transmit key available)" },
+	{ Ndis802_11Encryption2KeyAbsent,   "Encryption 2 Key Absent (WEP & TKIP enabled, AES disabled, transmit key unavailable)" },
+	{ Ndis802_11Encryption3Enabled,     "Encryption 3 Enabled (WEP & TKIP & AES enabled, transmit key available)" },
+	{ Ndis802_11Encryption3KeyAbsent,   "Encryption 3 Key Absent (WEP & TKIP & AES enabled, transmit key unavailable)" },
     { 0, NULL }
 };
 
@@ -465,6 +489,167 @@ static const value_string win32_802_11_channel_vals[] = {
     { 0, NULL }
 };
 
+static const value_string oid_vals[] = {
+	{ OID_GEN_SUPPORTED_LIST, "OID_GEN_SUPPORTED_LIST" },
+	{ OID_GEN_HARDWARE_STATUS, "OID_GEN_HARDWARE_STATUS (only internally interesting)" },
+	{ OID_GEN_MEDIA_SUPPORTED, "OID_GEN_MEDIA_SUPPORTED" },
+	{ OID_GEN_MEDIA_IN_USE, "OID_GEN_MEDIA_IN_USE" },
+    { OID_GEN_MAXIMUM_LOOKAHEAD, "OID_GEN_MAXIMUM_LOOKAHEAD (unused)" },
+	{ OID_GEN_MAXIMUM_FRAME_SIZE, "OID_GEN_MAXIMUM_FRAME_SIZE (unused)" },
+	{ OID_GEN_LINK_SPEED, "OID_GEN_LINK_SPEED" },
+	{ OID_GEN_TRANSMIT_BUFFER_SPACE, "OID_GEN_TRANSMIT_BUFFER_SPACE" },
+	{ OID_GEN_RECEIVE_BUFFER_SPACE, "OID_GEN_RECEIVE_BUFFER_SPACE" },
+	{ OID_GEN_TRANSMIT_BLOCK_SIZE, "OID_GEN_TRANSMIT_BLOCK_SIZE" },
+	{ OID_GEN_RECEIVE_BLOCK_SIZE, "OID_GEN_RECEIVE_BLOCK_SIZE" },
+	{ OID_GEN_VENDOR_ID, "OID_GEN_VENDOR_ID" },
+	{ OID_GEN_VENDOR_DESCRIPTION, "OID_GEN_VENDOR_DESCRIPTION" },
+	{ OID_GEN_CURRENT_PACKET_FILTER, "OID_GEN_CURRENT_PACKET_FILTER (info seems to be constant)" },
+	{ OID_GEN_CURRENT_LOOKAHEAD, "OID_GEN_CURRENT_LOOKAHEAD (only internally interesting)" },
+	{ OID_GEN_DRIVER_VERSION, "OID_GEN_DRIVER_VERSION" },
+	{ OID_GEN_MAXIMUM_TOTAL_SIZE, "OID_GEN_MAXIMUM_TOTAL_SIZE" },
+	{ OID_GEN_PROTOCOL_OPTIONS, "OID_GEN_PROTOCOL_OPTIONS (info not interesting)" },
+    { OID_GEN_MAC_OPTIONS, "OID_GEN_MAC_OPTIONS" },
+	{ OID_GEN_MEDIA_CONNECT_STATUS, "OID_GEN_MEDIA_CONNECT_STATUS" },
+	{ OID_GEN_MAXIMUM_SEND_PACKETS, "OID_GEN_MAXIMUM_SEND_PACKETS (only internally interesting)" },
+	{ OID_GEN_VENDOR_DRIVER_VERSION, "OID_GEN_VENDOR_DRIVER_VERSION" },
+	{ OID_GEN_XMIT_OK, "OID_GEN_XMIT_OK" },
+	{ OID_GEN_RCV_OK, "OID_GEN_RCV_OK" },
+	{ OID_GEN_XMIT_ERROR, "OID_GEN_XMIT_ERROR" },
+	{ OID_GEN_RCV_ERROR, "OID_GEN_RCV_ERROR" },
+	{ OID_GEN_RCV_NO_BUFFER, "OID_GEN_RCV_NO_BUFFER" },
+	{ OID_GEN_DIRECTED_BYTES_XMIT, "OID_GEN_DIRECTED_BYTES_XMIT" },
+	{ OID_GEN_DIRECTED_FRAMES_XMIT, "OID_GEN_DIRECTED_FRAMES_XMIT" },
+	{ OID_GEN_MULTICAST_BYTES_XMIT, "OID_GEN_MULTICAST_BYTES_XMIT" },
+	{ OID_GEN_MULTICAST_FRAMES_XMIT, "OID_GEN_MULTICAST_FRAMES_XMIT" },
+	{ OID_GEN_BROADCAST_BYTES_XMIT, "OID_GEN_BROADCAST_BYTES_XMIT" },
+	{ OID_GEN_BROADCAST_FRAMES_XMIT, "OID_GEN_BROADCAST_FRAMES_XMIT" },
+	{ OID_GEN_DIRECTED_BYTES_RCV, "OID_GEN_DIRECTED_BYTES_RCV" },
+	{ OID_GEN_DIRECTED_FRAMES_RCV, "OID_GEN_DIRECTED_FRAMES_RCV" },
+	{ OID_GEN_MULTICAST_BYTES_RCV, "OID_GEN_MULTICAST_BYTES_RCV" },
+	{ OID_GEN_MULTICAST_FRAMES_RCV, "OID_GEN_MULTICAST_FRAMES_RCV" },
+	{ OID_GEN_BROADCAST_BYTES_RCV, "OID_GEN_BROADCAST_BYTES_RCV" },
+    { OID_GEN_BROADCAST_FRAMES_RCV, "OID_GEN_BROADCAST_FRAMES_RCV" },
+	{ OID_GEN_RCV_CRC_ERROR, "OID_GEN_RCV_CRC_ERROR" },
+	{ OID_GEN_TRANSMIT_QUEUE_LENGTH, "OID_GEN_TRANSMIT_QUEUE_LENGTH" },
+	{ OID_GEN_GET_TIME_CAPS, "OID_GEN_GET_TIME_CAPS (unsupp, unused)" },
+	{ OID_GEN_GET_NETCARD_TIME, "OID_GEN_GET_NETCARD_TIME (unsupp, unused)" },
+
+    { OID_GEN_PHYSICAL_MEDIUM, "OID_GEN_PHYSICAL_MEDIUM" },
+	//{ OID_GEN_MACHINE_NAME, "OID_GEN_MACHINE_NAME (unsupp, unused)" },
+	{ OID_GEN_VLAN_ID, "OID_GEN_VLAN_ID" },
+	{ OID_GEN_MEDIA_CAPABILITIES, "OID_GEN_MEDIA_CAPABILITIES (unsupp, unused)" },
+
+    { OID_GEN_NETWORK_LAYER_ADDRESSES, "OID_GEN_NETWORK_LAYER_ADDRESSES (write only)" },
+    { OID_GEN_TRANSPORT_HEADER_OFFSET, "OID_GEN_TRANSPORT_HEADER_OFFSET (write only)" },
+
+	{ OID_802_3_PERMANENT_ADDRESS, "OID_802_3_PERMANENT_ADDRESS" },
+	{ OID_802_3_CURRENT_ADDRESS, "OID_802_3_CURRENT_ADDRESS" },
+    { OID_802_3_MAXIMUM_LIST_SIZE, "OID_802_3_MAXIMUM_LIST_SIZE (unused)" },
+    { OID_802_3_MULTICAST_LIST, "OID_802_3_MULTICAST_LIST (unused)" }, // XXX
+    { OID_802_3_MAC_OPTIONS, "OID_802_3_MAC_OPTIONS (unsupp, unused)" },
+
+    { OID_802_3_RCV_ERROR_ALIGNMENT, "OID_802_3_RCV_ERROR_ALIGNMENT" },
+    { OID_802_3_XMIT_ONE_COLLISION, "OID_802_3_XMIT_ONE_COLLISION" },
+    { OID_802_3_XMIT_MORE_COLLISIONS, "OID_802_3_XMIT_MORE_COLLISIONS" },
+    { OID_802_3_XMIT_DEFERRED, "OID_802_3_XMIT_DEFERRED" },
+    { OID_802_3_XMIT_MAX_COLLISIONS, "OID_802_3_XMIT_MAX_COLLISIONS" },
+    { OID_802_3_RCV_OVERRUN, "OID_802_3_RCV_OVERRUN" },
+    { OID_802_3_XMIT_UNDERRUN, "OID_802_3_XMIT_UNDERRUN" },
+    { OID_802_3_XMIT_HEARTBEAT_FAILURE, "OID_802_3_XMIT_HEARTBEAT_FAILURE (unsupp, used)" },
+    { OID_802_3_XMIT_TIMES_CRS_LOST, "OID_802_3_XMIT_TIMES_CRS_LOST (unsupp, used)" },
+    { OID_802_3_XMIT_LATE_COLLISIONS, "OID_802_3_XMIT_LATE_COLLISIONS" },
+
+    { OID_802_11_BSSID, "OID_802_11_BSSID" },
+	{ OID_802_11_SSID, "OID_802_11_SSID" },
+	{ OID_802_11_NETWORK_TYPES_SUPPORTED, "OID_802_11_NETWORK_TYPES_SUPPORTED (info not interesting)" },
+	{ OID_802_11_NETWORK_TYPE_IN_USE, "OID_802_11_NETWORK_TYPE_IN_USE" },
+	{ OID_802_11_TX_POWER_LEVEL, "OID_802_11_TX_POWER_LEVEL (unsupp, used)" },
+	{ OID_802_11_RSSI, "OID_802_11_RSSI" },
+	{ OID_802_11_RSSI_TRIGGER, "OID_802_11_RSSI_TRIGGER (unsupp, unused)" },
+    { OID_802_11_INFRASTRUCTURE_MODE, "OID_802_11_INFRASTRUCTURE_MODE" },
+	{ OID_802_11_FRAGMENTATION_THRESHOLD, "OID_802_11_FRAGMENTATION_THRESHOLD (unused)" },
+	{ OID_802_11_RTS_THRESHOLD, "OID_802_11_RTS_THRESHOLD (unused)" },
+	{ OID_802_11_NUMBER_OF_ANTENNAS, "OID_802_11_NUMBER_OF_ANTENNAS (unsupp, unused)" },
+	{ OID_802_11_RX_ANTENNA_SELECTED, "OID_802_11_RX_ANTENNA_SELECTED (unsupp, unused)" },
+	{ OID_802_11_TX_ANTENNA_SELECTED, "OID_802_11_TX_ANTENNA_SELECTED (unsupp, unused)" },
+	{ OID_802_11_SUPPORTED_RATES, "OID_802_11_SUPPORTED_RATES" },
+	{ OID_802_11_DESIRED_RATES, "OID_802_11_DESIRED_RATES (unsupp, used)" },
+	{ OID_802_11_CONFIGURATION, "OID_802_11_CONFIGURATION" },
+	{ OID_802_11_STATISTICS, "OID_802_11_STATISTICS (unsupp, unused)" },
+	{ OID_802_11_ADD_WEP, "OID_802_11_ADD_WEP (write only)" },
+	{ OID_802_11_REMOVE_WEP, "OID_802_11_REMOVE_WEP (write only)" },
+	{ OID_802_11_DISASSOCIATE, "OID_802_11_DISASSOCIATE (write only)" },
+	{ OID_802_11_POWER_MODE, "OID_802_11_POWER_MODE (info not interesting)" },
+	{ OID_802_11_BSSID_LIST, "OID_802_11_BSSID_LIST" },
+	{ OID_802_11_AUTHENTICATION_MODE, "OID_802_11_AUTHENTICATION_MODE" },
+	{ OID_802_11_PRIVACY_FILTER, "OID_802_11_PRIVACY_FILTER (info not interesting)" },
+	{ OID_802_11_BSSID_LIST_SCAN, "OID_802_11_BSSID_LIST_SCAN" },
+	{ OID_802_11_WEP_STATUS, "OID_802_11_WEP_STATUS (info not interesting?)" },
+	{ OID_802_11_ENCRYPTION_STATUS, "OID_802_11_ENCRYPTION_STATUS (unsupp, used)" },
+	{ OID_802_11_RELOAD_DEFAULTS, "OID_802_11_RELOAD_DEFAULTS (write only)" },
+	{ OID_802_11_ADD_KEY, "OID_802_11_ADD_KEY (write only)" },
+	{ OID_802_11_REMOVE_KEY, "OID_802_11_REMOVE_KEY (write only)" },
+	{ OID_802_11_ASSOCIATION_INFORMATION, "OID_802_11_ASSOCIATION_INFORMATION (unused)" }, // XXX
+	{ OID_802_11_TEST, "OID_802_11_TEST (write only)" },
+	{ OID_802_11_CAPABILITY, "OID_802_11_CAPABILITY (unsupp, unused)" },
+	{ OID_802_11_PMKID, "OID_802_11_PMKID (unsupp, unused)" },
+
+    /* Token-Ring list is utterly incomplete (contains only the values for MS Loopback Driver) */
+    { OID_802_5_PERMANENT_ADDRESS, "OID_802_5_PERMANENT_ADDRESS (unused)" },
+    { OID_802_5_CURRENT_ADDRESS, "OID_802_5_CURRENT_ADDRESS (unused)" },
+    { OID_802_5_CURRENT_FUNCTIONAL, "OID_802_5_CURRENT_FUNCTIONAL (unused)" },
+    { OID_802_5_CURRENT_GROUP, "OID_802_5_CURRENT_GROUP (unused)" },
+    { OID_802_5_LAST_OPEN_STATUS, "OID_802_5_LAST_OPEN_STATUS (unused)" },
+    { OID_802_5_CURRENT_RING_STATUS, "OID_802_5_CURRENT_RING_STATUS (unused)" },
+    { OID_802_5_CURRENT_RING_STATE, "OID_802_5_CURRENT_RING_STATE (unused)" },
+    { OID_802_5_LINE_ERRORS, "OID_802_5_LINE_ERRORS (unused)" },
+    { OID_802_5_LOST_FRAMES, "OID_802_5_LOST_FRAMES (unused)" },
+
+    /* FDDI list is utterly incomplete (contains only the values for MS Loopback Driver) */
+    { OID_FDDI_LONG_PERMANENT_ADDR, "OID_FDDI_LONG_PERMANENT_ADDR (unused)" },
+    { OID_FDDI_LONG_CURRENT_ADDR, "OID_FDDI_LONG_CURRENT_ADDR (unused)" },
+    { OID_FDDI_LONG_MULTICAST_LIST, "OID_FDDI_LONG_MULTICAST_LIST (unused)" },
+    { OID_FDDI_LONG_MAX_LIST_SIZE, "OID_FDDI_LONG_MAX_LIST_SIZE (unused)" },
+    { OID_FDDI_SHORT_PERMANENT_ADDR, "OID_FDDI_SHORT_PERMANENT_ADDR (unused)" },
+    { OID_FDDI_SHORT_CURRENT_ADDR, "OID_FDDI_SHORT_CURRENT_ADDR (unused)" },
+    { OID_FDDI_SHORT_MULTICAST_LIST, "OID_FDDI_SHORT_MULTICAST_LIST (unused)" },
+    { OID_FDDI_SHORT_MAX_LIST_SIZE, "OID_FDDI_SHORT_MAX_LIST_SIZE (unused)" },
+
+    /* LocalTalk list is utterly incomplete (contains only the values for MS Loopback Driver) */
+    { OID_LTALK_CURRENT_NODE_ID, "OID_LTALK_CURRENT_NODE_ID (unused)" },
+
+    /* Arcnet list is utterly incomplete (contains only the values for MS Loopback Driver) */
+    { OID_ARCNET_PERMANENT_ADDRESS, "OID_ARCNET_PERMANENT_ADDRESS (unused)" },
+    { OID_ARCNET_CURRENT_ADDRESS, "OID_ARCNET_CURRENT_ADDRESS (unused)" },
+
+    { OID_TCP_TASK_OFFLOAD, "OID_TCP_TASK_OFFLOAD" },
+
+    /* PnP and power management OIDs */
+    { OID_PNP_CAPABILITIES, "OID_PNP_CAPABILITIES (unused)" },
+    { OID_PNP_SET_POWER, "OID_PNP_SET_POWER (unused)" },
+    { OID_PNP_QUERY_POWER, "OID_PNP_QUERY_POWER (unused)" },
+    { OID_PNP_ADD_WAKE_UP_PATTERN, "OID_PNP_ADD_WAKE_UP_PATTERN (unused)" },
+    { OID_PNP_REMOVE_WAKE_UP_PATTERN, "OID_PNP_REMOVE_WAKE_UP_PATTERN (unused)" },
+    { OID_PNP_WAKE_UP_PATTERN_LIST, "OID_PNP_WAKE_UP_PATTERN_LIST (unused)" },
+    { OID_PNP_ENABLE_WAKE_UP, "OID_PNP_ENABLE_WAKE_UP (unused)" },
+
+    /* Unknown OID's (seen on an "Intel(R) PRO/Wireless 2200BG" 802.11 interface) */
+    { 0xFF100000, "Unknown 0xFF100000 (unused)" },
+    { 0xFF100002, "Unknown 0xFF100002 (unused)" },
+    { 0xFF100003, "Unknown 0xFF100003 (unused)" },
+    { 0xFF100004, "Unknown 0xFF100004 (unused)" },
+    { 0xFF100005, "Unknown 0xFF100005 (unused)" },
+    { 0xFF100006, "Unknown 0xFF100006 (unused)" },
+    { 0xFF100007, "Unknown 0xFF100007 (unused)" },
+    { 0xFF100009, "Unknown 0xFF100009 (unused)" },
+    { 0xFF10000b, "Unknown 0xFF10000b (unused)" },
+    { 0xFF10000c, "Unknown 0xFF10000c (unused)" },
+    { 0xFF10000e, "Unknown 0xFF10000e (unused)" },
+    { 0xFF10000f, "Unknown 0xFF10000f (unused)" },
+    /* continued by a lot more 0xFF... values */
+    
+    { 0, NULL }
+};
 
 
 /******************************************************************************************************************************/
@@ -477,13 +662,14 @@ supported_list(LPADAPTER adapter)
     unsigned char       values[10000];
     int                 length;
 
-    
+
+    g_warning("supported_list_unhandled");
     length = sizeof(values);
     if (wpcap_packet_request(adapter, OID_GEN_SUPPORTED_LIST, FALSE /* !set */, values, &length)) {
         guint32 *value = (guint32 *) values;
 
         while (length>=4) {
-            g_warning("OID: 0x%08X", *value);
+            printf("OID: 0x%08X %s\n", *value, val_to_str(*value, oid_vals, "unknown"));
 
             value++;
             length-=4;
@@ -582,6 +768,7 @@ rates_details(unsigned char *values, int length) {
     int                 i;
     GString             *Rates;
     float               float_value;
+    int                 int_value;
 
 
     Rates = g_string_new("");
@@ -590,11 +777,18 @@ rates_details(unsigned char *values, int length) {
         i = 0;
         while(length--) {
             if(values[i]) {
+                if(i != 0) {
+                    g_string_append(Rates, "/");
+                }
+
                 float_value = (float) ((values[i] & 0x7F) / 2);
-                if(i == 0) {
-                    g_string_sprintfa(Rates, "%.1f", float_value);
+
+                /* reduce the screen estate by showing fractions only where required */
+                int_value = (int)float_value;
+                if(float_value == (float)int_value) {
+                    g_string_sprintfa(Rates, "%.0f", float_value);
                 } else {
-                    g_string_sprintfa(Rates, " / %.1f", float_value);
+                    g_string_sprintfa(Rates, "%.1f", float_value);
                 }
             }
             i++;
@@ -999,7 +1193,7 @@ capture_if_details_802_3(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
 }
 
 static int
-task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter) {
+capture_if_details_task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter) {
     NDIS_TASK_OFFLOAD_HEADER *offload;
     unsigned char   values[10000];
     int             length;
@@ -1298,6 +1492,17 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     }
     add_string_to_table(table, row, "Vendor ID", string_buff);
 
+    if (wpcap_packet_request_uint(adapter, OID_GEN_MAC_OPTIONS, &uint_value)) {
+        entries++;
+        g_snprintf(string_buff, DETAILS_STR_MAX, 
+            "802.1P Priority: %s, 802.1Q VLAN: %s", 
+            (uint_value & NDIS_MAC_OPTION_8021P_PRIORITY) ? "Supported" : "Unsupported",
+            (uint_value & NDIS_MAC_OPTION_8021Q_VLAN) ? "Supported" : "Unsupported" );
+    } else {
+        g_snprintf(string_buff, DETAILS_STR_MAX, "-");
+    }
+    add_string_to_table(table, row, "MAC Options", string_buff);
+
     if (wpcap_packet_request_uint(adapter, OID_GEN_VLAN_ID, &uint_value)) {
         entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%u", uint_value);
@@ -1306,9 +1511,17 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     }
     add_string_to_table(table, row, "VLAN ID", string_buff);
 
+#if 0
+    /* value seems to be constant */
+    if (wpcap_packet_request_uint(adapter, OID_GEN_CURRENT_PACKET_FILTER, &uint_value)) {
+        entries++;
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
+    } else {
+        g_snprintf(string_buff, DETAILS_STR_MAX, "-");
+    }
+    add_string_to_table(table, row, "Packet filter", string_buff);
+#endif
 
-    /* XXX - OID_GEN_MAC_OPTIONS (bitfield, VLAN, ...) */
-    
     if (wpcap_packet_request_uint(adapter, OID_GEN_TRANSMIT_BUFFER_SPACE, &uint_value)) {
         entries++;
         g_snprintf(string_buff, DETAILS_STR_MAX, "%d", uint_value);
@@ -1605,12 +1818,12 @@ capture_if_details_open_win(char *iface)
         gtk_widget_set_sensitive(page_lb, FALSE);
     }
 
-    /* task offload page */
+    /* Task offload page */
     page_task_offload = capture_if_details_page_new(&table);
     page_lb = gtk_label_new("Task Offload");
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_task_offload, page_lb);
     row = 0;
-    entries = task_offload(table, page_task_offload, &row, adapter);
+    entries = capture_if_details_task_offload(table, page_task_offload, &row, adapter);
     if(entries == 0) {
         gtk_widget_set_sensitive(page_lb, FALSE);
     }
