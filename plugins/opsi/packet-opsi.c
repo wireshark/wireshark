@@ -27,9 +27,6 @@
 # include "config.h"
 #endif
 
-#include "moduleinfo.h"
-#include <gmodule.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,12 +39,6 @@
 #include <epan/prefs.h>
 
 #include "packet-opsi.h"
-
-/* Plugin exported constants */
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif 
-
 
 /* Initialize the protocol and registered fields */
 static int proto_opsi 			= -1;
@@ -800,23 +791,3 @@ proto_reg_handoff_opsi(void)
 	opsi_handle = create_dissector_handle(dissect_opsi, proto_opsi);
 	dissector_add("tcp.port", TCP_PORT_OPSI, opsi_handle);
 }
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_opsi == -1) { /* execute protocol initialization only once */
-		proto_register_opsi();
-	}
-
-}
-#endif
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
-{
-	proto_reg_handoff_opsi();
-}
-#endif

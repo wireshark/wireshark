@@ -1,5 +1,5 @@
 # Makefile.nmake
-# nmake file for for Ethereal/docsis subdissectors
+# nmake file for DOCSIS plugin
 #
 # $Id$
 #

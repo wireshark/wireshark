@@ -28,22 +28,16 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include "packet-gryphon.h"
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 /*
  * See
@@ -2295,25 +2289,3 @@ proto_reg_handoff_gryphon(void)
     gryphon_handle = create_dissector_handle(dissect_gryphon, proto_gryphon);
     dissector_add("tcp.port", 7000, gryphon_handle);
 }
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_gryphon == -1) { /* execute protocol initialization only once */
-    proto_register_gryphon();
-  }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_gryphon();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */

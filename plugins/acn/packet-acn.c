@@ -30,8 +30,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -39,7 +37,6 @@
 #include <string.h>
 
 #include <glib.h>
-#include <gmodule.h>
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
@@ -47,12 +44,6 @@
 #include <epan/strutil.h>
 
 #include "acn.h"
-
-/* Define version if we are not building ethereal statically */
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 /*
  * See
@@ -1192,26 +1183,3 @@ proto_reg_handoff_acn(void) {
   
   dissector_add("udp.port",global_udp_port_acn,acn_handle);
 }
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_acn == -1) { /* execute protocol initialization only once */
-    proto_register_acn();
-  }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_acn();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */
-

@@ -35,20 +35,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <gmodule.h>
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
+
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 #include <epan/strutil.h>
-
-/* Define version if we are not building ethereal statically */
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 /*
  * See
@@ -1384,6 +1379,7 @@ proto_reg_handoff_rtcfg(void) {
   static dissector_handle_t rtcfg_handle;
 
   if( !rtcfg_initialized ){
+    data_handle = find_dissector("data");
     rtcfg_handle = create_dissector_handle(dissect_rtcfg, proto_rtcfg);
     rtcfg_initialized = TRUE;
   } else {
@@ -1392,31 +1388,3 @@ proto_reg_handoff_rtcfg(void) {
 
   dissector_add("ethertype", ETHERTYPE_RTCFG, rtcfg_handle);
 }
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_rtmac == -1) { /* execute protocol initialization only once */
-    proto_register_rtmac();
-  }
-  if (proto_rtcfg == -1) { /* execute protocol initialization only once */
-    proto_register_rtcfg();
-  }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_rtmac();
-  proto_reg_handoff_rtcfg();
-  data_handle = find_dissector("data");
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */
-

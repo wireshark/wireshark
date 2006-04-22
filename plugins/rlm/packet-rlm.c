@@ -55,17 +55,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
-
- /* Define version if we are not building ethereal statically */
-
-#include "moduleinfo.h"
-
-#ifndef ENABLE_STATIC
- G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
-
 
 /* Initialize the protocol and registered fields */
 static int proto_rlm = -1;
@@ -182,7 +173,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 */
 
 void
-plugin_reg_handoff_rlm(void)
+proto_reg_handoff_rlm(void)
 {
 	heur_dissector_add("udp", dissect_rlm, proto_rlm);
 	heur_dissector_add("udp", dissect_udp_lapd, proto_get_id_by_filter_name("lapd"));
@@ -234,27 +225,3 @@ proto_register_rlm(void)
 	proto_register_field_array(proto_rlm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_rlm == -1) { /* execute protocol initialization only once */
-    proto_register_rlm();
-  }
-}
-
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
-{
-	plugin_reg_handoff_rlm();
-}
-
-#endif

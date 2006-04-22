@@ -42,24 +42,19 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <gmodule.h>
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
+
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/sctpppids.h>
 #include <epan/dissectors/packet-tpkt.h>
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
@@ -2844,26 +2839,3 @@ static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
 	counter++;
 	return (counter);
 }
-
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_megaco == -1) { /* execute protocol initialization only once */
-		proto_register_megaco();
-	}
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-	proto_reg_handoff_megaco();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */

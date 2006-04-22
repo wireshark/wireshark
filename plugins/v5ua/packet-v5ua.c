@@ -29,28 +29,17 @@
 # include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
-#include <gmodule.h>
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <glib.h>
 
-#include <ctype.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/sctpppids.h>      /* include V5UA payload protocol ID */
-
-
-#include <epan/packet.h>
 
 
 /* Initialize the protocol and registered fields */
@@ -2360,26 +2349,3 @@ proto_reg_handoff_v5ua(void)
 	dissector_add("sctp.port", SCTP_PORT_V5UA, v5ua_handle);
 	dissector_add("sctp.ppi",  V5UA_PAYLOAD_PROTOCOL_ID, v5ua_handle);
 }
-
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-    /* register the new protocol, protocol fields, and subtrees */
-    if (proto_v5ua == -1) { /* execute protocol initialization only once */
-	proto_register_v5ua();
-    }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-    proto_reg_handoff_v5ua();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */

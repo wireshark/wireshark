@@ -28,15 +28,13 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <gmodule.h>
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
 
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -185,11 +183,6 @@ static int ett_ns_rec_item = -1;
 
 
 
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
-
-
 #define LWRES_UDP_PORT 921
 
 static guint global_lwres_port = LWRES_UDP_PORT;
@@ -205,7 +198,7 @@ static int proto_lwres = -1;
 /* Define many many headers for mgcp */
 
 static const value_string message_types_values[] = {
-	{ 1,          "REQUEST " },
+    { 1,          "REQUEST " },
     { 2,          "RESPONSE" },
     { 0 ,			NULL },
 };
@@ -1517,25 +1510,3 @@ proto_reg_handoff_lwres(void)
   dissector_add("udp.port", lwres_port, lwres_handle);
 
 }
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_lwres == -1) { /* execute protocol initialization only once */
-    proto_register_lwres();
-  }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_lwres();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */

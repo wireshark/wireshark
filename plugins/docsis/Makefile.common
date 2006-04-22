@@ -1,4 +1,4 @@
-# Makefile.common for Ethereal/docsis subdissectors
+# Makefile.common for DOCSIS plugin
 #     Contains the stuff from Makefile.am and Makefile.nmake that is
 #     a) common to both files and
 #     b) portable between both files
@@ -28,40 +28,38 @@ PLUGIN_NAME = docsis
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	packet-intrngreq.c \
-	packet-type29ucd.c \
-	packet-docsis.c \
 	packet-bpkmattr.c \
-	packet-dsarsp.c \
-	packet-macmgmt.c \
-	packet-rngrsp.c \
 	packet-bpkmreq.c \
-	packet-dscack.c \
-	packet-map.c \
-	packet-tlv.c \
 	packet-bpkmrsp.c \
-	packet-dscreq.c \
-	packet-regack.c \
-	packet-uccreq.c \
-	packet-dscrsp.c \
-	packet-regreq.c \
-	packet-uccrsp.c \
-	packet-dsaack.c \
-	packet-dsdreq.c \
-	packet-regrsp.c \
-	packet-ucd.c \
-	packet-dsareq.c \
-	packet-dsdrsp.c \
-	packet-rngreq.c \
-	packet-vendor.c \
+	packet-intrngreq.c \
 	packet-dccack.c \
 	packet-dccreq.c \
 	packet-dccrsp.c \
-	packet-dcd.c
+	packet-dcd.c \
+	packet-docsis.c \
+	packet-dsaack.c \
+	packet-dsareq.c \
+	packet-dsarsp.c \
+	packet-dscack.c \
+	packet-dscreq.c \
+	packet-dscrsp.c \
+	packet-dsdreq.c \
+	packet-dsdrsp.c \
+	packet-macmgmt.c \
+	packet-map.c \
+	packet-regack.c \
+	packet-regreq.c \
+	packet-regrsp.c \
+	packet-rngreq.c \
+	packet-rngrsp.c \
+	packet-tlv.c \
+	packet-type29ucd.c \
+	packet-uccreq.c \
+	packet-uccrsp.c \
+	packet-ucd.c \
+	packet-vendor.c
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
 	packet-docsis.h \
 	packet-tlv.h
-
-

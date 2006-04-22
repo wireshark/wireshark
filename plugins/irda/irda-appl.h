@@ -102,10 +102,4 @@ extern void proto_register_irsir(void);
     { "IrLPT",          irlpt_attr_dissector },             \
     { NULL,             NULL }
 
-/* Protocol initialisation */
-#define REGISTER_SUB_PROTOCOLS()    do {                    \
-        proto_register_ircomm();                            \
-        proto_register_irsir();                             \
-    } while (0)
-
 #endif /* __IRDA_APPL_H__ */

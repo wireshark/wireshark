@@ -67,14 +67,13 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include "moduleinfo.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <gmodule.h>
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
+
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -91,12 +90,6 @@
 #endif
 
 #include <epan/ipproto.h>
-
-/* Define version if we are not building ethereal statically */
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 /* buffer lengths */
 #define BUFLS 32
@@ -5106,25 +5099,3 @@ proto_reg_handoff_asn1(void) {
   }
 #endif /* JUST_ONE_PORT */
 }
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_asn1 == -1) { /* execute protocol initialization only once */
-    proto_register_asn1();
-  }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_asn1();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */

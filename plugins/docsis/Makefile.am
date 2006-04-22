@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for Ethereal/docsis subdissectors
+# Automake file for DOCSIS plugin
 #
 # $Id$
 #

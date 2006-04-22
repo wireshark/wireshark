@@ -1,3 +1,5 @@
+# Makefile.nmake
+# nmake file for RTNET plugin
 #
 # $Id$
 #
@@ -5,6 +7,8 @@
 include ..\..\config.nmake
 
 ############### no need to modify below this line #########
+
+include Makefile.common
 
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
@@ -15,11 +19,55 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=packet-rtnet.obj 
+DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
-rtnet.dll rtnet.exp rtnet.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
-	link -dll /out:rtnet.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+OBJECTS=$(DISSECTOR_OBJECTS) plugin.obj
+
+rtnet.dll rtnet.exp rtnet.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
+	link -dll /out:rtnet.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \
 	$(GLIB_LIBS)
+
+#
+# Build plugin.c, which contains the plugin version[] string, a
+# function plugin_register() that calls the register routines for all
+# protocols, and a function plugin_reg_handoff() that calls the handoff
+# registration routines for all protocols.
+#
+# We do this by scanning sources.  If that turns out to be too slow,
+# maybe we could just require every .o file to have an register routine
+# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
+#
+# Formatting conventions:  The name of the proto_register_* routines an
+# proto_reg_handoff_* routines must start in column zero, or must be
+# preceded only by "void " starting in column zero, and must not be
+# inside #if.
+#
+# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+#
+# For some unknown reason, having a big "for" loop in the Makefile
+# to scan all the files doesn't work with some "make"s; they seem to
+# pass only the first few names in the list to the shell, for some
+# reason.
+#
+# Therefore, we have a script to generate the plugin.c file.
+# The shell script runs slowly, as multiple greps and seds are run
+# for each input file; this is especially slow on Windows.  Therefore,
+# if Python is present (as indicated by PYTHON being defined), we run
+# a faster Python script to do that work instead.
+#
+# The first argument is the directory in which the source files live.
+# The second argument is "plugin", to indicate that we should build
+# a plugin.c file for a plugin.
+# All subsequent arguments are the files to scan.
+#
+plugin.c: $(DISSECTOR_SRC)
+!IFDEF PYTHON
+	@echo Making plugin.c (using python)
+	@$(PYTHON) ../../tools/make-dissector-reg.py . plugin $(DISSECTOR_SRC)
+!ELSE
+	@echo Making plugin.c (using sh)
+	@$(SH) ../../tools/make-dissector-reg . plugin $(DISSECTOR_SRC)
+!ENDIF
 
 !ENDIF
 

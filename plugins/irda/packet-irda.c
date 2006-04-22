@@ -31,14 +31,11 @@
 # include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/conversation.h>
@@ -142,11 +139,6 @@
 
 #define TTP_PARAMETERS         0x80
 #define TTP_MORE               0x80
-
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 /* Initialize the protocol and registered fields */
 static int proto_irlap = -1;
@@ -1952,7 +1944,7 @@ static void init_irda(void)
  * This format is required because a script is used to build the C function
  *  that calls all the protocol registrations.
  */
-static void proto_register_irda(void)
+void proto_register_irda(void)
 {
     unsigned i;
 
@@ -2314,7 +2306,7 @@ static void proto_register_irda(void)
 	create the code that calls these routines.
 */
 
-static void proto_reg_handoff_irda(void)
+void proto_reg_handoff_irda(void)
 {
     dissector_handle_t irda_handle;
 
@@ -2322,31 +2314,3 @@ static void proto_reg_handoff_irda(void)
     dissector_add("wtap_encap", WTAP_ENCAP_IRDA, irda_handle);
     data_handle = find_dissector("data");
 }
-
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-    /* register the new protocol, protocol fields, and subtrees */
-    if (proto_irlap == -1)
-    {
-        /* execute protocol initialization only once */
-        proto_register_irda();
-
-        REGISTER_SUB_PROTOCOLS();
-    }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
-{
-    proto_reg_handoff_irda();
-}
-
-#endif
-
-/* End the functions we need for plugin stuff */

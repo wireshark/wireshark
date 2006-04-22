@@ -46,16 +46,8 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
-
- /* Define version if we are not building ethereal statically */
-
-#include "moduleinfo.h"
-
-#ifndef ENABLE_STATIC
- G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 static int proto_rudp = -1;
 
@@ -230,22 +222,3 @@ proto_reg_handoff_rudp(void) {
 
 	dissector_add("udp.port", 7000, rudp_handle);
 }
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_rudp == -1) { /* execute protocol initialization only once */
-    proto_register_rudp();
-  }
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_rudp();
-}
-
-#endif
-

@@ -53,17 +53,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <gmodule.h>
 #include <epan/packet.h>
-
-/* Define version if we are not building ethereal statically */
-
-#include "moduleinfo.h"
-
-#ifndef ENABLE_STATIC
- G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
-
 
 #define MESSAGE_TYPE_START		0
 #define MESSAGE_TYPE_STOP		1
@@ -241,29 +231,3 @@ proto_register_sm(void)
 	proto_register_field_array(proto_sm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
-
-void
-plugin_reg_handoff_sm(void)
-{
-	return;
-}
-
-#ifndef ENABLE_STATIC
-
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_sm == -1) { /* execute protocol initialization only once */
-		proto_register_sm();
-	}
-
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
-{
-	plugin_reg_handoff_sm();
-}
-
-#endif
