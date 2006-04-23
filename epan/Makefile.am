@@ -84,7 +84,7 @@ MAINTAINERCLEANFILES = \
 #
 # Add the object files for missing routines, if any.
 #
-libethereal_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
+libethereal_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la @ADNS_LIBS@
 libethereal_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
