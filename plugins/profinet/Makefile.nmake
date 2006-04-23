@@ -19,11 +19,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-<<<<<<< .mine
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
-=======
-OBJECTS=profinet.obj packet-dcerpc-pn-io.obj packet-pn-dcp.obj packet-pn-ptcp.obj
->>>>>>> .r17941
 
 OBJECTS=$(DISSECTOR_OBJECTS) plugin.obj
 
