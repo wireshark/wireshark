@@ -172,7 +172,7 @@ dissect_sir( tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 
 
 /** Registers this dissector with the parent dissector. */
-static void
+void
 proto_reg_handoff_sir( void)
 {
 	dissector_add( "tcp.port", TCP_PORT_SIR, find_dissector( "sir"));
