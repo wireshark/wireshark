@@ -25,9 +25,9 @@ DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 
 OBJECTS = $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) plugin.obj
 
-h223.dll h223.exp h223.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
-	link -dll /out:h223.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \
-	$(GLIB_LIBS)
+$(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) \
+	    $(LINK_PLUGIN_WITH) $(GLIB_LIBS)
 
 #
 # Build plugin.c, which contains the plugin version[] string, a
@@ -74,7 +74,8 @@ plugin.c: $(DISSECTOR_SRC)
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) h223.dll h223.exp h223.lib *.pdb
+	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp \
+	    $(PLUGIN_NAME).lib *.pdb
 
 distclean: clean
 
