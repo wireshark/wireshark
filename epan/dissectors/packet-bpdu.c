@@ -193,15 +193,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       double hello_time;
       double forward_delay;
       guint16 version_3_length;
-      guint32 cist_internal_root_path_cost;
-      guint8 mst_config_format_selector;
       guint16 cist_bridge_identifier_bridge_priority;
       const guint8  *cist_bridge_identifier_mac;
       gchar   *cist_bridge_identifier_mac_str;
-      const guint8 *mst_config_name;
-      guint16 mst_config_revision_level;
-      guint8 cist_remaining_hops, msti_remaining_hops;
-      guint32 msti_internal_root_path_cost;
       guint32 msti_regional_root_mstid, msti_regional_root_priority;
       const guint8  *msti_regional_root_mac;
       gchar   *msti_regional_root_mac_str;
@@ -520,21 +514,17 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
 
-		mst_config_format_selector = tvb_get_guint8(tvb, BPDU_MST_CONFIG_FORMAT_SELECTOR);
-		proto_tree_add_uint(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
-			BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, mst_config_format_selector);
-		mst_config_name =  tvb_get_ptr (tvb, BPDU_MST_CONFIG_NAME, 32);
-		proto_tree_add_string(mstp_tree, hf_bpdu_mst_config_name, tvb, BPDU_MST_CONFIG_NAME, 32, mst_config_name);
+		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
+			BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, FALSE);
+		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_name, tvb, BPDU_MST_CONFIG_NAME, 32, FALSE);
 
-		mst_config_revision_level = tvb_get_ntohs(tvb, BPDU_MST_CONFIG_REVISION_LEVEL);
-		proto_tree_add_uint(mstp_tree, hf_bpdu_mst_config_revision_level, tvb,
-			BPDU_MST_CONFIG_REVISION_LEVEL, 2, mst_config_revision_level);
-		proto_tree_add_bytes(mstp_tree, hf_bpdu_mst_config_digest, tvb,
-			BPDU_MST_CONFIG_DIGEST, 16, tvb_get_ptr(tvb, BPDU_MST_CONFIG_DIGEST, 16));
+		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_revision_level, tvb,
+			BPDU_MST_CONFIG_REVISION_LEVEL, 2, FALSE);
+		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_digest, tvb,
+			BPDU_MST_CONFIG_DIGEST, 16, FALSE);
 
-		cist_internal_root_path_cost = tvb_get_ntohl(tvb, BPDU_CIST_INTERNAL_ROOT_PATH_COST);
-		proto_tree_add_uint(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
-			BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, cist_internal_root_path_cost);
+		proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
+			BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, FALSE);
 
 		cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_CIST_BRIDGE_IDENTIFIER);
 		cist_bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6);
@@ -547,9 +537,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				       BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
 				       cist_bridge_identifier_mac);
 
-		cist_remaining_hops = tvb_get_guint8(tvb, BPDU_CIST_REMAINING_HOPS);
-		proto_tree_add_uint(mstp_tree, hf_bpdu_cist_remaining_hops, tvb,
-			BPDU_CIST_REMAINING_HOPS, 1, cist_remaining_hops);
+		proto_tree_add_item(mstp_tree, hf_bpdu_cist_remaining_hops, tvb,
+			BPDU_CIST_REMAINING_HOPS, 1, FALSE);
 
 	/* MSTI messages */
 		offset = BPDU_MSTI;
@@ -617,9 +606,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				msti_regional_root_mac_str);
 
 
-		    msti_internal_root_path_cost = tvb_get_ntohs(tvb, offset+MSTI_INTERNAL_ROOT_PATH_COST);
-		    proto_tree_add_uint(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
-			offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, msti_internal_root_path_cost);
+		    proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
+			offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, FALSE);
 
 		    msti_bridge_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
 		    msti_port_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
@@ -629,9 +617,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_identifier_priority, tvb,
 			offset+MSTI_PORT_IDENTIFIER_PRIORITY, 1, msti_port_identifier_priority);
 		    
-		    msti_remaining_hops = tvb_get_guint8(tvb, offset+MSTI_REMAINING_HOPS);
-		    proto_tree_add_uint(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
-			offset + MSTI_REMAINING_HOPS, 1, msti_remaining_hops);
+		    proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
+			offset + MSTI_REMAINING_HOPS, 1, FALSE);
 
 		    length -= MSTI_MESSAGE_SIZE;
 		    offset += MSTI_MESSAGE_SIZE;
@@ -742,7 +729,7 @@ proto_register_bpdu(void)
       	"", HFILL }},
     { &hf_bpdu_mst_config_name,
       { "MST Config name",		"mstp.config_name",
-	FT_STRING,	BASE_DEC,	NULL,	0x0,
+	FT_STRINGZ,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
     { &hf_bpdu_mst_config_revision_level,
       { "MST Config revision",		"mstp.config_revision_level",
