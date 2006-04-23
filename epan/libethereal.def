@@ -707,6 +707,7 @@ tvb_strncaseeql
 tvb_strneql
 tvb_strnlen
 tvb_strsize
+tvb_uncompress
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 utf_8to16
