@@ -102,7 +102,7 @@ static gchar context_name[MAX_CONTEXT_NAME];
 static guint8 context_port;
 
 /* The DCT2000 protocol name of the packet */
-static gchar protocol_name[MAX_PROTOCOL_NAME];
+static gchar protocol_name[MAX_PROTOCOL_NAME+1];
 
 /*************************************************/
 /* Preference state (shared with stub protocol). */
