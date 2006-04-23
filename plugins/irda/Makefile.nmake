@@ -23,8 +23,8 @@ DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
 OBJECTS=$(DISSECTOR_OBJECTS) plugin.obj
 
-ira.dll ira.exp ira.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
-	link -dll /out:ira.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \
+irda.dll irda.exp irda.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
+	link -dll /out:irda.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \
 	$(GLIB_LIBS)
 
 #
@@ -72,7 +72,7 @@ plugin.c: $(DISSECTOR_SRC)
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) ira.dll ira.exp ira.lib *.pdb
+	rm -f $(OBJECTS) irda.dll irda.exp irda.lib *.pdb
 
 distclean: clean
 
