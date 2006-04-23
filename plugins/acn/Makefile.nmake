@@ -1,5 +1,5 @@
 # Makefile.nmake
-# nmake file for ACN plugin
+# nmake file for plugin
 #
 # $Id$
 #
@@ -21,11 +21,13 @@ CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
-OBJECTS=$(DISSECTOR_OBJECTS) plugin.obj
+DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 
-acn.dll acn.exp acn.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
-	link -dll /out:acn.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \
-	$(GLIB_LIBS)
+OBJECTS = $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) plugin.obj
+
+$(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) \
+	    $(LINK_PLUGIN_WITH) $(GLIB_LIBS)
 
 #
 # Build plugin.c, which contains the plugin version[] string, a
@@ -72,7 +74,8 @@ plugin.c: $(DISSECTOR_SRC)
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) acn.dll acn.exp acn.lib *.pdb
+	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp \
+	    $(PLUGIN_NAME).lib *.pdb
 
 distclean: clean
 
