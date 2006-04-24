@@ -638,6 +638,7 @@ column_arrow_cb(GtkWidget *w, gpointer data _U_) {
                 return;
             }
         }
+        clp1 = g_list_find(prefs.col_list, cfmt);
         gtk_tree_model_get(model, &iter2, 0, &title2, 1, &format2, 2,
                            &clp2, -1);
         gtk_list_store_set(GTK_LIST_STORE(model), &iter2, 0, title1, 1,
@@ -645,7 +646,7 @@ column_arrow_cb(GtkWidget *w, gpointer data _U_) {
         gtk_list_store_set(GTK_LIST_STORE(model), &iter1, 0, title2, 1,
                            format2, 2, clp2, -1);
         gtk_tree_selection_select_iter(sel, &iter2);
-        /* clp1 = g_list_find(prefs.col_list, cfmt); */
+
         column_set_arrow_button_sensitivity(clp1);
 
         /* free strings read from the TreeModel */
