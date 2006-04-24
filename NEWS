@@ -1,5 +1,301 @@
 $Id$
 
+== April 24, 2006
+
+Ethereal 0.99.0 has been released.
+
+  Bug Fixes
+
+   Many security vulnerabilities have been fixed since the previous
+   release. See the [1]application advisory for more details.
+
+     o The H.248 dissector could crash. Versions affected: 0.10.14.
+       CVE: [2]CVE-2006-1937
+
+     o The UMA dissector could go into an infinite loop. Versions
+       affected: 0.10.12 - 0.10.14. CVE: [3]CVE-2006-1933
+
+     o The X.509if dissector could crash. Versions affected: 0.10.14.
+       CVE: [4]CVE-2006-1937
+
+     o The SRVLOC dissector could crash. Versions affected: 0.10.0 -
+       0.10.14. CVE: [5]CVE-2006-1937
+
+     o The H.245 dissector could crash. Versions affected: 0.10.13 -
+       0.10.14. CVE: [6]CVE-2006-1937
+
+     o Ethereal's OID printing routine was susceptible to an
+       off-by-one error. Versions affected: 0.10.14. CVE:
+       [7]CVE-2006-1932
+
+     o The COPS dissector could overflow a buffer. Versions affected:
+       0.9.15 - 0.10.14. CVE: [8]CVE-2006-1935
+
+     o The ALCAP dissector could overflow a buffer. Versions
+       affected: 0.10.14. CVE: [9]CVE-2006-1934
+
+   Under a grant funded by the U.S. Department of Homeland Security,
+   [10]Coverity has uncovered a number of vulnerabilities in
+   Ethereal:
+
+     o The statistics counter could crash Ethereal. Versions
+       affected: 0.10.10 - 0.10.14. CVE: [11]CVE-2006-1937
+
+     o Ethereal could crash while reading a malformed Sniffer
+       capture. Versions affected: 0.8.12 - 0.10.14. CVE:
+       [12]CVE-2006-1938
+
+     o An invalid display filter could crash Ethereal. Versions
+       affected: 0.9.16 - 0.10.14. CVE: [13]CVE-2006-1939
+
+     o The general packet dissector could crash Ethereal. Versions
+       affected: 0.10.9 - 0.10.14. CVE: [14]CVE-2006-1937
+
+     o The AIM dissector could crash Ethereal. Versions affected:
+       0.10.7 - 0.10.14. CVE: [15]CVE-2006-1937
+
+     o The RPC dissector could crash Ethereal. Versions affected:
+       0.9.8 - 0.10.14. CVE: [16]CVE-2006-1939
+
+     o The DCERPC dissector could crash Ethereal. Versions affected:
+       0.9.16 - 0.10.14. CVE: [17]CVE-2006-1939
+
+     o The ASN.1 dissector could crash Ethereal. Versions affected:
+       0.9.8 - 0.10.14. CVE: [18]CVE-2006-1939
+
+     o The SMB PIPE dissector could crash Ethereal. Versions
+       affected: 0.8.20 - 0.10.14. CVE: [19]CVE-2006-1938
+
+     o The BER dissector could loop excessively. Versions affected:
+       0.10.4 - 0.10.14. CVE: [20]CVE-2006-1933
+
+     o The SNDCP dissector could abort. Versions affected: 0.10.4 -
+       0.10.14. CVE: [21]CVE-2006-1940
+
+     o The Network Instruments file code could overrun a buffer.
+       Versions affected: 0.10.0 - 0.10.14. CVE: [22]CVE-2006-1934
+
+     o The NetXray/Windows Sniffer file code could overrun a buffer.
+       Versions affected: 0.10.13 - 0.10.14. CVE: [23]CVE-2006-1934
+
+     o The GSM SMS dissector could crash Ethereal. Versions affected:
+       0.9.16 - 0.10.14. CVE: [24]CVE-2006-1939
+
+     o The ALCAP dissector could overrun a buffer. Versions affected:
+       0.10.14. CVE: [25]CVE-2006-1934
+
+     o The telnet dissector could overrun a buffer. Versions
+       affected: 0.8.5 - 0.10.14. CVE: [26]CVE-2006-1936
+
+     o ASN.1-based dissectors could crash Ethereal. Versions
+       affected: 0.9.10 - 0.10.14. CVE: [27]CVE-2006-1939
+
+     o The H.248 dissector could crash Ethereal. Versions affected:
+       0.10.11 - 0.10.14. CVE: [28]CVE-2006-1937
+
+     o The DCERPC NT dissector could crash Ethereal. Versions
+       affected: 0.9.14 - 0.10.14. CVE: [29]CVE-2006-1939
+
+     o The PER dissector could crash Ethereal. Versions affected:
+       0.9.14 - 0.10.14. CVE: [30]CVE-2006-1939
+
+   Under Windows, Unicode characters in profile and configuration
+   file paths could cause problems. Versions affected: 0.10.14.
+
+   The Coverity audit turned up several UI-related bugs that could
+   make Ethereal crash.
+
+  New and Updated Features
+
+   The following features are new (or have been significantly
+   updated) since the last release:
+
+     o The new command line tool dumpcap makes it possible to capture
+       network data without the drawbacks of (t)ethereal (memory
+       usage, security problems, ...) while keeping the benefit of
+       advanced techniques like multiple (ringbuffer) files and
+       alike.
+
+       The man page of dumpcap in HTML format is available at
+       [31]http://www.ethereal.com/docs/man-pages/dumpcap.1.html.
+
+     o The source distribution of Ethereal now supports SSL, IPsec
+       ESP, and ISAKMP decryption. (This feature has not yet been
+       enabled in the Windows installer.)
+
+     o Win32: Catch hardware exceptions caused by buggy dissectors.
+       If e.g. a NULL pointer exceptions occurs, Ethereal won't crash
+       now but displays the exception and tries to continue decoding
+       packets.
+
+     o The Windows version of Ethereal now uses native open and save
+       file dialogs.
+
+       In related news, Ethereal now runs as a full-fledged Unicode
+       application under Windows.
+
+     o Recent versions of Ethereal were flagging packets with an
+       incorrect TCP checksum as malformed. False positives were
+       being triggered on systems that use TCP checksum offloading.
+       We now check to see if the checksum is not 0x0000 before
+       flagging the packet as malformed.
+
+  Please Note
+
+       If your system uses TCP checksum offloading and Ethereal still
+       shows bad checksums for outgoing TCP packets and the checksums
+       for outgoing TCP packets are not 0x0000, this could mean that
+       your operating system is exposing kernel memory
+       unneccessarily. If this is the case, you should report the
+       problem to your OS vendor.
+
+     o The expert analysis feature has been enhanced.
+
+  New Protocol Support
+
+   ACP133, E.212, Nortel LGE Monitor, OICQ
+
+  Updated Protocol Support
+
+   3G A11, 802.11, 802.1Q, 802.3 Slow Protocols, AIM, ALCAP, ANSI
+   MAP, ASF, ASN.1 BER, ASN.1 PER, BACapp, BACnet, BFD, BGP, BPDU,
+   BSSAP, BSSGP, Camel, CDP, CLNP, CMP, COPS, DCERPC (DCERPC, LSA,
+   NT, PNP), DCOM (CBA, DCOM, Dispatch), DHCP, DIAMETER, DNS, DOCSIS
+   DCC, eDonkey, Ethernet, FC, FCP, FIX, G.723, GIOP, GRE, GSM A, GSM
+   MAP, GSSAPI, GTP, H.245, H.248, H.450, HTTP, IAPP, ICMPv6, iFCP,
+   IP, IPMI, IPP, IPsec, IPv6, ISAKMP, iSCSI, ISUP, IuUP, Juniper
+   GGSN, JXTA, K12, Kerberos, LAPD, LDAP, LLDP, LOOP, M3UA, MEGACO,
+   MPLS, MS MMS, MS NLB, MS Proxy, MTP3, NBNS, NCP 2222, NDPS,
+   Netflow, NFS, NJACK, NLM, NSIP, NTLMSSP, PN-DCP, POP, PPP, Q.931,
+   Radiotap, RADIUS, RANAP, RNSAP, RPC, RSYNC, RTCP, RTP, SCCP, SCCP
+   MG, SCSI, SDP, Sebek, SES, SIGCOMP, SIGCOMP UDVM, SIP, SKINNY,
+   SMB2, SMB (Mailslot, PIPE, SMB), SMPP, SNDCP, SNMP, SOCKS, SPNEGO,
+   SRVLOC, SSL, STUN, Syslog, T.38, TACACS, TCAP, TCP, TDS, Telnet,
+   TIPC, UDP, UMA, WSP, X11, X.411, X.509, XML
+
+  New and Updated Capture File Support
+
+   iSeries, Snoop, Windows Sniffer
+
+Getting Ethereal
+
+  Microsoft Windows
+
+   Download ethereal-setup-0.99.0.exe from the [32]Windows download
+   area on the main web site. Double-click the installer executable.
+
+  Sun Solaris
+
+   Download the appropriate package from the [33]Solaris download
+   area on the main web site. Uncompress the package using bzip2, and
+   install it using pkgadd.
+
+  Source Code
+
+   Download ethereal-0.99.0.tar.gz from the [34]main download area on
+   the web site. Extract the package using tar and gzip. Run
+   "configure ; make ; make install".
+
+  Vendor-supplied Packages
+
+   Most Linux and Unix vendors supply their own Ethereal packages.
+   You can install or upgrade Ethereal using the package management
+   system specific to that platform. A list of third-party packages
+   can be found on the [35]download page on the Ethereal web site.
+
+File Locations
+
+   Ethereal and Tethereal look in several different locations for
+   preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+   These locations vary from platform to platform. You can use
+   About->Folders to find the default locations on your system.
+
+Known Problems
+
+   On Windows systems the packet list scroll bar can sometimes
+   disappear or become unusable. Until the problem is fixed you can
+   work around it by resizing the packet list or the main window.
+   ([36]Bug #220)
+
+   The Filter button is nonfunctional in the file dialogs under
+   Windows.
+
+   Trying to save flow data may crash Ethereal. ([37]Bug #396)
+
+   It may not be possible to re-order coloring rules under Windows.
+   ([38]Bug #699)
+
+   Multiple tap interfaces may cause a crash under FreeBSD. ([39]Bug
+   #757)
+
+   Ethereal may crash while viewing TCP streams. ([40]Bug #852)
+
+   Ethereal may crash while adjusting column preferences. ([41]Bug
+   #886)
+
+Getting Help
+
+   Community support is available on the ethereal-users mailing list.
+   Subscription information and archives for all of Ethereal's
+   mailing lists can be found on [42]the web site. There is also an
+   [43]IRC channel dedicated to Ethereal.
+
+   Commercial support, training, and development services are
+   available from [44]Ethereal Software.
+
+Frequently Asked Questions
+
+   A complete FAQ is available on the [45]Ethereal web site.
+
+References
+
+   Visible links
+   1. http://www.ethereal.com/appnotes/enpa-sa-00023.html
+   2. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1933
+   4. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+   5. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+   6. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+   7. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1932
+   8. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1935
+   9. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934
+  10. http://www.coverity.com/
+  11. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+  12. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1938
+  13. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  14. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+  15. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+  16. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  17. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  18. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  19. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1938
+  20. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1933
+  21. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1940
+  22. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934
+  23. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934
+  24. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  25. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1934
+  26. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1936
+  27. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  28. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1937
+  29. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  30. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1939
+  31. http://www.ethereal.com/docs/man-pages/dumpcap.1.html
+  32. http://www.ethereal.com/distribution/win32/
+  33. http://www.ethereal.com/distribution/solaris/
+  34. http://www.ethereal.com/distribution/
+  35. http://www.ethereal.com/download.html#otherplat
+  36. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220
+  37. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=396
+  38. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=699
+  39. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=757
+  40. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=852
+  41. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=886
+  42. http://www.ethereal.com/lists/
+  43. irc://irc.freenode.net/ethereal
+  44. http://www.etherealsoft.com/
+  45. http://www.ethereal.com/faq.html
+
 == December 27, 2005
 
 Ethereal 0.10.14 has been released.

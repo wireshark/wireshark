@@ -26,7 +26,7 @@ HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 # elinks (text version of release notes)
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
 #ELINKS=elinks
-ELINKS="true"
+ELINKS=elinks
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 

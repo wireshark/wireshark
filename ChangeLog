@@ -1,4 +1,191 @@
 ------------------------------------------------------------------------
+r17976 | gerald | 2006-04-24 10:24:28 -0500 (Mon, 24 Apr 2006) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Add bug 886.
+
+------------------------------------------------------------------------
+r17975 | gerald | 2006-04-24 10:18:36 -0500 (Mon, 24 Apr 2006) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Fix a typo.
+
+------------------------------------------------------------------------
+r17947 | gerald | 2006-04-21 15:42:26 -0500 (Fri, 21 Apr 2006) | 67 lines
+Changed paths:
+   M /trunk-1.0/AUTHORS
+   M /trunk-1.0/asn1/inap/packet-inap-template.c
+   M /trunk-1.0/epan/dissectors/packet-inap.c
+   M /trunk-1.0/epan/dissectors/packet-inap.h
+   M /trunk-1.0/epan/dissectors/packet-xml.c
+   M /trunk-1.0/gtk/sctp_stat.c
+
+Copy over fixes from the trunk.
+
+r17879:
+User: guy
+Date: 2006/04/16 05:58 PM
+
+Log:
+ Re-UTF-8-ify.
+
+Directory: /trunk/
+  Changes    Path          Action
+  +30 -28    AUTHORS       Modified
+
+
+r17910:
+User: etxrab
+Date: 2006/04/19 01:58 PM
+
+Log:
+ Add some applications
+
+Directory: /trunk/epan/dissectors/
+  Changes    Path            Action
+  +14 -12    packet-xml.c    Modified
+
+
+r17927:
+User: etxrab
+Date: 2006/04/20 10:24 AM
+
+Log:
+ Add some more Media types.
+
+Directory: /trunk/epan/dissectors/
+  Changes    Path            Action
+  +7 -1      packet-xml.c    Modified
+
+
+r17944:
+User: tuexen
+Date: 2006/04/21 10:48 AM
+
+Log:
+ From Irene: Fix a bug when searching for an assoc.
+
+Directory: /trunk/gtk/
+  Changes    Path           Action
+  +8 -6      sctp_stat.c    Modified
+
+
+r17945:
+User: etxrab
+Date: 2006/04/21 01:11 PM
+
+Log:
+ From Jeff Morris:
+ I tried out the 0.99.0pre1 release and I noticed that all my SCCP management messages (on SSN==1) were getting decoded as TCAP.  Turns out that the INAP dissector (due to a bug) registers to SSN==1 by default (instead of 106 and 241).  Rather than just fix that bug, the attached patch modifies the INAP dissector to use a range preference (like GSM MAP, TCAP, etc.).
+
+Directory: /trunk/epan/dissectors/
+  Changes    Path             Action
+  +42 -34    packet-inap.c    Modified
+  +1 -1      packet-inap.h    Modified
+
+Directory: /trunk/asn1/inap/
+  Changes    Path                      Action
+  +37 -29    packet-inap-template.c    Modified
+
+------------------------------------------------------------------------
+r17946 | gerald | 2006-04-21 13:38:54 -0500 (Fri, 21 Apr 2006) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Add CVEs.
+
+------------------------------------------------------------------------
+r17929 | gerald | 2006-04-20 10:48:48 -0500 (Thu, 20 Apr 2006) | 38 lines
+Changed paths:
+   M /trunk-1.0/epan/dissectors/packet-giop.c
+   M /trunk-1.0/epan/dissectors/packet-giop.h
+   M /trunk-1.0/epan/libethereal.def
+   M /trunk-1.0/ethereal_gen.py
+   M /trunk-1.0/plugins/giop/packet-cosnaming.c
+   M /trunk-1.0/plugins/giop/packet-parlay.c
+   M /trunk-1.0/plugins/giop/packet-tango.c
+
+Copy GOIP fixes from the trunk:
+
+r17902:
+User: etxrab
+Date: 2006/04/19 12:18 AM
+
+Log:
+ From W.Borgert:
+ 
+ this patch leads to a more condensed representation of strings in the GIOP module, e.g. in Parlay instead of having:
+ 
+ length = 42
+ TpAddress_AddrString = sip:anyone@xxxxxxxxxxxxxxxxxxxxxxxxx:5432
+ 
+ you have now:
+ 
+ TpAddress_AddrString (42) = sip:anyone@xxxxxxxxxxxxxxxxxxxxxxxxx:5432
+ 
+ The former was not as concise, if you have a lot of strings (as in CosNaming) and it was not clear whether the protocol had a explicit field named "length" in the IDL.
+
+
+r17911:
+User: etxrab
+Date: 2006/04/19 02:04 PM
+
+Log:
+ Handle 64bits signed/unsigned integers and get rid of some extra LF:s.
+
+
+r17902 fixes a bunch of
+
+packet-tango.c:580: warning: unsigned int format, pointer arg (arg 6)
+packet-tango.c:580: warning: format argument is not a pointer (arg 7)
+packet-parlay.c:5371: warning: unsigned int format, pointer arg (arg 6)
+packet-parlay.c:5371: warning: format argument is not a pointer (arg 7)
+
+errors.
+
+------------------------------------------------------------------------
+r17928 | gerald | 2006-04-20 10:28:09 -0500 (Thu, 20 Apr 2006) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Fix number-sign placement, which was causing problems upstream.
+
+------------------------------------------------------------------------
+r17925 | gerald | 2006-04-20 10:10:44 -0500 (Thu, 20 Apr 2006) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Fix the app advisory link.
+
+------------------------------------------------------------------------
+r17924 | gerald | 2006-04-20 10:01:32 -0500 (Thu, 20 Apr 2006) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+More cleanup.
+
+------------------------------------------------------------------------
+r17916 | gerald | 2006-04-19 15:45:00 -0500 (Wed, 19 Apr 2006) | 2 lines
+Changed paths:
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/configure.in
+   A /trunk-1.0/version.conf
+
+Set the version to "0.99.0pre1".
+
+------------------------------------------------------------------------
+r17915 | gerald | 2006-04-19 15:42:48 -0500 (Wed, 19 Apr 2006) | 4 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/docbook/release-notes.xml
+
+Add terminating versions to the security bugs.  Add new and updated
+protocol and file format support.  Add a few more features.  Update the
+changelog.
+
+------------------------------------------------------------------------
 r17899 | gerald | 2006-04-18 15:46:48 -0500 (Tue, 18 Apr 2006) | 42 lines
 Changed paths:
    M /trunk-1.0/epan/dissectors/packet-bacapp.c
