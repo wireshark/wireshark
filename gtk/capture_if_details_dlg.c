@@ -99,7 +99,7 @@ struct sockaddr_storage {
 
 
 
-/******************************************************************************************************************************/
+/********************************************************************************/
 /* definitions that would usually come from the windows DDK (device driver kit) */
 /* and are not part of the ntddndis.h file delivered with WinPcap */
 
@@ -289,9 +289,10 @@ struct ndis_bssid_list {
 };
 
 
-/******************************************************************************************************************************/
-/* OID_TCP_TASK_OFFLOAD specific definitions that would usually come from the windows DDK (device driver kit) */
-/* and are not part of the ntddndis.h file delivered with WinPcap */
+/******************************************************************************/
+/* OID_TCP_TASK_OFFLOAD specific definitions that would usually come from the */
+/* windows DDK (device driver kit) and are not part of the ntddndis.h file */
+/* delivered with WinPcap */
 
 /* optional OID (from http://www.ndis.com/papers/ieee802_11_log.htm) */
 #define OID_TCP_TASK_OFFLOAD    0xFC010201
@@ -395,7 +396,7 @@ typedef struct _NDIS_TASK_OFFLOAD
 } NDIS_TASK_OFFLOAD, *PNDIS_TASK_OFFLOAD;
 
 
-/******************************************************************************************************************************/
+/***********************************************************************/
 /* value_string's for info functions */
 
 
@@ -652,7 +653,7 @@ static const value_string oid_vals[] = {
 };
 
 
-/******************************************************************************************************************************/
+/***************************************************************************/
 /* debug functions, query or list supported NDIS OID's */
 
 
@@ -702,7 +703,7 @@ supported_query_oid(LPADAPTER adapter, guint32 oid)
 }
 
 
-/******************************************************************************************************************************/
+/******************************************************************************/
 /* info functions, get and display various NDIS driver values */
 
 
