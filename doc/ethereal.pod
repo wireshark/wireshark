@@ -466,6 +466,23 @@ Collect call/reply RTT data for all known ONC-RPC programs/versions.
 Data collected is number of calls for each protocol/version, MinRTT, 
 MaxRTT and AvgRTT. 
 
+B<-z> scsi,srt,I<cmdset>[,<filter>]
+
+Collect call/reply SRT (Service Response Time) data for SCSI commandset <cmdset>.  
+
+Commandsets are 0:SBC   1:SSC  5:MMC
+
+
+Data collected
+is number of calls for each procedure, MinSRT, MaxSRT and AvgSRT. 
+Example: use B<-z scsi,srt,0> to collect data for SCSI BLOCK COMMANDS (SBC).  This
+option can be used multiple times on the command line. 
+
+If the optional filter string is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z scsi,srt,0,ip.addr==1.2.3.4> to collect SCSI SBC
+SRT statistics for a specific iscsi/ifcp/fcip host.
+
 B<-z> smb,srt[,I<filter>]
 
 Collect call/reply SRT (Service Response Time) data for SMB.  Data collected

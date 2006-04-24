@@ -561,7 +561,7 @@ static const value_string scsi_spc2_val[] = {
 #define SCSI_SBC2_XPWRITE32              0x7F
 
 
-static const value_string scsi_sbc2_val[] = {
+const value_string scsi_sbc2_val[] = {
     {SCSI_SPC2_EXTCOPY           , "Extended Copy"},
     {SCSI_SPC2_INQUIRY           , "Inquiry"},
     {SCSI_SBC2_FORMATUNIT        , "Format Unit"},
@@ -648,7 +648,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC4_READDISCSTRUCTURE      0xad
 #define SCSI_MMC4_SETSTREAMING           0xb6
 #define SCSI_MMC4_SETCDSPEED             0xbb
-static const value_string scsi_mmc_val[] = {
+const value_string scsi_mmc_val[] = {
     {SCSI_MMC4_GETCONFIGURATION      , "Get Configuraion"},
     {SCSI_MMC4_GETEVENTSTATUSNOTIFY  , "Get Event Status Notification"},
     {SCSI_MMC4_GETPERFORMANCE        , "Get Performance"},
@@ -755,7 +755,7 @@ static const value_string scsi_smc2_val[] = {
 #define SCSI_SSC2_LOCATE_16                     0x92
 #define SCSI_SSC2_ERASE_16                      0x93
 
-static const value_string scsi_ssc2_val[] = {
+const value_string scsi_ssc2_val[] = {
     {SCSI_SSC2_ERASE_6                     , "Erase(6)"},
     {SCSI_SSC2_ERASE_16                    , "Erase(16)"},
     {SCSI_SPC2_EXTCOPY                     , "Extended Copy"},

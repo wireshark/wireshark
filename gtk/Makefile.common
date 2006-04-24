@@ -160,6 +160,7 @@ ETHEREAL_TAP_SRC = \
 	rtp_stream_dlg.c	\
 	mcast_stream_dlg.c	\
 	stats_tree_stat.c	\
+	scsi_stat.c	\
 	sctp_assoc_analyse.c	\
 	sctp_chunk_stat_dlg.c	\
 	sctp_chunk_stat.c	\
