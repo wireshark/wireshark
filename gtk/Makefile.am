@@ -89,6 +89,8 @@ noinst_HEADERS = \
 	rtp_analysis.h	\
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
+	mcast_stream.h  \
+	mcast_stream_dlg.h \
 	sat.h		\
 	sctp_stat.h	\
 	service_response_time_table.h	\
