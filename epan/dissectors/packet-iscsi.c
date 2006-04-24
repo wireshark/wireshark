@@ -1539,7 +1539,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		    data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 		    dissect_scsi_snsinfo (data_tvb, pinfo, tree, 0,
 					  tvb_len,
-					  cdata->itlq.lun);
+					  &cdata->itlq, itl);
 		}
 	    }
         }

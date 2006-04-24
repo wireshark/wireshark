@@ -149,6 +149,19 @@ typedef struct _itlq_nexus_t {
     nstime_t fc_time;
 } itlq_nexus_t;
 
+
+#define SCSI_PDU_TYPE_CDB       1
+#define SCSI_PDU_TYPE_DATA      2
+#define SCSI_PDU_TYPE_RSP       4
+#define SCSI_PDU_TYPE_SNS       5
+typedef struct _scsi_task_data {
+    int type;
+    itlq_nexus_t *itlq;
+    itl_nexus_t *itl;
+} scsi_task_data_t;
+
+
+
 /* FC header structure */
 typedef struct _fc_hdr {
     address s_id;

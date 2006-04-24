@@ -559,7 +559,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
             sns_tvb=tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
             dissect_scsi_snsinfo (sns_tvb, pinfo, parent_tree, 0,
                                   snslen,
-				  fchdr->itlq->lun);
+				  fchdr->itlq, itl);
 
             offset+=snslen;
         }

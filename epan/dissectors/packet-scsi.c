@@ -54,19 +54,17 @@
  * o dissect_scsi_snsinfo - invoked to decode the sense data provided in case of
  *                          an error.
  *   void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint,
- *   guint, guint16);
+ *   guint, itlq_nexus_t *, itl_nexus_t *);
  *
  * In addition to this, the other requirement made from the transport is to
- * provide a unique way to determine a SCSI task. In Fibre Channel networks,
- * this is the exchange ID pair alongwith the source/destination addresses; in
- * iSCSI it is the initiator task tag along with the src/dst address and port
- * numbers. This is to be provided to the SCSI decoder via the private_data
- * field in the packet_info data structure. The private_data field is treated
- * as a pointer to a "scsi_task_id_t" structure, containing a conversation
- * ID (a number uniquely identifying a conversation between a particular
- * initiator and target, e.g. between two Fibre Channel addresses or between
- * two TCP address/port pairs for iSCSI or NDMP) and a task ID (a number
- * uniquely identifying a task within that conversation).
+ * provide ITL and ITLQ structures that are persistent.
+ *   
+ * The ITL structure uniquely identifies a Initiator/Target/Lun combination
+ * and is among other things used to keep track of the device type for a 
+ * specific LUN.
+ *
+ * The ITLQ structure uniquely identifies a specific scsi task and is used to 
+ * keep track of OPCODEs between CDB/DATA/Responses and resp[onse times.
  *
  * This decoder attempts to track the type of SCSI device based on the response
  * to the Inquiry command. If the trace does not contain an Inquiry command,
@@ -89,6 +87,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/conversation.h>
+#include <epan/tap.h>
 #include "packet-fc.h"
 #include "packet-scsi.h"
 
@@ -356,6 +355,8 @@ static gint ett_scsi_inq_acaflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
 static gint ett_scsi_inq_bqueflags = -1;
 static gint ett_scsi_inq_reladrflags = -1;
+
+static int scsi_tap = -1;
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
@@ -1694,12 +1695,6 @@ const true_false_string scsi_senddiag_pf_val = {
 };
 
 static gint scsi_def_devtype = SCSI_DEV_SBC;
-
-
-typedef struct _scsi_task_data {
-    itlq_nexus_t *itlq;
-    itl_nexus_t *itl;
-} scsi_task_data_t;
 
 
 /* list of commands for each commandset */
@@ -6299,6 +6294,13 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
     cmdset_t *csdata;
+    scsi_task_data_t *cdata;
+
+    cdata = ep_alloc(sizeof(scsi_task_data_t));
+    cdata->itl=itl;
+    cdata->itlq=itlq;
+    cdata->type=SCSI_PDU_TYPE_RSP;
+    tap_queue_packet(scsi_tap, pinfo, cdata);
 
     csdata=get_cmdset_data(itlq, itl);
 
@@ -6350,11 +6352,19 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      guint offset, guint snslen, guint16 lun)
+                      guint offset, guint snslen, itlq_nexus_t *itlq, itl_nexus_t *itl)
 {
     proto_item *ti;
     proto_tree *sns_tree=NULL;
     const char *old_proto;
+    scsi_task_data_t *cdata;
+
+    cdata = ep_alloc(sizeof(scsi_task_data_t));
+    cdata->itl=itl;
+    cdata->itlq=itlq;
+    cdata->type=SCSI_PDU_TYPE_SNS;
+    tap_queue_packet(scsi_tap, pinfo, cdata);
+
 
     old_proto=pinfo->current_proto;
     pinfo->current_proto="SCSI";
@@ -6366,10 +6376,10 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 
-    ti=proto_tree_add_uint(sns_tree, hf_scsi_lun, tvb, 0, 0, lun);
+    ti=proto_tree_add_uint(sns_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     PROTO_ITEM_SET_GENERATED(ti);
     if (check_col (pinfo->cinfo, COL_INFO)) {
-         col_append_fstr (pinfo->cinfo, COL_INFO, " LUN:0x%02x ", lun);
+         col_append_fstr (pinfo->cinfo, COL_INFO, " LUN:0x%02x ", itlq->lun);
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
     }
@@ -7728,6 +7738,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cdata = ep_alloc(sizeof(scsi_task_data_t));
     cdata->itl=itl;
     cdata->itlq=itlq;
+    cdata->type=SCSI_PDU_TYPE_CDB;
+    tap_queue_packet(scsi_tap, pinfo, cdata);
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, 0,
@@ -7796,6 +7808,8 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cdata = ep_alloc(sizeof(scsi_task_data_t));
     cdata->itl=itl;
     cdata->itlq=itlq;
+    cdata->type=SCSI_PDU_TYPE_CDB;
+    tap_queue_packet(scsi_tap, pinfo, cdata);
 
     csdata=get_cmdset_data(itlq, itl);
 
@@ -8740,4 +8754,10 @@ proto_register_scsi (void)
                                     "When Target Cannot Be Identified, Decode SCSI Messages As",
                                     &scsi_def_devtype, scsi_devtype_options, TRUE);
 
+}
+
+void
+proto_reg_handoff_scsi(void)
+{
+    scsi_tap = register_tap("scsi");
 }

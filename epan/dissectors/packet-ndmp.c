@@ -1278,7 +1278,17 @@ dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	offset += 4;
 
 	if (sns_len != 0) {
-		dissect_scsi_snsinfo(tvb, pinfo, tree, offset, sns_len, 0xffff);
+		itlq_nexus_t itlq;
+
+		/* create a fake itlq structure until we have proper
+		 * tracking in ndmp 
+		 */
+		itlq.lun=0xffff;
+
+		itlq.first_exchange_frame=0;
+		itlq.last_exchange_frame=0;
+		itlq.scsi_opcode=0xffff;
+		dissect_scsi_snsinfo(tvb, pinfo, tree, offset, sns_len, &itlq, NULL);
 		offset += sns_len_full;
 	}
 

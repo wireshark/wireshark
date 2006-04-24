@@ -67,6 +67,6 @@ void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *,
 void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, itlq_nexus_t *, itl_nexus_t *, guint8);
 void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
                            gboolean, itlq_nexus_t *, itl_nexus_t *);
-void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, guint16);
+void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, itlq_nexus_t *, itl_nexus_t *);
 
 #endif
