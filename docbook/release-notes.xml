@@ -668,6 +668,11 @@ iSeries, Snoop, Windows Sniffer
       (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=852">Bug #852</ulink>)
     </para>
 
+    <para>
+      Ethereal may crash while adjusting column preferences.
+      (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=886">Bug #886</ulink>)
+    </para>
+
   </section>
 
   <section id="GettingHelp"><title>Getting Help</title>
