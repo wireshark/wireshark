@@ -129,7 +129,7 @@ static gboolean catapult_dct2000_dump_close(wtap_dumper *wdh, int *err);
 /************************************************************/
 /* Private helper functions                                 */
 static gboolean read_new_line(FILE_T fh, long *offset, gint *length);
-static gboolean parse_line(gint length, gint *seconds, gint *useconds,
+static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                            long *before_time_offset, long *after_time_offset,
                            long *data_offset,
                            gint *data_chars,
@@ -287,10 +287,10 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         return FALSE;
     }
 
-    /* Search for a line containing a usable board-port frame */
+    /* Search for a line containing a usable message */
     while (1)
     {
-        int length, seconds, useconds, data_chars;
+        int line_length, seconds, useconds, data_chars;
         long this_offset = offset;
 
         /* Are looking for first packet after 2nd line */
@@ -304,14 +304,14 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         errno = 0;
 
         /* Read a new line from file into linebuff */
-        if (read_new_line(wth->fh, &offset, &length) == FALSE)
+        if (read_new_line(wth->fh, &offset, &line_length) == FALSE)
         {
             /* Get out when no more lines to be read */
             break;
         }
 
         /* Try to parse the line as a message */
-        if (parse_line(length, &seconds, &useconds,
+        if (parse_line(line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
                        &data_chars, &direction, &encap, FALSE))
@@ -332,7 +332,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             *data_offset = this_offset;
 
             /* This is the position in the file where the next _read() will be called from */
-            wth->data_offset = this_offset + length + 1;
+            wth->data_offset = this_offset + line_length + 1;
 
             /* Fill in timestamp (capture base + packet offset) */
             wth->phdr.ts.secs = wth->capture.catapult_dct2000->start_secs + seconds;
@@ -766,7 +766,7 @@ gboolean read_new_line(FILE_T fh, long *offset, gint *length)
 /* - data position and length                                         */
 /* Return TRUE if this packet looks valid and can be displayed        */
 /**********************************************************************/
-gboolean parse_line(gint length, gint *seconds, gint *useconds,
+gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                     long *before_time_offset, long *after_time_offset,
                     long *data_offset, gint *data_chars,
                     packet_direction_t *direction,
@@ -786,13 +786,17 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     gboolean atm_header_present = FALSE;
 
     /* Read context name until find '.' */
-    for (n=0; linebuff[n] != '.' && (n < MAX_CONTEXT_NAME); n++)
+    for (n=0; linebuff[n] != '.' && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
     {
         if (!isalnum(linebuff[n]) && (linebuff[n] != '_'))
         {
             return FALSE;
         }
         context_name[n] = linebuff[n];
+    }
+    if (n == MAX_CONTEXT_NAME || (n+1 >= line_length))
+    {
+        return FALSE;
     }
 
     /* '.' must follow context name */
@@ -807,7 +811,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
 
     /* Now read port number */
     for (port_digits = 0;
-         (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS);
+         (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
          n++, port_digits++)
     {
         if (!isdigit(linebuff[n]))
@@ -815,6 +819,10 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
             return FALSE;
         }
         port_number_string[port_digits] = linebuff[n];
+    }
+    if (port_digits > MAX_PORT_DIGITS || (n+1 >= line_length))
+    {
+        return FALSE;
     }
 
     /* Slash char must follow port number */
@@ -830,8 +838,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
 
     /* Now for the protocol name */
     for (protocol_chars = 0;
-         (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) &&
-         (n < MAX_LINE_LENGTH);
+         (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
          n++, protocol_chars++)
     {
         if (!isalnum(linebuff[n]) && linebuff[n] != '_')
@@ -840,7 +847,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
         }
         protocol_name[protocol_chars] = linebuff[n];
     }
-    if (protocol_chars == MAX_PROTOCOL_NAME)
+    if (protocol_chars == MAX_PROTOCOL_NAME || n >= line_length)
     {
         /* If doesn't fit, fail rather than truncate */
         return FALSE;
@@ -930,21 +937,25 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
         int header_chars_seen = 0;
 
         /* Scan ahead to the next $ */
-        for (; (linebuff[n] != '$') && (n < MAX_LINE_LENGTH); n++);
+        for (; (linebuff[n] != '$') && (n+1 < line_length); n++);
         /* Skip it */
         n++;
+        if (n+1 >= line_length)
+        {
+            return FALSE;
+        }
 
         /* Read consecutive hex chars into atm header buffer */
         for (;
              (isalnum(linebuff[n]) &&
-              (n < MAX_LINE_LENGTH) &&
+              (n < line_length) &&
               (header_chars_seen < AAL_HEADER_CHARS));
              n++, header_chars_seen++)
         {
             aal_header_chars[header_chars_seen] = linebuff[n];
         }
 
-        if (header_chars_seen != AAL_HEADER_CHARS)
+        if (header_chars_seen != AAL_HEADER_CHARS || n >= line_length)
         {
             return FALSE;
         }
@@ -952,7 +963,11 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
 
 
     /* Scan ahead to the next space */
-    for (; (linebuff[n] != ' ') && (n < MAX_LINE_LENGTH); n++);
+    for (; (linebuff[n] != ' ') && (n+1 < line_length); n++);
+    if (n+1 >= line_length)
+    {
+        return FALSE;
+    }
     /* Skip it */
     n++;
 
@@ -976,7 +991,11 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     /* Find and read the timestamp                                       */
 
     /* Now scan to the next digit, which should be the start of the timestamp */
-    for (; !isdigit(linebuff[n]) && (n < MAX_LINE_LENGTH); n++);
+    for (; !isdigit(linebuff[n]) && (n < line_length); n++);
+    if (n >= line_length)
+    {
+        return FALSE;
+    }
 
     *before_time_offset = n;
 
@@ -984,7 +1003,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     for (seconds_chars = 0;
          (linebuff[n] != '.') &&
          (seconds_chars <= MAX_SECONDS_CHARS) &&
-         (n < MAX_LINE_LENGTH);
+         (n < line_length);
          n++, seconds_chars++)
     {
         if (!isdigit(linebuff[n]))
@@ -994,7 +1013,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
         }
         seconds_buff[seconds_chars] = linebuff[n];
     }
-    if (seconds_chars > MAX_SECONDS_CHARS)
+    if (seconds_chars > MAX_SECONDS_CHARS || n >= line_length)
     {
         /* Didn't fit in buffer.  Fail rather than use truncated */
         return FALSE;
@@ -1016,7 +1035,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     for (subsecond_decimals_chars = 0;
          (linebuff[n] != ' ') &&
          (subsecond_decimals_chars <= MAX_SUBSECOND_DECIMALS) &&
-         (n < MAX_LINE_LENGTH);
+         (n < line_length);
          n++, subsecond_decimals_chars++)
     {
         if (!isdigit(linebuff[n]))
@@ -1025,7 +1044,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
         }
         subsecond_decimals_buff[subsecond_decimals_chars] = linebuff[n];
     }
-    if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS)
+    if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS || n >= line_length)
     {
         /* More numbers than expected - give up */
         return FALSE;
@@ -1043,7 +1062,11 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     *after_time_offset = n;
 
     /* Now skip ahead to find start of data (marked by '$') */
-    for (; (linebuff[n] != '$') && (n < MAX_LINE_LENGTH); n++);
+    for (; (linebuff[n] != '$') && (n+1 < line_length); n++);
+    if (n+1 >= line_length)
+    {
+        return FALSE;
+    }
     /* Skip it */
     n++;
 
@@ -1051,7 +1074,7 @@ gboolean parse_line(gint length, gint *seconds, gint *useconds,
     *data_offset = n;
 
     /* Set number of chars that comprise the hex string protocol data */
-    *data_chars = length - n;
+    *data_chars = line_length - n;
 
     /* Need to skip first byte (2 hex string chars) from ISDN messages.
        TODO: find out what this byte means...
