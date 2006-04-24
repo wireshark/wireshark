@@ -109,8 +109,6 @@ scsistat_program_select(GtkWidget *item _U_, gpointer key)
 {
 	int k=(int)key;
 
-printf("scsistat_program_select:   selected:%d\n",k);
-
 	scsi_program=k;
 }
 
