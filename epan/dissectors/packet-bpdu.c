@@ -71,7 +71,7 @@
 #define CONF_BPDU_SIZE		35
 #define TC_BPDU_SIZE		4
 #define RST_BPDU_SIZE		36
-#define VERSION_3_STATIC_LENGTH 66
+#define VERSION_3_STATIC_LENGTH 64
 #define	MSTI_MESSAGE_SIZE	16
 
 /* Flag bits */
@@ -176,457 +176,448 @@ static const char cont_sep[] = ", ";
 static void
 dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-      guint16 protocol_identifier;
-      guint8  protocol_version_identifier;
-      guint8  bpdu_type;
-      guint8  flags;
-      guint16 root_identifier_bridge_priority;
-      const guint8  *root_identifier_mac;
-      gchar   *root_identifier_mac_str;
-      guint32 root_path_cost;
-      guint16 bridge_identifier_bridge_priority;
-      const guint8  *bridge_identifier_mac;
-      gchar   *bridge_identifier_mac_str;
-      guint16 port_identifier;
-      double message_age;
-      double max_age;
-      double hello_time;
-      double forward_delay;
-      guint16 version_3_length;
-      guint16 cist_bridge_identifier_bridge_priority;
-      const guint8  *cist_bridge_identifier_mac;
-      gchar   *cist_bridge_identifier_mac_str;
-      guint32 msti_regional_root_mstid, msti_regional_root_priority;
-      const guint8  *msti_regional_root_mac;
-      gchar   *msti_regional_root_mac_str;
-      guint8 msti_bridge_identifier_priority, msti_port_identifier_priority;
-      int	length, offset, msti;
+  guint16 protocol_identifier;
+  guint8  protocol_version_identifier;
+  guint8  bpdu_type;
+  guint8  flags;
+  guint16 root_identifier_bridge_priority;
+  const guint8  *root_identifier_mac;
+  gchar   *root_identifier_mac_str;
+  guint32 root_path_cost;
+  guint16 bridge_identifier_bridge_priority;
+  const guint8  *bridge_identifier_mac;
+  gchar   *bridge_identifier_mac_str;
+  guint16 port_identifier;
+  double message_age;
+  double max_age;
+  double hello_time;
+  double forward_delay;
+  guint8 version_1_length;
+  guint16 version_3_length;
+  guint16 cist_bridge_identifier_bridge_priority;
+  const guint8  *cist_bridge_identifier_mac;
+  gchar   *cist_bridge_identifier_mac_str;
+  guint32 msti_regional_root_mstid, msti_regional_root_priority;
+  const guint8  *msti_regional_root_mac;
+  gchar   *msti_regional_root_mac_str;
+  guint8 msti_bridge_identifier_priority, msti_port_identifier_priority;
+  int	total_msti_length, offset, msti;
 
-      proto_tree *bpdu_tree;
-      proto_tree *mstp_tree, *msti_tree;
-      proto_item *bpdu_item;
-      proto_item *mstp_item, *msti_item;
-      proto_tree *flags_tree;
-      proto_item *flags_item;
-      guint8	rstp_bpdu, mstp_bpdu=0;
-      const char *sep;
+  proto_tree *bpdu_tree;
+  proto_tree *mstp_tree, *msti_tree;
+  proto_item *bpdu_item;
+  proto_item *mstp_item, *msti_item;
+  proto_tree *flags_tree;
+  proto_item *flags_item;
+  const char *sep;
 
-      /* GARP application frames require special interpretation of the
-         destination address field; otherwise, they will be mistaken as
-         BPDU frames.
-         Fortunately, they can be recognized by checking the first 6 octets
-         of the destination address, which are in the range from
-         01-80-C2-00-00-20 to 01-80-C2-00-00-2F.
+  /* GARP application frames require special interpretation of the
+     destination address field; otherwise, they will be mistaken as
+     BPDU frames.
+     Fortunately, they can be recognized by checking the first 6 octets
+     of the destination address, which are in the range from
+     01-80-C2-00-00-20 to 01-80-C2-00-00-2F.
 
-	 Yes - we *do* need to check the destination address type;
-	 on Linux cooked captures, there *is* no destination address,
-	 so it's AT_NONE. */
-      if (pinfo->dl_dst.type == AT_ETHER &&
-	  pinfo->dl_dst.data[0] == 0x01 && pinfo->dl_dst.data[1] == 0x80 &&
-	  pinfo->dl_dst.data[2] == 0xC2 && pinfo->dl_dst.data[3] == 0x00 &&
-	  pinfo->dl_dst.data[4] == 0x00 && ((pinfo->dl_dst.data[5] & 0xF0) == 0x20)) {
+     Yes - we *do* need to check the destination address type;
+     on Linux cooked captures, there *is* no destination address,
+     so it's AT_NONE. */
+  if (pinfo->dl_dst.type == AT_ETHER &&
+      pinfo->dl_dst.data[0] == 0x01 && pinfo->dl_dst.data[1] == 0x80 &&
+      pinfo->dl_dst.data[2] == 0xC2 && pinfo->dl_dst.data[3] == 0x00 &&
+      pinfo->dl_dst.data[4] == 0x00 && ((pinfo->dl_dst.data[5] & 0xF0) == 0x20)) {
 
-	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
+    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
 
-	    switch (pinfo->dl_dst.data[5]) {
+    switch (pinfo->dl_dst.data[5]) {
 
-	    case 0x20:
-		   /* for GMRP */
-		  call_dissector(gmrp_handle, tvb, pinfo, tree);
-		  return;
+    case 0x20:
+      /* for GMRP */
+      call_dissector(gmrp_handle, tvb, pinfo, tree);
+      return;
 
-	    case 0x21:
-		  /* for GVRP */
-		  call_dissector(gvrp_handle, tvb, pinfo, tree);
-		  return;
-	    }
+    case 0x21:
+      /* for GVRP */
+      call_dissector(gvrp_handle, tvb, pinfo, tree);
+      return;
+    }
 
-	    pinfo->current_proto = "GARP";
+    pinfo->current_proto = "GARP";
 
-	    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
-		    /* Generic Attribute Registration Protocol */
-	    }
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
+      /* Generic Attribute Registration Protocol */
+    }
 
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		    col_add_fstr(pinfo->cinfo, COL_INFO,
-		        "Unknown GARP application (0x%02X)",
-			pinfo->dl_dst.data[5]);
-            }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "Unknown GARP application (0x%02X)",
+                   pinfo->dl_dst.data[5]);
+    }
 
-	    return;
+    return;
+  }
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
+  }
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_clear(pinfo->cinfo, COL_INFO);
+  }
+
+  bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
+
+  protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
+
+  switch (bpdu_type) {
+
+  case BPDU_TYPE_CONF:
+  case BPDU_TYPE_RST:
+    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
+    root_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_ROOT_IDENTIFIER);
+    root_identifier_mac = tvb_get_ptr(tvb, BPDU_ROOT_IDENTIFIER + 2, 6);
+    root_identifier_mac_str = ether_to_str(root_identifier_mac);
+    root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
+    port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
+    break;
+
+  default:
+    /* Squelch GCC complaints. */
+    flags = 0;
+    root_identifier_bridge_priority = 0;
+    root_identifier_mac = NULL;
+    root_identifier_mac_str = NULL;
+    root_path_cost = 0;
+    port_identifier = 0;
+    break;
+  }
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    switch (bpdu_type) {
+
+    case BPDU_TYPE_CONF:
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
+                   flags & 0x1 ? "TC + " : "",
+                   root_identifier_bridge_priority, root_identifier_mac_str,
+                   root_path_cost, port_identifier);
+      break;
+
+    case BPDU_TYPE_TOPOLOGY_CHANGE:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Topology Change Notification");
+      break;
+
+    case BPDU_TYPE_RST:
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "%cST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
+                   protocol_version_identifier == 3 ? 'M':'R',
+                   flags & 0x1 ? "TC + " : "",
+                   root_identifier_bridge_priority, root_identifier_mac_str,
+                   root_path_cost, port_identifier);
+      break;
+
+    default:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BPDU type (%u)", bpdu_type);
+      break;
+    }
+  }
+
+  if (tree) {
+    bpdu_item = proto_tree_add_protocol_format(tree, proto_bpdu, tvb, 0, -1,
+                                               "Spanning Tree Protocol");
+    bpdu_tree = proto_item_add_subtree(bpdu_item, ett_bpdu);
+
+    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
+    proto_tree_add_uint(bpdu_tree, hf_bpdu_proto_id, tvb, BPDU_IDENTIFIER, 2,
+                        protocol_identifier);
+
+    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb,
+                        BPDU_VERSION_IDENTIFIER, 1,
+                        protocol_version_identifier);
+    switch (protocol_version_identifier) {
+
+    case 0:
+      break;
+
+    case 2:
+    case 3:
+      break;
+
+    default:
+      proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1,
+                          "   (Warning: this version of Ethereal only knows about versions 0, 2 & 3)");
+      break;
+    }
+    proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb, BPDU_TYPE, 1, bpdu_type);
+
+    if (bpdu_type == BPDU_TYPE_TOPOLOGY_CHANGE) {
+      set_actual_length(tvb, TC_BPDU_SIZE);
+      return;
+    }
+
+    if (bpdu_type != BPDU_TYPE_CONF && bpdu_type != BPDU_TYPE_RST) {
+      /* Unknown BPDU type - just display the rest of the PDU as data */
+      proto_tree_add_text(bpdu_tree, tvb, BPDU_TYPE + 1, -1,
+                          "Unknown BPDU type data");
+      return;
+    }
+
+    bridge_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_BRIDGE_IDENTIFIER);
+    bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6);
+    bridge_identifier_mac_str = ether_to_str(bridge_identifier_mac);
+
+    flags_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb,
+                                     BPDU_FLAGS, 1, flags);
+    flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
+    sep = initial_sep;
+    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item,
+                        "%sTopology Change Acknowledgment");
+    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
+                           BPDU_FLAGS, 1, flags);
+    if (bpdu_type == BPDU_TYPE_RST) {
+      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item,
+                          "%sAgreement");
+      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
+                             BPDU_FLAGS, 1, flags);
+      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item,
+                          "%sForwarding");
+      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
+                             BPDU_FLAGS, 1, flags);
+      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item,
+                          "%sLearning");
+      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
+                             BPDU_FLAGS, 1, flags);
+      if (flags_item) {
+        guint8 port_role;
+
+        port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
+        proto_item_append_text(flags_item, "%sPort Role: %s", sep,
+                               val_to_str(port_role, role_vals,
+                                          "Unknown (%u)"));
       }
+      sep = cont_sep;
+      proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
+                          BPDU_FLAGS, 1, flags);
+      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item,
+                          "%sProposal");
+      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
+                             BPDU_FLAGS, 1, flags);
+    }
+    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item,
+                        "%sTopology Change");
+    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
+                           BPDU_FLAGS, 1, flags);
+    if (sep != initial_sep) {
+      /* We put something in; put in the terminating ")" */
+      proto_item_append_text(flags_item, ")");
+    }
 
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
+    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, tvb,
+                                BPDU_ROOT_IDENTIFIER + 2, 6,
+                                root_identifier_mac);
+    proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_IDENTIFIER, 8,
+                        "Root Identifier: %d / %s",
+                        root_identifier_bridge_priority,
+                        root_identifier_mac_str);
+    proto_tree_add_uint(bpdu_tree, hf_bpdu_root_cost, tvb,
+                        BPDU_ROOT_PATH_COST, 4, root_path_cost);
+    proto_tree_add_text(bpdu_tree, tvb, BPDU_BRIDGE_IDENTIFIER, 8,
+                        "Bridge Identifier: %d / %s",
+                        bridge_identifier_bridge_priority,
+                        bridge_identifier_mac_str);
+    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_bridge_mac, tvb,
+                                BPDU_BRIDGE_IDENTIFIER + 2, 6,
+                                bridge_identifier_mac);
+    proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, tvb,
+                        BPDU_PORT_IDENTIFIER, 2, port_identifier);
+    message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;
+    proto_tree_add_double(bpdu_tree, hf_bpdu_msg_age, tvb, BPDU_MESSAGE_AGE, 2,
+                          message_age);
+    max_age = tvb_get_ntohs(tvb, BPDU_MAX_AGE) / 256.0;
+    proto_tree_add_double(bpdu_tree, hf_bpdu_max_age, tvb, BPDU_MAX_AGE, 2,
+                          max_age);
+    hello_time = tvb_get_ntohs(tvb, BPDU_HELLO_TIME) / 256.0;
+    proto_tree_add_double(bpdu_tree, hf_bpdu_hello_time, tvb,
+                          BPDU_HELLO_TIME, 2, hello_time);
+    forward_delay = tvb_get_ntohs(tvb, BPDU_FORWARD_DELAY) / 256.0;
+    proto_tree_add_double(bpdu_tree, hf_bpdu_forward_delay, tvb,
+                          BPDU_FORWARD_DELAY, 2, forward_delay);
+
+    if (bpdu_type == BPDU_TYPE_CONF) {
+      /* Nothing more in this BPDU */
+      set_actual_length(tvb, CONF_BPDU_SIZE);
+      return;
+    }
+
+    /* RST or MST BPDU */
+    version_1_length = tvb_get_guint8(tvb, BPDU_VERSION_1_LENGTH);
+    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_1_length, tvb,
+                        BPDU_VERSION_1_LENGTH, 1, version_1_length);
+    /* Is this an MST BPDU? */
+    if (protocol_version_identifier >= 3 && version_1_length == 0 &&
+        tvb_reported_length(tvb) >= 102) {
+      /*
+       * OK, it passes the "Protocol Identifier is 0000 0000
+       * 0000 0000", "Protocol Version Identifier is 3 or
+       * greater", "BPDU Type is 0000 0010", "contains 102 or
+       * more octets", and "a Version 1 Length of 0" tests.
+       * Fetch the Version 3 Length, and see whether it's a
+       * multiple of the MSTI Configuration Message length.
+       */
+      version_3_length = tvb_get_ntohs(tvb, BPDU_VERSION_3_LENGTH);
+      proto_tree_add_uint(bpdu_tree, hf_bpdu_version_3_length, tvb,
+                          BPDU_VERSION_3_LENGTH, 2, version_3_length);
+      if (version_3_length >= VERSION_3_STATIC_LENGTH) {
+        set_actual_length(tvb, RST_BPDU_SIZE + 2 + version_3_length);
+        total_msti_length = version_3_length - VERSION_3_STATIC_LENGTH;
+      } else {
+        /*
+         * XXX - there appears to be an ambiguity in the 802.3Q-2003
+         * standard and at least some of the 802.3s drafts.
+         *
+         * The "Version 3 Length" field is defined to be "the number of
+         * octets taken by the parameters that follow in the BPDU", but
+         * it's spoken of as "representing an integral number, from 0 to
+         * 64 inclusive, of MSTI Configuration Messages".
+         *
+         * According to mail from a member of the stds-802-1@ieee.org list,
+         * the latter of those is just saying that the length must not have
+         * a value that implies that there's a partial MSTI message in the
+         * packet; it's still in units of octets, not messages.
+         *
+         * However, it appears that Cisco's C3550 software (C3550-I5Q3L2-M,
+         * Version 12.1(12c)EA1) might be sending out lengths in units of
+         * messages.
+         *
+         * This length can't be the number of octets taken by the parameters
+         * that follow in the BPDU, because it's less than the fixed-length
+         * portion of those parameters, so we assume the length is a count of
+         * messages.
+         */
+        set_actual_length(tvb, RST_BPDU_SIZE + 2 + VERSION_3_STATIC_LENGTH +
+                          version_3_length * MSTI_MESSAGE_SIZE);
+        total_msti_length = version_3_length * MSTI_MESSAGE_SIZE;
       }
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_clear(pinfo->cinfo, COL_INFO);
-      }
+      mstp_item = proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_3_LENGTH,
+                                      -1, "MST Extension");
+      mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
+                                      
+      proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
+                          BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, FALSE);
+      proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_name, tvb,
+                          BPDU_MST_CONFIG_NAME, 32, FALSE);
 
-      bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
+      proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_revision_level, tvb,
+                          BPDU_MST_CONFIG_REVISION_LEVEL, 2, FALSE);
+      proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_digest, tvb,
+                          BPDU_MST_CONFIG_DIGEST, 16, FALSE);
 
-      protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
+      proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
+                          BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, FALSE);
 
-      switch (bpdu_type) {
+      cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_CIST_BRIDGE_IDENTIFIER);
+      cist_bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6);
+      cist_bridge_identifier_mac_str = ether_to_str(cist_bridge_identifier_mac);
+      proto_tree_add_text(mstp_tree, tvb, BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                          "CIST Bridge Identifier: %d / %s",
+                          cist_bridge_identifier_bridge_priority,
+                          cist_bridge_identifier_mac_str);
+      proto_tree_add_ether_hidden(mstp_tree, hf_bpdu_cist_bridge_identifier_mac, tvb,
+                                  BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
+                                  cist_bridge_identifier_mac);
 
-      case BPDU_TYPE_CONF:
-      case BPDU_TYPE_RST:
-	    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
-	    root_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_ROOT_IDENTIFIER);
-	    root_identifier_mac = tvb_get_ptr(tvb, BPDU_ROOT_IDENTIFIER + 2, 6);
-	    root_identifier_mac_str = ether_to_str(root_identifier_mac);
-	    root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
-	    port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
-	    break;
+      proto_tree_add_item(mstp_tree, hf_bpdu_cist_remaining_hops, tvb,
+                          BPDU_CIST_REMAINING_HOPS, 1, FALSE);
 
-      default:
-	    /* Squelch GCC complaints. */
-	    flags = 0;
-	    root_identifier_bridge_priority = 0;
-	    root_identifier_mac = NULL;
-	    root_identifier_mac_str = NULL;
-	    root_path_cost = 0;
-	    port_identifier = 0;
-	    break;
-      }
+      /* MSTI messages */
+      offset = BPDU_MSTI;
+      msti = 1;
+      while (total_msti_length > 0) {
+        msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
+        msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
+        msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
+	                           tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
+        msti_regional_root_mac = tvb_get_ptr(tvb, offset+ MSTI_REGIONAL_ROOT + 2, 6);
+        msti_regional_root_mac_str = ether_to_str(msti_regional_root_mac);
 
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	    switch (bpdu_type) {
+        msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
+                                        "MSTID %d, Regional Root Identifier %d / %s",
+                                        msti_regional_root_mstid,
+                                        msti_regional_root_priority,
+                                        msti_regional_root_mac_str);
+        msti_tree = proto_item_add_subtree(msti_item, ett_msti);
 
-	    case BPDU_TYPE_CONF:
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
-			       flags & 0x1 ? "TC + " : "",
-			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
-			       port_identifier);
-		  break;
+        /* flags */
+        flags = tvb_get_guint8(tvb, offset+MSTI_FLAGS);
+        flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
+                                         offset+MSTI_FLAGS, 1, flags);
+        flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
 
-	    case BPDU_TYPE_TOPOLOGY_CHANGE:
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "Topology Change Notification");
-		  break;
+        sep = initial_sep;
+        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
+        proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
+                               offset+MSTI_FLAGS, 1, flags);
+        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
+        proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
+                               offset+MSTI_FLAGS, 1, flags);
+        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
+        proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
+                               offset+MSTI_FLAGS, 1, flags);
+        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
+        proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
+                               offset+MSTI_FLAGS, 1, flags);
+        if (flags_item) {
+          guint8 port_role;
+          port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
+          proto_item_append_text(flags_item, "%sPort Role: %s", sep,
+                                 val_to_str(port_role, role_vals,
+                                 "Unknown (%u)"));
+	}
+        proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
+                            offset+MSTI_FLAGS, 1, flags);
+        sep = cont_sep;
+        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
+        proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
+                               offset+MSTI_FLAGS, 1, flags);
+        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
+        proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
+                               offset+MSTI_FLAGS, 1, flags);
+        if (sep != initial_sep) { 	      /* We put something in; put in the terminating ")" */
+          proto_item_append_text(flags_item, ")");
+	}
 
-	    case BPDU_TYPE_RST:
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "%cST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
-			       protocol_version_identifier == 3 ? 'M':'R',
-			       flags & 0x1 ? "TC + " : "",
-			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
-			       port_identifier);
-		  break;
-
-	    default:
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BPDU type (%u)",
-			       bpdu_type);
-                  break;
-            }
-      }
-
-      switch (bpdu_type) {
-
-      case BPDU_TYPE_CONF:
-        set_actual_length(tvb, CONF_BPDU_SIZE);
-        break;
-
-      case BPDU_TYPE_TOPOLOGY_CHANGE:
-        set_actual_length(tvb, TC_BPDU_SIZE);
-        break;
-
-      case BPDU_TYPE_RST:
-	if (protocol_version_identifier == 3) {
-	    version_3_length = tvb_get_ntohs(tvb, BPDU_VERSION_3_LENGTH);
-	    /*
-	     * XXX - there appears to be an ambiguity in the 802.1s spec.
-	     * In 14.6.q and Figure 14-1, the "Version 3 Length" field
-	     * "is the number of octets taken by the parameters that
-	     * follow in the BPDU", but item 14.4.e.3 speaks of "a
-	     * Version 3 length representing an integral number, from 0
-	     * to 64 inclusive, of MSTI Configuration Messages".
-	     *
-	     * According to mail from a member of the stds-802-1@ieee.org
-	     * list, item 14.4.e.3 is just saying that the length must
-	     * not have a value that implies that there's a partial
-	     * MSTI message in the packet, and that it's in units of
-	     * bytes, not messages.
-	     *
-	     * However, it appears that Cisco's C3550 software
-	     * (C3550-I5Q3L2-M, Version 12.1(12c)EA1) might be sending out
-	     * lengths in units of messages.
-	     *
-	     * So if the length is too short, we assume it's because it's
-	     * in units of messages, not bytes.
-	     */
-	    if (version_3_length < VERSION_3_STATIC_LENGTH - 2) {
-		set_actual_length(tvb, RST_BPDU_SIZE +
-				  VERSION_3_STATIC_LENGTH +
-				  version_3_length * MSTI_MESSAGE_SIZE);
-	    } else
-		set_actual_length(tvb, RST_BPDU_SIZE + 2 + version_3_length);
-	} else
-	    set_actual_length(tvb, RST_BPDU_SIZE);
-        break;
-      }
-
-      if (tree) {
-	    bpdu_item = proto_tree_add_protocol_format(tree, proto_bpdu, tvb,
-				0, -1, "Spanning Tree Protocol");
-	    bpdu_tree = proto_item_add_subtree(bpdu_item, ett_bpdu);
-
-	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_proto_id, tvb,
-				BPDU_IDENTIFIER, 2, protocol_identifier);
-
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb,
-				BPDU_VERSION_IDENTIFIER, 1,
-				protocol_version_identifier);
-            switch (protocol_version_identifier) {
-              case 0:
-                break;
-              case 2:
-              case 3:
-                break;
-              default:
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1,
-		  "   (Warning: this version of Ethereal only knows about versions 0, 2 & 3)");
-                break;
-            }
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb,
-				       BPDU_TYPE, 1,
-				       bpdu_type);
-
-	    if (bpdu_type != BPDU_TYPE_CONF && bpdu_type != BPDU_TYPE_RST) {
-	      call_dissector(data_handle,
-			     tvb_new_subset(tvb, BPDU_TYPE + 1, -1, -1),
-			     pinfo, tree);
-	      return;
-	    }
-
-            rstp_bpdu = (bpdu_type == BPDU_TYPE_RST);
-            if (rstp_bpdu) mstp_bpdu = (protocol_version_identifier == 3);
-
-	    bridge_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_BRIDGE_IDENTIFIER);
-	    bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6);
-	    bridge_identifier_mac_str = ether_to_str(bridge_identifier_mac);
-
-	    flags_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb,
-				BPDU_FLAGS, 1, flags);
-	    flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
-	    sep = initial_sep;
-	    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item,
-				"%sTopology Change Acknowledgment");
-	    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
-				BPDU_FLAGS, 1, flags);
-            if (rstp_bpdu) {
-	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item,
-				  "%sAgreement");
-	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
-				  BPDU_FLAGS, 1, flags);
-	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item,
-				  "%sForwarding");
-	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
-				  BPDU_FLAGS, 1, flags);
-	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item,
-				  "%sLearning");
-	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
-				  BPDU_FLAGS, 1, flags);
-	      if (flags_item) {
-		guint8 port_role;
-
-		port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
-		proto_item_append_text(flags_item, "%sPort Role: %s", sep,
-				       val_to_str(port_role, role_vals,
-						  "Unknown (%u)"));
-	      }
-	      sep = cont_sep;
-	      proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
-				  BPDU_FLAGS, 1, flags);
-	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item,
-				  "%sProposal");
-	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
-				  BPDU_FLAGS, 1, flags);
-            }
-	    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item,
-				"%sTopology Change");
-	    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
-				BPDU_FLAGS, 1, flags);
-	    if (sep != initial_sep) {
-	      /* We put something in; put in the terminating ")" */
-	      proto_item_append_text(flags_item, ")");
-	    }
-
-	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, tvb,
-				       BPDU_ROOT_IDENTIFIER + 2, 6,
-				       root_identifier_mac);
-	    proto_tree_add_text(bpdu_tree, tvb,
-				BPDU_ROOT_IDENTIFIER, 8,
-				"Root Identifier: %d / %s",
-				root_identifier_bridge_priority,
-				root_identifier_mac_str);
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_root_cost, tvb,
-				BPDU_ROOT_PATH_COST, 4,
-				root_path_cost);
-	    proto_tree_add_text(bpdu_tree, tvb,
-				BPDU_BRIDGE_IDENTIFIER, 8,
-				"Bridge Identifier: %d / %s",
-				bridge_identifier_bridge_priority,
-				bridge_identifier_mac_str);
-	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_bridge_mac, tvb,
-				       BPDU_BRIDGE_IDENTIFIER + 2, 6,
-				       bridge_identifier_mac);
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, tvb,
-				BPDU_PORT_IDENTIFIER, 2,
-				port_identifier);
-	    message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_msg_age, tvb,
-				BPDU_MESSAGE_AGE, 2,
-				message_age);
-	    max_age = tvb_get_ntohs(tvb, BPDU_MAX_AGE) / 256.0;
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_max_age, tvb,
-				BPDU_MAX_AGE, 2,
-				max_age);
-	    hello_time = tvb_get_ntohs(tvb, BPDU_HELLO_TIME) / 256.0;
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_hello_time, tvb,
-				BPDU_HELLO_TIME, 2,
-				hello_time);
-	    forward_delay = tvb_get_ntohs(tvb, BPDU_FORWARD_DELAY) / 256.0;
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_forward_delay, tvb,
-				BPDU_FORWARD_DELAY, 2,
-				forward_delay);
-            if (rstp_bpdu) {
-	      proto_tree_add_item(bpdu_tree, hf_bpdu_version_1_length, tvb,
-				BPDU_VERSION_1_LENGTH, 1, FALSE);
-	    }
-	    if (mstp_bpdu) {
-		version_3_length = tvb_get_ntohs(tvb, BPDU_VERSION_3_LENGTH);
-
-		mstp_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_version_3_length, tvb,
-			BPDU_VERSION_3_LENGTH, 2, version_3_length);
-		/*
-		 * XXX - see comment above about the interpretation of the
-		 * "Version 3 Length" field not being clear.
-		 */
-		if (version_3_length < VERSION_3_STATIC_LENGTH - 2) {
-		    proto_item_append_text(mstp_item,
-					   " (Malformed: number of MSTI messages!!! Must be %u)",
-					   (VERSION_3_STATIC_LENGTH - 2 + version_3_length * MSTI_MESSAGE_SIZE));
-		} else {
-		    proto_item_append_text(mstp_item,
-					   " (Number of MSTI messages: %u)",
-					   (version_3_length - (VERSION_3_STATIC_LENGTH - 2)) / MSTI_MESSAGE_SIZE);
-		}
-		mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
-
-		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
-			BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, FALSE);
-		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_name, tvb, BPDU_MST_CONFIG_NAME, 32, FALSE);
-
-		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_revision_level, tvb,
-			BPDU_MST_CONFIG_REVISION_LEVEL, 2, FALSE);
-		proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_digest, tvb,
-			BPDU_MST_CONFIG_DIGEST, 16, FALSE);
-
-		proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
-			BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, FALSE);
-
-		cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_CIST_BRIDGE_IDENTIFIER);
-		cist_bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6);
-		cist_bridge_identifier_mac_str = ether_to_str(cist_bridge_identifier_mac);
-		proto_tree_add_text(mstp_tree, tvb, BPDU_CIST_BRIDGE_IDENTIFIER, 8,
-				"CIST Bridge Identifier: %d / %s",
-				cist_bridge_identifier_bridge_priority,
-				cist_bridge_identifier_mac_str);
-		proto_tree_add_ether_hidden(mstp_tree, hf_bpdu_cist_bridge_identifier_mac, tvb,
-				       BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
-				       cist_bridge_identifier_mac);
-
-		proto_tree_add_item(mstp_tree, hf_bpdu_cist_remaining_hops, tvb,
-			BPDU_CIST_REMAINING_HOPS, 1, FALSE);
-
-	/* MSTI messages */
-		offset = BPDU_MSTI;
-		length = tvb_reported_length_remaining(tvb, offset);
-		msti = 1;
-		while (length >= MSTI_MESSAGE_SIZE) {
-		    msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
-		    msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
-		    msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
-				tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
-		    msti_regional_root_mac = tvb_get_ptr(tvb, offset+ MSTI_REGIONAL_ROOT + 2, 6);
-		    msti_regional_root_mac_str = ether_to_str(msti_regional_root_mac);
-
-		    msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
-			"MSTID %d, Regional Root Identifier %d / %s",
-			msti_regional_root_mstid, msti_regional_root_priority,
-			msti_regional_root_mac_str);
-		    msti_tree = proto_item_add_subtree(msti_item, ett_msti);
-
-		    /* flags */
-		    flags = tvb_get_guint8(tvb, offset+MSTI_FLAGS);
-		    flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
-
-		    sep = initial_sep;
-		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
-		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
-		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
-		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
-		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    if (flags_item) {
-			guint8 port_role;
-			port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
-			proto_item_append_text(flags_item, "%sPort Role: %s", sep,
-				       val_to_str(port_role, role_vals, "Unknown (%u)"));
-		    }
-		    proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    sep = cont_sep;
-		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
-		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
-		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
-			offset+MSTI_FLAGS, 1, flags);
-		    if (sep != initial_sep) { 	      /* We put something in; put in the terminating ")" */
-			proto_item_append_text(flags_item, ")");
-		    }
-
-		    /* pri, MSTID, Regional root */
-		    proto_tree_add_ether_hidden(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
-				       offset + MSTI_REGIONAL_ROOT + 2, 6,
-				       msti_regional_root_mac);
-		    proto_tree_add_text(msti_tree, tvb, offset + MSTI_REGIONAL_ROOT, 8,
-				"MSTID %d, priority %d Root Identifier %s",
-				msti_regional_root_mstid, msti_regional_root_priority,
-				msti_regional_root_mac_str);
+        /* pri, MSTID, Regional root */
+        proto_tree_add_ether_hidden(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
+                                    offset + MSTI_REGIONAL_ROOT + 2, 6,
+                                    msti_regional_root_mac);
+        proto_tree_add_text(msti_tree, tvb, offset + MSTI_REGIONAL_ROOT, 8,
+                            "MSTID %d, priority %d Root Identifier %s",
+                            msti_regional_root_mstid,
+                            msti_regional_root_priority,
+                            msti_regional_root_mac_str);
 
 
-		    proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
-			offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, FALSE);
+        proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
+                            offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, FALSE);
 
-		    msti_bridge_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
-		    msti_port_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
+        msti_bridge_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
+        msti_port_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
 
-		    proto_tree_add_uint(msti_tree, hf_bpdu_msti_bridge_identifier_priority, tvb,
-			offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY, 1, msti_bridge_identifier_priority);
-		    proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_identifier_priority, tvb,
-			offset+MSTI_PORT_IDENTIFIER_PRIORITY, 1, msti_port_identifier_priority);
+        proto_tree_add_uint(msti_tree, hf_bpdu_msti_bridge_identifier_priority, tvb,
+                            offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY, 1,
+                            msti_bridge_identifier_priority);
+        proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_identifier_priority, tvb,
+                            offset+MSTI_PORT_IDENTIFIER_PRIORITY, 1,
+                            msti_port_identifier_priority);
 		    
-		    proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
-			offset + MSTI_REMAINING_HOPS, 1, FALSE);
+        proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
+                            offset + MSTI_REMAINING_HOPS, 1, FALSE);
 
-		    length -= MSTI_MESSAGE_SIZE;
-		    offset += MSTI_MESSAGE_SIZE;
-		    msti++;
-		}
-		
-	    }
+        total_msti_length -= MSTI_MESSAGE_SIZE;
+        offset += MSTI_MESSAGE_SIZE;
+        msti++;
       }
+    }
+  }
 }
 
 static const true_false_string yesno = {
@@ -636,7 +627,7 @@ static const true_false_string yesno = {
 
 void
 proto_register_bpdu(void)
-{
+{      
 
   static hf_register_info hf[] = {
     { &hf_bpdu_proto_id,
@@ -720,11 +711,11 @@ proto_register_bpdu(void)
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"", HFILL }},
     { &hf_bpdu_version_3_length,
-      { "MST Extension, Length",		"mstp.version_3_length",
+      { "Version 3 Length",		"mstp.version_3_length",
 	FT_UINT16,	BASE_DEC,	NULL,	0x0,
       	"", HFILL }},
     { &hf_bpdu_mst_config_format_selector,
-      { "MST Config ID format selector",		"mstp.config_format_selector",
+      { "MST Config ID format selector",	"mstp.config_format_selector",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"", HFILL }},
     { &hf_bpdu_mst_config_name,
