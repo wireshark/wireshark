@@ -1,5 +1,7 @@
-
-
+## Makefile for building ethereal.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
 
 all: \
 	acse	\
@@ -65,157 +67,157 @@ clean:
 	cd ..
 	cd camel
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd cdt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd cmip
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd cms
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd dap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd dop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd disp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd dsp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd ess
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd ftam
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd ftbp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd gnm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd gsm_ss
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd gsmmap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd h225
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd h235
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd h245
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd h248
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd h450
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd inap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd logotype-cert-extn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd MAP_Dialogue
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd mms
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd nbap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd ns-cert-exts
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd ocsp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkcs1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkinit
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkix1explicit
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkix1implicit
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkixcmp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkixcrmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkixproxy
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkixqualified
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pkixtsp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd pres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd ranap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd rnsap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd ros
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd rtse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd s4406
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd smrse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd spnego
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd tcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd wlancertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd x411
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd x420
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd x509af
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd x509ce
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd x509if
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	cd x509sat
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd..
+	cd ..
 	
 ber: \	
 	acse	\
@@ -286,257 +288,258 @@ acp133::
 camel::
 	cd camel
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 cdt::
 	cd cdt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 cmip::
 	cd cmip
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 cms::
 	cd cms
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 dap::
 	cd dap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 dop::
 	cd dop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 disp::
 	cd disp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 dsp::
 	cd dsp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 ess::
 	cd ess
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 ftam::
 	cd ftam
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 ftbp::
 	cd ftbp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 gnm::
 	cd gnm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 gsm_ss::
 	cd gsm_ss
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 gsmmap::
 	cd gsmmap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 h225::
 	cd h225
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 h235::
 	cd h235
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 h245::
 	cd h245
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 h248::
 	cd h248
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 h450::
 	cd h450
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 inap::
 	cd inap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 logotype-cert-extn::
 	cd logotype-cert-extn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 MAP_Dialogue::
 	cd MAP_Dialogue
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 mms::
 	cd mms
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 nbap::
 	cd nbap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 ns-cert-exts::
 	cd ns-cert-exts
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 ocsp::
 	cd ocsp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkcs1::
 	cd pkcs1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkinit::
 	cd pkinit
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkix1explicit::
 	cd pkix1explicit
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkix1implicit::
 	cd pkix1implicit
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkixcmp::
 	cd pkixcmp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkixcrmf::
 	cd pkixcrmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkixproxy::
 	cd pkixproxy
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkixqualified::
 	cd pkixqualified
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pkixtsp::
 	cd pkixtsp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 pres::
 	cd pres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 ranap::
 	cd ranap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 rnsap::
 	cd rnsap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 ros::
 	cd ros
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 rtse::
 	cd rtse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 s4406::
 	cd s4406
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 smrse::
 	cd smrse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 spnego::
 	cd spnego
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 tcap::
 	cd tcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 wlancertextn::
 	cd wlancertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 x411::
 	cd x411
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 x420::
 	cd x420
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 x501::
 	cd x501
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 x509af::
 	cd x509af
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 x509ce::
 	cd x509ce
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
 
 x509if::
 	cd x509if
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
+
 x509sat::
 	cd x509sat
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd..
+	cd ..
