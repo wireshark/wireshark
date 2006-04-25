@@ -126,6 +126,7 @@ static gint isup_type = ITU_ISUP;
 #define ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES					0xEA
 #define ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP				0xEB
 #define ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST					0xEC
+#define ANSI_ISUP_MESSAGE_TYPE_EXIT							0xED
 
 const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,          "Initial address"},
@@ -177,10 +178,6 @@ const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_APPLICATION_TRANS,		"Application transport"},
   { MESSAGE_TYPE_PRE_RELEASE_INFO,		"Pre-release information"},	
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"Subsequent Directory Number (national use)"},
-  { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES_ACK,		"Circuit Reservation Acknowledge"},
-  { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES        ,	"Circuit Reservation"},
-  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP   ,	"Circuit Validation Test Response"},
-  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST       ,	"Circuit Validation Test"},	  
   { 0,                                  NULL}};
 
  static const value_string ansi_isup_message_type_value[] = {
@@ -234,9 +231,10 @@ const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_PRE_RELEASE_INFO,		"Pre-release information"},	
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"Subsequent Directory Number (national use)"},
   { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES_ACK,		"Circuit Reservation Acknowledge"},
-  { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES        ,	"Circuit Reservation"},
-  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP   ,	"Circuit Validation Test Response"},
-  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST       ,	"Circuit Validation Test"},	  
+  { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES,			"Circuit Reservation"},
+  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP,	"Circuit Validation Test Response"},
+  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST,		"Circuit Validation Test"},	
+  { ANSI_ISUP_MESSAGE_TYPE_EXIT,				"Exit"},
   { 0,                                  NULL}};
 /* Same as above but in acronym form (for the Info column) */
 const value_string isup_message_type_value_acro[] = {
@@ -289,10 +287,6 @@ const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_APPLICATION_TRANS,		"APM"},
   { MESSAGE_TYPE_PRE_RELEASE_INFO,		"PRI"}, 	
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"SDN"},
-  { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES_ACK,		"CRA"},
-  { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES,			"CRM"},
-  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP,	"CVR"},
-  { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST,		"CVT"},	  
   { 0,                                  NULL}};
 
   /* Same as above but in acronym form (for the Info column) */
@@ -350,6 +344,7 @@ static const value_string ansi_isup_message_type_value_acro[] = {
   { ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES,			"CRM"},
   { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP,	"CVR"},
   { ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST,		"CVT"},	  
+  { ANSI_ISUP_MESSAGE_TYPE_EXIT,				"EXIT"},
   { 0,                                  NULL}};
 
 const value_string isup_parameter_type_value[] = {
@@ -520,6 +515,24 @@ static const value_string ansi_isup_parameter_type_value[] = {
   { PARAM_TYPE_GENERIC_NR,             "Generic number"},
   { PARAM_TYPE_GENERIC_DIGITS,         "Generic digits (national use)"},
   { PARAM_TYPE_APPLICATON_TRANS,       "Application transport"},
+  { ANSI_ISUP_PARAM_TYPE_OPER_SERV_INF,	"Operator Services information"},
+  { ANSI_ISUP_PARAM_TYPE_EGRESS,		"Egress"},
+  { ANSI_ISUP_PARAM_TYPE_JURISDICTION,	"Jurisdiction"},
+  { ANSI_ISUP_PARAM_TYPE_CARRIER_ID,	"Carrier identification"},
+  { ANSI_ISUP_PARAM_TYPE_BUSINESS_GRP,	"Buisiness group"},
+  { ANSI_ISUP_PARAM_TYPE_GENERIC_NAME,	"Generic name"},
+  { ANSI_ISUP_PARAM_TYPE_NOTIF_IND,		"Notification indicator"},
+  { ANSI_ISUP_PARAM_TYPE_CG_CHAR_IND,	"Circuit group characteristic indicator"},
+  { ANSI_ISUP_PARAM_TYPE_CVR_RESP_IND,	"Circuit validation response indicator"},
+  { ANSI_ISUP_PARAM_TYPE_OUT_TRK_GRP_NM,"Outgoing trunk group number"}, 
+  { ANSI_ISUP_PARAM_TYPE_CI_NAME_IND,	"Circuit identification name"}, 
+  { ANSI_ISUP_PARAM_CLLI_CODE,			"COMMON LANGUAGE location identificatio (CLLI) code"},
+  { ANSI_ISUP_PARAM_ORIG_LINE_INF,		"Originating line information"},
+  { ANSI_ISUP_PARAM_CHRG_NO,			"Charge number"},
+  { ANSI_ISUP_PARAM_SERV_CODE_IND,		"Service code indicator"},
+  { ANSI_ISUP_PARAM_SPEC_PROC_REQ,		"Special processing request"},
+  { ANSI_ISUP_PARAM_CARRIER_SEL_INF,	"Carrier selection information"},
+  { ANSI_ISUP_PARAM_NET_TRANS,			"Network transport"},
   { 0,                                 NULL}};
 
 #define CIC_LENGTH                             2
@@ -1476,6 +1489,7 @@ static int hf_isup_backw_call_echo_control_device_ind = -1;
 static int hf_isup_backw_call_sccp_method_ind = -1;
 
 static int hf_isup_cause_indicator = -1;
+static int hf_ansi_isup_cause_indicator = -1;
 
 static int hf_isup_suspend_resume_indicator = -1;
 
@@ -1551,6 +1565,10 @@ static int hf_isup_apm_slr							= -1;
 static int hf_isup_orig_addr_len					= -1;
 static int hf_isup_dest_addr_len					= -1;
 static int hf_isup_app_Release_call_ind				= -1;
+static int hf_isup_cause_location					= -1;
+
+static int hf_ansi_isup_coding_standard				= -1;
+
 static int hf_length_indicator						= -1;
 static int hf_afi									= -1;
 static int hf_bicc_nsap_dsp							= -1;
@@ -2074,9 +2092,24 @@ const value_string q850_cause_code_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string ansi_isup_cause_code_vals[] = {
+	{ 23, "Unallocated destination number" },
+	{ 24, "Undefined buissines group" },
+	{ 25, "Exchange routeing error" },
+	{ 45, "Preemption" },
+	{ 46, "Precedence call blocked" },
+	{ 51, "Call type incompatible with service request" },
+	{ 54, "Call blocked due to group restriction" },
+	{ 0,	NULL }
+};
 
-
-
+static const value_string ansi_isup_coding_standard_vals[] = {
+	{ 0, "CCITT Standard" },
+	{ 1, "Reserved for other international standards" },
+	{ 2, "ANSI Standard" },
+	{ 3, "Reserved" },
+	{ 0,	NULL }
+};
 void
 dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_reported_length(parameter_tvb);
@@ -2085,6 +2118,50 @@ dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 					    parameter_tree,
 					    hf_isup_cause_indicator, &tap_cause_value);
   proto_item_set_text(parameter_item, "Cause indicators, see Q.850 (%u byte%s length)", length , plurality(length, "", "s"));
+}
+
+static void
+dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+	guint8 coding_standard;
+	int offset = 0;
+	guint length = tvb_reported_length(parameter_tvb);
+
+	coding_standard = (tvb_get_guint8(parameter_tvb, offset)&& 0x60)>>5;
+	proto_tree_add_text(parameter_tree, parameter_tvb,0, -1, "Cause indicators");
+
+	switch (coding_standard) {
+	case 1:
+		/* ITU Cause */
+		dissect_q931_cause_ie(parameter_tvb,0,length,
+					    parameter_tree,
+					    hf_isup_cause_indicator, &tap_cause_value);
+		break;
+	case 2:
+		/*ANSI*/
+		proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, FALSE);
+		proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, FALSE);
+		proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
+		offset ++;
+		length--;
+		if (length == 0)
+			return;
+		proto_tree_add_item(parameter_tree, hf_ansi_isup_cause_indicator, parameter_tvb, offset, 1, FALSE);
+		offset ++;
+		length--;
+		if (length == 0)
+			return;
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset,
+		    length, "Diagnostic: %s",
+		    tvb_bytes_to_str(parameter_tvb, offset, length));
+		return;
+		break;
+	default:
+		proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, FALSE);
+		proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
+		break;
+	}
+	proto_item_set_text(parameter_item, "Cause indicators(%u byte%s length)", length , plurality(length, "", "s"));
 }
 
 /* ------------------------------------------------------------------
@@ -5272,7 +5349,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
 				dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_CAUSE_INDICATORS:
-				dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+				dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_REDIRECTION_INFO:
 				dissect_isup_redirection_information_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -5489,7 +5566,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
   Dissector Message Type Circuit Validation Test Response
  */
 static gint
-dissect_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_ansi_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 {
   proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5786,7 +5863,14 @@ dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
-  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  switch (isup_type){
+  case ITU_ISUP:
+	  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  case ANSI_ISUP:
+	  dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  }
   offset += PARAMETER_POINTER_LENGTH;
 
   return offset;
@@ -5955,7 +6039,14 @@ dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tre
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
-  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  switch (isup_type){
+  case ITU_ISUP:
+	  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  case ANSI_ISUP:
+	  dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  }
   offset += PARAMETER_POINTER_LENGTH;
 
   return offset;
@@ -6126,7 +6217,15 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
-  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+
+  switch (isup_type){
+  case ITU_ISUP:
+	  dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  case ANSI_ISUP:
+	  dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  }
   offset += PARAMETER_POINTER_LENGTH;
 
   return offset;
@@ -6559,11 +6658,11 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 				/* no dissector necessary since no mandatory parameters included */
 				break;
 			case ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES:
-				/* dissect_isup_circuit_reservation_message( parameter_tvb, isup_tree ); */
+				/* dissect_ansi_isup_circuit_reservation_message( parameter_tvb, isup_tree ); */
 				break;
 			case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP:
 				opt_part_possible = TRUE;
-				dissect_isup_circuit_validation_test_resp_message( parameter_tvb, isup_tree );
+				dissect_ansi_isup_circuit_validation_test_resp_message( parameter_tvb, isup_tree );
 				break;
 			case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST:
 				/* no dissector necessary since no mandatory parameters included */
@@ -7087,6 +7186,11 @@ proto_register_isup(void)
 			FT_UINT8, BASE_DEC, VALS(q850_cause_code_vals), 0x7f,
 			"", HFILL }},
 
+		{ &hf_ansi_isup_cause_indicator,
+			{ "Cause indicator",  "ansi_isup.cause_indicator",
+			FT_UINT8, BASE_DEC, VALS(ansi_isup_cause_code_vals), 0x7f,
+			"", HFILL }},
+
 		{ &hf_isup_suspend_resume_indicator,
 			{ "Suspend/Resume indicator",  "isup.suspend_resume_indicator",
 			FT_BOOLEAN, 8, TFS(&isup_suspend_resume_ind_value), A_8BIT_MASK,
@@ -7366,6 +7470,14 @@ proto_register_isup(void)
 			{ "Segmentation local reference (SLR)",  "isup.APM_slr",
 			FT_UINT8, BASE_DEC, NULL,GFEDCBA_8BIT_MASK,
 			"", HFILL }},
+		{ &hf_isup_cause_location,
+			{ "Cause location", "isup.cause_location",
+			FT_UINT8, BASE_DEC, VALS(q931_cause_location_vals), 0x0f,
+			"", HFILL }},
+
+		{ &hf_ansi_isup_coding_standard,
+		  { "Coding standard", "ansi_isup.coding_standard", FT_UINT8, BASE_HEX,
+			 VALS(ansi_isup_coding_standard_vals), 0x60,"", HFILL }},
 
 		{ &hf_bat_ase_identifier,
 			{ "BAT ASE Identifiers",  "bicc.bat_ase_identifier",
