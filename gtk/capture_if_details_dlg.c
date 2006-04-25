@@ -1766,6 +1766,12 @@ capture_if_details_open_win(char *iface)
 
     /* open the network adapter */
     adapter = wpcap_packet_open(iface);
+    if(adapter == NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
+            PRIMARY_TEXT_START "Could not open adapter: %s!" PRIMARY_TEXT_END
+            "\n\nThe adapter might be removed from the system in the meantime!", iface);
+        return;
+    }
 
     /* open a new window */
     details_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Interface Details");
