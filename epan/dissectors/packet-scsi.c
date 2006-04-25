@@ -477,7 +477,7 @@ typedef guint32 scsi_device_type;
 #define SCSI_SPC2_WRITEBUFFER            0x3B
 #define SCSI_SPC2_VARLENCDB              0x7F
 
-static const value_string scsi_spc2_val[] = {
+static const value_string scsi_spc2_vals[] = {
     {SCSI_SPC_CHANGE_DEFINITION  , "Change Definition"},
     {SCSI_SPC_COMPARE            , "Compare"},
     {SCSI_SPC_COPY               , "Copy"},
@@ -561,7 +561,7 @@ static const value_string scsi_spc2_val[] = {
 #define SCSI_SBC2_XPWRITE32              0x7F
 
 
-const value_string scsi_sbc2_val[] = {
+const value_string scsi_sbc2_vals[] = {
     {SCSI_SPC2_EXTCOPY           , "Extended Copy"},
     {SCSI_SPC2_INQUIRY           , "Inquiry"},
     {SCSI_SBC2_FORMATUNIT        , "Format Unit"},
@@ -648,7 +648,7 @@ const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC4_READDISCSTRUCTURE      0xad
 #define SCSI_MMC4_SETSTREAMING           0xb6
 #define SCSI_MMC4_SETCDSPEED             0xbb
-const value_string scsi_mmc_val[] = {
+const value_string scsi_mmc_vals[] = {
     {SCSI_MMC4_GETCONFIGURATION      , "Get Configuraion"},
     {SCSI_MMC4_GETEVENTSTATUSNOTIFY  , "Get Event Status Notification"},
     {SCSI_MMC4_GETPERFORMANCE        , "Get Performance"},
@@ -693,7 +693,7 @@ const value_string scsi_mmc_val[] = {
 #define SCSI_SMC2_SEND_VOLUME_TAG                 0xB6
 #define SCSI_SMC2_WRITE_ATTRIBUTE                 0x8D
 
-static const value_string scsi_smc2_val[] = {
+static const value_string scsi_smc2_vals[] = {
     {SCSI_SMC2_EXCHANGE_MEDIUM                , "Exchange Medium"},
     {SCSI_SMC2_INITIALIZE_ELEMENT_STATUS      , "Initialize Element Status"},
     {SCSI_SMC2_INITIALIZE_ELEMENT_STATUS_RANGE, "Initialize Element Status With Range"},
@@ -755,7 +755,7 @@ static const value_string scsi_smc2_val[] = {
 #define SCSI_SSC2_LOCATE_16                     0x92
 #define SCSI_SSC2_ERASE_16                      0x93
 
-const value_string scsi_ssc2_val[] = {
+const value_string scsi_ssc2_vals[] = {
     {SCSI_SSC2_ERASE_6                     , "Erase(6)"},
     {SCSI_SSC2_ERASE_16                    , "Erase(16)"},
     {SCSI_SPC2_EXTCOPY                     , "Extended Copy"},
@@ -7721,7 +7721,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    if ((valstr = match_strval (opcode, scsi_spc2_val)) == NULL) {
+    if ((valstr = match_strval (opcode, scsi_spc2_vals)) == NULL) {
         valstr = match_strval(opcode, csdata->cdb_vals);
     }
 
@@ -7921,27 +7921,27 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
     switch(cmdset){
     case SCSI_DEV_SBC:
         csdata->hf_opcode=hf_scsi_sbcopcode;
-        csdata->cdb_vals=scsi_sbc2_val;
+        csdata->cdb_vals=scsi_sbc2_vals;
         csdata->cdb_table=sbc;
         break;
     case SCSI_DEV_CDROM:
         csdata->hf_opcode=hf_scsi_mmcopcode;
-        csdata->cdb_vals=scsi_mmc_val;
+        csdata->cdb_vals=scsi_mmc_vals;
         csdata->cdb_table=mmc;
         break;
     case SCSI_DEV_SSC:
         csdata->hf_opcode=hf_scsi_sscopcode;
-        csdata->cdb_vals=scsi_ssc2_val;
+        csdata->cdb_vals=scsi_ssc2_vals;
         csdata->cdb_table=ssc;
         break;
     case SCSI_DEV_SMC:
         csdata->hf_opcode=hf_scsi_smcopcode;
-        csdata->cdb_vals=scsi_smc2_val;
+        csdata->cdb_vals=scsi_smc2_vals;
         csdata->cdb_table=smc;
         break;
     default:
         csdata->hf_opcode=hf_scsi_spcopcode;
-        csdata->cdb_vals=scsi_spc2_val;
+        csdata->cdb_vals=scsi_spc2_vals;
         csdata->cdb_table=spc;
         break;
     }
@@ -7965,19 +7965,19 @@ proto_register_scsi (void)
 	   VALS(scsi_status_val), 0, "SCSI command status value", HFILL }},
         { &hf_scsi_spcopcode,
           {"SPC-2 Opcode", "scsi.spc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_spc2_val), 0x0, "", HFILL}},
+           VALS (scsi_spc2_vals), 0x0, "", HFILL}},
         { &hf_scsi_mmcopcode,
           {"MMC Opcode", "scsi.mmc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_mmc_val), 0x0, "", HFILL}},
+           VALS (scsi_mmc_vals), 0x0, "", HFILL}},
         { &hf_scsi_sbcopcode,
           {"SBC-2 Opcode", "scsi.sbc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_sbc2_val), 0x0, "", HFILL}},
+           VALS (scsi_sbc2_vals), 0x0, "", HFILL}},
         { &hf_scsi_sscopcode,
           {"SSC-2 Opcode", "scsi.ssc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_ssc2_val), 0x0, "", HFILL}},
+           VALS (scsi_ssc2_vals), 0x0, "", HFILL}},
         { &hf_scsi_smcopcode,
           {"SMC-2 Opcode", "scsi.smc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_smc2_val), 0x0, "", HFILL}},
+           VALS (scsi_smc2_vals), 0x0, "", HFILL}},
         { &hf_scsi_control,
           {"Control", "scsi.cdb.control", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},

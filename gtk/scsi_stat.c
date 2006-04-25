@@ -202,15 +202,15 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
         switch(program){
 	case SCSI_DEV_SBC:
 		rs->prog="SBC";
-		rs->cdbnames=scsi_sbc2_val;
+		rs->cdbnames=scsi_sbc2_vals;
 		break;
 	case SCSI_DEV_SSC:
 		rs->prog="SSC";
-		rs->cdbnames=scsi_ssc2_val;
+		rs->cdbnames=scsi_ssc2_vals;
 		break;
 	case SCSI_DEV_CDROM:
 		rs->prog="MMC";
-		rs->cdbnames=scsi_mmc_val;
+		rs->cdbnames=scsi_mmc_vals;
 		break;
 	}
 
