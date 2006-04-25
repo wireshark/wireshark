@@ -24,6 +24,10 @@ $(DISSECTOR_FILES): ../../tools/asn2eth.py h4501.asn packet-$(PROTOCOL_NAME)-tem
 clean:
 	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES)
 
+distclean: clean
+
+maintainer-clean: distclean
+
 # Fix EOL in generated dissectors. Cygwin's python generates files with 
 # mixed EOL styles, which can't be commited to the SVN repository.
 # Stuff included from template and "cnf" files has "\r\n" on windows, while 
