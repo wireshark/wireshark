@@ -367,31 +367,48 @@ and did you also install that package?]]))
 
 	#
 	# Check to see if we find "pcap_open_live" in "-lpcap".
+	# Also check for various additional libraries that libpcap might
+	# require.
 	#
 	AC_CHECK_LIB(pcap, pcap_open_live,
 	  [
 	    PCAP_LIBS=-lpcap
 	    AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
 	  ], [
-	    AC_MSG_CHECKING([for pcap_open_live in -lpcap -lcfg -lodm])
+	    ac_ethereal_extras_found=no
 	    ac_save_LIBS="$LIBS"
-	    LIBS="-lpcap -lcfg -lodm"
-	    AC_TRY_LINK(
-		[
+	    for extras in "-lcfg -lodm" "-lpfring"
+	    do
+		AC_MSG_CHECKING([for pcap_open_live in -lpcap with $extras])
+		LIBS="-lpcap $extras"
+		#
+		# XXX - can't we use AC_CHECK_LIB here?
+		#
+		AC_TRY_LINK(
+		    [
 #	include <pcap.h>
-		],
-		[
+		    ],
+		    [
 	pcap_open_live(NULL, 0, 0, 0, NULL);
-		],
-		[
-		AC_MSG_RESULT([yes])
-		PCAP_LIBS="-lpcap -lcfg -lodm"
-		AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
-		],
-		[
-		AC_MSG_RESULT([no])
-		AC_MSG_ERROR([Library libpcap not found.])
-		])
+		    ],
+		    [
+			ac_ethereal_extras_found=yes
+			AC_MSG_RESULT([yes])
+			PCAP_LIBS="-lpcap $extras"
+			AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
+		    ],
+		    [
+			AC_MSG_RESULT([no])
+		    ])
+		if test x$ac_ethereal_extras_found = xyes
+		then
+		    break
+		fi
+	    done
+	    if test x$ac_ethereal_extras_found = xno
+	    then
+		AC_MSG_ERROR([Can't link with library libpcap.])
+	    fi
 	    LIBS=$ac_save_LIBS
 	  ], $SOCKET_LIBS $NSL_LIBS)
 	AC_SUBST(PCAP_LIBS)
