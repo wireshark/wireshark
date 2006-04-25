@@ -98,24 +98,56 @@ struct sockaddr_storage {
 #define DETAILS_STR_MAX     1024
 
 
+/* The informations and definitions used here are coming from various places on the web:
+ *
+ * ndiswrapper (various NDIS related definitions)
+ *  http://cvs.sourceforge.net/viewcvs.py/ndiswrapper/ndiswrapper/driver/
+ *  
+ * ReactOS (various NDIS related definitions)
+ *  http://www.reactos.org/generated/doxygen/d2/d6d/ndis_8h-source.html
+ *
+ * IEEE802.11 "Detailed NDIS OID Log for a 802.11b Miniport"
+ *  http://www.ndis.com/papers/ieee802_11_log.htm
+ *
+ * FreeBSD (various NDIS related definitions)
+ *  http://lists.freebsd.org/pipermail/p4-projects/2004-January/003433.html
+ *
+ * MS WHDC "Network Drivers and Windows"
+ *  http://www.microsoft.com/whdc/archive/netdrv_up.mspx
+ *
+ * IEEE "Get IEEE 802" (the various 802.11 docs)
+ *  http://standards.ieee.org/getieee802/802.11.html
+ *
+ * MS MSDN "Network Devices: Windows Driver Kit"
+ *  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/NetXP_r/hh/NetXP_r/netref_4c297a96-2ba5-41ed-ab21-b7a9cfaa9b4d.xml.asp
+ *
+ * MS MSDN "Microsoft Windows CE .NET 4.2 Network Driver Reference"
+ *  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/wceddk40/html/cxgrfNetworkDriverReference.asp
+ *
+ * MS MSDN (some explanations of a special MS 802.11 Information Element)
+ *  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/randz/protocol/securing_public_wi-fi_hotspots.asp
+ *
+ * "WLANINFO für Windows XP"
+ *  http://www-pc.uni-regensburg.de/systemsw/TOOLS/wlaninfo.htm
+ */
 
 /********************************************************************************/
 /* definitions that would usually come from the windows DDK (device driver kit) */
 /* and are not part of the ntddndis.h file delivered with WinPcap */
 
-/* Required OIDs (from ndiswrapper) */
+/* Required OIDs */
 #define OID_GEN_VLAN_ID				0x0001021C
 
-/* Optional OIDs (from ndiswrapper) */
+/* Optional OIDs */
 #define OID_GEN_MEDIA_CAPABILITIES		0x00010201
 #define OID_GEN_PHYSICAL_MEDIUM			0x00010202
 
-/* Optional OIDs (from http://www.ndis.com/papers/ieee802_11_log.htm) */
+/* Optional OIDs */
 #define OID_GEN_NETWORK_LAYER_ADDRESSES 0x00010118
 #define OID_GEN_TRANSPORT_HEADER_OFFSET 0x00010119
 
 
-/* Physical medium (OID_GEN_PHYSICAL_MEDIUM) (from ndiswrapper) */
+/* Physical medium (OID_GEN_PHYSICAL_MEDIUM) */
 typedef enum ndis_phys_medium {
 	NdisPhysicalMediumUnspecified,
 	NdisPhysicalMediumWirelessLan,
@@ -139,9 +171,7 @@ typedef enum ndis_phys_medium {
 #define NDIS_MAC_OPTION_8021P_PRIORITY          0x00000040
 #define NDIS_MAC_OPTION_8021Q_VLAN              0x00000080
 
-/* 802.11 OIDs (from ndiswrapper), see also: */
-/* http://www.ndis.com/papers/ieee802_11_log.htm */
-/* http://lists.freebsd.org/pipermail/p4-projects/2004-January/003433.html */
+/* 802.11 OIDs */
 #define OID_802_11_BSSID			0x0D010101
 #define OID_802_11_SSID				0x0D010102
 #define OID_802_11_NETWORK_TYPES_SUPPORTED	0x0D010203
@@ -188,14 +218,14 @@ typedef enum ndis_phys_medium {
 #define OID_PNP_ENABLE_WAKE_UP			0xFD010106
 
 
-/* Currently associated SSID (OID_802_11_SSID) (from ndiswrapper) */
+/* Currently associated SSID (OID_802_11_SSID) */
 #define NDIS_ESSID_MAX_SIZE 32
 struct ndis_essid {
 	ULONG length;
 	UCHAR essid[NDIS_ESSID_MAX_SIZE];
 };
 
-/* Current infrastructure mode (OID_802_11_INFRASTRUCTURE_MODE) (from ndiswrapper) */
+/* Current infrastructure mode (OID_802_11_INFRASTRUCTURE_MODE) */
 enum network_infrastructure {
 	Ndis802_11IBSS,
 	Ndis802_11Infrastructure,
@@ -203,7 +233,7 @@ enum network_infrastructure {
 	Ndis802_11InfrastructureMax
 };
 
-/* Current authentication mode (OID_802_11_AUTHENTICATION_MODE) (from ndiswrapper) */
+/* Current authentication mode (OID_802_11_AUTHENTICATION_MODE) */
 enum authentication_mode {
 	Ndis802_11AuthModeOpen,
 	Ndis802_11AuthModeShared,
@@ -216,7 +246,7 @@ enum authentication_mode {
 	Ndis802_11AuthModeMax
 };
 
-/* Current network type (OID_802_11_NETWORK_TYPES_SUPPORTED / OID_802_11_NETWORK_TYPE_IN_USE) (from ndiswrapper) */
+/* Current network type (OID_802_11_NETWORK_TYPES_SUPPORTED / OID_802_11_NETWORK_TYPE_IN_USE) */
 enum network_type {
 	Ndis802_11FH,
 	Ndis802_11DS,
@@ -229,7 +259,7 @@ enum network_type {
 	Ndis802_11NetworkTypeMax = Ndis802_11Automode
 };
 
-/* Current encryption status (OID_802_11_ENCRYPTION_STATUS) (from ndiswrapper) */
+/* Current encryption status (OID_802_11_ENCRYPTION_STATUS) */
 enum encryption_status {
 	Ndis802_11WEPEnabled,
 	Ndis802_11Encryption1Enabled = Ndis802_11WEPEnabled,
@@ -246,12 +276,12 @@ enum encryption_status {
 };
 
 
-/* some definitions needed for the following structs (from ndiswrapper) */
+/* some definitions needed for the following structs */
 #define NDIS_MAX_RATES_EX 16
 typedef UCHAR mac_address[/* ETH_ALEN */ 6];
 typedef UCHAR ndis_rates[NDIS_MAX_RATES_EX];
 
-/* configuration, e.g. frequency (OID_802_11_CONFIGURATION / OID_802_11_BSSID_LIST) (from ndiswrapper) */
+/* configuration, e.g. frequency (OID_802_11_CONFIGURATION / OID_802_11_BSSID_LIST) */
 struct /*packed*/ ndis_configuration {
 	ULONG length;
 	ULONG beacon_period;
@@ -265,7 +295,7 @@ struct /*packed*/ ndis_configuration {
 	} fh_config;
 };
 
-/* bssid list item (OID_802_11_BSSID_LIST) (from ndiswrapper) */
+/* bssid list item (OID_802_11_BSSID_LIST) */
 struct ndis_ssid_item {
 	ULONG length;
 	mac_address mac;
@@ -282,7 +312,15 @@ struct ndis_ssid_item {
 };
 
 
-/* bssid list (OID_802_11_BSSID_LIST) (from ndiswrapper) */
+typedef struct _NDIS_802_11_FIXED_IEs
+{
+  UCHAR  Timestamp[8];
+  USHORT  BeaconInterval;
+  USHORT  Capabilities;
+} NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
+
+
+/* bssid list (OID_802_11_BSSID_LIST) */
 struct ndis_bssid_list {
 	ULONG num_items;
 	struct ndis_ssid_item items[1];
@@ -294,10 +332,10 @@ struct ndis_bssid_list {
 /* windows DDK (device driver kit) and are not part of the ntddndis.h file */
 /* delivered with WinPcap */
 
-/* optional OID (from http://www.ndis.com/papers/ieee802_11_log.htm) */
+/* optional OID */
 #define OID_TCP_TASK_OFFLOAD    0xFC010201
 
-/* task id's (from ReactOS) */
+/* task id's */
 typedef enum _NDIS_TASK {
   TcpIpChecksumNdisTask,
   IpSecNdisTask,
@@ -305,7 +343,7 @@ typedef enum _NDIS_TASK {
   MaxNdisTask
 } NDIS_TASK, *PNDIS_TASK;
 
-/* TaskBuffer content on TcpIpChecksumNdisTask (from ReactOS) */
+/* TaskBuffer content on TcpIpChecksumNdisTask */
 typedef struct _NDIS_TASK_TCP_IP_CHECKSUM
 {
   struct
@@ -343,7 +381,7 @@ typedef struct _NDIS_TASK_TCP_IP_CHECKSUM
   } V6Receive;
 } NDIS_TASK_TCP_IP_CHECKSUM, *PNDIS_TASK_TCP_IP_CHECKSUM;
 
-/* TaskBuffer content on TcpLargeSendNdisTask (from ReactOS) */
+/* TaskBuffer content on TcpLargeSendNdisTask */
 typedef struct _NDIS_TASK_TCP_LARGE_SEND
 {
   ULONG  Version;
@@ -353,7 +391,7 @@ typedef struct _NDIS_TASK_TCP_LARGE_SEND
   BOOLEAN  IpOptions;
 } NDIS_TASK_TCP_LARGE_SEND, *PNDIS_TASK_TCP_LARGE_SEND;
 
-/* Encapsulations (from ReactOs) */
+/* Encapsulations */
 typedef enum _NDIS_ENCAPSULATION {
   UNSPECIFIED_Encapsulation,
   NULL_Encapsulation,
@@ -363,7 +401,7 @@ typedef enum _NDIS_ENCAPSULATION {
   LLC_SNAP_BRIDGED_Encapsulation
 } NDIS_ENCAPSULATION;
 
-/* Encapsulation format (from ReactOs) */
+/* Encapsulation format */
 typedef struct _NDIS_ENCAPSULATION_FORMAT {
   NDIS_ENCAPSULATION  Encapsulation;
   struct {
@@ -373,7 +411,7 @@ typedef struct _NDIS_ENCAPSULATION_FORMAT {
   ULONG  EncapsulationHeaderSize;
 } NDIS_ENCAPSULATION_FORMAT, *PNDIS_ENCAPSULATION_FORMAT;
 
-/* request struct (from http://www.microsoft.com/whdc/archive/netdrv_up.mspx) */
+/* request struct */
 typedef struct _NDIS_TASK_OFFLOAD_HEADER
 {
   ULONG  Version;
@@ -383,7 +421,7 @@ typedef struct _NDIS_TASK_OFFLOAD_HEADER
   NDIS_ENCAPSULATION_FORMAT  EncapsulationFormat;
 } NDIS_TASK_OFFLOAD_HEADER, *PNDIS_TASK_OFFLOAD_HEADER;
 
-/* response struct (from ReactOS) */
+/* response struct */
 #define NDIS_TASK_OFFLOAD_VERSION 1
 typedef struct _NDIS_TASK_OFFLOAD
 {
@@ -420,7 +458,7 @@ static const value_string win32_802_3_medium_vals[] = {
 static const value_string win32_802_3_physical_medium_vals[] = {
 	{ NdisPhysicalMediumUnspecified,    "Unspecified" },
 	{ NdisPhysicalMediumWirelessLan,    "Wireless LAN" },
-	{ NdisPhysicalMediumCableModem,     "Cable Modem" },
+	{ NdisPhysicalMediumCableModem,     "Cable Modem (DOCSIS)" },
 	{ NdisPhysicalMediumPhoneLine,      "Phone Line" },
 	{ NdisPhysicalMediumPowerLine,      "Power Line" },
 	{ NdisPhysicalMediumDSL,            "DSL" },
@@ -458,7 +496,6 @@ static const value_string win32_802_11_network_type_vals[] = {
     { 0, NULL }
 };
 
-/* XXX - add some explanations */
 static const value_string win32_802_11_encryption_status_vals[] = {
 	{ Ndis802_11Encryption1Enabled,     "Encryption 1 Enabled  (WEP enabled, TKIP & AES disabled, transmit key available)" },
 	{ Ndis802_11EncryptionDisabled,     "Encryption Disabled  (WEP & TKIP & AES disabled, transmit key available)" },
@@ -472,7 +509,7 @@ static const value_string win32_802_11_encryption_status_vals[] = {
 };
 
 /* frequency to channel mapping (OID_802_11_CONFIGURATION) */
-static const value_string win32_802_11_channel_vals[] = {
+static const value_string win32_802_11_channel_freq_vals[] = {
 	{ 2412000, "1 (2412000 kHz)" },
 	{ 2417000, "2 (2417000 kHz)" },
 	{ 2422000, "3 (2422000 kHz)" },
@@ -489,6 +526,63 @@ static const value_string win32_802_11_channel_vals[] = {
 	{ 2484000, "14 (2484000 kHz)" },
     { 0, NULL }
 };
+
+/* frequency to channel mapping (OID_802_11_CONFIGURATION) */
+static const value_string win32_802_11_channel_vals[] = {
+	{ 2412000, "1" },
+	{ 2417000, "2" },
+	{ 2422000, "3" },
+	{ 2427000, "4" },
+	{ 2432000, "5" },
+	{ 2437000, "6" },
+	{ 2442000, "7" },
+	{ 2447000, "8" },
+	{ 2452000, "9" },
+	{ 2457000, "10" },
+	{ 2462000, "11" },
+	{ 2467000, "12" },
+	{ 2472000, "13" },
+	{ 2484000, "14" },
+    { 0, NULL }
+};
+
+
+/* ElementID in NDIS_802_11_VARIABLE_IEs */
+static const value_string ie_id_vals[] = {
+	{ 0, "SSID, 802.11" },
+	{ 1, "Supported Rates, 802.11" },
+	{ 2, "FH Parameter Set, 802.11" },
+	{ 3, "DS Parameter Set, 802.11" },
+	{ 4, "CF Parameter Set, 802.11" },
+	{ 5, "TIM, 802.11" },
+	{ 6, "IBSS Parameter Set, 802.11" },
+	{ 7, "Country, 802.11d" },
+	{ 8, "Hopping Pattern Parameters, 802.11d" },
+	{ 9, "Hopping Pattern Table, 802.11d" },
+	{ 10, "Request, 802.11d" },
+    /* 11-15 reserved, 802.11d */
+	{ 16, "Challenge text, 802.11" },
+    /* 17-31 reserved, 802.11h */
+	{ 32, "Power Constraint, 802.11h" },
+	{ 33, "Power Capability, 802.11h" },
+	{ 34, "TPC Request, 802.11h" },
+	{ 35, "TPC Report, 802.11h" },
+	{ 36, "Supported Channels, 802.11h" },
+	{ 37, "Channel Switch Announcement, 802.11h" },
+	{ 38, "Measurement Request, 802.11h" },
+	{ 39, "Measurement Report, 802.11h" },
+	{ 40, "Quiet, 802.11h" },
+	{ 41, "IBSS DFS, 802.11h" },
+	{ 42, "ERP information, 802.11g" },
+    /* 43-47 reserved, 802.11i */
+	{ 48, "WPA2/RSN (Robust Secure Network), 802.11i" },
+    /* 49 reserved, 802.11i */
+	{ 50, "Extended Supported Rates, 802.11g" },
+    /* 51-255 reserved, 802.11g */
+	{ 221, "WPA, (no 802.11!)" },
+    { 0, NULL }
+};
+
 
 static const value_string oid_vals[] = {
 	{ OID_GEN_SUPPORTED_LIST, "OID_GEN_SUPPORTED_LIST" },
@@ -536,7 +630,7 @@ static const value_string oid_vals[] = {
 	{ OID_GEN_GET_NETCARD_TIME, "OID_GEN_GET_NETCARD_TIME (unsupp, unused)" },
 
     { OID_GEN_PHYSICAL_MEDIUM, "OID_GEN_PHYSICAL_MEDIUM" },
-	//{ OID_GEN_MACHINE_NAME, "OID_GEN_MACHINE_NAME (unsupp, unused)" },
+	/*{ OID_GEN_MACHINE_NAME, "OID_GEN_MACHINE_NAME (unsupp, unused)" },*/
 	{ OID_GEN_VLAN_ID, "OID_GEN_VLAN_ID" },
 	{ OID_GEN_MEDIA_CAPABILITIES, "OID_GEN_MEDIA_CAPABILITIES (unsupp, unused)" },
 
@@ -546,7 +640,7 @@ static const value_string oid_vals[] = {
 	{ OID_802_3_PERMANENT_ADDRESS, "OID_802_3_PERMANENT_ADDRESS" },
 	{ OID_802_3_CURRENT_ADDRESS, "OID_802_3_CURRENT_ADDRESS" },
     { OID_802_3_MAXIMUM_LIST_SIZE, "OID_802_3_MAXIMUM_LIST_SIZE (unused)" },
-    { OID_802_3_MULTICAST_LIST, "OID_802_3_MULTICAST_LIST (unused)" }, // XXX
+    { OID_802_3_MULTICAST_LIST, "OID_802_3_MULTICAST_LIST (unused)" }, /* XXX */
     { OID_802_3_MAC_OPTIONS, "OID_802_3_MAC_OPTIONS (unsupp, unused)" },
 
     { OID_802_3_RCV_ERROR_ALIGNMENT, "OID_802_3_RCV_ERROR_ALIGNMENT" },
@@ -590,7 +684,7 @@ static const value_string oid_vals[] = {
 	{ OID_802_11_RELOAD_DEFAULTS, "OID_802_11_RELOAD_DEFAULTS (write only)" },
 	{ OID_802_11_ADD_KEY, "OID_802_11_ADD_KEY (write only)" },
 	{ OID_802_11_REMOVE_KEY, "OID_802_11_REMOVE_KEY (write only)" },
-	{ OID_802_11_ASSOCIATION_INFORMATION, "OID_802_11_ASSOCIATION_INFORMATION (unused)" }, // XXX
+	{ OID_802_11_ASSOCIATION_INFORMATION, "OID_802_11_ASSOCIATION_INFORMATION (unused)" }, /* XXX */
 	{ OID_802_11_TEST, "OID_802_11_TEST (write only)" },
 	{ OID_802_11_CAPABILITY, "OID_802_11_CAPABILITY (unsupp, unused)" },
 	{ OID_802_11_PMKID, "OID_802_11_PMKID (unsupp, unused)" },
@@ -627,10 +721,10 @@ static const value_string oid_vals[] = {
 
     /* PnP and power management OIDs */
     { OID_PNP_CAPABILITIES, "OID_PNP_CAPABILITIES (unused)" },
-    { OID_PNP_SET_POWER, "OID_PNP_SET_POWER (unused)" },
+    { OID_PNP_SET_POWER, "OID_PNP_SET_POWER (write only)" },
     { OID_PNP_QUERY_POWER, "OID_PNP_QUERY_POWER (unused)" },
-    { OID_PNP_ADD_WAKE_UP_PATTERN, "OID_PNP_ADD_WAKE_UP_PATTERN (unused)" },
-    { OID_PNP_REMOVE_WAKE_UP_PATTERN, "OID_PNP_REMOVE_WAKE_UP_PATTERN (unused)" },
+    { OID_PNP_ADD_WAKE_UP_PATTERN, "OID_PNP_ADD_WAKE_UP_PATTERN (write only)" },
+    { OID_PNP_REMOVE_WAKE_UP_PATTERN, "OID_PNP_REMOVE_WAKE_UP_PATTERN (write only)" },
     { OID_PNP_WAKE_UP_PATTERN_LIST, "OID_PNP_WAKE_UP_PATTERN_LIST (unused)" },
     { OID_PNP_ENABLE_WAKE_UP, "OID_PNP_ENABLE_WAKE_UP (unused)" },
 
@@ -803,6 +897,21 @@ rates_details(unsigned char *values, int length) {
 }
 
 
+/* debugging only */
+static void
+hex(unsigned char *p, int len) {
+    int i = 0;
+    while(len) {
+        g_warning("%u: 0x%x (%u) '%c'", i, *p, *p,
+            isprint(*p) ? *p : '.');
+
+        i++;
+        p++;
+        len--;
+    }
+}
+
+
 static void
 capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list *bssid_list)
 {
@@ -813,23 +922,30 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
 
 
     if(bssid_list->num_items != 0) {
-        char *titles[] = { "SSID", "MAC", "Vendor", "RSSI" , "Network Type" , "Infra. Mode" , "Channel" , "Rates" };
-        GtkWidget     *list;
+        char *titles[] = { "SSID", "MAC", "Vendor", "Privacy", "RSSI" , "Network Type" , "Infra. Mode" , "Ch." , "Rates" };
+        GtkWidget   *list;
+        gboolean    privacy_required;
+        gboolean    privacy_wpa;
+        gboolean    privacy_wpa2;
 
         gchar ssid_buff[DETAILS_STR_MAX];
         gchar mac_buff[DETAILS_STR_MAX];
         gchar vendor_buff[DETAILS_STR_MAX];
+        gchar privacy_buff[DETAILS_STR_MAX];
         gchar rssi_buff[DETAILS_STR_MAX];
         gchar nettype_buff[DETAILS_STR_MAX];
         gchar infra_buff[DETAILS_STR_MAX];
         gchar freq_buff[DETAILS_STR_MAX];
 
-        list = simple_list_new(8, titles);
+        list = simple_list_new(9, titles);
         gtk_container_add(GTK_CONTAINER(main_vb), list);
 
         bssid_item = &bssid_list->items[0];
 
         while(bssid_list->num_items--) {
+            privacy_required = FALSE;
+            privacy_wpa = FALSE;
+            privacy_wpa2 = FALSE;
 
             /* SSID */
             if(bssid_item->ssid.length > DETAILS_STR_MAX-1) {
@@ -858,6 +974,12 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
             /* RSSI */
             g_snprintf(rssi_buff, DETAILS_STR_MAX, "%d dBm", bssid_item->rssi);
 
+            /* Privacy */
+            /* (flag is set, if WEP (or higher) privacy is required) */
+            if(bssid_item->privacy) {
+                privacy_required = TRUE;
+            }
+
             /* Network Type */
             g_snprintf(nettype_buff, sizeof(nettype_buff), "%s",
                 val_to_str(bssid_item->net_type, win32_802_11_network_type_vals, "(0x%x)"));
@@ -870,18 +992,111 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
             g_snprintf(freq_buff, sizeof(freq_buff), "%s",
                 val_to_str(bssid_item->config.ds_config, win32_802_11_channel_vals, "(%u kHz)"));
 
-            /* IE Length  (XXX - add decoding) */
-            /* g_warning ("802.11 IE Length          : %u", bssid_item->ie_length); */
+            /* XXX - IE Length is currently not really supported here */
+            {
+                int len = bssid_item->ie_length;
+                unsigned char *iep = bssid_item->ies;
+                unsigned char id;
+                unsigned el_len;
+                NDIS_802_11_FIXED_IEs *fixed_ies;
+/*#define DEBUG_IE*/
+#ifdef DEBUG_IE
+                const gchar     *manuf_name;
+                gchar           string_buff[DETAILS_STR_MAX];
+#endif
+
+
+                fixed_ies = (NDIS_802_11_FIXED_IEs *) iep;
+
+#if 0
+                  UCHAR  Timestamp[8];
+  USHORT  BeaconInterval;
+  USHORT  Capabilities;
+} NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
+#endif
+
+                iep += sizeof(NDIS_802_11_FIXED_IEs);
+                len = bssid_item->ie_length - sizeof(NDIS_802_11_FIXED_IEs);
+
+                while(len >= 2) {
+                    id = *iep;
+                    iep++;
+                    el_len = *iep;
+                    iep++;
+                    len-=2;
+
+#ifdef DEBUG_IE
+                    g_warning("ID: %s (%u) Len: %u", 
+                        val_to_str(id, ie_id_vals, "0x%x"), id, el_len);
+#endif
+
+                    if (id != 0 && id != 1 && id != 3 && id != 5 && id != 42 && id != 50 && id != 221) {
+                        hex(iep, el_len);
+                    }
+                    
+                    /* WPA2 (RSN) */
+                    if (id == 48) {
+                        privacy_wpa2 = TRUE;
+                    }
+
+                    /* WPA */
+                    if (id == 221) {
+                        privacy_wpa = TRUE;
+
+#ifdef DEBUG_IE
+                        /* include information from epan/packet-ieee80211.c dissect_vendor_ie_wpawme() */
+                        manuf_name = get_manuf_name_if_known(iep);
+                        if(manuf_name != NULL) {
+                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) Type: %02X", 
+                                *(iep), *(iep+1), *(iep+2), manuf_name, *(iep+3));
+                        } else {
+                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X Type: %02X", 
+                                *(iep), *(iep+1), *(iep+2), *(iep+3));
+                        }
+
+                        g_warning("%s", string_buff);
+                        iep += 4;
+                        el_len-= 4;
+                        len -= 4;
+
+                        hex(iep, el_len);
+#endif
+                    }
+                    
+                    iep += el_len;
+                    len -= el_len;
+                }
+            }
+
+            if(privacy_required) {
+                if(privacy_wpa2) {
+                    /* XXX - how to detect data encryption (TKIP and AES)? */
+                    /* XXX - how to detect authentication (PSK or not)? */
+                    g_snprintf(privacy_buff, DETAILS_STR_MAX, "WPA2");
+                } else {
+                    if(privacy_wpa) {
+                        /* XXX - how to detect data encryption (TKIP and AES)? */
+                        /* XXX - how to detect authentication (PSK or not)? */
+                        g_snprintf(privacy_buff, DETAILS_STR_MAX, "WPA");
+                    } else {
+                        /* XXX - how to detect authentication (Open System and Shared Key)? */
+                        g_snprintf(privacy_buff, DETAILS_STR_MAX, "WEP");
+                    }
+                }
+            } else {
+                g_snprintf(privacy_buff, DETAILS_STR_MAX, "None");
+            }
 
             simple_list_append(list, 
                 0, ssid_buff,
                 1, mac_buff,
                 2, vendor_buff,
-                3, rssi_buff,
-                4, nettype_buff,
-                5, infra_buff, 
-                6, freq_buff, 
-                7, Rates->str,
+                3, privacy_buff,
+                4, rssi_buff,
+                5, nettype_buff,
+                6, infra_buff, 
+                7, freq_buff, 
+                8, Rates->str,
                 -1);
 
             g_string_free(Rates, TRUE /* free_segment */);
@@ -905,22 +1120,10 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
     gchar               string_buff[DETAILS_STR_MAX];
     GString             *Rates;
     int                 entries = 0;
+    const gchar         *manuf_name;
 
 
     add_string_to_table(table, row, "Characteristics", "");
-
-    /* BSSID */
-    length = sizeof(values);
-    memset(values, 0, 6);
-    if (wpcap_packet_request(adapter, OID_802_11_BSSID, FALSE /* !set */, values, &length)) {
-        g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X",
-            values[0], values[1], values[2], 
-            values[3], values[4], values[5]);
-        entries++;
-    } else {
-        g_snprintf(string_buff, DETAILS_STR_MAX, "-");
-    }
-    add_string_to_table(table, row, "BSSID (Basic Service Set IDentifier)", string_buff);
 
     /* SSID */
     length = sizeof(struct ndis_essid);
@@ -931,6 +1134,27 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
     } else {
         add_string_to_table(table, row, "SSID (Service Set IDentifier)", "-");
     }
+
+    /* BSSID */
+    length = sizeof(values);
+    memset(values, 0, 6);
+    if (wpcap_packet_request(adapter, OID_802_11_BSSID, FALSE /* !set */, values, &length)) {
+        manuf_name = get_manuf_name_if_known(values);
+        if(manuf_name != NULL) {
+            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X (%s)",
+                values[0], values[1], values[2], 
+                values[3], values[4], values[5],
+                manuf_name);
+        } else {
+            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X",
+                values[0], values[1], values[2], 
+                values[3], values[4], values[5]);
+        }
+        entries++;
+    } else {
+        g_snprintf(string_buff, DETAILS_STR_MAX, "-");
+    }
+    add_string_to_table(table, row, "BSSID (Basic Service Set IDentifier)", string_buff);
 
     /* Network type in use */
     if (wpcap_packet_request_uint(adapter, OID_802_11_NETWORK_TYPE_IN_USE, &uint_value)) {
@@ -979,7 +1203,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* RSSI */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_RSSI, &long_value)) {
-        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm (typical -10 through -200)", long_value);
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm (typical -10 through -100)", long_value);
         add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", string_buff);
         entries++;
     } else {
@@ -1016,7 +1240,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         configuration = (struct ndis_configuration *) values;
 
         add_string_to_table(table, row, "Channel",
-            val_to_str(configuration->ds_config, win32_802_11_channel_vals, "(%u kHz)"));
+            val_to_str(configuration->ds_config, win32_802_11_channel_freq_vals, "(%u kHz)"));
         entries++;
     } else {
         add_string_to_table(table, row, "Channel", "-");
@@ -1787,7 +2011,7 @@ capture_if_details_open_win(char *iface)
 
     /* General page */
     page_general = capture_if_details_page_new(&table);
-    page_lb = gtk_label_new("General");
+    page_lb = gtk_label_new("Characteristics");
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_general, page_lb);
     row = 0;
     entries = capture_if_details_general(table, page_general, &row, adapter, iface);
