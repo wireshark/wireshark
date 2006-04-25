@@ -242,6 +242,7 @@ wpcap_packet_request(void *adapter, ULONG Oid, int set, char *value, unsigned in
 
     OidData->Oid = Oid;
     OidData->Length = *length;
+    memcpy(OidData->Data, value, *length);
 
     Status = p_PacketRequest(adapter, set, OidData);
 
