@@ -2356,6 +2356,7 @@ sub Parse($$$)
 		pidl "#include <stdint.h>";
 		pidl "#include <stdlib.h>";
 		pidl "#include <stdio.h>";
+		pidl "#include <stdbool.h>";
 		pidl "#include <stdarg.h>";
 		pidl "#include <string.h>";
 	}

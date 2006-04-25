@@ -54,6 +54,7 @@ SKIP: {
 	print CC "#include <stdint.h>\n";
 	print CC "#include <stdlib.h>\n";
 	print CC "#include <stdio.h>\n";
+	print CC "#include <stdbool.h>\n";
 	print CC "#include <stdarg.h>\n";
 	print CC $header;
 	print CC $ndrheader;

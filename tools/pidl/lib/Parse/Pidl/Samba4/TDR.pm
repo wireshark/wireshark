@@ -242,6 +242,7 @@ sub Parser($$$)
 		pidl "#include \"includes.h\"";
 	} else {
 		pidl "#include <stdio.h>";
+		pidl "#include <stdbool.h>";
 		pidl "#include <stdlib.h>";
 		pidl "#include <stdint.h>";
 		pidl "#include <stdarg.h>";

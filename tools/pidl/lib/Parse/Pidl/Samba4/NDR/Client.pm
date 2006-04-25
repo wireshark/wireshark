@@ -105,6 +105,7 @@ sub Parse($$$$)
 	} else {
 		$res .= "#define _GNU_SOURCE\n";
 		$res .= "#include <stdio.h>\n";
+		$res .= "#include <stdbool.h>\n";
 		$res .= "#include <stdlib.h>\n";
 		$res .= "#include <stdint.h>\n";
 		$res .= "#include <stdarg.h>\n";
