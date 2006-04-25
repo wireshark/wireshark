@@ -218,6 +218,10 @@ clean:
 	cd x509sat
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+
+distclean: clean
+
+maintainer-clean: distclean
 	
 ber: \	
 	acse	\
