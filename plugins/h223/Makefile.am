@@ -33,6 +33,7 @@ h223_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 h223_la_LDFLAGS = -module -avoid-version
 h223_la_LIBADD = @PLUGIN_LIBS@
