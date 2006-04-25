@@ -31,6 +31,7 @@
 
 /* rfc-1492 for tacacs and xtacacs
  * draft-grant-tacacs-02.txt for tacacs+ (tacplus)
+ * ftp://ftp.cisco.com/pub/rfc/DRAFTS/draft-grant-tacacs-02.txt
  */
 
 #ifdef HAVE_CONFIG_H
