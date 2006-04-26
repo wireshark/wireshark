@@ -429,7 +429,6 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 
     print_args.format              = PR_FMT_TEXT;
     print_args.to_file             = TRUE;
-    print_args.file                = utf_16to8(file_name);
     print_args.cmd                 = NULL;
     print_args.print_summary       = TRUE;
     print_args.print_dissections   = print_dissections_as_displayed;
@@ -437,6 +436,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     print_args.print_formfeed      = FALSE;
 
     if (GetSaveFileName(&ofn)) {
+	print_args.file = utf_16to8(file_name);
 	switch (ofn.nFilterIndex) {
 	    case export_type_text:	/* Text */
 		print_args.stream = print_stream_text_new(TRUE, print_args.file);
