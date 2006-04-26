@@ -177,7 +177,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_info_t	*follow_info;
 
 	/* we got tcp so we can follow */
-	if (cfile.edt->pi.ipproto != 6) {
+	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Error following stream.  Please make\n"
 			      "sure you have a TCP packet selected.");
@@ -274,7 +274,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	vbox = gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
 
-    /* content frame */
+	/* content frame */
 	if (incomplete_tcp_stream) {
 		stream_fr = gtk_frame_new("Stream Content (incomplete)");
 	} else {
@@ -985,6 +985,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 #endif
 
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+    gboolean line_break = FALSE;
     /* While our isprint() hack is in place, we
      * have to use convert some chars to '.' in order
      * to be able to see the data we *should* see
@@ -994,11 +995,21 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
+        {
+            line_break = TRUE;
             continue;
+        }
         if (! isprint(buffer[i])) {
             buffer[i] = '.';
         }
     }
+
+    /* XXX - workaround for bug 852
+     * Force a line break so that the text view 
+     * doesn't blow up on excessive long lines.
+     */
+    if (line_break == FALSE)
+        buffer[--i] = '\n';
 #endif
 
 #if GTK_MAJOR_VERSION < 2
