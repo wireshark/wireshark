@@ -65,7 +65,7 @@
 /* Do we want to use canaries ? */
 #define DEBUG_USE_CANARIES 1
 
- 
+
 #ifdef WANT_GUARD_PAGES
 /* Add guard pages at each end of our allocated memory */
 #if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
@@ -209,6 +209,7 @@ static void
 emem_create_chunk(emem_chunk_t **free_list) {
 #if defined (_WIN32)
 	SYSTEM_INFO sysinfo;
+	OSVERSIONINFO versinfo;
 	int pagesize;
 	BOOL ret;
 	char *buf_end, *prot1, *prot2;
@@ -235,8 +236,13 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		 * MSDN documents VirtualAlloc/VirtualProtect at
 		 * http://msdn.microsoft.com/library/en-us/memory/base/creating_guard_pages.asp
 		 */
+
+		/* XXX - We should only have to call these once. */
 		GetSystemInfo(&sysinfo);
 		pagesize = sysinfo.dwPageSize;
+
+		versinfo.dwOSVersionInfoSize = sizeof(versinfo);
+		GetVersionEx(&versinfo);
 
 		/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
 		npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
@@ -249,9 +255,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
 		ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE);
+		g_assert(ret == TRUE && versinfo.dwPlatformId != VER_PLATFORM_WIN32_WINDOWS);
 		ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE);
+		g_assert(ret == TRUE && versinfo.dwPlatformId != VER_PLATFORM_WIN32_WINDOWS);
 
 		npc->amount_free_init = prot2 - prot1 - pagesize;
 		npc->amount_free = npc->amount_free_init;
@@ -886,7 +892,7 @@ se_tree_lookup32_le(se_tree_t *se_tree, guint32 key)
 	}
 
 
-	/* If we are still at the root of the tree this means that this node 
+	/* If we are still at the root of the tree this means that this node
 	 * is either smaller thant the search key and then we return this
 	 * node or else there is no smaller key availabel and then
 	 * we return NULL.
@@ -900,7 +906,7 @@ se_tree_lookup32_le(se_tree_t *se_tree, guint32 key)
 	}
 
 	if(node->parent->left==node){
-		/* left child */	
+		/* left child */
 
 		if(key>node->key32){
 			/* if this is a left child and its key is smaller than
@@ -921,16 +927,16 @@ se_tree_lookup32_le(se_tree_t *se_tree, guint32 key)
 			return NULL;
 		}
 	} else {
-		/* right child */	
+		/* right child */
 
 		if(node->key32<key){
-			/* if this is the right child and its key is smaller 
+			/* if this is the right child and its key is smaller
 			 * than the search key then this is the one we want.
 			 */
 			return node->data;
 		} else {
-			/* if this is the right child and its key is larger 
-			 * than the search key then our parent is the one we 
+			/* if this is the right child and its key is larger
+			 * than the search key then our parent is the one we
 			 * want.
 			 */
 			return node->parent->data;
@@ -1187,9 +1193,9 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 
 static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud) {
 	se_tree_node_t *node;
-	
+
 	node=se_tree->tree;
-	
+
 	/* is this the first node ?*/
 	if(!node){
 		node=se_alloc(sizeof(se_tree_node_t));
@@ -1206,7 +1212,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 		se_tree->tree=node;
 		return node->data;
 	}
-	
+
 	/* it was not the new root so walk the tree until we find where to
 		* insert this new leaf.
 		*/
@@ -1250,7 +1256,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 			continue;
 		}
 	}
-	
+
 	/* node will now point to the newly created node */
 	switch(se_tree->type){
 		case SE_TREE_TYPE_RED_BLACK:
@@ -1258,7 +1264,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 			rb_insert_case1(se_tree, node);
 			break;
 	}
-	
+
 	return node->data;
 }
 
@@ -1299,7 +1305,7 @@ se_tree_insert32_array(se_tree_t *se_tree, se_tree_key_t *key, void *data)
 		se_tree_insert32(se_tree, *key[0].key, data);
 		return;
 	}
-	
+
 	next_tree=lookup_or_insert32(se_tree, *key[0].key, create_sub_tree, se_tree);
 
 	if(key[0].length==1){
