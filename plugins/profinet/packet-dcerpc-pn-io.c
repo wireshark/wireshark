@@ -121,6 +121,7 @@ static int hf_pn_io_alarmcr_tagheaderhigh = -1;
 static int hf_pn_io_alarmcr_tagheaderlow = -1;
 
 static int hf_pn_io_ar_uuid = -1;
+static int hf_pn_io_target_ar_uuid = -1;
 static int hf_pn_io_api_tree = -1;
 static int hf_pn_io_module_tree = -1;
 static int hf_pn_io_submodule_tree = -1;
@@ -292,7 +293,7 @@ static const value_string pn_io_alarm_type[] = {
 	{ 0x0006, "Update" },
 	{ 0x0007, "Redundancy" },
 	{ 0x0008, "Controlled by supervisor" },
-	{ 0x0009, "Released by supervisor" },
+	{ 0x0009, "Released" },
 	{ 0x000A, "Plug wrong submodule" },
 	{ 0x000B, "Return of submodule" },
     /* 0x000C - 0x001F reserved */
@@ -686,9 +687,8 @@ dissect_Alarm_ack_block(tvbuff_t *tvb, int offset,
 /* dissect the read/write header */
 static int
 dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, e_uuid_t *aruuid)
 {
-    e_uuid_t uuid;
     guint32 u32Api;
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
@@ -698,7 +698,7 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
                         hf_pn_io_seq_number, &u16SeqNr);
 
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
-                        hf_pn_io_ar_uuid, &uuid);
+                        hf_pn_io_ar_uuid, aruuid);
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_api, &u32Api);
@@ -724,12 +724,19 @@ static int
 dissect_ReadWrite_rqst_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
 {
+    e_uuid_t aruuid;
+    e_uuid_t null_uuid;
 
-    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep, u16Index);
+    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep, u16Index, &aruuid);
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_record_data_length, u32RecDataLen);
-    /* XXX: don't know how to handle the optional TargetARUUID */
+
+    memset(&null_uuid, 0, sizeof(e_uuid_t));
+    if(memcmp(&aruuid, &null_uuid, sizeof (e_uuid_t)) == 0) {
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_target_ar_uuid, &aruuid);
+    }
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u bytes",
@@ -744,12 +751,13 @@ static int
 dissect_ReadWrite_resp_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index)
 {
+    e_uuid_t aruuid;
     guint32 u32RecDataLen;
     guint16 u16AddVal1;
     guint16 u16AddVal2;
 
 
-    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep, u16Index);
+    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep, u16Index, &aruuid);
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_record_data_length, &u32RecDataLen);
@@ -2081,6 +2089,7 @@ static dcerpc_sub_dissector pn_io_dissectors[] = {
 { 2, "Read",    dissect_IPNIO_Read_rqst,    dissect_IPNIO_Read_resp },
 { 3, "Write",   dissect_IPNIO_Write_rqst,   dissect_IPNIO_Write_resp },
 { 4, "Control", dissect_IPNIO_Control_rqst, dissect_IPNIO_Control_resp },
+{ 5, "Read Implicit",    dissect_IPNIO_Read_rqst,    dissect_IPNIO_Read_resp },
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -2201,6 +2210,8 @@ proto_register_pn_io (void)
 
     { &hf_pn_io_ar_uuid,
       { "ARUUID", "pn_io.ar_uuid", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_target_ar_uuid,
+      { "TargetARUUID", "pn_io.target_ar_uuid", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_api,
       { "API", "pn_io.api", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_slot_nr,
