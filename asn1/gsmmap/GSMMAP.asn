@@ -923,10 +923,11 @@ RequestingNodeType ::= ENUMERATED {
 
 --checkIMEI  OPERATION
 --   ARGUMENT
--- CheckIMEIArg ::= IMEI calling dissect_gsm_map_IMEI directly from template
+-- CheckIMEIArg ::= IMEI 
+-- calling dissect_gsm_map_IMEI directly from template
 
 
--- V2
+-- V3
 -- checkIMEI  OPERATION  ::=  {
 --   ARGUMENT     SEQUENCE {
 
@@ -936,6 +937,10 @@ CheckIMEIArgV3 ::= SEQUENCE {
 	extensionContainer	ExtensionContainer OPTIONAL,
 ...}
 
+--	RESULT
+--	equipmentStatus EquipmentStatus
+
+-- V3
 --   RESULT     SEQUENCE {
 CheckIMEIRes ::= SEQUENCE {
 	equipmentStatus			EquipmentStatus OPTIONAL,
@@ -5076,7 +5081,7 @@ NoRoamingNbParam ::= SEQUENCE {
 AbsentSubscriberParam ::= SEQUENCE {
 	extensionContainer		ExtensionContainer OPTIONAL,
 	...,
-	absentSubscriberReason	[0] AbsentSubscriberReason OPTIONAL
+	absentSubscriberReason	[0] IMPLICIT AbsentSubscriberReason OPTIONAL
 	}
 
 -- ::= localValue : 27
