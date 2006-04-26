@@ -1709,7 +1709,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             ssl_version_short_names[*conv_version],
             val_to_str(content_type, ssl_31_content_type, "unknown"),
             association?association->info:"Application Data");
-     
+    
         /* show decrypted data info, if available */         
         decrypted = p_get_proto_data(pinfo->fd, proto_ssl);
         if (decrypted)
@@ -2030,7 +2030,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         break;
                     }
                                 
-                    /* get encrypted data, on tls1 we have to byte to skip
+                    /* get encrypted data, on tls1 we have to skip two bytes
                      * (it's the encrypted len and should be equal to record len - 2) 
                      */
                     if (ssl->version == SSL_VER_TLS)
