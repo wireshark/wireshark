@@ -146,6 +146,9 @@ static int hf_media_format = -1;
 /* hf_session_attribute subfields */
 static int hf_media_attribute_field = -1;
 static int hf_media_attribute_value = -1;
+static int hf_media_encoding_name = -1;
+static int hf_media_format_specific_parameter = -1;
+static int hf_sdp_fmtp_profile_level_id = -1;
 
 /* trees */
 static int ett_sdp = -1;
@@ -159,6 +162,7 @@ static int ett_sdp_encryption_key = -1;
 static int ett_sdp_session_attribute = -1;
 static int ett_sdp_media = -1;
 static int ett_sdp_media_attribute = -1;
+static int ett_sdp_fmtp = -1;
 
 
 #define SDP_MAX_RTP_CHANNELS 4
@@ -205,14 +209,14 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti, *sub_ti;
 	gint		offset = 0;
 	gint		next_offset;
-	int		linelen;
-	gboolean        in_media_description;
+	int			linelen;
+	gboolean	in_media_description;
 	guchar		type;
-	guchar          delim;
-	int		datalen;
-	int             tokenoffset;
-	int             hf = -1;
-	char            *string;
+	guchar      delim;
+	int			datalen;
+	int			tokenoffset;
+	int			hf = -1;
+	char		*string;
 
 	address 	src_addr;
 
@@ -983,13 +987,126 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
    */
 
 }
+/*
+14496-2, Annex G, Tabell G-1.
+Table G-1 FLC table for profile_and_level_indication Profile/Level Code 
+*/
+static const value_string mpeg4es_level_indication_vals[] =
+{
+	{ 0,	 "Reserved" },
+	{ 1,	 "Simple Profile/Level 1" },
+	{ 2,	 "Simple Profile/Level 2" },
+	{ 3,	 "Reserved" },
+	{ 4,	 "Reserved" },
+	{ 5,	 "Reserved" },
+	{ 6,	 "Reserved" },
+	{ 7,	 "Reserved" },
+	{ 8,	 "Simple Profile/Level 0" },
+	/* Reserved 00001001 - 00010000 */
+	{ 0x11,	 "Simple Scalable Profile/Level 1" },
+	{ 0x12,	 "Simple Scalable Profile/Level 2" },
+	/* Reserved 00010011 - 00100000 */
+	{ 0x21,	 "Core Profile/Level 1" },
+	{ 0x22,	 "Core Profile/Level 2" },
+	/* Reserved 00100011 - 00110001 */
+	{ 0x32,	 "Main Profile/Level 2" },
+	{ 0x33,	 "Main Profile/Level 3" },
+	{ 0x34,	 "Main Profile/Level 4" },
+	/* Reserved 00110101 - 01000001  */
+	{ 0x42,	 "N-bit Profile/Level 2" },
+	/* Reserved 01000011 - 01010000  */
+	{ 0x51,	 "Scalable Texture Profile/Level 1" },
+	/* Reserved 01010010 - 01100000 */
+	{ 0x61,	 "Simple Face Animation Profile/Level 1" },
+	{ 0x62,	 "Simple Face Animation Profile/Level 2" },
+	{ 0x63,	 "Simple FBA Profile/Level 1" },
+	{ 0x64,	 "Simple FBA Profile/Level 2" },
+	/* Reserved 01100101 - 01110000 */
+	{ 0x71,	 "Basic Animated Texture Profile/Level 1" },
+	{ 0x72,	 "Basic Animated Texture Profile/Level 2" },
+	/* Reserved 01110011 - 10000000 */
+	{ 0x81,	 "Hybrid Profile/Level 1" },
+	{ 0x82,	 "Hybrid Profile/Level 2" },
+	/* Reserved 10000011 - 10010000 */ 
+	{ 0x91,	 "Advanced Real Time Simple Profile/Level 1" },
+	{ 0x92,	 "Advanced Real Time Simple Profile/Level 2" },
+	{ 0x93,	 "Advanced Real Time Simple Profile/Level 3" },
+	{ 0x94,	 "Advanced Real Time Simple Profile/Level 4" },
+	/* Reserved 10010101 - 10100000 */
+	{ 0xa1,	 "Core Scalable Profile/Level 1" },
+	{ 0xa2,	 "Core Scalable Profile/Level 2" },
+	{ 0xa3,	 "Core Scalable Profile/Level 3" },
+	/* Reserved 10100100 - 10110000  */
+	{ 0xb1,	 "Advanced Coding Efficiency Profile/Level 1" },
+	{ 0xb2,	 "Advanced Coding Efficiency Profile/Level 2" },
+	{ 0xb3,	 "Advanced Coding Efficiency Profile/Level 3" },
+	{ 0xb4,	 "Advanced Coding Efficiency Profile/Level 4" },
+	/* Reserved 10110101 - 11000000 */
+	{ 0xc1,	 "Advanced Core Profile/Level 1" },
+	{ 0xc2,	 "Advanced Core Profile/Level 2" },
+	/* Reserved 11000011 - 11010000 */
+	{ 0xd1,	 "Advanced Scalable Texture/Level 1" },
+	{ 0xd2,	 "Advanced Scalable Texture/Level 2" },
+	{ 0xd3,	 "Advanced Scalable Texture/Level 3" },
+	/* Reserved 11010100 - 11100000 */
+	{ 0xe1,	 "Simple Studio Profile/Level 1" },
+	{ 0xe2,	 "Simple Studio Profile/Level 2" },
+	{ 0xe3,	 "Simple Studio Profile/Level 3" },
+	{ 0xe4,	 "Simple Studio Profile/Level 4" },
+	{ 0xe5,	 "Core Studio Profile/Level 1" },
+	{ 0xe6,	 "Core Studio Profile/Level 2" },
+	{ 0xe7,	 "Core Studio Profile/Level 3" },
+	{ 0xe8,	 "Core Studio Profile/Level 4" },
+	/* Reserved 11101001 - 11101111 */
+	{ 0xf0,	 "Advanced Simple Profile/Level 0" },
+	{ 0xf1,	 "Advanced Simple Profile/Level 1" },
+	{ 0xf2,	 "Advanced Simple Profile/Level 2" },
+	{ 0xf3,	 "Advanced Simple Profile/Level 3" },
+	{ 0xf4,	 "Advanced Simple Profile/Level 4" },
+	{ 0xf5,	 "Advanced Simple Profile/Level 5" },
+	/* Reserved 11110110 - 11110111 */
+	{ 0xf8,	 "Fine Granularity Scalable Profile/Level 0" },
+	{ 0xf9,	 "Fine Granularity Scalable Profile/Level 1" },
+	{ 0xfa,	 "Fine Granularity Scalable Profile/Level 2" },
+	{ 0xfb,	 "Fine Granularity Scalable Profile/Level 3" },
+	{ 0xfc,	 "Fine Granularity Scalable Profile/Level 4" },
+	{ 0xfd,	 "Fine Granularity Scalable Profile/Level 5" },
+	{ 0xfe,	 "Reserved" },
+	{ 0xff,	 "Reserved for Escape" },
+	{ 0, NULL },
+};
 
+static void
+decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb,gint offset, gint tokenlen){
+  gint next_offset;
+  gint end_offset;
+  guint8 *field_name;
+  guint8 *format_specific_parameter;
+  proto_item *item;
+
+  end_offset = offset + tokenlen;
+  next_offset = tvb_find_guint8(tvb,offset,-1,'=');
+
+  tokenlen = next_offset - offset;
+
+  field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  offset = next_offset;
+
+  if (strcmp(field_name, "profile-level-id") == 0) {
+	  offset++;
+	  tokenlen = end_offset - offset;
+	  format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	  item = proto_tree_add_uint(tree, hf_sdp_fmtp_profile_level_id, tvb, offset, tokenlen, atol(format_specific_parameter));
+	  PROTO_ITEM_SET_GENERATED(item);
+  }
+}
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transport_info_t *transport_info){
   proto_tree *sdp_media_attribute_tree;
   gint offset, next_offset, tokenlen, n;
   guint8 *field_name;
   guint8 *payload_type;
   guint8 *encoding_name;
+  gint	 *key;
 
   offset = 0;
   next_offset = 0;
@@ -1012,13 +1129,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
   field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
   offset = next_offset + 1;
-  proto_tree_add_item(sdp_media_attribute_tree,
-		      hf_media_attribute_value,
-		      tvb, offset, -1, FALSE);
 
   /* decode the rtpmap to see if it is DynamicPayload to dissect them automatic */
   if (strcmp(field_name, "rtpmap") == 0) {
-	gint *key;
 
 	next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
@@ -1026,6 +1139,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 		return;
 
     tokenlen = next_offset - offset;
+
+	proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
+			  offset, tokenlen, FALSE);
 
     payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
@@ -1039,6 +1155,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
     tokenlen = next_offset - offset;
 
+	proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
+			  offset, tokenlen, FALSE);
     encoding_name = tvb_get_string(tvb, offset, tokenlen);
 
 	key=g_malloc( sizeof(gint) );
@@ -1068,6 +1186,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 				g_hash_table_insert(transport_info->media[n].rtp_dyn_payload, key2, encoding_name);
 			}
 		}
+		return;
 
 	/* if the "a=" is after an "m=", only apply to this "m=" */
 	} else 
@@ -1077,7 +1196,55 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 		else
 			g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload, key, encoding_name);
 
+		return;
   }
+  if (strcmp(field_name, "fmtp") == 0) {
+	  proto_item *fmtp_item;
+	  proto_tree *fmtp_tree;
+
+	  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+
+    if(next_offset == -1)
+		return;
+
+    tokenlen = next_offset - offset;
+
+	proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
+			  offset, tokenlen, FALSE);
+
+    payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+
+    offset = next_offset + 1;
+
+	next_offset = tvb_find_guint8(tvb,offset,-1,';');
+	
+    if(next_offset != -1){
+		tokenlen = next_offset - offset;
+		fmtp_item = proto_tree_add_item(sdp_media_attribute_tree, hf_media_format_specific_parameter, tvb,
+			  offset, tokenlen, FALSE);
+
+		fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
+
+		decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen);
+
+	    offset = next_offset + 1;
+    }
+
+    tokenlen = tvb_find_line_end(tvb,offset,-1, &next_offset, FALSE);
+
+	fmtp_item = proto_tree_add_item(sdp_media_attribute_tree, hf_media_format_specific_parameter, tvb,
+			  offset, tokenlen, FALSE);
+
+	fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
+
+	decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen);
+	return;
+  }
+
+  proto_tree_add_item(sdp_media_attribute_tree,
+		      hf_media_attribute_value,
+		      tvb, offset, -1, FALSE);
+
 }
 
 void
@@ -1284,6 +1451,14 @@ proto_register_sdp(void)
       { "Media Attribute Value",
 	"sdp.media_attribute.value",FT_STRING, BASE_NONE, NULL, 0x0,
 	"Media Attribute Value", HFILL }},
+	{ &hf_media_encoding_name,
+      { "MIME Type",
+	"sdp.mime.type",FT_STRING, BASE_NONE, NULL, 0x0,
+	"SDP MIME Type", HFILL }},
+	{ &hf_media_format_specific_parameter,
+      { "Media format specific parameters",
+	"sdp.fmtp.parameter",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Format specific parameter(fmtp)", HFILL }},
     { &hf_ipbcp_version,
       { "IPBCP Protocol Version",
 	"ipbcp.version",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1292,6 +1467,10 @@ proto_register_sdp(void)
       { "IPBCP Command Type",
 	"ipbcp.command",FT_STRING, BASE_NONE, NULL, 0x0,
 	"IPBCP Command Type", HFILL }},
+	{&hf_sdp_fmtp_profile_level_id,
+      { "Level Code",
+	"sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mpeg4es_level_indication_vals), 0x0,
+	"Level Code", HFILL }},
   };
   static gint *ett[] = {
     &ett_sdp,
@@ -1305,6 +1484,7 @@ proto_register_sdp(void)
     &ett_sdp_session_attribute,
     &ett_sdp_media,
     &ett_sdp_media_attribute,
+	&ett_sdp_fmtp,
   };
 
   proto_sdp = proto_register_protocol("Session Description Protocol",
