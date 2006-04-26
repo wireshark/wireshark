@@ -1891,9 +1891,34 @@ dissect_notify_data_halted_request(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
 	offset += 4;
 
-	/* reason */
-	offset = dissect_rpc_string(tvb, tree,
-			hf_ndmp_halt_reason, offset, NULL);
+	switch(ndmp_protocol_version){
+	case NDMP_PROTOCOL_V2:
+	case NDMP_PROTOCOL_V3:
+		/* reason : only in version 2, 3 */
+		offset = dissect_rpc_string(tvb, tree,
+				hf_ndmp_halt_reason, offset, NULL);
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_notify_mover_halted_request(tvbuff_t *tvb, int offset,
+    packet_info *pinfo _U_, proto_tree *tree, guint32 seq _U_)
+{
+	/* halt */
+	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	switch(ndmp_protocol_version){
+	case NDMP_PROTOCOL_V2:
+	case NDMP_PROTOCOL_V3:
+		/* reason : only in version 2, 3 */
+		offset = dissect_rpc_string(tvb, tree,
+				hf_ndmp_halt_reason, offset, NULL);
+		break;
+	}
 
 	return offset;
 }
@@ -2642,7 +2667,7 @@ static const ndmp_command ndmp_commands[] = {
 	{NDMP_NOTIFY_CONNECTED,
 		dissect_notify_connected_request, NULL},
 	{NDMP_NOTIFY_MOVER_HALTED,
-		dissect_notify_data_halted_request, NULL},
+		dissect_notify_mover_halted_request, NULL},
 	{NDMP_NOTIFY_MOVER_PAUSED,
 		dissect_notify_mover_paused_request, NULL},
 	{NDMP_NOTIFY_DATA_READ,
