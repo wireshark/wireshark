@@ -43,6 +43,13 @@ Ethereal Info
       Versions affected: 0.99.0.
     </para>
 
+    <para>
+      Ethereal could crash while following a TCP stream.
+      <!-- Fixed in r18001 -->
+      <!-- Bug IDs: 852 -->
+      Versions affected: 0.99.0.
+    </para>
+
     </section>
 
     <section><title>New and Updated Features</title>
