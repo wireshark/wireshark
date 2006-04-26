@@ -243,11 +243,11 @@ static gint ett_ndmp_state_invalids = -1;
 static struct true_false_string yesno = { "Yes", "No" };
 
 /* XXX someone should start adding the new stuff from v3, v4 and v5*/
-#define NDMP_PROTOCOL_V2	1
-#define NDMP_PROTOCOL_V3	2
-#define NDMP_PROTOCOL_V4	3
-#define NDMP_PROTOCOL_V5	4
-
+#define NDMP_PROTOCOL_UNKNOWN	0
+#define NDMP_PROTOCOL_V2	2
+#define NDMP_PROTOCOL_V3	3
+#define NDMP_PROTOCOL_V4	4
+#define NDMP_PROTOCOL_V5	5
 static enum_val_t ndmp_protocol_versions[] = {
 	{ "version2",	"Version 2",	NDMP_PROTOCOL_V2 },
 	{ "version3",	"Version 3",	NDMP_PROTOCOL_V3 },
@@ -256,8 +256,21 @@ static enum_val_t ndmp_protocol_versions[] = {
 	{ NULL, NULL, 0 }
 };
 
-static gint ndmp_protocol_version = NDMP_PROTOCOL_V2;
+static gint ndmp_default_protocol_version = NDMP_PROTOCOL_V4;
 
+typedef struct _ndmp_conv_data_t {
+	guint8 version;
+} ndmp_conv_data_t;
+ndmp_conv_data_t *ndmp_conv_data=NULL;
+
+static guint8 
+get_ndmp_protocol_version(ndmp_conv_data_t *ndmp_conv_data)
+{
+	if(!ndmp_conv_data || (ndmp_conv_data->version==NDMP_PROTOCOL_UNKNOWN)){
+		return ndmp_default_protocol_version;
+	}
+	return ndmp_conv_data->version;
+}
 
 struct ndmp_header {
 	guint32	seq;
@@ -453,12 +466,17 @@ static const value_string msg_vals[] = {
 	{0, NULL}
 };
 
+
 static int
 dissect_connect_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, guint32 seq _U_)
 {
+	guint32 version;
+
 	/* version number */
 	proto_tree_add_item(tree, hf_ndmp_version, tvb, offset, 4, FALSE);
+	version=tvb_get_ntohl(tvb, offset);
+	ndmp_conv_data->version=version;
 	offset += 4;
 
 	return offset;
@@ -1202,23 +1220,8 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
  */
 static int
 dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, guint32 seq, gint devtype)
+    proto_tree *tree, guint32 seq _U_, gint devtype)
 {
-	conversation_t *conversation;
-
-	/*
-	 * We need to provide SCSI task information to the SCSI
-	 * dissection routines.  We use a conversation plus the
-	 * sequence number in requests and the reply sequence
-	 * number in replies to identify SCSI tasks.
-	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-
 	/* flags */
 	offset = dissect_execute_cdb_flags(tvb, offset, pinfo, tree);
 
@@ -1299,17 +1302,6 @@ static int
 dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq)
 {
-	conversation_t *conversation;
-
-	/*
-	 * We need to provide SCSI task information to the SCSI
-	 * dissection routines.  We use a conversation plus the
-	 * sequence number in requests and the reply sequence
-	 * number in replies to identify SCSI tasks.
-	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
 	/* error */
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
@@ -1655,7 +1647,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 	case NDMP_ADDR_TCP:
 	  	/* this became an array in version 4 and beyond */
-		if(ndmp_protocol_version<NDMP_PROTOCOL_V4){
+		if(get_ndmp_protocol_version(ndmp_conv_data)<NDMP_PROTOCOL_V4){
 			/* IP addr */
 			proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
 			offset+=4;
@@ -1703,7 +1695,7 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* mode is only present in version 4 and beyond */
-	if(ndmp_protocol_version>=NDMP_PROTOCOL_V4){
+	if(get_ndmp_protocol_version(ndmp_conv_data)>=NDMP_PROTOCOL_V4){
 		proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, FALSE);
 		offset += 4;
 	}
@@ -1749,7 +1741,7 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset += 8;
 
 	/* this is where v2 ends */
-	if(ndmp_protocol_version==NDMP_PROTOCOL_V2){
+	if(get_ndmp_protocol_version(ndmp_conv_data)==NDMP_PROTOCOL_V2){
 		return offset;
 	}
 
@@ -1891,7 +1883,7 @@ dissect_notify_data_halted_request(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
 	offset += 4;
 
-	switch(ndmp_protocol_version){
+	switch(get_ndmp_protocol_version(ndmp_conv_data)){
 	case NDMP_PROTOCOL_V2:
 	case NDMP_PROTOCOL_V3:
 		/* reason : only in version 2, 3 */
@@ -1911,7 +1903,7 @@ dissect_notify_mover_halted_request(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
 	offset += 4;
 
-	switch(ndmp_protocol_version){
+	switch(get_ndmp_protocol_version(ndmp_conv_data)){
 	case NDMP_PROTOCOL_V2:
 	case NDMP_PROTOCOL_V3:
 		/* reason : only in version 2, 3 */
@@ -2406,7 +2398,7 @@ dissect_nlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_bu_destination_dir, offset, NULL);
 
-	if(ndmp_protocol_version==NDMP_PROTOCOL_V2){
+	if(get_ndmp_protocol_version(ndmp_conv_data)==NDMP_PROTOCOL_V2){
 		/* just 2 reserved bytes (4 with padding) */
 		offset += 4;
 	} else {
@@ -2435,7 +2427,7 @@ static int
 dissect_data_start_recover_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint32 seq _U_)
 {
-	if(ndmp_protocol_version==NDMP_PROTOCOL_V2){
+	if(get_ndmp_protocol_version(ndmp_conv_data)==NDMP_PROTOCOL_V2){
 		/* ndmp addr */
 		offset=dissect_ndmp_addr(tvb, offset, pinfo, tree);
 	}
@@ -2820,6 +2812,25 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ndmp_tree = NULL;
 	proto_item *hdr_item = NULL;
 	proto_tree *hdr_tree = NULL;
+	conversation_t *conversation;
+	proto_item *vers_item;
+
+	/*
+	 * We need to keep track of conversations so that we can track NDMP 
+	 * versions.
+	 */
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	ndmp_conv_data=conversation_get_proto_data(conversation, proto_ndmp);
+	if(!ndmp_conv_data){
+		ndmp_conv_data=se_alloc(sizeof(ndmp_conv_data_t));
+		ndmp_conv_data->version=NDMP_PROTOCOL_UNKNOWN;
+		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
+	}
 
 	/* size of this NDMP PDU */
 	size = tvb_length_remaining(tvb, offset);
@@ -2866,6 +2877,13 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
 	}
 
+	if(ndmp_conv_data->version!=NDMP_PROTOCOL_UNKNOWN){
+		vers_item=proto_tree_add_uint(ndmp_tree, hf_ndmp_version, tvb, offset, 0, ndmp_conv_data->version);
+	} else {
+		vers_item=proto_tree_add_uint_format(ndmp_tree, hf_ndmp_version, tvb, offset, 0, ndmp_default_protocol_version, "Unknown NDMP version, using default:%d", ndmp_default_protocol_version);
+	}
+	PROTO_ITEM_SET_GENERATED(vers_item);
+
 	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4, 
 		"Fragment header: %s%u %s", 
 		(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "", 
@@ -2902,7 +2920,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 tmp;
 
 
-	/* check that the hgeader looks sane */
+	/* check that the header looks sane */
 	len=tvb_length(tvb);
 	/* check the record marker that it looks sane.
 	 * It has to be >=24 bytes or (arbitrary limit) <1Mbyte
@@ -3652,11 +3670,12 @@ proto_register_ndmp(void)
 
   /* desegmentation */
   ndmp_module = prefs_register_protocol(proto_ndmp, NULL);
+  prefs_register_obsolete_preference(ndmp_module, "protocol_version");
   prefs_register_enum_preference(ndmp_module,
-	"protocol_version",
-	"Protocol version",
-	"Version of the NDMP protocol",
-	&ndmp_protocol_version,
+	"default_protocol_version",
+	"Default protocol version",
+	"Version of the NDMP protocol to assume if the version can not be automatically detected from the capture",
+	&ndmp_default_protocol_version,
 	ndmp_protocol_versions,
 	FALSE);
   prefs_register_bool_preference(ndmp_module, "desegment",
