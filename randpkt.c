@@ -483,6 +483,10 @@ main(int argc, char **argv)
 
 	dump = wtap_dump_open(produce_filename, WTAP_FILE_PCAP,
 		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
+    if (!dump) {
+        printf("Error writing to %s\n", produce_filename);
+        exit(1);
+    }
 
 	seed();
 
