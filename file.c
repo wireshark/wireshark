@@ -340,7 +340,7 @@ cf_reset_state(capture_file *cf)
 void
 cf_close(capture_file *cf)
 {
-  /* do GUI things even if file is already closed, 
+  /* do GUI things even if file is already closed,
    * e.g. to cleanup things if a capture couldn't be started */
   cf_callback_invoke(cf_cb_file_closing, cf);
 
@@ -390,7 +390,7 @@ cf_read(capture_file *cf)
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  if (size >= 0)     
+  if (size >= 0)
     progbar_quantum = size/N_PROGBAR_UPDATES;
   else
     progbar_quantum = 0;
@@ -446,11 +446,11 @@ cf_read(capture_file *cf)
     }
 
     if (stop_flag) {
-      /* Well, the user decided to abort the read. He/She will be warned and 
+      /* Well, the user decided to abort the read. He/She will be warned and
          it might be enough for him/her to work with the already loaded
          packets.
-         This is especially true for very large capture files, where you don't 
-         want to wait loading the whole file (which may last minutes or even 
+         This is especially true for very large capture files, where you don't
+         want to wait loading the whole file (which may last minutes or even
          hours even on fast machines) just to see that it was the wrong file. */
       break;
     }
@@ -488,7 +488,7 @@ cf_read(capture_file *cf)
     packet_list_select_row(0);
 
   if(stop_flag) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
           "%sFile loading was cancelled!%s\n"
           "\n"
 		  "The remaining packets in the file were discarded.\n"
@@ -578,7 +578,7 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
     to_read--;
   }
 
-  /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u", 
+  /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
 	  cf->count, cf->state, *err);*/
 
   /* XXX - this cheats and looks inside the packet list to find the final
@@ -598,7 +598,7 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
   } else if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box instead? */
-	g_warning("Error \"%s\" while reading: \"%s\"\n", 
+	g_warning("Error \"%s\" while reading: \"%s\"\n",
 		wtap_strerror(*err), cf->filename);
 
     return CF_READ_ERROR;
@@ -836,7 +836,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   } else
     fdata->flags.passed_dfilter = 1;
 
-  if( (fdata->flags.passed_dfilter) 
+  if( (fdata->flags.passed_dfilter)
    || (edt->pi.fd->flags.ref_time) ){
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
@@ -873,7 +873,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
     row = packet_list_append(cf->cinfo.col_data, fdata);
 
-    /* colorize packet: if packet is marked, use preferences, 
+    /* colorize packet: if packet is marked, use preferences,
        otherwise try to apply color filters */
       if (fdata->flags.marked) {
           fdata->color_filter = NULL;
@@ -972,7 +972,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   wtap_dumper      *pdh;
   int               open_err, read_err, write_err, close_err;
   gchar            *err_info;
-  int               err_fileno; 
+  int               err_fileno;
   int               i;
   char              errmsg_errno[1024+1];
   gchar             err_str[2048+1];
@@ -1019,7 +1019,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
   pdh = wtap_dump_fdopen(out_fd, file_type,
       merge_select_frame_type(in_file_count, in_files),
-      merge_max_snapshot_length(in_file_count, in_files), 
+      merge_max_snapshot_length(in_file_count, in_files),
 	  FALSE /* compressed */, &open_err);
   if (pdh == NULL) {
     eth_close(out_fd);
@@ -1213,7 +1213,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
       gchar *safe_dftext = simple_dialog_format_message(dftext);
       gchar *safe_dfilter_error_msg = simple_dialog_format_message(
 	  dfilter_error_msg);
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
           "%s%s%s\n"
           "\n"
           "The following display filter isn't a valid display filter:\n%s\n"
@@ -1758,7 +1758,7 @@ print_packet(capture_file *cf, frame_data *fdata,
   /* Create the protocol tree, and make it visible, if we're printing
      the dissection or the hex data.
      XXX - do we need it if we're just printing the hex data? */
-  proto_tree_needed = 
+  proto_tree_needed =
       args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex;
   edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
 
@@ -2317,7 +2317,7 @@ cf_change_time_formats(capture_file *cf)
        large file, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
-      progbar = delayed_create_progress_dlg("Changing", "time display", 
+      progbar = delayed_create_progress_dlg("Changing", "time display",
         TRUE, &stop_flag, &start_time, progbar_val);
 
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -2469,7 +2469,7 @@ match_subtree_text(proto_node *node, gpointer data)
     label_ptr = label_str;
     proto_item_fill_label(fi, label_str);
   }
-    
+
   /* Does that label match? */
   label_len = strlen(label_ptr);
   for (i = 0; i < label_len; i++) {
@@ -2486,7 +2486,7 @@ match_subtree_text(proto_node *node, gpointer data)
     } else
       c_match = 0;
   }
-  
+
   /* Recurse into the subtree, if it exists */
   if (node->first_child != NULL)
     proto_tree_children_foreach(node, match_subtree_text, mdata);
@@ -2772,7 +2772,7 @@ find_packet(capture_file *cf,
          large file, we might take considerably longer than that standard
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
-         progbar = delayed_create_progress_dlg("Searching", title, 
+         progbar = delayed_create_progress_dlg("Searching", title,
            FALSE, &stop_flag, &start_time, progbar_val);
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -3056,6 +3056,11 @@ cf_select_packet(capture_file *cf, int row)
          fdata = cf->first_displayed;
   }
 
+  /* If fdata _still_ isn't set simply give up. */
+  if (fdata == NULL) {
+    return;
+  }
+
   /* Get the data in that frame. */
   if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
   		       cf->pd, fdata->cap_len, &err, &err_info)) {
@@ -3192,7 +3197,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 
   packet_range_process_init(range);
 
-	
+
   if (packet_range_process_all(range) && save_format == cf->cd_t) {
     /* We're not filtering packets, and we're saving it in the format
        it's already in, so we can just move or copy the raw data. */
@@ -3245,7 +3250,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     /* Either we're filtering packets, or we're saving in a different
        format; we can't do that by copying or moving the capture file,
        we have to do it by writing the packets out in Wiretap. */
-    pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, 
+    pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap,
 		compressed, &err);
     if (pdh == NULL) {
       cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
