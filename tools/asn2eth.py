@@ -49,6 +49,7 @@ import yacc
 # OID name -> number conversion table
 oid_names = {
   '/itu-t' : 0,
+  '/itu'   : 0,
   '/ccitt' : 0,
   '/itu-r' : 0,
   '0/recommendation' : 0,
@@ -137,9 +138,6 @@ oid_names = {
 
 def asn2c(id):
   return id.replace('-', '_').replace('.', '_')
-
-def c2asn(id):
-  return id.replace('_', '-')
 
 class LexError(Exception): pass
 class ParseError(Exception): pass
@@ -701,8 +699,6 @@ class EthCtx:
         nm = f.split('/')[-2] + f.split('/')[-1]
       else:
         nm = f.split('/')[-1]
-      if (self.NAPI()):
-        name += self.field[f]['idx']
       nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
       nm = asn2c(nm)
       if (self.field[f]['pdu']): 
@@ -747,6 +743,8 @@ class EthCtx:
       fullname = "hf_%s_%s" % (self.eproto, nm)
       attr = self.eth_get_type_attr(self.field[f]['type']).copy()
       attr.update(self.field[f]['attr'])
+      if (self.NAPI() and attr.has_key('NAME')):
+        attr['NAME'] += self.field[f]['idx']
       attr.update(self.conform.use_item('EFIELD_ATTR', nm))
       self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                          'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
@@ -992,13 +990,13 @@ class EthCtx:
       fx.write('#.IMPORT_TAG\n')
       for t in self.eth_export_ord:  # tags
         if (self.eth_type[t]['export'] & 0x01):
-          fx.write('%-24s ' % c2asn(t))
+          fx.write('%-24s ' % self.eth_type[t]['ref'][0])
           fx.write('%s %s\n' % self.eth_type[t]['val'].GetTag(self))
       fx.write('#.END\n\n')
     fx.write('#.TYPE_ATTR\n')
     for t in self.eth_export_ord:  # attributes
       if (self.eth_type[t]['export'] & 0x01):
-        fx.write('%-24s ' % c2asn(t))
+        fx.write('%-24s ' % self.eth_type[t]['ref'][0])
         attr = self.eth_get_type_attr(self.eth_type[t]['ref'][0]).copy()
         fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
     fx.write('#.END\n\n')
