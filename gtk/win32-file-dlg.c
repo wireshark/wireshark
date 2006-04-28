@@ -652,9 +652,9 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
 
     /* Set the "Packet details" combo */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, _T("All collapsed"));
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, _T("As displayed"));
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, _T("All expanded"));
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("All collapsed"));
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("As displayed"));
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("All expanded"));
 
     switch (args->print_dissections) {
 	case print_dissections_none:
@@ -693,6 +693,7 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
 	switch (SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0)) {
 	    case 0:
 		args->print_dissections = print_dissections_collapsed;
@@ -706,7 +707,6 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
 	    default:
 		g_assert_not_reached();
 	}
-	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
 	EnableWindow(cur_ctrl, TRUE);
     } else {
 	args->print_dissections = print_dissections_none;
@@ -727,10 +727,6 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
 	args->print_formfeed = FALSE;
 }
 
-
-/*
- * Private routines
- */
 
 #define PREVIEW_STR_MAX      200
 #define PREVIEW_TIMEOUT_SECS   3
@@ -858,7 +854,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 		     ti_tm->tm_min,
 		     ti_tm->tm_sec);
 	} else {
-		_snwprintf(string_buff, PREVIEW_STR_MAX, "?");
+		_snwprintf(string_buff, PREVIEW_STR_MAX, _T("?"));
     }
 	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FIRST_PKT);
 	SetWindowText(cur_ctrl, string_buff);
@@ -1371,8 +1367,7 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 	case WM_COMMAND:
 	    cur_ctrl = (HWND) l_param;
 	    switch (w_param) {
-//		case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-//		    break;
+		case (CBN_SELCHANGE << 16) | EWFD_PKT_DETAIL_COMBO:
 		default:
 		    range_handle_wm_command(ef_hwnd, cur_ctrl, w_param, &print_args.range);
 		    print_update_dynamic(ef_hwnd, &print_args);
