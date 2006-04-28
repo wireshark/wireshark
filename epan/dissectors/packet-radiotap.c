@@ -467,7 +467,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_RATE:
 	    if (length_remaining < 1)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    rate = tvb_get_guint8(tvb, offset) & 0x7f;
 	    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
 		col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
@@ -484,7 +483,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
 	    if (length_remaining < 1)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    dbm = (gint8) tvb_get_guint8(tvb, offset);
 	    if (check_col(pinfo->cinfo, COL_RSSI)) {
 		col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
@@ -501,7 +499,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
 	    if (length_remaining < 1)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    db = tvb_get_guint8(tvb, offset);
 	    if (check_col(pinfo->cinfo, COL_RSSI)) {
 		col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
@@ -518,7 +515,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_DBM_ANTNOISE:
 	    if (length_remaining < 1)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    dbm = (gint8) tvb_get_guint8(tvb, offset);
 	    if (tree) {
 		proto_tree_add_int_format(radiotap_tree,
@@ -532,7 +528,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_DB_ANTNOISE:
 	    if (length_remaining < 1)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    db = tvb_get_guint8(tvb, offset);
 	    if (tree) {
 		proto_tree_add_uint_format(radiotap_tree,
@@ -546,7 +541,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_ANTENNA:
 	    if (length_remaining < 1)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    if (tree) {
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_antenna,
 				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
@@ -557,7 +551,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_DBM_TX_POWER:
 	    if (length_remaining < 1)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    if (tree) {
 		proto_tree_add_int(radiotap_tree, hf_radiotap_txpower,
 				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
@@ -568,7 +561,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_CHANNEL:
 	    if (length_remaining < 4)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    if (tree) {
 		freq = tvb_get_letohs(tvb, offset);
 		flags = tvb_get_letohs(tvb, offset+2);
@@ -587,7 +579,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
 	    if (length_remaining < 2)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 #if 0
 	    tvb_get_letohs(tvb, offset);
 #endif
@@ -597,7 +588,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case IEEE80211_RADIOTAP_TSFT:
 	    if (length_remaining < 8)
 		break;
-	    rflags = tvb_get_guint8(tvb, offset);
 	    if (tree) {
 		proto_tree_add_uint64(radiotap_tree, hf_radiotap_mactime,
 				tvb, offset, 8, tvb_get_letoh64(tvb, offset));
