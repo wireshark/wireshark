@@ -1002,6 +1002,7 @@ static const value_string mpeg4es_level_indication_vals[] =
 	{ 6,	 "Reserved" },
 	{ 7,	 "Reserved" },
 	{ 8,	 "Simple Profile/Level 0" },
+	{ 9,	 "Simple Profile/Level 0b" },
 	/* Reserved 00001001 - 00010000 */
 	{ 0x11,	 "Simple Scalable Profile/Level 1" },
 	{ 0x12,	 "Simple Scalable Profile/Level 2" },
@@ -1077,7 +1078,7 @@ static const value_string mpeg4es_level_indication_vals[] =
 };
 
 static void
-decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb,gint offset, gint tokenlen){
+decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb,gint offset, gint tokenlen, guint8 *mime_type){
   gint next_offset;
   gint end_offset;
   guint8 *field_name;
@@ -1092,14 +1093,19 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb,gint offset, gint tokenlen){
   field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
   offset = next_offset;
 
-  if (strcmp(field_name, "profile-level-id") == 0) {
-	  offset++;
-	  tokenlen = end_offset - offset;
-	  format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	  item = proto_tree_add_uint(tree, hf_sdp_fmtp_profile_level_id, tvb, offset, tokenlen, atol(format_specific_parameter));
-	  PROTO_ITEM_SET_GENERATED(item);
+  if  (strcmp(mime_type, "MP4V-ES") == 0) {
+	
+	  if (strcmp(field_name, "profile-level-id") == 0) {
+		  offset++;
+		  tokenlen = end_offset - offset;
+		  format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+		  item = proto_tree_add_uint(tree, hf_sdp_fmtp_profile_level_id, tvb, offset, tokenlen, atol(format_specific_parameter));
+		  PROTO_ITEM_SET_GENERATED(item);
+	  }
   }
 }
+  guint8 *encoding_name2;
+
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transport_info_t *transport_info){
   proto_tree *sdp_media_attribute_tree;
   gint offset, next_offset, tokenlen, n;
@@ -1158,6 +1164,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 	proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
 			  offset, tokenlen, FALSE);
     encoding_name = tvb_get_string(tvb, offset, tokenlen);
+	encoding_name2 = encoding_name;
+	proto_tree_add_text(sdp_media_attribute_tree, tvb, offset, tokenlen,
+		    "MIMEtype: %s", encoding_name);
 
 	key=g_malloc( sizeof(gint) );
 	*key=atol(payload_type);
@@ -1199,7 +1208,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 		return;
   }
   if (strcmp(field_name, "fmtp") == 0) {
-	  proto_item *fmtp_item;
+	  proto_item *fmtp_item, *media_format_item;
 	  proto_tree *fmtp_tree;
 
 	  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
@@ -1209,15 +1218,18 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
     tokenlen = next_offset - offset;
 
-	proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
+	media_format_item = proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
 			  offset, tokenlen, FALSE);
+	
+	proto_item_append_text(media_format_item,
+		    " [%s]", encoding_name2);
 
     payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     offset = next_offset + 1;
 
 	next_offset = tvb_find_guint8(tvb,offset,-1,';');
-	
+
     if(next_offset != -1){
 		tokenlen = next_offset - offset;
 		fmtp_item = proto_tree_add_item(sdp_media_attribute_tree, hf_media_format_specific_parameter, tvb,
@@ -1225,7 +1237,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
 		fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
-		decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen);
+		decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen, encoding_name2);
 
 	    offset = next_offset + 1;
     }
@@ -1237,7 +1249,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
 	fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
-	decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen);
+	decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen, encoding_name2);
 	return;
   }
 
