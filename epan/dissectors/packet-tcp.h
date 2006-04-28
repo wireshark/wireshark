@@ -107,8 +107,10 @@ struct tcp_acked {
 	guint32 dupack_frame;	/* dup ack to frame # */
 };
 
-struct tcp_next_pdu {
-	struct tcp_next_pdu *next;
+/* One instance of this structure is created for each pdu that spans across
+ * multiple tcp segments.
+ */
+struct tcp_multisegment_pdu {
 	guint32 seq;
 	guint32 nxtpdu;
 	guint32 first_frame;
@@ -137,10 +139,10 @@ typedef struct _tcp_flow_t {
 	gint16	win_scale;	/* -1 is we dont know */
 	guint32 lastsegmentflags;
 
-	/* this list is used to track when PDUs may start
-	   inside a segment.
-	*/
-	struct tcp_next_pdu *pdu_seq;
+	/* This tree is indexed by sequence number and keeps track of all
+	 * all pdus spanning multiple segments for this flow.
+	 */
+	se_tree_t *multisegment_pdus;
 } tcp_flow_t;
 	
 

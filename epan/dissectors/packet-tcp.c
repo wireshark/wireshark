@@ -209,11 +209,6 @@ static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
 #define TCP_A_WINDOW_FULL		0x1000
 
 
-static GHashTable *tcp_pdu_tracking_table = NULL;
-static GHashTable *tcp_pdu_skipping_table = NULL;
-
-static se_tree_t *tcp_pdu_time_table = NULL;
-
 static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
@@ -251,7 +246,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow1.nextseqframe=0;
 		tcpd->flow1.window=0;
 		tcpd->flow1.win_scale=-1;
-		tcpd->flow1.pdu_seq=NULL;
+		tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
 		tcpd->flow2.segments=NULL;
 		tcpd->flow2.base_seq=0;
 		tcpd->flow2.lastack=0;
@@ -264,7 +259,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow2.nextseqframe=0;
 		tcpd->flow2.window=0;
 		tcpd->flow2.win_scale=-1;
-		tcpd->flow2.pdu_seq=NULL;
+		tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
 		tcpd->acked_table=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 
 
@@ -290,73 +285,16 @@ get_tcp_conversation_data(packet_info *pinfo)
 	return tcpd;
 }
 
-/* This function is called from the tcp analysis code to provide
-   clues on how the seq and ack numbers are changed.
-   To prevent the next_pdu lists from growing uncontrollable in size we
-   use this function to do the following :
-   IF we see an ACK then we assume that the left edge of the window has changed
-      at least to this point and assuming it is rare with reordering and
-      trailing duplicate/retransmitted segments, we just assume that after
-      we have seen the ACK we will not see any more segments prior to the
-      ACK value.
-      If we will not see any segments prior to the ACK value then we can just
-      delete all next_pdu entries that describe pdu's starting prior to the
-      ACK.
-      If this heuristics is prooved to be too simplistic we can just enhance it
-      later.
-*/
-/* XXX this function should be ehnanced to handle sequence number wrapping */
-/* XXX to handle retransmissions and reordered packets maybe we should only
-       discard entries that are more than (guesstimate) 50kb older than the
-       specified sequence number ?
-*/
 static void
-prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
-{
-	struct tcp_next_pdu *tmptnp;
-
-	if(*tnp == NULL){
-		return;
-	}
-
-	for(tmptnp=*tnp;tmptnp;tmptnp=tmptnp->next){
-		if(tmptnp->nxtpdu<=seq){
-			struct tcp_next_pdu *oldtnp;
-			oldtnp=tmptnp;
-
-			if(tmptnp==*tnp){
-				tmptnp=tmptnp->next;
-				*tnp=tmptnp;
-				if(!tmptnp){
-					return;
-				}
-				continue;
-			} else {
-				for(tmptnp=*tnp;tmptnp;tmptnp=tmptnp->next){
-					if(tmptnp->next==oldtnp){
-						tmptnp->next=oldtnp->next;
-						break;
-					}
-				}
-				if(!tmptnp){
-					return;
-				}
-			}
-		}
-	}
-}
-
-
-static void
-print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree, struct tcp_next_pdu *tnp)
+print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree, struct tcp_multisegment_pdu *msp)
 {
 	proto_item *item;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", tnp->first_frame);
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", msp->first_frame);
 	}
 	item=proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
-		tvb, 0, 0, tnp->first_frame);
+		tvb, 0, 0, msp->first_frame);
 	PROTO_ITEM_SET_GENERATED(item);
 }
 
@@ -367,63 +305,54 @@ print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree,
 static int
 scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq, struct tcp_analysis *tcpd)
 {
-	struct tcp_next_pdu *tnp=NULL;
+        struct tcp_multisegment_pdu *msp=NULL;
 
 	if(!pinfo->fd->flags.visited){
-		/* find(or create if needed) the conversation for this tcp session */
-		tnp=tcpd->fwd->pdu_seq;
-
-		/* scan and see if we find any pdus starting inside this tvb */
-		for(;tnp;tnp=tnp->next){
-			/* XXX here we should also try to handle sequence number
-			   wrapping
-			*/
+		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq);
+		if(msp){
 			/* If this segment is completely within a previous PDU
 			 * then we just skip this packet
 			 */
-			if(seq>tnp->seq && nxtseq<=tnp->nxtpdu){
-				tnp->last_frame=pinfo->fd->num;
-				tnp->last_frame_time=pinfo->fd->abs_ts;
-				g_hash_table_insert(tcp_pdu_skipping_table,
-					GINT_TO_POINTER(pinfo->fd->num), (void *)tnp);
-				print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
-
+			if(seq>msp->seq && nxtseq<=msp->nxtpdu){
+				msp->last_frame=pinfo->fd->num;
+				msp->last_frame_time=pinfo->fd->abs_ts;
+				print_pdu_tracking_data(pinfo, tvb, tcp_tree, msp);
 				return -1;
 			}
-			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
-				g_hash_table_insert(tcp_pdu_tracking_table,
-					GINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(tnp->nxtpdu));
-				offset+=tnp->nxtpdu-seq;
-				break;
+			if(seq<msp->nxtpdu && nxtseq>msp->nxtpdu){
+				offset+=msp->nxtpdu-seq;
+				return offset;
 			}
+
 		}
 	} else {
-		guint32 pduseq;
+		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq);
+		if(msp){
+			if(pinfo->fd->num==msp->first_frame){
+				proto_item *item;
+			 	nstime_t ns;
 
-		tnp=(struct tcp_next_pdu *)se_tree_lookup32(tcp_pdu_time_table, pinfo->fd->num);
-		if(tnp){
-			proto_item *item;
-		 	nstime_t ns;
+				item=proto_tree_add_uint(tcp_tree, hf_tcp_pdu_last_frame, tvb, 0, 0, msp->last_frame);
+				PROTO_ITEM_SET_GENERATED(item);
 
-			item=proto_tree_add_uint(tcp_tree, hf_tcp_pdu_last_frame, tvb, 0, 0, tnp->last_frame);
-			PROTO_ITEM_SET_GENERATED(item);
+				nstime_delta(&ns, &msp->last_frame_time, &pinfo->fd->abs_ts);
+				item = proto_tree_add_time(tcp_tree, hf_tcp_pdu_time,
+						tvb, 0, 0, &ns);
+				PROTO_ITEM_SET_GENERATED(item);
+			}
 
-			nstime_delta(&ns, &tnp->last_frame_time, &pinfo->fd->abs_ts);
-			item = proto_tree_add_time(tcp_tree, hf_tcp_pdu_time,
-					tvb, 0, 0, &ns);
-			PROTO_ITEM_SET_GENERATED(item);
-		}
+			/* If this segment is completely within a previous PDU
+			 * then we just skip this packet
+			 */
+			if(seq>msp->seq && nxtseq<=msp->nxtpdu){
+				print_pdu_tracking_data(pinfo, tvb, tcp_tree, msp);
+				return -1;
+			}
 
-		/* check if this is a segment in the middle of a pdu */
-		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_skipping_table, GINT_TO_POINTER(pinfo->fd->num));
-		if(tnp){
-			print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
-			return -1;
-		}
-
-		pduseq=GPOINTER_TO_UINT(g_hash_table_lookup(tcp_pdu_tracking_table, GINT_TO_POINTER(pinfo->fd->num)));
-		if(pduseq){
-			offset+=pduseq-seq;
+			if(seq<msp->nxtpdu && nxtseq>msp->nxtpdu){
+				offset+=msp->nxtpdu-seq;
+				return offset;
+			}
 		}
 	}
 
@@ -436,22 +365,15 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 static void
 pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, struct tcp_analysis *tcpd)
 {
-	struct tcp_next_pdu *tnp=NULL;
+	struct tcp_multisegment_pdu *msp=NULL;
 
-	tnp=se_alloc(sizeof(struct tcp_next_pdu));
-	tnp->nxtpdu=nxtpdu;
-	tnp->seq=seq;
-	tnp->first_frame=pinfo->fd->num;
-	tnp->last_frame=pinfo->fd->num;
-	tnp->last_frame_time=pinfo->fd->abs_ts;
-
-	tnp->next=tcpd->fwd->pdu_seq;
-	tcpd->fwd->pdu_seq=tnp;
-	/*QQQ
-	  Add check for ACKs and purge list of sequence numbers
-	  already acked.
-	*/
-	se_tree_insert32(tcp_pdu_time_table, pinfo->fd->num, (void *)tnp);
+	msp=se_alloc(sizeof(struct tcp_multisegment_pdu));
+	msp->nxtpdu=nxtpdu;
+	msp->seq=seq;
+	msp->first_frame=pinfo->fd->num;
+	msp->last_frame=pinfo->fd->num;
+	msp->last_frame_time=pinfo->fd->abs_ts;
+	se_tree_insert32(tcpd->fwd->multisegment_pdus, seq, (void *)msp);
 }
 
 /* This is called for SYN+ACK packets and the purpose is to verify that we
@@ -846,8 +768,6 @@ finished_checking_retransmission_type:
 	}
 
 
-	prune_next_pdu_list(&(tcpd->rev->pdu_seq), ack-tcpd->rev->base_seq);
-
 	/* remove all segments this ACKs and we dont need to keep around any more
 	 */
 	ackcount=0;
@@ -1057,58 +977,6 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 
 }
 
-
-/* Do we still need to do this ...remove_all() even though we dont need
- * to do anything special?  The glib docs are not clear on this and
- * its better safe than sorry
- */
-static gboolean
-free_all_acked(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
-{
-	return TRUE;
-}
-
-static guint
-tcp_acked_hash(gconstpointer k)
-{
-	guint32 frame = GPOINTER_TO_UINT(k);
-
-	return frame;
-}
-static gint
-tcp_acked_equal(gconstpointer k1, gconstpointer k2)
-{
-	guint32 frame1 = GPOINTER_TO_UINT(k1);
-	guint32 frame2 = GPOINTER_TO_UINT(k2);
-
-	return frame1==frame2;
-}
-
-static void
-tcp_analyze_seq_init(void)
-{
-	/* first destroy the tables */
-	if( tcp_pdu_tracking_table ){
-		g_hash_table_foreach_remove(tcp_pdu_tracking_table,
-			free_all_acked, NULL);
-		g_hash_table_destroy(tcp_pdu_tracking_table);
-		tcp_pdu_tracking_table = NULL;
-	}
-	if( tcp_pdu_skipping_table ){
-		g_hash_table_foreach_remove(tcp_pdu_skipping_table,
-			free_all_acked, NULL);
-		g_hash_table_destroy(tcp_pdu_skipping_table);
-		tcp_pdu_skipping_table = NULL;
-	}
-
-	if(tcp_analyze_seq){
-		tcp_pdu_tracking_table = g_hash_table_new(tcp_acked_hash,
-			tcp_acked_equal);
-		tcp_pdu_skipping_table = g_hash_table_new(tcp_acked_hash,
-			tcp_acked_equal);
-	}
-
-}
 
 /* **************************************************************************
  * End of tcp sequence number analysis
@@ -3086,8 +2954,6 @@ proto_register_tcp(void)
 	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
 	    &try_heuristic_first);
 
-	tcp_pdu_time_table=se_tree_create(SE_TREE_TYPE_RED_BLACK, "tcp_pdu_time_table");
-	register_init_routine(tcp_analyze_seq_init);
 	register_init_routine(tcp_desegment_init);
 	register_init_routine(tcp_fragment_init);
 }
