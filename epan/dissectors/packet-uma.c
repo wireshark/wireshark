@@ -69,6 +69,12 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-e212.h"
+#include <epan/emem.h>
+#include "packet-tcp.h"
+
+/* Length field is 2 bytes and comes first */ 
+#define UMA_HEADER_SIZE 2
+gboolean uma_desegment = TRUE;
 
 static dissector_handle_t uma_tcp_handle = NULL;
 static dissector_handle_t uma_udp_handle = NULL;
@@ -1502,7 +1508,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	offset = offset + ie_len;
 	return offset;
 }
-static int
+
+
+
+static
 dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
@@ -1572,7 +1581,20 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		}
 
-	return offset;
+}
+
+static guint
+get_uma_pdu_len(tvbuff_t *tvb, int offset)
+{
+	/* PDU length = Message length + length of length indicator */
+	return tvb_get_ntohs(tvb,offset)+2;
+}
+
+static void
+dissect_uma_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, uma_desegment, UMA_HEADER_SIZE,
+	    get_uma_pdu_len, dissect_uma);
 }
 
 static int
@@ -1641,7 +1663,7 @@ proto_reg_handoff_uma(void)
 	static int TcpPort1=0;
 	
 	if (!Initialized) {
-		uma_tcp_handle = new_create_dissector_handle(dissect_uma, proto_uma);
+		uma_tcp_handle = create_dissector_handle(dissect_uma_tcp, proto_uma);
 		uma_udp_handle = new_create_dissector_handle(dissect_uma_urlc_udp, proto_uma);
 		dissector_add("tcp.port", 0, uma_udp_handle);
 		Initialized=TRUE;
@@ -2270,6 +2292,11 @@ proto_register_uma(void)
 	
 	uma_module = prefs_register_protocol(proto_uma, proto_reg_handoff_uma);
 
+	prefs_register_bool_preference(uma_module, "desegment_ucp_messages",
+		"Reassemble UMA messages spanning multiple TCP segments",
+		"Whether the UMA dissector should reassemble messages spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+		&uma_desegment);
 	prefs_register_uint_preference(uma_module, "tcp.port1",
 								   "Unlicensed Mobile Access TCP Port1",
 								   "Set the TCP port1 for Unlicensed Mobile Access messages",
