@@ -43,7 +43,7 @@
 #include "epan/column_info.h"
 #include "compat_macros.h"
 #include <epan/prefs.h>
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "packet_list.h"
 #include "keys.h"
 #include "font_utils.h"

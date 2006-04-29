@@ -38,7 +38,7 @@
 #include "util.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
 

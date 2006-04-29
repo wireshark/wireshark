@@ -40,8 +40,9 @@ ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 noinst_HEADERS = \
 	about_dlg.h	\
 	capture_dlg.h	\
-	capture_prefs.h	\
+	capture_file_dlg.h	\
 	capture_if_details_dlg.h	\
+	capture_prefs.h	\
 	cfilter_combo_utils.h \
 	color_dlg.h	\
 	colors.h	\
@@ -53,7 +54,6 @@ noinst_HEADERS = \
 	dfilter_expr_dlg.h \
 	dlg_utils.h	\
 	expert_comp_table.h	\
-	file_dlg.h	\
 	fileset_dlg.h	\
 	filter_dlg.h	\
 	find_dlg.h	\

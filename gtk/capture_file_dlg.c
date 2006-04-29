@@ -1,5 +1,5 @@
-/* file_dlg.c
- * Dialog boxes for handling files
+/* capture_file_dlg.c
+ * Dialog boxes for handling capture files
  *
  * $Id$
  *
@@ -43,7 +43,7 @@
 #include "simple_dialog.h"
 #include "menu.h"
 #include "dlg_utils.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "main.h"
 #include "compat_macros.h"
 #include <epan/prefs.h>

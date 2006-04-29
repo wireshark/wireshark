@@ -32,7 +32,7 @@
 
 #include "gtkglobals.h"
 #include "util.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "../menu.h"
 #include "compat_macros.h"
 #include "file.h"

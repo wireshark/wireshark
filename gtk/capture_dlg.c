@@ -51,7 +51,7 @@
 #include "ringbuffer.h"
 #include <epan/filesystem.h>
 #include "compat_macros.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "help_dlg.h"
 #include "gtkglobals.h"
 #include "cfilter_combo_utils.h"

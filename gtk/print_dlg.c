@@ -37,7 +37,7 @@
 #include <epan/prefs.h>
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "main.h"

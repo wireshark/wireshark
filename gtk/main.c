@@ -122,7 +122,7 @@
 #include "menu.h"
 #include "../main_window.h"
 #include "../menu.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include <epan/column.h>
 #include "proto_draw.h"
 #include "keys.h"

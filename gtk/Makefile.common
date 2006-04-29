@@ -41,6 +41,7 @@ GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 ETHEREAL_GTK_SRC = \
 	about_dlg.c	\
 	capture_dlg.c	\
+	capture_file_dlg.c	\
 	capture_if_dlg.c	\
 	capture_if_details_dlg.c	\
 	capture_info_dlg.c	\
@@ -58,7 +59,6 @@ ETHEREAL_GTK_SRC = \
 	drag_and_drop.c 	\
 	ethereal-tap-register.c	\
 	expert_comp_table.c    \
-	file_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
 	find_dlg.c	\

@@ -56,7 +56,7 @@
 #include "util.h"
 #include "epan/strutil.h"
 
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "main.h"
 #include "menu.h"
 #include "dlg_utils.h"
@@ -990,7 +990,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
-/* XXX - Copied verbatim from gtk/file_dlg.c.  Perhaps it
+/* XXX - Copied verbatim from gtk/capture_file_dlg.c.  Perhaps it
  * should be in wiretap instead?
  */
 

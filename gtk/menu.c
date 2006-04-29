@@ -46,7 +46,7 @@
 #include "color_dlg.h"
 #include "filter_dlg.h"
 #include "dlg_utils.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "fileset_dlg.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"

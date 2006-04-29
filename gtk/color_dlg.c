@@ -44,7 +44,7 @@
 #include "dfilter_expr_dlg.h"
 #include "compat_macros.h"
 #include "filter_dlg.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "gtkglobals.h"
 #include <epan/prefs.h>
 #include "help_dlg.h"

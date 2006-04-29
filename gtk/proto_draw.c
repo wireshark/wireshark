@@ -56,7 +56,7 @@
 
 #include <epan/prefs.h>
 #include "colors.h"
-#include "file_dlg.h"
+#include "capture_file_dlg.h"
 #include "proto_draw.h"
 #include "packet_win.h"
 #include "dlg_utils.h"

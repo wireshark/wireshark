@@ -1,4 +1,4 @@
-/* file_dlg.h
+/* capture_file_dlg.h
  * Definitions for dialog boxes for handling files
  *
  * $Id$
@@ -117,4 +117,4 @@ void file_color_export_cmd_cb(GtkWidget *widget, gpointer data);
  */
 void file_save_update_dynamics(void);
 
-#endif /* file_dlg.h */
+#endif /* capture_file_dlg.h */
