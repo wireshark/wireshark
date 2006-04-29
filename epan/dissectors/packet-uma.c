@@ -1511,7 +1511,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 
 
-static
+static void
 dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
@@ -1528,59 +1528,57 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-		ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, FALSE);
-		uma_tree = proto_item_add_subtree(ti, ett_uma);
+	ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, FALSE);
+	uma_tree = proto_item_add_subtree(ti, ett_uma);
 
 /* add an item to the subtree, see section 1.6 for more information */
-		msg_len = tvb_get_ntohs(tvb,offset);
-		proto_tree_add_item(uma_tree, hf_uma_length_indicator, tvb, offset, 2, FALSE);
-		offset = offset + 2;
-		octet = tvb_get_guint8(tvb,offset);
-		pd = octet & 0x0f;
-		proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, FALSE);
-		if ((octet & 0xf0) != 0 ){
-			proto_tree_add_text(uma_tree, tvb,offset,-1,"Skipp this message");
-			return tvb_length(tvb);
-		}
+	msg_len = tvb_get_ntohs(tvb,offset);
+	proto_tree_add_item(uma_tree, hf_uma_length_indicator, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	octet = tvb_get_guint8(tvb,offset);
+	pd = octet & 0x0f;
+	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, FALSE);
+	if ((octet & 0xf0) != 0 ){
+		proto_tree_add_text(uma_tree, tvb,offset,-1,"Skip this message");
+		return;
+	}
 			
-		proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, FALSE);
-		switch  ( pd ){
-		case 0: /* URR_C */
-		case 1: /* URR */
+	proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, FALSE);
+	switch  ( pd ){
+	case 0: /* URR_C */
+	case 1: /* URR */
+		offset++;
+		octet = tvb_get_guint8(tvb,offset);
+		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
+		while ((msg_len + 1) > offset ){
 			offset++;
-			octet = tvb_get_guint8(tvb,offset);
-			proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s",val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
-			while ((msg_len + 1) > offset ){
-				offset++;
-				offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
-			}
-			return offset;
-			break;
-		case 2:	/* URLC */
-			offset++;
-			octet = tvb_get_guint8(tvb,offset);
-			proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
-				col_set_fence(pinfo->cinfo,COL_INFO);
-			}
-			offset++;
-			proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
-			offset = offset + 3;
-			while ((msg_len + 1) > offset ){
-				offset++;
-				offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
-			}
-			return offset;
-			break;
-		default:
-			proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
-			return tvb_length(tvb);
-
+			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
 		}
-
+		return;
+		break;
+	case 2:	/* URLC */
+		offset++;
+		octet = tvb_get_guint8(tvb,offset);
+		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
+			col_set_fence(pinfo->cinfo,COL_INFO);
+		}
+		offset++;
+		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
+		offset = offset + 3;
+		while ((msg_len + 1) > offset ){
+			offset++;
+			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
+		}
+		return;
+		break;
+	default:
+		proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
+		return;
+	}
 }
 
 static guint
