@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __FILE_DLG_H__
-#define __FILE_DLG_H__
+#ifndef __CAPTURE_FILE_DLG_H__
+#define __CAPTURE_FILE_DLG_H__
 
 /** @file
  *  "Open" / "Close" / "Save" / "Save As" / etc dialog boxes.
