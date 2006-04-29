@@ -40,8 +40,10 @@
 
 int ringbuf_init(const char *capture_name, guint num_files);
 const gchar *ringbuf_current_filename(void);
-FILE *ringbuf_init_libpcap_fdopen(int linktype, int snaplen, int *err);
-gboolean ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err);
+FILE *ringbuf_init_libpcap_fdopen(int linktype, int snaplen,
+                                  long *bytes_written, int *err);
+gboolean ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd,
+                             long *bytes_written, int *err);
 gboolean ringbuf_libpcap_dump_close(gchar **save_file, int *err);
 void ringbuf_free(void);
 void ringbuf_error_cleanup(void);

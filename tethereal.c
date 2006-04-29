@@ -1716,7 +1716,9 @@ capture(void)
            its maximum size. */
         if (capture_opts.multi_files_on) {
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &capture_opts.save_file, &save_file_fd, &loop_err)) {
+          if (ringbuf_switch_file(&ld.pdh, &capture_opts.save_file,
+                                  &save_file_fd, &ld.bytes_written,
+                                  &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1889,7 +1891,8 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
    */
   if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
     /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&ld->pdh, &ld->save_file, &save_file_fd, &loop_err)) {
+    if (ringbuf_switch_file(&ld->pdh, &ld->save_file, &save_file_fd,
+                            &ld->bytes_written, &loop_err)) {
       /* File switch succeeded: reset the condition */
       cnd_reset(cnd_file_duration);
     } else {
