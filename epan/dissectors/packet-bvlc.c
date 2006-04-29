@@ -90,7 +90,14 @@ static gint ett_bvlc = -1;
 static gint ett_bdt = -1;
 static gint ett_fdt = -1;
 
-static void
+#define BACNET_IP_ANNEX_J	0x81
+
+static const value_string bvlc_types[] = {
+	{ BACNET_IP_ANNEX_J,	"BACnet/IP (Annex J)" },
+	{ 0,			NULL }
+};
+
+static int
 dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -111,15 +118,22 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 bvlc_result;
 	tvbuff_t *next_tvb;
 
+	offset = 0;
+
+	bvlc_type =  tvb_get_guint8(tvb, offset);
+
+	/*
+	 * Simple sanity check - make sure the type is one we know about.
+	 */
+	if (match_strval(bvlc_type, bvlc_types) == NULL)
+		return 0;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BVLC");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "BACnet Virtual Link Control");
 
-	offset = 0;
-
-	bvlc_type =  tvb_get_guint8(tvb, offset);
 	bvlc_function = tvb_get_guint8(tvb, offset+1);
 	packet_length = tvb_get_ntohs(tvb, offset+2);
 	length_remaining = tvb_length_remaining(tvb, offset);
@@ -147,19 +161,16 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (bvlc_length < 4) {
 			proto_tree_add_text(tree, tvb, 2, 2,
 				"Bogus length: %d", bvlc_length);
-			return;
+			return tvb_length(tvb);	/* XXX - reject? */
 		}
 		ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
 			bvlc_length, FALSE);
 		bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
-		proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_type, tvb, offset, 1,
-			bvlc_type,"0x%x (Version %s)",bvlc_type,
-			(bvlc_type == 0x81)?"BACnet/IP (Annex J)":"unknown");
+		proto_tree_add_uint(bvlc_tree, hf_bvlc_type, tvb, offset, 1,
+			bvlc_type);
 		offset ++;
-		proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_function, tvb,
-			offset, 1, bvlc_function,"0x%02x (%s)",
-			bvlc_function, val_to_str (bvlc_function,
-				bvlc_function_names, "Unknown"));
+		proto_tree_add_uint(bvlc_tree, hf_bvlc_function, tvb,
+			offset, 1, bvlc_function);
 		offset ++;
 		if (length_remaining != packet_length)
 			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_length, tvb, offset,
@@ -292,6 +303,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Unknown function - dissect the paylod as data */
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
+	return tvb_length(tvb);
 }
 
 void
@@ -300,12 +312,12 @@ proto_register_bvlc(void)
 	static hf_register_info hf[] = {
 		{ &hf_bvlc_type,
 			{ "Type",           "bvlc.type",
-			FT_UINT8, BASE_HEX, NULL, 0,
+			FT_UINT8, BASE_HEX, VALS(bvlc_types), 0,
 			"Type", HFILL }
 		},
 		{ &hf_bvlc_function,
 			{ "Function",           "bvlc.function",
-			FT_UINT8, BASE_HEX, NULL, 0,
+			FT_UINT8, BASE_HEX, VALS(bvlc_function_names), 0,
 			"BVLC Function", HFILL }
 		},
 		{ &hf_bvlc_length,
@@ -384,7 +396,7 @@ proto_register_bvlc(void)
 	proto_register_field_array(proto_bvlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("bvlc", dissect_bvlc, proto_bvlc);
+	new_register_dissector("bvlc", dissect_bvlc, proto_bvlc);
 
 	bvlc_dissector_table = register_dissector_table("bvlc.function",
 	    "BVLC Function", FT_UINT8, BASE_HEX);
