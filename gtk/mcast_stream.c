@@ -64,7 +64,7 @@ gint32 cumulemptyspeed = 100000; /* outgoiong speed for all streams (kbps)*/
 t_buffer **bufflist;
 
 /* sliding window and buffer usage */
-gint32 buffsize = (int)((double)MAX_SPEED * 100 / 1000) * 2;;
+gint32 buffsize = (int)((double)MAX_SPEED * 100 / 1000) * 2;
 guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint);
 static void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed);
 static void slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo);
