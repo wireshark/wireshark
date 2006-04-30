@@ -50,9 +50,7 @@
 #endif
 
 #include <string.h>
-#if 0
 #include <stdio.h>
-#endif
 
 static gchar *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;
