@@ -46,6 +46,7 @@
 #include "follow_dlg.h"
 #include <epan/follow.h>
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "keys.h"
 #include "globals.h"
 #include "main.h"

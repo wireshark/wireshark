@@ -45,6 +45,7 @@
 #include "filter_dlg.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
 #include <epan/prefs.h>

@@ -59,6 +59,7 @@ ETHEREAL_GTK_SRC = \
 	drag_and_drop.c 	\
 	ethereal-tap-register.c	\
 	expert_comp_table.c    \
+	file_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
 	find_dlg.c	\

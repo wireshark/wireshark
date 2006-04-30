@@ -112,7 +112,10 @@
 /* GTK related */
 #include "statusbar.h"
 #include "alert_box.h"
+#if 0
 #include "dlg_utils.h"
+#endif
+#include "file_dlg.h"
 #include "gtkglobals.h"
 #include "colors.h"
 #include "gui_utils.h"

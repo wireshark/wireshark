@@ -40,7 +40,10 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include "gui_utils.h"
+#if 0
 #include "dlg_utils.h"
+#endif
+#include "file_dlg.h"
 #include "cfilter_combo_utils.h"
 #include "simple_dialog.h"
 #include "file_util.h"

@@ -59,7 +59,10 @@
 #include "capture_file_dlg.h"
 #include "proto_draw.h"
 #include "packet_win.h"
+#if 0
 #include "dlg_utils.h"
+#endif
+#include "file_dlg.h"
 #include "gui_utils.h"
 #include "gtkglobals.h"
 #include "compat_macros.h"

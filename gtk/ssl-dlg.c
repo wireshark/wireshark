@@ -36,6 +36,7 @@
 #include <gtk/main.h>
 #include <epan/follow.h>
 #include <gtk/dlg_utils.h>
+#include <gtk/file_dlg.h>
 #include <gtk/keys.h>
 #include <globals.h>
 #include <alert_box.h>

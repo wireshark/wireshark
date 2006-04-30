@@ -40,6 +40,7 @@
 #include "capture_file_dlg.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "main.h"
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>

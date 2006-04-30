@@ -39,6 +39,7 @@
 #include "../stat_menu.h"
 #include "gui_stat_menu.h"
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "gui_utils.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"

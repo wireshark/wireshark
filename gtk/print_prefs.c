@@ -37,7 +37,10 @@
 #include "prefs_dlg.h"
 #include "util.h"
 #include "gui_utils.h"
+#if 0
 #include "dlg_utils.h"
+#endif
+#include "file_dlg.h"
 #include "capture_file_dlg.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"

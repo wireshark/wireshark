@@ -34,6 +34,7 @@
 #include "about_dlg.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "compat_macros.h"
 #include "globals.h"
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3

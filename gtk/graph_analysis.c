@@ -51,7 +51,10 @@
 #include <gdk/gdkkeysyms.h>
 #include "gtkglobals.h"
 
+#if 0
 #include "dlg_utils.h"
+#endif
+#include "file_dlg.h"
 #include "gui_utils.h"
 #include "main.h"
 #include "compat_macros.h"

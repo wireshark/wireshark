@@ -65,6 +65,7 @@
 
 #include <epan/stat_cmd_args.h>
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "gui_utils.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
