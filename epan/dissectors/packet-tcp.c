@@ -1037,109 +1037,6 @@ tcp_fragment_init(void)
 /* Enable desegmenting of TCP streams */
 static gboolean tcp_desegment = TRUE;
 
-static GHashTable *tcp_segment_table = NULL;
-static GMemChunk *tcp_segment_key_chunk = NULL;
-static int tcp_segment_init_count = 200;
-static GMemChunk *tcp_segment_address_chunk = NULL;
-static int tcp_segment_address_init_count = 500;
-
-typedef struct _tcp_segment_key {
-	/* for own bookkeeping inside packet-tcp.c */
-	address *src;
-	address *dst;
-	guint32 seq;
-	/* xxx */
-	guint16 sport;
-	guint16 dport;
-	guint32 start_seq;
-	guint32 tot_len;
-	guint32 first_frame;
-} tcp_segment_key;
-
-static gboolean
-free_all_segments(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
-{
-	tcp_segment_key *key = key_arg;
-
-	if((key->src)&&(key->src->data)){
-		g_free((gpointer)key->src->data);
-		key->src->data=NULL;
-	}
-
-	if((key->dst)&&(key->dst->data)){
-		g_free((gpointer)key->dst->data);
-		key->dst->data=NULL;
-	}
-
-	return TRUE;
-}
-
-static guint
-tcp_segment_hash(gconstpointer k)
-{
-	const tcp_segment_key *key = (const tcp_segment_key *)k;
-
-	return key->seq+key->sport;
-}
-
-static gint
-tcp_segment_equal(gconstpointer k1, gconstpointer k2)
-{
-	const tcp_segment_key *key1 = (const tcp_segment_key *)k1;
-	const tcp_segment_key *key2 = (const tcp_segment_key *)k2;
-
-	return ( ( (key1->seq==key2->seq)
-		 &&(ADDRESSES_EQUAL(key1->src, key2->src))
-		 &&(ADDRESSES_EQUAL(key1->dst, key2->dst))
-		 &&(key1->sport==key2->sport)
-		 &&(key1->dport==key2->dport)
-		 ) ? TRUE:FALSE);
-}
-
-static void
-tcp_desegment_init(void)
-{
-	/*
-	 * Free this before freeing any memory chunks; those
-	 * chunks contain data we'll look at in "free_all_segments()".
-	 */
-	if(tcp_segment_table){
-		g_hash_table_foreach_remove(tcp_segment_table,
-			free_all_segments, NULL);
-		g_hash_table_destroy(tcp_segment_table);
-		tcp_segment_table = NULL;
-	}
-
-	if(tcp_segment_key_chunk){
-		g_mem_chunk_destroy(tcp_segment_key_chunk);
-		tcp_segment_key_chunk = NULL;
-	}
-	if(tcp_segment_address_chunk){
-		g_mem_chunk_destroy(tcp_segment_address_chunk);
-		tcp_segment_address_chunk = NULL;
-	}
-
-	/* dont allocate any hash table or memory chunks unless the user
-	   really uses this option
-	*/
-	if(!tcp_desegment){
-		return;
-	}
-
-	tcp_segment_table = g_hash_table_new(tcp_segment_hash,
-		tcp_segment_equal);
-
-	tcp_segment_key_chunk = g_mem_chunk_new("tcp_segment_key_chunk",
-		sizeof(tcp_segment_key),
-		tcp_segment_init_count*sizeof(tcp_segment_key),
-		G_ALLOC_ONLY);
-
-	tcp_segment_address_chunk = g_mem_chunk_new("tcp_segment_address_chunk",
-		sizeof(address),
-		tcp_segment_address_init_count*sizeof(address),
-		G_ALLOC_ONLY);
-}
-
 static void
 desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		guint32 seq, guint32 nxtseq,
@@ -1149,16 +1046,16 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	fragment_data *ipfd_head=NULL;
-	tcp_segment_key old_tsk, *tsk;
 	gboolean must_desegment = FALSE;
 	gboolean called_dissector = FALSE;
+	int another_pdu_follows = 0;
 	int deseg_offset;
 	guint32 deseg_seq;
 	gint nbytes;
-    proto_item *item;
-    proto_item *frag_tree_item;
-    proto_item *tcp_tree_item;
-
+	proto_item *item;
+	proto_item *frag_tree_item;
+	proto_item *tcp_tree_item;
+        struct tcp_multisegment_pdu *msp=NULL;
 
 	/*
 	 * Initialize these to assume no desegmentation.
@@ -1176,46 +1073,30 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	 */
 	deseg_offset = offset;
 
-	/* First we must check if this TCP segment should be desegmented.
-	   This is only to check if we should desegment this packet,
-	   so we dont spend time doing COPY_ADDRESS/g_free.
-	   We just "borrow" some address structures from pinfo instead. Cheaper.
-	*/
-	old_tsk.src = &pinfo->src;
-	old_tsk.dst = &pinfo->dst;
-	old_tsk.sport = sport;
-	old_tsk.dport = dport;
-	old_tsk.seq = seq;
-	tsk = g_hash_table_lookup(tcp_segment_table, &old_tsk);
+	/* find the most previous PDU starting before this sequence number */
+	msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq);
+	if(msp && msp->seq<=seq && msp->nxtpdu>seq){
+		int len;
 
-	if(tsk){
-		/* OK, this segment was found, which means it continues
-		   a higher-level PDU. This means we must desegment it.
-		   Add it to the defragmentation lists.
+		if(!pinfo->fd->flags.visited){
+			msp->last_frame=pinfo->fd->num;
+			msp->last_frame_time=pinfo->fd->abs_ts;
+		}
+
+		/* OK, this PDU was found, which means the segment continues
+		   a higher-level PDU and that we must desegment it.
 		*/
-		ipfd_head = fragment_add(tvb, offset, pinfo, tsk->first_frame,
+		len=MIN(nxtseq, msp->nxtpdu) - seq;
+		ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
 			tcp_fragment_table,
-			seq - tsk->start_seq,
-			nxtseq - seq,
-			(LT_SEQ (nxtseq,tsk->start_seq + tsk->tot_len)) );
-
-		if(!ipfd_head){
-			/* fragment_add() returned NULL, This means that
-			   desegmentation is not completed yet.
-			   (its like defragmentation but we know we will
-			    always add the segments in order).
-			   XXX - no, we don't; there is no guarantee that
-			   TCP segments are in order on the wire.
-
-			   we must add next segment to our table so we will
-			   find it later.
-			*/
-			tcp_segment_key *new_tsk;
-
-			new_tsk = g_mem_chunk_alloc(tcp_segment_key_chunk);
-			memcpy(new_tsk, tsk, sizeof(tcp_segment_key));
-			new_tsk->seq=nxtseq;
-			g_hash_table_insert(tcp_segment_table,new_tsk,new_tsk);
+			seq - msp->seq,
+			len,
+			(LT_SEQ (nxtseq,msp->nxtpdu)) );
+		/* if we didnt consume the entire segment there is another pdu
+		 * starting beyong the end of this one 
+		 */
+		if(msp->nxtpdu<nxtseq && len>0){
+			another_pdu_follows=len;
 		}
 	} else {
 		/* This segment was not found in our table, so it doesn't
@@ -1252,17 +1133,16 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		ipfd_head = NULL;
 	}
 
+
 	/* is it completely desegmented? */
 	if(ipfd_head){
-		fragment_data *ipfd;
-
 		/*
 		 * Yes, we think it is.
 		 * We only call subdissector for the last segment.
 		 * Note that the last segment may include more than what
 		 * we needed.
 		 */
-		if(GE_SEQ(nxtseq, tsk->start_seq + tsk->tot_len)){
+		if(ipfd_head->reassembled_in==pinfo->fd->num){
 			/*
 			 * OK, this is the last segment.
 			 * Let's call the subdissector with the desegmented
@@ -1285,7 +1165,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			 * Supply the sequence number of the first of the
 			 * reassembled bytes.
 			 */
-			tcpinfo->seq = tsk->start_seq;
+			tcpinfo->seq = msp->seq;
 
 			/* indicate that this is reassembled data */
 			tcpinfo->is_reassembled = TRUE;
@@ -1303,8 +1183,6 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			old_len=(int)(tvb_reported_length(next_tvb)-tvb_reported_length_remaining(tvb, offset));
 			if(pinfo->desegment_len &&
 			    pinfo->desegment_offset<=old_len){
-				tcp_segment_key *new_tsk;
-
 				/*
 				 * "desegment_len" isn't 0, so it needs more
 				 * data for something - and "desegment_offset"
@@ -1316,26 +1194,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				 * being a new higher-level PDU that also
 				 * needs desegmentation).
 				 */
-				fragment_set_partial_reassembly(pinfo,tsk->first_frame,tcp_fragment_table);
-				tsk->tot_len = tvb_reported_length(next_tvb) + pinfo->desegment_len;
-
-				/*
-				 * Update tsk structure.
-				 * Can ask ->next->next because at least there's a hdr and one
-				 * entry in fragment_add()
-				 */
-				for(ipfd=ipfd_head->next; ipfd->next; ipfd=ipfd->next){
-					old_tsk.seq = tsk->start_seq + ipfd->offset;
-					new_tsk = g_hash_table_lookup(tcp_segment_table, &old_tsk);
-					if (new_tsk)
-						new_tsk->tot_len = tsk->tot_len;
-				}
-
-				/* this is the next segment in the sequence we want */
-				new_tsk = g_mem_chunk_alloc(tcp_segment_key_chunk);
-				memcpy(new_tsk, tsk, sizeof(tcp_segment_key));
-				new_tsk->seq = nxtseq;
-				g_hash_table_insert(tcp_segment_table,new_tsk,new_tsk);
+				fragment_set_partial_reassembly(pinfo,msp->first_frame,tcp_fragment_table);
+				msp->nxtpdu=msp->seq+tvb_reported_length(next_tvb) + pinfo->desegment_len;
 			} else {
 				/*
 				 * Show the stuff in this TCP segment as
@@ -1423,8 +1283,6 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	if (must_desegment) {
-	    tcp_segment_key *tsk, *new_tsk;
-
 	    /*
 	     * The sequence number at which the stuff to be desegmented
 	     * starts is the sequence number of the byte at an offset
@@ -1437,48 +1295,24 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	     */
 	    deseg_seq = seq + (deseg_offset - offset);
 
-	    /*
-	     * XXX - how do we detect out-of-order transmissions?
-	     * We can't just check for "nxtseq" being greater than
-	     * "tsk->start_seq"; for now, we check for the difference
-	     * being less than a megabyte, but this is a really
-	     * gross hack - we really need to handle out-of-order
-	     * transmissions correctly.
-	     */
 	    if ((nxtseq - deseg_seq) <= 1024*1024) {
-		/* OK, subdissector wants us to desegment
-		   some data before it can process it. Add
-		   what remains of this packet and set
-		   up next packet/sequence number as well.
+		if(!pinfo->fd->flags.visited){		
+		    msp=se_alloc(sizeof(struct tcp_multisegment_pdu));
+		    msp->nxtpdu=nxtseq + pinfo->desegment_len;
+		    msp->seq=deseg_seq;
+		    msp->first_frame=pinfo->fd->num;
+		    msp->last_frame=pinfo->fd->num;
+		    msp->last_frame_time=pinfo->fd->abs_ts;
+		    se_tree_insert32(tcpd->fwd->multisegment_pdus, msp->seq, (void *)msp);
 
-		   We must remember this segment
-		*/
-		tsk = g_mem_chunk_alloc(tcp_segment_key_chunk);
-		tsk->src = g_mem_chunk_alloc(tcp_segment_address_chunk);
-		COPY_ADDRESS(tsk->src, &pinfo->src);
-		tsk->dst = g_mem_chunk_alloc(tcp_segment_address_chunk);
-		COPY_ADDRESS(tsk->dst, &pinfo->dst);
-		tsk->seq = deseg_seq;
-		tsk->start_seq = tsk->seq;
-		tsk->tot_len = nxtseq - tsk->start_seq + pinfo->desegment_len;
-		tsk->first_frame = pinfo->fd->num;
-		tsk->sport=sport;
-		tsk->dport=dport;
-		g_hash_table_insert(tcp_segment_table, tsk, tsk);
 
-		/* Add portion of segment unprocessed by the subdissector
-		   to defragmentation lists */
-		fragment_add(tvb, deseg_offset, pinfo, tsk->first_frame,
-		    tcp_fragment_table,
-		    tsk->seq - tsk->start_seq,
-		    nxtseq - tsk->start_seq,
-		    LT_SEQ (nxtseq, tsk->start_seq + tsk->tot_len));
-
-		/* this is the next segment in the sequence we want */
-		new_tsk = g_mem_chunk_alloc(tcp_segment_key_chunk);
-		memcpy(new_tsk, tsk, sizeof(tcp_segment_key));
-		new_tsk->seq = nxtseq;
-		g_hash_table_insert(tcp_segment_table,new_tsk,new_tsk);
+		    /* add this segment as the first one for this new pdu */
+		    fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
+		        tcp_fragment_table,
+		        0,
+		        nxtseq - deseg_seq,
+		        LT_SEQ(nxtseq, msp->nxtpdu));
+		}
 	    }
 	}
 
@@ -1533,6 +1367,26 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	pinfo->can_desegment=0;
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
+
+
+	/* there was another pdu following this one. */
+	if(another_pdu_follows){
+		pinfo->can_desegment=2;
+		/* we also have to prevent the dissector from changing the 
+		 * PROTOCOL and INFO colums since what follows may be an 
+		 * incomplete PDU and we dont want it be changed back from
+		 *  <Protocol>   to <TCP>
+		 * XXX There is no good way to block the PROTOCOL column
+		 * from being changed yet so we set the entire row unwritable.
+		 */
+		col_set_fence(pinfo->cinfo, COL_INFO);
+		col_set_writable(pinfo->cinfo, FALSE);
+		desegment_tcp(tvb, pinfo, offset+another_pdu_follows,
+			seq+another_pdu_follows, nxtseq,
+			sport, dport, 
+			tree, tcp_tree,
+			tcpd);
+	}
 }
 
 /*
@@ -2954,7 +2808,6 @@ proto_register_tcp(void)
 	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
 	    &try_heuristic_first);
 
-	register_init_routine(tcp_desegment_init);
 	register_init_routine(tcp_fragment_init);
 }
 
