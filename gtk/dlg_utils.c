@@ -27,9 +27,7 @@
 #endif
 
 #include <gtk/gtk.h>
-#if 0
 #include <gdk/gdkkeysyms.h>
-#endif
 
 #if 0
 #include <epan/filesystem.h>
