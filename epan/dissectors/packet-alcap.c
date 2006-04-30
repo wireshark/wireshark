@@ -1219,7 +1219,7 @@ typedef gchar* (*alcap_parameter_dissector_t) (packet_info* pinfo, tvbuff_t*, pr
 
 typedef struct _alcap_param_info_t {
     gint ett;
-    gchar* name;
+    const gchar* name;
     alcap_parameter_dissector_t dissect_fields;
     gboolean run_wo_tree;
 } alcap_param_info_t;
@@ -1266,11 +1266,11 @@ static alcap_param_info_t param_infos[]  = {
 #define GET_PARAM_INFO(id) ( array_length(param_infos) <= id ? &(param_infos[0]) : &(param_infos[id]) )
 
 typedef struct _alcap_msg_type_info_t {
-    gchar* abbr;
+    const gchar* abbr;
     int severity;
 } alcap_msg_type_info_t;
 
-static alcap_msg_type_info_t msg_types[] = {
+static const alcap_msg_type_info_t msg_types[] = {
     { "Unknown Message ", PI_ERROR },
     { "BLC ", PI_NOTE },
     { "BLO ", PI_NOTE },
