@@ -65,7 +65,6 @@ static int hf_mysql_packet_length= -1;
 static int hf_mysql_packet_number= -1;
 static int hf_mysql_opcode= -1;
 static int hf_mysql_response_code= -1;
-static int hf_mysql_error_code= -1;
 static int hf_mysql_payload= -1;
 static int hf_mysql_protocol= -1;
 static int hf_mysql_caps= -1;
@@ -93,6 +92,9 @@ static int hf_mysql_charset= -1;
 static int hf_mysql_status= -1;
 static int hf_mysql_unused= -1;
 static int hf_mysql_parameter= -1;
+static int hf_mysql_error_code= -1;
+static int hf_mysql_error_string= -1;
+static int hf_mysql_sqlstate= -1;
 
 static gint ett_mysql = -1;
 static gint ett_server_greeting = -1;
@@ -215,6 +217,8 @@ static int mysql_dissect_request(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree);
 static int mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree);
+static int mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
+		int offset, proto_tree *tree);
 
 static void
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -328,7 +332,6 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo,
 	     	int offset, proto_tree *tree)
 {
 	gint response_code;
-	gint error_code;
 
 	/* response code */
 	response_code= tvb_get_guint8(tvb, offset);
@@ -339,17 +342,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo,
 	offset +=1;
 		
 	if(response_code== 0xff ) {
-			/* error code */
-		error_code = tvb_get_letohs(tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " Error Code: %x", error_code ); 
-		}
-		if (tree) {
-			proto_tree_add_uint(tree, hf_mysql_error_code, tvb,
-			offset, 2, error_code);
-		}
-		offset +=2;
-			
+		offset = mysql_dissect_error_packet(tvb, pinfo, offset, tree);
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_str(pinfo->cinfo, COL_INFO, " OK" ); 
@@ -505,6 +498,11 @@ mysql_dissect_server_greeting(tvbuff_t *tvb, packet_info *pinfo,
 
 	protocol= tvb_get_guint8(tvb, offset);
 
+	if (protocol == 0xff) {
+		offset += 1;
+		return mysql_dissect_error_packet(tvb, pinfo, offset, tree);
+	}
+
 	if(tree) {
 		tf = proto_tree_add_text(tree,tvb,offset,-1,"Server Greeting");
 		greeting_tree = proto_item_add_subtree(tf ,ett_server_greeting);
@@ -599,6 +597,35 @@ mysql_dissect_server_greeting(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
+static int
+mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
+		int offset, proto_tree *tree)
+{
+	gint error_code;
+
+	/* error code */
+	error_code = tvb_get_letohs(tvb, offset);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Error Code: %u", error_code); 
+	}
+	if (tree) {
+		proto_tree_add_uint(tree, hf_mysql_error_code, tvb,
+		offset, 2, error_code);
+	}
+	offset += 2;
+
+	if (tvb_get_guint8(tvb, offset) == '#')
+	{
+		offset += 1;
+		proto_tree_add_item(tree, hf_mysql_sqlstate, tvb, offset, 5, FALSE);
+		offset += 5;
+	}
+
+	proto_tree_add_item(tree, hf_mysql_error_string, tvb, offset, -1, FALSE);
+
+        return offset + tvb_reported_length_remaining(tvb, offset);
+}
+
 void
 proto_register_mysql(void)
 {
@@ -622,12 +649,12 @@ proto_register_mysql(void)
       { "Response Code",	  "mysql.response_code",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
     	"MySQL Respone Code", HFILL }},
-
+#if 0
     { &hf_mysql_error_code,
       { "Error Code",	  "mysql.error_code",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
     	"MySQL Error CODE", HFILL }},
-
+#endif
     { &hf_mysql_protocol,
       { "Protocol",	  "mysql.protocol",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -777,18 +804,22 @@ proto_register_mysql(void)
       { "Block",              "mysql.block",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
     	"Block number", HFILL }},
-
+#endif
     { &hf_mysql_error_code,
       { "Error code",         "mysql.error.code",
-	FT_UINT16, BASE_DEC, VALS(mysql_error_code_vals), 0x0,
+	FT_UINT16, BASE_DEC, NULL, 0x0,
     	"Error code in case of MySQL error message", HFILL }},
 
     { &hf_mysql_error_string,
       { "Error message",      "mysql.error.message",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+	FT_STRING, BASE_DEC, NULL, 0x0,
     	"Error string in case of MySQL error message", HFILL }},
-#endif
-	};
+
+    { &hf_mysql_sqlstate,
+      { "SQL state",      "mysql.sqlstate",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+    	"", HFILL }}
+  };
 	static gint *ett[] = {
   		&ett_mysql,
 		&ett_server_greeting,
