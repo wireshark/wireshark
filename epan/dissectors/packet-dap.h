@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-dap.h                                                             */
+/* ./packet-dap.h                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn */
 
 /* Input file: packet-dap-template.h */
@@ -38,6 +38,7 @@
 /*--- Included file: packet-dap-exp.h ---*/
 #line 1 "packet-dap-exp.h"
 extern const value_string dap_ContextSelection_vals[];
+extern const value_string dap_Filter_vals[];
 extern const value_string dap_DirectoryBindError_vals[];
 extern const value_string dap_ReadArgument_vals[];
 extern const value_string dap_ReadResult_vals[];
@@ -67,6 +68,7 @@ extern const value_string dap_ServiceError_vals[];
 extern const value_string dap_UpdateError_vals[];
 int dissect_dap_CommonResults(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dap_ContextSelection(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_dap_Filter(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dap_SecurityParameters(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dap_DirectoryBindArgument(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_dap_DirectoryBindError(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

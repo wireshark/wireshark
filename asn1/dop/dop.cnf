@@ -4,12 +4,17 @@ DistributedOperations		dsp
 DirectoryAbstractService	dap
 InformationFramework		x509if
 AuthenticationFramework		x509af
+BasicAccessControl		crmf
+ACSE-1				acse
 
 #.INCLUDE ../x509sat/x509sat-exp.cnf
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
 #.INCLUDE ../dsp/dsp-exp.cnf
 #.INCLUDE ../dap/dap-exp.cnf
+#.INCLUDE ../pkixcrmf/crmf-exp.cnf
+#.INCLUDE ../acse/acse-exp.cnf
+
 
 #.EXPORTS
 DSEType
@@ -84,6 +89,10 @@ NHOBSuperiorToSubordinate		B "dop.establish.rolea.2.5.19.3"	"non-specific-hierar
 NHOBSuperiorToSubordinate		B "dop.modify.rolea.2.5.19.3" "non-specific-hierarchical-modify-rolea"
 NHOBSubordinateToSuperior		B "dop.establish.roleb.2.5.19.3" "non-specific-hierarchical-establish-roleb"
 NHOBSubordinateToSuperior		B "dop.modify.roleb.2.5.19.3"  "non-specific-hierarchical-modify-roleb"
+
+ACIItem		B	"2.5.24.4" "id-aca-prescriptiveACI"
+ACIItem		B	"2.5.24.5" "id-aca-entryACI"
+ACIItem		B	"2.5.24.6" "id-aca-subentryACI"
 
 #.FN_PARS	OBJECT_IDENTIFIER
 	FN_VARIANT = _str VAL_PTR = &binding_type
@@ -178,4 +187,13 @@ NHOBSubordinateToSuperior		B "dop.modify.roleb.2.5.19.3"  "non-specific-hierarch
 			col_append_fstr(pinfo->cinfo, COL_INFO, ",%%d", value);
 		}
   	}
+
+#.FN_PARS Precedence VAL_PTR = &precedence
+
+#.FN_BODY Precedence
+  guint32 precedence = 0;
+
+  %(DEFAULT_BODY)s
+
+  proto_item_append_text(tree, " precedence=%%d", precedence);
 

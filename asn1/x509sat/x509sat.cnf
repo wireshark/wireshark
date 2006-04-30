@@ -164,6 +164,15 @@ DirectoryString        B "2.5.4.65"   "id-at-pseudonym"
 ObjectIdentifier       B "2.5.4.66" "id-at-communuicationsService"
 ObjectIdentifier       B "2.5.4.67" "id-at-communuicationsNetwork"
 
+SyntaxGeneralizedTime  B "2.5.18.1" "id-oa-createTimeStamp"	
+SyntaxGeneralizedTime  B "2.5.18.2" "id-oa-modifyTimeStamp"	
+ObjectIdentifier       B "2.5.18.5" "id-oa-administrativeRole"
+ObjectIdentifier       B "2.5.18.7" "id-oa-collectiveExclusions"
+SyntaxGeneralizedTime  B "2.5.18.8" "id-oa-subschemaTimeStamp"	
+Boolean		       B "2.5.18.9" "id-oa-hasSubordinates"
+
+ObjectIdentifier       B "2.5.24.1" "id-aca-accessControlScheme"
+
 # X402 - see master list in acp133.cnf
 ObjectIdentifier B "2.6.5.2.8" "id-at-mhs-supported-automatic-actions"
 ObjectIdentifier B "2.6.5.2.10" "id-at-mhs-supported-attributes"

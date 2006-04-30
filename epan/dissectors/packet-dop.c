@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-dop.c                                                             */
+/* ./packet-dop.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
 
 /* Input file: packet-dop-template.c */
@@ -52,6 +52,7 @@
 #include "packet-x509if.h"
 #include "packet-dap.h"
 #include "packet-dsp.h"
+#include "packet-crmf.h"
 
 
 #include "packet-dop.h"
@@ -87,6 +88,7 @@ static int hf_dop_SuperiorToSubordinateModification_PDU = -1;  /* SuperiorToSubo
 static int hf_dop_NonSpecificHierarchicalAgreement_PDU = -1;  /* NonSpecificHierarchicalAgreement */
 static int hf_dop_NHOBSuperiorToSubordinate_PDU = -1;  /* NHOBSuperiorToSubordinate */
 static int hf_dop_NHOBSubordinateToSuperior_PDU = -1;  /* NHOBSubordinateToSuperior */
+static int hf_dop_ACIItem_PDU = -1;               /* ACIItem */
 static int hf_dop_ae_title = -1;                  /* Name */
 static int hf_dop_address = -1;                   /* PresentationAddress */
 static int hf_dop_protocolInformation = -1;       /* SET_OF_ProtocolInformation */
@@ -171,6 +173,55 @@ static int hf_dop_accessPoints = -1;              /* MasterAndShadowAccessPoints
 static int hf_dop_info = -1;                      /* SET_OF_Attribute */
 static int hf_dop_info_item = -1;                 /* Attribute */
 static int hf_dop_alias = -1;                     /* BOOLEAN */
+static int hf_dop_identificationTag = -1;         /* DirectoryString */
+static int hf_dop_precedence = -1;                /* Precedence */
+static int hf_dop_authenticationLevel = -1;       /* AuthenticationLevel */
+static int hf_dop_itemOrUserFirst = -1;           /* T_itemOrUserFirst */
+static int hf_dop_itemFirst = -1;                 /* T_itemFirst */
+static int hf_dop_protectedItems = -1;            /* ProtectedItems */
+static int hf_dop_itemPermissions = -1;           /* SET_OF_ItemPermission */
+static int hf_dop_itemPermissions_item = -1;      /* ItemPermission */
+static int hf_dop_userFirst = -1;                 /* T_userFirst */
+static int hf_dop_userClasses = -1;               /* UserClasses */
+static int hf_dop_userPermissions = -1;           /* SET_OF_UserPermission */
+static int hf_dop_userPermissions_item = -1;      /* UserPermission */
+static int hf_dop_entry = -1;                     /* NULL */
+static int hf_dop_allUserAttributeTypes = -1;     /* NULL */
+static int hf_dop_attributeType = -1;             /* SET_OF_AttributeType */
+static int hf_dop_attributeType_item = -1;        /* AttributeType */
+static int hf_dop_allAttributeValues = -1;        /* SET_OF_AttributeType */
+static int hf_dop_allAttributeValues_item = -1;   /* AttributeType */
+static int hf_dop_allUserAttributeTypesAndValues = -1;  /* NULL */
+static int hf_dop_attributeValue = -1;            /* SET_OF_AttributeTypeAndValue */
+static int hf_dop_attributeValue_item = -1;       /* AttributeTypeAndValue */
+static int hf_dop_selfValue = -1;                 /* SET_OF_AttributeType */
+static int hf_dop_selfValue_item = -1;            /* AttributeType */
+static int hf_dop_rangeOfValues = -1;             /* Filter */
+static int hf_dop_maxValueCount = -1;             /* SET_OF_MaxValueCount */
+static int hf_dop_maxValueCount_item = -1;        /* MaxValueCount */
+static int hf_dop_maxImmSub = -1;                 /* INTEGER */
+static int hf_dop_restrictedBy = -1;              /* SET_OF_RestrictedValue */
+static int hf_dop_restrictedBy_item = -1;         /* RestrictedValue */
+static int hf_dop_contexts = -1;                  /* SET_OF_ContextAssertion */
+static int hf_dop_contexts_item = -1;             /* ContextAssertion */
+static int hf_dop_classes = -1;                   /* Refinement */
+static int hf_dop_type = -1;                      /* AttributeType */
+static int hf_dop_maxCount = -1;                  /* INTEGER */
+static int hf_dop_valuesIn = -1;                  /* AttributeType */
+static int hf_dop_allUsers = -1;                  /* NULL */
+static int hf_dop_thisEntry = -1;                 /* NULL */
+static int hf_dop_name = -1;                      /* SET_OF_NameAndOptionalUID */
+static int hf_dop_name_item = -1;                 /* NameAndOptionalUID */
+static int hf_dop_userGroup = -1;                 /* SET_OF_NameAndOptionalUID */
+static int hf_dop_userGroup_item = -1;            /* NameAndOptionalUID */
+static int hf_dop_subtree = -1;                   /* SET_OF_SubtreeSpecification */
+static int hf_dop_subtree_item = -1;              /* SubtreeSpecification */
+static int hf_dop_grantsAndDenials = -1;          /* GrantsAndDenials */
+static int hf_dop_basicLevels = -1;               /* T_basicLevels */
+static int hf_dop_level = -1;                     /* T_level */
+static int hf_dop_localQualifier = -1;            /* INTEGER */
+static int hf_dop_signed = -1;                    /* BOOLEAN */
+static int hf_dop_other = -1;                     /* EXTERNAL */
 /* named bits */
 static int hf_dop_DSEType_root = -1;
 static int hf_dop_DSEType_glue = -1;
@@ -189,9 +240,35 @@ static int hf_dop_DSEType_rhob = -1;
 static int hf_dop_DSEType_sa = -1;
 static int hf_dop_DSEType_dsSubentry = -1;
 static int hf_dop_DSEType_familyMember = -1;
+static int hf_dop_GrantsAndDenials_grantAdd = -1;
+static int hf_dop_GrantsAndDenials_denyAdd = -1;
+static int hf_dop_GrantsAndDenials_grantDiscloseOnError = -1;
+static int hf_dop_GrantsAndDenials_denyDiscloseOnError = -1;
+static int hf_dop_GrantsAndDenials_grantRead = -1;
+static int hf_dop_GrantsAndDenials_denyRead = -1;
+static int hf_dop_GrantsAndDenials_grantRemove = -1;
+static int hf_dop_GrantsAndDenials_denyRemove = -1;
+static int hf_dop_GrantsAndDenials_grantBrowse = -1;
+static int hf_dop_GrantsAndDenials_denyBrowse = -1;
+static int hf_dop_GrantsAndDenials_grantExport = -1;
+static int hf_dop_GrantsAndDenials_denyExport = -1;
+static int hf_dop_GrantsAndDenials_grantImport = -1;
+static int hf_dop_GrantsAndDenials_denyImport = -1;
+static int hf_dop_GrantsAndDenials_grantModify = -1;
+static int hf_dop_GrantsAndDenials_denyModify = -1;
+static int hf_dop_GrantsAndDenials_grantRename = -1;
+static int hf_dop_GrantsAndDenials_denyRename = -1;
+static int hf_dop_GrantsAndDenials_grantReturnDN = -1;
+static int hf_dop_GrantsAndDenials_denyReturnDN = -1;
+static int hf_dop_GrantsAndDenials_grantCompare = -1;
+static int hf_dop_GrantsAndDenials_denyCompare = -1;
+static int hf_dop_GrantsAndDenials_grantFilterMatch = -1;
+static int hf_dop_GrantsAndDenials_denyFilterMatch = -1;
+static int hf_dop_GrantsAndDenials_grantInvoke = -1;
+static int hf_dop_GrantsAndDenials_denyInvoke = -1;
 
 /*--- End of included file: packet-dop-hf.c ---*/
-#line 69 "packet-dop-template.c"
+#line 70 "packet-dop-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dop = -1;
@@ -243,9 +320,31 @@ static gint ett_dop_SuperiorToSubordinateModification = -1;
 static gint ett_dop_NonSpecificHierarchicalAgreement = -1;
 static gint ett_dop_NHOBSuperiorToSubordinate = -1;
 static gint ett_dop_NHOBSubordinateToSuperior = -1;
+static gint ett_dop_ACIItem = -1;
+static gint ett_dop_T_itemOrUserFirst = -1;
+static gint ett_dop_T_itemFirst = -1;
+static gint ett_dop_SET_OF_ItemPermission = -1;
+static gint ett_dop_T_userFirst = -1;
+static gint ett_dop_SET_OF_UserPermission = -1;
+static gint ett_dop_ProtectedItems = -1;
+static gint ett_dop_SET_OF_AttributeType = -1;
+static gint ett_dop_SET_OF_AttributeTypeAndValue = -1;
+static gint ett_dop_SET_OF_MaxValueCount = -1;
+static gint ett_dop_SET_OF_RestrictedValue = -1;
+static gint ett_dop_SET_OF_ContextAssertion = -1;
+static gint ett_dop_MaxValueCount = -1;
+static gint ett_dop_RestrictedValue = -1;
+static gint ett_dop_UserClasses = -1;
+static gint ett_dop_SET_OF_NameAndOptionalUID = -1;
+static gint ett_dop_SET_OF_SubtreeSpecification = -1;
+static gint ett_dop_ItemPermission = -1;
+static gint ett_dop_UserPermission = -1;
+static gint ett_dop_AuthenticationLevel = -1;
+static gint ett_dop_T_basicLevels = -1;
+static gint ett_dop_GrantsAndDenials = -1;
 
 /*--- End of included file: packet-dop-ett.c ---*/
-#line 73 "packet-dop-template.c"
+#line 74 "packet-dop-template.c"
 
 
 /*--- Included file: packet-dop-fn.c ---*/
@@ -303,6 +402,48 @@ static int dissect_accessPoints(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 static int dissect_info_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_dop_info_item);
 }
+static int dissect_identificationTag(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_DirectoryString(FALSE, tvb, offset, pinfo, tree, hf_dop_identificationTag);
+}
+static int dissect_attributeType_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_attributeType_item);
+}
+static int dissect_allAttributeValues_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_allAttributeValues_item);
+}
+static int dissect_attributeValue_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_crmf_AttributeTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_dop_attributeValue_item);
+}
+static int dissect_selfValue_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_selfValue_item);
+}
+static int dissect_rangeOfValues(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dap_Filter(FALSE, tvb, offset, pinfo, tree, hf_dop_rangeOfValues);
+}
+static int dissect_contexts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_ContextAssertion(FALSE, tvb, offset, pinfo, tree, hf_dop_contexts_item);
+}
+static int dissect_classes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Refinement(FALSE, tvb, offset, pinfo, tree, hf_dop_classes);
+}
+static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_type);
+}
+static int dissect_valuesIn(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_valuesIn);
+}
+static int dissect_name_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_NameAndOptionalUID(FALSE, tvb, offset, pinfo, tree, hf_dop_name_item);
+}
+static int dissect_userGroup_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_NameAndOptionalUID(FALSE, tvb, offset, pinfo, tree, hf_dop_userGroup_item);
+}
+static int dissect_subtree_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_SubtreeSpecification(FALSE, tvb, offset, pinfo, tree, hf_dop_subtree_item);
+}
+static int dissect_other(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_dop_other);
+}
 
 
 static const asn_namedbit DSEType_bits[] = {
@@ -355,7 +496,7 @@ static int dissect_protocolInformation(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_dop_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 170 "dop.cnf"
+#line 179 "dop.cnf"
 	guint32	value;
 
 	  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -379,6 +520,15 @@ static int dissect_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 }
 static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dop_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_dop_version);
+}
+static int dissect_maxImmSub(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_dop_maxImmSub);
+}
+static int dissect_maxCount(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_dop_maxCount);
+}
+static int dissect_localQualifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_dop_localQualifier);
 }
 
 
@@ -438,6 +588,9 @@ static int dissect_aliasDereferenced(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 static int dissect_alias(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dop_BOOLEAN(FALSE, tvb, offset, pinfo, tree, hf_dop_alias);
+}
+static int dissect_signed(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_BOOLEAN(FALSE, tvb, offset, pinfo, tree, hf_dop_signed);
 }
 
 
@@ -532,7 +685,7 @@ dissect_dop_DSAOperationalManagementBindError(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_dop_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 92 "dop.cnf"
+#line 101 "dop.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &binding_type);
@@ -555,7 +708,7 @@ static int dissect_bindingType(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_dop_EstablishSymmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 102 "dop.cnf"
+#line 111 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree, "symmetric");
 
@@ -571,7 +724,7 @@ static int dissect_establishSymmetric(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_dop_EstablishRoleAInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 106 "dop.cnf"
+#line 115 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree, "roleA");
 
@@ -587,7 +740,7 @@ static int dissect_establishRoleAInitiates(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_dop_EstablishRoleBInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 110 "dop.cnf"
+#line 119 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree, "roleB");
 
@@ -630,7 +783,7 @@ static int dissect_establishInitiator(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_dop_T_agreement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 138 "dop.cnf"
+#line 147 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
 
@@ -658,6 +811,21 @@ static int dissect_explicitTermination(packet_info *pinfo, proto_tree *tree, tvb
 }
 static int dissect_null(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dop_NULL(FALSE, tvb, offset, pinfo, tree, hf_dop_null);
+}
+static int dissect_entry(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_NULL(FALSE, tvb, offset, pinfo, tree, hf_dop_entry);
+}
+static int dissect_allUserAttributeTypes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_NULL(FALSE, tvb, offset, pinfo, tree, hf_dop_allUserAttributeTypes);
+}
+static int dissect_allUserAttributeTypesAndValues(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_NULL(FALSE, tvb, offset, pinfo, tree, hf_dop_allUserAttributeTypesAndValues);
+}
+static int dissect_allUsers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_NULL(FALSE, tvb, offset, pinfo, tree, hf_dop_allUsers);
+}
+static int dissect_thisEntry(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_NULL(FALSE, tvb, offset, pinfo, tree, hf_dop_thisEntry);
 }
 
 
@@ -873,7 +1041,7 @@ dissect_dop_EstablishOperationalBindingArgument(gboolean implicit_tag _U_, tvbuf
 
 static int
 dissect_dop_T_symmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 142 "dop.cnf"
+#line 151 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree, "symmetric"); 
 
@@ -889,7 +1057,7 @@ static int dissect_symmetric(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_dop_T_roleA_replies(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 146 "dop.cnf"
+#line 155 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree, "roleA");
 
@@ -905,7 +1073,7 @@ static int dissect_roleA_replies(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_dop_T_roleB_replies(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 150 "dop.cnf"
+#line 159 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree, "roleB");
 
@@ -985,7 +1153,7 @@ dissect_dop_EstablishOperationalBindingResult(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_dop_ModifySymmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 114 "dop.cnf"
+#line 123 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.modify.symmetric", tvb, offset, pinfo, tree, "symmetric");
 
@@ -1001,7 +1169,7 @@ static int dissect_modifySymmetric(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_dop_ModifyRoleAInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 118 "dop.cnf"
+#line 127 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.modify.rolea", tvb, offset, pinfo, tree, "roleA");
 
@@ -1017,7 +1185,7 @@ static int dissect_modifyRoleAInitiates(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_dop_ModifyRoleBInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 122 "dop.cnf"
+#line 131 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.modify.roleb", tvb, offset, pinfo, tree, "roleB");
 
@@ -1060,7 +1228,7 @@ static int dissect_modifyInitiator(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_dop_ArgumentNewAgreement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 162 "dop.cnf"
+#line 171 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
 
@@ -1145,7 +1313,7 @@ dissect_dop_ModifyOperationalBindingArgument(gboolean implicit_tag _U_, tvbuff_t
 
 static int
 dissect_dop_ResultNewAgreement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 158 "dop.cnf"
+#line 167 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
 
@@ -1226,7 +1394,7 @@ dissect_dop_ModifyOperationalBindingResult(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_dop_TerminateSymmetric(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 126 "dop.cnf"
+#line 135 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.terminate.symmetric", tvb, offset, pinfo, tree, "symmetric");
 
@@ -1242,7 +1410,7 @@ static int dissect_terminateSymmetric(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_dop_TerminateRoleAInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 130 "dop.cnf"
+#line 139 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.terminate.rolea", tvb, offset, pinfo, tree, "roleA");
 
@@ -1258,7 +1426,7 @@ static int dissect_terminateRoleAInitiates(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_dop_TerminateRoleBInitiates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 134 "dop.cnf"
+#line 143 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, pinfo, tree, "roleB");
 
@@ -1458,7 +1626,7 @@ static int dissect_problem(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_dop_T_agreementProposal(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 154 "dop.cnf"
+#line 163 "dop.cnf"
 
   offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
 
@@ -1693,6 +1861,489 @@ dissect_dop_NHOBSubordinateToSuperior(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
+
+
+static int
+dissect_dop_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 194 "dop.cnf"
+  guint32 precedence = 0;
+
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &precedence);
+
+
+  proto_item_append_text(tree, " precedence=%d", precedence);
+
+
+
+  return offset;
+}
+static int dissect_precedence(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_Precedence(FALSE, tvb, offset, pinfo, tree, hf_dop_precedence);
+}
+
+
+static const value_string dop_T_level_vals[] = {
+  {   0, "none" },
+  {   1, "simple" },
+  {   2, "strong" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_dop_T_level(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_level(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_T_level(FALSE, tvb, offset, pinfo, tree, hf_dop_level);
+}
+
+
+static const ber_sequence_t T_basicLevels_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_level },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_localQualifier },
+  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_signed },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_T_basicLevels(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_basicLevels_sequence, hf_index, ett_dop_T_basicLevels);
+
+  return offset;
+}
+static int dissect_basicLevels(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_T_basicLevels(FALSE, tvb, offset, pinfo, tree, hf_dop_basicLevels);
+}
+
+
+static const value_string dop_AuthenticationLevel_vals[] = {
+  {   0, "basicLevels" },
+  {   1, "other" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AuthenticationLevel_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_basicLevels },
+  {   1, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_other },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_AuthenticationLevel(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 AuthenticationLevel_choice, hf_index, ett_dop_AuthenticationLevel,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_authenticationLevel(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_AuthenticationLevel(FALSE, tvb, offset, pinfo, tree, hf_dop_authenticationLevel);
+}
+
+
+static const ber_sequence_t SET_OF_AttributeType_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attributeType_item },
+};
+
+static int
+dissect_dop_SET_OF_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_AttributeType_set_of, hf_index, ett_dop_SET_OF_AttributeType);
+
+  return offset;
+}
+static int dissect_attributeType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_attributeType);
+}
+static int dissect_allAttributeValues(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_allAttributeValues);
+}
+static int dissect_selfValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_dop_selfValue);
+}
+
+
+static const ber_sequence_t SET_OF_AttributeTypeAndValue_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeValue_item },
+};
+
+static int
+dissect_dop_SET_OF_AttributeTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_AttributeTypeAndValue_set_of, hf_index, ett_dop_SET_OF_AttributeTypeAndValue);
+
+  return offset;
+}
+static int dissect_attributeValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_AttributeTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_dop_attributeValue);
+}
+
+
+static const ber_sequence_t MaxValueCount_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_maxCount },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_MaxValueCount(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   MaxValueCount_sequence, hf_index, ett_dop_MaxValueCount);
+
+  return offset;
+}
+static int dissect_maxValueCount_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_MaxValueCount(FALSE, tvb, offset, pinfo, tree, hf_dop_maxValueCount_item);
+}
+
+
+static const ber_sequence_t SET_OF_MaxValueCount_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_maxValueCount_item },
+};
+
+static int
+dissect_dop_SET_OF_MaxValueCount(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_MaxValueCount_set_of, hf_index, ett_dop_SET_OF_MaxValueCount);
+
+  return offset;
+}
+static int dissect_maxValueCount(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_MaxValueCount(FALSE, tvb, offset, pinfo, tree, hf_dop_maxValueCount);
+}
+
+
+static const ber_sequence_t RestrictedValue_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_valuesIn },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_RestrictedValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RestrictedValue_sequence, hf_index, ett_dop_RestrictedValue);
+
+  return offset;
+}
+static int dissect_restrictedBy_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_RestrictedValue(FALSE, tvb, offset, pinfo, tree, hf_dop_restrictedBy_item);
+}
+
+
+static const ber_sequence_t SET_OF_RestrictedValue_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_restrictedBy_item },
+};
+
+static int
+dissect_dop_SET_OF_RestrictedValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_RestrictedValue_set_of, hf_index, ett_dop_SET_OF_RestrictedValue);
+
+  return offset;
+}
+static int dissect_restrictedBy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_RestrictedValue(FALSE, tvb, offset, pinfo, tree, hf_dop_restrictedBy);
+}
+
+
+static const ber_sequence_t SET_OF_ContextAssertion_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_contexts_item },
+};
+
+static int
+dissect_dop_SET_OF_ContextAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_ContextAssertion_set_of, hf_index, ett_dop_SET_OF_ContextAssertion);
+
+  return offset;
+}
+static int dissect_contexts(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_ContextAssertion(FALSE, tvb, offset, pinfo, tree, hf_dop_contexts);
+}
+
+
+static const ber_sequence_t ProtectedItems_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_entry },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_allUserAttributeTypes },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_attributeType },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_allAttributeValues },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_allUserAttributeTypesAndValues },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_attributeValue },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_selfValue },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_rangeOfValues },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_maxValueCount },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_maxImmSub },
+  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL, dissect_restrictedBy },
+  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL, dissect_contexts },
+  { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL, dissect_classes },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_ProtectedItems(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ProtectedItems_sequence, hf_index, ett_dop_ProtectedItems);
+
+  return offset;
+}
+static int dissect_protectedItems(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_ProtectedItems(FALSE, tvb, offset, pinfo, tree, hf_dop_protectedItems);
+}
+
+
+static const ber_sequence_t SET_OF_NameAndOptionalUID_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_name_item },
+};
+
+static int
+dissect_dop_SET_OF_NameAndOptionalUID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_NameAndOptionalUID_set_of, hf_index, ett_dop_SET_OF_NameAndOptionalUID);
+
+  return offset;
+}
+static int dissect_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_NameAndOptionalUID(FALSE, tvb, offset, pinfo, tree, hf_dop_name);
+}
+static int dissect_userGroup(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_NameAndOptionalUID(FALSE, tvb, offset, pinfo, tree, hf_dop_userGroup);
+}
+
+
+static const ber_sequence_t SET_OF_SubtreeSpecification_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subtree_item },
+};
+
+static int
+dissect_dop_SET_OF_SubtreeSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_SubtreeSpecification_set_of, hf_index, ett_dop_SET_OF_SubtreeSpecification);
+
+  return offset;
+}
+static int dissect_subtree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_SubtreeSpecification(FALSE, tvb, offset, pinfo, tree, hf_dop_subtree);
+}
+
+
+static const ber_sequence_t UserClasses_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_allUsers },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_thisEntry },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_name },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_userGroup },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_subtree },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_UserClasses(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   UserClasses_sequence, hf_index, ett_dop_UserClasses);
+
+  return offset;
+}
+static int dissect_userClasses(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_UserClasses(FALSE, tvb, offset, pinfo, tree, hf_dop_userClasses);
+}
+
+
+static const asn_namedbit GrantsAndDenials_bits[] = {
+  {  0, &hf_dop_GrantsAndDenials_grantAdd, -1, -1, "grantAdd", NULL },
+  {  1, &hf_dop_GrantsAndDenials_denyAdd, -1, -1, "denyAdd", NULL },
+  {  2, &hf_dop_GrantsAndDenials_grantDiscloseOnError, -1, -1, "grantDiscloseOnError", NULL },
+  {  3, &hf_dop_GrantsAndDenials_denyDiscloseOnError, -1, -1, "denyDiscloseOnError", NULL },
+  {  4, &hf_dop_GrantsAndDenials_grantRead, -1, -1, "grantRead", NULL },
+  {  5, &hf_dop_GrantsAndDenials_denyRead, -1, -1, "denyRead", NULL },
+  {  6, &hf_dop_GrantsAndDenials_grantRemove, -1, -1, "grantRemove", NULL },
+  {  7, &hf_dop_GrantsAndDenials_denyRemove, -1, -1, "denyRemove", NULL },
+  {  8, &hf_dop_GrantsAndDenials_grantBrowse, -1, -1, "grantBrowse", NULL },
+  {  9, &hf_dop_GrantsAndDenials_denyBrowse, -1, -1, "denyBrowse", NULL },
+  { 10, &hf_dop_GrantsAndDenials_grantExport, -1, -1, "grantExport", NULL },
+  { 11, &hf_dop_GrantsAndDenials_denyExport, -1, -1, "denyExport", NULL },
+  { 12, &hf_dop_GrantsAndDenials_grantImport, -1, -1, "grantImport", NULL },
+  { 13, &hf_dop_GrantsAndDenials_denyImport, -1, -1, "denyImport", NULL },
+  { 14, &hf_dop_GrantsAndDenials_grantModify, -1, -1, "grantModify", NULL },
+  { 15, &hf_dop_GrantsAndDenials_denyModify, -1, -1, "denyModify", NULL },
+  { 16, &hf_dop_GrantsAndDenials_grantRename, -1, -1, "grantRename", NULL },
+  { 17, &hf_dop_GrantsAndDenials_denyRename, -1, -1, "denyRename", NULL },
+  { 18, &hf_dop_GrantsAndDenials_grantReturnDN, -1, -1, "grantReturnDN", NULL },
+  { 19, &hf_dop_GrantsAndDenials_denyReturnDN, -1, -1, "denyReturnDN", NULL },
+  { 20, &hf_dop_GrantsAndDenials_grantCompare, -1, -1, "grantCompare", NULL },
+  { 21, &hf_dop_GrantsAndDenials_denyCompare, -1, -1, "denyCompare", NULL },
+  { 22, &hf_dop_GrantsAndDenials_grantFilterMatch, -1, -1, "grantFilterMatch", NULL },
+  { 23, &hf_dop_GrantsAndDenials_denyFilterMatch, -1, -1, "denyFilterMatch", NULL },
+  { 24, &hf_dop_GrantsAndDenials_grantInvoke, -1, -1, "grantInvoke", NULL },
+  { 25, &hf_dop_GrantsAndDenials_denyInvoke, -1, -1, "denyInvoke", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_dop_GrantsAndDenials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    GrantsAndDenials_bits, hf_index, ett_dop_GrantsAndDenials,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_grantsAndDenials(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_GrantsAndDenials(FALSE, tvb, offset, pinfo, tree, hf_dop_grantsAndDenials);
+}
+
+
+static const ber_sequence_t ItemPermission_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_precedence },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_userClasses },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_grantsAndDenials },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_ItemPermission(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ItemPermission_sequence, hf_index, ett_dop_ItemPermission);
+
+  return offset;
+}
+static int dissect_itemPermissions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_ItemPermission(FALSE, tvb, offset, pinfo, tree, hf_dop_itemPermissions_item);
+}
+
+
+static const ber_sequence_t SET_OF_ItemPermission_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_itemPermissions_item },
+};
+
+static int
+dissect_dop_SET_OF_ItemPermission(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_ItemPermission_set_of, hf_index, ett_dop_SET_OF_ItemPermission);
+
+  return offset;
+}
+static int dissect_itemPermissions(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_ItemPermission(FALSE, tvb, offset, pinfo, tree, hf_dop_itemPermissions);
+}
+
+
+static const ber_sequence_t T_itemFirst_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_protectedItems },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_itemPermissions },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_T_itemFirst(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_itemFirst_sequence, hf_index, ett_dop_T_itemFirst);
+
+  return offset;
+}
+static int dissect_itemFirst(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_T_itemFirst(FALSE, tvb, offset, pinfo, tree, hf_dop_itemFirst);
+}
+
+
+static const ber_sequence_t UserPermission_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_precedence },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_protectedItems },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_grantsAndDenials },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_UserPermission(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   UserPermission_sequence, hf_index, ett_dop_UserPermission);
+
+  return offset;
+}
+static int dissect_userPermissions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_UserPermission(FALSE, tvb, offset, pinfo, tree, hf_dop_userPermissions_item);
+}
+
+
+static const ber_sequence_t SET_OF_UserPermission_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_userPermissions_item },
+};
+
+static int
+dissect_dop_SET_OF_UserPermission(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_UserPermission_set_of, hf_index, ett_dop_SET_OF_UserPermission);
+
+  return offset;
+}
+static int dissect_userPermissions(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_SET_OF_UserPermission(FALSE, tvb, offset, pinfo, tree, hf_dop_userPermissions);
+}
+
+
+static const ber_sequence_t T_userFirst_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_userClasses },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_userPermissions },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_T_userFirst(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_userFirst_sequence, hf_index, ett_dop_T_userFirst);
+
+  return offset;
+}
+static int dissect_userFirst(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_T_userFirst(FALSE, tvb, offset, pinfo, tree, hf_dop_userFirst);
+}
+
+
+static const value_string dop_T_itemOrUserFirst_vals[] = {
+  {   0, "itemFirst" },
+  {   1, "userFirst" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_itemOrUserFirst_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_itemFirst },
+  {   1, BER_CLASS_CON, 1, 0, dissect_userFirst },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_T_itemOrUserFirst(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 T_itemOrUserFirst_choice, hf_index, ett_dop_T_itemOrUserFirst,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_itemOrUserFirst(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_dop_T_itemOrUserFirst(FALSE, tvb, offset, pinfo, tree, hf_dop_itemOrUserFirst);
+}
+
+
+static const ber_sequence_t ACIItem_sequence[] = {
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_identificationTag },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_precedence },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authenticationLevel },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_itemOrUserFirst },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_dop_ACIItem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ACIItem_sequence, hf_index, ett_dop_ACIItem);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_DSEType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -1728,10 +2379,13 @@ static void dissect_NHOBSuperiorToSubordinate_PDU(tvbuff_t *tvb, packet_info *pi
 static void dissect_NHOBSubordinateToSuperior_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_dop_NHOBSubordinateToSuperior(FALSE, tvb, 0, pinfo, tree, hf_dop_NHOBSubordinateToSuperior_PDU);
 }
+static void dissect_ACIItem_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_dop_ACIItem(FALSE, tvb, 0, pinfo, tree, hf_dop_ACIItem_PDU);
+}
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 75 "packet-dop-template.c"
+#line 76 "packet-dop-template.c"
 
 static int
 call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
@@ -1921,6 +2575,10 @@ void proto_register_dop(void) {
       { "NHOBSubordinateToSuperior", "dop.NHOBSubordinateToSuperior",
         FT_NONE, BASE_NONE, NULL, 0,
         "NHOBSubordinateToSuperior", HFILL }},
+    { &hf_dop_ACIItem_PDU,
+      { "ACIItem", "dop.ACIItem",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ACIItem", HFILL }},
     { &hf_dop_ae_title,
       { "ae-title", "dop.ae_title",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
@@ -2257,6 +2915,202 @@ void proto_register_dop(void) {
       { "alias", "dop.alias",
         FT_BOOLEAN, 8, NULL, 0,
         "SubordinateToSuperior/alias", HFILL }},
+    { &hf_dop_identificationTag,
+      { "identificationTag", "dop.identificationTag",
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
+        "ACIItem/identificationTag", HFILL }},
+    { &hf_dop_precedence,
+      { "precedence", "dop.precedence",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_dop_authenticationLevel,
+      { "authenticationLevel", "dop.authenticationLevel",
+        FT_UINT32, BASE_DEC, VALS(dop_AuthenticationLevel_vals), 0,
+        "ACIItem/authenticationLevel", HFILL }},
+    { &hf_dop_itemOrUserFirst,
+      { "itemOrUserFirst", "dop.itemOrUserFirst",
+        FT_UINT32, BASE_DEC, VALS(dop_T_itemOrUserFirst_vals), 0,
+        "ACIItem/itemOrUserFirst", HFILL }},
+    { &hf_dop_itemFirst,
+      { "itemFirst", "dop.itemFirst",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ACIItem/itemOrUserFirst/itemFirst", HFILL }},
+    { &hf_dop_protectedItems,
+      { "protectedItems", "dop.protectedItems",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_dop_itemPermissions,
+      { "itemPermissions", "dop.itemPermissions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ACIItem/itemOrUserFirst/itemFirst/itemPermissions", HFILL }},
+    { &hf_dop_itemPermissions_item,
+      { "Item", "dop.itemPermissions_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ACIItem/itemOrUserFirst/itemFirst/itemPermissions/_item", HFILL }},
+    { &hf_dop_userFirst,
+      { "userFirst", "dop.userFirst",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ACIItem/itemOrUserFirst/userFirst", HFILL }},
+    { &hf_dop_userClasses,
+      { "userClasses", "dop.userClasses",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_dop_userPermissions,
+      { "userPermissions", "dop.userPermissions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ACIItem/itemOrUserFirst/userFirst/userPermissions", HFILL }},
+    { &hf_dop_userPermissions_item,
+      { "Item", "dop.userPermissions_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ACIItem/itemOrUserFirst/userFirst/userPermissions/_item", HFILL }},
+    { &hf_dop_entry,
+      { "entry", "dop.entry",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtectedItems/entry", HFILL }},
+    { &hf_dop_allUserAttributeTypes,
+      { "allUserAttributeTypes", "dop.allUserAttributeTypes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtectedItems/allUserAttributeTypes", HFILL }},
+    { &hf_dop_attributeType,
+      { "attributeType", "dop.attributeType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/attributeType", HFILL }},
+    { &hf_dop_attributeType_item,
+      { "Item", "dop.attributeType_item",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ProtectedItems/attributeType/_item", HFILL }},
+    { &hf_dop_allAttributeValues,
+      { "allAttributeValues", "dop.allAttributeValues",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/allAttributeValues", HFILL }},
+    { &hf_dop_allAttributeValues_item,
+      { "Item", "dop.allAttributeValues_item",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ProtectedItems/allAttributeValues/_item", HFILL }},
+    { &hf_dop_allUserAttributeTypesAndValues,
+      { "allUserAttributeTypesAndValues", "dop.allUserAttributeTypesAndValues",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtectedItems/allUserAttributeTypesAndValues", HFILL }},
+    { &hf_dop_attributeValue,
+      { "attributeValue", "dop.attributeValue",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/attributeValue", HFILL }},
+    { &hf_dop_attributeValue_item,
+      { "Item", "dop.attributeValue_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtectedItems/attributeValue/_item", HFILL }},
+    { &hf_dop_selfValue,
+      { "selfValue", "dop.selfValue",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/selfValue", HFILL }},
+    { &hf_dop_selfValue_item,
+      { "Item", "dop.selfValue_item",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ProtectedItems/selfValue/_item", HFILL }},
+    { &hf_dop_rangeOfValues,
+      { "rangeOfValues", "dop.rangeOfValues",
+        FT_UINT32, BASE_DEC, VALS(dap_Filter_vals), 0,
+        "ProtectedItems/rangeOfValues", HFILL }},
+    { &hf_dop_maxValueCount,
+      { "maxValueCount", "dop.maxValueCount",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/maxValueCount", HFILL }},
+    { &hf_dop_maxValueCount_item,
+      { "Item", "dop.maxValueCount_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtectedItems/maxValueCount/_item", HFILL }},
+    { &hf_dop_maxImmSub,
+      { "maxImmSub", "dop.maxImmSub",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/maxImmSub", HFILL }},
+    { &hf_dop_restrictedBy,
+      { "restrictedBy", "dop.restrictedBy",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/restrictedBy", HFILL }},
+    { &hf_dop_restrictedBy_item,
+      { "Item", "dop.restrictedBy_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtectedItems/restrictedBy/_item", HFILL }},
+    { &hf_dop_contexts,
+      { "contexts", "dop.contexts",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtectedItems/contexts", HFILL }},
+    { &hf_dop_contexts_item,
+      { "Item", "dop.contexts_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtectedItems/contexts/_item", HFILL }},
+    { &hf_dop_classes,
+      { "classes", "dop.classes",
+        FT_UINT32, BASE_DEC, VALS(x509if_Refinement_vals), 0,
+        "ProtectedItems/classes", HFILL }},
+    { &hf_dop_type,
+      { "type", "dop.type",
+        FT_OID, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_dop_maxCount,
+      { "maxCount", "dop.maxCount",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "MaxValueCount/maxCount", HFILL }},
+    { &hf_dop_valuesIn,
+      { "valuesIn", "dop.valuesIn",
+        FT_OID, BASE_NONE, NULL, 0,
+        "RestrictedValue/valuesIn", HFILL }},
+    { &hf_dop_allUsers,
+      { "allUsers", "dop.allUsers",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UserClasses/allUsers", HFILL }},
+    { &hf_dop_thisEntry,
+      { "thisEntry", "dop.thisEntry",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UserClasses/thisEntry", HFILL }},
+    { &hf_dop_name,
+      { "name", "dop.name",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UserClasses/name", HFILL }},
+    { &hf_dop_name_item,
+      { "Item", "dop.name_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UserClasses/name/_item", HFILL }},
+    { &hf_dop_userGroup,
+      { "userGroup", "dop.userGroup",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UserClasses/userGroup", HFILL }},
+    { &hf_dop_userGroup_item,
+      { "Item", "dop.userGroup_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UserClasses/userGroup/_item", HFILL }},
+    { &hf_dop_subtree,
+      { "subtree", "dop.subtree",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UserClasses/subtree", HFILL }},
+    { &hf_dop_subtree_item,
+      { "Item", "dop.subtree_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UserClasses/subtree/_item", HFILL }},
+    { &hf_dop_grantsAndDenials,
+      { "grantsAndDenials", "dop.grantsAndDenials",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_dop_basicLevels,
+      { "basicLevels", "dop.basicLevels",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthenticationLevel/basicLevels", HFILL }},
+    { &hf_dop_level,
+      { "level", "dop.level",
+        FT_UINT32, BASE_DEC, VALS(dop_T_level_vals), 0,
+        "AuthenticationLevel/basicLevels/level", HFILL }},
+    { &hf_dop_localQualifier,
+      { "localQualifier", "dop.localQualifier",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "AuthenticationLevel/basicLevels/localQualifier", HFILL }},
+    { &hf_dop_signed,
+      { "signed", "dop.signed",
+        FT_BOOLEAN, 8, NULL, 0,
+        "AuthenticationLevel/basicLevels/signed", HFILL }},
+    { &hf_dop_other,
+      { "other", "dop.other",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthenticationLevel/other", HFILL }},
     { &hf_dop_DSEType_root,
       { "root", "dop.root",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -2325,9 +3179,113 @@ void proto_register_dop(void) {
       { "familyMember", "dop.familyMember",
         FT_BOOLEAN, 8, NULL, 0x40,
         "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantAdd,
+      { "grantAdd", "dop.grantAdd",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyAdd,
+      { "denyAdd", "dop.denyAdd",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantDiscloseOnError,
+      { "grantDiscloseOnError", "dop.grantDiscloseOnError",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyDiscloseOnError,
+      { "denyDiscloseOnError", "dop.denyDiscloseOnError",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantRead,
+      { "grantRead", "dop.grantRead",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyRead,
+      { "denyRead", "dop.denyRead",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantRemove,
+      { "grantRemove", "dop.grantRemove",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyRemove,
+      { "denyRemove", "dop.denyRemove",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantBrowse,
+      { "grantBrowse", "dop.grantBrowse",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyBrowse,
+      { "denyBrowse", "dop.denyBrowse",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantExport,
+      { "grantExport", "dop.grantExport",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyExport,
+      { "denyExport", "dop.denyExport",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantImport,
+      { "grantImport", "dop.grantImport",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyImport,
+      { "denyImport", "dop.denyImport",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantModify,
+      { "grantModify", "dop.grantModify",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyModify,
+      { "denyModify", "dop.denyModify",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantRename,
+      { "grantRename", "dop.grantRename",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyRename,
+      { "denyRename", "dop.denyRename",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantReturnDN,
+      { "grantReturnDN", "dop.grantReturnDN",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyReturnDN,
+      { "denyReturnDN", "dop.denyReturnDN",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantCompare,
+      { "grantCompare", "dop.grantCompare",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyCompare,
+      { "denyCompare", "dop.denyCompare",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantFilterMatch,
+      { "grantFilterMatch", "dop.grantFilterMatch",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyFilterMatch,
+      { "denyFilterMatch", "dop.denyFilterMatch",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_grantInvoke,
+      { "grantInvoke", "dop.grantInvoke",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_dop_GrantsAndDenials_denyInvoke,
+      { "denyInvoke", "dop.denyInvoke",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 218 "packet-dop-template.c"
+#line 219 "packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -2381,9 +3339,31 @@ void proto_register_dop(void) {
     &ett_dop_NonSpecificHierarchicalAgreement,
     &ett_dop_NHOBSuperiorToSubordinate,
     &ett_dop_NHOBSubordinateToSuperior,
+    &ett_dop_ACIItem,
+    &ett_dop_T_itemOrUserFirst,
+    &ett_dop_T_itemFirst,
+    &ett_dop_SET_OF_ItemPermission,
+    &ett_dop_T_userFirst,
+    &ett_dop_SET_OF_UserPermission,
+    &ett_dop_ProtectedItems,
+    &ett_dop_SET_OF_AttributeType,
+    &ett_dop_SET_OF_AttributeTypeAndValue,
+    &ett_dop_SET_OF_MaxValueCount,
+    &ett_dop_SET_OF_RestrictedValue,
+    &ett_dop_SET_OF_ContextAssertion,
+    &ett_dop_MaxValueCount,
+    &ett_dop_RestrictedValue,
+    &ett_dop_UserClasses,
+    &ett_dop_SET_OF_NameAndOptionalUID,
+    &ett_dop_SET_OF_SubtreeSpecification,
+    &ett_dop_ItemPermission,
+    &ett_dop_UserPermission,
+    &ett_dop_AuthenticationLevel,
+    &ett_dop_T_basicLevels,
+    &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 224 "packet-dop-template.c"
+#line 225 "packet-dop-template.c"
   };
 
   module_t *dop_module;
@@ -2435,10 +3415,13 @@ void proto_reg_handoff_dop(void) {
   register_ber_oid_dissector("dop.modify.rolea.2.5.19.3", dissect_NHOBSuperiorToSubordinate_PDU, proto_dop, "non-specific-hierarchical-modify-rolea");
   register_ber_oid_dissector("dop.establish.roleb.2.5.19.3", dissect_NHOBSubordinateToSuperior_PDU, proto_dop, "non-specific-hierarchical-establish-roleb");
   register_ber_oid_dissector("dop.modify.roleb.2.5.19.3", dissect_NHOBSubordinateToSuperior_PDU, proto_dop, "non-specific-hierarchical-modify-roleb");
+  register_ber_oid_dissector("2.5.24.4", dissect_ACIItem_PDU, proto_dop, "id-aca-prescriptiveACI");
+  register_ber_oid_dissector("2.5.24.5", dissect_ACIItem_PDU, proto_dop, "id-aca-entryACI");
+  register_ber_oid_dissector("2.5.24.6", dissect_ACIItem_PDU, proto_dop, "id-aca-subentryACI");
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 259 "packet-dop-template.c"
+#line 260 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   register_ber_oid_name("2.5.3.3", "id-ac-directory-operational-binding-management");
@@ -2455,6 +3438,23 @@ void proto_reg_handoff_dop(void) {
   register_ber_oid_name("2.5.19.1", "shadow-agreement");
   register_ber_oid_name("2.5.19.2", "hierarchical-agreement");
   register_ber_oid_name("2.5.19.3", "non-specific-hierarchical-agreement");
+
+  /* ACCESS CONTROL SCHEMES */
+  register_ber_oid_name("2.5.28.1", "basic-ACS");
+  register_ber_oid_name("2.5.28.2", "simplified-ACS");
+  register_ber_oid_name("2.5.28.3", "ruleBased-ACS");
+  register_ber_oid_name("2.5.28.4", "ruleAndBasic-ACS");
+  register_ber_oid_name("2.5.28.5", "ruleAndSimple-ACS");
+
+  /* ADMINISTRATIVE ROLES */
+  register_ber_oid_name("2.5.23.1", "id-ar-autonomousArea");
+  register_ber_oid_name("2.5.23.2", "id-ar-accessControlSpecificArea");
+  register_ber_oid_name("2.5.23.3", "id-ar-accessControlInnerArea");
+  register_ber_oid_name("2.5.23.4", "id-ar-subschemaAdminSpecificArea");
+  register_ber_oid_name("2.5.23.5", "id-ar-collectiveAttributeSpecificArea");
+  register_ber_oid_name("2.5.23.6", "id-ar-collectiveAttributeInnerArea");
+  register_ber_oid_name("2.5.23.7", "id-ar-contextDefaultSpecificArea");
+  register_ber_oid_name("2.5.23.8", "id-ar-serviceSpecificArea");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

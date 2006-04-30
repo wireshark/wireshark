@@ -26,6 +26,7 @@ DirectoryShadowAbstractService	disp
 #.INCLUDE	../acse/acse-exp.cnf
 
 #.EXPORTS
+Filter
 CommonResults
 Referral
 SecurityParameters
@@ -176,19 +177,21 @@ ModifyRights/_item/item/value			value-assertion
 
     	%(DEFAULT_BODY)s
 
-	len = tvb_length(out_tvb);
-	/* now see if we can add a string representation */
-	for(i=0; i<len; i++)
-		if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
-			break;
+	if(out_tvb) {
+		len = tvb_length(out_tvb);
+		/* now see if we can add a string representation */
+		for(i=0; i<len; i++)
+			if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
+				break;
 	
-	if(i == len) {
-		if((oct_item = get_ber_last_created_item())) {
+		if(i == len) {
+			if((oct_item = get_ber_last_created_item())) {
 
-			proto_item_append_text(oct_item," (");
-			for(i=0; i<len; i++)
-				proto_item_append_text(oct_item,"%%c",tvb_get_guint8(out_tvb,i));
-			proto_item_append_text(oct_item,")");
+				proto_item_append_text(oct_item," (");
+				for(i=0; i<len; i++)
+					proto_item_append_text(oct_item,"%%c",tvb_get_guint8(out_tvb,i));
+				proto_item_append_text(oct_item,")");
+			}
 		}
 	}
 	

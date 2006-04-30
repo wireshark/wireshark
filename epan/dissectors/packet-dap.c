@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-dap.c                                                             */
+/* ./packet-dap.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn */
 
 /* Input file: packet-dap-template.c */
@@ -624,7 +624,7 @@ static int dissect_family_info_item(packet_info *pinfo, proto_tree *tree, tvbuff
 
 /* Filter -> SetOfFilter -> Filter */
 /* Filter -> Filter */
-static int dissect_dap_Filter(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_dap_Filter(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 static int dissect_not(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_dap_Filter(FALSE, tvb, offset, pinfo, tree, hf_dap_not);
@@ -1219,7 +1219,7 @@ static const ber_choice_t Name_choice[] = {
 
 static int
 dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 257 "dap.cnf"
+#line 260 "dap.cnf"
 	const char *dn;
 
 	  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -1812,7 +1812,7 @@ dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_dap_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 117 "dap.cnf"
+#line 118 "dap.cnf"
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
 	proto_item_append_text(it," XXX: Not yet implemented!");
@@ -1829,7 +1829,7 @@ static int dissect_initial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_dap_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 122 "dap.cnf"
+#line 123 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -1844,7 +1844,7 @@ static int dissect_any(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 125 "dap.cnf"
+#line 126 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -1938,7 +1938,7 @@ static int dissect_matchingRule(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_dap_T_matchValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 128 "dap.cnf"
+#line 129 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2026,7 +2026,7 @@ static int dissect_or(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 }
 
 
-static const value_string dap_Filter_vals[] = {
+const value_string dap_Filter_vals[] = {
   {   0, "item" },
   {   1, "and" },
   {   2, "or" },
@@ -2042,7 +2042,7 @@ static const ber_choice_t Filter_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_dap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Filter_choice, hf_index, ett_dap_Filter,
@@ -2109,7 +2109,7 @@ static int dissect_newRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 172 "dap.cnf"
+#line 173 "dap.cnf"
 	tvbuff_t *out_tvb;
 	int 	i;
 	int	len;
@@ -2119,19 +2119,21 @@ dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
                                        &out_tvb);
 
 
-	len = tvb_length(out_tvb);
-	/* now see if we can add a string representation */
-	for(i=0; i<len; i++)
-		if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
-			break;
+	if(out_tvb) {
+		len = tvb_length(out_tvb);
+		/* now see if we can add a string representation */
+		for(i=0; i<len; i++)
+			if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
+				break;
 	
-	if(i == len) {
-		if((oct_item = get_ber_last_created_item())) {
+		if(i == len) {
+			if((oct_item = get_ber_last_created_item())) {
 
-			proto_item_append_text(oct_item," (");
-			for(i=0; i<len; i++)
-				proto_item_append_text(oct_item,"%c",tvb_get_guint8(out_tvb,i));
-			proto_item_append_text(oct_item,")");
+				proto_item_append_text(oct_item," (");
+				for(i=0; i<len; i++)
+					proto_item_append_text(oct_item,"%c",tvb_get_guint8(out_tvb,i));
+				proto_item_append_text(oct_item,")");
+			}
 		}
 	}
 	
@@ -2298,7 +2300,7 @@ static const ber_sequence_t SimpleCredentials_sequence[] = {
 
 static int
 dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 162 "dap.cnf"
+#line 163 "dap.cnf"
 
 	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SimpleCredentials_sequence, hf_index, ett_dap_SimpleCredentials);
@@ -2319,7 +2321,7 @@ static int dissect_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_dap_T_bind_token(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 131 "dap.cnf"
+#line 132 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2354,7 +2356,7 @@ static int dissect_strong(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_dap_T_req(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 134 "dap.cnf"
+#line 135 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2369,7 +2371,7 @@ static int dissect_req(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 static int
 dissect_dap_T_rep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 137 "dap.cnf"
+#line 138 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -2462,7 +2464,7 @@ static const ber_sequence_t DirectoryBindArgument_set[] = {
 
 int
 dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 143 "dap.cnf"
+#line 144 "dap.cnf"
 
 	guint32 len;
 
@@ -2521,7 +2523,7 @@ static const value_string dap_ServiceProblem_vals[] = {
 
 static int
 dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 211 "dap.cnf"
+#line 214 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2560,7 +2562,7 @@ static const value_string dap_SecurityProblem_vals[] = {
 
 static int
 dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 199 "dap.cnf"
+#line 202 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3267,7 +3269,7 @@ static const ber_sequence_t T_subordinates_item_sequence[] = {
 
 static int
 dissect_dap_T_subordinates_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 267 "dap.cnf"
+#line 270 "dap.cnf"
 	proto_item *sub_item;
 
 	  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
@@ -3314,7 +3316,7 @@ static const value_string dap_LimitProblem_vals[] = {
 
 static int
 dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 235 "dap.cnf"
+#line 238 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3530,7 +3532,7 @@ static const value_string dap_T_subset_vals[] = {
 
 static int
 dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 247 "dap.cnf"
+#line 250 "dap.cnf"
   guint32 subset;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -5070,7 +5072,7 @@ dissect_dap_Referral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
 static int
 dissect_dap_T_spkmInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 140 "dap.cnf"
+#line 141 "dap.cnf"
 	/* XXX: not yet implemented */
 
 
@@ -5232,7 +5234,7 @@ static const value_string dap_UpdateProblem_vals[] = {
 
 static int
 dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 223 "dap.cnf"
+#line 226 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,

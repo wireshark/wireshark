@@ -97,6 +97,14 @@ DistinguishedName	B	"2.5.4.33"	"id-at-roleOccupant"
 DistinguishedName	B	"2.5.4.34"	"id-at-seeAlso"
 DistinguishedName	B	"2.5.4.49"	"id-at-distinguishedName"
 
+DistinguishedName	B	"2.5.18.3"	"id-oa-creatorsName"
+DistinguishedName	B	"2.5.18.4"	"id-oa-modifiersName"
+#SubtreeSpecification 	B 	"2.5.18.6" 	"id-oa-subtreeSpecification"
+DistinguishedName	B	"2.5.18.10"	"id-oa-subschemaSubentry"
+DistinguishedName	B	"2.5.18.11"	"id-oa-subschemaSubentry"
+DistinguishedName	B	"2.5.18.12"	"id-oa-collectiveAttributeSubentry"
+DistinguishedName	B	"2.5.18.13"	"id-oa-contextDefaultSubentry"
+
 # X402 - see master list in acp133.cnf
 DistinguishedName B "2.6.5.2.5" "id-at-mhs-message-store-dn"
 DistinguishedName B "2.6.5.2.14" "id-at-mhs-dl-related-lists"
@@ -116,6 +124,8 @@ DistinguishedName B "2.16.840.1.101.2.2.1.121" "id-at-networkDN"
 DistinguishedName B "2.16.840.1.101.2.2.1.138" "id-at-plasServed"
 DistinguishedName B "2.16.840.1.101.2.2.1.139" "id-at-deployed"
 DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
+
+
 
 #.FN_PARS ContextId
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
@@ -162,8 +172,13 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   char  	*value = NULL;
   const char 	*fmt; 
   const char	*name = NULL;
+  const char    *orig_oid = object_identifier_id;
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+  /* in dissecting the value we may have overridden the OID of the value - which is
+     a problem if there are multiple values */
+  object_identifier_id = orig_oid;
 
   /* try and dissect as a string */
   dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
@@ -268,7 +283,6 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s%%s", fmt, last_dn);
   }
 
-  last_dn = NULL;
 
 #.FN_BODY RDNSequence/_item
 

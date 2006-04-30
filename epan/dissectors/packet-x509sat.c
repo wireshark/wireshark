@@ -2831,6 +2831,13 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.5.4.65", dissect_DirectoryString_PDU, proto_x509sat, "id-at-pseudonym");
   register_ber_oid_dissector("2.5.4.66", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsService");
   register_ber_oid_dissector("2.5.4.67", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsNetwork");
+  register_ber_oid_dissector("2.5.18.1", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-oa-createTimeStamp");
+  register_ber_oid_dissector("2.5.18.2", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-oa-modifyTimeStamp");
+  register_ber_oid_dissector("2.5.18.5", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-oa-administrativeRole");
+  register_ber_oid_dissector("2.5.18.7", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-oa-collectiveExclusions");
+  register_ber_oid_dissector("2.5.18.8", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-oa-subschemaTimeStamp");
+  register_ber_oid_dissector("2.5.18.9", dissect_Boolean_PDU, proto_x509sat, "id-oa-hasSubordinates");
+  register_ber_oid_dissector("2.5.24.1", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-aca-accessControlScheme");
   register_ber_oid_dissector("2.6.5.2.8", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-mhs-supported-automatic-actions");
   register_ber_oid_dissector("2.6.5.2.10", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-mhs-supported-attributes");
   register_ber_oid_dissector("2.6.5.2.11", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-mhs-supported-matching-rules");

@@ -1,6 +1,7 @@
 #.IMPORT_TAG
 CommonResults            BER_CLASS_UNI BER_UNI_TAG_SET
 ContextSelection         BER_CLASS_ANY/*choice*/ -1/*choice*/
+Filter                   BER_CLASS_ANY/*choice*/ -1/*choice*/
 SecurityParameters       BER_CLASS_UNI BER_UNI_TAG_SET
 DirectoryBindArgument    BER_CLASS_UNI BER_UNI_TAG_SET
 DirectoryBindError       BER_CLASS_ANY/*choice*/ -1/*choice*/
@@ -36,6 +37,7 @@ UpdateError              BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.TYPE_ATTR
 CommonResults            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ContextSelection         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_ContextSelection_vals)  BITMASK = 0
+Filter                   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_Filter_vals)  BITMASK = 0
 SecurityParameters       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DirectoryBindArgument    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DirectoryBindError       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_DirectoryBindError_vals)  BITMASK = 0
