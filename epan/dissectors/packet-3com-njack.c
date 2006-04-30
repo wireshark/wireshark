@@ -543,15 +543,15 @@ verify_password(tvbuff_t *tvb, const char *password)
 	md5_append(&md_ctx, digest, 16);
 	md5_append(&md_ctx, packetdata + 28, length - 28);
 	md5_finish(&md_ctx, digest);
-	fprintf(stderr, "Calclulated digest: "); //debugging
+	fprintf(stderr, "Calclulated digest: "); /* debugging */
 	for (i = 0; i < 16; i++) {
-		fprintf(stderr, "%02X", digest[i]); //debugging
+		fprintf(stderr, "%02X", digest[i]); /* debugging */
 		if (digest[i] != *(packetdata + 12 + i)) {
 			is_valid = FALSE;
 			break;	
 		}
 	}
-	fprintf(stderr, " (%d)\n", is_valid); //debugging
+	fprintf(stderr, " (%d)\n", is_valid); /* debugging */
 
 	return is_valid;
 }
