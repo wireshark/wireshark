@@ -56,10 +56,13 @@
 #include "util.h"
 #include "epan/strutil.h"
 
+#include "file_dlg.h"
 #include "capture_file_dlg.h"
 #include "main.h"
 #include "menu.h"
+#if 0
 #include "dlg_utils.h"
+#endif
 #include "capture_dlg.h"
 
 #include "win32-file-dlg.h"
