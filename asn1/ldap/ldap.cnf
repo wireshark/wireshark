@@ -1,5 +1,5 @@
-# ros.cnf
-# ros conformation file
+# ldap.cnf
+# LDAP conformation file
 # Copyright 2005 Anders Broman 
 # $Id$
 
@@ -42,28 +42,62 @@ Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 	name = get_oid_str_name(tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0)));
 	if(name){
 		proto_item_append_text(item, " (%s)", name);
+		proto_item_append_text(tree, " %s", name);	
 	}
 
 
 #.FN_PARS MessageID VAL_PTR = &MessageID
+
 #.FN_BODY MessageID
-gint MessageID;
 
-%(DEFAULT_BODY)s
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "MsgId=%%u, ",MessageID);
+  %(DEFAULT_BODY)s
+  
+  ldm_tree = tree;
 
 #.FN_PARS ProtocolOp VAL_PTR = &ProtocolOp
 
-#.FN_BODY ProtocolOp
+#.FN_HDR ProtocolOp
 
-gint ProtocolOp;
+  ldap_call_response_t *lcrp;
+  ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)pinfo->private_data;
+  do_protocolop = TRUE;
 
-%(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(ProtocolOp, ldap_ProtocolOp_choice_vals, "Unknown (%%u)"));
+#.FN_FTR ProtocolOp
 
+  lcrp=ldap_match_call_response(tvb, pinfo, tree, MessageID, ProtocolOp);
+  if(lcrp){
+    tap_queue_packet(ldap_tap, pinfo, lcrp);
+  }
+  
+  /* XXX: the count will not work if the results span multiple TCP packets */
+
+  if(ldap_info && tree) { /* only count once - on tree pass */
+    switch(ProtocolOp) {
+  
+    case LDAP_RES_SEARCH_ENTRY:
+  	ldap_info->num_results++;
+
+  	proto_item_append_text(tree, " [%d result%s]", 
+  		        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
+
+  	break;
+
+    case LDAP_RES_SEARCH_RESULT:
+  
+    	if (check_col(pinfo->cinfo, COL_INFO))
+          col_append_fstr(pinfo->cinfo, COL_INFO, " [%d result%s]", 
+  	    	        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
+  		        
+  	proto_item_append_text(tree, " [%d result%s]", 
+  		        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
+  		        
+  	ldap_info->num_results = 0;
+    	break;
+     default:
+   	break;
+    } 
+  }
+  
 #.FN_BODY Simple
 ldap_conv_info_t *ldap_info;
 
@@ -198,3 +232,166 @@ ldap_conv_info_t *ldap_info;
 	break;
 	}
 	pinfo->private_data = ldap_info;
+
+#.FN_PARS LDAPString VAL_PTR = &parameter_tvb
+
+#.FN_BODY LDAPString
+  tvbuff_t	*parameter_tvb = NULL;
+  char          *ldapstring;
+ 
+  %(DEFAULT_BODY)s
+
+  if (parameter_tvb || (hf_index == hf_ldap_baseObject)) {
+  
+     ldap_do_protocolop(pinfo);
+
+     if(parameter_tvb)
+        ldapstring = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
+     else
+        ldapstring = "<ROOT>";
+
+     if(hf_index == hf_ldap_baseObject) {
+  	/* this is search - but it on the scanline */
+	if(check_col(pinfo->cinfo, COL_INFO)) 
+	  col_append_fstr(pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);
+  
+  	if(ldm_tree)
+  	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
+     } else if ((hf_index == hf_ldap_errorMessage) && result) { /* only show message if not success */
+	if(check_col(pinfo->cinfo, COL_INFO)) 
+          col_append_fstr(pinfo->cinfo, COL_INFO, "(%%s) ", ldapstring);     
+
+        if(ldm_tree)
+  	  proto_item_append_text(ldm_tree, " (%%s)", ldapstring); 
+     } else if (hf_index == hf_ldap_objectName) {
+	if(check_col(pinfo->cinfo, COL_INFO)) 
+          col_append_fstr(pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);     
+
+        if(ldm_tree)
+  	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
+     }
+     
+     if(parameter_tvb && ldapstring)
+        g_free(ldapstring);
+  }
+
+#.FN_PARS T_scope VAL_PTR = &scope
+
+#.FN_BODY T_scope
+
+  gint 	scope;
+  const gchar *valstr;
+
+  %(DEFAULT_BODY)s
+
+  ldap_do_protocolop(pinfo);
+
+  valstr = val_to_str(scope, ldap_T_scope_vals, "Unknown scope(%%u)");
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", valstr);    
+    
+  if(ldm_tree)
+    proto_item_append_text(ldm_tree, " %%s", valstr); 
+
+#.FN_PARS T_resultCode VAL_PTR = &result
+
+#.FN_BODY T_resultCode
+
+  const gchar *valstr;
+
+  %(DEFAULT_BODY)s
+
+  ldap_do_protocolop(pinfo);
+
+  if(result) {
+  
+    valstr = val_to_str(result, ldap_T_resultCode_vals, "Unknown result(%%u)");
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", valstr);
+
+    if(ldm_tree)
+      proto_item_append_text(ldm_tree, " %%s", valstr); 
+
+  }
+
+#.FN_PARS BindResponse_resultCode VAL_PTR = &result
+
+#.FN_BODY BindResponse_resultCode
+
+  const gchar *valstr;
+
+  %(DEFAULT_BODY)s
+
+  ldap_do_protocolop(pinfo);
+
+  if(result) {
+  
+    valstr = val_to_str(result, ldap_BindResponse_resultCode_vals, "Unknown result(%%u)");
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", valstr);
+
+    if(ldm_tree)
+      proto_item_append_text(ldm_tree, " %%s", valstr); 
+
+  }
+
+  
+#.FN_PARS AttributeValue VAL_PTR = &parameter_tvb
+
+#.FN_BODY AttributeValue
+
+  tvbuff_t	*parameter_tvb;
+  gchar		*string;
+  guint32	i, len;
+  proto_item 	*pi;
+
+  %(DEFAULT_BODY)s
+  
+  len = tvb_length_remaining(parameter_tvb, 0);
+  
+  for(i = 0; i < len; i++) 
+    if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, i)))
+      break;
+  
+  if(i == len) {
+    string = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
+ 
+    pi = get_ber_last_created_item();
+     
+    proto_item_set_text(pi, string);
+
+  }
+  
+#.FN_PARS AuthenticationChoice VAL_PTR = &branch
+  
+#.FN_BODY AuthenticationChoice
+  gint branch = -1;
+  gint auth = -1;
+  const gchar *valstr;
+  
+  %(DEFAULT_BODY)s
+  
+  ldap_do_protocolop(pinfo);
+  
+  if((branch > -1) && (branch < (sizeof AuthenticationChoice_choice/sizeof AuthenticationChoice_choice[0])))
+    auth = AuthenticationChoice_choice[branch].value;
+
+  valstr = val_to_str(auth, ldap_AuthenticationChoice_vals, "Unknown auth(%%u)");
+  
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", valstr);
+  
+  if(ldm_tree)
+    proto_item_append_text(ldm_tree, " %%s", valstr);
+
+
+#.FN_BODY UnbindRequest
+
+ implicit_tag = TRUE; /* correct problem with asn2eth */
+
+ %(DEFAULT_BODY)s
+
+ ldap_do_protocolop(pinfo);  

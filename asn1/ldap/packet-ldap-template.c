@@ -79,7 +79,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/oid_resolv.h>
@@ -94,8 +93,6 @@
 #define PSNAME "LDAP"
 #define PFNAME "ldap"
 
-
-
 static dissector_handle_t ldap_handle=NULL;
 
 /* Initialize the protocol and registered fields */
@@ -104,6 +101,9 @@ static int proto_ldap = -1;
 static int proto_cldap = -1;
 
 static int hf_ldap_sasl_buffer_length = -1;
+static int hf_ldap_response_in = -1;
+static int hf_ldap_response_to = -1;
+static int hf_ldap_time = -1;
 
 #include "packet-ldap-hf.c"
 
@@ -117,6 +117,8 @@ static guint ett_ldap_payload = -1;
 
 /* desegmentation of LDAP */
 static gboolean ldap_desegment = TRUE;
+static guint    ldap_tcp_port = 389;
+static gboolean do_protocolop = FALSE;
 
 #define TCP_PORT_LDAP			389
 #define UDP_PORT_CLDAP			389
@@ -168,6 +170,7 @@ typedef struct ldap_conv_info_t {
   GHashTable *matched;
   gboolean is_mscldap;
   gboolean first_time;
+  guint32  num_results;
 } ldap_conv_info_t;
 static ldap_conv_info_t *ldap_info_items;
 
@@ -188,9 +191,11 @@ ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
   if( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ){
     return 0;
   }
+  /* a response may span multiple frames
   if( key1->rep_frame && key2->rep_frame && (key1->rep_frame!=key2->rep_frame) ){
     return 0;
   }
+  */
 
   return key1->messageId==key2->messageId;
 }
@@ -214,6 +219,151 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 
 /* Global variables */
 char *mechanism = NULL;
+static gint MessageID =-1;
+static gint ProtocolOp = -1;
+static gint result = 0;
+static proto_item *ldm_tree = NULL; /* item to add text to */
+
+static void ldap_do_protocolop(packet_info *pinfo)
+{
+  const gchar* valstr;
+
+  if (do_protocolop)  {
+
+    valstr = val_to_str(ProtocolOp, ldap_ProtocolOp_choice_vals, "Unknown (%%u)");
+
+    if(check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", valstr, MessageID);
+
+    if(ldm_tree)
+      proto_item_append_text(ldm_tree, " %s(%d)", valstr, MessageID); 
+
+    do_protocolop = FALSE;
+
+  }
+}
+
+static ldap_call_response_t *
+ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint messageId, guint protocolOpTag)
+{
+  ldap_call_response_t lcr, *lcrp=NULL;
+  ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)pinfo->private_data;
+
+  /* first see if we have already matched this */
+
+      lcr.messageId=messageId;
+      switch(protocolOpTag){
+        case LDAP_REQ_BIND:
+        case LDAP_REQ_SEARCH:
+        case LDAP_REQ_MODIFY:
+        case LDAP_REQ_ADD:
+        case LDAP_REQ_DELETE:
+        case LDAP_REQ_MODRDN:
+        case LDAP_REQ_COMPARE:
+          lcr.is_request=TRUE;
+          lcr.req_frame=pinfo->fd->num;
+          lcr.rep_frame=0;
+          break;
+        case LDAP_RES_BIND:
+        case LDAP_RES_SEARCH_ENTRY:
+        case LDAP_RES_SEARCH_REF:
+        case LDAP_RES_SEARCH_RESULT:
+        case LDAP_RES_MODIFY:
+        case LDAP_RES_ADD:
+        case LDAP_RES_DELETE:
+        case LDAP_RES_MODRDN:
+        case LDAP_RES_COMPARE:
+          lcr.is_request=FALSE;
+          lcr.req_frame=0;
+          lcr.rep_frame=pinfo->fd->num;
+          break;
+      }
+      lcrp=g_hash_table_lookup(ldap_info->matched, &lcr);
+
+      if(lcrp){
+
+        lcrp->is_request=lcr.is_request;
+
+      } else {
+
+		  /* we haven't found a match - try and match it up */
+
+  switch(protocolOpTag){
+      case LDAP_REQ_BIND:
+      case LDAP_REQ_SEARCH:
+      case LDAP_REQ_MODIFY:
+      case LDAP_REQ_ADD:
+      case LDAP_REQ_DELETE:
+      case LDAP_REQ_MODRDN:
+      case LDAP_REQ_COMPARE:
+
+		/* this a a request - add it to the unmatched list */
+
+        /* check that we dont already have one of those in the
+           unmatched list and if so remove it */
+
+        lcr.messageId=messageId;
+        lcrp=g_hash_table_lookup(ldap_info->unmatched, &lcr);
+        if(lcrp){
+          g_hash_table_remove(ldap_info->unmatched, lcrp);
+        }
+        /* if we cant reuse the old one, grab a new chunk */
+        if(!lcrp){
+          lcrp=se_alloc(sizeof(ldap_call_response_t));
+        }
+        lcrp->messageId=messageId;
+        lcrp->req_frame=pinfo->fd->num;
+        lcrp->req_time=pinfo->fd->abs_ts;
+        lcrp->rep_frame=0;
+        lcrp->protocolOpTag=protocolOpTag;
+        lcrp->is_request=TRUE;
+        g_hash_table_insert(ldap_info->unmatched, lcrp, lcrp);
+        return NULL;
+        break;
+      case LDAP_RES_BIND:
+      case LDAP_RES_SEARCH_ENTRY:
+      case LDAP_RES_SEARCH_REF:
+      case LDAP_RES_SEARCH_RESULT:
+      case LDAP_RES_MODIFY:
+      case LDAP_RES_ADD:
+      case LDAP_RES_DELETE:
+      case LDAP_RES_MODRDN:
+      case LDAP_RES_COMPARE:
+
+		/* this is a result - it should be in our unmatched list */
+
+        lcr.messageId=messageId;
+        lcrp=g_hash_table_lookup(ldap_info->unmatched, &lcr);
+
+        if(lcrp){
+
+          if(!lcrp->rep_frame){
+            g_hash_table_remove(ldap_info->unmatched, lcrp);
+            lcrp->rep_frame=pinfo->fd->num;
+            lcrp->is_request=FALSE;
+            g_hash_table_insert(ldap_info->matched, lcrp, lcrp);
+          }
+        }
+
+        break;
+	  }
+
+	}
+    /* we have found a match */
+
+    if(lcrp){
+      if(lcrp->is_request){
+        proto_tree_add_uint(tree, hf_ldap_response_in, tvb, 0, 0, lcrp->rep_frame);
+      } else {
+        nstime_t ns;
+        proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
+        nstime_delta(&ns, &pinfo->fd->abs_ts, &lcrp->req_time);
+        proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
+      }
+    }
+
+    return lcrp;
+}
 
 #include "packet-ldap-fn.c"
 
@@ -230,8 +380,6 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
   guint headerLength = 0;
   guint length = 0;
   tvbuff_t *msg_tvb = NULL;
-  proto_item *msg_item = NULL;
-  proto_tree *msg_tree = NULL;
   gint8 class;
   gboolean pc, ind = 0;
   gint32 ber_tag;
@@ -319,6 +467,7 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
 	     */
 	    pinfo->desegment_offset = offset;
 	    pinfo->desegment_len = msg_len - length_remaining;
+
 	    return;
         }
     }
@@ -344,16 +493,12 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
     /*
      * Now dissect the LDAP message.
      */
-    if (tree) {
-        msg_item = proto_tree_add_text(tree, msg_tvb, 0, msg_len, "LDAP Message");
-        msg_tree = proto_item_add_subtree(msg_item, ett_ldap_msg);
-    }
 
     /*dissect_ldap_message(msg_tvb, 0, pinfo, msg_tree, msg_item, first_time, ldap_info, is_mscldap);*/
 	ldap_info->first_time= first_time;
 	ldap_info->is_mscldap = is_mscldap;
 	pinfo->private_data = ldap_info;
-	dissect_LDAPMessage_PDU(msg_tvb, pinfo, msg_tree);
+	dissect_LDAPMessage_PDU(msg_tvb, pinfo, tree);
 
 
     offset += msg_len;
@@ -384,6 +529,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
     	                    	    pinfo->ptype, pinfo->srcport,
                                     pinfo->destport, 0);
+
   }
 
   /*
@@ -400,10 +546,14 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     ldap_info->first_auth_frame = 0;
     ldap_info->matched=g_hash_table_new(ldap_info_hash_matched, ldap_info_equal_matched);
     ldap_info->unmatched=g_hash_table_new(ldap_info_hash_unmatched, ldap_info_equal_unmatched);
+    ldap_info->num_results = 0;
+
     conversation_add_proto_data(conversation, proto_ldap, ldap_info);
+
     ldap_info->next = ldap_info_items;
     ldap_info_items = ldap_info;
-  } 
+
+  }
 
   switch (ldap_info->auth_type) {
     case LDAP_AUTH_SASL:
@@ -439,7 +589,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
          * Yes - is the "Sequence Of" header split across segment
          * boundaries?  We require at least 6 bytes for the header
          * which allows for a 4 byte length (ASN.1 BER).
-	 * For the SASL case we need at least 4 bytes, so this is 
+	 * For the SASL case we need at least 4 bytes, so this is
 	 * no problem here because we check for 6 bytes ans sasl buffers
 	 * with less than 2 bytes should not exist...
          */
@@ -725,10 +875,22 @@ void proto_register_ldap(void) {
 
   static hf_register_info hf[] = {
 
-	      { &hf_ldap_sasl_buffer_length,
-			  { "SASL Buffer Length",	"ldap.sasl_buffer_length",
-			  FT_UINT32, BASE_DEC, NULL, 0x0,
-			  "SASL Buffer Length", HFILL }},
+	  	{ &hf_ldap_sasl_buffer_length,
+		  { "SASL Buffer Length",	"ldap.sasl_buffer_length",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"SASL Buffer Length", HFILL }},
+	    { &hf_ldap_response_in,
+	      { "Response In", "ldap.response_in",
+	        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+	        "The response to this LDAP request is in this frame", HFILL }},
+	    { &hf_ldap_response_to,
+	      { "Response To", "ldap.response_to",
+	        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+	        "This is a response to the LDAP request in this frame", HFILL }},
+	    { &hf_ldap_time,
+	      { "Time", "ldap.time",
+	        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+	        "The time between the Call and the Reply", HFILL }},
 
 #include "packet-ldap-hfarr.c"
   };
@@ -751,15 +913,19 @@ void proto_register_ldap(void) {
   proto_register_field_array(proto_ldap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
   register_dissector("ldap", dissect_ldap, proto_ldap);
 
   ldap_module = prefs_register_protocol(proto_ldap, NULL);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
     "Reassemble LDAP messages spanning multiple TCP segments",
     "Whether the LDAP dissector should reassemble messages spanning multiple TCP segments."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings, and disable \"Verify length\" in the BER protocol settings",
     &ldap_desegment);
+
+  prefs_register_uint_preference(ldap_module, "tcp.port", "LDAP TCP Port",
+				 "Set the port for LDAP operations",
+				 10, &ldap_tcp_port);
 
   proto_cldap = proto_register_protocol(
 	  "Connectionless Lightweight Directory Access Protocol",
@@ -777,7 +943,8 @@ proto_reg_handoff_ldap(void)
 {
 	dissector_handle_t ldap_handle, cldap_handle;
 	ldap_handle = create_dissector_handle(dissect_ldap, proto_ldap);
-	dissector_add("tcp.port", TCP_PORT_LDAP, ldap_handle);
+
+	dissector_add("tcp.port", ldap_tcp_port, ldap_handle);
 	dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
 
 	cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
@@ -787,25 +954,25 @@ proto_reg_handoff_ldap(void)
 	gssapi_wrap_handle = find_dissector("gssapi_verf");
 
 /*  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dsml/dsml/ldap_controls_and_session_support.asp */
-	register_ber_oid_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING"); 
-	register_ber_oid_name("1.2.840.113556.1.4.417","LDAP_SERVER_SHOW_DELETED_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.473","LDAP_SERVER_SORT_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.805","LDAP_SERVER_TREE_DELETE_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.841","LDAP_SERVER_DIRSYNC_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.970 ","None"); 
-	register_ber_oid_name("1.2.840.113556.1.4.1338","LDAP_SERVER_VERIFY_NAME_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.1339","LDAP_SERVER_DOMAIN_SCOPE_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.1340","LDAP_SERVER_SEARCH_OPTIONS_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.1413","LDAP_SERVER_PERMISSIVE_MODIFY_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.1504","LDAP_SERVER_ASQ_OID"); 
-	register_ber_oid_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID"); 
-	register_ber_oid_name("1.3.6.1.4.1.1466.101.119.1","None"); 
-	register_ber_oid_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID"); 
+	register_ber_oid_name("1.2.840.113556.1.4.319","LDAP_PAGED_RESULT_OID_STRING");
+	register_ber_oid_name("1.2.840.113556.1.4.417","LDAP_SERVER_SHOW_DELETED_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.473","LDAP_SERVER_SORT_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.805","LDAP_SERVER_TREE_DELETE_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.841","LDAP_SERVER_DIRSYNC_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.970 ","None");
+	register_ber_oid_name("1.2.840.113556.1.4.1338","LDAP_SERVER_VERIFY_NAME_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.1339","LDAP_SERVER_DOMAIN_SCOPE_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.1340","LDAP_SERVER_SEARCH_OPTIONS_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.1413","LDAP_SERVER_PERMISSIVE_MODIFY_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.1504","LDAP_SERVER_ASQ_OID");
+	register_ber_oid_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID");
+	register_ber_oid_name("1.3.6.1.4.1.1466.101.119.1","None");
+	register_ber_oid_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID");
 	register_ber_oid_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
 
 
