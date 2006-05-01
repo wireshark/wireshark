@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ldap.c                                                            */
+/* ./packet-ldap.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -90,6 +90,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/oid_resolv.h>
+#include <epan/strutil.h>
 
 #include "packet-frame.h"
 #include "packet-ldap.h"
@@ -215,7 +216,7 @@ static int hf_ldap_responseName = -1;             /* ResponseName */
 static int hf_ldap_response = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 109 "packet-ldap-template.c"
+#line 110 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -264,7 +265,7 @@ static gint ett_ldap_ExtendedRequest = -1;
 static gint ett_ldap_ExtendedResponse = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 117 "packet-ldap-template.c"
+#line 118 "packet-ldap-template.c"
 
 /* desegmentation of LDAP */
 static gboolean ldap_desegment = TRUE;
@@ -2319,7 +2320,7 @@ static void dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 369 "packet-ldap-template.c"
+#line 370 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3239,7 +3240,7 @@ void proto_register_ldap(void) {
         "ExtendedResponse/response", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 896 "packet-ldap-template.c"
+#line 897 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -3290,7 +3291,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ExtendedResponse,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 906 "packet-ldap-template.c"
+#line 907 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
