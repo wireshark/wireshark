@@ -34,6 +34,7 @@ NONGENERATED_C_FILES = \
 	ascend.c		\
 	atm.c			\
 	buffer.c		\
+	catapult_dct2000.c	\
 	cosine.c		\
 	csids.c			\
 	dbs-etherwatch.c	\

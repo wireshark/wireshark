@@ -134,6 +134,7 @@ DISSECTOR_SRC =	\
 	packet-bvlc.c	\
 	packet-camel.c	\
 	packet-cast.c	\
+	packet-catapult-dct2000.c	\
 	packet-ccsds.c	\
 	packet-cdp.c	\
 	packet-cdt.c	\

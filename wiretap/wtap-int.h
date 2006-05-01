@@ -144,6 +144,11 @@ typedef struct {
 
 typedef struct _k12_t k12_t;
 
+typedef struct {
+	time_t	start_secs;
+	guint32	start_usecs;
+} catapult_dct2000_t;
+
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, long*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
@@ -174,6 +179,7 @@ struct wtap {
 		airopeek9_t		*airopeek9;
 		erf_t			*erf;
 		k12_t			*k12;
+		catapult_dct2000_t*	catapult_dct2000;
 		void			*generic;
 	} capture;
 
@@ -231,6 +237,10 @@ typedef struct {
 	guint32 file_offset;
 } k12_dump_t;
 
+typedef struct {
+    gboolean           first_packet_written;
+    struct wtap_nstime start_time;
+} dct2000_dump_t;
 
 struct wtap_dumper {
 	FILE*			fh;
@@ -248,6 +258,7 @@ struct wtap_dumper {
 		_5views_dump_t		*_5views;
 		niobserver_dump_t	*niobserver;
 		k12_dump_t		*k12;
+		dct2000_dump_t		*dct2000;
 	} dump;
 
 	subtype_write_func	subtype_write;
