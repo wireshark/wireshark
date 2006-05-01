@@ -224,6 +224,7 @@ init_progfile_dir(const char *arg0
 	TCHAR prog_pathname_w[_MAX_PATH+2];
 	size_t progfile_dir_len;
         char *prog_pathname;
+        DWORD error;
         TCHAR *msg_w;
         guchar *msg;
         size_t msglen;
@@ -272,7 +273,7 @@ init_progfile_dir(const char *arg0
 			/*
 			 * OK, no \ - what do we do now?
 			 */
-			return g_sprintf_alloc("No \\ in executable pathname \"%s\",
+			return g_strdup_printf("No \\ in executable pathname \"%s\"",
 			    prog_pathname);
 		}
 	} else {
@@ -285,7 +286,7 @@ init_progfile_dir(const char *arg0
 			/*
 			 * Gak.  We can't format the message.
 			 */
-			return g_sprintf_alloc("GetModuleFileName failed: %u (FormatMessage failed: %u)",
+			return g_strdup_printf("GetModuleFileName failed: %u (FormatMessage failed: %u)",
 			    error, GetLastError());
 		}
 		msg = utf_16to8(msg_w);
@@ -299,7 +300,7 @@ init_progfile_dir(const char *arg0
 			msg[msglen - 1] = '\0';
 			msg[msglen - 2] = '\0';
 		}
-		return g_sprintf_alloc("GetModuleFileName failed: %s (%u)",
+		return g_strdup_printf("GetModuleFileName failed: %s (%u)",
 		    msg, error);
 	}
 #else
