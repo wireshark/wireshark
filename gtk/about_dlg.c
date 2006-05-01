@@ -234,8 +234,10 @@ about_folders_page_new(void)
 
   /* global conf */
   constpath = get_datafile_dir();
-  about_folders_row(table, "Global configuration", constpath,
-      "\"dfilters\", \"preferences\", \"manuf\", ...");
+  if (constpath != NULL) {
+    about_folders_row(table, "Global configuration", constpath,
+        "\"dfilters\", \"preferences\", \"manuf\", ...");
+  }
 
   /* system */
   constpath = get_systemfile_dir();

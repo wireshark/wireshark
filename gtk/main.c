@@ -1876,6 +1876,7 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 int
 main(int argc, char *argv[])
 {
+  char                *init_progfile_dir_error;
   char                *s;
   int                  i;
   int                  opt;
@@ -1928,7 +1929,7 @@ main(int argc, char *argv[])
   /*
    * Attempt to get the pathname of the executable file.
    */
-  init_progfile_dir(argv[0]);
+  init_progfile_dir_error = init_progfile_dir(argv[0]);
 
   /*
    * Get credential information for later use.
@@ -2103,6 +2104,14 @@ main(int argc, char *argv[])
 
   /* We won't come till here, if we had a "console only" command line parameter. */
   splash_win = splash_new("Loading Ethereal ...");
+  if (init_progfile_dir_error != NULL) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Can't get pathname of Ethereal: %s.\n"
+        "It won't be possible to capture traffic.\n"
+        "Report this to the Ethereal developers.",
+        init_progfile_dir_error);
+    g_free(init_progfile_dir_error);
+  }
 
   splash_update(splash_win, "Init dissectors ...");
 

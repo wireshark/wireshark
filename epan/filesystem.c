@@ -208,9 +208,10 @@ static char *progfile_dir;
 
 /*
  * Get the pathname of the directory from which the executable came,
- * and save it for future use.
+ * and save it for future use.  Returns NULL on success, and a
+ * g_mallocated string containing an error on failure.
  */
-void
+char *
 init_progfile_dir(const char *arg0
 #ifdef _WIN32
 	_U_
@@ -223,6 +224,9 @@ init_progfile_dir(const char *arg0
 	TCHAR prog_pathname_w[_MAX_PATH+2];
 	size_t progfile_dir_len;
         char *prog_pathname;
+        TCHAR *msg_w;
+        guchar *msg;
+        size_t msglen;
 
 	/*
 	 * Attempt to get the full pathname of the currently running
@@ -239,12 +243,12 @@ init_progfile_dir(const char *arg0
 		 * the file name of the executable, giving us the pathname
 		 * of the directory where the executable resies
 		 *
-		 * First, find the last "\\" in the directory, as that
+		 * First, find the last "\" in the directory, as that
 		 * marks the end of the directory pathname.
 		 *
 		 * XXX - Can the pathname be something such as
 		 * "C:ethereal.exe"?  Or is it always a full pathname
-		 * beginning with "\\" after the drive letter?
+		 * beginning with "\" after the drive letter?
 		 */
 		dir_end = strrchr(prog_pathname, '\\');
 		if (dir_end != NULL) {
@@ -262,14 +266,50 @@ init_progfile_dir(const char *arg0
 			strncpy(path, prog_pathname, progfile_dir_len);
 			path[progfile_dir_len] = '\0';
 			progfile_dir = path;
+
+			return NULL;	/* we succeeded */
+		} else {
+			/*
+			 * OK, no \ - what do we do now?
+			 */
+			return g_sprintf_alloc("No \\ in executable pathname \"%s\",
+			    prog_pathname);
 		}
+	} else {
+		/*
+		 * Oh, well.  Return an indication of the error.
+		 */
+		error = GetLastError();
+		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+		    NULL, error, 0, (LPTSTR) &msg_w, 0, NULL) == 0) {
+			/*
+			 * Gak.  We can't format the message.
+			 */
+			return g_sprintf_alloc("GetModuleFileName failed: %u (FormatMessage failed: %u)",
+			    error, GetLastError());
+		}
+		msg = utf_16to8(msg_w);
+		LocalFree(msg_w);
+		/*
+		 * "FormatMessage()" "helpfully" sticks CR/LF at the
+		 * end of the message.  Get rid of it.
+		 */
+		msglen = strlen(msg);
+		if (msglen >= 2) {
+			msg[msglen - 1] = '\0';
+			msg[msglen - 2] = '\0';
+		}
+		return g_sprintf_alloc("GetModuleFileName failed: %s (%u)",
+		    msg, error);
 	}
 #else
 	char *prog_pathname;
 	char *curdir;
 	long path_max;
+	char *pathstr;
 	char *path_start, *path_end;
 	size_t path_component_len;
+	char *retstr;
 
 	/*
 	 * Try to figure out the directory in which the currently running
@@ -297,7 +337,8 @@ init_progfile_dir(const char *arg0
 			 * We have no idea how big a buffer to
 			 * allocate for the current directory.
 			 */
-			return;
+			return g_strdup_printf("pathconf failed: %s\n",
+			    strerror(errno));
 		}
 		curdir = g_malloc(path_max);
 		if (getcwd(curdir, sizeof curdir) == NULL) {
@@ -306,7 +347,8 @@ init_progfile_dir(const char *arg0
 			 * with DATAFILE_DIR.
 			 */
 			g_free(curdir);
-			return;
+			return g_strdup_printf("getcwd failed: %s\n",
+			    strerror(errno));
 		}
 		path = g_malloc(strlen(curdir) + 1 + strlen(arg0) + 1);
 		strcpy(path, curdir);
@@ -321,7 +363,8 @@ init_progfile_dir(const char *arg0
 		 * that's executable.
 		 */
 		prog_pathname = NULL;	/* haven't found it yet */
-		path_start = getenv("PATH");
+		pathstr = getenv("PATH");
+		path_start = pathstr;
 		if (path_start != NULL) {
 			while (*path_start != '\0') {
 				path_end = strchr(path_start, ':');
@@ -357,52 +400,66 @@ init_progfile_dir(const char *arg0
 				path_start = path_end;
 				g_free(path);
 			}
+			if (prog_pathname == NULL) {
+				/*
+				 * Program not found in path.
+				 */
+				return g_strdup_printf("\"%s\" not found in \"%s\"",
+				    arg0, pathstr);
+			}
+		} else {
+			/*
+			 * PATH isn't set.
+			 * XXX - should we pick a default?
+			 */
+			return g_strdup("PATH isn't set");
 		}
 	}
 
-	if (prog_pathname != NULL) {
+	/*
+	 * OK, we have what we think is the pathname
+	 * of the program.
+	 *
+	 * First, find the last "/" in the directory,
+	 * as that marks the end of the directory pathname.
+	 */
+	dir_end = strrchr(prog_pathname, '/');
+	if (dir_end != NULL) {
 		/*
-		 * OK, we have what we think is the pathname
-		 * of the program.
-		 *
-		 * First, find the last "/" in the directory,
-		 * as that marks the end of the directory pathname.
+		 * Found it.  Strip off the last component,
+		 * as that's the path of the program.
+		 */
+		*dir_end = '\0';
+
+		/*
+		 * Is there a "/.libs" at the end?
 		 */
 		dir_end = strrchr(prog_pathname, '/');
 		if (dir_end != NULL) {
-			/*
-			 * Found it.  Strip off the last component,
-			 * as that's the path of the program.
-			 */
-			*dir_end = '\0';
-
-			/*
-			 * Is there a "/.libs" at the end?
-			 */
-			dir_end = strrchr(prog_pathname, '/');
-			if (dir_end != NULL) {
-				if (strcmp(dir_end, "/.libs") == 0) {
-					/*
-					 * Yup, it's ".libs".
-					 * Strip that off; it's an
-					 * artifact of libtool.
-					 */
-					*dir_end = '\0';
-				}
+			if (strcmp(dir_end, "/.libs") == 0) {
+				/*
+				 * Yup, it's ".libs".
+				 * Strip that off; it's an
+				 * artifact of libtool.
+				 */
+				*dir_end = '\0';
 			}
-
-			/*
-			 * OK, we have the path we want.
-			 */
-			progfile_dir = prog_pathname;
-		} else {
-			/*
-			 * This "shouldn't happen"; we apparently
-			 * have no "/" in the pathname.
-			 * Just free up prog_pathname.
-			 */
-			g_free(prog_pathname);
 		}
+
+		/*
+		 * OK, we have the path we want.
+		 */
+		progfile_dir = prog_pathname;
+		return NULL;
+	} else {
+		/*
+		 * This "shouldn't happen"; we apparently
+		 * have no "/" in the pathname.
+		 * Just free up prog_pathname.
+		 */
+		retstr = g_strdup_printf("No / found in \"%s\"", prog_pathname);
+		g_free(prog_pathname);
+		return retstr;
 	}
 #endif
 }

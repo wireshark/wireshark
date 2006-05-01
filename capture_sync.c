@@ -241,6 +241,7 @@ sync_pipe_start(capture_options *capture_opts) {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #endif
     int sync_pipe_read_fd;
+    const char *progfile_dir;
     char *exename;
     int argc;
     const char **argv;
@@ -251,6 +252,13 @@ sync_pipe_start(capture_options *capture_opts) {
 
     capture_opts->fork_child = -1;
 
+    progfile_dir = get_progfile_dir();
+    if (progfile_dir == NULL) {
+      /* We don't know where to find dumpcap. */
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "We don't know where to find dumpcap.");
+      return FALSE;
+    }
+
     /* Allocate the string pointer array with enough space for the
        terminating NULL pointer. */
     argc = 0;
@@ -258,8 +266,7 @@ sync_pipe_start(capture_options *capture_opts) {
     *argv = NULL;
 
     /* take ethereal's absolute program path and replace "ethereal" with "dumpcap" */
-    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap",
-                              get_progfile_dir());
+    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", progfile_dir);
 
     /* Make that the first argument in the argument list (argv[0]). */
     argv = sync_pipe_add_arg(argv, &argc, exename);
