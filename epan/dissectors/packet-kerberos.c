@@ -3863,10 +3863,10 @@ static int
 dissect_krb5_e_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	switch(krb5_errorcode){
+	case KRB5_ET_KRB5KDC_ERR_BADOPTION:
 	case KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED:
 		/* ms windows kdc sends e-data of this type containing a "salt"
-		 * that contains the nt_status code when people try to log in
-		 * outside of the hours allowed.
+		 * that contains the nt_status code for these error codes.
 		 */
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_e_data, dissect_krb5_PA_DATA);
 		break;
