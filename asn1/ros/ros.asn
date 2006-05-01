@@ -141,18 +141,18 @@ ReturnErrorProblem ::= INTEGER {
   unrecognizedInvocation(0), errorResponseUnexpected(1), unrecognizedError(2),
   unexpectedError(3), mistypedParameter(4)}
 
-RejectProblem ::= INTEGER {
-  general-unrecognizedPDU(0), general-mistypedPDU(1),
-  general-badlyStructuredPDU(2), invoke-duplicateInvocation(10),
-  invoke-unrecognizedOperation(11), invoke-mistypedArgument(12),
-  invoke-resourceLimitation(13), invoke-releaseInProgress(14),
-  invoke-unrecognizedLinkedId(15), invoke-linkedResponseUnexpected(16),
-  invoke-unexpectedLinkedOperation(17),
-  returnResult-unrecognizedInvocation(20),
-  returnResult-resultResponseUnexpected(21), returnResult-mistypedResult(22),
-  returnError-unrecognizedInvocation(30),
-  returnError-errorResponseUnexpected(31), returnError-unrecognizedError(32),
-  returnError-unexpectedError(33), returnError-mistypedParameter(34)}
+--RejectProblem ::= INTEGER {
+--  general-unrecognizedPDU(0), general-mistypedPDU(1),
+--  general-badlyStructuredPDU(2), invoke-duplicateInvocation(10),
+--  invoke-unrecognizedOperation(11), invoke-mistypedArgument(12),
+--  invoke-resourceLimitation(13), invoke-releaseInProgress(14),
+--  invoke-unrecognizedLinkedId(15), invoke-linkedResponseUnexpected(16),
+--  invoke-unexpectedLinkedOperation(17),
+--  returnResult-unrecognizedInvocation(20),
+--  returnResult-resultResponseUnexpected(21), returnResult-mistypedResult(22),
+--  returnError-unrecognizedInvocation(30),
+--  returnError-errorResponseUnexpected(31), returnError-unrecognizedError(32),
+--  returnError-unexpectedError(33), returnError-mistypedParameter(34)}
 
 InvokeId ::= CHOICE {present  INTEGER,
                      absent   NULL
@@ -183,7 +183,7 @@ Code ::= CHOICE {
   global OBJECT IDENTIFIER
 }
 
-Priority ::= INTEGER
+--Priority ::= INTEGER
 
 END -- end of generic ROS PDU definitions
 

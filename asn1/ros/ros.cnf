@@ -11,26 +11,18 @@ ReturnResult/result/result	operationResult
 Reject/problem/returnError	rejectError
 Reject/problem/returnResult	rejectResult
 
-#.FN_BODY OperationCode
+#.FN_PARS OperationCode VAL_PTR = &opcode
 
-  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index,
-                                  &opcode);
+#.FN_PARS ErrorCode VAL_PTR = &opcode
 
-#.FN_BODY ErrorCode
-
-  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index,
-                                  &opcode);
-
-#.FN_BODY errcode
-
-  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index,
-                                  &opcode);
-
+#.FN_PARS INTEGER VAL_PTR = &invokeid
 
 #.FN_BODY T_argument
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
+
+  ros_match_call_response(tvb, pinfo, tree, invokeid, TRUE);
 	
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -44,6 +36,8 @@ Reject/problem/returnResult	rejectResult
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
+
+  ros_match_call_response(tvb, pinfo, tree, invokeid, FALSE);
 	
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -57,6 +51,8 @@ Reject/problem/returnResult	rejectResult
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
+
+  ros_match_call_response(tvb, pinfo, tree, invokeid, FALSE);
 	
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
