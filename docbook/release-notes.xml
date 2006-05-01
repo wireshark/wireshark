@@ -29,69 +29,16 @@ Ethereal Info
   <section id="WhatsNew"><title>What's New</title>
     <section><title>Bug Fixes</title>
     <para>
-      Many security vulnerabilities have been fixed since the
-      previous release.  See the
-      <ulink url="http://www.ethereal.com/appnotes/enpa-sa-00022.html">application
-      advisory</ulink> for more details.
+
+      The following vulnerabilities have been fixed:
+
       <itemizedlist>
 
         <listitem><para>
-	  The H.248 dissector could crash.
-	  <!-- Fixed in r16967, r17015 -->
-	  <!-- Bug IDs: 651 -->
-	  Versions affected: 0.10.14.
-        </para></listitem>
-
-        <listitem><para>
-	  The UMA dissector could go into an infinite loop.
-	  <!-- Fixed in r17119, r17273 -->
-	  <!-- Bug IDs: 716 -->
-	  Versions affected: 0.10.12.
-        </para></listitem>
-
-        <!-- Canary bugs found after r17235 -->
-
-        <listitem><para>
-	  The X.509if dissector could crash.
-	  <!-- Fixed in r16995, r17337 -->
-	  <!-- Bug IDs: None -->
-	  Versions affected: 0.10.14.
-        </para></listitem>
-
-        <listitem><para>
-	  The SRVLOC dissector could crash.
-	  <!-- Fixed in r17001 -->
-	  <!-- Bug IDs: None -->
-	  Versions affected: 0.10.0.
-        </para></listitem>
-
-        <listitem><para>
-	  The H.245 dissector could crash.
-	  <!-- Fixed in r17022 -->
-	  <!-- Bug IDs: 667 -->
-	  Versions affected: 0.10.13.
-        </para></listitem>
-
-        <listitem><para>
-	  Ethereal's OID printing routine was susceptible to an
-          off-by-one error.
-	  <!-- Fixed in r17048 -->
-	  <!-- Bug IDs: 698 -->
-	  Versions affected: 0.10.14.
-        </para></listitem>
-
-        <listitem><para>
-	  The COPS dissector could overflow a buffer.
-	  <!-- Fixed in r17051 -->
-	  <!-- Bug IDs: None -->
-	  Versions affected: 0.9.15.
-        </para></listitem>
-
-        <listitem><para>
-	  The ALCAP dissector could overflow a buffer.
-	  <!-- Fixed in r17495 -->
-	  <!-- Bug IDs: 794 -->
-	  Versions affected: 0.10.14.
+	  The XXXXXX dissector could crash.
+	  <!-- Fixed in r#####, r##### -->
+	  <!-- Bug IDs: ### -->
+	  Versions affected: 0.99.0.
         </para></listitem>
 
       </itemizedlist>
@@ -103,228 +50,18 @@ Ethereal Info
       a number of vulnerabilities in Ethereal:
       <itemizedlist>
 
-        <!-- CID 1 - 30: DEADCODE -->
-        <!-- CID 31: Post-0.10.14 -->
+        <!-- CID 1 - 149: Fixed for 0.99.0 -->
+        <!-- CID 150: Post-0.99.0 -->
 
         <listitem><para>
-	  The statistics counter could crash Ethereal.
-	  <!-- Fixed in r17497 -->
+	  XXXX feature could crash Ethereal.
+	  <!-- Fixed in r##### -->
 	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 32 -->
-	  Versions affected: 0.10.10.
-        </para></listitem>
-
-        <listitem><para>
-	  Ethereal could crash while reading a malformed Sniffer capture.
-	  <!-- Fixed in r17556 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 33 -->
-	  Versions affected: 0.8.12.
-        </para></listitem>
-
-        <listitem><para>
-	  An invalid display filter could crash Ethereal.
-	  <!-- Fixed in r17555 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 34 -->
+          <!-- Coverity CID ### -->
 	  Versions affected: 0.9.16.
         </para></listitem>
-
-        <listitem><para>
-	  The general packet dissector could crash Ethereal.
-	  <!-- Fixed in r17494 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 35 -->
-	  Versions affected: 0.10.9.
-        </para></listitem>
-
-        <!-- CID 36 - 38: Bogus -->
-
-        <listitem><para>
-	  The AIM dissector could crash Ethereal.
-	  <!-- Fixed in r17512 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 39 -->
-	  Versions affected: 0.10.7.
-        </para></listitem>
-
-        <listitem><para>
-	  The RPC dissector could crash Ethereal.
-	  <!-- Fixed in r17546 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 40 -->
-	  Versions affected: 0.9.8.
-        </para></listitem>
-
-        <listitem><para>
-	  The DCERPC dissector could crash Ethereal.
-	  <!-- Fixed in r17657 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 41 -->
-	  Versions affected: 0.9.16.
-        </para></listitem>
-
-        <listitem><para>
-	  The ASN.1 dissector could crash Ethereal.
-	  <!-- Fixed in r17548, r17710, r17736, r17770 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 42, 43, 146 -->
-	  Versions affected: 0.9.8.
-        </para></listitem>
-
-        <listitem><para>
-	  The SMB PIPE dissector could crash Ethereal.
-	  <!-- Fixed in r17509, r17523, r17621, r17708 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 44, 46, 47, 48 -->
-	  Versions affected: 0.8.20.
-        </para></listitem>
-
-        <!-- CID 45: Bogus -->
-        <!-- CID 46 - 48: See CID 44 -->
-        <!-- CID 49: Bogus -->
-        <!-- CID 50 - 62: Not security-related -->
-        <!-- CID 63 - 66: Bogus -->
-
-        <listitem><para>
-	  The BER dissector could loop excessively.
-	  <!-- Fixed in r17498, r17625 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 67, 68, 136 -->
-	  Versions affected: 0.10.4.
-        </para></listitem>
-
-        <!-- CID 69 - 72: Bogus -->
-
-        <listitem><para>
-	  The SNDCP dissector could abort.
-	  <!-- Fixed in r17518 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 73 -->
-	  Versions affected: 0.10.4.
-        </para></listitem>
-
-        <!-- CID 74 - 78: Bogus -->
-        <!-- CID 79: Lemon is a build-time tool -->
-        <!-- CID 80: Bogus -->
-        <!-- CID 81: Post-0.10.14 -->
-
-        <listitem><para>
-	  The Network Instruments file code could overrun a buffer.
-	  <!-- Fixed in r17520 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 82 -->
-	  Versions affected: 0.10.0.
-        </para></listitem>
-
-        <listitem><para>
-	  The NetXray/Windows Sniffer file code could overrun a buffer.
-	  <!-- Fixed in r17580 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 83 -->
-	  Versions affected: 0.10.13.
-        </para></listitem>
-
-        <!-- CID 83 - 103: Bogus -->
-
-        <listitem><para>
-	  The GSM SMS dissector could crash Ethereal.
-	  <!-- Fixed in r17506 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 104 -->
-	  Versions affected: 0.9.16.
-        </para></listitem>
-
-        <listitem><para>
-	  The ALCAP dissector could overrun a buffer.
-	  <!-- Fixed in r17724 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 105 -->
-	  Versions affected: 0.10.14.
-        </para></listitem>
-
-        <listitem><para>
-	  The telnet dissector could overrun a buffer.
-	  <!-- Fixed in r17487 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 106 -->
-	  Versions affected: 0.8.5.
-        </para></listitem>
-
-        <!-- CID 107: See CID 79 -->
-        <!-- CID 108: Not security-related -->
-
-        <listitem><para>
-	  ASN.1-based dissectors could crash Ethereal.
-	  <!-- Fixed in r17489 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 109 -->
-	  Versions affected: 0.9.10.
-        </para></listitem>
-
-        <!-- CID 110: Not security-related -->
-        <!-- CID 111: Bogus -->
-        <!-- CID 112: Not security-related -->
-
-        <listitem><para>
-	  The H.248 dissector could crash Ethereal.
-	  <!-- Fixed in r17571 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 113,114 -->
-	  Versions affected: 0.10.11.
-        </para></listitem>
-
-        <!-- CID 115, 116: See CID 79 -->
-        <!-- CID 117: Bogus -->
-        <!-- CID 118 - 119: Not security-related -->
-        <!-- CID 120 - 121: Bogus -->
-        <!-- CID 122 - 126: Not security-related -->
-        <!-- CID 127: Bogus -->
-
-        <listitem><para>
-	  The DCERPC NT dissector could crash Ethereal.
-	  <!-- Fixed in r17511 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 128 -->
-	  Versions affected: 0.9.14.
-        </para></listitem>
-
-        <!-- CID 129: Bogus -->
-        <!-- CID 130 - 134: Not security-related -->
-
-        <listitem><para>
-	  The PER dissector could crash Ethereal.
-	  <!-- Fixed in r17511 -->
-	  <!-- Bug IDs: None -->
-          <!-- Coverity CID 135 -->
-	  Versions affected: 0.9.14.
-        </para></listitem>
-
-        <!-- CID 136: See CID 67 -->
-        <!-- CID 137 - 139: Not security-releated -->
-        <!-- CID 140 - 141: Bogus -->
-        <!-- CID 142: Not security-releated -->
-        <!-- CID 143 - 144: See CID 79 -->
-        <!-- CID 144: Lemon is a build-time tool -->
-        <!-- CID 145: Post-0.10.14 -->
-        <!-- CID 146: See CID 42 -->
-        <!-- CID 147 - 148: Post-0.10.14 -->
-        <!-- CID 149: DEADCODE -->
 
       </itemizedlist>
-    </para>
-
-    <para>
-      Win32: Unicode characters in the users profile path causes problems
-      reading/writing the preferences (and alike) files.
-      <!-- Fixed in r17024,r17025 -->
-      <!-- Bug IDs: 648 -->
-      Versions affected: 0.10.14.
-    </para>
-
-    <para>
-      The Coverity audit turned up several UI-related bugs that could
-      make Ethereal crash.
     </para>
 
     </section>
@@ -336,49 +73,6 @@ Ethereal Info
       <itemizedlist>
 
         <listitem><para>
-          The new command line tool <command>dumpcap</command> makes it
-          possible to capture network data without the drawbacks of (t)ethereal
-          (memory usage, security problems, ...) while keeping the benefit of
-          advanced techniques like multiple (ringbuffer) files and alike.
-          </para>
-          <para>
-          The manpage of <command>dumpcap</command> in HTML format is available
-          at: <ulink url="http://www.ethereal.com/docs/"/>
-        </para></listitem>
-
-        <listitem><para>
-	  Win32: Catch hardware exceptions caused by buggy dissectors.
-	  If e.g. a NULL pointer exceptions occurs, Ethereal won't crash now
-	  but displays the exception and tries to continue decoding packets.
-        </para></listitem>
-
-        <listitem><para>
-	  The Windows version of Ethereal now uses native open and save
-          file dialogs.
-        </para>
-        <para>
-          In related news, Ethereal now runs as a full-fledged Unicode
-          application under Windows.
-        </para></listitem>
-
-        <listitem><para>
-	  Recent versions of Ethereal were flagging packets with an
-          incorrect TCP checksum as malformed.  False positives were
-          being triggered on systems that use TCP checksum offloading.
-          We now check to see if the checksum is <emphasis>not</emphasis>
-          0x0000 before flagging the packet as malformed.
-
-          <note><title>Please Note</title>
-          <para>
-            If your system uses TCP checksum offloading <emphasis>and</emphasis>
-            Ethereal still shows bad checksums for outgoing TCP packets
-            <emphasis>and</emphasis> the checksums for outgoing TCP packets
-            are <emphasis>not</emphasis> 0x0000, this could mean that your
-            operating system is exposing kernel memory unneccessarily.  If
-            this is the case, you should report the problem to your OS
-            vendor.
-          </para>
-		  </note>
         </para></listitem>
 
       </itemizedlist>
