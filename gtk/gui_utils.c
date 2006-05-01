@@ -362,9 +362,15 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
     /* as we now have the geometry from the recent file, set it */
     if (geom->set_pos) {
+#if GTK_MAJOR_VERSION >= 2
+        gtk_window_move(GTK_WINDOW(widget),
+                        geom->x,
+                        geom->y);
+#else
         gtk_widget_set_uposition(widget,
                                  geom->x,
                                  geom->y);
+#endif
     }
 
     if (geom->set_size) {
