@@ -362,10 +362,10 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 /* if we saw a PDU that extended beyond the end of the segment,
    use this function to remember where the next pdu starts
 */
-static void
+static struct tcp_multisegment_pdu *
 pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, struct tcp_analysis *tcpd)
 {
-	struct tcp_multisegment_pdu *msp=NULL;
+	struct tcp_multisegment_pdu *msp;
 
 	msp=se_alloc(sizeof(struct tcp_multisegment_pdu));
 	msp->nxtpdu=nxtpdu;
@@ -374,6 +374,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	msp->last_frame=pinfo->fd->num;
 	msp->last_frame_time=pinfo->fd->abs_ts;
 	se_tree_insert32(tcpd->fwd->multisegment_pdus, seq, (void *)msp);
+	return msp;
 }
 
 /* This is called for SYN+ACK packets and the purpose is to verify that we
@@ -1045,17 +1046,24 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		struct tcp_analysis *tcpd)
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
-	fragment_data *ipfd_head=NULL;
-	gboolean must_desegment = FALSE;
-	gboolean called_dissector = FALSE;
-	int another_pdu_follows = 0;
+	fragment_data *ipfd_head;
+	gboolean must_desegment;
+	gboolean called_dissector;
+	int another_pdu_follows;
 	int deseg_offset;
 	guint32 deseg_seq;
 	gint nbytes;
 	proto_item *item;
 	proto_item *frag_tree_item;
 	proto_item *tcp_tree_item;
-        struct tcp_multisegment_pdu *msp=NULL;
+        struct tcp_multisegment_pdu *msp;
+
+again:
+	ipfd_head=NULL;
+	must_desegment = FALSE;
+	called_dissector = FALSE;
+	another_pdu_follows = 0;
+	msp=NULL;
 
 	/*
 	 * Initialize these to assume no desegmentation.
@@ -1297,14 +1305,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	    if ((nxtseq - deseg_seq) <= 1024*1024) {
 		if(!pinfo->fd->flags.visited){		
-		    msp=se_alloc(sizeof(struct tcp_multisegment_pdu));
-		    msp->nxtpdu=nxtseq + pinfo->desegment_len;
-		    msp->seq=deseg_seq;
-		    msp->first_frame=pinfo->fd->num;
-		    msp->last_frame=pinfo->fd->num;
-		    msp->last_frame_time=pinfo->fd->abs_ts;
-		    se_tree_insert32(tcpd->fwd->multisegment_pdus, msp->seq, (void *)msp);
-
+		    msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
+				nxtseq + pinfo->desegment_len, tcpd);
 
 		    /* add this segment as the first one for this new pdu */
 		    fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
@@ -1368,9 +1370,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
 
-
-	/* there was another pdu following this one. */
 	if(another_pdu_follows){
+		/* there was another pdu following this one. */
 		pinfo->can_desegment=2;
 		/* we also have to prevent the dissector from changing the 
 		 * PROTOCOL and INFO colums since what follows may be an 
@@ -1381,11 +1382,9 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		 */
 		col_set_fence(pinfo->cinfo, COL_INFO);
 		col_set_writable(pinfo->cinfo, FALSE);
-		desegment_tcp(tvb, pinfo, offset+another_pdu_follows,
-			seq+another_pdu_follows, nxtseq,
-			sport, dport, 
-			tree, tcp_tree,
-			tcpd);
+		offset += another_pdu_follows;
+		seq += another_pdu_follows;
+		goto again;
 	}
 }
 
@@ -1822,9 +1821,11 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
   tvbuff_t *next_tvb;
   int low_port, high_port;
+  int save_desegment_offset;
+  guint32 save_desegment_len;
 
   /* dont call subdissectors for keepalive or zerowindowprobes
-   * eventhough tehy do contain payload "data"
+   * even though they do contain payload "data"
    * keeaplives just contain garbage and zwp contain too little data (1 byte)
    * so why bother.
    */
@@ -1847,10 +1848,21 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (try_heuristic_first) {
     /* do lookup with the heuristic subdissector table */
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)){
        pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
        return TRUE;
     }
+    /*
+     * They rejected the packet; make sure they didn't also request
+     * desegmentation (we could just override the request, but
+     * rejecting a packet *and* requesting desegmentation is a sign
+     * of the dissector's code needing clearer thought, so we fail
+     * so that the problem is made more obvious).
+     */
+    DISSECTOR_ASSERT(save_desegment_offset == pinfo->desegment_offset &&
+                     save_desegment_len == pinfo->desegment_len);
   }
 
   /* Do lookups with the subdissector table.
@@ -1888,10 +1900,21 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (!try_heuristic_first) {
     /* do lookup with the heuristic subdissector table */
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)){
        pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
        return TRUE;
     }
+    /*
+     * They rejected the packet; make sure they didn't also request
+     * desegmentation (we could just override the request, but
+     * rejecting a packet *and* requesting desegmentation is a sign
+     * of the dissector's code needing clearer thought, so we fail
+     * so that the problem is made more obvious).
+     */
+    DISSECTOR_ASSERT(save_desegment_offset == pinfo->desegment_offset &&
+                     save_desegment_len == pinfo->desegment_len);
   }
 
   /* Oh, well, we don't know this; dissect it as data. */
