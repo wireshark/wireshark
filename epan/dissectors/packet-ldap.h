@@ -1,11 +1,20 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-ldap.h                                                            */
+/* ../../tools/asn2eth.py -X -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
+
+/* Input file: packet-ldap-template.h */
+
+#line 1 "packet-ldap-template.h"
 /* packet-ldap.h
+ * Routines for ros packet dissection
+ * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -76,7 +85,6 @@
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
 
-
 typedef struct ldap_call_response {
   gboolean is_request;
   guint32 req_frame;
@@ -87,4 +95,8 @@ typedef struct ldap_call_response {
 } ldap_call_response_t;
 
 
-#endif
+/*#include "packet-ldap-exp.h" */
+
+#endif  /* PACKET_LDAP_H */
+
+

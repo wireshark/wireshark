@@ -26,6 +26,7 @@ all: \
 	h248	\
 	h450	\
 	inap	\
+	ldap	\
 	logotype-cert-extn	\
 	MAP_Dialogue	\
 	mms	\
@@ -123,6 +124,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd inap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd ldap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd logotype-cert-extn
@@ -241,6 +245,7 @@ ber: \
 	gsmmap	\
 	gsm_ss	\
 	inap	\
+	ldap \
 	logotype-cert-extn	\
 	MAP_Dialogue	\
 	mms	\
@@ -385,6 +390,11 @@ h450::
 
 inap::
 	cd inap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+ldap::
+	cd ldap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
