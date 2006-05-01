@@ -6302,7 +6302,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
     cdata->type=SCSI_PDU_TYPE_RSP;
     tap_queue_packet(scsi_tap, pinfo, cdata);
 
-    csdata=get_cmdset_data(itlq, itl);
+    csdata=get_cmdset_data(itlq, itl);   /* will gassert if itlq is null */
 
     /* Nothing really to do here, just print some stuff passed to us
      */
@@ -6323,7 +6323,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
         ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset, "Command Set:%s (0x%02x)", val_to_str(itl->cmdset, scsi_devtype_val, "Unknown"), itl->cmdset);
         PROTO_ITEM_SET_GENERATED(ti);
 
-        if(itlq && itlq->scsi_opcode!=0xffff){
+        if(itlq->scsi_opcode!=0xffff){
             ti=proto_tree_add_uint(scsi_tree, csdata->hf_opcode, tvb, 0, 0, itlq->scsi_opcode);
             PROTO_ITEM_SET_GENERATED(ti);
         }
