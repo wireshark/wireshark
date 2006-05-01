@@ -30,6 +30,14 @@ Ethereal Info
     <section><title>Bug Fixes</title>
 
     <para>
+      Under Windows, overly long file and interface names could overflow
+      a buffer.
+      <!-- Fixed in r18017 -->
+      Versions affected: 0.99.0.
+    </para>
+
+
+    <para>
       Ethereal could crash while adjusting column preferences.
       <!-- Fixed in r17983 -->
       <!-- Bug IDs: 886 -->
@@ -47,6 +55,19 @@ Ethereal Info
       Ethereal could crash while following a TCP stream.
       <!-- Fixed in r18001 -->
       <!-- Bug IDs: 852 -->
+      Versions affected: 0.99.0.
+    </para>
+
+    <para>
+      Ethereal would refuse to run under older versions of Windows.
+      <!-- Fixed in r18025 -->
+      Versions affected: 0.99.0.
+    </para>
+
+    <para>
+      The Windows version of Ethereal would not export files properly.
+      <!-- Fixed in r18026 -->
+      <!-- Bug IDs: 894 -->
       Versions affected: 0.99.0.
     </para>
 

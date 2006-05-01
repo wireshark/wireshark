@@ -694,7 +694,7 @@ wchar_t * utf_8to16(const char *utf8str) {
      * for one more character plus a terminating '\0'.
      */
     utf16buf_len[idx] *= 2;
-    utf16buf[idx] = g_realloc(utf16buf[idx], utf16buf_len[idx]);
+    utf16buf[idx] = g_realloc(utf16buf[idx], utf16buf_len[idx] * sizeof(wchar_t));
   }
 
   if (MultiByteToWideChar(CP_UTF8, 0, utf8str,

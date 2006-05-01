@@ -113,6 +113,15 @@ typedef struct _emem_header_t {
 static emem_header_t ep_packet_mem;
 static emem_header_t se_packet_mem;
 
+#if !defined(SE_DEBUG_FREE)
+#if defined (_WIN32)
+static SYSTEM_INFO sysinfo;
+static OSVERSIONINFO versinfo;
+static int pagesize;
+#elif defined(USE_GUARD_PAGES)
+static intptr_t pagesize;
+#endif /* _WIN32 / USE_GUARD_PAGES */
+#endif /* SE_DEBUG_FREE */
 
 #ifdef DEBUG_USE_CANARIES
 /*
@@ -188,6 +197,21 @@ ep_init_chunk(void)
 #ifdef DEBUG_USE_CANARIES
 	emem_canary(ep_canary);
 #endif /* DEBUG_USE_CANARIES */
+
+#if !defined(SE_DEBUG_FREE)
+#if defined (_WIN32)
+	/* Set up our guard page info for Win32 */
+	GetSystemInfo(&sysinfo);
+	pagesize = sysinfo.dwPageSize;
+
+	versinfo.dwOSVersionInfoSize = sizeof(versinfo);
+	GetVersionEx(&versinfo);
+#elif defined(USE_GUARD_PAGES)
+	pagesize = sysconf(_SC_PAGESIZE);
+#endif /* _WIN32 / USE_GUARD_PAGES */
+#endif /* SE_DEBUG_FREE */
+
+
 }
 /* Initialize the capture-lifetime memory allocation pool.
  * This function should be called only once when Ethereal or Tethereal starts
@@ -208,17 +232,13 @@ se_init_chunk(void)
 static void
 emem_create_chunk(emem_chunk_t **free_list) {
 #if defined (_WIN32)
-	SYSTEM_INFO sysinfo;
-	OSVERSIONINFO versinfo;
-	int pagesize;
 	BOOL ret;
 	char *buf_end, *prot1, *prot2;
 	DWORD oldprot;
 #elif defined(USE_GUARD_PAGES)
-	intptr_t pagesize = sysconf(_SC_PAGESIZE);
 	int ret;
 	char *buf_end, *prot1, *prot2;
-#endif
+#endif /* _WIN32 / USE_GUARD_PAGES */
 	/* we dont have any free data, so we must allocate a new one */
 	if(!*free_list){
 		emem_chunk_t *npc;
@@ -237,13 +257,6 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		 * http://msdn.microsoft.com/library/en-us/memory/base/creating_guard_pages.asp
 		 */
 
-		/* XXX - We should only have to call these once. */
-		GetSystemInfo(&sysinfo);
-		pagesize = sysinfo.dwPageSize;
-
-		versinfo.dwOSVersionInfoSize = sizeof(versinfo);
-		GetVersionEx(&versinfo);
-
 		/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
 		npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
 			MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
@@ -255,9 +268,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
 		ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE && versinfo.dwPlatformId != VER_PLATFORM_WIN32_WINDOWS);
+		g_assert(ret == TRUE || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 		ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE && versinfo.dwPlatformId != VER_PLATFORM_WIN32_WINDOWS);
+		g_assert(ret == TRUE || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
 		npc->amount_free_init = prot2 - prot1 - pagesize;
 		npc->amount_free = npc->amount_free_init;
