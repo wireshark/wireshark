@@ -2967,6 +2967,10 @@ class RestrictedCharacterStringType (CharacterStringType):
         body = ectx.eth_fn_call('dissect_%(ER)s_VisibleString', ret='offset',
                                 par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
                                      ('%(MIN_VAL)s', '%(MAX_VAL)s',),))
+      elif (self.eth_tsname() == 'UTCTime'):
+        body = ectx.eth_fn_call('dissect_%(ER)s_VisibleString', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s',),))
       else:
         body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
                                 par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
