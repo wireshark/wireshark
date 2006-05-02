@@ -1,0 +1,18 @@
+# upl.cnf
+# upl conformation file
+# Copyright 2006 Anders Broman 
+# $Id$
+
+#.PDU
+ULP-PDU
+
+#.FN_BODY ULP-PDU
+
+	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+  %(DEFAULT_BODY)s

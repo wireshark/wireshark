@@ -1,0 +1,558 @@
+ULP DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+--IMPORTS
+--  Version, SessionID
+--    FROM ULP-Components
+--  SUPLINIT
+--    FROM SUPL-INIT
+--  SUPLSTART
+--    FROM SUPL-START
+--  SUPLRESPONSE
+--    FROM SUPL-RESPONSE
+--  SUPLPOSINIT
+--    FROM SUPL-POS-INIT
+--  SUPLPOS
+--    FROM SUPL-POS
+--  SUPLEND
+--    FROM SUPL-END
+--  SUPLAUTHREQ
+--    FROM SUPL-AUTH-REQ
+--  SUPLAUTHRESP
+--    FROM SUPL-AUTH-RESP;
+
+-- general ULP PDU layout;
+ULP-PDU ::= SEQUENCE {
+  length     INTEGER(0..65535),
+  version    Version,
+  sessionID  SessionID,
+  message    UlpMessage}
+
+UlpMessage ::= CHOICE {
+  msSUPLINIT      SUPLINIT,
+  msSUPLSTART     SUPLSTART,
+  msSUPLRESPONSE  SUPLRESPONSE,
+  msSUPLPOSINIT   SUPLPOSINIT,
+  msSUPLPOS       SUPLPOS,
+  msSUPLEND       SUPLEND,
+  msSUPLAUTHREQ   SUPLAUTHREQ,
+  msSUPLAUTHRESP  SUPLAUTHRESP,
+  ...}
+
+-- END
+--ULP-Components DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS
+--  Version, SessionID, IPAddress, SLPAddress, LocationId, Position, StatusCode,
+--    Velocity, QoP, PosMethod, Ver;
+
+-- protocol version expressed as x.y.z (e.g., 5.1.0)
+Version ::= SEQUENCE {
+  maj      INTEGER(0..255),
+  min      INTEGER(0..255),
+  servind  INTEGER(0..255)}
+
+SessionID ::= SEQUENCE {
+  setSessionID  SetSessionID OPTIONAL, -- the semantics of OPTIONAL applies to the encoding only. The parameter itself is MANDATORY. This is introduced only to minimize bandwidth for the SUPL INIT message. Since the setSessionID is allocated by the SET, there is no setSessionID to be transmitted in the SUPL INIT message.
+  slpSessionID  SlpSessionID OPTIONAL -- the semantics of OPTIONAL applies to the encoding only. The parameter itself is MANDATORY. This is introduced only to minimize bandwidth for the SUPL START message. Since the slpSessionID is allocated by the SLP, there is no slpSessionID to be transmitted in the SUPL START message.--}
+
+SetSessionID ::= SEQUENCE {sessionId  INTEGER(0..65535),
+                           setId      SETId}
+
+SETId ::= CHOICE {
+  msisdn     OCTET STRING(SIZE (8)),
+  mdn        OCTET STRING(SIZE (8)),
+  min        BIT STRING(SIZE (34)), -- coded according to TIA-553
+  imsi       OCTET STRING(SIZE (8)),
+  nai        IA5String(SIZE (1..1000)),
+  iPAddress  IPAddress,
+  ...}
+
+-- msisdn, mdn and imsi are a BCD (Binary Coded Decimal) string 
+-- represent digits from 0 through 9, 
+-- two digits per octet, each digit encoded 0000 to 1001 (0 to 9)
+-- bits 8765 of octet n encoding digit 2n
+-- bits 4321 of octet n encoding digit 2(n-1) +1
+-- not used digits in the string shall be filled with 1111 
+SlpSessionID ::= SEQUENCE {
+  sessionID  OCTET STRING(SIZE (4)),
+  slpId      SLPAddress}
+
+IPAddress ::= CHOICE {
+  ipv4Address  OCTET STRING(SIZE (4)),
+  ipv6Address  OCTET STRING(SIZE (16))}
+
+SLPAddress ::= CHOICE {iPAddress  IPAddress,
+                       fQDN       FQDN,
+                       ...}
+
+FQDN ::= VisibleString(SIZE (1..255))
+--  VisibleString(FROM ("a".."z" | "A".."Z" | "0".."9" | ".-"))(SIZE (1..255))
+
+Ver ::= BIT STRING(SIZE (64))
+
+LocationId ::= SEQUENCE {gsmCell    GsmCellInformation OPTIONAL,
+                         wcdmaCell  WcdmaCellInformation OPTIONAL,
+                         cdmaCell   CdmaCellInformation OPTIONAL,
+                         status    Status,
+                         ...}
+
+Status ::= ENUMERATED {stale(0), current(1), unknown(2), ...
+                       }
+
+CellInfo ::= CHOICE {
+  gsmCell    GsmCellInformation,
+  wcdmaCell  WcdmaCellInformation,
+  cdmaCell   CdmaCellInformation,
+  ...
+  }
+
+Position ::= SEQUENCE {
+  timestamp         UTCTime,
+   -- shall include seconds and shall use UTC time. 
+  positionEstimate  PositionEstimate,
+  velocity          Velocity OPTIONAL,
+  ...
+  }
+
+PositionEstimate ::= SEQUENCE {
+  latitudeSign  ENUMERATED {north, south},
+  latitude      INTEGER(0..8388607),
+  longitude     INTEGER(-8388608..8388607),
+  uncertainty
+    SEQUENCE {uncertaintySemiMajor  INTEGER(0..127),
+              uncertaintySemiMinor  INTEGER(0..127),
+              orientationMajorAxis  INTEGER(0..180)} OPTIONAL,
+  -- angle in degree between major axis and North
+  confidence    INTEGER(0..100) OPTIONAL,
+  altitudeInfo  AltitudeInfo OPTIONAL,
+  ...}
+
+AltitudeInfo ::= SEQUENCE {
+  altitudeDirection  ENUMERATED {height, depth},
+  altitude           INTEGER(0..32767),
+  altUncertainty     INTEGER(0..127),
+  ...} -- based on 3GPP TS 23.032
+
+CdmaCellInformation ::= SEQUENCE {
+  refNID         INTEGER(0..65535), -- Network Id
+  refSID         INTEGER(0..32767), -- System Id
+  refBASEID      INTEGER(0..65535), -- Base Station Id
+  refBASELAT     INTEGER(0..4194303), -- Base Station Latitude
+  reBASELONG     INTEGER(0..8388607), -- Base Station Longitude
+  refREFPN       INTEGER(0..511), -- Base Station PN Code
+  refWeekNumber  INTEGER(0..65535), -- GPS Week Number
+  refSeconds     INTEGER(0..4194303)-- GPS Seconds -- ,
+  ...}
+
+GsmCellInformation ::= SEQUENCE {
+  refMCC  INTEGER(0..999), -- Mobile Country Code
+  refMNC  INTEGER(0..999), -- Mobile Network Code
+  refLAC  INTEGER(0..65535), -- Location area code
+  refCI   INTEGER(0..65535), -- Cell identity
+  nMR     NMR OPTIONAL,
+  tA      INTEGER(0..255) OPTIONAL, --Timing Advance
+  ...}
+
+WcdmaCellInformation ::= SEQUENCE {
+  refMCC                 INTEGER(0..999), -- Mobile Country Code
+  refMNC                 INTEGER(0..999), -- Mobile Network Code
+  refUC                  INTEGER(0..268435455), -- Cell identity
+  frequencyInfo          FrequencyInfo OPTIONAL,
+  primaryScramblingCode  INTEGER(0..511) OPTIONAL,
+  measuredResultsList    MeasuredResultsList OPTIONAL,
+  ...}
+
+FrequencyInfo ::= SEQUENCE {
+  modeSpecificInfo  CHOICE {fdd  FrequencyInfoFDD,
+                            tdd  FrequencyInfoTDD,
+                            ...},
+  ...}
+
+FrequencyInfoFDD ::= SEQUENCE {
+  uarfcn-UL  UARFCN OPTIONAL,
+  uarfcn-DL  UARFCN,
+  ...}
+
+FrequencyInfoTDD ::= SEQUENCE {uarfcn-Nt  UARFCN,
+                               ...}
+
+UARFCN ::= INTEGER(0..16383)
+
+NMR ::= SEQUENCE (SIZE (1..15)) OF NMRelement
+
+NMRelement ::= SEQUENCE {
+  aRFCN  INTEGER(0..1023),
+  bSIC   INTEGER(0..63),
+  rxLev  INTEGER(0..63),
+  ...}
+
+MeasuredResultsList ::= SEQUENCE (SIZE (1..maxFreq)) OF MeasuredResults
+
+MeasuredResults ::= SEQUENCE {
+  frequencyInfo            FrequencyInfo OPTIONAL,
+  utra-CarrierRSSI         UTRA-CarrierRSSI OPTIONAL,
+  cellMeasuredResultsList  CellMeasuredResultsList OPTIONAL}
+
+CellMeasuredResultsList ::=
+  SEQUENCE (SIZE (1..maxCellMeas)) OF CellMeasuredResults
+
+-- SPARE: UTRA-CarrierRSSI, Max = 76
+-- Values above Max are spare
+UTRA-CarrierRSSI ::= INTEGER(0..127)
+
+CellMeasuredResults ::= SEQUENCE {
+  cellIdentity      INTEGER(0..268435455) OPTIONAL,
+  modeSpecificInfo
+    CHOICE {fdd
+              SEQUENCE {primaryCPICH-Info  PrimaryCPICH-Info,
+                        cpich-Ec-N0        CPICH-Ec-N0 OPTIONAL,
+                        cpich-RSCP         CPICH-RSCP OPTIONAL,
+                        pathloss           Pathloss OPTIONAL},
+            tdd
+              SEQUENCE {cellParametersID   CellParametersID,
+                        proposedTGSN       TGSN OPTIONAL,
+                        primaryCCPCH-RSCP  PrimaryCCPCH-RSCP OPTIONAL,
+                        pathloss           Pathloss OPTIONAL,
+                        timeslotISCP-List  TimeslotISCP-List OPTIONAL}}}
+
+CellParametersID ::= INTEGER(0..127)
+
+TGSN ::= INTEGER(0..14)
+
+PrimaryCCPCH-RSCP ::= INTEGER(0..127)
+
+-- SPARE: TimeslotISCP, Max = 91
+-- Values above Max are spare
+TimeslotISCP ::= INTEGER(0..127)
+
+TimeslotISCP-List ::= SEQUENCE (SIZE (1..maxTS)) OF TimeslotISCP
+
+PrimaryCPICH-Info ::= SEQUENCE {primaryScramblingCode  INTEGER(0..511)}
+
+-- SPARE: CPICH-Ec-No, Max = 49
+-- Values above Max are spare
+CPICH-Ec-N0 ::= INTEGER(0..63)
+
+-- SPARE: CPICH- RSCP, Max = 91
+-- Values above Max are spare
+CPICH-RSCP ::= INTEGER(0..127)
+
+-- SPARE: Pathloss, Max = 158
+-- Values above Max are spare
+Pathloss ::= INTEGER(46..173)
+
+maxCellMeas INTEGER ::= 32
+
+maxFreq INTEGER ::= 8
+
+maxTS INTEGER ::= 14
+
+StatusCode ::= ENUMERATED {
+  unspecified(0), systemFailure(1), unexpectedMessage(2), protocolError(3),
+  dataMissing(4), unexpectedDataValue(5), posMethodFailure(6),
+  posMethodMismatch(7), posProtocolMismatch(8), targetSETnotReachable(9),
+  versionNotSupported(10), resourceShortage(11), invalidSessionId(12),
+  nonProxyModeNotSupported(13), proxyModeNotSupported(14),
+  positioningNotPermitted(15), authNetFailure(16), authSuplinitFailure(17), consentDeniedByUser(100),
+  consentGrantedByUser(101), ...
+  }
+
+QoP ::= SEQUENCE {
+  horacc     INTEGER(0..127),
+  veracc     INTEGER(0..127) OPTIONAL, -- as defined in 3GPP TS 23.032 “uncertainty altitude”-
+  maxLocAge  INTEGER(0..65535) OPTIONAL,
+  delay      INTEGER(0..7) OPTIONAL, -- as defined in 3GPP TS 44.031
+  ...}
+
+Velocity ::= CHOICE { -- velocity definition as per 23.032
+  horvel           Horvel,
+  horandvervel     Horandvervel,
+  horveluncert     Horveluncert,
+  horandveruncert  Horandveruncert,
+  ...}
+
+Horvel ::= SEQUENCE {
+  bearing   BIT STRING(SIZE (9)),
+  horspeed  BIT STRING(SIZE (16)),
+  ...}
+
+Horandvervel ::= SEQUENCE {
+  verdirect  BIT STRING(SIZE (1)),
+  bearing    BIT STRING(SIZE (9)),
+  horspeed   BIT STRING(SIZE (16)),
+  verspeed   BIT STRING(SIZE (8)),
+  ...}
+
+Horveluncert ::= SEQUENCE {
+  bearing      BIT STRING(SIZE (9)),
+  horspeed     BIT STRING(SIZE (16)),
+  uncertspeed  BIT STRING(SIZE (8)),
+  ...}
+
+Horandveruncert ::= SEQUENCE {
+  verdirect       BIT STRING(SIZE (1)),
+  bearing         BIT STRING(SIZE (9)),
+  horspeed        BIT STRING(SIZE (16)),
+  verspeed        BIT STRING(SIZE (8)),
+  horuncertspeed  BIT STRING(SIZE (8)),
+  veruncertspeed  BIT STRING(SIZE (8)),
+  ...}
+
+PosMethod ::= ENUMERATED {
+  agpsSETassisted(0), agpsSETbased(1), agpsSETassistedpref(2),
+  agpsSETbasedpref(3), autonomousGPS(4), aFLT(5), eCID(6), eOTD(7), oTDOA(8),
+  noPosition(9), ...
+  }
+
+--END
+--SUPL-AUTH-REQ DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLAUTHREQ;
+
+SUPLAUTHREQ ::= SEQUENCE {
+  sETNonce      SETNonce,
+  keyIdentity2  KeyIdentity2,
+  ...}
+
+SETNonce ::= BIT STRING(SIZE (128))
+
+KeyIdentity2 ::= BIT STRING(SIZE (128))
+
+--END
+--SUPL-AUTH-RESP DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLAUTHRESP;
+
+--IMPORTS StatusCode
+--          FROM ULP-Components;
+
+SUPLAUTHRESP ::= SEQUENCE {
+  sPCAuthKey    SPCAuthKey OPTIONAL,
+  keyIdentity3  KeyIdentity3 OPTIONAL,
+  statusCode    StatusCode OPTIONAL,
+  ...}
+
+SPCAuthKey ::= CHOICE {
+  shortKey  BIT STRING(SIZE (128)),
+  longKey   BIT STRING(SIZE (256)),
+  ...}
+
+KeyIdentity3 ::= BIT STRING(SIZE (128))
+
+--END
+--SUPL-END DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLEND;
+
+--IMPORTS StatusCode, Position, Ver
+--          FROM ULP-Components;
+
+SUPLEND ::= SEQUENCE {
+  position    Position OPTIONAL,
+  statusCode  StatusCode OPTIONAL,
+  ver         Ver OPTIONAL,
+  ...}
+
+
+--END
+--SUPL-INIT DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLINIT;
+
+--IMPORTS SLPAddress, QoP, PosMethod
+--          FROM ULP-Components;
+
+SUPLINIT ::= SEQUENCE {
+  posMethod     PosMethod,
+  notification  Notification OPTIONAL,
+  sLPAddress    SLPAddress OPTIONAL,
+  qoP           QoP OPTIONAL,
+  sLPMode       SLPMode,
+  mAC           MAC OPTIONAL,
+  keyIdentity   KeyIdentity OPTIONAL,
+  ...}
+
+Notification ::= SEQUENCE {
+  notificationType  NotificationType,
+  encodingType      EncodingType OPTIONAL,
+  requestorId       OCTET STRING(SIZE (1..maxReqLength)) OPTIONAL,
+  requestorIdType   FormatIndicator OPTIONAL,
+  clientName        OCTET STRING(SIZE (1..maxClientLength)) OPTIONAL,
+  clientNameType    FormatIndicator OPTIONAL,
+  ...}
+
+NotificationType ::= ENUMERATED {
+  noNotificationNoVerification(0), notificationOnly(1),
+  notificationAndVerficationAllowedNA(2),
+  notificationAndVerficationDeniedNA(3), privacyOverride(4), ...
+  }
+
+EncodingType ::= ENUMERATED {ucs2(0), gsmDefault(1), utf8(2), ...
+                             }
+
+maxReqLength INTEGER ::= 50
+
+maxClientLength INTEGER ::= 50
+
+-- IMSPublicidentity is incorrect as identifiers must start with lower case char
+FormatIndicator ::= ENUMERATED {
+  logicalName(0), e-mailAddress(1), msisdn(2), url(3), sipUrl(4), min(5),
+  mdn(6), iMSPublicidentity(7), ...
+  }
+
+SLPMode ::= ENUMERATED {proxy(0), nonProxy(1)}
+
+MAC ::= BIT STRING(SIZE (64))
+
+KeyIdentity ::= BIT STRING(SIZE (128))
+
+--END
+--SUPL-POS DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLPOS;
+
+--IMPORTS Velocity
+--          FROM ULP-Components;
+
+SUPLPOS ::= SEQUENCE {
+  posPayLoad  PosPayLoad,
+  velocity    Velocity OPTIONAL,
+  ...}
+
+PosPayLoad ::= CHOICE {
+  tia801payload  OCTET STRING(SIZE (1..8192)),
+  rrcPayload     OCTET STRING(SIZE (1..8192)),
+  rrlpPayload    OCTET STRING(SIZE (1..8192)),
+  ...}
+
+--END
+--SUPL-POS-INIT DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLPOSINIT;
+
+--IMPORTS
+--  SUPLPOS
+--    FROM SUPL-POS
+--  SETCapabilities
+--    FROM SUPL-START
+--  LocationId, Position, Ver
+--    FROM ULP-Components;
+
+SUPLPOSINIT ::= SEQUENCE {
+  sETCapabilities      SETCapabilities,
+  requestedAssistData  RequestedAssistData OPTIONAL,
+  locationId           LocationId,
+  position             Position OPTIONAL,
+  sUPLPOS              SUPLPOS OPTIONAL,
+  ver                  Ver OPTIONAL,
+  ...}
+
+RequestedAssistData ::= SEQUENCE {
+  almanacRequested                BOOLEAN,
+  utcModelRequested               BOOLEAN,
+  ionosphericModelRequested       BOOLEAN,
+  dgpsCorrectionsRequested        BOOLEAN,
+  referenceLocationRequested      BOOLEAN,
+  referenceTimeRequested          BOOLEAN,
+  acquisitionAssistanceRequested  BOOLEAN,
+  realTimeIntegrityRequested      BOOLEAN,
+  navigationModelRequested        BOOLEAN,
+  navigationModelData             NavigationModel OPTIONAL,
+  ...}
+
+NavigationModel ::= SEQUENCE {
+  gpsWeek   INTEGER(0..1023),
+  gpsToe    INTEGER(0..167),
+  nSAT      INTEGER(0..31),
+  toeLimit  INTEGER(0..10),
+  satInfo   SatelliteInfo OPTIONAL,
+  ...}
+
+-- Further information on this fields can be found
+-- in 3GPP TS 44.031 and 49.031
+SatelliteInfo ::= SEQUENCE (SIZE (1..31)) OF SatelliteInfoElement
+
+SatelliteInfoElement ::= SEQUENCE {
+  satId  INTEGER(0..63),
+  iODE   INTEGER(0..255),
+  ...}
+
+--END
+
+--SUPL-RESPONSE DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLRESPONSE;
+
+--IMPORTS PosMethod, SLPAddress
+--          FROM ULP-Components;
+
+SUPLRESPONSE ::= SEQUENCE {
+  posMethod     PosMethod,
+  sLPAddress    SLPAddress OPTIONAL,
+  sETAuthKey    SETAuthKey OPTIONAL,
+  keyIdentity4  KeyIdentity4 OPTIONAL,
+  ...}
+
+SETAuthKey ::= CHOICE {
+  shortKey  BIT STRING(SIZE (128)),
+  longKey   BIT STRING(SIZE (256)),
+  ...}
+
+KeyIdentity4 ::= BIT STRING(SIZE (128))
+
+--END
+--SUPL-START DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+--EXPORTS SUPLSTART, SETCapabilities;
+
+--IMPORTS LocationId, QoP
+--          FROM ULP-Components;
+
+SUPLSTART ::= SEQUENCE {
+  sETCapabilities  SETCapabilities,
+  locationId       LocationId,
+  qoP              QoP OPTIONAL,
+  ...}
+
+SETCapabilities ::= SEQUENCE {
+  posTechnology  PosTechnology,
+  prefMethod     PrefMethod,
+  posProtocol    PosProtocol,
+  ...}
+
+PosTechnology ::= SEQUENCE {
+  agpsSETassisted  BOOLEAN,
+  agpsSETBased     BOOLEAN,
+  autonomousGPS    BOOLEAN,
+  aFLT             BOOLEAN,
+  eCID             BOOLEAN,
+  eOTD             BOOLEAN,
+  oTDOA            BOOLEAN,
+  ...}
+
+PrefMethod ::= ENUMERATED {
+  agpsSETassistedPreferred, agpsSETBasedPreferred, noPreference}
+
+PosProtocol ::= SEQUENCE {
+  tia801  BOOLEAN,
+  rrlp    BOOLEAN,
+  rrc     BOOLEAN,
+  ...}
+
+END
+
+
+
+
+
+
