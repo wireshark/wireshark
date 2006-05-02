@@ -807,7 +807,7 @@ void print_tree_item(se_tree_node_t *node, int level){
 	for(i=0;i<level;i++){
 		printf("   ");
 	}
-	printf("%s  KEY:0x%08x node:0x%08x parent:0x%08x left:0x%08x right:0x%08x\n",node->rb_color==SE_TREE_RB_COLOR_BLACK?"BLACK":"RED",node->key32,(int)node,(int)node->parent,(int)node->left,(int)node->right);
+	printf("%s  KEY:0x%08x node:0x%08x parent:0x%08x left:0x%08x right:0x%08x\n",node->u.rb_color==SE_TREE_RB_COLOR_BLACK?"BLACK":"RED",node->key32,(int)node,(int)node->parent,(int)node->left,(int)node->right);
 	if(node->left)
 		print_tree_item(node->left,level+1);
 	if(node->right)
@@ -1048,8 +1048,8 @@ rb_insert_case5(se_tree_t *se_tree, se_tree_node_t *node)
 
 	parent=se_tree_parent(node);
 	grandparent=se_tree_parent(parent);
-	parent->rb_color=SE_TREE_RB_COLOR_BLACK;
-	grandparent->rb_color=SE_TREE_RB_COLOR_RED;
+	parent->u.rb_color=SE_TREE_RB_COLOR_BLACK;
+	grandparent->u.rb_color=SE_TREE_RB_COLOR_RED;
 	if( (node==parent->left) && (parent==grandparent->left) ){
 		rotate_right(se_tree, grandparent);
 	} else {
@@ -1086,12 +1086,12 @@ rb_insert_case3(se_tree_t *se_tree, se_tree_node_t *node)
 	se_tree_node_t *uncle;
 
 	uncle=se_tree_uncle(node);
-	if(uncle && (uncle->rb_color==SE_TREE_RB_COLOR_RED)){
+	if(uncle && (uncle->u.rb_color==SE_TREE_RB_COLOR_RED)){
 		parent=se_tree_parent(node);
-		parent->rb_color=SE_TREE_RB_COLOR_BLACK;
-		uncle->rb_color=SE_TREE_RB_COLOR_BLACK;
+		parent->u.rb_color=SE_TREE_RB_COLOR_BLACK;
+		uncle->u.rb_color=SE_TREE_RB_COLOR_BLACK;
 		grandparent=se_tree_grandparent(node);
-		grandparent->rb_color=SE_TREE_RB_COLOR_RED;
+		grandparent->u.rb_color=SE_TREE_RB_COLOR_RED;
 		rb_insert_case1(se_tree, grandparent);
 	} else {
 		rb_insert_case4(se_tree, node);
@@ -1105,7 +1105,7 @@ rb_insert_case2(se_tree_t *se_tree, se_tree_node_t *node)
 
 	parent=se_tree_parent(node);
 	/* parent is always non-NULL here */
-	if(parent->rb_color==SE_TREE_RB_COLOR_BLACK){
+	if(parent->u.rb_color==SE_TREE_RB_COLOR_BLACK){
 		return;
 	}
 	rb_insert_case3(se_tree, node);
@@ -1118,7 +1118,7 @@ rb_insert_case1(se_tree_t *se_tree, se_tree_node_t *node)
 
 	parent=se_tree_parent(node);
 	if(!parent){
-		node->rb_color=SE_TREE_RB_COLOR_BLACK;
+		node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
 		return;
 	}
 	rb_insert_case2(se_tree, node);
@@ -1138,7 +1138,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 		node=se_alloc(sizeof(se_tree_node_t));
 		switch(se_tree->type){
 		case SE_TREE_TYPE_RED_BLACK:
-			node->rb_color=SE_TREE_RB_COLOR_BLACK;
+			node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
 			break;
 		}
 		node->parent=NULL;
@@ -1198,7 +1198,7 @@ se_tree_insert32(se_tree_t *se_tree, guint32 key, void *data)
 	/* node will now point to the newly created node */
 	switch(se_tree->type){
 	case SE_TREE_TYPE_RED_BLACK:
-		node->rb_color=SE_TREE_RB_COLOR_RED;
+		node->u.rb_color=SE_TREE_RB_COLOR_RED;
 		rb_insert_case1(se_tree, node);
 		break;
 	}
@@ -1214,7 +1214,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 		node=se_alloc(sizeof(se_tree_node_t));
 		switch(se_tree->type){
 			case SE_TREE_TYPE_RED_BLACK:
-				node->rb_color=SE_TREE_RB_COLOR_BLACK;
+				node->u.rb_color=SE_TREE_RB_COLOR_BLACK;
 				break;
 		}
 		node->parent=NULL;
@@ -1273,7 +1273,7 @@ static void* lookup_or_insert32(se_tree_t *se_tree, guint32 key, void*(*func)(vo
 	/* node will now point to the newly created node */
 	switch(se_tree->type){
 		case SE_TREE_TYPE_RED_BLACK:
-			node->rb_color=SE_TREE_RB_COLOR_RED;
+			node->u.rb_color=SE_TREE_RB_COLOR_RED;
 			rb_insert_case1(se_tree, node);
 			break;
 	}

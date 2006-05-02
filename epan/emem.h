@@ -168,7 +168,7 @@ typedef struct _se_tree_node_t {
 	struct _se_tree_node_t *right;
 	union {
 		guint32 rb_color;
-	};
+	} u;
 	guint32 key32;
 	void *data;
 } se_tree_node_t;
