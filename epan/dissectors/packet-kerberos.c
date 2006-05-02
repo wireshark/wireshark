@@ -135,6 +135,7 @@ static gint hf_krb_PAC_SERVER_CHECKSUM = -1;
 static gint hf_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint hf_krb_PAC_CLIENT_INFO_TYPE = -1;
 static gint hf_krb_encrypted_PA_ENC_TIMESTAMP = -1;
+static gint hf_krb_encrypted_EncKrbCredPart = -1;
 static gint hf_krb_checksum_checksum = -1;
 static gint hf_krb_encrypted_PRIV = -1;
 static gint hf_krb_encrypted_Ticket_data = -1;
@@ -148,8 +149,11 @@ static gint hf_krb_etype_info2_s2kparams = -1;
 static gint hf_krb_SAFE_BODY_user_data = -1;
 static gint hf_krb_PRIV_BODY_user_data = -1;
 static gint hf_krb_realm = -1;
+static gint hf_krb_srealm = -1;
+static gint hf_krb_prealm = -1;
 static gint hf_krb_crealm = -1;
 static gint hf_krb_sname = -1;
+static gint hf_krb_pname = -1;
 static gint hf_krb_cname = -1;
 static gint hf_krb_name_string = -1;
 static gint hf_krb_provsrv_location = -1;
@@ -184,6 +188,7 @@ static gint hf_krb_adtype = -1;
 static gint hf_krb_advalue = -1;
 static gint hf_krb_etype = -1;
 static gint hf_krb_etypes = -1;
+static gint hf_krb_KrbCredInfos = -1;
 static gint hf_krb_sq_tickets = -1;
 static gint hf_krb_LastReqs = -1;
 static gint hf_krb_IF_RELEVANT = -1;
@@ -202,11 +207,14 @@ static gint hf_krb_seq_number = -1;
 static gint hf_krb_EncTicketPart = -1;
 static gint hf_krb_EncAPRepPart = -1;
 static gint hf_krb_EncKrbPrivPart = -1;
+static gint hf_krb_EncKrbCredPart = -1;
 static gint hf_krb_EncKDCRepPart = -1;
 static gint hf_krb_LastReq = -1;
 static gint hf_krb_Authenticator = -1;
 static gint hf_krb_Checksum = -1;
 static gint hf_krb_s_address = -1;
+static gint hf_krb_r_address = -1;
+static gint hf_krb_KrbCredInfo = -1;
 static gint hf_krb_HostAddress = -1;
 static gint hf_krb_HostAddresses = -1;
 static gint hf_krb_APOptions = -1;
@@ -273,6 +281,7 @@ static gint ett_krb_KDC_REP_enc = -1;
 static gint ett_krb_EncTicketPart = -1;
 static gint ett_krb_EncAPRepPart = -1;
 static gint ett_krb_EncKrbPrivPart = -1;
+static gint ett_krb_EncKrbCredPart = -1;
 static gint ett_krb_EncKDCRepPart = -1;
 static gint ett_krb_LastReq = -1;
 static gint ett_krb_Authenticator = -1;
@@ -281,16 +290,20 @@ static gint ett_krb_key = -1;
 static gint ett_krb_subkey = -1;
 static gint ett_krb_AuthorizationData = -1;
 static gint ett_krb_sname = -1;
+static gint ett_krb_pname = -1;
 static gint ett_krb_cname = -1;
 static gint ett_krb_AP_REP_enc = -1;
 static gint ett_krb_padata = -1;
 static gint ett_krb_etypes = -1;
+static gint ett_krb_KrbCredInfos = -1;
 static gint ett_krb_sq_tickets = -1;
 static gint ett_krb_LastReqs = -1;
 static gint ett_krb_IF_RELEVANT = -1;
 static gint ett_krb_PA_DATA_tree = -1;
 static gint ett_krb_PAC = -1;
 static gint ett_krb_s_address = -1;
+static gint ett_krb_r_address = -1;
+static gint ett_krb_KrbCredInfo = -1;
 static gint ett_krb_HostAddress = -1;
 static gint ett_krb_HostAddresses = -1;
 static gint ett_krb_authenticator_enc = -1;
@@ -841,7 +854,8 @@ g_warning("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_MSG_ENC_AS_REP_PART	25	/* EncASRepPart */
 #define KRB5_MSG_ENC_TGS_REP_PART	26	/* EncTGSRepPart */
 #define KRB5_MSG_ENC_AP_REP_PART     	27	/* EncAPRepPart */
-#define KRB5_MSG_ENC_KRB_PRIV_PART     	28	/* EncAPRepPart */
+#define KRB5_MSG_ENC_KRB_PRIV_PART     	28	/* EncKrbPrivPart */
+#define KRB5_MSG_ENC_KRB_CRED_PART     	29	/* EncKrbCredPart */
 #define KRB5_MSG_ERROR    		30	/* KRB-ERROR type */
 
 /* address type constants */
@@ -1327,6 +1341,7 @@ static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_ENC_TGS_REP_PART,	"EncTGSRepPart" },
 	{ KRB5_MSG_ENC_AP_REP_PART,	"EncAPRepPart" },
 	{ KRB5_MSG_ENC_KRB_PRIV_PART,	"EncKrbPrivPart" },
+	{ KRB5_MSG_ENC_KRB_CRED_PART,	"EncKrbCredPart" },
 	{ KRB5_MSG_ERROR,		"KRB-ERROR" },
         { 0, NULL },
 };
@@ -1340,6 +1355,7 @@ static int dissect_krb5_Authenticator(packet_info *pinfo, proto_tree *tree, tvbu
 static int dissect_krb5_EncTicketPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncAPRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncKrbPrivPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_krb5_EncKrbCredPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncKDCRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_KDC_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_KDC_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -1364,6 +1380,7 @@ static const ber_choice_t kerberos_applications_choice[] = {
 	{ KRB5_MSG_ENC_TGS_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_TGS_REP_PART, 0, dissect_krb5_EncKDCRepPart },
 	{ KRB5_MSG_ENC_AP_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_AP_REP_PART, 0, dissect_krb5_EncAPRepPart },
 	{ KRB5_MSG_ENC_KRB_PRIV_PART, BER_CLASS_APP, KRB5_MSG_ENC_KRB_PRIV_PART, 0, dissect_krb5_EncKrbPrivPart },
+	{ KRB5_MSG_ENC_KRB_CRED_PART, BER_CLASS_APP, KRB5_MSG_ENC_KRB_CRED_PART, 0, dissect_krb5_EncKrbCredPart },
 	{ KRB5_MSG_SAFE,	BER_CLASS_APP,	KRB5_MSG_SAFE,		0,	dissect_krb5_SAFE },
 	{ KRB5_MSG_PRIV,	BER_CLASS_APP,	KRB5_MSG_PRIV,		0,	dissect_krb5_PRIV },
 	{ KRB5_MSG_CRED,	BER_CLASS_APP,	KRB5_MSG_CRED,		0,	dissect_krb5_CRED },
@@ -1709,6 +1726,15 @@ dissect_krb5_s_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 	return offset;
 }
 
+static int
+dissect_krb5_r_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, HostAddress_sequence, hf_krb_r_address, ett_krb_r_address);
+
+	return offset;
+}
+
 /*
  *  HostAddresses ::=   SEQUENCE OF SEQUENCE {
  *                      addr-type[0]             INTEGER,
@@ -1828,6 +1854,14 @@ dissect_krb5_sname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
 	return offset;
 }
+static int
+dissect_krb5_pname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, PrincipalName_sequence, hf_krb_pname, ett_krb_pname);
+
+	return offset;
+}
 int
 dissect_krb5_cname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -1837,6 +1871,20 @@ dissect_krb5_cname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 	return offset;
 }
 
+
+int
+dissect_krb5_prealm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_prealm, NULL, 0);
+	return offset;
+}
+
+int
+dissect_krb5_srealm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_srealm, NULL, 0);
+	return offset;
+}
 
 int
 dissect_krb5_realm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -3198,17 +3246,125 @@ dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
 	return offset;
 }
 
+static guint32 EncKrbCredPart_etype;
+static int
+dissect_krb5_EncKrbCredPart_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &EncKrbCredPart_etype);
+	if(tree){
+		proto_item_append_text(tree, " %s",
+			val_to_str(EncKrbCredPart_etype, krb5_encryption_types,
+			"%#x"));
+	}
+	return offset;
+}
 
+
+
+
+
+static ber_sequence_t KrbCredInfo_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, dissect_krb5_key },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_prealm },
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_krb5_pname },
+	{ BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_krb5_TicketFlags },
+	{ BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_krb5_authtime },
+	{ BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_krb5_starttime },
+	{ BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_krb5_endtime },
+	{ BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_krb5_renew_till },
+	{ BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_krb5_srealm },
+	{ BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_krb5_sname },
+	{ BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL, dissect_krb5_HostAddresses },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_KrbCredInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, KrbCredInfo_sequence, hf_krb_KrbCredInfo, ett_krb_KrbCredInfo);
+
+	return offset;
+}
+
+static ber_sequence_t KrbCredInfo_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_KrbCredInfo },
+};
+static int
+dissect_krb5_KrbCredInfo_sequence_of(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence_of(FALSE, pinfo, tree, tvb, offset, KrbCredInfo_sequence_of, hf_krb_KrbCredInfos, ett_krb_KrbCredInfos);
+
+	return offset;
+}
+static const ber_sequence_t EncKrbCredPart_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, dissect_krb5_KrbCredInfo_sequence_of },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_nonce },
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_krb5_ctime },
+	{ BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_krb5_cusec },
+	{ BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_krb5_s_address },
+	{ BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_krb5_r_address },
+	{ 0, 0, 0, NULL }
+};
+
+static int
+dissect_krb5_EncKrbCredPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, EncKrbCredPart_sequence, hf_krb_EncKrbCredPart, ett_krb_EncKrbCredPart);
+
+	return offset;
+}
+
+#ifdef HAVE_KERBEROS
+static int
+dissect_krb5_decrypt_EncKrbCredPart (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	guint8 *plaintext=NULL;
+	int length;
+
+	length=tvb_length_remaining(tvb, offset);
+
+	/* RFC4120 :
+	 * EncKrbCredPart encrypted with usage
+	 * == 14
+	 */
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(tree, pinfo, 14, length, tvb_get_ptr(tvb, offset, length), EncKrbCredPart_etype);
+	}
+
+	if(plaintext){
+		tvbuff_t *next_tvb;
+		next_tvb = tvb_new_real_data (plaintext,
+                                          length,
+                                          length);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(pinfo, next_tvb, "EncKrbCredPart");
+
+		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+	}
+	return offset;
+}
+#endif
+
+static int
+dissect_krb5_encrypted_CRED_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+#ifdef HAVE_KERBEROS
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, dissect_krb5_decrypt_EncKrbCredPart);
+#else
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, NULL);
+#endif
+	return offset;
+}
 
 static ber_sequence_t encrypted_CRED_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
-		dissect_krb5_etype },
+		dissect_krb5_EncKrbCredPart_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
 		dissect_krb5_kvno },
-/*
 	{ BER_CLASS_CON, 2, 0,
 		dissect_krb5_encrypted_CRED_data },
-*/
 	{ 0, 0, 0, NULL }
 };
 static int
@@ -4142,6 +4298,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case KRB5_MSG_ENC_TGS_REP_PART:
             case KRB5_MSG_ENC_AP_REP_PART:
             case KRB5_MSG_ENC_KRB_PRIV_PART:
+            case KRB5_MSG_ENC_KRB_CRED_PART:
             case KRB5_MSG_SAFE:
             case KRB5_MSG_PRIV:
             case KRB5_MSG_ERROR:
@@ -4304,6 +4461,12 @@ proto_register_kerberos(void)
 	{ &hf_krb_realm, {
 	    "Realm", "kerberos.realm", FT_STRING, BASE_NONE,
 	    NULL, 0, "Name of the Kerberos Realm", HFILL }},
+	{ &hf_krb_srealm, {
+	    "SRealm", "kerberos.srealm", FT_STRING, BASE_NONE,
+	    NULL, 0, "Name of the Kerberos SRealm", HFILL }},
+	{ &hf_krb_prealm, {
+	    "Delegated Principal Realm", "kerberos.prealm", FT_STRING, BASE_NONE,
+	    NULL, 0, "Name of the Kerberos PRealm", HFILL }},
 	{ &hf_krb_crealm, {
 	    "Client Realm", "kerberos.crealm", FT_STRING, BASE_NONE,
 	    NULL, 0, "Name of the Clients Kerberos Realm", HFILL }},
@@ -4436,6 +4599,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_encrypted_authenticator_data, {
 	    "Authenticator data", "kerberos.authenticator.data", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Data content of an encrypted authenticator", HFILL }},
+	{ &hf_krb_encrypted_EncKrbCredPart, {
+	    "enc EncKrbCredPart", "kerberos.EncKrbCredPart.encrypted", FT_BYTES, BASE_HEX,
+	    NULL, 0, "Encrypted EncKrbCredPart blob", HFILL }},
 	{ &hf_krb_encrypted_PA_ENC_TIMESTAMP, {
 	    "enc PA_ENC_TIMESTAMP", "kerberos.PA_ENC_TIMESTAMP.encrypted", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Encrypted PA-ENC-TIMESTAMP blob", HFILL }},
@@ -4499,12 +4665,18 @@ proto_register_kerberos(void)
 	{ &hf_krb_tkt_vno, {
 	    "Tkt-vno", "kerberos.tkt_vno", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Version number for the Ticket format", HFILL }},
+	{ &hf_krb_KrbCredInfo, {
+	    "KrbCredInfo", "kerberos.KrbCredInfo", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a Kerberos KrbCredInfo", HFILL }},
 	{ &hf_krb_HostAddress, {
 	    "HostAddress", "kerberos.hostaddress", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a Kerberos HostAddress sequence", HFILL }},
 	{ &hf_krb_s_address, {
 	    "S-Address", "kerberos.s_address", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is the Senders address", HFILL }},
+	{ &hf_krb_r_address, {
+	    "R-Address", "kerberos.r_address", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is the Recipient address", HFILL }},
 	{ &hf_krb_key, {
 	    "key", "kerberos.key", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a Kerberos EncryptionKey sequence", HFILL }},
@@ -4526,6 +4698,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_EncKrbPrivPart, {
 	    "EncKrbPrivPart", "kerberos.EncKrbPrivPart", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a decrypted Kerberos EncKrbPrivPart sequence", HFILL }},
+	{ &hf_krb_EncKrbCredPart, {
+	    "EncKrbCredPart", "kerberos.EncKrbCredPart", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a decrypted Kerberos EncKrbCredPart sequence", HFILL }},
 	{ &hf_krb_EncKDCRepPart, {
 	    "EncKDCRepPart", "kerberos.EncKDCRepPart", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a decrypted Kerberos EncKDCRepPart sequence", HFILL }},
@@ -4547,6 +4722,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_etypes, {
 	    "Encryption Types", "kerberos.etypes", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a list of Kerberos encryption types", HFILL }},
+	{ &hf_krb_KrbCredInfos, {
+	    "Sequence of KrbCredInfo", "kerberos.KrbCredInfos", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a list of KrbCredInfo", HFILL }},
 	{ &hf_krb_sq_tickets, {
 	    "Tickets", "kerberos.sq.tickets", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a list of Kerberos Tickets", HFILL }},
@@ -4556,6 +4734,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_sname, {
 	    "Server Name", "kerberos.sname", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is the name part server's identity", HFILL }},
+	{ &hf_krb_pname, {
+	    "Delegated Principal Name", "kerberos.pname", FT_NONE, BASE_DEC,
+	    NULL, 0, "Identity of the delegated principal", HFILL }},
 	{ &hf_krb_cname, {
 	    "Client Name", "kerberos.cname", FT_NONE, BASE_DEC,
 	    NULL, 0, "The name part of the client principal identifier", HFILL }},
@@ -4656,15 +4837,19 @@ proto_register_kerberos(void)
         &ett_krb_kerberos,
 	&ett_krb_KDC_REP_enc,
         &ett_krb_sname,
+        &ett_krb_pname,
         &ett_krb_cname,
 	&ett_krb_AP_REP_enc,
         &ett_krb_padata,
         &ett_krb_etypes,
+        &ett_krb_KrbCredInfos,
         &ett_krb_sq_tickets,
         &ett_krb_LastReqs,
         &ett_krb_IF_RELEVANT,
 	&ett_krb_PA_DATA_tree,
         &ett_krb_s_address,
+        &ett_krb_r_address,
+        &ett_krb_KrbCredInfo,
         &ett_krb_HostAddress,
         &ett_krb_HostAddresses,
 	&ett_krb_authenticator_enc,
@@ -4682,6 +4867,7 @@ proto_register_kerberos(void)
         &ett_krb_EncTicketPart,
         &ett_krb_EncAPRepPart,
         &ett_krb_EncKrbPrivPart,
+        &ett_krb_EncKrbCredPart,
         &ett_krb_EncKDCRepPart,
         &ett_krb_LastReq,
         &ett_krb_Authenticator,
