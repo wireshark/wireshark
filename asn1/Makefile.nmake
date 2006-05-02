@@ -51,6 +51,7 @@ all: \
 	smrse	\
 	spnego	\
 	tcap	\
+	ulp	\
 	wlancertextn	\
 	x411	\
 	x420	\
@@ -201,6 +202,9 @@ clean:
 	cd tcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd ulp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd wlancertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -282,7 +286,8 @@ per: \
 	h248	\
 	h450	\
 	ranap	\
-	rnsap
+	rnsap	\
+	ulp
 
 acse::
 	cd acse
@@ -515,6 +520,11 @@ spnego::
 
 tcap::
 	cd tcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+ulp::
+	cd ulp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
