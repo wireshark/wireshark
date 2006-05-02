@@ -31,6 +31,7 @@
 #include "syntax-tree.h"
 #include "sttype-range.h"
 #include "sttype-test.h"
+#include "sttype-function.h"
 
 #include <epan/exceptions.h>
 #include <epan/packet.h>
@@ -304,6 +305,13 @@ check_exists(stnode_t *st_arg1)
 			 * 3"?
 			 */
 			dfilter_fail("You cannot test whether a range is present.");
+			THROW(TypeError);
+			break;
+
+		case STTYPE_FUNCTION:
+            /* XXX - Maybe we should change functions so they can return fields,
+             * in which case the 'exist' should be fine. */
+			dfilter_fail("You cannot test whether a function is present.");
 			THROW(TypeError);
 			break;
 
@@ -751,6 +759,161 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	}
 }
 
+static stnode_t*
+check_param_entity(stnode_t *st_node)
+{
+	sttype_id_t		e_type;
+	stnode_t		*new_st;
+	fvalue_t		*fvalue;
+    char *s;
+
+	e_type = stnode_type_id(st_node);
+    /* If there's an unparsed string, change it to an FT_STRING */
+    if (e_type == STTYPE_UNPARSED) {
+		s = stnode_data(st_node);
+        fvalue = fvalue_from_unparsed(FT_STRING, s, FALSE, dfilter_fail);
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		stnode_free(st_node);
+        return new_st;
+    }
+
+    return st_node;
+}
+
+
+/* If the LHS of a relation test is a FUNCTION, run some checks
+ * and possibly some modifications of syntax tree nodes. */
+static void
+check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
+		gboolean allow_partial_value,
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	stnode_t		*new_st;
+	sttype_id_t		type2;
+	header_field_info	*hfinfo2;
+	ftenum_t		ftype1, ftype2;
+	fvalue_t		*fvalue;
+	char			*s;
+    int             param_i;
+	drange_node		*rn;
+    df_func_def_t   *funcdef;
+    guint             num_params;
+    GSList          *params;
+
+	type2 = stnode_type_id(st_arg2);
+
+    funcdef = sttype_function_funcdef(st_arg1);
+	ftype1 = funcdef->retval_ftype;
+
+    params = sttype_function_params(st_arg1);
+    num_params = g_slist_length(params);
+    if (num_params < funcdef->min_nargs) {
+        dfilter_fail("Function %s needs at least %u arguments.",
+                funcdef->name, funcdef->min_nargs);
+        THROW(TypeError);
+    }
+    else if (num_params > funcdef->max_nargs) {
+        dfilter_fail("Function %s can only accept %u arguments.",
+                funcdef->name, funcdef->max_nargs);
+        THROW(TypeError);
+    }
+
+    param_i = 0;
+    while (params) {
+        params->data = check_param_entity(params->data);
+        funcdef->semcheck_param_function(param_i, params->data);
+        params = params->next;
+    }
+
+	DebugLog(("    5 check_relation_LHS_FUNCTION(%s)\n", relation_string));
+
+	if (!can_func(ftype1)) {
+		dfilter_fail("Function %s (type=%s) cannot participate in '%s' comparison.",
+				funcdef->name, ftype_pretty_name(ftype1),
+				relation_string);
+		THROW(TypeError);
+	}
+
+	if (type2 == STTYPE_FIELD) {
+		hfinfo2 = stnode_data(st_arg2);
+		ftype2 = hfinfo2->type;
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			dfilter_fail("Function %s and %s are not of compatible types.",
+					funcdef->name, hfinfo2->abbrev);
+			THROW(TypeError);
+		}
+		/* Do this check even though you'd think that if
+		 * they're compatible, then can_func() would pass. */
+		if (!can_func(ftype2)) {
+			dfilter_fail("%s (type=%s) cannot participate in specified comparison.",
+					hfinfo2->abbrev, ftype_pretty_name(ftype2));
+			THROW(TypeError);
+		}
+	}
+	else if (type2 == STTYPE_STRING) {
+		s = stnode_data(st_arg2);
+		if (strcmp(relation_string, "matches") == 0) {
+			/* Convert to a FT_PCRE */
+			fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
+		} else {
+			fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
+		}
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, st_arg1, new_st);
+		stnode_free(st_arg2);
+	}
+	else if (type2 == STTYPE_UNPARSED) {
+		s = stnode_data(st_arg2);
+		if (strcmp(relation_string, "matches") == 0) {
+			/* Convert to a FT_PCRE */
+			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
+		} else {
+			fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
+		}
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, st_arg1, new_st);
+		stnode_free(st_arg2);
+	}
+	else if (type2 == STTYPE_RANGE) {
+		check_drange_sanity(st_arg2);
+		if (!is_bytes_type(ftype1)) {
+			if (!ftype_can_slice(ftype1)) {
+				dfilter_fail("Function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
+						funcdef->name,
+						ftype_pretty_name(ftype1));
+				THROW(TypeError);
+			}
+
+			/* Convert entire field to bytes */
+			new_st = stnode_new(STTYPE_RANGE, NULL);
+
+			rn = drange_node_new();
+			drange_node_set_start_offset(rn, 0);
+			drange_node_set_to_the_end(rn);
+			/* st_arg1 is freed in this step */
+			sttype_range_set1(new_st, st_arg1, rn);
+
+			sttype_test_set2_args(st_node, new_st, st_arg2);
+		}
+	}
+	else {
+		g_assert_not_reached();
+	}
+}
+
 
 /* Check the semantics of any relational test. */
 static void
@@ -795,12 +958,16 @@ header_field_info   *hfinfo;
 			check_relation_LHS_UNPARSED(relation_string, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
+		case STTYPE_FUNCTION:
+			check_relation_LHS_FUNCTION(relation_string, can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
+			break;
 
 		case STTYPE_UNINITIALIZED:
 		case STTYPE_TEST:
 		case STTYPE_INTEGER:
 		case STTYPE_FVALUE:
-		case STTYPE_NUM_TYPES:
+        default:
 			g_assert_not_reached();
 	}
 }

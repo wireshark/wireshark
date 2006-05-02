@@ -58,6 +58,7 @@ ftype_register(enum ftenum ftype, ftype_t *ft)
 {
 	/* Check input */
 	g_assert(ftype < FT_NUM_TYPES);
+    g_assert(ftype == ft->ftype);
 
 	/* Don't re-register. */
 	g_assert(type_list[ftype] == NULL);
@@ -266,6 +267,12 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 	}
 	FVALUE_FREE(fv);
 	return NULL;
+}
+
+ftype_t*
+fvalue_ftype(fvalue_t *fv)
+{
+    return fv->ftype;
 }
 
 const char*

@@ -46,6 +46,8 @@ libdfilter_la_SOURCES = \
 	dfilter.c		\
 	dfilter.h		\
 	dfilter-int.h		\
+	dfunctions.c	\
+	dfunctions.h	\
 	dfvm.c			\
 	dfvm.h			\
 	drange.c		\
@@ -59,6 +61,8 @@ libdfilter_la_SOURCES = \
 	scanner.c		\
 	semcheck.c		\
 	semcheck.h		\
+	sttype-function.c	\
+	sttype-function.h	\
 	sttype-integer.c	\
 	sttype-pointer.c	\
 	sttype-range.c		\

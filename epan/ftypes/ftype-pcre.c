@@ -177,6 +177,7 @@ void
 ftype_register_pcre(void)
 {
 	static ftype_t pcre_type = {
+		FT_PCRE,		/* ftype */
 		"FT_PCRE",		/* name */
 		"Compiled Perl-Compatible Regular Expression object", /* pretty_name */
 		0,			/* wire_size */
@@ -219,6 +220,7 @@ void
 ftype_register_pcre(void)
 {
 	static ftype_t pcre_type = {
+		FT_PCRE,		/* ftype */
 		"FT_PCRE",			/* name */
 		"Compiled Perl-Compatible Regular Expression object", /* pretty_name */
 		0,				/* wire_size */

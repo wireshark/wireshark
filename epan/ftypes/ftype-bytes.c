@@ -480,6 +480,7 @@ ftype_register_bytes(void)
 {
 
 	static ftype_t bytes_type = {
+		FT_BYTES,			/* ftype */
 		"FT_BYTES",			/* name */
 		"sequence of bytes",		/* pretty_name */
 		0,				/* wire_size */
@@ -515,6 +516,7 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t uint_bytes_type = {
+		FT_UINT_BYTES,		/* ftype */
 		"FT_UINT_BYTES",		/* name */
 		"sequence of bytes",		/* pretty_name */
 		0,				/* wire_size */
@@ -550,6 +552,7 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t ether_type = {
+		FT_ETHER,			/* ftype */
 		"FT_ETHER",			/* name */
 		"Ethernet or other MAC address",/* pretty_name */
 		ETHER_LEN,			/* wire_size */
@@ -585,6 +588,7 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t ipv6_type = {
+		FT_IPv6,			/* ftype */
 		"FT_IPv6",			/* name */
 		"IPv6 address",			/* pretty_name */
 		IPv6_LEN,			/* wire_size */
@@ -620,6 +624,7 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t oid_type = {
+		FT_OID,			/* ftype */
 		"OID",			/* name */
 		"OBJECT IDENTIFIER",			/* pretty_name */
 		0,			/* wire_size */

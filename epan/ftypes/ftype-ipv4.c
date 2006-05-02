@@ -199,6 +199,7 @@ ftype_register_ipv4(void)
 {
 
 	static ftype_t ipv4_type = {
+		FT_IPv4,			/* ftype */
 		"FT_IPv4",			/* name */
 		"IPv4 address",			/* pretty_name */
 		4,				/* wire_size */

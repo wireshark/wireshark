@@ -118,6 +118,18 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 					arg2->value.numeric);
 				break;
 
+            case CALL_FUNCTION:
+                fprintf(f, "%05d CALL_FUNCTION\t%s (",
+                        id, arg1->value.funcdef->name);
+                if (arg3) {
+                    fprintf(f, "reg#%u", arg3->value.numeric);
+                }
+                if (arg4) {
+                    fprintf(f, ", reg#%u", arg4->value.numeric);
+                }
+                fprintf(f, ") --> reg#%u\n", arg2->value.numeric);
+                break;
+
 			case PUT_FVALUE:
 				value_str = fvalue_to_string_repr(arg1->value.fvalue,
 					FTREPR_DFILTER, NULL);
@@ -373,8 +385,11 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*arg1;
 	dfvm_value_t	*arg2;
-	dfvm_value_t	*arg3;
+	dfvm_value_t	*arg3 = NULL;
+	dfvm_value_t	*arg4 = NULL;
 	header_field_info	*hfinfo;
+    GList           *param1;
+    GList           *param2;
 
 	g_assert(tree);
 
@@ -412,6 +427,21 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 			case READ_TREE:
 				accum = read_tree(df, tree,
 						arg1->value.hfinfo, arg2->value.numeric);
+				break;
+
+			case CALL_FUNCTION:
+				arg3 = insn->arg3;
+				arg4 = insn->arg4;
+                param1 = NULL;
+                param2 = NULL;
+                if (arg3) {
+                    param1 = df->registers[arg3->value.numeric];
+                }
+                if (arg4) {
+                    param2 = df->registers[arg4->value.numeric];
+                }
+                accum = arg1->value.funcdef->function(param1, param2,
+                    &df->registers[arg2->value.numeric]); 
 				break;
 
 			case PUT_FVALUE:

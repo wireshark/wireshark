@@ -301,6 +301,7 @@ ftype_register_string(void)
 {
 
 	static ftype_t string_type = {
+		FT_STRING,			/* ftype */
 		"FT_STRING",			/* name */
 		"character string",		/* pretty_name */
 		0,				/* wire_size */
@@ -335,6 +336,7 @@ ftype_register_string(void)
 		slice,
 	};
 	static ftype_t stringz_type = {
+		FT_STRINGZ,			/* ftype */
 		"FT_STRINGZ",			/* name */
 		"character string",		/* pretty name */
 		0,				/* wire_size */
@@ -369,6 +371,7 @@ ftype_register_string(void)
 		slice,
 	};
 	static ftype_t uint_string_type = {
+		FT_UINT_STRING,		/* ftype */
 		"FT_UINT_STRING",		/* name */
 		"character string",		/* pretty_name */
 		0,				/* wire_size */

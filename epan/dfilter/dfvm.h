@@ -28,6 +28,7 @@
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "drange.h"
+#include "dfunctions.h"
 
 typedef enum {
 	EMPTY,
@@ -36,7 +37,8 @@ typedef enum {
 	INSN_NUMBER,
 	REGISTER,
 	INTEGER,
-	DRANGE
+	DRANGE,
+	FUNCTION_DEF
 } dfvm_value_type_t;
 
 typedef struct {
@@ -47,6 +49,7 @@ typedef struct {
 		guint32			numeric;
 		drange			*drange;
 		header_field_info	*hfinfo;
+        df_func_def_t   *funcdef;
 	} value;
 
 } dfvm_value_t;
@@ -70,13 +73,13 @@ typedef enum {
 	ANY_BITWISE_AND,
 	ANY_CONTAINS,
 	ANY_MATCHES,
-	MK_RANGE
+	MK_RANGE,
+    CALL_FUNCTION
 
 } dfvm_opcode_t;
 
 typedef struct {
 	int		id;
-	int		LHS;
 	dfvm_opcode_t	op;
 	dfvm_value_t	*arg1;
 	dfvm_value_t	*arg2;

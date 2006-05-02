@@ -260,6 +260,7 @@ ftype_register_tvbuff(void)
 {
 
 	static ftype_t protocol_type = {
+		FT_PROTOCOL,			/* ftype */
 		"FT_PROTOCOL",			/* name */
 		"protocol",			/* pretty_name */
 		0,				/* wire_size */

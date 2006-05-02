@@ -9,6 +9,7 @@
 #include "syntax-tree.h"
 #include "sttype-range.h"
 #include "sttype-test.h"
+#include "sttype-function.h"
 #include "drange.h"
 
 #include "grammar.h"
@@ -51,6 +52,9 @@
 %type		drnode_list	{GSList*}
 %destructor	drnode_list	{drange_node_free_list($$);}
 
+%type		funcparams	{GSList*}
+%destructor	funcparams	{st_funcparams_free($$);}
+
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
 %syntax_error {
@@ -84,6 +88,9 @@ any "error" symbols are shifted, if possible. */
 		case STTYPE_FIELD:
 			hfinfo = stnode_data(TOKEN);
 			dfilter_fail("Syntax error near \"%s\".", hfinfo->abbrev);
+			break;
+		case STTYPE_FUNCTION:
+			dfilter_fail("The function s was unexpected in this context.");
 			break;
 
 		/* These aren't handed to use as terminal tokens from
@@ -119,11 +126,6 @@ sentence ::= .  		{ dfw->st_root = NULL; }
 
 expr(X) ::= relation_test(R).	{ X = R; }
 expr(X) ::= logical_test(L).	{ X = L; }
-
-expr(X) ::= LPAREN expr(Y) RPAREN.
-{
-	X = Y;
-}
 
 
 /* Logical tests */
@@ -254,4 +256,35 @@ rel_op2(O) ::= TEST_CONTAINS.  { O = TEST_OP_CONTAINS; }
 rel_op2(O) ::= TEST_MATCHES.  { O = TEST_OP_MATCHES; }
 
 
+/* Functions */
+
+/* A function can have one or more parameters */
+entity(E) ::= FUNCTION(F) LPAREN funcparams(P) RPAREN.
+{
+    E = F;
+	sttype_function_set_params(E, P);
+}
+
+/* A function can have zero parameters. */
+entity(E) ::= FUNCTION(F) LPAREN RPAREN.
+{
+    E = F;
+}
+
+funcparams(P) ::= entity(E).
+{
+	P = g_slist_append(NULL, E);
+}
+
+funcparams(P) ::= funcparams(L) COMMA entity(E).
+{
+	P = g_slist_append(L, E);
+}
+
+
+/* Any expression inside parens is simply that expression */
+expr(X) ::= LPAREN expr(Y) RPAREN.
+{
+	X = Y;
+}
 

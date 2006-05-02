@@ -1015,6 +1015,38 @@ class String(Test):
 		return self.DFilterCount(pkt_http,
 	'http.request.method contains 48:45:41:44"', 1) # "HEAD"
 
+	def ck_contains_fail_0(self):
+		return self.DFilterCount(pkt_http,
+			'http.user_agent contains "update"', 0)
+
+	def ck_contains_fail_1(self):
+		return self.DFilterCount(pkt_http,
+			'http.user_agent contains "UPDATE"', 0)
+
+	def ck_contains_upper_0(self):
+		return self.DFilterCount(pkt_http,
+			'upper(http.user_agent) contains "UPDATE"', 1)
+
+	def ck_contains_upper_1(self):
+		return self.DFilterCount(pkt_http,
+			'upper(http.user_agent) contains "update"', 0)
+
+	def ck_contains_upper_2(self):
+		return self.DFilterCount(pkt_http,
+			'upper(tcp.seq) == 4', None)
+
+	def ck_contains_lower_0(self):
+		return self.DFilterCount(pkt_http,
+			'lower(http.user_agent) contains "UPDATE"', 0)
+
+	def ck_contains_lower_1(self):
+		return self.DFilterCount(pkt_http,
+			'lower(http.user_agent) contains "update"', 1)
+
+	def ck_contains_lower_2(self):
+		return self.DFilterCount(pkt_http,
+			'lower(tcp.seq) == 4', None)
+
 
 	tests = [
 		ck_eq_1,
@@ -1047,6 +1079,14 @@ class String(Test):
 		ck_contains_3,
 		ck_contains_4,
 		ck_contains_5,
+		ck_contains_fail_0,
+		ck_contains_fail_1,
+		ck_contains_upper_0,
+		ck_contains_upper_1,
+		ck_contains_upper_2,
+		ck_contains_lower_0,
+		ck_contains_lower_1,
+		ck_contains_lower_2,
 		]
 
 

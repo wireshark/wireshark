@@ -93,6 +93,19 @@ have been compiled with the PCRE library. This can be checked by running:
 
 or selecting the "About Ethereal" item from the "Help" menu in B<Ethereal>.
 
+=head2 Functions
+
+The filter language has the following functions:
+
+    upper(string-field) - converts a string field to uppercase
+    lower(string-field) - converts a string field to lowercase
+
+upper() and lower() are useful for performing case-insensitive string
+comparisons. For example:
+
+    upper(ncp.nds_stream_name) contains "MACRO"
+    lower(mount.dump.hostname) == "angel"
+
 =head2 Protocol field types
 
 Each protocol field is typed. The types are:

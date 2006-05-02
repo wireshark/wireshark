@@ -444,6 +444,7 @@ ftype_register_integers(void)
 {
 
 	static ftype_t uint8_type = {
+		FT_UINT8,			/* ftype */
 		"FT_UINT8",			/* name */
 		"unsigned, 1 byte",		/* pretty name */
 		1,				/* wire_size */
@@ -478,6 +479,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t uint16_type = {
+		FT_UINT16,			/* ftype */
 		"FT_UINT16",			/* name */
 		"unsigned, 2 bytes",		/* pretty_name */
 		2,				/* wire_size */
@@ -512,6 +514,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t uint24_type = {
+		FT_UINT24,			/* ftype */
 		"FT_UINT24",			/* name */
 		"unsigned, 3 bytes",		/* pretty_name */
 		3,				/* wire_size */
@@ -546,6 +549,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t uint32_type = {
+		FT_UINT32,			/* ftype */
 		"FT_UINT32",			/* name */
 		"unsigned, 4 bytes",		/* pretty_name */
 		4,				/* wire_size */
@@ -580,6 +584,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t uint64_type = {
+		FT_UINT64,			/* ftype */
 		"FT_UINT64",			/* name */
 		"unsigned, 8 bytes",		/* pretty_name */
 		8,				/* wire_size */
@@ -614,6 +619,7 @@ ftype_register_integers(void)
 		NULL,
 	};
 	static ftype_t int8_type = {
+		FT_INT8,			/* ftype */
 		"FT_INT8",			/* name */
 		"signed, 1 byte",		/* pretty_name */
 		1,				/* wire_size */
@@ -648,6 +654,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t int16_type = {
+		FT_INT16,			/* ftype */
 		"FT_INT16",			/* name */
 		"signed, 2 bytes",		/* pretty_name */
 		2,				/* wire_size */
@@ -682,6 +689,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t int24_type = {
+		FT_INT24,			/* ftype */
 		"FT_INT24",			/* name */
 		"signed, 3 bytes",		/* pretty_name */
 		3,				/* wire_size */
@@ -716,6 +724,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t int32_type = {
+		FT_INT32,			/* ftype */
 		"FT_INT32",			/* name */
 		"signed, 4 bytes",		/* pretty_name */
 		4,				/* wire_size */
@@ -750,6 +759,7 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 	static ftype_t int64_type = {
+		FT_INT64,			/* ftype */
 		"FT_INT64",			/* name */
 		"signed, 8 bytes",		/* pretty_name */
 		8,				/* wire_size */
@@ -784,6 +794,7 @@ ftype_register_integers(void)
 		NULL,
 	};
 	static ftype_t boolean_type = {
+		FT_BOOLEAN,			/* ftype */
 		"FT_BOOLEAN",			/* name */
 		"Boolean",			/* pretty_name */
 		0,				/* wire_size */
@@ -819,6 +830,7 @@ ftype_register_integers(void)
 	};
 
 	static ftype_t ipxnet_type = {
+		FT_IPXNET,			/* ftype */
 		"FT_IPXNET",			/* name */
 		"IPX network number",		/* pretty_name */
 		4,				/* wire_size */
@@ -854,6 +866,7 @@ ftype_register_integers(void)
 	};
 
 	static ftype_t framenum_type = {
+		FT_FRAMENUM,			/* ftype */
 		"FT_FRAMENUM",			/* name */
 		"frame number",			/* pretty_name */
 		4,				/* wire_size */

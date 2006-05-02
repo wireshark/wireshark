@@ -196,6 +196,7 @@ typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
 
 struct _ftype_t {
+    ftenum_t        ftype;
 	const char		*name;
 	const char		*pretty_name;
 	int			wire_size;
@@ -287,6 +288,9 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
  * 'buf'. */
 extern char *
 fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
+
+ftype_t*
+fvalue_ftype(fvalue_t *fv);
 
 const char*
 fvalue_type_name(fvalue_t *fv);

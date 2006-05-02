@@ -30,10 +30,14 @@
 #include "syntax-tree.h"
 #include "sttype-range.h"
 #include "sttype-test.h"
+#include "sttype-function.h"
 #include "ftypes/ftypes.h"
 
 static void
 gencode(dfwork_t *dfw, stnode_t *st_node);
+
+static int
+gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp);
 
 static void
 dfw_append_insn(dfwork_t *dfw, dfvm_insn_t *insn)
@@ -155,58 +159,98 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node)
 	return reg;
 }
 
+/* returns register number that the functions's result will be in. */
+static int
+dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
+{
+    GSList *params;
+    int i, num_params, reg;
+    dfvm_value_t **jmps;
+	dfvm_insn_t	*insn;
+	dfvm_value_t	*val1, *val2, *val;
+
+    params = sttype_function_params(node);
+    num_params = g_slist_length(params);
+
+    /* Array to hold the instructions that need to jump to
+     * an instruction if they fail. */
+    jmps = g_malloc(num_params * sizeof(dfvm_value_t*));
+
+    /* Create the new DFVM instruction */
+    insn = dfvm_insn_new(CALL_FUNCTION);
+    
+    val1 = dfvm_value_new(FUNCTION_DEF);
+    val1->value.funcdef = sttype_function_funcdef(node);
+    insn->arg1 = val1;
+	val2 = dfvm_value_new(REGISTER);
+	val2->value.numeric = dfw->next_register++;
+    insn->arg2 = val2;
+    insn->arg3 = NULL;
+    insn->arg4 = NULL;
+
+    i = 0;
+    while (params) {
+        jmps[i] = NULL;
+        reg = gen_entity(dfw, params->data, &jmps[i]);
+
+        val = dfvm_value_new(REGISTER);
+        val->value.numeric = reg;
+
+        switch(i) {
+            case 0:
+                insn->arg3 = val;
+                break;
+            case 1:
+                insn->arg4 = val;
+                break;
+            default:
+                g_assert_not_reached();
+        }
+
+        params = params->next;
+        i++;
+    }
+
+	dfw_append_insn(dfw, insn);
+
+    /* If any of our parameters failed, send them to
+     * our own failure instruction. This *has* to be done
+     * after we caled dfw_append_insn above so that
+     * we know what the next DFVM insruction is, via
+     * dfw->next_insn_id */
+    for (i = 0; i < num_params; i++) {
+        if (jmps[i]) {
+            jmps[i]->value.numeric = dfw->next_insn_id;
+        }
+    }
+
+    /* We need another instruction to jump to another exit
+     * place, if the call() of our function failed for some reaosn */
+    insn = dfvm_insn_new(IF_FALSE_GOTO);
+    g_assert(p_jmp);
+    *p_jmp = dfvm_value_new(INSN_NUMBER);
+    insn->arg1 = *p_jmp;
+    dfw_append_insn(dfw, insn);
+
+    g_free(jmps);
+    
+    return val2->value.numeric;
+}
+
 
 static void
 gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	sttype_id_t	type1, type2;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2;
 	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL;
 	int		reg1 = -1, reg2 = -1;
-	header_field_info	*hfinfo;
 
-	type1 = stnode_type_id(st_arg1);
-	type2 = stnode_type_id(st_arg2);
+    /* Create code for the LHS and RHS of the relation */
+    reg1 = gen_entity(dfw, st_arg1, &jmp1);
+    reg2 = gen_entity(dfw, st_arg2, &jmp2);
 
-	if (type1 == STTYPE_FIELD) {
-		hfinfo = stnode_data(st_arg1);
-		reg1 = dfw_append_read_tree(dfw, hfinfo);
-
-		insn = dfvm_insn_new(IF_FALSE_GOTO);
-		jmp1 = dfvm_value_new(INSN_NUMBER);
-		insn->arg1 = jmp1;
-		dfw_append_insn(dfw, insn);
-	}
-	else if (type1 == STTYPE_FVALUE) {
-		reg1 = dfw_append_put_fvalue(dfw, stnode_data(st_arg1));
-	}
-	else if (type1 == STTYPE_RANGE) {
-		reg1 = dfw_append_mk_range(dfw, st_arg1);
-	}
-	else {
-		g_assert_not_reached();
-	}
-
-	if (type2 == STTYPE_FIELD) {
-		hfinfo = stnode_data(st_arg2);
-		reg2 = dfw_append_read_tree(dfw, hfinfo);
-
-		insn = dfvm_insn_new(IF_FALSE_GOTO);
-		jmp2 = dfvm_value_new(INSN_NUMBER);
-		insn->arg1 = jmp2;
-		dfw_append_insn(dfw, insn);
-	}
-	else if (type2 == STTYPE_FVALUE) {
-		reg2 = dfw_append_put_fvalue(dfw, stnode_data(st_arg2));
-	}
-	else if (type2 == STTYPE_RANGE) {
-		reg2 = dfw_append_mk_range(dfw, st_arg2);
-	}
-	else {
-		g_assert_not_reached();
-	}
-
+    /* Then combine them in a DFVM insruction */
 	insn = dfvm_insn_new(op);
 	val1 = dfvm_value_new(REGISTER);
 	val1->value.numeric = reg1;
@@ -216,6 +260,8 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 	insn->arg2 = val2;
 	dfw_append_insn(dfw, insn);
 
+    /* If either of the relation argumnents need an "exit" instruction
+     * to jump to (on failure), mark them */
 	if (jmp1) {
 		jmp1->value.numeric = dfw->next_insn_id;
 	}
@@ -223,6 +269,45 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 	if (jmp2) {
 		jmp2->value.numeric = dfw->next_insn_id;
 	}
+}
+
+/* Parse an entity, returning the reg that it gets put into.
+ * p_jmp will be set if it has to be set by the calling code; it should
+ * be set tothe place to jump to, to return to the calling code,
+ * if the load of a field from the proto_tree fails. */
+static int
+gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
+{
+	sttype_id_t	e_type;
+	dfvm_insn_t	*insn;
+	header_field_info	*hfinfo;
+	e_type = stnode_type_id(st_arg);
+    int reg = -1;
+
+	if (e_type == STTYPE_FIELD) {
+		hfinfo = stnode_data(st_arg);
+		reg = dfw_append_read_tree(dfw, hfinfo);
+
+		insn = dfvm_insn_new(IF_FALSE_GOTO);
+        g_assert(p_jmp);
+		*p_jmp = dfvm_value_new(INSN_NUMBER);
+		insn->arg1 = *p_jmp;
+		dfw_append_insn(dfw, insn);
+	}
+	else if (e_type == STTYPE_FVALUE) {
+		reg = dfw_append_put_fvalue(dfw, stnode_data(st_arg));
+	}
+	else if (e_type == STTYPE_RANGE) {
+		reg = dfw_append_mk_range(dfw, st_arg);
+	}
+	else if (e_type == STTYPE_FUNCTION) {
+        reg = dfw_append_function(dfw, st_arg, p_jmp);
+    }
+	else {
+        printf("sttype_id is %u\n", e_type);
+		g_assert_not_reached();
+	}
+    return reg;
 }
 
 

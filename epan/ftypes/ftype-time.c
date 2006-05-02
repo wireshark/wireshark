@@ -345,6 +345,7 @@ ftype_register_time(void)
 {
 
 	static ftype_t abstime_type = {
+		FT_ABSOLUTE_TIME,		/* ftype */
 		"FT_ABSOLUTE_TIME",		/* name */
 		"date/time",			/* pretty_name */
 		0,				/* wire_size */
@@ -379,6 +380,7 @@ ftype_register_time(void)
 		NULL
 	};
 	static ftype_t reltime_type = {
+		FT_RELATIVE_TIME,		/* ftype */
 		"FT_RELATIVE_TIME",		/* name */
 		"time offset",			/* pretty_name */
 		0,				/* wire_size */

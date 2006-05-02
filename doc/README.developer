@@ -3209,6 +3209,70 @@ field_info structures that are interesting to the display filter.  This
 makes lookup of those field_info structures during the filtering process
 faster.
 
+5.4 Display Filter Functions
+
+You define a desplay filte function by adding an entry to
+the df_functions table in epan/dfilter/dfunctions.c. The record struct
+is defined in defunctions.h, and shown here:
+
+typedef struct {
+    char            *name;
+    DFFuncType      function;
+    ftenum_t        retval_ftype;
+    guint           min_nargs;
+    guint           max_nargs;
+    DFSemCheckType  semcheck_param_function;
+} df_func_def_t;
+
+name - the name of the function; this is how the user will call your
+    function in the display filter language
+
+function - this is the run-time processing of your function.
+
+retval_ftype - what type of FT_* type does your function return?
+
+min_nargs - minimum number of arguments your function accepts
+max_nargs - maximum number of arguments your function accepts
+
+semcheck_param_function - called during the semantic check of the
+    display filter string.
+
+DFFuncType function
+-------------------
+typedef gboolean (*DFFuncType)(GList *arg1list, GList *arg2list, GList **retval);
+
+The return value of your function is a gboolean; TRUE if processing went fine,
+or FALSE if there was some sort of exception.
+
+For now, display filter functions can accept a maximum of 2 arguments.
+The "arg1list" parameter is the GList for the first argument. The
+'arg2list" parameter is the GList for the second argument. All arguments
+to display filter functions are lists. This is because in the display
+filter language a protocol field may have multiple instances. For example,
+a field like "ip.addr" will exist more than once in a single frame. So
+when the user invokes this display filter:
+
+    somefunc(ip.addr) == TRUE
+
+even though "ip.addr" is a single argument, the "somefunc" function will
+receive a GList of *all* the values of "ip.addr" in the frame.
+
+Similarly, the return value of the function needs to be a GList, since all
+values in the display filter language are lists. The GList** retval argument
+is passed to your function so you can set the pointer to your return value.
+
+DFSemCheckType
+--------------
+typedef void (*DFSemCheckType)(int param_num, stnode_t *st_node);
+
+For each parameter in the syntax tree, this function will be called.
+"param_num" will indicate the number of the parameter, starting with 0.
+The "stnode_t" is the syntax-tree node representing that parameter.
+If everything is okay with the value of that stnode_t, your function
+does nothing --- it merely returns. If something is wrong, however,
+it should THROW a TypeError exception.
+
+
 
 6.0 Adding new capabilities.
 

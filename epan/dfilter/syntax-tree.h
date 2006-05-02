@@ -35,6 +35,7 @@ typedef enum {
 	STTYPE_FVALUE,
 	STTYPE_INTEGER,
 	STTYPE_RANGE,
+	STTYPE_FUNCTION,
 	STTYPE_NUM_TYPES
 } sttype_id_t;
 
@@ -62,6 +63,7 @@ typedef struct {
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
+void sttype_register_function(void);
 void sttype_register_integer(void);
 void sttype_register_pointer(void);
 void sttype_register_range(void);

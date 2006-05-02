@@ -20,6 +20,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
 OBJECTS = \
 	dfilter.obj		\
+	dfunctions.obj	\
 	dfvm.obj		\
 	drange.obj		\
 	gencode.obj		\
@@ -27,6 +28,7 @@ OBJECTS = \
 	grammar.obj		\
 	scanner.obj		\
 	semcheck.obj		\
+	sttype-function.obj	\
 	sttype-integer.obj	\
 	sttype-pointer.obj	\
 	sttype-range.obj	\

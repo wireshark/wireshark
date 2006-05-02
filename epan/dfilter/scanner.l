@@ -32,6 +32,7 @@
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "grammar.h"
+#include "dfunctions.h"
 
 /*
  * GLib 1.2[.x] doesn't define G_MAXINT32 or G_MININT32; if they're not
@@ -75,6 +76,7 @@ GString* quoted_string = NULL;
 
 "("				return simple(TOKEN_LPAREN);
 ")"				return simple(TOKEN_RPAREN);
+","				return simple(TOKEN_COMMA);
 
 "=="			return simple(TOKEN_TEST_EQ);
 "eq"			return simple(TOKEN_TEST_EQ);
@@ -232,9 +234,10 @@ GString* quoted_string = NULL;
         return set_lval(TOKEN_UNPARSED, yytext);
 }
 
-[-\+[:alnum:]_.,:]+	{
+[-\+[:alnum:]_.:]+	{
 	/* Is it a field name? */
 	header_field_info *hfinfo;
+    df_func_def_t *df_func_def;
 
 	hfinfo = proto_registrar_get_byname(yytext);
 	if (hfinfo) {
@@ -242,8 +245,16 @@ GString* quoted_string = NULL;
 		return set_lval(TOKEN_FIELD, hfinfo);
 	}
 	else {
-		/* No, so treat it as an unparsed string */
-		return set_lval(TOKEN_UNPARSED, yytext);
+        /* Is it a function name? */
+        df_func_def = df_func_lookup(yytext);
+        if (df_func_def) {
+            /* yes, it's a dfilter function */
+            return set_lval(TOKEN_FUNCTION, df_func_def);
+        }
+        else {
+            /* No, so treat it as an unparsed string */
+            return set_lval(TOKEN_UNPARSED, yytext);
+        }
 	}
 }
 
@@ -300,10 +311,12 @@ set_lval(int token, gpointer data)
 		case TOKEN_UNPARSED:
 			type_id = STTYPE_UNPARSED;
 			break;
+		case TOKEN_FUNCTION:
+			type_id = STTYPE_FUNCTION;
+			break;
 		default:
 			g_assert_not_reached();
 	}
-
 	stnode_init(df_lval, type_id, data);
 	return token;
 }
