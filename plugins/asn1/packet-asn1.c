@@ -2753,12 +2753,11 @@ read_asn1_type_table(const char *filename)
 		 * had a "/" rather than a "\" as the last pathname
 		 * separator.
 		 */
-		if ((strcmp(filename, old_default_asn1_filename) != 0
 #ifdef _WIN32
-		    && strcmp(filename, bad_separator_old_default_asn1_filename) != 0
+		if (strcmp(filename, bad_separator_old_default_asn1_filename) != 0)
 #endif
-		    ) || errno != ENOENT)
-			report_open_failure(filename, errno, FALSE);
+			if ((strcmp(filename, old_default_asn1_filename) != 0) || errno != ENOENT)
+				report_open_failure(filename, errno, FALSE);
 		return;
 	}
 	fstat(fileno(f), &stat);
