@@ -273,7 +273,7 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 
 /* Parse an entity, returning the reg that it gets put into.
  * p_jmp will be set if it has to be set by the calling code; it should
- * be set tothe place to jump to, to return to the calling code,
+ * be set to the place to jump to, to return to the calling code,
  * if the load of a field from the proto_tree fails. */
 static int
 gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
@@ -281,8 +281,8 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 	sttype_id_t	e_type;
 	dfvm_insn_t	*insn;
 	header_field_info	*hfinfo;
-	e_type = stnode_type_id(st_arg);
     int reg = -1;
+	e_type = stnode_type_id(st_arg);
 
 	if (e_type == STTYPE_FIELD) {
 		hfinfo = stnode_data(st_arg);
