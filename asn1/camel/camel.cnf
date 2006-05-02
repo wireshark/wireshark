@@ -167,12 +167,12 @@ tvbuff_t	*parameter_tvb;
                           tvb,
                           curr_offset,
                           1,
-                          digit_pair & 0xF0);
+                          digit_pair >>4);
 			  
       
       c[i] = camel_number_to_char( digit_pair & 0x0F);
       i++;
-      c[i] = camel_number_to_char( digit_pair & 0xF0);
+      c[i] = camel_number_to_char( digit_pair >>4);
       i++;
   }
   
@@ -180,8 +180,8 @@ tvbuff_t	*parameter_tvb;
   /* XXX - Should we use sprintf here instead of assembling the string by
    * hand? */
   
-  time[0] = c[9];
-  time[1] = c[8];
+  time[0] = c[8];
+  time[1] = c[9];
   time[2] = ':';
   time[3] = c[10];
   time[4] = c[11];
@@ -429,4 +429,5 @@ tvbuff_t	*parameter_tvb;
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
+DateAndTime	TYPE = FT_STRING DISPLAY = NONE
 #.END
