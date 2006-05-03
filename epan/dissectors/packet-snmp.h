@@ -1,12 +1,19 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-snmp.h                                                            */
+/* ../../tools/asn2eth.py -X -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+
+/* Input file: packet-snmp-template.h */
+
+#line 1 "packet-snmp-template.h"
 /* packet-snmp.h
- * Exported routines for SNMP (simple network management protocol)
- * D.Jorand (c) 1998
+ * Routines for snmp packet dissection
  *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
- * Copyright 1998 Didier Jorand
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,8 +30,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_SNMP_H__
-#define __PACKET_SNMP_H__
+#ifndef PACKET_SNMP_H
+#define PACKET_SNMP_H
 
 /*
  * Guts of the SNMP dissector - exported for use by protocols such as
@@ -34,4 +41,6 @@ extern guint dissect_snmp_pdu(tvbuff_t *, int, packet_info *, proto_tree *tree,
     int, gint, gboolean);
 extern int dissect_snmp_engineid(proto_tree *, tvbuff_t *, int, int);
 
-#endif
+/*#include "packet-snmp-exp.h"*/
+
+#endif  /* PACKET_SNMP_H */

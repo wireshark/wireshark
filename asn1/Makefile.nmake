@@ -49,6 +49,7 @@ all: \
 	rtse	\
 	s4406	\
 	smrse	\
+	snmp	\
 	spnego	\
 	tcap	\
 	ulp	\
@@ -196,6 +197,9 @@ clean:
 	cd smrse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd snmp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd spnego
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -269,6 +273,7 @@ ber: \
 	rtse	\
 	s4406	\
 	smrse	\
+	snmp	\
 	spnego	\
 	tcap	\
 	wlancertextn	\
@@ -510,6 +515,11 @@ s4406::
 
 smrse::
 	cd smrse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+snmp::
+	cd snmp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

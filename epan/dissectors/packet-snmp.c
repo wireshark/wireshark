@@ -1,4 +1,11 @@
-/* TODO: this dissector should be upgraded to use packet-ber */
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-snmp.c                                                            */
+/* ../../tools/asn2eth.py -X -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+
+/* Input file: packet-snmp-template.c */
+
+#line 1 "packet-snmp-template.c"
 /* packet-snmp.c
  * Routines for SNMP (simple network management protocol)
  * Copyright (C) 1998 Didier Jorand
@@ -10,6 +17,9 @@
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u [historic].
  *
  * See RFCs 2570-2576 for SNMPv3
+ * Updated to use the asn2eth compiler made by Tomas Kukosa
+ * Copyright (C) 2005 - 2006 Anders Broman [AT] ericsson.com
+ *
  *
  * $Id$
  *
@@ -44,22 +54,20 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
-
-#include "isprint.h"
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
-#include <epan/etypes.h>
+#include "etypes.h"
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
-#include "packet-frame.h"
+
+
 #include "packet-ber.h"
 
 #ifdef HAVE_SOME_SNMP
@@ -109,10 +117,8 @@
 
 #endif /* HAVE_SOME_SNMP */
 
-#include <epan/asn1.h>
-
 #include "packet-snmp.h"
-#include <epan/dissectors/format-oid.h>
+#include "format-oid.h"
 
 /* Take a pointer that may be null and return a pointer that's not null
    by turning null pointers into pointers to the above null string,
@@ -120,7 +126,19 @@
    non-printable characters in the string by escaping them. */
 #define	SAFE_STRING(s, l)	(((s) != NULL) ? format_text((s), (l)) : "")
 
+#define PNAME  "Simple Network Management Protocol"
+#define PSNAME "SNMP"
+#define PFNAME "snmp"
+
+#define UDP_PORT_SNMP		161
+#define UDP_PORT_SNMP_TRAP	162
+#define TCP_PORT_SNMP		161
+#define TCP_PORT_SNMP_TRAP	162
+#define TCP_PORT_SMUX		199
+
+/* Initialize the protocol and registered fields */
 static int proto_snmp = -1;
+static int proto_smux = -1;
 
 /* Default MIB modules to load */
 /*
@@ -141,29 +159,25 @@ static gboolean display_oid = TRUE;
 /* Subdissector tables */
 static dissector_table_t variable_oid_dissector_table;
 
-static gint ett_snmp = -1;
-static gint ett_parameters = -1;
-static gint ett_parameters_qos = -1;
-static gint ett_global = -1;
-static gint ett_flags = -1;
-static gint ett_secur = -1;
-static gint ett_engineid = -1;
-static gint ett_snmp_NetworkAddress = -1;
+#define TH_AUTH   0x01
+#define TH_CRYPT  0x02
+#define TH_REPORT 0x04
 
-static int hf_snmp_version = -1;
-static int hf_snmp_community = -1;
-static int hf_snmp_request_id = -1;
-static int hf_snmp_pdutype = -1;
-static int hf_snmp_enterprise = -1;
-static int hf_snmp_error_status = -1;
-static int hf_snmp_oid = -1;
-static int hf_snmp_generic_trap = -1;
-static int hf_snmp_specific_trap = -1;
-static int hf_snmp_time_stamp = -1;
-static int hf_snmpv3_flags = -1;
-static int hf_snmpv3_flags_auth = -1;
-static int hf_snmpv3_flags_crypt = -1;
-static int hf_snmpv3_flags_report = -1;
+/* desegmentation of SNMP-over-TCP */
+static gboolean snmp_desegment = TRUE;
+
+/* Global variables */
+
+guint32 MsgSecurityModel;
+tvbuff_t *oid_tvb=NULL;
+
+static dissector_handle_t snmp_handle;
+static dissector_handle_t data_handle;
+
+static int hf_snmp_v3_flags_auth = -1;
+static int hf_snmp_v3_flags_crypt = -1;
+static int hf_snmp_v3_flags_report = -1;
+
 static int hf_snmp_engineid_conform = -1;
 static int hf_snmp_engineid_enterprise = -1;
 static int hf_snmp_engineid_format = -1;
@@ -174,45 +188,136 @@ static int hf_snmp_engineid_text = -1;
 static int hf_snmp_engineid_time = -1;
 static int hf_snmp_engineid_data = -1;
 static int hf_snmp_counter64 = -1;
-static int hf_snmp_internet = -1;
-static int hf_snmp_agent_addr = -1;
 
-static int proto_smux = -1;
 
-static gint ett_smux = -1;
+/*--- Included file: packet-snmp-hf.c ---*/
+#line 1 "packet-snmp-hf.c"
+static int hf_snmp_SMUX_PDUs_PDU = -1;            /* SMUX_PDUs */
+static int hf_snmp_simple = -1;                   /* SimpleSyntax */
+static int hf_snmp_application_wide = -1;         /* ApplicationSyntax */
+static int hf_snmp_integer_value = -1;            /* Integer_value */
+static int hf_snmp_string_value = -1;             /* String_value */
+static int hf_snmp_objectID_value = -1;           /* ObjectID_value */
+static int hf_snmp_empty = -1;                    /* Empty */
+static int hf_snmp_ipAddress_value = -1;          /* IpAddress */
+static int hf_snmp_counter_value = -1;            /* Counter32 */
+static int hf_snmp_timeticks_value = -1;          /* TimeTicks */
+static int hf_snmp_arbitrary_value = -1;          /* Opaque */
+static int hf_snmp_big_counter_value = -1;        /* Counter64 */
+static int hf_snmp_unsigned_integer_value = -1;   /* Unsigned32 */
+static int hf_snmp_internet = -1;                 /* IpAddress */
+static int hf_snmp_version = -1;                  /* Version */
+static int hf_snmp_community = -1;                /* OCTET_STRING */
+static int hf_snmp_data = -1;                     /* PDUs */
+static int hf_snmp_parameters = -1;               /* OCTET_STRING */
+static int hf_snmp_datav2u = -1;                  /* T_datav2u */
+static int hf_snmp_v2u_plaintext = -1;            /* PDUs */
+static int hf_snmp_encrypted = -1;                /* OCTET_STRING */
+static int hf_snmp_msgAuthoritativeEngineID = -1;  /* SnmpEngineID */
+static int hf_snmp_msgAuthoritativeEngineBoots = -1;  /* INTEGER_0_2147483647 */
+static int hf_snmp_msgAuthoritativeEngineTime = -1;  /* INTEGER_0_2147483647 */
+static int hf_snmp_msgUserName = -1;              /* OCTET_STRING_SIZE_1_32 */
+static int hf_snmp_msgAuthenticationParameters = -1;  /* OCTET_STRING */
+static int hf_snmp_msgPrivacyParameters = -1;     /* OCTET_STRING */
+static int hf_snmp_msgVersion = -1;               /* Version */
+static int hf_snmp_msgGlobalData = -1;            /* HeaderData */
+static int hf_snmp_msgSecurityParameters = -1;    /* T_msgSecurityParameters */
+static int hf_snmp_msgData = -1;                  /* ScopedPduData */
+static int hf_snmp_msgID = -1;                    /* INTEGER_0_2147483647 */
+static int hf_snmp_msgMaxSize = -1;               /* INTEGER_484_2147483647 */
+static int hf_snmp_msgFlags = -1;                 /* T_msgFlags */
+static int hf_snmp_msgSecurityModel = -1;         /* T_msgSecurityModel */
+static int hf_snmp_plaintext = -1;                /* ScopedPDU */
+static int hf_snmp_encryptedPDU = -1;             /* OCTET_STRING */
+static int hf_snmp_contextEngineID = -1;          /* OCTET_STRING */
+static int hf_snmp_contextName = -1;              /* OCTET_STRING */
+static int hf_snmp_get_request = -1;              /* T_get_request */
+static int hf_snmp_get_next_request = -1;         /* T_get_next_request */
+static int hf_snmp_get_response = -1;             /* T_get_response */
+static int hf_snmp_set_request = -1;              /* T_set_request */
+static int hf_snmp_trap = -1;                     /* T_trap */
+static int hf_snmp_getBulkRequest = -1;           /* T_getBulkRequest */
+static int hf_snmp_informRequest = -1;            /* T_informRequest */
+static int hf_snmp_sNMPv2_Trap = -1;              /* T_sNMPv2_Trap */
+static int hf_snmp_report = -1;                   /* T_report */
+static int hf_snmp_request_id = -1;               /* INTEGER */
+static int hf_snmp_error_status = -1;             /* T_error_status */
+static int hf_snmp_error_index = -1;              /* INTEGER */
+static int hf_snmp_variable_bindings = -1;        /* VarBindList */
+static int hf_snmp_bulkPDU_request_id = -1;       /* Integer32 */
+static int hf_snmp_non_repeaters = -1;            /* INTEGER_0_2147483647 */
+static int hf_snmp_max_repetitions = -1;          /* INTEGER_0_2147483647 */
+static int hf_snmp_enterprise = -1;               /* OBJECT_IDENTIFIER */
+static int hf_snmp_agent_addr = -1;               /* NetworkAddress */
+static int hf_snmp_generic_trap = -1;             /* T_generic_trap */
+static int hf_snmp_specific_trap = -1;            /* INTEGER */
+static int hf_snmp_time_stamp = -1;               /* TimeTicks */
+static int hf_snmp_name = -1;                     /* ObjectName */
+static int hf_snmp_valueType = -1;                /* ValueType */
+static int hf_snmp_value = -1;                    /* ObjectSyntax */
+static int hf_snmp_unSpecified = -1;              /* NULL */
+static int hf_snmp_noSuchObject = -1;             /* NULL */
+static int hf_snmp_noSuchInstance = -1;           /* NULL */
+static int hf_snmp_endOfMibView = -1;             /* NULL */
+static int hf_snmp_VarBindList_item = -1;         /* VarBind */
+static int hf_snmp_open = -1;                     /* OpenPDU */
+static int hf_snmp_close = -1;                    /* ClosePDU */
+static int hf_snmp_registerRequest = -1;          /* RReqPDU */
+static int hf_snmp_registerResponse = -1;         /* RegisterResponse */
+static int hf_snmp_commitOrRollback = -1;         /* SOutPDU */
+static int hf_snmp_rRspPDU = -1;                  /* RRspPDU */
+static int hf_snmp_pDUs = -1;                     /* PDUs */
+static int hf_snmp_smux_simple = -1;              /* SimpleOpen */
+static int hf_snmp_smux_version = -1;             /* T_smux_version */
+static int hf_snmp_identity = -1;                 /* OBJECT_IDENTIFIER */
+static int hf_snmp_description = -1;              /* DisplayString */
+static int hf_snmp_password = -1;                 /* OCTET_STRING */
+static int hf_snmp_subtree = -1;                  /* ObjectName */
+static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
+static int hf_snmp_operation = -1;                /* T_operation */
+
+/*--- End of included file: packet-snmp-hf.c ---*/
+#line 185 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
 
-/* desegmentation of SNMP-over-TCP */
-static gboolean snmp_desegment = TRUE;
+/* Initialize the subtree pointers */
+static gint ett_smux = -1;
+static gint ett_snmp = -1;
+static gint ett_engineid = -1;
+static gint ett_msgFlags = -1;
 
-static dissector_handle_t snmp_handle;
-static dissector_handle_t data_handle;
 
-#define TH_AUTH   0x01
-#define TH_CRYPT  0x02
-#define TH_REPORT 0x04
+/*--- Included file: packet-snmp-ett.c ---*/
+#line 1 "packet-snmp-ett.c"
+static gint ett_snmp_ObjectSyntax = -1;
+static gint ett_snmp_SimpleSyntax = -1;
+static gint ett_snmp_ApplicationSyntax = -1;
+static gint ett_snmp_NetworkAddress = -1;
+static gint ett_snmp_Message = -1;
+static gint ett_snmp_Messagev2u = -1;
+static gint ett_snmp_T_datav2u = -1;
+static gint ett_snmp_UsmSecurityParameters = -1;
+static gint ett_snmp_SNMPv3Message = -1;
+static gint ett_snmp_HeaderData = -1;
+static gint ett_snmp_ScopedPduData = -1;
+static gint ett_snmp_ScopedPDU = -1;
+static gint ett_snmp_PDUs = -1;
+static gint ett_snmp_PDU = -1;
+static gint ett_snmp_BulkPDU = -1;
+static gint ett_snmp_Trap_PDU = -1;
+static gint ett_snmp_VarBind = -1;
+static gint ett_snmp_ValueType = -1;
+static gint ett_snmp_VarBindList = -1;
+static gint ett_snmp_SMUX_PDUs = -1;
+static gint ett_snmp_RegisterResponse = -1;
+static gint ett_snmp_OpenPDU = -1;
+static gint ett_snmp_SimpleOpen = -1;
+static gint ett_snmp_RReqPDU = -1;
 
-#define UDP_PORT_SNMP		161
-#define UDP_PORT_SNMP_TRAP	162
-#define TCP_PORT_SNMP		161
-#define TCP_PORT_SNMP_TRAP	162
-#define TCP_PORT_SMUX		199
-
-/* Protocol version numbers */
-#define SNMP_VERSION_1	0
-#define SNMP_VERSION_2c	1
-#define SNMP_VERSION_2u	2
-#define SNMP_VERSION_3	3
-
-static const value_string versions[] = {
-	{ SNMP_VERSION_1,	"1" },
-	{ SNMP_VERSION_2c,	"2C" },
-	{ SNMP_VERSION_2u,	"2U" },
-	{ SNMP_VERSION_3,	"3" },
-	{ 0,			NULL },
-};
+/*--- End of included file: packet-snmp-ett.c ---*/
+#line 196 "packet-snmp-template.c"
 
 /* defined in net-SNMP; include/net-snmp/library/snmp.h */
 #undef SNMP_MSG_GET
@@ -228,29 +333,19 @@ static const value_string versions[] = {
 #undef SNMP_NOSUCHINSTANCE
 #undef SNMP_ENDOFMIBVIEW
 
-/* PDU types */
-#define SNMP_MSG_GET		0
-#define SNMP_MSG_GETNEXT	1
-#define SNMP_MSG_RESPONSE	2
-#define SNMP_MSG_SET		3
-#define SNMP_MSG_TRAP		4
+/* Security Models */
 
-#define SNMP_MSG_GETBULK	5
-#define SNMP_MSG_INFORM		6
-#define SNMP_MSG_TRAP2		7
-#define SNMP_MSG_REPORT		8
+#define SNMP_SEC_ANY			0
+#define SNMP_SEC_V1				1
+#define SNMP_SEC_V2C			2
+#define SNMP_SEC_USM			3
 
-static const value_string pdu_types[] = {
-	{ SNMP_MSG_GET,		"GET" },
-	{ SNMP_MSG_GETNEXT,	"GET-NEXT" },
-	{ SNMP_MSG_SET,		"SET" },
-	{ SNMP_MSG_RESPONSE,	"RESPONSE" },
-	{ SNMP_MSG_TRAP, 	"TRAP-V1" },
-	{ SNMP_MSG_GETBULK, 	"GETBULK" },
-	{ SNMP_MSG_INFORM, 	"INFORM" },
-	{ SNMP_MSG_TRAP2, 	"TRAP-V2" },
-	{ SNMP_MSG_REPORT,	"REPORT" },
-	{ 0,			NULL }
+static const value_string sec_models[] = {
+	{ SNMP_SEC_ANY,			"Any" },
+	{ SNMP_SEC_V1,			"V1" },
+	{ SNMP_SEC_V2C,			"V2C" },
+	{ SNMP_SEC_USM,			"USM" },
+	{ 0,				NULL }
 };
 
 /* SMUX PDU types */
@@ -267,173 +362,6 @@ static const value_string smux_types[] = {
 	{ SMUX_MSG_RRSP,	"Registration Response" },
 	{ SMUX_MSG_SOUT,	"Commit Or Rollback" },
 	{ 0,			NULL }
-};
-
-/* SMUX Closing causes */
-#define SMUX_CLOSE_DOWN			0
-#define SMUX_CLOSE_VERSION		1
-#define SMUX_CLOSE_PACKET		2
-#define SMUX_CLOSE_PROTOCOL		3
-#define SMUX_CLOSE_INTERNAL		4
-#define SMUX_CLOSE_NOAUTH		5
-
-static const value_string smux_close[] = {
-	{ SMUX_CLOSE_DOWN,	"Going down" },
-	{ SMUX_CLOSE_VERSION,	"Unsupported Version" },
-	{ SMUX_CLOSE_PACKET,	"Packet Format Error" },
-	{ SMUX_CLOSE_PROTOCOL,	"Protocol Error" },
-	{ SMUX_CLOSE_INTERNAL,	"Internal Error" },
-	{ SMUX_CLOSE_NOAUTH,	"Unauthorized" },
-	{ 0,			NULL }
-};
-
-/* SMUX Request codes */
-#define SMUX_RREQ_DELETE		0
-#define SMUX_RREQ_READONLY		1
-#define SMUX_RREQ_READWRITE		2
-
-static const value_string smux_rreq[] = {
-	{ SMUX_RREQ_DELETE,	"Delete" },
-	{ SMUX_RREQ_READONLY,	"Read Only" },
-	{ SMUX_RREQ_READWRITE,	"Read Write" },
-	{ 0,			NULL }
-};
-
-static const value_string smux_prio[] = {
-	{ -1,				"Failure" },
-	{ 0,				NULL }
-};
-
-/* SMUX SOut codes */
-#define SMUX_SOUT_COMMIT		0
-#define SMUX_SOUT_ROLLBACK		1
-
-static const value_string smux_sout[] = {
-	{ SMUX_SOUT_COMMIT,		"Commit" },
-	{ SMUX_SOUT_ROLLBACK,		"Rollback" },
-	{ 0,			        NULL }
-};
-
-/* Error status values */
-#ifndef SNMP_ERR_NOERROR
-#define SNMP_ERR_NOERROR		0
-#endif
-#ifndef SNMP_ERR_TOOBIG
-#define SNMP_ERR_TOOBIG			1
-#endif
-#ifndef SNMP_ERR_NOSUCHNAME
-#define SNMP_ERR_NOSUCHNAME		2
-#endif
-#ifndef SNMP_ERR_BADVALUE
-#define SNMP_ERR_BADVALUE		3
-#endif
-#ifndef SNMP_ERR_READONLY
-#define SNMP_ERR_READONLY		4
-#endif
-#ifndef SNMP_ERR_GENERR
-#define SNMP_ERR_GENERR			5
-#endif
-#ifndef SNMP_ERR_NOACCESS
-#define SNMP_ERR_NOACCESS		6
-#endif
-#ifndef SNMP_ERR_WRONGTYPE
-#define SNMP_ERR_WRONGTYPE		7
-#endif
-#ifndef SNMP_ERR_WRONGLENGTH
-#define SNMP_ERR_WRONGLENGTH		8
-#endif
-#ifndef SNMP_ERR_WRONGENCODING
-#define SNMP_ERR_WRONGENCODING		9
-#endif
-#ifndef SNMP_ERR_WRONGVALUE
-#define SNMP_ERR_WRONGVALUE		10
-#endif
-#ifndef SNMP_ERR_NOCREATION
-#define SNMP_ERR_NOCREATION		11
-#endif
-#ifndef SNMP_ERR_INCONSISTENTVALUE
-#define SNMP_ERR_INCONSISTENTVALUE	12
-#endif
-#ifndef SNMP_ERR_RESOURCEUNAVAILABLE
-#define SNMP_ERR_RESOURCEUNAVAILABLE	13
-#endif
-#ifndef SNMP_ERR_COMMITFAILED
-#define SNMP_ERR_COMMITFAILED		14
-#endif
-#ifndef SNMP_ERR_UNDOFAILED
-#define SNMP_ERR_UNDOFAILED		15
-#endif
-#ifndef SNMP_ERR_AUTHORIZATIONERROR
-#define SNMP_ERR_AUTHORIZATIONERROR	16
-#endif
-#ifndef SNMP_ERR_NOTWRITABLE
-#define SNMP_ERR_NOTWRITABLE		17
-#endif
-#ifndef SNMP_ERR_INCONSISTENTNAME
-#define SNMP_ERR_INCONSISTENTNAME	18
-#endif
-
-static const value_string error_statuses[] = {
-	{ SNMP_ERR_NOERROR,		"NO ERROR" },
-	{ SNMP_ERR_TOOBIG,		"TOOBIG" },
-	{ SNMP_ERR_NOSUCHNAME,		"NO SUCH NAME" },
-	{ SNMP_ERR_BADVALUE,		"BAD VALUE" },
-	{ SNMP_ERR_READONLY,		"READ ONLY" },
-	{ SNMP_ERR_GENERR,		"GENERIC ERROR" },
-	{ SNMP_ERR_NOACCESS,		"NO ACCESS" },
-	{ SNMP_ERR_WRONGTYPE,		"WRONG TYPE" },
-	{ SNMP_ERR_WRONGLENGTH,		"WRONG LENGTH" },
-	{ SNMP_ERR_WRONGENCODING,	"WRONG ENCODING" },
-	{ SNMP_ERR_WRONGVALUE,		"WRONG VALUE" },
-	{ SNMP_ERR_NOCREATION,		"NO CREATION" },
-	{ SNMP_ERR_INCONSISTENTVALUE,	"INCONSISTENT VALUE" },
-	{ SNMP_ERR_RESOURCEUNAVAILABLE,	"RESOURCE UNAVAILABLE" },
-	{ SNMP_ERR_COMMITFAILED,	"COMMIT FAILED" },
-	{ SNMP_ERR_UNDOFAILED,		"UNDO FAILED" },
-	{ SNMP_ERR_AUTHORIZATIONERROR,	"AUTHORIZATION ERROR" },
-	{ SNMP_ERR_NOTWRITABLE,		"NOT WRITABLE" },
-	{ SNMP_ERR_INCONSISTENTNAME,	"INCONSISTENT NAME" },
-	{ 0,				NULL }
-};
-
-/* General SNMP V1 Traps */
-
-#ifndef SNMP_TRAP_COLDSTART
-#define SNMP_TRAP_COLDSTART		0
-#endif
-#ifndef SNMP_TRAP_WARMSTART
-#define SNMP_TRAP_WARMSTART		1
-#endif
-#ifndef SNMP_TRAP_LINKDOWN
-#define SNMP_TRAP_LINKDOWN		2
-#endif
-#ifndef SNMP_TRAP_LINKUP
-#define SNMP_TRAP_LINKUP		3
-#endif
-#ifndef SNMP_TRAP_AUTHFAIL
-#define SNMP_TRAP_AUTHFAIL		4
-#endif
-#ifndef SNMP_TRAP_EGPNEIGHBORLOSS
-#define SNMP_TRAP_EGPNEIGHBORLOSS	5
-#endif
-#ifndef SNMP_TRAP_ENTERPRISESPECIFIC
-#define SNMP_TRAP_ENTERPRISESPECIFIC	6
-#endif
-
-
-/* Security Models */
-
-#define SNMP_SEC_ANY			0
-#define SNMP_SEC_V1			1
-#define SNMP_SEC_V2C			2
-#define SNMP_SEC_USM			3
-
-static const value_string sec_models[] = {
-	{ SNMP_SEC_ANY,			"Any" },
-	{ SNMP_SEC_V1,			"V1" },
-	{ SNMP_SEC_V2C,			"V2C" },
-	{ SNMP_SEC_USM,			"USM" },
-	{ 0,				NULL }
 };
 
 /* SNMP Tags */
@@ -473,6 +401,7 @@ static const value_string sec_models[] = {
 #define SNMP_NOSUCHOBJECT       12
 #define SNMP_NOSUCHINSTANCE     13
 #define SNMP_ENDOFMIBVIEW       14
+
 
 typedef struct _SNMP_CNV SNMP_CNV;
 
@@ -537,185 +466,6 @@ snmp_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
     return NULL;
 }
 
-#define F_SNMP_ENGINEID_CONFORM 0x80
-#define SNMP_ENGINEID_RFC1910 0x00
-#define SNMP_ENGINEID_RFC3411 0x01
-
-static const true_false_string tfs_snmp_engineid_conform = {
-  "RFC3411 (SNMPv3)",
-  "RFC1910 (Non-SNMPv3)"
-};
-
-#define SNMP_ENGINEID_FORMAT_IPV4 0x01
-#define SNMP_ENGINEID_FORMAT_IPV6 0x02
-#define SNMP_ENGINEID_FORMAT_MACADDRESS 0x03
-#define SNMP_ENGINEID_FORMAT_TEXT 0x04
-#define SNMP_ENGINEID_FORMAT_OCTETS 0x05
-
-static const value_string snmp_engineid_format_vals[] = {
-	{ SNMP_ENGINEID_FORMAT_IPV4,	"IPv4 address" },
-	{ SNMP_ENGINEID_FORMAT_IPV6,	"IPv6 address" },
-	{ SNMP_ENGINEID_FORMAT_MACADDRESS,	"MAC address" },
-	{ SNMP_ENGINEID_FORMAT_TEXT,	"Text, administratively assigned" },
-	{ SNMP_ENGINEID_FORMAT_OCTETS,	"Octets, administratively assigned" },
-	{ 0,   	NULL }
-};
-
-/*
- * SNMP Engine ID dissection according to RFC 3411 (SnmpEngineID TC)
- * or historic RFC 1910 (AgentID)
- */
-int
-dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
-{
-    proto_item *item = NULL;
-    guint8 conformance, format;
-    guint32 enterpriseid, seconds;
-    nstime_t ts;
-    int len_remain = len;
-
-    /* first bit: engine id conformance */
-    if (len_remain<4) return offset;
-    conformance = ((tvb_get_guint8(tvb, offset)>>7) && 0x01);
-    proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, FALSE);
-
-    /* 4-byte enterprise number/name */
-    enterpriseid = tvb_get_ntohl(tvb, offset);
-    if (conformance)
-      enterpriseid -= 0x80000000; /* ignore first bit */
-    proto_tree_add_uint(tree, hf_snmp_engineid_enterprise, tvb, offset, 4, enterpriseid);
-    offset+=4;
-    len_remain-=4;
-
-    switch(conformance) {
-
-    case SNMP_ENGINEID_RFC1910:
-      /* 12-byte AgentID w/ 8-byte trailer */
-      if (len_remain==8) {
-	proto_tree_add_text(tree, tvb, offset, 8, "AgentID Trailer: 0x%s",
-			    tvb_bytes_to_str(tvb, offset, 8));
-	offset+=8;
-	len_remain-=8;
-      } else {
-	proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC1910>");
-	return offset;
-      }
-      break;
-
-    case SNMP_ENGINEID_RFC3411: /* variable length: 5..32 */
-
-      /* 1-byte format specifier */
-      if (len_remain<1) return offset;
-      format = tvb_get_guint8(tvb, offset);
-      item = proto_tree_add_uint_format(tree, hf_snmp_engineid_format, tvb, offset, 1, format, "Engine ID Format: %s (%d)",
-			  val_to_str(format, snmp_engineid_format_vals, "Reserved/Enterprise-specific"), format);
-      offset+=1;
-      len_remain-=1;
-
-      switch(format) {
-      case SNMP_ENGINEID_FORMAT_IPV4:
-	/* 4-byte IPv4 address */
-	if (len_remain==4) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_ipv4, tvb, offset, 4, FALSE);
-	  offset+=4;
-	  len_remain=0;
-	}
-	break;
-      case SNMP_ENGINEID_FORMAT_IPV6:
-	/* 16-byte IPv6 address */
-	if (len_remain==16) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_ipv6, tvb, offset, 16, FALSE);
-	  offset+=16;
-	  len_remain=0;
-	}
-	break;
-      case SNMP_ENGINEID_FORMAT_MACADDRESS:
-	/* 6-byte MAC address */
-	if (len_remain==6) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, FALSE);
-	  offset+=6;
-	  len_remain=0;
-	}
-	break;
-      case SNMP_ENGINEID_FORMAT_TEXT:
-	/* max. 27-byte string, administratively assigned */
-	if (len_remain<=27) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, FALSE);
-	  offset+=len_remain;
-	  len_remain=0;
-	}
-	break;
-      case 128:
-	/* most common enterprise-specific format: (ucd|net)-snmp random */
-	if ((enterpriseid==2021)||(enterpriseid==8072)) {
-	  proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random");
-	  /* demystify: 4B random, 4B epoch seconds */
-	  if (len_remain==8) {
-	    proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, FALSE);
-	    seconds = tvb_get_letohl(tvb, offset+4);
-	    ts.secs = seconds;
-	    proto_tree_add_time_format(tree, hf_snmp_engineid_time, tvb, offset+4, 4,
-                                  &ts, "Engine ID Data: Creation Time: %s",
-                                  abs_time_secs_to_str(seconds));
-	    offset+=8;
-	    len_remain=0;
-	  }
-	}
-	break;
-      case SNMP_ENGINEID_FORMAT_OCTETS:
-      default:
-	/* max. 27 bytes, administratively assigned or unknown format */
-	if (len_remain<=27) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain, FALSE);
-	  offset+=len_remain;
-	  len_remain=0;
-	}
-	break;
-      }
-    }
-
-    if (len_remain>0) {
-      proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC3411>");
-      offset+=len_remain;
-    }
-    return offset;
-}
-
-static void
-dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		   proto_tree *tree, const char *field_name, int ret)
-{
-	const char *errstr;
-    proto_item *item;
-
-	errstr = asn1_err_to_str(ret);
-
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-		    "[ERROR: Couldn't parse %s: %s]", field_name, errstr);
-	}
-	if (tree != NULL) {
-		item = proto_tree_add_text(tree, tvb, offset, 0,
-		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
-        PROTO_ITEM_SET_GENERATED(item);
-		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
-	}
-}
-
-static void
-dissect_snmp_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		   proto_tree *tree, const char *message)
-{
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, message);
-
-	if (tree != NULL) {
-		proto_tree_add_text(tree, tvb, offset, 0, "%s", message);
-		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
-	}
-}
 int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len) {
    int i, out_len;
    guint8 byte;
@@ -740,7 +490,6 @@ int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len)
 
    return out_len;
 }
-
 
 gchar *
 format_oid(subid_t *oid, guint oid_length)
@@ -970,19 +719,162 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 #endif
 
 
-static int
-snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
-    subid_t *variable_oid
-#ifndef HAVE_SOME_SNMP
-	_U_
-#endif
-    ,
-    guint variable_oid_length
-#ifndef HAVE_SOME_SNMP
-	_U_
-#endif
-    ,
-    ASN1_SCK *asn1, int offset, guint *lengthp, tvbuff_t **out_tvb)
+#define F_SNMP_ENGINEID_CONFORM 0x80
+#define SNMP_ENGINEID_RFC1910 0x00
+#define SNMP_ENGINEID_RFC3411 0x01
+
+static const true_false_string tfs_snmp_engineid_conform = {
+  "RFC3411 (SNMPv3)",
+  "RFC1910 (Non-SNMPv3)"
+};
+
+#define SNMP_ENGINEID_FORMAT_IPV4 0x01
+#define SNMP_ENGINEID_FORMAT_IPV6 0x02
+#define SNMP_ENGINEID_FORMAT_MACADDRESS 0x03
+#define SNMP_ENGINEID_FORMAT_TEXT 0x04
+#define SNMP_ENGINEID_FORMAT_OCTETS 0x05
+
+static const value_string snmp_engineid_format_vals[] = {
+	{ SNMP_ENGINEID_FORMAT_IPV4,	"IPv4 address" },
+	{ SNMP_ENGINEID_FORMAT_IPV6,	"IPv6 address" },
+	{ SNMP_ENGINEID_FORMAT_MACADDRESS,	"MAC address" },
+	{ SNMP_ENGINEID_FORMAT_TEXT,	"Text, administratively assigned" },
+	{ SNMP_ENGINEID_FORMAT_OCTETS,	"Octets, administratively assigned" },
+	{ 0,   	NULL }
+};
+
+/*
+ * SNMP Engine ID dissection according to RFC 3411 (SnmpEngineID TC)
+ * or historic RFC 1910 (AgentID)
+ */
+int
+dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
+{
+    proto_item *item = NULL;
+    guint8 conformance, format;
+    guint32 enterpriseid, seconds;
+    nstime_t ts;
+    int len_remain = len;
+
+    /* first bit: engine id conformance */
+    if (len_remain<4) return offset;
+    conformance = ((tvb_get_guint8(tvb, offset)>>7) && 0x01);
+    proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, FALSE);
+
+    /* 4-byte enterprise number/name */
+    if (len_remain<4) return offset;
+    enterpriseid = tvb_get_ntohl(tvb, offset);
+    if (conformance)
+      enterpriseid -= 0x80000000; /* ignore first bit */
+    proto_tree_add_uint(tree, hf_snmp_engineid_enterprise, tvb, offset, 4, enterpriseid);
+    offset+=4;
+    len_remain-=4;
+
+    switch(conformance) {
+
+    case SNMP_ENGINEID_RFC1910:
+      /* 12-byte AgentID w/ 8-byte trailer */
+      if (len_remain==8) {
+	proto_tree_add_text(tree, tvb, offset, 8, "AgentID Trailer: 0x%s",
+			    tvb_bytes_to_str(tvb, offset, 8));
+	offset+=8;
+	len_remain-=8;
+      } else {
+	proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC1910>");
+	return offset;
+      }
+      break;
+
+    case SNMP_ENGINEID_RFC3411: /* variable length: 5..32 */
+
+      /* 1-byte format specifier */
+      if (len_remain<1) return offset;
+      format = tvb_get_guint8(tvb, offset);
+      item = proto_tree_add_uint_format(tree, hf_snmp_engineid_format, tvb, offset, 1, format, "Engine ID Format: %s (%d)",
+			  val_to_str(format, snmp_engineid_format_vals, "Reserved/Enterprise-specific"), format);
+      offset+=1;
+      len_remain-=1;
+
+      switch(format) {
+      case SNMP_ENGINEID_FORMAT_IPV4:
+	/* 4-byte IPv4 address */
+	if (len_remain==4) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_ipv4, tvb, offset, 4, FALSE);
+	  offset+=4;
+	  len_remain=0;
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_IPV6:
+	/* 16-byte IPv6 address */
+	if (len_remain==16) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_ipv6, tvb, offset, 16, FALSE);
+	  offset+=16;
+	  len_remain=0;
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_MACADDRESS:
+	/* 6-byte MAC address */
+	if (len_remain==6) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, FALSE);
+	  offset+=6;
+	  len_remain=0;
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_TEXT:
+	/* max. 27-byte string, administratively assigned */
+	if (len_remain<=27) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, FALSE);
+	  offset+=len_remain;
+	  len_remain=0;
+	}
+	break;
+      case 128:
+	/* most common enterprise-specific format: (ucd|net)-snmp random */
+	if ((enterpriseid==2021)||(enterpriseid==8072)) {
+	  proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random");
+	  /* demystify: 4B random, 4B epoch seconds */
+	  if (len_remain==8) {
+	    proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, FALSE);
+	    seconds = tvb_get_letohl(tvb, offset+4);
+	    ts.secs = seconds;
+	    proto_tree_add_time_format(tree, hf_snmp_engineid_time, tvb, offset+4, 4,
+                                  &ts, "Engine ID Data: Creation Time: %s",
+                                  abs_time_secs_to_str(seconds));
+	    offset+=8;
+	    len_remain=0;
+	  }
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_OCTETS:
+      default:
+	/* max. 27 bytes, administratively assigned or unknown format */
+	if (len_remain<=27) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain, FALSE);
+	  offset+=len_remain;
+	  len_remain=0;
+	}
+	break;
+      }
+    }
+
+    if (len_remain>0) {
+      proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC3411>");
+      offset+=len_remain;
+    }
+    return offset;
+}
+
+/* This code is copied from the original SNMP dissector with minor changes to adapt it to use packet-ber.c routines
+ * TODO: 
+ * - Rewrite it completly as OID as subid_t could be returned from dissect_ber_objectidentifier
+ * - vb_type_name is known when calling this routine(?)
+ * - All branches not needed(?)
+ * ...
+ */
+
+static void
+snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tvbuff_t *oid_tvb,
+					 int offset, guint *lengthp, tvbuff_t **out_tvb)
 {
 	int start, vb_value_start;
 	guint length;
@@ -996,7 +888,10 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	subid_t *vb_oid;
 	guint vb_oid_length;
 	gchar *vb_display_string;
-
+	subid_t *variable_oid = NULL;
+	gint oid_len;
+	guint variable_oid_length = 0;
+	const guint8 *var_oid_buf;
 #ifdef HAVE_SOME_SNMP
 	struct variable_list variable;
 	long value;
@@ -1008,12 +903,11 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	gboolean pc, ind = 0;
 	gint32 ber_tag;
 
-	start = asn1->offset;
+	start = offset;
 	/* parse the type of the object */
-	offset = dissect_ber_identifier(pinfo, snmp_tree, asn1->tvb, start, &class, &pc, &ber_tag);
-	offset = dissect_ber_length(pinfo, snmp_tree, asn1->tvb, offset, &vb_length, &ind);
+	offset = dissect_ber_identifier(pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
+	offset = dissect_ber_length(pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
 
-	asn1->offset = offset;
 	vb_value_start = offset;
 
 	/* Convert the class, constructed flag, and tag to a type. */
@@ -1027,13 +921,18 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		vb_type_name = "unsupported type";
 		vb_type = SNMP_OPAQUE;
 	}
-
+	/* construct subid_t variable_oid from oid_tvb */
+	if (oid_tvb){
+		oid_len = tvb_length_remaining(oid_tvb,0);
+		var_oid_buf = tvb_get_ptr(oid_tvb, 0, oid_len);
+		variable_oid = g_malloc((oid_len+1) * sizeof(gulong));
+		variable_oid_length = oid_to_subid_buf(var_oid_buf, oid_len, variable_oid, ((oid_len+1) * sizeof(gulong)));
+	}
 	/* parse the value */
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, asn1->tvb, start, -1, &vb_integer_value);
-		asn1->offset = offset;
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_integer_value);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
@@ -1046,12 +945,12 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 			vb_display_string = NULL;
 #endif
 			if (vb_display_string != NULL) {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 				free(vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree,tvb,
 				    vb_value_start, length,
 				    "Value: %s: %d (%#x)", vb_type_name,
 				    vb_integer_value, vb_integer_value);
@@ -1062,8 +961,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	case SNMP_COUNTER:
 	case SNMP_GAUGE:
 	case SNMP_TIMETICKS:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, asn1->tvb, start, -1, &vb_uinteger_value);
-		asn1->offset = offset;
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_uinteger_value);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
@@ -1076,11 +974,11 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 			vb_display_string = NULL;
 #endif
 			if (vb_display_string != NULL) {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s: %u (%#x)", vb_type_name,
 				    vb_uinteger_value, vb_uinteger_value);
@@ -1088,19 +986,17 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		}
 		break;
 	case SNMP_COUNTER64:
-		asn1->offset=dissect_ber_integer64(TRUE, pinfo, snmp_tree, asn1->tvb, asn1->offset, hf_snmp_counter64, NULL);
+		offset=dissect_ber_integer64(TRUE, pinfo, snmp_tree, tvb, offset, hf_snmp_counter64, NULL);
 		break;
 	case SNMP_OCTETSTR:
 	case SNMP_IPADDR:
 	case SNMP_OPAQUE:
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
-		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, asn1->tvb, start, -1, out_tvb);
-		vb_octet_string = ep_tvb_memdup(asn1->tvb, vb_value_start, vb_length);
+		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, start, -1, out_tvb);
+		vb_octet_string = ep_tvb_memdup(tvb, vb_value_start, vb_length);
 
-		asn1->offset = offset;
-
-		length = asn1->offset - vb_value_start;
+		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
 			variable.val.string = vb_octet_string;
@@ -1111,7 +1007,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 			vb_display_string = NULL;
 #endif
 			if (vb_display_string != NULL) {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 				free(vb_display_string);
@@ -1140,12 +1036,12 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 						    vb_octet_string[i]);
 						buf += len;
 					}
-					proto_tree_add_text(snmp_tree, asn1->tvb, vb_value_start,
+					proto_tree_add_text(snmp_tree, tvb, vb_value_start,
 					    length,
 					    "Value: %s: %s", vb_type_name,
 					    vb_display_string);
 				} else {
-					proto_tree_add_text(snmp_tree, asn1->tvb, vb_value_start,
+					proto_tree_add_text(snmp_tree, tvb, vb_value_start,
 					    length,
 					    "Value: %s: %s", vb_type_name,
 					    SAFE_STRING(vb_octet_string, vb_length));
@@ -1155,10 +1051,10 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		break;
 
 	case SNMP_NULL:
-		dissect_ber_null(FALSE, pinfo, NULL, asn1->tvb, start, -1);
-		length = asn1->offset - vb_value_start;
+		dissect_ber_null(FALSE, pinfo, NULL, tvb, start, -1);
+		length = offset - vb_value_start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, asn1->tvb, vb_value_start, length,
+			proto_tree_add_text(snmp_tree, tvb, vb_value_start, length,
 			    "Value: %s", vb_type_name);
 		}
 		break;
@@ -1166,12 +1062,12 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	case SNMP_OBJECTID:
 		/* XXX Redo this using dissect_ber_object_identifier when
 		   it returns tvb or some other binary form of an OID */
-		oid_buf = tvb_get_ptr(asn1->tvb, vb_value_start, vb_length);
+		oid_buf = tvb_get_ptr(tvb, vb_value_start, vb_length);
 		vb_oid = g_malloc((vb_length+1) * sizeof(gulong));
 		vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
 
-		asn1->offset = offset + vb_length;
-		length = asn1->offset - vb_value_start;
+		offset = offset + vb_length;
+		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
 			variable.val.objid = vb_oid;
@@ -1179,24 +1075,24 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_oid_length * sizeof (subid_t));
 			if (vb_display_string != NULL) {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 				free(vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s: [Out of memory]", vb_type_name);
 			}
 #else /* HAVE_SOME_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			if (vb_display_string != NULL) {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, asn1->tvb,
+				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s: [Out of memory]", vb_type_name);
 			}
@@ -1206,83 +1102,169 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		break;
 
 	case SNMP_NOSUCHOBJECT:
-		length = asn1->offset - start;
+		length = offset - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Value: %s: no such object", vb_type_name);
 		}
 		break;
 
 	case SNMP_NOSUCHINSTANCE:
-		length = asn1->offset - start;
+		length = offset - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Value: %s: no such instance", vb_type_name);
 		}
 		break;
 
 	case SNMP_ENDOFMIBVIEW:
-		length = asn1->offset - start;
+		length = offset - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Value: %s: end of mib view", vb_type_name);
 		}
 		break;
 
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
-		return ASN1_ERR_WRONG_TYPE;
+		return;
 	}
-	length = asn1->offset - start;
+	length = offset - start;
 	*lengthp = length;
-	return ASN1_ERR_NOERROR;
+	return;
 }
 
+
+/*--- Included file: packet-snmp-fn.c ---*/
+#line 1 "packet-snmp-fn.c"
+/*--- Fields for imported types ---*/
+
+
+
+
 static int
-dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+dissect_snmp_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, &oid_tvb);
+
+  return offset;
+}
+static int dissect_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ObjectName(FALSE, tvb, offset, pinfo, tree, hf_snmp_name);
+}
+static int dissect_subtree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ObjectName(FALSE, tvb, offset, pinfo, tree, hf_snmp_subtree);
+}
+
+
+
+static int
+dissect_snmp_NotificationName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
 
-static int dissect_time_stamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_time_stamp);
-}
+
 
 static int
-dissect_snmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 223 "snmp.cnf"
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+
 
   return offset;
 }
+static int dissect_integer_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Integer_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_integer_value);
+}
 
-static const value_string snmp_T_generic_trap_vals[] = {
-  {   0, "coldStart" },
-  {   1, "warmStart" },
-  {   2, "linkDown" },
-  {   3, "linkUp" },
-  {   4, "authenticationFailure" },
-  {   5, "egpNeighborLoss" },
-  {   6, "enterpriseSpecific" },
+
+
+static int
+dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 217 "snmp.cnf"
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+
+
+  return offset;
+}
+static int dissect_string_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_String_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_string_value);
+}
+
+
+
+static int
+dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 229 "snmp.cnf"
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+
+
+  return offset;
+}
+static int dissect_objectID_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ObjectID_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_objectID_value);
+}
+
+
+
+static int
+dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 235 "snmp.cnf"
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+
+
+  return offset;
+}
+static int dissect_empty(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Empty(FALSE, tvb, offset, pinfo, tree, hf_snmp_empty);
+}
+
+
+static const value_string snmp_SimpleSyntax_vals[] = {
+  {   0, "integer-value" },
+  {   1, "string-value" },
+  {   2, "objectID-value" },
+  {   3, "empty" },
   { 0, NULL }
 };
 
-static int dissect_specific_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_specific_trap);
-}
+static const ber_choice_t SimpleSyntax_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_integer_value },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_string_value },
+  {   2, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_objectID_value },
+  {   3, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_empty },
+  { 0, 0, 0, 0, NULL }
+};
 
 static int
-dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+dissect_snmp_SimpleSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 SimpleSyntax_choice, hf_index, ett_snmp_SimpleSyntax,
+                                 NULL);
 
   return offset;
 }
-static int dissect_generic_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_snmp_T_generic_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_generic_trap);
+static int dissect_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_SimpleSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_simple);
 }
+
 
 
 static int
@@ -1292,8 +1274,155 @@ dissect_snmp_IpAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   return offset;
 }
+static int dissect_ipAddress_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_ipAddress_value);
+}
 static int dissect_internet(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet);
+}
+
+
+
+static int
+dissect_snmp_Counter32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_counter_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Counter32(FALSE, tvb, offset, pinfo, tree, hf_snmp_counter_value);
+}
+
+
+
+static int
+dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 241 "snmp.cnf"
+	guint length;
+	
+	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	offset = offset + length;
+
+
+
+  return offset;
+}
+static int dissect_timeticks_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_timeticks_value);
+}
+static int dissect_time_stamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_time_stamp);
+}
+
+
+
+static int
+dissect_snmp_Opaque(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_arbitrary_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Opaque(FALSE, tvb, offset, pinfo, tree, hf_snmp_arbitrary_value);
+}
+
+
+
+static int
+dissect_snmp_Counter64(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_big_counter_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Counter64(FALSE, tvb, offset, pinfo, tree, hf_snmp_big_counter_value);
+}
+
+
+
+static int
+dissect_snmp_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_unsigned_integer_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Unsigned32(FALSE, tvb, offset, pinfo, tree, hf_snmp_unsigned_integer_value);
+}
+
+
+static const value_string snmp_ApplicationSyntax_vals[] = {
+  {   0, "ipAddress-value" },
+  {   1, "counter-value" },
+  {   3, "timeticks-value" },
+  {   4, "arbitrary-value" },
+  {   6, "big-counter-value" },
+  {   2, "unsigned-integer-value" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ApplicationSyntax_choice[] = {
+  {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_ipAddress_value },
+  {   1, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_counter_value },
+  {   3, BER_CLASS_APP, 3, BER_FLAGS_NOOWNTAG, dissect_timeticks_value },
+  {   4, BER_CLASS_APP, 4, BER_FLAGS_NOOWNTAG, dissect_arbitrary_value },
+  {   6, BER_CLASS_APP, 6, BER_FLAGS_NOOWNTAG, dissect_big_counter_value },
+  {   2, BER_CLASS_APP, 2, BER_FLAGS_NOOWNTAG, dissect_unsigned_integer_value },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_ApplicationSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 ApplicationSyntax_choice, hf_index, ett_snmp_ApplicationSyntax,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_application_wide(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ApplicationSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_application_wide);
+}
+
+
+static const value_string snmp_ObjectSyntax_vals[] = {
+  { -1/*choice*/, "simple" },
+  { -1/*choice*/, "application-wide" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ObjectSyntax_choice[] = {
+  { -1/*choice*/, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_simple },
+  { -1/*choice*/, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_application_wide },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_ObjectSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 ObjectSyntax_choice, hf_index, ett_snmp_ObjectSyntax,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ObjectSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_value);
+}
+
+
+
+static int
+dissect_snmp_Integer32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_bulkPDU_request_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Integer32(FALSE, tvb, offset, pinfo, tree, hf_snmp_bulkPDU_request_id);
 }
 
 
@@ -1319,443 +1448,1242 @@ static int dissect_agent_addr(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_snmp_NetworkAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_agent_addr);
 }
 
+
+
+static int
+dissect_snmp_Gauge32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string snmp_Version_vals[] = {
+  {   0, "version-1" },
+  {   1, "v2c" },
+  {   2, "v2u" },
+  {   3, "snmpv3" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_snmp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Version(FALSE, tvb, offset, pinfo, tree, hf_snmp_version);
+}
+static int dissect_msgVersion(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_Version(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgVersion);
+}
+
+
+
+static int
+dissect_snmp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_community(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_community);
+}
+static int dissect_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_parameters);
+}
+static int dissect_encrypted(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_encrypted);
+}
+static int dissect_msgAuthenticationParameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthenticationParameters);
+}
+static int dissect_msgPrivacyParameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgPrivacyParameters);
+}
+static int dissect_encryptedPDU(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_encryptedPDU);
+}
+static int dissect_contextEngineID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_contextEngineID);
+}
+static int dissect_contextName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_contextName);
+}
+static int dissect_password(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_password);
+}
+
+
+
+static int
+dissect_snmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_request_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_request_id);
+}
+static int dissect_error_index(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_error_index);
+}
+static int dissect_specific_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_specific_trap);
+}
+
+
+static const value_string snmp_T_error_status_vals[] = {
+  {   0, "noError" },
+  {   1, "tooBig" },
+  {   2, "noSuchName" },
+  {   3, "badValue" },
+  {   4, "readOnly" },
+  {   5, "genErr" },
+  {   6, "noAccess" },
+  {   7, "wrongType" },
+  {   8, "wrongLength" },
+  {   9, "wrongEncoding" },
+  {  10, "wrongValue" },
+  {  11, "noCreation" },
+  {  12, "inconsistentValue" },
+  {  13, "resourceUnavailable" },
+  {  14, "commitFailed" },
+  {  15, "undoFailed" },
+  {  16, "authorizationError" },
+  {  17, "notWritable" },
+  {  18, "inconsistentName" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_snmp_T_error_status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_error_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_error_status(FALSE, tvb, offset, pinfo, tree, hf_snmp_error_status);
+}
+
+
+
+static int
+dissect_snmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+static int dissect_unSpecified(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_NULL(FALSE, tvb, offset, pinfo, tree, hf_snmp_unSpecified);
+}
+static int dissect_noSuchObject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_noSuchObject);
+}
+static int dissect_noSuchInstance_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_noSuchInstance);
+}
+static int dissect_endOfMibView_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_endOfMibView);
+}
+
+
+static const value_string snmp_ValueType_vals[] = {
+  {   0, "value" },
+  {   1, "unSpecified" },
+  {   2, "noSuchObject" },
+  {   3, "noSuchInstance" },
+  {   4, "endOfMibView" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ValueType_choice[] = {
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_value },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_unSpecified },
+  {   2, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_noSuchObject_impl },
+  {   3, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_noSuchInstance_impl },
+  {   4, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_endOfMibView_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_ValueType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 ValueType_choice, hf_index, ett_snmp_ValueType,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_valueType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ValueType(FALSE, tvb, offset, pinfo, tree, hf_snmp_valueType);
+}
+
+
+static const ber_sequence_t VarBind_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_name },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_valueType },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   VarBind_sequence, hf_index, ett_snmp_VarBind);
+
+  return offset;
+}
+static int dissect_VarBindList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_VarBind(FALSE, tvb, offset, pinfo, tree, hf_snmp_VarBindList_item);
+}
+
+
+static const ber_sequence_t VarBindList_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_VarBindList_item },
+};
+
+static int
+dissect_snmp_VarBindList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      VarBindList_sequence_of, hf_index, ett_snmp_VarBindList);
+
+  return offset;
+}
+static int dissect_variable_bindings(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_VarBindList(FALSE, tvb, offset, pinfo, tree, hf_snmp_variable_bindings);
+}
+
+
+static const ber_sequence_t PDU_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_request_id },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_error_status },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_error_index },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_variable_bindings },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   PDU_sequence, hf_index, ett_snmp_PDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_GetRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_get_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 31 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_get_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_get_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_request);
+}
+
+
+
+static int
+dissect_snmp_GetNextRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_get_next_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 46 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_get_next_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_get_next_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_next_request);
+}
+
+
+
+static int
+dissect_snmp_GetResponse_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_get_response(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 61 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_get_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_get_response(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_response);
+}
+
+
+
+static int
+dissect_snmp_SetRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_set_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 76 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+
+  return offset;
+}
+static int dissect_set_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_set_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_set_request);
+}
+
+
+
 static int
 dissect_snmp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-
 static int dissect_enterprise(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_snmp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_snmp_enterprise);
 }
-
-static void
-dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, proto_tree *root_tree, ASN1_SCK *asn1p, guint pdu_type, int start)
-{
-	guint length;
-	guint sequence_length;
-
-	guint32 request_id;
-
-	guint32 error_status;
-
-	guint32 error_index;
-
-	const char *pdu_type_string;
-
-	gchar *decoded_oid;
-	gchar *non_decoded_oid;
-
-
-	guint variable_bindings_length;
-
-	int vb_index;
-	guint variable_length;
-	subid_t *variable_oid;
-	guint variable_oid_length;
-	tvbuff_t *next_tvb;
-
-	int ret;
-
-	pdu_type_string = val_to_str(pdu_type, pdu_types,
-	    "Unknown PDU type %#x");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
-	length = asn1p->offset - start;
-	if (tree) {
-		proto_tree_add_uint(tree, hf_snmp_pdutype, tvb, offset, length,
-		    pdu_type);
-	}
-	offset += length;
-
-	/* get the fields in the PDU preceeding the variable-bindings sequence */
-	switch (pdu_type) {
-
-	case SNMP_MSG_GET:
-	case SNMP_MSG_GETNEXT:
-	case SNMP_MSG_RESPONSE:
-	case SNMP_MSG_SET:
-	case SNMP_MSG_GETBULK:
-	case SNMP_MSG_INFORM:
-	case SNMP_MSG_TRAP2:
-	case SNMP_MSG_REPORT:
-		/* request id */
-		ret = asn1_uint32_decode (asn1p, &request_id, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "request ID", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_uint(tree, hf_snmp_request_id,
-				tvb, offset, length, request_id);
-		}
-		offset += length;
-
-		/* error status, or getbulk non-repeaters */
-		ret = asn1_uint32_decode (asn1p, &error_status, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    (pdu_type == SNMP_MSG_GETBULK) ? "non-repeaters"
-			    				   : "error status",
-			    ret);
-			return;
-		}
-		if (tree) {
-			if (pdu_type == SNMP_MSG_GETBULK) {
-				proto_tree_add_text(tree, tvb, offset,
-				    length, "Non-repeaters: %u", error_status);
-			} else {
-				proto_tree_add_uint(tree,
-						    hf_snmp_error_status,
-						    tvb, offset,
-						    length, error_status);
-			}
-		}
-		offset += length;
-
-		/* error index, or getbulk max-repetitions */
-		ret = asn1_uint32_decode (asn1p, &error_index, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    (pdu_type == SNMP_MSG_GETBULK) ? "max repetitions"
-			    				   : "error index",
-			    ret);
-			return;
-		}
-		if (tree) {
-			if (pdu_type == SNMP_MSG_GETBULK) {
-				proto_tree_add_text(tree, tvb, offset,
-				    length, "Max repetitions: %u", error_index);
-			} else {
-				proto_tree_add_text(tree, tvb, offset,
-				    length, "Error Index: %u", error_index);
-			}
-		}
-		offset += length;
-		break;
-
-	case SNMP_MSG_TRAP:
-		/* enterprise */
-		offset = dissect_enterprise(pinfo, tree, tvb, offset);
-		asn1p->offset = offset;
-		
-		/* agent address */
-		offset = dissect_agent_addr(pinfo, tree, tvb, offset);
-		asn1p->offset = offset;
-
-	    /* generic trap type */
-		offset = dissect_generic_trap(pinfo, tree, tvb, offset);
-		asn1p->offset = offset;
-
-		/* specific trap type */
-		offset = dissect_specific_trap(pinfo, tree, tvb, offset);
-		asn1p->offset = offset;
-
-
-		/* timestamp */
-		offset = dissect_time_stamp(pinfo, tree, tvb, offset);
-		asn1p->offset = offset;
-		break;
-	}
-
-	/* variable bindings */
-	/* get header for variable-bindings sequence */
-	ret = asn1_sequence_decode(asn1p, &variable_bindings_length, &length);
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			"variable bindings header", ret);
-		return;
-	}
-	offset += length;
-
-	/* loop on variable bindings */
-	vb_index = 0;
-	while (variable_bindings_length > 0) {
-		vb_index++;
-		sequence_length = 0;
-
-		/* parse type */
-		ret = asn1_sequence_decode(asn1p, &variable_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-				"variable binding header", ret);
-			return;
-		}
-		sequence_length += length;
-
-		/* parse object identifier */
-		ret = asn1_oid_decode (asn1p, &variable_oid,
-		    &variable_oid_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "variable binding OID", ret);
-			return;
-		}
-		sequence_length += length;
-
-		if (display_oid || tree) {
-
-		  gchar *decoded_oid;
-		  gchar *non_decoded_oid;
-
-		  new_format_oid(variable_oid, variable_oid_length,
-				 &non_decoded_oid, &decoded_oid);
-
-		  if (display_oid && check_col(pinfo->cinfo, COL_INFO)) {
-		    col_append_fstr(pinfo->cinfo, COL_INFO,
-				    " %s",
-				    (decoded_oid == NULL) ? non_decoded_oid :
-				    decoded_oid);
-		  }
-
-		  if (tree) {
-		    if (decoded_oid) {
-		      proto_tree_add_string_format(tree, hf_snmp_oid,
-						   tvb, offset,
-						   sequence_length,
-						   decoded_oid,
-						   "Object identifier %d: %s (%s)",
-						   vb_index,
-						   non_decoded_oid,
-						   decoded_oid);
-		      /* add also the non decoded oid string */
-		      proto_tree_add_string_hidden(tree, hf_snmp_oid,
-						   tvb, offset,
-						   sequence_length,
-						   non_decoded_oid);
-		    } else {
-		      proto_tree_add_string_format(tree, hf_snmp_oid,
-						   tvb, offset,
-						   sequence_length,
-						   non_decoded_oid,
-						   "Object identifier %d: %s",
-						   vb_index,
-						   non_decoded_oid);
-		    }
-		  }
-		}
-
-		offset += sequence_length;
-		variable_bindings_length -= sequence_length;
-
-		/*
-		 * Register a cleanup function in case one of our
-		 * tvbuff accesses throws an exception.  We need
-		 * to clean up variable_oid.
-		 */
-		CLEANUP_PUSH(g_free, variable_oid);
-
-		/* Parse the variable's value */
-		next_tvb = NULL;
-		ret = snmp_variable_decode(tree, pinfo, variable_oid,
-		    variable_oid_length, asn1p, offset, &length, &next_tvb);
-		if (next_tvb) {
-			new_format_oid(variable_oid, variable_oid_length,
-			    &non_decoded_oid, &decoded_oid);
-			dissector_try_string(variable_oid_dissector_table,
-			    non_decoded_oid, next_tvb, pinfo, root_tree);
-		}
-
-		/*
-		 * We're done with variable_oid, so we can call the cleanup
-		 * handler to free* it, and then pop the cleanup handler.
-		 */
-		CLEANUP_CALL_AND_POP;
-
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
-			    "variable", ret);
-			return;
-		}
-		offset += length;
-		variable_bindings_length -= length;
-	}
+static int dissect_identity(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_snmp_identity);
 }
 
-static const value_string qos_vals[] = {
-	{ 0x0,	"No authentication or privacy" },
-	{ 0x1,	"Authentication, no privacy" },
-	{ 0x2,	"Authentication and privacy" },
-	{ 0x3,	"Authentication and privacy" },
-	{ 0,	NULL },
+
+static const value_string snmp_T_generic_trap_vals[] = {
+  {   0, "coldStart" },
+  {   1, "warmStart" },
+  {   2, "linkDown" },
+  {   3, "linkUp" },
+  {   4, "authenticationFailure" },
+  {   5, "egpNeighborLoss" },
+  {   6, "enterpriseSpecific" },
+  { 0, NULL }
 };
 
-static void
-dissect_snmp2u_parameters(proto_tree *tree, tvbuff_t *tvb, int offset, int length,
-    guchar *parameters, int parameters_length)
-{
-	proto_item *item;
-	proto_tree *parameters_tree;
-	proto_tree *qos_tree;
-	guint8 model;
-	guint8 qos;
-	guint8 len;
 
-	item = proto_tree_add_text(tree, tvb, offset, length,
-	    "Parameters");
-	parameters_tree = proto_item_add_subtree(item, ett_parameters);
-	offset += length - parameters_length;
+static int
+dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
-	if (parameters_length < 1)
-		return;
-	model = *parameters;
-	proto_tree_add_text(parameters_tree, tvb, offset, 1,
-	    "model: %u", model);
-	offset += 1;
-	parameters += 1;
-	parameters_length -= 1;
-	if (model != 1) {
-		/* Unknown model. */
-		proto_tree_add_text(parameters_tree, tvb, offset,		    parameters_length, "parameters: %s",
-		    bytes_to_str(parameters, parameters_length));
-		return;
+  return offset;
+}
+static int dissect_generic_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_generic_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_generic_trap);
+}
+
+
+static const ber_sequence_t Trap_PDU_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_enterprise },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_agent_addr },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_generic_trap },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_specific_trap },
+  { BER_CLASS_APP, 3, BER_FLAGS_NOOWNTAG, dissect_time_stamp },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_variable_bindings },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Trap_PDU_sequence, hf_index, ett_snmp_Trap_PDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 92 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_trap);
+}
+
+
+
+static int
+dissect_snmp_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_msgAuthoritativeEngineBoots(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineBoots);
+}
+static int dissect_msgAuthoritativeEngineTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineTime);
+}
+static int dissect_msgID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgID);
+}
+static int dissect_non_repeaters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_non_repeaters);
+}
+static int dissect_max_repetitions(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_max_repetitions);
+}
+
+
+static const ber_sequence_t BulkPDU_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_bulkPDU_request_id },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_non_repeaters },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_max_repetitions },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_variable_bindings },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_BulkPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   BulkPDU_sequence, hf_index, ett_snmp_BulkPDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_GetBulkRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_BulkPDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_getBulkRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 107 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_getBulkRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_getBulkRequest(FALSE, tvb, offset, pinfo, tree, hf_snmp_getBulkRequest);
+}
+
+
+
+static int
+dissect_snmp_InformRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_informRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 122 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_informRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_informRequest(FALSE, tvb, offset, pinfo, tree, hf_snmp_informRequest);
+}
+
+
+
+static int
+dissect_snmp_SNMPv2_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_sNMPv2_Trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 137 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_sNMPv2_Trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_sNMPv2_Trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_sNMPv2_Trap);
+}
+
+
+
+static int
+dissect_snmp_Report_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_report(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 152 "snmp.cnf"
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ guint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+ offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+
+
+
+  return offset;
+}
+static int dissect_report(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_report(FALSE, tvb, offset, pinfo, tree, hf_snmp_report);
+}
+
+
+static const value_string snmp_PDUs_vals[] = {
+  {   0, "get-request" },
+  {   1, "get-next-request" },
+  {   2, "get-response" },
+  {   3, "set-request" },
+  {   4, "trap" },
+  {   5, "getBulkRequest" },
+  {   6, "informRequest" },
+  {   7, "sNMPv2-Trap" },
+  {   8, "report" },
+  { 0, NULL }
+};
+
+static const ber_choice_t PDUs_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_NOOWNTAG, dissect_get_request },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_NOOWNTAG, dissect_get_next_request },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_NOOWNTAG, dissect_get_response },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_NOOWNTAG, dissect_set_request },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_NOOWNTAG, dissect_trap },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_NOOWNTAG, dissect_getBulkRequest },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_NOOWNTAG, dissect_informRequest },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_NOOWNTAG, dissect_sNMPv2_Trap },
+  {   8, BER_CLASS_CON, 8, BER_FLAGS_NOOWNTAG, dissect_report },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 23 "snmp.cnf"
+
+gint pdu_type;
+
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 PDUs_choice, hf_index, ett_snmp_PDUs,
+                                 &pdu_type);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdu_type, snmp_PDUs_vals,"Unknown PDU type (%u)"));
+
+
+
+  return offset;
+}
+static int dissect_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_data);
+}
+static int dissect_v2u_plaintext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_v2u_plaintext);
+}
+static int dissect_pDUs(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_pDUs);
+}
+
+
+static const ber_sequence_t Message_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_community },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_Message(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Message_sequence, hf_index, ett_snmp_Message);
+
+  return offset;
+}
+
+
+static const value_string snmp_T_datav2u_vals[] = {
+  {   0, "plaintext" },
+  {   1, "encrypted" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_datav2u_choice[] = {
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_v2u_plaintext },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_T_datav2u(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 T_datav2u_choice, hf_index, ett_snmp_T_datav2u,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_datav2u(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_datav2u(FALSE, tvb, offset, pinfo, tree, hf_snmp_datav2u);
+}
+
+
+static const ber_sequence_t Messagev2u_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_parameters },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_datav2u },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_Messagev2u(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Messagev2u_sequence, hf_index, ett_snmp_Messagev2u);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_SnmpEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 189 "snmp.cnf"
+	tvbuff_t *parameter_tvb = NULL;
+	proto_tree *engineid_tree = NULL;
+	proto_item *item = NULL;
+
+   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+ if (parameter_tvb)
+	dissect_snmp_engineid(tree, parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+
+
+
+  return offset;
+}
+static int dissect_msgAuthoritativeEngineID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_SnmpEngineID(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineID);
+}
+
+
+
+static int
+dissect_snmp_OCTET_STRING_SIZE_1_32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_msgUserName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OCTET_STRING_SIZE_1_32(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgUserName);
+}
+
+
+static const ber_sequence_t UsmSecurityParameters_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgAuthoritativeEngineID },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgAuthoritativeEngineBoots },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgAuthoritativeEngineTime },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgUserName },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgAuthenticationParameters },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgPrivacyParameters },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_UsmSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   UsmSecurityParameters_sequence, hf_index, ett_snmp_UsmSecurityParameters);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_msgMaxSize(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER_484_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgMaxSize);
+}
+
+
+
+static int
+dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 202 "snmp.cnf"
+	tvbuff_t *parameter_tvb = NULL;
+
+   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+ if (parameter_tvb){
+
+	proto_tree_add_item(tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
+  }
+
+
+
+  return offset;
+}
+static int dissect_msgFlags(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_msgFlags(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgFlags);
+}
+
+
+
+static int
+dissect_snmp_T_msgSecurityModel(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &MsgSecurityModel);
+
+  return offset;
+}
+static int dissect_msgSecurityModel(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_msgSecurityModel(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgSecurityModel);
+}
+
+
+static const ber_sequence_t HeaderData_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgID },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgMaxSize },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgFlags },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgSecurityModel },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   HeaderData_sequence, hf_index, ett_snmp_HeaderData);
+
+  return offset;
+}
+static int dissect_msgGlobalData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_HeaderData(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgGlobalData);
+}
+
+
+
+static int
+dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 171 "snmp.cnf"
+
+	switch(MsgSecurityModel){
+	case SNMP_SEC_USM:	/* 3 */
+		offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, pinfo, tree, -1);
+		break;
+	case SNMP_SEC_ANY:	/* 0 */
+	case SNMP_SEC_V1:	/* 1 */
+	case SNMP_SEC_V2C:	/* 2 */
+	default:
+		  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+		break;
 	}
 
-	if (parameters_length < 1)
-		return;
-	qos = *parameters;
-	item = proto_tree_add_text(parameters_tree, tvb, offset, 1,
-	    "qoS: 0x%x", qos);
-	qos_tree = proto_item_add_subtree(item, ett_parameters_qos);
-	proto_tree_add_text(qos_tree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(qos, 0x04,
-		8, "Generation of report PDU allowed",
-		   "Generation of report PDU not allowed"));
-	proto_tree_add_text(qos_tree, tvb, offset, 1, "%s",
-	    decode_enumerated_bitfield(qos, 0x03,
-		8, qos_vals, "%s"));
-	offset += 1;
-	parameters += 1;
-	parameters_length -= 1;
 
-	if (parameters_length < 12)
-		return;
-	proto_tree_add_text(parameters_tree, tvb, offset, 12,
-	    "agentID: %s", bytes_to_str(parameters, 12));
-	offset += 12;
-	parameters += 12;
-	parameters_length -= 12;
 
-	if (parameters_length < 4)
-		return;
-	proto_tree_add_text(parameters_tree, tvb, offset, 4,
-	    "agentBoots: %u", pntohl(parameters));
-	offset += 4;
-	parameters += 4;
-	parameters_length -= 4;
-
-	if (parameters_length < 4)
-		return;
-	proto_tree_add_text(parameters_tree, tvb, offset, 4,
-	    "agentTime: %u", pntohl(parameters));
-	offset += 4;
-	parameters += 4;
-	parameters_length -= 4;
-
-	if (parameters_length < 2)
-		return;
-	proto_tree_add_text(parameters_tree, tvb, offset, 2,
-	    "maxSize: %u", pntohs(parameters));
-	offset += 2;
-	parameters += 2;
-	parameters_length -= 2;
-
-	if (parameters_length < 1)
-		return;
-	len = *parameters;
-	proto_tree_add_text(parameters_tree, tvb, offset, 1,
-	    "userLen: %u", len);
-	offset += 1;
-	parameters += 1;
-	parameters_length -= 1;
-
-	if (parameters_length < len)
-		return;
-	proto_tree_add_text(parameters_tree, tvb, offset, len,
-	    "userName: %.*s", len, parameters);
-	offset += len;
-	parameters += len;
-	parameters_length -= len;
-
-	if (parameters_length < 1)
-		return;
-	len = *parameters;
-	proto_tree_add_text(parameters_tree, tvb, offset, 1,
-	    "authLen: %u", len);
-	offset += 1;
-	parameters += 1;
-	parameters_length -= 1;
-
-	if (parameters_length < len)
-		return;
-	proto_tree_add_text(parameters_tree, tvb, offset, len,
-	    "authDigest: %s", bytes_to_str(parameters, len));
-	offset += len;
-	parameters += len;
-	parameters_length -= len;
-
-	if (parameters_length < 1)
-		return;
-	proto_tree_add_text(parameters_tree, tvb, offset, parameters_length,
-	    "contextSelector: %s", bytes_to_str(parameters, parameters_length));
+  return offset;
 }
+static int dissect_msgSecurityParameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_msgSecurityParameters(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgSecurityParameters);
+}
+
+
+static const ber_sequence_t ScopedPDU_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_contextEngineID },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_contextName },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_ScopedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ScopedPDU_sequence, hf_index, ett_snmp_ScopedPDU);
+
+  return offset;
+}
+static int dissect_plaintext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ScopedPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_plaintext);
+}
+
+
+static const value_string snmp_ScopedPduData_vals[] = {
+  {   0, "plaintext" },
+  {   1, "encryptedPDU" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ScopedPduData_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_plaintext },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_encryptedPDU },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_ScopedPduData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 ScopedPduData_choice, hf_index, ett_snmp_ScopedPduData,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_msgData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ScopedPduData(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgData);
+}
+
+
+static const ber_sequence_t SNMPv3Message_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgVersion },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_msgGlobalData },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgSecurityParameters },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msgData },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
+
+  return offset;
+}
+
+
+static const value_string snmp_T_smux_version_vals[] = {
+  {   0, "version-1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_snmp_T_smux_version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_smux_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_smux_version(FALSE, tvb, offset, pinfo, tree, hf_snmp_smux_version);
+}
+
+
+
+static int
+dissect_snmp_DisplayString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_DisplayString(FALSE, tvb, offset, pinfo, tree, hf_snmp_description);
+}
+
+
+static const ber_sequence_t SimpleOpen_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_smux_version },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_identity },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_description },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_password },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_SimpleOpen(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   SimpleOpen_sequence, hf_index, ett_snmp_SimpleOpen);
+
+  return offset;
+}
+static int dissect_smux_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_SimpleOpen(FALSE, tvb, offset, pinfo, tree, hf_snmp_smux_simple);
+}
+
+
+static const value_string snmp_OpenPDU_vals[] = {
+  {   0, "smux-simple" },
+  { 0, NULL }
+};
+
+static const ber_choice_t OpenPDU_choice[] = {
+  {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_smux_simple },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_OpenPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 OpenPDU_choice, hf_index, ett_snmp_OpenPDU,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_open(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_OpenPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_open);
+}
+
+
+static const value_string snmp_ClosePDU_vals[] = {
+  {   0, "goingDown" },
+  {   1, "unsupportedVersion" },
+  {   2, "packetFormat" },
+  {   3, "protocolError" },
+  {   4, "internalError" },
+  {   5, "authenticationFailure" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_snmp_ClosePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_close(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_ClosePDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_close);
+}
+
+
+
+static int
+dissect_snmp_INTEGER_M1_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_priority(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_INTEGER_M1_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_priority);
+}
+
+
+static const value_string snmp_T_operation_vals[] = {
+  {   0, "delete" },
+  {   1, "readOnly" },
+  {   2, "readWrite" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_snmp_T_operation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_operation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_T_operation(FALSE, tvb, offset, pinfo, tree, hf_snmp_operation);
+}
+
+
+static const ber_sequence_t RReqPDU_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_subtree },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_priority },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_operation },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_RReqPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RReqPDU_sequence, hf_index, ett_snmp_RReqPDU);
+
+  return offset;
+}
+static int dissect_registerRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_RReqPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_registerRequest);
+}
+
+
+static const value_string snmp_RRspPDU_vals[] = {
+  {  -1, "failure" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_snmp_RRspPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_rRspPDU(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_RRspPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_rRspPDU);
+}
+
+
+static const value_string snmp_RegisterResponse_vals[] = {
+  {   0, "rRspPDU" },
+  {   1, "pDUs" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RegisterResponse_choice[] = {
+  {   0, BER_CLASS_APP, 3, BER_FLAGS_NOOWNTAG, dissect_rRspPDU },
+  {   1, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_pDUs },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_RegisterResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 RegisterResponse_choice, hf_index, ett_snmp_RegisterResponse,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_registerResponse(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_RegisterResponse(FALSE, tvb, offset, pinfo, tree, hf_snmp_registerResponse);
+}
+
+
+static const value_string snmp_SOutPDU_vals[] = {
+  {   0, "commit" },
+  {   1, "rollback" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_snmp_SOutPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_commitOrRollback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_snmp_SOutPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_commitOrRollback);
+}
+
+
+static const value_string snmp_SMUX_PDUs_vals[] = {
+  {   0, "open" },
+  {   1, "close" },
+  {   2, "registerRequest" },
+  {   3, "registerResponse" },
+  {   4, "commitOrRollback" },
+  { 0, NULL }
+};
+
+static const ber_choice_t SMUX_PDUs_choice[] = {
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_open },
+  {   1, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_close },
+  {   2, BER_CLASS_APP, 2, BER_FLAGS_NOOWNTAG, dissect_registerRequest },
+  {   3, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_registerResponse },
+  {   4, BER_CLASS_APP, 4, BER_FLAGS_NOOWNTAG, dissect_commitOrRollback },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_snmp_SMUX_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 SMUX_PDUs_choice, hf_index, ett_snmp_SMUX_PDUs,
+                                 NULL);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_snmp_SMUX_PDUs(FALSE, tvb, 0, pinfo, tree, hf_snmp_SMUX_PDUs_PDU);
+}
+
+
+/*--- End of included file: packet-snmp-fn.c ---*/
+#line 1013 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, int proto, gint ett, gboolean is_tcp)
 {
+
 	guint length_remaining;
-	ASN1_SCK asn1;
-	int start;
-	gboolean def;
-	gboolean encrypted;
-	guint length;
+	gint8 class;
+	gboolean pc, ind = 0;
+	gint32 tag;
+	guint32 len;
 	guint message_length;
-	guint global_length;
-
-	guint32 version;
-	guint32 msgid;
-	guint32 msgmax;
-	guint32 msgsec;
-	guint32 engineboots;
-	guint32 enginetime;
-
-	guchar *msgflags;
-	gchar *commustr;
-	guchar *community;
-	guchar *secparm;
-	guchar *cengineid;
-	guchar *cname;
-	guchar *cryptpdu;
-	guchar *aengineid;
-	guchar *username;
-	guchar *authpar;
-	guchar *privpar;
-	guint msgflags_length;
-	guint community_length;
-	guint secparm_length;
-	guint cengineid_length;
-	guint cname_length;
-	guint cryptpdu_length;
-	guint aengineid_length;
-	guint username_length;
-	guint authpar_length;
-	guint privpar_length;
-
-	guint pdu_type;
-	guint pdu_length;
+	int start_offset = offset;
+	guint32 version = 0;
 
 	proto_tree *snmp_tree = NULL;
-	proto_tree *global_tree = NULL;
-	proto_tree *flags_tree = NULL;
-	proto_tree *secur_tree = NULL;
-	proto_tree *engineid_tree = NULL;
 	proto_item *item = NULL;
-	int ret;
-	guint cls, con, tag;
 
 	/*
 	 * This will throw an exception if we don't have any data left.
@@ -1803,46 +2731,13 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * OK, try to read the "Sequence Of" header; this gets the total
 	 * length of the SNMP message.
 	 */
-	asn1_open(&asn1, tvb, offset);
-	ret = asn1_sequence_decode(&asn1, &message_length, &length);
-	if (ret != ASN1_ERR_NOERROR) {
-		if (tree) {
-			item = proto_tree_add_item(tree, proto, tvb, offset,
-			    -1, FALSE);
-			snmp_tree = proto_item_add_subtree(item, ett);
-		}
-		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			"message header", ret);
+	/* Set tree to 0 to not display internakl BER fields if option used.*/
+	offset = dissect_ber_identifier(pinfo, 0, tvb, offset, &class, &pc, &tag);
+	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
 
-		/*
-		 * Return the length remaining in the tvbuff, so
-		 * if this is SNMP-over-TCP, our caller thinks there's
-		 * nothing left to dissect.
-		 */
-		return length_remaining;
-	}
+	message_length = len + 2;
+	offset = dissect_ber_integer(FALSE, pinfo, 0, tvb, offset, -1, &version);
 
-	/*
-	 * Add the length of the "Sequence Of" header to the message
-	 * length.
-	 */
-	message_length += length;
-	if (message_length < length || (gint) message_length < 0) {
-		/*
-		 * The message length was probably so large that the
-		 * total length overflowed.
-		 *
-		 * Report this as an error.
-		 */
-		show_reported_bounds_error(tvb, pinfo, tree);
-
-		/*
-		 * Return the length remaining in the tvbuff, so
-		 * if this is SNMP-over-TCP, our caller thinks there's
-		 * nothing left to dissect.
-		 */
-		return length_remaining;
-	}
 
 	/*
 	 * If this is SNMP-over-TCP, we might have to do reassembly
@@ -1859,7 +2754,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * us, and how many more bytes we need, and
 			 * return.
 			 */
-			pinfo->desegment_offset = offset;
+			pinfo->desegment_offset = start_offset;
 			pinfo->desegment_len =
 			    message_length - length_remaining;
 
@@ -1882,615 +2777,33 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    message_length, FALSE);
 		snmp_tree = proto_item_add_subtree(item, ett);
 	}
-	offset += length;
 
-	ret = asn1_uint32_decode (&asn1, &version, &length);
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-		    "version number", ret);
-		return message_length;
-	}
-	if (snmp_tree) {
-		proto_tree_add_uint(snmp_tree, hf_snmp_version, tvb, offset,
-		    length, version);
-	}
-	offset += length;
-
-
-	switch (version) {
-	case SNMP_VERSION_1:
-	case SNMP_VERSION_2c:
-		ret = asn1_octet_string_decode (&asn1, &community,
-		    &community_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "community", ret);
-			return message_length;
-		}
-		if (tree) {
-			commustr = ep_alloc(community_length+1);
-			memcpy(commustr, community, community_length);
-			commustr[community_length] = '\0';
-
-			proto_tree_add_string(snmp_tree, hf_snmp_community,
-			    tvb, offset, length, commustr);
-		}
-		g_free(community);
-		offset += length;
+	switch (version){
+	case 0: /* v1 */
+	case 1: /* v2c */
+		offset = dissect_snmp_Message(FALSE , tvb, start_offset, pinfo, snmp_tree, -1);
 		break;
-	case SNMP_VERSION_2u:
-		ret = asn1_octet_string_decode (&asn1, &community,
-		    &community_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-				"community (2u)", ret);
-			return message_length;
-		}
-		if (tree) {
-			dissect_snmp2u_parameters(snmp_tree, tvb, offset, length,
-			    community, community_length);
-		}
-		g_free(community);
-		offset += length;
+	case 2: /* v2u */
+		offset = dissect_snmp_Messagev2u(FALSE , tvb, start_offset, pinfo, snmp_tree, -1);
 		break;
-	case SNMP_VERSION_3:
-		ret = asn1_sequence_decode(&asn1, &global_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-				"message global header", ret);
-			return message_length;
-		}
-		if (snmp_tree) {
-			item = proto_tree_add_text(snmp_tree, tvb, offset,
-			    global_length + length, "Message Global Header");
-			global_tree = proto_item_add_subtree(item, ett_global);
-			proto_tree_add_text(global_tree, tvb, offset,
-		 	    length,
-			    "Message Global Header Length: %d", global_length);
-		}
-		offset += length;
-		ret = asn1_uint32_decode (&asn1, &msgid, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "message id", ret);
-			return message_length;
-		}
-		if (global_tree) {
-			proto_tree_add_text(global_tree, tvb, offset,
-			    length, "Message ID: %d", msgid);
-		}
-		offset += length;
-		ret = asn1_uint32_decode (&asn1, &msgmax, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "message max size", ret);
-			return message_length;
-		}
-		if (global_tree) {
-			proto_tree_add_text(global_tree, tvb, offset,
-			    length, "Message Max Size: %d", msgmax);
-		}
-		offset += length;
-		ret = asn1_octet_string_decode (&asn1, &msgflags,
-		    &msgflags_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "message flags", ret);
-			return message_length;
-		}
-		if (msgflags_length != 1) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "message flags wrong length", ret);
-			g_free(msgflags);
-			return message_length;
-		}
-		if (global_tree) {
-			item = proto_tree_add_uint_format(global_tree,
-			    hf_snmpv3_flags, tvb, offset, length,
-			    msgflags[0], "Flags: 0x%02x", msgflags[0]);
-			flags_tree = proto_item_add_subtree(item, ett_flags);
-			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_report,
-			    tvb, offset, length, msgflags[0]);
-			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_crypt,
-			    tvb, offset, length, msgflags[0]);
-			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_auth,
-			    tvb, offset, length, msgflags[0]);
-		}
-		encrypted = msgflags[0] & TH_CRYPT;
-		g_free(msgflags);
-		offset += length;
-		ret = asn1_uint32_decode (&asn1, &msgsec, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "message security model", ret);
-			return message_length;
-		}
-		if (global_tree) {
-			proto_tree_add_text(global_tree, tvb, offset,
-			    length, "Message Security Model: %s",
-			    val_to_str(msgsec, sec_models,
-			    "Unknown model %#x"));
-		}
-		offset += length;
-		switch(msgsec) {
-		case SNMP_SEC_USM:
-			start = asn1.offset;
-			ret = asn1_header_decode (&asn1, &cls, &con, &tag,
-			    &def, &secparm_length);
-			length = asn1.offset - start;
-			if (cls != ASN1_UNI && con != ASN1_PRI &&
-			    tag != ASN1_OTS) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "Message Security Parameters",
-				    ASN1_ERR_WRONG_TYPE);
-				return message_length;
-			}
-			if (snmp_tree) {
-				item = proto_tree_add_text(snmp_tree, tvb,
-				    offset, secparm_length + length,
-				    "Message Security Parameters");
-				secur_tree = proto_item_add_subtree(item,
-				    ett_secur);
-				proto_tree_add_text(secur_tree, tvb, offset,
-			 	    length,
-				    "Message Security Parameters Length: %d",
-				    secparm_length);
-			}
-			offset += length;
-			ret = asn1_sequence_decode(&asn1, &secparm_length,
-			    &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "USM sequence header", ret);
-				return message_length;
-			}
-			offset += length;
-			ret = asn1_octet_string_decode (&asn1, &aengineid,
-			    &aengineid_length, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "authoritative engine id", ret);
-				return message_length;
-			}
-			if (secur_tree) {
-			  item = proto_tree_add_text(secur_tree, tvb, offset,
-				    length, "Authoritative Engine ID: %s",
-					      bytes_to_str(aengineid, aengineid_length));
-			  if (aengineid_length>0) {
-			    engineid_tree = proto_item_add_subtree(item, ett_engineid);
-			    dissect_snmp_engineid(engineid_tree, tvb, offset+length-aengineid_length, aengineid_length);
-			  }
-			}
-			g_free(aengineid);
-			offset += length;
-			ret = asn1_uint32_decode (&asn1, &engineboots, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "engine boots", ret);
-				return message_length;
-			}
-			if (secur_tree) {
-				proto_tree_add_text(secur_tree, tvb,
-				    offset, length, "Engine Boots: %d",
-				    engineboots);
-			}
-			offset += length;
-			ret = asn1_uint32_decode (&asn1, &enginetime, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree,  "engine time", ret);
-				return message_length;
-			}
-			if (secur_tree) {
-				proto_tree_add_text(secur_tree, tvb,
-				    offset, length, "Engine Time: %d",
-				    enginetime);
-			}
-			offset += length;
-			ret = asn1_octet_string_decode (&asn1, &username,
-			    &username_length, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "user name", ret);
-				return message_length;
-			}
-			if (secur_tree) {
-				proto_tree_add_text(secur_tree, tvb, offset,
-				    length, "User Name: %s",
-				    SAFE_STRING(username, username_length));
-			}
-			g_free(username);
-			offset += length;
-			ret = asn1_octet_string_decode (&asn1, &authpar,
-			    &authpar_length, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "authentication parameter", ret);
-				return message_length;
-			}
-			if (secur_tree) {
-				proto_tree_add_text(secur_tree, tvb, offset,
-				    length, "Authentication Parameter: %s",
-				    bytes_to_str(authpar, authpar_length));
-			}
-			g_free(authpar);
-			offset += length;
-			ret = asn1_octet_string_decode (&asn1, &privpar,
-			    &privpar_length, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "privacy parameter", ret);
-				return message_length;
-			}
-			if (secur_tree) {
-				proto_tree_add_text(secur_tree, tvb, offset,
-				    length, "Privacy Parameter: %s",
-				    bytes_to_str(privpar, privpar_length));
-			}
-			g_free(privpar);
-			offset += length;
-			break;
-		default:
-			ret = asn1_octet_string_decode (&asn1,
-			    &secparm, &secparm_length, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "Message Security Parameters",
-				    ret);
-				return message_length;
-			}
-			if (snmp_tree) {
-				proto_tree_add_text(snmp_tree, tvb, offset,
-				    length,
-				    "Message Security Parameters Data"
-				    " (%d bytes)", secparm_length);
-			}
-			g_free(secparm);
-			offset += length;
-			break;
-		}
-		/* PDU starts here */
-		if (encrypted) {
-			ret = asn1_octet_string_decode (&asn1, &cryptpdu,
-			    &cryptpdu_length, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(tvb, offset, pinfo,
-				    snmp_tree, "encrypted PDU header", ret);
-				return message_length;
-			}
-			proto_tree_add_text(snmp_tree, tvb, offset, length,
-			    "Encrypted PDU (%d bytes)", length);
-			g_free(cryptpdu);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Encrypted PDU");
-			return message_length;
-		}
-		ret = asn1_sequence_decode(&asn1, &global_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-				"PDU header", ret);
-			return message_length;
-		}
-		offset += length;
-		ret = asn1_octet_string_decode (&asn1, &cengineid,
-		    &cengineid_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "context engine id", ret);
-			return message_length;
-		}
-		if (snmp_tree) {
-			item = proto_tree_add_text(snmp_tree, tvb, offset, length,
-			    "Context Engine ID: %s",
-			    bytes_to_str(cengineid, cengineid_length));
-			if (cengineid_length>0) {
-			  engineid_tree = proto_item_add_subtree(item, ett_engineid);
-			  dissect_snmp_engineid(engineid_tree, tvb, offset+length-cengineid_length, cengineid_length);
-			}
-		}
-		g_free(cengineid);
-		offset += length;
-		ret = asn1_octet_string_decode (&asn1, &cname,
-		    &cname_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-			    "context name", ret);
-			return message_length;
-		}
-		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, tvb, offset, length,
-			    "Context Name: %s",
-			    SAFE_STRING(cname, cname_length));
-		}
-		g_free(cname);
-		offset += length;
+			/* v3 */
+	case 3:
+		offset = dissect_snmp_SNMPv3Message(FALSE , tvb, start_offset, pinfo, snmp_tree, -1);
 		break;
 	default:
-		dissect_snmp_error(tvb, offset, pinfo, snmp_tree,
-		    "PDU for unknown version of SNMP");
-		return message_length;
+		/*
+		 * Return the length remaining in the tvbuff, so
+		 * if this is SNMP-over-TCP, our caller thinks there's
+		 * nothing left to dissect.
+		 */
+		proto_tree_add_text(snmp_tree, tvb, offset, -1,"Unknown version");
+		return length_remaining;
+		break;
 	}
+	return offset;
 
-	start = asn1.offset;
-	ret = asn1_header_decode (&asn1, &cls, &con, &pdu_type, &def,
-	    &pdu_length);
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-		    "PDU type", ret);
-		return message_length;
-	}
-	if (cls != ASN1_CTX || con != ASN1_CON) {
-		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
-		    "PDU type", ASN1_ERR_WRONG_TYPE);
-		return message_length;
-	}
-	dissect_common_pdu(tvb, offset, pinfo, snmp_tree, tree, &asn1, pdu_type, start);
-	return message_length;
-}
 
-static void
-dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, int proto, gint ett)
-{
-	ASN1_SCK asn1;
-	int start;
-	gboolean def;
-	guint length;
 
-	guint pdu_type;
-	const char *pdu_type_string;
-	guint pdu_length;
-
-	guint32 version;
-	guint32 cause;
-	guint32 priority;
-	guint32 operation;
-	guint32 commit;
-
-	guchar *password;
-	guint password_length;
-
-	guchar *application;
-	guint application_length;
-
-	subid_t *regid;
-	guint regid_length;
-
-	gchar *oid_string;
-
-	proto_tree *smux_tree = NULL;
-	proto_item *item = NULL;
-	int ret;
-	guint cls, con;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
-
-	if (tree) {
-		item = proto_tree_add_item(tree, proto, tvb, offset, -1, FALSE);
-		smux_tree = proto_item_add_subtree(item, ett);
-	}
-
-	/* NOTE: we have to parse the message piece by piece, since the
-	 * capture length may be less than the message length: a 'global'
-	 * parsing is likely to fail.
-	 */
-	/* parse the SNMP header */
-	asn1_open(&asn1, tvb, offset);
-	start = asn1.offset;
-	ret = asn1_header_decode (&asn1, &cls, &con, &pdu_type, &def,
-	    &pdu_length);
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-		    "PDU type", ret);
-		return;
-	}
-
-	/* Dissect SMUX here */
-	if (cls == ASN1_APL && con == ASN1_CON && pdu_type == SMUX_MSG_OPEN) {
-		pdu_type_string = val_to_str(pdu_type, smux_types,
-		    "Unknown PDU type %#x");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
-			    offset, length, pdu_type);
-		}
-		offset += length;
-		ret = asn1_uint32_decode (&asn1, &version, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "version", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_uint(smux_tree, hf_smux_version, tvb,
-			    offset, length, version);
-		}
-		offset += length;
-
-		ret = asn1_oid_decode (&asn1, &regid, &regid_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "registration OID", ret);
-			return;
-		}
-		if (tree) {
-			oid_string = format_oid(regid, regid_length);
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Registration: %s", oid_string);
-		}
-		g_free(regid);
-		offset += length;
-
-		ret = asn1_octet_string_decode (&asn1, &application,
-		    &application_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "application", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Application: %s",
-			     SAFE_STRING(application, application_length));
-		}
-		g_free(application);
-		offset += length;
-
-		ret = asn1_octet_string_decode (&asn1, &password,
-		    &password_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "password", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Password: %s",
-			    SAFE_STRING(password, password_length));
-		}
-		g_free(password);
-		offset += length;
-		return;
-	}
-	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_CLOSE) {
-		pdu_type_string = val_to_str(pdu_type, smux_types,
-		    "Unknown PDU type %#x");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
-			    offset, length, pdu_type);
-		}
-		offset += length;
-		ret = asn1_uint32_value_decode (&asn1, pdu_length, &cause);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "cause", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset,
-			    pdu_length, "Cause: %s",
-			    val_to_str(cause, smux_close,
-				"Unknown cause %#x"));
-		}
-		offset += pdu_length;
-		return;
-	}
-	if (cls == ASN1_APL && con == ASN1_CON && pdu_type == SMUX_MSG_RREQ) {
-		pdu_type_string = val_to_str(pdu_type, smux_types,
-		    "Unknown PDU type %#x");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
-			    offset, length, pdu_type);
-		}
-		offset += length;
-		ret = asn1_oid_decode (&asn1, &regid, &regid_length, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "registration subtree", ret);
-			return;
-		}
-		if (tree) {
-			oid_string = format_oid(regid, regid_length);
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Registration: %s", oid_string);
-		}
-		g_free(regid);
-		offset += length;
-
-		ret = asn1_uint32_decode (&asn1, &priority, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "priority", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Priority: %d", priority);
-		}
-		offset += length;
-
-		ret = asn1_uint32_decode (&asn1, &operation, &length);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "operation", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Operation: %s",
-			    val_to_str(operation, smux_rreq,
-				"Unknown operation %#x"));
-		}
-		offset += length;
-		return;
-	}
-	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_RRSP) {
-		pdu_type_string = val_to_str(pdu_type, smux_types,
-		    "Unknown PDU type %#x");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
-			    offset, length, pdu_type);
-		}
-		offset += length;
-		ret = asn1_uint32_value_decode (&asn1, pdu_length, &priority);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "priority", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset,
-			    pdu_length, "%s",
-			    val_to_str(priority, smux_prio,
-				"Priority: %#x"));
-		}
-		offset += pdu_length;
-		return;
-	}
-	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_SOUT) {
-		pdu_type_string = val_to_str(pdu_type, smux_types,
-		    "Unknown PDU type %#x");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
-			    offset, length, pdu_type);
-		}
-		offset += length;
-		ret = asn1_uint32_value_decode (&asn1, pdu_length, &commit);
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-			    "commit", ret);
-			return;
-		}
-		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset,
-			    pdu_length, "%s",
-			    val_to_str(commit, smux_sout,
-				"Unknown SOUT Value: %#x"));
-		}
-		offset += pdu_length;
-		return;
-	}
-	if (cls != ASN1_CTX || con != ASN1_CON) {
-		dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
-		    "PDU type", ASN1_ERR_WRONG_TYPE);
-		return;
-	}
-	dissect_common_pdu(tvb, offset, pinfo, smux_tree, tree, &asn1, pdu_type, start);
 }
 
 static gint
@@ -2561,7 +2874,6 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, FALSE);
 }
-
 static void
 dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2569,7 +2881,7 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint message_len;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		message_len = dissect_snmp_pdu(tvb, offset, pinfo, tree,
+		message_len = dissect_snmp_pdu(tvb, 0, pinfo, tree,
 		    proto_snmp, ett_snmp, TRUE);
 		if (message_len == 0) {
 			/*
@@ -2586,7 +2898,18 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_smux_pdu(tvb, 0, pinfo, tree, proto_smux, ett_smux);
+	proto_tree *smux_tree = NULL;
+	proto_item *item = NULL;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
+
+	if (tree) {
+		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, FALSE);
+		smux_tree = proto_item_add_subtree(item, ett_smux);
+	}
+
+	dissect_SMUX_PDUs_PDU(tvb, pinfo, tree);
 }
 
 static void
@@ -2644,10 +2967,9 @@ process_prefs(void)
 	mibs_loaded = TRUE;
 #endif /* HAVE_SOME_SNMP */
 }
+/*--- proto_register_snmp -------------------------------------------*/
+void proto_register_snmp(void) {
 
-void
-proto_register_snmp(void)
-{
 #if defined(_WIN32) && defined(HAVE_SOME_SNMP)
 	char *mib_path;
 	int mib_path_len;
@@ -2655,54 +2977,16 @@ proto_register_snmp(void)
 #endif
 	gchar *tmp_mib_modules;
 
-	static hf_register_info hf[] = {
-		{ &hf_snmp_version,
-		{ "Version", "snmp.version", FT_UINT8, BASE_DEC, VALS(versions),
-		    0x0, "", HFILL }},
-		{ &hf_snmp_community,
-		{ "Community", "snmp.community", FT_STRING, BASE_NONE, NULL,
-		    0x0, "", HFILL }},
-		{ &hf_snmp_request_id,
-		{ "Request Id", "snmp.id", FT_UINT32, BASE_HEX, NULL,
-		    0x0, "Id for this transaction", HFILL }},
-		{ &hf_snmp_pdutype,
-		{ "PDU type", "snmp.pdutype", FT_UINT8, BASE_DEC, VALS(pdu_types),
-		    0x0, "", HFILL }},
-		{ &hf_snmp_agent_addr,
-		{ "agent-addr", "snmp.agent_addr", FT_UINT32, BASE_DEC, VALS(snmp_NetworkAddress_vals),
-			0x0, "Trap-PDU/agent-addr", HFILL }},
-		{ &hf_snmp_internet,
-		{ "internet", "snmp.internet", FT_IPv4, BASE_NONE, NULL, 
-			0x0,"NetworkAddress/internet", HFILL }},
-		{ &hf_snmp_enterprise,
-		{ "enterprise", "snmp.enterprise",FT_OID, BASE_NONE, NULL,
-			0x0, "Trap-PDU/enterprise", HFILL }},
-		{ &hf_snmp_error_status,
-		{ "Error Status", "snmp.error", FT_UINT8, BASE_DEC, VALS(error_statuses),
-		    0x0, "", HFILL }},
-		{ &hf_snmp_oid,
-		{ "Object identifier", "snmp.oid", FT_STRING, BASE_NONE, NULL,
-		    0x0, "", HFILL }},
-		{ &hf_snmp_generic_trap,
-		{ "generic-trap", "snmp.generic_trap", FT_INT32, BASE_DEC, VALS(snmp_T_generic_trap_vals),
-			0x0, "Trap-PDU/generic-trap", HFILL }},
-		{ &hf_snmp_specific_trap,
-		{ "specific-trap", "snmp.specific_trap", FT_INT32, BASE_DEC, NULL,
-			0x0, "Trap-PDU/specific-trap", HFILL }},
-		{ &hf_snmp_time_stamp,
-		{ "time-stamp", "snmp.time_stamp", FT_UINT32, BASE_DEC, NULL,
-			0x0, "Trap-PDU/time-stamp", HFILL }},
-		{ &hf_snmpv3_flags,
-		{ "SNMPv3 Flags", "snmpv3.flags", FT_UINT8, BASE_HEX, NULL,
-		    0x0, "", HFILL }},
-		{ &hf_snmpv3_flags_auth,
-		{ "Authenticated", "snmpv3.flags.auth", FT_BOOLEAN, 8,
+  /* List of fields */
+  static hf_register_info hf[] = {
+		{ &hf_snmp_v3_flags_auth,
+		{ "Authenticated", "snmp.v3.flags.auth", FT_BOOLEAN, 8,
 		    TFS(&flags_set_truth), TH_AUTH, "", HFILL }},
-		{ &hf_snmpv3_flags_crypt,
-		{ "Encrypted", "snmpv3.flags.crypt", FT_BOOLEAN, 8,
+		{ &hf_snmp_v3_flags_crypt,
+		{ "Encrypted", "snmp.v3.flags.crypt", FT_BOOLEAN, 8,
 		    TFS(&flags_set_truth), TH_CRYPT, "", HFILL }},
-		{ &hf_snmpv3_flags_report,
-		{ "Reportable", "snmpv3.flags.report", FT_BOOLEAN, 8,
+		{ &hf_snmp_v3_flags_report,
+		{ "Reportable", "snmp.v3.flags.report", FT_BOOLEAN, 8,
 		    TFS(&flags_set_truth), TH_REPORT, "", HFILL }},
 		{ &hf_snmp_engineid_conform, {
 		    "Engine ID Conformance", "snmp.engineid.conform", FT_BOOLEAN, 8,
@@ -2734,20 +3018,387 @@ proto_register_snmp(void)
 		{ &hf_snmp_counter64, {
 		    "Value", "snmp.counter64", FT_INT64, BASE_DEC,
 		    NULL, 0, "A counter64 value", HFILL }},
-	};
-	static gint *ett[] = {
-		&ett_snmp,
-		&ett_parameters,
-		&ett_parameters_qos,
-		&ett_global,
-		&ett_flags,
-		&ett_secur,
-		&ett_engineid,
-		&ett_snmp_NetworkAddress,
-	};
+
+
+/*--- Included file: packet-snmp-hfarr.c ---*/
+#line 1 "packet-snmp-hfarr.c"
+    { &hf_snmp_SMUX_PDUs_PDU,
+      { "SMUX-PDUs", "snmp.SMUX_PDUs",
+        FT_UINT32, BASE_DEC, VALS(snmp_SMUX_PDUs_vals), 0,
+        "SMUX-PDUs", HFILL }},
+    { &hf_snmp_simple,
+      { "simple", "snmp.simple",
+        FT_UINT32, BASE_DEC, VALS(snmp_SimpleSyntax_vals), 0,
+        "ObjectSyntax/simple", HFILL }},
+    { &hf_snmp_application_wide,
+      { "application-wide", "snmp.application_wide",
+        FT_UINT32, BASE_DEC, VALS(snmp_ApplicationSyntax_vals), 0,
+        "ObjectSyntax/application-wide", HFILL }},
+    { &hf_snmp_integer_value,
+      { "integer-value", "snmp.integer_value",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "SimpleSyntax/integer-value", HFILL }},
+    { &hf_snmp_string_value,
+      { "string-value", "snmp.string_value",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SimpleSyntax/string-value", HFILL }},
+    { &hf_snmp_objectID_value,
+      { "objectID-value", "snmp.objectID_value",
+        FT_OID, BASE_NONE, NULL, 0,
+        "SimpleSyntax/objectID-value", HFILL }},
+    { &hf_snmp_empty,
+      { "empty", "snmp.empty",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SimpleSyntax/empty", HFILL }},
+    { &hf_snmp_ipAddress_value,
+      { "ipAddress-value", "snmp.ipAddress_value",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        "ApplicationSyntax/ipAddress-value", HFILL }},
+    { &hf_snmp_counter_value,
+      { "counter-value", "snmp.counter_value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ApplicationSyntax/counter-value", HFILL }},
+    { &hf_snmp_timeticks_value,
+      { "timeticks-value", "snmp.timeticks_value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ApplicationSyntax/timeticks-value", HFILL }},
+    { &hf_snmp_arbitrary_value,
+      { "arbitrary-value", "snmp.arbitrary_value",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ApplicationSyntax/arbitrary-value", HFILL }},
+    { &hf_snmp_big_counter_value,
+      { "big-counter-value", "snmp.big_counter_value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ApplicationSyntax/big-counter-value", HFILL }},
+    { &hf_snmp_unsigned_integer_value,
+      { "unsigned-integer-value", "snmp.unsigned_integer_value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ApplicationSyntax/unsigned-integer-value", HFILL }},
+    { &hf_snmp_internet,
+      { "internet", "snmp.internet",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        "NetworkAddress/internet", HFILL }},
+    { &hf_snmp_version,
+      { "version", "snmp.version",
+        FT_INT32, BASE_DEC, VALS(snmp_Version_vals), 0,
+        "", HFILL }},
+    { &hf_snmp_community,
+      { "community", "snmp.community",
+        FT_STRING, BASE_HEX, NULL, 0,
+        "Message/community", HFILL }},
+    { &hf_snmp_data,
+      { "data", "snmp.data",
+        FT_UINT32, BASE_DEC, VALS(snmp_PDUs_vals), 0,
+        "", HFILL }},
+    { &hf_snmp_parameters,
+      { "parameters", "snmp.parameters",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "Messagev2u/parameters", HFILL }},
+    { &hf_snmp_datav2u,
+      { "datav2u", "snmp.datav2u",
+        FT_UINT32, BASE_DEC, VALS(snmp_T_datav2u_vals), 0,
+        "Messagev2u/datav2u", HFILL }},
+    { &hf_snmp_v2u_plaintext,
+      { "plaintext", "snmp.plaintext",
+        FT_UINT32, BASE_DEC, VALS(snmp_PDUs_vals), 0,
+        "Messagev2u/datav2u/plaintext", HFILL }},
+    { &hf_snmp_encrypted,
+      { "encrypted", "snmp.encrypted",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "Messagev2u/datav2u/encrypted", HFILL }},
+    { &hf_snmp_msgAuthoritativeEngineID,
+      { "msgAuthoritativeEngineID", "snmp.msgAuthoritativeEngineID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "UsmSecurityParameters/msgAuthoritativeEngineID", HFILL }},
+    { &hf_snmp_msgAuthoritativeEngineBoots,
+      { "msgAuthoritativeEngineBoots", "snmp.msgAuthoritativeEngineBoots",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UsmSecurityParameters/msgAuthoritativeEngineBoots", HFILL }},
+    { &hf_snmp_msgAuthoritativeEngineTime,
+      { "msgAuthoritativeEngineTime", "snmp.msgAuthoritativeEngineTime",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UsmSecurityParameters/msgAuthoritativeEngineTime", HFILL }},
+    { &hf_snmp_msgUserName,
+      { "msgUserName", "snmp.msgUserName",
+        FT_STRING, BASE_HEX, NULL, 0,
+        "UsmSecurityParameters/msgUserName", HFILL }},
+    { &hf_snmp_msgAuthenticationParameters,
+      { "msgAuthenticationParameters", "snmp.msgAuthenticationParameters",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "UsmSecurityParameters/msgAuthenticationParameters", HFILL }},
+    { &hf_snmp_msgPrivacyParameters,
+      { "msgPrivacyParameters", "snmp.msgPrivacyParameters",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "UsmSecurityParameters/msgPrivacyParameters", HFILL }},
+    { &hf_snmp_msgVersion,
+      { "msgVersion", "snmp.msgVersion",
+        FT_INT32, BASE_DEC, VALS(snmp_Version_vals), 0,
+        "SNMPv3Message/msgVersion", HFILL }},
+    { &hf_snmp_msgGlobalData,
+      { "msgGlobalData", "snmp.msgGlobalData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SNMPv3Message/msgGlobalData", HFILL }},
+    { &hf_snmp_msgSecurityParameters,
+      { "msgSecurityParameters", "snmp.msgSecurityParameters",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SNMPv3Message/msgSecurityParameters", HFILL }},
+    { &hf_snmp_msgData,
+      { "msgData", "snmp.msgData",
+        FT_UINT32, BASE_DEC, VALS(snmp_ScopedPduData_vals), 0,
+        "SNMPv3Message/msgData", HFILL }},
+    { &hf_snmp_msgID,
+      { "msgID", "snmp.msgID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "HeaderData/msgID", HFILL }},
+    { &hf_snmp_msgMaxSize,
+      { "msgMaxSize", "snmp.msgMaxSize",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "HeaderData/msgMaxSize", HFILL }},
+    { &hf_snmp_msgFlags,
+      { "msgFlags", "snmp.msgFlags",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "HeaderData/msgFlags", HFILL }},
+    { &hf_snmp_msgSecurityModel,
+      { "msgSecurityModel", "snmp.msgSecurityModel",
+        FT_UINT32, BASE_DEC, VALS(sec_models), 0,
+        "HeaderData/msgSecurityModel", HFILL }},
+    { &hf_snmp_plaintext,
+      { "plaintext", "snmp.plaintext",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ScopedPduData/plaintext", HFILL }},
+    { &hf_snmp_encryptedPDU,
+      { "encryptedPDU", "snmp.encryptedPDU",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ScopedPduData/encryptedPDU", HFILL }},
+    { &hf_snmp_contextEngineID,
+      { "contextEngineID", "snmp.contextEngineID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ScopedPDU/contextEngineID", HFILL }},
+    { &hf_snmp_contextName,
+      { "contextName", "snmp.contextName",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ScopedPDU/contextName", HFILL }},
+    { &hf_snmp_get_request,
+      { "get-request", "snmp.get_request",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/get-request", HFILL }},
+    { &hf_snmp_get_next_request,
+      { "get-next-request", "snmp.get_next_request",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/get-next-request", HFILL }},
+    { &hf_snmp_get_response,
+      { "get-response", "snmp.get_response",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/get-response", HFILL }},
+    { &hf_snmp_set_request,
+      { "set-request", "snmp.set_request",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/set-request", HFILL }},
+    { &hf_snmp_trap,
+      { "trap", "snmp.trap",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/trap", HFILL }},
+    { &hf_snmp_getBulkRequest,
+      { "getBulkRequest", "snmp.getBulkRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/getBulkRequest", HFILL }},
+    { &hf_snmp_informRequest,
+      { "informRequest", "snmp.informRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/informRequest", HFILL }},
+    { &hf_snmp_sNMPv2_Trap,
+      { "sNMPv2-Trap", "snmp.sNMPv2_Trap",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/sNMPv2-Trap", HFILL }},
+    { &hf_snmp_report,
+      { "report", "snmp.report",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDUs/report", HFILL }},
+    { &hf_snmp_request_id,
+      { "request-id", "snmp.request_id",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "PDU/request-id", HFILL }},
+    { &hf_snmp_error_status,
+      { "error-status", "snmp.error_status",
+        FT_INT32, BASE_DEC, VALS(snmp_T_error_status_vals), 0,
+        "PDU/error-status", HFILL }},
+    { &hf_snmp_error_index,
+      { "error-index", "snmp.error_index",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "PDU/error-index", HFILL }},
+    { &hf_snmp_variable_bindings,
+      { "variable-bindings", "snmp.variable_bindings",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_snmp_bulkPDU_request_id,
+      { "request-id", "snmp.request_id",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "BulkPDU/request-id", HFILL }},
+    { &hf_snmp_non_repeaters,
+      { "non-repeaters", "snmp.non_repeaters",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BulkPDU/non-repeaters", HFILL }},
+    { &hf_snmp_max_repetitions,
+      { "max-repetitions", "snmp.max_repetitions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BulkPDU/max-repetitions", HFILL }},
+    { &hf_snmp_enterprise,
+      { "enterprise", "snmp.enterprise",
+        FT_OID, BASE_NONE, NULL, 0,
+        "Trap-PDU/enterprise", HFILL }},
+    { &hf_snmp_agent_addr,
+      { "agent-addr", "snmp.agent_addr",
+        FT_UINT32, BASE_DEC, VALS(snmp_NetworkAddress_vals), 0,
+        "Trap-PDU/agent-addr", HFILL }},
+    { &hf_snmp_generic_trap,
+      { "generic-trap", "snmp.generic_trap",
+        FT_INT32, BASE_DEC, VALS(snmp_T_generic_trap_vals), 0,
+        "Trap-PDU/generic-trap", HFILL }},
+    { &hf_snmp_specific_trap,
+      { "specific-trap", "snmp.specific_trap",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Trap-PDU/specific-trap", HFILL }},
+    { &hf_snmp_time_stamp,
+      { "time-stamp", "snmp.time_stamp",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Trap-PDU/time-stamp", HFILL }},
+    { &hf_snmp_name,
+      { "name", "snmp.name",
+        FT_OID, BASE_NONE, NULL, 0,
+        "VarBind/name", HFILL }},
+    { &hf_snmp_valueType,
+      { "valueType", "snmp.valueType",
+        FT_UINT32, BASE_DEC, VALS(snmp_ValueType_vals), 0,
+        "VarBind/valueType", HFILL }},
+    { &hf_snmp_value,
+      { "value", "snmp.value",
+        FT_UINT32, BASE_DEC, VALS(snmp_ObjectSyntax_vals), 0,
+        "ValueType/value", HFILL }},
+    { &hf_snmp_unSpecified,
+      { "unSpecified", "snmp.unSpecified",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ValueType/unSpecified", HFILL }},
+    { &hf_snmp_noSuchObject,
+      { "noSuchObject", "snmp.noSuchObject",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ValueType/noSuchObject", HFILL }},
+    { &hf_snmp_noSuchInstance,
+      { "noSuchInstance", "snmp.noSuchInstance",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ValueType/noSuchInstance", HFILL }},
+    { &hf_snmp_endOfMibView,
+      { "endOfMibView", "snmp.endOfMibView",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ValueType/endOfMibView", HFILL }},
+    { &hf_snmp_VarBindList_item,
+      { "Item", "snmp.VarBindList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "VarBindList/_item", HFILL }},
+    { &hf_snmp_open,
+      { "open", "snmp.open",
+        FT_UINT32, BASE_DEC, VALS(snmp_OpenPDU_vals), 0,
+        "SMUX-PDUs/open", HFILL }},
+    { &hf_snmp_close,
+      { "close", "snmp.close",
+        FT_INT32, BASE_DEC, VALS(snmp_ClosePDU_vals), 0,
+        "SMUX-PDUs/close", HFILL }},
+    { &hf_snmp_registerRequest,
+      { "registerRequest", "snmp.registerRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SMUX-PDUs/registerRequest", HFILL }},
+    { &hf_snmp_registerResponse,
+      { "registerResponse", "snmp.registerResponse",
+        FT_UINT32, BASE_DEC, VALS(snmp_RegisterResponse_vals), 0,
+        "SMUX-PDUs/registerResponse", HFILL }},
+    { &hf_snmp_commitOrRollback,
+      { "commitOrRollback", "snmp.commitOrRollback",
+        FT_INT32, BASE_DEC, VALS(snmp_SOutPDU_vals), 0,
+        "SMUX-PDUs/commitOrRollback", HFILL }},
+    { &hf_snmp_rRspPDU,
+      { "rRspPDU", "snmp.rRspPDU",
+        FT_INT32, BASE_DEC, VALS(snmp_RRspPDU_vals), 0,
+        "RegisterResponse/rRspPDU", HFILL }},
+    { &hf_snmp_pDUs,
+      { "pDUs", "snmp.pDUs",
+        FT_UINT32, BASE_DEC, VALS(snmp_PDUs_vals), 0,
+        "RegisterResponse/pDUs", HFILL }},
+    { &hf_snmp_smux_simple,
+      { "smux-simple", "snmp.smux_simple",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OpenPDU/smux-simple", HFILL }},
+    { &hf_snmp_smux_version,
+      { "smux-version", "snmp.smux_version",
+        FT_INT32, BASE_DEC, VALS(snmp_T_smux_version_vals), 0,
+        "SimpleOpen/smux-version", HFILL }},
+    { &hf_snmp_identity,
+      { "identity", "snmp.identity",
+        FT_OID, BASE_NONE, NULL, 0,
+        "SimpleOpen/identity", HFILL }},
+    { &hf_snmp_description,
+      { "description", "snmp.description",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SimpleOpen/description", HFILL }},
+    { &hf_snmp_password,
+      { "password", "snmp.password",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SimpleOpen/password", HFILL }},
+    { &hf_snmp_subtree,
+      { "subtree", "snmp.subtree",
+        FT_OID, BASE_NONE, NULL, 0,
+        "RReqPDU/subtree", HFILL }},
+    { &hf_snmp_priority,
+      { "priority", "snmp.priority",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RReqPDU/priority", HFILL }},
+    { &hf_snmp_operation,
+      { "operation", "snmp.operation",
+        FT_INT32, BASE_DEC, VALS(snmp_T_operation_vals), 0,
+        "RReqPDU/operation", HFILL }},
+
+/*--- End of included file: packet-snmp-hfarr.c ---*/
+#line 1366 "packet-snmp-template.c"
+  };
+
+  /* List of subtrees */
+  static gint *ett[] = {
+	  &ett_snmp,
+	  &ett_engineid,
+	  &ett_msgFlags,
+
+
+/*--- Included file: packet-snmp-ettarr.c ---*/
+#line 1 "packet-snmp-ettarr.c"
+    &ett_snmp_ObjectSyntax,
+    &ett_snmp_SimpleSyntax,
+    &ett_snmp_ApplicationSyntax,
+    &ett_snmp_NetworkAddress,
+    &ett_snmp_Message,
+    &ett_snmp_Messagev2u,
+    &ett_snmp_T_datav2u,
+    &ett_snmp_UsmSecurityParameters,
+    &ett_snmp_SNMPv3Message,
+    &ett_snmp_HeaderData,
+    &ett_snmp_ScopedPduData,
+    &ett_snmp_ScopedPDU,
+    &ett_snmp_PDUs,
+    &ett_snmp_PDU,
+    &ett_snmp_BulkPDU,
+    &ett_snmp_Trap_PDU,
+    &ett_snmp_VarBind,
+    &ett_snmp_ValueType,
+    &ett_snmp_VarBindList,
+    &ett_snmp_SMUX_PDUs,
+    &ett_snmp_RegisterResponse,
+    &ett_snmp_OpenPDU,
+    &ett_snmp_SimpleOpen,
+    &ett_snmp_RReqPDU,
+
+/*--- End of included file: packet-snmp-ettarr.c ---*/
+#line 1375 "packet-snmp-template.c"
+  };
 	module_t *snmp_module;
 
-#ifdef HAVE_SOME_SNMP
+  #ifdef HAVE_SOME_SNMP
 
 #ifdef _WIN32
 	/* Set MIBDIRS so that the SNMP library can find its mibs. */
@@ -2774,11 +3425,16 @@ proto_register_snmp(void)
 	netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
                            NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY, 2);
 #endif /* HAVE_SOME_SNMP */
-	proto_snmp = proto_register_protocol("Simple Network Management Protocol",
-	    "SNMP", "snmp");
-	proto_register_field_array(proto_snmp, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("snmp", dissect_snmp, proto_snmp);
+
+
+  /* Register protocol */
+  proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  new_register_dissector("snmp", dissect_snmp, proto_snmp);
+
+  /* Register fields and subtrees */
+  proto_register_field_array(proto_snmp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
 
 	/* Register configuration preferences */
 	snmp_module = prefs_register_protocol(proto_snmp, process_prefs);
@@ -2807,11 +3463,12 @@ proto_register_snmp(void)
 	    "Whether the SNMP dissector should reassemble messages spanning multiple TCP segments."
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &snmp_desegment);
+
 }
 
-void
-proto_reg_handoff_snmp(void)
-{
+
+/*--- proto_reg_handoff_snmp ---------------------------------------*/
+void proto_reg_handoff_snmp(void) {
 	dissector_handle_t snmp_tcp_handle;
 
 	snmp_handle = find_dissector("snmp");
@@ -2837,6 +3494,7 @@ proto_reg_handoff_snmp(void)
 	 * that all dissector preferences have been registered).
 	 */
 	process_prefs();
+
 }
 
 void
@@ -2872,3 +3530,5 @@ proto_reg_handoff_smux(void)
 	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
 	dissector_add("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
+
+
