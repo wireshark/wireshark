@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ldap.h                                                            */
+/* ./packet-ldap.h                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.h */

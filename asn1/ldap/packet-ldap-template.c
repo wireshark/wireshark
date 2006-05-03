@@ -621,7 +621,86 @@ static void dissect_mscldap_response(proto_tree *tree, tvbuff_t *tvb, guint32 rp
   }
 }
 
+static int dissect_ldap_AttributeDescription(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+static int dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+
+static int mscldap_rpc_call=0;
+
 #include "packet-ldap-fn.c"
+
+static int
+dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  tvbuff_t	*parameter_tvb;
+  gchar		*string;
+  guint32	i, len;
+  proto_item 	*pi;
+  ldap_conv_info_t *ldap_info;
+
+  ldap_info=(ldap_conv_info_t *)pinfo->private_data;
+  /* if this is cldap then this might hold the RPC reply
+   */
+  if(ldap_info && ldap_info->is_mscldap && mscldap_rpc_call){
+
+    offset = dissect_ber_octet_string(implicit_tag, pinfo, NULL, tvb, offset, hf_index, &parameter_tvb);
+    dissect_mscldap_response(tree, parameter_tvb, mscldap_rpc_call);
+    mscldap_rpc_call=0;
+
+    return offset;
+  }
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  
+  len = tvb_length_remaining(parameter_tvb, 0);
+  
+  for(i = 0; i < len; i++) 
+    if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, i)))
+      break;
+  
+  if(i == len) {
+    string = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
+ 
+    pi = get_ber_last_created_item();
+     
+    proto_item_set_text(pi, string);
+
+  }
+
+  return offset;
+}
+
+static int
+dissect_ldap_AttributeDescription(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  tvbuff_t	*parameter_tvb = NULL;
+  char          *ldapstring=NULL;
+  ldap_conv_info_t *ldap_info;
+
+  ldap_info=(ldap_conv_info_t *)pinfo->private_data;
+
+  /* if this is cldap then this holds the name of the RPC function called
+   * and we have to remember it until the value is dissected.
+   */
+  if(ldap_info && ldap_info->is_mscldap){
+    mscldap_rpc_call=0;
+    dissect_ber_octet_string(implicit_tag, pinfo, NULL, tvb, offset, hf_index,
+                                       &parameter_tvb);
+    if(parameter_tvb){
+       ldapstring = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
+    }
+     
+    if(ldapstring){
+       if(!strcmp(ldapstring, "netlogon")){
+           mscldap_rpc_call=MSCLDAP_RPC_NETLOGON;
+       }
+       g_free(ldapstring);
+    }
+  }
+
+  offset = dissect_ldap_LDAPString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,

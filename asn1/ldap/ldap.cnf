@@ -337,33 +337,6 @@ ldap_conv_info_t *ldap_info;
       proto_item_append_text(ldm_tree, " %%s", valstr); 
 
   }
-
-  
-#.FN_PARS AttributeValue VAL_PTR = &parameter_tvb
-
-#.FN_BODY AttributeValue
-
-  tvbuff_t	*parameter_tvb;
-  gchar		*string;
-  guint32	i, len;
-  proto_item 	*pi;
-
-  %(DEFAULT_BODY)s
-  
-  len = tvb_length_remaining(parameter_tvb, 0);
-  
-  for(i = 0; i < len; i++) 
-    if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, i)))
-      break;
-  
-  if(i == len) {
-    string = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
- 
-    pi = get_ber_last_created_item();
-     
-    proto_item_set_text(pi, string);
-
-  }
   
 #.FN_PARS AuthenticationChoice VAL_PTR = &branch
   
@@ -395,3 +368,8 @@ ldap_conv_info_t *ldap_info;
  %(DEFAULT_BODY)s
 
  ldap_do_protocolop(pinfo);  
+
+#.NO_EMIT 
+AttributeDescription
+AttributeValue
+  
