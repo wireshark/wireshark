@@ -47,6 +47,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
 #include "packet-tcap.h"
+#include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-smpp.h"
 #include "packet-gsm_sms.h"
@@ -127,6 +128,7 @@ static gint ett_gsm_map_ext_qos_subscribed = -1;
 static gint ett_gsm_map_pdptypenumber = -1;
 static gint ett_gsm_map_RAIdentity = -1; 
 static gint ett_gsm_map_LAIFixedLength = -1;
+static gint ett_gsm_map_isdn_address_string = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -1922,6 +1924,7 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_pdptypenumber,
 	&ett_gsm_map_RAIdentity,
 	&ett_gsm_map_LAIFixedLength,
+	&ett_gsm_map_isdn_address_string,
 
 #include "packet-gsm_map-ettarr.c"
   };

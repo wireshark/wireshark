@@ -47,4 +47,5 @@ typedef struct {
 
 extern void dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 											  e164_info_t e164_info);
+extern void dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded);
 #endif

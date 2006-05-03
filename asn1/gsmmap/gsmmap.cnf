@@ -223,19 +223,33 @@ Component
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
+ guint8		octet;
+ guint8		na;
+ guint8		np;
+ proto_item *item;
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
 
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_gsm_map_isdn_address_string);
+
+ proto_tree_add_item(subtree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
 
  digit_str = unpack_digits(parameter_tvb, 1);
 
- proto_tree_add_string(tree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
+ proto_tree_add_string(subtree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
+
+ octet = tvb_get_guint8(parameter_tvb,0);
+ na = (octet & 0x70)>>4;
+ np = octet & 0x0f;
+ if ((na == 1) && (np==1))/*International Number & E164*/
+	dissect_e164_cc(parameter_tvb, subtree, 1, TRUE);
 
  pinfo->p2p_dir = P2P_DIR_RECV;
 
@@ -250,11 +264,19 @@ Component
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
+ guint8		octet;
+ guint8		na;
+ guint8		np;
+ proto_item *item;
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
+
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_gsm_map_isdn_address_string);
 
  proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
@@ -263,6 +285,12 @@ Component
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
+
+ octet = tvb_get_guint8(parameter_tvb,0);
+ na = (octet & 0x70)>>4;
+ np = octet & 0x0f;
+ if ((na == 1) && (np==1))/*International Number & E164*/
+	dissect_e164_cc(parameter_tvb, subtree, 1, TRUE);
 
 #----------------------------------------------------------------------------------------
 #.FN_PARS SS-Status

@@ -392,6 +392,180 @@ dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 
 }
+void
+dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded){
+
+	int		cc_offset;
+	guint8	address_digit_pair;
+	guint16	id_code;
+	guint8	cc_length;
+	guint8	length;
+	guint16 cc;
+
+	cc_offset = offset;
+	address_digit_pair = tvb_get_guint8(tvb, cc_offset);
+
+	if(!bcd_coded){
+		/* Dissect country code after removing non significant zeros */
+		while ( address_digit_pair == 0 ) {
+			cc_offset = cc_offset + 1;
+			address_digit_pair = tvb_get_guint8(tvb, cc_offset);
+		}
+		cc = tvb_get_ntohs(tvb, cc_offset);
+		if (( address_digit_pair & 0xf0 ) != 0 ){
+			cc = cc >> 4;
+		}
+	}else{
+		cc = address_digit_pair &0x0f;
+		cc = cc << 4;
+		cc = cc | (address_digit_pair &0xf0)>>4;
+		cc = cc << 4;
+		cc_offset = cc_offset + 1;
+		address_digit_pair = tvb_get_guint8(tvb, cc_offset);
+		cc = cc | address_digit_pair &0x0f;
+
+	}
+
+	switch ( cc & 0x0f00 ) {
+
+	case 0x0:
+		cc_length = 1;	
+		break;
+
+	case 0x0100:
+		cc_length = 1;	
+		break;
+
+	case 0x0200:
+		switch ( cc & 0x00f0 ) {
+		case 0: 
+		case 7 : 
+			cc_length = 2;	
+			break;
+		default : 
+			cc_length = 3;
+			break;
+		}
+		break;
+				
+	case 0x0300 :
+		switch ( cc & 0x00f0 ) {
+		case 0 : 
+		case 0x10 : 
+		case 0x20 : 
+		case 0x30 : 
+		case 0x40 : 
+		case 0x60 : 
+		case 0x90 : 
+			cc_length = 2;
+			break;	
+		default :
+			cc_length = 3;
+			break;
+		}
+			break;
+	case 0x0400 : 
+		switch ( cc & 0x00f0 ) {
+		case 0x20 :
+			cc_length = 3;
+			break;	
+		default :
+			cc_length = 2;
+			break;
+		}
+		break;
+
+	case 0x0500 : 
+		switch ( cc & 0x00f0 ) {
+		case 0 : 
+		case 0x90 :
+			cc_length = 3;
+			break;	
+		default :
+			cc_length = 2;
+			break;
+		}
+		break;
+
+	case 0x0600 : 
+		switch ( cc & 0x00f0 ) {
+		case 0x70 : 
+		case 0x80 : 
+		case 0x90 :
+			cc_length = 3; 
+			break;	
+		default :
+			cc_length = 2;
+			break;
+		}
+		break;
+
+	case 0x0700 : cc_length = 1;	
+		break;
+
+	case 0x0800 : 
+		switch ( cc & 0x00f0 ) {
+		case 0x10: 
+		case 0x20: 
+		case 0x40: 
+		case 0x60:
+			cc_length = 2; 
+			break;	
+		default :
+			cc_length = 3;
+			break;
+		}
+		break;
+
+	case 0x0900 : 
+		switch ( cc & 0x00f0 ) {
+		case 0 : 
+		case 0x10 : 
+		case 0x20 :  
+		case 0x30 :  
+		case 0x40 :  
+		case 0x50 :  
+		case 0x80 : 
+			cc_length = 2; 
+			break;	
+		default : 
+			cc_length = 3;
+			break;
+		}
+		break;
+
+	default: 
+		break;
+	}/* End switch cc */
+
+	switch ( cc_length ) {
+	case 0x1 :
+		cc = cc >> 8;
+		length = 1;
+		break;
+	case 0x2 :
+		cc = cc >> 4;
+		length = 1;
+		break;
+	default:
+		length = 2;
+		break;
+	}/* end switch cc_length */
+
+	proto_tree_add_text(tree,tvb, cc_offset, length,"Country Code: %x %s length %u",cc,
+				val_to_str(cc,E164_country_code_value,"unknown (%x)"),cc_length);
+	switch ( cc ) {
+	case 0x882 :
+		id_code = tvb_get_ntohs(tvb, cc_offset + 1);
+		id_code = (id_code & 0x0fff) >> 4;
+		proto_tree_add_text(tree,tvb, (cc_offset + 1), 2,"Identification Code: %x %s ",id_code,
+						val_to_str(id_code,E164_International_Networks_vals,"unknown (%x)"));
+		break;
+	default:;
+	}
+
+}
+
 /*
  * Register the protocol with Ethereal.
  *
