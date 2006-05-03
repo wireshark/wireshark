@@ -119,6 +119,8 @@ Ext-ForwardingInfoFor-CSE/forwardingFeatureList ext-forwardingFeatureList
 Ext-ForwFeature/noReplyConditionTime ext-noReplyConditionTime
 ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 ReturnError/errorCode returnErrorCode
+ERROR/localValue localErrorcode
+OPERATION/localValue operationLocalvalue
 #----------------------------------------------------------------------------------------
 #.PDU 
 Component 

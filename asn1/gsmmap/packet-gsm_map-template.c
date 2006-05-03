@@ -769,16 +769,21 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ReadyForSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 67: /*purgeMS*/
-    offset=dissect_gsm_map_PurgeMSArg(FALSE, tvb, offset, pinfo, tree, -1);
+	/* XXX  asn2eth can not yet handle tagged assignment yes so this
+	 * XXX is some conformance file magic to work around that bug
+	 */
+	offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+	offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
+    offset=dissect_gsm_map_PurgeMSArg(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2eth can not yet handle tagged assignment yes so this
-	   * XXX is some conformance file magic to work around that bug
-	   */
-	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
+		/* XXX  asn2eth can not yet handle tagged assignment yes so this
+		 * XXX is some conformance file magic to work around that bug
+		 */
+		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+		offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
 		offset=dissect_gsm_map_PrepareHO_ArgV3(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
 		offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1655,7 +1660,8 @@ void proto_reg_handoff_gsm_map(void) {
   register_ber_oid_dissector_handle("0.4.0.0.1.0.25.3", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMT-Relay(25) version3(3)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.25.2", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMT-Relay(25) version2(2)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.26.2", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) imsiRetrieval(26) version2(2)" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.25.1", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) msPurging(27) version2(2)" );
+  register_ber_oid_dissector_handle("0.4.0.0.1.0.27.2", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) msPurging(27) version2(2)" );
+  register_ber_oid_dissector_handle("0.4.0.0.1.0.27.3", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) msPurging(27) version3(3)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.29.3", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) anyTimeInfoEnquiry(29) version3(3)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.31.2", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) oupCallControl(31) version3(3)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.32.3", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) gprsLocationUpdate(32) version3(3)" );

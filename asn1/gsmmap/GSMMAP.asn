@@ -5194,11 +5194,14 @@ ExtensibleCallBarredParam ::= SEQUENCE {
 	unauthorisedMessageOriginator		[1] NULL OPTIONAL 
 	}
 
+--cug-Reject ERROR
+--   PARAMETER
 CUG-RejectParam ::= SEQUENCE {
 	cug-RejectCause			CUG-RejectCause OPTIONAL,
 	extensionContainer		ExtensionContainer OPTIONAL,
 	...
 	}
+-- ::= localValue : 15
 
 CUG-RejectCause ::= ENUMERATED {
 	incomingCallsBarredWithinCUG					(0),
@@ -5214,20 +5217,6 @@ Or-NotAllowedParam ::= SEQUENCE {
          extensionContainer   ExtensionContainer OPTIONAL,
          ... }
 -- ::= localValue : 48
-
-
-
---cug-Reject ERROR
---   PARAMETER
-Cug-RejectParam ::= SEQUENCE {
-         cug-RejectCause      ENUMERATED {
-            incomingCallsBarredWithinCUG                    ( 0 ), 
-            subscriberNotMemberOfCUG                        ( 1 ), 
-            requestedBasicServiceViolatesCUG-Constraints    ( 5 ), 
-            calledPartySS-InteractionViolation              ( 7 ) } OPTIONAL, 
-         extensionContainer   ExtensionContainer OPTIONAL,
-         ... }
--- ::= localValue : 15
 
 
 --noGroupCallNumberAvailable ERROR
