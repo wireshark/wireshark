@@ -458,7 +458,7 @@ dumpcap_DEPENDENCIES = \
 dumpcap_LDADD = \
 	$(dumpcap_additional_libs)	\
 	@GLIB_LIBS@			\
-	@PCAP_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should
