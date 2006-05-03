@@ -60,6 +60,9 @@
 
 #include "packet-rtp.h"
 #include <epan/rtp_pt.h>
+
+#include <epan/prefs.h>
+
 #include "packet-rtcp.h"
 
 #include "packet-t38.h"
@@ -72,6 +75,9 @@ static dissector_handle_t t38_handle=NULL;
 static int sdp_tap = -1;
 
 static int proto_sdp = -1;
+
+/* preference globals */
+static gboolean global_sdp_establish_conversation = TRUE;
 
 /* Top level fields */
 static int hf_protocol_version = -1;
@@ -390,11 +396,14 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       port = atol(transport_info.media_port[n]);
     }
     if(transport_info.media_proto[n]!=NULL) {
-      /* Check if media protocol is RTP */
-      is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
-      /* Check if media protocol is T38 */
-      is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
-
+      /* Check if media protocol is RTP
+	   * and stream decoding is enabled in preferences 
+	   */
+		if(global_sdp_establish_conversation){
+			is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
+			/* Check if media protocol is T38 */
+			is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
+		}
     }
     if(transport_info.connection_address!=NULL) {
       if(transport_info.connection_type!=NULL) {
@@ -1495,11 +1504,23 @@ proto_register_sdp(void)
     &ett_sdp_fmtp,
   };
 
+  module_t *sdp_module;
+
   proto_sdp = proto_register_protocol("Session Description Protocol",
                                       "SDP", "sdp");
   proto_register_field_array(proto_sdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /*
+   * Preferences registration
+   */
+   sdp_module = prefs_register_protocol(proto_sdp, NULL);
+   prefs_register_bool_preference(sdp_module, "establish_conversation",
+       "Establish RTP Conversation",
+       "Specifies that RTP stream is decoded based "
+       "upon port numbers found in SIP/SDP payload",
+       &global_sdp_establish_conversation);
+ 
   /*
    * Register the dissector by name, so other dissectors can
    * grab it by name rather than just referring to it directly.
