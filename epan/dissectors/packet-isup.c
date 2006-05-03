@@ -6721,11 +6721,11 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (isup_type){
 	case ITU_ISUP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_append_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
 		break;
 	case ANSI_ISUP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_append_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
 		break;
 	}
 
