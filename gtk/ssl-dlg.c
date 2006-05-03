@@ -141,10 +141,10 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     follow_info_t* follow_info = tapdata;
     SslDecryptedRecord* rec;
     int proto_ssl = (int) ssl;
-    StringInfo* data = p_get_proto_data(pinfo->fd, proto_ssl);
+    SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
 
     /* skip packet without decrypted data payload*/    
-    if (!data)
+    if (!pi || !pi->app_data.data)
         return 0;
     
     /* compute packet direction */
@@ -162,10 +162,10 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
         rec->is_server = 1;
 
     /* update stream counter */
-    follow_info->bytes_written[rec->is_server] += data->data_len;
+    follow_info->bytes_written[rec->is_server] += pi->app_data.data_len;
     
     /* extract decrypted data and queue it locally */    
-    rec->data = data;
+    rec->data = &pi->app_data;
     follow_info->ssl_decrypted_data = g_list_append(
         follow_info->ssl_decrypted_data,rec);
 

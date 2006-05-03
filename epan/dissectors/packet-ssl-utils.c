@@ -179,6 +179,13 @@ ssl_get_cipher_by_name(const char* name)
     return gcry_cipher_map_name(name);
 }
 
+static inline void
+ssl_cipher_cleanup(gcry_cipher_hd_t *cipher)
+{
+    gcry_cipher_close(*cipher);
+    *cipher = NULL;
+}
+
 /* private key abstraction layer */
 static inline int 
 ssl_get_key_len(SSL_PRIVATE_KEY* pk) {return gcry_pk_get_nbits (pk); }
@@ -355,8 +362,8 @@ static SslCipherSuite cipher_suites[]={
     {5,KEX_RSA,SIG_RSA,ENC_RC4,1,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
     {6,KEX_RSA,SIG_RSA,ENC_RC2,8,128,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
     {7,KEX_RSA,SIG_RSA,ENC_IDEA,8,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
-    {8,KEX_RSA,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
-    {9,KEX_RSA,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {8,KEX_RSA,SIG_RSA,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_CBC},
+    {9,KEX_RSA,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
     {10,KEX_RSA,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
     {11,KEX_DH,SIG_DSS,ENC_DES,8,64,40,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
     {12,KEX_DH,SIG_DSS,ENC_DES,8,64,64,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
@@ -591,7 +598,7 @@ ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite,
     }
     if (ciph == 0) {
         ssl_debug_printf("ssl_create_decoder can't find cipher %s\n", 
-						 ciphers[(cipher_suite->enc-0x30) > 7 ? 7 : (cipher_suite->enc-0x30)]);
+            ciphers[(cipher_suite->enc-0x30) > 7 ? 7 : (cipher_suite->enc-0x30)]);
         return -1;
     }
     
@@ -600,6 +607,10 @@ ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite,
     dec->cipher_suite=cipher_suite;
     dec->mac_key.data = dec->_mac_key;
     ssl_data_set(&dec->mac_key, mk, cipher_suite->dig_len);
+    dec->seq = 0;
+    
+    if (dec->evp)
+        ssl_cipher_cleanup(&dec->evp);
 
     if (ssl_cipher_init(&dec->evp,ciph,sk,iv,cipher_suite->mode) < 0) {
         ssl_debug_printf("ssl_create_decoder: can't create cipher id:%d mode:%d\n",
@@ -812,7 +823,9 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         ssl_debug_printf("ssl_generate_keyring_material can't init client decoder\n");        
         goto fail;
     }
-        
+      
+    ssl_debug_printf("ssl_generate_keyring_material client seq %d server seq %d\n",
+        ssl_session->client.seq, ssl_session->server.seq);
     g_free(key_block.data);
     return 0;
     
@@ -853,7 +866,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     /* Remove the master secret if it was there.
        This force keying material regeneration in
        case we're renegotiating */
-    ssl_session->state &= ~SSL_MASTER_SECRET;
+    ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
     return 0;
 }
  
@@ -926,10 +939,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 
     /* get cipher used for digest comptuation */
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
-    ssl_debug_printf("ssl3_check_mac digest%s md %d\n",
-        digests[decoder->cipher_suite->dig-0x40], md);
     ssl_md_init(&mc,md);
-    ssl_debug_printf("ssl3_check_mac memory digest %p\n",mc);
 
     /* do hash computation on data && padding */
     ssl_md_update(&mc,decoder->mac_key.data,decoder->mac_key.data_len);
@@ -1009,19 +1019,19 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, int ct,
         return -1;
     }
     mac=out+worklen;
-    /*ssl_print_data("Record data",out,*outl);*/
 
     /* Now check the MAC */
-    ssl_debug_printf("checking mac (len %d, version %X, ct %d)\n", worklen,ssl->version_netorder, ct);
+    ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %d)\n", 
+        worklen, ssl->version_netorder, ct, decoder->seq);
     if(ssl->version_netorder==0x300){
         if(ssl3_check_mac(decoder,ct,out,worklen,mac) < 0) {
-            ssl_debug_printf("ssl_decrypt_record: mac falied\n");
+            ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
     }
     else{
         if(tls_check_mac(decoder,ct,ssl->version_netorder,out,worklen,mac)< 0) {
-            ssl_debug_printf("ssl_decrypt_record: mac falied\n");
+            ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
     }

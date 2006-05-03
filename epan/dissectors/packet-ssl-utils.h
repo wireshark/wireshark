@@ -113,10 +113,18 @@ typedef struct _SslDecoder {
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
 
-/*typedef struct _SslService {
-    address addr;
-    guint port;
-} SslService;*/
+struct tvbuff;
+
+typedef struct _SslRecordInfo {
+    struct tvbuff* tvb;
+    int id;
+    struct _SslRecordInfo* next;
+} SslRecordInfo;
+
+typedef struct {
+    StringInfo app_data;
+    SslRecordInfo* handshake_data; 
+} SslPacketInfo;
 
 typedef struct _SslDecryptSession {
     unsigned char _master_secret[48];

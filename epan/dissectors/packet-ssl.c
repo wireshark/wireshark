@@ -231,6 +231,7 @@ static GHashTable *ssl_key_hash = NULL;
 static GTree* ssl_associations = NULL;
 static dissector_handle_t ssl_handle = NULL;
 static StringInfo ssl_decrypted_data = {NULL, 0};
+static int ssl_decrypted_data_avail = 0;
 
 /* Hash Functions for ssl sessions table and private keys table*/
 static gint  
@@ -348,6 +349,44 @@ ssl_packet_from_server(unsigned int port)
     ssl_debug_printf("ssl_packet_from_server: is from server %d\n", ret);    
     return ret;
 }    
+
+/* add to packet data a newly allocated tvb with the specified real data*/
+static void
+ssl_add_record_info(packet_info *pinfo, unsigned char* data, int data_len, int record_id)
+{
+    unsigned char* real_data = se_alloc(data_len);
+    SslRecordInfo* rec = se_alloc(sizeof(SslRecordInfo));
+    SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
+    if (!pi)
+    {
+        pi = se_alloc0(sizeof(SslPacketInfo));
+        p_add_proto_data(pinfo->fd, proto_ssl,pi);
+    }
+    
+    rec->id = record_id;
+    rec->tvb = tvb_new_real_data(real_data, data_len, data_len);
+    memcpy(real_data, data, data_len);
+    
+    /* head insertion */
+    rec->next= pi->handshake_data;
+    pi->handshake_data = rec;
+}
+
+/* search in packet data the tvbuff associated to the specified id */
+static tvbuff_t* 
+ssl_get_record_info(packet_info *pinfo, int record_id)
+{
+    SslRecordInfo* rec;
+    SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
+    if (!pi)
+        return NULL;
+    
+    for (rec = pi->handshake_data; rec; rec = rec->next)
+        if (rec->id == record_id)
+            return rec->tvb;
+
+    return NULL;
+}
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 static void 
@@ -1379,12 +1418,13 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_queue_packet(ssl_tap, pinfo, (gpointer)proto_ssl);
 }
 
-static void 
+static int
 decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, 
         guint32 record_length, guint8 content_type, SslDecryptSession* ssl,
         gboolean save_plaintext)
 {
-    int len, direction;
+    int ret = 0;
+    int direction;
     SslDecoder* decoder;
     
     /* if we can decrypt and decryption have success
@@ -1393,7 +1433,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         record_length, ssl->state);
     if (!(ssl->state & SSL_HAVE_SESSION_KEY)) {
         ssl_debug_printf("decrypt_ssl3_record: no session key\n");
-        return ;
+        return ret;
     }
     
     /* retrive decoder for this packet direction*/    
@@ -1419,46 +1459,48 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     
     /* run decryption and add decrypted payload to protocol data, if decryption 
     * is successful*/
-    len = ssl_decrypted_data.data_len; 
-    if ((ssl_decrypt_record(ssl, decoder, 
-        content_type, tvb_get_ptr(tvb, offset, record_length),
-        record_length,  ssl_decrypted_data.data, &len) == 0) && 
-        save_plaintext)
+    ssl_decrypted_data_avail = ssl_decrypted_data.data_len; 
+    if (ssl_decrypt_record(ssl, decoder, 
+          content_type, tvb_get_ptr(tvb, offset, record_length),
+          record_length,  ssl_decrypted_data.data, &ssl_decrypted_data_avail) == 0)
+        ret = 1;
+    if (ret && save_plaintext)
     {
-        StringInfo* data = p_get_proto_data(pinfo->fd, proto_ssl);
-        if (!data) 
+        SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
+        if (!pi) 
         {
             ssl_debug_printf("decrypt_ssl3_record: allocating app_data %d "
-                "bytes for app data\n", len);
+                "bytes for app data\n", ssl_decrypted_data_avail);
             /* first app data record: allocate and put packet data*/
-            data = se_alloc(sizeof(StringInfo));
-            data->data = se_alloc(len);
-            data->data_len = len;
-            memcpy(data->data, ssl_decrypted_data.data, len);
+            pi = se_alloc0(sizeof(SslPacketInfo));
+            pi->app_data.data = se_alloc(ssl_decrypted_data_avail);
+            pi->app_data.data_len = ssl_decrypted_data_avail;
+            memcpy(pi->app_data.data, ssl_decrypted_data.data, ssl_decrypted_data_avail);
         }
         else { 
             unsigned char* store;
             /* update previus record*/
             ssl_debug_printf("decrypt_ssl3_record: reallocating app_data "
                 "%d bytes for app data (total %d appdata bytes)\n", 
-                len, data->data_len + len);
-            store = se_alloc(data->data_len + len);
-            memcpy(store, data->data, data->data_len);
-            memcpy(&store[data->data_len], ssl_decrypted_data.data, len);
-            data->data_len += len;
+                ssl_decrypted_data_avail, pi->app_data.data_len + ssl_decrypted_data_avail);
+            store = se_alloc(pi->app_data.data_len + ssl_decrypted_data_avail);
+            memcpy(store, pi->app_data.data, pi->app_data.data_len);
+            memcpy(&store[pi->app_data.data_len], ssl_decrypted_data.data, ssl_decrypted_data_avail);
+            pi->app_data.data_len += ssl_decrypted_data_avail;
             
             /* old decrypted data ptr here appare to be leaked, but it's 
              * collected by emem allocator */
-            data->data = store;
+            pi->app_data.data = store;
             
             /* data ptr is changed, so remove old one and re-add the new one*/
             ssl_debug_printf("decrypt_ssl3_record: removing old app_data ptr\n");
             p_remove_proto_data(pinfo->fd, proto_ssl);
         }
      
-        ssl_debug_printf("decrypt_ssl3_record: setting decrypted app_data ptr %p\n",data);
-        p_add_proto_data(pinfo->fd, proto_ssl, data);
+        ssl_debug_printf("decrypt_ssl3_record: setting decrypted app_data ptr %p\n",pi);
+        p_add_proto_data(pinfo->fd, proto_ssl, pi);
     }
+    return ret;
 }
 
 
@@ -1500,7 +1542,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *ti              = NULL;
     proto_tree *ssl_record_tree = NULL;
     guint32 available_bytes     = 0;
-    StringInfo* decrypted;
+    SslPacketInfo* pi;
     SslAssociation* association;
 
     available_bytes = tvb_length_remaining(tvb, offset);
@@ -1671,6 +1713,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, conv_version, content_type);
+        ssl_debug_printf("dissect_ssl3_change_cipher_spec\n");
         break;
     case SSL_ID_ALERT:
         if (ssl)
@@ -1680,12 +1723,27 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                            conv_version);
         break;
     case SSL_ID_HANDSHAKE:
-        if (ssl)
-            decrypt_ssl3_record(tvb, pinfo, offset, 
-                record_length, content_type, ssl, FALSE);
-        dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
+    {
+        tvbuff_t* decrypted=0;
+        /* try to decrypt handshake record, if possible. Store decrypted 
+         * record for later usage. The offset is used as 'key' to itentify
+         * this record into the packet (we can have multiple handshake records
+         * in the same frame) */
+        if (ssl && decrypt_ssl3_record(tvb, pinfo, offset, 
+                record_length, content_type, ssl, FALSE)) 
+            ssl_add_record_info(pinfo, ssl_decrypted_data.data, 
+                ssl_decrypted_data_avail, offset);
+        
+        /* try to retrive and use decrypted handshake record, if any. */
+        decrypted = ssl_get_record_info(pinfo, offset);
+        if (decrypted)
+            dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
+                 decrypted->length, conv_version, ssl, content_type);
+        else 
+            dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
                                record_length, conv_version, ssl, content_type);
         break;
+    }
     case SSL_ID_APP_DATA:
         if (ssl)
             decrypt_ssl3_record(tvb, pinfo, offset, 
@@ -1711,32 +1769,33 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             association?association->info:"Application Data");
     
         /* show decrypted data info, if available */         
-        decrypted = p_get_proto_data(pinfo->fd, proto_ssl);
-        if (decrypted)
+        pi = p_get_proto_data(pinfo->fd, proto_ssl);
+        if (pi && pi->app_data.data)
         {
             tvbuff_t* new_tvb;
             
             /* try to dissect decrypted data*/
-            ssl_debug_printf("dissect_ssl3_record decrypted len %d\n", decrypted->data_len);
+            ssl_debug_printf("dissect_ssl3_record decrypted len %d\n", 
+                pi->app_data.data_len);
             
              /* create new tvbuff for the decrypted data */
-            new_tvb = tvb_new_real_data(decrypted->data, 
-                decrypted->data_len, decrypted->data_len);
+            new_tvb = tvb_new_real_data(pi->app_data.data, 
+                pi->app_data.data_len, pi->app_data.data_len);
             tvb_set_free_cb(new_tvb, g_free);
             /* tvb_set_child_real_data_tvbuff(tvb, new_tvb); */
             
             /* find out a dissector using server port*/
             if (association && association->handle) {
                 ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
-                ssl_print_text_data("decrypted app data",decrypted->data, 
-                    decrypted->data_len);
+                ssl_print_text_data("decrypted app data",pi->app_data.data, 
+                    pi->app_data.data_len);
                 
                 call_dissector(association->handle, new_tvb, pinfo, ssl_record_tree);
             }
             /* add raw decrypted data only if a decoder is not found*/
             else 
                 proto_tree_add_string(ssl_record_tree, hf_ssl_record_appdata_decrypted, tvb,
-                        offset, decrypted->data_len, (char*) decrypted->data);
+                    offset, pi->app_data.data_len, (char*) pi->app_data.data);
         }
         else {
             tvb_ensure_bytes_exist(tvb, offset, record_length);
@@ -2121,11 +2180,6 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
             ssl_restore_session(ssl); 
         }
         else {
-            /* reset state on renegotiation*/
-            if (!from_server)
-                ssl->state &= ~(SSL_HAVE_SESSION_KEY|SSL_MASTER_SECRET|
-                    SSL_CIPHER|SSL_SERVER_RANDOM);
-            
             tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
             ssl->session_id.data_len = session_id_length;
         }                
