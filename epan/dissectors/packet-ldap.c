@@ -807,7 +807,7 @@ static int dissect_not_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_ldap_MessageID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 52 "ldap.cnf"
+#line 53 "ldap.cnf"
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &MessageID);
@@ -840,7 +840,7 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_ldap_LDAPString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 239 "ldap.cnf"
+#line 240 "ldap.cnf"
   tvbuff_t	*parameter_tvb = NULL;
   char          *ldapstring;
  
@@ -930,7 +930,7 @@ static int dissect_newSuperior_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_ldap_Simple(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 102 "ldap.cnf"
+#line 103 "ldap.cnf"
 ldap_conv_info_t *ldap_info;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -954,7 +954,7 @@ static int dissect_simple_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_ldap_Mechanism(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 113 "ldap.cnf"
+#line 114 "ldap.cnf"
 
 ldap_conv_info_t *ldap_info;
 tvbuff_t	*parameter_tvb;
@@ -1006,7 +1006,7 @@ static int dissect_mechanism(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_ldap_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 152 "ldap.cnf"
+#line 153 "ldap.cnf"
 
 tvbuff_t	*parameter_tvb;
 ldap_conv_info_t *ldap_info;
@@ -1074,7 +1074,7 @@ static const ber_choice_t AuthenticationChoice_choice[] = {
 
 static int
 dissect_ldap_AuthenticationChoice(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 344 "ldap.cnf"
+#line 345 "ldap.cnf"
   gint branch = -1;
   gint auth = -1;
   const gchar *valstr;
@@ -1172,7 +1172,7 @@ static const value_string ldap_BindResponse_resultCode_vals[] = {
 
 static int
 dissect_ldap_BindResponse_resultCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 322 "ldap.cnf"
+#line 323 "ldap.cnf"
 
   const gchar *valstr;
 
@@ -1249,7 +1249,7 @@ static int dissect_referral_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_ldap_ServerSaslCreds(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 178 "ldap.cnf"
+#line 179 "ldap.cnf"
 
 tvbuff_t	*parameter_tvb;
 ldap_conv_info_t *ldap_info;
@@ -1343,7 +1343,7 @@ static int dissect_bindResponse(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_ldap_UnbindRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 365 "ldap.cnf"
+#line 366 "ldap.cnf"
 
  implicit_tag = TRUE; /* correct problem with asn2eth */
 
@@ -1371,7 +1371,7 @@ static const value_string ldap_T_scope_vals[] = {
 
 static int
 dissect_ldap_T_scope(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 281 "ldap.cnf"
+#line 282 "ldap.cnf"
 
   gint 	scope;
   const gchar *valstr;
@@ -1827,7 +1827,7 @@ static const value_string ldap_T_resultCode_vals[] = {
 
 static int
 dissect_ldap_T_resultCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 300 "ldap.cnf"
+#line 301 "ldap.cnf"
 
   const gchar *valstr;
 
@@ -2182,7 +2182,7 @@ static int dissect_abandonRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ldap_LDAPOID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 32 "ldap.cnf"
+#line 33 "ldap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	const gchar *name;
@@ -2193,7 +2193,7 @@ dissect_ldap_LDAPOID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
-#line 39 "ldap.cnf"
+#line 40 "ldap.cnf"
 	if (!parameter_tvb)
 		return offset;
 	item = get_ber_last_created_item();
@@ -2389,7 +2389,7 @@ static const ber_choice_t ProtocolOp_choice[] = {
 
 static int
 dissect_ldap_ProtocolOp(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 60 "ldap.cnf"
+#line 61 "ldap.cnf"
 
   ldap_call_response_t *lcrp;
   ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)pinfo->private_data;
@@ -2400,7 +2400,7 @@ dissect_ldap_ProtocolOp(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
                                  ProtocolOp_choice, hf_index, ett_ldap_ProtocolOp,
                                  &ProtocolOp);
 
-#line 66 "ldap.cnf"
+#line 67 "ldap.cnf"
 
   lcrp=ldap_match_call_response(tvb, pinfo, tree, MessageID, ProtocolOp);
   if(lcrp){
@@ -3359,7 +3359,7 @@ void proto_register_ldap(void) {
         "AttributeValueAssertion/attributeDesc", HFILL }},
     { &hf_ldap_assertionValue,
       { "assertionValue", "ldap.assertionValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "AttributeValueAssertion/assertionValue", HFILL }},
     { &hf_ldap_type,
       { "type", "ldap.type",
@@ -3551,7 +3551,7 @@ void proto_register_ldap(void) {
         "MatchingRuleAssertion/matchingRule", HFILL }},
     { &hf_ldap_matchValue,
       { "matchValue", "ldap.matchValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "MatchingRuleAssertion/matchValue", HFILL }},
     { &hf_ldap_dnAttributes,
       { "dnAttributes", "ldap.dnAttributes",
