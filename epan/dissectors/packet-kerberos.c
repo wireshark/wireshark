@@ -4021,6 +4021,8 @@ dissect_krb5_e_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	switch(krb5_errorcode){
 	case KRB5_ET_KRB5KDC_ERR_BADOPTION:
 	case KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED:
+	case KRB5_ET_KRB5KDC_ERR_KEY_EXP:
+	case KRB5_ET_KRB5KDC_ERR_POLICY:
 		/* ms windows kdc sends e-data of this type containing a "salt"
 		 * that contains the nt_status code for these error codes.
 		 */
