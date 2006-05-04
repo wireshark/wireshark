@@ -241,7 +241,7 @@
 #endif
 
 #ifndef ETHERTYPE_PROFINET
-#define ETHERTYPE_PROFINET 	0x8892  /* PROFIBUS PROFInet protocol */
+#define ETHERTYPE_PROFINET 	0x8892  /* PROFIBUS PROFINET protocol */
 #endif
 
 #ifndef ETHERTYPE_HYPERSCSI
