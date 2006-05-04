@@ -765,7 +765,11 @@ proto_register_s5066(void)
 		"Whether the S5066 dissector should dissect editon 1 of the STANAG."
 		" This editon was never formally approved and is very rare. The common edition is editon 1.2.",
 		&s5066_edition_one);
-
+	prefs_register_uint_preference(s5066_module, "tcp.port",
+		"STANAG 5066 TCP Port",
+		"Set the port for STANAG 5066. (If other than the default 5066."
+		" This number is registered with IANA.)",
+		10, &global_s5066_port);
 }
 
 void
