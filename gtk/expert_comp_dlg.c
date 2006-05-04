@@ -52,6 +52,7 @@ typedef struct _expert_comp_dlg_t {
     GtkWidget *note_label;
     GtkWidget *warn_label;
     GtkWidget *error_label;
+    GtkWidget *all_label;
     error_equiv_table chat_table;
     error_equiv_table note_table;
     error_equiv_table warn_table;
@@ -119,11 +120,12 @@ error_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void 
     default:
         return 0; /* Don't draw */
     }
+
     return 1; /* Draw */
 }
 
 
-
+#if (GTK_MAJOR_VERSION < 2)
 static void
 error_draw(void *pss)
 {
@@ -134,6 +136,7 @@ error_draw(void *pss)
     draw_error_table_data(&ss->note_table);
     draw_error_table_data(&ss->chat_table);
 }
+#endif
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -141,9 +144,11 @@ static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)data;
+	expert_tapdata_t * etd=(expert_tapdata_t *)data;
 
     protect_thread_critical_region();
     remove_tap_listener(ss);
+    remove_tap_listener(etd);
     unprotect_thread_critical_region();
 
     free_error_table_data(&ss->error_table);
@@ -151,6 +156,22 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     free_error_table_data(&ss->note_table);
     free_error_table_data(&ss->chat_table);
     g_free(ss);
+
+}
+
+
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
+static void
+expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
+{
+	expert_tapdata_t *etd=(expert_tapdata_t *)data;
+
+	protect_thread_critical_region();
+	remove_tap_listener(etd);
+	unprotect_thread_critical_region();
+
+	g_free(etd);
 }
 
 static void
@@ -164,8 +185,19 @@ expert_comp_init(const char *optarg, void* userdata _U_)
     GtkWidget *vbox;
     GtkWidget *bbox;
     GtkWidget *close_bt;
+	expert_tapdata_t * etd;
     
     ss=g_malloc(sizeof(expert_comp_dlg_t));
+
+	etd=g_malloc(sizeof(expert_tapdata_t));
+	etd->all_events = NULL;
+	etd->new_events = NULL;
+	etd->disp_events = 0;
+	etd->chat_events = 0;
+	etd->note_events = 0;
+	etd->warn_events = 0;
+	etd->error_events = 0;
+	etd->severity_report_level = PI_CHAT;
 
     ss->win=window_new(GTK_WINDOW_TOPLEVEL, "err");
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 700, 300);
@@ -183,7 +215,7 @@ expert_comp_init(const char *optarg, void* userdata _U_)
     ss->error_label = gtk_label_new("Errors: 0");
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->error_label);
 
-    /* We must display TOP LEVEL Widget before calling init_srt_table() */
+    /* We must display TOP LEVEL Widget before calling init_table() */
     gtk_widget_show_all(ss->win);
     init_error_table(&ss->error_table, 0, temp_page);
     /* Warnings */
@@ -201,9 +233,41 @@ expert_comp_init(const char *optarg, void* userdata _U_)
     ss->chat_label = gtk_label_new("Chats: 0");
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->chat_label);
     init_error_table(&ss->chat_table, 0, temp_page);
+    /* Details */
+    temp_page = gtk_vbox_new(FALSE, 6);
+    ss->all_label = gtk_label_new("Details");
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->all_label);
+
+	etd->label=gtk_label_new("Please wait ...");
+	gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0, 0.5);
+
+    etd->win=ss->win;
+    expert_dlg_init_table(etd, temp_page);
+
+
+    /* Add tap listener functions for expert details, From expert_dlg.c*/
+
+	error_string=register_tap_listener("expert", etd, NULL /* fstring */,
+		expert_dlg_reset,
+		expert_dlg_packet,
+		expert_dlg_draw);
+	if(error_string){
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		g_string_free(error_string, TRUE);
+		g_free(etd);
+		return;
+	}
+
+	SIGNAL_CONNECT(etd->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(etd->win, "destroy", expert_dlg_destroy_cb, etd);
 
     /* Register the tap listener */
+
+#if (GTK_MAJOR_VERSION < 2)
     error_string=register_tap_listener("expert", ss, filter, error_reset, error_packet, error_draw);
+#else
+    error_string=register_tap_listener("expert", ss, filter, error_reset, error_packet, NULL);
+#endif
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
         g_string_free(error_string, TRUE);
