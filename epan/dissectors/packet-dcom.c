@@ -485,8 +485,8 @@ static const value_string dcom_dualstringarray_tower_id_vals[] = {
 };
 
 static const value_string dcom_vt_bool_vals[] = {
-	{ 0x0000, "TRUE" },
-	{ 0xFFFF, "FALSE" },
+	{ 0x0000, "FALSE" },
+	{ 0xFFFF, "TRUE" },
 	{ 0,          NULL }
 };
 
