@@ -2343,7 +2343,7 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
                                      tvb_get_ntohl (tvb, offset));
             offset += 4;
         } else {
-            if (cdata->itl->cmdset == SCSI_DEV_SBC) {
+            if ((cdata->itl->cmdset&SCSI_CMDSET_MASK) == SCSI_DEV_SBC) {
                 if(tvb_length_remaining(tvb, offset)<4)
                     return;
                 proto_tree_add_text (scsi_tree, tvb, offset, 4, "No. of Blocks: %u",
@@ -3120,7 +3120,7 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (payload_len < 1)
             return;
-        switch (cdata->itl->cmdset) {
+        switch (cdata->itl->cmdset&SCSI_CMDSET_MASK) {
 
         case SCSI_DEV_SBC:
             proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: %s",
@@ -3162,7 +3162,7 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* offset points to the start of the mode page */
         while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset&SCSI_CMDSET_MASK);
             offset += plen;
             payload_len -= plen;
         }
@@ -3221,7 +3221,7 @@ dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         if(!cdata->itl)
             return;
-        switch (cdata->itl->cmdset) {
+        switch (cdata->itl->cmdset&SCSI_CMDSET_MASK) {
 
         case SCSI_DEV_SBC:
             proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: %s",
@@ -3270,7 +3270,7 @@ dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* offset points to the start of the mode page */
         while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset&SCSI_CMDSET_MASK);
             offset += plen;
             payload_len -= plen;
         }
@@ -3298,7 +3298,7 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
          * device types; try to interpret it based on what we deduced,
          * or were told, the device type is.
          */
-        switch (cdata->itl->cmdset) {
+        switch (cdata->itl->cmdset&SCSI_CMDSET_MASK) {
         case SCSI_DEV_SBC:
             hf_pagecode = hf_scsi_sbcpagecode;
             break;
@@ -3411,7 +3411,7 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* offset points to the start of the mode page */
         while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset&SCSI_CMDSET_MASK);
             offset += plen;
             tot_len -= plen;
         }
@@ -3511,7 +3511,7 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* offset points to the start of the mode page */
         while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->itl->cmdset&SCSI_CMDSET_MASK);
             offset += plen;
             tot_len -= plen;
         }
@@ -6320,7 +6320,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
 
 
     if(itl){
-        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset, "Command Set:%s (0x%02x)", val_to_str(itl->cmdset, scsi_devtype_val, "Unknown"), itl->cmdset);
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
         PROTO_ITEM_SET_GENERATED(ti);
 
         if(itlq->scsi_opcode!=0xffff){
@@ -7754,6 +7754,11 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     PROTO_ITEM_SET_GENERATED(ti);
 
+    if(itl){
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
     if(itlq->last_exchange_frame){
         ti=proto_tree_add_uint(scsi_tree, hf_scsi_response_frame, tvb, 0, 0, itlq->last_exchange_frame);
         PROTO_ITEM_SET_GENERATED(ti);
@@ -7817,7 +7822,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->current_proto="SCSI";
 
     opcode = cdata->itlq->scsi_opcode;
-    devtype = cdata->itl->cmdset;
+    devtype = cdata->itl->cmdset&SCSI_CMDSET_MASK;
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
@@ -7846,7 +7851,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     PROTO_ITEM_SET_GENERATED(ti);
 
     if(itl){
-        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset, "Command Set:%s (0x%02x)", val_to_str(itl->cmdset, scsi_devtype_val, "Unknown"), itl->cmdset);
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
         PROTO_ITEM_SET_GENERATED(ti);
 
         if(itlq && itlq->scsi_opcode!=0xffff){
@@ -7910,15 +7915,18 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
         g_assert_not_reached();
     }
 
-    if(itl && itl->cmdset!=0xff){
-        cmdset=itl->cmdset;
+    if(itl){
+	if(itl->cmdset==0xff){
+	    itl->cmdset=scsi_def_devtype|SCSI_CMDSET_DEFAULT;
+	}
+	cmdset=itl->cmdset;
     } else {
-        cmdset=scsi_def_devtype;
+	cmdset=scsi_def_devtype;
     }
 
     csdata=ep_alloc(sizeof(cmdset_t));
 
-    switch(cmdset){
+    switch(cmdset&SCSI_CMDSET_MASK){
     case SCSI_DEV_SBC:
         csdata->hf_opcode=hf_scsi_sbcopcode;
         csdata->cdb_vals=scsi_sbc2_vals;

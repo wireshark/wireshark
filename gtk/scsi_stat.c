@@ -123,7 +123,7 @@ scsistat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		return 0;
 	}
 	/* we are only interested in a specific commandset */
-	if( (!ri->itl) || (ri->itl->cmdset!=rs->cmdset) ){
+	if( (!ri->itl) || ((ri->itl->cmdset&SCSI_CMDSET_MASK)!=rs->cmdset) ){
 		return 0;
 	}
 	/* check that the opcode looks sane */

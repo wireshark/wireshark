@@ -130,7 +130,16 @@ ETH_VAR_IMPORT const value_string fc_fc4_val[];
  * for a initiator target lun combination.
  */
 typedef struct _itl_nexus_t {
-    guint8 cmdset;         /* initialized to 0xff == unknown */
+#define SCSI_CMDSET_DEFAULT	0x80
+#define SCSI_CMDSET_MASK	0x7f
+    guint8 cmdset;         /* This is a bitfield.
+			    * The MSB (0x80) represents whether 
+			    * 0: the commandset is known from a INQ PDU
+			    * 1: is using the "default" from preferences.
+			    * The lower 7 bits represent the commandset used
+			    * for decoding commands on this itl nexus.
+			    * The field is initialized to 0xff == unknown.
+			    */
 } itl_nexus_t;
 
 /* Structure containing itlq nexus data :
