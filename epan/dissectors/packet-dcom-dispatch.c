@@ -364,16 +364,10 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 	if (u32Pointer2) {
 		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, dispparams_tree, drep, 
 								&u32ArraySize);
-		u32VariableOffset = offset + u32ArraySize * 4;
 		while(u32ArraySize--) {
-			u32VariableOffset = dissect_dcom_dcerpc_pointer(tvb, u32VariableOffset, pinfo, dispparams_tree, drep, 
-									&u32Pointer);
-			if (u32Pointer) {
-				offset = dissect_dcom_DWORD(tvb, offset, pinfo, dispparams_tree, drep, 
-						hf_dispatch_id, &u32DispIdMember);
-			}
+			offset = dissect_dcom_DWORD(tvb, offset, pinfo, dispparams_tree, drep, 
+					hf_dispatch_id, &u32DispIdMember);
 		}
-		offset = u32VariableOffset;
 	}
 
 	proto_item_append_text(dispparams_item, ", Args: %u NamedArgs: %u", u32Args, u32NamedArgs);
