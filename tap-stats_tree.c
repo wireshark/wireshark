@@ -82,7 +82,8 @@ static void  init_stats_tree(const char *optarg,void* userdata _U_) {
 			if (strncmp (optarg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
 				st = stats_tree_new(cfg,NULL,((guint8*)optarg)+strlen(cfg->pr->init_string));
 			} else {
-				st->filter=NULL;
+				report_failure("Wrong stats_tree (%s) found when looking at ->init_string",abbr);
+				return;
 			}
 		} else {
 			report_failure("no such stats_tree (%s) found in stats_tree registry",abbr);
