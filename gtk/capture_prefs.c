@@ -171,9 +171,7 @@ capture_prefs_show(void)
 	    "Hide capture info dialog:", NULL,
 	    !prefs.capture_show_info);
     gtk_tooltips_set_tip(tooltips, show_info_cb,
-        "Hide the capture info dialog while capturing. "
-        "Will only take effect, if the \"Update list of packets in real time\" "
-        "option is also used.", NULL);
+        "Hide the capture info dialog while capturing. ", NULL);
 	OBJECT_SET_DATA(main_vb, SHOW_INFO_KEY, show_info_cb);
 
 	/* Show 'em what we got */

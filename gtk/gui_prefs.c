@@ -238,22 +238,23 @@ gui_prefs_show(void)
 	console_open_om = create_preference_option_menu(main_tb, pos++,
 		"Open a console window", NULL, gui_console_open_vals, 
 		prefs.gui_console_open);
-	gtk_tooltips_set_tip(tooltips, console_open_om, "Whether to save the "
-		"maximed state of the main window.", NULL);
+	gtk_tooltips_set_tip(tooltips, console_open_om, "Whether to open a console window "
+		"(Automatic will open a console if messages appear).", NULL);
 	OBJECT_SET_DATA(main_vb, GUI_CONSOLE_OPEN_KEY, console_open_om);
 #endif
 
 	/* Allow user to select where they want the File Open dialog to open to
 	 * by default */
 	fileopen_rb = create_preference_radio_buttons(main_tb, pos++,
-	    "\"File Open\" dialog behavior:", NULL, gui_fileopen_vals,
+	    "\"File Open\" dialog behavior:", 
+        "Which directory the \"File Open\" dialog should start with.", gui_fileopen_vals,
 	    prefs.gui_fileopen_style);
 
 	/* Directory to default File Open dialog to */
 	fileopen_dir_te = create_preference_entry(main_tb, pos++, 
         "Directory:", NULL, prefs.gui_fileopen_dir);
-	gtk_tooltips_set_tip(tooltips, fileopen_dir_te, "Directory to "
-		"default File Open dialog to.", NULL);
+	gtk_tooltips_set_tip(tooltips, fileopen_dir_te,
+		"The \"File Open\" dialog defaults always to this directory.", NULL);
 	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_KEY, fileopen_rb);
 	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
 	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
@@ -265,8 +266,8 @@ gui_prefs_show(void)
 	    "\"File Open\" preview timeout:", "Timeout, until preview gives up scanning the capture file content.", open_file_preview_str);
 	g_snprintf(current_val_str, 128, "%d", prefs.gui_fileopen_preview);
 	gtk_entry_set_text(GTK_ENTRY(fileopen_preview_te), current_val_str);
-	gtk_tooltips_set_tip(tooltips, fileopen_preview_te, "Set delay until file "
-		"is read for preview data.", NULL);
+	gtk_tooltips_set_tip(tooltips, fileopen_preview_te, 
+        "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.", NULL);
 	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_PREVIEW_KEY, fileopen_preview_te);
 	SIGNAL_CONNECT(fileopen_preview_te, "focus_out_event", fileopen_preview_changed_cb, main_vb);
 
@@ -275,8 +276,8 @@ gui_prefs_show(void)
 	    "\"Open Recent\" max. list entries:", "Maximum number of recent files", recent_files_count_max_str);
 	g_snprintf(current_val_str, 128, "%d", prefs.gui_recent_files_count_max);
 	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
-	gtk_tooltips_set_tip(tooltips, recent_files_count_max_te, "Number of entries  "
-		"in the recent_files list.", NULL);
+	gtk_tooltips_set_tip(tooltips, recent_files_count_max_te, 
+        "Maximum number of entries in the \"File/Open Recent\" list.", NULL);
 	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
 	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
 
