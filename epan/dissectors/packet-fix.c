@@ -843,7 +843,10 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
-    proto_tree *fix_tree;
+    proto_tree *fix_tree = NULL;  /* eliminates warning that can be safely ignored */
+    /* GCC may complain that fix_tree can be used before it is initialized.  However,
+       fix_tree is initialized in the switch statement handler for type '8' which
+       MUST be the first field in a valid FIX message. */
 
     gint next;
     int linelen;
@@ -852,9 +855,13 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int tag;
     char *value;
     char *tag_str;
+    char *msg_type;
     int field_len = 0;
     int tag_len = 0;
     int value_len = 0;
+    int msg_count = 0;
+    GString *label = NULL;
+    GString *summary_label = NULL;
 
     /* get at least the fix version: 8=FIX.x.x */
     if (tvb_strneql(tvb, 0, "8=FIX.", 6) != 0) {
@@ -906,12 +913,13 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        char *msg_type;
-
         value = tvb_get_ephemeral_string(tvb, value_offset, value_len);
         msg_type = (char *)g_datalist_get_data(&msg_types, value);
         if(msg_type) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_type);
+            summary_label = g_string_new(msg_type);
+        } else {
+            summary_label = g_string_new("FIX Message");
+            g_string_sprintfa(summary_label, " (%s)", value);
         }
     }
 
@@ -919,10 +927,6 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * necessary to generate protocol tree items.
      */
     if (tree) {
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, FALSE);
-        fix_tree = proto_item_add_subtree(ti, ett_fix);
-
         field_offset = offset = 0;
         ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
         if (ctrla_offset == -1) {
@@ -996,6 +1000,14 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_string(fix_tree, hf_fix_BeginSeqNo, tvb, offset, field_len, value);
                     break;
                 case 8: /* Field BeginString */
+                    /* BeginString is always the first field of a fix message.  The first
+                       check in this routine looks for the BeginString field to verify that
+                       the packet contains at least one fix message.  Create display subtree
+                       for the fix message */
+                    ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, FALSE);
+                    fix_tree = proto_item_add_subtree(ti, ett_fix);
+                    ++msg_count;
+
                     proto_tree_add_string(fix_tree, hf_fix_BeginString, tvb, offset, field_len, value);
                     break;
                 case 9: /* Field BodyLength */
@@ -1077,7 +1089,13 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_string(fix_tree, hf_fix_MsgSeqNum, tvb, offset, field_len, value);
                     break;
                 case 35: /* Field MsgType */
-                    proto_tree_add_string(fix_tree, hf_fix_MsgType, tvb, offset, field_len, value);
+                    /* We have a mapping of MsgType to descriptive strings, use it to
+                       enhance the value display for the MsgType field */
+                    label = g_string_new(value);
+                    msg_type = (char *)g_datalist_get_data(&msg_types, value);
+                    if (NULL != msg_type) g_string_sprintfa(label, " (%s)", msg_type);
+                    proto_tree_add_string(fix_tree, hf_fix_MsgType, tvb, offset, field_len, label->str);
+                    g_string_free(label, TRUE);
                     break;
                 case 36: /* Field NewSeqNo */
                     proto_tree_add_string(fix_tree, hf_fix_NewSeqNo, tvb, offset, field_len, value);
@@ -3004,6 +3022,13 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             tag_str = NULL;
         }
+    }
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        if (msg_count > 1)
+            g_string_sprintfa(summary_label, " (%d)", msg_count);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", summary_label->str);
+        g_string_free(summary_label, TRUE);
     }
 
     return TRUE;
