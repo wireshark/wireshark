@@ -56,7 +56,11 @@
 
 static dissector_handle_t ulp_handle=NULL;
 
-guint gbl_ulp_port = 59910;
+/* IANA Registered Ports  
+ * oma-ulp         7275/tcp    OMA UserPlane Location
+ * oma-ulp         7275/udp    OMA UserPlane Location
+ */
+guint gbl_ulp_port = 7275;
 
 /* Initialize the protocol and registered fields */
 static int proto_ulp = -1;
@@ -96,10 +100,11 @@ static int hf_ulp_slpId = -1;                     /* SLPAddress */
 static int hf_ulp_ipv4Address = -1;               /* OCTET_STRING_SIZE_4 */
 static int hf_ulp_ipv6Address = -1;               /* OCTET_STRING_SIZE_16 */
 static int hf_ulp_fQDN = -1;                      /* FQDN */
+static int hf_ulp_cellInfo = -1;                  /* CellInfo */
+static int hf_ulp_status = -1;                    /* Status */
 static int hf_ulp_gsmCell = -1;                   /* GsmCellInformation */
 static int hf_ulp_wcdmaCell = -1;                 /* WcdmaCellInformation */
 static int hf_ulp_cdmaCell = -1;                  /* CdmaCellInformation */
-static int hf_ulp_status = -1;                    /* Status */
 static int hf_ulp_timestamp = -1;                 /* UTCTime */
 static int hf_ulp_positionEstimate = -1;          /* PositionEstimate */
 static int hf_ulp_velocity = -1;                  /* Velocity */
@@ -240,7 +245,7 @@ static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
 static int hf_ulp_rrc = -1;                       /* BOOLEAN */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 58 "packet-ulp-template.c"
+#line 62 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -307,7 +312,7 @@ static gint ett_ulp_PosTechnology = -1;
 static gint ett_ulp_PosProtocol = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 62 "packet-ulp-template.c"
+#line 66 "packet-ulp-template.c"
 
 /* Include constants */
 
@@ -320,7 +325,7 @@ static gint ett_ulp_PosProtocol = -1;
 #define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 65 "packet-ulp-template.c"
+#line 69 "packet-ulp-template.c"
 
 
 /*--- Included file: packet-ulp-fn.c ---*/
@@ -1659,6 +1664,33 @@ static int dissect_cdmaCell(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+static const value_string ulp_CellInfo_vals[] = {
+  {   0, "gsmCell" },
+  {   1, "wcdmaCell" },
+  {   2, "cdmaCell" },
+  { 0, NULL }
+};
+
+static const per_choice_t CellInfo_choice[] = {
+  {   0, "gsmCell"                     , ASN1_EXTENSION_ROOT    , dissect_gsmCell },
+  {   1, "wcdmaCell"                   , ASN1_EXTENSION_ROOT    , dissect_wcdmaCell },
+  {   2, "cdmaCell"                    , ASN1_EXTENSION_ROOT    , dissect_cdmaCell },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_ulp_CellInfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                                 ett_ulp_CellInfo, CellInfo_choice,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_cellInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_ulp_CellInfo(tvb, offset, pinfo, tree, hf_ulp_cellInfo);
+}
+
+
 static const value_string ulp_Status_vals[] = {
   {   0, "stale" },
   {   1, "current" },
@@ -1680,9 +1712,7 @@ static int dissect_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 static const per_sequence_t LocationId_sequence[] = {
-  { "gsmCell"                     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_gsmCell },
-  { "wcdmaCell"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_wcdmaCell },
-  { "cdmaCell"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cdmaCell },
+  { "cellInfo"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cellInfo },
   { "status"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_status },
   { NULL, 0, 0, NULL }
 };
@@ -2583,30 +2613,6 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   return offset;
 }
 
-
-static const value_string ulp_CellInfo_vals[] = {
-  {   0, "gsmCell" },
-  {   1, "wcdmaCell" },
-  {   2, "cdmaCell" },
-  { 0, NULL }
-};
-
-static const per_choice_t CellInfo_choice[] = {
-  {   0, "gsmCell"                     , ASN1_EXTENSION_ROOT    , dissect_gsmCell },
-  {   1, "wcdmaCell"                   , ASN1_EXTENSION_ROOT    , dissect_wcdmaCell },
-  {   2, "cdmaCell"                    , ASN1_EXTENSION_ROOT    , dissect_cdmaCell },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_ulp_CellInfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_ulp_CellInfo, CellInfo_choice,
-                                 NULL);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -2615,7 +2621,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 67 "packet-ulp-template.c"
+#line 71 "packet-ulp-template.c"
 
 
 /*--- proto_register_ulp -------------------------------------------*/
@@ -2751,22 +2757,26 @@ void proto_register_ulp(void) {
       { "fQDN", "ulp.fQDN",
         FT_STRING, BASE_NONE, NULL, 0,
         "SLPAddress/fQDN", HFILL }},
-    { &hf_ulp_gsmCell,
-      { "gsmCell", "ulp.gsmCell",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_ulp_wcdmaCell,
-      { "wcdmaCell", "ulp.wcdmaCell",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_ulp_cdmaCell,
-      { "cdmaCell", "ulp.cdmaCell",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
+    { &hf_ulp_cellInfo,
+      { "cellInfo", "ulp.cellInfo",
+        FT_UINT32, BASE_DEC, VALS(ulp_CellInfo_vals), 0,
+        "LocationId/cellInfo", HFILL }},
     { &hf_ulp_status,
       { "status", "ulp.status",
         FT_UINT32, BASE_DEC, VALS(ulp_Status_vals), 0,
         "LocationId/status", HFILL }},
+    { &hf_ulp_gsmCell,
+      { "gsmCell", "ulp.gsmCell",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CellInfo/gsmCell", HFILL }},
+    { &hf_ulp_wcdmaCell,
+      { "wcdmaCell", "ulp.wcdmaCell",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CellInfo/wcdmaCell", HFILL }},
+    { &hf_ulp_cdmaCell,
+      { "cdmaCell", "ulp.cdmaCell",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CellInfo/cdmaCell", HFILL }},
     { &hf_ulp_timestamp,
       { "timestamp", "ulp.timestamp",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -3321,7 +3331,7 @@ void proto_register_ulp(void) {
         "PosProtocol/rrc", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 76 "packet-ulp-template.c"
+#line 80 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -3390,7 +3400,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 82 "packet-ulp-template.c"
+#line 86 "packet-ulp-template.c"
   };
 
 

@@ -48,7 +48,11 @@
 
 static dissector_handle_t ulp_handle=NULL;
 
-guint gbl_ulp_port = 59910;
+/* IANA Registered Ports  
+ * oma-ulp         7275/tcp    OMA UserPlane Location
+ * oma-ulp         7275/udp    OMA UserPlane Location
+ */
+guint gbl_ulp_port = 7275;
 
 /* Initialize the protocol and registered fields */
 static int proto_ulp = -1;

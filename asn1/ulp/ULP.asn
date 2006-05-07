@@ -92,11 +92,16 @@ FQDN ::= VisibleString(SIZE (1..255))
 
 Ver ::= BIT STRING(SIZE (64))
 
-LocationId ::= SEQUENCE {gsmCell    GsmCellInformation OPTIONAL,
-                         wcdmaCell  WcdmaCellInformation OPTIONAL,
-                         cdmaCell   CdmaCellInformation OPTIONAL,
-                         status    Status,
-                         ...}
+--LocationId ::= SEQUENCE {gsmCell    GsmCellInformation OPTIONAL,
+--                         wcdmaCell  WcdmaCellInformation OPTIONAL,
+--                         cdmaCell   CdmaCellInformation OPTIONAL,
+--                         status    Status,
+--                         ...}
+LocationId ::= SEQUENCE {
+	cellInfo 	CellInfo,
+	status 		Status,
+	...
+}
 
 Status ::= ENUMERATED {stale(0), current(1), unknown(2), ...
                        }
