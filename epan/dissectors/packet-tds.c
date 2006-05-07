@@ -174,7 +174,7 @@
 #define TDS_LOG_CHN_ACK_PKT 11
 #define TDS_ECHO_PKT        12
 #define TDS_LOGOUT_CHN_PKT  13
-#define TDS_QUERY5_PKT      15  /* or "Normal tokenized request or response */
+#define TDS_QUERY5_PKT      15	/* or "Normal tokenized request or response */
 #define TDS_LOGIN7_PKT      16	/* or "Urgent tokenized request or response */
 #define TDS_NTLMAUTH_PKT    17
 #define TDS_XXX7_PKT        18	/* seen in one capture */
@@ -182,45 +182,57 @@
 #define is_valid_tds_type(x) ((x) >= TDS_QUERY_PKT && (x) <= TDS_XXX7_PKT)
 
 /* The following constants are imported more or less directly from FreeTDS */
-/* TODO Update from current version of FreeTDS tds.h                       */
+/*      Updated from FreeTDS v0.63 tds.h                                   */
+/*         "$Id: tds.h,v 1.192 2004/10/28 12:42:12 freddy77]"              */
+/* Note: [###] below means 'not defined in FreeTDS tds.h'                  */
 
-#define TDS5_PARAMS_TOKEN   215  /* 0xD7    TDS 5.0 only              */
-#define TDS5_DYNAMIC_TOKEN  231  /* 0xE7    TDS 5.0 only              */
-#define TDS5_PARAMFMT_TOKEN 236  /* 0xEC    TDS 5.0 only              */
-#define TDS5_PARAMFMT2_TOKEN 32  /* 0x20    TDS 5.0 only              */
-#define TDS_LANG_TOKEN       33  /* 0x21    TDS 5.0 only              */
-#define TDS5_ORDERBY2_TOKEN  34  /* 0x22    TDS 5.0 only              */
-#define TDS5_CURDECLARE2_TOKEN  35  /* 0x23    TDS 5.0 only              */
-#define TDS5_ROWFMT2_TOKEN   97  /* 0x61    TDS 5.0 only              */
-#define TDS5_MSG_TOKEN      101  /* 0x65    TDS 5.0 only              */
-#define TDS_LOGOUT_TOKEN    113  /* 0x71    TDS 5.0 only? ct_close()  */
-#define TDS_RET_STAT_TOKEN  121  /* 0x79                              */
-#define TDS_PROCID_TOKEN    124  /* 0x7C    TDS 4.2 only - TDS_PROCID */
-#define TDS7_RESULT_TOKEN   129  /* 0x81    TDS 7.0 only              */
-#define TDS_COL_NAME_TOKEN  160  /* 0xA0    TDS 4.2 only              */
-#define TDS_COL_INFO_TOKEN  161  /* 0xA1    TDS 4.2 only - TDS_COLFMT */
-#define TDS5_DYNAMIC2_TOKEN 163  /* 0xA3    TDS 5.0 only              */
-/*#define  TDS_TABNAME   164 */
-/*#define  TDS_COL_INFO   165 */
-#define TDS_COMPUTE_NAMES_TOKEN   167	/* 0xA7 */
-#define TDS_COMPUTE_RESULT_TOKEN  168	/* 0xA8 */
-#define TDS_ORDER_BY_TOKEN  169  /* 0xA9    TDS_ORDER                 */
-#define TDS_ERR_TOKEN       170  /* 0xAA                              */
-#define TDS_MSG_TOKEN       171  /* 0xAB                              */
-#define TDS_PARAM_TOKEN     172  /* 0xAC    RETURNVALUE?              */
-#define TDS_LOGIN_ACK_TOKEN 173  /* 0xAD                              */
-#define TDS_CONTROL_TOKEN   174  /* 0xAE    TDS_CONTROL               */
-#define TDS_KEY_TOKEN       202  /* 0xCA                              */
-#define TDS_ROW_TOKEN       209  /* 0xD1                              */
-#define TDS_CMP_ROW_TOKEN   211  /* 0xD3                              */
-#define TDS_CAP_TOKEN       226  /* 0xE2                              */
-#define TDS_ENV_CHG_TOKEN   227  /* 0xE3                              */
-#define TDS_EED_TOKEN       229  /* 0xE5                              */
-#define TDS_AUTH_TOKEN      237  /* 0xED                              */
-#define TDS_RESULT_TOKEN    238  /* 0xEE                              */
-#define TDS_DONE_TOKEN      253  /* 0xFD    TDS_DONE                  */
-#define TDS_DONEPROC_TOKEN  254  /* 0xFE    TDS_DONEPROC              */
-#define TDS_DONEINPROC_TOKEN 255  /* 0xFF    TDS_DONEINPROC            */
+#define TDS5_PARAMFMT2_TOKEN       32  /* 0x20    TDS 5.0 only              */
+#define TDS_LANG_TOKEN             33  /* 0x21    TDS 5.0 only              */
+#define TDS5_ORDERBY2_TOKEN        34  /* 0x22    TDS 5.0 only              */
+#define TDS5_CURDECLARE2_TOKEN     35  /* 0x23    TDS 5.0 only        [###] */
+#define TDS5_ROWFMT2_TOKEN         97  /* 0x61    TDS 5.0 only              */
+#define TDS5_MSG_TOKEN            101  /* 0x65    TDS 5.0 only        [###] */
+#define TDS_LOGOUT_TOKEN          113  /* 0x71    TDS 5.0 only? ct_close()  */
+#define TDS_RET_STAT_TOKEN        121  /* 0x79                              */
+#define TDS_PROCID_TOKEN          124  /* 0x7C    TDS 4.2 only - TDS_PROCID */
+#define TDS_CURCLOSE_TOKEN        128  /* 0x80    TDS 5.0 only              */
+#define TDS7_RESULT_TOKEN         129  /* 0x81    TDS 7.0 only              */
+#define TDS_CURFETCH_TOKEN        130  /* 0x82    TDS 5.0 only              */
+#define TDS_CURINFO_TOKEN         131  /* 0x83    TDS 5.0 only              */
+#define TDS_CUROPEN_TOKEN         132  /* 0x84    TDS 5.0 only              */
+#define TDS_CURDECLARE_TOKEN      134  /* 0x86    TDS 5.0 only              */
+#define TDS7_COMPUTE_RESULT_TOKEN 136  /* 0x88    TDS 7.0 only              */
+#define TDS_COL_NAME_TOKEN        160  /* 0xA0    TDS 4.2 only              */
+#define TDS_COL_INFO_TOKEN        161  /* 0xA1    TDS 4.2 only - TDS_COLFMT */
+#define TDS5_DYNAMIC2_TOKEN       163  /* 0xA3    TDS 5.0 only              */
+#if 0 /* XX: Why commented out ? These are 'live' in FreeTDS tds.h */
+ #define TDS_TABNAME               164  /* 0xA4                              */
+ #define TDS_COL_INFO              165  /* 0xA5                              */
+#endif
+#define TDS_OPTIONCMD_TOKEN       166  /* 0xA6 */
+#define TDS_COMPUTE_NAMES_TOKEN   167  /* 0xA7 */
+#define TDS_COMPUTE_RESULT_TOKEN  168  /* 0xA8 */
+#define TDS_ORDER_BY_TOKEN        169  /* 0xA9    TDS_ORDER                 */
+#define TDS_ERR_TOKEN             170  /* 0xAA                              */
+#define TDS_MSG_TOKEN             171  /* 0xAB                              */
+#define TDS_PARAM_TOKEN           172  /* 0xAC    RETURNVALUE?              */
+#define TDS_LOGIN_ACK_TOKEN       173  /* 0xAD                              */
+#define TDS_CONTROL_TOKEN         174  /* 0xAE    TDS_CONTROL               */
+#define TDS_KEY_TOKEN             202  /* 0xCA                        [###] */
+#define TDS_ROW_TOKEN             209  /* 0xD1                              */
+#define TDS_CMP_ROW_TOKEN         211  /* 0xD3                              */
+#define TDS5_PARAMS_TOKEN         215  /* 0xD7    TDS 5.0 only              */
+#define TDS_CAP_TOKEN             226  /* 0xE2                              */
+#define TDS_ENV_CHG_TOKEN         227  /* 0xE3                              */
+#define TDS_EED_TOKEN             229  /* 0xE5                              */
+#define TDS_DBRPC_TOKEN           230  /* 0xE6                              */
+#define TDS5_DYNAMIC_TOKEN        231  /* 0xE7    TDS 5.0 only              */
+#define TDS5_PARAMFMT_TOKEN       236  /* 0xEC    TDS 5.0 only              */
+#define TDS_AUTH_TOKEN            237  /* 0xED                              */
+#define TDS_RESULT_TOKEN          238  /* 0xEE                              */
+#define TDS_DONE_TOKEN            253  /* 0xFD    TDS_DONE                  */
+#define TDS_DONEPROC_TOKEN        254  /* 0xFE    TDS_DONEPROC              */
+#define TDS_DONEINPROC_TOKEN      255  /* 0xFF    TDS_DONEINPROC            */
 
 /* Microsoft internal stored procedure id's */
 
@@ -269,8 +281,8 @@
 #define SYBFLTN       109  /* 0x6D */
 #define SYBMONEYN     110  /* 0x6E */
 #define SYBDATETIMN   111  /* 0x6F */
-#define XSYBCHAR      167  /* 0xA7 */
-#define XSYBVARCHAR   175  /* 0xAF */
+#define XSYBCHAR      175  /* 0xA7 */
+#define XSYBVARCHAR   167  /* 0xAF */
 #define XSYBNVARCHAR  231  /* 0xE7 */
 #define XSYBNCHAR     239  /* 0xEF */
 #define XSYBVARBINARY 165  /* 0xA5 */
@@ -781,7 +793,6 @@ static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset, i, offset2, len;
-	gboolean is_unicode = TRUE;
 	char *val;
 
 	proto_item *login_hdr;
@@ -867,16 +878,13 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			len);
 		if (len != 0) {
 			if( i != 2) {
-				if (is_unicode == TRUE) {
-					val = tvb_get_ephemeral_faked_unicode(tvb, offset2, len, TRUE);
-					len *= 2;
-				} else
-					val = tvb_get_ephemeral_string(tvb, offset2, len);
+				/* tds 7 is always unicode */
+				val = tvb_get_ephemeral_faked_unicode(tvb, offset2, len, TRUE);
+				len *= 2;
 				proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
 			}
 			else {
-				if (is_unicode)
-					len *= 2;
+				len *= 2;
 				proto_tree_add_text(login_tree, tvb, offset2, len, "%s", val_to_str(i, login_field_names, "Unknown"));
 			}
 		}
