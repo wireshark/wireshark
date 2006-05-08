@@ -34,6 +34,8 @@
 #ifndef __PACKET_LDAP_H__
 #define __PACKET_LDAP_H__
 
+# include <epan/packet.h>  /* for dissector_*_t types */
+
 /*
  * These are all APPLICATION types; the value is the type tag.
  */
@@ -94,6 +96,8 @@ typedef struct ldap_call_response {
   guint protocolOpTag;
 } ldap_call_response_t;
 
+void register_ldap_name_dissector_handle(const char *attr_type, dissector_handle_t dissector);
+void register_ldap_name_dissector(const char *attr_type, dissector_t dissector, int proto);
 
 /*#include "packet-ldap-exp.h" */
 

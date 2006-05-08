@@ -239,6 +239,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY LDAPString
   tvbuff_t	*parameter_tvb = NULL;
   char          *ldapstring;
+  gchar		*sc = NULL; /* semi-colon pointer */
  
   %(DEFAULT_BODY)s
 
@@ -270,6 +271,23 @@ ldap_conv_info_t *ldap_info;
 
         if(ldm_tree)
   	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
+     } else if (hf_index == hf_ldap_type) {
+	/* remember attribute type name */
+	attr_type = ep_strdup(ldapstring);
+
+	/* append it to the parent entry */
+	proto_item_append_text(tree, " %%s", attr_type);
+
+	/* remove the ";binary" component if present */
+	if((sc = strchr(attr_type, ';')) != NULL) {
+		if(!strcmp(sc, ";binary")) {
+			*sc = '\0'; /* terminate the string */
+			is_binary_attr_type = TRUE;
+		}
+	} else {
+		is_binary_attr_type = FALSE;
+	}
+
      }
      
      if(parameter_tvb && ldapstring)
@@ -338,6 +356,42 @@ ldap_conv_info_t *ldap_info;
       proto_item_append_text(ldm_tree, " %%s", valstr); 
 
   }
+
+  
+#.FN_BODY AttributeValue
+
+  tvbuff_t	*next_tvb;
+  gchar		*string;
+  guint32	i, len;
+  proto_item 	*pi;
+  int           old_offset = offset;
+
+  /* extract the value of the octetstring */
+  offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, offset, hf_index, &next_tvb);
+
+  /* if we have an attribute type that isn't binary see if there is a better dissector */
+  if(!attr_type || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, pinfo, tree)) {
+	offset = old_offset;
+	
+	/* do the default thing */
+	%(DEFAULT_BODY)s	
+
+  } 
+
+  len = tvb_length_remaining(next_tvb, 0);
+  
+  for(i = 0; i < len; i++) 
+    if(!g_ascii_isprint(tvb_get_guint8(next_tvb, i)))
+      break;
+  
+  if(i == len) {
+    string = tvb_get_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
+ 
+    pi = get_ber_last_created_item();
+     
+    proto_item_set_text(pi, string);
+
+  }
   
 #.FN_PARS AuthenticationChoice VAL_PTR = &branch
   
@@ -350,7 +404,7 @@ ldap_conv_info_t *ldap_info;
   
   ldap_do_protocolop(pinfo);
   
-  if((branch > -1) && (branch < (sizeof AuthenticationChoice_choice/sizeof AuthenticationChoice_choice[0])))
+  if((branch > -1) && (branch < (gint)(sizeof AuthenticationChoice_choice/sizeof AuthenticationChoice_choice[0])))
     auth = AuthenticationChoice_choice[branch].value;
 
   valstr = val_to_str(auth, ldap_AuthenticationChoice_vals, "Unknown auth(%%u)");
@@ -370,7 +424,6 @@ ldap_conv_info_t *ldap_info;
 
  ldap_do_protocolop(pinfo);  
 
-#.NO_EMIT 
-AttributeDescription
-AttributeValue
-  
+#.NO_EMIT
+AttributeType
+Attribute

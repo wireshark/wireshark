@@ -39,6 +39,7 @@
 #include "packet-x509ce.h"
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
+#include "packet-ldap.h"
 
 #define PNAME  "X.509 Authentication Framework"
 #define PSNAME "X509AF"
@@ -95,11 +96,11 @@ void proto_register_x509af(void) {
   static hf_register_info hf[] = {
     { &hf_x509af_algorithm_id,
       { "Algorithm Id", "x509af.algorithm.id",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Algorithm Id", HFILL }},
     { &hf_x509af_extension_id,
       { "Extension Id", "x509af.extension.id",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "Extension Id", HFILL }},
 #include "packet-x509af-hfarr.c"
   };
@@ -154,5 +155,19 @@ void proto_reg_handoff_x509af(void) {
 	register_ber_oid_dissector("1.3.14.3.2.24", dissect_ber_oid_NULL_callback, proto_x509af, "md2WithRSASignature");
 	register_ber_oid_dissector("1.3.14.3.2.25", dissect_ber_oid_NULL_callback, proto_x509af, "md5WithRSASignature");
 	register_ber_oid_dissector("1.3.14.3.2.26", dissect_ber_oid_NULL_callback, proto_x509af, "SHA-1");
+
+	/* these will generally be encoded as ";binary" in LDAP */
+
+	register_ldap_name_dissector("cACertificate", dissect_Certificate_PDU, proto_x509af);
+	register_ldap_name_dissector("certificate", dissect_Certificate_PDU, proto_x509af);
+	
+	register_ldap_name_dissector("certificateRevocationList", dissect_CertificateList_PDU, proto_x509af);
+	register_ldap_name_dissector("crl", dissect_CertificateList_PDU, proto_x509af);
+
+	register_ldap_name_dissector("authorityRevocationList", dissect_CertificateList_PDU, proto_x509af);
+	register_ldap_name_dissector("arl", dissect_CertificateList_PDU, proto_x509af);
+
+	register_ldap_name_dissector("crossCertificatePair", dissect_CertificatePair_PDU, proto_x509af);
+
 }
 
