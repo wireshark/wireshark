@@ -265,6 +265,7 @@ typedef struct _ndmp_task_data_t {
 	guint32 request_frame;
 	guint32 response_frame;
 	nstime_t ndmp_time;
+	itlq_nexus_t *itlq;
 } ndmp_task_data_t;
 
 typedef struct _ndmp_conv_data_t {
@@ -273,6 +274,7 @@ typedef struct _ndmp_conv_data_t {
 	ndmp_task_data_t *task;
 } ndmp_conv_data_t;
 ndmp_conv_data_t *ndmp_conv_data=NULL;
+proto_tree *top_tree;
 
 static guint8 
 get_ndmp_protocol_version(ndmp_conv_data_t *ndmp_conv_data)
@@ -1137,7 +1139,6 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (cdb_len != 0) {
 		tvbuff_t *cdb_tvb;
 		int tvb_len, tvb_rlen;
-		itlq_nexus_t itlq;
 
 		tvb_len=tvb_length_remaining(tvb, offset);
 		if(tvb_len>16)
@@ -1147,15 +1148,19 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb_rlen=16;
 		cdb_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
-		/* create a fake itlq structure until we have proper
-		 * tracking in ndmp 
-		 */
-		itlq.lun=0xffff;
-
-		itlq.first_exchange_frame=0;
-		itlq.last_exchange_frame=0;
-		itlq.scsi_opcode=0xffff;
-		dissect_scsi_cdb(cdb_tvb, pinfo, tree, devtype, &itlq, NULL);
+		if(!ndmp_conv_data->task->itlq){
+			ndmp_conv_data->task->itlq=se_alloc(sizeof(ndmp_task_data_t));
+			ndmp_conv_data->task->itlq->lun=0xffff;
+			ndmp_conv_data->task->itlq->first_exchange_frame=pinfo->fd->num;
+			ndmp_conv_data->task->itlq->last_exchange_frame=0;
+			ndmp_conv_data->task->itlq->scsi_opcode=0xffff;
+			ndmp_conv_data->task->itlq->flags=0;
+			ndmp_conv_data->task->itlq->alloc_len=0;
+			ndmp_conv_data->task->itlq->fc_time=pinfo->fd->abs_ts;
+		}
+		if(ndmp_conv_data->task->itlq){
+			dissect_scsi_cdb(cdb_tvb, pinfo, top_tree, devtype, ndmp_conv_data->task->itlq, NULL);
+		}
 		offset += cdb_len_full;
 	}
 
@@ -1188,7 +1193,6 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	if (payload_len != 0) {
 		tvbuff_t *data_tvb;
 		int tvb_len, tvb_rlen;
-		itlq_nexus_t itlq;
 
 		tvb_len=tvb_length_remaining(tvb, offset);
 		if(tvb_len>(int)payload_len)
@@ -1198,16 +1202,10 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	    		tvb_rlen=payload_len;
 		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
-		/* create a fake itlq structure until we have proper
-		 * tracking in ndmp 
-		 */
-		itlq.lun=0xffff;
-
-		itlq.first_exchange_frame=0;
-		itlq.last_exchange_frame=0;
-		itlq.scsi_opcode=0xffff;
-		dissect_scsi_payload(data_tvb, pinfo, tree, isreq,
-		    &itlq, NULL);
+		if(ndmp_conv_data->task->itlq){
+			dissect_scsi_payload(data_tvb, pinfo, top_tree, isreq,
+		 		   ndmp_conv_data->task->itlq, NULL);
+		}
 		offset += payload_len_full;
 	}
 
@@ -1292,17 +1290,9 @@ dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	offset += 4;
 
 	if (sns_len != 0) {
-		itlq_nexus_t itlq;
-
-		/* create a fake itlq structure until we have proper
-		 * tracking in ndmp 
-		 */
-		itlq.lun=0xffff;
-
-		itlq.first_exchange_frame=0;
-		itlq.last_exchange_frame=0;
-		itlq.scsi_opcode=0xffff;
-		dissect_scsi_snsinfo(tvb, pinfo, tree, offset, sns_len, &itlq, NULL);
+		if(ndmp_conv_data->task->itlq){
+			dissect_scsi_snsinfo(tvb, pinfo, top_tree, offset, sns_len, ndmp_conv_data->task->itlq, NULL);
+		}
 		offset += sns_len_full;
 	}
 
@@ -1313,12 +1303,19 @@ static int
 dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq)
 {
+	guint32 status;
+
 	/* error */
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* status */
 	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, FALSE);
+	status=tvb_get_ntohl(tvb, offset);
+	if(ndmp_conv_data->task->itlq){
+		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, NULL, status);
+	}
 	offset += 4;
+
 
 	/* dataout_len */
 	proto_tree_add_item(tree, hf_ndmp_execute_cdb_dataout_len, tvb, offset, 4, FALSE);
@@ -2826,6 +2823,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *conversation;
 	proto_item *vers_item;
 
+	top_tree=tree; /* scsi should open its expansions on the top level */
+
 	/*
 	 * We need to keep track of conversations so that we can track NDMP 
 	 * versions.
@@ -2910,6 +2909,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ndmp_conv_data->task->request_frame=pinfo->fd->num;
 			ndmp_conv_data->task->response_frame=0;
 			ndmp_conv_data->task->ndmp_time=pinfo->fd->abs_ts;
+			ndmp_conv_data->task->itlq=NULL;
 			se_tree_insert32(ndmp_conv_data->tasks, nh.seq, ndmp_conv_data->task);
 		} else {
 			ndmp_conv_data->task=se_tree_lookup32(ndmp_conv_data->tasks, nh.seq);
@@ -2925,6 +2925,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if(ndmp_conv_data->task && !pinfo->fd->flags.visited){
 			ndmp_conv_data->task->response_frame=pinfo->fd->num;
+			if(ndmp_conv_data->task->itlq){
+				ndmp_conv_data->task->itlq->last_exchange_frame=pinfo->fd->num;
+			}
 		}
 		if(ndmp_conv_data->task && ndmp_conv_data->task->request_frame){
 			proto_item *it;
