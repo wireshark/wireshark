@@ -180,9 +180,10 @@
 #define WTAP_ENCAP_JUNIPER_GGSN                 87
 #define WTAP_ENCAP_LINUX_LAPD			88
 #define WTAP_ENCAP_CATAPULT_DCT2000             89
+#define WTAP_ENCAP_BER                          90
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			90
+#define WTAP_NUM_ENCAP_TYPES			91
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -232,9 +233,9 @@
 #define WTAP_FILE_ISERIES			42
 #define WTAP_FILE_ISERIES_UNICODE		43
 #define WTAP_FILE_CATAPULT_DCT2000		44
+#define WTAP_FILE_BER                           45
 
-/* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			45
+#define WTAP_NUM_FILE_TYPES			46
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC		0

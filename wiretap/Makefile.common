@@ -33,6 +33,7 @@ NONGENERATED_C_FILES = \
 	airopeek9.c		\
 	ascend.c		\
 	atm.c			\
+	ber.c			\
 	buffer.c		\
 	catapult_dct2000.c	\
 	cosine.c		\
@@ -70,6 +71,7 @@ NONGENERATED_HEADER_FILES = \
 	ascend.h		\
 	ascend-int.h		\
 	atm.h			\
+	ber.h			\
 	buffer.h		\
 	catapult_dct2000.h	\
 	cosine.h		\

@@ -2285,6 +2285,20 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	return offset;
 }
 
+static void
+dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Unknown BER");
+  }
+
+  (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
+
+}
+
+
 void
 proto_register_ber(void)
 {
@@ -2388,5 +2402,11 @@ proto_register_ber(void)
 void
 proto_reg_handoff_ber(void)
 {
+        dissector_handle_t ber_handle;
+
 	register_ber_oid_name("2.1.1","joint-iso-itu-t(2) asn1(1) basic-encoding(1)");
+
+	ber_handle = create_dissector_handle(dissect_ber, proto_ber);
+	dissector_add("wtap_encap", WTAP_ENCAP_BER, ber_handle);
+
 }

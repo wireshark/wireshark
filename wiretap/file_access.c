@@ -70,6 +70,7 @@
 #include "hcidump.h"
 #include "network_instruments.h"
 #include "k12.h"
+#include "ber.h"
 #include "catapult_dct2000.h"
 
 /* The open_file_* routines should return:
@@ -109,7 +110,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	dbs_etherwatch_open,
 	k12_open,
 	catapult_dct2000_open,
-	
+	ber_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -514,6 +515,11 @@ static const struct file_type_info {
 	/* WTAP_FILE_CATAPULT_DCT2000 */
 	{ "Catapult DCT2000 trace (.out format)", "dct2000", FALSE,
 	  catapult_dct2000_dump_can_write_encap, catapult_dct2000_dump_open },
+
+	/* WTAP_FILE_BER */
+	{ "ASN.1 Basic Encoding Rules", "ber", FALSE,
+		NULL, NULL },
+
 };
 
 /* Name that should be somewhat descriptive. */

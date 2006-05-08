@@ -357,6 +357,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_CATAPULT_DCT2000 */
 	{ "Catapult DCT2000", "dct2000" },
+
+	/* WTAP_ENCAP_BER */
+	{ "ASN.1 Basic Encoding Rules", "ber" },
 };
 
 /* Name that should be somewhat descriptive. */
