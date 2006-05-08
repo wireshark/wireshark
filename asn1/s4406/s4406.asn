@@ -8,7 +8,7 @@ BEGIN
 IMPORTS
 
 -- IPMS information objects
-IPMS-EXTENSION, ORDescriptor
+IPMS-EXTENSION, ORDescriptor, IPM, IPN, MessageParameters
 ---
 FROM IPMSInformationObjects { joint-iso-ccitt  mhs-motis(6) ipms(1)
 	modules(0) information-objects(2) }
@@ -43,11 +43,21 @@ FROM IPMSInformationObjects { joint-iso-ccitt  mhs-motis(6) ipms(1)
 FROM MTSAbstractService {joint-iso-ccitt  mhs-motis(6) mts(3)
 	modules(0) mts-abstract-service(1) };
 
+-- Information object
+InformationObject ::= CHOICE {mm  [0]  IPM,
+                              mn [1]   IPN
+}
+
+MMMessageData ::= IPM
+MMMessageParameters ::= MessageParameters
+
 -- exempted address
 
 --exempted-address IPMS-EXTENSION
 --	VALUE SEQUENCE OF ExemptedAddress
 --	::= id-nato-mmhs-mm-exempted-address
+
+ExemptedAddressSeq ::= ExemptedAddress
 
 ExemptedAddress ::= ORDescriptor
 
@@ -180,6 +190,8 @@ MessageIdentifier ::= MilitaryString
 --	VALUE SEQUENCE OF AddressListDesignator
 --	::=id-nato-mmhs-mm-address-list-indicator
 
+AddressListDesignatorSeq ::= SEQUENCE OF AddressListDesignator
+
 AddressListDesignator ::=SET {
 	type	[0]	INTEGER
 				{ primaryAddressList(0), copyAddressList(1) },
@@ -195,6 +207,8 @@ AddressListRequest ::= INTEGER { action(0), info(1), both(2) }
 --	VALUE SEQUENCE OF OtherRecipientDesignator
 --	::=id-nato-mmhs-mm-other-recipients-indicator
 
+OtherRecipientDesignatorSeq ::= SEQUENCE OF OtherRecipientDesignator
+
 OtherRecipientDesignator ::= SET {
 	type	[0]	INTEGER { primary(0), copy(1) },
 	designator	[1]	MilitaryString }
@@ -205,6 +219,8 @@ OtherRecipientDesignator ::= SET {
 --pilot-forwarding-info IPMS-EXTENSION
 --	VALUE SEQUENCE OF PilotInformation
 --	::= id-nato-mmhs-mm-pilot-forwarding-info
+
+PilotInformationSeq ::= SEQUENCE OF PilotInformation
 
 PilotInformation ::= SEQUENCE {
 	pilotPrecedence	[0]	PilotPrecedence OPTIONAL,

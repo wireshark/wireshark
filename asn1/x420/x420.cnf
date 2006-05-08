@@ -1,3 +1,6 @@
+#.TYPE_ATTR
+Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
+
 #.MODULE_IMPORT
 MTSAbstractService	x411
 AuthenticationFramework	x509af
@@ -13,6 +16,9 @@ ACSE-1			acse
 ORDescriptor
 InformationObject
 ExtensionsField
+IPM
+IPN
+MessageParameters
 
 #.FIELD_RENAME
 
@@ -50,7 +56,7 @@ AbsenceAdvice		B "2.6.1.19.0"  "id-on-absence-advice"
 ChangeOfAddressAdvice	B "2.6.1.19.1"  "id-on-change-of-address-advice"
 IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
 
-IncompleteCopy			B "2.6.1.5.0"	"id-hex-languages"
+IncompleteCopy			B "2.6.1.5.0"	"id-hex-incomplete-copy"
 Languages			B "2.6.1.5.1"	"id-hex-languages"
 AutoSubmitted			B "2.6.1.5.2"	"id-hex-auto-submitted"
 BodyPartSignatures		B "2.6.1.5.3"	"id-hex-body-part-signatures"
@@ -99,8 +105,8 @@ ForwardedContentParameters 	B "2.6.1.11.17.2.6.1.10.0" 	"id-ep-content-p2"
 InformationObject		B "2.6.1.4.17.2.6.1.10.0" 	"id-et-content-p2"
 #p722
 ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-p772"
-# this will display as P22 for now
-InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
+
+
 # PKCS#7Bodypart {id-et 18} defined in cms.cnf
 
 #.FN_PARS IPMSExtension/type
@@ -161,4 +167,6 @@ InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
 #.FN_BODY NationallyDefinedBodyPart
 /* XXX Not implemented yet */
 
+
+#.END
 

@@ -1,12 +1,18 @@
 #.IMPORT_TAG
 InformationObject        BER_CLASS_ANY/*choice*/ -1/*choice*/
+IPM                      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ORDescriptor             BER_CLASS_UNI BER_UNI_TAG_SET
 ExtensionsField          BER_CLASS_UNI BER_UNI_TAG_SET
+MessageParameters        BER_CLASS_UNI BER_UNI_TAG_SET
+IPN                      BER_CLASS_UNI BER_UNI_TAG_SET
 #.END
 
 #.TYPE_ATTR
 InformationObject        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x420_InformationObject_vals)  BITMASK = 0
+IPM                      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ORDescriptor             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ExtensionsField          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+MessageParameters        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+IPN                      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 #.END
 

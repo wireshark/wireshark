@@ -383,7 +383,7 @@ static gint ett_x420_SubmissionProof = -1;
 /*--- Cyclic dependencies ---*/
 
 /* IPM -> Body -> BodyPart -> MessageBodyPart -> MessageData -> IPM */
-static int dissect_x420_IPM(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_x420_IPM(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 static int dissect_ipm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x420_IPM(TRUE, tvb, offset, pinfo, tree, hf_x420_ipm);
@@ -645,7 +645,7 @@ static int dissect_telex_compatible_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 110 "x420.cnf"
+#line 116 "x420.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -666,7 +666,7 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_x420_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 118 "x420.cnf"
+#line 124 "x420.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
@@ -903,7 +903,7 @@ static int dissect_related_IPMs_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 140 "x420.cnf"
+#line 146 "x420.cnf"
   tvbuff_t *subject=NULL;
 
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -1235,7 +1235,7 @@ static int dissect_g3_facsimile_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 159 "x420.cnf"
+#line 165 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1468,7 +1468,7 @@ static const ber_sequence_t MessageParameters_set[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x420_MessageParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               MessageParameters_set, hf_index, ett_x420_MessageParameters);
@@ -1551,7 +1551,7 @@ static int dissect_bilaterally_defined_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 162 "x420.cnf"
+#line 168 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1650,9 +1650,9 @@ static const ber_sequence_t IPM_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 122 "x420.cnf"
+#line 128 "x420.cnf"
 
  if((hf_index == hf_x420_ipm) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " Message");
@@ -1976,9 +1976,9 @@ static const ber_sequence_t IPN_set[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 130 "x420.cnf"
+#line 136 "x420.cnf"
 
  if((hf_index == hf_x420_ipn) && check_col(pinfo->cinfo, COL_INFO))
    col_append_fstr(pinfo->cinfo, COL_INFO, " Notification");
@@ -2664,7 +2664,7 @@ dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 static int
 dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 151 "x420.cnf"
+#line 157 "x420.cnf"
   guint32 crs;
   proto_item *pi;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -3175,11 +3175,11 @@ void proto_register_x420(void) {
         "Heading/subject", HFILL }},
     { &hf_x420_expiry_time,
       { "expiry-time", "x420.expiry_time",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "Heading/expiry-time", HFILL }},
     { &hf_x420_reply_time,
       { "reply-time", "x420.reply_time",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "Heading/reply-time", HFILL }},
     { &hf_x420_reply_recipients,
       { "reply-recipients", "x420.reply_recipients",
@@ -3491,7 +3491,7 @@ void proto_register_x420(void) {
         "NonReceiptFields/nrn-extensions", HFILL }},
     { &hf_x420_receipt_time,
       { "receipt-time", "x420.receipt_time",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "ReceiptFields/receipt-time", HFILL }},
     { &hf_x420_acknowledgment_mode,
       { "acknowledgment-mode", "x420.acknowledgment_mode",
@@ -3527,7 +3527,7 @@ void proto_register_x420(void) {
         "AbsenceAdvice/advice", HFILL }},
     { &hf_x420_next_available,
       { "next-available", "x420.next_available",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "AbsenceAdvice/next-available", HFILL }},
     { &hf_x420_new_address,
       { "new-address", "x420.new_address",
@@ -3535,7 +3535,7 @@ void proto_register_x420(void) {
         "ChangeOfAddressAdvice/new-address", HFILL }},
     { &hf_x420_effective_from,
       { "effective-from", "x420.effective_from",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "ChangeOfAddressAdvice/effective-from", HFILL }},
     { &hf_x420_assembly_instructions,
       { "assembly-instructions", "x420.assembly_instructions",
@@ -3848,7 +3848,7 @@ void proto_reg_handoff_x420(void) {
   register_ber_oid_dissector("2.6.1.19.0", dissect_AbsenceAdvice_PDU, proto_x420, "id-on-absence-advice");
   register_ber_oid_dissector("2.6.1.19.1", dissect_ChangeOfAddressAdvice_PDU, proto_x420, "id-on-change-of-address-advice");
   register_ber_oid_dissector("2.6.1.17.2", dissect_IPMAssemblyInstructions_PDU, proto_x420, "id-mst-assembly-instructions");
-  register_ber_oid_dissector("2.6.1.5.0", dissect_IncompleteCopy_PDU, proto_x420, "id-hex-languages");
+  register_ber_oid_dissector("2.6.1.5.0", dissect_IncompleteCopy_PDU, proto_x420, "id-hex-incomplete-copy");
   register_ber_oid_dissector("2.6.1.5.1", dissect_Languages_PDU, proto_x420, "id-hex-languages");
   register_ber_oid_dissector("2.6.1.5.2", dissect_AutoSubmitted_PDU, proto_x420, "id-hex-auto-submitted");
   register_ber_oid_dissector("2.6.1.5.3", dissect_BodyPartSignatures_PDU, proto_x420, "id-hex-body-part-signatures");
@@ -3889,7 +3889,6 @@ void proto_reg_handoff_x420(void) {
   register_ber_oid_dissector("2.6.1.11.17.2.6.1.10.0", dissect_ForwardedContentParameters_PDU, proto_x420, "id-ep-content-p2");
   register_ber_oid_dissector("2.6.1.4.17.2.6.1.10.0", dissect_InformationObject_PDU, proto_x420, "id-et-content-p2");
   register_ber_oid_dissector("2.6.1.11.17.1.3.26.0.4406.0.4.1", dissect_ForwardedContentParameters_PDU, proto_x420, "id-ep-content-p772");
-  register_ber_oid_dissector("2.6.1.4.17.1.3.26.0.4406.0.4.1", dissect_InformationObject_PDU, proto_x420, "id-et-content-p772");
 
 
 /*--- End of included file: packet-x420-dis-tab.c ---*/

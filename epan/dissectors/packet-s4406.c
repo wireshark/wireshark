@@ -60,6 +60,10 @@ int proto_s4406 = -1;
 
 /*--- Included file: packet-s4406-hf.c ---*/
 #line 1 "packet-s4406-hf.c"
+static int hf_s4406_InformationObject_PDU = -1;   /* InformationObject */
+static int hf_s4406_MMMessageData_PDU = -1;       /* MMMessageData */
+static int hf_s4406_MMMessageParameters_PDU = -1;  /* MMMessageParameters */
+static int hf_s4406_ExemptedAddressSeq_PDU = -1;  /* ExemptedAddressSeq */
 static int hf_s4406_ExemptedAddress_PDU = -1;     /* ExemptedAddress */
 static int hf_s4406_ExtendedAuthorisationInfo_PDU = -1;  /* ExtendedAuthorisationInfo */
 static int hf_s4406_DistributionCodes_PDU = -1;   /* DistributionCodes */
@@ -70,13 +74,18 @@ static int hf_s4406_OriginatorReference_PDU = -1;  /* OriginatorReference */
 static int hf_s4406_PrimaryPrecedence_PDU = -1;   /* PrimaryPrecedence */
 static int hf_s4406_CopyPrecedence_PDU = -1;      /* CopyPrecedence */
 static int hf_s4406_MessageType_PDU = -1;         /* MessageType */
+static int hf_s4406_AddressListDesignatorSeq_PDU = -1;  /* AddressListDesignatorSeq */
 static int hf_s4406_AddressListDesignator_PDU = -1;  /* AddressListDesignator */
+static int hf_s4406_OtherRecipientDesignatorSeq_PDU = -1;  /* OtherRecipientDesignatorSeq */
 static int hf_s4406_OtherRecipientDesignator_PDU = -1;  /* OtherRecipientDesignator */
+static int hf_s4406_PilotInformationSeq_PDU = -1;  /* PilotInformationSeq */
 static int hf_s4406_PilotInformation_PDU = -1;    /* PilotInformation */
 static int hf_s4406_Acp127MessageIdentifier_PDU = -1;  /* Acp127MessageIdentifier */
 static int hf_s4406_OriginatorPlad_PDU = -1;      /* OriginatorPlad */
 static int hf_s4406_SecurityInformationLabels_PDU = -1;  /* SecurityInformationLabels */
 static int hf_s4406_PriorityLevelQualifier_PDU = -1;  /* PriorityLevelQualifier */
+static int hf_s4406_mm = -1;                      /* IPM */
+static int hf_s4406_mn = -1;                      /* IPN */
 static int hf_s4406_sics = -1;                    /* SEQUENCE_OF_Sic */
 static int hf_s4406_sics_item = -1;               /* Sic */
 static int hf_s4406_dist_Extensions = -1;         /* SEQUENCE_OF_DistributionExtensionField */
@@ -87,12 +96,15 @@ static int hf_s4406_HandlingInstructions_item = -1;  /* MilitaryString */
 static int hf_s4406_MessageInstructions_item = -1;  /* MilitaryString */
 static int hf_s4406_message_type_type = -1;       /* TypeMessage */
 static int hf_s4406_identifier = -1;              /* MessageIdentifier */
+static int hf_s4406_AddressListDesignatorSeq_item = -1;  /* AddressListDesignator */
 static int hf_s4406_address_list_type = -1;       /* AddressListType */
 static int hf_s4406_listName = -1;                /* ORDescriptor */
 static int hf_s4406_notificationRequest = -1;     /* AddressListRequest */
 static int hf_s4406_replyRequest = -1;            /* AddressListRequest */
+static int hf_s4406_OtherRecipientDesignatorSeq_item = -1;  /* OtherRecipientDesignator */
 static int hf_s4406_other_recipient_type = -1;    /* OtherRecipientType */
 static int hf_s4406_designator = -1;              /* MilitaryString */
+static int hf_s4406_PilotInformationSeq_item = -1;  /* PilotInformation */
 static int hf_s4406_pilotPrecedence = -1;         /* PilotPrecedence */
 static int hf_s4406_pilotRecipient = -1;          /* SEQUENCE_OF_ORDescriptor */
 static int hf_s4406_pilotRecipient_item = -1;     /* ORDescriptor */
@@ -114,6 +126,7 @@ static gint ett_s4406 = -1;
 
 /*--- Included file: packet-s4406-ett.c ---*/
 #line 1 "packet-s4406-ett.c"
+static gint ett_s4406_InformationObject = -1;
 static gint ett_s4406_DistributionCodes = -1;
 static gint ett_s4406_SEQUENCE_OF_Sic = -1;
 static gint ett_s4406_SEQUENCE_OF_DistributionExtensionField = -1;
@@ -121,8 +134,11 @@ static gint ett_s4406_DistributionExtensionField = -1;
 static gint ett_s4406_HandlingInstructions = -1;
 static gint ett_s4406_MessageInstructions = -1;
 static gint ett_s4406_MessageType = -1;
+static gint ett_s4406_AddressListDesignatorSeq = -1;
 static gint ett_s4406_AddressListDesignator = -1;
+static gint ett_s4406_OtherRecipientDesignatorSeq = -1;
 static gint ett_s4406_OtherRecipientDesignator = -1;
+static gint ett_s4406_PilotInformationSeq = -1;
 static gint ett_s4406_PilotInformation = -1;
 static gint ett_s4406_SEQUENCE_OF_ORDescriptor = -1;
 static gint ett_s4406_SEQUENCE_OF_MilitaryString = -1;
@@ -138,6 +154,12 @@ static gint ett_s4406_BodyPartSecurityLabel = -1;
 #line 1 "packet-s4406-fn.c"
 /*--- Fields for imported types ---*/
 
+static int dissect_mm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_IPM(TRUE, tvb, offset, pinfo, tree, hf_s4406_mm);
+}
+static int dissect_mn_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x420_IPN(TRUE, tvb, offset, pinfo, tree, hf_s4406_mn);
+}
 static int dissect_listName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x420_ORDescriptor(TRUE, tvb, offset, pinfo, tree, hf_s4406_listName);
 }
@@ -158,10 +180,59 @@ static int dissect_body_part_security_label_impl(packet_info *pinfo, proto_tree 
 }
 
 
+static const value_string s4406_InformationObject_vals[] = {
+  {   0, "mm" },
+  {   1, "mn" },
+  { 0, NULL }
+};
+
+static const ber_choice_t InformationObject_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_mm_impl },
+  {   1, BER_CLASS_CON, 1, 0, dissect_mn_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_s4406_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 InformationObject_choice, hf_index, ett_s4406_InformationObject,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s4406_MMMessageData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x420_IPM(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s4406_MMMessageParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x420_MessageParameters(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
 
 static int
 dissect_s4406_ExemptedAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x420_ORDescriptor(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s4406_ExemptedAddressSeq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_s4406_ExemptedAddress(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -223,7 +294,7 @@ static int dissect_dist_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 56 "s4406.cnf"
+#line 64 "s4406.cnf"
 /* XXX: not implemented */
 
 
@@ -368,7 +439,7 @@ static const value_string s4406_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 61 "s4406.cnf"
+#line 69 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);
@@ -398,7 +469,7 @@ static const value_string s4406_CopyPrecedence_vals[] = {
 
 static int
 dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 69 "s4406.cnf"
+#line 77 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &precedence);
@@ -516,6 +587,22 @@ dissect_s4406_AddressListDesignator(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_AddressListDesignatorSeq_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_s4406_AddressListDesignator(FALSE, tvb, offset, pinfo, tree, hf_s4406_AddressListDesignatorSeq_item);
+}
+
+
+static const ber_sequence_t AddressListDesignatorSeq_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_AddressListDesignatorSeq_item },
+};
+
+static int
+dissect_s4406_AddressListDesignatorSeq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      AddressListDesignatorSeq_sequence_of, hf_index, ett_s4406_AddressListDesignatorSeq);
+
+  return offset;
+}
 
 
 static const value_string s4406_OtherRecipientType_vals[] = {
@@ -547,6 +634,22 @@ static int
 dissect_s4406_OtherRecipientDesignator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               OtherRecipientDesignator_set, hf_index, ett_s4406_OtherRecipientDesignator);
+
+  return offset;
+}
+static int dissect_OtherRecipientDesignatorSeq_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_s4406_OtherRecipientDesignator(FALSE, tvb, offset, pinfo, tree, hf_s4406_OtherRecipientDesignatorSeq_item);
+}
+
+
+static const ber_sequence_t OtherRecipientDesignatorSeq_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_OtherRecipientDesignatorSeq_item },
+};
+
+static int
+dissect_s4406_OtherRecipientDesignatorSeq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      OtherRecipientDesignatorSeq_sequence_of, hf_index, ett_s4406_OtherRecipientDesignatorSeq);
 
   return offset;
 }
@@ -622,6 +725,22 @@ static int
 dissect_s4406_PilotInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    PilotInformation_sequence, hf_index, ett_s4406_PilotInformation);
+
+  return offset;
+}
+static int dissect_PilotInformationSeq_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_s4406_PilotInformation(FALSE, tvb, offset, pinfo, tree, hf_s4406_PilotInformationSeq_item);
+}
+
+
+static const ber_sequence_t PilotInformationSeq_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PilotInformationSeq_item },
+};
+
+static int
+dissect_s4406_PilotInformationSeq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      PilotInformationSeq_sequence_of, hf_index, ett_s4406_PilotInformationSeq);
 
   return offset;
 }
@@ -725,6 +844,18 @@ dissect_s4406_PriorityLevelQualifier(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
 /*--- PDUs ---*/
 
+static void dissect_InformationObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_InformationObject(FALSE, tvb, 0, pinfo, tree, hf_s4406_InformationObject_PDU);
+}
+static void dissect_MMMessageData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_MMMessageData(FALSE, tvb, 0, pinfo, tree, hf_s4406_MMMessageData_PDU);
+}
+static void dissect_MMMessageParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_MMMessageParameters(FALSE, tvb, 0, pinfo, tree, hf_s4406_MMMessageParameters_PDU);
+}
+static void dissect_ExemptedAddressSeq_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_ExemptedAddressSeq(FALSE, tvb, 0, pinfo, tree, hf_s4406_ExemptedAddressSeq_PDU);
+}
 static void dissect_ExemptedAddress_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_ExemptedAddress(FALSE, tvb, 0, pinfo, tree, hf_s4406_ExemptedAddress_PDU);
 }
@@ -755,11 +886,20 @@ static void dissect_CopyPrecedence_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_
 static void dissect_MessageType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_MessageType(FALSE, tvb, 0, pinfo, tree, hf_s4406_MessageType_PDU);
 }
+static void dissect_AddressListDesignatorSeq_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_AddressListDesignatorSeq(FALSE, tvb, 0, pinfo, tree, hf_s4406_AddressListDesignatorSeq_PDU);
+}
 static void dissect_AddressListDesignator_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_AddressListDesignator(FALSE, tvb, 0, pinfo, tree, hf_s4406_AddressListDesignator_PDU);
 }
+static void dissect_OtherRecipientDesignatorSeq_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_OtherRecipientDesignatorSeq(FALSE, tvb, 0, pinfo, tree, hf_s4406_OtherRecipientDesignatorSeq_PDU);
+}
 static void dissect_OtherRecipientDesignator_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_OtherRecipientDesignator(FALSE, tvb, 0, pinfo, tree, hf_s4406_OtherRecipientDesignator_PDU);
+}
+static void dissect_PilotInformationSeq_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_s4406_PilotInformationSeq(FALSE, tvb, 0, pinfo, tree, hf_s4406_PilotInformationSeq_PDU);
 }
 static void dissect_PilotInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_s4406_PilotInformation(FALSE, tvb, 0, pinfo, tree, hf_s4406_PilotInformation_PDU);
@@ -802,7 +942,7 @@ dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_add_str(pinfo->cinfo, COL_INFO, "Military");
 
-	dissect_x420_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
+	dissect_s4406_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
 }
 
 
@@ -816,6 +956,22 @@ void proto_register_s4406(void) {
 
 /*--- Included file: packet-s4406-hfarr.c ---*/
 #line 1 "packet-s4406-hfarr.c"
+    { &hf_s4406_InformationObject_PDU,
+      { "InformationObject", "s4406.InformationObject",
+        FT_UINT32, BASE_DEC, VALS(x420_InformationObject_vals), 0,
+        "InformationObject", HFILL }},
+    { &hf_s4406_MMMessageData_PDU,
+      { "MMMessageData", "s4406.MMMessageData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MMMessageData", HFILL }},
+    { &hf_s4406_MMMessageParameters_PDU,
+      { "MMMessageParameters", "s4406.MMMessageParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MMMessageParameters", HFILL }},
+    { &hf_s4406_ExemptedAddressSeq_PDU,
+      { "ExemptedAddressSeq", "s4406.ExemptedAddressSeq",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ExemptedAddressSeq", HFILL }},
     { &hf_s4406_ExemptedAddress_PDU,
       { "ExemptedAddress", "s4406.ExemptedAddress",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -856,14 +1012,26 @@ void proto_register_s4406(void) {
       { "MessageType", "s4406.MessageType",
         FT_NONE, BASE_NONE, NULL, 0,
         "MessageType", HFILL }},
+    { &hf_s4406_AddressListDesignatorSeq_PDU,
+      { "AddressListDesignatorSeq", "s4406.AddressListDesignatorSeq",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AddressListDesignatorSeq", HFILL }},
     { &hf_s4406_AddressListDesignator_PDU,
       { "AddressListDesignator", "s4406.AddressListDesignator",
         FT_NONE, BASE_NONE, NULL, 0,
         "AddressListDesignator", HFILL }},
+    { &hf_s4406_OtherRecipientDesignatorSeq_PDU,
+      { "OtherRecipientDesignatorSeq", "s4406.OtherRecipientDesignatorSeq",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "OtherRecipientDesignatorSeq", HFILL }},
     { &hf_s4406_OtherRecipientDesignator_PDU,
       { "OtherRecipientDesignator", "s4406.OtherRecipientDesignator",
         FT_NONE, BASE_NONE, NULL, 0,
         "OtherRecipientDesignator", HFILL }},
+    { &hf_s4406_PilotInformationSeq_PDU,
+      { "PilotInformationSeq", "s4406.PilotInformationSeq",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PilotInformationSeq", HFILL }},
     { &hf_s4406_PilotInformation_PDU,
       { "PilotInformation", "s4406.PilotInformation",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -884,6 +1052,14 @@ void proto_register_s4406(void) {
       { "PriorityLevelQualifier", "s4406.PriorityLevelQualifier",
         FT_UINT32, BASE_DEC, VALS(s4406_PriorityLevelQualifier_vals), 0,
         "PriorityLevelQualifier", HFILL }},
+    { &hf_s4406_mm,
+      { "mm", "s4406.mm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InformationObject/mm", HFILL }},
+    { &hf_s4406_mn,
+      { "mn", "s4406.mn",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InformationObject/mn", HFILL }},
     { &hf_s4406_sics,
       { "sics", "s4406.sics",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -924,6 +1100,10 @@ void proto_register_s4406(void) {
       { "identifier", "s4406.identifier",
         FT_STRING, BASE_NONE, NULL, 0,
         "MessageType/identifier", HFILL }},
+    { &hf_s4406_AddressListDesignatorSeq_item,
+      { "Item", "s4406.AddressListDesignatorSeq_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AddressListDesignatorSeq/_item", HFILL }},
     { &hf_s4406_address_list_type,
       { "type", "s4406.type",
         FT_INT32, BASE_DEC, VALS(s4406_AddressListType_vals), 0,
@@ -940,6 +1120,10 @@ void proto_register_s4406(void) {
       { "replyRequest", "s4406.replyRequest",
         FT_INT32, BASE_DEC, VALS(s4406_AddressListRequest_vals), 0,
         "AddressListDesignator/replyRequest", HFILL }},
+    { &hf_s4406_OtherRecipientDesignatorSeq_item,
+      { "Item", "s4406.OtherRecipientDesignatorSeq_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OtherRecipientDesignatorSeq/_item", HFILL }},
     { &hf_s4406_other_recipient_type,
       { "type", "s4406.type",
         FT_INT32, BASE_DEC, VALS(s4406_OtherRecipientType_vals), 0,
@@ -948,6 +1132,10 @@ void proto_register_s4406(void) {
       { "designator", "s4406.designator",
         FT_STRING, BASE_NONE, NULL, 0,
         "OtherRecipientDesignator/designator", HFILL }},
+    { &hf_s4406_PilotInformationSeq_item,
+      { "Item", "s4406.PilotInformationSeq_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PilotInformationSeq/_item", HFILL }},
     { &hf_s4406_pilotPrecedence,
       { "pilotPrecedence", "s4406.pilotPrecedence",
         FT_INT32, BASE_DEC, VALS(s4406_PilotPrecedence_vals), 0,
@@ -1007,6 +1195,7 @@ void proto_register_s4406(void) {
 
 /*--- Included file: packet-s4406-ettarr.c ---*/
 #line 1 "packet-s4406-ettarr.c"
+    &ett_s4406_InformationObject,
     &ett_s4406_DistributionCodes,
     &ett_s4406_SEQUENCE_OF_Sic,
     &ett_s4406_SEQUENCE_OF_DistributionExtensionField,
@@ -1014,8 +1203,11 @@ void proto_register_s4406(void) {
     &ett_s4406_HandlingInstructions,
     &ett_s4406_MessageInstructions,
     &ett_s4406_MessageType,
+    &ett_s4406_AddressListDesignatorSeq,
     &ett_s4406_AddressListDesignator,
+    &ett_s4406_OtherRecipientDesignatorSeq,
     &ett_s4406_OtherRecipientDesignator,
+    &ett_s4406_PilotInformationSeq,
     &ett_s4406_PilotInformation,
     &ett_s4406_SEQUENCE_OF_ORDescriptor,
     &ett_s4406_SEQUENCE_OF_MilitaryString,
@@ -1045,20 +1237,23 @@ void proto_reg_handoff_s4406(void) {
   register_ber_oid_dissector("1.3.26.0.4406.0.2.0", dissect_PrimaryPrecedence_PDU, proto_s4406, "primary-precedence");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.1", dissect_CopyPrecedence_PDU, proto_s4406, "copy-precedence");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.2", dissect_MessageType_PDU, proto_s4406, "message-type");
-  register_ber_oid_dissector("1.3.26.0.4406.0.2.3", dissect_AddressListDesignator_PDU, proto_s4406, "address-list-indicator");
-  register_ber_oid_dissector("1.3.26.0.4406.0.2.4", dissect_ExemptedAddress_PDU, proto_s4406, "exempted-address");
+  register_ber_oid_dissector("1.3.26.0.4406.0.2.3", dissect_AddressListDesignatorSeq_PDU, proto_s4406, "address-list-indicator");
+  register_ber_oid_dissector("1.3.26.0.4406.0.2.4", dissect_ExemptedAddressSeq_PDU, proto_s4406, "exempted-address");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.5", dissect_ExtendedAuthorisationInfo_PDU, proto_s4406, "extended-authorisation-info");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.6", dissect_DistributionCodes_PDU, proto_s4406, "distribution-codes");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.7", dissect_HandlingInstructions_PDU, proto_s4406, "handling-instructions");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.8", dissect_MessageInstructions_PDU, proto_s4406, "message-instructions");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.9", dissect_CodressMessage_PDU, proto_s4406, "codress-message");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.10", dissect_OriginatorReference_PDU, proto_s4406, "originator-reference");
-  register_ber_oid_dissector("1.3.26.0.4406.0.2.11", dissect_OtherRecipientDesignator_PDU, proto_s4406, "other-recipients-indicator");
-  register_ber_oid_dissector("1.3.26.0.4406.0.2.12", dissect_PilotInformation_PDU, proto_s4406, "pilot-forwarding-info");
+  register_ber_oid_dissector("1.3.26.0.4406.0.2.11", dissect_OtherRecipientDesignatorSeq_PDU, proto_s4406, "other-recipients-indicator");
+  register_ber_oid_dissector("1.3.26.0.4406.0.2.12", dissect_PilotInformationSeq_PDU, proto_s4406, "pilot-forwarding-info");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.13", dissect_Acp127MessageIdentifier_PDU, proto_s4406, "acp127-message-identifierr");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.14", dissect_OriginatorPlad_PDU, proto_s4406, "originator-plad");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.17", dissect_SecurityInformationLabels_PDU, proto_s4406, "information-labels");
   register_ber_oid_dissector("1.3.26.0.4406.0.8.0", dissect_PriorityLevelQualifier_PDU, proto_s4406, "priority-level-qualifier");
+  register_ber_oid_dissector("1.3.26.0.4406.0.7.9", dissect_MMMessageData_PDU, proto_s4406, "mm-message");
+  register_ber_oid_dissector("1.3.26.0.4406.0.7.10", dissect_MMMessageParameters_PDU, proto_s4406, "mm-message-parameters");
+  register_ber_oid_dissector("2.6.1.4.17.1.3.26.0.4406.0.4.1", dissect_InformationObject_PDU, proto_s4406, "id-et-content-p772");
 
 
 /*--- End of included file: packet-s4406-dis-tab.c ---*/
