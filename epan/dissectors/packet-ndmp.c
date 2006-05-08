@@ -53,6 +53,9 @@
 #define TCP_PORT_NDMP 10000
 
 static int proto_ndmp = -1;
+static int hf_ndmp_request_frame = -1;
+static int hf_ndmp_response_frame = -1;
+static int hf_ndmp_time = -1;
 static int hf_ndmp_lastfrag = -1;
 static int hf_ndmp_fraglen = -1;
 static int hf_ndmp_version = -1;
@@ -258,8 +261,16 @@ static enum_val_t ndmp_protocol_versions[] = {
 
 static gint ndmp_default_protocol_version = NDMP_PROTOCOL_V4;
 
+typedef struct _ndmp_task_data_t {
+	guint32 request_frame;
+	guint32 response_frame;
+	nstime_t ndmp_time;
+} ndmp_task_data_t;
+
 typedef struct _ndmp_conv_data_t {
 	guint8 version;
+	se_tree_t *tasks;	/* indexed by Sequence# */
+	ndmp_task_data_t *task;
 } ndmp_conv_data_t;
 ndmp_conv_data_t *ndmp_conv_data=NULL;
 
@@ -2829,6 +2840,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!ndmp_conv_data){
 		ndmp_conv_data=se_alloc(sizeof(ndmp_conv_data_t));
 		ndmp_conv_data->version=NDMP_PROTOCOL_UNKNOWN;
+		ndmp_conv_data->tasks=se_tree_create_non_persistent(SE_TREE_TYPE_RED_BLACK, "NDMP tasks");
+
 		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
 	}
 
@@ -2849,6 +2862,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nh.msg = tvb_get_ntohl(tvb, offset+16);
 	nh.rep_seq = tvb_get_ntohl(tvb, offset+20);
 	nh.err = tvb_get_ntohl(tvb, offset+24);
+
 
 	/*
 	 * Check if this is the last fragment.
@@ -2877,12 +2891,55 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
 	}
 
+
+	/* ndmp version (and autodetection) */
 	if(ndmp_conv_data->version!=NDMP_PROTOCOL_UNKNOWN){
 		vers_item=proto_tree_add_uint(ndmp_tree, hf_ndmp_version, tvb, offset, 0, ndmp_conv_data->version);
 	} else {
 		vers_item=proto_tree_add_uint_format(ndmp_tree, hf_ndmp_version, tvb, offset, 0, ndmp_default_protocol_version, "Unknown NDMP version, using default:%d", ndmp_default_protocol_version);
 	}
 	PROTO_ITEM_SET_GENERATED(vers_item);
+
+
+	/* request response matching */
+	ndmp_conv_data->task=NULL;
+	switch(nh.type){
+	case NDMP_MESSAGE_REQUEST:
+		if(!pinfo->fd->flags.visited){
+			ndmp_conv_data->task=se_alloc(sizeof(ndmp_task_data_t));
+			ndmp_conv_data->task->request_frame=pinfo->fd->num;
+			ndmp_conv_data->task->response_frame=0;
+			ndmp_conv_data->task->ndmp_time=pinfo->fd->abs_ts;
+			se_tree_insert32(ndmp_conv_data->tasks, nh.seq, ndmp_conv_data->task);
+		} else {
+			ndmp_conv_data->task=se_tree_lookup32(ndmp_conv_data->tasks, nh.seq);
+		}
+		if(ndmp_conv_data->task && ndmp_conv_data->task->response_frame){
+			proto_item *it;
+			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_response_frame, tvb, 0, 0, ndmp_conv_data->task->response_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+		break;
+	case NDMP_MESSAGE_REPLY:
+		ndmp_conv_data->task=se_tree_lookup32(ndmp_conv_data->tasks, nh.rep_seq);
+
+		if(ndmp_conv_data->task && !pinfo->fd->flags.visited){
+			ndmp_conv_data->task->response_frame=pinfo->fd->num;
+		}
+		if(ndmp_conv_data->task && ndmp_conv_data->task->request_frame){
+			proto_item *it;
+			nstime_t delta_ts;
+
+			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_request_frame, tvb, 0, 0, ndmp_conv_data->task->request_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+
+			nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &ndmp_conv_data->task->ndmp_time);
+			it=proto_tree_add_time(ndmp_tree, hf_ndmp_time, tvb, 0, 0, &delta_ts);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+		break;
+	}
+
 
 	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4, 
 		"Fragment header: %s%u %s", 
@@ -2976,6 +3033,18 @@ proto_register_ndmp(void)
 	{ &hf_ndmp_header, {
 		"NDMP Header", "ndmp.header", FT_NONE, 0,
 		NULL, 0, "NDMP Header", HFILL }},
+
+        { &hf_ndmp_response_frame, { 
+		"Response In", "ndmp.response_frame", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "The response to this NDMP command is in this frame", HFILL }},
+
+        { &hf_ndmp_time,
+          { "Time from request", "ndmp.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
+           0, "Time since the request packet", HFILL }},
+
+        { &hf_ndmp_request_frame, { 
+		"Request In", "ndmp.request_frame", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "The request to this NDMP command is in this frame", HFILL }},
 
 	{ &hf_ndmp_sequence, {
 		"Sequence", "ndmp.sequence", FT_UINT32, BASE_DEC,
