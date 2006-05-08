@@ -470,22 +470,34 @@ int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len)
    int i, out_len;
    guint8 byte;
    guint32 value;
+   gboolean is_first;
 
-   value=0; out_len = 0;
+   value=0; out_len = 0; byte =0; is_first = TRUE;
    for (i=0; i<oid_len; i++){
-     if (out_len >= buf_len) break;
+     if (out_len >= buf_len) 
+		 break;
      byte = oid[i];
-     if (i == 0) {
-       buf[out_len++] = byte/40;
-       buf[out_len++] = byte%40;
-       continue;
-     }
-     value = (value << 7) | (byte & 0x7F);
-     if (byte & 0x80) {
-       continue;
-     }
-     buf[out_len++] = value;
-     value = 0;
+	 value = (value << 7) | (byte & 0x7F);
+	 if (byte & 0x80) {
+		 continue;
+	 }	
+     if (is_first) {
+		 if ( value<40 ){
+			 buf[0] = 0;
+			 buf[1] = value;
+		 }else if ( value < 80 ){
+			 buf[0] = 1;
+			 buf[1] = value - 40;
+		 }else {
+			 buf[0] = 2;
+			 buf[1] = value - 80;
+		 }
+		 out_len= out_len+2;
+		 is_first = FALSE;
+     }else{
+		 buf[out_len++] = value;
+	 }
+	 value = 0;
    }
 
    return out_len;
@@ -977,6 +989,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
+				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
@@ -2666,7 +2679,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1013 "packet-snmp-template.c"
+#line 1026 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3356,7 +3369,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1366 "packet-snmp-template.c"
+#line 1379 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3394,7 +3407,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1375 "packet-snmp-template.c"
+#line 1388 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 

@@ -345,22 +345,34 @@ int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len)
    int i, out_len;
    guint8 byte;
    guint32 value;
+   gboolean is_first;
 
-   value=0; out_len = 0;
+   value=0; out_len = 0; byte =0; is_first = TRUE;
    for (i=0; i<oid_len; i++){
-     if (out_len >= buf_len) break;
+     if (out_len >= buf_len) 
+		 break;
      byte = oid[i];
-     if (i == 0) {
-       buf[out_len++] = byte/40;
-       buf[out_len++] = byte%40;
-       continue;
-     }
-     value = (value << 7) | (byte & 0x7F);
-     if (byte & 0x80) {
-       continue;
-     }
-     buf[out_len++] = value;
-     value = 0;
+	 value = (value << 7) | (byte & 0x7F);
+	 if (byte & 0x80) {
+		 continue;
+	 }	
+     if (is_first) {
+		 if ( value<40 ){
+			 buf[0] = 0;
+			 buf[1] = value;
+		 }else if ( value < 80 ){
+			 buf[0] = 1;
+			 buf[1] = value - 40;
+		 }else {
+			 buf[0] = 2;
+			 buf[1] = value - 80;
+		 }
+		 out_len= out_len+2;
+		 is_first = FALSE;
+     }else{
+		 buf[out_len++] = value;
+	 }
+	 value = 0;
    }
 
    return out_len;
@@ -852,6 +864,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
+				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, tvb,
 				    vb_value_start, length,
