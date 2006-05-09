@@ -157,7 +157,7 @@ static gboolean extra_ethertype = FALSE;
 
 dissector_handle_t ip_handle;
 
-proto_tree *top_tree;
+static proto_tree *top_tree;
 
 static const fragment_items tipc_msg_frag_items = {
 	/* Fragment subtrees */

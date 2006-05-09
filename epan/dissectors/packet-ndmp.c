@@ -274,7 +274,7 @@ typedef struct _ndmp_conv_data_t {
 	ndmp_task_data_t *task;
 } ndmp_conv_data_t;
 ndmp_conv_data_t *ndmp_conv_data=NULL;
-proto_tree *top_tree;
+static proto_tree *top_tree;
 
 static guint8 
 get_ndmp_protocol_version(ndmp_conv_data_t *ndmp_conv_data)
