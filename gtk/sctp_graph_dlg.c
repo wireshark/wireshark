@@ -234,10 +234,16 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 					if (tsnumber>=min_tsn)
 					{
 						diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
-						gdk_draw_arc(u_data->io->pixmap,red_gc,TRUE,
-						             (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-						             (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval)),
-						             POINT_SIZE, POINT_SIZE,0, (64*360) );
+						xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
+						yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
+						if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+						    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
+						    yvalue >= TOP_BORDER-u_data->io->offset &&
+						    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+							gdk_draw_arc(u_data->io->pixmap,red_gc,TRUE,
+								     xvalue,
+								     yvalue,
+								     POINT_SIZE, POINT_SIZE,0, (64*360) );
 					}
 				}
 			tlist = g_list_next(tlist);
@@ -259,6 +265,7 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 	guint8 type;
 	guint32 tsnumber=0;
 	guint32 min_secs=0, diff;
+	gint xvalue, yvalue;
 
 	if (u_data->dir==1)
 	{
@@ -302,10 +309,16 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 			if (tsnumber>=min_tsn && tsnumber<=max_tsn && tsn->secs>=min_secs)
 			{
 					diff=tsn->secs*1000000+tsn->usecs-u_data->io->min_x;
-					gdk_draw_arc(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,TRUE,
-					             (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-					             (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval)),
-					             POINT_SIZE, POINT_SIZE, 0, (64*360));
+					xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
+					yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
+					if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+					    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
+					    yvalue >= TOP_BORDER-u_data->io->offset &&
+					    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+						gdk_draw_arc(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,TRUE,
+							     xvalue,
+							     yvalue,
+							     POINT_SIZE, POINT_SIZE, 0, (64*360));
 			}
 			tlist = g_list_next(tlist);
 		}
@@ -941,10 +954,10 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		u_data->io->rect_y_min = (gint)floor(MIN(u_data->io->y_old,event->y));
 		u_data->io->rect_y_max = (gint)ceil(MAX(u_data->io->y_old,event->y))+POINT_SIZE;
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
- 		                   FALSE,
- 		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
- 		                   u_data->io->rect_x_max - u_data->io->rect_x_min,
-						   u_data->io->rect_y_max - u_data->io->rect_y_min);
+		                   FALSE,
+		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
+		                   u_data->io->rect_x_max - u_data->io->rect_x_min,
+				   u_data->io->rect_y_max - u_data->io->rect_y_min);
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
 		if(!ios){
