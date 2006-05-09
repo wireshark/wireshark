@@ -2487,7 +2487,7 @@ void proto_register_cops(void)
 
     { &hf_cops_pcmm_psid,
 	    { "PSID", "cops.pc_mm_psid",
-	    FT_UINT32, BASE_HEX, NULL, 0,
+	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "PacketCable Multimedia PSID", HFILL }
     },
 
@@ -3192,11 +3192,11 @@ cops_amid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      offset += 4;
 
      /* Application Type */
-     info_to_display(tvb,stt,offset,4,"Application Manager ID Application Type", NULL,FMT_DEC,&hf_cops_pcmm_amid_app_type);
-     offset += 4;
+     info_to_display(tvb,stt,offset,2,"Application Manager ID Application Type", NULL,FMT_DEC,&hf_cops_pcmm_amid_app_type);
+     offset += 2;
 
      /* Application Manager Tag */
-     info_to_display(tvb,stt,offset,4,"Application Manager ID Application Manager Tag", NULL,FMT_DEC,&hf_cops_pcmm_amid_am_tag);
+     info_to_display(tvb,stt,offset,2,"Application Manager ID Application Manager Tag", NULL,FMT_DEC,&hf_cops_pcmm_amid_am_tag);
 }
 
 
@@ -4445,7 +4445,7 @@ cops_psid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      offset += 4;
 
      /* PSID */
-     info_to_display(tvb,stt,offset,4,"PSID", NULL,FMT_HEX,&hf_cops_pcmm_psid);
+     info_to_display(tvb,stt,offset,4,"PSID", NULL,FMT_DEC,&hf_cops_pcmm_psid);
 }
 
 /* Cops - Section : Synch Options */
