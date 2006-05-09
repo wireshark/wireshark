@@ -416,23 +416,8 @@ class Ctx:
 #--- EthCtx -------------------------------------------------------------------
 class EthCtx:
   def __init__(self, conform, output, indent = 0):
-    self.tags_def = 'EXPLICIT' # default = explicit
     self.conform = conform
     self.output = output
-    self.assign = {}
-    self.assign_ord = []
-    self.field = {}
-    self.pdu_ord = []
-    self.field_ord = []
-    self.type = {}
-    self.type_ord = []
-    self.type_imp = []
-    self.type_dep = {}
-    self.vassign = {}
-    self.vassign_ord = []
-    self.value = {}
-    self.value_ord = []
-    self.value_imp = []
 
   def encp(self):  # encoding protocol
     encp = self.encoding
@@ -571,6 +556,48 @@ class EthCtx:
       self.field_ord.append(ident)
     if parent: self.eth_dep_add(parent, type)
 
+  #--- eth_clean --------------------------------------------------------------
+  def eth_clean(self):
+    self.proto = self.proto_opt;
+    #--- ASN.1 tables ----------------
+    self.assign = {}
+    self.assign_ord = []
+    self.field = {}
+    self.pdu_ord = []
+    self.field_ord = []
+    self.type = {}
+    self.type_ord = []
+    self.type_imp = []
+    self.type_dep = {}
+    self.vassign = {}
+    self.vassign_ord = []
+    self.value = {}
+    self.value_ord = []
+    self.value_imp = []
+    #--- types -------------------
+    self.eth_type = {}
+    self.eth_type_ord = []
+    self.eth_export_ord = []
+    self.eth_type_dupl = {}
+    self.named_bit = []
+    #--- value dependencies -------------------
+    self.value_dep = {}
+    #--- values -------------------
+    self.eth_value = {}
+    self.eth_value_ord = []
+    #--- fields -------------------------
+    self.eth_hf = {}
+    self.eth_hf_ord = []
+    self.eth_hfpdu_ord = []
+    self.eth_hf_dupl = {}
+    #--- type dependencies -------------------
+    self.eth_type_ord1 = []
+    self.eth_dep_cycle = []
+    self.dep_cycle_eth_type = {}
+    #--- value dependencies and export -------------------
+    self.eth_value_ord1 = []
+    self.eth_vexport_ord = []
+
   #--- eth_prepare ------------------------------------------------------------
   def eth_prepare(self):
     self.eproto = asn2c(self.proto)
@@ -582,12 +609,6 @@ class EthCtx:
       self.eth_reg_field(nm, '_dummy/'+nm, pdu=self.conform.use_item('PDU', nm))
 
     #--- types -------------------
-    self.eth_type = {}
-    self.eth_type_ord = []
-    self.eth_export_ord = []
-    self.eth_type_dupl = {}
-    self.named_bit = []
-
     for t in self.type_imp:
       nm = asn2c(t)
       self.eth_type[nm] = { 'import' : self.type[t]['import'], 
@@ -646,7 +667,6 @@ class EthCtx:
         self.eth_type[t]['tree'] = None
 
     #--- value dependencies -------------------
-    self.value_dep = {}
     for v in self.value_ord:
       if isinstance (self.value[v]['value'], Value):
         dep = self.value[v]['value'].get_dep()
@@ -667,9 +687,6 @@ class EthCtx:
             deparr.extend(self.value_dep.get(d, []))
 
     #--- values -------------------
-    self.eth_value = {}
-    self.eth_value_ord = []
-
     for v in self.value_imp:
       nm = asn2c(v)
       self.eth_value[nm] = { 'import' : self.value[v]['import'], 
@@ -689,11 +706,6 @@ class EthCtx:
       self.value[v]['ethname'] = nm
 
     #--- fields -------------------------
-    self.eth_hf = {}
-    self.eth_hf_ord = []
-    self.eth_hfpdu_ord = []
-    self.eth_hf_dupl = {}
-
     for f in (self.pdu_ord + self.field_ord):
       if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequnce/Set of type
         nm = f.split('/')[-2] + f.split('/')[-1]
@@ -751,9 +763,6 @@ class EthCtx:
                          'attr' : attr.copy(), 'ref' : [f]}
       self.field[f]['ethname'] = nm
     #--- type dependencies -------------------
-    self.eth_type_ord1 = []
-    self.eth_dep_cycle = []
-    self.dep_cycle_eth_type = {}
     x = {}  # already emitted
     #print '# Dependency computation'
     for t in self.type_ord:
@@ -795,8 +804,6 @@ class EthCtx:
       i += 1
 
     #--- value dependencies and export -------------------
-    self.eth_value_ord1 = []
-    self.eth_vexport_ord = []
     for v in self.eth_value_ord:
       if self.eth_value[v]['export']:
         self.eth_vexport_ord.append(v)
@@ -1217,6 +1224,92 @@ class EthCtx:
         msg += "\n"
       warnings.warn_explicit(msg, UserWarning, '', '')
 
+  #--- eth_do_output ------------------------------------------------------------
+  def eth_do_output(self):
+    if self.dbg('a'):
+      print "\n# Assignments"
+      print "\n".join(self.assign_ord)
+      print "\n# Value assignments"
+      print "\n".join(self.vassign_ord)
+    if self.dbg('t'):
+      print "\n# Imported Types"
+      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
+      print "-" * 100
+      for t in self.type_imp:
+        print "%-40s %-24s %-24s" % (t, self.type[t]['import'], self.type[t]['proto'])
+      print "\n# Imported Values"
+      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
+      print "-" * 100
+      for t in self.value_imp:
+        print "%-40s %-24s %-24s" % (t, self.value[t]['import'], self.value[t]['proto'])
+      print "\n# Exported Types"
+      print "%-31s %s" % ("Ethereal type", "Export Flag")
+      print "-" * 100
+      for t in self.eth_export_ord:
+        print "%-31s 0x%02X" % (t, self.eth_type[t]['export'])
+      print "\n# Exported Values"
+      print "%-40s %s" % ("Ethereal name", "Value")
+      print "-" * 100
+      for v in self.eth_vexport_ord:
+        print "%-40s %s" % (v, self.eth_value[v]['value'])
+      print "\n# ASN.1 Types"
+      print "%-49s %-24s %-24s" % ("ASN.1 unique name", "'tname'", "Ethereal type")
+      print "-" * 100
+      for t in self.type_ord:
+        print "%-49s %-24s %-24s" % (t, self.type[t]['tname'], self.type[t]['ethname'])
+      print "\n# Ethereal Types"
+      print "Ethereal type                   References (ASN.1 types)"
+      print "-" * 100
+      for t in self.eth_type_ord:
+        print "%-31s %d" % (t, len(self.eth_type[t]['ref'])),
+        print ', '.join(self.eth_type[t]['ref'])
+      print "\n# ASN.1 Values"
+      print "%-40s %-18s %s" % ("ASN.1 unique name", "Type", "Value")
+      print "-" * 100
+      for v in self.value_ord:
+        if isinstance (self.value[v]['value'], Value):
+          print "%-40s %-18s %s" % (v, self.value[v]['type'].eth_tname(), self.value[v]['value'].to_str())
+        else:
+          print "%-40s %-18s %s" % (v, self.value[v]['type'].eth_tname(), self.value[v]['value'])
+      print "\n# Ethereal Values"
+      print "%-40s %s" % ("Ethereal name", "Value")
+      print "-" * 100
+      for v in self.eth_value_ord:
+        print "%-40s %s" % (v, self.eth_value[v]['value'])
+      print "\n# ASN.1 Fields"
+      print "ASN.1 unique name                        Ethereal name        ASN.1 type"
+      print "-" * 100
+      for f in (self.pdu_ord + self.field_ord):
+        print "%-40s %-20s %s" % (f, self.field[f]['ethname'], self.field[f]['type'])
+      print "\n# Ethereal Fields"
+      print "Ethereal name                  Ethereal type        References (ASN.1 fields)"
+      print "-" * 100
+      for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
+        print "%-30s %-20s %s" % (f, self.eth_hf[f]['ethtype'], len(self.eth_hf[f]['ref'])),
+        print ', '.join(self.eth_hf[f]['ref'])
+      #print "\n# Order after dependencies"
+      #print '\n'.join(self.eth_type_ord1)
+      print "\n# Cyclic dependencies"
+      for c in self.eth_dep_cycle:
+        print ' -> '.join(c)
+    self.dupl_report()
+    self.output.outnm = self.outnm_opt
+    if (not self.output.outnm):
+      self.output.outnm = self.proto
+    self.eth_output_hf()
+    self.eth_output_ett()
+    self.eth_output_types()
+    self.eth_output_hf_arr()
+    self.eth_output_ett_arr()
+    self.eth_output_export()
+    if self.expcnf:
+      self.eth_output_expcnf()
+    self.eth_output_val()
+    self.eth_output_valexp()
+    self.eth_output_dis_hnd()
+    self.eth_output_dis_reg()
+    self.eth_output_dis_tab()
+
 #--- EthCnf -------------------------------------------------------------------
 class EthCnf:
   def __init__(self):
@@ -1230,7 +1323,7 @@ class EthCnf:
     self.tblcfg['REGISTER']        = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['USER_DEFINED']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['NO_EMIT']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
-    self.tblcfg['MODULE_IMPORT']   = { 'val_nm' : 'proto',    'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['MODULE']          = { 'val_nm' : 'proto',    'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['OMIT_ASSIGNMENT'] = { 'val_nm' : 'omit',     'val_dflt' : False, 'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['TYPE_RENAME']     = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['FIELD_RENAME']    = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
@@ -1269,6 +1362,7 @@ class EthCnf:
     vdflt = kw.get('val_dflt', self.tblcfg[table]['val_dflt'])
     if not self.table[table].has_key(key): return vdflt
     vname = kw.get('val_nm', self.tblcfg[table]['val_nm'])
+    #print "use_item() - set used for %s %s" % (table, key)
     self.table[table][key]['used'] = True
     return self.table[table][key].get(vname, vdflt)
 
@@ -1404,7 +1498,7 @@ class EthCnf:
       result = directive.search(line)
       if result:  # directive
         if result.group('name') in ('EXPORTS', 'PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
-                                    'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
+                                    'USER_DEFINED', 'NO_EMIT', 'MODULE', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
                                     'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
@@ -1488,11 +1582,11 @@ class EthCnf:
           if (ctx == 'REGISTER_NEW'): is_new = True
           self.add_pdu(par[0:1], is_new, fn, lineno)
         self.add_register(par[0], par[1:4], fn, lineno)
-      elif ctx == 'MODULE_IMPORT':
+      elif ctx in ('MODULE', 'MODULE_IMPORT'):
         if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
-        self.add_item('MODULE_IMPORT', par[0], proto=par[1], fn=fn, lineno=lineno)
+        self.add_item('MODULE', par[0], proto=par[1], fn=fn, lineno=lineno)
       elif ctx == 'IMPORT_TAG':
         if empty.match(line): continue
         par = get_par(line, 3, 3, fn=fn, lineno=lineno)
@@ -1537,6 +1631,19 @@ class EthCnf:
           self.add_item(ctx, par[0], pars=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
         self.add_fn_line(name, ctx, line, fn=fn, lineno=lineno)
+
+  def dbg_print(self):
+    print "\n# Conformance values"
+    print "%-15s %-4s %-15s %-20s %s" % ("File", "Line", "Table", "Key", "Value")
+    print "-" * 100
+    tbls = self.table.keys()
+    tbls.sort()
+    for t in tbls:
+      keys = self.table[t].keys()
+      keys.sort()
+      for k in keys:
+        print "%-15s %4s %-15s %-20s %s" % (
+              self.table[t][k]['fn'], self.table[t][k]['lineno'], t, k, str(self.table[t][k][self.tblcfg[t]['val_nm']]))
 
   def unused_report(self):
     tbls = self.table.keys()
@@ -1603,6 +1710,12 @@ class EthOut:
     out += outln(' '.join(sys.argv))
     out += '\n'
     return out
+
+  #--- dbg_print -------------------------------------------------------
+  def dbg_print(self):
+    print "\n# Output files"
+    print "\n".join(self.created_files)
+    print "\n"
 
   #--- make_single_file -------------------------------------------------------
   def make_single_file(self):
@@ -2008,8 +2121,9 @@ class Module (Node):
 %s""" % (self.ident, self.body.to_python (ctx))
 
   def to_eth (self, ectx):
+    ectx.tags_def = 'EXPLICIT' # default = explicit
     if (not ectx.proto):
-      ectx.proto = self.ident.val
+      ectx.proto = ectx.conform.use_item('MODULE', self.ident.val, val_dflt=self.ident.val)
     ectx.tag_def = self.tag_def.dfl_tag
     self.body.to_eth(ectx)
 
@@ -2023,7 +2137,7 @@ class Module_Body (Node):
     def to_eth(self, ectx):
         for i in self.imports:
           mod = i.module.val
-          proto = ectx.conform.use_item('MODULE_IMPORT', mod, val_dflt=mod)
+          proto = ectx.conform.use_item('MODULE', mod, val_dflt=mod)
           for s in i.symbol_list:
             if isinstance(s, Type_Ref):
               ectx.eth_import_type(s.val, mod, proto)
@@ -4468,90 +4582,6 @@ def eth_do_module (ast, ectx):
     assert (ast.type == 'Module')
     if ectx.dbg('s'): print ast.str_depth(0)
     ast.to_eth(ectx)
-    ectx.eth_prepare()
-    if ectx.dbg('a'):
-      print "\n# Assignments"
-      print "\n".join(ectx.assign_ord)
-      print "\n# Value assignments"
-      print "\n".join(ectx.vassign_ord)
-    if ectx.dbg('t'):
-      print "\n# Imported Types"
-      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
-      print "-" * 100
-      for t in ectx.type_imp:
-        print "%-40s %-24s %-24s" % (t, ectx.type[t]['import'], ectx.type[t]['proto'])
-      print "\n# Imported Values"
-      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
-      print "-" * 100
-      for t in ectx.value_imp:
-        print "%-40s %-24s %-24s" % (t, ectx.value[t]['import'], ectx.value[t]['proto'])
-      print "\n# Exported Types"
-      print "%-31s %s" % ("Ethereal type", "Export Flag")
-      print "-" * 100
-      for t in ectx.eth_export_ord:
-        print "%-31s 0x%02X" % (t, ectx.eth_type[t]['export'])
-      print "\n# Exported Values"
-      print "%-40s %s" % ("Ethereal name", "Value")
-      print "-" * 100
-      for v in ectx.eth_vexport_ord:
-        print "%-40s %s" % (v, ectx.eth_value[v]['value'])
-      print "\n# ASN.1 Types"
-      print "%-49s %-24s %-24s" % ("ASN.1 unique name", "'tname'", "Ethereal type")
-      print "-" * 100
-      for t in ectx.type_ord:
-        print "%-49s %-24s %-24s" % (t, ectx.type[t]['tname'], ectx.type[t]['ethname'])
-      print "\n# Ethereal Types"
-      print "Ethereal type                   References (ASN.1 types)"
-      print "-" * 100
-      for t in ectx.eth_type_ord:
-        print "%-31s %d" % (t, len(ectx.eth_type[t]['ref'])),
-        print ', '.join(ectx.eth_type[t]['ref'])
-      print "\n# ASN.1 Values"
-      print "%-40s %-18s %s" % ("ASN.1 unique name", "Type", "Value")
-      print "-" * 100
-      for v in ectx.value_ord:
-        if isinstance (ectx.value[v]['value'], Value):
-          print "%-40s %-18s %s" % (v, ectx.value[v]['type'].eth_tname(), ectx.value[v]['value'].to_str())
-        else:
-          print "%-40s %-18s %s" % (v, ectx.value[v]['type'].eth_tname(), ectx.value[v]['value'])
-      print "\n# Ethereal Values"
-      print "%-40s %s" % ("Ethereal name", "Value")
-      print "-" * 100
-      for v in ectx.eth_value_ord:
-        print "%-40s %s" % (v, ectx.eth_value[v]['value'])
-      print "\n# ASN.1 Fields"
-      print "ASN.1 unique name                        Ethereal name        ASN.1 type"
-      print "-" * 100
-      for f in (ectx.pdu_ord + ectx.field_ord):
-        print "%-40s %-20s %s" % (f, ectx.field[f]['ethname'], ectx.field[f]['type'])
-      print "\n# Ethereal Fields"
-      print "Ethereal name                  Ethereal type        References (ASN.1 fields)"
-      print "-" * 100
-      for f in (ectx.eth_hfpdu_ord + ectx.eth_hf_ord):
-        print "%-30s %-20s %s" % (f, ectx.eth_hf[f]['ethtype'], len(ectx.eth_hf[f]['ref'])),
-        print ', '.join(ectx.eth_hf[f]['ref'])
-      #print "\n# Order after dependencies"
-      #print '\n'.join(ectx.eth_type_ord1)
-      print "\n# Cyclic dependencies"
-      for c in ectx.eth_dep_cycle:
-        print ' -> '.join(c)
-    ectx.dupl_report()
-    if (not ectx.output.outnm):
-      ectx.output.outnm = ectx.proto
-    ectx.eth_output_hf()
-    ectx.eth_output_ett()
-    ectx.eth_output_types()
-    ectx.eth_output_hf_arr()
-    ectx.eth_output_ett_arr()
-    ectx.eth_output_export()
-    if ectx.expcnf:
-      ectx.eth_output_expcnf()
-    ectx.eth_output_val()
-    ectx.eth_output_valexp()
-    ectx.eth_output_dis_hnd()
-    ectx.eth_output_dis_reg()
-    ectx.eth_output_dis_tab()
-    ectx.conform.unused_report()
 
 def testyacc(s, fn, defined_dict):
     ast = yacc.parse(s, debug=0)
@@ -4566,25 +4596,30 @@ from PyZ3950 import asn1""" % (fn, time_str)
 # Ethereal compiler
 def eth_usage():
   print """
-asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file
+asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
   -h|?       : usage
-  -d dbg     : debug output, dbg = [l][y][p][s][a][t]
+  -b         : BER (default is PER)
+  -X         : original dissector API (see Note)
+  -p proto   : protocol name (implies -S)
+               default is module-name from input_file (renamed by #.MODULE if present)
+  -o name    : output files name core (default is <proto>)
+  -O dir     : output directory
+  -c conform_file : conformation file
+  -e         : create conformation file for exported types
+  -S         : single output for multiple modules
+  -s template : single file output (template is input file without .c/.h extension)
+  -k         : keep intermediate files though single file output is used
+  input_file : input ASN.1 file
+
+  -d dbg     : debug output, dbg = [l][y][p][s][a][t][c][o]
                l - lex 
                y - yacc
                p - parsing
                s - internal ASN.1 structure
                a - list of assignments
                t - tables
-  -b         : BER (default is PER)
-  -X         : original dissector API (see Note)
-  -p proto   : protocol name (default is module-name from input_file)
-  -o name    : output files name core (default is <proto>)
-  -O dir     : output directory
-  -c conform_file : conformation file
-  -e         : create conformation file for exported types
-  -s template : single file output (template is input file without .c/.h extension)
-  -k         : keep intermediate files though single file output is used
-  input_file : input ASN.1 file
+               c - conformance values
+               o - list of output files
 
 Note: It can create output for an original or a new PER/BER dissectors API,
       but the new PER/BER dissectors API is not implemented now.
@@ -4593,22 +4628,23 @@ Note: It can create output for an original or a new PER/BER dissectors API,
 def eth_main():
   print "ASN.1 to Ethereal dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:bXp:o:O:c:es:k");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:bXp:o:O:c:eSs:k");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
-  if len(args) != 1:
+  if len(args) < 1:
     eth_usage(); sys.exit(2)
 
-  fn = args[0];
   conform = EthCnf()
   output = EthOut()
   ectx = EthCtx(conform, output)
   ectx.encoding = 'per'
-  ectx.proto = None
+  ectx.proto_opt = None
+  ectx.outnm_opt = None
   ectx.new = True
   ectx.dbgopt = ''
   ectx.new = True
   ectx.expcnf = False
+  ectx.merge_modules = False
   ectx.output.outnm = None
   ectx.output.single_file = None
   for o, a in opts:
@@ -4617,7 +4653,8 @@ def eth_main():
     if o in ("-b",):
       ectx.encoding = 'ber'
     if o in ("-p",):
-      ectx.proto = a
+      ectx.proto_opt = a
+      ectx.merge_modules = True
     if o in ("-c",):
       ectx.conform.read(a)
     if o in ("-X",):
@@ -4626,8 +4663,10 @@ def eth_main():
       ectx.dbgopt = a
     if o in ("-e",):
       ectx.expcnf = True
+    if o in ("-S",):
+      ectx.merge_modules = True
     if o in ("-o",):
-      ectx.output.outnm = a
+      ectx.outnm_opt = a
     if o in ("-O",):
       ectx.output.outdir = a
     if o in ("-s",):
@@ -4635,19 +4674,34 @@ def eth_main():
     if o in ("-k",):
       ectx.output.keep = True
   
-  f = open(fn, "r")
-  s = f.read();
-  f.close()
   (ld, yd, pd) = (0, 0, 0); 
   if ectx.dbg('l'): ld = 1
   if ectx.dbg('y'): yd = 1
   if ectx.dbg('p'): pd = 2
   lexer = lex.lex(debug=ld)
   yacc.yacc(method='SLR', debug=yd)
-  ast = yacc.parse(s, lexer=lexer, debug=pd)
+  ast = []
+  for fn in args:
+    f = open (fn, "r")
+    ast.extend(yacc.parse(f.read(), lexer=lexer, debug=pd))
+    f.close ()
+  ectx.eth_clean()
   for module in ast:
     eth_do_module(module, ectx)
+    if (not ectx.merge_modules):  # output for each module
+      ectx.eth_prepare()
+      ectx.eth_do_output()
+      ectx.eth_clean()
+  if (ectx.merge_modules):  # common output for all module
+    ectx.eth_prepare()
+    ectx.eth_do_output()
 
+  if ectx.dbg('c'):
+    ectx.conform.dbg_print()
+  ectx.conform.unused_report()
+
+  if ectx.dbg('o'):
+    ectx.output.dbg_print()
   ectx.output.make_single_file()
     
 
