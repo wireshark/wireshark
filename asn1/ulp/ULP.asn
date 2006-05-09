@@ -103,8 +103,12 @@ LocationId ::= SEQUENCE {
 	...
 }
 
-Status ::= ENUMERATED {stale(0), current(1), unknown(2), ...
-                       }
+Status ::= ENUMERATED {
+	stale(0),
+	current(1),
+	unknown(2), 
+	...
+	}
 
 CellInfo ::= CHOICE {
   gsmCell    GsmCellInformation,
@@ -180,8 +184,10 @@ FrequencyInfoFDD ::= SEQUENCE {
   uarfcn-DL  UARFCN,
   ...}
 
-FrequencyInfoTDD ::= SEQUENCE {uarfcn-Nt  UARFCN,
-                               ...}
+FrequencyInfoTDD ::= SEQUENCE {
+	uarfcn-Nt  UARFCN,
+	...
+	}
 
 UARFCN ::= INTEGER(0..16383)
 
@@ -255,13 +261,27 @@ maxFreq INTEGER ::= 8
 maxTS INTEGER ::= 14
 
 StatusCode ::= ENUMERATED {
-  unspecified(0), systemFailure(1), unexpectedMessage(2), protocolError(3),
-  dataMissing(4), unexpectedDataValue(5), posMethodFailure(6),
-  posMethodMismatch(7), posProtocolMismatch(8), targetSETnotReachable(9),
-  versionNotSupported(10), resourceShortage(11), invalidSessionId(12),
-  nonProxyModeNotSupported(13), proxyModeNotSupported(14),
-  positioningNotPermitted(15), authNetFailure(16), authSuplinitFailure(17), consentDeniedByUser(100),
-  consentGrantedByUser(101), ...
+  unspecified(0), 
+  systemFailure(1), 
+  unexpectedMessage(2), 
+  protocolError(3),
+  dataMissing(4), 
+  unexpectedDataValue(5), 
+  posMethodFailure(6),
+  posMethodMismatch(7), 
+  posProtocolMismatch(8), 
+  targetSETnotReachable(9),
+  versionNotSupported(10), 
+  resourceShortage(11), 
+  invalidSessionId(12),
+  nonProxyModeNotSupported(13), 
+  proxyModeNotSupported(14),
+  positioningNotPermitted(15), 
+  authNetFailure(16), 
+  authSuplinitFailure(17), 
+  consentDeniedByUser(100),
+  consentGrantedByUser(101), 
+  ...
   }
 
 QoP ::= SEQUENCE {
@@ -393,23 +413,36 @@ Notification ::= SEQUENCE {
   ...}
 
 NotificationType ::= ENUMERATED {
-  noNotificationNoVerification(0), notificationOnly(1),
+  noNotificationNoVerification(0), 
+  notificationOnly(1),
   notificationAndVerficationAllowedNA(2),
-  notificationAndVerficationDeniedNA(3), privacyOverride(4), ...
+  notificationAndVerficationDeniedNA(3), 
+  privacyOverride(4), 
+  ...
   }
 
-EncodingType ::= ENUMERATED {ucs2(0), gsmDefault(1), utf8(2), ...
-                             }
+EncodingType ::= ENUMERATED {
+	ucs2(0), 
+	gsmDefault(1), 
+	utf8(2), 
+	...
+	}
 
 maxReqLength INTEGER ::= 50
 
 maxClientLength INTEGER ::= 50
 
--- IMSPublicidentity is incorrect as identifiers must start with lower case char
 FormatIndicator ::= ENUMERATED {
-  logicalName(0), e-mailAddress(1), msisdn(2), url(3), sipUrl(4), min(5),
-  mdn(6), iMSPublicidentity(7), ...
+  logicalName(0), 
+  e-mailAddress(1), 
+  msisdn(2), 
+  url(3), 
+  sipUrl(4), 
+  min(5),
+  mdn(6), 
+  ...
   }
+
 
 SLPMode ::= ENUMERATED {proxy(0), nonProxy(1)}
 

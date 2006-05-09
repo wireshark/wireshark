@@ -314,6 +314,8 @@ static gint ett_ulp_PosProtocol = -1;
 /*--- End of included file: packet-ulp-ett.c ---*/
 #line 66 "packet-ulp-template.c"
 
+guint32 StatusCode_value_map[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11, 12, 13, 14, 15, 16, 17, 100 , 101};
+
 /* Include constants */
 
 /*--- Included file: packet-ulp-val.h ---*/
@@ -325,7 +327,7 @@ static gint ett_ulp_PosProtocol = -1;
 #define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 69 "packet-ulp-template.c"
+#line 71 "packet-ulp-template.c"
 
 
 /*--- Included file: packet-ulp-fn.c ---*/
@@ -729,7 +731,6 @@ static const value_string ulp_FormatIndicator_vals[] = {
   {   4, "sipUrl" },
   {   5, "min" },
   {   6, "mdn" },
-  {   7, "iMSPublicidentity" },
   { 0, NULL }
 };
 
@@ -737,7 +738,7 @@ static const value_string ulp_FormatIndicator_vals[] = {
 static int
 dissect_ulp_FormatIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, TRUE);
+                                              0, 6, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -2420,8 +2421,11 @@ static const value_string ulp_StatusCode_vals[] = {
 
 static int
 dissect_ulp_StatusCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 101, NULL, NULL, TRUE);
+#line 22 "ulp.cnf"
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+									19, NULL, NULL, TRUE, 0, StatusCode_value_map);
+
+
 
   return offset;
 }
@@ -2576,9 +2580,20 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+#line 28 "ulp.cnf"
+
+guint32 UlpMessage;
+
+    offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                                  ett_ulp_UlpMessage, UlpMessage_choice,
-                                 NULL);
+                                 &UlpMessage);
+
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+	}
+
 
   return offset;
 }
@@ -2610,6 +2625,8 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
 
 
+
+
   return offset;
 }
 
@@ -2621,7 +2638,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 71 "packet-ulp-template.c"
+#line 73 "packet-ulp-template.c"
 
 
 /*--- proto_register_ulp -------------------------------------------*/
@@ -3331,7 +3348,7 @@ void proto_register_ulp(void) {
         "PosProtocol/rrc", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 80 "packet-ulp-template.c"
+#line 82 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -3400,7 +3417,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 86 "packet-ulp-template.c"
+#line 88 "packet-ulp-template.c"
   };
 
 

@@ -16,3 +16,21 @@ ULP-PDU
 		col_clear(pinfo->cinfo, COL_INFO);
 
   %(DEFAULT_BODY)s
+
+#.FN_BODY StatusCode
+# Remove once asn2eth is fixed to handle PER Enummeration extensions
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+									19, NULL, NULL, TRUE, 0, StatusCode_value_map);
+
+#.FN_PARS UlpMessage 	VAL_PTR = &UlpMessage
+
+#.FN_BODY UlpMessage
+
+guint32 UlpMessage;
+
+  %(DEFAULT_BODY)s
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+	    col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+	}
