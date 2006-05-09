@@ -7,7 +7,7 @@
  * Refactored for ethereal checkin
  *   Ronnie Sahlberg 2006
  *
- * $Id: packet-hci_h4.c,v 1.1 2002/11/10 20:47:21 kds Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
