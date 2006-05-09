@@ -327,6 +327,7 @@ DISSECTOR_SRC =	\
 	packet-h261.c	\
 	packet-h263.c	\
 	packet-h450.c	\
+	packet-hci_h4.c	\
 	packet-hclnfsd.c	\
 	packet-hpext.c	\
 	packet-hpsw.c	\
@@ -778,6 +779,7 @@ DISSECTOR_INCLUDES =	\
 	packet-h245.h	\
 	packet-h248.h	\
 	packet-h450.h	\
+	packet-hci_h4.h	\
 	packet-hclnfsd.h	\
 	packet-hpext.h	\
 	packet-http.h	\
