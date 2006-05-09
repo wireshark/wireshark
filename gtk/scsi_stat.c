@@ -183,6 +183,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	int program, pos;
 	const char *filter=NULL;
 	GString *error_string;
+	char *hf_name=NULL;
 
 	pos=0;
 	if(sscanf(optarg,"scsi,srt,%d,%n",&program,&pos)==1){
@@ -203,14 +204,17 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	case SCSI_DEV_SBC:
 		rs->prog="SBC";
 		rs->cdbnames=scsi_sbc2_vals;
+		hf_name="scsi.sbc.opcode";
 		break;
 	case SCSI_DEV_SSC:
 		rs->prog="SSC";
 		rs->cdbnames=scsi_ssc2_vals;
+		hf_name="scsi.ssc.opcode";
 		break;
 	case SCSI_DEV_CDROM:
 		rs->prog="MMC";
 		rs->cdbnames=scsi_mmc_vals;
+		hf_name="scsi.mmc.opcode";
 		break;
 	}
 
@@ -234,7 +238,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show_all(rs->win);
 
-	init_srt_table(&rs->srt_table, 256, vbox, rs->prog);
+	init_srt_table(&rs->srt_table, 256, vbox, hf_name);
 
 	for(i=0;i<256;i++){
 		init_srt_table_row(&rs->srt_table, i, val_to_str(i, rs->cdbnames, "Unknown-0x%02x"));
