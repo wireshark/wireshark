@@ -89,6 +89,7 @@
 #include "cmdarg_err.h"
 #include "version_info.h"
 #include "merge.h"
+#include <epan/oid_resolv.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture-pcap-util.h"
@@ -382,6 +383,28 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
     }
 }
 
+void
+selected_ptree_field_url_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  gchar *selected_info_url;
+
+  /* only OIDs for now */
+  if(cfile.finfo_selected->hfinfo->type == FT_OID) {
+    if(get_oid_url(cfile.finfo_selected, &selected_info_url)) {
+      browser_open_url(selected_info_url);
+      g_free(selected_info_url);
+    }
+  }
+}
+
+gboolean selected_ptree_has_field_url()
+{
+  /* only OIDs for now */
+  if(cfile.finfo_selected->hfinfo->type == FT_OID) 
+    return get_oid_url(cfile.finfo_selected, NULL);
+
+  return FALSE;
+}
 
 static gchar *
 get_text_from_packet_list(gpointer data)

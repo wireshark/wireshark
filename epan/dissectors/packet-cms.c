@@ -1599,7 +1599,7 @@ void proto_register_cms(void) {
   static hf_register_info hf[] = {
     { &hf_cms_ci_contentType,
       { "contentType", "cms.contentInfo.contentType",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "ContentType", HFILL }},
 
 /*--- Included file: packet-cms-hfarr.c ---*/

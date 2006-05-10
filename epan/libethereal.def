@@ -411,6 +411,7 @@ nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
 offset_from_real_beginning
+oid_get_url
 other_decode_bitfield_value
 plugin_list                     DATA
 postseq_cleanup_all_protocols

@@ -35,6 +35,9 @@
 
 static GHashTable *oid_table = NULL;
 
+/* this should be configurable - but where ? */
+static const gchar *oid_url_template = "http://www.alvestrand.no/objectid/%s.html";
+
 void oid_resolv_init(void) {
   oid_table = g_hash_table_new(g_str_hash, g_str_equal);
 }
@@ -94,4 +97,30 @@ extern void add_oid_name(const guint8 *oid, gint oid_len, const gchar *name) {
 
 extern void add_oid_str_name(const gchar *oid_str, const gchar *name) {
   g_hash_table_insert(oid_table, (gpointer)g_strdup(oid_str), (gpointer)name);
+}
+
+gboolean get_oid_url(field_info *finfo, gchar **ret_url)
+{
+  const char *oid;
+  
+  if(finfo && (finfo->hfinfo->type == FT_OID) && 
+     (oid_url_template != NULL) && (*oid_url_template != NULL)) {
+    if(ret_url) {
+      /* return the URL */
+      oid = oid_to_str(tvb_get_ptr(finfo->ds_tvb, finfo->start, finfo->length),
+		       finfo->length);
+
+      /* the URL will be freed */
+      *ret_url = g_strdup_printf(oid_url_template, oid);
+      return TRUE;
+    } else {
+      /* return TRUE if we are configured to return URLs */
+
+      if((oid_url_template != NULL) && (*oid_url_template != NULL)) 
+	return TRUE;
+      
+    }
+  }
+
+  return FALSE;
 }

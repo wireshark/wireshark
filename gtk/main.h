@@ -105,6 +105,17 @@ extern void selected_ptree_info_cb(GtkWidget *widget, gpointer data);
  */
 extern void selected_ptree_ref_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Field Information" by ptree context menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void selected_ptree_field_url_cb(GtkWidget *widget, gpointer data);
+
+/** Determine if "Field Information" should be enabled in ptree context menu.
+ *
+ */
+extern gboolean selected_ptree_has_field_url();
 
 /** "Apply as Filter" / "Prepare a Filter" action type. */
 typedef enum {

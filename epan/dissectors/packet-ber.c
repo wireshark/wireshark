@@ -2331,7 +2331,7 @@ proto_register_ber(void)
 	    "OCTETSTRING", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_HEX,
 	    NULL, 0, "This is an unknown OCTETSTRING", HFILL }},
 	{ &hf_ber_unknown_OID, {
-	    "OID", "ber.unknown.OID", FT_STRING, BASE_NONE,
+	    "OID", "ber.unknown.OID", FT_OID, BASE_NONE,
 	    NULL, 0, "This is an unknown Object Identifier", HFILL }},
 	    	{ &hf_ber_unknown_GraphicString, {
 	    "GRAPHICSTRING", "ber.unknown.GRAPHICSTRING", FT_STRING, BASE_HEX,
