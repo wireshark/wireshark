@@ -61,6 +61,7 @@
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
+#include <epan/prefs.h>
 #include "packet-igmp.h"
 #include "packet-dvmrp.h"
 
@@ -103,6 +104,7 @@ static int ett_commands = -1;
 static int ett_capabilities = -1;
 static int ett_route = -1;
 
+static int strict_v3 = FALSE;
 
 #define DVMRP_TYPE				0x13
 static const value_string dvmrp_type[] = {
@@ -365,7 +367,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		proto_tree_add_item(parent_tree, hf_genid, tvb,
 			offset, 4, FALSE);
 		offset += 4;
-		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		while (tvb_reported_length_remaining(tvb, offset)>=4) {
 			proto_tree_add_item(parent_tree, hf_neighbor,
 				tvb, offset, 4, FALSE);
 			offset += 4;
@@ -641,15 +643,14 @@ dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 
 
 	if ((tvb_length_remaining(tvb, offset)>=8)
-	 && (tvb_get_guint8(tvb, 6)==0xff)
-	 && (tvb_get_guint8(tvb, 7)==0x03)) {
+	 && (((tvb_get_guint8(tvb, 6)==0xff)
+	 && (tvb_get_guint8(tvb, 7)==0x03))
+         || !strict_v3)) {
 		offset = dissect_dvmrp_v3(tvb, pinfo, tree, offset);
-		proto_item_set_len(item, offset);
-		return offset;
+	} else {
+		offset = dissect_dvmrp_v1(tvb, pinfo, tree, offset);
 	}
 
-
-	offset = dissect_dvmrp_v1(tvb, pinfo, tree, offset);
 	proto_item_set_len(item, offset);
 	return offset;
 }
@@ -793,9 +794,16 @@ proto_register_dvmrp(void)
 		&ett_capabilities,
 		&ett_route,
 	};
+	module_t *module_dvmrp;
 
 	proto_dvmrp = proto_register_protocol("Distance Vector Multicast Routing Protocol",
 	    "DVMRP", "dvmrp");
 	proto_register_field_array(proto_dvmrp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	module_dvmrp = prefs_register_protocol(proto_dvmrp, NULL);
+
+	prefs_register_bool_preference(module_dvmrp, "strict_v3", "Allow strict DVMRP V3 only",
+		"Allow only packets with Major=0x03//Minor=0xFF as DVMRP V3 packets",
+		&strict_v3);
 }
