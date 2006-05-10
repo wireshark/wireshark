@@ -1,5 +1,5 @@
 /* packet-hci_h4.c
- * Routines for the HCI H4 dissection
+ * Routines for the Bluetooth HCI H4 dissection
  *
  * Copyright 2002, Christoph Scholz <scholz@cs.uni-bonn.de>
  *  From: http://affix.sourceforge.net/archive/ethereal_affix-3.patch
@@ -123,7 +123,7 @@ proto_register_hci_h4(void)
 		&ett_hci_h4,
 	};
 
-	proto_hci_h4 = proto_register_protocol("HCI H4",
+	proto_hci_h4 = proto_register_protocol("Bluetooth HCI H4",
 	    "HCI_H4", "hci_h4");
 
 	register_dissector("hci_h4", dissect_hci_h4, proto_hci_h4);
