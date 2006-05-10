@@ -1901,13 +1901,13 @@ if (tree) {
     template_get_CDR_longlong = """\
 s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = PRIo64",s_octet8);
+   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" PRId64,s_octet8);
 }
 """
     template_get_CDR_ulonglong = """\
 u_octet8 = get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = PRIu64",u_octet8);
+   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" PRIu64,u_octet8);
 }
 """
     template_get_CDR_boolean = """\
