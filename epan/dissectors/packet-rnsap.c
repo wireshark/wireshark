@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-rnsap.c                                                           */
+/* .\packet-rnsap.c                                                           */
 /* ../../tools/asn2eth.py -X -e -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
 
 /* Input file: packet-rnsap-template.c */
@@ -31976,7 +31976,8 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* create the rnsap protocol tree */
 	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, FALSE);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
-
+	
+	per_aligment_type_callback(TRUE);
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
 }
 
@@ -38884,7 +38885,7 @@ void proto_register_rnsap(void) {
         "PrivateIE-Field/privateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 2317 "packet-rnsap-template.c"
+#line 2318 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39747,7 +39748,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 2327 "packet-rnsap-template.c"
+#line 2328 "packet-rnsap-template.c"
   };
 
 

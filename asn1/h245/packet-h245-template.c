@@ -317,6 +317,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
 		init_h245_packet_info(h245_pi);
+		per_aligment_type_callback(TRUE);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;

@@ -67,6 +67,7 @@ typedef struct _per_sequence_t {
 	per_callback func;
 } per_sequence_t;
 
+extern void per_aligment_type_callback(gboolean byte_aligned);
 
 extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 *length);
 

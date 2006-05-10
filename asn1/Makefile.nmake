@@ -252,6 +252,7 @@ ber: \
 	gnm	\
 	gsmmap	\
 	gsm_ss	\
+	h248	\
 	inap	\
 	ldap \
 	logotype-cert-extn	\
@@ -288,7 +289,6 @@ per: \
 	h225	\
 	h235	\
 	h245	\
-	h248	\
 	h450	\
 	ranap	\
 	rnsap	\

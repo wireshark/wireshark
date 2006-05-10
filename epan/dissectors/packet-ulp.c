@@ -2421,7 +2421,7 @@ static const value_string ulp_StatusCode_vals[] = {
 
 static int
 dissect_ulp_StatusCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 22 "ulp.cnf"
+#line 23 "ulp.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
 									19, NULL, NULL, TRUE, 0, StatusCode_value_map);
 
@@ -2580,7 +2580,7 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 28 "ulp.cnf"
+#line 29 "ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -2621,6 +2621,7 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
+  per_aligment_type_callback(FALSE);
     offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
 

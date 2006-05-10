@@ -15,6 +15,7 @@ ULP-PDU
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
+  per_aligment_type_callback(FALSE);
   %(DEFAULT_BODY)s
 
 #.FN_BODY StatusCode

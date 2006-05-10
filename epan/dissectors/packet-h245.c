@@ -17478,6 +17478,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=ep_alloc(sizeof(h245_packet_info));
 		init_h245_packet_info(h245_pi);
+		per_aligment_type_callback(TRUE);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
 		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 		offset = (offset+0x07) & 0xfffffff8;
@@ -22909,7 +22910,7 @@ void proto_register_h245(void) {
         "Rtp/expirationTime", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 351 "packet-h245-template.c"
+#line 352 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -23392,7 +23393,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 357 "packet-h245-template.c"
+#line 358 "packet-h245-template.c"
   };
   module_t *h245_module;
 

@@ -227,6 +227,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), PSNAME" CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
+	per_aligment_type_callback(TRUE);
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
 
 	if (h245_list.count && check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -264,6 +265,7 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), PSNAME" RAS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
+	per_aligment_type_callback(TRUE);
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );
 
 	ras_call_matching(tvb, pinfo, tr, h225_pi);

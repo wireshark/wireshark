@@ -98,6 +98,15 @@ static const true_false_string tfs_optional_field_bit = {
 	""
 };
 
+gboolean is_per_byte_aligned = TRUE;
+
+void
+per_aligment_type_callback(gboolean byte_aligned){
+
+	is_per_byte_aligned = byte_aligned;
+
+}
+
 #define BYTE_ALIGN_OFFSET(offset)		\
 	if(offset&0x07){			\
 		offset=(offset&0xfffffff8)+8;	\

@@ -10748,6 +10748,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
+	per_aligment_type_callback(TRUE);
 	offset = dissect_ranap_RANAP_PDU(tvb, offset, pinfo, ranap_tree, hf_ranap_RANAP_PDU);
 
 }
@@ -12883,7 +12884,7 @@ void proto_register_ranap(void) {
         "PrivateIE-Field/value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 1149 "packet-ranap-template.c"
+#line 1150 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13152,7 +13153,7 @@ void proto_register_ranap(void) {
     &ett_ranap_PrivateIE_Field,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 1156 "packet-ranap-template.c"
+#line 1157 "packet-ranap-template.c"
   };
 
   /* Register protocol */

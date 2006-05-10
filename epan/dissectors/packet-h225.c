@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h225.c                                                            */
+/* .\packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -9439,6 +9439,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), PSNAME" CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
+	per_aligment_type_callback(TRUE);
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
 
 	if (h245_list.count && check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -9476,6 +9477,7 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), PSNAME" RAS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
+	per_aligment_type_callback(TRUE);
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );
 
 	ras_call_matching(tvb, pinfo, tr, h225_pi);
@@ -12504,7 +12506,7 @@ void proto_register_h225(void) {
         "ServiceControlResponse/result/notAvailable", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 307 "packet-h225-template.c"
+#line 309 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -12746,7 +12748,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 313 "packet-h225-template.c"
+#line 315 "packet-h225-template.c"
   };
   module_t *h225_module;
 
