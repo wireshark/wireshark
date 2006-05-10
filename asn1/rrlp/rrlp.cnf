@@ -1,0 +1,19 @@
+# rrlp.cnf
+# rrlp conformation file
+# Copyright 2006 Anders Broman 
+# $Id$
+
+#.PDU
+PDU
+
+#.FN_BODY PDU
+
+	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+  per_aligment_type_callback(FALSE);
+  %(DEFAULT_BODY)s

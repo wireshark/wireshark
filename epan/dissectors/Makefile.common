@@ -535,6 +535,7 @@ DISSECTOR_SRC =	\
 	packet-rpc.c	\
 	packet-rpl.c	\
 	packet-rquota.c	\
+	packet-rrlp.c	\
 	packet-rsh.c	\
 	packet-rstat.c	\
 	packet-rsvp.c	\
@@ -871,6 +872,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ros.h	\
 	packet-rpc.h	\
 	packet-rquota.h	\
+	packet-rrlp.h	\
 	packet-rsvp.h	\
 	packet-rtcp.h	\
 	packet-rtp.h	\

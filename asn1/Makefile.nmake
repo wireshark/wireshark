@@ -235,7 +235,7 @@ distclean: clean
 
 maintainer-clean: distclean
 	
-ber: \	
+ber: \
 	acse	\
 	acp133 \
 	camel	\
@@ -285,13 +285,14 @@ ber: \
 	x509if	\
 	x509sat	
 	
-per: \	
+per: \
 	h225	\
 	h235	\
 	h245	\
 	h450	\
 	ranap	\
 	rnsap	\
+	rrlp	\
 	ulp
 
 acse::
@@ -500,6 +501,11 @@ rnsap::
 
 ros::
 	cd ros
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+rrlp::
+	cd rrlp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

@@ -1,0 +1,1031 @@
+RRLP-Messages
+-- { RRLP-messages }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+--IMPORTS
+
+--	MsrPosition-Req, MsrPosition-Rsp, AssistanceData,
+--	ProtocolError
+
+--FROM
+--	RRLP-Components 
+-- { RRLP-Components }
+--;
+
+IMPORTS
+	Ext-GeographicalInformation
+FROM
+	MAP-LCS-DataTypes {
+	ccitt identified-organization (4) etsi (0) mobileDomain (0)
+	gsm-Network (1) modules (3) map-LCS-DataTypes (25) version5 (5)}
+
+	ExtensionContainer
+FROM MAP-ExtensionDataTypes {
+	ccitt identified-organization (4) etsi (0) mobileDomain (0)
+	gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version4 (4)}
+	;
+
+PDU ::= SEQUENCE {
+	referenceNumber 	INTEGER (0..7),
+	component 	RRLP-Component
+}
+
+RRLP-Component ::= CHOICE {
+	msrPositionReq 		MsrPosition-Req,
+	msrPositionRsp 		MsrPosition-Rsp,
+	assistanceData 		AssistanceData,
+	assistanceDataAck 	NULL,
+	protocolError 	ProtocolError,
+	...
+}
+
+--RRLP-Components
+-- { RRLP-Components }
+-- ETSI TS 144 031 V6.8.0
+--DEFINITIONS AUTOMATIC TAGS ::=
+
+--BEGIN
+
+--IMPORTS
+
+--	Ext-GeographicalInformation
+--FROM
+--	MAP-LCS-DataTypes {
+--	ccitt identified-organization (4) etsi (0) mobileDomain (0)
+--	gsm-Network (1) modules (3) map-LCS-DataTypes (25) version5 (5)}
+
+--	ExtensionContainer
+--FROM MAP-ExtensionDataTypes {
+--	ccitt identified-organization (4) etsi (0) mobileDomain (0)
+--	gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version4 (4)}
+--	;
+-- Add here other ASN.1 definitions presented below
+-- in chapters 4 and 5.
+
+-- add this definition to RRLP-Components module
+-- Measurement Position request component
+
+MsrPosition-Req ::= SEQUENCE {
+	positionInstruct 				PositionInstruct,
+	referenceAssistData 			ReferenceAssistData OPTIONAL,
+	msrAssistData 				MsrAssistData OPTIONAL,
+	systemInfoAssistData 			SystemInfoAssistData OPTIONAL,
+	gps-AssistData 				GPS-AssistData OPTIONAL,
+	extensionContainer 			ExtensionContainer OPTIONAL,
+	...,
+-- Release 98 extension element
+	rel98-MsrPosition-Req-extension 	Rel98-MsrPosition-Req-Extension OPTIONAL,
+-- Release 5 extension element
+	rel5-MsrPosition-Req-extension 	Rel5-MsrPosition-Req-Extension OPTIONAL
+}
+
+-- add this defintion to RRLP-Components module
+-- Measurement Position response component
+
+MsrPosition-Rsp ::= SEQUENCE {
+	multipleSets 				MultipleSets OPTIONAL,
+	referenceIdentity 			ReferenceIdentity OPTIONAL,
+	otd-MeasureInfo 				OTD-MeasureInfo OPTIONAL,
+	locationInfo 				LocationInfo OPTIONAL,
+	gps-MeasureInfo 				GPS-MeasureInfo OPTIONAL,
+	locationError 				LocationError OPTIONAL,
+	extensionContainer 			ExtensionContainer OPTIONAL,
+	...,
+-- Release extension here
+	rel-98-MsrPosition-Rsp-Extension	Rel-98-MsrPosition-Rsp-Extension OPTIONAL,
+	rel-5-MsrPosition-Rsp-Extension	Rel-5-MsrPosition-Rsp-Extension OPTIONAL
+-- rel-5-MsrPosition-Rsp-Extension and other possible future extensions
+-- are the only information elements that may be included in the 2nd
+-- MsrPosition-Rsp component when RRLP pseudo-segmentation is used
+}
+
+-- add this defintion to RRLP-Components module
+-- Assistance Data component
+
+AssistanceData ::= SEQUENCE {
+	referenceAssistData 			ReferenceAssistData OPTIONAL,
+	msrAssistData 				MsrAssistData OPTIONAL,
+	systemInfoAssistData 			SystemInfoAssistData OPTIONAL,
+	gps-AssistData 				GPS-AssistData OPTIONAL,
+	moreAssDataToBeSent 			MoreAssDataToBeSent OPTIONAL, -- If not present, interpret as only
+-- Assistance Data component used to
+-- deliver entire set of assistance
+-- data.
+	extensionContainer 			ExtensionContainer OPTIONAL,
+	...,
+-- Release extension here
+	rel98-AssistanceData-Extension 	Rel98-AssistanceData-Extension OPTIONAL,
+	rel5-AssistanceData-Extension 	Rel5-AssistanceData-Extension OPTIONAL
+}
+
+-- add this defintion to RRLP-Components module
+-- Protocol Error component
+	ProtocolError ::= SEQUENCE {
+	errorCause 					ErrorCodes,
+	extensionContainer 			ExtensionContainer OPTIONAL,
+	...,
+-- Release extensions here
+	rel-5-ProtocolError-Extension 	Rel-5-ProtocolError-Extension OPTIONAL
+}
+
+PositionInstruct ::= SEQUENCE {
+-- Method type
+	methodType				MethodType,
+	positionMethod			PositionMethod,
+	measureResponseTime		MeasureResponseTime,
+	useMultipleSets			UseMultipleSets,
+	environmentCharacter	EnvironmentCharacter OPTIONAL
+}
+
+--
+MethodType ::= CHOICE {
+	msAssisted				AccuracyOpt, -- accuracy is optional
+	msBased					Accuracy, -- accuracy is mandatory
+	msBasedPref				Accuracy, -- accuracy is mandatory
+	msAssistedPref			Accuracy -- accuracy is mandatory
+}
+
+-- Accuracy of the location estimation
+AccuracyOpt ::= SEQUENCE {
+	accuracy				Accuracy OPTIONAL
+}
+
+-- The values of this field are defined in 3GPP TS 23.032 (Uncertainty code)
+Accuracy ::= INTEGER (0..127)
+
+-- Position Method
+PositionMethod ::= ENUMERATED {
+	eotd (0),
+	gps (1),
+	gpsOrEOTD (2)
+}
+
+-- Measurement request response time
+MeasureResponseTime ::= INTEGER (0..7)
+
+-- useMultiple Sets, FFS!
+UseMultipleSets ::= ENUMERATED {
+	multipleSets (0), -- multiple sets are allowed
+	oneSet (1) -- sending of multiple is not allowed
+}
+
+-- Environment characterization
+EnvironmentCharacter ::= ENUMERATED {
+	badArea (0), -- bad urban or suburban, heavy multipath and NLOS
+	notBadArea (1), -- light multipath and NLOS
+	mixedArea (2), -- not defined or mixed environment
+	...
+}
+-- E-OTD reference BTS for Assitance data IE
+ReferenceAssistData ::= SEQUENCE {
+	bcchCarrier				BCCHCarrier, -- BCCH carrier
+	bsic					BSIC, -- BSIC
+	timeSlotScheme			TimeSlotScheme, -- Timeslot scheme
+	btsPosition				BTSPosition OPTIONAL
+}
+
+-- ellipsoid point and
+-- ellipsoid point with altitude and uncertainty ellipsoid shapes are supported
+BTSPosition ::= Ext-GeographicalInformation
+
+-- RF channel number of BCCH
+BCCHCarrier ::= INTEGER (0..1023)
+
+-- Base station Identity Code
+BSIC ::= INTEGER (0..63)
+
+-- Timeslot scheme
+TimeSlotScheme ::= ENUMERATED {
+	equalLength (0),
+	variousLength (1)
+}
+
+-- Time slot (modulo)
+ModuloTimeSlot ::= INTEGER (0..3)
+
+-- E-OTD measurement assistance data IE
+-- The total number of neighbors in this element (MsrAssistData)
+-- and in SystemInfoAssistData element (presented neighbors
+-- can be at a maximum 15!)
+MsrAssistData ::= SEQUENCE {
+	msrAssistList SeqOfMsrAssistBTS
+}
+
+SeqOfMsrAssistBTS ::= SEQUENCE (SIZE(1..15)) OF MsrAssistBTS
+
+MsrAssistBTS ::= SEQUENCE {
+	bcchCarrier				BCCHCarrier, -- BCCH carrier
+	bsic					BSIC, -- BSIC
+	multiFrameOffset		MultiFrameOffset, -- multiframe offset
+	timeSlotScheme			TimeSlotScheme, -- Timeslot scheme
+	roughRTD				RoughRTD, -- rough RTD value
+-- Location Calculation	Assistance data is moved here
+	calcAssistanceBTS		CalcAssistanceBTS OPTIONAL
+}
+-- Multiframe offset
+MultiFrameOffset ::= INTEGER (0..51)
+-- The Multiframe Offset value 51 shall not be encoded by the transmitting entity and
+-- shall be treated by the receiving entity as 0.
+-- Rough RTD value between one base station and reference BTS
+
+RoughRTD ::= INTEGER (0..1250)
+-- The RoughRTD value 1250 shall not be encoded by the transmitting entity and shall
+-- be treated by the receiving entity as 0.
+-- E-OTD Measurement assistance data for system information List IE
+-- The total number of base stations in this element (SystemInfoAssistData
+-- presented neighbors) and in MsrAssistData element can be at a maximum 15.
+
+SystemInfoAssistData ::= SEQUENCE {
+	systemInfoAssistList		SeqOfSystemInfoAssistBTS
+}
+
+SeqOfSystemInfoAssistBTS::= SEQUENCE (SIZE(1..32)) OF SystemInfoAssistBTS
+-- whether n.th is present or not ?
+
+SystemInfoAssistBTS ::= CHOICE {
+	notPresent		NULL,
+	present			AssistBTSData
+}
+
+-- Actual assistance data for system information base station
+AssistBTSData ::= SEQUENCE {
+	bsic						BSIC, -- BSIC
+	multiFrameOffset			MultiFrameOffset, -- multiframe offset
+	timeSlotScheme				TimeSlotScheme, -- Timeslot scheme
+	roughRTD					RoughRTD, -- rough RTD value
+-- Location Calculation Assistance data
+	calcAssistanceBTS			CalcAssistanceBTS OPTIONAL
+}
+
+-- E-OTD Location calculation assistance data,
+-- CalcAssistanceBTS element is optional not subfields
+CalcAssistanceBTS ::= SEQUENCE {
+	fineRTD						FineRTD, -- fine RTD value between base stations
+	referenceWGS84				ReferenceWGS84 -- reference coordinates
+}
+
+-- Coordinates of neighbour BTS, WGS-84 ellipsoid
+ReferenceWGS84 ::= SEQUENCE {
+	relativeNorth				RelDistance, -- relative distance (south negative)
+	relativeEast				RelDistance, -- relative distance (west negative)
+-- Relative Altitude is not always known
+	relativeAlt					RelativeAlt OPTIONAL -- relative altitude
+}
+
+-- Fine RTD value between this BTS and the reference BTS
+FineRTD ::= INTEGER (0..255)
+
+-- Relative north/east distance
+RelDistance ::= INTEGER (-200000..200000)
+
+-- Relative altitude
+
+RelativeAlt ::= INTEGER (-4000..4000)
+-- Measure position response IEs
+-- Reference Identity
+-- Multiple sets
+
+MultipleSets ::= SEQUENCE {
+	-- number of reference sets
+	nbrOfSets INTEGER (2..3),
+	-- This field actually tells the number of reference BTSs
+	nbrOfReferenceBTSs INTEGER (1..3),
+	-- This field is conditional and included optionally only if
+	-- nbrOfSets is 3 and number of reference BTSs is 2.
+	referenceRelation			ReferenceRelation OPTIONAL
+}
+
+-- Relation between refence BTSs and sets
+ReferenceRelation ::= ENUMERATED {
+	secondBTSThirdSet (0), -- 1st BTS related to 1st and 2nd sets
+	secondBTSSecondSet (1), -- 1st BTS related to 1st and 3rd sets
+	firstBTSFirstSet (2) -- 1st BTS related to 1st set
+}
+
+-- Reference BTS Identity, this element contains number of
+-- BTSs told nbrOfReferenceBTSs field in Multiple sets element)
+
+ReferenceIdentity ::= SEQUENCE {
+	-- Reference BTS list
+	refBTSList					SeqOfReferenceIdentityType
+}
+SeqOfReferenceIdentityType ::= SEQUENCE (SIZE(1..3)) OF ReferenceIdentityType
+
+-- Cell identity
+ReferenceIdentityType ::= CHOICE {
+	bsicAndCarrier				BSICAndCarrier, -- BSIC and Carrier
+	ci							CellID, -- Cell ID, LAC not needed
+	requestIndex				RequestIndex, -- Index to Requested Neighbor List
+	systemInfoIndex				SystemInfoIndex, -- Index to System info list, this type of ref. identity
+	-- shall not be used by the MS unless it has received
+	-- the SystemInfoAssistData from the SMLC for this cell.
+	ciAndLAC					CellIDAndLAC -- CI and LAC
+}
+
+BSICAndCarrier ::= SEQUENCE {
+	carrier			BCCHCarrier,
+	bsic			BSIC
+}
+
+RequestIndex ::= INTEGER (1..16)
+
+SystemInfoIndex ::= INTEGER (1..32)
+
+CellIDAndLAC ::= SEQUENCE {
+	referenceLAC				LAC, -- Location area code
+	referenceCI					CellID -- Cell identity
+}
+
+CellID ::= INTEGER (0..65535)
+
+LAC ::= INTEGER (0..65535)
+
+-- OTD-MeasureInfo
+
+OTD-MeasureInfo ::= SEQUENCE {
+	-- Measurement info elements, OTD-MsrElement is repeated number of times
+	-- told in nbrOfReferenceBTSs in MultipleSets, default value is 1
+	otdMsrFirstSets				OTD-MsrElementFirst,
+	-- if more than one sets are present this element is repeated
+	-- NumberOfSets - 1 (-1 = first set)
+	otdMsrRestSets				SeqOfOTD-MsrElementRest OPTIONAL
+}
+
+SeqOfOTD-MsrElementRest ::= SEQUENCE (SIZE(1..2)) OF OTD-MsrElementRest
+
+-- OTD measurent information for 1 set
+OTD-MsrElementFirst ::= SEQUENCE {
+	refFrameNumber INTEGER (0..42431), -- Frame number modulo 42432
+	referenceTimeSlot			ModuloTimeSlot,
+	toaMeasurementsOfRef		TOA-MeasurementsOfRef OPTIONAL,
+	stdResolution				StdResolution,
+	taCorrection INTEGER (0..960) OPTIONAL, -- TA correction
+-- measured neighbors in OTD measurements
+	otd-FirstSetMsrs			SeqOfOTD-FirstSetMsrs OPTIONAL
+}
+
+SeqOfOTD-FirstSetMsrs ::= SEQUENCE (SIZE(1..10)) OF OTD-FirstSetMsrs
+
+-- OTD measurent information 2 and 3 sets if exist
+OTD-MsrElementRest ::= SEQUENCE {
+	refFrameNumber 				INTEGER (0..42431), -- Frame number modulo 42432
+	referenceTimeSlot 			ModuloTimeSlot,
+	toaMeasurementsOfRef 			TOA-MeasurementsOfRef OPTIONAL,
+	stdResolution 				StdResolution,
+	taCorrection 				INTEGER (0..960) OPTIONAL, -- TA correction
+	-- measured neighbors in OTD measurements
+	otd-MsrsOfOtherSets 			SeqOfOTD-MsrsOfOtherSets OPTIONAL
+}
+
+SeqOfOTD-MsrsOfOtherSets ::= SEQUENCE (SIZE(1..10)) OF OTD-MsrsOfOtherSets
+
+-- Standard deviation of the TOA measurements from the reference BTS
+TOA-MeasurementsOfRef ::= SEQUENCE {
+	refQuality 			RefQuality,
+	numOfMeasurements 	NumOfMeasurements
+}
+
+RefQuality ::= INTEGER (0..31) -- St Dev of TOA of reference as defined in annex
+
+NumOfMeasurements ::= INTEGER (0..7) -- No. of measurements for RefQuality as defined in annex
+
+StdResolution ::= INTEGER (0..3) -- Values of resolution are defined in annex
+
+OTD-FirstSetMsrs ::= OTD-MeasurementWithID
+
+-- Neighbour info in OTD measurements 0-10 times in TD measurement info
+OTD-MsrsOfOtherSets ::= CHOICE {
+	identityNotPresent 			OTD-Measurement,
+	identityPresent 				OTD-MeasurementWithID
+}
+
+-- For this OTD measurement identity is same as the identity of BTS
+-- in the first set with same sequence number
+OTD-Measurement ::= SEQUENCE {
+	nborTimeSlot 		ModuloTimeSlot,
+	eotdQuality 		EOTDQuality,
+	otdValue 			OTDValue
+}
+
+-- This measurement contains the BTS identity and measurement
+OTD-MeasurementWithID ::=SEQUENCE {
+	neighborIdentity 			NeighborIdentity,
+	nborTimeSlot 			ModuloTimeSlot,
+	eotdQuality 			EOTDQuality,
+	otdValue 				OTDValue
+}
+
+EOTDQuality ::= SEQUENCE {
+	nbrOfMeasurements 		INTEGER (0..7),
+	stdOfEOTD INTEGER 		(0..31)
+}
+
+NeighborIdentity ::= CHOICE {
+	bsicAndCarrier 			BSICAndCarrier, -- BSIC and Carrier
+	ci 					CellID, -- Cell ID, LAC not needed
+	multiFrameCarrier 		MultiFrameCarrier, -- MultiFrameOffest and BSIC
+	requestIndex			RequestIndex, -- Index to Requested Neighbor List
+	systemInfoIndex 			SystemInfoIndex, -- Index to System info list, this type of neighbour
+	-- identity shall not be used by the MS unless it has
+	-- received the SystemInfoAssistData from the SMLC for
+	-- this cell.
+	ciAndLAC 				CellIDAndLAC -- CI and LAC
+}
+
+-- Multiframe and carrier
+MultiFrameCarrier ::= SEQUENCE {
+	bcchCarrier 			BCCHCarrier,
+	multiFrameOffset 			MultiFrameOffset
+}
+
+-- OTD measurement value for neighbour
+OTDValue ::= INTEGER (0..39999)
+
+-- Location information IE
+LocationInfo ::= SEQUENCE {
+	refFrame 			INTEGER (0..65535), -- Reference Frame number
+	-- If refFrame is within (42432..65535), it shall be ignored by the receiver
+	-- in that case the MS should provide GPS TOW if available
+	gpsTOW 			INTEGER (0..14399999) OPTIONAL, -- GPS TOW
+	fixType 			FixType,
+	-- Note that applicable range for refFrame is 0 - 42431
+	-- Possible shapes carried in posEstimate are
+	-- ellipsoid point,
+	-- ellipsoid point with uncertainty circle
+	-- ellipsoid point with uncertainty ellipse
+	-- ellipsoid point with altitude and uncertainty ellipsoid
+	posEstimate 		Ext-GeographicalInformation
+}
+
+FixType ::= INTEGER {
+	twoDFix (0),
+	threeDFix (1)
+} (0..1)
+
+-- GPS-Measurement information
+GPS-MeasureInfo ::= SEQUENCE {
+	-- Measurement info elements
+	-- user has to make sure that in this element is number of elements
+	-- defined in reference BTS identity
+	gpsMsrSetList 		SeqOfGPS-MsrSetElement
+}
+
+SeqOfGPS-MsrSetElement ::= SEQUENCE (SIZE(1..3)) OF GPS-MsrSetElement
+
+-- OTD measurent information 1-3 times in message
+GPS-MsrSetElement ::= SEQUENCE {
+	refFrame 				INTEGER (0..65535) OPTIONAL, -- Reference Frame number
+	gpsTOW 				GPSTOW24b,
+						 -- GPS TOW
+	-- Note that applicable range for refFrame is 0 - 42431
+	--N_SAT can be read from number of elements of gps-msrList
+	gps-msrList SeqOfGPS-MsrElement
+}
+
+-- 24 bit presentation for GPSTOW
+GPSTOW24b ::= INTEGER (0..14399999)
+
+-- measured elements in measurement parameters field
+SeqOfGPS-MsrElement ::= SEQUENCE (SIZE(1..16)) OF GPS-MsrElement
+
+GPS-MsrElement ::= SEQUENCE {
+	satelliteID 		SatelliteID, -- Satellite identifier
+	cNo 				INTEGER (0..63), -- carrier noise ratio
+	doppler 			INTEGER (-32768..32767), -- doppler, mulltiply by 0.2
+	wholeChips 			INTEGER (0..1022), -- whole value of the code phase measurement
+	fracChips 			INTEGER (0..1024), -- fractional value of the code phase measurement
+	-- a value of 1024 shall not be encoded by the sender
+	-- the receiver shall consider a value of 1024 to be
+	-- invalid data
+	mpathIndic 			MpathIndic, -- multipath indicator
+	pseuRangeRMSErr 		INTEGER (0..63) -- index
+}
+
+-- Multipath indicator
+MpathIndic ::= ENUMERATED {
+	notMeasured (0),
+	low (1),
+	medium (2),
+	high (3)
+}
+
+-- Location error IE
+LocationError ::= SEQUENCE {
+	locErrorReason 			LocErrorReason,
+	additionalAssistanceData 	AdditionalAssistanceData OPTIONAL,
+	...
+}
+
+LocErrorReason ::= ENUMERATED {
+	unDefined (0),
+	notEnoughBTSs (1),
+	notEnoughSats (2),
+	eotdLocCalAssDataMissing (3),
+	eotdAssDataMissing (4),
+	gpsLocCalAssDataMissing (5),
+	gpsAssDataMissing (6),
+	methodNotSupported (7),
+	notProcessed (8),
+	refBTSForGPSNotServingBTS (9),
+	refBTSForEOTDNotServingBTS (10),
+	...
+}
+
+-- exception handling:
+-- an unrecognized value shall be treated the same as value 0
+-- defines additional assistance data needed for any new location attempt
+-- MS shall retain any assistance data already received
+AdditionalAssistanceData ::= SEQUENCE {
+	gpsAssistanceData 	GPSAssistanceData OPTIONAL,
+	extensionContainer 	ExtensionContainer OPTIONAL,
+...
+}
+
+GPSAssistanceData ::= OCTET STRING (SIZE (1..maxGPSAssistanceData))
+-- GPSAssistanceData has identical structure and encoding to octets 3 to n of the
+-- GPS Assistance Data IE in 3GPP TS 49.031
+maxGPSAssistanceData INTEGER ::= 40
+-- Protocol Error Causes
+ErrorCodes ::= ENUMERATED {
+	unDefined (0),
+	missingComponet (1),
+	incorrectData (2),
+	missingIEorComponentElement (3),
+	messageTooShort (4),
+	unknowReferenceNumber (5),
+	...
+}
+
+-- exception handling:
+-- an unrecognized value shall be treated the same as value 0
+-- GPS assistance data IE
+GPS-AssistData ::= SEQUENCE {
+	controlHeader 	ControlHeader
+}
+
+-- More Assistance Data To Be Sent IE
+-- More Assistance Data Components On the Way indication for delivery of an entire set of assistance
+-- data in multiple Assistance Data components.
+MoreAssDataToBeSent ::= ENUMERATED {
+	noMoreMessages (0), -- This is the only or last Assistance Data message used to deliver
+	-- the entire set of assistance data.
+	moreMessagesOnTheWay (1) -- The SMLC will send more Assistance Data messages or a final RRLP
+	-- Measure Position Request message to deliver the
+	-- the entire set of assistance data.
+}
+
+-- Control header of the GPS assistance data
+ControlHeader ::= SEQUENCE {
+	-- Field type Present information
+	referenceTime 			ReferenceTime OPTIONAL,
+	refLocation 			RefLocation OPTIONAL,
+	dgpsCorrections 			DGPSCorrections OPTIONAL,	
+	navigationModel 			NavigationModel OPTIONAL,
+	ionosphericModel 			IonosphericModel OPTIONAL,
+	utcModel 				UTCModel OPTIONAL,
+	almanac 				Almanac OPTIONAL,
+	acquisAssist 			AcquisAssist OPTIONAL,
+	realTimeIntegrity 		SeqOf-BadSatelliteSet OPTIONAL
+}
+
+ReferenceTime ::= SEQUENCE {
+	gpsTime 				GPSTime,
+	gsmTime 				GSMTime OPTIONAL,
+	gpsTowAssist 			GPSTOWAssist OPTIONAL
+}
+
+-- GPS Time includes week number and time-of-week (TOW)
+GPSTime ::= SEQUENCE {
+	gpsTOW23b 			GPSTOW23b,
+	gpsWeek 			GPSWeek
+}
+
+-- GPSTOW, range 0-604799.92, resolution 0.08 sec, 23-bit presentation
+GPSTOW23b ::= INTEGER (0..7559999)
+
+-- GPS week number
+GPSWeek ::= INTEGER (0..1023)
+-- GPSTOWAssist consists of TLM message, Anti-spoof flag, Alert flag, and 2 reserved bits in TLM Word
+-- for each visible satellite.
+-- N_SAT can be read from number of elements in GPSTOWAssist
+
+GPSTOWAssist ::= SEQUENCE (SIZE(1..12)) OF GPSTOWAssistElement
+
+GPSTOWAssistElement ::= SEQUENCE {
+	satelliteID 			SatelliteID,
+	tlmWord 				TLMWord,
+	antiSpoof 				AntiSpoofFlag,
+	alert 				AlertFlag,
+	tlmRsvdBits 			TLMReservedBits
+}
+
+-- TLM Word, 14 bits
+TLMWord ::= INTEGER (0..16383)
+
+-- Anti-Spoof flag
+AntiSpoofFlag ::= INTEGER (0..1)
+
+-- Alert flag
+AlertFlag ::= INTEGER (0..1)
+
+-- Reserved bits in TLM word, MSB occurs earlier in TLM Word transmitted by satellite
+TLMReservedBits ::= INTEGER (0..3)
+
+GSMTime ::= SEQUENCE {
+	bcchCarrier 			BCCHCarrier, -- BCCH carrier
+	bsic 					BSIC, -- BSIC
+	frameNumber 			FrameNumber,
+	timeSlot 				TimeSlot,
+	bitNumber 				BitNumber
+}
+
+-- Frame number
+FrameNumber ::= INTEGER (0..2097151)
+
+-- Time slot number
+TimeSlot ::= INTEGER (0..7)
+
+-- Bit number
+BitNumber ::= INTEGER (0..156)
+
+-- Reference Location IE
+RefLocation ::= SEQUENCE {
+	threeDLocation 			Ext-GeographicalInformation
+}
+
+-- DGPS Corrections IE
+DGPSCorrections ::= SEQUENCE {
+	gpsTOW 				INTEGER (0..604799), -- DGPS reference time
+	status 				INTEGER (0..7),
+-- N_SAT can be read from number of elements of satList
+	satList 				SeqOfSatElement
+}
+SeqOfSatElement ::= SEQUENCE (SIZE (1..16)) OF SatElement
+
+-- number of correction for satellites
+SatElement ::= SEQUENCE {
+	satelliteID 			SatelliteID,
+--- Sequence number for ephemeris
+	iode 					INTEGER (0..239),
+-- User Differential Range Error
+	udre 					INTEGER (0..3),
+-- Pseudo Range Correction, range is
+-- -655.04 - +655.04,
+	pseudoRangeCor 			INTEGER (-2047..2047),
+-- Pseudo Range Rate Correction, range is
+-- -4.064 - +4.064,
+	rangeRateCor 			INTEGER (-127..127),
+-- Delta Pseudo Range Correction 2
+	deltaPseudoRangeCor2 		INTEGER (-127..127), -- This IE shall be ignored by the receiver and
+-- set to zero by the sender
+-- Delta Pseudo Range Correction 2
+	deltaRangeRateCor2 		INTEGER (-7..7), -- This IE shall be ignored by the receiver and
+-- set to zero by the sender
+-- Delta Pseudo Range Correction 3
+	deltaPseudoRangeCor3 		INTEGER (-127..127), -- This IE shall be ignored by the receiver and
+-- set to zero by the sender
+-- Delta Pseudo Range Correction 3
+	deltaRangeRateCor3 		INTEGER (-7..7) -- This IE shall be ignored by the receiver and
+-- set to zero by the sender
+}
+
+SatelliteID ::= INTEGER (0..63) -- identifies satellite
+
+-- Navigation Model IE
+NavigationModel ::= SEQUENCE {
+	navModelList 			SeqOfNavModelElement
+}
+
+-- navigation model satellite list
+SeqOfNavModelElement ::= SEQUENCE (SIZE(1..16)) OF NavModelElement
+
+NavModelElement ::= SEQUENCE {
+	satelliteID 			SatelliteID,
+	satStatus 				SatStatus -- satellite status
+}
+
+-- the Status of the navigation model
+SatStatus ::= CHOICE {
+-- New satellite, new Navigation Model
+	newSatelliteAndModelUC 		UncompressedEphemeris,
+-- Existing satellite, Existing Navigation Model
+	oldSatelliteAndModel 		NULL,
+-- Existing satellite, new Navigation Model
+	newNaviModelUC 			UncompressedEphemeris,
+	...
+}
+
+-- Uncompressed satellite emhemeris and clock corrections
+UncompressedEphemeris ::= SEQUENCE {
+	ephemCodeOnL2 			INTEGER (0..3),
+	ephemURA 				INTEGER (0..15),
+	ephemSVhealth 			INTEGER (0..63),
+	ephemIODC 				INTEGER (0..1023),
+	ephemL2Pflag 			INTEGER (0..1),
+	ephemSF1Rsvd 			EphemerisSubframe1Reserved,
+	ephemTgd 				INTEGER (-128..127),
+	ephemToc 				INTEGER (0..37799),
+	ephemAF2 				INTEGER (-128..127),
+	ephemAF1 				INTEGER (-32768..32767),
+	ephemAF0 				INTEGER (-2097152..2097151),
+	ephemCrs 				INTEGER (-32768..32767),
+	ephemDeltaN 			INTEGER (-32768..32767),
+	ephemM0 				INTEGER (-2147483648..2147483647),
+	ephemCuc 				INTEGER (-32768..32767),
+	ephemE 				INTEGER (0..4294967295),
+	ephemCus 				INTEGER (-32768..32767),
+	ephemAPowerHalf 			INTEGER (0..4294967295),
+	ephemToe 				INTEGER (0..37799),
+	ephemFitFlag 			INTEGER (0..1),
+	ephemAODA 				INTEGER (0..31),
+	ephemCic 				INTEGER (-32768..32767),
+	ephemOmegaA0 			INTEGER (-2147483648..2147483647),
+	ephemCis 				INTEGER (-32768..32767),
+	ephemI0 				INTEGER (-2147483648..2147483647),
+	ephemCrc 				INTEGER (-32768..32767),
+	ephemW 				INTEGER (-2147483648..2147483647),
+	ephemOmegaADot 			INTEGER (-8388608..8388607),
+	ephemIDot 				INTEGER (-8192..8191)
+}
+
+-- Reserved bits in subframe 1 of navigation message
+EphemerisSubframe1Reserved ::= SEQUENCE {
+	reserved1 				INTEGER (0..8388607), -- 23-bit field
+	reserved2 				INTEGER (0..16777215), -- 24-bit field
+	reserved3 				INTEGER (0..16777215), -- 24-bit field
+	reserved4 				INTEGER (0..65535) -- 16-bit field
+}
+
+-- Ionospheric Model IE
+IonosphericModel ::= SEQUENCE {
+	alfa0 				INTEGER (-128..127),
+	alfa1 				INTEGER (-128..127),
+	alfa2 				INTEGER (-128..127),
+	alfa3 				INTEGER (-128..127),
+	beta0 				INTEGER (-128..127),
+	beta1 				INTEGER (-128..127),
+	beta2 				INTEGER (-128..127),
+	beta3 				INTEGER (-128..127)
+}
+
+-- Universal Time Coordinate Model
+UTCModel ::= SEQUENCE {
+	utcA1 				INTEGER (-8388608..8388607),
+	utcA0 				INTEGER (-2147483648..2147483647),
+	utcTot 				INTEGER (0..255),
+	utcWNt 				INTEGER (0..255),
+	utcDeltaTls 			INTEGER (-128..127),
+	utcWNlsf 				INTEGER (0..255),
+	utcDN 				INTEGER (-128..127),
+	utcDeltaTlsf 			INTEGER (-128..127)
+}
+
+-- Almanac, Long term model
+-- NOTE: These are parameters are subset of the ephemeris
+-- NOTE: But with reduced resolution and accuracy
+Almanac ::= SEQUENCE {
+	alamanacWNa 			INTEGER (0..255), -- Once per message
+-- navigation model satellite list.
+-- The size of almanacList is actually Nums_Sats_Total field
+	almanacList 			SeqOfAlmanacElement
+}
+
+SeqOfAlmanacElement ::= SEQUENCE (SIZE(1..64)) OF AlmanacElement
+
+-- Almanac info once per satellite
+AlmanacElement ::= SEQUENCE {
+	satelliteID 			SatelliteID,
+	almanacE 				INTEGER (0..65535),
+	alamanacToa 			INTEGER (0..255),
+	almanacKsii 			INTEGER (-32768..32767),
+	almanacOmegaDot 			INTEGER (-32768..32767),
+	almanacSVhealth 			INTEGER (0..255),
+	almanacAPowerHalf 		INTEGER (0..16777215),
+	almanacOmega0 			INTEGER (-8388608..8388607),
+	almanacW 				INTEGER (-8388608..8388607),
+	almanacM0 				INTEGER (-8388608..8388607),
+	almanacAF0 				INTEGER (-1024..1023),
+	almanacAF1 				INTEGER (-1024..1023)
+}
+
+-- Acquisition Assistance
+AcquisAssist ::= SEQUENCE {
+-- Number of Satellites can be read from acquistList
+	timeRelation 			TimeRelation,
+-- Acquisition assistance list
+-- The size of Number of Satellites is actually Number of Satellites field
+	acquisList 				SeqOfAcquisElement
+}
+
+SeqOfAcquisElement ::= SEQUENCE (SIZE(1..16)) OF AcquisElement
+
+-- the relationship between GPS time and air-interface timing
+TimeRelation ::= SEQUENCE {
+--
+	gpsTOW 				GPSTOW23b, -- 23b presentation
+	gsmTime 				GSMTime OPTIONAL
+}
+
+-- data occuring per number of satellites
+AcquisElement ::= SEQUENCE {
+	svid 					SatelliteID,
+-- Doppler 0th order term,
+-- -5120.0 - 5117.5 Hz (= -2048 - 2047 with 2.5 Hz resolution)
+	doppler0 				INTEGER (-2048..2047),
+	addionalDoppler 			AddionalDopplerFields OPTIONAL,
+	codePhase 				INTEGER (0..1022), -- Code Phase
+	intCodePhase 			INTEGER (0..19), -- Integer Code Phase
+	gpsBitNumber 			INTEGER (0..3), -- GPS bit number
+	codePhaseSearchWindow 		INTEGER (0..15), -- Code Phase Search Window
+	addionalAngle 			AddionalAngleFields OPTIONAL
+}
+
+AddionalDopplerFields ::= SEQUENCE {
+-- Doppler 1st order term, -1.0 - +0.5 Hz/sec
+-- (= -42 + (0 to 63) with 1/42 Hz/sec. resolution)
+	doppler1 				INTEGER (0..63),
+	dopplerUncertainty 		INTEGER (0..7)
+-- a sender shall not encode any DopplerUncertainty value in the range 5 to 7
+-- a receiver shall ignore any value between 5 and 7.
+}
+
+AddionalAngleFields ::= SEQUENCE {
+-- azimuth angle, 0 - 348.75 deg (= 0 - 31 with 11.25 deg resolution)
+	azimuth 				INTEGER (0..31),
+-- elevation angle, 0 - 78.75 deg (= 0 - 7 with 11.25 deg resolution)
+	elevation 				INTEGER (0..7)
+}
+
+-- Real-Time Integrity
+-- number of bad satellites can be read from this element
+SeqOf-BadSatelliteSet ::= SEQUENCE (SIZE(1..16)) OF SatelliteID
+
+-- Extension Elements
+-- Release 98 Extensions here
+Rel98-MsrPosition-Req-Extension ::= SEQUENCE {
+	rel98-Ext-ExpOTD 					Rel98-Ext-ExpOTD OPTIONAL, -- ExpectedOTD extension
+	...,
+	gpsTimeAssistanceMeasurementRequest 	NULL OPTIONAL,
+	gpsReferenceTimeUncertainty 			GPSReferenceTimeUncertainty OPTIONAL
+-- Further R98 extensions here
+}
+
+Rel98-AssistanceData-Extension ::= SEQUENCE {
+	rel98-Ext-ExpOTD 					Rel98-Ext-ExpOTD OPTIONAL, -- ExpectedOTD extension
+	...,
+	gpsTimeAssistanceMeasurementRequest 	NULL OPTIONAL,
+	gpsReferenceTimeUncertainty 			GPSReferenceTimeUncertainty OPTIONAL
+-- Further R98 extensions here
+
+}
+-- Release 98 ExpOTD extension
+Rel98-Ext-ExpOTD ::= SEQUENCE {
+-- If MsrAssistBTS is included in message, msrAssistData-R98-ExpOTD shall be included.
+	msrAssistData-R98-ExpOTD 			MsrAssistData-R98-ExpOTD OPTIONAL,
+-- If SystemInfoAssistaData is included in message, systemInfoAssistData-R98-ExpOTD shall be
+-- included.
+	systemInfoAssistData-R98-ExpOTD 		SystemInfoAssistData-R98-ExpOTD OPTIONAL
+}
+
+-- MsrAssistData R98 extension
+MsrAssistData-R98-ExpOTD ::= SEQUENCE {
+	msrAssistList-R98-ExpOTD 			SeqOfMsrAssistBTS-R98-ExpOTD
+}
+
+-- Indexes in SeqOfMsrAssistBTS-R98-ExpOTD refer to SeqOfMsrAssistBTS
+-- If the index exceeds the SegOfMsrAssistBTS range or if there is other
+-- inconsistencies between the BTS indices, the MS shall apply protocol
+-- error cause incorrectData
+SeqOfMsrAssistBTS-R98-ExpOTD ::= SEQUENCE (SIZE(1..15)) OF MsrAssistBTS-R98-ExpOTD
+
+-- This element completes MsrAssistBTS IE
+MsrAssistBTS-R98-ExpOTD ::= SEQUENCE {
+	expectedOTD 					ExpectedOTD,
+	expOTDUncertainty 				ExpOTDUncertainty
+}
+
+-- SystemInfoAssistData R98 extension
+SystemInfoAssistData-R98-ExpOTD ::= SEQUENCE {
+	systemInfoAssistListR98-ExpOTD 		SeqOfSystemInfoAssistBTS-R98-ExpOTD
+}
+
+-- SeqOfSystemInfoAssistBTS-R98-ExpOTD index refer to SeqOfSystemInfoAssistBTS
+-- If the index exceeds the SegOfSystemInfoAssistBTS range or if there is other
+-- inconsistencies between the BTS indices, the MS shall apply protocol
+-- error cause incorrectData
+
+SeqOfSystemInfoAssistBTS-R98-ExpOTD ::= SEQUENCE (SIZE(1..32)) OF SystemInfoAssistBTS-R98-ExpOTD
+
+-- whether n.th is present or not ?
+SystemInfoAssistBTS-R98-ExpOTD ::= CHOICE {
+	notPresent 						NULL,
+	present 						AssistBTSData-R98-ExpOTD
+}
+
+-- This element completes AssistBTSData IE
+AssistBTSData-R98-ExpOTD ::= SEQUENCE {
+	expectedOTD 					ExpectedOTD,
+	expOTDuncertainty 				ExpOTDUncertainty -- Uncertainty of expected OTD
+}
+
+-- Expected OTD value between nbor base station and reference BTS
+-- at MS's current estimated location.
+ExpectedOTD ::= INTEGER (0..1250)
+
+-- The ExpectedOTD value 1250 shall not be encoded by the transmitting entity and
+-- shall be treated by the receiving entity as 0.
+-- Uncertainty of Exptected OTD in bits
+ExpOTDUncertainty ::= INTEGER(0..7)
+
+-- Release 98 extensions
+GPSReferenceTimeUncertainty ::= INTEGER (0 .. 127) -- Coding according to Annex
+
+GPSTimeAssistanceMeasurements ::= SEQUENCE {
+	referenceFrameMSB 				INTEGER (0 .. 63), -- MSB of frame number
+	gpsTowSubms 					INTEGER (0 .. 9999) OPTIONAL, -- in units of 100ns, for MS based AGPS
+	deltaTow 						INTEGER (0 .. 127) OPTIONAL, -- for MS assisted AGPS
+	gpsReferenceTimeUncertainty 			GPSReferenceTimeUncertainty OPTIONAL
+}
+
+Rel-98-MsrPosition-Rsp-Extension ::= SEQUENCE {
+-- First extension to Release 98
+	rel-98-Ext-MeasureInfo SEQUENCE {
+		otd-MeasureInfo-R98-Ext 		OTD-MeasureInfo-R98-Ext OPTIONAL
+	},
+	...,
+	timeAssistanceMeasurements 			GPSTimeAssistanceMeasurements OPTIONAL
+-- Further R98 extensions here
+}
+
+-- This is an addition to OTD-MeasureInfo element defined in original message,
+-- If OTD-MeasureInfo is absent, or if one or more OTD-MsrElementRest are present
+-- OTD-MeasureInfo-R98-Ext shall be absent.
+-- OTD-MeasureInfo-R98-Ext
+OTD-MeasureInfo-R98-Ext ::= SEQUENCE {
+-- Measurement info elements
+	otdMsrFirstSets-R98-Ext 			OTD-MsrElementFirst-R98-Ext
+}
+
+-- OTD measurement information Ext for the first set only
+OTD-MsrElementFirst-R98-Ext ::= SEQUENCE {
+-- additional measured neighbors in OTD measurements
+	otd-FirstSetMsrs-R98-Ext 			SeqOfOTD-FirstSetMsrs-R98-Ext OPTIONAL
+}
+
+SeqOfOTD-FirstSetMsrs-R98-Ext ::= SEQUENCE (SIZE(1..5)) OF OTD-FirstSetMsrs
+
+Rel-5-MsrPosition-Rsp-Extension ::= SEQUENCE {
+	extended-reference 				Extended-reference OPTIONAL,
+-- The extended-reference shall be included by the MS if and only if previously
+-- received from the SMLC in a Measure Position Request. When included, the value sent
+-- by the MS shall equal the value received from the SMLC.
+-- extension to Release 5, for RRLP pseudo-segmentation here
+	otd-MeasureInfo-5-Ext 				OTD-MeasureInfo-5-Ext OPTIONAL,
+	ulPseudoSegInd 					UlPseudoSegInd OPTIONAL, -- Included when uplink RRLP
+-- Pseudo-segmentation is used, not included when no uplink pseudo-segmentation is used
+	...
+-- Possibly more extensions for Release 5 here later
+}
+
+Extended-reference ::= SEQUENCE {
+	smlc-code 						INTEGER (0..63),
+	transaction-ID 					INTEGER (0..262143)
+}
+
+OTD-MeasureInfo-5-Ext ::= SeqOfOTD-MsrElementRest
+-- if more than one measurement sets are present this element is repeated
+-- NumberOfSets - 1 (-1 = first set) combined in OTD-MeasureInfo-5-Ext and
+-- OTD-MeasureInfo (e.g. if NumberOfSets is 3, then one otdMsrRestSets may
+-- be sent in OTD-MeasureInfo-5-Ext and one in OTD-MeasureInfo)
+-- First part of Uplink RRLP Pseudo-segmentation indication, possibly more may be defined
+-- in the future for segmentation with more than two segments.
+UlPseudoSegInd ::= ENUMERATED {
+	firstOfMany (0),
+	secondOfMany(1)
+}
+
+Rel5-MsrPosition-Req-Extension ::= SEQUENCE {
+	extended-reference 				Extended-reference,
+	...
+-- Possibly more extensions for Release 5 here later
+}
+
+Rel5-AssistanceData-Extension ::= SEQUENCE {
+	extended-reference 				Extended-reference,
+	...
+-- Possibly more extensions for Release 5 here later
+}
+
+Rel-5-ProtocolError-Extension::= SEQUENCE {
+	extended-reference 				Extended-reference OPTIONAL,
+-- The extended-reference shall be included by the MS if and only if previously
+-- received from the SMLC.
+-- When included, the value sent by the MS shall equal the value received from the SMLC.
+	...
+-- Possibly more extensions for Release 5 here later
+}
+
+END
