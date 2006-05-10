@@ -97,11 +97,22 @@ static int hf_genid = -1;
 static int hf_route = -1;
 static int hf_saddr = -1;
 static int hf_life = -1;
+static int hf_local = -1;
+static int hf_threshold = -1;
+static int hf_flags = -1;
+static int hf_flag_tunnel = -1;
+static int hf_flag_srcroute = -1;
+static int hf_flag_down = -1;
+static int hf_flag_disabled = -1;
+static int hf_flag_querier = -1;
+static int hf_flag_leaf = -1;
+static int hf_ncount = -1;
 static int hf_neighbor = -1;
 
 static int ett_dvmrp = -1;
 static int ett_commands = -1;
 static int ett_capabilities = -1;
+static int ett_flags = -1;
 static int ett_route = -1;
 
 static int strict_v3 = FALSE;
@@ -152,6 +163,13 @@ static const value_string code_v3[] = {
 #define DVMRP_V3_CAP_MTRACE	0x08
 #define DVMRP_V3_CAP_SNMP	0x10
 #define DVMRP_V3_CAP_NETMASK	0x20
+
+#define DVMRP_V3_FLAG_TUNNEL	0x01
+#define DVMRP_V3_FLAG_SRCROUTE	0x02
+#define DVMRP_V3_FLAG_DOWN	0x10
+#define DVMRP_V3_FLAG_DISABLED	0x20
+#define DVMRP_V3_FLAG_QUERIER	0x40
+#define DVMRP_V3_FLAG_LEAF	0x80
 
 
 #define V1_COMMAND_NULL		0
@@ -436,7 +454,58 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		/* No data */
 		break;
 	case DVMRP_V3_NEIGHBORS_2:
-		/* XXX - fill this in */
+		while (tvb_reported_length_remaining(tvb, offset)>=12) {
+			guint8 neighbor_count;
+
+			/* local address */
+			proto_tree_add_item(parent_tree, hf_local,
+				tvb, offset, 4, FALSE);
+			offset += 4;
+			/* Metric */
+			proto_tree_add_item(parent_tree, hf_metric,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+			/* Threshold */
+			proto_tree_add_item(parent_tree, hf_threshold,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+			/* Flags */
+			{
+				proto_tree *tree;
+				proto_item *item;
+
+				item = proto_tree_add_item(parent_tree, hf_flags,
+					tvb, offset, 1, FALSE);
+				tree = proto_item_add_subtree(item, ett_flags);
+
+				proto_tree_add_item(tree, hf_flag_tunnel, tvb,
+					offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_flag_srcroute, tvb,
+					offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_flag_down, tvb,
+					offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_flag_disabled, tvb,
+					offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_flag_querier, tvb,
+					offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_flag_leaf, tvb,
+					offset, 1, FALSE);
+			}
+			offset += 1;
+			/* Neighbor count */
+			neighbor_count = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(parent_tree, hf_ncount,
+				tvb, offset, 1, FALSE);
+			offset += 1;
+
+			while ((tvb_reported_length_remaining(tvb, offset)>=4) 
+				&& (neighbor_count>0)) { 
+				proto_tree_add_item(parent_tree, hf_neighbor,
+					tvb, offset, 4, FALSE);
+				offset += 4;
+				neighbor_count--;
+			}
+		}
 		break;
 	}
 
@@ -783,16 +852,56 @@ proto_register_dvmrp(void)
 			{ "Prune lifetime", "dvmrp.lifetime", FT_UINT32, BASE_DEC,
 			  NULL, 0, "DVMRP Prune Lifetime", HFILL }},
 
+		{ &hf_local,
+			{ "Local Addr", "dvmrp.local", FT_IPv4, BASE_NONE,
+			  NULL, 0, "DVMRP Local Address", HFILL }},
+
+		{ &hf_threshold,
+			{ "Threshold", "dvmrp.threshold", FT_UINT8, BASE_DEC,
+			NULL, 0, "DVMRP Interface Threshold", HFILL }},
+
+		{ &hf_flags,
+			{ "Flags", "dvmrp.flags", FT_NONE, BASE_NONE,
+			NULL, 0, "DVMRP Interface Flags", HFILL }},
+
+		{ &hf_flag_tunnel,
+			{ "Tunnel", "dvmrp.flag.tunnel", FT_BOOLEAN, 8,
+			NULL, DVMRP_V3_FLAG_TUNNEL, "Neighbor reached via tunnel", HFILL }},
+
+		{ &hf_flag_srcroute,
+			{ "Source Route", "dvmrp.flag.srcroute", FT_BOOLEAN, 8,
+			NULL, DVMRP_V3_FLAG_SRCROUTE, "Tunnel uses IP source routing", HFILL }},
+
+		{ &hf_flag_down,
+			{ "Down", "dvmrp.flag.down", FT_BOOLEAN, 8,
+			NULL, DVMRP_V3_FLAG_DOWN, "Operational status down", HFILL }},
+
+		{ &hf_flag_disabled,
+			{ "Disabled", "dvmrp.flag.disabled", FT_BOOLEAN, 8,
+			NULL, DVMRP_V3_FLAG_DISABLED, "Administrative status down", HFILL }},
+
+		{ &hf_flag_querier,
+			{ "Querier", "dvmrp.flag.querier", FT_BOOLEAN, 8,
+			NULL, DVMRP_V3_FLAG_QUERIER, "Querier for interface", HFILL }},
+
+		{ &hf_flag_leaf,
+			{ "Leaf", "dvmrp.flag.leaf", FT_BOOLEAN, 8,
+			NULL, DVMRP_V3_FLAG_LEAF, "No downstream neighbors on interface", HFILL }},
+
+		{ &hf_ncount,
+			{ "Neighbor Count", "dvmrp.ncount", FT_UINT8, BASE_DEC,
+			NULL, 0, "DVMRP Neighbor Count", HFILL }},
+
 		{ &hf_neighbor,
 			{ "Neighbor Addr", "igmp.neighbor", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Neighbor Address", HFILL }},
-
+			  NULL, 0, "DVMRP Neighbor Address", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_dvmrp,
 		&ett_commands,
 		&ett_capabilities,
-		&ett_route,
+		&ett_flags,
+		&ett_route
 	};
 	module_t *module_dvmrp;
 
