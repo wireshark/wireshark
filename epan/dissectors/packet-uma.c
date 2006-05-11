@@ -69,6 +69,12 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-e212.h"
+#include <epan/emem.h>
+#include "packet-tcp.h"
+
+/* Length field is 2 bytes and comes first */ 
+#define UMA_HEADER_SIZE 2
+gboolean uma_desegment = TRUE;
 
 static dissector_handle_t uma_tcp_handle = NULL;
 static dissector_handle_t uma_udp_handle = NULL;
@@ -1502,7 +1508,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	offset = offset + ie_len;
 	return offset;
 }
-static int
+
+
+
+static void
 dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
@@ -1519,60 +1528,71 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-		ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, FALSE);
-		uma_tree = proto_item_add_subtree(ti, ett_uma);
+	ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, FALSE);
+	uma_tree = proto_item_add_subtree(ti, ett_uma);
 
 /* add an item to the subtree, see section 1.6 for more information */
-		msg_len = tvb_get_ntohs(tvb,offset);
-		proto_tree_add_item(uma_tree, hf_uma_length_indicator, tvb, offset, 2, FALSE);
-		offset = offset + 2;
-		octet = tvb_get_guint8(tvb,offset);
-		pd = octet & 0x0f;
-		proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, FALSE);
-		if ((octet & 0xf0) != 0 ){
-			proto_tree_add_text(uma_tree, tvb,offset,-1,"Skipp this message");
-			return tvb_length(tvb);
-		}
+	msg_len = tvb_get_ntohs(tvb,offset);
+	proto_tree_add_item(uma_tree, hf_uma_length_indicator, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	octet = tvb_get_guint8(tvb,offset);
+	pd = octet & 0x0f;
+	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, FALSE);
+	if ((octet & 0xf0) != 0 ){
+		proto_tree_add_text(uma_tree, tvb,offset,-1,"Skip this message");
+		return;
+	}
 			
-		proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, FALSE);
-		switch  ( pd ){
-		case 0: /* URR_C */
-		case 1: /* URR */
+	proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, FALSE);
+	switch  ( pd ){
+	case 0: /* URR_C */
+	case 1: /* URR */
+		offset++;
+		octet = tvb_get_guint8(tvb,offset);
+		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
+		while ((msg_len + 1) > offset ){
 			offset++;
-			octet = tvb_get_guint8(tvb,offset);
-			proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s",val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
-			while ((msg_len + 1) > offset ){
-				offset++;
-				offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
-			}
-			return offset;
-			break;
-		case 2:	/* URLC */
-			offset++;
-			octet = tvb_get_guint8(tvb,offset);
-			proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
-				col_set_fence(pinfo->cinfo,COL_INFO);
-			}
-			offset++;
-			proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
-			offset = offset + 3;
-			while ((msg_len + 1) > offset ){
-				offset++;
-				offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
-			}
-			return offset;
-			break;
-		default:
-			proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
-			return tvb_length(tvb);
-
+			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
 		}
+		return;
+		break;
+	case 2:	/* URLC */
+		offset++;
+		octet = tvb_get_guint8(tvb,offset);
+		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
+			col_set_fence(pinfo->cinfo,COL_INFO);
+		}
+		offset++;
+		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
+		offset = offset + 3;
+		while ((msg_len + 1) > offset ){
+			offset++;
+			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
+		}
+		return;
+		break;
+	default:
+		proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
+		return;
+	}
+}
 
-	return offset;
+static guint
+get_uma_pdu_len(tvbuff_t *tvb, int offset)
+{
+	/* PDU length = Message length + length of length indicator */
+	return tvb_get_ntohs(tvb,offset)+2;
+}
+
+static void
+dissect_uma_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, uma_desegment, UMA_HEADER_SIZE,
+	    get_uma_pdu_len, dissect_uma);
 }
 
 static int
@@ -1641,7 +1661,7 @@ proto_reg_handoff_uma(void)
 	static int TcpPort1=0;
 	
 	if (!Initialized) {
-		uma_tcp_handle = new_create_dissector_handle(dissect_uma, proto_uma);
+		uma_tcp_handle = create_dissector_handle(dissect_uma_tcp, proto_uma);
 		uma_udp_handle = new_create_dissector_handle(dissect_uma_urlc_udp, proto_uma);
 		dissector_add("tcp.port", 0, uma_udp_handle);
 		Initialized=TRUE;
@@ -2270,6 +2290,11 @@ proto_register_uma(void)
 	
 	uma_module = prefs_register_protocol(proto_uma, proto_reg_handoff_uma);
 
+	prefs_register_bool_preference(uma_module, "desegment_ucp_messages",
+		"Reassemble UMA messages spanning multiple TCP segments",
+		"Whether the UMA dissector should reassemble messages spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+		&uma_desegment);
 	prefs_register_uint_preference(uma_module, "tcp.port1",
 								   "Unlicensed Mobile Access TCP Port1",
 								   "Set the TCP port1 for Unlicensed Mobile Access messages",
