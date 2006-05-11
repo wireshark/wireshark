@@ -114,7 +114,7 @@ extern void savehex_cb(GtkWidget * w, gpointer data);
  * @param w unused
  * @param data unused
  */
-extern void copy_hex_cb(GtkWidget * w, gpointer data);
+extern void copy_hex_cb(GtkWidget * w, gpointer data, int data_type);
 
 #if GTK_MAJOR_VERSION < 2
 /** Redraw a given byte view window.

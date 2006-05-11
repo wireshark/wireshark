@@ -454,6 +454,36 @@ match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action
         get_text_from_packet_list(data));
 }
 
+/* This function allows users to right click in the details window and copy the text
+ * information to the operating systems clipboard. 
+ *
+ * We first check to see if a string representation is setup in the tree and then
+ * read the string. If not available then we try to grab the value. If all else
+ * fails we display a message to the user to indicate the copy could not be completed.
+ */
+void
+copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	GString *gtk_text_str = g_string_new("");
+    char labelstring[256];
+    char *stringpointer = labelstring;
+
+    if (cfile.finfo_selected->rep->representation != 0) {
+        g_string_sprintfa(gtk_text_str, "%s", cfile.finfo_selected->rep->representation);   /* Get the represented data */
+    }
+    if (gtk_text_str->len == 0) {                                                           /* If no representation then... */
+        proto_item_fill_label(cfile.finfo_selected, stringpointer);                         /* Try to read the value */
+        g_string_sprintfa(gtk_text_str, "%s", stringpointer);
+    }
+    if (gtk_text_str->len == 0) {                                                           /* Could not get item so display error msg */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to copy, try expanding or choosing another item");
+    }
+    else
+    {
+        copy_to_clipboard(gtk_text_str);                     /* Copy string to clipboard */
+    }
+    g_string_free(gtk_text_str, TRUE);                       /* Free the memory */
+}
 
 
 /* XXX: use a preference for this setting! */

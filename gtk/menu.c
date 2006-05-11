@@ -474,6 +474,10 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
+
+    ITEM_FACTORY_ENTRY("/Copy", NULL, copy_selected_plist_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+
     ITEM_FACTORY_ENTRY("/Expand Subtrees", NULL, expand_tree_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Collapse All", NULL, collapse_all_cb, 0, NULL, NULL),
@@ -531,8 +535,11 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
-    ITEM_FACTORY_ENTRY("/Copy", NULL, copy_hex_cb,
+    ITEM_FACTORY_ENTRY("/Copy", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy/...All Information", NULL, copy_hex_cb,
                        0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/...Text Only", NULL, copy_hex_cb,
+                       1, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
 };

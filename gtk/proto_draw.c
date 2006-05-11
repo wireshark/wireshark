@@ -806,7 +806,7 @@ savehex_dlg_destroy_cb(void)
 }
 
 void
-copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)
+copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, int data_type)
 {
 	GtkWidget *bv;
 	int len;
@@ -814,6 +814,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)
 	const guint8 *data_p = NULL;
 	GString *ASCII_representation = g_string_new("");
 	GString *byte_str = g_string_new("");
+	GString *text_str = g_string_new("");
 
 	bv = get_notebook_bv_ptr(byte_nb_ptr);
 	if (bv == NULL) {
@@ -823,15 +824,31 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)
 	}
 
 	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
-
-	g_string_sprintfa(byte_str,"%04x  ",i); /* Offset 0000 */
+        
+    g_string_sprintfa(byte_str,"%04x  ",i); /* Offset 0000 */
 	for (i=0; i<len; i++){
-	  g_string_sprintfa(ASCII_representation,"%c",isprint(*data_p) ? *data_p : '.');
-	  g_string_sprintfa(byte_str," %02x",*data_p++);
-	  if ((i+1)%16==0 && i!=0){
-	    g_string_sprintfa(byte_str,"  %s\n%04x  ",ASCII_representation->str,i+1);
-	    g_string_assign (ASCII_representation,"");
-	  }
+        if (data_type==1) {
+            if (isprint(*data_p)) {
+                g_string_sprintfa(ASCII_representation,"%c", *data_p);
+            }
+            else
+            {
+                if (*data_p==0x0a) {
+                    g_string_sprintfa(ASCII_representation,"\n");
+                }
+            }
+        }
+        else
+        {
+            g_string_sprintfa(ASCII_representation,"%c",isprint(*data_p) ? *data_p : '.');
+        }
+        g_string_sprintfa(byte_str," %02x",*data_p++);
+        if ((i+1)%16==0 && i!=0){
+            g_string_sprintfa(byte_str,"  %s\n%04x  ",ASCII_representation->str,i+1);
+            g_string_sprintfa(text_str,"%s",ASCII_representation->str);
+            
+            g_string_assign (ASCII_representation,"");
+        }
 	}
 
 	if(ASCII_representation->len){
@@ -839,10 +856,18 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)
 	    g_string_sprintfa(byte_str,"   ");
 	  }
 	  g_string_sprintfa(byte_str,"  %s\n",ASCII_representation->str);
+	  g_string_sprintfa(text_str,"%s",ASCII_representation->str);
 	}
 	/* Now that we have the byte data, copy it into the default clipboard */
+    if (data_type==1) {
+        copy_to_clipboard(text_str);
+    }
+    else
+    {
         copy_to_clipboard(byte_str);
+    }
 	g_string_free(byte_str, TRUE);                       /* Free the memory */
+	g_string_free(text_str, TRUE);                       /* Free the memory */
 	g_string_free(ASCII_representation, TRUE);           /* Free the memory */
 }
 

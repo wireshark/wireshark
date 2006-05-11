@@ -133,6 +133,13 @@ typedef enum {
 /** "bitwise or" this with MATCH_SELECTED_E value for instant apply instead of prepare only */
 #define MATCH_SELECTED_APPLY_NOW    0x100
 
+/** User highlited item in details window and then right clicked and selected the copy option 
+ *
+ * @param widget parent widget
+ * @param data parent widget
+ */
+extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data);
+
 /** User requested one of "Apply as Filter" or "Prepare a Filter" functions 
  *  by menu or context menu of protocol tree.
  *
