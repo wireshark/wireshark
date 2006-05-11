@@ -126,6 +126,9 @@ Endace Measurement Systems' ERF format captures
 =item *
 Linux Bluez Bluetooth stack B<hcidump -w> traces
 
+=item *
+Catapult DCT2000 .out files
+
 =back 4
 
 There is no need to tell B<Ethereal> what type of

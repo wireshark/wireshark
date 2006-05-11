@@ -183,6 +183,7 @@
 		  <listitem><para>the output from Accellent's 5Views LAN agents</para></listitem>
 		  <listitem><para>Endace Measurement Systems' ERF format captures</para></listitem>
 		  <listitem><para>Linux Bluez Bluetooth stack hcidump -w traces</para></listitem>
+		  <listitem><para>Catapult DCT2000 .out files</para></listitem>
 	</itemizedlist>
     </para>
     <note><title>Note!</title>
