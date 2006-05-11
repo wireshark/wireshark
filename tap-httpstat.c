@@ -181,10 +181,10 @@ static void
 httpstat_reset(void *psp  )
 {
 	httpstat_t *sp=psp;
-	if (!sp) {
-		g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
-		g_hash_table_foreach( sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
-	}
+
+	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
+	g_hash_table_foreach( sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
+
 }
 
 static int
