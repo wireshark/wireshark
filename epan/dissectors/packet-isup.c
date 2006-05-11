@@ -4467,8 +4467,9 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
    /* NOTE  When the address presentation restricted indicator indicates address not available, the
     * subfields in items a), b), c) and d) are coded with 0's, and the screening indicator is set to 11
     * (network provided).
+	* BUG 938 - Just check if there is someting more to dissect.
     */
-  if ( indicators2 == 0x0b ){
+  if (tvb_length_remaining(parameter_tvb, offset) < 3){
     proto_tree_add_text(parameter_tree, parameter_tvb, 1, -1, "Location number: address not available");
     proto_item_set_text(parameter_item, "Location number: address not available");
     return;
