@@ -722,6 +722,21 @@ static int hf_fix_SettlCurrBidFxRate = -1; /* Tag 656 */
 static int hf_fix_SettlCurrOfferFxRate = -1; /* Tag 657 */
 static int hf_fix_QuoteRequestRejectReason = -1; /* Tag 658 */
 static int hf_fix_SideComplianceID = -1; /* Tag 659 */
+static int hf_fix_BenchmarkPrice = -1; /* Tag 662 */
+static int hf_fix_BenchmarkPriceType = -1; /* Tag 663 */
+static int hf_fix_Pool = -1; /* Tag 691 */
+static int hf_fix_QuoteRespID = -1; /* Tag 693 */
+static int hf_fix_QuoteRespType = -1; /* Tag 694 */
+static int hf_fix_QuoteQualifier = -1; /* Tag 695 */
+static int hf_fix_BenchmarkSecurityID = -1; /* Tag 699 */
+static int hf_fix_NoQuoteQualifiers = -1; /* Tag 735 */
+static int hf_fix_BenchmarkSecurityIDSource = -1; /* Tag 761 */
+static int hf_fix_SecuritySubType = -1; /* Tag 762 */
+static int hf_fix_AllocReportRefID = -1; /* Tag 795 */
+static int hf_fix_NoInstrAttrib = -1; /* Tag 870 */
+static int hf_fix_InstrAttribType = -1; /* Tag 871 */
+static int hf_fix_InstrAttribValue = -1; /* Tag 872 */
+static int hf_fix_LastFragment = -1; /* Tag 893 */
 
 static void dissect_fix_init(void) {
     g_datalist_clear(&msg_types);
@@ -796,6 +811,29 @@ static void dissect_fix_init(void) {
     g_datalist_set_data(&msg_types, "AG", "Quote Request Reject");
     g_datalist_set_data(&msg_types, "AH", "RFQ Request");
     g_datalist_set_data(&msg_types, "AI", "Quote Status Report");
+    g_datalist_set_data(&msg_types, "AJ", "Quote Response");
+    g_datalist_set_data(&msg_types, "AK", "Confirmation");
+    g_datalist_set_data(&msg_types, "AL", "Position Maintenance Request");
+    g_datalist_set_data(&msg_types, "AM", "Position Maintenance Report");
+    g_datalist_set_data(&msg_types, "AN", "Request For Positions");
+    g_datalist_set_data(&msg_types, "AO", "Request For Positions Ack");
+    g_datalist_set_data(&msg_types, "AP", "Position Report");
+    g_datalist_set_data(&msg_types, "AQ", "Trade Capture Report Request Ack");
+    g_datalist_set_data(&msg_types, "AR", "Trade Capture Report Ack");
+    g_datalist_set_data(&msg_types, "AS", "Allocation Report");
+    g_datalist_set_data(&msg_types, "AT", "Allocation Report Ack");
+    g_datalist_set_data(&msg_types, "AU", "Confirmation Ack");
+    g_datalist_set_data(&msg_types, "AV", "Settlement Instruction Request");
+    g_datalist_set_data(&msg_types, "AW", "Assignment Report");
+    g_datalist_set_data(&msg_types, "AX", "Collateral Request");
+    g_datalist_set_data(&msg_types, "AY", "Collateral Assignment");
+    g_datalist_set_data(&msg_types, "AZ", "Collateral Response");
+    g_datalist_set_data(&msg_types, "BA", "Collateral Report");
+    g_datalist_set_data(&msg_types, "BB", "Collateral Inquiry");
+    g_datalist_set_data(&msg_types, "BE", "User Request");
+    g_datalist_set_data(&msg_types, "BF", "User Response");
+    g_datalist_set_data(&msg_types, "BG", "Collateral Inquiry Ack");
+    g_datalist_set_data(&msg_types, "BH", "Confirmation Request");
 
 }
 
@@ -2909,6 +2947,51 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     break;
                 case 659: /* Field SideComplianceID */
                     proto_tree_add_string(fix_tree, hf_fix_SideComplianceID, tvb, offset, field_len, value);
+                    break;
+                case 662: /* Field BenchmarkPrice */
+                    proto_tree_add_string(fix_tree, hf_fix_BenchmarkPrice, tvb, offset, field_len, value);
+                    break;
+                case 663: /* Field BenchmarkPriceType */
+                    proto_tree_add_string(fix_tree, hf_fix_BenchmarkPriceType, tvb, offset, field_len, value);
+                    break;
+                case 691: /* Field Pool */
+                    proto_tree_add_string(fix_tree, hf_fix_Pool, tvb, offset, field_len, value);
+                    break;
+                case 693: /* Field QuoteRespID */
+                    proto_tree_add_string(fix_tree, hf_fix_QuoteRespID, tvb, offset, field_len, value);
+                    break;
+                case 694: /* Field QuoteRespType */
+                    proto_tree_add_string(fix_tree, hf_fix_QuoteRespType, tvb, offset, field_len, value);
+                    break;
+                case 695: /* Field QuoteQualifier */
+                    proto_tree_add_string(fix_tree, hf_fix_QuoteQualifier, tvb, offset, field_len, value);
+                    break;
+                case 699: /* Field BenchmarkSecurityID */
+                    proto_tree_add_string(fix_tree, hf_fix_BenchmarkSecurityID, tvb, offset, field_len, value);
+                    break;
+                case 735: /* Field NoQuoteQualifiers */
+                    proto_tree_add_string(fix_tree, hf_fix_NoQuoteQualifiers, tvb, offset, field_len, value);
+                    break;
+                case 761: /* Field BenchmarkSecurityIDSource */
+                    proto_tree_add_string(fix_tree, hf_fix_BenchmarkSecurityIDSource, tvb, offset, field_len, value);
+                    break;
+                case 762: /* Field SecuritySubType */
+                    proto_tree_add_string(fix_tree, hf_fix_SecuritySubType, tvb, offset, field_len, value);
+                    break;
+                case 795: /* Field AllocReportRefID */
+                    proto_tree_add_string(fix_tree, hf_fix_AllocReportRefID, tvb, offset, field_len, value);
+                    break;
+                case 870: /* Field NoInstrAttrib */
+                    proto_tree_add_string(fix_tree, hf_fix_NoInstrAttrib, tvb, offset, field_len, value);
+                    break;
+                case 871: /* Field InstrAttribType */
+                    proto_tree_add_string(fix_tree, hf_fix_InstrAttribType, tvb, offset, field_len, value);
+                    break;
+                case 872: /* Field InstrAttribValue */
+                    proto_tree_add_string(fix_tree, hf_fix_InstrAttribValue, tvb, offset, field_len, value);
+                    break;
+                case 893: /* Field LastFragment */
+                    proto_tree_add_string(fix_tree, hf_fix_LastFragment, tvb, offset, field_len, value);
                     break;
                 default:
                     /* XXX - it could be -1 if the tag isn't a number */
@@ -6228,6 +6311,81 @@ proto_register_fix(void)
             { "SideComplianceID (659)", "fix.SideComplianceID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             "SideComplianceID", HFILL }
+        },
+        { &hf_fix_BenchmarkPrice,
+            { "BenchmarkPrice (662)", "fix.BenchmarkPrice",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "BenchmarkPrice", HFILL }
+        },
+        { &hf_fix_BenchmarkPriceType,
+            { "BenchmarkPriceType (663)", "fix.BenchmarkPriceType",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "BenchmarkPriceType", HFILL }
+        },
+        { &hf_fix_Pool,
+            { "Pool (691)", "fix.Pool",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Pool", HFILL }
+        },
+        { &hf_fix_QuoteRespID,
+            { "QuoteRespID (693)", "fix.QuoteRespID",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "QuoteRespID", HFILL }
+        },
+        { &hf_fix_QuoteRespType,
+            { "QuoteRespType (694)", "fix.QuoteRespType",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "QuoteRespType", HFILL }
+        },
+        { &hf_fix_QuoteQualifier,
+            { "QuoteQualifier (695)", "fix.QuoteQualifier",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "QuoteQualifier", HFILL }
+        },
+        { &hf_fix_BenchmarkSecurityID,
+            { "BenchmarkSecurityID (699)", "fix.BenchmarkSecurityID",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "BenchmarkSecurityID", HFILL }
+        },
+        { &hf_fix_NoQuoteQualifiers,
+            { "NoQuoteQualifiers (735)", "fix.NoQuoteQualifiers",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "NoQuoteQualifiers", HFILL }
+        },
+        { &hf_fix_BenchmarkSecurityIDSource,
+            { "BenchmarkSecurityIDSource (761)", "fix.BenchmarkSecurityIDSource",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "BenchmarkSecurityIDSource", HFILL }
+        },
+        { &hf_fix_SecuritySubType,
+            { "SecuritySubType (762)", "fix.SecuritySubType",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "SecuritySubType", HFILL }
+        },
+        { &hf_fix_AllocReportRefID,
+            { "AllocReportRefID (795)", "fix.AllocReportRefID",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "AllocReportRefID", HFILL }
+        },
+        { &hf_fix_NoInstrAttrib,
+            { "NoInstrAttrib (870)", "fix.NoInstrAttrib",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "NoInstrAttrib", HFILL }
+        },
+        { &hf_fix_InstrAttribType,
+            { "InstrAttribType (871)", "fix.InstrAttribType",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "InstrAttribType", HFILL }
+        },
+        { &hf_fix_InstrAttribValue,
+            { "InstrAttribValue (872)", "fix.InstrAttribValue",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "InstrAttribValue", HFILL }
+        },
+        { &hf_fix_LastFragment,
+            { "LastFragment (893)", "fix.LastFragment",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "LastFragment", HFILL }
         },
     };
 
