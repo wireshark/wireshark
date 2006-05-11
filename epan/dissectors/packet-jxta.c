@@ -338,6 +338,9 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
      * traffic not sent to a known dissector and not claimed by
      * a heuristic dissector called before us!
      */
+    int save_desegment_offset;
+    guint32 save_desegment_len;
+    int ret;
 
     if (!gUDP_HEUR)
         return FALSE;
@@ -346,7 +349,33 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
         return FALSE;
     }
 
-    return (dissect_jxta_udp(tvb, pinfo, tree) > 0) ? TRUE : FALSE;
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
+    ret = dissect_jxta_udp(tvb, pinfo, tree);
+    if (ret < 0) {
+        /*
+         * UDP is not a packet stream protocol, so the UDP dissector
+         * should not, and will not, do the sort of dissection help
+         * that the TCP dissector will.  If JXTA messages don't
+         * start and end on UDP packet boundaries, the JXTA dissector
+         * will have to do its own byte stream reassembly.
+         */
+        pinfo->desegment_offset = save_desegment_offset;
+        pinfo->desegment_len = save_desegment_len;
+        return FALSE;
+    } else if (ret == 0) {
+        /*
+         * A clear rejection.
+         */
+        pinfo->desegment_offset = save_desegment_offset;
+        pinfo->desegment_len = save_desegment_len;
+        return FALSE;
+    } else {
+        /*
+         * A clear acceptance.
+         */
+        return TRUE;
+    }
 }
 
 /**
@@ -363,11 +392,50 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
      * traffic not sent to a known dissector and not claimed by
      * a heuristic dissector called before us!
      */
+    int save_desegment_offset;
+    guint32 save_desegment_len;
+    int ret;
 
     if (!gTCP_HEUR)
         return FALSE;
 
-    return (dissect_jxta_stream(tvb, pinfo, tree) > 0) ? TRUE : FALSE;
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
+    ret = dissect_jxta_stream(tvb, pinfo, tree);
+    if (ret <= 0) {
+        /*
+         * A heuristic dissector for a TCP-based protocol can reject
+         * a packet, or it can request that more data be provided.
+         * It must not attempt to do both, as the notion of doing both
+         * is nonsensical - if the packet isn't considered a packet
+         * for the dissector's protocol, that dissector won't be
+         * dissecting it no matter *how* much more data is added.
+         *
+         * Therefore, we treat a negative return from
+         * dissect_jxta_stream() as a rejection.
+         *
+         * If that's not desired - i.e., if we should keep trying to get
+         * more data, in the hopes that we'll eventually be able to
+         * determine whether the packet is a JXTA packet or not - we
+         * should, in this case, leave pinfo->desegment_offset and
+         * pinfo->desegment_len alone, and return TRUE, *NOT* FALSE.
+         */
+        pinfo->desegment_offset = save_desegment_offset;
+        pinfo->desegment_len = save_desegment_len;
+        return FALSE;
+    } else if (ret == 0) {
+        /*
+         * A clear rejection.
+         */
+        pinfo->desegment_offset = save_desegment_offset;
+        pinfo->desegment_len = save_desegment_len;
+        return FALSE;
+    } else {
+        /*
+         * A clear acceptance.
+         */
+        return TRUE;
+    }
 }
 
 /**
@@ -384,11 +452,46 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
      * traffic not sent to a known dissector and not claimed by
      * a heuristic dissector called before us!
      */
+    int save_desegment_offset;
+    guint32 save_desegment_len;
+    int ret;
 
     if (!gSCTP_HEUR)
         return FALSE;
 
-    return (dissect_jxta_stream(tvb, pinfo, tree) > 0) ? TRUE : FALSE;
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
+    ret = dissect_jxta_stream(tvb, pinfo, tree);
+    if (ret < 0) {
+        /*
+         * SCTP is not a byte stream protocol, so the SCTP dissector
+         * should not, and will not, do the sort of dissection help
+         * that the SCTP dissector will.  If JXTA messages don't
+         * start and end on SCTP packet boundaries, the JXTA dissector
+         * will have to do its own byte stream reassembly.
+         *
+         * The SCTP dissector currently won't do reassembly.  If that
+         * causes a problem for the JXTA dissector, the correct fix
+         * is to implement reassembly in the SCTP dissector, so *all*
+         * dissectors for protocols running atop SCTP can benefit from
+         * it.
+         */
+        pinfo->desegment_offset = save_desegment_offset;
+        pinfo->desegment_len = save_desegment_len;
+        return FALSE;
+    } else if (ret == 0) {
+        /*
+         * A clear rejection.
+         */
+        pinfo->desegment_offset = save_desegment_offset;
+        pinfo->desegment_len = save_desegment_len;
+        return FALSE;
+    } else {
+        /*
+         * A clear acceptance.
+         */
+        return TRUE;
+    }
 }
 
 /**
