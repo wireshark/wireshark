@@ -523,8 +523,6 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, ETHEREAL_STOCK_WIKI),
     ITEM_FACTORY_STOCK_ENTRY("/Filter Field Reference", NULL, selected_ptree_ref_cb,
                        0, ETHEREAL_STOCK_INTERNET),
-    ITEM_FACTORY_STOCK_ENTRY("/Field Information", NULL, selected_ptree_field_url_cb,
-                       0, ETHEREAL_STOCK_INTERNET),
     ITEM_FACTORY_ENTRY("/Protocol Preferences...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -2144,8 +2142,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  TRUE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
 	  TRUE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Field Information",
-			     selected_ptree_has_field_url());
   } else {
 	set_menu_sensitivity(main_menu_factory,
 	    "/Go/Go to Corresponding Packet", FALSE);
@@ -2162,8 +2158,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
 	  FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
-	  FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Field Information",
 	  FALSE);
   }
 

@@ -347,7 +347,6 @@ get_hostname6
 get_host_ipaddr
 get_host_ipaddr6
 get_manuf_name_if_known
-get_oid_url
 get_persconffile_path
 get_plugins_global_dir
 get_plugins_pers_dir

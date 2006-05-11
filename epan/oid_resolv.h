@@ -32,8 +32,6 @@
 #ifndef __OID_RESOLV_H__
 #define __OID_RESOLV_H__
 
-#include <epan/proto.h>
-
 /* init and clenup funcions called from epan.h */
 extern void oid_resolv_init(void);
 extern void oid_resolv_cleanup(void);
@@ -48,8 +46,5 @@ extern const gchar *get_oid_str_name(const gchar *oid_str);
 extern void add_oid_name(const guint8 *oid, gint oid_len, const gchar *name);
 extern void add_oid_str_name(const gchar *oid_str, const gchar *name);
 
-/* get a URL for an OID in the given field */
-/* if ret_url is NULL, just return TRUE if we are configured to provide one */
-extern gboolean get_oid_url(field_info *finfo, gchar **ret_url);
 
 #endif /* __OID_RESOLV_H__ */
