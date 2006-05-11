@@ -88,7 +88,6 @@ typedef struct _ringbuf_data {
 
   int           fd;		     /* Current ringbuffer file descriptor */
   FILE         *pdh;
-  long          bytes_written;	     /* Bytes written to the current file */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
@@ -231,14 +230,15 @@ const gchar *ringbuf_current_filename(void)
  * Calls libpcap_fdopen() for the current ringbuffer file
  */
 FILE *
-ringbuf_init_libpcap_fdopen(int linktype, int snaplen, int *err)
+ringbuf_init_libpcap_fdopen(int linktype, int snaplen,
+                            long *bytes_written, int *err)
 {
 
   rb_data.linktype = linktype;
   rb_data.snaplen  = snaplen;
 
-  rb_data.pdh = libpcap_fdopen(rb_data.fd, linktype, snaplen,
-                               &rb_data.bytes_written, err);
+  rb_data.pdh = libpcap_fdopen(rb_data.fd, linktype, snaplen, bytes_written,
+                               err);
   return rb_data.pdh;
 }
 
@@ -246,7 +246,8 @@ ringbuf_init_libpcap_fdopen(int linktype, int snaplen, int *err)
  * Switches to the next ringbuffer file
  */
 gboolean
-ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
+ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, 
+                    long *bytes_written, int *err)
 {
   int     next_file_num;
   rb_file *next_rfile = NULL;
@@ -274,7 +275,7 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
   }
 
   if (ringbuf_init_libpcap_fdopen(rb_data.linktype, rb_data.snaplen,
-                                  err) == NULL) {
+                                  bytes_written, err) == NULL) {
     return FALSE;
   }
 

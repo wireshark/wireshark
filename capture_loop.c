@@ -744,7 +744,8 @@ gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_f
 
   /* Set up to write to the capture file. */
   if (capture_opts->multi_files_on) {
-    ld->pdh = ringbuf_init_libpcap_fdopen(ld->linktype, file_snaplen, &err);
+    ld->pdh = ringbuf_init_libpcap_fdopen(ld->linktype, file_snaplen,
+                                          &ld->bytes_written, &err);
   } else {
     ld->pdh = libpcap_fdopen(save_file_fd, ld->linktype, file_snaplen,
                              &ld->bytes_written, &err);
@@ -1233,7 +1234,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file,
-              &save_file_fd, &ld.err)) {
+              &save_file_fd, &ld.bytes_written, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1303,7 +1304,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file,
+                                  &save_file_fd, &ld.bytes_written, &ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
