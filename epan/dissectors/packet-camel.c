@@ -4089,12 +4089,12 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
                           tvb,
                           curr_offset,
                           1,
-                          digit_pair & 0xF0);
+                          digit_pair >>4);
 			  
       
       c[i] = camel_number_to_char( digit_pair & 0x0F);
       i++;
-      c[i] = camel_number_to_char( digit_pair & 0xF0);
+      c[i] = camel_number_to_char( digit_pair >>4);
       i++;
   }
   
@@ -4102,8 +4102,8 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   /* XXX - Should we use sprintf here instead of assembling the string by
    * hand? */
   
-  time[0] = c[9];
-  time[1] = c[8];
+  time[0] = c[8];
+  time[1] = c[9];
   time[2] = ':';
   time[3] = c[10];
   time[4] = c[11];
@@ -9641,7 +9641,7 @@ void proto_register_camel(void) {
         "RequestedInformationValue/callAttemptElapsedTimeValue", HFILL }},
     { &hf_camel_callStopTimeValue,
       { "callStopTimeValue", "camel.callStopTimeValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_STRING, NONE, NULL, 0,
         "RequestedInformationValue/callStopTimeValue", HFILL }},
     { &hf_camel_callConnectedElapsedTimeValue,
       { "callConnectedElapsedTimeValue", "camel.callConnectedElapsedTimeValue",
