@@ -80,8 +80,12 @@ SlpSessionID ::= SEQUENCE {
   slpId      SLPAddress}
 
 IPAddress ::= CHOICE {
-  ipv4Address  OCTET STRING(SIZE (4)),
-  ipv6Address  OCTET STRING(SIZE (16))}
+  ipv4Address  IPv4Address,
+  ipv6Address  IPv6Address
+  }
+
+IPv4Address ::= OCTET STRING(SIZE (4))
+IPv6Address ::= OCTET STRING(SIZE (16))
 
 SLPAddress ::= CHOICE {iPAddress  IPAddress,
                        fQDN       FQDN,

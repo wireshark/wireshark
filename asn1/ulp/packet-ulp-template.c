@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -71,6 +72,20 @@ guint32 StatusCode_value_map[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11, 12, 13
 
 #include "packet-ulp-fn.c"
 
+/*--- proto_reg_handoff_ulp ---------------------------------------*/
+void
+proto_reg_handoff_ulp(void)
+{
+
+	ulp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
+
+	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
+
+	/* application/oma-supl-ulp */
+	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
+
+}
+
 
 /*--- proto_register_ulp -------------------------------------------*/
 void proto_register_ulp(void) {
@@ -87,6 +102,8 @@ void proto_register_ulp(void) {
 #include "packet-ulp-ettarr.c"
   };
 
+  module_t *ulp_module;
+
 
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -94,22 +111,17 @@ void proto_register_ulp(void) {
   proto_register_field_array(proto_ulp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+
+  /* Register a configuration option for port */
+  ulp_module = prefs_register_protocol(proto_ulp,proto_reg_handoff_ulp);
+  prefs_register_uint_preference(ulp_module, "tcp.port",
+								   "ULP TCP Port",
+								   "Set the TCP port for Ulp messages(IANA registerd port is 7275)",
+								   10,
+								   &gbl_ulp_port);
  
 }
 
 
-/*--- proto_reg_handoff_ulp ---------------------------------------*/
-void
-proto_reg_handoff_ulp(void)
-{
-
-	ulp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
-
-	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
-
-	/* application/oma-supl-ulp */
-	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
-
-}
 
 

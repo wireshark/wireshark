@@ -816,8 +816,11 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 	hfi = proto_registrar_get_nth(hf_index);
 
-	/* 10.5.3 */
-	if((max-min)>65536){
+	/* 10.5.3 Let "range" be defined as the integer value ("ub" - "lb"   1), and let the value to be encoded be "n". 
+	 * 10.5.7	In the case of the ALIGNED variant the encoding depends on whether
+	 *			d)	"range" is greater than 64K (the indefinite length case).
+	 */
+	if(((max-min)>65536)&&(is_per_byte_aligned)){
 		/* just set range really big so it will fall through
 		   to the bottom of the encoding */
 		range=1000000;
@@ -829,33 +832,37 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	pad=0;
 	val=0;
 	timeval.secs=val; timeval.nsecs=0;
-	/* 10.5.4 */
+	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
 	if(range==1){
 		val_start = offset>>3; val_length = 0;
 		val = min; 
-	} else if(range<=255) {
-		/* 10.5.7.1 */
+	} else if((range<=255)||(!is_per_byte_aligned)) {
+		/* 10.5.7.1 
+		 * 10.5.6	In the case of the UNALIGNED variant the value ("n" - "lb") shall be encoded
+		 * as a non-negative  binary integer in a bit field as specified in 10.3 with the minimum
+		 * number of bits necessary to represent the range.
+		 */
 		char *str;
 		int i, bit, length;
+		guint32 mask,mask2;
+		/* We only handle 32 bit integers */
+		mask  = 0x80000000;
+		mask2 = 0x7fffffff;
+		i = 32;
+		while ((range & mask)== 0){
+			i = i - 1;
+			mask = mask>>1;
+			mask2 = mask2>>1;
+		}
+		if ((range & mask2) == 0)
+			i = i-1;
 
+		num_bits = i;
 		length=1;
 		if(range<=2){
 			num_bits=1;
-		} else if(range<=4){
-			num_bits=2;
-		} else if(range<=8){
-			num_bits=3;
-		} else if(range<=16){
-			num_bits=4;
-		} else if(range<=32){
-			num_bits=5;
-		} else if(range<=64){
-			num_bits=6;
-		} else if(range<=128){
-			num_bits=7;
-		} else if(range<=256){
-			num_bits=8;
 		}
+
 		/* prepare the string */
 		str=ep_alloc(256);
 		g_snprintf(str, 256, "%s: ", hfi->name);
@@ -892,6 +899,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		}
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
+		if ((display_internal_per_fields)&&(str))
+			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfiled lengt %u, %s",range, num_bits, str);
 	} else if(range==256){
 		/* 10.5.7.2 */
 		num_bits=8;
@@ -1476,7 +1485,9 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	} else if ((min_len==max_len)&&(min_len<65536)) {  /* 16.7 if length is fixed and less than to 64k*/
 		/* align to byte */
-		BYTE_ALIGN_OFFSET(offset);
+		
+		if (is_per_byte_aligned)
+			BYTE_ALIGN_OFFSET(offset);
 		val_start = offset>>3; 
 		val_length = min_len;
 		offset+=min_len*8;
@@ -1494,7 +1505,8 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 		if(length){
 			/* align to byte */
-			BYTE_ALIGN_OFFSET(offset);
+			if (is_per_byte_aligned)
+				BYTE_ALIGN_OFFSET(offset);
 		}
 		val_start = offset>>3; 
 		val_length = length;
