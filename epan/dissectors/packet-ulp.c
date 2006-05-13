@@ -41,6 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -97,8 +98,8 @@ static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress = -1;                 /* IPAddress */
 static int hf_ulp_sessionID1 = -1;                /* OCTET_STRING_SIZE_4 */
 static int hf_ulp_slpId = -1;                     /* SLPAddress */
-static int hf_ulp_ipv4Address = -1;               /* OCTET_STRING_SIZE_4 */
-static int hf_ulp_ipv6Address = -1;               /* OCTET_STRING_SIZE_16 */
+static int hf_ulp_ipv4Address = -1;               /* IPv4Address */
+static int hf_ulp_ipv6Address = -1;               /* IPv6Address */
 static int hf_ulp_fQDN = -1;                      /* FQDN */
 static int hf_ulp_cellInfo = -1;                  /* CellInfo */
 static int hf_ulp_status = -1;                    /* Status */
@@ -245,7 +246,7 @@ static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
 static int hf_ulp_rrc = -1;                       /* BOOLEAN */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 62 "packet-ulp-template.c"
+#line 63 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -312,7 +313,7 @@ static gint ett_ulp_PosTechnology = -1;
 static gint ett_ulp_PosProtocol = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 66 "packet-ulp-template.c"
+#line 67 "packet-ulp-template.c"
 
 guint32 StatusCode_value_map[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11, 12, 13, 14, 15, 16, 17, 100 , 101};
 
@@ -327,7 +328,7 @@ guint32 StatusCode_value_map[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11, 12, 13
 #define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 71 "packet-ulp-template.c"
+#line 72 "packet-ulp-template.c"
 
 
 /*--- Included file: packet-ulp-fn.c ---*/
@@ -461,30 +462,27 @@ static int dissect_nai(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 static int
-dissect_ulp_OCTET_STRING_SIZE_4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_ulp_IPv4Address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        4, 4, NULL);
 
   return offset;
 }
-static int dissect_sessionID1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_4(tvb, offset, pinfo, tree, hf_ulp_sessionID1);
-}
 static int dissect_ipv4Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_4(tvb, offset, pinfo, tree, hf_ulp_ipv4Address);
+  return dissect_ulp_IPv4Address(tvb, offset, pinfo, tree, hf_ulp_ipv4Address);
 }
 
 
 
 static int
-dissect_ulp_OCTET_STRING_SIZE_16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_ulp_IPv6Address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        16, 16, NULL);
 
   return offset;
 }
 static int dissect_ipv6Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_16(tvb, offset, pinfo, tree, hf_ulp_ipv6Address);
+  return dissect_ulp_IPv6Address(tvb, offset, pinfo, tree, hf_ulp_ipv6Address);
 }
 
 
@@ -561,6 +559,19 @@ dissect_ulp_SetSessionID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 static int dissect_setSessionID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_ulp_SetSessionID(tvb, offset, pinfo, tree, hf_ulp_setSessionID);
+}
+
+
+
+static int
+dissect_ulp_OCTET_STRING_SIZE_4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                       4, 4, NULL);
+
+  return offset;
+}
+static int dissect_sessionID1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_ulp_OCTET_STRING_SIZE_4(tvb, offset, pinfo, tree, hf_ulp_sessionID1);
 }
 
 
@@ -2595,6 +2606,7 @@ guint32 UlpMessage;
 	}
 
 
+
   return offset;
 }
 static int dissect_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -2639,7 +2651,21 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 73 "packet-ulp-template.c"
+#line 74 "packet-ulp-template.c"
+
+/*--- proto_reg_handoff_ulp ---------------------------------------*/
+void
+proto_reg_handoff_ulp(void)
+{
+
+	ulp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
+
+	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
+
+	/* application/oma-supl-ulp */
+	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
+
+}
 
 
 /*--- proto_register_ulp -------------------------------------------*/
@@ -2765,11 +2791,11 @@ void proto_register_ulp(void) {
         "SlpSessionID/slpId", HFILL }},
     { &hf_ulp_ipv4Address,
       { "ipv4Address", "ulp.ipv4Address",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         "IPAddress/ipv4Address", HFILL }},
     { &hf_ulp_ipv6Address,
       { "ipv6Address", "ulp.ipv6Address",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         "IPAddress/ipv6Address", HFILL }},
     { &hf_ulp_fQDN,
       { "fQDN", "ulp.fQDN",
@@ -3349,7 +3375,7 @@ void proto_register_ulp(void) {
         "PosProtocol/rrc", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 82 "packet-ulp-template.c"
+#line 97 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -3418,8 +3444,10 @@ void proto_register_ulp(void) {
     &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 88 "packet-ulp-template.c"
+#line 103 "packet-ulp-template.c"
   };
+
+  module_t *ulp_module;
 
 
   /* Register protocol */
@@ -3428,22 +3456,17 @@ void proto_register_ulp(void) {
   proto_register_field_array(proto_ulp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+
+  /* Register a configuration option for port */
+  ulp_module = prefs_register_protocol(proto_ulp,proto_reg_handoff_ulp);
+  prefs_register_uint_preference(ulp_module, "tcp.port",
+								   "ULP TCP Port",
+								   "Set the TCP port for Ulp messages(IANA registerd port is 7275)",
+								   10,
+								   &gbl_ulp_port);
  
 }
 
 
-/*--- proto_reg_handoff_ulp ---------------------------------------*/
-void
-proto_reg_handoff_ulp(void)
-{
-
-	ulp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
-
-	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
-
-	/* application/oma-supl-ulp */
-	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
-
-}
 
 

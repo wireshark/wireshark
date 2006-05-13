@@ -499,6 +499,8 @@ int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len)
 	 }
 	 value = 0;
    }
+   if (out_len == 0)
+	   DISSECTOR_ASSERT_NOT_REACHED();
 
    return out_len;
 }
@@ -899,7 +901,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	const guint8 *oid_buf;
 	subid_t *vb_oid;
 	guint vb_oid_length;
-	gchar *vb_display_string;
+	gchar *vb_display_string = NULL;
 	subid_t *variable_oid = NULL;
 	gint oid_len;
 	guint variable_oid_length = 0;
@@ -1243,6 +1245,7 @@ dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
 
 
+
   return offset;
 }
 static int dissect_empty(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1311,11 +1314,20 @@ static int dissect_counter_value(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 241 "snmp.cnf"
-	guint length;
-	
-	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
-	offset = offset + length;
+#line 242 "snmp.cnf"
+int start_offset;
+guint8 octet1,octet2,octet3,octet4;
+
+ start_offset  = offset;
+   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+
+ octet1 = tvb_get_guint8(tvb,start_offset+2);
+ octet2 = tvb_get_guint8(tvb,start_offset+3);
+ octet3 = tvb_get_guint8(tvb,start_offset+4);
+ octet4 = tvb_get_guint8(tvb,start_offset+5);
+ proto_tree_add_text(tree, tvb, start_offset+2, 4, "Time Ticks: %u:%u:%u:%u",octet1,octet2,octet3,octet4);
 
 
 
@@ -2679,7 +2691,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1026 "packet-snmp-template.c"
+#line 1028 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3369,7 +3381,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1379 "packet-snmp-template.c"
+#line 1381 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3407,7 +3419,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1388 "packet-snmp-template.c"
+#line 1390 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 

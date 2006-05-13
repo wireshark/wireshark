@@ -374,6 +374,8 @@ int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len)
 	 }
 	 value = 0;
    }
+   if (out_len == 0)
+	   DISSECTOR_ASSERT_NOT_REACHED();
 
    return out_len;
 }
@@ -774,7 +776,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	const guint8 *oid_buf;
 	subid_t *vb_oid;
 	guint vb_oid_length;
-	gchar *vb_display_string;
+	gchar *vb_display_string = NULL;
 	subid_t *variable_oid = NULL;
 	gint oid_len;
 	guint variable_oid_length = 0;
