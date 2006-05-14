@@ -717,7 +717,9 @@ dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset, packet_info *pinfo
 	tvbuff_t *next_tvb;
 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), -1);
-/*qqq*/	call_dissector(bthci_com_handle, next_tvb, pinfo, tree);
+	if(bthci_com_handle){
+		call_dissector(bthci_com_handle, next_tvb, pinfo, tree);
+	}
 	offset+=tvb_length_remaining(tvb, offset);
 
 	return offset;
