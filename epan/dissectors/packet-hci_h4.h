@@ -29,4 +29,14 @@
 #define HCI_H4_TYPE_SCO		0x03
 #define HCI_H4_TYPE_EVT		0x04
 
+extern const value_string bthci_cmd_opcode_vals[];
+
+#define HCI_OGF_LINK_CONTROL		0x01
+#define HCI_OGF_LINK_POLICY		0x02
+#define HCI_OGF_HOST_CONTROLLER		0x03
+#define HCI_OGF_INFORMATIONAL		0x04
+#define HCI_OGF_STATUS		        0x05
+#define HCI_OGF_TESTING		        0x06
+extern const value_string bthci_ogf_vals[];
+
 #endif

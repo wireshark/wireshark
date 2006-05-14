@@ -167,7 +167,7 @@ static gint ett_bthci_cmd = -1;
 static gint ett_opcode = -1;
 
 
-static const value_string cmd_opcode_vals[] = {
+const value_string bthci_cmd_opcode_vals[] = {
 	{0x0000, "No Operation"},
 	{0x0401, "Inquiry"},
 	{0x0402, "Inquiry Cancel"},
@@ -453,17 +453,7 @@ static const value_string cmd_loopback_modes[] = {
 };
 
 
-/*
- * The HCI_OGF_ values for "ogf".
- */
-#define HCI_OGF_LINK_CONTROL		0x01
-#define HCI_OGF_LINK_POLICY		0x02
-#define HCI_OGF_HOST_CONTROLLER		0x03
-#define HCI_OGF_INFORMATIONAL		0x04
-#define HCI_OGF_STATUS		        0x05
-#define HCI_OGF_TESTING		        0x06
-
-static const value_string ogf_vals[] = {
+const value_string bthci_ogf_vals[] = {
 	{ HCI_OGF_LINK_CONTROL,	"Link Control Commands" },
 	{ HCI_OGF_LINK_POLICY,	"Link Policy Commands" },
 	{ HCI_OGF_HOST_CONTROLLER,"Host Controller & Baseband Commands" },
@@ -1218,14 +1208,14 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ocf = opcode & 0x03ff;
 	ogf = tvb_get_guint8(tvb, 1) >> 2;
 
-	proto_item_append_text(ti_cmd," - %s", val_to_str(opcode, cmd_opcode_vals, "Unknown 0x%04x"));
+	proto_item_append_text(ti_cmd," - %s", val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%04x"));
 
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
 	}
 
 	if((check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, cmd_opcode_vals, "Unknown 0x%04x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%04x"));
 	}
 
 
@@ -1291,11 +1281,11 @@ proto_register_bthci_cmd(void)
 	static hf_register_info hf[] = {
 		{ &hf_bthci_cmd_opcode,
 			{ "Command Opcode","bthci_cmd.opcode", FT_UINT16, BASE_HEX, 
-				VALS(cmd_opcode_vals), 0x0, "HCI Command Opcode", HFILL }
+				VALS(bthci_cmd_opcode_vals), 0x0, "HCI Command Opcode", HFILL }
 		},
 		{ &hf_bthci_cmd_ogf,
 			{ "ogf",           "bthci_cmd.ogf",
-				FT_UINT16, BASE_HEX, VALS(ogf_vals), 0xfc00,          
+				FT_UINT16, BASE_HEX, VALS(bthci_ogf_vals), 0xfc00,          
 				"Opcode Group Field", HFILL }
 		},
 		{ &hf_bthci_cmd_ocf,
