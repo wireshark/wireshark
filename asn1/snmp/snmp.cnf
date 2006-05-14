@@ -238,18 +238,6 @@ gint pdu_type;
 	offset = offset + length;
 
 
-#.FN_BODY TimeTicks
-int start_offset;
-guint8 octet1,octet2,octet3,octet4;
-
- start_offset  = offset;
- %(DEFAULT_BODY)s
-
- octet1 = tvb_get_guint8(tvb,start_offset+2);
- octet2 = tvb_get_guint8(tvb,start_offset+3);
- octet3 = tvb_get_guint8(tvb,start_offset+4);
- octet4 = tvb_get_guint8(tvb,start_offset+5);
- proto_tree_add_text(tree, tvb, start_offset+2, 4, "Time Ticks: %%u:%%u:%%u:%%u",octet1,octet2,octet3,octet4);
 
 #.TYPE_ATTR
 IpAddress  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL

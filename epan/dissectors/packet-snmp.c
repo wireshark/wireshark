@@ -1246,6 +1246,7 @@ dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
 
 
+
   return offset;
 }
 static int dissect_empty(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1314,22 +1315,8 @@ static int dissect_counter_value(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 242 "snmp.cnf"
-int start_offset;
-guint8 octet1,octet2,octet3,octet4;
-
- start_offset  = offset;
-   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
-
-
- octet1 = tvb_get_guint8(tvb,start_offset+2);
- octet2 = tvb_get_guint8(tvb,start_offset+3);
- octet3 = tvb_get_guint8(tvb,start_offset+4);
- octet4 = tvb_get_guint8(tvb,start_offset+5);
- proto_tree_add_text(tree, tvb, start_offset+2, 4, "Time Ticks: %u:%u:%u:%u",octet1,octet2,octet3,octet4);
-
-
 
   return offset;
 }
