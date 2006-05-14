@@ -1,5 +1,5 @@
 # Makefile.nmake
-# nmake file for DOCSIS plugin
+# nmake file for plugin
 #
 # $Id$
 #
@@ -23,9 +23,9 @@ DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
 OBJECTS=$(DISSECTOR_OBJECTS) plugin.obj
 
-docsis.dll docsis.exp docsis.lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
-	link -dll /out:docsis.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH)  \
-	$(GLIB_LIBS)
+$(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH) 
+	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) \
+	    $(LINK_PLUGIN_WITH) $(GLIB_LIBS)
 
 #
 # Build plugin.c, which contains the plugin version[] string, a
@@ -72,7 +72,7 @@ plugin.c: $(DISSECTOR_SRC)
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) docsis.dll docsis.exp docsis.lib *.pdb
+	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib *.pdb
 
 distclean: clean
 
