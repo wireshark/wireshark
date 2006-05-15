@@ -868,8 +868,8 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
 		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_UINT_STRING,
 		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
-		FT_FRAMENUM, FT_PROTOCOL
-FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT
+		FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
+FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field.
@@ -952,6 +952,11 @@ for example, try to use "tvb_get_ntohl()", find that it gives you the
 wrong answer on the PC on which you're doing development, and try
 "tvb_get_letohl()" instead, as "tvb_get_letohl()" will give the wrong
 answer on big-endian machines.
+
+Accessors for GUID:
+
+void tvb_get_ntohguid(tvbuff_t *, gint offset, e_guid_t *guid);
+void tvb_get_letohguid(tvbuff_t *, gint offset, e_guid_t *guid);
 
 String accessors:
 
@@ -1382,6 +1387,8 @@ The type of value this field holds. The current field types are:
 	FT_IPXNET		An IPX address displayed in hex as a 6-byte
 				network number followed by a 6-byte station
 				address. 
+	FT_GUID			A Globally Unique Identifier
+	FT_OID			An ASN.1 Object Identifier
 
 Some of these field types are still not handled in the display filter
 routines, but the most common ones are. The FT_UINT* variables all
@@ -1402,10 +1409,13 @@ are:
 
 	BASE_DEC,
 	BASE_HEX,
-	BASE_OCT
+	BASE_OCT,
+	BASE_DEC_HEX,
+	BASE_HEX_DEC
 
 BASE_DEC, BASE_HEX, and BASE_OCT are decimal, hexadecimal, and octal,
-respectively.
+respectively. BASE_DEC_HEX and BASE_HEX_DEC display value in two bases 
+(the 1st representation folowed by the 2nd in parenthes)
 
 For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
 the proto_tree how wide the parent bitfield is.  With integers this is
@@ -1810,6 +1820,34 @@ protocol or field labels to the proto_tree:
 	proto_item*
 	proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
 
+	proto_item *
+	proto_tree_add_guid(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_guid_hidden(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_guid_format(tree, id, tvb, start, length, value_ptr,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_guid_format_value(tree, id, tvb, start, length,
+	    value_ptr, format, ...);
+
+	proto_item *
+	proto_tree_add_oid(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_oid_hidden(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_oid_format(tree, id, tvb, start, length, value_ptr,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_oid_format_value(tree, id, tvb, start, length,
+	    value_ptr, format, ...);
+
 The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
 extracted; the 'start' argument is the offset from the beginning of that
@@ -1960,6 +1998,8 @@ proto_tree_add_uint()
 proto_tree_add_uint64()
 proto_tree_add_int()
 proto_tree_add_int64()
+proto_tree_add_guid()
+proto_tree_add_oid()
 ----------------------------
 These routines are used to add items to the protocol tree if either:
 
@@ -2024,6 +2064,12 @@ integer value, in host byte order.  (This routine cannot be used to add
 For proto_tree_add_int64(), the 'value' argument is a 64-bit signed
 integer value, in host byte order.
 
+For proto_tree_add_guid(), the 'value_ptr' argument is a pointer to an
+e_guid_t structure.
+
+For proto_tree_add_oid(), the 'value_ptr' argument is a pointer to an
+ASN.1 Object Identifier.
+
 proto_tree_add_bytes_hidden()
 proto_tree_add_time_hidden()
 proto_tree_add_ipxnet_hidden()
@@ -2036,6 +2082,8 @@ proto_tree_add_float_hidden()
 proto_tree_add_double_hidden()
 proto_tree_add_uint_hidden()
 proto_tree_add_int_hidden()
+proto_tree_add_guid_hidden()
+proto_tree_add_oid_hidden()
 ----------------------------
 These routines add fields and values to a tree, but don't show them in
 the GUI tree.  They are used for the same reason that
@@ -2055,6 +2103,8 @@ proto_tree_add_uint_format()
 proto_tree_add_uint64_format()
 proto_tree_add_int_format()
 proto_tree_add_int64_format()
+proto_tree_add_guid_format()
+proto_tree_add_oid_format()
 ----------------------------
 These routines are used to add items to the protocol tree when the
 dissector routines wants complete control over how the field and value
@@ -2078,6 +2128,8 @@ proto_tree_add_uint_format_value()
 proto_tree_add_uint64_format_value()
 proto_tree_add_int_format_value()
 proto_tree_add_int64_format_value()
+proto_tree_add_guid_format_value()
+proto_tree_add_oid_format_value()
 ----------------------------
 
 These routines are used to add items to the protocol tree when the
