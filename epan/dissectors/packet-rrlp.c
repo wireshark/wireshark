@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-rrlp.c                                                            */
-/* ../../tools/asn2eth.py -X -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
+/* ../../tools/asn2eth.py -u -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
 
 /* Input file: packet-rrlp-template.c */
 
@@ -578,8 +578,8 @@ static const value_string rrlp_PositionMethod_vals[] = {
 
 static int
 dissect_rrlp_PositionMethod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -610,8 +610,8 @@ static const value_string rrlp_UseMultipleSets_vals[] = {
 
 static int
 dissect_rrlp_UseMultipleSets(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -630,8 +630,8 @@ static const value_string rrlp_EnvironmentCharacter_vals[] = {
 
 static int
 dissect_rrlp_EnvironmentCharacter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -699,8 +699,8 @@ static const value_string rrlp_TimeSlotScheme_vals[] = {
 
 static int
 dissect_rrlp_TimeSlotScheme(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -2584,8 +2584,8 @@ static const value_string rrlp_ReferenceRelation_vals[] = {
 
 static int
 dissect_rrlp_ReferenceRelation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -3231,8 +3231,8 @@ static const value_string rrlp_MpathIndic_vals[] = {
 
 static int
 dissect_rrlp_MpathIndic(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -3352,8 +3352,8 @@ static const value_string rrlp_LocErrorReason_vals[] = {
 
 static int
 dissect_rrlp_LocErrorReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 10, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     11, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3564,8 +3564,8 @@ static const value_string rrlp_UlPseudoSegInd_vals[] = {
 
 static int
 dissect_rrlp_UlPseudoSegInd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -3627,8 +3627,8 @@ static const value_string rrlp_MoreAssDataToBeSent_vals[] = {
 
 static int
 dissect_rrlp_MoreAssDataToBeSent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -3710,8 +3710,8 @@ static const value_string rrlp_ErrorCodes_vals[] = {
 
 static int
 dissect_rrlp_ErrorCodes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 5, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     6, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3804,7 +3804,6 @@ dissect_rrlp_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-  per_aligment_type_callback(FALSE);
     offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_rrlp_PDU, PDU_sequence);
 
@@ -3816,6 +3815,7 @@ dissect_rrlp_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 /*--- PDUs ---*/
 
 static void dissect_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(FALSE);
   dissect_rrlp_PDU(tvb, 0, pinfo, tree, hf_rrlp_PDU_PDU);
 }
 

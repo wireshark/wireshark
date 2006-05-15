@@ -65,8 +65,6 @@ static int proto_ulp = -1;
 static gint ett_ulp = -1;
 #include "packet-ulp-ett.c"
 
-guint32 StatusCode_value_map[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11, 12, 13, 14, 15, 16, 17, 100 , 101};
-
 /* Include constants */
 #include "packet-ulp-val.h"
 

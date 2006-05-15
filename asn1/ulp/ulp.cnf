@@ -15,17 +15,9 @@ ULP-PDU
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-  per_aligment_type_callback(FALSE);
   %(DEFAULT_BODY)s
 
-#.FN_BODY StatusCode
-# Remove once asn2eth is fixed to handle PER Enummeration extensions
-  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									19, NULL, NULL, TRUE, 0, StatusCode_value_map);
-
-#.FN_PARS UlpMessage 	VAL_PTR = &UlpMessage
-
-#.FN_BODY UlpMessage
+#.FN_BODY UlpMessage  VAL_PTR = &UlpMessage
 
 guint32 UlpMessage;
 
@@ -35,7 +27,9 @@ guint32 UlpMessage;
 	{
 	    col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
 	}
+#.END
 
 #.TYPE_ATTR
 IPv4Address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 IPv6Address  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+

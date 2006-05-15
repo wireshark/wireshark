@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-ranap.c                                                           */
-/* ../../tools/asn2eth.py -X -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
+/* ../../tools/asn2eth.py -e -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
 
 /* Input file: packet-ranap-template.c */
 
@@ -68,13 +68,13 @@
 int proto_ranap = -1;
 static dissector_table_t nas_pdu_dissector_table;
 
-static int hf_ranap_RANAP_PDU = -1;
 static int hf_ranap_pdu_length = -1;
 static int hf_ranap_IE_length = -1;
 
 
 /*--- Included file: packet-ranap-hf.c ---*/
 #line 1 "packet-ranap-hf.c"
+static int hf_ranap_RANAP_PDU_PDU = -1;           /* RANAP_PDU */
 static int hf_ranap_initiatingMessage = -1;       /* InitiatingMessage */
 static int hf_ranap_successfulOutcome = -1;       /* SuccessfulOutcome */
 static int hf_ranap_unsuccessfulOutcome = -1;     /* UnsuccessfulOutcome */
@@ -592,7 +592,7 @@ static int hf_ranap_private_id = -1;              /* PrivateIE_ID */
 static int hf_ranap_private_value = -1;           /* RANAP_PRIVATE_IES_Value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 68 "packet-ranap-template.c"
+#line 67 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -859,7 +859,7 @@ static gint ett_ranap_PrivateIE_Container = -1;
 static gint ett_ranap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 73 "packet-ranap-template.c"
+#line 72 "packet-ranap-template.c"
 
 
 /* Global variables */
@@ -931,7 +931,7 @@ dissect_ranap_ProcedureCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                               0U, 255U, &ProcedureCode, NULL, FALSE);
 
-#line 32 "ranap.cnf"
+#line 33 "ranap.cnf"
 	if (check_col(pinfo->cinfo, COL_INFO))
        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
@@ -954,8 +954,8 @@ static const value_string ranap_Criticality_vals[] = {
 
 static int
 dissect_ranap_Criticality(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -979,7 +979,7 @@ static int dissect_secondCriticality(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int
 dissect_ranap_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 45 "ranap.cnf"
+#line 46 "ranap.cnf"
 	
 	offset = dissect_ranap_messages(tvb, offset, pinfo, tree);
 
@@ -1271,7 +1271,7 @@ static int dissect_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static int
 dissect_ranap_RANAP_PROTOCOL_IES_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 49 "ranap.cnf"
+#line 50 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
 
@@ -1348,7 +1348,7 @@ static int dissect_ext_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_ranap_Extension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 72 "ranap.cnf"
+#line 69 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
 
@@ -1906,9 +1906,8 @@ static int dissect_private_id(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 dissect_ranap_RANAP_PRIVATE_IES_Value(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 76 "ranap.cnf"
+#line 73 "ranap.cnf"
 /* FIX ME */
-
 
 
 
@@ -3027,8 +3026,8 @@ static const value_string ranap_AccuracyFulfilmentIndicator_vals[] = {
 
 static int
 dissect_ranap_AccuracyFulfilmentIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3056,7 +3055,7 @@ static int dissect_aPN(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 static int
 dissect_ranap_PLMNidentity(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 84 "ranap.cnf"
+#line 76 "ranap.cnf"
 
 	tvbuff_t *parameter_tvb=NULL;
 
@@ -3138,8 +3137,8 @@ static const value_string ranap_T_latitudeSign_vals[] = {
 
 static int
 dissect_ranap_T_latitudeSign(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -3364,8 +3363,8 @@ static const value_string ranap_T_directionOfAltitude_vals[] = {
 
 static int
 dissect_ranap_T_directionOfAltitude(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -3542,8 +3541,8 @@ static const value_string ranap_Alt_RAB_Parameter_MaxBitrateType_vals[] = {
 
 static int
 dissect_ranap_Alt_RAB_Parameter_MaxBitrateType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3636,8 +3635,8 @@ static const value_string ranap_Alt_RAB_Parameter_GuaranteedBitrateType_vals[] =
 
 static int
 dissect_ranap_Alt_RAB_Parameter_GuaranteedBitrateType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3851,8 +3850,8 @@ static const value_string ranap_RequestedLocationRelatedDataType_vals[] = {
 
 static int
 dissect_ranap_RequestedLocationRelatedDataType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3901,8 +3900,8 @@ static const value_string ranap_CN_DomainIndicator_vals[] = {
 
 static int
 dissect_ranap_CN_DomainIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -4266,8 +4265,8 @@ static const value_string ranap_ClientType_vals[] = {
 
 static int
 dissect_ranap_ClientType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     8, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -4398,8 +4397,8 @@ static const value_string ranap_TriggeringMessage_vals[] = {
 
 static int
 dissect_ranap_TriggeringMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -4573,7 +4572,7 @@ static int dissect_id_DRX_CycleLengthCoefficient(tvbuff_t *tvb, int offset, pack
 
 static int
 dissect_ranap_NAS_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 57 "ranap.cnf"
+#line 54 "ranap.cnf"
 
 tvbuff_t *nas_pdu_tvb=NULL;
 
@@ -4605,8 +4604,8 @@ static const value_string ranap_SAPI_vals[] = {
 
 static int
 dissect_ranap_SAPI(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -4752,8 +4751,8 @@ static const value_string ranap_FrequenceLayerConvergenceFlag_vals[] = {
 
 static int
 dissect_ranap_FrequenceLayerConvergenceFlag(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -4949,8 +4948,8 @@ static const value_string ranap_InformationExchangeType_vals[] = {
 
 static int
 dissect_ranap_InformationExchangeType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -5176,8 +5175,8 @@ static const value_string ranap_T_traceActivationIndicator_vals[] = {
 
 static int
 dissect_ranap_T_traceActivationIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -5830,8 +5829,8 @@ static const value_string ranap_KeyStatus_vals[] = {
 
 static int
 dissect_ranap_KeyStatus(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6027,8 +6026,8 @@ static const value_string ranap_LocationRelatedDataRequestTypeSpecificToGERANIuM
 
 static int
 dissect_ranap_LocationRelatedDataRequestTypeSpecificToGERANIuMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6045,8 +6044,8 @@ static const value_string ranap_SignallingIndication_vals[] = {
 
 static int
 dissect_ranap_SignallingIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6180,8 +6179,8 @@ static const value_string ranap_MBMSBearerServiceType_vals[] = {
 
 static int
 dissect_ranap_MBMSBearerServiceType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6199,8 +6198,8 @@ static const value_string ranap_MBMSCNDe_Registration_vals[] = {
 
 static int
 dissect_ranap_MBMSCNDe_Registration(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6218,8 +6217,8 @@ static const value_string ranap_MBMSRegistrationRequestType_vals[] = {
 
 static int
 dissect_ranap_MBMSRegistrationRequestType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6350,8 +6349,8 @@ static const value_string ranap_NonSearchingIndication_vals[] = {
 
 static int
 dissect_ranap_NonSearchingIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -6456,7 +6455,7 @@ static const value_string ranap_PagingCause_vals[] = {
 
 static int
 dissect_ranap_PagingCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 95 "ranap.cnf"
+#line 87 "ranap.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
 									5, NULL, NULL, TRUE, 1, NULL);
 
@@ -6481,8 +6480,8 @@ static const value_string ranap_PDP_Type_vals[] = {
 
 static int
 dissect_ranap_PDP_Type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6595,8 +6594,8 @@ static const value_string ranap_PositioningPriority_vals[] = {
 
 static int
 dissect_ranap_PositioningPriority(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7253,8 +7252,8 @@ static const value_string ranap_TypeOfError_vals[] = {
 
 static int
 dissect_ranap_TypeOfError(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7274,8 +7273,8 @@ static const value_string ranap_TrafficClass_vals[] = {
 
 static int
 dissect_ranap_TrafficClass(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7295,8 +7294,8 @@ static const value_string ranap_RAB_AsymmetryIndicator_vals[] = {
 
 static int
 dissect_ranap_RAB_AsymmetryIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7348,8 +7347,8 @@ static const value_string ranap_DeliveryOrder_vals[] = {
 
 static int
 dissect_ranap_DeliveryOrder(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7458,8 +7457,8 @@ static const value_string ranap_DeliveryOfErroneousSDU_vals[] = {
 
 static int
 dissect_ranap_DeliveryOfErroneousSDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7632,8 +7631,8 @@ static const value_string ranap_Pre_emptionCapability_vals[] = {
 
 static int
 dissect_ranap_Pre_emptionCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7651,8 +7650,8 @@ static const value_string ranap_Pre_emptionVulnerability_vals[] = {
 
 static int
 dissect_ranap_Pre_emptionVulnerability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7670,8 +7669,8 @@ static const value_string ranap_QueuingAllowed_vals[] = {
 
 static int
 dissect_ranap_QueuingAllowed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7710,8 +7709,8 @@ static const value_string ranap_SourceStatisticsDescriptor_vals[] = {
 
 static int
 dissect_ranap_SourceStatisticsDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7729,8 +7728,8 @@ static const value_string ranap_RelocationRequirement_vals[] = {
 
 static int
 dissect_ranap_RelocationRequirement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8013,8 +8012,8 @@ static const value_string ranap_DataVolumeReportingIndication_vals[] = {
 
 static int
 dissect_ranap_DataVolumeReportingIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -8032,8 +8031,8 @@ static const value_string ranap_UserPlaneMode_vals[] = {
 
 static int
 dissect_ranap_UserPlaneMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8084,8 +8083,8 @@ static const value_string ranap_Service_Handover_vals[] = {
 
 static int
 dissect_ranap_Service_Handover(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8200,7 +8199,7 @@ static int dissect_id_RAB_SetupOrModifiedList(tvbuff_t *tvb, int offset, packet_
 
 static int
 dissect_ranap_FirstValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 69 "ranap.cnf"
+#line 66 "ranap.cnf"
 	offset = dissect_ranap_FirstValue_ies(tvb, offset, pinfo, tree);
 
 
@@ -8215,7 +8214,7 @@ static int dissect_firstValue(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 dissect_ranap_SecondValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 66 "ranap.cnf"
+#line 63 "ranap.cnf"
 	offset = dissect_ranap_SecondValue_ies(tvb, offset, pinfo, tree);
 
 
@@ -8347,8 +8346,8 @@ static const value_string ranap_T_emptyFullRAListofIdleModeUEs_vals[] = {
 
 static int
 dissect_ranap_T_emptyFullRAListofIdleModeUEs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8390,8 +8389,8 @@ static const value_string ranap_RedirectionCompleted_vals[] = {
 
 static int
 dissect_ranap_RedirectionCompleted(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8424,8 +8423,8 @@ static const value_string ranap_RejectCauseValue_vals[] = {
 
 static int
 dissect_ranap_RejectCauseValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8443,8 +8442,8 @@ static const value_string ranap_RelocationType_vals[] = {
 
 static int
 dissect_ranap_RelocationType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8467,7 +8466,7 @@ static const value_string ranap_Event_vals[] = {
 
 static int
 dissect_ranap_Event(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 100 "ranap.cnf"
+#line 92 "ranap.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
 									3, NULL, NULL, TRUE, 1, NULL);
 
@@ -8490,8 +8489,8 @@ static const value_string ranap_ReportArea_vals[] = {
 
 static int
 dissect_ranap_ReportArea(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8528,8 +8527,8 @@ static const value_string ranap_ResponseTime_vals[] = {
 
 static int
 dissect_ranap_ResponseTime(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8915,8 +8914,8 @@ static const value_string ranap_TraceDepth_vals[] = {
 
 static int
 dissect_ranap_TraceDepth(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8937,8 +8936,8 @@ static const value_string ranap_T_interface_vals[] = {
 
 static int
 dissect_ranap_T_interface(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -9179,8 +9178,8 @@ static const value_string ranap_MBMSLinkingInformation_vals[] = {
 
 static int
 dissect_ranap_MBMSLinkingInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -9197,8 +9196,8 @@ static const value_string ranap_AlternativeRABConfigurationRequest_vals[] = {
 
 static int
 dissect_ranap_AlternativeRABConfigurationRequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -9674,8 +9673,8 @@ static const value_string ranap_RateControlAllowed_vals[] = {
 
 static int
 dissect_ranap_RateControlAllowed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9691,8 +9690,8 @@ static const value_string ranap_Presence_vals[] = {
 
 static int
 dissect_ranap_Presence(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9753,9 +9752,16 @@ dissect_ranap_ProtocolIE_ContainerPairList(tvbuff_t *tvb, int offset, packet_inf
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
+  return dissect_ranap_RANAP_PDU(tvb, 0, pinfo, tree, hf_ranap_RANAP_PDU_PDU);
+}
+
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 86 "packet-ranap-template.c"
+#line 85 "packet-ranap-template.c"
 
 
 
@@ -10748,8 +10754,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
-	per_aligment_type_callback(TRUE);
-	offset = dissect_ranap_RANAP_PDU(tvb, offset, pinfo, ranap_tree, hf_ranap_RANAP_PDU);
+	offset = dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);
 
 }
 
@@ -10808,10 +10813,6 @@ void proto_register_ranap(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_ranap_RANAP_PDU,
-      { "RANAP_PDU", "ranap.ranap_pdu",
-        FT_UINT32, BASE_DEC, VALS(ranap_RANAP_PDU_vals), 0,
-        "RANAP_PDU", HFILL }},
 	{ &hf_ranap_pdu_length,
 		{ "PDU Length", "ranap.pdu_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of octets in the PDU", HFILL }},
@@ -10822,6 +10823,10 @@ void proto_register_ranap(void) {
 
 /*--- Included file: packet-ranap-hfarr.c ---*/
 #line 1 "packet-ranap-hfarr.c"
+    { &hf_ranap_RANAP_PDU_PDU,
+      { "RANAP-PDU", "ranap.RANAP_PDU",
+        FT_UINT32, BASE_DEC, VALS(ranap_RANAP_PDU_vals), 0,
+        "RANAP-PDU", HFILL }},
     { &hf_ranap_initiatingMessage,
       { "initiatingMessage", "ranap.initiatingMessage",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -12884,7 +12889,7 @@ void proto_register_ranap(void) {
         "PrivateIE-Field/value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 1150 "packet-ranap-template.c"
+#line 1144 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13153,7 +13158,7 @@ void proto_register_ranap(void) {
     &ett_ranap_PrivateIE_Field,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 1157 "packet-ranap-template.c"
+#line 1151 "packet-ranap-template.c"
   };
 
   /* Register protocol */

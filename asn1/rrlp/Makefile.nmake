@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2eth.py rrlp.asn packet-rrlp-template.c packet-rrlp-template.h rrlp.cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -X -e -p $(PROTOCOL_NAME) -c rrlp.cnf -s packet-rrlp-template rrlp.asn
+	$(PYTHON) ../../tools/asn2eth.py -u -e -p $(PROTOCOL_NAME) -c rrlp.cnf -s packet-rrlp-template rrlp.asn
 !ELSE
 	@echo Error: You need Python to use asn2eth.py
 	@exit 1

@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2eth.py ranap.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h ranap.cnf 
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -X -e -p $(PROTOCOL_NAME) -c ranap.cnf -s packet-$(PROTOCOL_NAME)-template ranap.asn
+	$(PYTHON) ../../tools/asn2eth.py -e -p $(PROTOCOL_NAME) -c ranap.cnf -s packet-$(PROTOCOL_NAME)-template ranap.asn
 !ELSE
 	@echo Error: You need Python to use asn2eth.py
 	@exit 1

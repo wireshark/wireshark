@@ -60,7 +60,6 @@
 int proto_ranap = -1;
 static dissector_table_t nas_pdu_dissector_table;
 
-static int hf_ranap_RANAP_PDU = -1;
 static int hf_ranap_pdu_length = -1;
 static int hf_ranap_IE_length = -1;
 
@@ -1075,8 +1074,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
-	per_aligment_type_callback(TRUE);
-	offset = dissect_ranap_RANAP_PDU(tvb, offset, pinfo, ranap_tree, hf_ranap_RANAP_PDU);
+	offset = dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);
 
 }
 
@@ -1135,10 +1133,6 @@ void proto_register_ranap(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_ranap_RANAP_PDU,
-      { "RANAP_PDU", "ranap.ranap_pdu",
-        FT_UINT32, BASE_DEC, VALS(ranap_RANAP_PDU_vals), 0,
-        "RANAP_PDU", HFILL }},
 	{ &hf_ranap_pdu_length,
 		{ "PDU Length", "ranap.pdu_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of octets in the PDU", HFILL }},

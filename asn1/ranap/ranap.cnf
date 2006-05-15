@@ -3,7 +3,8 @@
 
 # $Id$
 
-#.PDU
+#.PDU_NEW
+RANAP-PDU
 
 #.NO_EMIT
 
@@ -49,11 +50,7 @@ VAL_PTR = &ProtocolIE_ID
 
 	offset = dissect_ranap_ies(tvb, offset, pinfo, tree);
 
-#.FN_PARS NAS-PDU
-
-VAL_PTR = &nas_pdu_tvb
-
-#.FN_BODY NAS-PDU
+#.FN_BODY NAS-PDU  VAL_PTR = &nas_pdu_tvb
 
 tvbuff_t *nas_pdu_tvb=NULL;
 
@@ -75,12 +72,7 @@ tvbuff_t *nas_pdu_tvb=NULL;
 #.FN_BODY RANAP_PRIVATE_IES_Value
 /* FIX ME */
 
-
-#.FN_PARS PLMNidentity
-
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY PLMNidentity
+#.FN_BODY PLMNidentity  VAL_PTR = &parameter_tvb
 
 	tvbuff_t *parameter_tvb=NULL;
 

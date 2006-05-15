@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-ulp.c                                                             */
-/* ../../tools/asn2eth.py -X -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
+/* ../../tools/asn2eth.py -u -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
 
 /* Input file: packet-ulp-template.c */
 
@@ -315,8 +315,6 @@ static gint ett_ulp_PosProtocol = -1;
 /*--- End of included file: packet-ulp-ett.c ---*/
 #line 67 "packet-ulp-template.c"
 
-guint32 StatusCode_value_map[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11, 12, 13, 14, 15, 16, 17, 100 , 101};
-
 /* Include constants */
 
 /*--- Included file: packet-ulp-val.h ---*/
@@ -328,7 +326,7 @@ guint32 StatusCode_value_map[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11, 12, 13
 #define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 72 "packet-ulp-template.c"
+#line 70 "packet-ulp-template.c"
 
 
 /*--- Included file: packet-ulp-fn.c ---*/
@@ -669,8 +667,8 @@ static const value_string ulp_PosMethod_vals[] = {
 
 static int
 dissect_ulp_PosMethod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 9, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     10, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -691,8 +689,8 @@ static const value_string ulp_NotificationType_vals[] = {
 
 static int
 dissect_ulp_NotificationType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -711,8 +709,8 @@ static const value_string ulp_EncodingType_vals[] = {
 
 static int
 dissect_ulp_EncodingType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -748,8 +746,8 @@ static const value_string ulp_FormatIndicator_vals[] = {
 
 static int
 dissect_ulp_FormatIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     7, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -863,8 +861,8 @@ static const value_string ulp_SLPMode_vals[] = {
 
 static int
 dissect_ulp_SLPMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -1022,8 +1020,8 @@ static const value_string ulp_PrefMethod_vals[] = {
 
 static int
 dissect_ulp_PrefMethod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -1713,8 +1711,8 @@ static const value_string ulp_Status_vals[] = {
 
 static int
 dissect_ulp_Status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1987,8 +1985,8 @@ static const value_string ulp_T_latitudeSign_vals[] = {
 
 static int
 dissect_ulp_T_latitudeSign(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -2064,8 +2062,8 @@ static const value_string ulp_T_altitudeDirection_vals[] = {
 
 static int
 dissect_ulp_T_altitudeDirection(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -2429,14 +2427,12 @@ static const value_string ulp_StatusCode_vals[] = {
   { 0, NULL }
 };
 
+static guint32 StatusCode_value_map[20+0] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 100, 101};
 
 static int
 dissect_ulp_StatusCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 23 "ulp.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									19, NULL, NULL, TRUE, 0, StatusCode_value_map);
-
-
+                                     20, NULL, NULL, TRUE, 0, StatusCode_value_map);
 
   return offset;
 }
@@ -2591,7 +2587,7 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 29 "ulp.cnf"
+#line 21 "ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -2604,7 +2600,6 @@ guint32 UlpMessage;
 	{
 	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
 	}
-
 
 
   return offset;
@@ -2633,7 +2628,6 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-  per_aligment_type_callback(FALSE);
     offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
 
@@ -2646,12 +2640,13 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 /*--- PDUs ---*/
 
 static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(FALSE);
   dissect_ulp_ULP_PDU(tvb, 0, pinfo, tree, hf_ulp_ULP_PDU_PDU);
 }
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 74 "packet-ulp-template.c"
+#line 72 "packet-ulp-template.c"
 
 /*--- proto_reg_handoff_ulp ---------------------------------------*/
 void
@@ -3375,7 +3370,7 @@ void proto_register_ulp(void) {
         "PosProtocol/rrc", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 97 "packet-ulp-template.c"
+#line 95 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -3444,7 +3439,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 103 "packet-ulp-template.c"
+#line 101 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-rnsap.c                                                           */
-/* ../../tools/asn2eth.py -X -e -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
+/* ../../tools/asn2eth.py -e -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
 
 /* Input file: packet-rnsap-template.c */
 
@@ -3259,8 +3259,8 @@ static const value_string rnsap_T_ddMode_vals[] = {
 
 static int
 dissect_rnsap_T_ddMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, &ddMode, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, &ddMode, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3297,8 +3297,8 @@ static const value_string rnsap_Criticality_vals[] = {
 
 static int
 dissect_rnsap_Criticality(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -6024,8 +6024,8 @@ static const value_string rnsap_AntennaColocationIndicator_vals[] = {
 
 static int
 dissect_rnsap_AntennaColocationIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6260,25 +6260,25 @@ static const value_string rnsap_CauseRadioNetwork_vals[] = {
   {  25, "transaction-not-supported-by-destination-node-b" },
   {  26, "rl-already-activated-or-alocated" },
   {  27, "number-of-UL-codes-not-supported" },
-  {  27, "cell-reserved-for-operator-use" },
-  {  27, "dpc-mode-change-not-supported" },
-  {  27, "information-temporarily-not-available" },
-  {  27, "information-provision-not-supported-for-the-object" },
-  {  27, "power-balancing-status-not-compatible" },
-  {  27, "delayed-activation-not-supported" },
-  {  27, "rl-timing-adjustment-not-supported" },
-  {  27, "unknown-RNTI" },
-  {  27, "measurement-repetition-rate-not-compatible" },
-  {  27, "ue-not-capable-of-support" },
-  {  27, "f-dpch-not-supported" },
+  {  28, "cell-reserved-for-operator-use" },
+  {  29, "dpc-mode-change-not-supported" },
+  {  30, "information-temporarily-not-available" },
+  {  31, "information-provision-not-supported-for-the-object" },
+  {  32, "power-balancing-status-not-compatible" },
+  {  33, "delayed-activation-not-supported" },
+  {  34, "rl-timing-adjustment-not-supported" },
+  {  35, "unknown-RNTI" },
+  {  36, "measurement-repetition-rate-not-compatible" },
+  {  37, "ue-not-capable-of-support" },
+  {  38, "f-dpch-not-supported" },
   { 0, NULL }
 };
 
 
 static int
 dissect_rnsap_CauseRadioNetwork(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 27, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     27, NULL, NULL, TRUE, 12, NULL);
 
   return offset;
 }
@@ -6296,8 +6296,8 @@ static const value_string rnsap_CauseTransport_vals[] = {
 
 static int
 dissect_rnsap_CauseTransport(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6320,8 +6320,8 @@ static const value_string rnsap_CauseProtocol_vals[] = {
 
 static int
 dissect_rnsap_CauseProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     7, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6342,8 +6342,8 @@ static const value_string rnsap_CauseMisc_vals[] = {
 
 static int
 dissect_rnsap_CauseMisc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6397,8 +6397,8 @@ static const value_string rnsap_CoverageIndicator_vals[] = {
 
 static int
 dissect_rnsap_CoverageIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6418,8 +6418,8 @@ static const value_string rnsap_TriggeringMessage_vals[] = {
 
 static int
 dissect_rnsap_TriggeringMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -6607,8 +6607,8 @@ static const value_string rnsap_T_sRNTI_BitMaskIndex_vals[] = {
 
 static int
 dissect_rnsap_T_sRNTI_BitMaskIndex(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 18, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     19, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6662,8 +6662,8 @@ static const value_string rnsap_D_RNTI_ReleaseIndication_vals[] = {
 
 static int
 dissect_rnsap_D_RNTI_ReleaseIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -6681,8 +6681,8 @@ static const value_string rnsap_PayloadCRC_PresenceIndicator_vals[] = {
 
 static int
 dissect_rnsap_PayloadCRC_PresenceIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -6700,8 +6700,8 @@ static const value_string rnsap_UL_FP_Mode_vals[] = {
 
 static int
 dissect_rnsap_UL_FP_Mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6762,8 +6762,8 @@ static const value_string rnsap_TrCH_SrcStatisticsDescr_vals[] = {
 
 static int
 dissect_rnsap_TrCH_SrcStatisticsDescr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6812,8 +6812,8 @@ static const value_string rnsap_TransmissionTimeIntervalDynamic_vals[] = {
 
 static int
 dissect_rnsap_TransmissionTimeIntervalDynamic(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7033,8 +7033,8 @@ static const value_string rnsap_TransmissionTimeIntervalSemiStatic_vals[] = {
 
 static int
 dissect_rnsap_TransmissionTimeIntervalSemiStatic(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7053,8 +7053,8 @@ static const value_string rnsap_ChannelCodingType_vals[] = {
 
 static int
 dissect_rnsap_ChannelCodingType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7072,8 +7072,8 @@ static const value_string rnsap_CodingRate_vals[] = {
 
 static int
 dissect_rnsap_CodingRate(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7107,8 +7107,8 @@ static const value_string rnsap_CRC_Size_vals[] = {
 
 static int
 dissect_rnsap_CRC_Size(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7126,8 +7126,8 @@ static const value_string rnsap_SecondInterleavingMode_vals[] = {
 
 static int
 dissect_rnsap_SecondInterleavingMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7256,8 +7256,8 @@ static const value_string rnsap_Pre_emptionCapability_vals[] = {
 
 static int
 dissect_rnsap_Pre_emptionCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7275,8 +7275,8 @@ static const value_string rnsap_Pre_emptionVulnerability_vals[] = {
 
 static int
 dissect_rnsap_Pre_emptionVulnerability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7333,8 +7333,8 @@ static const value_string rnsap_QE_Selector_vals[] = {
 
 static int
 dissect_rnsap_QE_Selector(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7352,8 +7352,8 @@ static const value_string rnsap_DRACControl_vals[] = {
 
 static int
 dissect_rnsap_DRACControl(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -7715,8 +7715,8 @@ static const value_string rnsap_TransportBearerRequestIndicator_vals[] = {
 
 static int
 dissect_rnsap_TransportBearerRequestIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8263,8 +8263,8 @@ static const value_string rnsap_TFCI_Coding_vals[] = {
 
 static int
 dissect_rnsap_TFCI_Coding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8640,8 +8640,8 @@ static const value_string rnsap_TDD_TPC_DownlinkStepSize_vals[] = {
 
 static int
 dissect_rnsap_TDD_TPC_DownlinkStepSize(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8914,8 +8914,8 @@ static const value_string rnsap_Transmission_Gap_Pattern_Sequence_ScramblingCode
 
 static int
 dissect_rnsap_Transmission_Gap_Pattern_Sequence_ScramblingCode_Information(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -8999,8 +8999,8 @@ static const value_string rnsap_TFCI_SignallingMode_vals[] = {
 
 static int
 dissect_rnsap_TFCI_SignallingMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9018,8 +9018,8 @@ static const value_string rnsap_TFCI_Presence_vals[] = {
 
 static int
 dissect_rnsap_TFCI_Presence(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9037,8 +9037,8 @@ static const value_string rnsap_MultiplexingPosition_vals[] = {
 
 static int
 dissect_rnsap_MultiplexingPosition(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9056,8 +9056,8 @@ static const value_string rnsap_LimitedPowerIncrease_vals[] = {
 
 static int
 dissect_rnsap_LimitedPowerIncrease(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9149,8 +9149,8 @@ static const value_string rnsap_FDD_TPC_DownlinkStepSize_vals[] = {
 
 static int
 dissect_rnsap_FDD_TPC_DownlinkStepSize(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -9171,8 +9171,8 @@ static const value_string rnsap_InnerLoopDLPCStatus_vals[] = {
 
 static int
 dissect_rnsap_InnerLoopDLPCStatus(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9245,8 +9245,8 @@ static const value_string rnsap_RepetitionPeriod_vals[] = {
 
 static int
 dissect_rnsap_RepetitionPeriod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     7, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9322,8 +9322,8 @@ static const value_string rnsap_MidambleConfigurationBurstType1And3_vals[] = {
 
 static int
 dissect_rnsap_MidambleConfigurationBurstType1And3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9402,8 +9402,8 @@ static const value_string rnsap_MidambleConfigurationBurstType2_vals[] = {
 
 static int
 dissect_rnsap_MidambleConfigurationBurstType2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9591,8 +9591,8 @@ static const value_string rnsap_TDD_ChannelisationCode_vals[] = {
 
 static int
 dissect_rnsap_TDD_ChannelisationCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 30, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     31, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -9791,8 +9791,8 @@ static const value_string rnsap_DL_DPCH_TimingAdjustment_vals[] = {
 
 static int
 dissect_rnsap_DL_DPCH_TimingAdjustment(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -9947,8 +9947,8 @@ static const value_string rnsap_DPC_Mode_vals[] = {
 
 static int
 dissect_rnsap_DPC_Mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -10557,16 +10557,16 @@ static const value_string rnsap_DedicatedMeasurementType_vals[] = {
   {   4, "rx-timing-deviation" },
   {   5, "round-trip-time" },
   {   6, "rx-timing-deviation-LCR" },
-  {   6, "angle-Of-Arrival-LCR" },
-  {   6, "hs-sich-quality" },
+  {   7, "angle-Of-Arrival-LCR" },
+  {   8, "hs-sich-quality" },
   { 0, NULL }
 };
 
 
 static int
 dissect_rnsap_DedicatedMeasurementType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     6, NULL, NULL, TRUE, 3, NULL);
 
   return offset;
 }
@@ -10766,8 +10766,8 @@ static const value_string rnsap_MeasurementFilterCoefficient_vals[] = {
 
 static int
 dissect_rnsap_MeasurementFilterCoefficient(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 14, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     15, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -10970,8 +10970,8 @@ static const value_string rnsap_TxDiversityIndicator_vals[] = {
 
 static int
 dissect_rnsap_TxDiversityIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -10989,8 +10989,8 @@ static const value_string rnsap_STTD_SupportIndicator_vals[] = {
 
 static int
 dissect_rnsap_STTD_SupportIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -11011,8 +11011,8 @@ static const value_string rnsap_ClosedLoopMode1_SupportIndicator_vals[] = {
 
 static int
 dissect_rnsap_ClosedLoopMode1_SupportIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -11117,8 +11117,8 @@ static const value_string rnsap_SCTD_Indicator_vals[] = {
 
 static int
 dissect_rnsap_SCTD_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -11447,8 +11447,8 @@ static const value_string rnsap_PartialReportingIndicator_vals[] = {
 
 static int
 dissect_rnsap_PartialReportingIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -11490,8 +11490,8 @@ static const value_string rnsap_PowerAdjustmentType_vals[] = {
 
 static int
 dissect_rnsap_PowerAdjustmentType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -11614,8 +11614,8 @@ static const value_string rnsap_DiversityControlField_vals[] = {
 
 static int
 dissect_rnsap_DiversityControlField(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -11646,8 +11646,8 @@ static const value_string rnsap_TransmitDiversityIndicator_vals[] = {
 
 static int
 dissect_rnsap_TransmitDiversityIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -12235,8 +12235,8 @@ static const value_string rnsap_FirstRLS_Indicator_vals[] = {
 
 static int
 dissect_rnsap_FirstRLS_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -12389,8 +12389,8 @@ static const value_string rnsap_MultipleURAsIndicator_vals[] = {
 
 static int
 dissect_rnsap_MultipleURAsIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -12502,8 +12502,8 @@ static const value_string rnsap_T_latitudeSign_vals[] = {
 
 static int
 dissect_rnsap_T_latitudeSign(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -12728,8 +12728,8 @@ static const value_string rnsap_TimingAdvanceApplied_vals[] = {
 
 static int
 dissect_rnsap_TimingAdvanceApplied(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -12760,8 +12760,8 @@ static const value_string rnsap_UL_PhysCH_SF_Variation_vals[] = {
 
 static int
 dissect_rnsap_UL_PhysCH_SF_Variation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -13480,8 +13480,8 @@ static const value_string rnsap_SSDT_SupportIndicator_vals[] = {
 
 static int
 dissect_rnsap_SSDT_SupportIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -13499,8 +13499,8 @@ static const value_string rnsap_Closedlooptimingadjustmentmode_vals[] = {
 
 static int
 dissect_rnsap_Closedlooptimingadjustmentmode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -15170,8 +15170,8 @@ static const value_string rnsap_TypeOfError_vals[] = {
 
 static int
 dissect_rnsap_TypeOfError(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -15518,8 +15518,8 @@ static const value_string rnsap_UL_ScramblingCodeLength_vals[] = {
 
 static int
 dissect_rnsap_UL_ScramblingCodeLength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -15561,8 +15561,8 @@ static const value_string rnsap_MinUL_ChannelisationCodeLength_vals[] = {
 
 static int
 dissect_rnsap_MinUL_ChannelisationCodeLength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     7, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -15611,8 +15611,8 @@ static const value_string rnsap_DiversityMode_vals[] = {
 
 static int
 dissect_rnsap_DiversityMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -16877,8 +16877,8 @@ static const value_string rnsap_TransportFormatManagement_vals[] = {
 
 static int
 dissect_rnsap_TransportFormatManagement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -17186,8 +17186,8 @@ static const value_string rnsap_T_directionOfAltitude_vals[] = {
 
 static int
 dissect_rnsap_T_directionOfAltitude(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -17377,8 +17377,8 @@ static const value_string rnsap_UL_DL_mode_vals[] = {
 
 static int
 dissect_rnsap_UL_DL_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -17397,8 +17397,8 @@ static const value_string rnsap_Downlink_Compressed_Mode_Method_vals[] = {
 
 static int
 dissect_rnsap_Downlink_Compressed_Mode_Method(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -17416,8 +17416,8 @@ static const value_string rnsap_Uplink_Compressed_Mode_Method_vals[] = {
 
 static int
 dissect_rnsap_Uplink_Compressed_Mode_Method(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -17435,8 +17435,8 @@ static const value_string rnsap_DL_FrameType_vals[] = {
 
 static int
 dissect_rnsap_DL_FrameType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -18197,8 +18197,8 @@ static const value_string rnsap_FNReportingIndicator_vals[] = {
 
 static int
 dissect_rnsap_FNReportingIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -18217,15 +18217,15 @@ static const value_string rnsap_PagingCause_vals[] = {
   {   3, "terminating-background-call" },
   {   4, "terminating-low-priority-signalling" },
   {   5, "terminating-high-priority-signalling" },
-  {   5, "terminating-cause-unknown" },
+  {   6, "terminating-cause-unknown" },
   { 0, NULL }
 };
 
 
 static int
 dissect_rnsap_PagingCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 5, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 2, NULL);
 
   return offset;
 }
@@ -18244,8 +18244,8 @@ static const value_string rnsap_CNDomainType_vals[] = {
 
 static int
 dissect_rnsap_CNDomainType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -18266,8 +18266,8 @@ static const value_string rnsap_PagingRecordType_vals[] = {
 
 static int
 dissect_rnsap_PagingRecordType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -18343,8 +18343,8 @@ static const value_string rnsap_TUTRANGPSAccuracyClass_vals[] = {
 
 static int
 dissect_rnsap_TUTRANGPSAccuracyClass(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -19124,16 +19124,16 @@ static const value_string rnsap_CommonMeasurementType_vals[] = {
   {   4, "received-total-wide-band-power" },
   {   5, "uplink-timeslot-iscp" },
   {   6, "rT-load" },
-  {   6, "nRT-load-Information" },
-  {   6, "upPTSInterference" },
+  {   7, "nRT-load-Information" },
+  {   8, "upPTSInterference" },
   { 0, NULL }
 };
 
 
 static int
 dissect_rnsap_CommonMeasurementType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     6, NULL, NULL, TRUE, 3, NULL);
 
   return offset;
 }
@@ -19151,8 +19151,8 @@ static const value_string rnsap_CongestionCause_vals[] = {
 
 static int
 dissect_rnsap_CongestionCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -19211,8 +19211,8 @@ static const value_string rnsap_IPSpacingFDD_vals[] = {
 
 static int
 dissect_rnsap_IPSpacingFDD(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     8, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -19230,8 +19230,8 @@ static const value_string rnsap_IPLength_vals[] = {
 
 static int
 dissect_rnsap_IPLength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -19346,8 +19346,8 @@ static const value_string rnsap_IPSpacingTDD_vals[] = {
 
 static int
 dissect_rnsap_IPSpacingTDD(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -19391,8 +19391,8 @@ static const value_string rnsap_IP_P_CCPCH_vals[] = {
 
 static int
 dissect_rnsap_IP_P_CCPCH(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -19489,8 +19489,8 @@ static const value_string rnsap_GPS_Status_Health_vals[] = {
 
 static int
 dissect_rnsap_GPS_Status_Health(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     7, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -19599,8 +19599,8 @@ static const value_string rnsap_UDRE_vals[] = {
 
 static int
 dissect_rnsap_UDRE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -20531,8 +20531,8 @@ static const value_string rnsap_PRCDeviation_vals[] = {
 
 static int
 dissect_rnsap_PRCDeviation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -20639,16 +20639,16 @@ static const value_string rnsap_T_informationTypeItem_vals[] = {
   {   5, "gPS-RX-POS" },
   {   6, "sFNSFN-GA-AccessPointPosition" },
   {   7, "cell-Capacity-Class" },
-  {   7, "nACC-Related-Data" },
-  {   7, "mBMSBearerServiceFullAddress" },
+  {   8, "nACC-Related-Data" },
+  {   9, "mBMSBearerServiceFullAddress" },
   { 0, NULL }
 };
 
 
 static int
 dissect_rnsap_T_informationTypeItem(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     7, NULL, NULL, TRUE, 3, NULL);
 
   return offset;
 }
@@ -20669,8 +20669,8 @@ static const value_string rnsap_T_gPSInformationItem_vals[] = {
 
 static int
 dissect_rnsap_T_gPSInformationItem(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 4, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     5, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -20742,8 +20742,8 @@ static const value_string rnsap_RestrictionStateIndicator_vals[] = {
 
 static int
 dissect_rnsap_RestrictionStateIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -20907,8 +20907,8 @@ static const value_string rnsap_MidambleAllocationMode_vals[] = {
 
 static int
 dissect_rnsap_MidambleAllocationMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -20932,8 +20932,8 @@ static const value_string rnsap_MidambleConfigurationLCR_vals[] = {
 
 static int
 dissect_rnsap_MidambleConfigurationLCR(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     8, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -20971,8 +20971,8 @@ static const value_string rnsap_Modulation_vals[] = {
 
 static int
 dissect_rnsap_Modulation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -21591,8 +21591,8 @@ static const value_string rnsap_TSTD_Indicator_vals[] = {
 
 static int
 dissect_rnsap_TSTD_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -22290,8 +22290,8 @@ static const value_string rnsap_TSTD_Support_Indicator_vals[] = {
 
 static int
 dissect_rnsap_TSTD_Support_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -22464,8 +22464,8 @@ static const value_string rnsap_DPC_Mode_Change_SupportIndicator_vals[] = {
 
 static int
 dissect_rnsap_DPC_Mode_Change_SupportIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -22557,8 +22557,8 @@ static const value_string rnsap_DL_PowerBalancing_ActivationIndicator_vals[] = {
 
 static int
 dissect_rnsap_DL_PowerBalancing_ActivationIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -22575,8 +22575,8 @@ static const value_string rnsap_DL_PowerBalancing_UpdatedIndicator_vals[] = {
 
 static int
 dissect_rnsap_DL_PowerBalancing_UpdatedIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -22627,8 +22627,8 @@ static const value_string rnsap_IPSub_vals[] = {
 
 static int
 dissect_rnsap_IPSub(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -22803,8 +22803,8 @@ static const value_string rnsap_CommonTransportChannelResourcesInitialisationNot
 
 static int
 dissect_rnsap_CommonTransportChannelResourcesInitialisationNotRequired(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -23054,8 +23054,8 @@ static const value_string rnsap_TrafficClass_vals[] = {
 
 static int
 dissect_rnsap_TrafficClass(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23148,8 +23148,8 @@ static const value_string rnsap_T1_vals[] = {
 
 static int
 dissect_rnsap_T1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 15, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     16, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23192,8 +23192,8 @@ static const value_string rnsap_DiscardTimer_vals[] = {
 
 static int
 dissect_rnsap_DiscardTimer(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 26, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     27, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23216,8 +23216,8 @@ static const value_string rnsap_MAC_hsWindowSize_vals[] = {
 
 static int
 dissect_rnsap_MAC_hsWindowSize(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 6, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     7, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23313,8 +23313,8 @@ static const value_string rnsap_RLC_Mode_vals[] = {
 
 static int
 dissect_rnsap_RLC_Mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23448,8 +23448,8 @@ static const value_string rnsap_CQI_Feedback_Cycle_vals[] = {
 
 static int
 dissect_rnsap_CQI_Feedback_Cycle(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 8, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     9, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23798,8 +23798,8 @@ static const value_string rnsap_T_process_Memory_Size_vals[] = {
 
 static int
 dissect_rnsap_T_process_Memory_Size(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 60, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     61, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23916,8 +23916,8 @@ static const value_string rnsap_HSSCCH_CodeChangeIndicator_vals[] = {
 
 static int
 dissect_rnsap_HSSCCH_CodeChangeIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -24128,8 +24128,8 @@ static const value_string rnsap_HSSCCH_Code_Change_Grant_vals[] = {
 
 static int
 dissect_rnsap_HSSCCH_Code_Change_Grant(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -24570,8 +24570,8 @@ static const value_string rnsap_AOA_LCR_Accuracy_Class_vals[] = {
 
 static int
 dissect_rnsap_AOA_LCR_Accuracy_Class(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     8, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -24740,8 +24740,8 @@ static const value_string rnsap_MAChs_ResetIndicator_vals[] = {
 
 static int
 dissect_rnsap_MAChs_ResetIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -24760,8 +24760,8 @@ static const value_string rnsap_TDD_TPC_UplinkStepSize_LCR_vals[] = {
 
 static int
 dissect_rnsap_TDD_TPC_UplinkStepSize_LCR(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -24908,8 +24908,8 @@ static const value_string rnsap_T_maxSYNC_UL_transmissions_vals[] = {
 
 static int
 dissect_rnsap_T_maxSYNC_UL_transmissions(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -25257,8 +25257,8 @@ static const value_string rnsap_Support_8PSK_vals[] = {
 
 static int
 dissect_rnsap_Support_8PSK(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -25319,8 +25319,8 @@ static const value_string rnsap_Primary_CPICH_Usage_For_Channel_Estimation_vals[
 
 static int
 dissect_rnsap_Primary_CPICH_Usage_For_Channel_Estimation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -25384,8 +25384,8 @@ static const value_string rnsap_Phase_Reference_Update_Indicator_vals[] = {
 
 static int
 dissect_rnsap_Phase_Reference_Update_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -25425,8 +25425,8 @@ static const value_string rnsap_Unidirectional_DCH_Indicator_vals[] = {
 
 static int
 dissect_rnsap_Unidirectional_DCH_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -25756,8 +25756,8 @@ static const value_string rnsap_UEMeasurementType_vals[] = {
 
 static int
 dissect_rnsap_UEMeasurementType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -25776,8 +25776,8 @@ static const value_string rnsap_UEMeasurementTimeslotInfoHCRBurstType_vals[] = {
 
 static int
 dissect_rnsap_UEMeasurementTimeslotInfoHCRBurstType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -25872,8 +25872,8 @@ static const value_string rnsap_UEMeasurementReportCharacteristicsPeriodicAmount
 
 static int
 dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicAmountofReporting(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     8, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -25904,8 +25904,8 @@ static const value_string rnsap_UEMeasurementReportCharacteristicsPeriodicReport
 
 static int
 dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicReportingInterval(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 14, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     15, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -26021,8 +26021,8 @@ static const value_string rnsap_UEMeasurementTimeToTrigger_vals[] = {
 
 static int
 dissect_rnsap_UEMeasurementTimeToTrigger(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 15, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     16, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -26215,8 +26215,8 @@ static const value_string rnsap_UEMeasurementParameterModAllow_vals[] = {
 
 static int
 dissect_rnsap_UEMeasurementParameterModAllow(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -26544,8 +26544,8 @@ static const value_string rnsap_T_interface_vals[] = {
 
 static int
 dissect_rnsap_T_interface(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -26599,8 +26599,8 @@ static const value_string rnsap_TraceDepth_vals[] = {
 
 static int
 dissect_rnsap_TraceDepth(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -27106,8 +27106,8 @@ static const value_string rnsap_TransmissionMode_vals[] = {
 
 static int
 dissect_rnsap_TransmissionMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -27259,8 +27259,8 @@ static const value_string rnsap_HARQ_Preamble_Mode_vals[] = {
 
 static int
 dissect_rnsap_HARQ_Preamble_Mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -27277,8 +27277,8 @@ static const value_string rnsap_SynchronisationIndicator_vals[] = {
 
 static int
 dissect_rnsap_SynchronisationIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -27296,8 +27296,8 @@ static const value_string rnsap_UL_DPDCHIndicatorEDCH_vals[] = {
 
 static int
 dissect_rnsap_UL_DPDCHIndicatorEDCH(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -27321,8 +27321,8 @@ static const value_string rnsap_Max_Set_E_DPDCHs_vals[] = {
 
 static int
 dissect_rnsap_Max_Set_E_DPDCHs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 7, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     8, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -27438,8 +27438,8 @@ static const value_string rnsap_E_TTI_vals[] = {
 
 static int
 dissect_rnsap_E_TTI(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -27548,8 +27548,8 @@ static const value_string rnsap_EDCH_RL_Indication_vals[] = {
 
 static int
 dissect_rnsap_EDCH_RL_Indication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -27676,8 +27676,8 @@ static const value_string rnsap_BundlingModeIndicator_vals[] = {
 
 static int
 dissect_rnsap_BundlingModeIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -27993,8 +27993,8 @@ static const value_string rnsap_E_Primary_Secondary_Grant_Selector_vals[] = {
 
 static int
 dissect_rnsap_E_Primary_Secondary_Grant_Selector(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -28011,8 +28011,8 @@ static const value_string rnsap_E_RGCH_Release_Indicator_vals[] = {
 
 static int
 dissect_rnsap_E_RGCH_Release_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -28421,8 +28421,8 @@ static const value_string rnsap_Initial_DL_DPCH_TimingAdjustment_Allowed_vals[] 
 
 static int
 dissect_rnsap_Initial_DL_DPCH_TimingAdjustment_Allowed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -28439,8 +28439,8 @@ static const value_string rnsap_User_Plane_Congestion_Fields_Inclusion_vals[] = 
 
 static int
 dissect_rnsap_User_Plane_Congestion_Fields_Inclusion(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -28457,8 +28457,8 @@ static const value_string rnsap_HARQ_Preamble_Mode_Activation_Indicator_vals[] =
 
 static int
 dissect_rnsap_HARQ_Preamble_Mode_Activation_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 0, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     1, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -28832,8 +28832,8 @@ static const value_string rnsap_FrequencyBandIndicator_vals[] = {
 
 static int
 dissect_rnsap_FrequencyBandIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 21, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     22, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -29902,8 +29902,8 @@ static const value_string rnsap_Band_Indicator_vals[] = {
 
 static int
 dissect_rnsap_Band_Indicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -30160,8 +30160,8 @@ static const value_string rnsap_Presence_vals[] = {
 
 static int
 dissect_rnsap_Presence(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -30276,6 +30276,7 @@ dissect_rnsap_ProtocolIE_ContainerPairList(tvbuff_t *tvb, int offset, packet_inf
 /*--- PDUs ---*/
 
 static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_rnsap_RNSAP_PDU(tvb, 0, pinfo, tree, hf_rnsap_RNSAP_PDU_PDU);
 }
 
@@ -31977,7 +31978,6 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, FALSE);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
 	
-	per_aligment_type_callback(TRUE);
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
 }
 
@@ -38885,7 +38885,7 @@ void proto_register_rnsap(void) {
         "PrivateIE-Field/privateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 2318 "packet-rnsap-template.c"
+#line 2317 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39748,7 +39748,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 2328 "packet-rnsap-template.c"
+#line 2327 "packet-rnsap-template.c"
   };
 
 
