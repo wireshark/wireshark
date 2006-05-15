@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-snmp.c                                                            */
+/* ./packet-snmp.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
@@ -467,42 +467,40 @@ snmp_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
 }
 
 int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len) {
-   int i, out_len;
-   guint8 byte;
-   guint32 value;
-   gboolean is_first;
+  int i, out_len;
+  guint8 byte;
+  guint32 value;
+  gboolean is_first;
 
-   value=0; out_len = 0; byte =0; is_first = TRUE;
-   for (i=0; i<oid_len; i++){
-     if (out_len >= buf_len) 
-		 break;
-     byte = oid[i];
-	 value = (value << 7) | (byte & 0x7F);
-	 if (byte & 0x80) {
-		 continue;
-	 }	
-     if (is_first) {
-		 if ( value<40 ){
-			 buf[0] = 0;
-			 buf[1] = value;
-		 }else if ( value < 80 ){
-			 buf[0] = 1;
-			 buf[1] = value - 40;
-		 }else {
-			 buf[0] = 2;
-			 buf[1] = value - 80;
-		 }
-		 out_len= out_len+2;
-		 is_first = FALSE;
-     }else{
-		 buf[out_len++] = value;
-	 }
-	 value = 0;
-   }
-   if (out_len == 0)
-	   DISSECTOR_ASSERT_NOT_REACHED();
+  value=0; out_len = 0; byte =0; is_first = TRUE;
+  for (i=0; i<oid_len; i++){
+    if (out_len >= buf_len) 
+      break;
+    byte = oid[i];
+    value = (value << 7) | (byte & 0x7F);
+    if (byte & 0x80) {
+      continue;
+    }
+    if (is_first) {
+      if ( value<40 ){
+        buf[0] = 0;
+        buf[1] = value;
+      }else if ( value < 80 ){
+        buf[0] = 1;
+        buf[1] = value - 40;
+      }else {
+        buf[0] = 2;
+        buf[1] = value - 80;
+      }
+      out_len= out_len+2;
+      is_first = FALSE;
+    }else{
+      buf[out_len++] = value;
+    }
+    value = 0;
+  }
 
-   return out_len;
+  return out_len;
 }
 
 gchar *
@@ -2678,7 +2676,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1028 "packet-snmp-template.c"
+#line 1026 "packet-snmp-template.c"
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3368,7 +3366,7 @@ void proto_register_snmp(void) {
         "RReqPDU/operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1381 "packet-snmp-template.c"
+#line 1379 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3406,7 +3404,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1390 "packet-snmp-template.c"
+#line 1388 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 
