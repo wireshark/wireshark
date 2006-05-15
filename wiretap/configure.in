@@ -176,6 +176,42 @@ AC_CHECK_HEADERS(sys/time.h netinet/in.h unistd.h fcntl.h sys/stat.h sys/types.h
 AC_C_BIGENDIAN
 
 #
+# Does GLib define G_GINT64_MODIFIER?
+#
+AC_MSG_CHECKING([[whether glib.h defines the G_GINT64_MODIFIER macro]])
+AC_COMPILE_IFELSE(
+  [
+    AC_LANG_SOURCE(
+      [[
+	#include <glib.h>
+	#include <glib/gprintf.h>
+	#include <stdio.h>
+
+	main()
+	{
+	  char strbuf[16+1];
+	  g_sprintf(strbuf, "%" G_GINT64_MODIFIER "x\n", (gint64)1);
+	}
+      ]])
+  ],
+  [
+    AC_MSG_RESULT(yes)
+  ],
+  [
+    AC_MSG_RESULT(no)
+    AC_WIRETAP_CHECK_64BIT_FORMAT(ll,
+      [
+	AC_WIRETAP_CHECK_64BIT_FORMAT(L,
+	  [
+	    AC_WIRETAP_CHECK_64BIT_FORMAT(q,
+	      [
+		AC_MSG_ERROR([neither %llx nor %Lx nor %qx worked on a 64-bit integer])
+	      ])
+	  ])
+      ])
+  ])
+
+#
 # Look for libpcap, so we can include <pcap.h> in libpcap.c if it's
 # found.
 #

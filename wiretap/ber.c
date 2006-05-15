@@ -45,6 +45,7 @@
 static gboolean ber_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 {
   guint8 *buf;
+  gint64 file_size;
   int packet_size;
   struct stat statb;
 
@@ -56,19 +57,20 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, long *data_offse
 
   *data_offset = wth->data_offset;
 
-  if((packet_size = wtap_file_size(wth, err)) == -1)
+  if ((file_size = wtap_file_size(wth, err)) == -1)
     return FALSE;
 
-  if (packet_size > WTAP_MAX_PACKET_SIZE) {
+  if (file_size > WTAP_MAX_PACKET_SIZE) {
     /*
      * Probably a corrupt capture file; don't blow up trying
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_RECORD;
-    *err_info = g_strdup_printf("ber: File has %u-byte packet, bigger than maximum of %u",
-				packet_size, WTAP_MAX_PACKET_SIZE);
+    *err_info = g_strdup_printf("ber: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
+				file_size, WTAP_MAX_PACKET_SIZE);
     return FALSE;
   }
+  packet_size = (int)file_size;
 
   buffer_assure_space(wth->frame_buffer, packet_size);
   buf = buffer_start_ptr(wth->frame_buffer);
@@ -92,7 +94,7 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, long *data_offse
   return TRUE;
 }
 
-static gboolean ber_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header, 
+static gboolean ber_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header _U_, 
 			      guint8 *pd, int length, int *err, gchar **err_info _U_)
 {
   int packet_size = length;
