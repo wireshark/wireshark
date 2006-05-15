@@ -95,7 +95,6 @@ static int hf_uma_urlc_TLLI				= -1;
 static int hf_uma_urlc_seq_nr			= -1;
 static int hf_uma_urr_IE				= -1;
 static int hf_uma_urr_IE_len			= -1;
-static int hf_uma_urr_IE_len2			= -1;
 static int hf_uma_urr_mobile_identity_type	= -1; 
 static int hf_uma_urr_odde_even_ind		= -1;
 static int hf_uma_urr_imsi				= -1;
@@ -852,26 +851,17 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	offset++;
 	/* Some IE:s might have a lengt field of 2 octets */
 	ie_len = tvb_get_guint8(tvb,offset);
-	switch(ie_value){
-	case 57:
-		if ( (ie_len & 0x80) == 0x80 ){
-			offset++;
-			ie_len = (ie_len & 0x7f) << 8;
-			ie_len = ie_len | (tvb_get_guint8(tvb,offset));
-			proto_item_set_len(urr_ie_item, ie_len + 3);
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len2, tvb, offset-1, 2, FALSE);
-			ie_offset = offset +1;
-		}else{
+	if ( (ie_len & 0x80) == 0x80 ){
+		offset++;
+		ie_len = (ie_len & 0x7f) << 8;
+		ie_len = ie_len | (tvb_get_guint8(tvb,offset));
+		proto_item_set_len(urr_ie_item, ie_len + 3);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset-1, 2, FALSE);
+		ie_offset = offset +1;
+	}else{
 		proto_item_set_len(urr_ie_item, ie_len + 2);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset, 1, FALSE);
 		ie_offset = offset +1;
-		}
-		break;
-	default:
-		proto_item_set_len(urr_ie_item, ie_len + 2);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset, 1, FALSE);
-		ie_offset = offset +1;
-		break;
 	}
 
 	switch(ie_value){
@@ -1080,9 +1070,9 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 31:		
 		/* GPRS Resumption 
-		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
+		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		dtap_rr_ho_cmd(tvb, urr_ie_tree, ie_offset, ie_len);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS_resumption, tvb, ie_offset, 1, FALSE); 
 		break;
 	case 32:		
 		/* Handover From UMAN Command 
@@ -1734,12 +1724,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_IE_len,
 			{ "URR Information Element length","uma.urr.ie.len",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"URR Information Element length", HFILL }
-		},
-		{ &hf_uma_urr_IE_len2,
-			{ "URR Information Element length","uma.urr.ie.len2",
-			FT_UINT16, BASE_DEC, NULL, 0x7fff,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"URR Information Element length", HFILL }
 		},
 		{ &hf_uma_urr_mobile_identity_type,
