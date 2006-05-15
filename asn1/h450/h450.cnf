@@ -3,12 +3,12 @@
 # Copyright 2004 Anders Broman 
 # $Id$
 
-#.MODULE_IMPORT
-H323-MESSAGES h225
+#.INCLUDE ../h225/h225-exp.cnf
+
+#.MODULE
 Remote-Operations-Apdus ros
 #.END
 
-#.INCLUDE ../h225/h225-exp.cnf
 #----------------------------------------------------------------------------------------
 #.PDU
 CallTransferIdentify

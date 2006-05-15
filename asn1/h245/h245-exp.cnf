@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Ethereal dissector compiler
+# .\h245-exp.cnf
+# ../../tools/asn2eth.py -e -p h245 -c h245.cnf -s packet-h245-template h245.asn
+
+#.MODULE
+MULTIMEDIA-SYSTEM-CONTROL  h245
+#.END
+
 #.TYPE_ATTR
 DataProtocolCapability   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(DataProtocolCapability_vals)  BITMASK = 0
 T38FaxProfile            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0

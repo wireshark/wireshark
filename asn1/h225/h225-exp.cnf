@@ -1,3 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Ethereal dissector compiler
+# .\h225-exp.cnf
+# ../../tools/asn2eth.py -e -p h225 -c h225.cnf -s packet-h225-template h225.asn
+
+#.MODULE
+H323-MESSAGES  h225
+#.END
+
 #.TYPE_ATTR
 PresentationIndicator    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_PresentationIndicator_vals)  BITMASK = 0
 ScreeningIndicator       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_ScreeningIndicator_vals)  BITMASK = 0
@@ -5,6 +14,7 @@ NonStandardParameter     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 AliasAddress             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(AliasAddress_vals)  BITMASK = 0
 PartyNumber              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_PartyNumber_vals)  BITMASK = 0
 CallIdentifier           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+GenericData              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RasMessage               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(RasMessage_vals)  BITMASK = 0
 #.END
 

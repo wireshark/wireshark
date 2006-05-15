@@ -15,7 +15,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2eth.py $(PROTOCOL_NAME).asn $(PROTOCOL_NAME).cnf packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -X -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(PROTOCOL_NAME).asn
+	$(PYTHON) ../../tools/asn2eth.py -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(PROTOCOL_NAME).asn
 !ELSE
 	@echo Error: You need Python to use asn2eth.py
 	@exit 1

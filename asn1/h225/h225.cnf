@@ -3,11 +3,6 @@
 # Copyright 2004 Anders Broman 
 # $Id$
 
-#.MODULE_IMPORT
-H235-SECURITY-MESSAGES h235
-MULTIMEDIA-SYSTEM-CONTROL h245
-#.END
-
 #.INCLUDE ../h235/h235-exp.cnf
 #.INCLUDE ../h245/h245-exp.cnf
 
@@ -34,6 +29,7 @@ PartyNumber
 PresentationIndicator
 ScreeningIndicator
 CallIdentifier
+GenericData
 #----------------------------------------------------------------------------------------
 #.TYPE_RENAME
 CallCreditServiceControl/callStartingPoint CallCreditServiceControl_callStartingPoint

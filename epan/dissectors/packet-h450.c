@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-h450.c                                                            */
-/* ../../tools/asn2eth.py -X -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
+/* ../../tools/asn2eth.py -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.c */
 
@@ -1721,8 +1721,8 @@ static const value_string h450_EndDesignation_vals[] = {
 
 static int
 dissect_h450_EndDesignation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1740,8 +1740,8 @@ static const value_string h450_CallStatus_vals[] = {
 
 static int
 dissect_h450_CallStatus(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1877,8 +1877,8 @@ static const value_string h450_Procedure_vals[] = {
 
 static int
 dissect_h450_Procedure(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1931,11 +1931,12 @@ static const value_string h450_BasicService_vals[] = {
   { 0, NULL }
 };
 
+static guint32 BasicService_value_map[40+0] = {0, 1, 2, 3, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75};
 
 static int
 dissect_h450_BasicService(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 75, NULL, NULL, FALSE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     40, NULL, NULL, FALSE, 0, BasicService_value_map);
 
   return offset;
 }
@@ -2266,8 +2267,8 @@ static const value_string h450_DiversionReason_vals[] = {
 
 static int
 dissect_h450_DiversionReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -2308,8 +2309,8 @@ static const value_string h450_SubscriptionOption_vals[] = {
 
 static int
 dissect_h450_SubscriptionOption(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 2, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     3, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -2892,8 +2893,8 @@ static const value_string h450_ParkCondition_vals[] = {
 
 static int
 dissect_h450_ParkCondition(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -2963,8 +2964,8 @@ static const value_string h450_CallType_vals[] = {
 
 static int
 dissect_h450_CallType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 1, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     2, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -4005,8 +4006,8 @@ static const value_string h450_PartyCategory_vals[] = {
 
 static int
 dissect_h450_PartyCategory(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0, 3, NULL, NULL, TRUE);
+  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
+                                     4, NULL, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -4121,45 +4122,59 @@ dissect_h450_Unspecified(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 /*--- PDUs ---*/
 
 static void dissect_CallTransferIdentify_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallTransferIdentify(tvb, 0, pinfo, tree, hf_h450_CallTransferIdentify_PDU);
 }
 static void dissect_CallTransferAbandon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallTransferAbandon(tvb, 0, pinfo, tree, hf_h450_CallTransferAbandon_PDU);
 }
 static void dissect_CallTransferInitiate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallTransferInitiate(tvb, 0, pinfo, tree, hf_h450_CallTransferInitiate_PDU);
 }
 static void dissect_CallTransferSetup_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallTransferSetup(tvb, 0, pinfo, tree, hf_h450_CallTransferSetup_PDU);
 }
 static void dissect_CallTransferUpdate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallTransferUpdate(tvb, 0, pinfo, tree, hf_h450_CallTransferUpdate_PDU);
 }
 static void dissect_SubaddressTransfer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_SubaddressTransfer(tvb, 0, pinfo, tree, hf_h450_SubaddressTransfer_PDU);
 }
 static void dissect_CallTransferComplete_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallTransferComplete(tvb, 0, pinfo, tree, hf_h450_CallTransferComplete_PDU);
 }
 static void dissect_CallTransferActive_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallTransferActive(tvb, 0, pinfo, tree, hf_h450_CallTransferActive_PDU);
 }
 static void dissect_ActivateDiversionQArg_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_ActivateDiversionQArg(tvb, 0, pinfo, tree, hf_h450_ActivateDiversionQArg_PDU);
 }
 static void dissect_ActivateDiversionQRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_ActivateDiversionQRes(tvb, 0, pinfo, tree, hf_h450_ActivateDiversionQRes_PDU);
 }
 static void dissect_DeactivateDiversionQRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_DeactivateDiversionQRes(tvb, 0, pinfo, tree, hf_h450_DeactivateDiversionQRes_PDU);
 }
 static void dissect_InterrogateDiversionQRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_InterrogateDiversionQRes(tvb, 0, pinfo, tree, hf_h450_InterrogateDiversionQRes_PDU);
 }
 static void dissect_CheckRestrictionRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CheckRestrictionRes(tvb, 0, pinfo, tree, hf_h450_CheckRestrictionRes_PDU);
 }
 static void dissect_CallReroutingRes_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  per_aligment_type_callback(TRUE);
   dissect_h450_CallReroutingRes(tvb, 0, pinfo, tree, hf_h450_CallReroutingRes_PDU);
 }
 
