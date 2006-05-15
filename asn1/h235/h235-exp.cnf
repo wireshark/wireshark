@@ -1,3 +1,13 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Ethereal dissector compiler
+# .\h235-exp.cnf
+# ../../tools/asn2eth.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn
+
+#.MODULE
+H235-SECURITY-MESSAGES  h235
+H235-SRTP               h235
+#.END
+
 #.TYPE_ATTR
 TimeStamp                TYPE = FT_ABSOLUTE_TIME  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AuthenticationMechanism  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h235_AuthenticationMechanism_vals)  BITMASK = 0
@@ -6,5 +16,7 @@ SIGNEDxxx                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 ENCRYPTEDxxx             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 HASHEDxxx                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CryptoToken              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h235_CryptoToken_vals)  BITMASK = 0
+SrtpCryptoCapability     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+SrtpKeys                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 #.END
 

@@ -4,6 +4,8 @@
 
 # $Id$
 
+#.INCLUDE ../h225/h225-exp.cnf
+
 #.EXPORTS
 
 SIGNEDxxx
@@ -13,6 +15,9 @@ TimeStamp
 ClearToken
 CryptoToken
 AuthenticationMechanism
+
+SrtpCryptoCapability
+SrtpKeys
 
 #.OMIT_ASSIGNMENT
 

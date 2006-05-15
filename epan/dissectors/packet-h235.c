@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-h235.c                                                            */
-/* ../../tools/asn2eth.py -X -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
+/* ../../tools/asn2eth.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -44,6 +44,7 @@
 
 #include "packet-per.h"
 #include "packet-h235.h"
+#include "packet-h225.h"
 
 #define PNAME  "H235-SECURITY-MESSAGES"
 #define PSNAME "H.235"
@@ -81,6 +82,7 @@ static int hf_h235_ipsec = -1;                    /* NULL */
 static int hf_h235_tls = -1;                      /* NULL */
 static int hf_h235_nonStandard = -1;              /* NonStandardParameter */
 static int hf_h235_authenticationBES = -1;        /* AuthenticationBES */
+static int hf_h235_keyExch = -1;                  /* OBJECT_IDENTIFIER */
 static int hf_h235_tokenOID = -1;                 /* OBJECT_IDENTIFIER */
 static int hf_h235_timeStamp = -1;                /* TimeStamp */
 static int hf_h235_password = -1;                 /* Password */
@@ -92,9 +94,18 @@ static int hf_h235_generalID = -1;                /* Identifier */
 static int hf_h235_eckasdhkey = -1;               /* ECKASDH */
 static int hf_h235_sendersID = -1;                /* Identifier */
 static int hf_h235_h235Key = -1;                  /* H235Key */
+static int hf_h235_profileInfo = -1;              /* SEQUENCE_OF_ProfileElement */
+static int hf_h235_profileInfo_item = -1;         /* ProfileElement */
+static int hf_h235_elementID = -1;                /* INTEGER_0_255 */
+static int hf_h235_paramS = -1;                   /* Params */
+static int hf_h235_element = -1;                  /* Element */
+static int hf_h235_octets = -1;                   /* OCTET_STRING */
+static int hf_h235_integer = -1;                  /* INTEGER */
+static int hf_h235_bits = -1;                     /* BIT_STRING */
+static int hf_h235_name = -1;                     /* BMPString */
+static int hf_h235_flag = -1;                     /* BOOLEAN */
 static int hf_h235_toBeSigned = -1;               /* ToBeSigned */
 static int hf_h235_algorithmOID = -1;             /* OBJECT_IDENTIFIER */
-static int hf_h235_paramS = -1;                   /* Params */
 static int hf_h235_signaturedata = -1;            /* BIT_STRING */
 static int hf_h235_encryptedData = -1;            /* OCTET_STRING */
 static int hf_h235_hash = -1;                     /* BIT_STRING */
@@ -120,9 +131,33 @@ static int hf_h235_encryptedSaltingKey = -1;      /* OCTET_STRING */
 static int hf_h235_clearSaltingKey = -1;          /* OCTET_STRING */
 static int hf_h235_paramSsalt = -1;               /* Params */
 static int hf_h235_keyDerivationOID = -1;         /* OBJECT_IDENTIFIER */
+static int hf_h235_genericKeyMaterial = -1;       /* OCTET_STRING */
+static int hf_h235_SrtpCryptoCapability_item = -1;  /* SrtpCryptoInfo */
+static int hf_h235_cryptoSuite = -1;              /* OBJECT_IDENTIFIER */
+static int hf_h235_sessionParams = -1;            /* SrtpSessionParameters */
+static int hf_h235_allowMKI = -1;                 /* BOOLEAN */
+static int hf_h235_SrtpKeys_item = -1;            /* SrtpKeyParameters */
+static int hf_h235_masterKey = -1;                /* OCTET_STRING */
+static int hf_h235_masterSalt = -1;               /* OCTET_STRING */
+static int hf_h235_lifetime = -1;                 /* T_lifetime */
+static int hf_h235_powerOfTwo = -1;               /* INTEGER */
+static int hf_h235_specific = -1;                 /* INTEGER */
+static int hf_h235_mki = -1;                      /* T_mki */
+static int hf_h235_length = -1;                   /* INTEGER_1_128 */
+static int hf_h235_value = -1;                    /* OCTET_STRING */
+static int hf_h235_kdr = -1;                      /* INTEGER_0_24 */
+static int hf_h235_unencryptedSrtp = -1;          /* BOOLEAN */
+static int hf_h235_unencryptedSrtcp = -1;         /* BOOLEAN */
+static int hf_h235_unauthenticatedSrtp = -1;      /* BOOLEAN */
+static int hf_h235_fecOrder = -1;                 /* FecOrder */
+static int hf_h235_windowSizeHint = -1;           /* INTEGER_64_65535 */
+static int hf_h235_newParameter = -1;             /* SEQUENCE_OF_GenericData */
+static int hf_h235_newParameter_item = -1;        /* GenericData */
+static int hf_h235_fecBeforeSrtp = -1;            /* NULL */
+static int hf_h235_fecAfterSrtp = -1;             /* NULL */
 
 /*--- End of included file: packet-h235-hf.c ---*/
-#line 47 "packet-h235-template.c"
+#line 48 "packet-h235-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -138,6 +173,9 @@ static gint ett_h235_TypedCertificate = -1;
 static gint ett_h235_AuthenticationBES = -1;
 static gint ett_h235_AuthenticationMechanism = -1;
 static gint ett_h235_ClearToken = -1;
+static gint ett_h235_SEQUENCE_OF_ProfileElement = -1;
+static gint ett_h235_ProfileElement = -1;
+static gint ett_h235_Element = -1;
 static gint ett_h235_SIGNEDxxx = -1;
 static gint ett_h235_ENCRYPTEDxxx = -1;
 static gint ett_h235_HASHEDxxx = -1;
@@ -148,9 +186,18 @@ static gint ett_h235_T_cryptoSignedToken = -1;
 static gint ett_h235_T_cryptoHashedToken = -1;
 static gint ett_h235_H235Key = -1;
 static gint ett_h235_V3KeySyncMaterial = -1;
+static gint ett_h235_SrtpCryptoCapability = -1;
+static gint ett_h235_SrtpCryptoInfo = -1;
+static gint ett_h235_SrtpKeys = -1;
+static gint ett_h235_SrtpKeyParameters = -1;
+static gint ett_h235_T_lifetime = -1;
+static gint ett_h235_T_mki = -1;
+static gint ett_h235_SrtpSessionParameters = -1;
+static gint ett_h235_SEQUENCE_OF_GenericData = -1;
+static gint ett_h235_FecOrder = -1;
 
 /*--- End of included file: packet-h235-ett.c ---*/
-#line 50 "packet-h235-template.c"
+#line 51 "packet-h235-template.c"
 
 static guint32
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
@@ -165,6 +212,9 @@ PER_NOT_DECODED_YET("ToBeSigned");
 
 static int dissect_toBeSigned(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_xxx_ToBeSigned(tvb, offset, pinfo, tree, hf_h235_toBeSigned);
+}
+static int dissect_newParameter_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_GenericData(tvb, offset, pinfo, tree, hf_h235_newParameter_item);
 }
 
 
@@ -262,6 +312,9 @@ static int dissect_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info 
 static int dissect_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_type);
 }
+static int dissect_keyExch(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_keyExch);
+}
 static int dissect_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_tokenOID);
 }
@@ -270,6 +323,9 @@ static int dissect_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 static int dissect_keyDerivationOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_keyDerivationOID);
+}
+static int dissect_cryptoSuite(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_cryptoSuite);
 }
 
 
@@ -286,6 +342,9 @@ static int dissect_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 static int dissect_certificatedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_certificatedata);
+}
+static int dissect_octets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_octets);
 }
 static int dissect_encryptedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_encryptedData);
@@ -304,6 +363,18 @@ static int dissect_encryptedSaltingKey(tvbuff_t *tvb, int offset, packet_info *p
 }
 static int dissect_clearSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_clearSaltingKey);
+}
+static int dissect_genericKeyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_genericKeyMaterial);
+}
+static int dissect_masterKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_masterKey);
+}
+static int dissect_masterSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_masterSalt);
+}
+static int dissect_value(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_value);
 }
 
 
@@ -528,6 +599,12 @@ static int dissect_ipsec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int dissect_tls(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_tls);
 }
+static int dissect_fecBeforeSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_fecBeforeSrtp);
+}
+static int dissect_fecAfterSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_fecAfterSrtp);
+}
 
 
 static const value_string h235_AuthenticationBES_vals[] = {
@@ -564,6 +641,7 @@ const value_string h235_AuthenticationMechanism_vals[] = {
   {   5, "tls" },
   {   6, "nonStandard" },
   {   7, "authenticationBES" },
+  {   8, "keyExch" },
   { 0, NULL }
 };
 
@@ -576,6 +654,7 @@ static const per_choice_t AuthenticationMechanism_choice[] = {
   {   5, "tls"                         , ASN1_EXTENSION_ROOT    , dissect_tls },
   {   6, "nonStandard"                 , ASN1_EXTENSION_ROOT    , dissect_nonStandard },
   {   7, "authenticationBES"           , ASN1_NOT_EXTENSION_ROOT, dissect_authenticationBES },
+  {   8, "keyExch"                     , ASN1_NOT_EXTENSION_ROOT, dissect_keyExch },
   { 0, NULL, 0, NULL }
 };
 
@@ -597,8 +676,17 @@ dissect_h235_INTEGER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 
   return offset;
 }
+static int dissect_integer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_integer);
+}
 static int dissect_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_ranInt);
+}
+static int dissect_powerOfTwo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_powerOfTwo);
+}
+static int dissect_specific(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_specific);
 }
 
 
@@ -661,7 +749,7 @@ static const per_sequence_t ENCRYPTEDxxx_sequence[] = {
 
 int
 dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 48 "h235.cnf"
+#line 53 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
@@ -688,6 +776,9 @@ dissect_h235_BIT_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 
   return offset;
 }
+static int dissect_bits(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_bits);
+}
 static int dissect_signaturedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_signaturedata);
 }
@@ -706,7 +797,7 @@ static const per_sequence_t SIGNEDxxx_sequence[] = {
 
 int
 dissect_h235_SIGNEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 45 "h235.cnf"
+#line 50 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
@@ -731,6 +822,7 @@ static const per_sequence_t V3KeySyncMaterial_sequence[] = {
   { "clearSaltingKey"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_clearSaltingKey },
   { "paramSsalt"                  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_paramSsalt },
   { "keyDerivationOID"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_keyDerivationOID },
+  { "genericKeyMaterial"          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_genericKeyMaterial },
   { NULL, 0, 0, NULL }
 };
 
@@ -775,6 +867,123 @@ static int dissect_h235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+
+static int
+dissect_h235_INTEGER_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                              0U, 255U, NULL, NULL, FALSE);
+
+  return offset;
+}
+static int dissect_elementID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h235_elementID);
+}
+
+
+
+static int
+dissect_h235_BMPString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
+                                          NO_BOUND, NO_BOUND);
+
+  return offset;
+}
+static int dissect_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_BMPString(tvb, offset, pinfo, tree, hf_h235_name);
+}
+
+
+
+static int
+dissect_h235_BOOLEAN(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
+                                  NULL, NULL);
+
+  return offset;
+}
+static int dissect_flag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_flag);
+}
+static int dissect_allowMKI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_allowMKI);
+}
+static int dissect_unencryptedSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_unencryptedSrtp);
+}
+static int dissect_unencryptedSrtcp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_unencryptedSrtcp);
+}
+static int dissect_unauthenticatedSrtp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_BOOLEAN(tvb, offset, pinfo, tree, hf_h235_unauthenticatedSrtp);
+}
+
+
+static const value_string h235_Element_vals[] = {
+  {   0, "octets" },
+  {   1, "integer" },
+  {   2, "bits" },
+  {   3, "name" },
+  {   4, "flag" },
+  { 0, NULL }
+};
+
+static const per_choice_t Element_choice[] = {
+  {   0, "octets"                      , ASN1_EXTENSION_ROOT    , dissect_octets },
+  {   1, "integer"                     , ASN1_EXTENSION_ROOT    , dissect_integer },
+  {   2, "bits"                        , ASN1_EXTENSION_ROOT    , dissect_bits },
+  {   3, "name"                        , ASN1_EXTENSION_ROOT    , dissect_name },
+  {   4, "flag"                        , ASN1_EXTENSION_ROOT    , dissect_flag },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_h235_Element(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                                 ett_h235_Element, Element_choice,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_element(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_Element(tvb, offset, pinfo, tree, hf_h235_element);
+}
+
+
+static const per_sequence_t ProfileElement_sequence[] = {
+  { "elementID"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_elementID },
+  { "paramS"                      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_paramS },
+  { "element"                     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_element },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_ProfileElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h235_ProfileElement, ProfileElement_sequence);
+
+  return offset;
+}
+static int dissect_profileInfo_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_ProfileElement(tvb, offset, pinfo, tree, hf_h235_profileInfo_item);
+}
+
+
+static const per_sequence_t SEQUENCE_OF_ProfileElement_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_profileInfo_item },
+};
+
+static int
+dissect_h235_SEQUENCE_OF_ProfileElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+                                      ett_h235_SEQUENCE_OF_ProfileElement, SEQUENCE_OF_ProfileElement_sequence_of);
+
+  return offset;
+}
+static int dissect_profileInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_SEQUENCE_OF_ProfileElement(tvb, offset, pinfo, tree, hf_h235_profileInfo);
+}
+
+
 static const per_sequence_t ClearToken_sequence[] = {
   { "tokenOID"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_tokenOID },
   { "timeStamp"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_timeStamp },
@@ -788,12 +997,13 @@ static const per_sequence_t ClearToken_sequence[] = {
   { "eckasdhkey"                  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_eckasdhkey },
   { "sendersID"                   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_sendersID },
   { "h235Key"                     , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h235Key },
+  { "profileInfo"                 , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_profileInfo },
   { NULL, 0, 0, NULL }
 };
 
 int
 dissect_h235_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 55 "h235.cnf"
+#line 60 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
@@ -815,7 +1025,7 @@ static const per_sequence_t HASHEDxxx_sequence[] = {
 
 int
 dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 51 "h235.cnf"
+#line 56 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
@@ -901,7 +1111,7 @@ static const per_choice_t CryptoToken_choice[] = {
 
 int
 dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 59 "h235.cnf"
+#line 64 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -912,8 +1122,212 @@ dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 
 
+
+static int
+dissect_h235_INTEGER_0_24(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                              0U, 24U, NULL, NULL, FALSE);
+
+  return offset;
+}
+static int dissect_kdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_INTEGER_0_24(tvb, offset, pinfo, tree, hf_h235_kdr);
+}
+
+
+static const per_sequence_t FecOrder_sequence[] = {
+  { "fecBeforeSrtp"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_fecBeforeSrtp },
+  { "fecAfterSrtp"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_fecAfterSrtp },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_FecOrder(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h235_FecOrder, FecOrder_sequence);
+
+  return offset;
+}
+static int dissect_fecOrder(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_FecOrder(tvb, offset, pinfo, tree, hf_h235_fecOrder);
+}
+
+
+
+static int
+dissect_h235_INTEGER_64_65535(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                              64U, 65535U, NULL, NULL, FALSE);
+
+  return offset;
+}
+static int dissect_windowSizeHint(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_INTEGER_64_65535(tvb, offset, pinfo, tree, hf_h235_windowSizeHint);
+}
+
+
+static const per_sequence_t SEQUENCE_OF_GenericData_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_newParameter_item },
+};
+
+static int
+dissect_h235_SEQUENCE_OF_GenericData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+                                      ett_h235_SEQUENCE_OF_GenericData, SEQUENCE_OF_GenericData_sequence_of);
+
+  return offset;
+}
+static int dissect_newParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_SEQUENCE_OF_GenericData(tvb, offset, pinfo, tree, hf_h235_newParameter);
+}
+
+
+static const per_sequence_t SrtpSessionParameters_sequence[] = {
+  { "kdr"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_kdr },
+  { "unencryptedSrtp"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_unencryptedSrtp },
+  { "unencryptedSrtcp"            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_unencryptedSrtcp },
+  { "unauthenticatedSrtp"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_unauthenticatedSrtp },
+  { "fecOrder"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_fecOrder },
+  { "windowSizeHint"              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_windowSizeHint },
+  { "newParameter"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_newParameter },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_SrtpSessionParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h235_SrtpSessionParameters, SrtpSessionParameters_sequence);
+
+  return offset;
+}
+static int dissect_sessionParams(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_SrtpSessionParameters(tvb, offset, pinfo, tree, hf_h235_sessionParams);
+}
+
+
+static const per_sequence_t SrtpCryptoInfo_sequence[] = {
+  { "cryptoSuite"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cryptoSuite },
+  { "sessionParams"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sessionParams },
+  { "allowMKI"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_allowMKI },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_SrtpCryptoInfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h235_SrtpCryptoInfo, SrtpCryptoInfo_sequence);
+
+  return offset;
+}
+static int dissect_SrtpCryptoCapability_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_SrtpCryptoInfo(tvb, offset, pinfo, tree, hf_h235_SrtpCryptoCapability_item);
+}
+
+
+static const per_sequence_t SrtpCryptoCapability_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SrtpCryptoCapability_item },
+};
+
+int
+dissect_h235_SrtpCryptoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+                                      ett_h235_SrtpCryptoCapability, SrtpCryptoCapability_sequence_of);
+
+  return offset;
+}
+
+
+static const value_string h235_T_lifetime_vals[] = {
+  {   0, "powerOfTwo" },
+  {   1, "specific" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_lifetime_choice[] = {
+  {   0, "powerOfTwo"                  , ASN1_EXTENSION_ROOT    , dissect_powerOfTwo },
+  {   1, "specific"                    , ASN1_EXTENSION_ROOT    , dissect_specific },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_h235_T_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                                 ett_h235_T_lifetime, T_lifetime_choice,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_T_lifetime(tvb, offset, pinfo, tree, hf_h235_lifetime);
+}
+
+
+
+static int
+dissect_h235_INTEGER_1_128(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                              1U, 128U, NULL, NULL, FALSE);
+
+  return offset;
+}
+static int dissect_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_INTEGER_1_128(tvb, offset, pinfo, tree, hf_h235_length);
+}
+
+
+static const per_sequence_t T_mki_sequence[] = {
+  { "length"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_length },
+  { "value"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_value },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_T_mki(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h235_T_mki, T_mki_sequence);
+
+  return offset;
+}
+static int dissect_mki(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_T_mki(tvb, offset, pinfo, tree, hf_h235_mki);
+}
+
+
+static const per_sequence_t SrtpKeyParameters_sequence[] = {
+  { "masterKey"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_masterKey },
+  { "masterSalt"                  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_masterSalt },
+  { "lifetime"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lifetime },
+  { "mki"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mki },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_SrtpKeyParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                   ett_h235_SrtpKeyParameters, SrtpKeyParameters_sequence);
+
+  return offset;
+}
+static int dissect_SrtpKeys_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_SrtpKeyParameters(tvb, offset, pinfo, tree, hf_h235_SrtpKeys_item);
+}
+
+
+static const per_sequence_t SrtpKeys_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_SrtpKeys_item },
+};
+
+int
+dissect_h235_SrtpKeys(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+                                      ett_h235_SrtpKeys, SrtpKeys_sequence_of);
+
+  return offset;
+}
+
+
 /*--- End of included file: packet-h235-fn.c ---*/
-#line 58 "packet-h235-template.c"
+#line 59 "packet-h235-template.c"
 
 
 /*--- proto_register_h235 ----------------------------------------------*/
@@ -1032,6 +1446,10 @@ void proto_register_h235(void) {
       { "authenticationBES", "h235.authenticationBES",
         FT_UINT32, BASE_DEC, VALS(h235_AuthenticationBES_vals), 0,
         "AuthenticationMechanism/authenticationBES", HFILL }},
+    { &hf_h235_keyExch,
+      { "keyExch", "h235.keyExch",
+        FT_OID, BASE_NONE, NULL, 0,
+        "AuthenticationMechanism/keyExch", HFILL }},
     { &hf_h235_tokenOID,
       { "tokenOID", "h235.tokenOID",
         FT_OID, BASE_NONE, NULL, 0,
@@ -1076,6 +1494,46 @@ void proto_register_h235(void) {
       { "h235Key", "h235.h235Key",
         FT_UINT32, BASE_DEC, VALS(h235_H235Key_vals), 0,
         "ClearToken/h235Key", HFILL }},
+    { &hf_h235_profileInfo,
+      { "profileInfo", "h235.profileInfo",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ClearToken/profileInfo", HFILL }},
+    { &hf_h235_profileInfo_item,
+      { "Item", "h235.profileInfo_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ClearToken/profileInfo/_item", HFILL }},
+    { &hf_h235_elementID,
+      { "elementID", "h235.elementID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProfileElement/elementID", HFILL }},
+    { &hf_h235_paramS,
+      { "paramS", "h235.paramS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_h235_element,
+      { "element", "h235.element",
+        FT_UINT32, BASE_DEC, VALS(h235_Element_vals), 0,
+        "ProfileElement/element", HFILL }},
+    { &hf_h235_octets,
+      { "octets", "h235.octets",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "Element/octets", HFILL }},
+    { &hf_h235_integer,
+      { "integer", "h235.integer",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Element/integer", HFILL }},
+    { &hf_h235_bits,
+      { "bits", "h235.bits",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "Element/bits", HFILL }},
+    { &hf_h235_name,
+      { "name", "h235.name",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Element/name", HFILL }},
+    { &hf_h235_flag,
+      { "flag", "h235.flag",
+        FT_BOOLEAN, 8, NULL, 0,
+        "Element/flag", HFILL }},
     { &hf_h235_toBeSigned,
       { "toBeSigned", "h235.toBeSigned",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1083,10 +1541,6 @@ void proto_register_h235(void) {
     { &hf_h235_algorithmOID,
       { "algorithmOID", "h235.algorithmOID",
         FT_OID, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h235_paramS,
-      { "paramS", "h235.paramS",
-        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_h235_signaturedata,
       { "signature", "h235.signature",
@@ -1188,9 +1642,105 @@ void proto_register_h235(void) {
       { "keyDerivationOID", "h235.keyDerivationOID",
         FT_OID, BASE_NONE, NULL, 0,
         "V3KeySyncMaterial/keyDerivationOID", HFILL }},
+    { &hf_h235_genericKeyMaterial,
+      { "genericKeyMaterial", "h235.genericKeyMaterial",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "V3KeySyncMaterial/genericKeyMaterial", HFILL }},
+    { &hf_h235_SrtpCryptoCapability_item,
+      { "Item", "h235.SrtpCryptoCapability_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SrtpCryptoCapability/_item", HFILL }},
+    { &hf_h235_cryptoSuite,
+      { "cryptoSuite", "h235.cryptoSuite",
+        FT_OID, BASE_NONE, NULL, 0,
+        "SrtpCryptoInfo/cryptoSuite", HFILL }},
+    { &hf_h235_sessionParams,
+      { "sessionParams", "h235.sessionParams",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SrtpCryptoInfo/sessionParams", HFILL }},
+    { &hf_h235_allowMKI,
+      { "allowMKI", "h235.allowMKI",
+        FT_BOOLEAN, 8, NULL, 0,
+        "SrtpCryptoInfo/allowMKI", HFILL }},
+    { &hf_h235_SrtpKeys_item,
+      { "Item", "h235.SrtpKeys_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SrtpKeys/_item", HFILL }},
+    { &hf_h235_masterKey,
+      { "masterKey", "h235.masterKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SrtpKeyParameters/masterKey", HFILL }},
+    { &hf_h235_masterSalt,
+      { "masterSalt", "h235.masterSalt",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SrtpKeyParameters/masterSalt", HFILL }},
+    { &hf_h235_lifetime,
+      { "lifetime", "h235.lifetime",
+        FT_UINT32, BASE_DEC, VALS(h235_T_lifetime_vals), 0,
+        "SrtpKeyParameters/lifetime", HFILL }},
+    { &hf_h235_powerOfTwo,
+      { "powerOfTwo", "h235.powerOfTwo",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "SrtpKeyParameters/lifetime/powerOfTwo", HFILL }},
+    { &hf_h235_specific,
+      { "specific", "h235.specific",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "SrtpKeyParameters/lifetime/specific", HFILL }},
+    { &hf_h235_mki,
+      { "mki", "h235.mki",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SrtpKeyParameters/mki", HFILL }},
+    { &hf_h235_length,
+      { "length", "h235.length",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SrtpKeyParameters/mki/length", HFILL }},
+    { &hf_h235_value,
+      { "value", "h235.value",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SrtpKeyParameters/mki/value", HFILL }},
+    { &hf_h235_kdr,
+      { "kdr", "h235.kdr",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SrtpSessionParameters/kdr", HFILL }},
+    { &hf_h235_unencryptedSrtp,
+      { "unencryptedSrtp", "h235.unencryptedSrtp",
+        FT_BOOLEAN, 8, NULL, 0,
+        "SrtpSessionParameters/unencryptedSrtp", HFILL }},
+    { &hf_h235_unencryptedSrtcp,
+      { "unencryptedSrtcp", "h235.unencryptedSrtcp",
+        FT_BOOLEAN, 8, NULL, 0,
+        "SrtpSessionParameters/unencryptedSrtcp", HFILL }},
+    { &hf_h235_unauthenticatedSrtp,
+      { "unauthenticatedSrtp", "h235.unauthenticatedSrtp",
+        FT_BOOLEAN, 8, NULL, 0,
+        "SrtpSessionParameters/unauthenticatedSrtp", HFILL }},
+    { &hf_h235_fecOrder,
+      { "fecOrder", "h235.fecOrder",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SrtpSessionParameters/fecOrder", HFILL }},
+    { &hf_h235_windowSizeHint,
+      { "windowSizeHint", "h235.windowSizeHint",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SrtpSessionParameters/windowSizeHint", HFILL }},
+    { &hf_h235_newParameter,
+      { "newParameter", "h235.newParameter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SrtpSessionParameters/newParameter", HFILL }},
+    { &hf_h235_newParameter_item,
+      { "Item", "h235.newParameter_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SrtpSessionParameters/newParameter/_item", HFILL }},
+    { &hf_h235_fecBeforeSrtp,
+      { "fecBeforeSrtp", "h235.fecBeforeSrtp",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "FecOrder/fecBeforeSrtp", HFILL }},
+    { &hf_h235_fecAfterSrtp,
+      { "fecAfterSrtp", "h235.fecAfterSrtp",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "FecOrder/fecAfterSrtp", HFILL }},
 
 /*--- End of included file: packet-h235-hfarr.c ---*/
-#line 66 "packet-h235-template.c"
+#line 67 "packet-h235-template.c"
   };
 
   /* List of subtrees */
@@ -1208,6 +1758,9 @@ void proto_register_h235(void) {
     &ett_h235_AuthenticationBES,
     &ett_h235_AuthenticationMechanism,
     &ett_h235_ClearToken,
+    &ett_h235_SEQUENCE_OF_ProfileElement,
+    &ett_h235_ProfileElement,
+    &ett_h235_Element,
     &ett_h235_SIGNEDxxx,
     &ett_h235_ENCRYPTEDxxx,
     &ett_h235_HASHEDxxx,
@@ -1218,9 +1771,18 @@ void proto_register_h235(void) {
     &ett_h235_T_cryptoHashedToken,
     &ett_h235_H235Key,
     &ett_h235_V3KeySyncMaterial,
+    &ett_h235_SrtpCryptoCapability,
+    &ett_h235_SrtpCryptoInfo,
+    &ett_h235_SrtpKeys,
+    &ett_h235_SrtpKeyParameters,
+    &ett_h235_T_lifetime,
+    &ett_h235_T_mki,
+    &ett_h235_SrtpSessionParameters,
+    &ett_h235_SEQUENCE_OF_GenericData,
+    &ett_h235_FecOrder,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/
-#line 71 "packet-h235-template.c"
+#line 72 "packet-h235-template.c"
   };
 
   /* Register protocol */

@@ -36,6 +36,7 @@
 
 #include "packet-per.h"
 #include "packet-h235.h"
+#include "packet-h225.h"
 
 #define PNAME  "H235-SECURITY-MESSAGES"
 #define PSNAME "H.235"

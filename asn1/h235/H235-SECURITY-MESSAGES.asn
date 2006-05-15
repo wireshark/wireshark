@@ -1,21 +1,21 @@
 --
 -- Taken from ITU ASN.1 database
--- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h235/2003-amd1/H235-SECURITY-MESSAGES.asn
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h235.0/2005/H235-SECURITY-MESSAGES.asn
 --
 -- Features unbacked with ASN.1 to Ethereal compiler was commented out
 --
 
-
--- Module H235-SECURITY-MESSAGES (H.235:08/2003)
+-- Module H235-SECURITY-MESSAGES (H.235.0:09/2005)
 H235-SECURITY-MESSAGES DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 -- EXPORTS All
 ChallengeString ::= OCTET STRING(SIZE (8..128))
 
-TimeStamp ::= INTEGER(1..4294967295) -- seconds since 00:00 1/1/1970 UTC
+TimeStamp ::= INTEGER(1..4294967295) -- seconds since 00:00 
                      
 
+-- 1/1/1970 UTC
 RandomVal ::= INTEGER -- 32-bit Integer
 
 Password ::= BMPString(SIZE (1..128))
@@ -30,7 +30,7 @@ NonStandardParameter ::= SEQUENCE {
 }
 
 -- if local octet representations of these bit strings are used they shall 
--- utilize standard Network Octet ordering (e.g. Big Endian)
+-- utilize standard Network Octet ordering (e.g., Big Endian)
 DHset ::= SEQUENCE {
   halfkey    BIT STRING(SIZE (0..2048)), -- = g^x mod n
   modSize    BIT STRING(SIZE (0..2048)), --  n
@@ -39,8 +39,10 @@ DHset ::= SEQUENCE {
 }
 
 ECpoint ::=
-  SEQUENCE -- uncompressed (x, y) affine coordinate representation of an elliptic curve point
-   {
+  SEQUENCE -- uncompressed (x, y) affine coordinate representation of 
+  
+   -- an elliptic curve point
+  {
   x  BIT STRING(SIZE (0..511)) OPTIONAL,
   y  BIT STRING(SIZE (0..511)) OPTIONAL,
   ...
@@ -51,71 +53,80 @@ ECKASDH ::=
    {
   eckasdhp
     SEQUENCE-- parameters for elliptic curves of prime field-- {public-key
-                                                                  ECpoint, -- This field contains representation of the ECKAS-DHp public key value.--
-                                                                --This field contains the initiator's ECKAS-DHp public key value (aP) when this information
-                                                                -- element is sent from originator to receiver. This field contains the responder's ECKAS-DHp
-                                                                -- public key value (bP) when this information element is sent back from receiver
-                                                                -- to originator.
+                                                                  ECpoint, -- This field contains representation of --
+                                                                -- the ECKAS-DHp public key value. This field contains the 
+                                                                -- initiator's ECKAS-DHp public key value (aP) when this 
+                                                                -- information element is sent from originator to receiver. This 
+                                                                -- field contains the responder's ECKAS-DHp public key value (bP) 
+                                                                -- when this information element is sent back from receiver to 
+                                                                -- originator.
                                                                 modulus
                                                                   BIT STRING
                                                                     (SIZE (0..
-                                                                    511)), -- This field contains representation of the--
-                                                                -- ECKAS-DHp public modulus value (p).
+                                                                    511)), -- This field contains --
+                                                                -- representation of the ECKAS-DHp public modulus value (p).
                                                                 base
-                                                                  ECpoint, -- This field contains representation of the ECKAS-DHp public base (P).--
+                                                                  ECpoint, -- This field contains representation of the --
+                                                                -- ECKAS-DHp public base (P).
                                                                 weierstrassA
                                                                   BIT STRING
                                                                     (SIZE (0..
-                                                                    511)), --This field contains representation of the--
-                                                                -- ECKAS-DHp Weierstrass coefficient (a).
+                                                                    511)), -- This field contains --
+                                                                -- representation of the ECKAS-DHp Weierstrass coefficient (a).
                                                                 weierstrassB
                                                                   BIT STRING
                                                                     (SIZE (0..
-                                                                    511))--This field contains representation of the--
-                                                                -- ECKAS-DHp Weierstrass coefficient (b).
+                                                                    511))-- This field contains --
+                                                                -- representation of the ECKAS-DHp Weierstrass coefficient (b).
   },
   eckasdh2
     SEQUENCE-- parameters for elliptic curves of characteristic 2 -- {public-key
                                                                         
-                                                                    ECpoint, -- This field contains representation of the ECKAS-DH2 public key value. --
-                                                                    -- This field contains the initiator's ECKAS-DH2 public key value (aP) when this information 
-                                                                    -- element is sent from originator to receiver. This field contains the responder's ECKAS-DH2 
-                                                                    -- public key value (bP) when this information element is sent back from receiver to originator.
+                                                                    ECpoint, -- This field contains representation of --
+                                                                    -- the ECKAS-DH2 public key value.
+                                                                    -- This field contains the initiator's ECKAS-DH2 public key value 
+                                                                    -- (aP) when this information element is sent from originator to 
+                                                                    -- receiver. This field contains the responder's ECKAS-DH2 public 
+                                                                    -- key value (bP) when this information element is sent back from 
+                                                                    -- receiver to originator.
                                                                     fieldSize
                                                                     
                                                                     BIT STRING
                                                                     (SIZE (0..
-                                                                    511)), -- This field contains representation of the--
-                                                                    -- ECKAS-DH2 field size value (m).
+                                                                    511)), -- This field contains --
+                                                                    -- representation of the ECKAS-DH2 field size value (m).
                                                                     base
                                                                     
-                                                                    ECpoint, -- This field contains representation of  the ECKAS-DH2 public base (P).--
+                                                                    ECpoint, -- This field contains representation of the --
+                                                                    -- ECKAS-DH2 public base (P).
                                                                     weierstrassA
                                                                     
                                                                     BIT STRING
                                                                     (SIZE (0..
-                                                                    511)), --This field contains representation of the--
-                                                                    -- ECKAS-DH2 Weierstrass coefficient (a).
+                                                                    511)), -- This field contains --
+                                                                    -- representation of the ECKAS-DH2 Weierstrass coefficient (a).
                                                                     weierstrassB
                                                                     
                                                                     BIT STRING
                                                                     (SIZE (0..
-                                                                    511))--This field contains representation of the--
-                                                                    -- ECKAS-DH2 Weierstrass coefficient (b).
+                                                                    511))-- This field contains --
+                                                                    -- representation of the ECKAS-DH2 Weierstrass coefficient (b).
   },
   ...
 }
 
 ECGDSASignature ::=
-  SEQUENCE -- parameters for elliptic curve digital signature algorithm
-   {
-  r  BIT STRING(SIZE (0..511)), -- This field contains the representation of the r component of the
+  SEQUENCE -- parameters for elliptic curve digital signature 
   
-  -- ECGDSA  digital signature.
-  s
-    BIT STRING
-      (SIZE (0..511))-- This field contains the representation of the s component of the--
-  -- ECGDSA  digital signature.
+   -- algorithm
+  {
+  r  BIT STRING(SIZE (0..511)), -- This field contains the 
+  
+  -- representation of the r component of the ECGDSA digital 
+  -- signature.
+  s  BIT STRING(SIZE (0..511))-- This field contains the --
+  -- representation of the s component of the ECGDSA digital 
+  -- signature.
 }
 
 TypedCertificate ::= SEQUENCE {
@@ -139,40 +150,61 @@ AuthenticationMechanism ::= CHOICE {
   tls                NULL,
   nonStandard        NonStandardParameter, -- something else.
   ...,
-  authenticationBES  AuthenticationBES -- user authentication for BES
+  authenticationBES  AuthenticationBES, -- user authentication for BES
+  keyExch            OBJECT IDENTIFIER -- key exchange profile
 }
 
 ClearToken ::= SEQUENCE -- a "token" may contain multiple value types.
                 {
-  tokenOID       OBJECT IDENTIFIER,
-  timeStamp      TimeStamp OPTIONAL,
-  password       Password OPTIONAL,
-  dhkey          DHset OPTIONAL,
-  challenge      ChallengeString OPTIONAL,
-  random         RandomVal OPTIONAL,
-  certificate    TypedCertificate OPTIONAL,
-  generalID      Identifier OPTIONAL,
-  nonStandard    NonStandardParameter OPTIONAL,
+  tokenOID        OBJECT IDENTIFIER,
+  timeStamp       TimeStamp OPTIONAL,
+  password        Password OPTIONAL,
+  dhkey           DHset OPTIONAL,
+  challenge       ChallengeString OPTIONAL,
+  random          RandomVal OPTIONAL,
+  certificate     TypedCertificate OPTIONAL,
+  generalID       Identifier OPTIONAL,
+  nonStandard     NonStandardParameter OPTIONAL,
   ...,
-  eckasdhkey     ECKASDH OPTIONAL, -- elliptic curve Key Agreement Scheme-Diffie
+  eckasdhkey      ECKASDH OPTIONAL, -- elliptic curve Key Agreement 
   
-  -- Hellman Analogue (ECKAS-DH)
-  sendersID      Identifier OPTIONAL,
-  h235Key        H235Key OPTIONAL -- central distributed key in V3
+  -- Scheme-Diffie Hellman Analogue 
+  -- (ECKAS-DH)
+  sendersID       Identifier OPTIONAL,
+  h235Key         H235Key OPTIONAL, -- central distributed key in V3
+  profileInfo     SEQUENCE OF ProfileElement OPTIONAL -- profile-specific
 }
 
 --	An object identifier should be placed in the tokenOID field when a
 --	ClearToken is included directly in a message (as opposed to being
---	encrypted).  In all other cases, an application should use the
---	object identifier { 0 0 } to indicate that the tokenOID value is not present.
+--	encrypted). In all other cases, an application should use the
+--	object identifier { 0 0 } to indicate that the tokenOID value is not 
+--	present.
+--	Start all the cryptographic parameterized types here...
 --
--- Start all the cryptographic parameterized types here...
---
+ProfileElement ::= SEQUENCE {
+  elementID  INTEGER(0..255), -- element identifier, as defined by 
+  
+  -- profile
+  paramS     Params OPTIONAL, -- any element-specific parameters
+  element    Element OPTIONAL, -- value in required form
+  ...
+}
+
+Element ::= CHOICE {
+  octets   OCTET STRING,
+  integer  INTEGER,
+  bits     BIT STRING,
+  name     BMPString,
+  flag     BOOLEAN,
+  ...
+}
+
 SIGNED{ToBeSigned} ::= SEQUENCE {
   toBeSigned    ToBeSigned,
   algorithmOID  OBJECT IDENTIFIER,
   paramS        Params, -- any "runtime" parameters
-  signature     BIT STRING -- could be an RSA or an ASN.1 coded ECGDSASignature
+  signature     BIT STRING -- could be an RSA or an ASN.1 coded ECGDSA Signature
 }(CONSTRAINED BY { -- Verify or Sign Certificate --})
 
 ENCRYPTED{ToBeEncrypted} ::= SEQUENCE {
@@ -197,9 +229,9 @@ IV16 ::= OCTET STRING(SIZE (16)) -- initial value for 128-bit block ciphers
 -- needed by receiving end of signature.
 Params ::= SEQUENCE {
   ranInt        INTEGER OPTIONAL, -- some integer value
-  iv8           IV8 OPTIONAL, -- 8 octet initialization vector
+  iv8           IV8 OPTIONAL, -- 8-octet initialization vector
   ...,
-  iv16          IV16 OPTIONAL, -- 16 octet initialization vector
+  iv16          IV16 OPTIONAL, -- 16-octet initialization vector
   iv            OCTET STRING OPTIONAL, -- arbitrary length initialization vector
   clearSalt     OCTET STRING OPTIONAL -- unencrypted salting key for encryption
 }
@@ -248,15 +280,16 @@ CryptoToken ::= CHOICE {
 }
 
 -- These allow the passing of session keys within the H.245 OLC structure.
--- They are encoded as standalone ASN.1 and based as an OCTET STRING within H.245
+-- They are encoded as standalone ASN.1 and based as an OCTET STRING within 
+-- H.245
 H235Key ::=
-  CHOICE -- this is used with the H.245 or ClearToken "h235Key" field
+  CHOICE -- This is used with the H.245 or ClearToken "h235Key" field
    {
   secureChannel       KeyMaterial,
   sharedSecret        ENCRYPTED{EncodedKeySyncMaterial},
   certProtectedKey    SIGNED{EncodedKeySignedMaterial},
   ...,
-  secureSharedSecret  V3KeySyncMaterial -- for H.235 V3 end points
+  secureSharedSecret  V3KeySyncMaterial -- for H.235 V3 endpoints
 }
 
 KeySignedMaterial ::= SEQUENCE {
@@ -295,15 +328,25 @@ KeySyncMaterial ::= SEQUENCE {
 --EncodedKeySyncMaterial ::= TYPE-IDENTIFIER.&Type(KeySyncMaterial)
 
 V3KeySyncMaterial ::= SEQUENCE {
-  generalID            Identifier OPTIONAL, -- peer terminal ID
-  algorithmOID         OBJECT IDENTIFIER OPTIONAL, -- encryption algorithm
-  paramS               Params, -- IV
-  encryptedSessionKey  OCTET STRING OPTIONAL, -- encrypted session key
-  encryptedSaltingKey  OCTET STRING OPTIONAL, -- encrypted media salting key
-  clearSaltingKey      OCTET STRING OPTIONAL, -- unencrypted media salting key
-  paramSsalt           Params OPTIONAL, -- IV (and clear salt) for salting key encryption
-  keyDerivationOID     OBJECT IDENTIFIER OPTIONAL, -- key derivation method
-  ...
+  generalID              Identifier OPTIONAL, -- peer terminal ID
+  algorithmOID           OBJECT IDENTIFIER OPTIONAL, -- encryption algorithm
+  paramS                 Params, -- IV
+  encryptedSessionKey    OCTET STRING OPTIONAL, -- encrypted session key
+  encryptedSaltingKey    OCTET STRING OPTIONAL, -- encrypted media salting 
+  
+  -- key
+  clearSaltingKey        OCTET STRING OPTIONAL, -- unencrypted media salting 
+  
+  -- key
+  paramSsalt             Params OPTIONAL, -- IV (and clear salt) for salting 
+  
+  -- key encryption
+  keyDerivationOID       OBJECT IDENTIFIER OPTIONAL, -- key derivation 
+  
+  -- method
+  ...,
+  genericKeyMaterial     OCTET STRING OPTIONAL -- ASN.1-encoded key material--
+  -- form is dependent on associated media encryption tag
 }
 
 END -- End of H235-SECURITY-MESSAGES DEFINITIONS 

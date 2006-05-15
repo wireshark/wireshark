@@ -13,9 +13,9 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py H235-SECURITY-MESSAGES.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
+$(DISSECTOR_FILES): ../../tools/asn2eth.py H235-SECURITY-MESSAGES.asn H235-SRTP.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -X -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template H235-SECURITY-MESSAGES.asn
+	$(PYTHON) ../../tools/asn2eth.py -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn
 !ELSE
 	@echo Error: You need Python to use asn2eth.py
 	@exit 1
