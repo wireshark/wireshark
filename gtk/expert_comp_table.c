@@ -715,51 +715,51 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
     GtkTreeStore *store;
 #endif
 
-	/* we have discovered a new procedure. Extend the table accordingly */
+    /* we have discovered a new procedure. Extend the table accordingly */
     row = find_summary_data(err, expert_data);
-	if(row==-1){
+    if(row==-1){
         /* First time we have seen this event so initialize memory table */
 #if (GTK_MAJOR_VERSION < 2)
-            row = 0;
-            old_num_procs++;
+        row = 0;
+        old_num_procs++;
 
-		    err->procedures=g_realloc(err->procedures, (sizeof(error_procedure_t)*(old_num_procs+1)));
-            err->procedures[err->num_procs].count=0;
-		    for(j=0;j<4;j++)
-            {
-    			err->procedures[err->num_procs].entries[j]=NULL;
-		    }
-            err->procedures[err->num_procs].packet_num = (guint32)expert_data->packet_num;                        /* First packet num */
-	        err->procedures[err->num_procs].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL);   /* Group */
-            err->procedures[err->num_procs].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol, NULL);    /* Protocol */
-            err->procedures[err->num_procs].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary, NULL);     /* Summary */
-    	    err->procedures[err->num_procs].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
-            err->procedures[err->num_procs].fvalue_value = NULL;
+	err->procedures=g_realloc(err->procedures, (sizeof(error_procedure_t)*(old_num_procs+1)));
+        err->procedures[err->num_procs].count=0;
+	for(j=0;j<4;j++)
+        {
+            err->procedures[err->num_procs].entries[j]=NULL;
+	}
+        err->procedures[err->num_procs].packet_num = (guint32)expert_data->packet_num;                        /* First packet num */
+	err->procedures[err->num_procs].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL);   /* Group */
+        err->procedures[err->num_procs].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol, NULL);    /* Protocol */
+        err->procedures[err->num_procs].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary, NULL);     /* Summary */
+    	err->procedures[err->num_procs].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
+        err->procedures[err->num_procs].fvalue_value = NULL;
     }
     /* Store the updated count of events */
     err->num_procs = old_num_procs;
 #else
         row = old_num_procs; /* Number of expert events since this is a new event */
-		err->procedures=g_realloc(err->procedures, (sizeof(error_procedure_t)*(old_num_procs+1)));
+        err->procedures=g_realloc(err->procedures, (sizeof(error_procedure_t)*(old_num_procs+1)));
         err->procedures[row].count=0; /* count of events for this item */
         err->procedures[row].fvalue_value = NULL; /* Filter string value */
         for(j=0;j<4;j++){
-			err->procedures[row].entries[j]=NULL;
-		}
+            err->procedures[row].entries[j]=NULL;
+        }
         
-            /* Create the item in our memory table */
-            err->procedures[row].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL);  /* Group */
-            err->procedures[row].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol, NULL);    /* Protocol */
-            err->procedures[row].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary, NULL);     /* Summary */
+        /* Create the item in our memory table */
+        err->procedures[row].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));  /* Group */
+        err->procedures[row].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol);    /* Protocol */
+        err->procedures[row].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary);     /* Summary */
 
         /* Create a new item in our tree view */
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
         gtk_tree_store_append (store, &err->procedures[row].iter, NULL);  /* Acquire an iterator */
         
         gtk_tree_store_set (store, &err->procedures[row].iter,
-                    GROUP_COLUMN, (char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL),
-                    PROTOCOL_COLUMN, (char *)g_strdup_printf("%s", expert_data->protocol, NULL),
-                    SUMMARY_COLUMN, (char *)g_strdup_printf("%s", expert_data->summary, NULL), -1);
+                    GROUP_COLUMN, (char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)")),
+                    PROTOCOL_COLUMN, (char *)g_strdup_printf("%s", expert_data->protocol),
+                    SUMMARY_COLUMN, (char *)g_strdup_printf("%s", expert_data->summary), -1);
 
         /* If an expert item was passed then build the filter string */
         if (expert_data->pitem && strcmp(expert_data->pitem->finfo->value.ftype->name,"FT_NONE")!=0) {
@@ -767,13 +767,13 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         }
         /* Store the updated count of events */
         err->num_procs = ++old_num_procs;
-	}
+    }
 
     /* Update our memory table with event data */
     err->procedures[row].count++; /* increment the count of events for this item */
 
     /* Store the updated count for this event item */
-	err->procedures[row].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
+    err->procedures[row].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
 
     /* Update the tree with new count for this event */
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
