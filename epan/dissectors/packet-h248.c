@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h248.c                                                            */
+/* .\packet-h248.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -1594,8 +1594,8 @@ static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
 			m->hi_addr = 0;
 			break;
 		case AT_IPv4:
-			memcpy((guint8*)m->hi_addr,hi_addr->data,4);
-			memcpy((guint8*)m->lo_addr,lo_addr->data,4);
+			memcpy((guint8*)&(m->hi_addr),hi_addr->data,4);
+			memcpy((guint8*)&(m->lo_addr),lo_addr->data,4);
 			break;
 		case AT_SS7PC:
 			m->hi_addr = mtp3_pc_hash(hi_addr->data);
