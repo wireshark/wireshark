@@ -82,17 +82,6 @@ tvbuff_t *nas_pdu_tvb=NULL;
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
 
-#.FN_BODY PagingCause
-# Remove once asn2eth is fixed to handle PER Enummeration extensions
-  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									5, NULL, NULL, TRUE, 1, NULL);
-
-#.FN_BODY Event
-# Remove once asn2eth is fixed to handle PER Enummeration extensions
-  offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									3, NULL, NULL, TRUE, 1, NULL);
-
-
 #.END
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ranap_ProtocolIE_ID_vals)

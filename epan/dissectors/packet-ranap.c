@@ -6455,11 +6455,8 @@ static const value_string ranap_PagingCause_vals[] = {
 
 static int
 dissect_ranap_PagingCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 87 "ranap.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									5, NULL, NULL, TRUE, 1, NULL);
-
-
+                                     5, NULL, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -8466,12 +8463,8 @@ static const value_string ranap_Event_vals[] = {
 
 static int
 dissect_ranap_Event(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-#line 92 "ranap.cnf"
   offset = dissect_per_enumerated(tvb, offset, pinfo, tree, hf_index,
-									3, NULL, NULL, TRUE, 1, NULL);
-
-
-
+                                     3, NULL, NULL, TRUE, 1, NULL);
 
   return offset;
 }
