@@ -478,6 +478,20 @@ int dissect_aim_tlv_value_extended_data ( proto_item *ti, guint16 valueid _U_, t
 	return offset;
 }
 
+static int dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+{
+	int offset = 0;
+
+	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, FALSE); offset+=8;
+
+	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
+						FALSE); offset += 2;
+
+	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
+	
+	return offset;
+}
+
 static int dissect_aim_msg_clientautoresp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
@@ -514,7 +528,7 @@ static const aim_subtype aim_fnac_family_messaging[] = {
 	{ 0x0009, "Evil Response", dissect_aim_msg_evil_repl  },
 	{ 0x000a, "Missed Call", NULL },
 	{ 0x000b, "Client Auto Response", dissect_aim_msg_clientautoresp },
-	{ 0x000c, "Acknowledge", NULL },
+	{ 0x000c, "Acknowledge", dissect_aim_msg_ack },
 	{ 0x0014, "Mini Typing Notifications (MTN)", dissect_aim_msg_minityping },
 	{ 0, NULL, NULL }
 };
