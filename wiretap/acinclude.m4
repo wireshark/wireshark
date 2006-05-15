@@ -246,14 +246,16 @@ AC_DEFUN([AC_WIRETAP_CHECK_64BIT_FORMAT],
       AC_LANG_SOURCE(
 	[[
 	  #include <glib.h>
+	  #if GTK_MAJOR_VERSION >= 2
 	  #include <glib/gprintf.h>
+	  #endif
 	  #include <stdio.h>
 
 	  main()
 	  {
 	    guint64 t = 1;
 	    char strbuf[16+1];
-	    g_sprintf(strbuf, "%016$1x", t << 32);
+	    g_snprintf(strbuf, sizeof strbuf, "%016$1x", t << 32);
 	    if (strcmp(strbuf, "0000000100000000") == 0)
 	      exit(0);
 	    else

@@ -184,13 +184,15 @@ AC_COMPILE_IFELSE(
     AC_LANG_SOURCE(
       [[
 	#include <glib.h>
+	#if GTK_MAJOR_VERSION >= 2
 	#include <glib/gprintf.h>
+	#endif
 	#include <stdio.h>
 
 	main()
 	{
 	  char strbuf[16+1];
-	  g_sprintf(strbuf, "%" G_GINT64_MODIFIER "x\n", (gint64)1);
+	  g_snprintf(strbuf, sizeof strbuf, "%" G_GINT64_MODIFIER "x\n", (gint64)1);
 	}
       ]])
   ],
