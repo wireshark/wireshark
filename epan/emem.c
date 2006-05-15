@@ -268,9 +268,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
 		ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+		g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 		ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret == TRUE || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+		g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
 		npc->amount_free_init = prot2 - prot1 - pagesize;
 		npc->amount_free = npc->amount_free_init;
