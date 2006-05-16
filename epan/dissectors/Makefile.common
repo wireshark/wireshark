@@ -134,6 +134,7 @@ DISSECTOR_SRC =	\
 	packet-bthci_acl.c	\
 	packet-bthci_cmd.c	\
 	packet-bthci_evt.c	\
+	packet-btl2cap.c	\
 	packet-bvlc.c	\
 	packet-camel.c	\
 	packet-cast.c	\
@@ -692,6 +693,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bgp.h	\
 	packet-bootparams.h	\
 	packet-bssap.h	\
+	packet-btl2cap.h	\
 	packet-camel.h	\
 	packet-chdlc.h	\
 	packet-cdt.h	\
