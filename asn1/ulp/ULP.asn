@@ -471,8 +471,10 @@ SUPLPOS ::= SEQUENCE {
 PosPayLoad ::= CHOICE {
   tia801payload  OCTET STRING(SIZE (1..8192)),
   rrcPayload     OCTET STRING(SIZE (1..8192)),
-  rrlpPayload    OCTET STRING(SIZE (1..8192)),
+  rrlpPayload    RRLPPayload,
   ...}
+
+RRLPPayload ::= OCTET STRING(SIZE (1..8192))
 
 --END
 --SUPL-POS-INIT DEFINITIONS AUTOMATIC TAGS ::=

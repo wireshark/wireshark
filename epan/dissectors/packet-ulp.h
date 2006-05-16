@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* .\packet-ulp.h                                                             */
-/* ../../tools/asn2eth.py -X -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
+/* ../../tools/asn2eth.py -u -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
 
 /* Input file: packet-ulp-template.h */
 

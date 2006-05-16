@@ -29,7 +29,12 @@ guint32 UlpMessage;
 	}
 #.END
 
-#.TYPE_ATTR
-IPv4Address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
-IPv6Address  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+#.FN_BODY RRLPPayload VAL_PTR = &rrlp_tvb
+ tvbuff_t *rrlp_tvb;
 
+%(DEFAULT_BODY)s
+
+  if (rrlp_tvb){
+	call_dissector(rrlp_handle, rrlp_tvb, pinfo, tree);
+
+  }

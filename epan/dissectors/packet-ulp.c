@@ -56,6 +56,7 @@
 #define PFNAME "ulp"
 
 static dissector_handle_t ulp_handle=NULL;
+static dissector_handle_t rrlp_handle;
 
 /* IANA Registered Ports  
  * oma-ulp         7275/tcp    OMA UserPlane Location
@@ -206,7 +207,7 @@ static int hf_ulp_clientNameType = -1;            /* FormatIndicator */
 static int hf_ulp_posPayLoad = -1;                /* PosPayLoad */
 static int hf_ulp_tia801payload = -1;             /* OCTET_STRING_SIZE_1_8192 */
 static int hf_ulp_rrcPayload = -1;                /* OCTET_STRING_SIZE_1_8192 */
-static int hf_ulp_rrlpPayload = -1;               /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_rrlpPayload = -1;               /* RRLPPayload */
 static int hf_ulp_sETCapabilities = -1;           /* SETCapabilities */
 static int hf_ulp_requestedAssistData = -1;       /* RequestedAssistData */
 static int hf_ulp_locationId = -1;                /* LocationId */
@@ -246,7 +247,7 @@ static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
 static int hf_ulp_rrc = -1;                       /* BOOLEAN */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 63 "packet-ulp-template.c"
+#line 64 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -313,7 +314,7 @@ static gint ett_ulp_PosTechnology = -1;
 static gint ett_ulp_PosProtocol = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 67 "packet-ulp-template.c"
+#line 68 "packet-ulp-template.c"
 
 /* Include constants */
 
@@ -326,7 +327,7 @@ static gint ett_ulp_PosProtocol = -1;
 #define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 70 "packet-ulp-template.c"
+#line 71 "packet-ulp-template.c"
 
 
 /*--- Included file: packet-ulp-fn.c ---*/
@@ -2315,8 +2316,27 @@ static int dissect_tia801payload(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int dissect_rrcPayload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_ulp_OCTET_STRING_SIZE_1_8192(tvb, offset, pinfo, tree, hf_ulp_rrcPayload);
 }
+
+
+
+static int
+dissect_ulp_RRLPPayload(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+#line 33 "ulp.cnf"
+ tvbuff_t *rrlp_tvb;
+
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                       1, 8192, &rrlp_tvb);
+
+
+  if (rrlp_tvb){
+	call_dissector(rrlp_handle, rrlp_tvb, pinfo, tree);
+
+  }
+
+  return offset;
+}
 static int dissect_rrlpPayload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_ulp_OCTET_STRING_SIZE_1_8192(tvb, offset, pinfo, tree, hf_ulp_rrlpPayload);
+  return dissect_ulp_RRLPPayload(tvb, offset, pinfo, tree, hf_ulp_rrlpPayload);
 }
 
 
@@ -2646,7 +2666,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 72 "packet-ulp-template.c"
+#line 73 "packet-ulp-template.c"
 
 /*--- proto_reg_handoff_ulp ---------------------------------------*/
 void
@@ -2659,6 +2679,8 @@ proto_reg_handoff_ulp(void)
 
 	/* application/oma-supl-ulp */
 	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
+
+	rrlp_handle = find_dissector("rrlp");
 
 }
 
@@ -2786,11 +2808,11 @@ void proto_register_ulp(void) {
         "SlpSessionID/slpId", HFILL }},
     { &hf_ulp_ipv4Address,
       { "ipv4Address", "ulp.ipv4Address",
-        FT_IPv4, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "IPAddress/ipv4Address", HFILL }},
     { &hf_ulp_ipv6Address,
       { "ipv6Address", "ulp.ipv6Address",
-        FT_IPv6, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "IPAddress/ipv6Address", HFILL }},
     { &hf_ulp_fQDN,
       { "fQDN", "ulp.fQDN",
@@ -3370,7 +3392,7 @@ void proto_register_ulp(void) {
         "PosProtocol/rrc", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 95 "packet-ulp-template.c"
+#line 98 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -3439,7 +3461,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 101 "packet-ulp-template.c"
+#line 104 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;

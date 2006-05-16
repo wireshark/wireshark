@@ -1452,6 +1452,7 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, prot
 	static guint8 bytes[4];
 	guint8 *pbytes = NULL;
 	proto_item *pi;
+	tvbuff_t *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -1485,12 +1486,30 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	} else if ((min_len==max_len)&&(min_len<65536)) {  /* 16.7 if length is fixed and less than to 64k*/
 		/* align to byte */
-		
-		if (is_per_byte_aligned)
-			BYTE_ALIGN_OFFSET(offset);
-		val_start = offset>>3; 
-		val_length = min_len;
-		offset+=min_len*8;
+		val_start = offset>>3;
+
+		if (is_per_byte_aligned){
+			BYTE_ALIGN_OFFSET(offset);			 
+			val_length = min_len;
+			offset+=min_len*8;
+		}else{
+			guint8 *buff;
+			guint32 i = 0;
+			guint32 j = 0;
+			gboolean bit;
+
+			buff = ep_alloc(min_len);
+			while (j < (guint32)min_len){
+				for(i=0;i<8;i++){
+					offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+					buff[j]=(buff[j]<<1)|bit;
+				}
+				j = j+1;
+			}
+			pbytes = buff;
+			val_length = min_len;
+			/* XXX should we return a new tvb with the octetstring? */
+		}
 
 	} else {  /* 16.8 */
 		if(max_len>0) {  
@@ -1505,12 +1524,35 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 		if(length){
 			/* align to byte */
-			if (is_per_byte_aligned)
+			if (is_per_byte_aligned){
 				BYTE_ALIGN_OFFSET(offset);
+				offset+=length*8;
+				val_start = offset>>3; 
+			}else{
+				guint8 *buff;
+				guint32 i = 0;
+				guint32 j = 0;
+				gboolean bit;
+
+				val_start = offset>>3;
+				buff = g_malloc(length);
+				while (j < length){
+					for(i=0;i<8;i++){
+						offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+						buff[j]=(buff[j]<<1)|bit;
+					}
+				j = j+1;
+				}
+				pbytes = buff;
+				out_tvb = tvb_new_real_data(buff,length,length);
+				/* Arrange that the allocated packet data copy be freed when the
+				 * tvbuff is freed. 
+				 */
+				tvb_set_free_cb(out_tvb, g_free );
+				tvb_set_child_real_data_tvbuff(tvb,out_tvb);
+			}
 		}
-		val_start = offset>>3; 
 		val_length = length;
-		offset+=length*8;
 	}
 
 	if (hfi) {
@@ -1535,7 +1577,10 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		}
 	}
 	if (value_tvb)
-		*value_tvb = tvb_new_subset(tvb, val_start, val_length, val_length);
+		if (out_tvb)
+			*value_tvb = out_tvb;
+		else
+			*value_tvb = tvb_new_subset(tvb, val_start, val_length, val_length);
 	return offset;
 }
 
