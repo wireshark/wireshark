@@ -586,7 +586,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF GTK_WIMP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk-wimp gtk-wimp/gtk-wimp-0.6.2-bin.zip
+		gtk-wimp gtk-wimp/gtk-wimp-0.7.0-bin.zip
 !ENDIF
 	@echo.
 	@echo Ethereal is ready to build.
