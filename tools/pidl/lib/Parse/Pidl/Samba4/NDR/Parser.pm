@@ -194,9 +194,14 @@ sub check_null_pointer_void($)
 
 #####################################################################
 # declare a function public or static, depending on its attributes
-sub fn_declare($$)
+sub fn_declare($$$)
 {
-	my ($fn,$decl) = @_;
+	my ($type,$fn,$decl) = @_;
+
+	if (has_property($fn, "no$type")) {
+		pidl_hdr "$decl;";
+		return 0;
+	}
 
 	if (has_property($fn, "public")) {
 		pidl_hdr "$decl;";
@@ -204,6 +209,8 @@ sub fn_declare($$)
 	} else {
 		pidl "static $decl";
 	}
+
+	return 1;
 }
 
 ###################################################################
@@ -1814,7 +1821,7 @@ sub ParseTypedefPush($)
 	my($e) = shift;
 
 	my $args = $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e,"push");
-	fn_declare($e, "NTSTATUS ndr_push_$e->{NAME}(struct ndr_push *ndr, int ndr_flags, $args)");
+	fn_declare("push", $e, "NTSTATUS ndr_push_$e->{NAME}(struct ndr_push *ndr, int ndr_flags, $args)") or return;
 
 	pidl "{";
 	indent;
@@ -1833,7 +1840,7 @@ sub ParseTypedefPull($)
 
 	my $args = $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e,"pull");
 
-	fn_declare($e, "NTSTATUS ndr_pull_$e->{NAME}(struct ndr_pull *ndr, int ndr_flags, $args)");
+	fn_declare("pull", $e, "NTSTATUS ndr_pull_$e->{NAME}(struct ndr_pull *ndr, int ndr_flags, $args)") or return;
 
 	pidl "{";
 	indent;
@@ -1852,8 +1859,11 @@ sub ParseTypedefPrint($)
 
 	my $args = $typefamily{$e->{DATA}->{TYPE}}->{DECL}->($e,"print");
 
-	pidl "_PUBLIC_ void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args)";
 	pidl_hdr "void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args);";
+
+	return if (has_property($e, "noprint"));
+
+	pidl "_PUBLIC_ void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args)";
 	pidl "{";
 	indent;
 	$typefamily{$e->{DATA}->{TYPE}}->{PRINT_FN_BODY}->($e->{DATA}, $e->{NAME});
@@ -1871,7 +1881,7 @@ sub ParseTypedefNdrSize($)
 	my $tf = $typefamily{$t->{DATA}->{TYPE}};
 	my $args = $tf->{SIZE_FN_ARGS}->($t);
 
-	fn_declare($t, "size_t ndr_size_$t->{NAME}($args)");
+	fn_declare("size", $t, "size_t ndr_size_$t->{NAME}($args)") or return;
 
 	pidl "{";
 	indent;
@@ -1887,10 +1897,11 @@ sub ParseFunctionPrint($)
 {
 	my($fn) = shift;
 
+	pidl_hdr "void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r);";
+
 	return if has_property($fn, "noprint");
 
 	pidl "_PUBLIC_ void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r)";
-	pidl_hdr "void ndr_print_$fn->{NAME}(struct ndr_print *ndr, const char *name, int flags, const struct $fn->{NAME} *r);";
 	pidl "{";
 	indent;
 
@@ -1952,9 +1963,9 @@ sub ParseFunctionPush($)
 { 
 	my($fn) = shift;
 
-	return if has_property($fn, "nopush");
+	fn_declare("push", $fn, "NTSTATUS ndr_push_$fn->{NAME}(struct ndr_push *ndr, int flags, const struct $fn->{NAME} *r)") or return;
 
-	fn_declare($fn, "NTSTATUS ndr_push_$fn->{NAME}(struct ndr_push *ndr, int flags, const struct $fn->{NAME} *r)");
+	return if has_property($fn, "nopush");
 
 	pidl "{";
 	indent;
@@ -2032,10 +2043,9 @@ sub ParseFunctionPull($)
 { 
 	my($fn) = shift;
 
-	return if has_property($fn, "nopull");
-
 	# pull function args
-	fn_declare($fn, "NTSTATUS ndr_pull_$fn->{NAME}(struct ndr_pull *ndr, int flags, struct $fn->{NAME} *r)");
+	fn_declare("pull", $fn, "NTSTATUS ndr_pull_$fn->{NAME}(struct ndr_pull *ndr, int flags, struct $fn->{NAME} *r)") or return;
+
 	pidl "{";
 	indent;
 
@@ -2404,9 +2414,9 @@ sub NeededTypedef($$)
 {
 	my ($t,$needed) = @_;
 	if (has_property($t, "public")) {
-		$needed->{"pull_$t->{NAME}"} = not has_property($t, "nopull");
-		$needed->{"push_$t->{NAME}"} = not has_property($t, "nopush");
-		$needed->{"print_$t->{NAME}"} = not has_property($t, "noprint");
+		$needed->{"pull_$t->{NAME}"} = 1;
+		$needed->{"push_$t->{NAME}"} = 1;
+		$needed->{"print_$t->{NAME}"} = 1;
 	}
 
 	if ($t->{DATA}->{TYPE} eq "STRUCT" or $t->{DATA}->{TYPE} eq "UNION") {

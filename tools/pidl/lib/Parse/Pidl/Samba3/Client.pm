@@ -85,11 +85,6 @@ sub ParseFunction($$)
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
 
-		if ($e->{LEVELS}[0]->{TYPE} ne "POINTER") {
-			warning($e->{ORIGINAL}, "First element not a pointer for [out] argument");
-			next;
-		}
-
 		CopyLevel($e, $e->{LEVELS}[1], $e->{NAME}, "r.$e->{NAME}");
 	}
 

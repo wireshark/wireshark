@@ -17,7 +17,7 @@ pidl - An IDL compiler written in Perl
 
 pidl --help
 
-pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--eth-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-header[=OUTPUT]] [--samba3-parser=[OUTPUT]] [--samba3-server=[OUTPUT]] [--samba3-template[=OUTPUT]] [--samba3-client[=OUTPUT]] [<idlfile>.idl]...
+pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--eth-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-header[=OUTPUT]] [--samba3-parser=[OUTPUT]] [--samba3-server=[OUTPUT]] [--samba3-template[=OUTPUT]] [--samba3-client[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [<idlfile>.idl]...
 
 =head1 DESCRIPTION
 
@@ -143,6 +143,12 @@ rpc_server/. Filename defaults to srv_BASENAME_nt.c
 
 Generate client calls for Samba 3, to be placed in rpc_client/. Filename 
 defaults to cli_BASENAME.c.
+
+=item I<--samba3-ndr-client>
+
+Generate client calls for Samba3, to be placed in rpc_client/. Instead of 
+calling out to the code in Samba3's rpc_parse/, this will call out to 
+Samba4's NDR code instead.
 
 =back
 
@@ -465,6 +471,7 @@ my($opt_samba3_parser);
 my($opt_samba3_server);
 my($opt_samba3_template);
 my($opt_samba3_client);
+my($opt_samba3_ndr_client);
 my($opt_template) = 0;
 my($opt_client);
 my($opt_server);
@@ -523,6 +530,8 @@ Samba 3 output:
  --samba3-template[=OUTF]create template implementation [srv_BASENAME_nt.c]
  --samba3-server[=OUTF]  create server side wrappers for Samba3 [srv_BASENAME.c]
  --samba3-client[=OUTF]  create client calls for Samba3 [cli_BASENAME.c]
+ --samba3-ndr-client[=OUTF] create client calls for Samba3 
+                            using Samba4's NDR code [cli_BASENAME.c]
 
 Ethereal parsers:
  --eth-parser[=OUTFILE]  create ethereal parser and header
@@ -544,6 +553,7 @@ my $result = GetOptions (
 		'samba3-server:s' => \$opt_samba3_server,
 		'samba3-template:s' => \$opt_samba3_template,
 		'samba3-client:s' => \$opt_samba3_client,
+		'samba3-ndr-client:s' => \$opt_samba3_ndr_client,
 		'header:s' => \$opt_header,
 	    'server:s' => \$opt_server,
 	    'tdr-parser:s' => \$opt_tdr_parser,
@@ -568,6 +578,11 @@ if (not $result) {
 if ($opt_help) {
     ShowHelp();
     exit(0);
+}
+
+if ($opt_samba3_client and $opt_samba3_ndr_client) {
+	print "--samba3-client and --samba3-ndr-client can not be used together\n";
+	exit(1);
 }
 
 sub process_file($)
@@ -645,7 +660,8 @@ sub process_file($)
 	    defined($opt_ndr_parser) or defined($opt_ejs) or 
 		defined($opt_dump_ndr_tree) or defined($opt_samba3_header) or 
 	    defined($opt_samba3_parser) or defined($opt_samba3_server) or 
-		defined($opt_samba3_template) or defined($opt_samba3_client)) {
+		defined($opt_samba3_template) or defined($opt_samba3_client) or
+		defined($opt_swig) or defined($opt_samba3_ndr_client)) {
 		require Parse::Pidl::NDR;
 		$ndr = Parse::Pidl::NDR::Parse($pidl);
 	}
@@ -673,6 +689,13 @@ sub process_file($)
 
 		FileSave($c_client, $srcd);
 		FileSave($c_header, $hdrd);
+	}
+
+	if (defined($opt_swig)) {
+		  require Parse::Pidl::Samba4::SWIG;
+		  my($filename) = ($opt_swig or "$outputdir/$basename.i");
+		  my $code = Parse::Pidl::Samba4::SWIG::Parse($ndr, $basename, "$outputdir/ndr_$basename\_c.h", $gen_header);
+		  FileSave($filename, $code);
 	}
 
 	if (defined($opt_ejs)) {
@@ -719,11 +742,6 @@ $dcom
 		FileSave($parser_fname, $parser);
 		FileSave($h_filename, $header);
 
-		if (defined($opt_swig)) {
-		  require Parse::Pidl::Samba4::SWIG;
-		  my($filename) = ($opt_swig or "$outputdir/$basename.i");
-		  Parse::Pidl::Samba4::SWIG::RewriteHeader($pidl, $h_filename, $filename);
-		}
 	}
 
 	if (defined($opt_eth_parser)) {
@@ -756,7 +774,7 @@ $dcom
 
 	if (defined($opt_samba3_header) or defined($opt_samba3_parser) or
 		defined($opt_samba3_server) or defined($opt_samba3_client) or
-		defined($opt_samba3_template)) {
+		defined($opt_samba3_ndr_client) or defined($opt_samba3_template)) {
 		require Parse::Pidl::Samba3::Types;
 		Parse::Pidl::Samba3::Types::LoadTypes($ndr);
 	}
@@ -790,6 +808,16 @@ $dcom
 		require Parse::Pidl::Samba3::Client;
 		FileSave($header, Parse::Pidl::Samba3::Client::Parse($ndr, $basename));
 	}
+
+	if (defined($opt_samba3_ndr_client)) {
+		my $client = ($opt_samba3_ndr_client or "$outputdir/cli_$basename.c");
+		my $header = $client; $header =~ s/\.c$/\.h/;
+		require Parse::Pidl::Samba3::ClientNDR;
+		my ($c_code,$h_code) = Parse::Pidl::Samba3::ClientNDR::Parse($ndr, $header, $h_filename);
+		FileSave($client, $c_code);
+		FileSave($header, $h_code);
+	}
+
 
 }
 

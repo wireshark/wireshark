@@ -540,6 +540,11 @@ sub ParseFunction($$$)
 		my $e = ParseElement($x);
 		push (@{$e->{DIRECTION}}, "in") if (has_property($x, "in"));
 		push (@{$e->{DIRECTION}}, "out") if (has_property($x, "out"));
+
+		nonfatal($x, "`$e->{NAME}' is [out] argument but not a pointer")
+			if ($e->{LEVELS}[0]->{TYPE} ne "POINTER") and 
+			    grep(/out/, @{$e->{DIRECTION}});
+
 		push (@elements, $e);
 	}
 
@@ -787,6 +792,7 @@ my %property_list = (
 	"public"		=> ["FUNCTION", "TYPEDEF"],
 	"nopush"		=> ["FUNCTION", "TYPEDEF"],
 	"nopull"		=> ["FUNCTION", "TYPEDEF"],
+	"nosize"		=> ["FUNCTION", "TYPEDEF"],
 	"noprint"		=> ["FUNCTION", "TYPEDEF"],
 	"noejs"			=> ["FUNCTION", "TYPEDEF"],
 

@@ -7,9 +7,10 @@ package Parse::Pidl::Samba4;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(is_intree choose_header);
+@EXPORT = qw(is_intree choose_header DeclLong);
 
-use Parse::Pidl::Util qw(has_property);
+use Parse::Pidl::Util qw(has_property is_constant);
+use Parse::Pidl::Typelist qw(mapType scalar_is_reference);
 use strict;
 
 use vars qw($VERSION);
@@ -27,6 +28,42 @@ sub choose_header($$)
 	my ($in,$out) = @_;
 	return "#include \"$in\"" if (is_intree());
 	return "#include <$out>";
+}
+
+sub DeclLong($)
+{
+	my($element) = shift;
+	my $ret = "";
+
+	if (has_property($element, "represent_as")) {
+		$ret.=mapType($element->{PROPERTIES}->{represent_as})." ";
+	} else {
+		if (has_property($element, "charset")) {
+			$ret.="const char";
+		} else {
+			$ret.=mapType($element->{TYPE});
+		}
+
+		$ret.=" ";
+		my $numstar = $element->{ORIGINAL}->{POINTERS};
+		if ($numstar >= 1) {
+			$numstar-- if scalar_is_reference($element->{TYPE});
+		}
+		foreach (@{$element->{ORIGINAL}->{ARRAY_LEN}})
+		{
+			next if is_constant($_) and 
+				not has_property($element, "charset");
+			$numstar++;
+		}
+		$ret.="*" foreach (1..$numstar);
+	}
+	$ret.=$element->{NAME};
+	foreach (@{$element->{ARRAY_LEN}}) {
+		next unless (is_constant($_) and not has_property($element, "charset"));
+		$ret.="[$_]";
+	}
+
+	return $ret;
 }
 
 1;

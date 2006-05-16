@@ -15,11 +15,10 @@ $VERSION = '0.01';
 # find an interface in an array of interfaces
 sub get_interface($$)
 {
-	my($if) = shift;
-	my($n) = shift;
+	my($if,$n) = @_;
 
-	foreach(@{$if}) {
-		if($_->{NAME} eq $n) { return $_; }
+	foreach(@$if) {
+		return $_ if($_->{NAME} eq $n);
 	}
 	
 	return 0;
@@ -33,13 +32,17 @@ sub FunctionAddObjArgs($)
 		'NAME' => 'ORPCthis',
 		'POINTERS' => 0,
 		'PROPERTIES' => { 'in' => '1' },
-		'TYPE' => 'ORPCTHIS'
+		'TYPE' => 'ORPCTHIS',
+		'FILE' => $e->{FILE},
+		'LINE' => $e->{LINE}
 	});
 	unshift(@{$e->{ELEMENTS}}, {
 		'NAME' => 'ORPCthat',
 		'POINTERS' => 0,
 		'PROPERTIES' => { 'out' => '1' },
-		'TYPE' => 'ORPCTHAT'
+		'TYPE' => 'ORPCTHAT',
+		'FILE' => $e->{FILE},
+		'LINE' => $e->{LINE}
 	});
 }
 

@@ -7,7 +7,7 @@ package Parse::Pidl::Typelist;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(hasType getType mapType);
+@EXPORT_OK = qw(hasType getType mapType scalar_is_reference);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
@@ -16,132 +16,61 @@ use strict;
 
 my %typedefs = ();
 
+my @reference_scalars = (
+	"string", "string_array", "nbt_string", 
+	"wrepl_nbt_name", "ipv4address"
+);
+
 # a list of known scalar types
-my $scalars = {
+my %scalars = (
 	# 0 byte types
-	"void"		=> {
-				C_TYPE		=> "void",
-				IS_REFERENCE	=> 0,
-			},
+	"void"		=> "void",
 
 	# 1 byte types
-	"char"		=> {
-				C_TYPE		=> "char",
-				IS_REFERENCE	=> 0,
-			},
-	"int8"		=> {
-				C_TYPE		=> "int8_t",
-				IS_REFERENCE	=> 0,
-			},
-	"uint8"		=> {
-				C_TYPE		=> "uint8_t",
-				IS_REFERENCE	=> 0,
-			},
+	"char"		=> "char",
+	"int8"		=> "int8_t",
+	"uint8"		=> "uint8_t",
 
 	# 2 byte types
-	"int16"		=> {
-				C_TYPE		=> "int16_t",
-				IS_REFERENCE	=> 0,
-			},
-	"uint16"	=> {	C_TYPE		=> "uint16_t",
-				IS_REFERENCE	=> 0,
-			},
+	"int16"		=> "int16_t",
+	"uint16"	=> "uint16_t",
 
 	# 4 byte types
-	"int32"		=> {
-				C_TYPE		=> "int32_t",
-				IS_REFERENCE	=> 0,
-			},
-	"uint32"	=> {	C_TYPE		=> "uint32_t",
-				IS_REFERENCE	=> 0,
-			},
+	"int32"		=> "int32_t",
+	"uint32"	=> "uint32_t",
 
 	# 8 byte types
-	"hyper"		=> {
-				C_TYPE		=> "uint64_t",
-				IS_REFERENCE	=> 0,
-			},
-	"dlong"		=> {
-				C_TYPE		=> "int64_t",
-				IS_REFERENCE	=> 0,
-			},
-	"udlong"	=> {
-				C_TYPE		=> "uint64_t",
-				IS_REFERENCE	=> 0,
-			},
-	"udlongr"	=> {
-				C_TYPE		=> "uint64_t",
-				IS_REFERENCE	=> 0,
-			},
+	"hyper"		=> "uint64_t",
+	"dlong"		=> "int64_t",
+	"udlong"	=> "uint64_t",
+	"udlongr"	=> "uint64_t",
+
 	# assume its a 8 byte type, but cope with either
-	"pointer"	=> {
-				C_TYPE		=> "void*",
-				IS_REFERENCE	=> 0,
-			},
+	"pointer"	=> "void*",
 
 	# DATA_BLOB types
-	"DATA_BLOB"	=> {
-				C_TYPE		=> "DATA_BLOB",
-				IS_REFERENCE	=> 0,
-			},
+	"DATA_BLOB"	=> "DATA_BLOB",
 
 	# string types
-	"string"	=> {
-				C_TYPE		=> "const char *",
-				IS_REFERENCE	=> 1,
-			},
-	"string_array"	=> {
-				C_TYPE		=> "const char **",
-				IS_REFERENCE	=> 1,
-			},
+	"string"	=> "const char *",
+	"string_array"	=> "const char **",
 
 	# time types
-	"time_t"	=> {
-				C_TYPE		=> "time_t",
-				IS_REFERENCE	=> 0,
-			},
-	"NTTIME"	=> {
-				C_TYPE		=> "NTTIME",
-				IS_REFERENCE	=> 0,
-			},
-	"NTTIME_1sec"	=> {
-				C_TYPE		=> "NTTIME",
-				IS_REFERENCE	=> 0,
-			},
-	"NTTIME_hyper"	=> {
-				C_TYPE		=> "NTTIME",
-				IS_REFERENCE	=> 0,
-			},
-
+	"time_t"	=> "time_t",
+	"NTTIME"	=> "NTTIME",
+	"NTTIME_1sec"	=> "NTTIME",
+	"NTTIME_hyper"	=> "NTTIME",
 
 	# error code types
-	"WERROR"	=> {
-				C_TYPE		=> "WERROR",
-				IS_REFERENCE	=> 0,
-			},
-	"NTSTATUS"	=> {
-				C_TYPE		=> "NTSTATUS",
-				IS_REFERENCE	=> 0,
-			},
-	"COMRESULT" => { 
-				C_TYPE		=> "COMRESULT",
-				IS_REFERENCE	=> 0,
-			},
+	"WERROR"	=> "WERROR",
+	"NTSTATUS"	=> "NTSTATUS",
+	"COMRESULT" => "COMRESULT",
 
 	# special types
-	"nbt_string"	=> {
-				C_TYPE		=> "const char *",
-				IS_REFERENCE	=> 1,
-			},
-	"wrepl_nbt_name"=> {
-				C_TYPE		=> "struct nbt_name *",
-				IS_REFERENCE	=> 1,
-			},
-	"ipv4address"	=> {
-				C_TYPE		=> "const char *",
-				IS_REFERENCE	=> 1,
-			}
-};
+	"nbt_string"	=> "const char *",
+	"wrepl_nbt_name"=> "struct nbt_name *",
+	"ipv4address"	=> "const char *",
+);
 
 # map from a IDL type to a C header type
 sub mapScalarType($)
@@ -150,7 +79,7 @@ sub mapScalarType($)
 
 	# it's a bug when a type is not in the list
 	# of known scalars or has no mapping
-	return $typedefs{$name}->{DATA}->{C_TYPE} if defined($typedefs{$name}) and defined($typedefs{$name}->{DATA}->{C_TYPE});
+	return $scalars{$name} if defined($scalars{$name});
 
 	die("Unknown scalar type $name");
 }
@@ -170,8 +99,7 @@ sub getType($)
 
 sub typeIs($$)
 {
-	my $t = shift;
-	my $tt = shift;
+	my ($t,$tt) = @_;
 
 	return 1 if (hasType($t) and getType($t)->{DATA}->{TYPE} eq $tt);
 	return 0;
@@ -200,25 +128,27 @@ sub is_scalar($)
 sub scalar_is_reference($)
 {
 	my $name = shift;
-
-	return $scalars->{$name}{IS_REFERENCE} if defined($scalars->{$name}) and defined($scalars->{$name}{IS_REFERENCE});
+	
+	return 1 if (grep(/^$name$/, @reference_scalars));
 	return 0;
 }
 
 sub RegisterScalars()
 {
-	foreach my $k (keys %{$scalars}) {
-		$typedefs{$k} = {
-			NAME => $k,
+	foreach (keys %scalars) {
+		addType({
+			NAME => $_,
 			TYPE => "TYPEDEF",
-			DATA => $scalars->{$k}
-		};
-		$typedefs{$k}->{DATA}->{TYPE} = "SCALAR";
-		$typedefs{$k}->{DATA}->{NAME} = $k;
+			DATA => {
+				TYPE => "SCALAR",
+				NAME => $_
+			}
+		}
+		);
 	}
 }
 
-my $aliases = {
+my %aliases = (
 	"DWORD" => "uint32",
 	"int" => "int32",
 	"WORD" => "uint16",
@@ -227,12 +157,12 @@ my $aliases = {
 	"short" => "int16",
 	"HYPER_T" => "hyper",
 	"HRESULT" => "COMRESULT",
-};
+);
 
 sub RegisterAliases()
 {
-	foreach my $k (keys %{$aliases}) {
-		$typedefs{$k} = $typedefs{$aliases->{$k}};
+	foreach (keys %aliases) {
+		$typedefs{$_} = $typedefs{$aliases{$_}};
 	}
 }
 
@@ -264,7 +194,7 @@ sub bitmap_type_fn($)
 sub mapType($)
 {
 	my $t = shift;
-	die("Undef passed to mapType") unless defined($t);
+	return "void" unless defined($t);
 	my $dt;
 
 	unless ($dt or ($dt = getType($t))) {

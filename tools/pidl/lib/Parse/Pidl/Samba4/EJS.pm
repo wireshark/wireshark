@@ -117,6 +117,18 @@ sub get_value_of($)
 }
 
 #####################################################################
+# check that a variable we get from ParseExpr isn't a null pointer
+sub check_null_pointer($)
+{
+	my $size = shift;
+	if ($size =~ /^\*/) {
+		my $size2 = substr($size, 1);
+		pidl "if ($size2 == NULL) return NT_STATUS_INVALID_PARAMETER_MIX;";
+	}
+}
+
+
+#####################################################################
 # work out is a parse function should be declared static or not
 sub fn_declare($$)
 {
@@ -194,8 +206,10 @@ sub EjsPullArray($$$$$)
 	# uint8 arrays are treated as data blobs
 	if ($nl->{TYPE} eq 'DATA' && $e->{TYPE} eq 'uint8') {
 		if (!$l->{IS_FIXED}) {
+			check_null_pointer($size);
 			pidl "EJS_ALLOC_N(ejs, $var, $size);";
 		}
+		check_null_pointer($length);
 		pidl "ejs_pull_array_uint8(ejs, v, $name, $var, $length);";
 		return;
 	}
@@ -408,15 +422,13 @@ sub EjsPullFunction($)
 	# on the non-array elements
 	foreach my $e (@{$d->{ELEMENTS}}) {
 		next unless (grep(/in/, @{$e->{DIRECTION}}));
-		next if (has_property($e, "length_is") || 
-			 has_property($e, "size_is"));
+		next if (has_property($e, "length_is") || has_property($e, "size_is"));
 		EjsPullElementTop($e, $env);
 	}
 
 	foreach my $e (@{$d->{ELEMENTS}}) {
 		next unless (grep(/in/, @{$e->{DIRECTION}}));
-		next unless (has_property($e, "length_is") || 
-			     has_property($e, "size_is"));
+		next unless (has_property($e, "length_is") || has_property($e, "size_is"));
 		EjsPullElementTop($e, $env);
 	}
 
@@ -492,6 +504,7 @@ sub EjsPushArray($$$$$)
 	}
 	# uint8 arrays are treated as data blobs
 	if ($nl->{TYPE} eq 'DATA' && $e->{TYPE} eq 'uint8') {
+		check_null_pointer($length);
 		pidl "ejs_push_array_uint8(ejs, v, $name, $var, $length);";
 		return;
 	}
@@ -745,7 +758,7 @@ sub EjsInterface($$)
 
 	foreach my $d (@{$interface->{FUNCTIONS}}) {
 		next if not defined($d->{OPNUM});
-		next if Parse::Pidl::Util::has_property($d, "noejs");
+		next if has_property($d, "noejs");
 
 		EjsPullFunction($d);
 		EjsPushFunction($d);
@@ -831,14 +844,17 @@ sub Parse($$)
 sub NeededFunction($$)
 {
 	my ($fn,$needed) = @_;
+
 	$needed->{"pull_$fn->{NAME}"} = 1;
 	$needed->{"push_$fn->{NAME}"} = 1;
-	foreach my $e (@{$fn->{ELEMENTS}}) {
-		if (grep (/in/, @{$e->{DIRECTION}})) {
-			$needed->{"pull_$e->{TYPE}"} = 1;
+	 
+	foreach (@{$fn->{ELEMENTS}}) {
+		next if (has_property($_, "subcontext")); #FIXME: Support subcontexts
+		if (grep(/in/, @{$_->{DIRECTION}})) {
+			$needed->{"pull_$_->{TYPE}"} = 1;
 		}
-		if (grep (/out/, @{$e->{DIRECTION}})) {
-			$needed->{"push_$e->{TYPE}"} = 1;
+		if (grep(/out/, @{$_->{DIRECTION}})) {
+			$needed->{"push_$_->{TYPE}"} = 1;
 		}
 	}
 }
@@ -846,20 +862,22 @@ sub NeededFunction($$)
 sub NeededTypedef($$)
 {
 	my ($t,$needed) = @_;
-	if (Parse::Pidl::Util::has_property($t, "public")) {
-		$needed->{"pull_$t->{NAME}"} = not Parse::Pidl::Util::has_property($t, "noejs");
-		$needed->{"push_$t->{NAME}"} = not Parse::Pidl::Util::has_property($t, "noejs");
+
+	if (has_property($t, "public")) {
+		$needed->{"pull_$t->{NAME}"} = not has_property($t, "noejs");
+		$needed->{"push_$t->{NAME}"} = not has_property($t, "noejs");
 	}
-	if ($t->{DATA}->{TYPE} ne "STRUCT" && 
-	    $t->{DATA}->{TYPE} ne "UNION") {
-		return;
-	}
-	for my $e (@{$t->{DATA}->{ELEMENTS}}) {
-		if ($needed->{"pull_$t->{NAME}"}) {
-			$needed->{"pull_$e->{TYPE}"} = 1;
+
+	return if (($t->{DATA}->{TYPE} ne "STRUCT") and 
+			   ($t->{DATA}->{TYPE} ne "UNION"));
+
+	foreach (@{$t->{DATA}->{ELEMENTS}}) {
+		next if (has_property($_, "subcontext")); #FIXME: Support subcontexts
+		unless (defined($needed->{"pull_$_->{TYPE}"})) {
+			$needed->{"pull_$_->{TYPE}"} = $needed->{"pull_$t->{NAME}"};
 		}
-		if ($needed->{"push_$t->{NAME}"}) {
-			$needed->{"push_$e->{TYPE}"} = 1;
+		unless (defined($needed->{"push_$_->{TYPE}"})) {
+			$needed->{"push_$_->{TYPE}"} = $needed->{"push_$t->{NAME}"};
 		}
 	}
 }
@@ -869,12 +887,9 @@ sub NeededTypedef($$)
 sub NeededInterface($$)
 {
 	my ($interface,$needed) = @_;
-	foreach my $d (@{$interface->{FUNCTIONS}}) {
-	    NeededFunction($d, $needed);
-	}
-	foreach my $d (reverse @{$interface->{TYPES}}) {
-	    NeededTypedef($d, $needed);
-	}
+
+	NeededFunction($_, $needed) foreach (@{$interface->{FUNCTIONS}});
+	NeededTypedef($_, $needed) foreach (reverse @{$interface->{TYPES}});
 }
 
 1;
